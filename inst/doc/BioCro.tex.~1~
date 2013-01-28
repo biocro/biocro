@@ -1,0 +1,47 @@
+\documentclass[12pt]{article}
+\usepackage{Sweave}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage[authoryear,round]{natbib}
+\bibliographystyle{plainnat}
+ \DefineVerbatimEnvironment{Sinput}{Verbatim}
+ {formatcom={\vspace{-2.5ex}},fontshape=sl,
+   fontfamily=courier,fontseries=b, fontsize=\scriptsize}
+ \DefineVerbatimEnvironment{Soutput}{Verbatim}
+ {formatcom={\vspace{-2.5ex}},fontfamily=courier,fontseries=b,%
+   fontsize=\scriptsize}
+ 
+%\VignetteIndexEntry{Introduction to BioCro}
+%\VignettePackage{BioCro}
+  
+\title{Simulation and Parameter Estimation for Biomass Crops}
+\author{Fernando E. Miguez\\Energy Biosciences Institute\\
+  University of Illinois}
+\begin{document}
+
+
+\setkeys{Gin}{width=\textwidth}
+\newcommand{\code}[1]{\texttt{\small{#1}}}
+\newcommand{\package}[1]{\textsf{\small{#1}}}
+\maketitle
+\begin{abstract}
+Simulation and parameter estimation of photosynthesis and crop growth.
+\end{abstract}
+
+
+\section{Introduction}
+
+This was started with the idea of being able to estimate parameters of
+models used to simulate different aspect of the growth of a generic
+crop. The model itself is largely based on WIMOVAC although it has
+been completely re-written. Thus, this package does not only simulate
+growth of crops but is also provides optimization routines for
+parameter estimation. In addition, it uses the \package{lattice} for
+building custom graphics.
+
+A simple example follows
+
+\begin{Schunk}
+\begin{Sinput}
+> data(weather05)
+> res <- BioGro(weather05)

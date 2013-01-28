@@ -1,0 +1,29 @@
+
+Using Data from Liu's paper to simulate  seasonal changes in Leaf Nitrogen Concentration.
+
+Correct maintenance respiration to be evaluated based on whole plant biomass using sugarcane specific relationship [use information from Liu's paper].
+
+Implement multiple year simulation [ more than one year]
+
+
+Implement continuous function for drybiomass partitioning from Cuadra's paper.
+
+Deal with negative partitioning coefficients and change the name of Rhizome to seed-cane
+
+Implement newton-raphson method to couple leaf temperature and carbon assimilation.
+
+Check with Fernando/Dissertation for the evaluation of layerHeight[sp6++]=CumLAI/heightf in line 54 of sunML.c. Heightfactor is one parameter in function EvatoTrans [argument 7]. It is used in calculation of Zeta, Zetam, and d [line 55 ofEvapoTrans.c], which are used in calculation of ga1,ga2, and ga at line 109,110,111 of EvapoTrans.c
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+

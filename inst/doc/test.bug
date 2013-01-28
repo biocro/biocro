@@ -1,0 +1,2 @@
+model{Y ~ dnorm(10, 0.25)
+ a <- x}
