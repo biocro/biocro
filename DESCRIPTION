@@ -3,9 +3,49 @@ Version: 0.018
 Title: Simulation of Energycane and Sugarcane
 Author: Deepak Jaiswal <djaiswal@uiuc.edu>
 Maintainer: Deepak Jaiswal <djaiswal@uiuc.edu>
-Depends: R(>= 2.5.0), lattice
-Suggests: coda
-Imports: stats
-Description:SugarPhenoParms function (BioCro.R) is implemented to read input
+Depends:
+    R(>= 2.5.0),
+    lattice
+Suggests:
+    coda
+Imports:
+    stats
+Description: SugarPhenoParms function (BioCro.R) is implemented to read input
 License: GPL (version 2 or later)
 Packaged: 2012-02-02 20:06:10 UTC; djaiswal
+Collate:
+    'BioCro.R'
+    'CanA.R'
+    'Century.R'
+    'CheckLeapYear.R'
+    'MCMCBioGro.R'
+    'OpBioGro.R'
+    'OpEC4photo.R'
+    'Opc3photo.R'
+    'Opc4photo.R'
+    'RUEmod.R'
+    'RUEmodMY.R'
+    'Rmiscanmod.R'
+    'RssBioGro.R'
+    'SatWatVap.R'
+    'SoilEvapo.R'
+    'biocro-package.R'
+    'c3CanA.R'
+    'c3photo.R'
+    'c4photo.R'
+    'constrOpBioGro.R'
+    'eC4photo.R'
+    'idbp.R'
+    'lightME.R'
+    'plotAC.R'
+    'plotAQ.R'
+    'showSoilType.R'
+    'soilML.R'
+    'sunML.R'
+    'tdebug.R'
+    'valid_dbp.R'
+    'waterStress.R'
+    'weach.R'
+    'weach365.R'
+    'weach366.R'
+    'weachNEW.R'

@@ -19,6 +19,102 @@
 
 ## Simulated annealing and McMC  function
 
+
+
+##' Simulated Annealing and Markov chain Monte Carlo for estimating parameters
+##' for Biomass Growth
+##' 
+##' This function atempts to implement the simulated annealing method for
+##' estimating parameters of a generic C4 crop growth.
+##' 
+
+##' 
+##' This function implements a hybrid algorithm where the first portion is
+##' simulated annealing and the second portion is a Markov chain Monte Carlo.
+##' The user controls the number of iterations in each portion of the chain
+##' with niter and niter2.
+##' 
+##' @aliases MCMCBioGro print.MCMCBioGro
+##' @param niter number of iterations for the simulated annealing portion of
+##' the optimization.
+##' @param niter2 number of iterations for the Markov chain Monte Carlo portion
+##' of the optimization.
+##' @param phen Phenological stage being optimized.
+##' @param iCoef initial coefficients for dry biomass partitioning.
+##' @param saTemp simulated annealing temperature.
+##' @param coolSamp number of cooling samples.
+##' @param scale scale parameter to control the standard deviations.
+##' @param WetDat weather data.
+##' @param data observed data.
+##' @param day1 first day of the growing season.
+##' @param dayn last day of the growing season.
+##' @param timestep Timestep see \code{\link{BioGro}}.
+##' @param lat latitude.
+##' @param iRhizome initial rhizome biomass.
+##' @param irtl See \code{\link{BioGro}}.
+##' @param canopyControl See \code{\link{canopyParms}}.
+##' @param seneControl See \code{\link{seneParms}}.
+##' @param photoControl See \code{\link{photoParms}}.
+##' @param phenoControl See \code{\link{phenoParms}}.
+##' @param soilControl See \code{\link{soilParms}}.
+##' @param nitroControl See \code{\link{nitroParms}}.
+##' @param centuryControl See \code{\link{centuryParms}}.
+##' @param sd standard deviations for the parameters to be optimized. The first
+##' (0.02) is for the positive dry biomass partitioning coefficients. The
+##' second (1e-6) is for the negative dry biomass partitioning coefficients.
+##' @return
+##' 
+##' An object of class MCMCBioGro consisting of a list with 23 components.  The
+##' easiest way of accessing the information is with the print and plot
+##' methods.
+##' @note The automatic method for guessing the last day of the growing season
+##' differs slightly from that in \code{BioGro}. To prevent error due to a
+##' shorter simulated growing season than the observed one the method in
+##' \code{MCMCBioGro} adds one day to the last day of the growing season.
+##' Although the upper limit is fixed at 330.
+##' @author Fernando E. Miguez
+##' @seealso See Also as \code{\link{BioGro}}, \code{\link{OpBioGro}} and
+##' \code{\link{constrOpBioGro}}.
+##' @keywords optimize
+##' @examples
+##' 
+##' \dontrun{
+##' 
+##' data(weather05)
+##' 
+##' ## Some coefficients
+##' pheno.ll <- phenoParms(kLeaf1=0.48,kStem1=0.47,kRoot1=0.05,kRhizome1=-1e-4,
+##'                        kLeaf2=0.14,kStem2=0.65,kRoot2=0.21, kRhizome2=-1e-4,
+##'                        kLeaf3=0.01, kStem3=0.56, kRoot3=0.13, kRhizome3=0.3, 
+##'                        kLeaf4=0.01, kStem4=0.56, kRoot4=0.13, kRhizome4=0.3,
+##'                        kLeaf5=0.01, kStem5=0.56, kRoot5=0.13, kRhizome5=0.3,
+##'                        kLeaf6=0.01, kStem6=0.56, kRoot6=0.13, kRhizome6=0.3)
+##'                                  
+##' system.time(ans <- BioGro(weather05, phenoControl = pheno.ll))
+##' 
+##' ans.dat <- as.data.frame(unclass(ans)[1:11])
+##' sel.rows <- seq(1,nrow(ans.dat),400)
+##' simDat <- ans.dat[sel.rows,c("ThermalT","Stem","Leaf","Root","Rhizome","Grain","LAI")]
+##' plot(ans,simDat)
+##' 
+##' ## Residual sum of squares before the optimization
+##' 
+##' ans0 <- BioGro(weather05)
+##' RssBioGro(simDat,ans0)
+##' 
+##' 
+##' op1.mc <- MCMCBioGro(phen=1, niter=200,niter2=200,
+##'                      WetDat=weather05,
+##'                      data=simDat)
+##' 
+##' 
+##' plot(op1.mc)
+##' 
+##' plot(op1.mc, plot.kind="trace", subset = nams %in%
+##' 				c("kLeaf_1","kStem_1","kRoot_1"))
+##' 
+##' }
+##' 
 MCMCBioGro <- function(niter = 10, niter2=10, phen=6, iCoef=NULL,
                        saTemp=5,coolSamp=20,scale=0.5,
                        WetDat, data, day1=NULL, dayn=NULL,
@@ -245,6 +341,50 @@ print.MCMCBioGro <- function(x,...){
   cat("RSS:",x$rss,"\n")
 }
 
+
+
+##' Plotting function fo the MCMCBioGro class
+##' 
+##' Powerful plotting function to make a variety of plots regarding the
+##' \code{MCMCBioGro} class (output). It plots the residual sum of square
+##' progression, observed vs. fitted, residuals vs. fitted, trace of the
+##' coefficients and density.
+##' 
+##' Kind of plots that can be produced
+##' 
+##' rss: Residual Sum of Squares progression.  OF: Observed vs. Fitted RF:
+##' Residual vs. Fitted OFT: Observed and Fitted with thermal time as the
+##' x-axis.  trace: trace for the parameters density: density for the
+##' parameters
+##' 
+##' % Important: if coef=2 is used (default) then the dry biomass %
+##' partitioning coefficients parameters will be used. If coef=1 then Vmax %
+##' and alpha will be plotted instead. At this point it is highly % recommended
+##' that Vmax and alpha are not optimized at this stage so % they shouldn't be
+##' plotted either (it will be a straight line if not % optimized).
+##' 
+##' To choosing a subset of the 24 dry biomass partitioning coefficients use
+##' the subset option as you would in the xyplot using nams as the name. For
+##' example, \code{plot(x,plot.kind="trace",subset=nams=="kLeaf_1")} will
+##' select it for the leaf at the first phenological stage.
+##' 
+##' @param x Object of class \code{MCMCBioGro}
+##' @param x2 Optional object of class \code{MCMCBioGro}
+##' @param x3 Optional object of class \code{MCMCBioGro}
+##' @param plot.kind Kind of plot. See details.
+##' @param type Point of line as in \code{xyplot}
+##' @param coef Whether to plot dry biomass partitioning coeficients (2) or
+##' Vmax and alpha (1).
+##' @param cols Colors. Modify if they don't suit you.
+##' @param \dots Additional arguments passed to the underlying \code{xyplot}
+##' function. Some can be really useful. See details.
+##' @return A \code{lattice} plot.
+##' @seealso \code{\link{MCMCBioGro}}
+##' @keywords hplot
+##' @examples
+##' 
+##' ## See the MCMCBioGro function
+##' 
 plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT","trace","density"),
                             type=c("l","p"),coef=1,cols=c("blue","green","red","magenta","black","purple"),...){
 

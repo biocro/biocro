@@ -16,6 +16,32 @@
 ##
 ##
 
+
+
+##' Initial Dry Biomass Partitioning Coefficients
+##' 
+##' Atempts to guess good initial vales for dry biomass coefficients that can
+##' be passed to \code{BioGro}, \code{OpBioGro}, \code{constrOpBioGro}, or
+##' \code{MCMCBioGro}.  It is very fragile.
+##' 
+##' This function will not accept missing values. It can be quite fragile and
+##' it is rather inflexible in what it expects in terms of data.
+##' 
+##' @param data Should have at least five columns with: ThermalT, Stem, Leaf,
+##' Root, Rhizome and Grain.
+##' @param phenoControl list that supplies mainly in this case the thrmal time
+##' periods that delimit the phenological stages,
+##' @return It returns a vector of length 25 suitable for \code{BioGro},
+##' \code{OpBioGro}, \code{constrOpBioGro}, or \code{MCMCBioGro}.
+##' @note It is highly recommended that the results of this function are tested
+##' with \code{\link{valid_dbp}}.
+##' @author Fernando E. Miguez
+##' @seealso \code{\link{valid_dbp}}
+##' @keywords utilities
+##' @examples
+##' 
+##' ## See ?OpBioGro
+##' 
 idbp <- function(data, phenoControl=list()){
 
   ## should have t

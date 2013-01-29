@@ -1,52 +1,48 @@
 \name{c3photo}
 \alias{c3photo}
-%- Also NEED an '\alias' for EACH other topic documented here.
-\title{ Simulates C3 photosynthesis }
-\description{
-  Simulates coupled assimilation and stomatal conductance based on
-  Farquhar and Ball-Berry.
-}
+\title{Simulates C3 photosynthesis}
 \usage{
-c3photo(Qp, Tl, RH, vcmax = 100, jmax = 180, Rd = 1.1, Catm = 380, 
-    O2 = 210, b0 = 0.08, b1 = 5, theta = 0.7) 
+  c3photo(Qp, Tl, RH, vcmax = 100, jmax = 180, Rd = 1.1,
+    Catm = 380, O2 = 210, b0 = 0.08, b1 = 5, theta = 0.7)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{Qp}{ Quantum flux  }
-  \item{Tl}{ Leaf temperature }
-  \item{RH}{ Relative humidity (fraction -- 0-1)}
-  \item{vcmax}{ Maximum rate of carboxylation }
-  \item{jmax}{ Maximum rate of electron transport }
-  \item{Rd}{ Leaf dark respiration }
-  \item{Catm}{ Atmospheric carbon dioxide. }
-  \item{O2}{ Atmospheric Oxygen concentration (mmol/mol) }	
-  \item{b0}{ Intercept for the Ball-Berry model }
-  \item{b1}{ Slope for the Ball-Berry model }
-  \item{theta}{ Curvature parameter }
-}
-\details{
-  ~~ If necessary, more details than the description above ~~
+  \item{Qp}{Quantum flux}
+
+  \item{Tl}{Leaf temperature}
+
+  \item{RH}{Relative humidity (fraction -- 0-1)}
+
+  \item{vcmax}{Maximum rate of carboxylation}
+
+  \item{jmax}{Maximum rate of electron transport}
+
+  \item{Rd}{Leaf dark respiration}
+
+  \item{Catm}{Atmospheric carbon dioxide.}
+
+  \item{O2}{Atmospheric Oxygen concentration (mmol/mol)}
+
+  \item{b0}{Intercept for the Ball-Berry model}
+
+  \item{b1}{Slope for the Ball-Berry model}
+
+  \item{theta}{Curvature parameter}
 }
 \value{
   A list
-  \item{Gs}{Stomatal Conductance}
-  \item{Assim}{CO2 Assimilation}
-  \item{Ci}{Intercellular CO2}	
 }
-\references{
-
-  Farquhar (1980)
-  Ball-Berry (1987)
-
+\description{
+  Simulates coupled assimilation and stomatal conductance
+  based on Farquhar and Ball-Berry.
 }
-\author{ Fernando E. Miguez }
-\note{ ~~further notes~~ 
-## Additional notes about assumptions
-
+\details{
+  ~~ If necessary, more details than the description above
+  ~~
 }
-\seealso{ See Also \code{\link{Opc3photo}}}
+\note{
+  ~~further notes~~ ## Additional notes about assumptions
+}
 \examples{
-
 ## Testing the c3photo function
 ## First example: looking at the effect of changing Vcmax
 Qps <- seq(0,2000,10)
@@ -98,8 +94,15 @@ xyplot(res1$Assim ~ res1$Ci,
            },
             ylab=expression(paste("Assimilation (",
                  mu,mol," ",m^-2," ",s^-1,")")))
-
-
 }
-\keyword{ models }
+\author{
+  Fernando E. Miguez
+}
+\references{
+  Farquhar (1980) Ball-Berry (1987)
+}
+\seealso{
+  See Also \code{\link{Opc3photo}}
+}
+\keyword{models}
 

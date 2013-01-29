@@ -1,5 +1,33 @@
 ## Function to calculate evaporation directly from the soil
 
+
+
+##' Soil Evaporation
+##' 
+##' Calculates soil evaporation
+##' 
+##' The style of the code is \code{C} like because this is a prototype for the
+##' underlying \code{C} (like so many other functions in this package). I leave
+##' it here for future development.
+##' 
+##' @param LAI Leaf Area Index.
+##' @param k ~~Describe \code{k} here~~
+##' @param AirTemp Air temperature.
+##' @param IRad Incident radiation.
+##' @param awc Available water content.
+##' @param FieldC Field capacity.
+##' @param WiltP Wilting point.
+##' @param winds Wind speed.
+##' @param RelH Relative humidty.
+##' @return Returns a single value of soil Evaporation in Mg H20 per hectare.
+##' @author Fernando Miguez
+##' @seealso Source code :)
+##' @keywords models
+##' @examples
+##' 
+##' 
+##' SoilEvapo(LAI=3,k=0.68,AirTemp=20,IRad=1000,awc=0.3,FieldC=0.4,WiltP=0.2,winds=3,RelH=0.8)
+##' 
 SoilEvapo <- function(LAI, k, AirTemp, IRad,
 		  awc,  FieldC,  WiltP,  winds,  RelH ){
 

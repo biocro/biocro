@@ -2,6 +2,51 @@
 ## This should probably take into account the distribution of
 ## root biomass in the profile
 
+
+
+##' soil multi-layered
+##' 
+##' Simulates soil water content for a layered soil.
+##' 
+##' 
+##' @aliases soilML rootDist
+##' @param precipt Precipitation (mm).
+##' @param CanopyT Canopy transpiration.
+##' @param cws Current water status. Vector of length equal to soilLayers.
+##' @param soilDepth Rooting depth.
+##' @param FieldC Field capacity.
+##' @param WiltP Wilting point.
+##' @param phi1 See \code{\link{wtrstr}}.
+##' @param phi2 See \code{\link{wtrstr}}.
+##' @param wsFun See \code{\link{wtrstr}}.
+##' @param rootDB Root biomass (Mg/ha).
+##' @param soilLayers Integer used to specify the number of soil layers.
+##' @param LAI Leaf area index.
+##' @param k Light extinction coefficient.
+##' @param AirTemp Air temperature (Celsius).
+##' @param IRad Direct irradiance (\eqn{\mu} \eqn{m^-2} \eqn{s^-1}).
+##' @param winds Wind speed (m/s).
+##' @param RelH Relative humidity (0-1).
+##' @param soilType See \code{\link{showSoilType}}.
+##' @param hydrDist Zero or otherwise positive integer. Zero does not calculate
+##' hydraulic distribution, otherwise does.
+##' @param rfl Root factor lambda. A Poisson distribution is used to simulate
+##' the distribution of roots in the soil profile and this parameter can be
+##' used to change the lambda parameter of the Poisson.
+##' @return matrix with 8 (if hydrDist=0) or 12 (if hydrDist > 0).
+##' @author Fernando E. Miguez
+##' @seealso See Also \code{\link{wtrstr}}.
+##' @keywords models
+##' @examples
+##' 
+##' layers <- 5
+##' ans <- soilML(precipt=2, CanopyT=2, cws = rep(0.3,layers),
+##' soilDepth=1.5, FieldC=0.33, WiltP=0.13, rootDB=2, soilLayers=layers,
+##' LAI=3, k=0.68, AirTemp=25,IRad=500, winds=2, RelH=0.8, soilType=6,
+##' hydrDist=1)
+##' ans
+##' 
+##' 
 soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10, wsFun = c("linear","logistic","exp","none"),rootDB,soilLayers=3,
                    LAI,k,AirTemp,IRad,winds,RelH,soilType=10,hydrDist=0,rfl=0.3){
 

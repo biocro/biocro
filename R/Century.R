@@ -12,6 +12,45 @@
 #
 ##########################################################################################
 
+
+
+##' This function implements the Century model from Parton.
+##' 
+##' Calculates flows of soil organic carbon and nitrogen based on the Century
+##' model. There are two versions one written in R (Century) and one in C
+##' (CenturyC) they should give the same result. The C version only runs at
+##' weekly timesteps.
+##' 
+##' Most of the details can be found in the papers by Parton et al. (1987,
+##' 1988, 1993)
+##' 
+##' @aliases Century CenturyC
+##' @param LeafL Leaf litter.
+##' @param StemL Stem litter.
+##' @param RootL Root litter.
+##' @param RhizL Rhizome litter.
+##' @param smoist Soil moisture.
+##' @param stemp Soil temperature.
+##' @param precip Precipitation.
+##' @param leachWater Leached water.
+##' @param centuryControl See \code{\link{centuryParms}}.
+##' @param verbose Only used in the R version for debugging.
+##' @param soilType See \code{\link{showSoilType}}.
+##' @return A list with,
+##' @returnItem SCs Soil carbon pools 1-9.
+##' @returnItem SNs Soil nitrogen pools 1-9.
+##' @returnItem MinN Mineralized nitrogen.
+##' @returnItem Resp Soil respiration.
+##' @author Fernando E. Miguez
+##' @references ~put references to the literature/web site here ~
+##' @keywords models
+##' @examples
+##' 
+##' % Add one or more standard keywords, see file 'KEYWORDS' in the
+##' Century(0,0,0,0,0.3,5,2,2)$Resp
+##' Century(0,0,0,0,0.3,5,2,2)$MinN
+##' 
+##' 
 Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWater, centuryControl = list(),verbose=FALSE){
 
   ## I need the separate fractions of Leaf Litter and Stem Litter

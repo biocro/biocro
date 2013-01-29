@@ -1,70 +1,61 @@
 \name{c4photo}
 \alias{c4photo}
 \title{Coupled photosynthesis-stomatal conductance simulation}
-
-\description{
-The mathematical model is based on Collatz et al (1992) (see
-References). Stomatal conductance is based on code provided by Joe Berry.
-}
 \usage{
-c4photo(Qp, Tl, RH, vmax = 39, alpha = 0.04, kparm = 0.7,
-        theta = 0.83, beta = 0.93, Rd = 0.8, 
-        Catm = 380, b0 = 0.08, b1 = 3, StomWS = 1, ws = c("gs", "vmax")) 
+  c4photo(Qp, Tl, RH, vmax = 39, alpha = 0.04, kparm = 0.7,
+    theta = 0.83, beta = 0.93, Rd = 0.8, Catm = 380,
+    b0 = 0.08, b1 = 3, StomWS = 1, ws = c("gs", "vmax"))
 }
-
 \arguments{
-  \item{Qp}{quantum flux (direct light), (\eqn{\mu}{micro} mol \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).}
-  \item{Tl}{temperature of the leaf (Celsius).}
-  \item{RH}{relative humidity (as a fraction, i.e. 0-1).}
-  \item{vmax}{maximum carboxylation of Rubisco according to the Collatz model.}
-  \item{alpha}{alpha parameter according to the Collatz model. Initial slope of the response to Irradiance.}
-  \item{kparm}{k parameter according to the Collatz model. Initial slope of the
-    response to CO2.}
-  \item{theta}{theta parameter according to the Collatz model. Curvature
-  for light response.}
-  \item{beta}{beta parameter according to the Collatz model. Curvature
-  for response to CO2.}
-\item{Rd}{Rd parameter according to the Collatz model. Dark respiration.}
-\item{Catm}{Atmospheric CO2 in ppm (or \eqn{\mu}{micro}mol/mol).}
-\item{b0}{intercept for the Ball-Berry stomatal conductance model.}
-\item{b1}{slope for the Ball-Berry stomatal conductance model.}
-\item{StomWS}{coefficient which controls the effect of water stress on
-  stomatal conductance and assimilation.}
-\item{ws}{ option to control whether the water stress factor is applied
-  to stomatal conductance ("gs") or to Vmax ("vmax").}
-}
+  \item{Qp}{quantum flux (direct light), (\eqn{\mu}{micro}
+  mol \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).}
 
+  \item{Tl}{temperature of the leaf (Celsius).}
+
+  \item{RH}{relative humidity (as a fraction, i.e. 0-1).}
+
+  \item{vmax}{maximum carboxylation of Rubisco according to
+  the Collatz model.}
+
+  \item{alpha}{alpha parameter according to the Collatz
+  model. Initial slope of the response to Irradiance.}
+
+  \item{kparm}{k parameter according to the Collatz model.
+  Initial slope of the response to CO2.}
+
+  \item{theta}{theta parameter according to the Collatz
+  model. Curvature for light response.}
+
+  \item{beta}{beta parameter according to the Collatz
+  model. Curvature for response to CO2.}
+
+  \item{Rd}{Rd parameter according to the Collatz model.
+  Dark respiration.}
+
+  \item{Catm}{Atmospheric CO2 in ppm (or
+  \eqn{\mu}{micro}mol/mol).}
+
+  \item{b0}{intercept for the Ball-Berry stomatal
+  conductance model.}
+
+  \item{b1}{slope for the Ball-Berry stomatal conductance
+  model.}
+
+  \item{StomWS}{coefficient which controls the effect of
+  water stress on stomatal conductance and assimilation.}
+
+  \item{ws}{option to control whether the water stress
+  factor is applied to stomatal conductance ("gs") or to
+  Vmax ("vmax").}
+}
 \value{
   a \code{\link{list}} structure with components
-  
-    \item{Gs}{stomatal conductance (mmol \eqn{m^-2}{m-2} \eqn{s^-
-	1}{s-1}).}
-    
-    \item{Assim}{Net Assimilation (\eqn{\mu}{micro}mol \eqn{m^-2}{m-2}
-      \eqn{s^-1}{s-1}).}
-
-        \item{Ci}{Intercellular CO2 (\eqn{\mu}{micro}mol
-	  \eqn{mol^-1}{mol-1}).}
-
-      }
-
-%\note{
-%  It is not advisable to simulate A/Ca (or A/Ci) curves with this model, as it
-%  becomes unreliable at low CO2 concentrations. The
-%  \code{\link{eC4photo}} function is preferred. Also, relative humidity
-%  is supposed to have a small effect on assimilation and below 20\% the
-%  model does not behave well. The major effect of water stress on
-%  assimilation is through the stomatal water stress coefficient.
-%}
-
-\references{
-  G. Collatz, M. Ribas-Carbo, J. Berry. (1992).
-  Coupled photosynthesis-stomatal conductance
-  model for leaves of C4 plants.
-\emph{Australian Journal of Plant Physiology}
-  519--538.
 }
-\seealso{\code{\link{eC4photo}}}
+\description{
+  The mathematical model is based on Collatz et al (1992)
+  (see References). Stomatal conductance is based on code
+  provided by Joe Berry.
+}
 \examples{
 \dontrun{
      ## First example: looking at the effect of changing alpha
@@ -157,7 +148,7 @@ xyplot(res1 + res2 ~ Ca ,type="l",lwd=2,
                         lines=TRUE,col=c("blue","green"),
                         lwd=2))
 
-## Effect of Reduction in Assimilation due to 
+## Effect of Reduction in Assimilation due to
 ## water stress
 
 Qps <- seq(0,2000,10)
@@ -190,5 +181,14 @@ xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
            lines=TRUE,col=c("blue","green"),lwd=2))
 }
 }
-
+\references{
+  G. Collatz, M. Ribas-Carbo, J. Berry. (1992).  Coupled
+  photosynthesis-stomatal conductance model for leaves of
+  C4 plants. \emph{Australian Journal of Plant Physiology}
+  519--538.
+}
+\seealso{
+  \code{\link{eC4photo}}
+}
 \keyword{models}
+

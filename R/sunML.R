@@ -16,6 +16,52 @@
 ##
 ##
 
+
+
+##' Sunlit shaded multi-layer model
+##' 
+##' Simulates the light microenvironment in the canopy based on the
+##' sunlit-shade model and the multiple layers.
+##' 
+##' 
+##' @param I.dir direct light (quantum flux), (\eqn{\mu mol \; m^{-2} \;
+##' s^{-1}}{micro mol /m2/s}).
+##' @param I.diff indirect light (diffuse), (\eqn{\mu mol \; m^{-2} \;
+##' s^{-1}}{micro mol /m2/s}).
+##' @param LAI leaf area index, default 8.
+##' @param nlayers number of layers in which the canopy is partitioned, default
+##' 8.
+##' @param kd extinction coefficient for diffuse light.
+##' @param chi.l The ratio of horizontal:vertical projected area of leaves in
+##' the canopy segment.
+##' @param cos.theta cosine of \eqn{\theta}{theta}, solar zenith angle.
+##' @return a \code{\link{list}} structure with components
+##' 
+##' Vectors size equal to the number of layers.
+##' @returnItem I.solar direct solar radiation.
+##' @returnItem I.diffuse difusse solar radiation.
+##' @returnItem I.total total solar radiation.
+##' @returnItem LAI.sun proportion of the leaf area in each layer which is in
+##' direct light.
+##' @returnItem LAI.shade proportion of the leaf area in each layer which is in
+##' indirect light.
+##' @returnItem Fsun total leaf area in each layer which is in direct light.
+##' @returnItem Fshade total leaf area in each layer which is in indirect
+##' light.
+##' @keywords models
+##' @examples
+##' 
+##' res2 <- sunML(1500,200,3,10)
+##' 
+##' xyplot(Fsun + Fshade ~ c(1:10), data=res2,
+##'        ylab="LAI",
+##'        xlab="layer",
+##'        type="l",lwd=2,col=c("blue","green"),
+##'        lty=c(1,2),
+##'        key=list(text=list(c("Direct","Diffuse")),lty=c(1,2),
+##'                 cex=1.2,lwd=2,lines=TRUE,x=0.7,y=0.5,
+##'                 col=c("blue","green")))
+##' 
 sunML <- function(I.dir,I.diff,LAI=8,nlayers=8,kd=0.1,chi.l=1,cos.theta=0.5){
 
 k0 = cos.theta * sqrt(chi.l^2 + tan(acos(cos.theta))^2);

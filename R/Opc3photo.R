@@ -18,6 +18,88 @@
 
 ## This is the Opc4photo and all of its realted functions
 
+
+
+##' Optimize parameters of the C3 photosynthesis model.
+##' 
+##' Applies the \code{optim} function to C3 photosynthesis.
+##' 
+##' 
+##' @aliases Opc3photo plot.Opc3photo print.Opc3photo predict.Opc3photo
+##' @param data should be a \code{data.frame} or \code{matrix} with x columns
+##' 
+##' col 1: measured assimilation (CO2 uptake) col 2: Incomming PAR
+##' (photosynthetic active radiation) col 3: Leaf temperature col 4: Relative
+##' humidity col 5: Intercellular CO2 (for A/Ci curves) col 6: Reference CO2
+##' level
+##' @param ivcmax Initial value for \code{vcmax}.
+##' @param ijmax Initial value for \code{jmax}.
+##' @param iRd Initial value for \code{Rd}.
+##' @param Catm Reference CO2.
+##' @param O2 Reference level of O2.
+##' @param ib0 Initial value for the intercept to the Ball-Berry model.
+##' @param ib1 Initial value for the slope to the Ball-Berry model.
+##' @param itheta Initial value for \code{theta}.
+##' @param op.level Level 1 will optimize \code{Vcmax} and \code{Jmax} and
+##' level 2 will optimize \code{Vcmax}, \code{Jmax} and \code{Rd}.
+##' @param op.method optimization method. At the moment only optim is
+##' implemented.
+##' @param response \code{"Assim"} for assimilation and \code{"StomCond"} for
+##' stomatal conductance.
+##' @param level Confidence interval level.
+##' @param hessian Whether the hessian should be computed
+##' @param curve.kind Whether an A/Ci curve is being optimized or an A/Q curve.
+##' @param op.ci whether to optimize intercellular CO2.
+##' @param \dots Additioanl arguments to be passed to \code{\link{optim}}.
+##' @return
+##' 
+##' An object of class \code{Opc3photo}.
+##' 
+##' The following components can be extracted:
+##' @returnItem bestVmax optimized \code{vmax}.
+##' @returnItem bestJmax optimized \code{jmax}.
+##' @returnItem ReSumS Residual Sum of Squares.
+##' @returnItem Convergence Convergence status.
+##' @returnItem VarCov Variance-covariance matrix.
+##' @returnItem df degress of freedom.
+##' @returnItem ciVmax Confidence interval for \code{vmax}.
+##' @returnItem ciJmax Confidence interval for \code{jmax}.
+##' @returnItem corVJ correlation between \code{vmax} and \code{jmax}.
+##' @returnItem level Confidence interval level.
+##' @returnItem data Original data.
+##' @returnItem xparms Additional parameters.
+##' @returnItem curve.kind A/Ci or A/Q curve.
+##' @returnItem op.level Level 1 means \code{vcmax} and \code{jmax} were
+##' optimized and level 2 \code{vcmax}, \code{jmax} and \code{Rd}.
+##' @returnItem response \code{"Assim"} or \code{"StomCond"}.
+##' @note ~~further notes~~ Additional notes about the assumptions.
+##' 
+
+##' @author Fernando E. Miguez
+##' @seealso See Also \code{\link{mOpc3photo}}
+##' @keywords optimize
+##' @examples
+##' 
+##' ## Load fabricated data
+##' data(simA100)
+##' ## Look at it
+##' head(simA100)
+##' 
+##' op <- Opc3photo(simA100[,1:5],Catm=simA100[,9], op.level = 2)
+##' 
+##' ## If faced with a difficult problem
+##' ## This can give starting values
+##' op100 <- Opc3photo(simA100[,1:5],Catm=simA100[,9],
+##'                    op.level = 2, method="SANN",
+##'                    hessian=FALSE)
+##' 
+##' op100 <- Opc3photo(simA100[,1:5],Catm = simA100[,9],
+##'                    op.level = 2, 
+##'                    ivcmax = op100$bestVmax,
+##'                    ijmax = op100$bestJmax,
+##'                    iRd = op100$bestRd)
+##' op100
+##' 
 Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
                       Catm=380,O2=210, ib0=0.08,ib1=9.58,
                       itheta=0.7,
@@ -485,6 +567,62 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 
 ## Wrapper function for multiple A/Ci sets
 
+
+
+##' Multiple optimization of assimilation (or stomatal conductance) curves.
+##' 
+##' It is a wrapper for Opc3photo which allows for optimization of multiple
+##' runs of curves (A/Q or A/Ci).
+##' 
+##' Include more details about the data.
+##' 
+##' @param data should be a \code{data.frame} or \code{matrix} with x columns
+##' 
+##' col 1: should be an ID for the different runs col 2: measured assimilation
+##' (CO2 uptake) col 3: Incomming PAR (photosynthetic active radiation) col 4:
+##' Leaf temperature col 5: Relative humidity col 6: Intercellular CO2 (for
+##' A/Ci curves) col 7: Reference CO2 level
+##' @param ID optional argument to include ids. should be of length equal to
+##' the number of runs.
+##' @param iVcmax Single value or vector of length equal to number of runs to
+##' supply starting values for the optimization of \code{vcmax}.
+##' @param iJmax Single value or vector of length equal to number of runs to
+##' supply starting values for the optimization of \code{jmax}.
+##' @param iRd Single value or vector of length equal to number of runs to
+##' supply starting values for the optimization of \code{Rd}.
+##' @param op.level Level 1 will optimize \code{Vcmax} and \code{Jmax} and
+##' level 2 will optimize \code{Vcmax}, \code{Jmax} and \code{Rd}.
+##' @param curve.kind Whether an A/Ci curve is being optimized or an A/Q curve.
+##' @param verbose Whether to print information about progress.
+##' @param \dots Additional arguments to be passed to \code{\link{Opc3photo}}
+##' @return an object of class 'mOpc3photo'
+##' 
+##' if op.level equals 1 best Vcmax, Jmax and convergence
+##' 
+##' if op.level equals 2 best Vcmax, Jmax, Rd and convergence %% ~Describe the
+##' value returned %% If it is a LIST, use %% \item{comp1 }{Description of
+##' 'comp1'} %% \item{comp2 }{Description of 'comp2'} %% ...
+##' @author Fernando E. Miguez
+##' @seealso See also \code{\link{Opc3photo}} %% ~~objects to See Also as
+##' \code{\link{help}}, ~~~
+##' @keywords optimize
+##' @examples
+##' 
+##' data(simAssim)
+##' simAssim <- cbind(simAssim[,1:6],Catm=simAssim[,10])
+##' simAssim <- simAssim[simAssim[,1] < 11,]
+##' 
+##' plotAC(simAssim, trt.col=1)
+##' 
+##' op.all <- mOpc3photo(simAssim, op.level=1,
+##'                       verbose=TRUE)
+##' 
+##' plot(op.all)
+##' plot(op.all, parm="jmax")
+##' 
+##' 
+##' 
+##' 
 mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
                        op.level=1, curve.kind=c("Ci","Q"),verbose=FALSE,...){
 

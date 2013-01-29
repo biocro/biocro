@@ -30,6 +30,37 @@
 ## col 6: Intercellular CO2
 ## col 7: Reference CO2
 
+
+
+##' Plotting function for A/Ci curves
+##' 
+##' A small helper function that can be used to easily plot multiple A/Ci
+##' curves
+##' 
+##' 
+##' @param data Input data in the format needed for the
+##' \code{\link{mOpc4photo}}.
+##' @param fittd Optional fitted values.
+##' @param id.col Specify which column has the ids. Default is col 1.
+##' @param trt.col Specify which column has the treatments. Default is col 2.
+##' If no treatment is specified then use 1.
+##' @param ylab Label for the y-axis.
+##' @param xlab Label for the x-axis.
+##' @param by Whether to plot by id or by treatment.
+##' @param type this argument is passed to the \code{\link{xyplot}}. It changes
+##' the plotting symbols behavior.
+##' @return NULL %% ~Describe the value returned %% If it is a LIST, use %%
+##' \item{comp1 }{Description of 'comp1'} %% \item{comp2 }{Description of
+##' 'comp2'} %% ...
+##' @author Fernando E. Miguez
+##' @seealso See Also \code{\link{xyplot}}.
+##' @keywords hplot
+##' @examples
+##' 
+##' data(aci)
+##' plotAC(aci, trt.col=1)
+##' 
+##' 
 plotAC <- function(data,fittd,
                    id.col=1,
                    trt.col=2,

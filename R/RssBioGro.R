@@ -3,6 +3,27 @@
 ## Need to add an argument such as pc.sigmas "plant component sigmas"
 ## If variability of the plant component is known
 
+
+
+##' Residual sum of squares for BioGro.
+##' 
+##' Computes residual sum of squares for the \code{\link{BioGro}} function.
+##' 
+##' 
+##' @param obs Observed data.
+##' @param sim Simulated data.
+##' @return Atomic vector with the residual sum of squares.
+##' @author Fernando E. Miguez
+##' @seealso See Also \code{\link{BioGro}}.
+##' @keywords models
+##' @examples
+##' 
+##' ## A simple example
+##' data(annualDB)
+##' data(EngWea94i)
+##' res <- BioGro(EngWea94i)
+##' RssBioGro(annualDB,res)
+##' 
 RssBioGro <- function(obs,sim){
 
     simDat <- data.frame(TT = sim$ThermalT, Stem = sim$Stem, Leaf = sim$Leaf,
