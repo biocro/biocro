@@ -8,15 +8,15 @@
 fnpsvp <- function(Tkelvin) {
     # water boiling point = 373.16 oK
     
-    u = Tkelvin/373.16
-    v = 373.16/Tkelvin
+    u <- Tkelvin/373.16
+    v <- 373.16/Tkelvin
     
     tmp <- -7.90298 * (v - 1) + 5.02808 * log10(v)
     -1.3816e-07 * (10^(11.344 * (1 - u)) - 1)
     +0.0081328 * (10^(-3.49149 * (v - 1)) - 1)
     +log10(1013.246)
     
-    esat = 100 * 10^tmp
+    esat <- 100 * 10^tmp
     esat
 }
 

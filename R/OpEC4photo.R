@@ -35,7 +35,8 @@
 ##' data(obsBea)
 ##' resB <- OpEC4photo(obsBea)
 ##'
-OpEC4photo <- function(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJmax = 400, co2 = 380, o2 = 210, level = 0.95) {
+OpEC4photo <- function(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJmax = 400, 
+    co2 = 380, o2 = 210, level = 0.95) {
     if (iVpr != 80) 
         warning("\n iVpr is not optimized at the moment\n")
     
@@ -44,7 +45,8 @@ OpEC4photo <- function(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJmax = 400
     obsvec <- as.vector(obsDat[, 1])
     SST <- t(obsvec) %*% (obsvec)
     RSS <- function(coefs) {
-        vec1 <- eC4photo(obsDat[, 2], obsDat[, 3], obsDat[, 4], co2, o2, coefs[1], coefs[2], iVpr, coefs[3])$Assim
+        vec1 <- eC4photo(obsDat[, 2], obsDat[, 3], obsDat[, 4], co2, o2, coefs[1], 
+            coefs[2], iVpr, coefs[3])$Assim
         rss <- t(obsvec - vec1) %*% (obsvec - vec1)
         rss
     }
@@ -72,9 +74,10 @@ OpEC4photo <- function(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJmax = 400
     
     
     
-    structure(list(bestVcmax = bestParms[1], bestVpmax = bestParms[2], bestJmax = bestParms[3], ReSumS = as.numeric(ReSumS), 
-        Convergence = conv, VarCov = varcov, df = def, ciVcmax = c(lcVcmax, ucVcmax), ciVpmax = c(lcVpmax, ucVpmax), 
-        ciJmax = c(lcJmax, ucJmax), level = level, data = obsDat), class = "OpEC4photo")
+    structure(list(bestVcmax = bestParms[1], bestVpmax = bestParms[2], bestJmax = bestParms[3], 
+        ReSumS = as.numeric(ReSumS), Convergence = conv, VarCov = varcov, df = def, 
+        ciVcmax = c(lcVcmax, ucVcmax), ciVpmax = c(lcVpmax, ucVpmax), ciJmax = c(lcJmax, 
+            ucJmax), level = level, data = obsDat), class = "OpEC4photo")
 }
 ##' R-squared for C4 photosynthesis simulation (von Caemmerer model)
 ##'
@@ -124,19 +127,21 @@ OpEC4photo <- function(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJmax = 400
 ##' obsD <- obsBea
 ##' resB <- RsqEC4photo(obsD)
 ##'
-RsqEC4photo <- function(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJmax = 400, co2 = 380, o2 = 210, type = c("Assim", 
-    "StomCond")) {
+RsqEC4photo <- function(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJmax = 400, 
+    co2 = 380, o2 = 210, type = c("Assim", "StomCond")) {
     coef <- c(iVcmax, iVpmax, iVpr, iJmax)
     type <- match.arg(type)
     if (type == "Assim") {
         if (max(obsDat[, 1]) < 1) 
             warning("Units of Assim might be wrong:\nshould be micro mol m-2 s-1\n")
-        vec1 <- eC4photo(obsDat[, 2], obsDat[, 3], obsDat[, 4], co2, o2, coef[1], coef[2], coef[3], coef[4])$Assim
+        vec1 <- eC4photo(obsDat[, 2], obsDat[, 3], obsDat[, 4], co2, o2, coef[1], 
+            coef[2], coef[3], coef[4])$Assim
     }
     if (type == "StomCond") {
         if (max(obsDat[, 1]) < 1) 
             warning("Units of StomCond might be wrong:\nshould be mmol m-2 s-1\n")
-        vec1 <- eC4photo(obsDat[, 2], obsDat[, 3], obsDat[, 4], co2, o2, coef[1], coef[2], coef[3], coef[4])$Assim
+        vec1 <- eC4photo(obsDat[, 2], obsDat[, 3], obsDat[, 4], co2, o2, coef[1], 
+            coef[2], coef[3], coef[4])$Assim
     }
     obsvec <- as.matrix(obsDat[, 1])
     SST <- t(obsvec) %*% (obsvec)
@@ -184,7 +189,8 @@ summary.OpEC4photo <- function(object, ...) {
     obsvec <- as.vector(dat[, 1])
     
     
-    fittd <- eC4photo(dat[, 2], dat[, 3], dat[, 4], ca = 380, oa = 210, object$bestVcmax, object$bestVpmax, 80, object$bestJmax)
+    fittd <- eC4photo(dat[, 2], dat[, 3], dat[, 4], ca = 380, oa = 210, object$bestVcmax, 
+        object$bestVpmax, 80, object$bestJmax)
     rsd <- obsvec - fittd$Assim
     rss <- object$ReSumS
     ## Some measures of agreement Index of agreement
@@ -207,7 +213,8 @@ summary.OpEC4photo <- function(object, ...) {
     outli <- which(abs(stdresid) > 2)
     
     
-    structure(list(fitted = fittd$Assim, resid = rsd, stdresid = stdresid, IA = IA, Rsq1 = Rsq1, Rsq2 = Rsq2, meanBias = meanBias, 
-        AIC = AIC, BIC = BIC, outli = outli, sigma = sigma), class = "summary.OpEC4photo")
+    structure(list(fitted = fittd$Assim, resid = rsd, stdresid = stdresid, IA = IA, 
+        Rsq1 = Rsq1, Rsq2 = Rsq2, meanBias = meanBias, AIC = AIC, BIC = BIC, outli = outli, 
+        sigma = sigma), class = "summary.OpEC4photo")
 }
 ## Need to add a plotting method 

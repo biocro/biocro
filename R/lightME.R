@@ -58,7 +58,8 @@ lightME <- function(lat = 40, DOY = 190, t.d = 12, t.sn = 12, atm.P = 1e+05, alp
     Solar_Constant <- 2650
     I.dir <- Solar_Constant * (alpha^((PP.o)/CosZenithAngle)) * CosZenithAngle
     I.diff <- 0.5 * Solar_Constant * (1 - alpha^((PP.o)/CosZenithAngle)) * CosZenithAngle
-    propIdir = I.dir/(I.dir + I.diff)
-    propIdiff = I.diff/(I.dir + I.diff)
-    list(I.dir = I.dir, I.diff = I.diff, cos.th = CosZenithAngle, propIdir = propIdir, propIdiff = propIdiff)
+    propIdir <- I.dir/(I.dir + I.diff)
+    propIdiff <- I.diff/(I.dir + I.diff)
+    list(I.dir = I.dir, I.diff = I.diff, cos.th = CosZenithAngle, propIdir = propIdir, 
+        propIdiff = propIdiff)
 } 

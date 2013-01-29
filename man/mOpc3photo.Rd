@@ -72,7 +72,7 @@ op.all <- mOpc3photo(simAssim, op.level=1,
                       verbose=TRUE)
 
 plot(op.all)
-plot(op.all, parm="jmax")
+plot(op.all, parm='jmax')
 }
 \author{
   Fernando E. Miguez

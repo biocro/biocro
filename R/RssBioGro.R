@@ -1,5 +1,6 @@
-## Very simple function to compare the distance between simulated and observed data for the BioGro function Need
-## to add an argument such as pc.sigmas 'plant component sigmas' If variability of the plant component is known
+## Very simple function to compare the distance between simulated and observed
+## data for the BioGro function Need to add an argument such as pc.sigmas
+## 'plant component sigmas' If variability of the plant component is known
 ##' Residual sum of squares for BioGro.
 ##'
 ##' Computes residual sum of squares for the \code{\link{BioGro}} function.
@@ -21,8 +22,8 @@
 ##' RssBioGro(annualDB,res)
 ##'
 RssBioGro <- function(obs, sim) {
-    simDat <- data.frame(TT = sim$ThermalT, Stem = sim$Stem, Leaf = sim$Leaf, Root = sim$Root, Rhiz = sim$Rhizome, 
-        Grain = sim$Grain, LAI = sim$LAI)
+    simDat <- data.frame(TT = sim$ThermalT, Stem = sim$Stem, Leaf = sim$Leaf, Root = sim$Root, 
+        Rhiz = sim$Rhizome, Grain = sim$Grain, LAI = sim$LAI)
     indx <- BioCro:::indfun(obs[, 1], simDat[, 1])
     simDat2 <- simDat[indx, ]
     obs2 <- obs[1:length(indx), ]

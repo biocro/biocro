@@ -1,18 +1,22 @@
 ## BioCro/R/OpBioGro.R by Fernando Ezequiel Miguez Copyright (C) 2007-2008
 ## 
-## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General
-## Public License as published by the Free Software Foundation; either version 2 or 3 of the License (at your
-## option).
+## This program is free software; you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by the Free
+## Software Foundation; either version 2 or 3 of the License (at your option).
 ## 
-## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
-## implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-## for more details.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+## more details.
 ## 
-## A copy of the GNU General Public License is available at http://www.r-project.org/Licenses/
+## A copy of the GNU General Public License is available at
+## http://www.r-project.org/Licenses/
 ## 
-## This will be hopefully a more clever way of approaching the Optimization of Biomass Growth The design idea is
-## to optimize one phenological stage at a time It will be mostly written in R as I don't see big problems and
-## most of the simulation time goes in running the BioGro function which is almost completely written in C
+## This will be hopefully a more clever way of approaching the Optimization of
+## Biomass Growth The design idea is to optimize one phenological stage at a
+## time It will be mostly written in R as I don't see big problems and most of
+## the simulation time goes in running the BioGro function which is almost
+## completely written in C
 ##' Optimization of dry biomass partitioning coefficients.
 ##'
 ##' Optimizes dry biomass partitioning coefficients using constrained
@@ -102,11 +106,12 @@
 ##' }
 ##'
 ##'
-OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRhizome = 7, 
-    irtl = 1e-04, canopyControl = list(), seneControl = list(), photoControl = list(), phenoControl = list(), soilControl = list(), 
-    nitroControl = list(), centuryControl = list(), op.method = c("optim", "nlminb"), verbose = FALSE, ...) {
-    ## This seems like repeated code from BioGro but it is needed in order to automatically pick the right elements
-    ## from the data
+OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = NULL, 
+    timestep = 1, lat = 40, iRhizome = 7, irtl = 1e-04, canopyControl = list(), seneControl = list(), 
+    photoControl = list(), phenoControl = list(), soilControl = list(), nitroControl = list(), 
+    centuryControl = list(), op.method = c("optim", "nlminb"), verbose = FALSE, ...) {
+    ## This seems like repeated code from BioGro but it is needed in order to
+    ## automatically pick the right elements from the data
     op.method <- match.arg(op.method)
     
     
@@ -183,15 +188,17 @@ OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = N
         dayn0 <- indDoy[indDoy[, 2] <= ThermalP[1], , drop = FALSE]
         dayn0 <- as.vector(dayn0[NROW(dayn0), 1]) + 1
         if (op.method == "optim") {
-            opar <- optim(iCoef[c(1, 2, 4)], BioCro:::objFun, phenStage = 1, iCoefs = iCoef, ThermalP = ThermalP, 
-                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
-                data = data, verbose = verbose, ...)
+            opar <- optim(iCoef[c(1, 2, 4)], BioCro:::objFun, phenStage = 1, iCoefs = iCoef, 
+                ThermalP = ThermalP, WetDat = WetDat, day1 = day1, dayn = dayn0, 
+                lat = lat, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
+                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, 
+                soilP = soilP, nitroP = nitroP, data = data, verbose = verbose, ...)
         } else {
-            opar <- nlminb(iCoef[c(1, 2, 4)], BioCro:::objFun, phenStage = 1, iCoefs = iCoef, ThermalP = ThermalP, 
-                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
-                data = data, verbose = verbose, ...)
+            opar <- nlminb(iCoef[c(1, 2, 4)], BioCro:::objFun, phenStage = 1, iCoefs = iCoef, 
+                ThermalP = ThermalP, WetDat = WetDat, day1 = day1, dayn = dayn0, 
+                lat = lat, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
+                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, 
+                soilP = soilP, nitroP = nitroP, data = data, verbose = verbose, ...)
             opar$value <- opar$objective
         }
         iCoef[1:3] <- BioCro:::ialr(opar$par[1:2])
@@ -209,15 +216,17 @@ OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = N
         dayn0 <- indDoy[indDoy[, 2] <= ThermalP[2], ]
         dayn0 <- as.vector(dayn0[NROW(dayn0), 1]) + 1
         if (op.method == "optim") {
-            opar <- optim(iCoef[c(5, 6, 8)], BioCro:::objFun, phenStage = 2, iCoefs = iCoef, ThermalP = ThermalP, 
-                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
-                data = data, verbose = verbose, ...)
+            opar <- optim(iCoef[c(5, 6, 8)], BioCro:::objFun, phenStage = 2, iCoefs = iCoef, 
+                ThermalP = ThermalP, WetDat = WetDat, day1 = day1, dayn = dayn0, 
+                lat = lat, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
+                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, 
+                soilP = soilP, nitroP = nitroP, data = data, verbose = verbose, ...)
         } else {
-            opar <- nlminb(iCoef[c(5, 6, 8)], BioCro:::objFun, phenStage = 2, iCoefs = iCoef, ThermalP = ThermalP, 
-                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
-                data = data, verbose = verbose, ...)
+            opar <- nlminb(iCoef[c(5, 6, 8)], BioCro:::objFun, phenStage = 2, iCoefs = iCoef, 
+                ThermalP = ThermalP, WetDat = WetDat, day1 = day1, dayn = dayn0, 
+                lat = lat, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
+                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, 
+                soilP = soilP, nitroP = nitroP, data = data, verbose = verbose, ...)
             opar$value <- opar$objective
         }
         
@@ -239,14 +248,16 @@ OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = N
         dayn0 <- indDoy[indDoy[, 2] <= ThermalP[3], ]
         dayn0 <- as.vector(dayn0[NROW(dayn0), 1]) + 1
         if (op.method == "optim") {
-            opar <- optim(iCoef[9:11], BioCro:::objFun, phenStage = 3, iCoefs = iCoef, WetDat = WetDat, day1 = day1, 
-                dayn = dayn0, lat = lat, ThermalP = ThermalP, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+            opar <- optim(iCoef[9:11], BioCro:::objFun, phenStage = 3, iCoefs = iCoef, 
+                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, ThermalP = ThermalP, 
+                irtl = irtl, iRhizome = iRhizome, timestep = timestep, canopyP = canopyP, 
+                seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
                 data = data, verbose = verbose, ...)
         } else {
-            opar <- nlminb(iCoef[9:11], BioCro:::objFun, phenStage = 3, iCoefs = iCoef, WetDat = WetDat, day1 = day1, 
-                dayn = dayn0, lat = lat, ThermalP = ThermalP, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+            opar <- nlminb(iCoef[9:11], BioCro:::objFun, phenStage = 3, iCoefs = iCoef, 
+                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, ThermalP = ThermalP, 
+                irtl = irtl, iRhizome = iRhizome, timestep = timestep, canopyP = canopyP, 
+                seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
                 data = data, verbose = verbose, ...)
             opar$value <- opar$objective
         }
@@ -266,14 +277,16 @@ OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = N
         dayn0 <- indDoy[indDoy[, 2] <= ThermalP[4], ]
         dayn0 <- dayn0[NROW(dayn0), 1] + 1
         if (op.method == "optim") {
-            opar <- optim(iCoef[13:15], BioCro:::objFun, phenStage = 4, iCoefs = iCoef, WetDat = WetDat, day1 = day1, 
-                dayn = dayn0, lat = lat, ThermalP = ThermalP, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+            opar <- optim(iCoef[13:15], BioCro:::objFun, phenStage = 4, iCoefs = iCoef, 
+                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, ThermalP = ThermalP, 
+                irtl = irtl, iRhizome = iRhizome, timestep = timestep, canopyP = canopyP, 
+                seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
                 data = data, verbose = verbose, ...)
         } else {
-            opar <- nlminb(iCoef[13:15], BioCro:::objFun, phenStage = 4, iCoefs = iCoef, WetDat = WetDat, day1 = day1, 
-                dayn = dayn0, lat = lat, ThermalP = ThermalP, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+            opar <- nlminb(iCoef[13:15], BioCro:::objFun, phenStage = 4, iCoefs = iCoef, 
+                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, ThermalP = ThermalP, 
+                irtl = irtl, iRhizome = iRhizome, timestep = timestep, canopyP = canopyP, 
+                seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
                 data = data, verbose = verbose, ...)
             opar$value <- opar$objective
         }
@@ -293,14 +306,16 @@ OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = N
         dayn0 <- indDoy[indDoy[, 2] <= ThermalP[5], ]
         dayn0 <- as.vector(dayn0[NROW(dayn0), 1]) + 1
         if (op.method == "optim") {
-            opar <- optim(iCoef[17:19], BioCro:::objFun, phenStage = 5, iCoefs = iCoef, WetDat = WetDat, day1 = day1, 
-                dayn = dayn0, lat = lat, ThermalP = ThermalP, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+            opar <- optim(iCoef[17:19], BioCro:::objFun, phenStage = 5, iCoefs = iCoef, 
+                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, ThermalP = ThermalP, 
+                irtl = irtl, iRhizome = iRhizome, timestep = timestep, canopyP = canopyP, 
+                seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
                 data = data, verbose = verbose, ...)
         } else {
-            opar <- nlminb(iCoef[17:19], BioCro:::objFun, phenStage = 5, iCoefs = iCoef, WetDat = WetDat, day1 = day1, 
-                dayn = dayn0, lat = lat, ThermalP = ThermalP, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+            opar <- nlminb(iCoef[17:19], BioCro:::objFun, phenStage = 5, iCoefs = iCoef, 
+                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, ThermalP = ThermalP, 
+                irtl = irtl, iRhizome = iRhizome, timestep = timestep, canopyP = canopyP, 
+                seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
                 data = data, verbose = verbose, ...)
             opar$value <- opar$objective
         }
@@ -322,14 +337,16 @@ OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = N
         dayn0 <- indDoy[indDoy[, 2] <= ThermalP[6], ]
         dayn0 <- as.vector(dayn0[NROW(dayn0), 1]) + 1
         if (op.method == "optim") {
-            opar <- optim(iCoef[21:24], BioCro:::objFun, phenStage = 6, iCoefs = iCoef, WetDat = WetDat, day1 = day1, 
-                dayn = dayn0, lat = lat, ThermalP = ThermalP, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+            opar <- optim(iCoef[21:24], BioCro:::objFun, phenStage = 6, iCoefs = iCoef, 
+                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, ThermalP = ThermalP, 
+                irtl = irtl, iRhizome = iRhizome, timestep = timestep, canopyP = canopyP, 
+                seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
                 data = data, verbose = verbose, ...)
         } else {
-            opar <- nlminb(iCoef[21:24], BioCro:::objFun, phenStage = 6, iCoefs = iCoef, WetDat = WetDat, day1 = day1, 
-                dayn = dayn0, lat = lat, ThermalP = ThermalP, irtl = irtl, iRhizome = iRhizome, timestep = timestep, 
-                canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+            opar <- nlminb(iCoef[21:24], BioCro:::objFun, phenStage = 6, iCoefs = iCoef, 
+                WetDat = WetDat, day1 = day1, dayn = dayn0, lat = lat, ThermalP = ThermalP, 
+                irtl = irtl, iRhizome = iRhizome, timestep = timestep, canopyP = canopyP, 
+                seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
                 data = data, verbose = verbose, ...)
             opar$value <- opar$objective
         }
@@ -347,13 +364,16 @@ OpBioGro <- function(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = N
     }
     
     
-    list1 <- list(ThermalP = ThermalP, WetDat = WetDat, lat = lat, day1 = day1, timestep = timestep, dayn = dayn, 
-        iRhizome = iRhizome, irtl = irtl, indTmp = indTmp, canopyP = canopyP, seneP = seneP, photoP = photoP, phenoP = phenoP, 
-        soilP = soilP, nitroP = nitroP, centuryP = centuryP)
-    structure(list(coefs = iCoef, data = data, opar = opar, phen = phen, list1 = list1), class = "OpBioGro")
+    list1 <- list(ThermalP = ThermalP, WetDat = WetDat, lat = lat, day1 = day1, timestep = timestep, 
+        dayn = dayn, iRhizome = iRhizome, irtl = irtl, indTmp = indTmp, canopyP = canopyP, 
+        seneP = seneP, photoP = photoP, phenoP = phenoP, soilP = soilP, nitroP = nitroP, 
+        centuryP = centuryP)
+    structure(list(coefs = iCoef, data = data, opar = opar, phen = phen, list1 = list1), 
+        class = "OpBioGro")
 }
-objFun <- function(coefficients, phenStage, iCoefs, ThermalP, data, WetDat, day1, dayn, timestep, lat, iRhizome, irtl, 
-    canopyP, seneP, photoP, phenoP, soilP, nitroP, verbose, ...) {
+objFun <- function(coefficients, phenStage, iCoefs, ThermalP, data, WetDat, day1, 
+    dayn, timestep, lat, iRhizome, irtl, canopyP, seneP, photoP, phenoP, soilP, nitroP, 
+    verbose, ...) {
     Coefs <- numeric(24)
     if (phenStage == 1) {
         Coefs[1:3] <- BioCro:::ialr(coefficients[1:2])
@@ -400,8 +420,9 @@ objFun <- function(coefficients, phenStage, iCoefs, ThermalP, data, WetDat, day1
         nrdat <- nrow(dat)
     }
     phenoP[7:31] <- Coefs
-    res <- BioGro(WetDat, day1, dayn, timestep, lat, iRhizome, irtl, canopyControl = canopyP, seneControl = seneP, 
-        photoControl = photoP, phenoControl = phenoP, soilControl = soilP, nitroControl = nitroP)
+    res <- BioGro(WetDat, day1, dayn, timestep, lat, iRhizome, irtl, canopyControl = canopyP, 
+        seneControl = seneP, photoControl = photoP, phenoControl = phenoP, soilControl = soilP, 
+        nitroControl = nitroP)
     rss <- RssBioGro(dat, res)
     if (verbose) {
         cat("rss : ", rss, "\n")
@@ -409,8 +430,8 @@ objFun <- function(coefficients, phenStage, iCoefs, ThermalP, data, WetDat, day1
     }
     rss
 }
-## Additive log ratio transformations from Statistical Analysis and Interpretation of Discrete Compositional
-## Data
+## Additive log ratio transformations from Statistical Analysis and
+## Interpretation of Discrete Compositional Data
 alr <- function(props) {
     n <- length(props)
     ans <- log(props[-n]/props[n])
@@ -465,9 +486,10 @@ summary.OpBioGro <- function(object, ...) {
     phenoP[7:25] <- cfs[7:25 - 6]
     
     
-    res <- BioGro(WetDat = object$list1$WetDat, day1 = object$list1$day1, dayn = object$list1$dayn, lat = object$list1$lat, 
-        timestep = object$list1$timestep, iRhizome = object$list1$iRhizome, irtl = object$list1$irtl, canopyControl = object$list1$canopyP, 
-        seneControl = object$list1$seneP, photoControl = object$list1$photoP, phenoControl = phenoP, soilControl = object$list1$soilP, 
+    res <- BioGro(WetDat = object$list1$WetDat, day1 = object$list1$day1, dayn = object$list1$dayn, 
+        lat = object$list1$lat, timestep = object$list1$timestep, iRhizome = object$list1$iRhizome, 
+        irtl = object$list1$irtl, canopyControl = object$list1$canopyP, seneControl = object$list1$seneP, 
+        photoControl = object$list1$photoP, phenoControl = phenoP, soilControl = object$list1$soilP, 
         nitroControl = object$list1$nitroP, centuryControl = object$list1$centuryP)
     dat <- object$data
     # print(dat) print(res)

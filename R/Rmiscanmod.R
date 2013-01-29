@@ -1,28 +1,34 @@
 ## BioCro/R/Rmiscanmod.R by Fernando Ezequiel Miguez Copyright (C) 2007-2008
 ## 
-## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General
-## Public License as published by the Free Software Foundation; either version 2 or 3 of the License (at your
-## option).
+## This program is free software; you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by the Free
+## Software Foundation; either version 2 or 3 of the License (at your option).
 ## 
-## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
-## implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-## for more details.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+## more details.
 ## 
-## A copy of the GNU General Public License is available at http://www.r-project.org/Licenses/
+## A copy of the GNU General Public License is available at
+## http://www.r-project.org/Licenses/
 ## 
-## This file will implement the more detailed version of miscanmod according to the Excel spreadsheet from
-## Clifton-Brown Some changes have been made in order to run it with the available data This model, based on
-## Monteith, is first described in Clifton-Brown et al. (2000) Industrial Crops and Products. 12. 97-109. It was
-## later developed in later papers Clifton-Brown et al. (2004) Global Change Biology. 10. 509-518.
+## This file will implement the more detailed version of miscanmod according to
+## the Excel spreadsheet from Clifton-Brown Some changes have been made in
+## order to run it with the available data This model, based on Monteith, is
+## first described in Clifton-Brown et al. (2000) Industrial Crops and
+## Products. 12. 97-109. It was later developed in later papers Clifton-Brown
+## et al. (2004) Global Change Biology. 10. 509-518.
 ## 
 ## data should have
 ## 
-## column 1: year column 2: month column 3: day column 4: JD column 5: max T (Celsius) column 6: min T (Celsius)
-## column 7: PPFD or solar radiation divided by 2 (MJ/m2) column 8: Potential evaporation column 9: precip (mm)
+## column 1: year column 2: month column 3: day column 4: JD column 5: max T
+## (Celsius) column 6: min T (Celsius) column 7: PPFD or solar radiation
+## divided by 2 (MJ/m2) column 8: Potential evaporation column 9: precip (mm)
 ## 
-## Parameters ---------- RUE = Radiation Use Efficiency (g/MJ) LER = Leaf Expansion Rate Tb = Leaf base
-## Temperature (Celsius) k = light extinction coefficient (dimensionless) LAIdrd = LAI down regulation RUEdrd =
-## RUE down regulation a = soil parameter b = soil parameter soildepth = soil depth
+## Parameters ---------- RUE = Radiation Use Efficiency (g/MJ) LER = Leaf
+## Expansion Rate Tb = Leaf base Temperature (Celsius) k = light extinction
+## coefficient (dimensionless) LAIdrd = LAI down regulation RUEdrd = RUE down
+## regulation a = soil parameter b = soil parameter soildepth = soil depth
 ##' RUE-based model to calculate miscanthus growth and yield.
 ##'
 ##' Simple model to calculate crop growth and yield based on MISCANMOD (see
@@ -106,9 +112,11 @@
 ##' }
 ##'
 ##'
-Rmiscanmod <- function(data, RUE = 2.4, LER = 0.01, Tb = 10, k = 0.67, LAIdrd = 0.8, LAIStop = 1.8, RUEdrd = 1.3, 
-    RUEStop = 2.5, SMDdrd = -30, SMDStop = -120, FieldC = 45, iWatCont = 45, a = 6682.2, b = -0.33, soildepth = 0.6) {
-    ## At this point the vairables are selected by their position (i.e. column) in the data.frame or matrix
+Rmiscanmod <- function(data, RUE = 2.4, LER = 0.01, Tb = 10, k = 0.67, LAIdrd = 0.8, 
+    LAIStop = 1.8, RUEdrd = 1.3, RUEStop = 2.5, SMDdrd = -30, SMDStop = -120, FieldC = 45, 
+    iWatCont = 45, a = 6682.2, b = -0.33, soildepth = 0.6) {
+    ## At this point the vairables are selected by their position (i.e. column) in
+    ## the data.frame or matrix
     if (!inherits(data, "data.frame") || !inherits(data, "matrix")) 
         stop("data should be a data.frame or matrix")
     if (dim(data)[2] != 9) 
@@ -146,14 +154,15 @@ Rmiscanmod <- function(data, RUE = 2.4, LER = 0.01, Tb = 10, k = 0.67, LAIdrd = 
             }
         }
     }
-    ## At the moment I don't quite get how they have calculated this but I will assume SMDp instead of SMDa for now
-    ## this seems to be Actual Evaporation over Potential Evaporation
+    ## At the moment I don't quite get how they have calculated this but I will
+    ## assume SMDp instead of SMDa for now this seems to be Actual Evaporation over
+    ## Potential Evaporation
     aSMDStop <- abs(SMDStop)
     aSMDdrd <- abs(SMDdrd)
     
     
-    AE.PE <- ifelse(SMDp < SMDStop, 0, ifelse(SMDp < SMDdrd, 1 + (aSMDdrd/(aSMDStop - aSMDdrd) + (1/(aSMDStop + SMDdrd)) * 
-        SMDp), 1))
+    AE.PE <- ifelse(SMDp < SMDStop, 0, ifelse(SMDp < SMDdrd, 1 + (aSMDdrd/(aSMDStop - 
+        aSMDdrd) + (1/(aSMDStop + SMDdrd)) * SMDp), 1))
     PE.dr <- AE.PE * PotEvp
     Deficitp2 <- ifelse((precip - PE.dr) > 0, 0, precip - PE.dr)
     SMDa <- numeric(length(Deficitp2))
@@ -192,10 +201,10 @@ Rmiscanmod <- function(data, RUE = 2.4, LER = 0.01, Tb = 10, k = 0.67, LAIdrd = 
     }
     SoilMoist <- tmp4
     SoilMatPot <- a * exp(b * SoilMoist)
-    WL.LER <- ifelse(SoilMatPot < LAIdrd, 1, ifelse(SoilMatPot < LAIStop, 1 - ((SoilMatPot - LAIdrd)/(LAIStop - LAIdrd)), 
-        0))
-    WL.RUE <- ifelse(SoilMatPot < RUEdrd, 1, ifelse(SoilMatPot < RUEStop, 1 - ((SoilMatPot - RUEdrd)/(RUEStop - RUEdrd)), 
-        0))
+    WL.LER <- ifelse(SoilMatPot < LAIdrd, 1, ifelse(SoilMatPot < LAIStop, 1 - ((SoilMatPot - 
+        LAIdrd)/(LAIStop - LAIdrd)), 0))
+    WL.RUE <- ifelse(SoilMatPot < RUEdrd, 1, ifelse(SoilMatPot < RUEStop, 1 - ((SoilMatPot - 
+        RUEdrd)/(RUEStop - RUEdrd)), 0))
     ## Calculation of Radiation available
     
     
@@ -214,7 +223,8 @@ Rmiscanmod <- function(data, RUE = 2.4, LER = 0.01, Tb = 10, k = 0.67, LAIdrd = 
         minTemp2 <- minTemp2[which(minTemp2 < 0)]
         dayn <- min(minTemp2)
     }
-    ## I'm using the convention in MISCANMOD which is a bit strange to use a zero for no frost and 1 for frost
+    ## I'm using the convention in MISCANMOD which is a bit strange to use a zero
+    ## for no frost and 1 for frost
     DaysNoFrost <- ifelse((JD < day1) || (JD > dayn), 1, 0)
     
     
@@ -226,8 +236,8 @@ Rmiscanmod <- function(data, RUE = 2.4, LER = 0.01, Tb = 10, k = 0.67, LAIdrd = 
     # Replace the previous line with the average daily air temperature
     
     
-    DDaTb <- ifelse(maxTemp < Tb, 0, ifelse(avgT < Tb, (maxTemp - Tb)/4, ifelse(minTemp < Tb, (maxTemp - Tb)/2 - (Tb - 
-        minTemp)/4, avgT - Tb)))
+    DDaTb <- ifelse(maxTemp < Tb, 0, ifelse(avgT < Tb, (maxTemp - Tb)/4, ifelse(minTemp < 
+        Tb, (maxTemp - Tb)/2 - (Tb - minTemp)/4, avgT - Tb)))
     DDcum <- cumsum(I(DaysNoFrost * DDaTb))
     SoilEffDD <- DDaTb * WL.LER
     DDcum <- cumsum(I(DaysNoFrost * DDaTb))
@@ -237,8 +247,9 @@ Rmiscanmod <- function(data, RUE = 2.4, LER = 0.01, Tb = 10, k = 0.67, LAIdrd = 
     LI <- (pLI/100) * Radiation
     DayYield <- LI * RUE * WL.RUE
     Yield <- cumsum(DayYield)
-    list(PotEvp = PotEvp, Deficitp = Deficitp, SMDp = SMDp, AE.PE = AE.PE, Deficitp2 = Deficitp2, SMDa = SMDa, diffRainPE = diffRainPE, 
-        H2Oper = H2Oper, SoilMoist = SoilMoist, SoilMatPot = SoilMatPot, WL.LER = WL.LER, WL.RUE = WL.RUE, DDaTb = DDaTb, 
+    list(PotEvp = PotEvp, Deficitp = Deficitp, SMDp = SMDp, AE.PE = AE.PE, Deficitp2 = Deficitp2, 
+        SMDa = SMDa, diffRainPE = diffRainPE, H2Oper = H2Oper, SoilMoist = SoilMoist, 
+        SoilMatPot = SoilMatPot, WL.LER = WL.LER, WL.RUE = WL.RUE, DDaTb = DDaTb, 
         DDcum = DDcum, adjSumDD = adjSumDD, LAI = LAI, LI = LI, pLI = pLI, Yield = Yield)
 }
  

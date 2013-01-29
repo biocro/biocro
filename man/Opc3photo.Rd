@@ -48,8 +48,8 @@
   \item{op.method}{optimization method. At the moment only
   optim is implemented.}
 
-  \item{response}{\code{"Assim"} for assimilation and
-  \code{"StomCond"} for stomatal conductance.}
+  \item{response}{\code{'Assim'} for assimilation and
+  \code{'StomCond'} for stomatal conductance.}
 
   \item{level}{Confidence interval level.}
 
@@ -85,7 +85,7 @@ op <- Opc3photo(simA100[,1:5],Catm=simA100[,9], op.level = 2)
 ## If faced with a difficult problem
 ## This can give starting values
 op100 <- Opc3photo(simA100[,1:5],Catm=simA100[,9],
-                   op.level = 2, method="SANN",
+                   op.level = 2, method='SANN',
                    hessian=FALSE)
 
 op100 <- Opc3photo(simA100[,1:5],Catm = simA100[,9],

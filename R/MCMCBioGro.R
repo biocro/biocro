@@ -1,14 +1,16 @@
 ## BioCro/R/MCMCBioCro.R by Fernando Ezequiel Miguez Copyright (C) 2007-2010
 ## 
-## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General
-## Public License as published by the Free Software Foundation; either version 2 or 3 of the License (at your
-## option).
+## This program is free software; you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by the Free
+## Software Foundation; either version 2 or 3 of the License (at your option).
 ## 
-## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
-## implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-## for more details.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+## more details.
 ## 
-## A copy of the GNU General Public License is available at http://www.r-project.org/Licenses/
+## A copy of the GNU General Public License is available at
+## http://www.r-project.org/Licenses/
 ## 
 ## Simulated annealing and McMC function
 ##' Simulated Annealing and Markov chain Monte Carlo for estimating parameters
@@ -105,10 +107,11 @@
 ##'
 ##' }
 ##'
-MCMCBioGro <- function(niter = 10, niter2 = 10, phen = 6, iCoef = NULL, saTemp = 5, coolSamp = 20, scale = 0.5, WetDat, 
-    data, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRhizome = 7, irtl = 1e-04, canopyControl = list(), seneControl = list(), 
-    photoControl = list(), phenoControl = list(), soilControl = list(), nitroControl = list(), centuryControl = list(), 
-    sd = c(0.02, 1e-06)) {
+MCMCBioGro <- function(niter = 10, niter2 = 10, phen = 6, iCoef = NULL, saTemp = 5, 
+    coolSamp = 20, scale = 0.5, WetDat, data, day1 = NULL, dayn = NULL, timestep = 1, 
+    lat = 40, iRhizome = 7, irtl = 1e-04, canopyControl = list(), seneControl = list(), 
+    photoControl = list(), phenoControl = list(), soilControl = list(), nitroControl = list(), 
+    centuryControl = list(), sd = c(0.02, 1e-06)) {
     
     
     if ((niter < 1) | (niter2 < 1)) 
@@ -204,7 +207,8 @@ MCMCBioGro <- function(niter = 10, niter2 = 10, phen = 6, iCoef = NULL, saTemp =
     n1dat <- numeric(6)
     for (i in 1:6) n1dat[i] <- nrow(data[data[, 1] <= TPcoefs[i], ])
     SENcoefs <- as.vector(unlist(seneP))
-    soilCoefs <- c(soilP$FieldC, soilP$WiltP, soilP$phi1, soilP$phi2, soilP$soilDepth, mean(soilP$iWatCont))
+    soilCoefs <- c(soilP$FieldC, soilP$WiltP, soilP$phi1, soilP$phi2, soilP$soilDepth, 
+        mean(soilP$iWatCont))
     wsFun <- soilP$wsFun
     soilType <- soilP$soilType
     
@@ -243,24 +247,30 @@ MCMCBioGro <- function(niter = 10, niter2 = 10, phen = 6, iCoef = NULL, saTemp =
     nlayers <- canopyP$nlayers
     
     
-    res <- .Call(SABioGro, as.double(data[, 1]), as.double(data[, 2]), as.double(data[, 3]), as.double(data[, 4]), 
-        as.double(data[, 5]), as.double(data[, 6]), as.double(data[, 7]), as.integer(doy), as.integer(hour), as.double(solar), 
-        as.double(Temp), as.double(rh), as.double(WindS), as.double(precip), as.double(iCoef), as.integer(vecsize), 
-        as.double(lat), as.integer(nlayers), as.double(c(iRhizome, irtl)), as.double(SENcoefs), as.integer(timestep), 
-        as.double(vmax), as.double(alpha), as.double(kparm), as.double(theta), as.double(beta), as.double(Rd), as.double(Catm), 
-        as.double(b0), as.double(b1), as.double(soilCoefs), as.integer(wsFun), as.integer(ws), as.double(nitroP$iLeafN), 
-        as.double(nitroP$kLN), as.double(nitroP$Vmax.b1), as.double(nitroP$alpha.b1), as.double(mResp), as.integer(soilType), 
-        as.double(centCoefs), as.double(centuryP$Ks), as.integer(centTimestep), as.double(kd), as.double(c(chi.l, 
-            heightF)), as.double(Sp), as.double(SpD), as.double(TPcoefs), as.integer(tmp1), as.integer(ndat), as.integer(n1dat), 
-        as.integer(niter), as.integer(niter2), as.double(saTemp), as.integer(coolSamp), as.double(scale), as.double(sd), 
-        as.integer(phen), as.integer(soilP$soilLayers), as.double(soilP$soilDepths), as.double(soilP$iWatCont), as.integer(soilP$hydrDist), 
-        as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), as.double(c(nitroP$kpLN, nitroP$lnb0, nitroP$lnb1)), as.integer(nitroP$lnFun))
+    res <- .Call(SABioGro, as.double(data[, 1]), as.double(data[, 2]), as.double(data[, 
+        3]), as.double(data[, 4]), as.double(data[, 5]), as.double(data[, 6]), as.double(data[, 
+        7]), as.integer(doy), as.integer(hour), as.double(solar), as.double(Temp), 
+        as.double(rh), as.double(WindS), as.double(precip), as.double(iCoef), as.integer(vecsize), 
+        as.double(lat), as.integer(nlayers), as.double(c(iRhizome, irtl)), as.double(SENcoefs), 
+        as.integer(timestep), as.double(vmax), as.double(alpha), as.double(kparm), 
+        as.double(theta), as.double(beta), as.double(Rd), as.double(Catm), as.double(b0), 
+        as.double(b1), as.double(soilCoefs), as.integer(wsFun), as.integer(ws), as.double(nitroP$iLeafN), 
+        as.double(nitroP$kLN), as.double(nitroP$Vmax.b1), as.double(nitroP$alpha.b1), 
+        as.double(mResp), as.integer(soilType), as.double(centCoefs), as.double(centuryP$Ks), 
+        as.integer(centTimestep), as.double(kd), as.double(c(chi.l, heightF)), as.double(Sp), 
+        as.double(SpD), as.double(TPcoefs), as.integer(tmp1), as.integer(ndat), as.integer(n1dat), 
+        as.integer(niter), as.integer(niter2), as.double(saTemp), as.integer(coolSamp), 
+        as.double(scale), as.double(sd), as.integer(phen), as.integer(soilP$soilLayers), 
+        as.double(soilP$soilDepths), as.double(soilP$iWatCont), as.integer(soilP$hydrDist), 
+        as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), as.double(c(nitroP$kpLN, 
+            nitroP$lnb0, nitroP$lnb1)), as.integer(nitroP$lnFun))
     
     
     res$resMC <- t(res$resMC)
-    colnames(res$resMC) <- c("kLeaf_1", "kStem_1", "kRoot_1", "kRhizome_1", "kLeaf_2", "kStem_2", "kRoot_2", "kRhizome_2", 
-        "kLeaf_3", "kStem_3", "kRoot_3", "kRhizome_3", "kLeaf_4", "kStem_4", "kRoot_4", "kRhizome_4", "kLeaf_5", "kStem_5", 
-        "kRoot_5", "kRhizome_5", "kLeaf_6", "kStem_6", "kRoot_6", "kRhizome_6", "kGrain_6")
+    colnames(res$resMC) <- c("kLeaf_1", "kStem_1", "kRoot_1", "kRhizome_1", "kLeaf_2", 
+        "kStem_2", "kRoot_2", "kRhizome_2", "kLeaf_3", "kStem_3", "kRoot_3", "kRhizome_3", 
+        "kLeaf_4", "kStem_4", "kRoot_4", "kRhizome_4", "kLeaf_5", "kStem_5", "kRoot_5", 
+        "kRhizome_5", "kLeaf_6", "kStem_6", "kRoot_6", "kRhizome_6", "kGrain_6")
     structure(res, class = "MCMCBioGro")
 }
 ## Auxiliary function to calculate the index and pick the correct elements
@@ -280,7 +290,8 @@ indfun <- function(obs, pred) {
 ##' @export
 ##' @S3method print MCMCBioGro
 print.MCMCBioGro <- function(x, ...) {
-    cfs <- c(x$coefs[1:4], NA, x$coefs[5:8], NA, x$coefs[9:12], NA, x$coefs[13:16], NA, x$coefs[17:20], NA, x$coefs[21:25])
+    cfs <- c(x$coefs[1:4], NA, x$coefs[5:8], NA, x$coefs[9:12], NA, x$coefs[13:16], 
+        NA, x$coefs[17:20], NA, x$coefs[21:25])
     coefMat <- matrix(cfs, ncol = 5, byrow = TRUE)
     colnames(coefMat) <- c("Leaf", "Stem", "Root", "Rhizome", "Grain")
     rownames(coefMat) <- c("1", "2", "3", "4", "5", "6")
@@ -335,8 +346,9 @@ print.MCMCBioGro <- function(x, ...) {
 ##' ## See the MCMCBioGro function
 ##' @export
 ##' @S3method plot MCMCBioGro
-plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", "RF", "OFT", "trace", "density"), 
-    type = c("l", "p"), coef = 1, cols = c("blue", "green", "red", "magenta", "black", "purple"), ...) {
+plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", "RF", 
+    "OFT", "trace", "density"), type = c("l", "p"), coef = 1, cols = c("blue", "green", 
+    "red", "magenta", "black", "purple"), ...) {
     run <- NULL
     plot.kind <- match.arg(plot.kind)
     type <- match.arg(type)
@@ -345,7 +357,8 @@ plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", 
     if (plot.kind == "rss") {
         if (missing(x2) & missing(x3)) {
             yy <- c(x$RssVec, x$RssVec2)
-            plot1 <- xyplot(yy ~ c(1:length(yy)), xlab = "Iterations", ylab = "RSS", type = type, ...)
+            plot1 <- xyplot(yy ~ c(1:length(yy)), xlab = "Iterations", ylab = "RSS", 
+                type = type, ...)
             print(plot1)
         } else {
             if (missing(x3)) {
@@ -354,8 +367,9 @@ plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", 
                 myl <- max(c(length(yy), length(yy2))) * 1.05
                 minyl <- myl * 0.05
                 myy <- max(c(yy, yy2), na.rm = TRUE) * 1.05
-                plot1 <- xyplot(yy ~ 1:length(yy), xlab = "Iterations", ylab = "RSS", type = type, xlim = -minyl:myl, 
-                  ylim = -5:myy, panel = function(x, y, ...) {
+                plot1 <- xyplot(yy ~ 1:length(yy), xlab = "Iterations", ylab = "RSS", 
+                  type = type, xlim = -minyl:myl, ylim = -5:myy, panel = function(x, 
+                    y, ...) {
                     panel.xyplot(1:length(yy), yy, col = cols[1], ...)
                     panel.xyplot(1:length(yy2), yy2, col = cols[2], ...)
                   })
@@ -367,8 +381,9 @@ plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", 
                 myl <- max(c(length(yy), length(yy2), length(yy3))) * 1.05
                 minyl <- myl * 0.05
                 myy <- max(c(yy, yy2, yy3), na.rm = TRUE) * 1.05
-                plot1 <- xyplot(yy ~ 1:length(yy), xlab = "Iterations", ylab = "RSS", type = type, xlim = -minyl:myl, 
-                  ylim = -5:myy, panel = function(x, y, ...) {
+                plot1 <- xyplot(yy ~ 1:length(yy), xlab = "Iterations", ylab = "RSS", 
+                  type = type, xlim = -minyl:myl, ylim = -5:myy, panel = function(x, 
+                    y, ...) {
                     panel.xyplot(1:length(yy), yy, col = cols[1], ...)
                     panel.xyplot(1:length(yy2), yy2, col = cols[2], ...)
                     panel.xyplot(1:length(yy3), yy3, col = cols[3], ...)
@@ -387,43 +402,50 @@ plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", 
                 coefnames <- colnames(x$resMC)[c(1, 2, 3, 5, 6, 7, 9:24)]
                 
                 
-                dat <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x$accept2), 
-                  iter = 1:x$accept2)
-                plot1 <- xyplot(coefs ~ iter | nams, data = dat, xlab = "Iterations", ylab = "Prop", type = type, 
-                  col = cols[1], ...)
+                dat <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                  nams = rep(coefnames, each = x$accept2), iter = 1:x$accept2)
+                plot1 <- xyplot(coefs ~ iter | nams, data = dat, xlab = "Iterations", 
+                  ylab = "Prop", type = type, col = cols[1], ...)
                 print(plot1)
             } else {
                 if (missing(x3)) {
                   coefnames <- colnames(x$resMC)[c(1, 2, 3, 5, 6, 7, 9:24)]
                   
                   
-                  dat1 <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x$accept2), 
-                    iter = 1:x$accept2, run = "one")
+                  dat1 <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                    nams = rep(coefnames, each = x$accept2), iter = 1:x$accept2, 
+                    run = "one")
                   
                   
-                  dat2 <- data.frame(coefs = c(x2$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x2$accept2), 
-                    iter = 1:x2$accept2, run = "two")
+                  dat2 <- data.frame(coefs = c(x2$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                    nams = rep(coefnames, each = x2$accept2), iter = 1:x2$accept2, 
+                    run = "two")
                   dat <- rbind(dat1, dat2)
-                  plot1 <- xyplot(coefs ~ iter | nams, groups = run, data = dat, xlab = "Iterations", ylab = "Prop", 
-                    type = type, col = cols, ...)
+                  plot1 <- xyplot(coefs ~ iter | nams, groups = run, data = dat, 
+                    xlab = "Iterations", ylab = "Prop", type = type, col = cols, 
+                    ...)
                   print(plot1)
                 } else {
                   coefnames <- colnames(x$resMC)[c(1, 2, 3, 5, 6, 7, 9:24)]
                   
                   
-                  dat1 <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x$accept2), 
-                    iter = 1:x$accept2, run = "one")
+                  dat1 <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                    nams = rep(coefnames, each = x$accept2), iter = 1:x$accept2, 
+                    run = "one")
                   
                   
-                  dat2 <- data.frame(coefs = c(x2$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x2$accept2), 
-                    iter = 1:x2$accept2, run = "two")
-                  dat3 <- data.frame(coefs = c(x3$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x3$accept2), 
-                    iter = 1:x3$accept2, run = "three")
+                  dat2 <- data.frame(coefs = c(x2$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                    nams = rep(coefnames, each = x2$accept2), iter = 1:x2$accept2, 
+                    run = "two")
+                  dat3 <- data.frame(coefs = c(x3$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                    nams = rep(coefnames, each = x3$accept2), iter = 1:x3$accept2, 
+                    run = "three")
                   
                   
                   dat <- rbind(dat1, dat2, dat3)
-                  plot1 <- xyplot(coefs ~ iter | nams, groups = run, data = dat, xlab = "Iterations", ylab = "Prop", 
-                    type = type, col = cols, ...)
+                  plot1 <- xyplot(coefs ~ iter | nams, groups = run, data = dat, 
+                    xlab = "Iterations", ylab = "Prop", type = type, col = cols, 
+                    ...)
                   print(plot1)
                 }
             }
@@ -433,26 +455,29 @@ plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", 
             if (missing(x2) & missing(x3)) {
                 
                 
-                dat <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x$accept2))
+                dat <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                  nams = rep(coefnames, each = x$accept2))
                 plot1 <- densityplot(~coefs | nams, data = dat, col = cols[1], ...)
                 print(plot1)
             } else if (missing(x3)) {
-                dat1 <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x$accept2), 
-                  run = "one")
-                dat2 <- data.frame(coefs = c(x2$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x2$accept2), 
-                  run = "two")
+                dat1 <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                  nams = rep(coefnames, each = x$accept2), run = "one")
+                dat2 <- data.frame(coefs = c(x2$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                  nams = rep(coefnames, each = x2$accept2), run = "two")
                 dat <- rbind(dat1, dat2)
-                plot1 <- densityplot(~coefs | nams, groups = run, data = dat, col = cols, ...)
+                plot1 <- densityplot(~coefs | nams, groups = run, data = dat, col = cols, 
+                  ...)
                 print(plot1)
             } else {
-                dat1 <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x$accept2), 
-                  run = "one")
-                dat2 <- data.frame(coefs = c(x2$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x2$accept2), 
-                  run = "two")
-                dat3 <- data.frame(coefs = c(x3$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), nams = rep(coefnames, each = x3$accept2), 
-                  run = "three")
+                dat1 <- data.frame(coefs = c(x$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                  nams = rep(coefnames, each = x$accept2), run = "one")
+                dat2 <- data.frame(coefs = c(x2$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                  nams = rep(coefnames, each = x2$accept2), run = "two")
+                dat3 <- data.frame(coefs = c(x3$resMC[, c(1, 2, 3, 5, 6, 7, 9:24)]), 
+                  nams = rep(coefnames, each = x3$accept2), run = "three")
                 dat <- rbind(dat1, dat2, dat3)
-                plot1 <- densityplot(~coefs | nams, groups = run, data = dat, col = cols, ...)
+                plot1 <- densityplot(~coefs | nams, groups = run, data = dat, col = cols, 
+                  ...)
                 print(plot1)
             }
         }
@@ -464,7 +489,8 @@ plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", 
         sim <- c(x$simStem, x$simLeaf, x$simRhiz, x$simRoot, x$simGrain)
         
         
-        plot1 <- xyplot(obs ~ sim, xlab = "Fitted", ylab = "Observed", ..., panel = function(x, y, ...) {
+        plot1 <- xyplot(obs ~ sim, xlab = "Fitted", ylab = "Observed", ..., panel = function(x, 
+            y, ...) {
             panel.xyplot(x, y, pch = 16, col = "black", ...)
             panel.abline(0, 1, ...)
         })
@@ -476,7 +502,8 @@ plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", 
         rsd <- obs - sim
         
         
-        plot1 <- xyplot(rsd ~ sim, xlab = "Fitted", ylab = "Residuals", ..., panel = function(x, y, ...) {
+        plot1 <- xyplot(rsd ~ sim, xlab = "Fitted", ylab = "Residuals", ..., panel = function(x, 
+            y, ...) {
             panel.xyplot(x, y, pch = 16, col = "black", ...)
             panel.abline(h = 0, ...)
         })
@@ -486,22 +513,25 @@ plot.MCMCBioGro <- function(x, x2 = NULL, x3 = NULL, plot.kind = c("rss", "OF", 
     
     if (plot.kind == "OFT") {
         xso <- x
-        plot1 <- xyplot(xso$simStem ~ xso$TTime, xlab = "Thermal time", ylim = c(-2, I(max(c(xso$simStem, xso$obsStem), 
-            na.rm = TRUE) * 1.1)), ylab = "Dry biomass (Mg/ha)", ..., panel = function(x, y, ...) {
-            panel.xyplot(xso$TTime, xso$obsStem, type = "p", col = cols[1], ...)
-            panel.xyplot(xso$TTime, xso$obsLeaf, type = "p", col = cols[2], ...)
-            panel.xyplot(xso$TTime, xso$obsRoot, type = "p", col = cols[3], ...)
-            panel.xyplot(xso$TTime, xso$obsRhiz, type = "p", col = cols[4], ...)
-            panel.xyplot(xso$TTime, xso$obsGrain, type = "p", col = cols[5], ...)
-            panel.xyplot(xso$TTime, xso$obsLAI, type = "p", col = cols[6], ...)
-            panel.xyplot(xso$TTime, xso$simStem, type = "l", col = cols[1], ...)
-            panel.xyplot(xso$TTime, xso$simLeaf, type = "l", col = cols[2], ...)
-            panel.xyplot(xso$TTime, xso$simRoot, type = "l", col = cols[3], ...)
-            panel.xyplot(xso$TTime, xso$simRhiz, type = "l", col = cols[4], ...)
-            panel.xyplot(xso$TTime, xso$simGrain, type = "l", col = cols[5], ...)
-            panel.xyplot(xso$TTime, xso$simLAI, type = "l", col = cols[6], ...)
-        }, key = list(text = list(c("Stem", "Leaf", "Root", "Rhizome", "Grain", "LAI")), col = cols, lines = TRUE, 
-            points = TRUE, pch = 21))
+        plot1 <- xyplot(xso$simStem ~ xso$TTime, xlab = "Thermal time", ylim = c(-2, 
+            I(max(c(xso$simStem, xso$obsStem), na.rm = TRUE) * 1.1)), ylab = "Dry biomass (Mg/ha)", 
+            ..., panel = function(x, y, ...) {
+                panel.xyplot(xso$TTime, xso$obsStem, type = "p", col = cols[1], ...)
+                panel.xyplot(xso$TTime, xso$obsLeaf, type = "p", col = cols[2], ...)
+                panel.xyplot(xso$TTime, xso$obsRoot, type = "p", col = cols[3], ...)
+                panel.xyplot(xso$TTime, xso$obsRhiz, type = "p", col = cols[4], ...)
+                panel.xyplot(xso$TTime, xso$obsGrain, type = "p", col = cols[5], 
+                  ...)
+                panel.xyplot(xso$TTime, xso$obsLAI, type = "p", col = cols[6], ...)
+                panel.xyplot(xso$TTime, xso$simStem, type = "l", col = cols[1], ...)
+                panel.xyplot(xso$TTime, xso$simLeaf, type = "l", col = cols[2], ...)
+                panel.xyplot(xso$TTime, xso$simRoot, type = "l", col = cols[3], ...)
+                panel.xyplot(xso$TTime, xso$simRhiz, type = "l", col = cols[4], ...)
+                panel.xyplot(xso$TTime, xso$simGrain, type = "l", col = cols[5], 
+                  ...)
+                panel.xyplot(xso$TTime, xso$simLAI, type = "l", col = cols[6], ...)
+            }, key = list(text = list(c("Stem", "Leaf", "Root", "Rhizome", "Grain", 
+                "LAI")), col = cols, lines = TRUE, points = TRUE, pch = 21))
         print(plot1)
     }
 } 

@@ -1,5 +1,5 @@
-## I have modified original weach function written by Fernando to accurately reflect day of year in the weach
-## outout
+## I have modified original weach function written by Fernando to accurately
+## reflect day of year in the weach outout
 ##' Simulates the hourly conditions from daily
 ##'
 ##' Manipulates weather data in the format obtained from WARM (see link below)
@@ -63,8 +63,8 @@
 ##' # Return data every 3 hours
 ##' wet05.3 <- weach(tmp1,40,ts=3)
 ##'
-weach <- function(X, lati, ts = 1, temp.units = c("Farenheit", "Celsius"), rh.units = c("percent", "fraction"), ws.units = c("mph", 
-    "mps"), pp.units = c("in", "mm"), ...) {
+weach <- function(X, lati, ts = 1, temp.units = c("Farenheit", "Celsius"), rh.units = c("percent", 
+    "fraction"), ws.units = c("mph", "mps"), pp.units = c("in", "mm"), ...) {
     if (missing(lati)) 
         stop("latitude is missing")
     

@@ -1,16 +1,18 @@
 ## BioCro/R/weach.R by Fernando Ezequiel Miguez Copyright (C) 2007-2009
 ## 
-## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General
-## Public License as published by the Free Software Foundation; either version 2 or 3 of the License (at your
-## option).
+## This program is free software; you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by the Free
+## Software Foundation; either version 2 or 3 of the License (at your option).
 ## 
-## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
-## implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-## for more details.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+## more details.
 ## 
-## A copy of the GNU General Public License is available at http://www.r-project.org/Licenses/
-weach365 <- function(X, lati, ts = 1, temp.units = c("Farenheit", "Celsius"), rh.units = c("percent", "fraction"), 
-    ws.units = c("mph", "mps"), pp.units = c("in", "mm"), ...) {
+## A copy of the GNU General Public License is available at
+## http://www.r-project.org/Licenses/
+weach365 <- function(X, lati, ts = 1, temp.units = c("Farenheit", "Celsius"), rh.units = c("percent", 
+    "fraction"), ws.units = c("mph", "mps"), pp.units = c("in", "mm"), ...) {
     
     if (missing(lati)) 
         stop("latitude is missing")

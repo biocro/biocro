@@ -1,7 +1,8 @@
-## This is a function I'm writing to handle multiple years of weather data The function computes the RUE model
-## with all defaults.  Order of input variables
-## ---------------------------------------------------------------------## FIRST COLUMN : YEAR SECOND COLUMN :
-## DOY THIRD COLUMN : SOLAR RADIATION (MJ M-2 day-1) FOURTH COLUMN : AVERAGE AIR TEMPERATURE (FARENHEIT)
+## This is a function I'm writing to handle multiple years of weather data The
+## function computes the RUE model with all defaults.  Order of input variables
+## ---------------------------------------------------------------------##
+## FIRST COLUMN : YEAR SECOND COLUMN : DOY THIRD COLUMN : SOLAR RADIATION (MJ
+## M-2 day-1) FOURTH COLUMN : AVERAGE AIR TEMPERATURE (FARENHEIT)
 ##' Radiation use efficiency based model
 ##'
 ##' Same as \code{\link{RUEmod}} but it handles multiple years.

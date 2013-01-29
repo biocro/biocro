@@ -1,14 +1,16 @@
 ## BioCro/R/BioCro.R by Fernando Ezequiel Miguez Copyright (C) 2007-2010
 ## 
-## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General
-## Public License as published by the Free Software Foundation; either version 2 or 3 of the License (at your
-## option).
+## This program is free software; you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by the Free
+## Software Foundation; either version 2 or 3 of the License (at your option).
 ## 
-## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
-## implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-## for more details.
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+## more details.
 ## 
-## A copy of the GNU General Public License is available at http://www.r-project.org/Licenses/
+## A copy of the GNU General Public License is available at
+## http://www.r-project.org/Licenses/
 ##' Biomass crops growth simulation
 ##'
 ##' Simulates dry biomass growth during an entire growing season.  It
@@ -271,12 +273,14 @@
 ##'
 ##' }
 ##' @export
-BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRhizome = 7, irtl = 1e-04, canopyControl = list(), 
-    seneControl = list(), photoControl = list(), phenoControl = list(), soilControl = list(), nitroControl = list(), 
-    sugarphenoControl = list(), centuryControl = list()) {
+BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRhizome = 7, 
+    irtl = 1e-04, canopyControl = list(), seneControl = list(), photoControl = list(), 
+    phenoControl = list(), soilControl = list(), nitroControl = list(), sugarphenoControl = list(), 
+    centuryControl = list()) {
     
     
-    ## Trying to guess the first and last day of the growing season from weather data
+    ## Trying to guess the first and last day of the growing season from weather
+    ## data
     
     
     if (missing(day1)) {
@@ -353,7 +357,8 @@ BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRh
     TPcoefs <- as.vector(unlist(phenoP)[1:6])
     sugarcoefs <- as.vector(unlist(sugarphenoP))
     SENcoefs <- as.vector(unlist(seneP))
-    soilCoefs <- c(unlist(soilP[1:5]), mean(soilP$iWatCont), soilP$scsf, soilP$transpRes, soilP$leafPotTh)
+    soilCoefs <- c(unlist(soilP[1:5]), mean(soilP$iWatCont), soilP$scsf, soilP$transpRes, 
+        soilP$leafPotTh)
     wsFun <- soilP$wsFun
     soilType <- soilP$soilType
     centCoefs <- as.vector(unlist(centuryP)[1:24])
@@ -386,16 +391,20 @@ BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRh
     nlayers <- canopyP$nlayers
     
     
-    res <- .Call(MisGro, as.double(lat), as.integer(doy), as.integer(hr), as.double(solar), as.double(temp), as.double(rh), 
-        as.double(windspeed), as.double(precip), as.double(kd), as.double(c(chi.l, heightF)), as.integer(nlayers), 
-        as.double(iRhizome), as.double(irtl), as.double(SENcoefs), as.integer(timestep), as.integer(vecsize), as.double(Sp), 
-        as.double(SpD), as.double(DBPcoefs), as.double(TPcoefs), as.double(vmax), as.double(alpha), as.double(kparm), 
-        as.double(theta), as.double(beta), as.double(Rd), as.double(Catm), as.double(b0), as.double(b1), as.integer(ws), 
-        as.double(soilCoefs), as.double(nitroP$iLeafN), as.double(nitroP$kLN), as.double(nitroP$Vmax.b1), as.double(nitroP$alpha.b1), 
-        as.double(mResp), as.integer(soilType), as.integer(wsFun), as.double(centCoefs), as.integer(centTimestep), 
-        as.double(centuryP$Ks), as.integer(soilP$soilLayers), as.double(soilP$soilDepths), as.double(soilP$iWatCont), 
-        as.integer(soilP$hydrDist), as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), as.double(nitroP$kpLN), as.double(nitroP$lnb0), 
-        as.double(nitroP$lnb1), as.integer(nitroP$lnFun), as.double(sugarcoefs))
+    res <- .Call(MisGro, as.double(lat), as.integer(doy), as.integer(hr), as.double(solar), 
+        as.double(temp), as.double(rh), as.double(windspeed), as.double(precip), 
+        as.double(kd), as.double(c(chi.l, heightF)), as.integer(nlayers), as.double(iRhizome), 
+        as.double(irtl), as.double(SENcoefs), as.integer(timestep), as.integer(vecsize), 
+        as.double(Sp), as.double(SpD), as.double(DBPcoefs), as.double(TPcoefs), as.double(vmax), 
+        as.double(alpha), as.double(kparm), as.double(theta), as.double(beta), as.double(Rd), 
+        as.double(Catm), as.double(b0), as.double(b1), as.integer(ws), as.double(soilCoefs), 
+        as.double(nitroP$iLeafN), as.double(nitroP$kLN), as.double(nitroP$Vmax.b1), 
+        as.double(nitroP$alpha.b1), as.double(mResp), as.integer(soilType), as.integer(wsFun), 
+        as.double(centCoefs), as.integer(centTimestep), as.double(centuryP$Ks), as.integer(soilP$soilLayers), 
+        as.double(soilP$soilDepths), as.double(soilP$iWatCont), as.integer(soilP$hydrDist), 
+        as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), as.double(nitroP$kpLN), 
+        as.double(nitroP$lnb0), as.double(nitroP$lnb1), as.integer(nitroP$lnFun), 
+        as.double(sugarcoefs))
     
     
     res$cwsMat <- t(res$cwsMat)
@@ -406,7 +415,8 @@ BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRh
     colnames(res$psimMat) <- soilP$soilDepths[-1]
     structure(res, class = "BioGro")
 }
-canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10, kd = 0.1, chi.l = 1, mResp = c(0.02, 0.03), heightFactor = 3) {
+canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10, kd = 0.1, chi.l = 1, mResp = c(0.02, 
+    0.03), heightFactor = 3) {
     if ((nlayers < 1) || (nlayers > 50)) 
         stop("nlayers should be between 1 and 50")
     if (Sp <= 0) 
@@ -415,21 +425,23 @@ canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10, kd = 0.1, chi.l = 1, mR
         stop("heightFactor should be positive")
     
     
-    list(Sp = Sp, SpD = SpD, nlayers = nlayers, kd = kd, chi.l = chi.l, mResp = mResp, heightFactor = heightFactor)
+    list(Sp = Sp, SpD = SpD, nlayers = nlayers, kd = kd, chi.l = chi.l, mResp = mResp, 
+        heightFactor = heightFactor)
 }
-photoParms <- function(vmax = 39, alpha = 0.04, kparm = 0.7, theta = 0.83, beta = 0.93, Rd = 0.8, Catm = 380, b0 = 0.01, 
-    b1 = 3, ws = c("gs", "vmax")) {
+photoParms <- function(vmax = 39, alpha = 0.04, kparm = 0.7, theta = 0.83, beta = 0.93, 
+    Rd = 0.8, Catm = 380, b0 = 0.01, b1 = 3, ws = c("gs", "vmax")) {
     ws <- match.arg(ws)
     if (ws == "gs") 
         ws <- 1 else ws <- 0
     
     
-    list(vmax = vmax, alpha = alpha, kparm = kparm, theta = theta, beta = beta, Rd = Rd, Catm = Catm, b0 = b0, b1 = b1, 
-        ws = ws)
+    list(vmax = vmax, alpha = alpha, kparm = kparm, theta = theta, beta = beta, Rd = Rd, 
+        Catm = Catm, b0 = b0, b1 = b1, ws = ws)
 }
-soilParms <- function(FieldC = NULL, WiltP = NULL, phi1 = 0.01, phi2 = 10, soilDepth = 1, iWatCont = NULL, soilType = 6, 
-    soilLayers = 1, soilDepths = NULL, hydrDist = 0, wsFun = c("linear", "logistic", "exp", "none", "lwp"), scsf = 1, 
-    transpRes = 5e+06, leafPotTh = -800, rfl = 0.2, rsec = 0.2, rsdf = 0.44) {
+soilParms <- function(FieldC = NULL, WiltP = NULL, phi1 = 0.01, phi2 = 10, soilDepth = 1, 
+    iWatCont = NULL, soilType = 6, soilLayers = 1, soilDepths = NULL, hydrDist = 0, 
+    wsFun = c("linear", "logistic", "exp", "none", "lwp"), scsf = 1, transpRes = 5e+06, 
+    leafPotTh = -800, rfl = 0.2, rsec = 0.2, rsdf = 0.44) {
     if (soilLayers < 1 || soilLayers > 50) 
         stop("soilLayers must be an integer larger than 0 and smaller than 50")
     if (missing(iWatCont)) {
@@ -463,12 +475,13 @@ soilParms <- function(FieldC = NULL, WiltP = NULL, phi1 = 0.01, phi2 = 10, soilD
         wsFun <- 4
     
     
-    list(FieldC = FieldC, WiltP = WiltP, phi1 = phi1, phi2 = phi2, soilDepth = soilDepth, iWatCont = iWatCont, soilType = soilType, 
-        soilLayers = soilLayers, soilDepths = soilDepths, wsFun = wsFun, scsf = scsf, transpRes = transpRes, leafPotTh = leafPotTh, 
+    list(FieldC = FieldC, WiltP = WiltP, phi1 = phi1, phi2 = phi2, soilDepth = soilDepth, 
+        iWatCont = iWatCont, soilType = soilType, soilLayers = soilLayers, soilDepths = soilDepths, 
+        wsFun = wsFun, scsf = scsf, transpRes = transpRes, leafPotTh = leafPotTh, 
         hydrDist = hydrDist, rfl = rfl, rsec = rsec, rsdf = rsdf)
 }
-nitroParms <- function(iLeafN = 2, kLN = 0.5, Vmax.b1 = 0, alpha.b1 = 0, kpLN = 0.2, lnb0 = -5, lnb1 = 18, lnFun = c("none", 
-    "linear")) {
+nitroParms <- function(iLeafN = 2, kLN = 0.5, Vmax.b1 = 0, alpha.b1 = 0, kpLN = 0.2, 
+    lnb0 = -5, lnb1 = 18, lnFun = c("none", "linear")) {
     lnFun <- match.arg(lnFun)
     if (lnFun == "none") {
         lnFun <- 0
@@ -477,43 +490,52 @@ nitroParms <- function(iLeafN = 2, kLN = 0.5, Vmax.b1 = 0, alpha.b1 = 0, kpLN = 
     }
     
     
-    list(iLeafN = iLeafN, kLN = abs(kLN), Vmax.b1 = Vmax.b1, alpha.b1 = alpha.b1, kpLN = kpLN, lnb0 = lnb0, lnb1 = lnb1, 
-        lnFun = lnFun)
+    list(iLeafN = iLeafN, kLN = abs(kLN), Vmax.b1 = Vmax.b1, alpha.b1 = alpha.b1, 
+        kpLN = kpLN, lnb0 = lnb0, lnb1 = lnb1, lnFun = lnFun)
 }
-phenoParms <- function(tp1 = 562, tp2 = 1312, tp3 = 2063, tp4 = 2676, tp5 = 3211, tp6 = 7000, kLeaf1 = 0.33, kStem1 = 0.37, 
-    kRoot1 = 0.3, kRhizome1 = -8e-04, kLeaf2 = 0.14, kStem2 = 0.85, kRoot2 = 0.01, kRhizome2 = -5e-04, kLeaf3 = 0.01, 
-    kStem3 = 0.63, kRoot3 = 0.01, kRhizome3 = 0.35, kLeaf4 = 0.01, kStem4 = 0.63, kRoot4 = 0.01, kRhizome4 = 0.35, 
-    kLeaf5 = 0.01, kStem5 = 0.63, kRoot5 = 0.01, kRhizome5 = 0.35, kLeaf6 = 0.01, kStem6 = 0.63, kRoot6 = 0.01, kRhizome6 = 0.35, 
-    kGrain6 = 0) {
+phenoParms <- function(tp1 = 562, tp2 = 1312, tp3 = 2063, tp4 = 2676, tp5 = 3211, 
+    tp6 = 7000, kLeaf1 = 0.33, kStem1 = 0.37, kRoot1 = 0.3, kRhizome1 = -8e-04, kLeaf2 = 0.14, 
+    kStem2 = 0.85, kRoot2 = 0.01, kRhizome2 = -5e-04, kLeaf3 = 0.01, kStem3 = 0.63, 
+    kRoot3 = 0.01, kRhizome3 = 0.35, kLeaf4 = 0.01, kStem4 = 0.63, kRoot4 = 0.01, 
+    kRhizome4 = 0.35, kLeaf5 = 0.01, kStem5 = 0.63, kRoot5 = 0.01, kRhizome5 = 0.35, 
+    kLeaf6 = 0.01, kStem6 = 0.63, kRoot6 = 0.01, kRhizome6 = 0.35, kGrain6 = 0) {
     if (kGrain6 < 0) 
         stop("kGrain6 should be positive (zero is allowed)")
-    list(tp1 = tp1, tp2 = tp2, tp3 = tp3, tp4 = tp4, tp5 = tp5, tp6 = tp6, kLeaf1 = kLeaf1, kStem1 = kStem1, kRoot1 = kRoot1, 
-        kRhizome1 = kRhizome1, kLeaf2 = kLeaf2, kStem2 = kStem2, kRoot2 = kRoot2, kRhizome2 = kRhizome2, kLeaf3 = kLeaf3, 
-        kStem3 = kStem3, kRoot3 = kRoot3, kRhizome3 = kRhizome3, kLeaf4 = kLeaf4, kStem4 = kStem4, kRoot4 = kRoot4, 
-        kRhizome4 = kRhizome4, kLeaf5 = kLeaf5, kStem5 = kStem5, kRoot5 = kRoot5, kRhizome5 = kRhizome5, kLeaf6 = kLeaf6, 
+    list(tp1 = tp1, tp2 = tp2, tp3 = tp3, tp4 = tp4, tp5 = tp5, tp6 = tp6, kLeaf1 = kLeaf1, 
+        kStem1 = kStem1, kRoot1 = kRoot1, kRhizome1 = kRhizome1, kLeaf2 = kLeaf2, 
+        kStem2 = kStem2, kRoot2 = kRoot2, kRhizome2 = kRhizome2, kLeaf3 = kLeaf3, 
+        kStem3 = kStem3, kRoot3 = kRoot3, kRhizome3 = kRhizome3, kLeaf4 = kLeaf4, 
+        kStem4 = kStem4, kRoot4 = kRoot4, kRhizome4 = kRhizome4, kLeaf5 = kLeaf5, 
+        kStem5 = kStem5, kRoot5 = kRoot5, kRhizome5 = kRhizome5, kLeaf6 = kLeaf6, 
         kStem6 = kStem6, kRoot6 = kRoot6, kRhizome6 = kRhizome6, kGrain6 = kGrain6)
     
     
 }
-SugarPhenoParms <- function(TT0 = 200, TTseed = 800, Tmaturity = 6000, Rd = 0.06, Alm = 0.15, Arm = 0.08, Clstem = 0.04, 
-    Ilstem = 7, Cestem = -0.05, Iestem = 45, Clsuc = 0.01, Ilsuc = 25, Cesuc = -0.02, Iesuc = 45) {
-    # Think about Error conditions in parameter values TT0= End of germination phase TTseed = seed cane stops
-    # providing nutrients/C for plant parts Tmaturity = Thermal time required to reach the maturity for the crop Rd=
-    # decline coefficients for root allocation Alm = minimum fraction to leaf minimum fraction to root Clstem and
-    # Ilstem togetehr determines when the linear phase of stem allocation ends Cestem and Iestem togetger determines
-    # when the log phase of stem allocation ends Clsuc and Ilsuc determines when the linear phase of sugar fraction
-    # ends Cesuc and Iesuc determines when the log phase of sugar fraction ends
+SugarPhenoParms <- function(TT0 = 200, TTseed = 800, Tmaturity = 6000, Rd = 0.06, 
+    Alm = 0.15, Arm = 0.08, Clstem = 0.04, Ilstem = 7, Cestem = -0.05, Iestem = 45, 
+    Clsuc = 0.01, Ilsuc = 25, Cesuc = -0.02, Iesuc = 45) {
+    # Think about Error conditions in parameter values TT0= End of germination
+    # phase TTseed = seed cane stops providing nutrients/C for plant parts
+    # Tmaturity = Thermal time required to reach the maturity for the crop Rd=
+    # decline coefficients for root allocation Alm = minimum fraction to leaf
+    # minimum fraction to root Clstem and Ilstem togetehr determines when the
+    # linear phase of stem allocation ends Cestem and Iestem togetger determines
+    # when the log phase of stem allocation ends Clsuc and Ilsuc determines when
+    # the linear phase of sugar fraction ends Cesuc and Iesuc determines when the
+    # log phase of sugar fraction ends
     
     
-    list(TT0 = TT0, TTseed = TTseed, Tmaturity = Tmaturity, Rd = Rd, Alm = Alm, Arm = Arm, Clstem = Clstem, Ilstem = Ilstem, 
-        Cestem = Cestem, Iestem = Iestem, Clsuc = Clsuc, Ilsuc = Ilsuc, Cesuc = Cesuc, Iesuc = Iesuc)
+    list(TT0 = TT0, TTseed = TTseed, Tmaturity = Tmaturity, Rd = Rd, Alm = Alm, Arm = Arm, 
+        Clstem = Clstem, Ilstem = Ilstem, Cestem = Cestem, Iestem = Iestem, Clsuc = Clsuc, 
+        Ilsuc = Ilsuc, Cesuc = Cesuc, Iesuc = Iesuc)
     
     
 }
 seneParms <- function(senLeaf = 3000, senStem = 3500, senRoot = 4000, senRhizome = 4000) {
     list(senLeaf = senLeaf, senStem = senStem, senRoot = senRoot, senRhizome = senRhizome)
 }
-## Function to automatically plot objects of BioGro class Colors Stem, Leaf, Root, Rhizome, LAI
+## Function to automatically plot objects of BioGro class Colors Stem, Leaf,
+## Root, Rhizome, LAI
 ##' Plotting function for BioGro objects
 ##'
 ##' By default it plots stem, leaf, root, rhizome and LAI for a \code{BioGro}
@@ -543,14 +565,15 @@ seneParms <- function(senLeaf = 3000, senStem = 3500, senRoot = 4000, senRhizome
 ##' @keywords hplot
 ##' @export
 ##' @S3method plot BioGro
-plot.BioGro <- function(x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, rhizome = TRUE, LAI = TRUE, grain = TRUE, 
-    xlab = NULL, ylab = NULL, pch = 21, lty = 1, lwd = 1, col = c("blue", "green", "red", "magenta", "black", "purple"), 
-    x1 = 0.1, y1 = 0.8, plot.kind = c("DB", "SW"), ...) {
+plot.BioGro <- function(x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, rhizome = TRUE, 
+    LAI = TRUE, grain = TRUE, xlab = NULL, ylab = NULL, pch = 21, lty = 1, lwd = 1, 
+    col = c("blue", "green", "red", "magenta", "black", "purple"), x1 = 0.1, y1 = 0.8, 
+    plot.kind = c("DB", "SW"), ...) {
     if (missing(xlab)) {
-        xlab = expression(paste("Thermal Time (", degree, "C d)"))
+        xlab <- expression(paste("Thermal Time (", degree, "C d)"))
     }
     if (missing(ylab)) {
-        ylab = expression(paste("Dry Biomass (Mg ", ha^-1, ")"))
+        ylab <- expression(paste("Dry Biomass (Mg ", ha^-1, ")"))
     }
     pchs <- rep(pch, length = 6)
     ltys <- rep(lty, length = 6)
@@ -560,69 +583,90 @@ plot.BioGro <- function(x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, rh
     if (plot.kind == "DB") {
         if (missing(obs)) {
             sim <- x
-            plot1 <- xyplot(sim$Stem ~ sim$ThermalT, type = "l", ..., ylim = c(0, I(max(sim$Stem, na.rm = TRUE) + 
-                5)), xlab = xlab, ylab = ylab, panel = function(x, y, ...) {
+            plot1 <- xyplot(sim$Stem ~ sim$ThermalT, type = "l", ..., ylim = c(0, 
+                I(max(sim$Stem, na.rm = TRUE) + 5)), xlab = xlab, ylab = ylab, panel = function(x, 
+                y, ...) {
                 if (stem == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], lty = ltys[1], lwd = lwds[1], ...)
+                  panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], lty = ltys[1], 
+                    lwd = lwds[1], ...)
                 }
                 if (leaf == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], lty = ltys[2], lwd = lwds[2], ...)
+                  panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], lty = ltys[2], 
+                    lwd = lwds[2], ...)
                 }
                 if (root == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], lty = ltys[3], lwd = lwds[3], ...)
+                  panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], lty = ltys[3], 
+                    lwd = lwds[3], ...)
                 }
                 if (rhizome == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], lty = ltys[4], lwd = lwds[4], ...)
+                  panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], lty = ltys[4], 
+                    lwd = lwds[4], ...)
                 }
                 if (grain == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], lty = ltys[5], lwd = lwds[5], ...)
+                  panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], lty = ltys[5], 
+                    lwd = lwds[5], ...)
                 }
                 if (LAI == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], lty = ltys[6], lwd = lwds[6], ...)
+                  panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], lty = ltys[6], 
+                    lwd = lwds[6], ...)
                 }
-            }, key = list(text = list(c("Stem", "Leaf", "Root", "Seedcane", "Grain", "LAI")), col = cols, lty = ltys, 
-                lwd = lwds, lines = TRUE, x = x1, y = y1))
+            }, key = list(text = list(c("Stem", "Leaf", "Root", "Seedcane", "Grain", 
+                "LAI")), col = cols, lty = ltys, lwd = lwds, lines = TRUE, x = x1, 
+                y = y1))
             print(plot1)
         } else {
             if (ncol(obs) != 7) 
                 stop("obs should have 7 columns")
             sim <- x
             ymax <- I(max(c(sim$Stem, obs[, 2]), na.rm = TRUE) + 5)
-            plot1 <- xyplot(sim$Stem ~ sim$ThermalT, ..., ylim = c(0, ymax), xlab = xlab, ylab = ylab, panel = function(x, 
-                y, ...) {
-                if (stem == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], lty = ltys[1], lwd = lwds[1], type = "l", ...)
-                }
-                if (leaf == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], lty = ltys[2], lwd = lwds[2], type = "l", ...)
-                }
-                if (root == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], lty = ltys[3], lwd = lwds[3], type = "l", ...)
-                }
-                if (rhizome == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], lty = ltys[4], lwd = lwds[4], type = "l", 
+            plot1 <- xyplot(sim$Stem ~ sim$ThermalT, ..., ylim = c(0, ymax), xlab = xlab, 
+                ylab = ylab, panel = function(x, y, ...) {
+                  if (stem == TRUE) {
+                    panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], lty = ltys[1], 
+                      lwd = lwds[1], type = "l", ...)
+                  }
+                  if (leaf == TRUE) {
+                    panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], lty = ltys[2], 
+                      lwd = lwds[2], type = "l", ...)
+                  }
+                  if (root == TRUE) {
+                    panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], lty = ltys[3], 
+                      lwd = lwds[3], type = "l", ...)
+                  }
+                  if (rhizome == TRUE) {
+                    panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], lty = ltys[4], 
+                      lwd = lwds[4], type = "l", ...)
+                  }
+                  if (grain == TRUE) {
+                    panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], lty = ltys[5], 
+                      lwd = lwds[5], type = "l", ...)
+                  }
+                  if (LAI == TRUE) {
+                    panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], lty = ltys[6], 
+                      lwd = lwds[6], type = "l", ...)
+                  }
+                  
+                  
+                  panel.xyplot(obs[, 1], obs[, 2], col = cols[1], pch = pchs[1], 
                     ...)
-                }
-                if (grain == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], lty = ltys[5], lwd = lwds[5], type = "l", ...)
-                }
-                if (LAI == TRUE) {
-                  panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], lty = ltys[6], lwd = lwds[6], type = "l", ...)
-                }
-                
-                
-                panel.xyplot(obs[, 1], obs[, 2], col = cols[1], pch = pchs[1], ...)
-                panel.xyplot(obs[, 1], obs[, 3], col = cols[2], pch = pchs[2], ...)
-                panel.xyplot(obs[, 1], obs[, 4], col = cols[3], pch = pchs[3], ...)
-                panel.xyplot(obs[, 1], obs[, 5], col = cols[4], pch = pchs[4], ...)
-                panel.xyplot(obs[, 1], obs[, 6], col = cols[5], pch = pchs[5], ...)
-                panel.xyplot(obs[, 1], obs[, 7], col = cols[6], pch = pchs[6], ...)
-            }, key = list(text = list(c("Stem", "Leaf", "Root", "Seedcane", "Grain", "LAI")), col = cols, lines = TRUE, 
-                points = TRUE, lty = ltys, pch = pchs, lwd = lwds, x = x1, y = y1))
+                  panel.xyplot(obs[, 1], obs[, 3], col = cols[2], pch = pchs[2], 
+                    ...)
+                  panel.xyplot(obs[, 1], obs[, 4], col = cols[3], pch = pchs[3], 
+                    ...)
+                  panel.xyplot(obs[, 1], obs[, 5], col = cols[4], pch = pchs[4], 
+                    ...)
+                  panel.xyplot(obs[, 1], obs[, 6], col = cols[5], pch = pchs[5], 
+                    ...)
+                  panel.xyplot(obs[, 1], obs[, 7], col = cols[6], pch = pchs[6], 
+                    ...)
+                }, key = list(text = list(c("Stem", "Leaf", "Root", "Seedcane", "Grain", 
+                  "LAI")), col = cols, lines = TRUE, points = TRUE, lty = ltys, pch = pchs, 
+                  lwd = lwds, x = x1, y = y1))
             print(plot1)
         }
     } else if (plot.kind == "SW") {
-        matplot(x$ThermalT, as.matrix(x$cwsMat), type = "l", ylab = "Soil Water Content", xlab = "Thermal Time")
+        matplot(x$ThermalT, as.matrix(x$cwsMat), type = "l", ylab = "Soil Water Content", 
+            xlab = "Thermal Time")
     }
 }
 ##' @export
