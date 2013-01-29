@@ -80,22 +80,22 @@ idbp <- function(data, phenoControl=list()){
   c2s <- c(delta.dat2[2:4]/rsum.dat2,c2s.r)
   c2s <- as.vector(unlist(c(c2s[2:1],c2s[3:4])))
   ## coefficients for the third stage
-  dat3 <- data[n1dat[2:3],];## print(dat3)
-  delta.dat3 <- dat3[2,] - dat3[1,];## print(delta.dat3)
+  dat3 <- data[n1dat[2:3],]## print(dat3)
+  delta.dat3 <- dat3[2,] - dat3[1,]## print(delta.dat3)
   delta.dat3[delta.dat3 < 0] <- 1e-6
   rsum.dat3 <- sum(delta.dat3[2:5])
   c3s <- c(delta.dat3[2:5]/rsum.dat3)
   c3s <- as.vector(unlist(c(c3s[2:1],c3s[3:4])))
   ## coefficients for the fourth stage
   dat4 <- data[n1dat[3:4],]
-  delta.dat4 <- dat4[2,] - dat4[1,]; ##print(delta.dat4)
+  delta.dat4 <- dat4[2,] - dat4[1,] ##print(delta.dat4)
   delta.dat4[delta.dat4 < 0] <- 1e-6
   rsum.dat4 <- sum(delta.dat4[2:5])
   c4s <- c(delta.dat4[2:5]/rsum.dat4)
   c4s <- as.vector(unlist(c(c4s[2:1],c4s[3:4])))
   ## coefficients for the fifth stage
-  dat5 <- data[n1dat[4:5],]; ##print(dat5); print(n1dat[4:5])
-  delta.dat5 <- dat5[2,] - dat5[1,]; ##print(delta.dat5)
+  dat5 <- data[n1dat[4:5],] ##print(dat5) print(n1dat[4:5])
+  delta.dat5 <- dat5[2,] - dat5[1,] ##print(delta.dat5)
   delta.dat5[delta.dat5 < 0] <- 1e-6
   rsum.dat5 <- sum(delta.dat5[2:5])
   c5s <- c(delta.dat5[2:5]/rsum.dat5)

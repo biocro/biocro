@@ -60,97 +60,97 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
 
   ## Additional nitrogen processes
   ## N deposition
-  Na = 0.21 + 0.0028 * precip * 0.10 ; # precipitation is entered in mm
+  Na = 0.21 + 0.0028 * precip * 0.10  # precipitation is entered in mm
                                    # but it is needed in cm for this
                                    # equation. Idem below
   ## N fixation
-  Nf = -0.18 + 0.014 * precip * 0.10 ; 
+  Nf = -0.18 + 0.014 * precip * 0.10  
   ## The resulting N is in g N m^-2 yr^-1
   ## Conversions
   ## g => Mg : multiply by 1e-6
   ## m^2 = > ha : multiply by 1e4
   ## year to week : divide by 52
   if(timestep == 7){
-    Na = Na * (1/52);
-    Nf = Nf * (1/52);
+    Na = Na * (1/52)
+    Nf = Nf * (1/52)
   }else
   if(timestep == 1){
-    Na = Na * (1/365);
-    Nf = Nf * (1/365);
+    Na = Na * (1/365)
+    Nf = Nf * (1/365)
   }
   ## Nitrogen in the form of fertilizer
-  Nfert = centuryP$Nfert; # The input units should be in g N m^-2
-  MinN = Na + Nf + Nfert + centuryP$iMinN;
-  if(verbose) cat("MinN 0: ",MinN,"\n");
+  Nfert = centuryP$Nfert # The input units should be in g N m^-2
+  MinN = Na + Nf + Nfert + centuryP$iMinN
+  if(verbose) cat("MinN 0: ",MinN,"\n")
   ## I can calculate leaching by assuming that the excess water from
   ## my simple water budget contains NO3 and that this NO3 is lost
 
 
-  T = 0.47; # silt plus clay content of the soil
-  Ts = 0.53; # Sand content of the soil
-  Tc = 0.4; # Clay content of the soil
+  T = 0.47 # silt plus clay content of the soil
+  Ts = 0.53 # Sand content of the soil
+  Tc = 0.4 # Clay content of the soil
   ## Termed T in the original paper
   ## The value 17% for lignin content corresponds to maize stover
-  LeafL.Ln = centuryP$LeafL.Ln;
-  StemL.Ln = centuryP$StemL.Ln;
-  RootL.Ln = centuryP$RootL.Ln;
-  RhizL.Ln = centuryP$RhizL.Ln;
+  LeafL.Ln = centuryP$LeafL.Ln
+  StemL.Ln = centuryP$StemL.Ln
+  RootL.Ln = centuryP$RootL.Ln
+  RhizL.Ln = centuryP$RhizL.Ln
   ## The value 0.4 % corresponds to maize stover
-  LeafL.N = centuryP$LeafL.N;
-  StemL.N = centuryP$StemL.N;
-  RootL.N = centuryP$RootL.N;
-  RhizL.N = centuryP$RhizL.N;
+  LeafL.N = centuryP$LeafL.N
+  StemL.N = centuryP$StemL.N
+  RootL.N = centuryP$RootL.N
+  RhizL.N = centuryP$RhizL.N
 
 
   ## Calculate the CtoN ratio for surface microbe
-  PlantN = LeafL * LeafL.N + StemL * StemL.N;
+  PlantN = LeafL * LeafL.N + StemL * StemL.N
 
 
-  CN.structural = 150;
-  CN.surface = 20 - PlantN * 5;
-  CN.active = 15 - MinN * 6;
-  CN.slow = 20 - MinN * 4;
-  CN.passive = 10 - MinN * 1.5;
-  if(PlantN > 2) CN.surface = 10;
+  CN.structural = 150
+  CN.surface = 20 - PlantN * 5
+  CN.active = 15 - MinN * 6
+  CN.slow = 20 - MinN * 4
+  CN.passive = 10 - MinN * 1.5
+  if(PlantN > 2) CN.surface = 10
   ## Here 2 is g m^-2
   if(MinN > 2){
-    CN.active = 3;
-    CN.passive = 7;
-    CN.slow = 12;
+    CN.active = 3
+    CN.passive = 7
+    CN.slow = 12
   }
-  SC1 = centuryP$SC1;
-  SC2 = centuryP$SC2;
-  SC3 = centuryP$SC3;
-  SC4 = centuryP$SC4;
-  SC5 = centuryP$SC5;
-  SC6 = centuryP$SC6;
-  SC7 = centuryP$SC7;
-  SC8 = centuryP$SC8;
-  SC9 = centuryP$SC9;
-  SN1 = SC1 / CN.structural; 
-  SN2 = SC2 / CN.surface;
-  SN3 = SC3 / CN.structural;
-  SN4 = SC4 / CN.active;
-  SN5 = SC5 / CN.surface;
-  SN6 = SC6 / CN.active;
-  SN7 = SC7 / CN.slow;
-  SN8 = SC8 / CN.passive;
-  SN9 = SC9 / CN.passive;
+  SC1 = centuryP$SC1
+  SC2 = centuryP$SC2
+  SC3 = centuryP$SC3
+  SC4 = centuryP$SC4
+  SC5 = centuryP$SC5
+  SC6 = centuryP$SC6
+  SC7 = centuryP$SC7
+  SC8 = centuryP$SC8
+  SC9 = centuryP$SC9
+  SN1 = SC1 / CN.structural 
+  SN2 = SC2 / CN.surface
+  SN3 = SC3 / CN.structural
+  SN4 = SC4 / CN.active
+  SN5 = SC5 / CN.surface
+  SN6 = SC6 / CN.active
+  SN7 = SC7 / CN.slow
+  SN8 = SC8 / CN.passive
+  SN9 = SC9 / CN.passive
 
 
-  respC1.5 = 0.6;
-  respC1.7 = 0.3;
-  respC3.7 = 0.3;
-  respC2.5 = 0.6;
-  respC3.6 = 0.55;
-  respC4.6 = 0.55;
-  respC5.7 = 0.6;
-  respC6 = 0.85 - 0.68 * T;
-  respC7 = 0.55;
-  respC8 = 0.55;
+  respC1.5 = 0.6
+  respC1.7 = 0.3
+  respC3.7 = 0.3
+  respC2.5 = 0.6
+  respC3.6 = 0.55
+  respC4.6 = 0.55
+  respC5.7 = 0.6
+  respC6 = 0.85 - 0.68 * T
+  respC7 = 0.55
+  respC8 = 0.55
 
 
-  Tm = 1 - 0.75 * T;
+  Tm = 1 - 0.75 * T
   if(verbose){
     cat("Tm :",Tm,"\n")
  } 
@@ -161,50 +161,50 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
   ## and Parton et al. 1993 Global Biogeochemistry pg 785
   Ks <- centuryP$Ks
   if(timestep == "week"){
-    Ks = Ks / 52; # The units are week^-1
+    Ks = Ks / 52 # The units are week^-1
   }else
   if(timestep == "day"){
-    Ks = Ks / 365; # The units are day^-1 
+    Ks = Ks / 365 # The units are day^-1 
     }
 
 
   ## Need to calculate the effect of temperature and moisture.
   if(stemp < 35){
-    TempEff = 1.0087 / (1 + (46.2 * exp(-0.1899 * stemp)));
+    TempEff = 1.0087 / (1 + (46.2 * exp(-0.1899 * stemp)))
   }else{
-    TempEff = -0.0826 * stemp + 3.84;
+    TempEff = -0.0826 * stemp + 3.84
   }
 
 
-  MoisEff = 1.0267 / (1 + 14.7 * exp(-6.5 * smoist));
-  Abiot = TempEff * MoisEff ;
+  MoisEff = 1.0267 / (1 + 14.7 * exp(-6.5 * smoist))
+  Abiot = TempEff * MoisEff 
   ## Calculate Fm and Lc separately for each component
-  FmLc.Leaf = FmLcFun(LeafL.Ln,LeafL.N);
-  FmLc.Stem = FmLcFun(StemL.Ln,StemL.N);
-  FmLc.Root = FmLcFun(RootL.Ln,RootL.N);
-  FmLc.Rhiz = FmLcFun(RhizL.Ln,RhizL.N);
+  FmLc.Leaf = FmLcFun(LeafL.Ln,LeafL.N)
+  FmLc.Stem = FmLcFun(StemL.Ln,StemL.N)
+  FmLc.Root = FmLcFun(RootL.Ln,RootL.N)
+  FmLc.Rhiz = FmLcFun(RhizL.Ln,RhizL.N)
   ## Surface Metabolic Carbon
-  SC2.Leaf = FmLc.Leaf$Fm * LeafL;
-  SC2.Stem = FmLc.Stem$Fm * StemL;
+  SC2.Leaf = FmLc.Leaf$Fm * LeafL
+  SC2.Stem = FmLc.Stem$Fm * StemL
   ## Root Metabolic Carbon
-  SC4.Root = FmLc.Root$Fm * RootL;
-  SC4.Rhiz = FmLc.Rhiz$Fm * RhizL;
+  SC4.Root = FmLc.Root$Fm * RootL
+  SC4.Rhiz = FmLc.Rhiz$Fm * RhizL
   ## Surface Structural Carbon
-  SC1.Leaf = (1 - FmLc.Leaf$Fm) * LeafL;
-  SC1.Stem = (1 - FmLc.Stem$Fm) * StemL;
+  SC1.Leaf = (1 - FmLc.Leaf$Fm) * LeafL
+  SC1.Stem = (1 - FmLc.Stem$Fm) * StemL
   ## Adding the extra arrows 12-11
-  SC1.Leaf.Ln = SC1.Leaf * LeafL.Ln;
-  SC1.Stem.Ln = SC1.Stem * StemL.Ln;
-  SC1.Leaf = SC1.Leaf - SC1.Leaf.Ln;
-  SC1.Stem = SC1.Stem - SC1.Stem.Ln;
+  SC1.Leaf.Ln = SC1.Leaf * LeafL.Ln
+  SC1.Stem.Ln = SC1.Stem * StemL.Ln
+  SC1.Leaf = SC1.Leaf - SC1.Leaf.Ln
+  SC1.Stem = SC1.Stem - SC1.Stem.Ln
   ## Root Structural Carbon
-  SC3.Root = (1 - FmLc.Root$Fm) * RootL;
-  SC3.Rhiz = (1 - FmLc.Rhiz$Fm) * RhizL;
+  SC3.Root = (1 - FmLc.Root$Fm) * RootL
+  SC3.Rhiz = (1 - FmLc.Rhiz$Fm) * RhizL
   ## Adding the extra arrows 12-11
-  SC3.Root.Ln = SC3.Root * RootL.Ln;
-  SC3.Rhiz.Ln = SC3.Rhiz * RhizL.Ln;
-  SC3.Root = SC3.Root - SC3.Root.Ln;
-  SC3.Rhiz = SC3.Rhiz - SC3.Rhiz.Ln;
+  SC3.Root.Ln = SC3.Root * RootL.Ln
+  SC3.Rhiz.Ln = SC3.Rhiz * RhizL.Ln
+  SC3.Root = SC3.Root - SC3.Root.Ln
+  SC3.Rhiz = SC3.Rhiz - SC3.Rhiz.Ln
 
 
   ## T is silt plus clay content
@@ -214,34 +214,34 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
   ## 2 => 5
   ## dC1/dt = Ki * Lc * A * Ci
   ## Leaf
-  SC1.Leaf = SC1.Leaf + 0.3 * SC1;
-  SC2.Leaf = SC2.Leaf + 0.3 * SC2;
-  C1.5.Leaf = flow(SC1.Leaf,CN.surface,Abiot,FmLc.Leaf$Lc,Tm,respC1.5,1,Ks,verbose);
-  C2.5.Leaf = flow(SC2.Leaf,CN.surface,Abiot,FmLc.Leaf$Lc,Tm,respC1.5,5,Ks,verbose);
+  SC1.Leaf = SC1.Leaf + 0.3 * SC1
+  SC2.Leaf = SC2.Leaf + 0.3 * SC2
+  C1.5.Leaf = flow(SC1.Leaf,CN.surface,Abiot,FmLc.Leaf$Lc,Tm,respC1.5,1,Ks,verbose)
+  C2.5.Leaf = flow(SC2.Leaf,CN.surface,Abiot,FmLc.Leaf$Lc,Tm,respC1.5,5,Ks,verbose)
   ## Stem
-  SC1.Stem = SC1.Stem + 0.7 * SC1;
-  SC2.Stem = SC2.Stem + 0.7 * SC2;
-  C1.5.Stem = flow(SC1.Stem,CN.surface,Abiot,FmLc.Stem$Lc,Tm,respC2.5,1,Ks,verbose);
-  C2.5.Stem = flow(SC2.Stem,CN.surface,Abiot,FmLc.Stem$Lc,Tm,respC2.5,5,Ks,verbose);
-  SC1.Leaf = C1.5.Leaf$SC;
-  SC2.Leaf = C2.5.Leaf$SC;
-  SC1.Stem = C1.5.Stem$SC;
-  SC2.Stem = C2.5.Stem$SC;
+  SC1.Stem = SC1.Stem + 0.7 * SC1
+  SC2.Stem = SC2.Stem + 0.7 * SC2
+  C1.5.Stem = flow(SC1.Stem,CN.surface,Abiot,FmLc.Stem$Lc,Tm,respC2.5,1,Ks,verbose)
+  C2.5.Stem = flow(SC2.Stem,CN.surface,Abiot,FmLc.Stem$Lc,Tm,respC2.5,5,Ks,verbose)
+  SC1.Leaf = C1.5.Leaf$SC
+  SC2.Leaf = C2.5.Leaf$SC
+  SC1.Stem = C1.5.Stem$SC
+  SC2.Stem = C2.5.Stem$SC
   ## Adding the ligning content
-  C1.7.Leaf.Ln = flow(SC1.Leaf.Ln,CN.slow,Abiot,FmLc.Leaf$Lc,Tm,respC1.7,1,Ks,verbose);
-  C1.7.Stem.Ln = flow(SC1.Stem.Ln,CN.slow,Abiot,FmLc.Stem$Lc,Tm,respC1.7,1,Ks,verbose);
-  SC7 = C1.7.Leaf.Ln$fC + C1.7.Stem.Ln$fC  + SC7;
+  C1.7.Leaf.Ln = flow(SC1.Leaf.Ln,CN.slow,Abiot,FmLc.Leaf$Lc,Tm,respC1.7,1,Ks,verbose)
+  C1.7.Stem.Ln = flow(SC1.Stem.Ln,CN.slow,Abiot,FmLc.Stem$Lc,Tm,respC1.7,1,Ks,verbose)
+  SC7 = C1.7.Leaf.Ln$fC + C1.7.Stem.Ln$fC  + SC7
 ##   SC1.Ln = C1.5.Leaf.Ln$SC + C1.5.Stem.Ln$SC;
 
 
   ## Collect respiration
   Resp = C1.5.Leaf$Resp + C2.5.Leaf$Resp +
          C1.5.Stem$Resp + C2.5.Stem$Resp +
-         C1.7.Leaf.Ln$Resp + C1.7.Stem.Ln$Resp;
+         C1.7.Leaf.Ln$Resp + C1.7.Stem.Ln$Resp
   ## Collect mineralized Nitrogen
   MinN = MinN +  C1.5.Leaf$MinN + C2.5.Leaf$MinN +
                  C1.5.Stem$MinN + C2.5.Stem$MinN +
-                 C1.7.Leaf.Ln$MinN + C1.7.Stem.Ln$MinN;
+                 C1.7.Leaf.Ln$MinN + C1.7.Stem.Ln$MinN
 
 
   if(verbose){
@@ -249,41 +249,41 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
     cat("Min 1:",MinN,"\n")
   }
   ## Updating the Soil Carbon Pools 1 and 2 
-  SC1 = C1.5.Leaf$SC + C1.5.Stem$SC + C1.7.Leaf.Ln$SC + C1.7.Stem.Ln$SC;
-  SC2 = C2.5.Leaf$SC + C2.5.Stem$SC ;
+  SC1 = C1.5.Leaf$SC + C1.5.Stem$SC + C1.7.Leaf.Ln$SC + C1.7.Stem.Ln$SC
+  SC2 = C2.5.Leaf$SC + C2.5.Stem$SC 
   ## Updating the Nitrogen Carbon Pools 1 and 2
-  SN1 = SC1 / CN.structural + SN1;
-  SN2 = SC2 / CN.surface + SN2;
+  SN1 = SC1 / CN.structural + SN1
+  SN2 = SC2 / CN.surface + SN2
 
 
   ## Structural Root Litter C to Soil Microbe C
   ## 4 => 6
   ## 3 => 6
   ## Root
-  SC3.Root = SC3.Root + 0.3 * SC3;
-  SC4.Root = SC4.Root + 0.3 * SC4;
-  C3.6.Root = flow(SC3.Root,CN.active,Abiot,FmLc.Root$Lc,Tm,respC3.6,2,Ks,verbose);
-  C4.6.Root = flow(SC4.Root,CN.active,Abiot,FmLc.Root$Lc,Tm,respC3.6,6,Ks,verbose);
+  SC3.Root = SC3.Root + 0.3 * SC3
+  SC4.Root = SC4.Root + 0.3 * SC4
+  C3.6.Root = flow(SC3.Root,CN.active,Abiot,FmLc.Root$Lc,Tm,respC3.6,2,Ks,verbose)
+  C4.6.Root = flow(SC4.Root,CN.active,Abiot,FmLc.Root$Lc,Tm,respC3.6,6,Ks,verbose)
   ## Rhizome
-  SC3.Rhiz = SC3.Rhiz + 0.7 * SC3;
-  SC4.Rhiz = SC4.Rhiz + 0.7 * SC4;
-  C3.6.Rhiz = flow(SC3.Rhiz,CN.active,Abiot,FmLc.Rhiz$Lc,Tm,respC4.6,2,Ks,verbose);
-  C4.6.Rhiz = flow(SC4.Rhiz,CN.active,Abiot,FmLc.Rhiz$Lc,Tm,respC4.6,6,Ks,verbose);
-  SC3.Root = C3.6.Root$SC;
-  SC4.Root = C4.6.Root$SC;
-  SC3.Rhiz = C3.6.Rhiz$SC;
-  SC4.Rhiz = C4.6.Rhiz$SC;
+  SC3.Rhiz = SC3.Rhiz + 0.7 * SC3
+  SC4.Rhiz = SC4.Rhiz + 0.7 * SC4
+  C3.6.Rhiz = flow(SC3.Rhiz,CN.active,Abiot,FmLc.Rhiz$Lc,Tm,respC4.6,2,Ks,verbose)
+  C4.6.Rhiz = flow(SC4.Rhiz,CN.active,Abiot,FmLc.Rhiz$Lc,Tm,respC4.6,6,Ks,verbose)
+  SC3.Root = C3.6.Root$SC
+  SC4.Root = C4.6.Root$SC
+  SC3.Rhiz = C3.6.Rhiz$SC
+  SC4.Rhiz = C4.6.Rhiz$SC
   ## Adding the lignin content
-  C3.7.Root.Ln = flow(SC3.Root.Ln,CN.slow,Abiot,FmLc.Root$Lc,Tm,respC3.7,2,Ks,verbose);
-  C3.7.Rhiz.Ln = flow(SC3.Rhiz.Ln,CN.slow,Abiot,FmLc.Rhiz$Lc,Tm,respC3.7,2,Ks,verbose);
-  SC7 = SC7 + C3.7.Root.Ln$fC + C3.7.Rhiz.Ln$fC ;
+  C3.7.Root.Ln = flow(SC3.Root.Ln,CN.slow,Abiot,FmLc.Root$Lc,Tm,respC3.7,2,Ks,verbose)
+  C3.7.Rhiz.Ln = flow(SC3.Rhiz.Ln,CN.slow,Abiot,FmLc.Rhiz$Lc,Tm,respC3.7,2,Ks,verbose)
+  SC7 = SC7 + C3.7.Root.Ln$fC + C3.7.Rhiz.Ln$fC 
   ## Collect respiration
   Resp = Resp + C3.6.Root$Resp + C4.6.Root$Resp +
-                C3.6.Rhiz$Resp + C4.6.Rhiz$Resp;
+                C3.6.Rhiz$Resp + C4.6.Rhiz$Resp
   ## Collect mineralized Nitrogen
   MinN = MinN + C3.6.Root$MinN + C4.6.Root$MinN +
                 C3.6.Rhiz$MinN + C4.6.Rhiz$MinN +
-                C3.7.Root.Ln$MinN + C3.7.Rhiz.Ln$Min;
+                C3.7.Root.Ln$MinN + C3.7.Rhiz.Ln$Min
   if(verbose){
     cat("Resp:",Resp,"\n")
     cat("MinN 2:",MinN,"\n")
@@ -291,74 +291,74 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
 
 
   ## Updating the Soil Carbon Pools 3 and 4
-  SC3 = C3.6.Root$SC + C3.6.Rhiz$SC + C3.7.Root.Ln$SC + C3.7.Rhiz.Ln$SC ;
-  SC4 = C4.6.Root$SC + C4.6.Rhiz$SC ;
+  SC3 = C3.6.Root$SC + C3.6.Rhiz$SC + C3.7.Root.Ln$SC + C3.7.Rhiz.Ln$SC 
+  SC4 = C4.6.Root$SC + C4.6.Rhiz$SC 
   ## Updating the Nitrogen pools 3 and 4
-  SN3 = SC3 / CN.structural + SN3;
-  SN4 = SC4 / CN.active + SN4;
+  SN3 = SC3 / CN.structural + SN3
+  SN4 = SC4 / CN.active + SN4
   ## Updating the Soil Carbon Pool 5
-  SC5 = C1.5.Leaf$fC + C1.5.Stem$fC + C2.5.Leaf$fC + C2.5.Stem$fC + SC5;
+  SC5 = C1.5.Leaf$fC + C1.5.Stem$fC + C2.5.Leaf$fC + C2.5.Stem$fC + SC5
   # Updating the Soil Nitrogen pool 5
-  SN5 = SC5 / CN.surface + SN5;
+  SN5 = SC5 / CN.surface + SN5
 
 
   ## Updating the Soil Carbon Pool 6
-  SC6 = C3.6.Root$fC + C3.6.Rhiz$fC + C4.6.Root$fC + C4.6.Rhiz$fC + SC6;
+  SC6 = C3.6.Root$fC + C3.6.Rhiz$fC + C4.6.Root$fC + C4.6.Rhiz$fC + SC6
   ## Updating the Soil Carbon Pool 6
-  SN6 = SC6 / CN.active + SN6;
+  SN6 = SC6 / CN.active + SN6
   ## Surface Microbe C to Slow C
   ## 5 => 7
-  C5.7 = flow(SC5,CN.slow,Abiot,0,0,respC5.7,4,Ks,verbose);
-  Resp = Resp + C5.7$Resp;
-  MinN = MinN + C5.7$MinN;
+  C5.7 = flow(SC5,CN.slow,Abiot,0,0,respC5.7,4,Ks,verbose)
+  Resp = Resp + C5.7$Resp
+  MinN = MinN + C5.7$MinN
   if(verbose){
     cat("Resp:",Resp,"\n")
     cat("MinN 3:",MinN,"\n")
   }
   ## Updating Surface Microbe C (pool 5) and slow (pool 7)
-  SC5 = C5.7$SC ;
-  SC7 = C5.7$fC + SC7;
+  SC5 = C5.7$SC 
+  SC7 = C5.7$fC + SC7
   ## Updating Surface Microbe N pool
-  SN5 = SC5 / CN.surface;
+  SN5 = SC5 / CN.surface
 
 
   ## Soil Microbe C to intermediate stage C
-  C6 = flow(SC6,CN.slow,Abiot,0,Tm,respC6,3,Ks,verbose);
-  Resp = Resp + C6$Resp;
-  MinN = MinN + C6$MinN;
+  C6 = flow(SC6,CN.slow,Abiot,0,Tm,respC6,3,Ks,verbose)
+  Resp = Resp + C6$Resp
+  MinN = MinN + C6$MinN
   if(verbose) cat("Resp:",Resp,"\n")
   ## Updating carbon and soil pools 6
-  SC6 = C6$SC;
-  SN6 = SC6 / CN.active;
+  SC6 = C6$SC
+  SN6 = SC6 / CN.active
 
 
-  C.ap = 0.003 + 0.032 * Tc;   
-  C.al = leachWater/18 * (0.01 + 0.04 * Ts);
+  C.ap = 0.003 + 0.032 * Tc   
+  C.al = leachWater/18 * (0.01 + 0.04 * Ts)
   if(verbose){
     cat("C.ap : ",C.ap,"\n")
     cat("C.al : ",C.al,"\n")
   }
 
 
-  C6.8 = C6$fC * C.ap;
-  C6.9 = C6$fC * C.al;
-  C6.7 = C6$fC * (1 - C.ap - C.al);
+  C6.8 = C6$fC * C.ap
+  C6.9 = C6$fC * C.al
+  C6.7 = C6$fC * (1 - C.ap - C.al)
 
 
   ## Updating the Soil Carbon Pool 7, 8 and 9
-  SC7 = C6.7 + SC7;
-  SC8 = C6.8 + SC8;
-  SC9 = C6.9 + SC9;
+  SC7 = C6.7 + SC7
+  SC8 = C6.8 + SC8
+  SC9 = C6.9 + SC9
   ## Updating the Soil Nitrogen Pool 7, 8 and 9
-  SN7 = SC7 / CN.slow + SN7;
-  SN8 = SC8 / CN.passive + SN8;
-  SN9 = SC9 / CN.slow + SN9;
+  SN7 = SC7 / CN.slow + SN7
+  SN8 = SC8 / CN.passive + SN8
+  SN9 = SC9 / CN.slow + SN9
 
 
   ## Slow Carbon to intermediate stage
-  C7 = flow(SC7,CN.slow,Abiot,0,0,respC7,7,Ks,verbose);
-  Resp = Resp + C7$Resp;
-  MinN = MinN + C7$MinN;
+  C7 = flow(SC7,CN.slow,Abiot,0,0,respC7,7,Ks,verbose)
+  Resp = Resp + C7$Resp
+  MinN = MinN + C7$MinN
 
 
   if(verbose){
@@ -367,21 +367,21 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
   }
 
 
-  C.sp = 0.003 - 0.009 *Tc;
-  C7.8 = C7$fC * C.sp;
-  C7.6 = C7$fC * (1 - C.sp); # There is no need to subtract 0.55 since
+  C.sp = 0.003 - 0.009 *Tc
+  C7.8 = C7$fC * C.sp
+  C7.6 = C7$fC * (1 - C.sp) # There is no need to subtract 0.55 since
                              # this was already taken into account in
                              # the flow equation
   ## Updating the Soil Carbon Pools 6 and 8
-  SC6 = C7.6 + SC6;
-  SC8 = C7.8 + SC8;
+  SC6 = C7.6 + SC6
+  SC8 = C7.8 + SC8
   ## Updating the Soil Nitrogen Pools 6 and 8
-  SN6 = SC6 / CN.active;
-  SN8 = SN8 / CN.passive;
+  SN6 = SC6 / CN.active
+  SN8 = SN8 / CN.passive
   ## Passive Carbon to Soil Microbe C
-  C8.6 = flow(SC8,CN.passive,Abiot,0,0,respC8,8,Ks,verbose);
-  Resp = Resp + C8.6$Resp;
-  MinN = MinN + C8.6$MinN;
+  C8.6 = flow(SC8,CN.passive,Abiot,0,0,respC8,8,Ks,verbose)
+  Resp = Resp + C8.6$Resp
+  MinN = MinN + C8.6$MinN
   if(verbose){
     cat("Resp:",Resp,"\n")
     cat("MinN 5:",MinN,"\n")
@@ -389,32 +389,32 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
   ## Updating the Soil Microbe C 6 and 8
 
 
-  SC8 = C8.6$SC ;
-  SC6 = C8.6$fC + SC6;
-  SN6 = SC6 / CN.active;
-  SN8 = SC8 / CN.passive;
+  SC8 = C8.6$SC 
+  SC6 = C8.6$fC + SC6
+  SN6 = SC6 / CN.active
+  SN8 = SC8 / CN.passive
   SCs <- c(SC1,SC2,SC3,SC4,SC5,SC6,SC7,SC8,SC9)
   SNs <- c(SN1,SN2,SN3,SN4,SN5,SN6,SN7,SN8,SN9)
   list(SCs=SCs, SNs=SNs, MinN=MinN, Resp=Resp)
 }
 FmLcFun <- function(Lig,Nit){
-  Fm = 0.85 - 0.018 *(Lig/Nit);
-  Ls = Lig / (1 - Fm);
-  Lc = exp(-3 * Ls);
+  Fm = 0.85 - 0.018 *(Lig/Nit)
+  Ls = Lig / (1 - Fm)
+  Lc = exp(-3 * Ls)
   list(Lc=Lc,Fm=Fm)
 }
 flow <- function(SC,CNratio,A,Lc,Tm,resp,kno,Ks,verbose=FALSE){
   if(kno < 3){
     Kf = Ks[kno] * Lc * A 
-    fC = Kf * SC;
+    fC = Kf * SC
   }else
   if(kno == 3){
     Kf = Ks[kno] * A * Tm
-    fC = Kf * SC;
+    fC = Kf * SC
   }else
   if(kno > 3){
     Kf = Ks[kno] * A
-    fC = Kf * SC;
+    fC = Kf * SC
   }
   if(is.na(Kf)) warning(paste("Kf is NA: ",kno))
   else if(Kf > 1) warning(paste("Kf greater than 1: ",Kf,A,Lc,kno))
@@ -423,15 +423,15 @@ flow <- function(SC,CNratio,A,Lc,Tm,resp,kno,Ks,verbose=FALSE){
   }
 
 
-  Resp = fC * resp;
+  Resp = fC * resp
   if(Resp < 0) warning(paste("Resp less than zero",Resp))
   ## Mineralized N
-  MinN = Resp / CNratio;
-  SC = SC - fC;
+  MinN = Resp / CNratio
+  SC = SC - fC
 
 
-  fC = fC - Resp;
-#  fN = fC / CNratio;
+  fC = fC - Resp
+#  fN = fC / CNratio
 ## It is important to keep track of C emissions because
 ## I might need to validate it against Eddy flux data
   list(SC=SC, fC=fC, Resp=Resp, Kf=Kf, MinN=MinN)
@@ -515,4 +515,3 @@ CenturyC <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWat
   res$SNs <- res$SNs * 100
   res
 }
-

@@ -72,7 +72,7 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
 ## rootDepth
   ## Crude empirical relationship between root biomass and rooting depth
   rootDepth <- rootDB * 0.44
-  if(rootDepth > soilDepth) rootDepth = soilDepth;
+  if(rootDepth > soilDepth) rootDepth = soilDepth
 
 
   depths <- seq(0,soilDepth,length.out=I(soilLayers+1))
@@ -81,7 +81,7 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
 
 
 ## Precipitation enters in mm
-  waterIn = precipt * 1e-3; ## This is now cubic meter of water
+  waterIn = precipt * 1e-3 ## This is now cubic meter of water
 
 
   for(i in I(length(depths)-1):1){
@@ -95,14 +95,14 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
 ### For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9
 ### First compute the matric potential
     if(hydrDist > 0){
-      psim[i] = tmp2$air.entry * (cws[i]/theta_s)^-tmp2$b ; # This is matric potential of current layer 
+      psim[i] = tmp2$air.entry * (cws[i]/theta_s)^-tmp2$b  # This is matric potential of current layer 
       if(i > 1){
-     	psim[i-1] = tmp2$air.entry * (cws[i-1]/theta_s)^-tmp2$b ;#  This is matric potential of next layer 
-     	dPsim = psim[i] - psim[i-1];
+     	psim[i-1] = tmp2$air.entry * (cws[i-1]/theta_s)^-tmp2$b #  This is matric potential of next layer 
+     	dPsim = psim[i] - psim[i-1]
       }else{
-     	dPsim = 0;
+     	dPsim = 0
       }
-      K_psim = tmp2$Ks *  (tmp2$air.entry/psim[i])^(2+3/tmp2$b); # This is hydraulic conductivity 
+      K_psim = tmp2$Ks *  (tmp2$air.entry/psim[i])^(2+3/tmp2$b) # This is hydraulic conductivity 
       J_w = K_psim * (dPsim/layerDepth) - 9.8 * K_psim## Ignore gravitational effect - 10 * K_psim
       ## This is in kg (m2 * s)
       ## if(is.infinite(J_w) || is.na(J_w) || J_w > 1 || J_w < -1){
@@ -117,31 +117,31 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
     ## times 3600 to convert seconds to hours
     ## Density of water at 20C 0.9882 Mg /m3
     ## 1e-3 to convert from kg to Mg
-      J_w = J_w * 3600 * (1/0.9882) * 1e-3; #/* This is flow in m3 /(m2 * hr)*/
+      J_w = J_w * 3600 * (1/0.9882) * 1e-3 #/* This is flow in m3 /(m2 * hr)*/
       if(i == soilLayers && J_w < 0){
 ##          cws[i] = cws[i] +  J_w / layerDepth;
           drainage = drainage - J_w
       }else
       if(i > 1){
-     	cws[i] = cws[i] -  J_w / layerDepth;
-     	cws[i - 1] =  cws[i-1] +  J_w / layerDepth;
+     	cws[i] = cws[i] -  J_w / layerDepth
+     	cws[i - 1] =  cws[i-1] +  J_w / layerDepth
       }else{
 ##        if(J_w < 0){
-          cws[i] = cws[i] -  J_w / layerDepth;
+          cws[i] = cws[i] -  J_w / layerDepth
 ##        }
       }
     }
-    if(cws[i] > FieldC) cws[i] = FieldC;
+    if(cws[i] > FieldC) cws[i] = FieldC
 ##    if(cws[i+1] > FieldC) cws[i+1] = FieldC;
-    if(cws[i] < WiltP) cws[i] = WiltP;
+    if(cws[i] < WiltP) cws[i] = WiltP
 ##    if(cws[i+1] < WiltP) cws[i+1] = WiltP;
 
 
-    aw = cws[i] * layerDepth; ## Volume of water in layer i currently
+    aw = cws[i] * layerDepth ## Volume of water in layer i currently
     if(waterIn > 0){
-      aw = aw + waterIn / soilLayers + oldWaterIn; ## They are both in meters so it works
+      aw = aw + waterIn / soilLayers + oldWaterIn ## They are both in meters so it works
       ## This is likely to overflow for the first layer when there is plenty precipitation
-      diffwc = FieldC*layerDepth - aw;
+      diffwc = FieldC*layerDepth - aw
 
 
       if(diffwc < 0){
@@ -157,8 +157,8 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
     rootATdepth <- rootDB*rprops[i]
     ## Plant available water is only between current water status and permanent wilting point 
     ## Plant available water 
-    paw <- aw - WiltP * layerDepth;
-    if(paw <0) paw = 0;
+    paw <- aw - WiltP * layerDepth
+    if(paw <0) paw = 0
 
 
     ## The next step is to calculate the Evapo Transpiration I will
@@ -177,40 +177,40 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
       CanopyTra <- CanopyT*rprops[i] 
        EvapoTra <- CanopyTra + SoilEvap
        ## These units are in Mg/ha so
-       Newpawha <- (paw * 1e4) - (EvapoTra + oldEvapoTra);
+       Newpawha <- (paw * 1e4) - (EvapoTra + oldEvapoTra)
     }
     if(Newpawha < 0){
-      oldEvapoTra = -Newpawha;
-      paw = 0;
+      oldEvapoTra = -Newpawha
+      paw = 0
       ## If the Demand is not satisfied by the first layer. This will be stored and added to subsequent soilLayers
     }else{
-      paw = Newpawha / 1e4 ;
+      paw = Newpawha / 1e4 
     }
     awc <- paw / layerDepth + WiltP 
     cws[i] <- awc
     if(wsFun == 0){
-      slp = 1/(FieldC - WiltP);
-      intcpt = 1 - FieldC * slp;
-      wsPhoto = slp * awc + intcpt ;
+      slp = 1/(FieldC - WiltP)
+      intcpt = 1 - FieldC * slp
+      wsPhoto = slp * awc + intcpt 
     }else
     if(wsFun == 1){
-      phi10 = (FieldC + WiltP)/2;
-      wsPhoto = 1/(1 + exp((phi10 - awc)/ phi1));
+      phi10 = (FieldC + WiltP)/2
+      wsPhoto = 1/(1 + exp((phi10 - awc)/ phi1))
     }else
     if(wsFun == 2){
-      slp = (1 - WiltP)/(FieldC - WiltP);
-      intcpt = 1 - FieldC * slp;
-      theta = slp * awc + intcpt ;
-      wsPhoto = (1 - exp(-2.5 * (theta - WiltP)/(1 - WiltP))) / (1 - exp(-2.5));
+      slp = (1 - WiltP)/(FieldC - WiltP)
+      intcpt = 1 - FieldC * slp
+      theta = slp * awc + intcpt 
+      wsPhoto = (1 - exp(-2.5 * (theta - WiltP)/(1 - WiltP))) / (1 - exp(-2.5))
     }else
     if(wsFun == 3){
-      wsPhoto = 1;
+      wsPhoto = 1
     }
   if(wsPhoto <= 0 )
-    wsPhoto = 1e-20; ## This can be mathematically lower than zero in some cases but I should prevent that. 
-    wsSpleaf = awc^phi2 * 1/FieldC^phi2; 
+    wsPhoto = 1e-20 ## This can be mathematically lower than zero in some cases but I should prevent that. 
+    wsSpleaf = awc^phi2 * 1/FieldC^phi2 
     if(wsFun == 3){ 
-      wsSpleaf = 1;
+      wsSpleaf = 1
     }
 
 
@@ -253,11 +253,11 @@ rootDist <- function(layers,rootDepth,depthsp,rfl){
 #  for(i in 1:I(length(depthsp)-1)){
   for(i in seq_len(layers)){
     if(i == 1){
-      layerDepth = depthsp[1+1];
+      layerDepth = depthsp[1+1]
     }else{
-      layerDepth = depthsp[i] - depthsp[i-1];
+      layerDepth = depthsp[i] - depthsp[i-1]
     }
-    CumLayerDepth = CumLayerDepth +  layerDepth;
+    CumLayerDepth = CumLayerDepth +  layerDepth
     if(rootDepth > CumLayerDepth){
       CumRootDist = CumRootDist + 1
     }
