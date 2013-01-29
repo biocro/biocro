@@ -15,11 +15,6 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
-
-
-
-
 ##' Simulates C3 photosynthesis
 ##' 
 ##' Simulates coupled assimilation and stomatal conductance based on Farquhar
@@ -38,6 +33,7 @@
 ##' @param b0 Intercept for the Ball-Berry model
 ##' @param b1 Slope for the Ball-Berry model
 ##' @param theta Curvature parameter
+##' @export
 ##' @return A list
 ##' @returnItem Gs Stomatal Conductance
 ##' @returnItem Assim CO2 Assimilation
@@ -108,24 +104,24 @@
 ##' 
 c3photo <- function(Qp,Tl,RH,vcmax=100,jmax=180,Rd=1.1,Catm=380,O2=210,b0=0.08,b1=5,theta=0.7)
 {
-
   if((length(Qp) != length(Tl)) || (length(Qp) != length(RH)))
     stop("the lengths of the Qp, Tl and RH vectors should be equal")
-  
+
+
     if(max(RH) > 1)
         stop("RH should be between 0 and 1")
 ##     if(Catm < 20)
 ##         warning("Stomatal conductance is not reliable for values of Catm lower than 20\n")
 ##     if(Catm < 15)
 ##         stop("Assimilation is not reliable for low (<15) Catm values")
-    
+
+
     if(length(Catm) == 1){
       Catm <- rep(Catm,length(Qp))
     }else{
       if(length(Catm) != length(Qp))
         stop("length of Catm should be either 1 or equal to length of Qp")
     }
-
     res <- .Call(c3photo_sym,as.double(Qp),
                  as.double(Tl),as.double(RH),
                  as.double(vcmax),as.double(jmax),
@@ -134,4 +130,3 @@ c3photo <- function(Qp,Tl,RH,vcmax=100,jmax=180,Rd=1.1,Catm=380,O2=210,b0=0.08,b
                  as.double(O2),as.double(theta))
     res
 }
-

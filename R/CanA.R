@@ -15,9 +15,6 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
-
-
 ##' Simulates canopy assimilation
 ##' 
 ##' It represents an integration of the photosynthesis function
@@ -63,6 +60,7 @@
 ##' @param units Whether to return units in kg/m2/hr or Mg/ha/hr. This is
 ##' typically run at hourly intervals, that is why the hr is kept, but it could
 ##' be used with data at finer timesteps and then convert the results.
+##' @export
 ##' @return
 ##' 
 ##' \code{\link{list}}
@@ -135,12 +133,9 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
     ## Add error checking to this function
     if(length(c(lai,doy,hr,solar,temp,rh,windspeed)) != 7)
       stop("all input should be of length 1")
-
     units <- match.arg(units)
-
     photoP <- photoParms()
     photoP[names(photoControl)] <- photoControl
-
     vmax <- photoP$vmax
     alpha <- photoP$alpha
     kparm <- photoP$kparm
@@ -151,10 +146,10 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-    
+
+
     lnP <- lnParms()
     lnP[names(lnControl)] <- lnControl
-
     res <- .Call(CanA_sym,as.double(lai),as.integer(doy),
                  as.integer(hr),as.double(solar),as.double(temp),
                  as.double(rh),as.double(windspeed),
@@ -187,17 +182,13 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
       res$LayMat[,5:8] <- res$LayMat[,5:8] * cf
     }
   }
-
 ## Controlling the effect of leaf nitrogen on photosynthethic parameters
 lnParms <- function(LeafN = 2 , kpLN = 0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
-
   lnFun <- match.arg(lnFun)
   if(lnFun == "none"){
     lnFun <- 0
   }else{
     lnFun <- 1
   }
-
   list(LeafN = LeafN , kpLN = kpLN, lnb0 = lnb0, lnb1 = lnb1, lnFun=lnFun)
-
 }

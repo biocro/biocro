@@ -15,9 +15,6 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
-
-
 ##' Validate dry biomass partitioning coefficients
 ##' 
 ##' It attempts to check the requirements of the dry biomass partitioning
@@ -29,6 +26,7 @@
 ##' produced by \code{\link{phenoParms}}.
 ##' @param tol Numerical tolerance passed to the \code{\link{all.equal}}
 ##' function.
+##' @export
 ##' @return It will return the vector of coefficients unchanged if no errors
 ##' are detected.
 ##' @author Fernando E. Miguez
@@ -40,7 +38,6 @@
 ##' valid_dbp(xx)
 ##' 
 valid_dbp <- function(x, tol=1e-3){
-
   if(!is.vector(x) || length(x) != 25)
     stop("x should be a vector of length equal to 25")
   ## First stage
@@ -53,7 +50,6 @@ valid_dbp <- function(x, tol=1e-3){
     if(p1[p1 < 0] < -1)
       stop("Phen stage 1 negative coefficient is less than -1")
   }
-
   ## Second stage
   p2 <- x[5:8]
   if(!isTRUE(all.equal(sum(p2[p2 > 0]),1,tolerance=tol))){
@@ -64,7 +60,6 @@ valid_dbp <- function(x, tol=1e-3){
     if(p2[p2 < 0] < -1)
       stop("Phen stage 2 negative coefficient is less than -1")
   }
-
   ## Third stage
   p3 <- x[9:12]
   if(!isTRUE(all.equal(sum(p3[p3 > 0]),1,tolerance=tol))){
@@ -75,7 +70,6 @@ valid_dbp <- function(x, tol=1e-3){
     if(p3[p3 < 0] < -1)
       stop("Phen stage 3 negative coefficient is less than -1")
   }
-
   ## Fourth stage
   p4 <- x[13:16]
   if(!isTRUE(all.equal(sum(p4[p4 > 0]),1,tolerance=tol))){
@@ -86,7 +80,6 @@ valid_dbp <- function(x, tol=1e-3){
     if(p4[p4 < 0] < -1)
       stop("Phen stage 4 negative coefficient is less than -1")
   }
-
   ## Fifth stage
   p5 <- x[17:20]
   if(!isTRUE(all.equal(sum(p5[p5 > 0]),1,tolerance=tol))){
@@ -99,7 +92,6 @@ valid_dbp <- function(x, tol=1e-3){
     if(p5[p5 < 0] < -1)
       stop("Phen stage 5 negative coefficient is less than -1")
   }
-
   ## Sixth stage
   p6 <- x[21:25]
   if(!isTRUE(all.equal(sum(p6[p6 > 0]),1,tolerance=tol))){
@@ -110,6 +102,5 @@ valid_dbp <- function(x, tol=1e-3){
     if(p6[p6 < 0] < -1)
       stop("Phen stage 6 negative coefficient is less than -1")
   }
-
   x
 }

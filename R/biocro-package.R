@@ -16,7 +16,7 @@
 ##' \item{list("RH_S")}{Realtive humidity. a numeric vector}
 ##' \item{list("Ci")}{Intercellular CO2. a numeric vector}
 ##' \item{list("CO2_R")}{Reference CO2. a numeric vector} }
-##' @references Dandan Wang %% ~~ possibly secondary sources and usages ~~
+##' @references Dandan Wang 
 ##' @source Measurements taken by Dandan Wang.
 ##' @keywords datasets
 ##' @examples

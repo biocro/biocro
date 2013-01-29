@@ -1,7 +1,4 @@
 ## This functions illustrate the effect of soil water content in the soil
-
-
-
 ##' Simple function to illustrate soil water content effect on plant water
 ##' stress.
 ##' 
@@ -21,6 +18,7 @@
 ##' @param phi2 coefficient which controls the effect on leaf area expansion.
 ##' @param wsFun option to control which method is used for the water stress
 ##' function.
+##' @export
 ##' @return A list with components:
 ##' @returnItem rcoefPhoto coefficient of plant water stress for photosyntheis.
 ##' @returnItem rcoefSpleaf coefficient of plant water stress for specific leaf
@@ -100,31 +98,26 @@
 ##' 
 ##' 
 wtrstr <- function(precipt,evapo,cws,soildepth,fieldc,wiltp,phi1=0.01,phi2 =10, wsFun = c("linear","logistic","exp","none")){
-
   wsFun <- match.arg(wsFun)
   ## precipitation data are entered in mm but need to convert to m
   precipM = precipt * 1e-3;
   ## precipitation in meters can now be added to avaliable water
   ## to indicate the new avaliable water
   aw = precipM + cws;
-
   ## If water exceeds field capacity it is considered to runoff
   if(aw > fieldc){ 
        runoff = aw - fieldc;
        aw = fieldc;
      }
-
   ## available water in 1 ha
   awha = aw * 1e4 * soildepth;
   ## Since evaporation is entered in Mg H2O ha-1
   ## This substraction can be made
   Newawha = awha - evapo;
-
   ## Need to convert back to new available water
   naw = Newawha * 1e-4 * (1/soildepth);
   ## I impose a limit of water which is the wilting point
   if(naw < 0) naw = 0;
-
   ## This is an empirical way of simulating water stress
   if(wsFun == "linear"){
     slp = 1/(fieldc - wiltp);
@@ -143,18 +136,14 @@ wtrstr <- function(precipt,evapo,cws,soildepth,fieldc,wiltp,phi1=0.01,phi2 =10, 
   }else{
     wsPhoto = 1;
   }
-    
+
+
   if(wsPhoto < 0) wsPhoto = 0;
   wsSpleaf = naw^phi2 * 1/fieldc^phi2;
-
   list(wsPhoto=wsPhoto,wsSpleaf=wsSpleaf,awc=naw)
-
 }
-
 wsRcoef <- function(aw,fieldc,wiltp,phi1,phi2, wsFun = c("linear","logistic","exp","none") ){
-
   wsFun <- match.arg(wsFun)
-
     if(wsFun == "linear"){
     slp = 1/(fieldc - wiltp);
     intcpt = 1 - fieldc / (fieldc - wiltp);
@@ -172,7 +161,6 @@ wsRcoef <- function(aw,fieldc,wiltp,phi1,phi2, wsFun = c("linear","logistic","ex
   }else{
     wsPhoto = 1;
   }
-
   wsPhoto[wsPhoto < 0] <- 0
   wsSpleaf <- aw^phi2 * 1/fieldc^phi2
   list(wsPhoto=wsPhoto,wsSpleaf=wsSpleaf)

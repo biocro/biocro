@@ -15,8 +15,6 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
-
 ## Function to plot A/Ci curves
 ##
 ## data are assumed to have
@@ -29,9 +27,6 @@
 ## col 5: Relative humidity
 ## col 6: Intercellular CO2
 ## col 7: Reference CO2
-
-
-
 ##' Plotting function for A/Ci curves
 ##' 
 ##' A small helper function that can be used to easily plot multiple A/Ci
@@ -49,6 +44,7 @@
 ##' @param by Whether to plot by id or by treatment.
 ##' @param type this argument is passed to the \code{\link{xyplot}}. It changes
 ##' the plotting symbols behavior.
+##' @export
 ##' @return NULL %% ~Describe the value returned %% If it is a LIST, use %%
 ##' \item{comp1 }{Description of 'comp1'} %% \item{comp2 }{Description of
 ##' 'comp2'} %% ...
@@ -68,11 +64,9 @@ plotAC <- function(data,fittd,
                    xlab="Ci",
                    by=c("trt","ID"),
                    type=c("p","smooth")){
-
   by <- match.arg(by)
   Acol <- trt.col + 1
   Ci.col <- trt.col + 5
-
   if(missing(fittd) || is.null(fittd)){
     if(by == "trt"){
       plot1 <- xyplot(data[,Acol] ~ data[,Ci.col] | factor(data[,trt.col]),
@@ -99,5 +93,4 @@ plotAC <- function(data,fittd,
       plot(plot1)
     }
   }
-
 }

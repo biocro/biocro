@@ -1,9 +1,6 @@
 ## Function to simulate the multilayer drying of the soil
 ## This should probably take into account the distribution of
 ## root biomass in the profile
-
-
-
 ##' soil multi-layered
 ##' 
 ##' Simulates soil water content for a layered soil.
@@ -33,6 +30,7 @@
 ##' @param rfl Root factor lambda. A Poisson distribution is used to simulate
 ##' the distribution of roots in the soil profile and this parameter can be
 ##' used to change the lambda parameter of the Poisson.
+##' @export
 ##' @return matrix with 8 (if hydrDist=0) or 12 (if hydrDist > 0).
 ##' @author Fernando E. Miguez
 ##' @seealso See Also \code{\link{wtrstr}}.
@@ -49,24 +47,21 @@
 ##' 
 soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10, wsFun = c("linear","logistic","exp","none"),rootDB,soilLayers=3,
                    LAI,k,AirTemp,IRad,winds,RelH,soilType=10,hydrDist=0,rfl=0.3){
-
   if(length(cws) !=soilLayers)
     stop("cws should be of length == soilLayers")
-
   wsFun <- match.arg(wsFun)
   if(wsFun == "linear")  wsFun <- 0
   else if(wsFun == "logistic") wsFun <- 1
   else if(wsFun =="exp") wsFun <- 2 
   else if(wsFun == "none") wsFun <- 3
-
   if(hydrDist > 0){
     mat <- matrix(nrow=soilLayers,ncol=12)
   }else{
     mat <- matrix(nrow=soilLayers,ncol=9)
   }
-
   tmp2 <- SoilType(soilType)
-  
+
+
   oldEvapoTra <- 0
   oldWaterIn <- 0
   drainage <- 0
@@ -78,23 +73,24 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
   ## Crude empirical relationship between root biomass and rooting depth
   rootDepth <- rootDB * 0.44
   if(rootDepth > soilDepth) rootDepth = soilDepth;
-  
+
+
   depths <- seq(0,soilDepth,length.out=I(soilLayers+1))
 ##  rprops <- dpois(1:soilLayers,0.3*soilLayers)/sum(dpois(1:soilLayers,0.3*soilLayers))
   rprops <- rootDist(soilLayers,rootDepth,depths,rfl)
-  
+
+
 ## Precipitation enters in mm
   waterIn = precipt * 1e-3; ## This is now cubic meter of water
-  
-  for(i in I(length(depths)-1):1){
 
+
+  for(i in I(length(depths)-1):1){
         ## First determine the layer depth
     if(i == 1){
       layerDepth <- depths[1+1]
     }else{
       layerDepth <- depths[i] - depths[i-1] ## These are in meters
     }
-
 ### There is redistribution of water in the profile. 
 ### For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9
 ### First compute the matric potential
@@ -135,36 +131,35 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
 ##        }
       }
     }
-
     if(cws[i] > FieldC) cws[i] = FieldC;
 ##    if(cws[i+1] > FieldC) cws[i+1] = FieldC;
     if(cws[i] < WiltP) cws[i] = WiltP;
 ##    if(cws[i+1] < WiltP) cws[i+1] = WiltP;
-    
-    aw = cws[i] * layerDepth; ## Volume of water in layer i currently
 
+
+    aw = cws[i] * layerDepth; ## Volume of water in layer i currently
     if(waterIn > 0){
       aw = aw + waterIn / soilLayers + oldWaterIn; ## They are both in meters so it works
       ## This is likely to overflow for the first layer when there is plenty precipitation
       diffwc = FieldC*layerDepth - aw;
-      
+
+
       if(diffwc < 0){
         ## This means that precipitation exceeded the capacity of the last layer
         ## Save this amount of water for the next layer
         oldWaterIn <- -diffwc
         aw <- FieldC * layerDepth
       }
-     
-    }
 
+
+    }
     ## Root Biomass
     rootATdepth <- rootDB*rprops[i]
-
     ## Plant available water is only between current water status and permanent wilting point 
     ## Plant available water 
     paw <- aw - WiltP * layerDepth;
     if(paw <0) paw = 0;
-    
+
 
     ## The next step is to calculate the Evapo Transpiration I will
     ## assume that only the first layer of the soil profile has both
@@ -184,7 +179,6 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
        ## These units are in Mg/ha so
        Newpawha <- (paw * 1e4) - (EvapoTra + oldEvapoTra);
     }
-
     if(Newpawha < 0){
       oldEvapoTra = -Newpawha;
       paw = 0;
@@ -192,10 +186,8 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
     }else{
       paw = Newpawha / 1e4 ;
     }
-
     awc <- paw / layerDepth + WiltP 
     cws[i] <- awc
-
     if(wsFun == 0){
       slp = 1/(FieldC - WiltP);
       intcpt = 1 - FieldC * slp;
@@ -214,15 +206,14 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
     if(wsFun == 3){
       wsPhoto = 1;
     }
-
   if(wsPhoto <= 0 )
     wsPhoto = 1e-20; ## This can be mathematically lower than zero in some cases but I should prevent that. 
-
     wsSpleaf = awc^phi2 * 1/FieldC^phi2; 
     if(wsFun == 3){ 
       wsSpleaf = 1;
     }
-    
+
+
     mat[i,1] <- cws[i]
     mat[i,2] <- rootATdepth
     mat[i,3] <- waterIn
@@ -237,10 +228,11 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
       mat[i,11] <- K_psim
       mat[i,12] <- psim[i]
     }
-    
-    
-  }
 
+
+
+
+  }
   if(waterIn > 0) drainage <- drainage + waterIn
   if(hydrDist > 0){
     colnames(mat) <- c("cws","rootATdepth","waterIn","layerDepth","CanopyTra","SoilEvap","wsPhoto","wsSpleaf","drainage","J_w","K_psim","psim")
@@ -249,35 +241,29 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
   }
   mat
 }
-
-
 rootDist <- function(layers,rootDepth,depthsp,rfl){
-
   if(layers < 2)
     stop("layers should be at least 2")
-
   CumLayerDepth <- 0 
   CumRootDist <- 0
   ca <- 0
   rootDist <- numeric(layers)
-  
+
+
 #  for(i in 1:I(length(depthsp)-1)){
   for(i in seq_len(layers)){
-
     if(i == 1){
       layerDepth = depthsp[1+1];
     }else{
       layerDepth = depthsp[i] - depthsp[i-1];
     }
-
     CumLayerDepth = CumLayerDepth +  layerDepth;
-
     if(rootDepth > CumLayerDepth){
       CumRootDist = CumRootDist + 1
     }
-    
-  }
 
+
+  }
   for(j in seq_len(layers)){
     if(j < CumRootDist){
       a = dpois(j,CumRootDist*rfl)
@@ -287,10 +273,8 @@ rootDist <- function(layers,rootDepth,depthsp,rfl){
       rootDist[j] = 0
     }
   }
-
   rootDist = rootDist / ca
   rootDist
-  
+
+
 }
-
-

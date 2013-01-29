@@ -15,19 +15,13 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
 ## This is the Opc4photo and all of its realted functions
-
-
-
 ##' Optimization of C4 photosynthesis parameters
 ##' 
-
 ##' 
 ##' Optimization method for the Collatz C4 photosynthesis model.  At the moment
 ##' Vcmax and alpha are optimized only.
 ##' 
-
 ##' 
 ##' 
 ##' @aliases Opc4photo print.Opc4photo summary.Opc4photo
@@ -73,6 +67,7 @@
 ##' and \code{alpha} of zero so preventing negative values from being returned.
 ##' When the lower argument is added the optimization method changes from
 ##' Nelder-Mead to BFGS.
+##' @export
 ##' @return
 ##' 
 ##' An object of class \code{Opc4photo} a \code{\link{list}} with components
@@ -119,12 +114,13 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
                       op.level=1,
                       level=0.95,hessian=TRUE,
                       op.ci=FALSE,...){
-
   ncol.data <- ncol(data)
-  
+
+
 ## I might need some kind of sanity check here
   stopifnot(op.level == 1 || op.level == 2 || op.level == 3)
-  
+
+
   response <- match.arg(response)
   curve.kind <- match.arg(curve.kind)
   if(response == "Assim"){
@@ -150,20 +146,18 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
   }else{
     cfs <- c(ib0,ib1)
   }
-
   obsvec <- as.matrix(data[,1])
   xparms <- list(Rd=iRd, kparm=ikparm, alpha=ialpha,
                  theta=itheta, beta=ibeta,
                  Catm=Catm, b0=ib0, b1=ib1,
                  StomWS=iStomWS,ws=ws)
 
-  
+
   RSS <- function(coefs){
       if(response == "Assim"){
         if(max(data[,1]) < 1)
           warning("Units of Assim might be wrong:
                    should be micro mol m-2 s-1\n")
-
         if(curve.kind == "Q"){
           if(op.level == 1){
             vec1 <- c4photo(data[,2],data[,3],data[,4],
@@ -204,7 +198,6 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
                     ivmax,ialpha,ikparm,itheta,ibeta,
                          iRd,Catm,coefs[1],coefs[2],iStomWS,ws)$Gs
       }
-
       if(response == "Assim"){
         rs1 <- obsvec - vec1$Assim
         rss1 <- sum(rs1^2)
@@ -229,9 +222,7 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
       rss <- rss1 + rss2
       rss
   }
-
   resp <- optim(cfs,RSS,hessian=hessian,...)
-
   bestParms <- resp$par
   ReSumS <- resp$value
   conv <- resp$convergence
@@ -247,7 +238,8 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
   corVA <- varcov[1,2]/sqrt(varcov[1,1]*varcov[2,2])
 ## Calculating confidence intervals
   alp <- (1 - level)/2
-  
+
+
   if(response == "Assim"){
     if(curve.kind == "Q"){
       if(op.level == 1){
@@ -427,12 +419,8 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
   }
   ret 
 }
-
-
-
 ##' R-squared for C4 photosynthesis simulation (Collatz model)
 ##' 
-
 ##' 
 ##' This is an auxiliary function which is made available in case it is useful.
 ##' It calculates the R-squared based on observed assimilation (or stomatal
@@ -468,6 +456,7 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
 ##' @param response Use \code{"Assim"} if you want an \eqn{R^2} for
 ##' assimilation data and use \code{"StomCond"} if you want an \eqn{R^2} for
 ##' stomatal conductance data.
+##' @export
 ##' @return
 ##' 
 ##' a \code{\link{numeric}} object
@@ -512,14 +501,13 @@ RsqC4photo <- function(data, vmax=39,alph=0.04,
   Rsquare
 }
 
-## Display methods for Opc4photo and OpEC4photo
+##' Display methods for Opc4photo and OpEC4photo
+##' @S3method print Opc4photo
 print.Opc4photo <- function(x,digits=2,...){
-
   opl <- x$op.level
   c.kind <- x$curve.kind
   cat("\nOptimization of C4 photosynthesis\n")
   cat("\n\t\t",x$level*100,"%   Conf Int\n")
-
   if(x$response == "Assim"){
     if(x$curve.kind == "Q"){
       if(opl == 1){
@@ -577,29 +565,25 @@ print.Opc4photo <- function(x,digits=2,...){
       mat[1,2:3] <- x$cib0
       mat[2,2:3] <- x$cib1
   }
-
   print.default(mat,digits=digits,print.gap=3)
-
   if(c.kind == "Q")
     cat("\n Corr  Vmax and alpha:",x$corVA,"\n")
   else
     cat("\n Corr  Vmax and kparm:",x$corVA,"\n")
-  
+
+
   cat("\n Resid Sums Sq:",x$ReSumS,"\n")
   cat("\nConvergence:")
   if(x$Convergence == 0) cat("YES\n")
   else cat("NO\n")
-
   invisible(x)
-
 }
 
-## Predict method
+##' Predict method
+##' @S3method predict Opc4photo
 predict.Opc4photo <- function(object, newdata,...){
-
   x <- object
   dat <- x$data
-
   if(x$response == "Assim"){
     if(x$curve.kind == "Q"){
       if(x$op.level == 1){
@@ -641,7 +625,6 @@ predict.Opc4photo <- function(object, newdata,...){
   }else{
     stop("Stomatal conductance no implemented yet")
   }
-
   if(x$curve.kind == "Q"){
     if(missing(newdata) || is.null(newdata)){
       fittd <- c4photo(dat[,2],dat[,3],dat[,4], vmax = vmax,
@@ -657,7 +640,6 @@ predict.Opc4photo <- function(object, newdata,...){
                        Rd = Rd, Catm = x$xparms$Catm,
                        b0 = x$xparms$b0, b1 = x$xparms$b1,
                        StomWS = x$xparms$StomWS, ws = x$xparms$ws)
-
     }
   }else{
     if(missing(newdata) || is.null(newdata)){
@@ -674,23 +656,22 @@ predict.Opc4photo <- function(object, newdata,...){
                        Rd = Rd, Catm = x$xparms$Catm,
                        b0 = x$xparms$b0, b1 = x$xparms$b1,
                        StomWS = x$xparms$StomWS, ws = x$xparms$ws)
-
     }    
   }
     fittd
 }
 
-
-## This function will implement simple calculations
-## of predicted and residuals for the Opc4photo function
-
+##' This function will implement simple calculations
+##' of predicted and residuals for the Opc4photo function
+##' @S3method summary Opc4photo
 summary.Opc4photo <- function(object,...){
-
   dat <- object$data
   obsvec <- as.vector(dat[,1])
-  
+
+
   fittd <- predict(object)
-  
+
+
   rsd <- obsvec - fittd$Assim
   rss <- object$ReSumS
   ## Some measures of agreement
@@ -709,11 +690,11 @@ summary.Opc4photo <- function(object,...){
   n1 <- length(rsd)
   AIC <- n1 * log(rss/n1) + 2
   BIC <- n1 * log(rss/n1) + 2 * log(n1)
-
   sigma <- sqrt(rss/(n1-2))
   stdresid <- rsd/sigma
   outli <- which(abs(stdresid) > 2)
-  
+
+
   structure(list(fitted=fittd$Assim,resid=rsd,
                  stdresid=stdresid,
                  IA=IA,Rsq1=Rsq1,Rsq2=Rsq2,
@@ -723,8 +704,8 @@ summary.Opc4photo <- function(object,...){
        sigma=sigma),class="summary.Opc4photo")
 }
 
+##' @S3method print summary.Opc4photo
 print.summary.Opc4photo <- function(x,...){
-
   cat("\n Diagnostic measures\n")
   cat("\n Index of Agreement:",x$IA)
   cat("\n Rsquared 1:",x$Rsq1)
@@ -734,31 +715,29 @@ print.summary.Opc4photo <- function(x,...){
   cat("\n BIC:",x$BIC,"\n")
 }
 
+##' @S3method plot Opc4photo
 plot.Opc4photo <- function(x,plot.kind=c("RvsF","OandF","OvsF"),resid=c("std","raw"),...){
-
   dat <- x$data
   obsvec <- as.vector(dat[,1])
-
   if(x$response == "Assim") {
     fittd <- predict(x)
   }else{
     fittd <- predict(x)$Gs
   }
-
   fttA <- fittd$Assim
   fttCi <- fittd$Ci
-  
+
+
   rsd <- obsvec - fttA
   rss <- x$ReSumS
   n1 <- length(rsd)
-  
+
+
   sigma <- sqrt(rss/(n1-2))
   stdresid <- rsd/sigma
   outid <- which(abs(stdresid) > 2)
-
   resid <- match.arg(resid)
   plot.kind <- match.arg(plot.kind)
-
   if(plot.kind == "RvsF"){
     if(resid == "std"){
       plot1 <- xyplot(stdresid ~ fttA,...,
@@ -803,7 +782,6 @@ plot.Opc4photo <- function(x,plot.kind=c("RvsF","OandF","OvsF"),resid=c("std","r
                         col=c("blue","green"),lines=TRUE,space="top"))
       print(plot1)
     }
-
   }
   if(plot.kind == "OvsF"){
     plot1 <- xyplot(obsvec ~ fttA,...,
@@ -816,9 +794,6 @@ plot.Opc4photo <- function(x,plot.kind=c("RvsF","OandF","OvsF"),resid=c("std","r
     plot(plot1)
   }
 }
-
-
-
 ##' Multiple optimization of C4 photosynthesis.
 ##' 
 ##' Wrapper function that allows for optimization of multiple A/Ci or A/Q
@@ -865,6 +840,7 @@ plot.Opc4photo <- function(x,plot.kind=c("RvsF","OandF","OvsF"),resid=c("std","r
 ##' 'fast-measured' light curves do not provide reliable values of Ci.
 ##' @param verbose Whether to display output about convergence of each run.
 ##' @param \dots Used to supply additional arguments to \code{Opc4photo}.
+##' @export
 ##' @return An object of class \code{mOpc4photo} %% ~Describe the value
 ##' returned %% If it is a LIST, use
 ##' 
@@ -890,14 +866,10 @@ mOpc4photo <- function(data,ID=NULL,
                        curve.kind=c("Q","Ci"),
                        op.level=1,op.ci=FALSE,
                        verbose=FALSE,...){
-
 ## Some sanity check
-
   uruns <- unique(data[,1])
   nruns <- length(unique(data[,1]))
-
   curve.kind <- match.arg(curve.kind)
-
   if(curve.kind == "Q"){
     if(length(ivmax) == 1){
       miVmax <- rep(ivmax,nruns)
@@ -906,7 +878,6 @@ mOpc4photo <- function(data,ID=NULL,
         stop("length of ivmax should be either 1 or equal to the number or runs") 
       miVmax <- ivmax
     }
-
     if(length(ialpha) == 1){
       miAlpha <- rep(ialpha,nruns)
     }else{
@@ -914,7 +885,8 @@ mOpc4photo <- function(data,ID=NULL,
         stop("length of ialpha should be either 1 or equal to the number or runs")
       miAlpha <- ialpha
     }
-    
+
+
     if(op.level == 2 || op.level == 3){
       if(length(iRd) == 1){
         miRd <- rep(iRd,nruns)
@@ -924,7 +896,8 @@ mOpc4photo <- function(data,ID=NULL,
         miRd <- iRd
       }
     }
-    
+
+
     if(op.level == 3){
       if(length(itheta) == 1){
         miTheta <- rep(itheta,nruns)
@@ -934,18 +907,18 @@ mOpc4photo <- function(data,ID=NULL,
         miTheta <- itheta
       }
     }
-    
+
+
     mat <- matrix(ncol=I(3+op.level),nrow=nruns)
     ciVmax <- matrix(ncol=3,nrow=nruns)
     ciAlpha <- matrix(ncol=3,nrow=nruns)
-    
-    for(i in seq_len(nruns)){
 
+
+    for(i in seq_len(nruns)){
       if(op.level == 1){
         op <- try(Opc4photo(data[data[,1] == uruns[i],2:5],Catm=data[data[,1] == uruns[i],6],
                             ivmax=miVmax[i],ialpha=miAlpha[i],
                             op.level=1,op.ci=op.ci,...),TRUE)
-
         if(class(op) == "try-error"){
           mat[i,1:4] <- c(i,rep(NA,2),1)
         }else{
@@ -959,7 +932,6 @@ mOpc4photo <- function(data,ID=NULL,
         op <- try(Opc4photo(data[data[,1] == uruns[i],2:5],Catm=data[data[,1] == uruns[i],6],
                             ivmax=miVmax[i],ialpha=miAlpha[i],
                             iRd=miRd[i],op.level=2,op.ci=op.ci,...),TRUE)
-
         if(class(op) == "try-error"){
           mat[i,1:5] <- c(i,rep(NA,3),1)
         }else{
@@ -972,7 +944,6 @@ mOpc4photo <- function(data,ID=NULL,
                             ivmax=miVmax[i],ialpha=miAlpha[i],
                             iRd=miRd[i],itheta=miTheta[i],
                             op.level=3,op.ci=op.ci,...),TRUE)
-
         if(class(op) == "try-error"){
           mat[i,1:6] <- c(i,rep(NA,4),1)
         }else{
@@ -980,20 +951,18 @@ mOpc4photo <- function(data,ID=NULL,
         }
         colnames(mat) <- c("run","vmax","alpha","theta","Rd","conv")
       }
-
       if(verbose){
         cat("Run:",i,"... Converged",ifelse(mat[i,ncol(mat)]==0,"YES","NO"),"\n")
       }
-
     }
     if(!missing(ID)){
       if(length(ID) != nruns)
         stop("Length of ID should be equal to the number of runs")
-      
+
+
       mat <- as.data.frame(mat)
       mat$ID <- ID
     }
-
     ans <- structure(list(mat=mat, op.level=op.level,
                           ciVmax=ciVmax, ciAlpha=ciAlpha,
                           curve.kind = curve.kind), class = "mOpc4photo")
@@ -1005,7 +974,6 @@ mOpc4photo <- function(data,ID=NULL,
         stop("length of ivmax should be either 1 or equal to the number or runs") 
       miVmax <- ivmax
     }
-
     if(length(ikparm) == 1){
       miKparm <- rep(ikparm,nruns)
     }else{
@@ -1013,7 +981,8 @@ mOpc4photo <- function(data,ID=NULL,
         stop("length of ikparm should be either 1 or equal to the number or runs")
       miKparm <- ikparm
     }
-  
+
+
     if(op.level == 2 || op.level == 3){
       if(length(iRd) == 1){
         miRd <- rep(iRd,nruns)
@@ -1023,7 +992,8 @@ mOpc4photo <- function(data,ID=NULL,
         miRd <- iRd
       }
     }
-  
+
+
     if(op.level == 3){
       if(length(ibeta) == 1){
         miBeta <- rep(ibeta,nruns)
@@ -1033,19 +1003,19 @@ mOpc4photo <- function(data,ID=NULL,
         miBeta <- ibeta
       }
     }
-  
+
+
   mat <- matrix(ncol=I(3+op.level),nrow=nruns)
   ciVmax <- matrix(ncol=3,nrow=nruns)
   ciKparm <- matrix(ncol=3,nrow=nruns)
-  
-  for(i in seq_len(nruns)){
 
+
+  for(i in seq_len(nruns)){
     if(op.level == 1){
       op <- try(Opc4photo(data[data[,1] == uruns[i],2:6],Catm=data[data[,1] == uruns[i],7],
                           ivmax=miVmax[i],ikparm=miKparm[i],
                           op.level=1,curve.kind=curve.kind,
                           op.ci=op.ci,...),TRUE)
-
       if(class(op) == "try-error"){
         mat[i,1:4] <- c(i,rep(NA,2),1)
       }else{
@@ -1060,7 +1030,6 @@ mOpc4photo <- function(data,ID=NULL,
                           ivmax=miVmax[i],ikparm=miKparm[i],
                           iRd=miRd[i],op.level=2,
                           curve.kind=curve.kind,op.ci=op.ci,...),TRUE)
-
       if(class(op) == "try-error"){
         mat[i,1:5] <- c(i,rep(NA,3),1)
       }else{
@@ -1074,7 +1043,6 @@ mOpc4photo <- function(data,ID=NULL,
                           iRd=miRd[i],ibeta=miBeta[i],
                           op.level=3,
                           curve.kind=curve.kind,op.ci=op.ci,...),TRUE)
-
       if(class(op) == "try-error"){
         mat[i,1:6] <- c(i,rep(NA,4),1)
       }else{
@@ -1082,20 +1050,24 @@ mOpc4photo <- function(data,ID=NULL,
       }
       colnames(mat) <- c("ID","vmax","kparm","beta","Rd","conv")
     }
-  
+
+
     if(verbose){
       cat("Run:",i,"... Converged",ifelse(mat[i,ncol(mat)]==0,"YES","NO"),"\n")
     }
   }
-      
+
+
     if(!missing(ID)){
       if(length(ID) != nruns)
         stop("Length of ID should be equal to the number of runs")
-      
+
+
       mat <- as.data.frame(mat)
       mat$ID <- ID
     }
-    
+
+
     ans <- structure(list(mat=mat, op.level=op.level,
                           ciVmax=ciVmax, ciKparm=ciKparm,
                         curve.kind=curve.kind), class = "mOpc4photo")
@@ -1103,15 +1075,13 @@ mOpc4photo <- function(data,ID=NULL,
   ans 
 }
 
-
-## Printing method
+##' Printing method
+##' @S3method print mOpc4photo
 print.mOpc4photo <- function(x,...){
-
   ncolm <- ncol(unclass(x)$mat)
   ma <- x$mat
   cat("Number of runs:",nrow(ma),"\n")
   cat("Number converged:",length(ma[ma[,ncolm] == 0,ncolm]),"\n\n")
-
   if(x$op.level == 1){
     mat <- matrix(ncol=3,nrow=2)
     if(x$curve.kind == "Q"){
@@ -1168,14 +1138,11 @@ print.mOpc4photo <- function(x,...){
   }
 }
 
-
-
-## Plotting method
+##' Plotting method
+##' @S3method plot mOpc4photo 
 plot.mOpc4photo <- function(x, parm = c("vmax","alpha"), ...){
-
   parm <- match.arg(parm)
   res <- x
-
   if(parm == "vmax"){
     civmax <- x$ciVmax
     id <- factor(res$mat[,1])
@@ -1206,13 +1173,12 @@ plot.mOpc4photo <- function(x, parm = c("vmax","alpha"), ...){
            }
            )
   }
-  
+
+
 ###   stop("not implemented yet")
 ###   if(x$curve.kind == "Q"){
 ###     plotAQ(x, fittd)
 ###   }else{
 ###     stop("A/Ci not implemented yet")
 ###   }
-
 }
-

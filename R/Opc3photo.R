@@ -15,11 +15,7 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
 ## This is the Opc4photo and all of its realted functions
-
-
-
 ##' Optimize parameters of the C3 photosynthesis model.
 ##' 
 ##' Applies the \code{optim} function to C3 photosynthesis.
@@ -51,6 +47,7 @@
 ##' @param curve.kind Whether an A/Ci curve is being optimized or an A/Q curve.
 ##' @param op.ci whether to optimize intercellular CO2.
 ##' @param \dots Additioanl arguments to be passed to \code{\link{optim}}.
+##' @export
 ##' @return
 ##' 
 ##' An object of class \code{Opc3photo}.
@@ -74,7 +71,6 @@
 ##' @returnItem response \code{"Assim"} or \code{"StomCond"}.
 ##' @note ~~further notes~~ Additional notes about the assumptions.
 ##' 
-
 ##' @author Fernando E. Miguez
 ##' @seealso See Also \code{\link{mOpc3photo}}
 ##' @keywords optimize
@@ -108,17 +104,17 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
                       response=c("Assim","StomCond"),level=0.95,hessian=TRUE,
                       curve.kind=c("Ci","Q"),
                       op.ci=FALSE,...){
-
   stopifnot(op.level == 1 || op.level == 2 || op.level == 3)
-  
+
+
   response <- match.arg(response)
   op.method <- match.arg(op.method)
   curve.kind <- match.arg(curve.kind)
-
   if(curve.kind == "Q"){
     stop("Not implemented yet")
   }
-  
+
+
   if(response == "Assim"){
     if(curve.kind == "Q"){ 
       if(op.level == 1){
@@ -142,12 +138,12 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
   }else{
     cfs <- c(ib0,ib1)
   }
-
   obsvec <- as.matrix(data[,1])
   ## Extra parameters
   xparms <- list(Catm=Catm, O2=O2, b0=ib0, b1=ib1, theta=itheta,
                  Rd = iRd)
-  
+
+
   RSS <- function(coefs){
       if(response == "Assim"){
         if(max(data[,1]) < 1)
@@ -191,7 +187,6 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
       rss <- rss1 + rss2
       rss
   }
-
   if(op.method == "optim"){
     if(response == "Assim"){
       resp <- optim(cfs,RSS,hessian=hessian,...)
@@ -207,7 +202,6 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
       resp <- nlminb(cfs,RSS)
     }
   }
-
   bestParms <- resp$par
   ReSumS <- resp$value
   conv <- resp$convergence
@@ -231,7 +225,6 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
       ## Jmax
       lcJmax <- bestParms[2] + qt(alp,def)*sqrt(varcov[2,2])
       ucJmax <- bestParms[2] + qt(1-alp,def)*sqrt(varcov[2,2])
-
       structure(list(bestVmax=bestParms[1],
                      bestJmax=bestParms[2],
                      ReSumS=as.numeric(ReSumS),
@@ -293,15 +286,14 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
                  level=level,data=data,response="StomCond"),
             class = "Opc3photo")
   }
-    
+
+
 }
-
-## Display methods for Opc4photo and OpEC4photo
+##' Display methods for Opc4photo and OpEC4photo
+##' @S3method print Opc3photo 
 print.Opc3photo <- function(x,digits=2,...){
-
   cat("\nOptimization of C3 photosynthesis\n")
   cat("\n\t\t",x$level*100,"%   Conf Int\n")
-
   if(x$response == "Assim"){
     if(x$curve.kind == "Ci") 
       if(x$op.level == 1){
@@ -326,9 +318,7 @@ print.Opc3photo <- function(x,digits=2,...){
       mat[1,2:3] <- x$cib0
       mat[2,2:3] <- x$cib1
   }
-
   print.default(mat,digits=digits,print.gap=3)
-
   if(x$response == "Assim"){
     cat("\n Corr  Vmax and Jmax:",x$corVJ,"\n")
   }else{
@@ -339,17 +329,14 @@ print.Opc3photo <- function(x,digits=2,...){
   cat("\nConvergence:")
   if(x$Convergence == 0) cat("YES\n")
   else cat("NO\n")
-
   invisible(x)
-
 }
 
-## Predict method
+##' Predict method
+##' @S3method predict Opc3photo
 predict.Opc3photo <- function(object,newdata,...){
-
   x <- object
   dat <- x$data
-
   if(x$response == "Assim"){
     if(x$curve.kind == "Q"){
       if(x$op.level == 1){
@@ -387,7 +374,6 @@ predict.Opc3photo <- function(object,newdata,...){
   }else{
     stop("Stomatal conductance no implemented yet")
   }
-
   if(x$curve.kind == "Q"){
     if(missing(newdata) || is.null(newdata)){
       fittd <- c3photo(dat[,2],dat[,3],dat[,4], vcmax = vcmax,
@@ -403,7 +389,6 @@ predict.Opc3photo <- function(object,newdata,...){
                        Rd = Rd, Catm = x$xparms$Catm,
                        b0 = x$xparms$b0, b1 = x$xparms$b1,
                        O2 = x$xparms$O2)
-
     }
   }else{
     if(missing(newdata) || is.null(newdata)){
@@ -420,25 +405,21 @@ predict.Opc3photo <- function(object,newdata,...){
                        Rd = Rd, Catm = x$xparms$Catm,
                        b0 = x$xparms$b0, b1 = x$xparms$b1,
                        O2 = x$xparms$O2)
-
-
     }    
   }
     fittd
 }
-
-
 ## This function will implement simple calculations
 ## of predicted and residuals for the Opc4photo function
-
 ## summary.Opc3photo <- function(object,...){
-
 ##   dat <- object$data
 ##   obsvec <- as.vector(dat[,1])
-  
+
+
 ##   fittd <- c4photo(dat[,2],dat[,3],dat[,4],object$bestVmax,object$bestAlpha)
 ## ## Warning here I'm not taking into account different values of Rd, kparm, theta and beta
-  
+
+
 ##   rsd <- obsvec - fittd$Assim
 ##   rss <- object$ReSumS
 ##   ## Some measures of agreement
@@ -457,11 +438,11 @@ predict.Opc3photo <- function(object,newdata,...){
 ##   n1 <- length(rsd)
 ##   AIC <- n1 * log(rss/n1) + 2
 ##   BIC <- n1 * log(rss/n1) + 2 * log(n1)
-
 ##   sigma <- sqrt(rss/(n1-2))
 ##   stdresid <- rsd/sigma
 ##   outli <- which(abs(stdresid) > 2)
-  
+
+
 ##   structure(list(fitted=fittd$Assim,resid=rsd,
 ##                  stdresid=stdresid,
 ##                  IA=IA,Rsq1=Rsq1,Rsq2=Rsq2,
@@ -470,9 +451,7 @@ predict.Opc3photo <- function(object,newdata,...){
 ##                  outli=outli,
 ##        sigma=sigma),class="summary.Opc4photo")
 ## }
-
 ## print.summary.Opc4photo <- function(x,...){
-
 ##   cat("\n Diagnostic measures\n")
 ##   cat("\n Index of Agreement:",x$IA)
 ##   cat("\n Rsquared 1:",x$Rsq1)
@@ -482,32 +461,31 @@ predict.Opc3photo <- function(object,newdata,...){
 ##   cat("\n BIC:",x$BIC,"\n")
 ## }
 
-plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","raw"),...){
 
+##' @S3method plot Opc3photo 
+plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","raw"),...){
   dat <- x$data
   obsvec <- as.vector(dat[,1])
   plot.kind <- match.arg(plot.kind)
-  
+
+
   if(x$response == "Assim") {
     fittd <- predict(x)
   }else{
     fittd <- predict(x)$Gs
   }
-
   fttA <- fittd$Assim
   fttCi <- fittd$Ci
-
   rsd <- obsvec - fttA
   rss <- x$ReSumS
   n1 <- length(rsd)
-  
+
+
   sigma <- sqrt(rss/(n1-2))
   stdresid <- rsd/sigma
   outid <- which(abs(stdresid) > 2)
-
   resid <- match.arg(resid)
   plot.kind <- match.arg(plot.kind)
-
   if(plot.kind == "RvsF"){
     if(resid == "std"){
       plot1 <- xyplot(stdresid ~ fttA,...,
@@ -564,11 +542,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
     }
   }
 }
-
 ## Wrapper function for multiple A/Ci sets
-
-
-
 ##' Multiple optimization of assimilation (or stomatal conductance) curves.
 ##' 
 ##' It is a wrapper for Opc3photo which allows for optimization of multiple
@@ -595,6 +569,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 ##' @param curve.kind Whether an A/Ci curve is being optimized or an A/Q curve.
 ##' @param verbose Whether to print information about progress.
 ##' @param \dots Additional arguments to be passed to \code{\link{Opc3photo}}
+##' @export
 ##' @return an object of class 'mOpc3photo'
 ##' 
 ##' if op.level equals 1 best Vcmax, Jmax and convergence
@@ -625,11 +600,11 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 ##' 
 mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
                        op.level=1, curve.kind=c("Ci","Q"),verbose=FALSE,...){
-
   curve.kind <- match.arg(curve.kind)
   uruns <- unique(data[,1])
   nruns <- length(unique(data[,1]))
-  
+
+
   if(curve.kind == "Q"){
     if(ncol(data) < 5)
       stop("data should have at least 5 columns")
@@ -637,7 +612,8 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
     if(ncol(data) != 7)
       stop("data should have 7 columns")
   }
-  
+
+
   if(length(iVcmax) == 1){
     miVcmax <- rep(iVcmax,nruns)
   }else{
@@ -645,7 +621,6 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
       stop("length of iVcmax should be either 1 or equal to the number or runs") 
     miVcmax <- iVcmax
   }
-
   if(length(iJmax) == 1){
     miJmax <- rep(iJmax,nruns)
   }else{
@@ -653,7 +628,6 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
       stop("length of iJmax should be either 1 or equal to the number or runs")
     miJmax <- iJmax
   }
-
   if(length(iRd) == 1){
     miRd <- rep(iRd,nruns)
   }else{
@@ -661,20 +635,21 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
       stop("length of iRd should be either 1 or equal to the number or runs")
     miRd <- iRd
   }
-  
+
+
   mat <- matrix(ncol=I(3+op.level),nrow=nruns)
   ciVcmax <- matrix(ncol=3,nrow=nruns)
   ciJmax <- matrix(ncol=3,nrow=nruns)
   ciRd <- matrix(ncol=3,nrow=nruns)
-  
-  for(i in seq_len(nruns)){
 
+
+  for(i in seq_len(nruns)){
     if(op.level == 1){
-    
+
+
       op <- try(Opc3photo(data[data[,1] == uruns[i],2:6],Catm=data[data[,1] == uruns[i],7],
                         ivcmax=miVcmax[i],ijmax=miJmax[i],iRd=miRd[i],
                         curve.kind=curve.kind, op.level=op.level,...),TRUE)
-
       if(class(op) == "try-error"){
         mat[i,1:4] <- c(i,rep(NA,2),1)
       }else{
@@ -682,17 +657,16 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
         ciVcmax[i,1:3] <- c(i,op$ciVmax)
         ciJmax[i,1:3] <- c(i,op$ciJmax)
       }
-
       if(verbose){
         cat("Run:",i,"... Converged",ifelse(mat[i,4]==0,"YES","NO"),"\n")
       }
     }else
     if(op.level == 2){
-    
+
+
       op <- try(Opc3photo(data[data[,1] == uruns[i],2:6],Catm=data[data[,1] == uruns[i],7],
                         ivcmax=miVcmax[i],ijmax=miJmax[i],iRd=miRd[i],
                         curve.kind=curve.kind, op.level=op.level,...),TRUE)
-
       if(class(op) == "try-error"){
         mat[i,1:5] <- c(i,rep(NA,3),1)
       }else{
@@ -701,7 +675,6 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
         ciJmax[i,1:3] <- c(i,op$ciJmax)
         ciRd[i,1:3] <- c(i,op$ciRd)
       }
-
       if(verbose){
         cat("Run:",i,"... Converged",ifelse(mat[i,5]==0,"YES","NO"),"\n")
       }
@@ -712,32 +685,27 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
   }else{
     colnames(mat) <- c("ID","Vcmax","Jmax","Rd","Conv")
   }
-
   if(!missing(ID)){
     if(length(ID) != nruns)
       stop("Length of ID should be equal to the number of runs")
-
     mat <- as.data.frame(mat)
     mat$ID <- ID
   }
-
   ans <- structure(list(mat=mat, op.level=op.level,
                         ciVcmax=ciVcmax, ciJmax=ciJmax,
                         ciRd=ciRd,
                         curve.kind=curve.kind), class = "mOpc3photo")
   ans
-  
+
+
 }
-
-
-## Printing method
+##' Printing method
+##' @S3method print mOpc3photo 
 print.mOpc3photo <- function(x,...){
-
   ncolm <- ncol(unclass(x)$mat)
   ma <- x$mat
   cat("Number of runs:",nrow(ma),"\n")
   cat("Number converged:",length(ma[ma[,ncolm] == 0,ncolm]),"\n\n")
-
   if(x$op.level == 1){
     mat <- matrix(ncol=3,nrow=2)
     if(x$curve.kind == "Ci"){
@@ -773,14 +741,11 @@ print.mOpc3photo <- function(x,...){
   }
 }
 
-
-
-## Plotting method
+##' Plotting method
+##' @S3method plot mOpc3photo
 plot.mOpc3photo <- function(x, parm = c("vcmax","jmax"), ...){
-
   parm <- match.arg(parm)
   res <- x
-
   if(parm == "vcmax"){
     civmax <- x$ciVcmax
     id <- factor(res$mat[,1])
@@ -811,12 +776,12 @@ plot.mOpc3photo <- function(x, parm = c("vcmax","jmax"), ...){
            }
            )
   }
-  
+
+
 ###   stop("not implemented yet")
 ###   if(x$curve.kind == "Q"){
 ###     plotAQ(x, fittd)
 ###   }else{
 ###     stop("A/Ci not implemented yet")
 ###   }
-
 }

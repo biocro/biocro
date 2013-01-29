@@ -15,9 +15,6 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
-
-
 ##' Sunlit shaded multi-layer model
 ##' 
 ##' Simulates the light microenvironment in the canopy based on the
@@ -35,6 +32,7 @@
 ##' @param chi.l The ratio of horizontal:vertical projected area of leaves in
 ##' the canopy segment.
 ##' @param cos.theta cosine of \eqn{\theta}{theta}, solar zenith angle.
+##' @export
 ##' @return a \code{\link{list}} structure with components
 ##' 
 ##' Vectors size equal to the number of layers.
@@ -63,7 +61,6 @@
 ##'                 col=c("blue","green")))
 ##' 
 sunML <- function(I.dir,I.diff,LAI=8,nlayers=8,kd=0.1,chi.l=1,cos.theta=0.5){
-
 k0 = cos.theta * sqrt(chi.l^2 + tan(acos(cos.theta))^2);
 k1 = chi.l + 1.744*(chi.l + 1.183)^-0.733;
 k = abs(k0/k1);
@@ -75,7 +72,6 @@ LAI.i = LAI/nlayers;
 I.solar <- numeric(nlayers)
 I.diffuse <- numeric(nlayers)
 I.total <- numeric(nlayers)
-
 for( i in 0:nlayers){
 CumLAI = LAI.i * i;
     if(i == 0){
@@ -87,12 +83,10 @@ CumLAI = LAI.i * i;
         Idiffuse = I.diff * exp(-kd * CumLAI);
       }
     Itotal = Isolar + Idiffuse;
-
     Ls = (1-exp(-k*CumLAI))/k;
     Ld = CumLAI - Ls;
     Ls2 = (cos.theta * (1-exp(-k*Ls/cos.theta)))/k;
     Ld2 = CumLAI - Ls2;
-
 I.solar[i] <- Isolar
 I.diffuse[i] <- Idiffuse
 I.total[i] <- Itotal
@@ -100,9 +94,7 @@ F.sun[i] <- Ls2/CumLAI
 F.shade[i] <- Ld2/CumLAI
 LAI.sun[i] <- LAI*F.sun[i]
 LAI.shade[i] <- LAI*F.shade[i]
-
 }
-
 list(I.solar=I.solar , I.diffuse=I.diffuse, I.total=I.total,
      LAI.sun=LAI.sun,LAI.shade=LAI.shade,Fsun=F.sun,Fshade=F.shade)
 }

@@ -10,6 +10,7 @@
 ##' @param t.sn time of solar noon, default 12.
 ##' @param atm.P atmospheric pressure, default 1e5 (kPa).
 ##' @param alpha atmospheric transmittance, default 0.85.
+##' @export
 ##' @return a \code{\link{list}} structure with components
 ##' @returnItem I.dir Direct radiation (\eqn{\mu} mol \eqn{m^{-2}}
 ##' \eqn{s^{-1}}).
@@ -35,7 +36,6 @@
 ##' 
 ##' 
 lightME <- function(lat=40,DOY=190,t.d=12,t.sn=12,atm.P=1e5,alpha=0.85) {
-
 Dtr <- (pi/180)
 omega <- lat * Dtr
 delta0 <- 360 * (DOY + 10)/365
@@ -60,7 +60,5 @@ I.dir <- Solar_Constant * (alpha ^ ((PP.o) / CosZenithAngle)) * CosZenithAngle
 I.diff <- 0.5 * Solar_Constant * (1 - alpha ^ ((PP.o) / CosZenithAngle)) * CosZenithAngle
 propIdir = I.dir / (I.dir+I.diff);
 propIdiff = I.diff / (I.dir+I.diff);
-
 list(I.dir=I.dir,I.diff=I.diff,cos.th=CosZenithAngle,propIdir=propIdir,propIdiff=propIdiff)
-
 }

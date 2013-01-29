@@ -15,23 +15,14 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
-
 ## Start of the functions related to the c4
 ## photosynthesis model proposed by von Caemmerer
-
-
 ## This file will contain the functions in BioCro for
 ## and alternative photosynthesis model proposed by
 ## von Caemmerer
-
 ## This is the C4photo function based on von Caemmerer (2000)
-
-
-
 ##' C4 photosynthesis simulation (von Caemmerer model)
 ##' 
-
 ##' 
 ##' Simulation of C4 photosynthesis based on the equations proposed by von
 ##' Caemmerer (2000).  At this point assimilation and stomatal conductance are
@@ -58,7 +49,8 @@
 ##' \eqn{s^{-1}}{s-1}).
 ##' @param jmax Maximal electron transport rate (\eqn{\mu}{micro}mol electrons
 ##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' @return
+##' @export
+##' @return results of call to C function eC4photo_sym
 ##' 
 ##' a \code{\link{list}} structure with components
 ##' @returnItem Assim net assimilation rate (\eqn{\mu}{micro} mol
@@ -134,19 +126,13 @@ eC4photo <- function(Qp,airtemp,rh,ca=380,oa=210,vcmax=60,
   if(length(c(ca,oa,vcmax,vpmax,vpr,jmax)) != 6){
     stop("ca, oa, vcmax, vpmax, vpr, jmax should all be of length 1")
   }
-
   res <- .Call(eC4photo_sym,as.double(Qp),as.double(airtemp),
                as.double(rh),as.double(ca),as.double(oa),
                as.double(vcmax),as.double(vpmax),
                as.double(vpr),as.double(jmax))
   res
 }
-
 ## Here I will add the Canopy Assimilation C routine
-
-
-
-
 ##' Simulates canopy assimilation (von Caemmerer model)
 ##' 
 ##' It represents an integration of the photosynthesis function
@@ -174,6 +160,7 @@ eC4photo <- function(Qp,airtemp,rh,ca=380,oa=210,vcmax=60,
 ##' \eqn{\mu}{micro}bar) (e.g. 380).
 ##' @param Oa atmospheric oxygen concentration (mbar) (e.g. 210).
 ##' @param StomataWS Effect of water stress on assimilation.
+##' @export
 ##' @return
 ##' 
 ##' \code{\link{numeric}}
@@ -207,12 +194,14 @@ eC4photo <- function(Qp,airtemp,rh,ca=380,oa=210,vcmax=60,
 ##' 
 eCanA <- function(LAI,doy,hour,solarR,AirTemp,RH,WindS,
                   Vcmax,Vpmax,Vpr,Jmax,Ca=380,Oa=210,StomataWS=1){
-  
+
+
   inputs <- c(LAI,doy,hour,solarR,AirTemp,RH,WindS,
             WindS,Vcmax,Vpmax,Vpr,Jmax)
   if(length(inputs) != 12)
     stop("The inputs should all be of length 1")
-  
+
+
   res <- .Call(eCanA_sym,as.double(LAI),as.integer(doy),as.integer(hour),
                as.double(solarR),as.double(AirTemp),as.double(RH),
                as.double(WindS),as.double(Ca),as.double(Oa),
@@ -220,13 +209,8 @@ eCanA <- function(LAI,doy,hour,solarR,AirTemp,RH,WindS,
                as.double(Vpr),as.double(Jmax),as.double(StomataWS))
   res
 }
-
-
-
-
 ##' Markov chain Monte Carlo for C4 photosynthesis parameters
 ##' 
-
 ##' 
 ##' This function attempts to implement Markov chain Monte Carlo methods for
 ##' models with no likelihoods. In this case it is done for the von Caemmerer
@@ -262,6 +246,7 @@ eCanA <- function(LAI,doy,hour,solarR,AirTemp,RH,WindS,
 ##' @param scale This scale parameter controls the size of the standard
 ##' deviations which generate the moves in the chain. Decrease it to increase
 ##' the acceptance rate and viceversa.
+##' @export
 ##' @return a \code{\link{list}} structure with components
 ##' @returnItem RsqBI This is the \eqn{R^2} for the ``burn-in'' period.  This
 ##' value becomes the cut off value for the acceptance in the chain.
@@ -315,10 +300,10 @@ MCMCEc4photo <- function(obsDat, niter = 30000, iCa=380, iOa=210,
   qp <- obsDat[,2]
   temp <- obsDat[,3]
   rh <- obsDat[,4]
-
 if(iVpr != 80)
   warning("\n Vpr is not optimized at the moment \n")
-  
+
+
   res <- .Call(McMCEc4photo,as.double(assim),
                as.double(qp),as.double(temp),
                as.double(rh),as.integer(niter),
@@ -333,10 +318,6 @@ if(iVpr != 80)
     stop("\nRun the chain again. Try increasing thresh.\n")
   structure(res , class ="MCMCEc4photo")
 }
-
-
-
-
 ##' Print an MCMCEc4photo object
 ##' 
 ##' This functions doesn't just print the object components, but it also
@@ -354,8 +335,8 @@ if(iVpr != 80)
 ##' @param \dots Optional arguments
 ##' @seealso \code{\link{MCMCEc4photo}}
 ##' @keywords optimize
+##' @S3method print MCMCEc4photo
 print.MCMCEc4photo <- function(x,level=0.95,...){
-
   ul <- 1 - (1-level)/2
   ll <- (1 - level)/2
   xMat <- t(x$resuMC[1:4,])
@@ -365,7 +346,6 @@ print.MCMCEc4photo <- function(x,level=0.95,...){
   cat("\n R-squared:",x$RsqBI)
   cat("\n Coefficients:",x$CoefBI)
   cat("\n Iterations:",x$accept1,"\n")
-
   cat("\n Markov chain")
   cat("\n Length of the chain:",x$accept2)
   cat("\n Moves:",x$accept3,"Prop:",x$accept3/x$niter,"\n")
@@ -388,9 +368,6 @@ print.MCMCEc4photo <- function(x,level=0.95,...){
 }
 
 
-           
-
-
 ##' Plottin function for MCMCEc4photo objects
 ##' 
 ##' By default it prints the trace of the four parameters being estimated by
@@ -408,9 +385,9 @@ print.MCMCEc4photo <- function(x,level=0.95,...){
 ##' @param \dots Optional arguments.
 ##' @seealso \code{\link{MCMCEc4photo}}
 ##' @keywords hplot
+##' @S3method plot MCMCEc4photo
 plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
                              type=c("trace","density"),...){
-
   type <- match.arg(type)
 ## This first code is to plot the first object only
   ## Ploting the trace
@@ -501,7 +478,6 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
     tmpvec31 <- x$resuMC[3,1:minchainLength]
     tmpvec32 <- x2$resuMC[3,1:minchainLength]
     tmpvec33 <- x3$resuMC[3,1:minchainLength]
-
   if(type == "trace"){
      plot1 <-  xyplot(tmpvec11 + tmpvec12 + tmpvec13
                       ~ 1:minchainLength ,
@@ -518,11 +494,9 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
                       xlab = "Iterations", type = "l",
                       ylab = expression(paste("Jmax (",mu,mol," ",m^-2," ",s^-1,")")),
                       ...)
-
      print(plot1,position=c(0,0,1,0.333),more=TRUE)
      print(plot2,position=c(0,0.333,1,0.666),more=TRUE)
      print(plot3,position=c(0,0.666,1,1))
-
    } else
   if(type == "density"){
     plot1 <-  densityplot(~tmpvec11 + tmpvec12 + tmpvec13
@@ -531,7 +505,6 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
                           ,xlab="Vpmax", plot.points=FALSE,...)
     plot3 <-  densityplot(~tmpvec31 + tmpvec32 + tmpvec33
                           ,xlab="Jmax", plot.points=FALSE,...)
-
      print(plot1,position=c(0,0,1,0.333),more=TRUE)
      print(plot2,position=c(0,0.333,1,0.666),more=TRUE)
      print(plot3,position=c(0,0.666,1,1))

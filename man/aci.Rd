@@ -24,8 +24,7 @@ data(aci)
 plotAC(aci)
 }
 \references{
-  Dandan Wang %% ~~ possibly secondary sources and usages
-  ~~
+  Dandan Wang
 }
 \keyword{datasets}
 

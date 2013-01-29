@@ -15,9 +15,6 @@
 ##  http://www.r-project.org/Licenses/
 ##
 ##
-
-
-
 ##' Biomass crops growth simulation
 ##' 
 ##' Simulates dry biomass growth during an entire growing season.  It
@@ -198,6 +195,7 @@
 ##' \code{Litter} Initial values of litter (leaf, stem, root, rhizome).
 ##' 
 ##' \code{timestep} currently either week (default) or day.
+##' @export
 ##' @return
 ##' 
 ##' a \code{\link{list}} structure with components
@@ -292,9 +290,10 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                    centuryControl=list())
   {
 
-    
+
 ## Trying to guess the first and last day of the growing season from weather data
-    
+
+
     if(missing(day1)){
         half <- as.integer(dim(WetDat)[1]/2)
         WetDat1 <- WetDat[1:half,c(2,5)]
@@ -317,46 +316,39 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
           if(dayn > 330) dayn <- 330
         }
       }
-    
+
+
     if((day1<0) || (day1>365) || (dayn<0) || (dayn>365))
       stop("day1 and dayn should be between 0 and 365")
-
     if(day1 > dayn)
       stop("day1 should be smaller than dayn")
-
     if( (timestep<1) || (24%%timestep != 0))
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
-
     ## Getting the Parameters
     canopyP <- canopyParms()
     canopyP[names(canopyControl)] <- canopyControl
-    
+
+
     soilP <- soilParms()
     soilP[names(soilControl)] <- soilControl
-
     nitroP <- nitroParms()
     nitroP[names(nitroControl)] <- nitroControl
-
     phenoP <- phenoParms()
     phenoP[names(phenoControl)] <- phenoControl
-
     sugarphenoP<-SugarPhenoParms()
     sugarphenoP[names(sugarphenoControl)]<-sugarphenoControl
-
     photoP <- photoParms()
     photoP[names(photoControl)] <- photoControl
-
     seneP <- seneParms()
     seneP[names(seneControl)] <- seneControl
-
     centuryP <- centuryParms()
     centuryP[names(centuryControl)] <- centuryControl
-
     tint <- 24 / timestep
     vecsize <- (dayn - (day1-1)) * tint
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
-    
+
+
     doy <- WetDat[indes1:indesn,2]
     hr <- WetDat[indes1:indesn,3]
     solar <- WetDat[indes1:indesn,4]
@@ -364,33 +356,28 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     rh <- WetDat[indes1:indesn,6]
     windspeed <- WetDat[indes1:indesn,7]
     precip <- WetDat[indes1:indesn,8]
-
     if(max(rh) > 1)
       stop("Rel Hum. should be 0 < rh < 1")
     if((min(hr) < 0) | (max(hr) > 23))
       stop("hr should be between 0 and 23")
-    
+
+
     DBPcoefs <- valid_dbp(as.vector(unlist(phenoP)[7:31]))
-
     TPcoefs <- as.vector(unlist(phenoP)[1:6])
-
     sugarcoefs <-as.vector(unlist(sugarphenoP))
-
     SENcoefs <- as.vector(unlist(seneP))
-
     soilCoefs <- c(unlist(soilP[1:5]),mean(soilP$iWatCont),soilP$scsf, soilP$transpRes, soilP$leafPotTh)
     wsFun <- soilP$wsFun
     soilType <- soilP$soilType
-
     centCoefs <- as.vector(unlist(centuryP)[1:24])
-
     if(centuryP$timestep == "year"){
       stop("Not developed yet")
       centTimestep <- dayn - day1 ## This is really the growing season
     }
     if(centuryP$timestep == "week") centTimestep <- 7
     if(centuryP$timestep == "day") centTimestep <- 1
-    
+
+
     vmax <- photoP$vmax
     alpha <- photoP$alpha
     kparm <- photoP$kparm
@@ -401,7 +388,6 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-
     mResp <- canopyP$mResp
     kd <- canopyP$kd
     chi.l <- canopyP$chi.l
@@ -409,7 +395,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
     nlayers <- canopyP$nlayers
-    
+
+
     res <- .Call(MisGro,
                  as.double(lat),
                  as.integer(doy),
@@ -462,7 +449,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(nitroP$lnb1),
                  as.integer(nitroP$lnFun),
                  as.double(sugarcoefs))
-    
+
+
     res$cwsMat <- t(res$cwsMat)
     colnames(res$cwsMat) <- soilP$soilDepths[-1]
     res$rdMat <- t(res$rdMat)
@@ -471,47 +459,35 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$psimMat) <- soilP$soilDepths[-1]
     structure(res,class="BioGro")
   }
-
-
-
 canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
                         kd = 0.1, chi.l = 1,
                         mResp=c(0.02,0.03), heightFactor=3){
-
   if((nlayers < 1) || (nlayers > 50))
     stop("nlayers should be between 1 and 50")
-
   if(Sp <= 0)
     stop("Sp should be positive")
-
   if(heightFactor <= 0)
     stop("heightFactor should be positive")
-  
+
+
   list(Sp=Sp,SpD=SpD,nlayers=nlayers,kd=kd,chi.l=chi.l,
        mResp=mResp, heightFactor=heightFactor)
-
 }
-
 photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.01, b1=3, ws=c("gs","vmax")){
-
   ws <- match.arg(ws)
   if(ws == "gs") ws <- 1
   else ws <- 0
-      
+
+
   list(vmax=vmax,alpha=alpha,kparm=kparm,theta=theta,beta=beta,Rd=Rd,Catm=Catm,b0=b0,b1=b1,ws=ws)
-
 }
-
-
 soilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
                       soilType=6, soilLayers=1, soilDepths=NULL, hydrDist=0,
                       wsFun=c("linear","logistic","exp","none","lwp"),
                       scsf = 1, transpRes = 5e6, leafPotTh = -800,
                       rfl=0.2, rsec=0.2, rsdf=0.44){
-
   if(soilLayers < 1 || soilLayers > 50)
     stop("soilLayers must be an integer larger than 0 and smaller than 50")
-
   if(missing(iWatCont)){
     if(missing(FieldC))
       iWatCont <- rep(SoilType(soilType)$fieldc,soilLayers)
@@ -521,49 +497,44 @@ soilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatC
     if(length(iWatCont) == 1)
       iWatCont <- rep(iWatCont,soilLayers)
   }
-
   if(length(iWatCont) != soilLayers){
     stop("iWatCont should be NULL, of length 1 or length == soilLayers")
   }
-
   if(missing(soilDepths)){
     soilDepths <- seq(0,soilDepth,length.out=I(soilLayers+1))
   }else{
     if(length(soilDepths) != I(soilLayers+1)) stop("soilDepths should be of length == soilLayers + 1")
   }
-
   if(missing(FieldC)) FieldC <- -1
-
   if(missing(WiltP))  WiltP <- -1
-  
+
+
   wsFun <- match.arg(wsFun)
   if(wsFun == "linear")  wsFun <- 0
   else if(wsFun == "logistic") wsFun <- 1
   else if(wsFun =="exp") wsFun <- 2 
   else if(wsFun == "none") wsFun <- 3
   else if(wsFun == "lwp") wsFun <- 4
-  
+
+
   list(FieldC=FieldC,WiltP=WiltP,phi1=phi1,phi2=phi2,soilDepth=soilDepth,iWatCont=iWatCont,
        soilType=soilType,soilLayers=soilLayers,soilDepths=soilDepths, wsFun=wsFun,
        scsf = scsf, transpRes = transpRes, leafPotTh = leafPotTh,
        hydrDist=hydrDist, rfl=rfl, rsec=rsec, rsdf=rsdf)
 }
-
 nitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
                        kpLN=0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
-
   lnFun <- match.arg(lnFun)
   if(lnFun == "none"){
     lnFun <- 0
   }else{
     lnFun <- 1
   }
-  
+
+
   list(iLeafN=iLeafN, kLN=abs(kLN), Vmax.b1=Vmax.b1, alpha.b1=alpha.b1, kpLN=kpLN,
        lnb0 = lnb0, lnb1 = lnb1, lnFun = lnFun)
-
 }
-
 phenoParms <- function(tp1=562, tp2=1312, tp3=2063, tp4=2676, tp5=3211, tp6=7000,
                        kLeaf1=0.33, kStem1=0.37, kRoot1=0.3, kRhizome1=-8e-4, 
                        kLeaf2=0.14, kStem2=0.85, kRoot2=0.01, kRhizome2=-5e-4, 
@@ -571,10 +542,8 @@ phenoParms <- function(tp1=562, tp2=1312, tp3=2063, tp4=2676, tp5=3211, tp6=7000
                        kLeaf4=0.01, kStem4=0.63, kRoot4=0.01, kRhizome4=0.35, 
                        kLeaf5=0.01, kStem5=0.63, kRoot5=0.01, kRhizome5=0.35, 
                        kLeaf6=0.01, kStem6=0.63, kRoot6=0.01, kRhizome6=0.35, kGrain6=0){
-
   if(kGrain6 < 0)
     stop("kGrain6 should be positive (zero is allowed)")
-
   list(tp1=tp1, tp2=tp2, tp3=tp3, tp4=tp4, tp5=tp5, tp6=tp6,
        kLeaf1=kLeaf1, kStem1=kStem1, kRoot1=kRoot1, kRhizome1=kRhizome1, 
        kLeaf2=kLeaf2, kStem2=kStem2, kRoot2=kRoot2, kRhizome2=kRhizome2, 
@@ -583,12 +552,10 @@ phenoParms <- function(tp1=562, tp2=1312, tp3=2063, tp4=2676, tp5=3211, tp6=7000
        kLeaf5=kLeaf5, kStem5=kStem5, kRoot5=kRoot5, kRhizome5=kRhizome5, 
        kLeaf6=kLeaf6, kStem6=kStem6, kRoot6=kRoot6, kRhizome6=kRhizome6, kGrain6=kGrain6)
 
-  
-}
 
+}
 SugarPhenoParms <- function(TT0=200, TTseed=800, Tmaturity=6000,Rd=0.06,Alm=0.15,Arm=0.08,
 	Clstem=0.04, Ilstem=7,Cestem=-0.05,Iestem=45, Clsuc=0.01,Ilsuc=25,Cesuc=-0.02,Iesuc=45){
-
   # Think about Error conditions in parameter values
   # TT0= End of germination phase
   # TTseed = seed cane stops providing nutrients/C for plant parts
@@ -600,27 +567,19 @@ SugarPhenoParms <- function(TT0=200, TTseed=800, Tmaturity=6000,Rd=0.06,Alm=0.15
   # Cestem and Iestem togetger determines when the log phase of stem allocation ends
   # Clsuc and Ilsuc determines when the linear phase of sugar fraction ends
   # Cesuc and Iesuc determines when the log phase of sugar fraction ends
-  
+
+
   list(TT0=TT0,TTseed=TTseed, Tmaturity=Tmaturity,Rd=Rd,Alm=Alm,Arm=Arm,
 	Clstem=Clstem, Ilstem=Ilstem,Cestem=Cestem,Iestem=Iestem, Clsuc=Clsuc,Ilsuc=Ilsuc,Cesuc=Cesuc,Iesuc=Iesuc)
-  
+
+
 }
-
-
-
-
 seneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
-
   list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome)
-
 }
-
 ## Function to automatically plot objects of
 ## BioGro class
-
 ## Colors Stem, Leaf, Root, Rhizome, LAI
-
-
 ##' Plotting function for BioGro objects
 ##' 
 ##' By default it plots stem, leaf, root, rhizome and LAI for a \code{BioGro}
@@ -656,15 +615,12 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
                          col=c("blue","green","red","magenta","black","purple"),
                          x1=0.1,y1=0.8,plot.kind=c("DB","SW"),...) 
 {
-
   if(missing(xlab)){
     xlab = expression(paste("Thermal Time (",degree,"C d)"))
   }
-
   if(missing(ylab)){
     ylab = expression(paste("Dry Biomass (Mg ",ha^-1,")"))
   }  
-
   pchs <- rep(pch,length=6)
   ltys <- rep(lty,length=6)
   cols <- rep(col,length=6)
@@ -702,7 +658,6 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
                             panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
                                          lty = ltys[6], lwd = lwds[6],...)
                           }
-
                         }, key = list(text = list(c("Stem", "Leaf", "Root", 
                                         "Seedcane", "Grain", "LAI")), col = cols, lty = ltys, lwd = lwds,
                              lines = TRUE, x = x1, y = y1))
@@ -741,7 +696,8 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
                           panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
                                        lty = ltys[6], lwd = lwds[6], type = "l", ...)
                         }
-                        
+
+
                         panel.xyplot(obs[, 1], obs[, 2], col = cols[1], 
                                      pch=pchs[1],...)
                         panel.xyplot(obs[, 1], obs[, 3], col = cols[2], 
@@ -764,10 +720,8 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
     matplot(x$ThermalT,as.matrix(x$cwsMat),type="l",ylab="Soil Water Content",xlab="Thermal Time")
   }
 }
-
 ##' @S3method print BioGro
 print.BioGro <- function(x,level=1,...){
-
   if(level == 0){
     print(summary(as.data.frame(unclass(x)[1:23])))
   }else
@@ -780,6 +734,4 @@ print.BioGro <- function(x,level=1,...){
   if(level == 3){
     print(summary(as.data.frame(unclass(x)[c(1,2,11:23)])))
   }
-
 }
-
