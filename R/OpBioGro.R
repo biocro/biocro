@@ -511,6 +511,7 @@ ialr <- function(lprops){
 ##' @param \dots Optional arguments.
 ##' @seealso \code{\link{OpBioGro}}
 ##' @keywords optimize
+##' @export
 ##' @S3method print OpBioGro
 print.OpBioGro <- function(x,...){
   cat("\n Optimization for stage:",x$phen,"\n")
@@ -536,6 +537,7 @@ print.OpBioGro <- function(x,...){
   }
 }
 
+##' @export
 ##' @S3method summary OpBioGro
 summary.OpBioGro <- function(object,...){
   cfs <- object$coefs

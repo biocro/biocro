@@ -1,7 +1,7 @@
 \name{Opc4photo}
 \alias{Opc4photo}
-\alias{plot.Opc4photo}
 \alias{plotAQ}
+\alias{plot.Opc4photo}
 \alias{predict.Opc4photo}
 \alias{print.Opc4photo}
 \alias{print.summary.Opc4photo}

@@ -1,4 +1,4 @@
-useDynLib(EnCro, MisGro,
+useDynLib(BioCro, MisGro,
           c4photo_sym = c4photo,
           c3photo_sym = c3photo,
           McMCc4photo,

@@ -177,6 +177,7 @@ RsqEC4photo <- function(obsDat, iVcmax=60,iVpmax=120,
 ##' @param \dots Optional arguments.
 ##' @seealso \code{\link{OpEC4photo}}
 ##' @keywords optimize
+##' @export
 ##' @S3method print OpEC4photo
 print.OpEC4photo <- function(x,...){
   cat("\nOptimization of C4 photosynthesis\n")
@@ -197,6 +198,7 @@ print.OpEC4photo <- function(x,...){
   invisible(x)
 }
 
+##' @export
 ##' @S3method summary OpEC4photo
 summary.OpEC4photo <- function(object,...){
   dat <- object$data

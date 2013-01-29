@@ -34,6 +34,8 @@
   \eqn{s^{-1}}{s-1}).}
 }
 \value{
+  results of call to C function eC4photo_sym
+
   a \code{\link{list}} structure with components
 }
 \description{

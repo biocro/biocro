@@ -335,6 +335,7 @@ if(iVpr != 80)
 ##' @param \dots Optional arguments
 ##' @seealso \code{\link{MCMCEc4photo}}
 ##' @keywords optimize
+##' @export
 ##' @S3method print MCMCEc4photo
 print.MCMCEc4photo <- function(x,level=0.95,...){
   ul <- 1 - (1-level)/2
@@ -385,6 +386,7 @@ print.MCMCEc4photo <- function(x,level=0.95,...){
 ##' @param \dots Optional arguments.
 ##' @seealso \code{\link{MCMCEc4photo}}
 ##' @keywords hplot
+##' @export
 ##' @S3method plot MCMCEc4photo
 plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
                              type=c("trace","density"),...){

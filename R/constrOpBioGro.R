@@ -72,7 +72,7 @@ constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
   Temp12<-ifelse(Temp>=12,as.numeric(Temp-12.0),0.0)
   cTT <- cumsum(Temp12/24)
 #  cTT <- cumsum(Temp/24)
-  indTmp <- EnCro:::indfun(data[,1],cTT)
+  indTmp <- BioCro:::indfun(data[,1],cTT)
 
   doy <- WetDat[indes1:indesn,2]
   doyTemp <- cbind(doy,cTT)
@@ -136,7 +136,7 @@ constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
                
     ci <- c(-1,0,0,0)
     
-    opar <- constrOptim(iCoef[c(1:2,4)],EnCro:::objFun2, 
+    opar <- constrOptim(iCoef[c(1:2,4)],BioCro:::objFun2, 
                   phenStage=1,grad=NULL,ui=ui,ci=ci,
                   iCoefs=iCoef, ThermalP=ThermalP,
                   WetDat=WetDat,day1=day1,
@@ -168,7 +168,7 @@ constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
     ci <- c(-1,0,0,0)
     
     
-    opar <- constrOptim(iCoef[c(5,6,8)],EnCro:::objFun2, 
+    opar <- constrOptim(iCoef[c(5,6,8)],BioCro:::objFun2, 
                         phenStage=2,grad=NULL,ui=ui,ci=ci,
                         iCoefs=iCoef, ThermalP=ThermalP,
                         WetDat=WetDat,day1=day1,
@@ -201,7 +201,7 @@ constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
                
     ci <- c(-1,0,0,0)
     
-    opar <- constrOptim(iCoef[9:11],EnCro:::objFun2,
+    opar <- constrOptim(iCoef[9:11],BioCro:::objFun2,
                         grad=NULL,ui=ui,ci=ci,phenStage=3,
                         iCoefs=iCoef,WetDat=WetDat,day1=day1,
                         dayn=dayn0,lat=lat, ThermalP = ThermalP,
@@ -232,7 +232,7 @@ constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
                
     ci <- c(-1,0,0,0)
     
-    opar <- constrOptim(iCoef[13:15],EnCro:::objFun2,
+    opar <- constrOptim(iCoef[13:15],BioCro:::objFun2,
                         grad=NULL,ui=ui,ci=ci,phenStage=4,
                         iCoefs=iCoef,WetDat=WetDat,day1=day1,
                         dayn=dayn0,lat=lat,ThermalP = ThermalP,
@@ -263,7 +263,7 @@ constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
                
     ci <- c(-1,0,0,0)
     
-    opar <- constrOptim(iCoef[17:19],EnCro:::objFun2,
+    opar <- constrOptim(iCoef[17:19],BioCro:::objFun2,
                   grad=NULL,ui=ui,ci=ci,phenStage=5,
                   iCoefs=iCoef,WetDat=WetDat,day1=day1,
                   dayn=dayn0,lat=lat, ThermalP = ThermalP,
@@ -295,7 +295,7 @@ constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
     
     ci <- c(-1 + -1e-7,0,0,0,0)
 
-    opar <- constrOptim(iCoef[21:24],EnCro:::objFun2,
+    opar <- constrOptim(iCoef[21:24],BioCro:::objFun2,
                         grad=NULL,ui=ui,ci=ci,phenStage=6,
                         iCoefs=iCoef,WetDat=WetDat,day1=day1,
                         dayn=dayn0,lat=lat, ThermalP = ThermalP,

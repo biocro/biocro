@@ -450,6 +450,3 @@ NULL
 ##' ## maybe str(weather06) ; plot(weather06) ...
 ##' 
 NULL
-
-
-

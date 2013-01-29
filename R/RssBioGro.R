@@ -26,7 +26,7 @@ RssBioGro <- function(obs,sim){
     simDat <- data.frame(TT = sim$ThermalT, Stem = sim$Stem, Leaf = sim$Leaf,
                          Root = sim$Root, Rhiz = sim$Rhizome, 
                          Grain = sim$Grain, LAI = sim$LAI)
-    indx <- EnCro:::indfun(obs[,1],simDat[,1])
+    indx <- BioCro:::indfun(obs[,1],simDat[,1])
     simDat2 <- simDat[indx,]
     obs2 <- obs[1:length(indx),]
     dobs2 <- dim(obs2)

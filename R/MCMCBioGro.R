@@ -193,7 +193,7 @@ MCMCBioGro <- function(niter = 10, niter2=10, phen=6, iCoef=NULL,
   indesn <- (dayn) * tint;
   Temp <- WetDat[indes1:indesn,5];
   cTT <- cumsum(Temp/tint);
-  tmp1 <- EnCro:::indfun(data[,1],cTT)
+  tmp1 <- BioCro:::indfun(data[,1],cTT)
   if(length(tmp1) < nrow(data)){
     stop("Error with length of the growing season")
   }
@@ -312,6 +312,7 @@ indfun <- function(obs,pred){
   colind
 }
 
+##' @export
 ##' @S3method print MCMCBioGro
 print.MCMCBioGro <- function(x,...){
   cfs <- c(x$coefs[1:4],NA,x$coefs[5:8],NA,
@@ -369,6 +370,7 @@ print.MCMCBioGro <- function(x,...){
 ##' @examples
 ##' 
 ##' ## See the MCMCBioGro function
+##' @export
 ##' @S3method plot MCMCBioGro
 plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT","trace","density"),
                             type=c("l","p"),coef=1,cols=c("blue","green","red","magenta","black","purple"),...){
@@ -553,4 +555,3 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
     print(plot1)
     }
 }
-
