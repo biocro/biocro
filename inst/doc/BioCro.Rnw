@@ -30,7 +30,7 @@ Simulation and parameter estimation of photosynthesis and crop growth.
 
 <<preliminaries,echo=FALSE,print=FALSE>>=
 options(width=80)
-library(EnCro)
+library(BioCro)
 @
 
 \section{Introduction}

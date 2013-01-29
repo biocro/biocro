@@ -31,7 +31,7 @@ Simulation of $C_3$ photosynthesis and estimation of parameters.
 <<preliminaries,echo=FALSE,print=FALSE>>=
 options(width=80)
 library(lattice)
-library(EnCro)
+library(BioCro)
 @
 
 \section{Simulating Photosynthesis}
