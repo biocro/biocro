@@ -45,8 +45,8 @@
   water stress on stomatal conductance and assimilation.}
 
   \item{ws}{option to control whether the water stress
-  factor is applied to stomatal conductance ("gs") or to
-  Vmax ("vmax").}
+  factor is applied to stomatal conductance ('gs') or to
+  Vmax ('vmax').}
 }
 \value{
   a \code{\link{list}} structure with components
@@ -68,13 +68,13 @@
 
      ## Plot comparing alpha 0.04 vs. 0.06 for a range of conditions
      xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
-            type="l",col=c("blue","green"),lwd=2,
-            ylab=expression(paste("Assimilation (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-             xlab=expression(paste("Quantum flux (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-            key=list(text=list(c("alpha 0.04","alpha 0.06")),
-              lines=TRUE,col=c("blue","green"),lwd=2))
+            type='l',col=c('blue','green'),lwd=2,
+            ylab=expression(paste('Assimilation (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+             xlab=expression(paste('Quantum flux (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+            key=list(text=list(c('alpha 0.04','alpha 0.06')),
+              lines=TRUE,col=c('blue','green'),lwd=2))
 
      ## Second example: looking at the effect of changing vmax
      ## Plot comparing Vmax 39 vs. 50 for a range of conditions
@@ -83,13 +83,13 @@
       res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,vmax=50)
 
      xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
-            type="l",col=c("blue","green"),lwd=2,
-            ylab=expression(paste("Assimilation (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-             xlab=expression(paste("Quantum flux (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-            key=list(text=list(c("Vmax 39","Vmax 50")),
-              lines=TRUE,col=c("blue","green"),lwd=2))
+            type='l',col=c('blue','green'),lwd=2,
+            ylab=expression(paste('Assimilation (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+             xlab=expression(paste('Quantum flux (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+            key=list(text=list(c('Vmax 39','Vmax 50')),
+              lines=TRUE,col=c('blue','green'),lwd=2))
 
      ## Small effect of low RH on  Assim
       Qps <- seq(0,2000,10)
@@ -99,28 +99,28 @@
       res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH)
      # plot for Assimilation and two RH
       xyplot(res1$Assim ~ Qp | factor(Tl) , data = dat1,
-             groups=RH, type="l",
-             col=c("blue","green"),lwd=2,
-             ylab=expression(paste("Assimilation (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-             xlab=expression(paste("Quantum flux (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-             key=list(text=list(c("RH 20\%","RH 90\%")),
-                        lines=TRUE,col=c("blue","green"),
+             groups=RH, type='l',
+             col=c('blue','green'),lwd=2,
+             ylab=expression(paste('Assimilation (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+             xlab=expression(paste('Quantum flux (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+             key=list(text=list(c('RH 20\%','RH 90\%')),
+                        lines=TRUE,col=c('blue','green'),
                         lwd=2))
 
     ## Effect of the previous runs on Stomatal conductance
 
     x11() # opens a new plotting device
     xyplot(res1$Gs ~ Qp | factor(Tl) , data = dat1,
-           type="l", groups=RH,
-           col=c("blue","green"),lwd=2,
-           ylab=expression(paste("Stomatal Conductance (",
-                           mu,mol," ",m^-2," ",s^-1,")")),
-           xlab=expression(paste("Quantum flux (",
-                           mu,mol," ",m^-2," ",s^-1,")")),
-           key=list(text=list(c("RH 20\%","RH 90\%")),
-                     lines=TRUE,col=c("blue","green"),
+           type='l', groups=RH,
+           col=c('blue','green'),lwd=2,
+           ylab=expression(paste('Stomatal Conductance (',
+                           mu,mol,' ',m^-2,' ',s^-1,')')),
+           xlab=expression(paste('Quantum flux (',
+                           mu,mol,' ',m^-2,' ',s^-1,')')),
+           key=list(text=list(c('RH 20\%','RH 90\%')),
+                     lines=TRUE,col=c('blue','green'),
                      lwd=2))
 
 
@@ -139,13 +139,13 @@ for(i in 1:length(Ca)){
   res2[i] <- c4photo(1500,25,0.7,Catm=Ca[i],kparm=0.8)$Assim
 }
 
-xyplot(res1 + res2 ~ Ca ,type="l",lwd=2,
-       col=c("blue","green"),
-     xlab=expression(paste(CO[2]," (ppm)")),
-     ylab=expression(paste("Assimilation (",
-         mu,mol," ",m^-2," ",s^-1,")")),
-     key=list(text=list(c("kparm 0.7","kparm 0.8")),
-                        lines=TRUE,col=c("blue","green"),
+xyplot(res1 + res2 ~ Ca ,type='l',lwd=2,
+       col=c('blue','green'),
+     xlab=expression(paste(CO[2],' (ppm)')),
+     ylab=expression(paste('Assimilation (',
+         mu,mol,' ',m^-2,' ',s^-1,')')),
+     key=list(text=list(c('kparm 0.7','kparm 0.8')),
+                        lines=TRUE,col=c('blue','green'),
                         lwd=2))
 
 ## Effect of Reduction in Assimilation due to
@@ -160,25 +160,25 @@ res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,StomWS=0.5)
 
 ## Plot comparing StomWS = 1 vs. 0.5 for a range of conditions
 xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
-       type="l",col=c("blue","green"),lwd=2,
-       ylab=expression(paste("Assimilation (",
-           mu,mol," ",m^-2," ",s^-1,")")),
-       xlab=expression(paste("Quantum flux (",
-            mu,mol," ",m^-2," ",s^-1,")")),
-       key=list(text=list(c("StomWS 1","StomWS 0.5")),
-           lines=TRUE,col=c("blue","green"),lwd=2))
+       type='l',col=c('blue','green'),lwd=2,
+       ylab=expression(paste('Assimilation (',
+           mu,mol,' ',m^-2,' ',s^-1,')')),
+       xlab=expression(paste('Quantum flux (',
+            mu,mol,' ',m^-2,' ',s^-1,')')),
+       key=list(text=list(c('StomWS 1','StomWS 0.5')),
+           lines=TRUE,col=c('blue','green'),lwd=2))
 
 
 ## Effect on Stomatal Conductance
 ## Plot comparing StomWS = 1 vs. 0.5 for a range of conditions
 xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
-        type="l",col=c("blue","green"),lwd=2,
-        ylab=expression(paste("Stomatal Conductance (mmol ",
-          m^-2," ",s^-1,")")),
-        xlab=expression(paste("Quantum flux (",
-          mu,mol," ",m^-2," ",s^-1,")")),
-        key=list(text=list(c("StomWS 1","StomWS 0.5")),
-           lines=TRUE,col=c("blue","green"),lwd=2))
+        type='l',col=c('blue','green'),lwd=2,
+        ylab=expression(paste('Stomatal Conductance (mmol ',
+          m^-2,' ',s^-1,')')),
+        xlab=expression(paste('Quantum flux (',
+          mu,mol,' ',m^-2,' ',s^-1,')')),
+        key=list(text=list(c('StomWS 1','StomWS 0.5')),
+           lines=TRUE,col=c('blue','green'),lwd=2))
 }
 }
 \references{

@@ -56,6 +56,7 @@
   \code{\link{sunML}}.
 }
 \examples{
+\dontrun{
 data(doy124)
 tmp1 <- numeric(24)
 for(i in 1:24){
@@ -71,10 +72,11 @@ for(i in 1:24){
 }
 
 plot(c(0:23),tmp1,
-     type="l",lwd=2,
-     xlab="Hour",
-     ylab=expression(paste("Canopy assimilation (mol  ",
-     m^-2," ",s^-1,")")))
+     type='l',lwd=2,
+     xlab='Hour',
+     ylab=expression(paste('Canopy assimilation (mol  ',
+     m^-2,' ',s^-1,')')))
+}
 }
 \keyword{models}
 

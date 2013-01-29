@@ -57,7 +57,7 @@
   To choosing a subset of the 24 dry biomass partitioning
   coefficients use the subset option as you would in the
   xyplot using nams as the name. For example,
-  \code{plot(x,plot.kind="trace",subset=nams=="kLeaf_1")}
+  \code{plot(x,plot.kind='trace',subset=nams=='kLeaf_1')}
   will select it for the leaf at the first phenological
   stage.
 }

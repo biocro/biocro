@@ -43,10 +43,10 @@
   \item{ibeta}{Initial value for vmax. It can be a single
   value or a vector of length equal to the number of runs.}
 
-  \item{curve.kind}{If \code{"Q"} a type of response which
+  \item{curve.kind}{If \code{'Q'} a type of response which
   mainly depends on light will be assumed. Typically used
   to optimized light response curves or diurnals. Use
-  \code{"Ci"} for A/Ci curves (stomatal conductance could
+  \code{'Ci'} for A/Ci curves (stomatal conductance could
   also be optimized).}
 
   \item{op.level}{optimization level. If equal to 1
@@ -79,7 +79,7 @@
   There are printing and plotting methods for the object
   created by this function. The plotting function has an
   argument that it is used to dsiplay either vmax or alpha
-  (i.e. \code{parm=c("vmax","alpha")}). In both cases the
+  (i.e. \code{parm=c('vmax','alpha')}). In both cases the
   optimized value plus confidence intervals will be
   displayed for each run.
 }

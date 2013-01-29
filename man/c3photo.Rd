@@ -55,13 +55,13 @@ res2 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH,vcmax=120)
 
 ## Plot comparing alpha 0.04 vs. 0.06 for a range of conditions
 xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
-            type="l",col=c("blue","green"),lwd=2,
-            ylab=expression(paste("Assimilation (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-             xlab=expression(paste("Quantum flux (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-            key=list(text=list(c("Vcmax 100","Vcmax 120")),
-              lines=TRUE,col=c("blue","green"),lwd=2))
+            type='l',col=c('blue','green'),lwd=2,
+            ylab=expression(paste('Assimilation (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+             xlab=expression(paste('Quantum flux (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+            key=list(text=list(c('Vcmax 100','Vcmax 120')),
+              lines=TRUE,col=c('blue','green'),lwd=2))
 
 ## Second example: looking at the effect of changing Jmax
 ## Plot comparing Jmax 300 vs. 100 for a range of conditions
@@ -70,13 +70,13 @@ res1 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH) ## default Jmax = 300
 res2 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH,jmax=100)
 
 xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
-           type="l",col=c("blue","green"),lwd=2,
-            ylab=expression(paste("Assimilation (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-             xlab=expression(paste("Quantum flux (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-            key=list(text=list(c("Jmax 300","Jmax 100")),
-              lines=TRUE,col=c("blue","green"),lwd=2))
+           type='l',col=c('blue','green'),lwd=2,
+            ylab=expression(paste('Assimilation (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+             xlab=expression(paste('Quantum flux (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+            key=list(text=list(c('Jmax 300','Jmax 100')),
+              lines=TRUE,col=c('blue','green'),lwd=2))
 
 ## A/Ci curve
 
@@ -88,12 +88,12 @@ res2 <- c3photo(dat2$Qp, dat2$Tl, dat2$rh, Catm = Ca, vcmax = 70)
 xyplot(res1$Assim ~ res1$Ci,
            lwd=2,
            panel = function(x,y,...){
-                   panel.xyplot(x,y,type="l",col="blue",...)
-                   panel.xyplot(res2$Ci,res2$Assim, type="l", col =
-           "green",...)
+                   panel.xyplot(x,y,type='l',col='blue',...)
+                   panel.xyplot(res2$Ci,res2$Assim, type='l', col =
+           'green',...)
            },
-            ylab=expression(paste("Assimilation (",
-                 mu,mol," ",m^-2," ",s^-1,")")))
+            ylab=expression(paste('Assimilation (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')))
 }
 \author{
   Fernando E. Miguez

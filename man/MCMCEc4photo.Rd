@@ -84,7 +84,7 @@ res3 <- MCMCEc4photo(obsNaid,100000,thresh=0.007)
 
 ## Now plot it
 plot(res1,res2,res3)
-plot(res1,res2,res3,type="density")
+plot(res1,res2,res3,type='density')
 }
 }
 \references{

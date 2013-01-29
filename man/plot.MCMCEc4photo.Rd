@@ -14,8 +14,8 @@
   \item{x3}{optional additional \code{link{MCMCEc4photo}}
   object.}
 
-  \item{type}{"trace" plots the iteration history and
-  "density" plots the kernel density.}
+  \item{type}{'trace' plots the iteration history and
+  'density' plots the kernel density.}
 
   \item{\dots}{Optional arguments.}
 }

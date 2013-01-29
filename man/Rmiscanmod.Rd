@@ -73,8 +73,8 @@ res <- Rmiscanmod(WD1979)
 Yld <- res$Yield / 100
 
 xyplot(Yld ~ 1:365 ,
-       xlab="doy",
-       ylab="Dry biomass (Mg/ha)")
+       xlab='doy',
+       ylab='Dry biomass (Mg/ha)')
 
 ## although the default value for Field Capacity is 45
 ## a more reasonable value is closer to 27

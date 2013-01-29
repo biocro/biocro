@@ -46,8 +46,8 @@
 
   \item{b1}{Slope for the Ball-Berry model.}
 
-  \item{response}{Use \code{"Assim"} if you want an
-  \eqn{R^2} for assimilation data and use \code{"StomCond"}
+  \item{response}{Use \code{'Assim'} if you want an
+  \eqn{R^2} for assimilation data and use \code{'StomCond'}
   if you want an \eqn{R^2} for stomatal conductance data.}
 }
 \value{

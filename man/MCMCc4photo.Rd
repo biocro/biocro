@@ -91,7 +91,7 @@ resB3 <- MCMCc4photo(obsBea, 100000, ivmax=45, ialpha=0.02, scale=1.5)
 
 ## Use the plot function to examine results
 plot(resB1,resB2,resB3)
-plot(resB1,resB2,resB3,plot.kind="density",burnin=1e4)
+plot(resB1,resB2,resB3,plot.kind='density',burnin=1e4)
 
 }
 }

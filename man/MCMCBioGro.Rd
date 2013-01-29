@@ -109,7 +109,7 @@ system.time(ans <- BioGro(weather05, phenoControl = pheno.ll))
 
 ans.dat <- as.data.frame(unclass(ans)[1:11])
 sel.rows <- seq(1,nrow(ans.dat),400)
-simDat <- ans.dat[sel.rows,c("ThermalT","Stem","Leaf","Root","Rhizome","Grain","LAI")]
+simDat <- ans.dat[sel.rows,c('ThermalT','Stem','Leaf','Root','Rhizome','Grain','LAI')]
 plot(ans,simDat)
 
 ## Residual sum of squares before the optimization
@@ -125,8 +125,8 @@ op1.mc <- MCMCBioGro(phen=1, niter=200,niter2=200,
 
 plot(op1.mc)
 
-plot(op1.mc, plot.kind="trace", subset = nams \%in\%
-				c("kLeaf_1","kStem_1","kRoot_1"))
+plot(op1.mc, plot.kind='trace', subset = nams \%in\%
+\\t\\t\\t\\tc('kLeaf_1','kStem_1','kRoot_1'))
 
 }
 }

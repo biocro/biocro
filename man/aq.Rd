@@ -3,11 +3,11 @@
 \alias{aq}
 \title{A/Q curves}
 \format{A data frame with 64 observations on the following 6 variables.
-\describe{ \item{list("ID")}{a numeric vector} \item{list("trt")}{a factor
-with levels \code{mxg} \code{swg}} \item{list("A")}{a numeric vector.
-Assimilation} \item{list("PARi")}{a numeric vector. Photosynthetic Active
-Radiation (incident).} \item{list("Tleaf")}{a numeric vector. Temperature
-of the leaf.} \item{list("RH_S")}{a numeric vector. Relative humidity
+\describe{ \item{list('ID')}{a numeric vector} \item{list('trt')}{a factor
+with levels \code{mxg} \code{swg}} \item{list('A')}{a numeric vector.
+Assimilation} \item{list('PARi')}{a numeric vector. Photosynthetic Active
+Radiation (incident).} \item{list('Tleaf')}{a numeric vector. Temperature
+of the leaf.} \item{list('RH_S')}{a numeric vector. Relative humidity
 (fraction).} }}
 \source{
   Data based on measurements made by Dandan Wang. %% ~~

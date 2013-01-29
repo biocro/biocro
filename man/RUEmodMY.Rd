@@ -30,8 +30,8 @@ tmp1 <- RUEmodMY(cmiWet)
 
 xyplot(AG.cum ~ doy | factor(year), type='l', data = tmp1,
        lwd=2,
-       ylab=expression(paste("dry biomass (Mg ",ha^-1,")")),
-       xlab="DOY")
+       ylab=expression(paste('dry biomass (Mg ',ha^-1,')')),
+       xlab='DOY')
 }
 \keyword{models}
 

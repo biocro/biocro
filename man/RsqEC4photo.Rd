@@ -35,8 +35,8 @@
   \item{o2}{atmospheric oxygen concentration (mbar)
   (default = 210).}
 
-  \item{type}{Use \code{"Assim"} if you want an \eqn{R^2}
-  for assimilation data and use \code{"StomCond"} if you
+  \item{type}{Use \code{'Assim'} if you want an \eqn{R^2}
+  for assimilation data and use \code{'StomCond'} if you
   want an \eqn{R^2} for stomatal conductance data.}
 }
 \value{

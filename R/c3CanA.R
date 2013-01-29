@@ -1,29 +1,23 @@
-##
-##  BioCro/R/CanA.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2009
-##
-##  This program is free software; you can redistribute it and/or modify
-##  it under the terms of the GNU General Public License as published by
-##  the Free Software Foundation; either version 2 or 3 of the License
-##  (at your option).
-##
-##  This program is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##  GNU General Public License for more details.
-##
-##  A copy of the GNU General Public License is available at
-##  http://www.r-project.org/Licenses/
-##
-##
+## BioCro/R/CanA.R by Fernando Ezequiel Miguez Copyright (C) 2007-2009
+## 
+## This program is free software; you can redistribute it and/or modify it under the terms of the GNU General
+## Public License as published by the Free Software Foundation; either version 2 or 3 of the License (at your
+## option).
+## 
+## This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+## implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+## for more details.
+## 
+## A copy of the GNU General Public License is available at http://www.r-project.org/Licenses/
 ##' Simulates canopy assimilation for C3 canopies
-##' 
+##'
 ##' It represents an integration of the photosynthesis function
 ##' \code{\link{c3photo}}, canopy evapo/transpiration and the multilayer canopy
 ##' model \code{\link{sunML}}.
-##' 
+##'
 ##' The photosynthesis function is modeled after the version in WIMOVAC.  This
 ##' is based on the well known Farquar model.
-##' 
+##'
 ##' @param lai leaf area index.
 ##' @param doy day of the year, (1--365).
 ##' @param hr hour of the day, (0--23).
@@ -41,42 +35,42 @@
 ##' @param c3photoControl list that sets the photosynthesis parameters for c3
 ##' plants through the c3photoParms function
 ##' @param lnControl list that sets the leaf nitrogen parameters.
-##' 
+##'
 ##' LeafN: Initial value of leaf nitrogen (g m-2).
-##' 
+##'
 ##' kpLN: coefficient of decrease in leaf nitrogen during the growing season.
 ##' The equation is LN = iLeafN * exp(-kLN * TTc).
-##' 
+##'
 ##' lnFun: controls whether there is a decline in leaf nitrogen with the depth
 ##' of the canopy. 'none' means no decline, 'linear' means a linear decline
 ##' controlled by the following two parameters.
-##' 
+##'
 ##' lnb0: Intercept of the linear decline of leaf nitrogen in the depth of the
 ##' canopy.
-##' 
+##'
 ##' lnb1: Slope of the linear decline of leaf nitrogen in the depth of the
 ##' canopy. The equation is 'vmax = leafN_lay * lnb1 + lnb0'.
 ##' @export
 ##' @return
-##' 
+##'
 ##' \code{\link{list}}
-##' 
+##'
 ##' returns a list with several elements
-##' 
+##'
 ##' CanopyAssim: hourly canopy assimilation (\eqn{Mg ha^{-1}}{Mg/ha}
 ##' \eqn{hr^{-1}}{per hour})
-##' 
+##'
 ##' CanopyTrans: hourly canopy transpiration (\eqn{Mg ha^{-1}}{Mg/ha}
 ##' \eqn{hr^{-1}}{per hour})
-##' 
+##'
 ##' CanopyCond: hourly canopy conductance (units ?)
-##' 
+##'
 ##' TranEpen: hourly canopy transpiration according to Penman (\eqn{Mg ha^{-1}}
 ##' \eqn{hr^{-1}}{per hour})
-##' 
+##'
 ##' TranEpen: hourly canopy transpiration according to Priestly (\eqn{Mg
 ##' ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
-##' 
+##'
 ##' LayMat: hourly by Layer matrix containing details of the calculations by
 ##' layer (each layer is a row).  col1: Direct Irradiance col2: Diffuse
 ##' Irradiance col3: Leaf area in the sun col4: Leaf area in the shade col5:
@@ -95,10 +89,10 @@
 ##' here ~
 ##' @keywords models
 ##' @examples
-##' 
+##'
 ##' data(doy124)
 ##' tmp <- numeric(24)
-##' 
+##'
 ##' for(i in 1:24){
 ##'    lai <- doy124[i,1]
 ##'    doy <- doy124[i,3]
@@ -107,58 +101,45 @@
 ##'   temp <- doy124[i,6]
 ##'     rh <- doy124[i,7]
 ##'     ws <- doy124[i,8]
-##' 
+##'
 ##'   tmp[i] <- c3CanA(lai,doy,hr,solar,temp,rh,ws)$CanopyAssim
-##' 
+##'
 ##' }
-##' 
+##'
 ##' plot(c(0:23),tmp,
-##'             type="l",lwd=2,
-##'             xlab="Hour",
-##'             ylab=expression(paste("Canopy assimilation (Mg  ",
-##'             ha^-2," ",h^-1,")")))
-##' 
-##' 
-##' 
-c3CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
-                 lat=40,nlayers=8,kd=0.1,
-                 heightFactor=3,
-                 c3photoControl = list(),
-                 lnControl = list())
-  {
+##'             type='l',lwd=2,
+##'             xlab='Hour',
+##'             ylab=expression(paste('Canopy assimilation (Mg  ',
+##'             ha^-2,' ',h^-1,')')))
+##'
+##'
+##'
+c3CanA <- function(lai, doy, hr, solar, temp, rh, windspeed, lat = 40, nlayers = 8, kd = 0.1, heightFactor = 3, c3photoControl = list(), 
+    lnControl = list()) {
     ## Add error checking to this function
-    if(length(c(lai,doy,hr,solar,temp,rh,windspeed)) != 7)
-      stop("all input should be of length 1")
+    if (length(c(lai, doy, hr, solar, temp, rh, windspeed)) != 7) 
+        stop("all input should be of length 1")
     photoP <- c3photoParms()
     photoP[names(c3photoControl)] <- c3photoControl
     photoPs <- as.vector(unlist(photoP))
-
-
+    
+    
     lnP <- lnParms()
     lnP[names(lnControl)] <- lnControl
     lnPs <- as.vector(unlist(lnP))
-
-
-    res <- .Call(c3CanA_sym,as.double(lai),as.integer(doy),
-                 as.integer(hr),as.double(solar),as.double(temp),
-                 as.double(rh),as.double(windspeed),
-                 as.double(lat),as.integer(nlayers),
-                 as.double(photoPs),
-                 as.double(kd), as.double(heightFactor),
-                 as.double(lnPs))
+    
+    
+    res <- .Call(c3CanA_sym, as.double(lai), as.integer(doy), as.integer(hr), as.double(solar), as.double(temp), as.double(rh), 
+        as.double(windspeed), as.double(lat), as.integer(nlayers), as.double(photoPs), as.double(kd), as.double(heightFactor), 
+        as.double(lnPs))
     res$LayMat <- t(res$LayMat)
-    colnames(res$LayMat) <- c("IDir","IDiff","Leafsun",
-                              "Leafshade","TransSun","TransShade",
-                              "AssimSun","AssimShade","DeltaSun",
-                              "DeltaShade","CondSun","CondShade",
-                              "LeafN", "Vmax")
+    colnames(res$LayMat) <- c("IDir", "IDiff", "Leafsun", "Leafshade", "TransSun", "TransShade", "AssimSun", "AssimShade", 
+        "DeltaSun", "DeltaShade", "CondSun", "CondShade", "LeafN", "Vmax")
     res
-  }
-c3photoParms <- function(vmax=100, jmax=180, Rd=1.1, Catm=380, O2 = 210, b0=0.08, b1=5, theta=0.7){
-  ## ws <- match.arg(ws)
-  ## if(ws == "gs") ws <- 1
-  ## else ws <- 0
-
-
-  list(vmax=vmax,jmax=jmax,Rd=Rd,Catm=Catm,O2=O2,b0=b0,b1=b1,theta=theta)
 }
+c3photoParms <- function(vmax = 100, jmax = 180, Rd = 1.1, Catm = 380, O2 = 210, b0 = 0.08, b1 = 5, theta = 0.7) {
+    ## ws <- match.arg(ws) if(ws == 'gs') ws <- 1 else ws <- 0
+    
+    
+    list(vmax = vmax, jmax = jmax, Rd = Rd, Catm = Catm, O2 = O2, b0 = b0, b1 = b1, theta = theta)
+} 

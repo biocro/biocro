@@ -53,18 +53,18 @@ wats.exp <- numeric(length(aws)) # exp
 wats.none <- numeric(length(aws)) # none
 for(i in 1:length(aws)){
 wats.L[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4)$wsPhoto
-wats.Log[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4,wsFun="logistic")$wsPhoto
-wats.exp[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun="exp")$wsPhoto
-wats.none[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun="none")$wsPhoto
+wats.Log[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4,wsFun='logistic')$wsPhoto
+wats.exp[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun='exp')$wsPhoto
+wats.none[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun='none')$wsPhoto
 }
 
 xyplot(wats.L + wats.Log + wats.exp  + wats.none~ aws,
-       col=c("blue","green","purple","red"),
-       type = "l",
-       xlab="Soil Water",
-       ylab="Stress Coefficient",
-       key = list(text=list(c("linear","logistic","exp", "none")),
-       col=c("blue","green","purple","red"), lines = TRUE) )
+       col=c('blue','green','purple','red'),
+       type = 'l',
+       xlab='Soil Water',
+       ylab='Stress Coefficient',
+       key = list(text=list(c('linear','logistic','exp', 'none')),
+       col=c('blue','green','purple','red'), lines = TRUE) )
 
 ## This function is sensitive to the soil depth parameter
 
@@ -76,8 +76,8 @@ for(i in 1:length(SDepth)){
 wats[i] <- wtrstr(1,1,0.3,SDepth[i],0.37,0.2,2e-2,3)$wsPhoto
 }
 
-xyplot(wats ~ SDepth, ylab="Water Stress Coef",
-       xlab="Soil depth")
+xyplot(wats ~ SDepth, ylab='Water Stress Coef',
+       xlab='Soil depth')
 
 ## Difference between the effect on assimilation and leaf expansion rate
 
@@ -90,24 +90,24 @@ wats.L[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4)$wsSpleaf
 }
 
 xyplot(wats.P + wats.L ~ aws,
-       xlab="Soil Water",
-       ylab="Stress Coefficient")
+       xlab='Soil Water',
+       ylab='Stress Coefficient')
 
 
 ## An example for wsRcoef
 ## The scale parameter makes a big difference
 
 aws <- seq(0.2,0.4,0.001)
-wats.1 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=1e-2,phi2=1, wsFun="logistic")$wsPhoto
-wats.2 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=2e-2,phi2=1, wsFun="logistic")$wsPhoto
-wats.3 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=3e-2,phi2=1, wsFun="logistic")$wsPhoto
+wats.1 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=1e-2,phi2=1, wsFun='logistic')$wsPhoto
+wats.2 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=2e-2,phi2=1, wsFun='logistic')$wsPhoto
+wats.3 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=3e-2,phi2=1, wsFun='logistic')$wsPhoto
 
-xyplot(wats.1 + wats.2 + wats.3 ~ aws,type="l",
-       col=c("blue","red","green"),
-       ylab="Water Stress Coef",
-       xlab="SoilWater Content",
-       key=list(text=list(c("phi1 = 1e-2","phi1 = 2e-2","phi1 = 3e-2")),
-         lines=TRUE,col=c("blue","red","green")))
+xyplot(wats.1 + wats.2 + wats.3 ~ aws,type='l',
+       col=c('blue','red','green'),
+       ylab='Water Stress Coef',
+       xlab='SoilWater Content',
+       key=list(text=list(c('phi1 = 1e-2','phi1 = 2e-2','phi1 = 3e-2')),
+         lines=TRUE,col=c('blue','red','green')))
 }
 \seealso{
   \code{\link{wsRcoef}}

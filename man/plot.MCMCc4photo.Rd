@@ -16,8 +16,8 @@
   \item{x3}{optional additional \code{\link{MCMCc4photo}}
   object.}
 
-  \item{plot.kind}{"trace" plots the iteration history and
-  "density" plots the kernel density.}
+  \item{plot.kind}{'trace' plots the iteration history and
+  'density' plots the kernel density.}
 
   \item{type}{only the options for line and point are
   offered.}

@@ -126,10 +126,10 @@ for(i in 1:24){
 }
 
 plot(c(0:23),tmp,
-            type="l",lwd=2,
-            xlab="Hour",
-            ylab=expression(paste("Canopy assimilation (Mg  ",
-            ha^-2," ",h^-1,")")))
+            type='l',lwd=2,
+            xlab='Hour',
+            ylab=expression(paste('Canopy assimilation (Mg  ',
+            ha^-2,' ',h^-1,')')))
 }
 \author{
   Fernando E. Miguez

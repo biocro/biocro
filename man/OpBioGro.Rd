@@ -94,7 +94,7 @@ system.time(ans <- BioGro(weather05, phenoControl = pheno.ll))
 
 ans.dat <- as.data.frame(unclass(ans)[1:11])
 sel.rows <- seq(1,nrow(ans.dat),length.out=8)
-simDat <- ans.dat[sel.rows,c("ThermalT","Stem","Leaf","Root","Rhizome","Grain","LAI")]
+simDat <- ans.dat[sel.rows,c('ThermalT','Stem','Leaf','Root','Rhizome','Grain','LAI')]
 plot(ans,simDat)
 
 ## Residual sum of squares before the optimization

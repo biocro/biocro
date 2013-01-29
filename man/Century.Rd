@@ -45,7 +45,6 @@
   et al. (1987, 1988, 1993)
 }
 \examples{
-\% Add one or more standard keywords, see file 'KEYWORDS' in the
 Century(0,0,0,0,0.3,5,2,2)$Resp
 Century(0,0,0,0,0.3,5,2,2)$MinN
 }

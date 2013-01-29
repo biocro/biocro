@@ -32,10 +32,10 @@
 res <- lightME(t.d=0:23)
 
 xyplot(I.dir + I.diff ~ 0:23 , data = res,
-type="o",xlab="hour",ylab="Irradiance")
+type='o',xlab='hour',ylab='Irradiance')
 
 x11();xyplot(propIdir + propIdiff ~ 0:23 , data = res,
-type="o",xlab="hour",ylab="Irradiance proportion")
+type='o',xlab='hour',ylab='Irradiance proportion')
 }
 \keyword{models}
 

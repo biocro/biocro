@@ -69,13 +69,13 @@ res2 <- eC4photo(dat1$Qp,dat1$Tl,dat1$RH,jmax=700)
 
 ## Plot comparing Jmax 400 vs. 700 for a range of conditions
 xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
-            type="l",col=c("blue","green"),lwd=2,
-            ylab=expression(paste("Assimilation (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-             xlab=expression(paste("Quantum flux (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-            key=list(text=list(c("Jmax 400","Jmax 700")),
-              lines=TRUE,col=c("blue","green"),lwd=2))
+            type='l',col=c('blue','green'),lwd=2,
+            ylab=expression(paste('Assimilation (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+             xlab=expression(paste('Quantum flux (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+            key=list(text=list(c('Jmax 400','Jmax 700')),
+              lines=TRUE,col=c('blue','green'),lwd=2))
 
 ## Second example is the effect of varying Vcmax
 
@@ -93,11 +93,11 @@ res1[i] <- eC4photo(dat1$Qp[i],dat1$Tl[i],dat1$RH[i],vcmax=dat1$vcmax[i])$Assim
 cols <- rev(heat.colors(9))
 xyplot(res1 ~ Qp | factor(Tl) , data = dat1,col=cols,
             groups=vcmax,
-            type="l",lwd=2,
-            ylab=expression(paste("Assimilation (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
-             xlab=expression(paste("Quantum flux (",
-                 mu,mol," ",m^-2," ",s^-1,")")),
+            type='l',lwd=2,
+            ylab=expression(paste('Assimilation (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
+             xlab=expression(paste('Quantum flux (',
+                 mu,mol,' ',m^-2,' ',s^-1,')')),
             key=list(text=list(as.character(vcmax)),
               lines=TRUE,col=cols,lwd=2))
 

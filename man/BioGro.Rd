@@ -173,7 +173,7 @@
 
   \code{soilDepths} Intervals for the soil layers.
 
-  \code{wsFun} one of "logistic","linear","exp" or "none".
+  \code{wsFun} one of 'logistic','linear','exp' or 'none'.
   Controls the method for the relationship between soil
   water content and water stress factor.
 
@@ -271,9 +271,9 @@ plot(res0)
 ## Looking at the soil model
 
 res1 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6))
-plot(res1, plot.kind="SW") ## Without hydraulic distribution
+plot(res1, plot.kind='SW') ## Without hydraulic distribution
 res2 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
-plot(res2, plot.kind="SW") ## With hydraulic distribution
+plot(res2, plot.kind='SW') ## With hydraulic distribution
 
 
 ## Example of user defined soil parameters.
@@ -293,9 +293,9 @@ xyplot(ans.0$SoilWatCont +
        ans.1$SoilWatCont +
        ans.2$SoilWatCont +
        ans.3$SoilWatCont ~ ans.0$DayofYear,
-       type="l",
-       ylab="Soil water Content (fraction)",
-       xlab="DOY")
+       type='l',
+       ylab='Soil water Content (fraction)',
+       xlab='DOY')
 
 ## Compare LAI
 
@@ -303,9 +303,9 @@ xyplot(ans.0$LAI +
        ans.1$LAI +
        ans.2$LAI +
        ans.3$LAI ~ ans.0$DayofYear,
-       type="l",
-       ylab="Leaf Area Index",
-       xlab="DOY")
+       type='l',
+       ylab='Leaf Area Index',
+       xlab='DOY')
 
 
 

@@ -3,9 +3,9 @@
 \alias{simDat2}
 \title{Simulated biomass data.}
 \format{A data frame with 5 observations on the following 6 variables.
-\describe{ \item{list("TT")}{a numeric vector} \item{list("Stem")}{a
-numeric vector} \item{list("Leaf")}{a numeric vector} \item{list("Root")}{a
-numeric vector} \item{list("Rhiz")}{a numeric vector} \item{list("LAI")}{a
+\describe{ \item{list('TT')}{a numeric vector} \item{list('Stem')}{a
+numeric vector} \item{list('Leaf')}{a numeric vector} \item{list('Root')}{a
+numeric vector} \item{list('Rhiz')}{a numeric vector} \item{list('LAI')}{a
 numeric vector} }}
 \source{
   ~~ reference to a publication or URL from which the data

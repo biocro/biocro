@@ -38,13 +38,13 @@
 res2 <- sunML(1500,200,3,10)
 
 xyplot(Fsun + Fshade ~ c(1:10), data=res2,
-       ylab="LAI",
-       xlab="layer",
-       type="l",lwd=2,col=c("blue","green"),
+       ylab='LAI',
+       xlab='layer',
+       type='l',lwd=2,col=c('blue','green'),
        lty=c(1,2),
-       key=list(text=list(c("Direct","Diffuse")),lty=c(1,2),
+       key=list(text=list(c('Direct','Diffuse')),lty=c(1,2),
                 cex=1.2,lwd=2,lines=TRUE,x=0.7,y=0.5,
-                col=c("blue","green")))
+                col=c('blue','green')))
 }
 \keyword{models}
 

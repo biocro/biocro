@@ -53,15 +53,15 @@
 
   \item{ws}{\code{ws} flag. See \code{\link{c4photo}}.}
 
-  \item{response}{Use \code{"Assim"} if you want to
-  optimize assimilation data and use \code{"StomCond"} if
+  \item{response}{Use \code{'Assim'} if you want to
+  optimize assimilation data and use \code{'StomCond'} if
   you want to optimize stomatal conductance data. The
   parameters optimized will be different.}
 
-  \item{curve.kind}{If \code{"Q"} a type of response which
+  \item{curve.kind}{If \code{'Q'} a type of response which
   mainly depends on light will be assumed. Typically used
   to optimized light response curves or diurnals. Use
-  \code{"Ci"} for A/Ci curves (stomatal conductance could
+  \code{'Ci'} for A/Ci curves (stomatal conductance could
   also be optimized).}
 
   \item{op.level}{optimization level. If equal to 1
@@ -111,7 +111,7 @@ aqd <- data.frame(aq[aq[,1] == 6,-c(1:2)],Catm=400)
 res <- Opc4photo(aqd, Catm=aqd$Catm)
 res
 
-plot(res, plot.kind = "OandF", type='o')
+plot(res, plot.kind = 'OandF', type='o')
 }
 \seealso{
   \code{\link{c4photo}} \code{\link{optim}}

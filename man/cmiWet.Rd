@@ -11,7 +11,7 @@
   show the result of the EvapoTrans function.
 }
 \details{
-  lfClass: leaf class, "sun" or "shade".
+  lfClass: leaf class, 'sun' or 'shade'.
 
   layer: layer in the canopy, 1 to 8.
 
