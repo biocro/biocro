@@ -35,8 +35,12 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
 	  SEXP ReH,SEXP windspeed,SEXP LAT,SEXP NLAYERS, SEXP STOMATAWS,
 	  SEXP VMAX, SEXP ALPH, SEXP KPARM, SEXP THETA, SEXP BETA,
 	  SEXP RD, SEXP B0, SEXP B1, SEXP CATM, SEXP KD, SEXP HEIGHTF, 
-	  SEXP WS, SEXP LEAFN, SEXP KPLN, SEXP LNB0, SEXP LNB1, SEXP LNFUN)
+	  SEXP WS, SEXP LEAFN, SEXP KPLN, SEXP LNB0, SEXP LNB1, SEXP LNFUN, SEXP UPPERTEMP, SEXP LOWERTEMP)
 {
+
+	double upperT=REAL(UPPERTEMP)[0];
+	double lowerT=REAL(LOWERTEMP)[0];
+
 /* Declaring the struct for the Evaop Transpiration */
    struct ET_Str tmp5_ET , tmp6_ET; 
    struct c4_str tmpc4, tmpc42; 
@@ -177,18 +181,18 @@ layIdiff, layShade vectors. */
 	    CanHeight = layHeight[--sp6];
 	    Leafsun = LAIc * pLeafsun;
 	    tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WindS,Leafsun,CanHeight,stomataws,
-				 INTEGER(WS)[0],vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11);
+				 INTEGER(WS)[0],vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,upperT,lowerT);
 	    TempIdir = Temp + tmp5_ET.Deltat;
-	    tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws, Catm,INTEGER(WS)[0]);
+	    tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws, Catm,INTEGER(WS)[0],upperT,lowerT);
 	    AssIdir = tmpc4.Assim;
 
 	    IDiff = layIdiff[--sp2];
 	    pLeafshade = layFshade[--sp5];
 	    Leafshade = LAIc * pLeafshade;
 	    tmp6_ET = EvapoTrans(IDiff,Itot,Temp,rh,WindS,Leafshade,CanHeight,
-				 stomataws,INTEGER(WS)[0],vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11);
+				 stomataws,INTEGER(WS)[0],vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,upperT,lowerT);
 	    TempIdiff = Temp + tmp6_ET.Deltat;
-	    tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws, Catm,INTEGER(WS)[0]);
+	    tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws, Catm,INTEGER(WS)[0],upperT,lowerT);
 	    AssIdiff = tmpc42.Assim;
 
     /* Collect direct radiation assim and trans in a matrix */

@@ -44,13 +44,13 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 	    double soilcoefs[], double ileafn, double kLN, double vmaxb1,
 	    double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
 	    double centks[], int centTimestep, int soilLayers, double soilDepths[],
-	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun );
+	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun, double UPPERTEMP, double LOWERTEMP);
 
 struct Can_Str CanAC(double LAI,int DOY,int hr,double solarR,double Temp,
 		     double RH,double WindSpeed,double lat,int nlayers, double Vmax, double Alpha, 
 		     double Kparm, double theta, double beta, double Rd, double Catm, double b0, 
 		     double b1, double StomataWS, int ws, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun);
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double UPPERTEMP, double LOWERTEMP);
 
 struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime);
 
@@ -71,7 +71,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 			 double *depths, double fieldc, double wiltp, double phi1, double phi2,
                          struct soilText_str soTexS, int wsFun, int layers, double rootDB,
 			 double LAI, double k, double AirTemp, double IRad, double winds, double RelH,
-			 int hydrDist, double rfl, double rsec, double rsdf);
+			 int hydrDist, double rfl, double rsec, double rsdf,int optiontocalculaterootdepth, double rootfrontvelocit,double dap);
 
 double TempToSWVC(double Temp);
 double TempToSFS(double Temp);
@@ -95,7 +95,7 @@ double AbiotEff(double smoist, double stemp);
 
 double sel_phen(int phen);
 
-double TOPLNseasonal (double maxLN, double minLN, int day, int daymaxLN, int dayinyear, double lat);
+double seasonal (double maxLN, double minLN, double day, double daymaxLN, double dayinyear, double lat);
 
 double GrowthRespiration(double CanopyA, double fraction) ;
 double MRespiration (double W,double Q, double m,double T, double deltime);
@@ -103,5 +103,5 @@ struct dbp_str SUGARCANE_DBP(double TT);
 
 
 
-struct dbp_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double Tmaturity, double Rd, double Alm, double Arm, double Clstem, double Ilstem, double Cestem, double Iestem, double Clsuc, double Ilsuc, double Cesuc, double Iesuc);
+struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double Tmaturity, double Rd, double Alm, double Arm, double Clstem, double Ilstem, double Cestem, double Iestem, double Clsuc, double Ilsuc, double Cesuc, double Iesuc,double temperature);
 

@@ -15,7 +15,7 @@
 /* EvapoTrans function . This function makes call to all the above defined functions */
 struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
 			 double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
-			 double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12)
+			 double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12,double upperT,double lowerT)
 {
         /* creating the structure to return structure ET_str is defined in AuxBioCro.h and c4_str is defined in c4photo.h  */
 	struct ET_Str tmp;
@@ -79,7 +79,7 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
 	/*' Convert light assuming 1 µmol PAR photons = 0.235 J/s Watts*/
 	totalradiation = Itot * 0.235;
 
-	tmpc4 = c4photoC(Rad,Airtemperature,RH,vmax2,alpha2,kparm,theta,beta,Rd2,b02,b12,StomataWS, 380, ws); 
+	tmpc4 = c4photoC(Rad,Airtemperature,RH,vmax2,alpha2,kparm,theta,beta,Rd2,b02,b12,StomataWS, 380, ws,upperT,lowerT); 
 	LayerConductance = tmpc4.Gs;
 
 	/* Convert mmoles/m2/s to moles/m2/s

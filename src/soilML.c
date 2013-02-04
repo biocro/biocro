@@ -7,7 +7,7 @@
 /* Function to simulate the multilayer behavior of soil water. In the
    future this could be coupled with Campbell (BASIC) ideas to
    esitmate water potential. */
-struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths, double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun, int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds, double RelH, int hydrDist, double rfl, double rsec, double rsdf){
+struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths, double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun, int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds, double RelH, int hydrDist, double rfl, double rsec, double rsdf,int optiontocalculaterootdepth, double rootfrontvelocity ,double dap){
 
 	struct rd_str tmp4;
 	struct seqRD_str tmp3;
@@ -44,10 +44,17 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 		wiltp = soTexS.wiltp;
 	}
 
-	theta_s = fieldc * 1.1;
+	theta_s = soTexS.satur;
 	/* rooting depth */
 	/* Crude empirical relationship between root biomass and rooting depth*/
-	rootDepth = rootDB * rsdf;
+	           if (optiontocalculaterootdepth==1) {
+		                            rootDepth = rootDB * rsdf;
+	                                   }
+
+		                      else {
+					      rootDepth = rootfrontvelocity*dap*0.01;// to convert root depth from cm to meter
+				           }
+
 	if(rootDepth > soildepth) rootDepth = soildepth;
 
 	tmp3 = seqRootDepth(rootDepth,layers);
@@ -190,12 +197,11 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
 		wsPhotoCol += wsPhoto;
 
-		wsSpleaf = pow(awc,phi2) * 1/pow(fieldc,phi2); 
+		wsSpleaf = pow(awc,phi2)/pow(fieldc,phi2); 
 		if(wsFun == 3){ 
 			wsSpleaf = 1;
 		}
 		wsSpleafCol += wsSpleaf;
-
 	}
 
 	if(waterIn > 0){ 

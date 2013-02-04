@@ -10,4 +10,4 @@ extern void WINDprof(double WindSpeed, double LAI, int nlayers);
 
 extern void LNprof(double LeafN, double LAI, int nlayers, double kpLN);
 
-extern struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12);
+extern struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12,double UPPERTEMP, double LOWERTEMP);

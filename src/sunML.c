@@ -17,6 +17,7 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
 	double Ls,Ls2, Ld, Ld2;
 	double Fsun, Fshade,Fcanopy;
 	double Lssaved,Ldsaved;
+        double Ibeam;
 
 	/*extinction coefficient evaluated here is defnied as ratio of 
 	  shadow on the horizontal area projected from a zenith angle Theta.
@@ -38,51 +39,32 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
 	LAIi = LAI / nlayers;
 
 	for(i=0;i<nlayers;i++)
-	{
-		CumLAI = LAIi * (i+1);
-		if(i == 0)
-		      {
-		
-			Iscat=Idir * exp(-k *sqrt(alphascatter)* CumLAI)-Idir * exp(-k * CumLAI); /* scattered radiation Eq 15.19 from Campbell and Norman pp 259 */
-			Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat; /* Eq 15.19 from Campbell and Norman pp 259 */
-			Isolar = Idir * k; /* Avergae direct radiation on sunlit leaves */
-			Itotal = Isolar + Idiffuse; /* Total radiation */
-	                
-			Fcanopy=CumLAI; /* leaf area of canopy currenly under consideration */
-			Ls = (1-exp(-k*CumLAI))/k; /* To evaluate sunlit leaf area in Fcanopy*/
-			Lssaved=Ls;              /* To use for evaluating sunlit leaves in the lower layer */
-			Ld=Fcanopy-Ls;          /* shaded leaf area */
-			Ldsaved=Ld;              /* To use for evaluating shaded leaves in the lower layer*/
-			Fsun=Ls/(Ls+Ld);         /*fracction of sunlit leaves in the current layer */
-			Fshade=Ld/(Ls+Ld);       /* fraction of shaded leaves in the current layer */
-			}
-		
-		else
 		{
-			Iscat=Idir * exp(-k *sqrt(alphascatter)* CumLAI)-Idir * exp(-k * CumLAI); /* scattered radiation Eq 15.19 from Campbell and Norman pp 259 */
-			Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat; /* Eq 15.19 from Campbell and Norman pp 259 */
-			Isolar = Idir * k; /* Avergae direct radiation on sunlit leaves */
-			Itotal = Isolar + Idiffuse;
-	                
-			Fcanopy=CumLAI;  /* leaf area of canopy currenly under consideration */
-			Ls = (1-exp(-k*CumLAI))/k; /* To evaluate  sunlit leaf area  in Fcanopy*/
-			Ld=Fcanopy-Ls; /* evaluate shaded leaf area in Fcanopy */
-			Ls= Ls-Lssaved; /* subtract the sunlit areas of all the upper layers saved in Lssaved; now we have sunlit area of current layer*/
-			Lssaved = Ls+ Lssaved; /* update the Lssaved for calculation of the next lower layer */
-			Ld=Ld-Ldsaved; /* subtract the shaded areas of all the upper layers saved in Ldsaved; now we have shaded area of current layer*/
-			Ldsaved=Ld+Ldsaved; /* update the Ldsaved for calculation of the next lower layer */
-			Fsun=Ls/(Ls+Ld);   /*fracction of sunlit leaves in the current layer */
-			Fshade=Ld/(Ls+Ld);  /* fraction of shaded leaves in the current layer */
-		}
+		CumLAI = LAIi * (i+0.5);
 		
-                      /* collecting the results */
+		Ibeam=Idir*cosTheta;
+		Iscat = Ibeam * exp(-k *sqrt(alphascatter)* CumLAI)-Ibeam * exp(-k * CumLAI);
+		
+		
+		Isolar = Ibeam*k;
+		Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
+		
+		
+		Ls = (1-exp(-k*LAIi))*exp(-k*CumLAI)/k;
+		Ld=LAIi-Ls;
 
-		layIdir[sp1++] = Isolar+Idiffuse;  /* This is used to calculate sunlit leaf photosynthesis */
-		layIdiff[sp2++] = Idiffuse;       /* ok, this is used to calculate shaded leaf photosynthesis */
-		layItotal[sp3++] = Itotal;        /* this is used to evaluate evapotranspiration..Think about other factors that might influence energy balance to include */
+		Fsun=Ls/(Ls+Ld);
+		Fshade=Ld/(Ls+Ld);
+		/*fraction intercepted*/
+		Itotal =(Fsun*Isolar + Idiffuse) * (1-exp(-k*LAIi))/k;
+
+		/* collecting the results */
+		layIdir[sp1++] = Isolar + Idiffuse;
+		layIdiff[sp2++] = Idiffuse;
+		layItotal[sp3++] = Itotal;
 		layFsun[sp4++] = Fsun;
 		layFshade[sp5++] = Fshade;
-		layHeight[sp6++] = CumLAI / heightf;
+		layHeight[sp6++] = CumLAI/heightf;
 	}
 
 

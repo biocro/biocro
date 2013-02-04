@@ -32,7 +32,7 @@
 #include "c4photo.h"
 
 SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
-	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP STOMWS, SEXP WS)
+	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP STOMWS, SEXP WS, SEXP UPPERTEMP, SEXP LOWERTEMP)
 {
 	struct c4_str tmp;
 
@@ -40,6 +40,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 
 	double vmax, alpha, K, Rd, StomWS;
 	double theta, beta;
+	double upperT,lowerT;
 
 	vmax = REAL(VMAX)[0];
 	alpha = REAL(ALPHA)[0];
@@ -50,6 +51,8 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	Bet1 = REAL(B1)[0];
 	Rd = REAL(RD)[0];
 	StomWS = REAL(STOMWS)[0];
+	upperT=REAL(UPPERTEMP)[0];
+	lowerT=REAL(LOWERTEMP)[0];
 
 	int nq , nt, nr, i;
 
@@ -84,7 +87,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 		tmp = c4photoC(*(pt_Qp+i), *(pt_Tl+i), *(pt_RH+i),
 			       vmax, alpha, K,theta, beta, Rd, 
 			       Bet0, Bet1, StomWS, 
-			       *(pt_CA+i), ws);
+			       *(pt_CA+i), ws,upperT,lowerT);
 
 		*(pt_GSV + i) = tmp.Gs;
 		*(pt_ASSV + i) = tmp.Assim;    
@@ -193,7 +196,7 @@ double fnpsvp(double Tkelvin){
 /* c4photo function */ 
 struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alpha, 
 		       double kparm, double theta, double beta,
-		       double Rd, double bb0, double bb1, double StomaWS, double Ca, int ws)
+		       double Rd, double bb0, double bb1, double StomaWS, double Ca, int ws,double upperT,double lowerT)
 {
 
 	struct c4_str tmp;
@@ -237,7 +240,7 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 
 	/* First chunk of code see Collatz (1992) */
 	Vtn = vmax * pow(2,((Tl-25.0)/10.0));
-	Vtd = ( 1 + exp(0.3 * (14-Tl)) ) * (1 + exp( 0.3*(Tl-40) ));
+	Vtd = ( 1 + exp(0.3 * (lowerT-Tl)) ) * (1 + exp( 0.3*(Tl-upperT) ));
 	VT  = Vtn / Vtd;
 
 	/* Second chunk of code see Collatz (1992) */
@@ -354,7 +357,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 		 SEXP iTHETA, SEXP iBETA,
 		 SEXP iRD,
                  SEXP CATM, SEXP B0, SEXP B1, SEXP STOMWS,
-                 SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR){
+                 SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR, SEXP UPPERTEMP, SEXP LOWERTEMP){
 	/* First manipulate R objects */
 	extern int nObs;
 	int niter;
@@ -395,10 +398,17 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 	double rnewVcmax, rnewAlpha;
 	double oldAlpha, oldVcmax;
 
+
+	double upperT =REAL(UPPERTEMP)[0];
+	double lowerT =REAL(LOWERTEMP)[0];
+
+
 	SEXP lists;
 	SEXP names;
 	SEXP mat1;
 	SEXP accept;
+
+      
 
 
 	PROTECT(lists = allocVector(VECSXP,2));
@@ -432,7 +442,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 	  
 		lratio = log(rnum) - log(rden); 
 
-		RSS = RSS_C4photo(REAL(ASSIM),REAL(QP),REAL(TEMP),REAL(RH),rnewVcmax,rnewAlpha, ikparm, itheta, ibeta, Rd, Catm, b0, b1, StomWS, ws);
+		RSS = RSS_C4photo(REAL(ASSIM),REAL(QP),REAL(TEMP),REAL(RH),rnewVcmax,rnewAlpha, ikparm, itheta, ibeta, Rd, Catm, b0, b1, StomWS, ws,upperT,lowerT);
 
 /*       mr = (exp(-RSS) / exp(-oldRSS)) * ratio; */
 /* In the previous expression we can take  the log and have instead the 
@@ -475,7 +485,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 double RSS_C4photo(double oAssim[nObs], double oQp[nObs], double oTemp[nObs], 
 		   double oRH[nObs], double vmax, double alpha, double kparm, 
 		   double theta, double beta,
-                   double Rd, double Catm, double b0, double b1, double StomWS, int ws){
+                   double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT,double lowerT){
 	extern int nObs;
 	struct c4_str tmp;
 	int i;
@@ -483,7 +493,7 @@ double RSS_C4photo(double oAssim[nObs], double oQp[nObs], double oTemp[nObs],
 
 	for(i = 0;i < nObs; i++){
 
-		tmp = c4photoC(oQp[i],oTemp[i],oRH[i],vmax,alpha,kparm,theta, beta, Rd,b0,b1,StomWS,Catm,ws);
+		tmp = c4photoC(oQp[i],oTemp[i],oRH[i],vmax,alpha,kparm,theta, beta, Rd,b0,b1,StomWS,Catm,ws,upperT,lowerT);
 		diff = oAssim[i] - tmp.Assim;
 		RSS += diff * diff;
 

@@ -23,32 +23,36 @@ Iesuc = parameter to determine log phase of sugar fraction (45)
 
 */
 
-struct dbp_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double Tmaturity, double Rd, double Alm, double Arm, double Clstem, double Ilstem, double Cestem, double Iestem, double Clsuc, double Ilsuc, double Cesuc, double Iesuc)
+struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double Tmaturity, double Rd, double Alm, double Arm, double Clstem, double Ilstem, double Cestem, double Iestem, double Clsuc, double Ilsuc, double Cesuc, double Iesuc,double Temperature)
 {
-	struct dbp_str dbp;
+	struct dbp_sugarcane_str dbp;
 	double F1, F2, F3, F4;
-	double Aa,Astem,Al,Ar,Asuc,Astuc;
+	double Aa,Astem,Al,Ar,Asuc,Astuc,Afib;
 	double RM;
 	double cutemp1,cutemp2,RM0;
         
 /* Germination Phase */
+        
 	if(TT < TT0)
 	{
-		dbp.kLeaf=0;
-		dbp.kStem=0;
-		dbp.kRoot=1.0;
-		dbp.kRhiz=-1.46e-05;
-		dbp.kGrain=0.0;
-		return(dbp);
+		
+		dbp.kLeaf=0.001;
+		dbp.kStem=0.7;
+		dbp.kRoot=0.299;
+		dbp.kSeedcane=(-1)*0.693*(0.0053*Temperature-0.0893);
+		dbp.kSugar=0.0;
+		dbp.kFiber=0.0;
+		return(dbp);		
 	}
+        else
 	
-	else
-	{
 
-	/* Calculate Relative Maturity and correct it for germination phase*/
-	RM=TT*100.0/Tmaturity;
-	RM0=TT0*100.0/Tmaturity;
-	RM=RM-RM0;
+	dbp.kSeedcane=0;
+        /* Calculate Relative Maturity and correct it for germination phase* */
+        /* Now reference thermal time has changed from 0 to TT0 */
+	RM=(TT-TT0)*100.0/Tmaturity;
+/*	RM0=TT0*100.0/Tmaturity;
+	RM=RM-RM0;   */
 
 	/* Criteria for linear increase in stem biomass*/
 	F1=RM*Clstem-Ilstem*Clstem;
@@ -70,7 +74,7 @@ struct dbp_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double T
 	{
 		cutemp2=Aa*((F1>F2)?F1:F2);
 	}
-	Astem = (cutemp1<cutemp2)?cutemp1:cutemp2;
+	Astem = (cutemp2<cutemp1)?cutemp2:cutemp1;
 
 	/* Fraction of leaf biomass */
 	Al=Aa-Astem;
@@ -86,15 +90,17 @@ struct dbp_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double T
         F4=1-exp((RM*Cesuc)-(Iesuc*Cesuc));
   
        /*fraction of sucrose with respective to total stem allocation */ 
-       	if ((F3<=0)&&(F4<=0))
+       	cutemp2=0;
+	if ((F3<=0)&&(F4<=0))
 	{
 		cutemp2=0;
 	}
 	else
 	{
-		cutemp2=Aa*((F1>F2)?F1:F2);
+		cutemp2=Astem*((F3>F4)?F3:F4);
 	}
-	Asuc=Astem*cutemp2;
+	Asuc=cutemp2;
+	Afib=Astem-Asuc;
 
 	/*fraction of structural component of stem */
 	Astuc=Astem-Asuc;
@@ -102,17 +108,10 @@ struct dbp_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double T
 		dbp.kLeaf=Al;
 		dbp.kStem=Astem;
 		dbp.kRoot=Ar;
-		if (TT< TTseed){
-			dbp.kRhiz=-1.7e-05;
-		}
-		else{
-			dbp.kRhiz=0.0;
-		}
-			dbp.kGrain=0.0;
-	
-
+		dbp.kSugar=Asuc;
+		dbp.kFiber=Afib;
+//	        dbp.kSeedcane=-0.00005;	
 	return(dbp);
-	}
 }
 
 

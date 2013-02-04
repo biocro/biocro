@@ -88,6 +88,18 @@ struct dbp_str{
 
 };
 
+struct dbp_sugarcane_str{
+
+	double kLeaf;
+	double kStem;
+	double kRoot;
+	double kSeedcane;
+	double kSugar;
+	double kFiber;
+	double kTassel;
+
+};
+
 struct soilText_str{
 
   double silt;
@@ -98,6 +110,7 @@ struct soilText_str{
   double Ks;
   double fieldc;
   double wiltp;
+  double satur;
 
 };
 

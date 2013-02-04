@@ -16,7 +16,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 		     double Alpha, double Kparm, double theta, double beta,
 		     double Rd, double Catm, double b0, double b1,
                      double StomataWS, int ws, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun)
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT, double lowerT)
 {
 
 	struct ET_Str tmp5_ET, tmp6_ET;
@@ -77,12 +77,20 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	for(i=0;i<nlayers;i++)
 	{
 		leafN_lay = tmp5[--tp5];
-		if(lnfun == 0){
-			vmax1 = Vmax;
-		}else{
-			vmax1 = leafN_lay * lnb1 + lnb0;
-               /* For now alpha is not affected by leaf nitrogen */
-		}
+		
+		//	if(lnfun == 0){
+		//	vmax1 = Vmax;
+		// }else{
+		// 	vmax1 = leafN_lay * lnb1 + lnb0;
+		// /* For now alpha is not affected by leaf nitrogen */
+		// }
+  
+// This part is sugarcane specific
+		vmax1=1.38*leafN_lay-38.5;
+              	if(vmax1<0) vmax1=0.0;
+                Alpha=0.000349*leafN_lay+0.0166;
+		Rd=0.0216*leafN_lay+3.46;
+// Sugarcane specific part ends here
 
 		IDir = layIdir[--sp1];
 		Itot = layItotal[--sp3];
@@ -92,18 +100,18 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 		pLeafsun = layFsun[--sp4];
 		CanHeight = layHeight[--sp6];
 		Leafsun = LAIc * pLeafsun;
-		tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1);
+		tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT);
 		TempIdir = Temp + tmp5_ET.Deltat;
-		tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws);
+		tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
 		AssIdir = tmpc4.Assim;
 
 
 		IDiff = layIdiff[--sp2];
 		pLeafshade = layFshade[--sp5];
 		Leafshade = LAIc * pLeafshade;
-		tmp6_ET = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1);
+		tmp6_ET = EvapoTrans(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT);
 		TempIdiff = Temp + tmp6_ET.Deltat;
-		tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws);
+		tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
 		AssIdiff = tmpc42.Assim;
 
 		CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
