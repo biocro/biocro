@@ -29,6 +29,9 @@
 ##' @param rfl Root factor lambda. A Poisson distribution is used to simulate
 ##' the distribution of roots in the soil profile and this parameter can be
 ##' used to change the lambda parameter of the Poisson.
+##' @return optiontocalculaterootdept
+##' @return rootfrontvelocity
+##' @return dap
 ##' @export
 ##' @return matrix with 8 (if hydrDist=0) or 12 (if hydrDist > 0).
 ##' @author Fernando E. Miguez
@@ -46,7 +49,8 @@
 ##'
 soilML <- function(precipt, CanopyT, cws, soilDepth, FieldC, WiltP, phi1 = 0.01, 
     phi2 = 10, wsFun = c("linear", "logistic", "exp", "none"), rootDB, soilLayers = 3, 
-    LAI, k, AirTemp, IRad, winds, RelH, soilType = 10, hydrDist = 0, rfl = 0.3) {
+    LAI, k, AirTemp, IRad, winds, RelH, soilType = 10, hydrDist = 0, rfl = 0.3,
+                   optiontocalculaterootdepth = 1, rootfrontvelocity = 0.5, dap = 60) {
     if (length(cws) != soilLayers) 
         stop("cws should be of length == soilLayers")
     wsFun <- match.arg(wsFun)
@@ -66,16 +70,18 @@ soilML <- function(precipt, CanopyT, cws, soilDepth, FieldC, WiltP, phi1 = 0.01,
     oldEvapoTra <- 0
     oldWaterIn <- 0
     drainage <- 0
-    theta_s <- FieldC * 1.1
+    theta_s <- FieldC * tmp2$satur
     FieldC <- tmp2$fieldc
     WiltP <- tmp2$wiltp
     psim <- numeric(soilLayers)
     ## rootDepth Crude empirical relationship between root biomass and rooting
     ## depth
-    rootDepth <- rootDB * 0.44
-    if (rootDepth > soilDepth) 
-        rootDepth <- soilDepth
-    
+    if(optiontocalculaterootdepth==1) 
+      rootDepth <- rootDB * 0.44
+    if(optiontocalculaterootdepth==0) 
+      rootDepth <- rootfrontvelocity * dap
+    if(rootDepth > soilDepth) 
+      rootDepth <- soilDepth
     
     depths <- seq(0, soilDepth, length.out = I(soilLayers + 1))
     ## rprops <-

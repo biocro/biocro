@@ -309,10 +309,10 @@ BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRh
     }
     
     
-    if ((day1 < 0) || (day1 > 365) || (dayn < 0) || (dayn > 365)) 
-        stop("day1 and dayn should be between 0 and 365")
-    if (day1 > dayn) 
-        stop("day1 should be smaller than dayn")
+#     if ((day1 < 0) || (day1 > 365) || (dayn < 0) || (dayn > 365)) 
+#         stop("day1 and dayn should be between 0 and 365")
+#     if (day1 > dayn) 
+#         stop("day1 should be smaller than dayn")
     if ((timestep < 1) || (24%%timestep != 0)) 
         stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
     ## Getting the Parameters
@@ -361,6 +361,8 @@ BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRh
         soilP$leafPotTh)
     wsFun <- soilP$wsFun
     soilType <- soilP$soilType
+    rootfrontvelocity=soilP$rootfrontvelocity
+    optiontocalculaterootdepth=soilP$optiontocalculaterootdepth
     centCoefs <- as.vector(unlist(centuryP)[1:24])
     if (centuryP$timestep == "year") {
         stop("Not developed yet")
@@ -382,6 +384,8 @@ BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRh
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
+    upperT<-photoP$UPPERTEMP
+    lowerT<-photoP$LOWERTEMP
     mResp <- canopyP$mResp
     kd <- canopyP$kd
     chi.l <- canopyP$chi.l
@@ -392,19 +396,24 @@ BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRh
     
     
     res <- .Call(MisGro, as.double(lat), as.integer(doy), as.integer(hr), as.double(solar), 
-        as.double(temp), as.double(rh), as.double(windspeed), as.double(precip), 
-        as.double(kd), as.double(c(chi.l, heightF)), as.integer(nlayers), as.double(iRhizome), 
-        as.double(irtl), as.double(SENcoefs), as.integer(timestep), as.integer(vecsize), 
-        as.double(Sp), as.double(SpD), as.double(DBPcoefs), as.double(TPcoefs), as.double(vmax), 
-        as.double(alpha), as.double(kparm), as.double(theta), as.double(beta), as.double(Rd), 
-        as.double(Catm), as.double(b0), as.double(b1), as.integer(ws), as.double(soilCoefs), 
-        as.double(nitroP$iLeafN), as.double(nitroP$kLN), as.double(nitroP$Vmax.b1), 
-        as.double(nitroP$alpha.b1), as.double(mResp), as.integer(soilType), as.integer(wsFun), 
-        as.double(centCoefs), as.integer(centTimestep), as.double(centuryP$Ks), as.integer(soilP$soilLayers), 
-        as.double(soilP$soilDepths), as.double(soilP$iWatCont), as.integer(soilP$hydrDist), 
-        as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), as.double(nitroP$kpLN), 
-        as.double(nitroP$lnb0), as.double(nitroP$lnb1), as.integer(nitroP$lnFun), 
-        as.double(sugarcoefs))
+                 as.double(temp), as.double(rh), as.double(windspeed), as.double(precip), 
+                 as.double(kd), as.double(c(chi.l, heightF)), as.integer(nlayers), as.double(iRhizome), 
+                 as.double(irtl), as.double(SENcoefs), as.integer(timestep), as.integer(vecsize), 
+                 as.double(Sp), as.double(SpD), as.double(DBPcoefs), as.double(TPcoefs), as.double(vmax), 
+                 as.double(alpha), as.double(kparm), as.double(theta), as.double(beta), as.double(Rd), 
+                 as.double(Catm), as.double(b0), as.double(b1), as.integer(ws), as.double(soilCoefs), 
+                 as.double(nitroP$iLeafN), as.double(nitroP$kLN), as.double(nitroP$Vmax.b1), 
+                 as.double(nitroP$alpha.b1), as.double(mResp), as.integer(soilType), as.integer(wsFun), 
+                 as.double(centCoefs), as.integer(centTimestep), as.double(centuryP$Ks), 
+                 as.integer(soilP$soilLayers), 
+                 as.double(soilP$soilDepths), as.double(soilP$iWatCont), as.integer(soilP$hydrDist), 
+                 as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), as.double(nitroP$kpLN), 
+                 as.double(nitroP$lnb0), as.double(nitroP$lnb1), as.integer(nitroP$lnFun), 
+                 as.double(sugarcoefs)as.double(sugarcoefs), as.double(upperT),
+                 as.double(lowerT), as.double(nitroP$maxln), as.double(nitroP$minln),
+                 as.double(nitroP$daymaxln), as.double(seneP$leafturnover),
+                 as.double(seneP$rootturnover), as.double(seneP$leafremobilizefraction), 
+                 as.integer(optiontocalculaterootdepth), as.double(rootfrontvelocity))
     
     
     res$cwsMat <- t(res$cwsMat)
@@ -429,19 +438,20 @@ canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10, kd = 0.1, chi.l = 1, mR
         heightFactor = heightFactor)
 }
 photoParms <- function(vmax = 39, alpha = 0.04, kparm = 0.7, theta = 0.83, beta = 0.93, 
-    Rd = 0.8, Catm = 380, b0 = 0.01, b1 = 3, ws = c("gs", "vmax")) {
+    Rd = 0.8, Catm = 380, b0 = 0.01, b1 = 3, ws = c("gs", "vmax"), UPPERTEMP=45,LOWERTEMP=0)) {
     ws <- match.arg(ws)
     if (ws == "gs") 
         ws <- 1 else ws <- 0
     
     
     list(vmax = vmax, alpha = alpha, kparm = kparm, theta = theta, beta = beta, Rd = Rd, 
-        Catm = Catm, b0 = b0, b1 = b1, ws = ws)
+        Catm = Catm, b0 = b0, b1 = b1, ws = ws, UPPERTEMP=UPPERTEMP,LOWERTEMP=LOWERTEMP)
 }
 soilParms <- function(FieldC = NULL, WiltP = NULL, phi1 = 0.01, phi2 = 10, soilDepth = 1, 
     iWatCont = NULL, soilType = 6, soilLayers = 1, soilDepths = NULL, hydrDist = 0, 
     wsFun = c("linear", "logistic", "exp", "none", "lwp"), scsf = 1, transpRes = 5e+06, 
-    leafPotTh = -800, rfl = 0.2, rsec = 0.2, rsdf = 0.44) {
+    leafPotTh = -800, rfl = 0.2, rsec = 0.2, rsdf = 0.44, optiontocalculaterootdepth = 1,
+                      rootfrontvelocity = 0.5) {
     if (soilLayers < 1 || soilLayers > 50) 
         stop("soilLayers must be an integer larger than 0 and smaller than 50")
     if (missing(iWatCont)) {
@@ -481,7 +491,7 @@ soilParms <- function(FieldC = NULL, WiltP = NULL, phi1 = 0.01, phi2 = 10, soilD
         hydrDist = hydrDist, rfl = rfl, rsec = rsec, rsdf = rsdf)
 }
 nitroParms <- function(iLeafN = 2, kLN = 0.5, Vmax.b1 = 0, alpha.b1 = 0, kpLN = 0.2, 
-    lnb0 = -5, lnb1 = 18, lnFun = c("none", "linear")) {
+    lnb0 = -5, lnb1 = 18, lnFun = c("none", "linear"), maxln = 90, minln = 50, daymaxln = 80) {
     lnFun <- match.arg(lnFun)
     if (lnFun == "none") {
         lnFun <- 0
@@ -491,7 +501,7 @@ nitroParms <- function(iLeafN = 2, kLN = 0.5, Vmax.b1 = 0, alpha.b1 = 0, kpLN = 
     
     
     list(iLeafN = iLeafN, kLN = abs(kLN), Vmax.b1 = Vmax.b1, alpha.b1 = alpha.b1, 
-        kpLN = kpLN, lnb0 = lnb0, lnb1 = lnb1, lnFun = lnFun)
+        kpLN = kpLN, lnb0 = lnb0, lnb1 = lnb1, lnFun = lnFun, maxln = 90, minln = 50, daymaxln = 80)
 }
 phenoParms <- function(tp1 = 562, tp2 = 1312, tp3 = 2063, tp4 = 2676, tp5 = 3211, 
     tp6 = 7000, kLeaf1 = 0.33, kStem1 = 0.37, kRoot1 = 0.3, kRhizome1 = -8e-04, kLeaf2 = 0.14, 
@@ -512,27 +522,30 @@ phenoParms <- function(tp1 = 562, tp2 = 1312, tp3 = 2063, tp4 = 2676, tp5 = 3211
     
 }
 SugarPhenoParms <- function(TT0 = 200, TTseed = 800, Tmaturity = 6000, Rd = 0.06, 
-    Alm = 0.15, Arm = 0.08, Clstem = 0.04, Ilstem = 7, Cestem = -0.05, Iestem = 45, 
-    Clsuc = 0.01, Ilsuc = 25, Cesuc = -0.02, Iesuc = 45) {
-    # Think about Error conditions in parameter values TT0= End of germination
-    # phase TTseed = seed cane stops providing nutrients/C for plant parts
-    # Tmaturity = Thermal time required to reach the maturity for the crop Rd=
-    # decline coefficients for root allocation Alm = minimum fraction to leaf
-    # minimum fraction to root Clstem and Ilstem togetehr determines when the
-    # linear phase of stem allocation ends Cestem and Iestem togetger determines
-    # when the log phase of stem allocation ends Clsuc and Ilsuc determines when
-    # the linear phase of sugar fraction ends Cesuc and Iesuc determines when the
-    # log phase of sugar fraction ends
-    
-    
-    list(TT0 = TT0, TTseed = TTseed, Tmaturity = Tmaturity, Rd = Rd, Alm = Alm, Arm = Arm, 
-        Clstem = Clstem, Ilstem = Ilstem, Cestem = Cestem, Iestem = Iestem, Clsuc = Clsuc, 
-        Ilsuc = Ilsuc, Cesuc = Cesuc, Iesuc = Iesuc)
-    
-    
+                            Alm = 0.15, Arm = 0.08, Clstem = 0.04, Ilstem = 7, Cestem = -0.05, 
+                            Iestem = 45, Clsuc = 0.01, Ilsuc = 25, Cesuc = -0.02, Iesuc = 45) {
+  # Think about Error conditions in parameter values TT0= End of germination
+  # phase TTseed = seed cane stops providing nutrients/C for plant parts
+  # Tmaturity = Thermal time required to reach the maturity for the crop Rd=
+  # decline coefficients for root allocation Alm = minimum fraction to leaf
+  # minimum fraction to root Clstem and Ilstem togetehr determines when the
+  # linear phase of stem allocation ends Cestem and Iestem togetger determines
+  # when the log phase of stem allocation ends Clsuc and Ilsuc determines when
+  # the linear phase of sugar fraction ends Cesuc and Iesuc determines when the
+  # log phase of sugar fraction ends
+  if(Clsuc>0.01) stop("Clsuc should be lower than 0.01")
+  
+  list(TT0 = TT0, TTseed = TTseed, Tmaturity = Tmaturity, Rd = Rd, Alm = Alm, Arm = Arm, 
+       Clstem = Clstem, Ilstem = Ilstem, Cestem = Cestem, Iestem = Iestem, Clsuc = Clsuc, 
+       Ilsuc = Ilsuc, Cesuc = Cesuc, Iesuc = Iesuc)
+  
+  
 }
-seneParms <- function(senLeaf = 3000, senStem = 3500, senRoot = 4000, senRhizome = 4000) {
-    list(senLeaf = senLeaf, senStem = senStem, senRoot = senRoot, senRhizome = senRhizome)
+seneParms <- function(senLeaf = 3000, senStem = 3500, senRoot = 4000, senRhizome = 4000, 
+                      leafturnover = 1.36, rootturnover = 2.0, leafremobilizefraction = 0.6) {
+    list(senLeaf = senLeaf, senStem = senStem, senRoot = senRoot, senRhizome = senRhizome, 
+         leafturnover = leafturnover, rootturnover = rootturnover, 
+         leafremobilizefraction = leafremobilizefraction)
 }
 ## Function to automatically plot objects of BioGro class Colors Stem, Leaf,
 ## Root, Rhizome, LAI

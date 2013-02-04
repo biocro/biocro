@@ -12,9 +12,9 @@ weachNEW <- function(X, lati, ts = 1, temp.units = c("Farenheit", "Celsius"), rh
     
     UniqueYears <- unique(X[, 1])  # get unique years
     No.Of.Year <- length(UniqueYears)
-    
-    output <- cbind(year = numeric(0), doy = numeric(0), hour = numeric(0), SolarR = numeric(0), 
-        Temp = numeric(0), RH = numeric(0), WS = numeric(0), precip = numeric(0))
+    output<-as.data.frame(cbind(year = numeric(0), doy = numeric(0), hour = numeric(0),
+                                SolarR = numeric(0), Temp = numeric(0), RH = numeric(0), 
+                                WS = numeric(0), precip = numeric(0)))
     for (i in 1:No.Of.Year) {
         tempX <- X[X[, 1] == UniqueYears[i], ]
         LeapYearIndicator <- CheckLeapYear(UniqueYears[i])

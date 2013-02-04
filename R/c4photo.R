@@ -32,6 +32,8 @@
 ##' @param beta beta parameter according to the Collatz model. Curvature for
 ##' response to CO2.
 ##' @param Rd Rd parameter according to the Collatz model. Dark respiration.
+##' @param UPPERTEMP
+##' @param LOWERTEMP
 ##' @param Catm Atmospheric CO2 in ppm (or \eqn{\mu}{micro}mol/mol).
 ##' @param b0 intercept for the Ball-Berry stomatal conductance model.
 ##' @param b1 slope for the Ball-Berry stomatal conductance model.
@@ -179,7 +181,7 @@
 ##' }
 ##'
 c4photo <- function(Qp, Tl, RH, vmax = 39, alpha = 0.04, kparm = 0.7, theta = 0.83, 
-    beta = 0.93, Rd = 0.8, Catm = 380, b0 = 0.08, b1 = 3, StomWS = 1, ws = c("gs", 
+    beta = 0.93, Rd = 0.8, UPPERTEMP = 45, LOWERTEMP = 0, Catm = 380, b0 = 0.08, b1 = 3, StomWS = 1, ws = c("gs", 
         "vmax")) {
     if ((max(RH) > 1) || (min(RH) < 0)) 
         stop("RH should be between 0 and 1")
@@ -199,9 +201,10 @@ c4photo <- function(Qp, Tl, RH, vmax = 39, alpha = 0.04, kparm = 0.7, theta = 0.
     
     
     res <- .Call(c4photo_sym, as.double(Qp), as.double(Tl), as.double(RH), as.double(vmax), 
-        as.double(alpha), as.double(kparm), as.double(theta), as.double(beta), as.double(Rd), 
-        as.double(Catm), as.double(b0), as.double(b1), as.double(StomWS), as.integer(ws))
-    res
+                 as.double(alpha), as.double(kparm), as.double(theta), as.double(beta), as.double(Rd), 
+                 as.double(Catm), as.double(b0), as.double(b1), as.double(StomWS), as.integer(ws), 
+                 UPPERTEMP=45,LOWERTEMP=0,)
+    return(res)
 }
 ##' Markov chain Monte Carlo for C4 photosynthesis parameters
 ##'

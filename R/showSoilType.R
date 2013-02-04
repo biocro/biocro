@@ -27,6 +27,7 @@ SoilType <- function(soiltype) {
         air.entry <- -0.7
         b <- 1.7
         Ks <- 0.0058
+        satur <- 0.87
         fieldc <- 0.09
         wiltp <- 0.03
         
@@ -39,6 +40,7 @@ SoilType <- function(soiltype) {
         air.entry <- -0.9
         b <- 2.1
         Ks <- 0.0017
+        satur <- 0.072
         fieldc <- 0.13
         wiltp <- 0.06
         
@@ -51,6 +53,7 @@ SoilType <- function(soiltype) {
         air.entry <- -1.5
         b <- 3.1
         Ks <- 0.00072
+        satur <- 0.57
         fieldc <- 0.21
         wiltp <- 0.1
         
@@ -63,6 +66,7 @@ SoilType <- function(soiltype) {
         air.entry <- -1.1
         b <- 4.5
         Ks <- 0.00037
+        satur <- 0.57
         fieldc <- 0.27
         wiltp <- 0.12
         
@@ -75,6 +79,7 @@ SoilType <- function(soiltype) {
         air.entry <- -2.1
         b <- 4.7
         Ks <- 0.00019
+        satur <- 0.59
         fieldc <- 0.33
         wiltp <- 0.13
         
@@ -87,6 +92,7 @@ SoilType <- function(soiltype) {
         air.entry <- -2.8
         b <- 4
         Ks <- 0.00012
+        satur <- 0.48
         fieldc <- 0.26
         wiltp <- 0.15
         
@@ -111,6 +117,7 @@ SoilType <- function(soiltype) {
         air.entry <- -3.3
         b <- 6.6
         Ks <- 4.2e-05
+        satur <- 0.52
         fieldc <- 0.37
         wiltp <- 0.21
         
@@ -135,6 +142,7 @@ SoilType <- function(soiltype) {
         air.entry <- -3.4
         b <- 7.9
         Ks <- 2.5e-05
+        satur <- 0.52
         fieldc <- 0.39
         wiltp <- 0.25
         
@@ -147,13 +155,14 @@ SoilType <- function(soiltype) {
         air.entry <- -3.7
         b <- 7.6
         Ks <- 1.7e-05
+        satur <- 0.53
         fieldc <- 0.4
         wiltp <- 0.27
         
     }
     
     list(type = nm, silt = silt, clay = clay, sand = sand, air.entry = air.entry, 
-        b = b, Ks = Ks, fieldc = fieldc, wiltp = wiltp)
+        b = b, Ks = Ks, satur = satur, fieldc = fieldc, wiltp = wiltp)
 }
 
 

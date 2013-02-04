@@ -11,17 +11,12 @@
 ## 
 ## A copy of the GNU General Public License is available at
 ## http://www.r-project.org/Licenses/
-weach365 <- function(X, lati, ts = 1, temp.units = c("Farenheit", "Celsius"), rh.units = c("percent", 
-    "fraction"), ws.units = c("mph", "mps"), pp.units = c("in", "mm"), ...) {
+weach365 <- function(X, lati, ts = 1, 
+                     temp.units = c("Farenheit", "Celsius"), 
+                     rh.units = c("percent", "fraction"), 
+                     ws.units = c("mph", "mps"), 
+                     pp.units = c("in", "mm"), ...) {
     
-    if (missing(lati)) 
-        stop("latitude is missing")
-    
-    if ((ts < 1) || (24%%ts != 0)) 
-        stop("ts should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
-    
-    if (dim(X)[2] != 11) 
-        stop("X should have 11 columns")
     
     MPHTOMPERSEC <- 0.447222222222222
     

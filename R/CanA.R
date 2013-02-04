@@ -138,7 +138,8 @@ CanA <- function(lai, doy, hr, solar, temp, rh, windspeed, lat = 40, nlayers = 8
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-    
+    upperT<-photoP$UPPERTEMP
+    lowerT<-photoP$LOWERTEMP
     
     lnP <- lnParms()
     lnP[names(lnControl)] <- lnControl
@@ -148,7 +149,7 @@ CanA <- function(lai, doy, hr, solar, temp, rh, windspeed, lat = 40, nlayers = 8
         as.double(theta), as.double(beta), as.double(Rd), as.double(b0), as.double(b1), 
         as.double(Catm), as.double(kd), as.double(heightFactor), as.integer(ws), 
         as.double(lnP$LeafN), as.double(lnP$kpLN), as.double(lnP$lnb0), as.double(lnP$lnb1), 
-        as.integer(lnP$lnFun))
+        as.integer(lnP$lnFun), as.double(upperT), as.double(lowerT))
     res$LayMat <- t(res$LayMat)
     colnames(res$LayMat) <- c("IDir", "IDiff", "Leafsun", "Leafshade", "TransSun", 
         "TransShade", "AssimSun", "AssimShade", "DeltaSun", "DeltaShade", "CondSun", 

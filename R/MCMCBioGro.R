@@ -236,7 +236,8 @@ MCMCBioGro <- function(niter = 10, niter2 = 10, phen = 6, iCoef = NULL, saTemp =
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-    
+    upperT <- photoP$UPPERTEMP
+    lowerT <- photoP$LOWERTEMP
     
     mResp <- canopyP$mResp
     kd <- canopyP$kd
@@ -247,24 +248,24 @@ MCMCBioGro <- function(niter = 10, niter2 = 10, phen = 6, iCoef = NULL, saTemp =
     nlayers <- canopyP$nlayers
     
     
-    res <- .Call(SABioGro, as.double(data[, 1]), as.double(data[, 2]), as.double(data[, 
-        3]), as.double(data[, 4]), as.double(data[, 5]), as.double(data[, 6]), as.double(data[, 
-        7]), as.integer(doy), as.integer(hour), as.double(solar), as.double(Temp), 
-        as.double(rh), as.double(WindS), as.double(precip), as.double(iCoef), as.integer(vecsize), 
-        as.double(lat), as.integer(nlayers), as.double(c(iRhizome, irtl)), as.double(SENcoefs), 
-        as.integer(timestep), as.double(vmax), as.double(alpha), as.double(kparm), 
-        as.double(theta), as.double(beta), as.double(Rd), as.double(Catm), as.double(b0), 
-        as.double(b1), as.double(soilCoefs), as.integer(wsFun), as.integer(ws), as.double(nitroP$iLeafN), 
-        as.double(nitroP$kLN), as.double(nitroP$Vmax.b1), as.double(nitroP$alpha.b1), 
-        as.double(mResp), as.integer(soilType), as.double(centCoefs), as.double(centuryP$Ks), 
-        as.integer(centTimestep), as.double(kd), as.double(c(chi.l, heightF)), as.double(Sp), 
-        as.double(SpD), as.double(TPcoefs), as.integer(tmp1), as.integer(ndat), as.integer(n1dat), 
-        as.integer(niter), as.integer(niter2), as.double(saTemp), as.integer(coolSamp), 
-        as.double(scale), as.double(sd), as.integer(phen), as.integer(soilP$soilLayers), 
-        as.double(soilP$soilDepths), as.double(soilP$iWatCont), as.integer(soilP$hydrDist), 
-        as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), as.double(c(nitroP$kpLN, 
-            nitroP$lnb0, nitroP$lnb1)), as.integer(nitroP$lnFun))
-    
+    res <- .Call(SABioGro, as.double(data[, 1]), as.double(data[, 2]), as.double(data[, 3]), 
+                 as.double(data[, 4]), as.double(data[, 5]), as.double(data[, 6]), 
+                 as.double(data[, 7]), as.integer(doy), as.integer(hour), as.double(solar), as.double(Temp), 
+                 as.double(rh), as.double(WindS), as.double(precip), as.double(iCoef), as.integer(vecsize), 
+                 as.double(lat), as.integer(nlayers), as.double(c(iRhizome, irtl)), as.double(SENcoefs), 
+                 as.integer(timestep), as.double(vmax), as.double(alpha), as.double(kparm), 
+                 as.double(theta), as.double(beta), as.double(Rd), as.double(Catm), as.double(b0), 
+                 as.double(b1), as.double(soilCoefs), as.integer(wsFun), as.integer(ws), as.double(nitroP$iLeafN), 
+                 as.double(nitroP$kLN), as.double(nitroP$Vmax.b1), as.double(nitroP$alpha.b1), 
+                 as.double(mResp), as.integer(soilType), as.double(centCoefs), as.double(centuryP$Ks), 
+                 as.integer(centTimestep), as.double(kd), as.double(c(chi.l, heightF)), as.double(Sp), 
+                 as.double(SpD), as.double(TPcoefs), as.integer(tmp1), as.integer(ndat), as.integer(n1dat), 
+                 as.integer(niter), as.integer(niter2), as.double(saTemp), as.integer(coolSamp), 
+                 as.double(scale), as.double(sd), as.integer(phen), as.integer(soilP$soilLayers), 
+                 as.double(soilP$soilDepths), as.double(soilP$iWatCont), as.integer(soilP$hydrDist), 
+                 as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), 
+                 as.double(c(nitroP$kpLN, nitroP$lnb0, nitroP$lnb1)), 
+                 as.integer(nitroP$lnFun), as.double(upperT), as.double(lowerT))
     
     res$resMC <- t(res$resMC)
     colnames(res$resMC) <- c("kLeaf_1", "kStem_1", "kRoot_1", "kRhizome_1", "kLeaf_2", 
