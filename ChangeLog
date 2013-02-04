@@ -1,3 +1,72 @@
+2012-10-16 Deepak Jaiswal
+Threshold leaf N is reduced to 30 mmol m2
+_____________________________________________________________
+
+2012-10-5 Deepak Jaiswal
+I have not added leaf senescence based on lower canopy Leaf N
+in Version 033 of EnCro
+__________________________________________________
+
+2012-10-4 Deepak Jaiswal
+
+	Changes made in BioCro.c
+	Changes from Version EnCro 0.031 to EnCro 0.032
+	
+ Currently, I am now making a seconda call to Canopy with zero light to store output in CanopyRd. This should give us Rd (leaf dark respiration) theoretically, which is used to subtract from net canopy assimilation to get gross photosynthesis______________________________________________________________
+
+2012-9-20 Deeak Jaiswal
+Minot change in sunML as developed by Fernando undergrad to be consistent
+________________________________________________________________________
+2012-5-25 Deepak Jaiswal
+Now, I have implemented water stress correctly to LAI. Earlier it was being implemented on Leaf Biomass
+
+2012-5-5 Deepak Jaiswal
+I have included updated code of soilML sent by Fernando which corrects for saturated soil water content
+I also included an option in soilParms function, this option allows to calculate root depth based on root front velocity or usinf crude approach of biomass*factor
+optiondefault value is 1 but it should be given a value of zero to use rootfront velocity
+.all the necessary/associated function/function definiion have been chnaged
+_____________________________________________________________________
+
+2012-5-2 Deepak Jaiswal
+After big mess, I am back to Cuadra functions. Now Model works and is calibrated for RB72454. Input parameters for partitionign are
+ppP50<-SugarPhenoParms(Ilstem=0,Tmaturity=6000,Rd=0.7,Clstem=0.07,Iestem=10,Cestem=0.02,TT0=0,Alm=0.32, Arm=0.1,Clsuc=0.006,Ilsuc=1.2,Cesuc=-0.01,Iesuc=20)
+________________________________________________________	
+
+2012-4-25 Deepak Jaiswal
+turnover rate based senscnence of leaf and root is implemented
+parameters are given by seneParms. changes are made in BioCro.R, BioCro.c
+______________________________________________________________
+
+2012-4-26 Deepak Jaiswal
+Hourly time scale for partitionign is immpelmented
+	
+
+__________________________________________________________________
+2012-4-25 Deepak Jaiswal
+Variable SLE inplemented
+nitroParms is now taking inputs of max LN, min LN (mmol/m2) and day of maxLN to do seasonal variation of top leaf N concentration
+
+____________________________________________________
+2012-4-24 Deepak Jaiswal
+
+TOPLNseasonal function is changed to seasonal so that it can be used by both moisture content and also by leaf N module.
+Bug in TOPLNseasonal.c is fixed. Earlier, it was calculating wrong date for maximum leaf N concentration, only based on latitute but not considering the parameter maxLNday of the function call. I have removed if conditions in the functionTOPLNseasonal.c
+__________________________________________________________
+
+2012-4-17 Deepak Jaiswal
+Now I have added flexibility to provide UPPERTEMP and LOWERTEMP as input parameters in the funciton photoParms, that can be used to decide the temperature limits of the Coollatz model
+Changes made in the following functins/files
+c4photo.R, c4photo.c,c4photoc.c,CanAC.c EvapoTrans.c, MisGro, BioCro.R, photopParms, CanA.c, CanA.R, BioCro.h  "void BioGro.c", SABioCro.c MCMCbioCro.R
+
+______________________________________________________________________
+
+2012-4-11 Deepak Jaiswal
+In BioCro.c, newLeafcol, newStemcol, newRootcol, newRhizomecol are now assigned dynamically. Earlier they were fixed at 86400 and causing errors in simulations running beyond 365 days.
+_______________________________________________________
+2012-3-13 Deepak Jaiswal
+I have eliminited errror conditions day 1 and day 1 restricted between 0 and 365 in BioCro.R
+______________________________________________________
+	
 2012-2-2 Deepak Jaiswal <djaiswal@illinois.edu>
 SugarPhenoParms function is implemented (see inside BioCro.R)
 ________________________________________________________________
