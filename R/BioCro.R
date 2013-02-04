@@ -409,7 +409,7 @@ BioGro <- function(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40, iRh
                  as.double(soilP$soilDepths), as.double(soilP$iWatCont), as.integer(soilP$hydrDist), 
                  as.double(c(soilP$rfl, soilP$rsec, soilP$rsdf)), as.double(nitroP$kpLN), 
                  as.double(nitroP$lnb0), as.double(nitroP$lnb1), as.integer(nitroP$lnFun), 
-                 as.double(sugarcoefs)as.double(sugarcoefs), as.double(upperT),
+                 as.double(sugarcoefs), as.double(upperT),
                  as.double(lowerT), as.double(nitroP$maxln), as.double(nitroP$minln),
                  as.double(nitroP$daymaxln), as.double(seneP$leafturnover),
                  as.double(seneP$rootturnover), as.double(seneP$leafremobilizefraction), 
@@ -438,7 +438,7 @@ canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10, kd = 0.1, chi.l = 1, mR
         heightFactor = heightFactor)
 }
 photoParms <- function(vmax = 39, alpha = 0.04, kparm = 0.7, theta = 0.83, beta = 0.93, 
-    Rd = 0.8, Catm = 380, b0 = 0.01, b1 = 3, ws = c("gs", "vmax"), UPPERTEMP=45,LOWERTEMP=0)) {
+    Rd = 0.8, Catm = 380, b0 = 0.01, b1 = 3, ws = c("gs", "vmax"), UPPERTEMP = 45, LOWERTEMP = 0) {
     ws <- match.arg(ws)
     if (ws == "gs") 
         ws <- 1 else ws <- 0
