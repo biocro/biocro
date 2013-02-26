@@ -180,7 +180,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	FEII = 0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf,2) / 10000;
 	I2 = Qp * FEII * (1 - Leaf_Reflectance) / 2;
 
-	J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta; 
+	J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/(2*theta); 
 
 	/* Rprintf("I2, %.1f, FEII %.1f, J %.1f \n",I2,FEII,J); */
 
