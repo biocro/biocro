@@ -37,4 +37,4 @@ extern struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, doub
 extern double RSS_C4photo(double oAssim[nObs], double oQp[nObs], double oTemp[nObs], 
 		   double oRH[nObs], double vmax, double alpha, double kparm,
 			  double theta, double beta,
-			  double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT, double lowerT);
+			  double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT,double lowerT);

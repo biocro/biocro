@@ -185,7 +185,7 @@ layIdiff, layShade vectors. */
 	    CanHeight = layHeight[--sp6];
 	    Leafsun = LAIc * pLeafsun;
 /* Need a new evapo transpiration function specifically for c3*/
-	    tmp5_ET = c3EvapoTrans(IDir,Itot,Temp,rh,WindS,Leafsun,CanHeight,
+	    tmp5_ET = c3EvapoTrans(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,
 				 vmax1,jmax1,Rd1,b01,b11,Catm,210,theta);
 	    TempIdir = Temp + tmp5_ET.Deltat;
 	    tmpc3 = c3photoC(IDir,TempIdir,rh,vmax1,jmax1,Rd1,b01,b11,Catm,O2,theta);
@@ -194,7 +194,7 @@ layIdiff, layShade vectors. */
 	    IDiff = layIdiff[--sp2];
 	    pLeafshade = layFshade[--sp5];
 	    Leafshade = LAIc * pLeafshade;
-	    tmp6_ET = c3EvapoTrans(IDiff,Itot,Temp,rh,WindS,Leafshade,CanHeight,
+	    tmp6_ET = c3EvapoTrans(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,
 				 vmax1,jmax1,Rd1,b01,b11,Catm,210,theta);
 	    TempIdiff = Temp + tmp6_ET.Deltat;
 	    tmpc32 = c3photoC(IDiff,TempIdiff,rh,vmax1,jmax1,Rd1,b01,b11,Catm,O2,theta);
