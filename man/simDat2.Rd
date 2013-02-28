@@ -1,33 +1,29 @@
+\docType{data}
 \name{simDat2}
 \alias{simDat2}
-\docType{data}
-\title{ Simulated biomass data.}
+\title{Simulated biomass data.}
+\format{A data frame with 5 observations on the following 6 variables.
+\describe{ \item{list('TT')}{a numeric vector} \item{list('Stem')}{a
+numeric vector} \item{list('Leaf')}{a numeric vector} \item{list('Root')}{a
+numeric vector} \item{list('Rhiz')}{a numeric vector} \item{list('LAI')}{a
+numeric vector} }}
+\source{
+  ~~ reference to a publication or URL from which the data
+  were obtained ~~
+}
 \description{
   Simulated data produced by \code{\link{BioGro}}.
 }
-\usage{data(simDat2)}
-\format{
-  A data frame with 5 observations on the following 6 variables.
-  \describe{
-    \item{\code{TT}}{a numeric vector}
-    \item{\code{Stem}}{a numeric vector}
-    \item{\code{Leaf}}{a numeric vector}
-    \item{\code{Root}}{a numeric vector}
-    \item{\code{Rhiz}}{a numeric vector}
-    \item{\code{LAI}}{a numeric vector}
-  }
-}
 \details{
-  ~~ If necessary, more details than the description above ~~
-}
-\source{
-  ~~ reference to a publication or URL from which the data were obtained ~~
-}
-\references{
-  ~~ possibly secondary sources and usages ~~
+  ~~ If necessary, more details than the description above
+  ~~
 }
 \examples{
 data(simDat2)
 ## maybe str(simDat2) ; plot(simDat2) ...
 }
+\references{
+  ~~ possibly secondary sources and usages ~~
+}
 \keyword{datasets}
+
