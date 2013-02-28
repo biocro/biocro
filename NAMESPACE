@@ -138,3 +138,6 @@ S3method(plot, MaizeGro)
 
 #caneGro.R
 export(caneGro)
+
+#willowGro.R
+export(willowGro)
