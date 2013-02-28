@@ -191,7 +191,7 @@ struct ET_Str c3EvapoTrans(double Rad,
 		/*         rlc = (4 * (5.67*1e-8) * pow(273 + Airtemperature, 3) * Deltat) * LeafAreaIndex;   */
 		rlc = (4 * (5.67*1e-8) * pow(273 + Airtemperature, 3) * Deltat);  
 
-		PhiN = (Ja - rlc) * LeafAreaIndex;
+		PhiN = (Ja - rlc);
 
 
 		TopValue = PhiN * (1 / ga + 1 / LayerConductance) - LHV * DeltaPVa;

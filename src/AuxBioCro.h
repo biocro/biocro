@@ -88,18 +88,6 @@ struct dbp_str{
 
 };
 
-struct dbp_sugarcane_str{
-
-	double kLeaf;
-	double kStem;
-	double kRoot;
-	double kSeedcane;
-	double kSugar;
-	double kFiber;
-	double kTassel;
-
-};
-
 struct soilText_str{
 
   double silt;
@@ -108,9 +96,9 @@ struct soilText_str{
   double air_entry;
   double b;
   double Ks;
+  double satur;
   double fieldc;
   double wiltp;
-  double satur;
 
 };
 
@@ -131,3 +119,4 @@ struct rd_str{
 };
 
 struct rd_str rootDist(int layer, double rootDepth, double *depths, double rfl);
+

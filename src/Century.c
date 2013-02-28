@@ -52,7 +52,7 @@ struct cenT_str Century(double *LeafL,
 			double RootL_N, 
 			double RhizL_N, 
 			int soilType, 
-	                double Ks[8]){
+	                double Ks_cf[8]){
 
   /* Converting Mg ha^-1 to g m^-2 */
   /* 1 Mg = 1e6 grams*/
@@ -134,6 +134,8 @@ struct cenT_str Century(double *LeafL,
   const double respC6 = 0.85 - 0.68 * T;
   const double respC7 = 0.55;
   const double respC8 = 0.55;
+
+  double Ks[8];
   
   /*  Tm is the effect of soil texture on active SOM turnover */
   double Tm = 1 - 0.75 * T;
@@ -151,25 +153,29 @@ struct cenT_str Century(double *LeafL,
 */
 /* It seems that the rates are the ones reported in Parton et al. 1993 Global Biogeochemical Cycles */
 /* These are annual rates and to convert to other time steps the model should be run accordingly */
+
+    /* Rprintf("Ks[3] : %f Ks[4] : %f \n",Ks[3],Ks[4]); */
+    /* Rprintf("Ks[5] : %f Ks[6] : %f \n",Ks[5],Ks[6]); */
+
      if(timestep == 7){
-       Ks[0] = Ks[0] / 52 ;
-       Ks[1] = Ks[1] / 52 ;
-       Ks[2] = Ks[2] / 52 ;
-       Ks[3] = Ks[3] / 52 ;
-       Ks[4] = Ks[4] / 52 ;
-       Ks[5] = Ks[5] / 52 ;
-       Ks[6] = Ks[6] / 52 ;
-       Ks[7] = Ks[7] / 52 ;
+       Ks[0] = Ks_cf[0] / 52 ;
+       Ks[1] = Ks_cf[1] / 52 ;
+       Ks[2] = Ks_cf[2] / 52 ;
+       Ks[3] = Ks_cf[3] / 52 ;
+       Ks[4] = Ks_cf[4] / 52 ;
+       Ks[5] = Ks_cf[5] / 52 ;
+       Ks[6] = Ks_cf[6] / 52 ;
+       Ks[7] = Ks_cf[7] / 52 ;
      }else
      if(timestep == 1){   
-       Ks[0] = Ks[0] / 365 ; 
-       Ks[1] = Ks[1] / 365 ; 
-       Ks[2] = Ks[2] / 365 ; 
-       Ks[3] = Ks[3] / 365 ; 
-       Ks[4] = Ks[4] / 365 ; 
-       Ks[5] = Ks[5] / 365 ; 
-       Ks[6] = Ks[6] / 365 ; 
-       Ks[7] = Ks[7] / 365 ;  
+       Ks[0] = Ks_cf[0] / 365 ; 
+       Ks[1] = Ks_cf[1] / 365 ; 
+       Ks[2] = Ks_cf[2] / 365 ; 
+       Ks[3] = Ks_cf[3] / 365 ; 
+       Ks[4] = Ks_cf[4] / 365 ; 
+       Ks[5] = Ks_cf[5] / 365 ; 
+       Ks[6] = Ks_cf[6] / 365 ; 
+       Ks[7] = Ks_cf[7] / 365 ;  
      } 
 
 /* Nitrogen processes 

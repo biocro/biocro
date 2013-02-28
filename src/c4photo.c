@@ -32,7 +32,7 @@
 #include "c4photo.h"
 
 SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
-	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP STOMWS, SEXP WS, SEXP UPPERTEMP, SEXP LOWERTEMP)
+	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP STOMWS, SEXP WS,SEXP UPPERTEMP, SEXP LOWERTEMP)
 {
 	struct c4_str tmp;
 
@@ -40,7 +40,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 
 	double vmax, alpha, K, Rd, StomWS;
 	double theta, beta;
-	double upperT,lowerT;
+	double upperT, lowerT;
 
 	vmax = REAL(VMAX)[0];
 	alpha = REAL(ALPHA)[0];
@@ -51,8 +51,8 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	Bet1 = REAL(B1)[0];
 	Rd = REAL(RD)[0];
 	StomWS = REAL(STOMWS)[0];
-	upperT=REAL(UPPERTEMP)[0];
-	lowerT=REAL(LOWERTEMP)[0];
+        upperT=REAL(UPPERTEMP)[0];
+        lowerT=REAL(LOWERTEMP)[0];
 
 	int nq , nt, nr, i;
 
@@ -109,7 +109,8 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 
 
 /* ball Berry stomatal conductance function */
-double ballBerry(double Amu, double Cappm, double Temp, double RelH, double beta0, double beta1){
+double ballBerry(double Amu, double Cappm, double Temp, double RelH, double beta0, double beta1)
+{
 
 	const double gbw = 1.2; /* According to Collatz et al. (1992) pg. 526*/
 	const double ptotPa = 101325; /* Atmospheric pressure */
@@ -180,6 +181,9 @@ double ballBerry(double Amu, double Cappm, double Temp, double RelH, double beta
 
 double fnpsvp(double Tkelvin){
 	/* water boiling point = 373.16 oK*/
+/* This is the Arden Buck Equation 
+http://en.wikipedia.org/wiki/Arden_Buck_equation
+ */
 	double u, v;
 	double tmp, esat;
 
@@ -239,9 +243,15 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	kT = kparm * KQ10;
 
 	/* First chunk of code see Collatz (1992) */
-	Vtn = vmax * pow(2,((Tl-25.0)/10.0));
-	Vtd = ( 1 + exp(0.3 * (lowerT-Tl)) ) * (1 + exp( 0.3*(Tl-upperT) ));
-	VT  = Vtn / Vtd;
+//	Vtn = vmax * pow(2,((Tl-25.0)/10.0));
+//	Vtd = ( 1 + exp(0.3 * (3.0-Tl)) ) * (1 + exp( 0.3*(Tl-37.5) ));
+//	VT  = Vtn / Vtd;
+
+//       This is the code implementing temperature limitations
+         Vtn = vmax * pow(2,((Tl-25.0)/10.0));
+         Vtd = ( 1 + exp(0.3 * (lowerT-Tl)) ) * (1 + exp( 0.3*(Tl-upperT) ));
+         VT  = Vtn / Vtd;
+
 
 	/* Second chunk of code see Collatz (1992) */
 	Rtn = Rd * pow(2 , (Tl-25)/10 ) ;
@@ -357,7 +367,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 		 SEXP iTHETA, SEXP iBETA,
 		 SEXP iRD,
                  SEXP CATM, SEXP B0, SEXP B1, SEXP STOMWS,
-                 SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR, SEXP UPPERTEMP, SEXP LOWERTEMP){
+                 SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR,SEXP UPPERTEMP, SEXP LOWERTEMP){
 	/* First manipulate R objects */
 	extern int nObs;
 	int niter;
@@ -394,21 +404,17 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 	double pmuAlpha = REAL(PRIOR)[2];
 	double psdAlpha = REAL(PRIOR)[3];
 
+        double upperT =REAL(UPPERTEMP)[0];
+        double lowerT =REAL(LOWERTEMP)[0];
+
 	double RSS;
 	double rnewVcmax, rnewAlpha;
 	double oldAlpha, oldVcmax;
-
-
-	double upperT =REAL(UPPERTEMP)[0];
-	double lowerT =REAL(LOWERTEMP)[0];
-
 
 	SEXP lists;
 	SEXP names;
 	SEXP mat1;
 	SEXP accept;
-
-      
 
 
 	PROTECT(lists = allocVector(VECSXP,2));

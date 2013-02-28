@@ -129,3 +129,12 @@ export(weachNEW)
 
 ##CheckLeapYear to check leap years in weachNEW
 export(CheckLeapYear)
+
+#MaizeGro.R
+export(MaizeGro)
+S3method(print, MaizeGro)
+S3method(plot, MaizeGro)
+
+
+#caneGro.R
+export(caneGro)
