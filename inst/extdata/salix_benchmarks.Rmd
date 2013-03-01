@@ -23,8 +23,7 @@ settings$database <- list(userid = "ebi_pecan",
 this is to keep it consistent with current BioCro behavior of not simulating sequential years of met data.
 
 ```{r}
-class(salix.testyield)
-salix.us <- salix.testyield[salix.testyield$country %in% c("USA", "Canada")]
+salix.us <- salix.testyield[country %in% c("USA", "Canada")]
 salix <- salix.us[stand_age > 2,list(lat = mean(lat), lon = mean(lon), yield = mean(annual_yield), s = sd(annual_yield)), by = site]
 
 ```
