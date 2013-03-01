@@ -204,6 +204,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		  Aj1 = J * (Ci - Gstar) ;
 		  Aj2 = 4.5*Ci + 10.5*Gstar ;
 		  Aj = Aj1/Aj2;
+                  if (Aj<0.0) Aj=0.0;
 
 		  /* Limited by tri phos utilization */
 		  Ap = (3 * Rate_TPu) / (1 - Gstar / Ci);
