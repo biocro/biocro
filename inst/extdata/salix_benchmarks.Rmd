@@ -27,7 +27,6 @@ salix.us <- salix.testyield[country %in% c("USA", "Canada")]
 salix <- salix.us[stand_age > 2,list(lat = mean(lat), lon = mean(lon), yield = mean(annual_yield), s = sd(annual_yield)), by = site]
 
 
-
 ```
 
 ### Compare data against Miscanthus Yield

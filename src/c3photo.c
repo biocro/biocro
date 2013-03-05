@@ -128,7 +128,7 @@ double solo(double LeafT){
 
 
 
-/* c4photo function */ 
+/* c3photo function */ 
 struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double Jmax, 
 		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet)
 {
@@ -162,8 +162,9 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	if(Ca <= 0)
 		Ca = 1e-4;
 
-	/* From Dubois from Bernacchi. Improved temperature response functions. */
-	Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); 
+	/* From Bernacchi 2001. Improved temperature response functions. */
+  /* note: values in Dubois and Bernacchi are incorrect */	
+  Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); 
 	Ko = exp(20.30-36.38/(R*(Tleaf+273.15))); 
 	Gstar = exp(19.02-37.83/(R*(Tleaf+273.15))); 
 
@@ -204,6 +205,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		  Aj1 = J * (Ci - Gstar) ;
 		  Aj2 = 4.5*Ci + 10.5*Gstar ;
 		  Aj = Aj1/Aj2;
+                  if (Aj<0.0) Aj=0.0;
 
 		  /* Limited by tri phos utilization */
 		  Ap = (3 * Rate_TPu) / (1 - Gstar / Ci);
