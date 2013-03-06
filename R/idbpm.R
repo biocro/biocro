@@ -1,35 +1,21 @@
-##
 ##  BioCro/R/idbpm.R by Fernando Ezequiel Miguez  Copyright (C) 2012
-##
-##  This program is free software; you can redistribute it and/or modify
-##  it under the terms of the GNU General Public License as published by
-##  the Free Software Foundation; either version 2 or 3 of the License
-##  (at your option).
-##
-##  This program is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##  GNU General Public License for more details.
-##
-##  A copy of the GNU General Public License is available at
-##  http://www.r-project.org/Licenses/
-##
-##
 
-## This estimates initial dry biomass partitioning coefficients based on data for an annual
-##      ThermalT     Stem    Leaf    Root Grain     LAI
-## 1       0.211  0.00733 0.00104 0.00704     0 0.00119
-## 611   280.000  1.08019 0.95531 0.11618     0 1.62350
-## 1221  560.000  5.91862 2.08684 1.42061     0 3.54748
-## 1831  747.000 10.16707 2.36378 2.53192     0 4.01843
-## 2442  969.000 15.08485 2.42849 3.57410     0 4.12843
-## 3052 1080.000 18.56392 2.46765 4.32115     0 4.19501
-## 3662 1136.000 20.87121 2.04021 4.82178     0 3.46836
-## 4273 1452.000 22.05770 0.89954 5.20210     0 1.52921
-
-
+##' This estimates initial dry biomass partitioning coefficients based on data for an annual grass
+##' @title idpm
+##' @param data data frame
+##'      ThermalT     Stem    Leaf    Root Grain     LAI
+##' 1       0.211  0.00733 0.00104 0.00704     0 0.00119
+##' 611   280.000  1.08019 0.95531 0.11618     0 1.62350
+##' 1221  560.000  5.91862 2.08684 1.42061     0 3.54748
+##' 1831  747.000 10.16707 2.36378 2.53192     0 4.01843
+##' 2442  969.000 15.08485 2.42849 3.57410     0 4.12843
+##' 3052 1080.000 18.56392 2.46765 4.32115     0 4.19501
+##' 3662 1136.000 20.87121 2.04021 4.82178     0 3.46836
+##' 4273 1452.000 22.05770 0.89954 5.20210     0 1.52921
+##' @param MaizePhenoControl 
+##' @return vector of biomass pools
+##' @author Fernando E. Miguez
 idbpm <- function(data, MaizePhenoControl=list()){
-
   ## should have t
   if(any(is.na(data)))
     stop("missing data are not allowed")
