@@ -1,35 +1,27 @@
-##
 ##  BioCro/R/plotAQ.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2009
-##
-##  This program is free software; you can redistribute it and/or modify
-##  it under the terms of the GNU General Public License as published by
-##  the Free Software Foundation; either version 2 or 3 of the License
-##  (at your option).
-##
-##  This program is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##  GNU General Public License for more details.
-##
-##  A copy of the GNU General Public License is available at
-##  http://www.r-project.org/Licenses/
-##
-##
 
-## helper plotting functions
-
-## Function to plot A/Q curves
+##' Function to plot A/Q curves
 ##
-## data are assumed to have
-##
-## col 1: trt
-## col 2 (optional): other treatment factor
-## col 2: Assimilation
-## col 3: Quantum flux
-## col 4: Temperature
-## col 5: Relative humidity
-## col 6 (optional): Reference CO2
-
+##' @title plot A/Q curve
+##' @param data is assumed to have the following structure 
+##' col 1: trt
+##' col 2 (optional): other treatment factor
+##' col 2: Assimilation
+##' col 3: Quantum flux
+##' col 4: Temperature
+##' col 5: Relative humidity
+##' col 6 (optional): Reference CO2
+##' @param fittd 
+##' @param id.col 
+##' @param trt.col 
+##' @param ylab 
+##' @param xlab 
+##' @param by 
+##' @param type 
+##' @param ... 
+##' @return NULL, creates plot
+##' @export
+##' @author Fernando E. Miguez
 plotAQ <- function(data,fittd,
                    id.col=1,
                    trt.col=2,
