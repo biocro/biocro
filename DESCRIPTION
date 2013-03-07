@@ -43,7 +43,6 @@ Collate:
     'showSoilType.R'
     'soilML.R'
     'sunML.R'
-    'tdebug.R'
     'valid_dbp.R'
     'waterStress.R'
     'weach.R'
