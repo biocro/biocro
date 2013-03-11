@@ -1,4 +1,5 @@
 \name{willowGro}
+\alias{SoilType}
 \alias{canopyParms}
 \alias{centuryParms}
 \alias{nitroParms}
@@ -8,7 +9,6 @@
 \alias{seneParms}
 \alias{showSoilType}
 \alias{soilParms}
-\alias{SoilType}
 \alias{willowGro}
 \title{willow crop growth simulation}
 \usage{
