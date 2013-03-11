@@ -32,6 +32,7 @@ Simulation of $C_3$ photosynthesis and estimation of parameters.
 options(width=80)
 library(lattice)
 library(BioCro)
+dir.create("figure", showWarnings = FALSE)
 @
 
 \section{Simulating Photosynthesis}
