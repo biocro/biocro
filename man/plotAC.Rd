@@ -1,6 +1,6 @@
 \name{plotAC}
 \alias{plotAC}
-\title{Plotting function for A/Ci curves}
+\title{plot A/Ci curve}
 \usage{
   plotAC(data, fittd, id.col = 1, trt.col = 2,
     ylab = "CO2 Uptake", xlab = "Ci", by = c("trt", "ID"),
@@ -8,7 +8,11 @@
 }
 \arguments{
   \item{data}{Input data in the format needed for the
-  \code{\link{mOpc4photo}}.}
+  \code{\link{mOpc4photo}}; assumed to have the following
+  structure col 1: trt col 2 (optional): other treatment
+  factor col 2: Assimilation col 3: Quantum flux col 4:
+  Temperature col 5: Relative humidity col 6: Intercellular
+  CO2 col 7: Reference CO2}
 
   \item{fittd}{Optional fitted values.}
 
@@ -30,11 +34,12 @@
   behavior.}
 }
 \value{
-  NULL %% ~Describe the value returned %% If it is a LIST,
-  use %% \item{comp1 }{Description of 'comp1'} %%
-  \item{comp2 }{Description of 'comp2'} %% ...
+  NULL, creates plot
 }
 \description{
+  Function to plot A/Ci curves
+}
+\details{
   A small helper function that can be used to easily plot
   multiple A/Ci curves
 }

@@ -1,8 +1,7 @@
 \name{MCMCBioGro}
 \alias{MCMCBioGro}
 \alias{print.MCMCBioGro}
-\title{Simulated Annealing and Markov chain Monte Carlo for estimating parameters
-for Biomass Growth}
+\title{Simulated annealing and MCMC  function}
 \usage{
   MCMCBioGro(niter = 10, niter2 = 10, phen = 6,
     iCoef = NULL, saTemp = 5, coolSamp = 20, scale = 0.5,
@@ -73,11 +72,14 @@ for Biomass Growth}
   information is with the print and plot methods.
 }
 \description{
+  Simulated Annealing and Markov chain Monte Carlo for
+  estimating parameters for Biomass Growth
+}
+\details{
   This function atempts to implement the simulated
   annealing method for estimating parameters of a generic
   C4 crop growth.
-}
-\details{
+
   This function implements a hybrid algorithm where the
   first portion is simulated annealing and the second
   portion is a Markov chain Monte Carlo. The user controls
@@ -131,6 +133,8 @@ plot(op1.mc, plot.kind='trace', subset = nams \%in\%
 }
 }
 \author{
+  Fernando E. Miguez
+
   Fernando E. Miguez
 }
 \seealso{

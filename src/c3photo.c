@@ -1,19 +1,6 @@
 /*
  *  /src/c3photo.c by Fernando Ezequiel Miguez  Copyright (C) 2009
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 or 3 of the License
- *  (at your option).
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  A copy of the GNU General Public License is available at
- *  http://www.r-project.org/Licenses/
- *
  */
 
 #include <R.h>
@@ -128,7 +115,7 @@ double solo(double LeafT){
 
 
 
-/* c4photo function */ 
+/* c3photo function */ 
 struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double Jmax, 
 		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet)
 {
@@ -162,8 +149,9 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	if(Ca <= 0)
 		Ca = 1e-4;
 
-	/* From Dubois from Bernacchi. Improved temperature response functions. */
-	Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); 
+	/* From Bernacchi 2001. Improved temperature response functions. */
+  /* note: values in Dubois and Bernacchi are incorrect */	
+  Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); 
 	Ko = exp(20.30-36.38/(R*(Tleaf+273.15))); 
 	Gstar = exp(19.02-37.83/(R*(Tleaf+273.15))); 
 
