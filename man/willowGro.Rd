@@ -10,7 +10,7 @@
 \alias{showSoilType}
 \alias{soilParms}
 \alias{willowGro}
-\title{willowmass crops growth simulation}
+\title{willow crop growth simulation}
 \usage{
   willowGro(WetDat, day1 = NULL, dayn = NULL, timestep = 1,
     lat = 40, iRhizome = 7, irtl = 1e-04,

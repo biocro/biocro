@@ -1,4 +1,4 @@
-# This fuctionc checkif year is a leap year. If yes, then returns 1 or 0.
+# This fuction checks if year is a leap year. If yes, then returns 1 or 0.
 
 CheckLeapYear<-function(year)
   {
