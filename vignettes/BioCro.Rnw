@@ -65,13 +65,14 @@ The plotting method provides a convenient way of displaying the results.
 plot(res)
 @ 
 <<echo=FALSE, print=FALSE, term=FALSE>>=
-pdf("./figs/BioCro-plotBioGro.pdf")
+dir.create("figure", showWarnings = FALSE)
+pdf("./figure/BioCro-plotBioGro.pdf")
 plot(res)
 dev.off()
 @
 \begin{figure}[htbp!]
   \centering
-  \includegraphics[scale=0.8]{./figs/BioCro-plotBioGro.pdf}
+  \includegraphics[scale=0.8]{./figure/BioCro-plotBioGro.pdf}
   \caption{Dry biomass accumulation and Leaf Area Index for a generic biomass crop against thermal time.}
   \label{fig:plotBioGro}
 \end{figure}
@@ -244,13 +245,13 @@ ans1 <- BioGro(weather05, phenoControl = dbp.ll)
 % plot(op100, resid="raw")
 % @ 
 % <<echo=FALSE, print=FALSE, term=FALSE>>=
-% pdf("./figs/Intro-op100resid.pdf")
+% pdf("./figure/Intro-op100resid.pdf")
 % plot(op100, resid="raw")
 % dev.off()
 % @
 % \begin{figure}[htbp!]
 %   \centering
-%   \includegraphics[scale=0.8]{./figs/Intro-op100resid}
+%   \includegraphics[scale=0.8]{./figure/Intro-op100resid}
 %   \caption{Raw residuals for op100}
 %   \label{fig:op100resid}
 % \end{figure}
@@ -264,23 +265,23 @@ ans1 <- BioGro(weather05, phenoControl = dbp.ll)
 % plot(op100, plot.kind="OandF", type='o')
 % @
 % <<op100OvsF, echo=FALSE, print=FALSE, term=FALSE>>=
-% pdf("./figs/Intro-op100-OvsF.pdf")
+% pdf("./figure/Intro-op100-OvsF.pdf")
 % plot(op100, plot.kind="OvsF")
 % dev.off()
-% pdf("./figs/Intro-op100-OandF.pdf")
+% pdf("./figure/Intro-op100-OandF.pdf")
 % plot(op100, plot.kind="OandF", type='o')
 % dev.off()
 % @
 % \begin{figure}[htbp!]
 %   \centering
-%   \includegraphics[scale=0.8]{./figs/Intro-op100-OvsF}  
+%   \includegraphics[scale=0.8]{./figure/Intro-op100-OvsF}  
 %   \caption{Observed vs. fitted for the optimization on the simulated data.}
 %   \label{fig:ovsf}
 % \end{figure}
 
 % \begin{figure}[htbp!]
 %   \centering
-%   \includegraphics[scale=0.8]{./figs/Intro-op100-OandF}  
+%   \includegraphics[scale=0.8]{./figure/Intro-op100-OandF}  
 %   \caption{Observed and fitted for the optimization on the simulated data.}
 %   \label{fig:oandf}
 % \end{figure}
