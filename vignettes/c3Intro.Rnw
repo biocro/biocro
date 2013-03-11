@@ -155,13 +155,13 @@ standardized.
 plot(op100, resid="raw")
 @ 
 <<echo=FALSE, print=FALSE, term=FALSE>>=
-pdf("./figs/c3Intro-op100resid.pdf")
+pdf("./figure/c3Intro-op100resid.pdf")
 plot(op100, resid="raw")
 dev.off()
 @
 \begin{figure}[htbp!]
   \centering
-  \includegraphics[scale=0.8]{./figs/c3Intro-op100resid}
+  \includegraphics[scale=0.8]{./figure/c3Intro-op100resid}
   \caption{Raw residuals for op100}
   \label{fig:op100resid}
 \end{figure}
@@ -175,23 +175,23 @@ plot(op100, plot.kind="OvsF")
 plot(op100, plot.kind="OandF", type='o')
 @
 <<op100OvsF, echo=FALSE, print=FALSE, term=FALSE>>=
-pdf("./figs/c3Intro-op100-OvsF.pdf")
+pdf("./figure/c3Intro-op100-OvsF.pdf")
 plot(op100, plot.kind="OvsF")
 dev.off()
-pdf("./figs/c3Intro-op100-OandF.pdf")
+pdf("./figure/c3Intro-op100-OandF.pdf")
 plot(op100, plot.kind="OandF", type='o')
 dev.off()
 @
 \begin{figure}[htbp!]
   \centering
-  \includegraphics[scale=0.8]{./figs/c3Intro-op100-OvsF}  
+  \includegraphics[scale=0.8]{./figure/c3Intro-op100-OvsF}  
   \caption{Observed vs. fitted for the optimization on the simulated data.}
   \label{fig:ovsf}
 \end{figure}
 
 \begin{figure}[htbp!]
   \centering
-  \includegraphics[scale=0.8]{./figs/c3Intro-op100-OandF}  
+  \includegraphics[scale=0.8]{./figure/c3Intro-op100-OandF}  
   \caption{Observed and fitted for the optimization on the simulated data.}
   \label{fig:oandf}
 \end{figure}
