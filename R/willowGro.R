@@ -1,6 +1,17 @@
-## willowCro/R/willowCro.R based on BioCro.R by Fernando Ezequiel Miguez
+## willowCro/R/willowCro.R by Fernando Ezequiel Miguez Copyright (C) 2007-2010
 ## 
-##' willow crop growth simulation
+## This program is free software; you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by the Free
+## Software Foundation; either version 2 or 3 of the License (at your option).
+## 
+## This program is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+## more details.
+## 
+## A copy of the GNU General Public License is available at
+## http://www.r-project.org/Licenses/
+##' willowmass crops growth simulation
 ##'
 ##' Simulates dry biomass growth during an entire growing season.  It
 ##' represents an integration of the photosynthesis function
@@ -322,7 +333,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     phenoP <- phenoParms()
     phenoP[names(phenoControl)] <- phenoControl
 
-    photoP <- photoParms()
+    photoP <- c3photoParms()
     photoP[names(photoControl)] <- photoControl
 
     seneP <- seneParms()
@@ -369,18 +380,26 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     if(centuryP$timestep == "day") centTimestep <- 1
     
     vmax <- photoP$vmax
-    alpha <- photoP$alpha
-    kparm <- photoP$kparm
+    jmax <- photoP$jmax
+    jmaxb1<-0.0; ## This needs to be changed
+    alpha <- 0
+    kparm <- 0
+    #alpha <- photoP$alpha
+    #kparm <- photoP$kparm
     theta <- photoP$theta
-    beta <- photoP$beta
+    #beta <- photoP$beta
     Rd <- photoP$Rd
     Catm <- photoP$Catm
     b0 <- photoP$b0
     b1 <- photoP$b1
-    ws <- photoP$ws
-    upperT<-photoP$UPPERTEMP
-    lowerT<-photoP$LOWERTEMP
-    
+    ws <- 0
+    beta <- 0
+    #ws <- photoP$ws
+    o2 <- photoP$o2
+    #upperT<-photoP$UPPERTEMP
+    #lowerT<-photoP$LOWERTEMP
+    upperT<-0
+    lowerT<- 0
     mResp <- canopyP$mResp
     kd <- canopyP$kd
     chi.l <- canopyP$chi.l
@@ -388,8 +407,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
     nlayers <- canopyP$nlayers
-    
-    res <- .Call(MisGro,
+    res <- .Call("willowGro",
                  as.double(lat),
                  as.integer(doy),
                  as.integer(hr),
@@ -441,8 +459,11 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(nitroP$lnb1),
                  as.integer(nitroP$lnFun),
                  as.double(upperT),
-                 as.double(lowerT)
-                 )
+                 as.double(lowerT),
+                 as.double(jmax),
+                 as.double(jmaxb1),
+                 as.double(o2)
+    )
     
     res$cwsMat <- t(res$cwsMat)
     colnames(res$cwsMat) <- soilP$soilDepths[-1]
@@ -450,9 +471,10 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$rdMat) <- soilP$soilDepths[-1]
     res$psimMat <- t(res$psimMat)
     colnames(res$psimMat) <- soilP$soilDepths[-1]
-    structure(res,class="willowGro")
-  }
+    structure(res,class="BioGro")
+}
 
+   
 
 
 
