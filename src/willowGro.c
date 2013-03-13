@@ -36,7 +36,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP KD,                  /* K D (ext coeff diff)      9 */
 	    SEXP CHILHF,              /* Chi and Height factor    10 */
 	    SEXP NLAYERS,             /* # Lay canop              11 */
-	    SEXP RHIZOME,             /* Ini Rhiz                 12 */
+	    SEXP IPLANT,             /* Ini PLANT                12 */
             SEXP IRTL,                /* i rhiz to leaf           13 */
             SEXP SENCOEFS,            /* sene coefs               14 */
             SEXP TIMESTEP,            /* time step                15 */
@@ -45,6 +45,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP SPD,                 /* Spec Lefa Area Dec       18 */
 	    SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
 	    SEXP THERMALP,            /* Themal Periods           20 */
+      SEXP TBASE,               /* Base Temp for calculaing thermal time */
 	    SEXP VMAX,                /* Vmax of photo            21 */
 	    SEXP ALPHA,               /* Quantum yield            22 */
 	    SEXP KPARM,               /* k parameter (photo)      23 */
@@ -275,7 +276,16 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	kLN = REAL(KLN)[0];
 	timestep = INTEGER(TIMESTEP)[0];
 
-	Rhizome = REAL(RHIZOME)[0];
+  double iRRHIZOME = REAL(IPLANT)[0];
+  double iSSTEM = REAL(IPLANT)[1];
+  double iLLEAF=REAL(IPLANT)[2];
+  double iRROOT=REAL(IPLANT)[3];
+  double ifrRRHIZOME = REAL(IPLANT)[4];
+  double ifrSSTEM = REAL(IPLANT)[5];
+  double ifrLLEAF=REAL(IPLANT)[6];
+  double ifrRROOT=REAL(IPLANT)[7];
+  
+  
 	Sp = REAL(SPLEAF)[0]; 
 	SeneLeaf = REAL(SENCOEFS)[0];
 	SeneStem = REAL(SENCOEFS)[1];
@@ -305,16 +315,9 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	propLeaf = REAL(IRTL)[0]; 
 	/* It is useful to assume that there is a small amount of
 	   leaf area at the begining of the growing season. */
-	Leaf = Rhizome * propLeaf; 
-	/* Initial proportion of the rhizome that is turned
-	   into leaf the first hour */
-	Stem = Rhizome * 0.001;
-	Root = Rhizome * 0.001;
-	LAI = Leaf * Sp;
+	iLLEAF = iRRHIZOME * ifrRRHIZOME + iSSTEM*ifrSSTEM; 	
+	LAI = iLLEAF * Sp;
 	iSp = Sp;
-Rprintf("\n propLEAF= %f",propLeaf);
-Rprintf("\n SP= %f",Sp);
-Rprintf("\n LAI(Sp*propLEAF)= %f",LAI);
 
 /* Creating pointers to avoid calling functions REAL and INTEGER so much */
 	int *pt_doy = INTEGER(DOY);
@@ -331,6 +334,7 @@ Rprintf("\n LAI(Sp*propLEAF)= %f",LAI);
 	double chil = REAL(CHILHF)[0];
 	double hf = REAL(CHILHF)[1];
   double o2=210;
+  double Tbase=REAL(TBASE)[0];  /* base temperature */
 
 	/* Creation of pointers outside the loop */
 	sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
@@ -338,24 +342,34 @@ Rprintf("\n LAI(Sp*propLEAF)= %f",LAI);
 	sti2 = &newStemcol[0];
 	sti3 = &newRootcol[0];
 	sti4 = &newRhizomecol[0];
+  
+  // initialization based on iPlant 
+   Stem=iSSTEM*(1-ifrSSTEM); 
+   Leaf=iLLEAF;
+   Root=iRROOT;
+   Rhizome=iRRHIZOME*(1-ifrRRHIZOME);
  
 	for(i=0;i<vecsize;i++)
 	{
 		/* First calculate the elapsed Thermal Time*/
 		/* The idea is that here I need to divide by the time step
 		   to calculate the thermal time. For example, a 3 hour time interval
-		   would mean that the division would need to by 8 */
-		TTc += *(pt_temp+i) / (24/timestep); 
+		   would mean that the division would need to by 8 */     
+   if((*(pt_temp+i)) >Tbase){
+		TTc += (*(pt_temp+i)-Tbase) / (24/timestep); 
 		REAL(TTTc)[i] = TTc;
+   }
+   else{
+   TTc=TTc;
+   REAL(TTTc)[i]=TTc;
+	}
 
+   
 		/*  Do the magic! Calculate growth*/
     // Printing variables in R befor ecalling c3 canopy 
   //  Rprintf("\n LAI= %f",LAI);
  //      Rprintf("\n VMAX= %f",vmax1);
-//          Rprintf("\n jmax1=%f",jmax1);
-   
-    
-    
+//          Rprintf("\n jmax1=%f",jmax1); 
     
 		Canopy = c3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
@@ -462,6 +476,7 @@ Rprintf("\n LAI(Sp*propLEAF)= %f",LAI);
 
 		/* Here I will insert the Century model */
 
+ 
 		if(i % 24*centTimestep == 0){
 
 			LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);

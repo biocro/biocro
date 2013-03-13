@@ -274,14 +274,15 @@
 ##' }
 ##' @export
 willowGro <- function(WetDat, day1=NULL, dayn=NULL,
-                   timestep=1,
-                   lat=40,iRhizome=1,irtl=1e-4,
+                   timestep=1,iRhizome=1.0,
+                   lat=40,iPlant=1,irtl=1e-4,
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
                    willowphenoControl=list(),
                    soilControl=list(),
                    nitroControl=list(),
+                   iPlantControl=list(),
                    centuryControl=list())
   {
 
@@ -321,6 +322,10 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
 
     ## Getting the Parameters
+    
+    iPlant <-iwillowParms()
+    iPlant[names(iPlantControl)]<-iPlantControl
+    
     canopyP <- canopyParms()
     canopyP[names(canopyControl)] <- canopyControl
     
@@ -360,10 +365,13 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
       stop("Rel Hum. should be 0 < rh < 1")
     if((min(hr) < 0) | (max(hr) > 23))
       stop("hr should be between 0 and 23")
+    iPlant<-as.vector(unlist(iPlant))
     
     DBPcoefs <- valid_dbp(as.vector(unlist(willowphenoP)[7:31]))
 
     TPcoefs <- as.vector(unlist(willowphenoP)[1:6])
+    
+    Tbase<-as.vector(unlist(willowphenoP)[32])
 
     SENcoefs <- as.vector(unlist(seneP))
 
@@ -420,7 +428,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(kd),
                  as.double(c(chi.l,heightF)),
                  as.integer(nlayers),
-                 as.double(iRhizome),
+                 as.double(iPlant),
                  as.double(irtl),
                  as.double(SENcoefs),
                  as.integer(timestep),
@@ -429,6 +437,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(SpD),
                  as.double(DBPcoefs),
                  as.double(TPcoefs),
+                 as.double(Tbase),
                  as.double(vmax),
                  as.double(alpha),
                  as.double(kparm),
@@ -474,6 +483,11 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$psimMat) <- soilP$soilDepths[-1]
     structure(res,class="BioGro")
 }
+
+iwillowParms<-function(iRhizome=1,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.001,ifrStem=0.001,ifrLeaf=0.0,ifrRoot=0.0){
+  list(iRhizome=iRhizome,iStem=iStem,iLeaf=iLeaf,iRoot=iRoot,ifrRhizome=ifrRhizome,ifrStem=ifrStem,ifrLeaf=ifrLeaf,ifrRoot=ifrRoot)
+}
+
 
 willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
                         kd = 0.37, chi.l = 1,
@@ -563,13 +577,12 @@ willownitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
 }
 
 willowphenoParms <- function(tp1=508, tp2=1312, tp3=2063, tp4=2676, tp5=3939, tp6=7000,
-                      
                        kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
                        kStem2=0.7, kLeaf2=0.15, kRoot2=0.075, kRhizome2=0.075, 
                        kStem3=0.7, kLeaf3=0.15, kRoot3=0.075, kRhizome3=0.075, 
                        kStem4=0.7, kLeaf4=0.15, kRoot4=0.075, kRhizome4=0.075, 
                        kStem5=0.7, kLeaf5=-8e-4, kRoot5=0.15, kRhizome5=0.15, 
-                       kStem6=0.7, kLeaf6=-8e-4, kRoot6=0.15, kRhizome6=0.15, kGrain6=0){
+                       kStem6=0.7, kLeaf6=-8e-4, kRoot6=0.15, kRhizome6=0.15, kGrain6=0,Tbase=1.0){
   
   if(kGrain6 < 0)
     stop("kGrain6 should be positive (zero is allowed)")
@@ -580,7 +593,7 @@ willowphenoParms <- function(tp1=508, tp2=1312, tp3=2063, tp4=2676, tp5=3939, tp
        kStem3=kStem3, kLeaf3=kLeaf3, kRoot3=kRoot3, kRhizome3=kRhizome3, 
        kStem4=kStem4, kLeaf4=kLeaf4, kRoot4=kRoot4, kRhizome4=kRhizome4, 
        kStem5=kStem5, kLeaf5=kLeaf5, kRoot5=kRoot5, kRhizome5=kRhizome5, 
-       kStem6=kStem6, kLeaf6=kLeaf6, kRoot6=kRoot6, kRhizome6=kRhizome6, kGrain6=kGrain6)
+       kStem6=kStem6, kLeaf6=kLeaf6, kRoot6=kRoot6, kRhizome6=kRhizome6, kGrain6=kGrain6,Tbase=Tbase)
   
   
 }
