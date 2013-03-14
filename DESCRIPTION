@@ -1,8 +1,11 @@
 Package: BioCro
-Version: 0.1
+Version: 0.6
 Title: Simulation of Energycane and Sugarcane
-Author: Deepak Jaiswal <djaiswal@uiuc.edu>
-Maintainer: Deepak Jaiswal <djaiswal@uiuc.edu>
+Author: Fernando Miguez <femiguez@iastate.edu>, 
+        Deepak Jaiswal <djaiswal@illinois.edu>,
+        Dan Wang <dwng@illinois.edu>,
+        David LeBauer <dlebauer@illinois.edu>
+Maintainer: David LeBauer <dlebauer@illinois.edu>
 Depends:
     R(>= 2.5.0),
     lattice
@@ -12,7 +15,7 @@ Imports:
     stats,
     lattice
 Description: SugarPhenoParms function (BioCro.R) is implemented to read input
-License: GPL (version 2 or later)
+License: FreeBSD + file LICENSE
 Packaged: 2013-02-26 22:31:20 UTC; djaiswal
 Collate:
     'BioCro.R'
@@ -43,7 +46,6 @@ Collate:
     'showSoilType.R'
     'soilML.R'
     'sunML.R'
-    'tdebug.R'
     'valid_dbp.R'
     'waterStress.R'
     'weach.R'
