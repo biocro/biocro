@@ -45,11 +45,11 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   double Idir, Idiff, cosTh;
   double LAIc;
   double IDir, IDiff, Itot,rh, WindS;
-  double TempIdir,TempIdiff,AssIdir,AssIdiff;
+  double TempIdir,TempIdiff,AssIdir,AssIdiff,GAssIdir,GAssIdiff;
   double pLeafsun, pLeafshade;
   double Leafsun, Leafshade;
 
-  double CanopyA ;
+  double CanopyA,GCanopyA ;
   double CanopyT , CanopyPe = 0.0, CanopyPr = 0.0;
   double CanopyC = 0.0;
   double CanHeight;
@@ -97,6 +97,7 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   SEXP lists;
   SEXP names;
   SEXP growth;
+  SEXP Ggrowth;
   SEXP trans;
   SEXP epen;
   SEXP epries;
@@ -104,15 +105,15 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
 
   SEXP mat1;
 
-  PROTECT(lists = allocVector(VECSXP,6));
-  PROTECT(names = allocVector(STRSXP,6));
+  PROTECT(lists = allocVector(VECSXP,7));
+  PROTECT(names = allocVector(STRSXP,7));
   PROTECT(growth = allocVector(REALSXP,1));
   PROTECT(trans = allocVector(REALSXP,1));
   PROTECT(epen = allocVector(REALSXP,1));
   PROTECT(epries = allocVector(REALSXP,1));
   PROTECT(cond = allocVector(REALSXP,1));
-
-  PROTECT(mat1 = allocMatrix(REALSXP,15,nlayers));
+  PROTECT(Ggrowth = allocVector(REALSXP,1));
+  PROTECT(mat1 = allocMatrix(REALSXP,17,nlayers));
 
 
   /* Light Macro Environment. As a side effect it populates tmp1. This
@@ -171,6 +172,7 @@ layIdiff, layShade vectors. */
 	    TempIdir = Temp + tmp5_ET.Deltat;
 	    tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws, Catm,INTEGER(WS)[0],upperT,lowerT);
 	    AssIdir = tmpc4.Assim;
+      GAssIdir=tmpc4.GrossAssim;
 
 	    IDiff = layIdiff[--sp2];
 	    pLeafshade = layFshade[--sp5];
@@ -180,25 +182,27 @@ layIdiff, layShade vectors. */
 	    TempIdiff = Temp + tmp6_ET.Deltat;
 	    tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws, Catm,INTEGER(WS)[0],upperT,lowerT);
 	    AssIdiff = tmpc42.Assim;
+      GAssIdiff = tmpc42.GrossAssim;
 
     /* Collect direct radiation assim and trans in a matrix */
-	    REAL(mat1)[i*15] = IDir;
-	    REAL(mat1)[1 + i*15] = IDiff;
-	    REAL(mat1)[2 + i*15] = Leafsun;
-	    REAL(mat1)[3 + i*15] = Leafshade;
-	    REAL(mat1)[4 + i*15] = tmp5_ET.TransR;
-	    REAL(mat1)[5 + i*15] = tmp6_ET.TransR;
-	    REAL(mat1)[6 + i*15] = AssIdir;
-	    /*REAL(mat1)[7 + i*15] = AssIdiff;*/
-      REAL(mat1)[7 + i*15] = AssIdiff;
-	    REAL(mat1)[8 + i*15] = tmp5_ET.Deltat;
-	    REAL(mat1)[9 + i*15] = tmp6_ET.Deltat;
-	    REAL(mat1)[10 + i*15] = tmp5_ET.LayerCond; 
-	    REAL(mat1)[11 + i*15] = tmp6_ET.LayerCond; 
-	    REAL(mat1)[12 + i*15] = leafN_lay; 
-	    REAL(mat1)[13 + i*15] = vmax1;
-	    REAL(mat1)[14 + i*15] = rh; 
-
+	    REAL(mat1)[i*17] = IDir;
+	    REAL(mat1)[1 + i*17] = IDiff;
+	    REAL(mat1)[2 + i*17] = Leafsun;
+	    REAL(mat1)[3 + i*17] = Leafshade;
+	    REAL(mat1)[4 + i*17] = tmp5_ET.TransR;
+	    REAL(mat1)[5 + i*17] = tmp6_ET.TransR;
+	    REAL(mat1)[6 + i*17] = AssIdir;
+	    /*REAL(mat1)[7 + i*17] = AssIdiff;*/
+      REAL(mat1)[7 + i*17] = AssIdiff;
+	    REAL(mat1)[8 + i*17] = tmp5_ET.Deltat;
+	    REAL(mat1)[9 + i*17] = tmp6_ET.Deltat;
+	    REAL(mat1)[10 + i*17] = tmp5_ET.LayerCond; 
+	    REAL(mat1)[11 + i*17] = tmp6_ET.LayerCond; 
+	    REAL(mat1)[12 + i*17] = leafN_lay; 
+	    REAL(mat1)[13 + i*17] = vmax1;
+	    REAL(mat1)[14 + i*17] = rh; 
+      REAL(mat1)[15 + i*17] = GAssIdir;
+      REAL(mat1)[16 + i*17] = GAssIdiff;
 /*      REAL(mat1)[11 + i*12] = rh;  */
     /*Layer conductance needs to be transformed back to the correct units here*/
 
@@ -207,7 +211,7 @@ layIdiff, layShade vectors. */
 	    CanopyPe += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman;
 	    CanopyPr += Leafsun * tmp5_ET.EPriestly + Leafshade * tmp6_ET.EPriestly;
 	    CanopyC += Leafsun * tmp5_ET.LayerCond + Leafshade * tmp6_ET.LayerCond;
-
+      GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
     }
  /*## These are micro mols of CO2 per m2 per sec
    ## Need to convert to 
@@ -221,22 +225,25 @@ layIdiff, layShade vectors. */
     REAL(epen)[0] = cf2 * CanopyPe ;
     REAL(epries)[0] = cf2 * CanopyPr ;
     REAL(cond)[0] = CanopyC;
+    REAL(Ggrowth)[0] = cf * GCanopyA ;
 
     SET_VECTOR_ELT(lists,0,growth);
     SET_VECTOR_ELT(lists,1,trans);
     SET_VECTOR_ELT(lists,2,cond);
     SET_VECTOR_ELT(lists,3,epen);
     SET_VECTOR_ELT(lists,4,epries);
-    SET_VECTOR_ELT(lists,5,mat1);
+    SET_VECTOR_ELT(lists,5,Ggrowth);
+    SET_VECTOR_ELT(lists,6,mat1);
 
     SET_STRING_ELT(names,0,mkChar("CanopyAssim"));
     SET_STRING_ELT(names,1,mkChar("CanopyTrans"));
     SET_STRING_ELT(names,2,mkChar("CanopyCond"));
     SET_STRING_ELT(names,3,mkChar("TranEpen"));
     SET_STRING_ELT(names,4,mkChar("TranEpries"));
-    SET_STRING_ELT(names,5,mkChar("LayMat"));
+    SET_STRING_ELT(names,5,mkChar("GrossCanopyAssim"));
+    SET_STRING_ELT(names,6,mkChar("LayMat"));
     setAttrib(lists,R_NamesSymbol,names);
 
-    UNPROTECT(8);
+    UNPROTECT(9);
     return(lists);
    }

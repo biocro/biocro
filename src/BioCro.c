@@ -63,7 +63,8 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP LNB1,                /* Leaf N slope             49 */
             SEXP LNFUN,               /* Leaf N func flag         50 */
             SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
-	    SEXP LOWERTEMP)           /*temperature Limitation photoParms */
+	    SEXP LOWERTEMP,
+	    SEXP NNITROP)           /*temperature Limitation photoParms */
 {
 	double newLeafcol[8760];
 	double newStemcol[8760];
@@ -75,7 +76,29 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	   in the soil and then N in the soil. */
 
 	 double upperT=REAL(UPPERTEMP)[0];
-	 double lowerT=REAL(LOWERTEMP)[0];	
+	 double lowerT=REAL(LOWERTEMP)[0];
+/*Reading NitroP Variables */
+	struct nitroParms nitroparms;
+	double TEMPdoubletoint;
+	nitroparms.ileafN=REAL(NNITROP)[0];
+        nitroparms.kln=REAL(NNITROP)[1];
+	nitroparms.Vmaxb1=REAL(NNITROP)[2];
+	nitroparms.Vmaxb0=REAL(NNITROP)[3];
+	nitroparms.alphab1=REAL(NNITROP)[4];
+	nitroparms.alphab0=REAL(NNITROP)[5];
+        nitroparms.Rdb1=REAL(NNITROP)[6];
+	nitroparms.Rdb0=REAL(NNITROP)[7];
+	nitroparms.kpLN=REAL(NNITROP)[8];
+	nitroparms.lnb0=REAL(NNITROP)[9];
+	nitroparms.lnb1=REAL(NNITROP)[10];
+	TEMPdoubletoint=REAL(NNITROP)[11];
+	nitroparms.lnFun=(int)TEMPdoubletoint;
+	nitroparms.maxln=REAL(NNITROP)[12];
+	nitroparms.minln=REAL(NNITROP)[13];
+	nitroparms.daymaxln=REAL(NNITROP)[14];
+
+
+///////////////////////////////////////////////////////////////////	
         double iSp, Sp , propLeaf;
 	int i, i2, i3;
 	int vecsize ;
@@ -333,7 +356,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
 			       chil, hf,
-                               LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT);
+                               LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
@@ -789,9 +812,28 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	      SEXP SCALE, SEXP SD, SEXP PHEN, 
 	      SEXP SOILLAYERS, SEXP SOILDEPTHS, 
 	      SEXP CWS, SEXP HYDRDIST, SEXP SECS, 
-	      SEXP NCOEFS, SEXP LNFUN,SEXP UPPERTEMP, SEXP LOWERTEMP)
+	      SEXP NCOEFS, SEXP LNFUN,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP)
 {
-
+       
+	// compatibility with CanAC to pass alpha parameters
+       struct nitroParms nitroparms;
+	double TEMPdoubletoint;
+	nitroparms.ileafN=REAL(NNITROP)[0];
+        nitroparms.kln=REAL(NNITROP)[1];
+	nitroparms.Vmaxb1=REAL(NNITROP)[2];
+	nitroparms.Vmaxb0=REAL(NNITROP)[3];
+	nitroparms.alphab1=REAL(NNITROP)[4];
+	nitroparms.alphab0=REAL(NNITROP)[5];
+        nitroparms.Rdb1=REAL(NNITROP)[6];
+	nitroparms.Rdb0=REAL(NNITROP)[7];
+	nitroparms.kpLN=REAL(NNITROP)[8];
+	nitroparms.lnb0=REAL(NNITROP)[9];
+	nitroparms.lnb1=REAL(NNITROP)[10];
+	TEMPdoubletoint=REAL(NNITROP)[11];
+	nitroparms.lnFun=(int)TEMPdoubletoint;
+	nitroparms.maxln=REAL(NNITROP)[12];
+	nitroparms.minln=REAL(NNITROP)[13];
+	nitroparms.daymaxln=REAL(NNITROP)[14];
 
 	/* External variables */
 	extern double CanopyAssim[8760] ;
@@ -1253,7 +1295,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       vmaxb1, alphab1, REAL(MRESP), INTEGER(SOILTYPE)[0], INTEGER(WSFUN)[0],
 		       INTEGER(WS)[0], REAL(CENTCOEFS),REAL(CENTKS), INTEGER(CENTTIMESTEP)[0],
 		       INTEGER(SOILLAYERS)[0], REAL(SOILDEPTHS), REAL(CWS), INTEGER(HYDRDIST)[0], 
-		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT);
+		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms);
 
 		/* pick the needed elements for the SSE */
 		for(k=0;k<Ndat;k++){
@@ -1539,7 +1581,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       vmaxb1, alphab1, REAL(MRESP), INTEGER(SOILTYPE)[0], INTEGER(WSFUN)[0],
 		       INTEGER(WS)[0], REAL(CENTCOEFS),REAL(CENTKS), INTEGER(CENTTIMESTEP)[0],
 		       INTEGER(SOILLAYERS)[0], REAL(SOILDEPTHS), REAL(CWS), INTEGER(HYDRDIST)[0],
-		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT);
+		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms);
 
 		/* pick the needed elements for the SSE */
 		for(k=0;k<Ndat;k++){
@@ -1818,7 +1860,7 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 	    double soilcoefs[], double ileafn, double kLN, double vmaxb1,
 	    double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
 	    double centks[], int centTimestep, int soilLayers, double soilDepths[],
-	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun ,double upperT,double lowerT)
+	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun ,double upperT,double lowerT,struct nitroParms nitroP)
 {
 
 	extern double CanopyAssim[8760] ;
@@ -1932,7 +1974,7 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 			       solar[i],temp[i],rh[i],windspeed[i],
 			       lat,nlayers,vmax,alpha,kparm,theta,beta,
 			       Rd,Catm,b0,b1,StomWS,ws,kd, chil,
-			       heightf, LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT);
+			       heightf, LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroP);
 
 
 

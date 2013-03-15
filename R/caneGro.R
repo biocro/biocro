@@ -1,19 +1,41 @@
-##  BioCro/R/caneGro.R by Deepak Jaiswal
-
-caneGro <- function(WetDat, day1=30, dayn=330,
+caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,
-                   lat=23,plantingdensity=1,ileaf=0.001,
+                   lat=40,iRhizome=7,irtl=1e-4,
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
                    phenoControl=list(),
                    soilControl=list(),
-                   nitroControl=list()
-                   )
+                   nitroControl=list(),
+                   canephenoControl=list(),
+                   centuryControl=list())
   {
 
     
-
+## Trying to guess the first and last day of the growing season from weather data
+    
+    if(missing(day1)){
+        half <- as.integer(dim(WetDat)[1]/2)
+        WetDat1 <- WetDat[1:half,c(2,5)]
+        if(min(WetDat1[,2]) > 0){
+          day1 <- 90
+        }else{
+        WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
+        day1 <- max(WetDat1s[,1])
+        if(day1 < 90) day1 <- 90
+      }
+     }
+    if(missing(dayn)){
+        half <- as.integer(dim(WetDat)[1]/2)
+        WetDat1 <- WetDat[half:dim(WetDat)[1],c(2,5)]
+        if(min(WetDat1[,2]) > 0){
+          dayn <- 330
+        }else{
+          WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
+          dayn <- min(WetDat1s[,1])
+          if(dayn > 330) dayn <- 330
+        }
+      }
     
 #    if((day1<0) || (day1>365) || (dayn<0) || (dayn>365))
 #      stop("day1 and dayn should be between 0 and 365")
@@ -25,7 +47,7 @@ caneGro <- function(WetDat, day1=30, dayn=330,
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
 
     ## Getting the Parameters
-    canopyP <- canecanopyParms()
+    canopyP <- canopyParms()
     canopyP[names(canopyControl)] <- canopyControl
     
     soilP <- canesoilParms()
@@ -33,9 +55,13 @@ caneGro <- function(WetDat, day1=30, dayn=330,
 
     nitroP <- canenitroParms()
     nitroP[names(nitroControl)] <- nitroControl
-
-    phenoP <- canephenoParms()
+    nnitroP<-as.vector(unlist(nitroP))
+    
+    phenoP <- phenoParms()
     phenoP[names(phenoControl)] <- phenoControl
+
+    sugarphenoP<-canephenoParms()
+    sugarphenoP[names(canephenoControl)]<-canephenoControl
 
     photoP <- photoParms()
     photoP[names(photoControl)] <- photoControl
@@ -43,7 +69,8 @@ caneGro <- function(WetDat, day1=30, dayn=330,
     seneP <- caneseneParms()
     seneP[names(seneControl)] <- seneControl
 
-    
+    centuryP <- centuryParms()
+    centuryP[names(centuryControl)] <- centuryControl
 
     tint <- 24 / timestep
     vecsize <- (dayn - (day1-1)) * tint
@@ -62,37 +89,115 @@ caneGro <- function(WetDat, day1=30, dayn=330,
       stop("Rel Hum. should be 0 < rh < 1")
     if((min(hr) < 0) | (max(hr) > 23))
       stop("hr should be between 0 and 23")
-
-    photocoeff<-unlist(photoP[1:12])
-    soilcoeff<-unlist(soilP[1:17])
-    cwsvec<-unlist(soilP$iWatCont)
-    soildepths<-unlist(soilP$soilDepths)
-    canopycoeff<-unlist(canopyP)
-    phenocoeff<-unlist(phenoP)
-    sencoeff<-unlist(seneP)
-    nitrocoeff<-unlist(nitroP)
     
-    res <- .Call(caneGro,
-                 as.double(vecsize),
-                 as.integer(timestep),
-                 as.double(plantingdensity),
-                 as.double(ileaf),
+    DBPcoefs <- valid_dbp(as.vector(unlist(phenoP)[7:31]))
+
+    TPcoefs <- as.vector(unlist(phenoP)[1:6])
+
+    sugarcoefs <-as.vector(unlist(sugarphenoP))
+
+    SENcoefs <- as.vector(unlist(seneP))
+
+    soilCoefs <- c(unlist(soilP[1:5]),mean(soilP$iWatCont),soilP$scsf, soilP$transpRes, soilP$leafPotTh)
+    wsFun <- soilP$wsFun
+    soilType <- soilP$soilType
+    rootfrontvelocity=soilP$rootfrontvelocity;
+    optiontocalculaterootdepth=soilP$optiontocalculaterootdepth;
+    
+
+    centCoefs <- as.vector(unlist(centuryP)[1:24])
+
+    if(centuryP$timestep == "year"){
+      stop("Not developed yet")
+      centTimestep <- dayn - day1 ## This is really the growing season
+    }
+    if(centuryP$timestep == "week") centTimestep <- 7
+    if(centuryP$timestep == "day") centTimestep <- 1
+    
+    vmax <- photoP$vmax
+    alpha <- photoP$alpha
+    kparm <- photoP$kparm
+    theta <- photoP$theta
+    beta <- photoP$beta
+    Rd <- photoP$Rd
+    Catm <- photoP$Catm
+    b0 <- photoP$b0
+    b1 <- photoP$b1
+    ws <- photoP$ws
+    upperT<-photoP$UPPERTEMP
+    lowerT<-photoP$LOWERTEMP
+
+    mResp <- canopyP$mResp
+    kd <- canopyP$kd
+    chi.l <- canopyP$chi.l
+    Sp <- canopyP$Sp
+    SpD <- canopyP$SpD
+    heightF <- canopyP$heightFactor
+    nlayers <- canopyP$nlayers
+    
+    res <- .Call("caneGro",
                  as.double(lat),
-                 as.double(doy),
-                 as.double(hr),
+                 as.integer(doy),
+                 as.integer(hr),
                  as.double(solar),
                  as.double(temp),
                  as.double(rh),
                  as.double(windspeed),
                  as.double(precip),
-                 as.double(photocoeff),
-                 as.double(canopycoeff),
-                 as.double(phenocoeff),
-                 as.double(nitrocoeff),
-                 as.double(senecoeff),
-                 as.double(soilcoeff),
-                 as.double(cwsvec),
-                 as.double(soildepths)
+                 as.double(kd),
+                 as.double(c(chi.l,heightF)),
+                 as.integer(nlayers),
+                 as.double(iRhizome),
+                 as.double(irtl),
+                 as.double(SENcoefs),
+                 as.integer(timestep),
+                 as.integer(vecsize),
+                 as.double(Sp),
+                 as.double(SpD),
+                 as.double(DBPcoefs),
+                 as.double(TPcoefs),
+                 as.double(vmax),
+                 as.double(alpha),
+                 as.double(kparm),
+                 as.double(theta),
+                 as.double(beta),
+                 as.double(Rd),
+                 as.double(Catm),
+                 as.double(b0),
+                 as.double(b1),
+                 as.integer(ws),
+                 as.double(soilCoefs),
+                 as.double(nitroP$iLeafN),
+                 as.double(nitroP$kLN), 
+                 as.double(nitroP$Vmax.b1),
+                 as.double(nitroP$alpha.b1),
+                 as.double(mResp),
+                 as.integer(soilType),
+                 as.integer(wsFun),
+                 as.double(centCoefs),
+                 as.integer(centTimestep),
+                 as.double(centuryP$Ks),
+                 as.integer(soilP$soilLayers),
+                 as.double(soilP$soilDepths),
+                 as.double(soilP$iWatCont),
+                 as.integer(soilP$hydrDist),
+                 as.double(c(soilP$rfl,soilP$rsec,soilP$rsdf)),
+                 as.double(nitroP$kpLN),
+                 as.double(nitroP$lnb0),
+                 as.double(nitroP$lnb1),
+                 as.integer(nitroP$lnFun),
+                 as.double(sugarcoefs),
+                 as.double(upperT),
+                 as.double(lowerT),
+                 as.double(nitroP$maxln),
+                 as.double(nitroP$minln),
+                 as.double(nitroP$daymaxln),
+                 as.double(seneP$leafturnover),
+                 as.double(seneP$rootturnover),
+                 as.double(seneP$leafremobilizefraction),
+                 as.integer(optiontocalculaterootdepth),
+                 as.double(rootfrontvelocity),
+                 as.double(nnitroP)
                  )
     
     res$cwsMat <- t(res$cwsMat)
@@ -101,7 +206,7 @@ caneGro <- function(WetDat, day1=30, dayn=330,
     colnames(res$rdMat) <- soilP$soilDepths[-1]
     res$psimMat <- t(res$psimMat)
     colnames(res$psimMat) <- soilP$soilDepths[-1]
-    structure(res,class="caneGro")
+    structure(res,class="BioGro")
   }
 
 canesoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
@@ -144,35 +249,14 @@ canesoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,i
   else if(wsFun == "none") wsFun <- 3
   else if(wsFun == "lwp") wsFun <- 4
   
-  list(FieldC=FieldC,WiltP=WiltP,phi1=phi1,phi2=phi2,soilDepth=soilDepth,
-       soilType=soilType,soilLayers=soilLayers, wsFun=wsFun,
+  list(FieldC=FieldC,WiltP=WiltP,phi1=phi1,phi2=phi2,soilDepth=soilDepth,iWatCont=iWatCont,
+       soilType=soilType,soilLayers=soilLayers,soilDepths=soilDepths, wsFun=wsFun,
        scsf = scsf, transpRes = transpRes, leafPotTh = leafPotTh,
-       hydrDist=hydrDist, rfl=rfl, rsec=rsec, rsdf=rsdf,optiontocalculaterootdepth=optiontocalculaterootdepth,rootfrontvelocity=rootfrontvelocity,iWatCont=iWatCont,soilDepths=soilDepths)
+       hydrDist=hydrDist, rfl=rfl, rsec=rsec, rsdf=rsdf,optiontocalculaterootdepth=optiontocalculaterootdepth,rootfrontvelocity=rootfrontvelocity)
 }
-
-canecanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
-                        kd = 0.1, chi.l = 1,
-                        Growthresp=0.25,Qleaf=1.58, Qstem=1.80, Qroot=1.80,mRespleaf=0.012,
-                        mRespstem=0.004,mResproot=0.0088, heightFactor=3){
-
-  if((nlayers < 1) || (nlayers > 50))
-    stop("nlayers should be between 1 and 50")
-
-  if(Sp <= 0)
-    stop("Sp should be positive")
-
-  if(heightFactor <= 0)
-    stop("heightFactor should be positive")
-
-  list(Sp=Sp,SpD=SpD,nlayers=nlayers,kd=kd,chi.l=chi.l,
-      Growthresp=Growthresp,Qleaf=Qleaf, Qstem=Qstem, Qroot=Qroot,mRespleaf=mRespleaf,
-      mRespstem=mRespstem,mResproot=mResproot, heightFactor=heightFactor)
-}
-
-
 
 canephenoParms <- function(TT0=200, TTseed=800, Tmaturity=6000,Rd=0.06,Alm=0.15,Arm=0.08,
-	Clstem=0.04, Ilstem=7,Cestem=-0.05,Iestem=45, Clsuc=0.01,Ilsuc=25,Cesuc=-0.02,Iesuc=45,Tbase=12.0){
+	Clstem=0.04, Ilstem=7,Cestem=-0.05,Iestem=45, Clsuc=0.01,Ilsuc=25,Cesuc=-0.02,Iesuc=45){
 
   # Think about Error conditions in parameter values
   # TT0= End of germination phase
@@ -189,37 +273,32 @@ canephenoParms <- function(TT0=200, TTseed=800, Tmaturity=6000,Rd=0.06,Alm=0.15,
   if(Clsuc>0.01)
     stop("Clsuc should be lower than 0.01")
 
+  
   list(TT0=TT0,TTseed=TTseed, Tmaturity=Tmaturity,Rd=Rd,Alm=Alm,Arm=Arm,
-	Clstem=Clstem, Ilstem=Ilstem,Cestem=Cestem,Iestem=Iestem, Clsuc=Clsuc,Ilsuc=Ilsuc,Cesuc=Cesuc,Iesuc=Iesuc,Tbase=Tbase)
+	Clstem=Clstem, Ilstem=Ilstem,Cestem=Cestem,Iestem=Iestem, Clsuc=Clsuc,Ilsuc=Ilsuc,Cesuc=Cesuc,Iesuc=Iesuc)
   
 }
 
-caneseneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senSeedcane=4000,stemturnover=0.0,leafturnover=1.36,rootturnover=2.0,leafremobilizefraction=0.6,stemremobilizefraction=0.6,rootremobilizefraction=0.6,seedcaneremobilizefraction=0.6,option=c("thermal time based","percentage of standing biomass per day"),Tfrost.0percent=0.0,Tfrost.100percent=-5.6,minCanopyN=40){
 
-  option<-match.arg(option)
-  if(option=="thermal time based"){
-    option <-0
-  } else {
-    option<-1
-  }
-  list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senSeedcane=senSeedcane,leafturnover=leafturnover,rootturnover=rootturnover,stemturnover=stemturnover,leafremobilizefraction=leafremobilizefraction,stemremobilizefraction=stemremobilizefraction,rootremobilizefraction=rootremobilizefraction,seedcaneremobilizefraction=seedcaneremobilizefraction,option=option,Tfrost.0percent=Tfrost.0percent,Tfrost.100percent=Tfrost.100percent,minCanopyN=minCanopyN)
+
+caneseneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000,leafturnover=1.36,rootturnover=2.0,leafremobilizefraction=0.6){
+
+  list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome,leafturnover=leafturnover,rootturnover=rootturnover,leafremobilizefraction=leafremobilizefraction)
 
 }
 
-canenitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, Vmax.b0=0,alpha.b1=0,alpha.b0=0,
-                       kpLN=0.2,lnb0 = -5, lnb1 = 18,lnFun=c("none","linear","cyclic"),maxln=90,minln=50,daymaxln=80){
+
+canenitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=1.38, Vmax.b0=-38.5,alpha.b1=0.000349,alpha.b0=0.0166,Rd.b1=0.0216,Rd.b0=3.46,
+                       kpLN=0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear"),maxln=90,minln=50,daymaxln=80){
 
   lnFun <- match.arg(lnFun)
   if(lnFun == "none"){
     lnFun <- 0
-  }else
-  if(lnFun=="linear"){
-    lnFun<-1
-    } else{
-    lnFun <- 2
+  }else{
+    lnFun <- 1
   }
   
-  list(iLeafN=iLeafN, kLN=abs(kLN), Vmax.b1=Vmax.b1, Vmax.b0=Vmax.b0,alpha.b1=alpha.b1,alpha.b0=alpha.b0, kpLN=kpLN,
-        lnb0=lnb0,lnb1=lnb1,lnFun=lnFun,maxln=maxln,minln=minln,daymaxln=daymaxln)
+  list(iLeafN=iLeafN, kLN=abs(kLN), Vmax.b1=Vmax.b1, Vmax.b0=Vmax.b0,alpha.b1=alpha.b1, alpha.b0=alpha.b0,Rd.b1=Rd.b1,Rd.b0=Rd.b0,kpLN=kpLN,
+       lnb0 = lnb0, lnb1 = lnb1, lnFun = lnFun,maxln=maxln,minln=minln,daymaxln=daymaxln)
 
 }

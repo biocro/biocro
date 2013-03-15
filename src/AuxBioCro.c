@@ -630,7 +630,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 		     double Alpha, double Kparm, double theta, double beta,
 		     double Rd, double Catm, double b0, double b1,
                      double StomataWS, int ws, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT, double lowerT)
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT, double lowerT,struct nitroParms nitroP)
 {
 
 	struct ET_Str tmp5_ET, tmp6_ET;
@@ -694,7 +694,11 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 		if(lnfun == 0){
 			vmax1 = Vmax;
 		}else{
-			vmax1 = leafN_lay * lnb1 + lnb0;
+			vmax1=nitroP.Vmaxb1*leafN_lay+nitroP.Vmaxb0;
+			if(vmax1<0) vmax1=0.0;
+			Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
+			Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
+		
                /* For now alpha is not affected by leaf nitrogen */
 		}
 
@@ -738,6 +742,8 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	ans.Trans = cf2 * CanopyT; 
 	return(ans);
 }
+
+
 
 
 /* This is a new function that attempts to keep a water budget and then
