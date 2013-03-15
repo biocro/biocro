@@ -159,7 +159,7 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
                               "Leafshade","TransSun","TransShade",
                               "AssimSun","AssimShade","DeltaSun",
                               "DeltaShade","CondSun","CondShade",
-                              "LeafN", "Vmax", "RH")
+                              "LeafN", "Vmax", "RH","GrossAssimSun","GrossAssimShade")
     if(units == "Mg/ha/hr"){
       res
     }else{

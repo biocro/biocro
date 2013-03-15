@@ -647,9 +647,9 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	double CanHeight;
 
 	double vmax1, leafN_lay;
-	double TempIdir,TempIdiff,AssIdir,AssIdiff;
+	double TempIdir,TempIdiff,AssIdir,AssIdiff,GAssIdir,GAssIdiff;
 
-	double CanopyA, CanopyT;
+	double CanopyA, CanopyT,GCanopyA;
 
 	const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
 	const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
@@ -687,6 +687,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
 	/* Next use the EvapoTrans function */
 	CanopyA=0.0;
+  GCanopyA=0.0;
 	CanopyT=0.0;
 	for(i=0;i<nlayers;i++)
 	{
@@ -710,7 +711,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 		TempIdir = Temp + tmp5_ET.Deltat;
 		tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
 		AssIdir = tmpc4.Assim;
-
+    GAssIdir =tmpc4.GrossAssim;
 
 		IDiff = layIdiff[--sp2];
 		pLeafshade = layFshade[--sp5];
@@ -719,8 +720,9 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 		TempIdiff = Temp + tmp6_ET.Deltat;
 		tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
 		AssIdiff = tmpc42.Assim;
-
+    GAssIdiff = tmpc42.GrossAssim;
 		CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
+    GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
 		CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
 	}
 	/*## These are micro mols of CO2 per m2 per sec for Assimilation
@@ -736,6 +738,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
    mols (instead of micro) */
 	ans.Assim = cf * CanopyA ;
 	ans.Trans = cf2 * CanopyT; 
+  ans.GrossAssim=cf*GCanopyA;
 	return(ans);
 }
 

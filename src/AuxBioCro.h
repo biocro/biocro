@@ -40,6 +40,7 @@ struct Can_Str {
 
   double Assim;
   double Trans;
+  double GrossAssim;
 };
 
 struct ws_str {
