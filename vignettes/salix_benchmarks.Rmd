@@ -26,6 +26,7 @@ this is to keep it consistent with current BioCro behavior of not simulating seq
 salix.us <- salix.testyield[country %in% c("USA", "Canada")]
 salix <- salix.us[stand_age > 2,list(lat = mean(lat), lon = mean(lon), yield = mean(annual_yield), s = sd(annual_yield)), by = site]
 
+
 ```
 
 ### Compare data against Miscanthus Yield
@@ -51,7 +52,7 @@ states <- map_data("state")
 ggplot() + 
   geom_polygon(data=states[states$lat>40 &states$long>-100,], aes(x=long, y=lat, group = group),
      colour="grey", fill="white" ) + 
-  geom_point(data = salix, aes(x = lon, y = lat, size = yield), color = 'black') 
+    geom_point(data = salix, aes(x = lon + 1, y = lat, size = model), color = 'blue') +  geom_point(data = salix, aes(x = lon, y = lat, size = yield), color = 'red') + scale_size(range = c(8,12)) 
 
 plot(salix$model, salix$yield, xlim = c(0,30), ylim = c(0, 30), 
      ylab = "Observed Yield (Mg/ha)", xlab = "Modeled Yield (Mg/ha)", main = "WillowCro v1 results*")

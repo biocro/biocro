@@ -35,10 +35,6 @@
   Simulates coupled assimilation and stomatal conductance
   based on Farquhar and Ball-Berry.
 }
-\details{
-  ~~ If necessary, more details than the description above
-  ~~
-}
 \note{
   ~~further notes~~ ## Additional notes about assumptions
 }
