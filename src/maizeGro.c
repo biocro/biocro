@@ -33,7 +33,8 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 	      SEXP SOILP2,                /* Soil parameters 2                19 */
 	      SEXP SOILDEPTHS,            /* Soil depths                      20 */
 	      SEXP CWS,                    /* Current water status             21 */
-	      SEXP SENEP                   /* Maize senescence parameteres     22*/
+	      SEXP SENEP,
+	      SEXP NNITROP                 /* Maize senescence parameteres     22*/
 	      )
 
 {
@@ -42,6 +43,27 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 
 	int vecsize = 8760 ; /* 365 days * 24 hours  */
 	int i, i2, i3, i4;
+
+	struct nitroParms nitroparms;
+	double TEMPdoubletoint;
+	nitroparms.ileafN=REAL(NNITROP)[0];
+        nitroparms.kln=REAL(NNITROP)[1];
+	nitroparms.Vmaxb1=REAL(NNITROP)[2];
+	nitroparms.Vmaxb0=REAL(NNITROP)[3];
+	nitroparms.alphab1=REAL(NNITROP)[4];
+	nitroparms.alphab0=REAL(NNITROP)[5];
+        nitroparms.Rdb1=REAL(NNITROP)[6];
+	nitroparms.Rdb0=REAL(NNITROP)[7];
+	nitroparms.kpLN=REAL(NNITROP)[8];
+	nitroparms.lnb0=REAL(NNITROP)[9];
+	nitroparms.lnb1=REAL(NNITROP)[10];
+	TEMPdoubletoint=REAL(NNITROP)[11];
+	nitroparms.lnFun=(int)TEMPdoubletoint;
+	nitroparms.maxln=REAL(NNITROP)[12];
+	nitroparms.minln=REAL(NNITROP)[13];
+	nitroparms.daymaxln=REAL(NNITROP)[14];
+
+
 
 /* Some structures */
 	struct lai_str tmpLAI;
@@ -451,7 +473,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 				       theta,beta,Rd1,Ca,b01,b11,StomWS,
 				       ws, kd,
 				       chil, heightFactor,
-				       LeafN, kpLN, lnb0, lnb1, lnFun,upperT,lowerT);
+				       LeafN, kpLN, lnb0, lnb1, lnFun,upperT,lowerT,nitroparms);
 
 			/* Rprintf("LAI: %.4f, vmax: %.1f",LAI,vmax);  */
 

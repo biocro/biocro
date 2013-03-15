@@ -17,12 +17,12 @@
 #include <R.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "c4photo.h"
 #include "AuxBioCro.h"
-#include "caneGro.h"
+#include "AuxcaneGro.h"
+#include "c4photo.h"
 
-struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, double soildepth, double *depths, double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun, int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds, double RelH, int hydrDist, double rfl, double rsec, double rsdf,int optiontocalculaterootdepth, double rootfrontvelocity ,double dap)
-{
+struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, double soildepth, double *depths, double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun, int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds, double RelH, int hydrDist, double rfl, double rsec, double rsdf,int optiontocalculaterootdepth, double rootfrontvelocity ,double dap){
+
 	struct rd_str tmp4;
 	struct seqRD_str tmp3;
 	struct soilML_str tmp;
@@ -224,9 +224,7 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 		/* The data comes in mm/hr and it needs to be in cm/month */
 		Nleach = drainage * 0.1 * (1/24*30) / (18 * (0.2 + 0.7 * soTexS.sand));
 	}
-/* Apparently wsPhoto and wsSpleaf can be greater than 1 */
-        if(wsPhoto > 1) wsPhoto = 1;
-	if(wsSpleaf > 1) wsSpleaf = 1;
+
 
 /* returning the structure */
 	tmp.rcoefPhoto = (wsPhotoCol/layers);
@@ -238,9 +236,10 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 	return(tmp);
 }
 
+
 struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double Tmaturity, double Rd, double Alm, double Arm, double Clstem, double Ilstem, double Cestem, double Iestem, double Clsuc, double Ilsuc, double Cesuc, double Iesuc,double Temperature)
 {
-	struct dbp_sugarcane_str dbp={0,0,0,0,0,0,0};
+	struct dbp_sugarcane_str dbp;
 	double F1, F2, F3, F4;
 	double Aa,Astem,Al,Ar,Asuc,Astuc,Afib;
 	double RM;
@@ -248,11 +247,9 @@ struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTsee
         
 /* Germination Phase */
         
-	if(TT < TTseed)
+	if(TT < TT0)
 	{
-	 if(TT < TT0)
-	        {
-	      
+		
 		dbp.kLeaf=0.001;
 		dbp.kStem=0.7;
 		dbp.kRoot=0.299;
@@ -260,27 +257,14 @@ struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTsee
 		dbp.kSugar=0.0;
 		dbp.kFiber=0.0;
 		return(dbp);		
-	         }
-             
-         else
-                {
-		dbp.kLeaf=0.001;
-		dbp.kStem=0.7;
-		dbp.kRoot=0.299;
-		dbp.kSeedcane=0;//(-1)*0.693*(0.0053*Temperature-0.0893);
-		dbp.kSugar=0.0;
-		dbp.kFiber=0.0;
-                }	
-   	return(dbp);		
-	
-       } 
+	}
         else
 	
 
 	dbp.kSeedcane=0;
         /* Calculate Relative Maturity and correct it for germination phase* */
         /* Now reference thermal time has changed from 0 to TT0 */
-	RM=(TT-TTseed)*100.0/Tmaturity;
+	RM=(TT-TT0)*100.0/Tmaturity;
 /*	RM0=TT0*100.0/Tmaturity;
 	RM=RM-RM0;   */
 
@@ -344,6 +328,9 @@ struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTsee
 	return(dbp);
 }
 
+
+
+
 double GrowthRespiration(double CanopyA, double fraction) 
 {
 	double RespLost;
@@ -351,6 +338,7 @@ double GrowthRespiration(double CanopyA, double fraction)
 	CanopyA=CanopyA-RespLost;
 	return(CanopyA);
 }
+
 
 
 double MRespiration (double W,double Q, double m,double T, double deltime)
@@ -362,6 +350,7 @@ double MRespiration (double W,double Q, double m,double T, double deltime)
         result=W*m*pow(Q,ttemp);
 	return(result);
 		}
+
 
 double seasonal (double maxLN, double minLN, double day, double daymaxLN, double dayinyear, double lat)
 

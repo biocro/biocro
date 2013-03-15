@@ -318,7 +318,11 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
 
     nitroP <- nitroParms()
     nitroP[names(nitroControl)] <- nitroControl
-
+ ## this is to pass NNITROP for compatibility
+    nnitroP <- canenitroParms()
+    nnitroP<-as.vector(unlist(nnitroP))
+    
+    
     phenoP <- phenoParms()
     phenoP[names(phenoControl)] <- phenoControl
 
@@ -441,7 +445,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(nitroP$lnb1),
                  as.integer(nitroP$lnFun),
                  as.double(upperT),
-                 as.double(lowerT)
+                 as.double(lowerT),
+                 as.double(nnitroP)
                  )
     
     res$cwsMat <- t(res$cwsMat)

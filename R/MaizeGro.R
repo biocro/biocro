@@ -82,6 +82,11 @@ MaizeGro <- function(WetDat, plant.day=NULL,
     maizenitroP[names(MaizeNitroControl)] <- MaizeNitroControl
     maizenitroP <- c(unlist(maizenitroP))
 
+## this is to pass NNITROP for compatibility CanAC
+    nnitroP <- canenitroParms()
+    nnitroP<-as.vector(unlist(nnitroP))
+ 
+
     ## Need a specialized phenology control
     maizephenoP <- MaizePhenoParms()
     maizephenoP[names(MaizePhenoControl)] <- MaizePhenoControl
@@ -126,7 +131,8 @@ MaizeGro <- function(WetDat, plant.day=NULL,
                  as.integer(soilP[c(7,8,10,14)]), ## Soil type and number of layers      19
                  as.double(soilP$soilDepths), ## Soil depths                       20
                  as.double(soilP$iWatCont), ## initial water status                 21
-                 as.double(seneP) ## senescence parameters                         22
+                 as.double(seneP), ## senescence parameters                         22
+                 as.double(nnitroP)
                  )
 
     ## Transform the phenology

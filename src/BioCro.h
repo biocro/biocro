@@ -31,13 +31,13 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 	    double soilcoefs[], double ileafn, double kLN, double vmaxb1,
 	    double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
 	    double centks[], int centTimestep, int soilLayers, double soilDepths[],
-	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun ,double upperT,double lowerT);
+	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun ,double upperT,double lowerT,struct nitroParms nitroP);
 
 struct Can_Str CanAC(double LAI,int DOY,int hr,double solarR,double Temp,
 		     double RH,double WindSpeed,double lat,int nlayers, double Vmax, double Alpha, 
 		     double Kparm, double theta, double beta, double Rd, double Catm, double b0, 
 		     double b1, double StomataWS, int ws, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT,double lowerT);
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT,double lowerT, struct nitroParms nitroP);
 
 struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime);
 

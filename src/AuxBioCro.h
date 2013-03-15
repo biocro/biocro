@@ -108,3 +108,20 @@ struct rd_str{
 
 struct rd_str rootDist(int layer, double rootDepth, double *depths, double rfl);
 
+struct nitroParms {
+  double ileafN;
+	double kln;
+	double Vmaxb1;
+	double Vmaxb0;
+	double alphab1;
+	double alphab0;
+	double Rdb1;
+	double Rdb0;
+	double kpLN;
+	double lnb0;
+	double lnb1;
+	int lnFun;
+	double maxln;
+        double minln;
+	double daymaxln;
+};
