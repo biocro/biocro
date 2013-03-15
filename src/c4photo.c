@@ -46,27 +46,31 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	SEXP lists, names;
 	SEXP GsV;
 	SEXP ASSV;
+  SEXP GASSV;
 	SEXP CiV;
+
 
 	nq = length(Qp);nt = length(Tl);nr = length(RH);
 
-	PROTECT(lists = allocVector(VECSXP,3));
-	PROTECT(names = allocVector(STRSXP,3));
+	PROTECT(lists = allocVector(VECSXP,4));
+	PROTECT(names = allocVector(STRSXP,4));
 
 	PROTECT(GsV = allocVector(REALSXP,nq));
 	PROTECT(ASSV = allocVector(REALSXP,nq));
+  PROTECT(GASSV = allocVector(REALSXP,nq));
 	PROTECT(CiV = allocVector(REALSXP,nq));
-
+  
 	double *pt_Qp = REAL(Qp);
 	double *pt_Tl = REAL(Tl);
 	double *pt_RH = REAL(RH);
 	double *pt_CA = REAL(CA);
+  
 	int ws = INTEGER(WS)[0];
 
 	double *pt_GSV = REAL(GsV);
 	double *pt_ASSV = REAL(ASSV);
+    double *pt_GASSV = REAL(GASSV);
 	double *pt_CiV = REAL(CiV);
-
 	/* Start of the loop */
 	for(i = 0; i < nq ; i++)
 	{
@@ -78,6 +82,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 
 		*(pt_GSV + i) = tmp.Gs;
 		*(pt_ASSV + i) = tmp.Assim;    
+    *(pt_GASSV + i) = tmp.GrossAssim; 
 		*(pt_CiV + i) = tmp.Ci;    
 /* Here it is using the REAL function every time */
 /* I should change this to a pointer too at some point */ 
@@ -86,11 +91,13 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	SET_VECTOR_ELT(lists,0,GsV);
 	SET_VECTOR_ELT(lists,1,ASSV);
 	SET_VECTOR_ELT(lists,2,CiV);
+  SET_VECTOR_ELT(lists,3,GASSV);
 	SET_STRING_ELT(names,0,mkChar("Gs"));
 	SET_STRING_ELT(names,1,mkChar("Assim"));
 	SET_STRING_ELT(names,2,mkChar("Ci"));
+  SET_STRING_ELT(names,3,mkChar("GrossAssim"));
 	setAttrib(lists,R_NamesSymbol,names);
-	UNPROTECT(5);   
+	UNPROTECT(6);   
 	return(lists);
 }
 
@@ -207,7 +214,7 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	double M1 , M2 , M ;
 	int iterCounter ;
 	double Quada , Quadb , Quadc ;
-	double a2 , Assim ;
+	double a2 , Assim ,GrossAssim;
 	double csurfaceppm ;
 	double Gs , miC = 0.0 ;
 	double diff, OldAssim = 0.0, Tol = 0.1;
@@ -336,10 +343,11 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 
 	if(Gs > 600)
 	  Gs = 600;
-
+  GrossAssim=Assim+RT;
 	tmp.Assim = Assim;
 	tmp.Gs = Gs;
 	tmp.Ci = miC;
+  tmp.GrossAssim=GrossAssim;
 	return(tmp);
 }
 
