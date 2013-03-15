@@ -1,6 +1,7 @@
 Package: BioCro
 Version: 0.6
-Title: Simulation of Energycane and Sugarcane
+Title: BioCro Crop and Agroecosystem Simulator 
+Description: Simulation of C4 Crops and Coppice Trees
 Author: Fernando Miguez <femiguez@iastate.edu>, 
         Deepak Jaiswal <djaiswal@illinois.edu>,
         Dan Wang <dwng@illinois.edu>,
@@ -10,11 +11,12 @@ Depends:
     R(>= 2.5.0),
     lattice
 Suggests:
-    coda
+    coda,
+    knitr
 Imports:
     stats,
     lattice
-Description: SugarPhenoParms function (BioCro.R) is implemented to read input
+VignetteBuilder: knitr
 License: FreeBSD + file LICENSE
 Packaged: 2013-02-26 22:31:20 UTC; djaiswal
 Collate:

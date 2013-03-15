@@ -1,25 +1,19 @@
 \documentclass[12pt]{article}
-\usepackage{Sweave}
 \usepackage{amsmath}
 \usepackage{bm}
 \usepackage[authoryear,round]{natbib}
 \bibliographystyle{plainnat}
- \DefineVerbatimEnvironment{Sinput}{Verbatim}
- {formatcom={\vspace{-2.5ex}},fontshape=sl,
-   fontfamily=courier,fontseries=b, fontsize=\scriptsize}
- \DefineVerbatimEnvironment{Soutput}{Verbatim}
- {formatcom={\vspace{-2.5ex}},fontfamily=courier,fontseries=b,%
-   fontsize=\scriptsize}
+
  
 %\VignetteIndexEntry{Introduction to BioCro}
 %\VignettePackage{BioCro}
+%\VignetteEngine{knitr}
   
 \title{Simulation and Parameter Estimation for Biomass Crops}
 \author{Fernando E. Miguez\\Department of Agronomy\\
   Iowa State University}
 \begin{document}
-\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,strip.white=TRUE}
-\SweaveOpts{include=FALSE}
+
 \setkeys{Gin}{width=\textwidth}
 \newcommand{\code}[1]{\texttt{\small{#1}}}
 \newcommand{\package}[1]{\textsf{\small{#1}}}
