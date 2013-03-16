@@ -1016,8 +1016,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 	SET_STRING_ELT(names,37,mkChar("kkfiber"));
 	SET_STRING_ELT(names,38,mkChar("kksugar"));
 	SET_STRING_ELT(names,39,mkChar("dailyThermalT"));
-        SET_VECTOR_ELT(lists,40,mkChar("moisturecontent"));
-        SET_VECTOR_ELT(lists,41,mkChar("dayafterplanting"));
+  SET_STRING_ELT(names,40,mkChar("moisturecontent"));
+  SET_STRING_ELT(names,41,mkChar("dayafterplanting"));
 	setAttrib(lists,R_NamesSymbol,names);
 	UNPROTECT(44);  /* 34= 32+2, 2 comes from the very first two PROTECT statement for variable list and name */
 
