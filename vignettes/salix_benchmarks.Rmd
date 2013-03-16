@@ -1,3 +1,9 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{BioCro fitting, parameterization, and testing}
+-->
+
+
 BioCro fitting, parameterization, and testing 
 ========================================================
 

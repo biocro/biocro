@@ -2,7 +2,7 @@
 \author{Dan Wang \and David LeBauer}
 \title{Evaluations of the C3 Canopy Photosynthesis Function in BioCro}
 \begin{document}
-
+%\VignetteEngine{knitr}
 \section{Introduction}
 
 Tests of c3photo using AQ curves measured on willow, with vcmax = 120 (2011), b1 = 6.5 (measured by Katie Richter)
