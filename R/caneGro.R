@@ -288,7 +288,7 @@ caneseneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000
 }
 
 
-canenitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=1.38, Vmax.b0=-38.5,alpha.b1=0.000349,alpha.b0=0.0166,Rd.b1=0.0216,Rd.b0=3.46,
+canenitroParms <- function(iLeafN=140, kLN=0.5, Vmax.b1=1.38, Vmax.b0=-38.5,alpha.b1=0.000349,alpha.b0=0.0166,Rd.b1=0.0216,Rd.b0=3.46,
                        kpLN=0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear"),maxln=90,minln=50,daymaxln=80){
 
   lnFun <- match.arg(lnFun)

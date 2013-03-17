@@ -22,7 +22,7 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
 	  SEXP ReH,SEXP windspeed,SEXP LAT,SEXP NLAYERS, SEXP STOMATAWS,
 	  SEXP VMAX, SEXP ALPH, SEXP KPARM, SEXP THETA, SEXP BETA,
 	  SEXP RD, SEXP B0, SEXP B1, SEXP CATM, SEXP KD, SEXP HEIGHTF, 
-	  SEXP WS, SEXP LEAFN, SEXP KPLN, SEXP LNB0, SEXP LNB1, SEXP LNFUN, SEXP CHIL,SEXP UPPERTEMP, SEXP LOWERTEMP)
+	  SEXP WS, SEXP LEAFN, SEXP KPLN, SEXP LNB0, SEXP LNB1, SEXP LNFUN, SEXP CHIL,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP)
 {
 
     double upperT=REAL(UPPERTEMP)[0];
@@ -30,7 +30,26 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
 /* Declaring the struct for the Evaop Transpiration */
    struct ET_Str tmp5_ET , tmp6_ET; 
    struct c4_str tmpc4, tmpc42; 
-
+   //NITROPARMS STRUCTURE IS PASSED and READ
+  struct nitroParms nitroparms;
+	double TEMPdoubletoint;
+	nitroparms.ileafN=REAL(NNITROP)[0];
+        nitroparms.kln=REAL(NNITROP)[1];
+	nitroparms.Vmaxb1=REAL(NNITROP)[2];
+	nitroparms.Vmaxb0=REAL(NNITROP)[3];
+	nitroparms.alphab1=REAL(NNITROP)[4];
+	nitroparms.alphab0=REAL(NNITROP)[5];
+        nitroparms.Rdb1=REAL(NNITROP)[6];
+	nitroparms.Rdb0=REAL(NNITROP)[7];
+	nitroparms.kpLN=REAL(NNITROP)[8];
+	nitroparms.lnb0=REAL(NNITROP)[9];
+	nitroparms.lnb1=REAL(NNITROP)[10];
+	TEMPdoubletoint=REAL(NNITROP)[11];
+	nitroparms.lnFun=(int)TEMPdoubletoint;
+	nitroparms.maxln=REAL(NNITROP)[12];
+	nitroparms.minln=REAL(NNITROP)[13];
+	nitroparms.daymaxln=REAL(NNITROP)[14];
+  /////////////////////////////////////////
 
   const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
 /* Need a different conversion factor for transpiration */
@@ -113,7 +132,7 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   PROTECT(epries = allocVector(REALSXP,1));
   PROTECT(cond = allocVector(REALSXP,1));
   PROTECT(Ggrowth = allocVector(REALSXP,1));
-  PROTECT(mat1 = allocMatrix(REALSXP,17,nlayers));
+  PROTECT(mat1 = allocMatrix(REALSXP,19,nlayers));
 
 
   /* Light Macro Environment. As a side effect it populates tmp1. This
@@ -151,12 +170,16 @@ layIdiff, layShade vectors. */
     {
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
 	    leafN_lay = tmp5[--tp5];
-	    if(lnfun == 0){
-		    vmax1 = REAL(VMAX)[0];
-	    }else{
-		    vmax1 = leafN_lay * lnb1 + lnb0;
-/* For now alpha is not affected by leaf nitrogen */
-	    }
+    if(lnfun == 0){
+			vmax1 = REAL(VMAX)[0];
+		}else{
+			vmax1=nitroparms.Vmaxb1*leafN_lay+nitroparms.Vmaxb0;
+			if(vmax1<0) vmax1=0.0;
+      if(vmax1>REAL(VMAX)[0]) vmax1=REAL(VMAX)[0];
+			alpha1=nitroparms.alphab1*leafN_lay+nitroparms.alphab0;
+			Rd1=nitroparms.Rdb1*leafN_lay+nitroparms.Rdb0;
+		}
+
 
 	    IDir = layIdir[--sp1];
 	    Itot = layItotal[--sp3];
@@ -185,24 +208,26 @@ layIdiff, layShade vectors. */
       GAssIdiff = tmpc42.GrossAssim;
 
     /* Collect direct radiation assim and trans in a matrix */
-	    REAL(mat1)[i*17] = IDir;
-	    REAL(mat1)[1 + i*17] = IDiff;
-	    REAL(mat1)[2 + i*17] = Leafsun;
-	    REAL(mat1)[3 + i*17] = Leafshade;
-	    REAL(mat1)[4 + i*17] = tmp5_ET.TransR;
-	    REAL(mat1)[5 + i*17] = tmp6_ET.TransR;
-	    REAL(mat1)[6 + i*17] = AssIdir;
-	    /*REAL(mat1)[7 + i*17] = AssIdiff;*/
-      REAL(mat1)[7 + i*17] = AssIdiff;
-	    REAL(mat1)[8 + i*17] = tmp5_ET.Deltat;
-	    REAL(mat1)[9 + i*17] = tmp6_ET.Deltat;
-	    REAL(mat1)[10 + i*17] = tmp5_ET.LayerCond; 
-	    REAL(mat1)[11 + i*17] = tmp6_ET.LayerCond; 
-	    REAL(mat1)[12 + i*17] = leafN_lay; 
-	    REAL(mat1)[13 + i*17] = vmax1;
-	    REAL(mat1)[14 + i*17] = rh; 
-      REAL(mat1)[15 + i*17] = GAssIdir;
-      REAL(mat1)[16 + i*17] = GAssIdiff;
+	    REAL(mat1)[i*19] = IDir;
+	    REAL(mat1)[1 + i*19] = IDiff;
+	    REAL(mat1)[2 + i*19] = Leafsun;
+	    REAL(mat1)[3 + i*19] = Leafshade;
+	    REAL(mat1)[4 + i*19] = tmp5_ET.TransR;
+	    REAL(mat1)[5 + i*19] = tmp6_ET.TransR;
+	    REAL(mat1)[6 + i*19] = AssIdir;
+	    /*REAL(mat1)[7 + i*19] = AssIdiff;*/
+      REAL(mat1)[7 + i*19] = AssIdiff;
+	    REAL(mat1)[8 + i*19] = tmp5_ET.Deltat;
+	    REAL(mat1)[9 + i*19] = tmp6_ET.Deltat;
+	    REAL(mat1)[10 + i*19] = tmp5_ET.LayerCond; 
+	    REAL(mat1)[11 + i*19] = tmp6_ET.LayerCond; 
+	    REAL(mat1)[12 + i*19] = leafN_lay; 
+	    REAL(mat1)[13 + i*19] = vmax1;
+	    REAL(mat1)[14 + i*19] = rh; 
+      REAL(mat1)[15 + i*19] = GAssIdir;
+      REAL(mat1)[16 + i*19] = GAssIdiff;
+      REAL(mat1)[17 + i*19] = alpha1;
+      REAL(mat1)[18 + i*19] = leafN_lay;
 /*      REAL(mat1)[11 + i*12] = rh;  */
     /*Layer conductance needs to be transformed back to the correct units here*/
 

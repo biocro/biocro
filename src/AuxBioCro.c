@@ -696,6 +696,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 		}else{
 			vmax1=nitroP.Vmaxb1*leafN_lay+nitroP.Vmaxb0;
 			if(vmax1<0) vmax1=0.0;
+      if(vmax1>Vmax) vmax1=Vmax;
 			Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
 			Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
 		
