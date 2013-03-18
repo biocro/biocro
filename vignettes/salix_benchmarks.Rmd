@@ -109,3 +109,42 @@ trait.summary2 <- trait.summary[with(trait.summary, rank(n + rank(trait)/1000)),
 ggplot(data = trait.summary, aes(x = trait, y = n, order = n + rank(trait)/100)) + geom_point() + geom_linerange(aes(ymin = 0, ymax = n)) #+ coord_flip() + theme_bw()
 
 ```
+
+
+### Brainstorming Notes
+
+, and  e not only the effects of collecting new data, but also changes in model performance that result from  and  and alert us if  any changes that    that monitors the effect of different model performance are developing , we have u of model   methods to enable We can then optimize data collection to most efficiently reduce uncertainty sampling approaches, we can that would be provided by 
+  in a it research is often targeted at the is often the scientific sources that are often both the most interesting and the most difficult to address.
+
+  Many attempts to reduce uncertainty focus on areas of active research, but in many cases there are existing   edge science and   and development of better conceptual models, and such activities are easily identified as scientific endeavors.
+  But some uncertainty is more technical than scientific.
+  It is less interesting, often ignored, and can be scale from persistent irritation to a major obstacle as the size and complexity of data and models increase.
+  But at all scales, technical sources of uncertainty can be the most straightforward to address through the adoption of practices from software engineering with demonstrated efficacy and often straightforward to automate.
+
+  Inference is often made with the assumption that our software is working as expected, and that the meaning of an observation is conserved from biological process to observation and model implementation.  
+  Such assumptions about the meaning of observations and computational models are unavoidable, but in many cases they are testable.
+
+  Here we are going to briefly explore the use of  results that have been  with well known abilities to  reduce uncertainty but  assumed to represent the underlying biological processes, but it is 
+  The fields of computer science and informatics provide tools to help minimize this uncertainty.
+  We will introduce and review some of these methods and provide examples of how they can make research more efficient and precise.
+
+  We propose that these methods can be the source of a more focused, efficient scientific workflow that allocates repetitive tasks to the computer while making it easier for all to understand, critique, and revise the underlying scientific assumptions.
+
+  We will describe three types of uncertainty that can be minimized through the application of known solutions. 
+  First, there is the uncertainty associated with the translation of a conceptual model to a computer program or data structure. 
+  This can be reduced through a heirarchy of automated tests that encode the expectated behavior or attributes. 
+  Although they take effor to conceive, such ongoing tests 
+  We test software each time it is modified to ensure that still exibits expected behavior. 
+   enforce the maintenance of existing capabilities and standard benchmark data sets to evaluate model performance and guide developent.
+  Second, we facilitate collaboration and peer review through examples and documentation.
+  Third, we use version control, meta-data, issue  that can be used to test model performance and improvements or potential errors introduced during the development process.
+
+
+  
+
+
+* Results
+  - We will take a quick tour of analyses that have benefitted from improved accuracy and efficiency as a result of applying these principles to our collaborative research and software development.
+    1. Model Development
+       - Tests of expected functionality and benchmarking of model results against a consistent set of observations has improved the efficiency of model development and applications.
+       - Using benchmarks to compare different models or different versions of the same model helps choose a model that is best and inform the integration of crop and biogeochemical models  merged and developed models Through testing and benchmarking we have used a combination of addition of crop model 
