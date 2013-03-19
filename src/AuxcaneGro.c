@@ -333,9 +333,7 @@ struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTsee
 
 double GrowthRespiration(double CanopyA, double fraction) 
 {
-	double RespLost;
-	RespLost=CanopyA*fraction;
-	CanopyA=CanopyA-RespLost;
+	CanopyA=CanopyA*(1.0-fraction);
 	return(CanopyA);
 }
 

@@ -277,6 +277,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,iRhizome=1.0,
                    lat=40,iPlant=1,irtl=1e-4,
                    canopyControl=list(),
+                      willowcanopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
                    willowphenoControl=list(),
@@ -322,6 +323,9 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
 
     ## Getting the Parameters
+    willowcanopyP<-willowcanopyParms()
+    willowcanopyP[names(willowcanopyControl)]<-willowcanopyControl
+    willowcanopyP<-c(unlist(willowcanopyP))
     
     iPlant <-iwillowParms()
     iPlant[names(iPlantControl)]<-iPlantControl
@@ -404,7 +408,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     ws <- 0
     beta <- 0
     #ws <- photoP$ws
-    o2 <- photoP$o2
+    o2 <- photoP$O2
     #upperT<-photoP$UPPERTEMP
     #lowerT<-photoP$LOWERTEMP
     upperT<-0
@@ -472,7 +476,8 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(lowerT),
                  as.double(jmax),
                  as.double(jmaxb1),
-                 as.double(o2)
+                 as.double(o2),
+                as.double(willowcanopyP)
     )
     
     res$cwsMat <- t(res$cwsMat)
@@ -490,8 +495,9 @@ iwillowParms<-function(iRhizome=1,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.001
 
 
 willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
-                        kd = 0.37, chi.l = 1,
-                        mResp=c(0.02,0.03), heightFactor=3){
+                              kd = 0.1, chi.l = 1,
+                              Growthresp=0.25,Qleaf=1.58, Qstem=1.80, Qroot=1.80,Qrhizome=1.80,mRespleaf=0.012,
+                              mRespstem=0.004,mResproot=0.0088,mResprhizome=0.0088, heightFactor=3.0){
   
   if((nlayers < 1) || (nlayers > 50))
     stop("nlayers should be between 1 and 50")
@@ -503,8 +509,8 @@ willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
     stop("heightFactor should be positive")
   
   list(Sp=Sp,SpD=SpD,nlayers=nlayers,kd=kd,chi.l=chi.l,
-       mResp=mResp, heightFactor=heightFactor)
-  
+       Growthresp=Growthresp,Qleaf=Qleaf, Qstem=Qstem, Qroot=Qroot,Qrhizome=Qrhizome,mRespleaf=mRespleaf,
+       mRespstem=mRespstem,mResproot=mResproot,mResprhizome=mResprhizome, heightFactor=heightFactor)
 }
 
 willowphotoParms <- function(vmax = 100, jmax = 180, Rd = 1.1, Catm = 380, O2 = 210, 
