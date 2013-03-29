@@ -80,7 +80,8 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP LOWERTEMP,
       SEXP JMAX,
       SEXP JMAXB1,
-      SEXP O2)           /*temperature Limitation photoParms */
+      SEXP O2,
+      SEXP GROWTHRESP)           /*temperature Limitation photoParms */
 {
 	double newLeafcol[8760];
 	double newStemcol[8760];
@@ -124,6 +125,8 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	double mrc1 = REAL(MRESP)[0];
 	double mrc2 = REAL(MRESP)[1]; 
 
+  double GrowthRespFraction = REAL(GROWTHRESP)[0];
+  
 	double waterCont;
 	double StomWS = 1, LeafWS = 1;
 	int timestep;
@@ -382,6 +385,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
+    CanopyA=(1.0-GrowthRespFraction)*CanopyA;
 		CanopyT = Canopy.Trans * timestep;
 
 		/* Inserting the multilayer model */

@@ -416,6 +416,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
     nlayers <- canopyP$nlayers
+    GrowthRespFraction <- canopyP$GrowthRespFraction
     res <- .Call("willowGro",
                  as.double(lat),
                  as.integer(doy),
@@ -472,7 +473,8 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(lowerT),
                  as.double(jmax),
                  as.double(jmaxb1),
-                 as.double(o2)
+                 as.double(o2),
+                 as.double(GrowthRespFraction)
     )
     
     res$cwsMat <- t(res$cwsMat)
@@ -489,9 +491,9 @@ iwillowParms<-function(iRhizome=1,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.001
 }
 
 
-willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
+canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
                         kd = 0.37, chi.l = 1,
-                        mResp=c(0.02,0.03), heightFactor=3){
+                        mResp=c(0.02,0.03), heightFactor=3,GrowthRespFraction=0.25){
   
   if((nlayers < 1) || (nlayers > 50))
     stop("nlayers should be between 1 and 50")
@@ -503,7 +505,7 @@ willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
     stop("heightFactor should be positive")
   
   list(Sp=Sp,SpD=SpD,nlayers=nlayers,kd=kd,chi.l=chi.l,
-       mResp=mResp, heightFactor=heightFactor)
+       mResp=mResp, heightFactor=heightFactor,GrowthRespFraction=GrowthRespFraction)
   
 }
 
