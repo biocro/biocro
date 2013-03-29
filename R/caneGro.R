@@ -8,7 +8,9 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                    soilControl=list(),
                    nitroControl=list(),
                    canephenoControl=list(),
-                   centuryControl=list())
+                   centuryControl=list(),
+                   managementControl=list()
+)
   {
 
     
@@ -71,7 +73,11 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
 
     centuryP <- centuryParms()
     centuryP[names(centuryControl)] <- centuryControl
-
+    
+    manage<-managementParms()
+    manage[names(managementControl)] <-managementControl
+    irrigationfactor<-as.vector(unlist(manage))
+    
     tint <- 24 / timestep
     vecsize <- (dayn - (day1-1)) * tint
     indes1 <- (day1-1) * tint
@@ -85,10 +91,8 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     windspeed <- WetDat[indes1:indesn,7]
     precip <- WetDat[indes1:indesn,8]
 
-    if(max(rh) > 1)
-      stop("Rel Hum. should be 0 < rh < 1")
-    if((min(hr) < 0) | (max(hr) > 23))
-      stop("hr should be between 0 and 23")
+    if(max(rh) > 1) stop("Rel Hum. should be 0 < rh < 1")
+    if((min(hr) < 0) | (max(hr) > 23)) stop("hr should be between 0 and 23")
     
     DBPcoefs <- valid_dbp(as.vector(unlist(phenoP)[7:31]))
 
@@ -134,6 +138,9 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
     nlayers <- canopyP$nlayers
+    
+  
+    
     
     res <- .Call("caneGro",
                  as.double(lat),
@@ -197,7 +204,8 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(seneP$leafremobilizefraction),
                  as.integer(optiontocalculaterootdepth),
                  as.double(rootfrontvelocity),
-                 as.double(nnitroP)
+                 as.double(nnitroP),
+                 as.double(irrigationfactor)
                  )
     
     res$cwsMat <- t(res$cwsMat)
@@ -208,6 +216,7 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$psimMat) <- soilP$soilDepths[-1]
     structure(res,class="caneGro")
   }
+
 canesoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
                       soilType=6, soilLayers=1, soilDepths=NULL, hydrDist=0,
                       wsFun=c("linear","logistic","exp","none","lwp"),
@@ -300,4 +309,9 @@ canenitroParms <- function(iLeafN=140, kLN=0.5, Vmax.b1=1.38, Vmax.b0=-38.5,alph
   list(iLeafN=iLeafN, kLN=abs(kLN), Vmax.b1=Vmax.b1, Vmax.b0=Vmax.b0,alpha.b1=alpha.b1, alpha.b0=alpha.b0,Rd.b1=Rd.b1,Rd.b0=Rd.b0,kpLN=kpLN,
        lnb0 = lnb0, lnb1 = lnb1, lnFun = lnFun,maxln=maxln,minln=minln,daymaxln=daymaxln)
 
+}
+
+
+managementParms <-function (irrigationFactor=0.0){
+  list(irrigationFactor=irrigationFactor)
 }

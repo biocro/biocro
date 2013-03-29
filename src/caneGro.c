@@ -87,7 +87,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP LEAFREMOBILIZE,     /*fraction of leaf remobilzed upon senescence */ 
 	    SEXP OPTIONTOCALCULATEROOTDEPTH,
 	     SEXP ROOTFRONTVELOCITY,
-            SEXP NNITROP
+            SEXP NNITROP,
+            SEXP IRRIG
 	)
 {
 
@@ -217,7 +218,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 	double rootrate = REAL(ROOTTURNOVER)[0];
 
 	/* Variables for Respiration Calculations. I am currently using hard coded values. I shall write a function that can takes these values as input. I have used optim function and data from Liu to get these values. */
-        double gRespCoeff=0.242;/*This is constant fraction to calculate Growth respiration from DSSAT*/
+        double gRespCoeff=0.15;/*This is constant fraction to calculate Growth respiration from DSSAT*/
         double Qleaf=1.58, Qstem=1.80, Qroot=1.80; /* Q factors for Temp dependence on Maintenance Respiration*/
 	double mRespleaf=0.012,mRespstem=0.004,mResproot=0.0088;
 	double mResp;
@@ -444,6 +445,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 	double dap;
 
 	double rootlitter,deadroot,leaflitter,deadleaf,leafREMOB;
+  double remobilizedleaf;
+  double Remobfactorleaf=0.5;
 	double Fiber,newFiber;
 	double kSugar,kFiber,SeedcaneResp,Seedcane,newSeedcane,dailySeedcaneResp;
 	double LAIold,LAInew;
@@ -463,7 +466,14 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 			TT12c = TT12c;
 			delTT=0.0;
 		}
-               
+     // Adjusting rain based on irrigation amount
+    //   Rprintf("%f\n",REAL(IRRIG)[0]);
+       if (REAL(IRRIG)[0]>0) {
+       TotEvap*=0.01; //To convert total ET loss from Mg/ha to mm
+       *(pt_precip+i)+=(TotEvap*REAL(IRRIG)[0]);
+      }
+     
+     
 		if((*(pt_temp+i))>= 12)
                 {
 			TT12c = TT12c + (*(pt_temp+i)-12) / (24/timestep);
@@ -490,24 +500,11 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 /* This is an addition, which was omitted earlier */
 /* WIMOVAC suggestsevaluating A grodd = Anet + Rd before proceeding with further calculations */
 
-/* Here, I am calling CanAC again with zero PAR. This, theoretically should simulate dark respiration  (due to Rd term) and give us a negative CanAC. I will add this value to net assimilation rate of canopy to obtain gross canopy assimilation. */
-
-           	CanopyRd = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-			       0.0, *(pt_temp+i),
-			       *(pt_rh+i), *(pt_windspeed+i),
-			       lat, nlayers,
-			       vmax1,alpha1,kparm1,
-			       theta,beta,Rd1,Ca,b01,b11,StomWS,
-			       ws, kd,
-			       chil, hf,
-				 LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
-
-		Canopy.Assim = Canopy.Assim-CanopyRd.Assim; // I am subtracting because CanopyRd.Assim is less than zero
-
 /* A better way to evaluate gross canopy assimilation would be to evaluate for individual layer in CanAC functions using leaf temperature. However, this will require changing CanAC functon, which I do not want to distrub for now.
 
 		/* Collecting the results */
-		CanopyA = Canopy.Assim * timestep;
+//		CanopyA = Canopy.Assim * timestep;
+    CanopyA = Canopy.GrossAssim * timestep;
 		CanopyT = Canopy.Trans * timestep;
 
                 /* summing up hourly results to obtain daily assimilation */
@@ -518,7 +515,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 		 /*Evaluate maintenance Respiration of different plant organs */
 		   LeafResp=MRespiration(Leaf, Qleaf, mRespleaf, *(pt_temp+i), timestep);
 		   REAL(Leafmaintenance)[i]=LeafResp;
-		   StemResp=MRespiration(Fiber, Qstem, mRespstem, *(pt_temp+i), timestep);
+		   StemResp=MRespiration(Stem, Qstem, mRespstem, *(pt_temp+i), timestep);
                    REAL(Stemmaintenance)[i]=StemResp;
 	           RootResp=MRespiration(Root, Qroot, mResproot, *(pt_temp+i), timestep);
 		     REAL(Rootmaintenance)[i]=RootResp;
@@ -652,43 +649,17 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
 		        	if(kLeaf >= 0)
 				{
-					newLeaf =  dailyassim * kLeaf;
-					if(newLeaf>=dailyLeafResp)
-					{
-					 newLeaf=newLeaf-dailyLeafResp;
-					}
-					else
-					{
-					  newLeaf=0.0;
-                                        }
-
-					
-                                       /*                      newLeaf = CanopyA * kLeaf * LeafWS ;         
-
-				      /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
-			              Plant. Phys. 46, 233-235. For this the water stress coefficient is different
-			              for leaf and vmax. */
-			              /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
-			                /* The 0.02 and 0.03 are constants here but vary depending on species
-			                 as pointed out in that reference. */
-
-                                        /*			newLeaf = resp(newLeaf, mrc1, *(pt_temp+i));  */
-                       
-			                       if(newLeaf>0) 
-					        {
-		      	                       *(sti+i) = newLeaf; 
-                                                } 
-					                                                     
-		                  }
+					newLeaf =  dailyassim * kLeaf-dailyLeafResp;
+			    *(sti+i) = newLeaf; 
+                                         
+			 }
 				  else
 				  {
-
-					  newLeaf = Leaf * kLeaf ; /* This is not suppposed to happen for sugarcane */
 					  warning("kleaf is negative");
-                                  }
+          }
                 
 		
-		                 if(TT12c < SeneLeaf)
+		     if(TT12c < SeneLeaf)
 				 {
 				   Leaf += newLeaf;
 				   leaflitter=leaflitter+0.0;
@@ -697,46 +668,25 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 				 else
 				 {
 				 deadleaf=(leafrate*Leaf)/100.0;  /* biomass of dead leaf */
-				 leaflitter=leaflitter+deadleaf; /*40% of dead leaf goes to leaf litter */
-				 Leaf =Leaf+newLeaf-deadleaf;
+         remobilizedleaf<-deadleaf*Remobfactorleaf;
+				 leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
+				 Leaf =Leaf+newLeaf-deadleaf+remobilizedleaf*33;
+         Stem=Stem+remobilizedleaf*0.33;
+         Root=Root+remobilizedleaf*0.33;
 				 REAL(LeafLittervec)[dayi]= leaflitter; /* Collecting the leaf litter */ 
 				 /*	 REAL(LeafLittervec)[dayi]=Litter * 0.4;  */ /* Collecting the leaf litter */       
 				 }
-
-				
-
 				  if(kStem >= 0)
 				  {
-				        newStem =  dailyassim * kStem ;
-					newSugar= dailyassim *kSugar;
-					newFiber=dailyassim *kFiber;
-					if(newStem>=dailyStemResp)
-					{
-					 newStem=newStem-dailyStemResp;
-					}
-					else
-					{
-					  newStem=0.0;
-					  	newSugar= 0;
-						newFiber=0;
-					  
-					  //  newSugar=newStem-dailyStemResp; //Stem growth can not be negative. Set it zero and rest is taken care by sugar
-                                        }
-
-					  /***
-					  else
-					  {
-						  newStem=0; 
-					  }
-					  ***/
+				  newStem =  dailyassim* kStem-dailyStemResp ;
+					newSugar= dailyassim *kSugar-dailyStemResp*(kSugar/kStem);
+					newFiber=dailyassim *kFiber-dailyStemResp*(kFiber/kStem);
 				  }
 				  else
 				  {
-					  error("kStem should be positive");
+					  warning("kstem is negative");
 				  }
                 
-               
-
 				  if(TT12c < SeneStem)
 				  {
 				   Stem += newStem;
@@ -750,41 +700,31 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 				       Sugar=Sugar+newSugar;
 					  
 				  }
-
-			         if(kRoot >= 0)
-		                 {
-			               
-					newRoot =  dailyassim * kRoot ;
-					if(newRoot>=dailyRootResp)
-					{
-					 newRoot=newRoot-dailyRootResp;
-					}
-					else
-					{
-					  newRoot=0.0;
-					  newSugar=newRoot-dailyRootResp; //Stem growth can not be negative. Set it zero and rest is taken care by sugar
-                                        }
-			                   if(newRoot>0)
-			                   {
-		                            *(sti3+i) = newRoot;
-			                   }
-					   /***
-					   else
-					   {
-						   newRoot=0;
-				            }
-					   ***/
-		                 }
+           if(kRoot >= 0)
+		      {           
+					 newRoot =  dailyassim * kRoot ;
+      					 if(newRoot>=dailyRootResp)
+      					  {
+      					   newRoot=newRoot-dailyRootResp;
+                    *(sti3+i) = newRoot;
+      					  }
+      					else
+      					{
+      					  newRoot=0.0;
+      					  newSugar=newRoot-dailyRootResp; //Stem growth can not be negative. Set it zero and rest is taken care by sugar
+                }
+			 
+		      }
 				 else
 				 {
-					 newRoot = Root * kRoot ;
+					  error("kRoot should be positive");
 				 }
 
 	
 				 if(TT12c < SeneRoot)
 				 {
 				   Root += newRoot;
-                                   rootlitter=0.0;
+           rootlitter=0.0;
 				   REAL(RootLittervec)[dayi]= rootlitter;
 				  
 				 }
