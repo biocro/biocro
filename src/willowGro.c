@@ -113,6 +113,11 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	double TTc = 0.0;
 	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
 	double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
+ 
+
+
+
+
 
 	/* Variables needed for collecting litter */
 	double LeafLitter = REAL(CENTCOEFS)[20], StemLitter = REAL(CENTCOEFS)[21];
@@ -130,6 +135,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	double waterCont;
 	double StomWS = 1, LeafWS = 1;
 	int timestep;
+  int A, B;
 	double CanopyA, CanopyT;
 
 	double Rhizome;
@@ -170,7 +176,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	double Resp = 0.0;
 	int centTimestep = INTEGER(CENTTIMESTEP)[0];
 
-	double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0 ;
+	double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0, Tfrosthigh, Tfrostlow, leafdeathrate, Deadleaf;
 	double *sti , *sti2, *sti3, *sti4; 
 	double Remob;
 	int k = 0, q = 0, m = 0, n = 0;
@@ -294,6 +300,10 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	SeneStem = REAL(SENCOEFS)[1];
 	SeneRoot = REAL(SENCOEFS)[2];
 	SeneRhizome = REAL(SENCOEFS)[3];
+  Tfrosthigh = REAL(SENCOEFS)[4];
+  Tfrostlow = REAL(SENCOEFS)[5];
+	leafdeathrate = REAL(SENCOEFS)[6];
+
 
 	/* Soil Parameters */
 	FieldC = REAL(SOILCOEFS)[0];
@@ -547,7 +557,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
  		MinNitro = MinNitro - LeafN * (Stem + Leaf) * 1e-1;
  		if(MinNitro < 0) MinNitro = 1e-3;
 
-		if(kLeaf > 0)
+		if(kLeaf >= 0)
 		{
 			newLeaf = CanopyA * kLeaf * LeafWS ; 
 			/*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
@@ -562,12 +572,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 					       to use i because when kLeaf is negative no new leaf is
 					       being accumulated and thus would not be subjected to senescence */
 		}else{
-
-			newLeaf = Leaf * kLeaf ;
-			Rhizome += kRhizome * -newLeaf * 0.9; /* 0.9 is the efficiency of retranslocation */
-			Stem += kStem * -newLeaf   * 0.9;
-			Root += kRoot * -newLeaf * 0.9;
-			Grain += kGrain * -newLeaf * 0.9;
+         error("kLeaf should be positive");
 		}
 
 		if(TTc < SeneLeaf){
@@ -575,19 +580,33 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 			Leaf += newLeaf;
 
 		}else{
-    
-			Leaf += newLeaf - *(sti+k); /* This means that the new value of leaf is
-						       the previous value plus the newLeaf
-						       (Senescence might start when there is
-						       still leaf being produced) minus the leaf
-						       produced at the corresponding k.*/
-			Remob = *(sti+k) * 0.6 ;
-			LeafLitter += *(sti+k) * 0.4; /* Collecting the leaf litter */ 
+      A = REAL(LAT)[0]>=0.0;
+      B = *(pt_doy+i)>=180.0 ;
+      
+      if((A && B)||((!A) && (!B)))
+      {
+      
+      // Here we are checking/evaluating frost kill
+      
+      if (*(pt_temp+i) < Tfrosthigh) {
+        leafdeathrate = 100*(*(pt_temp+i) -Tfrosthigh)/(Tfrostlow-Tfrosthigh);
+        leafdeathrate = (leafdeathrate >100.0)?100.0:leafdeathrate;
+      }
+      else {leafdeathrate =0.0;}
+         Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+      Deadleaf=Leaf*leafdeathrate*(0.01/24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
+			Remob = Deadleaf * 0.6;
+			LeafLitter += (Deadleaf-Remob); /* Collecting the leaf litter */ 
 			Rhizome += kRhizome * Remob;
-			Stem += kStem * Remob; 
+			Stem += kStem * Remob;
 			Root += kRoot * Remob;
 			Grain += kGrain * Remob;
+      newLeaf= newLeaf-Deadleaf + (kLeaf * Remob);
 			k++;
+//      Rprintf("%f,%f,%f,%f\n",leafdeathrate,Deadleaf,Remob,Leaf);
+//      error("stop");
+      }
+      Leaf+=newLeaf;
 		}
 
 		/* The specific leaf area declines with the growing season at least in
@@ -610,7 +629,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 			newStem = resp(newStem, mrc1, *(pt_temp+i));
 			*(sti2+i) = newStem;
 		}else{
-			error("kStem should be positive");
+		  error("kStem should be positive");
 		}
 
 		if(TTc < SeneStem){

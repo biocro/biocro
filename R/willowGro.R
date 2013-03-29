@@ -326,7 +326,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     iPlant <-iwillowParms()
     iPlant[names(iPlantControl)]<-iPlantControl
     
-    canopyP <- canopyParms()
+    canopyP <- willowcanopyParms()
     canopyP[names(canopyControl)] <- canopyControl
     
     soilP <- soilParms()
@@ -342,7 +342,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     photoP <- c3photoParms()
     photoP[names(photoControl)] <- photoControl
 
-    seneP <- seneParms()
+    seneP <- willowseneParms()
     seneP[names(seneControl)] <- seneControl
 
     centuryP <- centuryParms()
@@ -491,7 +491,7 @@ iwillowParms<-function(iRhizome=1,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.001
 }
 
 
-canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
+willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
                         kd = 0.37, chi.l = 1,
                         mResp=c(0.02,0.03), heightFactor=3,GrowthRespFraction=0.25){
   
@@ -600,9 +600,9 @@ willowphenoParms <- function(tp1=508, tp2=1312, tp3=2063, tp4=2676, tp5=3939, tp
   
 }
 
-willowseneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
+willowseneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000,Tfrosthigh=2,Tfrostlow=0,leafdeathrate=1){
   
-  list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome)
+  list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome,Tfrosthigh=Tfrosthigh,Tfrostlow=Tfrostlow,leafdeathrate=leafdeathrate)
   
 }
 
