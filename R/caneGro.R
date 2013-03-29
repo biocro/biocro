@@ -208,7 +208,6 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$psimMat) <- soilP$soilDepths[-1]
     structure(res,class="caneGro")
   }
-
 canesoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
                       soilType=6, soilLayers=1, soilDepths=NULL, hydrDist=0,
                       wsFun=c("linear","logistic","exp","none","lwp"),
