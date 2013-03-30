@@ -296,7 +296,7 @@ double TempToSWVC(double Temp)
 /* EvapoTrans function */
 struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
                          double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
-                         double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12,double upperT,double lowerT)
+                         double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12,double upperT,double lowerT, double Catm)
 {
         /* creating the structure to return */
         struct ET_Str tmp;
@@ -360,7 +360,7 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         /*' Convert light assuming 1 µmol PAR photons = 0.235 J/s Watts*/
         totalradiation = Itot * 0.235;
 
-        tmpc4 = c4photoC(Itot,Airtemperature,RH,vmax2,alpha2,kparm,theta,beta,Rd2,b02,b12,StomataWS, 380, ws,upperT,lowerT); 
+        tmpc4 = c4photoC(Itot,Airtemperature,RH,vmax2,alpha2,kparm,theta,beta,Rd2,b02,b12,StomataWS, Catm, ws,upperT,lowerT); 
         LayerConductance = tmpc4.Gs;
 
         /* Convert mmoles/m2/s to moles/m2/s
@@ -707,7 +707,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 pLeafsun = layFsun[--sp4];
                 CanHeight = layHeight[--sp6];
                 Leafsun = LAIc * pLeafsun;
-                tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT);
+                tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
                 TempIdir = Temp + tmp5_ET.Deltat;
                 tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdir = tmpc4.Assim;
@@ -716,14 +716,17 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 IDiff = layIdiff[--sp2];
                 pLeafshade = layFshade[--sp5];
                 Leafshade = LAIc * pLeafshade;
-                tmp6_ET = EvapoTrans(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT);
+                tmp6_ET = EvapoTrans(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
                 TempIdiff = Temp + tmp6_ET.Deltat;
                 tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdiff = tmpc42.Assim;
     GAssIdiff = tmpc42.GrossAssim;
                 CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
     GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
-                CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+// I am evaluating CanopyT using Penman Method because it gives realistic results
+// IN future canopyT needs to be fixed
+//                CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+                CanopyT += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman;
         }
         /*## These are micro mols of CO2 per m2 per sec for Assimilation
           ## and mili mols of H2O per m2 per sec for Transpiration

@@ -811,13 +811,16 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
                     // Here, I am checking for maximum LAI based on minimum SLN = 50 is required
 		    // If LAI > LAI max then additional senescence of leaf take place
-		laimax=(-1)*log((30.0/LeafN))/(kpLN);
+		laimax=(-1)*log((50.0/LeafN))/(kpLN);
 				 if(LAI>laimax)
 				 {
 					 LAI=laimax;
 					 deadleaf=(LAI-laimax)/Sp;  /* biomass of dead leaf */
-				         Leaf=Leaf-deadleaf;
-					 leaflitter=leaflitter+deadleaf;
+            remobilizedleaf<-deadleaf*Remobfactorleaf;
+  			 leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
+				 Leaf =Leaf-deadleaf+remobilizedleaf*33;
+         Stem=Stem+remobilizedleaf*0.33;
+         Root=Root+remobilizedleaf*0.33;
 				 }
 					 
 					 
