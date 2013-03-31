@@ -1,3 +1,5 @@
+## BioCro/R/caneGro.R by Deepak Jaiswal 
+
 caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,
                    lat=40,iRhizome=7,irtl=1e-4,

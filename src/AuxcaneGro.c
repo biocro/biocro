@@ -323,7 +323,7 @@ struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTsee
 		dbp.kStem=Astem;
 		dbp.kRoot=Ar;
 		dbp.kSugar=Asuc;
-		dbp.kFiber=Afib;
+		dbp.kFiber=Astuc;
 //	        dbp.kSeedcane=-0.00005;	
 	return(dbp);
 }

@@ -17,7 +17,7 @@ test_that("WillowGro function produces reasonable results",{
 
 test_that("WillowGro function produces expected results",{
   data(weather05)
-  for(biocrofn in c("willowGro", "BioGro")){
+  for(biocrofn in c("willowGro", "BioGro", "caneGro")){
     
     res0 <- do.call(biocrofn, list(weather05))
     res1 <- do.call(biocrofn, list(weather05, soilControl = soilParms(soilLayers = 6)))
