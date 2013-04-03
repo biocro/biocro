@@ -59,7 +59,7 @@ timet <- utcal.nc("hours since 1800-01-01 00:00:00",time)
 hr <- timet[,4]
 day <- rep(1:365,each=8)
 
-setwd("/home/djaiswal/Simulations/USA/willow/")
+setwd("/home/djaiswal/Simulations/USA/willow")
 
 for(i in 1:dim(lat)[1]){
 
@@ -166,7 +166,7 @@ for(i in 1:dim(lat)[1]){
                               kStem4=0.7, kLeaf4=0.15, kRoot4=0.075, kRhizome4=0.075, 
                               kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
                               kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15)
-      iplant0 <-iwillowParms(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
+    
       
       ## Growing season 1
       Stem <- numeric(nrow(csoil))
@@ -200,8 +200,7 @@ for(i in 1:dim(lat)[1]){
                                FieldC=fieldc,WiltP=wiltp,
                                soilDepth=mdep, wsFun="linear", phi2=5, soilLayers=1)
        iplant <-iwillowParms(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-       res1 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant,soilControl=soil.ll)
+       res1 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,iPlantControl=iplant,soilControl=soil.ll)
        Leaf[q]<-res1$Leaf[length(res1$Leaf)]
        Stem[q]<-res1$Stem[length(res2$Stem)]
        Root[q]<-res1$Root[length(res1$Root)]
@@ -249,8 +248,7 @@ for(i in 1:dim(lat)[1]){
         iRoot=root1
         iRhizome=rhiz1
         iplant <-iwillowParms(iRhizome=iRhizome,iStem=iStem,iLeaf=0.0,iRoot=iRoot,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-        res2 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant,soilControl=soil.ll)
+        res2 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,iPlantControl=iplant,soilControl=soil.ll)
         Leaf[q]<-res2$Leaf[length(res2$Leaf)]
         Stem[q]<-res2$Stem[length(res2$Stem)]
         Root[q]<-res2$Root[length(res2$Root)]
@@ -298,8 +296,7 @@ for(i in 1:dim(lat)[1]){
         iRoot=root2
         iRhizome=rhiz2
         iplant <-iwillowParms(iRhizome=iRhizome,iStem=iStem,iLeaf=0.0,iRoot=iRoot,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-        res3 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant,soilControl=soil.ll)
+        res3 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,iPlantControl=iplant,soilControl=soil.ll)
         Leaf[q]<-res3$Leaf[length(res3$Leaf)]
         Stem[q]<-res3$Stem[length(res3$Stem)]
         Root[q]<-res3$Root[length(res3$Root)]
@@ -347,8 +344,7 @@ for(i in 1:dim(lat)[1]){
         iRoot=root3
         iRhizome=rhiz3
         iplant <-iwillowParms(iRhizome=iRhizome,iStem=iStem,iLeaf=0.0,iRoot=iRoot,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-        res4 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant,soilControl=soil.ll)
+        res4 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,iPlantControl=iplant,soilControl=soil.ll)
         Leaf[q]<-res4$Leaf[length(res4$Leaf)]
         Stem[q]<-res4$Stem[length(res4$Stem)]
         Root[q]<-res4$Root[length(res4$Root)]
@@ -396,8 +392,7 @@ for(i in 1:dim(lat)[1]){
         iRoot=root4
         iRhizome=rhiz4
         iplant <-iwillowParms(iRhizome=iRhizome,iStem=iStem,iLeaf=0.0,iRoot=iRoot,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-        res5 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant,soilControl=soil.ll)
+        res5 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,iPlantControl=iplant,soilControl=soil.ll)
         Leaf[q]<-res5$Leaf[length(res5$Leaf)]
         Stem[q]<-res5$Stem[length(res5$Stem)]
         Root[q]<-res5$Root[length(res5$Root)]
@@ -408,6 +403,12 @@ for(i in 1:dim(lat)[1]){
       leaf5<-sum(Leaf*weights,na.rm=TRUE)
       root5<-sum(Root*weights,na.rm=TRUE)
       rhiz5<-sum(Rhizome*weights,na.rm=TRUE)
+
+      avgStem<-(stem1+stem5)*0.95*(1/5)  # 0.95 is fraction of stem removed via coppicing and (1/5) is convert to avergae annual yield based on 5 yr cycle
+      avgLeaf<-(leaf1+leaf5)*0.95*(1/5)  
+      avgRoot<-(stem1+stem5)*0.95*(1/5)  
+      avgRhiz<-(rhiz1+rhiz5)*0.95*(1/5) 
+
       
       resS <- data.frame(loc=loc,Lat=lati,Lon=long,
                          Stem1=stem1, Leaf1=leaf1,Root1=root1,Rhiz1=rhiz1,
@@ -427,7 +428,6 @@ for(i in 1:dim(lat)[1]){
   }
 }
 
-setwd("/home/miguez/USsim/data")
 
 close.nc(airT)
 close.nc(rhum)
