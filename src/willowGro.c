@@ -81,8 +81,12 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
       SEXP JMAX,
       SEXP JMAXB1,
       SEXP O2,
+<<<<<<< HEAD
      SEXP willowcanopyP
       )           /*temperature Limitation photoParms */
+=======
+      SEXP GROWTHRESP)           /*temperature Limitation photoParms */
+>>>>>>> phenology2
 {
 	double newLeafcol[8760];
 	double newStemcol[8760];
@@ -140,6 +144,11 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 	double TTc = 0.0;
 	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
 	double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
+ 
+
+
+
+
 
 	/* Variables needed for collecting litter */
 	double LeafLitter = REAL(CENTCOEFS)[20], StemLitter = REAL(CENTCOEFS)[21];
@@ -152,9 +161,12 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 	double mrc1 = REAL(MRESP)[0];
 	double mrc2 = REAL(MRESP)[1]; 
 
+  double GrowthRespFraction = REAL(GROWTHRESP)[0];
+  
 	double waterCont;
 	double StomWS = 1, LeafWS = 1;
 	int timestep;
+  int A, B;
 	double CanopyA, CanopyT;
 
 	double Rhizome;
@@ -195,7 +207,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 	double Resp = 0.0;
 	int centTimestep = INTEGER(CENTTIMESTEP)[0];
 
-	double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0 ;
+	double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0, Tfrosthigh, Tfrostlow, leafdeathrate, Deadleaf;
 	double *sti , *sti2, *sti3, *sti4; 
 	double Remob;
 	int k = 0, q = 0, m = 0, n = 0;
@@ -319,6 +331,10 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 	SeneStem = REAL(SENCOEFS)[1];
 	SeneRoot = REAL(SENCOEFS)[2];
 	SeneRhizome = REAL(SENCOEFS)[3];
+  Tfrosthigh = REAL(SENCOEFS)[4];
+  Tfrostlow = REAL(SENCOEFS)[5];
+	leafdeathrate = REAL(SENCOEFS)[6];
+
 
 	/* Soil Parameters */
 	FieldC = REAL(SOILCOEFS)[0];
@@ -413,6 +429,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
+    CanopyA=(1.0-GrowthRespFraction)*CanopyA;
 		CanopyT = Canopy.Trans * timestep;
 //    Rprintf("before growhh reps, canA is = %e, & fractional loss is = %f\n",CanopyA,gRespCoeff);
     CanopyA =GrowthRespiration(CanopyA, gRespCoeff);
@@ -575,7 +592,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
  		MinNitro = MinNitro - LeafN * (Stem + Leaf) * 1e-1;
  		if(MinNitro < 0) MinNitro = 1e-3;
 
-		if(kLeaf > 0)
+		if(kLeaf >= 0)
 		{
        Rprintf("BEFROE--%f, %f,%f\n",newLeaf,kLeaf, LeafWS);
 			newLeaf = CanopyA * kLeaf * LeafWS ; 
@@ -592,12 +609,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 					       being accumulated and thus would not be subjected to senescence */
                  Rprintf("AFTER-%f, %f,%f\n",newLeaf,kLeaf, LeafWS);
 		}else{
-
-			newLeaf = Leaf * kLeaf ;
-			Rhizome += kRhizome * -newLeaf * 0.9; /* 0.9 is the efficiency of retranslocation */
-			Stem += kStem * -newLeaf   * 0.9;
-			Root += kRoot * -newLeaf * 0.9;
-			Grain += kGrain * -newLeaf * 0.9;
+         error("kLeaf should be positive");
 		}
 
 		if(TTc < SeneLeaf){
@@ -605,19 +617,33 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 			Leaf += newLeaf;
 
 		}else{
-    
-			Leaf += newLeaf - *(sti+k); /* This means that the new value of leaf is
-						       the previous value plus the newLeaf
-						       (Senescence might start when there is
-						       still leaf being produced) minus the leaf
-						       produced at the corresponding k.*/
-			Remob = *(sti+k) * 0.6 ;
-			LeafLitter += *(sti+k) * 0.4; /* Collecting the leaf litter */ 
+      A = REAL(LAT)[0]>=0.0;
+      B = *(pt_doy+i)>=180.0 ;
+      
+      if((A && B)||((!A) && (!B)))
+      {
+      
+      // Here we are checking/evaluating frost kill
+      
+      if (*(pt_temp+i) < Tfrosthigh) {
+        leafdeathrate = 100*(*(pt_temp+i) -Tfrosthigh)/(Tfrostlow-Tfrosthigh);
+        leafdeathrate = (leafdeathrate >100.0)?100.0:leafdeathrate;
+      }
+      else {leafdeathrate =0.0;}
+         Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+      Deadleaf=Leaf*leafdeathrate*(0.01/24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
+			Remob = Deadleaf * 0.6;
+			LeafLitter += (Deadleaf-Remob); /* Collecting the leaf litter */ 
 			Rhizome += kRhizome * Remob;
-			Stem += kStem * Remob; 
+			Stem += kStem * Remob;
 			Root += kRoot * Remob;
 			Grain += kGrain * Remob;
+      newLeaf= newLeaf-Deadleaf + (kLeaf * Remob);
 			k++;
+//      Rprintf("%f,%f,%f,%f\n",leafdeathrate,Deadleaf,Remob,Leaf);
+//      error("stop");
+      }
+      Leaf+=newLeaf;
 		}
 
 		/* The specific leaf area declines with the growing season at least in
@@ -640,7 +666,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 
 			*(sti2+i) = newStem;
 		}else{
-			error("kStem should be positive");
+		  error("kStem should be positive");
 		}
 
 		if(TTc < SeneStem){
