@@ -81,11 +81,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
       SEXP JMAX,
       SEXP JMAXB1,
       SEXP O2,
-     SEXP willowcanopyP
-      )           /*temperature Limitation photoParms */
-
       SEXP GROWTHRESP)           /*temperature Limitation photoParms */
-
 {
 	double newLeafcol[8760];
 	double newStemcol[8760];
@@ -95,38 +91,12 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	/* This creates vectors which will collect the senesced plant
 	   material. This is needed to calculate litter and therefore carbon
 	   in the soil and then N in the soil. */
-// Rprintf("%f, %f,%f\n",REAL(O2)[0],REAL(JMAX)[0],REAL(JMAXB1)[0]);
 
-double Sp=REAL(willowcanopyP)[0];
-  double SpD=REAL(willowcanopyP)[1];
-  double nnlayers=REAL(willowcanopyP)[2];
-  int nlayers=(int)nnlayers;
-	double kd=REAL(willowcanopyP)[3];
-	double chil=REAL(willowcanopyP)[4];
-	double gRespCoeff=REAL(willowcanopyP)[5];
-	double Qleaf=REAL(willowcanopyP)[6];
-	double Qstem=REAL(willowcanopyP)[7];
-	double Qroot=REAL(willowcanopyP)[8];
-  double Qrhizome=REAL(willowcanopyP)[9];
-	double mRespleaf=REAL(willowcanopyP)[10];
-        double mRespstem=REAL(willowcanopyP)[11];
-        double mResproot=REAL(willowcanopyP)[12];
-        double mResprhizome=REAL(willowcanopyP)[13];
-	double hf=REAL(willowcanopyP)[14];
-
-/////////////////////////////////////////////////
-// double kd=0.1,chil=1.0,hf=3.0,Sp=1.4;
-// int nlayers=10;
-Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
-
-
-
-	double StemResp, LeafResp,RootResp,RhizomeResp;
 	 
    double jmax1=REAL(JMAX)[0];
    double jmaxb1=REAL(JMAXB1)[0];
     
-        double iSp, propLeaf;
+        double iSp, Sp , propLeaf;
 	int i, i2, i3;
 	int vecsize ;
 
@@ -139,7 +109,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 	double b01, b11;
 
 
-	double Leaf=0.0, Stem=0.0, Root=0.0, LAI=0.0, Grain = 0.0;
+	double Leaf, Stem, Root, LAI, Grain = 0.0;
 	double TTc = 0.0;
 	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
 	double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
@@ -169,6 +139,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 	double CanopyA, CanopyT;
 
 	double Rhizome;
+  double leafdeathrate1;
 
 	/* Soil Parameters*/
 	double FieldC, WiltP, phi1, phi2, soilDepth;
@@ -325,7 +296,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
   double ifrRROOT=REAL(IPLANT)[7];
   
   
-//	Sp = REAL(SPLEAF)[0]; 
+	Sp = REAL(SPLEAF)[0]; 
 	SeneLeaf = REAL(SENCOEFS)[0];
 	SeneStem = REAL(SENCOEFS)[1];
 	SeneRoot = REAL(SENCOEFS)[2];
@@ -371,12 +342,12 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 	double *pt_windspeed = REAL(WINDSPEED);
 	double *pt_precip = REAL(PRECIP);
 	double lat = REAL(LAT)[0];
-	//int nlayers = INTEGER(NLAYERS)[0];
+	int nlayers = INTEGER(NLAYERS)[0];
 	int ws = INTEGER(WS)[0];
-	//double kd = REAL(KD)[0];
-	//double chil = REAL(CHILHF)[0];
-//	double hf = REAL(CHILHF)[1];
-  double o2=REAL(O2)[0];
+	double kd = REAL(KD)[0];
+	double chil = REAL(CHILHF)[0];
+	double hf = REAL(CHILHF)[1];
+  double o2=210;
   double Tbase=REAL(TBASE)[0];  /* base temperature */
 
 	/* Creation of pointers outside the loop */
@@ -387,14 +358,11 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 	sti4 = &newRhizomecol[0];
   
   // initialization based on iPlant 
- 
    Stem=iSSTEM*(1-ifrSSTEM); 
    Leaf=iLLEAF;
    Root=iRROOT;
    Rhizome=iRRHIZOME*(1-ifrRRHIZOME);
-   LAI=Leaf*Sp;
- // Rprintf("%f,%f,%f,%f\n",Stem,Leaf,Root,Rhizome);
-//  getchar();
+ 
 	for(i=0;i<vecsize;i++)
 	{
 		/* First calculate the elapsed Thermal Time*/
@@ -430,9 +398,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 		CanopyA = Canopy.Assim * timestep;
     CanopyA=(1.0-GrowthRespFraction)*CanopyA;
 		CanopyT = Canopy.Trans * timestep;
-//    Rprintf("before growhh reps, canA is = %e, & fractional loss is = %f\n",CanopyA,gRespCoeff);
-    CanopyA =GrowthRespiration(CanopyA, gRespCoeff);
-//    Rprintf("after growhh reps, canA is = %e\n",CanopyA); This is printing zero, which is not true
+
 		/* Inserting the multilayer model */
 		if(soillayers > 1){
 			soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
@@ -443,8 +409,6 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 			StomWS = soilMLS.rcoefPhoto;
 			LeafWS = soilMLS.rcoefSpleaf;
 			soilEvap = soilMLS.SoilEvapo;
-      
-      Rprintf("wwater stress = %f, %f, %f\n", StomWS, LeafWS, soilEvap);
 			for(i3=0;i3<soillayers;i3++){
 				cwsVec[i3] = soilMLS.cws[i3];
 				cwsVecSum += cwsVec[i3];
@@ -523,7 +487,10 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 		}else{
 			Nfert = 0;
 		}                
+
+
 		/* Here I will insert the Century model */
+
  
 		if(i % 24*centTimestep == 0){
 
@@ -593,7 +560,6 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 
 		if(kLeaf >= 0)
 		{
-       Rprintf("BEFROE--%f, %f,%f\n",newLeaf,kLeaf, LeafWS);
 			newLeaf = CanopyA * kLeaf * LeafWS ; 
 			/*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
 			    Plant. Phys. 46, 233-235. For this the water stress coefficient is different
@@ -601,12 +567,11 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 			/* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
 			/* The 0.02 and 0.03 are constants here but vary depending on species
 			   as pointed out in that reference. */
-		
+			newLeaf = resp(newLeaf, mrc1, *(pt_temp+i));
 
 			*(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
 					       to use i because when kLeaf is negative no new leaf is
 					       being accumulated and thus would not be subjected to senescence */
-                 Rprintf("AFTER-%f, %f,%f\n",newLeaf,kLeaf, LeafWS);
 		}else{
          error("kLeaf should be positive");
 		}
@@ -624,14 +589,17 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
       
       // Here we are checking/evaluating frost kill
       
-      if (*(pt_temp+i) < Tfrosthigh) {
-        leafdeathrate = 100*(*(pt_temp+i) -Tfrosthigh)/(Tfrostlow-Tfrosthigh);
-        leafdeathrate = (leafdeathrate >100.0)?100.0:leafdeathrate;
+  if (*(pt_temp+i) > Tfrostlow) {
+        leafdeathrate1 = 100*(*(pt_temp+i) -Tfrosthigh)/(Tfrostlow-Tfrosthigh);
+        leafdeathrate1 = (leafdeathrate1 >100.0)?100.0:leafdeathrate1;
+       
       }
-      else {leafdeathrate =0.0;}
-         Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+      else {leafdeathrate1 =0.0;}
+    //Rprintf("Death rate due to frost = %f,%f,%f,%f\n",leafdeathrate1,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+         //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+      leafdeathrate=(leafdeathrate>leafdeathrate1)? leafdeathrate:leafdeathrate1;
       Deadleaf=Leaf*leafdeathrate*(0.01/24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
-			Remob = Deadleaf * 0.6;
+  		Remob = Deadleaf * 0.6;
 			LeafLitter += (Deadleaf-Remob); /* Collecting the leaf litter */ 
 			Rhizome += kRhizome * Remob;
 			Stem += kStem * Remob;
@@ -639,7 +607,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 			Grain += kGrain * Remob;
       newLeaf= newLeaf-Deadleaf + (kLeaf * Remob);
 			k++;
-//      Rprintf("%f,%f,%f,%f\n",leafdeathrate,Deadleaf,Remob,Leaf);
+     //Rprintf("%f,%f,%f,%f\n",leafdeathrate,Deadleaf,Remob,Leaf);
 //      error("stop");
       }
       Leaf+=newLeaf;
@@ -662,7 +630,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 		if(kStem >= 0)
 		{
 			newStem = CanopyA * kStem ;
-
+			newStem = resp(newStem, mrc1, *(pt_temp+i));
 			*(sti2+i) = newStem;
 		}else{
 		  error("kStem should be positive");
@@ -683,7 +651,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 		if(kRoot > 0)
 		{
 			newRoot = CanopyA * kRoot ;
-
+			newRoot = resp(newRoot, mrc2, *(pt_temp+i));
 			*(sti3+i) = newRoot;
 		}else{
 
@@ -709,7 +677,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 		if(kRhizome > 0)
 		{
 			newRhizome = CanopyA * kRhizome ;
-			
+			newRhizome = resp(newRhizome, mrc2, *(pt_temp+i));
 			*(sti4+ri) = newRhizome;
 			/* Here i will not work because the rhizome goes from being a source
 			   to a sink. I need its own index. Let's call it rhizome's i or ri.*/
@@ -749,20 +717,7 @@ Rprintf("%f, %i,%f \n",REAL(willowcanopyP)[0],nlayers,REAL(willowcanopyP)[14]);
 			/* No senescence either */
 			Grain += newGrain;  
 		}
-    
-//      Rprintf("Leaf before mainten respi = %e\n", Leaf);
-      LeafResp=MRespiration(Leaf, Qleaf, mRespleaf, *(pt_temp+i), timestep);
-      Leaf=Leaf-LeafResp;
-//      Rprintf("Maint resp= %e & updated Leaf = %e\n",LeafResp,Leaf);
-      
-/*      StemResp=MRespiration(Stem, Qstem, mRespstem, *(pt_temp+i), timestep);
-      Stem=Stem-StemResp;
-      RootResp=MRespiration(Root, Qroot, mResproot, *(pt_temp+i), timestep);
-      Root=Root-RootResp;
-      RhizomeResp=MRespiration(Rhizome, Qrhizome, mResprhizome, *(pt_temp+i), timestep);
-      Rhizome=Rhizome-RhizomeResp;
-*/ 
- 
+
 		ALitter = LeafLitter + StemLitter;
 		BLitter = RootLitter + RhizomeLitter;
 

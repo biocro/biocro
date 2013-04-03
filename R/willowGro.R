@@ -277,7 +277,6 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,iRhizome=1.0,
                    lat=40,iPlant=1,irtl=1e-4,
                    canopyControl=list(),
-                      willowcanopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
                    willowphenoControl=list(),
@@ -323,9 +322,6 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
 
     ## Getting the Parameters
-    willowcanopyP<-willowcanopyParms()
-    willowcanopyP[names(willowcanopyControl)]<-willowcanopyControl
-    willowcanopyP<-c(unlist(willowcanopyP))
     
     iPlant <-iwillowParms()
     iPlant[names(iPlantControl)]<-iPlantControl
@@ -408,7 +404,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     ws <- 0
     beta <- 0
     #ws <- photoP$ws
-    o2 <- photoP$O2
+    o2 <- photoP$o2
     #upperT<-photoP$UPPERTEMP
     #lowerT<-photoP$LOWERTEMP
     upperT<-0
@@ -478,11 +474,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(jmax),
                  as.double(jmaxb1),
                  as.double(o2),
-<<<<<<< HEAD
-                as.double(willowcanopyP)
-=======
                  as.double(GrowthRespFraction)
->>>>>>> phenology2
     )
     
     res$cwsMat <- t(res$cwsMat)
@@ -500,14 +492,8 @@ iwillowParms<-function(iRhizome=1,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.001
 
 
 willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
-<<<<<<< HEAD
-                              kd = 0.1, chi.l = 1,
-                              Growthresp=0.25,Qleaf=1.58, Qstem=1.80, Qroot=1.80,Qrhizome=1.80,mRespleaf=0.012,
-                              mRespstem=0.004,mResproot=0.0088,mResprhizome=0.0088, heightFactor=3.0){
-=======
                         kd = 0.37, chi.l = 1,
                         mResp=c(0.02,0.03), heightFactor=3,GrowthRespFraction=0.25){
->>>>>>> phenology2
   
   if((nlayers < 1) || (nlayers > 50))
     stop("nlayers should be between 1 and 50")
@@ -519,13 +505,8 @@ willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
     stop("heightFactor should be positive")
   
   list(Sp=Sp,SpD=SpD,nlayers=nlayers,kd=kd,chi.l=chi.l,
-<<<<<<< HEAD
-       Growthresp=Growthresp,Qleaf=Qleaf, Qstem=Qstem, Qroot=Qroot,Qrhizome=Qrhizome,mRespleaf=mRespleaf,
-       mRespstem=mRespstem,mResproot=mResproot,mResprhizome=mResprhizome, heightFactor=heightFactor)
-=======
        mResp=mResp, heightFactor=heightFactor,GrowthRespFraction=GrowthRespFraction)
   
->>>>>>> phenology2
 }
 
 willowphotoParms <- function(vmax = 100, jmax = 180, Rd = 1.1, Catm = 380, O2 = 210, 
@@ -597,13 +578,13 @@ willownitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
   
 }
 
-willowphenoParms <- function(tp1=508, tp2=1312, tp3=2063, tp4=2676, tp5=3939, tp6=7000,
-                       kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
-                       kStem2=0.7, kLeaf2=0.15, kRoot2=0.075, kRhizome2=0.075, 
-                       kStem3=0.7, kLeaf3=0.15, kRoot3=0.075, kRhizome3=0.075, 
-                       kStem4=0.7, kLeaf4=0.15, kRoot4=0.075, kRhizome4=0.075, 
-                       kStem5=0.7, kLeaf5=-8e-4, kRoot5=0.15, kRhizome5=0.15, 
-                       kStem6=0.7, kLeaf6=-8e-4, kRoot6=0.15, kRhizome6=0.15, kGrain6=0,Tbase=1.0){
+willowphenoParms <- function(tp1=250, tp2=500, tp3=900, tp4=1200, tp5=3939, tp6=7000,
+                              kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
+                              kStem2=0.01, kLeaf2=0.98, kRoot2=0.005, kRhizome2=0.005, 
+                              kStem3=0.5, kLeaf3=0.15, kRoot3=0.175, kRhizome3=0.175, 
+                              kStem4=0.7, kLeaf4=0.15, kRoot4=0.075, kRhizome4=0.075, 
+                              kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
+                              kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15,kGrain6=0.0,Tbase=0.0){
   
   if(kGrain6 < 0)
     stop("kGrain6 should be positive (zero is allowed)")
