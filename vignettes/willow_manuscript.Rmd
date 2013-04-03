@@ -1,0 +1,66 @@
+Title: WillowCro Manuscript
+===========================
+
+Authors: 
+* Wang, Jaiswal, LeBauer, 
+* (Wertin, Leakey, your name here ?), 
+* Long
+
+Introduction
+------------
+
+Objectives: We want to simulate willow coppice growth for the US, Europe, and China.
+
+
+
+Model Description
+-----------------
+
+where is the code?
+what does it do?
+what are our assumptions?
+
+### Model Description
+
+#### Photosynthesis
+
+C3
+
+Validation data
+#### Phenology
+
+##### Senescence
+
+##### Partitioning
+
+Looked at literature (Lindau 1994)
+
+#### Coppicing
+
+Implementation
+--------------
+
+### Parameterization
+
+### Validation
+
+Validation data set.
+
+* Yields
+* Water Use / Sap Flux
+
+### Prediction
+
+#### Inputs
+
+Climate, Soil
+
+### Analysis
+
+WE looked at AGB for the contenental US
+
+Results
+-------
+
+Discussion
+----------
