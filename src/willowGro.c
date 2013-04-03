@@ -81,12 +81,11 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
       SEXP JMAX,
       SEXP JMAXB1,
       SEXP O2,
-<<<<<<< HEAD
      SEXP willowcanopyP
       )           /*temperature Limitation photoParms */
-=======
+
       SEXP GROWTHRESP)           /*temperature Limitation photoParms */
->>>>>>> phenology2
+
 {
 	double newLeafcol[8760];
 	double newStemcol[8760];
