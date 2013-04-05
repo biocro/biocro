@@ -88,7 +88,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP OPTIONTOCALCULATEROOTDEPTH,
 	     SEXP ROOTFRONTVELOCITY,
             SEXP NNITROP,
-            SEXP IRRIG
+            SEXP IRRIG,
+            SEXP FROSTP
 	)
 {
 
@@ -141,6 +142,15 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 	nitroparms.minln=REAL(NNITROP)[13];
 	nitroparms.daymaxln=REAL(NNITROP)[14];
 /////////////////////////////////////////////////////////////////
+
+  struct frostParms frostparms;
+  frostparms.leafT0=REAL(FROSTP)[0];
+  frostparms.leafT100=REAL(FROSTP)[1];
+  frostparms.stemT0=REAL(FROSTP)[2];
+  frostparms.stemT100=REAL(FROSTP)[3];
+  double leaffrostdamage;
+  
+ 
 
 	/* This creates vectors which will collect the senesced plant
 	   material. This is needed to calculate litter and therefore carbon
@@ -822,8 +832,17 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
          Stem=Stem+remobilizedleaf*0.33;
          Root=Root+remobilizedleaf*0.33;
 				 }
-					 
-					 
+         // Here I am simulating leaf Frost damage
+         if((*pt_temp+i)<frostparms.leafT0)
+         {
+				 leaffrostdamage=getFrostdamage(frostparms.leafT0,frostparms.leafT100,*(pt_temp+i));
+         deadleaf=Leaf*leaffrostdamage;
+         remobilizedleaf<-deadleaf*Remobfactorleaf;
+    		 leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
+				 Leaf =Leaf-deadleaf+remobilizedleaf*33;
+         Stem=Stem+remobilizedleaf*0.33;
+         Root=Root+remobilizedleaf*0.33;
+         }
 
 		/*reset daily assimilation and daily transpiratin to zero for the next day */
                	dailyassim=0.0;

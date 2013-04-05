@@ -8,8 +8,6 @@ if(length(args) == 0){
   k <- as.numeric(args)
 }
 
-coefi <- c(525,1226,1927,3500,3600,6000)
-coefiN <- coefi/6000
 
 year <- as.integer(k)
 
@@ -123,7 +121,7 @@ for(i in 1:dim(lat)[1]){
                          Stem3=NA, Leaf3=NA,Root3=NA,Rhiz3=NA,
                          Stem4=NA, Leaf4=NA,Root4=NA,Rhiz4=NA,
                          Stem5=NA, Leaf5=NA, Root5=NA, Rhiz5=NA,
-                         avgStem=NA,avgLeaf=NA,avgRoot=NA,avgRhiz=NA,
+                         avgStem=NA,
                          avgTemp=NA,TotPrecip=NA,avgRad=NA,awc=NA,
                          mdep=NA,year = NA)
     }
@@ -199,7 +197,7 @@ for(i in 1:dim(lat)[1]){
         soil.ll <- soilParms(iWatCont=sSoilm[day1],
                                FieldC=fieldc,WiltP=wiltp,
                                soilDepth=mdep, wsFun="linear", phi2=5, soilLayers=1)
-       iplant <-iwillowParms(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
+       iplant <-iwillowParms(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=0.0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
        res1 <- willowGro(dat,day1=day1,dayn=dayn,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,iPlantControl=iplant,soilControl=soil.ll)
        Leaf[q]<-res1$Leaf[length(res1$Leaf)]
        Stem[q]<-res1$Stem[length(res2$Stem)]
@@ -404,10 +402,8 @@ for(i in 1:dim(lat)[1]){
       root5<-sum(Root*weights,na.rm=TRUE)
       rhiz5<-sum(Rhizome*weights,na.rm=TRUE)
 
-      avgStem<-(stem1+stem5)*0.95*(1/5)  # 0.95 is fraction of stem removed via coppicing and (1/5) is convert to avergae annual yield based on 5 yr cycle
-      avgLeaf<-(leaf1+leaf5)*0.95*(1/5)  
-      avgRoot<-(stem1+stem5)*0.95*(1/5)  
-      avgRhiz<-(rhiz1+rhiz5)*0.95*(1/5) 
+      avgStem<-(stem5)*0.95*(1/4)  # 0.95 is fraction of stem removed via coppicing and (1/5) is convert to avergae annual yield based on 5 yr cycle
+    
 
       
       resS <- data.frame(loc=loc,Lat=lati,Lon=long,
@@ -416,7 +412,7 @@ for(i in 1:dim(lat)[1]){
                          Stem3=stem3, Leaf3=leaf3,Root3=root3,Rhiz3=rhiz3,
                          Stem4=stem4, Leaf4=leaf4,Root4=root4,Rhiz4=rhiz4,
                          Stem5=stem5, Leaf5=leaf5, Root5=root5, Rhiz5=rhiz5,
-                         avgStem=avgStem,avgLeaf=avgLeaf,avgRoot=avgRoot,avgRhiz=avgRhiz,
+                         avgStem=avgStem,
                          avgTemp=mean(sTemp),TotPrecip=sum(sPrecip),
                          avgRad=mean(sRad, na.rm=TRUE),
                          awc=mean(csoil$awc, na.rm=TRUE),
@@ -425,6 +421,7 @@ for(i in 1:dim(lat)[1]){
     }
 
     write.table(resS,paste("./Results/res",k,".txt",sep=""),append=TRUE,row.names=FALSE,col.names=FALSE)
+    
   }
 }
 

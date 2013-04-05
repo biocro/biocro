@@ -11,7 +11,8 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                    nitroControl=list(),
                    canephenoControl=list(),
                    centuryControl=list(),
-                   managementControl=list()
+                   managementControl=list(),
+                   frostControl=list()
 )
   {
 
@@ -79,6 +80,10 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     manage<-managementParms()
     manage[names(managementControl)] <-managementControl
     irrigationfactor<-as.vector(unlist(manage))
+    
+    frostP<-frostParms()
+    frostP[names(frostControl)]<-frostControl
+    frostP<-as.vector(unlist(frostP))
     
     tint <- 24 / timestep
     vecsize <- (dayn - (day1-1)) * tint
@@ -207,7 +212,8 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.integer(optiontocalculaterootdepth),
                  as.double(rootfrontvelocity),
                  as.double(nnitroP),
-                 as.double(irrigationfactor)
+                 as.double(irrigationfactor),
+                 as.double(frostP)
                  )
     
     res$cwsMat <- t(res$cwsMat)
@@ -316,4 +322,8 @@ canenitroParms <- function(iLeafN=140, kLN=0.5, Vmax.b1=1.38, Vmax.b0=-38.5,alph
 
 managementParms <-function (irrigationFactor=0.0){
   list(irrigationFactor=irrigationFactor)
+}
+
+frostParms <-function (leafT0=0.0,leafT100=-5.6,stemT0=-272,stemT100=-273){
+  list(leafT0=leafT0,leafT100=leafT100,stemT0=stemT0,stemT100=stemT100)
 }
