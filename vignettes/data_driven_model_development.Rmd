@@ -29,7 +29,7 @@ Results
 
 ```{r }
 
-opts_chunk$set(echo=FALSE, comment = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo=FALSE, comment = FALSE, warning = FALSE, echo = FALSE)
 ```
 
 ```{r}
@@ -97,32 +97,38 @@ text(x + c(0, 0.08, 0.22, 0.26, -0.24), y - c(0, 0.05, 0, 0, 0), labels = c("", 
 
 ### Test changes
 
-```{r results='asis'}
+```{r}
 ## stepwise
 V0.7 <- t.test(results$V0.6, results$V0.7, paired = TRUE)
 V0.75 <- t.test(results$V0.7, results$V0.75, paired = TRUE)
 V0.81 <- t.test(results$V0.75, results$V0.81, paired = TRUE)
 V0.91 <- t.test(results$V0.81, results$V0.91, paired = TRUE)
 ### Overall
-t.test(results$V0.6, results$V0.91, paired = TRUE)
+V0.6_V0.91 <- t.test(results$V0.6, results$V0.91, paired = TRUE)
 
 result.table <- data.frame(version = names(x), 
                       description = c("start", "added C3", "perenating stem", "growth respiration", "leaf senescence"), 
-                      sd = round(sd.f, 3), RMSE = round(R, 3), P = round(c(NA, V0.7$p.value, V0.75$p.value, V0.81$p.value, V0.91$p.value), 3))
-require(pander)
+                      sd = round(sd.f, 2), RMSE = round(R, 2), P = round(c(NA, V0.7$p.value, V0.75$p.value, V0.81$p.value, V0.91$p.value), 2))
+library(pander)
 panderOptions('table.split.table', Inf)
-pandoc.table(result.table[,-1], style = 'simple')
+```
 
-
+```{r results='asis'}
+pandoc.table(result.table[,-1], style = 'rmarkdown')
 ```
 
 ```{r fig.width=7, fig.height=6}
 results.long <- cbind(results.long, id = rep(1:nrow(results), 5))
 offset <- (as.numeric(as.factor(results.long$version))-2.5)/5
-require(ggplot2)
+library(ggplot2)
 ggplot(data = results.long, aes(observed + offset, modeled)) + 
   geom_line(aes(group = id, color = version)) +
   geom_point(aes(color = version)) + theme_bw() + scale_colour_grey(start = 0.85, end = 0.15) +
+    geom_line(aes(x = c(0,80), y = c(0,80)), size = 0.5, linetype = 2) +
+  xlab("Observed") + ylab("Modeled") + ggtitle("Observed vs. Predicted Willow Yield")
+
+ggplot(data = results.long[results.long$version == "V0.91",], aes(observed, modeled)) + 
+  geom_point() + theme_bw() + scale_colour_grey(start = 0.85, end = 0.15) +
     geom_line(aes(x = c(0,80), y = c(0,80)), size = 0.5, linetype = 2) +
   xlab("Observed") + ylab("Modeled") + ggtitle("Observed vs. Predicted Willow Yield")
 ```
