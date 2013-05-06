@@ -84,8 +84,11 @@
 ##'
 ##'
 ##'
-c3photo <- function(Qp,Tl,RH,vcmax=100,jmax=180,Rd=1.1,Catm=380,O2=210,b0=0.08,b1=5,theta=0.7)
-{
+c3photo <- function(Qp,Tl,RH,vcmax=100,jmax=180,Rd=1.1,Catm=380,O2=210,b0=0.08,b1=5,theta=0.7,StomWS=1.0,ws=c("gs","vmax"))
+{ 
+  ws <- match.arg(ws)
+  if(ws == "gs") ws <- 1
+  else ws <- 0
 
   if((length(Qp) != length(Tl)) || (length(Qp) != length(RH)))
     stop("the lengths of the Qp, Tl and RH vectors should be equal")
@@ -109,7 +112,8 @@ c3photo <- function(Qp,Tl,RH,vcmax=100,jmax=180,Rd=1.1,Catm=380,O2=210,b0=0.08,b
                  as.double(vcmax),as.double(jmax),
                  as.double(Rd),as.double(Catm),
                  as.double(b0),as.double(b1),
-                 as.double(O2),as.double(theta))
+                 as.double(O2),as.double(theta),
+                 as.double(StomWS),as.integer(ws))
     res
 }
 

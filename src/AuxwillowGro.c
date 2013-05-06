@@ -37,8 +37,8 @@
 struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	             double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
 		     double Rd, double Catm, double o2, double b0, double b1,
-                     double theta, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun)
+                     double theta, double kd, double heightf,
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws)
 
          
 {
@@ -61,12 +61,14 @@ struct ET_Str tmp5_ET , tmp6_ET;
 
   double CanopyA ;
   double CanopyT , CanopyPe = 0.0, CanopyPr = 0.0;
-  double CanopyC = 0.0;
+  double CanopyC = 0.0,chil=1.0;
   double CanHeight;
 
   double vmax1;
   double leafN_lay;
-
+  
+ /* double StomWS;
+ /* int ws;
 
 	/* For Assimilation */
 	/* 3600 converts seconds to hours */
@@ -134,7 +136,7 @@ layIdiff, layShade vectors. */
 	    tmp5_ET = c3EvapoTrans(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,
 				 Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
 	    TempIdir = Temp + tmp5_ET.Deltat;
-	    tmpc3 = c3photoC(IDir,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
+	    tmpc3 = c3photoC(IDir,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta,StomWS,ws);
 	    AssIdir = tmpc3.Assim;
 
 	    IDiff = layIdiff[--sp2];
@@ -143,7 +145,7 @@ layIdiff, layShade vectors. */
 	    tmp6_ET = c3EvapoTrans(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,
   			 Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
 	    TempIdiff = Temp + tmp6_ET.Deltat;
-	    tmpc32 = c3photoC(IDiff,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
+	    tmpc32 = c3photoC(IDiff,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta,StomWS,ws);
 	    AssIdiff = tmpc32.Assim;
 
 		CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;

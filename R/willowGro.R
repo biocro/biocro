@@ -339,7 +339,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     willowphenoP[names(willowphenoControl)] <- willowphenoControl
     willowphenoP <- c(unlist(willowphenoP))
     
-    photoP <- c3photoParms()
+    photoP <- willowphotoParms()
     photoP[names(photoControl)] <- photoControl
 
     seneP <- willowseneParms()
@@ -401,7 +401,8 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     Catm <- photoP$Catm
     b0 <- photoP$b0
     b1 <- photoP$b1
-    ws <- 0
+    ws <- photoP$ws
+    StomWS <-photoP$StomWS
     beta <- 0
     #ws <- photoP$ws
     o2 <- photoP$o2
@@ -411,7 +412,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     lowerT<- 0
     mResp <- canopyP$mResp
     kd <- canopyP$kd
-    chi.l <- canopyP$chi.l
+    chi.l <- 1.0
     Sp <- canopyP$Sp
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
@@ -474,7 +475,8 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(jmax),
                  as.double(jmaxb1),
                  as.double(o2),
-                 as.double(GrowthRespFraction)
+                 as.double(GrowthRespFraction),
+                 as.double(StomWS)
     )
     
     res$cwsMat <- t(res$cwsMat)
@@ -492,7 +494,7 @@ iwillowParms<-function(iRhizome=1,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.001
 
 
 willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
-                        kd = 0.37, chi.l = 1,
+                        kd = 0.37, 
                         mResp=c(0.02,0.03), heightFactor=3,GrowthRespFraction=0.25){
   
   if((nlayers < 1) || (nlayers > 50))
@@ -504,17 +506,21 @@ willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
   if(heightFactor <= 0)
     stop("heightFactor should be positive")
   
-  list(Sp=Sp,SpD=SpD,nlayers=nlayers,kd=kd,chi.l=chi.l,
+  list(Sp=Sp,SpD=SpD,nlayers=nlayers,kd=kd,
        mResp=mResp, heightFactor=heightFactor,GrowthRespFraction=GrowthRespFraction)
   
 }
 
-willowphotoParms <- function(vmax = 100, jmax = 180, Rd = 1.1, Catm = 380, O2 = 210, 
-                             b0 = 0.08, b1 = 5, theta = 0.7) 
-{
-  list(vmax = vmax, jmax = jmax, Rd = Rd, Catm = Catm, O2 = O2, 
-       b0 = b0, b1 = b1, theta = theta)
+willowphotoParms <- function(vmax=100, jmax=180, Rd=1.1, Catm=380, O2 = 210, b0=0.08, b1=5, theta=0.7,StomWS=1.0,ws=c("vmax")){
+  
+  ws <- match.arg(ws)
+  if(ws == "gs") ws <- 1
+  else ws <- 0
+  
+  list(vmax=vmax,jmax=jmax,Rd=Rd,Catm=Catm,O2=O2,b0=b0,b1=b1,theta=theta,StomWS=StomWS,ws=ws)
+  
 }
+
 
 
 willowsoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,

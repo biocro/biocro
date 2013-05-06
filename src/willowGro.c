@@ -81,7 +81,8 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
       SEXP JMAX,
       SEXP JMAXB1,
       SEXP O2,
-      SEXP GROWTHRESP)           /*temperature Limitation photoParms */
+      SEXP GROWTHRESP,
+       SEXP STOMATAWS)           /*temperature Limitation photoParms */
 {
 	double newLeafcol[8760];
 	double newStemcol[8760];
@@ -133,7 +134,8 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
   double GrowthRespFraction = REAL(GROWTHRESP)[0];
   
 	double waterCont;
-	double StomWS = 1, LeafWS = 1;
+	double LeafWS;
+  double StomWS = REAL(STOMATAWS)[0];
 	int timestep;
   int A, B;
 	double CanopyA, CanopyT;
@@ -383,16 +385,15 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
     // Printing variables in R befor ecalling c3 canopy 
   //  Rprintf("\n LAI= %f",LAI);
  //      Rprintf("\n VMAX= %f",vmax1);
-//          Rprintf("\n jmax1=%f",jmax1); 
-    
+          //Rprintf("\n StomWS,LeafWS=%f",StomWS,LeafWS); 
+  
 		Canopy = c3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
 			       lat, nlayers,
-			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,
-			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun);
+			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun,StomWS,ws);
              
-           
+   /*Rprintf("%f,%f,%f,%f\n",StomWS,LeafWS,kLeaf,newLeaf);              
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
@@ -575,7 +576,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 		}else{
          error("kLeaf should be positive");
 		}
-
+ 
 		if(TTc < SeneLeaf){
 
 			Leaf += newLeaf;
@@ -596,7 +597,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
       }
       else {leafdeathrate1 =0.0;}
     //Rprintf("Death rate due to frost = %f,%f,%f,%f\n",leafdeathrate1,*(pt_temp+i),Tfrosthigh,Tfrostlow);
-         //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+     //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
       leafdeathrate=(leafdeathrate>leafdeathrate1)? leafdeathrate:leafdeathrate1;
       Deadleaf=Leaf*leafdeathrate*(0.01/24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
   		Remob = Deadleaf * 0.6;

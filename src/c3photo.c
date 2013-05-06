@@ -10,14 +10,14 @@
 #include "c3photo.h"
 
 SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
-	     SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP OX2, SEXP THETA)
+	     SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP OX2, SEXP THETA,SEXP STOMWS, SEXP WS)
 {
 	struct c3_str tmp;
 
 	double Qp, Tl, RH, Catm;
 	double Bet0,Bet1;
 
-	double vcmax, jmax, Rd, Ca, O2, theta;
+	double vcmax, jmax, Rd, Ca, O2, theta,StomWS;
 
 	vcmax = REAL(VCMAX)[0];
 	jmax = REAL(JMAX)[0];
@@ -26,9 +26,9 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	Rd = REAL(RD)[0];
 	O2 = REAL(OX2)[0];
 	theta = REAL(THETA)[0];
-
+  StomWS = REAL(STOMWS)[0];
 	int nq , nt, nr, i;
-
+  int ws = INTEGER(WS)[0];
 	SEXP lists, names;
 	SEXP GsV;
 	SEXP ASSV;
@@ -54,7 +54,7 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 		RH = REAL(RH1)[i];
 		Catm = REAL(CA)[i];
 
-		tmp = c3photoC(Qp, Tl, RH, vcmax, jmax, Rd, Bet0, Bet1, Catm, O2, theta);
+		tmp = c3photoC(Qp, Tl, RH, vcmax, jmax, Rd, Bet0, Bet1, Catm, O2, theta,StomWS,ws);
 
 		REAL(GsV)[i] = tmp.Gs;
 		REAL(ASSV)[i] = tmp.Assim;    
@@ -117,7 +117,7 @@ double solo(double LeafT){
 
 /* c3photo function */ 
 struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double Jmax, 
-		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet)
+		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet,double StomWS,int ws)
 {
 
 	struct c3_str tmp;
@@ -137,14 +137,14 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	double Ac1, Ac2, Ac;
 	double Aj1, Aj2, Aj;
 	double Ap;
-	double Assim, J, I2;
+	double Assim, J, I2,Assim0,Gs0;
 	double FEII;
 	double theta;
 	double Citr1, Citr2, Citr;
 
 	int iterCounter = 0;
 	double Gs ;
-	double diff, OldCi = 0.0, Tol = 0.5;
+	double diff, OldAssim = 0.0,OldCi = 0.0, Tol = 0.01;
 
 	if(Ca <= 0)
 		Ca = 1e-4;
@@ -179,9 +179,10 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	OldCi = Ca * solc(Tleaf) * 0.7; /* Initial guesstimate */
 	Oi = O2 * solo(Tleaf);
 
-	while(iterCounter < 20)
+	while(iterCounter < 50)
 	  {
-
+    /* Rprintf("Number of loop in c3photo=%i, Tol=%f \n",iterCounter, Tol);
+    /* Rprintf("Gs=%f, Assim=%f, Ci=%f, StomWS=%f \n", Gs, Assim, Ci, StomWS);
 		  /* Rubisco limited carboxylation */
 		  Ac1 =  Vcmax * (Ci - Gstar) ;
 		  Ac2 = Ci + Kc * (1 + Oi/Ko);
@@ -210,10 +211,13 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 				  }
 
 		  Assim = Vc - Rd; /* micro mol m^-2 s^-1 */
-
+      
+      if(ws == 0) Assim *= StomWS; 
 		  /* milimole per meter square per second*/
 		  Gs =  ballBerry(Assim,Ca, Tleaf, RH, bb0, bb1);
-		  
+      
+		  if(ws == 1) Gs *= StomWS; 
+      
 		  if( Gs <= 0 )
 			  Gs = 1e-5;
 
@@ -226,13 +230,28 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		  if(Ci < 0)
 			  Ci = 1e-5;
 
-		  diff = OldCi - Ci;
-		  if(diff < 0) diff = -diff;
-		  if(diff < Tol){
-			  break;
-		  }else{
-			  OldCi = Ci;
-		  }
+		 // diff = OldCi - Ci;
+		//  if(diff < 0) diff = -diff;
+		//  if(diff < Tol){
+	//		  break;
+	//	  }else{
+	//		  OldCi = Ci;
+	//	  }
+      
+      
+  	if(iterCounter == 0){
+			Assim0 = Assim;
+			Gs0 = Gs;
+			OldCi = Ci;
+		}
+
+		diff = OldAssim - Assim;
+		if(diff < 0) diff = -diff;
+		if(diff < Tol){
+			break;
+		}else{
+			OldAssim = Assim;
+		}
 		  
 		  iterCounter++;
 		  

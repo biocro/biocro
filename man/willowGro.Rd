@@ -1,5 +1,4 @@
 \name{willowGro}
-\alias{SoilType}
 \alias{canopyParms}
 \alias{centuryParms}
 \alias{nitroParms}
@@ -9,15 +8,16 @@
 \alias{seneParms}
 \alias{showSoilType}
 \alias{soilParms}
+\alias{SoilType}
 \alias{willowGro}
-\title{willow crop growth simulation}
+\title{willowmass crops growth simulation}
 \usage{
   willowGro(WetDat, day1 = NULL, dayn = NULL, timestep = 1,
-    lat = 40, iRhizome = 7, irtl = 1e-04,
+    iRhizome = 1, lat = 40, iPlant = 1, irtl = 1e-04,
     canopyControl = list(), seneControl = list(),
-    photoControl = list(), phenoControl = list(),
+    photoControl = list(), willowphenoControl = list(),
     soilControl = list(), nitroControl = list(),
-    centuryControl = list())
+    iPlantControl = list(), centuryControl = list())
 }
 \arguments{
   \item{WetDat}{weather data as produced by the
