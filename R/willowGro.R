@@ -288,7 +288,9 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
 
     
 ## Trying to guess the first and last day of the growing season from weather data
-    
+ 
+  
+  
     if(missing(day1)){
         half <- as.integer(dim(WetDat)[1]/2)
         WetDat1 <- WetDat[1:half,c(2,5)]
@@ -321,6 +323,9 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     if( (timestep<1) || (24%%timestep != 0))
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
 
+     ##day1= WetDat[WetDat$Temp >=6,]$doy[1] 
+    
+    
     ## Getting the Parameters
     
     iPlant <-iwillowParms()
