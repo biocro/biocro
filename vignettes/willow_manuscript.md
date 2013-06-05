@@ -58,11 +58,50 @@ Results
 -------
 The predicted photosynthetic assimilation rate and stomatal conductance Salix correlated well with measurements taken in the field for Salix (Wang et al. 2013) (Fig. 1). The field diurnal photosynthetic assimilation rate of three Populus species was closely simulated at 
 both ambient (370ppm) and elevated (550ppm) CO2 (Fig.2).
-```{r}
+
+```r
 require(ggplot2)
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```r
 library(BioCro)
+```
+
+```
+## Loading required package: lattice
+```
+
+```r
 library(latticeExtra)
+```
+
+```
+## Loading required package: RColorBrewer
+```
+
+```
+## Attaching package: 'latticeExtra'
+```
+
+```
+## The following object(s) are masked from 'package:ggplot2':
+## 
+## layer
+```
+
+```r
 library(Agreement)
+```
+
+```
+## Loading required package: R2HTML
+```
+
+```r
 source("/home/dwng/willowfigure/validation.R")
 willowaq2011 <- read.csv("~/biocro/inst/extdata/willowaq2011.csv", header=T)
 Qps <- willowaq2011$PARi
@@ -99,6 +138,34 @@ rassim <-ggplot(modelassim,aes(Photo,model$Assim))+geom_point(size=3,alpha=0.75)
     panel.grid.major = theme_blank(), # switch off major gridlines
     panel.grid.minor = theme_blank() # switch off minor gridlines
     )
+```
+
+```
+## 'opts' is deprecated. Use 'theme' instead. (Deprecated; last used in
+## version 0.9.1)
+```
+
+```
+## theme_text is deprecated. Use 'element_text' instead. (Deprecated; last
+## used in version 0.9.1)
+```
+
+```
+## theme_text is deprecated. Use 'element_text' instead. (Deprecated; last
+## used in version 0.9.1)
+```
+
+```
+## 'theme_blank' is deprecated. Use 'element_blank' instead. (Deprecated;
+## last used in version 0.9.1)
+```
+
+```
+## 'theme_blank' is deprecated. Use 'element_blank' instead. (Deprecated;
+## last used in version 0.9.1)
+```
+
+```r
 rassim <- rassim+geom_text(aes(x =8, y = 22, label = lm_eqn(df1)), parse = TRUE,colour="black")+geom_text(aes(x=2,y=30,label="A"))
 
 modelgs<- cbind(model$Gs/1000,willowaq2011)
@@ -128,12 +195,55 @@ rgs <-ggplot(df2,aes(x,y))+geom_point(size=3,alpha=0.75)+stat_smooth(method="lm"
     panel.grid.major = theme_blank(), # switch off major gridlines
     panel.grid.minor = theme_blank() # switch off minor gridlines
    )
+```
+
+```
+## 'opts' is deprecated. Use 'theme' instead. (Deprecated; last used in
+## version 0.9.1)
+```
+
+```
+## theme_text is deprecated. Use 'element_text' instead. (Deprecated; last
+## used in version 0.9.1)
+```
+
+```
+## theme_text is deprecated. Use 'element_text' instead. (Deprecated; last
+## used in version 0.9.1)
+```
+
+```
+## 'theme_blank' is deprecated. Use 'element_blank' instead. (Deprecated;
+## last used in version 0.9.1)
+```
+
+```
+## 'theme_blank' is deprecated. Use 'element_blank' instead. (Deprecated;
+## last used in version 0.9.1)
+```
+
+```r
 rgs <- rgs+geom_text(aes(x =0.17, y = 0.25, label = lm_eqn(df2)), parse = TRUE,colour="black")+geom_text(aes(x =0.16, y = 0.31, label = "B"), parse = TRUE,colour="black")
 
 jpeg("../willowfigure/c3photovalidation.jpeg",width=10,height=5,unit='in',res=600)
 grid.arrange(rassim,rgs,
              nrow=1,ncol=2)
+```
+
+```
+## Error: could not find function "grid.arrange"
+```
+
+```r
 dev.off()
+```
+
+```
+## pdf 
+##   2
+```
+
+```r
 
 
 poplar <- read.csv("~/willowfigure/poplarphotosynthesis.csv", header=T)
@@ -178,206 +288,372 @@ par(mar=c(4,4,2,1))
 plot(alba$time,alba$A370,type='b',lwd=1,ylab=expression(paste("Assimilation (",
                                                                 mu,mol," ",m^-2," ",s^-1,")")),
      ylim=range(-1:40),xlab="Time (h)",pch=19,lty=1)
+```
+
+```
+## Error: could not open file '../willowfigure/c3photovalidation2.jpeg'
+```
+
+```r
 
 lines(alba$time,alba$A370m,lty=3,type='b',pch=21)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 lines(alba$time,alba$A550,lty=1,type='b',pch=17)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 lines(alba$time,alba$A550m,lty=3,type="b",pch=2)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 text(x=21,y=38,c("A"))       
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 
 legend('topleft',c("Observed at 370ppm","Modelled at 370ppm","Observed at 550ppm","Modelled at 550ppm"),lty=c(1,3,1,3),pch=c(19,21,17,2),cex=1,lwd=1) 
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 
 
 plot(nigra$time,nigra$A370,type='b',lwd=1,ylab=expression(paste("Assimilation (",
                                                                 mu,mol," ",m^-2," ",s^-1,")")),
      ylim=range(-1:40),xlab="Time (h)",pch=19,lty=1)
+```
+
+```
+## Error: could not open file '../willowfigure/c3photovalidation2.jpeg'
+```
+
+```r
 
 lines(nigra$time,nigra$A370m,lty=3,type='b',pch=21)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 lines(nigra$time,nigra$A550,lty=1,type='b',pch=17)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 lines(nigra$time,nigra$A550m,lty=3,type="b",pch=2)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 text(x=21,y=38,c("B"))       
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 legend('topleft',c("Observed at 370ppm","Modelled at 370ppm","Observed at 550ppm","Modelled at 550ppm"),lty=c(1,3,1,3),pch=c(19,21,17,2),cex=1,lwd=1) 
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 
 plot(eura$time,eura$A370,type='b',lwd=1,ylab=expression(paste("Assimilation (",
                                                                 mu,mol," ",m^-2," ",s^-1,")")),
      ylim=range(-1:40),xlab="Time (h)",pch=19,lty=1)
+```
+
+```
+## Error: could not open file '../willowfigure/c3photovalidation2.jpeg'
+```
+
+```r
 
 lines(eura$time,eura$A370m,lty=3,type='b',pch=21)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 lines(eura$time,eura$A550,lty=1,type='b',pch=17)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 lines(eura$time,eura$A550m,lty=3,type="b",pch=2)
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 text(x=21,y=38,c("C"))       
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 
 legend('topleft',c("Observed at 370ppm","Modelled at 370ppm","Observed at 550ppm","Modelled at 550ppm"),lty=c(1,3,1,3),pch=c(19,21,17,2),cex=1,lwd=1) 
+```
+
+```
+## Error: plot.new has not been called yet
+```
+
+```r
 
 
 dev.off()
-
 ```
 
+```
+## pdf 
+##   2
+```
+
+
 At the single plot scale, simulated biomass accumulation allocated to leaf, stem and root closely followed observed measurementts (Lindh et al. 1994).
-```{r}
+
+```r
 require(ggplot2)
 library(BioCro)
 library(latticeExtra)
-canwillow<-willowcanopyParms(Sp=1.1,kd=0.37,GrowthRespFraction=0.3)
+canwillow <- willowcanopyParms(Sp = 1.1, kd = 0.37, GrowthRespFraction = 0.3)
 
-senwillow <- willowseneParms(senLeaf=1600,senStem=5500, senRoot=5500,senRhiz=5500,Tfrosthigh=5,Tfrostlow=0,leafdeathrate=5)
-
-
-phewillow <- willowphenoParms(tp1=250, tp2=350, tp3=900, tp4=1200, tp5=3939, tp6=7000,
-                              kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
-                              kStem2=0.01, kLeaf2=0.98, kRoot2=0.003, kRhizome2=0.007, 
-                              kStem3=0.7, kLeaf3=0.15, kRoot3=0.045, kRhizome3=0.105, 
-                              kStem4=0.7, kLeaf4=0.15, kRoot4=0.045, kRhizome4=0.105, 
-                              kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
-                              kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15)
+senwillow <- willowseneParms(senLeaf = 1600, senStem = 5500, senRoot = 5500, 
+    senRhiz = 5500, Tfrosthigh = 5, Tfrostlow = 0, leafdeathrate = 5)
 
 
-soilwillow <- soilParms(phi2=2,WiltP=0.16,wsFun=c('linear'))
-##site 1 for calibration
-#####Lindroth et al 1994 planting density is 20000/ha
+phewillow <- willowphenoParms(tp1 = 250, tp2 = 350, tp3 = 900, tp4 = 1200, tp5 = 3939, 
+    tp6 = 7000, kStem1 = 0.01, kLeaf1 = 0.98, kRoot1 = 0.01, kRhizome1 = -8e-04, 
+    kStem2 = 0.01, kLeaf2 = 0.98, kRoot2 = 0.003, kRhizome2 = 0.007, kStem3 = 0.7, 
+    kLeaf3 = 0.15, kRoot3 = 0.045, kRhizome3 = 0.105, kStem4 = 0.7, kLeaf4 = 0.15, 
+    kRoot4 = 0.045, kRhizome4 = 0.105, kStem5 = 0.7, kLeaf5 = 1e-05, kRoot5 = 0.15, 
+    kRhizome5 = 0.15, kStem6 = 0.7, kLeaf6 = 1e-06, kRoot6 = 0.15, kRhizome6 = 0.15)
 
 
-LAI1988 <- c(1.12349, 4.32988, 7.0629, 4.96791,1.58874) #from june to october
-LAI1986 <- c(2.41172,3.61459,5.22936,3.28399,0.499657)#from june to october
-stem1988 <- c(9.58217,13.4864,17.3891,19.3025,19.3984)
-stem1986 <- c(6.19766,9.19511,16.6033,18.2752,18.3713)
-leaf1988 <- c(1.78692,2.61024,3.55331,3.2308, 0.733343)
-leaf1986 <- c(1.24298,3.51604,5.06361,4.6804,2.24378)
-root1988 <- c(0,3.27545,2.94922,5.22448,7.37904)
+soilwillow <- soilParms(phi2 = 2, WiltP = 0.16, wsFun = c("linear"))
+## site 1 for calibration Lindroth et al 1994 planting density is 20000/ha
 
-obs <-data.frame(DAP=c(500,1000,1500,1800,2200),leaf1986=leaf1986,leaf1988=leaf1988,stem1986=stem1986,stem1988=stem1988,root1988=root1988,
-                 lai1986=LAI1986,lai1988=LAI1988)
-#obs <- data.frame(DAP=c(1500),leaf1986=max(leaf1986),stem1986=max(stem1986),lai1986=max(LAI1986),leaf1988=max(leaf1988),stem1988=max(stem1988),lai1988=max(LAI1988))
+
+LAI1988 <- c(1.12349, 4.32988, 7.0629, 4.96791, 1.58874)  #from june to october
+LAI1986 <- c(2.41172, 3.61459, 5.22936, 3.28399, 0.499657)  #from june to october
+stem1988 <- c(9.58217, 13.4864, 17.3891, 19.3025, 19.3984)
+stem1986 <- c(6.19766, 9.19511, 16.6033, 18.2752, 18.3713)
+leaf1988 <- c(1.78692, 2.61024, 3.55331, 3.2308, 0.733343)
+leaf1986 <- c(1.24298, 3.51604, 5.06361, 4.6804, 2.24378)
+root1988 <- c(0, 3.27545, 2.94922, 5.22448, 7.37904)
+
+obs <- data.frame(DAP = c(500, 1000, 1500, 1800, 2200), leaf1986 = leaf1986, 
+    leaf1988 = leaf1988, stem1986 = stem1986, stem1988 = stem1988, root1988 = root1988, 
+    lai1986 = LAI1986, lai1988 = LAI1988)
+# obs <-
+# data.frame(DAP=c(1500),leaf1986=max(leaf1986),stem1986=max(stem1986),lai1986=max(LAI1986),leaf1988=max(leaf1988),stem1988=max(stem1988),lai1988=max(LAI1988))
 load("/home/dwng/willowgrowclimate.RData")
-willowgrowclimate[willowgrowclimate$RH>1,]$RH<-1
-wet1984 <-willowgrowclimate[willowgrowclimate$year==1984,]
-wet1985 <-willowgrowclimate[willowgrowclimate$year==1985,]
-wet1986 <-willowgrowclimate[willowgrowclimate$year==1986,]
-wet1987 <-willowgrowclimate[willowgrowclimate$year==1987,]
-wet1988 <-willowgrowclimate[willowgrowclimate$year==1988,]
+willowgrowclimate[willowgrowclimate$RH > 1, ]$RH <- 1
+wet1984 <- willowgrowclimate[willowgrowclimate$year == 1984, ]
+wet1985 <- willowgrowclimate[willowgrowclimate$year == 1985, ]
+wet1986 <- willowgrowclimate[willowgrowclimate$year == 1986, ]
+wet1987 <- willowgrowclimate[willowgrowclimate$year == 1987, ]
+wet1988 <- willowgrowclimate[willowgrowclimate$year == 1988, ]
 
-iplant0 <-iwillowParms(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
+iplant0 <- iwillowParms(iRhizome = 1, iStem = 1, iLeaf = 0, iRoot = 1, ifrRhizome = 0.01, 
+    ifrStem = 0.01, ifrLeaf = 0, ifrRoot = 0)
 ## before coppicing
-res0 <- willowGro(wet1984,day1=120,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant0,soilControl=soilwillow)
-leaf0 <- max(res0$Leaf, na.rm=T)
-stem0<-res0$Stem[length(res0$Stem)]
-root0<-res0$Root[length(res0$Root)]
-rhiz0<-res0$Rhizome[length(res0$Rhizome)]
+res0 <- willowGro(wet1984, day1 = 120, dayn = 330, canopyControl = canwillow, 
+    willowphenoControl = phewillow, seneControl = senwillow, iPlantControl = iplant0, 
+    soilControl = soilwillow)
+leaf0 <- max(res0$Leaf, na.rm = T)
+stem0 <- res0$Stem[length(res0$Stem)]
+root0 <- res0$Root[length(res0$Root)]
+rhiz0 <- res0$Rhizome[length(res0$Rhizome)]
 
 
 
 ## Growing season 1
-stem0=stem0*0.05
-#day1= wet1985[wet1985$Temp >=6,]$doy[1] 
-day1=120
-iplant1 <-iwillowParms(iRhizome=rhiz0,iStem=stem0,iLeaf=0.0,iRoot=root0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-res1 <- willowGro(wet1985,day1=day1,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant1,soilControl=soilwillow)
-stem1<-res1$Stem[length(res1$Stem)]
-root1<-res1$Root[length(res1$Root)]
-rhiz1<-res1$Rhizome[length(res1$Rhizome)]
+stem0 = stem0 * 0.05
+# day1= wet1985[wet1985$Temp >=6,]$doy[1]
+day1 = 120
+iplant1 <- iwillowParms(iRhizome = rhiz0, iStem = stem0, iLeaf = 0, iRoot = root0, 
+    ifrRhizome = 0.01, ifrStem = 0.01, ifrLeaf = 0, ifrRoot = 0)
+res1 <- willowGro(wet1985, day1 = day1, dayn = 330, canopyControl = canwillow, 
+    willowphenoControl = phewillow, seneControl = senwillow, iPlantControl = iplant1, 
+    soilControl = soilwillow)
+stem1 <- res1$Stem[length(res1$Stem)]
+root1 <- res1$Root[length(res1$Root)]
+rhiz1 <- res1$Rhizome[length(res1$Rhizome)]
 
 
 
 
-stem1=stem1*0.8
-## Growing season 2
-##day1= wet1986[wet1986$Temp >=6,]$doy[1] 
-day1=120
-iplant2 <-iwillowParms(iRhizome=rhiz1,iStem=stem1,iLeaf=0.0,iRoot=root1,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-res2 <- willowGro(wet1986,day1=day1,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant2,soilControl=soilwillow)
-stem2<-res2$Stem[length(res2$Stem)]
-root2<-res2$Root[length(res2$Root)]
-rhiz2<-res2$Rhizome[length(res2$Rhizome)]
+stem1 = stem1 * 0.8
+## Growing season 2 day1= wet1986[wet1986$Temp >=6,]$doy[1]
+day1 = 120
+iplant2 <- iwillowParms(iRhizome = rhiz1, iStem = stem1, iLeaf = 0, iRoot = root1, 
+    ifrRhizome = 0.01, ifrStem = 0.01, ifrLeaf = 0, ifrRoot = 0)
+res2 <- willowGro(wet1986, day1 = day1, dayn = 330, canopyControl = canwillow, 
+    willowphenoControl = phewillow, seneControl = senwillow, iPlantControl = iplant2, 
+    soilControl = soilwillow)
+stem2 <- res2$Stem[length(res2$Stem)]
+root2 <- res2$Root[length(res2$Root)]
+rhiz2 <- res2$Rhizome[length(res2$Rhizome)]
 ans.dat <- as.data.frame(unclass(res2)[1:11])
-sel.rows <- seq(1,nrow(ans.dat),length.out=5)
-simDat2 <- ans.dat[sel.rows,c('ThermalT','Stem','Leaf','Root','Rhizome','Grain','LAI')]
-simDat2$Rhizome=0
-simDat2$Root=0
-simDat2$ThermalT=obs$DAP
-simDat2$Leaf=0
-simDat2$LAI=obs$lai1986
-simDat2$Stem=obs$stem1986
+sel.rows <- seq(1, nrow(ans.dat), length.out = 5)
+simDat2 <- ans.dat[sel.rows, c("ThermalT", "Stem", "Leaf", "Root", "Rhizome", 
+    "Grain", "LAI")]
+simDat2$Rhizome = 0
+simDat2$Root = 0
+simDat2$ThermalT = obs$DAP
+simDat2$Leaf = 0
+simDat2$LAI = obs$lai1986
+simDat2$Stem = obs$stem1986
 
-res=res2
-pred1986=data.frame(doy=res$DayofYear,gdd=round(res$ThermalT,digit=0),stem=res$Stem,leaf=res$Leaf,LAI=res$LAI,root=res$Root,et=res$SoilEvaporation,soilwater=res$SoilWatCont)
-modelled1986=pred1986[c(906,1528,2184,2582,3251),]  
-                 
-#coppicing at jan
-stem2=stem2*0.05
-#day1= wet1987[wet1987$Temp >=6,]$doy[1] 
-iplant3 <-iwillowParms(iRhizome=rhiz2,iStem=stem2,iLeaf=0.0,iRoot=root2,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-res3 <- willowGro(wet1987,day1=day1,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant3,soilControl=soilwillow)
-stem3<-res3$Stem[length(res3$Stem)]
-root3<-res3$Root[length(res3$Root)]
-rhiz3<-res3$Rhizome[length(res3$Rhizome)]
+res = res2
+pred1986 = data.frame(doy = res$DayofYear, gdd = round(res$ThermalT, digit = 0), 
+    stem = res$Stem, leaf = res$Leaf, LAI = res$LAI, root = res$Root, et = res$SoilEvaporation, 
+    soilwater = res$SoilWatCont)
+modelled1986 = pred1986[c(906, 1528, 2184, 2582, 3251), ]
 
-stem3=stem3*0.95
-#day1= 110
-iplant4 <-iwillowParms(iRhizome=rhiz3,iStem=stem3,iLeaf=0.0,iRoot=root3,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
-res4 <- willowGro(wet1988,day1=day1,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
-                  iPlantControl=iplant4,soilControl=soilwillow)
-stem4<-res4$Stem[length(res4$Stem)]
-root4<-res4$Root[length(res4$Root)]
-rhiz4<-res4$Rhizome[length(res4$Rhizome)]
+# coppicing at jan
+stem2 = stem2 * 0.05
+# day1= wet1987[wet1987$Temp >=6,]$doy[1]
+iplant3 <- iwillowParms(iRhizome = rhiz2, iStem = stem2, iLeaf = 0, iRoot = root2, 
+    ifrRhizome = 0.01, ifrStem = 0.01, ifrLeaf = 0, ifrRoot = 0)
+res3 <- willowGro(wet1987, day1 = day1, dayn = 330, canopyControl = canwillow, 
+    willowphenoControl = phewillow, seneControl = senwillow, iPlantControl = iplant3, 
+    soilControl = soilwillow)
+stem3 <- res3$Stem[length(res3$Stem)]
+root3 <- res3$Root[length(res3$Root)]
+rhiz3 <- res3$Rhizome[length(res3$Rhizome)]
+
+stem3 = stem3 * 0.95
+# day1= 110
+iplant4 <- iwillowParms(iRhizome = rhiz3, iStem = stem3, iLeaf = 0, iRoot = root3, 
+    ifrRhizome = 0.01, ifrStem = 0.01, ifrLeaf = 0, ifrRoot = 0)
+res4 <- willowGro(wet1988, day1 = day1, dayn = 330, canopyControl = canwillow, 
+    willowphenoControl = phewillow, seneControl = senwillow, iPlantControl = iplant4, 
+    soilControl = soilwillow)
+stem4 <- res4$Stem[length(res4$Stem)]
+root4 <- res4$Root[length(res4$Root)]
+rhiz4 <- res4$Rhizome[length(res4$Rhizome)]
 
 ans.dat <- as.data.frame(unclass(res4)[1:11])
-sel.rows <- seq(1,nrow(ans.dat),length.out=5)
-simDat4 <- ans.dat[sel.rows,c('ThermalT','Stem','Leaf','Root','Rhizome','Grain','LAI')]
-simDat4$Rhizome=0
-simDat4$Root=0
-simDat4$ThermalT=obs$DAP
-simDat4$Leaf=0
-simDat4$LAI=obs$lai1988
-simDat4$Stem=obs$stem1988
+sel.rows <- seq(1, nrow(ans.dat), length.out = 5)
+simDat4 <- ans.dat[sel.rows, c("ThermalT", "Stem", "Leaf", "Root", "Rhizome", 
+    "Grain", "LAI")]
+simDat4$Rhizome = 0
+simDat4$Root = 0
+simDat4$ThermalT = obs$DAP
+simDat4$Leaf = 0
+simDat4$LAI = obs$lai1988
+simDat4$Stem = obs$stem1988
 
-res=res4
-pred1988=data.frame(doy=res$DayofYear,gdd=round(res$ThermalT,digit=0),stem=res$Stem,leaf=res$Leaf,LAI=res$LAI,root=res$Root,et=res$SoilEvaporation,soilwater=res$SoilWatCont)
-modelled1988=pred1988[c(872,1482,2083,2474,3039),]  
-obs1986=data.frame(doy=modelled1986$doy,stem=obs$stem1986,leaf=obs$leaf1986,lai=obs$lai1986)
-obs1988=data.frame(doy=modelled1988$doy,stem=obs$stem1988,leaf=obs$leaf1988,lai=obs$lai1988,root=obs$root1988)
-                 
-save(modelled1986,modelled1988,obs1986,obs1988, file="/home/dwng/willowfigure/calibration.RData")
+res = res4
+pred1988 = data.frame(doy = res$DayofYear, gdd = round(res$ThermalT, digit = 0), 
+    stem = res$Stem, leaf = res$Leaf, LAI = res$LAI, root = res$Root, et = res$SoilEvaporation, 
+    soilwater = res$SoilWatCont)
+modelled1988 = pred1988[c(872, 1482, 2083, 2474, 3039), ]
+obs1986 = data.frame(doy = modelled1986$doy, stem = obs$stem1986, leaf = obs$leaf1986, 
+    lai = obs$lai1986)
+obs1988 = data.frame(doy = modelled1988$doy, stem = obs$stem1988, leaf = obs$leaf1988, 
+    lai = obs$lai1988, root = obs$root1988)
 
-jpeg("/home/dwng/willowfigure/calibration529.jpg", width=10, height=5, units="in", res=600) 
-par(mfrow=c(1,2))
-par(mar=c(4,4,2,1))
-plot(modelled1986$doy,modelled1986$stem,type='b',lwd=1,ylab="Biomass partitioning (Mg/ha)"
-                      ,ylim=range(1:25),xlab="Day of Year",main="A:first rotation, second year",pch=19,lty=1)
-             
-lines(obs1986$doy,obs1986$stem,lty=3,type='b',pch=21)
-lines(modelled1986$doy,modelled1986$leaf,lty=1,type='b',pch=17)
-lines(obs1986$doy,obs1986$leaf,lty=3,type="b",pch=2)
-legend('topleft',c("Modelled stem","Observed stem","Modelled leaf","Observed leaf"),lty=c(1,3,1,3),pch=c(19,21,17,2),cex=1,lwd=1)
-                 
-plot(modelled1988$doy,modelled1988$stem,type='b',lwd=1,ylab="Biomass partitioning (Mg/ha)"
-                      ,ylim=range(1:25),xlab="Day of Year",main="B:Second rotation, second year",pch=19,lty=1)
-                 
-lines(obs1988$doy,obs1988$stem,lty=3,type='b',pch=21)
-lines(modelled1988$doy,modelled1988$leaf,lty=1,type='b',pch=17)
-lines(obs1988$doy,obs1988$leaf,lty=3,type="b",pch=2)
-lines(modelled1988$doy,modelled1988$root,lty=1,type='b',pch=15)
-lines(obs1988$doy[4:5],obs1988$root[4:5],lty=3,type="b",pch=0)                 
+save(modelled1986, modelled1988, obs1986, obs1988, file = "/home/dwng/willowfigure/calibration.RData")
 
-legend('topleft',c("Modelled stem","Observed stem","Modelled leaf","Observed leaf","Modelled root","Observed root"),lty=c(1,3,1,3,1,3),pch=c(19,21,17,2,15,0),cex=1,lwd=1)                
-dev.off()                 
+jpeg("/home/dwng/willowfigure/calibration529.jpg", width = 10, height = 5, units = "in", 
+    res = 600)
+par(mfrow = c(1, 2))
+par(mar = c(4, 4, 2, 1))
+plot(modelled1986$doy, modelled1986$stem, type = "b", lwd = 1, ylab = "Biomass partitioning (Mg/ha)", 
+    ylim = range(1:25), xlab = "Day of Year", main = "A:first rotation, second year", 
+    pch = 19, lty = 1)
+
+lines(obs1986$doy, obs1986$stem, lty = 3, type = "b", pch = 21)
+lines(modelled1986$doy, modelled1986$leaf, lty = 1, type = "b", pch = 17)
+lines(obs1986$doy, obs1986$leaf, lty = 3, type = "b", pch = 2)
+legend("topleft", c("Modelled stem", "Observed stem", "Modelled leaf", "Observed leaf"), 
+    lty = c(1, 3, 1, 3), pch = c(19, 21, 17, 2), cex = 1, lwd = 1)
+
+plot(modelled1988$doy, modelled1988$stem, type = "b", lwd = 1, ylab = "Biomass partitioning (Mg/ha)", 
+    ylim = range(1:25), xlab = "Day of Year", main = "B:Second rotation, second year", 
+    pch = 19, lty = 1)
+
+lines(obs1988$doy, obs1988$stem, lty = 3, type = "b", pch = 21)
+lines(modelled1988$doy, modelled1988$leaf, lty = 1, type = "b", pch = 17)
+lines(obs1988$doy, obs1988$leaf, lty = 3, type = "b", pch = 2)
+lines(modelled1988$doy, modelled1988$root, lty = 1, type = "b", pch = 15)
+lines(obs1988$doy[4:5], obs1988$root[4:5], lty = 3, type = "b", pch = 0)
+
+legend("topleft", c("Modelled stem", "Observed stem", "Modelled leaf", "Observed leaf", 
+    "Modelled root", "Observed root"), lty = c(1, 3, 1, 3, 1, 3), pch = c(19, 
+    21, 17, 2, 15, 0), cex = 1, lwd = 1)
+dev.off()
 ```
+
+```
+## pdf 
+##   2
+```
+
 
 The modelin gof above ground biomass partitioning agreeed with the reported data (Proe et al.2002) (Table).The close agreet between simulated and observed data was observed in studies in both Europe and the US, suggesting that the model was albe to account for the variability in envrionmental conditions.
-```{r}
+
+```r
 require(ggplot2)
 library(BioCro)
 library(latticeExtra)
 ```
 
 
-```{r}
+
+
+```r
 require(ggplot2)
 library(BioCro)
 library(latticeExtra)
 ```
+
 Discussion
 ----------
