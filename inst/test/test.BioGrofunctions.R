@@ -29,6 +29,7 @@ test_that("WillowGro function produces expected results",{
     }
 
     ll.0 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=1)
+    ## increase phi2 that controls water limitation
     ll.1 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=4)
     
     ans.0 <- do.call(biocrofn, list(weather05,soilControl=ll.0))
@@ -37,5 +38,18 @@ test_that("WillowGro function produces expected results",{
     for(output in c("LAI", "Leaf", "Root", "Stem")){
       expect_true(all(ans.0[[output]] - ans.1[[output]] >= -1))
     }
+  }
+})
+
+test_that("lowering field capacity reduces yield",{
+  ll.0 <- soilParms(FieldC=0.4, WiltP=0.2, phi2=1)
+  ## increase phi2 that controls water limitation
+  ll.1 <- soilParms(FieldC=0.3, WiltP=0.2, phi2=1)
+  
+  ans.0 <- do.call(biocrofn, list(weather05,soilControl=ll.0))
+  ans.1 <- do.call(biocrofn, list(weather05,soilControl=ll.1))
+  
+  for(output in c("LAI", "Leaf", "Root", "Stem")){
+    expect_true(all(ans.0[[output]] >= ans.1[[output]]))
   }
 })
