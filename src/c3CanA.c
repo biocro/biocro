@@ -41,7 +41,8 @@ SEXP c3CanA(SEXP Lai,
    struct ET_Str tmp5_ET , tmp6_ET; 
    struct c3_str tmpc3, tmpc32; 
 
-  const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
+  const double cf = 3600 * 1e-6 * 12 * 1e-6 * 10000/0.48;
+  /*12 is the molecular weight for C, 48% is assumbed to be the carbon content for leaf biomass
 /* Need a different conversion factor for transpiration */
   const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
   /* 3600 - number of seconds in an hour */

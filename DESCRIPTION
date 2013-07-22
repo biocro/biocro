@@ -2,24 +2,62 @@ Package: BioCro
 Version: 0.91
 Title: BioCro Crop and Agroecosystem Simulator
 Description: Simulation of C4 Crops and Coppice Trees
-Author: Fernando Miguez <femiguez@iastate.edu>, 
-        Deepak Jaiswal <djaiswal@illinois.edu>,
-        Dan Wang <dwng@illinois.edu>,
-        David LeBauer <dlebauer@illinois.edu>
+Author: Fernando Miguez <femiguez@iastate.edu>,
+    Deepak Jaiswal <djaiswal@illinois.edu>,
+    Dan Wang <dwng@illinois.edu>,
+    David LeBauer <dlebauer@illinois.edu>
 Maintainer: David LeBauer <dlebauer@illinois.edu>
-Depends: R(>= 2.5.0), lattice
-Suggests: coda, knitr
-Imports: stats, lattice
+Depends:
+    R(>= 2.5.0),
+    lattice
+Suggests:
+    coda,
+    knitr
+Imports:
+    stats,
+    lattice
 VignetteBuilder: knitr
 License: FreeBSD + file LICENSE
 Packaged: 2013-03-29 07:12:38 UTC; djaiswal
-Collate: 'BioCro.R' 'CanA.R' 'Century.R' 'CheckLeapYear.R'
-        'MCMCBioGro.R' 'OpBioGro.R' 'OpEC4photo.R' 'Opc3photo.R'
-        'Opc4photo.R' 'RUEmod.R' 'RUEmodMY.R' 'Rmiscanmod.R'
-        'RssBioGro.R' 'SatWatVap.R' 'SoilEvapo.R' 'biocro-package.R'
-        'c3CanA.R' 'c3photo.R' 'c4photo.R' 'constrOpBioGro.R'
-        'eC4photo.R' 'idbp.R' 'lightME.R' 'plotAC.R' 'plotAQ.R'
-        'showSoilType.R' 'soilML.R' 'sunML.R' 'valid_dbp.R'
-        'waterStress.R' 'weach.R' 'weach365.R' 'weach366.R'
-        'weachNEW.R' 'weach_imn.R' 'idbpm.R' 'MaizeGro.R'
-        'OpMaizeGro.R' 'RssMaizeGro.R' 'caneGro.R' 'willowGro.R'
+Collate:
+    'BioCro.R'
+    'CanA.R'
+    'Century.R'
+    'CheckLeapYear.R'
+    'MCMCBioGro.R'
+    'OpBioGro.R'
+    'OpEC4photo.R'
+    'Opc3photo.R'
+    'Opc4photo.R'
+    'RUEmod.R'
+    'RUEmodMY.R'
+    'Rmiscanmod.R'
+    'RssBioGro.R'
+    'SatWatVap.R'
+    'SoilEvapo.R'
+    'biocro-package.R'
+    'c3CanA.R'
+    'c3photo.R'
+    'c4photo.R'
+    'constrOpBioGro.R'
+    'eC4photo.R'
+    'idbp.R'
+    'lightME.R'
+    'plotAC.R'
+    'plotAQ.R'
+    'showSoilType.R'
+    'soilML.R'
+    'sunML.R'
+    'valid_dbp.R'
+    'waterStress.R'
+    'weach.R'
+    'weach365.R'
+    'weach366.R'
+    'weachNEW.R'
+    'weach_imn.R'
+    'idbpm.R'
+    'MaizeGro.R'
+    'OpMaizeGro.R'
+    'RssMaizeGro.R'
+    'caneGro.R'
+    'willowGro.R'
