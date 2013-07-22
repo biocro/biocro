@@ -33,27 +33,23 @@ knitr::opts_chunk$set(echo=FALSE, comment = FALSE, warning = FALSE, echo = FALSE
 ```
 
 ```{r}
-
-results <- list(study = c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 3, 3, 3, 3, 4, 4, 
-4, 5, 5, 6, 6, 6, 7, 8, 9, 9, 9, 9, 9, 10),
-                      observed = c(6.2, 9.2, 16.6, 18.3, 18.4, 9.58, 13.5, 17.4, 19.3, 19.4, 37.5, 25.9, 36.1, 29.3, 50.5, 9.25, 31, 13, 14.7, 25.6, 33.3, 11.2, 59.1, 14.9, 32.1, 64.6, 44.8, 34.6, 5.59, 12.9, 13.3, 14.1, 8.67, 15.4))
-
-files <- dir("~/Dropbox/datafordiagram",full.names=TRUE)
-for(file in files){
-  version <- gsub(".RData", "", gsub("validationstem", "", basename(file)))  
-  load(file)
-  results[[version]] <- signif(compareStem[,"Predicted"], 3)
+pred <- list()
+for(version in c("60", "70", "75", "81", "92")) {
+  load(paste0("C:/Users/dlebauer/R-dev/biocro/inst/extdata/v0", version, ".RData"))  
+  pred[[version]] <- compareStem$Predicted
+  if(!identical(compareStem$Observed, observed)) stop(paste(version, "observed values inconsistent"))
 }
+
+pred.df <- as.data.frame(pred)
+colnames(pred.df) <- gsub("X", "V0.", colnames(pred.df))
+results <- cbind(observed = compareStem$Observed, study = compareStem$Irrigated, pred.df)
+
+
 results.long <- data.frame(study = rep(results$study, 5),
                            observed = rep(results$observed, 5),
                            modeled = unlist(results[3:7]),
                            version = rep(names(results[3:7]), each = length(results[[1]])))
-
-
                            
-results <- as.data.frame(results)
-
-
 ```
 
 
@@ -61,10 +57,10 @@ results <- as.data.frame(results)
 ```{r fig.width=7, fig.height=6}
 library(plotrix)
 taylor.diagram(results$observed, results$V0.75, normalize = TRUE, sd.arcs=TRUE)
-taylor.diagram(results$observed, results$V0.6, normalize = TRUE, add = TRUE)
-taylor.diagram(results$observed, results$V0.7, normalize = TRUE, add = TRUE)
+taylor.diagram(results$observed, results$V0.60, normalize = TRUE, add = TRUE)
+taylor.diagram(results$observed, results$V0.70, normalize = TRUE, add = TRUE)
 taylor.diagram(results$observed, results$V0.81, normalize = TRUE, add = TRUE)
-taylor.diagram(results$observed, results$V0.91, normalize = TRUE, add = TRUE)
+taylor.diagram(results$observed, results$V0.92, normalize = TRUE, add = TRUE)
 
 mean <- sapply(results[,3:7], mean)
 sd.f <- sapply(results[,3:7], sd)/sd(results$observed)
@@ -99,16 +95,16 @@ text(x + c(0, 0.08, 0.22, 0.26, -0.24), y - c(0, 0.05, 0, 0, 0), labels = c("", 
 
 ```{r}
 ## stepwise
-V0.7 <- t.test(results$V0.6, results$V0.7, paired = TRUE)
-V0.75 <- t.test(results$V0.7, results$V0.75, paired = TRUE)
+V0.70 <- t.test(results$V0.60, results$V0.70, paired = TRUE)
+V0.75 <- t.test(results$V0.70, results$V0.75, paired = TRUE)
 V0.81 <- t.test(results$V0.75, results$V0.81, paired = TRUE)
-V0.91 <- t.test(results$V0.81, results$V0.91, paired = TRUE)
+V0.92 <- t.test(results$V0.81, results$V0.92, paired = TRUE)
 ### Overall
-V0.6_V0.91 <- t.test(results$V0.6, results$V0.91, paired = TRUE)
+V0.6_V0.92 <- t.test(results$V0.60, results$V0.92, paired = TRUE)
 
 result.table <- data.frame(version = names(x), 
                       description = c("start", "added C3", "perenating stem", "growth respiration", "leaf senescence"), 
-                      sd = round(sd.f, 2), RMSE = round(R, 2), P = round(c(NA, V0.7$p.value, V0.75$p.value, V0.81$p.value, V0.91$p.value), 2))
+                      sd = round(sd.f, 2), RMSE = round(R, 2), P = round(c(NA, V0.70$p.value, V0.75$p.value, V0.81$p.value, V0.92$p.value), 2))
 library(pander)
 panderOptions('table.split.table', Inf)
 ```
