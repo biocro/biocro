@@ -15,7 +15,7 @@
 ##'
 ##' Simulates dry biomass growth during an entire growing season.  It
 ##' represents an integration of the photosynthesis function
-##' \code{\link{c4photo}}, canopy evapo/transpiration \code{\link{CanA}}, the
+##' \code{\link{c3photo}}, canopy evapo/transpiration \code{\link{CanA}}, the
 ##' multilayer canopy model \code{\link{sunML}} and a dry biomass partitioning
 ##' calendar and senescence. It also considers, carbon and nitrogen cycles and
 ##' water and nitrogen limitations.
@@ -63,23 +63,23 @@
 ##' @param photoControl List that controls aspects of photosynthesis
 ##' simulation. It should be supplied through the \code{photoParms} function.
 ##'
-##' \code{vmax} Vmax passed to the \code{\link{c4photo}} function.
+##' \code{vmax} Vmax passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{alpha} alpha parameter passed to the \code{\link{c4photo}} function.
+##' \code{alpha} alpha parameter passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{kparm} kparm parameter passed to the \code{\link{c4photo}} function.
+##' \code{kparm} kparm parameter passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{theta} theta parameter passed to the \code{\link{c4photo}} function.
+##' \code{theta} theta parameter passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{beta} beta parameter passed to the \code{\link{c4photo}} function.
+##' \code{beta} beta parameter passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{Rd} Rd parameter passed to the \code{\link{c4photo}} function.
+##' \code{Rd} Rd parameter passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{Catm} Catm parameter passed to the \code{\link{c4photo}} function.
+##' \code{Catm} Catm parameter passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{b0} b0 parameter passed to the \code{\link{c4photo}} function.
+##' \code{b0} b0 parameter passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
+##' \code{b1} b1 parameter passed to the \code{\link{c3photo}} function.
 ##' @param phenoControl List that controls aspects of the crop phenology. It
 ##' should be supplied through the \code{phenoParms} function.
 ##'

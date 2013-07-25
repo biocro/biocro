@@ -35,7 +35,7 @@ dir.create("figure", showWarnings = FALSE)
 The package has only two functions at the time. The first one of interest is
 \texttt{c3photo}. Let us see what the arguments for this function are
 
-<<<argC3photo>>=
+<<argC3photo>>=
 args(c3photo)
 @ 
 
@@ -101,8 +101,10 @@ recover them from the data alone?
 
 <<Opc30a, eval=FALSE>>=
 Opc3photo(simA100[,1:5],Catm=simA100[,9], curve.kind="Ci", op.level=2)
+
 @ 
-<<Opc30b,echo=FALSE>>=
+<<Opc30b>>=
+
 tmp <- try(Opc3photo(simA100[,1:5],Catm=simA100[,9], curve.kind="Ci", op.level=2),silent=TRUE)
 @ 
 <<echo=FALSE>>=
