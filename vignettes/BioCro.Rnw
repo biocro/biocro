@@ -22,7 +22,7 @@
 Simulation and parameter estimation of photosynthesis and crop growth.
 \end{abstract}
 
-<<preliminaries,echo=FALSE,print=FALSE>>=
+<<preliminaries,echo=FALSE>>=
 options(width=80)
 library(BioCro)
 @
@@ -58,7 +58,7 @@ The plotting method provides a convenient way of displaying the results.
 <<plotBioGro, eval=FALSE>>=
 plot(res)
 @ 
-<<echo=FALSE, print=FALSE, term=FALSE>>=
+<<echo=FALSE>>=
 dir.create("figure", showWarnings = FALSE)
 pdf("./figure/BioCro-plotBioGro.pdf")
 plot(res)

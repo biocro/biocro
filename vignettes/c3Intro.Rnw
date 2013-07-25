@@ -22,7 +22,7 @@
 Simulation of $C_3$ photosynthesis and estimation of parameters.
 \end{abstract}
 
-<<preliminaries,echo=FALSE,print=FALSE>>=
+<<preliminaries,echo=FALSE>>=
 options(width=80)
 library(lattice)
 library(BioCro)
@@ -50,7 +50,7 @@ stomatal conductance and \texttt{theta} is the curvature parameter for
 the light response. For more information see the function
 documentation (i.e. ?c3photo).
 
-<<C3photo,fig=TRUE,include=FALSE,echo=FALSE>>=
+<<C3photo,include=FALSE,echo=FALSE>>=
 Qps <- seq(0,2000,10)
 Tls <- seq(0,50,5)
 rhs <- c(0.7)
@@ -149,7 +149,7 @@ standardized.
 <<op100resid, eval=FALSE>>=
 plot(op100, resid="raw")
 @ 
-<<echo=FALSE, print=FALSE, term=FALSE>>=
+<<echo=FALSE>>=
 pdf("./figure/c3Intro-op100resid.pdf")
 plot(op100, resid="raw")
 dev.off()
@@ -169,7 +169,7 @@ vs. fitted.
 plot(op100, plot.kind="OvsF")
 plot(op100, plot.kind="OandF", type='o')
 @
-<<op100OvsF, echo=FALSE, print=FALSE, term=FALSE>>=
+<<op100OvsF, echo=FALSE>>=
 pdf("./figure/c3Intro-op100-OvsF.pdf")
 plot(op100, plot.kind="OvsF")
 dev.off()
@@ -262,7 +262,7 @@ examine if each optimization was able to recover the true values.
 
 \vspace*{0.5cm}
 
-<<TvsEparms1,fig=TRUE>>=
+<<TvsEparms1>>=
 plot(parms[,1],op.all2$mat[,2], ylim=c(70,110), xlim=c(70,110),
      xlab="Obs (true)",ylab="Sim (est)",main="Vcmax")
 abline(0,1)
@@ -276,7 +276,7 @@ abline(0,1)
 
 \vspace*{0.5cm}
 
-<<TvsEparms2,fig=TRUE>>=
+<<TvsEparms2>>=
 plot(parms[,2],op.all2$mat[,3],xlab="Obs (true)",ylab="Sim (est)",main="Jmax")
 abline(0,1)
 @
@@ -289,7 +289,7 @@ abline(0,1)
 
 \vspace*{0.5cm}
 
-<<TvsEparms3,fig=TRUE>>=
+<<TvsEparms3>>=
 plot(parms[,3],op.all2$mat[,4],xlab="Obs (true)",ylab="Sim (est)",main="Rd")
 abline(0,1)
 @
