@@ -99,10 +99,10 @@ know that this dataset was simulated and that the `true' values for
 $Vcmax$, $Jmax$, and $Rd$ are 90.8, 206, and 2.31 respectively. Can we
 recover them from the data alone?
 
-<<Opc30, eval=FALSE>>=
+<<Opc30a, eval=FALSE>>=
 Opc3photo(simA100[,1:5],Catm=simA100[,9], curve.kind="Ci", op.level=2)
 @ 
-<<Opc30,echo=FALSE>>=
+<<Opc30b,echo=FALSE>>=
 tmp <- try(Opc3photo(simA100[,1:5],Catm=simA100[,9], curve.kind="Ci", op.level=2),silent=TRUE)
 @ 
 <<echo=FALSE>>=
