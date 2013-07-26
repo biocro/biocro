@@ -4,7 +4,8 @@
 \usage{
   c3CanA(lai, doy, hr, solar, temp, rh, windspeed,
     lat = 40, nlayers = 8, kd = 0.1, heightFactor = 3,
-    c3photoControl = list(), lnControl = list())
+    c3photoControl = list(), lnControl = list(),
+    StomWS = 1)
 }
 \arguments{
   \item{lai}{leaf area index.}

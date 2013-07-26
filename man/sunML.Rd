@@ -35,6 +35,7 @@
   on the sunlit-shade model and the multiple layers.
 }
 \examples{
+\dontrun{
 res2 <- sunML(1500,200,3,10)
 
 xyplot(Fsun + Fshade ~ c(1:10), data=res2,
@@ -45,6 +46,7 @@ xyplot(Fsun + Fshade ~ c(1:10), data=res2,
        key=list(text=list(c('Direct','Diffuse')),lty=c(1,2),
                 cex=1.2,lwd=2,lines=TRUE,x=0.7,y=0.5,
                 col=c('blue','green')))
+}
 }
 \keyword{models}
 

@@ -3,7 +3,8 @@
 \title{Simulates C3 photosynthesis}
 \usage{
   c3photo(Qp, Tl, RH, vcmax = 100, jmax = 180, Rd = 1.1,
-    Catm = 380, O2 = 210, b0 = 0.08, b1 = 5, theta = 0.7)
+    Catm = 380, O2 = 210, b0 = 0.08, b1 = 5, theta = 0.7,
+    StomWS = 1, ws = c("gs", "vmax"))
 }
 \arguments{
   \item{Qp}{Quantum flux}

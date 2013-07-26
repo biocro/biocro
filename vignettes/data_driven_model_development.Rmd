@@ -29,7 +29,7 @@ Results
 
 ```{r }
 
-knitr::opts_chunk$set(echo=FALSE, comment = FALSE, warning = FALSE, echo = FALSE)
+knitr::opts_chunk$set(echo=FALSE, eval=FALSE,comment = FALSE, warning = FALSE, echo = FALSE)
 ```
 
 ```{r}

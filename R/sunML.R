@@ -37,7 +37,7 @@
 ##' light.
 ##' @keywords models
 ##' @examples
-##'
+##' \dontrun{
 ##' res2 <- sunML(1500,200,3,10)
 ##'
 ##' xyplot(Fsun + Fshade ~ c(1:10), data=res2,
@@ -48,7 +48,7 @@
 ##'        key=list(text=list(c('Direct','Diffuse')),lty=c(1,2),
 ##'                 cex=1.2,lwd=2,lines=TRUE,x=0.7,y=0.5,
 ##'                 col=c('blue','green')))
-##'
+##' }
 sunML <- function(Idir,Idiff,LAI=8,nlayers=8,cos.theta=0.5,kd=0.7,chi.l=1,heightf=3){
   ##    /*extinction coefficient evaluated here is defined as ratio of
   ##  shadow on the horizontal area projected from a zenith angle Theta.
@@ -60,7 +60,6 @@ sunML <- function(Idir,Idiff,LAI=8,nlayers=8,cos.theta=0.5,kd=0.7,chi.l=1,height
   ##  /* currently a default value of kd is used, this value can be calculated, see page 254 of Campbell and Norman */
   ## /* Long Wave radiation balance has not been included in the canopy environment */
   ##  /*Long wave radiation balance is handled to first order in evapotrans/*
-  
   alphascatter=0.8 ##/* This value is for PAR, for long wave radiation a smaller value = 0.2 
   ##is recommended see page  255 of campbell and Norman */
   k0 =  sqrt(chi.l ^ 2) + tan(acos(cos.theta))^2
