@@ -116,7 +116,6 @@
 
     ## Effect of the previous runs on Stomatal conductance
 
-    x11() # opens a new plotting device
     xyplot(res1$Gs ~ Qp | factor(Tl) , data = dat1,
            type='l', groups=RH,
            col=c('blue','green'),lwd=2,

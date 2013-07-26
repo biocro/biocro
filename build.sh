@@ -12,7 +12,7 @@
 # cd $(dirname $0)/..
 
 # these variables are set using the command line arguments below
-EMAIL=""
+EMAIL="dlebauer@gmail.com"
 GIT="no"
 FORCE="yes"
 CHECK="no"
@@ -190,10 +190,10 @@ if [ "$FORCE" == "yes" ]; then
     if [ "$EMAIL" == "" ]; then
 	cat changes.log
     else
-	cat changes.log | mail -s "PEcAn BUILD ${REVNO} is ${STATUS}" ${EMAIL}
+	cat changes.log | mail -s "BioCro BUILD ${REVNO} is ${STATUS}" ${EMAIL}
     fi
 
     # cleanup
-    rm -rf changes.log out.log *.Rcheck PEcAn.*.tar.gz PEcAn.*.tgz
+    rm -rf changes.log out.log *.Rcheck BioCro*.tar.gz BioCro.*.tgz
 fi
 
