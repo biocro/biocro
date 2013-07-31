@@ -67,8 +67,6 @@
 ##'
 ##' \code{alpha} alpha parameter passed to the \code{\link{c3photo}} function.
 ##'
-##' \code{kparm} kparm parameter passed to the \code{\link{c3photo}} function.
-##'
 ##' \code{theta} theta parameter passed to the \code{\link{c3photo}} function.
 ##'
 ##' \code{beta} beta parameter passed to the \code{\link{c3photo}} function.
@@ -285,44 +283,43 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                    iPlantControl=list(),
                    centuryControl=list())
   {
+  
+      ## Trying to guess the first and last day of the growing season from weather data
 
-    
-## Trying to guess the first and last day of the growing season from weather data
- 
-  
-  
-    if(missing(day1)){
-        half <- as.integer(dim(WetDat)[1]/2)
-        WetDat1 <- WetDat[1:half,c(2,5)]
-        if(min(WetDat1[,2]) > 0){
-          day1 <- 90
-        }else{
-        WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
-        day1 <- max(WetDat1s[,1])
-        if(day1 < 90) day1 <- 90
-      }
-     }
-    if(missing(dayn)){
-        half <- as.integer(dim(WetDat)[1]/2)
-        WetDat1 <- WetDat[half:dim(WetDat)[1],c(2,5)]
-        if(min(WetDat1[,2]) > 0){
-          dayn <- 330
-        }else{
-          WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
-          dayn <- min(WetDat1s[,1])
-          if(dayn > 330) dayn <- 330
-        }
+      WetDat <- data.frame(WetDat)
+      if(is.null(day1)){
+          half <- as.integer(dim(WetDat)[1] / 2)
+          WetDat1 <- WetDat[1:half, c(2, 5)]
+          if(min(WetDat1[, 2]) > 0){
+              day1 <- 90
+          } else {
+              WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
+              day1 <- max(WetDat1s[,1])
+              if(day1 < 90) day1 <- 90
+          }
+      } 
+      if(is.null(dayn)){
+          half <- as.integer(dim(WetDat)[1]/2)
+          WetDat1 <- WetDat[half:dim(WetDat)[1],c(2,5)]
+          if(min(WetDat1[,2]) > 0){
+              dayn <- 330
+          }else{
+              WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
+              dayn <- min(WetDat1s[,1])
+              if(dayn > 330) dayn <- 330
+          }
       }
     
-    if((day1<0) || (day1>365) || (dayn<0) || (dayn>365))
-      stop("day1 and dayn should be between 0 and 365")
+    if(any(c(day1 < 0, day1 > 366, dayn < 0, dayn > 366))) {
+        stop("day1 and dayn should be between 0 and 366")
+    }
 
-    if(day1 > dayn)
-      stop("day1 should be smaller than dayn")
-
-    if( (timestep<1) || (24%%timestep != 0))
-      stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
-
+    if(day1 > dayn) {
+        stop("day1 should be smaller than dayn")
+    }
+    if( (timestep<1) || (24%%timestep != 0)) {
+        stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
+    }
      ##day1= WetDat[WetDat$Temp >=6,]$doy[1] 
     
     
@@ -358,18 +355,16 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
     
-    doy <- WetDat[indes1:indesn,2]
-    hr <- WetDat[indes1:indesn,3]
-    solar <- WetDat[indes1:indesn,4]
-    temp <- WetDat[indes1:indesn,5]
-    rh <- WetDat[indes1:indesn,6]
-    windspeed <- WetDat[indes1:indesn,7]
-    precip <- WetDat[indes1:indesn,8]
+    doy <- WetDat[indes1:indesn, "doy"]
+    hr <- WetDat[indes1:indesn, "hour"]
+    solar <- WetDat[indes1:indesn, "SolarR"]
+    temp <- WetDat[indes1:indesn, "Temp"]
+    rh <- WetDat[indes1:indesn, "RH"]
+    windspeed <- WetDat[indes1:indesn, "WS"]
+    precip <- WetDat[indes1:indesn, "precip"]
 
-    if(max(rh) > 1)
-      stop("Rel Hum. should be 0 < rh < 1")
-    if((min(hr) < 0) | (max(hr) > 23))
-      stop("hr should be between 0 and 23")
+    if(max(rh) > 1) stop("Rel Hum. should be 0 < rh < 1")
+    if((min(hr) < 0) | (max(hr) > 23))  stop("hr should be between 0 and 23")
     iPlant<-as.vector(unlist(iPlant))
     
     DBPcoefs <- valid_dbp(as.vector(unlist(willowphenoP)[7:31]))
@@ -397,9 +392,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     jmax <- photoP$jmax
     jmaxb1<-0.0; ## This needs to be changed
     alpha <- 0
-    kparm <- 0
     #alpha <- photoP$alpha
-    #kparm <- photoP$kparm
     theta <- photoP$theta
     #beta <- photoP$beta
     Rd <- photoP$Rd
@@ -447,7 +440,6 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(Tbase),
                  as.double(vmax),
                  as.double(alpha),
-                 as.double(kparm),
                  as.double(theta),
                  as.double(beta),
                  as.double(Rd),
@@ -490,7 +482,8 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$rdMat) <- soilP$soilDepths[-1]
     res$psimMat <- t(res$psimMat)
     colnames(res$psimMat) <- soilP$soilDepths[-1]
-    structure(res,class="BioGro")
+    res <- structure(res, class="BioGro")
+
 }
 
 iwillowParms<-function(iRhizome=1,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.001,ifrStem=0.001,ifrLeaf=0.0,ifrRoot=0.0){
@@ -516,7 +509,7 @@ willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
   
 }
 
-willowphotoParms <- function(vmax=100, jmax=180, Rd=1.1, Catm=380, O2 = 210, b0=0.08, b1=5, theta=0.7,StomWS=1.0,ws=c("vmax")){
+willowphotoParms <- function(vmax=100, jmax=180, Rd=1.1, Catm=380, O2 = 210, b0=0.08, b1=5, theta=0.7, StomWS=1.0, ws=c("vmax")){
   
   ws <- match.arg(ws)
   if(ws == "gs") ws <- 1
@@ -595,7 +588,7 @@ willowphenoParms <- function(tp1=250, tp2=500, tp3=900, tp4=1200, tp5=3939, tp6=
                               kStem3=0.5, kLeaf3=0.15, kRoot3=0.175, kRhizome3=0.175, 
                               kStem4=0.7, kLeaf4=0.15, kRoot4=0.075, kRhizome4=0.075, 
                               kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
-                              kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15,kGrain6=0.0,Tbase=0.0){
+                              kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15, kGrain6=0.0, Tbase=0.0){
   
   if(kGrain6 < 0)
     stop("kGrain6 should be positive (zero is allowed)")

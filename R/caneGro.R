@@ -146,9 +146,6 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     heightF <- canopyP$heightFactor
     nlayers <- canopyP$nlayers
     
-  
-    
-    
     res <- .Call("caneGro",
                  as.double(lat),
                  as.integer(doy),
