@@ -12,6 +12,9 @@ useDynLib(BioCro, MisGro,
 
 import(stats, lattice)
 
+export(MisGro)
+export(weach_imn)
+
 ## BioCro.R 
 export(BioGro)
 S3method(print, BioGro)
@@ -140,4 +143,6 @@ S3method(plot, MaizeGro)
 export(caneGro)
 
 #willowGro.R
+
 export(willowGro)
+
