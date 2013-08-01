@@ -12,11 +12,15 @@
 # cd $(dirname $0)/..
 
 # these variables are set using the command line arguments below
-EMAIL="dlebauer@gmail.com"
+EMAIL=""#"dlebauer@gmail.com"
 GIT="no"
 FORCE="yes"
 CHECK="no"
 INSTALL="yes"
+
+# if [ grep useDynLib NAMESPACE ]; then
+#     echo "NAMESPACE has been auto-generated; you probably need to revert"
+# fi
 
 # find all variables
 while true; do
@@ -136,7 +140,7 @@ if [ "$FORCE" == "yes" ]; then
 
     if [ "$CHECK" == "yes" ]; then
 	ACTION="CHECK"
-	R CMD check ${R_LIB_INC} $p &> out.log
+	R CMD check --install-args="--resave-data" ${R_LIB_INC} $p &> out.log
 	if [ $? -ne 0 ]; then
 	    STATUS="BROKEN"
 	    PACKAGE="BROKEN"
