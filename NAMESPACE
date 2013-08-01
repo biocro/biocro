@@ -141,6 +141,3 @@ export(caneGro)
 
 #willowGro.R
 export(willowGro)
-
-export(weach_imn)
-export(MisGro)

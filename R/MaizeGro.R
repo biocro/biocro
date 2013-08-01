@@ -54,8 +54,8 @@ MaizeGro <- function(WetDat, plant.day=NULL,
         }
       }
     
-    if((plant.day<0) || (plant.day>365) || (harvest.day<0) || (harvest.day>365))
-      stop("plant.day and harvest.day should be between 0 and 365")
+    if((plant.day<0) || (plant.day>366) || (harvest.day<0) || (harvest.day>366))
+      stop("plant.day and harvest.day should be between 0 and 366")
 
     if(plant.day > harvest.day)
       stop("plant.day should be smaller than harvest.day")

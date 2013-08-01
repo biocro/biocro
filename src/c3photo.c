@@ -26,9 +26,9 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	Rd = REAL(RD)[0];
 	O2 = REAL(OX2)[0];
 	theta = REAL(THETA)[0];
-  StomWS = REAL(STOMWS)[0];
+	StomWS = REAL(STOMWS)[0];
 	int nq , nt, nr, i;
-  int ws = INTEGER(WS)[0];
+	int ws = INTEGER(WS)[0];
 	SEXP lists, names;
 	SEXP GsV;
 	SEXP ASSV;
@@ -150,8 +150,8 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		Ca = 1e-4;
 
 	/* From Bernacchi 2001. Improved temperature response functions. */
-  /* note: values in Dubois and Bernacchi are incorrect */	
-  Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); 
+	/* note: values in Dubois and Bernacchi are incorrect */	
+	Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); 
 	Ko = exp(20.30-36.38/(R*(Tleaf+273.15))); 
 	Gstar = exp(19.02-37.83/(R*(Tleaf+273.15))); 
 
