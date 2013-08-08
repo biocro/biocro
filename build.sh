@@ -8,192 +8,50 @@
 # http://opensource.ncsa.illinois.edu/license.html
 #-------------------------------------------------------------------------------
 
-# change to right folder
-# cd $(dirname $0)/..
-
-# these variables are set using the command line arguments below
 EMAIL="dlebauer@gmail.com"
-GIT="no"
-FORCE="yes"
-CHECK="no"
-INSTALL="yes"
-
-# find all variables
-while true; do
-    if [ "$1" == "" ]; then
-	break
-    fi
-    case "$1" in
-	--help|-h)
-	    echo "$0 <options>"
-	    echo " -h, --help      : this help text"
-	    echo " -f, --force     : force a build (default = yes)"
-	    echo " -g, --git       : do a git pull"
-	    echo " -i, --install   : install R package (default=yes)"
-	    echo " -n, --noinstall : do not install R package"
-	    echo " -c, --check     : check the R package before install"
-	    echo " -e, --email     : send email to following people on success"
-	    echo ""
-	    exit
-	    ;;
-
-	--force|-f)
-	    FORCE="yes"
-	    ;;
-
-	--git|-g)
-	    GIT="yes"
-	    ;;
-
-	--noinstall|-n)
-	    INSTALL="no"
-	    ;;
-
-	--install|-i)
-	    INSTALL="yes"
-	    ;;
-
-	--check|-c)
-	    CHECK="yes"
-	    ;;
-
-	--email|-e)
-	    EMAIL="$2"
-	    shift
-	    ;;
-
-	*)
-	    echo "unknown argument $1"
-	    exit
-	    ;;
-    esac
-    shift
-done
 
 # location where to install package
-if [ ! -z $R_LIBS_USER ]; then
-    if [ ! -e ${R_LIBS_USER} ]; then mkdir -p ${R_LIBS_USER}; fi
-    rm -rf ${R_LIBS_USER}/PEcAn.*
-    R_LIB_INC="--library=${R_LIBS_USER}"
-else
-    echo "R_LIBS_USER not set, this could prevent the script from running correctly."
-    echo "add the following line to your .bashrc:"
-    echo "export R_LIBS_USER=${HOME}/R/library"
+rm -rf ${R_LIBS_USER}/BioCro
+R_LIB_INC="--library=${R_LIBS_USER}"
+
+START=`date +'%s'`
+STATUS="OK"
+
+# get changes
+echo "----------------------------------------------------------------------" > changes.log
+echo "CHANGES" >> changes.log
+echo "----------------------------------------------------------------------" >> changes.log
+
+git log > newlog
+diff git.log newlog | grep '^> ' | sed 's/^> //' > changes.log
+mv newlog git.log
+REVNO=$( git show -s --pretty=format:%T master )
+
+## check/install package
+
+R CMD check ${R_LIB_INC} ../biocro &> out.log
+
+## all done
+TIME=$(echo "`date +'%s'` - $START" |bc -l)
+echo "build took ${TIME} seconds." >> changes.log
+
+echo "-------------------------------------------------------" >> changes.log
+echo "results of 00install.out">> changes.log
+echo "-------------------------------------------------------" >> changes.log
+
+cat biocro.Rcheck/00install.out>> changes.log
+echo "-------------------------------------------------------" >> changes.log
+rm biocro.Rcheck/00install.out
+
+echo "contents of 00check.log" >> changes.log
+echo "-------------------------------------------------------" >> changes.log
+cat  biocro.Rcheck/00check.log >> changes.log
+echo "-------------------------------------------------------" >> changes.log
+rm biocro.Rcheck/00check.log
+
+cat changes.log
+if [ `grep failed changes.log` ]; then
+    cat changes.log | mail -s "BioCro BUILD ${REVNO} is BROKEN" ${EMAIL}
 fi
 
-
-# when did the job run the last time?
-touch lastrun
-
-# pull any changes
-if [ "$GIT" == "yes" ]; then
-    git pull > changes.log
-    if [ $? != 0 ]; then
-	echo Error pulling
-	exit
-    fi
-    if ! grep --quiet 'Already' changes.log; then
-	FORCE="yes"
-    fi
-else
-    FORCE="yes"
-fi
-
-if [ "$FORCE" == "yes" ]; then
-    START=`date +'%s'`
-    STATUS="OK"
-
-    # get changes
-    echo "----------------------------------------------------------------------" >> changes.log
-    echo "CHANGES" >> changes.log
-    echo "----------------------------------------------------------------------" >> changes.log
-    git log > newlog
-    diff git.log newlog | grep '^> ' | sed 's/^> //' > changes.log
-    mv newlog git.log
-
-    # get committer names and emails
-    # TODO all commiters are smushed together
-    #IFS_BAK=$IFS
-    #IFS=`echo -e '\n'`
-    #NAMES=""
-    #EMAILS=""
-    #for c in `grep 'committer: ' changes.log | sort -u`; do
-    #  EMAILS="${EMAILS},`echo $c | sed -e 's/.*<\(.*\)>/\1/'`"
-    #done
-    #IFS=$IFS_BAK
-    #NAMES=$( grep 'committer: ' changes.log | uniq | sed -e 's/committer: //' )
-    #EMAILS=$( grep 'committer: ' changes.log | uniq | sed -e 's/.*<\(.*\)>/\1/' )
-    #TO="${TO} ${EMAILS}"
-
-    # get version number
-    REVNO=$( git show -s --pretty=format:%T master )
-
-    # check/install package
-    cd ../
-    p="biocro"
-    PACKAGE="OK"
-    ACTION=""
-
-    if [ "$CHECK" == "yes" ]; then
-	ACTION="CHECK"
-	R CMD check ${R_LIB_INC} $p &> out.log
-	if [ $? -ne 0 ]; then
-	    STATUS="BROKEN"
-	    PACKAGE="BROKEN"
-	    echo "----------------------------------------------------------------------" >> changes.log
-	    echo "CHECK $p BROKEN" >> changes.log
-	    echo "----------------------------------------------------------------------" >> changes.log
-	    cat out.log >> changes.log
-	fi
-    fi
-
-    if [ "$PACKAGE" == "OK" -a "$INSTALL" == "yes" ]; then
-	if [ "$ACTION" == "" ]; then
-            ACTION="INSTALL"
-	else
-            ACTION="$ACTION/INSTALL"
-	fi
-	R CMD INSTALL --build ${R_LIB_INC} $p &> out.log
-	if [ $? -ne 0 ]; then
-            STATUS="BROKEN"
-            PACKAGE="BROKEN"
-            echo "----------------------------------------------------------------------" >> changes.log
-            echo "INSTALL $p BROKEN" >> changes.log
-            echo "----------------------------------------------------------------------" >> changes.log
-            cat out.log >> changes.log
-	fi
-    fi
-    
-    if [ "$PACKAGE" == "OK" ]; then
-	if [ "$ACTION" == "" ]; then
-            ACTION="DID NOTHING"
-	fi
-	echo "----------------------------------------------------------------------" >> changes.log
-	echo "$ACTION $p OK" >> changes.log
-	echo "----------------------------------------------------------------------" >> changes.log
-	if [ "$EMAIL" == "" ]; then
-            cat changes.log
-            rm changes.log
-	fi
-    else
-	if [ "$EMAIL" == "" ]; then
-            cat changes.log
-            rm changes.log
-	fi
-    fi
-    
-    # all done
-    TIME=$(echo "`date +'%s'` - $START" |bc -l)
-    echo "----------------------------------------------------------------------" >> changes.log
-    echo "build took ${TIME} seconds." >> changes.log
-    echo "----------------------------------------------------------------------" >> changes.log
-    if [ "$EMAIL" == "" ]; then
-	cat changes.log
-    else
-	cat changes.log | mail -s "BioCro BUILD ${REVNO} is ${STATUS}" ${EMAIL}
-    fi
-
-    # cleanup
-    rm -rf changes.log out.log *.Rcheck BioCro*.tar.gz BioCro.*.tgz
-fi
 

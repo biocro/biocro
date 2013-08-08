@@ -12,7 +12,8 @@ Depends:
     lattice
 Suggests:
     coda,
-    knitr
+    knitr,
+    data.table
 Imports:
     stats,
     lattice

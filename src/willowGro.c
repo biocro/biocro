@@ -45,10 +45,9 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP SPD,                 /* Spec Lefa Area Dec       18 */
 	    SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
 	    SEXP THERMALP,            /* Themal Periods           20 */
-      SEXP TBASE,               /* Base Temp for calculaing thermal time */
+	    SEXP TBASE,               /* Base Temp for calculaing thermal time */
 	    SEXP VMAX,                /* Vmax of photo            21 */
 	    SEXP ALPHA,               /* Quantum yield            22 */
-	    SEXP KPARM,               /* k parameter (photo)      23 */
 	    SEXP THETA,               /* theta param (photo)      24 */
 	    SEXP BETA,                /* beta param  (photo)      25 */
 	    SEXP RD,                  /* Dark Resp   (photo)      26 */
@@ -103,7 +102,6 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 
 	double vmax1;
 	double alpha1;
-	double kparm1;
 	double theta;
 	double beta;
 	double Rd1, Ca;
@@ -270,10 +268,9 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	PROTECT(SNpools = allocVector(REALSXP,9));
 	PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
-	/* Picking vmax, alpha and kparm */
+	/* Picking vmax, alpha  */
 	vmax1 = REAL(VMAX)[0];
 	alpha1 = REAL(ALPHA)[0];
-	kparm1 = REAL(KPARM)[0];
 	theta = REAL(THETA)[0];
 	beta = REAL(BETA)[0];
 	Rd1 = REAL(RD)[0];
@@ -391,7 +388,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
 			       lat, nlayers,
-			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun,StomWS,ws);
+			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
              
    /*Rprintf("%f,%f,%f,%f\n",StomWS,LeafWS,kLeaf,newLeaf);              
 

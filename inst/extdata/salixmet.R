@@ -3,7 +3,7 @@ require(lubridate)
 require(ggplot2)
 require(PEcAn.all)
 
-load("~/R-dev/biocro/inst/extdata/salix.RData")
+load(system.file("/extdata/salix.RData", package = "BioCro"))
 
 settings.xml <- "~/pecan.xml"
 

@@ -155,15 +155,15 @@ for(i in 1:dim(lat)[1]){
 ##     Parameters for simulating Willow in the US
        day1=120
        dayn=330
-       canwillow<-willowcanopyParms(Sp=1.1,kd=0.37,GrowthRespFraction=0.4)
+       canwillow <- willowcanopyParms(Sp=1.1,kd=0.37,GrowthRespFraction=0.4)
        senwillow <- willowseneParms(senLeaf=1000,Tfrosthigh=5,Tfrostlow=0,leafdeathrate=5)
-       phewillow <- willowphenoParms(tp1=250, tp2=500, tp3=900, tp4=1200, tp5=3939, tp6=7000,
-                              kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
-                              kStem2=0.01, kLeaf2=0.98, kRoot2=0.005, kRhizome2=0.005, 
-                              kStem3=0.5, kLeaf3=0.15, kRoot3=0.175, kRhizome3=0.175, 
-                              kStem4=0.7, kLeaf4=0.15, kRoot4=0.075, kRhizome4=0.075, 
-                              kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
-                              kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15)
+       ## phewillow <- willowphenoParms(tp1=250, tp2=500, tp3=900, tp4=1200, tp5=3939, tp6=7000,
+       ##                        kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
+       ##                        kStem2=0.01, kLeaf2=0.98, kRoot2=0.005, kRhizome2=0.005, 
+       ##                        kStem3=0.5, kLeaf3=0.15, kRoot3=0.175, kRhizome3=0.175, 
+       ##                        kStem4=0.7, kLeaf4=0.15, kRoot4=0.075, kRhizome4=0.075, 
+       ##                        kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
+       ##                        kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15)
     
       
       ## Growing season 1
