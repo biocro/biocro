@@ -5,6 +5,14 @@ test_that("WillowGro function runs with smoothed weather05 data",{
   res <- BioGro(weather05)
 })
 
+test_that("WillowGro runs in warm weather",{
+  data(warm)
+  res <- willowGro(WetDat = warm$WetDat, canopyControl = warm$canopyControl,
+                                         photoControl = warm$photoControl, 
+                                         day1= warm$day1, 
+                                         dayn = warm$dayn)
+  })
+
 test_that("WillowGro function produces reasonable results",{
   ## 
   resmeans <- unlist(lapply(res, mean))
