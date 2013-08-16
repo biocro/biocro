@@ -403,7 +403,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     StomWS <-photoP$StomWS
     beta <- 0
     #ws <- photoP$ws
-    o2 <- photoP$o2
+    o2 <- photoP$O2
     #upperT<-photoP$UPPERTEMP
     #lowerT<-photoP$LOWERTEMP
     upperT<-0
