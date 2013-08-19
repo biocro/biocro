@@ -136,7 +136,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
   double StomWS = REAL(STOMATAWS)[0];
 	int timestep;
   int A, B;
-	double CanopyA, CanopyT;
+	double CanopyA, CanopyT,GPP;
 
 	double Rhizome;
   double leafdeathrate1;
@@ -395,8 +395,10 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
     CanopyA=(1.0-GrowthRespFraction)*CanopyA;
+   
 		CanopyT = Canopy.Trans * timestep;
-
+           
+   /*Rprintf("%f,%f,%f\n",Canopy,CanopyA,GPP);*/      
 		/* Inserting the multilayer model */
 		if(soillayers > 1){
 			soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,

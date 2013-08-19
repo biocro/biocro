@@ -2,9 +2,7 @@ Title: Predict short rotation coppice willow (Salix spp.) production in contiguo
 ===========================
 
 Authors: 
-* Wang, Jaiswal, LeBauer, 
-* (Wertin, Leakey, your name here ?), 
-* Long
+* Wang, Jaiswal, LeBauer, Wertin, Leakey, Long
 
 Abstract
 -----------
@@ -12,6 +10,7 @@ The cultivation of fast-growing willow (Salix spp.) within short rotation coppic
 
 Here, we described in detail the biochemical and physiological processes of a previously published generic mechanistic eco-physiological model, BioCro, which was adapted and developed from WIMOVAC. BioCro was parameterized for willow in coppicing subroutine, perennating, leaf-photosynthesis, canopy CO2 assimilation, allocation, phenology and growth. The model was able to realistically predict biomass yield at a range of 16 sites from European studies and 3 sites from US studies. The regional projection suggests that willow yield varies considerably with differences in soil and climate, and reaching as much as 52 Mg ha-1 in Eastern, the upper Midwest and New England regions after 3-year growth. This study provides forest managers and policy makers with a process-based modeling approach to estimate the yield potential of willow for a given climate and soil and thus could guide further research, policy and management decisions.
 
+<<<<<<< HEAD
 Introduction
 ------------
 As a renewable energy source, bioenergy benefit the society with a secure and sustainale energy supply and the potential to reduce the use of fossil fuels and thus the greenhouse gas emissions (Somerville et al. 2010). In the US the Advanced Energy Initiative (AEI) mandates that renewable bioethanol displace 30% of 2005 petroleum use in the transportation sector by 2030 (Milliken et al. 2007). To meet that goal, the AEI supports the production of ethanol from cellulose and hemi-cellulose from perennial grasses, wood chips, and agricultural residues which could reduce the conflict between food and fuel (Heaton et al. 2008; Somerville et al. 2010; Wang et al. 2010, 2012). Woody species managed in a short rotation coppicing (SRC) system have advantages over first generation annual crops in enhanced biological diversity (Rowe et al. 2009) and carbon sequestration (Baum et al. 2009; Don et al. 2011), and reduced need for annual inputs of labor, pesticides and fertilization, which minimizes the use of fossil fuels during production and improve the overall energy balance of woody species as biofuel (Hill et al. 2006). 
@@ -54,6 +53,8 @@ Parameters to model the effects of temperature and water stress on coupled stoma
 
 WE looked at AGB for the contenental US
 
+=======
+>>>>>>> 75a155a00afd632d9c0c2ef0b15f84677511f0b0
 Results
 -------
 The predicted photosynthetic assimilation rate and stomatal conductance Salix correlated well with measurements taken in the field for Salix (Wang et al. 2013) (Fig. 1). The field diurnal photosynthetic assimilation rate of three Populus species was closely simulated at 
@@ -260,12 +261,10 @@ iplant0 <-iwillowParms(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.0
 ## before coppicing
 res0 <- willowGro(wet1984,day1=120,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
                   iPlantControl=iplant0,soilControl=soilwillow)
-leaf0 <- max(res0$Leaf, na.rm=T)
+
 stem0<-res0$Stem[length(res0$Stem)]
 root0<-res0$Root[length(res0$Root)]
 rhiz0<-res0$Rhizome[length(res0$Rhizome)]
-
-
 
 ## Growing season 1
 stem0=stem0*0.05
