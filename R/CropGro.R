@@ -271,6 +271,9 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                    phenoControl=list(),
                    soilControl=list(),
                    nitroControl=list(),
+                   SOMpoolsParmsControl=list(),
+                  SOMAssignParmsControl=list(),
+                    GetCropCentStateVarParmsControl=list(),
                    centuryControl=list())
   {
 
@@ -308,7 +311,23 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
 
     if( (timestep<1) || (24%%timestep != 0))
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
-
+   ##################################################
+    ## SOM Parameters
+    SOMPoolsParms <- assignPoolsParms()
+    SOMPoolsParms[names(SOMpoolsParmsControl)] <-SOMpoolsParmsControl
+    sompoolparms<-as.vector(unlist(SOMPoolsParms))
+    
+    ################assignParms
+    SOMAssignParms <- assignParms ()
+    SOMAssignParms[names(SOMAssignParmsControl)] <- SOMAssignParmsControl
+    somassignparms <-as.vector(unlist(SOMAssignParms))
+    
+    ################GetCropCentStateVarParms
+    GetCropCentStateVarParms <- GetCropCentStateVar()
+    GetCropCentStateVarParms[names(GetCropCentStateVarParmsControl)] <- GetCropCentStateVarParmsControl
+    getcropcentstatevarparms <- as.vector(unlist(GetCropCentStateVarParms))
+    ################################################
+    
     ## Getting the Parameters
     canopyP <- canopyParms()
     canopyP[names(canopyControl)] <- canopyControl
@@ -446,7 +465,10 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.integer(nitroP$lnFun),
                  as.double(upperT),
                  as.double(lowerT),
-                 as.double(nnitroP)
+                 as.double(nnitroP),
+                 as.double(sompoolparms),
+                 as.double(somassignparms),
+                 as.double(getcropcentstatevarparms)
                  )
     
     res$cwsMat <- t(res$cwsMat)

@@ -451,8 +451,8 @@ struct cropcentlayer{
   struct BioCroToCropcentParms BcroTOCentParms;
 };
 
-void assignPools(struct cropcentlayer *CROPCENT);
-void assignParms(struct cropcentlayer *CROPCENT);
+void assignPools(struct cropcentlayer *CROPCENT,double *sompoolsfromR);
+void assignParms(struct cropcentlayer *CROPCENT,double *assignParms);
 double timescaling (double k ,double t);
 void CROPCENTTimescaling(struct cropcentlayer *CROPCENT);
 void assignFluxRatios(struct cropcentlayer *CROPCENT);
@@ -467,7 +467,7 @@ void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp);
 void GetSymbNFixationParms(struct SymbNFixationParms *temp);
 void GetErosionParms(struct ErosionParms *temp);
 void GetSoilTexture( struct SoilTexture *temp);
-void GetCropCentStateVar(struct cropcentEnvironment *ENV);
+void GetCropCentStateVar(struct cropcentEnvironment *ENV,double *getcropcentstatevarfromR);
 void GetInFlowCERatio(struct flowrestriction *INFLOWRESTRICT, struct minerals *output, struct cropcentEnvironment *ENV);
 double GetMDR(double a,double b,double x1,double x2,double soilrad);
 double GetMTI(double a,double b,double x1,double x2,double soilrad);

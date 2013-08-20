@@ -15,7 +15,7 @@
 ################################################################################################################################
 # Testing for multiyear Simulation
 data(urbana2008to2012)
-result<-CropGro(WetDat=urbana2008to2012,day1=1,dayn=1200,lat=40.11,iRhizome=0.2,photoControl=list(alpha=0.055),
+result<-CropGro(WetDat=urbana2008to2012,day1=1,dayn=300,lat=40.11,iRhizome=0.2,photoControl=list(alpha=0.055),
         soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.65,kStem1=0.05,tp1=900),
         canopyControl=canopyParms(Sp=1.6))
        

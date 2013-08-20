@@ -11,8 +11,8 @@ SEXP cropcent (SEXP FAKE)
   int woody, Eflag;
   woody = 0; // not testing for woody for now
   Eflag=1; //N simulation for now
-  assignPools(&CROPCENT);
-  assignParms(&CROPCENT);
+//  assignPools(&CROPCENT);
+  //assignParms(&CROPCENT);
   CROPCENTTimescaling(&CROPCENT);
   assignENV(&CROPCENT);
   assignFluxRatios(&CROPCENT);

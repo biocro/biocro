@@ -3,8 +3,9 @@
 #include <Rinternals.h>
 #include "crocent.h"
 
-void assignPools(struct cropcentlayer *CROPCENT)
+void assignPools(struct cropcentlayer *CROPCENT, double *sompoolsfromR)
 {
+  //Rprintf("%f, %f, %f \n", *sompoolsfromR,*(sompoolsfromR+1),*(sompoolsfromR+2));
   CROPCENT->strucc1.C.totalC=28.4;
   CROPCENT->strucc1.C.unlablTOlabl=1.0;
   CROPCENT->strucc1.E.CN=200.0;
@@ -98,8 +99,8 @@ void assignPools(struct cropcentlayer *CROPCENT)
   return;
 }
 
-void assignParms(struct cropcentlayer *CROPCENT)
-{
+void assignParms(struct cropcentlayer *CROPCENT, double *somassignparmsfromR)
+{//Rprintf("%f, %f, %f \n", *somassignparmsfromR,*(somassignparmsfromR+1),*(somassignparmsfromR+2));
   CROPCENT->strucc1.parms.k=3.9;
   CROPCENT->strucc1.parms.timestep=1440.0;
   CROPCENT->strucc1.parms.strmx=5000.0;
@@ -138,7 +139,7 @@ void assignParms(struct cropcentlayer *CROPCENT)
   CROPCENT->strucc2.SWEFF.a=1.0;
   CROPCENT->strucc2.SWEFF.b=1.0;
   CROPCENT->strucc2.SWEFF.c=30.0;
-  CROPCENT->strucc2.SWEFF.c=9.0;
+  CROPCENT->strucc2.SWEFF.d=9.0;
   CROPCENT->strucc2.PHEFF.a=4.0;
   CROPCENT->strucc2.PHEFF.b=0.5;
   CROPCENT->strucc2.PHEFF.c=1.1;
@@ -180,7 +181,7 @@ void assignParms(struct cropcentlayer *CROPCENT)
   CROPCENT->metabc2.SWEFF.a=1.0;
   CROPCENT->metabc2.SWEFF.b=1.0;
   CROPCENT->metabc2.SWEFF.c=30.0;
-  CROPCENT->metabc2.SWEFF.c=9.0;
+  CROPCENT->metabc2.SWEFF.d=9.0;
   CROPCENT->metabc2.PHEFF.a=4.8;
   CROPCENT->metabc2.PHEFF.b=0.5;
   CROPCENT->metabc2.PHEFF.c=1.14;
@@ -201,7 +202,7 @@ void assignParms(struct cropcentlayer *CROPCENT)
   CROPCENT->wood1.SWEFF.a=1.0;
   CROPCENT->wood1.SWEFF.b=1.0;
   CROPCENT->wood1.SWEFF.c=30.0;
-  CROPCENT->wood1.SWEFF.c=9.0;
+  CROPCENT->wood1.SWEFF.d=9.0;
   CROPCENT->wood1.PHEFF.a=4.0;
   CROPCENT->wood1.PHEFF.b=0.5;
   CROPCENT->wood1.PHEFF.c=1.1;
@@ -365,7 +366,7 @@ void assignParms(struct cropcentlayer *CROPCENT)
   CROPCENT->som2c2.parms.p2co2=0.55;
   CROPCENT->som2c2.parms.ps2s3[0]=0.003;
   CROPCENT->som2c2.parms.ps2s3[1]=0.009;
-  CROPCENT->som1c2.parms.animpt=5.0;
+  CROPCENT->som2c2.parms.animpt=5.0;
   CROPCENT->som2c2.TEff.teff1=15.4;
   CROPCENT->som2c2.TEff.teff2=11.75;
   CROPCENT->som2c2.TEff.teff3=29.7;
@@ -452,11 +453,12 @@ void assignENV(struct cropcentlayer *CROPCENT){
   GetC13Parms(&CROPCENT->ENV.C13);
   GetErosionParms(&CROPCENT->ENV.EROSION);
   GetSoilTexture(&CROPCENT->ENV.SOILTEX);
-  GetCropCentStateVar(&CROPCENT->ENV);
+  //GetCropCentStateVar(&CROPCENT->ENV);
   return;
 }
 
-void GetCropCentStateVar(struct cropcentEnvironment *ENV){
+void GetCropCentStateVar(struct cropcentEnvironment *ENV, double *getcropcentstatevarfromR){
+  Rprintf("%f, %f, %f \n", *getcropcentstatevarfromR,*(getcropcentstatevarfromR+1),*(getcropcentstatevarfromR+2));
   ENV->minN=1e-6;
   ENV->minP=5.0;
   ENV->minS=5.0;

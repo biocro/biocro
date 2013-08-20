@@ -65,17 +65,28 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP LNB1,                /* Leaf N slope             49 */
       SEXP LNFUN,               /* Leaf N func flag         50 */
       SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
-	    SEXP LOWERTEMP,
-	    SEXP NNITROP)           /*temperature Limitation photoParms */
+	    SEXP LOWERTEMP,          /*temperature Limitation photoParms */
+	    SEXP NNITROP,
+      SEXP SOMPOOLPARMS,      /* SOM POOL PARAMETERS */
+      SEXP SOMASSIGNPARMS,      /*Assign parameters*/
+      SEXP GETCROPCENTSTATEVAR
+      )           
 {
     int vecsize = INTEGER(VECSIZE)[0];
     int dailyvecsize = vecsize/24;
     Rprintf("%i\n",vecsize);
+    
    /*********** CROCENT VARIABLES***********************/
+   double *sompoolsfromR; // This pointer contains location of sompools coming from R
+   double *somassignparmsfromR;
+   double *getcropcentstatevarfromR;
+   sompoolsfromR = &REAL(SOMPOOLPARMS)[0];
+   somassignparmsfromR = &REAL(SOMASSIGNPARMS)[0];
+   getcropcentstatevarfromR = &REAL(GETCROPCENTSTATEVAR)[0];
    struct cropcentlayer CROPCENT;
-   assignParms(&CROPCENT);
+   assignParms(&CROPCENT,somassignparmsfromR);
    CROPCENTTimescaling(&CROPCENT);
-   assignPools(&CROPCENT);
+   assignPools(&CROPCENT,sompoolsfromR);
    struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
    struct crop_phenology cropdbp;
    struct miscanthus miscanthus, deltamiscanthus;
