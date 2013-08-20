@@ -584,6 +584,7 @@ struct DailyAutoResp{
   double stemmaint;
   double rootmaint;
   double rhizomemaint;
+  double total;
 };
 
 struct miscanthus
@@ -594,6 +595,7 @@ struct miscanthus
   struct root root;
   struct dailyvec *leafvec, *stemvec, *rootvec, *rhizomevec;
   struct DailyAutoResp autoresp;
+  double GPP;
 };
 
 
@@ -637,7 +639,7 @@ double getStemSenescence(struct stem *stem, struct dailyvec *dailyvec, double cr
 double getRootSenescence(struct root *root, struct dailyvec *dailyvec, double criticalTT, double Temp, double remobfa, struct frostParms *frostparms, int N);
 double getRhizomeSenescence(struct rhizome *rhiz, struct dailyvec *dailyvec, double criticalTT, double Temp, double remobfa, struct frostParms *frostparms, int N);
 double getLeafSenescence(struct leaf *leaf, struct dailyvec *dailyvec, double criticalTT, double Temp, 
-        struct canopyparms *canopyparm, struct frostParms *frostparms, int N);
+        struct canopyparms *canopyparm, struct frostParms *frostparms, int N, double TherTime);
 void updatelittervec(struct littervec *littervec,double newbiomass,int N,double delTT);
 void updatebiomass(double *res,double toadd,double toremove);
 void dailymiscanthusupdate(struct miscanthus *miscanthus,struct miscanthus *deltamiscanthus);

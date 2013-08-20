@@ -45,6 +45,6 @@ struct ET_Str c3EvapoTrans(double Rad,
 struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
 		     double Rd, double Catm, double o2, double b0, double b1,
-                     double theta, double kd, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws);
+                     double theta, double kd, double chil, double heightf,
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun);
 

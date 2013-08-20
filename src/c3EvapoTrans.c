@@ -31,8 +31,7 @@ struct ET_Str c3EvapoTrans(double Rad,
 			   double b12,
 			   double Catm2,
 			   double O2,
-			   double theta2,
-         double StomWS,int ws)
+			   double theta2)
 
 {
 	/* creating the structure to return */
@@ -97,7 +96,7 @@ struct ET_Str c3EvapoTrans(double Rad,
 	/*' Convert light assuming 1 µmol PAR photons = 0.235 J/s Watts*/
 	totalradiation = Itot * 0.235;
 
-	tmpc3 = c3photoC(Rad,Airtemperature,RH,vcmax2,jmax2,Rd2,b02,b12,Catm2,O2,theta2,StomWS,ws); 
+	tmpc3 = c3photoC(Rad,Airtemperature,RH,vcmax2,jmax2,Rd2,b02,b12,Catm2,O2,theta2); 
 	LayerConductance = tmpc3.Gs;
 
 	/* Convert mmoles/m2/s to moles/m2/s

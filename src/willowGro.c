@@ -45,9 +45,10 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP SPD,                 /* Spec Lefa Area Dec       18 */
 	    SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
 	    SEXP THERMALP,            /* Themal Periods           20 */
-	    SEXP TBASE,               /* Base Temp for calculaing thermal time */
+      SEXP TBASE,               /* Base Temp for calculaing thermal time */
 	    SEXP VMAX,                /* Vmax of photo            21 */
 	    SEXP ALPHA,               /* Quantum yield            22 */
+	    SEXP KPARM,               /* k parameter (photo)      23 */
 	    SEXP THETA,               /* theta param (photo)      24 */
 	    SEXP BETA,                /* beta param  (photo)      25 */
 	    SEXP RD,                  /* Dark Resp   (photo)      26 */
@@ -80,8 +81,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
       SEXP JMAX,
       SEXP JMAXB1,
       SEXP O2,
-      SEXP GROWTHRESP,
-       SEXP STOMATAWS)           /*temperature Limitation photoParms */
+      SEXP GROWTHRESP)           /*temperature Limitation photoParms */
 {
 	double newLeafcol[8760];
 	double newStemcol[8760];
@@ -102,6 +102,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 
 	double vmax1;
 	double alpha1;
+	double kparm1;
 	double theta;
 	double beta;
 	double Rd1, Ca;
@@ -132,11 +133,10 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
   double GrowthRespFraction = REAL(GROWTHRESP)[0];
   
 	double waterCont;
-	double LeafWS;
-  double StomWS = REAL(STOMATAWS)[0];
+	double StomWS = 1, LeafWS = 1;
 	int timestep;
   int A, B;
-	double CanopyA, CanopyT,GPP;
+	double CanopyA, CanopyT;
 
 	double Rhizome;
   double leafdeathrate1;
@@ -268,9 +268,10 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	PROTECT(SNpools = allocVector(REALSXP,9));
 	PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
-	/* Picking vmax, alpha  */
+	/* Picking vmax, alpha and kparm */
 	vmax1 = REAL(VMAX)[0];
 	alpha1 = REAL(ALPHA)[0];
+	kparm1 = REAL(KPARM)[0];
 	theta = REAL(THETA)[0];
 	beta = REAL(BETA)[0];
 	Rd1 = REAL(RD)[0];
@@ -382,23 +383,22 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
     // Printing variables in R befor ecalling c3 canopy 
   //  Rprintf("\n LAI= %f",LAI);
  //      Rprintf("\n VMAX= %f",vmax1);
-          //Rprintf("\n StomWS,LeafWS=%f",StomWS,LeafWS); 
-  
+//          Rprintf("\n jmax1=%f",jmax1); 
+    
 		Canopy = c3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
 			       lat, nlayers,
-			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
+			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,
+			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun);
              
-   /*Rprintf("%f,%f,%f,%f\n",StomWS,LeafWS,kLeaf,newLeaf);              
+           
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
     CanopyA=(1.0-GrowthRespFraction)*CanopyA;
-   
 		CanopyT = Canopy.Trans * timestep;
-           
-   /*Rprintf("%f,%f,%f\n",Canopy,CanopyA,GPP);*/      
+
 		/* Inserting the multilayer model */
 		if(soillayers > 1){
 			soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
@@ -575,7 +575,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 		}else{
          error("kLeaf should be positive");
 		}
- 
+
 		if(TTc < SeneLeaf){
 
 			Leaf += newLeaf;
@@ -596,7 +596,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
       }
       else {leafdeathrate1 =0.0;}
     //Rprintf("Death rate due to frost = %f,%f,%f,%f\n",leafdeathrate1,*(pt_temp+i),Tfrosthigh,Tfrostlow);
-     //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+         //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
       leafdeathrate=(leafdeathrate>leafdeathrate1)? leafdeathrate:leafdeathrate1;
       Deadleaf=Leaf*leafdeathrate*(0.01/24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
   		Remob = Deadleaf * 0.6;

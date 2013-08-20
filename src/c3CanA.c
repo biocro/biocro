@@ -32,17 +32,13 @@ SEXP c3CanA(SEXP Lai,
 	    SEXP PHOTOPS, 
 	    SEXP KD, 
 	    SEXP HEIGHTF, 
-	    SEXP LNPS,
-      SEXP STOMATAWS,
-      SEXP WS
-      )
+	    SEXP LNPS)
 {
 /* Declaring the struct for the Evaop Transpiration */
    struct ET_Str tmp5_ET , tmp6_ET; 
    struct c3_str tmpc3, tmpc32; 
 
-  const double cf = 3600 * 1e-6 * 12 * 1e-6 * 10000/0.48;
-  /*12 is the molecular weight for C, 48% is assumbed to be the carbon content for leaf biomass
+  const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
 /* Need a different conversion factor for transpiration */
   const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
   /* 3600 - number of seconds in an hour */
@@ -69,7 +65,7 @@ SEXP c3CanA(SEXP Lai,
      yet (I need to think about this a bit harder). */
   double vmax1;
   double leafN_lay;
-  double StomWS = REAL(STOMATAWS)[0];
+
 
   /* INTEGERS */
   int DOY = INTEGER(Doy)[0];
@@ -102,7 +98,6 @@ SEXP c3CanA(SEXP Lai,
   double lnb0 = REAL(LNPS)[2];
   double lnb1 = REAL(LNPS)[3];
   int lnfun = REAL(LNPS)[4]; /* Coercing a double to integer */
-  int ws = INTEGER(WS)[0];
 
   SEXP lists;
   SEXP names;
@@ -180,7 +175,7 @@ layIdiff, layShade vectors. */
 	    tmp5_ET = c3EvapoTrans(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,
 				 vmax1,jmax1,Rd1,b01,b11,Catm,210,theta);
 	    TempIdir = Temp + tmp5_ET.Deltat;
-	    tmpc3 = c3photoC(IDir,TempIdir,rh,vmax1,jmax1,Rd1,b01,b11,Catm,O2,theta,StomWS,ws);
+	    tmpc3 = c3photoC(IDir,TempIdir,rh,vmax1,jmax1,Rd1,b01,b11,Catm,O2,theta);
 	    AssIdir = tmpc3.Assim;
 
 	    IDiff = layIdiff[--sp2];
@@ -189,7 +184,7 @@ layIdiff, layShade vectors. */
 	    tmp6_ET = c3EvapoTrans(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,
 				 vmax1,jmax1,Rd1,b01,b11,Catm,210,theta);
 	    TempIdiff = Temp + tmp6_ET.Deltat;
-	    tmpc32 = c3photoC(IDiff,TempIdiff,rh,vmax1,jmax1,Rd1,b01,b11,Catm,O2,theta,StomWS,ws);
+	    tmpc32 = c3photoC(IDiff,TempIdiff,rh,vmax1,jmax1,Rd1,b01,b11,Catm,O2,theta);
 	    AssIdiff = tmpc32.Assim;
 
     /* Collect direct radiation assim and trans in a matrix */

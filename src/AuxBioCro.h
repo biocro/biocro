@@ -125,3 +125,13 @@ struct nitroParms {
         double minln;
 	double daymaxln;
 };
+
+struct crop_phenology {
+        struct dbp_str DBP;
+        struct minerals1 {
+        double CN;
+        double CP;
+        double CK;
+        double CS;
+      }leaf,stem,root,rhiz;
+};
