@@ -272,8 +272,14 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                    soilControl=list(),
                    nitroControl=list(),
                    SOMpoolsParmsControl=list(),
-                  SOMAssignParmsControl=list(),
+                   SOMAssignParmsControl=list(),
                     GetCropCentStateVarParmsControl=list(),
+                    GetSoilTextureParmsControl=list(),
+                    GetBioCroToCropcentParmsControl=list(),
+                    GetErosionParmsControl=list(),
+                    GetC13ParmsControl=list(),
+                    GetLeachingParmsControl=list(),
+                    GetSymbNFixationParmsControl=list(),
                    centuryControl=list())
   {
 
@@ -323,9 +329,39 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     somassignparms <-as.vector(unlist(SOMAssignParms))
     
     ################GetCropCentStateVarParms
-    GetCropCentStateVarParms <- GetCropCentStateVar()
+    GetCropCentStateVarParms <- GetCropCentStateVarParms()
     GetCropCentStateVarParms[names(GetCropCentStateVarParmsControl)] <- GetCropCentStateVarParmsControl
     getcropcentstatevarparms <- as.vector(unlist(GetCropCentStateVarParms))
+    
+    #################double *getsoiltexturefromR
+    GetSoilTextureParms <- GetSoilTexture()
+    GetSoilTextureParms[names(GetSoilTextureParmsControl)]<-GetSoilTextureParmsControl
+    getsoiltextureparms <- as.vector(unlist(GetSoilTextureParms))
+    
+    #############*getbiocrotocropcentparmsfromR
+    GetBioCroToCropcentParms <- GetBioCroToCropcentParms()
+    GetBioCroToCropcentParms[names(GetBioCroToCropcentParmsControl)]<-GetBioCroToCropcentParmsControl
+    getbiocrotocropcentparms <- as.vector(unlist(GetBioCroToCropcentParms))
+    
+    ##################*geterosionparmsfromR
+    GetErosionParms <- GetErosionParms()
+    GetErosionParms[names(GetErosionParmsControl)] <- GetErosionParmsControl
+    geterosionparms <- as.vector(unlist(GetErosionParms))
+    
+    ##############getc13parmsfromR
+    GetC13Parms <- GetC13Parms()
+    GetC13Parms[names(GetC13ParmsControl)] <- GetC13ParmsControl
+    getc13parms <- as.vector(unlist(GetC13Parms))
+   
+    ###########################getleachingparms
+    GetLeachingParms <- GetLeachingParms()
+    GetLeachingParms[names(GetLeachingParmsControl)]<-GetLeachingParmsControl
+    getleachingparms <- as.vector(unlist(GetLeachingParms))
+    
+    #########################getsymbnfixationparmsfromR
+    GetSymbNFixationParms <- GetSymbNFixationParms()
+    GetSymbNFixationParms[names(GetSymbNFixationParmsControl)] <- GetSymbNFixationParmsControl
+    getsymbnfixationparms <- as.vector(unlist(GetSymbNFixationParms))
     ################################################
     
     ## Getting the Parameters
@@ -468,7 +504,13 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(nnitroP),
                  as.double(sompoolparms),
                  as.double(somassignparms),
-                 as.double(getcropcentstatevarparms)
+                 as.double(getcropcentstatevarparms),
+                 as.double(getsoiltextureparms),
+                 as.double(getbiocrotocropcentparms),
+                 as.double(geterosionparms),
+                 as.double(getc13parms),
+                 as.double(getleachingparms),
+                 as.double(getsymbnfixationparms)
                  )
     
     res$cwsMat <- t(res$cwsMat)

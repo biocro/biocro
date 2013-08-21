@@ -69,7 +69,13 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP NNITROP,
       SEXP SOMPOOLPARMS,      /* SOM POOL PARAMETERS */
       SEXP SOMASSIGNPARMS,      /*Assign parameters*/
-      SEXP GETCROPCENTSTATEVAR
+      SEXP GETCROPCENTSTATEVAR,
+      SEXP GETSOILTEXTURE,
+      SEXP GETBIOCROTOCROPCENTPARMS,
+      SEXP GETEROSIONPARMS,
+      SEXP GETC13PARMS,
+      SEXP GETLEACHINGPARMS,
+      SEXP GETSYMBNFIXATIONPARMS
       )           
 {
     int vecsize = INTEGER(VECSIZE)[0];
@@ -80,13 +86,29 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    double *sompoolsfromR; // This pointer contains location of sompools coming from R
    double *somassignparmsfromR;
    double *getcropcentstatevarfromR;
+   double *getsoiltexturefromR;
+   double *getbiocrotocropcentparmsfromR;
+   double *geterosionparmsfromR;
+   double *getc13parmsfromR;
+   double *getleachingparmsfromR;
+   double *getsymbnfixationparmsfromR;
+   
    sompoolsfromR = &REAL(SOMPOOLPARMS)[0];
    somassignparmsfromR = &REAL(SOMASSIGNPARMS)[0];
    getcropcentstatevarfromR = &REAL(GETCROPCENTSTATEVAR)[0];
+   getsoiltexturefromR = &REAL(GETSOILTEXTURE)[0];
+   getbiocrotocropcentparmsfromR =&REAL(GETBIOCROTOCROPCENTPARMS)[0];
+   geterosionparmsfromR=&REAL(GETEROSIONPARMS)[0];
+   getc13parmsfromR =&REAL(GETC13PARMS)[0];
+   getleachingparmsfromR=&REAL(GETLEACHINGPARMS)[0];
+   getsymbnfixationparmsfromR=&REAL(GETSYMBNFIXATIONPARMS)[0];
+   
    struct cropcentlayer CROPCENT;
    assignParms(&CROPCENT,somassignparmsfromR);
    CROPCENTTimescaling(&CROPCENT);
    assignPools(&CROPCENT,sompoolsfromR);
+   
+   assignENV(&CROPCENT,getsoiltexturefromR,getcropcentstatevarfromR,getbiocrotocropcentparmsfromR,geterosionparmsfromR,getc13parmsfromR,getleachingparmsfromR,getsymbnfixationparmsfromR);
    struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
    struct crop_phenology cropdbp;
    struct miscanthus miscanthus, deltamiscanthus;

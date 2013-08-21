@@ -6,96 +6,96 @@
 void assignPools(struct cropcentlayer *CROPCENT, double *sompoolsfromR)
 {
   //Rprintf("%f, %f, %f \n", *sompoolsfromR,*(sompoolsfromR+1),*(sompoolsfromR+2));
-  CROPCENT->strucc1.C.totalC=28.4;
-  CROPCENT->strucc1.C.unlablTOlabl=1.0;
-  CROPCENT->strucc1.E.CN=200.0;
-  CROPCENT->strucc1.E.CP=500.0;
-  CROPCENT->strucc1.E.CS=500.0;
-  CROPCENT->strucc1.E.CK=0.0;
-  CROPCENT->strucc1.lignin=0.1;
+  CROPCENT->strucc1.C.totalC=*sompoolsfromR;
+  CROPCENT->strucc1.C.unlablTOlabl=*(sompoolsfromR+1);
+  CROPCENT->strucc1.E.CN=*(sompoolsfromR+2);
+  CROPCENT->strucc1.E.CP=*(sompoolsfromR+3);
+  CROPCENT->strucc1.E.CS=*(sompoolsfromR+4);
+  CROPCENT->strucc1.E.CK=*(sompoolsfromR+5);
+  CROPCENT->strucc1.lignin=*(sompoolsfromR+6);
   
-  CROPCENT->strucc2.C.totalC=175.0;
-  CROPCENT->strucc2.C.unlablTOlabl=1.0;
-  CROPCENT->strucc2.E.CN=200.0;
-  CROPCENT->strucc2.E.CP=500.0;
-  CROPCENT->strucc2.E.CS=500.0;
-  CROPCENT->strucc2.E.CK=0.0;
-  CROPCENT->strucc2.lignin=0.1;
+  CROPCENT->strucc2.C.totalC=*(sompoolsfromR+7);
+  CROPCENT->strucc2.C.unlablTOlabl=*(sompoolsfromR+8);
+  CROPCENT->strucc2.E.CN=*(sompoolsfromR+9);
+  CROPCENT->strucc2.E.CP=*(sompoolsfromR+10);
+  CROPCENT->strucc2.E.CS=*(sompoolsfromR+11);
+  CROPCENT->strucc2.E.CK=*(sompoolsfromR+12);
+  CROPCENT->strucc2.lignin=*(sompoolsfromR+13);
   
-  CROPCENT->metabc1.C.totalC=37.5;
-  CROPCENT->metabc1.C.unlablTOlabl=1.0;
-  CROPCENT->metabc1.E.CN=18.2;
-  CROPCENT->metabc1.E.CP=18.2;
-  CROPCENT->metabc1.E.CS=18.2;
-  CROPCENT->metabc1.E.CK=0.0;
+  CROPCENT->metabc1.C.totalC=*(sompoolsfromR+14);
+  CROPCENT->metabc1.C.unlablTOlabl=*(sompoolsfromR+15);
+  CROPCENT->metabc1.E.CN=*(sompoolsfromR+16);
+  CROPCENT->metabc1.E.CP=*(sompoolsfromR+17);
+  CROPCENT->metabc1.E.CS=*(sompoolsfromR+18);
+  CROPCENT->metabc1.E.CK=*(sompoolsfromR+19);
   
-  CROPCENT->metabc2.C.totalC=20.8;
-  CROPCENT->metabc2.C.unlablTOlabl=1.0;
-  CROPCENT->metabc2.E.CN=19.3;
-  CROPCENT->metabc2.E.CP=19.3;
-  CROPCENT->metabc2.E.CS=19.3;
-  CROPCENT->metabc2.E.CK=0.0;
+  CROPCENT->metabc2.C.totalC=*(sompoolsfromR+20);
+  CROPCENT->metabc2.C.unlablTOlabl=*(sompoolsfromR+21);
+  CROPCENT->metabc2.E.CN=*(sompoolsfromR+22);
+  CROPCENT->metabc2.E.CP=*(sompoolsfromR+23);
+  CROPCENT->metabc2.E.CS=*(sompoolsfromR+24);
+  CROPCENT->metabc2.E.CK=*(sompoolsfromR+25);
   
-  CROPCENT->wood1.C.totalC=30.0;
-  CROPCENT->wood1.C.unlablTOlabl=1.0;
-  CROPCENT->wood1.E.CN=200.0;
-  CROPCENT->wood1.E.CP=500.0;
-  CROPCENT->wood1.E.CS=500.0;
-  CROPCENT->wood1.E.CK=0.0;
-  CROPCENT->wood1.lignin=0.1;
+  CROPCENT->wood1.C.totalC=*(sompoolsfromR+26);
+  CROPCENT->wood1.C.unlablTOlabl=*(sompoolsfromR+27);
+  CROPCENT->wood1.E.CN=*(sompoolsfromR+28);
+  CROPCENT->wood1.E.CP=*(sompoolsfromR+29);
+  CROPCENT->wood1.E.CS=*(sompoolsfromR+30);
+  CROPCENT->wood1.E.CK=*(sompoolsfromR+31);
+  CROPCENT->wood1.lignin=*(sompoolsfromR+32);
   
-  CROPCENT->wood2.C.totalC=30.0;
-  CROPCENT->wood2.C.unlablTOlabl=1.0;
-  CROPCENT->wood2.E.CN=200.0;
-  CROPCENT->wood2.E.CP=500.0;
-  CROPCENT->wood2.E.CS=500.0;
-  CROPCENT->wood2.E.CK=0.0;
-  CROPCENT->wood2.lignin=0.1;
+  CROPCENT->wood2.C.totalC=*(sompoolsfromR+33);
+  CROPCENT->wood2.C.unlablTOlabl=*(sompoolsfromR+34);
+  CROPCENT->wood2.E.CN=*(sompoolsfromR+35);
+  CROPCENT->wood2.E.CP=*(sompoolsfromR+36);
+  CROPCENT->wood2.E.CS=*(sompoolsfromR+47);
+  CROPCENT->wood2.E.CK=*(sompoolsfromR+48);
+  CROPCENT->wood2.lignin=*(sompoolsfromR+49);
   
-  CROPCENT->wood3.C.totalC=30.0;
-  CROPCENT->wood3.C.unlablTOlabl=1.0;
-  CROPCENT->wood3.E.CN=200.0;
-  CROPCENT->wood3.E.CP=500.0;
-  CROPCENT->wood3.E.CS=500.0;
-  CROPCENT->wood3.E.CK=0.0;
-  CROPCENT->wood3.lignin=0.1;
+  CROPCENT->wood3.C.totalC=*(sompoolsfromR+50);
+  CROPCENT->wood3.C.unlablTOlabl=*(sompoolsfromR+51);
+  CROPCENT->wood3.E.CN=*(sompoolsfromR+52);
+  CROPCENT->wood3.E.CP=*(sompoolsfromR+53);
+  CROPCENT->wood3.E.CS=*(sompoolsfromR+54);
+  CROPCENT->wood3.E.CK=*(sompoolsfromR+55);
+  CROPCENT->wood3.lignin=*(sompoolsfromR+56);
   
-  CROPCENT->som1c1.C.totalC=14.6;
-  CROPCENT->som1c1.C.unlablTOlabl=1.0;
-  CROPCENT->som1c1.E.CN=6.7;
-  CROPCENT->som1c1.E.CP=6.7;
-  CROPCENT->som1c1.E.CS=6.7;
-  CROPCENT->som1c1.E.CK=0.0;
+  CROPCENT->som1c1.C.totalC=*(sompoolsfromR+57);
+  CROPCENT->som1c1.C.unlablTOlabl=*(sompoolsfromR+58);
+  CROPCENT->som1c1.E.CN=*(sompoolsfromR+59);
+  CROPCENT->som1c1.E.CP=*(sompoolsfromR+60);
+  CROPCENT->som1c1.E.CS=*(sompoolsfromR+61);
+  CROPCENT->som1c1.E.CK=*(sompoolsfromR+62);
   
-  CROPCENT->som1c2.C.totalC=330.0;
-  CROPCENT->som1c2.C.unlablTOlabl=1.0;
-  CROPCENT->som1c2.E.CN=7.5;
-  CROPCENT->som1c2.E.CP=7.5;
-  CROPCENT->som1c2.E.CS=7.5;
-  CROPCENT->som1c2.E.CK=0.0;
+  CROPCENT->som1c2.C.totalC=*(sompoolsfromR+63);
+  CROPCENT->som1c2.C.unlablTOlabl=*(sompoolsfromR+64);
+  CROPCENT->som1c2.E.CN=*(sompoolsfromR+65);
+  CROPCENT->som1c2.E.CP=*(sompoolsfromR+66);
+  CROPCENT->som1c2.E.CS=*(sompoolsfromR+67);
+  CROPCENT->som1c2.E.CK=*(sompoolsfromR+68);
   
-  CROPCENT->som2c1.C.totalC=6.4;
-  CROPCENT->som2c1.C.unlablTOlabl=1.0;
-  CROPCENT->som2c1.E.CN=13.0;
-  CROPCENT->som2c1.E.CP=13.0;
-  CROPCENT->som2c1.E.CS=13.0;
-  CROPCENT->som2c1.E.CK=0.0;
+  CROPCENT->som2c1.C.totalC=*(sompoolsfromR+69);
+  CROPCENT->som2c1.C.unlablTOlabl=*(sompoolsfromR+70);
+  CROPCENT->som2c1.E.CN=*(sompoolsfromR+71);
+  CROPCENT->som2c1.E.CP=*(sompoolsfromR+72);
+  CROPCENT->som2c1.E.CS=*(sompoolsfromR+73);
+  CROPCENT->som2c1.E.CK=*(sompoolsfromR+74);
 
   
-  CROPCENT->som2c2.C.totalC=1647.0;
-  CROPCENT->som2c2.C.unlablTOlabl=1.0;
-  CROPCENT->som2c2.E.CN=15.4;
-  CROPCENT->som2c2.E.CP=15.4;
-  CROPCENT->som2c2.E.CS=15.4;
-  CROPCENT->som2c2.E.CK=0.0;
+  CROPCENT->som2c2.C.totalC=*(sompoolsfromR+75);
+  CROPCENT->som2c2.C.unlablTOlabl=*(sompoolsfromR+76);
+  CROPCENT->som2c2.E.CN=*(sompoolsfromR+77);
+  CROPCENT->som2c2.E.CP=*(sompoolsfromR+78);
+  CROPCENT->som2c2.E.CS=*(sompoolsfromR+79);
+  CROPCENT->som2c2.E.CK=*(sompoolsfromR+80);
  
   
-  CROPCENT->som3c.C.totalC=3823.0;
-  CROPCENT->som3c.C.unlablTOlabl=1.0;
-  CROPCENT->som3c.E.CN=8.03;
-  CROPCENT->som3c.E.CP=8.03;
-  CROPCENT->som3c.E.CS=8.03;
-  CROPCENT->som3c.E.CK=8.03;
+  CROPCENT->som3c.C.totalC=*(sompoolsfromR+81);
+  CROPCENT->som3c.C.unlablTOlabl=*(sompoolsfromR+82);
+  CROPCENT->som3c.E.CN=*(sompoolsfromR+83);
+  CROPCENT->som3c.E.CP=*(sompoolsfromR+84);
+  CROPCENT->som3c.E.CS=*(sompoolsfromR+85);
+  CROPCENT->som3c.E.CK=*(sompoolsfromR+86);
   return;
 }
 
@@ -445,20 +445,21 @@ CROPCENT->som2c2.parms.k= timescaling(CROPCENT->som2c2.parms.k,CROPCENT->som2c2.
 CROPCENT->som3c.parms.k= timescaling(CROPCENT->som3c.parms.k,CROPCENT->som3c.parms.timestep);
   return;
 }
-void assignENV(struct cropcentlayer *CROPCENT){
+void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, 
+double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR){
  
-  GetBioCroToCropcentParms(&CROPCENT->BcroTOCentParms);
-  GetSymbNFixationParms(&CROPCENT->ENV.NFIX);
-  GetLeachingParms(&CROPCENT->ENV.ORGLECH);
-  GetC13Parms(&CROPCENT->ENV.C13);
-  GetErosionParms(&CROPCENT->ENV.EROSION);
-  GetSoilTexture(&CROPCENT->ENV.SOILTEX);
-  //GetCropCentStateVar(&CROPCENT->ENV);
+  GetBioCroToCropcentParms(&CROPCENT->BcroTOCentParms,getbiocrotocropcentparmsfromR);
+  GetSymbNFixationParms(&CROPCENT->ENV.NFIX,getsymbnfixationparmsfromR);
+  GetLeachingParms(&CROPCENT->ENV.ORGLECH,getleachingparmsfromR);
+  GetC13Parms(&CROPCENT->ENV.C13,getc13parmsfromR);
+  GetErosionParms(&CROPCENT->ENV.EROSION,geterosionparmsfromR);
+  GetSoilTexture(&CROPCENT->ENV.SOILTEX,getsoiltexturefromR);
+  GetCropCentStateVar(&CROPCENT->ENV,getcropcentstatevarfromR);
   return;
 }
 
 void GetCropCentStateVar(struct cropcentEnvironment *ENV, double *getcropcentstatevarfromR){
-  Rprintf("%f, %f, %f \n", *getcropcentstatevarfromR,*(getcropcentstatevarfromR+1),*(getcropcentstatevarfromR+2));
+  
   ENV->minN=1e-6;
   ENV->minP=5.0;
   ENV->minS=5.0;
@@ -629,8 +630,8 @@ void replaceMineralStruct(struct minerals *FROM,struct minerals *TO)
 }
 
 
-void GetSymbNFixationParms(struct SymbNFixationParms *temp)
-{
+void GetSymbNFixationParms(struct SymbNFixationParms *temp,double *getsymbnfixationparmsfromR)
+{//Rprintf("%f, %f, %f \n", *getsymbnfixationparmsfromR,*(getsymbnfixationparmsfromR+1),*(getsymbnfixationparmsfromR+2));
   temp->FXMCA=-0.125;
   temp->FXMCB=0.005;
   temp->FXMXS=0.35;
@@ -640,7 +641,7 @@ void GetSymbNFixationParms(struct SymbNFixationParms *temp)
   return;
 }
 
-void GetLeachingParms (struct OrgLeachParms *temp)
+void GetLeachingParms (struct OrgLeachParms *temp,double *getleachingparmsfromR)
 {
   temp->DailyThresholdFlow=1.5;
   temp->OMLEACH[0]=0.03;
@@ -653,14 +654,15 @@ void GetLeachingParms (struct OrgLeachParms *temp)
   return;
 }
 
-void GetC13Parms(struct C13Parms *temp)
+void GetC13Parms(struct C13Parms *temp,double *getc13parmsfromR)
 { 
   temp->DRESP=0.999; 
   temp->DLIGDF=-4.0;
   return;
 }
 
-void GetErosionParms(struct ErosionParms *temp){
+void GetErosionParms(struct ErosionParms *temp,double *geterosionparmsfromR){
+  
   temp->LHZF[0]=0.2; 
   temp->LHZF[1]=0.4;
   temp->LHZF[2]=0.8;
@@ -668,13 +670,15 @@ void GetErosionParms(struct ErosionParms *temp){
   temp->ENRICH=2.0;
 }
 
-void GetSoilTexture( struct SoilTexture *temp){
-  temp->sand=0.30;
-  temp->silt=0.30;
-  temp->clay=0.40;
+void GetSoilTexture( struct SoilTexture *temp, double *getsoiltexturefromR){
+
+  temp->sand=*getsoiltexturefromR;
+  temp->silt=*(getsoiltexturefromR+1);
+  temp->clay=*(getsoiltexturefromR+2);
 }
 
-void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp){
+void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp,double *getbiocrotocropcentparmsfromR ){
+  
   temp->structometaSLOPE=-0.013;
   temp->structometaINTERCEP=0.85;
   temp->surfacedamrN=0.0;

@@ -456,17 +456,18 @@ void assignParms(struct cropcentlayer *CROPCENT,double *assignParms);
 double timescaling (double k ,double t);
 void CROPCENTTimescaling(struct cropcentlayer *CROPCENT);
 void assignFluxRatios(struct cropcentlayer *CROPCENT);
-void  assignENV(struct cropcentlayer *CROPCENT);
-void GetC13Parms(struct C13Parms *temp);
+void  assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, double *getbiocrotocropcentparmsfromR,
+      double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR);
+void GetC13Parms(struct C13Parms *temp,double *getc13parmsfromR);
 
 
 // Assignign pool to flow structure
 void printcropcentout(struct cropcentlayer CROPCENT);
 // void assignpooltoflow(struct carbon *tmpC,struct minerals *tmpE,struct flow *tmpflow);
-void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp);
-void GetSymbNFixationParms(struct SymbNFixationParms *temp);
-void GetErosionParms(struct ErosionParms *temp);
-void GetSoilTexture( struct SoilTexture *temp);
+void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp,double *getbiocrotocropcentparmsfromR);
+void GetSymbNFixationParms(struct SymbNFixationParms *temp,double *getsymbnfixationparmsfromR);
+void GetErosionParms(struct ErosionParms *temp,double *geterosionparmsfromR);
+void GetSoilTextureParms( struct SoilTexture *temp,double *getsoiltexturefromR);
 void GetCropCentStateVar(struct cropcentEnvironment *ENV,double *getcropcentstatevarfromR);
 void GetInFlowCERatio(struct flowrestriction *INFLOWRESTRICT, struct minerals *output, struct cropcentEnvironment *ENV);
 double GetMDR(double a,double b,double x1,double x2,double soilrad);

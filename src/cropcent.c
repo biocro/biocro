@@ -14,7 +14,7 @@ SEXP cropcent (SEXP FAKE)
 //  assignPools(&CROPCENT);
   //assignParms(&CROPCENT);
   CROPCENTTimescaling(&CROPCENT);
-  assignENV(&CROPCENT);
+//  assignENV(&CROPCENT);
   assignFluxRatios(&CROPCENT);
   Rprintf("Before Decomposition\n");
   printcropcentout(CROPCENT);
