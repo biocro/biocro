@@ -6,7 +6,7 @@ test_that("WillowGro function runs with smoothed weather05 data",{
 })
 
 test_that("WillowGro runs in warm weather",{
-  data(warm)
+  load("data/warm.rda")
   res <- willowGro(WetDat = warm$WetDat, canopyControl = warm$canopyControl,
                                          photoControl = warm$photoControl, 
                                          day1= warm$day1, 
