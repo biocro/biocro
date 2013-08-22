@@ -66,7 +66,7 @@ double TempToLHV(double Temp);
 double TempToDdryA(double Temp);
 void RHprof(double RH, int nlayers);
 void WINDprof(double WindSpeed, double LAI, int nlayers);
-void sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil);
+void sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil,double heightf);
 void lightME(double lat, int DOY, int td);
 
 struct cenT_str Century(double *LeafL, double *StemL, double *RootL, double *RhizL, double smoist, double stemp, int timestep, 

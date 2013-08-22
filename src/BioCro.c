@@ -11,7 +11,7 @@
 #include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
-
+#include "crocent.h"
 SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */ 
 	    SEXP DOY,                 /* Day of the year           2 */
 	    SEXP HR,                  /* Hour of the day           3 */
@@ -24,10 +24,10 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP CHILHF,              /* Chi and Height factor    10 */
 	    SEXP NLAYERS,             /* # Lay canop              11 */
 	    SEXP RHIZOME,             /* Ini Rhiz                 12 */
-            SEXP IRTL,                /* i rhiz to leaf           13 */
-            SEXP SENCOEFS,            /* sene coefs               14 */
-            SEXP TIMESTEP,            /* time step                15 */
-            SEXP VECSIZE,             /* vector size              16 */
+      SEXP IRTL,                /* i rhiz to leaf           13 */
+      SEXP SENCOEFS,            /* sene coefs               14 */
+      SEXP TIMESTEP,            /* time step                15 */
+      SEXP VECSIZE,             /* vector size              16 */
 	    SEXP SPLEAF,              /* Spec Leaf Area           17 */
 	    SEXP SPD,                 /* Spec Lefa Area Dec       18 */
 	    SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
@@ -51,7 +51,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP SOILTYPE,            /* Soil type                37 */
 	    SEXP WSFUN,               /* Water Stress Func        38 */
 	    SEXP CENTCOEFS,           /* Century coefficients     39 */
-            SEXP CENTTIMESTEP,        /* Century timestep         40 */ 
+      SEXP CENTTIMESTEP,        /* Century timestep         40 */ 
 	    SEXP CENTKS,              /* Century decomp rates     41 */
 	    SEXP SOILLAYERS,          /* # soil layers            42 */
 	    SEXP SOILDEPTHS,          /* Soil Depths              43 */
@@ -61,11 +61,19 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP KPLN,                /* Leaf N decay             47 */
 	    SEXP LNB0,                /* Leaf N Int               48 */
 	    SEXP LNB1,                /* Leaf N slope             49 */
-            SEXP LNFUN,               /* Leaf N func flag         50 */
-            SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
+      SEXP LNFUN,               /* Leaf N func flag         50 */
+      SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
 	    SEXP LOWERTEMP,
 	    SEXP NNITROP)           /*temperature Limitation photoParms */
 {
+  
+   /*********** CROCENT VARIABLES***********************/
+   struct cropcentlayer CROPCENT;
+   //assignParms(&CROPCENT);
+   CROPCENTTimescaling(&CROPCENT);
+//   assignPools(&CROPCENT);
+   struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
+   /****************************************************/
 	double newLeafcol[8760];
 	double newStemcol[8760];
 	double newRootcol[8760];
@@ -81,12 +89,12 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	struct nitroParms nitroparms;
 	double TEMPdoubletoint;
 	nitroparms.ileafN=REAL(NNITROP)[0];
-        nitroparms.kln=REAL(NNITROP)[1];
+  nitroparms.kln=REAL(NNITROP)[1];
 	nitroparms.Vmaxb1=REAL(NNITROP)[2];
 	nitroparms.Vmaxb0=REAL(NNITROP)[3];
 	nitroparms.alphab1=REAL(NNITROP)[4];
 	nitroparms.alphab0=REAL(NNITROP)[5];
-        nitroparms.Rdb1=REAL(NNITROP)[6];
+  nitroparms.Rdb1=REAL(NNITROP)[6];
 	nitroparms.Rdb0=REAL(NNITROP)[7];
 	nitroparms.kpLN=REAL(NNITROP)[8];
 	nitroparms.lnb0=REAL(NNITROP)[9];
@@ -99,7 +107,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 
 
 ///////////////////////////////////////////////////////////////////	
-        double iSp, Sp , propLeaf;
+  double iSp, Sp , propLeaf;
 	int i, i2, i3;
 	int vecsize ;
 
@@ -355,8 +363,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 			       vmax1,alpha1,kparm1,
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
-			       chil, hf,
-                               LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
+			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
@@ -451,59 +458,16 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 			Nfert = 0;
 		}                
 
+     
 
-		/* Here I will insert the Century model */
-
-		if(i % 24*centTimestep == 0){
-
-			LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
-			StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
-			RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
-			RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
-
-			LeafLitter -= LeafLitter_d;
-			StemLitter -= StemLitter_d;
-			RootLitter -= RootLitter_d;
-			RhizomeLitter -= RhizomeLitter_d;
-
-			centS = Century(&LeafLitter_d,&StemLitter_d,&RootLitter_d,&RhizomeLitter_d,
-					waterCont,*(pt_temp+i),centTimestep,SCCs,WaterS.runoff,
-					Nfert, /* N fertilizer*/
-					MinNitro, /* initial Mineral nitrogen */
-					*(pt_precip+i), /* precipitation */
-					REAL(CENTCOEFS)[9], /* Leaf litter lignin */
-					REAL(CENTCOEFS)[10], /* Stem litter lignin */
-					REAL(CENTCOEFS)[11], /* Root litter lignin */
-					REAL(CENTCOEFS)[12], /* Rhizome litter lignin */
-					REAL(CENTCOEFS)[13], /* Leaf litter N */
-					REAL(CENTCOEFS)[14], /* Stem litter N */
-					REAL(CENTCOEFS)[15],  /* Root litter N */
-					REAL(CENTCOEFS)[16],   /* Rhizome litter N */
-					soilType, 
-					REAL(CENTKS));
-		}
-
-
-
-		MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
-		Resp = centS.Resp;
-		SCCs[0] = centS.SCs[0];
-		SCCs[1] = centS.SCs[1];
-		SCCs[2] = centS.SCs[2];
-		SCCs[3] = centS.SCs[3];
-		SCCs[4] = centS.SCs[4];
-		SCCs[5] = centS.SCs[5];
-		SCCs[6] = centS.SCs[6];
-		SCCs[7] = centS.SCs[7];
-		SCCs[8] = centS.SCs[8];
-
-		/* Here I can insert the code for Nitrogen limitations on photosynthesis
+  	/* Here I can insert the code for Nitrogen limitations on photosynthesis
 		   parameters. This is taken From Harley et al. (1992) Modelling cotton under
 		   elevated CO2. PCE. This is modeled as a simple linear relationship between
 		   leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
 		   availability and possibly by the Thermal time accumulated.*/
 /* The approach that seems to be used in general is N concentration as
  * a function of biomass */
+	
 
 		LeafN = LeafN_0 * pow(Stem + Leaf,-kLN); 
 		if(LeafN > LeafN_0) LeafN = LeafN_0;
@@ -668,9 +632,61 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 			Grain += newGrain;  
 		}
 
+/****************************************************************************
+// CROPCENT SIMULATION BEGINS HHERE    
+BiocroToCrocent(&LeafLitter,leaf.fallrate,leaf.lignin, &leaf.E, isotoperatio, 1, 0,leaflitter);
+BiocroToCrocent(&StemLitter,stem.fallrate,stem.lignin, &stem.E, isotoperatio, 1, 0,stemlitter);
+BiocroToCrocent(&RootLitter,root.fallrate,root.lignin, &root.E, isotoperatio, 0, 0,rootlitter);
+BiocroToCrocent(&RhizomeLitter,rhiz.fallrate,rhiz.lignin, &rhiz.E, isotoperatio, 0, 0,rhizomelitter);
+***************************************************************************/
+   if(i % 24*centTimestep == 0){
+
+			LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
+			StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
+			RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
+			RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
+
+			LeafLitter -= LeafLitter_d;
+			StemLitter -= StemLitter_d;
+			RootLitter -= RootLitter_d;
+			RhizomeLitter -= RhizomeLitter_d;
+
+			centS = Century(&LeafLitter_d,&StemLitter_d,&RootLitter_d,&RhizomeLitter_d,
+					waterCont,*(pt_temp+i),centTimestep,SCCs,WaterS.runoff,
+					Nfert, /* N fertilizer*/
+					MinNitro, /* initial Mineral nitrogen */
+					*(pt_precip+i), /* precipitation */
+					REAL(CENTCOEFS)[9], /* Leaf litter lignin */
+					REAL(CENTCOEFS)[10], /* Stem litter lignin */
+					REAL(CENTCOEFS)[11], /* Root litter lignin */
+					REAL(CENTCOEFS)[12], /* Rhizome litter lignin */
+					REAL(CENTCOEFS)[13], /* Leaf litter N */
+					REAL(CENTCOEFS)[14], /* Stem litter N */
+					REAL(CENTCOEFS)[15],  /* Root litter N */
+					REAL(CENTCOEFS)[16],   /* Rhizome litter N */
+					soilType, 
+					REAL(CENTKS));
+		}
+
+
+
+		MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
+		Resp = centS.Resp;
+		SCCs[0] = centS.SCs[0];
+		SCCs[1] = centS.SCs[1];
+		SCCs[2] = centS.SCs[2];
+		SCCs[3] = centS.SCs[3];
+		SCCs[4] = centS.SCs[4];
+		SCCs[5] = centS.SCs[5];
+		SCCs[6] = centS.SCs[6];
+		SCCs[7] = centS.SCs[7];
+		SCCs[8] = centS.SCs[8];
+
+
+
 		ALitter = LeafLitter + StemLitter;
 		BLitter = RootLitter + RhizomeLitter;
-
+    
 		/* Here I could add a soil and nitrogen carbon component. I have soil
 		   moisture, I have temperature and root and rhizome biomass */
 

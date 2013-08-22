@@ -45,9 +45,10 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP SPD,                 /* Spec Lefa Area Dec       18 */
 	    SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
 	    SEXP THERMALP,            /* Themal Periods           20 */
-	    SEXP TBASE,               /* Base Temp for calculaing thermal time */
+      SEXP TBASE,               /* Base Temp for calculaing thermal time */
 	    SEXP VMAX,                /* Vmax of photo            21 */
 	    SEXP ALPHA,               /* Quantum yield            22 */
+	    SEXP KPARM,               /* k parameter (photo)      23 */
 	    SEXP THETA,               /* theta param (photo)      24 */
 	    SEXP BETA,                /* beta param  (photo)      25 */
 	    SEXP RD,                  /* Dark Resp   (photo)      26 */
@@ -76,17 +77,17 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP LNB1,                /* Leaf N slope             49 */
             SEXP LNFUN,               /* Leaf N func flag         50 */
             SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
- SEXP LOWERTEMP,
- SEXP JMAX,
- SEXP JMAXB1,
- SEXP O2,
- SEXP GROWTHRESP,
-       SEXP STOMATAWS)           /*temperature Limitation photoParms */
- {
- 	double newLeafcol[8784];
- 	double newStemcol[8784];
- 	double newRootcol[8784];
- 	double newRhizomecol[8784];
+
+	    SEXP LOWERTEMP,
+      SEXP JMAX,
+      SEXP JMAXB1,
+      SEXP O2,
+      SEXP GROWTHRESP)           /*temperature Limitation photoParms */
+{
+	double newLeafcol[8784];
+	double newStemcol[8784];
+	double newRootcol[8784];
+	double newRhizomecol[8784];
 
 	/* This creates vectors which will collect the senesced plant
 	   material. This is needed to calculate litter and therefore carbon
@@ -100,12 +101,14 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	   int i, i2, i3;
 	   int vecsize ;
 
-	   double vmax1;
-	   double alpha1;
-	   double theta;
-	   double beta;
-	   double Rd1, Ca;
-	   double b01, b11;
+
+	double vmax1;
+	double alpha1;
+	double kparm1;
+	double theta;
+	double beta;
+	double Rd1, Ca;
+	double b01, b11;
 
 
 	   double Leaf, Stem, Root, LAI, Grain = 0.0;
@@ -129,14 +132,14 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	   double mrc1 = REAL(MRESP)[0];
 	   double mrc2 = REAL(MRESP)[1]; 
 
-	   double GrowthRespFraction = REAL(GROWTHRESP)[0];
-	   
-	   double waterCont;
-	   double LeafWS;
-	   double StomWS = REAL(STOMATAWS)[0];
-	   int timestep;
-	   int A, B;
-	   double CanopyA, CanopyT;
+
+  double GrowthRespFraction = REAL(GROWTHRESP)[0];
+  
+	double waterCont;
+	double StomWS = 1, LeafWS = 1;
+	int timestep;
+  int A, B;
+	double CanopyA, CanopyT;
 
 	   double Rhizome;
 	   double leafdeathrate1;
@@ -268,19 +271,22 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	   PROTECT(SNpools = allocVector(REALSXP,9));
 	   PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
-	/* Picking vmax, alpha  */
-	   vmax1 = REAL(VMAX)[0];
-	   alpha1 = REAL(ALPHA)[0];
-	   theta = REAL(THETA)[0];
-	   beta = REAL(BETA)[0];
-	   Rd1 = REAL(RD)[0];
-	   Ca = REAL(CATM)[0];
-	   b01 = REAL(B0)[0];
-	   b11 = REAL(B1)[0];
-	   
-	   
 
-	   LeafN_0 = REAL(ILEAFN)[0];
+	/* Picking vmax, alpha and kparm */
+	vmax1 = REAL(VMAX)[0];
+	alpha1 = REAL(ALPHA)[0];
+	kparm1 = REAL(KPARM)[0];
+	theta = REAL(THETA)[0];
+	beta = REAL(BETA)[0];
+	Rd1 = REAL(RD)[0];
+	Ca = REAL(CATM)[0];
+	b01 = REAL(B0)[0];
+	b11 = REAL(B1)[0];
+  
+  
+
+	LeafN_0 = REAL(ILEAFN)[0];
+
 	LeafN = LeafN_0; /* Initial value of N in the leaf */
 	   kLN = REAL(KLN)[0];
 	   timestep = INTEGER(TIMESTEP)[0];
@@ -386,15 +392,17 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
     // Printing variables in R befor ecalling c3 canopy 
   //  Rprintf("\n LAI= %f",LAI);
  //      Rprintf("\n VMAX= %f",vmax1);
-          //Rprintf("\n StomWS,LeafWS=%f",StomWS,LeafWS); 
-		   
-		   Canopy = c3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-		   	*(pt_solar+i), *(pt_temp+i),
-		   	*(pt_rh+i), *(pt_windspeed+i),
-		   	lat, nlayers,
-		   	vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
-		   
-   /*Rprintf("%f,%f,%f,%f\n",StomWS,LeafWS,kLeaf,newLeaf);              
+
+//          Rprintf("\n jmax1=%f",jmax1); 
+    
+		Canopy = c3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
+			       *(pt_solar+i), *(pt_temp+i),
+			       *(pt_rh+i), *(pt_windspeed+i),
+			       lat, nlayers,
+			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,
+			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun);
+             
+           
 
 		/* Collecting the results */
 		   CanopyA = Canopy.Assim * timestep;
@@ -574,21 +582,22 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 			*(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
 					       to use i because when kLeaf is negative no new leaf is
 					       being accumulated and thus would not be subjected to senescence */
-					   }else{
-					   	error("kLeaf should be positive");
-					   }
-					   
-					   if(TTc < SeneLeaf){
 
-					   	Leaf += newLeaf;
+		}else{
+         error("kLeaf should be positive");
+		}
 
-					   }else{
-					   	A = REAL(LAT)[0]>=0.0;
-					   	B = *(pt_doy+i)>=180.0 ;
-					   	
-					   	if((A && B)||((!A) && (!B)))
-					   	{
-					   		
+		if(TTc < SeneLeaf){
+
+			Leaf += newLeaf;
+
+		}else{
+      A = REAL(LAT)[0]>=0.0;
+      B = *(pt_doy+i)>=180.0 ;
+      
+      if((A && B)||((!A) && (!B)))
+      {
+      
       // Here we are checking/evaluating frost kill
 					   		
 					   		if (*(pt_temp+i) > Tfrostlow) {
@@ -598,8 +607,9 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 					   		}
 					   		else {leafdeathrate1 =0.0;}
     //Rprintf("Death rate due to frost = %f,%f,%f,%f\n",leafdeathrate1,*(pt_temp+i),Tfrosthigh,Tfrostlow);
-     //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
-					   		leafdeathrate=(leafdeathrate>leafdeathrate1)? leafdeathrate:leafdeathrate1;
+
+         //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+      leafdeathrate=(leafdeathrate>leafdeathrate1)? leafdeathrate:leafdeathrate1;
       Deadleaf=Leaf*leafdeathrate*(0.01/24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
       Remob = Deadleaf * 0.6;
 			LeafLitter += (Deadleaf-Remob); /* Collecting the leaf litter */ 

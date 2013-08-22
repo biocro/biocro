@@ -19,6 +19,7 @@
 #include <Rinternals.h>
 #include "c4photo.h"
 #include "AuxBioCro.h"
+#include "BioCro.h"
 
 
 /* lightME function. Light Macro Environment */
@@ -67,98 +68,8 @@ void lightME(double lat, int DOY, int td)
         *ip1 = propIdir;
         *(ip1+1) = propIdiff;
         *(ip1+2) = CosZenithAngle;
+        return;
 }
-
-
-
-/* sunML function. Sun-Shade Multi-Layer model */
-/* This function was written by Deepak Jaiswal*/
-/* June 1 2012 */
-/* void sunML(double Idir, double Idiff, double LAI, int nlayers, */
-/*         double cosTheta, double kd, double chil, double heightf) */
-/* { */
-/*      extern int sp1, sp2, sp3, sp4, sp5, sp6; */
-/*      extern double layIdir[], layIdiff[], layItotal[], layFsun[], layFshade[], layHeight[]; */
-/*      int i; */
-/*      double k0, k1, k; */
-/*      double LAIi, CumLAI; */
-/*      double Isolar, Idiffuse, Itotal,Iscat,alphascatter; */
-/*      double Ls,Ls2, Ld, Ld2; */
-/*      double Fsun, Fshade,Fcanopy; */
-/*      double Lssaved,Ldsaved; */
-
-/*      /\*extinction coefficient evaluated here is defnied as ratio of */
-/*        shadow on the horizontal area projected from a zenith angle Theta. */
-/*        Earlier version of the code was based on ratio of area projected in */
-/*        the direction of incoming beam radiation. */
-/*        Therefore, cosTheta term in numerator is removed */
-/*      *\/ */
-/*      /\** wishlist**\/ */
-/*      /\* currently a default value of kd is used, this value can be calculated, see page 254 of Campbell and Norman *\/ */
-/*      /\* Long Wave radiation balanc has not been included in the canopy environment *\/ */
-
-/*      alphascatter=0.8; /\* This value is for PAR, for long wave radiation a shorter value = 0.2 is recommended see page  255 of campbell and Norman *\/ */
-/*      k0 =  sqrt(pow(chil ,2) + pow(tan(acos(cosTheta)),2)); */
-/*      k1 = chil + 1.744*pow((chil+1.183),-0.733); */
-/*      k = k0/k1; */
-/*      if(k<0) */
-/*              k = -k; */
-
-/*      LAIi = LAI / nlayers; */
-
-/*      for(i=0;i<nlayers;i++) */
-/*      { */
-/*              CumLAI = LAIi * (i+1/2); */
-/*              if(i == 0) */
-/*                    { */
-                
-/*                      Iscat=Idir * cosTheta * exp(-k *sqrt(alphascatter)* CumLAI)-Idir * cosTheta * exp(-k * CumLAI); /\* scattered radiation Eq 15.19 from Campbell and Norman pp 259 *\/ */
-/*                      Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat; /\* Eq 15.19 from Campbell and Norman pp 259 *\/ */
-/*                      Isolar = Idir * k * cosTheta; /\* Avergae direct radiation on sunlit leaves *\/ */
-/*                      Itotal = Isolar + Idiffuse; /\* Total radiation *\/ */
-                        
-/*                      Fcanopy=CumLAI; /\* leaf area of canopy currenly under consideration *\/ */
-/*                      /\* old version Ls = (1-exp(-k*CumLAI))/k; /\* To evaluate sunlit leaf area in Fcanopy*\/ */
-/*                         Ls = (1-exp(-k*LAIi))/k * exp(-k*CumLAI); */
-/*                      Lssaved=Ls;              /\* To use for evaluating sunlit leaves in the lower layer *\/ */
-/*                      Ld=LAIi-Ls;          /\* shaded leaf area *\/ */
-/*                      Ldsaved=Ld;              /\* To use for evaluating shaded leaves in the lower layer*\/ */
-/*                      Fsun=Ls/(Ls+Ld);         /\*fracction of sunlit leaves in the current layer *\/ */
-/*                      Fshade=Ld/(Ls+Ld);       /\* fraction of shaded leaves in the current layer *\/ */
-/*                         Itotal = Fsun*Isolar + Idiffuse; */
-/*                      } */
-                
-/*              else */
-/*              { */
-/*                      Iscat=Idir * cosTheta * exp(-k *sqrt(alphascatter)* CumLAI)-Idir * cosTheta * exp(-k * CumLAI); /\* scattered radiation Eq 15.19 from Campbell and Norman pp 259 *\/ */
-/*                      Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat; /\* Eq 15.19 from Campbell and Norman pp 259 *\/ */
-/*                      Isolar = Idir * k * cosTheta; /\* Avergae direct radiation on sunlit leaves *\/ */
-/*                      Itotal = Isolar + Idiffuse; */
-                        
-/*                      Fcanopy=CumLAI;  /\* leaf area of canopy currenly under consideration *\/ */
-/*                      Ls = (1-exp(-k*LAIi))/k * exp(-k*CumLAI); /\* To evaluate  sunlit leaf area  in Fcanopy*\/ */
-/*                      Ld=LAIi-Ls; /\* evaluate shaded leaf area in Fcanopy *\/ */
-/*                      /\* Ls= Ls-Lssaved; /\* subtract the sunlit areas of all the upper layers saved in Lssaved; now we have sunlit area of current layer*\/ */
-/*                      Lssaved = Ls+ Lssaved; /\* update the Lssaved for calculation of the next lower layer *\/ */
-/*                      Ld=Ld-Ldsaved; /\* subtract the shaded areas of all the upper layers saved in Ldsaved; now we have shaded area of current layer*\/ */
-/*                      Ldsaved=Ld+Ldsaved; /\* update the Ldsaved for calculation of the next lower layer *\/ */
-/*                      Fsun=Ls/(Ls+Ld);   /\*fracction of sunlit leaves in the current layer *\/ */
-/*                      Fshade=Ld/(Ls+Ld);  /\* fraction of shaded leaves in the current layer *\/ */
-/*                         Itotal = Fsun * Isolar + Idiffuse; */
-/*              } */
-                
-/*                       /\* collecting the results *\/ */
-
-/*              layIdir[sp1++] = Isolar+Idiffuse;  /\* This is used to calculate sunlit leaf photosynthesis *\/ */
-/*              layIdiff[sp2++] = Idiffuse;       /\* ok, this is used to calculate shaded leaf photosynthesis *\/ */
-/*              layItotal[sp3++] = Itotal;        /\* this is used to evaluate evapotranspiration..Think about other factors that might influence energy balance to include *\/ */
-/*              layFsun[sp4++] = Fsun; */
-/*              layFshade[sp5++] = Fshade; */
-/*              layHeight[sp6++] = CumLAI / heightf; */
-/*      } */
-/* } */
-
-
 
 void sunML(double Idir, double Idiff, double LAI, int nlayers,
            double cosTheta, double kd, double chil, double heightf)
@@ -630,7 +541,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                      double Alpha, double Kparm, double theta, double beta,
                      double Rd, double Catm, double b0, double b1,
                      double StomataWS, int ws, double kd, double chil, double heightf,
-                     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT, double lowerT)
+                     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT, double lowerT,struct nitroParms nitroP)
 {
 
         struct ET_Str tmp5_ET, tmp6_ET;
@@ -687,7 +598,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
         /* Next use the EvapoTrans function */
         CanopyA=0.0;
-  GCanopyA=0.0;
+        GCanopyA=0.0;
         CanopyT=0.0;
         for(i=0;i<nlayers;i++)
         {
@@ -1423,3 +1334,22 @@ struct soilText_str soilTchoose(int soiltype){
         return(tmp);
 
 }
+
+void cropcent_dbp(double coefs[25],double TherPrds[6], double TherTime, struct crop_phenology *cropdbp)
+
+// struct cropcent_phenolohy cropcent_dbp(double coefs[25], double TherPrds[6], double TherTime)
+
+     {     
+        struct dbp_str tmp;
+        // call old biomass partiitoning coefficient function
+        tmp =sel_dbp_coef(coefs, TherPrds, TherTime);
+        //assing it to the relevant sub structure of new cropdbp, to be retirned back to the main program
+        cropdbp->DBP=tmp;
+       // Here I must define what are CN ratios of different plant components under excess N fertilization
+       
+       
+       // I can leave it empty for now
+       return;
+     }
+
+
