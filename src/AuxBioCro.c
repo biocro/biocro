@@ -1043,7 +1043,6 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
         tmp.kRhiz = 0.0;
         tmp.kGrain = 0.0; /* kGrain is always zero except for the last thermal period */
 
-
         if(TherTime < TherPrds[0])
         {
                 tmp.kStem = coefs[0];
@@ -1083,17 +1082,14 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
                                                 tmp.kRoot = coefs[18];
                                                 tmp.kRhiz = coefs[19];
 
-                                        } else
-                                                if(TherTime < TherPrds[5])
-                                                {
+                                        } else{
+                                                
                                                         tmp.kStem = coefs[20];
                                                         tmp.kLeaf = coefs[21];
                                                         tmp.kRoot = coefs[22];
                                                         tmp.kRhiz = coefs[23];
                                                         tmp.kGrain = coefs[24];
-                                                }else{
-                                                        Rprintf("TherPrds[5]: %.1f TherTime %.1f \n",TherPrds[5],TherTime);
-                                                        error("Thermal time larger than thermal periods");
+                                                
                                                 }
 
 
