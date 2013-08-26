@@ -6,12 +6,14 @@ test_that("WillowGro function runs with smoothed weather05 data",{
 })
 
 test_that("WillowGro runs in warm weather",{
-  load("data/warm.rda")
-  res <- willowGro(WetDat = warm$WetDat, canopyControl = warm$canopyControl,
-                                         photoControl = warm$photoControl, 
-                                         day1= warm$day1, 
-                                         dayn = warm$dayn)
-  })
+  data("warm", package = "BioCro")
+  res <- willowGro(WetDat = warm$WetDat,
+                   canopyControl = warm$canopyControl,
+                   photoControl = warm$photoControl, 
+                   day1= warm$day1, 
+                   dayn = warm$dayn)
+  
+})
 
 test_that("WillowGro function produces reasonable results",{
   ## 
@@ -32,8 +34,9 @@ test_that("WillowGro function produces expected results",{
     res2 <- do.call(biocrofn, list(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE)))
     
     for(output in c("LAI", "Leaf", "Root", "Stem")){
-      expect_true(all(res0[[output]] - res1[[output]]  <= 1)) 
-      expect_true(all(res0[[output]] - res2[[output]]  <= 1))
+        expect_true(all(diff(res0[[output]]) >=0))
+        expect_true(all(res0[[output]] - res1[[output]]  <= 1)) 
+        expect_true(all(res0[[output]] - res2[[output]]  <= 1))
     }
 
     ll.0 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=1)
