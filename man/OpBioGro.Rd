@@ -1,6 +1,6 @@
 \name{OpBioGro}
-\alias{constrOpBioGro}
 \alias{OpBioGro}
+\alias{constrOpBioGro}
 \alias{summary.OpBioGro}
 \title{Optimization of dry biomass partitioning coefficients.}
 \usage{

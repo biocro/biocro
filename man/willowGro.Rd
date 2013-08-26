@@ -1,4 +1,5 @@
 \name{willowGro}
+\alias{SoilType}
 \alias{canopyParms}
 \alias{centuryParms}
 \alias{nitroParms}
@@ -8,7 +9,6 @@
 \alias{seneParms}
 \alias{showSoilType}
 \alias{soilParms}
-\alias{SoilType}
 \alias{willowGro}
 \title{willowmass crops growth simulation}
 \usage{
@@ -86,9 +86,6 @@
   function.
 
   \code{alpha} alpha parameter passed to the
-  \code{\link{c3photo}} function.
-
-  \code{kparm} kparm parameter passed to the
   \code{\link{c3photo}} function.
 
   \code{theta} theta parameter passed to the
