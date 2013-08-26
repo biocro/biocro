@@ -451,24 +451,23 @@ struct cropcentlayer{
   struct BioCroToCropcentParms BcroTOCentParms;
 };
 
-void assignPools(struct cropcentlayer *CROPCENT,double *sompoolsfromR);
-void assignParms(struct cropcentlayer *CROPCENT,double *assignParms);
+void assignPools(struct cropcentlayer *CROPCENT, double *sompoolsfromR);
+void assignParms(struct cropcentlayer *CROPCENT, double *somassignparmsfromR);
 double timescaling (double k ,double t);
 void CROPCENTTimescaling(struct cropcentlayer *CROPCENT);
 void assignFluxRatios(struct cropcentlayer *CROPCENT);
-void  assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, double *getbiocrotocropcentparmsfromR,
-      double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR);
+void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR);
 void GetC13Parms(struct C13Parms *temp,double *getc13parmsfromR);
 
 
 // Assignign pool to flow structure
 void printcropcentout(struct cropcentlayer CROPCENT);
 // void assignpooltoflow(struct carbon *tmpC,struct minerals *tmpE,struct flow *tmpflow);
-void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp,double *getbiocrotocropcentparmsfromR);
+void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp,double *getbiocrotocropcentparmsfromR );
 void GetSymbNFixationParms(struct SymbNFixationParms *temp,double *getsymbnfixationparmsfromR);
 void GetErosionParms(struct ErosionParms *temp,double *geterosionparmsfromR);
-void GetSoilTextureParms( struct SoilTexture *temp,double *getsoiltexturefromR);
-void GetCropCentStateVar(struct cropcentEnvironment *ENV,double *getcropcentstatevarfromR);
+void GetSoilTexture( struct SoilTexture *temp, double *getsoiltexturefromR);
+void GetCropCentStateVar(struct cropcentEnvironment *ENV, double *getcropcentstatevarfromR);
 void GetInFlowCERatio(struct flowrestriction *INFLOWRESTRICT, struct minerals *output, struct cropcentEnvironment *ENV);
 double GetMDR(double a,double b,double x1,double x2,double soilrad);
 double GetMTI(double a,double b,double x1,double x2,double soilrad);
@@ -557,6 +556,7 @@ struct stem
 struct rhizome
 {
   double biomass, litter;
+  double carbohydratefraction;
   struct minerals biomassE,litterE;
 };
 
@@ -596,15 +596,14 @@ struct miscanthus
   struct root root;
   struct dailyvec *leafvec, *stemvec, *rootvec, *rhizomevec;
   struct DailyAutoResp autoresp;
-  double GPP;
+  double GPP, NPP;
 };
 
-
 struct senthermaltemp{
-  double leaf;
-  double stem;
-  double rhiz;
-  double root;
+  double leafcriticalT, leaffr;
+  double stemcriticalT, stemfr;
+  double rhizomecriticalT, rhizomefr;
+  double rootcriticalT,rootfr;
 };
 
 struct canopyparms{
@@ -628,29 +627,78 @@ struct respirationParms{
     double Qrhizome, mrhizome;
   }maint;
 };
+
+
 double CalculateGrowthResp(double newbiomass,double growthRespFactor);
-void dailymiscanthus(struct miscanthus *miscanthus,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailygrossassim,
-struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, int N, double delTT,int emergence,
+void dailymiscanthus(struct miscanthus *miscanthus,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
+struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, int N, double delTT,
 struct respirationParms *RESP);
 
-double getThermalSenescence(struct dailyvec *dailyvec,double criticalTT, int N, double additionalsenescence);
-
+double getThermalSenescence(double criticalTT, double currentTT, double biomass, double dailyfractionalloss);
 double canopyNsenescence(struct leaf *leaf, double SLA, double kN,  double leafNsen);
-double getStemSenescence(struct stem *stem, struct dailyvec *dailyvec, double criticalTT, double Temp, double remobfa, struct frostParms *frostparms, int N);
-double getRootSenescence(struct root *root, struct dailyvec *dailyvec, double criticalTT, double Temp, double remobfa, struct frostParms *frostparms, int N);
-double getRhizomeSenescence(struct rhizome *rhiz, struct dailyvec *dailyvec, double criticalTT, double Temp, double remobfa, struct frostParms *frostparms, int N);
-double getLeafSenescence(struct leaf *leaf, struct dailyvec *dailyvec, double criticalTT, double Temp, 
-        struct canopyparms *canopyparm, struct frostParms *frostparms, int N, double TherTime);
+double getStemSenescence(struct stem *stem, double criticalTT, double senefracion,  double Temp, struct frostParms *frostparms, double TT);
+double getRootSenescence(struct root *root, double criticalTT, double senefracion,  double Temp, struct frostParms *frostparms, double TT);
+double getRhizomeSenescence(struct rhizome *rhizome, double criticalTT, double senefracion,  double Temp, struct frostParms *frostparms, double TT);
+double getLeafSenescence(struct leaf *leaf, double criticalTT, double senefracion,  double Temp, struct frostParms *frostparms, double TT,struct canopyparms *canopyparm);
 void updatelittervec(struct littervec *littervec,double newbiomass,int N,double delTT);
 void updatebiomass(double *res,double toadd,double toremove);
 void dailymiscanthusupdate(struct miscanthus *miscanthus,struct miscanthus *deltamiscanthus);
 double newbiomass(double AcanopyNet,double k, double GrowthRespCoeff);
 double getThermaltime (double temp, double Tbase);
-void UpdateStandingLeaf(struct leaf *leaf, struct dailyvec *dailyleafvec,int N);
-void UpdateStandingStem(struct stem *stem, struct dailyvec *dailystemvec,int N);
-void UpdateStandingRoot(struct root *root, struct dailyvec *dailyrootvec,int N);
-void UpdateStandingRhizome(struct rhizome *rhizome, struct dailyvec *dailyrhizomevec,int N);
+void UpdateStandingLeaf(struct leaf *leaf, double newbiomass, double deadleaf, double remobFactor);
+void UpdateStandingStem(struct stem *stem, double newbiomass, double deadstem, double remobFactor);
+void UpdateStandingRoot(struct root *root, double newbiomass, double deadroot, double remobFactor);
+void UpdateStandingRhizome(struct rhizome *rhizome, double newbiomass, double deadrhizome, double remobFactor);
 void updatedailyvec(struct dailyvec *dailyvec,double newbiomass,double newlitter, int N,double delTT);
 void createNULLmiscanthus(struct miscanthus *miscanthus,int vecsize);
 void getdailyclimate(struct dailyclimate *dailyclimate, int *doy,double *solar,double *temp, double *rh, double *windspeed, double*precip, int currenthour, int vecsize);
 int CheckEmergence(struct dailyclimate *dailyclimate, double EmergTemperature);
+void updatedormantstage(struct miscanthus *miscanthus);
+
+/*********Structure and Functions for C3Tree*******************/
+struct c3tree
+{
+  struct leaf leaf;
+  struct stem stem;
+  struct root root;
+  struct rhizome rhizome; // rhizome is mimicing corase roots here
+  struct DailyAutoResp autoresp;
+  double GPP, NPP;
+};
+
+void dailyC3tree(struct c3tree *c3tree,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
+struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, struct respirationParms *RESP);
+
+
+
+/*********************************************************************/
+/*********************************************************************/
+ 
+
+/*******Management Assigning Functions and Structures******************/
+
+struct management{
+  struct harvestparms
+  {
+    int harvestdoy;
+    double frleaf,frleaflitter; // fration of green leaf biomass and leaf litter removed with harvest 
+    double frstem,frstemlitter;  // fraction of stem and stem litter removed with harvest
+    double frdeadroot; // fraction of roots that die on harvest
+    double frdeadrhizome; // fraction of rhizome that dies on harvest
+  }harvestparms;
+
+  struct emergenceparms
+  {
+    int minimumdoy;
+    double emergenceTemp;
+    double StoragetoLeaffraction;
+    double plantingrate;
+  }emergenceparms;  
+};
+
+
+void assignManagement(struct management *management);
+void updateafterharvest(struct miscanthus *miscanthus,struct management *management);
+void updateafteremergence(struct miscanthus *miscanthus,struct management *management);
+
+

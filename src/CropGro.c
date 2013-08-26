@@ -65,50 +65,17 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP LNB1,                /* Leaf N slope             49 */
       SEXP LNFUN,               /* Leaf N func flag         50 */
       SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
-	    SEXP LOWERTEMP,          /*temperature Limitation photoParms */
-	    SEXP NNITROP,
-      SEXP SOMPOOLPARMS,      /* SOM POOL PARAMETERS */
-      SEXP SOMASSIGNPARMS,      /*Assign parameters*/
-      SEXP GETCROPCENTSTATEVAR,
-      SEXP GETSOILTEXTURE,
-      SEXP GETBIOCROTOCROPCENTPARMS,
-      SEXP GETEROSIONPARMS,
-      SEXP GETC13PARMS,
-      SEXP GETLEACHINGPARMS,
-      SEXP GETSYMBNFIXATIONPARMS
-      )           
+	    SEXP LOWERTEMP,
+	    SEXP NNITROP)           /*temperature Limitation photoParms */
 {
     int vecsize = INTEGER(VECSIZE)[0];
     int dailyvecsize = vecsize/24;
     Rprintf("%i\n",vecsize);
-    
    /*********** CROCENT VARIABLES***********************/
-   double *sompoolsfromR; // This pointer contains location of sompools coming from R
-   double *somassignparmsfromR;
-   double *getcropcentstatevarfromR;
-   double *getsoiltexturefromR;
-   double *getbiocrotocropcentparmsfromR;
-   double *geterosionparmsfromR;
-   double *getc13parmsfromR;
-   double *getleachingparmsfromR;
-   double *getsymbnfixationparmsfromR;
-   
-   sompoolsfromR = &REAL(SOMPOOLPARMS)[0];
-   somassignparmsfromR = &REAL(SOMASSIGNPARMS)[0];
-   getcropcentstatevarfromR = &REAL(GETCROPCENTSTATEVAR)[0];
-   getsoiltexturefromR = &REAL(GETSOILTEXTURE)[0];
-   getbiocrotocropcentparmsfromR =&REAL(GETBIOCROTOCROPCENTPARMS)[0];
-   geterosionparmsfromR=&REAL(GETEROSIONPARMS)[0];
-   getc13parmsfromR =&REAL(GETC13PARMS)[0];
-   getleachingparmsfromR=&REAL(GETLEACHINGPARMS)[0];
-   getsymbnfixationparmsfromR=&REAL(GETSYMBNFIXATIONPARMS)[0];
-   
    struct cropcentlayer CROPCENT;
-   assignParms(&CROPCENT,somassignparmsfromR);
-   CROPCENTTimescaling(&CROPCENT);
-   assignPools(&CROPCENT,sompoolsfromR);
-   
-   assignENV(&CROPCENT,getsoiltexturefromR,getcropcentstatevarfromR,getbiocrotocropcentparmsfromR,geterosionparmsfromR,getc13parmsfromR,getleachingparmsfromR,getsymbnfixationparmsfromR);
+//   assignParms(&CROPCENT);
+//   CROPCENTTimescaling(&CROPCENT);
+//   assignPools(&CROPCENT);
    struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
    struct crop_phenology cropdbp;
    struct miscanthus miscanthus, deltamiscanthus;
@@ -116,12 +83,12 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
 //   miscanthus.leafvec[vecsize].newbiomass=(double)vecsize;
 //   Rprintf("%f, %i\n",miscanthus.leafvec[vecsize].newbiomass, vecsize);
-   double dailygrossassim, CanopyAGross, dailyGPP;
+   double dailynetassim, CanopyAGross, dailyGPP;
    double mrespLeaf, mrespStem, mrespRoot, mrespRhizome;
    struct senthermaltemp senthermaltemp;
    struct canopyparms canopyparms;
    struct frostParms frostparms;
-   dailygrossassim=0.0;
+   dailynetassim=0.0;
    dailyGPP=0.0;
    mrespLeaf=0.0;
    mrespStem=0.0;
@@ -131,6 +98,12 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    frostparms.leafT100=-16.0;
    frostparms.stemT0=-16.0;
    frostparms.stemT100=-16.0;
+   
+   
+   /***********Management Variables *************/
+   struct management management;
+   assignManagement(&management);
+   /********************************************/
    
 	/* This creates vectors which will collect the senesced plant
 	   material. This is needed to calculate litter and therefore carbon
@@ -298,11 +271,26 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SEXP RootMResp;
   SEXP RhizomeMResp;
   SEXP LeafDarkResp;
+  SEXP Stemd;
+  SEXP Leafd;
+  SEXP Rootd;
+  SEXP Rhizomed;
+  SEXP Stemlitterd;
+  SEXP Leaflitterd;
+  SEXP Rootlitterd;
+  SEXP Rhizomelitterd;
+  SEXP LAId;
   
+// Declaring Daily variables
+ double  accumulatedGDD=0.0;
+
+
+
+
 
 //	vecsize = length(DOY);
-	PROTECT(lists = allocVector(VECSXP,40));
-	PROTECT(names = allocVector(STRSXP,40));
+	PROTECT(lists = allocVector(VECSXP,49));
+	PROTECT(names = allocVector(STRSXP,49));
 
 	PROTECT(DayofYear = allocVector(REALSXP,vecsize));
 	PROTECT(Hour = allocVector(REALSXP,vecsize));
@@ -344,7 +332,15 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   PROTECT(RootMResp = allocVector(REALSXP,dailyvecsize));
   PROTECT(RhizomeMResp = allocVector(REALSXP,dailyvecsize));
   PROTECT(LeafDarkResp = allocVector(REALSXP,dailyvecsize));
-  
+  PROTECT(Stemd = allocVector(REALSXP,dailyvecsize));
+  PROTECT(Leafd = allocVector(REALSXP,dailyvecsize));
+  PROTECT(Rootd = allocVector(REALSXP,dailyvecsize));
+  PROTECT(Rhizomed = allocVector(REALSXP,dailyvecsize));
+  PROTECT(Stemlitterd = allocVector(REALSXP,dailyvecsize));
+  PROTECT(Leaflitterd = allocVector(REALSXP,dailyvecsize));
+  PROTECT(Rootlitterd = allocVector(REALSXP,dailyvecsize));
+  PROTECT(Rhizomelitterd = allocVector(REALSXP,dailyvecsize));
+  PROTECT(LAId = allocVector(REALSXP,dailyvecsize));
 	/* Picking vmax, alpha and kparm */
 	vmax1 = REAL(VMAX)[0];
 	alpha1 = REAL(ALPHA)[0];
@@ -424,7 +420,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
     pt_precip=REAL(PRECIP);
 
 
-
+  
+   
 	double lat = REAL(LAT)[0];
 	int nlayers = INTEGER(NLAYERS)[0];
 	int ws = INTEGER(WS)[0];
@@ -443,10 +440,10 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
  RESP.maint.mstem=0.004;
  
  RESP.maint.Qroot=2.0;
- RESP.maint.mroot=0.0088;
+ RESP.maint.mroot=0.002;
  
  RESP.maint.Qrhizome=2.0;
- RESP.maint.mrhizome=0.0088;
+ RESP.maint.mrhizome=0.002;
 //  Resp.growth.stem=0.3;
   
   double LeafResp,StemResp,RootResp,RhizResp;  
@@ -454,11 +451,11 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   double dailydelTT = 0.0;
   double delTT;
   double Tbase=0.0;
-  dailygrossassim=0.0;
-  senthermaltemp.leaf=REAL(SENCOEFS)[0];
-  senthermaltemp.stem=REAL(SENCOEFS)[1];
-  senthermaltemp.root=REAL(SENCOEFS)[2];
-  senthermaltemp.rhiz=REAL(SENCOEFS)[3];
+  dailynetassim=0.0;
+  senthermaltemp.leafcriticalT=REAL(SENCOEFS)[0];
+  senthermaltemp.stemcriticalT=REAL(SENCOEFS)[1];
+  senthermaltemp.rootcriticalT=REAL(SENCOEFS)[2];
+  senthermaltemp.rhizomecriticalT=REAL(SENCOEFS)[3];
   canopyparms.kN=0.1;
   canopyparms.SLA=0.1;
   canopyparms.remobFac=0.1;
@@ -471,11 +468,11 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   propLeaf = REAL(IRTL)[0]; 
 	/* It is useful to assume that there is a small amount of
 	   leaf area at the begining of the growing season. */
-	Leaf = Rhizome * 0.001; 
+//	Leaf = Rhizome * 0.001; 
 	/* Initial proportion of the rhizome that is turned
 	   into leaf the first hour */
-	Stem = Rhizome * 0.001;
-	Root = Rhizome * 0.001;
+//	Stem = Rhizome * 0.001;
+//	Root = Rhizome * 0.001;
 	  /**********Assining Canopy Parameters********************/
       canopyparms.remobFac=0.5;
       int dap=0;
@@ -483,9 +480,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   miscanthus.leaf.biomass=0.0;
   miscanthus.stem.biomass=0.0;
   miscanthus.root.biomass=0.0;
-  miscanthus.rhizome.biomass=Rhizome;
-  LAI = miscanthus.leaf.biomass* Sp;
-  iSp = Sp;
+  miscanthus.rhizome.biomass=management.emergenceparms.plantingrate;
+ 
   int emergence=0;
   struct dailyclimate dailyclimate;
   TTc=0.0;
@@ -500,7 +496,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 //       delTT=*(pt_temp+i) / (24/timestep);
         delTT=getThermaltime(*(pt_temp+i), Tbase);
         delTT=delTT/24;
-//        dailydelTT+=delTT;
+//    dailydelTT+=delTT;
 //    Rprintf("index=%i,temp=%f, delTT= %f\n", i,*(pt_temp+i),delTT);
 //         LAI=6.0;
         if(emergence==0)
@@ -510,6 +506,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
             CanopyA = 0.0;
             CanopyAGross =0.0;
         		CanopyT = 0.0;
+            miscanthus.autoresp.leafdarkresp=0;
             }
         else
             {
@@ -534,7 +531,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
         		soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
         	            phi1, phi2, soTexS, wsFun, INTEGER(SOILLAYERS)[0], Root, 
         					    LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
-        					   INTEGER(HYDRDIST)[0], rfl, rsec, rsdf);
+        					    INTEGER(HYDRDIST)[0], rfl, rsec, rsdf);
 
             StomWS = soilMLS.rcoefPhoto;
             LeafWS = soilMLS.rcoefSpleaf;
@@ -587,8 +584,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   RhizResp=MRespiration(miscanthus.rhizome.biomass, RESP.maint.Qrhizome, RESP.maint.mrhizome, *(pt_temp+i), timestep);
   miscanthus.autoresp.rhizomemaint+=RhizResp;
   miscanthus.autoresp.leafdarkresp+=(CanopyAGross-CanopyA);
-  dailygrossassim+=CanopyA;//Net Canopy Assimilation
-  dailyGPP+=CanopyAGross;
+  dailynetassim+=CanopyA;//Net Canopy Assimilation
+  miscanthus.GPP+=CanopyAGross;
  /**********************************************************************************/
 //  Rprintf("%f,%f,%f,%f,%f\n",*(pt_solar+i),*(pt_temp+i),*(pt_precip+i),*(pt_rh+i),*(pt_windspeed+i));
 
@@ -601,50 +598,46 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    // Update day after planting today
    REAL(DayafterPlanting)[dap]=dap;  
    // update GDD (accumulated thermal time) upto today
-   REAL(GDD)[dap]=((dap==0)? 0:REAL(GDD)[dap-1])+dailydelTT;
-   REAL(GPP)[dap]=dailyGPP;
-   REAL(NPP)[dap]=dailygrossassim;
-   REAL(LeafDarkResp)[dap]=miscanthus.autoresp.leafdarkresp;
-   REAL(StemMResp)[dap]=miscanthus.autoresp.stemmaint;
-   REAL(RootMResp)[dap]=miscanthus.autoresp.rootmaint;
-   REAL(RhizomeMResp)[dap]=miscanthus.autoresp.rhizomemaint;
-   miscanthus.GPP=dailyGPP;  
-   
-//   Rprintf("index=%i,doy=%i, solar=%f,temp=%f,rh=%f,WS=%f,precip=%f \n",i,dailyclimate.doy,dailyclimate.solar,dailyclimate.temp,dailyclimate.rh,dailyclimate.windspeed,
-//   dailyclimate.precip);
-//   Rprintf("Today is %i  and emerge is %i, minimum daily Temp= %f \n", *(pt_doy+i),emergence,dailyclimate.minimumTemp);
-   dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP), REAL(GDD)[dap], *(pt_temp+i), dailygrossassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,emergence, &RESP);
+   accumulatedGDD+=((dap==0)? 0:dailydelTT);
+//   REAL(GDD)[dap]=((dap==0)? 0:REAL(GDD)[dap-1])+dailydelTT;
+     REAL(GDD)[dap]=accumulatedGDD;
+
  
+        /***** Check if plant is already emerged, then growth needs to be simulated ***/ 
           if(emergence==1)
           {
-            
-                 if(dailyclimate.doy==300)
+            /*** Simulate miscanthus growth ***/
+              dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP);
+//              Rprintf("DPY= %i, GDD=%f\n",dailyclimate.doy,accumulatedGDD);
+            /** Check if today is harvest day **/
+                 if(dailyclimate.doy==management.harvestparms.harvestdoy)
                 {
-                  emergence=0;
-                  REAL(GDD)[dap]=0.0;
-                  miscanthus.leaf.biomass=0.0;
-                  LAI=0.0;
-                  miscanthus.stem.biomass=0.0;
-                  miscanthus.root.biomass=0.0;
-                 
+                  emergence=0;                        //Emergence is set back to zero
+                  REAL(GDD)[dap]=0.0;                 //Set GDD back to zero to restart phenology from beginning
+                  updateafterharvest(&miscanthus,&management); // Use harvest parameters to implement pracices such as removingor leaving residues 
                 }
           }
+          /** Here is calculation for situations when plan is not emerged ***/
           else
-          {             
-                  emergence=CheckEmergence(&dailyclimate, 0.0);
+          {      
+                  /** Check if today is emergence day, IF yes, it will set emergence =1 for next day simulation **/
+                  emergence=CheckEmergence(&dailyclimate,management.emergenceparms.emergenceTemp); 
+                  /** if today indeed is emergence day then we also need to initialze leaf biomass based on storage pool to initiate simulations **/
                   if(emergence==1)
                   {
+//                    Rprintf("BEFORE leaf=%f, rhizome=%f \n",miscanthus.leaf.biomass,miscanthus.rhizome.biomass);
+                  updateafteremergence(&miscanthus,&management);
+//                         Rprintf("AFTER leaf=%f, rhizome=%f \n",miscanthus.leaf.biomass,miscanthus.rhizome.biomass);
+                   accumulatedGDD=0.0;
                   TTc=0.0;
-                  miscanthus.leaf.biomass=0.015*  miscanthus.rhizome.biomass;
+//                  miscanthus.leaf.biomass=0.02*  miscanthus.rhizome.biomass;
                   LAI = miscanthus.leaf.biomass* Sp;
-                  iSp = Sp;
                   }
+                  updatedormantstage(&miscanthus);
                
           }
-     
-//  Sp = iSp - (INTEGER(DOY)[i] - INTEGER(DOY)[0]) * REAL(SPD)[0];
-//     miscanthus.leaf.biomass=1.0;
-    LAI=miscanthus.leaf.biomass*Sp;
+                  LAI=miscanthus.leaf.biomass*Sp;
+                  Rprintf("%i,%i,%f,%f\n",emergence,dap, iSp, Sp);
 
 /****************************************************************************/
 // CROPCENT SIMULATION BEGINS HHERE    
@@ -653,17 +646,33 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 // BiocroToCrocent(&RootLitter,root.fallrate,root.lignin, &root.E, isotoperatio, 0, 0,rootlitter);
 // BiocroToCrocent(&RhizomeLitter,rhiz.fallrate,rhiz.lignin, &rhiz.E, isotoperatio, 0, 0,rhizomelitter);
 /***************************************************************************/
-  REAL(autoRESP)[dap]=miscanthus.autoresp.leafdarkresp+miscanthus.autoresp.stemmaint+miscanthus.autoresp.rootmaint
-                      +miscanthus.autoresp.rhizomemaint+miscanthus.autoresp.stemgrowth+miscanthus.autoresp.rootgrowth
-                      +miscanthus.autoresp.rhizomegrowth;
-                      
-  miscanthus.autoresp.leafdarkresp=0.0;
-  miscanthus.autoresp.stemmaint=0.0;
-  miscanthus.autoresp.rootmaint=0.0;
-  miscanthus.autoresp.rhizomemaint=0.0;  
-  dailygrossassim=0.0;
-  dailyGPP=0.0;
-  dap+=1;
+   REAL(GPP)[dap]=miscanthus.GPP;
+   REAL(LeafDarkResp)[dap]=miscanthus.autoresp.leafdarkresp;
+   REAL(StemMResp)[dap]=miscanthus.autoresp.stemmaint;
+   REAL(RootMResp)[dap]=miscanthus.autoresp.rootmaint;
+   REAL(RhizomeMResp)[dap]=miscanthus.autoresp.rhizomemaint;
+   REAL(autoRESP)[dap]= miscanthus.autoresp.total;
+   miscanthus.NPP=miscanthus.GPP-miscanthus.autoresp.total;
+   REAL(NPP)[dap]=miscanthus.NPP;
+   REAL(Stemd)[dap]=miscanthus.stem.biomass;
+   REAL(Leafd)[dap]=miscanthus.leaf.biomass;
+   REAL(Rootd)[dap]=miscanthus.root.biomass;
+   REAL(Rhizomed)[dap]=miscanthus.rhizome.biomass;
+   REAL(Stemlitterd)[dap]=miscanthus.stem.litter;
+   REAL(Leaflitterd)[dap]=miscanthus.leaf.litter;
+   REAL(Rootlitterd)[dap]=miscanthus.root.litter;
+   REAL(Rhizomelitterd)[dap]=miscanthus.rhizome.litter;
+   REAL(LAId)[dap]=LAI;
+   
+    miscanthus.autoresp.leafdarkresp=0.0;
+    miscanthus.autoresp.stemmaint=0.0;
+    miscanthus.autoresp.rootmaint=0.0;
+    miscanthus.autoresp.rhizomemaint=0.0;  
+    miscanthus.GPP=0;
+    miscanthus.NPP=0;
+    dailynetassim=0.0;
+    dailyGPP=0.0;
+    dap+=1;
 		}
 
 
@@ -776,6 +785,15 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SET_VECTOR_ELT(lists,37,RootMResp);
   SET_VECTOR_ELT(lists,38,RhizomeMResp);
   SET_VECTOR_ELT(lists,39,LeafDarkResp);
+  SET_VECTOR_ELT(lists,40,Stemd);
+  SET_VECTOR_ELT(lists,41,Leafd);
+  SET_VECTOR_ELT(lists,42,Rootd);
+  SET_VECTOR_ELT(lists,43,Rhizomed);
+  SET_VECTOR_ELT(lists,44,Stemlitterd);
+  SET_VECTOR_ELT(lists,45,Leaflitterd);
+  SET_VECTOR_ELT(lists,46,Rootlitterd);
+  SET_VECTOR_ELT(lists,47,Rhizomelitterd);
+   SET_VECTOR_ELT(lists,48,LAId);
 
 	SET_STRING_ELT(names,0,mkChar("DayofYear"));
 	SET_STRING_ELT(names,1,mkChar("Hour"));
@@ -817,11 +835,16 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SET_STRING_ELT(names,37,mkChar("RootMResp"));
   SET_STRING_ELT(names,38,mkChar("RhizomeMResp"));
   SET_STRING_ELT(names,39,mkChar("LeafDarkResp"));
-  
-  
-  
-  
+  SET_STRING_ELT(names,40,mkChar("Stemd"));
+  SET_STRING_ELT(names,41,mkChar("Leafd"));
+  SET_STRING_ELT(names,42,mkChar("Rootd"));
+  SET_STRING_ELT(names,43,mkChar("Rhizomed"));
+  SET_STRING_ELT(names,44,mkChar("Stemlitterd"));
+  SET_STRING_ELT(names,45,mkChar("Leaflitterd"));
+  SET_STRING_ELT(names,46,mkChar("Rootlitterd"));
+  SET_STRING_ELT(names,47,mkChar("Rhizomelitterd"));
+  SET_STRING_ELT(names,48,mkChar("LAId"));
 	setAttrib(lists,R_NamesSymbol,names);
-	UNPROTECT(42);
+	UNPROTECT(51);
 	return(lists);
 }

@@ -363,9 +363,3 @@ double seasonal (double maxLN, double minLN, double day, double daymaxLN, double
                  
  } 
 
-double getFrostdamage(double T0, double T100,double T){
-  double temp,fraction;
-  fraction = (T0-T)/(T0-T100);
-  temp = fraction>1.0? 1.0:(fraction <0.0? 0.0:fraction);
-  return(temp);
-}

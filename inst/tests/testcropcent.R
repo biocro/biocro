@@ -15,10 +15,34 @@
 ################################################################################################################################
 # Testing for multiyear Simulation
 data(urbana2008to2012)
-result<-CropGro(WetDat=urbana2008to2012,day1=1,dayn=300,lat=40.11,iRhizome=0.2,photoControl=list(alpha=0.055),
-        soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.65,kStem1=0.05,tp1=900),
+result<-CropGro(WetDat=urbana2008to2012,day1=1,dayn=360,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
+        soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.35,kStem1=0.35),
         canopyControl=canopyParms(Sp=1.6))
-       
+
+xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$DayafterPlanting,auto.key=TRUE, type="l", main="alive biomass")
+xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$GDD,auto.key=TRUE, type="p", main="alive biomass")
+xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$GDD,auto.key=TRUE, type="p", main="dead biomass")
+
+
+checkmassbalance<-function(result,plantingrate,dapharvest, stemfr)
+{
+  N<-length(result$GDD)
+  Cbalance<-as.numeric(N)
+  Cbalancee<-0
+  deltalive=(result$Stemd[1]+result$Leafd[1]+result$Rootd[1]+result$Rhizomed[1])-plantingrate
+  deltadead=(result$Stemlitterd[1]+result$Leaflitterd[1]+result$Rootlitterd[1]+result$Rhizomelitterd[1])
+  Cbalance[1]=result$NPP[1]-(deltalive+deltadead)
+  for (i in 2:N)
+  {
+    deltalive=(result$Stemd[i]+result$Leafd[i]+result$Rootd[i]+result$Rhizomed[i])-(result$Stemd[i-1]+result$Leafd[i-1]+result$Rootd[i-1]+result$Rhizomed[i-1])
+    deltadead=(result$Stemlitterd[i]+result$Leaflitterd[i]+result$Rootlitterd[i]+result$Rhizomelitterd[i])-(result$Stemlitterd[i-1]+result$Leaflitterd[i-1]+result$Rootlitterd[i-1]+result$Rhizomelitterd[i-1])
+    Cbalance[i]=result$NPP[i]-(deltalive+deltadead)
+  }
+  harvested=result$Stemd[dapharvest-1]*(stemfr)+result$Leafd[dapharvest-1]*(leaffr)
+ ##  Cbalance[dapharvest]= Cbalance[dapharvest]-harvested
+  }
+
+
 plot(result)
 png("./inst/test/dailyTT.png")
 xyplot(result$GDD~result$DayafterPlanting,type="l")
@@ -33,12 +57,10 @@ png("./inst/test/autoRESP.png")
 xyplot(result$autoRESP~result$DayafterPlanting,type="l")
 dev.off()
 xyplot(result$LAI~result$DayafterPlanting,type="l")
-if(result$GPP==0)result$GPP=result$autoRESP=1.0
-if(result$GPP!=0){
-Gpppercentlost<-100*result$autoRESP/result$GPP;
-}else {
-  Gpppercentlost=100
-}
+plot(result$autoRESP~result$GPP)
+lm(result$autoRESP~result$GPP)
+
+xyplot(I(result$RootMResp+result$RhizomeMResp)~result$GDD, auto.key=TRUE)
 xyplot(Gpppercentlost~result$DayafterPlanting,type="l")
 summary(Gpppercentlost)
 png("./inst/test/stem.png")
@@ -50,3 +72,4 @@ dev.off()
 png("./inst/test/Leaf.png")
 xyplot(result$Leaf~result$DayafterPlanting,type="l")
 dev.off()
+

@@ -839,8 +839,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
          // Here I am simulating leaf Frost damage
          if((*pt_temp+i)<frostparms.leafT0)
          {
-				 leaffrostdamage=getFrostdamage(frostparms.leafT0,frostparms.leafT100,*(pt_temp+i));
-         deadleaf=Leaf*leaffrostdamage;
+         deadleaf=getFrostdamage(frostparms.leafT0,frostparms.leafT100,*(pt_temp+i), Leaf);
          remobilizedleaf<-deadleaf*Remobfactorleaf;
     		 leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
 				 Leaf =Leaf-deadleaf+remobilizedleaf*0.0;
