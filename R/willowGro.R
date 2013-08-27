@@ -286,7 +286,7 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
   
       ## Trying to guess the first and last day of the growing season from weather data
 
-      WetDat <- data.frame(WetDat)
+
       if(is.null(day1)){
           half <- as.integer(dim(WetDat)[1] / 2)
           WetDat1 <- WetDat[1:half, c(2, 5)]
@@ -355,13 +355,14 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
     
-    doy <- WetDat[indes1:indesn, "doy"]
-    hr <- WetDat[indes1:indesn, "hour"]
-    solar <- WetDat[indes1:indesn, "SolarR"]
-    temp <- WetDat[indes1:indesn, "Temp"]
-    rh <- WetDat[indes1:indesn, "RH"]
-    windspeed <- WetDat[indes1:indesn, "WS"]
-    precip <- WetDat[indes1:indesn, "precip"]
+
+    doy <- WetDat[indes1:indesn,2]
+    hr <- WetDat[indes1:indesn,3]
+    solar <- WetDat[indes1:indesn,4]
+    temp <- WetDat[indes1:indesn,5]
+    rh <- WetDat[indes1:indesn,6]
+    windspeed <- WetDat[indes1:indesn,7]
+    precip <- WetDat[indes1:indesn,8]
 
     if(max(rh) > 1) stop("Rel Hum. should be 0 < rh < 1")
     if((min(hr) < 0) | (max(hr) > 23))  stop("hr should be between 0 and 23")
