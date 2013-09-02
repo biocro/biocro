@@ -429,7 +429,8 @@ void updatebiomass(double *res,double toadd,double toremove)
 double newbiomass(double AcanopyNet,double k, double GrowthRespCoeff)
 {
   double tmp;
-  tmp=AcanopyNet*k/(1+GrowthRespCoeff);
+  
+  tmp=(k>=0.0)?AcanopyNet*k/(1+GrowthRespCoeff):0.0;
   return(tmp);
 }
 
@@ -461,7 +462,9 @@ void getsenescenceparms(struct senthermaltemp *senparms)
 
 double CalculateGrowthResp(double newbiomass,double growthRespCoeff)
 {
-  return(newbiomass*growthRespCoeff);
+  double tmp;
+  tmp=(newbiomass>0.0)?newbiomass*growthRespCoeff:0.0;
+  return(tmp);
 }
 // struct miscanthus 
 void dailymiscanthus(struct miscanthus *miscanthus,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
@@ -484,69 +487,137 @@ struct respirationParms *RESP)
   double newLeaf,newStem,newRhizome,newRoot;
   double newLeaflitter,newStemlitter,newRhizomelitter,newRootlitter;
   double totalmaintenance;
-  
+  double RemobilizedFromLitter,RemobilizedFromRhizome;
+  double SumofKpart,Dailybalance;
 
 // double getStemSenescence(struct stem *stem, struct littervec *littervec, double criticalTT, double Temp, double remobfa, struct frostParms *frostparms, int N)
  // calculate senescing biomass for today based on Thermal Time, N conce. and Frost conditions 
    getfrostparms(frostparms);
    getsenescenceparms(senparms);
-
-
-                   deadleaf=getLeafSenescence(&miscanthus->leaf,senparms->leafcriticalT,senparms->leaffr, Temp, frostparms,TherTime,canopyparms);
-                   deadstem=getStemSenescence(&miscanthus->stem,senparms->stemcriticalT,senparms->stemfr, Temp, frostparms,TherTime);
-                   deadroot=getRootSenescence(&miscanthus->root, senparms->rootcriticalT,senparms->rootfr, Temp, frostparms,TherTime);
-                   deadrhiz=getRhizomeSenescence(&miscanthus->rhizome,senparms->rhizomecriticalT,senparms->rhizomefr, Temp, frostparms,TherTime); 
-
-              
-    
-//     
-//          Rprintf("Emergence=%i,TherT=%f, Temp=%f Leaf=%f, senesced Leaf= %f\n",emergence,TherTime,Temp,miscanthus->leaf.biomass,deadleaf);
-          dailysenesced=deadleaf+deadstem+deadroot+deadrhiz;
-          remobilized = dailysenesced*canopyparms->remobFac; // assuming all the dead organs remobilizes same fraction
-          totalmaintenance=miscanthus->autoresp.stemmaint+miscanthus->autoresp.rootmaint+miscanthus->autoresp.rhizomemaint;
-          totalassimilate=dailynetassim+remobilized-totalmaintenance;
-          if(totalassimilate<=0.0)
-          {
-          newLeaf=0.0;
-          newStem=0.0;
-          newRoot=0.0;
-          newRhizome=totalassimilate; // negative values of assimilate (i.e. respiration) are to be supplied from rhizome
-          }
-          else
-          {
-          cropcent_dbp(coefs,TherPrds,TherTime, &cropdbp);
+   cropcent_dbp(coefs,TherPrds,TherTime, &cropdbp);
           kLeaf = cropdbp.DBP.kLeaf;
           kStem = cropdbp.DBP.kStem;
           kRoot = cropdbp.DBP.kRoot;
           kRhizome = cropdbp.DBP.kRhiz;
-          newLeaf=newbiomass(totalassimilate,kLeaf,0.0);
-          newStem=newbiomass(totalassimilate,kStem,RESP->growth.stem);
-          newRoot=newbiomass(totalassimilate,kRoot,RESP->growth.root);
-          newRhizome=newbiomass(totalassimilate,kRhizome,RESP->growth.rhizome);       
-          }
-           // updating miscanthus growth respiration
-          if(totalassimilate <=0)
+
+           // calculate senescence, Remobilization due to senescece will contribute to growth of new plant organs
+          deadleaf=getLeafSenescence(&miscanthus->leaf,senparms->leafcriticalT,senparms->leaffr, Temp, frostparms,TherTime,canopyparms);
+          deadstem=getStemSenescence(&miscanthus->stem,senparms->stemcriticalT,senparms->stemfr, Temp, frostparms,TherTime);
+          deadroot=getRootSenescence(&miscanthus->root, senparms->rootcriticalT,senparms->rootfr, Temp, frostparms,TherTime);
+          deadrhiz=getRhizomeSenescence(&miscanthus->rhizome,senparms->rhizomecriticalT,senparms->rhizomefr, Temp, frostparms,TherTime);    
+          dailysenesced=deadleaf+deadstem+deadroot+deadrhiz;
+          //Calculate how much of dead biomass is remobilized based on a remobilization factor
+          RemobilizedFromLitter = dailysenesced*canopyparms->remobFac; // assuming all the dead organs remobilizes same fraction
+         
+         // Check and calculate whether carbohydrate in Rhizome is being remobilized baksed on K(negative value of partitioning coefficient)
+         if(kRhizome>=0)
           {
-            miscanthus->autoresp.stemgrowth=0;
-            miscanthus->autoresp.rootgrowth=0;
-            miscanthus->autoresp.rhizomegrowth=0;
+            RemobilizedFromRhizome=0;          
           }
           else
           {
+            // I need to multiply by (-1) because kRhizome is negative
+            RemobilizedFromRhizome=(-1)*kRhizome*miscanthus->rhizome.biomass;
+          }
+          
+          // Total maintenance respiration, which is a temperature dependet function of existing biomass
+          totalmaintenance=miscanthus->autoresp.stemmaint+miscanthus->autoresp.rootmaint+miscanthus->autoresp.rhizomemaint;
+          // Total assimilate includes net canopy assimilation and remobilization from litter and rhizome, also it must satisfy total maintenance respiration
+          totalassimilate=dailynetassim+RemobilizedFromLitter+RemobilizedFromRhizome-totalmaintenance;
+          
+          // If total assimilate for growth (& growth respiration) is negative then this is provided by rhizome only (storage carb.) leaving other parts intacts
+          if(totalassimilate<=0.0)
+          {
+          newLeaf=0.0;
+          miscanthus->autoresp.stemgrowth=0.0;
+          newStem=0.0;
+          miscanthus->autoresp.rootgrowth=0.0;
+          newRoot=0.0;
+          miscanthus->autoresp.rhizomegrowth=0.0;
+          // New rhizome must provide for total negative assimilate. Also we need to update remobilization
+          newRhizome=totalassimilate+RemobilizedFromRhizome;
+          miscanthus->autoresp.rhizomegrowth=0.0;
+          }
+          else
+          {
+          SumofKpart=((kLeaf>0)?kLeaf:0)+((kStem>0)?kStem:0)+((kRoot>0)?kRoot:0)+((kRhizome>0)?kRhizome:0);
+            if(SumofKpart!=1)
+            {
+            error("Sum of Positive partitioning coefficient is not one");
+            }
+          newLeaf=newbiomass(totalassimilate,kLeaf,0.0);          
+          newStem=newbiomass(totalassimilate,kStem,RESP->growth.stem);
           miscanthus->autoresp.stemgrowth=CalculateGrowthResp(newStem,RESP->growth.stem);
+          newRoot=newbiomass(totalassimilate,kRoot,RESP->growth.root);
           miscanthus->autoresp.rootgrowth=CalculateGrowthResp(newRoot,RESP->growth.stem);
+          // Make sure that remobilization termis taken care of in the calculation of newRhizome
+          newRhizome=(kRhizome>0)?newbiomass(totalassimilate,kRhizome,RESP->growth.rhizome):(-1)*RemobilizedFromRhizome;
+          
           miscanthus->autoresp.rhizomegrowth=CalculateGrowthResp(newRhizome,RESP->growth.stem);
           }
+           
+         // Now we know growth respiration of each component & we can update total autotrophic respiration
           miscanthus->autoresp.total=miscanthus->autoresp.leafdarkresp+totalmaintenance+miscanthus->autoresp.stemgrowth+miscanthus->autoresp.rootgrowth+miscanthus->autoresp.rhizomegrowth;
-         
-  
-          UpdateStandingLeaf(&miscanthus->leaf,newLeaf,deadleaf,canopyparms->remobFac);
-          UpdateStandingStem(&miscanthus->stem,newStem,deadstem,canopyparms->remobFac);
-          UpdateStandingRoot(&miscanthus->root,newRoot,deadroot,canopyparms->remobFac);
-          UpdateStandingRhizome(&miscanthus->rhizome,newRhizome,deadrhiz,canopyparms->remobFac); 
+         // Here, we are updating net primary productivity
+         miscanthus->NPP=miscanthus->GPP-miscanthus->autoresp.total;
+          
+        // Here, we are evaluating new litter, This is fraction of dead biomass which was not remobilized  
+          newLeaflitter=(deadleaf>0)?deadleaf*(1-canopyparms->remobFac):0.0;
+          newStemlitter=(deadleaf>0)?deadstem*(1-canopyparms->remobFac):0.0;
+          newRootlitter=(deadroot>0)?deadroot*(1-canopyparms->remobFac):0.0;
+          newRhizomelitter=(deadrhiz>0)?deadrhiz*(1-canopyparms->remobFac):0.0;
+          
+
+           Dailybalance=newLeaf- deadleaf+newRoot- deadroot+newStem- deadstem+newRhizome- deadrhiz+newLeaflitter+newStemlitter+newRootlitter + newRhizomelitter;
+         Dailybalance=Dailybalance-miscanthus->NPP;
+         if(Dailybalance>1e-10)
+          {
+          Rprintf("\nNPP and Daily Change inBiomass is not matching & difference is %f\n", Dailybalance);
+          Rprintf("Thermal Time = %f, GPP = %f, Autotrophic Respiration = %f, NPP = %f, Remobilized from Litter = %f, Remobilized from Rhizome = %f \n", TherTime,miscanthus->GPP, miscanthus->autoresp.total,miscanthus->NPP,RemobilizedFromLitter,RemobilizedFromRhizome);
+          Rprintf("kLeaf=%f, kstem=%f, kRoot=%f, kRhizome=%f \n", kLeaf, kStem, kRoot,kRhizome);
+          Rprintf("NewLeaf = %f Dead Leaf=%f, newLeafLitter=%f\n",newLeaf, deadleaf,newLeaflitter); 
+          Rprintf("NewStem = %f Dead Stem=%f, newStemLitter=%f\n",newStem, deadstem,newStemlitter);
+          Rprintf("NewRoot = %f Dead Root=%f, newRootLitter=%f\n",newRoot, deadroot,newRootlitter);
+          Rprintf("NewRhizome = %f Dead Rhizome=%f, newRhizomeLitter=%f\n",newRhizome, deadrhiz,newRhizomelitter);
+          Rprintf("LeafDarkResp=%f, Total maintenance (ExceptLeaf) = %f, StemGrowthResp=%f, RootGrowthResp=%f, RhizGrowthResp=%f\n",miscanthus->autoresp.leafdarkresp,totalmaintenance,miscanthus->autoresp.stemgrowth,miscanthus->autoresp.rootgrowth,miscanthus->autoresp.rhizomegrowth);
+              Rprintf("Daily Biomas Balance Gain = %f", Dailybalance);
+          }
+//          Rprintf("------------------------------\n");
+          // Adding new biomass of green components
+          UpdateStandingbiomass(&miscanthus->leaf.biomass, newLeaf);
+          UpdateStandingbiomass(&miscanthus->stem.biomass, newStem);
+          UpdateStandingbiomass(&miscanthus->root.biomass, newRoot);
+          UpdateStandingbiomass(&miscanthus->rhizome.biomass, newRhizome);
+          
+          // Subtracting dead biomass from the green components
+          // before thant I must multiply all the dead leaf components by -1, so I can still use 
+          // Updatestandingbiomass function for SUBTRACTING instead of ADDING
+          
+          deadleaf*=(-1);
+          deadstem*=(-1);
+          deadroot*=(-1);
+          deadrhiz*=(-1);
+          
+          UpdateStandingbiomass(&miscanthus->leaf.biomass, deadleaf);
+          UpdateStandingbiomass(&miscanthus->stem.biomass, deadstem);
+          UpdateStandingbiomass(&miscanthus->root.biomass, deadroot);
+          UpdateStandingbiomass(&miscanthus->rhizome.biomass, deadrhiz);
+          
+          
+          // Updating standing biomass of litter  components
+          UpdateStandingbiomass(&miscanthus->leaf.litter, newLeaflitter);
+          UpdateStandingbiomass(&miscanthus->stem.litter, newStemlitter);
+          UpdateStandingbiomass(&miscanthus->root.litter, newRootlitter);
+          UpdateStandingbiomass(&miscanthus->rhizome.litter, newRhizomelitter);
+               
     return;
 }
 
+void UpdateStandingbiomass (double *standing, double newbiomass)
+{
+  *standing= *standing +newbiomass;
+   return;
+}
 
 
 void UpdateStandingLeaf(struct leaf *leaf, double newbiomass, double deadleaf, double remobFactor)
@@ -781,15 +852,18 @@ void updatedormantstage(struct miscanthus *miscanthus)
   // This loss will occur at the expense of carbohydrate fraction of rhizome, resulting in change in the carbohydrate fraction of the rhizome
   availablecarb= miscanthus->rhizome.biomass*miscanthus->rhizome.carbohydratefraction;
   newcarb=availablecarb-LostinRespiration;
-  miscanthus->rhizome.biomass-=LostinRespiration;
-  miscanthus->rhizome.carbohydratefraction=newcarb/miscanthus->rhizome.biomass;
-  
+  miscanthus->rhizome.biomass= miscanthus->rhizome.biomass- LostinRespiration;
+ 
   if((miscanthus->rhizome.carbohydratefraction)<0.05)miscanthus->rhizome.carbohydratefraction=0.05;
   if(miscanthus->rhizome.biomass <0)error("rhizome has become negative");
+
 
   miscanthus->autoresp.stemgrowth=0;
   miscanthus->autoresp.rootgrowth=0;
   miscanthus->autoresp.rhizomegrowth=0;
+  miscanthus->autoresp.leafdarkresp=0.0;
   miscanthus->autoresp.total= LostinRespiration;
+  miscanthus->NPP=miscanthus->GPP-miscanthus->autoresp.total;
+  // Do i need to specify root death rate ? or probably Ican simply kill the roots at the time of harvest
   
 }

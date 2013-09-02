@@ -645,6 +645,7 @@ void updatebiomass(double *res,double toadd,double toremove);
 void dailymiscanthusupdate(struct miscanthus *miscanthus,struct miscanthus *deltamiscanthus);
 double newbiomass(double AcanopyNet,double k, double GrowthRespCoeff);
 double getThermaltime (double temp, double Tbase);
+void UpdateStandingbiomass (double *standing, double newbiomass);
 void UpdateStandingLeaf(struct leaf *leaf, double newbiomass, double deadleaf, double remobFactor);
 void UpdateStandingStem(struct stem *stem, double newbiomass, double deadstem, double remobFactor);
 void UpdateStandingRoot(struct root *root, double newbiomass, double deadroot, double remobFactor);

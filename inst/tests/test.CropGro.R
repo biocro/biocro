@@ -20,12 +20,15 @@ result <- CropGro(WetDat = urbana2008to2012,
                   dayn = 360,
                   lat = 40.11,
                   iRhizome = 8,
-                  photoControl = list(alpha=0.04),
+                  photoControl = list(alpha=0.05),
                   soilControl = soilParms(wsFun = "none", soilLayers = 10,
                       soilDepth = 1),
                   phenoControl = phenoParms(kLeaf1 = 0.35, kStem1 = 0.35),
                   canopyControl = canopyParms(Sp = 1.6))
 
+xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed~result$DayafterPlanting, type="l",auto.key=TRUE)
+xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$DayafterPlanting, type="l",auto.key=TRUE)
+plot(result)
 ## test_that("")
 ## xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$DayafterPlanting,auto.key=TRUE, type="l", main="alive biomass")
 

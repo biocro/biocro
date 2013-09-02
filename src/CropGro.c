@@ -70,7 +70,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 {
     int vecsize = INTEGER(VECSIZE)[0];
     int dailyvecsize = vecsize/24;
-    Rprintf("%i\n",vecsize);
+//    Rprintf("%i\n",vecsize);
    /*********** CROCENT VARIABLES***********************/
    struct cropcentlayer CROPCENT;
 //   assignParms(&CROPCENT);
@@ -637,7 +637,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                
           }
                   LAI=miscanthus.leaf.biomass*Sp;
-                  Rprintf("%i,%i,%f,%f\n",emergence,dap, iSp, Sp);
+//                  Rprintf("%i,%i,%f,%f\n",emergence,dap, iSp, Sp);
 
 /****************************************************************************/
 // CROPCENT SIMULATION BEGINS HHERE    
