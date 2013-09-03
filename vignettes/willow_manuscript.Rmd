@@ -19,8 +19,9 @@ require(ggplot2)
 library(BioCro)
 library(latticeExtra)
 library(Agreement)
-source("/home/dwng/willowfigure/validation.R")
-willowaq2011 <- read.csv("~/biocro/inst/extdata/willowaq2011.csv", header=T)
+source(system.file("/extdata/validation.R", package = "BioCro"))
+
+willowaq2011 <- read.csv(system.file("extdata/willowaq2011.csv", package = "BioCro"), header=T)
 Qps <- willowaq2011$PARi
 Tls <- willowaq2011$Tleaf
 rhs <- willowaq2011$RH_R/100
@@ -86,13 +87,13 @@ rgs <-ggplot(df2,aes(x,y))+geom_point(size=3,alpha=0.75)+stat_smooth(method="lm"
    )
 rgs <- rgs+geom_text(aes(x =0.17, y = 0.25, label = lm_eqn(df2)), parse = TRUE,colour="black")+geom_text(aes(x =0.16, y = 0.31, label = "B"), parse = TRUE,colour="black")
 
-jpeg("../willowfigure/c3photovalidation.jpeg",width=10,height=5,unit='in',res=600)
+jpeg("c3photovalidation.jpeg",width=10,height=5,unit='in',res=600)
 grid.arrange(rassim,rgs,
              nrow=1,ncol=2)
 dev.off()
 
 
-poplar <- read.csv("~/willowfigure/poplarphotosynthesis.csv", header=T)
+poplar <- read.csv(system.file("extdata/poplarphotosynthesis.csv", package = "BioCro"), header=T)
 palba=poplar[1:14,]
 pnigra=poplar[15:28,]
 peura=poplar[29:42,]
@@ -127,7 +128,7 @@ eura$time=c(5.5,6.8,8.6,9.6,10.8,12.2,13.4,14.5,16,16.7,18.1,19,19.8,20.9)
 
 
 
-jpeg("../willowfigure/c3photovalidation2.jpeg",width=5,height=15,unit='in',res=600)
+jpeg("c3photovalidation2.jpeg",width=5,height=15,unit='in',res=600)
 par(mfrow=c(3,1))
 par(mar=c(4,4,2,1))
 
@@ -204,7 +205,7 @@ root1988 <- c(0,3.27545,2.94922,5.22448,7.37904)
 obs <-data.frame(DAP=c(500,1000,1500,1800,2200),leaf1986=leaf1986,leaf1988=leaf1988,stem1986=stem1986,stem1988=stem1988,root1988=root1988,
                  lai1986=LAI1986,lai1988=LAI1988)
 #obs <- data.frame(DAP=c(1500),leaf1986=max(leaf1986),stem1986=max(stem1986),lai1986=max(LAI1986),leaf1988=max(leaf1988),stem1988=max(stem1988),lai1988=max(LAI1988))
-load("/home/dwng/willowgrowclimate.RData")
+load(system.file("/extdata/willowgrowclimate.RData", package = "BioCro"))
 willowgrowclimate[willowgrowclimate$RH>1,]$RH<-1
 wet1984 <-willowgrowclimate[willowgrowclimate$year==1984,]
 wet1985 <-willowgrowclimate[willowgrowclimate$year==1985,]
@@ -294,9 +295,9 @@ modelled1988=pred1988[c(872,1482,2083,2474,3039),]
 obs1986=data.frame(doy=modelled1986$doy,stem=obs$stem1986,leaf=obs$leaf1986,lai=obs$lai1986)
 obs1988=data.frame(doy=modelled1988$doy,stem=obs$stem1988,leaf=obs$leaf1988,lai=obs$lai1988,root=obs$root1988)
                  
-save(modelled1986,modelled1988,obs1986,obs1988, file="/home/dwng/willowfigure/calibration.RData")
+save(modelled1986,modelled1988,obs1986,obs1988, file="calibration.RData")
 
-jpeg("/home/dwng/willowfigure/calibration529.jpg", width=10, height=5, units="in", res=600) 
+#jpeg("/home/dwng/willowfigure/calibration529.jpg", width=10, height=5, units="in", res=600) 
 par(mfrow=c(1,2))
 par(mar=c(4,4,2,1))
 plot(modelled1986$doy,modelled1986$stem,type='b',lwd=1,ylab="Biomass partitioning (Mg/ha)"
@@ -317,21 +318,13 @@ lines(modelled1988$doy,modelled1988$root,lty=1,type='b',pch=15)
 lines(obs1988$doy[4:5],obs1988$root[4:5],lty=3,type="b",pch=0)                 
 
 legend('topleft',c("Modelled stem","Observed stem","Modelled leaf","Observed leaf","Modelled root","Observed root"),lty=c(1,3,1,3,1,3),pch=c(19,21,17,2,15,0),cex=1,lwd=1)                
-dev.off()                 
+#dev.off()                 
 ```
 
-The modelin gof above ground biomass partitioning agreeed with the reported data (Proe et al.2002) (Table).The close agreet between simulated and observed data was observed in studies in both Europe and the US, suggesting that the model was albe to account for the variability in envrionmental conditions.
-```{r}
-require(ggplot2)
-library(BioCro)
-library(latticeExtra)
-```
+The modeling of above ground biomass partitioning agreeed with the reported data (Proe et al.2002) (Table).The close agreet between simulated and observed data was observed in studies in both Europe and the US, suggesting that the model was albe to account for the variability in envrionmental conditions.
 
 
 ```{r}
-require(ggplot2)
-library(BioCro)
-library(latticeExtra)
 ```
 Discussion
 ----------
