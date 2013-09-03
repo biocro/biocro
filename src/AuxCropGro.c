@@ -469,7 +469,7 @@ double CalculateGrowthResp(double newbiomass,double growthRespCoeff)
 // struct miscanthus 
 void dailymiscanthus(struct miscanthus *miscanthus,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
 struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, int N, double delTT,
-struct respirationParms *RESP)
+struct respirationParms *RESP, int emergence)
 
 {
 
@@ -492,9 +492,14 @@ struct respirationParms *RESP)
 
 // double getStemSenescence(struct stem *stem, struct littervec *littervec, double criticalTT, double Temp, double remobfa, struct frostParms *frostparms, int N)
  // calculate senescing biomass for today based on Thermal Time, N conce. and Frost conditions 
+ 
    getfrostparms(frostparms);
    getsenescenceparms(senparms);
-   cropcent_dbp(coefs,TherPrds,TherTime, &cropdbp);
+   
+   
+   if(emergence ==1)
+   {
+          cropcent_dbp(coefs,TherPrds,TherTime, &cropdbp);
           kLeaf = cropdbp.DBP.kLeaf;
           kStem = cropdbp.DBP.kStem;
           kRoot = cropdbp.DBP.kRoot;
@@ -568,7 +573,7 @@ struct respirationParms *RESP)
           newRhizomelitter=(deadrhiz>0)?deadrhiz*(1-canopyparms->remobFac):0.0;
           
 
-           Dailybalance=newLeaf- deadleaf+newRoot- deadroot+newStem- deadstem+newRhizome- deadrhiz+newLeaflitter+newStemlitter+newRootlitter + newRhizomelitter;
+          Dailybalance=newLeaf- deadleaf+newRoot- deadroot+newStem- deadstem+newRhizome- deadrhiz+newLeaflitter+newStemlitter+newRootlitter + newRhizomelitter;
          Dailybalance=Dailybalance-miscanthus->NPP;
          if(Dailybalance>1e-10)
           {
@@ -581,8 +586,9 @@ struct respirationParms *RESP)
           Rprintf("NewRhizome = %f Dead Rhizome=%f, newRhizomeLitter=%f\n",newRhizome, deadrhiz,newRhizomelitter);
           Rprintf("LeafDarkResp=%f, Total maintenance (ExceptLeaf) = %f, StemGrowthResp=%f, RootGrowthResp=%f, RhizGrowthResp=%f\n",miscanthus->autoresp.leafdarkresp,totalmaintenance,miscanthus->autoresp.stemgrowth,miscanthus->autoresp.rootgrowth,miscanthus->autoresp.rhizomegrowth);
               Rprintf("Daily Biomas Balance Gain = %f", Dailybalance);
+              Rprintf("--------Emergence= %i-, N= %i---------------------\n",emergence, N);
           }
-//          Rprintf("------------------------------\n");
+
           // Adding new biomass of green components
           UpdateStandingbiomass(&miscanthus->leaf.biomass, newLeaf);
           UpdateStandingbiomass(&miscanthus->stem.biomass, newStem);
@@ -609,7 +615,30 @@ struct respirationParms *RESP)
           UpdateStandingbiomass(&miscanthus->stem.litter, newStemlitter);
           UpdateStandingbiomass(&miscanthus->root.litter, newRootlitter);
           UpdateStandingbiomass(&miscanthus->rhizome.litter, newRhizomelitter);
-               
+          
+        
+          
+   }
+   else // Dormant stange simulation, where rhizome provides for respiration loss
+   {
+          miscanthus->stem.biomass=0.0;
+          miscanthus->autoresp.stemgrowth=0;
+          miscanthus->leaf.biomass=0.0;
+          miscanthus->autoresp.leafdarkresp=0.0;
+          
+          //Perhaps I can implement senescence rate of belowground components during dormant stage?
+//          miscanthus->root.biomass=0.0;
+          miscanthus->autoresp.rootgrowth=0;
+//          miscanthus->rhizome.biomass=0.0;
+          miscanthus->autoresp.rhizomegrowth=0;
+          
+          totalmaintenance=miscanthus->autoresp.stemmaint+miscanthus->autoresp.rootmaint+miscanthus->autoresp.rhizomemaint;
+          miscanthus->autoresp.total=miscanthus->autoresp.leafdarkresp+totalmaintenance+miscanthus->autoresp.stemgrowth+miscanthus->autoresp.rootgrowth+miscanthus->autoresp.rhizomegrowth;
+          miscanthus->NPP=miscanthus->GPP-miscanthus->autoresp.total;
+          newRhizome=(-1)* miscanthus->autoresp.total;
+          UpdateStandingbiomass(&miscanthus->rhizome.biomass, newRhizome);
+          if(miscanthus->rhizome.biomass <0)error("rhizome has become negative");
+   } 
     return;
 }
 

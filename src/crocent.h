@@ -632,7 +632,7 @@ struct respirationParms{
 double CalculateGrowthResp(double newbiomass,double growthRespFactor);
 void dailymiscanthus(struct miscanthus *miscanthus,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
 struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, int N, double delTT,
-struct respirationParms *RESP);
+struct respirationParms *RESP, int emergence);
 
 double getThermalSenescence(double criticalTT, double currentTT, double biomass, double dailyfractionalloss);
 double canopyNsenescence(struct leaf *leaf, double SLA, double kN,  double leafNsen);

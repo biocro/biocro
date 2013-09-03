@@ -601,13 +601,13 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    accumulatedGDD+=((dap==0)? 0:dailydelTT);
 //   REAL(GDD)[dap]=((dap==0)? 0:REAL(GDD)[dap-1])+dailydelTT;
      REAL(GDD)[dap]=accumulatedGDD;
-
+ dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);
  
         /***** Check if plant is already emerged, then growth needs to be simulated ***/ 
           if(emergence==1)
           {
             /*** Simulate miscanthus growth ***/
-              dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP);
+//              dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);
 //              Rprintf("DPY= %i, GDD=%f\n",dailyclimate.doy,accumulatedGDD);
             /** Check if today is harvest day **/
                  if(dailyclimate.doy==management.harvestparms.harvestdoy)
@@ -615,6 +615,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                   emergence=0;                        //Emergence is set back to zero
                   REAL(GDD)[dap]=0.0;                 //Set GDD back to zero to restart phenology from beginning
                   updateafterharvest(&miscanthus,&management); // Use harvest parameters to implement pracices such as removingor leaving residues 
+                  Rprintf("in CropGRO, harvest day %i\n",i);
                 }
           }
           /** Here is calculation for situations when plan is not emerged ***/
@@ -622,18 +623,21 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
           {      
                   /** Check if today is emergence day, IF yes, it will set emergence =1 for next day simulation **/
                   emergence=CheckEmergence(&dailyclimate,management.emergenceparms.emergenceTemp); 
+          
                   /** if today indeed is emergence day then we also need to initialze leaf biomass based on storage pool to initiate simulations **/
                   if(emergence==1)
                   {
 //                    Rprintf("BEFORE leaf=%f, rhizome=%f \n",miscanthus.leaf.biomass,miscanthus.rhizome.biomass);
                   updateafteremergence(&miscanthus,&management);
 //                         Rprintf("AFTER leaf=%f, rhizome=%f \n",miscanthus.leaf.biomass,miscanthus.rhizome.biomass);
+                 Rprintf("in CropGRO, emergence day %i\n",i);
                    accumulatedGDD=0.0;
                   TTc=0.0;
 //                  miscanthus.leaf.biomass=0.02*  miscanthus.rhizome.biomass;
                   LAI = miscanthus.leaf.biomass* Sp;
                   }
-                  updatedormantstage(&miscanthus);
+//                   dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);
+                 // updatedormantstage(&miscanthus);
                
           }
                   LAI=miscanthus.leaf.biomass*Sp;
