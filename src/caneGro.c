@@ -787,7 +787,12 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
 		/* new value of leaf area index */
 		LAInew = Leaf * Sp ;
-
+    if(wsFun!=3){
+      LAI=(LAInew-LAIold)*LeafWS+LAIold;
+    }
+    else {
+      LAI=LAInew;
+    }
 		/* apply leaf water stress based on rainfed (wsFun=0,1,2) or irrigated system (wsFun=3)*/
 
 		//              if(wsFun ==3)
@@ -800,9 +805,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 		//		}
 		//		LAIold=LAI;
 
-                LAI=LAInew;
 		  // Implementing LeafWS on Leaf Area  Index
-		  
+     //LAI=LAInew;		  
 
 		/* daily update of leaf-N, vmac, and alpga  based on cyclic seasonal variation */
 		currentday=*(pt_doy+i);
@@ -835,13 +839,12 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
          // Here I am simulating leaf Frost damage
          if((*pt_temp+i)<frostparms.leafT0)
          {
-				 leaffrostdamage=getFrostdamage(frostparms.leafT0,frostparms.leafT100,*(pt_temp+i));
-         deadleaf=Leaf*leaffrostdamage;
+         deadleaf=getFrostdamage(frostparms.leafT0,frostparms.leafT100,*(pt_temp+i), Leaf);
          remobilizedleaf<-deadleaf*Remobfactorleaf;
     		 leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
-				 Leaf =Leaf-deadleaf+remobilizedleaf*33;
-         Stem=Stem+remobilizedleaf*0.33;
-         Root=Root+remobilizedleaf*0.33;
+				 Leaf =Leaf-deadleaf+remobilizedleaf*0.0;
+         Stem=Stem+remobilizedleaf*0.50;
+         Root=Root+remobilizedleaf*0.50;
          }
 
 		/*reset daily assimilation and daily transpiratin to zero for the next day */
