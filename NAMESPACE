@@ -145,6 +145,7 @@ export(caneGro)
 #willowGro.R
 
 export(willowGro)
+export(willowCent)
 
 #CropGro.R
 export(CropGro)
