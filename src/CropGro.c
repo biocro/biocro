@@ -524,12 +524,11 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
             CanopyAGross =Canopy.GrossAssim*timestep;
         		CanopyT = Canopy.Trans * timestep;
             }
-    
 		/* Inserting the multilayer model */
 		  if(soillayers > 1)
             {
         		soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
-        	            phi1, phi2, soTexS, wsFun, INTEGER(SOILLAYERS)[0], Root, 
+        	            phi1, phi2, soTexS, wsFun, INTEGER(SOILLAYERS)[0], miscanthus.root.biomass, 
         					    LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
         					    INTEGER(HYDRDIST)[0], rfl, rsec, rsdf);
 

@@ -16,11 +16,16 @@
 # Testing for multiyear Simulation
 data(urbana2008to2012)
 data20yr<-rbind(urbana2008to2012,urbana2008to2012,urbana2008to2012,urbana2008to2012)
-result<-CropGro(WetDat=data20yr,day1=50,dayn=5000,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
+result<-CropGro(WetDat=data20yr,day1=50,dayn=1900,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
         soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.35,kStem1=0.35),
         canopyControl=canopyParms(Sp=1.6))
 
+<<<<<<< HEAD
+=======
+result<-willowCent(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
+>>>>>>> 454cb87f390f11973f75d8f09faeac69b890f60b
 plot(result)
+xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$DayafterPlanting,auto.key=TRUE, type="l", main="alive biomass")
 N<-length(result$GDD)
 
 initialbiomass<-result$Stemd[1]+result$Rootd[1]+result$Rhizomed[1]+result$Leafd[1]
@@ -40,9 +45,17 @@ totalResp<-sum(result$autoRESP[1:N])
 balance1=totalGPP-totalNPP-totalResp
 balance2=totalNPP-delbiomass-dellitter-harvestedstem-harvestedLeaf
 
+png("alivebiomass.png")
 xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$DayafterPlanting,auto.key=TRUE, type="l", main="alive biomass")
+dev.off()
+png("GPP.png")
+xyplot(result$GPP~result$DayafterPlanting,type="p",main="GPP[Mg/ha]")
+dev.off()
+png("NPP.png")
+xyplot(result$NPP~result$DayafterPlanting,type="p",main="NPP [Mg/ha]")
+dev.off()
 xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$GDD,auto.key=TRUE, type="p", main="alive biomass")
-xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$GDD,auto.key=TRUE, type="p", main="dead biomass")
+xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$DayafterPlanting,auto.key=TRUE, type="l", main="dead biomass")
 
 # carbonbalance<-data.frame(GPP=NA,NPP=NA,AutoResp=NA, Balance1=NA)
 checkmassbalance<-function(result,plantingrate,dapharvest, stemfr)

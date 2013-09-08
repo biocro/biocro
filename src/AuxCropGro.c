@@ -205,14 +205,7 @@ double dailyEdemand(double plant *plant, double plant *dailygrowth,)
 double getThermaltime (double temp, double Tbase)
 {
   double res;
-  if(temp<=Tbase)
-  {
-    res=0.0;
-  }
-  else
-  {
-    res=(temp-Tbase);
-  }
+  res =(temp<=Tbase)? 0.0:(temp-Tbase);
   return(res);
 }
 
@@ -761,118 +754,6 @@ void dailymiscanthusupdate(struct miscanthus *miscanthus,struct miscanthus *delt
 
 
 
-void dailyC3tree(struct c3tree *c3tree,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
-struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, struct respirationParms *RESP)
-{
-  /**************************************************************************
-   * Purpose: This function simulate growth of c3 tree
-   *  Input:
-   * c3tree-- is a pointer to c3tree structure containing leaf,root, stem, and rhizome(storage) structures
-   * coefs -- is vector (length 25) representing dry biomass partitioning coefficients, similar to older versionof BioCro
-   * TherPrds-- is a vector of length 6, containing thermal time for different pehnological stages
-   * TherTime-- is what is the accumulated thermal time until today. This will be used to identify current pehnological stage and will accordingly 
-   * be used in determining dry biomass partiitoning coefficients
-   * dailynetassim-- is net canopy assimilation after taking care of leaf dark respiration. this is one of the output of canopy function
-   * senparms-- This is a pointer to senescence parameters structure. Values contained in this structure will be used to cause senescence of each component
-   * canopyparms-- This is a pointer to canopy parms structure, Values containined in this strucure may be used to induce senesnce under N limited conditions when 
-   * N conc. of leaves is too thi (for now, let us not use this for c3 tree)
-   * frostparms-- this ia apointer tostructure containing parameters governing senescence due to frost
-   * RESP-- this is pointer to structure containing parameters to calculate growth and maintenenace respiration of different plant organs
-   * 
-   * ************************************************************************/
-   double deadleaf,deadstem,deadroot,deadrhiz,dailysenesced;
-   double totalassimilate,remobilized,totalmaintenance;
-   double newLeaf,newStem,newRoot,newRhizome;
-   double kLeaf,kStem,kRoot,kRhizome;
-   struct crop_phenology cropdbp;
-    
-    /******************************************************************************
-    * here I am reading fixed frost and senescence parameterr 
-    * This need to be replaced so that I can change these parameters from R 
-    * ***************************************************************************/
-     getfrostparms(frostparms);
-     getsenescenceparms(senparms);
-   
-   
-   
-   /********************************************************************************
-    * Here, I am calculating senesceing due to thermal aging and senescence
-    * ******************************************************************************/
-     deadleaf=getLeafSenescence(&c3tree->leaf,senparms->leafcriticalT,senparms->leaffr, Temp, frostparms,TherTime,canopyparms);
-     deadstem=getStemSenescence(&c3tree->stem,senparms->stemcriticalT,senparms->stemfr, Temp, frostparms,TherTime);
-     deadroot=getRootSenescence(&c3tree->root, senparms->rootcriticalT,senparms->rootfr, Temp, frostparms,TherTime);
-     deadrhiz=getRhizomeSenescence(&c3tree->rhizome,senparms->rhizomecriticalT,senparms->rhizomefr, Temp, frostparms,TherTime); 
-     
-     /*******Performing some calculations************************************************/
-     /*****total senescnece of biomass for today *********/
-     dailysenesced=deadleaf+deadstem+deadroot+deadrhiz; 
-     /**I am assumung that remobilization of each plan organ is same. we can change this in future based on literature if remobilization from leaf versus root are not same **/
-     remobilized = dailysenesced*canopyparms->remobFac; 
-     /**** Evaluating total maintenance respiration from today's maintenance respiration of different plan organs **/
-     totalmaintenance=c3tree->autoresp.stemmaint+c3tree->autoresp.rootmaint+c3tree->autoresp.rhizomemaint;
-     /** Here, I am calculating total assimilate that is available for plant growth todaay ****/    
-     totalassimilate=dailynetassim+remobilized-totalmaintenance;
-     
-     /** If total assimilate is less than zero than no growth will take place *****/
-     /*** we only need to make sure that negative value (or loss fue to respiration is satisfied from the storage value **/
-     /** Otherwise we need to get dry biomass partitioning coefficients to simulate growth of each component******/          
-          if(totalassimilate<=0.0)
-          {
-          newLeaf=0.0;
-          newStem=0.0;
-          newRoot=0.0;
-          newRhizome=totalassimilate; // negative values of assimilate (i.e. respiration) are to be supplied from rhizome
-          }
-          else
-          {
-          cropcent_dbp(coefs,TherPrds,TherTime, &cropdbp);
-          kLeaf = cropdbp.DBP.kLeaf;
-          kStem = cropdbp.DBP.kStem;
-          kRoot = cropdbp.DBP.kRoot;
-          kRhizome = cropdbp.DBP.kRhiz;
-          newLeaf=newbiomass(totalassimilate,kLeaf,0.0);
-          newStem=newbiomass(totalassimilate,kStem,RESP->growth.stem);
-          newRoot=newbiomass(totalassimilate,kRoot,RESP->growth.root);
-          newRhizome=newbiomass(totalassimilate,kRhizome,RESP->growth.rhizome);       
-          }
-          
-          /**Calculatng growth respiration. Remember that leaf dark respiration is already taken care of in net canopy assimilation**/
-          /**** we only need to calculate growth respiratin of stem, root, and rhizome***********************************************/
-          if(totalassimilate <=0)
-          {
-            c3tree->autoresp.stemgrowth=0;
-            c3tree->autoresp.rootgrowth=0;
-            c3tree->autoresp.rhizomegrowth=0;
-          }
-          else
-          {
-          c3tree->autoresp.stemgrowth=CalculateGrowthResp(newStem,RESP->growth.stem);
-          c3tree->autoresp.rootgrowth=CalculateGrowthResp(newRoot,RESP->growth.stem);
-          c3tree->autoresp.rhizomegrowth=CalculateGrowthResp(newRhizome,RESP->growth.stem);
-          }
-          
-          /*** Updating total autotrophic respiration for today***************/
-          c3tree->autoresp.total= c3tree->autoresp.leafdarkresp + totalmaintenance+ c3tree->autoresp.stemgrowth + c3tree->autoresp.rootgrowth+ c3tree->autoresp.rhizomegrowth;
-          
-          /****** Updating dead biomass pool after taking care of remobilization ******/
-          deadleaf =deadleaf*(1-canopyparms->remobFac);
-          deadstem =deadstem*(1-canopyparms->remobFac);
-          deadroot =deadroot*(1-canopyparms->remobFac);
-          deadrhiz =deadrhiz*(1-canopyparms->remobFac);
-  
-         /***** Update standing biomass (both alive and dead) for today**************/
-          UpdateStandingLeaf(&c3tree->leaf,newLeaf,deadleaf,canopyparms->remobFac);
-          UpdateStandingStem(&c3tree->stem,newStem,deadstem,canopyparms->remobFac);
-          UpdateStandingRoot(&c3tree->root,newRoot,deadroot,canopyparms->remobFac);
-          UpdateStandingRhizome(&c3tree->rhizome,newRhizome,deadrhiz,canopyparms->remobFac); 
-          
-          /**** Checking for error message if rhizome becomes negative ****/
-          if((c3tree->rhizome.biomass) < 0)
-          {
-            error("Rhizome biomass has become negative");
-          }
-    return;
-}
 
 void updatedormantstage(struct miscanthus *miscanthus)
 {
