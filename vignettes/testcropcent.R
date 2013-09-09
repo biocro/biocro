@@ -19,13 +19,12 @@ data20yr<-rbind(urbana2008to2012,urbana2008to2012,urbana2008to2012,urbana2008to2
 result<-CropGro(WetDat=data20yr,day1=50,dayn=1900,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
         soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.35,kStem1=0.35),
         canopyControl=canopyParms(Sp=1.6))
-
-<<<<<<< HEAD
-=======
 result<-willowCent(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
->>>>>>> 454cb87f390f11973f75d8f09faeac69b890f60b
+result<-willowGro(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
+
 plot(result)
 xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$DayafterPlanting,auto.key=TRUE, type="l", main="alive biomass")
+xyplot(result$GPP~result$GDD,main="Daily GPP in Mg/ha/day")
 N<-length(result$GDD)
 
 initialbiomass<-result$Stemd[1]+result$Rootd[1]+result$Rhizomed[1]+result$Leafd[1]

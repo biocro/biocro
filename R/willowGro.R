@@ -284,45 +284,6 @@ willowCent <- function(WetDat, day1=NULL, dayn=NULL,
                       centuryControl=list())
 {
   
-  ## Trying to guess the first and last day of the growing season from weather data
-  
-  
-  if(is.null(day1)){
-    half <- as.integer(dim(WetDat)[1] / 2)
-    WetDat1 <- WetDat[1:half, c(2, 5)]
-    if(min(WetDat1[, 2]) > 0){
-      day1 <- 90
-    } else {
-      WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
-      day1 <- max(WetDat1s[,1])
-      if(day1 < 90) day1 <- 90
-    }
-  } 
-  if(is.null(dayn)){
-    half <- as.integer(dim(WetDat)[1]/2)
-    WetDat1 <- WetDat[half:dim(WetDat)[1],c(2,5)]
-    if(min(WetDat1[,2]) > 0){
-      dayn <- 330
-    }else{
-      WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
-      dayn <- min(WetDat1s[,1])
-      if(dayn > 330) dayn <- 330
-    }
-  }
-  
-  if(any(c(day1 < 0, day1 > 366, dayn < 0, dayn > 366))) {
-    stop("day1 and dayn should be between 0 and 366")
-  }
-  
-  if(day1 > dayn) {
-    stop("day1 should be smaller than dayn")
-  }
-  if( (timestep<1) || (24%%timestep != 0)) {
-    stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
-  }
-  ##day1= WetDat[WetDat$Temp >=6,]$doy[1] 
-  
-  
   ## Getting the Parameters
   
   iPlant <-iwillowParms()
@@ -486,6 +447,7 @@ willowCent <- function(WetDat, day1=NULL, dayn=NULL,
   res <- structure(res, class="BioGro")
   
 }
+
 willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,iRhizome=1.0,
                    lat=40,iPlant=1,irtl=1e-4,

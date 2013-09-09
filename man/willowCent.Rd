@@ -1,22 +1,24 @@
-\name{BioGro}
-\alias{BioGro}
+\name{willowCent}
 \alias{canopyParms}
 \alias{centuryParms}
 \alias{nitroParms}
 \alias{phenoParms}
 \alias{photoParms}
-\alias{print.BioGro}
+\alias{print.willowGro}
 \alias{seneParms}
 \alias{showSoilType}
 \alias{soilParms}
 \alias{SoilType}
-\title{Biomass crops growth simulation}
+\alias{willowCent}
+\alias{willowGro}
+\title{willowmass crops growth simulation}
 \usage{
-  BioGro(WetDat, day1 = NULL, dayn = NULL, timestep = 1,
-    lat = 40, iRhizome = 7, irtl = 1e-04,
-    canopyControl = list(), seneControl = list(),
-    photoControl = list(), phenoControl = list(),
-    soilControl = list(), nitroControl = list(),
+  willowCent(WetDat, day1 = NULL, dayn = NULL,
+    timestep = 1, iRhizome = 1, lat = 40, iPlant = 1,
+    irtl = 1e-04, canopyControl = list(),
+    seneControl = list(), photoControl = list(),
+    willowphenoControl = list(), soilControl = list(),
+    nitroControl = list(), iPlantControl = list(),
     centuryControl = list())
 }
 \arguments{
@@ -82,32 +84,29 @@
   photosynthesis simulation. It should be supplied through
   the \code{photoParms} function.
 
-  \code{vmax} Vmax passed to the \code{\link{c4photo}}
+  \code{vmax} Vmax passed to the \code{\link{c3photo}}
   function.
 
   \code{alpha} alpha parameter passed to the
-  \code{\link{c4photo}} function.
-
-  \code{kparm} kparm parameter passed to the
-  \code{\link{c4photo}} function.
+  \code{\link{c3photo}} function.
 
   \code{theta} theta parameter passed to the
-  \code{\link{c4photo}} function.
+  \code{\link{c3photo}} function.
 
   \code{beta} beta parameter passed to the
-  \code{\link{c4photo}} function.
+  \code{\link{c3photo}} function.
 
   \code{Rd} Rd parameter passed to the
-  \code{\link{c4photo}} function.
+  \code{\link{c3photo}} function.
 
   \code{Catm} Catm parameter passed to the
-  \code{\link{c4photo}} function.
+  \code{\link{c3photo}} function.
 
   \code{b0} b0 parameter passed to the
-  \code{\link{c4photo}} function.
+  \code{\link{c3photo}} function.
 
   \code{b1} b1 parameter passed to the
-  \code{\link{c4photo}} function.}
+  \code{\link{c3photo}} function.}
 
   \item{phenoControl}{List that controls aspects of the
   crop phenology. It should be supplied through the
@@ -253,7 +252,7 @@
 \description{
   Simulates dry biomass growth during an entire growing
   season.  It represents an integration of the
-  photosynthesis function \code{\link{c4photo}}, canopy
+  photosynthesis function \code{\link{c3photo}}, canopy
   evapo/transpiration \code{\link{CanA}}, the multilayer
   canopy model \code{\link{sunML}} and a dry biomass
   partitioning calendar and senescence. It also considers,
@@ -264,15 +263,15 @@
 \dontrun{
 data(weather05)
 
-res0 <- BioGro(weather05)
+res0 <- willowGro(weather05)
 
 plot(res0)
 
 ## Looking at the soil model
 
-res1 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6))
+res1 <- willowGro(weather05, soilControl = soilParms(soilLayers = 6))
 plot(res1, plot.kind='SW') ## Without hydraulic distribution
-res2 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
+res2 <- willowGro(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
 plot(res2, plot.kind='SW') ## With hydraulic distribution
 
 
@@ -284,10 +283,10 @@ ll.1 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=2)
 ll.2 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=3)
 ll.3 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=4)
 
-ans.0 <- BioGro(weather05,soilControl=ll.0)
-ans.1 <- BioGro(weather05,soilControl=ll.1)
-ans.2 <- BioGro(weather05,soilControl=ll.2)
-ans.3 <-BioGro(weather05,soilControl=ll.3)
+ans.0 <- willowGro(weather05,soilControl=ll.0)
+ans.1 <- willowGro(weather05,soilControl=ll.1)
+ans.2 <- willowGro(weather05,soilControl=ll.2)
+ans.3 <-willowGro(weather05,soilControl=ll.3)
 
 xyplot(ans.0$SoilWatCont +
        ans.1$SoilWatCont +

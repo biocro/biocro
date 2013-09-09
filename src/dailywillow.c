@@ -8,6 +8,66 @@
 #include "AuxcaneGro.h"
 #include "crocent.h"
 
+void createNULLwillow(struct c3tree *willow,int vecsize)
+{
+   int i;
+   willow->leafvec=malloc((vecsize+1)*sizeof(*willow->leafvec));
+   willow->stemvec=malloc((vecsize+1)*sizeof(*willow->stemvec));
+   willow->rootvec=malloc((vecsize+1)*sizeof(*willow->rootvec));
+   willow->rhizomevec=malloc((vecsize+1)*sizeof(*willow->rhizomevec));
+  
+   for (i = 0; i<=vecsize;i++)
+   {
+      willow->leafvec[i].newbiomass=0.0;
+      willow->leafvec[i].newlitter=0.0;
+       willow->leafvec[i].ageinTT=0.0;
+       willow->stemvec[i].newbiomass=0.0;
+      willow->stemvec[i].newlitter=0.0;
+       willow->stemvec[i].ageinTT=0.0;
+       willow->rootvec[i].newbiomass=0.0;
+      willow->rootvec[i].newlitter=0.0;
+       willow->rootvec[i].ageinTT=0.0;
+       willow->rhizomevec[i].newbiomass=0.0;
+      willow->rhizomevec[i].newlitter=0.0;
+       willow->rhizomevec[i].ageinTT=0.0;
+       
+   }
+   
+   willow->leaf.biomass=0.0;
+   willow->stem.biomass=0.0;
+   willow->root.biomass=0.0;
+   willow->rhizome.biomass=0.0;
+   willow->leaf.litter=0.0;
+   willow->stem.litter=0.0;
+   willow->root.litter=0.0;
+   willow->rhizome.litter=0.0;
+   willow->rhizome.carbohydratefraction=0.6; // Lets assume that in the beginning carbohydrate fraction of dry biomass is  60%
+   return;
+}
+
+void UpdateWillowAfterHarvest(struct c3tree *willow,struct management *management)
+{
+  willow->leaf.biomass=(1-management->harvestparms.frleaf)*willow->leaf.biomass;
+  willow->leaf.litter=(1-management->harvestparms.frleaflitter)*willow->leaf.litter;
+  
+  willow->stem.biomass=(1-management->harvestparms.frstem)*willow->stem.biomass;
+  willow->stem.litter=(1-management->harvestparms.frstemlitter)*willow->stem.litter;
+  
+  willow->root.biomass=(1-management->harvestparms.frdeadroot)*willow->root.biomass;
+  willow->root.litter=management->harvestparms.frdeadroot*willow->root.biomass;
+  
+  willow->rhizome.biomass=(1-management->harvestparms.frdeadrhizome)*willow->rhizome.biomass;
+  willow->rhizome.litter=management->harvestparms.frdeadrhizome*willow->rhizome.biomass;
+  return;
+}
+
+void UpdateWillowAfterEmergence(struct c3tree *willow,struct management *management)
+{
+  willow->leaf.biomass= willow->stem.biomass*management->emergenceparms.StemtoLeaffraction + willow->rhizome.biomass*management->emergenceparms.StoragetoLeaffraction;
+  willow->stem.biomass=(1-management->emergenceparms.StemtoLeaffraction)*willow->stem.biomass;
+  willow->rhizome.biomass=(1-management->emergenceparms.StoragetoLeaffraction)*willow->rhizome.biomass;
+  return;
+}
 
 void dailywillow(struct c3tree *willow,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
 struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, int N, double delTT,
@@ -90,7 +150,7 @@ struct respirationParms *RESP, int emergence)
           SumofKpart=((kLeaf>0)?kLeaf:0)+((kStem>0)?kStem:0)+((kRoot>0)?kRoot:0)+((kRhizome>0)?kRhizome:0);
             if((SumofKpart-1.0)>1e-10)
             {
-            Rprintf("Kleaf=%f,kStem=%f,kRoot=%f,kRhiz=%f, Sum=%f\n",kLeaf,kStem,kRoot,kRhizome,SumofKpart);
+//            Rprintf("Kleaf=%f,kStem=%f,kRoot=%f,kRhiz=%f, Sum=%f\n",kLeaf,kStem,kRoot,kRhizome,SumofKpart);
  //           error("Sum of Positive partitioning coefficient is not one");
             
             }
@@ -117,10 +177,11 @@ struct respirationParms *RESP, int emergence)
           newRhizomelitter=(deadrhiz>0)?deadrhiz*(1-canopyparms->remobFac):0.0;
           
 
-          Dailybalance=newLeaf- deadleaf+newRoot- deadroot+newStem- deadstem+newRhizome- deadrhiz+newLeaflitter+newStemlitter+newRootlitter + newRhizomelitter;
+         Dailybalance=newLeaf- deadleaf+newRoot- deadroot+newStem- deadstem+newRhizome- deadrhiz+newLeaflitter+newStemlitter+newRootlitter + newRhizomelitter;
          Dailybalance=Dailybalance-willow->NPP;
          if(Dailybalance>1e-10)
           {
+          /*
           Rprintf("\nNPP and Daily Change inBiomass is not matching & difference is %f\n", Dailybalance);
           Rprintf("Thermal Time = %f, GPP = %f, Autotrophic Respiration = %f, NPP = %f, Remobilized from Litter = %f, Remobilized from Rhizome = %f \n", TherTime,willow->GPP, willow->autoresp.total,willow->NPP,RemobilizedFromLitter,RemobilizedFromRhizome);
           Rprintf("kLeaf=%f, kstem=%f, kRoot=%f, kRhizome=%f \n", kLeaf, kStem, kRoot,kRhizome);
@@ -131,6 +192,7 @@ struct respirationParms *RESP, int emergence)
           Rprintf("LeafDarkResp=%f, Total maintenance (ExceptLeaf) = %f, StemGrowthResp=%f, RootGrowthResp=%f, RhizGrowthResp=%f\n",willow->autoresp.leafdarkresp,totalmaintenance,willow->autoresp.stemgrowth,willow->autoresp.rootgrowth,willow->autoresp.rhizomegrowth);
               Rprintf("Daily Biomas Balance Gain = %f", Dailybalance);
               Rprintf("--------Emergence= %i-, N= %i---------------------\n",emergence, N);
+          */
           }
 
           // Adding new biomass of green components

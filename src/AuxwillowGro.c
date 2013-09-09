@@ -31,21 +31,21 @@
 #include <Rmath.h>
 #include <Rinternals.h>
 #include "c3photo.h"
-#include "AuxwillowGro.h"
 #include "AuxBioCro.h"
+#include "AuxwillowGro.h"
 
 struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	             double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
 		     double Rd, double Catm, double o2, double b0, double b1,
                      double theta, double kd, double heightf,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws)
-
          
 {
 
-struct ET_Str tmp5_ET , tmp6_ET; 
-   struct c3_str tmpc3={0,0,0}, tmpc32={0,0,0}; 
-   struct Can_Str ans;
+   struct ET_Str tmp5_ET , tmp6_ET; 
+   struct c3_str tmpc3={0,0,0};
+   struct c3_str tmpc32={0,0,0}; 
+   struct Can_Str ans={0,0,0};
 
   const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
 /* Need a different conversion factor for transpiration */
@@ -59,8 +59,13 @@ struct ET_Str tmp5_ET , tmp6_ET;
   double  pLeafsun, pLeafshade;
   double Leafsun, Leafshade;
 
-  double CanopyA ;
-  double CanopyT , CanopyPe = 0.0, CanopyPr = 0.0;
+  double CanopyA = 0.0;
+  double GCanopyA = 0.0;
+  double GAssIdir = 0.0;
+  double GAssIdiff = 0.0; 
+  double CanopyT =0.0;;
+  double CanopyPe = 0.0;
+  double CanopyPr = 0.0;
   double CanopyC = 0.0,chil=1.0;
   double CanHeight;
 
@@ -138,6 +143,7 @@ layIdiff, layShade vectors. */
 	    TempIdir = Temp + tmp5_ET.Deltat;
 	    tmpc3 = c3photoC(IDir,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta,StomWS,ws);
 	    AssIdir = tmpc3.Assim;
+      GAssIdir =tmpc3.GrossAssim;
 
 	    IDiff = layIdiff[--sp2];
 	    pLeafshade = layFshade[--sp5];
@@ -147,9 +153,11 @@ layIdiff, layShade vectors. */
 	    TempIdiff = Temp + tmp6_ET.Deltat;
 	    tmpc32 = c3photoC(IDiff,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta,StomWS,ws);
 	    AssIdiff = tmpc32.Assim;
+      GAssIdiff = tmpc32.GrossAssim;
 
-		CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
-		CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+		CanopyA =CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
+		CanopyT = CanopyT+Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+    GCanopyA =GCanopyA+ Leafsun * GAssIdir + Leafshade * GAssIdiff;
 	}
 	/*## These are micro mols of CO2 per m2 per sec for Assimilation
 	  ## and mili mols of H2O per m2 per sec for Transpiration
@@ -164,5 +172,9 @@ layIdiff, layShade vectors. */
    mols (instead of micro) */
 	ans.Assim = cf * CanopyA ;
 	ans.Trans = cf2 * CanopyT; 
+  ans.GrossAssim=cf*GCanopyA;
+  Rprintf("CF= %f ,Gross Canopy = %f \n", cf,GCanopyA);
+//  Rprintf("C3photo function is returnin Direst Anet=%f, Agross=%f. Diffuses Anet=%f, Agross=%f \n",AssIdir,GAssIdir,AssIdiff,GAssIdiff);
+//  Rprintf("C3 Can function is returning CanA=%f, CanT=%f, CanGrossA =%f\n",ans.Assim, ans.Trans, ans.GrossAssim);
 	return(ans);
 }

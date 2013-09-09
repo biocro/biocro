@@ -20,12 +20,14 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
+#include "c3photo.h"
 #include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxwillowGro.h"
 #include "AuxcaneGro.h"
 #include "crocent.h"
+
 
 SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */ 
 	    SEXP DOY,                 /* Day of the year           2 */
@@ -185,7 +187,7 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
 	int k = 0, q = 0, m = 0, n = 0;
 	int ri = 0;
 
-	struct Can_Str Canopy;
+	struct Can_Str Canopy = {0.0,0.0,0.0};
 	struct ws_str WaterS;
 	struct dbp_str dbpS;
 	struct cenT_str centS; 
@@ -486,7 +488,8 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
     CanopyA=(1.0-GrowthRespFraction)*CanopyA;
    
 		CanopyT = Canopy.Trans * timestep;
-    CanopyAGross=1.2* CanopyA; // assuming leaf dark respiration is 20%
+    CanopyAGross= Canopy.GrossAssim*timestep;
+//    Rprintf("Gross Assimilation = %f, timestep = %i\n", Canopy.GrossAssim, timestep);
    }
            
    /*Rprintf("%f,%f,%f\n",Canopy,CanopyA,GPP);*/      

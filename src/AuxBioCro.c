@@ -652,7 +652,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
    mols (instead of micro) */
         ans.Assim = cf * CanopyA ;
         ans.Trans = cf2 * CanopyT; 
-  ans.GrossAssim=cf*GCanopyA;
+        ans.GrossAssim=cf*GCanopyA;
         return(ans);
 }
 

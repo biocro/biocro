@@ -17,6 +17,7 @@ management->harvestparms.frdeadrhizome=0.0;
 management->emergenceparms.minimumdoy=90;
 management->emergenceparms.emergenceTemp=6.0;
 management->emergenceparms.StoragetoLeaffraction=0.02;
+management->emergenceparms.StemtoLeaffraction=0.02;
 management->emergenceparms.plantingrate=20;
 return;
 }

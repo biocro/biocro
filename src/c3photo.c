@@ -256,10 +256,10 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		  iterCounter++;
 		  
 	  }
-
 	tmp.Assim = Assim;
 	tmp.Gs = Gs;
 	tmp.Ci = Ci;
+  tmp.GrossAssim=Assim+Rd;
 	return(tmp);
 }
 

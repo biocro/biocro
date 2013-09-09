@@ -8,6 +8,7 @@ struct c3_str {
   double Assim;
   double Gs;
   double Ci;
+  double GrossAssim;
 
 };
 

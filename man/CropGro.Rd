@@ -1,9 +1,8 @@
 \name{CropGro}
 \alias{BioGro}
-\alias{CropGro}
-\alias{SoilType}
 \alias{canopyParms}
 \alias{centuryParms}
+\alias{CropGro}
 \alias{nitroParms}
 \alias{phenoParms}
 \alias{photoParms}
@@ -11,6 +10,7 @@
 \alias{seneParms}
 \alias{showSoilType}
 \alias{soilParms}
+\alias{SoilType}
 \title{Biomass crops growth simulation}
 \usage{
   CropGro(WetDat, day1 = NULL, dayn = NULL, timestep = 1,
