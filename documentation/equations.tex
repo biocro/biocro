@@ -10,11 +10,11 @@
 %\usepackage{caption}
 \usepackage[backgroundcolor=white, textsize = small, ]{todonotes}
 \usepackage{marginnote}
-\usepackage[top=2cm, bottom=1.3cm, left=0.5cm, right=5cm, heightrounded,
+\usepackage[top=2.5cm, bottom=2.5cm, left=0.5cm, right=5cm, heightrounded,
   marginparwidth=4.6cm, marginparsep=3mm]{geometry}
-%%Renewing commands
-
-
+\usepackage{draftwatermark}
+\SetWatermarkLightness{0.95}
+\SetWatermarkScale{4}
 \begin{document}
 
 \section*{BioCro Equations}
@@ -180,7 +180,7 @@ A_{\text{total}} &= A_{\text{leaf}} + A_{\text{stem}} + A_{\text{root}} + A_{\te
  \Delta L_{\text{sroot}} &= \frac{\omega_{\text{sroot}}}{Sp_{\text{sroot}}} \label{eqn:DeltaLsroot} \\
  \Delta L_{\text{storage}} &= \frac{\omega_{\text{storage}}}{Sp_{\text{storage}}}\\
 % New for coppicing trees:
-\text{Stem}_{\text{coppice}}=0.95 - \omega_{\text{stem}}
+\text{Stem}_{\text{coppice}}&=0.95 - \omega_{\text{stem}}
 \end{align}
 
 \subsection*{Soil Evaporation}
@@ -200,7 +200,7 @@ A_{\text{total}} &= A_{\text{leaf}} + A_{\text{stem}} + A_{\text{root}} + A_{\te
  R_{lc,\text{soil}} &= ((4 \sigma)\cdot(273 + T_{\text{soil}})^3 \cdot \Delta T) \label{eqn:Rlcsoil} \\
  J_{a,\text{soil}} &= 2 \cdot I_{\text{soil}} \cdot \biggl(\frac{1-S_r-S_{\tau}}{1-S_{\tau}}\biggr) \label{eqn:Jasoil} \\
  \Phi_{N,soil} &= J_{a,soil} - R_{lc,soil} \label{eqn:PhiNsoil} \\
- E_\text{soil} &= \frac{s \cdot \Phi_{N,soil} + \lambda \cdot g_{a,soil} \cdot \Delta \rho_{va}}{\lambda \cdot [s+\gamma]} \label{eqn:E2} \marginnote{is ``soil'' subscript correct?}\\
+ E_\text{soil} &= \frac{s \cdot \Phi_{N,soil} + \lambda \cdot g_{a,soil} \cdot \Delta \rho_{va}}{\lambda \cdot [s+\gamma]} \label{eqn:E2} \marginnote{is ``soil'' subscript correct?}
 \end{align}
 
 \subsection*{Respiration}
@@ -217,8 +217,9 @@ A_{\text{total}} &= A_{\text{leaf}} + A_{\text{stem}} + A_{\text{root}} + A_{\te
  G_{\text{soil}} &= -\lambda_{\text{soil}} \frac{\delta T}{\delta x} \label{eqn:Gsoil} \\
  G_{\text{soil}} &= -\lambda_{\text{soil}} \cdot \biggl[\frac{T_2 - T_\text{soil}}{\Delta z}\biggr] + (T_\text{soil} - T_l) \cdot C \cdot \frac{\Delta z}{(2 \cdot \Delta t)} \label{eqn:Gsoil2} 
 \end{align}
-\todo[inline]{what is $t_\text{l}$?}
+\todo[inline]{should denominator in equation \ref{eqn:Gsoil} be $\delta z$?}
 
+\todo[inline]{what is $t_\text{l}$?}
 \todo[inline]{$C$ in from equation \ref{eqn:Gsoil2} is undefined - is this the specific heat of soil?}
 \newpage
 
@@ -253,15 +254,21 @@ $A_{c,\text{shade}}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Net rate of CO$_2$ uptake per 
 $A$	&	$\mu mol\, mol^{-1}$	&	Predicted rate of CO$_2$ uptake	&	-	\\
 $c_a$	&	$\mu mol\, mol^{-1}$	&	Atmospheric CO$_2$ concentration	&	378	\\
 $a$	&	Dimensionless 	&	Coefficient for growth respiration	&	0.2	\\
-$c_i$	&	$\mu mol\, mol^{-1}$	&	Intercellular concentration of O$_2$ in air corrected for solubility relative to 25$^\circ$C	&	\\
+$\alpha$	&	dimensionless	&	Atmospheric transmittance	&	0.85	\\
+$\alpha_{\text{slope}}$	&	mol mol$^{-1}$ 	&	The quantum yield of CO$_2$ uptake determined by the initial slope of the response of A versus I$_{abs}$	&	0.04	\\
 $b_{\text{leaf}}$	&	Dimensionless	&	Coefficient for maintenance respiration for leaf	&	0.03	\\
 $b_{\text{stem}}$	&	Dimensionless	&	Coefficient for maintenance respiration for stem	&	0.015	\\
 $b_{\text{root}}$	&	Dimensionless	&	Coefficient for maintenance respiration for root	&	0.01	\\
+$\beta$	&		&	C$_4$ curvature parameter	&	0.93	\\
+$\beta_\Phi$ & \% & Fraction of absorbed quanta reaching PSII & \\
+$c_i$	&	$\mu mol\, mol^{-1}$	&	Intercellular concentration of O$_2$ in air corrected for solubility relative to 25$^\circ$C	&	\\
 $c_p$	&	$J\, kg^{-1}\, K{-1}$	&	Specific heat capacity of dry air 	&	1010	\\
 $C_{ov}$	&	Dimensionless	&	Coefficient of Variation for probability of rain in each month	&	-	\\
+$d_s$	&	m	&	Soil depth	&	-	\\
 $D_j$	&	d	&	day of year	&	-	\\
 $D_{\text{start}}$	&	d	&	Day of year on which the sinusoidal temperature function is assumed to start	&	45	\\
 $d$	&	dimensionless	&	Zero plane displacement	&	0.77	\\
+$\delta$	&	degrees	&	Solar declination	&	-	\\
 $e_l$	&	kPa	&	Saturated water VPD in the leaf	& \marginnote{is ``saturated VPD'' an oxymoron?}	-	\\
 $E$	&	$J\, mol^{-1}$	&	Activation energy	&	$R_{d}=66405$	\\
 	&		&		&	$V_{\text{max}}=6800$	\\
@@ -280,8 +287,10 @@ $F_{\text{shade}}$	&	$m^2\, m^{-2}$	&	Canopy shaded leaf area index	&	-	\\
 $F_{\text{sun}}$	&	$m^2\,m^{-2}$	&	Canopy sunlit leaf area index	&	-	\\
 $F_{\text{sum}}$	&	$m^2\, m^{-2}$	&	Summed leaf area index from top of canopy to layer considered in calculation	&	-	\\
 $G_{\text{soil}}$	&	$W\,m^{-2}$	&	Soil heat flux	&	-	\\
+$g$	&	$m\, s^{-2}$	&	Gravitional constant	&	9.8	\\
 $g_a$	&	$mmol\,m^{-2}\, s^{-1}$	&	Leaf boundary layer conductance	&	-	\\
 $g_c$	&	$mmol\,m^{-2}\, s^{-1}$	&	Canopy conductance of CO$_2$ 	&	-	\\
+$g_\text{c, root}$	&	& & \marginnote{undefined}\\
 $g_s$	&	$mmol\,m^{-2}\, s^{-1}$	&	Leaf stomatal conductance	&	-	\\
 $g_\text{ws}$ & & & \marginnote{undefined, modifies Anet during water stress}\\
 $g_0$	&	dimensionless	&	Stomatal slope factor	&	3	\\
@@ -290,6 +299,7 @@ $g_{s,\text{sun}}$	&	$mmol\, m^{-2}\, s^{-1}$	&	The sum of stomatal conductance 
 $g_{s,\text{shade}}$	&	$mmol\, m^{-2}\, s^{-1}$	&	The sum of stomatal conductance of shaded leaves	&	-	\\
 $g_\text{ws}$ & dimensionless & Species-specific water stress sensitivity factor & \\
 $g_\text{wmod}$ & & water stress stomatal conductance factor & \marginnote{distinct from $g_\text{ws}$?}\\
+$\gamma$	&	Pa K$^{-1}$	&	psychrometer constant 	&	-	\\
 $\Gamma^\ast$ & $\mu$mol mol$^{-1}$ & CO$_2$ compensation point in the absence of dark respiration & \\
 $h_r$	&	h	&	Hour of day	&	-	\\
 $h_s$	&	\%	&	Relative humidity	&	-	\\
@@ -298,21 +308,29 @@ $h_{ms}$	&	m	&	Wind speed measurement height	&	2	\\
 $h_{\text{layer}}$	&	m	&	Height of canopy layer above ground	&	-	\\
 	I&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Photon flux	&	-	\\
 $h$	&	$mm day^{-1}$	&	The amount of water received on a given rainy day	&	-	\\
+$h_{\text{soil}}$	&	m	&	Water pressure head	&	-	\\
+$HO_{\text{soil}}$	&	$kg\,m^{-3}$	&	Saturated humidity of the air at the soil surface	&	-	\\
+$HS_{\text{soil}}$	&	$Kg\, m^{-3}$	&	Humidity of the air at the soil surface	&	-	\\
 $I_{\text{abs}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Photon flux absorbed by either sunlit or shaded leaves within a canopy layer	&	-	\\
 $I_{\text{dir}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Photon flux in direct solar beam	&	-	\\
 $I_{\mathit{\text{diff}}}$	&	$\mu mol\,m^{-2}\, s^{-1}$ 	&	Photon flux in diffuse radiation	&	-	\\
 $I_{\text{total}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Total photon flux incident on canopy	&	-	\\
 $I_s$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Solar constant, photon flux in a plane perpedicular to the solar beam above the atmosphere	&	2600	\\
+$I_d$ & & & \marginnote{undefined}\\
+$I_{\ell,d}$ & & & \marginnote{undefined}\\
 $I_{\text{short}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Short wave radiation component of incident light	&	-	\\
 $I_{\text{soil}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Solar radiation incident upon soil surface	&	-	\\
+$I_{\text{soil}}$	&	$W\, m^{-2}$	&	Solar radiation on soil	&	-	\marginnote{which units for $I_\text{soil}$ are correct?}\\
 $I_{\text{sun}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Mean I for leaves which receive direct solar radiation, i.e. are sunlit	&	-	\\
 $I_{\text{shade}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Mean I for leaves shaded from direct solar radiation	&	-	\\
 $I_{\text{scat}}$	&	$\mu mol\, m^{-2} s^{-1}$ 	&	Direct beam radiation scattered by surfaces within the canopy	&	-	\\
-$J_{a}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Total solar radiation absorbed by either sunlit or shaded leaves within a canopy layer	&	-	\\
-	k&	dimensionless	&	Foliar absorption coefficient	&	-	\\
-$K_c$	&	$\mu mol\, mol^{-1}$ 	&	Michaelis constant for CO$_2$	&	460	\\
+$J_\text{a}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Total solar radiation absorbed by either sunlit or shaded leaves within a canopy layer	&	-	\\
+$J_\text{a, soil}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Total solar radiation absorbed by soil	&	-	\\
+$k$ &	dimensionless	&	Foliar absorption coefficient ($\alpha_\ell$ in Bernacchi 2003)	&	-	\\
+$K_c$	&	$\mu mol\, mol^{-1}$ 	&	Michaelis Menton constant for the carboxylation of RuBISCO	&	460	\\
 $K_{\text{CO}_2}$  	&	$mol\, m^{-2}\, s^{-1}$ 	&	Initial slope of photosynthetic CO$_2$ response	&	0.7	\\
-$K_{o}$	&	$mmol\, mol^{-1}$	&	Michaelis constant for O$_{2}$ 	&	330	\\
+$Kt$	&		&	C$_4$ slope factor	&	-	\\
+$K_{o}$	&	$mmol\, mol^{-1}$	&	Michaelis Menton constant for oxygenation of RuBISCO 	&	330	\\
 $k_{\text{slope}}$	&	Dimensionless	&	Initial slope of photosynthetic light response	&	0.04	\\
 LN	&	$g\, m^{-2}$ 	&	Leaf nitrogen concentration	&	-	\\
 $k_{\text{leaf}}$	&	Dimensionless	&	Partitioning coefficient for leaf	&	-	\\
@@ -322,8 +340,13 @@ $k_{\text{froot}}$	&	Dimensionless	&	Partitioning coefficient for fine root	&	-	
 $k_{\text{stroot}}$	&	Dimensionless	&	Partitioning coefficient for structural root	&	-	\\
 $\ell$ & & & \marginnote{undefined from Ja: equation \ref{eqn:Ja}}\\
 $\ell_\text{sun}$ & & & \marginnote{undefined from equation \ref{eqn:Iells}}\\
-$l_\text{sun}$ & & &\marginnote{undefined from equation \ref{eqn:Fsun2}}\\ 
+$l_\text{sun}$ & & &\marginnote{undefined from equation \ref{eqn:Fsun2}}\\
+$L_i$	&	$cm\, cm^{-3}$	&	Root density of ith zone	&	-	\\ 
 $L_w$	&	m	&	Leaf width in the direction of the wind	&	0.04	\\
+$\Delta L_\text{stem}$ & & & \marginnote{undefined}\\
+$\Delta L_\text{sroot}$ & & & \marginnote{undefined}\\
+$\lambda$	&	MJ/Kg	&	Latent heat of vapourisation	&	-	\\
+$\lambda_\text{soil}$	&	$W/(m ^\circ C)$	&	Thermal conductivity for the soil surface	&	-	\\
 $M$ & & \marginnote{what is$M$?}& \ref{eqn:M}\\
 $m_r$& mm month$^{-1}$& monthly precipitation rate& \\
 $N_{\text{eff}}$& days/mo & effective length of rainy period & \marginnote{check units with equation \ref{eqn:Neff}}\\
@@ -331,20 +354,35 @@ $n$	&	day	&	The number of days in a month	&	29, 30, or 31	\\
 $nr$	&	day 	&	The number of rainy days in a month	&	-	\\
 $O_a$	&	$mmol\, mol^{-1}$	&	Atmospheric O$_2$ concentration	&	210	\marginnote{is this corected to 25C like O$_i$?}\\
 $O_i$	&	$mmol\, m^{-2}\,s^{-1}$	&	Intercellular concentration of O$_2$ in air corrected for solubility relative to 25$^\circ$C	&	-	\\
-$\omega_{\text{leaf}}$	&	gram	&	Leaf biomass	&	-	\\
-$\omega_{\text{stem}}$	&	gram	&	Stem biomass	&	-	\\
-$\omega_{\text{sroot}}$	&	gram	&	Biomass of storage root	&	-	\\
-$\omega_{\text{froot}}$	&	gram	&	Biomass of fine root	&	-	\\
-$\omega_{\text{stroot}}$	&	gram	&	Biomass of structural root	&	-	\\
+$\omega_{\text{leaf}}$	&	g	&	Leaf biomass	&	-	\\
+$\omega_{\text{stem}}$	&	g	&	Stem biomass	&	-	\\
+$\omega_{\text{sroot}}$	&	g	&	Biomass of storage root	&	-	\\
+$\omega_{\text{froot}}$	&	g	&	Biomass of fine root	&	-	\\
+$\omega_{\text{stroot}}$	&	g	&	Biomass of structural root	&	-	\\
+$\omega_{\text{storage}}$	&	g	&	Biomass of storage	&	-	\\
+$\Omega$	&	degrees	&	Latitude	&	-	\\
 $P$	&	kPa	&	Atmospheric pressure	&	\\
 $P_o$	&	kPa	&	Standard atmospheric pressure at sea level	&	101.324	\\
 $P_s$	&	kPa	&	Leaf surface partial pressure of CO$_2$ 	&	-	\\
-
-$q$	&	Dimensionless	&	The probability that there is no rainfall	&	-	\\
+$\Psi_\text{g}$& & & \marginnote{undefined}\\
+$\Psi_l$	&	MPa	&	Leaf water potential	&	-	\\
+$\Psi_\text{L}$& & & \marginnote{undefined}\\
+$\Psi_t$	&	MPa	&	Threshold leaf water potential for decreasing gs	&	-	\\
+$\Phi_\text{N}$	&	W m$^{-2}$	&	Net radiation	&	-	\\
+$\Phi_{N,soil}$	&	W m$^{-2}$	&	Net radiation at soil surface	&	-	\\
+$\Psi_{\text{adl}}$	&	MPa	&	Average daily plant water potential	&	-	\\
+$\Psi_{\text{pt}}$	&	MPa	&	Threshold water potential	&	-	\\
+$\Psi_{\text{si}}$	&	MPa	&	Soil water potential of the ith layer	&	-	\\
+$\Psi_x$	&	MPa	&	xylem water potential	&	-	\\
+$q$	&	Dimensionless	&	The probability that there is no rainfall	&	-	\marginnote{during a month?}\\
+$q_w$	&	kg s$^{-1}$	&	Flux of water	&	-	\\
 $Q_{10}$	&	dimensionless	&	Is the proportional rise in a parameter for a 10$^\circ$C increase in temperature	&	2	\\
 $r$	&	dimensionless	&	Leaf reflection coefficient for total solar radiation	&	0.2	\\
 $r^\sim$ & mm day$^{-1}$          & Mean daily rainfall in each month                            & - \\ 
 $R$	&	$J\, k^{-1}\, mol^{-1}$ 	&	Real gas constant	&	8.314	\\
+$R_L$	&	$m^3\, kg^{-1}\, s^{-1}$	&	Leaf resistance	&	-	\\
+$R_{\text{si}}$	&	$m^3 kg^{-1} s^{-1}$	&	Soil resistance of the ith zone	&	-	\\
+$R_{\text{ri}}$	&	$M^3 kg^{-1} s^{-1}$	&	root resistance of the ith zone	&	-	\\
 $R_o$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Dark respiration rate at $25^\circ C$	&	3	\\
 $R_d$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Dark respiration at a given temperature	&	-	\\
 $R_{\text{lc}}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Longwave radiation	&	-	\\
@@ -357,7 +395,7 @@ $s$	&	kPa K$^{-1}$	&	Slope of saturated water vapor pressure change with respect
 $s_p$	&	dimensionless	&	Spectral imbalance	&	-	\\
 $S_{\text{size}}$	&	m	&	Average size of soil particles	&	0.04	\\
 $S_r$	&	Dimensionless	&	Soil reflectance	&	0.2	\\
-$S_t$	&	Dimensionless 	&	Soil transmission	&	0.01	\\
+$S_\tau$	&	Dimensionless 	&	Soil transmission	&	0.01	\\
 $Sp_\text{leaf}$	&	gram m$^{-2}$ 	&	Specific leaf area	&	50	\\
 $Sp_\text{stem}$	&	gram m$^{-1}$ 	&	Specific stem elongation factor	&	60	\\
 $Sp_\text{froot}$	&	gram m$^{-1}$	&	Specific fine root elongation factor	&	10	\\
@@ -375,6 +413,12 @@ $T_3$	&	$^\circ$C	&	Average daily range in air temperature	&	7	\\
 $T_4$	&	$^\circ$C	&	Maximum daily range in air temperature	&	7	\\
 $\Delta T$ &	$^\circ$C& Temperature difference between (leaf or soil) and air &\\
 $\tau$	&	Dimensionless 	&	Leaf transmittance coefficient	&		\\
+$\Theta_{\text{curve}}$	&	dimensionless	&	Curvature parameter	&	-	\\
+$\Theta^{*}$	&	$kg m^{-3}$	&	Actual volumetric water content	&	-	\\
+$\Theta_1$	&	$kg\, m^{-3}$	&	The volumetric water content for maximizing Evaporation	&		\\
+$\Theta_2$	&	$kg\, m^{-3}$	&	The volumetric water content for wilting point	&	-	\\
+$\Theta_i$	&	$kg\, m^{-3}$	&	The volumetric water content of the ith day	&	-	\\
+$\Theta$	&	degrees	&	Solar zenith angle	&	-	\\
 $u$	&	m s$^{-1}$	&	Measured wind speed at known height (2m)	&	2	\\
 $u_{\text{layer}}$	&	m s$^{-1}$ 	&	Wind speed in a given canopy layer	&	-	\\
 $u_{\text{soil}}$	&	m s$^{-1}$ 	&	Wind speed at soil surface	&	-	\\
@@ -387,47 +431,8 @@ $V_{c,\text{max}_o}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Maximum rubP saturated rate of
 VPD	&	kPa	&	Leaf-air water vapour pressure deficit	&	-	\\
 $z_o$	&	m	&	Roughness length	&	0.234	\\
 $\chi$	&	dimensionless	&	The ratio of horizontal:vertical projected area of leaves in the canopy segment	&	1	\\
-$\alpha$	&	dimensionless	&	Atmospheric transmittance	&	0.85	\\
 slope	&	$mol\, m^{-1}$ 	&	Initial slope of photosynthetic CO$_2$ response	&	0.7	\\
-$\Theta_{\text{curve}}$	&	dimensionless	&	Curvature parameter	&	-	\\
-$\delta$	&	degrees	&	Solar declination	&	-	\\
-$\Omega$	&	degrees	&	Latitude	&	-	\\
-$\Theta$	&	degrees	&	Solar zenith angle	&	-	\\
 curve	&	dimensionless	&	Curvature parameter	&	0.83	\\
-$\lambda$	&	MJ/Kg	&	Latent heat of vapourisation	&	-	\\
-$\gamma$	&	Pa K$^{-1}$	&	psychrometer constant 	&	-	\\
-$\alpha_{\text{slope}}$	&	mol mol$^{-1}$ 	&	The quantum yield of CO$_2$ uptake determined by the initial slope of the response of A versus I$_{abs}$	&	0.04	\\
-$\beta$	&		&	C$_4$ curvature parameter	&	0.93	\\
-$\beta_\Phi$ & \% & Fraction of absorbed quanta reaching PSII & \\
-$Kt$	&		&	C$_4$ slope factor	&	-	\\
-$\Psi_\text{g}$& & & \marginnote{undefined}\\
-
-$\Psi_l$	&	MPa	&	Leaf water potential	&	-	\\
-$\Psi_\text{L}$& & & \marginnote{undefined}\\
-$\Psi_t$	&	MPa	&	Threshold leaf water potential for decreasing gs	&	-	\\
-$\Phi_\text{N}$	&	W m$^{-2}$	&	Net radiation	&	-	\\
-$\Phi_{N,soil}$	&	W m$^{-2}$	&	Net radiation at soil surface	&	-	\\
-$\Psi_{\text{adl}}$	&	MPa	&	Average daily plant water potential	&	-	\\
-$\Psi_{\text{pt}}$	&	MPa	&	Threshold water potential	&	-	\\
-$\Psi_{\text{si}}$	&	MPa	&	Soil water potential of the ith layer	&	-	\\
-$\Psi_x$	&	MPa	&	xylem water potential	&	-	\\
-
-$q_w$	&	kg s$^{-1}$	&	Flux of water	&	-	\\
-$R_{\text{si}}$	&	$m^3 kg^{-1} s^{-1}$	&	Soil resistance of the ith zone	&	-	\\
-$R_{\text{ri}}$	&	$M^3 kg^{-1} s^{-1}$	&	root resistance of the ith zone	&	-	\\
-$L_i$	&	$cm\, cm^{-3}$	&	Root density of ith zone	&	-	\\
-$g$	&	$m\, s^{-2}$	&	Gravitional constant	&	9.8	\\
-$R_L$	&	$m^3\, kg^{-1}\, s^{-1}$	&	Leaf resistance	&	-	\\
-$\Theta^{*}$	&	$kg m^{-3}$	&	Actual volumetric water content	&	-	\\
-$\Theta_1$	&	$kg\, m^{-3}$	&	The volumetric water content for maximizing Evaporation	&		\\
-$\Theta_2$	&	$kg\, m^{-3}$	&	The volumetric water content for wilting point	&	-	\\
-$d_s$	&	m	&	Soil depth	&	-	\\
-$I_{\text{soil}}$	&	$W\, m^{-2}$	&	Solar radiation on soil	&	-	\\
-$\Theta_i$	&	$kg\, m^{-3}$	&	The volumetric water content of the ith day	&	-	\\
-$HO_{\text{soil}}$	&	$kg\,m^{-3}$	&	Saturated humidity of the air at the soil surface	&	-	\\
-$HS_{\text{soil}}$	&	$Kg\, m^{-3}$	&	Humidity of the air at the soil surface	&	-	\\
-$h_{\text{soil}}$	&	m	&	Water pressure head	&	-	\\
-$\lambda_\text{soil}$	&	$W/(m ^\circ C)$	&	Thermal conductivity for the soil surface	&	-	\\
 $Z$	&	m	&	Thickness of a soil layer	&	-	\\
 \\
 \end{longtable}
