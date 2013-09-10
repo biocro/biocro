@@ -1,6 +1,6 @@
 % Here I'm trying to implement the thesis template for latex
 
-\documentclass[10pt]{report}
+\documentclass[24pt]{report}
 
 %\usepackage[pdftex]{graphicx}
 %\usepackage{textcomp}
@@ -147,12 +147,10 @@ A_\text{net, water stress} &= A_n\cdot g_{ws}  \marginnote{$g_{ws}$ is undefined
  g_c &= \sum_{\text{layer} 1}^{\text{layer} N}(g_{s,\text{sun}}\cdot l_{\text{sun}}) + (g_{s,\text{shade}}\cdot l_{\text{shade}}) \label{eqn:gc}\\ 
  g_{c,\text{tot}} &= \int_0^{365\text{days}}\int_{0}^{24\text{hours}}g_c \label{eqn:gctot} 
 \end{align}
-\todo[inline]{is $\ell_\text{sun}\equiv_\text{sun}$? neither is defined}
-\todo[inline]{why use $\int$ instead of $\sum$?}
+\todo[inline]{is $\ell_\text{sun}\equiv l_\text{sun}$? neither is defined}
+\todo[inline]{switch use of $\int$ over hr/yr to $\sum$?}
 
 \subsection*{Allocation}
-\todo[inline]{should restrictions on values of $k$ in equations \ref{eqn:Astroot} and \ref{eqn:kmod} be moved to the parameter definitions?}
-\todo[inline]{would it make sense to subscript values of $\omega$ with $t$, $t+1$ when updating them to avoid confusion?}
 
 \begin{align}
 % Miguez 2009 A_{\text{stroot}} &= |\omega_{\text{stroot}} \cdot k_{\text{stroot}}|  ; k_{\text{storage}}<0 \label{eqn:Astroot} \\
@@ -182,6 +180,10 @@ A_{\text{total}} &= A_{\text{leaf}} + A_{\text{stem}} + A_{\text{root}} + A_{\te
 % New for coppicing trees:
 \text{Stem}_{\text{coppice}}&=0.95 - \omega_{\text{stem}}
 \end{align}
+
+\todo[inline]{should restrictions on values of $k$ in equations \ref{eqn:Astroot} and \ref{eqn:kmod} be moved to the parameter definitions?}
+\todo[inline]{would it make sense to subscript values of $\omega$ with $t$, $t+1$ when updating them to avoid confusion?}
+\todo[inline]{$\Delta t$ is the timescale for updating biomass.; need to define $\Delta T$ for both daily and hourly}
 
 \subsection*{Soil Evaporation}
 
