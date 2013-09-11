@@ -11,7 +11,7 @@ BioCro fitting, parameterization, and testing
 require(data.table)
 require(lubridate)
 require(ggplot2)
-require(PEcAn.DB)
+#require(PEcAn.DB)
 load(system.file("extdata", "salix.RData", package = "BioCro"))
 settings.xml <- system.file("extdata/pecan.biocro.xml", 
                             package = "PEcAn.BIOCRO")

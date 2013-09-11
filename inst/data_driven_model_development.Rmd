@@ -32,18 +32,34 @@ Results
 knitr::opts_chunk$set(echo=FALSE, eval=FALSE,comment = FALSE, warning = FALSE, echo = FALSE)
 ```
 
+### map of observed data
+
+```{r}
+sites <- read.csv("inst/extdata/validation_sites.csv")
+world <- map_data("world")
+ggplot() + 
+  geom_polygon(data=world, aes(x=long, y=lat, group = group), colour="grey", fill="white" ) + 
+    geom_point(data = sites, aes(x = lon, y = lat), color = 'red') 
+
++  scale_size(range = c(8,12)) 
+```
+
 ```{r}
 pred <- list()
 for(version in c("60", "70", "75", "81", "92")) {
   load(paste0("C:/Users/dlebauer/R-dev/biocro/inst/extdata/v0", version, ".RData"))  
   pred[[version]] <- compareStem$Predicted
-  if(!identical(compareStem$Observed, observed)) stop(paste(version, "observed values inconsistent"))
 }
 
 pred.df <- as.data.frame(pred)
 colnames(pred.df) <- gsub("X", "V0.", colnames(pred.df))
 results <- cbind(observed = compareStem$Observed, study = compareStem$Irrigated, pred.df)
 
+obs <- results[33:74,c("study", "observed")]
+obs <- cbind(obs, year = rep(1:6,7), rotation = rep(1:3, 14), site = rep(1:6, each = 7))
+
+ggplot(data = obs, aes(year, observed)) + 
+  geom_point(aes(by = site))
 
 results.long <- data.frame(study = rep(results$study, 5),
                            observed = rep(results$observed, 5),
@@ -63,17 +79,52 @@ taylor.diagram(results$observed, results$V0.81, normalize = TRUE, add = TRUE)
 taylor.diagram(results$observed, results$V0.92, normalize = TRUE, add = TRUE)
 
 mean <- sapply(results[,3:7], mean)
-sd.f <- sapply(results[,3:7], sd)/sd(results$observed)
+
+## sd.r: reference (observed)
+sd.r <- sd(results$observed)
+## sd.f: modeled
+sd.f <- sapply(results[,3:7], sd)
+
+
+
+
 R <- sapply(results[,3:7], function(x) cor(x, results$observed, use = "pairwise"))
-x <- sd.f * R
-y <- sd.f * sin(acos(R))
+
+## calculate E' from eqn 2 in Taylor 2001
+fn <- results[,3:7]
+fbar <- colMeans(fn)
+rn <- results$observed
+rbar <- mean(rn)
+
+# E <- list()
+# for(i in 1:5){
+#   E[i] <- (sum(((fn[,i] - fbar[i]) - (rn - rbar))^2)/length(rn)) ^ 0.5
+#   }
+
+## alt. method, second column of Taylor 2001 p 7184:
+E <- sqrt(sd.f^2 + sd.r^2 - 2 * sd.f * sd.r * R)
+
+bias <- fbar - rbar
+plot(1:5, sd.f/sd.r, type = "l")
+par(mfrow = c(4,1), mar = c(1,4,1,1))
+plot(1:5, sd.f, ylim = c(0,25), type = "l")
+abline(h = sd.r)
+plot(1:5, R, ylim = c(0,1), type = "l")
+abline(h = 1)
+plot(1:5, E, ylim = c(0,20), type = "l")
+abline(h = 0)
+plot(1:5, bias, ylim = c(0,20), type = "l")
+abline(h = 0)
+### calculate points to plot on taylor diagram
+x <- (sd.f/sd.r) * R
+y <- (sd.f/sd.r) * sin(acos(R))
 
 point.order <- order(names(x))
 
 x <- x[point.order]
 y <- y[point.order]
 R <- R[point.order]
-sd.f <- sd.f[point.order]
+sd.f <- sd.f[point.order]/sd.r
 
 lines(x, y)
 
@@ -82,13 +133,16 @@ sapply(2:length(x), function(xind) text(x[xind], y[xind],
                                           labels = c("", rep(">  ", 4)), 
                                         srt = ang[xind]))
 
-text(x + c(0, 0.08, 0.22, 0.26, -0.24), y - c(0, 0.05, 0, 0, 0), labels = c("", "add C3", "perenating stem", "growth respiration", "leaf senescence"))
+versions <- c("", "add C3", "perenating stem", "growth respiration", "leaf senescence")
+text(x + c(0, 0.08, 0.22, 0.26, -0.24), y - c(0, 0.05, 0, 0, 0), labels = versions)
 
 ```
 
 
 ### Summary of changes 
 
+```{r}
+```
 
 
 ### Test changes
@@ -114,13 +168,14 @@ pandoc.table(result.table[,-1], style = 'rmarkdown')
 ```
 
 ```{r fig.width=7, fig.height=6}
-results.long <- cbind(results.long, id = rep(1:nrow(results), 5))
+results.long <- cbind(results.long, id = rep(1:nrow(results), 5), v = rep(1:5 /5 ,each = 74))
+results.long 
 offset <- (as.numeric(as.factor(results.long$version))-2.5)/5
 library(ggplot2)
 ggplot(data = results.long, aes(observed + offset, modeled)) + 
-  geom_line(aes(group = id, color = version)) +
-  geom_point(aes(color = version)) + theme_bw() + scale_colour_grey(start = 0.85, end = 0.15) +
-    geom_line(aes(x = c(0,80), y = c(0,80)), size = 0.5, linetype = 2) +
+  geom_line(aes(group = id, color = version, size = v/3)) +
+  geom_point(aes(color = version, size = v)) + theme_bw() + scale_colour_grey(start = 0.85, end = 0.15) +
+    geom_line(aes(x = c(0,80), y = c(0,80)), linetype = 2) +
   xlab("Observed") + ylab("Modeled") + ggtitle("Observed vs. Predicted Willow Yield")
 
 ggplot(data = results.long[results.long$version == "V0.91",], aes(observed, modeled)) + 
