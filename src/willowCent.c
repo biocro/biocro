@@ -87,10 +87,8 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
       SEXP GROWTHRESP,
        SEXP STOMATAWS)           /*temperature Limitation photoParms */
 {
-	double newLeafcol[8760];
-	double newStemcol[8760];
-	double newRootcol[8760];
-	double newRhizomecol[8760];
+  int vecsize = INTEGER(VECSIZE)[0];
+
 
 	/* This creates vectors which will collect the senesced plant
 	   material. This is needed to calculate litter and therefore carbon
@@ -102,8 +100,6 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
     
         double iSp, Sp , propLeaf;
 	int i, i2, i3;
-	int vecsize ;
-
 	double vmax1;
 	double alpha1;
 	double theta;
@@ -182,7 +178,6 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
 	int centTimestep = INTEGER(CENTTIMESTEP)[0];
 
 	double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0, Tfrosthigh, Tfrostlow, leafdeathrate, Deadleaf;
-	double *sti , *sti2, *sti3, *sti4; 
 	double Remob;
 	int k = 0, q = 0, m = 0, n = 0;
 	int ri = 0;
@@ -258,7 +253,6 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
   SEXP Rhizomelitterd;
   SEXP LAId;
 
-	vecsize = length(DOY);
   int dailyvecsize = vecsize/24;
    
 	PROTECT(lists = allocVector(VECSXP,49));
@@ -395,12 +389,7 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
   double o2=210;
   double Tbase=REAL(TBASE)[0];  /* base temperature */
 
-	/* Creation of pointers outside the loop */
-	sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
-				 in the newLeafcol vector */
-	sti2 = &newStemcol[0];
-	sti3 = &newRootcol[0];
-	sti4 = &newRhizomecol[0];
+	
   
   // initialization based on iPlant 
    Stem=iSSTEM*(1-ifrSSTEM); 
@@ -451,7 +440,26 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
  
  canopyparms.remobFac=0.5;
  
- assignManagement(&management);
+// Rprintf("vecsize=%i\n",vecsize); 
+createNULLwillow(&willow,vecsize);
+
+// Initialize based on planting Rate
+
+ willow.rhizome.biomass=REAL(IPLANT)[0];
+ willow.stem.biomass=REAL(IPLANT)[1];
+ willow.leaf.biomass=REAL(IPLANT)[2];
+ willow.root.biomass=REAL(IPLANT)[3];
+ 
+assignManagement(&management);
+management.emergenceparms.StoragetoLeaffraction=REAL(IPLANT)[4];
+management.emergenceparms.StemtoLeaffraction=REAL(IPLANT)[5];
+// Rprintf("Leaf=%f, Rhizome=%f, Stem=%f, RhisFrac=%f, Stemfrac=%f\n",willow.leaf.biomass,willow.rhizome.biomass,willow.stem.biomass,management.emergenceparms.StoragetoLeaffraction,management.emergenceparms.StemtoLeaffraction);
+ UpdateC3treeAfterEmergence(&willow,&management);
+// Rprintf("LAI old beginning= %f\n",LAI);
+   LAI = willow.leaf.biomass * Sp;
+// Rprintf("LAI new beginning= %f\n",LAI);
+// Rprintf("After Calling Emergence Function");
+// Rprintf("Leaf=%f, Rhizome=%f, Stem=%f, RhisFrac=%f, Stemfrac=%f\n",willow.leaf.biomass,willow.rhizome.biomass,willow.stem.biomass,management.emergenceparms.StoragetoLeaffraction,management.emergenceparms.StemtoLeaffraction);
  management.harvestparms.harvestdoy=365;
  
  
@@ -496,7 +504,7 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
 		/* Inserting the multilayer model */
 		if(soillayers > 1){
 			soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
-					 phi1, phi2, soTexS, wsFun, INTEGER(SOILLAYERS)[0], Root, 
+					 phi1, phi2, soTexS, wsFun, INTEGER(SOILLAYERS)[0], willow.root.biomass, 
 					 LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
 					 INTEGER(HYDRDIST)[0], rfl, rsec, rsdf);
 
@@ -629,269 +637,21 @@ SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */
 
 
 
-		/* Picking the dry biomass partitioning coefficients */
-		dbpS = sel_dbp_coef(REAL(DBPCOEFS), REAL(THERMALP), TTc);
-
-		kLeaf = dbpS.kLeaf;
-		kStem = dbpS.kStem;
-		kRoot = dbpS.kRoot;
-		kRhizome = dbpS.kRhiz;
-		kGrain = dbpS.kGrain;
-
-                /* Nitrogen fertilizer */
-                /* Only the day in which the fertilizer was applied this is available */
-/* When the day of the year is equal to the day the N fert was applied
- * then there is addition of fertilizer */
-		if(doyNfert == *(pt_doy+i)){
-			Nfert = REAL(CENTCOEFS)[17] / 24.0;
-		}else{
-			Nfert = 0;
-		}                
-
-
-		/* Here I will insert the Century model */
-
- 
-		if(i % 24*centTimestep == 0){
-
-			LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
-			StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
-			RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
-			RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
-
-			LeafLitter -= LeafLitter_d;
-			StemLitter -= StemLitter_d;
-			RootLitter -= RootLitter_d;
-			RhizomeLitter -= RhizomeLitter_d;
-
-			centS = Century(&LeafLitter_d,&StemLitter_d,&RootLitter_d,&RhizomeLitter_d,
-					waterCont,*(pt_temp+i),centTimestep,SCCs,WaterS.runoff,
-					Nfert, /* N fertilizer*/
-					MinNitro, /* initial Mineral nitrogen */
-					*(pt_precip+i), /* precipitation */
-					REAL(CENTCOEFS)[9], /* Leaf litter lignin */
-					REAL(CENTCOEFS)[10], /* Stem litter lignin */
-					REAL(CENTCOEFS)[11], /* Root litter lignin */
-					REAL(CENTCOEFS)[12], /* Rhizome litter lignin */
-					REAL(CENTCOEFS)[13], /* Leaf litter N */
-					REAL(CENTCOEFS)[14], /* Stem litter N */
-					REAL(CENTCOEFS)[15],  /* Root litter N */
-					REAL(CENTCOEFS)[16],   /* Rhizome litter N */
-					soilType, 
-					REAL(CENTKS));
-		}
-
-
-
-		MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
-		Resp = centS.Resp;
-		SCCs[0] = centS.SCs[0];
-		SCCs[1] = centS.SCs[1];
-		SCCs[2] = centS.SCs[2];
-		SCCs[3] = centS.SCs[3];
-		SCCs[4] = centS.SCs[4];
-		SCCs[5] = centS.SCs[5];
-		SCCs[6] = centS.SCs[6];
-		SCCs[7] = centS.SCs[7];
-		SCCs[8] = centS.SCs[8];
-
-		/* Here I can insert the code for Nitrogen limitations on photosynthesis
-		   parameters. This is taken From Harley et al. (1992) Modelling cotton under
-		   elevated CO2. PCE. This is modeled as a simple linear relationship between
-		   leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
-		   availability and possibly by the Thermal time accumulated.*/
-/* The approach that seems to be used in general is N concentration as
- * a function of biomass */
-
-		LeafN = LeafN_0 * pow(Stem + Leaf,-kLN); 
-		if(LeafN > LeafN_0) LeafN = LeafN_0;
-		
-//		vmax1 = (LeafN_0 - LeafN) * REAL(VMAXB1)[0] + REAL(VMAX)[0]; 
 	
 
-                 /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
- 		   This modifies the amount of N available in the soil. 
- 		   MinNitro is the available amount of N (kg/m2). 
- 		   The demand is in Mg/ha. I need a conversion factor of 
- 		   multiply by 1000, divide by 10000. */
+        
+
  
- 		MinNitro = MinNitro - LeafN * (Stem + Leaf) * 1e-1;
- 		if(MinNitro < 0) MinNitro = 1e-3;
-
-		if(kLeaf >= 0)
-		{
-			newLeaf = CanopyA * kLeaf * LeafWS ; 
-			/*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
-			    Plant. Phys. 46, 233-235. For this the water stress coefficient is different
-			    for leaf and vmax. */
-			/* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
-			/* The 0.02 and 0.03 are constants here but vary depending on species
-			   as pointed out in that reference. */
-			newLeaf = resp(newLeaf, mrc1, *(pt_temp+i));
-
-			*(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
-					       to use i because when kLeaf is negative no new leaf is
-					       being accumulated and thus would not be subjected to senescence */
-		}else{
-         error("kLeaf should be positive");
-		}
- 
-		if(TTc < SeneLeaf){
-
-			Leaf += newLeaf;
-
-		}else{
-      A = REAL(LAT)[0]>=0.0;
-      B = *(pt_doy+i)>=180.0 ;
-      
-      if((A && B)||((!A) && (!B)))
-      {
-      
-      // Here we are checking/evaluating frost kill
-      
-  if (*(pt_temp+i) > Tfrostlow) {
-        leafdeathrate1 = 100*(*(pt_temp+i) -Tfrosthigh)/(Tfrostlow-Tfrosthigh);
-        leafdeathrate1 = (leafdeathrate1 >100.0)?100.0:leafdeathrate1;
-       
-      }
-      else {leafdeathrate1 =0.0;}
-    //Rprintf("Death rate due to frost = %f,%f,%f,%f\n",leafdeathrate1,*(pt_temp+i),Tfrosthigh,Tfrostlow);
-     //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
-      leafdeathrate=(leafdeathrate>leafdeathrate1)? leafdeathrate:leafdeathrate1;
-      Deadleaf=Leaf*leafdeathrate*(0.01/24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
-  		Remob = Deadleaf * 0.6;
-			LeafLitter += (Deadleaf-Remob); /* Collecting the leaf litter */ 
-			Rhizome += kRhizome * Remob;
-			Stem += kStem * Remob;
-			Root += kRoot * Remob;
-			Grain += kGrain * Remob;
-      newLeaf= newLeaf-Deadleaf + (kLeaf * Remob);
-			k++;
-     //Rprintf("%f,%f,%f,%f\n",leafdeathrate,Deadleaf,Remob,Leaf);
-//      error("stop");
-      }
-      Leaf+=newLeaf;
-		}
-
-		/* The specific leaf area declines with the growing season at least in
-		   Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
-		   Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
-		   management in north-eastern greece*/
-
-		if(i%24 == 0){
-			Sp = iSp - (INTEGER(DOY)[i] - INTEGER(DOY)[0]) * REAL(SPD)[0];
-		}
-
-		LAI = Leaf * Sp ;
-
-		if(LAI > 20.0) LAI = 20.0;
-
-		/* New Stem*/
-		if(kStem >= 0)
-		{
-			newStem = CanopyA * kStem ;
-			newStem = resp(newStem, mrc1, *(pt_temp+i));
-			*(sti2+i) = newStem;
-		}else{
-		  error("kStem should be positive");
-		}
-
-		if(TTc < SeneStem){
-
-			Stem += newStem;
-
-		}else{
-
-			Stem += newStem - *(sti2+q);
-			StemLitter += *(sti2+q);
-			q++;
-
-		}
-
-		if(kRoot > 0)
-		{
-			newRoot = CanopyA * kRoot ;
-			newRoot = resp(newRoot, mrc2, *(pt_temp+i));
-			*(sti3+i) = newRoot;
-		}else{
-
-			newRoot = Root * kRoot ;
-			Rhizome += kRhizome * -newRoot * 0.9;
-			Stem += kStem * -newRoot       * 0.9;
-			Leaf += kLeaf * -newRoot * 0.9;
-			Grain += kGrain * -newRoot * 0.9;
-		}
-
-		if(TTc < SeneRoot){
-
-			Root += newRoot;
-
-		}else{
-
-			Root += newRoot - *(sti3+m);
-			RootLitter += *(sti3+m);
-			m++;
-
-		}
-
-		if(kRhizome > 0)
-		{
-			newRhizome = CanopyA * kRhizome ;
-			newRhizome = resp(newRhizome, mrc2, *(pt_temp+i));
-			*(sti4+ri) = newRhizome;
-			/* Here i will not work because the rhizome goes from being a source
-			   to a sink. I need its own index. Let's call it rhizome's i or ri.*/
-			ri++;
-		}else{
-
-			if(Rhizome < 0){
-				Rhizome = 1e-4;
-				warning("Rhizome became negative");
-			}
-
-			newRhizome = Rhizome * kRhizome;
-			Root += kRoot * -newRhizome ;
-			Stem += kStem * -newRhizome ;
-			Leaf += kLeaf * -newRhizome ;
-			Grain += kGrain * -newRhizome;
-		}
-
-		if(TTc < SeneRhizome){
-
-			Rhizome += newRhizome;
-
-		}else {
-
-			Rhizome += newRhizome - *(sti4+n);
-			RhizomeLitter += *(sti4+n);
-			n++;
-
-		}
-
-		if((kGrain < 1e-10) || (TTc < REAL(THERMALP)[4])){
-			newGrain = 0.0;
-			Grain += newGrain;
-		}else{
-			newGrain = CanopyA * kGrain;
-			/* No respiration for grain at the moment */
-			/* No senescence either */
-			Grain += newGrain;  
-		}
-
-		ALitter = LeafLitter + StemLitter;
-		BLitter = RootLitter + RhizomeLitter;
-
-		/* Here I could add a soil and nitrogen carbon component. I have soil
-		   moisture, I have temperature and root and rhizome biomass */
+	
 
 		REAL(DayofYear)[i] =  INTEGER(DOY)[i];
 		REAL(Hour)[i] =  INTEGER(HR)[i];
 		REAL(CanopyAssim)[i] =  CanopyA;
 		REAL(CanopyTrans)[i] =  CanopyT; 
-		REAL(Leafy)[i] = Leaf;
-		REAL(Stemy)[i] = Stem;
-		REAL(Rooty)[i] =  Root;
-		REAL(Rhizomey)[i] = Rhizome;
+		REAL(Leafy)[i] = willow.leaf.biomass;// Leaf;
+		REAL(Stemy)[i] = willow.stem.biomass;//Stem;
+		REAL(Rooty)[i] =  willow.root.biomass;//Root;
+		REAL(Rhizomey)[i] = willow.rhizome.biomass;//Rhizome;
 		REAL(Grainy)[i] = Grain;
 		REAL(LAIc)[i] = LAI;
 		REAL(SoilWatCont)[i] = waterCont;

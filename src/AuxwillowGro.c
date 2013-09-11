@@ -173,7 +173,7 @@ layIdiff, layShade vectors. */
 	ans.Assim = cf * CanopyA ;
 	ans.Trans = cf2 * CanopyT; 
   ans.GrossAssim=cf*GCanopyA;
-  Rprintf("CF= %f ,Gross Canopy = %f \n", cf,GCanopyA);
+//  Rprintf("CF= %f ,Gross Canopy = %f \n", cf,GCanopyA);
 //  Rprintf("C3photo function is returnin Direst Anet=%f, Agross=%f. Diffuses Anet=%f, Agross=%f \n",AssIdir,GAssIdir,AssIdiff,GAssIdiff);
 //  Rprintf("C3 Can function is returning CanA=%f, CanT=%f, CanGrossA =%f\n",ans.Assim, ans.Trans, ans.GrossAssim);
 	return(ans);

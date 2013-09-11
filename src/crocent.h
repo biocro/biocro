@@ -707,5 +707,5 @@ void getsenescenceparms(struct senthermaltemp *senparms);
 void getfrostparms(struct frostParms *frostparms);
 
 // Willow Specific Functions
-void UpdateWillowAfterEmergence(struct c3tree *willow,struct management *management);
+void UpdateC3treeAfterEmergence(struct c3tree *willow,struct management *management);
 void UpdateWillowAfterHarvest(struct c3tree *willow,struct management *management);

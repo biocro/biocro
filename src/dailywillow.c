@@ -8,6 +8,15 @@
 #include "AuxcaneGro.h"
 #include "crocent.h"
 
+void UpdateC3treeAfterEmergence(struct c3tree *willow,struct management *management)
+{
+  willow->leaf.biomass=(management->emergenceparms.StoragetoLeaffraction)* willow->rhizome.biomass +
+                      (management->emergenceparms.StemtoLeaffraction)* willow->stem.biomass;
+  willow->rhizome.biomass= (1-management->emergenceparms.StoragetoLeaffraction)*willow->rhizome.biomass;
+  willow->stem.biomass=(1-management->emergenceparms.StemtoLeaffraction)* willow->stem.biomass;
+  return;
+}
+
 void createNULLwillow(struct c3tree *willow,int vecsize)
 {
    int i;
