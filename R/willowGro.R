@@ -271,6 +271,183 @@
 ##'
 ##' }
 ##' @export
+willowCent <- function(WetDat, day1=NULL, dayn=NULL,
+                      timestep=1,iRhizome=1.0,
+                      lat=40,iPlant=1,irtl=1e-4,
+                      canopyControl=list(),
+                      seneControl=list(),
+                      photoControl=list(),
+                      willowphenoControl=list(),
+                      soilControl=list(),
+                      nitroControl=list(),
+                      iPlantControl=list(),
+                      centuryControl=list())
+{
+  
+  ## Getting the Parameters
+  
+  iPlant <-iwillowParms()
+  iPlant[names(iPlantControl)]<-iPlantControl
+  
+  canopyP <- willowcanopyParms()
+  canopyP[names(canopyControl)] <- canopyControl
+  
+  soilP <- soilParms()
+  soilP[names(soilControl)] <- soilControl
+  
+  nitroP <- nitroParms()
+  nitroP[names(nitroControl)] <- nitroControl
+  
+  willowphenoP <- willowphenoParms()
+  willowphenoP[names(willowphenoControl)] <- willowphenoControl
+  willowphenoP <- c(unlist(willowphenoP))
+  
+  photoP <- willowphotoParms()
+  photoP[names(photoControl)] <- photoControl
+  
+  seneP <- willowseneParms()
+  seneP[names(seneControl)] <- seneControl
+  
+  centuryP <- centuryParms()
+  centuryP[names(centuryControl)] <- centuryControl
+  
+  tint <- 24 / timestep
+  vecsize <- (dayn - (day1-1)) * tint
+  indes1 <- (day1-1) * tint
+  indesn <- (dayn) * tint
+  
+  
+  doy <- WetDat[indes1:indesn,2]
+  hr <- WetDat[indes1:indesn,3]
+  solar <- WetDat[indes1:indesn,4]
+  temp <- WetDat[indes1:indesn,5]
+  rh <- WetDat[indes1:indesn,6]
+  windspeed <- WetDat[indes1:indesn,7]
+  precip <- WetDat[indes1:indesn,8]
+  
+  if(max(rh) > 1) stop("Rel Hum. should be 0 < rh < 1")
+  if((min(hr) < 0) | (max(hr) > 23))  stop("hr should be between 0 and 23")
+  iPlant<-as.vector(unlist(iPlant))
+  
+  DBPcoefs <- valid_dbp(as.vector(unlist(willowphenoP)[7:31]))
+  
+  TPcoefs <- as.vector(unlist(willowphenoP)[1:6])
+  
+  Tbase<-as.vector(unlist(willowphenoP)[32])
+  
+  SENcoefs <- as.vector(unlist(seneP))
+  
+  soilCoefs <- c(unlist(soilP[1:5]),mean(soilP$iWatCont),soilP$scsf, soilP$transpRes, soilP$leafPotTh)
+  wsFun <- soilP$wsFun
+  soilType <- soilP$soilType
+  
+  centCoefs <- as.vector(unlist(centuryP)[1:24])
+  
+  if(centuryP$timestep == "year"){
+    stop("Not developed yet")
+    centTimestep <- dayn - day1 ## This is really the growing season
+  }
+  if(centuryP$timestep == "week") centTimestep <- 7
+  if(centuryP$timestep == "day") centTimestep <- 1
+  
+  vmax <- photoP$vmax
+  jmax <- photoP$jmax
+  jmaxb1<-0.0; ## This needs to be changed
+  alpha <- 0
+  #alpha <- photoP$alpha
+  theta <- photoP$theta
+  #beta <- photoP$beta
+  Rd <- photoP$Rd
+  Catm <- photoP$Catm
+  b0 <- photoP$b0
+  b1 <- photoP$b1
+  ws <- photoP$ws
+  StomWS <-photoP$StomWS
+  beta <- 0
+  #ws <- photoP$ws
+  o2 <- photoP$O2
+  #upperT<-photoP$UPPERTEMP
+  #lowerT<-photoP$LOWERTEMP
+  upperT<-0
+  lowerT<- 0
+  mResp <- canopyP$mResp
+  kd <- canopyP$kd
+  chi.l <- 1.0
+  Sp <- canopyP$Sp
+  SpD <- canopyP$SpD
+  heightF <- canopyP$heightFactor
+  nlayers <- canopyP$nlayers
+  GrowthRespFraction <- canopyP$GrowthRespFraction
+  res <- .Call("willowCent",
+               as.double(lat),
+               as.integer(doy),
+               as.integer(hr),
+               as.double(solar),
+               as.double(temp),
+               as.double(rh),
+               as.double(windspeed),
+               as.double(precip),
+               as.double(kd),
+               as.double(c(chi.l,heightF)),
+               as.integer(nlayers),
+               as.double(iPlant),
+               as.double(irtl),
+               as.double(SENcoefs),
+               as.integer(timestep),
+               as.integer(vecsize),
+               as.double(Sp),
+               as.double(SpD),
+               as.double(DBPcoefs),
+               as.double(TPcoefs),
+               as.double(Tbase),
+               as.double(vmax),
+               as.double(alpha),
+               as.double(theta),
+               as.double(beta),
+               as.double(Rd),
+               as.double(Catm),
+               as.double(b0),
+               as.double(b1),
+               as.integer(ws),
+               as.double(soilCoefs),
+               as.double(nitroP$iLeafN),
+               as.double(nitroP$kLN), 
+               as.double(nitroP$Vmax.b1),
+               as.double(nitroP$alpha.b1),
+               as.double(mResp),
+               as.integer(soilType),
+               as.integer(wsFun),
+               as.double(centCoefs),
+               as.integer(centTimestep),
+               as.double(centuryP$Ks),
+               as.integer(soilP$soilLayers),
+               as.double(soilP$soilDepths),
+               as.double(soilP$iWatCont),
+               as.integer(soilP$hydrDist),
+               as.double(c(soilP$rfl,soilP$rsec,soilP$rsdf)),
+               as.double(nitroP$kpLN),
+               as.double(nitroP$lnb0),
+               as.double(nitroP$lnb1),
+               as.integer(nitroP$lnFun),
+               as.double(upperT),
+               as.double(lowerT),
+               as.double(jmax),
+               as.double(jmaxb1),
+               as.double(o2),
+               as.double(GrowthRespFraction),
+               as.double(StomWS)
+  )
+  
+  res$cwsMat <- t(res$cwsMat)
+  colnames(res$cwsMat) <- soilP$soilDepths[-1]
+  res$rdMat <- t(res$rdMat)
+  colnames(res$rdMat) <- soilP$soilDepths[-1]
+  res$psimMat <- t(res$psimMat)
+  colnames(res$psimMat) <- soilP$soilDepths[-1]
+  res <- structure(res, class="BioGro")
+  
+}
+
 willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,iRhizome=1.0,
                    lat=40,iPlant=1,irtl=1e-4,
@@ -284,45 +461,6 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
                    centuryControl=list())
   {
   
-      ## Trying to guess the first and last day of the growing season from weather data
-
-
-      if(is.null(day1)){
-          half <- as.integer(dim(WetDat)[1] / 2)
-          WetDat1 <- WetDat[1:half, c(2, 5)]
-          if(min(WetDat1[, 2]) > 0){
-              day1 <- 90
-          } else {
-              WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
-              day1 <- max(WetDat1s[,1])
-              if(day1 < 90) day1 <- 90
-          }
-      } 
-      if(is.null(dayn)){
-          half <- as.integer(dim(WetDat)[1]/2)
-          WetDat1 <- WetDat[half:dim(WetDat)[1],c(2,5)]
-          if(min(WetDat1[,2]) > 0){
-              dayn <- 330
-          }else{
-              WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
-              dayn <- min(WetDat1s[,1])
-              if(dayn > 330) dayn <- 330
-          }
-      }
-    
-    if(any(c(day1 < 0, day1 > 366, dayn < 0, dayn > 366))) {
-        stop("day1 and dayn should be between 0 and 366")
-    }
-
-    if(day1 > dayn) {
-        stop("day1 should be smaller than dayn")
-    }
-    if( (timestep<1) || (24%%timestep != 0)) {
-        stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
-    }
-     ##day1= WetDat[WetDat$Temp >=6,]$doy[1] 
-    
-    
     ## Getting the Parameters
     
     iPlant <-iwillowParms()
@@ -487,14 +625,14 @@ willowGro <- function(WetDat, day1=NULL, dayn=NULL,
 
 }
 
-iwillowParms<-function(iRhizome=1,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.001,ifrStem=0.001,ifrLeaf=0.0,ifrRoot=0.0){
+iwillowParms<-function(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0){
   list(iRhizome=iRhizome,iStem=iStem,iLeaf=iLeaf,iRoot=iRoot,ifrRhizome=ifrRhizome,ifrStem=ifrStem,ifrLeaf=ifrLeaf,ifrRoot=ifrRoot)
 }
 
 
-willowcanopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
+willowcanopyParms <- function(Sp = 1.1, SpD = 0, nlayers = 10,
                         kd = 0.37, 
-                        mResp=c(0.02,0.03), heightFactor=3,GrowthRespFraction=0.25){
+                        mResp=c(0.02,0.03), heightFactor=3,GrowthRespFraction=0.3){
   
   if((nlayers < 1) || (nlayers > 50))
     stop("nlayers should be between 1 and 50")
@@ -583,13 +721,13 @@ willownitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
   
 }
 
-willowphenoParms <- function(tp1=250, tp2=500, tp3=900, tp4=1200, tp5=3939, tp6=7000,
-                              kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
-                              kStem2=0.01, kLeaf2=0.98, kRoot2=0.005, kRhizome2=0.005, 
-                              kStem3=0.5, kLeaf3=0.15, kRoot3=0.175, kRhizome3=0.175, 
-                              kStem4=0.7, kLeaf4=0.15, kRoot4=0.075, kRhizome4=0.075, 
-                              kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
-                              kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15, kGrain6=0.0, Tbase=0.0){
+willowphenoParms <- function(tp1=250, tp2=350, tp3=900, tp4=1200, tp5=3939, tp6=7000,
+                             kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
+                             kStem2=0.01, kLeaf2=0.98, kRoot2=0.003, kRhizome2=0.007, 
+                             kStem3=0.7, kLeaf3=0.15, kRoot3=0.045, kRhizome3=0.105, 
+                             kStem4=0.7, kLeaf4=0.15, kRoot4=0.045, kRhizome4=0.105, 
+                             kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
+                             kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15, kGrain6=0.0, Tbase=0.0){
   
   if(kGrain6 < 0)
     stop("kGrain6 should be positive (zero is allowed)")
@@ -605,7 +743,7 @@ willowphenoParms <- function(tp1=250, tp2=500, tp3=900, tp4=1200, tp5=3939, tp6=
   
 }
 
-willowseneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000,Tfrosthigh=2,Tfrostlow=0,leafdeathrate=1){
+willowseneParms <- function(senLeaf=1600,senStem=5500, senRoot=5500,senRhizome=5500,Tfrosthigh=5,Tfrostlow=0,leafdeathrate=5){
   
   list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome,Tfrosthigh=Tfrosthigh,Tfrostlow=Tfrostlow,leafdeathrate=leafdeathrate)
   

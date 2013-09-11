@@ -20,6 +20,7 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
+#include "c3photo.h"
 #include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"

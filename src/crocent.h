@@ -663,6 +663,7 @@ struct c3tree
   struct stem stem;
   struct root root;
   struct rhizome rhizome; // rhizome is mimicing corase roots here
+  struct dailyvec *leafvec, *stemvec, *rootvec, *rhizomevec;
   struct DailyAutoResp autoresp;
   double GPP, NPP;
 };
@@ -693,6 +694,7 @@ struct management{
     int minimumdoy;
     double emergenceTemp;
     double StoragetoLeaffraction;
+    double StemtoLeaffraction;
     double plantingrate;
   }emergenceparms;  
 };
@@ -701,5 +703,9 @@ struct management{
 void assignManagement(struct management *management);
 void updateafterharvest(struct miscanthus *miscanthus,struct management *management);
 void updateafteremergence(struct miscanthus *miscanthus,struct management *management);
+void getsenescenceparms(struct senthermaltemp *senparms);
+void getfrostparms(struct frostParms *frostparms);
 
-
+// Willow Specific Functions
+void UpdateWillowAfterEmergence(struct c3tree *willow,struct management *management);
+void UpdateWillowAfterHarvest(struct c3tree *willow,struct management *management);
