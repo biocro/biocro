@@ -8,9 +8,11 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
+#include "c3photo.h"
 #include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
+#include "AuxwillowGro.h"
 #include "AuxcaneGro.h"
 #include "crocent.h"
 
@@ -78,7 +80,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 //   assignPools(&CROPCENT);
    struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
    struct crop_phenology cropdbp;
-   struct miscanthus miscanthus, deltamiscanthus;
+   static struct miscanthus miscanthus, deltamiscanthus;
    createNULLmiscanthus(&miscanthus,vecsize);
 
 //   miscanthus.leafvec[vecsize].newbiomass=(double)vecsize;
@@ -486,8 +488,16 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   struct dailyclimate dailyclimate;
   TTc=0.0;
   REAL(TTTc)[0]=TTc;
+  
+  
  /**************************************/
+  updateafteremergence(&miscanthus,&management);
+  LAI = miscanthus.leaf.biomass*Sp;
+  int phototype;
+  phototype=2;
+  
 	for(i=0;i<vecsize;i++)
+//    for(i=0;i<3;i++)
 	{
 		/* First calculate the elapsed Thermal Time*/
 		/* The idea is that here I need to divide by the time step
@@ -510,8 +520,12 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
             }
         else
             {
+         Rprintf("Before Canopy Function, Phototype = %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
 	        	TTc +=delTT;
 		        REAL(TTTc)[i] =REAL(TTTc)[i-1]+delTT ;
+            
+            if(phototype==1)
+            {
   	        Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
@@ -520,6 +534,23 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
 			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
+            }
+            if(phototype==2)
+            {
+             double jmax1,o2;
+             vmax1=100.0;
+             jmax1=180.0;
+             o2=210.0;
+             b01=0.08;
+             b11=5.0;
+             theta=0.7;
+             Canopy = c3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
+  		       *(pt_solar+i), *(pt_temp+i),
+			       *(pt_rh+i), *(pt_windspeed+i),
+			       lat, nlayers,
+			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws); 
+            }
+             Rprintf("After Canopy Function,Phototype= %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
         		CanopyA = Canopy.Assim * timestep;
             CanopyAGross =Canopy.GrossAssim*timestep;
         		CanopyT = Canopy.Trans * timestep;

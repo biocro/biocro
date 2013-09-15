@@ -33,6 +33,7 @@
 #include "c3photo.h"
 #include "AuxBioCro.h"
 #include "AuxwillowGro.h"
+#include "BioCro.h"
 
 struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	             double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
@@ -91,9 +92,9 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
 	 lightME(lat,DOY,hr);
 
-  Idir = tmp1[0] * solarR;
-  Idiff = tmp1[1] * solarR;
-  cosTh = tmp1[2];
+   Idir = tmp1[0] * solarR;
+   Idiff = tmp1[1] * solarR;
+   cosTh = tmp1[2];
 
 /* sun multilayer model. As a side effect it populates the layIdir, layItotal, layFsun, layHeight,
 layIdiff, layShade vectors. */
@@ -158,6 +159,8 @@ layIdiff, layShade vectors. */
 		CanopyA =CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
 		CanopyT = CanopyT+Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
     GCanopyA =GCanopyA+ Leafsun * GAssIdir + Leafshade * GAssIdiff;
+//     Rprintf("in C3Canopy NLayer= %i, CanA = %f\n",i, CanopyA);
+     Rprintf("in C3Canopy NLayer= %i\n",i);
 	}
 	/*## These are micro mols of CO2 per m2 per sec for Assimilation
 	  ## and mili mols of H2O per m2 per sec for Transpiration
@@ -170,11 +173,13 @@ layIdiff, layShade vectors. */
 /* A similar conversion is made for water but
    replacing 30 by 18 and mili mols are converted to
    mols (instead of micro) */
+ 
 	ans.Assim = cf * CanopyA ;
 	ans.Trans = cf2 * CanopyT; 
   ans.GrossAssim=cf*GCanopyA;
+  Rprintf("From C3 Canopy-Returning Canopy Assim = %f \n",ans.Assim);
 //  Rprintf("CF= %f ,Gross Canopy = %f \n", cf,GCanopyA);
-//  Rprintf("C3photo function is returnin Direst Anet=%f, Agross=%f. Diffuses Anet=%f, Agross=%f \n",AssIdir,GAssIdir,AssIdiff,GAssIdiff);
+  Rprintf("C3photo function is returnin Direst Anet=%f, Agross=%f. Diffuses Anet=%f, Agross=%f \n",AssIdir,GAssIdir,AssIdiff,GAssIdiff);
 //  Rprintf("C3 Can function is returning CanA=%f, CanT=%f, CanGrossA =%f\n",ans.Assim, ans.Trans, ans.GrossAssim);
 	return(ans);
 }
