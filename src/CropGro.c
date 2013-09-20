@@ -495,6 +495,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   LAI = miscanthus.leaf.biomass*Sp;
   int phototype;
   phototype=2;
+  // This is specific to willow to avoid harvesting based on day of year
   
 	for(i=0;i<vecsize;i++)
 //    for(i=0;i<3;i++)
@@ -520,7 +521,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
             }
         else
             {
-         Rprintf("Before Canopy Function, Phototype = %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
+//         Rprintf("Before Canopy Function, Phototype = %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
 	        	TTc +=delTT;
 		        REAL(TTTc)[i] =REAL(TTTc)[i-1]+delTT ;
             
@@ -550,10 +551,11 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 			       lat, nlayers,
 			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws); 
             }
-             Rprintf("After Canopy Function,Phototype= %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
+//             Rprintf("After Canopy Function,Phototype= %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
         		CanopyA = Canopy.Assim * timestep;
             CanopyAGross =Canopy.GrossAssim*timestep;
         		CanopyT = Canopy.Trans * timestep;
+ //           Rprintf("NetA=%f, Gross A= %f, Trans=%f \n",CanopyA, CanopyAGross);
             }
 		/* Inserting the multilayer model */
 		  if(soillayers > 1)
@@ -646,23 +648,23 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                   REAL(GDD)[dap]=0.0;                 //Set GDD back to zero to restart phenology from beginning
                   updateafterharvest(&miscanthus,&management); // Use harvest parameters to implement pracices such as removingor leaving residues 
                   Rprintf("in CropGRO, harvest day %i\n",i);
-                }
+                }         
           }
           /** Here is calculation for situations when plan is not emerged ***/
           else
           {      
                   /** Check if today is emergence day, IF yes, it will set emergence =1 for next day simulation **/
                   emergence=CheckEmergence(&dailyclimate,management.emergenceparms.emergenceTemp); 
-          
+                  if((dailyclimate.doy==120)&&(phototype==2))emergence=1;
                   /** if today indeed is emergence day then we also need to initialze leaf biomass based on storage pool to initiate simulations **/
                   if(emergence==1)
                   {
 //                    Rprintf("BEFORE leaf=%f, rhizome=%f \n",miscanthus.leaf.biomass,miscanthus.rhizome.biomass);
                   updateafteremergence(&miscanthus,&management);
 //                         Rprintf("AFTER leaf=%f, rhizome=%f \n",miscanthus.leaf.biomass,miscanthus.rhizome.biomass);
-                 Rprintf("in CropGRO, emergence day %i\n",i);
-                   accumulatedGDD=0.0;
-                  TTc=0.0;
+                      Rprintf("in CropGRO, emergence day %i\n",i);
+                      accumulatedGDD=0.0;
+                      TTc=0.0;
 //                  miscanthus.leaf.biomass=0.02*  miscanthus.rhizome.biomass;
                   LAI = miscanthus.leaf.biomass* Sp;
                   }

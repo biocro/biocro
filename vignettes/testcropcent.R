@@ -11,7 +11,6 @@
 
 # saving the data
 # save(urbana2008to2012, file ="/home/djaiswal/Desktop/CropCent/biocro/data/urbana2008to2012.rda")
-
 ################################################################################################################################
 # Testing for multiyear Simulation
 data(urbana2008to2012)
@@ -24,7 +23,9 @@ result<-willowGro(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
 
 plot(result)
 xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$DayafterPlanting,auto.key=TRUE, type="l", main="alive biomass")
+xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$DayafterPlanting,auto.key=TRUE, type="l", main="dead biomass")
 xyplot(result$GPP~result$GDD,main="Daily GPP in Mg/ha/day")
+xyplot(result$NPP~result$GDD,main="Daily NPP in Mg/ha/day")
 N<-length(result$GDD)
 
 initialbiomass<-result$Stemd[1]+result$Rootd[1]+result$Rhizomed[1]+result$Leafd[1]
