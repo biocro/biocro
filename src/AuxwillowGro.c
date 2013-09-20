@@ -55,32 +55,33 @@ void createCanopy (struct canopy *canopy, int Nlayers, double LAItotal)
   canopy->OUT = malloc((Nlayers+1)*sizeof(*canopy->OUT));
   for (i =0; i<Nlayers; i++)
   {
-    canopy->ENV[i].Idir=0.0;
-    canopy->ENV[i].Idiff=0.0;
-    canopy->ENV[i].Itotal=0.0;
-    canopy->ENV[i].RH=0.0;
-    canopy->ENV[i].windspeed=0.0;
-    canopy->ENV[i].Catm=0.0;
-    canopy->ENV[i].Temp=0.0;   
-    canopy->Leaf[i].LAI=0.0;
-     canopy->Leaf[i].LeafN=0.0;
-    canopy->Leaf[i].pLeafsun=0.0;
-    canopy->Leaf[i].pLeafshade=0.0;   
-    canopy->Leaf[i].heightf=0.0;  
+      canopy->ENV[i].Idir=0.0;
+      canopy->ENV[i].Idiff=0.0;
+      canopy->ENV[i].Itotal=0.0;
+      canopy->ENV[i].RH=0.0;
+      canopy->ENV[i].windspeed=0.0;
+      canopy->ENV[i].Catm=0.0;
+      canopy->ENV[i].Temp=0.0;   
+    
+      canopy->Leaf[i].LAI=0.0;
+      canopy->Leaf[i].LeafN=0.0;
+      canopy->Leaf[i].pLeafsun=0.0;
+      canopy->Leaf[i].pLeafshade=0.0;   
+      canopy->Leaf[i].heightf=0.0;  
 
-    canopy->OUT[i].sunlittemp=0.0;
-    canopy->OUT[i].shadedtemp=0.0;
-    canopy->OUT[i].TotalAnet=0.0;
-    canopy->OUT[i].TotalAgross=0.0;
-    canopy->OUT[i].TotalTrans=0.0;
-    canopy->OUT[i].shadedAnet=0.0;
-    canopy->OUT[i].shadedAgross=0.0;
-    canopy->OUT[i].sunlitAnet=0.0;
-    canopy->OUT[i].sunlitAgross=0.0;
-    canopy->OUT[i].shadedTemp=0.0;
-    canopy->OUT[i].sunlitTemp=0.0;
-    canopy->OUT[i].shadedTranspiration=0.0;
-    canopy->OUT[i].sunlitTranspiration=0.0;
+      canopy->OUT[i].sunlittemp=0.0;
+      canopy->OUT[i].shadedtemp=0.0;
+      canopy->OUT[i].TotalAnet=0.0;
+      canopy->OUT[i].TotalAgross=0.0;
+      canopy->OUT[i].TotalTrans=0.0;
+      canopy->OUT[i].shadedAnet=0.0;
+      canopy->OUT[i].shadedAgross=0.0;
+      canopy->OUT[i].sunlitAnet=0.0;
+      canopy->OUT[i].sunlitAgross=0.0;
+      canopy->OUT[i].shadedTemp=0.0;
+      canopy->OUT[i].sunlitTemp=0.0;
+      canopy->OUT[i].shadedTranspiration=0.0;
+      canopy->OUT[i].sunlitTranspiration=0.0;
   }
   return;
 }
@@ -287,35 +288,33 @@ void freecanopy(struct canopy *canopy)
 {
   free(canopy->ENV);
   free(canopy->Leaf);
+  free(canopy->OUT);
   return;
 }
 
 struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
-	             double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
-		     double Rd, double Catm, double o2, double b0, double b1,
+                     double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
+                     double Rd, double Catm, double o2, double b0, double b1,
                      double theta, double kd, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws)
+                     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws)
          
 {
 
-   struct ET_Str tmp5_ET , tmp6_ET, deepaktmp5_ET,deepaktmp6_ET; 
-   struct c3_str  tmpc3 = {0,0,0,0};
-   struct c3_str deepaktmpc3 ={0,0,0,0};
-   struct c3_str deepaktmpc32 = {0,0,0,0};
+   struct ET_Str tmp5_ET , tmp6_ET; 
+   struct c3_str tmpc3={0,0,0,0};
    struct c3_str tmpc32={0,0,0,0}; 
-   struct Can_Str ans;
-
+   struct Can_Str ans={0,0,0};
 
   const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
 /* Need a different conversion factor for transpiration */
   const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
-	
+        
   int i;
   double Idir, Idiff, cosTh;
   double LAIc;
   double IDir, IDiff, Itot,rh, WindS;
   double TempIdir,TempIdiff,AssIdir,AssIdiff;
-
+  double  pLeafsun, pLeafshade;
   double Leafsun, Leafshade;
 
   double CanopyA = 0.0;
@@ -325,8 +324,149 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
   double CanopyT =0.0;;
   double CanopyPe = 0.0;
   double CanopyPr = 0.0;
-  double CanopyC = 0.0,chil=1.0;
+  double CanopyC = 0.0;
+  double chil=1.0;
   double CanHeight;
+
+  double vmax1;
+  double leafN_lay;
+  
+ /* double StomWS;
+ /* int ws;
+
+        /* For Assimilation */
+        /* 3600 converts seconds to hours */
+        /* 1e-6 converts micro mols to mols */
+        /* 30 is the grams in one mol of CO2 */
+        /* 1e-6 converts g to Mg */
+        /* 10000 scales from meter squared to hectare */
+
+        /* For Transpiration */
+        /* 3600 converts seconds to hours */
+        /* 1e-3 converts mili mols to mols */
+        /* 18 is the grams in one mol of H20 */
+        /* 1e-6 converts g to Mg */
+        /* 10000 scales from meter squared to hectare */
+
+         lightME(lat,DOY,hr);
+
+  Idir = tmp1[0] * solarR;
+  Idiff = tmp1[1] * solarR;
+  cosTh = tmp1[2];
+
+/* sun multilayer model. As a side effect it populates the layIdir, layItotal, layFsun, layHeight,
+layIdiff, layShade vectors. */
+    
+    sunML(Idir,Idiff,LAI,nlayers,cosTh,kd,chil,heightf);
+
+    /* results from multilayer model */
+    LAIc = LAI / nlayers;
+    /* Next I need the RH and wind profile */
+
+    RHprof(RH,nlayers);
+    /* It populates tmp4. */
+
+     WINDprof(WindSpeed,LAI,nlayers);
+    /* It populates tmp3. */
+
+     LNprof(leafN, LAI, nlayers, kpLN);
+    /* It populates tmp5 */
+
+    /* Next use the EvapoTrans function */
+    CanopyA=0.0;
+    CanopyT=0.0;
+    GCanopyA=0.0;
+    for(i=0;i<nlayers;i++)
+    {
+/* vmax depends on leaf nitrogen and this in turn depends on the layer */
+      leafN_lay = tmp5[--tp5];
+            if(lnfun == 0){
+                    vmax1 = Vmax;
+            }else{
+                    vmax1 = leafN_lay * lnb1 + lnb0;
+/* For now alpha is not affected by leaf nitrogen */
+            }
+
+            IDir = layIdir[--sp1];
+            Itot = layItotal[--sp3];
+            
+            rh = tmp4[--tp4];
+            WindS = tmp3[--tp3];
+
+            pLeafsun = layFsun[--sp4];
+            CanHeight = layHeight[--sp6];
+            Leafsun = LAIc * pLeafsun;
+/* Need a new evapo transpiration function specifically for c3*/
+            tmp5_ET = c3EvapoTrans(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,
+                                 Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
+            TempIdir = Temp + tmp5_ET.Deltat;
+            tmpc3 = c3photoC(IDir,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta,StomWS,ws);
+            AssIdir = tmpc3.Assim;
+      GAssIdir =tmpc3.GrossAssim;
+
+            IDiff = layIdiff[--sp2];
+            pLeafshade = layFshade[--sp5];
+            Leafshade = LAIc * pLeafshade;
+            tmp6_ET = c3EvapoTrans(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,
+                         Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
+            TempIdiff = Temp + tmp6_ET.Deltat;
+            tmpc32 = c3photoC(IDiff,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta,StomWS,ws);
+            AssIdiff = tmpc32.Assim;
+      GAssIdiff = tmpc32.GrossAssim;
+
+                CanopyA =CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
+                CanopyT = CanopyT+Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+    GCanopyA =GCanopyA+ Leafsun * GAssIdir + Leafshade * GAssIdiff;
+        }
+        /*## These are micro mols of CO2 per m2 per sec for Assimilation
+          ## and mili mols of H2O per m2 per sec for Transpiration
+          ## Need to convert to 
+          ## 3600 converts seconds to hours
+          ## 10^-6 converts micro mols to mols
+          ## 30 converts mols of CO2 to grams
+          ## (1/10^6) converts grams to Mg
+          ## 10000 scales up to ha */
+/* A similar conversion is made for water but
+   replacing 30 by 18 and mili mols are converted to
+   mols (instead of micro) */
+        ans.Assim = cf * CanopyA ;
+        ans.Trans = cf2 * CanopyT; 
+  ans.GrossAssim=cf*GCanopyA;
+//  Rprintf("CF= %f ,Gross Canopy = %f \n", cf,GCanopyA);
+//  Rprintf("C3photo function is returnin Direst Anet=%f, Agross=%f. Diffuses Anet=%f, Agross=%f \n",AssIdir,GAssIdir,AssIdiff,GAssIdiff);
+//  Rprintf("C3 Can function is returning CanA=%f, CanT=%f, CanGrossA =%f\n",ans.Assim, ans.Trans, ans.GrossAssim);
+        return(ans);
+}
+
+
+struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
+	             double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
+		     double Rd, double Catm, double o2, double b0, double b1,
+                     double theta, double kd, double heightf,
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws)
+         
+{
+
+   struct ET_Str deepaktmp5_ET,deepaktmp6_ET; 
+   struct c3_str deepaktmpc3;
+   struct c3_str deepaktmpc32;
+   struct Can_Str ans;
+
+
+  const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
+/* Need a different conversion factor for transpiration */
+  const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
+	
+  int i;
+  double TempIdir,TempIdiff;
+  double Leafsun, Leafshade;
+
+  double CanopyA = 0.0;
+  double GCanopyA = 0.0;
+  double CanopyT =0.0;;
+ 
+  double CanHeight=0.0;;
+  double chil =0.0;
 
    double vmax1;
 //  double leafN_lay;
@@ -348,16 +488,6 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	/* 1e-6 converts g to Mg */
 	/* 10000 scales from meter squared to hectare */
 
-// Initialize external variables 
-      i=0;
-      tp5=0;
-      sp1=0;
-      sp3=0;
-      tp4=0;
-      tp3=0;
-      sp4=0;
-      sp6=0;
-      
   struct canopy ccanopy;
   createCanopy (&ccanopy,nlayers, LAI);  
   discretizeCanopy(&ccanopy);
@@ -365,7 +495,6 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
   getcanopylightme(&ccanopy,lat, DOY,hr,solarR);
   getCanopysunML(&ccanopy,kd,chil,heightf);
   getcanopyRHprof(&ccanopy, RH);
-  RHprof(RH,nlayers);
   getcanopyWINDprofile(&ccanopy,WindSpeed);
   getcanopyLNprof(&ccanopy,leafN,kpLN);
 
@@ -373,9 +502,9 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
     {
       	    if(lnfun == 0){
       		    vmax1 = Vmax;
-      	    }else{
+      	    }
+            else{
       		    vmax1 = ccanopy.Leaf[i].LeafN * lnb1 + lnb0;
-      /* For now alpha is not affected by leaf nitrogen */
       	    } 
      
 	    Leafsun = ccanopy.Leaf[i].LAI *ccanopy.Leaf[i].pLeafsun;
@@ -400,11 +529,7 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
       deepaktmpc32=c3photoC(ccanopy.ENV[i].Idiff,ccanopy.OUT[i].shadedtemp,ccanopy.ENV[i].RH,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta,StomWS,ws);
 	    ccanopy.OUT[i].shadedAnet=deepaktmpc32.Assim;
       ccanopy.OUT[i].shadedAgross=deepaktmpc32.GrossAssim;
-
-/// Rprintf("SUnlit Anet= %f, Agross =%f \n",ccanopy.OUT[i].sunlitAnet,ccanopy.OUT[i].sunlitAgross);
-// Rprintf("Shaded Anet= %f, Agross =%f \n",ccanopy.OUT[i].shadedAnet,ccanopy.OUT[i].shadedAgross);
-
-
+      
      ccanopy.OUT[i].TotalAnet =Leafsun* ccanopy.OUT[i].sunlitAnet + Leafshade*ccanopy.OUT[i].shadedAnet;
      ccanopy.OUT[i].TotalAgross=Leafsun* ccanopy.OUT[i].sunlitAgross + Leafshade*ccanopy.OUT[i].shadedAgross;
      ccanopy.OUT[i].TotalTrans =Leafsun* ccanopy.OUT[i].sunlitTranspiration + Leafshade*ccanopy.OUT[i].shadedTranspiration;
@@ -430,7 +555,8 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	ans.Assim = cf * CanopyA ;
   ans.Trans= cf2 * CanopyT; 
   ans.GrossAssim=cf*GCanopyA;
-   Rprintf("output;-Net Assimilation = %f, Gross Assimilation = %f \n", CanopyA,GCanopyA );
-  Rprintf("returning structure;-Net Assimilation = %f, Gross Assimilation = %f \n", ans.Assim, ans.GrossAssim);
+//   Rprintf("output;-Net Assimilation = %f, Gross Assimilation = %f \n", CanopyA,GCanopyA );
+//  Rprintf("returning structure;-Net Assimilation = %f, Gross Assimilation = %f \n", ans.Assim, ans.GrossAssim);
 	return(ans);
 }
+

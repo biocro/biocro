@@ -15,10 +15,10 @@
 # Testing for multiyear Simulation
 data(urbana2008to2012)
 data20yr<-rbind(urbana2008to2012,urbana2008to2012,urbana2008to2012,urbana2008to2012)
-result<-CropGro(WetDat=data20yr,day1=50,dayn=4000,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
+result<-CropGro(WetDat=data20yr,day1=50,dayn=300,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
         soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.35,kStem1=0.35),
         canopyControl=canopyParms(Sp=1.6))
-result<-willowCent(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
+
 result<-willowGro(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
 
 plot(result)

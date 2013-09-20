@@ -15,6 +15,7 @@
 #include "AuxwillowGro.h"
 #include "AuxcaneGro.h"
 #include "crocent.h"
+#include "c3canopy.h"
 
 SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
@@ -545,7 +546,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
              b01=0.08;
              b11=5.0;
              theta=0.7;
-             Canopy = c3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
+             Canopy = newc3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
   		       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
 			       lat, nlayers,
