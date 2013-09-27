@@ -150,7 +150,7 @@ void BiocroToCrocent(double *stdedbc, double fallrate, double lignin, struct min
   *   (2)  fallrate - This represents fraction of standing deadbiomasss
   *         that will contribute to soil pools
   *   (3)   lignin - This represents lignin content of the dead biomass
-  *   (4)   E representes N,CP,CS, CK- represents nutrient:C ratio for the dead biomass
+  *   (4)   E representes CN,CP,CS, CK- represents nutrient:C ratio for the dead biomass
   *   (5)   isotopratio - represents ratio of unlabled and labled C in 
   *          the dead biomass
   *   (6)   surface = 1 for surface input and 0 for below ground input 
@@ -221,18 +221,21 @@ void UpdateCropcentPoolsFromBioCro(struct cropcentlayer *CROPCENT, struct InputT
   // First I need to change the mineral N content of the incoming residues based on whether direct absorption occurs or not
   // this is equivalent to simulating immobilization 
   // immobilization depends current status of minerals therefore I need cropcent Environment (ENV)
-  
+//  Rprintf("before Direct Abs, total C - %f ,structligin=%f, structCN=%f\n",INCROPCENT->C.totalC,INCROPCENT->lignin,INCROPCENT->E.CN);
   UpdateDirectAbsorp(INCROPCENT,&CROPCENT->BcroTOCentParms, &CROPCENT->ENV); // all the arguments are actually pointer to respective sturcutres
+//  Rprintf("after Direct Abs, total C = %f, structligin=%f, structCN=%f\n",INCROPCENT->C.totalC,INCROPCENT->lignin,INCROPCENT->E.CN);
   lignintoN=(INCROPCENT->lignin)*(INCROPCENT->E.CN);
   frmet=CROPCENT->BcroTOCentParms.structometaSLOPE*lignintoN+CROPCENT->BcroTOCentParms.structometaINTERCEP;
   caddm=frmet*(INCROPCENT->C.totalC); //carbon going to metabolic pool
   cadds=INCROPCENT->C.totalC-caddm; // remaining carbon going to structural pool
   tmpligfrac=(INCROPCENT->lignin)*(INCROPCENT->C.totalC)/cadds; // assuming all the lignin goes to structural pool
   tmpligfrac=(tmpligfrac<1.0)?tmpligfrac:1.0; // restricting lignin fraction of C flow to strucc1 by 1.0
+//  Rprintf("slopeparm=%f, interceptparm=%f,structlignin=%f, structCN=%f,LigtoN=%f,Frmet = %f, Cadds=%f, Caddm=%f \n",CROPCENT->BcroTOCentParms.structometaSLOPE,CROPCENT->BcroTOCentParms.structometaINTERCEP,INCROPCENT->lignin,INCROPCENT->E.CN,lignintoN,frmet, cadds,caddm);
   if(INCROPCENT->surface==1)
   {
   CROPCENT->strucc1.lignin=weightavg(CROPCENT->strucc1.C.totalC, CROPCENT->strucc1.lignin,cadds, tmpligfrac); // updating lignin fraction 
   CROPCENT->strucc1.C.unlablTOlabl=weightavg(CROPCENT->strucc1.C.totalC, CROPCENT->strucc1.C.unlablTOlabl,cadds, INCROPCENT->C.unlablTOlabl); // updating isotope ratios
+  CROPCENT->strucc1.C.totalC+=cadds; // Updating the pool 
   /************STRUCC1 mineral content does not change due to addition of residues, only metabolic pool E changes****/
   
   CROPCENT->metabc1.C.unlablTOlabl=weightavg(CROPCENT->metabc1.C.totalC, CROPCENT->metabc1.C.unlablTOlabl,caddm,INCROPCENT->C.unlablTOlabl);
@@ -251,11 +254,13 @@ void UpdateCropcentPoolsFromBioCro(struct cropcentlayer *CROPCENT, struct InputT
   CROPCENT->metabc1.E.CN=weightavg(CROPCENT->metabc1.C.totalC,CROPCENT->metabc1.E.CS,caddm,tometabc.CS);
   CROPCENT->metabc1.E.CN=weightavg(CROPCENT->metabc1.C.totalC,CROPCENT->metabc1.E.CK,caddm,tometabc.CK);
   CROPCENT->metabc1.C.totalC+=caddm; // updating metabolic C pool
+  
   }
   else
   {
   CROPCENT->strucc2.lignin=weightavg(CROPCENT->strucc2.C.totalC, CROPCENT->strucc2.lignin,cadds, tmpligfrac); // updating lignin fraction 
   CROPCENT->strucc2.C.unlablTOlabl=weightavg(CROPCENT->strucc2.C.totalC, CROPCENT->strucc2.C.unlablTOlabl,cadds, INCROPCENT->C.unlablTOlabl); // updating isotope ratios
+  CROPCENT->strucc2.C.totalC+=cadds;
   /************strucc2 mineral content does not change due to addition of residues, only metabolic pool E changes****/
   
   CROPCENT->metabc2.C.unlablTOlabl=weightavg(CROPCENT->metabc2.C.totalC, CROPCENT->metabc2.C.unlablTOlabl,caddm,INCROPCENT->C.unlablTOlabl);
@@ -305,7 +310,7 @@ else
 {
           amtFactor=(INCROCENT->C.totalC)/(parms->pabres);
           amtFactor=(amtFactor<1.0)?amtFactor:1.0;
-          
+         
           damr=(INCROCENT->surface==1)?parms->surfacedamrN:parms->soildamrN; // ecide whether surface or soil parameters are to be used
           Eabs=damr*(ENV->minN)*amtFactor; // Amount of Nitrogen Absorbed
           totalE=((INCROCENT->C.totalC)/(INCROCENT->E.CN))+Eabs; //Total N in g/cm2 of the INCROCENT residue
@@ -317,6 +322,8 @@ else
             totalE=((INCROCENT->C.totalC)/(INCROCENT->E.CN))+Eabs; //New value of Total N in g/cm2 of the INCROCENT residue
             temp=INCROCENT->C.totalC/totalE; //updated CN Ratio of the residue INCROCENT
           }
+//          Rprintf("returniig CN from absor function is %f \n",temp);
+//          Rprintf("totalC=%f, totalE=%f \n",INCROCENT->C.totalC,totalE);
           INCROCENT->E.CN=temp;
           ENV->minN=ENV->minN-Eabs; //updating mineral N pool of the crocent environment
           

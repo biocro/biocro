@@ -76,10 +76,31 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 //    Rprintf("%i\n",vecsize);
    /*********** CROCENT VARIABLES***********************/
    struct cropcentlayer CROPCENT;
-//   assignParms(&CROPCENT);
-//   CROPCENTTimescaling(&CROPCENT);
-//   assignPools(&CROPCENT);
-   struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
+   int woody, Eflag;
+   woody = 0 ; // No woody Material for now
+   Eflag = 1; // For N simulations only
+   double *fake;
+   // Get Defaukt parameters for miscanthus
+     assignParms(&CROPCENT, fake);
+  // Get Initial Values oof Pool for C and N
+     assignPools(&CROPCENT, fake);
+  // More parameters   
+     GetBioCroToCropcentParms(&CROPCENT.BcroTOCentParms,fake);
+   // Timestep is alreadt set to 1440.0 minutes (1 day) in the assignParms. We need to change the parameters to daily time step
+     CROPCENTTimescaling(&CROPCENT);
+     
+   struct InputToCropcent leaflitter,stemlitter,rootlitter,rhizomelitter;
+   struct minerals leaflitterE,stemlitterE,rootlitterE,rhizomelitterE;
+   // The below parameters aee RCESTR from fix.100 representing CE Ratio of structural material
+   leaflitterE.CN=200.0;
+   leaflitterE.CP=500.0;
+   leaflitterE.CS=500.0;
+   leaflitterE.CS=500.0;
+   stemlitterE = leaflitterE;
+   rootlitterE=  leaflitterE;
+   rhizomelitterE=leaflitterE;
+   /*************************************************/
+   
    struct crop_phenology cropdbp;
    static struct miscanthus miscanthus, deltamiscanthus;
    createNULLmiscanthus(&miscanthus,vecsize);
@@ -283,6 +304,16 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SEXP Rootlitterd;
   SEXP Rhizomelitterd;
   SEXP LAId;
+  SEXP totalSOC;
+  SEXP strucc1;
+  SEXP strucc2;
+  SEXP metabc1;
+  SEXP metabc2;
+  SEXP som1c1;
+  SEXP som1c2;
+  SEXP som2c1;
+  SEXP som2c2;
+  SEXP som3c;
   
 // Declaring Daily variables
  double  accumulatedGDD=0.0;
@@ -292,8 +323,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
 
 //	vecsize = length(DOY);
-	PROTECT(lists = allocVector(VECSXP,49));
-	PROTECT(names = allocVector(STRSXP,49));
+	PROTECT(lists = allocVector(VECSXP,59));
+	PROTECT(names = allocVector(STRSXP,59));
 
 	PROTECT(DayofYear = allocVector(REALSXP,vecsize));
 	PROTECT(Hour = allocVector(REALSXP,vecsize));
@@ -344,6 +375,16 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   PROTECT(Rootlitterd = allocVector(REALSXP,dailyvecsize));
   PROTECT(Rhizomelitterd = allocVector(REALSXP,dailyvecsize));
   PROTECT(LAId = allocVector(REALSXP,dailyvecsize));
+  PROTECT(totalSOC = allocVector(REALSXP,dailyvecsize));
+  PROTECT(strucc1 = allocVector(REALSXP,dailyvecsize));
+   PROTECT(strucc2 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(metabc1 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(metabc2 = allocVector(REALSXP,dailyvecsize));
+   PROTECT(som1c1 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(som1c2 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(som2c1 = allocVector(REALSXP,dailyvecsize));
+   PROTECT(som2c2 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(som3c = allocVector(REALSXP,dailyvecsize));
 	/* Picking vmax, alpha and kparm */
 	vmax1 = REAL(VMAX)[0];
 	alpha1 = REAL(ALPHA)[0];
@@ -495,7 +536,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   updateafteremergence(&miscanthus,&management);
   LAI = miscanthus.leaf.biomass*Sp;
   int phototype;
-  phototype=2;
+  phototype=1;
   // This is specific to willow to avoid harvesting based on day of year
   
 	for(i=0;i<vecsize;i++)
@@ -634,8 +675,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    accumulatedGDD+=((dap==0)? 0:dailydelTT);
 //   REAL(GDD)[dap]=((dap==0)? 0:REAL(GDD)[dap-1])+dailydelTT;
      REAL(GDD)[dap]=accumulatedGDD;
- dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);
- 
+     dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);     
         /***** Check if plant is already emerged, then growth needs to be simulated ***/ 
           if(emergence==1)
           {
@@ -676,12 +716,57 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                   LAI=miscanthus.leaf.biomass*Sp;
 //                  Rprintf("%i,%i,%f,%f\n",emergence,dap, iSp, Sp);
 
+
 /****************************************************************************/
 // CROPCENT SIMULATION BEGINS HHERE    
-// BiocroToCrocent(&LeafLitter,leaf.fallrate,leaf.lignin, &leaf.E, isotoperatio, 1, 0,leaflitter);
+//
+// Perhaps it is better to insert a function ImplementManagement. Implement Management Functions can do following things
+// Implement Harvest Management, removing biomass and leaving a fraction of litter, which can then be used to update structures for updating the input to soil biogeochemistry
+// Implement N application, which will affect N available for plants and also N dynamics of soil
+// Implement Irrigation, which can change soil water status, affecting plant growth and soil biogeochemistry
+// Implement Tillage which will change decomposition rate of difference soil pools
+
+//Now here We are simpyl taking litter vector and creating new structures to send to soil biogeochemistry simulations
+
+//   BiocroToCrocent(&LeafLitter,leaf.fallrate,leaf.lignin, &leaf.E, isotoperatio, 1, 0,leaflitter);
+   
+    BiocroToCrocent(&miscanthus.leaf.litter,0.1,0.2, &leaflitterE, 1.0, 1, 0,&leaflitter);
+//    Rprintf("Biomass in g C/m2=%f, CN =%f, Lignin = %f , surface=%i, woody=%i \n",leaflitter.C.totalC,leaflitter.E.CN,leaflitter.lignin,leaflitter.surface,leaflitter.woody);
+     if(leaflitter.C.totalC >0.0) 
+     {
+      Rprintf("Before updating from litter strucc1 = %f,structCN=%f, metabcpool =%f \n", CROPCENT.strucc1.C.totalC,CROPCENT.strucc1.E.CN,CROPCENT.metabc1.C.totalC);
+      UpdateCropcentPoolsFromBioCro(&CROPCENT, &leaflitter);
+      Rprintf("After updating from litter strucc1 = %f, structCN=%f,metabcpool =%f \n", CROPCENT.strucc1.C.totalC, CROPCENT.strucc1.E.CN,CROPCENT.metabc1.C.totalC);
+     }
+       assignENV(&CROPCENT,fake,fake,fake,fake,fake,fake,fake);
+       assignFluxRatios(&CROPCENT);
+       decomposeCROPCENT(&CROPCENT, woody,Eflag);
+       updatecropcentpools(&CROPCENT);
+       printcropcentout(CROPCENT,
+                        &REAL(totalSOC)[dap],
+                        &REAL(strucc1)[dap],
+                        &REAL(strucc2)[dap],
+                        &REAL(metabc1)[dap],
+                        &REAL(metabc2)[dap],
+                        &REAL(som1c1)[dap],
+                        &REAL(som1c2)[dap],
+                        &REAL(som2c1)[dap],
+                        &REAL(som2c2)[dap],
+                        &REAL(som3c)[dap]);
+
 // BiocroToCrocent(&StemLitter,stem.fallrate,stem.lignin, &stem.E, isotoperatio, 1, 0,stemlitter);
 // BiocroToCrocent(&RootLitter,root.fallrate,root.lignin, &root.E, isotoperatio, 0, 0,rootlitter);
 // BiocroToCrocent(&RhizomeLitter,rhiz.fallrate,rhiz.lignin, &rhiz.E, isotoperatio, 0, 0,rhizomelitter);
+
+// Also We need to update cropcent layer environment based on soil properties,Temperature, and soil moisture.This will influence actual decomposition rate
+
+// Now need to use structures to change the Cadded to soils based on structures. It is like adding into soil pools based on characteristic of the litter 
+
+// Now we can simulate decomposition of the SOC
+
+// Now we need to revert back decomposition coefficients, which may have been modified by differen factors, such as tillage etc. so they do not keep recycled.
+
+// Take all the outputs and send them to R for plotting purpose
 /***************************************************************************/
    REAL(GPP)[dap]=miscanthus.GPP;
    REAL(LeafDarkResp)[dap]=miscanthus.autoresp.leafdarkresp;
@@ -830,7 +915,17 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SET_VECTOR_ELT(lists,45,Leaflitterd);
   SET_VECTOR_ELT(lists,46,Rootlitterd);
   SET_VECTOR_ELT(lists,47,Rhizomelitterd);
-   SET_VECTOR_ELT(lists,48,LAId);
+  SET_VECTOR_ELT(lists,48,LAId);
+  SET_VECTOR_ELT(lists,49,totalSOC);
+  SET_VECTOR_ELT(lists,50,strucc1);
+  SET_VECTOR_ELT(lists,51,strucc2);
+  SET_VECTOR_ELT(lists,52,metabc1);
+  SET_VECTOR_ELT(lists,53,metabc1);
+  SET_VECTOR_ELT(lists,54,som1c1);
+  SET_VECTOR_ELT(lists,55,som1c2);
+  SET_VECTOR_ELT(lists,56,som2c1);
+  SET_VECTOR_ELT(lists,57,som2c2);
+  SET_VECTOR_ELT(lists,58,som3c);
 
 	SET_STRING_ELT(names,0,mkChar("DayofYear"));
 	SET_STRING_ELT(names,1,mkChar("Hour"));
@@ -881,7 +976,17 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SET_STRING_ELT(names,46,mkChar("Rootlitterd"));
   SET_STRING_ELT(names,47,mkChar("Rhizomelitterd"));
   SET_STRING_ELT(names,48,mkChar("LAId"));
+  SET_STRING_ELT(names,49,mkChar("totalSOC"));
+  SET_STRING_ELT(names,50,mkChar("strucc1"));
+  SET_STRING_ELT(names,51,mkChar("strucc2"));
+  SET_STRING_ELT(names,52,mkChar("metabc1"));
+  SET_STRING_ELT(names,53,mkChar("metabc1"));
+  SET_STRING_ELT(names,54,mkChar("som1c1"));
+  SET_STRING_ELT(names,55,mkChar("som1c2"));
+  SET_STRING_ELT(names,56,mkChar("som2c1"));
+  SET_STRING_ELT(names,57,mkChar("som2c2"));
+  SET_STRING_ELT(names,58,mkChar("som3c"));
 	setAttrib(lists,R_NamesSymbol,names);
-	UNPROTECT(51);
+	UNPROTECT(61);
 	return(lists);
 }

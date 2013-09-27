@@ -15,17 +15,20 @@
 # Testing for multiyear Simulation
 data(urbana2008to2012)
 data20yr<-rbind(urbana2008to2012,urbana2008to2012,urbana2008to2012,urbana2008to2012)
-result<-CropGro(WetDat=data20yr,day1=50,dayn=300,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
+result<-CropGro(WetDat=data20yr,day1=50,dayn=1000,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
         soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.35,kStem1=0.35),
         canopyControl=canopyParms(Sp=1.6))
 
 result<-willowGro(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
 
 plot(result)
+xyplot(result$totalSOC~result$DayafterPlanting)
 xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$DayafterPlanting,auto.key=TRUE, type="l", main="alive biomass")
 xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$DayafterPlanting,auto.key=TRUE, type="l", main="dead biomass")
 xyplot(result$GPP~result$GDD,main="Daily GPP in Mg/ha/day")
-xyplot(result$NPP~result$GDD,main="Daily NPP in Mg/ha/day")
+png("./willowGPP.png")
+xyplot(result$NPP~result$GPP,ylab="Daily NPP in Mg/ha/day", xlab="Daily GPP in Mg/ha/day", main='willow')
+dev.off()
 N<-length(result$GDD)
 
 initialbiomass<-result$Stemd[1]+result$Rootd[1]+result$Rhizomed[1]+result$Leafd[1]

@@ -6,96 +6,96 @@
 void assignPools(struct cropcentlayer *CROPCENT, double *sompoolsfromR)
 {
   //Rprintf("%f, %f, %f \n", *sompoolsfromR,*(sompoolsfromR+1),*(sompoolsfromR+2));
-  CROPCENT->strucc1.C.totalC=*sompoolsfromR;
-  CROPCENT->strucc1.C.unlablTOlabl=*(sompoolsfromR+1);
-  CROPCENT->strucc1.E.CN=*(sompoolsfromR+2);
-  CROPCENT->strucc1.E.CP=*(sompoolsfromR+3);
-  CROPCENT->strucc1.E.CS=*(sompoolsfromR+4);
-  CROPCENT->strucc1.E.CK=*(sompoolsfromR+5);
-  CROPCENT->strucc1.lignin=*(sompoolsfromR+6);
+  CROPCENT->strucc1.C.totalC=28.4;
+  CROPCENT->strucc1.C.unlablTOlabl=1.0;
+  CROPCENT->strucc1.E.CN=200.0;
+  CROPCENT->strucc1.E.CP=500.0;
+  CROPCENT->strucc1.E.CS=500.0;
+  CROPCENT->strucc1.E.CK=500.0;
+  CROPCENT->strucc1.lignin=0.2;
   
-  CROPCENT->strucc2.C.totalC=*(sompoolsfromR+7);
-  CROPCENT->strucc2.C.unlablTOlabl=*(sompoolsfromR+8);
-  CROPCENT->strucc2.E.CN=*(sompoolsfromR+9);
-  CROPCENT->strucc2.E.CP=*(sompoolsfromR+10);
-  CROPCENT->strucc2.E.CS=*(sompoolsfromR+11);
-  CROPCENT->strucc2.E.CK=*(sompoolsfromR+12);
-  CROPCENT->strucc2.lignin=*(sompoolsfromR+13);
+  CROPCENT->strucc2.C.totalC=175.0;
+  CROPCENT->strucc2.C.unlablTOlabl=1.0;
+  CROPCENT->strucc2.E.CN=200.0;
+  CROPCENT->strucc2.E.CP=500.0;
+  CROPCENT->strucc2.E.CS=500.0;
+  CROPCENT->strucc2.E.CK=500.0;
+  CROPCENT->strucc2.lignin=0.2;
   
-  CROPCENT->metabc1.C.totalC=*(sompoolsfromR+14);
-  CROPCENT->metabc1.C.unlablTOlabl=*(sompoolsfromR+15);
-  CROPCENT->metabc1.E.CN=*(sompoolsfromR+16);
-  CROPCENT->metabc1.E.CP=*(sompoolsfromR+17);
-  CROPCENT->metabc1.E.CS=*(sompoolsfromR+18);
-  CROPCENT->metabc1.E.CK=*(sompoolsfromR+19);
+  CROPCENT->metabc1.C.totalC=37.5;
+  CROPCENT->metabc1.C.unlablTOlabl=1.0;
+  CROPCENT->metabc1.E.CN=18.2;
+  CROPCENT->metabc1.E.CP=18.2;
+  CROPCENT->metabc1.E.CS=18.2;
+  CROPCENT->metabc1.E.CK=18.2;
   
-  CROPCENT->metabc2.C.totalC=*(sompoolsfromR+20);
-  CROPCENT->metabc2.C.unlablTOlabl=*(sompoolsfromR+21);
-  CROPCENT->metabc2.E.CN=*(sompoolsfromR+22);
-  CROPCENT->metabc2.E.CP=*(sompoolsfromR+23);
-  CROPCENT->metabc2.E.CS=*(sompoolsfromR+24);
-  CROPCENT->metabc2.E.CK=*(sompoolsfromR+25);
+  CROPCENT->metabc2.C.totalC=20.8;
+  CROPCENT->metabc2.C.unlablTOlabl=1.0;
+  CROPCENT->metabc2.E.CN=19.3;
+  CROPCENT->metabc2.E.CP=19.3;
+  CROPCENT->metabc2.E.CS=19.3;
+  CROPCENT->metabc2.E.CK=19.3;
   
-  CROPCENT->wood1.C.totalC=*(sompoolsfromR+26);
-  CROPCENT->wood1.C.unlablTOlabl=*(sompoolsfromR+27);
-  CROPCENT->wood1.E.CN=*(sompoolsfromR+28);
-  CROPCENT->wood1.E.CP=*(sompoolsfromR+29);
-  CROPCENT->wood1.E.CS=*(sompoolsfromR+30);
-  CROPCENT->wood1.E.CK=*(sompoolsfromR+31);
-  CROPCENT->wood1.lignin=*(sompoolsfromR+32);
+  CROPCENT->wood1.C.totalC=30.0;
+  CROPCENT->wood1.C.unlablTOlabl=1.0;
+  CROPCENT->wood1.E.CN=200.0;
+  CROPCENT->wood1.E.CP=500.0;
+  CROPCENT->wood1.E.CS=500.0;
+  CROPCENT->wood1.E.CK=500.0;
+  CROPCENT->wood1.lignin=0.1;
   
-  CROPCENT->wood2.C.totalC=*(sompoolsfromR+33);
-  CROPCENT->wood2.C.unlablTOlabl=*(sompoolsfromR+34);
-  CROPCENT->wood2.E.CN=*(sompoolsfromR+35);
-  CROPCENT->wood2.E.CP=*(sompoolsfromR+36);
-  CROPCENT->wood2.E.CS=*(sompoolsfromR+47);
-  CROPCENT->wood2.E.CK=*(sompoolsfromR+48);
-  CROPCENT->wood2.lignin=*(sompoolsfromR+49);
+  CROPCENT->wood2.C.totalC=30.0;
+  CROPCENT->wood2.C.unlablTOlabl=1.0;
+  CROPCENT->wood2.E.CN=200.0;
+  CROPCENT->wood2.E.CP=500.0;
+  CROPCENT->wood2.E.CS=500.0;
+  CROPCENT->wood2.E.CK=500.0;
+  CROPCENT->wood2.lignin=0.1;
   
-  CROPCENT->wood3.C.totalC=*(sompoolsfromR+50);
-  CROPCENT->wood3.C.unlablTOlabl=*(sompoolsfromR+51);
-  CROPCENT->wood3.E.CN=*(sompoolsfromR+52);
-  CROPCENT->wood3.E.CP=*(sompoolsfromR+53);
-  CROPCENT->wood3.E.CS=*(sompoolsfromR+54);
-  CROPCENT->wood3.E.CK=*(sompoolsfromR+55);
-  CROPCENT->wood3.lignin=*(sompoolsfromR+56);
+  CROPCENT->wood3.C.totalC=30.0;
+  CROPCENT->wood3.C.unlablTOlabl=1.0;
+  CROPCENT->wood3.E.CN=200.0;
+  CROPCENT->wood3.E.CP=500.0;
+  CROPCENT->wood3.E.CS=500.0;
+  CROPCENT->wood3.E.CK=500.0;
+  CROPCENT->wood3.lignin=0.1;
   
-  CROPCENT->som1c1.C.totalC=*(sompoolsfromR+57);
-  CROPCENT->som1c1.C.unlablTOlabl=*(sompoolsfromR+58);
-  CROPCENT->som1c1.E.CN=*(sompoolsfromR+59);
-  CROPCENT->som1c1.E.CP=*(sompoolsfromR+60);
-  CROPCENT->som1c1.E.CS=*(sompoolsfromR+61);
-  CROPCENT->som1c1.E.CK=*(sompoolsfromR+62);
+  CROPCENT->som1c1.C.totalC=14.6;
+  CROPCENT->som1c1.C.unlablTOlabl=1.0;
+  CROPCENT->som1c1.E.CN=6.7;
+  CROPCENT->som1c1.E.CP=6.7;
+  CROPCENT->som1c1.E.CS=6.7;
+  CROPCENT->som1c1.E.CK=6.7;
   
-  CROPCENT->som1c2.C.totalC=*(sompoolsfromR+63);
-  CROPCENT->som1c2.C.unlablTOlabl=*(sompoolsfromR+64);
-  CROPCENT->som1c2.E.CN=*(sompoolsfromR+65);
-  CROPCENT->som1c2.E.CP=*(sompoolsfromR+66);
-  CROPCENT->som1c2.E.CS=*(sompoolsfromR+67);
-  CROPCENT->som1c2.E.CK=*(sompoolsfromR+68);
+  CROPCENT->som1c2.C.totalC=330.0;
+  CROPCENT->som1c2.C.unlablTOlabl=1.0;
+  CROPCENT->som1c2.E.CN=7.5;
+  CROPCENT->som1c2.E.CP=7.5;
+  CROPCENT->som1c2.E.CS=7.5;
+  CROPCENT->som1c2.E.CK=7.5;
   
-  CROPCENT->som2c1.C.totalC=*(sompoolsfromR+69);
-  CROPCENT->som2c1.C.unlablTOlabl=*(sompoolsfromR+70);
-  CROPCENT->som2c1.E.CN=*(sompoolsfromR+71);
-  CROPCENT->som2c1.E.CP=*(sompoolsfromR+72);
-  CROPCENT->som2c1.E.CS=*(sompoolsfromR+73);
-  CROPCENT->som2c1.E.CK=*(sompoolsfromR+74);
+  CROPCENT->som2c1.C.totalC=6.4;
+  CROPCENT->som2c1.C.unlablTOlabl=1.0;
+  CROPCENT->som2c1.E.CN=13.0;
+  CROPCENT->som2c1.E.CP=13.0;
+  CROPCENT->som2c1.E.CS=13.0;
+  CROPCENT->som2c1.E.CK=13.0;
 
   
-  CROPCENT->som2c2.C.totalC=*(sompoolsfromR+75);
-  CROPCENT->som2c2.C.unlablTOlabl=*(sompoolsfromR+76);
-  CROPCENT->som2c2.E.CN=*(sompoolsfromR+77);
-  CROPCENT->som2c2.E.CP=*(sompoolsfromR+78);
-  CROPCENT->som2c2.E.CS=*(sompoolsfromR+79);
-  CROPCENT->som2c2.E.CK=*(sompoolsfromR+80);
+  CROPCENT->som2c2.C.totalC=1647.0;
+  CROPCENT->som2c2.C.unlablTOlabl=1.0;
+  CROPCENT->som2c2.E.CN=15.4;
+  CROPCENT->som2c2.E.CP=15.4;
+  CROPCENT->som2c2.E.CS=15.4;
+  CROPCENT->som2c2.E.CK=15.4;
  
   
-  CROPCENT->som3c.C.totalC=*(sompoolsfromR+81);
-  CROPCENT->som3c.C.unlablTOlabl=*(sompoolsfromR+82);
-  CROPCENT->som3c.E.CN=*(sompoolsfromR+83);
-  CROPCENT->som3c.E.CP=*(sompoolsfromR+84);
-  CROPCENT->som3c.E.CS=*(sompoolsfromR+85);
-  CROPCENT->som3c.E.CK=*(sompoolsfromR+86);
+  CROPCENT->som3c.C.totalC=3823.0;
+  CROPCENT->som3c.C.unlablTOlabl=1.0;
+  CROPCENT->som3c.E.CN=8.03;
+  CROPCENT->som3c.E.CP=8.03;
+  CROPCENT->som3c.E.CS=8.03;
+  CROPCENT->som3c.E.CK=8.03;
   return;
 }
 
@@ -445,6 +445,7 @@ CROPCENT->som2c2.parms.k= timescaling(CROPCENT->som2c2.parms.k,CROPCENT->som2c2.
 CROPCENT->som3c.parms.k= timescaling(CROPCENT->som3c.parms.k,CROPCENT->som3c.parms.timestep);
   return;
 }
+
 void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, 
 double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR){
  
@@ -496,8 +497,8 @@ void assignFluxRatios(struct cropcentlayer *CROPCENT)
   CROPCENT->strucc2.Flux.strucc2TOstrucc2.C.unlablTOlabl = CROPCENT->strucc2.C.unlablTOlabl;
    replaceMineralStruct(&CROPCENT->strucc2.E,&CROPCENT->strucc2.Flux.strucc2TOstrucc2.E);
    
-    replaceMineralStruct(&CROPCENT->metabc1.E,&CROPCENT->metabc1.Flux.metabc1TOmetabc1.E);
-    replaceMineralStruct(&CROPCENT->metabc2.E,&CROPCENT->metabc2.Flux.metabc2TOmetabc2.E);
+//    replaceMineralStruct(&CROPCENT->metabc1.E,&CROPCENT->metabc1.Flux.metabc1TOmetabc1.E); this is repeated
+//    replaceMineralStruct(&CROPCENT->metabc2.E,&CROPCENT->metabc2.Flux.metabc2TOmetabc2.E); this is repeated
     
   CROPCENT->wood1.Flux.wood1TOsom1c1.C.unlablTOlabl = CROPCENT->wood1.C.unlablTOlabl;
   CROPCENT->wood1.Flux.wood1TOsom2c1.C.unlablTOlabl = CROPCENT->wood1.C.unlablTOlabl;
@@ -668,13 +669,20 @@ void GetErosionParms(struct ErosionParms *temp,double *geterosionparmsfromR){
   temp->LHZF[2]=0.8;
   temp->EDEPTH=0.2; 
   temp->ENRICH=2.0;
+  return;
 }
 
 void GetSoilTexture( struct SoilTexture *temp, double *getsoiltexturefromR){
-
+/**************************************************************************
+//  I am chaning it back to constant value to avoid error now as ther eis not pointer passed from R for now
   temp->sand=*getsoiltexturefromR;
   temp->silt=*(getsoiltexturefromR+1);
   temp->clay=*(getsoiltexturefromR+2);
+  *************************************************************************/
+  temp->sand=0.33;
+  temp->silt=0.33;
+  temp->clay=0.34;
+  return;
 }
 
 void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp,double *getbiocrotocropcentparmsfromR ){
