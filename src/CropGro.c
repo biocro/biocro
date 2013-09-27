@@ -730,13 +730,30 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
 //   BiocroToCrocent(&LeafLitter,leaf.fallrate,leaf.lignin, &leaf.E, isotoperatio, 1, 0,leaflitter);
    
-    BiocroToCrocent(&miscanthus.leaf.litter,0.1,0.2, &leaflitterE, 1.0, 1, 0,&leaflitter);
+    BiocroToCrocent(&miscanthus.leaf.litter,1.0,0.2, &leaflitterE, 1.0, 1, 0,&leaflitter);
+    BiocroToCrocent(&miscanthus.stem.litter,1.0,0.2, &stemlitterE, 1.0, 1, 0,&stemlitter);
+    BiocroToCrocent(&miscanthus.root.litter,1.0,0.2, &rootlitterE, 1.0, 0, 0,&leaflitter);
+    BiocroToCrocent(&miscanthus.rhizome.litter,1.0,0.2, &rhizomelitterE, 1.0, 0, 0,&rhizomelitter);
+    
+    
 //    Rprintf("Biomass in g C/m2=%f, CN =%f, Lignin = %f , surface=%i, woody=%i \n",leaflitter.C.totalC,leaflitter.E.CN,leaflitter.lignin,leaflitter.surface,leaflitter.woody);
      if(leaflitter.C.totalC >0.0) 
      {
       Rprintf("Before updating from litter strucc1 = %f,structCN=%f, metabcpool =%f \n", CROPCENT.strucc1.C.totalC,CROPCENT.strucc1.E.CN,CROPCENT.metabc1.C.totalC);
       UpdateCropcentPoolsFromBioCro(&CROPCENT, &leaflitter);
       Rprintf("After updating from litter strucc1 = %f, structCN=%f,metabcpool =%f \n", CROPCENT.strucc1.C.totalC, CROPCENT.strucc1.E.CN,CROPCENT.metabc1.C.totalC);
+     }
+      if(stemlitter.C.totalC >0.0) 
+     {
+      UpdateCropcentPoolsFromBioCro(&CROPCENT, &stemlitter);
+     }
+      if(rootlitter.C.totalC >0.0) 
+     {
+      UpdateCropcentPoolsFromBioCro(&CROPCENT, &rootlitter);
+     }
+      if(rhizomelitter.C.totalC >0.0) 
+     {
+      UpdateCropcentPoolsFromBioCro(&CROPCENT, &rhizomelitter);
      }
        assignENV(&CROPCENT,fake,fake,fake,fake,fake,fake,fake);
        assignFluxRatios(&CROPCENT);
@@ -754,7 +771,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                         &REAL(som2c2)[dap],
                         &REAL(som3c)[dap]);
 
-// BiocroToCrocent(&StemLitter,stem.fallrate,stem.lignin, &stem.E, isotoperatio, 1, 0,stemlitter);
+// 
 // BiocroToCrocent(&RootLitter,root.fallrate,root.lignin, &root.E, isotoperatio, 0, 0,rootlitter);
 // BiocroToCrocent(&RhizomeLitter,rhiz.fallrate,rhiz.lignin, &rhiz.E, isotoperatio, 0, 0,rhizomelitter);
 
