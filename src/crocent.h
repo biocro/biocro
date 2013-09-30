@@ -461,7 +461,9 @@ void GetC13Parms(struct C13Parms *temp,double *getc13parmsfromR);
 
 
 // Assignign pool to flow structure
-void printcropcentout(struct cropcentlayer CROPCENT);
+ void printcropcentout(struct cropcentlayer CROPCENT, double *totalSOC, double *strucc1, double *strucc2, 
+                        double *metabc1, double *metabc2, double *som1c1, double *som1c2, double *som2c1, 
+                        double *som2c2, double *som3c);
 // void assignpooltoflow(struct carbon *tmpC,struct minerals *tmpE,struct flow *tmpflow);
 void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp,double *getbiocrotocropcentparmsfromR );
 void GetSymbNFixationParms(struct SymbNFixationParms *temp,double *getsymbnfixationparmsfromR);

@@ -3,8 +3,26 @@
 #include <Rinternals.h>
 #include "crocent.h"
   
-  void printcropcentout(struct cropcentlayer CROPCENT){
+  void printcropcentout(struct cropcentlayer CROPCENT, double *totalSOC, double *strucc1, double *strucc2, 
+                        double *metabc1, double *metabc2, double *som1c1, double *som1c2, double *som2c1, 
+                        double *som2c2, double *som3c){
   double cbalance;
+  
+  *totalSOC = CROPCENT.strucc1.C.totalC +CROPCENT.strucc2.C.totalC+CROPCENT.metabc1.C.totalC+CROPCENT.metabc2.C.totalC
+              +CROPCENT.som1c1.C.totalC+CROPCENT.som1c2.C.totalC + CROPCENT.som2c1.C.totalC+CROPCENT.som2c2.C.totalC
+              +CROPCENT.som3c.C.totalC;
+              
+      *strucc1 = CROPCENT.strucc1.C.totalC;
+      *strucc2 = CROPCENT.strucc2.C.totalC;
+      *metabc1 = CROPCENT.metabc1.C.totalC;
+      *metabc2 = CROPCENT.metabc2.C.totalC;
+      *som1c1 = CROPCENT.som1c1.C.totalC;
+      *som1c2 = CROPCENT.som1c2.C.totalC;
+       *som2c1 = CROPCENT.som2c1.C.totalC;
+      *som2c2 = CROPCENT.som2c2.C.totalC;
+       *som3c = CROPCENT.som3c.C.totalC;
+     
+              
   /*
   Rprintf("SOM1c1\n");
   Rprintf("heterotrophic Respiration = %f\n",CROPCENT.som1c1.Flux.hetresp);
@@ -100,6 +118,7 @@
   Rprintf("STRUCC2TOSTRUCC2, CN=%f \n",CROPCENT.strucc2.Flux.strucc2TOstrucc2.E.CN);
 */
  // Printing STRUCC1
+ /*
    Rprintf("C Pool = %f\n", CROPCENT.strucc1.C.totalC);
    Rprintf("C Pool unlablto labl Ratio= %f \n", CROPCENT.strucc1.C.unlablTOlabl);
   Rprintf("heterotrophic Respiration = %f\n",CROPCENT.strucc1.Flux.hetresp);
@@ -119,6 +138,6 @@
   Rprintf("STRUCC1TOSOM1C1, CN=%f \n",CROPCENT.strucc1.Flux.strucc1TOsom1c1.E.CN);
   Rprintf("STRUCC1TOSOM2C1, CN=%f \n",CROPCENT.strucc1.Flux.strucc1TOsom2c1.E.CN);
   Rprintf("STRUCC1TOSTRUCC1, CN=%f \n",CROPCENT.strucc1.Flux.strucc1TOstrucc1.E.CN);
-  
+  */
   return;
   }

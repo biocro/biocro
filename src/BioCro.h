@@ -44,6 +44,15 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
   	                   double Rd, double Catm, double o2, double b0, double b1,
                        double theta, double kd, double heightf,
 		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws);
+                        
+/**************** This is new C function avoiding use of Global Variables****************************/
+ struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
+               double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
+		     double Rd, double Catm, double o2, double b0, double b1,
+                     double theta, double kd, double heightf,
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws);
+ /**********************************************************************************************/
+
          
 
 struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime);

@@ -12,7 +12,7 @@
 SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	     SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP OX2, SEXP THETA,SEXP STOMWS, SEXP WS)
 {
-	struct c3_str tmp;
+	struct c3_str tmp = {0,0,0,0};
 
 	double Qp, Tl, RH, Catm;
 	double Bet0,Bet1;
@@ -120,7 +120,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet,double StomWS,int ws)
 {
 
-	struct c3_str tmp;
+	struct c3_str tmp = {0,0,0,0};
 	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
 	const double R = 0.008314472; /* Gas constant */
@@ -260,6 +260,9 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	tmp.Gs = Gs;
 	tmp.Ci = Ci;
   tmp.GrossAssim=Assim+Rd;
+  if(Assim>0){
+//  Rprintf(" in C3photoSynthesis Function : Net Leaf Photosynthesis is %f, Dark Respiration is %f, Gross Assimilation is %f \n", tmp.Assim, Rd, tmp.GrossAssim);
+  }
 	return(tmp);
 }
 

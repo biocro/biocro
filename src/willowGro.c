@@ -25,6 +25,10 @@
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxwillowGro.h"
+#include "AuxcaneGro.h"
+#include "crocent.h"
+#include "c3canopy.h"
+
 
 SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */ 
 	    SEXP DOY,                 /* Day of the year           2 */
@@ -184,7 +188,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	int k = 0, q = 0, m = 0, n = 0;
 	int ri = 0;
 
-	struct Can_Str Canopy;
+	struct Can_Str Canopy = {0,0,0};
 	struct ws_str WaterS;
 	struct dbp_str dbpS;
 	struct cenT_str centS; 
