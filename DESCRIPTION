@@ -9,11 +9,11 @@ Author: Fernando Miguez <femiguez@iastate.edu>,
 Maintainer: David LeBauer <dlebauer@illinois.edu>
 Depends:
     R(>= 2.5.0),
-    lattice
+    lattice,
+    data.table
 Suggests:
     coda,
-    knitr,
-    data.table
+    knitr
 Imports:
     stats,
     lattice
