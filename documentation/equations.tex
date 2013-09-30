@@ -8,13 +8,14 @@
 %\usepackage{hyperref}
 %\usepackage{pdfpages}
 %\usepackage{caption}
-\usepackage[backgroundcolor=white, textsize = small, ]{todonotes}
+\usepackage[disable, backgroundcolor=white, textsize = small]{todonotes}
 \usepackage{marginnote}
+\renewcommand{\marginnote}[2][]{}
 \usepackage[top=2.5cm, bottom=2.5cm, left=0.5cm, right=5cm, heightrounded,
   marginparwidth=4.6cm, marginparsep=3mm]{geometry}
-\usepackage{draftwatermark}
-\SetWatermarkLightness{0.95}
-\SetWatermarkScale{4}
+% \usepackage{draftwatermark}
+% \SetWatermarkLightness{0.95}
+% \SetWatermarkScale{4}
 \begin{document}
 
 \section*{BioCro Equations}
@@ -51,21 +52,21 @@ T_\text{excursion}  &=  \sin\biggl(2 \pi \frac{h_{r}-10}{24}\biggr) \label{eqn:e
  h  &=  \frac{r^{\sim}}{q} \label{eqn:h} 
 \end{align}
 
-\subsection*{C4 Photosynthesis test}
-From Collatz 1992 Coupled Photosynthesis-Stomata1 Conductance Model for Leaves of C4 Plants. Aust. J. Plant Physiol. 19 519-538
-\begin{align}
- V_\text{max}&=\frac{V_{\text{max}_0}Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{\left(1+\exp(0.3(T_\text{lower}-T_\text{leaf})\right)\left(1+\exp(0.3(T_\text{leaf}-T_\text{upper})\right)}\\
- R_d&= \frac{R_0Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{1+\exp(1.3(T_\text{leaf}-55))}\\
- k_t&=kQ_{10}^{\frac{T_\text{leaf}-25}{10}}\\
- c_i &=c_a-\frac{1.6A_nP}{g_s}\\
- A_\text{net}&=A_\text{gross}-R_d\\
- M &= \min\left[\frac{\scriptstyle(V_\text{max}+\alpha_{\text{slope}} I_\text{abs}) \pm \sqrt{(V_\text{max}+\alpha_\text{slope}I_\text{abs})^{2} - 4  (V_\text{max} \alpha_{\text{slope}}  I_\text{abs}) \theta_\text{curve}}}{2  \theta_\text{curve}}\right] \label{eqn:M} \\
-  A_\text{gross} &= \min\left[ \frac{ \left( M + k_{t} \cdot \frac{c_{i}}{P} \right) \pm \sqrt{ \left(M + k_{t} \cdot \frac{c_{i}}{P} \right)^2 - \left( 4 \cdot M \cdot k_{t} \cdot \frac{c_{i}}{P} \cdot \beta \right)}}{2 \cdot \beta}\right] \label{eqn:Agross}
-\end{align}
-
+% \subsection*{C4 Photosynthesis}
+% From Collatz 1992 Coupled Photosynthesis-Stomata1 Conductance Model for Leaves of C4 Plants. Aust. J. Plant Physiol. 19 519-538
+% \begin{align}
+%  V_\text{max}&=\frac{V_{\text{max}_0}Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{\left(1+\exp(0.3(T_\text{lower}-T_\text{leaf})\right)\left(1+\exp(0.3(T_\text{leaf}-T_\text{upper})\right)}\\
+%  R_d&= \frac{R_0Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{1+\exp(1.3(T_\text{leaf}-55))}\\
+%  k_t&=kQ_{10}^{\frac{T_\text{leaf}-25}{10}}\\
+%  c_i &=c_a-\frac{1.6A_nP}{g_s}\\
+%  A_\text{net}&=A_\text{gross}-R_d\\
+%  M &= \min\left[\frac{\scriptstyle(V_\text{max}+\alpha_{\text{slope}} I_\text{abs}) \pm \sqrt{(V_\text{max}+\alpha_\text{slope}I_\text{abs})^{2} - 4  (V_\text{max} \alpha_{\text{slope}}  I_\text{abs}) \theta_\text{curve}}}{2  \theta_\text{curve}}\right] \label{eqn:M} \\
+%   A_\text{gross} &= \min\left[ \frac{ \left( M + k_{t} \cdot \frac{c_{i}}{P} \right) \pm \sqrt{ \left(M + k_{t} \cdot \frac{c_{i}}{P} \right)^2 - \left( 4 \cdot M \cdot k_{t} \cdot \frac{c_{i}}{P} \cdot \beta \right)}}{2 \cdot \beta}\right] \label{eqn:Agross}
+% \end{align}
+\newpage
 \subsection*{C3 Photosynthesis}
 
-From Appendix 2 in Bernacchi et al 2003 Plant, Cell and Environment 26, 1419–1430  doi: 10.1046/j.0016-8025.2003.01050.x
+From Appendix 2 in Bernacchi et al 2003 Plant, Cell and Environment 26, 1419–1430  doi: 10.1046/j.0016-8025.2003.01050.x:
 
 \begin{align}
 A &= \left(1-\Gamma^\ast/c_i\right) \\
@@ -82,7 +83,7 @@ Q_2&=Q\cdot k\cdot \Phi_\text{PSII,max}\cdot\beta_\Phi\\
 \Phi_\text{PSII,max}&= 0.352 + 0.022T_\text{leaf} - 3.4\cdot10^{-4} T_\text{leaf}^2
 \end{align}
 
-From Appendix 1, Equations 7-9 in Long 1991 Plant, Cell and Environment 14, 729-739. doi:10.1111/j.1365-3040.1991.tb01439.x
+From Appendix 1, Equations 7-9 in Long 1991 Plant, Cell and Environment 14, 729-739. doi:10.1111/j.1365-3040.1991.tb01439.x:
 
 \begin{align}
 % tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT,2) - 8.874081e-06 * pow(LeafT,3)) / 0.735465;
