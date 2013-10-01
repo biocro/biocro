@@ -15,13 +15,17 @@
 # Testing for multiyear Simulation
 data(urbana2008to2012)
 data20yr<-rbind(urbana2008to2012,urbana2008to2012,urbana2008to2012,urbana2008to2012)
-result<-CropGro(WetDat=data20yr,day1=50,dayn=4000,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
+data40yr<-rbind(data20yr,data20yr)
+data80yr<-rbind(data40yr,data40yr)
+data240yr<-rbind(data80yr,data80yr,data80yr,data80yr)
+result<-CropGro(WetDat=data240yr,day1=50,dayn=600,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
         soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.35,kStem1=0.35),
         canopyControl=canopyParms(Sp=1.6))
 
 result<-willowGro(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
 
 plot(result)
+xyplot(result$totalSOC~result$DayafterPlanting,auto.key=TRUE)
 xyplot(result$strucc1~result$DayafterPlanting)
 xyplot(result$strucc2~result$DayafterPlanting)
 xyplot(result$metabc1~result$DayafterPlanting)
@@ -32,7 +36,7 @@ xyplot(result$som2c1~result$DayafterPlanting)
 xyplot(result$som2c2~result$DayafterPlanting)
 xyplot(result$som3c~result$DayafterPlanting)
 
-xyplot(result$totalSOC+result$strucc1+result$strucc2+result$metabc1+result$metabc2+result$som1c1+result$som1c2+result$som2c1+result$som2c2+result$som3c~result$DayafterPlanting, auto.key=TRUE)
+xyplot(result$totalSOC+result$strucc1+result$strucc2+result$metabc1+result$metabc2+result$som1c1+result$som1c2+result$som2c1+result$som2c2+result$som3c~result$DayafterPlanting, auto.key=TRUE,type="l")
 xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$DayafterPlanting,auto.key=TRUE, type="l", main="alive biomass")
 xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$DayafterPlanting,auto.key=TRUE, type="l", main="dead biomass")
 xyplot(result$GPP~result$GDD,main="Daily GPP in Mg/ha/day")

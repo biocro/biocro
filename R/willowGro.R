@@ -271,7 +271,7 @@
 ##'
 ##' }
 ##' @export
-willowCent <- function(WetDat, day1=1, dayn=365,
+willowCent <- function(WetDat, day1=120, dayn=300,
                       timestep=1,iRhizome=1.0,
                       lat=40,iPlant=1,irtl=1e-4,
                       canopyControl=list(),
@@ -448,7 +448,7 @@ willowCent <- function(WetDat, day1=1, dayn=365,
   
 }
 
-willowGro <- function(WetDat, day1=1, dayn=365,
+willowGro <- function(WetDat, day1=120, dayn=300,
                    timestep=1,iRhizome=1.0,
                    lat=40,iPlant=1,irtl=1e-4,
                    canopyControl=list(),

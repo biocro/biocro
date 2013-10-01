@@ -13,13 +13,12 @@
 \alias{willowGro}
 \title{willowmass crops growth simulation}
 \usage{
-  willowCent(WetDat, day1 = NULL, dayn = NULL,
-    timestep = 1, iRhizome = 1, lat = 40, iPlant = 1,
-    irtl = 1e-04, canopyControl = list(),
-    seneControl = list(), photoControl = list(),
-    willowphenoControl = list(), soilControl = list(),
-    nitroControl = list(), iPlantControl = list(),
-    centuryControl = list())
+  willowCent(WetDat, day1 = 120, dayn = 300, timestep = 1,
+    iRhizome = 1, lat = 40, iPlant = 1, irtl = 1e-04,
+    canopyControl = list(), seneControl = list(),
+    photoControl = list(), willowphenoControl = list(),
+    soilControl = list(), nitroControl = list(),
+    iPlantControl = list(), centuryControl = list())
 }
 \arguments{
   \item{WetDat}{weather data as produced by the
