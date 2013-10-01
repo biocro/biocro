@@ -158,6 +158,13 @@ I_\text{diff} & = I_\text{od} \exp(-k_dF_\text{canopy})\\
 \end{align}
 \todo[inline]{is $\ell_\text{sun}\equiv l_\text{sun}$?}
 
+\subsection*{Respiration}
+\begin{align}
+ % from Miguez 2009: R_{\text{total}} &= (a \cdot A_{\text{gross}}) + (b_{\text{leaf}} \cdot \omega_{\text{leaf}}) + (b_{\text{stem}} \cdot \omega_{\text{stem}}) + (b_{\text{root}} \cdot \omega_{\text{root}}) \label{eqn:Rtotal} \\
+  R_{\text{total}} &= a A_n + b_{\text{stem}}\Delta\omega_{\text{stem}} + b_{\text{root}}\Delta \omega_{\text{root}} + b_\text{storage}\Delta \omega_\text{storage} \label{eqn:Rtotal} 
+\end{align}
+
+
 \subsection*{Allocation}
 
 \begin{align}
@@ -213,11 +220,6 @@ A_{\text{total}} &= A_{\text{leaf}} + A_{\text{stem}} + A_{\text{root}} + A_{\te
  E_\text{soil} &= \frac{s \cdot \Phi_{N,soil} + \lambda \cdot g_{a,soil} \cdot \Delta \rho_{va}}{\lambda \cdot [s+\gamma]} \label{eqn:E2} \marginnote{is ``soil'' subscript correct?}
 \end{align}
 
-\subsection*{Respiration}
-\begin{align}
- % from Miguez 2009: R_{\text{total}} &= (a \cdot A_{\text{gross}}) + (b_{\text{leaf}} \cdot \omega_{\text{leaf}}) + (b_{\text{stem}} \cdot \omega_{\text{stem}}) + (b_{\text{root}} \cdot \omega_{\text{root}}) \label{eqn:Rtotal} \\
-  R_{\text{total}} &= a A_n + b_{\text{stem}}\Delta\omega_{\text{stem}} + b_{\text{root}}\Delta \omega_{\text{root}} + b_\text{storage}\Delta \omega_\text{storage} \label{eqn:Rtotal} 
-\end{align}
 
 
 \subsection*{Soil Energy Balance}
