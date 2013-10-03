@@ -536,7 +536,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   updateafteremergence(&miscanthus,&management);
   LAI = miscanthus.leaf.biomass*Sp;
   int phototype;
-  phototype=1;
+  phototype=2;
   // This is specific to willow to avoid harvesting based on day of year
   
 	for(i=0;i<vecsize;i++)
