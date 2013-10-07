@@ -83,15 +83,18 @@
 **    diffusiv() - estimate normalized diffusivity in soils
 **  
 *****************************************************************************/
-
+#include <R.h>
+#include <math.h>
+#include <Rmath.h>
+#include <Rinternals.h>
 #include "soilwater.h"
 #include "n2o_model.h"
-#include <math.h>
-#include <stdio.h>
+// #include <math.h>
+// n#include <stdio.h>
 
 #define CH4DEPTH 15.0
 
-    void methane_oxidation(double *CH4, int *isdecid, int *isagri) 
+    void methane_oxidation(double *CH4, int *isdecid, int *isagri,LAYERPAR_SPT layers,SOIL_SPT soil) 
     { 
       int    ilyr;
       double  bulkdensity;
@@ -111,9 +114,10 @@
       double  percentlayer;
       double  temp;
 
+/*
       extern LAYERPAR_SPT layers;
       extern SOIL_SPT soil;
-
+*/
       /* Compute a weighted average for soil temperature, field capacity, */
       /* bulk density, water filled pore space, and volumetric soil water */
       /* content in top 15 cm of soil profile */

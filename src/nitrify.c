@@ -72,14 +72,17 @@
 **                              layer
 **  
 *****************************************************************************/
-
+#include <R.h>
+#include <math.h>
+#include <Rmath.h>
+#include <Rinternals.h>
 #include "soilwater.h"
 #include "n2o_model.h"
-#include <math.h>
-#include <stdlib.h>
+// #include <math.h>
+// #include <stdlib.h>
 
     void nitrify(double *ammonium, double *nh4_2_no3, double *maxt,
-                 double *nreduce)
+                 double *nreduce,SITEPAR_SPT sitepar,LAYERPAR_SPT layers,SOIL_SPT soil)
     {
       int debug = 0;
       int ilyr;
@@ -98,9 +101,11 @@
       double  rel_wc[4], avg_rel_wc, avgfc, avgstemp;
       double absoluteMaxRate;
 
+/*
       extern LAYERPAR_SPT layers;
       extern SITEPAR_SPT sitepar;
       extern SOIL_SPT soil;
+*/
 
       *nh4_2_no3 = 0.0;
 

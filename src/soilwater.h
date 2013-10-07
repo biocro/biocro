@@ -97,6 +97,7 @@ typedef struct
   int    lbnd[CENTMAXLYR];
 } LAYERPAR_S, *LAYERPAR_SPT;
 
+
 typedef struct
 {
   int    usexdrvrs;
@@ -127,6 +128,9 @@ typedef struct
   double  ehoriz;
   double  whoriz;
 } SITEPAR_S, *SITEPAR_SPT;
+
+
+
 
 typedef struct
 {
@@ -180,3 +184,20 @@ void wfps(LAYERPAR_SPT layers);
 
 double wfunc_pulse(double *ppt, double *snow);
 
+void nitrify(double *ammonium, double *nh4_2_no3, double *maxt, double *nreduce,SITEPAR_SPT sitepar,LAYERPAR_SPT layers,SOIL_SPT soil);
+
+void denitrify(double *newCO2, double *newNO3, double nitrate[],
+               double tfluxout[], double *critflow, double frlechd[],
+               double stream[], double *basef, double *stormf, double *inorglch,
+               double *Dn2oflux, double *Dn2flux, double stdfieldc,
+               double stdbulkd, double dN2lyr[],
+               double dN2Olyr[], int *jday,SITEPAR_SPT sitepar,LAYERPAR_SPT layers);
+               
+void methane_oxidation(double *CH4, int *isdecid, int *isagri,LAYERPAR_SPT layers,SOIL_SPT soil);
+/****This is Global variable ****/
+/*
+extern SITEPAR_SPT sitepar;
+extern LAYERPAR_SPT layers;
+extern SOIL_SPT soil;
+ */
+ /********************************/

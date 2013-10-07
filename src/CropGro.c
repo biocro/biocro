@@ -16,6 +16,7 @@
 #include "AuxcaneGro.h"
 #include "crocent.h"
 #include "c3canopy.h"
+#include "soilwater.h"
 
 SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
@@ -100,6 +101,14 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    rootlitterE=  leaflitterE;
    rhizomelitterE=leaflitterE;
    /*************************************************/
+   
+   /*********Tracegas Calculation Variables ***********/
+   
+    SITEPAR_SPT sitepar;
+    LAYERPAR_SPT layers;
+    SOIL_SPT soil;
+   /*******************************************************/
+
    
    struct crop_phenology cropdbp;
    static struct miscanthus miscanthus, deltamiscanthus;

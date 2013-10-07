@@ -109,11 +109,14 @@
 **    nox_pulse()   - increase NO due to moisture and rain
 **
 *****************************************************************************/
-
+#include <R.h>
+#include <math.h>
+#include <Rmath.h>
+#include <Rinternals.h>
 #include "soilwater.h"
 #include "n2o_model.h"
 #include "swconst.h"
-#include <math.h>
+
 
     void trace_gas_model(int *jday, double *time, double *newminrl, double *ammonium, double nitrate[],
                          int *texture, double *sand, double *silt, double *clay,
@@ -126,7 +129,7 @@
                          int *isagri, double *grass_lai, double *tree_lai,
                          double *NOabsorp_grass, double *NOabsorp_tree,
                          double *nit_amt, double *nreduce, 
-                         double dN2lyr[], double dN2Olyr[])
+                         double dN2lyr[], double dN2Olyr[],SITEPAR_SPT sitepar,LAYERPAR_SPT layers,SOIL_SPT soil)
     {
 
       /* Local Variables */
@@ -151,7 +154,7 @@
       double NOabsorp;
       double total_lai;
 
-      extern SITEPAR_SPT sitepar;
+//      extern SITEPAR_SPT sitepar;
 
       *Nn2oflux = 0.0;
       *NOflux = 0.0;
@@ -204,7 +207,7 @@
       /* Compute the amount of NH4 that is converted to NO3 due to */
       /* nitrification */
 
-      nitrify(ammonium, &nh4_to_no3, maxt, nreduce);
+     nitrify(ammonium, &nh4_to_no3, maxt, nreduce,sitepar,layers,soil);
       *nit_amt = nh4_to_no3;
 
       if (debug) {
@@ -267,9 +270,10 @@
       /* Compute the N2O flux (Dn2oflux) and N2 flux (Dn2flux) due to */
       /* denitrification */
 
-      denitrify(newCO2, &newNO3, nitrate, wfluxout, critflow, frlechd,
+denitrify(newCO2, &newNO3, nitrate, wfluxout, critflow, frlechd,
                 stream, basef, stormf, inorglch, Dn2oflux, Dn2flux,
-                stdfieldc, stdbulkd, dN2lyr, dN2Olyr, jday);
+                stdfieldc, stdbulkd, dN2lyr, dN2Olyr, jday,sitepar,layers);
+
 
       /* Now compute NOflux from denitrification (new calculation */
       /* -mdh 6/1/00 */
@@ -332,7 +336,7 @@
       }
       
       /* Calculate methane oxidation */
-      methane_oxidation(CH4, isdecid, isagri);
-      wrtsoiln(time, jday,ammonium,nitrate);
+      methane_oxidation(CH4, isdecid, isagri,layers,soil);
+  //    wrtsoiln(time, jday,ammonium,nitrate);
       return;
     }

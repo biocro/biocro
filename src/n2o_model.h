@@ -17,14 +17,7 @@
 #define MIN_NH4_CONC 0.05  /* minimum NH4 concentration (ppm) */
 #define MIN_NO3_CONC 0.05  /* minimum NO3 concentration (ppm) */
 
-void nitrify(double *ammonium, double *nh4_2_no3, double *maxt, double *nreduce);
 
-void denitrify(double *newCO2, double *newNO3, double nitrate[],
-               double tfluxout[], double *critflow, double frlechd[],
-               double stream[], double *basef, double *stormf, double *inorglch,
-               double *Dn2oflux, double *Dn2flux, double stdfieldc,
-               double stdbulkd, double dN2lyr[],
-               double dN2Olyr[], int *jday);
 
 double nox_pulse(double *ppt, double *snow);
 
@@ -37,7 +30,7 @@ void leachdly(double tfluxout[], int numlyrs, double nitrate[], double critflow,
               double frlechd[], double stream[], double basef, double stormf,
               double *inorglch);
 
-void methane_oxidation(double *CH4, int *isdecid, int *isagri);
+
 
 double f_allometric(double x, double A[]);
 

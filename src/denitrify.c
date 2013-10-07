@@ -128,10 +128,13 @@
 **    wfps()           - compute the daily water-filled pore space by layer
 **  
 *****************************************************************************/
-
+#include <R.h>
+#include <math.h>
+#include <Rmath.h>
+#include <Rinternals.h>
 #include "n2o_model.h"
 #include "soilwater.h"
-#include <math.h>
+// #include <math.h>
 
 #define  M_PI 3.1415926536
 
@@ -140,7 +143,7 @@
                    double stream[], double *basef, double *stormf,
                    double *inorglch, double *Dn2oflux, double *Dn2flux,
                    double stdfieldc, double stdbulkd, 
-                   double dN2lyr[], double dN2Olyr[], int *jday)
+                   double dN2lyr[], double dN2Olyr[], int *jday,SITEPAR_SPT sitepar,LAYERPAR_SPT layers)
     { 
       int    debug;
       int    ilyr;
@@ -175,9 +178,10 @@
       double grams_per_ug;
       double  CM_per_METER;
 
+/*
       extern LAYERPAR_SPT layers;
       extern SITEPAR_SPT sitepar;
-
+*/
       /* Initializations */
       debug = 0;
       min_nitrate = 0.1;
