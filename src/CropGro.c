@@ -536,7 +536,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   updateafteremergence(&miscanthus,&management);
   LAI = miscanthus.leaf.biomass*Sp;
   int phototype;
-  phototype=2;
+  phototype=1;
   // This is specific to willow to avoid harvesting based on day of year
   
 	for(i=0;i<vecsize;i++)
@@ -577,6 +577,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
 			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
+//             Rprintf("C4 canopy\n");
             }
             if(phototype==2)
             {
@@ -591,7 +592,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   		       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
 			       lat, nlayers,
-			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws); 
+			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
+             Rprintf("C3 Canopy\n");
             }
 //             Rprintf("After Canopy Function,Phototype= %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
         		CanopyA = Canopy.Assim * timestep;
