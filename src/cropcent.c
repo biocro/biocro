@@ -18,13 +18,13 @@ SEXP cropcent (SEXP FAKE)
 //  assignENV(&CROPCENT);
   assignFluxRatios(&CROPCENT);
   Rprintf("Before Decomposition\n");
-  printcropcentout(CROPCENT,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake);
+  printcropcentout(CROPCENT,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake);
   decomposeCROPCENT(&CROPCENT, woody,Eflag);
   Rprintf("After Decomposition \n");
-  printcropcentout(CROPCENT,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake);
+  printcropcentout(CROPCENT,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake);
   Rprintf("After updating\n");
   updatecropcentpools(&CROPCENT);
-  printcropcentout(CROPCENT,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake);
+  printcropcentout(CROPCENT,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake,fake);
   SEXP res;
   PROTECT(res=allocVector(REALSXP,1));
   REAL(res)[0]=1.0;

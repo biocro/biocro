@@ -5,7 +5,7 @@
   
   void printcropcentout(struct cropcentlayer CROPCENT, double *totalSOC, double *strucc1, double *strucc2, 
                         double *metabc1, double *metabc2, double *som1c1, double *som1c2, double *som2c1, 
-                        double *som2c2, double *som3c){
+                        double *som2c2, double *som3c, double *minN){
   double cbalance;
   
   *totalSOC = CROPCENT.strucc1.C.totalC +CROPCENT.strucc2.C.totalC+CROPCENT.metabc1.C.totalC+CROPCENT.metabc2.C.totalC
@@ -21,6 +21,7 @@
        *som2c1 = CROPCENT.som2c1.C.totalC;
       *som2c2 = CROPCENT.som2c2.C.totalC;
        *som3c = CROPCENT.som3c.C.totalC;
+       *minN=CROPCENT.ENV.minN;
      
               
   /*
