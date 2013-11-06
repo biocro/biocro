@@ -1,24 +1,48 @@
-weachDT <- function(X, lati, ts=1){
+##' Simple, Fast Daily to Hourly Climate Downscaling
+##'
+##' Based on weach family of functions but 5x faster than weachNEW,
+##' and requiring metric units (temperature in celsius, windspeed in kph,
+##' precip in mm, relative humidity as fraction)
+##' @title weachDT
+##' @param X data table with climate variables
+##' @param lati latitude (for calculating solar radiation)
+##' @export
+##' @return weather file for input to BioGro and related crop growth functions
+##' @author David LeBauer
+weachDT <- function(X, lati){
 
-    tint <- 24/ts
-    tseq <- seq(0,23,ts)
+    tint <- 24
+    tseq <- 0:23
+    ## Solar Radiation
+
+    setkeyv(X, c("year", "doy"))
+    solarR <-  X[,list(solarR = rep((0.12 * dswrf.MJ) * 2.07 * 10^6 / 3600, each = tint) ), by = c("year", "doy")]
     
-    Y <-  X[,list(solarR = rep((0.12 * dswrf.MJ) * 2.07 * 10^6 / 3600, each = tint) )]
+    light <- X[,lightME(DOY = doy, t.d = tseq, lat = 40),
+                      by = c("year", "doy")]
 
+    light$Itot <- light[,list(I.dir + I.diff)]
+    resC2 <- light[, list(resC2 = (Itot - min(Itot)) / max(Itot)), by = c("year", "doy")] 
     
-    tmp <- X[,lightME(DOY = day, t.d = tseq, lat = 40), by = c("year", "day")]
-    tmp$Itot <- tmp[,list(I.dir + I.diff)]
-    tmp$resC2 <- tmp[,list((Itot - min(Itot)) / max(Itot))] 
-    Y <- cbind(Y, tmp)
-    SolarR <- Y[,list(solarR * resC2)]
+    SolarR <- cbind(resC2, solarR)[,list(SolarR = solarR * resC2)]
 
-    Temp <- X[,list(tmin + (sin(2*pi*(tseq-10)/tint) + 1)/2 * (tmax - tmin)), by = c("year", "day")]
-    RH <- X[,list(rhmin + (cos(2 * pi * (tseq - 10)/tint) + 1) / 2), by = c("year", "day")]
-    WS <- X[,rep(wnd, each = tint)]
+    ## Temperature
+    Temp <- X[,list(Temp = tmin + (sin(2*pi*(tseq-10)/tint) + 1)/2 * (tmax - tmin)),
+              by = c("year", "doy")][,list(Temp)]
+
+    ## Relative Humidity
+    rhscale <- (cos(2 * pi * (tseq - 10) / tint) + 1) / 2
+    RH <- X[,list(RH = rhmin + rhscale * (rhmax - rhmin)), by = c("year", "doy")][,list(RH)]
+
+    ## Wind Speed
+    WS <- rep(X$wnd, each = tint)
+
+    ## Precipitation
     precip <- rep(X$precip/tint, each = tint)
-    hour <- 1:24
 
-    time <- Y[,list(year, doy = day, hour = 1:24)]
+    ## Hour
+    time <- X[,list(hour = tseq), by = c("year", "doy")]
+    
     ans <- cbind(time, SolarR, Temp, RH, WS, precip)
     return(ans)
 }
