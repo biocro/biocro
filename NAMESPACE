@@ -129,6 +129,7 @@ export(weach)
 export(weach365)
 export(weach366)
 export(weachNEW)
+export(weachDT)
 
 ##CheckLeapYear to check leap years in weachNEW
 export(CheckLeapYear)

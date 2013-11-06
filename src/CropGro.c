@@ -16,6 +16,7 @@
 #include "AuxcaneGro.h"
 #include "crocent.h"
 #include "c3canopy.h"
+#include "soilwater.h"
 
 SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
@@ -100,6 +101,49 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    rootlitterE=  leaflitterE;
    rhizomelitterE=leaflitterE;
    /*************************************************/
+   
+   /*********Tracegas Calculation Variables ***********/
+   
+    SITEPAR_SPT sitepar;
+    LAYERPAR_SPT layers;
+    SOIL_SPT soil;
+     double *fakedouble,newminrl, ammonium,nitrate[50],sand,silt,clay,afiel,bulkd,maxt,ppt,snow,avgwfps,stormf,basef,frlechd[50],stream[60],inorglch;
+       double critflow,wfluxout[60],newCO2,NOflux,Nn2oflux,Dn2oflux,Dn2flux,CH4,grass_lai,tree_lai,NOabsorp_grass,NOabsorp_tree,nit_amt,nreduce;
+       double dN2lyr[60],dN2Olyr[60];  
+       int *fakeint,texture,isdecid,isagri,jday,iindex;
+       afiel=0.3;
+       ammonium=0.0;
+       newminrl=0.0;
+       avgwfps=0.5;
+       basef=0.0;
+       bulkd=1.2;
+       CH4=0.0;
+       sand=0.33;
+       silt=0.33;
+       clay=0.33;
+       critflow=1.0;
+       inorglch=0.0;
+       isdecid=0;
+       isagri=1;
+       jday=180;
+       maxt=15;
+       newCO2=0.0;
+       newminrl=0.0;
+       ppt=0.0;
+       stormf=0.0;
+       texture=1;
+       grass_lai=0.0;
+       tree_lai=0.0;
+       for (iindex=0;iindex<60;iindex++){
+         frlechd[iindex]=0.0;
+         stream[iindex]=0.0;
+         wfluxout[iindex]=0.0;
+         dN2lyr[iindex]=0.0;
+         dN2Olyr[iindex]=0.0;
+       }
+       
+   /*******************************************************/
+
    
    struct crop_phenology cropdbp;
    static struct miscanthus miscanthus, deltamiscanthus;
@@ -314,6 +358,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SEXP som2c1;
   SEXP som2c2;
   SEXP som3c;
+  SEXP minN;
   
 // Declaring Daily variables
  double  accumulatedGDD=0.0;
@@ -323,8 +368,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
 
 //	vecsize = length(DOY);
-	PROTECT(lists = allocVector(VECSXP,59));
-	PROTECT(names = allocVector(STRSXP,59));
+	PROTECT(lists = allocVector(VECSXP,60));
+	PROTECT(names = allocVector(STRSXP,60));
 
 	PROTECT(DayofYear = allocVector(REALSXP,vecsize));
 	PROTECT(Hour = allocVector(REALSXP,vecsize));
@@ -385,6 +430,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   PROTECT(som2c1 = allocVector(REALSXP,dailyvecsize));
    PROTECT(som2c2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som3c = allocVector(REALSXP,dailyvecsize));
+  PROTECT(minN = allocVector(REALSXP,dailyvecsize));
 	/* Picking vmax, alpha and kparm */
 	vmax1 = REAL(VMAX)[0];
 	alpha1 = REAL(ALPHA)[0];
@@ -536,9 +582,9 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   updateafteremergence(&miscanthus,&management);
   LAI = miscanthus.leaf.biomass*Sp;
   int phototype;
-  phototype=2;
+  phototype=1;
   // This is specific to willow to avoid harvesting based on day of year
-  
+  CROPCENT.ENV.minN=12.0; //120*1000/10000 g N/m2
 	for(i=0;i<vecsize;i++)
 //    for(i=0;i<3;i++)
 	{
@@ -577,6 +623,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
 			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
+//             Rprintf("C4 canopy\n");
             }
             if(phototype==2)
             {
@@ -591,7 +638,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   		       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
 			       lat, nlayers,
-			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws); 
+			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
+             Rprintf("C3 Canopy\n");
             }
 //             Rprintf("After Canopy Function,Phototype= %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
         		CanopyA = Canopy.Assim * timestep;
@@ -675,8 +723,12 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    accumulatedGDD+=((dap==0)? 0:dailydelTT);
 //   REAL(GDD)[dap]=((dap==0)? 0:REAL(GDD)[dap-1])+dailydelTT;
      REAL(GDD)[dap]=accumulatedGDD;
+     double oldstandingN, newstandingN, Ndemand;
+     oldstandingN=(miscanthus.leaf.biomass+miscanthus.stem.biomass+miscanthus.root.biomass+miscanthus.rhizome.biomass)*0.4*100/40.0; // carbohydrta to C to g/m2 to N
      dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);     
-        /***** Check if plant is already emerged, then growth needs to be simulated ***/ 
+     newstandingN=(miscanthus.leaf.biomass+miscanthus.stem.biomass+miscanthus.root.biomass+miscanthus.rhizome.biomass)*0.4*100/40.0; // carbohydrta to C to g/m2 to N
+      Ndemand =newstandingN - oldstandingN;
+     /***** Check if plant is already emerged, then growth needs to be simulated ***/ 
           if(emergence==1)
           {
             /*** Simulate miscanthus growth ***/
@@ -708,6 +760,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                       TTc=0.0;
 //                  miscanthus.leaf.biomass=0.02*  miscanthus.rhizome.biomass;
                   LAI = miscanthus.leaf.biomass* Sp;
+                   CROPCENT.ENV.minN+=12.0; // adding fertilization on the emergence day
                   }
 //                   dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);
                  // updatedormantstage(&miscanthus);
@@ -755,10 +808,30 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
      {
       UpdateCropcentPoolsFromBioCro(&CROPCENT, &rhizomelitter);
      }
+      
+       newminrl =CROPCENT.ENV.minN;
        assignENV(&CROPCENT,fake,fake,fake,fake,fake,fake,fake);
        assignFluxRatios(&CROPCENT);
        decomposeCROPCENT(&CROPCENT, woody,Eflag);
        updatecropcentpools(&CROPCENT);
+       CROPCENT.ENV.minN-=Ndemand;
+       CROPCENT.ENV.minN=(CROPCENT.ENV.minN<0)?1e-6:CROPCENT.ENV.minN;
+       CROPCENT.ENV.minN=CROPCENT.ENV.minN-newminrl; //current minus old is newminrl
+       
+      
+       trace_gas_model(fakeint,fakedouble ,&newminrl, &ammonium, nitrate,
+                         &texture, &sand, &silt, &clay,
+                         &afiel, &bulkd, &maxt, &ppt,
+                         &snow, &avgwfps, &stormf,
+                         &basef, frlechd, stream,
+                         &inorglch, &critflow, wfluxout,
+                         &newCO2, &NOflux, &Nn2oflux, &Dn2oflux,
+                         &Dn2flux, &CH4, &isdecid,
+                         &isagri, &grass_lai, &tree_lai,
+                         &NOabsorp_grass, &NOabsorp_tree,
+                         &nit_amt, &nreduce, 
+                         dN2lyr,dN2Olyr,sitepar,layers,soil);
+       
        printcropcentout(CROPCENT,
                         &REAL(totalSOC)[dap],
                         &REAL(strucc1)[dap],
@@ -769,7 +842,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                         &REAL(som1c2)[dap],
                         &REAL(som2c1)[dap],
                         &REAL(som2c2)[dap],
-                        &REAL(som3c)[dap]);
+                        &REAL(som3c)[dap],
+                        &REAL(minN)[dap]);
 
 // 
 // BiocroToCrocent(&RootLitter,root.fallrate,root.lignin, &root.E, isotoperatio, 0, 0,rootlitter);
@@ -943,6 +1017,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SET_VECTOR_ELT(lists,56,som2c1);
   SET_VECTOR_ELT(lists,57,som2c2);
   SET_VECTOR_ELT(lists,58,som3c);
+  SET_VECTOR_ELT(lists,59,minN);
+
 
 	SET_STRING_ELT(names,0,mkChar("DayofYear"));
 	SET_STRING_ELT(names,1,mkChar("Hour"));
@@ -1003,7 +1079,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SET_STRING_ELT(names,56,mkChar("som2c1"));
   SET_STRING_ELT(names,57,mkChar("som2c2"));
   SET_STRING_ELT(names,58,mkChar("som3c"));
+   SET_STRING_ELT(names,59,mkChar("minN"));
 	setAttrib(lists,R_NamesSymbol,names);
-	UNPROTECT(61);
+	UNPROTECT(62);
 	return(lists);
 }

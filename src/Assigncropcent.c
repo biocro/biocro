@@ -168,7 +168,6 @@ void assignParms(struct cropcentlayer *CROPCENT, double *somassignparmsfromR)
   CROPCENT->metabc1.PHEFF.b=0.5;
   CROPCENT->metabc1.PHEFF.c=1.14;
   CROPCENT->metabc1.PHEFF.d=0.7;
-
   
   
   CROPCENT->metabc2.parms.k=18.5;
