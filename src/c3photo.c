@@ -155,7 +155,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	Ko = exp(20.30-36.38/(R*(Tleaf+273.15))); 
 	Gstar = exp(19.02-37.83/(R*(Tleaf+273.15))); 
 
-	Vcmax = Vcmax0 * exp(26.35 - 65.33/(R * (Tleaf+273.15)));
+	Vcmax = Vcmax0 * exp(26.35 - 65.33/(R * (Tleaf+273.15))); /*label{ref:vcmax}*/
 	Rd = Rd0 * exp(18.72 - 46.39/(R * (Tleaf+273.15)));
 
         /* Effect of temperature on theta */
