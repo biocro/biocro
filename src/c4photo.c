@@ -25,18 +25,18 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 
 	double Bet0,Bet1;
 
-	double vmax, alpha, K, Rd, StomWS;
+	double vmax, alpha, K, Rd, StomWS;/*\ref{eqn:Vmax}\ref{eqn:Rd}*/
 	double theta, beta;
 	double upperT, lowerT;
 
-	vmax = REAL(VMAX)[0];
+	vmax = REAL(VMAX)[0];/*\ref{eqn:Vmax}*/
 	alpha = REAL(ALPHA)[0];
 	theta = REAL(THETA)[0];
 	beta = REAL(BETA)[0];
 	K = REAL(KPAR)[0];
 	Bet0 = REAL(B0)[0];
 	Bet1 = REAL(B1)[0];
-	Rd = REAL(RD)[0];
+	Rd = REAL(RD)[0];/*\ref{eqn:Rd}*/
 	StomWS = REAL(STOMWS)[0];
         upperT=REAL(UPPERTEMP)[0];
         lowerT=REAL(LOWERTEMP)[0];
@@ -76,7 +76,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	{
 
 		tmp = c4photoC(*(pt_Qp+i), *(pt_Tl+i), *(pt_RH+i),
-			       vmax, alpha, K,theta, beta, Rd, 
+			       vmax, alpha, K,theta, beta, Rd, /*\ref{eqn:Vmax}\ref{eqn:Rd}*/
 			       Bet0, Bet1, StomWS, 
 			       *(pt_CA+i), ws,upperT,lowerT);
 
@@ -378,7 +378,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 	double scale = REAL(SCALE)[0];
 	double sd1, sd2;
 
-	double Rd = REAL(iRD)[0];
+	double Rd = REAL(iRD)[0];/*\ref{eqn:Rd}*/
 	double ikparm = REAL(iKPARM)[0];
 	double ibeta = REAL(iBETA)[0];
 	double itheta = REAL(iTHETA)[0];
@@ -484,9 +484,9 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 /* and given values for the two most important */
 /* parameters Vcmax and alpha */
 double RSS_C4photo(double oAssim[nObs], double oQp[nObs], double oTemp[nObs], 
-		   double oRH[nObs], double vmax, double alpha, double kparm, 
+		   double oRH[nObs], double vmax, double alpha, double kparm, /*\ref{eqn:Vmax}*/
 		   double theta, double beta,
-                   double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT,double lowerT){
+                   double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT,double lowerT){ /*\ref{eqn:Rd}*/
 	extern int nObs;
 	struct c4_str tmp;
 	int i;
