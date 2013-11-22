@@ -28,7 +28,7 @@
  I_{dir}   &=  I_{s}\alpha^{\frac{(P/P_{o})}{\cos(\theta)}} \label{eqn:Idir}\\
  I_{\mathit{diff}}  &=   0.5 \cdot I_{s}\cdot(1-\alpha^{(P/P_{o})/\cos(\theta)})\cos(\theta) \\%\label{eqn:Idiff}\marginnote{P is defined as a constant (?)}\\
 \tfrac{1}{2} \cos((15 \cdot t_{len})  &=  -\tan(\Omega)\tan(\delta) \label{eqn:costlen_old}  \\
-t_\text{len} &= \frac{2cos^{-1}(-\tan(\Omega)\tan(\delta))}{15}\label{eqn:costlen} \label{eqn:tlen}\\
+t_\text{len} &= \frac{2cos^{-1}(-\tan(\Omega)\tan(\delta))}{15}\label{eqn:costlen}\\
 t_\text{down} &= 12-t_\text{len}/2\label{eqn:tdown}\\
 t_\text{up} &= 12+t_\text{len}/2\label{eqn:tup}
 \end{align}
@@ -59,7 +59,7 @@ T_\text{air}  &=   T_\text{mean} + T_\text{range} \cdot T_\text{excursion} \labe
  V_\text{max}&=\frac{V_{\text{max}_0}Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{\left(1+\exp(0.3(T_\text{lower}-T_\text{leaf})\right)\left(1+\exp(0.3(T_\text{leaf}-T_\text{upper})\right)}\label{eqn:Vmax}\\
  R_d&= \frac{R_0Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{1+\exp(1.3(T_\text{leaf}-55))}\label{eqn:Rd}\\
  k_t&=kQ_{10}^{\frac{T_\text{leaf}-25}{10}}\label{eqn:kt}\\
- c_i &=c_a-\frac{1.6A_nP}{g_s}\label{eqn:ci}\\
+ c_i &=c_a-\frac{1.6A_nP}{g_s}\ref{eqn:ci}\\
  A_\text{net}&=A_\text{gross}-R_d\label{eqn:Anet}\\
  M &= \min\left[\frac{\scriptstyle(V_\text{max}+\alpha_{\text{slope}} I_\text{abs}) \pm \sqrt{(V_\text{max}+\alpha_\text{slope}I_\text{abs})^{2} - 4  (V_\text{max} \alpha_{\text{slope}}  I_\text{abs}) \theta_\text{curve}}}{2  \theta_\text{curve}}\right] \label{eqn:M} \\
  A_\text{gross} &= \min\left[ \frac{ \left( M + k_{t} \cdot \frac{c_{i}}{P} \right) \pm \sqrt{ \left(M + k_{t} \cdot \frac{c_{i}}{P} \right)^2 - \left( 4 \cdot M \cdot k_{t} \cdot \frac{c_{i}}{P} \cdot \beta \right)}}{2 \cdot \beta}\right] \label{eqn:Agross}
@@ -432,7 +432,7 @@ $\sigma$ & Wm$^{-2}$K$^{-4}$ & Stefan-Boltzmann constant & $5.67 \cdot 10^{-8}$\
 $t$	&	h	&	Time of day	&	-	\\
 $t_\text{up}$ & h & time of dawn & \ref{eqn:tup}\\
 $t_\text{down}$ & h & time of dusk & \ref{eqn:tdown}\\
-$t_\text{len}$& h & day length & - \marginnote{is this a constant, 24?}\ref{eqn:tlen}\\
+$t_\text{len}$& h & day length & - \marginnote{is this a constant, 24?}\ref{eqn:costlen}\\
 $t_\text{sn}$	&	h	&	Time of solar noon	&	12	\\
 $T_\text{leaf}$	&	$^\circ$C	&	Leaf temperature	&	-	\\
 $T_\text{air}$	&	$^\circ$C	&	Ambient air temperature	&	-	\ref{eqn:Tair}\\
