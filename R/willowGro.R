@@ -378,6 +378,7 @@ willowCent <- function(WetDat, day1=120, dayn=300,
   heightF <- canopyP$heightFactor
   nlayers <- canopyP$nlayers
   GrowthRespFraction <- canopyP$GrowthRespFraction
+
   res <- .Call("willowCent",
                as.double(lat),
                as.integer(doy),
@@ -492,7 +493,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     vecsize <- (dayn - (day1-1)) * tint
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
-    
+    indesn <- ifelse(indesn > nrow(WetDat), nrow(WetDat), indesn) 
 
     doy <- WetDat[indes1:indesn,2]
     hr <- WetDat[indes1:indesn,3]
@@ -510,11 +511,12 @@ willowGro <- function(WetDat, day1=120, dayn=300,
 
     TPcoefs <- as.vector(unlist(willowphenoP)[1:6])
     
-    Tbase<-as.vector(unlist(willowphenoP)[32])
+    Tbase <- as.vector(unlist(willowphenoP)[32])
 
     SENcoefs <- as.vector(unlist(seneP))
 
-    soilCoefs <- c(unlist(soilP[1:5]),mean(soilP$iWatCont),soilP$scsf, soilP$transpRes, soilP$leafPotTh)
+    soilCoefs <- c(unlist(soilP[1:5]), mean(soilP$iWatCont),
+                   soilP$scsf, soilP$transpRes, soilP$leafPotTh)
     wsFun <- soilP$wsFun
     soilType <- soilP$soilType
 
@@ -614,7 +616,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
                  as.double(GrowthRespFraction),
                  as.double(StomWS)
     )
-    
+     
     res$cwsMat <- t(res$cwsMat)
     colnames(res$cwsMat) <- soilP$soilDepths[-1]
     res$rdMat <- t(res$rdMat)
