@@ -28,19 +28,19 @@
  I_{dir}   &=  I_{s}\alpha^{\frac{(P/P_{o})}{\cos(\theta)}} \label{eqn:Idir}\\
  I_{\mathit{diff}}  &=   0.5 \cdot I_{s}\cdot(1-\alpha^{(P/P_{o})/\cos(\theta)})\cos(\theta) \\%\label{eqn:Idiff}\marginnote{P is defined as a constant (?)}\\
 \tfrac{1}{2} \cos((15 \cdot t_{len})  &=  -\tan(\Omega)\tan(\delta) \label{eqn:costlen_old}  \\
-t_\text{len} &= \frac{2cos^{-1}(-\tan(\Omega)\tan(\delta))}{15}\label{eqn:costlen} \\
-t_\text{down} &= 12-t_\text{len}/2\\
-t_\text{up} &= 12+t_\text{len}/2
+t_\text{len} &= \frac{2cos^{-1}(-\tan(\Omega)\tan(\delta))}{15}\label{eqn:costlen} \label{eqn:tlen}\\
+t_\text{down} &= 12-t_\text{len}/2\label{eqn:tdown}\\
+t_\text{up} &= 12+t_\text{len}/2\label{eqn:tup}
 \end{align}
 \todo[inline]{what is the relevance of equation \ref{eqn:costlen_old}? Steve H's thesis contains the original, equation \ref{eqn:costlen}}
 
 
 \subsection*{Weather Downscaling}
 \begin{align}
-T_\text{mean} &= \frac{1}{2}\left(T_\text{max} + T_\text{min}\right)\\
-T_\text{range} &= T_\text{max} - T_\text{min}\\
+T_\text{mean} &= \frac{1}{2}\left(T_\text{max} + T_\text{min}\right)\label{eqn:Tmean}\\
+T_\text{range} &= T_\text{max} - T_\text{min}\label{eqn:Trange}\\
 T_\text{excursion}  &=  \sin\biggl(2 \pi \frac{h_{r}-10}{24}\biggr) \label{eqn:excur} \\
- T_\text{air}  &=   T_\text{mean} + T_\text{range} \cdot T_\text{excursion} \label{eqn:Tair} 
+T_\text{air}  &=   T_\text{mean} + T_\text{range} \cdot T_\text{excursion} \label{eqn:Tair} 
 \end{align}
 
 \subsection*{Canopy Radiation}
@@ -51,48 +51,50 @@ T_\text{excursion}  &=  \sin\biggl(2 \pi \frac{h_{r}-10}{24}\biggr) \label{eqn:e
  r^{\sim}  &=  \frac{m_r}{n} \label{eqn:rsim} \\
  h  &=  \frac{r^{\sim}}{q} \label{eqn:h} 
 \end{align}
-\newpage
-\subsection*{C4 Photosynthesis}
-From Collatz 1992 Coupled Photosynthesis-Stomata1 Conductance Model for Leaves of C4 Plants. Aust. J. Plant Physiol. 19 519-538
-\begin{align}
- V_\text{max}&=\frac{V_{\text{max}_0}Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{\left(1+\exp(0.3(T_\text{lower}-T_\text{leaf})\right)\left(1+\exp(0.3(T_\text{leaf}-T_\text{upper})\right)}\\
- R_d&= \frac{R_0Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{1+\exp(1.3(T_\text{leaf}-55))}\\
- k_t&=kQ_{10}^{\frac{T_\text{leaf}-25}{10}}\\
- c_i &=c_a-\frac{1.6A_nP}{g_s}\\
- A_\text{net}&=A_\text{gross}-R_d\\
+
+
+ \subsection*{C4 Photosynthesis}
+ From Collatz 1992 Coupled Photosynthesis-Stomata1 Conductance Model for Leaves of C4 Plants. Aust. J. Plant Physiol. 19 519-538
+ \begin{align}
+ V_\text{max}&=\frac{V_{\text{max}_0}Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{\left(1+\exp(0.3(T_\text{lower}-T_\text{leaf})\right)\left(1+\exp(0.3(T_\text{leaf}-T_\text{upper})\right)}\label{eqn:Vmax}\\
+ R_d&= \frac{R_0Q_{10}^{\frac{T_\text{leaf}-25}{10}}}{1+\exp(1.3(T_\text{leaf}-55))}\label{eqn:Rd}\\
+ k_t&=kQ_{10}^{\frac{T_\text{leaf}-25}{10}}\label{eqn:kt}\\
+ c_i &=c_a-\frac{1.6A_nP}{g_s}\label{eqn:ci}\\
+ A_\text{net}&=A_\text{gross}-R_d\label{eqn:Anet}\\
  M &= \min\left[\frac{\scriptstyle(V_\text{max}+\alpha_{\text{slope}} I_\text{abs}) \pm \sqrt{(V_\text{max}+\alpha_\text{slope}I_\text{abs})^{2} - 4  (V_\text{max} \alpha_{\text{slope}}  I_\text{abs}) \theta_\text{curve}}}{2  \theta_\text{curve}}\right] \label{eqn:M} \\
-  A_\text{gross} &= \min\left[ \frac{ \left( M + k_{t} \cdot \frac{c_{i}}{P} \right) \pm \sqrt{ \left(M + k_{t} \cdot \frac{c_{i}}{P} \right)^2 - \left( 4 \cdot M \cdot k_{t} \cdot \frac{c_{i}}{P} \cdot \beta \right)}}{2 \cdot \beta}\right] \label{eqn:Agross}
-\end{align}
+ A_\text{gross} &= \min\left[ \frac{ \left( M + k_{t} \cdot \frac{c_{i}}{P} \right) \pm \sqrt{ \left(M + k_{t} \cdot \frac{c_{i}}{P} \right)^2 - \left( 4 \cdot M \cdot k_{t} \cdot \frac{c_{i}}{P} \cdot \beta \right)}}{2 \cdot \beta}\right] \label{eqn:Agross}
+ \end{align}
+
 \newpage
 \subsection*{C3 Photosynthesis}
 
 From Appendix 2 in Bernacchi et al 2003 Plant, Cell and Environment 26, 1419–1430  doi: 10.1046/j.0016-8025.2003.01050.x:
 
 \begin{align}
-A &= \left(1-\Gamma^\ast/c_i\right) \\
-w_c &= \frac{V_{c\text{max}}c_i}{c_i+K_c(1+O_a/K_0)}\\
-w_j &= \frac{Jc_i}{4.5c_i + 10.5\Gamma^{*}}\\
-\Gamma^\ast &= exp(19.02 - 37.83/(R(T_\text{leaf}+273.15)))\\
-K_c &= exp(38.05-36.38/R(T_\text{leaf}+273.15))\\
-K_0&=exp(20.30-36.38/R(T_\text{leaf}+273.15))\\
-V_{c,\text{max}}&=V_{c,\text{max}@25C}\cdot \exp(26.35-65.33/R(T_\text{leaf}+273.15))\\
-J&=\frac{Q_2+J_\text{max,T}-\sqrt{(Q_2+J_\text{max,T})^2-4\Theta_{PSII}Q_2J_{\text{max},T}}}{2\Theta_{\text{PSII}}}\\
-J_{\text{max},T}&=J_{\text{max}@25C}\exp(17.57-43.54/(R(T_\text{leaf}+273.15))) \\
-\Theta_\text{PSII} &= 0.76+0.018T_\text{leaf}-3.7\cdot10^{-4}T_\text{leaf}^2\\
-Q_2&=Q\cdot k\cdot \Phi_\text{PSII,max}\cdot\beta_\Phi\\
-\Phi_\text{PSII,max}&= 0.352 + 0.022T_\text{leaf} - 3.4\cdot10^{-4} T_\text{leaf}^2
+A &= \left(1-\Gamma^\ast/c_i\right) \label{eqn:A}\\
+w_c &= \frac{V_{c\text{max}}c_i}{c_i+K_c(1+O_a/K_0)}\label{eqn:wc}\\
+w_j &= \frac{Jc_i}{4.5c_i + 10.5\Gamma^{*}}\label{eqn:wj}\\
+\Gamma^\ast &= exp(19.02 - 37.83/(R(T_\text{leaf}+273.15)))\label{eqn:gammaast}\\
+K_c &= exp(38.05-36.38/R(T_\text{leaf}+273.15))\label{eqn:Kc}\\
+K_0&=exp(20.30-36.38/R(T_\text{leaf}+273.15))\label{eqn:K0}\\
+V_{c,\text{max}}&=V_{c,\text{max}@25C}\cdot \exp(26.35-65.33/R(T_\text{leaf}+273.15))\label{eqn:Vcmax}\\
+J&=\frac{Q_2+J_\text{max,T}-\sqrt{(Q_2+J_\text{max,T})^2-4\Theta_{PSII}Q_2J_{\text{max},T}}}{2\Theta_{\text{PSII}}}\label{eqn:J}\\
+J_{\text{max},T}&=J_{\text{max}@25C}\exp(17.57-43.54/(R(T_\text{leaf}+273.15))) \label{eqn:Jmaxt}\\
+\Theta_\text{PSII} &= 0.76+0.018T_\text{leaf}-3.7\cdot10^{-4}T_\text{leaf}^2\label{eqn:ThetaPSII}\\
+Q_2&=Q\cdot k\cdot \Phi_\text{PSII,max}\cdot\beta_\Phi\label{eqn:Q2}\\
+\Phi_\text{PSII,max}&= 0.352 + 0.022T_\text{leaf} - 3.4\cdot10^{-4} T_\text{leaf}^2\label{eqn:PhiPSIImax}
 \end{align}
 
 From Appendix 1, Equations 7-9 in Long 1991 Plant, Cell and Environment 14, 729-739. doi:10.1111/j.1365-3040.1991.tb01439.x:
 
 \begin{align}
 % tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT,2) - 8.874081e-06 * pow(LeafT,3)) / 0.735465;
-c_i &= 0.7c_a\left(\frac{1.6740-6.1294\cdot10^{-2}T_\text{leaf}+1.1688\cdot10^{-3}T_\text{leaf}^2-8.8741\cdot10^{-6}T_\text{leaf}^3}{0.73547}\right)\\
-c_i&=0.7c_a @ 25^{\circ}C \\
+c_i &= 0.7c_a\left(\frac{1.6740-6.1294\cdot10^{-2}T_\text{leaf}+1.1688\cdot10^{-3}T_\text{leaf}^2-8.8741\cdot10^{-6}T_\text{leaf}^3}{0.73547}\right)\label{eqn:ci}\\
+c_i&=0.7c_a @ 25^{\circ}C \ref{eqn:ci}\\
 %% c3photo.c: tmp = (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT,2) - 2.1441e-07 * pow(LeafT,3)) / 0.026934;
-O_i&=210\left(\frac{4.7000\cdot10^{-2}-1.3087\cdot10^{-3}T_\text{leaf}+2.5603\cdot10^{-5}T_\text{leaf}^2-2.1441\cdot10^{-7}T_\text{leaf}^3}{2.6934\cdot10^{-2}}\right)\\
-O_i&=O_a  @ 25^{\circ}C\\
-\phi&=\frac{A_{\text{I}=50}-A_{\text{I}=25}}{25f}
+O_i&=210\left(\frac{4.7000\cdot10^{-2}-1.3087\cdot10^{-3}T_\text{leaf}+2.5603\cdot10^{-5}T_\text{leaf}^2-2.1441\cdot10^{-7}T_\text{leaf}^3}{2.6934\cdot10^{-2}}\right)\label{eqn:Oi}\\
+O_i&=O_a  @ 25^{\circ}C\ref{eqn:Oi}\\
+\phi&=\frac{A_{\text{I}=50}-A_{\text{I}=25}}{25f}\label{eqn:phi}
 %LCP=R_d/\phi\\
 \end{align}
 \todo[inline]{is there a reason not to divide by the denominator when it is constant?}
@@ -257,14 +259,15 @@ A_{\text{total}} &= A_{\text{leaf}} + A_{\text{stem}} + A_{\text{root}} + A_{\te
 \endlastfoot
 
 $A_{\text{gross}}$	&	$\mu mol\, mol^{-1}$ &	Gross rate of CO$_2$ uptake per unit leaf area	&	-	\\
-$A_{\text{net}}$	&	$\mu mol\, mol^{-1}$	&	Net rate of CO$_2$ uptake per unit leaf area	&	-	\\
+$A_{\text{net}}$	&	$\mu mol\, mol^{-1}$	&	Net rate of CO$_2$ uptake per unit leaf area	&	-	{eqn:Anet}\\
 $A_{net,\text{water stress}}$ &	$\mu mol\, mol^{-1}$ & $A_\text{net}$ under water stress & \\
 $A_c$	&	$\mu mol\, mol^{-1}$	&	Net canopy rate of CO$_2$ uptake per unit ground area	&	-	\\
 $A_{c,\text{tot}}$	&	$g\, m^{-2}\, yr^{-1}$ 	&	A$_c$ integrated over the course of a year	&	-	\\
 $A_{c,\text{sun}}$	&	$mol\, mol^{-1}$	&	Net rate of CO$_2$ uptake per unit area sunlit leaves	&	-	\\
 $A_{c,\text{shade}}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Net rate of CO$_2$ uptake per unit area shaded leaves	&	-	\\
-$A$	&	$\mu mol\, mol^{-1}$	&	Predicted rate of CO$_2$ uptake	&	-	\\
+$A$	&	$\mu mol\, mol^{-1}$	&	Predicted rate of CO$_2$ uptake	&	-	\ref{eqn:A}\\
 $c_a$	&	$\mu mol\, mol^{-1}$	&	Atmospheric CO$_2$ concentration	&	378	\\
+$c_i$\ref{eqn:ci}\marginnote{undefined}\\
 $C$ & J$^\circ$C$^{-1}$m$^-3$& volumetric heat capacity  & \\
 $a$	&	Dimensionless 	&	Coefficient for growth respiration	&	0.2	\\
 $\alpha$	&	dimensionless	&	Atmospheric transmittance	&	0.85	\\
@@ -281,7 +284,7 @@ $d_s$	&	m	&	Soil depth	&	-	\\
 $D_j$	&	d	&	day of year	&	-	\\
 $D_{\text{start}}$	&	d	&	Day of year on which the sinusoidal temperature function is assumed to start	&	45	\\
 $d$	&	dimensionless	&	Zero plane displacement	&	0.77	\\
-$\delta$	&	degrees	&	Solar declination	&	-	\\
+$\delta$	&	degrees	&	Solar declination	&	-	\ref{eqn:delt}\\
 $e_l$	&	kPa	&	Saturated water VPD in the leaf	& \marginnote{is ``saturated VPD'' an oxymoron?}	-	\\
 $E$	&	$J\, mol^{-1}$	&	Activation energy	&	$R_{d}=66405$	\\
 	&		&		&	$V_{\text{max}}=6800$	\\
@@ -314,7 +317,7 @@ $g_{s,\text{shade}}$	&	$mmol\, m^{-2}\, s^{-1}$	&	The sum of stomatal conductanc
 $g_\text{ws}$ & dimensionless & Species-specific water stress sensitivity factor & \\
 $g_\text{ws*}$ & dimensionless & water stress stomatal conductance factor; see equations \ref{eqn:gws} &\\
 $\gamma$	&	Pa K$^{-1}$	&	psychrometer constant 	&	-	\\
-$\Gamma^\ast$ & $\mu$mol mol$^{-1}$ & CO$_2$ compensation point in the absence of dark respiration & \\
+$\Gamma^\ast$ & $\mu$mol mol$^{-1}$ & CO$_2$ compensation point in the absence of dark respiration & \ref{eqn:gammaast}\\
 $h_r$	&	h	&	Hour of day	&	-	\\
 $h_s$	&	\%	&	Relative humidity	&	-	\\
 $h_{\text{canopy}}$	&	m	&	Height of canopy	&	5	\\
@@ -326,8 +329,8 @@ $h_{\text{soil}}$	&	m	&	Water pressure head	&	-	\\
 $HO_{\text{soil}}$	&	$kg\,m^{-3}$	&	Saturated humidity of the air at the soil surface	&	-	\\
 $HS_{\text{soil}}$	&	$Kg\, m^{-3}$	&	Humidity of the air at the soil surface	&	-	\\
 $I_{\text{abs}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Photon flux absorbed by either sunlit or shaded leaves within a canopy layer	&	-	\\
-$I_{\text{dir}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Photon flux in direct solar beam	&	-	\\
-$I_{\mathit{\text{diff}}}$	&	$\mu mol\,m^{-2}\, s^{-1}$ 	&	Photon flux in diffuse radiation	&	-	\\
+$I_{\text{dir}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Photon flux in direct solar beam	&	-	\ref{eqn:Idir}\\
+$I_{\mathit{\text{diff}}}$	&	$\mu mol\,m^{-2}\, s^{-1}$ 	&	Photon flux in diffuse radiation	&	-	{eqn:Idiff}\\
 $I_{\text{total}}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Total photon flux incident on canopy	&	-	\\
 $I_s$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Solar constant, photon flux in a plane perpedicular to the solar beam above the atmosphere	&	2600	\\
 $I_d$ & & & \marginnote{undefined}\\
@@ -340,11 +343,14 @@ $I_\text{soil}$	&	$W\, m^{-2}$	&	Solar radiation on soil	&	-	\marginnote{which u
 $I_\text{sun}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Mean I for leaves which receive direct solar radiation, i.e. are sunlit	&	-	\\
 $I_\text{shade}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Mean I for leaves shaded from direct solar radiation	&	-	\\
 $I_{\text{scat}}$	&	$\mu mol\, m^{-2} s^{-1}$ 	&	Direct beam radiation scattered by surfaces within the canopy	&	-	\\
+$J$\ref{eqn:J}\marginnote{undefined}\\
+$J_{\text{max},T}$\ref{eqn:Jmaxt}\marginnote{undefined}\\
 $J_\text{a}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Total solar radiation absorbed by either sunlit or shaded leaves within a canopy layer	&	-	\\
 $J_\text{a, soil}$	&	$\mu mol\, m^{-2}\, s^{-1}$ 	&	Total solar radiation absorbed by soil	&	-	\\
 $k$ &	dimensionless	&	Foliar absorption coefficient ($\alpha_\ell$ in Bernacchi 2003)	&	-	\\
+$K_0$\ref{eqn:K0}\marginnote{undefined}\\
 $k_d$ & dimensionless & extinction coefficient for diffuse light & \\
-$K_c$	&	$\mu mol\, mol^{-1}$ 	&	Michaelis Menton constant for the carboxylation of RuBISCO	&	460	\\
+$K_c$	&	$\mu mol\, mol^{-1}$ 	&	Michaelis Menton constant for the carboxylation of RuBISCO	&	460	\ref{eqn:Kc}\\
 $K_{\text{CO}_2}$  	&	$mol\, m^{-2}\, s^{-1}$ 	&	Initial slope of photosynthetic CO$_2$ response	&	0.7	\\
 $Kt$	&		&	C$_4$ slope factor	&	-	\\
 $K_{o}$	&	$mmol\, mol^{-1}$	&	Michaelis Menton constant for oxygenation of RuBISCO 	&	330	\\
@@ -353,7 +359,7 @@ LN	&	$g\, m^{-2}$ 	&	Leaf nitrogen concentration	&	-	\\
 $k_{\text{leaf}}$	&	Dimensionless	&	Partitioning coefficient for leaf	&	-	\\
 $k_{\text{stem}}$	&	Dimensionless	&	Partitioning coefficient for stem	&	-	\\
 $k_{\text{sroot}}$	&	Dimensionless	&	Partitioning coefficient for storage root	&	-	\\
-$k_t$ & & temperature-dependent pseudo-first order rate constant with respect to $P_i$ (Collatz 1992) & \\
+$k_t$ & & temperature-dependent pseudo-first order rate constant with respect to $P_i$ (Collatz 1992) & \ref{eqn:kt}\\
 $k_{\text{froot}}$	&	Dimensionless	&	Partitioning coefficient for fine root	&	-	\\
 $k_{\text{stroot}}$	&	Dimensionless	&	Partitioning coefficient for structural root	&	-	\\
 $\ell$ & & & \marginnote{undefined from Ja: equation \ref{eqn:Ja}}\\
@@ -371,7 +377,7 @@ $N_{\text{eff}}$& days/mo & effective length of rainy period & \marginnote{check
 $n$	&	day	&	The number of days in a month	&	29, 30, or 31	\\
 $nr$	&	day 	&	The number of rainy days in a month	&	-	\\
 $O_a$	&	$mmol\, mol^{-1}$	&	Atmospheric O$_2$ concentration	&	210	\marginnote{is this corected to 25C like O$_i$?}\\
-$O_i$	&	$mmol\, m^{-2}\,s^{-1}$	&	Intercellular concentration of O$_2$ in air corrected for solubility relative to 25$^\circ$C	&	-	\\
+$O_i$	&	$mmol\, m^{-2}\,s^{-1}$	&	Intercellular concentration of O$_2$ in air corrected for solubility relative to 25$^\circ$C	&	-	\ref{eqn:Oi}\\
 $\omega_{\text{leaf}}$	&	g	&	Leaf biomass	&	-	\\
 $\omega_{\text{stem}}$	&	g	&	Stem biomass	&	-	\\
 $\omega_{\text{sroot}}$	&	g	&	Biomass of storage root	&	-	\\
@@ -386,15 +392,18 @@ $\Psi_\text{g}$& & & \marginnote{undefined}\\
 $\Psi_l$	&	MPa	&	Leaf water potential	&	-	\\
 $\Psi_\text{L}$& & & \marginnote{undefined}\\
 $\Psi_t$	&	MPa	&	Threshold leaf water potential for decreasing gs	&	-	\\
+$\Phi_\text{PSII,max}$\ref{eqn:PhiPSIImax}\marginnote{undefined}\\
 $\Phi_\text{N}$	&	W m$^{-2}$	&	Net radiation	&	-	\\
 $\Phi_{N,soil}$	&	W m$^{-2}$	&	Net radiation at soil surface	&	-	\\
 $\phi_i$ & & coefficient which controls spread of logistic function used to calculate water stress factor in \ref{eqn:gws}& \\
+$\phi$\ref{eqn:phi}\marginnote{undefined}\\
 $\Psi_{\text{adl}}$	&	MPa	&	Average daily plant water potential	&	-	\\
 $\Psi_{\text{pt}}$	&	MPa	&	Threshold water potential	&	-	\\
 $\Psi_{\text{si}}$	&	MPa	&	Soil water potential of the ith layer	&	-	\\
 $\Psi_x$	&	MPa	&	xylem water potential	&	-	\\
 $q$	&	Dimensionless	&	The probability that there is no rainfall	&	-	\marginnote{during a month?}\\
 $q_w$	&	kg s$^{-1}$	&	Flux of water	&	-	\\
+$Q_2$\ref{eqn:Q2}\marginnote{undefined}\\
 $Q_{10}$	&	dimensionless	&	Is the proportional rise in a parameter for a 10$^\circ$C increase in temperature	&	2	\\
 $r$	&	dimensionless	&	Leaf reflection coefficient for total solar radiation	&	0.2	\\
 $r^\sim$ & mm day$^{-1}$          & Mean daily rainfall in each month                            & - \\ 
@@ -403,7 +412,7 @@ $R_L$	&	$m^3\, kg^{-1}\, s^{-1}$	&	Leaf resistance	&	-	\\
 $R_{\text{si}}$	&	$m^3 kg^{-1} s^{-1}$	&	Soil resistance of the ith zone	&	-	\\
 $R_{\text{ri}}$	&	$M^3 kg^{-1} s^{-1}$	&	root resistance of the ith zone	&	-	\\
 $R_o$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Dark respiration rate at $25^\circ C$	&	3	\\
-$R_d$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Dark respiration at a given temperature	&	-	\\
+$R_d$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Dark respiration at a given temperature	&	-	\ref{eqn:Rd}\\
 $R_{\text{lc}}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Longwave radiation	&	-	\\
 $R_{lc,\text{soil}}$	&	$mol\, m^{-2}\, s^{-1}$	&	Soil longwave radiation	&	-	\\
 $\rho_w$	&	$kg\, m^{-3}$	&	Density of water	&	1000	\\
@@ -421,15 +430,15 @@ $Sp_\text{froot}$	&	gram m$^{-1}$	&	Specific fine root elongation factor	&	10	\\
 $Sp_\text{stroot}$	&	gram m$^{-1}$	&	Specific structural root elongation factor	&	60	\\
 $\sigma$ & Wm$^{-2}$K$^{-4}$ & Stefan-Boltzmann constant & $5.67 \cdot 10^{-8}$\\
 $t$	&	h	&	Time of day	&	-	\\
-$t_\text{up}$ & h & time of dawn & \\
-$t_\text{down}$ & h & time of dusk & \\
-$t_\text{len}$& h & day length & - \marginnote{is this a constant, 24?}\\
+$t_\text{up}$ & h & time of dawn & \ref{eqn:tup}\\
+$t_\text{down}$ & h & time of dusk & \ref{eqn:tdown}\\
+$t_\text{len}$& h & day length & - \marginnote{is this a constant, 24?}\ref{eqn:tlen}\\
 $t_\text{sn}$	&	h	&	Time of solar noon	&	12	\\
 $T_\text{leaf}$	&	$^\circ$C	&	Leaf temperature	&	-	\\
-$T_\text{air}$	&	$^\circ$C	&	Ambient air temperature	&	-	\\
-$T_\text{mean}$ & 	$^\circ$C & Daily mean $T_\text{air}$ & \\
-$T_\text{range}$ & 	$^\circ$C &  $\frac{T_\text{air}- T_\text{mean}}{T_\text{range}}$ & \\
-$T_\text{excursion}$ & fraction & Difference between current $T_\text{mean}$   & \\
+$T_\text{air}$	&	$^\circ$C	&	Ambient air temperature	&	-	\ref{eqn:Tair}\\
+$T_\text{mean}$ & 	$^\circ$C & Daily mean $T_\text{air}$ & \ref{eqn:Tmean}\\
+$T_\text{range}$ & 	$^\circ$C &  $\frac{T_\text{air}- T_\text{mean}}{T_\text{range}}$ & \ref{eqn:Trange}\\
+$T_\text{excursion}$ & fraction & Difference between current $T_\text{mean}$   & \ref{eqn:excur}\\
 $T_\text{soil}$	&	$^\circ$C	&	Soil surface temperature	&	-	\\
 $T_\text{lower}$ &	$^\circ$C & Lower T limitation on photosynthesis& \\
 $T_\text{upper}$ & 	$^\circ$C& Upper T limitation on photosynthesis  & \\
@@ -445,19 +454,21 @@ $\Theta^{*}$	&	$kg m^{-3}$	&	Actual volumetric water content	&	-	\\
 $\Theta_1$	&	$kg\, m^{-3}$	&	The volumetric water content for maximizing Evaporation	&		\\
 $\Theta_2$	&	$kg\, m^{-3}$	&	The volumetric water content for wilting point	&	-	\\
 $\Theta_i$	&	$kg\, m^{-3}$	&	The volumetric water content of the ith day	&	-	\\
+$\Theta_\text{PSII}$\ref{eqn:ThetaPSII}\marginnote{undefined}\\
 $\Theta$	&	degrees	&	Solar zenith angle	&	-	\\
 $u$	&	m s$^{-1}$	&	Measured wind speed at known height (2m)	&	2	\\
 $u_{\text{layer}}$	&	m s$^{-1}$ 	&	Wind speed in a given canopy layer	&	-	\\
 $u_{\text{soil}}$	&	m s$^{-1}$ 	&	Wind speed at soil surface	&	-	\\
 $v$	&		&	Saturated water vapour concentration 	&	-	\\
-$V_{\text{max}}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Maximum rubP saturated rate of carboxylation at a given temperature	&	-	\\
+$V_{\text{max}}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Maximum rubP saturated rate of carboxylation at a given temperature	&	-	\ref{eqn:Vmax}\\
 $V_{\text{max}_0}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Maximum rubP saturated rate of carboxylation at a given temperature	&	-	\\
-
+$V-{c,\text{max}}$\ref{eqn:Vcmax}\marginnote{undefined}\\
 $V_{c,\text{max}_0}$	&	$mol\, m^{-2}\, s^{-1}$ 	&	Maximum rubP saturated rate of carboxylation at $25^\circ C$	&	39	\\
 VPD	&	kPa	&	Leaf-air water vapour pressure deficit	&	-	\\
 $V_T$ & $mol\, m^{-2}\, s^{-1}$  &$V_\text{max}$ at current $T$ & \\
-$w_c$ & 	$mol\, m^{-2}\, s^{-1}$\marginnote{units?} & RuBISCO limited rate of photosynthesis & \\
+$w_c$ & 	$mol\, m^{-2}\, s^{-1}$\marginnote{units?} & RuBISCO limited rate of photosynthesis & \ref{eqn:wc}\\
 $w_c$ & 	$mol\, m^{-2}\, s^{-1}$\marginnote{units?} & RuBP limited rate of photosynthesis & \\
+$w_j$ \ref{eqn:wj}\marginnote{undefined}\\
 $W_p$ & $m^3m^{-3}$ & Wilting point & \\
 $W_s$ & $m^3m^{-3}$ & Soil water content & \\
 $z_o$	&	m	&	Roughness length	&	0.234	\\
