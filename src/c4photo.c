@@ -25,7 +25,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 
 	double Bet0,Bet1;
 
-	double vmax, alpha, K, Rd, StomWS;/*\ref{eqn:Vmax}\ref{eqn:Rd}*/
+	double vmax, alpha, K, Rd, StomWS;/*\ref{parm:Vmax}\ref{parm:Rd}*/
 	double theta, beta;
 	double upperT, lowerT;
 
@@ -76,7 +76,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	{
 
 		tmp = c4photoC(*(pt_Qp+i), *(pt_Tl+i), *(pt_RH+i),
-			       vmax, alpha, K,theta, beta, Rd, /*\ref{eqn:Vmax}\ref{eqn:Rd}*/
+			       vmax, alpha, K,theta, beta, Rd, /*\ref{parm:Vmax}\ref{parm:Rd}*/
 			       Bet0, Bet1, StomWS, 
 			       *(pt_CA+i), ws,upperT,lowerT);
 

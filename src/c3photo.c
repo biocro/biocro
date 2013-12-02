@@ -130,14 +130,14 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	/* Defining biochemical variables */
 
 
-	double Ci = 0.0, Oi;/*\ref{eqn:ci}\ref{eqn:Oi}*/
-	double Kc, Ko, Gstar;/*\ref{eqn:Kc}\ref{eqn:K0}\ref{eqn:gammaast}*/
+	double Ci = 0.0, Oi;/*\ref{parm:ci}\ref{parm:Oi}*/
+	double Kc, Ko, Gstar;/*\ref{parm:Kc}\ref{parm:K0}\ref{parm:gammaast}*/
 	double Vc = 0.0;
-	double Vcmax, Rd; /*\ref{eqn:Vcmax}\ref{eqn:Rd}*/
+	double Vcmax, Rd; /*\ref{parm:Vcmax}\ref{parm:Rd}*/
 	double Ac1, Ac2, Ac;
 	double Aj1, Aj2, Aj;
 	double Ap;
-	double Assim, J, I2,Assim0,Gs0;
+	double Assim, J, I2,Assim0,Gs0;/*\ref{parm:J}*/
 	double FEII;
 	double theta;
 	double Citr1, Citr2, Citr;
@@ -168,7 +168,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	FEII = 0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf,2) / 10000;
 	I2 = Qp * FEII * (1 - Leaf_Reflectance) / 2;
 
-	J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/(2*theta); 
+	J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/(2*theta);/*\ref{eqn:J}*/ 
 
 	/* Rprintf("I2, %.1f, FEII %.1f, J %.1f \n",I2,FEII,J); */
 
