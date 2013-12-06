@@ -130,14 +130,14 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	/* Defining biochemical variables */
 
 
-	double Ci = 0.0, Oi;
-	double Kc, Ko, Gstar;
+	double Ci = 0.0, Oi;/*\ref{parm:ci}\ref{parm:Oi}*/
+	double Kc, Ko, Gstar;/*\ref{parm:Kc}\ref{parm:K0}\ref{parm:gammaast}*/
 	double Vc = 0.0;
-	double Vcmax, Rd;
+	double Vcmax, Rd; /*\ref{parm:Vcmax}\ref{parm:Rd}*/
 	double Ac1, Ac2, Ac;
 	double Aj1, Aj2, Aj;
 	double Ap;
-	double Assim, J, I2,Assim0,Gs0;
+	double Assim, J, I2,Assim0,Gs0;/*\ref{parm:J}*/
 	double FEII;
 	double theta;
 	double Citr1, Citr2, Citr;
@@ -151,12 +151,12 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 
 	/* From Bernacchi 2001. Improved temperature response functions. */
 	/* note: values in Dubois and Bernacchi are incorrect */	
-	Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); 
-	Ko = exp(20.30-36.38/(R*(Tleaf+273.15))); 
-	Gstar = exp(19.02-37.83/(R*(Tleaf+273.15))); 
+	Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); /*\ref{eqn:Kc}*/
+	Ko = exp(20.30-36.38/(R*(Tleaf+273.15))); /*\ref{eqn:K0}*/
+	Gstar = exp(19.02-37.83/(R*(Tleaf+273.15))); /*\ref{eqn:gammaast}*/
 
-	Vcmax = Vcmax0 * exp(26.35 - 65.33/(R * (Tleaf+273.15)));
-	Rd = Rd0 * exp(18.72 - 46.39/(R * (Tleaf+273.15)));
+	Vcmax = Vcmax0 * exp(26.35 - 65.33/(R * (Tleaf+273.15))); /*\ref{eqn:Vcmax}*/
+	Rd = Rd0 * exp(18.72 - 46.39/(R * (Tleaf+273.15)));/*\ref{eqn:Rd}*/
 
         /* Effect of temperature on theta */
 	theta = thet + 0.018 * Tleaf - 3.7e-4 * pow(Tleaf,2);
@@ -168,7 +168,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	FEII = 0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf,2) / 10000;
 	I2 = Qp * FEII * (1 - Leaf_Reflectance) / 2;
 
-	J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/(2*theta); 
+	J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/(2*theta);/*\ref{eqn:J}*/ 
 
 	/* Rprintf("I2, %.1f, FEII %.1f, J %.1f \n",I2,FEII,J); */
 
@@ -177,7 +177,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	Citr = Citr1 / Citr2;
 
 	OldCi = Ca * solc(Tleaf) * 0.7; /* Initial guesstimate */
-	Oi = O2 * solo(Tleaf);
+	Oi = O2 * solo(Tleaf);/*\ref{eqn:Oi}*/
 
 	while(iterCounter < 50)
 	  {
@@ -224,7 +224,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		  if(Gs > 800)
 			  Gs = 800;
 
-		  Ci = Ca - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);
+		  Ci = Ca - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);/*\ref{eqn:ci}*/
 		  /*Ci = Ca - (Assim * 1.6 * 100) / Gs ; Harley pg 272 eqn 10. PCE 1992 */
 
 		  if(Ci < 0)
