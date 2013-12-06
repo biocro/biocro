@@ -37,12 +37,13 @@ for(biocrofn in c("willowGro", "BioGro", "caneGro")){
     })
     
     
-    res1 <- do.call(biocrofn, list(weather05, soilControl = soilParms(soilLayers = 6,  hydrDist=TRUE)))
+    res1 <- do.call(biocrofn, list(weather05, soilControl = soilParms(soilLayers = 6)))
     
-    test_that("turning on soil layers and hydrDist increases aboveground productivity and reduces root allocation",{
+    test_that("turning on soil layers increases aboveground productivity and reduces root allocation",{
         
         for(output in c("LAI", "Leaf", "Root", "Stem")){
-            expect_true(mean(res0[[output]]) < mean(res1[[output]]))
+            print(output)
+            expect_true(mean(res0[[output]]) > mean(res1[[output]]))
         }
     })
 }
