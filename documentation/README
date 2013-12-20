@@ -1,0 +1,15 @@
+to to generate documentation (skip to step two if you have already downloaded and installed respevitve application):
+
+
+  LINUX: 
+    1. download doxygen application from the software manager. 
+
+    2. open terminal in Biocro directory. enter command "doxygen doxyfile". 
+
+  Windows: 
+    1. Download and install doxygen binary distribution from <http://www.stack.nl/~dimitri/doxygen/download.html#srcbin>. After instalation open doxywizard program. 
+
+    2.Select the Biocro directory as the working directory from which doxygen will run. Ctrl+O and find the Biocro directory and select Doxyfile to open. Then select run and run doxygen.
+
+
+After respective processes have been completed, a new directory under called latex/ will be created under documentation directory. A latex file called refman.tex will exist under the new latex dierectory. compile refman.tex into a pdf to view documentation. another latex file called equations.tex in the documentation directory already documents the equations on which BioCro is based. 
