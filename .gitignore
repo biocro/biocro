@@ -16,3 +16,6 @@ vignettes/*.log
 cache/*
 figure/*
 vignettes/*synctex.gz
+# files automattically generated doxygen
+documentation/latex/*
+documentation/html/*
