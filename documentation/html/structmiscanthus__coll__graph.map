@@ -1,0 +1,9 @@
+<map id="miscanthus" name="miscanthus">
+<area shape="rect" id="node2" href="$structrhizome.html" title="rhizome" alt="" coords="5,101,72,131"/>
+<area shape="rect" id="node4" href="$structminerals.html" title="minerals" alt="" coords="117,5,187,35"/>
+<area shape="rect" id="node6" href="$structroot.html" title="root" alt="" coords="96,101,139,131"/>
+<area shape="rect" id="node13" href="$structstem.html" title="stem" alt="" coords="163,101,213,131"/>
+<area shape="rect" id="node16" href="$structleaf.html" title="leaf" alt="" coords="237,101,280,131"/>
+<area shape="rect" id="node9" href="$structdailyvec.html" title="dailyvec" alt="" coords="304,101,373,131"/>
+<area shape="rect" id="node11" href="$struct_daily_auto_resp.html" title="DailyAutoResp" alt="" coords="397,101,507,131"/>
+</map>
