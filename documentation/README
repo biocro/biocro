@@ -8,10 +8,11 @@ To generate documentation (skip to step two if you have already downloaded and i
 
 ```sh
 ## download doxygen application from the software manager.   
-sudo apt-get install doxygen
+sudo apt-get install doxygen graphviz
 ## compile documentation
-cd /path/to/biocro
+cd /path/to/biocro/documentation
 doxygen doxyfile
+firefox html/index.html
 ```
 
 ###  Windows: 
