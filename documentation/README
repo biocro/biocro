@@ -1,0 +1,7 @@
+to to generate documentation:
+  LINUX: download doxygen application from the software manager. open terminal in Biocro directory. enter command "doxygen doxyfile". 
+
+  Windows: Download and install doxygen binary distribution from <http://www.stack.nl/~dimitri/doxygen/download.html#srcbin>. After instalation open doxywizard program. select the Biocro directory as the working directory from which doxygen will run. Ctrl+O and find the Biocro directory and select Doxyfile to open. Then select run and run doxygen.
+
+
+After respective processes have been completed, a new directory under called latex/ will be created under documentation directory. A latex file called refman.tex will exist under the new latex dierectory. compile refman.tex into a pdf to view documentation.
