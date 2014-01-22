@@ -43,7 +43,7 @@ for(biocrofn in c("willowGro", "BioGro", "caneGro")){
         
         for(output in c("LAI", "Leaf", "Root", "Stem")){
             print(output)
-            expect_true(mean(res0[[output]]) > mean(res1[[output]]))
+            expect_true(mean(res0[[output]]) < mean(res1[[output]]))
         }
     })
 }
