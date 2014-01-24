@@ -1,0 +1,5 @@
+<map id="wood3::Flux5" name="wood3::Flux5">
+<area shape="rect" id="node2" href="$structflow.html" title="flow" alt="" coords="61,101,107,131"/>
+<area shape="rect" id="node4" href="$structminerals.html" title="minerals" alt="" coords="5,5,75,35"/>
+<area shape="rect" id="node6" href="$structcarbon.html" title="carbon" alt="" coords="99,5,160,35"/>
+</map>
