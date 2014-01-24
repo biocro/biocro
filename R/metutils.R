@@ -55,7 +55,7 @@ get.vpd <- function(rh, temp){
   return(vpd)
 }
 ##' Calculate saturation vapor pressure
-##'
+##' 
 ##' @title get es
 ##' @param temp temperature in degrees C 
 ##' @return saturation vapor pressure in mb
@@ -63,7 +63,7 @@ get.vpd <- function(rh, temp){
 ##' @author David LeBauer
 ##' @examples
 ##' temp <- -30:30
-##' plot(temp, get.es(0, temp))
+##' plot(temp, get.es(temp))
 get.es <- function(temp){
   es <- 6.11 * exp((2.5e6 / 461) * (1 / 273 - 1 / (273 + temp)))
   return(es)

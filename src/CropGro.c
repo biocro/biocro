@@ -818,7 +818,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
        CROPCENT.ENV.minN=(CROPCENT.ENV.minN<0)?1e-6:CROPCENT.ENV.minN;
        CROPCENT.ENV.minN=CROPCENT.ENV.minN-newminrl; //current minus old is newminrl
        
-      
+      /*
        trace_gas_model(fakeint,fakedouble ,&newminrl, &ammonium, nitrate,
                          &texture, &sand, &silt, &clay,
                          &afiel, &bulkd, &maxt, &ppt,
@@ -831,6 +831,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                          &NOabsorp_grass, &NOabsorp_tree,
                          &nit_amt, &nreduce, 
                          dN2lyr,dN2Olyr,sitepar,layers,soil);
+        */
        
        printcropcentout(CROPCENT,
                         &REAL(totalSOC)[dap],

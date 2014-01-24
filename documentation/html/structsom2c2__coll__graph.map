@@ -1,0 +1,12 @@
+<map id="som2c2" name="som2c2">
+<area shape="rect" id="node2" href="$struct_p_h_parms.html" title="PHParms" alt="" coords="389,5,467,35"/>
+<area shape="rect" id="node4" href="$struct_soil_water_effect_parms.html" title="SoilWaterEffectParms" alt="" coords="352,59,504,88"/>
+<area shape="rect" id="node6" href="$structsom2c2_1_1_flux11.html" title="Flux11" alt="" coords="397,189,459,219"/>
+<area shape="rect" id="node8" href="$structflow.html" title="flow" alt="" coords="143,189,188,219"/>
+<area shape="rect" id="node10" href="$structminerals.html" title="minerals" alt="" coords="7,137,76,167"/>
+<area shape="rect" id="node12" href="$structcarbon.html" title="carbon" alt="" coords="11,209,72,239"/>
+<area shape="rect" id="node14" href="$structflowrestriction.html" title="flowrestriction" alt="" coords="377,293,479,323"/>
+<area shape="rect" id="node16" href="$structsom2c2_1_1parms11.html" title="parms11" alt="" coords="392,347,464,376"/>
+<area shape="rect" id="node18" href="$struct_temp_effect_parms.html" title="TempEffectParms" alt="" coords="364,400,492,429"/>
+<area shape="rect" id="node20" href="$struct_anaerobic_parms.html" title="AnaerobicParms" alt="" coords="369,453,487,483"/>
+</map>
