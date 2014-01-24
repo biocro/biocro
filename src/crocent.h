@@ -590,6 +590,7 @@ struct respirationParms
   } maint;
 };
 double CalculateGrowthResp(double newbiomass,double growthRespFactor);
+struct frostParms;
 
 void dailymiscanthus(struct miscanthus *miscanthus,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
 struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, int N, double delTT,
