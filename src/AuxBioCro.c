@@ -213,7 +213,6 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         struct ET_Str tmp;
         struct c4_str tmpc4;
 
-        const double LeafWidth = 0.04;
         const double kappa = 0.41;
         const double WindSpeedHeight = 5;
         const double dCoef = 0.77;
@@ -223,11 +222,10 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         const double LeafReflectance = 0.2;
         const double SpecificHeat = 1010;
 
-        double Tair, WindSpeedTopCanopy;
+        double Tair;
         double DdryA, LHV, SlopeFS, SWVC;
         double LayerRelativeHumidity, LayerWindSpeed, totalradiation;
         double LayerConductance, DeltaPVa, PsycParam, ga;
-        double BoundaryLayerThickness, DiffCoef,LeafboundaryLayer;
         double d, Zeta, Zetam, ga0, ga1, ga2; 
         double Ja, Deltat;
         double PhiN;
@@ -236,7 +234,6 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         double OldDeltaT, rlc, ChangeInLeafTemp; 
         int Counter;
 
-        WindSpeedTopCanopy = WindSpeed;
         Tair = Airtemperature;
 
         if(CanopyHeight < 0.1)
@@ -312,10 +309,6 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         /*  Rprintf("ga: %.5f \n", ga); */
         if(ga < 0)
                 error("ga is less than zero");
-
-        DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature);
-        BoundaryLayerThickness = 0.004 * sqrt(LeafWidth / LayerWindSpeed);
-        LeafboundaryLayer = DiffCoef / BoundaryLayerThickness;
 
         /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
         /* This version is non-iterative and an approximation*/
