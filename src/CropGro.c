@@ -18,7 +18,7 @@
 #include "c3canopy.h"
 #include "soilwater.h"
 
-SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
+SEXP CropGro(SEXP LAT,          /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
 	    SEXP HR,                  /* Hour of the day           3 */
 	    SEXP SOLAR,               /* Solar Radiation           4 */
@@ -422,13 +422,13 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   PROTECT(LAId = allocVector(REALSXP,dailyvecsize));
   PROTECT(totalSOC = allocVector(REALSXP,dailyvecsize));
   PROTECT(strucc1 = allocVector(REALSXP,dailyvecsize));
-   PROTECT(strucc2 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(strucc2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(metabc1 = allocVector(REALSXP,dailyvecsize));
   PROTECT(metabc2 = allocVector(REALSXP,dailyvecsize));
-   PROTECT(som1c1 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(som1c1 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som1c2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som2c1 = allocVector(REALSXP,dailyvecsize));
-   PROTECT(som2c2 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(som2c2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som3c = allocVector(REALSXP,dailyvecsize));
   PROTECT(minN = allocVector(REALSXP,dailyvecsize));
 	/* Picking vmax, alpha and kparm */
