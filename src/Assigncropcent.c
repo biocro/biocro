@@ -123,9 +123,7 @@ void assignParms(struct cropcentlayer *CROPCENT, double *somassignparmsfromR)
   CROPCENT->strucc1.PHEFF.c=1.1;
   CROPCENT->strucc1.PHEFF.d=0.7;
  
-
-  
-  
+ 
   CROPCENT->strucc2.parms.k=4.9;
   CROPCENT->strucc2.parms.timestep=1440.0;
   CROPCENT->strucc2.parms.strmx=5000.0;
@@ -188,6 +186,7 @@ void assignParms(struct cropcentlayer *CROPCENT, double *somassignparmsfromR)
   CROPCENT->metabc2.ANEREFF.ANEREF1=1.5;
   CROPCENT->metabc2.ANEREFF.ANEREF2=3.0;
   CROPCENT->metabc2.ANEREFF.ANEREF3=0.3;
+  
   
   CROPCENT->wood1.parms.k=3.9;
   CROPCENT->wood1.parms.timestep=1440.0;
@@ -446,7 +445,7 @@ CROPCENT->som3c.parms.k= timescaling(CROPCENT->som3c.parms.k,CROPCENT->som3c.par
 }
 
 void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, 
-double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR){
+double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR) {
  
   GetBioCroToCropcentParms(&CROPCENT->BcroTOCentParms,getbiocrotocropcentparmsfromR);
   GetSymbNFixationParms(&CROPCENT->ENV.NFIX,getsymbnfixationparmsfromR);
