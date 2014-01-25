@@ -268,18 +268,18 @@ void assignParms(struct cropcentlayer *CROPCENT, double *somassignparmsfromR)
   CROPCENT->som1c1.PHEFF.b=0.5;
   CROPCENT->som1c1.PHEFF.c=1.1;
   CROPCENT->som1c1.PHEFF.d=0.7;
-  CROPCENT->som1c1.INFLOW.maxCN= 15.0;
-  CROPCENT->som1c1.INFLOW.minCN=  6.0; 
-  CROPCENT->som1c1.INFLOW.minN=  1.0; 
-  CROPCENT->som1c1.INFLOW.maxCP=  150.0; 
-  CROPCENT->som1c1.INFLOW.minCP=  30.0; 
-  CROPCENT->som1c1.INFLOW.minP=  2.0; 
-  CROPCENT->som1c1.INFLOW.maxCS=  200.0; 
-  CROPCENT->som1c1.INFLOW.minCS=  50.0; 
-  CROPCENT->som1c1.INFLOW.minS=  2.0; 
-  CROPCENT->som1c1.INFLOW.maxCK=  0.0; 
-  CROPCENT->som1c1.INFLOW.minCK=  0.0; 
-  CROPCENT->som1c1.INFLOW.minK=  0.0; 
+  CROPCENT->som1c1.INFLOW.maxCN=15.0;
+  CROPCENT->som1c1.INFLOW.minCN=6.0; 
+  CROPCENT->som1c1.INFLOW.minN=1.0; 
+  CROPCENT->som1c1.INFLOW.maxCP=150.0; 
+  CROPCENT->som1c1.INFLOW.minCP=30.0; 
+  CROPCENT->som1c1.INFLOW.minP=2.0; 
+  CROPCENT->som1c1.INFLOW.maxCS=200.0; 
+  CROPCENT->som1c1.INFLOW.minCS=50.0; 
+  CROPCENT->som1c1.INFLOW.minS=2.0; 
+  CROPCENT->som1c1.INFLOW.maxCK=0.0; 
+  CROPCENT->som1c1.INFLOW.minCK=0.0; 
+  CROPCENT->som1c1.INFLOW.minK=0.0; 
   
 
   
