@@ -15,7 +15,9 @@ weachDT <- function(X, lati){
     tseq <- 0:23
     ## Solar Radiation
 
+    if("day" %in% colnames(X)) setnames(X, "day", "doy")
     setkeyv(X, c("year", "doy"))
+
     solarR <-  X[,list(solarR = rep((0.12 * dswrf.MJ) * 2.07 * 10^6 / 3600, each = tint) ), by = c("year", "doy")]
     
     light <- X[,lightME(DOY = doy, t.d = tseq, lat = 40),
