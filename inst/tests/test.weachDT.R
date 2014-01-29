@@ -1,5 +1,5 @@
 data(forweach.test)
-test.that("weachDT produces the same result as weachNEW, only faster",{
+test_that("weachDT produces the same result as weachNEW, only faster",{
     fnew <- weachNEW(as.data.frame(forweach.test),
                     lat = 40,
                     ts = 1,

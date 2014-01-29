@@ -6,23 +6,12 @@ To generate documentation (skip to step two if you have already downloaded and i
 ###  Ubuntu Linux
 
 
-#### Gui
-
-```sh
-sudo apt-get install doxygen-gui
-doxywizard documentation/Doxyfile
-```
-1. change any settings
-2. click run tab -> "run doxygen"
-
-#### Command line
-
 ```sh
 ## download doxygen application from the software manager.   
-sudo apt-get install doxygen graphviz 
+sudo apt-get install doxygen graphviz
 ## compile documentation
-cd /path/to/biocro
-doxygen doxygen/Doxyfile
+cd /path/to/biocro/documentation
+doxygen doxyfile
 firefox html/index.html
 ```
 
