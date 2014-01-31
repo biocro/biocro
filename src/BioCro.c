@@ -72,7 +72,7 @@ SEXP MisGro(SEXP LAT,           /* Latitude                  1 */
    //assignParms(&CROPCENT);
    CROPCENTTimescaling(&CROPCENT);
 //   assignPools(&CROPCENT);
-   struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
+// struct InputToCropcent *leaflitter, *stemlitter, *rootlitter, *rhizomelitter;
    /****************************************************/
 	double newLeafcol[8760];
 	double newStemcol[8760];
