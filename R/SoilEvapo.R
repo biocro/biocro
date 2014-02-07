@@ -112,25 +112,35 @@ SoilEvapo <- function(LAI, k, AirTemp, IRad,
 }
 
 
-
+##' takes a value for Temp as defined by the SoilEvapo function and returns a value for DdryA
+##' which factors into variable PsychParam which in turn helps define the Evaporation.
+##' @export TempToDdryA
 TempToDdryA <- function(Temp)
 {
   DdryA = 1.295163636 + -0.004258182 * Temp;
   return(DdryA);
 }
 
+##' takes a value for Temp as defined by the SoilEvapo function and returns a value for LHV
+##' which factors into variable PsychParam which in turn helps define the Evaporation.
+##' @export TempToLHV
 TempToLHV <- function(Temp)
   {
     LHV = 2.501 + -0.002372727 * Temp;
     return(LHV);
   }
-
+##' takes a value for Temp as defined by the SoilEvapo function and returns a value for SlopeFS
+##' which helps define the Evaporation.
+##' @export TempToSlopeFS
 TempToSFS <- function(Temp)
   {
     SlopeFS = 0.338376068 +  0.011435897 * Temp +  0.001111111 * Temp^2;
     return(SlopeFS);
   }
 
+##' takes a value for Temp as defined by the SoilEvapo function and returns a value for SWVC
+##' which factors into variable DeltaPVa which in turn helps define the Evaporation.
+##' @export TempToSWVC
 TempToSWVC <- function(Temp)
   {
     SWVC =  4.90820192 +   0.06387253 * Temp +    0.02745742 * Temp^2;
