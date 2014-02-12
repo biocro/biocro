@@ -251,7 +251,9 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
   mat
 }
 
-
+##' Returns a value for rootDist based on the arguments layers, rootDepth, depthsp, and rfl.
+##' This value then factors into several equations in the primary function soilML.
+##' @export rootDist 
 rootDist <- function(layers,rootDepth,depthsp,rfl){
 
   if(layers < 2)
