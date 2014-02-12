@@ -149,6 +149,10 @@ wtrstr <- function(precipt,evapo,cws,soildepth,fieldc,wiltp,phi1=0.01,phi2 =10, 
 
 }
 
+##' determines whether the argument wsFun is linear, logistic, 
+##' exponential, or something else and calculates a value for wsPhoto 
+##' based on that.
+##' @export wsRcoef
 wsRcoef <- function(aw,fieldc,wiltp,phi1,phi2, wsFun = c("linear","logistic","exp","none") ){
 
   wsFun <- match.arg(wsFun)

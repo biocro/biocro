@@ -5,7 +5,9 @@
 ##
 ## http://cires.colorado.edu/~voemel/vp.html
 
-
+##' The Goff Gratch equation from Smithsonian Tables, 1984.
+##' http://cires.colorado.edu/~voemel/vp.html
+##' @export fnpsvp
 fnpsvp <- function(Tkelvin){
 #   water boiling point = 373.16 oK
 
@@ -21,8 +23,9 @@ fnpsvp <- function(Tkelvin){
   esat
 }
 
-## Arden Buck Equation
-
+##' Arden Buck Equation from Buck Research Manual (1996)
+##' http://cires.colorado.edu/~voemel/vp.html
+##' @export ardBuck
 ardBuck <- function(Tcelsius){
 
   a <- (18.678 - Tcelsius/234.5)*Tcelsius
