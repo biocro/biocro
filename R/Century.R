@@ -444,7 +444,11 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
   list(SCs=SCs, SNs=SNs, MinN=MinN, Resp=Resp)
 }
 
-
+##' FmLcFun
+##' 
+##' A basic function designed to define the value for Fm and Lc 
+##' which are used in the century function. 
+##' @export FmLcFun
 FmLcFun <- function(Lig,Nit){
 
   Fm = 0.85 - 0.018 *(Lig/Nit);
