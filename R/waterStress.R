@@ -18,7 +18,7 @@
 ##' @param phi2 coefficient which controls the effect on leaf area expansion.
 ##' @param wsFun option to control which method is used for the water stress
 ##' function.
-##' @export
+##' @exportws
 ##' @return A list with components:
 ##' @returnItem rcoefPhoto coefficient of plant water stress for photosyntheis.
 ##' @returnItem rcoefSpleaf coefficient of plant water stress for specific leaf
@@ -149,9 +149,18 @@ wtrstr <- function(precipt,evapo,cws,soildepth,fieldc,wiltp,phi1=0.01,phi2 =10, 
 
 }
 
+##' R coefficient for water stress
+##' 
 ##' determines whether the argument wsFun is linear, logistic, 
 ##' exponential, or something else and calculates a value for wsPhoto 
 ##' based on that.
+##' @param aw available water
+##' @param fieldc Field capacity of the soil (fraction).
+##' @param wiltp Wilting point of the soil (fraction).
+##' @param phi1 coefficient which controls the spread of the logistic function.
+##' @param phi2 coefficient which controls the effect on leaf area expansion.
+##' @param wsFun option to control which method is used for the water stress
+##' function.
 ##' @export wsRcoef
 wsRcoef <- function(aw,fieldc,wiltp,phi1,phi2, wsFun = c("linear","logistic","exp","none") ){
 

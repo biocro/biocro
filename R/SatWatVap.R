@@ -7,6 +7,8 @@
 
 ##' The Goff Gratch equation from Smithsonian Tables, 1984.
 ##' http://cires.colorado.edu/~voemel/vp.html
+##' 
+##' @param Tkelvin the abolute temperature
 ##' @export fnpsvp
 fnpsvp <- function(Tkelvin){
 #   water boiling point = 373.16 oK
@@ -25,6 +27,8 @@ fnpsvp <- function(Tkelvin){
 
 ##' Arden Buck Equation from Buck Research Manual (1996)
 ##' http://cires.colorado.edu/~voemel/vp.html
+##' 
+##' @param Tcelsius the temperature in degrees C
 ##' @export ardBuck
 ardBuck <- function(Tcelsius){
 
