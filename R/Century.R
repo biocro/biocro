@@ -461,7 +461,7 @@ FmLcFun <- function(Lig,Nit){
 
 }
 
-##' Returns values based on if kno is less than equal to or greater than zero.
+##' Returns values based on if kno is less than equal to or greater than three.
 ##' 
 ##' Returns Values for SC, fC, Resp, Kf, and MinN to be used in the Century function
 ##' @param SC

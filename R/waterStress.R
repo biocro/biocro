@@ -18,7 +18,7 @@
 ##' @param phi2 coefficient which controls the effect on leaf area expansion.
 ##' @param wsFun option to control which method is used for the water stress
 ##' function.
-##' @exportws
+##' @export ws
 ##' @return A list with components:
 ##' @returnItem rcoefPhoto coefficient of plant water stress for photosyntheis.
 ##' @returnItem rcoefSpleaf coefficient of plant water stress for specific leaf
