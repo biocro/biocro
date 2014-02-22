@@ -448,8 +448,8 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
 ##' 
 ##' A basic function designed to define the value for Fm and Lc 
 ##' which are used in the century function. 
-##' @param Lig
-##' @param Nit
+##' @param Lig lignin
+##' @param Nit nitrogen
 ##' @export FmLcFun
 FmLcFun <- function(Lig,Nit){
 
@@ -461,15 +461,15 @@ FmLcFun <- function(Lig,Nit){
 
 }
 
-##' Returns values based on if kno is less than equal to or greater than three.
+##' Returns values based on if kno is less than, equal to, or greater than three.
 ##' 
 ##' Returns Values for SC, fC, Resp, Kf, and MinN to be used in the Century function
 ##' @param SC
-##' @param CNratio
+##' @param CNratio ratio of carbon to nitrogen
 ##' @param A
-##' @param Lc
+##' @param Lc See \code{\link{FmLcFun}}
 ##' @param TM
-##' @param resp
+##' @param resp respiration
 ##' @param kno
 ##' @param Ks
 ##' @param verbose Only used in the R version for debugging
