@@ -1,25 +1,25 @@
 \name{flow}
 \alias{flow}
-\title{Returns values based on if kno is less than equal to or greater than three.}
+\title{Returns values based on if kno is less than, equal to, or greater than three.}
 \usage{
 flow(SC, CNratio, A, Lc, Tm, resp, kno, Ks, verbose = FALSE)
 }
 \arguments{
-  \item{SC}{}
+  \item{SC}{Soil Carbon}
 
-  \item{CNratio}{}
+  \item{CNratio}{ratio of carbon to nitrogen}
 
-  \item{A}{}
+  \item{A}{effects of teperature and moisture}
 
-  \item{Lc}{}
+  \item{Lc}{See \code{\link{FmLcFun}}}
 
-  \item{TM}{}
+  \item{TM}{effect of soil texture on active SOM turnover}
 
-  \item{resp}{}
+  \item{resp}{respiration}
 
-  \item{kno}{}
+  \item{kno}{an integer value which determines}
 
-  \item{Ks}{}
+  \item{Ks}{flow constant}
 
   \item{verbose}{Only used in the R version for debugging}
 }

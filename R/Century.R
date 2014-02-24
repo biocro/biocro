@@ -464,14 +464,14 @@ FmLcFun <- function(Lig,Nit){
 ##' Returns values based on if kno is less than, equal to, or greater than three.
 ##' 
 ##' Returns Values for SC, fC, Resp, Kf, and MinN to be used in the Century function
-##' @param SC
+##' @param SC Soil Carbon
 ##' @param CNratio ratio of carbon to nitrogen
-##' @param A
+##' @param A effects of teperature and moisture
 ##' @param Lc See \code{\link{FmLcFun}}
-##' @param TM
+##' @param TM effect of soil texture on active SOM turnover
 ##' @param resp respiration
-##' @param kno
-##' @param Ks
+##' @param kno an integer value which determines
+##' @param Ks flow constant
 ##' @param verbose Only used in the R version for debugging
 ##' @export flow
 flow <- function(SC,CNratio,A,Lc,Tm,resp,kno,Ks,verbose=FALSE){

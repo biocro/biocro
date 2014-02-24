@@ -5,9 +5,9 @@
 FmLcFun(Lig, Nit)
 }
 \arguments{
-  \item{Lig}{}
+  \item{Lig}{lignin}
 
-  \item{Nit}{}
+  \item{Nit}{nitrogen}
 }
 \description{
 A basic function designed to define the value for Fm and Lc
