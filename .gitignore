@@ -21,3 +21,6 @@ vignettes/*synctex.gz
 # files automattically generated doxygen
 documentation/latex/*
 #documentation/html/*
+git.log
+out.log
+changes.log
