@@ -433,6 +433,7 @@ void CROPCENTTimescaling(struct cropcentlayer *CROPCENT);
 void assignFluxRatios(struct cropcentlayer *CROPCENT);
 void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR);
 void GetC13Parms(struct C13Parms *temp,double *getc13parmsfromR);
+void GetLeachingParms(struct OrgLeachParms *temp,double *getleachingparmsfromR);
 
 // Assignign pool to flow structure
 void printcropcentout(struct cropcentlayer CROPCENT, double *totalSOC, double *strucc1, double *strucc2, 
