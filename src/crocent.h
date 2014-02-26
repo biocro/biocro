@@ -590,6 +590,7 @@ struct respirationParms
     double Qrhizome, mrhizome;
   } maint;
 };
+struct crop_phenology *cropdbp;
 double CalculateGrowthResp(double newbiomass,double growthRespFactor);
 struct frostParms;
 
@@ -597,6 +598,7 @@ void dailymiscanthus(struct miscanthus *miscanthus,double coefs[25],double TherP
 struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, int N, double delTT,
 struct respirationParms *RESP, int emergence);
 
+void cropcent_dbp(double coefs[],double TherPrds[],double TherTime,struct crop_phenology *cropdbp);
 double getThermalSenescence(double criticalTT, double currentTT, double biomass, double dailyfractionalloss);
 double canopyNsenescence(struct leaf *leaf, double SLA, double kN,  double leafNsen);
 double getStemSenescence(struct stem *stem, double criticalTT, double senefracion,  double Temp, struct frostParms *frostparms, double TT);

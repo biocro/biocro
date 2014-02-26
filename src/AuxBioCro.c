@@ -673,7 +673,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         /* available water and per hectare */
         double aw, naw; 
         double pawha, Newpawha, npaw; /* new 04-27-2009 */
-        double runoff = 0.0, runoff2 = 0.0;
+        double runoff = 0.0;
         /* variable needed for calculation of water stress*/
         double wsPhoto = 0.0, wsSpleaf, phi10;
         double slp = 0.0, intcpt = 0.0, theta = 0.0; 
@@ -716,7 +716,6 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
                 runoff = aw - fieldc; /* Here runoff is interpreted as water content exceeding saturation level */
                 /* Need to convert to units used in the Parton et al 1988 paper. */
                 /* The data comes in mm/hr and it needs to be in cm/month */
-                runoff2 = runoff * 0.10 * (1/24*30);
                 Nleach = runoff /18 * (0.2 + 0.7 * soTexS.sand);
                 aw = fieldc;
         }
