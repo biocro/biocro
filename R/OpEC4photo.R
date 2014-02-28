@@ -44,6 +44,12 @@ OpEC4photo <- function(obsDat,iVcmax=60,iVpmax=120,
 
   obsvec <- as.vector(obsDat[,1])
   SST <- t(obsvec)%*%(obsvec)
+
+  ##' a sub function of OpEC4photo
+  ##' 
+  ##' Internal function found in Opc3photo.R, Opc4photo.R, and OpEC4photo.R
+  ##' this function acts to define vec1 based on if coefs is "Assim" or "StomCond"
+  ##' @param coefs either "Assim" or "StomCond"
   RSS <- function(coefs){
 
   vec1 <- eC4photo(obsDat[,2],obsDat[,3],obsDat[,4],

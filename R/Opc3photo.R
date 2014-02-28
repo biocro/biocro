@@ -127,7 +127,13 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
   ## Extra parameters
   xparms <- list(Catm=Catm, O2=O2, b0=ib0, b1=ib1, theta=itheta,
                  Rd = iRd)
-  
+
+
+  ##' a sub function of Opc3photo
+  ##' 
+  ##' Internal function found in Opc3photo.R, Opc4photo.R, and OpEC4photo.R
+  ##' this function acts to define vec1 based on if coefs is "Assim" or "StomCond"
+  ##' @param coefs either "Assim" or "StomCond"
   RSS <- function(coefs){
       if(response == "Assim"){
         if(max(data[,1]) < 1)
