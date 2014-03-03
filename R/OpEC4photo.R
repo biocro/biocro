@@ -207,7 +207,11 @@ print.OpEC4photo <- function(x,...){
 
 }
 
-
+##' This function will implement simple calculations
+##' of predicted and residuals for the OpEC4photo function
+##' @export
+##' @S3method summary OpEC4photo
+##' 
 summary.OpEC4photo <- function(object,...){
 
   dat <- object$data
