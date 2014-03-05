@@ -307,7 +307,11 @@ indfun <- function(obs,pred){
   colind <- unique(colind)
   colind
 }
-
+##' printing method for MCMCBioGro
+##' 
+##' @param x
+##' @export
+##' @S3method print MCMCBioGro
 print.MCMCBioGro <- function(x,...){
 
   cfs <- c(x$coefs[1:4],NA,x$coefs[5:8],NA,

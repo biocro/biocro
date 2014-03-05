@@ -1,5 +1,40 @@
 ##  BioCro/R/OpBioGro.R by Fernando Ezequiel Miguez  Copyright (C) 2012
-
+##' Optimization of dry biomass partitioning coefficients.
+##'
+##' Optimizes dry biomass partitioning coefficients using constrained
+##' optimization (see below).
+##'
+##'
+##' The optimization is done over the \code{\link{MaizeGro}} function. The
+##' \code{OpMaizeGro} function is a wrapper for \code{optim} and the
+##' \code{constrOpBioGro} is a wrapper for \code{constrOptim}.
+##'
+##' @aliases OpMaizeGro
+##' @param phen integer taking values 1 through 6 which indicate the
+##' phenological stage being optimized. If all of the phenological stages need
+##' to be optimized then use zero (0).
+##' @param iCoef initial vector of size 24 for the dry biomass partitioning
+##' coefficients.
+##' @param cTT
+##' @param WetDat Weather data.
+##' @param data observed data.
+##' @param plant.day
+##' @param emerge.day
+##' @param harvest.day
+##' @param plant.density
+##' @param canopyControl see \code{\link{MaizeGro}}
+##' @param seneControl see \code{\link{MaizeGro}}
+##' @param photoControl see \code{\link{MaizeGro}}
+##' @param phenoControl see \code{\link{MaizeGro}}
+##' @param soilControl see \code{\link{MaizeGro}}
+##' @param nitroControl see \code{\link{MaizeGro}}
+##' @param centuryControl see \code{\link{MaizeGro}}
+##' @param op.method Optimization method. Whether to use optim or nlminb
+##' @param verbose Displays additional information, originally used for
+##' debugging.
+##' @param \dots additional arguments passed to \code{\link{optim}} or
+##' \code{\link{constrOptim}}.
+##' @export OpMaizeGro
 OpMaizeGro <- function(phen=1,iCoef=NULL,
                        cTT,
                        WetDat,
