@@ -1,5 +1,117 @@
 ##  BioCro/R/MaizeGro.R by Fernando Ezequiel Miguez  Copyright (C) 2012
-
+#' Simulation of Maize, Growth, LAI, Photosynthesis and phenology
+#' 
+#' 
+#' It takes weather data as input (hourly timesteps) and several parameters and
+#' it produces phenology, photosynthesis, LAI, etc.
+#' 
+#' 
+#' The phenology follows the 'Corn Growth and Development' Iowa State
+#' Publication. %% ~~ If necessary, more details than the description above ~~
+#' 
+#' @param WetDat weather data as produced by the \code{\link{weach}} function.
+#' @param plant.day Planting date (format 0-365)
+#' @param emerge.day Emergence date (format 0-365)
+#' @param harvest.day Harvest date (format 0-365)
+#' @param plant.density Planting density (plants per meter squared, default =
+#' 7)
+#' @param timestep Simulation timestep, the default of 1 requires houlry
+#' weather data. A value of 3 would require weather data every 3 hours.  This
+#' number should be a divisor of 24.
+#' @param lat latitude, default 40.
+#' @param canopyControl List that controls aspects of the canopy simulation. It
+#' should be supplied through the \code{canopyParms} function.
+#' 
+#' \code{Sp} (specific leaf area) here the units are ha \eqn{Mg^{-1}}.  If you
+#' have data in \eqn{m^2} of leaf per kg of dry matter (e.g. 15) then divide by
+#' 10 before inputting this coefficient.
+#' 
+#' \code{SpD} decrease of specific leaf area. Empirical parameter. Default 0.
+#' example value (1.7e-3).
+#' 
+#' \code{nlayers} (number of layers of the canopy) Maximum 50. To increase the
+#' number of layers (more than 50) the \code{C} source code needs to be changed
+#' slightly.
+#' 
+#' \code{kd} (extinction coefficient for diffuse light) between 0 and 1.
+#' 
+#' \code{mResp} (maintenance respiration) a vector of length 2 with the first
+#' component for leaf and stem and the second component for rhizome and root.
+#' @param MaizeSeneControl List that controls aspects of senescence simulation.
+#' It should be supplied through the \code{MaizeSeneParms} function.
+#' 
+#' \code{senLeaf} Thermal time at which leaf senescence will start.
+#' 
+#' \code{senStem} Thermal time at which stem senescence will start.
+#' 
+#' \code{senRoot} Thermal time at which root senescence will start.
+#' @param photoControl List that controls aspects of photosynthesis simulation.
+#' It should be supplied through the \code{MaizePhotoParms} function.
+#' 
+#' \code{vmax} Vmax passed to the \code{\link{c4photo}} function.
+#' 
+#' \code{alpha} alpha parameter passed to the \code{\link{c4photo}} function.
+#' 
+#' \code{kparm} kparm parameter passed to the \code{\link{c4photo}} function.
+#' 
+#' \code{theta} theta parameter passed to the \code{\link{c4photo}} function.
+#' 
+#' \code{beta} beta parameter passed to the \code{\link{c4photo}} function.
+#' 
+#' \code{Rd} Rd parameter passed to the \code{\link{c4photo}} function.
+#' 
+#' \code{UPPERTEMP} UPPERTEMP parameter passed to the \code{\link{c4photo}}
+#' function.
+#' 
+#' \code{LOWERTEMP} LOWERTEMP parameter passed to the \code{\link{c4photo}}
+#' function.
+#' 
+#' \code{Catm} Catm parameter passed to the \code{\link{c4photo}} function.
+#' 
+#' \code{b0} b0 parameter passed to the \code{\link{c4photo}} function.
+#' 
+#' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
+#' @param MaizePhenoControl argument used to pass parameters related to
+#' phenology characteristics %% ~~Describe \code{MaizePhenoControl} here~~
+#' @param soilControl %% ~~Describe \code{soilControl} here~~
+#' @param nitroControl %% ~~Describe \code{nitroControl} here~~
+#' @param centuryControl %% ~~Describe \code{centuryControl} here~~
+#' @return
+#' 
+#' It currently returns a list with the following components
+#' 
+#' \item{DayofYear}{Day of the year (0-365)}
+#' 
+#' \item{Hour}{Hour of the day (0-23)}
+#' 
+#' \item{TTTc}{Accumulated thermal time}
+#' 
+#' \item{PhenoStage}{Phenological stage of the crop}
+#' 
+#' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
+#' \eqn{hr^-1}).}
+#' 
+#' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
+#' \eqn{hr^-1}).}
+#' 
+#' \item{LAI}{Leaf Area Index}
+#' 
+#' %% ~Describe the value returned %% If it is a LIST, use %% \item{comp1
+#' }{Description of 'comp1'} %% \item{comp2 }{Description of 'comp2'} %% ...
+#' @note %% ~~further notes~~
+#' @author Fernando E Miguez
+#' @seealso \code{\link{BioGro}} %% ~~objects to See Also as
+#' \code{\link{help}}, ~~~
+#' @references %% ~put references to the literature/web site here ~
+#' @keywords models
+#' @examples
+#' 
+#' 
+#' data(weather05)
+#' res <- MaizeGro(weather05, plant.day = 110, emerge.day = 120, harvest.day=300,
+#'                   MaizePhenoControl = MaizePhenoParms(R6 = 2000))
+#' 
+#' 
 MaizeGro <- function(WetDat, plant.day=NULL,
                      emerge.day=NULL,
                      harvest.day=NULL,

@@ -10,7 +10,7 @@ useDynLib(BioCro, MisGro,
           McMCEc4photo,
           SABioGro)
 
-import(stats, lattice)
+import(stats, lattice, data.table)
 
 export(MisGro)
 export(weach_imn)

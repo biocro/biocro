@@ -1,5 +1,0 @@
-<map id="canopy" name="canopy">
-<area shape="rect" id="node2" href="$structcanopy_leaf.html" title="canopyLeaf" alt="" coords="5,5,93,35"/>
-<area shape="rect" id="node4" href="$structcanopy_env.html" title="canopyEnv" alt="" coords="117,5,203,35"/>
-<area shape="rect" id="node6" href="$structcanopyoutput.html" title="canopyoutput" alt="" coords="227,5,325,35"/>
-</map>
