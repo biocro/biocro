@@ -11,8 +11,4 @@ CheckLeapYear(year)
 This fuction checks if year is a leap year. If yes, then
 returns 1 or 0.
 }
-\examples{
-year==2000 => 1
-year==1998 => 0
-}
 

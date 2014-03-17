@@ -11,6 +11,7 @@
 \alias{soilParms}
 \alias{willowCent}
 \alias{willowGro}
+\title{willowmass crops growth simulation}
 \usage{
 willowCent(WetDat, day1 = 120, dayn = 300, timestep = 1, iRhizome = 1,
   lat = 40, iPlant = 1, irtl = 1e-04, canopyControl = list(),
@@ -244,6 +245,15 @@ willowCent(WetDat, day1 = 120, dayn = 300, timestep = 1, iRhizome = 1,
 }
 \value{
 a \code{\link{list}} structure with components
+}
+\description{
+Simulates dry biomass growth during an entire growing
+season.  It represents an integration of the photosynthesis
+function \code{\link{c3photo}}, canopy evapo/transpiration
+\code{\link{CanA}}, the multilayer canopy model
+\code{\link{sunML}} and a dry biomass partitioning calendar
+and senescence. It also considers, carbon and nitrogen
+cycles and water and nitrogen limitations.
 }
 \examples{
 \dontrun{
