@@ -1,5 +1,7 @@
 ##  BioCro/R/showSoilType.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2011
-
+##' takes an interger from 0 to 10 that coresponds to a specifically defined soil type  and returns the composition of the soil in a list.
+##' @param soiltype an integer from 0 to 10 that coresopnds to a type of soil
+##' @export SoilType
 SoilType <- function(soiltype){
 
 if((soiltype < 0) || (soiltype > 10))
@@ -163,7 +165,9 @@ if((soiltype < 0) || (soiltype > 10))
   list(type=nm, silt=silt,clay=clay, sand=sand, air.entry=air.entry, b=b, Ks=Ks, satur=satur, fieldc=fieldc, wiltp=wiltp) 
 }
 
-
+##' the function that deinfes the soil types 
+##' @param soiltype an integer from 0 to 10 that coresopnds to a type of soil
+##' @export showSoilType
 showSoilType <- function(soiltype){
 
 if((soiltype < 0) || (soiltype > 10))

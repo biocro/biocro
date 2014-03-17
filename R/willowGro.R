@@ -12,9 +12,6 @@
 ## A copy of the GNU General Public License is available at
 ## http://www.r-project.org/Licenses/
 
-##' @export
-##' 
-
 #' willowmass crops growth simulation
 #' 
 #' Simulates dry biomass growth during an entire growing season.  It represents

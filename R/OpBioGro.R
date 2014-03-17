@@ -563,7 +563,11 @@ print.OpBioGro <- function(x,...){
 }
 
 
-
+##' This function will implement simple calculations
+##' of predicted and residuals for the OpBioGro function
+##' @param object
+##' @export
+##' @S3method summary OpBioGro
 summary.OpBioGro <- function(object,...){
 
   cfs <- object$coefs

@@ -104,13 +104,7 @@
 #' \code{\link{help}}, ~~~
 #' @references %% ~put references to the literature/web site here ~
 #' @keywords models
-#' @examples
-#' 
-#' 
-#' data(weather05)
-#' res <- caneGro(weather05, plant.day = 110, emerge.day = 120, harvest.day=300,
-#'                   canePhenoControl = canePhenoParms(R6 = 2000))
-#' 
+#' @export caneGro
 caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,
                    lat=40,iRhizome=7,irtl=1e-4,

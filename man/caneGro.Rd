@@ -151,11 +151,6 @@ than the description above ~~
 \note{
 %% ~~further notes~~
 }
-\examples{
-data(weather05)
-res <- caneGro(weather05, plant.day = 110, emerge.day = 120, harvest.day=300,
-                  canePhenoControl = canePhenoParms(R6 = 2000))
-}
 \author{
 Fernando E Miguez
 }

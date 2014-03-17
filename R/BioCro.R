@@ -723,6 +723,9 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
     matplot(x$ThermalT,as.matrix(x$cwsMat),type="l",ylab="Soil Water Content",xlab="Thermal Time")
   }
 }
+##' printing method for BioGro
+##' 
+##' @param x
 ##' @export
 ##' @S3method print BioGro
 print.BioGro <- function(x,level=1,...){
