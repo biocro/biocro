@@ -20,15 +20,20 @@
 #' 
 #' The imported data frame should have 9 columns with:
 #' 
-#' \enumerate{
+#' \itemize{
 #' 
-#' \itemcol 1 site ID \itemcol 2 site name \itemcol 3 date in format
-#' "year-month-day", e.g. '2010-3-25' \itemcol 4 hour in format "hour:minute",
-#' e.g. '15:00' \itemcol 5 temperature (Fahrenheit) \itemcol 6 solar radiation
-#' (kilocalories per meter squared \itemcol 7 precipitation (inches) \itemcol 8
-#' relative humidity (\%). \itemcol 9 wind speed (mph)
+#' \item{site ID} 
+#' \item{site name} 
+#' \item{date in format "year-month-day", e.g. '2010-3-25'} 
+#' \item{hour in format "hour:minute", e.g. '15:00'} 
+#' \item{temperature (Fahrenheit)} 
+#' \item{solar radiation (kilocalories per meter squared)} 
+#' \item{precipitation (inches)} 
+#' \item{relative humidity (\%).} 
+#' \item{wind speed (mph)}
+#' } 
 #' 
-#' } %% ~~ If necessary, more details than the description above ~~
+#' %% ~~ If necessary, more details than the description above ~~
 #' 
 #' @param data data as obtained from the Iowa Mesonet (see details) %%
 #' ~~Describe \code{data} here~~
