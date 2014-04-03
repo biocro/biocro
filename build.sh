@@ -51,7 +51,10 @@ rm biocro.Rcheck/00check.log
 
 cat changes.log
 if [ `grep failed changes.log` ]; then
-    cat changes.log | mail -s "BioCro BUILD ${REVNO} is BROKEN" ${EMAIL}
+    # cat changes.log | mail -s "BioCro BUILD ${REVNO} is BROKEN" ${EMAIL}
+    echo "ERROR BioCro BUILD BROKEN" >&2
+    exit 1
+
 fi
 
 
