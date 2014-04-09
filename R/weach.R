@@ -13,15 +13,16 @@
 ##'
 ##' This function was originally used to transform daily data to hourly data.
 ##' Some flexibility has been added so that other units can be used. The input
-##' data used originally looked as follows. \enumerate{
+##' data used originally looked as follows. 
+##' \itemize{
 ##'
-##' \itemcol 1year \itemcol 2day of the year (1--365). Does not consider leap
-##' years. \itemcol 3total daily solar radiation (MJ/m^2). \itemcol 4maximum
-##' temperature (Fahrenheit). \itemcol 5minimum temperature (Fahrenheit).
-##' \itemcol 6average temperature (Fahrenheit). \itemcol 7maximum relative
-##' humidity (\%). \itemcol 8minimum relative humidity (\%). \itemcol 9average
-##' relative humidity (\%). \itemcol 10average wind speed (miles per hour).
-##' \itemcol 11precipitation (inches). }
+##' \item{year} \item{day of the year (1--365). Does not consider leap
+##' years.} \item{total daily solar radiation (MJ/m^2).} \item{maximum
+##' temperature (Fahrenheit).} \item{minimum temperature (Fahrenheit).}
+##' \item{average temperature (Fahrenheit).} \item{maximum relative
+##' humidity (\%).} \item{minimum relative humidity (\%).} \item{average
+##' relative humidity (\%).} \item{average wind speed (miles per hour).}
+##' \item{precipitation (inches).} }
 ##'
 ##' All the units above are the defaults but they can be changed as part of the
 ##' arguments.
