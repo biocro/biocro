@@ -14,7 +14,7 @@
 ##' This function was originally used to transform daily data to hourly data.
 ##' Some flexibility has been added so that other units can be used. The input
 ##' data used originally looked as follows. 
-##' \itemize{
+##' \enumerate{
 ##'
 ##' \item{year} \item{day of the year (1--365). Does not consider leap
 ##' years.} \item{total daily solar radiation (MJ/m^2).} \item{maximum

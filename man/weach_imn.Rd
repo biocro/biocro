@@ -52,7 +52,7 @@ row).
 
 The imported data frame should have 9 columns with:
 
-\itemize{
+\enumerate{
 
 \item{site ID} \item{site name} \item{date in format
 "year-month-day", e.g. '2010-3-25'} \item{hour in format
@@ -61,8 +61,8 @@ The imported data frame should have 9 columns with:
 squared)} \item{precipitation (inches)} \item{relative
 humidity (\%).} \item{wind speed (mph)} }
 
-%% ~~ If necessary, more details than the description above
-~~
+%% ~~ If necessary, more details than the description
+above~~
 }
 \note{
 %% ~~further notes~~

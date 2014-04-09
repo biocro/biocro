@@ -20,7 +20,7 @@
 #' 
 #' The imported data frame should have 9 columns with:
 #' 
-#' \itemize{
+#' \enumerate{
 #' 
 #' \item{site ID} 
 #' \item{site name} 
@@ -33,7 +33,7 @@
 #' \item{wind speed (mph)}
 #' } 
 #' 
-#' %% ~~ If necessary, more details than the description above ~~
+#' %% ~~ If necessary, more details than the description above~~
 #' 
 #' @param data data as obtained from the Iowa Mesonet (see details) 
 #' @param lati Latitude, not used at the moment 
