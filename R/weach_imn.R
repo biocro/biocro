@@ -22,30 +22,31 @@
 #' 
 #' \enumerate{
 #' 
-#' \itemcol 1 site ID \itemcol 2 site name \itemcol 3 date in format
-#' "year-month-day", e.g. '2010-3-25' \itemcol 4 hour in format "hour:minute",
-#' e.g. '15:00' \itemcol 5 temperature (Fahrenheit) \itemcol 6 solar radiation
-#' (kilocalories per meter squared \itemcol 7 precipitation (inches) \itemcol 8
-#' relative humidity (\%). \itemcol 9 wind speed (mph)
+#' \item{site ID} 
+#' \item{site name} 
+#' \item{date in format "year-month-day", e.g. '2010-3-25'} 
+#' \item{hour in format "hour:minute", e.g. '15:00'} 
+#' \item{temperature (Fahrenheit)} 
+#' \item{solar radiation (kilocalories per meter squared)} 
+#' \item{precipitation (inches)} 
+#' \item{relative humidity (\%).} 
+#' \item{wind speed (mph)}
+#' } 
 #' 
-#' } %% ~~ If necessary, more details than the description above ~~
+#' %% ~~ If necessary, more details than the description above~~
 #' 
-#' @param data data as obtained from the Iowa Mesonet (see details) %%
-#' ~~Describe \code{data} here~~
-#' @param lati Latitude, not used at the moment %% ~~Describe \code{lati}
-#' here~~
-#' @param ts Time step, not used at the moment %% ~~Describe \code{ts} here~~
-#' @param temp.units Temperature units. %% ~~Describe \code{temp.units} here~~
-#' @param rh.units Relative humidity units %% ~~Describe \code{rh.units} here~~
-#' @param ws.units wind speed units %% ~~Describe \code{ws.units} here~~
-#' @param pp.units precipitation units %% ~~Describe \code{pp.units} here~~
-#' @param \dots %% ~~Describe \code{\dots} here~~
+#' @param data data as obtained from the Iowa Mesonet (see details) 
+#' @param lati Latitude, not used at the moment 
+#' @param ts Time step, not used at the moment 
+#' @param temp.units Temperature units 
+#' @param rh.units Relative humidity units 
+#' @param ws.units wind speed units 
+#' @param pp.units precipitation units 
+#' @param \dots 
 #' @return
 #' 
 #' It will return a data frame in the same format as the \code{\link{weach}}
-#' function. %% ~Describe the value returned %% If it is a LIST, use %%
-#' \item{comp1 }{Description of 'comp1'} %% \item{comp2 }{Description of
-#' 'comp2'} %% ...
+#' function. 
 #' @note %% ~~further notes~~
 #' @author Fernando E. Miguez
 #' @seealso \code{\link{weach}} %% ~~objects to See Also as \code{\link{help}},
