@@ -592,9 +592,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 #'
 #' if op.level equals 1 best Vcmax, Jmax and convergence
 #'
-#' if op.level equals 2 best Vcmax, Jmax, Rd and convergence %% ~Describe the
-#' value returned %% If it is a LIST, use %% \item{comp1 }{Description of
-#' 'comp1'} %% \item{comp2 }{Description of 'comp2'} %% ...
+#' if op.level equals 2 best Vcmax, Jmax, Rd and convergence 
 #' @author Fernando E. Miguez
 #' @seealso See also \code{\link{Opc3photo}} %% ~~objects to See Also as
 #' \code{\link{help}}, ~~~

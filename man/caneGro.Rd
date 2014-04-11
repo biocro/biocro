@@ -133,10 +133,6 @@ It currently returns a list with the following components
 \eqn{ha^-1} ground \eqn{hr^-1}).}
 
 \item{LAI}{Leaf Area Index}
-
-%% ~Describe the value returned %% If it is a LIST, use %%
-\item{comp1 }{Description of 'comp1'} %% \item{comp2
-}{Description of 'comp2'} %% ...
 }
 \description{
 It takes weather data as input (hourly timesteps) and
