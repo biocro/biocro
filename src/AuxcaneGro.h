@@ -24,6 +24,7 @@ struct frostParms {
   double rhizomeT100;
 };
 
+double SoilEvapo(double LAI,double k,double AirTemp,double IRad,double awc2,double fieldc,double willtp,double winds,double RelH,double rsec);
 double MRespiration (double W,double Q, double m,double T, double deltime);
 double GrowthRespiration(double CanopyA, double fraction);
 struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double Tmaturity, double Rd, double Alm, double Arm, double Clstem, double Ilstem, double Cestem, double Iestem, double Clsuc, double Ilsuc, double Cesuc, double Iesuc,double Temperature);

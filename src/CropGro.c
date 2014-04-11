@@ -18,7 +18,7 @@
 #include "c3canopy.h"
 #include "soilwater.h"
 
-SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
+SEXP CropGro(SEXP LAT,          /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
 	    SEXP HR,                  /* Hour of the day           3 */
 	    SEXP SOLAR,               /* Solar Radiation           4 */
@@ -70,7 +70,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
       SEXP LNFUN,               /* Leaf N func flag         50 */
       SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
 	    SEXP LOWERTEMP,
-	    SEXP NNITROP)           /*temperature Limitation photoParms */
+	    SEXP NNITROP)             /*temperature Limitation photoParms */
 {
     int vecsize = INTEGER(VECSIZE)[0];
     int dailyvecsize = vecsize/24;
@@ -104,15 +104,19 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    
    /*********Tracegas Calculation Variables ***********/
    
-    SITEPAR_SPT sitepar;
-    LAYERPAR_SPT layers;
-    SOIL_SPT soil;
-     double *fakedouble,newminrl, ammonium,nitrate[50],sand,silt,clay,afiel,bulkd,maxt,ppt,snow,avgwfps,stormf,basef,frlechd[50],stream[60],inorglch;
-       double critflow,wfluxout[60],newCO2,NOflux,Nn2oflux,Dn2oflux,Dn2flux,CH4,grass_lai,tree_lai,NOabsorp_grass,NOabsorp_tree,nit_amt,nreduce;
+//    SITEPAR_SPT sitepar;
+//    LAYERPAR_SPT layers;
+//    SOIL_SPT soil;
+     double newminrl, sand, silt, clay, afiel, bulkd, maxt, ppt, avgwfps, stormf, basef, frlechd[50], stream[60], inorglch;
+//    double snow, nitrate[50], *fakedouble, ammonium
+       double critflow, wfluxout[60], newCO2, CH4, grass_lai, tree_lai;
+//      double nreduce, nit_amt, NOabsorp_tree, NOabsorp_grass, Dn2flux, Dn2oflux, Nn2oflux, NOflux;        
        double dN2lyr[60],dN2Olyr[60];  
-       int *fakeint,texture,isdecid,isagri,jday,iindex;
+       int iindex;
+//      int texture, isdecid, isagri, jday;
+// int *fakeint;
        afiel=0.3;
-       ammonium=0.0;
+//       ammonium=0.0;
        newminrl=0.0;
        avgwfps=0.5;
        basef=0.0;
@@ -123,15 +127,15 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
        clay=0.33;
        critflow=1.0;
        inorglch=0.0;
-       isdecid=0;
-       isagri=1;
-       jday=180;
+//       isdecid=0;
+//       isagri=1;
+//       jday=180;
        maxt=15;
        newCO2=0.0;
        newminrl=0.0;
        ppt=0.0;
        stormf=0.0;
-       texture=1;
+//       texture=1;
        grass_lai=0.0;
        tree_lai=0.0;
        for (iindex=0;iindex<60;iindex++){
@@ -145,8 +149,9 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    /*******************************************************/
 
    
-   struct crop_phenology cropdbp;
-   static struct miscanthus miscanthus, deltamiscanthus;
+//   struct crop_phenology cropdbp;
+   static struct miscanthus miscanthus;
+// static struct deltamiscanthus;
    createNULLmiscanthus(&miscanthus,vecsize);
 
 //   miscanthus.leafvec[vecsize].newbiomass=(double)vecsize;
@@ -201,7 +206,9 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
 
 ///////////////////////////////////////////////////////////////////	
-  double iSp, Sp , propLeaf;
+  double Sp;
+// double propLeaf;
+// double iSp;
 	int i, i2, i3;
 
 	double vmax1;
@@ -212,21 +219,22 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	double Rd1, Ca;
 	double b01, b11;
 
-	double Leaf, Stem, Root, LAI, Grain = 0.0;
+	double LAI, Grain = 0.0;
+// double Leaf, Stem, Root
 	double TTc = 0.0;
-	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
-	double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
+//	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
+//	double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
 
 	/* Variables needed for collecting litter */
 	double LeafLitter = REAL(CENTCOEFS)[20], StemLitter = REAL(CENTCOEFS)[21];
 	double RootLitter = REAL(CENTCOEFS)[22], RhizomeLitter = REAL(CENTCOEFS)[23];
-	double LeafLitter_d = 0.0, StemLitter_d = 0.0;
-	double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
+//	double LeafLitter_d = 0.0, StemLitter_d = 0.0;
+//	double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
 	double ALitter = 0.0, BLitter = 0.0;
 	/* Maintenance respiration */
 
-	double mrc1 = REAL(MRESP)[0];
-	double mrc2 = REAL(MRESP)[1]; 
+//	double mrc1 = REAL(MRESP)[0];
+//	double mrc2 = REAL(MRESP)[1]; 
 
 	double waterCont;
 	double StomWS = 1, LeafWS = 1;
@@ -238,7 +246,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	/* Soil Parameters*/
 	double FieldC, WiltP, phi1, phi2, soilDepth;
 	int soilType, wsFun;
-	double LeafN, LeafN_0, kLN;
+	double LeafN, LeafN_0;
+// double kLN;
 	double soilEvap, TotEvap;
 	int soillayers = INTEGER(SOILLAYERS)[0];
 	double cwsVec[soillayers];
@@ -265,21 +274,21 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
 	/* Century */
 	double MinNitro = REAL(CENTCOEFS)[19];
-	int doyNfert = REAL(CENTCOEFS)[18];
-	double Nfert;
+//	int doyNfert = REAL(CENTCOEFS)[18];
+//	double Nfert;
 	double SCCs[9];
 	double Resp = 0.0;
 	int centTimestep = INTEGER(CENTTIMESTEP)[0];
 
 	double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0 ;
-	double *sti , *sti2, *sti3, *sti4; 
-	double Remob;
-	int k = 0, q = 0, m = 0, n = 0;
-	int ri = 0;
+//	double *sti , *sti2, *sti3, *sti4; 
+//	double Remob;
+//	int k = 0, q = 0, m = 0, n = 0;
+//	int ri = 0;
 
 	struct Can_Str Canopy;
 	struct ws_str WaterS;
-	struct dbp_str dbpS;
+//	struct dbp_str dbpS;
 	struct cenT_str centS; 
 	struct soilML_str soilMLS;
 	struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
@@ -422,13 +431,13 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   PROTECT(LAId = allocVector(REALSXP,dailyvecsize));
   PROTECT(totalSOC = allocVector(REALSXP,dailyvecsize));
   PROTECT(strucc1 = allocVector(REALSXP,dailyvecsize));
-   PROTECT(strucc2 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(strucc2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(metabc1 = allocVector(REALSXP,dailyvecsize));
   PROTECT(metabc2 = allocVector(REALSXP,dailyvecsize));
-   PROTECT(som1c1 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(som1c1 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som1c2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som2c1 = allocVector(REALSXP,dailyvecsize));
-   PROTECT(som2c2 = allocVector(REALSXP,dailyvecsize));
+  PROTECT(som2c2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som3c = allocVector(REALSXP,dailyvecsize));
   PROTECT(minN = allocVector(REALSXP,dailyvecsize));
 	/* Picking vmax, alpha and kparm */
@@ -444,7 +453,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
 	LeafN_0 = REAL(ILEAFN)[0];
 	LeafN = LeafN_0; /* Initial value of N in the leaf */
-	kLN = REAL(KLN)[0];
+//	kLN = REAL(KLN)[0];
 	timestep = INTEGER(TIMESTEP)[0];
 
 	Rhizome = REAL(RHIZOME)[0];
@@ -536,8 +545,9 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
  RESP.maint.mrhizome=0.002;
 //  Resp.growth.stem=0.3;
   
-  double LeafResp,StemResp,RootResp,RhizResp;  
-  double gRespCoeff = 0.0;
+  double StemResp,RootResp,RhizResp;
+//  double LeafResp;
+//  double gRespCoeff = 0.0;
   double dailydelTT = 0.0;
   double delTT;
   double Tbase=0.0;
@@ -555,7 +565,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   frostparms.stemT0=-20.0;//REAL(FROSTP)[2];
   frostparms.stemT100=-20.0;//REAL(FROSTP)[3];
  
-  propLeaf = REAL(IRTL)[0]; 
+//  propLeaf = REAL(IRTL)[0]; 
 	/* It is useful to assume that there is a small amount of
 	   leaf area at the begining of the growing season. */
 //	Leaf = Rhizome * 0.001; 

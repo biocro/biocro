@@ -99,25 +99,21 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 				  if(newLeafcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newLeafcol\n");
-				    exit;
 				  }
 	double *newStemcol=malloc(vecsize*sizeof(double));
 				  if(newStemcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newStemcol\n");
-				    exit;
 				  }
 	double *newRootcol=malloc(vecsize*sizeof(double));
 				  if(newRootcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newRootcol\n");
-				    exit;
 				  }
 	double *newRhizomecol=malloc(vecsize*sizeof(double));
 				  if(newRhizomecol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newRhizomecol\n");
-				    exit;
 				  }
 
 				  double upperT=REAL(UPPERTEMP)[0];
@@ -490,13 +486,12 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 			delTT=(*(pt_temp+i)- 12)/24.0;
 		}
                 
-/* This calculated TTTc based on 0 base Temperature */    
-/*		REAL(TTTc)[i] = TTc;
-
-/* Now we are calculating TTc based on 12 base Temperature */
+/* This calculated TTTc based on 0 base Temperature    
+ *		REAL(TTTc)[i] = TTc;
+ * Now we are calculating TTc based on 12 base Temperature */
                 REAL(TTTc)[i]=TT12c;
 	     
-	        /*  Do the magic! Calculate growth*/
+	        /*  Do the magic! Calculate growth */
 		Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
@@ -507,10 +502,9 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 			       chil, hf,
                                LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
 
-/* This is an addition, which was omitted earlier */
-/* WIMOVAC suggestsevaluating A grodd = Anet + Rd before proceeding with further calculations */
-
-/* A better way to evaluate gross canopy assimilation would be to evaluate for individual layer in CanAC functions using leaf temperature. However, this will require changing CanAC functon, which I do not want to distrub for now.
+/* This is an addition, which was omitted earlier
+ * WIMOVAC suggestsevaluating A grodd = Anet + Rd before proceeding with further calculations
+ * A better way to evaluate gross canopy assimilation would be to evaluate for individual layer in CanAC functions using leaf temperature. However, this will require changing CanAC functon, which I do not want to distrub for now. */
 
 		/* Collecting the results */
 //		CanopyA = Canopy.Assim * timestep;
@@ -677,20 +671,20 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                                  }
 				 else
 				 {
-				 deadleaf=(leafrate*Leaf)/100.0;  /* biomass of dead leaf */
-         remobilizedleaf<-deadleaf*Remobfactorleaf;
-				 leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
-				 Leaf =Leaf+newLeaf-deadleaf+remobilizedleaf*33;
-         Stem=Stem+remobilizedleaf*0.33;
-         Root=Root+remobilizedleaf*0.33;
-				 REAL(LeafLittervec)[dayi]= leaflitter; /* Collecting the leaf litter */ 
+				 deadleaf = (leafrate*Leaf)/100.0;  /* biomass of dead leaf */
+         remobilizedleaf <- deadleaf*Remobfactorleaf;
+				 leaflitter = leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
+				 Leaf = Leaf+newLeaf-deadleaf+remobilizedleaf*33;
+         Stem = Stem+remobilizedleaf*0.33;
+         Root = Root+remobilizedleaf*0.33;
+				 REAL(LeafLittervec)[dayi] = leaflitter; /* Collecting the leaf litter */ 
 				 /*	 REAL(LeafLittervec)[dayi]=Litter * 0.4;  */ /* Collecting the leaf litter */       
 				 }
 				  if(kStem >= 0)
 				  {
 				  newStem =  dailyassim* kStem-dailyStemResp ;
-					newSugar= dailyassim *kSugar-dailyStemResp*(kSugar/kStem);
-					newFiber=dailyassim *kFiber-dailyStemResp*(kFiber/kStem);
+					newSugar = dailyassim *kSugar-dailyStemResp*(kSugar/kStem);
+					newFiber = dailyassim *kFiber-dailyStemResp*(kFiber/kStem);
 				  }
 				  else
 				  {
@@ -700,14 +694,14 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 				  if(TT12c < SeneStem)
 				  {
 				   Stem += newStem;
-				   Fiber+=newFiber;
-				   Sugar+=newSugar;
+				   Fiber += newFiber;
+				   Sugar += newSugar;
 				  }
 				  else
 				  {
-				       Stem=Stem+newStem;  
-				       Fiber=Fiber+newFiber;
-				       Sugar=Sugar+newSugar;
+				       Stem = Stem+newStem;  
+				       Fiber = Fiber+newFiber;
+				       Sugar = Sugar+newSugar;
 					  
 				  }
            if(kRoot >= 0)
@@ -734,7 +728,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 				 if(TT12c < SeneRoot)
 				 {
 				   Root += newRoot;
-           rootlitter=0.0;
+           rootlitter = 0.0;
 				   REAL(RootLittervec)[dayi]= rootlitter;
 				  
 				 }
