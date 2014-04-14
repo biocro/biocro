@@ -1,6 +1,6 @@
 \name{TempToSFS}
 \alias{TempToSFS}
-\title{Returns a value for SlopeFS as a funtion of temperature}
+\title{Returns a value for TempToSlopeFS}
 \usage{
 TempToSFS(Temp)
 }
