@@ -1,12 +1,12 @@
 \name{wtrstr}
+\alias{ws}
 \alias{wsRcoef}
 \alias{wtrstr}
 \title{Simple function to illustrate soil water content effect on plant water
 stress.}
 \usage{
-  wtrstr(precipt, evapo, cws, soildepth, fieldc, wiltp,
-    phi1 = 0.01, phi2 = 10,
-    wsFun = c("linear", "logistic", "exp", "none"))
+wtrstr(precipt, evapo, cws, soildepth, fieldc, wiltp, phi1 = 0.01,
+  phi2 = 10, wsFun = c("linear", "logistic", "exp", "none"))
 }
 \arguments{
   \item{precipt}{Precipitation (mm).}
@@ -31,16 +31,16 @@ stress.}
   the water stress function.}
 }
 \value{
-  A list with components:
+A list with components:
 }
 \description{
-  This is a very simple function which implements the
-  'bucket' model for soil water content and it calculates a
-  coefficient of plant water stress.
+This is a very simple function which implements the
+'bucket' model for soil water content and it calculates a
+coefficient of plant water stress.
 }
 \details{
-  This is a very simple function and the details can be
-  seen in the code.
+This is a very simple function and the details can be seen
+in the code.
 }
 \examples{
 ## Looking at the three possible models for the effect of soil moisture on water
@@ -110,7 +110,7 @@ xyplot(wats.1 + wats.2 + wats.3 ~ aws,type='l',
          lines=TRUE,col=c('blue','red','green')))
 }
 \seealso{
-  \code{\link{wsRcoef}}
+\code{\link{wsRcoef}}
 }
 \keyword{models}
 
