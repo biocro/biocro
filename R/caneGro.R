@@ -1,108 +1,5 @@
 ## BioCro/R/caneGro.R by Deepak Jaiswal 
-#' Simulation of cane, Growth, LAI, Photosynthesis and phenology
-#' 
-#' 
-#' It takes weather data as input (hourly timesteps) and several parameters and
-#' it produces phenology, photosynthesis, LAI, etc.
-#' 
-#' 
-#' The phenology follows the 'Corn Growth and Development' Iowa State
-#' Publication. %% ~~ If necessary, more details than the description above ~~
-#' 
-#' @param WetDat weather data as produced by the \code{\link{weach}} function.
-#' @param plant.day Planting date (format 0-365)
-#' @param emerge.day Emergence date (format 0-365)
-#' @param harvest.day Harvest date (format 0-365)
-#' @param plant.density Planting density (plants per meter squared, default =
-#' 7)
-#' @param timestep Simulation timestep, the default of 1 requires houlry
-#' weather data. A value of 3 would require weather data every 3 hours.  This
-#' number should be a divisor of 24.
-#' @param lat latitude, default 40.
-#' @param canopyControl List that controls aspects of the canopy simulation. It
-#' should be supplied through the \code{canopyParms} function.
-#' 
-#' \code{Sp} (specific leaf area) here the units are ha \eqn{Mg^{-1}}.  If you
-#' have data in \eqn{m^2} of leaf per kg of dry matter (e.g. 15) then divide by
-#' 10 before inputting this coefficient.
-#' 
-#' \code{SpD} decrease of specific leaf area. Empirical parameter. Default 0.
-#' example value (1.7e-3).
-#' 
-#' \code{nlayers} (number of layers of the canopy) Maximum 50. To increase the
-#' number of layers (more than 50) the \code{C} source code needs to be changed
-#' slightly.
-#' 
-#' \code{kd} (extinction coefficient for diffuse light) between 0 and 1.
-#' 
-#' \code{mResp} (maintenance respiration) a vector of length 2 with the first
-#' component for leaf and stem and the second component for rhizome and root.
-#' @param caneSeneControl List that controls aspects of senescence simulation.
-#' It should be supplied through the \code{caneSeneParms} function.
-#' 
-#' \code{senLeaf} Thermal time at which leaf senescence will start.
-#' 
-#' \code{senStem} Thermal time at which stem senescence will start.
-#' 
-#' \code{senRoot} Thermal time at which root senescence will start.
-#' @param photoControl List that controls aspects of photosynthesis simulation.
-#' It should be supplied through the \code{canePhotoParms} function.
-#' 
-#' \code{vmax} Vmax passed to the \code{\link{c4photo}} function.
-#' 
-#' \code{alpha} alpha parameter passed to the \code{\link{c4photo}} function.
-#' 
-#' \code{kparm} kparm parameter passed to the \code{\link{c4photo}} function.
-#' 
-#' \code{theta} theta parameter passed to the \code{\link{c4photo}} function.
-#' 
-#' \code{beta} beta parameter passed to the \code{\link{c4photo}} function.
-#' 
-#' \code{Rd} Rd parameter passed to the \code{\link{c4photo}} function.
-#' 
-#' \code{UPPERTEMP} UPPERTEMP parameter passed to the \code{\link{c4photo}}
-#' function.
-#' 
-#' \code{LOWERTEMP} LOWERTEMP parameter passed to the \code{\link{c4photo}}
-#' function.
-#' 
-#' \code{Catm} Catm parameter passed to the \code{\link{c4photo}} function.
-#' 
-#' \code{b0} b0 parameter passed to the \code{\link{c4photo}} function.
-#' 
-#' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
-#' @param canePhenoControl argument used to pass parameters related to
-#' phenology characteristics %% ~~Describe \code{canePhenoControl} here~~
-#' @param soilControl %% ~~Describe \code{soilControl} here~~
-#' @param nitroControl %% ~~Describe \code{nitroControl} here~~
-#' @param centuryControl %% ~~Describe \code{centuryControl} here~~
-#' @return
-#' 
-#' It currently returns a list with the following components
-#' 
-#' \item{DayofYear}{Day of the year (0-365)}
-#' 
-#' \item{Hour}{Hour of the day (0-23)}
-#' 
-#' \item{TTTc}{Accumulated thermal time}
-#' 
-#' \item{PhenoStage}{Phenological stage of the crop}
-#' 
-#' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
-#' \eqn{hr^-1}).}
-#' 
-#' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
-#' \eqn{hr^-1}).}
-#' 
-#' \item{LAI}{Leaf Area Index}
-#' 
-#' @note %% ~~further notes~~
-#' @author Fernando E Miguez
-#' @seealso \code{\link{BioGro}} %% ~~objects to See Also as
-#' \code{\link{help}}, ~~~
-#' @references %% ~put references to the literature/web site here ~
-#' @keywords models
-#' @export caneGro
+
 caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,
                    lat=40,iRhizome=7,irtl=1e-4,
@@ -155,7 +52,7 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
 
     ## Getting the Parameters
-    canopyP <- canopyParms()
+    canopyP <- canopyParms(Sp=1.4,SpD=0.0,chi.l=1.0)
     canopyP[names(canopyControl)] <- canopyControl
     
     soilP <- canesoilParms()
@@ -165,13 +62,20 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     nitroP[names(nitroControl)] <- nitroControl
     nnitroP<-as.vector(unlist(nitroP))
     
-    phenoP <- phenoParms()
+   
+    phenoP <- phenoParms(tp1=350,tp2=475,tp3=800,tp4=1800, tp5=2800, tp6=10000,
+                     kStem1=0.38, kLeaf1=0.39, kRoot1=0.23, kRhizome1=-8e-4, 
+                     kStem2=0.01, kLeaf2=0.76, kRoot2=0.23, kRhizome2=0, 
+                     kStem3=0.38, kLeaf3=0.39, kRoot3=0.23, kRhizome3=0, 
+                     kStem4=0.63, kLeaf4=0.25, kRoot4=0.12, kRhizome4=0,
+                     kStem5=0.63, kLeaf5=0.25, kRoot5=0.12, kRhizome5=0,
+                     kStem6=0.63, kLeaf6=0.25, kRoot6=0.12, kRhizome6=0)
     phenoP[names(phenoControl)] <- phenoControl
 
     sugarphenoP<-canephenoParms()
     sugarphenoP[names(canephenoControl)]<-canephenoControl
 
-    photoP <- photoParms()
+    photoP <- photoParms(b0=0.03, b1=12,Catm=380, UPPERTEMP=39.8, LOWERTEMP=9.0)
     photoP[names(photoControl)] <- photoControl
 
     seneP <- caneseneParms()
@@ -371,8 +275,9 @@ canesoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,i
        hydrDist=hydrDist, rfl=rfl, rsec=rsec, rsdf=rsdf,optiontocalculaterootdepth=optiontocalculaterootdepth,rootfrontvelocity=rootfrontvelocity)
 }
 
-canephenoParms <- function(TT0=200, TTseed=800, Tmaturity=6000,Rd=0.06,Alm=0.15,Arm=0.08,
-	Clstem=0.04, Ilstem=7,Cestem=-0.05,Iestem=45, Clsuc=0.01,Ilsuc=25,Cesuc=-0.02,Iesuc=45){
+
+canephenoParms <- function(TT0=400, TTseed=800, Tmaturity=3000,Rd=0.85,Alm=0.1,Arm=0.2,
+	Clstem=0.008, Ilstem=2.0,Cestem=-0.08,Iestem=6, Clsuc=0.006,Ilsuc=1.2,Cesuc=-0.01,Iesuc=20){
 
   # Think about Error conditions in parameter values
   # TT0= End of germination phase
@@ -387,9 +292,7 @@ canephenoParms <- function(TT0=200, TTseed=800, Tmaturity=6000,Rd=0.06,Alm=0.15,
   # Cesuc and Iesuc determines when the log phase of sugar fraction ends
 
   if(Clsuc>0.01)
-    stop("Clsuc should be lower than 0.01")
-
-  
+    stop("Clsuc should be lower than 0.01") 
   list(TT0=TT0,TTseed=TTseed, Tmaturity=Tmaturity,Rd=Rd,Alm=Alm,Arm=Arm,
 	Clstem=Clstem, Ilstem=Ilstem,Cestem=Cestem,Iestem=Iestem, Clsuc=Clsuc,Ilsuc=Ilsuc,Cesuc=Cesuc,Iesuc=Iesuc)
   
@@ -397,15 +300,15 @@ canephenoParms <- function(TT0=200, TTseed=800, Tmaturity=6000,Rd=0.06,Alm=0.15,
 
 
 
-caneseneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000,leafturnover=1.36,rootturnover=2.0,leafremobilizefraction=0.6){
+caneseneParms <- function(senLeaf=0,senStem=10000,senRoot=0,senRhizome=4000,leafturnover=1.36,rootturnover=0.2,leafremobilizefraction=0.6){
 
   list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome,leafturnover=leafturnover,rootturnover=rootturnover,leafremobilizefraction=leafremobilizefraction)
 
 }
 
 
-canenitroParms <- function(iLeafN=140, kLN=0.5, Vmax.b1=1.38, Vmax.b0=-38.5,alpha.b1=0.000349,alpha.b0=0.0166,Rd.b1=0.0216,Rd.b0=3.46,
-                       kpLN=0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear"),maxln=90,minln=50,daymaxln=80){
+canenitroParms <- function(iLeafN=85, kLN=0.5, Vmax.b1=0.6938, Vmax.b0=-16.25,alpha.b1=0.000488,alpha.b0=0.02367,Rd.b1=0.1247,Rd.b0=-4.5917,
+                       kpLN=0.17, lnb0 = -5, lnb1 = 18, lnFun=c("linear"),maxln=85,minln=57,daymaxln=60){
 
   lnFun <- match.arg(lnFun)
   if(lnFun == "none"){

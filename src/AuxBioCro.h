@@ -63,6 +63,7 @@ struct soilML_str {
   double Nleach;
   double SoilEvapo;
   double rootDist[MAXLAY];
+  double Wflux[MAXLAY];
 };
 
 

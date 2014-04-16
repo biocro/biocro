@@ -213,6 +213,7 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         struct ET_Str tmp;
         struct c4_str tmpc4;
 
+        const double LeafWidth = 0.04;
         const double kappa = 0.41;
         const double WindSpeedHeight = 5;
         const double dCoef = 0.77;
@@ -222,10 +223,11 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         const double LeafReflectance = 0.2;
         const double SpecificHeat = 1010;
 
-        double Tair;
+        double Tair, WindSpeedTopCanopy;
         double DdryA, LHV, SlopeFS, SWVC;
         double LayerRelativeHumidity, LayerWindSpeed, totalradiation;
         double LayerConductance, DeltaPVa, PsycParam, ga;
+        double BoundaryLayerThickness, DiffCoef,LeafboundaryLayer;
         double d, Zeta, Zetam, ga0, ga1, ga2; 
         double Ja, Deltat;
         double PhiN;
@@ -234,6 +236,7 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         double OldDeltaT, rlc, ChangeInLeafTemp; 
         int Counter;
 
+        WindSpeedTopCanopy = WindSpeed;
         Tair = Airtemperature;
 
         if(CanopyHeight < 0.1)
@@ -309,6 +312,10 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         /*  Rprintf("ga: %.5f \n", ga); */
         if(ga < 0)
                 error("ga is less than zero");
+
+        DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature);
+        BoundaryLayerThickness = 0.004 * sqrt(LeafWidth / LayerWindSpeed);
+        LeafboundaryLayer = DiffCoef / BoundaryLayerThickness;
 
         /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
         /* This version is non-iterative and an approximation*/
@@ -599,7 +606,10 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 if(lnfun == 0){
                         vmax1 = Vmax;
                 }else{
-                        vmax1 = leafN_lay * lnb1 + lnb0;
+                        vmax1=nitroP.Vmaxb1*leafN_lay+nitroP.Vmaxb0;
+  				              if(vmax1<0) vmax1=0.0;
+					              Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
+					               Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
                /* For now alpha is not affected by leaf nitrogen */
                 }
 
@@ -615,7 +625,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 TempIdir = Temp + tmp5_ET.Deltat;
                 tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdir = tmpc4.Assim;
-    GAssIdir =tmpc4.GrossAssim;
+                GAssIdir =tmpc4.GrossAssim;
 
                 IDiff = layIdiff[--sp2];
                 pLeafshade = layFshade[--sp5];
@@ -624,9 +634,9 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 TempIdiff = Temp + tmp6_ET.Deltat;
                 tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdiff = tmpc42.Assim;
-    GAssIdiff = tmpc42.GrossAssim;
+                GAssIdiff = tmpc42.GrossAssim;
                 CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
-    GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
+                GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
 // I am evaluating CanopyT using Penman Method because it gives realistic results
 // IN future canopyT needs to be fixed
 //                CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
@@ -673,7 +683,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         /* available water and per hectare */
         double aw, naw; 
         double pawha, Newpawha, npaw; /* new 04-27-2009 */
-        double runoff = 0.0;
+        double runoff = 0.0, runoff2 = 0.0;
         /* variable needed for calculation of water stress*/
         double wsPhoto = 0.0, wsSpleaf, phi10;
         double slp = 0.0, intcpt = 0.0, theta = 0.0; 
@@ -716,6 +726,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
                 runoff = aw - fieldc; /* Here runoff is interpreted as water content exceeding saturation level */
                 /* Need to convert to units used in the Parton et al 1988 paper. */
                 /* The data comes in mm/hr and it needs to be in cm/month */
+                runoff2 = runoff * 0.10 * (1/24*30);
                 Nleach = runoff /18 * (0.2 + 0.7 * soTexS.sand);
                 aw = fieldc;
         }
@@ -951,7 +962,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
 /* This might look like a weird place to populate the structure, but is more convenient*/
                 tmp.cws[i] = awc;
-
+                tmp.Wflux[i] =J_w;
                 if(wsFun == 0){
                         slp = 1/(fieldc - wiltp);
                         intcpt = 1 - fieldc * slp;

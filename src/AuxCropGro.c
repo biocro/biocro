@@ -465,10 +465,17 @@ struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostPa
 struct respirationParms *RESP, int emergence)
 
 {
+
+  double remobStem,remobRoot,remobRhiz;
+  remobStem=canopyparms->remobFac;
+  remobRoot=canopyparms->remobFac;
+  remobRhiz=canopyparms->remobFac;
   double deadleaf,deadstem,deadroot,deadrhiz;
   double dailysenesced;
+  double remobilized;
   double totalassimilate;
   struct crop_phenology cropdbp;
+  double newleaf,newstem,newrhiz,newroot;
   double kLeaf,kStem,kRoot,kRhizome;
   double newLeaf,newStem,newRhizome,newRoot;
   double newLeaflitter,newStemlitter,newRhizomelitter,newRootlitter;
@@ -750,9 +757,11 @@ void dailymiscanthusupdate(struct miscanthus *miscanthus,struct miscanthus *delt
 
 void updatedormantstage(struct miscanthus *miscanthus)
 {
-  double LostinRespiration;
+  double LostinRespiration,availablecarb,newcarb;
   LostinRespiration=miscanthus->autoresp.stemmaint + miscanthus->autoresp.rootmaint +  miscanthus->autoresp.rhizomemaint;
   // This loss will occur at the expense of carbohydrate fraction of rhizome, resulting in change in the carbohydrate fraction of the rhizome
+  availablecarb= miscanthus->rhizome.biomass*miscanthus->rhizome.carbohydratefraction;
+  newcarb=availablecarb-LostinRespiration;
   miscanthus->rhizome.biomass= miscanthus->rhizome.biomass- LostinRespiration;
  
   if((miscanthus->rhizome.carbohydratefraction)<0.05)miscanthus->rhizome.carbohydratefraction=0.05;

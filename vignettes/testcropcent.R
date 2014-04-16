@@ -18,10 +18,13 @@ data20yr<-rbind(urbana2008to2012,urbana2008to2012,urbana2008to2012,urbana2008to2
 data40yr<-rbind(data20yr,data20yr)
 data80yr<-rbind(data40yr,data40yr)
 data240yr<-rbind(data80yr,data80yr,data80yr,data80yr)
-result<-CropGro(WetDat=data240yr,day1=50,dayn=10000,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
+result<-CropGro(WetDat=data20yr,day1=50,dayn=1200,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),
         soilControl=soilParms(wsFun="none",soilLayers=10,soilDepth=1),phenoControl=phenoParms(kLeaf1=0.35,kStem1=0.35),
         canopyControl=canopyParms(Sp=1.6))
 
+xyplot(result$Stem+result$Leaf+result$Root+result$Rhizome~result$ThermalT, auto.key=TRUE, type="l")
+xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed~result$DayafterPlanting, auto.key=TRUE, type="l")
+xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$DayafterPlanting, auto.key=TRUE, type="l")
 result<-willowGro(WetDat=data20yr,day1=50,dayn=300,lat=40.11)
 
 plot(result)

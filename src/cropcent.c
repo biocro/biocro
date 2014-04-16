@@ -1,12 +1,16 @@
 #include <R.h>
 #include <Rmath.h>
 #include <Rinternals.h>
+#include "soilwater.h"
+#include "n2o_model.h"
+#include "swconst.h"
 #include "crocent.h"
 
 
 SEXP cropcent (SEXP FAKE)
 {
   struct cropcentlayer CROPCENT;
+//  SOIL_SPT soil;
   double hetResp;
   int woody, Eflag;
   double *fake;

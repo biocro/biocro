@@ -138,12 +138,6 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
                  StomWS=iStomWS,ws=ws,iupperT,ilowerT)
 
   
-
-  ##' a sub function of Opc4photo
-  ##' 
-  ##' Internal function found in Opc3photo.R, Opc4photo.R, and OpEC4photo.R
-  ##' this function acts to define vec1 based on if coefs is "Assim" or "StomCond"
-  ##' @param coefs either "Assim" or "StomCond"
   RSS <- function(coefs){
       if(response == "Assim"){
         if(max(data[,1]) < 1)

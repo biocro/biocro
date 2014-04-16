@@ -41,28 +41,28 @@ struct TempEffectParms {
   double teff4;
 };
 
-struct SoilWaterEffectParms {
+struct SoilWaterEffectParms{
   double a;
   double b;
   double c;
   double d;
 };
 
-struct AnaerobicParms {
+struct AnaerobicParms{
   double ANEREF1;
   double ANEREF2;
   double ANEREF3;
 };
 
 
-struct PHParms {
+struct PHParms{
   double a;
   double b;
   double c;
   double d;
 };
 
-struct SymbNFixationParms {
+struct SymbNFixationParms{
   double FXMCA;  // Intercept for effect of biomass on non--symbiotic soil N fixation
   double FXMCB;  // slope factor for efefct of biomass on non-symbiotc soil N fixation
   double FXMXS; // Maximum monthly non-symbiotic fixation rates ( can be reduced by N:P) 
@@ -71,13 +71,13 @@ struct SymbNFixationParms {
   double NTSPM;
 };
 
-struct ErosionParms {
+struct ErosionParms{
   double LHZF[3]; // loss of organic matter with erosion
   double EDEPTH; // Depth of soil layer for simulation of soil erosion
   double ENRICH; // enrichment factor for SOM losses with erosion
 };
 
-struct OrgLeachParms {
+struct OrgLeachParms{
   double DailyThresholdFlow; // critical water flow for leaching of mineral to occur
   double OMLEACH[3];// parameters controlling leaching losses
   struct minerals som1c2toleach;
@@ -89,7 +89,7 @@ struct SoilTexture {
   double clay;
 };
 
-struct C13Parms {
+struct C13Parms{
   double DRESP; //discrimination factor for 13C during decomposition
   double DLIGDF; // difference in 13C for lignin compared to whole plant delta 13C
 };
@@ -112,7 +112,7 @@ struct BioCroToCropcentParms {
   double pabres;
 };
 
-struct cropcentEnvironment {
+struct cropcentEnvironment{
   double minN, minP,minS, minK;
   double surfaceTEMP,soilTEMP;
   double surfaceRELWC, soilRELWC,PET,AWC;
@@ -129,19 +129,21 @@ struct cropcentEnvironment {
 };
 
 
-struct strucc1 
+struct strucc1
 {
   struct carbon C;
   struct minerals E;
   double lignin;
-  struct Flux1 {
+  struct Flux1 
+      {
       struct flow strucc1TOsom1c1;
       struct flow strucc1TOsom2c1;
       struct flow strucc1TOstrucc1; // This represents flow from strucc1 to strucc1 (negative always?)
       struct flow strucc1TOmetabc1;// due to photo decomposition
       double hetresp;
       } Flux;
-  struct parms1 {
+  struct parms1
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double strmx; //maximum amount that will decompose daily
@@ -162,13 +164,15 @@ struct strucc2
   struct carbon C;
   struct minerals E;
   double lignin;
-  struct Flux2 {
+  struct Flux2 
+      {
       struct flow strucc2TOsom2c2;
       struct flow strucc2TOsom1c2;
       struct flow strucc2TOstrucc2; // This represents flow from strucc1 to strucc1 (negative always?)
       double hetresp;
       } Flux;
-  struct parms2 {
+  struct parms2
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double strmx; //maximum amount that will decompose daily
@@ -188,13 +192,15 @@ struct wood1
   struct carbon C;
   struct minerals E;
   double lignin;
-  struct Flux3 {
+  struct Flux3 
+      {
       struct flow wood1TOsom1c1;
       struct flow wood1TOsom2c1;
       struct flow wood1TOwood1; // This represents flow from strucc1 to strucc1 (negative always?)
       double hetresp;
       } Flux;
-  struct parms3 {
+  struct parms3
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double pligst; //effect of lignin -structual ratio on decomposition
@@ -211,13 +217,15 @@ struct wood2
   struct carbon C;
   struct minerals E;
    double lignin;
-  struct Flux4 {
+  struct Flux4 
+      {
       struct flow wood2TOsom1c1;
       struct flow wood2TOsom2c1;
       struct flow wood2TOwood2; // This represents flow from strucc1 to strucc1 (negative always?)
       double hetresp;
       } Flux;
-  struct parms4 {
+  struct parms4
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double pligst; //effect of lignin -structual ratio on decomposition
@@ -234,18 +242,21 @@ struct wood3
   struct carbon C;
   struct minerals E;
   double lignin;
-  struct Flux5 {
+  struct Flux5 
+      {
       struct flow wood3TOsom2c2;
       struct flow wood3TOsom1c2;
       struct flow wood3TOwood3; // This represents flow from strucc1 to strucc1 (negative always?)
       double hetresp;
       } Flux;
-  struct parms5 {
+  struct parms5
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double pligst; //effect of lignin -structual ratio on decomposition
         double rsplig; // fraction of lignin lost to CO2 respiration
         double ps1co2; // Fraction of flow to som1c2 lost to respiration
+       
       } parms;
   struct TempEffectParms TEff; // temperature effect
   struct SoilWaterEffectParms SWEFF;  // effect of moisture 
@@ -257,12 +268,14 @@ struct metabc1
 {
   struct carbon C;
   struct minerals E;
-  struct Flux6 {
+  struct Flux6 
+      {
       struct flow metabc1TOsom1c1;
       struct flow metabc1TOmetabc1; // This represents flow from strucc1 to strucc1 (negative always?)
       double hetresp;
       } Flux;
-  struct parms6 {
+  struct parms6
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double pmco2; // Fraction of flow to som1c2 lost to respiration
@@ -277,12 +290,14 @@ struct metabc2
 {
   struct carbon C;
   struct minerals E;
-  struct Flux7 {
+  struct Flux7 
+      {
       struct flow metabc2TOsom1c2;
       struct flow metabc2TOmetabc2; // This represents flow from strucc1 to strucc1 (negative always?)
       double hetresp;
       } Flux;
-  struct parms7 {
+  struct parms7
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double pmco2; // Fraction of flow to som1c2 lost to respiration
@@ -297,12 +312,14 @@ struct som1c1
 {
   struct carbon C;
   struct minerals E;
-  struct Flux8 {
+  struct Flux8 
+      {
       struct flow som1c1TOsom2c1;
       struct flow som1c1TOsom1c1; // This represents flow from strucc1 to strucc1 (negative always?)
       double hetresp;
       } Flux;
-  struct parms8 {
+  struct parms8
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double a,b,x1,x2;// Effect of incoming solar radiation on decom of metaboolic pool
@@ -319,13 +336,15 @@ struct som2c1
 {
   struct carbon C;
   struct minerals E;
-  struct Flux9 {
+  struct Flux9 
+      {
       struct flow som2c1TOsom1c1;
       struct flow som2c1TOsom2c1;
       struct flow som2c1TOsom2c2; // due to mixing
       double hetresp;
       } Flux;
-  struct parms9 {
+  struct parms9
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double a,b,x1,x2;// Effect of incoming solar radiation on decom of metaboolic pool
@@ -335,21 +354,23 @@ struct som2c1
   struct TempEffectParms TEff; // temperature effect
   struct SoilWaterEffectParms SWEFF;  // effect of moisture
   struct PHParms PHEFF;
-  struct flowrestriction INFLOW;
+   struct flowrestriction INFLOW;
 };
 
 struct som1c2
 {
   struct carbon C;
   struct minerals E;
-  struct Flux10 {
+  struct Flux10 
+      {
       struct flow som1c2TOsom2c2;
       struct flow som1c2TOsom3c; 
       struct flow som1c2TOleachate;
       struct flow som1c2TOsom1c2;
       double hetresp;
       } Flux;
-  struct parms10 {
+  struct parms10
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year
         double peftxa,peftxb;
@@ -367,13 +388,15 @@ struct som2c2
 {
   struct carbon C;
   struct minerals E;
-  struct Flux11 {
+  struct Flux11 
+      {
       struct flow som2c2TOsom1c2;
       struct flow som2c2TOsom3c; 
       struct flow som2c2TOsom2c2;
       double hetresp;
       } Flux;
-  struct parms11 {
+  struct parms11
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year
         double p2co2;
@@ -391,12 +414,14 @@ struct som3c
 {
   struct carbon C;
   struct minerals E;
-  struct Flux12 {
+  struct Flux12 
+      {
       struct flow som3cTOsom1c2;
       struct flow som3cTOsom3c; 
       double hetresp;
       } Flux;
-  struct parms12 {
+  struct parms12
+      {
         double k; // maximum annual decomposition rate
         double timestep; // time step to be used to modify k if it is not 1 year 
         double p3co2; // Fraction of flow to som1c2 lost to respiration
@@ -409,7 +434,7 @@ struct som3c
 };
 
 
-struct cropcentlayer {
+struct cropcentlayer{
 	struct strucc1 strucc1;
 	struct strucc2 strucc2;
 	struct metabc1 metabc1;
@@ -433,7 +458,7 @@ void CROPCENTTimescaling(struct cropcentlayer *CROPCENT);
 void assignFluxRatios(struct cropcentlayer *CROPCENT);
 void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR);
 void GetC13Parms(struct C13Parms *temp,double *getc13parmsfromR);
-void GetLeachingParms(struct OrgLeachParms *temp,double *getleachingparmsfromR);
+
 
 // Assignign pool to flow structure
 void printcropcentout(struct cropcentlayer CROPCENT, double *totalSOC, double *strucc1, double *strucc2, 
@@ -457,6 +482,7 @@ void UpdateCropcentPoolsFromBioCro(struct cropcentlayer *CROPCENT, struct InputT
 void decomposeCROPCENT(struct cropcentlayer *CROPCENT, int woody, int Eflag);
 void BiocroToCrocent(double *stdedbc, double fallrate, double lignin, struct minerals *E, double isotoperatio, int surface, int woody,struct InputToCropcent *INCROCENT);
 
+
 //Function Definition to determine if decomposition of a source pool will occur or not based on flow requirement and ENV
 int CheckDecomposition(struct minerals *source, struct minerals *flow,struct cropcentEnvironment *ENV,int Eflag);
 //evaluating variable which is linearly varying 
@@ -470,6 +496,7 @@ void decomposeSTRUCC1(struct strucc1 *strucc1, struct cropcentEnvironment *ENV, 
 
 // Function definition to decompose strucc2 (soil structual pool)
 void decomposeSTRUCC2(struct strucc2 *strucc2, struct cropcentEnvironment *ENV, int flag,int Eflag);
+
 
 // Function definition to decompose metabc1 (surface metabolic pool)
 void decomposeMETABC1(struct metabc1 *metabc1, struct cropcentEnvironment *ENV, int flag, int Eflag);
@@ -489,14 +516,19 @@ void decomposeWOOD3(struct wood3 *wood3, struct cropcentEnvironment *ENV, int fl
 // Function definition to decompose som1c1 (actve surfcae pool)
 void decomposeSOM1C1(struct som1c1 *som1c1, struct cropcentEnvironment *ENV, int flag, int Eflag);
 
+
 // Function definition to decompose som1c2 (actve soil pool)
 void decomposeSOM1C2(struct som1c2 *som1c2, struct cropcentEnvironment *ENV, int flag, int Eflag);
 
 // Function definition to decompose som2c1 (slow surfcae pool)
 void decomposeSOM2C2(struct som2c2 *som2c2, struct cropcentEnvironment *ENV, int flag, int Eflag);
 
+
+
 // Function definition to decompose som3c (passive soil  pool)
 void decomposeSOM3C(struct som3c *som3c, struct cropcentEnvironment *ENV, int flag, int Eflag);
+
+
 
 // Function definition to update crocent layer pools from the flow structures
 void updatecropcentpools(struct cropcentlayer *CROPCENT);
@@ -509,39 +541,45 @@ void updateCarbonStructure(struct carbon *toupdateC,struct carbon flow);
 /**************************************************************/
 /************ Structure Definitionfor CropGro********************/
 
-struct leaf {
+
+
+struct leaf 
+{
   double biomass, litter;
   struct minerals biomassE,litterE;
 };
 
-struct stem {
+struct stem
+{
   double biomass, litter;
   struct minerals biomassE,litterE;
 };
 
-struct rhizome {
+struct rhizome
+{
   double biomass, litter;
   double carbohydratefraction;
   struct minerals biomassE,litterE;
 };
 
-struct root {
+struct root
+{
   double biomass, litter;
   struct minerals biomassE,litterE;
 };
 
-struct dailyvec {
+struct dailyvec{
   double newbiomass;
   double newlitter;
   double ageinTT;
 };
 
-struct littervec {
+struct littervec{
   double biomass;
   double ageinTT;
 };
 
-struct DailyAutoResp {
+struct DailyAutoResp{
   double leafdarkresp;
   double stemgrowth;
   double rootgrowth;
@@ -552,7 +590,8 @@ struct DailyAutoResp {
   double total;
 };
 
-struct miscanthus {
+struct miscanthus
+{
   struct leaf leaf;
   struct stem stem;
   struct rhizome rhizome;
@@ -562,43 +601,41 @@ struct miscanthus {
   double GPP, NPP;
 };
 
-struct senthermaltemp {
+struct senthermaltemp{
   double leafcriticalT, leaffr;
   double stemcriticalT, stemfr;
   double rhizomecriticalT, rhizomefr;
   double rootcriticalT,rootfr;
 };
 
-struct canopyparms {
+struct canopyparms{
   double kN;
   double SLA;
   double remobFac;
   double leafNsen;
 };
 
-struct respirationParms
-{
-  struct growth {
+struct respirationParms{
+  struct growth
+  {
     double stem;
     double root;
     double rhizome;
-  } growth;
-  
-  struct maint {
+  }growth;
+  struct maint
+  {
     double Qstem, mstem;
     double Qroot, mroot;
     double Qrhizome, mrhizome;
-  } maint;
+  }maint;
 };
-struct crop_phenology *cropdbp;
-double CalculateGrowthResp(double newbiomass,double growthRespFactor);
-struct frostParms;
 
+
+double CalculateGrowthResp(double newbiomass,double growthRespFactor);
 void dailymiscanthus(struct miscanthus *miscanthus,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
 struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, int N, double delTT,
 struct respirationParms *RESP, int emergence);
 
-void cropcent_dbp(double coefs[],double TherPrds[],double TherTime,struct crop_phenology *cropdbp);
 double getThermalSenescence(double criticalTT, double currentTT, double biomass, double dailyfractionalloss);
 double canopyNsenescence(struct leaf *leaf, double SLA, double kN,  double leafNsen);
 double getStemSenescence(struct stem *stem, double criticalTT, double senefracion,  double Temp, struct frostParms *frostparms, double TT);
@@ -622,7 +659,8 @@ int CheckEmergence(struct dailyclimate *dailyclimate, double EmergTemperature);
 void updatedormantstage(struct miscanthus *miscanthus);
 
 /*********Structure and Functions for C3Tree*******************/
-struct c3tree {
+struct c3tree
+{
   struct leaf leaf;
   struct stem stem;
   struct root root;
@@ -635,30 +673,34 @@ struct c3tree {
 void dailyC3tree(struct c3tree *c3tree,double coefs[25],double TherPrds[6], double TherTime, double Temp,double dailynetassim,
 struct senthermaltemp *senparms, struct canopyparms *canopyparms, struct frostParms *frostparms, struct respirationParms *RESP);
 
+
+
 /*********************************************************************/
 /*********************************************************************/
  
 
 /*******Management Assigning Functions and Structures******************/
 
-struct management
-{
-  struct harvestparms {
+struct management{
+  struct harvestparms
+  {
     int harvestdoy;
     double frleaf,frleaflitter; // fration of green leaf biomass and leaf litter removed with harvest 
     double frstem,frstemlitter;  // fraction of stem and stem litter removed with harvest
     double frdeadroot; // fraction of roots that die on harvest
     double frdeadrhizome; // fraction of rhizome that dies on harvest
-  } harvestparms;
-  
-  struct emergenceparms {
+  }harvestparms;
+
+  struct emergenceparms
+  {
     int minimumdoy;
     double emergenceTemp;
     double StoragetoLeaffraction;
     double StemtoLeaffraction;
     double plantingrate;
-  } emergenceparms;  
+  }emergenceparms;  
 };
+
 
 void assignManagement(struct management *management);
 void updateafterharvest(struct miscanthus *miscanthus,struct management *management);

@@ -18,7 +18,7 @@
 #include "c3canopy.h"
 #include "soilwater.h"
 
-SEXP CropGro(SEXP LAT,          /* Latitude                  1 */ 
+SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
 	    SEXP HR,                  /* Hour of the day           3 */
 	    SEXP SOLAR,               /* Solar Radiation           4 */
@@ -70,7 +70,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
       SEXP LNFUN,               /* Leaf N func flag         50 */
       SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
 	    SEXP LOWERTEMP,
-	    SEXP NNITROP)             /*temperature Limitation photoParms */
+	    SEXP NNITROP)           /*temperature Limitation photoParms */
 {
     int vecsize = INTEGER(VECSIZE)[0];
     int dailyvecsize = vecsize/24;
@@ -92,6 +92,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
      
    struct InputToCropcent leaflitter,stemlitter,rootlitter,rhizomelitter;
    struct minerals leaflitterE,stemlitterE,rootlitterE,rhizomelitterE;
+   double oldstandingN, newstandingN, Ndemand;
    // The below parameters aee RCESTR from fix.100 representing CE Ratio of structural material
    leaflitterE.CN=200.0;
    leaflitterE.CP=500.0;
@@ -104,19 +105,15 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
    
    /*********Tracegas Calculation Variables ***********/
    
-//    SITEPAR_SPT sitepar;
-//    LAYERPAR_SPT layers;
-//    SOIL_SPT soil;
-     double newminrl, sand, silt, clay, afiel, bulkd, maxt, ppt, avgwfps, stormf, basef, frlechd[50], stream[60], inorglch;
-//    double snow, nitrate[50], *fakedouble, ammonium
-       double critflow, wfluxout[60], newCO2, CH4, grass_lai, tree_lai;
-//      double nreduce, nit_amt, NOabsorp_tree, NOabsorp_grass, Dn2flux, Dn2oflux, Nn2oflux, NOflux;        
+    SITEPAR_SPT sitepar;
+    LAYERPAR_SPT layers;
+    SOIL_SPT soil;
+     double *fakedouble,newminrl, ammonium,nitrate[50],sand,silt,clay,afiel,bulkd,maxt,ppt,snow,avgwfps,stormf,basef,frlechd[50],stream[60],inorglch;
+       double critflow,wfluxout[60],newCO2,NOflux,Nn2oflux,Dn2oflux,Dn2flux,CH4,grass_lai,tree_lai,NOabsorp_grass,NOabsorp_tree,nit_amt,nreduce;
        double dN2lyr[60],dN2Olyr[60];  
-       int iindex;
-//      int texture, isdecid, isagri, jday;
-// int *fakeint;
+       int *fakeint,texture,isdecid,isagri,jday,iindex;
        afiel=0.3;
-//       ammonium=0.0;
+       ammonium=0.0;
        newminrl=0.0;
        avgwfps=0.5;
        basef=0.0;
@@ -127,15 +124,15 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
        clay=0.33;
        critflow=1.0;
        inorglch=0.0;
-//       isdecid=0;
-//       isagri=1;
-//       jday=180;
+       isdecid=0;
+       isagri=1;
+       jday=180;
        maxt=15;
        newCO2=0.0;
        newminrl=0.0;
        ppt=0.0;
        stormf=0.0;
-//       texture=1;
+       texture=1;
        grass_lai=0.0;
        tree_lai=0.0;
        for (iindex=0;iindex<60;iindex++){
@@ -149,9 +146,8 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
    /*******************************************************/
 
    
-//   struct crop_phenology cropdbp;
-   static struct miscanthus miscanthus;
-// static struct deltamiscanthus;
+   struct crop_phenology cropdbp;
+   static struct miscanthus miscanthus, deltamiscanthus;
    createNULLmiscanthus(&miscanthus,vecsize);
 
 //   miscanthus.leafvec[vecsize].newbiomass=(double)vecsize;
@@ -206,9 +202,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
 
 
 ///////////////////////////////////////////////////////////////////	
-  double Sp;
-// double propLeaf;
-// double iSp;
+  double iSp, Sp , propLeaf;
 	int i, i2, i3;
 
 	double vmax1;
@@ -219,22 +213,21 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
 	double Rd1, Ca;
 	double b01, b11;
 
-	double LAI, Grain = 0.0;
-// double Leaf, Stem, Root
+	double Leaf, Stem, Root, LAI, Grain = 0.0;
 	double TTc = 0.0;
-//	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
-//	double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
+	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
+	double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
 
 	/* Variables needed for collecting litter */
 	double LeafLitter = REAL(CENTCOEFS)[20], StemLitter = REAL(CENTCOEFS)[21];
 	double RootLitter = REAL(CENTCOEFS)[22], RhizomeLitter = REAL(CENTCOEFS)[23];
-//	double LeafLitter_d = 0.0, StemLitter_d = 0.0;
-//	double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
+	double LeafLitter_d = 0.0, StemLitter_d = 0.0;
+	double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
 	double ALitter = 0.0, BLitter = 0.0;
 	/* Maintenance respiration */
 
-//	double mrc1 = REAL(MRESP)[0];
-//	double mrc2 = REAL(MRESP)[1]; 
+	double mrc1 = REAL(MRESP)[0];
+	double mrc2 = REAL(MRESP)[1]; 
 
 	double waterCont;
 	double StomWS = 1, LeafWS = 1;
@@ -246,8 +239,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
 	/* Soil Parameters*/
 	double FieldC, WiltP, phi1, phi2, soilDepth;
 	int soilType, wsFun;
-	double LeafN, LeafN_0;
-// double kLN;
+	double LeafN, LeafN_0, kLN;
 	double soilEvap, TotEvap;
 	int soillayers = INTEGER(SOILLAYERS)[0];
 	double cwsVec[soillayers];
@@ -274,21 +266,21 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
 
 	/* Century */
 	double MinNitro = REAL(CENTCOEFS)[19];
-//	int doyNfert = REAL(CENTCOEFS)[18];
-//	double Nfert;
+	int doyNfert = REAL(CENTCOEFS)[18];
+	double Nfert;
 	double SCCs[9];
 	double Resp = 0.0;
 	int centTimestep = INTEGER(CENTTIMESTEP)[0];
 
 	double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0 ;
-//	double *sti , *sti2, *sti3, *sti4; 
-//	double Remob;
-//	int k = 0, q = 0, m = 0, n = 0;
-//	int ri = 0;
+	double *sti , *sti2, *sti3, *sti4; 
+	double Remob;
+	int k = 0, q = 0, m = 0, n = 0;
+	int ri = 0;
 
 	struct Can_Str Canopy;
 	struct ws_str WaterS;
-//	struct dbp_str dbpS;
+	struct dbp_str dbpS;
 	struct cenT_str centS; 
 	struct soilML_str soilMLS;
 	struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
@@ -431,13 +423,13 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
   PROTECT(LAId = allocVector(REALSXP,dailyvecsize));
   PROTECT(totalSOC = allocVector(REALSXP,dailyvecsize));
   PROTECT(strucc1 = allocVector(REALSXP,dailyvecsize));
-  PROTECT(strucc2 = allocVector(REALSXP,dailyvecsize));
+   PROTECT(strucc2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(metabc1 = allocVector(REALSXP,dailyvecsize));
   PROTECT(metabc2 = allocVector(REALSXP,dailyvecsize));
-  PROTECT(som1c1 = allocVector(REALSXP,dailyvecsize));
+   PROTECT(som1c1 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som1c2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som2c1 = allocVector(REALSXP,dailyvecsize));
-  PROTECT(som2c2 = allocVector(REALSXP,dailyvecsize));
+   PROTECT(som2c2 = allocVector(REALSXP,dailyvecsize));
   PROTECT(som3c = allocVector(REALSXP,dailyvecsize));
   PROTECT(minN = allocVector(REALSXP,dailyvecsize));
 	/* Picking vmax, alpha and kparm */
@@ -453,7 +445,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
 
 	LeafN_0 = REAL(ILEAFN)[0];
 	LeafN = LeafN_0; /* Initial value of N in the leaf */
-//	kLN = REAL(KLN)[0];
+	kLN = REAL(KLN)[0];
 	timestep = INTEGER(TIMESTEP)[0];
 
 	Rhizome = REAL(RHIZOME)[0];
@@ -545,9 +537,8 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
  RESP.maint.mrhizome=0.002;
 //  Resp.growth.stem=0.3;
   
-  double StemResp,RootResp,RhizResp;
-//  double LeafResp;
-//  double gRespCoeff = 0.0;
+  double LeafResp,StemResp,RootResp,RhizResp;  
+  double gRespCoeff = 0.0;
   double dailydelTT = 0.0;
   double delTT;
   double Tbase=0.0;
@@ -565,7 +556,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
   frostparms.stemT0=-20.0;//REAL(FROSTP)[2];
   frostparms.stemT100=-20.0;//REAL(FROSTP)[3];
  
-//  propLeaf = REAL(IRTL)[0]; 
+  propLeaf = REAL(IRTL)[0]; 
 	/* It is useful to assume that there is a small amount of
 	   leaf area at the begining of the growing season. */
 //	Leaf = Rhizome * 0.001; 
@@ -593,7 +584,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
   LAI = miscanthus.leaf.biomass*Sp;
   int phototype;
   phototype=1;
-  // This is specific to willow to avoid harvesting based on day of year
+
   CROPCENT.ENV.minN=12.0; //120*1000/10000 g N/m2
 	for(i=0;i<vecsize;i++)
 //    for(i=0;i<3;i++)
@@ -623,8 +614,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
 	        	TTc +=delTT;
 		        REAL(TTTc)[i] =REAL(TTTc)[i-1]+delTT ;
             
-            if(phototype==1)
-            {
+           
   	        Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
@@ -633,29 +623,10 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
 			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
-//             Rprintf("C4 canopy\n");
-            }
-            if(phototype==2)
-            {
-             double jmax1,o2;
-             vmax1=100.0;
-             jmax1=180.0;
-             o2=210.0;
-             b01=0.08;
-             b11=5.0;
-             theta=0.7;
-             Canopy = newc3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-  		       *(pt_solar+i), *(pt_temp+i),
-			       *(pt_rh+i), *(pt_windspeed+i),
-			       lat, nlayers,
-			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
-             Rprintf("C3 Canopy\n");
-            }
-//             Rprintf("After Canopy Function,Phototype= %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
+
         		CanopyA = Canopy.Assim * timestep;
             CanopyAGross =Canopy.GrossAssim*timestep;
         		CanopyT = Canopy.Trans * timestep;
- //           Rprintf("NetA=%f, Gross A= %f, Trans=%f \n",CanopyA, CanopyAGross);
             }
 		/* Inserting the multilayer model */
 		  if(soillayers > 1)
@@ -693,20 +664,9 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
       			REAL(cwsMat)[i] = waterCont;
       			REAL(psimMat)[i] = WaterS.psim;
       		}
-
-                if(wsFun == 4)
-                  {
-		        	    LeafPsim = WaterS.psim - (CanopyT * 1e3 * 1e-4 * 1.0/3600.0) * transpRes;
-                  if(LeafPsim < leafPotTh){
-				          StomWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
-				          if(StomWS < 0.1) StomWS = 0.1;
-		        	   }else{
-			      	    StomWS = 1;
-	          		  }
-	              	}else{
-	          		  LeafPsim = 0;
-                }
-                                    
+          
+          
+/**** this can be moved to a separate function **********************************/                                    
 /****************Evaluating Daily Maintenance R espiration and Gross canopy assimilation******************/
 
   StemResp=MRespiration(miscanthus.stem.biomass, RESP.maint.Qstem, RESP.maint.mstem, *(pt_temp+i), timestep);
@@ -718,67 +678,96 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
   miscanthus.autoresp.leafdarkresp+=(CanopyAGross-CanopyA);
   dailynetassim+=CanopyA;//Net Canopy Assimilation
   miscanthus.GPP+=CanopyAGross;
- /**********************************************************************************/
-//  Rprintf("%f,%f,%f,%f,%f\n",*(pt_solar+i),*(pt_temp+i),*(pt_precip+i),*(pt_rh+i),*(pt_windspeed+i));
+
+
 
    if(i % 24== 0)
    {
-  // update daily climate structure
-   getdailyclimate(&dailyclimate, pt_doy,pt_solar,pt_temp, pt_rh, pt_windspeed,pt_precip,i,vecsize);  
-  // calculate GDDD for today only if crop is growing, otherwise set it to zero
-   dailydelTT = (emergence ==1) ? getThermaltime(dailyclimate.temp, Tbase):0.0;
-   // Update day after planting today
-   REAL(DayafterPlanting)[dap]=dap;  
-   // update GDD (accumulated thermal time) upto today
-   accumulatedGDD+=((dap==0)? 0:dailydelTT);
-//   REAL(GDD)[dap]=((dap==0)? 0:REAL(GDD)[dap-1])+dailydelTT;
-     REAL(GDD)[dap]=accumulatedGDD;
-     double oldstandingN, newstandingN, Ndemand;
-     oldstandingN=(miscanthus.leaf.biomass+miscanthus.stem.biomass+miscanthus.root.biomass+miscanthus.rhizome.biomass)*0.4*100/40.0; // carbohydrta to C to g/m2 to N
-     dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);     
-     newstandingN=(miscanthus.leaf.biomass+miscanthus.stem.biomass+miscanthus.root.biomass+miscanthus.rhizome.biomass)*0.4*100/40.0; // carbohydrta to C to g/m2 to N
-      Ndemand =newstandingN - oldstandingN;
-     /***** Check if plant is already emerged, then growth needs to be simulated ***/ 
-          if(emergence==1)
-          {
-            /*** Simulate miscanthus growth ***/
-//              dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);
-//              Rprintf("DPY= %i, GDD=%f\n",dailyclimate.doy,accumulatedGDD);
-            /** Check if today is harvest day **/
-                 if(dailyclimate.doy==management.harvestparms.harvestdoy)
+     /*************************************************************************************************************
+      * Now we are entering in the daily loop, for plant biomass updating as well as for biogeochemistry calculations
+      * In the daily loop,we need
+      * --(1) daily climate data for calculation of biogeochemical cycle.Function call to getdailyclimate is made to update structure dailyclimate
+      * --(2) dailyThermalTime (GDD) is also updated, this is used in main dailygrowth function of miscanthus
+      * --(3) dailymiscanthus function is called to update the biomass of plant for the current day, along with logical variable emergence
+      * --(4) LAI is updated based on current biomass of miscanthus leaf and SLA
+      * LAI CAN BE INCLUDED IN THE MISCANTHUS STRUCTURE TO AVOID AN EXTRA HANGING LINE OF CALCULATIONS, CALL TO CANOPY  MUST BE MADE USING 
+      * MISCANTHUS->LAI INSTEAD OF SIMPLY LAI
+      * *************************************************************************************************************/
+     getdailyclimate(&dailyclimate, pt_doy,pt_solar,pt_temp, pt_rh, pt_windspeed,pt_precip,i,vecsize);  
+     dailydelTT = (emergence ==1) ? getThermaltime(dailyclimate.temp, Tbase):0.0;
+     accumulatedGDD+=dailydelTT; 
+     dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence); 
+     LAI=miscanthus.leaf.biomass*Sp;
+             /*****************************************************************************************************************
+             * If plant is already emerged then 
+             * --
+             * --Test if today is harvest day, If no set back emergence to zero and update miscanthus structure[ usually leaving zero above ground biomass or a fraction]
+             * Else
+             * --
+             * --We need to check if today is the emergence date based on logical value returned by CheckEmergence Function
+             * -- (1)If today indeed is emergence date then initialuze leaf biomass by calling updateafteremergence
+             * ---(2)also, emergence mean we need to set accumulated GDD back to zero so paritioning calendar is reset
+             * -- (3) setting initial LAI based on initial fraction to leaf and SLA
+             * ---(4) Fertilization on the date of emergence
+             * THIS WHOLE IF ELSE LOOP CAN BE REPLACED BY A FUNCTION CALL WHICH TAKED CURRENT DAY,& SCHEDULE DATA FRAME (E.G. DATE OF HARVEST, FERTILIZATION)
+             * TO UPDATE PLANT BIOMASS POOLS AND SOIL BIOGEOCHEMICAL POOLS
+             * ***************************************************************************************************************/   
+                        if(emergence==1)
+                        {
+                               if(dailyclimate.doy==management.harvestparms.harvestdoy)
+                              {
+                                emergence=0;                        //Emergence is set back to zero
+                                REAL(GDD)[dap]=0.0;                 //Set GDD back to zero to restart phenology from beginning
+                                updateafterharvest(&miscanthus,&management); // Use harvest parameters to implement pracices such as removingor leaving residues 
+                              }         
+                        }
+                      
+                        else
+                        {             
+                                emergence=CheckEmergence(&dailyclimate,management.emergenceparms.emergenceTemp); 
+                                if((dailyclimate.doy==120)&&(phototype==2))emergence=1;
+                                if(emergence==1)
+                                {
+                                updateafteremergence(&miscanthus,&management);
+                                accumulatedGDD=0.0;
+                                TTc=0.0;
+                                LAI = miscanthus.leaf.biomass* Sp;
+                                CROPCENT.ENV.minN+=12.0; // adding fertilization on the emergence day
+                                }
+                        }
+          
+              /******************************************************************************************************************************
+               *  Base on a logical [FlagBiogeochem=1], following four steps will be performed. Or, productivity will not be influenced by 
+               *  by N availability and no output of soil C and GHG will be available [ all zeros will be output]
+               * 
+               * (1) I need to copy soil water profile from BioCro function to CROPCENT.soil
+               * 
+               * (2) Now we have updated plant biomass and litter content of each component.We need to input litter (based on a user defined 
+               *     falling rate) to soil biogeochemical cycle and perform decomposition of soil organic pool for today. Important thing is to 
+               *     use correct C:N ratio of litter, call SCHEDULING FUNCTION to modify decomposition rates as per tillage implementation and 
+               *     addition of external Fertilizers and manures etc. Output of this exercise  will be updated pools of soil organic carbon and
+               *     newmineral N in the top 15 cm layer.
+               * 
+               * (3) I can use newmineral N pool for distributing it into multilayers then canclulate GHG emission and N leaching, and distribution
+               *     of mineral N in different soil layers.
+               * 
+               * (4) I can calculate demand of N for today and accordingly modify mineral N content of different soil layers.
+               * 
+               * (5) If There is not enough mineral N then C:N ratio of plant is modified, which will eventually result in lower productivity
+               *     because photosynthesis parameters are a linear function of leaf N content. Thus Limited N will reduce productivity
+               *
+               * *****************************************************************************************************************************/
+                
+                int FlagBiogeochem =1;// MOVE THIS UP & ALLOW IT TO VARY FROM R ENVIRONMENT
+                /*
+                if(FlagBiogeochem==1)
                 {
-                  emergence=0;                        //Emergence is set back to zero
-                  REAL(GDD)[dap]=0.0;                 //Set GDD back to zero to restart phenology from beginning
-                  updateafterharvest(&miscanthus,&management); // Use harvest parameters to implement pracices such as removingor leaving residues 
-                  Rprintf("in CropGRO, harvest day %i\n",i);
-                }         
-          }
-          /** Here is calculation for situations when plan is not emerged ***/
-          else
-          {      
-                  /** Check if today is emergence day, IF yes, it will set emergence =1 for next day simulation **/
-                  emergence=CheckEmergence(&dailyclimate,management.emergenceparms.emergenceTemp); 
-                  if((dailyclimate.doy==120)&&(phototype==2))emergence=1;
-                  /** if today indeed is emergence day then we also need to initialze leaf biomass based on storage pool to initiate simulations **/
-                  if(emergence==1)
-                  {
-//                    Rprintf("BEFORE leaf=%f, rhizome=%f \n",miscanthus.leaf.biomass,miscanthus.rhizome.biomass);
-                  updateafteremergence(&miscanthus,&management);
-//                         Rprintf("AFTER leaf=%f, rhizome=%f \n",miscanthus.leaf.biomass,miscanthus.rhizome.biomass);
-                      Rprintf("in CropGRO, emergence day %i\n",i);
-                      accumulatedGDD=0.0;
-                      TTc=0.0;
-//                  miscanthus.leaf.biomass=0.02*  miscanthus.rhizome.biomass;
-                  LAI = miscanthus.leaf.biomass* Sp;
-                   CROPCENT.ENV.minN+=12.0; // adding fertilization on the emergence day
-                  }
-//                   dailymiscanthus(&miscanthus, REAL(DBPCOEFS),REAL(THERMALP),accumulatedGDD, *(pt_temp+i), dailynetassim,&senthermaltemp, &canopyparms,&frostparms,i,dailydelTT,&RESP,emergence);
-                 // updatedormantstage(&miscanthus);
+                Copy_SoilWater_BioCro_To_CropCent(soilMLS, soillayers,REAL(SOILDEPTHS), &CROPCENT);  
+                CalculateBiogeochem(&miscanthus, &CROPCENT);
+                }
+                */
                
-          }
-                  LAI=miscanthus.leaf.biomass*Sp;
-//                  Rprintf("%i,%i,%f,%f\n",emergence,dap, iSp, Sp);
-
+            
 
 /****************************************************************************/
 // CROPCENT SIMULATION BEGINS HHERE    
@@ -793,18 +782,17 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
 
 //   BiocroToCrocent(&LeafLitter,leaf.fallrate,leaf.lignin, &leaf.E, isotoperatio, 1, 0,leaflitter);
    
+  
     BiocroToCrocent(&miscanthus.leaf.litter,1.0,0.2, &leaflitterE, 1.0, 1, 0,&leaflitter);
     BiocroToCrocent(&miscanthus.stem.litter,1.0,0.2, &stemlitterE, 1.0, 1, 0,&stemlitter);
-    BiocroToCrocent(&miscanthus.root.litter,1.0,0.2, &rootlitterE, 1.0, 0, 0,&leaflitter);
+    BiocroToCrocent(&miscanthus.root.litter,1.0,0.2, &rootlitterE, 1.0, 0, 0,&rootlitter);
     BiocroToCrocent(&miscanthus.rhizome.litter,1.0,0.2, &rhizomelitterE, 1.0, 0, 0,&rhizomelitter);
-    
+  
     
 //    Rprintf("Biomass in g C/m2=%f, CN =%f, Lignin = %f , surface=%i, woody=%i \n",leaflitter.C.totalC,leaflitter.E.CN,leaflitter.lignin,leaflitter.surface,leaflitter.woody);
      if(leaflitter.C.totalC >0.0) 
      {
-      Rprintf("Before updating from litter strucc1 = %f,structCN=%f, metabcpool =%f \n", CROPCENT.strucc1.C.totalC,CROPCENT.strucc1.E.CN,CROPCENT.metabc1.C.totalC);
       UpdateCropcentPoolsFromBioCro(&CROPCENT, &leaflitter);
-      Rprintf("After updating from litter strucc1 = %f, structCN=%f,metabcpool =%f \n", CROPCENT.strucc1.C.totalC, CROPCENT.strucc1.E.CN,CROPCENT.metabc1.C.totalC);
      }
       if(stemlitter.C.totalC >0.0) 
      {
@@ -886,6 +874,8 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
    REAL(Leaflitterd)[dap]=miscanthus.leaf.litter;
    REAL(Rootlitterd)[dap]=miscanthus.root.litter;
    REAL(Rhizomelitterd)[dap]=miscanthus.rhizome.litter;
+   REAL(DayafterPlanting)[dap]=dap;  
+   REAL(GDD)[dap]=accumulatedGDD;
    REAL(LAId)[dap]=LAI;
    
     miscanthus.autoresp.leafdarkresp=0.0;

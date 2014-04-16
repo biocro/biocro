@@ -273,14 +273,14 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                    nitroControl=list(),
                    SOMpoolsParmsControl=list(),
                    SOMAssignParmsControl=list(),
-                    GetCropCentStateVarParmsControl=list(),
+                   GetCropCentStateVarParmsControl=list(),
                     GetSoilTextureParmsControl=list(),
                     GetBioCroToCropcentParmsControl=list(),
                     GetErosionParmsControl=list(),
                     GetC13ParmsControl=list(),
                     GetLeachingParmsControl=list(),
                     GetSymbNFixationParmsControl=list(),
-                   centuryControl=list())
+                    centuryControl=list())
   {
 
     
@@ -367,9 +367,16 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     ## Getting the Parameters
     canopyP <- canopyParms()
     canopyP[names(canopyControl)] <- canopyControl
+
+
+    ###########################################################################    
+    ## Here I am creating default multi-layer soil input such that each layer is approximately 5 cm
     
     soilP <- soilParms()
+    NumberofLayers=round(soilP$soilDepth*100/5,0)
+    soilP <-soilParms(soilLayers=NumberofLayers)
     soilP[names(soilControl)] <- soilControl
+    ######################################################################
 
     nitroP <- nitroParms()
     nitroP[names(nitroControl)] <- nitroControl

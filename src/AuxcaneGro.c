@@ -24,6 +24,7 @@
 struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, double soildepth, double *depths, double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun, int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds, double RelH, int hydrDist, double rfl, double rsec, double rsdf,int optiontocalculaterootdepth, double rootfrontvelocity ,double dap){
 
 	struct rd_str tmp4;
+	struct seqRD_str tmp3;
 	struct soilML_str tmp;
         /* Constant */
 	/* const double G = 6.67428e-11;  m3 / (kg * s-2)  ##  http://en.wikipedia.org/wiki/Gravitational_constant */
@@ -70,6 +71,7 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 
 	if(rootDepth > soildepth) rootDepth = soildepth;
 
+	tmp3 = seqRootDepth(rootDepth,layers);
 	tmp4 = rootDist(layers,rootDepth,&depths[0],rfl);
 
 	/* unit conversion for precip */
@@ -239,9 +241,9 @@ struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTsee
 {
 	struct dbp_sugarcane_str dbp;
 	double F1, F2, F3, F4;
-	double Aa, Astem, Al, Ar, Asuc, Astuc;
+	double Aa,Astem,Al,Ar,Asuc,Astuc,Afib;
 	double RM;
-	double cutemp1, cutemp2;
+	double cutemp1,cutemp2,RM0;
         
 /* Germination Phase */
         
@@ -312,6 +314,7 @@ struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTsee
 		cutemp2=Astem*((F3>F4)?F3:F4);
 	}
 	Asuc=cutemp2;
+	Afib=Astem-Asuc;
 
 	/*fraction of structural component of stem */
 	Astuc=Astem-Asuc;
