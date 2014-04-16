@@ -1,3 +1,8 @@
+#ifndef CROCENT_H
+#define CROCENT_H
+
+#define MAXSOILLAY 100 /* Maximum number of layers */
+
 // structure to calculate daily climate
 struct dailyclimate {
    int doy;
@@ -434,6 +439,42 @@ struct som3c
 };
 
 
+struct soilprofile {
+  int number_layers;
+  double MAXdepth;
+  double CH4depth;
+  double SOCdepth;
+  struct profileproperties
+  {
+    double bulkd[MAXSOILLAY];
+    double fieldc[MAXSOILLAY];
+    double pH[MAXSOILLAY];
+    double swclimit[MAXSOILLAY];
+    double avgtemp[MAXSOILLAY];
+    double dpthmn[MAXSOILLAY];
+    double dpthmx[MAXSOILLAY];
+    double width[MAXSOILLAY];
+    double stream[MAXSOILLAY];
+    double frlechd[MAXSOILLAY];
+  } properties;
+  struct profilepools
+  {
+    double swc[MAXSOILLAY];
+    double rootbiomass[MAXSOILLAY];   
+    double wfps[MAXSOILLAY];  
+    double nitrate[MAXSOILLAY];
+  }pools;
+  
+  struct profilefluxes
+  {   
+    double waterflux[MAXSOILLAY];
+    double dN2lyr[MAXSOILLAY];
+    double dN2Olyr[MAXSOILLAY];
+  }flux;
+};
+
+
+
 struct cropcentlayer{
 	struct strucc1 strucc1;
 	struct strucc2 strucc2;
@@ -449,6 +490,7 @@ struct cropcentlayer{
 	struct wood3 wood3;
 	struct cropcentEnvironment ENV;
   struct BioCroToCropcentParms BcroTOCentParms;
+  struct soilprofile soilprofile;
 };
 
 void assignPools(struct cropcentlayer *CROPCENT, double *sompoolsfromR);
@@ -711,3 +753,6 @@ void getfrostparms(struct frostParms *frostparms);
 // Willow Specific Functions
 void UpdateC3treeAfterEmergence(struct c3tree *willow,struct management *management);
 void UpdateWillowAfterHarvest(struct c3tree *willow,struct management *management);
+
+
+#endif

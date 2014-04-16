@@ -4,6 +4,8 @@
  *
  */
 
+#ifndef CANA_H
+#define CANA_H
 
 struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
 			 double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
@@ -19,3 +21,5 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN);
 void sunML(double Idir, double Idiff, double LAI, int nlayers, 
 	   double cosTheta, double kd, double chil, double heightf);
 void lightME(double lat, int DOY, int td);
+
+#endif

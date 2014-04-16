@@ -1,3 +1,5 @@
+#ifndef BIOCRO_H
+#define BIOCRO_H
 /*
  *  BioCro/src/BioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2008
  *
@@ -97,3 +99,5 @@ struct flow_str flow(double *SC, double CNratio, double A, double Lc, double Tm,
 double AbiotEff(double smoist, double stemp);
 
 double sel_phen(int phen);
+
+#endif

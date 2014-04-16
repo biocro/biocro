@@ -8,15 +8,13 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "c3photo.h"
 #include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
-#include "AuxwillowGro.h"
 #include "AuxcaneGro.h"
 #include "crocent.h"
-#include "c3canopy.h"
 #include "soilwater.h"
+#include "function_prototype.h"
 
 SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
@@ -325,6 +323,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	SEXP cwsMat;
 	SEXP psimMat; /* Holds the soil water potential */
 	SEXP rdMat;
+  SEXP waterfluxMat; /* holds water flux in m3/m2 hr */
 	SEXP SCpools;
 	SEXP SNpools;
 	SEXP LeafPsimVec;
@@ -369,8 +368,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
 
 //	vecsize = length(DOY);
-	PROTECT(lists = allocVector(VECSXP,60));
-	PROTECT(names = allocVector(STRSXP,60));
+	PROTECT(lists = allocVector(VECSXP,61));
+	PROTECT(names = allocVector(STRSXP,61));
 
 	PROTECT(DayofYear = allocVector(REALSXP,vecsize));
 	PROTECT(Hour = allocVector(REALSXP,vecsize));
@@ -396,6 +395,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	PROTECT(RespVec = allocVector(REALSXP,vecsize));
 	PROTECT(SoilEvaporation = allocVector(REALSXP,vecsize));
 	PROTECT(cwsMat = allocMatrix(REALSXP,soillayers,vecsize));
+  PROTECT(waterfluxMat = allocMatrix(REALSXP,soillayers,vecsize));
 	PROTECT(psimMat = allocMatrix(REALSXP,soillayers,vecsize));
 	PROTECT(rdMat = allocMatrix(REALSXP,soillayers,vecsize));
 	PROTECT(SCpools = allocVector(REALSXP,9));
@@ -578,6 +578,11 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   TTc=0.0;
   REAL(TTTc)[0]=TTc;
   
+  // Initializing daily soil layer flux to Zero
+   for(i3=0;i3<soillayers;i3++)
+          {
+            soilMLS.dailyWflux[i3]+=0.0;  
+          }
   
  /**************************************/
   updateafteremergence(&miscanthus,&management);
@@ -645,6 +650,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
               				cwsVecSum += cwsVec[i3];
               				REAL(cwsMat)[i3 + i*soillayers] = soilMLS.cws[i3];
               				REAL(rdMat)[i3 + i*soillayers] = soilMLS.rootDist[i3];
+                      REAL(waterfluxMat)[i3 + i*soillayers] = soilMLS.Wflux[i3];
+                      soilMLS.dailyWflux[i3]+=soilMLS.Wflux[i3];
               			  }
 
 			      waterCont = cwsVecSum / soillayers;
@@ -759,13 +766,13 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                * *****************************************************************************************************************************/
                 
                 int FlagBiogeochem =1;// MOVE THIS UP & ALLOW IT TO VARY FROM R ENVIRONMENT
-                /*
+               
                 if(FlagBiogeochem==1)
                 {
-                Copy_SoilWater_BioCro_To_CropCent(soilMLS, soillayers,REAL(SOILDEPTHS), &CROPCENT);  
-                CalculateBiogeochem(&miscanthus, &CROPCENT);
+                Copy_SoilWater_BioCro_To_CropCent(&soilMLS, soillayers,REAL(SOILDEPTHS), &CROPCENT);  
+//                CalculateBiogeochem(&miscanthus, &CROPCENT);
                 }
-                */
+               
                
             
 
@@ -830,7 +837,11 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                          &nit_amt, &nreduce, 
                          dN2lyr,dN2Olyr,sitepar,layers,soil);
         */
-       
+       for(i3=0;i3<soillayers;i3++)
+          {
+            soilMLS.dailyWflux[i3]+=0.0;  
+          }
+                        
        printcropcentout(CROPCENT,
                         &REAL(totalSOC)[dap],
                         &REAL(strucc1)[dap],
@@ -1019,6 +1030,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SET_VECTOR_ELT(lists,57,som2c2);
   SET_VECTOR_ELT(lists,58,som3c);
   SET_VECTOR_ELT(lists,59,minN);
+  SET_VECTOR_ELT(lists,60,waterfluxMat);
 
 
 	SET_STRING_ELT(names,0,mkChar("DayofYear"));
@@ -1081,7 +1093,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   SET_STRING_ELT(names,57,mkChar("som2c2"));
   SET_STRING_ELT(names,58,mkChar("som3c"));
    SET_STRING_ELT(names,59,mkChar("minN"));
+   SET_STRING_ELT(names,60,mkChar("waterfluxMat"));
 	setAttrib(lists,R_NamesSymbol,names);
-	UNPROTECT(62);
+	UNPROTECT(63);
 	return(lists);
 }

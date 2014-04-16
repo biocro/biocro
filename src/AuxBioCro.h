@@ -1,3 +1,6 @@
+#ifndef AUXBIOCRO_H
+#define AUXBIOCRO_H
+
 /*
  *  /src/AuxBioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
  *
@@ -33,7 +36,6 @@ struct ET_Str {
   double EPriestly;
   double Deltat;
   double LayerCond;
-
 };
 
 struct Can_Str {
@@ -64,6 +66,7 @@ struct soilML_str {
   double SoilEvapo;
   double rootDist[MAXLAY];
   double Wflux[MAXLAY];
+  double dailyWflux[MAXLAY];
 };
 
 
@@ -136,3 +139,6 @@ struct crop_phenology {
         double CS;
       }leaf,stem,root,rhiz;
 };
+
+
+#endif

@@ -372,10 +372,15 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     ###########################################################################    
     ## Here I am creating default multi-layer soil input such that each layer is approximately 5 cm
     
-    soilP <- soilParms()
-    NumberofLayers=round(soilP$soilDepth*100/5,0)
-    soilP <-soilParms(soilLayers=NumberofLayers)
-    soilP[names(soilControl)] <- soilControl
+    tmp<- soilParms()                              # default depth
+    tmp[names(soilControl)]=soilControl            # depth from soilControl
+    NumberofLayers=round(tmp$soilDepth*100/5.0, 0)    #Calculate Number of Layres
+    soilP<-soilParms(FieldC = tmp$FieldC, WiltP = tmp$WiltP, phi1 = tmp$phi1, phi2 = tmp$phi2, 
+            soilDepth = tmp$soilDepth, iWatCont = tmp$iWatCont, soilType = tmp$soilType, 
+            soilLayers = NumberofLayers, wsFun = "linear", 
+            scsf = tmp$scsf, transpRes = tmp$transpRes, leafPotTh = tmp$leafPotTh, 
+            hydrDist =1, rfl = tmp$rfl, rsec = tmp$rsec, rsdf = tmp$rsdf)
+   
     ######################################################################
 
     nitroP <- nitroParms()
@@ -526,6 +531,8 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$rdMat) <- soilP$soilDepths[-1]
     res$psimMat <- t(res$psimMat)
     colnames(res$psimMat) <- soilP$soilDepths[-1]
+    res$waterfluxMat <- t(res$waterfluxMat)
+    colnames(res$waterfluxMat) <- soilP$soilDepths[-1]
     structure(res,class="BioGro")
   }
 

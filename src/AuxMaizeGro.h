@@ -1,3 +1,5 @@
+#ifndef AUXMAIZEGRO_H
+#define AUXMAIZEGRO_H
 /*
  *  BioCro/src/maizeGro.c by Fernando Ezequiel Miguez  Copyright (C) 2011
  *
@@ -30,3 +32,4 @@ double Alogistic(double time, double A, double kei, double tei);
 
 struct maize_dbp_str maize_sel_dbp_coef(double dbpCoefs[13], double phenoStage);
 
+#endif

@@ -3,6 +3,8 @@
  *
  */
 
+#ifndef C4PHOTO_h
+#define C4PHOTO_H
 int nObs;
 
 struct c4_str {
@@ -26,3 +28,6 @@ extern double RSS_C4photo(double oAssim[nObs], double oQp[nObs], double oTemp[nO
 		   double oRH[nObs], double vmax, double alpha, double kparm,
 			  double theta, double beta,
 			  double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT,double lowerT);
+
+
+#endif

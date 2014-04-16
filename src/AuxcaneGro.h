@@ -1,3 +1,5 @@
+#ifndef CANEGRO_H
+#define CANEGRO_H
 //  Function and Structure Declaration  for caneGro
 
 struct dbp_sugarcane_str{
@@ -32,3 +34,4 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 
 double getFrostdamage(double T0, double T100,double T, double biomass);
 
+#endif
