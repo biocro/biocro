@@ -14,7 +14,7 @@
 #include "AuxcaneGro.h"
 #include "crocent.h"
 #include "soilwater.h"
-
+#include "function_prototype.h"
 
 SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
@@ -284,7 +284,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
 	soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
   
-//  Fillin_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers, &REAL(SOILD);
+ Filling_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers,REAL(SOILDEPTHS));
 
 	centS.SCs[0] = 0.0;
 	centS.SCs[1] = 0.0;
