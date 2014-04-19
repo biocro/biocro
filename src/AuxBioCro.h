@@ -12,7 +12,7 @@
 /* internally. The normal user will not need them */
 
 
-#define MAXLAY    50 /* Maximum number of layers */
+#define MAXLAY    200 /* Maximum number of layers */
 
 /* These are global variables. */
 int sp1,sp2,sp3,sp4,sp5,sp6;
@@ -65,8 +65,17 @@ struct soilML_str {
   double Nleach;
   double SoilEvapo;
   double rootDist[MAXLAY];
-  double Wflux[MAXLAY];
+  double hourlyWflux[MAXLAY];
   double dailyWflux[MAXLAY];
+  double width[MAXLAY];
+  double swclimit[MAXLAY];
+  double pH[MAXLAY];
+  double bulkd[MAXLAY];
+  double fieldc[MAXLAY];
+  double dpthmx[MAXLAY];
+  double dpthmn[MAXLAY];
+  double soiltavg[MAXLAY];
+  int Num_BioCro_soil_layers;
 };
 
 
@@ -91,6 +100,7 @@ struct soilText_str{
   double satur;
   double fieldc;
   double wiltp;
+  double bulkd;
 
 };
 

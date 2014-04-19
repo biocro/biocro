@@ -962,7 +962,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
 /* This might look like a weird place to populate the structure, but is more convenient*/
                 tmp.cws[i] = awc;
-                tmp.Wflux[i] =J_w;
+                tmp.hourlyWflux[i] =J_w;
                 if(wsFun == 0){
                         slp = 1/(fieldc - wiltp);
                         intcpt = 1 - fieldc * slp;
@@ -1167,7 +1167,7 @@ struct soilText_str soilTchoose(int soiltype){
 
         /* This function is based on Campbell and Norman.
            Introduction to Environmental Biophysics. pg 130. */
-
+       /* bulk density values are taken from function getsoilprop.c from Melanie (Colorado) */
         struct soilText_str tmp;
 
         tmp.silt = 0;
@@ -1179,7 +1179,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0;
         tmp.fieldc = 0;
         tmp.wiltp = 0;
-
+        tmp.bulkd= 0.0;
         if(soiltype == 0){
         /* sand soil */
         tmp.silt = 0.05;
@@ -1191,7 +1191,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.87;
         tmp.fieldc = 0.09;
         tmp.wiltp = 0.03;
-
+        tmp.bulkd= 0.01; // This value is zero/undefined for sandy soil I am assigning a low value [see getsoilprop.c]
         } else
 
         if(soiltype == 1){
@@ -1205,7 +1205,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.72;
         tmp.fieldc = 0.13;
         tmp.wiltp = 0.06;
-
+        tmp.bulkd= 1.55;
         } else
 
         if(soiltype == 2){
@@ -1219,7 +1219,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.57;
         tmp.fieldc = 0.21;
         tmp.wiltp = 0.10;
-
+        tmp.bulkd= 1.50;
         } else
 
         if(soiltype == 3){
@@ -1233,7 +1233,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.57;
         tmp.fieldc = 0.27;
         tmp.wiltp = 0.12;
-
+         tmp.bulkd= 1.43;
         } else
 
         if(soiltype == 4){
@@ -1247,7 +1247,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.59;
         tmp.fieldc = 0.33;
         tmp.wiltp = 0.13;
-
+        tmp.bulkd= 1.36;
         } else
 
         if(soiltype == 5){
@@ -1261,7 +1261,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.48;
         tmp.fieldc = 0.26;
         tmp.wiltp = 0.15;
-
+         tmp.bulkd= 1.39;
         } else
 
         if(soiltype == 6){
@@ -1275,7 +1275,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.52;
         tmp.fieldc = 0.32;
         tmp.wiltp = 0.20;
-
+        tmp.bulkd= 1.35;
         } else
 
         if(soiltype == 7){
@@ -1289,7 +1289,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.52;
         tmp.fieldc = 0.37;
         tmp.wiltp = 0.21; /* Correction from the book from here http://www.public.iastate.edu/~bkh/teaching/505/norman_book_corrections.pdf */
-
+         tmp.bulkd= 1.24;
         } else
 
         if(soiltype == 8){
@@ -1303,6 +1303,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.51;
         tmp.fieldc = 0.34;
         tmp.wiltp = 0.24;
+         tmp.bulkd= 1.30;
 
         } else
 
@@ -1317,7 +1318,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.52;
         tmp.fieldc = 0.39;
         tmp.wiltp = 0.25;
-
+        tmp.bulkd= 1.28;
         } else
 
         if(soiltype == 10){
@@ -1331,7 +1332,7 @@ struct soilText_str soilTchoose(int soiltype){
         tmp.satur = 0.53;
         tmp.fieldc = 0.4;
         tmp.wiltp = 0.27;
-
+        tmp.bulkd= 1.19;
         }
 
         return(tmp);

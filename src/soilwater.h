@@ -194,6 +194,22 @@ void denitrify(double *newCO2, double *newNO3, double nitrate[],
                double dN2Olyr[], int *jday,SITEPAR_SPT sitepar,LAYERPAR_SPT layers);
                
 void methane_oxidation(double *CH4, int *isdecid, int *isagri,LAYERPAR_SPT layers,SOIL_SPT soil);
+void trace_gas_model(int *jday, double *time, double *newminrl, double *ammonium, double nitrate[],
+                         int *texture, double *sand, double *silt, double *clay,
+                         double *afiel, double *bulkd, double *maxt, double *ppt,
+                         double *snow, double *avgwfps, double *stormf,
+                         double *basef, double frlechd[], double stream[],
+                         double *inorglch, double *critflow, double wfluxout[],
+                         double *newCO2, double *NOflux, double *Nn2oflux, double *Dn2oflux,
+                         double *Dn2flux, double *CH4, int *isdecid,
+                         int *isagri, double *grass_lai, double *tree_lai,
+                         double *NOabsorp_grass, double *NOabsorp_tree,
+                         double *nit_amt, double *nreduce, 
+                         double dN2lyr[], double dN2Olyr[],SITEPAR_SPT sitepar,LAYERPAR_SPT layers,SOIL_SPT soil);
+
+                         
+                         
+
 /****This is Global variable ****/
 /*
 extern SITEPAR_SPT sitepar;

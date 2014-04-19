@@ -14,7 +14,7 @@
 #include "AuxcaneGro.h"
 #include "crocent.h"
 #include "soilwater.h"
-#include "function_prototype.h"
+
 
 SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
@@ -145,7 +145,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 
    
    struct crop_phenology cropdbp;
-   static struct miscanthus miscanthus, deltamiscanthus;
+   struct miscanthus miscanthus, deltamiscanthus;
    createNULLmiscanthus(&miscanthus,vecsize);
 
 //   miscanthus.leafvec[vecsize].newbiomass=(double)vecsize;
@@ -283,6 +283,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	struct soilML_str soilMLS;
 	struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
 	soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
+  
+//  Fillin_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers, &REAL(SOILD);
 
 	centS.SCs[0] = 0.0;
 	centS.SCs[1] = 0.0;
@@ -581,7 +583,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
   // Initializing daily soil layer flux to Zero
    for(i3=0;i3<soillayers;i3++)
           {
-            soilMLS.dailyWflux[i3]+=0.0;  
+            soilMLS.dailyWflux[i3]=0.0;  
           }
   
  /**************************************/
@@ -650,8 +652,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
               				cwsVecSum += cwsVec[i3];
               				REAL(cwsMat)[i3 + i*soillayers] = soilMLS.cws[i3];
               				REAL(rdMat)[i3 + i*soillayers] = soilMLS.rootDist[i3];
-                      REAL(waterfluxMat)[i3 + i*soillayers] = soilMLS.Wflux[i3];
-                      soilMLS.dailyWflux[i3]+=soilMLS.Wflux[i3];
+                      REAL(waterfluxMat)[i3 + i*soillayers] = soilMLS.hourlyWflux[i3];
+                      soilMLS.dailyWflux[i3]+=soilMLS.hourlyWflux[i3];
               			  }
 
 			      waterCont = cwsVecSum / soillayers;
@@ -747,7 +749,9 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                *  Base on a logical [FlagBiogeochem=1], following four steps will be performed. Or, productivity will not be influenced by 
                *  by N availability and no output of soil C and GHG will be available [ all zeros will be output]
                * 
-               * (1) I need to copy soil water profile from BioCro function to CROPCENT.soil
+               * (1) I need to copy soil water profile from BioCro function to CROPCENT.soil 
+               * 
+               * (2) Assign Average Soil Properties to each layer of the soilprofile of cropcentlayer
                * 
                * (2) Now we have updated plant biomass and litter content of each component.We need to input litter (based on a user defined 
                *     falling rate) to soil biogeochemical cycle and perform decomposition of soil organic pool for today. Important thing is to 
@@ -766,80 +770,34 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                * *****************************************************************************************************************************/
                 
                 int FlagBiogeochem =1;// MOVE THIS UP & ALLOW IT TO VARY FROM R ENVIRONMENT
-               
+ 
+ /*
                 if(FlagBiogeochem==1)
                 {
-                Copy_SoilWater_BioCro_To_CropCent(&soilMLS, soillayers,REAL(SOILDEPTHS), &CROPCENT);  
-//                CalculateBiogeochem(&miscanthus, &CROPCENT);
+                 Assign_Soil_Properties_To_CropCent(bulkd,swclimit,fieldc,pH,tcoeff, baseflow,stormflow,frlechd,&CROPCENT);
+                Copy_SoilWater_BioCro_To_CropCent(&soilMLS, soillayers,REAL(SOILDEPTHS), &CROPCENT);
+                CalculateBiogeochem(&miscanthus, &CROPCENT,&dailyclimate);
                 }
+*/               
+               /******************* This part can go to a Separate Function - Nremobilization**************************************************/
                
-               
-            
-
-/****************************************************************************/
-// CROPCENT SIMULATION BEGINS HHERE    
-//
-// Perhaps it is better to insert a function ImplementManagement. Implement Management Functions can do following things
-// Implement Harvest Management, removing biomass and leaving a fraction of litter, which can then be used to update structures for updating the input to soil biogeochemistry
-// Implement N application, which will affect N available for plants and also N dynamics of soil
-// Implement Irrigation, which can change soil water status, affecting plant growth and soil biogeochemistry
-// Implement Tillage which will change decomposition rate of difference soil pools
-
-//Now here We are simpyl taking litter vector and creating new structures to send to soil biogeochemistry simulations
-
-//   BiocroToCrocent(&LeafLitter,leaf.fallrate,leaf.lignin, &leaf.E, isotoperatio, 1, 0,leaflitter);
-   
-  
-    BiocroToCrocent(&miscanthus.leaf.litter,1.0,0.2, &leaflitterE, 1.0, 1, 0,&leaflitter);
-    BiocroToCrocent(&miscanthus.stem.litter,1.0,0.2, &stemlitterE, 1.0, 1, 0,&stemlitter);
-    BiocroToCrocent(&miscanthus.root.litter,1.0,0.2, &rootlitterE, 1.0, 0, 0,&rootlitter);
-    BiocroToCrocent(&miscanthus.rhizome.litter,1.0,0.2, &rhizomelitterE, 1.0, 0, 0,&rhizomelitter);
-  
-    
-//    Rprintf("Biomass in g C/m2=%f, CN =%f, Lignin = %f , surface=%i, woody=%i \n",leaflitter.C.totalC,leaflitter.E.CN,leaflitter.lignin,leaflitter.surface,leaflitter.woody);
-     if(leaflitter.C.totalC >0.0) 
-     {
-      UpdateCropcentPoolsFromBioCro(&CROPCENT, &leaflitter);
-     }
-      if(stemlitter.C.totalC >0.0) 
-     {
-      UpdateCropcentPoolsFromBioCro(&CROPCENT, &stemlitter);
-     }
-      if(rootlitter.C.totalC >0.0) 
-     {
-      UpdateCropcentPoolsFromBioCro(&CROPCENT, &rootlitter);
-     }
-      if(rhizomelitter.C.totalC >0.0) 
-     {
-      UpdateCropcentPoolsFromBioCro(&CROPCENT, &rhizomelitter);
-     }
+               /*********This Part is to Model N response on Productivity**********************************************************************
+               *   D=getTodayNDemand(&miscanthus) all positive partitioning for nutrients or non-decreasing N concentration
+               *   S=getTodayInternalNSupply(&miscanthus) due to mobilization from senescing plant organs or phenology (Rhizome in the beginning, leaf & Stem in the end)
+               *   if(S>D) satisfy all demand and remaining S will go to rhizome (storage organ)
+               *   if(S<D) && (D-S)< soil Mineral N total
+               *   Meet all the D and reduce soil mineral N by (D-S)
+               *   if (S<D) && (D-S) > soil mineral N total
+               *   make soil Mineral N = 0
+               *   reduce all the N supply bu a factor k such that k*D-S= soil mineral
+               *   Meet only a fraction(k) of demand D and reduce nutrient concentration of all the elements
+               *  *******************************************************************************************************************************   
+               * This reduced C;N ratio of leaf will eventually reduce photosynthesis as photosynthesis parameters are expressed in terms of SLN
+               * *******************************************************************************************************************************/   
       
-       newminrl =CROPCENT.ENV.minN;
-       assignENV(&CROPCENT,fake,fake,fake,fake,fake,fake,fake);
-       assignFluxRatios(&CROPCENT);
-       decomposeCROPCENT(&CROPCENT, woody,Eflag);
-       updatecropcentpools(&CROPCENT);
-       CROPCENT.ENV.minN-=Ndemand;
-       CROPCENT.ENV.minN=(CROPCENT.ENV.minN<0)?1e-6:CROPCENT.ENV.minN;
-       CROPCENT.ENV.minN=CROPCENT.ENV.minN-newminrl; //current minus old is newminrl
-       
-      /*
-       trace_gas_model(fakeint,fakedouble ,&newminrl, &ammonium, nitrate,
-                         &texture, &sand, &silt, &clay,
-                         &afiel, &bulkd, &maxt, &ppt,
-                         &snow, &avgwfps, &stormf,
-                         &basef, frlechd, stream,
-                         &inorglch, &critflow, wfluxout,
-                         &newCO2, &NOflux, &Nn2oflux, &Dn2oflux,
-                         &Dn2flux, &CH4, &isdecid,
-                         &isagri, &grass_lai, &tree_lai,
-                         &NOabsorp_grass, &NOabsorp_tree,
-                         &nit_amt, &nreduce, 
-                         dN2lyr,dN2Olyr,sitepar,layers,soil);
-        */
-       for(i3=0;i3<soillayers;i3++)
+         for(i3=0;i3<soillayers;i3++)
           {
-            soilMLS.dailyWflux[i3]+=0.0;  
+            soilMLS.dailyWflux[i3]=0.0;  
           }
                         
        printcropcentout(CROPCENT,
@@ -855,19 +813,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                         &REAL(som3c)[dap],
                         &REAL(minN)[dap]);
 
-// 
-// BiocroToCrocent(&RootLitter,root.fallrate,root.lignin, &root.E, isotoperatio, 0, 0,rootlitter);
-// BiocroToCrocent(&RhizomeLitter,rhiz.fallrate,rhiz.lignin, &rhiz.E, isotoperatio, 0, 0,rhizomelitter);
 
-// Also We need to update cropcent layer environment based on soil properties,Temperature, and soil moisture.This will influence actual decomposition rate
-
-// Now need to use structures to change the Cadded to soils based on structures. It is like adding into soil pools based on characteristic of the litter 
-
-// Now we can simulate decomposition of the SOC
-
-// Now we need to revert back decomposition coefficients, which may have been modified by differen factors, such as tillage etc. so they do not keep recycled.
-
-// Take all the outputs and send them to R for plotting purpose
 /***************************************************************************/
    REAL(GPP)[dap]=miscanthus.GPP;
    REAL(LeafDarkResp)[dap]=miscanthus.autoresp.leafdarkresp;

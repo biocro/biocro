@@ -107,6 +107,19 @@ struct InputToCropcent {
   int woody;  // 1 = woddy, 0= non-woody
 };
 
+struct SoilEmissions{
+  double CH4;
+  double NH4;
+  double Dn2Flux;
+  double Dn20Flux;
+  double inorglch;
+  double nitamt;
+  double Nn20Flux;
+  double NOabsorp_grass;
+  double NOabsorp_tree;
+  double newCO2;
+};
+
 
 struct BioCroToCropcentParms {
   double structometaSLOPE; // for structural and metabolic partitioning of incoming litter
@@ -117,6 +130,7 @@ struct BioCroToCropcentParms {
   double pabres;
 };
 
+
 struct cropcentEnvironment{
   double minN, minP,minS, minK;
   double surfaceTEMP,soilTEMP;
@@ -124,8 +138,9 @@ struct cropcentEnvironment{
   double leachedWATER;
   double pH;
   double soilrad;
-  struct SoilTexture SOILTEX;
   double drainage;
+  struct SoilTexture SOILTEX;
+  
   struct ErosionParms EROSION;
   struct OrgLeachParms ORGLECH;
   struct C13Parms C13;
@@ -439,6 +454,17 @@ struct som3c
 };
 
 
+struct siteparameters{
+  double Ncoeff;
+  double jdaystart;
+  double jdayend;
+  double N2Oadjust;
+  int isagri;
+  int isdecid;
+  int maxt;
+};
+
+
 struct soilprofile {
   int number_layers;
   double MAXdepth;
@@ -450,7 +476,7 @@ struct soilprofile {
     double fieldc[MAXSOILLAY];
     double pH[MAXSOILLAY];
     double swclimit[MAXSOILLAY];
-    double avgtemp[MAXSOILLAY];
+    double soiltavg[MAXSOILLAY];
     double dpthmn[MAXSOILLAY];
     double dpthmx[MAXSOILLAY];
     double width[MAXSOILLAY];
@@ -491,6 +517,7 @@ struct cropcentlayer{
 	struct cropcentEnvironment ENV;
   struct BioCroToCropcentParms BcroTOCentParms;
   struct soilprofile soilprofile;
+  struct siteparameters sitepar;
 };
 
 void assignPools(struct cropcentlayer *CROPCENT, double *sompoolsfromR);
