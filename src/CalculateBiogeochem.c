@@ -106,7 +106,7 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
      
   // call the tracegas model
   
-//  trace_gas_model(&dailyclimate->doy,&time, &CROPCENT->ENV.newminN)
+//  trace_gas_model(&dailyclimate->doy,&time, &CROPCENT->ENV.newminN,&CROPCENT->ENV.ammonium)
   
    /*
    trace_gas_model(int *jday, double *time, double *newminrl, double *ammonium, double nitrate[],

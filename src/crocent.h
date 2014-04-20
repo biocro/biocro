@@ -134,6 +134,7 @@ struct BioCroToCropcentParms {
 struct cropcentEnvironment{
   double minN, minP,minS, minK;
   double newminN, newminP, newminS, newminK;
+  double ammonium;
   double surfaceTEMP,soilTEMP;
   double surfaceRELWC, soilRELWC,PET,AWC;
   double leachedWATER;
