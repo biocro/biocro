@@ -13,6 +13,10 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
   delP=0.0;
   delS=0.0;
   delK=0.0;
+  CROPCENT->ENV.newminN=0.0;
+  CROPCENT->ENV.newminP=0.0;
+  CROPCENT->ENV.newminS=0.0;
+  CROPCENT->ENV.newminK=0.0;
   
   // updating strucc1 flux [only source is self-negative outflow]
   // step 1: chnage in mineral N of CropCENT layer due to flow from strucc1
@@ -22,6 +26,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
       +(CROPCENT->strucc1.Flux.strucc1TOsom2c1.C.totalC)/(CROPCENT->strucc1.Flux.strucc1TOsom2c1.E.CN); // This is always positive
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   // now update CN ratioi snot required as all outflow CE ratio is same as of source pool
   // finally update C structure of the pool
   updateCarbonStructure(&CROPCENT->strucc1.C, CROPCENT->strucc1.Flux.strucc1TOstrucc1.C);
@@ -38,6 +43,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
       +(CROPCENT->strucc2.Flux.strucc2TOsom2c2.C.totalC)/(CROPCENT->strucc2.Flux.strucc2TOsom2c2.E.CN); // This is always positive
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   // now update CN ratio, which does not change because outflow CE is same as CE of pool. Only CE ratio of receiving flux changes
   // finally update C structure of the pool
   updateCarbonStructure(&CROPCENT->strucc2.C, CROPCENT->strucc2.Flux.strucc2TOstrucc2.C);
@@ -51,6 +57,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
   in=(CROPCENT->metabc1.Flux.metabc1TOsom1c1.C.totalC)/(CROPCENT->metabc1.Flux.metabc1TOsom1c1.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->metabc1.C, CROPCENT->metabc1.Flux.metabc1TOmetabc1.C);
   updateCarbonStructure(&CROPCENT->som1c1.C, CROPCENT->metabc1.Flux.metabc1TOsom1c1.C);
   updateMineralStructure(&CROPCENT->som1c1.C, &CROPCENT->som1c1.E, CROPCENT->metabc1.Flux.metabc1TOsom1c1.C, CROPCENT->metabc1.Flux.metabc1TOsom1c1.E);
@@ -60,6 +67,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
   in=(CROPCENT->metabc2.Flux.metabc2TOsom1c2.C.totalC)/(CROPCENT->metabc2.Flux.metabc2TOsom1c2.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->metabc2.C, CROPCENT->metabc2.Flux.metabc2TOmetabc2.C);
   updateCarbonStructure(&CROPCENT->som1c2.C, CROPCENT->metabc2.Flux.metabc2TOsom1c2.C);
   updateMineralStructure(&CROPCENT->som1c2.C, &CROPCENT->som1c2.E, CROPCENT->metabc2.Flux.metabc2TOsom1c2.C, CROPCENT->metabc2.Flux.metabc2TOsom1c2.E);
@@ -69,6 +77,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
   in=(CROPCENT->som1c1.Flux.som1c1TOsom2c1.C.totalC)/(CROPCENT->som1c1.Flux.som1c1TOsom2c1.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som1c1.C, CROPCENT->som1c1.Flux.som1c1TOsom1c1.C);
   updateCarbonStructure(&CROPCENT->som2c1.C, CROPCENT->som1c1.Flux.som1c1TOsom2c1.C);
   updateMineralStructure(&CROPCENT->som2c1.C, &CROPCENT->som2c1.E, CROPCENT->som1c1.Flux.som1c1TOsom2c1.C, CROPCENT->som1c1.Flux.som1c1TOsom2c1.E);
@@ -80,6 +89,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
     +(CROPCENT->som2c1.Flux.som2c1TOsom2c2.C.totalC)/(CROPCENT->som2c1.Flux.som2c1TOsom2c2.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som2c1.C, CROPCENT->som2c1.Flux.som2c1TOsom2c1.C);
   updateCarbonStructure(&CROPCENT->som1c1.C, CROPCENT->som2c1.Flux.som2c1TOsom1c1.C);
   updateMineralStructure(&CROPCENT->som1c1.C, &CROPCENT->som1c1.E, CROPCENT->som2c1.Flux.som2c1TOsom1c1.C, CROPCENT->som2c1.Flux.som2c1TOsom1c1.E);
@@ -94,6 +104,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
     +(CROPCENT->som1c2.Flux.som1c2TOleachate.C.totalC)/(CROPCENT->som1c2.Flux.som1c2TOleachate.E.CN);
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som1c2.C, CROPCENT->som1c2.Flux.som1c2TOsom1c2.C);
   // remember here we need to modify CN ratio of the som1c2 pool because CN ratio of leachate loss is much larger
   // This modified ratio can be obtained in th below function
@@ -112,6 +123,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
     +(CROPCENT->som2c2.Flux.som2c2TOsom1c2.C.totalC)/(CROPCENT->som2c2.Flux.som2c2TOsom1c2.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som2c2.C, CROPCENT->som2c2.Flux.som2c2TOsom2c2.C);
   updateCarbonStructure(&CROPCENT->som1c2.C, CROPCENT->som2c2.Flux.som2c2TOsom1c2.C);
   updateMineralStructure(&CROPCENT->som1c2.C, &CROPCENT->som1c2.E, CROPCENT->som2c2.Flux.som2c2TOsom1c2.C, CROPCENT->som2c2.Flux.som2c2TOsom1c2.E);
@@ -124,9 +136,12 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
    
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som3c.C, CROPCENT->som3c.Flux.som3cTOsom3c.C);
   updateCarbonStructure(&CROPCENT->som1c2.C, CROPCENT->som3c.Flux.som3cTOsom1c2.C);
   updateMineralStructure(&CROPCENT->som1c2.C, &CROPCENT->som1c2.E, CROPCENT->som3c.Flux.som3cTOsom1c2.C, CROPCENT->som3c.Flux.som3cTOsom1c2.E);
+  
+  CROPCENT->ENV.newminN=(-1)*CROPCENT->ENV.newminN; // Because negative value represents mineralization and net mineralization is postiive for trace gas calculations
   return;
 }
 

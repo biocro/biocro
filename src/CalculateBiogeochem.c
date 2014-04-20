@@ -5,10 +5,7 @@
 
 void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CROPCENT,struct dailyclimate *dailyclimate)
 {
-  // Structure Definition from DayCent Code Provided by Melanie that will be used in function call to trace gas calculations
-  SITEPAR_SPT sitepar;
-  LAYERPAR_SPT layers;
-  SOIL_SPT soil;
+ 
   /**********************************************************************************************************************
    * Purpose:
    * To Evaluate biogeochemical cycle for the current day
@@ -40,7 +37,16 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
    *     (e)  Updated Flux of N from different Layers
    *     (f)  gaseous flux from soil, CH4, N20, N2, CO2
    *     (g)  Leaching of Organic matter and Nitrogen 
-   * ********************************************************************************************************************/
+   * ***************************************************************************************************************************/
+  // Structure Definition from DayCent Code Provided by Melanie that will be used in function call to trace gas calculations
+  SITEPAR_SPT sitepar;
+  LAYERPAR_SPT layers;
+  SOIL_SPT soil;
+  
+  // these variable are in argument to trace_gas_model but are not used, I am defining them for consistency. I can remove them later on.
+  double time;
+  time= 0.0;
+   
 /*   
    
 //***********WE CAN DEFINE ALL THE FALL RATES & OTHER PARAMETERS IN MISCANTHUS STRUCTURE THEN  SEND ALL OF THIS IN A SEPARATE FUNCTION *******  
@@ -99,6 +105,9 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
     
      
   // call the tracegas model
+  
+//  trace_gas_model(&dailyclimate->doy,&time, &CROPCENT->ENV.newminN)
+  
    /*
    trace_gas_model(int *jday, double *time, double *newminrl, double *ammonium, double nitrate[],
                          int *texture, double *sand, double *silt, double *clay,
@@ -112,7 +121,6 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
                          double *NOabsorp_grass, double *NOabsorp_tree,
                          double *nit_amt, double *nreduce, 
                          double dN2lyr[], double dN2Olyr[],SITEPAR_SPT sitepar,LAYERPAR_SPT layers,SOIL_SPT soil);
-    
                          
  */ 
   // Write All the Variables of Interest in the Cropcentlayer structure

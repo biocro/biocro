@@ -792,7 +792,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                *   reduce all the N supply bu a factor k such that k*D-S= soil mineral
                *   Meet only a fraction(k) of demand D and reduce nutrient concentration of all the elements
                *  *******************************************************************************************************************************   
-               * This reduced C;N ratio of leaf will eventually reduce photosynthesis as photosynthesis parameters are expressed in terms of SLN
+               * This reduced C:N ratio of leaf will eventually reduce photosynthesis as photosynthesis parameters are expressed in terms of SLN
                * *******************************************************************************************************************************/   
       
          for(i3=0;i3<soillayers;i3++)

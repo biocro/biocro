@@ -133,6 +133,7 @@ struct BioCroToCropcentParms {
 
 struct cropcentEnvironment{
   double minN, minP,minS, minK;
+  double newminN, newminP, newminS, newminK;
   double surfaceTEMP,soilTEMP;
   double surfaceRELWC, soilRELWC,PET,AWC;
   double leachedWATER;
@@ -140,7 +141,6 @@ struct cropcentEnvironment{
   double soilrad;
   double drainage;
   struct SoilTexture SOILTEX;
-  
   struct ErosionParms EROSION;
   struct OrgLeachParms ORGLECH;
   struct C13Parms C13;
