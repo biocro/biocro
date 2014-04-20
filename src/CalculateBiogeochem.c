@@ -5,6 +5,10 @@
 
 void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CROPCENT,struct dailyclimate *dailyclimate)
 {
+  // Structure Definition from DayCent Code Provided by Melanie that will be used in function call to trace gas calculations
+  SITEPAR_SPT sitepar;
+  LAYERPAR_SPT layers;
+  SOIL_SPT soil;
   /**********************************************************************************************************************
    * Purpose:
    * To Evaluate biogeochemical cycle for the current day
@@ -89,8 +93,12 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
        
     // Call Function to Update All the Pools
 //     updatecropcentpools(&CROPCENT);
+    
+  // Copying to DayCent Structures from CropCent multilayer Soil Structure Before Calling Trace_gas_Model
+   Copy_CropCent_To_DayCent_Structures(&CROPCENT->soilprofile, sitepar,layers, soil);
+    
      
-   // call the tracegas model
+  // call the tracegas model
    /*
    trace_gas_model(int *jday, double *time, double *newminrl, double *ammonium, double nitrate[],
                          int *texture, double *sand, double *silt, double *clay,

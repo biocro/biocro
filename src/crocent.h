@@ -456,8 +456,8 @@ struct som3c
 
 struct siteparameters{
   double Ncoeff;
-  double jdaystart;
-  double jdayend;
+  double jdayStart;
+  double jdayEnd;
   double N2Oadjust;
   int isagri;
   int isdecid;

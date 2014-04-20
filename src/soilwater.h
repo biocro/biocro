@@ -1,8 +1,12 @@
+#ifndef SWCONST_H
+#define SWCONST_H
 /*****************************************************************************
 **
 **  FILE:    soilwater.h
 **
 **  AUTHOR:  Melannie Hartman  9/7/93 - 8/21/96
+* 
+* Modified by Deepak Jaiswal 04/19/2014
 **
 *****************************************************************************/
 
@@ -217,3 +221,5 @@ extern LAYERPAR_SPT layers;
 extern SOIL_SPT soil;
  */
  /********************************/
+ 
+ #endif
