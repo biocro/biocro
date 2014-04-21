@@ -57,8 +57,10 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
   
   // These are local variables, perhaps need to move them somewhere else later
    int woody, Eflag;
+   double *fake;
    woody = 0 ; // No woody Material for now
    Eflag = 1; // For N simulations only
+   
 /*   
    
 //***********WE CAN DEFINE ALL THE FALL RATES & OTHER PARAMETERS IN MISCANTHUS STRUCTURE THEN  SEND ALL OF THIS IN A SEPARATE FUNCTION *******  
@@ -98,7 +100,7 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
      Calculate_Soil_Layer_Temperature(CROPCENT->soilprofile.properties.soiltavg,CROPCENT->soilprofile.number_layers, dailyclimate);
      
      //Call Function to Assign Environmental Variables in the top 0-15 cm depth for Decomposition
-//     assignENV(&CROPCENT,fake,fake,fake,fake,fake,fake,fake);
+     assignENV(&CROPCENT,fake,fake,fake,fake,fake,fake,fake);
        
      // When Management is Implemented, Use this space two modify decomposition rates (tillage) and Soil N (fertilization)
      //************INSERT IMPLEMENT MANAGEMENT FUNCTION HERE***********************
@@ -118,7 +120,7 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
      
   // call the tracegas model
  
-  trace_gas_model(&dailyclimate->doy,&time, &CROPCENT->ENV.newminN,&CROPCENT->ENV.ammonium,CROPCENT->soilprofile.pools.nitrate,
+   trace_gas_model(&dailyclimate->doy,&time, &CROPCENT->ENV.newminN,&CROPCENT->ENV.ammonium,CROPCENT->soilprofile.pools.nitrate,
                   &texture,&sand,&silt,&clay,
                   &CROPCENT->ENV.SOILTEX.fieldc,&CROPCENT->ENV.SOILTEX.bulkd,&CROPCENT->sitepar.maxt,&dailyclimate->precip,
                   &dailyclimate->snow,&CROPCENT->ENV.SOILTEX.avgwfps,&CROPCENT->Emission.stormf,
