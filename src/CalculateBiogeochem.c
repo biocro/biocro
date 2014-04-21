@@ -44,9 +44,16 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
   SOIL_SPT soil;
   
   // these variable are in argument to trace_gas_model but are not used, I am defining them for consistency. I can remove them later on.
-  double time;
+  double time,sand,silt,clay,nreduce,NOabsorp_grass,NOabsorp_tree,tree_lai;
+  int texture;
   time= 0.0;
-   
+  texture=2;
+  nreduce=1.0;
+  CROPCENT->ENV.nit_amt=0.0;
+  tree_lai=0.0;
+  NOabsorp_grass=0.0;// These are outputs
+  NOabsorp_tree=0.0;// These are outputs
+  
 /*   
    
 //***********WE CAN DEFINE ALL THE FALL RATES & OTHER PARAMETERS IN MISCANTHUS STRUCTURE THEN  SEND ALL OF THIS IN A SEPARATE FUNCTION *******  
@@ -105,9 +112,21 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
     
      
   // call the tracegas model
-  
-//  trace_gas_model(&dailyclimate->doy,&time, &CROPCENT->ENV.newminN,&CROPCENT->ENV.ammonium)
-  
+ 
+  trace_gas_model(&dailyclimate->doy,&time, &CROPCENT->ENV.newminN,&CROPCENT->ENV.ammonium,CROPCENT->soilprofile.pools.nitrate,
+                  &texture,&sand,&silt,&clay,
+                  &CROPCENT->ENV.SOILTEX.fieldc,&CROPCENT->ENV.SOILTEX.bulkd,&CROPCENT->sitepar.maxt,&dailyclimate->precip,
+                  &dailyclimate->snow,&CROPCENT->ENV.SOILTEX.avgwfps,&CROPCENT->Emission.stormf,
+                  &CROPCENT->Emission.basef, CROPCENT->soilprofile.flux.frlechd,CROPCENT->soilprofile.flux.stream,
+                  &CROPCENT->Emission.inorglch, &CROPCENT->soilprofile.critflow,CROPCENT->soilprofile.flux.waterflux,
+                  &CROPCENT->Emission.newCO2, &CROPCENT->Emission.NOflux, &CROPCENT->Emission.Nn20flux,&CROPCENT->Emission.Dn20flux,
+                  &CROPCENT->Emission.Dn2flux,&CROPCENT->Emission.CH4,&CROPCENT->sitepar.isdecid, 
+                  &CROPCENT->sitepar.isagri, &miscanthus->LAI,&tree_lai,
+                  &NOabsorp_grass,&NOabsorp_tree,
+                  &CROPCENT->ENV.nit_amt,&nreduce,
+                  CROPCENT->soilprofile.flux.dN2lyr,CROPCENT->soilprofile.flux.dN2Olyr,sitepar,layers,soil);
+                  
+                  
    /*
    trace_gas_model(int *jday, double *time, double *newminrl, double *ammonium, double nitrate[],
                          int *texture, double *sand, double *silt, double *clay,

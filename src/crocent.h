@@ -4,6 +4,7 @@
 #define MAXSOILLAY 100 /* Maximum number of layers */
 
 // structure to calculate daily climate
+//SWE is snow cover in watr equivalent of cm
 struct dailyclimate {
    int doy;
    double temp;
@@ -12,6 +13,7 @@ struct dailyclimate {
    double windspeed;
    double rh;
    double minimumTemp;
+   double snow;  
  };
 // This structure is to define soil carbon content and types
 struct carbon {
@@ -92,6 +94,9 @@ struct SoilTexture {
   double sand;
   double silt;
   double clay;
+  double fieldc;
+  double bulkd;
+  double avgwfps;
 };
 
 struct C13Parms{
@@ -110,14 +115,16 @@ struct InputToCropcent {
 struct SoilEmissions{
   double CH4;
   double NH4;
-  double Dn2Flux;
-  double Dn20Flux;
+  double Dn2flux;
+  double Dn20flux;
   double inorglch;
+  double stormf;
   double nitamt;
-  double Nn20Flux;
-  double NOabsorp_grass;
-  double NOabsorp_tree;
+  double Nn20flux;
+  double NOflux;
   double newCO2;
+  double basef;
+  
 };
 
 
@@ -141,6 +148,7 @@ struct cropcentEnvironment{
   double pH;
   double soilrad;
   double drainage;
+  double nit_amt;
   struct SoilTexture SOILTEX;
   struct ErosionParms EROSION;
   struct OrgLeachParms ORGLECH;
@@ -471,6 +479,7 @@ struct soilprofile {
   double MAXdepth;
   double CH4depth;
   double SOCdepth;
+  double critflow;
   struct profileproperties
   {
     double bulkd[MAXSOILLAY];
@@ -497,6 +506,8 @@ struct soilprofile {
     double waterflux[MAXSOILLAY];
     double dN2lyr[MAXSOILLAY];
     double dN2Olyr[MAXSOILLAY];
+    double frlechd[MAXSOILLAY];
+    double stream[MAXSOILLAY];
   }flux;
 };
 
@@ -519,6 +530,7 @@ struct cropcentlayer{
   struct BioCroToCropcentParms BcroTOCentParms;
   struct soilprofile soilprofile;
   struct siteparameters sitepar;
+  struct SoilEmissions Emission;
 };
 
 void assignPools(struct cropcentlayer *CROPCENT, double *sompoolsfromR);
@@ -669,6 +681,7 @@ struct miscanthus
   struct dailyvec *leafvec, *stemvec, *rootvec, *rhizomevec;
   struct DailyAutoResp autoresp;
   double GPP, NPP;
+  double LAI;
 };
 
 struct senthermaltemp{
