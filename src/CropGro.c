@@ -85,17 +85,10 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    // Timestep is alreadt set to 1440.0 minutes (1 day) in the assignParms. We need to change the parameters to daily time step
      CROPCENTTimescaling(&CROPCENT);
      
-   struct InputToCropcent leaflitter,stemlitter,rootlitter,rhizomelitter;
-   struct minerals leaflitterE,stemlitterE,rootlitterE,rhizomelitterE;
+   
+  
    double oldstandingN, newstandingN, Ndemand;
-   // The below parameters aee RCESTR from fix.100 representing CE Ratio of structural material
-   leaflitterE.CN=200.0;
-   leaflitterE.CP=500.0;
-   leaflitterE.CS=500.0;
-   leaflitterE.CS=500.0;
-   stemlitterE = leaflitterE;
-   rootlitterE=  leaflitterE;
-   rhizomelitterE=leaflitterE;
+   
    /*************************************************/
    
    /*********Tracegas Calculation Variables ***********/

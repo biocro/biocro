@@ -55,27 +55,35 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
   NOabsorp_tree=0.0;// These are outputs
   
   
-  // These are local variables, perhaps need to move them somewhere else later
+  // These are local variables, some of them need to move them somewhere else later
+   struct InputToCropcent leaflitter,stemlitter,rootlitter,rhizomelitter;
+   struct minerals leaflitterE,stemlitterE,rootlitterE,rhizomelitterE;
    int woody, Eflag;
    double *fake;
    woody = 0 ; // No woody Material for now
    Eflag = 1; // For N simulations only
+ // The below parameters aee RCESTR from fix.100 representing CE Ratio of structural material
+   leaflitterE.CN=200.0;
+   leaflitterE.CP=500.0;
+   leaflitterE.CS=500.0;
+   leaflitterE.CS=500.0;
+   stemlitterE = leaflitterE;
+   rootlitterE=  leaflitterE;
+   rhizomelitterE=leaflitterE;
    
-/*   
-   
-//***********WE CAN DEFINE ALL THE FALL RATES & OTHER PARAMETERS IN MISCANTHUS STRUCTURE THEN  SEND ALL OF THIS IN A SEPARATE FUNCTION *******  
+//***********WE CAN DEFINE ALL THE FALL RATES & OTHER PARAMETERS IN MISCANTHUS STRUCTURE THEN  SEND ALL OF THIS IN A SEPARATE FUNCTION *******  //
    //Now here We are simpyl taking litter vector and creating new structures to send to soil biogeochemistry simulations
-   //BiocroToCrocent(&LeafLitter,leaf.fallrate,leaf.lignin, &leaf.E, isotoperatio, 1, 0,leaflitter); 
-    BiocroToCrocent(&miscanthus.leaf.litter,1.0,0.2, &leaflitterE, 1.0, 1, 0,&leaflitter);
-    BiocroToCrocent(&miscanthus.stem.litter,1.0,0.2, &stemlitterE, 1.0, 1, 0,&stemlitter);
-    BiocroToCrocent(&miscanthus.root.litter,1.0,0.2, &rootlitterE, 1.0, 0, 0,&rootlitter);
-    BiocroToCrocent(&miscanthus.rhizome.litter,1.0,0.2, &rhizomelitterE, 1.0, 0, 0,&rhizomelitter);
-//**************************************************************************************************************************
+  
+    BiocroToCrocent(&miscanthus->leaf.litter,1.0,0.2, &leaflitterE, 1.0, 1, 0,&leaflitter);
+    BiocroToCrocent(&miscanthus->stem.litter,1.0,0.2, &stemlitterE, 1.0, 1, 0,&stemlitter);
+    BiocroToCrocent(&miscanthus->root.litter,1.0,0.2, &rootlitterE, 1.0, 0, 0,&rootlitter);
+    BiocroToCrocent(&miscanthus->rhizome.litter,1.0,0.2, &rhizomelitterE, 1.0, 0, 0,&rhizomelitter);
+
    
    
    
-//********* THIS CAN GO INTO A SEPARATE FUNCTION*********************************************************
-   // Update SOC pools based on incoming litter
+//********* THIS CAN GO INTO A SEPARATE FUNCTION*********************************************************/
+   
     if(leaflitter.C.totalC >0.0) 
      {
       UpdateCropcentPoolsFromBioCro(&CROPCENT, &leaflitter);
@@ -92,7 +100,7 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
      {
       UpdateCropcentPoolsFromBioCro(&CROPCENT, &rhizomelitter);
      }
-//******************************************************************************************* //  
+
  
 
      // Calculate Top Layer 0-15 cm Properties based on Multi-layer soil Structure
