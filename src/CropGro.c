@@ -75,9 +75,6 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 //    Rprintf("%i\n",vecsize);
    /*********** CROCENT VARIABLES***********************/
    struct cropcentlayer CROPCENT;
-   int woody, Eflag;
-   woody = 0 ; // No woody Material for now
-   Eflag = 1; // For N simulations only
    double *fake;
    // Get Defaukt parameters for miscanthus
      assignParms(&CROPCENT, fake);

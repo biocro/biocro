@@ -54,6 +54,11 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
   NOabsorp_grass=0.0;// These are outputs
   NOabsorp_tree=0.0;// These are outputs
   
+  
+  // These are local variables, perhaps need to move them somewhere else later
+   int woody, Eflag;
+   woody = 0 ; // No woody Material for now
+   Eflag = 1; // For N simulations only
 /*   
    
 //***********WE CAN DEFINE ALL THE FALL RATES & OTHER PARAMETERS IN MISCANTHUS STRUCTURE THEN  SEND ALL OF THIS IN A SEPARATE FUNCTION *******  
@@ -99,13 +104,13 @@ void CalculateBiogeochem(struct miscanthus *miscanthus, struct cropcentlayer *CR
      //************INSERT IMPLEMENT MANAGEMENT FUNCTION HERE***********************
      
      // Call Function  to Assign Flux Ratios for movement between different Pools  
-//     assignFluxRatios(&CROPCENT);
+     assignFluxRatios(&CROPCENT);
      
      // Call Function to Decompose SOC in the top 0-15 cm layer
-//     decomposeCROPCENT(&CROPCENT, woody,Eflag);
+     decomposeCROPCENT(&CROPCENT, woody,Eflag);
        
     // Call Function to Update All the Pools
-//     updatecropcentpools(&CROPCENT);
+      updatecropcentpools(&CROPCENT);
     
   // Copying to DayCent Structures from CropCent multilayer Soil Structure Before Calling Trace_gas_Model
    Copy_CropCent_To_DayCent_Structures(&CROPCENT->soilprofile, sitepar,layers, soil);
