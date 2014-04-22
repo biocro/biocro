@@ -68,7 +68,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
       SEXP LNFUN,               /* Leaf N func flag         50 */
       SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
 	    SEXP LOWERTEMP,
-	    SEXP NNITROP)           /*temperature Limitation photoParms */
+	    SEXP NNITROP,
+      SEXP SOMPOOLSfromR)           
 {
     int vecsize = INTEGER(VECSIZE)[0];
     int dailyvecsize = vecsize/24;
@@ -76,10 +77,10 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    /*********** CROCENT VARIABLES***********************/
    struct cropcentlayer CROPCENT;
    double *fake;
-   // Get Defaukt parameters for miscanthus
+   // Get Default parameters for miscanthus
      assignParms(&CROPCENT, fake);
   // Get Initial Values oof Pool for C and N
-     assignPools(&CROPCENT, fake);
+     assignPools(&CROPCENT, &REAL(SOMPOOLSfromR)[0]);
   // More parameters   
      GetBioCroToCropcentParms(&CROPCENT.BcroTOCentParms,fake);
    // Timestep is alreadt set to 1440.0 minutes (1 day) in the assignParms. We need to change the parameters to daily time step

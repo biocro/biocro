@@ -271,7 +271,7 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                    phenoControl=list(),
                    soilControl=list(),
                    nitroControl=list(),
-                   SOMpoolsParmsControl=list(),
+                   SOMpoolsControl=list(),
                    SOMAssignParmsControl=list(),
                    GetCropCentStateVarParmsControl=list(),
                     GetSoilTextureParmsControl=list(),
@@ -318,10 +318,10 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     if( (timestep<1) || (24%%timestep != 0))
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
    ##################################################
-    ## SOM Parameters
-    SOMPoolsParms <- assignPoolsParms()
-    SOMPoolsParms[names(SOMpoolsParmsControl)] <-SOMpoolsParmsControl
-    sompoolparms<-as.vector(unlist(SOMPoolsParms))
+    ## SOM 
+    SOMPools <- assignPoolsParms()
+    SOMPools[names(SOMpoolsControl)] <-SOMpoolsControl
+    sompools<-as.vector(unlist(SOMPools))
     
     ################assignParms
     SOMAssignParms <- assignParms ()
@@ -514,7 +514,7 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(upperT),
                  as.double(lowerT),
                  as.double(nnitroP),
-                 as.double(sompoolparms),
+                 as.double(sompools),
                  as.double(somassignparms),
                  as.double(getcropcentstatevarparms),
                  as.double(getsoiltextureparms),
