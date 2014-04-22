@@ -15,6 +15,7 @@
 #include "crocent.h"
 #include "soilwater.h"
 #include "function_prototype.h"
+#include "n2o_model.h"
 
 SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
@@ -226,10 +227,13 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	struct cenT_str centS; 
 	struct soilML_str soilMLS;
 	struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
+  int DayCentSoilType,SoilClassification;
 	soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
   soTexS.sand=REAL(SOILTEXTUREfromR)[0];
   soTexS.silt=REAL(SOILTEXTUREfromR)[1];
   soTexS.clay=REAL(SOILTEXTUREfromR)[2];
+  //Based on Texture, Get Bulk Density, Field Capacity, and DayCent Soil Type
+  getsoilprop(&soTexS.sand, &soTexS.silt, &soTexS.clay, &soTexS.bulkd,&soTexS.fieldc, &DayCentSoilType,&SoilClassification);
   Filling_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers,REAL(SOILDEPTHS));
 	centS.SCs[0] = 0.0;
 	centS.SCs[1] = 0.0;
@@ -411,6 +415,12 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	waterCont = REAL(SOILCOEFS)[5];
 	wsFun = INTEGER(WSFUN)[0];
 	soilType = INTEGER(SOILTYPE)[0];
+  // Modify SOil Type Based on Texture Information entered
+  soilType=SoilClassification; // DayCent Soil Type goes from 1-11, and BioCro from 0-10
+  if(soilType<0 || soilType > 10)
+  { 
+    soilType=1;
+  } // This is a temporary fix to avoid unknown SoilType
 
 	SCCs[0] = REAL(CENTCOEFS)[0];
 	SCCs[1] = REAL(CENTCOEFS)[1];
