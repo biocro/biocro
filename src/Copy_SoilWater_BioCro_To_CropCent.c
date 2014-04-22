@@ -1,6 +1,6 @@
 #include "AuxBioCro.h"
 #include "crocent.h"
-void Copy_SoilWater_BioCro_To_CropCent(struct soilML_str *soilMLS, double soildepths[], struct cropcentlayer *CROPCENT)
+void Copy_SoilWater_BioCro_To_CropCent(struct soilML_str *soilMLS,  struct cropcentlayer *CROPCENT)
 {
   /***************************************************************************************
    * File Name:Copy_SoilWater_BioCro_To_CropCent.c
@@ -14,7 +14,6 @@ void Copy_SoilWater_BioCro_To_CropCent(struct soilML_str *soilMLS, double soilde
    * struct soilML_str *soilMLS:  pointer to structure soilMLS defined in AuxBioCro.h This structure 
    *                   contains calculations of soul hydrology 
    * int soillayers:  Number of soil layers being used in the calculations
-   * double soildepths: Depth of each soil layer
    * struct cropcentlayer *CROPCENT: Pointer to structure cropcent defined in crocent.h
    * 
    * Output:

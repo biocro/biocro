@@ -17,7 +17,7 @@
 #include "function_prototype.h"
 #include "n2o_model.h"
 
-SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */ 
+SEXP CropGro(SEXP LAT,          /* Latitude                  1 */ 
       SEXP DOY,                 /* Day of the year           2 */
 	    SEXP HR,                  /* Hour of the day           3 */
 	    SEXP SOLAR,               /* Solar Radiation           4 */
@@ -726,14 +726,15 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
                 
                 int FlagBiogeochem =1;// MOVE THIS UP & ALLOW IT TO VARY FROM R ENVIRONMENT
  
- /*
+
                 if(FlagBiogeochem==1)
                 {
-                 Assign_Soil_Properties_To_CropCent(bulkd,swclimit,fieldc,pH,tcoeff, baseflow,stormflow,frlechd,&CROPCENT);
-                Copy_SoilWater_BioCro_To_CropCent(&soilMLS, soillayers,REAL(SOILDEPTHS), &CROPCENT);
-                CalculateBiogeochem(&miscanthus, &CROPCENT,&dailyclimate);
+//                Assign_Soil_Properties_To_CropCent(bulkd,swclimit,fieldc,pH,tcoeff, baseflow,stormflow,frlechd,&CROPCENT);
+                Copy_SoilWater_BioCro_To_CropCent(&soilMLS,&CROPCENT);
+//                Rprintf("soilMLS.dpthmn[1]=%f,CROPCENT.soilprofile.properties.dpthmn[1]=%f\n",soilMLS.dpthmn[1],CROPCENT.soilprofile.properties.dpthmn[1]);
+//                CalculateBiogeochem(&miscanthus, &CROPCENT,&dailyclimate);
                 }
-*/               
+              
                /******************* This part can go to a Separate Function - Nremobilization**************************************************/
                
                /*********This Part is to Model N response on Productivity**********************************************************************
