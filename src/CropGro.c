@@ -69,7 +69,8 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
       SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
 	    SEXP LOWERTEMP,
 	    SEXP NNITROP,
-      SEXP SOMPOOLSfromR)           
+      SEXP SOMPOOLSfromR,
+      SEXP SOILTEXTUREfromR)           
 {
     int vecsize = INTEGER(VECSIZE)[0];
     int dailyvecsize = vecsize/24;
@@ -86,55 +87,7 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
    // Timestep is alreadt set to 1440.0 minutes (1 day) in the assignParms. We need to change the parameters to daily time step
      CROPCENTTimescaling(&CROPCENT);
      
-   
-  
-   double oldstandingN, newstandingN, Ndemand;
-   
-   /*************************************************/
-   
-   /*********Tracegas Calculation Variables ***********/
-   
-    SITEPAR_SPT sitepar;
-    LAYERPAR_SPT layers;
-    SOIL_SPT soil;
-     double *fakedouble,newminrl, ammonium,nitrate[50],sand,silt,clay,afiel,bulkd,maxt,ppt,snow,avgwfps,stormf,basef,frlechd[50],stream[60],inorglch;
-       double critflow,wfluxout[60],newCO2,NOflux,Nn2oflux,Dn2oflux,Dn2flux,CH4,grass_lai,tree_lai,NOabsorp_grass,NOabsorp_tree,nit_amt,nreduce;
-       double dN2lyr[60],dN2Olyr[60];  
-       int *fakeint,texture,isdecid,isagri,jday,iindex;
-       afiel=0.3;
-       ammonium=0.0;
-       newminrl=0.0;
-       avgwfps=0.5;
-       basef=0.0;
-       bulkd=1.2;
-       CH4=0.0;
-       sand=0.33;
-       silt=0.33;
-       clay=0.33;
-       critflow=1.0;
-       inorglch=0.0;
-       isdecid=0;
-       isagri=1;
-       jday=180;
-       maxt=15;
-       newCO2=0.0;
-       newminrl=0.0;
-       ppt=0.0;
-       stormf=0.0;
-       texture=1;
-       grass_lai=0.0;
-       tree_lai=0.0;
-       for (iindex=0;iindex<60;iindex++){
-         frlechd[iindex]=0.0;
-         stream[iindex]=0.0;
-         wfluxout[iindex]=0.0;
-         dN2lyr[iindex]=0.0;
-         dN2Olyr[iindex]=0.0;
-       }
-       
-   /*******************************************************/
-
-   
+   double oldstandingN, newstandingN, Ndemand;   
    struct crop_phenology cropdbp;
    struct miscanthus miscanthus, deltamiscanthus;
    createNULLmiscanthus(&miscanthus,vecsize);
@@ -274,9 +227,10 @@ SEXP CropGro(SEXP LAT,                 /* Latitude                  1 */
 	struct soilML_str soilMLS;
 	struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
 	soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
-  
- Filling_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers,REAL(SOILDEPTHS));
-
+  soTexS.sand=REAL(SOILTEXTUREfromR)[0];
+  soTexS.silt=REAL(SOILTEXTUREfromR)[1];
+  soTexS.clay=REAL(SOILTEXTUREfromR)[2];
+  Filling_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers,REAL(SOILDEPTHS));
 	centS.SCs[0] = 0.0;
 	centS.SCs[1] = 0.0;
 	centS.SCs[2] = 0.0;

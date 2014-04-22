@@ -54,6 +54,9 @@ void Filling_BioCro_SoilStructure (struct soilML_str *soilMLS, struct soilText_s
           soilMLS->swclimit[i]=soTexS->wiltp-0.0008; // soil/in file says swc limit = wiltpoint - deltamin, which is 0.0008 in example file
           soilMLS->bulkd[i]=soTexS->bulkd;
           soilMLS->fieldc[i]=soTexS->fieldc;
+          soilMLS->sand[i]=soTexS->sand;
+          soilMLS->silt[i]=soTexS->silt;
+          soilMLS->clay[i]=soTexS->clay;
       }
    return;
  }

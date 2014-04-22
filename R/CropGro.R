@@ -515,14 +515,14 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(lowerT),
                  as.double(nnitroP),
                  as.double(sompools),
-                 as.double(somassignparms),
-                 as.double(getcropcentstatevarparms),
                  as.double(getsoiltextureparms),
                  as.double(getbiocrotocropcentparms),
                  as.double(geterosionparms),
                  as.double(getc13parms),
                  as.double(getleachingparms),
-                 as.double(getsymbnfixationparms)
+                 as.double(getsymbnfixationparms),
+                 as.double(somassignparms),
+                 as.double(getcropcentstatevarparms)
                  )
     
     res$cwsMat <- t(res$cwsMat)

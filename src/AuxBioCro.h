@@ -75,6 +75,9 @@ struct soilML_str {
   double dpthmx[MAXLAY];
   double dpthmn[MAXLAY];
   double soiltavg[MAXLAY];
+  double sand[MAXLAY];
+  double silt[MAXLAY];
+  double clay[MAXLAY];
   int Num_BioCro_soil_layers;
 };
 
