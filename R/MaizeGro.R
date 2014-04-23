@@ -109,7 +109,7 @@
 #' res <- MaizeGro(weather05, plant.day = 110, emerge.day = 120, harvest.day=300,
 #'                   MaizePhenoControl = MaizePhenoParms(R6 = 2000))
 #' 
-#' 
+#' @export Maizegro
 MaizeGro <- function(WetDat, plant.day=NULL,
                      emerge.day=NULL,
                      harvest.day=NULL,
