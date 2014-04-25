@@ -7,7 +7,7 @@
 ##'
 ##' This is a very simple function and the details can be seen in the code.
 ##'
-##' @aliases wtrstr wsRcoef
+##' @aliases ws wsRcoef
 ##' @param precipt Precipitation (mm).
 ##' @param evapo Evaporation (Mg H2O ha-1 hr-1).
 ##' @param cws current water content (fraction).
@@ -18,7 +18,7 @@
 ##' @param phi2 coefficient which controls the effect on leaf area expansion.
 ##' @param wsFun option to control which method is used for the water stress
 ##' function.
-##' @export ws
+##' @export wtrstr
 ##' @return A list with components:
 ##' @returnItem rcoefPhoto coefficient of plant water stress for photosyntheis.
 ##' @returnItem rcoefSpleaf coefficient of plant water stress for specific leaf
