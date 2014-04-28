@@ -262,7 +262,19 @@ MaizeGro <- function(WetDat, plant.day=NULL,
 
   }
 
-
+##' Lists values for phenology parameters
+##' @param base.temp inital temperatre
+##' @param max.leaves maximum leaves
+##' @param plant.emerg plant emergence
+##' @param phyllochron1 needs description
+##' @param phyllochron2 needs description
+##' @param R1 needs description
+##' @param R2 needs description
+##' @param R3 needs description 
+##' @param R4 needs description  
+##' @param R5 needs description
+##' @param R6 needs description    
+##' @export MaizePhenoParms
 MaizePhenoParms <- function(base.temp = 10, max.leaves = 20, plant.emerg = 100,
                             phyllochron1 = 46.7, phyllochron2 = 31.1, R1 = 747,
                             R2 = 858, R3 = 969, R4 = 1080, R5 = 1136, R6 = 1452){
@@ -273,7 +285,10 @@ MaizePhenoParms <- function(base.temp = 10, max.leaves = 20, plant.emerg = 100,
 
 
 }
-
+##' Lists values for senecence parameters
+##' @param senStem senecence of stem
+##' @param senLeaf senecence of leaf 
+##' @param senRoot senecence of root
 MaizeSeneParms <- function(senStem=3000,senLeaf=3500,senRoot=4000){
 
   list(senStem=senStem,senLeaf=senLeaf,senRoot=senRoot)
