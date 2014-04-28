@@ -2,9 +2,8 @@
 \alias{plotAC}
 \title{plot A/Ci curve}
 \usage{
-  plotAC(data, fittd, id.col = 1, trt.col = 2,
-    ylab = "CO2 Uptake", xlab = "Ci", by = c("trt", "ID"),
-    type = c("p", "smooth"))
+plotAC(data, fittd, id.col = 1, trt.col = 2, ylab = "CO2 Uptake",
+  xlab = "Ci", by = c("trt", "ID"), type = c("p", "smooth"))
 }
 \arguments{
   \item{data}{Input data in the format needed for the
@@ -34,24 +33,24 @@
   behavior.}
 }
 \value{
-  NULL, creates plot
+NULL, creates plot
 }
 \description{
-  Function to plot A/Ci curves
+Function to plot A/Ci curves
 }
 \details{
-  A small helper function that can be used to easily plot
-  multiple A/Ci curves
+A small helper function that can be used to easily plot
+multiple A/Ci curves
 }
 \examples{
 data(aci)
 plotAC(aci, trt.col=1)
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 \seealso{
-  See Also \code{\link{xyplot}}.
+See Also \code{\link{xyplot}}.
 }
 \keyword{hplot}
 

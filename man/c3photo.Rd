@@ -2,9 +2,9 @@
 \alias{c3photo}
 \title{Simulates C3 photosynthesis}
 \usage{
-  c3photo(Qp, Tl, RH, vcmax = 100, jmax = 180, Rd = 1.1,
-    Catm = 380, O2 = 210, b0 = 0.08, b1 = 5, theta = 0.7,
-    StomWS = 1, ws = c("gs", "vmax"))
+c3photo(Qp, Tl, RH, vcmax = 100, jmax = 180, Rd = 1.1, Catm = 380,
+  O2 = 210, b0 = 0.08, b1 = 5, theta = 0.7, StomWS = 1, ws = c("gs",
+  "vmax"))
 }
 \arguments{
   \item{Qp}{Quantum flux}
@@ -30,14 +30,14 @@
   \item{theta}{Curvature parameter}
 }
 \value{
-  A list
+A list
 }
 \description{
-  Simulates coupled assimilation and stomatal conductance
-  based on Farquhar and Ball-Berry.
+Simulates coupled assimilation and stomatal conductance
+based on Farquhar and Ball-Berry.
 }
 \note{
-  ~~further notes~~ ## Additional notes about assumptions
+~~further notes~~ ## Additional notes about assumptions
 }
 \examples{
 ## Testing the c3photo function
@@ -93,13 +93,13 @@ xyplot(res1$Assim ~ res1$Ci,
                  mu,mol,' ',m^-2,' ',s^-1,')')))
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 \references{
-  Farquhar (1980) Ball-Berry (1987)
+Farquhar (1980) Ball-Berry (1987)
 }
 \seealso{
-  See Also \code{\link{Opc3photo}}
+See Also \code{\link{Opc3photo}}
 }
 \keyword{models}
 

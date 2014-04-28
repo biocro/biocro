@@ -3,11 +3,10 @@
 \alias{soilML}
 \title{soil multi-layered}
 \usage{
-  soilML(precipt, CanopyT, cws, soilDepth, FieldC, WiltP,
-    phi1 = 0.01, phi2 = 10,
-    wsFun = c("linear", "logistic", "exp", "none"), rootDB,
-    soilLayers = 3, LAI, k, AirTemp, IRad, winds, RelH,
-    soilType = 10, hydrDist = 0, rfl = 0.3)
+soilML(precipt, CanopyT, cws, soilDepth, FieldC, WiltP, phi1 = 0.01,
+  phi2 = 10, wsFun = c("linear", "logistic", "exp", "none"), rootDB,
+  soilLayers = 3, LAI, k, AirTemp, IRad, winds, RelH, soilType = 10,
+  hydrDist = 0, rfl = 0.3)
 }
 \arguments{
   \item{precipt}{Precipitation (mm).}
@@ -59,16 +58,16 @@
   lambda parameter of the Poisson.}
 }
 \value{
-  optiontocalculaterootdept
+optiontocalculaterootdept
 
-  rootfrontvelocity
+rootfrontvelocity
 
-  dap
+dap
 
-  matrix with 8 (if hydrDist=0) or 12 (if hydrDist > 0).
+matrix with 8 (if hydrDist=0) or 12 (if hydrDist > 0).
 }
 \description{
-  Simulates soil water content for a layered soil.
+Simulates soil water content for a layered soil.
 }
 \examples{
 layers <- 5
@@ -79,10 +78,10 @@ hydrDist=1)
 ans
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 \seealso{
-  See Also \code{\link{wtrstr}}.
+See Also \code{\link{wtrstr}}.
 }
 \keyword{models}
 

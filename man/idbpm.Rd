@@ -2,7 +2,7 @@
 \alias{idbpm}
 \title{idpm}
 \usage{
-  idbpm(data, MaizePhenoControl = list())
+idbpm(data, MaizePhenoControl = list())
 }
 \arguments{
   \item{data}{data frame ThermalT Stem Leaf Root Grain LAI
@@ -17,13 +17,13 @@
   \item{MaizePhenoControl}{}
 }
 \value{
-  vector of biomass pools
+vector of biomass pools
 }
 \description{
-  This estimates initial dry biomass partitioning
-  coefficients based on data for an annual grass
+This estimates initial dry biomass partitioning
+coefficients based on data for an annual grass
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 

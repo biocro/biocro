@@ -2,10 +2,9 @@
 \alias{RsqC4photo}
 \title{R-squared for C4 photosynthesis simulation (Collatz model)}
 \usage{
-  RsqC4photo(data, vmax = 39, alph = 0.04, kparm = 0.7,
-    theta = 0.83, beta = 0.93, Rd = 0.8, iupperT = 37.5,
-    ilowerT = 3, Catm = 380, b0 = 0.08, b1 = 3, StomWS = 1,
-    response = c("Assim", "StomCond"))
+RsqC4photo(data, vmax = 39, alph = 0.04, kparm = 0.7, theta = 0.83,
+  beta = 0.93, Rd = 0.8, iupperT = 37.5, ilowerT = 3, Catm = 380,
+  b0 = 0.08, b1 = 3, StomWS = 1, response = c("Assim", "StomCond"))
 }
 \arguments{
   \item{data}{observed assimilation data, which should be a
@@ -51,20 +50,20 @@
   if you want an \eqn{R^2} for stomatal conductance data.}
 }
 \value{
-  a \code{\link{numeric}} object
+a \code{\link{numeric}} object
 
-  It simply returns the \eqn{R^2} value for the given data
-  and coefficients.
+It simply returns the \eqn{R^2} value for the given data
+and coefficients.
 }
 \description{
-  This is an auxiliary function which is made available in
-  case it is useful. It calculates the R-squared based on
-  observed assimilation (or stomatal conductance) data and
-  coefficients for the Collatz C4 photosynthesis model. The
-  only coefficients being considered are Vcmax and alpha as
-  described in the Collatz paper. At the moment it does not
-  optimize k; this will be added soon.  Notice that to be
-  able to optimize k A/Ci type data are needed.
+This is an auxiliary function which is made available in
+case it is useful. It calculates the R-squared based on
+observed assimilation (or stomatal conductance) data and
+coefficients for the Collatz C4 photosynthesis model. The
+only coefficients being considered are Vcmax and alpha as
+described in the Collatz paper. At the moment it does not
+optimize k; this will be added soon.  Notice that to be
+able to optimize k A/Ci type data are needed.
 }
 \examples{
 data(obsNaid)

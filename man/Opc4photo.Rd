@@ -8,13 +8,11 @@
 \alias{summary.Opc4photo}
 \title{Optimization of C4 photosynthesis parameters}
 \usage{
-  Opc4photo(data, ivmax = 39, ialpha = 0.04, iRd = 0.8,
-    ikparm = 0.7, itheta = 0.83, ibeta = 0.93, Catm = 380,
-    ib0 = 0.08, ib1 = 3, iStomWS = 1, ws = c("gs", "vmax"),
-    iupperT = 37.5, ilowerT = 3,
-    response = c("Assim", "StomCond"),
-    curve.kind = c("Q", "Ci"), op.level = 1, level = 0.95,
-    hessian = TRUE, op.ci = FALSE, ...)
+Opc4photo(data, ivmax = 39, ialpha = 0.04, iRd = 0.8, ikparm = 0.7,
+  itheta = 0.83, ibeta = 0.93, Catm = 380, ib0 = 0.08, ib1 = 3,
+  iStomWS = 1, ws = c("gs", "vmax"), iupperT = 37.5, ilowerT = 3,
+  response = c("Assim", "StomCond"), curve.kind = c("Q", "Ci"),
+  op.level = 1, level = 0.95, hessian = TRUE, op.ci = FALSE, ...)
 }
 \arguments{
   \item{data}{observed assimilation data, which should be a
@@ -90,20 +88,20 @@
   Nelder-Mead to BFGS.}
 }
 \value{
-  An object of class \code{Opc4photo} a \code{\link{list}}
-  with components
+An object of class \code{Opc4photo} a \code{\link{list}}
+with components
 
-  If \code{op.level} 2 \code{bestRd} will also be supplied.
-  If \code{op.level} 3 \code{theta} and \code{bestRd} will
-  also be supplied.
+If \code{op.level} 2 \code{bestRd} will also be supplied.
+If \code{op.level} 3 \code{theta} and \code{bestRd} will
+also be supplied.
 
-  If \code{op.level} 2 \code{ciRd} will also be supplied.
-  If \code{op.level} 3 \code{ciTheta} and \code{ciRd} will
-  also be supplied.
+If \code{op.level} 2 \code{ciRd} will also be supplied.  If
+\code{op.level} 3 \code{ciTheta} and \code{ciRd} will also
+be supplied.
 }
 \description{
-  Optimization method for the Collatz C4 photosynthesis
-  model.  At the moment Vcmax and alpha are optimized only.
+Optimization method for the Collatz C4 photosynthesis
+model.  At the moment Vcmax and alpha are optimized only.
 }
 \examples{
 data(aq)
@@ -115,7 +113,7 @@ res
 plot(res, plot.kind = 'OandF', type='o')
 }
 \seealso{
-  \code{\link{c4photo}} \code{\link{optim}}
+\code{\link{c4photo}} \code{\link{optim}}
 }
 \keyword{optimize}
 

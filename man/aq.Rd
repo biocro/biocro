@@ -10,29 +10,28 @@ Radiation (incident).} \item{list('Tleaf')}{a numeric vector. Temperature
 of the leaf.} \item{list('RH_S')}{a numeric vector. Relative humidity
 (fraction).} }}
 \source{
-  Data based on measurements made by Dandan Wang. %% ~~
-  reference to a publication or URL from which the data
-  were obtained ~~
+Data based on measurements made by Dandan Wang. %% ~~
+reference to a publication or URL from which the data were
+obtained ~~
 }
 \description{
-  Example of A/Q curves which serves as a template for
-  using the \code{\link{Opc4photo}} and
-  \code{\link{mOpc4photo}} functions.
+Example of A/Q curves which serves as a template for using
+the \code{\link{Opc4photo}} and \code{\link{mOpc4photo}}
+functions.
 }
 \details{
-  \code{swg} stand for switchgrass (Panicum virgatum)
-  \code{mxg} stands for miscanthus (Miscanthus x gignateus)
+\code{swg} stand for switchgrass (Panicum virgatum)
+\code{mxg} stands for miscanthus (Miscanthus x gignateus)
 
-  %% ~~ If necessary, more details than the __description__
-  above ~~
+%% ~~ If necessary, more details than the __description__
+above ~~
 }
 \examples{
 data(aq)
 plotAQ(aq)
 }
 \references{
-  Dandan Wang %% ~~ possibly secondary sources and usages
-  ~~
+Dandan Wang %% ~~ possibly secondary sources and usages ~~
 }
 \keyword{datasets}
 

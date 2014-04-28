@@ -2,7 +2,7 @@
 \alias{RssBioGro}
 \title{Residual sum of squares for BioGro.}
 \usage{
-  RssBioGro(obs, sim)
+RssBioGro(obs, sim)
 }
 \arguments{
   \item{obs}{Observed data.}
@@ -10,11 +10,15 @@
   \item{sim}{Simulated data.}
 }
 \value{
-  Atomic vector with the residual sum of squares.
+Atomic vector with the residual sum of squares.
 }
 \description{
-  Computes residual sum of squares for the
-  \code{\link{BioGro}} function.
+Computes residual sum of squares for the
+\code{\link{BioGro}} function. Very simple function to
+compare the distance between simulated and observed data
+for the BioGro function Need to add an argument such as
+pc.sigmas "plant component sigmas" If variability of the
+plant component is known
 }
 \examples{
 ## A simple example
@@ -24,10 +28,10 @@ res <- BioGro(EngWea94i)
 RssBioGro(annualDB,res)
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 \seealso{
-  See Also \code{\link{BioGro}}.
+See Also \code{\link{BioGro}}.
 }
 \keyword{models}
 

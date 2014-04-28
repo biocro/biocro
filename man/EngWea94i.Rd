@@ -10,22 +10,22 @@ numeric vector} \item{list('RH')}{a numeric vector}
 \item{list('WindSpeed')}{a numeric vector} \item{list('precip')}{a numeric
 vector} }}
 \source{
-  ~~ reference to a publication or URL from which the data
-  were obtained ~~
+~~ reference to a publication or URL from which the data
+were obtained ~~
 }
 \description{
-  Weather data with the precipitation column giving
-  precipitation plus irrigation.
+Weather data with the precipitation column giving
+precipitation plus irrigation.
 }
 \details{
-  ~~ If necessary, more details than the above ~~
+~~ If necessary, more details than the above ~~
 }
 \examples{
 data(EngWea94i)
 ## maybe str(EngWea94i) ; plot(EngWea94i) ...
 }
 \references{
-  ~~ possibly secondary sources and usages ~~
+~~ possibly secondary sources and usages ~~
 }
 \keyword{datasets}
 

@@ -3,12 +3,11 @@
 \alias{print.MCMCc4photo}
 \title{Markov chain Monte Carlo for C4 photosynthesis parameters}
 \usage{
-  MCMCc4photo(data, niter = 20000, ivmax = 39,
-    ialpha = 0.04, ikparm = 0.7, itheta = 0.83,
-    ibeta = 0.93, iRd = 0.8, Catm = 380, b0 = 0.08, b1 = 3,
-    StomWS = 1, ws = c("gs", "vmax"), scale = 1,
-    sds = c(1, 0.005), prior = c(39, 10, 0.04, 0.02),
-    UPPERTEMP = 37.5, LOWERTEMP = 3)
+MCMCc4photo(data, niter = 20000, ivmax = 39, ialpha = 0.04,
+  ikparm = 0.7, itheta = 0.83, ibeta = 0.93, iRd = 0.8, Catm = 380,
+  b0 = 0.08, b1 = 3, StomWS = 1, ws = c("gs", "vmax"), scale = 1,
+  sds = c(1, 0.005), prior = c(39, 10, 0.04, 0.02), UPPERTEMP = 37.5,
+  LOWERTEMP = 3)
 }
 \arguments{
   \item{data}{observed assimilation data, which should be a
@@ -67,18 +66,18 @@
   element prior standard deviation for alpha.}
 }
 \value{
-  an object of class \code{MCMCc4photo} with components
+an object of class \code{MCMCc4photo} with components
 }
 \description{
-  This function implement Markov chain Monte Carlo methods
-  for the C4 photosynthesis model of Collatz et al.  The
-  chain is constructed using a Gaussian random walk. This
-  is definitely a beta version of this function and more
-  testing and improvements are needed. The value of this
-  function is in the possibility of examining the empirical
-  posterior distribution (i.e. vectors) of the vmax and
-  alpha parameters.  Notice that you will get different
-  results each time you run it.
+This function implement Markov chain Monte Carlo methods
+for the C4 photosynthesis model of Collatz et al.  The
+chain is constructed using a Gaussian random walk. This is
+definitely a beta version of this function and more testing
+and improvements are needed. The value of this function is
+in the possibility of examining the empirical posterior
+distribution (i.e. vectors) of the vmax and alpha
+parameters.  Notice that you will get different results
+each time you run it.
 }
 \examples{
 \dontrun{
@@ -97,8 +96,8 @@ plot(resB1,resB2,resB3,plot.kind='density',burnin=1e4)
 }
 }
 \references{
-  Brooks, Stephen. (1998). Markov chain Monte Carlo and its
-  application. The Statistician. 47, Part 1, pp. 69-100.
+Brooks, Stephen. (1998). Markov chain Monte Carlo and its
+application. The Statistician. 47, Part 1, pp. 69-100.
 }
 \keyword{optimize}
 

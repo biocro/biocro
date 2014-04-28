@@ -2,7 +2,7 @@
 \alias{RUEmodMY}
 \title{Radiation use efficiency based model}
 \usage{
-  RUEmodMY(weatherdatafile, doy.s = 91, doy.f = 227, ...)
+RUEmodMY(weatherdatafile, doy.s = 91, doy.f = 227, ...)
 }
 \arguments{
   \item{weatherdatafile}{weather data file (see example).}
@@ -17,11 +17,10 @@
   \code{\link{RUEmod}} function.}
 }
 \value{
-  a \code{\link{data.frame}} structure with components
+a \code{\link{data.frame}} structure with components
 }
 \description{
-  Same as \code{\link{RUEmod}} but it handles multiple
-  years.
+Same as \code{\link{RUEmod}} but it handles multiple years.
 }
 \examples{
 ## weather data from Champaign, IL

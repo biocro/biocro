@@ -2,9 +2,8 @@
 \alias{MCMCEc4photo}
 \title{Markov chain Monte Carlo for C4 photosynthesis parameters}
 \usage{
-  MCMCEc4photo(obsDat, niter = 30000, iCa = 380, iOa = 210,
-    iVcmax = 60, iVpmax = 120, iVpr = 80, iJmax = 400,
-    thresh = 0.01, scale = 1)
+MCMCEc4photo(obsDat, niter = 30000, iCa = 380, iOa = 210, iVcmax = 60,
+  iVpmax = 120, iVpr = 80, iJmax = 400, thresh = 0.01, scale = 1)
 }
 \arguments{
   \item{obsDat}{observed assimilation data, which should be
@@ -49,21 +48,21 @@
   viceversa.}
 }
 \value{
-  a \code{\link{list}} structure with components
+a \code{\link{list}} structure with components
 }
 \description{
-  This function attempts to implement Markov chain Monte
-  Carlo methods for models with no likelihoods. In this
-  case it is done for the von Caemmerer C4 photosynthesis
-  model.  The method implemented is based on a paper by
-  Marjoram et al. (2003).  The method is described in
-  Miguez (2007). The chain is constructed using a Gaussian
-  random walk. This is definitely a beta version of this
-  function and more testing and improvements are needed.
-  The value of this function is in the possibility of
-  examining the empirical posterior distribution (i.e.
-  vectors) of the Vcmax and alpha parameters. Notice that
-  you will get different results each time you run it.
+This function attempts to implement Markov chain Monte
+Carlo methods for models with no likelihoods. In this case
+it is done for the von Caemmerer C4 photosynthesis model.
+The method implemented is based on a paper by Marjoram et
+al. (2003).  The method is described in Miguez (2007). The
+chain is constructed using a Gaussian random walk. This is
+definitely a beta version of this function and more testing
+and improvements are needed. The value of this function is
+in the possibility of examining the empirical posterior
+distribution (i.e. vectors) of the Vcmax and alpha
+parameters. Notice that you will get different results each
+time you run it.
 }
 \examples{
 \dontrun{
@@ -88,13 +87,13 @@ plot(res1,res2,res3,type='density')
 }
 }
 \references{
-  P. Marjoram, J. Molitor, V. Plagnol, S. Tavare, Markov
-  chain monte carlo without likelihoods, PNAS 100 (26)
-  (2003) 15324--15328.
+P. Marjoram, J. Molitor, V. Plagnol, S. Tavare, Markov
+chain monte carlo without likelihoods, PNAS 100 (26) (2003)
+15324--15328.
 
-  Miguez (2007) Miscanthus x giganteus production:
-  meta-analysis, field study and mathematical modeling. PhD
-  Thesis. University of Illinois at Urbana-Champaign.
+Miguez (2007) Miscanthus x giganteus production:
+meta-analysis, field study and mathematical modeling. PhD
+Thesis. University of Illinois at Urbana-Champaign.
 }
 \keyword{optimize}
 

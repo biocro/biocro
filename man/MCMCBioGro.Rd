@@ -3,14 +3,12 @@
 \alias{print.MCMCBioGro}
 \title{Simulated annealing and MCMC  function}
 \usage{
-  MCMCBioGro(niter = 10, niter2 = 10, phen = 6,
-    iCoef = NULL, saTemp = 5, coolSamp = 20, scale = 0.5,
-    WetDat, data, day1 = NULL, dayn = NULL, timestep = 1,
-    lat = 40, iRhizome = 7, irtl = 1e-04,
-    canopyControl = list(), seneControl = list(),
-    photoControl = list(), phenoControl = list(),
-    soilControl = list(), nitroControl = list(),
-    centuryControl = list(), sd = c(0.02, 1e-06))
+MCMCBioGro(niter = 10, niter2 = 10, phen = 6, iCoef = NULL,
+  saTemp = 5, coolSamp = 20, scale = 0.5, WetDat, data, day1 = NULL,
+  dayn = NULL, timestep = 1, lat = 40, iRhizome = 7, irtl = 1e-04,
+  canopyControl = list(), seneControl = list(), photoControl = list(),
+  phenoControl = list(), soilControl = list(), nitroControl = list(),
+  centuryControl = list(), sd = c(0.02, 1e-06))
 }
 \arguments{
   \item{niter}{number of iterations for the simulated
@@ -67,32 +65,32 @@
   for the negative dry biomass partitioning coefficients.}
 }
 \value{
-  An object of class MCMCBioGro consisting of a list with
-  23 components.  The easiest way of accessing the
-  information is with the print and plot methods.
+An object of class MCMCBioGro consisting of a list with 23
+components.  The easiest way of accessing the information
+is with the print and plot methods.
 }
 \description{
-  Simulated Annealing and Markov chain Monte Carlo for
-  estimating parameters for Biomass Growth
+Simulated Annealing and Markov chain Monte Carlo for
+estimating parameters for Biomass Growth
 }
 \details{
-  This function atempts to implement the simulated
-  annealing method for estimating parameters of a generic
-  C4 crop growth.
+This function atempts to implement the simulated annealing
+method for estimating parameters of a generic C4 crop
+growth.
 
-  This function implements a hybrid algorithm where the
-  first portion is simulated annealing and the second
-  portion is a Markov chain Monte Carlo. The user controls
-  the number of iterations in each portion of the chain
-  with niter and niter2.
+This function implements a hybrid algorithm where the first
+portion is simulated annealing and the second portion is a
+Markov chain Monte Carlo. The user controls the number of
+iterations in each portion of the chain with niter and
+niter2.
 }
 \note{
-  The automatic method for guessing the last day of the
-  growing season differs slightly from that in
-  \code{BioGro}. To prevent error due to a shorter
-  simulated growing season than the observed one the method
-  in \code{MCMCBioGro} adds one day to the last day of the
-  growing season. Although the upper limit is fixed at 330.
+The automatic method for guessing the last day of the
+growing season differs slightly from that in \code{BioGro}.
+To prevent error due to a shorter simulated growing season
+than the observed one the method in \code{MCMCBioGro} adds
+one day to the last day of the growing season. Although the
+upper limit is fixed at 330.
 }
 \examples{
 \dontrun{
@@ -133,13 +131,13 @@ plot(op1.mc, plot.kind='trace', subset = nams \%in\%
 }
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 \seealso{
-  See Also as \code{\link{BioGro}}, \code{\link{OpBioGro}}
-  and \code{\link{constrOpBioGro}}.
+See Also as \code{\link{BioGro}}, \code{\link{OpBioGro}}
+and \code{\link{constrOpBioGro}}.
 }
 \keyword{optimize}
 

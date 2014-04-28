@@ -4,30 +4,30 @@
 \title{Weather data}
 \format{data frame of dimensions 384 by 9.}
 \source{
-  simulated
+simulated
 }
 \description{
-  Layer data for evapo/transpiration. Simulated data to
-  show the result of the EvapoTrans function.
+Layer data for evapo/transpiration. Simulated data to show
+the result of the EvapoTrans function.
 }
 \details{
-  lfClass: leaf class, 'sun' or 'shade'.
+lfClass: leaf class, 'sun' or 'shade'.
 
-  layer: layer in the canopy, 1 to 8.
+layer: layer in the canopy, 1 to 8.
 
-  hour: hour of the day, (0--23).
+hour: hour of the day, (0--23).
 
-  Rad: direct light.
+Rad: direct light.
 
-  Itot: total radiation.
+Itot: total radiation.
 
-  Temp: air temperature, (Celsius).
+Temp: air temperature, (Celsius).
 
-  RH: relative humidity, (0--1).
+RH: relative humidity, (0--1).
 
-  WindSpeed: wind speed, (m \eqn{s^{-1}}).
+WindSpeed: wind speed, (m \eqn{s^{-1}}).
 
-  LAI: leaf area index.
+LAI: leaf area index.
 }
 \keyword{datasets}
 

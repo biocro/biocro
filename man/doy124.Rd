@@ -4,29 +4,29 @@
 \title{Weather data}
 \format{data frame of dimensions 24 by 8.}
 \source{
-  simulated
+simulated
 }
 \description{
-  Example for a given day of the year to illustrate the
-  \code{\link{CanA}} function.
+Example for a given day of the year to illustrate the
+\code{\link{CanA}} function.
 }
 \details{
-  LAI: leaf area index.
+LAI: leaf area index.
 
-  year: year.
+year: year.
 
-  doy: 124 in this case.
+doy: 124 in this case.
 
-  hour: hour of the day, (0--23).
+hour: hour of the day, (0--23).
 
-  solarR: direct solar radiation.
+solarR: direct solar radiation.
 
-  DailyTemp.C: hourly air temperature (Celsius).
+DailyTemp.C: hourly air temperature (Celsius).
 
-  RH: relative humidity, (0--1).
+RH: relative humidity, (0--1).
 
-  WindSpeed: 4.1 m \eqn{s^{-1}} average daily value in this
-  case.
+WindSpeed: 4.1 m \eqn{s^{-1}} average daily value in this
+case.
 }
 \keyword{datasets}
 

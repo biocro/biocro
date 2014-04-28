@@ -2,9 +2,8 @@
 \alias{plotAQ}
 \title{plot A/Q curve}
 \usage{
-  plotAQ(data, fittd, id.col = 1, trt.col = 2,
-    ylab = "CO2 Uptake", xlab = "Quantum flux",
-    by = c("trt", "ID"), type = "o", ...)
+plotAQ(data, fittd, id.col = 1, trt.col = 2, ylab = "CO2 Uptake",
+  xlab = "Quantum flux", by = c("trt", "ID"), type = "o", ...)
 }
 \arguments{
   \item{data}{is assumed to have the following structure
@@ -29,12 +28,12 @@
   \item{...}{}
 }
 \value{
-  NULL, creates plot
+NULL, creates plot
 }
 \description{
-  Function to plot A/Q curves
+Function to plot A/Q curves
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 

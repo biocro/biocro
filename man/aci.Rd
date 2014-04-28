@@ -11,20 +11,20 @@ vector} \item{list('Tleaf')}{Temperature of the leaf. a numeric vector}
 \item{list('Ci')}{Intercellular CO2. a numeric vector}
 \item{list('CO2_R')}{Reference CO2. a numeric vector} }}
 \source{
-  Measurements taken by Dandan Wang.
+Measurements taken by Dandan Wang.
 }
 \description{
-  Four A/Ci (assimilation vs. intercellular CO2) curves.
+Four A/Ci (assimilation vs. intercellular CO2) curves.
 }
 \details{
-  Measurements taken on Miscanthus x giganteus.
+Measurements taken on Miscanthus x giganteus.
 }
 \examples{
 data(aci)
 plotAC(aci)
 }
 \references{
-  Dandan Wang
+Dandan Wang
 }
 \keyword{datasets}
 

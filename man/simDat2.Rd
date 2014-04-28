@@ -8,22 +8,21 @@ numeric vector} \item{list('Leaf')}{a numeric vector} \item{list('Root')}{a
 numeric vector} \item{list('Rhiz')}{a numeric vector} \item{list('LAI')}{a
 numeric vector} }}
 \source{
-  ~~ reference to a publication or URL from which the data
-  were obtained ~~
+~~ reference to a publication or URL from which the data
+were obtained ~~
 }
 \description{
-  Simulated data produced by \code{\link{BioGro}}.
+Simulated data produced by \code{\link{BioGro}}.
 }
 \details{
-  ~~ If necessary, more details than the description above
-  ~~
+~~ If necessary, more details than the description above ~~
 }
 \examples{
 data(simDat2)
 ## maybe str(simDat2) ; plot(simDat2) ...
 }
 \references{
-  ~~ possibly secondary sources and usages ~~
+~~ possibly secondary sources and usages ~~
 }
 \keyword{datasets}
 

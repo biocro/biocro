@@ -2,11 +2,11 @@
 \alias{plot.BioGro}
 \title{Plotting function for BioGro objects}
 \usage{
-  plot.BioGro(x, obs = NULL, stem = TRUE, leaf = TRUE,
-    root = TRUE, rhizome = TRUE, LAI = TRUE, grain = TRUE,
-    xlab = NULL, ylab = NULL, pch = 21, lty = 1, lwd = 1,
-    col = c("blue", "green", "red", "magenta", "black", "purple"),
-    x1 = 0.1, y1 = 0.8, plot.kind = c("DB", "SW"), ...)
+\method{plot}{BioGro}(x, obs = NULL, stem = TRUE, leaf = TRUE,
+  root = TRUE, rhizome = TRUE, LAI = TRUE, grain = TRUE, xlab = NULL,
+  ylab = NULL, pch = 21, lty = 1, lwd = 1, col = c("blue", "green",
+  "red", "magenta", "black", "purple"), x1 = 0.1, y1 = 0.8,
+  plot.kind = c("DB", "SW"), ...)
 }
 \arguments{
   \item{x}{\code{\link{BioGro}} object.}
@@ -50,16 +50,16 @@
   \item{\dots}{Optional arguments.}
 }
 \description{
-  By default it plots stem, leaf, root, rhizome and LAI for
-  a \code{BioGro} object. Optionally, the observed data can
-  be plotted.
+By default it plots stem, leaf, root, rhizome and LAI for a
+\code{BioGro} object. Optionally, the observed data can be
+plotted.
 }
 \details{
-  This function uses internally
-  \code{\link[lattice]{xyplot}} in the 'lattice' package.
+This function uses internally \code{\link[lattice]{xyplot}}
+in the 'lattice' package.
 }
 \seealso{
-  \code{\link{BioGro}} \code{\link{OpBioGro}}
+\code{\link{BioGro}} \code{\link{OpBioGro}}
 }
 \keyword{hplot}
 

@@ -3,10 +3,10 @@
 \title{This function will implement simple calculations
 of predicted and residuals for the Opc4photo function}
 \usage{
-  summary.Opc4photo(object, ...)
+\method{summary}{Opc4photo}(object, ...)
 }
 \description{
-  This function will implement simple calculations of
-  predicted and residuals for the Opc4photo function
+This function will implement simple calculations of
+predicted and residuals for the Opc4photo function
 }
 

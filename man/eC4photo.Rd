@@ -2,8 +2,8 @@
 \alias{eC4photo}
 \title{C4 photosynthesis simulation (von Caemmerer model)}
 \usage{
-  eC4photo(Qp, airtemp, rh, ca = 380, oa = 210, vcmax = 60,
-    vpmax = 120, vpr = 80, jmax = 400)
+eC4photo(Qp, airtemp, rh, ca = 380, oa = 210, vcmax = 60, vpmax = 120,
+  vpr = 80, jmax = 400)
 }
 \arguments{
   \item{Qp}{quantum flux (\eqn{\mu}{micro} mol
@@ -34,23 +34,22 @@
   \eqn{s^{-1}}{s-1}).}
 }
 \value{
-  results of call to C function eC4photo_sym
+results of call to C function eC4photo_sym
 
-  a \code{\link{list}} structure with components
+a \code{\link{list}} structure with components
 }
 \description{
-  Simulation of C4 photosynthesis based on the equations
-  proposed by von Caemmerer (2000).  At this point
-  assimilation and stomatal conductance are not coupled and
-  although, for example a lower relative humidity will
-  lower stomatal conductance it will not affect
-  assimilation.  Hopefully, this will be improved in the
-  future.
+Simulation of C4 photosynthesis based on the equations
+proposed by von Caemmerer (2000).  At this point
+assimilation and stomatal conductance are not coupled and
+although, for example a lower relative humidity will lower
+stomatal conductance it will not affect assimilation.
+Hopefully, this will be improved in the future.
 }
 \details{
-  The equations are taken from von Caemmerer (2000) for the
-  assimilation part and stomatal conductance is based on
-  FORTRAN code by Joe Berry (translated to C).
+The equations are taken from von Caemmerer (2000) for the
+assimilation part and stomatal conductance is based on
+FORTRAN code by Joe Berry (translated to C).
 }
 \examples{
 \dontrun{
@@ -105,9 +104,9 @@ xyplot(res1 ~ Qp | factor(Tl) , data = dat1,col=cols,
 }
 }
 \references{
-  Susanne von Caemmerer (2000) Biochemical Models of Leaf
-  Photosynthesis. CSIRO Publishing. (In particular chapter
-  4).
+Susanne von Caemmerer (2000) Biochemical Models of Leaf
+Photosynthesis. CSIRO Publishing. (In particular chapter
+4).
 }
 \keyword{models}
 

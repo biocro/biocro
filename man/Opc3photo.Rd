@@ -5,13 +5,11 @@
 \alias{print.Opc3photo}
 \title{Optimize parameters of the C3 photosynthesis model.}
 \usage{
-  Opc3photo(data, ivcmax = 100, ijmax = 180, iRd = 1.1,
-    Catm = 380, O2 = 210, ib0 = 0.08, ib1 = 9.58,
-    itheta = 0.7, op.level = 1,
-    op.method = c("optim", "nlminb"),
-    response = c("Assim", "StomCond"), level = 0.95,
-    hessian = TRUE, curve.kind = c("Ci", "Q"),
-    op.ci = FALSE, ...)
+Opc3photo(data, ivcmax = 100, ijmax = 180, iRd = 1.1, Catm = 380,
+  O2 = 210, ib0 = 0.08, ib1 = 9.58, itheta = 0.7, op.level = 1,
+  op.method = c("optim", "nlminb"), response = c("Assim", "StomCond"),
+  level = 0.95, hessian = TRUE, curve.kind = c("Ci", "Q"),
+  op.ci = FALSE, ...)
 }
 \arguments{
   \item{data}{should be a \code{data.frame} or
@@ -64,15 +62,15 @@
   \code{\link{optim}}.}
 }
 \value{
-  An object of class \code{Opc3photo}.
+An object of class \code{Opc3photo}.
 
-  The following components can be extracted:
+The following components can be extracted:
 }
 \description{
-  Applies the \code{optim} function to C3 photosynthesis.
+Applies the \code{optim} function to C3 photosynthesis.
 }
 \note{
-  ~~further notes~~ Additional notes about the assumptions.
+~~further notes~~ Additional notes about the assumptions.
 }
 \examples{
 ## Load fabricated data
@@ -96,10 +94,10 @@ op100 <- Opc3photo(simA100[,1:5],Catm = simA100[,9],
 op100
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 \seealso{
-  See Also \code{\link{mOpc3photo}}
+See Also \code{\link{mOpc3photo}}
 }
 \keyword{optimize}
 

@@ -2,10 +2,9 @@
 \alias{c3CanA}
 \title{Simulates canopy assimilation for C3 canopies}
 \usage{
-  c3CanA(lai, doy, hr, solar, temp, rh, windspeed,
-    lat = 40, nlayers = 8, kd = 0.1, heightFactor = 3,
-    c3photoControl = list(), lnControl = list(),
-    StomWS = 1)
+c3CanA(lai, doy, hr, solar, temp, rh, windspeed, lat = 40, nlayers = 8,
+  kd = 0.1, heightFactor = 3, c3photoControl = list(),
+  lnControl = list(), StomWS = 1)
 }
 \arguments{
   \item{lai}{leaf area index.}
@@ -60,54 +59,50 @@
   lnb1 + lnb0'.}
 }
 \value{
-  \code{\link{list}}
+\code{\link{list}}
 
-  returns a list with several elements
+returns a list with several elements
 
-  CanopyAssim: hourly canopy assimilation (\eqn{Mg
-  ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
+CanopyAssim: hourly canopy assimilation (\eqn{Mg
+ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
 
-  CanopyTrans: hourly canopy transpiration (\eqn{Mg
-  ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
+CanopyTrans: hourly canopy transpiration (\eqn{Mg
+ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
 
-  CanopyCond: hourly canopy conductance (units ?)
+CanopyCond: hourly canopy conductance (units ?)
 
-  TranEpen: hourly canopy transpiration according to Penman
-  (\eqn{Mg ha^{-1}} \eqn{hr^{-1}}{per hour})
+TranEpen: hourly canopy transpiration according to Penman
+(\eqn{Mg ha^{-1}} \eqn{hr^{-1}}{per hour})
 
-  TranEpen: hourly canopy transpiration according to
-  Priestly (\eqn{Mg ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per
-  hour})
+TranEpen: hourly canopy transpiration according to Priestly
+(\eqn{Mg ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
 
-  LayMat: hourly by Layer matrix containing details of the
-  calculations by layer (each layer is a row).  col1:
-  Direct Irradiance col2: Diffuse Irradiance col3: Leaf
-  area in the sun col4: Leaf area in the shade col5:
-  Transpiration of leaf area in the sun col6: Transpiration
-  of leaf area in the shade col7: Assimilation of leaf area
-  in the sun col8: Assimilation of leaf area in the shade
-  col9: Difference in temperature between the leaf and the
-  air (i.e. TLeaf - TAir) for leaves in sun.  col10:
-  Difference in temperature between the leaf and the air
-  (i.e. TLeaf - TAir) for leaves in shade.  col11: Stomatal
-  conductance for leaves in the sun col12: Stomatal
-  conductance for leaves in the shade col13: Nitrogen
-  concentration in the leaf (g m^-2) col14: Vmax value as
-  depending on leaf nitrogen
+LayMat: hourly by Layer matrix containing details of the
+calculations by layer (each layer is a row).  col1: Direct
+Irradiance col2: Diffuse Irradiance col3: Leaf area in the
+sun col4: Leaf area in the shade col5: Transpiration of
+leaf area in the sun col6: Transpiration of leaf area in
+the shade col7: Assimilation of leaf area in the sun col8:
+Assimilation of leaf area in the shade col9: Difference in
+temperature between the leaf and the air (i.e. TLeaf -
+TAir) for leaves in sun.  col10: Difference in temperature
+between the leaf and the air (i.e. TLeaf - TAir) for leaves
+in shade.  col11: Stomatal conductance for leaves in the
+sun col12: Stomatal conductance for leaves in the shade
+col13: Nitrogen concentration in the leaf (g m^-2) col14:
+Vmax value as depending on leaf nitrogen
 }
 \description{
-  It represents an integration of the photosynthesis
-  function \code{\link{c3photo}}, canopy
-  evapo/transpiration and the multilayer canopy model
-  \code{\link{sunML}}.
+It represents an integration of the photosynthesis function
+\code{\link{c3photo}}, canopy evapo/transpiration and the
+multilayer canopy model \code{\link{sunML}}.
 }
 \details{
-  The photosynthesis function is modeled after the version
-  in WIMOVAC.  This is based on the well known Farquar
-  model.
+The photosynthesis function is modeled after the version in
+WIMOVAC.  This is based on the well known Farquar model.
 }
 \note{
-  %% ~~further notes~~
+%% ~~further notes~~
 }
 \examples{
 data(doy124)
@@ -133,14 +128,14 @@ plot(c(0:23),tmp,
             ha^-2,' ',h^-1,')')))
 }
 \author{
-  Fernando E. Miguez
+Fernando E. Miguez
 }
 \references{
-  Farquhar model %% ~put references to the literature/web
-  site here ~
+Farquhar model %% ~put references to the literature/web
+site here ~
 }
 \seealso{
-  %% ~~objects to See Also as \code{\link{help}}, ~~~
+%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \keyword{models}
 

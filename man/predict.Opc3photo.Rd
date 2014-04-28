@@ -2,9 +2,9 @@
 \alias{predict.Opc3photo}
 \title{Predict method}
 \usage{
-  predict.Opc3photo(object, newdata, ...)
+\method{predict}{Opc3photo}(object, newdata, ...)
 }
 \description{
-  Predict method
+Predict method
 }
 

@@ -2,10 +2,9 @@
 \alias{plot.MCMCc4photo}
 \title{Plotting function for MCMCc4photo objects}
 \usage{
-  plot.MCMCc4photo(x, x2 = NULL, x3 = NULL,
-    plot.kind = c("trace", "density"), type = c("l", "p"),
-    burnin = 1, cols = c("blue", "green", "purple"),
-    prior = FALSE, pcol = "black", ...)
+\method{plot}{MCMCc4photo}(x, x2 = NULL, x3 = NULL, plot.kind = c("trace",
+  "density"), type = c("l", "p"), burnin = 1, cols = c("blue", "green",
+  "purple"), prior = FALSE, pcol = "black", ...)
 }
 \arguments{
   \item{x}{\code{\link{MCMCc4photo}} object.}
@@ -37,19 +36,19 @@
   \item{\dots}{Optional arguments.}
 }
 \description{
-  By default it prints the trace of the four parameters
-  being estimated by the \code{\link{MCMCc4photo}}
-  function. As an option the density can be plotted.
+By default it prints the trace of the four parameters being
+estimated by the \code{\link{MCMCc4photo}} function. As an
+option the density can be plotted.
 }
 \details{
-  This function uses internally
-  \code{\link[lattice]{xyplot}},
-  \code{\link[lattice]{densityplot}} and
-  \code{\link[lattice]{panel.mathdensity}} both in the
-  'lattice' package.
+This function uses internally
+\code{\link[lattice]{xyplot}},
+\code{\link[lattice]{densityplot}} and
+\code{\link[lattice]{panel.mathdensity}} both in the
+'lattice' package.
 }
 \seealso{
-  \code{\link{MCMCc4photo}}
+\code{\link{MCMCc4photo}}
 }
 \keyword{hplot}
 

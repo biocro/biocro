@@ -2,8 +2,8 @@
 \alias{eCanA}
 \title{Simulates canopy assimilation (von Caemmerer model)}
 \usage{
-  eCanA(LAI, doy, hour, solarR, AirTemp, RH, WindS, Vcmax,
-    Vpmax, Vpr, Jmax, Ca = 380, Oa = 210, StomataWS = 1)
+eCanA(LAI, doy, hour, solarR, AirTemp, RH, WindS, Vcmax, Vpmax, Vpr, Jmax,
+  Ca = 380, Oa = 210, StomataWS = 1)
 }
 \arguments{
   \item{LAI}{leaf area index.}
@@ -43,17 +43,15 @@
   \item{StomataWS}{Effect of water stress on assimilation.}
 }
 \value{
-  \code{\link{numeric}}
+\code{\link{numeric}}
 
-  returns a single value which is hourly canopy
-  assimilation (mol \eqn{m^{-2}}{m-2} ground
-  \eqn{hr^{-1}}{s-1})
+returns a single value which is hourly canopy assimilation
+(mol \eqn{m^{-2}}{m-2} ground \eqn{hr^{-1}}{s-1})
 }
 \description{
-  It represents an integration of the photosynthesis
-  function \code{\link{eC4photo}}, canopy
-  evapo/transpiration and the multilayer canopy model
-  \code{\link{sunML}}.
+It represents an integration of the photosynthesis function
+\code{\link{eC4photo}}, canopy evapo/transpiration and the
+multilayer canopy model \code{\link{sunML}}.
 }
 \examples{
 \dontrun{

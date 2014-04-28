@@ -2,8 +2,8 @@
 \alias{sunML}
 \title{Sunlit shaded multi-layer model}
 \usage{
-  sunML(Idir, Idiff, LAI = 8, nlayers = 8, cos.theta = 0.5,
-    kd = 0.7, chi.l = 1, heightf = 3)
+sunML(Idir, Idiff, LAI = 8, nlayers = 8, cos.theta = 0.5, kd = 0.7,
+  chi.l = 1, heightf = 3)
 }
 \arguments{
   \item{I.dir}{direct light (quantum flux), (\eqn{\mu mol
@@ -26,13 +26,13 @@
   zenith angle.}
 }
 \value{
-  a \code{\link{list}} structure with components
+a \code{\link{list}} structure with components
 
-  Vectors size equal to the number of layers.
+Vectors size equal to the number of layers.
 }
 \description{
-  Simulates the light microenvironment in the canopy based
-  on the sunlit-shade model and the multiple layers.
+Simulates the light microenvironment in the canopy based on
+the sunlit-shade model and the multiple layers.
 }
 \examples{
 \dontrun{

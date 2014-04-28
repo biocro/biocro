@@ -2,9 +2,9 @@
 \alias{print.mOpc4photo}
 \title{Printing method}
 \usage{
-  print.mOpc4photo(x, ...)
+\method{print}{mOpc4photo}(x, ...)
 }
 \description{
-  Printing method
+Printing method
 }
 

@@ -2,10 +2,9 @@
 \alias{c4photo}
 \title{Coupled photosynthesis-stomatal conductance simulation}
 \usage{
-  c4photo(Qp, Tl, RH, vmax = 39, alpha = 0.04, kparm = 0.7,
-    theta = 0.83, beta = 0.93, Rd = 0.8, UPPERTEMP = 37.5,
-    LOWERTEMP = 3, Catm = 380, b0 = 0.08, b1 = 3,
-    StomWS = 1, ws = c("gs", "vmax"))
+c4photo(Qp, Tl, RH, vmax = 39, alpha = 0.04, kparm = 0.7, theta = 0.83,
+  beta = 0.93, Rd = 0.8, UPPERTEMP = 37.5, LOWERTEMP = 3, Catm = 380,
+  b0 = 0.08, b1 = 3, StomWS = 1, ws = c("gs", "vmax"))
 }
 \arguments{
   \item{Qp}{quantum flux (direct light), (\eqn{\mu}{micro}
@@ -54,12 +53,12 @@
   Vmax ('vmax').}
 }
 \value{
-  a \code{\link{list}} structure with components
+a \code{\link{list}} structure with components
 }
 \description{
-  The mathematical model is based on Collatz et al (1992)
-  (see References). Stomatal conductance is based on code
-  provided by Joe Berry.
+The mathematical model is based on Collatz et al (1992)
+(see References). Stomatal conductance is based on code
+provided by Joe Berry.
 }
 \examples{
 \dontrun{
@@ -186,13 +185,13 @@ xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
 }
 }
 \references{
-  G. Collatz, M. Ribas-Carbo, J. Berry. (1992).  Coupled
-  photosynthesis-stomatal conductance model for leaves of
-  C4 plants. \emph{Australian Journal of Plant Physiology}
-  519--538.
+G. Collatz, M. Ribas-Carbo, J. Berry. (1992).  Coupled
+photosynthesis-stomatal conductance model for leaves of C4
+plants. \emph{Australian Journal of Plant Physiology}
+519--538.
 }
 \seealso{
-  \code{\link{eC4photo}}
+\code{\link{eC4photo}}
 }
 \keyword{models}
 

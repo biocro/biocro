@@ -11,12 +11,12 @@ temperature (Celsius)} \item{list('minTemp')}{minimum temperature
 \item{list('PotEv')}{potential evaporation (kg/m2). Approx. mm.}
 \item{list('precip')}{precipitation (kg/m2). Approx. mm.} }}
 \source{
-  \url{http://www.noaa.gov/}
+\url{http://www.noaa.gov/}
 }
 \description{
-  Data from the Illinois area from one point from the 32km
-  grid from NOAA from 1979. the purpuse is to illustrate
-  the \code{\link{Rmiscanmod}} function.
+Data from the Illinois area from one point from the 32km
+grid from NOAA from 1979. the purpuse is to illustrate the
+\code{\link{Rmiscanmod}} function.
 }
 \examples{
 data(WD1979)

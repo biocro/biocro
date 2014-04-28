@@ -4,13 +4,12 @@
 \alias{summary.OpBioGro}
 \title{Optimization of dry biomass partitioning coefficients.}
 \usage{
-  OpBioGro(phen = 1, iCoef = NULL, WetDat, data,
-    day1 = NULL, dayn = NULL, timestep = 1, lat = 40,
-    iRhizome = 7, irtl = 1e-04, canopyControl = list(),
-    seneControl = list(), photoControl = list(),
-    phenoControl = list(), soilControl = list(),
-    nitroControl = list(), centuryControl = list(),
-    op.method = c("optim", "nlminb"), verbose = FALSE, ...)
+OpBioGro(phen = 1, iCoef = NULL, WetDat, data, day1 = NULL, dayn = NULL,
+  timestep = 1, lat = 40, iRhizome = 7, irtl = 1e-04,
+  canopyControl = list(), seneControl = list(), photoControl = list(),
+  phenoControl = list(), soilControl = list(), nitroControl = list(),
+  centuryControl = list(), op.method = c("optim", "nlminb"),
+  verbose = FALSE, ...)
 }
 \arguments{
   \item{phen}{integer taking values 1 through 6 which
@@ -61,18 +60,17 @@
   \code{\link{optim}} or \code{\link{constrOptim}}.}
 }
 \value{
-  \code{\link{list}} of class \code{OpBioGro} with
-  components
+\code{\link{list}} of class \code{OpBioGro} with components
 }
 \description{
-  Optimizes dry biomass partitioning coefficients using
-  constrained optimization (see below).
+Optimizes dry biomass partitioning coefficients using
+constrained optimization (see below).
 }
 \details{
-  The optimization is done over the \code{\link{BioGro}}
-  function. The \code{OpBioGro} function is a wrapper for
-  \code{optim} and the \code{constrOpBioGro} is a wrapper
-  for \code{constrOptim}.
+The optimization is done over the \code{\link{BioGro}}
+function. The \code{OpBioGro} function is a wrapper for
+\code{optim} and the \code{constrOpBioGro} is a wrapper for
+\code{constrOptim}.
 }
 \section{Warning}{
   This function has not had enough testing.
@@ -111,11 +109,11 @@ cop1 <- constrOpBioGro(phen=0, WetDat=weather05, data = simDat)
 }
 }
 \references{
-  no references yet.
+no references yet.
 }
 \seealso{
-  \code{\link{BioGro}} \code{\link{constrOptim}}
-  \code{\link{optim}} \code{\link{c4photo}}
+\code{\link{BioGro}} \code{\link{constrOptim}}
+\code{\link{optim}} \code{\link{c4photo}}
 }
 \keyword{optimize}
 

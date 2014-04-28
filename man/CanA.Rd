@@ -3,10 +3,10 @@
 \alias{lnParms}
 \title{Simulates canopy assimilation}
 \usage{
-  CanA(lai, doy, hr, solar, temp, rh, windspeed, lat = 40,
-    nlayers = 8, kd = 0.1, StomataWS = 1, chi.l = 1,
-    heightFactor = 3, photoControl = list(),
-    lnControl = list(), units = c("kg/m2/hr", "Mg/ha/hr"))
+CanA(lai, doy, hr, solar, temp, rh, windspeed, lat = 40, nlayers = 8,
+  kd = 0.1, StomataWS = 1, chi.l = 1, heightFactor = 3,
+  photoControl = list(), lnControl = list(), units = c("kg/m2/hr",
+  "Mg/ha/hr"))
 }
 \arguments{
   \item{lai}{leaf area index.}
@@ -68,53 +68,51 @@
   finer timesteps and then convert the results.}
 }
 \value{
-  \code{\link{list}}
+\code{\link{list}}
 
-  returns a list with several elements
+returns a list with several elements
 
-  CanopyAssim: hourly canopy assimilation (\eqn{kg
-  m^{-2}}{kg/m2} \eqn{hr^{-1}}{per hour}) or canopy
-  assimilation (\eqn{Mg ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per
-  hour})
+CanopyAssim: hourly canopy assimilation (\eqn{kg
+m^{-2}}{kg/m2} \eqn{hr^{-1}}{per hour}) or canopy
+assimilation (\eqn{Mg ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per
+hour})
 
-  CanopyTrans: hourly canopy transpiration (\eqn{kg
-  m^{-2}}{kg/m2} \eqn{hr^{-1}}{per hour}) or canopy
-  transpiration (\eqn{Mg ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per
-  hour})
+CanopyTrans: hourly canopy transpiration (\eqn{kg
+m^{-2}}{kg/m2} \eqn{hr^{-1}}{per hour}) or canopy
+transpiration (\eqn{Mg ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per
+hour})
 
-  CanopyCond: hourly canopy conductance (units ?)
+CanopyCond: hourly canopy conductance (units ?)
 
-  TranEpen: hourly canopy transpiration according to Penman
-  (\eqn{kg m^{-2}} \eqn{hr^{-1}}{per hour}) or canopy
-  transpiration according to Penman (\eqn{Mg ha^{-1}}
-  \eqn{hr^{-1}}{per hour})
+TranEpen: hourly canopy transpiration according to Penman
+(\eqn{kg m^{-2}} \eqn{hr^{-1}}{per hour}) or canopy
+transpiration according to Penman (\eqn{Mg ha^{-1}}
+\eqn{hr^{-1}}{per hour})
 
-  TranEpen: hourly canopy transpiration according to
-  Priestly (\eqn{kg m^{-2}}{kg/m2} \eqn{hr^{-1}}{per hour})
-  canopy transpiration according to Priestly (\eqn{Mg
-  ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
+TranEpen: hourly canopy transpiration according to Priestly
+(\eqn{kg m^{-2}}{kg/m2} \eqn{hr^{-1}}{per hour}) canopy
+transpiration according to Priestly (\eqn{Mg
+ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
 
-  LayMat: hourly by Layer matrix containing details of the
-  calculations by layer (each layer is a row).  col1:
-  Direct Irradiance col2: Diffuse Irradiance col3: Leaf
-  area in the sun col4: Leaf area in the shade col5:
-  Transpiration of leaf area in the sun col6: Transpiration
-  of leaf area in the shade col7: Assimilation of leaf area
-  in the sun col8: Assimilation of leaf area in the shade
-  col9: Difference in temperature between the leaf and the
-  air (i.e. TLeaf - TAir) for leaves in sun.  col10:
-  Difference in temperature between the leaf and the air
-  (i.e. TLeaf - TAir) for leaves in shade.  col11: Stomatal
-  conductance for leaves in the sun col12: Stomatal
-  conductance for leaves in the shade col13: Nitrogen
-  concentration in the leaf (g m^-2) col14: Vmax value as
-  depending on leaf nitrogen
+LayMat: hourly by Layer matrix containing details of the
+calculations by layer (each layer is a row).  col1: Direct
+Irradiance col2: Diffuse Irradiance col3: Leaf area in the
+sun col4: Leaf area in the shade col5: Transpiration of
+leaf area in the sun col6: Transpiration of leaf area in
+the shade col7: Assimilation of leaf area in the sun col8:
+Assimilation of leaf area in the shade col9: Difference in
+temperature between the leaf and the air (i.e. TLeaf -
+TAir) for leaves in sun.  col10: Difference in temperature
+between the leaf and the air (i.e. TLeaf - TAir) for leaves
+in shade.  col11: Stomatal conductance for leaves in the
+sun col12: Stomatal conductance for leaves in the shade
+col13: Nitrogen concentration in the leaf (g m^-2) col14:
+Vmax value as depending on leaf nitrogen
 }
 \description{
-  It represents an integration of the photosynthesis
-  function \code{\link{c4photo}}, canopy
-  evapo/transpiration and the multilayer canopy model
-  \code{\link{sunML}}.
+It represents an integration of the photosynthesis function
+\code{\link{c4photo}}, canopy evapo/transpiration and the
+multilayer canopy model \code{\link{sunML}}.
 }
 \examples{
 \dontrun{
