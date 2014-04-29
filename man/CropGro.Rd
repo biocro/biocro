@@ -18,7 +18,7 @@
     canopyControl = list(), seneControl = list(),
     photoControl = list(), phenoControl = list(),
     soilControl = list(), nitroControl = list(),
-    SOMpoolsParmsControl = list(),
+    SOMpoolsControl = list(),
     SOMAssignParmsControl = list(),
     GetCropCentStateVarParmsControl = list(),
     GetSoilTextureParmsControl = list(),

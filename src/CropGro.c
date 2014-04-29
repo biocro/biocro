@@ -234,7 +234,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
   soTexS.clay=REAL(SOILTEXTUREfromR)[2];
   //Based on Texture, Get Bulk Density, Field Capacity, and DayCent Soil Type
   getsoilprop(&soTexS.sand, &soTexS.silt, &soTexS.clay, &soTexS.bulkd,&soTexS.fieldc, &DayCentSoilType,&SoilClassification);
-  Filling_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers,REAL(SOILDEPTHS));
+//  Filling_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers,REAL(SOILDEPTHS));
 	centS.SCs[0] = 0.0;
 	centS.SCs[1] = 0.0;
 	centS.SCs[2] = 0.0;
