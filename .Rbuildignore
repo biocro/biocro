@@ -1,2 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+*.tar.gz
+ChangeLog
+TODO
+build.sh
+calibration.RData
+documentation
+*.log
