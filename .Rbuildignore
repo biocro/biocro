@@ -1,9 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-*.tar.gz
+^.*.gz
 ChangeLog
 TODO
 build.sh
 calibration.RData
 documentation
-*.log
+^.*.log
