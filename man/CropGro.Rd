@@ -13,6 +13,7 @@
 \alias{soilParms}
 \title{Biomass crops growth simulation}
 \usage{
+<<<<<<< HEAD
 CropGro(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40,
   iRhizome = 7, irtl = 1e-04, canopyControl = list(),
   seneControl = list(), photoControl = list(), phenoControl = list(),
@@ -23,6 +24,23 @@ CropGro(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40,
   GetBioCroToCropcentParmsControl = list(), GetErosionParmsControl = list(),
   GetC13ParmsControl = list(), GetLeachingParmsControl = list(),
   GetSymbNFixationParmsControl = list(), centuryControl = list())
+=======
+  CropGro(WetDat, day1 = NULL, dayn = NULL, timestep = 1,
+    lat = 40, iRhizome = 7, irtl = 1e-04,
+    canopyControl = list(), seneControl = list(),
+    photoControl = list(), phenoControl = list(),
+    soilControl = list(), nitroControl = list(),
+    SOMpoolsControl = list(),
+    SOMAssignParmsControl = list(),
+    GetCropCentStateVarParmsControl = list(),
+    GetSoilTextureParmsControl = list(),
+    GetBioCroToCropcentParmsControl = list(),
+    GetErosionParmsControl = list(),
+    GetC13ParmsControl = list(),
+    GetLeachingParmsControl = list(),
+    GetSymbNFixationParmsControl = list(),
+    centuryControl = list())
+>>>>>>> deepak_cropcent
 }
 \arguments{
   \item{WetDat}{weather data as produced by the

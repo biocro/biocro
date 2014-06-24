@@ -136,6 +136,7 @@
 
       int    debug = 0;
       int    ilyr;
+      int *soilclassification;
 /*      double netmn_to_no3 = 0.20; */
       double netmn_to_no3 = 0.0;
       double turnovfrac = 0.02;
@@ -220,7 +221,7 @@
 
       krainNO = nox_pulse(ppt, snow);
 
-      getsoilprop(sand, silt, clay, &stdbulkd, &stdfieldc, texture);
+      getsoilprop(sand, silt, clay, &stdbulkd, &stdfieldc, texture,&soilclassification);
 
       /* Use standard field capacity and bulk density according */
       /* to the soil class in the texture triangle -mdh 10/26/99 */

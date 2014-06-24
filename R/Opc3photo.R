@@ -127,13 +127,7 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
   ## Extra parameters
   xparms <- list(Catm=Catm, O2=O2, b0=ib0, b1=ib1, theta=itheta,
                  Rd = iRd)
-
-
-  ##' a sub function of Opc3photo
-  ##' 
-  ##' Internal function found in Opc3photo.R, Opc4photo.R, and OpEC4photo.R
-  ##' this function acts to define vec1 based on if coefs is "Assim" or "StomCond"
-  ##' @param coefs either "Assim" or "StomCond"
+  
   RSS <- function(coefs){
       if(response == "Assim"){
         if(max(data[,1]) < 1)
@@ -420,62 +414,62 @@ predict.Opc3photo <- function(object,newdata,...){
 }
 
 
-# This function will implement simple calculations
-# of predicted and residuals for the Opc4photo function
+## This function will implement simple calculations
+## of predicted and residuals for the Opc4photo function
 
-# summary.Opc3photo <- function(object,...){
+## summary.Opc3photo <- function(object,...){
 
-#   dat <- object$data
-#   obsvec <- as.vector(dat[,1])
+##   dat <- object$data
+##   obsvec <- as.vector(dat[,1])
   
-#   fittd <- c4photo(dat[,2],dat[,3],dat[,4],object$bestVmax,object$bestAlpha)
-# ## Warning here I'm not taking into account different values of Rd, kparm, theta and beta
+##   fittd <- c4photo(dat[,2],dat[,3],dat[,4],object$bestVmax,object$bestAlpha)
+## ## Warning here I'm not taking into account different values of Rd, kparm, theta and beta
   
-#   rsd <- obsvec - fittd$Assim
-#   rss <- object$ReSumS
-#   ## Some measures of agreement
-#   ## Index of agreement
-#   IAN <- t(rsd)%*%rsd
-#   IAD1 <- abs(rsd) + abs(scale(obsvec,scale=FALSE))
-#   IAD <- t(IAD1)%*%IAD1
-#   IA <- 1 - IAN/IAD
-#   ## Rsquared 1
-#   Rsq1 <- as.numeric(1 - rss / t(obsvec)%*%obsvec)
-#   ## Rsquared 2
-#   Rsq2 <- as.numeric(cor(fittd$Assim,obsvec)^2)
-#   ## Mean bias
-#   meanBias <- mean(rsd)
-#   ## AIC and BIC
-#   n1 <- length(rsd)
-#   AIC <- n1 * log(rss/n1) + 2
-#   BIC <- n1 * log(rss/n1) + 2 * log(n1)
+##   rsd <- obsvec - fittd$Assim
+##   rss <- object$ReSumS
+##   ## Some measures of agreement
+##   ## Index of agreement
+##   IAN <- t(rsd)%*%rsd
+##   IAD1 <- abs(rsd) + abs(scale(obsvec,scale=FALSE))
+##   IAD <- t(IAD1)%*%IAD1
+##   IA <- 1 - IAN/IAD
+##   ## Rsquared 1
+##   Rsq1 <- as.numeric(1 - rss / t(obsvec)%*%obsvec)
+##   ## Rsquared 2
+##   Rsq2 <- as.numeric(cor(fittd$Assim,obsvec)^2)
+##   ## Mean bias
+##   meanBias <- mean(rsd)
+##   ## AIC and BIC
+##   n1 <- length(rsd)
+##   AIC <- n1 * log(rss/n1) + 2
+##   BIC <- n1 * log(rss/n1) + 2 * log(n1)
 
-#   sigma <- sqrt(rss/(n1-2))
-#   stdresid <- rsd/sigma
-#   outli <- which(abs(stdresid) > 2)
+##   sigma <- sqrt(rss/(n1-2))
+##   stdresid <- rsd/sigma
+##   outli <- which(abs(stdresid) > 2)
   
-#   structure(list(fitted=fittd$Assim,resid=rsd,
-#                  stdresid=stdresid,
-#                  IA=IA,Rsq1=Rsq1,Rsq2=Rsq2,
-#                  meanBias=meanBias,
-#                  AIC=AIC,BIC=BIC,
-#                  outli=outli,
-#        sigma=sigma),class="summary.Opc4photo")
-# }
+##   structure(list(fitted=fittd$Assim,resid=rsd,
+##                  stdresid=stdresid,
+##                  IA=IA,Rsq1=Rsq1,Rsq2=Rsq2,
+##                  meanBias=meanBias,
+##                  AIC=AIC,BIC=BIC,
+##                  outli=outli,
+##        sigma=sigma),class="summary.Opc4photo")
+## }
 
-# print.summary.Opc4photo <- function(x,...){
+## print.summary.Opc4photo <- function(x,...){
 
-#   cat("\n Diagnostic measures\n")
-#   cat("\n Index of Agreement:",x$IA)
-#   cat("\n Rsquared 1:",x$Rsq1)
-#   cat("\n Rsquared 2:",x$Rsq2)
-#   cat("\n Mean Bias:",x$meanBias)
-#   cat("\n AIC:",x$AIC)
-#   cat("\n BIC:",x$BIC,"\n")
-# }
+##   cat("\n Diagnostic measures\n")
+##   cat("\n Index of Agreement:",x$IA)
+##   cat("\n Rsquared 1:",x$Rsq1)
+##   cat("\n Rsquared 2:",x$Rsq2)
+##   cat("\n Mean Bias:",x$meanBias)
+##   cat("\n AIC:",x$AIC)
+##   cat("\n BIC:",x$BIC,"\n")
+## }
 
-#' @export
-#' @S3method plot Opc3photo
+##' @export
+##' @S3method plot Opc3photo
 plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","raw"),...){
 
   dat <- x$data
@@ -561,59 +555,61 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 
 ## Wrapper function for multiple A/Ci sets
 ## Wrapper function for multiple A/Ci sets
-#' Multiple optimization of assimilation (or stomatal conductance) curves.
-#'
-#' It is a wrapper for Opc3photo which allows for optimization of multiple
-#' runs of curves (A/Q or A/Ci).
-#'
-#' Include more details about the data.
-#'
-#' @param data should be a \code{data.frame} or \code{matrix} with x columns
-#'
-#' col 1: should be an ID for the different runs col 2: measured assimilation
-#' (CO2 uptake) col 3: Incomming PAR (photosynthetic active radiation) col 4:
-#' Leaf temperature col 5: Relative humidity col 6: Intercellular CO2 (for
-#' A/Ci curves) col 7: Reference CO2 level
-#' @param ID optional argument to include ids. should be of length equal to
-#' the number of runs.
-#' @param iVcmax Single value or vector of length equal to number of runs to
-#' supply starting values for the optimization of \code{vcmax}.
-#' @param iJmax Single value or vector of length equal to number of runs to
-#' supply starting values for the optimization of \code{jmax}.
-#' @param iRd Single value or vector of length equal to number of runs to
-#' supply starting values for the optimization of \code{Rd}.
-#' @param op.level Level 1 will optimize \code{Vcmax} and \code{Jmax} and
-#' level 2 will optimize \code{Vcmax}, \code{Jmax} and \code{Rd}.
-#' @param curve.kind Whether an A/Ci curve is being optimized or an A/Q curve.
-#' @param verbose Whether to print information about progress.
-#' @param \dots Additional arguments to be passed to \code{\link{Opc3photo}}
-#' @export
-#' @return an object of class 'mOpc3photo'
-#'
-#' if op.level equals 1 best Vcmax, Jmax and convergence
-#'
-#' if op.level equals 2 best Vcmax, Jmax, Rd and convergence 
-#' @author Fernando E. Miguez
-#' @seealso See also \code{\link{Opc3photo}} %% ~~objects to See Also as
-#' \code{\link{help}}, ~~~
-#' @keywords optimize
-#' @examples
-#'
-#' data(simAssim)
-#' simAssim <- cbind(simAssim[,1:6],Catm=simAssim[,10])
-#' simAssim <- simAssim[simAssim[,1] < 11,]
-#'
-#' plotAC(simAssim, trt.col=1)
-#'
-#' op.all <- mOpc3photo(simAssim, op.level=1,
-#'                       verbose=TRUE)
-#'
-#' plot(op.all)
-#' plot(op.all, parm='jmax')
-#'
-#'
-#'
-#'
+##' Multiple optimization of assimilation (or stomatal conductance) curves.
+##'
+##' It is a wrapper for Opc3photo which allows for optimization of multiple
+##' runs of curves (A/Q or A/Ci).
+##'
+##' Include more details about the data.
+##'
+##' @param data should be a \code{data.frame} or \code{matrix} with x columns
+##'
+##' col 1: should be an ID for the different runs col 2: measured assimilation
+##' (CO2 uptake) col 3: Incomming PAR (photosynthetic active radiation) col 4:
+##' Leaf temperature col 5: Relative humidity col 6: Intercellular CO2 (for
+##' A/Ci curves) col 7: Reference CO2 level
+##' @param ID optional argument to include ids. should be of length equal to
+##' the number of runs.
+##' @param iVcmax Single value or vector of length equal to number of runs to
+##' supply starting values for the optimization of \code{vcmax}.
+##' @param iJmax Single value or vector of length equal to number of runs to
+##' supply starting values for the optimization of \code{jmax}.
+##' @param iRd Single value or vector of length equal to number of runs to
+##' supply starting values for the optimization of \code{Rd}.
+##' @param op.level Level 1 will optimize \code{Vcmax} and \code{Jmax} and
+##' level 2 will optimize \code{Vcmax}, \code{Jmax} and \code{Rd}.
+##' @param curve.kind Whether an A/Ci curve is being optimized or an A/Q curve.
+##' @param verbose Whether to print information about progress.
+##' @param \dots Additional arguments to be passed to \code{\link{Opc3photo}}
+##' @export
+##' @return an object of class 'mOpc3photo'
+##'
+##' if op.level equals 1 best Vcmax, Jmax and convergence
+##'
+##' if op.level equals 2 best Vcmax, Jmax, Rd and convergence %% ~Describe the
+##' value returned %% If it is a LIST, use %% \item{comp1 }{Description of
+##' 'comp1'} %% \item{comp2 }{Description of 'comp2'} %% ...
+##' @author Fernando E. Miguez
+##' @seealso See also \code{\link{Opc3photo}} %% ~~objects to See Also as
+##' \code{\link{help}}, ~~~
+##' @keywords optimize
+##' @examples
+##'
+##' data(simAssim)
+##' simAssim <- cbind(simAssim[,1:6],Catm=simAssim[,10])
+##' simAssim <- simAssim[simAssim[,1] < 11,]
+##'
+##' plotAC(simAssim, trt.col=1)
+##'
+##' op.all <- mOpc3photo(simAssim, op.level=1,
+##'                       verbose=TRUE)
+##'
+##' plot(op.all)
+##' plot(op.all, parm='jmax')
+##'
+##'
+##'
+##'
 mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
                        op.level=1, curve.kind=c("Ci","Q"),verbose=FALSE,...){
 
@@ -721,11 +717,7 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
 }
 
 
-#' Printing method
-#' 
-#' Printing method
-#' 
-#' 
+## Printing method
 print.mOpc3photo <- function(x,...){
 
   ncolm <- ncol(unclass(x)$mat)

@@ -109,6 +109,8 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   double stomataws = REAL(STOMATAWS)[0];
   double  LeafN = REAL(LEAFN)[0];
   double  kpLN = REAL(KPLN)[0];
+  double lnb0 = REAL(LNB0)[0];
+  double lnb1 = REAL(LNB1)[0];
   int lnfun = INTEGER(LNFUN)[0];
 
   SEXP lists;

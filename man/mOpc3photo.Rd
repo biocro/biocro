@@ -2,8 +2,9 @@
 \alias{mOpc3photo}
 \title{Multiple optimization of assimilation (or stomatal conductance) curves.}
 \usage{
-mOpc3photo(data, ID = NULL, iVcmax = 100, iJmax = 180, iRd = 1.1,
-  op.level = 1, curve.kind = c("Ci", "Q"), verbose = FALSE, ...)
+  mOpc3photo(data, ID = NULL, iVcmax = 100, iJmax = 180,
+    iRd = 1.1, op.level = 1, curve.kind = c("Ci", "Q"),
+    verbose = FALSE, ...)
 }
 \arguments{
   \item{data}{should be a \code{data.frame} or
@@ -44,18 +45,21 @@ mOpc3photo(data, ID = NULL, iVcmax = 100, iJmax = 180, iRd = 1.1,
   \code{\link{Opc3photo}}}
 }
 \value{
-an object of class 'mOpc3photo'
+  an object of class 'mOpc3photo'
 
-if op.level equals 1 best Vcmax, Jmax and convergence
+  if op.level equals 1 best Vcmax, Jmax and convergence
 
-if op.level equals 2 best Vcmax, Jmax, Rd and convergence
+  if op.level equals 2 best Vcmax, Jmax, Rd and convergence
+  %% ~Describe the value returned %% If it is a LIST, use
+  %% \item{comp1 }{Description of 'comp1'} %% \item{comp2
+  }{Description of 'comp2'} %% ...
 }
 \description{
-It is a wrapper for Opc3photo which allows for optimization
-of multiple runs of curves (A/Q or A/Ci).
+  It is a wrapper for Opc3photo which allows for
+  optimization of multiple runs of curves (A/Q or A/Ci).
 }
 \details{
-Include more details about the data.
+  Include more details about the data.
 }
 \examples{
 data(simAssim)
@@ -71,11 +75,11 @@ plot(op.all)
 plot(op.all, parm='jmax')
 }
 \author{
-Fernando E. Miguez
+  Fernando E. Miguez
 }
 \seealso{
-See also \code{\link{Opc3photo}} %% ~~objects to See Also
-as \code{\link{help}}, ~~~
+  See also \code{\link{Opc3photo}} %% ~~objects to See Also
+  as \code{\link{help}}, ~~~
 }
 \keyword{optimize}
 

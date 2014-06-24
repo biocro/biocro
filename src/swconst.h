@@ -5,7 +5,7 @@
 #define HOURS_PER_DAY 24
 #define NDAY 366               /* dimension for daily arrays */
 #define NMONTH 12              /* # of months in a year */
-#define MAXLYR 21              /* Max # of soil layers (soil water model) */
+#define MAXLYR 200              /* Max # of soil layers (soil water model) */
 #define CENTMAXLYR 10          /* Max # of century soil layers */
 #define MAXSTLYR 200           /* Max # of soil temperature layers */
 #define PARTDENS 2.65          /* Particle Density (g/cm3) */

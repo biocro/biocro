@@ -458,6 +458,5 @@
         fprintf(stdout, "In denitrify(2), Dn2oflux = %12.10lf\n", *Dn2oflux);
         fprintf(stdout, "In denitrify(2), Dn2flux = %12.10lf\n", *Dn2flux);
       }
-
       return;
     }

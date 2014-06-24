@@ -312,7 +312,7 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
 
 
 
-##' Function for printing the MCMCc4photo objects
+## Function for printing the MCMCc4photo objects
 ##' @export
 ##' @S3method print MCMCc4photo
 print.MCMCc4photo <- function(x,burnin=1,level=0.95,digits=1,...){

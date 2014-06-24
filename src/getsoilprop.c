@@ -71,7 +71,7 @@
 #define VERYFINE 4              /* texture type for volcanic soil */
 
     void getsoilprop(double *asand, double *asilt, double *aclay, double *bulkden,
-                     double *fieldcap, int *texture)
+                     double *fieldcap, int *texture, int *soilclassification)
     {
       static double satcond[NCLASS] = {0.0, 0.000176, 0.0001563,
                                       0.00003467, 0.0000072, 0.00000695,
@@ -157,6 +157,7 @@
       *bulkden = bulk_density[soil_indx];
       *fieldcap = field_capacity[soil_indx];
       ksat = satcond[soil_indx]*100.0;    /* Convert m/sec to cm/sec */
+      *soilclassification=soil_indx-1;
 
 /*      printf("Soil classification = %1d\n", soil_indx);
       printf("standard_bulkden = %10.6lf\n", *bulkden);
