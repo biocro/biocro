@@ -124,16 +124,13 @@ TempToLHV <- function(Temp)
     LHV = 2.501 + -0.002372727 * Temp;
     return(LHV);
   }
-<<<<<<< HEAD
+
 ##' Returns a value for SlopeFS from a function of temperature
 ##' 
 ##' Takes a value for Temp as defined by the SoilEvapo function and returns a value for SlopeFS
 ##' which helps define the Evaporation.
 ##' @param Temp Temperature
 ##' @export TempToSFS
-=======
-
->>>>>>> deepak_cropcent
 TempToSFS <- function(Temp)
   {
     SlopeFS = 0.338376068 +  0.011435897 * Temp +  0.001111111 * Temp^2;

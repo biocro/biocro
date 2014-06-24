@@ -13,12 +13,11 @@
 \alias{willowGro}
 \title{willowmass crops growth simulation}
 \usage{
-  willowCent(WetDat, day1 = 120, dayn = 300, timestep = 1,
-    iRhizome = 1, lat = 40, iPlant = 1, irtl = 1e-04,
-    canopyControl = list(), seneControl = list(),
-    photoControl = list(), willowphenoControl = list(),
-    soilControl = list(), nitroControl = list(),
-    iPlantControl = list(), centuryControl = list())
+willowCent(WetDat, day1 = 120, dayn = 300, timestep = 1, iRhizome = 1,
+  lat = 40, iPlant = 1, irtl = 1e-04, canopyControl = list(),
+  seneControl = list(), photoControl = list(),
+  willowphenoControl = list(), soilControl = list(),
+  nitroControl = list(), iPlantControl = list(), centuryControl = list())
 }
 \arguments{
   \item{WetDat}{weather data as produced by the
@@ -246,17 +245,16 @@
   \code{timestep} currently either week (default) or day.}
 }
 \value{
-  a \code{\link{list}} structure with components
+a \code{\link{list}} structure with components
 }
 \description{
-  Simulates dry biomass growth during an entire growing
-  season.  It represents an integration of the
-  photosynthesis function \code{\link{c3photo}}, canopy
-  evapo/transpiration \code{\link{CanA}}, the multilayer
-  canopy model \code{\link{sunML}} and a dry biomass
-  partitioning calendar and senescence. It also considers,
-  carbon and nitrogen cycles and water and nitrogen
-  limitations.
+Simulates dry biomass growth during an entire growing
+season.  It represents an integration of the photosynthesis
+function \code{\link{c3photo}}, canopy evapo/transpiration
+\code{\link{CanA}}, the multilayer canopy model
+\code{\link{sunML}} and a dry biomass partitioning calendar
+and senescence. It also considers, carbon and nitrogen
+cycles and water and nitrogen limitations.
 }
 \examples{
 \dontrun{

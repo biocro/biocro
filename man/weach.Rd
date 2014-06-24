@@ -2,11 +2,9 @@
 \alias{weach}
 \title{Simulates the hourly conditions from daily}
 \usage{
-  weach(X, lati, ts = 1,
-    temp.units = c("Fahrenheit", "Celsius"),
-    rh.units = c("percent", "fraction"),
-    ws.units = c("mph", "mps"), pp.units = c("in", "mm"),
-    ...)
+weach(X, lati, ts = 1, temp.units = c("Fahrenheit", "Celsius"),
+  rh.units = c("percent", "fraction"), ws.units = c("mph", "mps"),
+  pp.units = c("in", "mm"), ...)
 }
 \arguments{
   \item{X}{a matrix (or data frame) containing weather
@@ -38,34 +36,34 @@
   \code{\link{lightME}}}
 }
 \value{
-  a \code{\link{matrix}} returning hourly (or sub-daily)
-  weather data. Dimensions 8760 (if hourly) by 8.
+a \code{\link{matrix}} returning hourly (or sub-daily)
+weather data. Dimensions 8760 (if hourly) by 8.
 }
 \description{
-  Manipulates weather data in the format obtained from WARM
-  (see link below) and returns the format and units needed
-  for most functions in this package. This function should
-  be used for one year at a time.  It returns hourly (or
-  sub-daily) weather information.
+Manipulates weather data in the format obtained from WARM
+(see link below) and returns the format and units needed
+for most functions in this package. This function should be
+used for one year at a time.  It returns hourly (or
+sub-daily) weather information.
 }
 \details{
-  This function was originally used to transform daily data
-  to hourly data. Some flexibility has been added so that
-  other units can be used. The input data used originally
-  looked as follows. \enumerate{
+This function was originally used to transform daily data
+to hourly data. Some flexibility has been added so that
+other units can be used. The input data used originally
+looked as follows. \enumerate{
 
-  \itemcol 1year \itemcol 2day of the year (1--365). Does
-  not consider leap years. \itemcol 3total daily solar
-  radiation (MJ/m^2). \itemcol 4maximum temperature
-  (Fahrenheit). \itemcol 5minimum temperature (Fahrenheit).
-  \itemcol 6average temperature (Fahrenheit). \itemcol
-  7maximum relative humidity (\%). \itemcol 8minimum
-  relative humidity (\%). \itemcol 9average relative
-  humidity (\%). \itemcol 10average wind speed (miles per
-  hour). \itemcol 11precipitation (inches). }
+\itemcol 1year \itemcol 2day of the year (1--365). Does not
+consider leap years. \itemcol 3total daily solar radiation
+(MJ/m^2). \itemcol 4maximum temperature (Fahrenheit).
+\itemcol 5minimum temperature (Fahrenheit). \itemcol
+6average temperature (Fahrenheit). \itemcol 7maximum
+relative humidity (\%). \itemcol 8minimum relative humidity
+(\%). \itemcol 9average relative humidity (\%). \itemcol
+10average wind speed (miles per hour). \itemcol
+11precipitation (inches). }
 
-  All the units above are the defaults but they can be
-  changed as part of the arguments.
+All the units above are the defaults but they can be
+changed as part of the arguments.
 }
 \examples{
 data(cmi0506)

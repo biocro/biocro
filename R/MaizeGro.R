@@ -1,5 +1,4 @@
 ##  BioCro/R/MaizeGro.R by Fernando Ezequiel Miguez  Copyright (C) 2012
-<<<<<<< HEAD
 #' Simulation of Maize, Growth, LAI, Photosynthesis and phenology
 #' 
 #' 
@@ -111,9 +110,6 @@
 #'                   MaizePhenoControl = MaizePhenoParms(R6 = 2000))
 #' 
 #' @export MaizeGro
-=======
-
->>>>>>> deepak_cropcent
 MaizeGro <- function(WetDat, plant.day=NULL,
                      emerge.day=NULL,
                      harvest.day=NULL,
