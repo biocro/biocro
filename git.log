@@ -1,0 +1,2183 @@
+commit 9889a88f1d15ea987d94c22a657498edbd189847
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Tue Apr 29 18:56:21 2014 -0500
+
+    Restored after a minor break up in the code due to function "FIlling_BioCro_SoilStrucuture"
+
+commit 94293b29fa58cd97527b526af2291c5cf6033b62
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Tue Apr 22 16:13:53 2014 -0500
+
+    Function Copt_SoilWater_BioCro_to_CropCent is modified to get rid of un-necessary argument doilsepths
+
+commit 5f4d29b1e31b9062694caeaa58d41d61b9385ce3
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Tue Apr 22 12:18:40 2014 -0500
+
+    getsoilprop functon is modified to return additional varibale for soil classification type. This is used in CropGro to get soil classification based on sand, silt, and clay and then used in CropGro to get hydraulic properties for soil water simulations.
+
+commit 1f1e9593a2cad314c48103f5bb7abfb003c9ef2e
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Tue Apr 22 07:42:09 2014 -0500
+
+    soil texture information  is passed from R to CropGro.c. Texture information is read by structure soilText_str. Then Is is sent to function FIlling_BioCro_Soil_Structures to create multilayer soil properties (in BioCro part).
+
+commit 7f3c27f0b01bac648f1c9ee6bdfa6c1c92ea6fdf
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Tue Apr 22 07:11:57 2014 -0500
+
+    Initialization of Soil Organic Pools now is occuring via R Function. Before they were fixed. This is required to write regional simulations scripts in R.
+
+commit 72ee19d3e92925c14a58116a463ca31035d47d96
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Mon Apr 21 08:50:08 2014 -0500
+
+    All the subfunctions in CalculateBiogeochem are enabled are running bug free. Structures to go as input from BioCro to CropCent are defined locally in Calculatebiogeochemistry. Also leafNutrient (and stem, root, rhizome nutrient) structures are defeined locally in CalculateBiogeochem. Some of these defintion must move from here to main function.
+
+commit 1f2981c871d4521a13e227c01d077802317aedb1
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Mon Apr 21 08:39:20 2014 -0500
+
+    Backward compatibility of assignENV in CalculateBiogeoche.c is ensured by assigning a temporary pointer to double *fake. This pointer replaces multple pointer arguments to the function assignENV. In the function assignENV, hard coded values of all the parameters for C decompositions is assigned. purpose of fake pointer is to get data from R and then assign them in assignENV. Perhaps I can focus only on assigning initial value of soil organic pools instead of all the parameters.Also, A decision to be made whether it make sense to keep using current format of input from R or write a function which will directly read an XLS file to Variabls in C.
+
+commit f7a5441494345bc0c73cfde795b1088ce2383329
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Mon Apr 21 08:03:12 2014 -0500
+
+    backward compatibility of all the functions until assignENV in the CalculateBiogeochemistry function.
+
+commit 45fc18d7744fde8c8ee29b93c8401f76720b4ba0
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Mon Apr 21 07:29:09 2014 -0500
+
+    backward compatibility of trace_gas_model is working after declaration of varables in various [appropriate structures] and passing them to trace_gas_model in CalculateBiogeochemistry
+
+commit 25b9beaf1374aedd7180f8d1a80ff17a9f01b69f
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Sat Apr 19 23:28:06 2014 -0500
+
+    Variable ammonium is not stored internally in cropcent structure by adding an aditional elemet in cropcentENvironment
+
+commit f50873c6ca53ec55fc85b1ea047dca2e78c9527c
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Sat Apr 19 21:08:24 2014 -0500
+
+    additional element newminN, newminP, newminS, newminK are added. newminN is required for sending this value to trace_gas_model function. So far, we have element minN,S, P, K, which was storing updated value instead of new value.
+
+commit bed7a0eb0efd5f6d35ab9fc6b6fe5936b67d9ca6
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Sat Apr 19 19:46:25 2014 -0500
+
+    Function to Copy CropCent structure to DayCent Compatible Structure is defined. This is needed to call tracegas model. There are many unused elements in the DayCent Structures as given to me by Melanie. I need to remove them.
+
+commit d1ae3083cda4cc7210256ca8e84e28bcb2e85be2
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Sat Apr 19 17:51:46 2014 -0500
+
+    Function to approximate soil temperature of multiple layers is added.
+
+commit 93223f00b95997df6597d12d6a5d6ebc01cbfbbc
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Sat Apr 19 14:24:41 2014 -0500
+
+    Function Filling_BioCro_SoilStructre is added. This function assign extra soil variables (bulk density, pH, swclimit) which are required for cropcent layer. I hve modified definitions of soil classification to add additional variables.bulk density is included based on values provided in getsoilprop function of DayCent (provided by Melanie). I need to ask the  reference.
+
+commit face5c0dd19f350c5ce3bd78c03fb512c6d04517
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Sat Apr 19 14:06:29 2014 -0500
+
+    "restored after error due to missing semicolon in function prototype
+
+commit abbe369e8aea6ca517db4c071b5f744a9f97807c
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Wed Apr 16 13:39:22 2014 -0500
+
+    Duplication of definition is avoided by adding #ifndef #define #endif in all the header file. This may cause some trouble for willow function as there were some multiple definition in canopy parts.
+
+commit 4598fb5860882d863fc592819123a17cb70f7400
+Author: Deepak Jaiswal <deepakuiuc@gmail.com>
+Date:   Wed Apr 16 07:57:54 2014 -0500
+
+    soil structure is changed in BioCro
+
+commit f828c26601482a8d1806e13b5af3bff8588dc199
+Merge: ef6d3be 574b1b0
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Apr 11 16:10:16 2014 -0500
+
+    Merged in ajmann4/biocro-ajmann4/update-documentation (pull request #16)
+    
+    fixed remaining warnings from roxygen in documaentation
+
+commit 574b1b0feaafda847c11d6d8189ba29d72f4a299
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Apr 11 15:20:18 2014 -0500
+
+    fixed remaining warnings from roxygen in documaentation
+
+commit ef6d3be09ef37f84afad8887994c3d874617831a
+Merge: 1cab9ca 4ec97c8
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Apr 11 13:47:02 2014 -0500
+
+    Merged in Rgrady6/biocro-ryan/debugC (pull request #14)
+    
+    Fixing errors and warnings
+
+commit 1cab9ca37965b713c929da775b8d8e5d6ba60e8a
+Merge: a4f413c d0ec203
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Apr 11 13:46:25 2014 -0500
+
+    Merged in ajmann4/biocro-ajmann4/update-documentation (pull request #15)
+    
+    fixing warnings in documentation
+
+commit d0ec203ee3fac384efac9ebe11f2cc2f5c54ccb0
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Apr 9 14:42:06 2014 -0500
+
+    made enumerated item listsin deatials of weach and weach_imn documentation
+
+commit a46239d43b3ea8c3f588b9ec10f5cd25c1666475
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Apr 9 14:04:52 2014 -0500
+
+    fixed warnings in weach amd weach_imn and updated their documentation.
+
+commit a4f413c5f6ecd5920a2cabf2dc068fc1863b5c62
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Apr 3 00:38:06 2014 +0000
+
+    added exit status 1 on fail
+
+commit 02f19624df594c795c544e4748df75b7f5fbc3e7
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Mar 21 09:31:49 2014 -0500
+
+    changed itemcol to item in an effort to work towards fixing those warnings. no such luck. will continue to experiment.
+
+commit 204819015e60ca5bfaafe694a2c16fb5437610fb
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Mon Mar 17 14:06:33 2014 -0500
+
+    removed unnecessary files
+
+commit 3a97f4ec273fb0fcbc2900d407596dfddb3f06f5
+Merge: 7d7a936 83c364a
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Mar 17 13:46:01 2014 -0500
+
+    Merged in ajmann4/biocro-ajmann4/update-documentation (pull request #13)
+    
+    added documentation headers and Rd files for several R functions.
+
+commit 83c364a27b280a5f876f694f19e72ed48853fdcc
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Mon Mar 17 13:31:33 2014 -0500
+
+    fixed several bugs in headers.
+
+commit d6415c420100fe3b734f539bd6ee5555d0425eba
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Mar 14 15:42:03 2014 -0500
+
+    added man files for several functions
+
+commit fbafcb88f363dc4a67f5b1d73cf4e383a0f4e3ce
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Mar 12 16:11:54 2014 -0500
+
+    added documentation headers for soil type functions
+
+commit 7f5d53560586add3d790323705d6149def8f308e
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Mar 12 13:22:20 2014 -0500
+
+    added documentation headers for weachNEW, weach365, weach366, and CheckLeapYear
+
+commit 7d7a9360ac488d5215da43c8ead19ef3750385b3
+Merge: 6fd350d a27e113
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Fri Mar 7 18:13:25 2014 -0600
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 6fd350dd9af3efecda3b819b72641964ba2c0012
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Fri Mar 7 18:13:11 2014 -0600
+
+    minor fix
+
+commit 4ec97c87c6b853e0c781ae07d67678a2d1831797
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Wed Mar 5 16:38:14 2014 -0600
+
+    Updated fix to .gitignore
+
+commit e7a850515125b6517ebb43301cfb620f0637376f
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Wed Mar 5 16:24:31 2014 -0600
+
+    Fixed unwanted change in gitignore
+
+commit 9a3b798c5fd40e4c8d4f6cf6f5e470a25520b336
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Mar 5 15:30:19 2014 -0600
+
+    added documentation headers for several functions
+
+commit edd8c265b7bc1000e5ed6b0d17d0d1091cbdfbca
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Mon Mar 3 16:07:45 2014 -0600
+
+    added header for s3 summaries of OpBioGro and OpEC4photo
+
+commit a944ddde867ff5f70dacb9e07838d83a3a2ff15a
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Feb 28 15:30:16 2014 -0600
+
+    added Rd for print.BioGro
+
+commit 9681d85407c018b006bd53eafe6ec50ef8e9372f
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Feb 28 15:12:21 2014 -0600
+
+    added documentation headers for RSS function variations in Opc3photo, Opc4photo, and OpEC4photo.
+
+commit 7b706200e7b46c15d550902a16d062450b6c9bc4
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Feb 26 16:04:30 2014 -0600
+
+    added to doumentation headers in BioGro S3 methods.
+
+commit 3e4633bdfcdaffe4adcd1070e9237d70915ce871
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Tue Feb 25 18:20:12 2014 -0600
+
+    Making Function defintions and structure definitions in header files. Got rid of unused variable in AuxBioCro
+
+commit 5dbe1044b08f3fe9ab5171606c5ad106dd567838
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Tue Feb 25 17:20:02 2014 -0600
+
+    Added missing function declaration
+
+commit d679902cc777158e157879c3e40a6df478e7bb95
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Tue Feb 25 17:15:39 2014 -0600
+
+    Had to ignore git files
+
+commit 9a226da871a24d91bdfe52a2a2327dd92e134bf4
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Mon Feb 24 14:57:16 2014 -0600
+
+    added to documentation headers for functions in century, as well as updated Rd files for many other functions
+
+commit c2d2ae7e3c14a26b05b3e8592e4ee34efeb9c7e6
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Feb 21 18:57:27 2014 -0600
+
+    updated param tags for flow and FmLcFun functions
+
+commit f39abb55471d22a896c2e9d9981cf9a53fb83438
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Feb 21 15:10:06 2014 -0600
+
+    added Rd files for  FmLcFun, CenturyC, and flow functions.
+
+commit a639173de1fb148a396d0480d325874ba71bf9a7
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Mon Feb 17 15:54:19 2014 -0600
+
+    added documentation headers for FmLcFun, flow, and CenturyC
+
+commit b015cc3b1275be68f3f8477dcae9263442c0051d
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Mon Feb 17 13:41:06 2014 -0600
+
+    updated documentation headers for several functions to include argument lists
+
+commit bef92af231d5778dbe772eb1d1ef9172422d1501
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Feb 14 15:21:43 2014 -0600
+
+    added documentation header for FmLcFun function in Century.R
+
+commit 35a96880f49a3be60c1996857bd80516664d821f
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Feb 14 14:35:37 2014 -0600
+
+    added donumentation for rootDist funtion.
+
+commit 3a90cae8dfe3460133cb0418d1c276901a7da7e7
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Wed Feb 12 17:03:27 2014 -0600
+
+    Set Build to keep source for debugging.
+
+commit b4b74ff639224f7b7b4014d4a7a3ed19d3e4ab72
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Feb 12 16:06:16 2014 -0600
+
+    added documentation header for rootDist function in soilML.R
+
+commit 2089210965e6c7bc334f614e17a9dbbc74cb73d0
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Feb 12 14:07:18 2014 -0600
+
+    added man files for functions RssMaizeGro,
+    TemptoDdryA, TemptoLHV, TemptoSFS, TemptoSWVC, ardBuck, fnpsvp, print.MCMCc4photo,  and wsRcoef.
+
+commit 8e00896dc36cd7eaa74eb0d57aa6bf17caa474aa
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Feb 12 13:55:54 2014 -0600
+
+    added documentation for fnpsvp and ardBuck functions in SatWatVap.R and wsRcoef function in waterStress.R
+
+commit e51e9070484b2d7ea877edb79b657ec4e6687670
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Feb 7 16:24:03 2014 -0600
+
+    updated documentation on the TempToDdryA TempToLHV, TempToSFS, and TempToSWVC functions
+
+commit 6d3bdc2d785b0557362c7a8d7802bf0a19798306
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Feb 7 16:22:42 2014 -0600
+
+    updated git ignore to include functions generated when equations.tex is compiled
+
+commit a27e11378786ff3c568454377825d64d0934ba76
+Merge: cb769cf 98e4a54
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Feb 5 18:37:27 2014 -0600
+
+    Merged in ajmann4/biocro-ajmann4/update-documentation (pull request #12)
+    
+    moved Rd to roxygen for caneGro, OpBioGro, MaizeGro, MCMCBioGro, willowGro,  BioCro.R, and Opc3photo
+
+commit 98e4a545d265a4129b62cd5e7aae4a3d518b379b
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Feb 5 17:29:45 2014 -0600
+
+    eneabled R documentation.
+
+commit 98f99fbbf092c673ea19b79d4b9f77b44e1c697a
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Mon Feb 3 16:38:09 2014 -0600
+
+    deleted vestigial r documentation files
+
+commit ec5c684e7b32cb587917599f33614c05fb0c6b71
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Mon Feb 3 16:37:14 2014 -0600
+
+    updated documentation on OpEC4photo, RUEmod, and weach_imn
+
+commit 487ca9d1430434e3e1613a17d82e66ee709c0d77
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 31 13:51:35 2014 -0600
+
+    Fixed some syntax issues in
+    c3phto.c
+    caneGro.c
+
+commit bd17291151415bd04052b22348ca17df6c56f4b5
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 31 13:28:48 2014 -0600
+
+    Removed unused variables from
+    CropGro.c
+    BioCro.c
+    
+    Updated Syntax in
+    c3CanA.c
+
+commit 3562658d60777a3245d85fd4ffabea397d5886b3
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 31 11:26:10 2014 -0600
+
+    Removed unused variables
+
+commit 6df7622c98284c9fcd9ccee28e77556d2582a08d
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 31 11:25:19 2014 -0600
+
+    Fixed Syntax and removed unused variables from AuxwillowGro.c
+
+commit 08c3a5f181a3726245280a0e809f5537fd956ad8
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Jan 30 17:20:07 2014 -0600
+
+    updated documentation on BioCro.R
+
+commit da2df6f7b39deb6de8565d8c060420d75949a11f
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Jan 30 16:10:55 2014 -0600
+
+    updated documentation in willowGro and Opc3photo
+
+commit 96f3df0f0b8a72ab1731e8142ca8e9ec8d14c1d1
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Jan 30 16:10:00 2014 -0600
+
+    added R documentation caneGro.Rd
+
+commit 0dc5e0916a648769ccfd2bdf2c7fbfbf2ca5687e
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Jan 29 18:09:35 2014 -0600
+
+    moved Rd to roxygen for caneGro and OpBioGro
+
+commit 574fd3c2a349cc6983a4dae80b70bfdeef9ec6df
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Jan 29 17:15:55 2014 -0600
+
+    moved Rd to roxygen for MaizeGro and MCMCBioGro
+
+commit 7106e94291dac5c866e538fa821c3f7c138d958d
+Merge: b465db9 cb769cf
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Wed Jan 29 13:16:20 2014 -0600
+
+    Merged biocro/biocro into master
+
+commit cb769cfe5b5914062c489dd87c7324aee99bb707
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Tue Jan 28 14:43:27 2014 -0600
+
+    removed metutils from DESCRIPTION, cleaned out misc gitignore and . file
+
+commit dfcd1a942e4496bd49196fd0c9db2b889555dac8
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Tue Jan 28 13:54:28 2014 -0600
+
+    deleted metutils
+
+commit dab6a4e115b828c347a7b89148d05d00d7072e6f
+Merge: 2e9470a c598189
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Jan 27 20:52:44 2014 -0600
+
+    Merge remote-tracking branch 'origin'
+
+commit 2e9470aaf95fc6881543cfab774fd691879f8eab
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Jan 27 20:46:53 2014 -0600
+
+    fixed tests
+
+commit 105ccef2e32ee4417897304867608953828126d3
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Jan 27 20:46:33 2014 -0600
+
+    added "data.table" to imports, depends
+
+commit c59818969660902726b83a4b42e1e81d8630d832
+Merge: 068e368 fd1fd0c
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Mon Jan 27 19:02:32 2014 -0600
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 068e368d38ac6dbfdf5d1d55174739a55bf23fdf
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Wed Jan 22 09:36:09 2014 -0600
+
+    tried to fix some tests
+
+commit e4b02844f7e888dd635fdcda0b5a77a7040d605a
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 24 21:25:04 2014 -0600
+
+    Removed unused variables
+
+commit 2b7c61094b5f48d5e8ae9dc24d14dd0a0046e9be
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 24 20:51:33 2014 -0600
+
+    Cleaned syntax in CropGro.c
+    Deleted unused variables in AuxcaneGro.c
+
+commit 8f707355145234c8e49585798b022ad50b7ab184
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 24 20:00:14 2014 -0600
+
+    Removing unused variables.
+
+commit 1132f5cc96a6cd4f79dc53a531b8542250993672
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 24 19:46:03 2014 -0600
+
+    Deleting unused variables. This fixed almost all the issues that were brought up by RStudio during a build. However, we need to be careful not to delete any variables that are being used, as this does not fix errors but warnings. After removing the variables the program builds with only 2 issues concerning unused variables "runoff2" and "tmp3". However these are much harder to delete as I believe they are used to calculate other variables which are actually used by the program.
+    
+    Variables that were removed:
+    
+    LeafWidth
+    WindSpeedTopCanopy
+    BoundaryLayerThickness
+    DiffCoef
+    LeafboundaryLayer
+
+commit fac4d1233b8e11e7dbc29773bfd10c17221aca5c
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 24 18:23:49 2014 -0600
+
+    According to the wiki correct syntax includes a space before and after any binary operators. However since the code is mostly written without spaces I have decided to change it to all be the same and figure out how to change the coding style later.
+
+commit 0d063e4f397e3b02f10ef03fc91e9e1d76ec9c54
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 24 18:05:39 2014 -0600
+
+    Cleaning Syntax getting rid of extra lines before editing code
+
+commit 7c0d8dc05c2f8bafea0ea3dc1ec4060acdf5ac6f
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 24 17:54:13 2014 -0600
+
+    Added structure definition before using it in the parameter list to get rid of warnings. Seemed to clear up errors but im not 100% sure if the structure definintion needs to contain more elements.
+
+commit 799935e6e267f0c1915ae2e640f37ff534ae8e65
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Fri Jan 24 17:40:44 2014 -0600
+
+    Cleaned up Syntax and improved readability
+
+commit b465db92797e34f13e5f51b28e288b6652137623
+Merge: 6e5fd98 fd1fd0c
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Jan 24 14:42:51 2014 -0600
+
+    Merged biocro/biocro into master
+
+commit f3a1f678b7b4db1620c02195e84dd5d00277d765
+Author: Ryan Grady <Rgrady6@Gmail.com>
+Date:   Thu Jan 23 20:58:41 2014 -0600
+
+    Syntax
+
+commit e4a62b7e9b4eb3b241ef215a8c0258871cc1ab56
+Author: Ryan Grady <rgrady6@gmail.com>
+Date:   Fri Jan 24 00:47:20 2014 +0000
+
+    Created new branch debugC
+
+commit 9e5c29ebdfc0c8bc645914e45672ad0601279e3b
+Merge: 5d47894 fd1fd0c
+Author: Ryan Grady <rgrady6@gmail.com>
+Date:   Thu Jan 23 18:45:35 2014 -0600
+
+    Merged biocro/biocro into master
+
+commit fd1fd0cf58ba3d8373e17245b0dc2f7a0fe70b6b
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Wed Jan 22 09:36:09 2014 -0600
+
+    removed pdflatex and rtf generation (only using html now)
+
+commit 4ec0c6de39381195beb9800fd8a99f0bc33168a6
+Merge: ca8b68f 3ba01d5
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Wed Jan 22 09:33:32 2014 -0600
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit ca8b68f45a3f969aa72272f242aeea0d35d5afb9
+Merge: e0ef661 1fc7fc1
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 20 17:34:14 2013 -0600
+
+    updated documentation
+
+commit 3ba01d5b0f4535df52a4ed96548a8a54f1ea19f9
+Merge: e0ef661 1fc7fc1
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 20 17:34:14 2013 -0600
+
+    merge
+
+commit e0ef661bdf939756c5449ed56e48f27ebac7ab03
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 20 17:29:55 2013 -0600
+
+    updated Doxyfile to generate more informative documentation
+
+commit 1fc7fc15c37d87be6c576f9d1369db6c133bd080
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 20 17:29:55 2013 -0600
+
+    updated Doxyfile to generate more informative documentation
+
+commit f38ee412ab5ad15b878f0863accb916d34d91411
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 20 22:34:15 2013 +0000
+
+    README edited online with Bitbucket
+
+commit 3509d337037f06782dbcfe82dbaf56188153d296
+Merge: 4dd8a54 6e5fd98
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 20 16:30:49 2013 -0600
+
+    Merged in ajmann4/biocro-ajmann4/docedit (pull request #11)
+    
+    added readme on how to generate documentation. updated gitignore
+
+commit 6e5fd98a56979236a3fb45dfaf6190a8f80db097
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Dec 20 15:41:57 2013 -0600
+
+    updated gitignore to exclude files generated by new R version
+
+commit 2c40e5844ec1c468f809857a4a4849a73c7301e7
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Dec 20 13:16:31 2013 -0600
+
+    updated .gitignore in order to exclude automatically generated doxygen files.
+
+commit 0ed0e451c2b73ca6948235757d3864e518d81c6a
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Dec 20 12:49:53 2013 -0600
+
+    generalized Doxyfile
+
+commit 2dbb5820b3167d6b3c2c80d9056cee8a3c2ccba8
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Dec 20 12:48:49 2013 -0600
+
+    added readme on how to generate documentation.
+
+commit aed832287789c190eb1147f0cb9ae4c08b3581b1
+Merge: 305f6ab 4dd8a54
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Dec 19 17:44:18 2013 -0600
+
+    Merged biocro/biocro into master
+
+commit 4dd8a54a918ba45ccb1fe46ecff9b0fbdaeeef2f
+Merge: 305f6ab b4d9790
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Dec 19 16:32:40 2013 -0600
+
+    Merged in ajmann4/biocro-ajmann4/docedit (pull request #10)
+    
+    added documentation, removed automatically generated files.  Missing README
+
+commit b4d9790188c6945b31d70a4424485cef1be9a492
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Dec 19 15:57:32 2013 -0600
+
+    removed automattically generated files
+
+commit 98fd7d3a766fe6189f9242a0ae5487bfeb109654
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Tue Dec 17 19:28:56 2013 -0600
+
+    added documentation
+
+commit 305f6abc2fd8cd724ff4c6ae11cfa94355be3e87
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 6 15:01:30 2013 -0600
+
+    added README
+
+commit 3e68bab164b4132e8577ef97f656959744fccb91
+Merge: 820bf93 88ea39c
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 6 14:57:53 2013 -0600
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 820bf931bef3e11120e5280939a2e9ea85e58320
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Dec 6 14:57:48 2013 -0600
+
+    added metutils from PEcAn to remove dependency; misc documentation updates updates
+
+commit 88ea39ce0e3c5bed95fe72398a9d45f4e326faf4
+Merge: 1f39f7b 7153566
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Dec 2 10:44:08 2013 -0600
+
+    Merged in ajmann4/biocro-ajmann4 (pull request #8)
+    
+    added parm labels in parameters table and parm refrences in c3photo.c and c4photo.c
+
+commit 7153566a4622c819e84414002435e724d3f2ecd4
+Merge: 4d2a347 0015f5b
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Nov 22 15:49:29 2013 -0600
+
+    Merged in eqnedits (pull request #2)
+    
+    added parm labels in parameters table and parm refrences in c3photo.c and c4photo.c variables
+
+commit 0015f5b456ab695b7bb7d975c67f277af36d2f35
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Nov 22 15:44:05 2013 -0600
+
+    added parm labels in parameters table and parm refrences in c3photo.c and c4photo.c variables
+
+commit 4d2a3470cd09fb751cf4c376ece34d2dfe151289
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Nov 22 13:09:49 2013 -0600
+
+    fixed compile on equasions.tex
+
+commit 6ac83b125915043abd72431a572f12c7b771882f
+Merge: c0b7f03 1f39f7b
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Nov 22 12:55:15 2013 -0600
+
+    Merged biocro/biocro into master
+
+commit 1f39f7b936cbc191e4212227b325a7f9e53e89a6
+Merge: 3a33b7d 46ff03e
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Nov 22 12:51:57 2013 -0600
+
+    Merged in ajmann4/biocro-ajmann4/eqnedits (pull request #7)
+    
+    added equation refences in comments for C3photo.c and C4photo.c
+
+commit c0b7f031078ce1158160f1ae8fbcfd1a3426f441
+Merge: bfceee6 3a33b7d
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Nov 22 12:45:10 2013 -0600
+
+    Merged biocro/biocro into master
+
+commit 46ff03e77f964534aad692e56bb832d2caf1d6a9
+Merge: f989d54 bfceee6
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Nov 22 12:35:34 2013 -0600
+
+    added equation references in comments for C3photo.c and C4photo.c
+    
+    Merge branch 'master' of https://bitbucket.org/ajmann4/biocro-ajmann4 into eqnedits
+    
+    Conflicts:
+    	documentation/equations.tex
+
+commit 3a33b7d9b12a3864e284cb6e02775dcbdf427f16
+Merge: 8a571fd bc55e14
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Fri Nov 22 10:15:18 2013 -0600
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit bfceee6da66b3624e4459ffef59614fe337fb820
+Merge: d8fbab3 bc55e14
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Nov 21 19:10:48 2013 -0600
+
+    Merged biocro/biocro into master
+
+commit f989d542e8d19aa714ce176c8382374378903ebe
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Nov 22 01:05:45 2013 +0000
+
+    uncommented C4 photo
+
+commit bc55e146631823398abb80bff4f02a1a4ed0e4bc
+Merge: 16fe63a 5c39e1d
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Nov 21 18:53:32 2013 -0600
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 16fe63a408e7aab67b76f3b3ab16127ae90f533e
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Wed Nov 6 12:00:17 2013 -0600
+
+    added test_that function at test.CropGro.R
+
+commit 8a571fdc3ac7e61b4e8460846101ab91f6a7ae13
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Mon Nov 18 15:48:01 2013 -0600
+
+    temporarily disabled tracegas function to allow running without errors
+
+commit d645c44c9d80f7ff5bc43c3f146a8a8b01261a20
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Fri Nov 15 16:09:26 2013 -0600
+
+    added labels, references, margin notes for functions under C3phototsynthesis, c4photosythesis, canopy radiation, and weather downscaling
+
+commit 5c39e1d9d87697bf27d6e9aa0a78696b4636dd01
+Merge: 5d47894 d8fbab3
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Nov 15 12:30:16 2013 -0600
+
+    Merged in ajmann4/biocro-ajmann4 (pull request #2)
+    
+    updating and cross-referencing equation documentation and code
+
+commit d8fbab39b6dd36a10a32b1ee414538f35c1b0922
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Nov 14 19:31:29 2013 -0600
+
+    put c4 photosynthesis on own page
+
+commit 8ea700cc4e93e1e8348d97b90440efb185a10dc2
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Nov 14 19:13:38 2013 -0600
+
+    labels vcmax equation
+
+commit dbc9047b8d5adb53b88d2c40592c25847410d2ff
+Author: ajmann4 <ajmann4@illinois.edu>
+Date:   Thu Nov 14 18:54:25 2013 -0600
+
+    margin notes and c4 photosynthesis visible
+
+commit 5d47894908466d2f6e4587631a45647f941c94d1
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Wed Nov 6 12:00:17 2013 -0600
+
+    added test_that function at test.CropGro.R
+
+commit 631ec2375f2d0cc19d98241a6d3069af9ae7e3f2
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Nov 5 21:29:25 2013 -0600
+
+    added functions for converting meteorological variables
+
+commit beb651382ff4c6af6ab5fcf43d0b09105690579a
+Merge: a5917cc 0c3e8db
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Nov 5 20:44:05 2013 -0600
+
+    merge
+
+commit 0c3e8dbf788851812baba540b6e206806045631c
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Nov 5 20:37:51 2013 -0600
+
+    updating tests
+
+commit 215b7e607f9f2e212462408fc9f9c4874284a6dd
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Nov 5 19:33:23 2013 -0600
+
+    updated documentation
+
+commit a34472fefd2464b29fbc7e87c97caa95f8ef3ac1
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Nov 5 19:31:04 2013 -0600
+
+    fixed weachDT, added tests, tests pass
+
+commit 321099211413d48e15e22722c504d0d79290bfb1
+Merge: 8fc7e7d 2abab6c
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Oct 31 17:39:08 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 8fc7e7d0543242374b49d3635b26165e3591db8e
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Oct 31 17:39:02 2013 -0500
+
+    added weachDT function; should speed up temporal met downscaling
+
+commit 2abab6c1fea6711b593509e081d9e17a550abc9e
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Mon Oct 7 07:07:23 2013 -0500
+
+    mineral N in soil can be printed in R
+
+commit 14060f9f8be791cacc794ef4f3b5d7a243384060
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Sun Oct 6 23:52:08 2013 -0500
+
+    All the external variables (sitepar, soil, and layers) are removed and instead pointer to respective structures are passed.
+
+commit bf4cf3a30e1d8658add5e28d606681a2824d3a9f
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Sun Oct 6 21:10:36 2013 -0500
+
+    Trace gas simulation functions are added
+
+commit a5917ccd31f39204ee50a859637b881019554c9e
+Merge: 444089a e2d9147
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Oct 4 09:38:38 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 444089a50acd614642b3a5dd2113530fc07ca80d
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Oct 4 09:38:34 2013 -0500
+
+    updated documentation
+
+commit e2d91476e4df616e36b74a1c619ade23f5187bdc
+Merge: b5472f2 70b5190
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Thu Oct 3 13:46:20 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit b5472f214479a67963f60bcc781c357388e680c5
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Thu Oct 3 13:43:19 2013 -0500
+
+    pushing latest version from Deepak'c computer, to avoid NAN values in c3canopy (in CropGro)
+
+commit 70b5190e80a73034cb6c67c6d60a1e51134a1d1f
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Tue Oct 1 11:28:48 2013 -0500
+
+    changed the order of equations
+
+commit 125b27be4d59a2f9fb9d8215ba572bf578d15f75
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Oct 1 11:25:29 2013 -0500
+
+    mend
+
+commit 60476fdb6adb301e06426ebfbd3b62bea64174d9
+Merge: 46d282f 82c41aa
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Oct 1 11:25:01 2013 -0500
+
+    merge
+
+commit 82c41aadc3e3c0d14b0c0be1785a1a8c958236f7
+Merge: 29570d5 9320eea
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Tue Oct 1 09:17:45 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 29570d563b935cadc0ad6c66c9e159e886941445
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Tue Oct 1 09:15:27 2013 -0500
+
+    Issue#10 is resolved. Default values of day1 and dayn are defined in function definition of willowGro
+
+commit 46d282ff3134e3bcd2a6091284ec9cbc222cb605
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Sep 30 18:26:44 2013 -0500
+
+    added day1 and dayn defaults to willowGro; refs bitbucket #10
+
+commit 9320eea0bba06d048dcf286a8e2f7e1ebf6687f9
+Merge: 52447c5 e005cbb
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Sep 30 17:34:50 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 52447c58fb4dd708263bb90142baed0994ae3dee
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Sep 30 17:34:24 2013 -0500
+
+    added data.table to depends
+
+commit b3c3ec51135e84093553d21e3ce64029c94f1084
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Sep 30 17:34:07 2013 -0500
+
+    updated equations
+
+commit e005cbbd8dcc5ad3f7b919f52b2b049b7cdcc5a9
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Fri Sep 27 16:36:23 2013 -0500
+
+    CropGro is modified for litter input from different plant components to soil biogeochemistry simulations
+
+commit fa5c15127279b640556c8d9a21586f78e2bd1e18
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Fri Sep 27 13:01:50 2013 -0500
+
+    SOC output can be plotted in R, See testcropcent.R file in Vignettes folder.
+
+commit d26b5efb9a67bfea301d06d5ced4c1384838eef4
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Fri Sep 20 17:06:33 2013 -0500
+
+    I have kept both version of c3CanAC function (in AuxwillowGro.c) So that olde version of willowGro.c and newwer version of CropGro can produce results. I need to put these two version together.
+
+commit 1c40f5b8c5103f25979b9f19fbf9b4ced5d7d922
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Fri Sep 20 06:28:34 2013 -0500
+
+    Canopy Structure is added in the C3CanAC function in AuxwillowGro.c. Now C3Canopy is stable and is able to avoid NAN/ etc. Mjor error was in declaration of c3_str = {0,0,0} which should have been {0,0,0,0}
+
+commit c5a2d3784a86e9a61d6d50d02f25c3157f2f121d
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Sat Sep 14 19:11:43 2013 -0500
+
+    Printing Layer ID in C3 Canopy Function get rid of the problem on unstable behavior of Canopy Assimilation. This is perhaps caused due to memory allocation/ accessing canopy profile variables (leaf N, sunLIT) etc or missing initialization of some variables. I need to fix it so that Simulation can be performed without need to use RPrintf statement. I am pushing this version just to keep track of progress and this should not be extracted only for testign purpose.
+
+commit 31fb7844e1e63dda723e26e7f6c2570c27e27ee4
+Merge: 3e2b064 4832b29
+Author: Deepak <djaiswal@illinois.edu>
+Date:   Wed Sep 11 17:39:39 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 3e2b064465fb821bd639ae03f5925668049d6ebd
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Wed Sep 11 17:33:30 2013 -0500
+
+    ERROR/WARNING for simulation beyond 365 (day1 <365, dayn <365) is removed. Remeregence is yet to be implemented.
+
+commit 4832b2993d2db7141cb37841580f959dc44068ee
+Merge: 3f29a76 bb5e8fe
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Sep 11 09:55:49 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit bb5e8fe4b486e5e90c705f02e17361638e84ae9f
+Merge: cc912d2 f45780d
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Sep 10 23:25:28 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit cc912d29d87e04b147f989468579f6244e50e35f
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Sep 11 04:24:04 2013 +0000
+
+    updated partitioning, energy balance, canopy light transfer equations
+
+commit f45780d56a3753d5e4bf527a5575d4fbd049d70a
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Sep 11 04:24:04 2013 +0000
+
+    updated partitioning, energy balance, canopy light transfer equations
+
+commit e13538074f1999f2fa4ec009eff44b2af275ee46
+Merge: c5ebffd be2c306
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Sep 10 10:22:46 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit c5ebffd4543e7598e668b23498cebe22e1f925ab
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Sep 10 10:22:34 2013 -0500
+
+    updated equations
+
+commit ff726eab88e65409fe48f4b4a4c7261fc393678d
+Merge: d3dfa6e 428b140
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Sep 9 15:44:52 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit be2c306eb665403d7117fb62a7a7a979ba320316
+Merge: d3dfa6e 428b140
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Sep 9 15:44:52 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit d3dfa6e52dc7de2b7234d742d5a5cc43c60cf34e
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Sep 9 15:15:37 2013 -0500
+
+    revised first draft of equations
+
+commit 428b140bad8fce2f6d6d6ce5aab1712392fde49c
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Sep 9 15:15:37 2013 -0500
+
+    revised first draft of equations
+
+commit 01fd5d077f50af8e7d4e417bc454cb4181e341c5
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Mon Sep 9 12:18:20 2013 -0500
+
+    C3 Canopy Strcuture is modified and C3 Canopy Structure is corrected to return gross photosynthesis, which will be used to calculation of GPP
+
+commit 0de30ec88ba0d44a1e5dad1a70213616558e22f7
+Merge: 7462265 454cb87
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Sun Sep 8 16:45:45 2013 -0500
+
+    replace default parameter in willowGro function
+    
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+    
+    Conflicts:
+    	vignettes/testcropcent.R
+
+commit 7462265331319eedd3782b4451ed6f4216dbbd18
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Sun Sep 8 16:32:18 2013 -0500
+
+    Replace defult parameters value in willowGro function by what was used in the calibration site
+
+commit 454cb87f390f11973f75d8f09faeac69b890f60b
+Merge: 8f5478d b488ef5
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Sat Sep 7 13:49:15 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 8f5478d31461383a7052f25013141e5783ade124
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Sat Sep 7 13:44:30 2013 -0500
+
+    Function willowCent is added. This function incorporates new strategy for simulating respiration. This will be extended to simulate multi-year run.
+
+commit 3f29a766e58d570023d4a35d83a1da9ce5afe506
+Merge: 7e52bd4 b488ef5
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Fri Sep 6 13:35:12 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit b488ef5e7498eb1acdcda718025b884f6be6cfb7
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Sep 4 16:52:36 2013 -0500
+
+    updated equations for willow model:
+    * added C3 photosynthesis equations from Long 1991 and Bernacchiet al 2003,
+    * modified partitioning and water stress equations
+    
+    fixes #9
+
+commit 810eb8f0bd1f3044fdf1f0384c4ccdb875568284
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Sep 4 16:51:28 2013 -0500
+
+    added publications referenced by equations documentation
+
+commit 044e88ddeb8f26868e57f4d611942f98057a052e
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Sep 4 13:09:52 2013 -0500
+
+    added equations from Miguez et al 2009; closes #8
+
+commit 7e52bd4b9b5c305f0c70daa7a7334f36b5df96da
+Merge: 561e89b 50e38d9
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Sep 3 15:28:50 2013 -0500
+
+    merge
+    
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+    
+    Conflicts:
+    	vignettes/willow_manuscript.Rmd
+
+commit 561e89b4c208bcc7996c806a92690ec36e753a9a
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Sep 3 15:27:18 2013 -0500
+
+    misc. updates to documentation and related example data before ESA 2013
+
+commit 50e38d98d08d1ef806f3568e18b7034c495062e9
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Tue Sep 3 06:03:47 2013 -0500
+
+    Somechanges made in CropGro and AuxCropGro.c to check mass balance, I think it is working allright, at leats for the non-dormant stage (emergence =1 )
+
+commit 53945377426bc8dc7866bf6afb24cdb98f44f7ad
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Mon Sep 2 12:27:33 2013 -0500
+
+    dailymiscanthus function is modified. There were some errors in the calculations earlier.
+
+commit 2ff9d608ede3b281f1bee107f246e82c1a94d09e
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Aug 27 15:12:44 2013 -0500
+
+    tests working
+
+commit 13b38511f2f90c3bcdd559e8a8f8e36ec9a19c70
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Aug 27 11:32:46 2013 -0500
+
+    fixes issue with weather05 related to names in weather file; this error was introduced by specifying col names when extracting weather data in revision 74cf245; references bitbucket issue #5
+
+commit aa806be9e1e1d76453a1a782fc3dc23f8494b5f2
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Aug 27 11:26:49 2013 -0500
+
+    added newline at end of NAMESPACE file
+
+commit fc83fbe13a72bc3f0b2db1270df6e8bed8a0a8c0
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Aug 27 11:26:34 2013 -0500
+
+    commented out CropGro tests and renamed file
+
+commit 45829ae5dbd58f19ce741242781ba601adb55d86
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Mon Aug 26 17:46:04 2013 -0500
+
+    New elements of management structures is uploaded
+
+commit 3c802200933693479329d76194e50deb05773057
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Mon Aug 26 17:35:08 2013 -0500
+
+    Working function willowGro is added in the head of the master branch
+
+commit e581b37926bc349b406ef0ce5ac232786d0124c8
+Merge: 8fbe7f4 1f74cb2
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Mon Aug 26 17:32:11 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+    
+    Conflicts:
+    	src/willowGro.c
+
+commit 8fbe7f44b27b8a423e428d78d97f31331b5bfa84
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Mon Aug 26 17:17:37 2013 -0500
+
+    Getting most recent branch to work on it with compatible version of BioCro
+
+commit 1f74cb213bf1b2c78b40c12a9352c28bd3409c25
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Aug 26 14:40:21 2013 -0500
+
+    updated documentation, tests
+
+commit 83ca2ffbc1f9b3fe9772c992c1290114c1428c9d
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Aug 26 14:26:54 2013 -0500
+
+    removed compiled binary
+
+commit 299d8ff35513dd6f0b9e7eae4430a59e0595aff9
+Merge: 0bbf688 779e949
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Aug 26 13:49:35 2013 -0500
+
+    Merge branch 'leapyear'
+
+commit 779e949033aa1e647172030aa6a7c550b9531fc8
+Merge: feb8b6a 477e10b
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Aug 26 13:18:58 2013 -0500
+
+    Merge branch 'leapyear'
+
+commit 477e10bca9f2fe5daa6b3fb7ff4ef9e5b65241c1
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Aug 26 13:18:43 2013 -0500
+
+    fixed tests/testcropcent.R
+
+commit e7d9f0022d57cef151bf8bcf509bd73b735bf431
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Aug 26 13:17:41 2013 -0500
+
+    moved tests to inst/tests (so that they will actually get run). Now I will need to debug the broken tests ...
+
+commit 0bbf6882e454970d727a18464dbde0a363df1563
+Merge: feb8b6a 70b8d1a
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Aug 26 12:28:36 2013 -0500
+
+    Merge branch 'leapyear'
+
+commit feb8b6a68f636c4771091df987ff22230a6ea54b
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Thu Aug 22 16:39:30 2013 -0500
+
+    the fixed numbers in assigncrocent.c were replaced by the c pointers
+
+commit 70b8d1a7e4c54afc4a4fe06b6a12ce43226916d6
+Merge: 332b8bb dcb53b8
+Author: Jeremy Kemball <jkemball@gmail.com>
+Date:   Thu Aug 22 09:40:12 2013 -0500
+
+    merge complete
+    ;
+
+commit 332b8bb7fa45b0e6ac9adea11216af28a0094001
+Author: Jeremy Kemball <jkemball@gmail.com>
+Date:   Thu Aug 22 09:35:46 2013 -0500
+
+    Updated unit test
+
+commit dcb53b8e6f609787a61ba005a14ae904d7466faa
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Wed Aug 21 16:35:20 2013 -0500
+
+    more c and r connection were built
+
+commit 65f549467af7d833236aa9b40bf4a71b69e19f2f
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Tue Aug 20 16:02:58 2013 -0500
+
+    cropcent R added and some connection between r and c are developed
+
+commit da8d4b785f97e7e6e4681799d0229e894a9eeea1
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Tue Aug 20 10:30:10 2013 -0500
+
+    CropGro function is added for continuous simulation of miscanthus, this can be copied to create willowCent
+
+commit c05681bb63530cd9c15ba29810c49b2b466597dd
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Tue Aug 20 09:49:45 2013 -0500
+
+    cropcent.R  is removed because it was giving error. probably due to commas. It needs to be fixed.
+
+commit 27a3124ea68c9bf9c39d48b3e513a5d3fb88da89
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Mon Aug 19 16:44:04 2013 -0500
+
+    add cropcent.R
+
+commit 898b66893b82d2f673f55c0dfc56610f0dc88083
+Merge: 24b9020 fd789be
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Mon Aug 19 13:18:59 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 24b9020318164685826ad918d934c96ee87855b8
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Mon Aug 19 13:18:38 2013 -0500
+
+    minor
+
+commit fd789beb7e8c9a9ab1899c4ad4f5ce100ac84386
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Mon Aug 19 09:14:51 2013 -0500
+
+    This file contains most of the parameters initialization values. These values are valid only for the energy farm site. We need to be able to pass this information from R so that we can change it readily without having to go through code everytime.
+
+commit 705d841effc363b923fab803aa67f706bbe92f5a
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Mon Aug 19 09:06:40 2013 -0500
+
+    This file contains most of the function used in the decomposition of soil organic carbon. All of these functions will be used in all crop model where we want to simulate soil biogeochemistry
+
+commit ab5f5bb49a08efe1f7112d327b504652e11bb241
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Sun Aug 18 16:45:46 2013 -0500
+
+    Header file containign structure for simulating soil biogechemistry and miscanthus structure towards more generic biocro model are included
+
+commit 990df6bc17cd122baab262d2eb4edbcc4882a3e7
+Author: Jeremy Kemball <jkemball@gmail.com>
+Date:   Fri Aug 16 16:16:31 2013 -0500
+
+    actual warmth testing data
+
+commit af614b2126703f19ad3148a342380ab8d2689e5e
+Merge: 3477b6f 9a331fd
+Author: Jeremy Kemball <jkemball@gmail.com>
+Date:   Fri Aug 16 16:14:54 2013 -0500
+
+    merge testing commit
+
+commit 9a331fd63707eef19b4d6593b1e1505c78b60a88
+Author: Jeremy Kemball <jkemball@gmail.com>
+Date:   Fri Aug 16 16:05:19 2013 -0500
+
+    Addition of warmth testing
+
+commit 3477b6f5ce3b374c3c204ee60ba326052bb135b6
+Author: Jeremy Kemball <jkemball@gmail.com>
+Date:   Fri Aug 16 12:28:10 2013 -0500
+
+    Bugfix
+    
+    Supports leap years, typo, and warmer climates.
+
+commit 0dbdacf08e5a6bb8ed43717ab73233f3d11e5a96
+Merge: ca5b17a 75a155a
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Aug 14 14:09:51 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+    
+    Conflicts:
+    	c3Intro.Rnw_old
+    	inst/c3Intro.Rnw_old
+    	vignettes/c3Intro.Rnw
+
+commit ca5b17a8bfef37c7725dc762fbbdb0ad21d42f61
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Aug 14 14:07:39 2013 -0500
+
+    moved vignettes to allow compilation
+
+commit e05867962a8e1a1138729855136da88219aad61a
+Merge: 7d39315 75a155a
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Thu Aug 8 15:54:38 2013 -0500
+
+    minor
+    
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+    
+    Conflicts:
+    	vignettes/willow_manuscript.Rmd
+
+commit 7d39315c463898c421470d0c06bba7ff1f295510
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Thu Aug 8 15:51:47 2013 -0500
+
+    minor
+
+commit 75a155a00afd632d9c0c2ef0b15f84677511f0b0
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Fri Aug 2 10:32:13 2013 -0500
+
+    simplified build.sh
+
+commit 0ea7d96e4b6ad3d6ec2a3c1cbc8c5944854c52be
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Aug 1 18:12:31 2013 -0500
+
+    updated build.sh
+
+commit 61086509e90b11197bfeea97b86acce7d60ccfd0
+Merge: 185a47d 74cf245
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Jul 31 21:44:43 2013 -0500
+
+    merge
+
+commit 185a47de6990059531f9a1af4d41c692aecb9910
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Jul 31 21:41:26 2013 -0500
+
+    minor fixes
+
+commit d8882ecf8a89641af999c70caeda1e8fd0b62032
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Jul 31 19:58:44 2013 -0500
+
+    fixed NAMESPACE
+
+commit 1d3c2183a4547705467b221aadecbed43619072f
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Jul 31 19:56:21 2013 -0500
+
+    renamed c3Intro vignette that was giving errors
+
+commit 74cf245d7ebae734e4c189e30cf4ea26459c8362
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed Jul 31 15:23:28 2013 -0500
+
+    minor fixes
+
+commit d0ed52603eabd4b812641e427941dca6000dc089
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Wed Jul 31 14:36:31 2013 -0500
+
+    NO
+
+commit 17ee22ee4f424b644ff1e99291a2bce3eaf0ba4d
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Fri Jul 26 00:12:16 2013 -0500
+
+    updated build.sh, removed use of x11 to allow R CMD check to succeed
+
+commit a00543239a8f9fc3e9e7e3018d196a602ff3e932
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Jul 25 20:11:52 2013 -0500
+
+    created build.sh script for automatic compiliation; updated documentation
+
+commit 9647783c9c5f8eeda76ea9a5d75ed965817cd20a
+Merge: f426f60 9506f2c
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Jul 25 11:47:57 2013 -0500
+
+    mend
+
+commit f426f6039ae149dcce91499e36258e908962c27a
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Jul 25 11:46:40 2013 -0500
+
+    mend
+
+commit 9a055ddd5833f4b0920ae5b6a3bbd73f4f7ed644
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Jul 25 11:45:01 2013 -0500
+
+    updated vignettes to compile with knitr
+
+commit 9506f2ca5eb6997507708afd302a271349138712
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Jul 25 11:40:40 2013 -0500
+
+    updated documentation (c4->c3) for willowgro
+
+commit 86d6a91b0db48a9f3f691eb27be5c783fed78580
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Jul 22 15:49:54 2013 -0500
+
+    renamed two adjacent chunks with same name
+
+commit d416645dd0efe54247d5a5c5acd09a3a3a6f4af9
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Jul 22 12:32:39 2013 -0500
+
+    updated data driven model development vignette; added dataframe of results to data/willow_obsvpred.RData
+
+commit 3e08d6080c208ae142de707448e13868996e8917
+Merge: 4717af3 b00395c
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Jul 22 10:49:59 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 4717af378a796660fb1f4ce1aa0789fd4f8070f8
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Mon Jul 22 10:49:43 2013 -0500
+
+    added tests for effects of soilParms
+
+commit b00395c700756749b4f7e76cee38b6519619c045
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Wed Jun 5 13:21:39 2013 -0500
+
+    upload weather data, observed data and benchmark data into inst/exdata
+
+commit 36c9167ff0a8cecf9d189ebf5e6e778312e796a3
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Mon Jun 3 15:15:29 2013 -0500
+
+    minor
+
+commit 8016ba5bcedf62f88cb6063d4a6a3a1564ee7a0d
+Merge: 01cf443 4278d04
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Mon Jun 3 15:10:18 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 01cf443178cf2decfc641b25fc28c959f21d00dd
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Mon Jun 3 15:09:41 2013 -0500
+
+    assuming c content in leaf biomass is 48%
+
+commit 4278d04b226ed0be6b59eaa64f65475f8c62ac1f
+Merge: 99bbcdb 813c40f
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Wed May 15 21:09:35 2013 -0500
+
+    Merged dlebauer/biocro into master
+
+commit 99bbcdb01af105bdc2f9d24b684a5f1b27c713c2
+Author: Dan Wang <dwng@dlebauer-desktop.(none)>
+Date:   Mon May 6 17:06:19 2013 -0500
+
+    water stree function implemented in c3 photosynthesis
+
+commit 9f1b617d907e3105c7281f5c7c67938970cb8a1e
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Wed Apr 10 18:34:38 2013 -0500
+
+    updated model development vignette
+
+commit 813c40fe31724337534984b596ca2c93d959f086
+Merge: 5de804e 94c4d90
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Wed Apr 10 12:46:42 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:dlebauer/biocro
+
+commit 5de804e57294431b2248c0383c67e63819f4574f
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Wed Apr 10 12:46:37 2013 -0500
+
+    updated vignette with maps of benchmark sites
+
+commit d78b92745017a7e368aa44124b81468553527edb
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Mon Apr 8 18:52:12 2013 -0500
+
+    updated to version 0.91, consistent with most recent tag
+
+commit 7002106847e574170599f7cf142c54c540e3ebdf
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Mon Apr 8 18:17:51 2013 -0500
+
+    Added 'data driven model development' vignette
+
+commit 89841286df99af483586a387b2a35de0b2768ab9
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Fri Apr 5 02:03:01 2013 -0500
+
+    frostControl is added in caneGro
+
+commit c303949cbdac389382bae1536e1bf6abd084139e
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Wed Apr 3 12:33:18 2013 -0500
+
+    phenology brack of Dan and master branch are merged manually
+
+commit d8776b4c1262fa13cf3aabfe901e6f3c4206b068
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Wed Apr 3 11:01:57 2013 -0500
+
+    % year average is calculated to save in output data frame in the regional simulation file
+
+commit 79f8e7cb59b8bfe240dd92f6767aeba4d5cfebe2
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Wed Apr 3 10:29:30 2013 -0500
+
+    Previous commit did not include the file
+    I am trying again to include regional simulation file
+
+commit 32c2b8c31f415f79961c7085aaf08f111600d969
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Wed Apr 3 10:24:48 2013 -0500
+
+    File for regional simulation of willow is added in biocor/inst/extdata/
+
+commit ce211e65ddd6d0da728a5bf10413130777456360
+Merge: f284d1e e98dd83
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Tue Apr 2 22:25:09 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit f284d1edb90b3d82026a116b996be3fb782bea35
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Tue Apr 2 22:22:43 2013 -0500
+
+    Mapping Scripts for Sugarcane has been moved to vignette Folder(MapYieldandCV.R)
+    Script to perform regional simulations of willow in US has been added to vignettes folder (SimUSwillow.r)
+
+commit dc4a49fcae6d2ac156362966ba5760ae34288136
+Merge: 528e69c 7e5dbeb
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Tue Apr 2 22:17:36 2013 -0500
+
+    Merge branch 'phenology2'
+    
+    Conflicts:
+    	R/willowGro.R
+    	src/willowGro.c
+
+commit e98dd83d81ff9264ed604558c89a2b36f162e4ea
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Mon Apr 1 20:10:27 2013 -0500
+
+    added willowCro manuscript vignette
+
+commit 528e69cf29354eecb7932e257c8dba9617f0affe
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Sun Mar 31 18:44:02 2013 -0500
+
+    Rscript is added to  read regional output of BioCro and use the data to create
+    plots for Brazil. Default location of data and  shapefile is in my local directory
+    we will need to change them to a share folder on the cluster.
+
+commit b843e33465c513827c89bfdd1434043201592b19
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Sun Mar 31 18:21:12 2013 -0500
+
+    caneGro is added in test file along with BioCro and willowGro
+
+commit ffc715f10a20717c4eda9908d9db60b7610046fb
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Fri Mar 29 20:08:40 2013 -0500
+
+    380 is replaced by Catm in EvapoTrans function to simulate future scenario of increasing Co2 on sugarcane yield
+    CanopyTrans is not being calculated using PENN method for now to have realistic estimates of water loss from canopy
+
+commit 7e5dbeb2d8ac5b8d842844ad3afdc702d56837f7
+Author: Dan Wang <dwng@illinois.edu>
+Date:   Fri Mar 29 17:05:18 2013 -0400
+
+    add leaf death rate and temp threshold
+
+commit 107b23cecc4ae08ee1375b51cfdc0630fa68d0e3
+Author: Dan Wang <dwng@illinois.edu>
+Date:   Fri Mar 29 14:37:30 2013 -0400
+
+    add growth resp terms
+
+commit be6c63edca0c15b28ae9be853c2367f0bc53bf9f
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Fri Mar 29 12:14:50 2013 -0500
+
+    Previous commit was not successful
+    Trying again,
+    Management factor for sugarcane is included
+    canAC is fixed in AUxBioCro.c to return gross canopy assimilation
+
+commit 0e0a00d5e47f7ba4b4e964a631ef364a365d25b4
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Fri Mar 29 11:50:37 2013 -0500
+
+    Irrigation management is added for sugarcane module
+    CanAC is fixed.
+
+commit d942e4959e7e8e5af839430cd21ce690b018ccc9
+Merge: 11c40ea 94c4d90
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Tue Mar 19 13:59:04 2013 -0500
+
+    Merged dlebauer/biocro into master
+
+commit 94c4d905689df489ce803c7a0f4aa21f336c5fa6
+Author: Dan Wang <dwng@illinois.edu>
+Date:   Tue Mar 19 14:32:27 2013 -0400
+
+    add growth resp terms
+
+commit a44d315e212d2a39135061956e6424b5333db706
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Mon Mar 18 13:09:14 2013 -0500
+
+    added notes to bottom of salix_benchmarks.Rmd
+
+commit 11c40eae4c9894a5e2eb1a8e0d91b23e251862af
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Sat Mar 16 22:17:40 2013 -0500
+
+    R function to evaluate canopy is now printing output for leaf N profile and phi (maximum quantum efficiency) profile
+
+commit 6d1e7c0d61b82c967a52c157ff9593d1c225c3fc
+Merge: 3576f7a 0e994cc
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Fri Mar 15 19:43:00 2013 -0500
+
+    Some errors in exporting caneGro from C to R are resolved
+    Merge branch 'master' of bitbucket.org:biocro/biocro
+
+commit 3576f7a4e84ee38008debb4f6f602fae11d7a325
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Fri Mar 15 19:41:50 2013 -0500
+
+    Errors in exporting caneGro output from C to R is resolved
+
+commit 0e994cc2ccd47be1cc4fbdbbc711f38949d6f46e
+Merge: 6e35209 413ed2e
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Fri Mar 15 16:33:24 2013 -0500
+
+    Merge bitbucket.org:biocro/biocro into merge
+
+commit 6e352096a5032359b8cbe3b46341390ca18da784
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Fri Mar 15 16:31:14 2013 -0500
+
+    converted package to use knitr instead of Sweave
+
+commit 1f58ce37af307614100acb6d82384ab3335423bc
+Merge: 008f2ac 5f0bb2f
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Fri Mar 15 11:21:11 2013 -0500
+
+    deleted redundant file
+
+commit 008f2ac8b0cc56132d38d4ba14751859a58f687c
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Fri Mar 15 11:21:07 2013 -0500
+
+    moved salix_benchmarks.Rmd to vignettes
+
+commit 413ed2e1b76e20e958b5c9151d9e25d2e115d5c7
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Fri Mar 15 10:49:22 2013 -0500
+
+    climate data is added for the parameterization of partitioning coefficients.
+
+commit 57e36209eed5337dbc50b9803e34dbe5a432f4ad
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Fri Mar 15 08:50:12 2013 -0500
+
+    nitrogen parameter structure is passed to CanA to allow N dependence of maximum quantum yield. Also, function calling CanA are changed.
+
+commit a359911ed0f8d0913b22824d087b27f522bd4f47
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Fri Mar 15 08:07:12 2013 -0500
+
+    C4 Canopy Structure and Functions are modified to return gross assimilation along with previous outputs.
+
+commit 15697620c2b54208b798825424ef8a12ffd73ce6
+Author: djaiswal <djaiswal@djaiswal.igb.uiuc.edu>
+Date:   Fri Mar 15 07:23:24 2013 -0500
+
+    Now c4photo is returning gross co2 assimilate in addition to previous outputs
+
+commit c695a527f8355246f19805ff6ddfd9bcb5899e15
+Merge: 4c88f61 5f0bb2f
+Author: David LeBauer <dlebauer@illinois.edu>
+Date:   Thu Mar 14 12:30:32 2013 -0500
+
+    Merged dlebauer/biocro into master
+
+commit 5f0bb2fbffe8b6417448b44904f53f9abb94fd6b
+Author: Dan Wang <dwng@illinois.edu>
+Date:   Wed Mar 13 16:38:26 2013 -0400
+
+    changing the initial conditions and enable parenating; adding Tbase
+
+commit 40cb0c6ef2338e5930a931394415d43675984fb8
+Merge: 0376b4f 8848097
+Author: Dan Wang <dwng@illinois.edu>
+Date:   Wed Mar 13 12:27:17 2013 -0400
+
+    Merge branch 'master' of bitbucket.org:dlebauer/biocro
+
+commit 0376b4f9075f976390006f10548e8fd8b5f36541
+Author: Dan Wang <dwng@illinois.edu>
+Date:   Wed Mar 13 12:26:15 2013 -0400
+
+    adding phenology for willow
+
+commit 88480978811a15636fd8bc133c001a4e6067d5c1
+Merge: 9bc4e82 bdcee4c
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Mar 12 15:09:37 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:dlebauer/biocro
+
+commit 9bc4e82082e6cef3134f30a2ce893c6aaf2d37c2
+Merge: e1b7811 40a37b2
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Mon Mar 11 17:02:28 2013 -0500
+
+    added new sanity checks for willowGro and BioGro functions
+
+commit bdcee4c4c0f7583c83f578394aeb2f5aad22663e
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Mon Mar 11 17:28:34 2013 -0500
+
+    This version is calling willowGro.C in willowGro.R
+
+commit fa40b3bce01066c26c61721e0a1e6470d3482e11
+Merge: e1b7811 40a37b2
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Mon Mar 11 17:02:28 2013 -0500
+
+    merge
+    
+    Merge branch 'master' of bitbucket.org:dlebauer/biocro
+    
+    Conflicts:
+    	BioCro_0.1.tar.gz
+
+commit e1b78119e78764ff56df041e0b9e3f3c568cc7f3
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Mon Mar 11 16:59:54 2013 -0500
+
+    c3 and willowgro are working together
+
+commit 40a37b2b47b0adafa8af7c3164644da4c1c03081
+Merge: 0931822 e0f0d4d
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Mar 11 16:46:58 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:dlebauer/biocro
+
+commit 093182213f07e3d0fabda9ecbac9b56214506e1b
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Mar 11 16:22:02 2013 -0500
+
+    fixes redmine #1614 by adding basic tests of WillowGro function
+
+commit e0f0d4dc1c0f6b8ddbaed64a17b25dcea34d1d78
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Mar 11 16:22:02 2013 -0500
+
+    fixes redmine #1614 by adding basic tests of WillowGro function
+
+commit f8723ff15203f041d157660a8e1065ecff85fdbe
+Merge: 4d191ca e6e0aa1
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Mar 11 16:20:58 2013 -0500
+
+    fixed minor errors in vignettes (renamed output dir from figs to figure)
+
+commit e6e0aa1a4704bd1c762381766da122a1b66ab8b2
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Mar 11 16:16:30 2013 -0500
+
+    fixes redmine #1614 by adding basic tests of WillowGro function
+
+commit 4c887a9c779ac132569301decb8eef5cdb502197
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Mar 11 15:08:11 2013 -0500
+
+    fixed minor errors in vignettes (renamed output dir from figs to figure)
+
+commit 4d191ca4a38fbae69104f316187bbf89a80c5b1e
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Mar 11 15:08:11 2013 -0500
+
+    fixed minor errors in vignettes (renamed output dir from figs to figure)
+
+commit 8c84a12a3af96396899e899bcc463c58c789bdce
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Mar 11 15:07:38 2013 -0500
+
+    minor changes to documentation
+
+commit 87db82b0123f84a92bd9625acfd315497db2ec0e
+Merge: ec702ca 576eaed
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Mar 6 20:05:36 2013 -0600
+
+    merge
+
+commit ec702ca9041c570cd7f50808246b7167ee7925f4
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Mar 6 19:56:14 2013 -0600
+
+    updated tests, added vignettes folder, fixes redmine #1609
+
+commit a783e71eb1dddc341c878512eb6da05d185caf75
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Mar 6 13:37:12 2013 -0600
+
+    Changed license to University of Illinois / NCSA Open Source License, removed references to old license, fixes redmine #1480
+
+commit 576eaed77f15a335c83d21cfa2faf223e51d4c2a
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Mar 6 13:37:12 2013 -0600
+
+    Changed license to University of Illinois / NCSA Open Source License, removed references to old license, fixes redmine #1480
+
+commit c0f6d376d9231eb9c1211942a6f87d61a2bab24a
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Mar 6 12:30:26 2013 -0600
+
+    moved test data for Dan's tests to inst/extdata; refs redmine issue #1609, including tdebug function used to debug the soil model
+
+commit 2232050a65bf4a1642173572f0c3266c5d9f3c09
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Wed Mar 6 12:29:55 2013 -0600
+
+    Moved old tests from tests/ to inst/original_tests/ folder these were mostly written by Fernando, some written recently by Dan; refs redmine issue #1609
+
+commit e0499558b1df2faee0751fde5a92c52fe225f8f6
+Merge: be40b76 4c88f61
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Mar 5 17:32:02 2013 -0600
+
+    merge
+
+commit be40b76db2087fe754f706dffdcf4a8e9cd27615
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Feb 28 17:12:16 2013 -0600
+
+    added examples to develo salix benchmark plots
+
+commit 4c88f61f26ba1186265a9261ab8cb0bdf641b04a
+Merge: ee572cd 6ae8925
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Fri Mar 1 15:32:59 2013 -0600
+
+    merge
+
+commit ee572cd2788026743ed6875d4418d7dc8277df13
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Feb 28 17:12:16 2013 -0600
+
+    minor changes
+
+commit 6ae89256a7567015467e3a5dc12dc83a2f07a1f9
+Merge: 3cfc55f 386a4d8
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Fri Mar 1 11:27:13 2013 -0600
+
+    Merge branch 'master' of bitbucket.org:dlebauer/biocro
+
+commit 3cfc55fb2d12fdff9251347b5eef53f9fdc8e886
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Fri Mar 1 11:25:53 2013 -0600
+
+    C3photo.c is changed to (hopefully) avoid error at low C02 concentration
+
+commit 386a4d878a4becbc6603f9cfbbc3af2afe3fd13c
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Feb 28 17:12:16 2013 -0600
+
+    added examples to develo salix benchmark plots
+
+commit 7f5f99105c07a94ef9357d96a789c9623876ab54
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Feb 28 15:31:07 2013 -0600
+
+    updated documentation
+
+commit d6dff021e51d17bbfd493ddd1735867c68765231
+Merge: b35bda5 b840a7c
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Feb 28 15:22:28 2013 -0600
+
+    Merge branch 'master' of bitbucket.org:dlebauer/biocro
+
+commit b35bda568336a3582ff62d60fee6679e5d309c4e
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Feb 28 15:22:20 2013 -0600
+
+    edited test data in salix.RData: merged two sites that were the same and converted to data.tables.
+    
+    Added script used to download met drivers for test sites.
+
+commit b840a7c7c21816cf11a9ca2a33732b71dbb5efb7
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Thu Feb 28 15:16:18 2013 -0600
+
+    willowGro, as a copy of MisGro, is added. Documentation is missing.
+
+commit b6d7e5666facaa8063e2d4cee4eab644645285d9
+Merge: 8953d5d 861bd43
+Author: wd <wd@wd-VirtualBox.(none)>
+Date:   Thu Feb 28 12:43:33 2013 -0500
+
+    Merge branch 'master' of bitbucket.org:dlebauer/biocro
+
+commit 8953d5dba182afe9798caa25230afa6a9e0a2ca5
+Author: wd <wd@wd-VirtualBox.(none)>
+Date:   Wed Feb 27 17:08:18 2013 -0500
+
+    adding test files and data
+
+commit 861bd437b67324d38624f5371f054271dcfed748
+Author: djaiswal <djaiswal@ubuntu.(none)>
+Date:   Wed Feb 27 08:45:05 2013 -0600
+
+    (1) c4photosynthesis function is changed by replacing previously hard coded parameters UPPERTEMP and LOWERTEMP limitation on temperature. (2) all the functions dependent on c4photo are changes.(3) Justin suggestion in c3photo is incorporated (4) MaizeGro is added (5) caneGro is added. caneGro is giving some error with this merge. I will work on it today.
+
+commit bc585e3f0f39bd7abb64b3815850745567b64a42
+Author: wd <wd@wd-VirtualBox.(none)>
+Date:   Tue Feb 26 16:28:10 2013 -0500
+
+    replace c3photo.c to justin's version which corrected the j function
+
+commit fbf524bb349193cdd7dbe35b724e7c18fe0ff27b
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Feb 26 14:52:58 2013 -0600
+
+    added test for redmine issue #1478
+
+commit a578ad40e379e4353c331d1b2c8c49be81d095fa
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Feb 25 20:10:02 2013 -0600
+
+    added salix testdata script
+
+commit 38ae5e5dc23d08814dfe633d516e75a6ea5285a0
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Thu Feb 21 16:51:54 2013 -0600
+
+    added salix testdata
+
+commit 9ee389c39542e8b15e2c28eaf2c5749f99c4d447
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Feb 4 17:39:08 2013 -0600
+
+    fixed typo
+
+commit d82f68a3ed51126305a040348be8ec1f8b95c5a5
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Feb 4 17:15:29 2013 -0600
+
+    merged Deepak's changes to R code from EnCro v 0.034
+
+commit e9f613916effd6c3815e33dbf4a47aadc5b3ae8c
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Feb 4 16:50:10 2013 -0600
+
+    updated changelog
+
+commit 6ea844eef3035709620790bbcc35c064626bd828
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Feb 4 16:47:48 2013 -0600
+
+    updated C code in /src directory from Deepaks v 0.034
+
+commit f1b4d92ee2b16e08dc21e800da924e623824070b
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Jan 29 15:02:38 2013 -0600
+
+    standardized code formatting; fixes #2
+
+commit e0bb5d842d6229b6f04fc3b7c6c6cda35a5ff34a
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Jan 29 14:31:20 2013 -0600
+
+    removed trailing ";"'s, refs#2
+
+commit f554dacdc0b4ab00894dc5a9fb83cf39449abced
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Jan 29 14:25:22 2013 -0600
+
+    successful build after debugging documentation; fixes issue #1
+
+commit 44899e1a58ff8bcf216812d3f56a490c5abac376
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Jan 29 14:04:16 2013 -0600
+
+    exported S3methods, restored original NAMESPACE
+
+commit d5c58d3fe4a6b826f002aaa78e975e31355b5fdc
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Jan 29 13:42:22 2013 -0600
+
+    removed vignettes that were breaking build
+
+commit 8a12e2c12b179807e9314754a099fb6bf7b39a3b
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Jan 29 13:16:12 2013 -0600
+
+    modified code to export all functions with documentation, using https://gist.github.com/4666066
+
+commit c406e6048de448ffcbe6f07fbd3c7ca42c631356
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Jan 29 11:01:57 2013 -0600
+
+    updated documentation using Rd2roxygen; still need to export functions
+
+commit 82b3ee83b5265af9c0336c063293f4a70b676c20
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Tue Jan 29 09:28:36 2013 -0600
+
+    reset original EnCro files and documentation
+
+commit 3e0c5729dc8f8e895b2894e13fd4391c8a1d51a9
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Jan 28 18:12:31 2013 -0600
+
+    formatted code; added some documentation
+
+commit 05f93638a44fe4741cfbafd7c8933d92f6b33372
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Jan 28 13:24:43 2013 -0600
+
+    added authors to maintainers field
+
+commit c6e8082e7831d04648f00be41dee0f77de380b95
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Jan 28 13:23:27 2013 -0600
+
+    removed *.o files from git repo
+
+commit 3b5bd9fb732044f9b8412b3465c5790c07dbe77d
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Jan 28 13:19:40 2013 -0600
+
+    changed license from GPL to UI/NCSA; changed package name from "EnCro" to "BioCro"
+
+commit 716093b2245d3ba8ffaff3c12831c1ba0a6f0151
+Author: dlebauer <dlebauer@gmail.com>
+Date:   Mon Jan 28 13:08:59 2013 -0600
+
+    initial commit
+
+commit e428b4e43c5263308324c2c0c24491732b16521b
+Author: David LeBauer <dlebauer@gmail.com>
+Date:   Mon Jan 28 11:07:00 2013 -0800
+
+    Initial commit

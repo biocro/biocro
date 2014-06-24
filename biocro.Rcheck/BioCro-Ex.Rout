@@ -1,0 +1,1789 @@
+
+R version 2.14.1 (2011-12-22)
+Copyright (C) 2011 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "BioCro"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('BioCro')
+Loading required package: lattice
+Loading required package: data.table
+> 
+> assign(".oldSearch", search(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("BioGro")
+> ### * BioGro
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: BioGro
+> ### Title: Biomass crops growth simulation
+> ### Aliases: BioGro SoilType canopyParms centuryParms nitroParms phenoParms
+> ###   photoParms print.BioGro seneParms showSoilType soilParms
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D data(weather05)
+> ##D 
+> ##D res0 <- BioGro(weather05)
+> ##D 
+> ##D plot(res0)
+> ##D 
+> ##D ## Looking at the soil model
+> ##D 
+> ##D res1 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6))
+> ##D plot(res1, plot.kind='SW') ## Without hydraulic distribution
+> ##D res2 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
+> ##D plot(res2, plot.kind='SW') ## With hydraulic distribution
+> ##D 
+> ##D 
+> ##D ## Example of user defined soil parameters.
+> ##D ## The effect of phi2 on yield and soil water content
+> ##D 
+> ##D ll.0 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=1)
+> ##D ll.1 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=2)
+> ##D ll.2 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=3)
+> ##D ll.3 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=4)
+> ##D 
+> ##D ans.0 <- BioGro(weather05,soilControl=ll.0)
+> ##D ans.1 <- BioGro(weather05,soilControl=ll.1)
+> ##D ans.2 <- BioGro(weather05,soilControl=ll.2)
+> ##D ans.3 <-BioGro(weather05,soilControl=ll.3)
+> ##D 
+> ##D xyplot(ans.0$SoilWatCont +
+> ##D        ans.1$SoilWatCont +
+> ##D        ans.2$SoilWatCont +
+> ##D        ans.3$SoilWatCont ~ ans.0$DayofYear,
+> ##D        type='l',
+> ##D        ylab='Soil water Content (fraction)',
+> ##D        xlab='DOY')
+> ##D 
+> ##D ## Compare LAI
+> ##D 
+> ##D xyplot(ans.0$LAI +
+> ##D        ans.1$LAI +
+> ##D        ans.2$LAI +
+> ##D        ans.3$LAI ~ ans.0$DayofYear,
+> ##D        type='l',
+> ##D        ylab='Leaf Area Index',
+> ##D        xlab='DOY')
+> ##D 
+> ##D 
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("CanA")
+> ### * CanA
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: CanA
+> ### Title: Simulates canopy assimilation
+> ### Aliases: CanA lnParms
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D data(doy124)
+> ##D tmp <- numeric(24)
+> ##D 
+> ##D for(i in 1:24){
+> ##D    lai <- doy124[i,1]
+> ##D    doy <- doy124[i,3]
+> ##D    hr  <- doy124[i,4]
+> ##D  solar <- doy124[i,5]
+> ##D   temp <- doy124[i,6]
+> ##D     rh <- doy124[i,7]
+> ##D     ws <- doy124[i,8]
+> ##D 
+> ##D   tmp[i] <- CanA(lai,doy,hr,solar,temp,rh,ws)$CanopyAssim
+> ##D 
+> ##D }
+> ##D 
+> ##D plot(c(0:23),tmp,
+> ##D             type='l',lwd=2,
+> ##D             xlab='Hour',
+> ##D             ylab=expression(paste('Canopy assimilation (kg  ',
+> ##D             m^-2,' ',h^-1,')')))
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("Century")
+> ### * Century
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: Century
+> ### Title: This function implements the Century model from Parton.
+> ### Aliases: Century CenturyC
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> Century(0,0,0,0,0.3,5,2,2)$Resp
+[1] 0.001369228
+> Century(0,0,0,0,0.3,5,2,2)$MinN
+[1] 0.03343858
+> 
+> 
+> 
+> cleanEx()
+> nameEx("CropGro")
+> ### * CropGro
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: CropGro
+> ### Title: Biomass crops growth simulation
+> ### Aliases: BioGro CropGro SoilType canopyParms centuryParms nitroParms
+> ###   phenoParms photoParms print.BioGro seneParms showSoilType soilParms
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D data(weather05)
+> ##D 
+> ##D res0 <- BioGro(weather05)
+> ##D 
+> ##D plot(res0)
+> ##D 
+> ##D ## Looking at the soil model
+> ##D 
+> ##D res1 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6))
+> ##D plot(res1, plot.kind='SW') ## Without hydraulic distribution
+> ##D res2 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
+> ##D plot(res2, plot.kind='SW') ## With hydraulic distribution
+> ##D 
+> ##D 
+> ##D ## Example of user defined soil parameters.
+> ##D ## The effect of phi2 on yield and soil water content
+> ##D 
+> ##D ll.0 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=1)
+> ##D ll.1 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=2)
+> ##D ll.2 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=3)
+> ##D ll.3 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=4)
+> ##D 
+> ##D ans.0 <- BioGro(weather05,soilControl=ll.0)
+> ##D ans.1 <- BioGro(weather05,soilControl=ll.1)
+> ##D ans.2 <- BioGro(weather05,soilControl=ll.2)
+> ##D ans.3 <-BioGro(weather05,soilControl=ll.3)
+> ##D 
+> ##D xyplot(ans.0$SoilWatCont +
+> ##D        ans.1$SoilWatCont +
+> ##D        ans.2$SoilWatCont +
+> ##D        ans.3$SoilWatCont ~ ans.0$DayofYear,
+> ##D        type='l',
+> ##D        ylab='Soil water Content (fraction)',
+> ##D        xlab='DOY')
+> ##D 
+> ##D ## Compare LAI
+> ##D 
+> ##D xyplot(ans.0$LAI +
+> ##D        ans.1$LAI +
+> ##D        ans.2$LAI +
+> ##D        ans.3$LAI ~ ans.0$DayofYear,
+> ##D        type='l',
+> ##D        ylab='Leaf Area Index',
+> ##D        xlab='DOY')
+> ##D 
+> ##D 
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("EngWea94i")
+> ### * EngWea94i
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: EngWea94i
+> ### Title: Weather data corresponding to a paper by Clive Beale (see
+> ###   source).
+> ### Aliases: EngWea94i
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(EngWea94i)
+> ## maybe str(EngWea94i) ; plot(EngWea94i) ...
+> 
+> 
+> 
+> cleanEx()
+> nameEx("EngWea94rf")
+> ### * EngWea94rf
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: EngWea94rf
+> ### Title: Weather data corresponding to a paper by Clive Beale (see
+> ###   source).
+> ### Aliases: EngWea94rf
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(EngWea94rf)
+> ## maybe str(EngWea94rf) ; plot(EngWea94rf) ...
+> 
+> 
+> 
+> cleanEx()
+> nameEx("MCMCBioGro")
+> ### * MCMCBioGro
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: MCMCBioGro
+> ### Title: Simulated annealing and MCMC function
+> ### Aliases: MCMCBioGro print.MCMCBioGro
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D 
+> ##D data(weather05)
+> ##D 
+> ##D ## Some coefficients
+> ##D pheno.ll <- phenoParms(kLeaf1=0.48,kStem1=0.47,kRoot1=0.05,kRhizome1=-1e-4,
+> ##D                        kLeaf2=0.14,kStem2=0.65,kRoot2=0.21, kRhizome2=-1e-4,
+> ##D                        kLeaf3=0.01, kStem3=0.56, kRoot3=0.13, kRhizome3=0.3,
+> ##D                        kLeaf4=0.01, kStem4=0.56, kRoot4=0.13, kRhizome4=0.3,
+> ##D                        kLeaf5=0.01, kStem5=0.56, kRoot5=0.13, kRhizome5=0.3,
+> ##D                        kLeaf6=0.01, kStem6=0.56, kRoot6=0.13, kRhizome6=0.3)
+> ##D 
+> ##D system.time(ans <- BioGro(weather05, phenoControl = pheno.ll))
+> ##D 
+> ##D ans.dat <- as.data.frame(unclass(ans)[1:11])
+> ##D sel.rows <- seq(1,nrow(ans.dat),400)
+> ##D simDat <- ans.dat[sel.rows,c('ThermalT','Stem','Leaf','Root','Rhizome','Grain','LAI')]
+> ##D plot(ans,simDat)
+> ##D 
+> ##D ## Residual sum of squares before the optimization
+> ##D 
+> ##D ans0 <- BioGro(weather05)
+> ##D RssBioGro(simDat,ans0)
+> ##D 
+> ##D 
+> ##D op1.mc <- MCMCBioGro(phen=1, niter=200,niter2=200,
+> ##D                      WetDat=weather05,
+> ##D                      data=simDat)
+> ##D 
+> ##D 
+> ##D plot(op1.mc)
+> ##D 
+> ##D plot(op1.mc, plot.kind='trace', subset = nams %in%
+> ##D \t\t\t\tc('kLeaf_1','kStem_1','kRoot_1'))
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("MCMCEc4photo")
+> ### * MCMCEc4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: MCMCEc4photo
+> ### Title: Markov chain Monte Carlo for C4 photosynthesis parameters
+> ### Aliases: MCMCEc4photo
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D ## This is an example for the MCMCEc4photo
+> ##D ## evaluating the convergence of the chain
+> ##D ## Notice that if a parameter does not seem
+> ##D ## to converge this does not mean that the method
+> ##D ## doesn't work. Careful examination is needed
+> ##D ## in order to evaluate the validity of the results
+> ##D data(obsNaid)
+> ##D res1 <- MCMCEc4photo(obsNaid,100000,thresh=0.007)
+> ##D res1
+> ##D 
+> ##D ## Run it a few more times
+> ##D ## and test the stability of the method
+> ##D res2 <- MCMCEc4photo(obsNaid,100000,thresh=0.007)
+> ##D res3 <- MCMCEc4photo(obsNaid,100000,thresh=0.007)
+> ##D 
+> ##D ## Now plot it
+> ##D plot(res1,res2,res3)
+> ##D plot(res1,res2,res3,type='density')
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("MCMCc4photo")
+> ### * MCMCc4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: MCMCc4photo
+> ### Title: Markov chain Monte Carlo for C4 photosynthesis parameters
+> ### Aliases: MCMCc4photo print.MCMCc4photo
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D ## Using Beale, Bint and Long (1996)
+> ##D data(obsBea)
+> ##D 
+> ##D ## Different starting values
+> ##D resB1 <- MCMCc4photo(obsBea, 100000, scale=1.5)
+> ##D resB2 <- MCMCc4photo(obsBea, 100000, ivmax=25, ialpha=0.1, scale=1.5)
+> ##D resB3 <- MCMCc4photo(obsBea, 100000, ivmax=45, ialpha=0.02, scale=1.5)
+> ##D 
+> ##D ## Use the plot function to examine results
+> ##D plot(resB1,resB2,resB3)
+> ##D plot(resB1,resB2,resB3,plot.kind='density',burnin=1e4)
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("MaizeGro")
+> ### * MaizeGro
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: MaizeGro
+> ### Title: Simulation of Maize, Growth, LAI, Photosynthesis and phenology
+> ### Aliases: MaizeGro
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> data(weather05)
+> res <- MaizeGro(weather05, plant.day = 110, emerge.day = 120, harvest.day=300,
++                   MaizePhenoControl = MaizePhenoParms(R6 = 2000))
+> 
+> 
+> 
+> cleanEx()
+> nameEx("OpBioGro")
+> ### * OpBioGro
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: OpBioGro
+> ### Title: Optimization of dry biomass partitioning coefficients.
+> ### Aliases: OpBioGro constrOpBioGro summary.OpBioGro
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D 
+> ##D data(weather05)
+> ##D 
+> ##D ## Some coefficients
+> ##D pheno.ll <- phenoParms(kLeaf1=0.48,kStem1=0.47,kRoot1=0.05,kRhizome1=-1e-4,
+> ##D                        kLeaf2=0.14,kStem2=0.65,kRoot2=0.21, kRhizome2=-1e-4,
+> ##D                        kLeaf3=0.01, kStem3=0.56, kRoot3=0.13, kRhizome3=0.3,
+> ##D                        kLeaf4=0.01, kStem4=0.56, kRoot4=0.13, kRhizome4=0.3,
+> ##D                        kLeaf5=0.01, kStem5=0.56, kRoot5=0.13, kRhizome5=0.3,
+> ##D                        kLeaf6=0.01, kStem6=0.56, kRoot6=0.13, kRhizome6=0.3)
+> ##D 
+> ##D system.time(ans <- BioGro(weather05, phenoControl = pheno.ll))
+> ##D 
+> ##D ans.dat <- as.data.frame(unclass(ans)[1:11])
+> ##D sel.rows <- seq(1,nrow(ans.dat),length.out=8)
+> ##D simDat <- ans.dat[sel.rows,c('ThermalT','Stem','Leaf','Root','Rhizome','Grain','LAI')]
+> ##D plot(ans,simDat)
+> ##D 
+> ##D ## Residual sum of squares before the optimization
+> ##D 
+> ##D ans0 <- BioGro(weather05)
+> ##D RssBioGro(simDat,ans0)
+> ##D 
+> ##D ## This will optimize only the first phenological stage
+> ##D idb <- valid_dbp(idbp(simDat))
+> ##D op1 <- OpBioGro(phen=0, WetDat=weather05, data = simDat, iCoef=idb)
+> ##D ## or
+> ##D cop1 <- constrOpBioGro(phen=0, WetDat=weather05, data = simDat)
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("OpEC4photo")
+> ### * OpEC4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: OpEC4photo
+> ### Title: Optimization of C4 photosynthesis parameters (von Caemmerer
+> ###   model)
+> ### Aliases: OpEC4photo summary.OpEC4photo
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> data(obsNaid)
+> ## These data are from Naidu et al. (2003)
+> ## in the correct format
+> res <- OpEC4photo(obsNaid)
+> ## Other example using Beale, Bint and Long (1996)
+> data(obsBea)
+> resB <- OpEC4photo(obsBea)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("Opc3photo")
+> ### * Opc3photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: Opc3photo
+> ### Title: Optimize parameters of the C3 photosynthesis model.
+> ### Aliases: Opc3photo plot.Opc3photo predict.Opc3photo print.Opc3photo
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> ## Load fabricated data
+> data(simA100)
+> ## Look at it
+> head(simA100)
+          Assim   Qp Tl  RH        Ci    Vcmax     Jmax       Rd Catm
+[1,] -0.6944929 1500 25 0.7  4.653977 90.80678 205.9745 2.311849    0
+[2,] -0.6944929 1500 25 0.7  9.653877 90.80678 205.9745 2.311849    5
+[3,] -0.6944929 1500 25 0.7 14.653877 90.80678 205.9745 2.311849   10
+[4,] -0.6944929 1500 25 0.7 24.653877 90.80678 205.9745 2.311849   20
+[5,] -0.6944929 1500 25 0.7 34.653877 90.80678 205.9745 2.311849   30
+[6,]  0.4378667 1500 25 0.7 52.389158 90.80678 205.9745 2.311849   50
+> 
+> op <- Opc3photo(simA100[,1:5],Catm=simA100[,9], op.level = 2)
+> 
+> ## If faced with a difficult problem
+> ## This can give starting values
+> op100 <- Opc3photo(simA100[,1:5],Catm=simA100[,9],
++                    op.level = 2, method='SANN',
++                    hessian=FALSE)
+> 
+> op100 <- Opc3photo(simA100[,1:5],Catm = simA100[,9],
++                    op.level = 2,
++                    ivcmax = op100$bestVmax,
++                    ijmax = op100$bestJmax,
++                    iRd = op100$bestRd)
+> op100
+
+Optimization of C3 photosynthesis
+
+		 95 %   Conf Int
+         best    lower   upper
+Vmax    90.63    90.09    91.2
+Jmax   170.67   169.95   171.4
+Rd       0.65     0.59     0.7
+
+ Corr  Vmax and Jmax: 0.2618422 
+
+ Resid Sums Sq: 0.09047036 
+
+Convergence:YES
+> 
+> 
+> 
+> cleanEx()
+> nameEx("Opc4photo")
+> ### * Opc4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: Opc4photo
+> ### Title: Optimization of C4 photosynthesis parameters
+> ### Aliases: Opc4photo plot.Opc4photo plotAQ predict.Opc4photo
+> ###   print.Opc4photo print.summary.Opc4photo summary.Opc4photo
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> data(aq)
+> ## Select data for a single AQ optimization
+> aqd <- data.frame(aq[aq[,1] == 6,-c(1:2)],Catm=400)
+> res <- Opc4photo(aqd, Catm=aqd$Catm)
+> res
+
+Optimization of C4 photosynthesis
+
+		 95 %   Conf Int
+          best    lower    upper
+Vmax    31.326   30.815   31.838
+alpha    0.054    0.052    0.056
+
+ Corr  Vmax and alpha: -0.4754783 
+
+ Resid Sums Sq: 0.9731662 
+
+Convergence:YES
+> 
+> plot(res, plot.kind = 'OandF', type='o')
+> 
+> 
+> 
+> cleanEx()
+> nameEx("RUEmod")
+> ### * RUEmod
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: RUEmod
+> ### Title: Radiation use efficiency based model
+> ### Aliases: RUEmod
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> 
+> ## See RUEmodMY
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("RUEmodMY")
+> ### * RUEmodMY
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: RUEmodMY
+> ### Title: Radiation use efficiency based model
+> ### Aliases: RUEmodMY
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## weather data from Champaign, IL
+> data(cmiWet)
+> tmp1 <- RUEmodMY(cmiWet)
+> 
+> xyplot(AG.cum ~ doy | factor(year), type='l', data = tmp1,
++        lwd=2,
++        ylab=expression(paste('dry biomass (Mg ',ha^-1,')')),
++        xlab='DOY')
+> 
+> 
+> 
+> cleanEx()
+> nameEx("Rmiscanmod")
+> ### * Rmiscanmod
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: Rmiscanmod
+> ### Title: RUE-based model to calculate miscanthus growth and yield.
+> ### Aliases: Rmiscanmod
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Need to get an example data set and then run it
+> ## Not run: 
+> ##D data(WD1979)
+> ##D 
+> ##D res <- Rmiscanmod(WD1979)
+> ##D 
+> ##D ## convert to Mg/ha
+> ##D 
+> ##D Yld <- res$Yield / 100
+> ##D 
+> ##D xyplot(Yld ~ 1:365 ,
+> ##D        xlab='doy',
+> ##D        ylab='Dry biomass (Mg/ha)')
+> ##D 
+> ##D ## although the default value for Field Capacity is 45
+> ##D ## a more reasonable value is closer to 27
+> ##D 
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("RsqC4photo")
+> ### * RsqC4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: RsqC4photo
+> ### Title: R-squared for C4 photosynthesis simulation (Collatz model)
+> ### Aliases: RsqC4photo
+> ### Keywords: univar
+> 
+> ### ** Examples
+> 
+> data(obsNaid)
+> ## These data are from Naidu et al. (2003)
+> ## in the correct format
+> res <- RsqC4photo(obsNaid)
+> ## Other example using Beale, Bint and Long (1996)
+> data(obsBea)
+> resB <- RsqC4photo(obsBea)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("RsqEC4photo")
+> ### * RsqEC4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: RsqEC4photo
+> ### Title: R-squared for C4 photosynthesis simulation (von Caemmerer model)
+> ### Aliases: RsqEC4photo
+> ### Keywords: univar
+> 
+> ### ** Examples
+> 
+> data(obsNaid)
+> obs <- obsNaid
+> ## These data are from Naidu et al. (2003)
+> ## in the correct format
+> res <- RsqEC4photo(obs)
+> ## Other example using Beale, Bint and Long (1996)
+> data(obsBea)
+> obsD <- obsBea
+> resB <- RsqEC4photo(obsD)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("RssBioGro")
+> ### * RssBioGro
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: RssBioGro
+> ### Title: Residual sum of squares for BioGro.
+> ### Aliases: RssBioGro
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## A simple example
+> data(annualDB)
+> data(EngWea94i)
+> res <- BioGro(EngWea94i)
+> RssBioGro(annualDB,res)
+[1] 346.0124
+> 
+> 
+> 
+> cleanEx()
+> nameEx("SoilEvapo")
+> ### * SoilEvapo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: SoilEvapo
+> ### Title: Soil Evaporation
+> ### Aliases: SoilEvapo
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> SoilEvapo(LAI=3,k=0.68,AirTemp=20,IRad=1000,awc=0.3,FieldC=0.4,WiltP=0.2,winds=3,RelH=0.8)
+[1] 0.1067245
+> 
+> 
+> 
+> cleanEx()
+> nameEx("WD1979")
+> ### * WD1979
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: WD1979
+> ### Title: Randomly picked dataset from the Illinois area from 1979
+> ### Aliases: WD1979
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(WD1979)
+> summary(WD1979)
+      year       month           day                JD         maxTemp      
+ Min.   :1979   Mode:logical   Mode:logical   Min.   :  1   Min.   :-10.60  
+ 1st Qu.:1979   NA's:365       NA's:365       1st Qu.: 92   1st Qu.: 11.50  
+ Median :1979                                 Median :183   Median : 21.66  
+ Mean   :1979                                 Mean   :183   Mean   : 18.91  
+ 3rd Qu.:1979                                 3rd Qu.:274   3rd Qu.: 27.78  
+ Max.   :1979                                 Max.   :365   Max.   : 33.19  
+    minTemp             SolarR           PotEv             precip      
+ Min.   :-22.3562   Min.   : 1.650   Min.   :-0.0790   Min.   : 0.000  
+ 1st Qu.:  0.2715   1st Qu.: 6.744   1st Qu.: 0.2840   1st Qu.: 0.000  
+ Median :  9.5810   Median : 9.694   Median : 0.5760   Median : 0.000  
+ Mean   :  8.0733   Mean   : 9.751   Mean   : 0.5498   Mean   : 2.601  
+ 3rd Qu.: 17.0856   3rd Qu.:12.882   3rd Qu.: 0.8030   3rd Qu.: 2.600  
+ Max.   : 24.6433   Max.   :16.753   Max.   : 1.0800   Max.   :42.900  
+> 
+> 
+> 
+> cleanEx()
+> nameEx("aci")
+> ### * aci
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: aci
+> ### Title: A/Ci curves
+> ### Aliases: aci
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(aci)
+> plotAC(aci)
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  span too small.   fewer data values than degrees of freedom.
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  pseudoinverse used at 299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  neighborhood radius 0.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  reciprocal condition number  1
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  400.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  There are other near singularities as well. 0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  span too small.   fewer data values than degrees of freedom.
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  pseudoinverse used at 299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  neighborhood radius 0.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  reciprocal condition number  1
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  400.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  There are other near singularities as well. 0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  span too small.   fewer data values than degrees of freedom.
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  pseudoinverse used at 299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  neighborhood radius 0.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  reciprocal condition number  1
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  400.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  There are other near singularities as well. 0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  span too small.   fewer data values than degrees of freedom.
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  pseudoinverse used at 299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  neighborhood radius 0.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  reciprocal condition number  1
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  400.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  There are other near singularities as well. 0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  span too small.   fewer data values than degrees of freedom.
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  pseudoinverse used at 299.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  neighborhood radius 0.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  reciprocal condition number  1
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  at  400.5
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  radius  0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  all data on boundary of neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  There are other near singularities as well. 0.25
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+Warning in simpleLoess(y, x, w, span, degree, FALSE, FALSE, normalize = FALSE,  :
+  zero-width neighborhood. make span bigger
+> 
+> 
+> 
+> cleanEx()
+> nameEx("aq")
+> ### * aq
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: aq
+> ### Title: A/Q curves
+> ### Aliases: aq
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(aq)
+> plotAQ(aq)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("c3CanA")
+> ### * c3CanA
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: c3CanA
+> ### Title: Simulates canopy assimilation for C3 canopies
+> ### Aliases: c3CanA
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> data(doy124)
+> tmp <- numeric(24)
+> 
+> for(i in 1:24){
++    lai <- doy124[i,1]
++    doy <- doy124[i,3]
++    hr  <- doy124[i,4]
++  solar <- doy124[i,5]
++   temp <- doy124[i,6]
++     rh <- doy124[i,7]
++     ws <- doy124[i,8]
++ 
++   tmp[i] <- c3CanA(lai,doy,hr,solar,temp,rh,ws)$CanopyAssim
++ 
++ }
+> 
+> plot(c(0:23),tmp,
++             type='l',lwd=2,
++             xlab='Hour',
++             ylab=expression(paste('Canopy assimilation (Mg  ',
++             ha^-2,' ',h^-1,')')))
+> 
+> 
+> 
+> cleanEx()
+> nameEx("c3photo")
+> ### * c3photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: c3photo
+> ### Title: Simulates C3 photosynthesis
+> ### Aliases: c3photo
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Testing the c3photo function
+> ## First example: looking at the effect of changing Vcmax
+> Qps <- seq(0,2000,10)
+> Tls <- seq(0,55,5)
+> rhs <- c(0.7)
+> dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+> 
+> res1 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH) ## default Vcmax = 100
+> res2 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH,vcmax=120)
+> 
+> ## Plot comparing alpha 0.04 vs. 0.06 for a range of conditions
+> xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
++             type='l',col=c('blue','green'),lwd=2,
++             ylab=expression(paste('Assimilation (',
++                  mu,mol,' ',m^-2,' ',s^-1,')')),
++              xlab=expression(paste('Quantum flux (',
++                  mu,mol,' ',m^-2,' ',s^-1,')')),
++             key=list(text=list(c('Vcmax 100','Vcmax 120')),
++               lines=TRUE,col=c('blue','green'),lwd=2))
+> 
+> ## Second example: looking at the effect of changing Jmax
+> ## Plot comparing Jmax 300 vs. 100 for a range of conditions
+> 
+> res1 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH) ## default Jmax = 300
+> res2 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH,jmax=100)
+> 
+> xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
++            type='l',col=c('blue','green'),lwd=2,
++             ylab=expression(paste('Assimilation (',
++                  mu,mol,' ',m^-2,' ',s^-1,')')),
++              xlab=expression(paste('Quantum flux (',
++                  mu,mol,' ',m^-2,' ',s^-1,')')),
++             key=list(text=list(c('Jmax 300','Jmax 100')),
++               lines=TRUE,col=c('blue','green'),lwd=2))
+> 
+> ## A/Ci curve
+> 
+> Ca <- seq(20,1000,length.out=50)
+> dat2 <- data.frame(Qp=rep(700,50), Tl=rep(25,50), rh=rep(0.7,50))
+> res1 <- c3photo(dat2$Qp, dat2$Tl, dat2$rh, Catm = Ca)
+> res2 <- c3photo(dat2$Qp, dat2$Tl, dat2$rh, Catm = Ca, vcmax = 70)
+> 
+> xyplot(res1$Assim ~ res1$Ci,
++            lwd=2,
++            panel = function(x,y,...){
++                    panel.xyplot(x,y,type='l',col='blue',...)
++                    panel.xyplot(res2$Ci,res2$Assim, type='l', col =
++            'green',...)
++            },
++             ylab=expression(paste('Assimilation (',
++                  mu,mol,' ',m^-2,' ',s^-1,')')))
+> 
+> 
+> 
+> cleanEx()
+> nameEx("c4photo")
+> ### * c4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: c4photo
+> ### Title: Coupled photosynthesis-stomatal conductance simulation
+> ### Aliases: c4photo
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D      ## First example: looking at the effect of changing alpha
+> ##D       Qps <- seq(0,2000,10)
+> ##D       Tls <- seq(0,55,5)
+> ##D       rhs <- c(0.7)
+> ##D       dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+> ##D       res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH) ## default alpha = 0.04
+> ##D       res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,alpha=0.06)
+> ##D 
+> ##D      ## Plot comparing alpha 0.04 vs. 0.06 for a range of conditions
+> ##D      xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+> ##D             type='l',col=c('blue','green'),lwd=2,
+> ##D             ylab=expression(paste('Assimilation (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D              xlab=expression(paste('Quantum flux (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D             key=list(text=list(c('alpha 0.04','alpha 0.06')),
+> ##D               lines=TRUE,col=c('blue','green'),lwd=2))
+> ##D 
+> ##D      ## Second example: looking at the effect of changing vmax
+> ##D      ## Plot comparing Vmax 39 vs. 50 for a range of conditions
+> ##D 
+> ##D       res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH) ## default Vmax = 39
+> ##D       res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,vmax=50)
+> ##D 
+> ##D      xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+> ##D             type='l',col=c('blue','green'),lwd=2,
+> ##D             ylab=expression(paste('Assimilation (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D              xlab=expression(paste('Quantum flux (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D             key=list(text=list(c('Vmax 39','Vmax 50')),
+> ##D               lines=TRUE,col=c('blue','green'),lwd=2))
+> ##D 
+> ##D      ## Small effect of low RH on  Assim
+> ##D       Qps <- seq(0,2000,10)
+> ##D       Tls <- seq(0,55,5)
+> ##D       rhs <- c(0.2,0.9)
+> ##D       dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+> ##D       res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH)
+> ##D      # plot for Assimilation and two RH
+> ##D       xyplot(res1$Assim ~ Qp | factor(Tl) , data = dat1,
+> ##D              groups=RH, type='l',
+> ##D              col=c('blue','green'),lwd=2,
+> ##D              ylab=expression(paste('Assimilation (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D              xlab=expression(paste('Quantum flux (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D              key=list(text=list(c('RH 20%','RH 90%')),
+> ##D                         lines=TRUE,col=c('blue','green'),
+> ##D                         lwd=2))
+> ##D 
+> ##D     ## Effect of the previous runs on Stomatal conductance
+> ##D 
+> ##D     xyplot(res1$Gs ~ Qp | factor(Tl) , data = dat1,
+> ##D            type='l', groups=RH,
+> ##D            col=c('blue','green'),lwd=2,
+> ##D            ylab=expression(paste('Stomatal Conductance (',
+> ##D                            mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D            xlab=expression(paste('Quantum flux (',
+> ##D                            mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D            key=list(text=list(c('RH 20%','RH 90%')),
+> ##D                      lines=TRUE,col=c('blue','green'),
+> ##D                      lwd=2))
+> ##D 
+> ##D 
+> ##D ## A Ci curve for the Collatz model
+> ##D ## Assuming constant values of Qp, Temp, and RH
+> ##D ## Notice the effect of the different kparm
+> ##D ## The loop is needed because the length of Ca
+> ##D ## should be the same as Qp
+> ##D 
+> ##D Ca <- seq(15,400,5)
+> ##D 
+> ##D res1 <- numeric(length(Ca))
+> ##D res2 <- numeric(length(Ca))
+> ##D for(i in 1:length(Ca)){
+> ##D   res1[i] <- c4photo(1500,25,0.7,Catm=Ca[i])$Assim
+> ##D   res2[i] <- c4photo(1500,25,0.7,Catm=Ca[i],kparm=0.8)$Assim
+> ##D }
+> ##D 
+> ##D xyplot(res1 + res2 ~ Ca ,type='l',lwd=2,
+> ##D        col=c('blue','green'),
+> ##D      xlab=expression(paste(CO[2],' (ppm)')),
+> ##D      ylab=expression(paste('Assimilation (',
+> ##D          mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D      key=list(text=list(c('kparm 0.7','kparm 0.8')),
+> ##D                         lines=TRUE,col=c('blue','green'),
+> ##D                         lwd=2))
+> ##D 
+> ##D ## Effect of Reduction in Assimilation due to
+> ##D ## water stress
+> ##D 
+> ##D Qps <- seq(0,2000,10)
+> ##D Tls <- seq(0,55,5)
+> ##D rhs <- c(0.7)
+> ##D dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+> ##D res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH) ## default StomWS = 1 No stress
+> ##D res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,StomWS=0.5)
+> ##D 
+> ##D ## Plot comparing StomWS = 1 vs. 0.5 for a range of conditions
+> ##D xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+> ##D        type='l',col=c('blue','green'),lwd=2,
+> ##D        ylab=expression(paste('Assimilation (',
+> ##D            mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D        xlab=expression(paste('Quantum flux (',
+> ##D             mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D        key=list(text=list(c('StomWS 1','StomWS 0.5')),
+> ##D            lines=TRUE,col=c('blue','green'),lwd=2))
+> ##D 
+> ##D 
+> ##D ## Effect on Stomatal Conductance
+> ##D ## Plot comparing StomWS = 1 vs. 0.5 for a range of conditions
+> ##D xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
+> ##D         type='l',col=c('blue','green'),lwd=2,
+> ##D         ylab=expression(paste('Stomatal Conductance (mmol ',
+> ##D           m^-2,' ',s^-1,')')),
+> ##D         xlab=expression(paste('Quantum flux (',
+> ##D           mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D         key=list(text=list(c('StomWS 1','StomWS 0.5')),
+> ##D            lines=TRUE,col=c('blue','green'),lwd=2))
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("eC4photo")
+> ### * eC4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: eC4photo
+> ### Title: C4 photosynthesis simulation (von Caemmerer model)
+> ### Aliases: eC4photo
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D ## A simple example for the use of eC4photo
+> ##D ## This is the model based on von Caemmerer
+> ##D ## First we can compare the effect of varying
+> ##D ## Jmax. Notice that this is different from
+> ##D ## varying alpha in the Collatz model
+> ##D 
+> ##D Qps <- seq(0,2000,10)
+> ##D Tls <- seq(0,55,5)
+> ##D rhs <- c(0.7)
+> ##D dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+> ##D res1 <- eC4photo(dat1$Qp,dat1$Tl,dat1$RH)
+> ##D res2 <- eC4photo(dat1$Qp,dat1$Tl,dat1$RH,jmax=700)
+> ##D 
+> ##D ## Plot comparing Jmax 400 vs. 700 for a range of conditions
+> ##D xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+> ##D             type='l',col=c('blue','green'),lwd=2,
+> ##D             ylab=expression(paste('Assimilation (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D              xlab=expression(paste('Quantum flux (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D             key=list(text=list(c('Jmax 400','Jmax 700')),
+> ##D               lines=TRUE,col=c('blue','green'),lwd=2))
+> ##D 
+> ##D ## Second example is the effect of varying Vcmax
+> ##D 
+> ##D Qps <- seq(0,2000,10)
+> ##D Tls <- seq(0,35,5)
+> ##D rhs <- 0.7
+> ##D vcmax <- seq(0,40,5)
+> ##D dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs,vcmax=vcmax))
+> ##D res1 <- numeric(nrow(dat1))
+> ##D for(i in 1:nrow(dat1)){
+> ##D res1[i] <- eC4photo(dat1$Qp[i],dat1$Tl[i],dat1$RH[i],vcmax=dat1$vcmax[i])$Assim
+> ##D }
+> ##D 
+> ##D ## Plot comparing different Vcmax
+> ##D cols <- rev(heat.colors(9))
+> ##D xyplot(res1 ~ Qp | factor(Tl) , data = dat1,col=cols,
+> ##D             groups=vcmax,
+> ##D             type='l',lwd=2,
+> ##D             ylab=expression(paste('Assimilation (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D              xlab=expression(paste('Quantum flux (',
+> ##D                  mu,mol,' ',m^-2,' ',s^-1,')')),
+> ##D             key=list(text=list(as.character(vcmax)),
+> ##D               lines=TRUE,col=cols,lwd=2))
+> ##D 
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("eCanA")
+> ### * eCanA
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: eCanA
+> ### Title: Simulates canopy assimilation (von Caemmerer model)
+> ### Aliases: eCanA
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D data(doy124)
+> ##D tmp1 <- numeric(24)
+> ##D for(i in 1:24){
+> ##D   lai <- doy124[i,1]
+> ##D   doy <- doy124[i,3]
+> ##D   hr  <- doy124[i,4]
+> ##D   solar <- doy124[i,5]
+> ##D   temp <- doy124[i,6]
+> ##D   rh <- doy124[i,7]/100
+> ##D   ws <- doy124[i,8]
+> ##D 
+> ##D   tmp1[i] <- CanA(lai,doy,hr,solar,temp,rh,ws)
+> ##D }
+> ##D 
+> ##D plot(c(0:23),tmp1,
+> ##D      type='l',lwd=2,
+> ##D      xlab='Hour',
+> ##D      ylab=expression(paste('Canopy assimilation (mol  ',
+> ##D      m^-2,' ',s^-1,')')))
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("idbp")
+> ### * idbp
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: idbp
+> ### Title: Initial Dry Biomass Partitioning Coefficients
+> ### Aliases: idbp
+> ### Keywords: utilities
+> 
+> ### ** Examples
+> 
+> ## See ?OpBioGro
+> 
+> 
+> 
+> cleanEx()
+> nameEx("lightME")
+> ### * lightME
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: lightME
+> ### Title: Simulates the light macro environment
+> ### Aliases: lightME
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Direct and diffuse radiation for DOY 190 and hours 0 to 23
+> 
+> res <- lightME(t.d=0:23)
+> 
+> xyplot(I.dir + I.diff ~ 0:23 , data = res,
++ type='o',xlab='hour',ylab='Irradiance')
+> 
+> xyplot(propIdir + propIdiff ~ 0:23 , data = res,
++ type='o',xlab='hour',ylab='Irradiance proportion')
+> 
+> 
+> 
+> cleanEx()
+> nameEx("mOpc3photo")
+> ### * mOpc3photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: mOpc3photo
+> ### Title: Multiple optimization of assimilation (or stomatal conductance)
+> ###   curves.
+> ### Aliases: mOpc3photo
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> data(simAssim)
+> simAssim <- cbind(simAssim[,1:6],Catm=simAssim[,10])
+> simAssim <- simAssim[simAssim[,1] < 11,]
+> 
+> plotAC(simAssim, trt.col=1)
+> 
+> op.all <- mOpc3photo(simAssim, op.level=1,
++                       verbose=TRUE)
+Run: 1 ... Converged YES 
+Run: 2 ... Converged YES 
+Run: 3 ... Converged YES 
+Run: 4 ... Converged YES 
+Run: 5 ... Converged YES 
+Run: 6 ... Converged YES 
+Run: 7 ... Converged YES 
+Run: 8 ... Converged YES 
+Run: 9 ... Converged YES 
+Run: 10 ... Converged YES 
+> 
+> plot(op.all)
+> plot(op.all, parm='jmax')
+> 
+> 
+> 
+> cleanEx()
+> nameEx("mOpc4photo")
+> ### * mOpc4photo
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: mOpc4photo
+> ### Title: Multiple optimization of C4 photosynthesis.
+> ### Aliases: mOpc4photo plot.mOpc4photo print.mOpc4photo
+> ### Keywords: optimize
+> 
+> ### ** Examples
+> 
+> data(simAssim)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("plot.MCMCBioGro")
+> ### * plot.MCMCBioGro
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: plot.MCMCBioGro
+> ### Title: Plotting function fo the MCMCBioGro class
+> ### Aliases: plot.MCMCBioGro
+> ### Keywords: hplot
+> 
+> ### ** Examples
+> 
+> ## See the MCMCBioGro function
+> 
+> 
+> 
+> cleanEx()
+> nameEx("plotAC")
+> ### * plotAC
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: plotAC
+> ### Title: plot A/Ci curve
+> ### Aliases: plotAC
+> ### Keywords: hplot
+> 
+> ### ** Examples
+> 
+> data(aci)
+> plotAC(aci, trt.col=1)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("simDat2")
+> ### * simDat2
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: simDat2
+> ### Title: Simulated biomass data.
+> ### Aliases: simDat2
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(simDat2)
+> ## maybe str(simDat2) ; plot(simDat2) ...
+> 
+> 
+> 
+> cleanEx()
+> nameEx("soilML")
+> ### * soilML
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: soilML
+> ### Title: soil multi-layered
+> ### Aliases: rootDist soilML
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> layers <- 5
+> ans <- soilML(precipt=2, CanopyT=2, cws = rep(0.3,layers),
++ soilDepth=1.5, FieldC=0.33, WiltP=0.13, rootDB=2, soilLayers=layers,
++ LAI=3, k=0.68, AirTemp=25,IRad=500, winds=2, RelH=0.8, soilType=6,
++ hydrDist=1)
+> ans
+           cws rootATdepth waterIn layerDepth CanopyTra   SoilEvap   wsPhoto
+[1,] 0.3006469           2   0.002        0.3         2 0.05921622 0.8387243
+[2,] 0.3013333           0   0.002        0.3         0 0.00000000 0.8444444
+[3,] 0.3013333           0   0.002        0.3         0 0.00000000 0.8444445
+[4,] 0.3013381           0   0.002        0.3         0 0.00000000 0.8444844
+[5,] 0.3013333           0   0.002        0.3         0 0.00000000 0.8444444
+      wsSpleaf     drainage           J_w       K_psim      psim
+[1,] 0.5358804 1.438281e-06 -1.437973e-06 4.027791e-08 -45.41469
+[2,] 0.5482416 1.438281e-06 -1.439820e-06 4.027791e-08 -45.41469
+[3,] 0.5482417 1.438281e-06 -1.439819e-06 4.027791e-08 -45.41468
+[4,] 0.5483288 1.438281e-06 -1.438281e-06 4.028654e-08 -45.41091
+[5,] 0.5482416 1.438281e-06 -1.438281e-06 4.028654e-08 -45.41091
+> 
+> 
+> 
+> cleanEx()
+> nameEx("sunML")
+> ### * sunML
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: sunML
+> ### Title: Sunlit shaded multi-layer model
+> ### Aliases: sunML
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D res2 <- sunML(1500,200,3,10)
+> ##D 
+> ##D xyplot(Fsun + Fshade ~ c(1:10), data=res2,
+> ##D        ylab='LAI',
+> ##D        xlab='layer',
+> ##D        type='l',lwd=2,col=c('blue','green'),
+> ##D        lty=c(1,2),
+> ##D        key=list(text=list(c('Direct','Diffuse')),lty=c(1,2),
+> ##D                 cex=1.2,lwd=2,lines=TRUE,x=0.7,y=0.5,
+> ##D                 col=c('blue','green')))
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("valid_dbp")
+> ### * valid_dbp
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: valid_dbp
+> ### Title: Validate dry biomass partitioning coefficients
+> ### Aliases: valid_dbp
+> ### Keywords: utilities
+> 
+> ### ** Examples
+> 
+> xx <- as.vector(unlist(phenoParms())[7:31])
+> valid_dbp(xx)
+ [1]  0.3700  0.3300  0.3000 -0.0008  0.8500  0.1400  0.0100 -0.0005  0.6300
+[10]  0.0100  0.0100  0.3500  0.6300  0.0100  0.0100  0.3500  0.6300  0.0100
+[19]  0.0100  0.3500  0.6300  0.0100  0.0100  0.3500  0.0000
+> 
+> 
+> 
+> cleanEx()
+> nameEx("weach")
+> ### * weach
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: weach
+> ### Title: Simulates the hourly conditions from daily
+> ### Aliases: weach
+> ### Keywords: datagen
+> 
+> ### ** Examples
+> 
+> data(cmi0506)
+> tmp1 <- cmi0506[cmi0506$year == 2005,]
+> wet05 <- weach(tmp1,40)
+> 
+> # Return data every 3 hours
+> wet05.3 <- weach(tmp1,40,ts=3)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("weach_imn")
+> ### * weach_imn
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: weach_imn
+> ### Title: Weather change Iowa Mesonet
+> ### Aliases: weach_imn
+> ### Keywords: datagen
+> 
+> ### ** Examples
+> 
+> ## Read an example data set from my website
+> url <- "http://www.agron.iastate.edu/miguezlab/teaching/CropSoilModel/ames_2010-iowamesonet.txt"
+> ames.wea <- read.table(url, skip = 6)
+> ames.wea2 <- weach_imn(ames.wea)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("weather06")
+> ### * weather06
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: weather06
+> ### Title: Weather data
+> ### Aliases: weather06
+> ### Keywords: datasets
+> 
+> ### ** Examples
+> 
+> data(weather06)
+> ## maybe str(weather06) ; plot(weather06) ...
+> 
+> 
+> 
+> cleanEx()
+> nameEx("willowCent")
+> ### * willowCent
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: willowCent
+> ### Title: willowmass crops growth simulation
+> ### Aliases: SoilType canopyParms centuryParms nitroParms phenoParms
+> ###   photoParms print.willowGro seneParms showSoilType soilParms
+> ###   willowCent willowGro
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D data(weather05)
+> ##D 
+> ##D res0 <- willowGro(weather05)
+> ##D 
+> ##D plot(res0)
+> ##D 
+> ##D ## Looking at the soil model
+> ##D 
+> ##D res1 <- willowGro(weather05, soilControl = soilParms(soilLayers = 6))
+> ##D plot(res1, plot.kind='SW') ## Without hydraulic distribution
+> ##D res2 <- willowGro(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
+> ##D plot(res2, plot.kind='SW') ## With hydraulic distribution
+> ##D 
+> ##D 
+> ##D ## Example of user defined soil parameters.
+> ##D ## The effect of phi2 on yield and soil water content
+> ##D 
+> ##D ll.0 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=1)
+> ##D ll.1 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=2)
+> ##D ll.2 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=3)
+> ##D ll.3 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=4)
+> ##D 
+> ##D ans.0 <- willowGro(weather05,soilControl=ll.0)
+> ##D ans.1 <- willowGro(weather05,soilControl=ll.1)
+> ##D ans.2 <- willowGro(weather05,soilControl=ll.2)
+> ##D ans.3 <-willowGro(weather05,soilControl=ll.3)
+> ##D 
+> ##D xyplot(ans.0$SoilWatCont +
+> ##D        ans.1$SoilWatCont +
+> ##D        ans.2$SoilWatCont +
+> ##D        ans.3$SoilWatCont ~ ans.0$DayofYear,
+> ##D        type='l',
+> ##D        ylab='Soil water Content (fraction)',
+> ##D        xlab='DOY')
+> ##D 
+> ##D ## Compare LAI
+> ##D 
+> ##D xyplot(ans.0$LAI +
+> ##D        ans.1$LAI +
+> ##D        ans.2$LAI +
+> ##D        ans.3$LAI ~ ans.0$DayofYear,
+> ##D        type='l',
+> ##D        ylab='Leaf Area Index',
+> ##D        xlab='DOY')
+> ##D 
+> ##D 
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("willowGro")
+> ### * willowGro
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: willowGro
+> ### Title: willowmass crops growth simulation
+> ### Aliases: SoilType canopyParms centuryParms nitroParms phenoParms
+> ###   photoParms print.willowGro seneParms showSoilType soilParms willowGro
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Not run: 
+> ##D data(weather05)
+> ##D 
+> ##D res0 <- willowGro(weather05)
+> ##D 
+> ##D plot(res0)
+> ##D 
+> ##D ## Looking at the soil model
+> ##D 
+> ##D res1 <- willowGro(weather05, soilControl = soilParms(soilLayers = 6))
+> ##D plot(res1, plot.kind='SW') ## Without hydraulic distribution
+> ##D res2 <- willowGro(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
+> ##D plot(res2, plot.kind='SW') ## With hydraulic distribution
+> ##D 
+> ##D 
+> ##D ## Example of user defined soil parameters.
+> ##D ## The effect of phi2 on yield and soil water content
+> ##D 
+> ##D ll.0 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=1)
+> ##D ll.1 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=2)
+> ##D ll.2 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=3)
+> ##D ll.3 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=4)
+> ##D 
+> ##D ans.0 <- willowGro(weather05,soilControl=ll.0)
+> ##D ans.1 <- willowGro(weather05,soilControl=ll.1)
+> ##D ans.2 <- willowGro(weather05,soilControl=ll.2)
+> ##D ans.3 <-willowGro(weather05,soilControl=ll.3)
+> ##D 
+> ##D xyplot(ans.0$SoilWatCont +
+> ##D        ans.1$SoilWatCont +
+> ##D        ans.2$SoilWatCont +
+> ##D        ans.3$SoilWatCont ~ ans.0$DayofYear,
+> ##D        type='l',
+> ##D        ylab='Soil water Content (fraction)',
+> ##D        xlab='DOY')
+> ##D 
+> ##D ## Compare LAI
+> ##D 
+> ##D xyplot(ans.0$LAI +
+> ##D        ans.1$LAI +
+> ##D        ans.2$LAI +
+> ##D        ans.3$LAI ~ ans.0$DayofYear,
+> ##D        type='l',
+> ##D        ylab='Leaf Area Index',
+> ##D        xlab='DOY')
+> ##D 
+> ##D 
+> ##D 
+> ## End(Not run)
+> 
+> 
+> 
+> cleanEx()
+> nameEx("wtrstr")
+> ### * wtrstr
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: wtrstr
+> ### Title: Simple function to illustrate soil water content effect on plant
+> ###   water stress.
+> ### Aliases: wsRcoef wtrstr
+> ### Keywords: models
+> 
+> ### ** Examples
+> 
+> ## Looking at the three possible models for the effect of soil moisture on water
+> ## stress
+> 
+> aws <- seq(0,0.4,0.001)
+> wats.L <- numeric(length(aws)) # linear
+> wats.Log <- numeric(length(aws)) # logistic
+> wats.exp <- numeric(length(aws)) # exp
+> wats.none <- numeric(length(aws)) # none
+> for(i in 1:length(aws)){
++ wats.L[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4)$wsPhoto
++ wats.Log[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4,wsFun='logistic')$wsPhoto
++ wats.exp[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun='exp')$wsPhoto
++ wats.none[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun='none')$wsPhoto
++ }
+> 
+> xyplot(wats.L + wats.Log + wats.exp  + wats.none~ aws,
++        col=c('blue','green','purple','red'),
++        type = 'l',
++        xlab='Soil Water',
++        ylab='Stress Coefficient',
++        key = list(text=list(c('linear','logistic','exp', 'none')),
++        col=c('blue','green','purple','red'), lines = TRUE) )
+> 
+> ## This function is sensitive to the soil depth parameter
+> 
+> SDepth <- seq(0.05,2,0.05)
+> 
+> wats <- numeric(length(SDepth))
+> 
+> for(i in 1:length(SDepth)){
++ wats[i] <- wtrstr(1,1,0.3,SDepth[i],0.37,0.2,2e-2,3)$wsPhoto
++ }
+> 
+> xyplot(wats ~ SDepth, ylab='Water Stress Coef',
++        xlab='Soil depth')
+> 
+> ## Difference between the effect on assimilation and leaf expansion rate
+> 
+> aws <- seq(0,0.4,0.001)
+> wats.P <- numeric(length(aws))
+> wats.L <- numeric(length(aws))
+> for(i in 1:length(aws)){
++ wats.P[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4)$wsPhoto
++ wats.L[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4)$wsSpleaf
++ }
+> 
+> xyplot(wats.P + wats.L ~ aws,
++        xlab='Soil Water',
++        ylab='Stress Coefficient')
+> 
+> 
+> ## An example for wsRcoef
+> ## The scale parameter makes a big difference
+> 
+> aws <- seq(0.2,0.4,0.001)
+> wats.1 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=1e-2,phi2=1, wsFun='logistic')$wsPhoto
+> wats.2 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=2e-2,phi2=1, wsFun='logistic')$wsPhoto
+> wats.3 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=3e-2,phi2=1, wsFun='logistic')$wsPhoto
+> 
+> xyplot(wats.1 + wats.2 + wats.3 ~ aws,type='l',
++        col=c('blue','red','green'),
++        ylab='Water Stress Coef',
++        xlab='SoilWater Content',
++        key=list(text=list(c('phi1 = 1e-2','phi1 = 2e-2','phi1 = 3e-2')),
++          lines=TRUE,col=c('blue','red','green')))
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cat("Time elapsed: ", proc.time() - get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  7.3 0.076 7.748 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

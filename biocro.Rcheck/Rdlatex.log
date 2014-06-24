@@ -1,0 +1,879 @@
+Hmm ... looks like a package
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian)
+entering extended mode
+(./Rd2.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+yphenation, loaded.
+
+(/usr/share/texmf-texlive/tex/latex/base/book.cls
+Document Class: book 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/share/texmf-texlive/tex/latex/base/bk10.clo))
+(/usr/share/R/share/texmf/tex/latex/Rd.sty
+(/usr/share/texmf-texlive/tex/latex/base/ifthen.sty)
+(/usr/share/texmf-texlive/tex/latex/tools/longtable.sty)
+(/usr/share/texmf-texlive/tex/latex/tools/bm.sty)
+(/usr/share/texmf-texlive/tex/latex/base/alltt.sty)
+(/usr/share/texmf-texlive/tex/latex/tools/verbatim.sty)
+(/usr/share/texmf-texlive/tex/latex/ltxmisc/url.sty)
+(/usr/share/R/share/texmf/tex/latex/upquote.sty
+(/usr/share/texmf-texlive/tex/latex/base/textcomp.sty
+(/usr/share/texmf-texlive/tex/latex/base/ts1enc.def))) NOT loading ae
+(/usr/share/texmf-texlive/tex/latex/base/fontenc.sty
+(/usr/share/texmf-texlive/tex/latex/base/t1enc.def))
+(/usr/share/texmf-texlive/tex/latex/psnfss/times.sty) NOT loading lmodern)
+(/usr/share/texmf-texlive/tex/latex/base/inputenc.sty
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def
+(/usr/share/texmf-texlive/tex/latex/base/t1enc.dfu)
+(/usr/share/texmf-texlive/tex/latex/base/ot1enc.dfu)
+(/usr/share/texmf-texlive/tex/latex/base/omsenc.dfu)
+(/usr/share/texmf-texlive/tex/latex/base/ts1enc.dfu))
+(/usr/share/texmf-texlive/tex/latex/base/latin1.def))
+No file Rd2.aux.
+(/usr/share/texmf-texlive/tex/latex/base/ts1cmr.fd)
+(/usr/share/texmf-texlive/tex/latex/psnfss/t1ptm.fd)
+(/usr/share/texmf-texlive/tex/latex/psnfss/t1pcr.fd)
+Overfull \hbox (383.02168pt too wide) in paragraph at lines 17--21
+\T1/ptm/m/n/10 Fernando Miguez \T1/pcr/m/n/10 <femiguez@iastate.edu>\T1/ptm/m/n
+/10 ,Deepak Jaiswal \T1/pcr/m/n/10 <djaiswal@illinois.edu>\T1/ptm/m/n/10 ,Dan W
+ang \T1/pcr/m/n/10 <dwng@illinois.edu>\T1/ptm/m/n/10 ,David LeBauer \T1/pcr/m/n
+/10 <dlebauer@illinois.edu>  
+(/usr/share/texmf-texlive/tex/latex/psnfss/ts1ptm.fd)
+(/usr/share/texmf-texlive/tex/latex/psnfss/t1phv.fd)
+No file Rd2.toc.
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [1{/var/lib/texmf/fonts/map/
+pdftex/updmap/pdftex.map}] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+[2] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [3]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Underfull \hbox (badness 10000) in paragraph at lines 152--152
+[]\T1/ptm/m/it/10 Arden Buck Equa-tion from Buck Re-search Man-ual (1996)
+
+Overfull \hbox (4.85713pt too wide) in paragraph at lines 155--157
+[]\T1/ptm/m/n/10 Arden Buck Equa-tion from Buck Re-search Man-ual (1996) http:/
+/cires.colorado.edu/~voemel/vp.html 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [4]
+Overfull \hbox (7.79762pt too wide) in paragraph at lines 226--229
+[]\T1/ptm/m/n/10 Initial rhi-zome pro-por-tion that be-comes leaf. This should 
+not typ-i-cally be changed,
+
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 250--253
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+[5] [6] (/usr/share/texmf-texlive/tex/latex/psnfss/ts1pcr.fd)
+Overfull \hbox (42.18039pt too wide) in paragraph at lines 454--454
+ []\T1/pcr/m/n/9 res2 <- BioGro(weather05, soilControl = soilParms(soilLayers =
+ 6, hydrDist=TRUE))[] 
+[7] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [8]
+Overfull \hbox (6.10724pt too wide) in paragraph at lines 543--546
+[]\T1/ptm/m/n/10 list that sets the pho-to-syn-the-sis pa-ram-e-ters for c3 pla
+nts through the c3photoParms
+[9] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [10] [11]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [12] [13]
+Underfull \vbox (badness 3803) has occurred while \output is active [14]
+Underfull \vbox (badness 10000) has occurred while \output is active [15]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [16] [17]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (18.78088pt too wide) in paragraph at lines 1142--1142
+ []  \T1/pcr/m/n/10 seneControl = list(), photoControl = list(), phenoControl =
+ list(),[] 
+
+Overfull \hbox (42.78088pt too wide) in paragraph at lines 1143--1143
+ []  \T1/pcr/m/n/10 soilControl = list(), nitroControl = list(), canephenoContr
+ol = list(),[] 
+[18]
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 1193--1196
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+
+Overfull \hbox (54.3478pt too wide) in paragraph at lines 1243--1246
+[]\T1/ptm/m/n/10 argument used to pass pa-ram-e-ters re-lated to phe-nol-ogy ch
+ar-ac-ter-is-tics \T1/pcr/m/n/10 canePhenoControl
+[19] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [20]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (30.78088pt too wide) in paragraph at lines 1373--1373
+ []\T1/pcr/m/n/10 CenturyC(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, l
+eachWater,[] 
+[21] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [22]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [23]
+Overfull \hbox (7.79762pt too wide) in paragraph at lines 1540--1543
+[]\T1/ptm/m/n/10 Initial rhi-zome pro-por-tion that be-comes leaf. This should 
+not typ-i-cally be changed,
+[24]
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 1564--1567
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+[25] [26]
+Overfull \hbox (42.18039pt too wide) in paragraph at lines 1768--1768
+ []\T1/pcr/m/n/9 res2 <- BioGro(weather05, soilControl = soilParms(soilLayers =
+ 6, hydrDist=TRUE))[] 
+[27] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [28] [29]
+Overfull \hbox (31.3804pt too wide) in paragraph at lines 1949--1949
+ []\T1/pcr/m/n/9 res1[i] <- eC4photo(dat1$Qp[i],dat1$Tl[i],dat1$RH[i],vcmax=dat
+1$vcmax[i])$Assim[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [30] [31]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [32]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [33]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Underfull \hbox (badness 10000) in paragraph at lines 2199--2199
+[]\T1/ptm/m/it/10 The Goff Gratch equa-tion from Smith-so-nian Ta-bles, 1984.
+
+Overfull \hbox (5.4969pt too wide) in paragraph at lines 2202--2204
+[]\T1/ptm/m/n/10 The Goff Gratch equa-tion from Smith-so-nian Ta-bles, 1984. ht
+tp://cires.colorado.edu/~voemel/vp.html 
+[34] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (25.42944pt too wide) in paragraph at lines 2252--2255
+[]\T1/ptm/m/n/10 It re-turns a vec-tor of length 25 suit-able for \T1/pcr/m/n/1
+0 BioGro\T1/ptm/m/n/10 , \T1/pcr/m/n/10 OpBioGro\T1/ptm/m/n/10 , \T1/pcr/m/n/10
+ constrOpBioGro\T1/ptm/m/n/10 , or \T1/pcr/m/n/10 MCMCBioGro\T1/ptm/m/n/10 . 
+[35] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (7.95114pt too wide) in paragraph at lines 2291--2299
+\T1/ptm/m/n/10 0.00704 0 0.00119 611 280.000 1.08019 0.95531 0.11618 0 1.62350 
+1221 560.000
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [36]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [37]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (42.78088pt too wide) in paragraph at lines 2409--2409
+ []\T1/pcr/m/n/10 MaizeGro(WetDat, plant.day = NULL, emerge.day = NULL, harvest
+.day = NULL,[] 
+
+Overfull \hbox (12.78088pt too wide) in paragraph at lines 2410--2410
+ []  \T1/pcr/m/n/10 plant.density = 7, timestep = 1, lat = 40, canopyControl = 
+list(),[] 
+
+Overfull \hbox (36.78088pt too wide) in paragraph at lines 2413--2413
+ []  \T1/pcr/m/n/10 laiControl = list(), soilControl = list(), MaizeNitroContro
+l = list(),[] 
+[38]
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 2462--2465
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+
+Overfull \hbox (60.3478pt too wide) in paragraph at lines 2512--2515
+[]\T1/ptm/m/n/10 argument used to pass pa-ram-e-ters re-lated to phe-nol-ogy ch
+ar-ac-ter-is-tics \T1/pcr/m/n/10 MaizePhenoControl
+[39]
+Overfull \hbox (25.98041pt too wide) in paragraph at lines 2567--2567
+ []\T1/pcr/m/n/9 res <- MaizeGro(weather05, plant.day = 110, emerge.day = 120, 
+harvest.day=300,[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [40] [41]
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 2696--2696
+ []\T1/pcr/m/n/9 pheno.ll <- phenoParms(kLeaf1=0.48,kStem1=0.47,kRoot1=0.05,kRh
+izome1=-1e-4,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2697--2697
+ []                       \T1/pcr/m/n/9 kLeaf2=0.14,kStem2=0.65,kRoot2=0.21, kR
+hizome2=-1e-4,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2698--2698
+ []                       \T1/pcr/m/n/9 kLeaf3=0.01, kStem3=0.56, kRoot3=0.13, 
+kRhizome3=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2699--2699
+ []                       \T1/pcr/m/n/9 kLeaf4=0.01, kStem4=0.56, kRoot4=0.13, 
+kRhizome4=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2700--2700
+ []                       \T1/pcr/m/n/9 kLeaf5=0.01, kStem5=0.56, kRoot5=0.13, 
+kRhizome5=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2701--2701
+ []                       \T1/pcr/m/n/9 kLeaf6=0.01, kStem6=0.56, kRoot6=0.13, 
+kRhizome6=0.3)[] 
+[42]
+Overfull \hbox (69.18036pt too wide) in paragraph at lines 2707--2707
+ []\T1/pcr/m/n/9 simDat <- ans.dat[sel.rows,c(\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 The
+rmalT\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Stem\TS1/pcr/
+m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Leaf\TS1/pcr/m/n/9 '\T1/pcr
+/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Root\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/p
+cr/m/n/9 '\T1/pcr/m/n/9 Rhizome\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\
+T1/pcr/m/n/9 Grain\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 
+LAI\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )][] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [43] [44]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [45]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1688) in paragraph at lines 2955--2955
+[]\T1/ptm/m/it/10 Multiple op-ti-miza-tion of as-sim-i-la-tion (or stom-atal co
+n-duc-tance)
+[46] [47] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [48]
+Overfull \hbox (3.32823pt too wide) in paragraph at lines 3131--3137
+\T1/ptm/m/n/10 has an ar-gu-ment that it is used to dsi-play ei-ther vmax or al
+-pha (i.e. \T1/pcr/m/n/10 parm=c('vmax','alpha')\T1/ptm/m/n/10 ).
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [49]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [50]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [51]
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 3348--3348
+ []\T1/pcr/m/n/9 pheno.ll <- phenoParms(kLeaf1=0.48,kStem1=0.47,kRoot1=0.05,kRh
+izome1=-1e-4,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3349--3349
+ []                       \T1/pcr/m/n/9 kLeaf2=0.14,kStem2=0.65,kRoot2=0.21, kR
+hizome2=-1e-4,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3350--3350
+ []                       \T1/pcr/m/n/9 kLeaf3=0.01, kStem3=0.56, kRoot3=0.13, 
+kRhizome3=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3351--3351
+ []                       \T1/pcr/m/n/9 kLeaf4=0.01, kStem4=0.56, kRoot4=0.13, 
+kRhizome4=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3352--3352
+ []                       \T1/pcr/m/n/9 kLeaf5=0.01, kStem5=0.56, kRoot5=0.13, 
+kRhizome5=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3353--3353
+ []                       \T1/pcr/m/n/9 kLeaf6=0.01, kStem6=0.56, kRoot6=0.13, 
+kRhizome6=0.3)[] 
+
+Overfull \hbox (69.18036pt too wide) in paragraph at lines 3359--3359
+ []\T1/pcr/m/n/9 simDat <- ans.dat[sel.rows,c(\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 The
+rmalT\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Stem\TS1/pcr/
+m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Leaf\TS1/pcr/m/n/9 '\T1/pcr
+/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Root\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/p
+cr/m/n/9 '\T1/pcr/m/n/9 Rhizome\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\
+T1/pcr/m/n/9 Grain\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 
+LAI\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )][] 
+[52] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [53]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [54] [55]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1831) in paragraph at lines 3626--3626
+[]\T1/ptm/m/it/10 Optimization of C4 pho-to-syn-the-sis pa-ram-e-ters (von Caem
+-merer
+
+Overfull \hbox (102.78088pt too wide) in paragraph at lines 3638--3638
+ []\T1/pcr/m/n/10 OpEC4photo(obsDat,iVcmax=60,iVpmax=120,iVpr=80,iJmax=400,co2=
+380,o2=210,level=0.95)[] 
+[56] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (30.78088pt too wide) in paragraph at lines 3693--3693
+ []\T1/pcr/m/n/10 OpMaizeGro(phen = 1, iCoef = NULL, cTT, WetDat, data, plant.d
+ay = NULL,[] 
+
+Overfull \hbox (36.78088pt too wide) in paragraph at lines 3698--3698
+ []  \T1/pcr/m/n/10 laiControl = list(), soilControl = list(), MaizeNitroContro
+l = list(),[] 
+[57] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 3774--3774
+ []    \T1/pcr/m/n/10 col = c("blue", "green", "red", "magenta", "black", "purp
+le"),[] 
+[58] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 3845--3845
+ []  \T1/pcr/m/n/10 root = TRUE, LAI = TRUE, grain = TRUE, xlab = NULL, ylab = 
+NULL,[] 
+[59]
+Overfull \hbox (24.78088pt too wide) in paragraph at lines 3846--3846
+ []  \T1/pcr/m/n/10 pch = 21, lty = 1, lwd = 1, col = c("blue", "green", "red",
+ "black",[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [60]
+Overfull \hbox (6.78088pt too wide) in paragraph at lines 3919--3919
+ []    \T1/pcr/m/n/10 "RF", "OFT", "trace", "density"), type = c("l", "p"), coe
+f = 1,[] 
+
+Overfull \hbox (36.78088pt too wide) in paragraph at lines 3920--3920
+ []    \T1/pcr/m/n/10 cols = c("blue", "green", "red", "magenta", "black", "pur
+ple"), ...)[] 
+
+Overfull \hbox (122.71915pt too wide) in paragraph at lines 3956--3961
+\T1/ptm/m/n/10 would in the xy-plot us-ing nams as the name. For ex-am-ple, \T1
+/pcr/m/n/10 plot(x,plot.kind="trace",subset=nams=="kLeaf_1")
+[61] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [62]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [63]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 4121--4121
+ []    \T1/pcr/m/n/10 col = c("blue", "green", "red", "magenta", "black", "purp
+le"),[] 
+[64] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [65]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [66]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [67]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [68]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [69]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [70]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [71] [72]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [73] [74]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (24.78088pt too wide) in paragraph at lines 4762--4762
+ []\T1/pcr/m/n/10 RsqEC4photo(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJm
+ax = 400,[] 
+[75] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [76]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [77]
+Overfull \hbox (3.8179pt too wide) in paragraph at lines 4927--4933
+[]\T1/ptm/m/n/10 Clifton-Brown, J.C., Long, S.P. and Jor-gensen, U. with con-tr
+i-bu-tions from S.A. Humphries, Schwarz,
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [78]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [79]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [80]
+Overfull \hbox (90.78033pt too wide) in paragraph at lines 5108--5108
+ []\T1/pcr/m/n/9 SoilEvapo(LAI=3,k=0.68,AirTemp=20,IRad=1000,awc=0.3,FieldC=0.4
+,WiltP=0.2,winds=3,RelH=0.8)[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [81]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [82]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [83]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [84]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [85]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [86]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [87]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [88]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [89]
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 5602--5602
+ []  \T1/pcr/m/n/10 rh.units = c("percent", "fraction"), ws.units = c("mph", "m
+ps"),[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 5649--5649
+ []  \T1/pcr/m/n/10 rh.units = c("percent", "fraction"), ws.units = c("mph", "m
+ps"),[] 
+[90] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [91]
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 5732--5732
+ []  \T1/pcr/m/n/10 rh.units = c("percent", "fraction"), ws.units = c("mph", "m
+ps"),[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (24.78088pt too wide) in paragraph at lines 5782--5782
+ []\T1/pcr/m/n/10 weach_imn(data, lati, ts = 1, temp.units = c("Fahrenheit", "C
+elsius"),[] 
+
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 5783--5783
+ []  \T1/pcr/m/n/10 rh.units = c("percent", "fraction"), ws.units = c("mph", "m
+ps"),[] 
+[92] [93]
+Overfull \hbox (123.1803pt too wide) in paragraph at lines 5864--5864
+ []\T1/pcr/m/n/9 url <- "http://www.agron.iastate.edu/miguezlab/teaching/CropSo
+ilModel/ames_2010-iowamesonet.txt"[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [94]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [95]
+Overfull \hbox (7.79762pt too wide) in paragraph at lines 5979--5982
+[]\T1/ptm/m/n/10 Initial rhi-zome pro-por-tion that be-comes leaf. This should 
+not typ-i-cally be changed,
+
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 6003--6006
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+[96] [97]
+Overfull \hbox (58.38037pt too wide) in paragraph at lines 6204--6204
+ []\T1/pcr/m/n/9 res2 <- willowGro(weather05, soilControl = soilParms(soilLayer
+s = 6, hydrDist=TRUE))[] 
+[98] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [99]
+Overfull \hbox (7.79762pt too wide) in paragraph at lines 6301--6304
+[]\T1/ptm/m/n/10 Initial rhi-zome pro-por-tion that be-comes leaf. This should 
+not typ-i-cally be changed,
+
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 6325--6328
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+[100] [101]
+Overfull \hbox (58.38037pt too wide) in paragraph at lines 6526--6526
+ []\T1/pcr/m/n/9 res2 <- willowGro(weather05, soilControl = soilParms(soilLayer
+s = 6, hydrDist=TRUE))[] 
+[102] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (66.78088pt too wide) in paragraph at lines 6578--6578
+ []\T1/pcr/m/n/10 wsRcoef(aw, fieldc, wiltp, phi1, phi2, wsFun = c("linear", "l
+ogistic", "exp",[] 
+[103] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (36.7804pt too wide) in paragraph at lines 6660--6660
+ []\T1/pcr/m/n/9 ## Looking at the three possible models for the effect of soil
+ moisture on water[] 
+[104]
+Overfull \hbox (25.98041pt too wide) in paragraph at lines 6670--6670
+ []\T1/pcr/m/n/9 wats.Log[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4,wsFun=\TS
+1/pcr/m/n/9 '\T1/pcr/m/n/9 logistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$wsPhoto[] 
+
+Overfull \hbox (4.38043pt too wide) in paragraph at lines 6671--6671
+ []\T1/pcr/m/n/9 wats.exp[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun=\T
+S1/pcr/m/n/9 '\T1/pcr/m/n/9 exp\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$wsPhoto[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 6672--6672
+ []\T1/pcr/m/n/9 wats.none[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun=\
+TS1/pcr/m/n/9 '\T1/pcr/m/n/9 none\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$wsPhoto[] 
+
+Underfull \vbox (badness 3803) has occurred while \output is active [105]
+Overfull \hbox (90.78033pt too wide) in paragraph at lines 6715--6715
+ []\T1/pcr/m/n/9 wats.1 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=1e-2,phi2=
+1, wsFun=\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 logistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$
+wsPhoto[] 
+
+Overfull \hbox (90.78033pt too wide) in paragraph at lines 6716--6716
+ []\T1/pcr/m/n/9 wats.2 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=2e-2,phi2=
+1, wsFun=\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 logistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$
+wsPhoto[] 
+
+Overfull \hbox (90.78033pt too wide) in paragraph at lines 6717--6717
+ []\T1/pcr/m/n/9 wats.3 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=3e-2,phi2=
+1, wsFun=\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 logistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$
+wsPhoto[] 
+[106] (./Rd2.aux) )
+(see the transcript file for additional information){/usr/share/texmf-texlive/f
+onts/enc/dvips/base/8r.enc}</usr/share/texmf-texlive/fonts/type1/public/amsfont
+s/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.
+pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/sha
+re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-tex
+live/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-texlive/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmb8a.p
+fb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf
+-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-texlive/fonts/type1
+/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (106 pages, 304021 bytes).
+Transcript written on Rd2.log.
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian)
+entering extended mode
+(./Rd2.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+yphenation, loaded.
+
+(/usr/share/texmf-texlive/tex/latex/base/book.cls
+Document Class: book 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/share/texmf-texlive/tex/latex/base/bk10.clo))
+(/usr/share/R/share/texmf/tex/latex/Rd.sty
+(/usr/share/texmf-texlive/tex/latex/base/ifthen.sty)
+(/usr/share/texmf-texlive/tex/latex/tools/longtable.sty)
+(/usr/share/texmf-texlive/tex/latex/tools/bm.sty)
+(/usr/share/texmf-texlive/tex/latex/base/alltt.sty)
+(/usr/share/texmf-texlive/tex/latex/tools/verbatim.sty)
+(/usr/share/texmf-texlive/tex/latex/ltxmisc/url.sty)
+(/usr/share/R/share/texmf/tex/latex/upquote.sty
+(/usr/share/texmf-texlive/tex/latex/base/textcomp.sty
+(/usr/share/texmf-texlive/tex/latex/base/ts1enc.def))) NOT loading ae
+(/usr/share/texmf-texlive/tex/latex/base/fontenc.sty
+(/usr/share/texmf-texlive/tex/latex/base/t1enc.def))
+(/usr/share/texmf-texlive/tex/latex/psnfss/times.sty) NOT loading lmodern)
+(/usr/share/texmf-texlive/tex/latex/base/inputenc.sty
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def
+(/usr/share/texmf-texlive/tex/latex/base/t1enc.dfu)
+(/usr/share/texmf-texlive/tex/latex/base/ot1enc.dfu)
+(/usr/share/texmf-texlive/tex/latex/base/omsenc.dfu)
+(/usr/share/texmf-texlive/tex/latex/base/ts1enc.dfu))
+(/usr/share/texmf-texlive/tex/latex/base/latin1.def)) (./Rd2.aux)
+(/usr/share/texmf-texlive/tex/latex/base/ts1cmr.fd)
+(/usr/share/texmf-texlive/tex/latex/psnfss/t1ptm.fd)
+(/usr/share/texmf-texlive/tex/latex/psnfss/t1pcr.fd)
+Overfull \hbox (383.02168pt too wide) in paragraph at lines 17--21
+\T1/ptm/m/n/10 Fernando Miguez \T1/pcr/m/n/10 <femiguez@iastate.edu>\T1/ptm/m/n
+/10 ,Deepak Jaiswal \T1/pcr/m/n/10 <djaiswal@illinois.edu>\T1/ptm/m/n/10 ,Dan W
+ang \T1/pcr/m/n/10 <dwng@illinois.edu>\T1/ptm/m/n/10 ,David LeBauer \T1/pcr/m/n
+/10 <dlebauer@illinois.edu>  
+(/usr/share/texmf-texlive/tex/latex/psnfss/ts1ptm.fd)
+(/usr/share/texmf-texlive/tex/latex/psnfss/t1phv.fd) (./Rd2.toc [1{/var/lib/tex
+mf/fonts/map/pdftex/updmap/pdftex.map}] [2])
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [3]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [4]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [5]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Underfull \hbox (badness 10000) in paragraph at lines 152--152
+[]\T1/ptm/m/it/10 Arden Buck Equa-tion from Buck Re-search Man-ual (1996)
+
+Overfull \hbox (4.85713pt too wide) in paragraph at lines 155--157
+[]\T1/ptm/m/n/10 Arden Buck Equa-tion from Buck Re-search Man-ual (1996) http:/
+/cires.colorado.edu/~voemel/vp.html 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [6]
+Overfull \hbox (7.79762pt too wide) in paragraph at lines 226--229
+[]\T1/ptm/m/n/10 Initial rhi-zome pro-por-tion that be-comes leaf. This should 
+not typ-i-cally be changed,
+
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 250--253
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+[7] [8] (/usr/share/texmf-texlive/tex/latex/psnfss/ts1pcr.fd)
+Overfull \hbox (42.18039pt too wide) in paragraph at lines 454--454
+ []\T1/pcr/m/n/9 res2 <- BioGro(weather05, soilControl = soilParms(soilLayers =
+ 6, hydrDist=TRUE))[] 
+[9] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [10]
+Overfull \hbox (6.10724pt too wide) in paragraph at lines 543--546
+[]\T1/ptm/m/n/10 list that sets the pho-to-syn-the-sis pa-ram-e-ters for c3 pla
+nts through the c3photoParms
+[11] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [12] [13]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [14] [15]
+Underfull \vbox (badness 3803) has occurred while \output is active [16]
+Underfull \vbox (badness 10000) has occurred while \output is active [17]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [18] [19]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (18.78088pt too wide) in paragraph at lines 1142--1142
+ []  \T1/pcr/m/n/10 seneControl = list(), photoControl = list(), phenoControl =
+ list(),[] 
+
+Overfull \hbox (42.78088pt too wide) in paragraph at lines 1143--1143
+ []  \T1/pcr/m/n/10 soilControl = list(), nitroControl = list(), canephenoContr
+ol = list(),[] 
+[20]
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 1193--1196
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+
+Overfull \hbox (54.3478pt too wide) in paragraph at lines 1243--1246
+[]\T1/ptm/m/n/10 argument used to pass pa-ram-e-ters re-lated to phe-nol-ogy ch
+ar-ac-ter-is-tics \T1/pcr/m/n/10 canePhenoControl
+[21] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [22]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (30.78088pt too wide) in paragraph at lines 1373--1373
+ []\T1/pcr/m/n/10 CenturyC(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, l
+eachWater,[] 
+[23] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [24]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [25]
+Overfull \hbox (7.79762pt too wide) in paragraph at lines 1540--1543
+[]\T1/ptm/m/n/10 Initial rhi-zome pro-por-tion that be-comes leaf. This should 
+not typ-i-cally be changed,
+[26]
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 1564--1567
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+[27] [28]
+Overfull \hbox (42.18039pt too wide) in paragraph at lines 1768--1768
+ []\T1/pcr/m/n/9 res2 <- BioGro(weather05, soilControl = soilParms(soilLayers =
+ 6, hydrDist=TRUE))[] 
+[29] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [30] [31]
+Overfull \hbox (31.3804pt too wide) in paragraph at lines 1949--1949
+ []\T1/pcr/m/n/9 res1[i] <- eC4photo(dat1$Qp[i],dat1$Tl[i],dat1$RH[i],vcmax=dat
+1$vcmax[i])$Assim[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [32] [33]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [34]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [35]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Underfull \hbox (badness 10000) in paragraph at lines 2199--2199
+[]\T1/ptm/m/it/10 The Goff Gratch equa-tion from Smith-so-nian Ta-bles, 1984.
+
+Overfull \hbox (5.4969pt too wide) in paragraph at lines 2202--2204
+[]\T1/ptm/m/n/10 The Goff Gratch equa-tion from Smith-so-nian Ta-bles, 1984. ht
+tp://cires.colorado.edu/~voemel/vp.html 
+[36] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (25.42944pt too wide) in paragraph at lines 2252--2255
+[]\T1/ptm/m/n/10 It re-turns a vec-tor of length 25 suit-able for \T1/pcr/m/n/1
+0 BioGro\T1/ptm/m/n/10 , \T1/pcr/m/n/10 OpBioGro\T1/ptm/m/n/10 , \T1/pcr/m/n/10
+ constrOpBioGro\T1/ptm/m/n/10 , or \T1/pcr/m/n/10 MCMCBioGro\T1/ptm/m/n/10 . 
+[37] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (7.95114pt too wide) in paragraph at lines 2291--2299
+\T1/ptm/m/n/10 0.00704 0 0.00119 611 280.000 1.08019 0.95531 0.11618 0 1.62350 
+1221 560.000
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [38]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [39]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (42.78088pt too wide) in paragraph at lines 2409--2409
+ []\T1/pcr/m/n/10 MaizeGro(WetDat, plant.day = NULL, emerge.day = NULL, harvest
+.day = NULL,[] 
+
+Overfull \hbox (12.78088pt too wide) in paragraph at lines 2410--2410
+ []  \T1/pcr/m/n/10 plant.density = 7, timestep = 1, lat = 40, canopyControl = 
+list(),[] 
+
+Overfull \hbox (36.78088pt too wide) in paragraph at lines 2413--2413
+ []  \T1/pcr/m/n/10 laiControl = list(), soilControl = list(), MaizeNitroContro
+l = list(),[] 
+[40]
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 2462--2465
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+
+Overfull \hbox (60.3478pt too wide) in paragraph at lines 2512--2515
+[]\T1/ptm/m/n/10 argument used to pass pa-ram-e-ters re-lated to phe-nol-ogy ch
+ar-ac-ter-is-tics \T1/pcr/m/n/10 MaizePhenoControl
+[41]
+Overfull \hbox (25.98041pt too wide) in paragraph at lines 2567--2567
+ []\T1/pcr/m/n/9 res <- MaizeGro(weather05, plant.day = 110, emerge.day = 120, 
+harvest.day=300,[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [42] [43]
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 2696--2696
+ []\T1/pcr/m/n/9 pheno.ll <- phenoParms(kLeaf1=0.48,kStem1=0.47,kRoot1=0.05,kRh
+izome1=-1e-4,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2697--2697
+ []                       \T1/pcr/m/n/9 kLeaf2=0.14,kStem2=0.65,kRoot2=0.21, kR
+hizome2=-1e-4,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2698--2698
+ []                       \T1/pcr/m/n/9 kLeaf3=0.01, kStem3=0.56, kRoot3=0.13, 
+kRhizome3=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2699--2699
+ []                       \T1/pcr/m/n/9 kLeaf4=0.01, kStem4=0.56, kRoot4=0.13, 
+kRhizome4=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2700--2700
+ []                       \T1/pcr/m/n/9 kLeaf5=0.01, kStem5=0.56, kRoot5=0.13, 
+kRhizome5=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 2701--2701
+ []                       \T1/pcr/m/n/9 kLeaf6=0.01, kStem6=0.56, kRoot6=0.13, 
+kRhizome6=0.3)[] 
+[44]
+Overfull \hbox (69.18036pt too wide) in paragraph at lines 2707--2707
+ []\T1/pcr/m/n/9 simDat <- ans.dat[sel.rows,c(\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 The
+rmalT\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Stem\TS1/pcr/
+m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Leaf\TS1/pcr/m/n/9 '\T1/pcr
+/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Root\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/p
+cr/m/n/9 '\T1/pcr/m/n/9 Rhizome\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\
+T1/pcr/m/n/9 Grain\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 
+LAI\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )][] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [45] [46]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [47]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1688) in paragraph at lines 2955--2955
+[]\T1/ptm/m/it/10 Multiple op-ti-miza-tion of as-sim-i-la-tion (or stom-atal co
+n-duc-tance)
+[48] [49] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [50]
+Overfull \hbox (3.32823pt too wide) in paragraph at lines 3131--3137
+\T1/ptm/m/n/10 has an ar-gu-ment that it is used to dsi-play ei-ther vmax or al
+-pha (i.e. \T1/pcr/m/n/10 parm=c('vmax','alpha')\T1/ptm/m/n/10 ).
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [51]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [52]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [53]
+Overfull \hbox (9.78043pt too wide) in paragraph at lines 3348--3348
+ []\T1/pcr/m/n/9 pheno.ll <- phenoParms(kLeaf1=0.48,kStem1=0.47,kRoot1=0.05,kRh
+izome1=-1e-4,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3349--3349
+ []                       \T1/pcr/m/n/9 kLeaf2=0.14,kStem2=0.65,kRoot2=0.21, kR
+hizome2=-1e-4,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3350--3350
+ []                       \T1/pcr/m/n/9 kLeaf3=0.01, kStem3=0.56, kRoot3=0.13, 
+kRhizome3=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3351--3351
+ []                       \T1/pcr/m/n/9 kLeaf4=0.01, kStem4=0.56, kRoot4=0.13, 
+kRhizome4=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3352--3352
+ []                       \T1/pcr/m/n/9 kLeaf5=0.01, kStem5=0.56, kRoot5=0.13, 
+kRhizome5=0.3,[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 3353--3353
+ []                       \T1/pcr/m/n/9 kLeaf6=0.01, kStem6=0.56, kRoot6=0.13, 
+kRhizome6=0.3)[] 
+
+Overfull \hbox (69.18036pt too wide) in paragraph at lines 3359--3359
+ []\T1/pcr/m/n/9 simDat <- ans.dat[sel.rows,c(\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 The
+rmalT\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Stem\TS1/pcr/
+m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Leaf\TS1/pcr/m/n/9 '\T1/pcr
+/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 Root\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/p
+cr/m/n/9 '\T1/pcr/m/n/9 Rhizome\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\
+T1/pcr/m/n/9 Grain\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 ,\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 
+LAI\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )][] 
+[54] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [55]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [56] [57]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Underfull \hbox (badness 1831) in paragraph at lines 3626--3626
+[]\T1/ptm/m/it/10 Optimization of C4 pho-to-syn-the-sis pa-ram-e-ters (von Caem
+-merer
+
+Overfull \hbox (102.78088pt too wide) in paragraph at lines 3638--3638
+ []\T1/pcr/m/n/10 OpEC4photo(obsDat,iVcmax=60,iVpmax=120,iVpr=80,iJmax=400,co2=
+380,o2=210,level=0.95)[] 
+[58] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (30.78088pt too wide) in paragraph at lines 3693--3693
+ []\T1/pcr/m/n/10 OpMaizeGro(phen = 1, iCoef = NULL, cTT, WetDat, data, plant.d
+ay = NULL,[] 
+
+Overfull \hbox (36.78088pt too wide) in paragraph at lines 3698--3698
+ []  \T1/pcr/m/n/10 laiControl = list(), soilControl = list(), MaizeNitroContro
+l = list(),[] 
+[59] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 3774--3774
+ []    \T1/pcr/m/n/10 col = c("blue", "green", "red", "magenta", "black", "purp
+le"),[] 
+[60] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 3845--3845
+ []  \T1/pcr/m/n/10 root = TRUE, LAI = TRUE, grain = TRUE, xlab = NULL, ylab = 
+NULL,[] 
+[61]
+Overfull \hbox (24.78088pt too wide) in paragraph at lines 3846--3846
+ []  \T1/pcr/m/n/10 pch = 21, lty = 1, lwd = 1, col = c("blue", "green", "red",
+ "black",[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [62]
+Overfull \hbox (6.78088pt too wide) in paragraph at lines 3919--3919
+ []    \T1/pcr/m/n/10 "RF", "OFT", "trace", "density"), type = c("l", "p"), coe
+f = 1,[] 
+
+Overfull \hbox (36.78088pt too wide) in paragraph at lines 3920--3920
+ []    \T1/pcr/m/n/10 cols = c("blue", "green", "red", "magenta", "black", "pur
+ple"), ...)[] 
+
+Overfull \hbox (122.71915pt too wide) in paragraph at lines 3956--3961
+\T1/ptm/m/n/10 would in the xy-plot us-ing nams as the name. For ex-am-ple, \T1
+/pcr/m/n/10 plot(x,plot.kind="trace",subset=nams=="kLeaf_1")
+[63] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [64]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [65]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 4121--4121
+ []    \T1/pcr/m/n/10 col = c("blue", "green", "red", "magenta", "black", "purp
+le"),[] 
+[66] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [67]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [68]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [69]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [70]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [71]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [72]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [73] [74]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [75] [76]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (24.78088pt too wide) in paragraph at lines 4762--4762
+ []\T1/pcr/m/n/10 RsqEC4photo(obsDat, iVcmax = 60, iVpmax = 120, iVpr = 80, iJm
+ax = 400,[] 
+[77] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [78]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [79]
+Overfull \hbox (3.8179pt too wide) in paragraph at lines 4927--4933
+[]\T1/ptm/m/n/10 Clifton-Brown, J.C., Long, S.P. and Jor-gensen, U. with con-tr
+i-bu-tions from S.A. Humphries, Schwarz,
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [80]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [81]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [82]
+Overfull \hbox (90.78033pt too wide) in paragraph at lines 5108--5108
+ []\T1/pcr/m/n/9 SoilEvapo(LAI=3,k=0.68,AirTemp=20,IRad=1000,awc=0.3,FieldC=0.4
+,WiltP=0.2,winds=3,RelH=0.8)[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [83]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [84]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [85]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [86]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [87]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [88]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [89]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [90]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [91]
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 5602--5602
+ []  \T1/pcr/m/n/10 rh.units = c("percent", "fraction"), ws.units = c("mph", "m
+ps"),[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 5649--5649
+ []  \T1/pcr/m/n/10 rh.units = c("percent", "fraction"), ws.units = c("mph", "m
+ps"),[] 
+[92] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [93]
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 5732--5732
+ []  \T1/pcr/m/n/10 rh.units = c("percent", "fraction"), ws.units = c("mph", "m
+ps"),[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (24.78088pt too wide) in paragraph at lines 5782--5782
+ []\T1/pcr/m/n/10 weach_imn(data, lati, ts = 1, temp.units = c("Fahrenheit", "C
+elsius"),[] 
+
+Overfull \hbox (0.78088pt too wide) in paragraph at lines 5783--5783
+ []  \T1/pcr/m/n/10 rh.units = c("percent", "fraction"), ws.units = c("mph", "m
+ps"),[] 
+[94] [95]
+Overfull \hbox (123.1803pt too wide) in paragraph at lines 5864--5864
+ []\T1/pcr/m/n/9 url <- "http://www.agron.iastate.edu/miguezlab/teaching/CropSo
+ilModel/ames_2010-iowamesonet.txt"[] 
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [96]
+(/usr/share/texmf-texlive/tex/latex/base/utf8.def) [97]
+Overfull \hbox (7.79762pt too wide) in paragraph at lines 5979--5982
+[]\T1/ptm/m/n/10 Initial rhi-zome pro-por-tion that be-comes leaf. This should 
+not typ-i-cally be changed,
+
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 6003--6006
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+[98] [99]
+Overfull \hbox (58.38037pt too wide) in paragraph at lines 6204--6204
+ []\T1/pcr/m/n/9 res2 <- willowGro(weather05, soilControl = soilParms(soilLayer
+s = 6, hydrDist=TRUE))[] 
+[100] (/usr/share/texmf-texlive/tex/latex/base/utf8.def) [101]
+Overfull \hbox (7.79762pt too wide) in paragraph at lines 6301--6304
+[]\T1/ptm/m/n/10 Initial rhi-zome pro-por-tion that be-comes leaf. This should 
+not typ-i-cally be changed,
+
+Overfull \hbox (0.3073pt too wide) in paragraph at lines 6325--6328
+[]\T1/ptm/m/n/10 List that con-trols as-pects of senes-cence sim-u-la-tion. It 
+should be sup-plied through
+[102] [103]
+Overfull \hbox (58.38037pt too wide) in paragraph at lines 6526--6526
+ []\T1/pcr/m/n/9 res2 <- willowGro(weather05, soilControl = soilParms(soilLayer
+s = 6, hydrDist=TRUE))[] 
+[104] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (66.78088pt too wide) in paragraph at lines 6578--6578
+ []\T1/pcr/m/n/10 wsRcoef(aw, fieldc, wiltp, phi1, phi2, wsFun = c("linear", "l
+ogistic", "exp",[] 
+[105] (/usr/share/texmf-texlive/tex/latex/base/utf8.def)
+Overfull \hbox (36.7804pt too wide) in paragraph at lines 6660--6660
+ []\T1/pcr/m/n/9 ## Looking at the three possible models for the effect of soil
+ moisture on water[] 
+[106]
+Overfull \hbox (25.98041pt too wide) in paragraph at lines 6670--6670
+ []\T1/pcr/m/n/9 wats.Log[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4,wsFun=\TS
+1/pcr/m/n/9 '\T1/pcr/m/n/9 logistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$wsPhoto[] 
+
+Overfull \hbox (4.38043pt too wide) in paragraph at lines 6671--6671
+ []\T1/pcr/m/n/9 wats.exp[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun=\T
+S1/pcr/m/n/9 '\T1/pcr/m/n/9 exp\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$wsPhoto[] 
+
+Overfull \hbox (15.18042pt too wide) in paragraph at lines 6672--6672
+ []\T1/pcr/m/n/9 wats.none[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun=\
+TS1/pcr/m/n/9 '\T1/pcr/m/n/9 none\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$wsPhoto[] 
+
+Underfull \vbox (badness 3803) has occurred while \output is active [107]
+Overfull \hbox (90.78033pt too wide) in paragraph at lines 6715--6715
+ []\T1/pcr/m/n/9 wats.1 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=1e-2,phi2=
+1, wsFun=\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 logistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$
+wsPhoto[] 
+
+Overfull \hbox (90.78033pt too wide) in paragraph at lines 6716--6716
+ []\T1/pcr/m/n/9 wats.2 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=2e-2,phi2=
+1, wsFun=\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 logistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$
+wsPhoto[] 
+
+Overfull \hbox (90.78033pt too wide) in paragraph at lines 6717--6717
+ []\T1/pcr/m/n/9 wats.3 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=3e-2,phi2=
+1, wsFun=\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 logistic\TS1/pcr/m/n/9 '\T1/pcr/m/n/9 )$
+wsPhoto[] 
+[108] (./Rd2.aux) )
+(see the transcript file for additional information){/usr/share/texmf-texlive/f
+onts/enc/dvips/base/8r.enc}</usr/share/texmf-texlive/fonts/type1/public/amsfont
+s/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr10.
+pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/sha
+re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texmf-tex
+live/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-texlive/fonts/type1/u
+rw/helvetic/uhvr8a.pfb></usr/share/texmf-texlive/fonts/type1/urw/times/utmb8a.p
+fb></usr/share/texmf-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf
+-texlive/fonts/type1/urw/times/utmr8a.pfb></usr/share/texmf-texlive/fonts/type1
+/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (108 pages, 306460 bytes).
+Transcript written on Rd2.log.
+Saving output to 'BioCro-manual.pdf' ...
+Done
+You may want to clean up by 'rm -rf /tmp/RtmpeOfsYJ/Rd2pdf419378556b0'
