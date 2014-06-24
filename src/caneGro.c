@@ -525,8 +525,29 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 /* Now we are calculating TTc based on 12 base Temperature */
                 REAL(TTTc)[i]=TT12c;
 	     
-	        /*  Do the magic! Calculate growth*/
-		Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
+	  
+    /*  Do the magic! Calculate growth*/
+/******************Here we are implementing 3D canopy with ray tracing model***************
+ if (canopymodel==1){
+  if(newday){
+    we are reading files directly
+    but we need to use matlab to C code to generate canopty structure using LAI and other canopy parameters
+     3Dcanopy=get3DCanopyStructure(3dparameters); 
+	   }
+     3Dcanopy_light=runraytracing(3Dcanopy, lat, day, hour,Idir, Idiff,xmin,xmax,ymin,ymax,zmin,zmax);
+
+  Canopy = CanAC_3D(, *(pt_doy+i), *(pt_hr+i),
+  		       *(pt_solar+i), *(pt_temp+i),
+			       *(pt_rh+i), *(pt_windspeed+i),
+			       lat, nlayers,
+			       vmax1,alpha1,kparm1,
+			       theta,beta,Rd1,Ca,b01,b11,StomWS,
+			       ws, kd,
+			       chil, hf,LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms);
+ }
+********************/
+//else{    
+    Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
 			       lat, nlayers,
@@ -535,7 +556,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 			       ws, kd,
 			       chil, hf,
                                LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms);
-
+//}
+/*************************************************************************************************/
 /* This is an addition, which was omitted earlier */
 /* WIMOVAC suggestsevaluating A grodd = Anet + Rd before proceeding with further calculations */
 
