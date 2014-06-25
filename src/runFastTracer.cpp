@@ -10,6 +10,7 @@
 #include "string.h"
 #include <algorithm>
 
+
 using namespace std;
 
 void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour, double end_hour, double hour_interval);
@@ -18,7 +19,7 @@ int cmp(double *p,double *q);
 
 // return 2D matrix: double** m_3Dcanopy_light; accessd by m_3Dcanopy_light[i][j], i is rowID, j is columnID
 // output: columns are x1 y1 z1 x2 y2 z2 x3 y3 z3 leafID leafLength Position SPAD Kt Kr NitrogenPerArea FacetArea PPFD cLAI
-double** runFastTracer (bool is_import_from_2DMatrix, char  filename[], double** m_3Dcanopy, double latitude, int day, double h, double Idir, double Idiff, double light_min_x,
+extern "C" double** runFastTracer (int is_import_from_2DMatrix, char  filename[], double m_3Dcanopy[1000][19], double latitude, int day, double h, double Idir, double Idiff, double light_min_x,
                         double light_max_x, double light_min_y, double light_max_y, double light_min_z, double light_max_z){
 // input: 
 //     is_import_from_2DMatrix: bool, true is "inport from 2D matrix and data in m_3Dcanopy"; if false, "import from file of filename"
@@ -99,8 +100,8 @@ double** runFastTracer (bool is_import_from_2DMatrix, char  filename[], double**
 //		cout << "new Grid OK, import data ..." << endl;
 //	}
 	
-  if(is_import_from_2DMatrix){
-  import_data_from2DMatrix(m_3Dcanopy, grid, start_hour, end_hour, hour_interval);
+  if(is_import_from_2DMatrix == 1){
+//  import_data_from2DMatrix(m_3Dcanopy, grid, start_hour, end_hour, hour_interval);
   }else{
     import_data_from_file (filename, grid, start_hour, end_hour, hour_interval);
     
