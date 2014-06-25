@@ -14,11 +14,11 @@ using namespace std;
 
 void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour, double end_hour, double hour_interval);
 void import_data_from_file   (char  filename[], Grid* grid, double start_hour, double end_hour, double hour_interval);
-bool cmp(int *p,int *q);
+int cmp(double *p,double *q);
 
 // return 2D matrix: double** m_3Dcanopy_light; accessd by m_3Dcanopy_light[i][j], i is rowID, j is columnID
 // output: columns are x1 y1 z1 x2 y2 z2 x3 y3 z3 leafID leafLength Position SPAD Kt Kr NitrogenPerArea FacetArea PPFD cLAI
-double** runraytracing (bool is_import_from_2DMatrix, char  filename[], double** m_3Dcanopy, double latitude, int day, double h, double Idir, double Idiff, double light_min_x,
+double** runFastTracer (bool is_import_from_2DMatrix, char  filename[], double** m_3Dcanopy, double latitude, int day, double h, double Idir, double Idiff, double light_min_x,
                         double light_max_x, double light_min_y, double light_max_y, double light_min_z, double light_max_z){
 // input: 
 //     is_import_from_2DMatrix: bool, true is "inport from 2D matrix and data in m_3Dcanopy"; if false, "import from file of filename"
@@ -469,7 +469,7 @@ void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour
 }
 
 //comparison function for sort
-bool cmp(int *p,int *q)
+int cmp(double *p,double *q)
 {
   if ((q[3]+q[6]+q[9]) > (p[3]+p[6]+p[9])) {
     return 1;
