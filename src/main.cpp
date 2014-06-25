@@ -13,6 +13,9 @@ using namespace std;
 
 void import_data(int modeltype, char filename[], Grid* grid, double kt, double kr, double start_hour, double end_hour, double hour_interval);
 
+// plan: change main to runFastTracer so that BioCro can call it
+//
+
 int main(int argc, char *argv[]){
 	char filename[100], outfilename[100];
 	/*
@@ -30,6 +33,8 @@ int main(int argc, char *argv[]){
 	/*
 	 * input parameters
 	 */
+
+// we should use parameters input from call function
 
 	double latitude     = atof( argv[1] );
 	double solar_noon   = atof( argv[2] );

@@ -7,6 +7,8 @@
 #include "BBox.h"
 #include <vector>
 
+// major function for ray tracing
+
 class Grid{
 public:
 	
