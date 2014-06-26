@@ -15,11 +15,11 @@ using namespace std;
 
 void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour, double end_hour, double hour_interval);
 void import_data_from_file   (char  filename[], Grid* grid, double start_hour, double end_hour, double hour_interval);
-int cmp(double *p,double *q);
+bool cmp(double *p,double *q);
 
 // return 2D matrix: double** m_3Dcanopy_light; accessd by m_3Dcanopy_light[i][j], i is rowID, j is columnID
-// output: columns are x1 y1 z1 x2 y2 z2 x3 y3 z3 leafID leafLength Position SPAD Kt Kr NitrogenPerArea FacetArea PPFD cLAI
-extern "C" double** runFastTracer (int is_import_from_2DMatrix, char  filename[], double m_3Dcanopy[1000][19], double latitude, int day, double h, double Idir, double Idiff, double light_min_x,
+// output: columns are x1 y1 z1 x2 y2 z2 x3 y3 z3 leafID leafLength Position plant column id, plant row id, SPAD Kt Kr NitrogenPerArea FacetArea PPFD cLAI
+extern "C" void runFastTracer (int is_import_from_2DMatrix, char  filename[], double **m_3Dcanopy_light, double latitude, int day, double h, double Idir, double Idiff, double light_min_x,
                         double light_max_x, double light_min_y, double light_max_y, double light_min_z, double light_max_z){
 // input: 
 //     is_import_from_2DMatrix: bool, true is "inport from 2D matrix and data in m_3Dcanopy"; if false, "import from file of filename"
@@ -144,12 +144,12 @@ for (int i = 0; i<=num; i++){
 //		cout << "direct light direction : (" << light_d_x << ", " << light_d_y << ", " << light_d_z << ")" << endl;
 //	}
 
-//---------------  Time   -------------------------
-//	time_t t1 = time(0);
-  //  char tmp[64];
-//	struct tm *tmp = NULL;
-//	localtime_s(tmp, &t1);
-//	cout<<"--------"<<tmp<<"--------"<<endl;
+//	---------------  Time   -------------------------
+	//time_t t1 = time(0);
+	//char tmp[64];
+	//struct tm *tmp = NULL;
+	//localtime_s(tmp, &t1);
+	//cout<<"--------"<<tmp<<"--------"<<endl;
 
 //--------------------------------------     << Direct Light >>    -----------------------------------------------
 
@@ -231,7 +231,7 @@ for (int i = 0; i<=num; i++){
 //		myfile <<"\n";
 
 
-    double** m_3Dcanopy_light = new double* [1000];  //!!! for 1000 triangles !!!
+//    double** m_3Dcanopy_light = new double* [1000];  //!!! for 1000 triangles !!!
     int i_2DMatrix = 0;
 		double area;
 		double ppfd;
@@ -244,7 +244,7 @@ for (int i = 0; i<=num; i++){
 
 		for (it = v.begin(); it != v.end(); it++){
       
-      m_3Dcanopy_light[i_2DMatrix] = new double [19];
+//      m_3Dcanopy_light[i_2DMatrix] = new double [19];
       
 			area = (((*it)->v1 - (*it)->v0) ^
 				((*it)->v2 - (*it)->v0)).length() * 0.5; //cm2
@@ -287,7 +287,7 @@ for (int i = 0; i<=num; i++){
 			
 			for (it1 = photonFlux_up_dir.begin(); it1 != photonFlux_up_dir.end(); it1++){
 
-				m_3Dcanopy_light[i_2DMatrix][17] =  ( (*it1) + (*it2) + (*it3) + (*it4) + (*it5) + (*it6) ) * area_factor;
+				m_3Dcanopy_light[i_2DMatrix][18] =  ( (*it1) + (*it2) + (*it3) + (*it4) + (*it5) + (*it6) ) * area_factor;
 				  
 				it2++; it3++; it4++; it5++; it6++;
 			}
@@ -296,17 +296,20 @@ for (int i = 0; i<=num; i++){
     
     i_2DMatrix ++;
 		}
+		printf("%d", i_2DMatrix);
     
     // after we get structure, area and PPFD into the matrix, here, add calculation of cLAI. 
       // first, sort the triangles by Z value "sum(z1, z2, z3)"
 
-      sort(m_3Dcanopy_light, m_3Dcanopy_light+1000, cmp);   //!!! for 1000 triangles !!!
+	sort(m_3Dcanopy_light, m_3Dcanopy_light + nrows, cmp);
+
+
       double totalLA = 0;
       double oneOverground_area = 1/(light_max_x - light_min_x) * (light_max_y - light_min_y); 
 
-      for (int m = 0; m<1000; m++){                      //!!! for 1000 triangles !!!
+      for (int m = 0; m<nrows; m++){                   
         totalLA += m_3Dcanopy_light[m][16];   
-        m_3Dcanopy_light[m][18] = totalLA *oneOverground_area;  
+        m_3Dcanopy_light[m][19] = totalLA *oneOverground_area;  
       }
       
       
@@ -361,13 +364,13 @@ for (int i = 0; i<=num; i++){
 //		}
 //	}
 //	else cout << "Unable to open file";
-	return 0;
+//	return 0;
 }
 
 //----------------------------------------------- Import model  --------------------------------------------------
 void import_data_from_file(char filename[], Grid* grid, double start_hour, double end_hour, double hour_interval){
 
-	//modeltype: 1, 1-9 colums are model; 2, 1-9 model, 14 and 15 are leaf transmittance and reflectance;
+	//modeltype: 1, 1-9 colums are model; 2, 1-9 model, 16 and 17 are leaf transmittance and reflectance;
 			//
 	//	bool isCM3 = false;  // if the input model is CM3, including Kt, Kr (leaf transmittance, leaf reflectance), ture; if not, false;
 
@@ -378,7 +381,7 @@ void import_data_from_file(char filename[], Grid* grid, double start_hour, doubl
 		double x1, y1, z1,
 		  	   x2, y2, z2,
 		  	   x3, y3, z3;
-		double leafID = 0, leafL = 0, position =0, chlSPAD=0;
+		double leafID = 0, leafL = 0, position =0, chlSPAD=0, plantColID = 0, plantRowID = 0;
 		double kt, kr;
 		double nitrogenPerArea=0;
 
@@ -402,7 +405,7 @@ void import_data_from_file(char filename[], Grid* grid, double start_hour, doubl
 	   // 	  cout<<"OK2"<<endl;
 	   //   }else if (modeltype == 2){  // 1-9 model, 14 and 15 are leaf transmittance and reflectance;
 
-	    	  istr >> leafID;istr >> leafL;istr >> position;istr >> chlSPAD;  // other contributes in model file
+	    	  istr >> leafID;istr >> leafL;istr >> position;istr >> plantColID; istr >> plantRowID; istr >> chlSPAD;  // other contributes in model file
 	    	  istr >> kt  ;istr >> kr;// input from model file
 	    	  istr >> nitrogenPerArea;
 
@@ -449,14 +452,14 @@ void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour
 		double kt, kr;
 		double nitrogenPerArea=0;
 
-    for (int i; i<1000; i++){
+    for (int i=0; i<1000; i++){
       x1 = m_3Dcanopy[i][0]; y1 = m_3Dcanopy[i][1]; z1 = m_3Dcanopy[i][2]; 
       x2 = m_3Dcanopy[i][3]; y2 = m_3Dcanopy[i][4]; z2 = m_3Dcanopy[i][5]; 
       x3 = m_3Dcanopy[i][6]; y3 = m_3Dcanopy[i][7]; z3 = m_3Dcanopy[i][8]; 
       
       leafID = m_3Dcanopy[i][9]; leafL = m_3Dcanopy[i][10]; position = m_3Dcanopy[i][11];
-      chlSPAD = m_3Dcanopy[i][12];kt = m_3Dcanopy[i][13];kr = m_3Dcanopy[i][14];
-      nitrogenPerArea = m_3Dcanopy[i][15];
+      chlSPAD = m_3Dcanopy[i][14];kt = m_3Dcanopy[i][15];kr = m_3Dcanopy[i][16];
+      nitrogenPerArea = m_3Dcanopy[i][17];
 
 // --------------------- new a triangle and add into grid ------------------------------------
 	      Triangle* triangle = new Triangle(Point3D(x1,y1,z1), Point3D(x2,y2,z2), Point3D(x3,y3,z3), leafID, leafL, position, chlSPAD, kt, kr, nitrogenPerArea,
@@ -470,21 +473,15 @@ void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour
 }
 
 //comparison function for sort
-int cmp(double *p,double *q)
+bool cmp( double *p, double *q)
 {
-  if ((q[3]+q[6]+q[9]) > (p[3]+p[6]+p[9])) {
-    return 1;
-  }else if((q[3]+q[6]+q[9]) < (p[3]+p[6]+p[9])) {
-    return -1;
-  }else{
-    return 0;
-  }
-  
-    return 0;
+	if ( q[2] < p[2]) {
+		return true;
+	}
+	else {
+		return false;
+	}
     // averaged value of z for a triangle, sort by decreasing z, from top to bottom in canopy
 }
-
-
-
 
 
