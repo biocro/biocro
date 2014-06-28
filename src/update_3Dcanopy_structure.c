@@ -53,7 +53,7 @@ void update_3Dcanopy_structure(double **canopy3Dstructure,double canparms, int n
    FILE *fp = fopen(filename, "r");   
    if(fp==NULL)
    { 
-    printf("\n Can't find file to read canopy structure\n");
+    Rprintf("\n Can't find file to read canopy structure\n");
  return;
    }
    
@@ -63,7 +63,6 @@ void update_3Dcanopy_structure(double **canopy3Dstructure,double canparms, int n
        {
          fscanf(fp, "%lf", &num);
          canopy3Dstructure[i][j] =num;
-         printf("%d, %d, %f\n",i,j,canopy3Dstructure[i][j]);
        }
     }
    fclose(fp);

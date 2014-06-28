@@ -554,6 +554,7 @@ FILE *fp = fopen(filename, "rb+");
 	   }
      3Dcanopy_light=runraytracing(3Dcanopy, lat, day, hour,Idir, Idiff,xmin,xmax,ymin,ymax,zmin,zmax);
 
+
   Canopy = CanAC_3D(, *(pt_doy+i), *(pt_hr+i),
   		       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
@@ -569,12 +570,15 @@ FILE *fp = fopen(filename, "rb+");
 
 
 
-
-
 // writing a file using canopy structur matrix to make sure reading is correct
  if(i==0)
  {
   update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
+   Canopy = CanAC_3D (canparms, canopy3Dstructure,nrows, ncols,LAI,*(pt_doy+i), *(pt_hr+i),
+  		       *(pt_solar+i), *(pt_temp+i),*(pt_rh+i), *(pt_windspeed+i),lat,vmax1,alpha1,kparm1,
+  		       theta,beta,Rd1,Ca,b01,b11,StomWS,
+			       ws,kpLN,upperT,lowerT,nitroparms);
+  
    if(fp==NULL)
    { 
     fp = fopen(filename,"wb");

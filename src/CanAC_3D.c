@@ -1,7 +1,11 @@
 #include <stdio.h>
-/*
-struct Can_Str CanAC_3D (struct Can3DParms canparms, double **canopy3Dstructure, double LAI,int DOY, int hr,double solarR,double Temp,
-                        double RH,double WindSpeed,double lat,int,double Vmax,
+#include "CanA_3D_Structure.h"
+#include "c4photo.h"
+#include "AuxBioCro.h"
+#include "BioCro.h"
+
+struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows, int ncols, double LAI,int DOY, int hr,double solarR,double Temp,
+                        double RH,double WindSpeed,double lat,double Vmax,
                         double Alpha, double Kparm, double theta, double beta,
                         double Rd, double Catm, double b0, double b1,
                         double StomataWS, int ws,double kpLN, double upperT, 
@@ -47,14 +51,16 @@ struct Can_Str CanAC_3D (struct Can3DParms canparms, double **canopy3Dstructure,
  * 
  * 
  **************************************************************************************************************/
-/*
+ struct Can_Str ans;
+ double Idir, Idiff,cosTh;
 //update canopy if this is a new day 
  if(hr==0)
  {
-   update_canopy_structure(&canopy3Dstructure, &canparms, LAI);
+   update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
  }
- //Here we are calculating incoming Idir and Idiffude light 
-  getIdirIdiff(&Idir, Idiff, solarR,lat,DOY,hr);
+  getIdirIdiff(&Idir, &Idiff,&cosTh,solarR,lat,DOY,hr);
+ 
+  /*
   run_ray_tracing(&canopy3Dstructure,Idir,Idiff,lat,DOY,hr);
   getmicroclimate_for_3Dcanopy(&canopy3Dstructure);
   for (i=0;i<NUMBER_OF_TRIANGLE;i++)
@@ -65,9 +71,10 @@ struct Can_Str CanAC_3D (struct Can3DParms canparms, double **canopy3Dstructure,
     transp+==new;
   }
   update canopy structure using netco2,grossco2,and transp;
-  return (canopy structure);                       
+  */
+  return(ans);                      
 }
-
+/*
 void IdirIdiff()
 {  
   return; 
@@ -77,8 +84,8 @@ void getmicroclimate_for_3Dcanopy()
 {
   return;  
 }
-*/
 
+*/
 /*
 void run_ray_tracing(double **canopy3Dstructure)
 {
