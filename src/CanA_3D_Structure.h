@@ -14,5 +14,8 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
                         double StomataWS, int ws,double kpLN, double upperT, 
                         double lowerT,struct nitroParms nitroP);
                         
+void runFastTracer (int is_import_from_2DMatrix, char  filename[], double **m_3Dcanopy_light, double latitude, int day, double h, double Idir, double Idiff, double light_min_x,
+                        double light_max_x, double light_min_y, double light_max_y, double light_min_z, double light_max_z);
+                        
                         
 #endif

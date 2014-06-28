@@ -53,13 +53,32 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
  **************************************************************************************************************/
  struct Can_Str ans;
  double Idir, Idiff,cosTh;
+ int is_import_from_2DMatrix=0;
+ int i;
+ 
+ // follows are extension of the ray tracing area
+  double   light_min_x= -110; 
+	double   light_max_x= 110;
+	double   light_min_y= -20;
+	double   light_max_y= 20;
+	double   light_min_z= 0;
+	double   light_max_z= 300;
+ char filename[]="/home/djaiswal/Desktop/testing3Dcan.txt";
 //update canopy if this is a new day 
  if(hr==0)
  {
    update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
  }
-  getIdirIdiff(&Idir, &Idiff,&cosTh,solarR,lat,DOY,hr);
+ getIdirIdiff(&Idir, &Idiff,&cosTh,solarR,lat,DOY,hr);
  
+ runFastTracer (is_import_from_2DMatrix,   filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
+  	light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
+ /*
+ for (i=0;i<nrows;i++)
+   {
+     printf("cLAI = %f\n",canopy3Dstructure[nrows][19]);
+   }
+   */
   /*
   run_ray_tracing(&canopy3Dstructure,Idir,Idiff,lat,DOY,hr);
   getmicroclimate_for_3Dcanopy(&canopy3Dstructure);
