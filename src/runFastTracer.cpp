@@ -296,7 +296,7 @@ for (int i = 0; i<=num; i++){
     
     i_2DMatrix ++;
 		}
-		printf("%d", i_2DMatrix);
+//		printf("%d", i_2DMatrix);
     
     // after we get structure, area and PPFD into the matrix, here, add calculation of cLAI. 
       // first, sort the triangles by Z value "sum(z1, z2, z3)"
