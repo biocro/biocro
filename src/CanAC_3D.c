@@ -1,3 +1,5 @@
+#include <stdio.h>
+/*
 struct Can_Str CanAC_3D (struct Can3DParms canparms, double **canopy3Dstructure, double LAI,int DOY, int hr,double solarR,double Temp,
                         double RH,double WindSpeed,double lat,int,double Vmax,
                         double Alpha, double Kparm, double theta, double beta,
@@ -45,7 +47,7 @@ struct Can_Str CanAC_3D (struct Can3DParms canparms, double **canopy3Dstructure,
  * 
  * 
  **************************************************************************************************************/
-
+/*
 //update canopy if this is a new day 
  if(hr==0)
  {
@@ -75,25 +77,9 @@ void getmicroclimate_for_3Dcanopy()
 {
   return;  
 }
+*/
 
-
-void update_canopy_structure(double **canopy3Dstructure,struct Can3DParms canparms, LAI)
-{
-  /*************************************************************************************
-   * Purpose:
-   * purpose of this function is to obtain a matrix which represents 3D canopy structures
-   * this structure will be used by ray tracing program to calculate 
-   * Input
-   * struct Can3DParms, this contain all the parameters (???) such as leaf curvatures, leaf angel, etc.
-   * struct LAI contains leaf area index
-   * Do we need to provide an input file (similar to one needed by matlab code) ???????
-   * Output
-   * canopy3Dstructure
-   * 
-   * ***********************************************************************************/
-   return;
-}
-
+/*
 void run_ray_tracing(double **canopy3Dstructure)
 {
   /** 
@@ -101,3 +87,4 @@ void run_ray_tracing(double **canopy3Dstructure)
    * /
    return;
 }
+*/
