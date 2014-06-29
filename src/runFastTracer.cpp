@@ -305,7 +305,7 @@ for (int i = 0; i<=num; i++){
 
 
       double totalLA = 0;
-      double oneOverground_area = 1/(light_max_x - light_min_x) * (light_max_y - light_min_y); 
+      double oneOverground_area = 1/((light_max_x - light_min_x) * (light_max_y - light_min_y)); 
 
       for (int m = 0; m<nrows; m++){                   
         totalLA += m_3Dcanopy_light[m][16];   
@@ -453,11 +453,9 @@ void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour
 		double nitrogenPerArea=0;
 		double plantColID = 0, plantRowID = 0;
 
-<<<<<<< HEAD
+
     for (int i=0; i<nrows; i++){
-=======
-		for (int i = 0; i<nrows; i++){
->>>>>>> bdbdbafd2c08936cb24c7c9759affcd24b39e306
+
       x1 = m_3Dcanopy[i][0]; y1 = m_3Dcanopy[i][1]; z1 = m_3Dcanopy[i][2]; 
       x2 = m_3Dcanopy[i][3]; y2 = m_3Dcanopy[i][4]; z2 = m_3Dcanopy[i][5]; 
       x3 = m_3Dcanopy[i][6]; y3 = m_3Dcanopy[i][7]; z3 = m_3Dcanopy[i][8]; 
