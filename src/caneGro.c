@@ -98,7 +98,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 /*********************3D Canopy Parameters*********************************/
 double canparms=1.0;
 double nrows=2806;
-double ncols=18;
+double ncols=26;
 double **canopy3Dstructure;
 int ihere,jhere;
 char filename[]="/home/djaiswal/Desktop/testing3Dcan.txt";

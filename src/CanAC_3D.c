@@ -64,26 +64,23 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
 	double   light_min_z= 0;
 	double   light_max_z= 300;
   char filename[] = "/home/djaiswal/Research/R-dev/biocro/inst/extdata/CM_SC.txt"; 
-//update canopy if this is a new day 
+//update canopy if this is a new day otherwise use old canopy structure.
  if(hr==0)
- {
-   update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
- }
- update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
- getIdirIdiff(&Idir, &Idiff,&cosTh,solarR,lat,DOY,hr);
-Idir=1000;
-Idiff=120;
- runFastTracer (is_import_from_2DMatrix,filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
-  	light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
-
- 
- for (i=0;i<nrows;i++)
    {
-     printf("row=%d,cLAI = %f\n",i,canopy3Dstructure[i][19]);
+   update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
    }
-  /*
-  run_ray_tracing(&canopy3Dstructure,Idir,Idiff,lat,DOY,hr);
-  getmicroclimate_for_3Dcanopy(&canopy3Dstructure);
+   update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
+   Idir=1000;
+   Idiff=100;
+   runFastTracer (is_import_from_2DMatrix,filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
+   light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
+   for (i=0;i<nrows;i++)
+   {
+     printf("%d,%f\n",i,canopy3Dstructure[i][19]);
+   }
+   
+ /*
+ microclimate_for_3Dcanopy(&canopy3Dstructure);
   for (i=0;i<NUMBER_OF_TRIANGLE;i++)
   {
     new=calculate_c4photosynthesis_and_Evapotranspiration(PPFD, microcclimate, photparms);

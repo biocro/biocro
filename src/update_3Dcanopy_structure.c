@@ -13,7 +13,7 @@ void update_3Dcanopy_structure(double **canopy3Dstructure,double canparms, int n
    * struct LAI contains leaf area index
    * 
    * nrow: number of rows or number of triangles in the 3D canopy structure
-   * ncol: =20 number of columns in the matri ..18 for inputs and two additional for outputs (PPFD and cLAI)
+   * ncol: =27 number of columns in the matri ..18 for inputs and two additional for outputs (PPFD and cLAI)
    * 
    * Output
    * canopy3Dstructure is a 2D matrix
@@ -33,20 +33,23 @@ void update_3Dcanopy_structure(double **canopy3Dstructure,double canparms, int n
    *  Column12:- Position of the triangle from leaf base (cm)
    *  Column13:- Plant column ID (in a rectangular N-S-E-W domain ??)
    *  Column14:- Plant row ID  (in a rectangular N-S-E-W domain ??)
-   *  Column15:-SPAD
+   *  Column15:- SPAD
    *  Column16:- Kt (0-1) transmission coefficient 
    *  Column17:- Kr (0-1) reflectance coefficient
-   *  Column18:  Nitrogen content per unit area
+   *  Column18:- Nitrogen content per unit area [empty-to be filled later]
+   *  Column19:- PPFD [empty-to be filled later]
+   *  Column20:- Cumulative leaf area index [empty-to be filled later]
+   *  Column21:- Relative Humidity (0-1) [empty-to be filled later]
+   *  Column22:- Average Wind Speed [empty-to be filled later]
+   *  Column23:- LeafTemp [empty-to be filled later]
+   *  Column24:- Rate of Net photosynthesis [empty-to be filled later]
+   *  Column25:- Rate of Gross photosynthesis [empty-to be filled later]
+   *  Column26:- Rate of Transpiration [empty-to be filled later]
    * ***********************************************************************************/
    int i,j;
    double num;
    char filename[] = "/home/djaiswal/Research/R-dev/biocro/inst/extdata/CM_SC.txt"; 
-   
-   if(ncol!=18)
-   {
-     printf("Number of columns of the 3D canopy structure is not 18\n");
-     return;
-   }
+ 
    
    // This is temporary solution--reading output to our matrix, this needs to be replaced by actual function after meka completes his task
    
@@ -59,7 +62,7 @@ void update_3Dcanopy_structure(double **canopy3Dstructure,double canparms, int n
    
    for (i=0;i<nrow;i++)
     {
-      for (j=0;j<ncol;j++)
+      for (j=0;j<18;j++)  // This part of code is only to read file which has 18 columns
        {
          fscanf(fp, "%lf", &num);
          canopy3Dstructure[i][j] =num;

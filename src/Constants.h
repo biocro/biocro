@@ -37,7 +37,7 @@ const double    BRDF_ad = 0.001;
 // reflectance and transmittance are in triangle
 
 const int nrows = 2806;
-const int ncols = 20;
+const int ncols = 26;
 
 
 #endif
