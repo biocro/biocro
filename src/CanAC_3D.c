@@ -53,7 +53,7 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
  **************************************************************************************************************/
  struct Can_Str ans;
  double Idir, Idiff,cosTh;
- int is_import_from_2DMatrix=0;
+ int is_import_from_2DMatrix=1;
  int i;
  
  // follows are extension of the ray tracing area
@@ -69,15 +69,17 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
  {
    update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
  }
+ update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
  getIdirIdiff(&Idir, &Idiff,&cosTh,solarR,lat,DOY,hr);
-
+Idir=1000;
+Idiff=120;
  runFastTracer (is_import_from_2DMatrix,filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
   	light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
 
  
  for (i=0;i<nrows;i++)
    {
-     printf("cLAI = %f\n",canopy3Dstructure[i][19]);
+     printf("row=%d,cLAI = %f\n",i,canopy3Dstructure[i][19]);
    }
   /*
   run_ray_tracing(&canopy3Dstructure,Idir,Idiff,lat,DOY,hr);

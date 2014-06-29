@@ -101,7 +101,7 @@ extern "C" void runFastTracer (int is_import_from_2DMatrix, char  filename[], do
 //	}
 	
   if(is_import_from_2DMatrix == 1){
-//  import_data_from2DMatrix(m_3Dcanopy, grid, start_hour, end_hour, hour_interval);
+  import_data_from2DMatrix(m_3Dcanopy_light, grid, start_hour, end_hour, hour_interval);
   }else{
     import_data_from_file (filename, grid, start_hour, end_hour, hour_interval);
     
@@ -296,7 +296,7 @@ for (int i = 0; i<=num; i++){
     
     i_2DMatrix ++;
 		}
-//		printf("%d", i_2DMatrix);
+		printf("inside tracer function --%d", i_2DMatrix);
     
     // after we get structure, area and PPFD into the matrix, here, add calculation of cLAI. 
       // first, sort the triangles by Z value "sum(z1, z2, z3)"
@@ -452,7 +452,7 @@ void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour
 		double kt, kr;
 		double nitrogenPerArea=0;
 
-    for (int i=0; i<1000; i++){
+    for (int i=0; i<nrows; i++){
       x1 = m_3Dcanopy[i][0]; y1 = m_3Dcanopy[i][1]; z1 = m_3Dcanopy[i][2]; 
       x2 = m_3Dcanopy[i][3]; y2 = m_3Dcanopy[i][4]; z2 = m_3Dcanopy[i][5]; 
       x3 = m_3Dcanopy[i][6]; y3 = m_3Dcanopy[i][7]; z3 = m_3Dcanopy[i][8]; 
