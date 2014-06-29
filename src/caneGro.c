@@ -98,7 +98,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 /*********************3D Canopy Parameters*********************************/
 double canparms=1.0;
 double nrows=2806;
-double ncols=26;
+double ncols=27;
 double **canopy3Dstructure;
 int ihere,jhere;
 char filename[]="/home/djaiswal/Desktop/testing3Dcan.txt";
@@ -577,7 +577,7 @@ FILE *fp = fopen(filename, "rb+");
    Canopy = CanAC_3D (canparms, canopy3Dstructure,nrows, ncols,LAI,*(pt_doy+i), *(pt_hr+i),
   		       *(pt_solar+i), *(pt_temp+i),*(pt_rh+i), *(pt_windspeed+i),lat,vmax1,alpha1,kparm1,
   		       theta,beta,Rd1,Ca,b01,b11,StomWS,
-			       ws,kpLN,upperT,lowerT,nitroparms);
+			       ws,kpLN,upperT,lowerT,LeafN,nitroparms);
   
    if(fp==NULL)
    { 

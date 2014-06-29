@@ -4,7 +4,7 @@
 // defined the total triangle number
 const int nrows = 2806;
 // total columns. see comment of is_import_from_2DMatrix. 
-const int ncols = 26;
+const int ncols = 27;
 // ********* when changing above two values: should change two const values in Constants.h. ***********
 // they are: 
 //const int nrows = 2806;

@@ -28,7 +28,7 @@ void update_3Dcanopy_structure(double **canopy3Dstructure,double canparms, int n
    *  Column7 :- X coordinate of 3rd vertex of triangle
    *  Column8 :- Y coordinate of 3rd vertes of triangle
    *  Column9 :- Z coordinate of 3rd vertex of triangle
-   *  Column10:- Leaf ID 
+   *  Column10:- Leaf ID [=0 for stem, non Zero Value for actual leaf]
    *  Column11:- Leaf Length
    *  Column12:- Position of the triangle from leaf base (cm)
    *  Column13:- Plant column ID (in a rectangular N-S-E-W domain ??)
@@ -39,12 +39,13 @@ void update_3Dcanopy_structure(double **canopy3Dstructure,double canparms, int n
    *  Column18:- Nitrogen content per unit area [empty-to be filled later]
    *  Column19:- PPFD [empty-to be filled later]
    *  Column20:- Cumulative leaf area index [empty-to be filled later]
-   *  Column21:- Relative Humidity (0-1) [empty-to be filled later]
-   *  Column22:- Average Wind Speed [empty-to be filled later]
-   *  Column23:- LeafTemp [empty-to be filled later]
-   *  Column24:- Rate of Net photosynthesis [empty-to be filled later]
-   *  Column25:- Rate of Gross photosynthesis [empty-to be filled later]
-   *  Column26:- Rate of Transpiration [empty-to be filled later]
+   *  Column21:- Height from the ground surafce [empty-to be filled later]
+   *  Column22:- Relative Humidity (0-1) [empty-to be filled later]
+   *  Column23:- Average Wind Speed [empty-to be filled later]
+   *  Column24:- LeafTemp [empty-to be filled later]
+   *  Column25:- Rate of Net photosynthesis [empty-to be filled later]
+   *  Column26:- Rate of Gross photosynthesis [empty-to be filled later]
+   *  Column27:- Rate of Transpiration [empty-to be filled later]
    * ***********************************************************************************/
    int i,j;
    double num;

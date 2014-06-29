@@ -9,7 +9,7 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
                         double Alpha, double Kparm, double theta, double beta,
                         double Rd, double Catm, double b0, double b1,
                         double StomataWS, int ws,double kpLN, double upperT, 
-                        double lowerT,struct nitroParms nitroP)
+                        double lowerT,double LeafN,struct nitroParms nitroP)
 {
 /**************************************************************************************************************
  * Purpose
@@ -74,14 +74,10 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
    Idiff=100;
    runFastTracer (is_import_from_2DMatrix,filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
    light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
-   for (i=0;i<nrows;i++)
-   {
-     printf("%d,%f\n",i,canopy3Dstructure[i][19]);
-   }
-   
+  
+  microclimate_for_3Dcanopy(canopy3Dstructure, nrows, ncols,LeafN,RH,WindSpeed,kpLN);
  /*
- microclimate_for_3Dcanopy(&canopy3Dstructure);
-  for (i=0;i<NUMBER_OF_TRIANGLE;i++)
+ for (i=0;i<NUMBER_OF_TRIANGLE;i++)
   {
     new=calculate_c4photosynthesis_and_Evapotranspiration(PPFD, microcclimate, photparms);
     netco2+=new;
