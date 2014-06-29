@@ -62,9 +62,9 @@ int main(){
 //****	after ray tracing, the rows in m_3Dcanopy will be sorted by height from triangles in canopy from top to bottom. ****
 
 	// for testing 
-	for (n=0; n<10; n++){
+	for (n=0; n<2806; n++){
 
-			printf("%f,%f,%f",m_3Dcanopy[n][0],m_3Dcanopy[n][1],m_3Dcanopy[n][2]);		
+			printf("%f,%f,%f",m_3Dcanopy[n][0],m_3Dcanopy[n][1],m_3Dcanopy[n][19]);		
 			printf("\n");
 	}
 	//

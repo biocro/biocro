@@ -451,13 +451,20 @@ void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour
 		double leafID = 0, leafL = 0, position =0, chlSPAD=0;
 		double kt, kr;
 		double nitrogenPerArea=0;
+		double plantColID = 0, plantRowID = 0;
 
+<<<<<<< HEAD
     for (int i=0; i<nrows; i++){
+=======
+		for (int i = 0; i<nrows; i++){
+>>>>>>> bdbdbafd2c08936cb24c7c9759affcd24b39e306
       x1 = m_3Dcanopy[i][0]; y1 = m_3Dcanopy[i][1]; z1 = m_3Dcanopy[i][2]; 
       x2 = m_3Dcanopy[i][3]; y2 = m_3Dcanopy[i][4]; z2 = m_3Dcanopy[i][5]; 
       x3 = m_3Dcanopy[i][6]; y3 = m_3Dcanopy[i][7]; z3 = m_3Dcanopy[i][8]; 
       
       leafID = m_3Dcanopy[i][9]; leafL = m_3Dcanopy[i][10]; position = m_3Dcanopy[i][11];
+	  plantColID = m_3Dcanopy[i][12];  plantRowID = m_3Dcanopy[i][13];
+
       chlSPAD = m_3Dcanopy[i][14];kt = m_3Dcanopy[i][15];kr = m_3Dcanopy[i][16];
       nitrogenPerArea = m_3Dcanopy[i][17];
 
