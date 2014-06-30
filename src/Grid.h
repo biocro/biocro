@@ -45,6 +45,8 @@ private:
 	hit_scatter_rays(vector<Ray*> statter_rays, const int& hour_th)const;
 	bool
 	generate_scatter_rays(Ray& ray, Triangle* triangle_ptr, const int& hour_th)const;
+	bool
+		generate_scatter_rays_2(Ray& ray, Triangle* triangle_ptr, const int& hour_th)const;
 	Point3D
 	min_coordinates(void);
 	Point3D

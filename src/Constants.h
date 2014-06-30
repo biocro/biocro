@@ -23,7 +23,7 @@ const float 	invRAND_MAX = 1.0 / (float)RAND_MAX;
 const float     kSOLAR_constant = 2600;
 
 
-const double    ignor_PPFD_threashold = 200; //umol.m-2.s-1
+const double    ignor_PPFD_threashold = 20; //umol.m-2.s-1
 
 
 //for reflect light

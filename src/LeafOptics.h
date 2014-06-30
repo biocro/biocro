@@ -17,6 +17,8 @@ public:
 	Vector3D
 	get_reflect_dir(Vector3D L, Vector3D N);
 	Vector3D
+		get_reflect_dir_2(Vector3D L, Vector3D N);
+	Vector3D
 	get_transmit_dir(Vector3D L, Vector3D N);
 
 private:

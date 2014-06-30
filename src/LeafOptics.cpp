@@ -43,6 +43,22 @@ LeafOptics::get_reflect_dir(Vector3D L, Vector3D N){
 	}
 	return r;
 }
+
+// this is new method for randomizing reflect light, not probobility, but use reflectance (fr as proportion of refelct light energy). 2014-06-30
+Vector3D
+LeafOptics::get_reflect_dir_2(Vector3D L, Vector3D N){
+	double e = 0;
+	double fr = 0;
+	Vector3D r;// = new Vector3D;
+	int xxx = 0;
+
+	randReflectRayDir(N, r);// randomize a direction above the face with Normal N
+	fr = getfr(650, r, L, N);
+
+
+	return r;
+}
+
 Vector3D
 LeafOptics::get_transmit_dir(Vector3D L, Vector3D N){
 	Vector3D t;// = new Vector3D;
