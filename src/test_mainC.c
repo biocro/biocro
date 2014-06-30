@@ -38,7 +38,7 @@ int main(){
 	int i, n, m;
 
 	double **m_3Dcanopy;   // format [total 20column]: column ID 0-8: 3D structure, 9: leafID, 10: leaf length, 11: distance from leaf base, 12: plant column id, 13: plant row id, 14: SPAD, 
-						  //  15: transmittance, 16: reflectance, 17: leaf N content, 18: PPFD (umol.m-2.s-1), 19: cLAI. 
+						  //  15: transmittance, 16: reflectance, 17: leaf N content, 18: PPFD (umol.m-2.s-1), 19: cLAI. 20: facet leaf area (cm2).
 
 
 	m_3Dcanopy =  malloc(nrows * sizeof(double *));

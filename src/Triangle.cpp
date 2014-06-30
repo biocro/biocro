@@ -24,7 +24,7 @@ Triangle::Triangle(double start_hour, double end_hour, double hour_interval)
 }
 
 Triangle::Triangle(const Point3D& a, const Point3D& b, const Point3D& c, const double leafID, const double leafL, const double position,
-		const double chlSPAD, const double kt, const double kr, const double nitrogenPerArea, double start_hour, double end_hour, double hour_interval)
+	const double chlSPAD, const double kt, const double kr, const double nitrogenPerArea, double start_hour, double end_hour, double hour_interval, int plantColID, int plantRowID)
 {
 	v0 = a;
 	v1 = b;
@@ -51,6 +51,8 @@ Triangle::Triangle(const Point3D& a, const Point3D& b, const Point3D& c, const d
 	chlSPA = chlSPAD;
 	kLeafTransmittance = kt;
 	kLeafReflectance =kr;
+	id_col = plantColID;
+	id_row = plantRowID;
 
 }
 

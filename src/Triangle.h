@@ -27,13 +27,15 @@ public:
 	double kLeafReflectance;
 	double kLeafTransmittance;
 	double nitrogenPerA;
+	double id_row;
+	double id_col;
 
 	// --------------- PPFD1 2 3 4 ... 15 Qingfeng
 
 
 	Triangle(double start_hour, double end_hour, double hour_interval);
 	Triangle(const Point3D& a, const Point3D& b, const Point3D& c, const double leafID, const double leafL, const double position, const double chlSPAD, const double kt, const double kr, const double nitrogenPerArea,
-			double start_hour, double end_hour, double hour_interval);
+		double start_hour, double end_hour, double hour_interval, int plantColID, int plantRowID);
 	virtual ~Triangle();
 
 	bool

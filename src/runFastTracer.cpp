@@ -260,15 +260,16 @@ for (int i = 0; i<=num; i++){
 			m_3Dcanopy_light[i_2DMatrix][9] =  (*it)->leID ;
 			m_3Dcanopy_light[i_2DMatrix][10] =  (*it)->leL ;
 			m_3Dcanopy_light[i_2DMatrix][11] =  (*it)->pos ;
-			m_3Dcanopy_light[i_2DMatrix][12] =   (*it)->chlSPA ;
-			m_3Dcanopy_light[i_2DMatrix][13] =   (*it)->kLeafTransmittance ;
-			m_3Dcanopy_light[i_2DMatrix][14] =   (*it)->kLeafReflectance ;
-			m_3Dcanopy_light[i_2DMatrix][15] =   (*it)->nitrogenPerA;
-      
-			m_3Dcanopy_light[i_2DMatrix][16] =   area ;
-      
+			m_3Dcanopy_light[i_2DMatrix][12] = (*it)->id_col;
+			m_3Dcanopy_light[i_2DMatrix][13] = (*it)->id_row;
 
-
+			m_3Dcanopy_light[i_2DMatrix][14] =   (*it)->chlSPA ;
+			m_3Dcanopy_light[i_2DMatrix][15] =   (*it)->kLeafTransmittance ;
+			m_3Dcanopy_light[i_2DMatrix][16] =   (*it)->kLeafReflectance ;
+			m_3Dcanopy_light[i_2DMatrix][17] =   (*it)->nitrogenPerA;
+      
+			m_3Dcanopy_light[i_2DMatrix][20] =   area;
+      
 			vector<double> photonFlux_up_dir = (*it) ->photonFlux_up_dir;   // light from up side
 			vector<double> photonFlux_up_dff = (*it)->photonFlux_up_dff;   // light from up side
 			vector<double> photonFlux_up_scat= (*it)->photonFlux_up_scat;   // light from up side
@@ -308,7 +309,7 @@ for (int i = 0; i<=num; i++){
       double oneOverground_area = 1/((light_max_x - light_min_x) * (light_max_y - light_min_y)); 
 
       for (int m = 0; m<nrows; m++){                   
-        totalLA += m_3Dcanopy_light[m][16];   
+        totalLA += m_3Dcanopy_light[m][20];   
         m_3Dcanopy_light[m][19] = totalLA *oneOverground_area;  
       }
       
@@ -420,7 +421,7 @@ void import_data_from_file(char filename[], Grid* grid, double start_hour, doubl
 
 // --------------------- new a triangle and add into grid ------------------------------------
 	      Triangle* triangle = new Triangle(Point3D(x1,y1,z1), Point3D(x2,y2,z2), Point3D(x3,y3,z3), leafID, leafL, position, chlSPAD, kt, kr, nitrogenPerArea,
-	    		  start_hour, end_hour, hour_interval);
+			  start_hour, end_hour, hour_interval, plantColID, plantRowID);
 	   //   cout<<"OK4"<<endl;
 	      triangle->compute_normal();
 	      grid -> add_triangle(triangle);
@@ -468,7 +469,7 @@ void import_data_from2DMatrix(double** m_3Dcanopy, Grid* grid, double start_hour
 
 // --------------------- new a triangle and add into grid ------------------------------------
 	      Triangle* triangle = new Triangle(Point3D(x1,y1,z1), Point3D(x2,y2,z2), Point3D(x3,y3,z3), leafID, leafL, position, chlSPAD, kt, kr, nitrogenPerArea,
-	    		  start_hour, end_hour, hour_interval);
+			  start_hour, end_hour, hour_interval, plantColID, plantRowID);
 
 	      triangle->compute_normal();
 	      grid -> add_triangle(triangle);
