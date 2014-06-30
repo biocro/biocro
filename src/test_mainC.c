@@ -10,7 +10,7 @@ const int ncols = 27;
 //const int nrows = 2806;
 //const int ncols = 20;
 
-
+// this is QF3 branch, get a efficient ray tracing code here.
 void runFastTracer (int is_import_from_2DMatrix, char  filename[], double **m_3Dcanopy, double latitude, int day, double h, double Idir, double Idiff, double light_min_x, 
 						double light_max_x, double light_min_y, double light_max_y, double light_min_z, double light_max_z);
 
