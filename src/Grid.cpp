@@ -313,7 +313,7 @@ Grid::hit(Ray& ray, double& t, const int& hour_th, int& lightType) const {
 
 
 			//----------------------------------------  scatter rays -------------------------------------------------
-				hitS = generate_scatter_rays(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
+				hitS = generate_scatter_rays_2(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
 
 			//---------------------------------------- hit the scatter rays -------------------------------------------------
 				return hitS;
@@ -368,7 +368,7 @@ Grid::hit(Ray& ray, double& t, const int& hour_th, int& lightType) const {
 								compound_ptr->get_triangleList()[j_hit]->kLeafTransmittance));
 						}
 					}
-					hitS = generate_scatter_rays(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
+					hitS = generate_scatter_rays_2(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
 					return hitS;
 				}
 				ty_next += dty;
@@ -419,7 +419,7 @@ Grid::hit(Ray& ray, double& t, const int& hour_th, int& lightType) const {
 								compound_ptr->get_triangleList()[j_hit]->kLeafTransmittance));
 						}
 					}
-					hitS = generate_scatter_rays(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
+					hitS = generate_scatter_rays_2(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
 					return hitS;
 				}
 				tz_next += dtz;
@@ -493,24 +493,21 @@ Grid::generate_scatter_rays(Ray& ray, Triangle* triangle_ptr,const int& hour_th)
 bool
 Grid::generate_scatter_rays_2(Ray& ray, Triangle* triangle_ptr, const int& hour_th)const{
 	vector<Ray*> scatter_rays;
-	triangle_ptr->compute_normal(); // ??? delete?QF 2014.2.18
-	Vector3D normal_triangle(triangle_ptr->normal);
+	
+	
 
 	//	cout<<"ray.d: "<<ray.d.x<<"  "<<ray.d.y<<"  "<<ray.d.z<<endl;
 	//	cout<<"norm_of_triangle: "<<normal_triangle.x<<"  "<<normal_triangle.y<<"  "<<normal_triangle.z<<endl;
 
-	//check if L and N is opposite direction. and if not, opposite the N direction
-	if (normal_triangle * ray.d > 0)
-		normal_triangle = -normal_triangle;
+	Vector3D normal_triangle(triangle_ptr->normal);
 	//	normal_triangle.compute_theta_phi();
 
 	//	LeafOptics* leaf_optics = new LeafOptics();
 
-	double pf = ray.photonFlux2  * triangle_ptr->kLeafReflectance;
-	if (pf > ignor_Photon_Flux_threashold){
-		Vector3D reflect_d = leaf_optics->get_reflect_dir(-ray.d, normal_triangle);
-		scatter_rays.push_back(new Ray(triangle_ptr->hit_point, reflect_d, pf));
-	}
+	leaf_optics->get_reflect_dir_2(ray, triangle_ptr, scatter_rays, ignor_Photon_Flux_threashold);
+
+//	cout << "num of ref rays: " << scatter_rays.size() << endl;
+
 	double pf2 = ray.photonFlux2 * triangle_ptr->kLeafTransmittance;
 	if (pf2 > ignor_Photon_Flux_threashold){
 		Vector3D transmit_d = leaf_optics->get_transmit_dir(-ray.d, normal_triangle);

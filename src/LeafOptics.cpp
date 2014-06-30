@@ -10,6 +10,7 @@
 #include "Maths.h"
 #include "Constants.h"
 #include "iostream"
+#include "Constants.h"
 
 LeafOptics::LeafOptics() {
 	// TODO Auto-generated constructor stub
@@ -45,18 +46,46 @@ LeafOptics::get_reflect_dir(Vector3D L, Vector3D N){
 }
 
 // this is new method for randomizing reflect light, not probobility, but use reflectance (fr as proportion of refelct light energy). 2014-06-30
-Vector3D
-LeafOptics::get_reflect_dir_2(Vector3D L, Vector3D N){
+void 
+LeafOptics::get_reflect_dir_2(Ray ray, Triangle* triangle_ptr, vector<Ray*> &scatter_rays, double ignor_Photon_Flux_threashold){
 	double e = 0;
-	double fr = 0;
-	Vector3D r;// = new Vector3D;
-	int xxx = 0;
+	double fr1,fr2,fr3,fr4,fr5, fra ;
+	Vector3D r1, r2, r3, r4, r5;// = new Vector3D;
+//	int xxx = 0;
 
-	randReflectRayDir(N, r);// randomize a direction above the face with Normal N
-	fr = getfr(650, r, L, N);
+	triangle_ptr->compute_normal(); // ??? delete?QF 2014.2.18
+	Vector3D normal_triangle(triangle_ptr->normal);
 
+	if (normal_triangle * ray.d > 0)
+		normal_triangle = -normal_triangle;
 
-	return r;
+	double pf = ray.photonFlux2  * triangle_ptr->kLeafReflectance; // total reflect rays energy, should be proportional divided to n reflect rays
+
+//	cout <<"ray.photonFlux2: "<< ray.photonFlux2 << "triangle_ptr->kLeafReflectance: " << triangle_ptr->kLeafReflectance << endl;
+
+	randReflectRayDir(normal_triangle, r1);// randomize a direction above the face with Normal N
+	fr1 = getfr(650, r1, -ray.d, normal_triangle);
+	randReflectRayDir(normal_triangle, r2);// randomize a direction above the face with Normal N
+	fr2 = getfr(650, r2, -ray.d, normal_triangle);
+	randReflectRayDir(normal_triangle, r3);// randomize a direction above the face with Normal N
+	fr3 = getfr(650, r3, -ray.d, normal_triangle);
+	randReflectRayDir(normal_triangle, r4);// randomize a direction above the face with Normal N
+	fr4 = getfr(650, r4, -ray.d, normal_triangle);
+	randReflectRayDir(normal_triangle, r5);// randomize a direction above the face with Normal N
+	fr5 = getfr(650, r5, -ray.d, normal_triangle);
+
+	fra = fr1 + fr2 +fr3 + fr4 + fr5;
+	
+	if (pf > ignor_Photon_Flux_threashold){
+		scatter_rays.push_back(new Ray(triangle_ptr->hit_point, r1, pf*fr1 / fra));
+		scatter_rays.push_back(new Ray(triangle_ptr->hit_point, r2, pf*fr2 / fra));
+		scatter_rays.push_back(new Ray(triangle_ptr->hit_point, r3, pf*fr3 / fra));
+		scatter_rays.push_back(new Ray(triangle_ptr->hit_point, r4, pf*fr4 / fra));
+		scatter_rays.push_back(new Ray(triangle_ptr->hit_point, r5, pf*fr5 / fra));
+	}
+	
+
+//	return r;
 }
 
 Vector3D

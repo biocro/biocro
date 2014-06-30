@@ -8,6 +8,8 @@
 #ifndef LEAFOPTICS_H_
 #define LEAFOPTICS_H_
 #include "Vector3D.h"
+#include "Ray.h"
+#include "Triangle.h"
 
 class LeafOptics {
 public:
@@ -16,8 +18,8 @@ public:
 
 	Vector3D
 	get_reflect_dir(Vector3D L, Vector3D N);
-	Vector3D
-		get_reflect_dir_2(Vector3D L, Vector3D N);
+	void
+		get_reflect_dir_2(Ray ray, Triangle* triangle_ptr, vector<Ray*> &scatter_rays, double ignor_Photon_Flux_threashold);
 	Vector3D
 	get_transmit_dir(Vector3D L, Vector3D N);
 
