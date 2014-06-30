@@ -104,7 +104,7 @@ GCanopyA=0.0;
    runFastTracer (is_import_from_2DMatrix,filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
    light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
    microclimate_for_3Dcanopy(canopy3Dstructure,&CanHeight, nrows, ncols,LeafN,RH,WindSpeed,kpLN);
-   LAIc=canopy3Dstructure[nrows][19]; //Cumulative Leaf Area Index to use in Evapotranspiration Function
+   LAIc=canopy3Dstructure[nrows-1][19]; //Cumulative Leaf Area Index to use in Evapotranspiration Function
  
    for (i=0;i<nrows;i++)
    {
