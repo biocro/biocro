@@ -12,6 +12,7 @@ using namespace std;
 
 Grid::Grid(double ignor_thres) {
 	ignor_Photon_Flux_threashold = ignor_thres;
+	leaf_optics = new LeafOptics();
 	// TODO Auto-generated constructor stub
 }
 
@@ -453,7 +454,7 @@ Grid::generate_scatter_rays(Ray& ray, Triangle* triangle_ptr,const int& hour_th)
 		normal_triangle = -normal_triangle;
 //	normal_triangle.compute_theta_phi();
 
-	LeafOptics* leaf_optics = new LeafOptics();
+//	LeafOptics* leaf_optics = new LeafOptics();
 
 	double pf = ray.photonFlux2  * triangle_ptr->kLeafReflectance;
 	if (pf > ignor_Photon_Flux_threashold){
@@ -466,7 +467,7 @@ Grid::generate_scatter_rays(Ray& ray, Triangle* triangle_ptr,const int& hour_th)
 		scatter_rays.push_back(new Ray(triangle_ptr->hit_point,transmit_d,pf2));
 	}
 
-	delete leaf_optics;
+//	delete leaf_optics;
 // why after delete, still can access the pointer ???? --------------***************************
 //	cout<<"TEST: ------ "<<ray_r_ptr->photonFlux2<<endl;
 

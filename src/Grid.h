@@ -6,6 +6,7 @@
 #include "Triangle.h"
 #include "BBox.h"
 #include <vector>
+#include "LeafOptics.h"
 
 // major function for ray tracing
 
@@ -48,6 +49,7 @@ private:
 	min_coordinates(void);
 	Point3D
 	max_coordinates(void);
+	LeafOptics* leaf_optics;
 	
 
 };
