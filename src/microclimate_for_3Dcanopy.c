@@ -30,9 +30,9 @@ void microclimate_for_3Dcanopy(double **canopy3Dstructure, double *canHeight,int
   
    for (i=0;i<nrows;i++)
    {
-     // calculate average height of each element in the 21st column [index=20]
-     canopy3Dstructure[i][20]=(canopy3Dstructure[i][2]+canopy3Dstructure[i][5]+canopy3Dstructure[i][8])*0.33;
-     canopyheight = (canopyheight > canopy3Dstructure[i][20])?canopyheight:canopy3Dstructure[i][20];
+     // calculate average height of each element in the 22nd column [index=20]
+     canopy3Dstructure[i][21]=(canopy3Dstructure[i][2]+canopy3Dstructure[i][5]+canopy3Dstructure[i][8])*0.33;
+     canopyheight = (canopyheight > canopy3Dstructure[i][21])?canopyheight:canopy3Dstructure[i][21];
    }
    *canHeight=canopyheight;
   for (i=0;i<nrows;i++)
@@ -40,10 +40,10 @@ void microclimate_for_3Dcanopy(double **canopy3Dstructure, double *canHeight,int
      //Updating matrix column for leaf nitrogen concentration based on cumLAI
      canopy3Dstructure[i][17]=LeafN_canopytop*exp(-kpLN*canopy3Dstructure[i][19]);     
      // updating matrix columns for relative humidity
-     canopy3Dstructure[i][21]=RH_canopytop*exp(kRH*canopy3Dstructure[i][20]/canopyheight);
-     canopy3Dstructure[i][21]=(canopy3Dstructure[i][21]>1.0)?0.99:canopy3Dstructure[i][21];     
+     canopy3Dstructure[i][22]=RH_canopytop*exp(kRH*canopy3Dstructure[i][21]/canopyheight);
+     canopy3Dstructure[i][22]=(canopy3Dstructure[i][22]>1.0)?0.99:canopy3Dstructure[i][22];     
      //Updating matrix column for windspeed
-     canopy3Dstructure[i][22]=windspeed_canopytop*exp(-kwind*canopy3Dstructure[i][19]);     
+     canopy3Dstructure[i][23]=windspeed_canopytop*exp(-kwind*canopy3Dstructure[i][19]);     
    }     
    return;   
 }

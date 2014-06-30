@@ -39,13 +39,14 @@ void update_3Dcanopy_structure(double **canopy3Dstructure,double canparms, int n
    *  Column18:- Nitrogen content per unit area [empty-to be filled later]
    *  Column19:- PPFD [empty-to be filled later]
    *  Column20:- Cumulative leaf area index [empty-to be filled later]
-   *  Column21:- Height from the ground surafce [empty-to be filled later]
-   *  Column22:- Relative Humidity (0-1) [empty-to be filled later]
-   *  Column23:- Average Wind Speed [empty-to be filled later]
-   *  Column24:- LeafTemp [empty-to be filled later]
-   *  Column25:- Rate of Net photosynthesis [empty-to be filled later]
-   *  Column26:- Rate of Gross photosynthesis [empty-to be filled later]
-   *  Column27:- Rate of Transpiration [empty-to be filled later]
+   *  Column21:- Area of each triangle [cm^2]
+   *  Column22:- Height from the ground surafce [empty-to be filled later]
+   *  Column23:- Relative Humidity (0-1) [empty-to be filled later]
+   *  Column24:- Average Wind Speed [empty-to be filled later]
+   *  Column25:- LeafTemp [empty-to be filled later]
+   *  Column26:- Rate of Net photosynthesis [empty-to be filled later]
+   *  Column27:- Rate of Gross photosynthesis [empty-to be filled later]
+   *  Column28:- Rate of Transpiration [empty-to be filled later]
    * ***********************************************************************************/
    int i,j;
    double num;

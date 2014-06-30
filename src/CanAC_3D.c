@@ -96,13 +96,13 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
                 }
                 IDir=canopy3Dstructure[i][18];
                 Itot=canopy3Dstructure[i][18]; // This is not conserving energy, I need to include long wave radiations in this
-                rh=canopy3Dstructure[i][21];
-                WS=canopy3Dstructure[i][22];
+                rh=canopy3Dstructure[i][22];
+                WS=canopy3Dstructure[i][23];
                 
                 tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,Vmax,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
                 TempIdir = Temp + tmp5_ET.Deltat;
                 //Populating Temperature Column of the Canopy Matrix
-                canopy3Dstructure[i][23]=TempIdir;
+                canopy3Dstructure[i][24]=TempIdir;
                 tmpc4 = c4photoC(IDir,TempIdir,rh,Vmax,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
     }
    }
