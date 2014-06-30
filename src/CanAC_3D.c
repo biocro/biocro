@@ -55,9 +55,27 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
   double Idir, Idiff,cosTh,CanHeight;
   int is_import_from_2DMatrix=1;
   double IDir, Itot,TempIdir,rh,WS, LAIc;
+  double CanopyT, CanopyA,GCanopyA;
   struct ET_Str tmp5_ET;
   struct c4_str tmpc4;
   int i;
+  
+   const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
+   const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
+
+        /* For Assimilation */
+        /* 3600 converts seconds to hours */
+        /* 1e-6 converts micro mols to mols */
+        /* 30 is the grams in one mol of CO2 */
+        /* 1e-6 converts g to Mg */
+        /* 10000 scales from meter squared to hectare */
+
+        /* For Transpiration */
+        /* 3600 converts seconds to hours */
+        /* 1e-3 converts mili mols to mols */
+        /* 18 is the grams in one mol of H20 */
+        /* 1e-6 converts g to Mg */
+        /* 10000 scales from meter squared to hectare */
  
  // follows are extension of the ray tracing area
   double   light_min_x= -50; //-110
@@ -68,6 +86,10 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
 	double   light_max_z= 300;
   char filename[] = "/home/djaiswal/Research/R-dev/biocro/inst/extdata/CM_SC.txt"; 
 //update canopy if this is a new day otherwise use old canopy structure.
+CanopyA=0.0;
+CanopyT=0.0;
+GCanopyA=0.0;
+
  if(hr==0)
    {
    update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
@@ -77,10 +99,12 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
    Idir = tmp1[0] * solarR;
    Idiff = tmp1[1] * solarR;
    cosTh = tmp1[2];
+   Idir=1000;
+   Idiff=200;
    runFastTracer (is_import_from_2DMatrix,filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
    light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
    microclimate_for_3Dcanopy(canopy3Dstructure,&CanHeight, nrows, ncols,LeafN,RH,WindSpeed,kpLN);
-   LAIc=canopy3Dstructure[nrows][19]; //Cumulative Leaf Area Index to use in Evapotranspiration Function
+   LAIc=canopy3Dstructure[nrows-1][19]; //Cumulative Leaf Area Index to use in Evapotranspiration Function
  
    for (i=0;i<nrows;i++)
    {
@@ -96,18 +120,25 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
                 }
                 IDir=canopy3Dstructure[i][18];
                 Itot=canopy3Dstructure[i][18]; // This is not conserving energy, I need to include long wave radiations in this
-                rh=canopy3Dstructure[i][21];
-                WS=canopy3Dstructure[i][22];
+                rh=canopy3Dstructure[i][22];
+                WS=canopy3Dstructure[i][23];
                 
                 tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,Vmax,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
                 TempIdir = Temp + tmp5_ET.Deltat;
                 //Populating Temperature Column of the Canopy Matrix
-                canopy3Dstructure[i][23]=TempIdir;
+                canopy3Dstructure[i][24]=TempIdir;
                 tmpc4 = c4photoC(IDir,TempIdir,rh,Vmax,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
+                  
+                  CanopyA += canopy3Dstructure[i][20] * tmpc4.Assim;
+                  GCanopyA += canopy3Dstructure[i][20] *tmpc4.GrossAssim;
+                  CanopyT += canopy3Dstructure[i][20] *tmp5_ET.EPenman;
+                
     }
    }
 //  update canopy structure using netco2,grossco2,and transp;
-
+        ans.Assim = cf * CanopyA *1e-4 ; //1e-4 is multiplied becasue trinagle area is in cm2 cm2 to m2 conversion = 1e-4
+        ans.Trans = cf2 * CanopyT*1e-4;  //1e-4 is multiplied becasue trinagle area is in cm2 cm2 to m2 conversion = 1e-4
+        ans.GrossAssim=cf*GCanopyA*1e-4; //1e-4 is multiplied becasue trinagle area is in cm2 cm2 to m2 conversion = 1e-4
   return(ans);                      
 }
 /*
