@@ -30,7 +30,6 @@ double tmp4[MAXLAY];
 double tmp5[MAXLAY];
 
 struct ET_Str {
-
   double TransR;
   double EPenman;
   double EPriestly;

@@ -1,11 +1,7 @@
 #ifndef BIOCRO_H
 #define BIOCRO_H
-/*
- *  BioCro/src/BioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2008
- *
- */
 
-/* Global variables for BioGro function. */
+#include "AuxBioCro.h"
 
 double CanopyAssim[8760] ;
 double Leafy[8760] ;
@@ -64,10 +60,6 @@ double resp(double comp, double mrc, double temp);
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, 
                      double fieldc, double wiltp, double phi1, double phi2, int soiltype, int wsFun);
 
-/* struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH, */
-/* 			 double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws, */
-/* 			 double vmax2, double alpha2, double kparm, double theta, double beta, */
-/* 			 double Rd2, double b02, double b12); */
 
 double SoilEvapo(double LAI, double k, double AirTemp, double DirectRad,
 		 double awc, double fieldc, double wiltp, double winds, double RelH, double rsec);
@@ -99,5 +91,7 @@ struct flow_str flow(double *SC, double CNratio, double A, double Lc, double Tm,
 double AbiotEff(double smoist, double stemp);
 
 double sel_phen(int phen);
-
+struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
+                         double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
+                         double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12,double upperT,double lowerT, double Catm);
 #endif

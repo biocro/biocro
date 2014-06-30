@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "CanA_3D_Structure.h"
 
-void microclimate_for_3Dcanopy(double **canopy3Dstructure, int nrows, int ncols, double LeafN_canopytop,double RH_canopytop,double windspeed_canopytop, double kpLN)
+void microclimate_for_3Dcanopy(double **canopy3Dstructure, double *canHeight,int nrows, int ncols, double LeafN_canopytop,double RH_canopytop,double windspeed_canopytop, double kpLN)
 {
      /********************************************************************
       * Purpose
@@ -34,6 +34,7 @@ void microclimate_for_3Dcanopy(double **canopy3Dstructure, int nrows, int ncols,
      canopy3Dstructure[i][20]=(canopy3Dstructure[i][2]+canopy3Dstructure[i][5]+canopy3Dstructure[i][8])*0.33;
      canopyheight = (canopyheight > canopy3Dstructure[i][20])?canopyheight:canopy3Dstructure[i][20];
    }
+   *canHeight=canopyheight;
   for (i=0;i<nrows;i++)
    {
      //Updating matrix column for leaf nitrogen concentration based on cumLAI

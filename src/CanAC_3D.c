@@ -9,7 +9,7 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
                         double Alpha, double Kparm, double theta, double beta,
                         double Rd, double Catm, double b0, double b1,
                         double StomataWS, int ws,double kpLN, double upperT, 
-                        double lowerT,double LeafN,struct nitroParms nitroP)
+                        double lowerT, double LeafN,struct nitroParms nitroP)
 {
 /**************************************************************************************************************
  * Purpose
@@ -51,14 +51,17 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
  * 
  * 
  **************************************************************************************************************/
- struct Can_Str ans;
- double Idir, Idiff,cosTh;
- int is_import_from_2DMatrix=1;
- int i;
+  struct Can_Str ans;
+  double Idir, Idiff,cosTh,CanHeight;
+  int is_import_from_2DMatrix=1;
+  double IDir, Itot,TempIdir,rh,WS, LAIc;
+  struct ET_Str tmp5_ET;
+  struct c4_str tmpc4;
+  int i;
  
  // follows are extension of the ray tracing area
-  double   light_min_x= -110; 
-	double   light_max_x= 110;
+  double   light_min_x= -50; //-110
+	double   light_max_x= 50; //110
 	double   light_min_y= -20;
 	double   light_max_y= 20;
 	double   light_min_z= 0;
@@ -70,22 +73,41 @@ struct Can_Str CanAC_3D (double canparms, double **canopy3Dstructure, int nrows,
    update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
    }
    update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
-   Idir=1000;
-   Idiff=100;
+   lightME(lat,DOY,hr);
+   Idir = tmp1[0] * solarR;
+   Idiff = tmp1[1] * solarR;
+   cosTh = tmp1[2];
    runFastTracer (is_import_from_2DMatrix,filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
    light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
-  
-  microclimate_for_3Dcanopy(canopy3Dstructure, nrows, ncols,LeafN,RH,WindSpeed,kpLN);
- /*
- for (i=0;i<NUMBER_OF_TRIANGLE;i++)
-  {
-    new=calculate_c4photosynthesis_and_Evapotranspiration(PPFD, microcclimate, photparms);
-    netco2+=new;
-    grossco2+=new;
-    transp+==new;
-  }
-  update canopy structure using netco2,grossco2,and transp;
-  */
+   microclimate_for_3Dcanopy(canopy3Dstructure,&CanHeight, nrows, ncols,LeafN,RH,WindSpeed,kpLN);
+   LAIc=canopy3Dstructure[nrows][19]; //Cumulative Leaf Area Index to use in Evapotranspiration Function
+ 
+   for (i=0;i<nrows;i++)
+   {
+    //Stem triangles are denoted by 0. We need to perform photosynthesis simulations only for leaf 
+    if(canopy3Dstructure[i][9]!=0)
+    {
+                // Calculate photosynthesis parameters as a funt of leafN if lnFun=1
+                if(nitroP.lnFun == 1)
+                {
+                 Vmax=nitroP.Vmaxb1*canopy3Dstructure[i][17]+nitroP.Vmaxb0;
+					       Alpha=nitroP.alphab1*canopy3Dstructure[i][17]+nitroP.alphab0;
+					       Rd=nitroP.Rdb1*canopy3Dstructure[i][17]+nitroP.Rdb0;
+                }
+                IDir=canopy3Dstructure[i][18];
+                Itot=canopy3Dstructure[i][18]; // This is not conserving energy, I need to include long wave radiations in this
+                rh=canopy3Dstructure[i][21];
+                WS=canopy3Dstructure[i][22];
+                
+                tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,Vmax,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
+                TempIdir = Temp + tmp5_ET.Deltat;
+                //Populating Temperature Column of the Canopy Matrix
+                canopy3Dstructure[i][23]=TempIdir;
+                tmpc4 = c4photoC(IDir,TempIdir,rh,Vmax,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
+    }
+   }
+//  update canopy structure using netco2,grossco2,and transp;
+
   return(ans);                      
 }
 /*
