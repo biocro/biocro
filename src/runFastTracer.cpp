@@ -161,6 +161,11 @@ for (int i = 0; i<=num; i++){
 	ray.photonFlux2 = dir_pf;
 	double x,y;
 
+
+	clock_t t1, t2;
+	t1 = clock();
+
+	
 //---------------  trace rays (direct light)   ----------------------
 	double light_max_x_stop = light_max_x - light_nearest_distance;
 	double light_max_y_stop = light_max_y - light_nearest_distance;
@@ -172,7 +177,9 @@ for (int i = 0; i<=num; i++){
 			grid->hit(ray, t, i, lightType1);//Grid -> hit(ray, tmin), if hit, the hit triangle will be add one time hit number
 		}
 	}
-	
+	t2 = clock();
+	float diff((float)t2 - (float)t1);
+	cout << "after direct: " << diff << endl;
 //-----------------------------  Time  ------------------------------
 //	t1 = time(0);
 
@@ -200,7 +207,9 @@ for (int i = 0; i<=num; i++){
 			grid->hit(ray, t, i, lightType2);//Grid -> hit(ray, tmin), if hit, the hit triangle will be add one time hit number
 		}
 	}
-
+	t2 = clock();
+	diff = ((float)t2 - (float)t1);
+	cout << "after diffuse: " << diff << endl;
 //---------------  Time   -------------------------
 //	t1 = time(0);
 //	localtime_s(tmp,&t1);

@@ -12,6 +12,7 @@ using namespace std;
 
 Grid::Grid(double ignor_thres) {
 	ignor_Photon_Flux_threashold = ignor_thres;
+	leaf_optics = new LeafOptics();
 	// TODO Auto-generated constructor stub
 }
 
@@ -312,7 +313,7 @@ Grid::hit(Ray& ray, double& t, const int& hour_th, int& lightType) const {
 
 
 			//----------------------------------------  scatter rays -------------------------------------------------
-				hitS = generate_scatter_rays(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
+				hitS = generate_scatter_rays_2(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
 
 			//---------------------------------------- hit the scatter rays -------------------------------------------------
 				return hitS;
@@ -367,7 +368,7 @@ Grid::hit(Ray& ray, double& t, const int& hour_th, int& lightType) const {
 								compound_ptr->get_triangleList()[j_hit]->kLeafTransmittance));
 						}
 					}
-					hitS = generate_scatter_rays(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
+					hitS = generate_scatter_rays_2(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
 					return hitS;
 				}
 				ty_next += dty;
@@ -418,7 +419,7 @@ Grid::hit(Ray& ray, double& t, const int& hour_th, int& lightType) const {
 								compound_ptr->get_triangleList()[j_hit]->kLeafTransmittance));
 						}
 					}
-					hitS = generate_scatter_rays(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
+					hitS = generate_scatter_rays_2(ray, compound_ptr->get_triangleList()[j_hit],hour_th);
 					return hitS;
 				}
 				tz_next += dtz;
@@ -453,7 +454,7 @@ Grid::generate_scatter_rays(Ray& ray, Triangle* triangle_ptr,const int& hour_th)
 		normal_triangle = -normal_triangle;
 //	normal_triangle.compute_theta_phi();
 
-	LeafOptics* leaf_optics = new LeafOptics();
+//	LeafOptics* leaf_optics = new LeafOptics();
 
 	double pf = ray.photonFlux2  * triangle_ptr->kLeafReflectance;
 	if (pf > ignor_Photon_Flux_threashold){
@@ -466,7 +467,7 @@ Grid::generate_scatter_rays(Ray& ray, Triangle* triangle_ptr,const int& hour_th)
 		scatter_rays.push_back(new Ray(triangle_ptr->hit_point,transmit_d,pf2));
 	}
 
-	delete leaf_optics;
+//	delete leaf_optics;
 // why after delete, still can access the pointer ???? --------------***************************
 //	cout<<"TEST: ------ "<<ray_r_ptr->photonFlux2<<endl;
 
@@ -489,6 +490,52 @@ Grid::generate_scatter_rays(Ray& ray, Triangle* triangle_ptr,const int& hour_th)
 	return true;
 }
 
+bool
+Grid::generate_scatter_rays_2(Ray& ray, Triangle* triangle_ptr, const int& hour_th)const{
+	vector<Ray*> scatter_rays;
+	
+	
+
+	//	cout<<"ray.d: "<<ray.d.x<<"  "<<ray.d.y<<"  "<<ray.d.z<<endl;
+	//	cout<<"norm_of_triangle: "<<normal_triangle.x<<"  "<<normal_triangle.y<<"  "<<normal_triangle.z<<endl;
+
+	Vector3D normal_triangle(triangle_ptr->normal);
+	//	normal_triangle.compute_theta_phi();
+
+	//	LeafOptics* leaf_optics = new LeafOptics();
+
+	leaf_optics->get_reflect_dir_2(ray, triangle_ptr, scatter_rays, ignor_Photon_Flux_threashold);
+
+//	cout << "num of ref rays: " << scatter_rays.size() << endl;
+
+	double pf2 = ray.photonFlux2 * triangle_ptr->kLeafTransmittance;
+	if (pf2 > ignor_Photon_Flux_threashold){
+		Vector3D transmit_d = leaf_optics->get_transmit_dir(-ray.d, normal_triangle);
+		scatter_rays.push_back(new Ray(triangle_ptr->hit_point, transmit_d, pf2));
+	}
+
+	//	delete leaf_optics;
+	// why after delete, still can access the pointer ???? --------------***************************
+	//	cout<<"TEST: ------ "<<ray_r_ptr->photonFlux2<<endl;
+
+	//	return statter_rays;
+	int lightType3 = 3;//scatter light
+	for (unsigned int k = 0; k<scatter_rays.size(); k++){
+		//			cout<<"go Back"<<endl;
+		double t = kHugeValue; //when hit, the t life end
+		Ray ray = Ray(scatter_rays[k]);
+		this->hit(ray, t, hour_th, lightType3);
+	}
+
+	//delete the vector
+	for (vector<Ray*>::iterator iter = scatter_rays.begin(); iter != scatter_rays.end(); ++iter) {
+		//		cout<<"delete *iter"<<endl;
+		delete *iter;
+	}
+	scatter_rays.erase(scatter_rays.begin(), scatter_rays.end());
+
+	return true;
+}
 
 void
 Grid::add_triangle(Triangle* triangle_ptr){
