@@ -64,8 +64,8 @@ int main(){
 	// for testing 
 	for (n=0; n<2806; n++){
 
-//			printf("%f,%f,%f",m_3Dcanopy[n][0],m_3Dcanopy[n][1],m_3Dcanopy[n][19]);		
-//			printf("\n");
+			printf("%f,%f,%f",m_3Dcanopy[n][0],m_3Dcanopy[n][1],m_3Dcanopy[n][18]);		
+			printf("\n");
 	}
 	//
 
