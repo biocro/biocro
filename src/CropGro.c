@@ -730,7 +730,7 @@ SEXP CropGro(SEXP LAT,          /* Latitude                  1 */
                 if(FlagBiogeochem==1)
                 {
 //                Assign_Soil_Properties_To_CropCent(bulkd,swclimit,fieldc,pH,tcoeff, baseflow,stormflow,frlechd,&CROPCENT);
-                Copy_SoilWater_BioCro_To_CropCent(&soilMLS,&CROPCENT);
+//                Copy_SoilWater_BioCro_To_CropCent(&soilMLS,&CROPCENT);
 //                Rprintf("soilMLS.dpthmn[1]=%f,CROPCENT.soilprofile.properties.dpthmn[1]=%f\n",soilMLS.dpthmn[1],CROPCENT.soilprofile.properties.dpthmn[1]);
 //                CalculateBiogeochem(&miscanthus, &CROPCENT,&dailyclimate);
                 }
