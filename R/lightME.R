@@ -3,6 +3,9 @@
 ##' Simulates light macro environment based on latitude, day of the year.
 ##' Other coefficients can be adjusted.
 ##'
+##' The equations used here can be found in
+##' http://www.life.illinois.edu/plantbio/wimovac/newpage9.htm
+##' The original source is Monteith, 1991
 ##'
 ##' @param lat the latitude, default is 40 (Urbana, IL, U.S.).
 ##' @param DOY the day of the year (1--365), default 190.
@@ -37,9 +40,6 @@
 ##'
 lightME <- function(lat=40,DOY=190,t.d=12,t.sn=12,atm.P=1e5,alpha=0.85) {
 
-  ## The equations used here can be found in
-  ## http://www.life.illinois.edu/plantbio/wimovac/newpage9.htm
-  ## The original source is Monteith, 1991
   Dtr <- (pi/180)
   
   omega <- lat * Dtr
