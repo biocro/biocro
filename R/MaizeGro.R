@@ -459,35 +459,7 @@ MaizeCAllocParms <- function(kStem1 = 0.45, kLeaf1 = 0.45, kRoot1 = 0.10,
 
 
 ## Colors Stem, Leaf, Root, Rhizome, LAI
-##' Plotting function for MaizeGro objects
-##'
-##' By default it plots stem, leaf, root, rhizome and LAI for a \code{MaizeGro}
-##' object. Optionally, the observed data can be plotted.
-##'
-##' This function uses internally \code{\link[lattice]{xyplot}} in the
-##' 'lattice' package.
-##'
-##' @param x \code{\link{MaizeGro}} object.
-##' @param obs optional observed data object (format following the
-##' \code{\link{OpMaizeGro}} function .
-##' @param stem whether to plot simulated stem (default = TRUE).
-##' @param leaf whether to plot simulated leaf (default = TRUE).
-##' @param root whether to plot simulated root (default = TRUE).
-##' @param rhizome whether to plot simulated rhizome (default = TRUE).
-##' @param grain whether to plot simulated grain (default = TRUE).
-##' @param LAI whether to plot simulated LAI (default = TRUE).
-##' @param pch point character.
-##' @param lty line type.
-##' @param lwd line width.
-##' @param col Control of colors.
-##' @param x1 position of the legend. x coordinate (0-1).
-##' @param y1 position of the legend. y coordinate (0-1).
-##' @param plot.kind DB plots dry biomass and SW plots soil water.
-##' @param \dots Optional arguments.
-##' @seealso \code{\link{MaizeGro}} \code{\link{OpMaizeGro}}
-##' @keywords hplot
-##' @export
-##' @S3method plot MaizeGro
+
 plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, 
                          LAI = TRUE, grain = TRUE,
                          xlab=NULL,ylab=NULL,
@@ -605,11 +577,7 @@ plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
   
   
 
-##' printing method for MaizeGro
-##' 
-##' @param x
-##' @export
-##' @S3method print MaizeGro      
+      
 print.MaizeGro <- function(x,level=1,...){
 
   if(level == 0){

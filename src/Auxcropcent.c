@@ -6,11 +6,18 @@
 
 void updatecropcentpools(struct cropcentlayer *CROPCENT)
 {
-  double delN;
+  double delN, delP, delS,delK;
   double out, in;
   
   delN=0.0;
-
+  delP=0.0;
+  delS=0.0;
+  delK=0.0;
+  CROPCENT->ENV.newminN=0.0;
+  CROPCENT->ENV.newminP=0.0;
+  CROPCENT->ENV.newminS=0.0;
+  CROPCENT->ENV.newminK=0.0;
+  
   // updating strucc1 flux [only source is self-negative outflow]
   // step 1: chnage in mineral N of CropCENT layer due to flow from strucc1
   out=(CROPCENT->strucc1.Flux.strucc1TOstrucc1.C.totalC)/(CROPCENT->strucc1.Flux.strucc1TOstrucc1.E.CN); // This is always negative
@@ -19,6 +26,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
       +(CROPCENT->strucc1.Flux.strucc1TOsom2c1.C.totalC)/(CROPCENT->strucc1.Flux.strucc1TOsom2c1.E.CN); // This is always positive
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   // now update CN ratioi snot required as all outflow CE ratio is same as of source pool
   // finally update C structure of the pool
   updateCarbonStructure(&CROPCENT->strucc1.C, CROPCENT->strucc1.Flux.strucc1TOstrucc1.C);
@@ -35,6 +43,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
       +(CROPCENT->strucc2.Flux.strucc2TOsom2c2.C.totalC)/(CROPCENT->strucc2.Flux.strucc2TOsom2c2.E.CN); // This is always positive
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   // now update CN ratio, which does not change because outflow CE is same as CE of pool. Only CE ratio of receiving flux changes
   // finally update C structure of the pool
   updateCarbonStructure(&CROPCENT->strucc2.C, CROPCENT->strucc2.Flux.strucc2TOstrucc2.C);
@@ -48,6 +57,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
   in=(CROPCENT->metabc1.Flux.metabc1TOsom1c1.C.totalC)/(CROPCENT->metabc1.Flux.metabc1TOsom1c1.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->metabc1.C, CROPCENT->metabc1.Flux.metabc1TOmetabc1.C);
   updateCarbonStructure(&CROPCENT->som1c1.C, CROPCENT->metabc1.Flux.metabc1TOsom1c1.C);
   updateMineralStructure(&CROPCENT->som1c1.C, &CROPCENT->som1c1.E, CROPCENT->metabc1.Flux.metabc1TOsom1c1.C, CROPCENT->metabc1.Flux.metabc1TOsom1c1.E);
@@ -57,6 +67,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
   in=(CROPCENT->metabc2.Flux.metabc2TOsom1c2.C.totalC)/(CROPCENT->metabc2.Flux.metabc2TOsom1c2.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->metabc2.C, CROPCENT->metabc2.Flux.metabc2TOmetabc2.C);
   updateCarbonStructure(&CROPCENT->som1c2.C, CROPCENT->metabc2.Flux.metabc2TOsom1c2.C);
   updateMineralStructure(&CROPCENT->som1c2.C, &CROPCENT->som1c2.E, CROPCENT->metabc2.Flux.metabc2TOsom1c2.C, CROPCENT->metabc2.Flux.metabc2TOsom1c2.E);
@@ -66,6 +77,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
   in=(CROPCENT->som1c1.Flux.som1c1TOsom2c1.C.totalC)/(CROPCENT->som1c1.Flux.som1c1TOsom2c1.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som1c1.C, CROPCENT->som1c1.Flux.som1c1TOsom1c1.C);
   updateCarbonStructure(&CROPCENT->som2c1.C, CROPCENT->som1c1.Flux.som1c1TOsom2c1.C);
   updateMineralStructure(&CROPCENT->som2c1.C, &CROPCENT->som2c1.E, CROPCENT->som1c1.Flux.som1c1TOsom2c1.C, CROPCENT->som1c1.Flux.som1c1TOsom2c1.E);
@@ -77,6 +89,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
     +(CROPCENT->som2c1.Flux.som2c1TOsom2c2.C.totalC)/(CROPCENT->som2c1.Flux.som2c1TOsom2c2.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som2c1.C, CROPCENT->som2c1.Flux.som2c1TOsom2c1.C);
   updateCarbonStructure(&CROPCENT->som1c1.C, CROPCENT->som2c1.Flux.som2c1TOsom1c1.C);
   updateMineralStructure(&CROPCENT->som1c1.C, &CROPCENT->som1c1.E, CROPCENT->som2c1.Flux.som2c1TOsom1c1.C, CROPCENT->som2c1.Flux.som2c1TOsom1c1.E);
@@ -91,6 +104,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
     +(CROPCENT->som1c2.Flux.som1c2TOleachate.C.totalC)/(CROPCENT->som1c2.Flux.som1c2TOleachate.E.CN);
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som1c2.C, CROPCENT->som1c2.Flux.som1c2TOsom1c2.C);
   // remember here we need to modify CN ratio of the som1c2 pool because CN ratio of leachate loss is much larger
   // This modified ratio can be obtained in th below function
@@ -109,6 +123,7 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
     +(CROPCENT->som2c2.Flux.som2c2TOsom1c2.C.totalC)/(CROPCENT->som2c2.Flux.som2c2TOsom1c2.E.CN); 
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som2c2.C, CROPCENT->som2c2.Flux.som2c2TOsom2c2.C);
   updateCarbonStructure(&CROPCENT->som1c2.C, CROPCENT->som2c2.Flux.som2c2TOsom1c2.C);
   updateMineralStructure(&CROPCENT->som1c2.C, &CROPCENT->som1c2.E, CROPCENT->som2c2.Flux.som2c2TOsom1c2.C, CROPCENT->som2c2.Flux.som2c2TOsom1c2.E);
@@ -121,9 +136,12 @@ void updatecropcentpools(struct cropcentlayer *CROPCENT)
    
   delN=out+in; // if this is negative then out > in or mineralization is occurin otherwise immobilization
   CROPCENT->ENV.minN = CROPCENT->ENV.minN-delN;
+  CROPCENT->ENV.newminN+=delN;
   updateCarbonStructure(&CROPCENT->som3c.C, CROPCENT->som3c.Flux.som3cTOsom3c.C);
   updateCarbonStructure(&CROPCENT->som1c2.C, CROPCENT->som3c.Flux.som3cTOsom1c2.C);
   updateMineralStructure(&CROPCENT->som1c2.C, &CROPCENT->som1c2.E, CROPCENT->som3c.Flux.som3cTOsom1c2.C, CROPCENT->som3c.Flux.som3cTOsom1c2.E);
+  
+  CROPCENT->ENV.newminN=(-1)*CROPCENT->ENV.newminN; // Because negative value represents mineralization and net mineralization is postiive for trace gas calculations
   return;
 }
 
@@ -200,15 +218,18 @@ void UpdateCropcentPoolsFromBioCro(struct cropcentlayer *CROPCENT, struct InputT
    * Arguments:
    * pointer to a crocent layer CROCENT,only structual and metabolic pools are updated based on incoming litter amount and composition
    * pointer to a inputtocrocent INCROPCENT (Information about litter amout and composition), this information will be used to update CROCENT pools
+   
    *
    * Strategy:
    * I can use N and lignin content of INCROPCENT to determine parameter frmet, which determines
    * how much goes to strucc and how much to metabc pool
    * All the required parameters are contained within CROPCENT structure
-   ********************************************************************************/
+/*   * *******************************************************************************/
   double lignintoN;
   double frmet;
-  double caddm,cadds;
+  struct minerals flowE;
+  struct carbon flowC;
+  double caddm,cadds, Eflowm;
   struct minerals tometabc;
   double tmpligfrac,tE;
   
@@ -430,9 +451,10 @@ void decomposeSOM3C(struct som3c *som3c, struct cropcentEnvironment *ENV, int fl
  if flag =1 then only decomposition due to solar radiation take place
  else strucc1 decomposes to som2c1 (slow surface pool)
  *********************************************/
-        double tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
         double pheff,bgdefac,anerb;
+        double p3co2;
      
   // initialize flux to zero
   // CE ratio of the flux is already updated
@@ -468,11 +490,12 @@ void decomposeSOM2C2(struct som2c2 *som2c2, struct cropcentEnvironment *ENV, int
  if flag =1 then only decomposition due to solar radiation take place
  else strucc1 decomposes to som2c1 (slow surface pool)
  *********************************************/
-        double tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
         double tosom3c;
         double pheff,bgdefac,anerb;
-        double fps2s3;
+        double p2co2;
+        double eftext,fps2s3;
      
   // initialize flux to zero
 	// CE ratio of the flux is already updated
@@ -515,11 +538,14 @@ void decomposeSOM2C1(struct som2c1 *som2c1, struct cropcentEnvironment *ENV, int
  if flag =1 then only decomposition due to solar radiation take place
  else strucc1 decomposes to som2c1 (slow surface pool)
  *********************************************/
-        double tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow, tcmix;
+        double tosom2c1, tosom1c1;
         double pheff,agdefac;
+        double p2co2;
         double mti;
  
+     
   // initialize flux to zero
 	// CE ratio of the flux is already updated
 	// labl and unlabl C fraction of the flux is already updated
@@ -529,7 +555,7 @@ void decomposeSOM2C1(struct som2c1 *som2c1, struct cropcentEnvironment *ENV, int
     som2c1->Flux.som2c1TOsom2c2.C.totalC=0.0;
     respiration=0.0;
 
-      // actual decomposition based on intrinsic rate of decomposition
+    // actual decomposition based on intrinsic rate of decomposition
 		 if(flag ==1){
 		  mti= GetMTI(som2c1->parms.a,som2c1->parms.b,som2c1->parms.x1,som2c1->parms.x2,ENV->soilrad);
 		  pheff=GetPHfac(&som2c1->PHEFF,ENV->pH);
@@ -561,9 +587,11 @@ void decomposeSOM1C2(struct som1c2 *som1c2, struct cropcentEnvironment *ENV, int
  if flag =1 then only decomposition due to solar radiation take place
  else strucc1 decomposes to som2c1 (slow surface pool)
  *********************************************/
-        double tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
+        double tosom2c1, tosom1c1;
         double pheff,bgdefac,anerb;
+        double lignindecomrate;
         double p1co2;
         double eftext,fps1s3;
      
@@ -618,9 +646,11 @@ void decomposeSOM1C1(struct som1c1 *som1c1, struct cropcentEnvironment *ENV, int
  if flag =1 then only decomposition due to solar radiation take place
  else strucc1 decomposes to som2c1 (slow surface pool)
  *********************************************/
-        double tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
+        double tosom2c1, tosom1c1;
         double pheff,agdefac;
+        double lignindecomrate;
         double mti;
         double p1co2;
  
@@ -662,10 +692,10 @@ void decomposeWOOD3(struct wood3 *wood3, struct cropcentEnvironment *ENV, int fl
 
  if flag =1 then only decomposition occurs otherwise not
 *****************************************************/
-        double tmp,tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
         double tosom2c2, tosom1c2;
-        double pheff,bgdefac;
+        double pheff,bgdefac,anerb;
         double lignindecomrate;
         
         wood3->Flux.wood3TOsom1c2.C.totalC=0.0;
@@ -679,6 +709,7 @@ void decomposeWOOD3(struct wood3 *wood3, struct cropcentEnvironment *ENV, int fl
 			// Find decomposition parameters
 			pheff=GetPHfac(&wood3->PHEFF,ENV->pH);
 			bgdefac=Getdefac(&wood3->TEff,&wood3->SWEFF, ENV->soilRELWC,ENV->soilTEMP);
+       anerb=GetAnerbFac(&wood3->ANEREFF, ENV->PET, ENV->AWC,ENV->drainage);
 			lignindecomrate=exp((-1)*(wood3->parms.pligst)*(wood3->lignin));
 			// calulate total flow from decomposing strucc1 pool
 			tcflow=tmp*bgdefac*(wood3->parms.k)*lignindecomrate*pheff;
@@ -711,7 +742,7 @@ void decomposeWOOD2(struct wood2 *wood2, struct cropcentEnvironment *ENV, int fl
 
  if flag =1 then only decomposition occurs otherwise not
 *****************************************************/
-        double tmp,tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
         double tosom2c1, tosom1c1;
         double pheff,agdefac;
@@ -760,7 +791,7 @@ void decomposeWOOD1(struct wood1 *wood1, struct cropcentEnvironment *ENV, int fl
 
  if flag =1 then only decomposition occurs otherwise not
 *****************************************************/
-        double tmp,tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
         double tosom2c1, tosom1c1;
         double pheff,agdefac;
@@ -811,7 +842,7 @@ void decomposeMETABC2(struct metabc2 *metabc2, struct cropcentEnvironment *ENV, 
  if flag =1 then only decomposition due to solar radiation take place
  else strucc1 decomposes to som2c1 (slow surface pool)
  *********************************************/
-        double tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
         double pheff,bgdefac,anerb;
      
@@ -849,9 +880,10 @@ void decomposeMETABC1(struct metabc1 *metabc1, struct cropcentEnvironment *ENV, 
  if flag =1 then only decomposition due to solar radiation take place
  else strucc1 decomposes to som2c1 (slow surface pool)
  *********************************************/
-        double tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
-        double pheff,agdefac;
+        double tosom1c1;
+        double pheff,agdefac,bgdefac;
         double mdr;
      
 	// initialize flux to zero
@@ -887,10 +919,10 @@ void decomposeSTRUCC2(struct strucc2 *strucc2, struct cropcentEnvironment *ENV, 
 
  if flag =1 then only decomposition occurs otherwise not
 *****************************************************/
-        double tmp,tempResp,respiration;
+        double tmp,tmp1,tempResp,respiration;
         double tcflow;
         double tosom2c2, tosom1c2;
-        double pheff,bgdefac,anerb;
+        double pheff,agdefac,bgdefac,anerb;
         double lignindecomrate;
         
         strucc2->Flux.strucc2TOsom1c2.C.totalC=0.0;
@@ -942,7 +974,7 @@ void decomposeSTRUCC1(struct strucc1 *strucc1, struct cropcentEnvironment *ENV, 
         double tmp,tmp1,tempResp,respiration;
         double tcflow;
         double tosom2c1, tosom1c1;
-        double pheff,agdefac;
+        double pheff,agdefac,bgdefac;
         double lignindecomrate;
         
         tmp1=(strucc1->C.totalC)*2.5; 
@@ -1029,7 +1061,7 @@ double GetPHfac(struct PHParms *PHEFF,double pH){
 int CheckDecomposition(struct minerals *source, struct minerals *flow,struct cropcentEnvironment *ENV, int Eflag)
 {
   /*****************************************************
-   * This function checks whether decomposition of pool will occur or not based on requirement in flow and enviornment ENV
+   * This function checks whetehr decomposition of pool will occur or not based on requirement in flow and enviornment ENV
    * 
    * returns 1 if decomposition will occur
    * return 0 if decomposition does not occur
@@ -1089,6 +1121,7 @@ double timescaling (double k ,double t)
   if (t >525600.0)
   {
     Rprintf("Time Step is >525600.0 min ( 1 yr)");
+    return;
   }
   
    if (k <=1.0) 

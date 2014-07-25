@@ -213,10 +213,11 @@ willowCent(WetDat, day1 = 120, dayn = 300, timestep = 1, iRhizome = 1,
   \code{centuryParms} function.
 
   \code{SC1-9} Soil carbon pools in the soil.  SC1:
-  Structural surface litter. SC2: Metabolic surface litter.
-  SC3: Structural root litter.  SC4: Metabolic root litter.
-  SC5: Surface microbe.  SC6: Soil microbe.  SC7: Slow
-  carbon. SC8: Passive carbon.  SC9: Leached carbon.
+  Structural surface litter.  SC2: Metabolic surface
+  litter.  SC3: Structural root litter.  SC4: Metabolic
+  root litter.  SC5: Surface microbe.  SC6: Soil microbe.
+  SC7: Slow carbon.  SC8: Passive carbon.  SC9: Leached
+  carbon.
 
   \code{LeafL.Ln} Leaf litter lignin content.
 

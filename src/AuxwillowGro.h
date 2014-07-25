@@ -1,3 +1,5 @@
+#ifndef AUXWILLOWGRO_H
+#define AUXWILLOWGRO_H
 /*
  *  /src/AuxBioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
  *
@@ -42,5 +44,5 @@ struct ET_Str c3EvapoTrans(double Rad,
 			   double theta2);
 
 
-
+#endif
 

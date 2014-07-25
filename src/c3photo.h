@@ -1,3 +1,5 @@
+#ifndef C3PHOTO_H
+#define C3PHOTO_H
 /*
  *  /src/c4photo.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
  *
@@ -20,5 +22,5 @@ extern struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0,
 
 
 
-
+#endif
 

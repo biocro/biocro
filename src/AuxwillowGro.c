@@ -40,7 +40,7 @@ void createCanopy (struct canopy *canopy, int Nlayers, double LAItotal)
 {
   /**********************************************
    * Purpose:
-   * create a NULL canopy structure
+   * creare a NULL canopy structure
    * allocate memory based on number of layers
    * initialize all the components of canopy structure
    * ***********************************************/
@@ -272,7 +272,7 @@ void getcanopyLNprof(struct canopy *canopy, double LeafN,double kpLN)
    
    
         int i;
-        double CumLAI;
+        double leafNla,CumLAI;
 
         CumLAI=0.0;
         for(i=0;i<(canopy->Nlayers);i++)
@@ -322,6 +322,9 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
   double GAssIdir = 0.0;
   double GAssIdiff = 0.0; 
   double CanopyT =0.0;;
+  double CanopyPe = 0.0;
+  double CanopyPr = 0.0;
+  double CanopyC = 0.0;
   double chil=1.0;
   double CanHeight;
 
@@ -329,21 +332,21 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
   double leafN_lay;
   
  /* double StomWS;
-  * int ws;
+ /* int ws;
 
-        * For Assimilation
-        * 3600 converts seconds to hours
-        * 1e-6 converts micro mols to mols
-        * 30 is the grams in one mol of CO2
-        * 1e-6 converts g to Mg
-        * 10000 scales from meter squared to hectare
+        /* For Assimilation */
+        /* 3600 converts seconds to hours */
+        /* 1e-6 converts micro mols to mols */
+        /* 30 is the grams in one mol of CO2 */
+        /* 1e-6 converts g to Mg */
+        /* 10000 scales from meter squared to hectare */
 
-        * For Transpiration
-        * 3600 converts seconds to hours
-        * 1e-3 converts mili mols to mols
-        * 18 is the grams in one mol of H20
-        * 1e-6 converts g to Mg
-        * 10000 scales from meter squared to hectare */
+        /* For Transpiration */
+        /* 3600 converts seconds to hours */
+        /* 1e-3 converts mili mols to mols */
+        /* 18 is the grams in one mol of H20 */
+        /* 1e-6 converts g to Mg */
+        /* 10000 scales from meter squared to hectare */
 
          lightME(lat,DOY,hr);
 
@@ -460,29 +463,30 @@ struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
   double CanopyA = 0.0;
   double GCanopyA = 0.0;
-  double CanopyT =0.0;
+  double CanopyT =0.0;;
  
+  double CanHeight=0.0;;
   double chil =0.0;
 
    double vmax1;
 //  double leafN_lay;
   
  /* double StomWS;
-  * int ws;
+ /* int ws;
 
-	* For Assimilation
-	* 3600 converts seconds to hours
-	* 1e-6 converts micro mols to mols
-	* 30 is the grams in one mol of CO2
-	* 1e-6 converts g to Mg
-	* 10000 scales from meter squared to hectare
+	/* For Assimilation */
+	/* 3600 converts seconds to hours */
+	/* 1e-6 converts micro mols to mols */
+	/* 30 is the grams in one mol of CO2 */
+	/* 1e-6 converts g to Mg */
+	/* 10000 scales from meter squared to hectare */
 
-	* For Transpiration
-	* 3600 converts seconds to hours
-	* 1e-3 converts mili mols to mols
-	* 18 is the grams in one mol of H20
-	* 1e-6 converts g to Mg
-	* 10000 scales from meter squared to hectare */
+	/* For Transpiration */
+	/* 3600 converts seconds to hours */
+	/* 1e-3 converts mili mols to mols */
+	/* 18 is the grams in one mol of H20 */
+	/* 1e-6 converts g to Mg */
+	/* 10000 scales from meter squared to hectare */
 
   struct canopy ccanopy;
   createCanopy (&ccanopy,nlayers, LAI);  

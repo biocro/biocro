@@ -1,3 +1,5 @@
+#ifndef C3EVAPOTRANS_H
+#define C3EVAPOTRANS_H
 /*
  *  /src/c3EvapoTrans.c by Fernando Ezequiel Miguez  Copyright (C) 2010
  *
@@ -20,3 +22,6 @@ double TempToDdryA(double Temp);
 double TempToLHV(double Temp);
 double TempToSFS(double Temp);
 double TempToSWVC(double Temp);
+
+
+#endif

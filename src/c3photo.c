@@ -182,8 +182,8 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	while(iterCounter < 50)
 	  {
     /* Rprintf("Number of loop in c3photo=%i, Tol=%f \n",iterCounter, Tol);
-     * Rprintf("Gs=%f, Assim=%f, Ci=%f, StomWS=%f \n", Gs, Assim, Ci, StomWS);
-		 * Rubisco limited carboxylation */
+    /* Rprintf("Gs=%f, Assim=%f, Ci=%f, StomWS=%f \n", Gs, Assim, Ci, StomWS);
+		  /* Rubisco limited carboxylation */
 		  Ac1 =  Vcmax * (Ci - Gstar) ;
 		  Ac2 = Ci + Kc * (1 + Oi/Ko);
 		  Ac = Ac1/Ac2;

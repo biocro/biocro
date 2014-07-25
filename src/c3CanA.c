@@ -42,14 +42,14 @@ SEXP c3CanA(SEXP Lai,
    struct c3_str tmpc3, tmpc32; 
 
   const double cf = 3600 * 1e-6 * 12 * 1e-6 * 10000/0.48;
-  /* 12 is the molecular weight for C, 48% is assumbed to be the carbon content for leaf biomass
-   * Need a different conversion factor for transpiration */
+  /*12 is the molecular weight for C, 48% is assumbed to be the carbon content for leaf biomass
+/* Need a different conversion factor for transpiration */
   const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
-   /* 3600 - number of seconds in an hour 
-    * 1e-3 - mili mols to mols
-    * 18 - grams in one mol of H20
-    * 1e-6 - grams to mega grams
-    * 10000 - meters in one hectare */
+  /* 3600 - number of seconds in an hour */
+  /* 1e-3 - mili mols to mols */
+  /* 18 - grams in one mol of H20 */
+  /* 1e-6 - grams to mega grams */
+  /* 10000 - meters in one hectare */
 
   int i;
   double Idir, Idiff, cosTh;

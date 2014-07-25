@@ -22,7 +22,7 @@
 double nox_pulse(double *ppt, double *snow);
 
 void getsoilprop(double *asand, double *asilt, double *aclay, double *bulkden,
-                 double *fieldcap, int *texture);
+                 double *fieldcap, int *texture,int *soilclassification);
 
 double diffusiv(double *A, double *bulkden, double *wfps);
 

@@ -271,16 +271,16 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                    phenoControl=list(),
                    soilControl=list(),
                    nitroControl=list(),
-                   SOMpoolsParmsControl=list(),
+                   SOMpoolsControl=list(),
                    SOMAssignParmsControl=list(),
-                    GetCropCentStateVarParmsControl=list(),
+                   GetCropCentStateVarParmsControl=list(),
                     GetSoilTextureParmsControl=list(),
                     GetBioCroToCropcentParmsControl=list(),
                     GetErosionParmsControl=list(),
                     GetC13ParmsControl=list(),
                     GetLeachingParmsControl=list(),
                     GetSymbNFixationParmsControl=list(),
-                   centuryControl=list())
+                    centuryControl=list())
   {
 
     
@@ -318,10 +318,10 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     if( (timestep<1) || (24%%timestep != 0))
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
    ##################################################
-    ## SOM Parameters
-    SOMPoolsParms <- assignPoolsParms()
-    SOMPoolsParms[names(SOMpoolsParmsControl)] <-SOMpoolsParmsControl
-    sompoolparms<-as.vector(unlist(SOMPoolsParms))
+    ## SOM 
+    SOMPools <- assignPoolsParms()
+    SOMPools[names(SOMpoolsControl)] <-SOMpoolsControl
+    sompools<-as.vector(unlist(SOMPools))
     
     ################assignParms
     SOMAssignParms <- assignParms ()
@@ -367,9 +367,21 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     ## Getting the Parameters
     canopyP <- canopyParms()
     canopyP[names(canopyControl)] <- canopyControl
+
+
+    ###########################################################################    
+    ## Here I am creating default multi-layer soil input such that each layer is approximately 5 cm
     
-    soilP <- soilParms()
-    soilP[names(soilControl)] <- soilControl
+    tmp<- soilParms()                              # default depth
+    tmp[names(soilControl)]=soilControl            # depth from soilControl
+    NumberofLayers=round(tmp$soilDepth*100/5.0, 0)    #Calculate Number of Layres
+    soilP<-soilParms(FieldC = tmp$FieldC, WiltP = tmp$WiltP, phi1 = tmp$phi1, phi2 = tmp$phi2, 
+            soilDepth = tmp$soilDepth, iWatCont = tmp$iWatCont, soilType = tmp$soilType, 
+            soilLayers = NumberofLayers, wsFun = "linear", 
+            scsf = tmp$scsf, transpRes = tmp$transpRes, leafPotTh = tmp$leafPotTh, 
+            hydrDist =1, rfl = tmp$rfl, rsec = tmp$rsec, rsdf = tmp$rsdf)
+   
+    ######################################################################
 
     nitroP <- nitroParms()
     nitroP[names(nitroControl)] <- nitroControl
@@ -502,15 +514,15 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(upperT),
                  as.double(lowerT),
                  as.double(nnitroP),
-                 as.double(sompoolparms),
-                 as.double(somassignparms),
-                 as.double(getcropcentstatevarparms),
+                 as.double(sompools),
                  as.double(getsoiltextureparms),
                  as.double(getbiocrotocropcentparms),
                  as.double(geterosionparms),
                  as.double(getc13parms),
                  as.double(getleachingparms),
-                 as.double(getsymbnfixationparms)
+                 as.double(getsymbnfixationparms),
+                 as.double(somassignparms),
+                 as.double(getcropcentstatevarparms)
                  )
     
     res$cwsMat <- t(res$cwsMat)
@@ -519,6 +531,8 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$rdMat) <- soilP$soilDepths[-1]
     res$psimMat <- t(res$psimMat)
     colnames(res$psimMat) <- soilP$soilDepths[-1]
+    res$waterfluxMat <- t(res$waterfluxMat)
+    colnames(res$waterfluxMat) <- soilP$soilDepths[-1]
     structure(res,class="BioGro")
   }
 

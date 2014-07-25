@@ -1,3 +1,5 @@
+#ifndef C3CAN_H
+#define C3CAN_H
 /*
  *  BioCro/src/c3CanA.c by Fernando Ezequiel Miguez  Copyright (C) 2010
  *
@@ -20,3 +22,6 @@ struct ET_Str c3EvapoTrans(double Rad,
 			   double Catm2,
 			   double O2,
 			   double theta2);
+
+
+#endif

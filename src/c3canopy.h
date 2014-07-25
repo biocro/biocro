@@ -1,3 +1,6 @@
+#ifndef C3CANOPY_H
+#define C3CANOPY_H
+
 #include <R.h>
 #include <Rmath.h>
 #include <Rinternals.h>
@@ -52,3 +55,4 @@ struct canopy
   struct canopyoutput *OUT;
 };
 
+#endif

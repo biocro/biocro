@@ -444,13 +444,7 @@ Century <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWate
   list(SCs=SCs, SNs=SNs, MinN=MinN, Resp=Resp)
 }
 
-##' Returns values for Fm and Lc
-##' 
-##' A basic function designed to define the value for Fm and Lc 
-##' which are used in the century function. 
-##' @param Lig lignin
-##' @param Nit nitrogen
-##' @export FmLcFun
+
 FmLcFun <- function(Lig,Nit){
 
   Fm = 0.85 - 0.018 *(Lig/Nit);
@@ -461,19 +455,7 @@ FmLcFun <- function(Lig,Nit){
 
 }
 
-##' Returns values based on if kno is less than, equal to, or greater than three.
-##' 
-##' Returns Values for SC, fC, Resp, Kf, and MinN to be used in the Century function
-##' @param SC Soil Carbon
-##' @param CNratio ratio of carbon to nitrogen
-##' @param A effects of teperature and moisture
-##' @param Lc See \code{\link{FmLcFun}}
-##' @param TM effect of soil texture on active SOM turnover
-##' @param resp respiration
-##' @param kno an integer value which determines
-##' @param Ks flow constant
-##' @param verbose Only used in the R version for debugging
-##' @export flow
+
 flow <- function(SC,CNratio,A,Lc,Tm,resp,kno,Ks,verbose=FALSE){
 
   if(kno < 3){
@@ -539,19 +521,7 @@ centuryParms <- function(SC1=1,SC2=1,SC3=1,SC4=1,SC5=1,SC6=1,
 
 
 ## The Century C version need to be rewritten
-##' C version of the Century function
-##' 
-##' @param LeafL Leaf litter.
-##' @param StemL Stem litter.
-##' @param RootL Root litter.
-##' @param RhizL Rhizome litter.
-##' @param smoist Soil moisture.
-##' @param stemp Soil temperature.
-##' @param precip Precipitation.
-##' @param leachWater Leached water.
-##' @param centuryControl See \code{\link{centuryParms}}.
-##' @param soilType See \code{\link{showSoilType}}.
-##' @export CenturyC
+
 CenturyC <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWater, centuryControl = list(),soilType=0){
 
   ## The C version accepts biomass in Mg ha^-1
