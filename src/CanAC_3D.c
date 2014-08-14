@@ -94,18 +94,26 @@ GCanopyA=0.0;
    {
    update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
    }
-   update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
    lightME(lat,DOY,hr);
    Idir = tmp1[0] * solarR;
    Idiff = tmp1[1] * solarR;
    cosTh = tmp1[2];
-   Idir=1000;
-   Idiff=200;
+   // Running raytracing when there is some light
+   if(Idir>0.0 || Idiff >0.0)
+   {
    runFastTracer (is_import_from_2DMatrix,filename,canopy3Dstructure,  lat,  DOY,  hr,  Idir,  Idiff,  light_min_x,
    light_max_x,  light_min_y,  light_max_y,  light_min_z,  light_max_z);
+   }
+   else
+   {
+     for (i=0;i<nrows;i++)
+      {
+        canopy3Dstructure[i][18]=0.0;
+      }
+   }
    microclimate_for_3Dcanopy(canopy3Dstructure,&CanHeight, nrows, ncols,LeafN,RH,WindSpeed,kpLN);
+   CanHeight*=0.01; //cm to meter conversion
    LAIc=canopy3Dstructure[nrows-1][19]; //Cumulative Leaf Area Index to use in Evapotranspiration Function
- 
    for (i=0;i<nrows;i++)
    {
     //Stem triangles are denoted by 0. We need to perform photosynthesis simulations only for leaf 
@@ -118,7 +126,7 @@ GCanopyA=0.0;
 					       Alpha=nitroP.alphab1*canopy3Dstructure[i][17]+nitroP.alphab0;
 					       Rd=nitroP.Rdb1*canopy3Dstructure[i][17]+nitroP.Rdb0;
                 }
-                IDir=canopy3Dstructure[i][18];
+                IDir=canopy3Dstructure[i][18] ;
                 Itot=canopy3Dstructure[i][18]; // This is not conserving energy, I need to include long wave radiations in this
                 rh=canopy3Dstructure[i][22];
                 WS=canopy3Dstructure[i][23];
