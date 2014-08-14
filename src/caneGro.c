@@ -20,6 +20,7 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
+#include <time.h>
 #include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
@@ -101,14 +102,21 @@ double nrows=2806;
 double ncols=27;
 double **canopy3Dstructure;
 int ihere,jhere;
-char filename[]="/home/djaiswal/Desktop/testing3Dcan.txt";
-FILE *fp = fopen(filename, "rb+");  
+
   canopy3Dstructure =  malloc(nrows * sizeof(double *));
 
   for(ihere = 0; ihere < nrows; ihere++)
 	{
 		canopy3Dstructure[ihere] =  malloc((ncols+2) * sizeof(double));
 	}
+  //Initializing the canopy matrix
+  for ( ihere=0;ihere<nrows;ihere++)
+  {
+    for (jhere=0;jhere<ncols;jhere++)
+    {
+      canopy3Dstructure[ihere][jhere]=0.0;
+    }
+  }
  /*********************************************************/
 
 	int vecsize = INTEGER(VECSIZE)[0];
@@ -505,8 +513,8 @@ FILE *fp = fopen(filename, "rb+");
         
   /**************************************************************************************************************/
   
-  
-  
+ //Initialization for 3D canopy 
+ update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
       
 	for(i=0;i<vecsize;i++)
 	{
@@ -570,30 +578,12 @@ FILE *fp = fopen(filename, "rb+");
 
 
 
-// writing a file using canopy structur matrix to make sure reading is correct
- if(i==0)
- {
-  update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
-   Canopy = CanAC_3D (canparms, canopy3Dstructure,nrows, ncols,LAI,*(pt_doy+i), *(pt_hr+i),
-  		       *(pt_solar+i), *(pt_temp+i),*(pt_rh+i), *(pt_windspeed+i),lat,vmax1,alpha1,kparm1,
+
+ Canopy = CanAC_3D (canparms, canopy3Dstructure,nrows, ncols,LAI,*(pt_doy+i), *(pt_hr+i),
+    	       *(pt_solar+i), *(pt_temp+i),*(pt_rh+i), *(pt_windspeed+i),lat,vmax1,alpha1,kparm1,
   		       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws,kpLN,upperT,lowerT,LeafN,nitroparms);
-  
-   if(fp==NULL)
-   { 
-    fp = fopen(filename,"wb");
-   }
-   
-   for (ihere=0;ihere<nrows;ihere++)
-    {
-      for (jhere=0;jhere<18;jhere++)
-       {
-         fprintf(fp, "%f", canopy3Dstructure[ihere][jhere]);
-       }
-       fprintf(fp,"\n");
-    }
-   fclose(fp);
-}
+ /*
 
     Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
@@ -604,6 +594,8 @@ FILE *fp = fopen(filename, "rb+");
 			       ws, kd,
 			       chil, hf,
                                LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms);
+ */
+
 //}
 
 /* This is an addition, which was omitted earlier */
@@ -1120,7 +1112,6 @@ FILE *fp = fopen(filename, "rb+");
 	free(newStemcol);
 	free(newRootcol);
 	free(newRhizomecol);
-
 	return(lists);
 }
 
