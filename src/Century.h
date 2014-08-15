@@ -1,3 +1,5 @@
+#ifndef CENTURY_H
+#define CENTURY_H
 /*
  *  BioCro/src/Century.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
  *
@@ -35,3 +37,4 @@ struct FL_str FmLcFun(double Lig, double Nit);
 
 
 double AbiotEff(double smoist, double stemp);
+#endif
