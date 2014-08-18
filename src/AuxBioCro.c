@@ -592,7 +592,6 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         /* Next I need the RH and wind profile */
         RHprof(RH,nlayers);
         WINDprof(WindSpeed,LAI,nlayers);
-
         LNprof(leafN, LAI, nlayers, kpLN);
         /* It populates tmp5 */
 
@@ -615,7 +614,6 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
                 IDir = layIdir[--sp1];
                 Itot = layItotal[--sp3];
-
                 rh = tmp4[--tp4];
                 WS = tmp3[--tp3];
                 pLeafsun = layFsun[--sp4];

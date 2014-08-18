@@ -1,0 +1,196 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{BioCro fitting, parameterization, and testing}
+-->
+
+
+BioCro fitting, parameterization, and testing 
+========================================================
+
+```{r}
+require(data.table)
+require(lubridate)
+require(ggplot2)
+#require(PEcAn.DB)
+load(system.file("extdata", "salix.RData", package = "BioCro"))
+settings.xml <- system.file("extdata/pecan.biocro.xml", 
+                            package = "PEcAn.BIOCRO")
+
+settings <- read.settings(settings.xml)
+settings$database <- list(userid = "ebi_pecan", 
+                          passwd = "hu2WHh32VC", 
+                          name = "ebi_production", 
+                          host = "ebi-forecast.igb.illinois.edu")
+
+```
+
+### Summarize Willow Yields by site
+
+this is to keep it consistent with current BioCro behavior of not simulating sequential years of met data.
+
+```{r}
+salix.us <- salix.testyield[country %in% c("USA", "Canada")]
+salix <- salix.us[stand_age > 2,list(lat = mean(lat), lon = mean(lon), yield = mean(annual_yield), s = sd(annual_yield)), by = site]
+
+
+```
+
+### Compare data against Miscanthus Yield
+
+```{r}
+
+require(RCurl)
+file.url <- getURL("https://www.betydb.org/miscanthusyield.csv", 
+                   ssl.verifypeer = FALSE)
+mxg <- read.csv(textConnection(file.url))
+
+
+salix$model <- vector(mode="numeric", length = nrow(salix))
+for(i in 1:nrow(salix)){
+  lat <- salix$lat[i]
+  lon <- salix$lon[i]
+  mxg.row<- which.min((mxg$lat - lat)^2+(mxg$lon - lon)^2)
+  salix$model[i] <- mxg$yield[mxg.row]
+}
+
+### map of yields
+states <- map_data("state")
+ggplot() + 
+  geom_polygon(data=states[states$lat>40 &states$long>-100,], aes(x=long, y=lat, group = group),
+     colour="grey", fill="white" ) + 
+    geom_point(data = salix, aes(x = lon + 1, y = lat, size = model), color = 'blue') +  geom_point(data = salix, aes(x = lon, y = lat, size = yield), color = 'red') + scale_size(range = c(8,12)) 
+
+
+
+plot(salix$model, salix$yield, xlim = c(0,30), ylim = c(0, 30), 
+     ylab = "Observed Yield (Mg/ha)", xlab = "Modeled Yield (Mg/ha)", main = "WillowCro v1 results*")
+lines(c(0,30), c(0,30))
+segments(x0 = salix$model, y0=salix$yield, y1 = salix$yield+salix$s)
+segments(x0 = salix$model, y0=salix$yield, y1 = salix$yield-salix$s)
+
+require(plotrix)
+taylor.diagram(salix$yield, salix$model, normalize = TRUE, pos.cor=FALSE)
+
+```
+
+
+### Add start / end dates to met files
+
+```{r}
+results <- data.frame(obsLAI = c(2.41, 3.61, 5.23, 3.28, 0.5, 1.12, 4.33, 7.06, 4.97, 1.59),
+                      predLAI = c(1.77, 4.06, 5.08, 5.13, 3.5, 2.26, 4.66, 5.21, 5.24, 3.24),
+                      obsLeaf = c(1.24, 3.52, 5.06, 4.68, 2.24, 1.79, 2.61, 3.55, 3.23, 0.733), 
+                      predLeaf = c(1.61, 3.69, 4.62, 4.66, 3.19, 2.06, 4.24, 4.74, 4.76, 2.95), 
+                      obsStem = c(6.2, 9.2, 16.6, 18.3, 18.4, 9.58, 13.5, 17.4, 19.3, 19.4), 
+                      predStem = c(11.4, 11.4, 12, 13.2, 15.8, 9.68, 9.71, 10.5, 11.7, 14.5))
+require(plotrix)
+attach(results)
+
+
+plot(predStem, obsStem, col = 'brown', xlim = c(0,20), ylim = c(0, 20), 
+     ylab = "Observed LAI or Biomass (Mg/ha)", xlab = "Modeled LAI or Biomass (Mg/ha)", main = "WillowCro results", pch = 16)
+lines(c(0,20), c(0,20))
+points(obsLAI,predLAI, col = 'blue', pch = 16)
+points(obsLeaf,predLeaf, col = 'darkgreen', pch = 16)
+text(10,18,"Stem", col = "brown")
+text(5,6,"LAI", col = "blue")
+text(1.5,5,"Leaf", col = "darkgreen")
+
+
+taylor.diagram(obsLAI, predLAI, normalize = TRUE, col = "blue",ref.sd = TRUE, gamma.col="orange",
+  xlab = "Standard Deviation", ylab = "", main = "Observed vs Modeled biomass")
+text(0.5, 0.5, "LAI", col = "blue")
+taylor.diagram(obsLeaf, predLeaf, add = TRUE, normalize = TRUE, col="darkgreen")
+text(0.7, 0.6, "Leaf", col="darkgreen")
+taylor.diagram(obsStem, predStem, add = TRUE, normalize = TRUE, col="brown")
+text(0.28, 0.43, "Stem", col = "brown")
+
+## compare above to unmodified model
+taylor.diagram(salix$yield, salix$model, normalize = TRUE, pos.cor=FALSE,ref.sd = TRUE, gamma.col="orange", xlab = "Standard Deviation", ylab = "", main = "Observed vs Modeled biomass")
+taylor.diagram(obsLAI, predLAI, normalize = TRUE, add = TRUE, col = 'blue')
+taylor.diagram(obsLeaf, predLeaf, add = TRUE, normalize = TRUE, col="darkgreen")
+taylor.diagram(obsStem, predStem, add = TRUE, normalize = TRUE, col="brown")
+```
+
+Validation sites
+```{r}
+
+world <- map_data("world")
+points <- structure(c(59.617, 45.083, 56.93, 59.483, 51.47, 54.43, 49.15, 
+53.73, 48.733, 49.08, 42.792, 44.08, 16.667, -74.333, 12.35, 
+16.067, 22.07, 16.4, 15, 18.89, 8.933, 12.15, -76.125, -93.51
+), .Dim = c(12L, 2L), .Dimnames = list(NULL, c("lat", "lon")))
+
+ggplot() + geom_polygon(data = world, aes(x=long, y=lat, group = group), colour="grey", fill="white") + 
+     geom_point(data = as.data.frame(points), aes(x = lon, y = lat), color = 'red', size = 2, alpha = 0.5)
+
+
+
+```{r fig.width=6, fig.height=6, echo=FALSE, results='hide'}
+
+
+
+sites <- salix.yields[!is.na(lat), 
+                      list(lat = unique(lat), lon = unique(lon), n = length(lat), city, sitename), by = site_id]
+
+worldmap <- map_data("world") 
+worldplot <- ggplot(worldmap) + 
+  geom_path(aes(long, lat, group = group)) + 
+  geom_point(data = sites, aes(lon, lat, size = 2*log(n)), color = "blue") + theme_bw() + ggtitle("Sites with Salix Yield Data") +
+  geom_text(data = sites, hjust = 1, aes(lon, lat, label = paste(site_id, ifelse(is.na(city), substr(sitename, 1, 10), city))))
+
+worldplot + xlim(-90, -60) + ylim(45,60)
+worldplot + xlim(0, 30) + ylim(40,60)
+sy <- salix.yields[site_id != 0 & !is.na(date),]
+ggplot(sy, aes(ymd(date), mean)) + 
+  geom_point(aes(color = as.factor(cultivar_id))) + facet_wrap(~city)
+
+```
+
+```{r fig.width=11, fig.height=3}
+trait.summary <-  salix.traits[sort(n), 
+                      list(n = length(site_id)), 
+                               by = list(trait)]
+trait.summary2 <- trait.summary[with(trait.summary, rank(n + rank(trait)/1000)),]
+ggplot(data = trait.summary, aes(x = trait, y = n, order = n + rank(trait)/100)) + geom_point() + geom_linerange(aes(ymin = 0, ymax = n)) #+ coord_flip() + theme_bw()
+
+```
+
+
+### Brainstorming Notes
+
+, and  e not only the effects of collecting new data, but also changes in model performance that result from  and  and alert us if  any changes that    that monitors the effect of different model performance are developing , we have u of model   methods to enable We can then optimize data collection to most efficiently reduce uncertainty sampling approaches, we can that would be provided by 
+  in a it research is often targeted at the is often the scientific sources that are often both the most interesting and the most difficult to address.
+
+  Many attempts to reduce uncertainty focus on areas of active research, but in many cases there are existing   edge science and   and development of better conceptual models, and such activities are easily identified as scientific endeavors.
+  But some uncertainty is more technical than scientific.
+  It is less interesting, often ignored, and can be scale from persistent irritation to a major obstacle as the size and complexity of data and models increase.
+  But at all scales, technical sources of uncertainty can be the most straightforward to address through the adoption of practices from software engineering with demonstrated efficacy and often straightforward to automate.
+
+  Inference is often made with the assumption that our software is working as expected, and that the meaning of an observation is conserved from biological process to observation and model implementation.  
+  Such assumptions about the meaning of observations and computational models are unavoidable, but in many cases they are testable.
+
+  Here we are going to briefly explore the use of  results that have been  with well known abilities to  reduce uncertainty but  assumed to represent the underlying biological processes, but it is 
+  The fields of computer science and informatics provide tools to help minimize this uncertainty.
+  We will introduce and review some of these methods and provide examples of how they can make research more efficient and precise.
+
+  We propose that these methods can be the source of a more focused, efficient scientific workflow that allocates repetitive tasks to the computer while making it easier for all to understand, critique, and revise the underlying scientific assumptions.
+
+  We will describe three types of uncertainty that can be minimized through the application of known solutions. 
+  First, there is the uncertainty associated with the translation of a conceptual model to a computer program or data structure. 
+  This can be reduced through a heirarchy of automated tests that encode the expectated behavior or attributes. 
+  Although they take effor to conceive, such ongoing tests 
+  We test software each time it is modified to ensure that still exibits expected behavior. 
+   enforce the maintenance of existing capabilities and standard benchmark data sets to evaluate model performance and guide developent.
+  Second, we facilitate collaboration and peer review through examples and documentation.
+  Third, we use version control, meta-data, issue  that can be used to test model performance and improvements or potential errors introduced during the development process.
+
+
+  
+
+
+* Results
+  - We will take a quick tour of analyses that have benefitted from improved accuracy and efficiency as a result of applying these principles to our collaborative research and software development.
+    1. Model Development
+       - Tests of expected functionality and benchmarking of model results against a consistent set of observations has improved the efficiency of model development and applications.
+       - Using benchmarks to compare different models or different versions of the same model helps choose a model that is best and inform the integration of crop and biogeochemical models  merged and developed models Through testing and benchmarking we have used a combination of addition of crop model 

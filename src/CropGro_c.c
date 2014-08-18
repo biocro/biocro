@@ -491,16 +491,22 @@ for(i=0;i<vecsize;i++)
 		/* The idea is that here I need to divide by the time step
 		   to calculate the thermal time. For example, a 3 hour time interval
 		   would mean that the division would need to by 8 */
-//       delTT=*(pt_temp+i) / (24/timestep);
-        delTT=getThermaltime(*(pt_temp+i), Tbase);
-        delTT=delTT/24;
-//    dailydelTT+=delTT;
-//    Rprintf("index=%i,temp=%f, delTT= %f\n", i,*(pt_temp+i),delTT);
-//         LAI=6.0;
+//     delTT=*(pt_temp+i) / (24/timestep);
+        if(i==0)
+            {
+              TTc=0.0;
+              TTTc_c[i]=0.0;
+            }
+        else
+            {
+              delTT=getThermaltime(*(pt_temp+i), Tbase);
+              delTT=delTT/24;
+              TTc +=delTT;
+              TTTc_c[i] =TTc;
+            }
         if(emergence==0)
             {
-            TTc +=delTT;
-            TTTc_c[i] =TTTc_c[i-1]+delTT ;
+            
             CanopyA = 0.0;
             CanopyAGross =0.0;
         		CanopyT = 0.0;
@@ -509,10 +515,6 @@ for(i=0;i<vecsize;i++)
         else
             {
 //         Rprintf("Before Canopy Function, Phototype = %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
-	        	TTc +=delTT;
-		        TTTc_c[i] =TTTc_c[i-1]+delTT ;
-            
-           
   	        Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
@@ -521,7 +523,6 @@ for(i=0;i<vecsize;i++)
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
 			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
-
         		CanopyA = Canopy.Assim * timestep;
             CanopyAGross =Canopy.GrossAssim*timestep;
         		CanopyT = Canopy.Trans * timestep;

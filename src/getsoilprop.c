@@ -158,6 +158,7 @@
       *fieldcap = field_capacity[soil_indx];
       ksat = satcond[soil_indx]*100.0;    /* Convert m/sec to cm/sec */
       *soilclassification=soil_indx-1;
+      *texture=*soilclassification;
 
 /*      printf("Soil classification = %1d\n", soil_indx);
       printf("standard_bulkden = %10.6lf\n", *bulkden);
