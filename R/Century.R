@@ -35,10 +35,12 @@
 ##' @param soilType See \code{\link{showSoilType}}.
 ##' @export
 ##' @return A list with,
-##' @returnItem SCs Soil carbon pools 1-9.
-##' @returnItem SNs Soil nitrogen pools 1-9.
-##' @returnItem MinN Mineralized nitrogen.
-##' @returnItem Resp Soil respiration.
+##' \itemize{
+##' \item SCs Soil carbon pools 1-9.
+##' \item SNs Soil nitrogen pools 1-9.
+##' \item MinN Mineralized nitrogen.
+##' \item Resp Soil respiration.
+##' }
 ##' @author Fernando E. Miguez
 ##' @references ~put references to the literature/web site here ~
 ##' @keywords models

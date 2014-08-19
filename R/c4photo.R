@@ -32,12 +32,13 @@
 ##' stomatal conductance ('gs') or to Vmax ('vmax').
 ##' @export
 ##' @return a \code{\link{list}} structure with components
-##'
-##' @returnItem Gs stomatal conductance (mmol \eqn{m^-2}{m-2} \eqn{s^-
+##' \itemize{
+##' \item Gs stomatal conductance (mmol \eqn{m^-2}{m-2} \eqn{s^-
 ##' }{s-1}\eqn{ 1}{s-1}).
-##' @returnItem Assim Net Assimilation (\eqn{\mu}{micro}mol \eqn{m^-2}{m-2}
+##' \item Assim Net Assimilation (\eqn{\mu}{micro}mol \eqn{m^-2}{m-2}
 ##' \eqn{s^-1}{s-1}).
-##' @returnItem Ci Intercellular CO2 (\eqn{\mu}{micro}mol \eqn{mol^-1}{mol-1}).
+##' \item Ci Intercellular CO2 (\eqn{\mu}{micro}mol \eqn{mol^-1}{mol-1}).
+##' }
 ##' @seealso \code{\link{eC4photo}}
 ##' @references G. Collatz, M. Ribas-Carbo, J. Berry. (1992).  Coupled
 ##' photosynthesis-stomatal conductance model for leaves of C4 plants.
@@ -246,9 +247,11 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
 ##' @export
 ##' @return
 ##' an object of class \code{MCMCc4photo} with components
-##' @returnItem accept number of accepted moves in the chain.
-##' @returnItem resuMC matrix of dimensions \code{niter} by 3 containing the
+##' \itemize{
+##' \item accept number of accepted moves in the chain.
+##' \item resuMC matrix of dimensions \code{niter} by 3 containing the
 ##' values for Vmax and alpha and the RSS in each iteration of the chain.
+##' }
 ##' @references Brooks, Stephen. (1998). Markov chain Monte Carlo and its
 ##' application. The Statistician. 47, Part 1, pp. 69-100.
 ##' @keywords optimize

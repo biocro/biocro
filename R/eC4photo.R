@@ -41,13 +41,15 @@
 ##' @return results of call to C function eC4photo_sym
 ##'
 ##' a \code{\link{list}} structure with components
-##' @returnItem Assim net assimilation rate (\eqn{\mu}{micro} mol
+##' \itemize{
+##' \item Assim net assimilation rate (\eqn{\mu}{micro} mol
 ##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' @returnItem Gs stomatal conductance rate (\eqn{\mu}{micro} mol
+##' \item Gs stomatal conductance rate (\eqn{\mu}{micro} mol
 ##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' @returnItem Ci CO2 concentration in the bundle-sheath
+##' \item Ci CO2 concentration in the bundle-sheath
 ##' (\eqn{\mu}{micro}bar).
-##' @returnItem Os oxygen evolution (mbar).
+##' \item Os oxygen evolution (mbar).
+##' }
 ##' @references Susanne von Caemmerer (2000) Biochemical Models of Leaf
 ##' Photosynthesis. CSIRO Publishing. (In particular chapter 4).
 ##' @keywords models
@@ -237,20 +239,22 @@ eCanA <- function(LAI,doy,hour,solarR,AirTemp,RH,WindS,
 ##' the acceptance rate and viceversa.
 ##' @export
 ##' @return a \code{\link{list}} structure with components
-##' @returnItem RsqBI This is the \eqn{R^2} for the ``burn-in'' period.  This
+##' \itemize{
+##' \item RsqBI This is the \eqn{R^2} for the ``burn-in'' period.  This
 ##' value becomes the cut off value for the acceptance in the chain.
-##' @returnItem CoefBI parameter estimates after the burn-in period.  These are
+##' \item CoefBI parameter estimates after the burn-in period.  These are
 ##' not optimal as in the case of the optimization routine but are starting
 ##' values for the chain.
-##' @returnItem accept1 number of iterations for the initial burn-in period.
-##' @returnItem resuBI matrix of dimensions 5 by \code{accept1} containing the
+##' \item accept1 number of iterations for the initial burn-in period.
+##' \item resuBI matrix of dimensions 5 by \code{accept1} containing the
 ##' values for Vcmax and alpha and the \eqn{R^2} in each iteration of the
 ##' burn-in period.
-##' @returnItem resuMC matrix of dimensions 5 by \code{accept2} containing the
+##' \item resuMC matrix of dimensions 5 by \code{accept2} containing the
 ##' values for Vcmax and alpha and the \eqn{R^2} in each iteration of the chain
 ##' period.
-##' @returnItem accept2 number of accepted samples or length of the chain.
-##' @returnItem accept3 number of accepted moves in the chain.
+##' \item accept2 number of accepted samples or length of the chain.
+##' \item accept3 number of accepted moves in the chain.
+##' }
 ##' @references P. Marjoram, J. Molitor, V. Plagnol, S. Tavare, Markov chain
 ##' monte carlo without likelihoods, PNAS 100 (26) (2003) 15324--15328.
 ##'

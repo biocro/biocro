@@ -17,9 +17,11 @@
 ##' @param theta Curvature parameter
 ##' @export
 ##' @return A list
-##' @returnItem Gs Stomatal Conductance
-##' @returnItem Assim CO2 Assimilation
-##' @returnItem Ci Intercellular CO2
+##' \itemize{
+##' \item Gs Stomatal Conductance
+##' \item Assim CO2 Assimilation
+##' \item Ci Intercellular CO2
+##' }
 ##' @note ~~further notes~~ ## Additional notes about assumptions
 ##' @author Fernando E. Miguez
 ##' @seealso See Also \code{\link{Opc3photo}}
