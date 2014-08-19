@@ -8,13 +8,13 @@ Author: Fernando Miguez <femiguez@iastate.edu>,
     David LeBauer <dlebauer@illinois.edu>
 Maintainer: David LeBauer <dlebauer@illinois.edu>
 Depends:
-    R(>= 2.5.0),
+    R,
     lattice,
     data.table
 Suggests:
     coda,
     knitr,
-    roxygen2(<= 3.1.0)
+    roxygen2
 Imports:
     stats,
     lattice,
