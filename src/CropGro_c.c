@@ -159,7 +159,7 @@ void CropGro_c(double lat,          /* Latitude    ~           1 */
     double Remob;
     int x;
     int k, q, m, n, ri;
-    int DayCentSoilType,SoilClassification;
+    int DayCentSoilTexture,SoilClassification;
     double  accumulatedGDD;
 //    double *GDD_c;
     double hf;
@@ -400,8 +400,15 @@ void CropGro_c(double lat,          /* Latitude    ~           1 */
   soTexS.sand=soiltexturefromr[0];
   soTexS.silt=soiltexturefromr[1];
   soTexS.clay=soiltexturefromr[2];
+  // We need to define DayCentSoilTexture before making a call to getsoilprop.
+  //Getsoilprop is an old C function that need texture as a parameters
+  // By default, we are setting it to medium texture value 2 as per definition in getsoilprop.c
+  // This does not change anything because calculations are based on sand/silt/clay content
+  //This step is necessary only to be consistent with function call and avoid error message
+  //" Conditional jump or move depends on uninitialised value(s)" when running under valgrind
+  DayCentSoilTexture=2; 
   //Based on Texture, Get Bulk Density, Field Capacity, and DayCent Soil Type
-  getsoilprop(&soTexS.sand, &soTexS.silt, &soTexS.clay, &soTexS.bulkd,&soTexS.fieldc, &DayCentSoilType,&SoilClassification);
+  getsoilprop(&soTexS.sand, &soTexS.silt, &soTexS.clay, &soTexS.bulkd,&soTexS.fieldc, &DayCentSoilTexture,&SoilClassification);
 //  Filling_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers,REAL(SOILDEPTHS));
 
 	LeafN = LeafN_0; /* Initial value of N in the leaf */
