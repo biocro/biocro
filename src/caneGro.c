@@ -514,7 +514,7 @@ int ihere,jhere;
   /**************************************************************************************************************/
   
  //Initialization for 3D canopy 
- update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
+// update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
       
 	for(i=0;i<vecsize;i++)
 	{
