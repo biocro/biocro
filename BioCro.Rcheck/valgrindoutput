@@ -1,0 +1,29 @@
+
+R version 3.1.1 (2014-07-10) -- "Sock it to Me"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(BioCro)
+> data(weather05)
+> data(urbana2008to2012)
+> data20yr<-rbind(urbana2008to2012,urbana2008to2012,urbana2008to2012,urbana2008to2012)
+> data40yr<-rbind(data20yr,data20yr)
+> data80yr<-rbind(data40yr,data40yr)
+> data240yr<-rbind(data80yr,data80yr,data80yr,data80yr)
+> result<-CropGro(WetDat=data20yr,day1=50,dayn=1500,lat=40.11,iRhizome=8,photoControl=list(alpha=0.04),phenoControl=phenoParms(kLeaf1=0.35,kStem1=0.35),canopyControl=canopyParms(Sp=1.6))
+> # xyplot(result$Stem+result$Leaf+result$Root+result$Rhizome~result$ThermalT, auto.key=TRUE, type="l")
+> 

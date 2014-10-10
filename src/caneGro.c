@@ -514,7 +514,7 @@ int ihere,jhere;
   /**************************************************************************************************************/
   
  //Initialization for 3D canopy 
- update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
+// update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
       
 	for(i=0;i<vecsize;i++)
 	{
@@ -572,7 +572,7 @@ int ihere,jhere;
 			       ws, kd,
 			       chil, hf,LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms);
  }
-********************/
+
 //else{    
 // Testing if I can call C++ ray tracing code from here
 
@@ -583,7 +583,8 @@ int ihere,jhere;
     	       *(pt_solar+i), *(pt_temp+i),*(pt_rh+i), *(pt_windspeed+i),lat,vmax1,alpha1,kparm1,
   		       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws,kpLN,upperT,lowerT,LeafN,nitroparms);
- /*
+********************/             
+
 
     Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
@@ -592,9 +593,8 @@ int ihere,jhere;
 			       vmax1,alpha1,kparm1,
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
-			       chil, hf,
-                               LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms);
- */
+			       chil, hf,LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms);
+
 
 //}
 

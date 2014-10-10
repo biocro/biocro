@@ -25,16 +25,18 @@
 ##' @return a \code{\link{list}} structure with components
 ##'
 ##' Vectors size equal to the number of layers.
-##' @returnItem I.solar direct solar radiation.
-##' @returnItem I.diffuse difusse solar radiation.
-##' @returnItem I.total total solar radiation.
-##' @returnItem LAI.sun proportion of the leaf area in each layer which is in
+##' \itemize{
+##' \item I.solar direct solar radiation.
+##' \item I.diffuse difusse solar radiation.
+##' \item I.total total solar radiation.
+##' \item LAI.sun proportion of the leaf area in each layer which is in
 ##' direct light.
-##' @returnItem LAI.shade proportion of the leaf area in each layer which is in
+##' \item LAI.shade proportion of the leaf area in each layer which is in
 ##' indirect light.
-##' @returnItem Fsun total leaf area in each layer which is in direct light.
-##' @returnItem Fshade total leaf area in each layer which is in indirect
+##' \item Fsun total leaf area in each layer which is in direct light.
+##' \item Fshade total leaf area in each layer which is in indirect
 ##' light.
+##' }
 ##' @keywords models
 ##' @examples
 ##' \dontrun{

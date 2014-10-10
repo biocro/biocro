@@ -159,7 +159,7 @@ void CropGro_c(double lat,          /* Latitude    ~           1 */
     double Remob;
     int x;
     int k, q, m, n, ri;
-    int DayCentSoilType,SoilClassification;
+    int DayCentSoilTexture,SoilClassification;
     double  accumulatedGDD;
 //    double *GDD_c;
     double hf;
@@ -400,8 +400,15 @@ void CropGro_c(double lat,          /* Latitude    ~           1 */
   soTexS.sand=soiltexturefromr[0];
   soTexS.silt=soiltexturefromr[1];
   soTexS.clay=soiltexturefromr[2];
+  // We need to define DayCentSoilTexture before making a call to getsoilprop.
+  //Getsoilprop is an old C function that need texture as a parameters
+  // By default, we are setting it to medium texture value 2 as per definition in getsoilprop.c
+  // This does not change anything because calculations are based on sand/silt/clay content
+  //This step is necessary only to be consistent with function call and avoid error message
+  //" Conditional jump or move depends on uninitialised value(s)" when running under valgrind
+  DayCentSoilTexture=2; 
   //Based on Texture, Get Bulk Density, Field Capacity, and DayCent Soil Type
-  getsoilprop(&soTexS.sand, &soTexS.silt, &soTexS.clay, &soTexS.bulkd,&soTexS.fieldc, &DayCentSoilType,&SoilClassification);
+  getsoilprop(&soTexS.sand, &soTexS.silt, &soTexS.clay, &soTexS.bulkd,&soTexS.fieldc, &DayCentSoilTexture,&SoilClassification);
 //  Filling_BioCro_SoilStructure(&soilMLS, &soTexS, soillayers,REAL(SOILDEPTHS));
 
 	LeafN = LeafN_0; /* Initial value of N in the leaf */
@@ -491,16 +498,22 @@ for(i=0;i<vecsize;i++)
 		/* The idea is that here I need to divide by the time step
 		   to calculate the thermal time. For example, a 3 hour time interval
 		   would mean that the division would need to by 8 */
-//       delTT=*(pt_temp+i) / (24/timestep);
-        delTT=getThermaltime(*(pt_temp+i), Tbase);
-        delTT=delTT/24;
-//    dailydelTT+=delTT;
-//    Rprintf("index=%i,temp=%f, delTT= %f\n", i,*(pt_temp+i),delTT);
-//         LAI=6.0;
+//     delTT=*(pt_temp+i) / (24/timestep);
+        if(i==0)
+            {
+              TTc=0.0;
+              TTTc_c[i]=0.0;
+            }
+        else
+            {
+              delTT=getThermaltime(*(pt_temp+i), Tbase);
+              delTT=delTT/24;
+              TTc +=delTT;
+              TTTc_c[i] =TTc;
+            }
         if(emergence==0)
             {
-            TTc +=delTT;
-            TTTc_c[i] =TTTc_c[i-1]+delTT ;
+            
             CanopyA = 0.0;
             CanopyAGross =0.0;
         		CanopyT = 0.0;
@@ -509,10 +522,6 @@ for(i=0;i<vecsize;i++)
         else
             {
 //         Rprintf("Before Canopy Function, Phototype = %i, i= %i, Assim=%f, Leaf=%f, LAI=%f, Specific Leaf Area = %f \n", phototype,i, Canopy.Assim, miscanthus.leaf.biomass, LAI,Sp);
-	        	TTc +=delTT;
-		        TTTc_c[i] =TTTc_c[i-1]+delTT ;
-            
-           
   	        Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
 			       *(pt_solar+i), *(pt_temp+i),
 			       *(pt_rh+i), *(pt_windspeed+i),
@@ -521,7 +530,6 @@ for(i=0;i<vecsize;i++)
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
 			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
-
         		CanopyA = Canopy.Assim * timestep;
             CanopyAGross =Canopy.GrossAssim*timestep;
         		CanopyT = Canopy.Trans * timestep;

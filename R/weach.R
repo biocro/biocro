@@ -46,16 +46,18 @@
 ##' @export
 ##' @return a \code{\link{matrix}} returning hourly (or sub-daily) weather
 ##' data. Dimensions 8760 (if hourly) by 8.
-##' @returnItem year Year.
-##' @returnItem doy Day of the year.
-##' @returnItem hour Hour of the day (0--23, depending on the timestep).
-##' @returnItem SolarR Direct solar radiation (\eqn{\mu mol \; m^{-2} \;
+##' \itemize{
+##' \item year Year.
+##' \item doy Day of the year.
+##' \item hour Hour of the day (0--23, depending on the timestep).
+##' \item SolarR Direct solar radiation (\eqn{\mu mol \; m^{-2} \;
 ##' }{micro mol per meter squared per second}\eqn{ s^{-1}}{micro mol per meter
 ##' squared per second}).
-##' @returnItem Temp Air temperature (Celsius).
-##' @returnItem RH Relative humidity (0--1).
-##' @returnItem WS Average wind speed (\eqn{m \;s^{-1}}{meter per second}).
-##' @returnItem precip Precipitation (\eqn{mm}{mm})
+##' \item Temp Air temperature (Celsius).
+##' \item RH Relative humidity (0--1).
+##' \item WS Average wind speed (\eqn{m \;s^{-1}}{meter per second}).
+##' \item precip Precipitation (\eqn{mm}{mm})
+##' }
 ##' @keywords datagen
 ##' @examples
 ##'

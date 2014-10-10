@@ -65,26 +65,28 @@
 ##' @param soildepth Soil depth.
 ##' @export
 ##' @return returns a list
-##' @returnItem PotEvp Potential Evaporation.
-##' @returnItem Deficitp Deficitp
-##' @returnItem SMDp Soil Moisture Deficit (potential)
-##' @returnItem AE.PE Actual Evaporation / Potential Evaporation
-##' @returnItem Deficitp2 Deficitp2
-##' @returnItem SMDa Soil Moisture Deficit (actual)
-##' @returnItem diffRainPE difference between Rainfall and potential
+##' \itemize{
+##' \item PotEvp Potential Evaporation.
+##' \item Deficitp Deficitp
+##' \item SMDp Soil Moisture Deficit (potential)
+##' \item AE.PE Actual Evaporation / Potential Evaporation
+##' \item Deficitp2 Deficitp2
+##' \item SMDa Soil Moisture Deficit (actual)
+##' \item diffRainPE difference between Rainfall and potential
 ##' evaporation.
-##' @returnItem H2oper H2O percent.
-##' @returnItem SoilMoist Soil Moisture.
-##' @returnItem SoilMatPot Soil Matric Potential.
-##' @returnItem WL.LER Water limited Leaf Expansion Rate.
-##' @returnItem WL.RUE Water limited Radiation Use Efficiency.
-##' @returnItem DDaTb Degree Days above base Temperature.
-##' @returnItem DDcum Degree Days (cumulative).
-##' @returnItem adjSumDD adjusted Sum of Degree Days.
-##' @returnItem LAI Leaf Area Index.
-##' @returnItem pLI proportion of light intercepted.
-##' @returnItem Yield Yield (dry biomass) (g/m2) to convert to Mg/ha divide by
+##' \item H2oper H2O percent.
+##' \item SoilMoist Soil Moisture.
+##' \item SoilMatPot Soil Matric Potential.
+##' \item WL.LER Water limited Leaf Expansion Rate.
+##' \item WL.RUE Water limited Radiation Use Efficiency.
+##' \item DDaTb Degree Days above base Temperature.
+##' \item DDcum Degree Days (cumulative).
+##' \item adjSumDD adjusted Sum of Degree Days.
+##' \item LAI Leaf Area Index.
+##' \item pLI proportion of light intercepted.
+##' \item Yield Yield (dry biomass) (g/m2) to convert to Mg/ha divide by
 ##' 100.
+##' }
 ##' @references Clifton-Brown, J. C.; Neilson, B.; Lewandowski, I. and Jones,
 ##' M. B. The modelled productivity of Miscanthus x giganteus (GREEF et DEU) in
 ##' Ireland. Industrial Crops and Products, 2000, 12, 97-109.

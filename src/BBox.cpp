@@ -88,5 +88,5 @@ BBox::hit(const Ray& ray) const{
 bool
 BBox::inside(const Point3D& p) const {
 	return ((p.x > x0 && p.x < x1) && (p.y > y0 && p.y < y1) && (p.z > z0 && p.z < z1));
-};
+}
 

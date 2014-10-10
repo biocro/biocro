@@ -1,0 +1,494 @@
+* using log directory ‘/home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck’
+* using R version 3.1.1 (2014-07-10)
+* using platform: x86_64-pc-linux-gnu (64-bit)
+* using session charset: UTF-8
+* checking for file ‘BioCro/DESCRIPTION’ ... OK
+* this is package ‘BioCro’ version ‘0.92’
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking whether package ‘BioCro’ can be installed ... WARNING
+Found the following significant warnings:
+  CalculateBiogeochem.c:111:15: warning: ‘fake’ is used uninitialized in this function [-Wuninitialized]
+  CalculateBiogeochem.c:126:39: warning: ‘sitepar’ is used uninitialized in this function [-Wuninitialized]
+  CalculateBiogeochem.c:126:39: warning: ‘layers’ is used uninitialized in this function [-Wuninitialized]
+  CalculateBiogeochem.c:126:39: warning: ‘soil’ is used uninitialized in this function [-Wuninitialized]
+  CropGro_c.c:466:17: warning: ‘fake’ is used uninitialized in this function [-Wuninitialized]
+  cropcent.c:25:19: warning: ‘fake’ is used uninitialized in this function [-Wuninitialized]
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/mOpc3photo.Rd:54: unexpected '{'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/mOpc3photo.Rd:55: unexpected '}'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/mOpc3photo.Rd:54: All text must be in a section
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/weach.Rd:55: unknown macro '\itemcol'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/weach.Rd:56: unknown macro '\itemcol'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/weach.Rd:57: unknown macro '\itemcol'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/weach.Rd:58: unknown macro '\itemcol'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/weach.Rd:59: unknown macro '\itemcol'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/weach.Rd:60: unknown macro '\itemcol'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/weach.Rd:61: unknown macro '\itemcol'
+  Warning: /home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00_pkg_src/BioCro/man/weach.Rd:62: unknown macro '\itemcol'
+See ‘/home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/00install.out’ for details.
+* checking installed package size ... NOTE
+  installed size is 12.9Mb
+  sub-directories of 1Mb or more:
+    data      1.2Mb
+    extdata   9.2Mb
+    libs      1.1Mb
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... NOTE
+License components with restrictions not permitted:
+  FreeBSD + file LICENSE
+Packages listed in more than one of Depends, Imports, Suggests, Enhances:
+  ‘lattice’ ‘data.table’
+A package should be listed in only one of these fields.
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... NOTE
+There are ::: calls to the package's namespace in its code. A package
+  almost never needs to use ::: for its own objects:
+  ‘alr’ ‘ialr’ ‘indfun’ ‘objFun’ ‘objFun2’ ‘objFunM’ ‘phenoConv’
+See the information on DESCRIPTION files in the chapter ‘Creating R
+packages’ of the ‘Writing R Extensions’ manual.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+OpMaizeGro: no visible binding for global variable ‘day1’
+OpMaizeGro: no visible binding for global variable ‘irtl’
+OpMaizeGro: no visible binding for global variable ‘iRhizome’
+OpMaizeGro: no visible binding for global variable ‘photoP’
+OpMaizeGro: no visible binding for global variable ‘phenoP’
+replaceMineralStructParms: no visible binding for global variable ‘CN’
+replaceMineralStructParms: no visible binding for global variable ‘CP’
+replaceMineralStructParms: no visible binding for global variable ‘CS’
+replaceMineralStructParms: no visible binding for global variable ‘CK’
+weachDT: no visible binding for global variable ‘dswrf.MJ’
+weachDT: no visible binding for global variable ‘doy’
+weachDT: no visible binding for global variable ‘I.dir’
+weachDT: no visible binding for global variable ‘I.diff’
+weachDT: no visible binding for global variable ‘Itot’
+weachDT: no visible binding for global variable ‘tmin’
+weachDT: no visible binding for global variable ‘tmax’
+weachDT: no visible binding for global variable ‘rhmin’
+weachDT: no visible binding for global variable ‘rhmax’
+* checking Rd files ... WARNING
+prepare_Rd: MaizeGro.Rd:147-149: Dropping empty section \note
+prepare_Rd: MaizeGro.Rd:158-160: Dropping empty section \references
+prepare_Rd: c3CanA.Rd:104-106: Dropping empty section \note
+prepare_Rd: c3CanA.Rd:137-139: Dropping empty section \seealso
+prepare_Rd: caneGro.Rd:147-149: Dropping empty section \note
+prepare_Rd: caneGro.Rd:153-155: Dropping empty section \references
+prepare_Rd: mOpc3photo.Rd:54: unexpected '{'
+prepare_Rd: mOpc3photo.Rd:55: unexpected '}'
+prepare_Rd: mOpc3photo.Rd:54: All text must be in a section
+prepare_Rd: weach.Rd:55: unknown macro '\itemcol'
+prepare_Rd: weach.Rd:56: unknown macro '\itemcol'
+prepare_Rd: weach.Rd:57: unknown macro '\itemcol'
+prepare_Rd: weach.Rd:58: unknown macro '\itemcol'
+prepare_Rd: weach.Rd:59: unknown macro '\itemcol'
+prepare_Rd: weach.Rd:60: unknown macro '\itemcol'
+prepare_Rd: weach.Rd:61: unknown macro '\itemcol'
+prepare_Rd: weach.Rd:62: unknown macro '\itemcol'
+prepare_Rd: weach_imn.Rd:67-69: Dropping empty section \note
+prepare_Rd: weather06.Rd:15-17: Dropping empty section \description
+prepare_Rd: weather06.Rd:26-28: Dropping empty section \references
+checkRd: (5) weather06.Rd:0-31: Must have a \description
+* checking Rd metadata ... WARNING
+Rd files with duplicated alias 'BioGro':
+  ‘BioGro.Rd’ ‘CropGro.Rd’
+Rd files with duplicated alias 'CenturyC':
+  ‘Century.Rd’ ‘CenturyC.Rd’
+Rd files with duplicated alias 'SoilType':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘SoilType.Rd’ ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'canopyParms':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'centuryParms':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'nitroParms':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'phenoParms':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'photoParms':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'plot.mOpc4photo':
+  ‘mOpc4photo.Rd’ ‘plot.mOpc4photo.Rd’
+Rd files with duplicated alias 'plotAQ':
+  ‘Opc4photo.Rd’ ‘plotAQ.Rd’
+Rd files with duplicated alias 'predict.Opc3photo':
+  ‘Opc3photo.Rd’ ‘predict.Opc3photo.Rd’
+Rd files with duplicated alias 'predict.Opc4photo':
+  ‘Opc4photo.Rd’ ‘predict.Opc4photo.Rd’
+Rd files with duplicated alias 'print.BioGro':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘print.BioGro.Rd’
+Rd files with duplicated alias 'print.MCMCBioGro':
+  ‘MCMCBioGro.Rd’ ‘print.MCMCBioGro.Rd’
+Rd files with duplicated alias 'print.MCMCc4photo':
+  ‘MCMCc4photo.Rd’ ‘print.MCMCc4photo.Rd’
+Rd files with duplicated alias 'print.Opc3photo':
+  ‘Opc3photo.Rd’ ‘print.Opc3photo.Rd’
+Rd files with duplicated alias 'print.Opc4photo':
+  ‘Opc4photo.Rd’ ‘print.Opc4photo.Rd’
+Rd files with duplicated alias 'print.mOpc4photo':
+  ‘mOpc4photo.Rd’ ‘print.mOpc4photo.Rd’
+Rd files with duplicated alias 'print.willowGro':
+  ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'rootDist':
+  ‘rootDist.Rd’ ‘soilML.Rd’
+Rd files with duplicated alias 'seneParms':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'showSoilType':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘showSoilType.Rd’ ‘willowCent.Rd’
+  ‘willowGro.Rd’
+Rd files with duplicated alias 'soilParms':
+  ‘BioGro.Rd’ ‘CropGro.Rd’ ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'summary.OpBioGro':
+  ‘OpBioGro.Rd’ ‘summary.OpBioGro.Rd’
+Rd files with duplicated alias 'summary.OpEC4photo':
+  ‘OpEC4photo.Rd’ ‘summary.OpEC4photo.Rd’
+Rd files with duplicated alias 'summary.Opc4photo':
+  ‘Opc4photo.Rd’ ‘summary.Opc4photo.Rd’
+Rd files with duplicated alias 'willowGro':
+  ‘willowCent.Rd’ ‘willowGro.Rd’
+Rd files with duplicated alias 'wsRcoef':
+  ‘wsRcoef.Rd’ ‘wtrstr.Rd’
+* checking Rd cross-references ... WARNING
+Missing link or links in documentation object 'plot.willowGro.Rd':
+  ‘OpwillowGro’
+
+See the information in section 'Cross-references' of the 'Writing R
+Extensions' manual.
+
+* checking for missing documentation entries ... WARNING
+Undocumented code objects:
+  ‘GetBioCroToCropcentParms’ ‘GetC13Parms’ ‘GetCropCentStateVarParms’
+  ‘GetErosionParms’ ‘GetLeachingParms’ ‘GetSymbNFixationParms’
+  ‘MaizeCAllocParms’ ‘MaizeNitroParms’ ‘MaizePhotoParms’ ‘MisGro’
+  ‘assignParms’ ‘assignPoolsParms’ ‘c3photoParms’ ‘canenitroParms’
+  ‘canephenoParms’ ‘caneseneParms’ ‘canesoilParms’ ‘frostParms’
+  ‘iwillowParms’ ‘laiParms’ ‘managementParms’
+  ‘replaceMineralStructParms’ ‘willowcanopyParms’ ‘willownitroParms’
+  ‘willowphenoParms’ ‘willowphotoParms’ ‘willowseneParms’
+  ‘willowsoilParms’
+Undocumented data sets:
+  ‘forweach.test’ ‘parms’ ‘saof_validation’ ‘simA100’ ‘simAssim’
+  ‘urbana2008to2012’ ‘warm’ ‘results’
+All user-level objects in a package should have documentation entries.
+See the chapter ‘Writing R documentation files’ in the ‘Writing R
+Extensions’ manual.
+* checking for code/documentation mismatches ... WARNING
+Data codoc mismatches from documentation object 'EngWea94i':
+Variables in data frame 'EngWea94i'
+  Code: DailyTemp.C RH WindSpeed doy hour precip solarR year
+  Docs: list('DailyTemp.C') list('RH') list('WindSpeed') list('doy')
+        list('hour') list('precip') list('solarR') list('year')
+
+Data codoc mismatches from documentation object 'EngWea94rf':
+Variables in data frame 'EngWea94rf'
+  Code: DailyTemp.C RH WindSpeed doy hour precip solarR year
+  Docs: list('DailyTemp.C') list('RH') list('WindSpeed') list('doy')
+        list('hour') list('precip') list('solarR') list('year')
+
+Data codoc mismatches from documentation object 'WD1979':
+Variables in data frame 'WD1979'
+  Code: JD PotEv SolarR day maxTemp minTemp month precip year
+  Docs: list('JD') list('PotEv') list('SolarR') list('day')
+        list('maxTemp') list('minTemp') list('month') list('precip')
+        list('year')
+
+Data codoc mismatches from documentation object 'aci':
+Variables in data frame 'aci'
+  Code: CO2_R Ci ID PARi Photo RH_S Tleaf
+  Docs: list('CO2_R') list('Ci') list('ID') list('PARi') list('Photo')
+        list('RH_S') list('Tleaf')
+
+Data codoc mismatches from documentation object 'aq':
+Variables in data frame 'aq'
+  Code: A ID PARi RH_S Tleaf trt
+  Docs: list('A') list('ID') list('PARi') list('RH_S') list('Tleaf')
+        list('trt')
+
+Data codoc mismatches from documentation object 'simDat2':
+Variables in data frame 'simDat2'
+  Code: LAI Leaf Rhiz Root Stem TT
+  Docs: list('LAI') list('Leaf') list('Rhiz') list('Root') list('Stem')
+        list('TT')
+
+Data codoc mismatches from documentation object 'weather06':
+Variables in data frame 'weather06'
+  Code: RH SolarR Temp WS doy hour precip year
+  Docs: list('RH') list('SolarR') list('Temp') list('WS') list('doy')
+        list('hour') list('precip') list('year')
+
+* checking Rd \usage sections ... WARNING
+Undocumented arguments in documentation object 'CanA'
+  ‘chi.l’
+
+Documented arguments not in \usage in documentation object 'Century':
+  ‘soilType’
+
+Undocumented arguments in documentation object 'CropGro'
+  ‘SOMpoolsControl’ ‘SOMAssignParmsControl’
+  ‘GetCropCentStateVarParmsControl’ ‘GetSoilTextureParmsControl’
+  ‘GetBioCroToCropcentParmsControl’ ‘GetErosionParmsControl’
+  ‘GetC13ParmsControl’ ‘GetLeachingParmsControl’
+  ‘GetSymbNFixationParmsControl’
+
+Undocumented arguments in documentation object 'MCMCc4photo'
+  ‘UPPERTEMP’ ‘LOWERTEMP’
+
+Undocumented arguments in documentation object 'MaizeGro'
+  ‘MaizeCAllocControl’ ‘laiControl’ ‘MaizeNitroControl’
+Documented arguments not in \usage in documentation object 'MaizeGro':
+  ‘nitroControl’
+
+Undocumented arguments in documentation object 'OpMaizeGro'
+  ‘timestep’ ‘lat’ ‘MaizeSeneControl’ ‘MaizePhenoControl’
+  ‘MaizeCAllocControl’ ‘laiControl’ ‘MaizeNitroControl’
+Documented arguments not in \usage in documentation object 'OpMaizeGro':
+  ‘seneControl’ ‘phenoControl’ ‘nitroControl’
+
+Undocumented arguments in documentation object 'Opc4photo'
+  ‘iupperT’ ‘ilowerT’ ‘...’
+Documented arguments not in \usage in documentation object 'Opc4photo':
+  ‘list()’
+
+Undocumented arguments in documentation object 'RsqC4photo'
+  ‘iupperT’ ‘ilowerT’
+
+Undocumented arguments in documentation object 'RssMaizeGro'
+  ‘obs’ ‘sim’
+
+Undocumented arguments in documentation object 'c3CanA'
+  ‘StomWS’
+
+Undocumented arguments in documentation object 'c3photo'
+  ‘StomWS’ ‘ws’
+
+Undocumented arguments in documentation object 'caneGro'
+  ‘day1’ ‘dayn’ ‘iRhizome’ ‘irtl’ ‘seneControl’ ‘phenoControl’
+  ‘canephenoControl’ ‘managementControl’ ‘frostControl’
+Documented arguments not in \usage in documentation object 'caneGro':
+  ‘plant.day’ ‘emerge.day’ ‘harvest.day’ ‘plant.density’
+  ‘caneSeneControl’ ‘canePhenoControl’
+
+Undocumented arguments in documentation object 'flow'
+  ‘Tm’
+Documented arguments not in \usage in documentation object 'flow':
+  ‘TM’
+
+Undocumented arguments in documentation object 'mOpc4photo'
+  ‘iupperT’ ‘ilowerT’
+
+Undocumented arguments in documentation object 'plot.BioGro'
+  ‘xlab’ ‘ylab’
+
+Undocumented arguments in documentation object 'plot.MaizeGro'
+  ‘xlab’ ‘ylab’
+Documented arguments not in \usage in documentation object 'plot.MaizeGro':
+  ‘rhizome’
+
+Undocumented arguments in documentation object 'plot.mOpc3photo'
+  ‘x’ ‘parm’ ‘...’
+
+Undocumented arguments in documentation object 'plot.mOpc4photo'
+  ‘x’ ‘parm’ ‘...’
+
+Undocumented arguments in documentation object 'plot.willowGro'
+  ‘xlab’ ‘ylab’
+
+Undocumented arguments in documentation object 'predict.Opc3photo'
+  ‘object’ ‘newdata’ ‘...’
+
+Undocumented arguments in documentation object 'predict.Opc4photo'
+  ‘object’ ‘newdata’ ‘...’
+
+Undocumented arguments in documentation object 'print.BioGro'
+  ‘level’ ‘...’
+
+Undocumented arguments in documentation object 'print.MCMCBioGro'
+  ‘...’
+
+Undocumented arguments in documentation object 'print.MCMCc4photo'
+  ‘x’ ‘burnin’ ‘level’ ‘digits’ ‘...’
+
+Undocumented arguments in documentation object 'print.MaizeGro'
+  ‘level’ ‘...’
+
+Undocumented arguments in documentation object 'print.Opc3photo'
+  ‘x’ ‘digits’ ‘...’
+
+Undocumented arguments in documentation object 'print.Opc4photo'
+  ‘x’ ‘digits’ ‘...’
+
+Undocumented arguments in documentation object 'print.mOpc3photo'
+  ‘x’ ‘...’
+
+Undocumented arguments in documentation object 'print.mOpc4photo'
+  ‘x’ ‘...’
+
+Undocumented arguments in documentation object 'summary.OpBioGro'
+  ‘...’
+
+Undocumented arguments in documentation object 'summary.OpEC4photo'
+  ‘object’ ‘...’
+
+Undocumented arguments in documentation object 'summary.Opc4photo'
+  ‘object’ ‘...’
+
+Undocumented arguments in documentation object 'sunML'
+  ‘Idir’ ‘Idiff’ ‘heightf’
+Documented arguments not in \usage in documentation object 'sunML':
+  ‘I.dir’ ‘I.diff’
+
+Undocumented arguments in documentation object 'weach'
+  ‘...’
+Documented arguments not in \usage in documentation object 'weach':
+  ‘list()’
+
+Undocumented arguments in documentation object 'weach365'
+  ‘...’
+Documented arguments not in \usage in documentation object 'weach365':
+  ‘list()’
+
+Undocumented arguments in documentation object 'weach366'
+  ‘...’
+Documented arguments not in \usage in documentation object 'weach366':
+  ‘list()’
+
+Undocumented arguments in documentation object 'weachNEW'
+  ‘...’
+Documented arguments not in \usage in documentation object 'weachNEW':
+  ‘list()’
+
+Undocumented arguments in documentation object 'willowCent'
+  ‘iPlant’ ‘willowphenoControl’ ‘iPlantControl’
+Documented arguments not in \usage in documentation object 'willowCent':
+  ‘phenoControl’
+
+Undocumented arguments in documentation object 'willowGro'
+  ‘iPlant’ ‘willowphenoControl’ ‘iPlantControl’
+Documented arguments not in \usage in documentation object 'willowGro':
+  ‘phenoControl’
+
+Functions with \usage entries need to have the appropriate \alias
+entries, and all their arguments documented.
+The \usage entries must correspond to syntactically valid R code.
+See the chapter ‘Writing R documentation files’ in the ‘Writing R
+Extensions’ manual.
+* checking Rd contents ... WARNING
+Auto-generated content requiring editing in Rd object 'EngWea94rf':
+  \details
+
+Argument items with no description in Rd object 'OpMaizeGro':
+  ‘cTT’ ‘plant.day’ ‘emerge.day’ ‘harvest.day’ ‘plant.density’
+
+Auto-generated content requiring editing in Rd object 'SoilEvapo':
+  \arguments, description of item 'k'
+
+Argument items with no description in Rd object 'c4photo':
+  ‘UPPERTEMP’ ‘LOWERTEMP’
+
+Argument items with no description in Rd object 'idbpm':
+  ‘MaizePhenoControl’
+
+Argument items with no description in Rd object 'plotAQ':
+  ‘fittd’ ‘id.col’ ‘trt.col’ ‘ylab’ ‘xlab’ ‘by’ ‘type’ ‘...’
+
+Argument items with no description in Rd object 'print.BioGro':
+  ‘x’
+
+Argument items with no description in Rd object 'print.MCMCBioGro':
+  ‘x’
+
+Argument items with no description in Rd object 'print.MaizeGro':
+  ‘x’
+
+Auto-generated content requiring editing in Rd object 'simDat2':
+  \details
+
+Argument items with no description in Rd object 'summary.OpBioGro':
+  ‘object’
+
+Argument items with no description in Rd object 'weach_imn':
+  ‘\dots’
+
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... WARNING
+  
+  Note: significantly better compression could be obtained
+        by using R CMD build --resave-data
+                       old_size new_size compress
+  EngWea94i.rda            71Kb     59Kb       xz
+  EngWea94rf.rda           71Kb     58Kb       xz
+  cmi0506.rda              13Kb      9Kb       xz
+  cmiWet.rda               27Kb     19Kb    bzip2
+  urbana2008to2012.rda    429Kb    311Kb       xz
+  weather04.rda           111Kb     82Kb       xz
+  weather05.rda            93Kb     78Kb       xz
+  weather06.rda           126Kb     88Kb       xz
+  forweach.test.RData      14Kb     11Kb       xz
+  warm.RData              171Kb    134Kb       xz
+* checking line endings in C/C++/Fortran sources/headers ... OK
+* checking line endings in Makefiles ... OK
+* checking compilation flags in Makevars ... WARNING
+Non-portable flags in variable 'PKG_CFLAGS':
+  -Wall
+* checking for portable use of $(BLAS_LIBS) and $(LAPACK_LIBS) ... OK
+* checking compiled code ... WARNING
+File ‘/home/djaiswal/Research/gitprojects/biocro-dev/BioCro.Rcheck/BioCro/libs/BioCro.so’:
+  Found ‘_ZSt4cout’, possibly from ‘std::cout’ (C++)
+    Objects: ‘Climate.o’, ‘runFastTracer.o’
+  Found ‘exit’, possibly from ‘exit’ (C)
+    Objects: ‘diffusiv.o’, ‘getsoilprop.o’
+  Found ‘printf’, possibly from ‘printf’ (C)
+    Objects: ‘denitrify.o’, ‘diffusiv.o’, ‘test_mainC.o’, ‘tgmodel.o’
+  Found ‘putchar’, possibly from ‘putchar’ (C)
+    Object: ‘test_mainC.o’
+  Found ‘puts’, possibly from ‘printf’ (C), ‘puts’ (C)
+    Object: ‘diffusiv.o’
+  Found ‘stderr’, possibly from ‘stderr’ (C)
+    Object: ‘getsoilprop.o’
+  Found ‘stdout’, possibly from ‘stdout’ (C)
+    Objects: ‘denitrify.o’, ‘nitrify.o’
+
+Compiled code should not call entry points which might terminate R nor
+write to stdout/stderr instead of to the console.
+
+See ‘Writing portable packages’ in the ‘Writing R Extensions’ manual.
+* checking installed files from ‘inst/doc’ ... OK
+* checking files in ‘vignettes’ ... OK
+* checking examples ... OK
+* checking PDF version of manual ... WARNING
+LaTeX errors when creating PDF version.
+This typically indicates Rd problems.
+LaTeX errors found:
+! LaTeX Error: File `zi4.sty' not found.
+
+Type X to quit or <RETURN> to proceed,
+or enter new name. (Default extension: sty)
+
+! Emergency stop.
+<read *> 
+         
+l.271 ^^M
+         
+!  ==> Fatal error occurred, no output PDF file produced!
+* checking PDF version of manual without hyperrefs or index ... OK
+WARNING: There were 12 warnings.
+NOTE: There were 4 notes.

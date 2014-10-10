@@ -37,22 +37,24 @@
 ##' An object of class \code{Opc3photo}.
 ##'
 ##' The following components can be extracted:
-##' @returnItem bestVmax optimized \code{vmax}.
-##' @returnItem bestJmax optimized \code{jmax}.
-##' @returnItem ReSumS Residual Sum of Squares.
-##' @returnItem Convergence Convergence status.
-##' @returnItem VarCov Variance-covariance matrix.
-##' @returnItem df degress of freedom.
-##' @returnItem ciVmax Confidence interval for \code{vmax}.
-##' @returnItem ciJmax Confidence interval for \code{jmax}.
-##' @returnItem corVJ correlation between \code{vmax} and \code{jmax}.
-##' @returnItem level Confidence interval level.
-##' @returnItem data Original data.
-##' @returnItem xparms Additional parameters.
-##' @returnItem curve.kind A/Ci or A/Q curve.
-##' @returnItem op.level Level 1 means \code{vcmax} and \code{jmax} were
+##' \itemize{
+##' \item bestVmax optimized \code{vmax}.
+##' \item bestJmax optimized \code{jmax}.
+##' \item ReSumS Residual Sum of Squares.
+##' \item Convergence Convergence status.
+##' \item VarCov Variance-covariance matrix.
+##' \item df degress of freedom.
+##' \item ciVmax Confidence interval for \code{vmax}.
+##' \item ciJmax Confidence interval for \code{jmax}.
+##' \item corVJ correlation between \code{vmax} and \code{jmax}.
+##' \item level Confidence interval level.
+##' \item data Original data.
+##' \item xparms Additional parameters.
+##' \item curve.kind A/Ci or A/Q curve.
+##' \item op.level Level 1 means \code{vcmax} and \code{jmax} were
 ##' optimized and level 2 \code{vcmax}, \code{jmax} and \code{Rd}.
-##' @returnItem response \code{'Assim'} or \code{'StomCond'}.
+##' \item response \code{'Assim'} or \code{'StomCond'}.
+##' }
 ##' @note ~~further notes~~ Additional notes about the assumptions.
 ##'
 ##' @author Fernando E. Miguez
@@ -586,12 +588,10 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 ##'
 ##' if op.level equals 1 best Vcmax, Jmax and convergence
 ##'
-##' if op.level equals 2 best Vcmax, Jmax, Rd and convergence %% ~Describe the
-##' value returned %% If it is a LIST, use %% \item{comp1 }{Description of
-##' 'comp1'} %% \item{comp2 }{Description of 'comp2'} %% ...
+##' if op.level equals 2 best Vcmax, Jmax, Rd and convergence
+
 ##' @author Fernando E. Miguez
-##' @seealso See also \code{\link{Opc3photo}} %% ~~objects to See Also as
-##' \code{\link{help}}, ~~~
+##' @seealso See also \code{\link{Opc3photo}} 
 ##' @keywords optimize
 ##' @examples
 ##'
