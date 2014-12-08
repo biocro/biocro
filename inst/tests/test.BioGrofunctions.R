@@ -46,4 +46,23 @@ for(biocrofn in c("willowGro", "BioGro", "caneGro")){
             expect_true(mean(res0[[output]]) < mean(res1[[output]]))
         }
     })
+    
+    test_that("BioCro stem biomass is sensitive to key parameters ", {
+      get.biomass <- function(...){
+        ans <- do.call(biocrofn, list(weather05, ...))
+        return(max(ans$Stem))
+      } 
+      
+      expect_less_than(get.biomass(photoControl = photoParms(b1=3)),
+                       get.biomass(photoControl = photoParms(b1=10)))
+      
+      expect_more_than(get.biomass(canopyControl = willowcanopyParms(kd = 0.37)),
+                       get.biomass(canopyControl = willowcanopyParms(kd = 0.9)))
+      
+
+      if(biocrofn != 'willowGro'){# skip willowGro pending implementation ebimodeling/biocro-dev#5
+        expect_more_than(get.biomass(canopyControl = canopyParms(chi.l = 0.37)),
+                         get.biomass(canopyControl = canopyParms(chi.l = 9)))
+      }
+    })
 }

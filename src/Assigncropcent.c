@@ -432,6 +432,19 @@ CROPCENT->som3c.parms.k= timescaling(CROPCENT->som3c.parms.k,CROPCENT->som3c.par
   return;
 }
 
+void GetLeachingParms (struct OrgLeachParms *temp,double *getleachingparmsfromR)
+{
+  temp->DailyThresholdFlow=1.5;
+  temp->OMLEACH[0]=0.03;
+  temp->OMLEACH[1]=0.12;
+  temp->OMLEACH[2]=1.90; // is this same as threshold value of daily flow?
+  temp->som1c2toleach.CN=2.0;
+  temp->som1c2toleach.CP=35.0;
+  temp->som1c2toleach.CS=2.0;
+  temp->som1c2toleach.CK=2.0;// This need to be verified
+  return;
+}
+
 void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, 
 double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR){
  
@@ -628,18 +641,7 @@ void GetSymbNFixationParms(struct SymbNFixationParms *temp,double *getsymbnfixat
   return;
 }
 
-void GetLeachingParms (struct OrgLeachParms *temp,double *getleachingparmsfromR)
-{
-  temp->DailyThresholdFlow=1.5;
-  temp->OMLEACH[0]=0.03;
-  temp->OMLEACH[1]=0.12;
-  temp->OMLEACH[2]=1.90; // is this same as threshold value of daily flow?
-  temp->som1c2toleach.CN=2.0;
-  temp->som1c2toleach.CP=35.0;
-  temp->som1c2toleach.CS=2.0;
-  temp->som1c2toleach.CK=2.0;// This need to be verified
-  return;
-}
+
 
 void GetC13Parms(struct C13Parms *temp,double *getc13parmsfromR)
 { 
