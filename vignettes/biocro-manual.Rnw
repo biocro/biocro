@@ -1,0 +1,855 @@
+%\VignetteIndexEntry{Introduction to BioCro}
+%\VignettePackage{BioCro}
+%\VignetteEngine{knitr::knitr}
+
+\documentclass[12pt]{article}
+
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage[american]{babel}
+\usepackage[authoryear,round]{natbib}
+\usepackage{hyperref}
+\bibliographystyle{plainnat}
+  
+\title{Simulation and Parameter Estimation for Biomass Crops}
+\author{Fernando E. Miguez\\Department of Agronomy\\
+  Iowa State University}
+\begin{document}
+
+
+
+<<include=FALSE>>=
+library(knitr)
+opts_chunk$set(include=TRUE,
+engine='R',dev='pdf'
+)
+@
+
+\setkeys{Gin}{width=\textwidth}
+\newcommand{\code}[1]{\texttt{\small{#1}}}
+\newcommand{\package}[1]{\textsf{\small{#1}}}
+\maketitle
+
+\begin{abstract}
+  Simulation and parameter estimation of photosynthesis and crop
+  growth. The interest in developing this model is to be able to
+  efficiently perform simulations of photosynthesis and crop
+  growth. Since often this requires running a model multiple times, R
+  provides a nice environment for optimization and plotting. The
+  package also has a soil carbon and nitrogen model based on the
+  Century model and a simple multilayered water soil model. As with
+  many crop models the objective is to improve our understanding of
+  productivity and carbon, water and nitrogen cycles in
+  agro-ecosystems.
+\end{abstract}
+
+\tableofcontents
+
+<<preliminaries,echo=FALSE>>=
+options(width=68)
+library(BioCro, quietly=TRUE)
+@
+
+\section{Introduction}
+
+The package \package{BioCro} started as a way to continue work on the
+ideas developed in the WIMOVAC model. WIMOVAC was developed by Stephen
+Long and Steve Humphries
+\url{http://www.life.illinois.edu/plantbio/wimovac/} and there have been
+several publications using this model. I have used the model for some
+initial efforts at modeling \emph{Miscanthus} $\times$ \emph{giganteus}.
+
+This vignette was created using BioCro package version
+
+<<version>>=
+sessionInfo()$otherPkgs$BioCro$Version
+@ 
+
+This version of \package{BioCro} has had contributions from Joe
+Iverson, Deepak Jaiswal, David LeBauer and Dandan Wang and possibly
+others.  Currently the capabilities of the model are growing with more
+species and algorithms being added.
+
+\section{Carbon: Leaf-level Photosynthesis}
+ 
+There is a large range in the complexity of models that have been used
+to simulate photosynthesis. \package{BioCro} offers functions
+\code{c4photo} and \code{c3photo}. Both functions take as minimum
+input radiation (PAR $\mu mol \; m^{-2} \; s^{-1}$), temperature (Celsius)
+and relative humidity (0-1).
+
+Since WIMOVAC originated as a photosynthesis model we can start with a
+simple example. For the C$_4$ photosynthesis model the best reference
+is Collatz et al. (1992). 
+
+<<ex-photo>>=
+c4photo(1500,25,0.7)
+@ 
+
+This example shows that with PAR 1500, temperature of 25 and relative
+humidity of 0.7 (70\%) as inputs we get simulation of CO$_2$
+assimilation (\code{Assim}), stomatal conductance (\code{Gs}) and the
+intercellular CO$_2$ (\code{Ci}). For units and other details see
+\code{?c4photo}. Another model available for simulating C4
+photosynthesis is \code{eC4photo}, see docs for details. This model
+has not been used much. In \code{c4photo} the computation is carried
+out in compiled \code{C}, but there is a pure R function
+\code{c4photoR} which might be useful for understanding the
+calculations.
+
+There is an equivalent function \texttt{c3photo} which is closely
+based on the c3 photosynthesis model described in WIMOVAC. Notice that
+the parameters and interpretation are different from the
+\code{c4photo} function. 
+
+<<c4photo-aq-aci, warning=FALSE, fig.height=3.8, tidy=TRUE, echo=FALSE>>=
+pr <- seq(0,2000)
+temp <- rep(25, length(pr))
+rh <- rep(0.7, length(pr))
+res <- c4photo(pr, temp, rh)
+plot(pr, res$Assim, ylab="CO2 uptake",xlab="PAR",type='l')
+Ca <- seq(15,500)
+pr <- rep(1000, length(Ca))
+temp <- rep(20, length(Ca))
+rh <- rep(0.7, length(Ca))
+res <- c4photo(pr,temp,rh,Catm=Ca)
+plot(res$Ci, res$Assim, type = 'l', ylab = "CO2 uptake", xlab = "Ci")
+@ 
+
+% |
+
+\subsubsection{Effect of stress on photosynthesis}
+
+Besides some of the typical parameters for both functions there is the
+option of including stress. The argument is \code{StomWS}. The stress
+can be applied to stomatal conductance (default) or $V_{max}$. 
+
+<<c4photo-stress-gs, fig.height=4.5, tidy=TRUE, echo=FALSE>>=
+sws <- seq(0,1,0.01)
+
+assim <- numeric(length(sws))
+cond <- numeric(length(sws))
+ws <- 'gs'
+
+for(i in 1:length(sws)){
+
+    assim[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$Assim
+    cond[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$Gs
+
+}
+
+xyplot(assim + cond ~ sws, type='l', main="stress on gs")
+@ 
+
+% | 
+
+<<c4photo-stress-vmax, fig.height=4.5, echo=FALSE>>=
+sws <- seq(0,1,0.01)
+
+assim <- numeric(length(sws))
+cond <- numeric(length(sws))
+ws <- 'vmax'
+
+for(i in 1:length(sws)){
+
+    assim[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$Assim
+    cond[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$Gs
+
+}
+xyplot(assim + cond ~ sws, type='l', main="stress on vmax")
+
+@ 
+
+\subsection{Estimating photosynthesis parameters}
+
+The \code{c4photo} function has three main parameters that can be adjusted for
+different species or environments. These three parameters are $V_{max}$
+(light-saturated rate of photosynthesis which for C$_4$ plants is equivalent to
+the maximum rate of carboxylation, $\mu \; mol \; m^{-2} \; s^{-1}$), $alpha$
+(quantum efficiency, $mol \; mol^-1$) and dark respiration (net CO$_2$ exchange
+at zero light, $\mu \; mol \; m^{-2} \; s^{-1}$). 
+
+Options for adjusting the parameters for simulation of biomass crops:
+
+\begin{itemize}
+\item Use values from the literature
+\item Optimize parameter values based on observed data
+\end{itemize}
+      
+Using values from the literature can work well most of the time, but
+the source of the values should be carefully assessed. For example, an
+important consideration is whether the values were reported at the
+same reference temperature. In BioCro these values are assumed to be
+at 25 $C$. Another consideration is that different models might have
+different parameterization of photosynthesis and what might work well
+in a different model might not work well in BioCro.
+      
+For optimization of these parameters based on observed data BioCro
+offers the ability to optimize these three parameters using different
+techniques. The first one is based on the \code{optim} function in R
+which will minimize the residual sum of squares (obs - sim). The first
+column has the curve ID, the second one the treatment which in this
+case is either Miscanthus (mxg) or switchgrass (swg). The third column
+is CO$_2$ assimilation, then photosynthetic active radiation in
+(PARin), temperature (Tleaf) and relative humidity (RH\_S).
+      
+<<aq-data, fig.height=3.8>>=
+data(aq)
+head(aq)
+plotAQ(aq, type="p")
+@ 
+
+We could find out what the `best' parameters are for the first curve.
+
+<<Opc4photo-curve1>>=
+curve1 <- subset(aq, ID == 1)
+op <- Opc4photo(curve1[,3:6])
+op
+@ 
+
+By default only $V_{max}$ and $alpha$ are optimized. $Rd$ can also be optimized
+by setting the optimization level to 2.
+
+<<Opc4photo-curve1-op2>>=
+op <- Opc4photo(curve1[,3:6], op.level=2)
+op
+@ 
+
+
+There is also a plotting function for the \code{op} object which is of class
+``Opc4photo''. This allows for examination of residuals and also comparing
+observed and simulated.
+
+<<Opc4photo-plot, fig.height=3.5>>=
+plot(op)
+plot(op, plot.kind="OandF", type="o")
+@ 
+
+The previous example was for optimizing and analyzing a single curve. If we want
+to optimize several curves in parallel then the \code{mOpc4photo} function is
+available. For the following example we need to also supply a column with
+ambient CO$_2$ levels (in this case 390 ppm).
+
+<<mOpc4photo>>=
+aq2 <- data.frame(aq[,-2], Catm=390)
+mop <- mOpc4photo(aq2, verbose=TRUE)
+mop
+@ 
+
+As with the previous example there are plotting methods. In this case the
+plotting functions are useful for visualizing the mean point estimate and the
+confidence intervals. 
+
+<<mOpc4photo-plot, fig.height=3.5>>=
+plot(mop)
+plot(mop, parm="alpha")
+@ 
+
+As with the \code{Opc4photo} the optimization level can be changed to also
+optimize $Rd$.
+
+<<mOpc4photo-op2, fig.height=3.5>>=
+mop2 <- mOpc4photo(aq2, verbose=TRUE, op.level=2)
+mop2
+@ 
+
+Yet another approach to optimizing photosynthetic parameters is to use a
+Bayesian approach where a prior distribution for the parameters can be
+specified. This approach might work better when there is limited data or when
+the previous approaches fail. The results are very similar to the example using
+\code{Opc4photo} for a single curve. In particular because in this case very
+diffuse priors were specified. The scale can be increased to reduce the
+acceptance rate. The function can also be run more than once to check the
+results.
+
+<<MCMCc4photo, fig.height=3.5>>=
+op.mc1 <- MCMCc4photo(curve1[,3:6], scale=1.5)
+op.mc2 <- MCMCc4photo(curve1[,3:6], scale=1.5)
+op.mc1
+## plot(op.mc1, op.mc2) try this at home
+plot(op.mc1, op.mc2, plot.kind="density", burnin=1e4)
+plot(op.mc1, plot.kind="density", prior=TRUE, burnin=1e4)
+@ 
+
+\code{prior=TRUE} plots the prior along side the results from the MCMC run.  In
+this case the prior is very diffuse, but tighter priors would affect the
+results. If more stringent priors are set the results will tend to be closer to
+the prior distributions (the prior distributions are the black lines in the
+graph). In many cases a Bayesian approach is more reasonable as fitting
+individual curves in isolation can lead to values outside the range of
+reasonable results. The influence of the prior will lead the estimation closer
+to 'known' values for a species.
+
+<<MCMCc4photo-priors, fig.height=3.8>>=
+op.mc1 <- MCMCc4photo(curve1[,3:6], scale=1.5, prior=c(20, 1, 0.045, 0.0025))
+plot(op.mc1, plot.kind = "density", prior = TRUE, burnin=1e3, lwd=2)
+@ 
+
+TODO: I haven't implemented the possibility of fitting Rd using the Bayesian
+approach. This is something I'd like to implement soon. Two other additions
+would be including the correlation between parameters and the estimation of the
+residual variance. These last features are low priority as the function as it is
+should work for most purposes.
+
+To be complete there is even the option of using \code{nls}.
+
+<<nls-photo>>=
+c4photo2 <- function(A,T,RH, vmax=39, alpha=0.04){
+    res <- c4photo(A,T,RH, vmax=vmax, alpha=alpha)$Assim
+    res
+}
+fit <- nls(A ~ c4photo2(PARi, Tleaf, RH_S, vmax, alpha),
+           start=list(vmax=39, alpha=0.04), 
+           data = curve1)
+@ 
+
+TODO: run an example using \code{nlme}. Until I get this to work, the best
+option is to do a linear mixed model analysis using \code{lme}.
+
+This concludes the section about estimating photosynthesis parameters in the
+context of simulating biomass crops. Although this is the first step, and it is
+important, there are many other aspects that influence the simulation of biomass,
+transpiration, etc. 
+
+The previous functions are relevant for leaf-level
+photosynthesis. Scaling up to the canopy level is not trivial since it
+requires developing a light macro environment which simulates the
+partitioning between direct and diffuse radiation (see function
+\code{lightME}). The function \code{sunML} is used to predict the
+proportion of light for each layer of a multiple layered canopy. 
+
+TODO
+\begin{itemize}
+  \item include an example using \code{c3photo}
+  \item Discuss meaning and relationship among parameters
+\end{itemize}
+
+\section{Carbon and Water: Canopy Photosynthesis and Transpiration}
+
+The function \code{CanA} integrates the previous functions
+to simulate canopy CO$_2$ assimilation for a complete canopy. This
+function also simulates transpiration based on Penman-Monteith, Penman
+and Priestly. 
+
+The \code{CanA} function is designed to run at an hourly timestep. The
+inputs should all be of length 1. As with other canopy models the
+canopy is discretized in layers and each layer has unique conditions
+in terms of light levels, leaf temperature, wind and relative
+humidity. See \code{?CanA} for details.
+
+<<CanA-onetime>>=
+nlay <- 8
+res <- CanA(lai=3, doy=200, hr=12, solar=1500, temp=25, rh=0.7, 
+            windspeed=2, nlayers=nlay)
+@ 
+
+The distribution of leaves in the sun and in the shade is an important
+characteristic of a canopy and the architecture can be modified mainly
+by changing the \code{chi.l} parameter which represents the ratio of
+horizontal leaf projections to vertical leaf projections. 
+
+<<leaf-sun-shade>>=
+apply(res$LayMat[,3:4], 2, sum)
+@ 
+
+In this example, 1.35 m$^2$ of leaf are in the sun and 1.65 of $m^2$
+are in the shade for a total of 3 LAI.
+
+Next we can look in detail about the properties of the canopy by layer
+
+<<multi-layer-canopy, fig.height=4.5, echo=FALSE>>=
+data(boo14.200)
+
+lai <- 5
+nlay <- 10
+chi.l <- 1
+lat <- 42
+tmp2 <- NULL
+
+for(i in 1:24){
+  doy <- boo14.200[i,2]
+  hr  <- boo14.200[i,3]
+  solar <- boo14.200[i,4]
+  temp <- boo14.200[i,5]
+  rh <- boo14.200[i,6]
+  ws <- boo14.200[i,7]
+
+  tmp <- CanA(lai,doy,hr,solar,temp,rh,ws,
+              nlayers=nlay,chi.l=chi.l,
+              lat = lat)$LayMat
+
+  tmp <- cbind(hour=hr, layers=1:nlay,tmp)
+  tmp2 <- rbind(tmp2,tmp)
+     
+}
+
+tmpd <- as.data.frame(tmp2)
+
+ttle <- paste("LAI = ",lai,
+              "   layers = ",nlay,
+              "   chi.l = ",chi.l,
+              "   lat = ",lat, sep="")
+
+## Leaf in the Sun and Shade
+xyplot(Leafsun + Leafshade ~ hour | factor(layers), type='l',
+       xlab = "hour", ylab="Leaf Area (m2/m2)",
+       main=ttle, 
+       key=simpleKey(text=c("Sun","Shade")),
+       data = tmpd, layout=c(nlay,1))
+
+## Transpiration weighted by sun and shade leaf
+xyplot(I(TransSun*Leafsun) + 
+       I(TransShade*Leafshade) ~ hour | factor(layers), type='l',
+       xlab = "hour", ylab="Transpiration (kg/m2/hr)",       
+       main=ttle, 
+       key=simpleKey(text=c("Sun","Shade")),
+       data = tmpd, layout=c(nlay,1))
+
+## Assimilation weighted by sun and shade leaf
+xyplot(I(AssimSun*Leafsun) + 
+       I(AssimShade*Leafshade) ~ hour | factor(layers), type='l',
+       xlab = "hour", ylab="Assimilation (micro mol /m2 ground /s)",
+       main=ttle, 
+       key=simpleKey(text=c("Sun","Shade")), 
+       data = tmpd, layout=c(nlay,1))
+
+## Leaf temperature in the sun and shade
+xyplot(DeltaSun + DeltaShade ~ hour | factor(layers), type='l',
+       xlab = "hour", ylab="Delta temperature",
+       main=ttle, 
+       key=simpleKey(text=c("Sun","Shade")), 
+       data = tmpd, layout=c(nlay,1))
+
+## Leaf level conductance
+xyplot(CondSun + CondShade ~ hour | factor(layers), type='l',
+       xlab = "hour", ylab="Conductance (mmol/m2/s)",
+       main=ttle, 
+       key=simpleKey(text=c("Sun","Shade")), 
+       data = tmpd, layout=c(nlay,1))
+
+## Relative humidity profile
+xyplot(RH ~ hour | factor(layers), type='l',
+       xlab = "hour", ylab="Relative Humidity",
+       main=ttle, 
+       key=simpleKey(text=c("Sun","Shade")),
+       data = tmpd, layout=c(nlay,1))
+
+## Wind speed profile
+## xyplot(WindS ~ hour | factor(layers), type='l',
+##        xlab = "hour", ylab="Wind speed (m/s)",
+##        main=ttle, 
+##        key=simpleKey(text=c("Sun","Shade")),
+##        data = tmpd, layout=c(nlay,1))
+
+## Canopy height
+## xyplot(CanHeight ~ layers, type='l',
+##        xlab = "layer", ylab="Canopy Height (m)",
+##        main=ttle, 
+##        data = tmpd)
+
+@ 
+
+Some important assumption of the multi-layer canopy model are
+
+\begin{itemize}
+\item it distributes the LAI equally among layers, this is not
+  necessarily a realistic assumption
+\item relative humidity increases with canopy depth which causes
+  stomatal conductance to increase as well.
+\item by default photosynthetic parameters are constant in the profile
+  but it is possible to make them depend on a profile of N
+  concentration (see argument \code{lnControl})
+\end{itemize}
+
+\subsection{Parameters to adjust}
+
+Which parameters are relevant at the canopy level? Of course
+photosythetic parameters are important but these were discussed before
+so they are assume to be reasonable here. LAI is a very important
+input to this function so it is not really an adjustable parameter.
+
+\begin{itemize}
+\item \code{nlayers} The number of layers has an effect on many of the
+  results. This can be modified by the user if there is a good
+  rationale for doing it. It is possible that taller canopies benefit
+  more from having multiple layers and shorter canopies benefit less.
+\item \code{kd} extinction coefficient for diffuse light. Although this can be
+  calculated it is not at this point.
+\item \code{chi.l} is the ratio of horizontal to vertical projection
+  of leaf area. Lower than 1 values for more erect canopies and less
+  than 1 for canopies with higher proportion of flat leaves.
+\item \code{leafwidth} average leaf width. 
+\item \code{heightFactor} factor relating LAI to height. Adjust it to
+  match reasonable height for a crop.
+\end{itemize}
+
+\subsection{Water: Calculation of Canopy Transpiration}
+
+\code{CanA} simulates transpiration using Priestly (driven by solar
+radiation and temperature), Penman-Potential (adjusted for the aerodynamic
+component) and Penman-Monteith (adjusted for the aerodynamic plus
+stomatal component).
+
+<<CanA-Transpiration, echo=FALSE>>=
+## Code to test transpiration
+data(boo14.200)
+dat2 <- NULL
+tmp2 <- matrix(ncol=5,nrow=24)
+layers <- 10
+lai <- 3
+doy <- 200
+photoP <- photoParms(b1=3)
+
+for(i in 1:24){
+         
+    hr  <- boo14.200[i,3]
+    solar <- boo14.200[i,4]
+    temp <- boo14.200[i,5]
+    rh <- boo14.200[i,6]
+    ws <- boo14.200[i,7]
+    
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws,
+                 nlayers=layers, photoControl=photoP)
+
+    tmp2[i,1] <- tmp1$CanopyAssim
+    tmp2[i,2] <- tmp1$CanopyTrans
+    tmp2[i,3] <- tmp1$TranEpen
+    tmp2[i,4] <- tmp1$TranEpries
+    tmp2[i,5] <- tmp1$CanopyCond
+        
+    dat1 <- data.frame(hour=i,layer=1:layers, 
+                       as.data.frame(tmp1$LayMat))
+
+    dat2 <- rbind(dat2,dat1)
+}
+
+tmp2 <- as.data.frame(tmp2)
+
+names(tmp2) <- c("CanopyAssim","CanopyTrans",
+                 "TranPen","TranEpries","CanopyCond")
+
+xyplot(CanopyTrans + TranPen + TranEpries ~ 1:24, data = tmp2,
+       type='o',
+       key= simpleKey(text=c("Penman-Monteith","Penman-Potential","Priestly"),
+           lines=TRUE, points=FALSE),
+           xlab='hour',
+           ylab="Transpiration (mm/h)")
+
+apply(tmp2[,2:4], 2, sum)
+@ 
+
+At the moment Penman over estimates transpiration, Priestly and
+Penman-Monteith seem to be giving reasonable answers.
+
+\subsection{Water: Effect of Ball-Berry slope parameter}
+
+The slope of the Ball-Berry model can have a significant effect on the
+results, but only for the Penman-Monteith method. The parameters for
+Ball-Berry however should be set from previous literature data or from
+analysis of gas exchange measurements. The purpose of this is to show
+that it has a large effect. It is supplied by the \code{photoParms}
+function. This increases transpiration in the Penman-Monteith model
+but only up to a point.  Priestly and Penman are almost always higher
+than Penman-Monteith.
+
+<<ball-berry-effect,include=FALSE>>=
+dat2 <- NULL
+tmp2 <- matrix(ncol=5,nrow=24)
+layers <- 10
+lai <- 3
+doy <- 200
+photoP <- photoParms(b1=3)
+
+for(i in 1:24){
+         
+    hr  <- boo14.200[i,3]
+    solar <- boo14.200[i,4]
+    temp <- boo14.200[i,5]
+    rh <- boo14.200[i,6]
+    ws <- boo14.200[i,7]
+    
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws,
+                 nlayers=layers, photoControl=photoP)
+
+    tmp2[i,1] <- tmp1$CanopyAssim
+    tmp2[i,2] <- tmp1$CanopyTrans
+    tmp2[i,3] <- tmp1$TranEpen
+    tmp2[i,4] <- tmp1$TranEpries
+    tmp2[i,5] <- tmp1$CanopyCond
+        
+    dat1 <- data.frame(hour=i,layer=1:layers, 
+                       as.data.frame(tmp1$LayMat))
+
+    dat2 <- rbind(dat2,dat1)
+}
+
+tmp3 <- as.data.frame(tmp2)
+
+names(tmp3) <- c("CanopyAssim","CanopyTrans",
+                 "TranPen","TranEpries","CanopyCond")
+
+## Version with higher ball-berry slope
+dat2 <- NULL
+tmp2 <- matrix(ncol=5,nrow=24)
+layers <- 10
+lai <- 3
+doy <- 200
+photoP <- photoParms(b1=7)
+
+for(i in 1:24){
+         
+    hr  <- boo14.200[i,3]
+    solar <- boo14.200[i,4]
+    temp <- boo14.200[i,5]
+    rh <- boo14.200[i,6]
+    ws <- boo14.200[i,7]
+    
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws,
+                 nlayers=layers, photoControl=photoP)
+
+    tmp2[i,1] <- tmp1$CanopyAssim
+    tmp2[i,2] <- tmp1$CanopyTrans
+    tmp2[i,3] <- tmp1$TranEpen
+    tmp2[i,4] <- tmp1$TranEpries
+    tmp2[i,5] <- tmp1$CanopyCond
+        
+    dat1 <- data.frame(hour=i,layer=1:layers, 
+                       as.data.frame(tmp1$LayMat))
+
+    dat2 <- rbind(dat2,dat1)
+}
+
+tmp4 <- as.data.frame(tmp2)
+
+names(tmp4) <- c("CanopyAssim","CanopyTrans",
+                 "TranPen","TranEpries","CanopyCond")
+
+## Version with even higher ball-berry slope
+dat2 <- NULL
+tmp2 <- matrix(ncol=5,nrow=24)
+layers <- 10
+lai <- 3
+doy <- 200
+photoP <- photoParms(b1=12)
+
+for(i in 1:24){
+         
+    hr  <- boo14.200[i,3]
+    solar <- boo14.200[i,4]
+    temp <- boo14.200[i,5]
+    rh <- boo14.200[i,6]
+    ws <- boo14.200[i,7]
+    
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws,
+                 nlayers=layers, photoControl=photoP)
+
+    tmp2[i,1] <- tmp1$CanopyAssim
+    tmp2[i,2] <- tmp1$CanopyTrans
+    tmp2[i,3] <- tmp1$TranEpen
+    tmp2[i,4] <- tmp1$TranEpries
+    tmp2[i,5] <- tmp1$CanopyCond
+        
+    dat1 <- data.frame(hour=i,layer=1:layers, 
+                       as.data.frame(tmp1$LayMat))
+
+    dat2 <- rbind(dat2,dat1)
+}
+
+tmp5 <- as.data.frame(tmp2)
+
+names(tmp5) <- c("CanopyAssim","CanopyTrans",
+                 "TranPen","TranEpries","CanopyCond")
+
+@ 
+
+<<ball-berry-priestly,echo=FALSE>>=
+xyplot(tmp5$CanopyTrans + tmp4$CanopyTrans + tmp3$CanopyTrans + tmp3$TranEpries ~ 1:24,
+       type='o', col=c(rep("blue",3),"green"), lty=c(1:3,1),
+       key= list(text=list(c("Priestly","b1=12","b1= 7","b1= 3")),
+           col=c("green",rep("blue",3)), 
+           lty=c(1,1:3), pch=NA,
+           lines=TRUE, points=FALSE, x=0.1, y=0.9),
+           xlab='hour',
+           ylab="Transpiration (mm/h)")
+@ 
+
+\subsection{Water: Effect of stress on diurnal transpiration}
+
+Another significant component that will affect transpiration during a
+day is the level of water stress the plant is experiencing.
+
+<<canopy-stress, include=FALSE>>=
+## No stress
+dat2 <- NULL
+tmp2 <- matrix(ncol=5,nrow=24)
+layers <- 10
+lai <- 3
+doy <- 200
+photoP <- photoParms(b1=3)
+
+for(i in 1:24){
+         
+    hr  <- boo14.200[i,3]
+    solar <- boo14.200[i,4]
+    temp <- boo14.200[i,5]
+    rh <- boo14.200[i,6]
+    ws <- boo14.200[i,7]
+    
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws, StomataWS=1,
+                 nlayers=layers, photoControl=photoP)
+
+    tmp2[i,1] <- tmp1$CanopyAssim
+    tmp2[i,2] <- tmp1$CanopyTrans
+    tmp2[i,3] <- tmp1$TranEpen
+    tmp2[i,4] <- tmp1$TranEpries
+    tmp2[i,5] <- tmp1$CanopyCond
+        
+    dat1 <- data.frame(hour=i,layer=1:layers, 
+                       as.data.frame(tmp1$LayMat))
+
+    dat2 <- rbind(dat2,dat1)
+}
+
+tmp3 <- as.data.frame(tmp2)
+
+names(tmp3) <- c("CanopyAssim","CanopyTrans",
+                 "TranPen","TranEpries","CanopyCond")
+
+## Moderate stress
+dat2 <- NULL
+tmp2 <- matrix(ncol=5,nrow=24)
+layers <- 10
+lai <- 3
+doy <- 200
+photoP <- photoParms(b1=3)
+
+for(i in 1:24){
+         
+    hr  <- boo14.200[i,3]
+    solar <- boo14.200[i,4]
+    temp <- boo14.200[i,5]
+    rh <- boo14.200[i,6]
+    ws <- boo14.200[i,7]
+    
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws, StomataWS=0.8,
+                 nlayers=layers, photoControl=photoP)
+
+    tmp2[i,1] <- tmp1$CanopyAssim
+    tmp2[i,2] <- tmp1$CanopyTrans
+    tmp2[i,3] <- tmp1$TranEpen
+    tmp2[i,4] <- tmp1$TranEpries
+    tmp2[i,5] <- tmp1$CanopyCond
+        
+    dat1 <- data.frame(hour=i,layer=1:layers, 
+                       as.data.frame(tmp1$LayMat))
+
+    dat2 <- rbind(dat2,dat1)
+}
+
+tmp4 <- as.data.frame(tmp2)
+
+names(tmp4) <- c("CanopyAssim","CanopyTrans",
+                 "TranPen","TranEpries","CanopyCond")
+
+## medium stress
+dat2 <- NULL
+tmp2 <- matrix(ncol=5,nrow=24)
+layers <- 10
+lai <- 3
+doy <- 200
+photoP <- photoParms(b1=3)
+
+for(i in 1:24){
+         
+    hr  <- boo14.200[i,3]
+    solar <- boo14.200[i,4]
+    temp <- boo14.200[i,5]
+    rh <- boo14.200[i,6]
+    ws <- boo14.200[i,7]
+    
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws, StomataWS=0.5,
+                 nlayers=layers, photoControl=photoP)
+
+    tmp2[i,1] <- tmp1$CanopyAssim
+    tmp2[i,2] <- tmp1$CanopyTrans
+    tmp2[i,3] <- tmp1$TranEpen
+    tmp2[i,4] <- tmp1$TranEpries
+    tmp2[i,5] <- tmp1$CanopyCond
+        
+    dat1 <- data.frame(hour=i,layer=1:layers, 
+                       as.data.frame(tmp1$LayMat))
+
+    dat2 <- rbind(dat2,dat1)
+}
+
+tmp5 <- as.data.frame(tmp2)
+
+names(tmp5) <- c("CanopyAssim","CanopyTrans",
+                 "TranPen","TranEpries","CanopyCond")
+
+## significant stress
+dat2 <- NULL
+tmp2 <- matrix(ncol=5,nrow=24)
+layers <- 10
+lai <- 3
+doy <- 200
+photoP <- photoParms(b1=3)
+
+for(i in 1:24){
+         
+    hr  <- boo14.200[i,3]
+    solar <- boo14.200[i,4]
+    temp <- boo14.200[i,5]
+    rh <- boo14.200[i,6]
+    ws <- boo14.200[i,7]
+    
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws, StomataWS=0.3,
+                 nlayers=layers, photoControl=photoP)
+
+    tmp2[i,1] <- tmp1$CanopyAssim
+    tmp2[i,2] <- tmp1$CanopyTrans
+    tmp2[i,3] <- tmp1$TranEpen
+    tmp2[i,4] <- tmp1$TranEpries
+    tmp2[i,5] <- tmp1$CanopyCond
+        
+    dat1 <- data.frame(hour=i,layer=1:layers, 
+                       as.data.frame(tmp1$LayMat))
+
+    dat2 <- rbind(dat2,dat1)
+}
+
+tmp6 <- as.data.frame(tmp2)
+
+names(tmp6) <- c("CanopyAssim","CanopyTrans",
+                 "TranPen","TranEpries","CanopyCond")
+@ 
+
+<<canopy-stress-graphs,echo=FALSE, fig.width=5, fig.height=3.2>>=
+xyplot(tmp6$CanopyTrans + tmp5$CanopyTrans + tmp4$CanopyTrans + tmp3$CanopyTrans ~ 1:24,
+       type='o', col=c(rep("blue",3),"green"), lty=4:1,
+       key= list(text=list(c("stress=1","stress=0.8","stress=0.5","stress=0.3")),
+           col=c("green",rep("blue",3)), 
+           lty=1:4, pch=NA,
+           lines=TRUE, points=FALSE, x=0.01, y=0.9),
+           xlab='hour',
+           ylab="Transpiration (mm/h)")
+
+## What about assimilation
+xyplot(tmp6$CanopyAssim + tmp5$CanopyAssim + tmp4$CanopyAssim + tmp3$CanopyAssim ~ 1:24,
+       type='o', col=c(rep("blue",3),"green"), lty=4:1,
+       key= list(text=list(c("stress=1","stress=0.8","stress=0.5","stress=0.3")),
+           col=c("green",rep("blue",3)), 
+           lty=1:4, pch=NA,
+           lines=TRUE, points=FALSE, x=0.01, y=0.9),
+           xlab='hour',
+           ylab="Canopy Assimilation (kg/m2/h)")
+@ 
+
+TODO
+\begin{itemize}
+\item Include an example in which I see the effect of canopy height on
+  diurnal transpiration.
+\item Include an example in which I see the effect of changing chi.l
+\end{itemize}
+
+\end{document}
