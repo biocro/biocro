@@ -50,8 +50,21 @@ void lightME(double lat, int DOY, int td)
         CCos = cos(deltaR) * cos(omega);
 
         CosZenithAngle = SSin + CCos * cos(tf);
-        if(CosZenithAngle < pow(10,-10))
-                CosZenithAngle = pow(10,-10);
+        /* if(CosZenithAngle < pow(10,-10)) */
+        /*         CosZenithAngle = pow(10,-10); */
+        /* The old code above caused problems when using
+           measured hourly data in some cases when 
+           the value was really low. For the moment, the code
+           below is a temporary fix. Some longer 
+           term solution is needed.*/
+	if(CosZenithAngle < 0.10){
+		if(td > 18 && td < 22){ 
+			CosZenithAngle = 0.10;
+		}else{
+			if(CosZenithAngle < 0)
+				CosZenithAngle = 0.00001;
+		}
+	} 
 
         CosHour = -tan(omega) * tan(deltaR);
         CosHourDeg = (1/DTR)*CosHour;
