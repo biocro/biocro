@@ -212,9 +212,15 @@ double TempToSFS(double Temp)
 
 double TempToSWVC(double Temp)
 {
-        double SWVC;
-        SWVC =  4.90820192 +   0.06387253 * Temp +    0.02745742 * pow(Temp,2);
-        return(SWVC);
+/* Temp should be in Celsius */
+/* This is the arden buck equation */
+	double SWVC;
+	double a, b;
+	a = (18.678 - Temp/234.5) * Temp;
+	b = 257.14 + Temp;
+	/* SWVC =  (6.1121 * exp(a/b))/10; */
+	SWVC =  (6.1121 * exp(a/b));
+	return(SWVC); /* This is in hecto Pascals */
 }
 
 /* EvapoTrans function */
