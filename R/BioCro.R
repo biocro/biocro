@@ -215,17 +215,17 @@
 ##' @examples
 ##'
 ##' \dontrun{
-##' data(weather05)
+##' data(cmi05)
 ##'
-##' res0 <- BioGro(weather05)
+##' res0 <- BioGro(cmi05)
 ##'
 ##' plot(res0)
 ##'
 ##' ## Looking at the soil model
 ##'
-##' res1 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6))
+##' res1 <- BioGro(cmi05, soilControl = soilParms(soilLayers = 6))
 ##' plot(res1, plot.kind='SW') ## Without hydraulic distribution
-##' res2 <- BioGro(weather05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
+##' res2 <- BioGro(cmi05, soilControl = soilParms(soilLayers = 6, hydrDist=TRUE))
 ##' plot(res2, plot.kind='SW') ## With hydraulic distribution
 ##'
 ##'
@@ -237,10 +237,10 @@
 ##' ll.2 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=3)
 ##' ll.3 <- soilParms(FieldC=0.37,WiltP=0.2,phi2=4)
 ##'
-##' ans.0 <- BioGro(weather05,soilControl=ll.0)
-##' ans.1 <- BioGro(weather05,soilControl=ll.1)
-##' ans.2 <- BioGro(weather05,soilControl=ll.2)
-##' ans.3 <-BioGro(weather05,soilControl=ll.3)
+##' ans.0 <- BioGro(cmi05,soilControl=ll.0)
+##' ans.1 <- BioGro(cmi05,soilControl=ll.1)
+##' ans.2 <- BioGro(cmi05,soilControl=ll.2)
+##' ans.3 <-BioGro(cmi05,soilControl=ll.3)
 ##'
 ##' xyplot(ans.0$SoilWatCont +
 ##'        ans.1$SoilWatCont +
@@ -604,7 +604,7 @@ seneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
 ##' @param col Control of colors.
 ##' @param x1 position of the legend. x coordinate (0-1).
 ##' @param y1 position of the legend. y coordinate (0-1).
-##' @param plot.kind DB plots dry biomass and SW plots soil water.
+##' @param plot.kind DB plots dry biomass, SW plots soil water, ET plots evapotranspiration, cumET plots cumulative evapotranspiration and stress plots the leaf-level photosynthesis stress and the leaf expansion photosynthesis
 ##' @param \dots Optional arguments.
 ##' @seealso \code{\link{BioGro}} \code{\link{OpBioGro}}
 ##' @keywords hplot
@@ -612,10 +612,10 @@ seneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
 ##' @S3method plot BioGro
 plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, 
                          rhizome = TRUE, LAI = TRUE, grain = TRUE,
-                         xlab=NULL,ylab=NULL,
+                         xlab=NULL,ylab=NULL,ylim=NULL,
                          pch=21, lty=1, lwd=1,
                          col=c("blue","green","red","magenta","black","purple"),
-                         x1=0.1,y1=0.8,plot.kind=c("DB","SW"),...) 
+                         x1=0.1,y1=0.8,plot.kind=c("DB","SW","ET","cumET","stress"),...) 
 {
 
   if(missing(xlab)){
@@ -634,8 +634,9 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
   if(plot.kind == "DB"){
   if (missing(obs)) {
         sim <- x
+        if(missing(ylim)) ylim <- c(0, I(max(sim$Stem,na.rm=TRUE) + 5)) 
         plot1 <- xyplot(sim$Stem ~ sim$ThermalT, type = "l", ...,
-                        ylim = c(0, I(max(sim$Stem,na.rm=TRUE) + 5)),
+                        ylim = ylim,
                         xlab = xlab,
                         ylab = ylab, 
                         panel = function(x, y, ...) {
@@ -673,8 +674,8 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
       if(ncol(obs) != 7)
         stop("obs should have 7 columns")
       sim <- x
-      ymax <-  I(max(c(sim$Stem,obs[,2]),na.rm=TRUE) +  5)
-      plot1 <- xyplot(sim$Stem ~ sim$ThermalT, ..., ylim = c(0,ymax),
+      if(missing(ylim)) ylim <- c(0, I(max(sim$Stem,na.rm=TRUE) + 5)) 
+      plot1 <- xyplot(sim$Stem ~ sim$ThermalT, ..., ylim = ylim,
                       xlab = xlab,
                       ylab = ylab, 
                       panel = function(x, y, ...) {
@@ -723,8 +724,44 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
 }else
   if(plot.kind == "SW"){
     matplot(x$ThermalT,as.matrix(x$cwsMat),type="l",ylab="Soil Water Content",xlab="Thermal Time")
+  }else
+  if(plot.kind == "ET"){
+    ## First summarize by day
+    tmp <- aggregate(x$CanopyTrans, by = list(doy = x$DayofYear), FUN = sum)
+    et <- tmp$x * 1e-1
+    ## Soil evaporation
+    tmp2 <- aggregate(x$SoilEvaporation, by = list(doy = x$DayofYear), FUN = sum)
+    se <- tmp2$x * 1e-1
+    xyplot(et + se ~ tmp$doy,
+           ylab = "Daily EvapoTranspiration (mm)",
+           xlab = "DOY",
+           key = simpleKey(text = c("transp", "evapo")), ...)
+  }else
+  if(plot.kind == "cumET"){
+    ## First summarize by day
+    tmp <- aggregate(x$CanopyTrans, by = list(doy = x$DayofYear), FUN = sum)
+    et <- tmp$x * 1e-1
+    cumet <- cumsum(et)
+    ## Soil evaporation
+    tmp2 <- aggregate(x$SoilEvaporation, by = list(doy = x$DayofYear), FUN = sum)
+    se <- tmp2$x * 1e-1
+    cumse <- cumsum(se)
+    xyplot(cumet + cumse + I(cumet+cumse) ~ tmp$doy, type="l",
+           ylab = "Cumulative EvapoTranspiration (mm)",
+           xlab = "DOY",
+           key = simpleKey(text = c("transp", "evapo", "ET")), ...)
+  }else
+    if(plot.kind == "stress"){
+    ## First summarize by day
+    xyplot(x$StomatalCondCoef +
+           x$LeafReductionCoefs ~ x$DayofYear, type="l",
+           ylab = "Stress Indeces",
+           xlab = "DOY",
+           key = simpleKey(text = c("Stomatal", "Leaf")), ...)
   }
+
 }
+
 ##' @export
 ##' @S3method print BioGro
 print.BioGro <- function(x,level=1,...){

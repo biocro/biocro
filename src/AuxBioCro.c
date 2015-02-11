@@ -1,5 +1,5 @@
 /*
- *  /src/AuxBioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007 - 2012
+ *  /src/AuxBioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007 - 2015
  *
  *  Part of the code here (sunML, EvapoTrans, SoilEvapo, TempTo and
  *  the *prof functions) are based on code in WIMOVAC. WIMOVAC is
