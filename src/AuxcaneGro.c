@@ -1,12 +1,5 @@
 /*
- *  /src/AuxBioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007 - 2012
- *
- *  Part of the code here (sunML, EvapoTrans, SoilEvapo, TempTo and
- *  the *prof functions) are based on code in WIMOVAC. WIMOVAC is
- *  copyright of Stephen Long and Stephen Humphries.
- *  Documentation for WIMOVAC can be found at
- *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
- *
+ *  /src/AuxcaneGro.c by Deepak Jaiswal  Copyright (C) 2012
  */
 
 

@@ -1,4 +1,4 @@
-## BioCro/R/BioCro.R by Fernando Ezequiel Miguez Copyright (C) 2007-2010
+## BioCro/R/BioCro.R by Fernando Ezequiel Miguez Copyright (C) 2007-2015
 
 ##' Biomass crops growth simulation
 ##'
