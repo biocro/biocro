@@ -852,4 +852,29 @@ TODO
 \item Include an example in which I see the effect of changing chi.l
 \end{itemize}
 
+\section{Carbon and Water: Biomass Crop Simulation}
+
+When the interest is to perform a simulation for a whole growing
+season, the function \code{BioGro} can be used. This function has as
+minimum input weather data for the whole year (365 days) at hourly
+time steps. The data can be generated using the \code{weach} function
+from daily data. One of the built-in datasets is \code{cmi04} which is
+weather data for Champaign, IL for 2004.
+
+<<BioGro>>=
+data(cmi04)
+summary(cmi04)
+soilP <- soilParms(wsFun='linear')
+res <- BioGro(cmi04, soilControl=soilP)
+##plot(res)
+plot(res, plot.kind="SW")
+plot(res, plot.kind="ET")
+plot(res, plot.kind="cumET")
+plot(res, plot.kind="stress")
+names(res)
+@ 
+
+The last command \code{names(res)} shows the list of objects available
+for further manipulation. 
+
 \end{document}
