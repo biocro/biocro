@@ -1,5 +1,5 @@
 /*
- *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007-2011
+ *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007-2015
  *
  *
  */
@@ -24,10 +24,10 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP CHILHF,              /* Chi and Height factor    10 */
 	    SEXP NLAYERS,             /* # Lay canop              11 */
 	    SEXP RHIZOME,             /* Ini Rhiz                 12 */
-      SEXP IRTL,                /* i rhiz to leaf           13 */
-      SEXP SENCOEFS,            /* sene coefs               14 */
-      SEXP TIMESTEP,            /* time step                15 */
-      SEXP VECSIZE,             /* vector size              16 */
+	    SEXP IRTL,                /* i rhiz to leaf           13 */
+	    SEXP SENCOEFS,            /* sene coefs               14 */
+	    SEXP TIMESTEP,            /* time step                15 */
+	    SEXP VECSIZE,             /* vector size              16 */
 	    SEXP SPLEAF,              /* Spec Leaf Area           17 */
 	    SEXP SPD,                 /* Spec Lefa Area Dec       18 */
 	    SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
@@ -51,7 +51,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP SOILTYPE,            /* Soil type                37 */
 	    SEXP WSFUN,               /* Water Stress Func        38 */
 	    SEXP CENTCOEFS,           /* Century coefficients     39 */
-      SEXP CENTTIMESTEP,        /* Century timestep         40 */ 
+	    SEXP CENTTIMESTEP,        /* Century timestep         40 */ 
 	    SEXP CENTKS,              /* Century decomp rates     41 */
 	    SEXP SOILLAYERS,          /* # soil layers            42 */
 	    SEXP SOILDEPTHS,          /* Soil Depths              43 */
@@ -61,8 +61,8 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP KPLN,                /* Leaf N decay             47 */
 	    SEXP LNB0,                /* Leaf N Int               48 */
 	    SEXP LNB1,                /* Leaf N slope             49 */
-      SEXP LNFUN,               /* Leaf N func flag         50 */
-      SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
+	    SEXP LNFUN,               /* Leaf N func flag         50 */
+	    SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
 	    SEXP LOWERTEMP,
 	    SEXP NNITROP)           /*temperature Limitation photoParms */
 {
@@ -89,12 +89,12 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	struct nitroParms nitroparms;
 	double TEMPdoubletoint;
 	nitroparms.ileafN=REAL(NNITROP)[0];
-  nitroparms.kln=REAL(NNITROP)[1];
+	nitroparms.kln=REAL(NNITROP)[1];
 	nitroparms.Vmaxb1=REAL(NNITROP)[2];
 	nitroparms.Vmaxb0=REAL(NNITROP)[3];
 	nitroparms.alphab1=REAL(NNITROP)[4];
 	nitroparms.alphab0=REAL(NNITROP)[5];
-  nitroparms.Rdb1=REAL(NNITROP)[6];
+	nitroparms.Rdb1=REAL(NNITROP)[6];
 	nitroparms.Rdb0=REAL(NNITROP)[7];
 	nitroparms.kpLN=REAL(NNITROP)[8];
 	nitroparms.lnb0=REAL(NNITROP)[9];
@@ -337,6 +337,8 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	double kd = REAL(KD)[0];
 	double chil = REAL(CHILHF)[0];
 	double hf = REAL(CHILHF)[1];
+	double leafwidth = REAL(CHILHF)[2];
+	int eteq = REAL(CHILHF)[3]; /* It comes as a REAL but I use an integer from here on */
 
 	/* Creation of pointers outside the loop */
 	sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
