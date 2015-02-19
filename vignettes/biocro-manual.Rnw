@@ -435,17 +435,17 @@ xyplot(RH ~ hour | factor(layers), type='l',
        data = tmpd, layout=c(nlay,1))
 
 ## Wind speed profile
-## xyplot(WindS ~ hour | factor(layers), type='l',
-##        xlab = "hour", ylab="Wind speed (m/s)",
-##        main=ttle, 
-##        key=simpleKey(text=c("Sun","Shade")),
-##        data = tmpd, layout=c(nlay,1))
+xyplot(WindSpeed ~ hour | factor(layers), type='l',
+       xlab = "hour", ylab="Wind speed (m/s)",
+       main=ttle, 
+       key=simpleKey(text=c("Sun","Shade")),
+       data = tmpd, layout=c(nlay,1))
 
 ## Canopy height
-## xyplot(CanHeight ~ layers, type='l',
-##        xlab = "layer", ylab="Canopy Height (m)",
-##        main=ttle, 
-##        data = tmpd)
+xyplot(CanopyHeight ~ layers, type='l',
+       xlab = "layer", ylab="Canopy Height (m)",
+       main=ttle, 
+       data = tmpd)
 
 @ 
 

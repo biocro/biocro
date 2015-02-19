@@ -130,7 +130,7 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
                 layItotal[sp3++] = Itotal;
                 layFsun[sp4++] = Fsun;
                 layFshade[sp5++] = Fshade;
-                layHeight[sp6++] = CumLAI/heightf;
+                layHeight[sp6++] = LAI/heightf - CumLAI/heightf;
         }
 }
 
@@ -222,6 +222,270 @@ double TempToSWVC(double Temp)
 	SWVC =  (6.1121 * exp(a/b));
 	return(SWVC); /* This is in hecto Pascals */
 }
+
+/* New EvapoTrans function */
+struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH,
+			 double WindSpeed,double LeafAreaIndex, double CanopyHeight, 
+			 double stomatacond, double leafw, int eteq)
+{
+	/* creating the structure to return */
+	struct ET_Str tmp;
+
+	const double kappa = 0.41; /* von Karmans constant */
+	double WindSpeedHeight = 2; /* This is the height at which the wind speed was measured */
+	const double dCoef = 0.77; 
+	const double tau = 0.2; /* Leaf transmission coefficient */
+	const double ZetaCoef = 0.026;
+	const double ZetaMCoef = 0.13;
+	const double LeafReflectance = 0.2; 
+	const double SpecificHeat = 1010; /* J kg-1 K-1 */
+	const double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
+
+	double Tair, WindSpeedTopCanopy;
+	double DdryA, LHV, SlopeFS, SWVC, SWVP;
+	double LayerWindSpeed, totalradiation;
+	double LayerConductance, DeltaPVa, PsycParam, ga;
+	double BoundaryLayerThickness, DiffCoef,LeafboundaryLayer;
+	double d, Zeta, Zetam;
+	double gvs; /* Conductance to vapor from stomata same as stomatacond (input variable) */ 
+	double gvc, gvc0, gvc1, gvc2; /* Conductance to vapor from whole canopy */
+        /* The previous term might not be needed here because these calculations are at the leaf level */ 
+	double gbcW; /* canopy boundary layer to vapor from WIMOVAC */
+	double gbclW; /* canopy + leaf boundary layer to vapor from WIMOVAC */
+	double UStar, gav2, gh; /* gh is the conductance to heat */
+	double ActualVaporPressure;
+	double Ja, Ja2, Deltat;
+	double PhiN, PhiN2;
+	double TopValue, BottomValue;
+	double EPen, TransR,EPries; 
+	double OldDeltaT, ChangeInLeafTemp;
+	double rlc; /* Long wave radiation for iterative calculation */
+	int Counter;
+
+	WindSpeedTopCanopy = WindSpeed;
+	Tair = Airtemperature;
+
+	if(CanopyHeight < 0.1)
+		CanopyHeight = 0.1; 
+
+/* When the height at which wind was measured is lower than the canopy height */
+/* There can be problems with the calculations */
+/* This is a very crude way of solving this problem */
+	if(CanopyHeight + 1 > WindSpeedHeight)
+		WindSpeedHeight = CanopyHeight + WindSpeedHeight;
+
+	DdryA = TempToDdryA(Tair); /* Density of dry air, kg / m^3 */
+
+	/* In the original code in WIMOVAC this is used in J kg-1
+but Thornley and Johnson use it as MJ kg-1  */
+	LHV = TempToLHV(Tair); /* This should be MJ kg^-1*/
+	LHV = LHV * 1e6; /* Now it is converted to Joules kg^-1*/
+	SlopeFS = TempToSFS(Tair) * 1e-3; /* kg m^-3 K^-1 */
+	SWVP = TempToSWVC(Tair); /* this is hecto Pascals */
+        /* Convert to kg/m3 */
+	SWVC = (DdryA * 0.622 * SWVP)/1013.25; /* This last number is atmospheric pressure in hecto pascals */
+/* SWVC is saturated water vapor concentration (or density) in kg/m3 */
+
+	PsycParam =(DdryA * SpecificHeat) / LHV; /* This is in kg m-3 K-1 */
+
+	DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
+
+	ActualVaporPressure = RH * SWVP; /* hecto Pascals */
+
+        /* SOLAR RADIATION COMPONENT*/
+
+        /* First calculate the Radiation term */
+	/*' Convert light assuming 1 µmol PAR photons = 0.235 J */
+        /* The next step converts from PAR photons to Joules */
+        /* There are 2.35 x 10^5 Joules in a mol */
+        /* or 0.235 Joules in a micro mol */
+        /* A Watt is equivalent to J/s */
+	totalradiation = Rad * 0.235; /* This is essentially Watts m^-2 */
+        /* On a clear sky it may exceed 1000 in some parts of the world 
+           Thornley and Johnson pg 400 */
+        /* This values can not possibly be higher than 650 */
+        if(totalradiation > 650) error("total radiation too high");
+        
+	/* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
+	/* It seems that it is not correct to multiply by the leaf area index. The previous
+        version was used in WIMOVAC (check) */
+	Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
+
+        /* The value below is only for leaf temperature */
+	Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
+
+        /* AERODYNAMIC COMPONENT */
+        /* This is needed to calculate canopy conductance */
+	Zeta = ZetaCoef * CanopyHeight;
+	Zetam = ZetaMCoef * CanopyHeight;
+	d = dCoef * CanopyHeight;
+
+	if(WindSpeed < 0.5) WindSpeed = 0.5;
+
+	LayerWindSpeed = WindSpeed;
+
+	/* According to thornley and Johnson pg. 416. Also Eq 49  */
+	gvc0 = pow(kappa,2) * LayerWindSpeed;
+	gvc1 = log((WindSpeedHeight + Zeta - d)/Zeta);
+	gvc2 = log((WindSpeedHeight + Zetam - d)/Zetam);
+	gvc = gvc0/(gvc1*gvc2);
+
+	if(gvc < 0)
+		error("gvc is less than zero");
+
+	/* Calculation of ga, leaf boundary layer conductance */
+        /* The calculation of ga in WIMOVAC follows */
+	DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Tair);
+	BoundaryLayerThickness = 0.004 * sqrt(leafw / LayerWindSpeed);
+	LeafboundaryLayer = DiffCoef / BoundaryLayerThickness;
+        /* This is the leaf boundary layer conductance Eq 46 http://www.life.illinois.edu/plantbio/wimovac/leafgas.htm */
+
+        UStar = (WindSpeedTopCanopy * kappa) / (log((WindSpeedHeight - d) / Zeta)); /* Eq 47 */
+	gbcW = pow(UStar,2) / LayerWindSpeed;
+        gbclW = (gbcW * LeafboundaryLayer) / (gbcW + LeafboundaryLayer); /* Eq 48 */
+
+        ga = gbclW; /* I'm testing now using the original WIMOVAC formula */
+                    /* For this to work ga should be in m/s */
+
+/* There are two ways of calculating ga in this code
+ One method is taken from Thornley and Johnson, but this method
+   does not consider a multilayer canopy 
+ The other method is taken from the original WIMOVAC code. */
+
+        /* Leaf Conductance */
+	gvs = stomatacond; 
+        /* Convert from mmol H20/m2/s to m/s */
+	gvs = gvs * (1.0/41000.0) ;
+	/* LayerConductance = LayerConductance * 24.39 * 1e-6; Original from WIMOVAC */ 
+        /* 1/41000 is the same as 24.39 * 1e-6 */
+	/* Thornley and Johnson use m s^-1 on page 418 */
+
+	/* prevent errors due to extremely low Layer conductance */
+	if(gvs <=0.001)
+		gvs = 0.001;
+
+	/* This is the original from WIMOVAC*/
+	Deltat = 0.01;
+	ChangeInLeafTemp = 10;
+
+	Counter = 0;
+	while( (ChangeInLeafTemp > 0.5) && (Counter <= 10))
+	{
+		OldDeltaT = Deltat;
+
+		rlc = 4 * StefanBoltzmann * pow(273 + Tair, 3) * Deltat;  
+
+/* rlc=net long wave radiation emittted per second =radiation emitted per second - radiation absorbed per second=sigma*(Tair+deltaT)^4-sigma*Tair^4 */
+ 
+/* Then you do a Taylor series about deltaT = 0 and keep only the zero and first order terms. */
+ 
+/* or rlc=sigma*Tair^4+deltaT*(4*sigma*Tair^3)-sigma*Tair^4=4*sigma*Tair^3*deltaT */
+ 
+/* where 4*sigma*Tair^3 is the derivative of sigma*(Tair+deltaT)^4 evaluated at deltaT=0, */
+
+                ga = leafboundarylayer(LayerWindSpeed, leafw, 
+				       Airtemperature, Deltat,
+                                       gvs, ActualVaporPressure);
+/* This returns leaf-level boundary layer conductance */ 
+/* In WIMOVAC this was added to the canopy conductance */
+		/* ga = (ga * gbcW)/(ga + gbcW);  */
+
+		PhiN2 = (Ja2 - rlc);  /* * LeafAreaIndex;  */
+
+		TopValue = PhiN2 * (1 / ga + 1 / gvs) - LHV * DeltaPVa;
+		BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / gvs));
+		Deltat = TopValue / BottomValue; /* This equation is from Thornley and Johnson pg. 418 */
+		if(Deltat > 10)	Deltat = 10;
+		if(Deltat < -10)	Deltat = -10;
+
+		ChangeInLeafTemp = OldDeltaT - Deltat;
+		if(ChangeInLeafTemp <0)
+			ChangeInLeafTemp = -ChangeInLeafTemp;
+		Counter++;
+	}
+
+	gh = ga * 0.924; /* Not used at the moment */
+
+        /* Net radiation */
+	PhiN = Ja - rlc;
+
+	if(PhiN < 0)
+		PhiN = 0;
+
+	TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa)) / (LHV * (SlopeFS + PsycParam * (1 + ga / gvs)));
+
+        /* Penman will use the WIMOVAC conductance */
+	EPen = (((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)) / (LHV * (SlopeFS + PsycParam));
+
+	EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
+
+        /* Choose equation to report */
+	if(eteq == 1){
+		TransR = EPen;
+	}
+	if(eteq == 2){
+		TransR = EPries;
+	}
+
+	/* This values need to be converted from Kg/m2/s to
+	   mmol H20 /m2/s according to S Humphries */
+	/* 1e3 - kgrams to grams  */
+	/* 1e3 - mols to mmols */
+        /* grams to mols - 18g in a mol */
+	/* Let us return the structure now */
+
+	tmp.TransR = TransR * 1e6 / 18; 
+	tmp.EPenman = EPen * 1e6 / 18; 
+	tmp.EPriestly = EPries * 1e6 / 18; 
+	tmp.Deltat = Deltat;
+	tmp.LayerCond = gvs * 41000;   
+	return(tmp);
+}
+
+
+double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
+                         double deltat, double stomcond, double vappress){
+/* This is the leaf boundary layer computed using the approach in MLcan
+   which is based on (Nikolov, Massman, Schoettle),         %
+   Ecological Modelling, 80 (1995), 205-235 */
+	const double Pa = 101325;
+	const double cf = 1.6361e-3;
+
+	double leaftemp = AirTemp + deltat;
+	double gsv = stomcond; /* input is in m/s */
+	double Tak = AirTemp + 273.15; /* Converts from C to K */
+	double Tlk = leaftemp + 273.15;  /* Converts from C to K */
+	double ea = vappress * 1e2; /* From hPa to Pa */
+	double ws = windspeed; /* m s^-1 */
+	double lw = leafwidth; /* meters */
+
+	double esTl, eb;
+	double gbv_forced, gbv_free, gbv, gbh;
+	double Tvdiff;
+
+	esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
+
+        /* Forced convection */ 
+	gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((ws/lw)/Pa),0.5);
+	gbv_free = gbv_forced;
+	eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
+	Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/
+
+	if(Tvdiff < 0) Tvdiff = -Tvdiff;
+
+	gbv_free = cf * pow(Tlk,0.56) * pow((Tlk+120)/Pa,0.5) * pow(Tvdiff/lw,0.25);
+
+	if(gbv_forced > gbv_free){
+	    gbv = gbv_forced;
+        }else{
+	     gbv = gbv_free;
+        } 
+	gbh = 0.924 * gbv;
+	
+	return(gbv); 
+}
+
+
 
 /* EvapoTrans function */
 struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
@@ -565,8 +829,8 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
         struct ET_Str tmp5_ET, tmp6_ET;
         struct Can_Str ans;
-        struct c4_str tmpc4;
-        struct c4_str tmpc42;
+        struct c4_str tmpc4, tmpc40;
+        struct c4_str tmpc42, tmpc41;
 
         int i;
         double Idir, Idiff, cosTh;
@@ -575,6 +839,8 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         double pLeafsun, pLeafshade;
         double Leafsun, Leafshade;
         double CanHeight;
+	double leafwidth = 0.04;
+	double eteq = 0.0;
 
         double vmax1, leafN_lay;
         double TempIdir,TempIdiff,AssIdir,AssIdiff,GAssIdir,GAssIdiff;
@@ -638,7 +904,8 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 pLeafsun = layFsun[--sp4];
                 CanHeight = layHeight[--sp6];
                 Leafsun = LAIc * pLeafsun;
-                tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
+                tmpc40 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
+                tmp5_ET = EvapoTrans2(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc40.Gs, leafwidth, eteq);
                 TempIdir = Temp + tmp5_ET.Deltat;
                 tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdir = tmpc4.Assim;
@@ -647,7 +914,8 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 IDiff = layIdiff[--sp2];
                 pLeafshade = layFshade[--sp5];
                 Leafshade = LAIc * pLeafshade;
-                tmp6_ET = EvapoTrans(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
+                tmpc41 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
+                tmp6_ET = EvapoTrans2(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc41.Gs,leafwidth,eteq);
                 TempIdiff = Temp + tmp6_ET.Deltat;
                 tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdiff = tmpc42.Assim;

@@ -22,14 +22,15 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
 	  SEXP ReH,SEXP windspeed,SEXP LAT,SEXP NLAYERS, SEXP STOMATAWS,
 	  SEXP VMAX, SEXP ALPH, SEXP KPARM, SEXP THETA, SEXP BETA,
 	  SEXP RD, SEXP B0, SEXP B1, SEXP CATM, SEXP KD, SEXP HEIGHTF, 
-	  SEXP WS, SEXP LEAFN, SEXP KPLN, SEXP LNB0, SEXP LNB1, SEXP LNFUN, SEXP CHIL,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP)
+	  SEXP WS, SEXP LEAFN, SEXP KPLN, SEXP LNB0, SEXP LNB1, SEXP LNFUN, 
+          SEXP CHIL,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP, SEXP LEAFWIDTH)
 {
 
     double upperT=REAL(UPPERTEMP)[0];
     double lowerT=REAL(LOWERTEMP)[0];
 /* Declaring the struct for the Evaop Transpiration */
    struct ET_Str tmp5_ET , tmp6_ET; 
-   struct c4_str tmpc4, tmpc42; 
+   struct c4_str tmpc4, tmpc42, tmpc40, tmpc41; 
    //NITROPARMS STRUCTURE IS PASSED and READ
   struct nitroParms nitroparms;
 	double TEMPdoubletoint;
@@ -96,7 +97,9 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   double heightf = REAL(HEIGHTF)[0];
   double chil = REAL(CHIL)[0];
   double Catm = REAL(CATM)[0];
-
+  double leafwidth = REAL(LEAFWIDTH)[0];
+  double eteq = 0.0;
+  int ws = INTEGER(WS)[0];
   /* Photosynthesis parameters */
 
   double alpha1 = REAL(ALPH)[0];
@@ -132,7 +135,7 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   PROTECT(epries = allocVector(REALSXP,1));
   PROTECT(cond = allocVector(REALSXP,1));
   PROTECT(Ggrowth = allocVector(REALSXP,1));
-  PROTECT(mat1 = allocMatrix(REALSXP,19,nlayers));
+  PROTECT(mat1 = allocMatrix(REALSXP,21,nlayers));
 
 
   /* Light Macro Environment. As a side effect it populates tmp1. This
@@ -190,44 +193,45 @@ layIdiff, layShade vectors. */
 	    pLeafsun = layFsun[--sp4];
 	    CanHeight = layHeight[--sp6];
 	    Leafsun = LAIc * pLeafsun;
-	    tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,stomataws,
-				 INTEGER(WS)[0],vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,upperT,lowerT);
+	    tmpc40 = c4photoC(IDir,TempIdir,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);
+	    tmp5_ET = EvapoTrans2(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,tmpc40.Gs, leafwidth, eteq);
 	    TempIdir = Temp + tmp5_ET.Deltat;
-	    tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws, Catm,INTEGER(WS)[0],upperT,lowerT);
+	    tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);
 	    AssIdir = tmpc4.Assim;
-      GAssIdir=tmpc4.GrossAssim;
+	    GAssIdir=tmpc4.GrossAssim;
 
 	    IDiff = layIdiff[--sp2];
 	    pLeafshade = layFshade[--sp5];
 	    Leafshade = LAIc * pLeafshade;
-	    tmp6_ET = EvapoTrans(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,
-				 stomataws,INTEGER(WS)[0],vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,upperT,lowerT);
+	    tmpc41 = c4photoC(IDiff,TempIdiff,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);
+	    tmp6_ET = EvapoTrans2(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,tmpc41.Gs,leafwidth,eteq);
 	    TempIdiff = Temp + tmp6_ET.Deltat;
-	    tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws, Catm,INTEGER(WS)[0],upperT,lowerT);
+	    tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);
 	    AssIdiff = tmpc42.Assim;
-      GAssIdiff = tmpc42.GrossAssim;
+	    GAssIdiff = tmpc42.GrossAssim;
 
     /* Collect direct radiation assim and trans in a matrix */
-	    REAL(mat1)[i*19] = IDir;
-	    REAL(mat1)[1 + i*19] = IDiff;
-	    REAL(mat1)[2 + i*19] = Leafsun;
-	    REAL(mat1)[3 + i*19] = Leafshade;
-	    REAL(mat1)[4 + i*19] = tmp5_ET.TransR;
-	    REAL(mat1)[5 + i*19] = tmp6_ET.TransR;
-	    REAL(mat1)[6 + i*19] = AssIdir;
-	    /*REAL(mat1)[7 + i*19] = AssIdiff;*/
-      REAL(mat1)[7 + i*19] = AssIdiff;
-	    REAL(mat1)[8 + i*19] = tmp5_ET.Deltat;
-	    REAL(mat1)[9 + i*19] = tmp6_ET.Deltat;
-	    REAL(mat1)[10 + i*19] = tmp5_ET.LayerCond; 
-	    REAL(mat1)[11 + i*19] = tmp6_ET.LayerCond; 
-	    REAL(mat1)[12 + i*19] = leafN_lay; 
-	    REAL(mat1)[13 + i*19] = vmax1;
-	    REAL(mat1)[14 + i*19] = rh; 
-      REAL(mat1)[15 + i*19] = GAssIdir;
-      REAL(mat1)[16 + i*19] = GAssIdiff;
-      REAL(mat1)[17 + i*19] = alpha1;
-      REAL(mat1)[18 + i*19] = leafN_lay;
+      REAL(mat1)[i*21] = IDir;
+      REAL(mat1)[1 + i*21] = IDiff;
+      REAL(mat1)[2 + i*21] = Leafsun;
+      REAL(mat1)[3 + i*21] = Leafshade;
+      REAL(mat1)[4 + i*21] = tmp5_ET.TransR;
+      REAL(mat1)[5 + i*21] = tmp6_ET.TransR;
+      REAL(mat1)[6 + i*21] = AssIdir;
+      REAL(mat1)[7 + i*21] = AssIdiff;
+      REAL(mat1)[8 + i*21] = tmp5_ET.Deltat;
+      REAL(mat1)[9 + i*21] = tmp6_ET.Deltat;
+      REAL(mat1)[10 + i*21] = tmp5_ET.LayerCond; 
+      REAL(mat1)[11 + i*21] = tmp6_ET.LayerCond; 
+      REAL(mat1)[12 + i*21] = leafN_lay; 
+      REAL(mat1)[13 + i*21] = vmax1;
+      REAL(mat1)[14 + i*21] = rh; 
+      REAL(mat1)[15 + i*21] = GAssIdir;
+      REAL(mat1)[16 + i*21] = GAssIdiff;
+      REAL(mat1)[17 + i*21] = alpha1;
+      REAL(mat1)[18 + i*21] = leafN_lay;
+      REAL(mat1)[19 + i*21] = WindS;
+      REAL(mat1)[20 + i*21] = CanHeight;
 /*      REAL(mat1)[11 + i*12] = rh;  */
     /*Layer conductance needs to be transformed back to the correct units here*/
 
