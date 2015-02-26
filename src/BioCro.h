@@ -35,7 +35,8 @@ struct Can_Str CanAC(double LAI,int DOY,int hr,double solarR,double Temp,
 		     double RH,double WindSpeed,double lat,int nlayers, double Vmax, double Alpha, 
 		     double Kparm, double theta, double beta, double Rd, double Catm, double b0, 
 		     double b1, double StomataWS, int ws, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT,double lowerT, struct nitroParms nitroP);
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT,
+		     double lowerT, struct nitroParms nitroP, double leafwidth, int eteq);
          
 struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                        double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,

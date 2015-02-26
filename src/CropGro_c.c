@@ -1,5 +1,5 @@
 /*!
- *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007-2011
+ *  BioCro/src/CropGro_c.c by Deepak Jaiswal  Copyright (C) 2012-2015
  *TEST DOXYGEN
  *
  */
@@ -529,7 +529,7 @@ for(i=0;i<vecsize;i++)
 			       vmax1,alpha1,kparm1,
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
-			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
+			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms, 0.04, 0);
         		CanopyA = Canopy.Assim * timestep;
             CanopyAGross =Canopy.GrossAssim*timestep;
         		CanopyT = Canopy.Trans * timestep;
