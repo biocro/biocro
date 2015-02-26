@@ -84,13 +84,13 @@ function.
 \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.}
 
 \item{MaizePhenoControl}{argument used to pass parameters related to
-phenology characteristics %% ~~Describe \code{MaizePhenoControl} here~~}
+phenology characteristics }
 
-\item{soilControl}{%% ~~Describe \code{soilControl} here~~}
+\item{soilControl}{ see BioGro function }
 
-\item{nitroControl}{%% ~~Describe \code{nitroControl} here~~}
+\item{nitroControl}{ see BioGro function }
 
-\item{centuryControl}{%% ~~Describe \code{centuryControl} here~~}
+\item{centuryControl}{ see BioGro function }
 }
 \value{
 It currently returns a list with the following components
@@ -117,10 +117,7 @@ it produces phenology, photosynthesis, LAI, etc.
 }
 \details{
 The phenology follows the 'Corn Growth and Development' Iowa State
-Publication. %% ~~ If necessary, more details than the description above ~~
-}
-\note{
-%% ~~further notes~~
+Publication. 
 }
 \examples{
 data(weather05)
@@ -130,12 +127,9 @@ res <- MaizeGro(weather05, plant.day = 110, emerge.day = 120, harvest.day=300,
 \author{
 Fernando E Miguez
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \seealso{
-\code{\link{BioGro}} %% ~~objects to See Also as
-\code{\link{help}}, ~~~
+\code{\link{BioGro}} 
 }
 \keyword{models}
 

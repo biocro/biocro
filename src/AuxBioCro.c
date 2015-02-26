@@ -9,7 +9,6 @@
  *
  */
 
-
 /* This file will contain functions which are common to several */
 /* routines in the BioCro package. These are functions needed */
 /* internally. The normal user will not need them */
@@ -92,7 +91,7 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
         double i;
         double k0, k1, k;
         double LAIi, CumLAI;
-        double Isolar, Idiffuse, Ibeam, Iscat, Itotal,alphascatter;
+        double Isolar, Idiffuse, Ibeam, Iscat, Iaverage, Itotal,alphascatter;
         double Ls, Ld;
         double Fsun, Fshade;
         alphascatter=0.8;
@@ -123,11 +122,12 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
                 Fshade=Ld/(Ls+Ld);
                 /*fraction intercepted*/
                 Itotal =(Fsun*Isolar + Idiffuse) * (1-exp(-k*LAIi))/k;
+		Iaverage =(Fsun*(Isolar + Idiffuse) + Fshade*Idiffuse) * (1-exp(-k*LAIi))/k;
 
                 /* collecting the results */
                 layIdir[sp1++] = Isolar + Idiffuse;
                 layIdiff[sp2++] = Idiffuse;
-                layItotal[sp3++] = Itotal;
+                layItotal[sp3++] = Iaverage;
                 layFsun[sp4++] = Fsun;
                 layFshade[sp5++] = Fshade;
                 layHeight[sp6++] = LAI/heightf - CumLAI/heightf;
@@ -352,6 +352,7 @@ but Thornley and Johnson use it as MJ kg-1  */
    does not consider a multilayer canopy 
  The other method is taken from the original WIMOVAC code. */
 
+	/* Rprintf("Gs %.3f \n", stomatacond); */
         /* Leaf Conductance */
 	gvs = stomatacond; 
         /* Convert from mmol H20/m2/s to m/s */
@@ -824,7 +825,8 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                      double Alpha, double Kparm, double theta, double beta,
                      double Rd, double Catm, double b0, double b1,
                      double StomataWS, int ws, double kd, double chil, double heightf,
-                     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT, double lowerT,struct nitroParms nitroP)
+                     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,
+		     double upperT, double lowerT,struct nitroParms nitroP)
 {
 
         struct ET_Str tmp5_ET, tmp6_ET;
@@ -840,12 +842,14 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         double Leafsun, Leafshade;
         double CanHeight;
 	double leafwidth = 0.04;
-	double eteq = 0.0;
+	int eteq = 0;
 
         double vmax1, leafN_lay;
-        double TempIdir,TempIdiff,AssIdir,AssIdiff,GAssIdir,GAssIdiff;
+        double TempIdir = 0.0, TempIdiff = 0.0, 
+               AssIdir = 0.0, AssIdiff = 0.0,
+               GAssIdir = 0.0 ,GAssIdiff = 0.0;
 
-        double CanopyA, CanopyT,GCanopyA;
+        double CanopyA = 0.0, CanopyT = 0.0, GCanopyA = 0.0;
 
         const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
         const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
@@ -871,7 +875,6 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         cosTh = tmp1[2];
     
         sunML(Idir,Idiff,LAI,nlayers,cosTh, kd, chil, heightf);
-
         /* results from multilayer model */
         LAIc = LAI / nlayers;
         /* Next I need the RH and wind profile */
@@ -891,10 +894,9 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                         vmax1 = Vmax;
                 }else{
                         vmax1=nitroP.Vmaxb1*leafN_lay+nitroP.Vmaxb0;
-  				              if(vmax1<0) vmax1=0.0;
-					              Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
-					               Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
-               /* For now alpha is not affected by leaf nitrogen */
+			if(vmax1<0) vmax1=0.0;
+			Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
+			Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
                 }
 
                 IDir = layIdir[--sp1];
@@ -904,8 +906,13 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 pLeafsun = layFsun[--sp4];
                 CanHeight = layHeight[--sp6];
                 Leafsun = LAIc * pLeafsun;
-                tmpc40 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
-                tmp5_ET = EvapoTrans2(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc40.Gs, leafwidth, eteq);
+                tmpc40 = c4photoC(IDir,Temp,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
+                tmp5_ET = EvapoTrans2(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc40.Gs,leafwidth,eteq);
+		/* if(i == nlayers - 1){ */
+		/* 	Rprintf("inputs IDir %.3f, Itot %.2f, Temp %.2f,  \n", IDir, Itot, Temp); */
+		/* 	Rprintf("inputs rh %.3f, WS %.2f, LAIc %.2f,  \n", rh, WS, LAIc); */
+		/* 	Rprintf("inputs CanHeight %.3f, tmpc40.Gs %.4f, leafwidth %.2f,  \n", CanHeight, tmpc40.Gs, leafwidth); */
+		/* } */
                 TempIdir = Temp + tmp5_ET.Deltat;
                 tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdir = tmpc4.Assim;
@@ -914,7 +921,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 IDiff = layIdiff[--sp2];
                 pLeafshade = layFshade[--sp5];
                 Leafshade = LAIc * pLeafshade;
-                tmpc41 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
+                tmpc41 = c4photoC(IDiff,Temp,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 tmp6_ET = EvapoTrans2(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc41.Gs,leafwidth,eteq);
                 TempIdiff = Temp + tmp6_ET.Deltat;
                 tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
@@ -924,9 +931,18 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
 // I am evaluating CanopyT using Penman Method because it gives realistic results
 // IN future canopyT needs to be fixed
-//                CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
-                CanopyT += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman;
+                CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+                /* CanopyT += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman; */
         }
+
+	if(ISNAN(CanopyA)){
+		Rprintf("LAI %.2f \n",LAI); 
+		Rprintf("Leafsun %.2f \n",Leafsun);
+		Rprintf("AssIdir %.2f \n", AssIdir);
+		Rprintf("Leafshade %.2f \n",Leafshade);
+		Rprintf("AssIdiff %.2f \n", AssIdiff);    
+		error("Something is NA \n");
+	}
         /*## These are micro mols of CO2 per m2 per sec for Assimilation
           ## and mili mols of H2O per m2 per sec for Transpiration
           ## Need to convert to 

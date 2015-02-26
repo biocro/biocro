@@ -60,13 +60,18 @@ This function was originally used to transform daily data to hourly data.
 Some flexibility has been added so that other units can be used. The input
 data used originally looked as follows. \enumerate{
 
-\itemcol 1year \itemcol 2day of the year (1--365). Does not consider leap
-years. \itemcol 3total daily solar radiation (MJ/m^2). \itemcol 4maximum
-temperature (Fahrenheit). \itemcol 5minimum temperature (Fahrenheit).
-\itemcol 6average temperature (Fahrenheit). \itemcol 7maximum relative
-humidity (\%). \itemcol 8minimum relative humidity (\%). \itemcol 9average
-relative humidity (\%). \itemcol 10average wind speed (miles per hour).
-\itemcol 11precipitation (inches). }
+  \item col 1year
+  \item col 2 day of the year (1--365). Does not consider leap
+  years.
+  \item col 3 total daily solar radiation (MJ/m^2).
+  \item col 4 maximum temperature (Fahrenheit).
+  \item col 5 minimum temperature (Fahrenheit).
+  \item col 6 average temperature (Fahrenheit).
+  \item col 7 maximum relative humidity (\%).
+  \item col 8 minimum relative humidity (\%).
+  \item col 9 average relative humidity (\%).
+  \item col 10 average wind speed (miles per hour).
+  \item col 11 precipitation (inches). }
 
 All the units above are the defaults but they can be changed as part of the
 arguments.

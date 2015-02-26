@@ -1,6 +1,7 @@
 /*
- *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007-2015
- *
+ *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez Copyright (C)
+ *  2007-2015 lower and upper temp contributed by Deepak Jaiswal,
+ *  nitroparms also contributed by Deepak Jaiswal
  *
  */
 
@@ -365,7 +366,44 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 			       vmax1,alpha1,kparm1,
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
-			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
+			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,
+                               lowerT,nitroparms);
+
+		/* if(ISNAN(Leaf)){ */
+		/* 	Rprintf("Leaf %.2f \n",Leaf); */
+		/* 	Rprintf("kLeaf %.2f \n",kLeaf); */
+		/* 	Rprintf("newLeaf %.2f \n",newLeaf); */
+		/* 	Rprintf("LeafWS %.2f \n",LeafWS); */
+		/* 	error("something is NA \n"); */
+		/* } */
+
+		if(ISNAN(CanopyA)){
+			Rprintf("LAI %.2f \n",LAI); 
+			Rprintf("Leaf %.2f \n",Leaf);
+			Rprintf("Rhizome %.2f \n",Rhizome);
+			Rprintf("Sp %.2f \n",Sp);   
+			Rprintf("vmax1 %.2f \n",vmax1);
+			Rprintf("alpha1 %.2f \n",alpha1);
+			Rprintf("kparm1 %.2f \n",kparm1);
+			Rprintf("theta %.2f \n",theta);
+			Rprintf("beta %.2f \n",beta);
+			Rprintf("Rd1 %.2f \n",Rd1); 
+			Rprintf("Ca %.2f \n",Ca);
+			Rprintf("b01 %.2f \n",b01);
+			Rprintf("b11 %.2f \n",b11);
+			Rprintf("StomWS %.2f \n",StomWS);
+			Rprintf("kd %.2f \n",kd);                 
+			Rprintf("Sp %.2f \n",Sp);                  
+			Rprintf("doy[i] %.i %.i \n",i,*(pt_doy+i)); 
+			Rprintf("hr[i] %.i %.i \n",i,*(pt_hr+i));
+			Rprintf("solar[i] %.i %.2f \n",i,*(pt_solar+i));
+			Rprintf("temp[i] %.i %.2f \n",i,*(pt_temp+i));
+			Rprintf("rh[i] %.i %.2f \n",i,*(pt_rh+i));
+			Rprintf("windspeed[i] %.i %.2f \n",i,*(pt_windspeed+i));
+			Rprintf("lat %.i %.2f \n",i,lat);
+			Rprintf("nlayers %.i %.i \n",i,nlayers);   
+			error("something is NA \n");
+		}
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
@@ -489,6 +527,11 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 		if(kLeaf > 0)
 		{
 			newLeaf = CanopyA * kLeaf * LeafWS ; 
+
+			if(ISNAN(newLeaf)){
+				Rprintf("LeafWS %.2f \n",LeafWS);
+				Rprintf("CanopyA %.2f \n",CanopyA);
+			}
 			/*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
 			    Plant. Phys. 46, 233-235. For this the water stress coefficient is different
 			    for leaf and vmax. */
