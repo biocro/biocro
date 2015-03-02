@@ -1,4 +1,5 @@
-##  BioCro/R/c4photo.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2008
+##  BioCro/R/c4photo.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2015
+## Contributions by Deepak Jaiswal for the temperature response
 
 ##' Coupled photosynthesis-stomatal conductance simulation
 ##'
@@ -21,8 +22,8 @@
 ##' @param beta beta parameter according to the Collatz model. Curvature for
 ##' response to CO2.
 ##' @param Rd Rd parameter according to the Collatz model. Dark respiration.
-##' @param UPPERTEMP
-##' @param LOWERTEMP
+##' @param uppertemp parameter controlling the upper temperature response
+##' @param lowertemp parameter controlling the lower temperature response
 ##' @param Catm Atmospheric CO2 in ppm (or \eqn{\mu}{micro}mol/mol).
 ##' @param b0 intercept for the Ball-Berry stomatal conductance model.
 ##' @param b1 slope for the Ball-Berry stomatal conductance model.
@@ -171,7 +172,8 @@
 ##'
 
 c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
-                    beta=0.93,Rd=0.8,UPPERTEMP=37.5,LOWERTEMP=3.0,Catm=380,b0=0.08,b1=3,
+                    beta=0.93,Rd=0.8,uppertemp=37.5,lowertemp=3.0,
+                    Catm=380,b0=0.08,b1=3,
                     StomWS=1,ws=c("gs","vmax"))
 {
     if((max(RH) > 1) || (min(RH) < 0))
@@ -197,7 +199,8 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
                  as.double(kparm),as.double(theta),
                  as.double(beta),
                  as.double(Rd),as.double(Catm),
-                 as.double(b0),as.double(b1),as.double(StomWS),as.integer(ws),as.double(UPPERTEMP),as.double(LOWERTEMP))
+                 as.double(b0),as.double(b1),as.double(StomWS),as.integer(ws),
+                 as.double(uppertemp),as.double(lowertemp))
     res
 }
 ##' Markov chain Monte Carlo for C4 photosynthesis parameters
@@ -244,6 +247,8 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
 ##' @param prior Vector of length 4 with first element prior mean for vmax,
 ##' second element prior standard deviation for vmax, third element prior mean
 ##' for alpha and fourth element prior standard deviation for alpha.
+##' @param uppertemp parameter controlling the upper temperature response
+##' @param lowertemp parameter controlling the lower temperature response
 ##' @export
 ##' @return
 ##' an object of class \code{MCMCc4photo} with components
@@ -278,7 +283,8 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
                         ialpha = 0.04, ikparm = 0.7, itheta=0.83,
                         ibeta=0.93, iRd = 0.8, Catm = 380,
                         b0 = 0.08, b1 = 3, StomWS=1, ws=c("gs","vmax"), scale = 1,
-                        sds=c(1,0.005),prior=c(39,10,0.04,0.02),UPPERTEMP=37.5,LOWERTEMP=3.0){
+                        sds=c(1,0.005),prior=c(39,10,0.04,0.02),
+                        uppertemp=37.5,lowertemp=3.0){
 
     if(ncol(data) != 4)
         stop("ncol data should be 4")
@@ -304,7 +310,8 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
                  as.double(itheta), as.double(ibeta),
                  as.double(iRd), as.double(Catm), as.double(b0), as.double(b1),
                  as.double(StomWS), as.double(scale), as.double(sds[1]),
-                 as.double(sds[2]), as.integer(ws), as.double(prior),as.double(UPPERTEMP),as.double(LOWERTEMP))
+                 as.double(sds[2]), as.integer(ws), as.double(prior),
+                 as.double(uppertemp),as.double(lowertemp))
     res$resuMC <- t(res$resuMC)
     res$niter <- niter
     colnames(res$resuMC) <- c("Vcmax","Alpha","RSS")

@@ -118,6 +118,25 @@ plot(res$Ci, res$Assim, type = 'l', ylab = "CO2 uptake", xlab = "Ci")
 
 % |
 
+\subsection{Temperature response of C$_4$ photosynthesis}
+
+The shape of the temperature response to photosynthesis can be
+modified from the default values.
+
+<<c4photo-tempresponse, fig.height=5>>=
+idat <- data.frame(Qp=1500, temp = 0:50, rh = 0.7)
+res <- c4photo(idat$Qp, idat$temp, idat$rh)
+res2 <- c4photo(idat$Qp, idat$temp, idat$rh, uppertemp = 45, lowertemp = 10)
+xyplot(res$Assim + res2$Assim ~ idat$temp, type = 'o',
+       xlab = "Temperature", ylab = "Assimilation",
+       key = simpleKey(c('default','U = 45, L = 10')))
+@ 
+
+Reducing the first value (\code{lowertemp}) reduces the level of
+photosynthesis at low temperatures and increasing the second value
+(\code{uppertemp}) results in higher photosynthesis at high
+temperatures.
+
 \subsubsection{Effect of stress on photosynthesis}
 
 Besides some of the typical parameters for both functions there is the
