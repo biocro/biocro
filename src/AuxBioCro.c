@@ -244,15 +244,8 @@ struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double
 	double Tair, WindSpeedTopCanopy;
 	double DdryA, LHV, SlopeFS, SWVC, SWVP;
 	double LayerWindSpeed, totalradiation;
-	double LayerConductance, DeltaPVa, PsycParam, ga;
-	double BoundaryLayerThickness, DiffCoef,LeafboundaryLayer;
-	double d, Zeta, Zetam;
+	double DeltaPVa, PsycParam, ga;
 	double gvs; /* Conductance to vapor from stomata same as stomatacond (input variable) */ 
-	double gvc, gvc0, gvc1, gvc2; /* Conductance to vapor from whole canopy */
-        /* The previous term might not be needed here because these calculations are at the leaf level */ 
-	double gbcW; /* canopy boundary layer to vapor from WIMOVAC */
-	double gbclW; /* canopy + leaf boundary layer to vapor from WIMOVAC */
-	double UStar, gav2, gh; /* gh is the conductance to heat */
 	double ActualVaporPressure;
 	double Ja, Ja2, Deltat;
 	double PhiN, PhiN2;
@@ -315,49 +308,15 @@ but Thornley and Johnson use it as MJ kg-1  */
 	Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
 
         /* AERODYNAMIC COMPONENT */
-        /* This is needed to calculate canopy conductance */
-	Zeta = ZetaCoef * CanopyHeight;
-	Zetam = ZetaMCoef * CanopyHeight;
-	d = dCoef * CanopyHeight;
-
 	if(WindSpeed < 0.5) WindSpeed = 0.5;
 
 	LayerWindSpeed = WindSpeed;
-
-	/* According to thornley and Johnson pg. 416. Also Eq 49  */
-	gvc0 = pow(kappa,2) * LayerWindSpeed;
-	gvc1 = log((WindSpeedHeight + Zeta - d)/Zeta);
-	gvc2 = log((WindSpeedHeight + Zetam - d)/Zetam);
-	gvc = gvc0/(gvc1*gvc2);
-
-	if(gvc < 0)
-		error("gvc is less than zero");
-
-	/* Calculation of ga, leaf boundary layer conductance */
-        /* The calculation of ga in WIMOVAC follows */
-	DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Tair);
-	BoundaryLayerThickness = 0.004 * sqrt(leafw / LayerWindSpeed);
-	LeafboundaryLayer = DiffCoef / BoundaryLayerThickness;
-        /* This is the leaf boundary layer conductance Eq 46 http://www.life.illinois.edu/plantbio/wimovac/leafgas.htm */
-
-        UStar = (WindSpeedTopCanopy * kappa) / (log((WindSpeedHeight - d) / Zeta)); /* Eq 47 */
-	gbcW = pow(UStar,2) / LayerWindSpeed;
-        gbclW = (gbcW * LeafboundaryLayer) / (gbcW + LeafboundaryLayer); /* Eq 48 */
-
-        ga = gbclW; /* I'm testing now using the original WIMOVAC formula */
-                    /* For this to work ga should be in m/s */
-
-/* There are two ways of calculating ga in this code
- One method is taken from Thornley and Johnson, but this method
-   does not consider a multilayer canopy 
- The other method is taken from the original WIMOVAC code. */
 
 	/* Rprintf("Gs %.3f \n", stomatacond); */
         /* Leaf Conductance */
 	gvs = stomatacond; 
         /* Convert from mmol H20/m2/s to m/s */
 	gvs = gvs * (1.0/41000.0) ;
-	/* LayerConductance = LayerConductance * 24.39 * 1e-6; Original from WIMOVAC */ 
         /* 1/41000 is the same as 24.39 * 1e-6 */
 	/* Thornley and Johnson use m s^-1 on page 418 */
 
@@ -404,8 +363,6 @@ but Thornley and Johnson use it as MJ kg-1  */
 			ChangeInLeafTemp = -ChangeInLeafTemp;
 		Counter++;
 	}
-
-	gh = ga * 0.924; /* Not used at the moment */
 
         /* Net radiation */
 	PhiN = Ja - rlc;

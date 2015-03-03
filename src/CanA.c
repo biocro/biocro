@@ -191,7 +191,16 @@ layIdiff, layShade vectors. */
 	    pLeafsun = layFsun[--sp4];
 	    CanHeight = layHeight[--sp6];
 	    Leafsun = LAIc * pLeafsun;
+
+	    /* Rprintf("IDir: %.6f \n", IDir); */
+	    /* Rprintf("Temp: %.6f \n", Temp); */
+	    /* Rprintf("rh: %.6f \n", rh); */
+	    /* Rprintf("b01: %.6f \n", b01); */
+	    /* Rprintf("b11: %.6f \n", b11); */
+	    /* Rprintf("vmax1: %.6f \n", vmax1); */
+
 	    tmpc40 = c4photoC(IDir,Temp,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);
+	    /* Rprintf("tmpc40.Gs: %.6f \n", tmpc40.Gs); */
 	    tmp5_ET = EvapoTrans2(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,tmpc40.Gs,leafwidth,eteq);
 	    TempIdir = Temp + tmp5_ET.Deltat;
 	    tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);

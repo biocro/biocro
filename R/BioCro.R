@@ -76,6 +76,14 @@
 ##' \code{b0} b0 parameter passed to the \code{\link{c4photo}} function.
 ##'
 ##' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
+##'
+##' \code{ws} whether the stress should be applied to stomatal
+##' conductance or photosynthesis
+##'
+##' \code{uppertemp} upper temperature response control
+##'
+##' \code{lowertemp} lower temperature response control
+##' 
 ##' @param phenoControl List that controls aspects of the crop phenology. It
 ##' should be supplied through the \code{phenoParms} function.
 ##'
@@ -354,8 +362,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-    upperT<-photoP$UPPERTEMP
-    lowerT<-photoP$LOWERTEMP
+    upperT<-photoP$uppertemp
+    lowerT<-photoP$lowertemp
     
     mResp <- canopyP$mResp
     kd <- canopyP$kd
@@ -460,13 +468,13 @@ canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
 
 }
 
-photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.01, b1=3, ws=c("gs","vmax"),UPPERTEMP=37.5,LOWERTEMP=3.0){
+photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.08, b1=3, ws=c("gs","vmax"),uppertemp=37.5,lowertemp=3.0){
 
   ws <- match.arg(ws)
   if(ws == "gs") ws <- 1
   else ws <- 0
       
-  list(vmax=vmax,alpha=alpha,kparm=kparm,theta=theta,beta=beta,Rd=Rd,Catm=Catm,b0=b0,b1=b1,ws=ws,UPPERTEMP=UPPERTEMP,LOWERTEMP=LOWERTEMP)
+  list(vmax=vmax,alpha=alpha,kparm=kparm,theta=theta,beta=beta,Rd=Rd,Catm=Catm,b0=b0,b1=b1,ws=ws,uppertemp=uppertemp,lowertemp=lowertemp)
 
 }
 

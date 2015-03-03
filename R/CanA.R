@@ -137,12 +137,13 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-    upperT<-photoP$UPPERTEMP
-    lowerT<-photoP$LOWERTEMP
+    upperT<-photoP$uppertemp
+    lowerT<-photoP$lowertemp
     
-    lnP <- canenitroParms()
+    lnP <- lnParms()
     lnP[names(lnControl)] <- lnControl
-    nnitroP<-as.vector(unlist(lnP))
+    canenitroP <- canenitroParms()
+    nnitroP<-as.vector(unlist(canenitroP))
 
     res <- .Call(CanA_sym,as.double(lai),as.integer(doy),
                  as.integer(hr),as.double(solar),as.double(temp),
@@ -157,7 +158,7 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
                  as.double(lnP$kpLN), as.double(lnP$lnb0),
                  as.double(lnP$lnb1), as.integer(lnP$lnFun),
                  as.double(chi.l),as.double(upperT),
-                 as.double(lowerT),as.double(nnitroP),
+                 as.double(lowerT), as.double(nnitroP),
                  as.double(leafwidth))
 
     res$LayMat <- t(res$LayMat)
