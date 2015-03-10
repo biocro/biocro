@@ -1,0 +1,161 @@
+
+```{r}
+
+load("vignettes/salix/samples.Rdata")
+
+#pp <- willowphotoParms()
+#cc <- willowcanopyParms()
+### Test Soil Properties
+soil <- willowsoilParms(wsFun = 'lwp',
+                        FieldC = 0.182,
+                        WiltP = 0.09,
+                        soilDepth = 200, # > 200
+                        soilLayers = 3, 
+                        iWatCont = 0.2, # just more than field capacity
+                        soilDepths = c(0, 0.2, 0.5, 0.8))
+
+
+i <- lapply(config$pft$iPlantControl, as.numeric)
+iplant <- list(iStem = i$iStem,
+               iRhizome = i$iStem / 2,
+               iRoot = i$iStem / 2)
+```
+
+### Stomatal Slope
+
+```{r}
+pp <- config$pft$photoParms
+pp$b1 <- 0.2#sa.samples$salix$stomatal_slope.BB[1]
+b <- willowGro(WetDat = WetDat, photoControl = pp, soilControl = soil,
+               iPlantControl = iplant,
+               #canopyControl=cc, 
+               day1 = day1, dayn = dayn)
+pp$b1 <- 10#sa.samples$salix$stomatal_slope.BB[3]
+c <- willowGro(WetDat = WetDat, photoControl = pp, soilControl = soil,
+               iPlantControl = iplant,
+               #canopyControl=cc, 
+               day1 = day1, dayn = dayn)
+signif(data.frame(stem = c(max(b$Stem), max(c$Stem)),
+           trans = c(max(b$CanopyTrans), max(c$CanopyTrans)),
+           A = c(max(b$CanopyAssim),max(c$CanopyAssim))), 4)
+
+
+pp <- config$pft$photoParms
+```
+
+### Sensitivity to Soil parameter phi1
+
+```{r}
+
+soil <- s
+soil$phi1 <- 0.010
+pp$b1 <- 0.2#sa.samples$salix$stomatal_slope.BB[1]
+b <- willowGro(WetDat = WetDat, photoControl = pp, soilControl = soil,
+               iPlantControl = iplant,
+               #canopyControl=cc, 
+               day1 = day1, dayn = dayn)
+pp$b1 <- 10#sa.samples$salix$stomatal_slope.BB[3]
+c <- willowGro(WetDat = WetDat, photoControl = pp, soilControl = soil,
+               iPlantControl = iplant,
+               #canopyControl=cc, 
+               day1 = day1, dayn = dayn)
+signif(data.frame(stem = c(max(b$Stem), max(c$Stem)),
+           trans = c(max(b$CanopyTrans), max(c$CanopyTrans)),
+           A = c(max(b$CanopyAssim),max(c$CanopyAssim))), 4)
+```
+
+### Testing sensitivity to b0 Cutilular Conductance 
+
+```{r}
+pp <- config$pft$photoParms
+
+pp$b0 <- 0.01#sa.samples$salix$cuticular_cond[1]/1000000
+b <- willowGro(WetDat = WetDat, photoControl = pp, soilControl = soil,
+               iPlantControl = iplant,
+               canopyControl=cc, 
+               day1 = day1, dayn = dayn)
+pp$b0 <- 4#sa.samples$salix$cuticular_cond[3]/1000000
+c <- willowGro(WetDat = WetDat, photoControl = pp, soilControl = soil,
+               iPlantControl = iplant,
+               canopyControl=cc, 
+               day1 = day1, dayn = dayn)
+signif(data.frame(stem = c(max(b$Stem), max(c$Stem)),
+                  trans = c(max(b$CanopyTrans), max(c$CanopyTrans)),
+                  A = c(max(b$CanopyAssim),max(c$CanopyAssim))), 4)
+
+
+
+a <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 30, rh = 0.1, windspeed =6,
+             lat=40,nlayers=8,kd=0.1,
+             heightFactor=3,
+             c3photoControl = list(b0=0.1))
+b <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 30, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.1,
+            heightFactor=3,
+            c3photoControl = list(b0=1))
+a$CanopyAssim
+b$CanopyAssim
+
+a$CanopyTrans
+b$CanopyTrans
+```
+
+### Testing sensitivity to b1
+
+
+```{r}
+c <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 30, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.1,
+            heightFactor=3,
+            c3photoControl = list(b1=4))
+d <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 30, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.1,
+            heightFactor=3,
+            c3photoControl = list(b1=10))
+expect_less_than(c$CanopyAssim, d$CanopyAssim)
+expect_less_than(c$CanopyTrans, d$CanopyTrans)
+```
+
+### Testing sensitivity to vmax
+
+
+```{r}
+
+
+e <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 20, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.8,
+            heightFactor=3,
+            c3photoControl = willowphotoParms(vmax=50))
+f <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 20, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.8,
+            heightFactor=3,
+            c3photoControl = willowphotoParms(vmax=200))
+expect_less_than(e$CanopyAssim, f$CanopyAssim)
+
+```
+
+### Testing sensitivity to jmax
+
+```{r}
+g <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 20, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.8,
+            heightFactor=3,
+            c3photoControl = willowphotoParms(jmax=50))
+h <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 20, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.8,
+            heightFactor=3,
+            c3photoControl = willowphotoParms(jmax=200))
+expect_less_than(g$CanopyAssim, h$CanopyAssim)
+```
+
+
+### Testing sensitivity to kd
+
+```{r}
+i <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 20, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.2)
+j <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 20, rh = 0.1, windspeed =6,
+            lat=40,nlayers=8,kd=0.8)
+expect_more_than(i$CanopyAssim, j$CanopyAssim)
+```
+
