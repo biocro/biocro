@@ -6,10 +6,6 @@ library("devtools")
 #' @description Overwrites devtools::document() to include the treatment of 
 #'    doxygen documentation in src/
 #' @return The value returned by devtools::document()
-#' @example
-#' \dontrun{
-#' document()
-#' }
 #' @export
 document <- function(){
   if(file.exists("src")){
