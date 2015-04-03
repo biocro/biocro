@@ -7,6 +7,11 @@ BioCro is a plant production model adapted from WIMOVAC, relying on the key phys
 
 Recent development has coupled DayCent (Parton et al 1998) to BioCro, expanding the ability of BioCro to predict ecosystem functioning beyond yields, including the production of greenhouse gases and storage of carbon in the soil. BioCro has also been integrated into a suite of tools which link the model directly with crop trait and yield data, streamlining the entire modeling and data collection workflow (LeBauer et al, 2013). The Predictive Ecosystem Analyzer [(PEcAn)](https://github.com/PecanProject/pecan) couples BioCro to the [Biofuel Ecophysiological Traits and Yields database](https://www.betydb.org), enabling model parameterization and optimization, targeted data collection optimized to reduce uncertainty in model predictions, and the management of informatics and HPC computing resources. 
 
+### Software Documentation
+
+* [R package](http://ebimodeling.github.io/biocro/documentation/r/)
+* [C](http://ebimodeling.github.io/biocro/documentation/doxygen/)
+
 ### Inputs:
 
 * species-specific plant physiological traits 
