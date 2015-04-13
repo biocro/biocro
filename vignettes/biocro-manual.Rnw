@@ -15,6 +15,7 @@
 \author{Fernando E. Miguez\\Department of Agronomy\\
   Iowa State University}
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 
 
