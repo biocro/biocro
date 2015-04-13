@@ -72,10 +72,10 @@
 #' 
 #' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
 #' @param MaizePhenoControl argument used to pass parameters related to
-#' phenology characteristics %% ~~Describe \code{MaizePhenoControl} here~~
-#' @param soilControl %% ~~Describe \code{soilControl} here~~
-#' @param nitroControl %% ~~Describe \code{nitroControl} here~~
-#' @param centuryControl %% ~~Describe \code{centuryControl} here~~
+#' phenology characteristics 
+#' @param soilControl see \code{\link{BioGro}} function
+#' @param nitroControl see \code{\link{BioGro}} function
+#' @param centuryControl see \code{\link{BioGro}} function
 #' @return
 #' 
 #' It currently returns a list with the following components
@@ -96,11 +96,8 @@
 #' 
 #' \item{LAI}{Leaf Area Index}
 #' 
-#' @note %% ~~further notes~~
 #' @author Fernando E Miguez
-#' @seealso \code{\link{BioGro}} %% ~~objects to See Also as
-#' \code{\link{help}}, ~~~
-#' @references %% ~put references to the literature/web site here ~
+#' @seealso \code{\link{BioGro}} 
 #' @keywords models
 #' @examples
 #' 
