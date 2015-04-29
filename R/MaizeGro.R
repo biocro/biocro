@@ -107,7 +107,7 @@
 #'                   MaizePhenoControl = MaizePhenoParms(R6 = 2000))
 #' 
 #' @export MaizeGro
-MaizeGro <- function(WetDat, plant.day=NULL,
+MaizeGro <- function(WetDat, plant.day = NULL,
                      emerge.day=NULL,
                      harvest.day=NULL,
                      plant.density = 7, 
@@ -141,8 +141,12 @@ MaizeGro <- function(WetDat, plant.day=NULL,
 
     
     ## How should I guess the first day of growth?
-    if(missing(plant.day))
-      stop("planting date should be supplied")
+    if(missing(plant.day)){
+      x <- as.vector(filter(WetDat$DailyTemp.C, rep(1/72, 72), sides = 1, circular = TRUE))
+      min.idx <- which.min(x[1:180]) #find min of moving average, start from here
+      plant.idx <- min.idx + which(x[min.idx:length(x)] > 10)[1] # mean daily temp above 10 
+      plant.day <- WetDat$doy[plant.idx]
+    }
 
     if(missing(emerge.day)) emerge.day <- -1
 

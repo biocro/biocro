@@ -31,6 +31,8 @@ REVNO=$( git show -s --pretty=format:%T master )
 
 R CMD check ${R_LIB_INC} ../biocro &> out.log
 
+echo "devtools::test()" | R --vanilla &>out.log
+
 ## all done
 TIME=$(echo "`date +'%s'` - $START" |bc -l)
 echo "build took ${TIME} seconds." >> changes.log
