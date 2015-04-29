@@ -23,8 +23,8 @@ test_that("WillowGro function produces reasonable results",{
   expect_true(max(res$Leaf) < 25)
 })
     
-for(biocrofn in c("willowGro", "BioGro", "caneGro", "MaizeGro")){
-    ## print(biocrofn)
+for(biocrofn in c("willowGro", "caneGro", "BioGro" "MaizeGro")){
+    print(biocrofn)
     res0 <- do.call(biocrofn, list(weather05))
     
     test_that("*Gro functions produce reasonable results",{
