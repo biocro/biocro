@@ -10,13 +10,12 @@ before_install:
 install:
   - ./travis-tool.sh install_deps
 
-script: ./travis-tool.sh run_tests
-
+script: 
+  - ./travis-tool.sh run_tests
+  - echo "devtools::test()" | R --vanilla
 after_failure:
   - ./travis-tool.sh dump_logs
 
-env:
-  - WARNINGS_ARE_ERRORS=1
 
 notifications:
   email:
