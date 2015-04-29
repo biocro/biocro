@@ -1,27 +1,32 @@
-##
 ##  BioCro/R/weach.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
 ##
 ##
 ##
-##' Simulates the hourly conditions from daily
+##' Downscales daily weather to hourly
 ##'
 ##' Manipulates weather data in the format obtained from WARM (see link below)
 ##' and returns the format and units needed for most functions in this package.
-##' This function should be used for one year at a time.  It returns hourly (or
-##' sub-daily) weather information.
+##' This function should be used for one year at a time.
+##' It returns hourly (or sub-daily) weather information.
 ##'
 ##'
 ##' This function was originally used to transform daily data to hourly data.
 ##' Some flexibility has been added so that other units can be used. The input
-##' data used originally looked as follows. \enumerate{
-##'
-##' \itemcol 1year \itemcol 2day of the year (1--365). Does not consider leap
-##' years. \itemcol 3total daily solar radiation (MJ/m^2). \itemcol 4maximum
-##' temperature (Fahrenheit). \itemcol 5minimum temperature (Fahrenheit).
-##' \itemcol 6average temperature (Fahrenheit). \itemcol 7maximum relative
-##' humidity (\%). \itemcol 8minimum relative humidity (\%). \itemcol 9average
-##' relative humidity (\%). \itemcol 10average wind speed (miles per hour).
-##' \itemcol 11precipitation (inches). }
+##' data used originally looked as follows.
+##' \itemize{
+##' \item col 1 year
+##' \item col 2 day of the year (1--365). Does not consider leap
+##' years.
+##' \item col 3 total daily solar radiation (MJ/m^2).
+##' \item col 4 maximum temperature (Fahrenheit).
+##' \item col 5 minimum temperature (Fahrenheit).
+##' \item col 6 average temperature (Fahrenheit).
+##' \item col 7 maximum relative humidity (\%).
+##' \item col 8 minimum relative humidity (\%).
+##' \item col 9 average relative humidity (\%).
+##' \item col 10 average wind speed (miles per hour).
+##' \item col 11 precipitation (inches). 
+##' }
 ##'
 ##' All the units above are the defaults but they can be changed as part of the
 ##' arguments.
@@ -46,16 +51,18 @@
 ##' @export
 ##' @return a \code{\link{matrix}} returning hourly (or sub-daily) weather
 ##' data. Dimensions 8760 (if hourly) by 8.
-##' @returnItem year Year.
-##' @returnItem doy Day of the year.
-##' @returnItem hour Hour of the day (0--23, depending on the timestep).
-##' @returnItem SolarR Direct solar radiation (\eqn{\mu mol \; m^{-2} \;
+##' \itemize{
+##' \item year Year.
+##' \item doy Day of the year.
+##' \item hour Hour of the day (0--23, depending on the timestep).
+##' \item SolarR Direct solar radiation (\eqn{\mu mol \; m^{-2} \;
 ##' }{micro mol per meter squared per second}\eqn{ s^{-1}}{micro mol per meter
 ##' squared per second}).
-##' @returnItem Temp Air temperature (Celsius).
-##' @returnItem RH Relative humidity (0--1).
-##' @returnItem WS Average wind speed (\eqn{m \;s^{-1}}{meter per second}).
-##' @returnItem precip Precipitation (\eqn{mm}{mm})
+##' \item Temp Air temperature (Celsius).
+##' \item RH Relative humidity (0--1).
+##' \item WS Average wind speed (\eqn{m \;s^{-1}}{meter per second}).
+##' \item precip Precipitation (\eqn{mm}{mm})
+##' }
 ##' @keywords datagen
 ##' @examples
 ##'

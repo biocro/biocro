@@ -1,0 +1,332 @@
+\documentclass{article}
+\author{Dan Wang \and David LeBauer}
+\title{Evaluations of the C3 Canopy Photosynthesis Function in BioCro}
+\begin{document}
+%\VignetteEngine{knitr}
+\section{Introduction}
+
+Tests of c3photo using AQ curves measured on willow, with vcmax = 120 (2011), b1 = 6.5 (measured by Katie Richter)
+
+Here we see that c3photo predicts assimilation rate well based on the aci and aq curves measured on SALIX (WANG, 2010). The r2 is 0.94 and 0.9.
+
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+opts_chunk$set(comment=NA, results = 'hide', warning = FALSE, error = FALSE, message = FALSE, include = FALSE, tidy = FALSE, cache = TRUE)
+library(BioCro)
+ willowaq2011 <- read.csv(system.file("extdata/willowaq2011.csv", package = "BioCro"), header=T)
+  Qps <- willowaq2011$PARi
+  Tls <- willowaq2011$Tleaf
+  rhs <- willowaq2011$RH_R/100
+  dat1 <- data.frame(Qp=Qps,Tl=Tls,RH=rhs)
+  #dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+  model <- c3photo(dat1$Qp, dat1$Tl, dat1$RH, vcmax=120, Ca=370,b1=6.5)
+  modelassim <- cbind(model$Assim, willowaq2011)  
+  df1=modelassim[,c("Photo","model$Assim")]
+  names(df1)=c("x","y")
+  
+
+lm_eqn = function(df1){
+  m = lm(y ~ x, df1);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 2)))
+  #p = format(summary(m)$coefficients[8],digits=2))
+  as.character(as.expression(eq));                 
+}
+library(ggplot2)
+rassim <-ggplot(modelassim,aes(Photo,model$Assim))+geom_point(size=2.5,alpha=0.75)+stat_smooth(method="lm") + scale_x_continuous("Observed Assim") +   scale_y_continuous("Modelled Assim") + theme_bw() +  opts(
+    axis.title.x = theme_text(face="bold", size=12),
+    axis.title.y = theme_text(face="bold", size=12, angle=90),
+    panel.grid.major = theme_blank(),
+    panel.grid.minor = theme_blank() 
+    )
+rassim <- rassim+geom_text(aes(x =5, y = 20, label = lm_eqn(df1)), parse = TRUE,colour="black")
+
+modelgs<- cbind(model$Gs/1000,willowaq2011)
+df2=modelgs[,c("Cond","model$Gs/1000")]
+names(df2)=c("x","y")
+
+lm_eqn = function(df2){
+  m = lm(y ~ x, df2);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 2)))
+  #p = format(summary(m)$coefficients[8],digits=2))
+  as.character(as.expression(eq));                 
+}
+
+rgs <-ggplot(modelgs,aes(Cond,model$Gs/1000))+geom_point(size=2.5,alpha=0.75)+stat_smooth(method="lm")+ scale_x_continuous("Observed Gs") +  scale_y_continuous("Modelled Gs") +theme_bw() + opts(axis.title.x = theme_text(face="bold", size=12),    axis.title.y = theme_text(face="bold", size=12, angle=90),    panel.grid.major = theme_blank(), panel.grid.minor = theme_blank() 
+   )
+rgs <- rgs+geom_text(aes(x =0.2, y = 0.25, label = lm_eqn(df2)), parse = TRUE,colour="black")
+
+modelci<- cbind(model$Ci,willowaq2011)
+df3=modelci[,c("Ci","model$Ci")]
+names(df3)=c("x","y")
+
+lm_eqn = function(df3){
+  m = lm(y ~ x, df3);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 2)))
+  #p = format(summary(m)$coefficients[8],digits=2))
+  as.character(as.expression(eq));                 
+}
+
+rci <-ggplot(modelci,aes(Ci,model$Ci))+geom_point(size=2.5,alpha=0.75)+stat_smooth(method="lm")+ scale_x_continuous("Observed Ci") +  scale_y_continuous("Modelled Ci") + theme_bw() +  opts(axis.title.x = theme_text(face="bold", size=12),
+    axis.title.y = theme_text(face="bold", size=12, angle=90),
+    panel.grid.major = theme_blank(),
+    panel.grid.minor = theme_blank() 
+    )
+rci <- rci+geom_text(aes(x =250, y = 380, label = lm_eqn(df3)), parse = TRUE,colour="black")
+
+# testing using instaneous measurements on SALIX, this is not working, as the willow in the novel woody is not healthy enough
+
+Photo <- read.csv(system.file("extdata/Photo.csv", package = "BioCro"), header = TRUE)
+test2 <- Photo[,c(5,6,7,8,9,14,15,16,26,28,32,35,77)]
+test2 <- test2[test2$sp=="SALIX",]
+Qps <- test2$PARi
+Tls <- test2$Tleaf
+rhs <- test2$RH_R/100
+dat2 <- data.frame(Qp=Qps,Tl=Tls,RH=rhs)
+#dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+model2 <- c3photo(dat2$Qp,dat2$Tl,dat2$RH,vcmax=120)
+modelassim2<- cbind(model2$Assim,test2)
+
+df4=modelassim2[,c("Photo","model2$Assim")]
+names(df4)=c("x","y")
+
+lm_eqn = function(df4){
+  m = lm(y ~ x, df4);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 2)))
+  #p = format(summary(m)$coefficients[8],digits=2))
+  as.character(as.expression(eq));                 
+}
+
+rassim2 <-ggplot(modelassim2,aes(Photo,model2$Assim))+geom_point(size=2.5,alpha=0.75)+stat_smooth(method="lm")+  scale_x_continuous("Observed Assim") + scale_y_continuous("Modelled Assim") + theme_bw() +  opts(
+    axis.title.x = theme_text(face="bold", size=12),
+    axis.title.y = theme_text(face="bold", size=12, angle=90),
+    panel.grid.major = theme_blank(), 
+    panel.grid.minor = theme_blank() 
+   )
+rassim2 <- rassim2+geom_text(aes(x =5, y = 20, label = lm_eqn(df4)), parse = TRUE,colour="black")
+
+#testing using aci curves
+aci <- read.csv(system.file("extdata/aci2010.csv", package = "BioCro"), header = TRUE)
+acisalix <- aci[aci$run==66,]
+Qps <- acisalix$Qp
+Tls <- acisalix$TL
+rhs <- acisalix$RH/100
+Catms <- acisalix$X
+dat3 <- data.frame(Qp=Qps,Tl=Tls,RH=rhs,Catm=Catms)
+#dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+model3 <- c3photo(dat3$Qp,dat3$Tl,dat3$RH,Catm=Catms,vcmax=100)
+modelassim3<- cbind(model3$Assim,acisalix)
+
+df5=modelassim3[,c("Assim","model3$Assim")]
+names(df5)=c("x","y")
+
+lm_eqn = function(df5){
+  m = lm(y ~ x, df5);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 2)))
+  #p = format(summary(m)$coefficients[8],digits=2))
+  as.character(as.expression(eq));                 
+}
+
+rassim3 <-ggplot(modelassim3,aes(Assim,model3$Assim))+geom_point(size=2.5,alpha=0.75)+stat_smooth(method="lm")+  scale_x_continuous("Observed Assim") + scale_y_continuous("Modelled Assim") + theme_bw() + opts( axis.title.x = theme_text(face="bold", size=12),
+    axis.title.y = theme_text(face="bold", size=12, angle=90),
+    panel.grid.major = theme_blank(), 
+    panel.grid.minor = theme_blank() 
+  )
+rassim3 <- rassim3+geom_text(aes(x =5, y = 20, label = lm_eqn(df5)), parse = TRUE,colour="black")
+@
+
+<<results>>=
+library(gridExtra)
+png('c3photo_plots.png', width = 12, height = 8, units = "in", res = 72)
+grid.arrange(rassim, rgs, rci, rassim2, rassim3)
+dev.off()
+@
+
+\newpage
+
+\begin{figure}
+\includegraphics[width=\textwidth]{c3photo_plots.png}
+\caption{Results of c3photo tests}
+\end{figure}
+
+<<t3CanA>>=
+met2010 <- read.csv(system.file("extdata/met2010.csv", package = "BioCro"), header = TRUE)
+names(met2010) <- c("year","obs","month","day","hour","minute","solorR","temp","RH","prec","ws")
+met2010$RH=met2010$RH/100
+met2010$lai=8
+tmp2 <- matrix(ncol=5,nrow=8760)
+tmp3 <- matrix(ncol=4,nrow=8760)
+layers <- 8
+dat2 <- NULL
+met2010$day
+
+library(data.table)
+
+met2010dt <- data.table(met2010)
+
+x <- list()
+dat2<-NULL
+system.time(
+for(i in 1:nrow(met2010)){
+  lai <- met2010[i,12]
+  doy <- met2010[i,4]
+  hr  <- met2010[i,5]
+  solar <- met2010[i,7]
+  temp <- met2010[i,8]
+  rh <- met2010[i,9]
+  ws <- met2010[i,11]
+  
+  ##       tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws, StomataWS=1, nlayers=layers, lnControl=lnParms(LeafN=2,lnFun="linear",kpLN=0))
+  tmp1 <- c3CanA(lai,doy,hr,solar,temp,rh, ws,)
+  x[[i]] <- data.table(tmp1$LayMat)
+  })
+system.time(  dat2 <- cbind(hours = rep(1:nrow(met2010), each=8), layer = rep(1:layers, times = nrow(met2010)), rbindlist(x)))
+met2011 <- read.csv(system.file("extdata/met2011.csv", package = "BioCro"), header = TRUE) 
+
+png("layerplots.png", height = 12, width = 6, units = "in", res = 72)
+par(mfrow = c(3,2))
+     ## Plot of Irradiance for the 10 layers
+     xyplot(IDir + IDiff ~ hours | factor(layer),type="o",
+      data = dat2, xlab="hour",layout=c(2,layers/2),col=c("blue","green"),lwd=1.5,
+            ylab=expression(paste("Irradiance (",mu,"mol ",m^-2," ",s^-1,")")))
+
+     ## Plot of TempDiff for the 10 layers
+     xyplot(DeltaSun + DeltaShade ~ hours | factor(layer),type="o",
+      data = dat2, xlab="hour",layout=c(2,layers/2),col=c("blue","green"),lwd=1.5,
+            ylab="Delta temperature (Celsius)")
+
+
+## Plot of Leaf area (sunlit and shaded) for the 10 layers
+     xyplot(Leafsun + Leafshade ~ hours | factor(layer),type="o",
+      data = dat2, xlab="hour",layout=c(2,layers/2),col=c("blue","green"),lwd=1.5,
+            ylab=expression(paste("Leaf Area (",m^2," ",m^-2,")")))
+
+
+     ## Plot of Transpiration for the 10 layers
+     xyplot(TransSun + TransShade ~ hours | factor(layer),type="o",
+      data = dat2, xlab="hour",layout=c(2,layers/2),col=c("blue","green"),lwd=1.5,
+            ylab=expression(paste("Transpiration (mm ",H[2],"O ",m^-2," ",s^-1,")")))
+
+
+     ## Plot of Assimilation for the 10 layers
+     xyplot(AssimSun + AssimShade ~ hours | factor(layer),type="o",
+      data = dat2, xlab="hour",layout=c(2,layers/2),col=c("blue","green"),lwd=1.5,
+            ylab=expression(paste("Assimilation (",mu,"mol ",m^-2," ",s^-1,")")))
+
+     ## Plot of Assimilation for the 10 layers
+     xyplot(CondSun + CondShade ~ hours | factor(layer),type="o",
+      data = dat2, xlab="hour",layout=c(2,layers/2),col=c("blue","green"),lwd=1.5,
+            ylab=expression(paste("Conductance (mmol ",m^-2," ",s^-1,")")))
+dev.off()
+## Testing the effect of N distribution
+dat2.no <- dat2
+
+LeafN.no <- dat2.no$LeafN
+LeafN.li <- dat2$LeafN
+## Plot of Leaf Nitrogen
+png("LeafNitrogen.png")
+     xyplot(LeafN.no + LeafN.li ~  layer,type="o", subset = hours == 12,
+      data = dat2, xlab="layer",col=c("blue","green"),lwd=1.5,
+            ylab=expression(paste("Leaf Nitrogen (g ",m^-2,")")))
+dev.off()
+
+
+
+Vmax.no <- dat2.no$Vmax
+Vmax.li <- dat2$Vmax
+## Plot of Vmax
+png("Vmax.png")
+     xyplot(Vmax.no + Vmax.li ~  layer,type="o", subset = hours == 12,
+      data = dat2, xlab="layer",col=c("blue","green"),lwd=1.5,
+            ylab=expression(paste("Vmax (",mu,"mol ",m^-2," ",s^-1,")")))
+dev.off()
+
+
+## Let's do some math 2g m^-2 times 8 = 16 g total
+## This gives 
+(Atot.no <- sum(dat2.no$AssimSun + dat2.no$AssimShade)) ## 1002
+## How do I distribute the same ammount of N more efficiently?
+## Let us say I start with 3g m^-2
+sum(subset(dat2,hours==12)$LeafN)*(8/10) ## 16 the same total ammount of N
+(Atot.li <- sum(dat2$AssimSun + dat2$AssimShade)) ## 1160
+
+
+
+## Plot of Assimilation for the 10 layers
+png("Assim.png")
+xyplot(I(dat2$AssimSun + dat2$AssimShade) +
+       I(dat2.no$AssimSun + dat2.no$AssimShade) ~ hours | factor(layer),type="o",
+       data = dat2, xlab="hour",layout=c(2,layers/2),col=c("blue","green"),lwd=1.5,
+       ylab=expression(paste("Assimilation (",mu,"mol ",m^-2," ",s^-1,")")),
+       key=list(text=list(c("exp","const")),lines=TRUE,points=TRUE,
+         col=c("blue","green"),type="o",pch=21))
+dev.off()
+
+@
+
+
+
+\begin{figure}
+\includegraphics[width=\textwidth]{layerplots.png}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{LeafNitrogen.png}
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.5\textwidth]{Vmax.png}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[width=\textwidth]{Assim.png}
+\end{figure}
+
+
+<<topc3woody>>=
+test <- as.matrix(aci)
+mode(test) <- 'numeric'
+colnames(test)[4]="Tl"
+test[,5]=test[,5]/100
+op.woody2010 <- mOpc3photo(test[,1:7], op.level=2)
+op.woody2010$mat
+colm <- apply(op.woody2010$mat[,2:4],2,mean,na.rm=TRUE)
+ival <- op.woody2010$mat[,2:4]
+ival[is.na(ival[,1]),1] <- colm[1]
+ival[is.na(ival[,2]),2] <- colm[2]
+ival[is.na(ival[,3]),3] <- colm[3]
+
+## Now we can run it again.
+op.woody20102 <- mOpc3photo(test[,1:7], iVcmax=ival[,1], iJmax=ival[,2], iRd=ival[,3], op.level=2)
+op.woody20102
+
+## all of them  converged
+res <- op.woody20102$mat
+
+# par(mfrow=c(3,1))
+# plot(parms[,1],res[,2],xlab="Obs (true)",ylab="Sim (est)",main="Vcmax")
+# abline(0,1)
+# plot(parms[,2],res[,3],xlab="Obs (true)",ylab="Sim (est)",main="Jmax")
+# abline(0,1)
+# plot(parms[,3],res[,4],xlab="Obs (true)",ylab="Sim (est)",main="Rd")
+# abline(0,1)
+# par(mfrow=c(1,1))
+@
+
+\end{document}

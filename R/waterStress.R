@@ -20,10 +20,12 @@
 ##' function.
 ##' @export
 ##' @return A list with components:
-##' @returnItem rcoefPhoto coefficient of plant water stress for photosyntheis.
-##' @returnItem rcoefSpleaf coefficient of plant water stress for specific leaf
+##' \itemize{
+##' \item rcoefPhoto coefficient of plant water stress for photosyntheis.
+##' \item rcoefSpleaf coefficient of plant water stress for specific leaf
 ##' area.
-##' @returnItem naw New available water in the soil.
+##' \item naw New available water in the soil.
+##' }
 ##' @seealso \code{\link{wsRcoef}}
 ##' @keywords models
 ##' @examples

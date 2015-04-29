@@ -23,7 +23,7 @@ test_that("WillowGro function produces reasonable results",{
   expect_true(max(res$Leaf) < 25)
 })
     
-for(biocrofn in c("willowGro", "BioGro", "caneGro")){
+for(biocrofn in c("willowGro", "BioGro", "caneGro", "MaizeGro")){
     ## print(biocrofn)
     res0 <- do.call(biocrofn, list(weather05))
     
@@ -45,5 +45,24 @@ for(biocrofn in c("willowGro", "BioGro", "caneGro")){
             print(output)
             expect_true(mean(res0[[output]]) < mean(res1[[output]]))
         }
+    })
+    
+    test_that("BioCro stem biomass is sensitive to key parameters ", {
+      get.biomass <- function(...){
+        ans <- do.call(biocrofn, list(weather05, ...))
+        return(max(ans$Stem))
+      } 
+      
+      expect_less_than(get.biomass(photoControl = photoParms(b1=3)),
+                       get.biomass(photoControl = photoParms(b1=10)))
+      
+      expect_more_than(get.biomass(canopyControl = willowcanopyParms(kd = 0.37)),
+                       get.biomass(canopyControl = willowcanopyParms(kd = 0.9)))
+      
+
+      if(biocrofn != 'willowGro'){# skip willowGro pending implementation ebimodeling/biocro-dev#5
+        expect_more_than(get.biomass(canopyControl = canopyParms(chi.l = 0.37)),
+                         get.biomass(canopyControl = canopyParms(chi.l = 9)))
+      }
     })
 }

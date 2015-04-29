@@ -1,0 +1,4 @@
+#!/bin/bash
+clear
+echo"Script to run Valgrind Starts now"
+R -d "valgrind --tool=memcheck --leak-check=full" --vanilla < checkCropGro.R 

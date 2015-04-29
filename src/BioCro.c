@@ -1,6 +1,7 @@
 /*
- *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007-2011
- *
+ *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez Copyright (C)
+ *  2007-2015 lower and upper temp contributed by Deepak Jaiswal,
+ *  nitroparms also contributed by Deepak Jaiswal
  *
  */
 
@@ -24,10 +25,10 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP CHILHF,              /* Chi and Height factor    10 */
 	    SEXP NLAYERS,             /* # Lay canop              11 */
 	    SEXP RHIZOME,             /* Ini Rhiz                 12 */
-      SEXP IRTL,                /* i rhiz to leaf           13 */
-      SEXP SENCOEFS,            /* sene coefs               14 */
-      SEXP TIMESTEP,            /* time step                15 */
-      SEXP VECSIZE,             /* vector size              16 */
+	    SEXP IRTL,                /* i rhiz to leaf           13 */
+	    SEXP SENCOEFS,            /* sene coefs               14 */
+	    SEXP TIMESTEP,            /* time step                15 */
+	    SEXP VECSIZE,             /* vector size              16 */
 	    SEXP SPLEAF,              /* Spec Leaf Area           17 */
 	    SEXP SPD,                 /* Spec Lefa Area Dec       18 */
 	    SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
@@ -51,7 +52,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP SOILTYPE,            /* Soil type                37 */
 	    SEXP WSFUN,               /* Water Stress Func        38 */
 	    SEXP CENTCOEFS,           /* Century coefficients     39 */
-      SEXP CENTTIMESTEP,        /* Century timestep         40 */ 
+	    SEXP CENTTIMESTEP,        /* Century timestep         40 */ 
 	    SEXP CENTKS,              /* Century decomp rates     41 */
 	    SEXP SOILLAYERS,          /* # soil layers            42 */
 	    SEXP SOILDEPTHS,          /* Soil Depths              43 */
@@ -61,8 +62,8 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	    SEXP KPLN,                /* Leaf N decay             47 */
 	    SEXP LNB0,                /* Leaf N Int               48 */
 	    SEXP LNB1,                /* Leaf N slope             49 */
-      SEXP LNFUN,               /* Leaf N func flag         50 */
-      SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
+	    SEXP LNFUN,               /* Leaf N func flag         50 */
+	    SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
 	    SEXP LOWERTEMP,
 	    SEXP NNITROP)           /*temperature Limitation photoParms */
 {
@@ -89,12 +90,12 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	struct nitroParms nitroparms;
 	double TEMPdoubletoint;
 	nitroparms.ileafN=REAL(NNITROP)[0];
-  nitroparms.kln=REAL(NNITROP)[1];
+	nitroparms.kln=REAL(NNITROP)[1];
 	nitroparms.Vmaxb1=REAL(NNITROP)[2];
 	nitroparms.Vmaxb0=REAL(NNITROP)[3];
 	nitroparms.alphab1=REAL(NNITROP)[4];
 	nitroparms.alphab0=REAL(NNITROP)[5];
-  nitroparms.Rdb1=REAL(NNITROP)[6];
+	nitroparms.Rdb1=REAL(NNITROP)[6];
 	nitroparms.Rdb0=REAL(NNITROP)[7];
 	nitroparms.kpLN=REAL(NNITROP)[8];
 	nitroparms.lnb0=REAL(NNITROP)[9];
@@ -337,6 +338,8 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 	double kd = REAL(KD)[0];
 	double chil = REAL(CHILHF)[0];
 	double hf = REAL(CHILHF)[1];
+	double leafwidth = REAL(CHILHF)[2];
+	int eteq = REAL(CHILHF)[3]; /* It comes as a REAL but I use an integer from here on */
 
 	/* Creation of pointers outside the loop */
 	sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
@@ -363,7 +366,44 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 			       vmax1,alpha1,kparm1,
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
-			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroparms);
+			       chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,
+                               lowerT,nitroparms, leafwidth, eteq);
+
+		/* if(ISNAN(Leaf)){ */
+		/* 	Rprintf("Leaf %.2f \n",Leaf); */
+		/* 	Rprintf("kLeaf %.2f \n",kLeaf); */
+		/* 	Rprintf("newLeaf %.2f \n",newLeaf); */
+		/* 	Rprintf("LeafWS %.2f \n",LeafWS); */
+		/* 	error("something is NA \n"); */
+		/* } */
+
+		/* if(ISNAN(CanopyA)){ */
+		/* 	Rprintf("LAI %.2f \n",LAI);  */
+		/* 	Rprintf("Leaf %.2f \n",Leaf); */
+		/* 	Rprintf("Rhizome %.2f \n",Rhizome); */
+		/* 	Rprintf("Sp %.2f \n",Sp);    */
+		/* 	Rprintf("vmax1 %.2f \n",vmax1); */
+		/* 	Rprintf("alpha1 %.2f \n",alpha1); */
+		/* 	Rprintf("kparm1 %.2f \n",kparm1); */
+		/* 	Rprintf("theta %.2f \n",theta); */
+		/* 	Rprintf("beta %.2f \n",beta); */
+		/* 	Rprintf("Rd1 %.2f \n",Rd1);  */
+		/* 	Rprintf("Ca %.2f \n",Ca); */
+		/* 	Rprintf("b01 %.2f \n",b01); */
+		/* 	Rprintf("b11 %.2f \n",b11); */
+		/* 	Rprintf("StomWS %.2f \n",StomWS); */
+		/* 	Rprintf("kd %.2f \n",kd);                  */
+		/* 	Rprintf("Sp %.2f \n",Sp);                   */
+		/* 	Rprintf("doy[i] %.i %.i \n",i,*(pt_doy+i));  */
+		/* 	Rprintf("hr[i] %.i %.i \n",i,*(pt_hr+i)); */
+		/* 	Rprintf("solar[i] %.i %.2f \n",i,*(pt_solar+i)); */
+		/* 	Rprintf("temp[i] %.i %.2f \n",i,*(pt_temp+i)); */
+		/* 	Rprintf("rh[i] %.i %.2f \n",i,*(pt_rh+i)); */
+		/* 	Rprintf("windspeed[i] %.i %.2f \n",i,*(pt_windspeed+i)); */
+		/* 	Rprintf("lat %.i %.2f \n",i,lat); */
+		/* 	Rprintf("nlayers %.i %.i \n",i,nlayers);    */
+		/* 	error("something is NA \n"); */
+		/* } */
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;
@@ -487,6 +527,11 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 		if(kLeaf > 0)
 		{
 			newLeaf = CanopyA * kLeaf * LeafWS ; 
+
+			if(ISNAN(newLeaf)){
+				Rprintf("LeafWS %.2f \n",LeafWS);
+				Rprintf("CanopyA %.2f \n",CanopyA);
+			}
 			/*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
 			    Plant. Phys. 46, 233-235. For this the water stress coefficient is different
 			    for leaf and vmax. */
@@ -1990,7 +2035,7 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 			       solar[i],temp[i],rh[i],windspeed[i],
 			       lat,nlayers,vmax,alpha,kparm,theta,beta,
 			       Rd,Catm,b0,b1,StomWS,ws,kd, chil,
-			       heightf, LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroP);
+			       heightf, LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroP, 0.04, 0);
 
 
 

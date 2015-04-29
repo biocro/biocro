@@ -8,7 +8,6 @@
 int nObs;
 
 struct c4_str {
-
 	double Assim;
 	double Gs;
 	double Ci;

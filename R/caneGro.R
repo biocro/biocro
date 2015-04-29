@@ -1,8 +1,8 @@
 ## BioCro/R/caneGro.R by Deepak Jaiswal 
 
-caneGro <- function(WetDat, day1=NULL, dayn=NULL,
+caneGro <- function(WetDat, day1=5, dayn=360,
                    timestep=1,
-                   lat=40,iRhizome=7,irtl=1e-4,
+                   lat=40,iRhizome=3,irtl=1e-2,
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),

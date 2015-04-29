@@ -1,11 +1,7 @@
 #ifndef BIOCRO_H
 #define BIOCRO_H
-/*
- *  BioCro/src/BioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2008
- *
- */
 
-/* Global variables for BioGro function. */
+#include "AuxBioCro.h"
 
 double CanopyAssim[8760] ;
 double Leafy[8760] ;
@@ -39,7 +35,8 @@ struct Can_Str CanAC(double LAI,int DOY,int hr,double solarR,double Temp,
 		     double RH,double WindSpeed,double lat,int nlayers, double Vmax, double Alpha, 
 		     double Kparm, double theta, double beta, double Rd, double Catm, double b0, 
 		     double b1, double StomataWS, int ws, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT,double lowerT, struct nitroParms nitroP);
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT,
+		     double lowerT, struct nitroParms nitroP, double leafwidth, int eteq);
          
 struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                        double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
@@ -64,10 +61,6 @@ double resp(double comp, double mrc, double temp);
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, 
                      double fieldc, double wiltp, double phi1, double phi2, int soiltype, int wsFun);
 
-/* struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH, */
-/* 			 double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws, */
-/* 			 double vmax2, double alpha2, double kparm, double theta, double beta, */
-/* 			 double Rd2, double b02, double b12); */
 
 double SoilEvapo(double LAI, double k, double AirTemp, double DirectRad,
 		 double awc, double fieldc, double wiltp, double winds, double RelH, double rsec);
@@ -99,5 +92,11 @@ struct flow_str flow(double *SC, double CNratio, double A, double Lc, double Tm,
 double AbiotEff(double smoist, double stemp);
 
 double sel_phen(int phen);
-
+struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
+                         double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
+                         double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12,double upperT,double lowerT, double Catm);
+/* Definition of the new EvapoTrans function */
+struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH,
+			 double WindSpeed,double LeafAreaIndex, double CanopyHeight, 
+			  double stomatacond, double leafw, int eteq);
 #endif

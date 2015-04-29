@@ -1,5 +1,5 @@
 /*
- *  /src/AuxBioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007 - 2012
+ *  /src/AuxBioCro.c by Fernando Ezequiel Miguez  Copyright (C) 2007 - 2015
  *
  *  Part of the code here (sunML, EvapoTrans, SoilEvapo, TempTo and
  *  the *prof functions) are based on code in WIMOVAC. WIMOVAC is
@@ -8,7 +8,6 @@
  *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
  *
  */
-
 
 /* This file will contain functions which are common to several */
 /* routines in the BioCro package. These are functions needed */
@@ -50,8 +49,21 @@ void lightME(double lat, int DOY, int td)
         CCos = cos(deltaR) * cos(omega);
 
         CosZenithAngle = SSin + CCos * cos(tf);
-        if(CosZenithAngle < pow(10,-10))
-                CosZenithAngle = pow(10,-10);
+        /* if(CosZenithAngle < pow(10,-10)) */
+        /*         CosZenithAngle = pow(10,-10); */
+        /* The old code above caused problems when using
+           measured hourly data in some cases when 
+           the value was really low. For the moment, the code
+           below is a temporary fix. Some longer 
+           term solution is needed.*/
+	if(CosZenithAngle < 0.10){
+		if(td > 18 && td < 22){ 
+			CosZenithAngle = 0.10;
+		}else{
+			if(CosZenithAngle < 0)
+				CosZenithAngle = 0.00001;
+		}
+	} 
 
         CosHour = -tan(omega) * tan(deltaR);
         CosHourDeg = (1/DTR)*CosHour;
@@ -79,7 +91,7 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
         double i;
         double k0, k1, k;
         double LAIi, CumLAI;
-        double Isolar, Idiffuse, Ibeam, Iscat, Itotal,alphascatter;
+        double Isolar, Idiffuse, Ibeam, Iscat, Iaverage, Itotal,alphascatter;
         double Ls, Ld;
         double Fsun, Fshade;
         alphascatter=0.8;
@@ -110,14 +122,15 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
                 Fshade=Ld/(Ls+Ld);
                 /*fraction intercepted*/
                 Itotal =(Fsun*Isolar + Idiffuse) * (1-exp(-k*LAIi))/k;
+		Iaverage =(Fsun*(Isolar + Idiffuse) + Fshade*Idiffuse) * (1-exp(-k*LAIi))/k;
 
                 /* collecting the results */
                 layIdir[sp1++] = Isolar + Idiffuse;
                 layIdiff[sp2++] = Idiffuse;
-                layItotal[sp3++] = Itotal;
+                layItotal[sp3++] = Iaverage;
                 layFsun[sp4++] = Fsun;
                 layFshade[sp5++] = Fshade;
-                layHeight[sp6++] = CumLAI/heightf;
+                layHeight[sp6++] = LAI/heightf - CumLAI/heightf;
         }
 }
 
@@ -199,10 +212,238 @@ double TempToSFS(double Temp)
 
 double TempToSWVC(double Temp)
 {
-        double SWVC;
-        SWVC =  4.90820192 +   0.06387253 * Temp +    0.02745742 * pow(Temp,2);
-        return(SWVC);
+/* Temp should be in Celsius */
+/* This is the arden buck equation */
+	double SWVC;
+	double a, b;
+	a = (18.678 - Temp/234.5) * Temp;
+	b = 257.14 + Temp;
+	/* SWVC =  (6.1121 * exp(a/b))/10; */
+	SWVC =  (6.1121 * exp(a/b));
+	return(SWVC); /* This is in hecto Pascals */
 }
+
+/* New EvapoTrans function */
+struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH,
+			 double WindSpeed,double LeafAreaIndex, double CanopyHeight, 
+			 double stomatacond, double leafw, int eteq)
+{
+	/* creating the structure to return */
+	struct ET_Str tmp;
+
+	const double kappa = 0.41; /* von Karmans constant */
+	double WindSpeedHeight = 2; /* This is the height at which the wind speed was measured */
+	const double dCoef = 0.77; 
+	const double tau = 0.2; /* Leaf transmission coefficient */
+	const double ZetaCoef = 0.026;
+	const double ZetaMCoef = 0.13;
+	const double LeafReflectance = 0.2; 
+	const double SpecificHeat = 1010; /* J kg-1 K-1 */
+	const double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
+
+	double Tair, WindSpeedTopCanopy;
+	double DdryA, LHV, SlopeFS, SWVC, SWVP;
+	double LayerWindSpeed, totalradiation;
+	double DeltaPVa, PsycParam, ga;
+	double gvs; /* Conductance to vapor from stomata same as stomatacond (input variable) */ 
+	double ActualVaporPressure;
+	double Ja, Ja2, Deltat;
+	double PhiN, PhiN2;
+	double TopValue, BottomValue;
+	double EPen, TransR,EPries; 
+	double OldDeltaT, ChangeInLeafTemp;
+	double rlc; /* Long wave radiation for iterative calculation */
+	int Counter;
+
+	WindSpeedTopCanopy = WindSpeed;
+	Tair = Airtemperature;
+
+	if(CanopyHeight < 0.1)
+		CanopyHeight = 0.1; 
+
+/* When the height at which wind was measured is lower than the canopy height */
+/* There can be problems with the calculations */
+/* This is a very crude way of solving this problem */
+	if(CanopyHeight + 1 > WindSpeedHeight)
+		WindSpeedHeight = CanopyHeight + WindSpeedHeight;
+
+	DdryA = TempToDdryA(Tair); /* Density of dry air, kg / m^3 */
+
+	/* In the original code in WIMOVAC this is used in J kg-1
+but Thornley and Johnson use it as MJ kg-1  */
+	LHV = TempToLHV(Tair); /* This should be MJ kg^-1*/
+	LHV = LHV * 1e6; /* Now it is converted to Joules kg^-1*/
+	SlopeFS = TempToSFS(Tair) * 1e-3; /* kg m^-3 K^-1 */
+	SWVP = TempToSWVC(Tair); /* this is hecto Pascals */
+        /* Convert to kg/m3 */
+	SWVC = (DdryA * 0.622 * SWVP)/1013.25; /* This last number is atmospheric pressure in hecto pascals */
+/* SWVC is saturated water vapor concentration (or density) in kg/m3 */
+
+	PsycParam =(DdryA * SpecificHeat) / LHV; /* This is in kg m-3 K-1 */
+
+	DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
+
+	ActualVaporPressure = RH * SWVP; /* hecto Pascals */
+
+        /* SOLAR RADIATION COMPONENT*/
+
+        /* First calculate the Radiation term */
+	/*' Convert light assuming 1 µmol PAR photons = 0.235 J */
+        /* The next step converts from PAR photons to Joules */
+        /* There are 2.35 x 10^5 Joules in a mol */
+        /* or 0.235 Joules in a micro mol */
+        /* A Watt is equivalent to J/s */
+	totalradiation = Rad * 0.235; /* This is essentially Watts m^-2 */
+        /* On a clear sky it may exceed 1000 in some parts of the world 
+           Thornley and Johnson pg 400 */
+        /* This values can not possibly be higher than 650 */
+        if(totalradiation > 650) error("total radiation too high");
+        
+	/* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
+	/* It seems that it is not correct to multiply by the leaf area index. The previous
+        version was used in WIMOVAC (check) */
+	Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
+
+        /* The value below is only for leaf temperature */
+	Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
+
+        /* AERODYNAMIC COMPONENT */
+	if(WindSpeed < 0.5) WindSpeed = 0.5;
+
+	LayerWindSpeed = WindSpeed;
+
+	/* Rprintf("Gs %.3f \n", stomatacond); */
+        /* Leaf Conductance */
+	gvs = stomatacond; 
+        /* Convert from mmol H20/m2/s to m/s */
+	gvs = gvs * (1.0/41000.0) ;
+        /* 1/41000 is the same as 24.39 * 1e-6 */
+	/* Thornley and Johnson use m s^-1 on page 418 */
+
+	/* prevent errors due to extremely low Layer conductance */
+	if(gvs <=0.001)
+		gvs = 0.001;
+
+	/* This is the original from WIMOVAC*/
+	Deltat = 0.01;
+	ChangeInLeafTemp = 10;
+
+	Counter = 0;
+	while( (ChangeInLeafTemp > 0.5) && (Counter <= 10))
+	{
+		OldDeltaT = Deltat;
+
+		rlc = 4 * StefanBoltzmann * pow(273 + Tair, 3) * Deltat;  
+
+/* rlc=net long wave radiation emittted per second =radiation emitted per second - radiation absorbed per second=sigma*(Tair+deltaT)^4-sigma*Tair^4 */
+ 
+/* Then you do a Taylor series about deltaT = 0 and keep only the zero and first order terms. */
+ 
+/* or rlc=sigma*Tair^4+deltaT*(4*sigma*Tair^3)-sigma*Tair^4=4*sigma*Tair^3*deltaT */
+ 
+/* where 4*sigma*Tair^3 is the derivative of sigma*(Tair+deltaT)^4 evaluated at deltaT=0, */
+
+                ga = leafboundarylayer(LayerWindSpeed, leafw, 
+				       Airtemperature, Deltat,
+                                       gvs, ActualVaporPressure);
+/* This returns leaf-level boundary layer conductance */ 
+/* In WIMOVAC this was added to the canopy conductance */
+		/* ga = (ga * gbcW)/(ga + gbcW);  */
+
+		PhiN2 = (Ja2 - rlc);  /* * LeafAreaIndex;  */
+
+		TopValue = PhiN2 * (1 / ga + 1 / gvs) - LHV * DeltaPVa;
+		BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / gvs));
+		Deltat = TopValue / BottomValue; /* This equation is from Thornley and Johnson pg. 418 */
+		if(Deltat > 10)	Deltat = 10;
+		if(Deltat < -10)	Deltat = -10;
+
+		ChangeInLeafTemp = OldDeltaT - Deltat;
+		if(ChangeInLeafTemp <0)
+			ChangeInLeafTemp = -ChangeInLeafTemp;
+		Counter++;
+	}
+
+        /* Net radiation */
+	PhiN = Ja - rlc;
+
+	if(PhiN < 0)
+		PhiN = 0;
+
+	TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa)) / (LHV * (SlopeFS + PsycParam * (1 + ga / gvs)));
+
+        /* Penman will use the WIMOVAC conductance */
+	EPen = (((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)) / (LHV * (SlopeFS + PsycParam));
+
+	EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
+
+        /* Choose equation to report */
+	if(eteq == 1){
+		TransR = EPen;
+	}
+	if(eteq == 2){
+		TransR = EPries;
+	}
+
+	/* This values need to be converted from Kg/m2/s to
+	   mmol H20 /m2/s according to S Humphries */
+	/* 1e3 - kgrams to grams  */
+	/* 1e3 - mols to mmols */
+        /* grams to mols - 18g in a mol */
+	/* Let us return the structure now */
+
+	tmp.TransR = TransR * 1e6 / 18; 
+	tmp.EPenman = EPen * 1e6 / 18; 
+	tmp.EPriestly = EPries * 1e6 / 18; 
+	tmp.Deltat = Deltat;
+	tmp.LayerCond = gvs * 41000;   
+	return(tmp);
+}
+
+
+double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
+                         double deltat, double stomcond, double vappress){
+/* This is the leaf boundary layer computed using the approach in MLcan
+   which is based on (Nikolov, Massman, Schoettle),         %
+   Ecological Modelling, 80 (1995), 205-235 */
+	const double Pa = 101325;
+	const double cf = 1.6361e-3;
+
+	double leaftemp = AirTemp + deltat;
+	double gsv = stomcond; /* input is in m/s */
+	double Tak = AirTemp + 273.15; /* Converts from C to K */
+	double Tlk = leaftemp + 273.15;  /* Converts from C to K */
+	double ea = vappress * 1e2; /* From hPa to Pa */
+	double ws = windspeed; /* m s^-1 */
+	double lw = leafwidth; /* meters */
+
+	double esTl, eb;
+	double gbv_forced, gbv_free, gbv, gbh;
+	double Tvdiff;
+
+	esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
+
+        /* Forced convection */ 
+	gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((ws/lw)/Pa),0.5);
+	gbv_free = gbv_forced;
+	eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
+	Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/
+
+	if(Tvdiff < 0) Tvdiff = -Tvdiff;
+
+	gbv_free = cf * pow(Tlk,0.56) * pow((Tlk+120)/Pa,0.5) * pow(Tvdiff/lw,0.25);
+
+	if(gbv_forced > gbv_free){
+	    gbv = gbv_forced;
+        }else{
+	     gbv = gbv_free;
+        } 
+	gbh = 0.924 * gbv;
+	
+	return(gbv); 
+}
+
+
 
 /* EvapoTrans function */
 struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
@@ -541,13 +782,14 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                      double Alpha, double Kparm, double theta, double beta,
                      double Rd, double Catm, double b0, double b1,
                      double StomataWS, int ws, double kd, double chil, double heightf,
-                     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT, double lowerT,struct nitroParms nitroP)
+                     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,
+		     double upperT, double lowerT,struct nitroParms nitroP, double leafwidth, int eteq)
 {
 
         struct ET_Str tmp5_ET, tmp6_ET;
         struct Can_Str ans;
-        struct c4_str tmpc4;
-        struct c4_str tmpc42;
+        struct c4_str tmpc4, tmpc40;
+        struct c4_str tmpc42, tmpc41;
 
         int i;
         double Idir, Idiff, cosTh;
@@ -558,9 +800,11 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         double CanHeight;
 
         double vmax1, leafN_lay;
-        double TempIdir,TempIdiff,AssIdir,AssIdiff,GAssIdir,GAssIdiff;
+        double TempIdir = 0.0, TempIdiff = 0.0, 
+               AssIdir = 0.0, AssIdiff = 0.0,
+               GAssIdir = 0.0 ,GAssIdiff = 0.0;
 
-        double CanopyA, CanopyT,GCanopyA;
+        double CanopyA = 0.0, CanopyT = 0.0, GCanopyA = 0.0;
 
         const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
         const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
@@ -586,13 +830,11 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         cosTh = tmp1[2];
     
         sunML(Idir,Idiff,LAI,nlayers,cosTh, kd, chil, heightf);
-
         /* results from multilayer model */
         LAIc = LAI / nlayers;
         /* Next I need the RH and wind profile */
         RHprof(RH,nlayers);
         WINDprof(WindSpeed,LAI,nlayers);
-
         LNprof(leafN, LAI, nlayers, kpLN);
         /* It populates tmp5 */
 
@@ -607,21 +849,25 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                         vmax1 = Vmax;
                 }else{
                         vmax1=nitroP.Vmaxb1*leafN_lay+nitroP.Vmaxb0;
-  				              if(vmax1<0) vmax1=0.0;
-					              Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
-					               Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
-               /* For now alpha is not affected by leaf nitrogen */
+			if(vmax1<0) vmax1=0.0;
+			Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
+			Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
                 }
 
                 IDir = layIdir[--sp1];
                 Itot = layItotal[--sp3];
-
                 rh = tmp4[--tp4];
                 WS = tmp3[--tp3];
                 pLeafsun = layFsun[--sp4];
                 CanHeight = layHeight[--sp6];
                 Leafsun = LAIc * pLeafsun;
-                tmp5_ET = EvapoTrans(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
+                tmpc40 = c4photoC(IDir,Temp,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
+                tmp5_ET = EvapoTrans2(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc40.Gs,leafwidth,eteq);
+		/* if(i == nlayers - 1){ */
+		/* 	Rprintf("inputs IDir %.3f, Itot %.2f, Temp %.2f,  \n", IDir, Itot, Temp); */
+		/* 	Rprintf("inputs rh %.3f, WS %.2f, LAIc %.2f,  \n", rh, WS, LAIc); */
+		/* 	Rprintf("inputs CanHeight %.3f, tmpc40.Gs %.4f, leafwidth %.2f,  \n", CanHeight, tmpc40.Gs, leafwidth); */
+		/* } */
                 TempIdir = Temp + tmp5_ET.Deltat;
                 tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdir = tmpc4.Assim;
@@ -630,7 +876,8 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 IDiff = layIdiff[--sp2];
                 pLeafshade = layFshade[--sp5];
                 Leafshade = LAIc * pLeafshade;
-                tmp6_ET = EvapoTrans(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,StomataWS,ws,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,upperT,lowerT,Catm);
+                tmpc41 = c4photoC(IDiff,Temp,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
+                tmp6_ET = EvapoTrans2(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc41.Gs,leafwidth,eteq);
                 TempIdiff = Temp + tmp6_ET.Deltat;
                 tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
                 AssIdiff = tmpc42.Assim;
@@ -639,9 +886,18 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
                 GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
 // I am evaluating CanopyT using Penman Method because it gives realistic results
 // IN future canopyT needs to be fixed
-//                CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
-                CanopyT += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman;
+                CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+                /* CanopyT += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman; */
         }
+
+	if(ISNAN(CanopyA)){
+		Rprintf("LAI %.2f \n",LAI); 
+		Rprintf("Leafsun %.2f \n",Leafsun);
+		Rprintf("AssIdir %.2f \n", AssIdir);
+		Rprintf("Leafshade %.2f \n",Leafshade);
+		Rprintf("AssIdiff %.2f \n", AssIdiff);    
+		error("Something is NA \n");
+	}
         /*## These are micro mols of CO2 per m2 per sec for Assimilation
           ## and mili mols of H2O per m2 per sec for Transpiration
           ## Need to convert to 
@@ -675,89 +931,90 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
                      int soiltype, /* soil type indicator */ 
                      int wsFun) /* flag for which water stress function to use */
 {
+	struct ws_str tmp;
+	struct soilText_str soTexS;
+	const double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
+	/* Variables */
+	double precipM;
+	/* available water and per hectare */
+	double aw, naw, raw, theta_s; 
+	double K_psim, J_w;
+	double pawha, Newpawha, npaw;
+	double runoff = 0.0, runoff2 = 0.0, drainage = 0.0;
+	/* variable needed for calculation of water stress*/
+	double wsPhoto = 0.0, wsSpleaf, phi10;
+	double slp = 0.0, intcpt = 0.0, theta = 0.0; 
+	double Nleach = 0.0;
+	/* Nleach is the NO3 leached and Ts is the sand content of the soil*/
 
-        struct ws_str tmp;
-        struct soilText_str soTexS;
-        /* Variables */
-        double precipM;
-        /* available water and per hectare */
-        double aw, naw; 
-        double pawha, Newpawha, npaw; /* new 04-27-2009 */
-        double runoff = 0.0, runoff2 = 0.0;
-        /* variable needed for calculation of water stress*/
-        double wsPhoto = 0.0, wsSpleaf, phi10;
-        double slp = 0.0, intcpt = 0.0, theta = 0.0; 
-        double Nleach = 0.0;
-        /* Nleach is the NO3 leached and Ts is the sand content of the soil*/
-
-        /* Specify the soil type */
-        soTexS = soilTchoose(soiltype);
+	/* Specify the soil type */
+	soTexS = soilTchoose(soiltype);
 /*   Ts = soTexS.sand; */
 
-        if(fieldc < 0){
-                fieldc = soTexS.fieldc;
-        }
-        if(wiltp < 0){
-                wiltp = soTexS.wiltp;
-        }
+	if(fieldc < 0){
+		fieldc = soTexS.fieldc;
+	}
+	if(wiltp < 0){
+		wiltp = soTexS.wiltp;
+	}
 
-        /* unit conversion for precip */
-        precipM = precipit * 1e-3; /* convert precip in mm to m*/
+	theta_s = soTexS.satur;
 
-        /*    cws is current water status */
-        /*    available water */
+	/* unit conversion for precip */
+	precipM = precipit * 1e-3; /* convert precip in mm to m*/
 
-        aw = precipM + cws;
+	/*    cws is current water status, which is normally in the wiltp-satur range */
+	/*    aw available water (full profile) */
 
-        /* if(aw > soTexS.satur){  */
-        /*      runoff = aw - soTexS.satur; /\* Here runoff is interpreted as water content exceeding saturation level *\/ */
-        /*      /\* Need to convert to units used in the Parton et al 1988 paper. *\/ */
-        /*      /\* The data comes in mm/hr and it needs to be in cm/month *\/ */
-        /*      runoff2 = runoff * 0.10 * (1/24*30); */
-        /*      Nleach = runoff /18 * (0.2 + 0.7 * soTexS.sand); */
-        /*      aw = soTexS.satur; */
-        /* } */
+	aw = precipM + cws * soildepth; /* aw in meters */
+	aw = aw / soildepth; /* available water in the wiltp-satur range */
 
-/* These equations are not correct as runoff would only occur when it exceeds
-   saturation, but from the point of view of a crop only field capacity matters */
-/* I'm not sure about what to do about this */
+	if(aw > theta_s){ 
+		runoff = (aw - theta_s) * soildepth; /* This is in meters */ 
+/* Here runoff is interpreted as water content exceeding saturation level */
+		/* Need to convert to units used in the Parton et al 1988 paper. */
+		/* The data comes in mm/hr and it needs to be in cm/month */
+		runoff2 = runoff * 0.10 * (1/24*30);
+		Nleach = runoff /18 * (0.2 + 0.7 * soTexS.sand);
+		aw = theta_s;
+	}
 
-        if(aw > fieldc){ 
-                runoff = aw - fieldc; /* Here runoff is interpreted as water content exceeding saturation level */
-                /* Need to convert to units used in the Parton et al 1988 paper. */
-                /* The data comes in mm/hr and it needs to be in cm/month */
-                runoff2 = runoff * 0.10 * (1/24*30);
-                Nleach = runoff /18 * (0.2 + 0.7 * soTexS.sand);
-                aw = fieldc;
-        }
+	/* plant available water per ha (pawha) */
+	pawha = (aw - wiltp) * soildepth * 1e4;
+	/* The density of water is 998.2 kg/m3 at 20 degrees Celsius */
+	/* or 0.9982 Mg/m3 */
+	/* pawha is plant available water (m3) per hectare */
+	/* evapo is demanded water (Mg) per hectare */
 
+	Newpawha = pawha - evapo / 0.9982; 
 
-        /* Tipping bucket need to collect it if want to estimate runoff */ 
-        /* plant available water per hectare (pawha) */
-        pawha = (aw - wiltp) * 1e4 * soildepth;
-        /* The density of water is 998.2 kg/m3 at 20 degrees Celsius */
-        /* or 0.9882 Mg/m3 */
-        /* pawha is plant available water (m3) per hectare */
-        /* evapo is demanded water (Mg) per hectare */
+	/*  Here both are in m3 of water per ha-1 so this */
+	/*  subtraction should be correct */
+	/* go back to original units of water in the profile */
 
-        Newpawha = pawha - evapo / 0.9882; /* New version 04-27-2009 */
+	npaw = Newpawha * 1e-4 * (1/soildepth); 
 
-        /*  Here both are in m3 of water per ha-1 so this */
-        /*  subtraction should be correct */
-        /* go back to original units of water in the profile */
+/* If demand exceeds supply the crop is getting close to wilting point 
+   and transpiration will be over estimated. In this one layer model though
+the crop is practically dead */
+	if(npaw < 0){ npaw = 0.0; }
 
-        npaw = Newpawha * 1e-4 * (1/soildepth); /* New 04-27-2009 */
-
-        if(npaw < 0) npaw = 0.0;
-
-        naw = npaw + wiltp;
+	naw = npaw + wiltp;
 
         /* Calculating the soil water potential based on equations from Norman and Campbell */
-        /* tmp.psim = soTexS.air_entry * pow((naw/soTexS.fieldc*1.1),-soTexS.b) ; */
-        /* New version of the soil water potential is based on
-         * "Dynamic Simulation of Water Deficit Effects upon Maize
-         * Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
+	/* tmp.psim = soTexS.air_entry * pow((naw/soTexS.fieldc*1.1),-soTexS.b) ; */
+	/* New version of the soil water potential is based on
+	 * "Dynamic Simulation of Water Deficit Effects upon Maize
+	 * Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
         tmp.psim = -exp(log(0.033) + ((log(fieldc) - log(naw))/(log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033)))) * 1e3; /* This last term converts from MPa to kPa */
+
+	/* This is drainage */
+	if(naw > fieldc){
+	  K_psim = soTexS.Ks * pow((soTexS.air_entry/tmp.psim),2+3/soTexS.b); /* This is hydraulic conductivity */
+	  J_w = -K_psim * (-tmp.psim/(soildepth*0.5)) - g * K_psim ; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth*/
+	  drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
+	  naw = naw + drainage / soildepth;
+	}
 
         /* three different type of equations for modeling the effect of water stress on vmax and leaf area expansion. 
            The equation for leaf area expansion is more severe than the one for vmax. */

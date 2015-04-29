@@ -62,22 +62,24 @@
 ##'
 ##' If \code{op.level} 2 \code{ciRd} will also be supplied.  If \code{op.level}
 ##' 3 \code{ciTheta} and \code{ciRd} will also be supplied.
-##' @returnItem bestVcmax optimized value for \code{Vmax}
-##' @returnItem bestAlpha optimized value for \code{alpha}
-##' @returnItem ReSumS Residual Sum of Squares
-##' @returnItem Convergence Integer indicating convergence 0 is succesful
+##' \itemize{
+##' \item bestVcmax optimized value for \code{Vmax}
+##' \item bestAlpha optimized value for \code{alpha}
+##' \item ReSumS Residual Sum of Squares
+##' \item Convergence Integer indicating convergence 0 is succesful
 ##' convergence. See the \code{\link{optim}} function for details.
-##' @returnItem VarCov Variance-Covariance matrix
-##' @returnItem df degrees of freedom
-##' @returnItem ciVmax Confidence interval for Vmax
-##' @returnItem ciAlpha Confidence interval for Alpha
-##' @returnItem corVA correlation between Vmax and Alpha
-##' @returnItem level level for the confidence interval
-##' @returnItem data data.frame with the original data
-##' @returnItem op.level optimization level
-##' @returnItem response type of response either assimilation or stomatal
+##' \item VarCov Variance-Covariance matrix
+##' \item df degrees of freedom
+##' \item ciVmax Confidence interval for Vmax
+##' \item ciAlpha Confidence interval for Alpha
+##' \item corVA correlation between Vmax and Alpha
+##' \item level level for the confidence interval
+##' \item data data.frame with the original data
+##' \item op.level optimization level
+##' \item response type of response either assimilation or stomatal
 ##' conductance
-##' @returnItem curve.kind whether it is \code{'Q'} or \code{'Ci'}
+##' \item curve.kind whether it is \code{'Q'} or \code{'Ci'}
+##' }
 ##' @seealso \code{\link{c4photo}} \code{\link{optim}}
 ##' @keywords optimize
 ##' @examples
@@ -854,13 +856,13 @@ plot.Opc4photo <- function(x,plot.kind=c("RvsF","OandF","OvsF"),resid=c("std","r
 ##' @export
 ##' @return An object of class \code{mOpc4photo} %% ~Describe the value
 ##' returned %% If it is a LIST, use
-##'
-##' %% ...
-##' @returnItem mat Matrix with optimized parameters.
-##' @returnItem op.level Optimization level..
-##' @returnItem ciVmax confidence intervals for vmax.
-##' @returnItem ciAlpha confidence intervals for alpha.
-##' @returnItem curve.kind Whether A/Ci or A/Q curves were optimized.
+##' \itemize{
+##' \item mat Matrix with optimized parameters.
+##' \item op.level Optimization level..
+##' \item ciVmax confidence intervals for vmax.
+##' \item ciAlpha confidence intervals for alpha.
+##' \item curve.kind Whether A/Ci or A/Q curves were optimized.
+##' }
 ##' @author Fernando E. miguez
 ##' @seealso \code{\link{Opc4photo}} \code{\link{c4photo}} \code{\link{optim}}
 ##' %% ~~objects to See Also as \code{\link{help}}, ~~~

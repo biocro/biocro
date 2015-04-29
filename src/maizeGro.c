@@ -473,7 +473,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 				       theta,beta,Rd1,Ca,b01,b11,StomWS,
 				       ws, kd,
 				       chil, heightFactor,
-				       LeafN, kpLN, lnb0, lnb1, lnFun,upperT,lowerT,nitroparms);
+				       LeafN, kpLN, lnb0, lnb1, lnFun,upperT,lowerT,nitroparms, 0.04, 0);
 
 			/* Rprintf("LAI: %.4f, vmax: %.1f",LAI,vmax);  */
 

@@ -1,0 +1,382 @@
+Title: Predict short rotation coppice willow (Salix spp.) production in contiguous US
+===========================
+
+Authors: 
+* Wang, Jaiswal, LeBauer, Wertin, Leakey, Long
+
+Abstract
+-----------
+The cultivation of fast-growing willow (Salix spp.) within short rotation coppice (SRC) can provide a potentially sustainable energy source which can decrease net greenhouse gas emission. Predictions of willow growth under various growing conditions, soils and climates are critical to evaluate the feasibility of its production in different environments. Previous mathematical models which can accurately predict willow biomass potential under different conditions estimate biomass growth using a concept of radiation use efficiency (RUE), which is based on simple diurnal representation of environmental factors without much consideration given to biochemical and biophysical characteristics of plants.  
+
+Here, we described in detail the biochemical and physiological processes of a previously published generic mechanistic eco-physiological model, BioCro, which was adapted and developed from WIMOVAC. BioCro was parameterized for willow in coppicing subroutine, perennating, leaf-photosynthesis, canopy CO2 assimilation, allocation, phenology and growth. The model was able to realistically predict biomass yield at a range of 16 sites from European studies and 3 sites from US studies. The regional projection suggests that willow yield varies considerably with differences in soil and climate, and reaching as much as 52 Mg ha-1 in Eastern, the upper Midwest and New England regions after 3-year growth. This study provides forest managers and policy makers with a process-based modeling approach to estimate the yield potential of willow for a given climate and soil and thus could guide further research, policy and management decisions.
+
+<<<<<<< HEAD
+Introduction
+------------
+As a renewable energy source, bioenergy benefit the society with a secure and sustainale energy supply and the potential to reduce the use of fossil fuels and thus the greenhouse gas emissions (Somerville et al. 2010). In the US the Advanced Energy Initiative (AEI) mandates that renewable bioethanol displace 30% of 2005 petroleum use in the transportation sector by 2030 (Milliken et al. 2007). To meet that goal, the AEI supports the production of ethanol from cellulose and hemi-cellulose from perennial grasses, wood chips, and agricultural residues which could reduce the conflict between food and fuel (Heaton et al. 2008; Somerville et al. 2010; Wang et al. 2010, 2012). Woody species managed in a short rotation coppicing (SRC) system have advantages over first generation annual crops in enhanced biological diversity (Rowe et al. 2009) and carbon sequestration (Baum et al. 2009; Don et al. 2011), and reduced need for annual inputs of labor, pesticides and fertilization, which minimizes the use of fossil fuels during production and improve the overall energy balance of woody species as biofuel (Hill et al. 2006). 
+
+Hybrid willows are among the most widely cultivated hardwood species for its rapid growth rate, ease of resprouting and ability to adapt to a wide variety of soils (Mead 2005). These crops typically are coppiced on a 3-5 yr rotation cycle and remain viable for up to 15-30 yr (Aylott et al. 2008). Willow yield varied considerably across different climates, soils and also depended on the choice of genotypes and management. A review of historic data (available at the Biofuel Ecophysiological Traits and Yield Database (BETY-db) at www.ebi-forecast.igb.uiuc.edu) indicated that willow has a mean annual yield of 7.3 (n=349, sd=4.5) Mg ha-1yr-1 when averaged globally, with field trials of willow plantations mostly reported from the Europe (Nordh et al. 2004; Aylott et al. 2008) and few from the US (Volk et al. 2011; Randall et al. 2010). Currently willow is not commercially planted at large scale in the United States, being limited mostly to experimental plots. Since yield data are critical to the development of the secondary bioenergy industry and little is known of how these crops will perform in the US at a spatial scale, it is fundamentally important to provide clear and concise predictions regarding the spatial characteristics of willow biomass productivity. Therefore there is an urgent need for the development and parameterization of process-based crop models that can provide reliable predictions of carbon assimilation, growth and yield at spatial scales ranging from site to regional. In the present study, we predict yield potentials of willow for regions within the coterminous United States and suggest management under different soil properties and climate conditions.
+   
+Previous empirical models using partial least squares regression between yields with multiple driving factors including soil chemical composition, diurnal temperature range and seasonal climatic variations, has been shown effective for simulating willow yield (Aylott et al. 2010). Another simple analytical gap probability model by improving the Lambert-Beer’s law well represented the light-plant interaction for four different willow varieties (Cerasuolo et al. 2013).These models are appealing due to their simplicity by their design but tend to ignore detailed description of processes driving photosynthesis and resource usages and hard to provide insights into the linkages between climate change scenarios and productivity. To evaluate and fully understand the physiological, biophysical and physical processes, a process-based model for plant growth which considers leaf dynamics (leaf phenology and leaf area duration) and efficiency in carbon fixation and photosynthesis should be more appropriate and efficient in making reasonable yield predictions of newly developed varieties, over a large geospatial region under current and future climate, and with different management regimes. ForestGrowth-SRC was a process-based model which could predict reasonable willow yield compared with measured data (Tallis et al. 2012), however, the coppicing routine was lack in this model and the model was not evaluated in the US climate and soils.
+
+BioCro is a generic plant production model adapted from WIMOVAC, relying on the key physiological and biophysical processes underlying plant production (Humphries & Long, 1995). BioCro has previously been used for predicting biomass yield and LAI of switchgrass and  miscanthus (Miguez et al., 2009) and sugarcane (Jaswel et al. unpublished). This is the first effort to use BioCro to simulate C3 woody plants growth and yield. In this study we predict hybrid willow yield at a national scale under varying growing conditions using BioCro. The specific objectives of the present study are to (1) parameterize BioCro for willow in coppicing subroutine, perennating, leaf-photosynthesis, canopy CO2 assimilation, allocation, phenology and growth; (2) compare model performance to observations from field across diverse areas in the United Kingdom and US (iii) to upscale the model to provide high resolution regional predictions for the US in current and future climatic conditions. 
+.
+Model Description
+-----------------
+The sub-models in BioCro have been extensively described elsewhere (Miguetz et al. 2009, Jaiswal et al. unpublished), so the following description will focus on processes and parameters specific to the present study. 
+
+Macroclimate
+The macroclimate data (i.e. light, temperature, relative humidity, rainfall, and wind speed) were obtained were obtained either from the individual studies, where reported, or from NARR. Day, time, and latitude were used to determine the solar declination and solar zenith angle. Soil textural classes were assigned from published literature or the STATSGO database. 
+
+Gas exchange and carbon assimilation
+Leaf CO2 uptake rate (A) was predicted from the steady state model of  Farquhar et al. (1980) and von Caemmerer & Farquhar (1981) combined with additions from Long (1991) and Bernacchi et al. (2009). The photosynthesis model coupled with the C3 version of the Ball et al. (1987) stomatal conductance model provides a robust phenomenological description of the stomatal behaviour. To mimic decrease in stomatal conductance (gs) with water stress, a linear relationship was assumed between reduction in A and the decrease of leaf water potential. Using hourly weather records, the model then calculates direct and diffuse light for dynamically changing sunlit and shaded portions of the canopy layers and computes carbon and water exchange with the atmosphere and through the canopy for each hour of the day, each day of the year.
+Respiration
+Growth respiration is assumed to be a constant proportion to gross photosynthesis. Maintenance respiration is proportional to biomass growth in the leaf, stem, storage and root pools respectively. Temperature dependent maintenance and growth respiration are estimated using a Q10 function and subtracted from gross canopy assimilate to calculate net canopy photosynthesis. 
+
+Phenology
+The annual cycle of growth is described by four phonological phases as reported by Arora and Boer (2005). They are states of maximum growth, normal growth, leaf fall, and dormancy/no leaves. In winter, deciduous trees are in a dormant/no leaf state until the arrival of favorable weather in spring when the trees enter the maximum growth state and preferred allocation is made to leaves. After leaf-out the normal growth state is attained and assimilated carbon is also allocated to the stem and the roots. The arrival of unfavorable weather conditions in autumn triggers leaf fall, when allocation to leaves ceases but continues to the stem and root. Eventually, there is a reversion to the dormant/no-leaf state until the arrival of favorable weather the next spring. These phenological stages were controlled by thermal periods defined by the sum of average daily temperatures from the start of the growing season. Leaf-out and leaf-off was also controlled by a threshold temperature in spring and fall.
+
+Growth, partitioning and allocation
+Daily partitioning of net canopy photosynthate to different plant organs (stem, root, leaf and storage) was dependent on phenological phase, which was triggered by accumulated thermal time. Carbon allocation was determined by dry biomass partitioning coefficients which depend on phenological stages. Thus, by varying these coefficients (-1 to 1), the dynamic source/sink demands of the plant during development were modeled. The total carbon available for growth during a given developmental stage was the total of net photosynthetic assimilation and leaf/storage root remobilization. The new leaf area, stem or root length was simulated based on allocated carbon resources for each tissue and the specific leaf area, specific stem length, and specific root length, respectively. New leaf growth was assumed to occur uniformly with respect to height in the canopy. Constant senescence rates of leaf, stem, and root were included in daily updating of plant biomass. Reduction in leaves due to frost damage was expressed as a fraction of LAI simulated using a linear function of ambient temperature.
+
+Coppicing and perenating
+  Coppicing is treated as a removal of 95% the above ground stem biomass, with some portion of the 5% of remaining stem and roots being the storage pool for the next year growth. 
+  
+Model parameterization 
+The C3 photosynthesis parameters (Table 1) were obtained from Farquer et al. (1992) and validated using data from Wang et al. (2013, unpublished) and Bernancchi et al. (2003).
+Parameters to model the effects of temperature and water stress on coupled stomatal conductance-photosynthesis at the leaf level are provided in Table 1. Parameters to model canopy CO2 assimilation are provided in Table 2. Parameters to estimate respirations losses were obtained using data from Liu and  Bull (2001).  Parameters for describing phenology and biomass partitioning coefficients determined empirically from the measurements of Beale & Long (1997) in Sweden (citation). With this additional information, the dry biomass partitioning coefficients were obtained (Table). This parameterization showed an acceptable agreement between model simulations and observed dry biomass (Fig. 2). This model was then tested, without further parameter adjustment, against data for the same genotype at eight study sites elsewhere in Europe (Table). For the purpose of model validation, BioCro was used to estimate poplar yield at 17 additional field sites (Table 2). The initial planting density and stem diameter at breast height (DBH) at each site was set using values reported in the literature when available and set to 1 stem/m2 and 1cm, respectively, if not reported. The field trials used in the validation step include diverse climates, soils, and growing conditions across the forested regions of the Europe and US. The species tested in these field trails included over ten hybrid poplars and 3 native species (Coyle et al. 2006; Dowell et al. 2009). Modeled poplar yield was compared to the observed yield of the highest yielding clone and the average yield of multiple clones to evaluate model performance with respect to regional yield estimation. Model calibration was performed with respect to following output variables: (1) stem biomass, (2) leaf biomass, (3) root biomass, (4) leaf litter biomass, and (5) LAI. Leaf litter biomass at the calibration site was estimated using total above ground biomass (Appendix 12). Description of the study site to perform model calibration is provided in Table 3. Initial values for coefficients for dry biomass partitioning. was evaluated for Trichobel (Populus trichocarpa Torr. & A. Gray x P. trichocarpa) and for Joruun (Salix viminalis L. x S. viminalis) based on field measurements from the UK SRC field trials (Armstrong, 1997; Casella & Sinoquet, 2003; Aylott et al., 2008a,b).  The trials (n = 3 plots per site), established with a stocking density of 10000 cuttings ha_1 were designed to generate an extensive database on SRC poplar and willow yields for model developments (Aylott et al., 2008a, 2010). Plots were cut back after a single establishment year to initiate a multistemmed coppice re-growth and there after harvested on a 3- year cycle, as typical for the United Kingdom (DEFRA, 2004). BioCro simulate the establishment year and then simulates a rotation period as what reported in the literature (Table S1). For the purpose of model evaluation monoclonal trial sites were selected, and these trails provided yield data over two 3-year rotations (coppice stool ages of 1–6 years). Of those, seven sites (the intensive sites, Armstrong, 1997) had all suitable soil data and daily weather data to drive the model and were chosen to cover different soil and climate characteristics (Fig. 2; Tables 1 and 2).
+  
+2.5 Regional projections under current and future climate change scenarios
+	Regional simulations were run for thirteen years (1996-2008) on a half-degree grid over the contiguous US. Soil textural classes were assigned from the STATSGO database and meteorological drivers were obtained from NARR reanalysis data (Mesinger et al. 2006). Initial planting density was 1/m2. To assess the model response to changes in increase in temperature and atmospheric carbon dioxide concentration ([CO2]), yield was also assessed by increasing [CO2] to 550 ppm and results were compared with experimental data from a coppice Free-Air CO2 Enrichment (FACE) experiment (Liberloo et al., 2009). Future climate change scenarios include temperature increase of 1, 2, and 3 ºC above current temperature at ambient (400ppm) and elevated (550ppm) CO2.
+
+2.6 Analysis
+
+WE looked at AGB for the contenental US
+
+=======
+>>>>>>> 75a155a00afd632d9c0c2ef0b15f84677511f0b0
+Results
+-------
+The predicted photosynthetic assimilation rate and stomatal conductance Salix correlated well with measurements taken in the field for Salix (Wang et al. 2013) (Fig. 1). The field diurnal photosynthetic assimilation rate of three Populus species was closely simulated at 
+both ambient (370ppm) and elevated (550ppm) CO2 (Fig.2).
+```{r}
+require(ggplot2)
+library(BioCro)
+library(latticeExtra)
+library(Agreement)
+source("/home/dwng/willowfigure/validation.R")
+willowaq2011 <- read.csv("~/biocro/inst/extdata/willowaq2011.csv", header=T)
+Qps <- willowaq2011$PARi
+Tls <- willowaq2011$Tleaf
+rhs <- willowaq2011$RH_R/100
+dat1 <- data.frame(Qp=Qps,Tl=Tls,RH=rhs)
+#dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
+model <- c3photo(dat1$Qp,dat1$Tl,dat1$RH,vcmax=120,Ca=370)
+modelassim<- cbind(model$Assim,willowaq2011)
+
+df1=modelassim[,c("Photo","model$Assim")]
+names(df1)=c("x","y")
+
+lm_eqn = function(df1){
+  m = lm(y ~ x, df1);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 2)))
+  #p = format(summary(m)$coefficients[8],digits=2))
+  as.character(as.expression(eq));                 
+}
+
+rassim <-ggplot(modelassim,aes(Photo,model$Assim))+geom_point(size=3,alpha=0.75)+stat_smooth(method="lm")+
+  scale_x_continuous(expression(paste("Observed assimilation (",
+                 mu,mol," ",m^-2," ",s^-1,")"))) + # have tick marks for each session
+  scale_y_continuous(expression(paste("Modelled assimilation (",
+                                      mu,mol," ",m^-2," ",s^-1,")"))) +# rescale Y axis slightly
+  theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
+  opts(#title = "Observed vs modeled net carbon assimilation",
+    #plot.title = theme_text(face="bold", size=14), # use theme_get() to see available options
+    axis.title.x = theme_text(face="bold", size=12),
+    axis.title.y = theme_text(face="bold", size=12, angle=90),
+    panel.grid.major = theme_blank(), # switch off major gridlines
+    panel.grid.minor = theme_blank() # switch off minor gridlines
+    )
+rassim <- rassim+geom_text(aes(x =8, y = 22, label = lm_eqn(df1)), parse = TRUE,colour="black")+geom_text(aes(x=2,y=30,label="A"))
+
+modelgs<- cbind(model$Gs/1000,willowaq2011)
+df2=modelgs[,c("Cond","model$Gs/1000")][1:9,]
+names(df2)=c("x","y")
+
+lm_eqn = function(df2){
+  m = lm(y ~ x, df2);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2,
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 2)))
+  #p = format(summary(m)$coefficients[8],digits=2))
+  as.character(as.expression(eq));                 
+}
+
+rgs <-ggplot(df2,aes(x,y))+geom_point(size=3,alpha=0.75)+stat_smooth(method="lm")+
+  scale_x_continuous(expression(paste("Observed stomatal conductance (",
+                                      mol," ",m^-2," ",s^-1,")"))) + # have tick marks for each session
+  scale_y_continuous(expression(paste("Modelled stomatal conductance (",
+                                      mol," ",m^-2," ",s^-1,")"))) +# rescale Y axis slightly
+  theme_bw() + # make the theme black-and-white rather than grey (do this before font changes, or it overrides them)
+  opts(#title = "Observed vs modeled stomatal conductance",
+    #plot.title = theme_text(face="bold", size=14), # use theme_get() to see available options
+    axis.title.x = theme_text(face="bold", size=12),
+    axis.title.y = theme_text(face="bold", size=12, angle=90),
+    panel.grid.major = theme_blank(), # switch off major gridlines
+    panel.grid.minor = theme_blank() # switch off minor gridlines
+   )
+rgs <- rgs+geom_text(aes(x =0.17, y = 0.25, label = lm_eqn(df2)), parse = TRUE,colour="black")+geom_text(aes(x =0.16, y = 0.31, label = "B"), parse = TRUE,colour="black")
+
+jpeg("../willowfigure/c3photovalidation.jpeg",width=10,height=5,unit='in',res=600)
+grid.arrange(rassim,rgs,
+             nrow=1,ncol=2)
+dev.off()
+
+
+poplar <- read.csv("~/willowfigure/poplarphotosynthesis.csv", header=T)
+palba=poplar[1:14,]
+pnigra=poplar[15:28,]
+peura=poplar[29:42,]
+Qps <- poplar$par
+Tls <- poplar$temp
+rhs <- poplar$RH/100
+Qps = c(25,70,1400,1100,1900,1800,1850,1750,1700,1200,700,300,145,17)
+dat1 <- data.frame(Qp=Qps,Tl=Tls,RH=rhs)
+modelpalba370 <- c3photo(dat1$Qp[1:14],dat1$Tl[1:14],dat1$RH[1:14],vcmax=65,Ca=370,jmax=196,Rd=4.3,b1=4)
+modelpalba550 <- c3photo(dat1$Qp[1:14],dat1$Tl[1:14],dat1$RH[1:14],vcmax=70,Ca=550,jmax=184,Rd=2.1)
+modelpnigra370 <- c3photo(dat1$Qp[15:28],dat1$Tl[15:28],dat1$RH[15:28],vcmax=75,Ca=370,jmax=193,Rd=3.4,b1=4)
+modelpnigra550 <- c3photo(dat1$Qp[15:28],dat1$Tl[15:28],dat1$RH[15:28],vcmax=70,Ca=550,jmax=181,Rd=1.1)
+modelpeura370 <- c3photo(dat1$Qp[29:42],dat1$Tl[29:42],dat1$RH[29:42],vcmax=80,Ca=370,jmax=188,Rd=3.3,b1=4)
+modelpeura550 <- c3photo(dat1$Qp[29:42],dat1$Tl[29:42],dat1$RH[29:42],vcmax=75,Ca=550,jmax=186,Rd=1.1)
+
+
+alba<- cbind(modelpalba370$Assim,palba)
+alba$A550m=modelpalba550$Assim
+names(alba)[1]="A370m"
+alba$time=c(5.5,6.8,8.6,9.6,10.8,12.2,13.4,14.5,16,16.7,18.1,19,19.8,20.9)
+
+nigra<- cbind(modelpnigra370$Assim,pnigra)
+nigra$A550m=modelpnigra550$Assim
+names(nigra)[1]="A370m"
+nigra$time=c(5.5,6.8,8.6,9.6,10.8,12.2,13.4,14.5,16,16.7,18.1,19,19.8,20.9)
+
+
+eura<- cbind(modelpeura370$Assim,peura)
+eura$A550m=modelpeura550$Assim
+names(eura)[1]="A370m"
+eura$time=c(5.5,6.8,8.6,9.6,10.8,12.2,13.4,14.5,16,16.7,18.1,19,19.8,20.9)
+
+
+
+jpeg("../willowfigure/c3photovalidation2.jpeg",width=5,height=15,unit='in',res=600)
+par(mfrow=c(3,1))
+par(mar=c(4,4,2,1))
+
+plot(alba$time,alba$A370,type='b',lwd=1,ylab=expression(paste("Assimilation (",
+                                                                mu,mol," ",m^-2," ",s^-1,")")),
+     ylim=range(-1:40),xlab="Time (h)",pch=19,lty=1)
+
+lines(alba$time,alba$A370m,lty=3,type='b',pch=21)
+lines(alba$time,alba$A550,lty=1,type='b',pch=17)
+lines(alba$time,alba$A550m,lty=3,type="b",pch=2)
+text(x=21,y=38,c("A"))       
+
+legend('topleft',c("Observed at 370ppm","Modelled at 370ppm","Observed at 550ppm","Modelled at 550ppm"),lty=c(1,3,1,3),pch=c(19,21,17,2),cex=1,lwd=1) 
+
+
+plot(nigra$time,nigra$A370,type='b',lwd=1,ylab=expression(paste("Assimilation (",
+                                                                mu,mol," ",m^-2," ",s^-1,")")),
+     ylim=range(-1:40),xlab="Time (h)",pch=19,lty=1)
+
+lines(nigra$time,nigra$A370m,lty=3,type='b',pch=21)
+lines(nigra$time,nigra$A550,lty=1,type='b',pch=17)
+lines(nigra$time,nigra$A550m,lty=3,type="b",pch=2)
+text(x=21,y=38,c("B"))       
+legend('topleft',c("Observed at 370ppm","Modelled at 370ppm","Observed at 550ppm","Modelled at 550ppm"),lty=c(1,3,1,3),pch=c(19,21,17,2),cex=1,lwd=1) 
+
+plot(eura$time,eura$A370,type='b',lwd=1,ylab=expression(paste("Assimilation (",
+                                                                mu,mol," ",m^-2," ",s^-1,")")),
+     ylim=range(-1:40),xlab="Time (h)",pch=19,lty=1)
+
+lines(eura$time,eura$A370m,lty=3,type='b',pch=21)
+lines(eura$time,eura$A550,lty=1,type='b',pch=17)
+lines(eura$time,eura$A550m,lty=3,type="b",pch=2)
+text(x=21,y=38,c("C"))       
+
+legend('topleft',c("Observed at 370ppm","Modelled at 370ppm","Observed at 550ppm","Modelled at 550ppm"),lty=c(1,3,1,3),pch=c(19,21,17,2),cex=1,lwd=1) 
+
+
+dev.off()
+
+```
+
+At the single plot scale, simulated biomass accumulation allocated to leaf, stem and root closely followed observed measurementts (Lindh et al. 1994).
+```{r}
+require(ggplot2)
+library(BioCro)
+library(latticeExtra)
+canwillow<-willowcanopyParms(Sp=1.1,kd=0.37,GrowthRespFraction=0.3)
+
+senwillow <- willowseneParms(senLeaf=1600,senStem=5500, senRoot=5500,senRhiz=5500,Tfrosthigh=5,Tfrostlow=0,leafdeathrate=5)
+
+
+phewillow <- willowphenoParms(tp1=250, tp2=350, tp3=900, tp4=1200, tp5=3939, tp6=7000,
+                              kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
+                              kStem2=0.01, kLeaf2=0.98, kRoot2=0.003, kRhizome2=0.007, 
+                              kStem3=0.7, kLeaf3=0.15, kRoot3=0.045, kRhizome3=0.105, 
+                              kStem4=0.7, kLeaf4=0.15, kRoot4=0.045, kRhizome4=0.105, 
+                              kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
+                              kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15)
+
+
+soilwillow <- soilParms(phi2=2,WiltP=0.16,wsFun=c('linear'))
+##site 1 for calibration
+#####Lindroth et al 1994 planting density is 20000/ha
+
+
+LAI1988 <- c(1.12349, 4.32988, 7.0629, 4.96791,1.58874) #from june to october
+LAI1986 <- c(2.41172,3.61459,5.22936,3.28399,0.499657)#from june to october
+stem1988 <- c(9.58217,13.4864,17.3891,19.3025,19.3984)
+stem1986 <- c(6.19766,9.19511,16.6033,18.2752,18.3713)
+leaf1988 <- c(1.78692,2.61024,3.55331,3.2308, 0.733343)
+leaf1986 <- c(1.24298,3.51604,5.06361,4.6804,2.24378)
+root1988 <- c(0,3.27545,2.94922,5.22448,7.37904)
+
+obs <-data.frame(DAP=c(500,1000,1500,1800,2200),leaf1986=leaf1986,leaf1988=leaf1988,stem1986=stem1986,stem1988=stem1988,root1988=root1988,
+                 lai1986=LAI1986,lai1988=LAI1988)
+#obs <- data.frame(DAP=c(1500),leaf1986=max(leaf1986),stem1986=max(stem1986),lai1986=max(LAI1986),leaf1988=max(leaf1988),stem1988=max(stem1988),lai1988=max(LAI1988))
+load("/home/dwng/willowgrowclimate.RData")
+willowgrowclimate[willowgrowclimate$RH>1,]$RH<-1
+wet1984 <-willowgrowclimate[willowgrowclimate$year==1984,]
+wet1985 <-willowgrowclimate[willowgrowclimate$year==1985,]
+wet1986 <-willowgrowclimate[willowgrowclimate$year==1986,]
+wet1987 <-willowgrowclimate[willowgrowclimate$year==1987,]
+wet1988 <-willowgrowclimate[willowgrowclimate$year==1988,]
+
+iplant0 <-iwillowParms(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
+## before coppicing
+res0 <- willowGro(wet1984,day1=120,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
+                  iPlantControl=iplant0,soilControl=soilwillow)
+
+stem0<-res0$Stem[length(res0$Stem)]
+root0<-res0$Root[length(res0$Root)]
+rhiz0<-res0$Rhizome[length(res0$Rhizome)]
+
+## Growing season 1
+stem0=stem0*0.05
+#day1= wet1985[wet1985$Temp >=6,]$doy[1] 
+day1=120
+iplant1 <-iwillowParms(iRhizome=rhiz0,iStem=stem0,iLeaf=0.0,iRoot=root0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
+res1 <- willowGro(wet1985,day1=day1,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
+                  iPlantControl=iplant1,soilControl=soilwillow)
+stem1<-res1$Stem[length(res1$Stem)]
+root1<-res1$Root[length(res1$Root)]
+rhiz1<-res1$Rhizome[length(res1$Rhizome)]
+
+
+
+
+stem1=stem1*0.8
+## Growing season 2
+##day1= wet1986[wet1986$Temp >=6,]$doy[1] 
+day1=120
+iplant2 <-iwillowParms(iRhizome=rhiz1,iStem=stem1,iLeaf=0.0,iRoot=root1,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
+res2 <- willowGro(wet1986,day1=day1,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
+                  iPlantControl=iplant2,soilControl=soilwillow)
+stem2<-res2$Stem[length(res2$Stem)]
+root2<-res2$Root[length(res2$Root)]
+rhiz2<-res2$Rhizome[length(res2$Rhizome)]
+ans.dat <- as.data.frame(unclass(res2)[1:11])
+sel.rows <- seq(1,nrow(ans.dat),length.out=5)
+simDat2 <- ans.dat[sel.rows,c('ThermalT','Stem','Leaf','Root','Rhizome','Grain','LAI')]
+simDat2$Rhizome=0
+simDat2$Root=0
+simDat2$ThermalT=obs$DAP
+simDat2$Leaf=0
+simDat2$LAI=obs$lai1986
+simDat2$Stem=obs$stem1986
+
+res=res2
+pred1986=data.frame(doy=res$DayofYear,gdd=round(res$ThermalT,digit=0),stem=res$Stem,leaf=res$Leaf,LAI=res$LAI,root=res$Root,et=res$SoilEvaporation,soilwater=res$SoilWatCont)
+modelled1986=pred1986[c(906,1528,2184,2582,3251),]  
+                 
+#coppicing at jan
+stem2=stem2*0.05
+#day1= wet1987[wet1987$Temp >=6,]$doy[1] 
+iplant3 <-iwillowParms(iRhizome=rhiz2,iStem=stem2,iLeaf=0.0,iRoot=root2,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
+res3 <- willowGro(wet1987,day1=day1,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
+                  iPlantControl=iplant3,soilControl=soilwillow)
+stem3<-res3$Stem[length(res3$Stem)]
+root3<-res3$Root[length(res3$Root)]
+rhiz3<-res3$Rhizome[length(res3$Rhizome)]
+
+stem3=stem3*0.95
+#day1= 110
+iplant4 <-iwillowParms(iRhizome=rhiz3,iStem=stem3,iLeaf=0.0,iRoot=root3,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0)
+res4 <- willowGro(wet1988,day1=day1,dayn=330,canopyControl=canwillow,willowphenoControl=phewillow,seneControl=senwillow,
+                  iPlantControl=iplant4,soilControl=soilwillow)
+stem4<-res4$Stem[length(res4$Stem)]
+root4<-res4$Root[length(res4$Root)]
+rhiz4<-res4$Rhizome[length(res4$Rhizome)]
+
+ans.dat <- as.data.frame(unclass(res4)[1:11])
+sel.rows <- seq(1,nrow(ans.dat),length.out=5)
+simDat4 <- ans.dat[sel.rows,c('ThermalT','Stem','Leaf','Root','Rhizome','Grain','LAI')]
+simDat4$Rhizome=0
+simDat4$Root=0
+simDat4$ThermalT=obs$DAP
+simDat4$Leaf=0
+simDat4$LAI=obs$lai1988
+simDat4$Stem=obs$stem1988
+
+res=res4
+pred1988=data.frame(doy=res$DayofYear,gdd=round(res$ThermalT,digit=0),stem=res$Stem,leaf=res$Leaf,LAI=res$LAI,root=res$Root,et=res$SoilEvaporation,soilwater=res$SoilWatCont)
+modelled1988=pred1988[c(872,1482,2083,2474,3039),]  
+obs1986=data.frame(doy=modelled1986$doy,stem=obs$stem1986,leaf=obs$leaf1986,lai=obs$lai1986)
+obs1988=data.frame(doy=modelled1988$doy,stem=obs$stem1988,leaf=obs$leaf1988,lai=obs$lai1988,root=obs$root1988)
+                 
+save(modelled1986,modelled1988,obs1986,obs1988, file="/home/dwng/willowfigure/calibration.RData")
+
+jpeg("/home/dwng/willowfigure/calibration529.jpg", width=10, height=5, units="in", res=600) 
+par(mfrow=c(1,2))
+par(mar=c(4,4,2,1))
+plot(modelled1986$doy,modelled1986$stem,type='b',lwd=1,ylab="Biomass partitioning (Mg/ha)"
+                      ,ylim=range(1:25),xlab="Day of Year",main="A:first rotation, second year",pch=19,lty=1)
+             
+lines(obs1986$doy,obs1986$stem,lty=3,type='b',pch=21)
+lines(modelled1986$doy,modelled1986$leaf,lty=1,type='b',pch=17)
+lines(obs1986$doy,obs1986$leaf,lty=3,type="b",pch=2)
+legend('topleft',c("Modelled stem","Observed stem","Modelled leaf","Observed leaf"),lty=c(1,3,1,3),pch=c(19,21,17,2),cex=1,lwd=1)
+                 
+plot(modelled1988$doy,modelled1988$stem,type='b',lwd=1,ylab="Biomass partitioning (Mg/ha)"
+                      ,ylim=range(1:25),xlab="Day of Year",main="B:Second rotation, second year",pch=19,lty=1)
+                 
+lines(obs1988$doy,obs1988$stem,lty=3,type='b',pch=21)
+lines(modelled1988$doy,modelled1988$leaf,lty=1,type='b',pch=17)
+lines(obs1988$doy,obs1988$leaf,lty=3,type="b",pch=2)
+lines(modelled1988$doy,modelled1988$root,lty=1,type='b',pch=15)
+lines(obs1988$doy[4:5],obs1988$root[4:5],lty=3,type="b",pch=0)                 
+
+legend('topleft',c("Modelled stem","Observed stem","Modelled leaf","Observed leaf","Modelled root","Observed root"),lty=c(1,3,1,3,1,3),pch=c(19,21,17,2,15,0),cex=1,lwd=1)                
+dev.off()                 
+```
+
+The modelin gof above ground biomass partitioning agreeed with the reported data (Proe et al.2002) (Table).The close agreet between simulated and observed data was observed in studies in both Europe and the US, suggesting that the model was albe to account for the variability in envrionmental conditions.
+```{r}
+require(ggplot2)
+library(BioCro)
+library(latticeExtra)
+```
+
+
+```{r}
+require(ggplot2)
+library(BioCro)
+library(latticeExtra)
+```
+Discussion
+----------
