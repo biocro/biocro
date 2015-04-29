@@ -14,12 +14,11 @@ script: ./travis-tool.sh run_tests
 
 after_failure:
   - ./travis-tool.sh dump_logs
-
-env:
-  - WARNINGS_ARE_ERRORS=1
-
+  
+warnings_are_errors: 
+  false
+  
 notifications:
   email:
     on_success: change
     on_failure: change
-
