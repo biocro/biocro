@@ -75,7 +75,7 @@ caneGro <- function(WetDat, day1=5, dayn=360,
     sugarphenoP<-canephenoParms()
     sugarphenoP[names(canephenoControl)]<-canephenoControl
 
-    photoP <- photoParms(b0=0.03, b1=12,Catm=380, UPPERTEMP=39.8, LOWERTEMP=9.0)
+    photoP <- photoParms(b0=0.03, b1=12,Catm=380, uppertemp=39.8, lowertemp=9.0)
     photoP[names(photoControl)] <- photoControl
 
     seneP <- caneseneParms()
@@ -142,8 +142,8 @@ caneGro <- function(WetDat, day1=5, dayn=360,
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-    upperT<-photoP$UPPERTEMP
-    lowerT<-photoP$LOWERTEMP
+    upperT<-photoP$uppertemp
+    lowerT<-photoP$lowertemp
 
     mResp <- canopyP$mResp
     kd <- canopyP$kd
