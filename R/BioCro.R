@@ -318,7 +318,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     tint <- 24 / timestep
     vecsize <- (dayn - (day1-1)) * tint
     indes1 <- (day1-1) * tint
-    indesn <- min((dayn) * tint, nrow(WetDat))
+    indesn <- (dayn) * tint
     
     doy <- WetDat[indes1:indesn,2]
     hr <- WetDat[indes1:indesn,3]
