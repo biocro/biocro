@@ -1,4 +1,4 @@
-## BioCro
+## BioCro [![Build Status](https://magnum.travis-ci.com/ebimodeling/biocro-dev.svg?token=tjzJV6N6JPssJ6yfYPqH&branch=master)](https://magnum.travis-ci.com/ebimodeling/biocro-dev)
 
 BioCro is a detailed model that scales from leaf-level photosynthesis to ecosystem level carbon and water balance. 
 

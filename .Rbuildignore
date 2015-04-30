@@ -8,3 +8,4 @@ calibration.RData
 documentation
 ^.*.log
 .git/*
+^\.travis\.yml$
