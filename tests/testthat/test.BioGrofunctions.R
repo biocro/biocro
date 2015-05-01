@@ -1,5 +1,3 @@
-library(devtools)
-library(testthat)
 context("Basic tests of *Gro functions")
 data(weather06, package = "BioCro")
 data(weather05, package = "BioCro")
