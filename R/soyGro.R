@@ -3,11 +3,11 @@
 soyGro <- function(WetDat,day1=180,dayn=300,
                    timestep=1,iRhizome=1.0,
                    lat=40,iPlant=1,irtl=1e-4,
-                   canopyControl=list(Sp=3.57,SpD=0,nlayers=10,kd=0.37,chi.1=1,heightFactor=1,
-                                      mResp=c(0.02,0.03),GrowthRespFraction=0.3),
+                   canopyControl=list(Sp=3.57,SpD=0,nlayers=10,kd=0.37,chi.l=1,heightFactor=1,
+                                      mResp=c(0.02,0.03)),
                    seneControl=list(senLeaf=1200,senStem=2000,senRoot=2000,senRhizome=9999,Tfrosthigh=5,
                                     Tfrostlow=0,leafdeathrate=5),
-                   photoControl=list(vmax=100,jmax=180,Rd=0.8,b0=0.008,b1=10.5,Catm=550,O2=210,StomWS=1),
+                   photoControl=list(vmax=100,Rd=0.8,b0=0.008,b1=3,Catm=550),
                    phenoControl=list(Tbase=0),
                    phenoParms=list(Tbase=0,
                                    tp1=0,tp2=100,tp3=500,tp4=1000,tp5=2000,tp6=3000,
@@ -27,6 +27,7 @@ soyGro <- function(WetDat,day1=180,dayn=300,
   # Write weather data into text file
   # browser()
   WeatherFileName <- file.path(tempdir(),"WeatherData.txt")
+  
   IntegerVariables <- as.data.frame(lapply(WetDat[,1:3],as.integer))
   FloatVariables <- as.data.frame(lapply(WetDat[,4:8],function(X) sprintf(fmt="%10.5f",X)))
   WetDat <- cbind(IntegerVariables,FloatVariables)
@@ -35,12 +36,12 @@ soyGro <- function(WetDat,day1=180,dayn=300,
   # Write parameter data into file
   WeatherParameters=list(Year=2002,StartDay=day1,EndDay=dayn,DeltaT=timestep,Lattitude=lat)
   CanopyParameters=list(SLAI=canopyControl$Sp,SLAIDecline=canopyControl$SpD,Layers=canopyControl$nlayers,
-                        KDiffuse=canopyControl$kd,Chi=canopyControl$chi.1,Clump=1,
+                        KDiffuse=canopyControl$kd,Chi=canopyControl$chi.l,Clump=1,
                         HeightFactor=canopyControl$heightFactor)
-  PhotosynthesisParameters=list(Vcmax25=photoControl$vmax,Jmax25=photoControl$jmax,Theta=0.76,
+  PhotosynthesisParameters=list(Vcmax25=photoControl$vmax,Jmax25=180,Theta=0.76,
                                 Rd25=photoControl$Rd,BallBerryIntercept=photoControl$b0,
                                 BallBerrySlope=photoControl$b1,CO2=photoControl$Catm,
-                                O2=photoControl$O2,WaterStessFunction=soilControl$wsFun,
+                                O2=210,WaterStessFunction=soilControl$wsFun,
                                 WaterStressFactor=1)
   InitialBiomassParameters=list(Leaf=iPlantControl$iLeaf,Stem=iPlantControl$iStem,Flower=0,Grain=0,
                                 Root=iPlantControl$iRoot,Rhizome=iPlantControl$iRhizome,Nodule=0)
@@ -57,12 +58,10 @@ soyGro <- function(WetDat,day1=180,dayn=300,
                            Grain4=0.0,Root4=phenoParms$kroot4,Rhizome4=phenoParms$krhizome4,Nodule4=0,
                            TT5=phenoParms$tp5,Leaf5=phenoParms$kleaf5,Stem5=phenoParms$kstem5,Flower5=0.0,
                            Grain5=1.0,Root5=phenoParms$kroot5,Rhizome5=phenoParms$krhizome5,Nodule5=0,
-                           TT6=phenoParms$tp5,Leaf6=phenoParms$kleaf6,Stem6=phenoParms$kstem6,Flower6=0.0,
+                           TT6=phenoParms$tp6,Leaf6=phenoParms$kleaf6,Stem6=phenoParms$kstem6,Flower6=0.0,
                            Grain6=phenoParms$kgrain6,Root6=phenoParms$kroot6,Rhizome6=phenoParms$krhizome6,
                            Nodule6=0)
-  GFrac <- canopyControl$GrowthRespFraction
-  RespirationParameters=list(GLeaf=GFrac,GStem=GFrac,GFlower=GFrac,GGrain=GFrac,GRoot=GFrac,
-                             GRhizome=GFrac,GNodule=GFrac,
+  RespirationParameters=list(GLeaf=0.3,GStem=0.3,GFlower=0.3,GGrain=0.3,GRoot=0.3,GRhizome=0.3,GNodule=0.3,
                              QLeaf=2.0,QStem=2.0,QFlower=2.0,QGrain=2.0,QRoot=2.0,QRhizome=2.0,QNodule=2.0,
                              MLeaf=0.0120,MStem=0.0016,MFlower=0.0000,MGrain=0.0000,MRoot=0.0036,
                              MRhizome=0.0000,MNodule=0.0000)
@@ -109,18 +108,18 @@ soyGro <- function(WetDat,day1=180,dayn=300,
   OutputFolderName <- file.path(tempdir())
   ##################################################################################################################
   # Call soyGro function
-  print(ParameterFileName)
-  print(WeatherFileName)
-  print(OutputFolderName)
-  browser()
+  # print(ParameterFileName)
+  # print(WeatherFileName)
+  # print(OutputFolderName)
   Void <-.Call("RWrapper",ParameterFileName,WeatherFileName,OutputFolderName)
   ##################################################################################################################
   # Import output data into R
   Sys.sleep(1)
-  OutputFileName = file.path(tempdir(),"soyGroOutput.txt")
+  OutputFileName <- file.path(tempdir(),"soyGroOutput.txt")
   Result <- read.table(OutputFileName)
   colnames(Result) <- c("DayofYear","Hour","ThermalT","LAI","Leaf","Stem","Flower","Grain","Root",
                         "Rhizome","Nodule")
+  Result <- structure(Result, class = "BioGro")
   return(Result)}
 ####################################################################################################################
 ####################################################################################################################
