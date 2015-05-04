@@ -22,20 +22,18 @@ test_that("WillowGro function produces reasonable results",{
   expect_true(max(res$LAI) < 10)
   expect_true(max(res$Leaf) < 25)
 })
-    
-# soyGro: does not compile on linux https://github.com/ebimodeling/biocro-dev/issues/44
 # caneGro bug https://github.com/ebimodeling/biocro-dev/issues/45
 # MaizeGro no roots:  https://github.com/ebimodeling/biocro-dev/issues/46
-for (biocrofn in c("willowGro", "BioGro")){#, "caneGro" , "MaizeGro"
+for (biocrofn in c("soyGro", "willowGro", "BioGro")){#, "caneGro" , "MaizeGro"
     print(biocrofn)
     res0 <- do.call(biocrofn, list(weather05))
-    
+    expect_is(res0, "BioGro")
    
     test_that("*Gro functions produce reasonable results",{
         
         for(output in c("LAI", "Leaf", "Root", "Stem")){
             print(paste(output, range(res0[[output]])))
-            expect_true(min(res0[[output]]) > 0)
+            expect_true(min(res0[[output]]) >= 0)
             expect_true(max(res0[[output]]) < 50)
         }
     })
@@ -44,32 +42,36 @@ for (biocrofn in c("willowGro", "BioGro")){#, "caneGro" , "MaizeGro"
     res1 <- do.call(biocrofn, list(weather05, soilControl = soilParms(soilLayers = 6)))
     
     test_that("turning on soil layers increases aboveground productivity and reduces root allocation",{
-        
-        for(output in c("LAI", "Leaf", "Root", "Stem")){
+        if(biocrofn != "soyGro"){# re-enable after soyGro has soil
+          for(output in c("LAI", "Leaf", "Root", "Stem")){
             print(output)
             expect_true(mean(res0[[output]]) < mean(res1[[output]]))
+          }          
         }
     })
     
     test_that("BioCro stem biomass is sensitive to key parameters ", {
       get.biomass <- function(...){
-        ans <- do.call(biocrofn, list(weather05, ...))
-        return(max(ans$Stem))
+        ans <- do.call(biocrofn, list(weather05, ...))        
+        return(max(ans$Stem, ans$Leaf, ans$Root))
       } 
       
       # willowGro insensitive to chi.l, b1 
       # pending implementation ebimodeling/biocro-dev#5
       
-      if(biocrofn != 'willowGro'){
-        expect_more_than(get.biomass(canopyControl = canopyParms(chi.l = 0.37)),
-                         get.biomass(canopyControl = canopyParms(chi.l = 9)))
+      if(biocrofn != "willowGro"){
+        expect_more_than(get.biomass(canopyControl = canopyParms(chi.l = 0.4, Sp = 5)),
+                         get.biomass(canopyControl = canopyParms(chi.l = 9, Sp = 5)))
         expect_less_than(get.biomass(photoControl = photoParms(b1 = 3)),
                          get.biomass(photoControl = photoParms(b1 = 10)))
       }
-      
-      expect_more_than(get.biomass(canopyControl = canopyParms(kd = 0.37)),
-                       get.biomass(canopyControl = canopyParms(kd = 0.9)))
-      
-
+      if(biocrofn != "soyGro"){
+        expect_more_than(get.biomass(canopyControl = canopyParms(kd = 0.1)),
+                         get.biomass(canopyControl = canopyParms(kd = 0.9)))
+      }
+      if(biocrofn == "soyGro"){
+        expect_more_than(get.biomass(photoControl = photoParms(vmax = 120)),
+                         get.biomass(photoControl = photoParms(vmax = 80)))
+      }
     })
 }
