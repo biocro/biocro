@@ -1009,4 +1009,60 @@ cbind(P, ET, DeltaTheta, RO, DR)
 P - (ET + DeltaTheta + RO + DR)
 @ 
 
+
+\subsection{Carbon and Water: Soil properties and parameters}
+
+Given that the model has been adequately described at the leaf and
+canopy level, when doing a simulation for the whole growing season the
+soil information becomes highly relevant. The basic information is
+supplied through the \code{soilParms} function. 
+
+<<soilParms>>=
+soilP <- soilParms()
+names(soilP)
+@ 
+
+Some of the details are available in \code{?BioGro}. The first two are
+important as they are the field capacity \code{FieldC} and wilting
+point \code{WiltP} if they are not supplied they are obtained from a
+default soil given by \code{soilType}. To look at the standard soils
+see
+
+<<show-soil-type>>=
+showSoilType(0)
+showSoilType(5)
+showSoilType(10)
+@ 
+
+This shows a range of soils from clay (10) to sand (0) and an
+intermediate sandy clay loam.
+
+Another important property is the soil depth. Typically crops have
+access to anywhere from 1 to 2.5 m of soil through their root
+exploration. If the number of layers of soil is equal to 1 then the
+soil is treated as a simple bucket and the crop roots have access to
+the entire profile. If the number of layers is larger than one the
+roots will only have access to the layers in which they have grown
+into. An example of a simulation using 7 layers and a soil depth of 3m
+and an empirical leaf reduction factor (\code{lrf=0.3e-3}). This type
+of empirical approach to the effect of water stress on senescence is
+used in other models such as APSIM.
+
+<<soil-water>>=
+soilP <- soilParms(soilLayers = 7, soilDepth = 3)
+res <- BioGro(cmi04, soilControl = soilP)
+plot(res, plot.kind="SW")
+@ 
+
+The shallower layers are depleted while the deeper layers still have
+water in them. This also shows that as the top layer is depleted the
+crop takes up water from the layers just beneath it and then the next
+layer down and so on. All the layers started at the same level on day
+1. This is the default behavior but it can be modified by changing the
+argument \code{iWatCont}. By default water moves from one layer to the
+next driven by soil water potential \code{hydrDist = TRUE} this can be
+turned off but it will likely not produce reasonable results.
+
+
+
 \end{document}
