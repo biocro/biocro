@@ -319,7 +319,9 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     vecsize <- (dayn - (day1-1)) * tint
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
-    
+    if(dayn > dim(WetDat){
+       stop("dayN and input weather data are not consistent)
+    }
     doy <- WetDat[indes1:indesn,2]
     hr <- WetDat[indes1:indesn,3]
     solar <- WetDat[indes1:indesn,4]
