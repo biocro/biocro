@@ -1010,7 +1010,6 @@ cbind(P, ET, DeltaTheta, RO, DR)
 P - (ET + DeltaTheta + RO + DR)
 @ 
 
-<<<<<<< HEAD
 
 \subsection{Carbon and Water: Soil properties and parameters}
 
@@ -1066,7 +1065,4 @@ next driven by soil water potential \code{hydrDist = TRUE} this can be
 turned off but it will likely not produce reasonable results.
 
 
-
-=======
->>>>>>> b626ad9b51b43279e6295c83fa2178cadfa76b7b
 \end{document}
