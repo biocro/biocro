@@ -7,14 +7,16 @@ Author: Fernando Miguez <femiguez@iastate.edu>,
     Dan Wang <dwng@illinois.edu>,
     David LeBauer <dlebauer@illinois.edu>
 Maintainer: David LeBauer <dlebauer@illinois.edu>
-Depends:
+Depends: 
     lattice,
     data.table,
     coda,
     knitr,
     roxygen2
-Imports:
+Imports: 
     stats
+Suggests: 
+    testthat
 VignetteBuilder: knitr
 License: FreeBSD + file LICENSE
 Packaged: 2013-03-29 07:12:38 UTC; djaiswal

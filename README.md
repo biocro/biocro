@@ -1,4 +1,4 @@
-## BioCro
+## BioCro [![Build Status](https://magnum.travis-ci.com/ebimodeling/biocro-dev.svg?token=tjzJV6N6JPssJ6yfYPqH&branch=master)](https://magnum.travis-ci.com/ebimodeling/biocro-dev)
 
 BioCro is a detailed model that scales from leaf-level photosynthesis to ecosystem level carbon and water balance. 
 
@@ -29,6 +29,10 @@ Recent development has coupled DayCent (Parton et al 1998) to BioCro, expanding 
 * Leaf Area Index
 * many more
 
+### Software Documentation
+
+* [R package](http://ebimodeling.github.io/biocro/documentation/r/)
+* [C library](http://ebimodeling.github.io/biocro/documentation/doxygen/)
 
 ## References 
 
