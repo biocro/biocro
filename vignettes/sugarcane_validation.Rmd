@@ -107,58 +107,6 @@ xyplot(result$NPP~result$DayafterPlanting,type="p",main="NPP [Mg/ha]")
 xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$GDD,auto.key=TRUE, type="p", main="alive biomass")
 xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$DayafterPlanting,auto.key=TRUE, type="l", main="dead biomass")
 
-# carbonbalance<-data.frame(GPP=NA,NPP=NA,AutoResp=NA, Balance1=NA)
-checkmassbalance<-function(result,plantingrate,dapharvest, stemfr)
-{
-  N<-length(result$GDD)
-  Cbalance<-as.numeric(N)
-  Cbalance<-0
-  deltalive=(result$Stemd[1]+result$Leafd[1]+result$Rootd[1]+result$Rhizomed[1])-plantingrate
-  deltadead=(result$Stemlitterd[1]+result$Leaflitterd[1]+result$Rootlitterd[1]+result$Rhizomelitterd[1])
-  Cbalance[1]=result$NPP[1]-(deltalive+deltadead)
-  carbonbalance$GPP=result$GPP[1]
-  carbonbalance$NPP=result$NPP[1]
-  carbonbalance$AutoResp=result$autoRESP[1]
-  carbonbalance$Balance1=carbonbalance$GPP-carbonbalance$NPP-  carbonbalance$AutoResp
-  carbonbalance$delrhiz=result$Rhizomed[1]-20.0
-  carbonbalance$delstem=0
-  carbonbalance$delleaf=result$Leafd[1]-0.0
-  carbonbalance$delroot=0
-  carbonbalance$delalivebiomass= carbonbalance$delrhiz+carbonbalance$delstem+carbonbalance$delleaf+carbonbalance$delroot
-  carbonbalance$delrhizlitter=0.0
-  carbonbalance$delstemlitter=0.0
-  carbonbalance$delleaflitter=0.0
-  carbonbalance$delrootlitter=0.0
-  carbonbalance$delbiomasslitter= carbonbalance$delrhizlitter+carbonbalance$delstemlitter+carbonbalance$delleaflitter+carbonbalance$delrootlitter
-  carbonbalance$Balance2=carbonbalance$delbiomasslitter+carbonbalance$delalivebiomass-carbonbalance$NPP
-  write.table(carbonbalance,file="/home/djaiswal/Research/dev/biocro/tests/Cabalance.txt", row.names=FALSE,append=FALSE,col.names=TRUE)
-  for (i in 2:N)
-  {
-    deltalive=(result$Stemd[i]+result$Leafd[i]+result$Rootd[i]+result$Rhizomed[i])-(result$Stemd[i-1]+result$Leafd[i-1]+result$Rootd[i-1]+result$Rhizomed[i-1])
-    deltadead=(result$Stemlitterd[i]+result$Leaflitterd[i]+result$Rootlitterd[i]+result$Rhizomelitterd[i])-(result$Stemlitterd[i-1]+result$Leaflitterd[i-1]+result$Rootlitterd[i-1]+result$Rhizomelitterd[i-1])
-    Cbalance[i]=result$NPP[i]-(deltalive+deltadead)
-    carbonbalance$GPP=result$GPP[i]
-    carbonbalance$NPP=result$NPP[i]
-    carbonbalance$AutoResp=result$autoRESP[i]
-    carbonbalance$Balance1=carbonbalance$GPP - carbonbalance$NPP -  carbonbalance$AutoResp
-    
-    carbonbalance$delrhiz=result$Rhizomed[i]-result$Rhizomed[i-1]
-    carbonbalance$delstem=result$Stemd[i]-result$Stemd[i-1]
-    carbonbalance$delleaf=result$Leafd[i]-result$Leafd[i-1]
-    carbonbalance$delroot=result$Rootd[i]-result$Rootd[i-1]
-    carbonbalance$delalivebiomass= carbonbalance$delrhiz+carbonbalance$delstem+carbonbalance$delleaf+carbonbalance$delroot
-    carbonbalance$delrhizlitter=result$Rhizomelitterd[i]-result$Rhizomelitterd[i-1]
-    carbonbalance$delstemlitter=result$Stemlitterd[i]-result$Stemlitterd[i-1]
-    carbonbalance$delleaflitter=result$Leaflitterd[i]-result$Leaflitterd[i-1]
-    carbonbalance$delrootlitter=result$Rootlitterd[i]-result$Rootlitterd[i-1]
-    carbonbalance$delbiomasslitter= carbonbalance$delrhizlitter+carbonbalance$delstemlitter+carbonbalance$delleaflitter+carbonbalance$delrootlitter
-    carbonbalance$Balance2=carbonbalance$delbiomasslitter+carbonbalance$delalivebiomass-carbonbalance$NPP
-    
-    write.table(carbonbalance,file="/home/djaiswal/Research/dev/biocro/tests/Cabalance.txt", row.names=FALSE,append=TRUE,col.names=FALSE)
-  }
-  harvested=result$Stemd[dapharvest-1]*(stemfr)+result$Leafd[dapharvest-1]*(leaffr)
- ##  Cbalance[dapharvest]= Cbalance[dapharvest]-harvested
-  }
 #png("./inst/test/dailyTT.png")
 xyplot(result$GDD~result$DayafterPlanting,type="l")
 #dev.off()
@@ -231,58 +179,6 @@ xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result
 xyplot(result$Stemd+result$Leafd+result$Rootd+result$Rhizomed+result$LAId~result$GDD,auto.key=TRUE, type="p", main="alive biomass")
 xyplot(result$Stemlitterd+result$Leaflitterd+result$Rootlitterd+result$Rhizomelitterd~result$GDD,auto.key=TRUE, type="p", main="dead biomass")
 
-# carbonbalance<-data.frame(GPP=NA,NPP=NA,AutoResp=NA, Balance1=NA)
-checkmassbalance<-function(result,plantingrate,dapharvest, stemfr)
-{
-  N<-length(result$GDD)
-  Cbalance<-as.numeric(N)
-  Cbalance<-0
-  deltalive=(result$Stemd[1]+result$Leafd[1]+result$Rootd[1]+result$Rhizomed[1])-plantingrate
-  deltadead=(result$Stemlitterd[1]+result$Leaflitterd[1]+result$Rootlitterd[1]+result$Rhizomelitterd[1])
-  Cbalance[1]=result$NPP[1]-(deltalive+deltadead)
-  carbonbalance$GPP=result$GPP[1]
-  carbonbalance$NPP=result$NPP[1]
-  carbonbalance$AutoResp=result$autoRESP[1]
-  carbonbalance$Balance1=carbonbalance$GPP-carbonbalance$NPP-  carbonbalance$AutoResp
-  carbonbalance$delrhiz=result$Rhizomed[1]-20.0
-  carbonbalance$delstem=0
-  carbonbalance$delleaf=result$Leafd[1]-0.0
-  carbonbalance$delroot=0
-  carbonbalance$delalivebiomass= carbonbalance$delrhiz+carbonbalance$delstem+carbonbalance$delleaf+carbonbalance$delroot
-  carbonbalance$delrhizlitter=0.0
-  carbonbalance$delstemlitter=0.0
-  carbonbalance$delleaflitter=0.0
-  carbonbalance$delrootlitter=0.0
-  carbonbalance$delbiomasslitter= carbonbalance$delrhizlitter+carbonbalance$delstemlitter+carbonbalance$delleaflitter+carbonbalance$delrootlitter
-  carbonbalance$Balance2=carbonbalance$delbiomasslitter+carbonbalance$delalivebiomass-carbonbalance$NPP
-  write.table(carbonbalance,file="/home/djaiswal/Research/dev/biocro/tests/Cabalance.txt", row.names=FALSE,append=FALSE,col.names=TRUE)
-  for (i in 2:N)
-  {
-    deltalive=(result$Stemd[i]+result$Leafd[i]+result$Rootd[i]+result$Rhizomed[i])-(result$Stemd[i-1]+result$Leafd[i-1]+result$Rootd[i-1]+result$Rhizomed[i-1])
-    deltadead=(result$Stemlitterd[i]+result$Leaflitterd[i]+result$Rootlitterd[i]+result$Rhizomelitterd[i])-(result$Stemlitterd[i-1]+result$Leaflitterd[i-1]+result$Rootlitterd[i-1]+result$Rhizomelitterd[i-1])
-    Cbalance[i]=result$NPP[i]-(deltalive+deltadead)
-    carbonbalance$GPP=result$GPP[i]
-    carbonbalance$NPP=result$NPP[i]
-    carbonbalance$AutoResp=result$autoRESP[i]
-    carbonbalance$Balance1=carbonbalance$GPP - carbonbalance$NPP -  carbonbalance$AutoResp
-    
-    carbonbalance$delrhiz=result$Rhizomed[i]-result$Rhizomed[i-1]
-    carbonbalance$delstem=result$Stemd[i]-result$Stemd[i-1]
-    carbonbalance$delleaf=result$Leafd[i]-result$Leafd[i-1]
-    carbonbalance$delroot=result$Rootd[i]-result$Rootd[i-1]
-    carbonbalance$delalivebiomass= carbonbalance$delrhiz+carbonbalance$delstem+carbonbalance$delleaf+carbonbalance$delroot
-    carbonbalance$delrhizlitter=result$Rhizomelitterd[i]-result$Rhizomelitterd[i-1]
-    carbonbalance$delstemlitter=result$Stemlitterd[i]-result$Stemlitterd[i-1]
-    carbonbalance$delleaflitter=result$Leaflitterd[i]-result$Leaflitterd[i-1]
-    carbonbalance$delrootlitter=result$Rootlitterd[i]-result$Rootlitterd[i-1]
-    carbonbalance$delbiomasslitter= carbonbalance$delrhizlitter+carbonbalance$delstemlitter+carbonbalance$delleaflitter+carbonbalance$delrootlitter
-    carbonbalance$Balance2=carbonbalance$delbiomasslitter+carbonbalance$delalivebiomass-carbonbalance$NPP
-    
-    write.table(carbonbalance,file="/home/djaiswal/Research/dev/biocro/tests/Cabalance.txt", row.names=FALSE,append=TRUE,col.names=FALSE)
-  }
-  harvested=result$Stemd[dapharvest-1]*(stemfr)+result$Leafd[dapharvest-1]*(leaffr)
-  ##  Cbalance[dapharvest]= Cbalance[dapharvest]-harvested
-}
 plot(result)
 #png("./inst/test/dailyTT.png")
 xyplot(result$GDD~result$DayafterPlanting,type="l")
