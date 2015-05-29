@@ -1010,7 +1010,10 @@ cbind(P, ET, DeltaTheta, RO, DR)
 P - (ET + DeltaTheta + RO + DR)
 @ 
 
+<<<<<<< HEAD
 %%%<<<<<<< HEAD
+=======
+>>>>>>> 70c2747ab6d10e7b982190ac5875c5833b41d33d
 
 \subsection{Carbon and Water: Soil properties and parameters}
 
@@ -1065,4 +1068,8 @@ argument \code{iWatCont}. By default water moves from one layer to the
 next driven by soil water potential \code{hydrDist = TRUE} this can be
 turned off but it will likely not produce reasonable results.
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 70c2747ab6d10e7b982190ac5875c5833b41d33d
 \end{document}
