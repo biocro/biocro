@@ -15,7 +15,7 @@
 \author{Fernando E. Miguez\\Department of Agronomy\\
   Iowa State University}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+%\SweaveOpts{concordance=TRUE}
 
 
 
@@ -1010,7 +1010,7 @@ cbind(P, ET, DeltaTheta, RO, DR)
 P - (ET + DeltaTheta + RO + DR)
 @ 
 
-<<<<<<< HEAD
+%%%<<<<<<< HEAD
 
 \subsection{Carbon and Water: Soil properties and parameters}
 
@@ -1065,8 +1065,4 @@ argument \code{iWatCont}. By default water moves from one layer to the
 next driven by soil water potential \code{hydrDist = TRUE} this can be
 turned off but it will likely not produce reasonable results.
 
-
-
-=======
->>>>>>> b626ad9b51b43279e6295c83fa2178cadfa76b7b
 \end{document}
