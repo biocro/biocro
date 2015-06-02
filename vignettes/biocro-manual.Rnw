@@ -15,6 +15,7 @@
 \author{Fernando E. Miguez\\Department of Agronomy\\
   Iowa State University}
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 
 
@@ -117,6 +118,25 @@ plot(res$Ci, res$Assim, type = 'l', ylab = "CO2 uptake", xlab = "Ci")
 @ 
 
 % |
+
+\subsection{Temperature response of C$_4$ photosynthesis}
+
+The shape of the temperature response to photosynthesis can be
+modified from the default values.
+
+<<c4photo-tempresponse, fig.height=5>>=
+idat <- data.frame(Qp=1500, temp = 0:50, rh = 0.7)
+res <- c4photo(idat$Qp, idat$temp, idat$rh)
+res2 <- c4photo(idat$Qp, idat$temp, idat$rh, uppertemp = 45, lowertemp = 10)
+xyplot(res$Assim + res2$Assim ~ idat$temp, type = 'o',
+       xlab = "Temperature", ylab = "Assimilation",
+       key = simpleKey(c('default','U = 45, L = 10')))
+@ 
+
+Reducing the first value (\code{lowertemp}) reduces the level of
+photosynthesis at low temperatures and increasing the second value
+(\code{uppertemp}) results in higher photosynthesis at high
+temperatures.
 
 \subsubsection{Effect of stress on photosynthesis}
 
@@ -435,17 +455,17 @@ xyplot(RH ~ hour | factor(layers), type='l',
        data = tmpd, layout=c(nlay,1))
 
 ## Wind speed profile
-## xyplot(WindS ~ hour | factor(layers), type='l',
-##        xlab = "hour", ylab="Wind speed (m/s)",
-##        main=ttle, 
-##        key=simpleKey(text=c("Sun","Shade")),
-##        data = tmpd, layout=c(nlay,1))
+xyplot(WindSpeed ~ hour | factor(layers), type='l',
+       xlab = "hour", ylab="Wind speed (m/s)",
+       main=ttle, 
+       key=simpleKey(text=c("Sun","Shade")),
+       data = tmpd, layout=c(nlay,1))
 
 ## Canopy height
-## xyplot(CanHeight ~ layers, type='l',
-##        xlab = "layer", ylab="Canopy Height (m)",
-##        main=ttle, 
-##        data = tmpd)
+xyplot(CanopyHeight ~ layers, type='l',
+       xlab = "layer", ylab="Canopy Height (m)",
+       main=ttle, 
+       data = tmpd)
 
 @ 
 
@@ -866,7 +886,7 @@ data(cmi04)
 summary(cmi04)
 soilP <- soilParms(wsFun='linear')
 res <- BioGro(cmi04, soilControl=soilP)
-##plot(res)
+plot(res)
 plot(res, plot.kind="SW")
 plot(res, plot.kind="ET")
 plot(res, plot.kind="cumET")
@@ -876,5 +896,118 @@ names(res)
 
 The last command \code{names(res)} shows the list of objects available
 for further manipulation. 
+
+\subsection{Water: Calculation of EvapoTranspiration}
+
+As in the \code{CanA} function transpiration can be calculated using
+Priestly, Penman-Potential or Penman-Monteith.
+
+<<BioGro-ET, echo=FALSE>>=
+data(cmi04)
+res.prs <- BioGro(cmi04, 
+                  canopyControl = canopyParms(eteq="Priestly"))
+res.pnm <- BioGro(cmi04, 
+                  canopyControl = canopyParms(eteq="Penman"))
+res.pnm.m <- BioGro(cmi04, 
+                    canopyControl = 
+                    canopyParms(eteq="Penman-Monteith"))
+
+et.prs <- cumsum(res.prs$CanopyTrans 
+                 + res.prs$SoilEvaporation)*0.1
+et.pnm <- cumsum(res.pnm$CanopyTrans 
+                 + res.pnm$SoilEvaporation)*0.1
+et.pnm.m <- cumsum(res.pnm.m$CanopyTrans 
+                   + res.pnm.m$SoilEvaporation)*0.1
+
+xyplot(et.prs + et.pnm + et.pnm.m ~ res.prs$ThermalT, type='l',
+       xlab = "Thermal time", ylab = "cummulative ET (mm)",
+       key=simpleKey(c("Priestly","Penman-Potential","Penman-Monteith"),
+           lines=TRUE, points=FALSE))
+@ 
+
+For Priestly and Penman-Potential the calculation of stomatal conductance does
+not affect the simulation, but for Penman-Monteith it does.
+
+<<BioGro-ET-b1-12, echo=FALSE>>=
+photoP <- photoParms(b1=12)
+soilP <- soilParms(soilDepth=1.5)
+res.pnm.m.b1.12 <- BioGro(cmi04, 
+                          photoControl = photoP,
+                          soilControl = soilP)
+
+et.pnm.m.b1.12 <- cumsum(res.pnm.m.b1.12$CanopyTrans 
+                   + res.pnm.m.b1.12$SoilEvaporation)*0.1
+
+xyplot(et.prs + et.pnm + et.pnm.m + et.pnm.m.b1.12 ~ res.prs$ThermalT, 
+       type='l', xlab = "Thermal time", ylab = "cummulative ET (mm)",
+       key=simpleKey(c("Priestly","Penman-Potential","PM b1=3",
+           "PM b1=12"), lines=TRUE, points=FALSE))
+@ 
+
+Penman-Moneith does not quite reach Priestly in this case because of
+stress. It is possible to perform simulations assuming that there is
+no stress but this will lead to results which approach
+Penman-Potential. When the no-stress option is selected the crop
+transpires freely unconstrained by soil water availability. This is
+not realistic but it is useful for testing and understanding
+transpiration processes.
+
+<<BioGro-ET-no-stress, echo=FALSE>>=
+photoP <- photoParms(b1=12)
+soilP <- soilParms(wsFun='none')
+res.pnm.m.ns <- BioGro(cmi04, 
+                          photoControl = photoP,
+                          soilControl = soilP)
+
+et.pnm.m.ns <- cumsum(res.pnm.m.ns$CanopyTrans 
+                   + res.pnm.m.ns$SoilEvaporation)*0.1
+
+xyplot(et.prs + et.pnm + et.pnm.m.b1.12 + et.pnm.m.ns ~ res.prs$ThermalT, 
+       type='l', xlab = "Thermal time", ylab = "cummulative ET (mm)",
+       key=simpleKey(c("Priestly","Penman-Potential","Penman-Monteith",
+           "PM no stress"), lines=TRUE, points=FALSE))
+@ 
+
+\subsection{Water: Balance for a growing season}
+
+The example below shows a water balance which consists of taking into
+account precipitation, evapotranspiration, drainage, runoff and change
+in water storage.
+
+\[ P - (ET + RO + DR + \Delta \Theta) = 0 \]
+
+where 
+
+$P$ is precipitation (mm)
+$ET$ is evapotranspiration (mm)
+$RO$ is runoff (mm)
+$DR$ is drainage (mm)
+$\Delta \Theta$ is change in soil water storage.
+
+<<water-balance>>=
+## Simple water budget
+## P - ET + RO + DR + DeltaTheta = 0
+data(cmi04)
+day1 <- 100
+dayn <- 270
+cmi04.s <- subset(cmi04, doy > 99 & doy < 271)
+P <- sum(cmi04.s$precip) ## in mm
+iwc <- 0.29
+soildepth <- 2
+soilP <- soilParms(iWatCont=iwc, soilDepth=soildepth, soilLayers=1)
+res <- BioGro(cmi04, day1=100, dayn=270, soilControl = soilP)
+et <- res$CanopyTrans + res$SoilEvaporation
+ET <- sum(et) * (1/0.9982) *0.1 
+## in mm, 0.9982 accounts for density of water
+RO <- sum(res$Runoff) ## in mm
+DR <- sum(res$Drainage) ## in mm 
+iTheta <- iwc * soildepth 
+fswc <- res$SoilWatCont[length(res$SoilWatCont)]
+fswc
+fTheta <- fswc * soildepth 
+DeltaTheta <- (fTheta - iTheta) * 1e3 ## from m to mm
+cbind(P, ET, DeltaTheta, RO, DR)
+P - (ET + DeltaTheta + RO + DR)
+@ 
 
 \end{document}

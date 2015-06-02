@@ -593,7 +593,7 @@ int ihere,jhere;
 			       vmax1,alpha1,kparm1,
 			       theta,beta,Rd1,Ca,b01,b11,StomWS,
 			       ws, kd,
-			       chil, hf,LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms);
+		   chil, hf,LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms, 0.04, 0);
 
 
 //}

@@ -150,3 +150,6 @@ export(willowCent)
 
 #CropGro.R
 export(CropGro)
+
+#soyGro.R
+export(soyGro)

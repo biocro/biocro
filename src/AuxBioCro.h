@@ -152,5 +152,7 @@ struct crop_phenology {
       }leaf,stem,root,rhiz;
 };
 
+double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
+                         double deltat, double stomcond, double vappress);
 
 #endif
