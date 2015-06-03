@@ -318,6 +318,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     tint <- 24 / timestep
     vecsize <- (dayn - (day1-1)) * tint
     indes1 <- (day1-1) * tint
+    #indesn <- min((dayn) * tint, nrow(WetDat))
     indesn <- (dayn) * tint
     if((dayn)*tint > nrow(WetDat))
       stop ("weather data and dayN is not consistent")

@@ -124,7 +124,7 @@
 ##'
 ##' \code{soilType} Soil type, default is 6 (a more typical soil would be 3).
 ##' To see details use the function \code{\link{showSoilType}}.
-##'
+##' 1 : clay (light); 2 : clay loam; 3 : clay(heavy); 4 : loam; 5 : loamy sand; 6 : sand; 7 : sandy clay; 8 : sandy clay loam; 9 : sandy loam; 10 : silt; 11 : silt loam; 12 : silty clay; 13 : silty clay loam
 ##' \code{soilLayer} Integer between 1 and 50. The default is 5. If only one
 ##' soil layer is used the behavior can be quite different.
 ##'
