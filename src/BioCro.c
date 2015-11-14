@@ -74,7 +74,7 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 	/* Century */
 	double MinNitro = centcoefs[18];
 	double SCCs[9];
-	double Resp;
+	// double Resp; unused
 
 	const double mrc1 = mresp[0];
 	const double mrc2 = mresp[1];
@@ -229,7 +229,7 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 		   availability and possibly by the Thermal time accumulated.*/
 
 		MinNitro = centS.MinN;
-		Resp = centS.Resp;
+		// Resp = centS.Resp; set but not used
      
 		SCCs[0] = centS.SCs[0];
 		SCCs[1] = centS.SCs[1];

@@ -84,10 +84,10 @@ struct respirationParms *RESP, int emergence)
 
 {
 
-  double remobStem,remobRoot,remobRhiz;
-  remobStem=canopyparms->remobFac;
-  remobRoot=canopyparms->remobFac;
-  remobRhiz=canopyparms->remobFac;
+  // double remobStem,remobRoot,remobRhiz; unused
+  // remobStem=canopyparms->remobFac; set but not used
+  // remobRoot=canopyparms->remobFac; set but not used
+  // remobRhiz=canopyparms->remobFac; set but not used
   double deadleaf,deadstem,deadroot,deadrhiz;
   double dailysenesced;
   double remobilized;
