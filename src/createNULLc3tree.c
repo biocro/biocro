@@ -1,4 +1,6 @@
+#include <stdlib.h>
 #include "crocent.h"
+
 void createNULLc3tree(struct miscanthus *miscanthus,int vecsize)
 {
    int i;
