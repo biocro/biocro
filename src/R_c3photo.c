@@ -81,29 +81,3 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 /* rising temperature by atmospheric CO2 concentrations: Has its */
 /* importance been underestimated? */
 
-double solc(double LeafT){
-
-	double tmp;
-
-	if(LeafT > 24 && LeafT < 26){
-		tmp = 1;
-	}else{
-		tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT,2) - 8.874081e-06 * pow(LeafT,3)) / 0.735465;
-	}
-
-	return(tmp);
-}
-
-double solo(double LeafT){
-
-	double tmp;
-
-	if(LeafT > 24 && LeafT < 26){
-		tmp = 1;
-	}else{
-		tmp = (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT,2) - 2.1441e-07 * pow(LeafT,3)) / 0.026934;
-	}
-
-	return(tmp);
-}
-

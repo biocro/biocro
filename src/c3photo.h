@@ -20,5 +20,8 @@ extern double ballBerry(double Amu, double Cappm, double Temp, double RelH, doub
 extern struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double Jmax0, 
 			      double Rd0, double bb0, double bb1, double Ca, double O2, double theta, double StomWS,int ws);
 
+double solc(double LeafT);
+double solo(double LeafT);
+
 #endif
 
