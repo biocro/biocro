@@ -3,6 +3,7 @@
  *
  */
 
+#include <math.h>
 #include "c3photo.h"
 
 /* c3photo function */ 

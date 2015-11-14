@@ -12,6 +12,7 @@
  * 
  */
 
+#include <math.h>
 #include "c4photo.h"
 
 /* Ball Berry stomatal conductance function */
