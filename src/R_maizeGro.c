@@ -9,7 +9,7 @@
 #include "AuxBioCro.h"
 #include "BioCro.h"
 #include "Century.h"
-#include "maizeGro.h" 
+#include "R_maizeGro.h" 
 #include "AuxMaizeGro.h"
 
 SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1 */

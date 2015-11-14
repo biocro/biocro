@@ -11,15 +11,6 @@ double Rhizomey[8760] ;
 double Grainy[8760] ;
 double LAIc[8760] ;
 
-double RSS_BG(double oStem[], double oLeaf[],
-	      double oRhizome[],double oRoot[],
-	      double oGrain[],
-	      double oLAI[],
-	      double sStem[], double sLeaf[],
-	      double sRhizome[],double sRoot[],
-	      double sGrain[],
-	      double sLAI[] ,int N1Dat);
-
 void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double rh[],
 	    double windspeed[],double precip[], double kd, double chil, 
 	    double heightf, int nlayers,
