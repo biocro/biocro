@@ -5,6 +5,7 @@
 
 #include <R.h>
 #include <Rinternals.h>
+#include <math.h>
 #include "Century.h"
 #include "AuxBioCro.h"
 /* 

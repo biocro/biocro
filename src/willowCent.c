@@ -27,6 +27,7 @@
 #include "AuxwillowGro.h"
 #include "AuxcaneGro.h"
 #include "crocent.h"
+#include "dailywillow.h"
 
 
 SEXP willowCent(SEXP LAT,                 /* Latitude                  1 */ 

@@ -1,3 +1,4 @@
+#include <R.h>
 #include <stdio.h>
 #include "CanA_3D_Structure.h"
 
