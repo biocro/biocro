@@ -14,18 +14,6 @@ struct dbp_sugarcane_str{
 
 };
 
-
-struct frostParms {
-  double leafT0;
-  double leafT100;
-  double stemT0;
-  double stemT100;
-  double rootT0;
-  double rootT100;
-  double rhizomeT0;
-  double rhizomeT100;
-};
-
 double MRespiration (double W,double Q, double m,double T, double deltime);
 double GrowthRespiration(double CanopyA, double fraction);
 struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double Tmaturity, double Rd, double Alm, double Arm, double Clstem, double Ilstem, double Cestem, double Iestem, double Clsuc, double Ilsuc, double Cesuc, double Iesuc,double Temperature);

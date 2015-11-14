@@ -2,6 +2,7 @@
 #define CROCENT_H
 
 #define MAXSOILLAY 100 /* Maximum number of layers */
+#include "AuxBioCro.h"
 
 // structure to calculate daily climate
 //SWE is snow cover in watr equivalent of cm
