@@ -10,7 +10,7 @@
 #include <Rmath.h>
 #include "AuxBioCro.h"
 #include "BioCro.h"
-#include "century.h"
+#include "Century.h"
 
 void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double rh[],
 	    double windspeed[],double precip[], double kd, double chil, 
