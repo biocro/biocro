@@ -50,7 +50,7 @@ for (biocrofn in c("soyGro", "willowGro", "BioGro")){#, "caneGro" , "MaizeGro"
         }
     })
     
-    test_that("BioCro stem biomass is sensitive to key parameters ", {
+    test_that(paste(biocrofn, "stem biomass is sensitive to key parameters "), {
       get.biomass <- function(...){
         ans <- do.call(biocrofn, list(weather05, ...))        
         return(max(ans$Stem, ans$Leaf, ans$Root))
@@ -75,3 +75,4 @@ for (biocrofn in c("soyGro", "willowGro", "BioGro")){#, "caneGro" , "MaizeGro"
       }
     })
 }
+
