@@ -11,7 +11,7 @@
 #include "c3photo.h"
 #include "AuxBioCro.h"
 #include "CanA.h"
-#include "c3CanA.h"
+#include "R_c3CanA.h"
 
 /* c3CanA function */
 /* This file will contain the function which will consolidate

@@ -21,7 +21,6 @@ extern double ballBerry(double Amu, double Cappm, double Temp, double RelH, doub
 extern struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alpha, 
 			      double kparm, double theta, double beta, double Rd, double bb0, double bb1, double StomaWS, double Ca, int ws,double upperT,double lowerT);
 
-
 /* Declaring the RSS_C4photo */
 extern double RSS_C4photo(double oAssim[nObs], double oQp[nObs], double oTemp[nObs], 
 		   double oRH[nObs], double vmax, double alpha, double kparm,
@@ -30,3 +29,4 @@ extern double RSS_C4photo(double oAssim[nObs], double oQp[nObs], double oTemp[nO
 
 
 #endif
+

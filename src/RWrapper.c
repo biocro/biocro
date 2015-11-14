@@ -5,6 +5,8 @@
 #include <Rdefines.h>
 #include <Rmath.h>
 #include <string.h>
+#include "soyGro.h"
+
 SEXP RWrapper(SEXP RParameterFileName,SEXP RWeatherFileName,SEXP ROutputFolderName){
     // C temporary variables
     int Count=0;
