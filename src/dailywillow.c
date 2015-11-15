@@ -7,6 +7,7 @@
 #include "BioCro.h"
 #include "AuxcaneGro.h"
 #include "crocent.h"
+#include "dailywillow.h"
 
 void UpdateC3treeAfterEmergence(struct c3tree *willow,struct management *management)
 {
@@ -90,10 +91,10 @@ struct respirationParms *RESP, int emergence)
   // remobRhiz=canopyparms->remobFac; set but not used
   double deadleaf,deadstem,deadroot,deadrhiz;
   double dailysenesced;
-  double remobilized;
+  // double remobilized; unused
   double totalassimilate;
   struct crop_phenology cropdbp;
-  double newleaf,newstem,newrhiz,newroot;
+  // double newleaf,newstem,newrhiz,newroot; unused
   double kLeaf,kStem,kRoot,kRhizome;
   double newLeaf,newStem,newRhizome,newRoot;
   double newLeaflitter,newStemlitter,newRhizomelitter,newRootlitter;
