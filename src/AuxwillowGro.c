@@ -357,13 +357,13 @@ layIdiff, layShade vectors. */
     for(i=0;i<nlayers;i++)
     {
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
-      // leafN_lay = tmp5[--tp5]; set but not used
-            if(lnfun == 0){
-                    // vmax1 = Vmax; set but not used
+      --tp5 // leafN_lay = tmp5[--tp5]; WARNING - this code does not seem like it does anything so that it could be removed, but it actually modifies a global variable. Removing this causes a segmentation fault.
+            /* if(lnfun == 0){
+                    vmax1 = Vmax;
             }else{
-                    // vmax1 = leafN_lay * lnb1 + lnb0; set but not used
+                    vmax1 = leafN_lay * lnb1 + lnb0;
+            } unused variables are assigned here */
 /* For now alpha is not affected by leaf nitrogen */
-            }
 
             IDir = layIdir[--sp1];
             Itot = layItotal[--sp3];
@@ -478,12 +478,12 @@ struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
       for(i=0;i<(ccanopy.Nlayers);i++)
     {
-      	    if(lnfun == 0){
+      	    //if(lnfun == 0){
       		    // vmax1 = Vmax; set but not used
-      	    }
-            else{
+      	    //}
+            //else{
       		    // vmax1 = ccanopy.Leaf[i].LeafN * lnb1 + lnb0; set but not used
-      	    } 
+      	    //} 
      
 	    Leafsun = ccanopy.Leaf[i].LAI *ccanopy.Leaf[i].pLeafsun;
    
