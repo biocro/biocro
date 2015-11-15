@@ -357,7 +357,7 @@ layIdiff, layShade vectors. */
     for(i=0;i<nlayers;i++)
     {
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
-      --tp5 // leafN_lay = tmp5[--tp5]; WARNING - this code does not seem like it does anything so that it could be removed, but it actually modifies a global variable. Removing this causes a segmentation fault.
+      --tp5; // leafN_lay = tmp5[--tp5]; WARNING - this code does not seem like it does anything so that it could be removed, but it actually modifies a global variable. Removing this causes a segmentation fault.
             /* if(lnfun == 0){
                     vmax1 = Vmax;
             }else{
