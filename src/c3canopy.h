@@ -55,4 +55,21 @@ struct canopy
   struct canopyoutput *OUT;
 };
 
+void createCanopy (struct canopy *canopy, int Nlayers, double LAItotal);
+
+void discretizeCanopy(struct canopy *canopy);
+
+void getcanopylightme(struct canopy * canopy, double lat, double DOY, int td, double solarR);
+
+void getCanopysunML(struct canopy *canopy,double kd, double chil, double heightf);
+
+void getcanopyWINDprofile(struct canopy *canopy, double WindSpeed);
+
+void getcanopyRHprof(struct canopy *canopy, double RH);
+
+void getcanopyLNprof(struct canopy *canopy, double LeafN,double kpLN);
+
+void freecanopy(struct canopy *canopy);
+
 #endif
+

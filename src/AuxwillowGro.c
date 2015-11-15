@@ -248,7 +248,8 @@ void getcanopyLNprof(struct canopy *canopy, double LeafN,double kpLN)
    
    
         int i;
-        double leafNla,CumLAI;
+        // double leafNla; unused
+		double CumLAI;
 
         CumLAI=0.0;
         for(i=0;i<(canopy->Nlayers);i++)
@@ -289,7 +290,8 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
   double Idir, Idiff, cosTh;
   double LAIc;
   double IDir, IDiff, Itot,rh, WindS;
-  double TempIdir,TempIdiff,AssIdir,AssIdiff;
+  double TempIdir,AssIdir,AssIdiff;
+  // double TempIdiff; unused
   double  pLeafsun, pLeafshade;
   double Leafsun, Leafshade;
 
@@ -298,17 +300,17 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
   double GAssIdir = 0.0;
   double GAssIdiff = 0.0; 
   double CanopyT =0.0;;
-  double CanopyPe = 0.0;
-  double CanopyPr = 0.0;
-  double CanopyC = 0.0;
+  // double CanopyPe = 0.0; set but not used
+  // double CanopyPr = 0.0; set but not used
+  // double CanopyC = 0.0; set but not used
   double chil=1.0;
   double CanHeight;
 
-  double vmax1;
-  double leafN_lay;
+  // double vmax1; unused
+  // double leafN_lay; unused
   
- /* double StomWS;
- /* int ws;
+ // double StomWS;
+ // int ws;
 
         /* For Assimilation */
         /* 3600 converts seconds to hours */
@@ -355,11 +357,11 @@ layIdiff, layShade vectors. */
     for(i=0;i<nlayers;i++)
     {
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
-      leafN_lay = tmp5[--tp5];
+      // leafN_lay = tmp5[--tp5]; set but not used
             if(lnfun == 0){
-                    vmax1 = Vmax;
+                    // vmax1 = Vmax; set but not used
             }else{
-                    vmax1 = leafN_lay * lnb1 + lnb0;
+                    // vmax1 = leafN_lay * lnb1 + lnb0; set but not used
 /* For now alpha is not affected by leaf nitrogen */
             }
 
@@ -385,7 +387,7 @@ layIdiff, layShade vectors. */
             Leafshade = LAIc * pLeafshade;
             tmp6_ET = c3EvapoTrans(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,
                          Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
-            TempIdiff = Temp + tmp6_ET.Deltat;
+            // TempIdiff = Temp + tmp6_ET.Deltat; set but not used
             tmpc32 = c3photoC(IDiff,TempIdir,rh,Vmax,Jmax,Rd,b0,b1,Catm,o2,theta,StomWS,ws);
             AssIdiff = tmpc32.Assim;
       GAssIdiff = tmpc32.GrossAssim;
@@ -441,14 +443,14 @@ struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
   double GCanopyA = 0.0;
   double CanopyT =0.0;;
  
-  double CanHeight=0.0;;
+  // double CanHeight=0.0;; unused
   double chil =0.0;
 
-   double vmax1;
+   // double vmax1; unused
 //  double leafN_lay;
   
- /* double StomWS;
- /* int ws;
+ // double StomWS;
+ // int ws;
 
 	/* For Assimilation */
 	/* 3600 converts seconds to hours */
@@ -477,10 +479,10 @@ struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
       for(i=0;i<(ccanopy.Nlayers);i++)
     {
       	    if(lnfun == 0){
-      		    vmax1 = Vmax;
+      		    // vmax1 = Vmax; set but not used
       	    }
             else{
-      		    vmax1 = ccanopy.Leaf[i].LeafN * lnb1 + lnb0;
+      		    // vmax1 = ccanopy.Leaf[i].LeafN * lnb1 + lnb0; set but not used
       	    } 
      
 	    Leafsun = ccanopy.Leaf[i].LAI *ccanopy.Leaf[i].pLeafsun;
