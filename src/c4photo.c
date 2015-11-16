@@ -134,9 +134,9 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	double kT_IC_P;
 
 /* When the method does not converge I do not use the iterative solution*/
-	double Assim0 = 0.0;
-	double Gs0 = 0.0;
-	double IntCO2 = 0.0;
+	// double Assim0 = 0.0; unused
+	// double Gs0 = 0.0; unused
+	// double IntCO2 = 0.0; unused
 	/* partial pressure of CO2 at the leaf surface */
   
 	/* if(StomaWS < 0.5) ws = 0; */
@@ -210,9 +210,9 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 			InterCellularCO2 = 1e-5;
 
 		if(iterCounter == 0){
-			Assim0 = Assim;
-			Gs0 = Gs;
-			IntCO2 = InterCellularCO2;
+			// Assim0 = Assim; set but not used
+			// Gs0 = Gs; set but not used
+			// IntCO2 = InterCellularCO2; set but not used
 		}
 
 		diff = OldAssim - Assim;

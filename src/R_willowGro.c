@@ -16,7 +16,6 @@
 #include "crocent.h"
 #include "c3canopy.h"
 
-
 SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */ 
 	    SEXP DOY,                 /* Day of the year           2 */
 	    SEXP HR,                  /* Hour of the day           3 */
@@ -86,16 +85,17 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 
 	 
    double jmax1=REAL(JMAX)[0];
-   double jmaxb1=REAL(JMAXB1)[0];
+   // double jmaxb1=REAL(JMAXB1)[0]; unused
     
-        double iSp, Sp , propLeaf;
+        double iSp, Sp;
+			// double propLeaf; unused
 	int i, i2, i3;
 	int vecsize ;
 
 	double vmax1;
 	double alpha1;
 	double theta;
-	double beta;
+	// double beta; unused
 	double Rd1, Ca;
 	double b01, b11;
 
@@ -128,7 +128,8 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
   double StomWS = REAL(STOMATAWS)[0];
 	int timestep;
   int A, B;
-	double CanopyA, CanopyT,GPP;
+	double CanopyA, CanopyT;
+	// double GPP; unused
 
 	double Rhizome;
   double leafdeathrate1;
@@ -264,7 +265,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	vmax1 = REAL(VMAX)[0];
 	alpha1 = REAL(ALPHA)[0];
 	theta = REAL(THETA)[0];
-	beta = REAL(BETA)[0];
+	// beta = REAL(BETA)[0]; set but not used
 	Rd1 = REAL(RD)[0];
 	Ca = REAL(CATM)[0];
 	b01 = REAL(B0)[0];
@@ -283,8 +284,8 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
   double iRROOT=REAL(IPLANT)[3];
   double ifrRRHIZOME = REAL(IPLANT)[4];
   double ifrSSTEM = REAL(IPLANT)[5];
-  double ifrLLEAF=REAL(IPLANT)[6];
-  double ifrRROOT=REAL(IPLANT)[7];
+  // double ifrLLEAF=REAL(IPLANT)[6]; unused
+  // double ifrRROOT=REAL(IPLANT)[7]; unused
   
   
 	Sp = REAL(SPLEAF)[0]; 
@@ -317,7 +318,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	SCCs[7] = REAL(CENTCOEFS)[7];
 	SCCs[8] = REAL(CENTCOEFS)[8];
 
-	propLeaf = REAL(IRTL)[0]; 
+	// propLeaf = REAL(IRTL)[0];  set but not used
 	/* It is useful to assume that there is a small amount of
 	   leaf area at the begining of the growing season. */
 	iLLEAF = iRRHIZOME * ifrRRHIZOME + iSSTEM*ifrSSTEM; 	
@@ -336,7 +337,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	int nlayers = INTEGER(NLAYERS)[0];
 	int ws = INTEGER(WS)[0];
 	double kd = REAL(KD)[0];
-	double chil = REAL(CHILHF)[0];
+	// double chil = REAL(CHILHF)[0]; unused
 	double hf = REAL(CHILHF)[1];
   double o2=210;
   double Tbase=REAL(TBASE)[0];  /* base temperature */
@@ -382,7 +383,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 			       lat, nlayers,
 			       vmax1,jmax1,Rd1,Ca,o2,b01,b11,theta,kd,hf,LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
              
-   /*Rprintf("%f,%f,%f,%f\n",StomWS,LeafWS,kLeaf,newLeaf);              
+   /*Rprintf("%f,%f,%f,%f\n",StomWS,LeafWS,kLeaf,newLeaf);*/
 
 		/* Collecting the results */
 		CanopyA = Canopy.Assim * timestep;

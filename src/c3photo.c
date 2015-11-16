@@ -27,14 +27,18 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	double Ac1, Ac2, Ac;
 	double Aj1, Aj2, Aj;
 	double Ap;
-	double Assim, J, I2,Assim0,Gs0;/*\ref{parm:J}*/
+	double Assim, J, I2;/*\ref{parm:J}*/
+	// double Assim0; unused
+	// double Gs0; unused
 	double FEII;
 	double theta;
-	double Citr1, Citr2, Citr;
+	// double Citr1, Citr2; unused
+	// double Citr; unused
 
 	int iterCounter = 0;
 	double Gs ;
-	double diff, OldAssim = 0.0,OldCi = 0.0, Tol = 0.01;
+	double diff, OldAssim = 0.0, Tol = 0.01;
+	// double OldCi = 0.0; unused
 
 	if(Ca <= 0)
 		Ca = 1e-4;
@@ -62,17 +66,17 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 
 	/* Rprintf("I2, %.1f, FEII %.1f, J %.1f \n",I2,FEII,J); */
 
-	Citr1 = Kc * J * (Ko + O2) - 8*Ko*Gstar*Vcmax;
-	Citr2 = Ko * (4 * Vcmax - J);
-	Citr = Citr1 / Citr2;
+	// Citr1 = Kc * J * (Ko + O2) - 8*Ko*Gstar*Vcmax; set but not used
+	// Citr2 = Ko * (4 * Vcmax - J); set but not used
+	// Citr = Citr1 / Citr2; set but not used
 
-	OldCi = Ca * solc(Tleaf) * 0.7; /* Initial guesstimate */
+	// OldCi = Ca * solc(Tleaf) * 0.7; /* Initial guesstimate */ set but not used
 	Oi = O2 * solo(Tleaf);/*\ref{eqn:Oi}*/
 
 	while(iterCounter < 50)
 	  {
-    /* Rprintf("Number of loop in c3photo=%i, Tol=%f \n",iterCounter, Tol);
-    /* Rprintf("Gs=%f, Assim=%f, Ci=%f, StomWS=%f \n", Gs, Assim, Ci, StomWS);
+    /* Rprintf("Number of loop in c3photo=%i, Tol=%f \n",iterCounter, Tol); */
+    /* Rprintf("Gs=%f, Assim=%f, Ci=%f, StomWS=%f \n", Gs, Assim, Ci, StomWS); */
 		  /* Rubisco limited carboxylation */
 		  Ac1 =  Vcmax * (Ci - Gstar) ;
 		  Ac2 = Ci + Kc * (1 + Oi/Ko);
@@ -130,9 +134,9 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
       
       
   	if(iterCounter == 0){
-			Assim0 = Assim;
-			Gs0 = Gs;
-			OldCi = Ci;
+			// Assim0 = Assim; set but not used
+			// Gs0 = Gs; set but not used
+			// OldCi = Ci; set but not used
 		}
 
 		diff = OldAssim - Assim;

@@ -466,16 +466,16 @@ struct respirationParms *RESP, int emergence)
 
 {
 
-  double remobStem,remobRoot,remobRhiz;
-  remobStem=canopyparms->remobFac;
-  remobRoot=canopyparms->remobFac;
-  remobRhiz=canopyparms->remobFac;
+  // double remobStem,remobRoot,remobRhiz; unused
+  // remobStem=canopyparms->remobFac; set but not used
+  // remobRoot=canopyparms->remobFac; set but not used
+  // remobRhiz=canopyparms->remobFac; set but not used
   double deadleaf,deadstem,deadroot,deadrhiz;
   double dailysenesced;
-  double remobilized;
+  // double remobilized; unused
   double totalassimilate;
   struct crop_phenology cropdbp;
-  double newleaf,newstem,newrhiz,newroot;
+  // double newleaf,newstem,newrhiz,newroot; unused
   double kLeaf,kStem,kRoot,kRhizome;
   double newLeaf,newStem,newRhizome,newRoot;
   double newLeaflitter,newStemlitter,newRhizomelitter,newRootlitter;

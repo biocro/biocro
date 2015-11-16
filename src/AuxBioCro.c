@@ -91,9 +91,10 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
         double i;
         double k0, k1, k;
         double LAIi, CumLAI;
-        double Isolar, Idiffuse, Ibeam, Iscat, Iaverage, Itotal,alphascatter;
+        double Isolar, Idiffuse, Ibeam, Iscat, Iaverage, alphascatter;
         double Ls, Ld;
         double Fsun, Fshade;
+		// double Itotal;  // unused
         alphascatter=0.8;
         k0 = sqrt(pow(chil ,2) + pow(tan(acos(cosTheta)),2));
         k1 = chil + 1.744*pow((chil+1.183),-0.733);
@@ -121,7 +122,7 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
                 Fsun=Ls/(Ls+Ld);
                 Fshade=Ld/(Ls+Ld);
                 /*fraction intercepted*/
-                Itotal =(Fsun*Isolar + Idiffuse) * (1-exp(-k*LAIi))/k;
+                // Itotal =(Fsun*Isolar + Idiffuse) * (1-exp(-k*LAIi))/k; // set but not used.
 		Iaverage =(Fsun*(Isolar + Idiffuse) + Fshade*Idiffuse) * (1-exp(-k*LAIi))/k;
 
                 /* collecting the results */
@@ -231,17 +232,18 @@ struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double
 	/* creating the structure to return */
 	struct ET_Str tmp;
 
-	const double kappa = 0.41; /* von Karmans constant */
+	// const double kappa = 0.41; /* von Karmans constant */ unused
 	double WindSpeedHeight = 2; /* This is the height at which the wind speed was measured */
-	const double dCoef = 0.77; 
+	// const double dCoef = 0.77;  unused
 	const double tau = 0.2; /* Leaf transmission coefficient */
-	const double ZetaCoef = 0.026;
-	const double ZetaMCoef = 0.13;
+	// const double ZetaCoef = 0.026; unused
+	// const double ZetaMCoef = 0.13; unused
 	const double LeafReflectance = 0.2; 
 	const double SpecificHeat = 1010; /* J kg-1 K-1 */
 	const double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
 
-	double Tair, WindSpeedTopCanopy;
+	double Tair;
+	// double WindSpeedTopCanopy; // unused.
 	double DdryA, LHV, SlopeFS, SWVC, SWVP;
 	double LayerWindSpeed, totalradiation;
 	double DeltaPVa, PsycParam, ga;
@@ -255,7 +257,7 @@ struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double
 	double rlc; /* Long wave radiation for iterative calculation */
 	int Counter;
 
-	WindSpeedTopCanopy = WindSpeed;
+	// WindSpeedTopCanopy = WindSpeed; // set but not used.
 	Tair = Airtemperature;
 
 	if(CanopyHeight < 0.1)
@@ -418,7 +420,8 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
 	double lw = leafwidth; /* meters */
 
 	double esTl, eb;
-	double gbv_forced, gbv_free, gbv, gbh;
+	double gbv_forced, gbv_free, gbv;
+	// double gbh; // unused
 	double Tvdiff;
 
 	esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
@@ -438,7 +441,7 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
         }else{
 	     gbv = gbv_free;
         } 
-	gbh = 0.924 * gbv;
+	// gbh = 0.924 * gbv; // set but not used
 	
 	return(gbv); 
 }
@@ -454,7 +457,7 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         struct ET_Str tmp;
         struct c4_str tmpc4;
 
-        const double LeafWidth = 0.04;
+        // const double LeafWidth = 0.04; unused
         const double kappa = 0.41;
         const double WindSpeedHeight = 5;
         const double dCoef = 0.77;
@@ -464,11 +467,14 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         const double LeafReflectance = 0.2;
         const double SpecificHeat = 1010;
 
-        double Tair, WindSpeedTopCanopy;
+        double Tair;
+		// double WindSpeedTopCanopy; / unused
         double DdryA, LHV, SlopeFS, SWVC;
         double LayerRelativeHumidity, LayerWindSpeed, totalradiation;
         double LayerConductance, DeltaPVa, PsycParam, ga;
-        double BoundaryLayerThickness, DiffCoef,LeafboundaryLayer;
+        // double BoundaryLayerThickness; unused
+		//double DiffCoef; unused
+		// double LeafboundaryLayer; // unused
         double d, Zeta, Zetam, ga0, ga1, ga2; 
         double Ja, Deltat;
         double PhiN;
@@ -477,7 +483,7 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         double OldDeltaT, rlc, ChangeInLeafTemp; 
         int Counter;
 
-        WindSpeedTopCanopy = WindSpeed;
+        // WindSpeedTopCanopy = WindSpeed; // set but not used
         Tair = Airtemperature;
 
         if(CanopyHeight < 0.1)
@@ -554,9 +560,9 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         if(ga < 0)
                 error("ga is less than zero");
 
-        DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature);
-        BoundaryLayerThickness = 0.004 * sqrt(LeafWidth / LayerWindSpeed);
-        LeafboundaryLayer = DiffCoef / BoundaryLayerThickness;
+        // DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature); set but not used
+        // BoundaryLayerThickness = 0.004 * sqrt(LeafWidth / LayerWindSpeed); set but not used
+        // LeafboundaryLayer = DiffCoef / BoundaryLayerThickness; // set but not used
 
         /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
         /* This version is non-iterative and an approximation*/
@@ -796,7 +802,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         double LAIc;
         double IDir, IDiff, Itot, rh, WS;
         double pLeafsun, pLeafshade;
-        double Leafsun, Leafshade;
+        double Leafsun = 0.0, Leafshade = 0.0;
         double CanHeight;
 
         double vmax1, leafN_lay;
@@ -937,10 +943,11 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 	/* Variables */
 	double precipM;
 	/* available water and per hectare */
-	double aw, naw, raw, theta_s; 
+	double aw, naw, theta_s; 
 	double K_psim, J_w;
 	double pawha, Newpawha, npaw;
-	double runoff = 0.0, runoff2 = 0.0, drainage = 0.0;
+	double runoff = 0.0, drainage = 0.0;
+	// double  runoff2 = 0.0; unused
 	/* variable needed for calculation of water stress*/
 	double wsPhoto = 0.0, wsSpleaf, phi10;
 	double slp = 0.0, intcpt = 0.0, theta = 0.0; 
@@ -974,7 +981,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 /* Here runoff is interpreted as water content exceeding saturation level */
 		/* Need to convert to units used in the Parton et al 1988 paper. */
 		/* The data comes in mm/hr and it needs to be in cm/month */
-		runoff2 = runoff * 0.10 * (1/24*30);
+		// runoff2 = runoff * 0.10 * (1/24*30); set but not used
 		Nleach = runoff /18 * (0.2 + 0.7 * soTexS.sand);
 		aw = theta_s;
 	}
@@ -1064,7 +1071,7 @@ the crop is practically dead */
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths, double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun, int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds, double RelH, int hydrDist, double rfl, double rsec, double rsdf){
 
         struct rd_str tmp4;
-        struct seqRD_str tmp3;
+        // struct seqRD_str tmp3; unused
         struct soilML_str tmp;
         /* Constant */
         /* const double G = 6.67428e-11;  m3 / (kg * s-2)  ##  http://en.wikipedia.org/wiki/Gravitational_constant */
@@ -1104,7 +1111,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         rootDepth = rootDB * rsdf;
         if(rootDepth > soildepth) rootDepth = soildepth;
 
-        tmp3 = seqRootDepth(rootDepth,layers);
+        // tmp3 = seqRootDepth(rootDepth,layers); set but not used
         tmp4 = rootDist(layers,rootDepth,&depths[0],rfl);
 
         /* unit conversion for precip */

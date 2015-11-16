@@ -124,6 +124,17 @@ struct rd_str{
 
 struct rd_str rootDist(int layer, double rootDepth, double *depths, double rfl);
 
+struct frostParms {
+  double leafT0;
+  double leafT100;
+  double stemT0;
+  double stemT100;
+  double rootT0;
+  double rootT100;
+  double rhizomeT0;
+  double rhizomeT100;
+};
+
 struct nitroParms {
   double ileafN;
 	double kln;
