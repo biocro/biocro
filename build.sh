@@ -23,15 +23,16 @@ echo "CHANGES" >> changes.log
 echo "----------------------------------------------------------------------" >> changes.log
 
 git log > newlog
-diff git.log newlog | grep '^> ' | sed 's/^> //' > changes.log
+diff git.log newlog | grep '^> ' | sed 's/^> //' >> changes.log
 mv newlog git.log
 REVNO=$( git show -s --pretty=format:%T master )
 
 ## check/install package
 
-R CMD check ${R_LIB_INC} ../biocro &> out.log
+R CMD check ${R_LIB_INC} . > out.log
+R CMD INSTALL ${R_LIB_INC} . >> out.log
 
-echo "devtools::test()" | R --vanilla &>out.log
+echo "devtools::test()" | R --vanilla >> out.log
 
 ## all done
 TIME=$(echo "`date +'%s'` - $START" |bc -l)
