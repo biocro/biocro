@@ -36,7 +36,7 @@ echo "devtools::test()" | R --vanilla &> out.log
 
 ## all done
 TIME=$(echo "`date +'%s'` - $START" |bc -l)
-echo "build took ${TIME} seconds." &> changes.log
+echo "build took ${TIME} seconds." >> changes.log
 
 echo "-------------------------------------------------------" >> changes.log
 echo "results of 00install.out">> changes.log
