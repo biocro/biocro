@@ -249,3 +249,4 @@ layIdiff, layShade vectors. */
     UNPROTECT(8);
     return(lists);
    }
+

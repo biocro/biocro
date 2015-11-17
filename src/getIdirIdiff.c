@@ -8,3 +8,4 @@
   *cosTh = tmp1[2];
   return;
   }
+

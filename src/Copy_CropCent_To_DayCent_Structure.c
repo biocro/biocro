@@ -25,3 +25,4 @@ void Copy_CropCent_To_DayCent_Structures(struct cropcentlayer *CROPCENT, SITEPAR
       sitepar->jdayEnd=CROPCENT->sitepar.jdayEnd;
       sitepar->N2Oadjust=CROPCENT->sitepar.N2Oadjust;
 }
+
