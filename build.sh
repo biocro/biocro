@@ -17,9 +17,9 @@ R_LIB_INC="--library=${R_LIBS_USER}"
 
 START=`date +'%s'`
 
-R CMD check ${R_LIB_INC} . &> out.log
-R CMD INSTALL ${R_LIB_INC} . >> out.log 2>&1
-echo "devtools::test()" | R --vanilla >> out.log 2>&1
+R CMD check ${R_LIB_INC} . &> check.log
+R CMD INSTALL ${R_LIB_INC} . &> install.log
+echo "devtools::test()" | R --vanilla &> devtools.log
 
 exec 6>&1  # Store the location of stdout so it can be restored later.
 exec &> $CHANGES_FILE  # Change stdout to point to the file where changes will be logged.
@@ -37,28 +37,32 @@ CHANGES
 The build took ${TIME} seconds.
 
 *******************************************************
-The contents of 00install.out
+The output of R CMD INSTALL
 *******************************************************
-""$(cat BioCro.Rcheck/00install.out)" \
+""$(cat install.log)" \
 "-------------------------------------------------------
 
 *******************************************************
-The contents of 00check.log
+The output of R CMD check
 *******************************************************
-""$(cat BioCro.Rcheck/00check.log)" \
+""$(cat check.log)" \
+"-------------------------------------------------------
+
+*******************************************************
+The output of devtools
+*******************************************************
+""$(cat devtools.log)" \
 "-------------------------------------------------------
 "
 
-exec 1>&6  # Make stdout point to whatever it had originally pointed to.
+exec 1>&6 6>&-  # Make stdout point to whatever it had originally pointed to and close file descriptor 6.
 
-rm BioCro.Rcheck/00check.log BioCro.Rcheck/00install.out
-
-cat changes.log
+rm check.log install.log devtools.log
 
 if [ `grep failed changes.log` ]; then
 	REVNO=$( git show -s --pretty=format:%T master )
     # cat changes.log | mail -s "BioCro BUILD ${REVNO} is BROKEN" ${EMAIL}
-    echo "ERROR: THE BioCro IS BUILD BROKEN" >&2
+    echo "ERROR: THE BioCro BUILD IS BROKEN" >&2
     exit 1
 fi
 
