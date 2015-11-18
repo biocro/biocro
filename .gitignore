@@ -39,3 +39,7 @@ out.log
 *.swp
 *.swo
 *~
+
+# Tags file from ctags.
+tags
+

@@ -9,3 +9,4 @@ documentation
 ^.*.log
 .git/*
 ^\.travis\.yml$
+
