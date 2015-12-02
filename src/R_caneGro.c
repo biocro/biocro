@@ -25,7 +25,7 @@
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"
-#include "CanA_3D_Structure.h"
+//#include "CanA_3D_Structure.h"
 
 SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */ 
 	    SEXP DOY,                 /* Day of the year           2 */
