@@ -27,7 +27,8 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
         upperT=REAL(UPPERTEMP)[0];
         lowerT=REAL(LOWERTEMP)[0];
 
-	int nq , nt, nr, i;
+    // int nt, nr; unused
+	int nq , i;
 
 	SEXP lists, names;
 	SEXP GsV;
@@ -36,7 +37,8 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	SEXP CiV;
 
 
-	nq = length(Qp);nt = length(Tl);nr = length(RH);
+	nq = length(Qp);
+    // nt = length(Tl);nr = length(RH); unused
 
 	PROTECT(lists = allocVector(VECSXP,4));
 	PROTECT(names = allocVector(STRSXP,4));

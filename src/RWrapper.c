@@ -8,8 +8,6 @@
 #include "soyGro.h"
 
 SEXP RWrapper(SEXP RParameterFileName,SEXP RWeatherFileName,SEXP ROutputFolderName){
-    // C temporary variables
-    int Count=0;
     // C local variables (Transfer R input variables)
     int FileLength=strlen(CHAR(STRING_ELT(RParameterFileName,0)));
     char *ParameterFileName; ParameterFileName = malloc(sizeof(char)*FileLength);

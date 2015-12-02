@@ -70,15 +70,17 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 	struct maize_dbp_str tmpDBP;
 	struct soilML_str soilMLS;
 	struct soilText_str soTexS; 
-	struct ws_str WaterS;
+	struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
 
 	int plantDate, emergeDate, harvestDate;
-	double baseTemp, maxLeaves;
+	double baseTemp;
+	// double maxLeaves; unused
 	double plantEmerge, phyllochron1, phyllochron2;
 	double R1, R2, R3, R4, R5, R6;
 	double phenoStage = 0.0;
 
-	double TTc = 0.0, TTc_V10 = 0.0, TTc_Vn = 0.0;
+	double TTc = 0.0, TTc_V10 = 0.0;
+    // double TTc_Vn = 0.0; unused
 
 	double LAI = 0.0;
 
@@ -96,8 +98,10 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 	struct Can_Str Canopy;
 
 /* Variables for canopy */
-        double Sp, SpD, nlayers, kd, chil, heightFactor;
-	double mrc1, mrc2;
+        double Sp, nlayers, kd, chil, heightFactor;
+	double mrc1;
+    // double SpD; unused
+    // double mrc2; unused
 
 /* Variables for senescence */
 	double seneLeaf, seneStem, seneRoot;
@@ -117,7 +121,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 
 /* Variables for leaf area index */
 	double laiMethod, TTcoef, maxLAI;
-	double Ax, LNx, LT, a1, a2, k0, L0, LLx, Lx, LNl, Amax, c1, c2, c3, 
+	double Ax, LT, a1, a2, k0, L0, LLx, Lx, LNl, Amax, c1, c2, c3, 
 	  c4, a, b, x0, f, g;
 
 /* Variables for C allocation */
@@ -158,7 +162,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 /* Extracting phenology parameters */
 
 	baseTemp = REAL(PHENOP)[0];
-	maxLeaves = REAL(PHENOP)[1];
+	// maxLeaves = REAL(PHENOP)[1]; unused
 	plantEmerge = REAL(PHENOP)[2];
 	phyllochron1 = REAL(PHENOP)[3];
 	phyllochron2 = REAL(PHENOP)[4];
@@ -191,12 +195,12 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 
 /* Extracting canopy parameters */
 	Sp = REAL(CANOPYP)[0];
-	SpD = REAL(CANOPYP)[1];
+	// SpD = REAL(CANOPYP)[1]; unused
 	nlayers = REAL(CANOPYP)[2];
 	kd = REAL(CANOPYP)[3];
         chil = REAL(CANOPYP)[4];
         mrc1 = REAL(CANOPYP)[5];
-	mrc2 = REAL(CANOPYP)[6];
+	// mrc2 = REAL(CANOPYP)[6]; unused
         heightFactor = REAL(CANOPYP)[7];
 
 /* Extracting senescence parameters */
@@ -355,9 +359,8 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 						TTc_V10 = TTc;
 					}else
 						if(REAL(PhenoStage)[i-1] < 1){
-							REAL(PhenoStage)[i] = 0.10 + 
-								floor((TTc - TTc_V10) / phyllochron2) / 100;
-							TTc_Vn = TTc;
+							REAL(PhenoStage)[i] = 0.10 + floor((TTc - TTc_V10) / phyllochron2) / 100;
+							// TTc_Vn = TTc; unused
 						}
 					
 					if(TTc > R1) REAL(PhenoStage)[i] = 1;
