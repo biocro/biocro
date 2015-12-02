@@ -70,7 +70,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
    /*********** CROCENT VARIABLES***********************/
    struct cropcentlayer CROPCENT;
    //assignParms(&CROPCENT);
-   CROPCENTTimescaling(&CROPCENT);
+   //CROPCENTTimescaling(&CROPCENT);
 //   assignPools(&CROPCENT);
    struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
    /****************************************************/
