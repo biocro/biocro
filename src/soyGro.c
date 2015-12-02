@@ -19,7 +19,8 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     //***********************************************************************************************
     // Input variables
     double Latitude,DeltaT;
-    int Years,StartDay,EndDay;
+    // int Years; unused
+    int StartDay,EndDay;
     struct CanopyParameters Canopy; // Canopy structure variables
     struct PhotosynthesisParameters Photosynthesis; // Photosynthesis variables
     struct PlantParts GRespirationFraction; // Growth respiration variables
@@ -43,7 +44,7 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     if(Option==0){ // Specify values in code
         Latitude=40;
         DeltaT=1;
-        Years=2002;
+        // Years=2002; unused
         StartDay=180;
         EndDay=300;
         Canopy=(struct CanopyParameters){3.75,0,10,0.37,1,1,1}; // Canopy structure variables;
@@ -107,7 +108,7 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     struct PlantParts SenescenceIndex={0,0,0,0,0,0,0,0};
     struct PlantParts NewLitter={0,0,0,0,0,0,0,0};
     struct PlantParts Litter={0,0,0,0,0,0,0,0};
-    double AboveLitter=0.0,BelowLitter=0.0; // Above and below ground litter
+    // double AboveLitter=0.0,BelowLitter=0.0; // Above and below ground litter unused
     // Carbon partitioning variables
     int DaySize=(int)(DeltaT*Size/24);
     struct PlantParts AddBiomass,*StoreAddBiomass;
@@ -222,8 +223,8 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
             // Compute total litter
             ComputeLitter(NewLitter,&Litter);
             // Compute total above and below ground litter
-            AboveLitter = Litter.Leaf+Litter.Stem+Litter.Flower+Litter.Grain;
-            BelowLitter = Litter.Root+Litter.Rhizome+Litter.Nodule;
+            // AboveLitter = Litter.Leaf+Litter.Stem+Litter.Flower+Litter.Grain; unused
+            // BelowLitter = Litter.Root+Litter.Rhizome+Litter.Nodule; unused
             //***********************************************************************************************
             // Compute carbon available for partitioning
             dailyCanopyNPP += Biomass.Leaf*FrostFraction*RemobFraction; // Inputs from leaf frost remobilization

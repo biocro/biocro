@@ -285,7 +285,7 @@ int ihere,jhere;
 	
 
 	struct Can_Str Canopy, CanopyRd;
-	struct ws_str WaterS;
+	struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
 	struct dbp_sugarcane_str dbpS;
   struct dbp_str dbpS_old;
 	struct cenT_str centS; 
