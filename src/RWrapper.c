@@ -19,9 +19,6 @@ SEXP RWrapper(SEXP RParameterFileName,SEXP RWeatherFileName,SEXP ROutputFolderNa
     char *OutputFolderName; OutputFolderName = malloc(sizeof(char)*FileLength);
     strcpy(OutputFolderName,CHAR(STRING_ELT(ROutputFolderName, 0)));
     // Perform computations
-    printf("%s\n",ParameterFileName);
-    printf("%s\n",WeatherFileName);
-    printf("%s\n",OutputFolderName);
     soyGro(ParameterFileName,WeatherFileName,OutputFolderName);
     // R output variables (Transfer C local variables)
     SEXP Result; PROTECT(Result=allocVector(INTSXP,1));

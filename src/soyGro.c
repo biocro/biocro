@@ -77,7 +77,7 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     // Weather data
     FILE *DataInput;
     DataInput = fopen(WeatherFileName,"r");
-    if (DataInput == NULL){printf("can not open file \n"); return 1;}
+    if (DataInput == NULL){Rprintf("can not open file \n"); return 1;}
     int Size=365*24/DeltaT;
     int *Year; Year=malloc(sizeof(int)*Size);
     int *DayOfYear; DayOfYear=malloc(sizeof(int)*Size);
@@ -320,6 +320,4 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
 
     free(ThermalTime);
     free(DailyThermalTime);
-
-    printf("C program finished \n");
 return 0;}

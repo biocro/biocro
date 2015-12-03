@@ -554,7 +554,7 @@ void ComputeC3Canopy(int TimeCount,double LAI,double LAIProfile[],struct Weather
         Canopy1->Assim = BiomassConvert*NPP;
         Canopy1->Trans = WaterConvert*Transpiration;
         if (Canopy1->GrossAssim<0 || Canopy1->GrossAssim<Canopy1->Assim){
-            printf("Problem at time step = %d, Canopy GPP = %f\t canopy NPP = %f\n",
+            Rprintf("Problem at time step = %d, Canopy GPP = %f\t canopy NPP = %f\n",
                    TimeCount,Canopy1->GrossAssim,Canopy1->Assim);
             Canopy1->GrossAssim = 0.0;
             Canopy1->Assim = 0.0;
