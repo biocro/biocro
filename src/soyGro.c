@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <R.h>
 #include <string.h>
 #include "soyGro.h"
 #include "Structures.h"
