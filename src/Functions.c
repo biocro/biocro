@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <R.h>
 #include "Structures.h"
 #include "Functions.h"
 #include "c3photo.h"
