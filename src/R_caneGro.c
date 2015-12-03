@@ -125,25 +125,25 @@ int ihere,jhere;
 				  if(newLeafcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newLeafcol\n");
-				    exit(0);
+				    return(INTEGER(1));
 				  }
 	double *newStemcol=malloc(vecsize*sizeof(double));
 				  if(newStemcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newStemcol\n");
-				    exit(0);
+				    return(INTEGER(1));
 				  }
 	double *newRootcol=malloc(vecsize*sizeof(double));
 				  if(newRootcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newRootcol\n");
-				    exit(0);
+				    return(INTEGER(1));
 				  }
 	double *newRhizomecol=malloc(vecsize*sizeof(double));
 				  if(newRhizomecol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newRhizomecol\n");
-				    exit(0);
+				    return(INTEGER(1));
 				  }
 
 				  double upperT=REAL(UPPERTEMP)[0];

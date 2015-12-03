@@ -10,7 +10,7 @@ useDynLib(BioCro, MisGro,
           McMCEc4photo,
           SABioGro)
 
-import(stats, lattice, data.table)
+import(stats, lattice, data.table, coda, knitr, roxygen2)
 
 export(MisGro)
 export(weach_imn)
@@ -153,3 +153,4 @@ export(CropGro)
 
 #soyGro.R
 export(soyGro)
+
