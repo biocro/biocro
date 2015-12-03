@@ -73,9 +73,7 @@
 ##' shade.  col11: Stomatal conductance for leaves in the sun col12: Stomatal
 ##' conductance for leaves in the shade col13: Nitrogen concentration in the
 ##' leaf (g m^-2) col14: Vmax value as depending on leaf nitrogen
-##' @note %% ~~further notes~~
 ##' @author Fernando E. Miguez
-##' @seealso %% ~~objects to See Also as \code{\link{help}}, ~~~
 ##' @references Farquhar model %% ~put references to the literature/web site
 ##' here ~
 ##' @keywords models

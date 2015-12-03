@@ -15,11 +15,11 @@ Depends:
     coda,
     knitr,
     roxygen2
-Imports: 
+Imports:
     stats
-Suggests: 
+Suggests:
     testthat
 VignetteBuilder: knitr
 License: FreeBSD + file LICENSE
 Packaged: 2013-03-29 07:12:38 UTC; djaiswal
-
+RoxygenNote: 5.0.1

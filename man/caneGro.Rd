@@ -144,14 +144,8 @@ The phenology follows the 'Corn Growth and Development'
 Iowa State Publication. %% ~~ If necessary, more details
 than the description above ~~
 }
-\note{
-%% ~~further notes~~
-}
 \author{
 Fernando E Miguez
-}
-\references{
-%% ~put references to the literature/web site here ~
 }
 \seealso{
 \code{\link{BioGro}} %% ~~objects to See Also as

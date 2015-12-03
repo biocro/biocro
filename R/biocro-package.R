@@ -428,9 +428,8 @@ NULL
 
 ##' Weather data
 ##'
-##' %% ~~ A concise (1-5 lines) description of the dataset. ~~
-##'
-##' %% ~~ If necessary, more details than the __description__ above ~~
+##' Weather data as produced by the \code{\link{weach}} function.  These are
+##' for 2006.
 ##'
 ##' @name weather06
 ##' @docType data
@@ -440,7 +439,6 @@ NULL
 ##' \item{list('SolarR')}{a numeric vector} \item{list('Temp')}{a numeric
 ##' vector} \item{list('RH')}{a numeric vector} \item{list('WS')}{a numeric
 ##' vector} \item{list('precip')}{a numeric vector} }
-##' @references %% ~~ possibly secondary sources and usages ~~
 ##' @source %% ~~ reference to a publication or URL from which the data were
 ##' obtained ~~
 ##' @keywords datasets
