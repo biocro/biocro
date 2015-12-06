@@ -203,7 +203,7 @@ int ihere,jhere;
 	double TTc = 0.0,TT12c=0.0;
 	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kSeedcane = 0.0;
 	// double kGrain = 0.0; unused
-	double newLeaf, newStem = 0.0, newRoot;
+	double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0;
     // double newRhizome, newGrain = 0.0; unused
 
 	/* Variables needed for collecting litter */
@@ -222,7 +222,7 @@ int ihere,jhere;
 	double CanopyA, CanopyT;
 
 	double Rhizome;
-	double Sugar,newSugar;
+	double Sugar = 0.0, newSugar = 0.0;
     // double SeneSeedcane; unused
 	double laimax;
 
@@ -493,12 +493,12 @@ int ihere,jhere;
 	// double delTT; unused
 	// double dap; unused
 
-	double rootlitter,deadroot,leaflitter,deadleaf;
+	double rootlitter = 0.0, deadroot = 0.0, leaflitter = 0.0, deadleaf = 0.0;
     // double leafREMOB; unused
   double remobilizedleaf;
   double Remobfactorleaf=0.5;
-	double Fiber,newFiber;
-	double kSugar,kFiber,SeedcaneResp,Seedcane,newSeedcane,dailySeedcaneResp;
+	double Fiber = 0.0 ,newFiber = 0.0;
+	double kSugar,kFiber,SeedcaneResp = 0.0, Seedcane = 0.0, newSeedcane = 0.0, dailySeedcaneResp = 0.0;
 	double LAIold,LAInew;
 	// leafREMOB=REAL(LEAFREMOBILIZE)[0]; unused
 	int dayi=0; /* this is idnex for days */
