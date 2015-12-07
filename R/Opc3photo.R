@@ -500,7 +500,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 
   if(plot.kind == "RvsF"){
     if(resid == "std"){
-      plot1 <- xyplot(stdresid ~ fttA,...,
+      plot1 <- lattice::xyplot(stdresid ~ fttA,...,
                       xlab="fitted",
                       ylab="standardized resduals",
                       panel = function(x,y,...){
@@ -512,7 +512,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
       print(plot1)
     }
     if(resid == "raw"){
-         plot1 <-   xyplot(rsd ~ fttA,...,
+         plot1 <-   lattice::xyplot(rsd ~ fttA,...,
                            xlab="fitted",
                            ylab="resduals",
                            panel = function(x,y,...){
@@ -524,7 +524,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
     }
   }
   if(plot.kind == "OvsF"){
-    plot1 <- xyplot(obsvec ~ fttA,...,
+    plot1 <- lattice::xyplot(obsvec ~ fttA,...,
                     xlab="fitted",
                     ylab="observed",
                     panel = function(x,y,...){
@@ -535,13 +535,13 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
   }
   if(plot.kind == "OandF"){
     if(x$curve.kind == "Q"){
-      plot1 <- xyplot(obsvec + fttA ~ dat[,2],...,
+      plot1 <- lattice::xyplot(obsvec + fttA ~ dat[,2],...,
                       auto.key=TRUE,
                       ylab = "CO2 uptake",
                       xlab = "Quantum flux")
       print(plot1)
     }else{
-      plot1 <- xyplot(obsvec ~ dat[,5],...,
+      plot1 <- lattice::xyplot(obsvec ~ dat[,5],...,
                       ylab = "CO2 uptake",
                       xlab = "Ci",
                       panel = function(x,y,...){
@@ -776,7 +776,7 @@ plot.mOpc3photo <- function(x, parm = c("vcmax","jmax"), ...){
     id <- factor(res$mat[,1])
     ymax <- max(civmax[,3],na.rm=TRUE) * 1.05
     ymin <- min(civmax[,2],na.rm=TRUE) * 0.95
-    xyplot(civmax[,3] ~ id, ylim = c(ymin, ymax),
+    lattice::xyplot(civmax[,3] ~ id, ylim = c(ymin, ymax),
            ylab = "Vcmax",
            xlab = "ID",
            panel = function(x,y,...){
@@ -791,7 +791,7 @@ plot.mOpc3photo <- function(x, parm = c("vcmax","jmax"), ...){
     id <- factor(res$mat[,1])
     ymax <- max(cijmax[,3],na.rm=TRUE) * 1.05
     ymin <- min(cijmax[,2],na.rm=TRUE) * 0.95
-    xyplot(cijmax[,3] ~ id, ylim = c(ymin, ymax),
+    lattice::xyplot(cijmax[,3] ~ id, ylim = c(ymin, ymax),
            ylab = "jmax",
            xlab = "ID",
            panel = function(x,y,...){

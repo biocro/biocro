@@ -57,7 +57,7 @@
 ##'       res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,alpha=0.06)
 ##'
 ##'      ## Plot comparing alpha 0.04 vs. 0.06 for a range of conditions
-##'      xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##'      lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'             type='l',col=c('blue','green'),lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
 ##'                  mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -72,7 +72,7 @@
 ##'       res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH) ## default Vmax = 39
 ##'       res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,vmax=50)
 ##'
-##'      xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##'      lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'             type='l',col=c('blue','green'),lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
 ##'                  mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -88,7 +88,7 @@
 ##'       dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
 ##'       res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH)
 ##'      # plot for Assimilation and two RH
-##'       xyplot(res1$Assim ~ Qp | factor(Tl) , data = dat1,
+##'       lattice::xyplot(res1$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'              groups=RH, type='l',
 ##'              col=c('blue','green'),lwd=2,
 ##'              ylab=expression(paste('Assimilation (',
@@ -101,7 +101,7 @@
 ##'
 ##'     ## Effect of the previous runs on Stomatal conductance
 ##'
-##'     xyplot(res1$Gs ~ Qp | factor(Tl) , data = dat1,
+##'     lattice::xyplot(res1$Gs ~ Qp | factor(Tl) , data = dat1,
 ##'            type='l', groups=RH,
 ##'            col=c('blue','green'),lwd=2,
 ##'            ylab=expression(paste('Stomatal Conductance (',
@@ -128,7 +128,7 @@
 ##'   res2[i] <- c4photo(1500,25,0.7,Catm=Ca[i],kparm=0.8)$Assim
 ##' }
 ##'
-##' xyplot(res1 + res2 ~ Ca ,type='l',lwd=2,
+##' lattice::xyplot(res1 + res2 ~ Ca ,type='l',lwd=2,
 ##'        col=c('blue','green'),
 ##'      xlab=expression(paste(CO[2],' (ppm)')),
 ##'      ylab=expression(paste('Assimilation (',
@@ -148,7 +148,7 @@
 ##' res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,StomWS=0.5)
 ##'
 ##' ## Plot comparing StomWS = 1 vs. 0.5 for a range of conditions
-##' xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##' lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'        type='l',col=c('blue','green'),lwd=2,
 ##'        ylab=expression(paste('Assimilation (',
 ##'            mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -160,7 +160,7 @@
 ##'
 ##' ## Effect on Stomatal Conductance
 ##' ## Plot comparing StomWS = 1 vs. 0.5 for a range of conditions
-##' xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
+##' lattice::xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
 ##'         type='l',col=c('blue','green'),lwd=2,
 ##'         ylab=expression(paste('Stomatal Conductance (mmol ',
 ##'           m^-2,' ',s^-1,')')),
@@ -394,11 +394,11 @@ plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
     ## Ploting the trace
     if(missing(x2) && missing(x3)){
         if(plot.kind == "trace"){
-            plot1 <-  xyplot(x$resuMC[burnin:x$niter,1] ~ burnin:x$niter ,
+            plot1 <-  lattice::xyplot(x$resuMC[burnin:x$niter,1] ~ burnin:x$niter ,
                              xlab = "Iterations", type = type, col=cols[1],
                              ylab = expression(paste("Vmax (",mu,mol," ",m^-2," ",s^-1,")")),
                              ...)
-            plot2 <-  xyplot(x$resuMC[burnin:x$niter,2] ~ burnin:x$niter ,
+            plot2 <-  lattice::xyplot(x$resuMC[burnin:x$niter,2] ~ burnin:x$niter ,
                              xlab = "Iterations", type = type, col=cols[1],
                              ylab = expression(paste("alpha (",mol," ",m^-1,")")),
                              ...)
@@ -419,15 +419,15 @@ plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
                                       col=cols[1],
                                       plot.points=FALSE,
                                       panel = function(xi,...){
-                                          panel.densityplot(xi,...)
-                                          panel.mathdensity(dmath=dnorm, args=list(mean = x$prior[1], sd = x$prior[2]), col=pcol)
+                                          lattice::panel.densityplot(xi,...)
+                                          lattice::panel.mathdensity(dmath=dnorm, args=list(mean = x$prior[1], sd = x$prior[2]), col=pcol)
                                       },...)
                 plot2 <-  densityplot(~x$resuMC[burnin:x$niter,2],xlab="alpha",
                                       col=cols[1],
                                       plot.points=FALSE,
                                       panel = function(xi,...){
-                                          panel.densityplot(xi,...)
-                                          panel.mathdensity(dmath=dnorm, args=list(mean = x$prior[3], sd = x$prior[4]), col=pcol)
+                                          lattice::panel.densityplot(xi,...)
+                                          lattice::panel.mathdensity(dmath=dnorm, args=list(mean = x$prior[3], sd = x$prior[4]), col=pcol)
                                       },...)
             }
             print(plot1,position=c(0,0,0.5,1),more=TRUE)
@@ -449,23 +449,23 @@ plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
         ymin2 <- min(c(tmpvec21,tmpvec22))*0.95
         ymax2 <- max(c(tmpvec21,tmpvec22))*1.05
         if(plot.kind == "trace"){
-            plot1 <-  xyplot(tmpvec11 ~ burnin:n1 ,
+            plot1 <-  lattice::xyplot(tmpvec11 ~ burnin:n1 ,
                              xlim=c(I(burnin-0.05*maxchainLength),I(maxchainLength*1.05)),
                              ylim=c(ymin1,ymax1),
                              xlab = "Iterations", type = "l",
                              ylab = expression(paste("Vmax (",mu,mol," ",m^-2," ",s^-1,")")),
                              panel = function(x,y,...){
-                                 panel.xyplot(x,y,col=cols[1],...)
-                                 panel.xyplot(burnin:n2,tmpvec12,col=cols[2],...)
+                                 lattice::panel.xyplot(x,y,col=cols[1],...)
+                                 lattice::panel.xyplot(burnin:n2,tmpvec12,col=cols[2],...)
                              },...)
-            plot2 <-  xyplot(tmpvec21 ~ burnin:n2 ,
+            plot2 <-  lattice::xyplot(tmpvec21 ~ burnin:n2 ,
                              xlim=c(I(burnin-0.05*maxchainLength),I(maxchainLength*1.05)),
                              ylim=c(ymin2,ymax2),
                              xlab = "Iterations", type = "l",
                              ylab = expression(paste("alpha (",mol," ",m^-1,")")),
                              panel = function(x,y,...){
-                                 panel.xyplot(x,y,col=cols[1],...)
-                                 panel.xyplot(burnin:n2,tmpvec22,col=cols[2],...)
+                                 lattice::panel.xyplot(x,y,col=cols[1],...)
+                                 lattice::panel.xyplot(burnin:n2,tmpvec22,col=cols[2],...)
                              },...)                       
             print(plot1,position=c(0,0,0.5,1),more=TRUE)
             print(plot2,position=c(0.5,0,1,1))
@@ -496,26 +496,26 @@ plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
     ymin2 <- min(c(tmpvec21,tmpvec22,tmpvec23))*0.95
     ymax2 <- max(c(tmpvec21,tmpvec22,tmpvec23))*1.05
     if(plot.kind == "trace"){
-        plot1 <-  xyplot(tmpvec11 ~ burnin:n1 ,
+        plot1 <-  lattice::xyplot(tmpvec11 ~ burnin:n1 ,
                          xlim=c(I(burnin-0.05*maxchainLength),I(maxchainLength*1.05)),
                          ylim=c(ymin1,ymax1),
                          xlab = "Iterations", type = "l",
                          ylab = expression(paste("Vmax (",mu,mol," ",m^-2," ",s^-1,")")),
                          panel = function(x,y,...){
-                             panel.xyplot(x,y,col=cols[1],...)
-                             panel.xyplot(burnin:n2,tmpvec12,col=cols[2],...)
-                             panel.xyplot(burnin:n3,tmpvec13,col=cols[3],...)
+                             lattice::panel.xyplot(x,y,col=cols[1],...)
+                             lattice::panel.xyplot(burnin:n2,tmpvec12,col=cols[2],...)
+                             lattice::panel.xyplot(burnin:n3,tmpvec13,col=cols[3],...)
                          },...)                       
         
-        plot2 <-  xyplot(tmpvec21 ~ burnin:n1 ,
+        plot2 <-  lattice::xyplot(tmpvec21 ~ burnin:n1 ,
                          xlim=c(I(burnin-0.05*maxchainLength),I(maxchainLength*1.05)),
                          ylim=c(ymin2,ymax2),
                          xlab = "Iterations", type = "l",
                          ylab = expression(paste("alpha (",mol," ",m^-1,")")),
                          panel = function(x,y,...){
-                             panel.xyplot(x,y,col=cols[1],...)
-                             panel.xyplot(burnin:n2,tmpvec22,col=cols[2],...)
-                             panel.xyplot(burnin:n3,tmpvec23,col=cols[3],...)
+                             lattice::panel.xyplot(x,y,col=cols[1],...)
+                             lattice::panel.xyplot(burnin:n2,tmpvec22,col=cols[2],...)
+                             lattice::panel.xyplot(burnin:n3,tmpvec23,col=cols[3],...)
                          },...)                       
         
         print(plot1,position=c(0,0,0.5,1),more=TRUE)

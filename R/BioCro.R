@@ -626,33 +626,33 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
   if (missing(obs)) {
         sim <- x
         if(missing(ylim)) ylim <- c(0, I(max(sim$Stem,na.rm=TRUE) + 5)) 
-        plot1 <- xyplot(sim$Stem ~ sim$ThermalT, type = "l", ...,
+        plot1 <- lattice::xyplot(sim$Stem ~ sim$ThermalT, type = "l", ...,
                         ylim = ylim,
                         xlab = xlab,
                         ylab = ylab, 
                         panel = function(x, y, ...) {
                           if (stem == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], 
                                          lty = ltys[1], lwd = lwds[1],...)
                           }
                           if (leaf == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], 
                                          lty = ltys[2], lwd = lwds[2],...)
                           }
                           if (root == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], 
                                          lty=ltys[3], lwd = lwds[3],...)
                           }
                           if (rhizome == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], 
                                          lty = ltys[4], lwd = lwds[4],...)
                           }
                           if (grain == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], 
                                          lty=ltys[5], lwd = lwds[5],...)
                           }
                           if (LAI == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
                                          lty = ltys[6], lwd = lwds[6],...)
                           }
 
@@ -666,46 +666,46 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
         stop("obs should have 7 columns")
       sim <- x
       if(missing(ylim)) ylim <- c(0, I(max(sim$Stem,na.rm=TRUE) + 5)) 
-      plot1 <- xyplot(sim$Stem ~ sim$ThermalT, ..., ylim = ylim,
+      plot1 <- lattice::xyplot(sim$Stem ~ sim$ThermalT, ..., ylim = ylim,
                       xlab = xlab,
                       ylab = ylab, 
                       panel = function(x, y, ...) {
                         if (stem == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], 
                                        lty = ltys[1], lwd = lwds[1], type = "l", ...)
                         }
                         if (leaf == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], 
                                        lty = ltys[2], lwd = lwds[2], type = "l", ...)
                         }
                         if (root == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], 
                                        lty = ltys[3], lwd = lwds[3], type = "l", ...)
                         }
                         if (rhizome == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], 
                                        lty = ltys[4], lwd = lwds[4], type = "l", ...)
                         }
                         if (grain == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], 
                                        lty = ltys[5], lwd = lwds[5], type = "l", ...)
                         }
                         if (LAI == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
                                        lty = ltys[6], lwd = lwds[6], type = "l", ...)
                         }
                         
-                        panel.xyplot(obs[, 1], obs[, 2], col = cols[1], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 2], col = cols[1], 
                                      pch=pchs[1],...)
-                        panel.xyplot(obs[, 1], obs[, 3], col = cols[2], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 3], col = cols[2], 
                                      pch=pchs[2],...)
-                        panel.xyplot(obs[, 1], obs[, 4], col = cols[3], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 4], col = cols[3], 
                                      pch=pchs[3],...)
-                        panel.xyplot(obs[, 1], obs[, 5], col = cols[4], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 5], col = cols[4], 
                                      pch=pchs[4],...)
-                        panel.xyplot(obs[, 1], obs[, 6], col = cols[5], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 6], col = cols[5], 
                                      pch=pchs[5],...)
-                        panel.xyplot(obs[, 1], obs[, 7], col = cols[6], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 7], col = cols[6], 
                                      pch=pchs[6],...)
                       }, key = list(text = list(c("Stem", "Leaf", "Root", 
                                       "Rhizome", "Grain", "LAI")), col = cols, lines = TRUE, points=TRUE,
@@ -723,7 +723,7 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
     ## Soil evaporation
     tmp2 <- aggregate(x$SoilEvaporation, by = list(doy = x$DayofYear), FUN = sum)
     se <- tmp2$x * 1e-1
-    xyplot(et + se ~ tmp$doy,
+    lattice::xyplot(et + se ~ tmp$doy,
            ylab = "Daily EvapoTranspiration (mm)",
            xlab = "DOY",
            key = simpleKey(text = c("transp", "evapo")), ...)
@@ -737,14 +737,14 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
     tmp2 <- aggregate(x$SoilEvaporation, by = list(doy = x$DayofYear), FUN = sum)
     se <- tmp2$x * 1e-1
     cumse <- cumsum(se)
-    xyplot(cumet + cumse + I(cumet+cumse) ~ tmp$doy, type="l",
+    lattice::xyplot(cumet + cumse + I(cumet+cumse) ~ tmp$doy, type="l",
            ylab = "Cumulative EvapoTranspiration (mm)",
            xlab = "DOY",
            key = simpleKey(text = c("transp", "evapo", "ET")), ...)
   }else
     if(plot.kind == "stress"){
     ## First summarize by day
-    xyplot(x$StomatalCondCoef +
+    lattice::xyplot(x$StomatalCondCoef +
            x$LeafReductionCoefs ~ x$DayofYear, type="l",
            ylab = "Stress Indeces",
            xlab = "DOY",
