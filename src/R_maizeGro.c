@@ -211,6 +211,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 /* Extracting nitrogen parameters */
 	iLeafN = REAL(NITROP)[0];
 	LeafN = iLeafN;
+	LeafNR = LeafN;
 	kLN = REAL(NITROP)[1];
 	vmax_b1 = REAL(NITROP)[2];
 	alpha_b1 = REAL(NITROP)[3];
@@ -337,7 +338,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 		   would mean that the division would need to by 8 */
 
 		/* If before planting date phenology is not calculated */
-                if(*(pt_doy+i) < plantDate){
+		if(*(pt_doy+i) < plantDate){
 			REAL(PhenoStage)[i] = -1;
 			REAL(TTTc)[i] = 0;
 		}else{
@@ -350,7 +351,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 					TTc += (*(pt_temp+i) - baseTemp)  / (24/timestep); 
 				}
 				REAL(TTTc)[i] = TTc; 
-				
+
 				if(TTc < plantEmerge || *(pt_doy+i) < emergeDate){
 					REAL(PhenoStage)[i] = 0.0;
 				}else{
@@ -362,19 +363,19 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 							REAL(PhenoStage)[i] = 0.10 + floor((TTc - TTc_V10) / phyllochron2) / 100;
 							// TTc_Vn = TTc; unused
 						}
-					
+
 					if(TTc > R1) REAL(PhenoStage)[i] = 1;
-					
+
 					if(TTc > R2) REAL(PhenoStage)[i] = 2;
-					
+
 					if(TTc > R3) REAL(PhenoStage)[i] = 3;
-					
+
 					if(TTc > R4) REAL(PhenoStage)[i] = 4;
-					
+
 					if(TTc > R5) REAL(PhenoStage)[i] = 5;
-					
+
 					if(TTc > R6) REAL(PhenoStage)[i] = 6;
-				
+
 					/* if(*(pt_doy+i) >= harvestDate) REAL(PhenoStage)[i] = -1; */
 				}
 
