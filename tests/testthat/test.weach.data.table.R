@@ -10,6 +10,8 @@ test_that("weachDT produces the same result as weachNEW, only faster",{
                     ws.units = "mps",
                     pp.units = "mm")
     }))
+    # Force loading of [.data.table before the test. so that the time taken to load it will not be included in the test.
+	data.table:::`[.data.table`
     cat('Time taken to run weach.data.table\n')
     print(system.time({
         fdt <- weach.data.table(forweach.test, lat = 40)

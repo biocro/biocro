@@ -129,7 +129,6 @@ export(weach)
 export(weach365)
 export(weach366)
 export(weachNEW)
-export(weach.data.table)
 
 ##CheckLeapYear to check leap years in weachNEW
 export(CheckLeapYear)
