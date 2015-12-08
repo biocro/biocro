@@ -7,7 +7,7 @@ test_that("weachDT produces the same result as weachNEW, only faster",{
                     rh.units = "fraction",
                     ws.units = "mps",
                     pp.units = "mm")
-    fdt <- weachDT(forweach.test, lat = 40)
+    fdt <- weach.data.table(forweach.test, lat = 40)
     expect_equal(fnew$year, fdt$year)
     expect_equal(fnew$doy, fdt$doy)
     expect_equal(fnew$hour, fdt$hour)
