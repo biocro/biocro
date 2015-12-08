@@ -13,7 +13,7 @@ test_that("weachDT produces the same result as weachNEW, only faster",{
     cat('Time taken to run weach.data.table\n')
     print(system.time({
         fdt <- weach.data.table(forweach.test, lat = 40)
-    })
+    }))
     expect_equal(fnew$year, fdt$year)
     expect_equal(fnew$doy, fdt$doy)
     expect_equal(fnew$hour, fdt$hour)
