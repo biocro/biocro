@@ -73,7 +73,10 @@
 ##' # Return data every 3 hours
 ##' wet05.3 <- weach(tmp1,40,ts=3)
 ##'
-weach <- function(X,lati,ts=1,temp.units=c("Fahrenheit","Celsius"),
+
+weach = function(X, ...) UseMethod('weach')
+
+weach.default <- function(X,lati,ts=1,temp.units=c("Fahrenheit","Celsius"),
                   rh.units=c("percent","fraction"),ws.units=c("mph","mps"),
                   pp.units=c("in","mm"),...){
 

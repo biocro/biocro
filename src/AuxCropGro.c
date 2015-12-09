@@ -757,11 +757,13 @@ void dailymiscanthusupdate(struct miscanthus *miscanthus,struct miscanthus *delt
 
 void updatedormantstage(struct miscanthus *miscanthus)
 {
-  double LostinRespiration,availablecarb,newcarb;
+  double LostinRespiration;
+  // double availablecarb; unused
+  // double newcarb; unused
   LostinRespiration=miscanthus->autoresp.stemmaint + miscanthus->autoresp.rootmaint +  miscanthus->autoresp.rhizomemaint;
   // This loss will occur at the expense of carbohydrate fraction of rhizome, resulting in change in the carbohydrate fraction of the rhizome
-  availablecarb= miscanthus->rhizome.biomass*miscanthus->rhizome.carbohydratefraction;
-  newcarb=availablecarb-LostinRespiration;
+  // availablecarb= miscanthus->rhizome.biomass*miscanthus->rhizome.carbohydratefraction;
+  // newcarb=availablecarb-LostinRespiration; // unused
   miscanthus->rhizome.biomass= miscanthus->rhizome.biomass- LostinRespiration;
  
   if((miscanthus->rhizome.carbohydratefraction)<0.05)miscanthus->rhizome.carbohydratefraction=0.05;

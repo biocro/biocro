@@ -35,11 +35,12 @@
 ##' data(cmiWet)
 ##' tmp1 <- RUEmodMY(cmiWet)
 ##'
-##' xyplot(AG.cum ~ doy | factor(year), type='l', data = tmp1,
+##' lattice::xyplot(AG.cum ~ doy | factor(year), type='l', data = tmp1,
 ##'        lwd=2,
 ##'        ylab=expression(paste('dry biomass (Mg ',ha^-1,')')),
 ##'        xlab='DOY')
 ##'
+
 RUEmodMY <- function(weatherdatafile,doy.s=91,doy.f=227,...) {
 
 X <- weatherdatafile

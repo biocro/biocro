@@ -336,7 +336,7 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
 
     if(missing(x2) & missing(x3)){
       yy <- c(x$RssVec,x$RssVec2)
-      plot1 <-  xyplot(yy  ~ c(1:length(yy)),xlab="Iterations",ylab="RSS",type=type,...)
+      plot1 <-  lattice::xyplot(yy  ~ c(1:length(yy)),xlab="Iterations",ylab="RSS",type=type,...)
       print(plot1)
     }else{
       if(missing(x3)){
@@ -345,14 +345,14 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
         myl <- max(c(length(yy),length(yy2))) * 1.05
         minyl <- myl * 0.05
         myy <- max(c(yy,yy2),na.rm=TRUE) * 1.05           
-        plot1 <-  xyplot(yy  ~ 1:length(yy),
+        plot1 <-  lattice::xyplot(yy  ~ 1:length(yy),
                          xlab="Iterations",
                          ylab="RSS",type=type,
                          xlim=-minyl:myl,
                          ylim=-5:myy,
                          panel = function(x,y,...){
-                           panel.xyplot(1:length(yy),yy,col=cols[1],...)
-                           panel.xyplot(1:length(yy2),yy2,col=cols[2],...)
+                           lattice::panel.xyplot(1:length(yy),yy,col=cols[1],...)
+                           lattice::panel.xyplot(1:length(yy2),yy2,col=cols[2],...)
                          })
         print(plot1)
       }else{
@@ -362,15 +362,15 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
         myl <- max(c(length(yy),length(yy2),length(yy3))) * 1.05
         minyl <- myl * 0.05
         myy <- max(c(yy,yy2,yy3),na.rm=TRUE) * 1.05           
-        plot1 <-  xyplot(yy  ~ 1:length(yy),
+        plot1 <-  lattice::xyplot(yy  ~ 1:length(yy),
                          xlab="Iterations",
                          ylab="RSS",type=type,
                          xlim=-minyl:myl,
                          ylim=-5:myy,
                          panel = function(x,y,...){
-                           panel.xyplot(1:length(yy),yy,col=cols[1],...)
-                           panel.xyplot(1:length(yy2),yy2,col=cols[2],...)
-                           panel.xyplot(1:length(yy3),yy3,col=cols[3],...)
+                           lattice::panel.xyplot(1:length(yy),yy,col=cols[1],...)
+                           lattice::panel.xyplot(1:length(yy2),yy2,col=cols[2],...)
+                           lattice::panel.xyplot(1:length(yy3),yy3,col=cols[3],...)
                          })
         print(plot1)
       }
@@ -386,7 +386,7 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
       
         dat <- data.frame(coefs=c(x$resMC[,c(1,2,3,5,6,7,9:24)]),
                         nams=rep(coefnames,each=x$accept2),iter=1:x$accept2)
-        plot1 <- xyplot(coefs ~ iter | nams , data = dat,xlab="Iterations",ylab="Prop",type=type,col=cols[1],...)
+        plot1 <- lattice::xyplot(coefs ~ iter | nams , data = dat,xlab="Iterations",ylab="Prop",type=type,col=cols[1],...)
         print(plot1)
       }else{
         if(missing(x3)){
@@ -398,7 +398,7 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
           dat2 <- data.frame(coefs=c(x2$resMC[,c(1,2,3,5,6,7,9:24)]),
                         nams=rep(coefnames,each=x2$accept2),iter=1:x2$accept2,run="two")
           dat <- rbind(dat1,dat2)
-          plot1 <- xyplot(coefs ~ iter | nams , groups=run, data = dat,xlab="Iterations",ylab="Prop",type=type,col=cols,...)
+          plot1 <- lattice::xyplot(coefs ~ iter | nams , groups=run, data = dat,xlab="Iterations",ylab="Prop",type=type,col=cols,...)
           print(plot1)
         }else{
           coefnames <- colnames(x$resMC)[c(1,2,3,5,6,7,9:24)]
@@ -413,7 +413,7 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
                         nams=rep(coefnames,each=x3$accept2),iter=1:x3$accept2,run="three")
           
           dat <- rbind(dat1,dat2,dat3)
-          plot1 <- xyplot(coefs ~ iter | nams , groups=run, data = dat,xlab="Iterations",ylab="Prop",type=type,col=cols,...)
+          plot1 <- lattice::xyplot(coefs ~ iter | nams , groups=run, data = dat,xlab="Iterations",ylab="Prop",type=type,col=cols,...)
           print(plot1)
         }
       }
@@ -455,10 +455,10 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
       obs <- c(x$obsStem,x$obsLeaf,x$obsRhiz,x$obsRoot,x$obsGrain)
       sim <- c(x$simStem,x$simLeaf,x$simRhiz,x$simRoot,x$simGrain)
       
-    plot1 <- xyplot(obs ~ sim,xlab="Fitted",ylab="Observed",...,
+    plot1 <- lattice::xyplot(obs ~ sim,xlab="Fitted",ylab="Observed",...,
                     panel = function(x,y,...){
-                      panel.xyplot(x,y,pch=16,col="black",...)
-                      panel.abline(0,1,...)
+                      lattice::panel.xyplot(x,y,pch=16,col="black",...)
+                      lattice::panel.abline(0,1,...)
                     })
     print(plot1)
 
@@ -470,10 +470,10 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
       sim <- c(x$simStem,x$simLeaf,x$simRhiz,x$simRoot,x$simGrain)
       rsd <- obs - sim
       
-    plot1 <- xyplot(rsd ~ sim,xlab="Fitted",ylab="Residuals",...,
+    plot1 <- lattice::xyplot(rsd ~ sim,xlab="Fitted",ylab="Residuals",...,
                     panel = function(x,y,...){
-                      panel.xyplot(x,y,pch=16,col="black",...)
-                      panel.abline(h=0,...)
+                      lattice::panel.xyplot(x,y,pch=16,col="black",...)
+                      lattice::panel.abline(h=0,...)
                     })
     print(plot1)
 
@@ -481,25 +481,25 @@ plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT",
   
     if(plot.kind == "OFT"){
     xso <- x
-    plot1 <- xyplot(xso$simStem ~ xso$TTime,
+    plot1 <- lattice::xyplot(xso$simStem ~ xso$TTime,
                     xlab="Thermal time",
                     ylim=c(-2,I(max(c(xso$simStem,xso$obsStem),na.rm=TRUE)*1.1)),
                     ylab="Dry biomass (Mg/ha)",...,
                     panel = function(x,y,...){
-                      panel.xyplot(xso$TTime,xso$obsStem,type="p",col=cols[1],...)
-                      panel.xyplot(xso$TTime,xso$obsLeaf,type="p",col=cols[2],...)
-                      panel.xyplot(xso$TTime,xso$obsRoot,type="p",col=cols[3],...)
-                      panel.xyplot(xso$TTime,xso$obsRhiz,type="p",col=cols[4],...)
-                      panel.xyplot(xso$TTime,xso$obsGrain,type="p",col=cols[5],...)
-                      panel.xyplot(xso$TTime,xso$obsLAI,type="p",col=cols[6],...)
+                      lattice::panel.xyplot(xso$TTime,xso$obsStem,type="p",col=cols[1],...)
+                      lattice::panel.xyplot(xso$TTime,xso$obsLeaf,type="p",col=cols[2],...)
+                      lattice::panel.xyplot(xso$TTime,xso$obsRoot,type="p",col=cols[3],...)
+                      lattice::panel.xyplot(xso$TTime,xso$obsRhiz,type="p",col=cols[4],...)
+                      lattice::panel.xyplot(xso$TTime,xso$obsGrain,type="p",col=cols[5],...)
+                      lattice::panel.xyplot(xso$TTime,xso$obsLAI,type="p",col=cols[6],...)
 
 
-                      panel.xyplot(xso$TTime,xso$simStem,type="l",col=cols[1],...)
-                      panel.xyplot(xso$TTime,xso$simLeaf,type="l",col=cols[2],...)
-                      panel.xyplot(xso$TTime,xso$simRoot,type="l",col=cols[3],...)
-                      panel.xyplot(xso$TTime,xso$simRhiz,type="l",col=cols[4],...)
-                      panel.xyplot(xso$TTime,xso$simGrain,type="l",col=cols[5],...)
-                      panel.xyplot(xso$TTime,xso$simLAI,type="l",col=cols[6],...)
+                      lattice::panel.xyplot(xso$TTime,xso$simStem,type="l",col=cols[1],...)
+                      lattice::panel.xyplot(xso$TTime,xso$simLeaf,type="l",col=cols[2],...)
+                      lattice::panel.xyplot(xso$TTime,xso$simRoot,type="l",col=cols[3],...)
+                      lattice::panel.xyplot(xso$TTime,xso$simRhiz,type="l",col=cols[4],...)
+                      lattice::panel.xyplot(xso$TTime,xso$simGrain,type="l",col=cols[5],...)
+                      lattice::panel.xyplot(xso$TTime,xso$simLAI,type="l",col=cols[6],...)
 
                     },key = list(text = list(c("Stem", "Leaf", "Root", 
                          "Rhizome", "Grain", "LAI")), col = cols, lines = TRUE, points=TRUE,pch=21)

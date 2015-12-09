@@ -46,7 +46,7 @@
 ##' wats.none[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4, wsFun='none')$wsPhoto
 ##' }
 ##'
-##' xyplot(wats.L + wats.Log + wats.exp  + wats.none~ aws,
+##' lattice::xyplot(wats.L + wats.Log + wats.exp  + wats.none~ aws,
 ##'        col=c('blue','green','purple','red'),
 ##'        type = 'l',
 ##'        xlab='Soil Water',
@@ -64,7 +64,7 @@
 ##' wats[i] <- wtrstr(1,1,0.3,SDepth[i],0.37,0.2,2e-2,3)$wsPhoto
 ##' }
 ##'
-##' xyplot(wats ~ SDepth, ylab='Water Stress Coef',
+##' lattice::xyplot(wats ~ SDepth, ylab='Water Stress Coef',
 ##'        xlab='Soil depth')
 ##'
 ##' ## Difference between the effect on assimilation and leaf expansion rate
@@ -77,7 +77,7 @@
 ##' wats.L[i] <- wtrstr(1,1,aws[i],0.5,0.37,0.2,2e-2,4)$wsSpleaf
 ##' }
 ##'
-##' xyplot(wats.P + wats.L ~ aws,
+##' lattice::xyplot(wats.P + wats.L ~ aws,
 ##'        xlab='Soil Water',
 ##'        ylab='Stress Coefficient')
 ##'
@@ -90,7 +90,7 @@
 ##' wats.2 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=2e-2,phi2=1, wsFun='logistic')$wsPhoto
 ##' wats.3 <- wsRcoef(aw=aws,fieldc=0.37,wiltp=0.2,phi1=3e-2,phi2=1, wsFun='logistic')$wsPhoto
 ##'
-##' xyplot(wats.1 + wats.2 + wats.3 ~ aws,type='l',
+##' lattice::xyplot(wats.1 + wats.2 + wats.3 ~ aws,type='l',
 ##'        col=c('blue','red','green'),
 ##'        ylab='Water Stress Coef',
 ##'        xlab='SoilWater Content',

@@ -70,7 +70,7 @@
 ##' res2 <- eC4photo(dat1$Qp,dat1$Tl,dat1$RH,jmax=700)
 ##'
 ##' ## Plot comparing Jmax 400 vs. 700 for a range of conditions
-##' xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##' lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'             type='l',col=c('blue','green'),lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
 ##'                  mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -93,7 +93,7 @@
 ##'
 ##' ## Plot comparing different Vcmax
 ##' cols <- rev(heat.colors(9))
-##' xyplot(res1 ~ Qp | factor(Tl) , data = dat1,col=cols,
+##' lattice::xyplot(res1 ~ Qp | factor(Tl) , data = dat1,col=cols,
 ##'             groups=vcmax,
 ##'             type='l',lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
@@ -393,15 +393,15 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
   ## Ploting the trace
   if(missing(x2) && missing(x3)){
     if(type == "trace"){
-    plot1 <-  xyplot(x$resuMC[1,] ~ 1:x$accept2 ,
+    plot1 <-  lattice::xyplot(x$resuMC[1,] ~ 1:x$accept2 ,
                      xlab = "Iterations", type = "l",
                      ylab = expression(paste("Vcmax (",mu,mol," ",m^-2," ",s^-1,")")),
                      ...)
-    plot2 <-  xyplot(x$resuMC[2,] ~ 1:x$accept2 ,
+    plot2 <-  lattice::xyplot(x$resuMC[2,] ~ 1:x$accept2 ,
                      xlab = "Iterations", type = "l",
                      ylab = expression(paste("Vpmax (",mu,mol," ",m^-2," ",s^-1,")")),
                      ...)
-    plot3 <-  xyplot(x$resuMC[3,] ~ 1:x$accept2 ,
+    plot3 <-  lattice::xyplot(x$resuMC[3,] ~ 1:x$accept2 ,
                      xlab = "Iterations", type = "l",
                      ylab = expression(paste("Jmax (",mu,mol," ",m^-2," ",s^-1,")")),
                      ...)
@@ -435,15 +435,15 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
     tmpvec31 <- x$resuMC[3,1:minchainLength]
     tmpvec32 <- x2$resuMC[3,1:minchainLength]
     if(type == "trace"){
-      plot1 <-  xyplot(tmpvec11 + tmpvec12 ~ 1:minchainLength ,
+      plot1 <-  lattice::xyplot(tmpvec11 + tmpvec12 ~ 1:minchainLength ,
                        xlab = "Iterations", type = "l",
                        ylab = expression(paste("Vcmax (",mu,mol," ",m^-2," ",s^-1,")")),
                        ...)
-      plot2 <-  xyplot(tmpvec21 + tmpvec22 ~ 1:minchainLength ,
+      plot2 <-  lattice::xyplot(tmpvec21 + tmpvec22 ~ 1:minchainLength ,
                        xlab = "Iterations", type = "l",
                        ylab = expression(paste("Vpmax (",mu,mol," ",m^-2," ",s^-1,")")),
                        ...)
-      plot3 <-  xyplot(tmpvec31 + tmpvec32 ~ 1:minchainLength ,
+      plot3 <-  lattice::xyplot(tmpvec31 + tmpvec32 ~ 1:minchainLength ,
                        xlab = "Iterations", type = "l",
                        ylab = expression(paste("Jmax (",mu,mol," ",m^-2," ",s^-1,")")),
                        ...)
@@ -480,17 +480,17 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
     tmpvec33 <- x3$resuMC[3,1:minchainLength]
 
   if(type == "trace"){
-     plot1 <-  xyplot(tmpvec11 + tmpvec12 + tmpvec13
+     plot1 <-  lattice::xyplot(tmpvec11 + tmpvec12 + tmpvec13
                       ~ 1:minchainLength ,
                       xlab = "Iterations", type = "l",
                       ylab = expression(paste("Vmax (",mu,mol," ",m^-2," ",s^-1,")")),
                       ...)
-     plot2 <-  xyplot(tmpvec21 + tmpvec22 + tmpvec23
+     plot2 <-  lattice::xyplot(tmpvec21 + tmpvec22 + tmpvec23
                       ~ 1:minchainLength ,
                       xlab = "Iterations", type = "l",
                       ylab = expression(paste("Vpmax (",mu,mol," ",m^-2," ",s^-1,")")),
                       ...)
-     plot3 <-  xyplot(tmpvec31 + tmpvec32 + tmpvec33
+     plot3 <-  lattice::xyplot(tmpvec31 + tmpvec32 + tmpvec33
                       ~ 1:minchainLength ,
                       xlab = "Iterations", type = "l",
                       ylab = expression(paste("Jmax (",mu,mol," ",m^-2," ",s^-1,")")),

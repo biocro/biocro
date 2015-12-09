@@ -70,8 +70,8 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   double pLeafsun, pLeafshade;
   double Leafsun, Leafshade;
 
-  double CanopyA,GCanopyA ;
-  double CanopyT , CanopyPe = 0.0, CanopyPr = 0.0;
+  double CanopyA = 0.0, GCanopyA = 0.0;
+  double CanopyT = 0.0, CanopyPe = 0.0, CanopyPr = 0.0;
   double CanopyC = 0.0;
   double CanHeight;
   /* Need to label them something different from the arguments of the c4photoC
@@ -112,8 +112,6 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   double stomataws = REAL(STOMATAWS)[0];
   double LeafN = REAL(LEAFN)[0];
   double kpLN = REAL(KPLN)[0];
-  double lnb0 = REAL(LNB0)[0];
-  double lnb1 = REAL(LNB1)[0];
   int lnfun = INTEGER(LNFUN)[0];
 
   SEXP lists;
@@ -164,17 +162,13 @@ layIdiff, layShade vectors. */
   LNprof(LeafN, LAI, nlayers, kpLN);
   /* It populates tmp5 */
 
-  /* Next use the EvapoTrans function */
-  CanopyA=0.0;
-  CanopyT=0.0;
-
   for(i=0;i<nlayers;i++)
   {
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
 	  leafN_lay = tmp5[--tp5];
-	  if(lnfun == 0){
+	  if(lnfun == 0) {
 		  vmax1 = REAL(VMAX)[0];
-	  }else{
+	  } else {
 		  vmax1=nitroparms.Vmaxb1*leafN_lay+nitroparms.Vmaxb0;
 		  if(vmax1<0) vmax1=0.0;
 		  if(vmax1>REAL(VMAX)[0]) vmax1=REAL(VMAX)[0];
