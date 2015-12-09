@@ -21,7 +21,7 @@ struct BioGro_results_str {
 	double LAIc[8760];
 };
 
-void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
+struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
 	    double windspeed[], double precip[], double kd, double chil, 
 	    double heightf, int nlayers,
             double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,

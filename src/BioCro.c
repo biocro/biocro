@@ -12,7 +12,7 @@
 #include "BioCro.h"
 #include "Century.h"
 
-void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
+struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
     double windspeed[], double precip[], double kd, double chil, 
     double heightf, int nlayers,
     double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
@@ -23,14 +23,6 @@ void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], doub
     double centks[], int centTimestep, int soilLayers, double soilDepths[],
     double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP)
 {
-	extern double CanopyAssim[8760];
-	extern double Leafy[8760];
-	extern double Stemy[8760];
-	extern double Rooty[8760];
-	extern double Rhizomey[8760];
-	extern double Grainy[8760];
-	extern double LAIc[8760];
-
 	double newLeafcol[8760];
 	double newStemcol[8760];
 	double newRootcol[8760];
@@ -376,15 +368,8 @@ void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], doub
 		results.Rhizomey[i] = Rhizome;
 		results.Grainy[i] = Grain;
 		results.LAIc[i] = LAI;
-
-		CanopyAssim[i] =  CanopyA;
-		Leafy[i] = Leaf;
-		Stemy[i] = Stem;
-		Rooty[i] =  Root;
-		Rhizomey[i] = Rhizome;
-		Grainy[i] = Grain;
-		LAIc[i] = LAI;
 	}
+	return(results);
 }
 
 double sel_phen(int phen)
