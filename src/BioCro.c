@@ -78,6 +78,7 @@ void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], doub
 	const double mrc1 = mresp[0];
 	const double mrc2 = mresp[1];
 
+	struct BioGro_results_str results;
 	struct Can_Str Canopy;
 	struct ws_str WaterS;
 	struct dbp_str dbpS;
@@ -367,6 +368,14 @@ void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], doub
 
 		ALitter += LeafLitter + StemLitter;
 		BLitter += RootLitter + RhizomeLitter;
+
+		results.CanopyAssim[i] =  CanopyA;
+		results.Leafy[i] = Leaf;
+		results.Stemy[i] = Stem;
+		results.Rooty[i] =  Root;
+		results.Rhizomey[i] = Rhizome;
+		results.Grainy[i] = Grain;
+		results.LAIc[i] = LAI;
 
 		CanopyAssim[i] =  CanopyA;
 		Leafy[i] = Leaf;
