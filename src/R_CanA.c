@@ -165,7 +165,7 @@ layIdiff, layShade vectors. */
   for(i=0;i<nlayers;i++)
   {
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
-	  leafN_lay = tmp5[--tp5];
+	  leafN_lay = tmp5[nlayers - 1 - i];
 	  if(lnfun == 0) {
 		  vmax1 = REAL(VMAX)[0];
 	  } else {
@@ -179,8 +179,8 @@ layIdiff, layShade vectors. */
 	    IDir = layIdir[--sp1];
 	    Itot = layItotal[--sp3];
 	    
-	    rh = tmp4[--tp4];
-	    WindS = tmp3[--tp3];
+	    rh = tmp4[nlayers - 1 - i];
+	    WindS = tmp3[nlayers - 1 - i];
 
 	    pLeafsun = layFsun[--sp4];
 	    CanHeight = layHeight[--sp6];
