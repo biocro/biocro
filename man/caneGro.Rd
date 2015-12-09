@@ -2,8 +2,8 @@
 \alias{caneGro}
 \title{Simulation of cane, Growth, LAI, Photosynthesis and phenology}
 \usage{
-caneGro(WetDat, day1 = NULL, dayn = NULL, timestep = 1, lat = 40,
-  iRhizome = 7, irtl = 1e-04, canopyControl = list(),
+caneGro(WetDat, day1 = 5, dayn = 360, timestep = 1, lat = 40,
+  iRhizome = 3, irtl = 0.01, canopyControl = list(),
   seneControl = list(), photoControl = list(), phenoControl = list(),
   soilControl = list(), nitroControl = list(), canephenoControl = list(),
   centuryControl = list(), managementControl = list(),
@@ -144,14 +144,8 @@ The phenology follows the 'Corn Growth and Development'
 Iowa State Publication. %% ~~ If necessary, more details
 than the description above ~~
 }
-\note{
-%% ~~further notes~~
-}
 \author{
 Fernando E Miguez
-}
-\references{
-%% ~put references to the literature/web site here ~
 }
 \seealso{
 \code{\link{BioGro}} %% ~~objects to See Also as

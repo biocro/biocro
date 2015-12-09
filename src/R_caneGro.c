@@ -25,7 +25,7 @@
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"
-#include "CanA_3D_Structure.h"
+//#include "CanA_3D_Structure.h"
 
 SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */ 
 	    SEXP DOY,                 /* Day of the year           2 */
@@ -97,7 +97,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
 
 /*********************3D Canopy Parameters*********************************/
-double canparms=1.0;
+// double canparms=1.0; unused
 double nrows=2806;
 double ncols=27;
 double **canopy3Dstructure;
@@ -125,25 +125,25 @@ int ihere,jhere;
 				  if(newLeafcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newLeafcol\n");
-				    exit;
+				    return((SEXP)1);
 				  }
 	double *newStemcol=malloc(vecsize*sizeof(double));
 				  if(newStemcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newStemcol\n");
-				    exit;
+				    return((SEXP)1);
 				  }
 	double *newRootcol=malloc(vecsize*sizeof(double));
 				  if(newRootcol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newRootcol\n");
-				    exit;
+				    return((SEXP)1);
 				  }
 	double *newRhizomecol=malloc(vecsize*sizeof(double));
 				  if(newRhizomecol==NULL)
 				  { 
 				    Rprintf("Out of Memory for newRhizomecol\n");
-				    exit;
+				    return((SEXP)1);
 				  }
 
 				  double upperT=REAL(UPPERTEMP)[0];
@@ -175,7 +175,6 @@ int ihere,jhere;
   frostparms.leafT100=REAL(FROSTP)[1];
   frostparms.stemT0=REAL(FROSTP)[2];
   frostparms.stemT100=REAL(FROSTP)[3];
-  double leaffrostdamage;
   
  
 
@@ -183,11 +182,12 @@ int ihere,jhere;
 	   material. This is needed to calculate litter and therefore carbon
 	   in the soil and then N in the soil. */
 
-	double iSp, Sp , propLeaf;
+	// double iSp; unused
+	double Sp , propLeaf;
 	int i, i2, i3;
 	int dailyvecsize;
-	double rootfrontvelocity=REAL(ROOTFRONTVELOCITY)[0];
-	int optiontocalculaterootdepth = INTEGER(OPTIONTOCALCULATEROOTDEPTH)[0];
+	// double rootfrontvelocity=REAL(ROOTFRONTVELOCITY)[0]; unused
+	// int optiontocalculaterootdepth = INTEGER(OPTIONTOCALCULATEROOTDEPTH)[0]; unused
 
 
 	double vmax1;
@@ -198,27 +198,32 @@ int ihere,jhere;
 	double Rd1, Ca;
 	double b01, b11;
 
-	double Leaf, Stem, Root, LAI, Grain = 0.0;
+	double Leaf, Stem, Root, LAI;
+	// double Grain = 0.0; unused
 	double TTc = 0.0,TT12c=0.0;
-	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kSeedcane = 0.0, kGrain = 0.0;
-	double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
+	double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kSeedcane = 0.0;
+	// double kGrain = 0.0; unused
+	double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0;
+    // double newRhizome, newGrain = 0.0; unused
 
 	/* Variables needed for collecting litter */
-	double LeafLitter_d = 0.0, StemLitter_d = 0.0;
-	double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
+	// double LeafLitter_d = 0.0, StemLitter_d = 0.0; unused
+	// double RootLitter_d = 0.0, RhizomeLitter_d = 0.0; unused
 	double ALitter = 0.0, BLitter = 0.0;
 	/* Maintenance respiration */
 
-	double mrc1 = REAL(MRESP)[0];
-	double mrc2 = REAL(MRESP)[1]; 
+	// double mrc1 = REAL(MRESP)[0]; unused
+	// double mrc2 = REAL(MRESP)[1];  unused
 
 	double waterCont;
-	double StomWS = 1, LeafWS = 1,SugarStress=1,deepak_temp;
+	double StomWS = 1, LeafWS = 1;
+    // double SugarStress=1; unused
 	int timestep;
 	double CanopyA, CanopyT;
 
 	double Rhizome;
-	double Sugar,newSugar,SeneSeedcane;
+	double Sugar = 0.0, newSugar = 0.0;
+    // double SeneSeedcane; unused
 	double laimax;
 
 	/* Soil Parameters*/
@@ -227,7 +232,8 @@ int ihere,jhere;
 	double LeafNmax = REAL(MAXLN)[0]; /* max N conc of top leaf in mmol/m2*/
 	double LeafNmin = REAL(MINLN)[0];  /* min N conc of top leaf in mmol/m2 */
 	double dayofMaxLeafN = REAL(DAYMAXLN)[0]; /* day when maxm leaf N occuers */
-	double LeafN, kLN,currentday;
+	double LeafN, currentday;
+    // double kLN; unused
 	double soilEvap, TotEvap;
 	int soillayers = INTEGER(SOILLAYERS)[0];
 	double cwsVec[soillayers];
@@ -250,7 +256,7 @@ int ihere,jhere;
 	double kpLN = REAL(KPLN)[0];
 	double lnb0 = REAL(LNB0)[0]; 
 	double lnb1 = REAL(LNB1)[0];
-	int lnfun = INTEGER(LNFUN)[0];
+	// int lnfun = INTEGER(LNFUN)[0]; unused
 	double leafrate = REAL(LEAFTURNOVER)[0];
 	double rootrate = REAL(ROOTTURNOVER)[0];
 
@@ -258,50 +264,52 @@ int ihere,jhere;
         double gRespCoeff=0.15;/*This is constant fraction to calculate Growth respiration from DSSAT*/
         double Qleaf=1.58, Qstem=1.80, Qroot=1.80; /* Q factors for Temp dependence on Maintenance Respiration*/
 	double mRespleaf=0.012,mRespstem=0.00016,mResproot=0.00036;
-	double mResp;
+	// double mResp; unused
 
-	double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0 ;
-	double *sti , *sti2, *sti3, *sti4; 
-	double Remob;
-	int k = 0, q = 0, m = 0, n = 0;
+	double SeneLeaf, SeneStem, SeneRoot = 0.0;
+    // double SeneRhizome = 0.0 ; unused
+	double *sti, *sti3, *sti4; 
+    // double *sti2; unused
+	// double Remob; unused
+	// int k = 0, q = 0, m = 0, n = 0; unused
 	int ri = 0;
 
 /* all of these parameters are for Cuadra biomass partitioning */
-	double TT0 = REAL(SUGARCOEFS)[0]; 
-	double  TTseed = REAL(SUGARCOEFS)[1]; 
-	double Tmaturity = REAL(SUGARCOEFS)[2]; 
-	double Rd = REAL(SUGARCOEFS)[3]; 
-	double Alm = REAL(SUGARCOEFS)[4]; 
-	double Arm = REAL(SUGARCOEFS)[5]; 
-	double Clstem = REAL(SUGARCOEFS)[6]; 
-	double Ilstem = REAL(SUGARCOEFS)[7]; 
-	double Cestem = REAL(SUGARCOEFS)[8]; 
-	double Iestem = REAL(SUGARCOEFS)[9]; 
-	double Clsuc = REAL(SUGARCOEFS)[10]; 
-	double Ilsuc = REAL(SUGARCOEFS)[11]; 
-	double Cesuc = REAL(SUGARCOEFS)[12]; 
-	double Iesuc = REAL(SUGARCOEFS)[13]; 
+	// double TT0 = REAL(SUGARCOEFS)[0];  unused
+	// double  TTseed = REAL(SUGARCOEFS)[1];  unused
+	// double Tmaturity = REAL(SUGARCOEFS)[2];  unused
+	// double Rd = REAL(SUGARCOEFS)[3];  unused
+	// double Alm = REAL(SUGARCOEFS)[4];  unused
+	// double Arm = REAL(SUGARCOEFS)[5];  unused
+	// double Clstem = REAL(SUGARCOEFS)[6];  unused
+	// double Ilstem = REAL(SUGARCOEFS)[7];  unused
+	// double Cestem = REAL(SUGARCOEFS)[8];  unused
+	// double Iestem = REAL(SUGARCOEFS)[9];  unused
+	// double Clsuc = REAL(SUGARCOEFS)[10];  unused
+	// double Ilsuc = REAL(SUGARCOEFS)[11];  unused
+	// double Cesuc = REAL(SUGARCOEFS)[12];  unused
+	// double Iesuc = REAL(SUGARCOEFS)[13];  unused
 /* variable declaration for cuadra biomass partitionign ends here */
 	
 
-	struct Can_Str Canopy, CanopyRd;
-	struct ws_str WaterS;
+	struct Can_Str Canopy;
+	struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
 	struct dbp_sugarcane_str dbpS;
   struct dbp_str dbpS_old;
-	struct cenT_str centS; 
+	// struct cenT_str centS;  unused
 	struct soilML_str soilMLS;
 	struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
 	soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
 
-	centS.SCs[0] = 0.0;
-	centS.SCs[1] = 0.0;
-	centS.SCs[2] = 0.0;
-	centS.SCs[3] = 0.0;
-	centS.SCs[4] = 0.0;
-	centS.SCs[5] = 0.0;
-	centS.SCs[6] = 0.0;
-	centS.SCs[7] = 0.0;
-	centS.SCs[8] = 0.0;
+	// centS.SCs[0] = 0.0; unused
+	// centS.SCs[1] = 0.0; unused
+	// centS.SCs[2] = 0.0; unused
+	// centS.SCs[3] = 0.0; unused
+	// centS.SCs[4] = 0.0; unused
+	// centS.SCs[5] = 0.0; unused
+	// centS.SCs[6] = 0.0; unused
+	// centS.SCs[7] = 0.0; unused
+	// centS.SCs[8] = 0.0; unused
 
 	SEXP lists, names;
 
@@ -417,14 +425,14 @@ int ihere,jhere;
 
 
 	LeafN = REAL(ILEAFN)[0]; /* Initial value of N in the leaf */
-	kLN = REAL(KLN)[0];
+	// kLN = REAL(KLN)[0]; unused
 	timestep = INTEGER(TIMESTEP)[0];
 	Rhizome = REAL(RHIZOME)[0];
 	Sp = REAL(SPLEAF)[0]; 
 	SeneLeaf = REAL(SENCOEFS)[0];
 	SeneStem = REAL(SENCOEFS)[1];
 	SeneRoot = REAL(SENCOEFS)[2];
-	SeneRhizome = REAL(SENCOEFS)[3];
+	// SeneRhizome = REAL(SENCOEFS)[3]; unused
 
 	/* Soil Parameters */
 	FieldC = REAL(SOILCOEFS)[0];
@@ -446,7 +454,7 @@ int ihere,jhere;
 	Stem = Rhizome * 0.001;
 	Root = Rhizome * 0.001;
 	LAI = Leaf * Sp;
-	iSp = Sp;
+	// iSp = Sp; unused
 
 /* Creating pointers to avoid calling functions REAL and INTEGER so much */
 	int *pt_doy = INTEGER(DOY);
@@ -467,7 +475,7 @@ int ihere,jhere;
 	/* Creation of pointers outside the loop */
 	sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
 				 in the newLeafcol vector */
-	sti2 = &newStemcol[0];
+	// sti2 = &newStemcol[0]; unused
 	sti3 = &newRootcol[0];
 	sti4 = &newRhizomecol[0];
 	
@@ -477,19 +485,22 @@ int ihere,jhere;
         double dailyStemResp = 0.0;
         double totalMResp,Mresplimit,Mresp_reduction;
 	double dailyRootResp = 0.0;
-	double dailyRhizomeResp = 0.0;
-	double LeafResp,StemResp,RootResp,RhizomeResp,Litter;
+	// double dailyRhizomeResp = 0.0; unused
+	double LeafResp,StemResp,RootResp;
+    // double RhizomeResp; unused
+    // double Litter; unused
 	double LAIi;
-	double delTT;
-	double dap;
+	// double delTT; unused
+	// double dap; unused
 
-	double rootlitter,deadroot,leaflitter,deadleaf,leafREMOB;
+	double rootlitter = 0.0, deadroot = 0.0, leaflitter = 0.0, deadleaf = 0.0;
+    // double leafREMOB; unused
   double remobilizedleaf;
   double Remobfactorleaf=0.5;
-	double Fiber,newFiber;
-	double kSugar,kFiber,SeedcaneResp,Seedcane,newSeedcane,dailySeedcaneResp;
+	double Fiber = 0.0 ,newFiber = 0.0;
+	double kSugar,kFiber,SeedcaneResp = 0.0, Seedcane = 0.0, newSeedcane = 0.0, dailySeedcaneResp = 0.0;
 	double LAIold,LAInew;
-	leafREMOB=REAL(LEAFREMOBILIZE)[0];
+	// leafREMOB=REAL(LEAFREMOBILIZE)[0]; unused
 	int dayi=0; /* this is idnex for days */
             LAIi = Rhizome * propLeaf*Sp;
 	    LAIold=LAIi; /* Enter simulation with LAIold variable to track precious LAI to implement water stress */
@@ -526,7 +537,7 @@ int ihere,jhere;
                 if((*(pt_temp+i))<9)
                 {
 			TT12c = TT12c;
-			delTT=0.0;
+			// delTT=0.0; unused
 		}
     LAIold = Leaf * Sp;
     
@@ -542,11 +553,11 @@ int ihere,jhere;
 		if((*(pt_temp+i))>= 9)
                 {
 			TT12c = TT12c + (*(pt_temp+i)-9) / (24/timestep);
-			delTT=(*(pt_temp+i)- 9)/24.0;
+			// delTT=(*(pt_temp+i)- 9)/24.0; unused
 		}
                 
 /* This calculated TTTc based on 0 base Temperature */    
-/*		REAL(TTTc)[i] = TTc;
+//		REAL(TTTc)[i] = TTc;
 
 /* Now we are calculating TTc based on 12 base Temperature */
                 REAL(TTTc)[i]=TT12c;
@@ -601,7 +612,7 @@ int ihere,jhere;
 /* This is an addition, which was omitted earlier */
 /* WIMOVAC suggestsevaluating A grodd = Anet + Rd before proceeding with further calculations */
 
-/* A better way to evaluate gross canopy assimilation would be to evaluate for individual layer in CanAC functions using leaf temperature. However, this will require changing CanAC functon, which I do not want to distrub for now.
+// A better way to evaluate gross canopy assimilation would be to evaluate for individual layer in CanAC functions using leaf temperature. However, this will require changing CanAC functon, which I do not want to distrub for now.
 
 		/* Collecting the results */
 //		CanopyA = Canopy.Assim * timestep;
@@ -631,7 +642,7 @@ int ihere,jhere;
 
 		/* Inserting the multilayer model */
 		if(soillayers > 1){
-			dap=(double)dayi; // converting dayi to double before passing to soilML to avoid rounding error
+			// dap=(double)dayi; // converting dayi to double before passing to soilML to avoid rounding error unused
 		             	soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
 					 phi1, phi2, soTexS, wsFun, INTEGER(SOILLAYERS)[0], Root, 
 					 LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
@@ -793,7 +804,7 @@ int ihere,jhere;
 				 else
 				 {
 				 deadleaf=(leafrate*Leaf)/100.0;  /* biomass of dead leaf */
-         remobilizedleaf<-deadleaf*Remobfactorleaf;
+         remobilizedleaf=deadleaf*Remobfactorleaf;
 				 leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
 				 Leaf =Leaf+newLeaf-deadleaf+remobilizedleaf*33;
          Stem=Stem+remobilizedleaf*0.33;
@@ -952,7 +963,7 @@ int ihere,jhere;
 				 {
 				LAI=laimax;
 				deadleaf=(LAI-laimax)/Sp;  /* biomass of dead leaf */
-        remobilizedleaf<-deadleaf*Remobfactorleaf;
+        remobilizedleaf=deadleaf*Remobfactorleaf;
   			leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
 				Leaf =Leaf-deadleaf+remobilizedleaf*33;
         Stem=Stem+remobilizedleaf*0.33;
@@ -962,7 +973,7 @@ int ihere,jhere;
          if((*pt_temp+i)<frostparms.leafT0)
          {
          deadleaf=getFrostdamage(frostparms.leafT0,frostparms.leafT100,*(pt_temp+i), Leaf);
-         remobilizedleaf<-deadleaf*Remobfactorleaf;
+         remobilizedleaf=deadleaf*Remobfactorleaf;
     		 leaflitter=leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
 				 Leaf =Leaf-deadleaf+remobilizedleaf*0.0;
          Stem=Stem+remobilizedleaf*0.50;
@@ -977,7 +988,7 @@ int ihere,jhere;
 		 dailyLeafResp = 0.0;
 		 dailyStemResp = 0.0;
 		 dailyRootResp = 0.0;
-		 dailyRhizomeResp = 0.0;
+		 // dailyRhizomeResp = 0.0; unused
             
 		REAL(DayofYear)[dayi] =  INTEGER(DOY)[i];         
 	        REAL(Leafy)[dayi] = Leaf;

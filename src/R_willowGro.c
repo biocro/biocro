@@ -177,7 +177,7 @@ SEXP willowGro(SEXP LAT,                 /* Latitude                  1 */
 	int ri = 0;
 
 	struct Can_Str Canopy = {0,0,0};
-	struct ws_str WaterS;
+	struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
 	struct dbp_str dbpS;
 	struct cenT_str centS; 
 	struct soilML_str soilMLS;

@@ -242,7 +242,7 @@
 ##' ans.2 <- BioGro(weather05,soilControl=ll.2)
 ##' ans.3 <-BioGro(weather05,soilControl=ll.3)
 ##'
-##' xyplot(ans.0$SoilWatCont +
+##' lattice::xyplot(ans.0$SoilWatCont +
 ##'        ans.1$SoilWatCont +
 ##'        ans.2$SoilWatCont +
 ##'        ans.3$SoilWatCont ~ ans.0$DayofYear,
@@ -252,7 +252,7 @@
 ##'
 ##' ## Compare LAI
 ##'
-##' xyplot(ans.0$LAI +
+##' lattice::xyplot(ans.0$LAI +
 ##'        ans.1$LAI +
 ##'        ans.2$LAI +
 ##'        ans.3$LAI ~ ans.0$DayofYear,

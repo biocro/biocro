@@ -11,7 +11,8 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	double Qp, Tl, RH, Catm;
 	double Bet0,Bet1;
 
-	double vcmax, jmax, Rd, Ca, O2, theta,StomWS;
+    // double Ca; unused
+	double vcmax, jmax, Rd, O2, theta,StomWS;
 
 	vcmax = REAL(VCMAX)[0];
 	jmax = REAL(JMAX)[0];
@@ -21,14 +22,18 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	O2 = REAL(OX2)[0];
 	theta = REAL(THETA)[0];
 	StomWS = REAL(STOMWS)[0];
-	int nq , nt, nr, i;
+    // int nr; unused
+    // int nt; unused
+	int nq , i;
 	int ws = INTEGER(WS)[0];
 	SEXP lists, names;
 	SEXP GsV;
 	SEXP ASSV;
 	SEXP CiV;
 
-	nq = length(Qp1);nt = length(Tl1);nr = length(RH1);
+	nq = length(Qp1);
+    // nt = length(Tl1); unused
+    // nr = length(RH1); unused
 
 	PROTECT(lists = allocVector(VECSXP,3));
 	PROTECT(names = allocVector(STRSXP,3));
@@ -37,7 +42,7 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	PROTECT(ASSV = allocVector(REALSXP,nq));
 	PROTECT(CiV = allocVector(REALSXP,nq));
 
-	Ca = REAL(CA)[0]; /* partial pressure of CO2 at the leaf surface */
+	// Ca = REAL(CA)[0]; /* partial pressure of CO2 at the leaf surface */ unused
  
 	/* Start of the loop */
 	for(i = 0; i < nq ; i++)

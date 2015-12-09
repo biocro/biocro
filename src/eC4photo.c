@@ -151,16 +151,16 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     const double a = 0.01 ; /* alpha in the notes*/
     const double Kp = 80 ; /*  mu bar */
     /* const double Kc1 = 650 * 1e-3  mbar at 25 C */
-    const double Kc1 = 1020 * 1e-3; /*  mbar at 25 C */
+    // const double Kc1 = 1020 * 1e-3; /*  mbar at 25 C */ unused
 
     const double theta = 0.7;
 
     /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
-    const double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/
     const double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
     const double Erb = 72 ; /* Activation energy of Rubisco kj/mol */
     /*    const double Q10bf = 1.7 */
-    const double ERd = 46.39;
+    // const double ERd = 46.39; unused
+    // const double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/ unused
     const double EKc = 79.43;
     const double EKo = 36.38;
     const double Q10cb = 1.7;
@@ -171,24 +171,24 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     double Kc = 1020 ; /*  mu bar at 25 C */
     
     /* VAriables */ 
-    double Idir, AirTemp, rh, Ca, Oa;
+    double Idir, AirTemp, Ca, Oa;
     double Vcmax, Vpmax, Vpr, Jmax;
 
-    double Q10pr, Q10p, Q10rb, Q10Rd, Q10Kc, Q10Ko;
+    // double Q10pr, Q10Rd; unused
+	double Q10p, Q10rb, Q10Kc, Q10Ko;
     double Cm, Om;
-    double Rd, Rm, Rs;
+    double Rd, Rm;
+    // double Rs; unused
 
     double I2, J, Aj0, Aj1, Aj;
     double Vp, Ko1 , Om1;
     double a1, b1, c1 , c3, Ac0;
     double AcLCO2, Ac, A;
-    double Os, Cs;
-    double Cs0, Cs1;
+    // double Os, Cs0, Cs1, Cs; unused
 
 
     Idir = QP;
     AirTemp = TEMP;
-    rh = RH;
     Ca = CA;
     Oa = OA;
     Vcmax = VCMAX;
@@ -196,10 +196,10 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     Vpr = VPR;
     Jmax = JMAX;
 
-    Q10pr = exp(Epr *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
+    // Q10pr = exp(Epr *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15)))); unused
+    // Q10Rd = exp(ERd *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15)))); unused
     Q10p = exp(Ep *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
     Q10rb = exp(Erb *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
-    Q10Rd = exp(ERd *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
     Q10Kc = exp(EKc *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
     Q10Ko = exp(EKo *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
 
@@ -215,7 +215,7 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     /*    Rd = 0.01 * Vcmax; */
     Rd = 0.08;
     Rm = 0.5 * Rd ;
-    Rs = 0.5 * Rd;
+    // Rs = 0.5 * Rd; unused
         
     /* Light limited */
     I2 = (Idir * 0.85)/2;
@@ -268,19 +268,21 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
       A = Ac;
     }
         
+	/* Unused if-else statments
     Os = a * A / 0.047 * gs + Om;
-    if(Aj <= Ac){
+    if ( Aj <= Ac ) {
       Cs0 = (gammaStar * Os)*(7/3*(Aj + Rd) + (1-0.4)*J/3);
       Cs1 = (1-0.4)*J/3-(Aj) ; 
-      Cs = Cs0/Cs1;
-    }else{
+       Cs = Cs0/Cs1; unused
+    } else {
       Cs0 = gammaStar * Os + Kc1*(1+Os/Ko)*((Ac+Rd)/Vcmax);
           if((Ac+Rd) >= Vcmax){
 	    Ac = Vcmax - Rd - 0.5 ;
 	  }
 	  Cs1 = 1 - (Ac+Rd)/Vcmax;
-	  Cs = Cs0/Cs1;
+	   Cs = Cs0/Cs1; unused
     }
+	*/
     return(A);
 }
 
@@ -316,11 +318,11 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     /* This is 0 and 25 Celsius degrees in the Kelvin scale */
 
     /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
-    double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/
+    // double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/ unused
+    // double ERd = 46.39; unused
     double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
     double Erb = 72 ; /* Activation energy of Rubisco kj/mol */
     /*    const double Q10bf = 1.7 */
-    double ERd = 46.39;
     double EKc = 79.43;
     double EKo = 36.38;
     double Q10cb = 1.7;
@@ -337,9 +339,11 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     double Vcmax1, Vpmax1, Jmax1;
     double Vcmax, Vpmax, Vpr, Jmax;
 
-    double Q10pr, Q10p, Q10rb, Q10Rd, Q10Kc, Q10Ko;
+    // double Q10pr, Q10Rd; unused
+    double Q10p, Q10rb, Q10Kc, Q10Ko;
     double Cm, Om;
-    double Rd, Rm, Rs;
+    double Rd, Rm;
+    // double Rs; unused
 
     double I2, J, Aj;
     double Vp, Ko1 , Om1;
@@ -371,107 +375,107 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     Vpr = REAL(VPR)[0];
     Jmax1 = REAL(JMAX)[0];
 
-    for(i = 0;i < nqp;i++){
+    for (i = 0; i < nqp; i++) {
 
-    Idir = REAL(QP)[i];
-    AirTemp = REAL(TEMP)[i];
-    rh = REAL(RH)[i];
+        Idir = REAL(QP)[i];
+        AirTemp = REAL(TEMP)[i];
+        rh = REAL(RH)[i];
 
 
-    Q10pr = exp(Epr *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10p = exp(Ep *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10rb = exp(Erb *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10Rd = exp(ERd *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10Kc = exp(EKc *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10Ko = exp(EKo *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        // Q10pr = exp(Epr *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0)))); unused
+        // Q10Rd = exp(ERd *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0)))); unused
+        Q10p = exp(Ep *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        Q10rb = exp(Erb *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        Q10Kc = exp(EKc *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        Q10Ko = exp(EKo *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
 
-    Vcmax = Vcmax1 * Q10rb;
-    Kc = Kc2 * Q10Kc;
-    Ko = Ko2 * Q10Ko;
-    Vpmax = Vpmax1 * Q10p;        
-    Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
+        Vcmax = Vcmax1 * Q10rb;
+        Kc = Kc2 * Q10Kc;
+        Ko = Ko2 * Q10Ko;
+        Vpmax = Vpmax1 * Q10p;        
+        Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
 
-    Cm = 0.4 * Ca ; 
-    Om = Oa ;
-        
-    /*    Rd = 0.01 * Vcmax; */
-    Rd = 0.08;
-    Rm = 0.5 * Rd ;
-    Rs = 0.5 * Rd;
-        
-    /* Light limited */
-    I2 = (Idir * 0.85)/2;
-    J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
-    /* Long formula for light limited */
+        Cm = 0.4 * Ca ; 
+        Om = Oa ;
 
-    aa = 1 - (7 * gammaStar * alpha )/3 * 0.047;
-    bb = -(((0.4 * J)/2 - Rm + gs * Cm) + ((1-0.4)*J/3-Rd) + 
-	   gs*(7*gammaStar*Om/3) + 
-	   (alpha*gammaStar/0.047)*((1-0.04)*J/3 + 7*Rd/3));
-    cc = ((0.4 * J)/2 - Rm + gs * Cm)*((1-0.4)*J/3-Rd) -
-      gs * gammaStar * Om *((1-0.4)*J/3 + 7*Rd/3);
+        /*    Rd = 0.01 * Vcmax; */
+        Rd = 0.08;
+        Rm = 0.5 * Rd ;
+        // Rs = 0.5 * Rd; unused
 
-    Aj = (-bb - sqrt(pow(bb,2)-4*aa*cc))/2*aa;
+        /* Light limited */
+        I2 = (Idir * 0.85)/2;
+        J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
+        /* Long formula for light limited */
 
-    /* Other part */
-    Vp = (Cm * Vpmax) / (Cm + Kp) ;
-    if(Vpr < Vp){
-      Vp = Vpr;
-    }
-	        
-    /* Alternative formula */
-    Ko1 = Ko * 1e3;
-    Om1 = Om * 1e3;
+        aa = 1 - (7 * gammaStar * alpha )/3 * 0.047;
+        bb = -(((0.4 * J)/2 - Rm + gs * Cm) + ((1-0.4)*J/3-Rd) + 
+                gs*(7*gammaStar*Om/3) + 
+                (alpha*gammaStar/0.047)*((1-0.04)*J/3 + 7*Rd/3));
+        cc = ((0.4 * J)/2 - Rm + gs * Cm)*((1-0.4)*J/3-Rd) -
+            gs * gammaStar * Om *((1-0.4)*J/3 + 7*Rd/3);
 
-    a1 = 1 - alpha / 0.047 * Kc/Ko1 ;
-    b1 = -((Vp - Rm + gs * Cm)+
-	   (Vcmax - Rd)+
-	   gs*(Kc*(1+Om1/Ko1))+
-	   ((alpha/0.047)*(gammaStar*Vcmax+Rd*Kc/Ko1)));
-    c1 = (Vcmax - Rd)*(Vp-Rm+gs*Cm)-
-          (Vcmax * gs * gammaStar * Om1 + Rd*gs*Kc*(1+Om1/Ko1));
-         
-    c3 = pow(b1,2) - 4*a1*c1;
-      if(c3 < 0){
-	c3 = 0;
-      }
-    Ac0 = (-b1 - sqrt(c3)) / 2*a1 ;
+        Aj = (-bb - sqrt(pow(bb,2)-4*aa*cc))/2*aa;
 
-    AcLCO2 = (Cm * Vpmax/(Cm+Kp)) - Rm + gs * Cm;
-    
-    if(Ac0 < AcLCO2){
-      Ac = Ac0;
-    }else{
-      Ac = AcLCO2;
-    }
+        /* Other part */
+        Vp = (Cm * Vpmax) / (Cm + Kp) ;
+        if(Vpr < Vp){
+            Vp = Vpr;
+        }
 
-    if(Aj < Ac){
-      A = Aj;
-    }else{
-      A = Ac;
-    }
-        
-    Os = alpha * A / 0.047 * gs + Om;
+        /* Alternative formula */
+        Ko1 = Ko * 1e3;
+        Om1 = Om * 1e3;
 
-     if(Aj <= Ac){ 
-       Cs = Cm + (Vp - Aj - Rm)/gs;
-      }else{ 
-	  Cs0 = gammaStar * Os + Kc*(1+Os/Ko)*((Ac+Rd)/Vcmax); 
- 	  Cs1 = 1 - (Ac+Rd)/Vcmax; 
-	  Cs = Cs0/Cs1;
-    	   }
+        a1 = 1 - alpha / 0.047 * Kc/Ko1 ;
+        b1 = -((Vp - Rm + gs * Cm)+
+                (Vcmax - Rd)+
+                gs*(Kc*(1+Om1/Ko1))+
+                ((alpha/0.047)*(gammaStar*Vcmax+Rd*Kc/Ko1)));
+        c1 = (Vcmax - Rd)*(Vp-Rm+gs*Cm)-
+            (Vcmax * gs * gammaStar * Om1 + Rd*gs*Kc*(1+Om1/Ko1));
 
-    /* Calculating Gs */
-     if(A < 0){
-       StomCond = G0;
-     }else{
-       StomCond = G1 * (A * rh * P) / (Cm*1e-1) + G0;
-     }
-    /* Organizing the results */
-    REAL(Assim)[i] = A;
-    REAL(Gs)[i] = StomCond;
-    REAL(Ci)[i] = Cs;
-    REAL(Oxy)[i] = Os;
+        c3 = pow(b1,2) - 4*a1*c1;
+        if(c3 < 0){
+            c3 = 0;
+        }
+        Ac0 = (-b1 - sqrt(c3)) / 2*a1 ;
+
+        AcLCO2 = (Cm * Vpmax/(Cm+Kp)) - Rm + gs * Cm;
+
+        if(Ac0 < AcLCO2){
+            Ac = Ac0;
+        }else{
+            Ac = AcLCO2;
+        }
+
+        if(Aj < Ac){
+            A = Aj;
+        }else{
+            A = Ac;
+        }
+
+        Os = alpha * A / 0.047 * gs + Om;
+
+        if(Aj <= Ac){ 
+            Cs = Cm + (Vp - Aj - Rm)/gs;
+        }else{ 
+            Cs0 = gammaStar * Os + Kc*(1+Os/Ko)*((Ac+Rd)/Vcmax); 
+            Cs1 = 1 - (Ac+Rd)/Vcmax; 
+            Cs = Cs0/Cs1;
+        }
+
+        /* Calculating Gs */
+        if(A < 0){
+            StomCond = G0;
+        }else{
+            StomCond = G1 * (A * rh * P) / (Cm*1e-1) + G0;
+        }
+        /* Organizing the results */
+        REAL(Assim)[i] = A;
+        REAL(Gs)[i] = StomCond;
+        REAL(Ci)[i] = Cs;
+        REAL(Oxy)[i] = Os;
     }
 
     SET_VECTOR_ELT(lists,0,Assim);
@@ -526,7 +530,8 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
   double Rsq;
   double poldRsq;
   double Ca, Oa;
-  double  poldVcmax, poldVpmax, poldVpr, poldJmax;
+  // double poldVpr; unused
+  double  poldVcmax, poldVpmax, poldJmax;
   double rnewVcmax, rnewVpmax, rnewVpr, rnewJmax;
   double  oldVcmax, oldVpmax, oldVpr, oldJmax;
 
@@ -626,7 +631,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
     poldRsq = oldRsq;
     poldVcmax = oldVcmax;
     poldVpmax = oldVpmax;
-    poldVpr = oldVpr;
+    // poldVpr = oldVpr; unused
     poldJmax = oldJmax;
 
     for(i = 0; i < niter; i++){

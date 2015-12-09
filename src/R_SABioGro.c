@@ -120,7 +120,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	nitroparms.daymaxln=REAL(NNITROP)[14];
 
 	/* External variables */
-	extern double CanopyAssim[8760] ;
+	// extern double CanopyAssim[8760] ; unused
 	extern double Leafy[8760] ;
 	extern double Stemy[8760] ;
 	extern double Rooty[8760] ;
@@ -153,14 +153,14 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	scale = REAL(SCALE)[0];
 	phen = INTEGER(PHEN)[0];
 
-	int timestep;
+	// int timestep; unused
 	double b0, b1;
 	double vmaxb1, alphab1;
 	double LeafN, kLN, Ca;
 
 	b0 = REAL(B0)[0];
 	b1 = REAL(B1)[0];
-	timestep = INTEGER(TIMESTEP)[0];
+	// timestep = INTEGER(TIMESTEP)[0]; unused
 
 	alphab1 = REAL(ALPHAB1)[0];
 	vmaxb1 = REAL(VMAXB1)[0];
@@ -175,7 +175,8 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	double dbpcoef[25];
 	/* Picking the simulation */
 	int ind;
-	double sCanopyAssim[Ndat], sStemy[Ndat], sLeafy[Ndat];
+	// double sCanopyAssim[Ndat]; unused
+    double sStemy[Ndat], sLeafy[Ndat];
 	double sRhizomey[Ndat], sRooty[Ndat], sGrainy[Ndat],  sLAIy[Ndat];
 	double oStemy[Ndat], oLeafy[Ndat];
 	double oRhizomey[Ndat], oRooty[Ndat], oGrainy[Ndat], oLAIy[Ndat];
@@ -584,7 +585,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		/* pick the needed elements for the SSE */
 		for(k=0;k<Ndat;k++){
 			ind = INTEGER(INDEX)[k];
-			sCanopyAssim[k] = CanopyAssim[ind]; /* Rprintf("CanopyAssim %.i %.1f \n",ind,CanopyAssim[ind]); */
+			// sCanopyAssim[k] = CanopyAssim[ind]; /* Rprintf("CanopyAssim %.i %.1f \n",ind,CanopyAssim[ind]); */ unused
 			sLeafy[k] = Leafy[ind]; /* Rprintf("Leafy %.i %.1f \n",ind,Leafy[ind]); */
 			sStemy[k] = Stemy[ind]; /* Rprintf("Stemy %.i %.1f \n",ind,Stemy[ind]); */
 			sRooty[k] = Rooty[ind]; /* Rprintf("Rooty %.i %.1f \n",ind,Rooty[ind]); */
@@ -870,7 +871,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		/* pick the needed elements for the SSE */
 		for(k=0;k<Ndat;k++){
 			ind = INTEGER(INDEX)[k];
-			sCanopyAssim[k] = CanopyAssim[ind];
+			// sCanopyAssim[k] = CanopyAssim[ind]; unused
 			sLeafy[k] = Leafy[ind];
 			sStemy[k] = Stemy[ind];
 			sRooty[k] = Rooty[ind];

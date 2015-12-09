@@ -64,9 +64,6 @@ humidity (\%).} \item{wind speed (mph)} }
 %% ~~ If necessary, more details than the description
 above~~
 }
-\note{
-%% ~~further notes~~
-}
 \examples{
 ## Read an example data set from my website
 url <- "http://www.agron.iastate.edu/miguezlab/teaching/CropSoilModel/ames_2010-iowamesonet.txt"

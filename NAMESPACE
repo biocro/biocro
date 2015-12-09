@@ -10,7 +10,7 @@ useDynLib(BioCro, MisGro,
           McMCEc4photo,
           SABioGro)
 
-import(stats, lattice, data.table)
+import(stats, lattice, knitr)
 
 export(MisGro)
 export(weach_imn)
@@ -129,7 +129,6 @@ export(weach)
 export(weach365)
 export(weach366)
 export(weachNEW)
-export(weachDT)
 
 ##CheckLeapYear to check leap years in weachNEW
 export(CheckLeapYear)
@@ -153,3 +152,4 @@ export(CropGro)
 
 #soyGro.R
 export(soyGro)
+
