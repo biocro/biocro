@@ -16,7 +16,6 @@
 
 /* These are global variables. */
 int sp1,sp2,sp3,sp4,sp5,sp6;
-int tp3,tp4,tp5;
 
 double tmp1[3]; 
 double layIdir[MAXLAY];

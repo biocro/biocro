@@ -101,8 +101,8 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
       IDir = layIdir[--sp1];
       Itot = layItotal[--sp3];
 
-      rh = tmp4[--tp4];
-      WS = tmp3[--tp3];
+      rh = tmp4[nlayers - 1 - i];
+      WS = tmp3[nlayers - 1 - i];
       pLeafsun = layFsun[--sp4];
       CanHeight = layHeight[--sp6];
       Leafsun = LAIc * pLeafsun;

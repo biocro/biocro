@@ -151,7 +151,7 @@ void WINDprof(double WindSpeed, double LAI, int nlayers)
         {
                 CumLAI = LI * (i + 1);
                 Wind = WindSpeed * exp(-k * (CumLAI-LI));
-                tmp3[tp3++] = Wind;
+                tmp3[i] = Wind;
         }
 }
 
@@ -169,7 +169,7 @@ void RHprof(double RH, int nlayers)
                 hsla = RH * exp(kh * (j/nlayers));
 //              /*hsla = RH * exp(-kh * (j/nlayers));  /*new simpler version from Joe Iverson*/
                 if(hsla > 1) hsla = 0.99; 
-                tmp4[tp4++] = hsla;
+                tmp4[i] = hsla;
         }
         /* It should return values in the 0-1 range */
 }
@@ -185,7 +185,7 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN)
         {
                 CumLAI = LI * (i + 1);
                 leafNla = LeafN * exp(-kpLN * (CumLAI-LI));
-                tmp5[tp5++] = leafNla;
+                tmp5[i] = leafNla;
         }
 
 }
@@ -850,7 +850,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         CanopyT=0.0;
         for(i=0;i<nlayers;i++)
         {
-                leafN_lay = tmp5[--tp5];
+                leafN_lay = tmp5[nlayers - 1 - i];
                 if(lnfun == 0){
                         vmax1 = Vmax;
                 }else{
@@ -862,8 +862,8 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
                 IDir = layIdir[--sp1];
                 Itot = layItotal[--sp3];
-                rh = tmp4[--tp4];
-                WS = tmp3[--tp3];
+                rh = tmp4[nlayers - 1 - i];
+                WS = tmp3[nlayers - 1 - i];
                 pLeafsun = layFsun[--sp4];
                 CanHeight = layHeight[--sp6];
                 Leafsun = LAIc * pLeafsun;

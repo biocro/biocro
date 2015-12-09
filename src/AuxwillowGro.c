@@ -357,7 +357,6 @@ layIdiff, layShade vectors. */
     for(i=0;i<nlayers;i++)
     {
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
-      --tp5; // leafN_lay = tmp5[--tp5]; WARNING - this code does not seem like it does anything so that it could be removed, but it actually modifies a global variable. Removing this causes a segmentation fault.
             /* if(lnfun == 0){
                     vmax1 = Vmax;
             }else{
@@ -368,8 +367,8 @@ layIdiff, layShade vectors. */
             IDir = layIdir[--sp1];
             Itot = layItotal[--sp3];
             
-            rh = tmp4[--tp4];
-            WindS = tmp3[--tp3];
+            rh = tmp4[nlayers - 1 - i];
+            WindS = tmp3[nlayers - 1 - i];
 
             pLeafsun = layFsun[--sp4];
             CanHeight = layHeight[--sp6];
