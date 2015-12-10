@@ -326,11 +326,12 @@ struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
         /* 1e-6 converts g to Mg */
         /* 10000 scales from meter squared to hectare */
 
-         lightME(lat,DOY,hr);
+        struct Light_model light_model;
+        light_model = lightME(lat, DOY, hr);
 
-  Idir = tmp1[0] * solarR;
-  Idiff = tmp1[1] * solarR;
-  cosTh = tmp1[2];
+        Idir = light_model.irradiance_direct * solarR;
+        Idiff = light_model.irradiance_diffuse * solarR;
+        cosTh = light_model.cosine_zenith_angle;
 
 /* sun multilayer model. As a side effect it populates the layIdir, layItotal, layFsun, layHeight,
 layIdiff, layShade vectors. */
@@ -341,14 +342,14 @@ layIdiff, layShade vectors. */
     LAIc = LAI / nlayers;
     /* Next I need the RH and wind profile */
 
-    RHprof(RH,nlayers);
-    /* It populates tmp4. */
+    double relative_humidity_profile[nlayers];
+    RHprof(RH, nlayers, relative_humidity_profile);
 
-     WINDprof(WindSpeed,LAI,nlayers);
-    /* It populates tmp3. */
+     double wind_speed_profile[nlayers];
+     WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);
 
-     LNprof(leafN, LAI, nlayers, kpLN);
-    /* It populates tmp5 */
+     double leafN_profile[nlayers];
+     LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);
 
     /* Next use the EvapoTrans function */
     CanopyA=0.0;
@@ -367,8 +368,8 @@ layIdiff, layShade vectors. */
             IDir = layIdir[--sp1];
             Itot = layItotal[--sp3];
             
-            rh = tmp4[nlayers - 1 - i];
-            WindS = tmp3[nlayers - 1 - i];
+            rh = relative_humidity_profile[nlayers - 1 - i];
+            WindS = wind_speed_profile[nlayers - 1 - i];
 
             pLeafsun = layFsun[--sp4];
             CanHeight = layHeight[--sp6];

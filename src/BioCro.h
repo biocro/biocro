@@ -21,6 +21,12 @@ struct BioGro_results_str {
 	double LAIc[8760];
 };
 
+struct Light_model {
+	double irradiance_direct;
+	double irradiance_diffuse;
+	double cosine_zenith_angle;
+};
+
 struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
 	    double windspeed[], double precip[], double kd, double chil, 
 	    double heightf, int nlayers,
@@ -76,10 +82,10 @@ double TempToSWVC(double Temp);
 double TempToSFS(double Temp);
 double TempToLHV(double Temp);
 double TempToDdryA(double Temp);
-void RHprof(double RH, int nlayers);
-void WINDprof(double WindSpeed, double LAI, int nlayers);
+void RHprof(double RH, int nlayers, double* relative_humidity_profile);
+void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
 void sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil, double heightf);
-void lightME(double lat, int DOY, int td);
+struct Light_model lightME(double lat, int DOY, int td);
 
 struct cenT_str Century(double *LeafL, double *StemL, double *RootL, double *RhizL, double smoist, double stemp, int timestep, 
 			double SCs[9] , double leachWater, double Nfert, double MinN, double precip,

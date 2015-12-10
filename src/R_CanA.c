@@ -90,7 +90,7 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   double LAI = REAL(Lai)[0];
   double solarR = REAL(SOLAR)[0];
   double Temp = REAL(TEMP)[0];
-  double RlH = REAL(ReH)[0];
+  double RH = REAL(ReH)[0];
   double WindSpeed = REAL(windspeed)[0];
   double lat = REAL(LAT)[0];
   double kd = REAL(KD)[0];
@@ -135,14 +135,12 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
   PROTECT(Ggrowth = allocVector(REALSXP,1));
   PROTECT(mat1 = allocMatrix(REALSXP,21,nlayers));
 
-  /* Light Macro Environment. As a side effect it populates tmp1. This
-   * should eventually be replaced by a structure. */
-
-  lightME(lat,DOY,hr);
-
-  Idir = tmp1[0] * solarR;
-  Idiff = tmp1[1] * solarR;
-  cosTh = tmp1[2];
+  struct Light_model light_model;
+  light_model = lightME(lat, DOY, hr);
+  
+  Idir = light_model.irradiance_direct * solarR;
+  Idiff = light_model.irradiance_diffuse * solarR;
+  cosTh = light_model.cosine_zenith_angle;
 
 /* sun multilayer model. As a side effect it populates the layIdir, layItotal, layFsun, layHeight,
 layIdiff, layShade vectors. */
@@ -153,19 +151,19 @@ layIdiff, layShade vectors. */
   LAIc = LAI / nlayers;
   /* Next I need the RH and wind profile */
 
-  RHprof(RlH,nlayers);
-  /* It populates tmp4. */
+  double relative_humidity_profile[nlayers];
+  RHprof(RH, nlayers, relative_humidity_profile);
   
-  WINDprof(WindSpeed,LAI,nlayers);
-  /* It populates tmp3. */
+  double wind_speed_profile[nlayers];
+  WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);
 
-  LNprof(LeafN, LAI, nlayers, kpLN);
-  /* It populates tmp5 */
+  double leafN_profile[nlayers];
+  LNprof(LeafN, LAI, nlayers, kpLN, leafN_profile);
 
   for(i=0;i<nlayers;i++)
   {
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
-	  leafN_lay = tmp5[nlayers - 1 - i];
+	  leafN_lay = leafN_profile[nlayers - 1 - i];
 	  if(lnfun == 0) {
 		  vmax1 = REAL(VMAX)[0];
 	  } else {
@@ -179,8 +177,8 @@ layIdiff, layShade vectors. */
 	    IDir = layIdir[--sp1];
 	    Itot = layItotal[--sp3];
 	    
-	    rh = tmp4[nlayers - 1 - i];
-	    WindS = tmp3[nlayers - 1 - i];
+	    rh = relative_humidity_profile[nlayers - 1 - i];
+	    WindS = wind_speed_profile[nlayers - 1 - i];
 
 	    pLeafsun = layFsun[--sp4];
 	    CanHeight = layHeight[--sp6];

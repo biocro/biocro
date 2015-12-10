@@ -31,7 +31,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 {
   /* const int NLAYERS = 3;  this should eventually be replaced with
 			    an argument coming in from R */
-  struct ET_Str tmp5, tmp6;
+  struct ET_Str direct_et, diffuse_et;
 
 
   int i;
@@ -41,7 +41,6 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
   double pLeafsun, pLeafshade;
   double Leafsun, Leafshade;
 
-/*   double tmp5,tmp6; */
   double TempIdir,TempIdiff,AssIdir,AssIdiff;
 
   double CanopyA;
@@ -80,19 +79,22 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
   Jmax = REAL(JMAX)[0];
   stomataws = REAL(STOMATAWS)[0];
 
-  lightME(lat,DOY,hr);
-
-  Idir = tmp1[0] * solarR;
-  Idiff = tmp1[1] * solarR;
-  cosTh = tmp1[2];
+  struct Light_model light_model;
+  light_model = lightME(lat, DOY, hr);
+  
+  Idir = light_model.irradiance_direct * solarR;
+  Idiff = light_model.irradiance_diffuse * solarR;
+  cosTh = light_model.cosine_zenith_angle;
     
   sunML(Idir,Idiff,LAI,nlayers,cosTh,kd,chil, 3);
 
   /* results from multilayer model */
   LAIc = LAI / nlayers;
-  /* Next I need the RH and wind profile */
-  RHprof(RH,nlayers);
-  WINDprof(WindSpeed,LAI,nlayers);
+  double relative_humidity_profile[nlayers];
+  RHprof(RH, nlayers, relative_humidity_profile);
+
+  double wind_speed_profile[nlayers];
+  WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);
 
   /* Next use the EvapoTrans function */
   CanopyA=0.0;
@@ -101,26 +103,26 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
       IDir = layIdir[--sp1];
       Itot = layItotal[--sp3];
 
-      rh = tmp4[nlayers - 1 - i];
-      WS = tmp3[nlayers - 1 - i];
+      rh = relative_humidity_profile[nlayers - 1 - i];
+      WS = wind_speed_profile[nlayers - 1 - i];
       pLeafsun = layFsun[--sp4];
       CanHeight = layHeight[--sp6];
       Leafsun = LAIc * pLeafsun;
-      tmp5 = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
+      direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
       /* not the right thing to do here to add these values at the end of the ET function
 but just a simple fix for now. The problem is that the eC4photoC function should have its own
 EvapoTrans function. */
-      TempIdir = Temp + tmp5.Deltat;
+      TempIdir = Temp + direct_et.Deltat;
       AssIdir = eC4photoC(IDir,TempIdir,rh,Ca,Oa,Vcmax,
 			 Vpmax,Vpr,Jmax);
 
       IDiff = layIdiff[--sp2];
       pLeafshade = layFshade[--sp5];
       Leafshade = LAIc * pLeafshade;
-      tmp6 = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
+      diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
       /* not the right thing to do here to add these values at the end of the ET function
 but just a simple fix for now*/
-      TempIdiff = Temp + tmp6.Deltat;
+      TempIdiff = Temp + diffuse_et.Deltat;
       AssIdiff = eC4photoC(IDiff,TempIdiff,rh,Ca,Oa,Vcmax,
 			  Vpmax,Vpr,Jmax);
 

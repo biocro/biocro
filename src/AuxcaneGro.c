@@ -16,8 +16,7 @@
 
 struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, double soildepth, double *depths, double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun, int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds, double RelH, int hydrDist, double rfl, double rsec, double rsdf,int optiontocalculaterootdepth, double rootfrontvelocity ,double dap){
 
-	struct rd_str tmp4;
-	// struct seqRD_str tmp3; unused
+	struct rd_str root_distribution;
 	struct soilML_str tmp;
         /* Constant */
 	/* const double G = 6.67428e-11;  m3 / (kg * s-2)  ##  http://en.wikipedia.org/wiki/Gravitational_constant */
@@ -64,8 +63,7 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 
 	if(rootDepth > soildepth) rootDepth = soildepth;
 
-	// tmp3 = seqRootDepth(rootDepth,layers); unused
-	tmp4 = rootDist(layers,rootDepth,&depths[0],rfl);
+	root_distribution = rootDist(layers,rootDepth,&depths[0],rfl);
 
 	/* unit conversion for precip */
 	waterIn = precipit * 1e-3; /* convert precip in mm to m*/
@@ -142,7 +140,7 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 		}
 
 		/* Root Biomass */
-		rootATdepth = rootDB * tmp4.rootDist[i];
+		rootATdepth = rootDB * root_distribution.rootDist[i];
 		tmp.rootDist[i] = rootATdepth;
 /* Plant available water is only between current water status and permanent wilting point */
 		/* Plant available water */
@@ -157,13 +155,13 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 			/* I assume that crop transpiration is distributed simlarly to
 			   root density.  In other words the crop takes up water proportionally
 			   to the amount of root in each respective layer.*/
-			Ctransp = transp*tmp4.rootDist[0];
+			Ctransp = transp*root_distribution.rootDist[0];
 			EvapoTra = Ctransp + Sevap;
 			Newpawha = (paw * 1e4) - EvapoTra / 0.9982; /* See the watstr function for this last number 0.9882 */
 			/* The first term in the rhs (paw * 1e4) is the m3 of water available in this layer.
 			   EvapoTra is the Mg H2O ha-1 of transpired and evaporated water. 1/0.9882 converts from Mg to m3 */
 		}else{
-			Ctransp = transp*tmp4.rootDist[i];
+			Ctransp = transp*root_distribution.rootDist[i];
 			EvapoTra = Ctransp;
 			Newpawha = (paw * 1e4) - (EvapoTra + oldEvapoTra);
 		}

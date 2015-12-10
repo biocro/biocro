@@ -17,16 +17,12 @@
 /* These are global variables. */
 int sp1,sp2,sp3,sp4,sp5,sp6;
 
-double tmp1[3]; 
 double layIdir[MAXLAY];
 double layIdiff[MAXLAY];
 double layItotal[MAXLAY];
 double layFsun[MAXLAY];
 double layFshade[MAXLAY];
 double layHeight[MAXLAY];
-double tmp3[MAXLAY];
-double tmp4[MAXLAY];
-double tmp5[MAXLAY];
 
 struct ET_Str {
   double TransR;
@@ -37,14 +33,12 @@ struct ET_Str {
 };
 
 struct Can_Str {
-
   double Assim;
   double Trans;
   double GrossAssim;
 };
 
 struct ws_str {
-
   double rcoefPhoto;
   double rcoefSpleaf;
   double awc;
@@ -55,7 +49,6 @@ struct ws_str {
 };
 
 struct soilML_str {
-
   double rcoefPhoto;
   double rcoefSpleaf;
   double cws[MAXLAY];
@@ -81,7 +74,6 @@ struct soilML_str {
 
 
 struct dbp_str{
-
 	double kLeaf;
 	double kStem;
 	double kRoot;
@@ -91,7 +83,6 @@ struct dbp_str{
 };
 
 struct soilText_str{
-
   double silt;
   double clay;
   double sand;
@@ -108,17 +99,13 @@ struct soilText_str{
 struct soilText_str soilTchoose(int soiltype);
 
 struct seqRD_str{
-
   double rootDepths[MAXLAY+1];
-
 };
 
 struct seqRD_str seqRootDepth(double to, int lengthOut);
 
 struct rd_str{
-
   double rootDist[MAXLAY];
-
 };
 
 struct rd_str rootDist(int layer, double rootDepth, double *depths, double rfl);
@@ -170,7 +157,7 @@ void cropcent_dbp(double coefs[25],double TherPrds[6], double TherTime, struct c
 double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
                  double awc, double fieldc, double wiltp, double winds, double RelH, double rsec );
 
-void LNprof(double LeafN, double LAI, int nlayers, double kpLN);
+void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla);
 
 #endif
 
