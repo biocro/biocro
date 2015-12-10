@@ -145,7 +145,8 @@ SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
 /* sun multilayer model. As a side effect it populates the layIdir, layItotal, layFsun, layHeight,
 layIdiff, layShade vectors. */
     
-  sunML(Idir,Idiff,LAI,nlayers,cosTh,kd,chil,heightf);
+  struct Light_profile light_profile;
+  light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
 
   /* results from multilayer model */
   LAIc = LAI / nlayers;
@@ -162,8 +163,9 @@ layIdiff, layShade vectors. */
 
   for(i=0;i<nlayers;i++)
   {
+	  int current_layer = nlayers - 1 - i;
 /* vmax depends on leaf nitrogen and this in turn depends on the layer */
-	  leafN_lay = leafN_profile[nlayers - 1 - i];
+	  leafN_lay = leafN_profile[current_layer];
 	  if(lnfun == 0) {
 		  vmax1 = REAL(VMAX)[0];
 	  } else {
@@ -174,14 +176,13 @@ layIdiff, layShade vectors. */
 		  Rd1=nitroparms.Rdb1*leafN_lay+nitroparms.Rdb0;
 	  }
 
-	    IDir = layIdir[--sp1];
-	    Itot = layItotal[--sp3];
-	    
-	    rh = relative_humidity_profile[nlayers - 1 - i];
-	    WindS = wind_speed_profile[nlayers - 1 - i];
+	    rh = relative_humidity_profile[current_layer];
+	    WindS = wind_speed_profile[current_layer];
 
-	    pLeafsun = layFsun[--sp4];
-	    CanHeight = layHeight[--sp6];
+	    IDir = light_profile.direct_irradiance[current_layer];
+	    Itot = light_profile.total_irradiance[current_layer];
+	    pLeafsun = light_profile.sunlit_fraction[current_layer];
+	    CanHeight = light_profile.height[current_layer];
 	    Leafsun = LAIc * pLeafsun;
 
 	    /* Rprintf("IDir: %.6f \n", IDir); */
@@ -191,16 +192,16 @@ layIdiff, layShade vectors. */
 	    /* Rprintf("b11: %.6f \n", b11); */
 	    /* Rprintf("vmax1: %.6f \n", vmax1); */
 
-	    tmpc40 = c4photoC(IDir,Temp,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);
+	    tmpc40 = c4photoC(IDir, Temp, rh, vmax1, alpha1, kparm1, theta, beta, Rd1, b01, b11, stomataws, Catm, ws, upperT, lowerT);
 	    /* Rprintf("tmpc40.Gs: %.6f \n", tmpc40.Gs); */
-	    tmp5_ET = EvapoTrans2(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,tmpc40.Gs,leafwidth,eteq);
+	    tmp5_ET = EvapoTrans2(IDir, Itot, Temp, rh, WindS, LAIc, CanHeight, tmpc40.Gs, leafwidth, eteq);
 	    TempIdir = Temp + tmp5_ET.Deltat;
-	    tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);
+	    tmpc4 = c4photoC(IDir, TempIdir, rh, vmax1, alpha1, kparm1, theta, beta, Rd1, b01, b11, stomataws, Catm, ws, upperT, lowerT);
 	    AssIdir = tmpc4.Assim;
 	    GAssIdir=tmpc4.GrossAssim;
 
-	    IDiff = layIdiff[--sp2];
-	    pLeafshade = layFshade[--sp5];
+	    IDiff = light_profile.diffuse_irradiance[current_layer];
+	    pLeafshade = light_profile.shaded_fraction[current_layer];
 	    Leafshade = LAIc * pLeafshade;
 	    tmpc41 = c4photoC(IDiff,Temp,rh,vmax1,alpha1,kparm1,theta,beta,Rd1,b01,b11,stomataws,Catm,ws,upperT,lowerT);
 	    tmp6_ET = EvapoTrans2(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,tmpc41.Gs,leafwidth,eteq);

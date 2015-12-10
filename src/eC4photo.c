@@ -29,115 +29,117 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	   SEXP VCMAX, SEXP VPMAX,
 	  SEXP VPR, SEXP JMAX, SEXP STOMATAWS)
 {
-  /* const int NLAYERS = 3;  this should eventually be replaced with
-			    an argument coming in from R */
-  struct ET_Str direct_et, diffuse_et;
+	/* const int NLAYERS = 3;  this should eventually be replaced with
+	   an argument coming in from R */
+	struct ET_Str direct_et, diffuse_et;
 
 
-  int i;
-  double Idir, Idiff, cosTh;
-  double LAIc;
-  double IDir, IDiff, Itot, rh, WS;
-  double pLeafsun, pLeafshade;
-  double Leafsun, Leafshade;
+	int i;
+	double Idir, Idiff, cosTh;
+	double LAIc;
+	double IDir, IDiff, Itot, rh, WS;
+	double pLeafsun, pLeafshade;
+	double Leafsun, Leafshade;
 
-  double TempIdir,TempIdiff,AssIdir,AssIdiff;
+	double TempIdir,TempIdiff,AssIdir,AssIdiff;
 
-  double CanopyA;
-  double CanHeight;
+	double CanopyA;
+	double CanHeight;
 
-  const double cf = 3600 * 1e-6 ;
+	const double cf = 3600 * 1e-6 ;
 
-  int DOY , hr;
-  double LAI, solarR, Temp, RH, WindSpeed;
-  double Ca, Oa, Vcmax, Vpmax, Vpr, Jmax;
-  double upperT=27.5, lowerT=3.0;
+	int DOY , hr;
+	double LAI, solarR, Temp, RH, WindSpeed;
+	double Ca, Oa, Vcmax, Vpmax, Vpr, Jmax;
+	double upperT=27.5, lowerT=3.0;
 
-  double lat = 40;
-  int nlayers = 3;
-  double kd = 0.1;
-  double chil = 1;
-  double stomataws;
+	double lat = 40;
+	int nlayers = 3;
+	double kd = 0.1;
+	double chil = 1;
+	double stomataws;
 
-  SEXP growth;
+	SEXP growth;
 
-  PROTECT(growth = allocVector(REALSXP,1));
+	PROTECT(growth = allocVector(REALSXP,1));
 
 
-  LAI = REAL(lai)[0];
-  DOY = INTEGER(Doy)[0];
-  hr = INTEGER(Hr)[0];
-  solarR = REAL(SolarR)[0];
-  Temp = REAL(ATemp)[0];
-  RH = REAL(RelH)[0];
-  WindSpeed = REAL(WindS)[0];
-  Ca = REAL(CA)[0];
-  Oa = REAL(OA)[0];
-  Vcmax = REAL(VCMAX)[0];
-  Vpmax = REAL(VPMAX)[0];
-  Vpr = REAL(VPR)[0];
-  Jmax = REAL(JMAX)[0];
-  stomataws = REAL(STOMATAWS)[0];
+	LAI = REAL(lai)[0];
+	DOY = INTEGER(Doy)[0];
+	hr = INTEGER(Hr)[0];
+	solarR = REAL(SolarR)[0];
+	Temp = REAL(ATemp)[0];
+	RH = REAL(RelH)[0];
+	WindSpeed = REAL(WindS)[0];
+	Ca = REAL(CA)[0];
+	Oa = REAL(OA)[0];
+	Vcmax = REAL(VCMAX)[0];
+	Vpmax = REAL(VPMAX)[0];
+	Vpr = REAL(VPR)[0];
+	Jmax = REAL(JMAX)[0];
+	stomataws = REAL(STOMATAWS)[0];
 
-  struct Light_model light_model;
-  light_model = lightME(lat, DOY, hr);
-  
-  Idir = light_model.irradiance_direct * solarR;
-  Idiff = light_model.irradiance_diffuse * solarR;
-  cosTh = light_model.cosine_zenith_angle;
-    
-  sunML(Idir,Idiff,LAI,nlayers,cosTh,kd,chil, 3);
+	struct Light_model light_model;
+	light_model = lightME(lat, DOY, hr);
 
-  /* results from multilayer model */
-  LAIc = LAI / nlayers;
-  double relative_humidity_profile[nlayers];
-  RHprof(RH, nlayers, relative_humidity_profile);
+	Idir = light_model.irradiance_direct * solarR;
+	Idiff = light_model.irradiance_diffuse * solarR;
+	cosTh = light_model.cosine_zenith_angle;
 
-  double wind_speed_profile[nlayers];
-  WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);
+	struct Light_profile light_profile;
+	light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, 3);
 
-  /* Next use the EvapoTrans function */
-  CanopyA=0.0;
-  for(i=0;i<nlayers;i++)
-    {
-      IDir = layIdir[--sp1];
-      Itot = layItotal[--sp3];
+	/* results from multilayer model */
+	LAIc = LAI / nlayers;
+	double relative_humidity_profile[nlayers];
+	RHprof(RH, nlayers, relative_humidity_profile);
 
-      rh = relative_humidity_profile[nlayers - 1 - i];
-      WS = wind_speed_profile[nlayers - 1 - i];
-      pLeafsun = layFsun[--sp4];
-      CanHeight = layHeight[--sp6];
-      Leafsun = LAIc * pLeafsun;
-      direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
-      /* not the right thing to do here to add these values at the end of the ET function
-but just a simple fix for now. The problem is that the eC4photoC function should have its own
-EvapoTrans function. */
-      TempIdir = Temp + direct_et.Deltat;
-      AssIdir = eC4photoC(IDir,TempIdir,rh,Ca,Oa,Vcmax,
-			 Vpmax,Vpr,Jmax);
+	double wind_speed_profile[nlayers];
+	WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);
 
-      IDiff = layIdiff[--sp2];
-      pLeafshade = layFshade[--sp5];
-      Leafshade = LAIc * pLeafshade;
-      diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
-      /* not the right thing to do here to add these values at the end of the ET function
-but just a simple fix for now*/
-      TempIdiff = Temp + diffuse_et.Deltat;
-      AssIdiff = eC4photoC(IDiff,TempIdiff,rh,Ca,Oa,Vcmax,
-			  Vpmax,Vpr,Jmax);
+	/* Next use the EvapoTrans function */
+	CanopyA=0.0;
+	for(i=0;i<nlayers;i++)
+	{
+		int current_layer = nlayers - 1 - i;
+		rh = relative_humidity_profile[current_layer];
+		WS = wind_speed_profile[current_layer];
 
-     CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
-   }
-  /* These are micro mols of CO2 per m2 per sec
-    Need to convert to 
-    3600 converts seconds to hours
-    10^-6 converts micro mols to mols
-    */
-  REAL(growth)[0] = cf * CanopyA ;
-  UNPROTECT(1);  
-  return(growth);
+		IDir = light_profile.direct_irradiance[current_layer];
+		Itot = light_profile.total_irradiance[current_layer];
+		pLeafsun = light_profile.sunlit_fraction[current_layer];
+		CanHeight = light_profile.height[current_layer];
+		Leafsun = LAIc * pLeafsun;
+		direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
+		/* not the right thing to do here to add these values at the end of the ET function
+		   but just a simple fix for now. The problem is that the eC4photoC function should have its own
+		   EvapoTrans function. */
+		TempIdir = Temp + direct_et.Deltat;
+		AssIdir = eC4photoC(IDir,TempIdir,rh,Ca,Oa,Vcmax,
+				Vpmax,Vpr,Jmax);
 
-   }
+		IDiff = light_profile.diffuse_irradiance[current_layer];
+		pLeafshade = light_profile.shaded_fraction[current_layer];
+		Leafshade = LAIc * pLeafshade;
+		diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
+		/* not the right thing to do here to add these values at the end of the ET function
+		   but just a simple fix for now*/
+		TempIdiff = Temp + diffuse_et.Deltat;
+		AssIdiff = eC4photoC(IDiff,TempIdiff,rh,Ca,Oa,Vcmax,
+				Vpmax,Vpr,Jmax);
+
+		CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
+	}
+	/* These are micro mols of CO2 per m2 per sec
+	   Need to convert to 
+	   3600 converts seconds to hours
+	   10^-6 converts micro mols to mols
+	   */
+	REAL(growth)[0] = cf * CanopyA ;
+	UNPROTECT(1);  
+	return(growth);
+
+}
 
 double eC4photoC(double QP, double TEMP, double RH, double CA,
 		double OA, double VCMAX, double VPMAX, double VPR,

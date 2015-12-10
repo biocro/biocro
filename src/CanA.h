@@ -27,7 +27,7 @@ double TempToDdryA(double Temp);
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_layer);
-void sunML(double Idir, double Idiff, double LAI, int nlayers, 
+struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers, 
 	   double cosTheta, double kd, double chil, double heightf);
 struct Light_model lightME(double lat, int DOY, int td);
 

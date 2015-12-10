@@ -14,15 +14,14 @@
 
 #define MAXLAY    200 /* Maximum number of layers */
 
-/* These are global variables. */
-int sp1,sp2,sp3,sp4,sp5,sp6;
-
-double layIdir[MAXLAY];
-double layIdiff[MAXLAY];
-double layItotal[MAXLAY];
-double layFsun[MAXLAY];
-double layFshade[MAXLAY];
-double layHeight[MAXLAY];
+struct Light_profile {
+	double direct_irradiance[MAXLAY];
+	double diffuse_irradiance[MAXLAY];
+	double total_irradiance[MAXLAY];
+	double sunlit_fraction[MAXLAY];
+	double shaded_fraction[MAXLAY];
+	double height[MAXLAY];
+};
 
 struct ET_Str {
   double TransR;

@@ -71,56 +71,53 @@ struct Light_model lightME(double lat, int DOY, int td)
     return(light_model);
 }
 
-void sunML(double Idir, double Idiff, double LAI, int nlayers,
+struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
            double cosTheta, double kd, double chil, double heightf)
 {
-    extern int sp1, sp2, sp3, sp4, sp5, sp6;
-    extern double layIdir[], layIdiff[], layItotal[], layFsun[], layFshade[], layHeight[];
-    double i;
+    struct Light_profile light_profile;
+    int i;
     double k0, k1, k;
     double LAIi, CumLAI;
     double Isolar, Idiffuse, Ibeam, Iscat, Iaverage, alphascatter;
     double Ls, Ld;
     double Fsun, Fshade;
     // double Itotal;  // unused
-    alphascatter=0.8;
+    alphascatter = 0.8;
     k0 = sqrt(pow(chil ,2) + pow(tan(acos(cosTheta)),2));
     k1 = chil + 1.744*pow((chil+1.183),-0.733);
     k = k0/k1;
-    if(k<0)
+    if(k < 0)
         k = -k;
 
     LAIi = LAI / nlayers;
 
-    for(i=0;i<nlayers;i++)
+    for(i = 0; i < nlayers; i++)
     {
-        CumLAI = LAIi * (i+0.5);
+        CumLAI = LAIi * ((double)i+0.5);
 
         Ibeam=Idir*cosTheta;
         Iscat = Ibeam * exp(-k *sqrt(alphascatter)* CumLAI)-Ibeam * exp(-k * CumLAI);
 
-
         Isolar = Ibeam*k;
         Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
-
 
         Ls = (1-exp(-k*LAIi))*exp(-k*CumLAI)/k;
         Ld=LAIi-Ls;
 
-        Fsun=Ls/(Ls+Ld);
-        Fshade=Ld/(Ls+Ld);
+        Fsun = Ls/(Ls+Ld);
+        Fshade = Ld/(Ls+Ld);
         /*fraction intercepted*/
-        // Itotal =(Fsun*Isolar + Idiffuse) * (1-exp(-k*LAIi))/k; // set but not used.
-        Iaverage =(Fsun*(Isolar + Idiffuse) + Fshade*Idiffuse) * (1-exp(-k*LAIi))/k;
+        // Itotal = (Fsun*Isolar + Idiffuse) * (1-exp(-k*LAIi))/k; // set but not used.
+        Iaverage = (Fsun*(Isolar + Idiffuse) + Fshade*Idiffuse) * (1-exp(-k*LAIi))/k;
 
-        /* collecting the results */
-        layIdir[sp1++] = Isolar + Idiffuse;
-        layIdiff[sp2++] = Idiffuse;
-        layItotal[sp3++] = Iaverage;
-        layFsun[sp4++] = Fsun;
-        layFshade[sp5++] = Fshade;
-        layHeight[sp6++] = LAI/heightf - CumLAI/heightf;
+        light_profile.direct_irradiance[i] = Isolar + Idiffuse;
+        light_profile.diffuse_irradiance[i]= Idiffuse;
+        light_profile.total_irradiance[i] = Iaverage;
+        light_profile.sunlit_fraction[i] = Fsun;
+        light_profile.shaded_fraction[i] = Fshade;
+        light_profile.height[i] = LAI/heightf - CumLAI/heightf;
     }
+    return(light_profile);
 }
 
 /* Additional Functions needed for EvapoTrans */
@@ -129,48 +126,48 @@ void sunML(double Idir, double Idiff, double LAI, int nlayers,
 /* RH and Wind profile function */
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile)
 {
-        int i;
-        double k=0.7;
-        double LI, CumLAI;
+    int i;
+    const double k = 0.7;
+    double LI, CumLAI;
 
-        LI  = LAI / nlayers;
-        for(i=0;i<nlayers;i++)
-        {
-                CumLAI = LI * (i + 1);
-                wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI-LI));
-        }
+    LI = LAI / nlayers;
+    for(i = 0; i < nlayers; i++)
+    {
+        CumLAI = LI * (i + 1);
+        wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI-LI));
+    }
 }
 
 void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 {
-        int i;
-        double kh, temp_rh, j;
+    int i;
+    const double kh = 1 - RH;
+    /* kh = 0.2; */
+    /*kh = log(1/RH);*/
+    double temp_rh, j;
 
-        kh = 1 - RH;
-        /* kh = 0.2; */
-        /*kh = log(1/RH);*/
-        for(i=0;i<nlayers;i++)
-        {
-            j = i + 1;
-            temp_rh = RH * exp(kh * (j/nlayers));
-            // temp_rh = RH * exp(-kh * (j/nlayers));  // new simpler version from Joe Iverson*
-            if(temp_rh > 1) temp_rh = 0.99; 
-            relative_humidity_profile[i] = temp_rh;
-        }
-        /* It should return values in the 0-1 range */
+    for(i = 0; i < nlayers; i++)
+    {
+        j = i + 1;
+        temp_rh = RH * exp(kh * (j/nlayers));
+        // temp_rh = RH * exp(-kh * (j/nlayers));  // new simpler version from Joe Iverson*
+        if(temp_rh > 1) temp_rh = 0.99; 
+        relative_humidity_profile[i] = temp_rh;
+    }
+    /* It should return values in the 0-1 range */
 }
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_profile)
 {
-        int i;
-        double LI, CumLAI;
+    int i;
+    double LI, CumLAI;
 
-        LI  = LAI / nlayers;
-        for(i=0;i<nlayers;i++)
-        {
-                CumLAI = LI * (i + 1);
-                leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI-LI));
-        }
+    LI = LAI / nlayers;
+    for(i = 0; i < nlayers; i++)
+    {
+        CumLAI = LI * (i + 1);
+        leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI-LI));
+    }
 }
 
 double TempToDdryA(double Temp)
@@ -202,8 +199,8 @@ double TempToSWVC(double Temp)
 	double a, b;
 	a = (18.678 - Temp/234.5) * Temp;
 	b = 257.14 + Temp;
-	/* SWVC =  (6.1121 * exp(a/b))/10; */
-	SWVC =  (6.1121 * exp(a/b));
+	/* SWVC = (6.1121 * exp(a/b))/10; */
+	SWVC = (6.1121 * exp(a/b));
 	return(SWVC); /* This is in hecto Pascals */
 }
 
@@ -306,7 +303,7 @@ but Thornley and Johnson use it as MJ kg-1  */
 	/* Thornley and Johnson use m s^-1 on page 418 */
 
 	/* prevent errors due to extremely low Layer conductance */
-	if(gvs <=0.001)
+	if(gvs <= 0.001)
 		gvs = 0.001;
 
 	/* This is the original from WIMOVAC*/
@@ -775,139 +772,144 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 		     double upperT, double lowerT,struct nitroParms nitroP, double leafwidth, int eteq)
 {
 
-        struct ET_Str tmp5_ET, tmp6_ET;
-        struct Can_Str ans;
-        struct c4_str tmpc4, tmpc40;
-        struct c4_str tmpc42, tmpc41;
+    struct ET_Str tmp5_ET, tmp6_ET;
+    struct Can_Str ans;
+    struct c4_str tmpc4, tmpc40;
+    struct c4_str tmpc42, tmpc41;
 
-        int i;
-        double Idir, Idiff, cosTh;
-        double LAIc;
-        double IDir, IDiff, Itot, rh, WS;
-        double pLeafsun, pLeafshade;
-        double Leafsun = 0.0, Leafshade = 0.0;
-        double CanHeight;
+    int i;
+    double Idir, Idiff, cosTh;
+    double LAIc;
+    double IDir, IDiff, Itot, rh, WS;
+    double pLeafsun, pLeafshade;
+    double Leafsun = 0.0, Leafshade = 0.0;
+    double CanHeight;
 
-        double vmax1, leafN_lay;
-        double TempIdir = 0.0, TempIdiff = 0.0, 
-               AssIdir = 0.0, AssIdiff = 0.0,
-               GAssIdir = 0.0 ,GAssIdiff = 0.0;
+    double vmax1, leafN_lay;
+    double TempIdir = 0.0, TempIdiff = 0.0, 
+           AssIdir = 0.0, AssIdiff = 0.0,
+           GAssIdir = 0.0 , GAssIdiff = 0.0;
 
-        double CanopyA = 0.0, CanopyT = 0.0, GCanopyA = 0.0;
+    double CanopyA = 0.0, CanopyT = 0.0, GCanopyA = 0.0;
 
-        const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
-        const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
+    const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
+    const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
 
-        /* For Assimilation */
-        /* 3600 converts seconds to hours */
-        /* 1e-6 converts micro mols to mols */
-        /* 30 is the grams in one mol of CO2 */
-        /* 1e-6 converts g to Mg */
-        /* 10000 scales from meter squared to hectare */
+    /* For Assimilation */
+    /* 3600 converts seconds to hours */
+    /* 1e-6 converts micro mols to mols */
+    /* 30 is the grams in one mol of CO2 */
+    /* 1e-6 converts g to Mg */
+    /* 10000 scales from meter squared to hectare */
 
-        /* For Transpiration */
-        /* 3600 converts seconds to hours */
-        /* 1e-3 converts mili mols to mols */
-        /* 18 is the grams in one mol of H20 */
-        /* 1e-6 converts g to Mg */
-        /* 10000 scales from meter squared to hectare */
+    /* For Transpiration */
+    /* 3600 converts seconds to hours */
+    /* 1e-3 converts mili mols to mols */
+    /* 18 is the grams in one mol of H20 */
+    /* 1e-6 converts g to Mg */
+    /* 10000 scales from meter squared to hectare */
 
-        struct Light_model light_model;
-        light_model = lightME(lat, DOY, hr);
+    struct Light_model light_model;
+    light_model = lightME(lat, DOY, hr);
 
-        Idir = light_model.irradiance_direct * solarR;
-        Idiff = light_model.irradiance_diffuse * solarR;
-        cosTh = light_model.cosine_zenith_angle;
-    
-        sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
-        /* results from multilayer model */
-        LAIc = LAI / nlayers;
+    Idir = light_model.irradiance_direct * solarR;
+    Idiff = light_model.irradiance_diffuse * solarR;
+    cosTh = light_model.cosine_zenith_angle;
 
-        /* Next I need the RH and wind profile */
-        double relative_humidity_profile[nlayers];
-        RHprof(RH, nlayers, relative_humidity_profile);
+    struct Light_profile light_profile;
+    light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
+    /* results from multilayer model */
+    LAIc = LAI / nlayers;
 
-        double wind_speed_profile[nlayers];
-        WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);
+    /* Next I need the RH and wind profile */
+    double relative_humidity_profile[nlayers];
+    RHprof(RH, nlayers, relative_humidity_profile);
 
-        double leafN_profile[nlayers];
-        LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);
+    double wind_speed_profile[nlayers];
+    WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);
 
-        /* Next use the EvapoTrans function */
-        CanopyA=0.0;
-        GCanopyA=0.0;
-        CanopyT=0.0;
-        for(i=0;i<nlayers;i++)
-        {
-                leafN_lay = leafN_profile[nlayers - 1 - i];
-                if(lnfun == 0){
-                        vmax1 = Vmax;
-                }else{
-                        vmax1=nitroP.Vmaxb1*leafN_lay+nitroP.Vmaxb0;
-			if(vmax1<0) vmax1=0.0;
-			Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
-			Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
-                }
+    double leafN_profile[nlayers];
+    LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);
 
-                IDir = layIdir[--sp1];
-                Itot = layItotal[--sp3];
-                rh = relative_humidity_profile[nlayers - 1 - i];
-                WS = wind_speed_profile[nlayers - 1 - i];
-                pLeafsun = layFsun[--sp4];
-                CanHeight = layHeight[--sp6];
-                Leafsun = LAIc * pLeafsun;
-                tmpc40 = c4photoC(IDir,Temp,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
-                tmp5_ET = EvapoTrans2(IDir,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc40.Gs,leafwidth,eteq);
-		/* if(i == nlayers - 1){ */
-		/* 	Rprintf("inputs IDir %.3f, Itot %.2f, Temp %.2f,  \n", IDir, Itot, Temp); */
-		/* 	Rprintf("inputs rh %.3f, WS %.2f, LAIc %.2f,  \n", rh, WS, LAIc); */
-		/* 	Rprintf("inputs CanHeight %.3f, tmpc40.Gs %.4f, leafwidth %.2f,  \n", CanHeight, tmpc40.Gs, leafwidth); */
-		/* } */
-                TempIdir = Temp + tmp5_ET.Deltat;
-                tmpc4 = c4photoC(IDir,TempIdir,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
-                AssIdir = tmpc4.Assim;
-                GAssIdir =tmpc4.GrossAssim;
-
-                IDiff = layIdiff[--sp2];
-                pLeafshade = layFshade[--sp5];
-                Leafshade = LAIc * pLeafshade;
-                tmpc41 = c4photoC(IDiff,Temp,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
-                tmp6_ET = EvapoTrans2(IDiff,Itot,Temp,rh,WS,LAIc,CanHeight,tmpc41.Gs,leafwidth,eteq);
-                TempIdiff = Temp + tmp6_ET.Deltat;
-                tmpc42 = c4photoC(IDiff,TempIdiff,rh,vmax1,Alpha,Kparm,theta,beta,Rd,b0,b1,StomataWS, Catm, ws,upperT,lowerT);
-                AssIdiff = tmpc42.Assim;
-                GAssIdiff = tmpc42.GrossAssim;
-                CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
-                GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
-// I am evaluating CanopyT using Penman Method because it gives realistic results
-// IN future canopyT needs to be fixed
-                CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
-                /* CanopyT += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman; */
+    /* Next use the EvapoTrans function */
+    CanopyA=0.0;
+    GCanopyA=0.0;
+    CanopyT=0.0;
+    for(i=0; i<nlayers; i++)
+    {
+        int current_layer = nlayers - 1 - i;
+        leafN_lay = leafN_profile[current_layer];
+        if(lnfun == 0){
+            vmax1 = Vmax;
+        }else{
+            vmax1=nitroP.Vmaxb1*leafN_lay+nitroP.Vmaxb0;
+            if(vmax1<0) vmax1=0.0;
+            Alpha=nitroP.alphab1*leafN_lay+nitroP.alphab0;
+            Rd=nitroP.Rdb1*leafN_lay+nitroP.Rdb0;
         }
 
-	if(ISNAN(CanopyA)){
-		Rprintf("LAI %.2f \n",LAI); 
-		Rprintf("Leafsun %.2f \n",Leafsun);
-		Rprintf("AssIdir %.2f \n", AssIdir);
-		Rprintf("Leafshade %.2f \n",Leafshade);
-		Rprintf("AssIdiff %.2f \n", AssIdiff);    
-		error("Something is NA \n");
-	}
-        /*## These are micro mols of CO2 per m2 per sec for Assimilation
-          ## and mili mols of H2O per m2 per sec for Transpiration
-          ## Need to convert to 
-          ## 3600 converts seconds to hours
-          ## 10^-6 converts micro mols to mols
-          ## 30 converts mols of CO2 to grams
-          ## (1/10^6) converts grams to Mg
-          ## 10000 scales up to ha */
-/* A similar conversion is made for water but
-   replacing 30 by 18 and mili mols are converted to
-   mols (instead of micro) */
-        ans.Assim = cf * CanopyA;
-        ans.Trans = cf2 * CanopyT; 
-        ans.GrossAssim=cf*GCanopyA;
-        return(ans);
+        rh = relative_humidity_profile[current_layer];
+        WS = wind_speed_profile[current_layer];
+
+        IDir = light_profile.direct_irradiance[current_layer];
+        Itot = light_profile.total_irradiance[current_layer];
+        pLeafsun = light_profile.sunlit_fraction[current_layer];
+        CanHeight = light_profile.height[current_layer];
+
+        Leafsun = LAIc * pLeafsun;
+        tmpc40 = c4photoC(IDir, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        tmp5_ET = EvapoTrans2(IDir, Itot, Temp, rh, WS, LAIc, CanHeight, tmpc40.Gs, leafwidth, eteq);
+        /* if(i == nlayers - 1){ */
+        /* 	Rprintf("inputs IDir %.3f, Itot %.2f, Temp %.2f,  \n", IDir, Itot, Temp); */
+        /* 	Rprintf("inputs rh %.3f, WS %.2f, LAIc %.2f,  \n", rh, WS, LAIc); */
+        /* 	Rprintf("inputs CanHeight %.3f, tmpc40.Gs %.4f, leafwidth %.2f,  \n", CanHeight, tmpc40.Gs, leafwidth); */
+        /* } */
+        TempIdir = Temp + tmp5_ET.Deltat;
+        tmpc4 = c4photoC(IDir, TempIdir, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        AssIdir = tmpc4.Assim;
+        GAssIdir =tmpc4.GrossAssim;
+
+        IDiff = light_profile.diffuse_irradiance[current_layer];
+        pLeafshade = light_profile.shaded_fraction[current_layer];
+        Leafshade = LAIc * pLeafshade;
+
+        tmpc41 = c4photoC(IDiff, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        tmp6_ET = EvapoTrans2(IDiff, Itot, Temp, rh, WS, LAIc, CanHeight, tmpc41.Gs, leafwidth, eteq);
+        TempIdiff = Temp + tmp6_ET.Deltat;
+        tmpc42 = c4photoC(IDiff, TempIdiff, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        AssIdiff = tmpc42.Assim;
+        GAssIdiff = tmpc42.GrossAssim;
+        CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
+        GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
+        // I am evaluating CanopyT using Penman Method because it gives realistic results
+        // IN future canopyT needs to be fixed
+        CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+        /* CanopyT += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman; */
+    }
+
+    if(ISNAN(CanopyA)){
+        Rprintf("LAI %.2f \n",LAI); 
+        Rprintf("Leafsun %.2f \n",Leafsun);
+        Rprintf("AssIdir %.2f \n", AssIdir);
+        Rprintf("Leafshade %.2f \n",Leafshade);
+        Rprintf("AssIdiff %.2f \n", AssIdiff);    
+        error("Something is NA \n");
+    }
+    /*## These are micro mols of CO2 per m2 per sec for Assimilation
+## and mili mols of H2O per m2 per sec for Transpiration
+## Need to convert to 
+## 3600 converts seconds to hours
+## 10^-6 converts micro mols to mols
+## 30 converts mols of CO2 to grams
+## (1/10^6) converts grams to Mg
+## 10000 scales up to ha */
+    /* A similar conversion is made for water but
+       replacing 30 by 18 and mili mols are converted to
+       mols (instead of micro) */
+    ans.Assim = cf * CanopyA;
+    ans.Trans = cf2 * CanopyT; 
+    ans.GrossAssim=cf*GCanopyA;
+    return(ans);
 }
 
 
