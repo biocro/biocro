@@ -148,11 +148,12 @@ struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[]
             Rprintf("nlayers %.i %.i \n", i, nlayers);
         }
 
+        /* Inserting the multilayer model */
         if (soilLayers > 1) {
             soilMLS = soilML(precip[i], CanopyT, &cws[0], soilDepth, soilDepths, FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, soilLayers, Root,
-                    LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], hydrDist,
-                    secs[0], secs[1], secs[2]);
+                    LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i],
+                    hydrDist, secs[0], secs[1], secs[2]);
 
             StomWS = soilMLS.rcoefPhoto;
             LeafWS = soilMLS.rcoefSpleaf;

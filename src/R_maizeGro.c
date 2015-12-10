@@ -12,7 +12,7 @@
 #include "R_maizeGro.h" 
 #include "AuxMaizeGro.h"
 
-SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1 */
+SEXP maizeGro(SEXP DOY,             /* Day of the year                   1 */
         SEXP HR,                    /* Hour                              2 */
         SEXP SOLAR,                 /* Solar radiation                   3 */
         SEXP TEMP,                  /* Temperature                       4 */
@@ -32,9 +32,9 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
         SEXP SOILP,                 /* Soil parameters                  18 */
         SEXP SOILP2,                /* Soil parameters 2                19 */
         SEXP SOILDEPTHS,            /* Soil depths                      20 */
-        SEXP CWS,                    /* Current water status             21 */
+        SEXP CWS,                    /* Current water status            21 */
         SEXP SENEP,
-        SEXP NNITROP                 /* Maize senescence parameteres     22*/
+        SEXP NNITROP                 /* Maize senescence parameteres    22*/
         )
 {
     /* Initializing variables  */
@@ -44,26 +44,26 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 
     struct nitroParms nitroparms;
     double TEMPdoubletoint;
-    nitroparms.ileafN=REAL(NNITROP)[0];
-    nitroparms.kln=REAL(NNITROP)[1];
-    nitroparms.Vmaxb1=REAL(NNITROP)[2];
-    nitroparms.Vmaxb0=REAL(NNITROP)[3];
-    nitroparms.alphab1=REAL(NNITROP)[4];
-    nitroparms.alphab0=REAL(NNITROP)[5];
-    nitroparms.Rdb1=REAL(NNITROP)[6];
-    nitroparms.Rdb0=REAL(NNITROP)[7];
-    nitroparms.kpLN=REAL(NNITROP)[8];
-    nitroparms.lnb0=REAL(NNITROP)[9];
-    nitroparms.lnb1=REAL(NNITROP)[10];
-    TEMPdoubletoint=REAL(NNITROP)[11];
-    nitroparms.lnFun=(int)TEMPdoubletoint;
-    nitroparms.maxln=REAL(NNITROP)[12];
-    nitroparms.minln=REAL(NNITROP)[13];
-    nitroparms.daymaxln=REAL(NNITROP)[14];
+    nitroparms.ileafN = REAL(NNITROP)[0];
+    nitroparms.kln = REAL(NNITROP)[1];
+    nitroparms.Vmaxb1 = REAL(NNITROP)[2];
+    nitroparms.Vmaxb0 = REAL(NNITROP)[3];
+    nitroparms.alphab1 = REAL(NNITROP)[4];
+    nitroparms.alphab0 = REAL(NNITROP)[5];
+    nitroparms.Rdb1 = REAL(NNITROP)[6];
+    nitroparms.Rdb0 = REAL(NNITROP)[7];
+    nitroparms.kpLN = REAL(NNITROP)[8];
+    nitroparms.lnb0 = REAL(NNITROP)[9];
+    nitroparms.lnb1 = REAL(NNITROP)[10];
+    TEMPdoubletoint = REAL(NNITROP)[11];
+    nitroparms.lnFun = (int)TEMPdoubletoint;
+    nitroparms.maxln = REAL(NNITROP)[12];
+    nitroparms.minln = REAL(NNITROP)[13];
+    nitroparms.daymaxln = REAL(NNITROP)[14];
 
     /* Some structures */
     struct lai_str tmpLAI;
-    struct maize_dbp_str tmpDBP;
+    struct maize_dbp_str dbpS;
     struct soilML_str soilMLS;
     struct soilText_str soTexS; 
     struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
@@ -326,8 +326,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
     double *pt_windspeed = REAL(WINDSPEED);
     double *pt_precip = REAL(PRECIP);
 
-    for(i=0;i<vecsize;i++)
-    {
+    for(i = 0; i < vecsize; i++) {
         /* First calculate the elapsed Thermal Time*/
         /* The idea is that here I need to divide by the time step
            to calculate the thermal time. For example, a 3 hour time interval
@@ -377,8 +376,6 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 
             }
         }
-
-
 
         /* There are several possible approaches to modleing LAI. One is solely based on thermal time */
         /* another one is based on specific leaf area and the third one in based on modeling individual leaves */
@@ -475,11 +472,11 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
                     chil, heightFactor,
                     LeafN, kpLN, lnb0, lnb1, lnFun,upperT,lowerT,nitroparms, 0.04, 0);
 
-            /* Rprintf("LAI: %.4f, vmax: %.1f",LAI,vmax);  */
-
             CanopyA = Canopy.Assim * timestep;
             CanopyT = Canopy.Trans * timestep;
             q++;
+
+            /* Rprintf("LAI: %.4f, vmax: %.1f",LAI,vmax);  */
         } else {
             CanopyA = 0.0;
             CanopyT = 0.0;
@@ -510,8 +507,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
 
         /* Inserting the multilayer model */
         if(soillayers > 1) {
-            soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, 
-                    REAL(SOILDEPTHS), FieldC, WiltP,
+            soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, soillayers, Root, 
                     LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
                     hydrDist, rfl, rsec, rsdf);
@@ -519,22 +515,20 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
             StomWS = soilMLS.rcoefPhoto;
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
-            for(i4=0;i4<soillayers;i4++) {
+
+            for(i4 = 0; i4 < soillayers; i4++) {
                 cwsVec[i4] = soilMLS.cws[i4];
                 cwsVecSum += cwsVec[i4];
                 REAL(cwsMat)[i4 + i*soillayers] = soilMLS.cws[i4];
                 REAL(rdMat)[i4 + i*soillayers] = soilMLS.rootDist[i4];
             }
-
             waterCont = cwsVecSum / soillayers;
             cwsVecSum = 0.0;
-
         } else {
-
             soilEvap = SoilEvapo(LAI, 0.68, *(pt_temp+i), *(pt_solar+i), waterCont, FieldC, WiltP, 
                     *(pt_windspeed+i), *(pt_rh+i), rsec);
             TotEvap = soilEvap + CanopyT;
-            WaterS = watstr(*(pt_precip+i),TotEvap,waterCont,soilDepth,FieldC,WiltP,phi1,phi2,soilType, wsFun);   
+            WaterS = watstr(*(pt_precip+i), TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
             waterCont = WaterS.awc;
             StomWS = WaterS.rcoefPhoto ; 
             LeafWS = WaterS.rcoefSpleaf;
@@ -579,34 +573,13 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
             LeafPsim = 0;
         }
 
-        /* Soil Carbon Pools place holder*/
-        REAL(SCpools)[0] = 1;
-        REAL(SCpools)[1] = 1;
-        REAL(SCpools)[2] = 1;
-        REAL(SCpools)[3] = 1;
-        REAL(SCpools)[4] = 1;
-        REAL(SCpools)[5] = 1;
-        REAL(SCpools)[6] = 1;
-        REAL(SCpools)[7] = 1;
-        REAL(SCpools)[8] = 1;
-
-        REAL(SNpools)[0] = 1;
-        REAL(SNpools)[1] = 1;
-        REAL(SNpools)[2] = 1;
-        REAL(SNpools)[3] = 1;
-        REAL(SNpools)[4] = 1;
-        REAL(SNpools)[5] = 1;
-        REAL(SNpools)[6] = 1;
-        REAL(SNpools)[7] = 1;
-        REAL(SNpools)[8] = 1;
-
         /* Need to incoporate the partitioning of carbon to plant components  */
-        tmpDBP = maize_sel_dbp_coef(REAL(MALLOCP), phenoStage);
+        dbpS = maize_sel_dbp_coef(REAL(MALLOCP), phenoStage);
 
-        kLeaf = tmpDBP.kLeaf;
-        kStem = tmpDBP.kStem;
-        kRoot = tmpDBP.kRoot;
-        kGrain = tmpDBP.kGrain;
+        kLeaf = dbpS.kLeaf;
+        kStem = dbpS.kStem;
+        kRoot = dbpS.kRoot;
+        kGrain = dbpS.kGrain;
 
         /* if(i == 300) { */
         /* 	Rprintf("kLeaf %.2f",kLeaf,"\n"); */
@@ -621,7 +594,7 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
             newLeaf = resp(newLeaf, mrc1, *(pt_temp+i));
         } else {
             newLeaf = Leaf * kLeaf;
-            Stem += kStem * -newLeaf   * 0.9;
+            Stem += kStem * -newLeaf * 0.9;
             Root += kRoot * -newLeaf * 0.9;
             Grain += kGrain * -newLeaf * 0.9;
         }
@@ -701,6 +674,27 @@ SEXP maizeGro(SEXP DOY,                   /* Day of the year                   1
         REAL(SoilWatCont)[i] = waterCont;
         REAL(StomatalCondCoefs)[i] = StomWS;
     }
+
+    /* Populating the results of the Century model */
+    REAL(SCpools)[0] = 1;
+    REAL(SCpools)[1] = 1;
+    REAL(SCpools)[2] = 1;
+    REAL(SCpools)[3] = 1;
+    REAL(SCpools)[4] = 1;
+    REAL(SCpools)[5] = 1;
+    REAL(SCpools)[6] = 1;
+    REAL(SCpools)[7] = 1;
+    REAL(SCpools)[8] = 1;
+
+    REAL(SNpools)[0] = 1;
+    REAL(SNpools)[1] = 1;
+    REAL(SNpools)[2] = 1;
+    REAL(SNpools)[3] = 1;
+    REAL(SNpools)[4] = 1;
+    REAL(SNpools)[5] = 1;
+    REAL(SNpools)[6] = 1;
+    REAL(SNpools)[7] = 1;
+    REAL(SNpools)[8] = 1;
 
     SET_VECTOR_ELT(lists, 0, DayofYear);
     SET_VECTOR_ELT(lists, 1, Hour);

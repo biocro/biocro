@@ -1057,7 +1057,10 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 /* Function to simulate the multilayer behavior of soil water. In the
    future this could be coupled with Campbell (BASIC) ideas to
    esitmate water potential. */
-struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths, double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun, int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds, double RelH, int hydrDist, double rfl, double rsec, double rsdf)
+struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
+        double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun,
+        int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds,
+        double RelH, int hydrDist, double rfl, double rsec, double rsdf)
 {
 
     struct rd_str root_distribution;
