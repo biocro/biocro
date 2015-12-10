@@ -12,26 +12,17 @@
 #include "BioCro.h"
 #include "Century.h"
 
-void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double rh[],
-	    double windspeed[],double precip[], double kd, double chil, 
-	    double heightf, int nlayers,
-            double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
-            double Sp, double SpD, double dbpcoefs[25], double thermalp[], double vmax1, 
-	    double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
-	    double soilcoefs[], double ileafn, double kLN, double vmaxb1,
-	    double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
-	    double centks[], int centTimestep, int soilLayers, double soilDepths[],
-	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun ,double upperT,double lowerT,struct nitroParms nitroP)
+struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
+    double windspeed[], double precip[], double kd, double chil, 
+    double heightf, int nlayers,
+    double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
+    double Sp, double SpD, double dbpcoefs[25], double thermalp[], double vmax1, 
+    double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
+    double soilcoefs[], double ileafn, double kLN, double vmaxb1,
+    double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
+    double centks[], int centTimestep, int soilLayers, double soilDepths[],
+    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP)
 {
-
-	extern double CanopyAssim[8760] ;
-	extern double Leafy[8760] ;
-	extern double Stemy[8760] ;
-	extern double Rooty[8760] ;
-	extern double Rhizomey[8760] ;
-	extern double Grainy[8760] ;
-	extern double LAIc[8760] ;
-
 	double newLeafcol[8760];
 	double newStemcol[8760];
 	double newRootcol[8760];
@@ -57,7 +48,7 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 	double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
 	double ALitter = 0.0, BLitter = 0.0;
 
-	double *sti , *sti2, *sti3, *sti4; 
+	double *sti , *sti2, *sti3, *sti4;
 	double Remob;
 	int k = 0, q = 0, m = 0, n = 0;
 	int ri = 0;
@@ -79,6 +70,7 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 	const double mrc1 = mresp[0];
 	const double mrc2 = mresp[1];
 
+	struct BioGro_results_str results;
 	struct Can_Str Canopy;
 	struct ws_str WaterS;
 	struct dbp_str dbpS;
@@ -124,41 +116,39 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 	sti3 = &newRootcol[0];
 	sti4 = &newRhizomecol[0];
 
-	for(i=0;i<vecsize;i++)
+	for(i = 0; i<vecsize; i++)
 	{
 		/* First calculate the elapsed Thermal Time*/
 		TTc += (temp[i] / (24/timestep));
 
 		/* Do the magic! Calculate growth*/
 
-		Canopy = CanAC(LAI,doy[i],hr[i],
-			       solar[i],temp[i],rh[i],windspeed[i],
-			       lat,nlayers,vmax,alpha,kparm,theta,beta,
-			       Rd,Catm,b0,b1,StomWS,ws,kd, chil,
-			       heightf, LeafN, kpLN, lnb0, lnb1, lnfun,upperT,lowerT,nitroP, 0.04, 0);
-
-
+		Canopy = CanAC(LAI, doy[i], hr[i],
+			       solar[i], temp[i], rh[i], windspeed[i],
+			       lat, nlayers, vmax, alpha, kparm, theta, beta,
+			       Rd, Catm, b0, b1, StomWS, ws, kd, chil,
+			       heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitroP, 0.04, 0);
 
 		CanopyA = Canopy.Assim * timestep;
 		CanopyT = Canopy.Trans * timestep;
 
-		if(ISNAN(CanopyA)){
-			Rprintf("LAI %.2f \n",LAI); 
-			Rprintf("Leaf %.2f \n",Leaf);
-			Rprintf("irtl %.2f \n",irtl);
-			Rprintf("Rhizome %.2f \n",Rhizome);
-			Rprintf("Sp %.2f \n",Sp);   
-			Rprintf("doy[i] %.i %.i \n",i,doy[i]); 
-			Rprintf("hr[i] %.i %.i \n",i,hr[i]); 
-			Rprintf("solar[i] %.i %.2f \n",i,solar[i]); 
-			Rprintf("temp[i] %.i %.2f \n",i,temp[i]); 
-			Rprintf("rh[i] %.i %.2f \n",i,rh[i]); 
-			Rprintf("windspeed[i] %.i %.2f \n",i,windspeed[i]);
-			Rprintf("lat %.i %.2f \n",i,lat);
-			Rprintf("nlayers %.i %.i \n",i,nlayers);   
+		if (ISNAN(CanopyA)) {
+			Rprintf("LAI %.2f \n", LAI);
+			Rprintf("Leaf %.2f \n", Leaf);
+			Rprintf("irtl %.2f \n", irtl);
+			Rprintf("Rhizome %.2f \n", Rhizome);
+			Rprintf("Sp %.2f \n", Sp);
+			Rprintf("doy[i] %.i %.i \n", i, doy[i]);
+			Rprintf("hr[i] %.i %.i \n", i, hr[i]);
+			Rprintf("solar[i] %.i %.2f \n", i, solar[i]);
+			Rprintf("temp[i] %.i %.2f \n", i, temp[i]);
+			Rprintf("rh[i] %.i %.2f \n", i, rh[i]);
+			Rprintf("windspeed[i] %.i %.2f \n", i, windspeed[i]);
+			Rprintf("lat %.i %.2f \n", i, lat);
+			Rprintf("nlayers %.i %.i \n", i, nlayers);
 		}
 
-		if(soilLayers > 1){
+		if (soilLayers > 1) {
 			soilMLS = soilML(precip[i], CanopyT, &cws[0], soilDepth, soilDepths, FieldC, WiltP,
 					 phi1, phi2, soTexS, wsFun, soilLayers, Root,
 					 LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], hydrDist,
@@ -167,17 +157,16 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 			StomWS = soilMLS.rcoefPhoto;
 			LeafWS = soilMLS.rcoefSpleaf;
 			soilEvap = soilMLS.SoilEvapo;
-			for(i3=0;i3<soilLayers;i3++){
+			for(i3 = 0; i3<soilLayers; i3++) {
 				cws[i3] = soilMLS.cws[i3];
 			}
 
-		}else{
-
+		} else {
 			soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], secs[1]);
 			TotEvap = soilEvap + CanopyT;
-			WaterS = watstr(precip[i],TotEvap,waterCont,soilDepth,FieldC,WiltP,phi1,phi2,soilType, wsFun);   
+			WaterS = watstr(precip[i], TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);
 			waterCont = WaterS.awc;
-			StomWS = WaterS.rcoefPhoto ;
+			StomWS = WaterS.rcoefPhoto;
 			LeafWS = WaterS.rcoefSpleaf;
 		}
 
@@ -190,12 +179,12 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 		kRhizome = dbpS.kRhiz;
 		kGrain = dbpS.kGrain;
 
-		if(ISNAN(kRhizome) || ISNAN(kLeaf) || ISNAN(kRoot) || ISNAN(kStem) || ISNAN(kGrain)){
-			Rprintf("kLeaf %.2f, kStem %.2f, kRoot %.2f, kRhizome %.2f, kGrain %.2f \n",kLeaf,kStem,kRoot,kRhizome,kGrain);
-			Rprintf("iter %i \n",i);
+		if (ISNAN(kRhizome) || ISNAN(kLeaf) || ISNAN(kRoot) || ISNAN(kStem) || ISNAN(kGrain)) {
+			Rprintf("kLeaf %.2f, kStem %.2f, kRoot %.2f, kRhizome %.2f, kGrain %.2f \n", kLeaf, kStem, kRoot, kRhizome, kGrain);
+			Rprintf("iter %i \n", i);
 		}
 
-		if(i % 24*centTimestep == 0){
+		if (i % 24*centTimestep == 0) {
 			LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
 			StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
 			RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
@@ -206,8 +195,8 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 			RootLitter -= RootLitter_d;
 			RhizomeLitter -= RhizomeLitter_d;
        
-			centS = Century(&LeafLitter_d,&StemLitter_d,&RootLitter_d,&RhizomeLitter_d,
-					waterCont,temp[i],centTimestep,SCCs,WaterS.runoff,
+			centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
+					waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
 					centcoefs[17], /* N fertilizer*/
 					MinNitro, /* initial Mineral nitrogen */
 					precip[i], /* precipitation */
@@ -217,8 +206,8 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 					centcoefs[12], /* Rhizome litter lignin */
 					centcoefs[13], /* Leaf litter N */
 					centcoefs[14], /* Stem litter N */
-					centcoefs[15],  /* Root litter N */
-					centcoefs[16],   /* Rhizome litter N */
+					centcoefs[15], /* Root litter N */
+					centcoefs[16], /* Rhizome litter N */
 					soilType, centks);
 		}
 
@@ -241,13 +230,12 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 		SCCs[7] = centS.SCs[7];
 		SCCs[8] = centS.SCs[8];
 
-		LeafN = LeafN_0 * exp(-kLN * TTc); 
+		LeafN = LeafN_0 * exp(-kLN * TTc);
 		vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
 		alpha = (LeafN_0 - LeafN) * alphab1 + alpha1;
 
-		if(kLeaf > 0)
-		{
-			newLeaf = CanopyA * kLeaf * LeafWS ; 
+		if (kLeaf > 0) {
+			newLeaf = CanopyA * kLeaf * LeafWS;
 			/*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
 			    Plant. Phys. 46, 233-235. For this the water stress coefficient is different
 			    for leaf and vmax. */
@@ -259,30 +247,26 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 			*(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
 					       to use i because when kLeaf is negative no new leaf is
 					       being accumulated and thus would not be subjected to senescence */
-		}else{
-
-			newLeaf = Leaf * kLeaf ;
+		} else {
+			newLeaf = Leaf * kLeaf;
 			Rhizome += kRhizome * -newLeaf * 0.9; /* 0.9 is the efficiency of retranslocation */
 			Stem += kStem * -newLeaf   * 0.9;
 			Root += kRoot * -newLeaf * 0.9;
 			Grain += kGrain * -newLeaf * 0.9;
 		}
 
-		if(TTc < SeneLeaf){
-
+		if (TTc < SeneLeaf) {
 			Leaf += newLeaf;
-
-		}else{
-    
+		} else {
 			Leaf += newLeaf - *(sti+k); /* This means that the new value of leaf is
 						       the previous value plus the newLeaf
 						       (Senescence might start when there is
 						       still leaf being produced) minus the leaf
 						       produced at the corresponding k.*/
-			Remob = *(sti+k) * 0.6 ;
+			Remob = *(sti+k) * 0.6;
 			LeafLitter += *(sti+k) * 0.4; /* Collecting the leaf litter */ 
 			Rhizome += kRhizome * Remob;
-			Stem += kStem * Remob; 
+			Stem += kStem * Remob;
 			Root += kRoot * Remob;
 			Grain += kGrain * Remob;
 			k++;
@@ -293,140 +277,118 @@ void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double r
 		   Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
 		   management in north-eastern greece*/
 
-		if(i%24 == 0){
+		if (i%24 == 0) {
 			Sp = iSp - (doy[i] - doy[0]) * SpD;
 		}
 
 		/* Rprintf("Sp %.2f \n", Sp); */
 
-		LAI = Leaf * Sp ;
+		LAI = Leaf * Sp;
 
 		/* New Stem*/
-		if(kStem > 0)
-		{
-			newStem = CanopyA * kStem ;
+		if (kStem > 0) {
+			newStem = CanopyA * kStem;
 			newStem = resp(newStem, mrc1, temp[i]);
 			*(sti2+i) = newStem;
 		}
 
-		if(TTc < SeneStem){
-
+		if (TTc < SeneStem) {
 			Stem += newStem;
-
-		}else{
-
+		} else {
 			Stem += newStem - *(sti2+q);
 			StemLitter += *(sti2+q);
 			q++;
-
 		}
 
-		if(kRoot > 0)
-		{
-			newRoot = CanopyA * kRoot ;
+		if (kRoot > 0) {
+			newRoot = CanopyA * kRoot;
 			newRoot = resp(newRoot, mrc2, temp[i]);
 			*(sti3+i) = newRoot;
-		}else{
-
-			newRoot = Root * kRoot ;
+		} else {
+			newRoot = Root * kRoot;
 			Rhizome += kRhizome * -newRoot * 0.9;
 			Stem += kStem * -newRoot       * 0.9;
 			Leaf += kLeaf * -newRoot * 0.9;
 			Grain += kGrain * -newRoot * 0.9;
 		}
 
-		if(TTc < SeneRoot){
-
+		if (TTc < SeneRoot) {
 			Root += newRoot;
-
-		}else{
-
+		} else {
 			Root += newRoot - *(sti3+m);
 			RootLitter += *(sti3+m);
 			m++;
-
 		}
 
-		if(kRhizome > 0)
-		{
-			newRhizome = CanopyA * kRhizome ;
+		if (kRhizome > 0) {
+			newRhizome = CanopyA * kRhizome;
 			newRhizome = resp(newRhizome, mrc2, temp[i]);
 			*(sti4+ri) = newRhizome;
 			/* Here i will not work because the rhizome goes from being a source
 			   to a sink. I need its own index. Let's call it rhizome's i or ri.*/
 			ri++;
-		}else{
-
-			if(Rhizome < 0){
+		} else {
+			if (Rhizome < 0) {
 				Rhizome = 1e-4;
 				warning("Rhizome became negative");
 			}
 
 			newRhizome = Rhizome * kRhizome;
-			Root += kRoot * -newRhizome ;
-			Stem += kStem * -newRhizome ;
-			Leaf += kLeaf * -newRhizome ;
+			Root += kRoot * -newRhizome;
+			Stem += kStem * -newRhizome;
+			Leaf += kLeaf * -newRhizome;
 			Grain += kGrain * -newRhizome;
 		}
 
-		if(TTc < SeneRhizome){
-
+		if (TTc < SeneRhizome) {
 			Rhizome += newRhizome;
-
-		}else {
-
+		} else {
 			Rhizome += newRhizome - *(sti4+n);
 			RhizomeLitter += *(sti4+n);
 			n++;
-
 		}
 
-		if((kGrain < 1e-10) || (TTc < thermalp[4])){
+		if ((kGrain < 1e-10) || (TTc < thermalp[4])) {
 			newGrain = 0.0;
 			Grain += newGrain;
-		}else{
+		} else {
 			newGrain = CanopyA * kGrain;
 			/* No respiration for grain at the moment */
 			/* No senescence either */
-			Grain += newGrain;  
+			Grain += newGrain;
 		}
 
 		ALitter += LeafLitter + StemLitter;
 		BLitter += RootLitter + RhizomeLitter;
 
-		CanopyAssim[i] =  CanopyA;
-		Leafy[i] = Leaf;
-		Stemy[i] = Stem;
-		Rooty[i] =  Root;
-		Rhizomey[i] = Rhizome;
-		Grainy[i] = Grain;
-		LAIc[i] = LAI;
+		results.CanopyAssim[i] =  CanopyA;
+		results.Leafy[i] = Leaf;
+		results.Stemy[i] = Stem;
+		results.Rooty[i] =  Root;
+		results.Rhizomey[i] = Rhizome;
+		results.Grainy[i] = Grain;
+		results.LAIc[i] = LAI;
 	}
+	return(results);
 }
 
-double sel_phen(int phen){
-
+double sel_phen(int phen)
+{
 	double index = 0;
 
-	if(phen == 6){
-		index = runif(20,25);
-	}else 
-	 if(phen == 5){
-		 index = runif(16,20);
-	 }else
-	  if(phen == 4){
-		  index = runif(12,16);
-	  }else
-	   if(phen == 3){
-		   index = runif(8,12);
-	   }else
-	    if(phen == 2){
-		    index = runif(4,8);
-	    }else
-	     if(phen == 1){
-		     index = runif(0,4);
-	     }
-
+	if (phen == 6) {
+		index = runif(20, 25);
+	} else if (phen == 5) {
+		index = runif(16, 20);
+	} else if (phen == 4) {
+		index = runif(12, 16);
+	} else if (phen == 3) {
+		index = runif(8, 12);
+	} else if (phen == 2) {
+		index = runif(4, 8);
+	} else if (phen == 1) {
+		index = runif(0, 4);
+	}
 	return(index);
-
 }
+

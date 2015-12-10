@@ -119,14 +119,8 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	nitroparms.minln=REAL(NNITROP)[13];
 	nitroparms.daymaxln=REAL(NNITROP)[14];
 
-	/* External variables */
-	// extern double CanopyAssim[8760] ; unused
-	extern double Leafy[8760] ;
-	extern double Stemy[8760] ;
-	extern double Rooty[8760] ;
-	extern double Rhizomey[8760] ;
-	extern double Grainy[8760] ;
-	extern double LAIc[8760] ;
+	struct BioGro_results_str results = {{0}, {0}, {0}, {0}, {0}, {0}};
+
 	/* Index variables */
 	int j,k,m;
 	int niter, niter2, iters = 0, iters2 = 0;
@@ -358,24 +352,20 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 		index = sel_phen(phen);
 	
-	/* First phenological stage */
+		/* First phenological stage */
 	
-	        kLeaf_1 = fabs(oldkLeaf_1);
+		kLeaf_1 = fabs(oldkLeaf_1);
 		kStem_1 = fabs(oldkStem_1);
 		kRoot_1 = fabs(oldkRoot_1);
 
 
 		if(index < 1){
 			kLeaf_1 = fabs(rnorm(kLeaf_1,sd1));
-		}else
-			
-			if(index < 2){
-				kStem_1 = fabs(rnorm(kStem_1,sd1));
-			}else
-
-				if(index < 3){
-					kRoot_1 = fabs(rnorm(kRoot_1,sd1));
-				}
+		}else if(index < 2){
+			kStem_1 = fabs(rnorm(kStem_1,sd1));
+		}else if(index < 3){
+			kRoot_1 = fabs(rnorm(kRoot_1,sd1));
+		}
     
 		k1 = kLeaf_1 + kStem_1 + kRoot_1;
 		kLeaf_1 = kLeaf_1/k1;
@@ -571,7 +561,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		/* 	Rprintf("dbpcoef %.i %.3f \n",p,dbpcoef[p]); */
 		/* } */
 
-		BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
+		results = BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
 		       REAL(WINDSPEED),REAL(PRECIP), REAL(KD)[0], REAL(CHILHF)[0], 
 		       REAL(CHILHF)[1],nlayers,rhizome,
 		       irtl,REAL(SENESCTIME),INTEGER(TIMESTEP)[0],vecsize,
@@ -583,15 +573,15 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms);
 
 		/* pick the needed elements for the SSE */
-		for(k=0;k<Ndat;k++){
+		for(k=0; k<Ndat; k++) {
 			ind = INTEGER(INDEX)[k];
-			// sCanopyAssim[k] = CanopyAssim[ind]; /* Rprintf("CanopyAssim %.i %.1f \n",ind,CanopyAssim[ind]); */ unused
-			sLeafy[k] = Leafy[ind]; /* Rprintf("Leafy %.i %.1f \n",ind,Leafy[ind]); */
-			sStemy[k] = Stemy[ind]; /* Rprintf("Stemy %.i %.1f \n",ind,Stemy[ind]); */
-			sRooty[k] = Rooty[ind]; /* Rprintf("Rooty %.i %.1f \n",ind,Rooty[ind]); */
-			sRhizomey[k] = Rhizomey[ind]; /* Rprintf("Rhizomey %.i %.1f \n",ind,Rhizomey[ind]); */
-			sGrainy[k] = Grainy[ind]; /* Rprintf("Grainy %.i %.1f \n",ind,Grainy[ind]); */
-			sLAIy[k] = LAIc[ind]; /* Rprintf("LAIc %.i %.1f \n",ind,LAIc[ind]); */
+			// sCanopyAssim[k] = reuslts.CanopyAssim[ind];
+			sLeafy[k] = results.Leafy[ind];
+			sStemy[k] = results.Stemy[ind];
+			sRooty[k] = results.Rooty[ind];
+			sRhizomey[k] = results.Rhizomey[ind];
+			sGrainy[k] = results.Grainy[ind];
+			sLAIy[k] = results.LAIc[ind];
 		}
 
 
@@ -857,7 +847,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		dbpcoef[23] = kRhizome_6;
 		dbpcoef[24] = kGrain_6;
  
-		BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
+		results = BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
 		       REAL(WINDSPEED),REAL(PRECIP), REAL(KD)[0], REAL(CHILHF)[0], 
 		       REAL(CHILHF)[1],nlayers,rhizome,
 		       irtl,REAL(SENESCTIME),INTEGER(TIMESTEP)[0],vecsize,
@@ -871,12 +861,12 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		/* pick the needed elements for the SSE */
 		for(k=0;k<Ndat;k++){
 			ind = INTEGER(INDEX)[k];
-			// sCanopyAssim[k] = CanopyAssim[ind]; unused
-			sLeafy[k] = Leafy[ind];
-			sStemy[k] = Stemy[ind];
-			sRooty[k] = Rooty[ind];
-			sRhizomey[k] = Rhizomey[ind];
-			sLAIy[k] = LAIc[ind];
+			// sCanopyAssim[k] = results.CanopyAssim[ind]; unused
+			sLeafy[k] = results.Leafy[ind];
+			sStemy[k] = results.Stemy[ind];
+			sRooty[k] = results.Rooty[ind];
+			sRhizomey[k] = results.Rhizomey[ind];
+			sLAIy[k] = results.LAIc[ind];
 		}
 
 		rss = RSS_BG(oStemy,oLeafy,oRooty,oRhizomey,oGrainy,oLAIy,
@@ -1000,12 +990,12 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 	for(j=0;j<Ndat;j++){
 		ind = INTEGER(INDEX)[j];
-		REAL(simStem)[j] = Stemy[ind];
-		REAL(simLeaf)[j] = Leafy[ind];
-		REAL(simRhiz)[j] = Rhizomey[ind];
-		REAL(simRoot)[j] = Rooty[ind];
-		REAL(simGrain)[j] = Grainy[ind];
-		REAL(simLAI)[j] = LAIc[ind];
+		REAL(simStem)[j] = results.Stemy[ind];
+		REAL(simLeaf)[j] = results.Leafy[ind];
+		REAL(simRhiz)[j] = results.Rhizomey[ind];
+		REAL(simRoot)[j] = results.Rooty[ind];
+		REAL(simGrain)[j] = results.Grainy[ind];
+		REAL(simLAI)[j] = results.LAIc[ind];
 		REAL(TTime)[j] = REAL(oTHERMAL)[j];
 		REAL(inde)[j] = INTEGER(INDEX)[j];
 	}
