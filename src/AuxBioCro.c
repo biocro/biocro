@@ -30,13 +30,14 @@ struct Light_model lightME(double lat, int DOY, int td)
     const double SolarConstant = 2650;
     const double atmP = 1e5;
     const double PPo = 1e5 / atmP;
-    const double omega = lat * DTR;
-    const double delta0 = 360.0 * ((DOY + 10)/365.0);
-    const double delta = -23.5 * cos(delta0*DTR);
-    const double deltaR = delta * DTR;
-    const double tf = (15.0*(td - tsn))*DTR;
-    const double SSin = sin(deltaR) * sin(omega);
-    const double CCos = cos(deltaR) * cos(omega);
+
+    double omega = lat * DTR;
+    double delta0 = 360.0 * ((DOY + 10)/365.0);
+    double delta = -23.5 * cos(delta0*DTR);
+    double deltaR = delta * DTR;
+    double tf = (15.0*(td - tsn))*DTR;
+    double SSin = sin(deltaR) * sin(omega);
+    double CCos = cos(deltaR) * cos(omega);
 
     struct Light_model light_model;
     double CosZenithAngle, CosHour, CosHourDeg, Idir, Idiff;
@@ -62,7 +63,7 @@ struct Light_model lightME(double lat, int DOY, int td)
         CosHour = -0.994;
 
     Idir = SolarConstant * (pow(alpha, (PPo / CosZenithAngle)));
-    Idiff = 0.3 * SolarConstant * (1 - pow(alpha, (PPo / CosZenithAngle))) * CosZenithAngle ;
+    Idiff = 0.3 * SolarConstant * (1 - pow(alpha, (PPo / CosZenithAngle))) * CosZenithAngle;
 
     light_model.irradiance_direct = Idir / (Idir + Idiff);
     light_model.irradiance_diffuse = Idiff / (Idir + Idiff);
@@ -300,7 +301,7 @@ but Thornley and Johnson use it as MJ kg-1  */
         /* Leaf Conductance */
 	gvs = stomatacond; 
         /* Convert from mmol H20/m2/s to m/s */
-	gvs = gvs * (1.0/41000.0) ;
+	gvs = gvs * (1.0/41000.0);
         /* 1/41000 is the same as 24.39 * 1e-6 */
 	/* Thornley and Johnson use m s^-1 on page 418 */
 
@@ -471,8 +472,8 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         if(CanopyHeight < 0.1)
                 CanopyHeight = 0.1; 
 
-        DdryA = TempToDdryA(Tair) ;
-        LHV = TempToLHV(Tair) * 1e6 ; 
+        DdryA = TempToDdryA(Tair);
+        LHV = TempToLHV(Tair) * 1e6; 
         /* Here LHV is given in MJ kg-1 and this needs to be converted
            to Joules kg-1  */
         SlopeFS = TempToSFS(Tair) * 1e-3;
@@ -614,7 +615,7 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         /*res[1,2] = EPries * 10e6 / 18;*/
         /* 1e3 - kgrams to grams  */
         /* 1e3 - mols to mmols */
-        /*  res[0] = ((TransR * 1e3) / 18) * 1e3 ; */
+        /*  res[0] = ((TransR * 1e3) / 18) * 1e3; */
         /*  res[1] = Deltat; */
         /*  res[2] = LayerConductance; */
         /* Let us return the structure now */
@@ -708,8 +709,8 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
 
         TotalRadiation = IRad * 0.235;
  
-        DdryA = TempToDdryA(AirTemp) ;
-        LHV = TempToLHV(AirTemp) * 1e6 ; 
+        DdryA = TempToDdryA(AirTemp);
+        LHV = TempToLHV(AirTemp) * 1e6; 
 /* Here LHV is given in MJ kg-1 and this needs to be converted
    to Joules kg-1  */
         SlopeFS = TempToSFS(AirTemp) * 1e-3;
@@ -903,7 +904,7 @@ struct Can_Str CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 /* A similar conversion is made for water but
    replacing 30 by 18 and mili mols are converted to
    mols (instead of micro) */
-        ans.Assim = cf * CanopyA ;
+        ans.Assim = cf * CanopyA;
         ans.Trans = cf2 * CanopyT; 
         ans.GrossAssim=cf*GCanopyA;
         return(ans);
@@ -997,7 +998,7 @@ the crop is practically dead */
 	naw = npaw + wiltp;
 
         /* Calculating the soil water potential based on equations from Norman and Campbell */
-	/* tmp.psim = soTexS.air_entry * pow((naw/soTexS.fieldc*1.1),-soTexS.b) ; */
+	/* tmp.psim = soTexS.air_entry * pow((naw/soTexS.fieldc*1.1),-soTexS.b); */
 	/* New version of the soil water potential is based on
 	 * "Dynamic Simulation of Water Deficit Effects upon Maize
 	 * Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
@@ -1006,7 +1007,7 @@ the crop is practically dead */
 	/* This is drainage */
 	if(naw > fieldc){
 	  K_psim = soTexS.Ks * pow((soTexS.air_entry/tmp.psim),2+3/soTexS.b); /* This is hydraulic conductivity */
-	  J_w = -K_psim * (-tmp.psim/(soildepth*0.5)) - g * K_psim ; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth*/
+	  J_w = -K_psim * (-tmp.psim/(soildepth*0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth*/
 	  drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
 	  naw = naw + drainage / soildepth;
 	}
@@ -1016,7 +1017,7 @@ the crop is practically dead */
         if(wsFun == 0){ /* linear */
                 slp = 1/(fieldc - wiltp);
                 intcpt = 1 - fieldc * slp;
-                wsPhoto = slp * naw + intcpt ;
+                wsPhoto = slp * naw + intcpt;
         }else
         if(wsFun == 1){
                 phi10 = (fieldc + wiltp)/2;
@@ -1025,7 +1026,7 @@ the crop is practically dead */
         if(wsFun == 2){
                 slp = (1 - wiltp)/(fieldc - wiltp);
                 intcpt = 1 - fieldc * slp;
-                theta = slp * naw + intcpt ;
+                theta = slp * naw + intcpt;
                 wsPhoto = (1 - exp(-2.5 * (theta - wiltp)/(1 - wiltp))) / (1 - exp(-2.5));
         }else
                 if(wsFun == 3){
@@ -1118,20 +1119,20 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
                 if(hydrDist > 0){
                         /* For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9*/
                         /* First compute the matric potential */
-                        psim1 = soTexS.air_entry * pow((cws[i]/theta_s),-soTexS.b) ; /* This is matric potential of current layer */
+                        psim1 = soTexS.air_entry * pow((cws[i]/theta_s),-soTexS.b); /* This is matric potential of current layer */
                         if(i > 0){
-                                psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s),-soTexS.b) ; /* This is matric potential of next layer */
+                                psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s),-soTexS.b); /* This is matric potential of next layer */
                                 dPsim = psim1 - psim2;
                                 /* The substraction is from the layer i - (i-1). If this last term is positive then it will move upwards. If it is negative it will move downwards. Presumably this term is almost always positive. */
                         }else{
                                 dPsim = 0;
                         }
                         K_psim = soTexS.Ks * pow((soTexS.air_entry/psim1),2+3/soTexS.b); /* This is hydraulic conductivity */
-                        J_w = K_psim * (dPsim/layerDepth) - g * K_psim ; /*  Campbell, pg 129 do not ignore the graviational effect*/
+                        J_w = K_psim * (dPsim/layerDepth) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect*/
                         /* Notice that K_psim is positive because my
                             reference system is reversed */
                         /* This last result should be in kg/(m2 * s)*/
-                         J_w *= 3600 * 0.9882 * 1e-3 ; /* This is flow in m3 / (m^2 * hr). */
+                         J_w *= 3600 * 0.9882 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
                         /* Rprintf("J_w %.10f \n",J_w);  */
                         if(i == (layers-1) && J_w < 0){
                                         /* cws[i] = cws[i] + J_w /
@@ -1207,7 +1208,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
                          aw = wiltp * layerDepth; 
                 }
 
-                paw = Newpawha / 1e4 ;
+                paw = Newpawha / 1e4;
                 awc = paw / layerDepth + wiltp;   
 
 /* This might look like a weird place to populate the structure, but is more convenient*/
@@ -1216,7 +1217,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
                 if(wsFun == 0){
                         slp = 1/(fieldc - wiltp);
                         intcpt = 1 - fieldc * slp;
-                        wsPhoto = slp * awc + intcpt ;
+                        wsPhoto = slp * awc + intcpt;
                 }else
                 if(wsFun == 1){
                         phi10 = (fieldc + wiltp)/2;
@@ -1225,7 +1226,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
                 if(wsFun == 2){
                         slp = (1 - wiltp)/(fieldc - wiltp);
                         intcpt = 1 - fieldc * slp;
-                        theta = slp * awc + intcpt ;
+                        theta = slp * awc + intcpt;
                         wsPhoto = (1 - exp(-2.5 * (theta - wiltp)/(1 - wiltp))) / (1 - exp(-2.5));
                 }else
                 if(wsFun == 3){
