@@ -12,59 +12,62 @@
 #include "crocent.h"
 #include "BioCro.h"
 
-SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */ 
-        SEXP DOY,                 /* Day of the year           2 */
-        SEXP HR,                  /* Hour of the day           3 */
-        SEXP SOLAR,               /* Solar Radiation           4 */
-        SEXP TEMP,                /* Temperature               5 */
-        SEXP RH,                  /* Relative humidity         6 */ 
-        SEXP WINDSPEED,           /* Wind Speed                7 */ 
-        SEXP PRECIP,              /* Precipitation             8 */
-        SEXP KD,                  /* K D (ext coeff diff)      9 */
-        SEXP CHILHF,              /* Chi and Height factor    10 */
-        SEXP NLAYERS,             /* # Lay canop              11 */
-        SEXP RHIZOME,             /* Ini Rhiz                 12 */
-        SEXP IRTL,                /* i rhiz to leaf           13 */
-        SEXP SENCOEFS,            /* sene coefs               14 */
-        SEXP TIMESTEP,            /* time step                15 */
-        SEXP VECSIZE,             /* vector size              16 */
-        SEXP SPLEAF,              /* Spec Leaf Area           17 */
-        SEXP SPD,                 /* Spec Lefa Area Dec       18 */
-        SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
-        SEXP THERMALP,            /* Themal Periods           20 */
-        SEXP VMAX,                /* Vmax of photo            21 */
-        SEXP ALPHA,               /* Quantum yield            22 */
-        SEXP KPARM,               /* k parameter (photo)      23 */
-        SEXP THETA,               /* theta param (photo)      24 */
-        SEXP BETA,                /* beta param  (photo)      25 */
-        SEXP RD,                  /* Dark Resp   (photo)      26 */
-        SEXP CATM,                /* CO2 atmosph              27 */
-        SEXP B0,                  /* Int (Ball-Berry)         28 */
-        SEXP B1,                  /* Slope (Ball-Berry)       29 */
-        SEXP WS,                  /* Water stress flag        30 */
-        SEXP SOILCOEFS,           /* Soil Coefficients        31 */
-        SEXP ILEAFN,              /* Ini Leaf Nitrogen        32 */
-        SEXP KLN,                 /* Decline in Leaf Nitr     33 */
-        SEXP VMAXB1,              /* Effect of N on Vmax      34 */
-        SEXP ALPHAB1,             /* Effect of N on alpha     35 */
-        SEXP MRESP,               /* Maintenance resp         36 */
-        SEXP SOILTYPE,            /* Soil type                37 */
-        SEXP WSFUN,               /* Water Stress Func        38 */
-        SEXP CENTCOEFS,           /* Century coefficients     39 */
-        SEXP CENTTIMESTEP,        /* Century timestep         40 */ 
-        SEXP CENTKS,              /* Century decomp rates     41 */
-        SEXP SOILLAYERS,          /* # soil layers            42 */
-        SEXP SOILDEPTHS,          /* Soil Depths              43 */
-        SEXP CWS,                 /* Current water status     44 */
-        SEXP HYDRDIST,            /* Hydraulic dist flag      45 */
-        SEXP SECS,                /* Soil empirical coefs     46 */
-        SEXP KPLN,                /* Leaf N decay             47 */
-        SEXP LNB0,                /* Leaf N Int               48 */
-        SEXP LNB1,                /* Leaf N slope             49 */
-        SEXP LNFUN,               /* Leaf N func flag         50 */
-        SEXP UPPERTEMP,           /* Temperature Limitations photoParms */
-        SEXP LOWERTEMP,
-        SEXP NNITROP)           /*temperature Limitation photoParms */
+SEXP MisGro(SEXP LAT,          /* Latitude                            1 */
+        SEXP DOY,              /* Day of the year                     2 */
+        SEXP HR,               /* Hour of the day                     3 */
+        SEXP SOLAR,            /* Solar Radiation                     4 */
+        SEXP TEMP,             /* Temperature                         5 */
+        SEXP RH,               /* Relative humidity                   6 */
+        SEXP WINDSPEED,        /* Wind Speed                          7 */
+        SEXP PRECIP,           /* Precipitation                       8 */
+        SEXP KD,               /* K D (ext coeff diff)                9 */
+        SEXP CHIL,             /* Chi, leaf angle distribution       10 */
+        SEXP LEAFWIDTH,        /* Width of a leaf                    11 */
+        SEXP ET_EQUATION,      /* Integer to indicate ET equation    12 */
+        SEXP HEIGHTF,          /* Height factor                      13 */
+        SEXP NLAYERS,          /* Number of layers in the canopy     14 */
+        SEXP RHIZOME,          /* Ini Rhiz                           15 */
+        SEXP IRTL,             /* i rhiz to leaf                     16 */
+        SEXP SENCOEFS,         /* sene coefs                         17 */
+        SEXP TIMESTEP,         /* time step                          18 */
+        SEXP VECSIZE,          /* vector size                        19 */
+        SEXP SPLEAF,           /* Spec Leaf Area                     20 */
+        SEXP SPD,              /* Spec Lefa Area Dec                 21 */
+        SEXP DBPCOEFS,         /* Dry Bio Coefs                      22 */
+        SEXP THERMALP,         /* Themal Periods                     23 */
+        SEXP VMAX,             /* Vmax of photo                      24 */
+        SEXP ALPHA,            /* Quantum yield                      25 */
+        SEXP KPARM,            /* k parameter (photo)                26 */
+        SEXP THETA,            /* theta param (photo)                27 */
+        SEXP BETA,             /* beta param  (photo)                28 */
+        SEXP RD,               /* Dark Resp   (photo)                29 */
+        SEXP CATM,             /* CO2 atmosph                        30 */
+        SEXP B0,               /* Int (Ball-Berry)                   31 */
+        SEXP B1,               /* Slope (Ball-Berry)                 32 */
+        SEXP SOILCOEFS,        /* Soil Coefficients                  33 */
+        SEXP ILEAFN,           /* Ini Leaf Nitrogen                  34 */
+        SEXP KLN,              /* Decline in Leaf Nitr               35 */
+        SEXP VMAXB1,           /* Effect of N on Vmax                36 */
+        SEXP ALPHAB1,          /* Effect of N on alpha               37 */
+        SEXP MRESP,            /* Maintenance resp                   38 */
+        SEXP SOILTYPE,         /* Soil type                          39 */
+        SEXP WSFUN,            /* Water Stress Func                  40 */
+        SEXP WS,               /* Water stress flag                  41 */
+        SEXP CENTCOEFS,        /* Century coefficients               42 */
+        SEXP CENTTIMESTEP,     /* Century timestep                   43 */
+        SEXP CENTKS,           /* Century decomp rates               44 */
+        SEXP SOILLAYERS,       /* # soil layers                      45 */
+        SEXP SOILDEPTHS,       /* Soil Depths                        46 */
+        SEXP CWS,              /* Current water status               47 */
+        SEXP HYDRDIST,         /* Hydraulic dist flag                48 */
+        SEXP SECS,             /* Soil empirical coefs               49 */
+        SEXP KPLN,             /* Leaf N decay                       50 */
+        SEXP LNB0,             /* Leaf N Int                         51 */
+        SEXP LNB1,             /* Leaf N slope                       52 */
+        SEXP LNFUN,            /* Leaf N func flag                   53 */
+        SEXP UPPERTEMP,        /* Upper photoParm temperature limit  54 */
+        SEXP LOWERTEMP,        /* Lower photoParm temperature limit  55 */
+        SEXP NNITROP)          /* Nitrogen parameters                56 */
 {
     /*********** CROCENT VARIABLES***********************/
     // struct cropcentlayer CROPCENT;
@@ -324,8 +327,8 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
     iSp = Sp;
 
     /* Creating pointers to avoid calling functions REAL and INTEGER so much */
-    int *pt_doy = INTEGER(DOY);
-    int *pt_hr = INTEGER(HR);
+    int *doy = INTEGER(DOY);
+    int *hr = INTEGER(HR);
     double *solar = REAL(SOLAR);
     double *temp = REAL(TEMP);
     double *rh = REAL(RH);
@@ -335,10 +338,10 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
     int nlayers = INTEGER(NLAYERS)[0];
     int ws = INTEGER(WS)[0];
     double kd = REAL(KD)[0];
-    double chil = REAL(CHILHF)[0];
-    double hf = REAL(CHILHF)[1];
-    double leafwidth = REAL(CHILHF)[2];
-    int eteq = REAL(CHILHF)[3]; /* It comes as a REAL but I use an integer from here on */
+    double chil = REAL(CHIL)[0];
+    double hf = REAL(HEIGHTF)[0];
+    double leafwidth = REAL(LEAFWIDTH)[0];
+    int eteq = REAL(ET_EQUATION)[0]; /* It comes as a REAL but I use an integer from here on */
 
     /* Creation of pointers outside the loop */
     sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
@@ -357,15 +360,11 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 
         /*  Do the magic! Calculate growth*/
 
-        Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-                solar[i], temp[i],
-                rh[i], windspeed[i],
-                lat, nlayers,
-                vmax1,alpha1,kparm1,
-                theta,beta,Rd1,Ca,b01,b11,StomWS,
-                ws, kd,
-                chil, hf,LeafN, kpLN, lnb0, lnb1, lnfun,upperT,
-                lowerT,nitroparms, leafwidth, eteq);
+        Canopy = CanAC(LAI, doy[i], hr[i],
+                solar[i], temp[i], rh[i], windspeed[i],
+                lat, nlayers, vmax1, alpha1, kparm1, theta, beta,
+                Rd1, Ca, b01, b11, StomWS, ws, kd, chil,
+                hf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT,nitroparms, leafwidth, eteq);
 
         /* if(ISNAN(Leaf)) { */
         /*    Rprintf("Leaf %.2f \n",Leaf); */
@@ -392,8 +391,8 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
         /*    Rprintf("StomWS %.2f \n",StomWS); */
         /*    Rprintf("kd %.2f \n",kd);                  */
         /*    Rprintf("Sp %.2f \n",Sp);                   */
-        /*    Rprintf("doy[i] %.i %.i \n",i,*(pt_doy+i));  */
-        /*    Rprintf("hr[i] %.i %.i \n",i,*(pt_hr+i)); */
+        /*    Rprintf("doy[i] %.i %.i \n",i,doy[i]);  */
+        /*    Rprintf("hr[i] %.i %.i \n",i,hr[i]); */
         /*    Rprintf("solar[i] %.i %.2f \n",i,solar[i]); */
         /*    Rprintf("temp[i] %.i %.2f \n",i,temp[i]); */
         /*    Rprintf("rh[i] %.i %.2f \n",i,rh[i]); */
@@ -487,7 +486,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
         /* Only the day in which the fertilizer was applied this is available */
         /* When the day of the year is equal to the day the N fert was applied
          * then there is addition of fertilizer */
-        if(doyNfert == *(pt_doy+i)) {
+        if(doyNfert == doy[i]) {
             Nfert = REAL(CENTCOEFS)[17] / 24.0;
         } else {
             Nfert = 0;
