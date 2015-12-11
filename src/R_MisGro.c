@@ -94,6 +94,20 @@ SEXP MisGro(
     double SpD = REAL(SPD)[0];
     double *dbpcoefs = REAL(DBPCOEFS);
     double *thermalp = REAL(THERMALP);
+    double vmax1 = REAL(VMAX)[0];
+    double alpha1 = REAL(ALPHA)[0];
+    double kparm = REAL(KPARM)[0];
+    double theta = REAL(THETA)[0];
+    double beta = REAL(BETA)[0];
+    double Rd1 = REAL(RD)[0];
+    double Catm = REAL(CATM)[0];
+    double b0 = REAL(B0)[0];
+    double b1 = REAL(B1)[0];
+    double *soilcoefs = REAL(SOILCOEFS);
+    double ileafn = REAL(ILEAFN)[0];
+    double kLN = REAL(KLN)[0];
+    double vmaxb1 = REAL(VMAXB1)[0];
+    double alphab1 = REAL(ALPHAB1)[0];
 
 
     int ws = INTEGER(WS)[0];
@@ -128,14 +142,6 @@ SEXP MisGro(
     double propLeaf;
     int i, i2, i4;
 
-    double vmax1;
-    double alpha1;
-    double kparm1;
-    double theta;
-    double beta;
-    double Rd1, Ca;
-    double b01, b11;
-
     double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
@@ -148,20 +154,26 @@ SEXP MisGro(
     double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
     double ALitter = 0.0, BLitter = 0.0;
 
+    double StomWS = 1, LeafWS = 1;
+    double CanopyA, CanopyT;
+    double LeafN_0 = ileafn;
+    double LeafN = ileafn; /* Initial value of N in the leaf */
+    double iSp = Sp;
+
     /* Maintenance respiration */
     double mrc1 = REAL(MRESP)[0];
     double mrc2 = REAL(MRESP)[1]; 
 
-    double waterCont;
-    double StomWS = 1, LeafWS = 1;
-    double CanopyA, CanopyT;
-    double iSp = Sp;
+    const double FieldC = soilcoefs[0];
+    const double WiltP = soilcoefs[1];
+    const double phi1 = soilcoefs[2];
+    const double phi2 = soilcoefs[3];
+    const double soilDepth = soilcoefs[4];
+    double waterCont = soilcoefs[5];
+    double soilEvap, TotEvap;
 
     /* Soil Parameters*/
-    double FieldC, WiltP, phi1, phi2, soilDepth;
     int soilType, wsFun, hydrDist;
-    double LeafN, LeafN_0, kLN;
-    double soilEvap, TotEvap;
 
     const double seneLeaf = sencoefs[0];
     const double seneStem = sencoefs[1];
@@ -289,29 +301,10 @@ SEXP MisGro(
     PROTECT(SNpools = allocVector(REALSXP,9));
     PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
-    /* Picking vmax, alpha and kparm */
-    vmax1 = REAL(VMAX)[0];
-    alpha1 = REAL(ALPHA)[0];
-    kparm1 = REAL(KPARM)[0];
-    theta = REAL(THETA)[0];
-    beta = REAL(BETA)[0];
-    Rd1 = REAL(RD)[0];
-    Ca = REAL(CATM)[0];
-    b01 = REAL(B0)[0];
-    b11 = REAL(B1)[0];
 
-    LeafN_0 = REAL(ILEAFN)[0];
-    LeafN = LeafN_0; /* Initial value of N in the leaf */
-    kLN = REAL(KLN)[0];
     timestep = INTEGER(TIMESTEP)[0];
 
     /* Soil Parameters */
-    FieldC = REAL(SOILCOEFS)[0];
-    WiltP = REAL(SOILCOEFS)[1];
-    phi1 = REAL(SOILCOEFS)[2];
-    phi2 = REAL(SOILCOEFS)[3];
-    soilDepth = REAL(SOILCOEFS)[4];
-    waterCont = REAL(SOILCOEFS)[5];
     soilType = INTEGER(SOILTYPE)[0];
     wsFun = INTEGER(WSFUN)[0];
     hydrDist = INTEGER(HYDRDIST)[0];
@@ -356,8 +349,8 @@ SEXP MisGro(
 
         Canopy = CanAC(LAI, doy[i], hr[i],
                 solar[i], temp[i], rh[i], windspeed[i],
-                lat, nlayers, vmax1, alpha1, kparm1, theta, beta,
-                Rd1, Ca, b01, b11, StomWS, ws, kd, chil,
+                lat, nlayers, vmax1, alpha1, kparm, theta, beta,
+                Rd1, Catm, b0, b1, StomWS, ws, kd, chil,
                 heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT,nitroparms, leafwidth, et_equation);
 
         /* if(ISNAN(Leaf)) { */
@@ -375,11 +368,11 @@ SEXP MisGro(
         /*    Rprintf("Sp %.2f \n",Sp);    */
         /*    Rprintf("vmax1 %.2f \n",vmax1); */
         /*    Rprintf("alpha1 %.2f \n",alpha1); */
-        /*    Rprintf("kparm1 %.2f \n",kparm1); */
+        /*    Rprintf("kparm %.2f \n",kparm); */
         /*    Rprintf("theta %.2f \n",theta); */
         /*    Rprintf("beta %.2f \n",beta); */
         /*    Rprintf("Rd1 %.2f \n",Rd1);  */
-        /*    Rprintf("Ca %.2f \n",Ca); */
+        /*    Rprintf("Catm %.2f \n",Catm); */
         /*    Rprintf("b01 %.2f \n",b01); */
         /*    Rprintf("b11 %.2f \n",b11); */
         /*    Rprintf("StomWS %.2f \n",StomWS); */
@@ -497,8 +490,8 @@ SEXP MisGro(
         LeafN = LeafN_0 * pow(Stem + Leaf, -kLN); 
         if(LeafN > LeafN_0) LeafN = LeafN_0;
 
-        vmax1 = (LeafN_0 - LeafN) * REAL(VMAXB1)[0] + REAL(VMAX)[0]; 
-        alpha1 = (LeafN_0 - LeafN) * REAL(ALPHAB1)[0] + REAL(ALPHA)[0]; 
+        vmax1 = (LeafN_0 - LeafN) * vmaxb1 + REAL(VMAX)[0]; 
+        alpha1 = (LeafN_0 - LeafN) * alphab1 + alpha1; 
 
         /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
            This modifies the amount of N available in the soil. 
