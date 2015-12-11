@@ -27,7 +27,7 @@ SEXP MisGro(
         SEXP ET_EQUATION,      /* Integer to indicate ET equation    12 */
         SEXP HEIGHTF,          /* Height factor                      13 */
         SEXP NLAYERS,          /* Number of layers in the canopy     14 */
-        SEXP RHIZOME,          /* Ini Rhiz                           15 */
+        SEXP IRHIZOME,          /* Ini Rhiz                           15 */
         SEXP IRTL,             /* i rhiz to leaf                     16 */
         SEXP SENCOEFS,         /* sene coefs                         17 */
         SEXP TIMESTEP,         /* time step                          18 */
@@ -70,21 +70,33 @@ SEXP MisGro(
         SEXP LOWERTEMP,        /* Lower photoParm temperature limit  55 */
         SEXP NNITROP)          /* Nitrogen parameters                56 */
 {
-    /*********** CROCENT VARIABLES***********************/
-    // struct cropcentlayer CROPCENT;
-    //assignParms(&CROPCENT);
-    //CROPCENTTimescaling(&CROPCENT);
-    // assignPools(&CROPCENT);
-    // struct InputToCropcent *leaflitter,*stemlitter,*rootlitter,*rhizomelitter;
-    /****************************************************/
-    double newLeafcol[8760];
-    double newStemcol[8760];
-    double newRootcol[8760];
-    double newRhizomecol[8760];
+    /* Creating pointers to avoid calling functions REAL and INTEGER so much */
+    double lat = REAL(LAT)[0];
+    int *doy = INTEGER(DOY);
+    int *hr = INTEGER(HR);
+    double *solar = REAL(SOLAR);
+    double *temp = REAL(TEMP);
+    double *rh = REAL(RH);
+    double *windspeed = REAL(WINDSPEED);
+    double *precip = REAL(PRECIP);
+    double kd = REAL(KD)[0];
+    double chil = REAL(CHIL)[0];
+    double leafwidth = REAL(LEAFWIDTH)[0];
+    int et_equation = REAL(ET_EQUATION)[0]; /* It comes as a REAL but I use an integer from here on */
+    double heightf = REAL(HEIGHTF)[0];
+    int nlayers = INTEGER(NLAYERS)[0];
+    double iRhizome = REAL(IRHIZOME)[0];
+    double irtl = REAL(IRTL)[0];
+    double *sencoefs = REAL(SENCOEFS);
+    int timestep = INTEGER(TIMESTEP)[0];
+    int vecsize;
+    double Sp = REAL(SPLEAF)[0]; 
+    double SpD = REAL(SPD)[0];
+    double *dbpcoefs = REAL(DBPCOEFS);
+    double *thermalp = REAL(THERMALP);
 
-    /* This creates vectors which will collect the senesced plant
-       material. This is needed to calculate litter and therefore carbon
-       in the soil and then N in the soil. */
+
+    int ws = INTEGER(WS)[0];
 
     double upperT=REAL(UPPERTEMP)[0];
     double lowerT=REAL(LOWERTEMP)[0];
@@ -108,11 +120,13 @@ SEXP MisGro(
     nitroparms.minln = REAL(NNITROP)[13];
     nitroparms.daymaxln = REAL(NNITROP)[14];
 
+    double newLeafcol[8760];
+    double newStemcol[8760];
+    double newRootcol[8760];
+    double newRhizomecol[8760];
 
-    ///////////////////////////////////////////////////////////////////
-    double iSp, Sp , propLeaf;
+    double propLeaf;
     int i, i2, i4;
-    int vecsize ;
 
     double vmax1;
     double alpha1;
@@ -122,10 +136,10 @@ SEXP MisGro(
     double Rd1, Ca;
     double b01, b11;
 
-    double Leaf, Stem, Root, LAI, Grain = 0.0;
+    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
-    double newLeaf, newStem = 0.0, newRoot, newRhizome, newGrain = 0.0;
+    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
 
     /* Variables needed for collecting litter */
     double LeafLitter = REAL(CENTCOEFS)[20], StemLitter = REAL(CENTCOEFS)[21];
@@ -133,23 +147,27 @@ SEXP MisGro(
     double LeafLitter_d = 0.0, StemLitter_d = 0.0;
     double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
     double ALitter = 0.0, BLitter = 0.0;
-    /* Maintenance respiration */
 
+    /* Maintenance respiration */
     double mrc1 = REAL(MRESP)[0];
     double mrc2 = REAL(MRESP)[1]; 
 
     double waterCont;
     double StomWS = 1, LeafWS = 1;
-    int timestep;
     double CanopyA, CanopyT;
-
-    double Rhizome;
+    double iSp = Sp;
 
     /* Soil Parameters*/
     double FieldC, WiltP, phi1, phi2, soilDepth;
     int soilType, wsFun, hydrDist;
     double LeafN, LeafN_0, kLN;
     double soilEvap, TotEvap;
+
+    const double seneLeaf = sencoefs[0];
+    const double seneStem = sencoefs[1];
+    const double seneRoot = sencoefs[2];
+    const double seneRhizome = sencoefs[3];
+
     int soillayers = INTEGER(SOILLAYERS)[0];
     double cwsVec[soillayers];
     for(i2 = 0; i2 < soillayers; i2++) {
@@ -181,7 +199,6 @@ SEXP MisGro(
     double Resp = 0.0;
     int centTimestep = INTEGER(CENTTIMESTEP)[0];
 
-    double seneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0 ;
     double *sti , *sti2, *sti3, *sti4; 
     double Remob;
     int k = 0, q = 0, m = 0, n = 0;
@@ -288,13 +305,6 @@ SEXP MisGro(
     kLN = REAL(KLN)[0];
     timestep = INTEGER(TIMESTEP)[0];
 
-    Rhizome = REAL(RHIZOME)[0];
-    Sp = REAL(SPLEAF)[0]; 
-    seneLeaf = REAL(SENCOEFS)[0];
-    SeneStem = REAL(SENCOEFS)[1];
-    SeneRoot = REAL(SENCOEFS)[2];
-    SeneRhizome = REAL(SENCOEFS)[3];
-
     /* Soil Parameters */
     FieldC = REAL(SOILCOEFS)[0];
     WiltP = REAL(SOILCOEFS)[1];
@@ -316,33 +326,16 @@ SEXP MisGro(
     SCCs[7] = REAL(CENTCOEFS)[7];
     SCCs[8] = REAL(CENTCOEFS)[8];
 
-    propLeaf = REAL(IRTL)[0]; 
+    propLeaf = irtl; 
     /* It is useful to assume that there is a small amount of
        leaf area at the begining of the growing season. */
+    Rhizome = iRhizome;
     Leaf = Rhizome * propLeaf; 
     /* Initial proportion of the rhizome that is turned
        into leaf the first hour */
     Stem = Rhizome * 0.001;
     Root = Rhizome * 0.001;
     LAI = Leaf * Sp;
-    iSp = Sp;
-
-    /* Creating pointers to avoid calling functions REAL and INTEGER so much */
-    int *doy = INTEGER(DOY);
-    int *hr = INTEGER(HR);
-    double *solar = REAL(SOLAR);
-    double *temp = REAL(TEMP);
-    double *rh = REAL(RH);
-    double *windspeed = REAL(WINDSPEED);
-    double *precip = REAL(PRECIP);
-    double lat = REAL(LAT)[0];
-    int nlayers = INTEGER(NLAYERS)[0];
-    int ws = INTEGER(WS)[0];
-    double kd = REAL(KD)[0];
-    double chil = REAL(CHIL)[0];
-    double hf = REAL(HEIGHTF)[0];
-    double leafwidth = REAL(LEAFWIDTH)[0];
-    int eteq = REAL(ET_EQUATION)[0]; /* It comes as a REAL but I use an integer from here on */
 
     /* Creation of pointers outside the loop */
     sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
@@ -365,7 +358,7 @@ SEXP MisGro(
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax1, alpha1, kparm1, theta, beta,
                 Rd1, Ca, b01, b11, StomWS, ws, kd, chil,
-                hf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT,nitroparms, leafwidth, eteq);
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT,nitroparms, leafwidth, et_equation);
 
         /* if(ISNAN(Leaf)) { */
         /*    Rprintf("Leaf %.2f \n",Leaf); */
@@ -475,7 +468,7 @@ SEXP MisGro(
         }
 
         /* Picking the dry biomass partitioning coefficients */
-        dbpS = sel_dbp_coef(REAL(DBPCOEFS), REAL(THERMALP), TTc);
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, TTc);
 
         kLeaf = dbpS.kLeaf;
         kStem = dbpS.kStem;
@@ -587,14 +580,14 @@ SEXP MisGro(
            management in north-eastern greece*/
 
         if(i%24 == 0) {
-            Sp = iSp - (INTEGER(DOY)[i] - INTEGER(DOY)[0]) * REAL(SPD)[0];
+            Sp = iSp - (INTEGER(DOY)[i] - INTEGER(DOY)[0]) * SpD;
         }
 
         LAI = Leaf * Sp ;
 
         if(LAI > 20.0) LAI = 20.0;
 
-        if(TTc < SeneStem) {
+        if(TTc < seneStem) {
 
             Stem += newStem;
 
@@ -606,7 +599,7 @@ SEXP MisGro(
 
         }
 
-        if(TTc < SeneRoot) {
+        if(TTc < seneRoot) {
             Root += newRoot;
         } else {
             Root += newRoot - *(sti3+m);
@@ -634,7 +627,7 @@ SEXP MisGro(
             Grain += kGrain * -newRhizome;
         }
 
-        if(TTc < SeneRhizome) {
+        if (TTc < seneRhizome) {
             Rhizome += newRhizome;
         } else {
             Rhizome += newRhizome - *(sti4+n);
@@ -642,7 +635,7 @@ SEXP MisGro(
             n++;
         }
 
-        if((kGrain < 1e-10) || (TTc < REAL(THERMALP)[4])) {
+        if ((kGrain < 1e-10) || (TTc < thermalp[4])) {
             newGrain = 0.0;
             Grain += newGrain;
         } else {

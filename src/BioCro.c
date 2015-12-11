@@ -77,20 +77,14 @@ struct BioGro_results_str BioGro(
 
     int i, i3;
 
-    double Leaf, Stem, Root, Rhizome, LAI, Grain = 0.0;
+    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
-    double newLeaf, newStem = 0.0, newRoot, newRhizome = 0.0, newGrain = 0.0;
-
-    double litter[4];
-    litter[0] = centcoefs[20];
-    litter[1] = centcoefs[21];
-    litter[2] = centcoefs[22];
-    litter[3] = centcoefs[23];
+    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
 
     /* Variables needed for collecting litter */
-    double LeafLitter = litter[0], StemLitter = litter[1];
-    double RootLitter = litter[2], RhizomeLitter = litter[3];
+    double LeafLitter = centcoefs[20], StemLitter = centcoefs[21];
+    double RootLitter = centcoefs[22], RhizomeLitter = centcoefs[23];
     double LeafLitter_d = 0.0, StemLitter_d = 0.0;
     double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
     double ALitter = 0.0, BLitter = 0.0;
@@ -111,6 +105,8 @@ struct BioGro_results_str BioGro(
 
     /* Century */
     double MinNitro = centcoefs[19];
+    int doyNfert = centcoefs[18];
+    double Nfert;
     double SCCs[9];
     // double Resp; unused
 
@@ -140,10 +136,10 @@ struct BioGro_results_str BioGro(
     double waterCont = soilcoefs[5];
     double soilEvap, TotEvap;
 
-    const double SeneLeaf = sencoefs[0];
-    const double SeneStem = sencoefs[1];
-    const double SeneRoot = sencoefs[2];
-    const double SeneRhizome = sencoefs[3];
+    const double seneLeaf = sencoefs[0];
+    const double seneStem = sencoefs[1];
+    const double seneRoot = sencoefs[2];
+    const double seneRhizome = sencoefs[3];
 
     SCCs[0] = centcoefs[0];
     SCCs[1] = centcoefs[1];
@@ -227,6 +223,16 @@ struct BioGro_results_str BioGro(
         kGrain = dbpS.kGrain;
         kRhizome = dbpS.kRhiz;
 
+        /* Nitrogen fertilizer */
+        /* Only the day in which the fertilizer was applied this is available */
+        /* When the day of the year is equal to the day the N fert was applied
+         * then there is addition of fertilizer */
+        if(doyNfert == doy[i]) {
+            Nfert = centcoefs[17] / 24.0;
+        } else {
+            Nfert = 0;
+        }                
+
         if (ISNAN(kRhizome) || ISNAN(kLeaf) || ISNAN(kRoot) || ISNAN(kStem) || ISNAN(kGrain)) {
             Rprintf("kLeaf %.2f, kStem %.2f, kRoot %.2f, kRhizome %.2f, kGrain %.2f \n", kLeaf, kStem, kRoot, kRhizome, kGrain);
             Rprintf("iter %i \n", i);
@@ -245,7 +251,7 @@ struct BioGro_results_str BioGro(
 
             centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
                     waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
-                    centcoefs[17], /* N fertilizer*/
+                    Nfert, /* N fertilizer*/
                     MinNitro, /* initial Mineral nitrogen */
                     precip[i], /* precipitation */
                     centcoefs[9], /* Leaf litter lignin */
@@ -256,7 +262,8 @@ struct BioGro_results_str BioGro(
                     centcoefs[14], /* Stem litter N */
                     centcoefs[15], /* Root litter N */
                     centcoefs[16], /* Rhizome litter N */
-                    soilType, centks);
+                    soilType,
+                    centks);
         }
 
         /* Here I can insert the code for Nitrogen limitations on photosynthesis
@@ -303,7 +310,7 @@ struct BioGro_results_str BioGro(
             Grain += kGrain * -newLeaf * 0.9;
         }
 
-        if (TTc < SeneLeaf) {
+        if (TTc < seneLeaf) {
             Leaf += newLeaf;
         } else {
             Leaf += newLeaf - *(sti+k); /* This means that the new value of leaf is
@@ -340,7 +347,7 @@ struct BioGro_results_str BioGro(
             *(sti2+i) = newStem;
         }
 
-        if (TTc < SeneStem) {
+        if (TTc < seneStem) {
             Stem += newStem;
         } else {
             Stem += newStem - *(sti2+q);
@@ -360,7 +367,7 @@ struct BioGro_results_str BioGro(
             Grain += kGrain * -newRoot * 0.9;
         }
 
-        if (TTc < SeneRoot) {
+        if (TTc < seneRoot) {
             Root += newRoot;
         } else {
             Root += newRoot - *(sti3+m);
@@ -388,7 +395,7 @@ struct BioGro_results_str BioGro(
             Grain += kGrain * -newRhizome;
         }
 
-        if (TTc < SeneRhizome) {
+        if (TTc < seneRhizome) {
             Rhizome += newRhizome;
         } else {
             Rhizome += newRhizome - *(sti4+n);
