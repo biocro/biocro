@@ -83,10 +83,10 @@ struct BioGro_results_str BioGro(
     double newLeaf, newStem = 0.0, newRoot, newRhizome = 0.0, newGrain = 0.0;
 
     double litter[4];
-    litter[0] = centcoefs[19];
-    litter[1] = centcoefs[20];
-    litter[2] = centcoefs[21];
-    litter[3] = centcoefs[22];
+    litter[0] = centcoefs[20];
+    litter[1] = centcoefs[21];
+    litter[2] = centcoefs[22];
+    litter[3] = centcoefs[23];
 
     /* Variables needed for collecting litter */
     double LeafLitter = litter[0], StemLitter = litter[1];
@@ -110,7 +110,7 @@ struct BioGro_results_str BioGro(
     alpha = alpha1;
 
     /* Century */
-    double MinNitro = centcoefs[18];
+    double MinNitro = centcoefs[19];
     double SCCs[9];
     // double Resp; unused
 
