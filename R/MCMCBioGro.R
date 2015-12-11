@@ -246,6 +246,8 @@ MCMCBioGro <- function(niter = 10, niter2=10, phen=6, iCoef=NULL,
   SpD <- canopyP$SpD
   heightF <- canopyP$heightF
   nlayers <- canopyP$nlayers
+  leafwidth <- canopyP$leafwidth
+  eteq <- canopyP$eteq
   
   res <- .Call(SABioGro,as.double(data[,1]), as.double(data[,2]),
                as.double(data[,3]), as.double(data[,4]),
@@ -268,7 +270,7 @@ MCMCBioGro <- function(niter = 10, niter2=10, phen=6, iCoef=NULL,
                as.double(nitroP$alpha.b1), as.double(mResp),
                as.integer(soilType), as.double(centCoefs),
                as.double(centuryP$Ks), as.integer(centTimestep),
-               as.double(kd), as.double(c(chi.l, heightF)),
+               as.double(kd), as.double(c(chi.l, heightF, leafwidth, eteq)),
                as.double(Sp), as.double(SpD),
                as.double(TPcoefs), as.integer(tmp1),
                as.integer(ndat), as.integer(n1dat),

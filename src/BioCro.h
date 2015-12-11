@@ -28,15 +28,15 @@ struct Light_model {
 };
 
 struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
-	    double windspeed[], double precip[], double kd, double chil, 
-	    double heightf, int nlayers,
-            double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
-            double Sp, double SpD, double dbpcoefs[25], double thermalp[], double vmax1, 
-	    double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
-	    double soilcoefs[], double ileafn, double kLN, double vmaxb1,
-	    double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
-	    double centks[], int centTimestep, int soilLayers, double soilDepths[],
-	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP);
+        double windspeed[], double precip[], double kd, double chil, double leafwidth, int et_equation,
+        double heightf, int nlayers,
+        double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
+        double Sp, double SpD, double dbpcoefs[25], double thermalp[], double vmax1, 
+        double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
+        double soilcoefs[], double ileafn, double kLN, double vmaxb1,
+        double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
+        int centTimestep, double centks[], int soilLayers, double soilDepths[],
+        double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP);
 
 struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
 		     double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Alpha, 

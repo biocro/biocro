@@ -12,60 +12,63 @@
 #include "BioCro.h"
 #include "Century.h"
 
-struct BioGro_results_str BioGro(double lat,
-        int doy[],
-        int hr[],
-        double solar[],
-        double temp[],
-        double rh[],
-        double windspeed[],
-        double precip[],
-        double kd,
-        double chil,
-        double heightf,
-        int nlayers,
-        double iRhizome,
-        double irtl,
-        double sencoefs[],
-        int timestep,
-        int vecsize,
-        double Sp,
-        double SpD,
-        double dbpcoefs[25],
-        double thermalp[],
-        double vmax1,
-        double alpha1,
-        double kparm,
-        double theta,
-        double beta,
-        double Rd,
-        double Catm,
-        double b0,
-        double b1,
-        double soilcoefs[],
-        double ileafn,
-        double kLN,
-        double vmaxb1,
-        double alphab1,
-        double mresp[],
-        int soilType,
-        int wsFun,
-        int ws,
-        double centcoefs[],
-        double centks[],
-        int centTimestep,
-        int soilLayers,
-        double soilDepths[],
-        double cws[],
-        int hydrDist,
-        double secs[],
-        double kpLN,
-        double lnb0,
-        double lnb1,
-        int lnfun ,
-        double upperT,
-        double lowerT,
-        struct nitroParms nitroP)
+struct BioGro_results_str BioGro(
+        double lat,                   /* Latitude                            1 */
+        int doy[],                    /* Day of the year                     2 */
+        int hr[],                     /* Hour of the day                     3 */
+        double solar[],               /* Solar Radiation                     4 */
+        double temp[],                /* Temperature                         5 */
+        double rh[],                  /* Relative humidity                   6 */
+        double windspeed[],           /* Wind Speed                          7 */
+        double precip[],              /* Precipitation                       8 */
+        double kd,                    /* K D (ext coeff diff)                9 */
+        double chil,                  /* Chi, leaf angle distribution       10 */
+        double leafwidth,             /* Width of a leaf                    11 */
+        int et_equation,              /* Integer to indicate ET equation    12 */
+        double heightf,               /* Height factor                      13 */
+        int nlayers,                  /* Number of layers in the canopy     14 */
+        double iRhizome,              /* Ini Rhiz                           15 */
+        double irtl,                  /* i rhiz to leaf                     16 */
+        double sencoefs[],            /* sene coefs                         17 */
+        int timestep,                 /* time step                          18 */
+        int vecsize,                  /* vector size                        19 */
+        double Sp,                    /* Spec Leaf Area                     20 */
+        double SpD,                   /* Spec Lefa Area Dec                 21 */
+        double dbpcoefs[25],          /* Dry Bio Coefs                      22 */
+        double thermalp[],            /* Themal Periods                     23 */
+        double vmax1,                 /* Vmax of photo                      24 */
+        double alpha1,                /* Quantum yield                      25 */
+        double kparm,                 /* k parameter (photo)                26 */
+        double theta,                 /* theta param (photo)                27 */
+        double beta,                  /* beta param  (photo)                28 */
+        double Rd,                    /* Dark Resp   (photo)                29 */
+        double Catm,                  /* CO2 atmosph                        30 */
+        double b0,                    /* Int (Ball-Berry)                   31 */
+        double b1,                    /* Slope (Ball-Berry)                 32 */
+        double soilcoefs[],           /* Soil Coefficients                  33 */
+        double ileafn,                /* Ini Leaf Nitrogen                  34 */
+        double kLN,                   /* Decline in Leaf Nitr               35 */
+        double vmaxb1,                /* Effect of N on Vmax                36 */
+        double alphab1,               /* Effect of N on alpha               37 */
+        double mresp[],               /* Maintenance resp                   38 */
+        int soilType,                 /* Soil type                          39 */
+        int wsFun,                    /* Water Stress Func                  40 */
+        int ws,                       /* Water stress flag                  41 */
+        double centcoefs[],           /* Century coefficients               42 */
+        int centTimestep,             /* Century timestep                   43 */
+        double centks[],              /* Century decomp rates               44 */
+        int soilLayers,               /* # soil layers                      45 */
+        double soilDepths[],          /* Soil Depths                        46 */
+        double cws[],                 /* Current water status               47 */
+        int hydrDist,                 /* Hydraulic dist flag                48 */
+        double secs[],                /* Soil empirical coefs               49 */
+        double kpLN,                  /* Leaf N decay                       50 */
+        double lnb0,                  /* Leaf N Int                         51 */
+        double lnb1,                  /* Leaf N slope                       52 */
+        int lnfun ,                   /* Leaf N func flag                   53 */
+        double upperT,                /* Upper photoParm temperature limit  54 */
+        double lowerT,                /* Lower photoParm temperature limit  55 */
+        struct nitroParms nitroP)     /* Nitrogen parameters                56 */
 {
     double newLeafcol[8760];
     double newStemcol[8760];
@@ -171,7 +174,7 @@ struct BioGro_results_str BioGro(double lat,
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, alpha, kparm, theta, beta,
                 Rd, Catm, b0, b1, StomWS, ws, kd, chil,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitroP, 0.04, 0);
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation);
 
         CanopyA = Canopy.Assim * timestep;
         CanopyT = Canopy.Trans * timestep;

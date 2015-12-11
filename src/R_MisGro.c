@@ -12,7 +12,8 @@
 #include "crocent.h"
 #include "BioCro.h"
 
-SEXP MisGro(SEXP LAT,          /* Latitude                            1 */
+SEXP MisGro(
+        SEXP LAT,              /* Latitude                            1 */
         SEXP DOY,              /* Day of the year                     2 */
         SEXP HR,               /* Hour of the day                     3 */
         SEXP SOLAR,            /* Solar Radiation                     4 */
