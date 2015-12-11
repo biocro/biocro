@@ -525,8 +525,7 @@ SEXP maizeGro(SEXP DOY,             /* Day of the year                   1 */
             waterCont = cwsVecSum / soillayers;
             cwsVecSum = 0.0;
         } else {
-            soilEvap = SoilEvapo(LAI, 0.68, *(pt_temp+i), *(pt_solar+i), waterCont, FieldC, WiltP, 
-                    *(pt_windspeed+i), *(pt_rh+i), rsec);
+            soilEvap = SoilEvapo(LAI, 0.68, *(pt_temp+i), *(pt_solar+i), waterCont, FieldC, WiltP, *(pt_windspeed+i), *(pt_rh+i), rsec);
             TotEvap = soilEvap + CanopyT;
             WaterS = watstr(*(pt_precip+i), TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
             waterCont = WaterS.awc;

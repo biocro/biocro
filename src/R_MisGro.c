@@ -326,11 +326,11 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
     /* Creating pointers to avoid calling functions REAL and INTEGER so much */
     int *pt_doy = INTEGER(DOY);
     int *pt_hr = INTEGER(HR);
-    double *pt_solar = REAL(SOLAR);
-    double *pt_temp = REAL(TEMP);
-    double *pt_rh = REAL(RH);
-    double *pt_windspeed = REAL(WINDSPEED);
-    double *pt_precip = REAL(PRECIP);
+    double *solar = REAL(SOLAR);
+    double *temp = REAL(TEMP);
+    double *rh = REAL(RH);
+    double *windspeed = REAL(WINDSPEED);
+    double *precip = REAL(PRECIP);
     double lat = REAL(LAT)[0];
     int nlayers = INTEGER(NLAYERS)[0];
     int ws = INTEGER(WS)[0];
@@ -352,14 +352,14 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
         /* The idea is that here I need to divide by the time step
            to calculate the thermal time. For example, a 3 hour time interval
            would mean that the division would need to by 8 */
-        TTc += *(pt_temp+i) / (24/timestep); 
+        TTc += temp[i] / (24/timestep); 
         REAL(TTTc)[i] = TTc;
 
         /*  Do the magic! Calculate growth*/
 
         Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-                *(pt_solar+i), *(pt_temp+i),
-                *(pt_rh+i), *(pt_windspeed+i),
+                solar[i], temp[i],
+                rh[i], windspeed[i],
                 lat, nlayers,
                 vmax1,alpha1,kparm1,
                 theta,beta,Rd1,Ca,b01,b11,StomWS,
@@ -394,10 +394,10 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
         /*    Rprintf("Sp %.2f \n",Sp);                   */
         /*    Rprintf("doy[i] %.i %.i \n",i,*(pt_doy+i));  */
         /*    Rprintf("hr[i] %.i %.i \n",i,*(pt_hr+i)); */
-        /*    Rprintf("solar[i] %.i %.2f \n",i,*(pt_solar+i)); */
-        /*    Rprintf("temp[i] %.i %.2f \n",i,*(pt_temp+i)); */
-        /*    Rprintf("rh[i] %.i %.2f \n",i,*(pt_rh+i)); */
-        /*    Rprintf("windspeed[i] %.i %.2f \n",i,*(pt_windspeed+i)); */
+        /*    Rprintf("solar[i] %.i %.2f \n",i,solar[i]); */
+        /*    Rprintf("temp[i] %.i %.2f \n",i,temp[i]); */
+        /*    Rprintf("rh[i] %.i %.2f \n",i,rh[i]); */
+        /*    Rprintf("windspeed[i] %.i %.2f \n",i,windspeed[i]); */
         /*    Rprintf("lat %.i %.2f \n",i,lat); */
         /*    Rprintf("nlayers %.i %.i \n",i,nlayers);    */
         /*    error("something is NA \n"); */
@@ -409,9 +409,9 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 
         /* Inserting the multilayer model */
         if(soillayers > 1) {
-            soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
+            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, soillayers, Root, 
-                    LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
+                    LAI, 0.68, temp[i], solar[0], windspeed[i], rh[i], 
                     hydrDist, rfl, rsec, rsdf);
 
             StomWS = soilMLS.rcoefPhoto;
@@ -427,12 +427,11 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
             waterCont = cwsVecSum / soillayers;
             cwsVecSum = 0.0;
         } else {
-            soilEvap = SoilEvapo(LAI, 0.68, *(pt_temp+i), *(pt_solar+i), waterCont, FieldC, WiltP, 
-                    *(pt_windspeed+i), *(pt_rh+i), rsec);
+            soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
             TotEvap = soilEvap + CanopyT;
-            WaterS = watstr(*(pt_precip+i), TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
+            WaterS = watstr(precip[i], TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
             waterCont = WaterS.awc;
-            StomWS = WaterS.rcoefPhoto ; 
+            StomWS = WaterS.rcoefPhoto; 
             LeafWS = WaterS.rcoefSpleaf;
             REAL(cwsMat)[i] = waterCont;
             REAL(psimMat)[i] = WaterS.psim;
@@ -530,7 +529,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
             /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
             /* The 0.02 and 0.03 are constants here but vary depending on species
                as pointed out in that reference. */
-            newLeaf = resp(newLeaf, mrc1, *(pt_temp+i));
+            newLeaf = resp(newLeaf, mrc1, temp[i]);
 
             *(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
                                    to use i because when kLeaf is negative no new leaf is
@@ -546,7 +545,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
         /* New Stem*/
         if(kStem >= 0) {
             newStem = CanopyA * kStem ;
-            newStem = resp(newStem, mrc1, *(pt_temp+i));
+            newStem = resp(newStem, mrc1, temp[i]);
             *(sti2+i) = newStem;
         } else {
             error("kStem should be positive");
@@ -554,7 +553,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 
         if(kRoot > 0) {
             newRoot = CanopyA * kRoot ;
-            newRoot = resp(newRoot, mrc2, *(pt_temp+i));
+            newRoot = resp(newRoot, mrc2, temp[i]);
             *(sti3+i) = newRoot;
         } else {
 
@@ -617,7 +616,7 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
 
         if(kRhizome > 0) {
             newRhizome = CanopyA * kRhizome ;
-            newRhizome = resp(newRhizome, mrc2, *(pt_temp+i));
+            newRhizome = resp(newRhizome, mrc2, temp[i]);
             *(sti4+ri) = newRhizome;
             /* Here i will not work because the rhizome goes from being a source
                to a sink. I need its own index. Let's call it rhizome's i or ri.*/
@@ -672,10 +671,10 @@ SEXP MisGro(SEXP LAT,                 /* Latitude                  1 */
             RhizomeLitter -= RhizomeLitter_d;
 
             centS = Century(&LeafLitter_d,&StemLitter_d,&RootLitter_d,&RhizomeLitter_d,
-                    waterCont,*(pt_temp+i),centTimestep,SCCs,WaterS.runoff,
+                    waterCont,temp[i],centTimestep,SCCs,WaterS.runoff,
                     Nfert, /* N fertilizer*/
                     MinNitro, /* initial Mineral nitrogen */
-                    *(pt_precip+i), /* precipitation */
+                    precip[i], /* precipitation */
                     REAL(CENTCOEFS)[9], /* Leaf litter lignin */
                     REAL(CENTCOEFS)[10], /* Stem litter lignin */
                     REAL(CENTCOEFS)[11], /* Root litter lignin */

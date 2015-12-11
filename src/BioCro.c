@@ -116,7 +116,7 @@ struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[]
     sti3 = &newRootcol[0];
     sti4 = &newRhizomecol[0];
 
-    for(i = 0; i<vecsize; i++)
+    for(i = 0; i < vecsize; i++)
     {
         /* First calculate the elapsed Thermal Time*/
         TTc += (temp[i] / (24/timestep));
@@ -177,8 +177,8 @@ struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[]
         kLeaf = dbpS.kLeaf;
         kStem = dbpS.kStem;
         kRoot = dbpS.kRoot;
-        kRhizome = dbpS.kRhiz;
         kGrain = dbpS.kGrain;
+        kRhizome = dbpS.kRhiz;
 
         if (ISNAN(kRhizome) || ISNAN(kLeaf) || ISNAN(kRoot) || ISNAN(kStem) || ISNAN(kGrain)) {
             Rprintf("kLeaf %.2f, kStem %.2f, kRoot %.2f, kRhizome %.2f, kGrain %.2f \n", kLeaf, kStem, kRoot, kRhizome, kGrain);
