@@ -96,12 +96,11 @@ struct BioGro_results_str BioGro(
 
     double StomWS = 1, LeafWS = 1;
     double CanopyA, CanopyT;
-    double vmax, alpha;
     double LeafN_0 = ileafn;
     double LeafN = ileafn; /* Need to set it because it is used by CanA before it is computed */
     double iSp = Sp;
-    vmax = vmax1;
-    alpha = alpha1;
+    double vmax = vmax1;
+    double alpha = alpha1;
 
     /* Century */
     double MinNitro = centcoefs[19];
@@ -110,23 +109,9 @@ struct BioGro_results_str BioGro(
     double SCCs[9];
     // double Resp; unused
 
+    /* Maintenance respiration */
     const double mrc1 = mresp[0];
     const double mrc2 = mresp[1];
-
-    struct BioGro_results_str results;
-    struct Can_Str Canopy;
-    struct ws_str WaterS;
-    struct dbp_str dbpS;
-    struct cenT_str centS;
-    struct soilML_str soilMLS;
-    struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
-    soTexS = soilTchoose(soilType);
-
-    Rhizome = iRhizome;
-    Leaf = Rhizome * irtl;
-    Stem = Rhizome * 0.001;
-    Root = Rhizome * 0.001;
-    LAI = Leaf * Sp;
 
     const double FieldC = soilcoefs[0];
     const double WiltP = soilcoefs[1];
@@ -141,6 +126,44 @@ struct BioGro_results_str BioGro(
     const double seneRoot = sencoefs[2];
     const double seneRhizome = sencoefs[3];
 
+    struct BioGro_results_str results;
+    struct Can_Str Canopy;
+    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
+    struct dbp_str dbpS;
+    struct cenT_str centS;
+    struct soilML_str soilMLS;
+    struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
+    soTexS = soilTchoose(soilType);
+
+    Rhizome = iRhizome;
+    Leaf = Rhizome * irtl;
+    Stem = Rhizome * 0.001;
+    Root = Rhizome * 0.001;
+    LAI = Leaf * Sp;
+
+    /* Creation of pointers outside the loop */
+    sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
+                             in the newLeafcol vector */
+    sti2 = &newStemcol[0];
+    sti3 = &newRootcol[0];
+    sti4 = &newRhizomecol[0];
+
+    /* Some soil related empirical coefficients */
+    double rfl = secs[0];  /* root factor lambda */
+    double rsec = secs[1]; /* radiation soil evaporation coefficient */
+    double rsdf = secs[2]; /* root soil depth factor */
+
+    centS.SCs[0] = 0.0;
+    centS.SCs[1] = 0.0;
+    centS.SCs[2] = 0.0;
+    centS.SCs[3] = 0.0;
+    centS.SCs[4] = 0.0;
+    centS.SCs[5] = 0.0;
+    centS.SCs[6] = 0.0;
+    centS.SCs[7] = 0.0;
+    centS.SCs[8] = 0.0;
+    centS.Resp = 0.0;
+
     SCCs[0] = centcoefs[0];
     SCCs[1] = centcoefs[1];
     SCCs[2] = centcoefs[2];
@@ -152,17 +175,10 @@ struct BioGro_results_str BioGro(
     SCCs[8] = centcoefs[8];
 
 
-    /* Creation of pointers outside the loop */
-    sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
-                             in the newLeafcol vector */
-    sti2 = &newStemcol[0];
-    sti3 = &newRootcol[0];
-    sti4 = &newRhizomecol[0];
-
     for(i = 0; i < vecsize; i++)
     {
         /* First calculate the elapsed Thermal Time*/
-        TTc += (temp[i] / (24/timestep));
+        TTc += temp[i] / (24/timestep);
 
         /* Do the magic! Calculate growth*/
 
@@ -196,17 +212,18 @@ struct BioGro_results_str BioGro(
             soilMLS = soilML(precip[i], CanopyT, &cws[0], soilDepth, soilDepths, FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, soilLayers, Root,
                     LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i],
-                    hydrDist, secs[0], secs[1], secs[2]);
+                    hydrDist, rfl, rsec, rsdf);
 
             StomWS = soilMLS.rcoefPhoto;
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
-            for(i3 = 0; i3<soilLayers; i3++) {
+
+            for(i3 = 0; i3 < soilLayers; i3++) {
                 cws[i3] = soilMLS.cws[i3];
             }
 
         } else {
-            soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], secs[1]);
+            soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
             TotEvap = soilEvap + CanopyT;
             WaterS = watstr(precip[i], TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);
             waterCont = WaterS.awc;
@@ -237,53 +254,6 @@ struct BioGro_results_str BioGro(
             Rprintf("kLeaf %.2f, kStem %.2f, kRoot %.2f, kRhizome %.2f, kGrain %.2f \n", kLeaf, kStem, kRoot, kRhizome, kGrain);
             Rprintf("iter %i \n", i);
         }
-
-        if (i % 24*centTimestep == 0) {
-            LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
-            StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
-            RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
-            RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
-
-            LeafLitter -= LeafLitter_d;
-            StemLitter -= StemLitter_d;
-            RootLitter -= RootLitter_d;
-            RhizomeLitter -= RhizomeLitter_d;
-
-            centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
-                    waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
-                    Nfert, /* N fertilizer*/
-                    MinNitro, /* initial Mineral nitrogen */
-                    precip[i], /* precipitation */
-                    centcoefs[9], /* Leaf litter lignin */
-                    centcoefs[10], /* Stem litter lignin */
-                    centcoefs[11], /* Root litter lignin */
-                    centcoefs[12], /* Rhizome litter lignin */
-                    centcoefs[13], /* Leaf litter N */
-                    centcoefs[14], /* Stem litter N */
-                    centcoefs[15], /* Root litter N */
-                    centcoefs[16], /* Rhizome litter N */
-                    soilType,
-                    centks);
-        }
-
-        /* Here I can insert the code for Nitrogen limitations on photosynthesis
-           parameters. This is taken From Harley et al. (1992) Modelling cotton under
-           elevated CO2. PCE. This is modeled as a simple linear relationship between
-           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
-           availability and possibly by the Thermal time accumulated.*/
-
-        MinNitro = centS.MinN;
-        // Resp = centS.Resp; set but not used
-
-        SCCs[0] = centS.SCs[0];
-        SCCs[1] = centS.SCs[1];
-        SCCs[2] = centS.SCs[2];
-        SCCs[3] = centS.SCs[3];
-        SCCs[4] = centS.SCs[4];
-        SCCs[5] = centS.SCs[5];
-        SCCs[6] = centS.SCs[6];
-        SCCs[7] = centS.SCs[7];
-        SCCs[8] = centS.SCs[8];
 
         LeafN = LeafN_0 * exp(-kLN * TTc);
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
@@ -335,8 +305,6 @@ struct BioGro_results_str BioGro(
         if (i%24 == 0) {
             Sp = iSp - (doy[i] - doy[0]) * SpD;
         }
-
-        /* Rprintf("Sp %.2f \n", Sp); */
 
         LAI = Leaf * Sp;
 
@@ -412,6 +380,52 @@ struct BioGro_results_str BioGro(
             /* No senescence either */
             Grain += newGrain;
         }
+
+        if (i % 24*centTimestep == 0) {
+            LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
+            StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
+            RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
+            RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
+
+            LeafLitter -= LeafLitter_d;
+            StemLitter -= StemLitter_d;
+            RootLitter -= RootLitter_d;
+            RhizomeLitter -= RhizomeLitter_d;
+
+            centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
+                    waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
+                    Nfert, /* N fertilizer*/
+                    MinNitro, /* initial Mineral nitrogen */
+                    precip[i], /* precipitation */
+                    centcoefs[9], /* Leaf litter lignin */
+                    centcoefs[10], /* Stem litter lignin */
+                    centcoefs[11], /* Root litter lignin */
+                    centcoefs[12], /* Rhizome litter lignin */
+                    centcoefs[13], /* Leaf litter N */
+                    centcoefs[14], /* Stem litter N */
+                    centcoefs[15], /* Root litter N */
+                    centcoefs[16], /* Rhizome litter N */
+                    soilType,
+                    centks);
+        }
+
+        /* Here I can insert the code for Nitrogen limitations on photosynthesis
+           parameters. This is taken From Harley et al. (1992) Modelling cotton under
+           elevated CO2. PCE. This is modeled as a simple linear relationship between
+           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
+           availability and possibly by the Thermal time accumulated.*/
+
+        MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
+        // Resp = centS.Resp; set but not used
+        SCCs[0] = centS.SCs[0];
+        SCCs[1] = centS.SCs[1];
+        SCCs[2] = centS.SCs[2];
+        SCCs[3] = centS.SCs[3];
+        SCCs[4] = centS.SCs[4];
+        SCCs[5] = centS.SCs[5];
+        SCCs[6] = centS.SCs[6];
+        SCCs[7] = centS.SCs[7];
+        SCCs[8] = centS.SCs[8];
 
         ALitter += LeafLitter + StemLitter;
         BLitter += RootLitter + RhizomeLitter;

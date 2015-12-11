@@ -99,7 +99,7 @@ SEXP MisGro(
     double kparm = REAL(KPARM)[0];
     double theta = REAL(THETA)[0];
     double beta = REAL(BETA)[0];
-    double Rd1 = REAL(RD)[0];
+    double Rd = REAL(RD)[0];
     double Catm = REAL(CATM)[0];
     double b0 = REAL(B0)[0];
     double b1 = REAL(B1)[0];
@@ -108,132 +108,43 @@ SEXP MisGro(
     double kLN = REAL(KLN)[0];
     double vmaxb1 = REAL(VMAXB1)[0];
     double alphab1 = REAL(ALPHAB1)[0];
-
-
+    double *mresp = REAL(MRESP);
+    int soilType = INTEGER(SOILTYPE)[0];
+    int wsFun = INTEGER(WSFUN)[0];
     int ws = INTEGER(WS)[0];
-
-    double upperT=REAL(UPPERTEMP)[0];
-    double lowerT=REAL(LOWERTEMP)[0];
-    /*Reading NitroP Variables */
-    struct nitroParms nitroparms;
-    double TEMPdoubletoint;
-    nitroparms.ileafN = REAL(NNITROP)[0];
-    nitroparms.kln = REAL(NNITROP)[1];
-    nitroparms.Vmaxb1 = REAL(NNITROP)[2];
-    nitroparms.Vmaxb0 = REAL(NNITROP)[3];
-    nitroparms.alphab1 = REAL(NNITROP)[4];
-    nitroparms.alphab0 = REAL(NNITROP)[5];
-    nitroparms.Rdb1 = REAL(NNITROP)[6];
-    nitroparms.Rdb0 = REAL(NNITROP)[7];
-    nitroparms.kpLN = REAL(NNITROP)[8];
-    nitroparms.lnb0 = REAL(NNITROP)[9];
-    nitroparms.lnb1 = REAL(NNITROP)[10];
-    TEMPdoubletoint = REAL(NNITROP)[11];
-    nitroparms.lnFun = (int)TEMPdoubletoint;
-    nitroparms.maxln = REAL(NNITROP)[12];
-    nitroparms.minln = REAL(NNITROP)[13];
-    nitroparms.daymaxln = REAL(NNITROP)[14];
-
-    double newLeafcol[8760];
-    double newStemcol[8760];
-    double newRootcol[8760];
-    double newRhizomecol[8760];
-
-    double propLeaf;
-    int i, i2, i4;
-
-    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
-    double TTc = 0.0;
-    double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
-    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
-
-    /* Variables needed for collecting litter */
-    double LeafLitter = REAL(CENTCOEFS)[20], StemLitter = REAL(CENTCOEFS)[21];
-    double RootLitter = REAL(CENTCOEFS)[22], RhizomeLitter = REAL(CENTCOEFS)[23];
-    double LeafLitter_d = 0.0, StemLitter_d = 0.0;
-    double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
-    double ALitter = 0.0, BLitter = 0.0;
-
-    double StomWS = 1, LeafWS = 1;
-    double CanopyA, CanopyT;
-    double LeafN_0 = ileafn;
-    double LeafN = ileafn; /* Initial value of N in the leaf */
-    double iSp = Sp;
-
-    /* Maintenance respiration */
-    double mrc1 = REAL(MRESP)[0];
-    double mrc2 = REAL(MRESP)[1]; 
-
-    const double FieldC = soilcoefs[0];
-    const double WiltP = soilcoefs[1];
-    const double phi1 = soilcoefs[2];
-    const double phi2 = soilcoefs[3];
-    const double soilDepth = soilcoefs[4];
-    double waterCont = soilcoefs[5];
-    double soilEvap, TotEvap;
-
-    /* Soil Parameters*/
-    int soilType, wsFun, hydrDist;
-
-    const double seneLeaf = sencoefs[0];
-    const double seneStem = sencoefs[1];
-    const double seneRoot = sencoefs[2];
-    const double seneRhizome = sencoefs[3];
-
-    int soillayers = INTEGER(SOILLAYERS)[0];
-    double cwsVec[soillayers];
-    for(i2 = 0; i2 < soillayers; i2++) {
-        cwsVec[i2] = REAL(CWS)[i2];
-    }
-    double cwsVecSum = 0.0;
-    /* Some soil related empirical coefficients */
-    double rfl = REAL(SECS)[0];  /* root factor lambda */
-    double rsec = REAL(SECS)[1]; /* radiation soil evaporation coefficient */
-    double rsdf = REAL(SECS)[2]; /* root soil depth factor */
-    double scsf = REAL(SOILCOEFS)[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
-    double transpRes = REAL(SOILCOEFS)[7]; /* Resistance to transpiration from soil to leaf */
-    double leafPotTh = REAL(SOILCOEFS)[8]; /* Leaf water potential threshold */
-
-    /* Parameters for calculating leaf water potential */
-    double LeafPsim = 0.0;
-
-    /* Effect of Nitrogen */
+    double *centcoefs = REAL(CENTCOEFS);
+    int centTimestep = INTEGER(CENTTIMESTEP)[0];
+    double *centks = REAL(CENTKS);
+    int soilLayers = INTEGER(SOILLAYERS)[0];
+    double *soilDepths = REAL(SOILDEPTHS);
+    double *cws = REAL(CWS);
+    double hydrDist = INTEGER(HYDRDIST)[0];
+    double *secs = REAL(SECS);
     double kpLN = REAL(KPLN)[0];
     double lnb0 = REAL(LNB0)[0]; 
     double lnb1 = REAL(LNB1)[0];
     int lnfun = INTEGER(LNFUN)[0];
-
-    /* Century */
-    double MinNitro = REAL(CENTCOEFS)[19];
-    int doyNfert = REAL(CENTCOEFS)[18];
-    double Nfert;
-    double SCCs[9];
-    double Resp = 0.0;
-    int centTimestep = INTEGER(CENTTIMESTEP)[0];
-
-    double *sti , *sti2, *sti3, *sti4; 
-    double Remob;
-    int k = 0, q = 0, m = 0, n = 0;
-    int ri = 0;
-
-    struct Can_Str Canopy;
-    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
-    struct dbp_str dbpS;
-    struct cenT_str centS; 
-    struct soilML_str soilMLS;
-    struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
-    soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
-
-    centS.SCs[0] = 0.0;
-    centS.SCs[1] = 0.0;
-    centS.SCs[2] = 0.0;
-    centS.SCs[3] = 0.0;
-    centS.SCs[4] = 0.0;
-    centS.SCs[5] = 0.0;
-    centS.SCs[6] = 0.0;
-    centS.SCs[7] = 0.0;
-    centS.SCs[8] = 0.0;
-    centS.Resp = 0.0;
+    double upperT = REAL(UPPERTEMP)[0];
+    double lowerT = REAL(LOWERTEMP)[0];
+    /*Reading NitroP Variables */
+    struct nitroParms nitrop;
+    double TEMPdoubletoint;
+    nitrop.ileafN = REAL(NNITROP)[0];
+    nitrop.kln = REAL(NNITROP)[1];
+    nitrop.Vmaxb1 = REAL(NNITROP)[2];
+    nitrop.Vmaxb0 = REAL(NNITROP)[3];
+    nitrop.alphab1 = REAL(NNITROP)[4];
+    nitrop.alphab0 = REAL(NNITROP)[5];
+    nitrop.Rdb1 = REAL(NNITROP)[6];
+    nitrop.Rdb0 = REAL(NNITROP)[7];
+    nitrop.kpLN = REAL(NNITROP)[8];
+    nitrop.lnb0 = REAL(NNITROP)[9];
+    nitrop.lnb1 = REAL(NNITROP)[10];
+    TEMPdoubletoint = REAL(NNITROP)[11];
+    nitrop.lnFun = (int)TEMPdoubletoint;
+    nitrop.maxln = REAL(NNITROP)[12];
+    nitrop.minln = REAL(NNITROP)[13];
+    nitrop.daymaxln = REAL(NNITROP)[14];
 
     SEXP lists, names;
 
@@ -294,36 +205,79 @@ SEXP MisGro(
     PROTECT(MinNitroVec = allocVector(REALSXP,vecsize));
     PROTECT(RespVec = allocVector(REALSXP,vecsize));
     PROTECT(SoilEvaporation = allocVector(REALSXP,vecsize));
-    PROTECT(cwsMat = allocMatrix(REALSXP,soillayers,vecsize));
-    PROTECT(psimMat = allocMatrix(REALSXP,soillayers,vecsize));
-    PROTECT(rdMat = allocMatrix(REALSXP,soillayers,vecsize));
+    PROTECT(cwsMat = allocMatrix(REALSXP,soilLayers,vecsize));
+    PROTECT(psimMat = allocMatrix(REALSXP,soilLayers,vecsize));
+    PROTECT(rdMat = allocMatrix(REALSXP,soilLayers,vecsize));
     PROTECT(SCpools = allocVector(REALSXP,9));
     PROTECT(SNpools = allocVector(REALSXP,9));
     PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
+    double newLeafcol[8760];
+    double newStemcol[8760];
+    double newRootcol[8760];
+    double newRhizomecol[8760];
 
-    timestep = INTEGER(TIMESTEP)[0];
+    int i, i2, i3;
 
-    /* Soil Parameters */
-    soilType = INTEGER(SOILTYPE)[0];
-    wsFun = INTEGER(WSFUN)[0];
-    hydrDist = INTEGER(HYDRDIST)[0];
+    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
+    double TTc = 0.0;
+    double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
+    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
 
-    SCCs[0] = REAL(CENTCOEFS)[0];
-    SCCs[1] = REAL(CENTCOEFS)[1];
-    SCCs[2] = REAL(CENTCOEFS)[2];
-    SCCs[3] = REAL(CENTCOEFS)[3];
-    SCCs[4] = REAL(CENTCOEFS)[4];
-    SCCs[5] = REAL(CENTCOEFS)[5];
-    SCCs[6] = REAL(CENTCOEFS)[6];
-    SCCs[7] = REAL(CENTCOEFS)[7];
-    SCCs[8] = REAL(CENTCOEFS)[8];
+    /* Variables needed for collecting litter */
+    double LeafLitter = centcoefs[20], StemLitter = centcoefs[21];
+    double RootLitter = centcoefs[22], RhizomeLitter = centcoefs[23];
+    double LeafLitter_d = 0.0, StemLitter_d = 0.0;
+    double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
+    double ALitter = 0.0, BLitter = 0.0;
 
-    propLeaf = irtl; 
+    double *sti , *sti2, *sti3, *sti4; 
+    double Remob;
+    int k = 0, q = 0, m = 0, n = 0;
+    int ri = 0;
+
+    double StomWS = 1, LeafWS = 1;
+    double CanopyA, CanopyT;
+    double LeafN_0 = ileafn;
+    double LeafN = ileafn; /* Need to set it because it is used by CanA before it is computed */
+    double iSp = Sp;
+
+    /* Century */
+    double MinNitro = centcoefs[19];
+    int doyNfert = centcoefs[18];
+    double Nfert;
+    double SCCs[9];
+    double Resp = 0.0;
+
+    /* Maintenance respiration */
+    const double mrc1 = mresp[0];
+    const double mrc2 = mresp[1]; 
+
+    const double FieldC = soilcoefs[0];
+    const double WiltP = soilcoefs[1];
+    const double phi1 = soilcoefs[2];
+    const double phi2 = soilcoefs[3];
+    const double soilDepth = soilcoefs[4];
+    double waterCont = soilcoefs[5];
+    double soilEvap, TotEvap;
+
+    const double seneLeaf = sencoefs[0];
+    const double seneStem = sencoefs[1];
+    const double seneRoot = sencoefs[2];
+    const double seneRhizome = sencoefs[3];
+
+    struct Can_Str Canopy;
+    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
+    struct dbp_str dbpS;
+    struct cenT_str centS; 
+    struct soilML_str soilMLS;
+    struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
+    soTexS = soilTchoose(soilType);
+
+    Rhizome = iRhizome;
     /* It is useful to assume that there is a small amount of
        leaf area at the begining of the growing season. */
-    Rhizome = iRhizome;
-    Leaf = Rhizome * propLeaf; 
+    Leaf = Rhizome * irtl; 
     /* Initial proportion of the rhizome that is turned
        into leaf the first hour */
     Stem = Rhizome * 0.001;
@@ -337,7 +291,46 @@ SEXP MisGro(
     sti3 = &newRootcol[0];
     sti4 = &newRhizomecol[0];
 
-    for(i = 0; i < vecsize; i++) {
+    /* Some soil related empirical coefficients */
+    double rfl = secs[0];  /* root factor lambda */
+    double rsec = secs[1]; /* radiation soil evaporation coefficient */
+    double rsdf = secs[2]; /* root soil depth factor */
+    double scsf = REAL(SOILCOEFS)[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
+    double transpRes = REAL(SOILCOEFS)[7]; /* Resistance to transpiration from soil to leaf */
+    double leafPotTh = REAL(SOILCOEFS)[8]; /* Leaf water potential threshold */
+
+    double cwsVec[soilLayers];
+    for(i2 = 0; i2 < soilLayers; i2++) {
+        cwsVec[i2] = cws[i2];
+    }
+    double cwsVecSum = 0.0;
+    /* Parameters for calculating leaf water potential */
+    double LeafPsim = 0.0;
+
+    centS.SCs[0] = 0.0;
+    centS.SCs[1] = 0.0;
+    centS.SCs[2] = 0.0;
+    centS.SCs[3] = 0.0;
+    centS.SCs[4] = 0.0;
+    centS.SCs[5] = 0.0;
+    centS.SCs[6] = 0.0;
+    centS.SCs[7] = 0.0;
+    centS.SCs[8] = 0.0;
+    centS.Resp = 0.0;
+
+    SCCs[0] = centcoefs[0];
+    SCCs[1] = centcoefs[1];
+    SCCs[2] = centcoefs[2];
+    SCCs[3] = centcoefs[3];
+    SCCs[4] = centcoefs[4];
+    SCCs[5] = centcoefs[5];
+    SCCs[6] = centcoefs[6];
+    SCCs[7] = centcoefs[7];
+    SCCs[8] = centcoefs[8];
+
+
+    for(i = 0; i < vecsize; i++)
+    {
         /* First calculate the elapsed Thermal Time*/
         /* The idea is that here I need to divide by the time step
            to calculate the thermal time. For example, a 3 hour time interval
@@ -350,8 +343,8 @@ SEXP MisGro(
         Canopy = CanAC(LAI, doy[i], hr[i],
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax1, alpha1, kparm, theta, beta,
-                Rd1, Catm, b0, b1, StomWS, ws, kd, chil,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT,nitroparms, leafwidth, et_equation);
+                Rd, Catm, b0, b1, StomWS, ws, kd, chil,
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, leafwidth, et_equation);
 
         /* if(ISNAN(Leaf)) { */
         /*    Rprintf("Leaf %.2f \n",Leaf); */
@@ -371,7 +364,7 @@ SEXP MisGro(
         /*    Rprintf("kparm %.2f \n",kparm); */
         /*    Rprintf("theta %.2f \n",theta); */
         /*    Rprintf("beta %.2f \n",beta); */
-        /*    Rprintf("Rd1 %.2f \n",Rd1);  */
+        /*    Rprintf("Rd %.2f \n",Rd);  */
         /*    Rprintf("Catm %.2f \n",Catm); */
         /*    Rprintf("b01 %.2f \n",b01); */
         /*    Rprintf("b11 %.2f \n",b11); */
@@ -394,9 +387,9 @@ SEXP MisGro(
         CanopyT = Canopy.Trans * timestep;
 
         /* Inserting the multilayer model */
-        if(soillayers > 1) {
-            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
-                    phi1, phi2, soTexS, wsFun, soillayers, Root, 
+        if(soilLayers > 1) {
+            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, soilDepths, FieldC, WiltP,
+                    phi1, phi2, soTexS, wsFun, soilLayers, Root, 
                     LAI, 0.68, temp[i], solar[0], windspeed[i], rh[i], 
                     hydrDist, rfl, rsec, rsdf);
 
@@ -404,13 +397,13 @@ SEXP MisGro(
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i4 = 0; i4 < soillayers; i4++) {
-                cwsVec[i4] = soilMLS.cws[i4];
-                cwsVecSum += cwsVec[i4];
-                REAL(cwsMat)[i4 + i*soillayers] = soilMLS.cws[i4];
-                REAL(rdMat)[i4 + i*soillayers] = soilMLS.rootDist[i4];
+            for(i3 = 0; i3 < soilLayers; i3++) {
+                cwsVec[i3] = soilMLS.cws[i3];
+                cwsVecSum += cwsVec[i3];
+                REAL(cwsMat)[i3 + i*soilLayers] = soilMLS.cws[i3];
+                REAL(rdMat)[i3 + i*soilLayers] = soilMLS.rootDist[i3];
             }
-            waterCont = cwsVecSum / soillayers;
+            waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
         } else {
             soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
@@ -474,7 +467,7 @@ SEXP MisGro(
         /* When the day of the year is equal to the day the N fert was applied
          * then there is addition of fertilizer */
         if(doyNfert == doy[i]) {
-            Nfert = REAL(CENTCOEFS)[17] / 24.0;
+            Nfert = centcoefs[17] / 24.0;
         } else {
             Nfert = 0;
         }                
@@ -573,7 +566,7 @@ SEXP MisGro(
            management in north-eastern greece*/
 
         if(i%24 == 0) {
-            Sp = iSp - (INTEGER(DOY)[i] - INTEGER(DOY)[0]) * SpD;
+            Sp = iSp - (doy[i] - doy[0]) * SpD;
         }
 
         LAI = Leaf * Sp ;
@@ -581,15 +574,11 @@ SEXP MisGro(
         if(LAI > 20.0) LAI = 20.0;
 
         if(TTc < seneStem) {
-
             Stem += newStem;
-
         } else {
-
             Stem += newStem - *(sti2+q);
             StemLitter += *(sti2+q);
             q++;
-
         }
 
         if(TTc < seneRoot) {
@@ -656,21 +645,21 @@ SEXP MisGro(
             RootLitter -= RootLitter_d;
             RhizomeLitter -= RhizomeLitter_d;
 
-            centS = Century(&LeafLitter_d,&StemLitter_d,&RootLitter_d,&RhizomeLitter_d,
-                    waterCont,temp[i],centTimestep,SCCs,WaterS.runoff,
+            centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
+                    waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
                     Nfert, /* N fertilizer*/
                     MinNitro, /* initial Mineral nitrogen */
                     precip[i], /* precipitation */
-                    REAL(CENTCOEFS)[9], /* Leaf litter lignin */
-                    REAL(CENTCOEFS)[10], /* Stem litter lignin */
-                    REAL(CENTCOEFS)[11], /* Root litter lignin */
-                    REAL(CENTCOEFS)[12], /* Rhizome litter lignin */
-                    REAL(CENTCOEFS)[13], /* Leaf litter N */
-                    REAL(CENTCOEFS)[14], /* Stem litter N */
-                    REAL(CENTCOEFS)[15],  /* Root litter N */
-                    REAL(CENTCOEFS)[16],   /* Rhizome litter N */
+                    centcoefs[9], /* Leaf litter lignin */
+                    centcoefs[10], /* Stem litter lignin */
+                    centcoefs[11], /* Root litter lignin */
+                    centcoefs[12], /* Rhizome litter lignin */
+                    centcoefs[13], /* Leaf litter N */
+                    centcoefs[14], /* Stem litter N */
+                    centcoefs[15],  /* Root litter N */
+                    centcoefs[16],   /* Rhizome litter N */
                     soilType, 
-                    REAL(CENTKS));
+                    centks);
         }
 
         MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
