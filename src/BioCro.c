@@ -107,7 +107,7 @@ struct BioGro_results_str BioGro(
     int doyNfert = centcoefs[18];
     double Nfert;
     double SCCs[9];
-    // double Resp; unused
+    double Resp = 0.0;
 
     /* Maintenance respiration */
     const double mrc1 = mresp[0];
@@ -156,6 +156,12 @@ struct BioGro_results_str BioGro(
     double rfl = secs[0];  /* root factor lambda */
     double rsec = secs[1]; /* radiation soil evaporation coefficient */
     double rsdf = secs[2]; /* root soil depth factor */
+    double scsf = soilcoefs[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
+    double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
+    double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
+
+    /* Parameters for calculating leaf water potential */
+	double LeafPsim = 0.0;
 
     centS.SCs[0] = 0.0;
     centS.SCs[1] = 0.0;
@@ -203,21 +209,34 @@ struct BioGro_results_str BioGro(
         /*    error("something is NA \n"); */
         /* } */
 
-        if (ISNAN(CanopyA)) {
-            Rprintf("LAI %.2f \n", LAI);
-            Rprintf("Leaf %.2f \n", Leaf);
-            Rprintf("irtl %.2f \n", irtl);
-            Rprintf("Rhizome %.2f \n", Rhizome);
-            Rprintf("Sp %.2f \n", Sp);
-            Rprintf("doy[i] %.i %.i \n", i, doy[i]);
-            Rprintf("hr[i] %.i %.i \n", i, hr[i]);
-            Rprintf("solar[i] %.i %.2f \n", i, solar[i]);
-            Rprintf("temp[i] %.i %.2f \n", i, temp[i]);
-            Rprintf("rh[i] %.i %.2f \n", i, rh[i]);
-            Rprintf("windspeed[i] %.i %.2f \n", i, windspeed[i]);
-            Rprintf("lat %.i %.2f \n", i, lat);
-            Rprintf("nlayers %.i %.i \n", i, nlayers);
-        }
+        /* if(ISNAN(CanopyA)) { */
+        /*    Rprintf("LAI %.2f \n",LAI);  */
+        /*    Rprintf("Leaf %.2f \n",Leaf); */
+        /*    Rprintf("irtl %.2f \n", irtl); */
+        /*    Rprintf("Rhizome %.2f \n",Rhizome); */
+        /*    Rprintf("Sp %.2f \n",Sp);    */
+        /*    Rprintf("vmax1 %.2f \n",vmax1); */
+        /*    Rprintf("alpha1 %.2f \n",alpha1); */
+        /*    Rprintf("kparm %.2f \n",kparm); */
+        /*    Rprintf("theta %.2f \n",theta); */
+        /*    Rprintf("beta %.2f \n",beta); */
+        /*    Rprintf("Rd %.2f \n",Rd);  */
+        /*    Rprintf("Catm %.2f \n",Catm); */
+        /*    Rprintf("b01 %.2f \n",b01); */
+        /*    Rprintf("b11 %.2f \n",b11); */
+        /*    Rprintf("StomWS %.2f \n",StomWS); */
+        /*    Rprintf("kd %.2f \n",kd);                  */
+        /*    Rprintf("Sp %.2f \n",Sp);                   */
+        /*    Rprintf("doy[i] %.i %.i \n",i,doy[i]);  */
+        /*    Rprintf("hr[i] %.i %.i \n",i,hr[i]); */
+        /*    Rprintf("solar[i] %.i %.2f \n",i,solar[i]); */
+        /*    Rprintf("temp[i] %.i %.2f \n",i,temp[i]); */
+        /*    Rprintf("rh[i] %.i %.2f \n",i,rh[i]); */
+        /*    Rprintf("windspeed[i] %.i %.2f \n",i,windspeed[i]); */
+        /*    Rprintf("lat %.i %.2f \n",i,lat); */
+        /*    Rprintf("nlayers %.i %.i \n",i,nlayers);    */
+        /*    error("something is NA \n"); */
+        /* } */
 
         /* Inserting the multilayer model */
         if (soilLayers > 1) {
@@ -241,6 +260,43 @@ struct BioGro_results_str BioGro(
             waterCont = WaterS.awc;
             StomWS = WaterS.rcoefPhoto;
             LeafWS = WaterS.rcoefSpleaf;
+        }
+
+        /* An alternative way of computing water stress is by doing the leaf
+         * water potential. This is done if the wsFun is equal to 4 */
+
+        if(wsFun == 4) {
+            /* Calculating the leaf water potential */
+            /* From Campbell E = (Psim_s - Psim_l)/R or
+             * evaporation is equal to the soil water potential
+             * minus the leaf water potential divided by the resistance.
+             * This can be rearranged to Psim_l = Psim_s - E x R   */
+            /* It is assumed that total resistance is 5e6 m^4 s^-1
+             * kg^-1 
+             * Transpiration is in Mg ha-2 hr-1
+             * Multiply by 1e3 to go from Mg to kg
+             * Multiply by 1e-4 to go from ha to m^2 
+             * This needs to go from hours to seconds that's
+             * why the conversion factor is (1/3600).*/
+            LeafPsim = WaterS.psim - (CanopyT * 1e3 * 1e-4 * 1.0/3600.0) * transpRes;
+
+            /* From WIMOVAVC the proposed equation to simulate the effect of water
+             * stress on stomatal conductance */
+            if(LeafPsim < leafPotTh) {
+                /* StomWS = 1 - ((LeafPsim - leafPotTh)/1000 *
+                 * scsf); In WIMOVAC this equation is used but
+                 * the absolute values are taken from the
+                 * potentials. Since they both should be
+                 * negative and leafPotTh is greater than
+                 * LeafPsim this can be rearranged to*/ 
+                StomWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
+                /* StomWS = 1; */
+                if(StomWS < 0.1) StomWS = 0.1;
+            } else {
+                StomWS = 1;
+            }
+        } else {
+            LeafPsim = 0;
         }
 
         /* Picking the dry biomass partitioning coefficients */
@@ -267,6 +323,12 @@ struct BioGro_results_str BioGro(
             Rprintf("iter %i \n", i);
         }
 
+        /* Here I can insert the code for Nitrogen limitations on photosynthesis
+           parameters. This is taken From Harley et al. (1992) Modelling cotton under
+           elevated CO2. PCE. This is modeled as a simple linear relationship between
+           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
+           availability and possibly by the Thermal time accumulated.*/
+
         LeafN = LeafN_0 * exp(-kLN * TTc);
 
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
@@ -280,6 +342,12 @@ struct BioGro_results_str BioGro(
             /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
             /* The 0.02 and 0.03 are constants here but vary depending on species
                as pointed out in that reference. */
+
+            if(ISNAN(newLeaf)) {
+                Rprintf("LeafWS %.2f \n", LeafWS);
+                Rprintf("CanopyA %.2f \n", CanopyA);
+            }
+
             newLeaf = resp(newLeaf, mrc1, temp[i]);
 
             *(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
@@ -424,14 +492,8 @@ struct BioGro_results_str BioGro(
                     centks);
         }
 
-        /* Here I can insert the code for Nitrogen limitations on photosynthesis
-           parameters. This is taken From Harley et al. (1992) Modelling cotton under
-           elevated CO2. PCE. This is modeled as a simple linear relationship between
-           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
-           availability and possibly by the Thermal time accumulated.*/
-
         MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
-        // Resp = centS.Resp; set but not used
+        Resp = centS.Resp;
         SCCs[0] = centS.SCs[0];
         SCCs[1] = centS.SCs[1];
         SCCs[2] = centS.SCs[2];
@@ -452,6 +514,9 @@ struct BioGro_results_str BioGro(
         results.Rhizomey[i] = Rhizome;
         results.Grainy[i] = Grain;
         results.LAIc[i] = LAI;
+		results.respiration[i] = Resp / (24*centTimestep);
+		results.above_ground_litter[i] = ALitter;
+		results.below_ground_litter[i] = BLitter;
     }
     return(results);
 }

@@ -297,9 +297,9 @@ SEXP MisGro(
     double rfl = secs[0];  /* root factor lambda */
     double rsec = secs[1]; /* radiation soil evaporation coefficient */
     double rsdf = secs[2]; /* root soil depth factor */
-    double scsf = REAL(SOILCOEFS)[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
-    double transpRes = REAL(SOILCOEFS)[7]; /* Resistance to transpiration from soil to leaf */
-    double leafPotTh = REAL(SOILCOEFS)[8]; /* Leaf water potential threshold */
+    double scsf = soilcoefs[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
+    double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
+    double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
 
     double cwsVec[soilLayers];
     for(i2 = 0; i2 < soilLayers; i2++) {
@@ -362,6 +362,7 @@ SEXP MisGro(
         /* if(ISNAN(CanopyA)) { */
         /*    Rprintf("LAI %.2f \n",LAI);  */
         /*    Rprintf("Leaf %.2f \n",Leaf); */
+        /*    Rprintf("irtl %.2f \n", irtl); */
         /*    Rprintf("Rhizome %.2f \n",Rhizome); */
         /*    Rprintf("Sp %.2f \n",Sp);    */
         /*    Rprintf("vmax1 %.2f \n",vmax1); */
@@ -472,6 +473,11 @@ SEXP MisGro(
         } else {
             Nfert = 0;
         }                
+
+        if (ISNAN(kRhizome) || ISNAN(kLeaf) || ISNAN(kRoot) || ISNAN(kStem) || ISNAN(kGrain)) {
+            Rprintf("kLeaf %.2f, kStem %.2f, kRoot %.2f, kRhizome %.2f, kGrain %.2f \n", kLeaf, kStem, kRoot, kRhizome, kGrain);
+            Rprintf("iter %i \n", i);
+        }
 
         /* Here I can insert the code for Nitrogen limitations on photosynthesis
            parameters. This is taken From Harley et al. (1992) Modelling cotton under

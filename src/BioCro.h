@@ -19,6 +19,9 @@ struct BioGro_results_str {
 	double Rhizomey[8760];
 	double Grainy[8760];
 	double LAIc[8760];
+	double respiration[8760];
+	double above_ground_litter[8760];
+	double below_ground_litter[8760];
 };
 
 struct Light_model {
