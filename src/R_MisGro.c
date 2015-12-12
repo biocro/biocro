@@ -391,7 +391,7 @@ SEXP MisGro(
         if(soilLayers > 1) {
             soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, soilDepths, FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, soilLayers, Root, 
-                    LAI, 0.68, temp[i], solar[0], windspeed[i], rh[i], 
+                    LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
                     hydrDist, rfl, rsec, rsdf);
 
             StomWS = soilMLS.rcoefPhoto;
