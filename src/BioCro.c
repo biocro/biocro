@@ -195,6 +195,14 @@ struct BioGro_results_str BioGro(
         CanopyA = Canopy.Assim * timestep;
         CanopyT = Canopy.Trans * timestep;
 
+        /* if(ISNAN(Leaf)) { */
+        /*    Rprintf("Leaf %.2f \n",Leaf); */
+        /*    Rprintf("kLeaf %.2f \n",kLeaf); */
+        /*    Rprintf("newLeaf %.2f \n",newLeaf); */
+        /*    Rprintf("LeafWS %.2f \n",LeafWS); */
+        /*    error("something is NA \n"); */
+        /* } */
+
         if (ISNAN(CanopyA)) {
             Rprintf("LAI %.2f \n", LAI);
             Rprintf("Leaf %.2f \n", Leaf);
@@ -434,8 +442,8 @@ struct BioGro_results_str BioGro(
         SCCs[7] = centS.SCs[7];
         SCCs[8] = centS.SCs[8];
 
-        ALitter += LeafLitter + StemLitter;
-        BLitter += RootLitter + RhizomeLitter;
+        ALitter = LeafLitter + StemLitter;
+        BLitter = RootLitter + RhizomeLitter;
 
         results.CanopyAssim[i] =  CanopyA;
         results.Leafy[i] = Leaf;
