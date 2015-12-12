@@ -241,6 +241,8 @@ SEXP MisGro(
     double LeafN_0 = ileafn;
     double LeafN = ileafn; /* Need to set it because it is used by CanA before it is computed */
     double iSp = Sp;
+	double vmax = vmax1;
+	double alpha = alpha1;
 
     /* Century */
     double MinNitro = centcoefs[19];
@@ -342,7 +344,7 @@ SEXP MisGro(
 
         Canopy = CanAC(LAI, doy[i], hr[i],
                 solar[i], temp[i], rh[i], windspeed[i],
-                lat, nlayers, vmax1, alpha1, kparm, theta, beta,
+                lat, nlayers, vmax, alpha, kparm, theta, beta,
                 Rd, Catm, b0, b1, StomWS, ws, kd, chil,
                 heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, leafwidth, et_equation);
 
@@ -482,8 +484,8 @@ SEXP MisGro(
         LeafN = LeafN_0 * pow(Stem + Leaf, -kLN); 
         if(LeafN > LeafN_0) LeafN = LeafN_0;
 
-        vmax1 = (LeafN_0 - LeafN) * vmaxb1 + vmax1; 
-        alpha1 = (LeafN_0 - LeafN) * alphab1 + alpha1; 
+        vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1; 
+        alpha = (LeafN_0 - LeafN) * alphab1 + alpha1; 
 
         /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
            This modifies the amount of N available in the soil. 
@@ -695,8 +697,8 @@ SEXP MisGro(
         REAL(LeafNitrogen)[i] = LeafN;
         REAL(AboveLitter)[i] = ALitter;
         REAL(BelowLitter)[i] = BLitter;
-        REAL(VmaxVec)[i] = vmax1;
-        REAL(AlphaVec)[i] = alpha1;
+        REAL(VmaxVec)[i] = vmax;
+        REAL(AlphaVec)[i] = alpha;
         REAL(SpVec)[i] = Sp;
         REAL(MinNitroVec)[i] = MinNitro/ (24*centTimestep);
         REAL(RespVec)[i] = Resp / (24*centTimestep);
