@@ -483,7 +483,7 @@ SEXP MisGro(
         LeafN = LeafN_0 * pow(Stem + Leaf, -kLN); 
         if(LeafN > LeafN_0) LeafN = LeafN_0;
 
-        vmax1 = (LeafN_0 - LeafN) * vmaxb1 + REAL(VMAX)[0]; 
+        vmax1 = (LeafN_0 - LeafN) * vmaxb1 + vmax1; 
         alpha1 = (LeafN_0 - LeafN) * alphab1 + alpha1; 
 
         /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
@@ -497,17 +497,18 @@ SEXP MisGro(
 
         if(kLeaf > 0) {
             newLeaf = CanopyA * kLeaf * LeafWS; 
-
-            if(ISNAN(newLeaf)) {
-                Rprintf("LeafWS %.2f \n", LeafWS);
-                Rprintf("CanopyA %.2f \n", CanopyA);
-            }
             /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
                 Plant. Phys. 46, 233-235. For this the water stress coefficient is different
                 for leaf and vmax. */
             /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
             /* The 0.02 and 0.03 are constants here but vary depending on species
                as pointed out in that reference. */
+
+            if(ISNAN(newLeaf)) {
+                Rprintf("LeafWS %.2f \n", LeafWS);
+                Rprintf("CanopyA %.2f \n", CanopyA);
+            }
+
             newLeaf = resp(newLeaf, mrc1, temp[i]);
 
             *(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
@@ -519,28 +520,6 @@ SEXP MisGro(
             Stem += kStem * -newLeaf * 0.9;
             Root += kRoot * -newLeaf * 0.9;
             Grain += kGrain * -newLeaf * 0.9;
-        }
-
-        /* New Stem*/
-        if(kStem >= 0) {
-            newStem = CanopyA * kStem ;
-            newStem = resp(newStem, mrc1, temp[i]);
-            *(sti2+i) = newStem;
-        } else {
-            error("kStem should be positive");
-        }
-
-        if(kRoot > 0) {
-            newRoot = CanopyA * kRoot ;
-            newRoot = resp(newRoot, mrc2, temp[i]);
-            *(sti3+i) = newRoot;
-        } else {
-
-            newRoot = Root * kRoot ;
-            Rhizome += kRhizome * -newRoot * 0.9;
-            Stem += kStem * -newRoot       * 0.9;
-            Leaf += kLeaf * -newRoot * 0.9;
-            Grain += kGrain * -newRoot * 0.9;
         }
 
         if(TTc < seneLeaf) {
@@ -573,12 +552,33 @@ SEXP MisGro(
 
         if(LAI > 20.0) LAI = 20.0;
 
+        /* New Stem*/
+        if(kStem >= 0) {
+            newStem = CanopyA * kStem ;
+            newStem = resp(newStem, mrc1, temp[i]);
+            *(sti2+i) = newStem;
+        } else {
+            error("kStem should be positive");
+        }
+
         if(TTc < seneStem) {
             Stem += newStem;
         } else {
             Stem += newStem - *(sti2+q);
             StemLitter += *(sti2+q);
             q++;
+        }
+
+        if(kRoot > 0) {
+            newRoot = CanopyA * kRoot ;
+            newRoot = resp(newRoot, mrc2, temp[i]);
+            *(sti3+i) = newRoot;
+        } else {
+            newRoot = Root * kRoot ;
+            Rhizome += kRhizome * -newRoot * 0.9;
+            Stem += kStem * -newRoot       * 0.9;
+            Leaf += kLeaf * -newRoot * 0.9;
+            Grain += kGrain * -newRoot * 0.9;
         }
 
         if(TTc < seneRoot) {

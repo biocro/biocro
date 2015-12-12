@@ -136,7 +136,11 @@ struct BioGro_results_str BioGro(
     soTexS = soilTchoose(soilType);
 
     Rhizome = iRhizome;
+    /* It is useful to assume that there is a small amount of
+       leaf area at the begining of the growing season. */
     Leaf = Rhizome * irtl;
+    /* Initial proportion of the rhizome that is turned
+       into leaf the first hour */
     Stem = Rhizome * 0.001;
     Root = Rhizome * 0.001;
     LAI = Leaf * Sp;
@@ -256,6 +260,7 @@ struct BioGro_results_str BioGro(
         }
 
         LeafN = LeafN_0 * exp(-kLN * TTc);
+
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
         alpha = (LeafN_0 - LeafN) * alphab1 + alpha1;
 
@@ -309,10 +314,12 @@ struct BioGro_results_str BioGro(
         LAI = Leaf * Sp;
 
         /* New Stem*/
-        if (kStem > 0) {
+        if (kStem >= 0) {
             newStem = CanopyA * kStem;
             newStem = resp(newStem, mrc1, temp[i]);
             *(sti2+i) = newStem;
+        } else {
+            error("kStem should be positive");
         }
 
         if (TTc < seneStem) {
