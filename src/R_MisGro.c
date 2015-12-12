@@ -346,6 +346,9 @@ SEXP MisGro(
                 Rd, Catm, b0, b1, StomWS, ws, kd, chil,
                 heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, leafwidth, et_equation);
 
+        CanopyA = Canopy.Assim * timestep;
+        CanopyT = Canopy.Trans * timestep;
+
         /* if(ISNAN(Leaf)) { */
         /*    Rprintf("Leaf %.2f \n",Leaf); */
         /*    Rprintf("kLeaf %.2f \n",kLeaf); */
@@ -381,10 +384,6 @@ SEXP MisGro(
         /*    Rprintf("nlayers %.i %.i \n",i,nlayers);    */
         /*    error("something is NA \n"); */
         /* } */
-
-        /* Collecting the results */
-        CanopyA = Canopy.Assim * timestep;
-        CanopyT = Canopy.Trans * timestep;
 
         /* Inserting the multilayer model */
         if(soilLayers > 1) {
