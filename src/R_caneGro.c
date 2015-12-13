@@ -160,7 +160,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     // double leafREMOB = REAL(LEAFREMOBILIZE)[0]; unused
     // int optiontocalculaterootdepth = INTEGER(OPTIONTOCALCULATEROOTDEPTH)[0];
     // double rootfrontvelocity = REAL(ROOTFRONTVELOCITY)[0];
-    double irrig = REAL(IRRIG)[0];
+    // double irrig = REAL(IRRIG)[0];
 
     /*Reading NitroP Variables */
     struct nitroParms nitrop;

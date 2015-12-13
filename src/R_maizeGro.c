@@ -12,7 +12,8 @@
 #include "R_maizeGro.h" 
 #include "AuxMaizeGro.h"
 
-SEXP maizeGro(SEXP DOY,             /* Day of the year                   1 */
+SEXP maizeGro(
+        SEXP DOY,             /* Day of the year                   1 */
         SEXP HR,                    /* Hour                              2 */
         SEXP SOLAR,                 /* Solar radiation                   3 */
         SEXP TEMP,                  /* Temperature                       4 */
@@ -38,9 +39,16 @@ SEXP maizeGro(SEXP DOY,             /* Day of the year                   1 */
         )
 {
     /* Initializing variables  */
+    int soilType = INTEGER(SOILP2)[0];
+    int wsFun = INTEGER(SOILP2)[2];
+    int hydrDist = INTEGER(SOILP2)[3];
+    double lat = REAL(LAT)[0];
+    int soillayers = INTEGER(SOILP2)[1];
+    int timestep = INTEGER(TIMESTEP)[0];
+
+    double *soilcoefs = REAL(SOILP);
 
     int vecsize = 8760 ; /* 365 days * 24 hours  */
-    int i, i2, i3, i4;
 
     struct nitroParms nitroparms;
     double TEMPdoubletoint;
@@ -60,209 +68,6 @@ SEXP maizeGro(SEXP DOY,             /* Day of the year                   1 */
     nitroparms.maxln = REAL(NNITROP)[12];
     nitroparms.minln = REAL(NNITROP)[13];
     nitroparms.daymaxln = REAL(NNITROP)[14];
-
-    /* Some structures */
-    struct lai_str tmpLAI;
-    struct maize_dbp_str dbpS;
-    struct soilML_str soilMLS;
-    struct soilText_str soTexS; 
-    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
-
-    int plantDate, emergeDate, harvestDate;
-    double baseTemp;
-    // double maxLeaves; unused
-    double plantEmerge, phyllochron1, phyllochron2;
-    double R1, R2, R3, R4, R5, R6;
-    double phenoStage = 0.0;
-
-    double TTc = 0.0, TTc_V10 = 0.0;
-    // double TTc_Vn = 0.0; unused
-
-    double LAI = 0.0;
-
-    double lat = REAL(LAT)[0];
-    int timestep = INTEGER(TIMESTEP)[0];
-
-    /* Variables for photosynthesis */
-    double vmax1, vmax11, vmax12, alpha1, kparm1, theta, beta, Rd11, Rd12, Rd1,upperT,lowerT;
-    double vmax;
-    double alpha;
-    double Ca, b01, b11, ws_0;
-    int ws;
-    double StomWS = 1;
-    double CanopyA, CanopyT;
-    struct Can_Str Canopy;
-
-    /* Variables for canopy */
-    double Sp, nlayers, kd, chil, heightFactor;
-    double mrc1;
-    // double SpD; unused
-    // double mrc2; unused
-
-    /* Variables for senescence */
-    double seneLeaf, seneStem, seneRoot;
-    double newLeafcol[8760];
-    double newStemcol[8760];
-    double newRootcol[8760];
-    double *sti, *sti2, *sti3;
-    int k = 0, j = 0, q = 0, m = 0;
-    sti = &newLeafcol[0];
-    sti2 = &newStemcol[0];
-    sti3 = &newRootcol[0];
-
-    /* Variables for nitrogen */
-    double iLeafN, kLN, vmax_b1, alpha_b1, kpLN, lnb0, lnb1, lnFun_0;
-    double LeafN, LeafNR;
-    int lnFun; 
-
-    /* Variables for leaf area index */
-    double laiMethod, TTcoef, maxLAI;
-    double Ax, LT, a1, a2, k0, L0, LLx, Lx, LNl, Amax, c1, c2, c3, 
-           c4, a, b, x0, f, g;
-
-    /* Variables for C allocation */
-    double kLeaf, kStem, kRoot, kGrain;
-    double newLeaf, newStem, newRoot, newGrain;
-    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Grain = 0.0;
-
-    double plantdensity = REAL(PLANTDENSITY)[0];
-
-    /* Variables for soil parameters */
-    double FieldC, WiltP, phi1, phi2, soilDepth;
-    int soilType, wsFun, hydrDist;
-    double soilEvap, TotEvap;
-    double waterCont = 0.3;
-    double LeafWS = 1;
-    int soillayers = INTEGER(SOILP2)[1];
-    double cwsVec[soillayers];
-    for(i3 = 0; i3 < soillayers; i3++) {
-        cwsVec[i3] = REAL(CWS)[i3];
-    } 
-    double cwsVecSum = 0.0;
-    double rfl;  /* root factor lambda */
-    double rsec; /* radiation soil evaporation coefficient */
-    double rsdf; /* root soil depth factor */
-    double scsf; /* stomatal conductance sensitivity factor */
-    double transpRes; /* Resistance to transpiration from soil to leaf */
-    double leafPotTh; /* Leaf water potential threshold */
-
-    /* Parameters for calculating leaf water potential */
-    double LeafPsim = 0.0;
-
-    /* Extracting dates */
-
-    plantDate = INTEGER(DATES)[0];
-    emergeDate = INTEGER(DATES)[1];
-    harvestDate = INTEGER(DATES)[2];
-
-    /* Extracting phenology parameters */
-
-    baseTemp = REAL(PHENOP)[0];
-    // maxLeaves = REAL(PHENOP)[1]; unused
-    plantEmerge = REAL(PHENOP)[2];
-    phyllochron1 = REAL(PHENOP)[3];
-    phyllochron2 = REAL(PHENOP)[4];
-    R1 = REAL(PHENOP)[5];
-    R2 = REAL(PHENOP)[6];
-    R3 = REAL(PHENOP)[7];
-    R4 = REAL(PHENOP)[8];
-    R5 = REAL(PHENOP)[9];
-    R6 = REAL(PHENOP)[10];
-
-    /* Extracting photosynthesis parameters */
-
-    vmax11 = REAL(PHOTOP)[0];
-    vmax12 = REAL(PHOTOP)[1];
-    vmax = vmax11;
-    alpha1 = REAL(PHOTOP)[2];
-    alpha = alpha1;
-    kparm1 = REAL(PHOTOP)[3];
-    theta = REAL(PHOTOP)[4];
-    beta = REAL(PHOTOP)[5];
-    Rd11 = REAL(PHOTOP)[6];
-    Rd12 = REAL(PHOTOP)[7];
-    Ca = REAL(PHOTOP)[8];
-    b01 = REAL(PHOTOP)[9];
-    b11 = REAL(PHOTOP)[10];
-    ws_0 = REAL(PHOTOP)[11];
-    ws = ws_0;
-    upperT = REAL(PHOTOP)[12];
-    lowerT= REAL(PHOTOP)[13];
-
-    /* Extracting canopy parameters */
-    Sp = REAL(CANOPYP)[0];
-    // SpD = REAL(CANOPYP)[1]; unused
-    nlayers = REAL(CANOPYP)[2];
-    kd = REAL(CANOPYP)[3];
-    chil = REAL(CANOPYP)[4];
-    mrc1 = REAL(CANOPYP)[5];
-    // mrc2 = REAL(CANOPYP)[6]; unused
-    heightFactor = REAL(CANOPYP)[7];
-
-    /* Extracting senescence parameters */
-    seneStem = REAL(SENEP)[0];
-    seneLeaf = REAL(SENEP)[1];
-    seneRoot = REAL(SENEP)[2];
-
-    /* Extracting nitrogen parameters */
-    iLeafN = REAL(NITROP)[0];
-    LeafN = iLeafN;
-    LeafNR = LeafN;
-    kLN = REAL(NITROP)[1];
-    vmax_b1 = REAL(NITROP)[2];
-    alpha_b1 = REAL(NITROP)[3];
-    kpLN = REAL(NITROP)[4];
-    lnb0 = REAL(NITROP)[5];
-    lnb1 = REAL(NITROP)[6];
-    lnFun_0 = REAL(NITROP)[7];
-    lnFun = lnFun_0;
-
-    /* Extracting LAI parms */
-    laiMethod = REAL(LAIP)[0];
-    TTcoef = REAL(LAIP)[1];
-    maxLAI = REAL(LAIP)[2];
-    Ax = REAL(LAIP)[3];
-    LT = REAL(LAIP)[4];
-    a1 = REAL(LAIP)[5];
-    a2 = REAL(LAIP)[6];
-    k0 = REAL(LAIP)[7];
-    L0 = REAL(LAIP)[8];
-    LLx = REAL(LAIP)[9];
-    Lx = REAL(LAIP)[10];
-    LNl = REAL(LAIP)[11];
-    Amax = REAL(LAIP)[12];
-    c1 = REAL(LAIP)[13];
-    c2 = REAL(LAIP)[14];
-    c3 = REAL(LAIP)[15];
-    c4 = REAL(LAIP)[16];
-    a = REAL(LAIP)[17];
-    b = REAL(LAIP)[18];
-    x0 = REAL(LAIP)[19];
-    f = REAL(LAIP)[20];
-    g = REAL(LAIP)[21];
-
-    /* Extracting soil parameters */
-
-    FieldC = REAL(SOILP)[0];
-    WiltP = REAL(SOILP)[1];
-    phi1 = REAL(SOILP)[2];
-    phi2 = REAL(SOILP)[3];
-    soilDepth = REAL(SOILP)[4];
-    scsf = REAL(SOILP)[5];
-    transpRes = REAL(SOILP)[6];
-    leafPotTh = REAL(SOILP)[7];
-    rfl = REAL(SOILP)[8];
-    rsec = REAL(SOILP)[9];
-    rsdf = REAL(SOILP)[10];
-
-    /* Extracting soil parameters 2 */
-    soilType = INTEGER(SOILP2)[0];
-    wsFun = INTEGER(SOILP2)[2];
-    hydrDist = INTEGER(SOILP2)[3];
-
-    soTexS = soilTchoose(soilType);
-
-    /* Create list components */
 
     SEXP lists;
     SEXP names;
@@ -317,6 +122,191 @@ SEXP maizeGro(SEXP DOY,             /* Day of the year                   1 */
     PROTECT(SoilEvaporation = allocVector(REALSXP,vecsize)); /* 23 */
     PROTECT(SoilWatCont = allocVector(REALSXP,vecsize)); /* 24 */
     PROTECT(StomatalCondCoefs = allocVector(REALSXP,vecsize)); /* 25 */
+
+
+    double newLeafcol[8760];
+    double newStemcol[8760];
+    double newRootcol[8760];
+
+    int i, i2, i3, i4;
+
+    double Leaf = 0.0, Stem = 0.0, Root = 0.0, LAI = 0.0, Grain = 0.0;
+    double TTc = 0.0, TTc_V10 = 0.0;
+    double kLeaf, kStem, kRoot, kGrain;
+    double newLeaf, newStem, newRoot, newGrain;
+
+    double *sti, *sti2, *sti3;
+    int k = 0, j = 0, q = 0, m = 0;
+
+    double StomWS = 1, LeafWS = 1;
+    double CanopyA, CanopyT;
+    double LeafN, LeafNR;
+    double vmax;
+    double alpha;
+
+    const double FieldC = soilcoefs[0];
+    const double WiltP = soilcoefs[1];
+    const double phi1 = soilcoefs[2];
+    const double phi2 = soilcoefs[3];
+    const double soilDepth = soilcoefs[4];
+    double waterCont = 0.3;
+    double soilEvap, TotEvap;
+
+    const double seneStem = REAL(SENEP)[0];
+    const double seneLeaf = REAL(SENEP)[1];
+    const double seneRoot = REAL(SENEP)[2];
+
+    struct Can_Str Canopy = {0,0,0};
+    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
+    struct maize_dbp_str dbpS;
+    struct lai_str tmpLAI;
+    struct soilML_str soilMLS;
+    struct soilText_str soTexS; 
+    soTexS = soilTchoose(soilType);
+
+    /* Creation of pointers outside the loop */
+    sti = &newLeafcol[0];
+    sti2 = &newStemcol[0];
+    sti3 = &newRootcol[0];
+
+    int plantDate, emergeDate, harvestDate;
+    double baseTemp;
+    // double maxLeaves; unused
+    double plantEmerge, phyllochron1, phyllochron2;
+    double R1, R2, R3, R4, R5, R6;
+    double phenoStage = 0.0;
+
+    /* Variables for photosynthesis */
+    double vmax1, vmax11, vmax12, alpha1, kparm1, theta, beta, Rd11, Rd12, Rd1,upperT,lowerT;
+    double Ca, b01, b11, ws_0;
+    int ws;
+
+    /* Variables for canopy */
+    double Sp, nlayers, kd, chil, heightFactor;
+    double mrc1;
+    // double SpD; unused
+    // double mrc2; unused
+
+    /* Variables for nitrogen */
+    double iLeafN, kLN, vmax_b1, alpha_b1, kpLN, lnb0, lnb1, lnFun_0;
+    int lnFun; 
+
+    /* Variables for leaf area index */
+    double laiMethod, TTcoef, maxLAI;
+    double Ax, LT, a1, a2, k0, L0, LLx, Lx, LNl, Amax, c1, c2, c3, 
+           c4, a, b, x0, f, g;
+
+    double plantdensity = REAL(PLANTDENSITY)[0];
+
+    double rfl;  /* root factor lambda */
+    double rsec; /* radiation soil evaporation coefficient */
+    double rsdf; /* root soil depth factor */
+    double scsf; /* stomatal conductance sensitivity factor */
+    double transpRes; /* Resistance to transpiration from soil to leaf */
+    double leafPotTh; /* Leaf water potential threshold */
+
+    double cwsVec[soillayers];
+    for(i3 = 0; i3 < soillayers; i3++) {
+        cwsVec[i3] = REAL(CWS)[i3];
+    } 
+    double cwsVecSum = 0.0;
+    /* Parameters for calculating leaf water potential */
+    double LeafPsim = 0.0;
+
+    plantDate = INTEGER(DATES)[0];
+    emergeDate = INTEGER(DATES)[1];
+    harvestDate = INTEGER(DATES)[2];
+
+    /* Extracting phenology parameters */
+
+    baseTemp = REAL(PHENOP)[0];
+    // maxLeaves = REAL(PHENOP)[1]; unused
+    plantEmerge = REAL(PHENOP)[2];
+    phyllochron1 = REAL(PHENOP)[3];
+    phyllochron2 = REAL(PHENOP)[4];
+    R1 = REAL(PHENOP)[5];
+    R2 = REAL(PHENOP)[6];
+    R3 = REAL(PHENOP)[7];
+    R4 = REAL(PHENOP)[8];
+    R5 = REAL(PHENOP)[9];
+    R6 = REAL(PHENOP)[10];
+
+    /* Extracting photosynthesis parameters */
+
+    vmax11 = REAL(PHOTOP)[0];
+    vmax12 = REAL(PHOTOP)[1];
+    vmax = vmax11;
+    alpha1 = REAL(PHOTOP)[2];
+    alpha = alpha1;
+    kparm1 = REAL(PHOTOP)[3];
+    theta = REAL(PHOTOP)[4];
+    beta = REAL(PHOTOP)[5];
+    Rd11 = REAL(PHOTOP)[6];
+    Rd12 = REAL(PHOTOP)[7];
+    Ca = REAL(PHOTOP)[8];
+    b01 = REAL(PHOTOP)[9];
+    b11 = REAL(PHOTOP)[10];
+    ws_0 = REAL(PHOTOP)[11];
+    ws = ws_0;
+    upperT = REAL(PHOTOP)[12];
+    lowerT= REAL(PHOTOP)[13];
+
+    /* Extracting canopy parameters */
+    Sp = REAL(CANOPYP)[0];
+    // SpD = REAL(CANOPYP)[1]; unused
+    nlayers = REAL(CANOPYP)[2];
+    kd = REAL(CANOPYP)[3];
+    chil = REAL(CANOPYP)[4];
+    mrc1 = REAL(CANOPYP)[5];
+    // mrc2 = REAL(CANOPYP)[6]; unused
+    heightFactor = REAL(CANOPYP)[7];
+
+    /* Extracting nitrogen parameters */
+    iLeafN = REAL(NITROP)[0];
+    LeafN = iLeafN;
+    LeafNR = LeafN;
+    kLN = REAL(NITROP)[1];
+    vmax_b1 = REAL(NITROP)[2];
+    alpha_b1 = REAL(NITROP)[3];
+    kpLN = REAL(NITROP)[4];
+    lnb0 = REAL(NITROP)[5];
+    lnb1 = REAL(NITROP)[6];
+    lnFun_0 = REAL(NITROP)[7];
+    lnFun = lnFun_0;
+
+    /* Extracting LAI parms */
+    laiMethod = REAL(LAIP)[0];
+    TTcoef = REAL(LAIP)[1];
+    maxLAI = REAL(LAIP)[2];
+    Ax = REAL(LAIP)[3];
+    LT = REAL(LAIP)[4];
+    a1 = REAL(LAIP)[5];
+    a2 = REAL(LAIP)[6];
+    k0 = REAL(LAIP)[7];
+    L0 = REAL(LAIP)[8];
+    LLx = REAL(LAIP)[9];
+    Lx = REAL(LAIP)[10];
+    LNl = REAL(LAIP)[11];
+    Amax = REAL(LAIP)[12];
+    c1 = REAL(LAIP)[13];
+    c2 = REAL(LAIP)[14];
+    c3 = REAL(LAIP)[15];
+    c4 = REAL(LAIP)[16];
+    a = REAL(LAIP)[17];
+    b = REAL(LAIP)[18];
+    x0 = REAL(LAIP)[19];
+    f = REAL(LAIP)[20];
+    g = REAL(LAIP)[21];
+
+    /* Extracting soil parameters */
+
+    scsf = REAL(SOILP)[5];
+    transpRes = REAL(SOILP)[6];
+    leafPotTh = REAL(SOILP)[7];
+    rfl = REAL(SOILP)[8];
+    rsec = REAL(SOILP)[9];
+    rsdf = REAL(SOILP)[10];
+
 
     int *pt_doy = INTEGER(DOY);
     int *pt_hr = INTEGER(HR);
