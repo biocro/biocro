@@ -37,6 +37,9 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         SEXP PRECIP,              /* Precipitation             8 */
         SEXP KD,                  /* K D (ext coeff diff)      9 */
         SEXP CHILHF,              /* Chi and Height factor    10 */
+
+
+
         SEXP NLAYERS,             /* # Lay canop              11 */
         SEXP RHIZOME,             /* Ini Rhiz                 12 */
         SEXP IRTL,                /* i rhiz to leaf           13 */
@@ -94,74 +97,57 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         SEXP FROSTP
         )
 {
-    /*********************3D Canopy Parameters*********************************/
-    // double canparms = 1.0; unused
-    double nrows = 2806;
-    double ncols = 27;
-    double **canopy3Dstructure;
-    int ihere,jhere;
-
-    canopy3Dstructure =  malloc(nrows * sizeof(double *));
-
-    for(ihere = 0; ihere < nrows; ihere++) {
-        canopy3Dstructure[ihere] =  malloc((ncols+2) * sizeof(double));
-    }
-    // Initializing the canopy matrix
-    for (ihere = 0; ihere < nrows; ihere++) {
-        for (jhere = 0; jhere < ncols; jhere++) {
-            canopy3Dstructure[ihere][jhere] = 0.0;
-        }
-    }
-    /*********************************************************/
-
-    int vecsize = INTEGER(VECSIZE)[0];
-
-    double *newLeafcol = malloc(vecsize*sizeof(double));
-    if(newLeafcol==NULL) { 
-        Rprintf("Out of Memory for newLeafcol\n");
-        return((SEXP)1);
-    }
-
-    double *newStemcol = malloc(vecsize*sizeof(double));
-    if(newStemcol==NULL) { 
-        Rprintf("Out of Memory for newStemcol\n");
-        return((SEXP)1);
-    }
-
-    double *newRootcol = malloc(vecsize*sizeof(double));
-    if(newRootcol==NULL) { 
-        Rprintf("Out of Memory for newRootcol\n");
-        return((SEXP)1);
-    }
-
-    double *newRhizomecol = malloc(vecsize*sizeof(double));
-    if(newRhizomecol==NULL) { 
-        Rprintf("Out of Memory for newRhizomecol\n");
-        return((SEXP)1);
-    }
-
+    /* Creating pointers to avoid calling functions REAL and INTEGER so much */
+    int *pt_doy = INTEGER(DOY);
+    int *pt_hr = INTEGER(HR);
+    double *pt_solar = REAL(SOLAR);
+    double *pt_temp = REAL(TEMP);
+    double *pt_rh = REAL(RH);
+    double *pt_windspeed = REAL(WINDSPEED);
+    double *pt_precip = REAL(PRECIP);
+    double lat = REAL(LAT)[0];
+    int nlayers = INTEGER(NLAYERS)[0];
+    int ws = INTEGER(WS)[0];
+    double kd = REAL(KD)[0];
+    double chil = REAL(CHILHF)[0];
+    double heightf = REAL(CHILHF)[1];
+    int wsFun = INTEGER(WSFUN)[0];
+    int soilType = INTEGER(SOILTYPE)[0];
+    double Sp = REAL(SPLEAF)[0]; 
+    // double kLN = REAL(KLN)[0]; unused
+    int timestep = INTEGER(TIMESTEP)[0];
     double upperT = REAL(UPPERTEMP)[0];
     double lowerT = REAL(LOWERTEMP)[0];				 
-    ///////////////////////////////////////////////////////////
-    struct nitroParms nitroparms;
+    int vecsize = INTEGER(VECSIZE)[0];
+    int soillayers = INTEGER(SOILLAYERS)[0];
+    double LeafNmax = REAL(MAXLN)[0]; /* max N conc of top leaf in mmol/m2*/
+    double LeafNmin = REAL(MINLN)[0];  /* min N conc of top leaf in mmol/m2 */
+    double dayofMaxLeafN = REAL(DAYMAXLN)[0]; /* day when maxm leaf N occuers */
+    double LeafN, currentday;
+    double kpLN = REAL(KPLN)[0];
+    double lnb0 = REAL(LNB0)[0]; 
+    double lnb1 = REAL(LNB1)[0];
+    // int lnfun = INTEGER(LNFUN)[0]; unused
+
+    struct nitroParms nitrop;
     double TEMPdoubletoint;
-    nitroparms.ileafN = REAL(NNITROP)[0];
-    nitroparms.kln = REAL(NNITROP)[1];
-    nitroparms.Vmaxb1 = REAL(NNITROP)[2];
-    nitroparms.Vmaxb0 = REAL(NNITROP)[3];
-    nitroparms.alphab1 = REAL(NNITROP)[4];
-    nitroparms.alphab0 = REAL(NNITROP)[5];
-    nitroparms.Rdb1 = REAL(NNITROP)[6];
-    nitroparms.Rdb0 = REAL(NNITROP)[7];
-    nitroparms.kpLN = REAL(NNITROP)[8];
-    nitroparms.lnb0 = REAL(NNITROP)[9];
-    nitroparms.lnb1 = REAL(NNITROP)[10];
+    nitrop.ileafN = REAL(NNITROP)[0];
+    nitrop.kln = REAL(NNITROP)[1];
+    nitrop.Vmaxb1 = REAL(NNITROP)[2];
+    nitrop.Vmaxb0 = REAL(NNITROP)[3];
+    nitrop.alphab1 = REAL(NNITROP)[4];
+    nitrop.alphab0 = REAL(NNITROP)[5];
+    nitrop.Rdb1 = REAL(NNITROP)[6];
+    nitrop.Rdb0 = REAL(NNITROP)[7];
+    nitrop.kpLN = REAL(NNITROP)[8];
+    nitrop.lnb0 = REAL(NNITROP)[9];
+    nitrop.lnb1 = REAL(NNITROP)[10];
     TEMPdoubletoint = REAL(NNITROP)[11];
-    nitroparms.lnFun = (int)TEMPdoubletoint;
-    nitroparms.maxln = REAL(NNITROP)[12];
-    nitroparms.minln = REAL(NNITROP)[13];
-    nitroparms.daymaxln = REAL(NNITROP)[14];
-    //  Rprintf("%f, %f, %f, %f, %i \n",  nitroparms.Vmaxb1,nitroparms.Vmaxb0,   nitroparms.alphab1,  nitroparms.alphab0,nitroparms.lnFun);
+    nitrop.lnFun = (int)TEMPdoubletoint;
+    nitrop.maxln = REAL(NNITROP)[12];
+    nitrop.minln = REAL(NNITROP)[13];
+    nitrop.daymaxln = REAL(NNITROP)[14];
+    //  Rprintf("%f, %f, %f, %f, %i \n",  nitrop.Vmaxb1,nitrop.Vmaxb0,   nitrop.alphab1,  nitrop.alphab0,nitrop.lnFun);
     /////////////////////////////////////////////////////////////////
 
     struct frostParms frostparms;
@@ -169,138 +155,6 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     frostparms.leafT100 = REAL(FROSTP)[1];
     frostparms.stemT0 = REAL(FROSTP)[2];
     frostparms.stemT100 = REAL(FROSTP)[3];
-
-    /* This creates vectors which will collect the senesced plant
-       material. This is needed to calculate litter and therefore carbon
-       in the soil and then N in the soil. */
-
-    // double iSp; unused
-    double Sp , propLeaf;
-    int i, i2, i3;
-    int dailyvecsize;
-    // double rootfrontvelocity = REAL(ROOTFRONTVELOCITY)[0]; unused
-    // int optiontocalculaterootdepth = INTEGER(OPTIONTOCALCULATEROOTDEPTH)[0]; unused
-
-    double vmax1;
-    double alpha1;
-    double kparm1;
-    double theta;
-    double beta;
-    double Rd1, Ca;
-    double b01, b11;
-
-    double Leaf, Stem, Root, LAI;
-    // double Grain = 0.0; unused
-    double TTc = 0.0,TT12c = 0.0;
-    double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kSeedcane = 0.0;
-    // double kGrain = 0.0; unused
-    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0;
-    // double newRhizome, newGrain = 0.0; unused
-
-    /* Variables needed for collecting litter */
-    // double LeafLitter_d = 0.0, StemLitter_d = 0.0; unused
-    // double RootLitter_d = 0.0, RhizomeLitter_d = 0.0; unused
-    double ALitter = 0.0, BLitter = 0.0;
-    /* Maintenance respiration */
-
-    // double mrc1 = REAL(MRESP)[0]; unused
-    // double mrc2 = REAL(MRESP)[1];  unused
-
-    double waterCont;
-    double StomWS = 1, LeafWS = 1;
-    // double SugarStress = 1; unused
-    int timestep;
-    double CanopyA, CanopyT;
-
-    double Rhizome;
-    double Sugar = 0.0, newSugar = 0.0;
-    // double SeneSeedcane; unused
-    double laimax;
-
-    /* Soil Parameters*/
-    double FieldC, WiltP, phi1, phi2, soilDepth;
-    int soilType, wsFun;
-    double LeafNmax = REAL(MAXLN)[0]; /* max N conc of top leaf in mmol/m2*/
-    double LeafNmin = REAL(MINLN)[0];  /* min N conc of top leaf in mmol/m2 */
-    double dayofMaxLeafN = REAL(DAYMAXLN)[0]; /* day when maxm leaf N occuers */
-    double LeafN, currentday;
-    // double kLN; unused
-    double soilEvap, TotEvap;
-    int soillayers = INTEGER(SOILLAYERS)[0];
-    double cwsVec[soillayers];
-    for(i2 = 0; i2 < soillayers; i2++) {
-        cwsVec[i2] = REAL(CWS)[i2];
-    }
-    double cwsVecSum = 0.0;
-    /* Some soil related empirical coefficients */
-    double rfl = REAL(SECS)[0];  /* root factor lambda */
-    double rsec = REAL(SECS)[1]; /* radiation soil evaporation coefficient */
-    double rsdf = REAL(SECS)[2]; /* root soil depth factor */
-    double scsf = REAL(SOILCOEFS)[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
-    double transpRes = REAL(SOILCOEFS)[7]; /* Resistance to transpiration from soil to leaf */
-    double leafPotTh = REAL(SOILCOEFS)[8]; /* Leaf water potential threshold */
-
-    /* Parameters for calculating leaf water potential */
-    double LeafPsim = 0.0;
-
-    /* Effect of Nitrogen */
-    double kpLN = REAL(KPLN)[0];
-    double lnb0 = REAL(LNB0)[0]; 
-    double lnb1 = REAL(LNB1)[0];
-    // int lnfun = INTEGER(LNFUN)[0]; unused
-    double leafrate = REAL(LEAFTURNOVER)[0];
-    double rootrate = REAL(ROOTTURNOVER)[0];
-
-    /* Variables for Respiration Calculations. I am currently using hard coded values. I shall write a function that can takes these values as input. I have used optim function and data from Liu to get these values. */
-    double gRespCoeff = 0.15;/*This is constant fraction to calculate Growth respiration from DSSAT*/
-    double Qleaf = 1.58, Qstem = 1.80, Qroot = 1.80; /* Q factors for Temp dependence on Maintenance Respiration*/
-    double mRespleaf = 0.012,mRespstem = 0.00016,mResproot = 0.00036;
-    // double mResp; unused
-
-    double SeneLeaf, SeneStem, SeneRoot = 0.0;
-    // double SeneRhizome = 0.0 ; unused
-    double *sti, *sti3, *sti4; 
-    // double *sti2; unused
-    // double Remob; unused
-    // int k = 0, q = 0, m = 0, n = 0; unused
-    int ri = 0;
-
-    /* all of these parameters are for Cuadra biomass partitioning */
-    // double TT0 = REAL(SUGARCOEFS)[0];  unused
-    // double  TTseed = REAL(SUGARCOEFS)[1];  unused
-    // double Tmaturity = REAL(SUGARCOEFS)[2];  unused
-    // double Rd = REAL(SUGARCOEFS)[3];  unused
-    // double Alm = REAL(SUGARCOEFS)[4];  unused
-    // double Arm = REAL(SUGARCOEFS)[5];  unused
-    // double Clstem = REAL(SUGARCOEFS)[6];  unused
-    // double Ilstem = REAL(SUGARCOEFS)[7];  unused
-    // double Cestem = REAL(SUGARCOEFS)[8];  unused
-    // double Iestem = REAL(SUGARCOEFS)[9];  unused
-    // double Clsuc = REAL(SUGARCOEFS)[10];  unused
-    // double Ilsuc = REAL(SUGARCOEFS)[11];  unused
-    // double Cesuc = REAL(SUGARCOEFS)[12];  unused
-    // double Iesuc = REAL(SUGARCOEFS)[13];  unused
-    /* variable declaration for cuadra biomass partitionign ends here */
-
-
-    struct Can_Str Canopy;
-    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
-    struct dbp_sugarcane_str dbpS;
-    struct dbp_str dbpS_old;
-    // struct cenT_str centS;  unused
-    struct soilML_str soilMLS;
-    struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
-    soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
-
-    // centS.SCs[0] = 0.0; unused
-    // centS.SCs[1] = 0.0; unused
-    // centS.SCs[2] = 0.0; unused
-    // centS.SCs[3] = 0.0; unused
-    // centS.SCs[4] = 0.0; unused
-    // centS.SCs[5] = 0.0; unused
-    // centS.SCs[6] = 0.0; unused
-    // centS.SCs[7] = 0.0; unused
-    // centS.SCs[8] = 0.0; unused
 
     SEXP lists, names;
 
@@ -348,7 +202,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     SEXP dayafterplanting;
 
     vecsize = length(DOY);
-    dailyvecsize = (int)(vecsize/24)+1;
+    int dailyvecsize = (int)(vecsize/24)+1;
 
     PROTECT(lists = allocVector(VECSXP, 44)); /* total of 32 variables are to be sent to R */
     PROTECT(names = allocVector(STRSXP, 44)); /* name of 32 variables */
@@ -396,6 +250,183 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     PROTECT(moisturecontent = allocVector(REALSXP, dailyvecsize));
     PROTECT(dayafterplanting = allocVector(REALSXP, dailyvecsize));
 
+    /*********************3D Canopy Parameters*********************************/
+    // double canparms = 1.0; unused
+    double nrows = 2806;
+    double ncols = 27;
+    double **canopy3Dstructure;
+    int ihere,jhere;
+
+    canopy3Dstructure =  malloc(nrows * sizeof(double *));
+
+    for(ihere = 0; ihere < nrows; ihere++) {
+        canopy3Dstructure[ihere] =  malloc((ncols+2) * sizeof(double));
+    }
+    // Initializing the canopy matrix
+    for (ihere = 0; ihere < nrows; ihere++) {
+        for (jhere = 0; jhere < ncols; jhere++) {
+            canopy3Dstructure[ihere][jhere] = 0.0;
+        }
+    }
+    /*********************************************************/
+
+    double *newLeafcol = malloc(vecsize*sizeof(double));
+    if(newLeafcol==NULL) { 
+        Rprintf("Out of Memory for newLeafcol\n");
+        return((SEXP)1);
+    }
+
+    double *newStemcol = malloc(vecsize*sizeof(double));
+    if(newStemcol==NULL) { 
+        Rprintf("Out of Memory for newStemcol\n");
+        return((SEXP)1);
+    }
+
+    double *newRootcol = malloc(vecsize*sizeof(double));
+    if(newRootcol==NULL) { 
+        Rprintf("Out of Memory for newRootcol\n");
+        return((SEXP)1);
+    }
+
+    double *newRhizomecol = malloc(vecsize*sizeof(double));
+    if(newRhizomecol==NULL) { 
+        Rprintf("Out of Memory for newRhizomecol\n");
+        return((SEXP)1);
+    }
+
+    ///////////////////////////////////////////////////////////
+
+    /* This creates vectors which will collect the senesced plant
+       material. This is needed to calculate litter and therefore carbon
+       in the soil and then N in the soil. */
+
+    double propLeaf;
+    int i, i2, i3;
+    // double rootfrontvelocity = REAL(ROOTFRONTVELOCITY)[0]; unused
+    // int optiontocalculaterootdepth = INTEGER(OPTIONTOCALCULATEROOTDEPTH)[0]; unused
+
+    double vmax1;
+    double alpha1;
+    double kparm1;
+    double theta;
+    double beta;
+    double Rd1, Ca;
+    double b01, b11;
+
+    // double Grain = 0.0; unused
+    // double kGrain = 0.0; unused
+    // double newRhizome, newGrain = 0.0; unused
+    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0;
+    double TTc = 0.0, TT12c = 0.0;
+    double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kSeedcane = 0.0;
+    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0;
+
+    /* Variables needed for collecting litter */
+    // double LeafLitter_d = 0.0, StemLitter_d = 0.0; unused
+    // double RootLitter_d = 0.0, RhizomeLitter_d = 0.0; unused
+    double ALitter = 0.0, BLitter = 0.0;
+
+    double *sti, *sti3, *sti4; 
+    // double *sti2; unused
+    // double Remob; unused
+    // int k = 0, q = 0, m = 0, n = 0; unused
+    int ri = 0;
+
+    double StomWS = 1, LeafWS = 1;
+    double CanopyA, CanopyT;
+    // double iSp = Sp; unused
+    // double SugarStress = 1; unused
+
+    double Sugar = 0.0, newSugar = 0.0;
+    // double SeneSeedcane; unused
+    double laimax;
+
+    /* Maintenance respiration */
+    // double mrc1 = REAL(MRESP)[0]; unused
+    // double mrc2 = REAL(MRESP)[1];  unused
+
+    const double FieldC = REAL(SOILCOEFS)[0];
+    const double WiltP = REAL(SOILCOEFS)[1];
+    const double phi1 = REAL(SOILCOEFS)[2];
+    const double phi2 = REAL(SOILCOEFS)[3];
+    const double soilDepth = REAL(SOILCOEFS)[4];
+    double waterCont = REAL(SOILCOEFS)[5];
+    double soilEvap, TotEvap;
+
+    const double SeneLeaf = REAL(SENCOEFS)[0];
+    const double SeneStem = REAL(SENCOEFS)[1];
+    const double SeneRoot = REAL(SENCOEFS)[2];
+    //const double SeneRhizome = REAL(SENCOEFS)[3]; unused
+
+    struct Can_Str Canopy = {0,0,0};
+    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
+    struct dbp_sugarcane_str dbpS;
+    struct dbp_str dbpS_old;
+    // struct cenT_str centS;  unused
+    struct soilML_str soilMLS;
+    struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
+    soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
+
+    /* Creation of pointers outside the loop */
+    sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
+                             in the newLeafcol vector */
+    // sti2 = &newStemcol[0]; unused
+    sti3 = &newRootcol[0];
+    sti4 = &newRhizomecol[0];
+
+    double cwsVec[soillayers];
+    for(i2 = 0; i2 < soillayers; i2++) {
+        cwsVec[i2] = REAL(CWS)[i2];
+    }
+    double cwsVecSum = 0.0;
+    /* Some soil related empirical coefficients */
+    double rfl = REAL(SECS)[0];  /* root factor lambda */
+    double rsec = REAL(SECS)[1]; /* radiation soil evaporation coefficient */
+    double rsdf = REAL(SECS)[2]; /* root soil depth factor */
+    double scsf = REAL(SOILCOEFS)[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
+    double transpRes = REAL(SOILCOEFS)[7]; /* Resistance to transpiration from soil to leaf */
+    double leafPotTh = REAL(SOILCOEFS)[8]; /* Leaf water potential threshold */
+
+    /* Parameters for calculating leaf water potential */
+    double LeafPsim = 0.0;
+
+    double leafrate = REAL(LEAFTURNOVER)[0];
+    double rootrate = REAL(ROOTTURNOVER)[0];
+
+    /* Variables for Respiration Calculations. I am currently using hard coded values. I shall write a function that can takes these values as input. I have used optim function and data from Liu to get these values. */
+    double gRespCoeff = 0.15;/*This is constant fraction to calculate Growth respiration from DSSAT*/
+    double Qleaf = 1.58, Qstem = 1.80, Qroot = 1.80; /* Q factors for Temp dependence on Maintenance Respiration*/
+    double mRespleaf = 0.012,mRespstem = 0.00016,mResproot = 0.00036;
+    // double mResp; unused
+
+    /* all of these parameters are for Cuadra biomass partitioning */
+    // double TT0 = REAL(SUGARCOEFS)[0];  unused
+    // double  TTseed = REAL(SUGARCOEFS)[1];  unused
+    // double Tmaturity = REAL(SUGARCOEFS)[2];  unused
+    // double Rd = REAL(SUGARCOEFS)[3];  unused
+    // double Alm = REAL(SUGARCOEFS)[4];  unused
+    // double Arm = REAL(SUGARCOEFS)[5];  unused
+    // double Clstem = REAL(SUGARCOEFS)[6];  unused
+    // double Ilstem = REAL(SUGARCOEFS)[7];  unused
+    // double Cestem = REAL(SUGARCOEFS)[8];  unused
+    // double Iestem = REAL(SUGARCOEFS)[9];  unused
+    // double Clsuc = REAL(SUGARCOEFS)[10];  unused
+    // double Ilsuc = REAL(SUGARCOEFS)[11];  unused
+    // double Cesuc = REAL(SUGARCOEFS)[12];  unused
+    // double Iesuc = REAL(SUGARCOEFS)[13];  unused
+    /* variable declaration for cuadra biomass partitionign ends here */
+
+
+    // centS.SCs[0] = 0.0; unused
+    // centS.SCs[1] = 0.0; unused
+    // centS.SCs[2] = 0.0; unused
+    // centS.SCs[3] = 0.0; unused
+    // centS.SCs[4] = 0.0; unused
+    // centS.SCs[5] = 0.0; unused
+    // centS.SCs[6] = 0.0; unused
+    // centS.SCs[7] = 0.0; unused
+    // centS.SCs[8] = 0.0; unused
+
     /* Picking vmax, alpha and kparm */
     vmax1 = REAL(VMAX)[0];
     alpha1 = REAL(ALPHA)[0];
@@ -408,24 +439,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     b11 = REAL(B1)[0];
 
     LeafN = REAL(ILEAFN)[0]; /* Initial value of N in the leaf */
-    // kLN = REAL(KLN)[0]; unused
-    timestep = INTEGER(TIMESTEP)[0];
     Rhizome = REAL(RHIZOME)[0];
-    Sp = REAL(SPLEAF)[0]; 
-    SeneLeaf = REAL(SENCOEFS)[0];
-    SeneStem = REAL(SENCOEFS)[1];
-    SeneRoot = REAL(SENCOEFS)[2];
-    // SeneRhizome = REAL(SENCOEFS)[3]; unused
-
-    /* Soil Parameters */
-    FieldC = REAL(SOILCOEFS)[0];
-    WiltP = REAL(SOILCOEFS)[1];
-    phi1 = REAL(SOILCOEFS)[2];
-    phi2 = REAL(SOILCOEFS)[3];
-    soilDepth = REAL(SOILCOEFS)[4];
-    waterCont = REAL(SOILCOEFS)[5];
-    wsFun = INTEGER(WSFUN)[0];
-    soilType = INTEGER(SOILTYPE)[0];
 
     propLeaf = REAL(IRTL)[0]; 
     Leaf = Rhizome * propLeaf;
@@ -437,30 +451,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     Stem = Rhizome * 0.001;
     Root = Rhizome * 0.001;
     LAI = Leaf * Sp;
-    // iSp = Sp; unused
 
-    /* Creating pointers to avoid calling functions REAL and INTEGER so much */
-    int *pt_doy = INTEGER(DOY);
-    int *pt_hr = INTEGER(HR);
-    double *pt_solar = REAL(SOLAR);
-    double *pt_temp = REAL(TEMP);
-    double *pt_rh = REAL(RH);
-    double *pt_windspeed = REAL(WINDSPEED);
-    double *pt_precip = REAL(PRECIP);
-    double lat = REAL(LAT)[0];
-    int nlayers = INTEGER(NLAYERS)[0];
-    int ws = INTEGER(WS)[0];
-    double kd = REAL(KD)[0];
-    double chil = REAL(CHILHF)[0];
-    double hf = REAL(CHILHF)[1];
     double moist,ddap;
-
-    /* Creation of pointers outside the loop */
-    sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
-                             in the newLeafcol vector */
-    // sti2 = &newStemcol[0]; unused
-    sti3 = &newRootcol[0];
-    sti4 = &newRhizomecol[0];
 
     double dailyassim = 0.0;
     double dailytransp = 0.0;
@@ -492,15 +484,15 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     currentday = *(pt_doy+0);
     LeafN = seasonal(LeafNmax, LeafNmin , currentday, dayofMaxLeafN, 365.0, lat);
     //      Rprintf("%f, %f, %f,%f,%f, %f\n",LeafNmax,LeafNmin ,currentday,dayofMaxLeafN,lat,LeafN);
-    if(nitroparms.lnFun == 0) {
+    if(nitrop.lnFun == 0) {
         vmax1 = vmax1;
         Rd1 = Rd1;
         alpha1 = alpha1;
     } else {
-        vmax1 = nitroparms.Vmaxb1 * LeafN + nitroparms.Vmaxb0;
+        vmax1 = nitrop.Vmaxb1 * LeafN + nitrop.Vmaxb0;
         if(vmax1 < 0) vmax1 = 0.0;
-        alpha1 = nitroparms.alphab1 * LeafN + nitroparms.alphab0;
-        Rd1 = nitroparms.Rdb1 * LeafN + nitroparms.Rdb0;
+        alpha1 = nitrop.alphab1 * LeafN + nitrop.alphab0;
+        Rd1 = nitrop.Rdb1 * LeafN + nitrop.Rdb0;
     }
 
     /**************************************************************************************************************/
@@ -559,7 +551,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
          vmax1,alpha1,kparm1,
          theta,beta,Rd1,Ca,b01,b11,StomWS,
          ws, kd,
-         chil, hf,LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms);
+         chil, heightf,LeafN, kpLN, lnb0, lnb1, nitrop.lnFun,upperT,lowerT,nitrop);
          }
 
         //else {    
@@ -569,18 +561,15 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         Canopy = CanAC_3D (canparms, canopy3Dstructure,nrows, ncols,LAI,*(pt_doy+i), *(pt_hr+i),
          *(pt_solar+i), *(pt_temp+i),*(pt_rh+i), *(pt_windspeed+i),lat,vmax1,alpha1,kparm1,
          theta,beta,Rd1,Ca,b01,b11,StomWS,
-         ws,kpLN,upperT,lowerT,LeafN,nitroparms);
+         ws,kpLN,upperT,lowerT,LeafN,nitrop);
          ********************/             
 
 
         Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-                *(pt_solar+i), *(pt_temp+i),
-                *(pt_rh+i), *(pt_windspeed+i),
-                lat, nlayers,
-                vmax1,alpha1,kparm1,
-                theta,beta,Rd1,Ca,b01,b11,StomWS,
-                ws, kd,
-                chil, hf,LeafN, kpLN, lnb0, lnb1, nitroparms.lnFun,upperT,lowerT,nitroparms, 0.04, 0);
+                *(pt_solar+i), *(pt_temp+i), *(pt_rh+i), *(pt_windspeed+i),
+                lat, nlayers, vmax1, alpha1, kparm1, theta, beta,
+                Rd1, Ca, b01, b11, StomWS, ws, kd, chil,
+                heightf, LeafN, kpLN, lnb0, lnb1, nitrop.lnFun, upperT, lowerT, nitrop, 0.04, 0);
 
 
         //}
@@ -886,15 +875,15 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
             /**This calculation is not needed because LeafN is used to calculate photosynthesis paraetrers in canopy module*********/ 
             /*
-               if(nitroparms.lnFun == 0) {
+               if(nitrop.lnFun == 0) {
                vmax1 = vmax1;
                Rd1 = Rd1;
                alpha1 = alpha1;
                } else {
-               vmax1 = nitroparms.Vmaxb1*LeafN+nitroparms.Vmaxb0;
+               vmax1 = nitrop.Vmaxb1*LeafN+nitrop.Vmaxb0;
                if(vmax1<0) vmax1 = 0.0;
-               alpha1 = nitroparms.alphab1*LeafN+nitroparms.alphab0;
-               Rd1 = nitroparms.Rdb1*LeafN+nitroparms.Rdb0;
+               alpha1 = nitrop.alphab1*LeafN+nitrop.alphab0;
+               Rd1 = nitrop.Rdb1*LeafN+nitrop.Rdb0;
                }
              ******************************************************************************/
 
