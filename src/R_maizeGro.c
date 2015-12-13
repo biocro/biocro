@@ -13,7 +13,8 @@
 #include "AuxMaizeGro.h"
 
 SEXP maizeGro(
-        SEXP DOY,             /* Day of the year                   1 */
+
+        SEXP DOY,                   /* Day of the year                   1 */
         SEXP HR,                    /* Hour                              2 */
         SEXP SOLAR,                 /* Solar radiation                   3 */
         SEXP TEMP,                  /* Temperature                       4 */
@@ -38,91 +39,128 @@ SEXP maizeGro(
         SEXP NNITROP                 /* Maize senescence parameteres    22*/
         )
 {
-    /* Initializing variables  */
+
+    double lat = REAL(LAT)[0];
+    int *doy = INTEGER(DOY);
+    int *hr = INTEGER(HR);
+    double *solar = REAL(SOLAR);
+    double *temp = REAL(TEMP);
+    double *rh = REAL(RH);
+    double *windspeed = REAL(WINDSPEED);
+    double *precip = REAL(PRECIP);
+    double kd = REAL(CANOPYP)[3];
+    double chil = REAL(CANOPYP)[4];
+	
+
+    double heightFactor = REAL(CANOPYP)[7];
+    double nlayers = REAL(CANOPYP)[2];
+    int timestep = INTEGER(TIMESTEP)[0];
+	int vecsize;
+    double Sp = REAL(CANOPYP)[0];
+    // double SpD = REAL(CANOPYP)[1]; unused
+    double vmax11 = REAL(PHOTOP)[0];
+    double vmax12 = REAL(PHOTOP)[1];
+    double alpha1 = REAL(PHOTOP)[2];
+    double kparm1 = REAL(PHOTOP)[3];
+    double theta = REAL(PHOTOP)[4];
+    double beta = REAL(PHOTOP)[5];
+    double Rd11 = REAL(PHOTOP)[6];
+    double Rd12 = REAL(PHOTOP)[7];
+    double Ca = REAL(PHOTOP)[8];
+    double b01 = REAL(PHOTOP)[9];
+    double b11 = REAL(PHOTOP)[10];
+    double *soilcoefs = REAL(SOILP);
+    double iLeafN = REAL(NITROP)[0];
+    double kLN = REAL(NITROP)[1];
+    double vmax_b1 = REAL(NITROP)[2];
+    double alpha_b1 = REAL(NITROP)[3];
     int soilType = INTEGER(SOILP2)[0];
     int wsFun = INTEGER(SOILP2)[2];
+    double ws = REAL(PHOTOP)[11];
+    int soilLayers = INTEGER(SOILP2)[1];
+    double *soilDepths = REAL(SOILDEPTHS);
+    double *cws = REAL(CWS);
     int hydrDist = INTEGER(SOILP2)[3];
-    double lat = REAL(LAT)[0];
-    int soillayers = INTEGER(SOILP2)[1];
-    int timestep = INTEGER(TIMESTEP)[0];
+    double kpLN = REAL(NITROP)[4];
+    double lnb0 = REAL(NITROP)[5];
+    double lnb1 = REAL(NITROP)[6];
+    int lnFun = REAL(NITROP)[7];
 
-    double *soilcoefs = REAL(SOILP);
+    double upperT = REAL(PHOTOP)[12];
+    double lowerT = REAL(PHOTOP)[13];
 
-    int vecsize = 8760 ; /* 365 days * 24 hours  */
-
-    struct nitroParms nitroparms;
+    struct nitroParms nitrop;
     double TEMPdoubletoint;
-    nitroparms.ileafN = REAL(NNITROP)[0];
-    nitroparms.kln = REAL(NNITROP)[1];
-    nitroparms.Vmaxb1 = REAL(NNITROP)[2];
-    nitroparms.Vmaxb0 = REAL(NNITROP)[3];
-    nitroparms.alphab1 = REAL(NNITROP)[4];
-    nitroparms.alphab0 = REAL(NNITROP)[5];
-    nitroparms.Rdb1 = REAL(NNITROP)[6];
-    nitroparms.Rdb0 = REAL(NNITROP)[7];
-    nitroparms.kpLN = REAL(NNITROP)[8];
-    nitroparms.lnb0 = REAL(NNITROP)[9];
-    nitroparms.lnb1 = REAL(NNITROP)[10];
+    nitrop.ileafN = REAL(NNITROP)[0];
+    nitrop.kln = REAL(NNITROP)[1];
+    nitrop.Vmaxb1 = REAL(NNITROP)[2];
+    nitrop.Vmaxb0 = REAL(NNITROP)[3];
+    nitrop.alphab1 = REAL(NNITROP)[4];
+    nitrop.alphab0 = REAL(NNITROP)[5];
+    nitrop.Rdb1 = REAL(NNITROP)[6];
+    nitrop.Rdb0 = REAL(NNITROP)[7];
+    nitrop.kpLN = REAL(NNITROP)[8];
+    nitrop.lnb0 = REAL(NNITROP)[9];
+    nitrop.lnb1 = REAL(NNITROP)[10];
     TEMPdoubletoint = REAL(NNITROP)[11];
-    nitroparms.lnFun = (int)TEMPdoubletoint;
-    nitroparms.maxln = REAL(NNITROP)[12];
-    nitroparms.minln = REAL(NNITROP)[13];
-    nitroparms.daymaxln = REAL(NNITROP)[14];
+    nitrop.lnFun = (int)TEMPdoubletoint;
+    nitrop.maxln = REAL(NNITROP)[12];
+    nitrop.minln = REAL(NNITROP)[13];
+    nitrop.daymaxln = REAL(NNITROP)[14];
 
-    SEXP lists;
-    SEXP names;
+    SEXP lists, names;
 
     SEXP DayofYear;
     SEXP Hour;
-    SEXP TTTc;
     SEXP PhenoStage;
     SEXP CanopyAssim;
     SEXP CanopyTrans;
-    SEXP LAIc;
     SEXP LeafVec;
     SEXP StemVec;
     SEXP RootVec;
     SEXP GrainVec;
+    SEXP LAIc;
     SEXP LAImat;
+    SEXP TTTc;
+    SEXP SoilWatCont;
+    SEXP StomatalCondCoefs;
     SEXP VmaxVec;
     SEXP LeafNVec;
+    SEXP SoilEvaporation;
     SEXP cwsMat;
     SEXP psimMat; /* Holds the soil water potential */
     SEXP rdMat;
     SEXP SCpools;
     SEXP SNpools;
     SEXP LeafPsimVec;
-    SEXP SoilEvaporation;
-    SEXP SoilWatCont;
-    SEXP StomatalCondCoefs;
 
-    PROTECT(lists = allocVector(VECSXP,23)); /* 1 */
-    PROTECT(names = allocVector(STRSXP,23)); /* 2 */  
+    vecsize = 8760 ; /* 365 days * 24 hours  */
+    PROTECT(lists = allocVector(VECSXP,23));
+    PROTECT(names = allocVector(STRSXP,23));
 
-    PROTECT(DayofYear = allocVector(REALSXP,vecsize)); /* 3 */
-    PROTECT(Hour = allocVector(REALSXP,vecsize)); /* 4 */
-    PROTECT(TTTc = allocVector(REALSXP,vecsize)); /* 5 */
-    PROTECT(PhenoStage = allocVector(REALSXP,vecsize)); /* 6 */
-    PROTECT(CanopyAssim = allocVector(REALSXP,vecsize)); /* 7 */
-    PROTECT(CanopyTrans = allocVector(REALSXP,vecsize)); /* 8 */
-    PROTECT(LAIc = allocVector(REALSXP,vecsize)); /* 9 */
-    PROTECT(LeafVec = allocVector(REALSXP,vecsize)); /* 10 */
-    PROTECT(StemVec = allocVector(REALSXP,vecsize)); /* 11 */
-    PROTECT(RootVec = allocVector(REALSXP,vecsize)); /* 12 */
-    PROTECT(GrainVec = allocVector(REALSXP,vecsize)); /* 13 */
-    PROTECT(LAImat = allocMatrix(REALSXP,MAXLEAFNUMBER,vecsize)); /* 14 */
-    PROTECT(VmaxVec = allocVector(REALSXP,vecsize)); /* 15 */
-    PROTECT(LeafNVec = allocVector(REALSXP,vecsize)); /* 16 */
-    PROTECT(cwsMat = allocMatrix(REALSXP,soillayers,vecsize)); /* 17 */
-    PROTECT(psimMat = allocMatrix(REALSXP,soillayers,vecsize)); /* 18 */
-    PROTECT(rdMat = allocMatrix(REALSXP,soillayers,vecsize)); /* 19 */
-    PROTECT(SCpools = allocVector(REALSXP,9)); /* 20 */
-    PROTECT(SNpools = allocVector(REALSXP,9)); /* 21 */
-    PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize)); /* 22 */
-    PROTECT(SoilEvaporation = allocVector(REALSXP,vecsize)); /* 23 */
-    PROTECT(SoilWatCont = allocVector(REALSXP,vecsize)); /* 24 */
-    PROTECT(StomatalCondCoefs = allocVector(REALSXP,vecsize)); /* 25 */
-
+    PROTECT(DayofYear = allocVector(REALSXP,vecsize));
+    PROTECT(Hour = allocVector(REALSXP,vecsize));
+    PROTECT(PhenoStage = allocVector(REALSXP,vecsize));
+    PROTECT(CanopyAssim = allocVector(REALSXP,vecsize));
+    PROTECT(CanopyTrans = allocVector(REALSXP,vecsize));
+    PROTECT(LeafVec = allocVector(REALSXP,vecsize));
+    PROTECT(StemVec = allocVector(REALSXP,vecsize));
+    PROTECT(RootVec = allocVector(REALSXP,vecsize));
+    PROTECT(GrainVec = allocVector(REALSXP,vecsize));
+    PROTECT(LAIc = allocVector(REALSXP,vecsize));
+    PROTECT(LAImat = allocMatrix(REALSXP,MAXLEAFNUMBER,vecsize));
+    PROTECT(TTTc = allocVector(REALSXP,vecsize));
+    PROTECT(SoilWatCont = allocVector(REALSXP,vecsize));
+    PROTECT(StomatalCondCoefs = allocVector(REALSXP,vecsize));
+    PROTECT(VmaxVec = allocVector(REALSXP,vecsize));
+    PROTECT(LeafNVec = allocVector(REALSXP,vecsize));
+    PROTECT(SoilEvaporation = allocVector(REALSXP,vecsize));
+    PROTECT(cwsMat = allocMatrix(REALSXP,soilLayers,vecsize));
+    PROTECT(psimMat = allocMatrix(REALSXP,soilLayers,vecsize));
+    PROTECT(rdMat = allocMatrix(REALSXP,soilLayers,vecsize));
+    PROTECT(SCpools = allocVector(REALSXP,9));
+    PROTECT(SNpools = allocVector(REALSXP,9));
+    PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
     double newLeafcol[8760];
     double newStemcol[8760];
@@ -143,6 +181,10 @@ SEXP maizeGro(
     double LeafN, LeafNR;
     double vmax;
     double alpha;
+
+    /* Maintenance respiration */
+    const double mrc1 = REAL(CANOPYP)[5];
+    // const double mrc2 = REAL(CANOPYP)[6];
 
     const double FieldC = soilcoefs[0];
     const double WiltP = soilcoefs[1];
@@ -169,6 +211,14 @@ SEXP maizeGro(
     sti2 = &newStemcol[0];
     sti3 = &newRootcol[0];
 
+    /* Some soil related empirical coefficients */
+    double rfl = REAL(SOILP)[8];  /* root factor lambda */
+    double rsec = REAL(SOILP)[9]; /* radiation soil evaporation coefficient */
+    double rsdf = REAL(SOILP)[10]; /* root soil depth factor */
+    double scsf = REAL(SOILP)[5]; /* stomatal conductance sensitivity factor */
+    double transpRes = REAL(SOILP)[6]; /* Resistance to transpiration from soil to leaf */
+    double leafPotTh = REAL(SOILP)[7]; /* Leaf water potential threshold */
+
     int plantDate, emergeDate, harvestDate;
     double baseTemp;
     // double maxLeaves; unused
@@ -177,19 +227,7 @@ SEXP maizeGro(
     double phenoStage = 0.0;
 
     /* Variables for photosynthesis */
-    double vmax1, vmax11, vmax12, alpha1, kparm1, theta, beta, Rd11, Rd12, Rd1,upperT,lowerT;
-    double Ca, b01, b11, ws_0;
-    int ws;
-
-    /* Variables for canopy */
-    double Sp, nlayers, kd, chil, heightFactor;
-    double mrc1;
-    // double SpD; unused
-    // double mrc2; unused
-
-    /* Variables for nitrogen */
-    double iLeafN, kLN, vmax_b1, alpha_b1, kpLN, lnb0, lnb1, lnFun_0;
-    int lnFun; 
+    double vmax1, Rd1;
 
     /* Variables for leaf area index */
     double laiMethod, TTcoef, maxLAI;
@@ -198,16 +236,9 @@ SEXP maizeGro(
 
     double plantdensity = REAL(PLANTDENSITY)[0];
 
-    double rfl;  /* root factor lambda */
-    double rsec; /* radiation soil evaporation coefficient */
-    double rsdf; /* root soil depth factor */
-    double scsf; /* stomatal conductance sensitivity factor */
-    double transpRes; /* Resistance to transpiration from soil to leaf */
-    double leafPotTh; /* Leaf water potential threshold */
-
-    double cwsVec[soillayers];
-    for(i3 = 0; i3 < soillayers; i3++) {
-        cwsVec[i3] = REAL(CWS)[i3];
+    double cwsVec[soilLayers];
+    for(i3 = 0; i3 < soilLayers; i3++) {
+        cwsVec[i3] = cws[i3];
     } 
     double cwsVecSum = 0.0;
     /* Parameters for calculating leaf water potential */
@@ -233,46 +264,12 @@ SEXP maizeGro(
 
     /* Extracting photosynthesis parameters */
 
-    vmax11 = REAL(PHOTOP)[0];
-    vmax12 = REAL(PHOTOP)[1];
     vmax = vmax11;
-    alpha1 = REAL(PHOTOP)[2];
     alpha = alpha1;
-    kparm1 = REAL(PHOTOP)[3];
-    theta = REAL(PHOTOP)[4];
-    beta = REAL(PHOTOP)[5];
-    Rd11 = REAL(PHOTOP)[6];
-    Rd12 = REAL(PHOTOP)[7];
-    Ca = REAL(PHOTOP)[8];
-    b01 = REAL(PHOTOP)[9];
-    b11 = REAL(PHOTOP)[10];
-    ws_0 = REAL(PHOTOP)[11];
-    ws = ws_0;
-    upperT = REAL(PHOTOP)[12];
-    lowerT= REAL(PHOTOP)[13];
-
-    /* Extracting canopy parameters */
-    Sp = REAL(CANOPYP)[0];
-    // SpD = REAL(CANOPYP)[1]; unused
-    nlayers = REAL(CANOPYP)[2];
-    kd = REAL(CANOPYP)[3];
-    chil = REAL(CANOPYP)[4];
-    mrc1 = REAL(CANOPYP)[5];
-    // mrc2 = REAL(CANOPYP)[6]; unused
-    heightFactor = REAL(CANOPYP)[7];
 
     /* Extracting nitrogen parameters */
-    iLeafN = REAL(NITROP)[0];
     LeafN = iLeafN;
     LeafNR = LeafN;
-    kLN = REAL(NITROP)[1];
-    vmax_b1 = REAL(NITROP)[2];
-    alpha_b1 = REAL(NITROP)[3];
-    kpLN = REAL(NITROP)[4];
-    lnb0 = REAL(NITROP)[5];
-    lnb1 = REAL(NITROP)[6];
-    lnFun_0 = REAL(NITROP)[7];
-    lnFun = lnFun_0;
 
     /* Extracting LAI parms */
     laiMethod = REAL(LAIP)[0];
@@ -298,23 +295,6 @@ SEXP maizeGro(
     f = REAL(LAIP)[20];
     g = REAL(LAIP)[21];
 
-    /* Extracting soil parameters */
-
-    scsf = REAL(SOILP)[5];
-    transpRes = REAL(SOILP)[6];
-    leafPotTh = REAL(SOILP)[7];
-    rfl = REAL(SOILP)[8];
-    rsec = REAL(SOILP)[9];
-    rsdf = REAL(SOILP)[10];
-
-
-    int *pt_doy = INTEGER(DOY);
-    int *pt_hr = INTEGER(HR);
-    double *pt_temp = REAL(TEMP);
-    double *pt_solar = REAL(SOLAR);
-    double *pt_rh = REAL(RH);
-    double *pt_windspeed = REAL(WINDSPEED);
-    double *pt_precip = REAL(PRECIP);
 
     for(i = 0; i < vecsize; i++) {
         /* First calculate the elapsed Thermal Time*/
@@ -323,21 +303,21 @@ SEXP maizeGro(
            would mean that the division would need to by 8 */
 
         /* If before planting date phenology is not calculated */
-        if(*(pt_doy+i) < plantDate) {
+        if(doy[i] < plantDate) {
             REAL(PhenoStage)[i] = -1;
             REAL(TTTc)[i] = 0;
         } else {
 
-            if(*(pt_doy+i) >= harvestDate) {
+            if(doy[i] >= harvestDate) {
                 REAL(TTTc)[i] = TTc;
                 REAL(PhenoStage)[i] = -1;
             } else {
-                if(*(pt_temp+i) > baseTemp) {
-                    TTc += (*(pt_temp+i) - baseTemp)  / (24/timestep); 
+                if(temp[i] > baseTemp) {
+                    TTc += (temp[i] - baseTemp)  / (24/timestep); 
                 }
                 REAL(TTTc)[i] = TTc; 
 
-                if(TTc < plantEmerge || *(pt_doy+i) < emergeDate) {
+                if(TTc < plantEmerge || doy[i] < emergeDate) {
                     REAL(PhenoStage)[i] = 0.0;
                 } else {
                     if(REAL(PhenoStage)[i-1] < 0.10) {
@@ -361,7 +341,7 @@ SEXP maizeGro(
 
                     if(TTc > R6) REAL(PhenoStage)[i] = 6;
 
-                    /* if(*(pt_doy+i) >= harvestDate) REAL(PhenoStage)[i] = -1; */
+                    /* if(doy[i] >= harvestDate) REAL(PhenoStage)[i] = -1; */
                 }
 
             }
@@ -378,7 +358,7 @@ SEXP maizeGro(
          * http://linkinghub.elsevier.com/retrieve/pii/S037842900200151X. */
 
         phenoStage = REAL(PhenoStage)[i];
-        if(*(pt_doy+i) < emergeDate) {
+        if(doy[i] < emergeDate) {
             LAI = 0.0;
             CanopyA = 0.0;
             CanopyT = 0.0;
@@ -449,18 +429,18 @@ SEXP maizeGro(
 
         /* Calculate Canopy Assimilation  */
         /* Canopy Assimilation should only happen between emergence and R6 */
-        /* if(*(pt_doy+i) > emergeDate && *(pt_doy+i) < harvestDate) { //} */
-        if(*(pt_doy+i) > emergeDate && TTc < R6) {
+        /* if(doy[i] > emergeDate && doy[i] < harvestDate) { //} */
+        if(doy[i] > emergeDate && TTc < R6) {
 
-            Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-                    *(pt_solar+i), *(pt_temp+i),
-                    *(pt_rh+i), *(pt_windspeed+i),
+            Canopy = CanAC(LAI, doy[i], hr[i],
+                    solar[i], temp[i],
+                    rh[i], windspeed[i],
                     lat, nlayers,
-                    vmax,alpha,kparm1,
-                    theta,beta,Rd1,Ca,b01,b11,StomWS,
+                    vmax, alpha, kparm1,
+                    theta, beta, Rd1, Ca, b01, b11, StomWS,
                     ws, kd,
                     chil, heightFactor,
-                    LeafN, kpLN, lnb0, lnb1, lnFun,upperT,lowerT,nitroparms, 0.04, 0);
+                    LeafN, kpLN, lnb0, lnb1, lnFun, upperT, lowerT, nitrop, 0.04, 0);
 
             CanopyA = Canopy.Assim * timestep;
             CanopyT = Canopy.Trans * timestep;
@@ -496,28 +476,28 @@ SEXP maizeGro(
 
 
         /* Inserting the multilayer model */
-        if(soillayers > 1) {
-            soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
-                    phi1, phi2, soTexS, wsFun, soillayers, Root, 
-                    LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
+        if(soilLayers > 1) {
+            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, soilDepths, FieldC, WiltP,
+                    phi1, phi2, soTexS, wsFun, soilLayers, Root, 
+                    LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
                     hydrDist, rfl, rsec, rsdf);
 
             StomWS = soilMLS.rcoefPhoto;
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i4 = 0; i4 < soillayers; i4++) {
+            for(i4 = 0; i4 < soilLayers; i4++) {
                 cwsVec[i4] = soilMLS.cws[i4];
                 cwsVecSum += cwsVec[i4];
-                REAL(cwsMat)[i4 + i*soillayers] = soilMLS.cws[i4];
-                REAL(rdMat)[i4 + i*soillayers] = soilMLS.rootDist[i4];
+                REAL(cwsMat)[i4 + i*soilLayers] = soilMLS.cws[i4];
+                REAL(rdMat)[i4 + i*soilLayers] = soilMLS.rootDist[i4];
             }
-            waterCont = cwsVecSum / soillayers;
+            waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
         } else {
-            soilEvap = SoilEvapo(LAI, 0.68, *(pt_temp+i), *(pt_solar+i), waterCont, FieldC, WiltP, *(pt_windspeed+i), *(pt_rh+i), rsec);
+            soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
             TotEvap = soilEvap + CanopyT;
-            WaterS = watstr(*(pt_precip+i), TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
+            WaterS = watstr(precip[i], TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
             waterCont = WaterS.awc;
             StomWS = WaterS.rcoefPhoto ; 
             LeafWS = WaterS.rcoefSpleaf;
@@ -580,7 +560,7 @@ SEXP maizeGro(
 
         if(kLeaf > 0 || TTc > R6) {
             newLeaf = CanopyA * kLeaf * LeafWS;
-            newLeaf = resp(newLeaf, mrc1, *(pt_temp+i));
+            newLeaf = resp(newLeaf, mrc1, temp[i]);
         } else {
             newLeaf = Leaf * kLeaf;
             Stem += kStem * -newLeaf * 0.9;
@@ -590,7 +570,7 @@ SEXP maizeGro(
 
         if(kStem > 0 || TTc > R6) {
             newStem = CanopyA * kStem;
-            newStem = resp(newStem, mrc1, *(pt_temp+i));
+            newStem = resp(newStem, mrc1, temp[i]);
         } else {
             newStem = Stem * kStem;
             Leaf += kLeaf * -newStem   * 0.9;
@@ -608,7 +588,7 @@ SEXP maizeGro(
         }
 
 
-        if(*(pt_doy+i) < emergeDate + 7) {
+        if(doy[i] < emergeDate + 7) {
             if(newLeaf < 0) newLeaf = 0.0;
             if(newStem < 0) newStem = 0.0;
             if(newRoot < 0) newRoot = 0.0;
@@ -647,8 +627,8 @@ SEXP maizeGro(
         }
 
         /* Collecting results */
-        REAL(DayofYear)[i] =  *(pt_doy+i);
-        REAL(Hour)[i] =  *(pt_hr+i);
+        REAL(DayofYear)[i] =  doy[i];
+        REAL(Hour)[i] =  hr[i];
         REAL(CanopyAssim)[i] =  CanopyA;
         REAL(CanopyTrans)[i] =  CanopyT; 
         REAL(LAIc)[i] = LAI;
