@@ -92,8 +92,23 @@ SEXP willowGro(
     double heightf = REAL(HEIGHTF)[0];
     int nlayers = INTEGER(NLAYERS)[0];
     //
-    // propLeaf = REAL(IRTL)[0];  set but not used
+    // rtl= REAL(IRTL)[0];  set but not used
+    double *sencoefs = REAL(SENCOEFS);
+    double timestep = INTEGER(TIMESTEP)[0];
+    int vecsize;
+    double Sp = REAL(SPLEAF)[0]; 
+    double SpD = REAL(SPD)[0];
+    double *dbpcoefs = REAL(DBPCOEFS);
+    double *thermalp = REAL(THERMALP);
+    double Tbase = REAL(TBASE)[0];
+    double vmax1 = REAL(VMAX)[0];
+    double alpha1 = REAL(ALPHA)[0];
+    double theta = REAL(THETA)[0];
+    // double beta = REAL(BETA)[0]; set but not used
+
+
     int ws = INTEGER(WS)[0];
+
     double newLeafcol[8760];
     double newStemcol[8760];
     double newRootcol[8760];
@@ -112,15 +127,11 @@ SEXP willowGro(
 
 
 
-    double iSp, Sp;
-    // double propLeaf; unused
+    double iSp;
+    double vmax = vmax1;
+    double alpha = alpha1;
     int i, i2, i3;
-    int vecsize ;
 
-    double vmax1;
-    double alpha1;
-    double theta;
-    // double beta; unused
     double Rd1, Ca;
     double b01, b11;
 
@@ -146,7 +157,6 @@ SEXP willowGro(
     double waterCont;
     double LeafWS;
     double StomWS = REAL(STOMATAWS)[0];
-    int timestep;
     int A, B;
     double CanopyA, CanopyT;
     // double GPP; unused
@@ -159,6 +169,14 @@ SEXP willowGro(
     int soilType, wsFun;
     double LeafN, LeafN_0, kLN;
     double soilEvap, TotEvap;
+
+    const double seneLeaf = sencoefs[0];
+    const double seneStem = sencoefs[1];
+    const double seneRoot = sencoefs[2];
+    const double seneRhizome = sencoefs[3];
+
+
+
     int soillayers = INTEGER(SOILLAYERS)[0];
     double cwsVec[soillayers];
 
@@ -185,7 +203,7 @@ SEXP willowGro(
     double SCCs[9];
     double Resp = 0.0;
 
-    double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0, Tfrosthigh, Tfrostlow, leafdeathrate, Deadleaf;
+    double Tfrosthigh, Tfrostlow, leafdeathrate, Deadleaf;
     double *sti , *sti2, *sti3, *sti4; 
     double Remob;
     int k = 0, q = 0, m = 0, n = 0;
@@ -276,11 +294,6 @@ SEXP willowGro(
     PROTECT(SNpools = allocVector(REALSXP,9));
     PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
-    /* Picking vmax, alpha  */
-    vmax1 = REAL(VMAX)[0];
-    alpha1 = REAL(ALPHA)[0];
-    theta = REAL(THETA)[0];
-    // beta = REAL(BETA)[0]; set but not used
     Rd1 = REAL(RD)[0];
     Ca = REAL(CATM)[0];
     b01 = REAL(B0)[0];
@@ -289,7 +302,6 @@ SEXP willowGro(
     LeafN_0 = REAL(ILEAFN)[0];
     LeafN = LeafN_0; /* Initial value of N in the leaf */
     kLN = REAL(KLN)[0];
-    timestep = INTEGER(TIMESTEP)[0];
 
     double iRRHIZOME = REAL(IPLANT)[0];
     double iSSTEM = REAL(IPLANT)[1];
@@ -301,11 +313,6 @@ SEXP willowGro(
     // double ifrRROOT=REAL(IPLANT)[7]; unused
 
 
-    Sp = REAL(SPLEAF)[0]; 
-    SeneLeaf = REAL(SENCOEFS)[0];
-    SeneStem = REAL(SENCOEFS)[1];
-    SeneRoot = REAL(SENCOEFS)[2];
-    SeneRhizome = REAL(SENCOEFS)[3];
     Tfrosthigh = REAL(SENCOEFS)[4];
     Tfrostlow = REAL(SENCOEFS)[5];
     leafdeathrate = REAL(SENCOEFS)[6];
@@ -338,7 +345,6 @@ SEXP willowGro(
 
     /* Creating pointers to avoid calling functions REAL and INTEGER so much */
     double o2 = 210;
-    double Tbase = REAL(TBASE)[0];  /* base temperature */
 
     /* Creation of pointers outside the loop */
     sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
@@ -370,14 +376,13 @@ SEXP willowGro(
         /*  Do the magic! Calculate growth*/
         // Printing variables in R befor ecalling c3 canopy 
         //  Rprintf("\n LAI= %f",LAI);
-        //      Rprintf("\n VMAX= %f",vmax1);
+        //      Rprintf("\n VMAX= %f", vmax);
         //Rprintf("\n StomWS,LeafWS=%f",StomWS,LeafWS); 
 
         Canopy = c3CanAC(LAI, doy[i], hr[i],
-                solar[i], temp[i],
-                rh[i], windspeed[i],
-                lat, nlayers,
-                vmax1, jmax1, Rd1, Ca, o2, b01, b11, theta, kd, heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
+                solar[i], temp[i], rh[i], windspeed[i],
+                lat, nlayers, vmax, jmax1, Rd1, Ca, o2, b01, b11, theta, kd,
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
 
         /*Rprintf("%f,%f,%f,%f\n",StomWS,LeafWS,kLeaf,newLeaf);*/
 
@@ -456,7 +461,7 @@ SEXP willowGro(
         }
 
         /* Picking the dry biomass partitioning coefficients */
-        dbpS = sel_dbp_coef(REAL(DBPCOEFS), REAL(THERMALP), TTc);
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, TTc);
 
         kLeaf = dbpS.kLeaf;
         kStem = dbpS.kStem;
@@ -531,7 +536,7 @@ SEXP willowGro(
         LeafN = LeafN_0 * pow(Stem + Leaf,-kLN); 
         if(LeafN > LeafN_0) LeafN = LeafN_0;
 
-        //		vmax1 = (LeafN_0 - LeafN) * REAL(VMAXB1)[0] + REAL(VMAX)[0]; 
+        //		vmax = (LeafN_0 - LeafN) * REAL(VMAXB1)[0] + vmax1; 
 
 
         /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
@@ -560,7 +565,7 @@ SEXP willowGro(
             error("kLeaf should be positive");
         }
 
-        if(TTc < SeneLeaf) {
+        if(TTc < seneLeaf) {
             Leaf += newLeaf;
         } else {
             A = lat >=0.0;
@@ -598,7 +603,7 @@ SEXP willowGro(
            management in north-eastern greece*/
 
         if(i%24 == 0) {
-            Sp = iSp - (doy[i] - doy[0]) * REAL(SPD)[0];
+            Sp = iSp - (doy[i] - doy[0]) * SpD;
         }
 
         LAI = Leaf * Sp ;
@@ -614,7 +619,7 @@ SEXP willowGro(
             error("kStem should be positive");
         }
 
-        if(TTc < SeneStem) {
+        if(TTc < seneStem) {
             Stem += newStem;
         } else {
             Stem += newStem - *(sti2+q);
@@ -635,7 +640,7 @@ SEXP willowGro(
             Grain += kGrain * -newRoot * 0.9;
         }
 
-        if(TTc < SeneRoot) {
+        if(TTc < seneRoot) {
             Root += newRoot;
         } else {
             Root += newRoot - *(sti3+m);
@@ -662,7 +667,7 @@ SEXP willowGro(
             Grain += kGrain * -newRhizome;
         }
 
-        if(TTc < SeneRhizome) {
+        if(TTc < seneRhizome) {
             Rhizome += newRhizome;
         } else {
             Rhizome += newRhizome - *(sti4+n);
@@ -670,7 +675,7 @@ SEXP willowGro(
             n++;
         }
 
-        if((kGrain < 1e-10) || (TTc < REAL(THERMALP)[4])) {
+        if((kGrain < 1e-10) || (TTc < thermalp[4])) {
             newGrain = 0.0;
             Grain += newGrain;
         } else {
@@ -702,8 +707,8 @@ SEXP willowGro(
         REAL(LeafNitrogen)[i] = LeafN;
         REAL(AboveLitter)[i] = ALitter;
         REAL(BelowLitter)[i] = BLitter;
-        REAL(VmaxVec)[i] = vmax1;
-        REAL(AlphaVec)[i] = alpha1;
+        REAL(VmaxVec)[i] = vmax;
+        REAL(AlphaVec)[i] = alpha;
         REAL(SpVec)[i] = Sp;
         REAL(MinNitroVec)[i] = MinNitro/ (24*centTimestep);
         REAL(RespVec)[i] = Resp / (24*centTimestep);
