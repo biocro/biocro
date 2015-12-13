@@ -27,7 +27,7 @@ SEXP MisGro(
         SEXP ET_EQUATION,      /* Integer to indicate ET equation    12 */
         SEXP HEIGHTF,          /* Height factor                      13 */
         SEXP NLAYERS,          /* Number of layers in the canopy     14 */
-        SEXP IRHIZOME,          /* Ini Rhiz                           15 */
+        SEXP IRHIZOME,         /* Ini Rhiz                           15 */
         SEXP IRTL,             /* i rhiz to leaf                     16 */
         SEXP SENCOEFS,         /* sene coefs                         17 */
         SEXP TIMESTEP,         /* time step                          18 */
