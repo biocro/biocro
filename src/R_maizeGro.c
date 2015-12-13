@@ -52,7 +52,7 @@ SEXP maizeGro(
     double chil = REAL(CANOPYP)[4];
 	
 
-    double heightFactor = REAL(CANOPYP)[7];
+    double heightf = REAL(CANOPYP)[7];
     double nlayers = REAL(CANOPYP)[2];
     int timestep = INTEGER(TIMESTEP)[0];
 	int vecsize;
@@ -61,14 +61,14 @@ SEXP maizeGro(
     double vmax11 = REAL(PHOTOP)[0];
     double vmax12 = REAL(PHOTOP)[1];
     double alpha1 = REAL(PHOTOP)[2];
-    double kparm1 = REAL(PHOTOP)[3];
+    double kparm = REAL(PHOTOP)[3];
     double theta = REAL(PHOTOP)[4];
     double beta = REAL(PHOTOP)[5];
     double Rd11 = REAL(PHOTOP)[6];
     double Rd12 = REAL(PHOTOP)[7];
-    double Ca = REAL(PHOTOP)[8];
-    double b01 = REAL(PHOTOP)[9];
-    double b11 = REAL(PHOTOP)[10];
+    double Catm = REAL(PHOTOP)[8];
+    double b0 = REAL(PHOTOP)[9];
+    double b1 = REAL(PHOTOP)[10];
     double *soilcoefs = REAL(SOILP);
     double iLeafN = REAL(NITROP)[0];
     double kLN = REAL(NITROP)[1];
@@ -178,9 +178,10 @@ SEXP maizeGro(
 
     double StomWS = 1, LeafWS = 1;
     double CanopyA, CanopyT;
-    double LeafN, LeafNR;
+    double LeafN = iLeafN;
+    double LeafNR = iLeafN;
     double vmax;
-    double alpha;
+    double alpha = alpha1;
 
     /* Maintenance respiration */
     const double mrc1 = REAL(CANOPYP)[5];
@@ -227,7 +228,7 @@ SEXP maizeGro(
     double phenoStage = 0.0;
 
     /* Variables for photosynthesis */
-    double vmax1, Rd1;
+    double vmax1, Rd;
 
     /* Variables for leaf area index */
     double laiMethod, TTcoef, maxLAI;
@@ -237,8 +238,8 @@ SEXP maizeGro(
     double plantdensity = REAL(PLANTDENSITY)[0];
 
     double cwsVec[soilLayers];
-    for(i3 = 0; i3 < soilLayers; i3++) {
-        cwsVec[i3] = cws[i3];
+    for(i2 = 0; i2 < soilLayers; i2++) {
+        cwsVec[i2] = cws[i2];
     } 
     double cwsVecSum = 0.0;
     /* Parameters for calculating leaf water potential */
@@ -265,11 +266,7 @@ SEXP maizeGro(
     /* Extracting photosynthesis parameters */
 
     vmax = vmax11;
-    alpha = alpha1;
 
-    /* Extracting nitrogen parameters */
-    LeafN = iLeafN;
-    LeafNR = LeafN;
 
     /* Extracting LAI parms */
     laiMethod = REAL(LAIP)[0];
@@ -296,7 +293,8 @@ SEXP maizeGro(
     g = REAL(LAIP)[21];
 
 
-    for(i = 0; i < vecsize; i++) {
+    for(i = 0; i < vecsize; i++)
+	{
         /* First calculate the elapsed Thermal Time*/
         /* The idea is that here I need to divide by the time step
            to calculate the thermal time. For example, a 3 hour time interval
@@ -362,8 +360,8 @@ SEXP maizeGro(
             LAI = 0.0;
             CanopyA = 0.0;
             CanopyT = 0.0;
-            for(i2=0;i2<MAXLEAFNUMBER;i2++) {
-                REAL(LAImat)[i2 + i*MAXLEAFNUMBER] = 0.0;
+            for(i4=0;i4<MAXLEAFNUMBER;i4++) {
+                REAL(LAImat)[i4 + i*MAXLEAFNUMBER] = 0.0;
             }
         } else {
             if(laiMethod == 0.0) {
@@ -380,8 +378,8 @@ SEXP maizeGro(
                         phyllochron2, Ax, LT, k0,
                         a1, a2, L0, LLx, Lx, LNl);
 
-                for(i2=0;i2<MAXLEAFNUMBER;i2++) {
-                    REAL(LAImat)[i2 + i*MAXLEAFNUMBER] = tmpLAI.leafarea[i2];
+                for(i4=0;i4<MAXLEAFNUMBER;i4++) {
+                    REAL(LAImat)[i4 + i*MAXLEAFNUMBER] = tmpLAI.leafarea[i4];
                 }
                 LAI = tmpLAI.totalLeafArea * 1e-4 * plantdensity; 
             }
@@ -394,8 +392,8 @@ SEXP maizeGro(
                  * for Birch eq 15, c2 is coefficient for Birch eq 16, c3 and c4
                  * are the first and second coefficients in Birch eq 17
                  */
-                for (i2 = 0; i2 < MAXLEAFNUMBER; i2++) {
-                    REAL(LAImat)[i2 + i * MAXLEAFNUMBER] = tmpLAI.leafarea[i2];
+                for (i4 = 0; i4 < MAXLEAFNUMBER; i4++) {
+                    REAL(LAImat)[i4 + i * MAXLEAFNUMBER] = tmpLAI.leafarea[i4];
                 }
                 LAI = tmpLAI.totalLeafArea * 1e-4 * plantdensity;
             }
@@ -407,8 +405,8 @@ SEXP maizeGro(
                  * of largest leaf, and f and g are coefficients to Birch
                  * Eq 11.
                  */
-                for (i2 = 0; i2 < MAXLEAFNUMBER; i2++) {
-                    REAL(LAImat)[i2 + i * MAXLEAFNUMBER] = tmpLAI.leafarea[i2];
+                for (i4 = 0; i4 < MAXLEAFNUMBER; i4++) {
+                    REAL(LAImat)[i4 + i * MAXLEAFNUMBER] = tmpLAI.leafarea[i4];
                 }
                 LAI = tmpLAI.totalLeafArea / 1e4 * plantdensity;
             }
@@ -420,10 +418,10 @@ SEXP maizeGro(
 
         /* There is a different value of Rd for vegetative vs. reproductive */
         if(phenoStage < 1) {
-            Rd1 = Rd11;
+            Rd = Rd11;
             vmax1 = vmax11;
         } else {
-            Rd1 = Rd12;
+            Rd = Rd12;
             vmax1 = vmax12;
         }
 
@@ -433,14 +431,10 @@ SEXP maizeGro(
         if(doy[i] > emergeDate && TTc < R6) {
 
             Canopy = CanAC(LAI, doy[i], hr[i],
-                    solar[i], temp[i],
-                    rh[i], windspeed[i],
-                    lat, nlayers,
-                    vmax, alpha, kparm1,
-                    theta, beta, Rd1, Ca, b01, b11, StomWS,
-                    ws, kd,
-                    chil, heightFactor,
-                    LeafN, kpLN, lnb0, lnb1, lnFun, upperT, lowerT, nitrop, 0.04, 0);
+                    solar[i], temp[i], rh[i], windspeed[i],
+                    lat, nlayers, vmax, alpha, kparm, theta, beta,
+					Rd, Catm, b0, b1, StomWS, ws, kd, chil,
+					heightf, LeafN, kpLN, lnb0, lnb1, lnFun, upperT, lowerT, nitrop, 0.04, 0);
 
             CanopyA = Canopy.Assim * timestep;
             CanopyT = Canopy.Trans * timestep;
@@ -486,11 +480,11 @@ SEXP maizeGro(
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i4 = 0; i4 < soilLayers; i4++) {
-                cwsVec[i4] = soilMLS.cws[i4];
-                cwsVecSum += cwsVec[i4];
-                REAL(cwsMat)[i4 + i*soilLayers] = soilMLS.cws[i4];
-                REAL(rdMat)[i4 + i*soilLayers] = soilMLS.rootDist[i4];
+            for(i3 = 0; i3 < soilLayers; i3++) {
+                cwsVec[i3] = soilMLS.cws[i3];
+                cwsVecSum += cwsVec[i3];
+                REAL(cwsMat)[i3 + i*soilLayers] = soilMLS.cws[i3];
+                REAL(rdMat)[i3 + i*soilLayers] = soilMLS.rootDist[i3];
             }
             waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
