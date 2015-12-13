@@ -41,7 +41,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
 
         SEXP NLAYERS,             /* # Lay canop              11 */
-        SEXP RHIZOME,             /* Ini Rhiz                 12 */
+        SEXP IRHIZOME,             /* Ini Rhiz                 12 */
         SEXP IRTL,                /* i rhiz to leaf           13 */
         SEXP SENCOEFS,            /* sene coefs               14 */
         SEXP TIMESTEP,            /* time step                15 */
@@ -98,37 +98,49 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         )
 {
     /* Creating pointers to avoid calling functions REAL and INTEGER so much */
-    int *pt_doy = INTEGER(DOY);
-    int *pt_hr = INTEGER(HR);
-    double *pt_solar = REAL(SOLAR);
-    double *pt_temp = REAL(TEMP);
-    double *pt_rh = REAL(RH);
-    double *pt_windspeed = REAL(WINDSPEED);
-    double *pt_precip = REAL(PRECIP);
     double lat = REAL(LAT)[0];
-    int nlayers = INTEGER(NLAYERS)[0];
-    int ws = INTEGER(WS)[0];
+    int *doy = INTEGER(DOY);
+    int *hr = INTEGER(HR);
+    double *solar = REAL(SOLAR);
+    double *temp = REAL(TEMP);
+    double *rh = REAL(RH);
+    double *windspeed = REAL(WINDSPEED);
+    double *precip = REAL(PRECIP);
     double kd = REAL(KD)[0];
     double chil = REAL(CHILHF)[0];
     double heightf = REAL(CHILHF)[1];
-    int wsFun = INTEGER(WSFUN)[0];
-    int soilType = INTEGER(SOILTYPE)[0];
-    double Sp = REAL(SPLEAF)[0]; 
+    int nlayers = INTEGER(NLAYERS)[0];
+    double iRhizome = REAL(IRHIZOME)[0];
+    double propLeaf = REAL(IRTL)[0]; 
     // double kLN = REAL(KLN)[0]; unused
+    double *sencoefs = REAL(SENCOEFS);
     int timestep = INTEGER(TIMESTEP)[0];
-    double upperT = REAL(UPPERTEMP)[0];
-    double lowerT = REAL(LOWERTEMP)[0];				 
     int vecsize = INTEGER(VECSIZE)[0];
+    double Sp = REAL(SPLEAF)[0]; 
+    double SpD = REAL(SPD)[0];
+    double *dbpcoefs = REAL(DBPCOEFS);
+    double *thermalp = REAL(THERMALP);
+
+    double *soilcoefs = REAL(SOILCOEFS);
+
+    int soilType = INTEGER(SOILTYPE)[0];
+    int wsFun = INTEGER(WSFUN)[0];
+    int ws = INTEGER(WS)[0];
     int soillayers = INTEGER(SOILLAYERS)[0];
+    double *secs = REAL(SECS);
     double LeafNmax = REAL(MAXLN)[0]; /* max N conc of top leaf in mmol/m2*/
     double LeafNmin = REAL(MINLN)[0];  /* min N conc of top leaf in mmol/m2 */
     double dayofMaxLeafN = REAL(DAYMAXLN)[0]; /* day when maxm leaf N occuers */
-    double LeafN, currentday;
     double kpLN = REAL(KPLN)[0];
     double lnb0 = REAL(LNB0)[0]; 
     double lnb1 = REAL(LNB1)[0];
     // int lnfun = INTEGER(LNFUN)[0]; unused
+    double upperT = REAL(UPPERTEMP)[0];
+    double lowerT = REAL(LOWERTEMP)[0];				 
+    double leafrate = REAL(LEAFTURNOVER)[0];
+    double rootrate = REAL(ROOTTURNOVER)[0];
 
+    /*Reading NitroP Variables */
     struct nitroParms nitrop;
     double TEMPdoubletoint;
     nitrop.ileafN = REAL(NNITROP)[0];
@@ -300,7 +312,6 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
        material. This is needed to calculate litter and therefore carbon
        in the soil and then N in the soil. */
 
-    double propLeaf;
     int i, i2, i3;
     // double rootfrontvelocity = REAL(ROOTFRONTVELOCITY)[0]; unused
     // int optiontocalculaterootdepth = INTEGER(OPTIONTOCALCULATEROOTDEPTH)[0]; unused
@@ -312,6 +323,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     double beta;
     double Rd1, Ca;
     double b01, b11;
+    double LeafN, currentday;
 
     // double Grain = 0.0; unused
     // double kGrain = 0.0; unused
@@ -345,18 +357,18 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     // double mrc1 = REAL(MRESP)[0]; unused
     // double mrc2 = REAL(MRESP)[1];  unused
 
-    const double FieldC = REAL(SOILCOEFS)[0];
-    const double WiltP = REAL(SOILCOEFS)[1];
-    const double phi1 = REAL(SOILCOEFS)[2];
-    const double phi2 = REAL(SOILCOEFS)[3];
-    const double soilDepth = REAL(SOILCOEFS)[4];
-    double waterCont = REAL(SOILCOEFS)[5];
+    const double FieldC = soilcoefs[0];
+    const double WiltP = soilcoefs[1];
+    const double phi1 = soilcoefs[2];
+    const double phi2 = soilcoefs[3];
+    const double soilDepth = soilcoefs[4];
+    double waterCont = soilcoefs[5];
     double soilEvap, TotEvap;
 
-    const double SeneLeaf = REAL(SENCOEFS)[0];
-    const double SeneStem = REAL(SENCOEFS)[1];
-    const double SeneRoot = REAL(SENCOEFS)[2];
-    //const double SeneRhizome = REAL(SENCOEFS)[3]; unused
+    const double seneLeaf = sencoefs[0];
+    const double seneStem = sencoefs[1];
+    const double seneRoot = sencoefs[2];
+    //const double seneRhizome = sencoefs[3]; unused
 
     struct Can_Str Canopy = {0,0,0};
     struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
@@ -367,6 +379,16 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
     soTexS = soilTchoose(INTEGER(SOILTYPE)[0]);
 
+    Rhizome = iRhizome;
+    /* It is useful to assume that there is a small amount of
+       leaf area at the begining of the growing season. */
+    Leaf = Rhizome * propLeaf;
+    /* Initial proportion of the rhizome that is turned
+       into leaf the first hour */
+    Stem = Rhizome * 0.001;
+    Root = Rhizome * 0.001;
+    LAI = Leaf * Sp;
+
     /* Creation of pointers outside the loop */
     sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
                              in the newLeafcol vector */
@@ -374,24 +396,21 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     sti3 = &newRootcol[0];
     sti4 = &newRhizomecol[0];
 
+    /* Some soil related empirical coefficients */
+    double rfl = secs[0];  /* root factor lambda */
+    double rsec = secs[1]; /* radiation soil evaporation coefficient */
+    double rsdf = secs[2]; /* root soil depth factor */
+    double scsf = soilcoefs[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
+    double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
+    double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
+
     double cwsVec[soillayers];
     for(i2 = 0; i2 < soillayers; i2++) {
         cwsVec[i2] = REAL(CWS)[i2];
     }
     double cwsVecSum = 0.0;
-    /* Some soil related empirical coefficients */
-    double rfl = REAL(SECS)[0];  /* root factor lambda */
-    double rsec = REAL(SECS)[1]; /* radiation soil evaporation coefficient */
-    double rsdf = REAL(SECS)[2]; /* root soil depth factor */
-    double scsf = REAL(SOILCOEFS)[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
-    double transpRes = REAL(SOILCOEFS)[7]; /* Resistance to transpiration from soil to leaf */
-    double leafPotTh = REAL(SOILCOEFS)[8]; /* Leaf water potential threshold */
-
     /* Parameters for calculating leaf water potential */
     double LeafPsim = 0.0;
-
-    double leafrate = REAL(LEAFTURNOVER)[0];
-    double rootrate = REAL(ROOTTURNOVER)[0];
 
     /* Variables for Respiration Calculations. I am currently using hard coded values. I shall write a function that can takes these values as input. I have used optim function and data from Liu to get these values. */
     double gRespCoeff = 0.15;/*This is constant fraction to calculate Growth respiration from DSSAT*/
@@ -439,18 +458,6 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     b11 = REAL(B1)[0];
 
     LeafN = REAL(ILEAFN)[0]; /* Initial value of N in the leaf */
-    Rhizome = REAL(RHIZOME)[0];
-
-    propLeaf = REAL(IRTL)[0]; 
-    Leaf = Rhizome * propLeaf;
-    /* It is useful to assume that there is a small amount of
-       leaf area at the begining of the growing season. */
-
-    /* Initial proportion of the rhizome that is turned
-       into leaf the first hour */
-    Stem = Rhizome * 0.001;
-    Root = Rhizome * 0.001;
-    LAI = Leaf * Sp;
 
     double moist,ddap;
 
@@ -481,7 +488,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     LAIold = LAIi; /* Enter simulation with LAIold variable to track precious LAI to implement water stress */
 
     /************Based on Today, we need to calculate leaf photosynthesis parameters before the main loop begins ******/
-    currentday = *(pt_doy+0);
+    currentday = doy[0];
     LeafN = seasonal(LeafNmax, LeafNmin , currentday, dayofMaxLeafN, 365.0, lat);
     //      Rprintf("%f, %f, %f,%f,%f, %f\n",LeafNmax,LeafNmin ,currentday,dayofMaxLeafN,lat,LeafN);
     if(nitrop.lnFun == 0) {
@@ -505,8 +512,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         /* The idea is that here I need to divide by the time step
            to calculate the thermal time. For example, a 3 hour time interval
            would mean that the division would need to by 8 */
-        TTc += *(pt_temp+i) / (24/timestep); 
-        if((*(pt_temp+i))<9) {
+        TTc += temp[i] / (24/timestep); 
+        if((temp[i])<9) {
             TT12c = TT12c;
             // delTT = 0.0; unused
         }
@@ -517,13 +524,13 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         /*
            if (REAL(IRRIG)[0]>0) {
            TotEvap* = 0.01; //To convert total ET loss from Mg/ha to mm
-         *(pt_precip+i)+ = (TotEvap*REAL(IRRIG)[0]);
+         precip[i]+ = (TotEvap*REAL(IRRIG)[0]);
          }
          */
 
-        if((*(pt_temp+i)) >= 9) {
-            TT12c = TT12c + (*(pt_temp+i)-9) / (24/timestep);
-            // delTT = (*(pt_temp+i)- 9)/24.0; unused
+        if((temp[i]) >= 9) {
+            TT12c = TT12c + (temp[i]-9) / (24/timestep);
+            // delTT = (temp[i]- 9)/24.0; unused
         }
 
         /* This calculated TTTc based on 0 base Temperature */    
@@ -544,9 +551,9 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
           3Dcanopy_light = runraytracing(3Dcanopy, lat, day, hour,Idir, Idiff,xmin,xmax,ymin,ymax,zmin,zmax);
 
 
-          Canopy = CanAC_3D(, *(pt_doy+i), *(pt_hr+i),
-         *(pt_solar+i), *(pt_temp+i),
-         *(pt_rh+i), *(pt_windspeed+i),
+          Canopy = CanAC_3D(, doy[i], hr[i],
+         solar[i], temp[i],
+         rh[i], windspeed[i],
          lat, nlayers,
          vmax1,alpha1,kparm1,
          theta,beta,Rd1,Ca,b01,b11,StomWS,
@@ -558,15 +565,15 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         // Testing if I can call C++ ray tracing code from here
 
 
-        Canopy = CanAC_3D (canparms, canopy3Dstructure,nrows, ncols,LAI,*(pt_doy+i), *(pt_hr+i),
-         *(pt_solar+i), *(pt_temp+i),*(pt_rh+i), *(pt_windspeed+i),lat,vmax1,alpha1,kparm1,
+        Canopy = CanAC_3D (canparms, canopy3Dstructure,nrows, ncols,LAI,doy[i], hr[i],
+         solar[i], temp[i],rh[i], windspeed[i],lat,vmax1,alpha1,kparm1,
          theta,beta,Rd1,Ca,b01,b11,StomWS,
          ws,kpLN,upperT,lowerT,LeafN,nitrop);
          ********************/             
 
 
-        Canopy = CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-                *(pt_solar+i), *(pt_temp+i), *(pt_rh+i), *(pt_windspeed+i),
+        Canopy = CanAC(LAI, doy[i], hr[i],
+                solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax1, alpha1, kparm1, theta, beta,
                 Rd1, Ca, b01, b11, StomWS, ws, kd, chil,
                 heightf, LeafN, kpLN, lnb0, lnb1, nitrop.lnFun, upperT, lowerT, nitrop, 0.04, 0);
@@ -590,13 +597,13 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         /* updated value of daily assimilation and transpiration */
 
         /*Evaluate maintenance Respiration of different plant organs */
-        LeafResp = MRespiration(Leaf, Qleaf, mRespleaf, *(pt_temp+i), timestep);
+        LeafResp = MRespiration(Leaf, Qleaf, mRespleaf, temp[i], timestep);
         REAL(Leafmaintenance)[i] = LeafResp;
-        StemResp = MRespiration(Stem, Qstem, mRespstem, *(pt_temp+i), timestep);
+        StemResp = MRespiration(Stem, Qstem, mRespstem, temp[i], timestep);
         REAL(Stemmaintenance)[i] = StemResp;
-        RootResp = MRespiration(Root, Qroot, mResproot, *(pt_temp+i), timestep);
+        RootResp = MRespiration(Root, Qroot, mResproot, temp[i], timestep);
         REAL(Rootmaintenance)[i] = RootResp;
-        SeedcaneResp = MRespiration(Seedcane, Qstem, mRespstem, *(pt_temp+i), timestep);
+        SeedcaneResp = MRespiration(Seedcane, Qstem, mRespstem, temp[i], timestep);
         REAL(Seedcanemaintenance)[i] = SeedcaneResp;
 
         /*summing up hourly maintenance Respiration to determine daily maintenance respiration of each plant organ */
@@ -608,9 +615,9 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         /* Inserting the multilayer model */
         if(soillayers > 1) {
             // dap = (double)dayi; // converting dayi to double before passing to soilML to avoid rounding error unused
-            soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
-                    phi1, phi2, soTexS, wsFun, INTEGER(SOILLAYERS)[0], Root, 
-                    LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
+            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
+                    phi1, phi2, soTexS, wsFun, soillayers, Root, 
+                    LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
                     INTEGER(HYDRDIST)[0], rfl, rsec, rsdf);//,optiontocalculaterootdepth,rootfrontvelocity, dap);
 
 
@@ -628,10 +635,9 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
             cwsVecSum = 0.0;
 
         } else {
-            soilEvap = SoilEvapo(LAI, 0.68, *(pt_temp+i), *(pt_solar+i), waterCont, FieldC, WiltP, 
-                    *(pt_windspeed+i), *(pt_rh+i), rsec);
+            soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
             TotEvap = soilEvap + CanopyT;
-            WaterS = watstr(*(pt_precip+i),TotEvap,waterCont,soilDepth,FieldC,WiltP,phi1,phi2,soilType, wsFun);   
+            WaterS = watstr(precip[i],TotEvap,waterCont,soilDepth,FieldC,WiltP,phi1,phi2,soilType, wsFun);   
             waterCont = WaterS.awc;
             StomWS = WaterS.rcoefPhoto ; 
             LeafWS = WaterS.rcoefSpleaf;
@@ -668,8 +674,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                  * LeafPsim this can be rearranged to*/ 
                 StomWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
                 /* StomWS = 1; */
-                if(StomWS < 0.1)
-                    StomWS = 0.1;
+                if(StomWS < 0.1) StomWS = 0.1;
             } else {
                 StomWS = 1;
             }
@@ -711,8 +716,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
             /* call the biomass partitioning function */
 
-            //		  dbpS = SUGARCANE_DBP_CUADRA(TT12c,TT0,TTseed,Tmaturity,Rd,Alm,Arm,Clstem,Ilstem,Cestem,Iestem,Clsuc,Ilsuc,Cesuc,Iesuc,*(pt_temp+i));
-            dbpS_old = sel_dbp_coef(REAL(DBPCOEFS), REAL(THERMALP), TT12c); 
+            //		  dbpS = SUGARCANE_DBP_CUADRA(TT12c,TT0,TTseed,Tmaturity,Rd,Alm,Arm,Clstem,Ilstem,Cestem,Iestem,Clsuc,Ilsuc,Cesuc,Iesuc,temp[i]);
+            dbpS_old = sel_dbp_coef(dbpcoefs, thermalp, TT12c); 
 
             dbpS.kLeaf = dbpS_old.kLeaf;
             dbpS.kStem = dbpS_old.kStem;
@@ -753,7 +758,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                 warning("kleaf is negative");
             }
 
-            if(TT12c < SeneLeaf) {
+            if(TT12c < seneLeaf) {
                 Leaf += newLeaf;
                 leaflitter = leaflitter+0.0;
                 REAL(LeafLittervec)[dayi]= leaflitter;
@@ -776,7 +781,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                 warning("kstem is negative");
             }
 
-            if(TT12c < SeneStem) {
+            if(TT12c < seneStem) {
                 Stem += newStem;
                 Fiber+=newFiber;
                 Sugar+=newSugar;
@@ -802,7 +807,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                 error("kRoot should be positive");
             }
 
-            if(TT12c < SeneRoot) {
+            if(TT12c < seneRoot) {
                 Root += newRoot;
                 rootlitter = 0.0;
                 REAL(RootLittervec)[dayi]= rootlitter;
@@ -842,8 +847,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
             BLitter = REAL(RootLittervec)[i];
 
             /*daily update of specific leaf area*/
-            Sp = Sp - REAL(SPD)[0];
-            if (Sp < 0.5)Sp = 0.5;
+            Sp = Sp - SpD;
+            if (Sp < 0.5) Sp = 0.5;
 
             /* new value of leaf area index */
             LAInew = Leaf * Sp ;
@@ -870,7 +875,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
             //LAI = LAInew;		  
 
             /* daily update of leaf-N, vmac, and alpga  based on cyclic seasonal variation */
-            currentday = *(pt_doy+i);
+            currentday = doy[i];
             LeafN = seasonal(LeafNmax,LeafNmin ,currentday,dayofMaxLeafN,365.0,lat);
 
             /**This calculation is not needed because LeafN is used to calculate photosynthesis paraetrers in canopy module*********/ 
@@ -901,9 +906,9 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                 Root = Root+remobilizedleaf*0.33;
             }
             // Here I am simulating leaf Frost damage
-            if((*pt_temp+i)<frostparms.leafT0)
+            if(temp[i]<frostparms.leafT0)
             {
-                deadleaf = getFrostdamage(frostparms.leafT0,frostparms.leafT100,*(pt_temp+i), Leaf);
+                deadleaf = getFrostdamage(frostparms.leafT0,frostparms.leafT100,temp[i], Leaf);
                 remobilizedleaf = deadleaf*Remobfactorleaf;
                 leaflitter = leaflitter+deadleaf-remobilizedleaf; /*40% of dead leaf goes to leaf litter */
                 Leaf =Leaf-deadleaf+remobilizedleaf*0.0;
