@@ -268,7 +268,7 @@ SEXP MisGro(
     const double seneRoot = sencoefs[2];
     const double seneRhizome = sencoefs[3];
 
-    struct Can_Str Canopy;
+    struct Can_Str Canopy = {0,0,0};
     struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
     struct dbp_str dbpS;
     struct cenT_str centS; 
