@@ -551,7 +551,7 @@ SEXP MisGro(
            Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
            management in north-eastern greece*/
 
-        if(i%24 == 0) {
+        if(i % 24 == 0) {
             Sp = iSp - (doy[i] - doy[0]) * SpD;
         }
 
