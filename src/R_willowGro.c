@@ -354,10 +354,8 @@ SEXP willowGro(
            would mean that the division would need to by 8 */     
         if(temp[i] > Tbase) {
             TTc += (temp[i]-Tbase) / (24/timestep); 
-            REAL(TTTc)[i] = TTc;
         } else {
             TTc = TTc;
-            REAL(TTTc)[i] = TTc;
         }
 
         /*  Do the magic! Calculate growth*/
@@ -690,6 +688,7 @@ SEXP willowGro(
         REAL(Rhizomey)[i] = Rhizome;
         REAL(Grainy)[i] = Grain;
         REAL(LAIc)[i] = LAI;
+		REAL(TTTc)[i] = TTc;
         REAL(SoilWatCont)[i] = waterCont;
         REAL(StomatalCondCoefs)[i] = StomWS;
         REAL(LeafReductionCoefs)[i] = LeafWS;

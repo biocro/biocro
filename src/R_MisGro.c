@@ -338,7 +338,6 @@ SEXP MisGro(
            to calculate the thermal time. For example, a 3 hour time interval
            would mean that the division would need to by 8 */
         TTc += temp[i] / (24/timestep); 
-        REAL(TTTc)[i] = TTc;
 
         /*  Do the magic! Calculate growth*/
 
@@ -697,6 +696,7 @@ SEXP MisGro(
         REAL(Rhizomey)[i] = Rhizome;
         REAL(Grainy)[i] = Grain;
         REAL(LAIc)[i] = LAI;
+        REAL(TTTc)[i] = TTc;
         REAL(SoilWatCont)[i] = waterCont;
         REAL(StomatalCondCoefs)[i] = StomWS;
         REAL(LeafReductionCoefs)[i] = LeafWS;
