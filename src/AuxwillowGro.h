@@ -15,7 +15,7 @@ SEXP willowGro(
         SEXP WINDSPEED,        /* Wind Speed                          7 */
         SEXP PRECIP,           /* Precipitation                       8 */
         SEXP KD,               /* K D (ext coeff diff)                9 */
-        SEXP CHILHF,           /* Chi and Height factor              10 */
+        SEXP CHIL,             /* Chi, leaf angle distribution       10 */
 
 
         SEXP HEIGHTF,          /* Height factor                      11 */

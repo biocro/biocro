@@ -25,7 +25,7 @@ SEXP willowGro(
         SEXP WINDSPEED,        /* Wind Speed                          7 */
         SEXP PRECIP,           /* Precipitation                       8 */
         SEXP KD,               /* K D (ext coeff diff)                9 */
-        SEXP CHILHF,           /* Chi and Height factor              10 */
+        SEXP CHIL,             /* Chi, leaf angle distribution       10 */
 
 
         SEXP HEIGHTF,          /* Height factor                      11 */
@@ -77,18 +77,40 @@ SEXP willowGro(
         SEXP GROWTHRESP,       /*                                    57 */
         SEXP STOMATAWS)        /*                                    58 */
 {
+    double lat = REAL(LAT)[0];
+    int *doy = INTEGER(DOY);
+    int *hr = INTEGER(HR);
+    double *solar = REAL(SOLAR);
+    double *temp = REAL(TEMP);
+    double *rh = REAL(RH);
+    double *windspeed = REAL(WINDSPEED);
+    double *precip = REAL(PRECIP);
+    double kd = REAL(KD)[0];
+    // double chil = REAL(CHIL)[0]; unused
+    //
+    //
+    double heightf = REAL(HEIGHTF)[0];
+    int nlayers = INTEGER(NLAYERS)[0];
+    //
+    // propLeaf = REAL(IRTL)[0];  set but not used
+    int ws = INTEGER(WS)[0];
     double newLeafcol[8760];
     double newStemcol[8760];
     double newRootcol[8760];
     double newRhizomecol[8760];
+    double jmax1=REAL(JMAX)[0];
+    double kpLN = REAL(KPLN)[0];
+    double lnb0 = REAL(LNB0)[0]; 
+    double lnb1 = REAL(LNB1)[0];
+    int lnfun = INTEGER(LNFUN)[0];
+    // double jmaxb1=REAL(JMAXB1)[0]; unused
+    int centTimestep = INTEGER(CENTTIMESTEP)[0];
 
     /* This creates vectors which will collect the senesced plant
        material. This is needed to calculate litter and therefore carbon
        in the soil and then N in the soil. */
 
 
-    double jmax1=REAL(JMAX)[0];
-    // double jmaxb1=REAL(JMAXB1)[0]; unused
 
     double iSp, Sp;
     // double propLeaf; unused
@@ -155,11 +177,6 @@ SEXP willowGro(
     /* Parameters for calculating leaf water potential */
     double LeafPsim = 0.0;
 
-    /* Effect of Nitrogen */
-    double kpLN = REAL(KPLN)[0];
-    double lnb0 = REAL(LNB0)[0]; 
-    double lnb1 = REAL(LNB1)[0];
-    int lnfun = INTEGER(LNFUN)[0];
 
     /* Century */
     double MinNitro = REAL(CENTCOEFS)[19];
@@ -167,7 +184,6 @@ SEXP willowGro(
     double Nfert;
     double SCCs[9];
     double Resp = 0.0;
-    int centTimestep = INTEGER(CENTTIMESTEP)[0];
 
     double SeneLeaf, SeneStem, SeneRoot = 0.0, SeneRhizome = 0.0, Tfrosthigh, Tfrostlow, leafdeathrate, Deadleaf;
     double *sti , *sti2, *sti3, *sti4; 
@@ -314,7 +330,6 @@ SEXP willowGro(
     SCCs[7] = REAL(CENTCOEFS)[7];
     SCCs[8] = REAL(CENTCOEFS)[8];
 
-    // propLeaf = REAL(IRTL)[0];  set but not used
     /* It is useful to assume that there is a small amount of
        leaf area at the begining of the growing season. */
     iLLEAF = iRRHIZOME * ifrRRHIZOME + iSSTEM*ifrSSTEM; 	
@@ -322,19 +337,6 @@ SEXP willowGro(
     iSp = Sp;
 
     /* Creating pointers to avoid calling functions REAL and INTEGER so much */
-    int *pt_doy = INTEGER(DOY);
-    int *pt_hr = INTEGER(HR);
-    double *pt_solar = REAL(SOLAR);
-    double *pt_temp = REAL(TEMP);
-    double *pt_rh = REAL(RH);
-    double *pt_windspeed = REAL(WINDSPEED);
-    double *pt_precip = REAL(PRECIP);
-    double lat = REAL(LAT)[0];
-    int nlayers = INTEGER(NLAYERS)[0];
-    int ws = INTEGER(WS)[0];
-    double kd = REAL(KD)[0];
-    // double chil = REAL(CHILHF)[0]; unused
-    double heightf = REAL(HEIGHTF)[0];
     double o2 = 210;
     double Tbase = REAL(TBASE)[0];  /* base temperature */
 
@@ -356,8 +358,8 @@ SEXP willowGro(
         /* The idea is that here I need to divide by the time step
            to calculate the thermal time. For example, a 3 hour time interval
            would mean that the division would need to by 8 */     
-        if((*(pt_temp+i)) > Tbase) {
-            TTc += (*(pt_temp+i)-Tbase) / (24/timestep); 
+        if(temp[i] > Tbase) {
+            TTc += (temp[i]-Tbase) / (24/timestep); 
             REAL(TTTc)[i] = TTc;
         } else {
             TTc = TTc;
@@ -371,9 +373,9 @@ SEXP willowGro(
         //      Rprintf("\n VMAX= %f",vmax1);
         //Rprintf("\n StomWS,LeafWS=%f",StomWS,LeafWS); 
 
-        Canopy = c3CanAC(LAI, *(pt_doy+i), *(pt_hr+i),
-                *(pt_solar+i), *(pt_temp+i),
-                *(pt_rh+i), *(pt_windspeed+i),
+        Canopy = c3CanAC(LAI, doy[i], hr[i],
+                solar[i], temp[i],
+                rh[i], windspeed[i],
                 lat, nlayers,
                 vmax1, jmax1, Rd1, Ca, o2, b01, b11, theta, kd, heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
 
@@ -388,9 +390,9 @@ SEXP willowGro(
         /*Rprintf("%f,%f,%f\n",Canopy,CanopyA,GPP);*/      
         /* Inserting the multilayer model */
         if(soillayers > 1) {
-            soilMLS = soilML(*(pt_precip+i), CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
+            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, REAL(SOILDEPTHS), FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, INTEGER(SOILLAYERS)[0], Root, 
-                    LAI, 0.68, *(pt_temp+i), *(pt_solar), *(pt_windspeed+i), *(pt_rh+i), 
+                    LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
                     INTEGER(HYDRDIST)[0], rfl, rsec, rsdf);
 
             StomWS = soilMLS.rcoefPhoto;
@@ -405,10 +407,10 @@ SEXP willowGro(
             waterCont = cwsVecSum / soillayers;
             cwsVecSum = 0.0;
         } else {
-            soilEvap = SoilEvapo(LAI, 0.68, *(pt_temp+i), *(pt_solar+i), waterCont, FieldC, WiltP, 
-                    *(pt_windspeed+i), *(pt_rh+i), rsec);
+            soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, 
+                    windspeed[i], rh[i], rsec);
             TotEvap = soilEvap + CanopyT;
-            WaterS = watstr(*(pt_precip+i), TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
+            WaterS = watstr(precip[i], TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
             waterCont = WaterS.awc;
             StomWS = WaterS.rcoefPhoto ; 
             LeafWS = WaterS.rcoefSpleaf;
@@ -466,7 +468,7 @@ SEXP willowGro(
         /* Only the day in which the fertilizer was applied this is available */
         /* When the day of the year is equal to the day the N fert was applied
          * then there is addition of fertilizer */
-        if(doyNfert == *(pt_doy+i)) {
+        if(doyNfert == doy[i]) {
             Nfert = REAL(CENTCOEFS)[17] / 24.0;
         } else {
             Nfert = 0;
@@ -487,11 +489,11 @@ SEXP willowGro(
             RootLitter -= RootLitter_d;
             RhizomeLitter -= RhizomeLitter_d;
 
-            centS = Century(&LeafLitter_d,&StemLitter_d,&RootLitter_d,&RhizomeLitter_d,
-                    waterCont,*(pt_temp+i),centTimestep,SCCs,WaterS.runoff,
+            centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
+                    waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
                     Nfert, /* N fertilizer*/
                     MinNitro, /* initial Mineral nitrogen */
-                    *(pt_precip+i), /* precipitation */
+                    precip[i], /* precipitation */
                     REAL(CENTCOEFS)[9], /* Leaf litter lignin */
                     REAL(CENTCOEFS)[10], /* Stem litter lignin */
                     REAL(CENTCOEFS)[11], /* Root litter lignin */
@@ -549,7 +551,7 @@ SEXP willowGro(
             /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
             /* The 0.02 and 0.03 are constants here but vary depending on species
                as pointed out in that reference. */
-            newLeaf = resp(newLeaf, mrc1, *(pt_temp+i));
+            newLeaf = resp(newLeaf, mrc1, temp[i]);
 
             *(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
                                    to use i because when kLeaf is negative no new leaf is
@@ -561,19 +563,19 @@ SEXP willowGro(
         if(TTc < SeneLeaf) {
             Leaf += newLeaf;
         } else {
-            A = REAL(LAT)[0]>=0.0;
-            B = *(pt_doy+i)>=180.0 ;
+            A = lat >=0.0;
+            B = doy[i]>=180.0 ;
 
             if((A && B)||((!A) && (!B))) {
                 // Here we are checking/evaluating frost kill
-                if (*(pt_temp+i) > Tfrostlow) {
-                    leafdeathrate1 = 100 * (*(pt_temp+i) - Tfrosthigh) / (Tfrostlow - Tfrosthigh);
+                if (temp[i] > Tfrostlow) {
+                    leafdeathrate1 = 100 * (temp[i] - Tfrosthigh) / (Tfrostlow - Tfrosthigh);
                     leafdeathrate1 = (leafdeathrate1 > 100.0) ? 100.0 : leafdeathrate1;
                 } else {
                     leafdeathrate1 = 0.0;
                 }
-                //Rprintf("Death rate due to frost = %f,%f,%f,%f\n",leafdeathrate1,*(pt_temp+i),Tfrosthigh,Tfrostlow);
-                //Rprintf("%f,%f,%f,%f\n",leafdeathrate,*(pt_temp+i),Tfrosthigh,Tfrostlow);
+                //Rprintf("Death rate due to frost = %f, %f, %f, %f\n", leafdeathrate1, temp[i], Tfrosthigh, Tfrostlow);
+                //Rprintf("%f, %f, %f, %f\n", leafdeathrate, temp[i], Tfrosthigh, Tfrostlow);
                 leafdeathrate = (leafdeathrate > leafdeathrate1) ? leafdeathrate : leafdeathrate1;
                 Deadleaf = Leaf * leafdeathrate * (0.01 / 24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
                 Remob = Deadleaf * 0.6;
@@ -596,7 +598,7 @@ SEXP willowGro(
            management in north-eastern greece*/
 
         if(i%24 == 0) {
-            Sp = iSp - (INTEGER(DOY)[i] - INTEGER(DOY)[0]) * REAL(SPD)[0];
+            Sp = iSp - (doy[i] - doy[0]) * REAL(SPD)[0];
         }
 
         LAI = Leaf * Sp ;
@@ -606,7 +608,7 @@ SEXP willowGro(
         /* New Stem*/
         if(kStem >= 0) {
             newStem = CanopyA * kStem ;
-            newStem = resp(newStem, mrc1, *(pt_temp+i));
+            newStem = resp(newStem, mrc1, temp[i]);
             *(sti2+i) = newStem;
         } else {
             error("kStem should be positive");
@@ -622,7 +624,7 @@ SEXP willowGro(
 
         if(kRoot > 0) {
             newRoot = CanopyA * kRoot ;
-            newRoot = resp(newRoot, mrc2, *(pt_temp+i));
+            newRoot = resp(newRoot, mrc2, temp[i]);
             *(sti3+i) = newRoot;
         } else {
 
@@ -643,7 +645,7 @@ SEXP willowGro(
 
         if(kRhizome > 0) {
             newRhizome = CanopyA * kRhizome ;
-            newRhizome = resp(newRhizome, mrc2, *(pt_temp+i));
+            newRhizome = resp(newRhizome, mrc2, temp[i]);
             *(sti4+ri) = newRhizome;
             /* Here i will not work because the rhizome goes from being a source
                to a sink. I need its own index. Let's call it rhizome's i or ri.*/
