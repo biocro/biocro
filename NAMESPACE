@@ -10,7 +10,7 @@ useDynLib(BioCro, MisGro,
           McMCEc4photo,
           SABioGro)
 
-import(stats, lattice, knitr)
+import(stats, lattice)
 
 export(MisGro)
 export(weach_imn)
@@ -126,6 +126,8 @@ export(wtrstr, wsRcoef)
 
 ## weach.R
 export(weach)
+export(weach.default)
+S3method(weach, data.table)
 export(weach365)
 export(weach366)
 export(weachNEW)

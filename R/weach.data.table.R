@@ -12,7 +12,8 @@
 
 .datatable.aware = NULL  # Needed for the ridiculous way that the data.table package works.
 
-weach.data.table <- function(X, lati){
+weach.data.table <- function(X, ...) {
+	lati = list(...)$lati
 	if (!requireNamespace('data.table')) stop('in weach.data.table: this function requires the data.tables package')
 	if (!data.table::is.data.table(X)) stop('in weach.data.table: X must be a data table')
 	assignInMyNamespace('.datatable.aware', TRUE)  # The ridiculous way to get data.table to work without depending on it.
