@@ -354,8 +354,6 @@ SEXP willowGro(
            would mean that the division would need to by 8 */     
         if(temp[i] > Tbase) {
             TTc += (temp[i]-Tbase) / (24/timestep); 
-        } else {
-            TTc = TTc;
         }
 
         /*  Do the magic! Calculate growth*/
