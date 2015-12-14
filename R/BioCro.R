@@ -302,7 +302,6 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     nnitroP <- canenitroParms()
     nnitroP<-as.vector(unlist(nnitroP))
     
-    
     phenoP <- phenoParms()
     phenoP[names(phenoControl)] <- phenoControl
 
@@ -318,7 +317,6 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     tint <- 24 / timestep
     vecsize <- (dayn - (day1-1)) * tint
     indes1 <- (day1-1) * tint
-    #indesn <- min((dayn) * tint, nrow(WetDat))
     indesn <- (dayn) * tint
     if((dayn)*tint > nrow(WetDat))
       stop ("weather data and dayN is not consistent")
@@ -342,7 +340,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
 
     SENcoefs <- as.vector(unlist(seneP))
 
-    soilCoefs <- c(unlist(soilP[1:5]),mean(soilP$iWatCont),soilP$scsf, soilP$transpRes, soilP$leafPotTh)
+    soilCoefs <- c(unlist(soilP[1:5]), mean(soilP$iWatCont), soilP$scsf, soilP$transpRes, soilP$leafPotTh)
+
     wsFun <- soilP$wsFun
     soilType <- soilP$soilType
 
@@ -367,16 +366,15 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     ws <- photoP$ws
     upperT<-photoP$uppertemp
     lowerT<-photoP$lowertemp
-    
     mResp <- canopyP$mResp
     kd <- canopyP$kd
     chi.l <- canopyP$chi.l
     Sp <- canopyP$Sp
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
+    nlayers <- canopyP$nlayers
     leafW <- canopyP$leafwidth
     eteq <- canopyP$eteq
-    nlayers <- canopyP$nlayers
     
     res <- .Call(MisGro,
                  as.double(lat),
@@ -443,7 +441,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$rdMat) <- soilP$soilDepths[-1]
     res$psimMat <- t(res$psimMat)
     colnames(res$psimMat) <- soilP$soilDepths[-1]
-    structure(res,class="BioGro")
+    return(structure(res,class="BioGro"))
   }
 
 
