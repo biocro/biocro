@@ -56,6 +56,7 @@ engine='R',dev='pdf'
 <<preliminaries,echo=FALSE>>=
 options(width=68)
 library(BioCro, quietly=TRUE)
+library(lattice)
 @
 
 \section{Introduction}
