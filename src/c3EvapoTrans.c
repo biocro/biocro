@@ -224,3 +224,4 @@ struct ET_Str c3EvapoTrans(double Rad,
 	/*   tmp.LayerCond = 0.7; */
 	return(tmp);
 }
+

@@ -230,7 +230,7 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 
 struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTseed,double Tmaturity, double Rd, double Alm, double Arm, double Clstem, double Ilstem, double Cestem, double Iestem, double Clsuc, double Ilsuc, double Cesuc, double Iesuc,double Temperature)
 {
-	struct dbp_sugarcane_str dbp;
+	struct dbp_sugarcane_str dbp = {0, 0, 0, 0, 0, 0, 0};
 	double F1, F2, F3, F4;
 	double Aa,Astem,Al,Ar,Asuc,Astuc;
 	// double Afib; unused
@@ -249,6 +249,7 @@ struct dbp_sugarcane_str SUGARCANE_DBP_CUADRA(double TT, double TT0,double TTsee
 		dbp.kSeedcane=(-1)*0.693*(0.0053*Temperature-0.0893);
 		dbp.kSugar=0.0;
 		dbp.kFiber=0.0;
+		dbp.kTassel=0.0;
 		return(dbp);		
 	}
         else
