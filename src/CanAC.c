@@ -146,11 +146,11 @@ struct Can_Str CanAC(double LAI,
         tmpc42 = c4photoC(IDiff, TempIdiff, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
         AssIdiff = tmpc42.Assim;
         GAssIdiff = tmpc42.GrossAssim;
-        CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
-        GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
+        CanopyA = CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
+        GCanopyA = GCanopyA + Leafsun * GAssIdir + Leafshade * GAssIdiff;
+        CanopyT =  CanopyT + Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
         // I am evaluating CanopyT using Penman Method because it gives realistic results
         // IN future canopyT needs to be fixed
-        CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
         /* CanopyT += Leafsun * tmp5_ET.EPenman + Leafshade * tmp6_ET.EPenman; */
     }
 

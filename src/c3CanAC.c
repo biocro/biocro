@@ -36,9 +36,9 @@ struct Can_Str c3CanAC(double LAI,
 {
 
     struct ET_Str tmp5_ET , tmp6_ET; 
-    struct c3_str tmpc3={0,0,0,0};
-    struct c3_str tmpc32={0,0,0,0}; 
-    struct Can_Str ans={0,0,0};
+    struct c3_str tmpc3 = {0, 0, 0, 0};
+    struct c3_str tmpc32 = {0, 0, 0, 0}; 
+    struct Can_Str ans = {0, 0, 0};
 
     const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
     /* Need a different conversion factor for transpiration */
@@ -121,9 +121,11 @@ struct Can_Str c3CanAC(double LAI,
         Itot = light_profile.total_irradiance[current_layer];
         pLeafsun = light_profile.sunlit_fraction[current_layer];
         CanHeight = light_profile.height[current_layer];
+
         Leafsun = LAIc * pLeafsun;
-        /* Need a new evapo transpiration function specifically for c3*/
+
         tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta);
+
         TempIdir = Temp + tmp5_ET.Deltat;
         tmpc3 = c3photoC(IDir, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         AssIdir = tmpc3.Assim;
@@ -139,9 +141,9 @@ struct Can_Str c3CanAC(double LAI,
         AssIdiff = tmpc32.Assim;
         GAssIdiff = tmpc32.GrossAssim;
 
-        CanopyA =CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
-        CanopyT = CanopyT+Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
-        GCanopyA =GCanopyA+ Leafsun * GAssIdir + Leafshade * GAssIdiff;
+        CanopyA = CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
+        GCanopyA = GCanopyA + Leafsun * GAssIdir + Leafshade * GAssIdiff;
+        CanopyT = CanopyT + Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
     }
 
     if(ISNAN(CanopyA)) {
