@@ -41,8 +41,7 @@ struct Can_Str CanAC(double LAI,
 {
 
     struct ET_Str tmp5_ET, tmp6_ET;
-    struct c4_str tmpc4, tmpc40;
-    struct c4_str tmpc42, tmpc41;
+    struct c4_str temp_photo_results = {0, 0, 0, 0};
     struct Can_Str ans = {0, 0, 0};
 
     const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
@@ -128,24 +127,24 @@ struct Can_Str CanAC(double LAI,
         CanHeight = light_profile.height[current_layer];
 
         Leafsun = LAIc * pLeafsun;
-        tmpc40 = c4photoC(IDir, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
-        tmp5_ET = EvapoTrans2(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, tmpc40.Gs, leafwidth, eteq);
+        temp_photo_results = c4photoC(IDir, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        tmp5_ET = EvapoTrans2(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
 
         TempIdir = Temp + tmp5_ET.Deltat;
-        tmpc4 = c4photoC(IDir, TempIdir, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
-        AssIdir = tmpc4.Assim;
-        GAssIdir =tmpc4.GrossAssim;
+        temp_photo_results = c4photoC(IDir, TempIdir, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        AssIdir = temp_photo_results.Assim;
+        GAssIdir =temp_photo_results.GrossAssim;
 
         IDiff = light_profile.diffuse_irradiance[current_layer];
         pLeafshade = light_profile.shaded_fraction[current_layer];
         Leafshade = LAIc * pLeafshade;
 
-        tmpc41 = c4photoC(IDiff, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
-        tmp6_ET = EvapoTrans2(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, tmpc41.Gs, leafwidth, eteq);
+        temp_photo_results = c4photoC(IDiff, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        tmp6_ET = EvapoTrans2(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
         TempIdiff = Temp + tmp6_ET.Deltat;
-        tmpc42 = c4photoC(IDiff, TempIdiff, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
-        AssIdiff = tmpc42.Assim;
-        GAssIdiff = tmpc42.GrossAssim;
+        temp_photo_results = c4photoC(IDiff, TempIdiff, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        AssIdiff = temp_photo_results.Assim;
+        GAssIdiff = temp_photo_results.GrossAssim;
         CanopyA = CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
         GCanopyA = GCanopyA + Leafsun * GAssIdir + Leafshade * GAssIdiff;
         CanopyT =  CanopyT + Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;

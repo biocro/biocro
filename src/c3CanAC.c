@@ -36,8 +36,7 @@ struct Can_Str c3CanAC(double LAI,
 {
 
     struct ET_Str tmp5_ET , tmp6_ET; 
-    struct c3_str tmpc3 = {0, 0, 0, 0};
-    struct c3_str tmpc32 = {0, 0, 0, 0}; 
+    struct c3_str temp_photo_results = {0, 0, 0, 0};
     struct Can_Str ans = {0, 0, 0};
 
     const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
@@ -127,9 +126,9 @@ struct Can_Str c3CanAC(double LAI,
         tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta);
 
         TempIdir = Temp + tmp5_ET.Deltat;
-        tmpc3 = c3photoC(IDir, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
-        AssIdir = tmpc3.Assim;
-        GAssIdir =tmpc3.GrossAssim;
+        temp_photo_results = c3photoC(IDir, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        AssIdir = temp_photo_results.Assim;
+        GAssIdir =temp_photo_results.GrossAssim;
 
         IDiff = light_profile.diffuse_irradiance[current_layer];
         pLeafshade = light_profile.shaded_fraction[current_layer];
@@ -137,9 +136,9 @@ struct Can_Str c3CanAC(double LAI,
 
         tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta);
         // TempIdiff = Temp + tmp6_ET.Deltat; set but not used
-        tmpc32 = c3photoC(IDiff, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
-        AssIdiff = tmpc32.Assim;
-        GAssIdiff = tmpc32.GrossAssim;
+        temp_photo_results = c3photoC(IDiff, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        AssIdiff = temp_photo_results.Assim;
+        GAssIdiff = temp_photo_results.GrossAssim;
 
         CanopyA = CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
         GCanopyA = GCanopyA + Leafsun * GAssIdir + Leafshade * GAssIdiff;
