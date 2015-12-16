@@ -17,14 +17,12 @@ struct Can_Str CanAC(double LAI,
         double Vmax,
         double Alpha,
         double Kparm,
-        double theta,
         double beta,
         double Rd,
         double Catm,
         double b0,
         double b1,
-        double StomataWS,
-        int ws,
+        double theta,
         double kd,
         double chil,
         double heightf,
@@ -37,7 +35,9 @@ struct Can_Str CanAC(double LAI,
         double lowerT,
         struct nitroParms nitroP,
         double leafwidth,
-        int eteq)
+        int eteq,
+        double StomataWS,
+        int ws)
 {
 
     struct ET_Str tmp5_ET, tmp6_ET;

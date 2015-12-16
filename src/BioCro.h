@@ -43,16 +43,16 @@ struct BioGro_results_str BioGro(double lat, int doy[], int hr[], double solar[]
 
 struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
 		     double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Alpha, 
-		     double Kparm, double theta, double beta, double Rd, double Catm, double b0, 
-		     double b1, double StomataWS, int ws, double kd, double chil, double heightf,
+		     double Kparm, double beta, double Rd, double Catm, double b0, 
+		     double b1, double theta, double kd, double chil, double heightf,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
-		     double lowerT, struct nitroParms nitroP, double leafwidth, int eteq);
+		     double lowerT, struct nitroParms nitroP, double leafwidth, int eteq, double StomataWS, int ws);
          
 struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
   	                   double Rd, double Catm, double o2, double b0, double b1,
                        double theta, double kd, double heightf,
-		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomWS, int ws);
+		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int ws);
                         
 /**************** This is new C function avoiding use of Global Variables****************************/
  struct Can_Str newc3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,

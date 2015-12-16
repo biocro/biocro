@@ -31,7 +31,7 @@ struct Can_Str c3CanAC(double LAI,
 		double lnb0,
 		double lnb1,
 		int lnfun,
-		double StomWS,
+		double StomataWS,
 		int ws)
 {
 
@@ -125,7 +125,7 @@ struct Can_Str c3CanAC(double LAI,
         /* Need a new evapo transpiration function specifically for c3*/
         tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta);
         TempIdir = Temp + tmp5_ET.Deltat;
-        tmpc3 = c3photoC(IDir, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomWS, ws);
+        tmpc3 = c3photoC(IDir, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         AssIdir = tmpc3.Assim;
         GAssIdir =tmpc3.GrossAssim;
 
@@ -135,7 +135,7 @@ struct Can_Str c3CanAC(double LAI,
 
         tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta);
         // TempIdiff = Temp + tmp6_ET.Deltat; set but not used
-        tmpc32 = c3photoC(IDiff, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomWS, ws);
+        tmpc32 = c3photoC(IDiff, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         AssIdiff = tmpc32.Assim;
         GAssIdiff = tmpc32.GrossAssim;
 
