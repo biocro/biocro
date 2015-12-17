@@ -98,13 +98,13 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     // Output variables
     // Canopy structure variables
     double *LeafAngle; // Leaf angle distribution
-    LeafAngle=malloc(sizeof(double)*Canopy.Layers); memset(LeafAngle,0,Canopy.Layers);
+    LeafAngle=malloc(sizeof(double)*Canopy.Layers); memset(LeafAngle,0,Canopy.Layers * sizeof(double));
     for(LayerCount=0;LayerCount<Canopy.Layers;LayerCount++){
         // LeafAngle[LayerCount] = 0.5+0.25*AngleCount;}
         LeafAngle[LayerCount] = Canopy.Chi;}
     double *SunlitAssimilation,*ShadedAssimilation;
-    SunlitAssimilation=malloc(sizeof(double)*Canopy.Layers); memset(SunlitAssimilation,0,Canopy.Layers);
-    ShadedAssimilation=malloc(sizeof(double)*Canopy.Layers); memset(ShadedAssimilation,0,Canopy.Layers);
+    SunlitAssimilation=malloc(sizeof(double)*Canopy.Layers); memset(SunlitAssimilation,0,Canopy.Layers * sizeof(double));
+    ShadedAssimilation=malloc(sizeof(double)*Canopy.Layers); memset(ShadedAssimilation,0,Canopy.Layers * sizeof(double));
     // Litter variables
     struct PlantParts SenescenceIndex={0,0,0,0,0,0,0,0};
     struct PlantParts NewLitter={0,0,0,0,0,0,0,0};
@@ -113,7 +113,7 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     // Carbon partitioning variables
     int DaySize=(int)(DeltaT*Size/24);
     struct PlantParts AddBiomass,*StoreAddBiomass;
-    StoreAddBiomass=malloc(sizeof(struct PlantParts)*DaySize); memset(StoreAddBiomass,0,DaySize);
+    StoreAddBiomass=malloc(sizeof(struct PlantParts)*DaySize); memset(StoreAddBiomass,0,DaySize * sizeof(struct PlantParts));
     StoreAddBiomass[StartDay-1]=Biomass;
     AddBiomass=Biomass;
     // Canopy flux variables
@@ -121,12 +121,12 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     struct CanopyStructure Canopy1={0,0,0};
     // Canopy radiation variables
     double *LAIProfile,*FSun,*FShade;
-    LAIProfile=malloc(sizeof(double)*Canopy.Layers); memset(LAIProfile,0,Canopy.Layers);
-    FSun=malloc(sizeof(double)*Canopy.Layers); memset(FSun,0,Canopy.Layers);
-    FShade=malloc(sizeof(double)*Canopy.Layers); memset(FShade,0,Canopy.Layers);
+    LAIProfile=malloc(sizeof(double)*Canopy.Layers); memset(LAIProfile,0,Canopy.Layers * sizeof(double));
+    FSun=malloc(sizeof(double)*Canopy.Layers); memset(FSun,0,Canopy.Layers * sizeof(double));
+    FShade=malloc(sizeof(double)*Canopy.Layers); memset(FShade,0,Canopy.Layers * sizeof(double));
     double *SunlitAbsorbed,*ShadedAbsorbed;
-    SunlitAbsorbed=malloc(sizeof(double)*Canopy.Layers); memset(SunlitAbsorbed,0,Canopy.Layers);
-    ShadedAbsorbed=malloc(sizeof(double)*Canopy.Layers); memset(ShadedAbsorbed,0,Canopy.Layers);
+    SunlitAbsorbed=malloc(sizeof(double)*Canopy.Layers); memset(SunlitAbsorbed,0,Canopy.Layers * sizeof(double));
+    ShadedAbsorbed=malloc(sizeof(double)*Canopy.Layers); memset(ShadedAbsorbed,0,Canopy.Layers * sizeof(double));
     // Respiration variables
     struct PlantParts GRespiration;
     struct PlantParts MRespiration,DailyMRespiration={0,0,0,0,0,0,0,0};
