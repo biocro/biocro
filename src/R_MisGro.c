@@ -301,6 +301,9 @@ SEXP MisGro(
     double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
     double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
 
+	double water_status[soilLayers * vecsize];
+	double root_distribution[soilLayers * vecsize];
+	double psi[vecsize];
     double cwsVecSum = 0.0;
 
     /* Parameters for calculating leaf water potential */
@@ -398,11 +401,13 @@ SEXP MisGro(
             for(i3 = 0; i3 < soilLayers; i3++) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
-                REAL(cwsMat)[i3 + i*soilLayers] = soilMLS.cws[i3];
-                REAL(rdMat)[i3 + i*soilLayers] = soilMLS.rootDist[i3];
+				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
+                root_distribution[i3 + i*soilLayers] = soilMLS.rootDist[i3];
             }
             waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
+			psi[i] = 0;
+
         } else {
             soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
             TotEvap = soilEvap + CanopyT;
@@ -410,8 +415,9 @@ SEXP MisGro(
             waterCont = WaterS.awc;
             StomataWS = WaterS.rcoefPhoto; 
             LeafWS = WaterS.rcoefSpleaf;
-            REAL(cwsMat)[i] = waterCont;
-            REAL(psimMat)[i] = WaterS.psim;
+            water_status[i] = waterCont;
+			psi[i] = WaterS.psim;
+			root_distribution[i] = 0;
         }
 
         /* An alternative way of computing water stress is by doing the leaf
@@ -704,6 +710,12 @@ SEXP MisGro(
         REAL(RespVec)[i] = Resp / (24*centTimestep);
         REAL(SoilEvaporation)[i] = soilEvap;
         REAL(LeafPsimVec)[i] = LeafPsim;
+		REAL(psimMat)[i] = psi[i];
+
+		for(int layer = 0; layer < soilLayers; layer++) {
+			REAL(cwsMat)[layer + i * soilLayers] = water_status[layer + i * soilLayers];
+			REAL(rdMat)[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
+		}
     }
 
     /* Populating the results of the Century model */

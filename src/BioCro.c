@@ -160,6 +160,9 @@ struct BioGro_results_str BioGro(
     double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
     double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
 
+	double water_status[soilLayers * vecsize];
+	double root_distribution[soilLayers * vecsize];
+	double psi[vecsize];
     double cwsVecSum = 0.0;
 
     /* Parameters for calculating leaf water potential */
@@ -254,9 +257,12 @@ struct BioGro_results_str BioGro(
             for(i3 = 0; i3 < soilLayers; i3++) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
+				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
+                root_distribution[i3 + i*soilLayers] = soilMLS.rootDist[i3];
             }
             waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
+			psi[i] = 0;
 
         } else {
             soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
@@ -265,6 +271,9 @@ struct BioGro_results_str BioGro(
             waterCont = WaterS.awc;
             StomataWS = WaterS.rcoefPhoto;
             LeafWS = WaterS.rcoefSpleaf;
+            water_status[i] = waterCont;
+			psi[i] = WaterS.psim;
+			root_distribution[i] = 0;
         }
 
         /* An alternative way of computing water stress is by doing the leaf
@@ -361,7 +370,7 @@ struct BioGro_results_str BioGro(
         } else {
             newLeaf = Leaf * kLeaf;
             Rhizome += kRhizome * -newLeaf * 0.9; /* 0.9 is the efficiency of retranslocation */
-            Stem += kStem * -newLeaf   * 0.9;
+            Stem += kStem * -newLeaf * 0.9;
             Root += kRoot * -newLeaf * 0.9;
             Grain += kGrain * -newLeaf * 0.9;
         }
