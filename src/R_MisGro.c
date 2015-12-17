@@ -217,7 +217,7 @@ SEXP MisGro(
     double newRootcol[8760];
     double newRhizomecol[8760];
 
-    int i, i2, i3;
+    int i, i3;
 
     double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
@@ -236,7 +236,7 @@ SEXP MisGro(
     int k = 0, q = 0, m = 0, n = 0;
     int ri = 0;
 
-    double StomWS = 1, LeafWS = 1;
+    double StomataWS = 1, LeafWS = 1;
     double CanopyA, CanopyT;
     double LeafN_0 = ileafn;
     double LeafN = ileafn; /* Need to set it because it is used by CanA before it is computed */
@@ -301,11 +301,8 @@ SEXP MisGro(
     double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
     double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
 
-    double cwsVec[soilLayers];
-    for(i2 = 0; i2 < soilLayers; i2++) {
-        cwsVec[i2] = cws[i2];
-    }
     double cwsVecSum = 0.0;
+
     /* Parameters for calculating leaf water potential */
     double LeafPsim = 0.0;
 
@@ -345,7 +342,7 @@ SEXP MisGro(
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, alpha, kparm, beta,
                 Rd, Catm, b0, b1, theta, kd, chil,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, leafwidth, et_equation, StomWS, ws);
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, leafwidth, et_equation, StomataWS, ws);
 
         CanopyA = Canopy.Assim * timestep;
         CanopyT = Canopy.Trans * timestep;
@@ -373,7 +370,7 @@ SEXP MisGro(
         /*    Rprintf("Catm %.2f \n",Catm); */
         /*    Rprintf("b01 %.2f \n",b01); */
         /*    Rprintf("b11 %.2f \n",b11); */
-        /*    Rprintf("StomWS %.2f \n",StomWS); */
+        /*    Rprintf("StomataWS %.2f \n",StomataWS); */
         /*    Rprintf("kd %.2f \n",kd);                  */
         /*    Rprintf("Sp %.2f \n",Sp);                   */
         /*    Rprintf("doy[i] %.i %.i \n",i,doy[i]);  */
@@ -389,18 +386,18 @@ SEXP MisGro(
 
         /* Inserting the multilayer model */
         if(soilLayers > 1) {
-            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, soilDepths, FieldC, WiltP,
+            soilMLS = soilML(precip[i], CanopyT, cws, soilDepth, soilDepths, FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, soilLayers, Root, 
                     LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
                     hydrDist, rfl, rsec, rsdf);
 
-            StomWS = soilMLS.rcoefPhoto;
+            StomataWS = soilMLS.rcoefPhoto;
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
             for(i3 = 0; i3 < soilLayers; i3++) {
-                cwsVec[i3] = soilMLS.cws[i3];
-                cwsVecSum += cwsVec[i3];
+                cws[i3] = soilMLS.cws[i3];
+                cwsVecSum += cws[i3];
                 REAL(cwsMat)[i3 + i*soilLayers] = soilMLS.cws[i3];
                 REAL(rdMat)[i3 + i*soilLayers] = soilMLS.rootDist[i3];
             }
@@ -411,7 +408,7 @@ SEXP MisGro(
             TotEvap = soilEvap + CanopyT;
             WaterS = watstr(precip[i], TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
             waterCont = WaterS.awc;
-            StomWS = WaterS.rcoefPhoto; 
+            StomataWS = WaterS.rcoefPhoto; 
             LeafWS = WaterS.rcoefSpleaf;
             REAL(cwsMat)[i] = waterCont;
             REAL(psimMat)[i] = WaterS.psim;
@@ -438,17 +435,17 @@ SEXP MisGro(
             /* From WIMOVAVC the proposed equation to simulate the effect of water
              * stress on stomatal conductance */
             if(LeafPsim < leafPotTh) {
-                /* StomWS = 1 - ((LeafPsim - leafPotTh)/1000 *
+                /* StomataWS = 1 - ((LeafPsim - leafPotTh)/1000 *
                  * scsf); In WIMOVAC this equation is used but
                  * the absolute values are taken from the
                  * potentials. Since they both should be
                  * negative and leafPotTh is greater than
                  * LeafPsim this can be rearranged to*/ 
-                StomWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
-                /* StomWS = 1; */
-                if(StomWS < 0.1) StomWS = 0.1;
+                StomataWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
+                /* StomataWS = 1; */
+                if(StomataWS < 0.1) StomataWS = 0.1;
             } else {
-                StomWS = 1;
+                StomataWS = 1;
             }
         } else {
             LeafPsim = 0;
@@ -683,9 +680,6 @@ SEXP MisGro(
         ALitter = LeafLitter + StemLitter;
         BLitter = RootLitter + RhizomeLitter;
 
-        /* Here I could add a soil and nitrogen carbon component. I have soil
-           moisture, I have temperature and root and rhizome biomass */
-
         REAL(DayofYear)[i] =  INTEGER(DOY)[i];
         REAL(Hour)[i] =  INTEGER(HR)[i];
         REAL(CanopyAssim)[i] =  CanopyA;
@@ -698,7 +692,7 @@ SEXP MisGro(
         REAL(LAIc)[i] = LAI;
         REAL(TTTc)[i] = TTc;
         REAL(SoilWatCont)[i] = waterCont;
-        REAL(StomatalCondCoefs)[i] = StomWS;
+        REAL(StomatalCondCoefs)[i] = StomataWS;
         REAL(LeafReductionCoefs)[i] = LeafWS;
         REAL(LeafNitrogen)[i] = LeafN;
         REAL(AboveLitter)[i] = ALitter;

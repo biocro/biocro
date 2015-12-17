@@ -127,7 +127,7 @@ struct BioGro_results_str BioGro(
     const double seneRhizome = sencoefs[3];
 
     struct BioGro_results_str results;
-    struct Can_Str Canopy;
+    struct Can_Str Canopy = {0,0,0};
     struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
     struct dbp_str dbpS;
     struct cenT_str centS;
@@ -159,6 +159,8 @@ struct BioGro_results_str BioGro(
     double scsf = soilcoefs[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
     double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
     double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
+
+    double cwsVecSum = 0.0;
 
     /* Parameters for calculating leaf water potential */
 	double LeafPsim = 0.0;
@@ -240,7 +242,7 @@ struct BioGro_results_str BioGro(
 
         /* Inserting the multilayer model */
         if (soilLayers > 1) {
-            soilMLS = soilML(precip[i], CanopyT, &cws[0], soilDepth, soilDepths, FieldC, WiltP,
+            soilMLS = soilML(precip[i], CanopyT, cws, soilDepth, soilDepths, FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, soilLayers, Root,
                     LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i],
                     hydrDist, rfl, rsec, rsdf);
@@ -251,7 +253,10 @@ struct BioGro_results_str BioGro(
 
             for(i3 = 0; i3 < soilLayers; i3++) {
                 cws[i3] = soilMLS.cws[i3];
+                cwsVecSum += cws[i3];
             }
+            waterCont = cwsVecSum / soilLayers;
+            cwsVecSum = 0.0;
 
         } else {
             soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
