@@ -489,7 +489,7 @@ struct ET_Str EvapoTrans2(double Rad,
     /* SOLAR RADIATION COMPONENT*/
 
     /* First calculate the Radiation term */
-    /*' Convert light assuming 1 µmol PAR photons = 0.235 J */
+    /*' Convert light assuming 1 micromole PAR photons = 0.235 J */
     /* The next step converts from PAR photons to Joules */
     /* There are 2.35 x 10^5 Joules in a mol */
     /* or 0.235 Joules in a micro mol */
@@ -714,7 +714,7 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
     /* This is a useful idea because dry soils evaporate little water when dry*/
 
     /* Total Radiation */
-    /*' Convert light assuming 1 µmol PAR photons = 0.235 J/s Watts*/
+    /*' Convert light assuming 1 micromole PAR photons = 0.235 J/s Watts*/
     /* At the moment soil evaporation is grossly overestimated. In WIMOVAC
        the light reaching the last layer of leaves is used. Here instead
        of calculating this again, I will for now assume a 10% as a rough
