@@ -205,10 +205,18 @@ double TempToSWVC(double Temp)
 }
 
 /* New EvapoTrans function */
-struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH,
-        double WindSpeed,double LeafAreaIndex, double CanopyHeight, 
-        double stomatacond, double leafw, int eteq)
+struct ET_Str EvapoTrans2(double Rad,
+        double Iave,
+        double Airtemperature,
+        double RH,
+        double WindSpeed,
+        double LeafAreaIndex,
+        double CanopyHeight,
+        double stomatacond,
+        double leafw,
+        int eteq)
 {
+
     /* creating the structure to return */
     struct ET_Str tmp;
 
@@ -223,7 +231,6 @@ struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double
     const double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
 
     double Tair;
-    // double WindSpeedTopCanopy; // unused.
     double DdryA, LHV, SlopeFS, SWVC, SWVP;
     double LayerWindSpeed, totalradiation;
     double DeltaPVa, PsycParam, ga;
@@ -237,7 +244,7 @@ struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double
     double rlc; /* Long wave radiation for iterative calculation */
     int Counter;
 
-    // WindSpeedTopCanopy = WindSpeed; // set but not used.
+    // double WindSpeedTopCanopy = WindSpeed; // unused.
     Tair = Airtemperature;
 
     if(CanopyHeight < 0.1)
@@ -434,8 +441,8 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
         double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12,double upperT,double lowerT, double Catm)
 {
     /* creating the structure to return */
-    struct ET_Str tmp;
-    struct c4_str tmpc4;
+    struct ET_Str et_results;
+    struct c4_str photo_results;
 
     // const double LeafWidth = 0.04; unused
     const double kappa = 0.41;
@@ -448,13 +455,10 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
     const double SpecificHeat = 1010;
 
     double Tair;
-    // double WindSpeedTopCanopy; / unused
     double DdryA, LHV, SlopeFS, SWVC;
     double LayerRelativeHumidity, LayerWindSpeed, totalradiation;
     double LayerConductance, DeltaPVa, PsycParam, ga;
-    // double BoundaryLayerThickness; unused
-    //double DiffCoef; unused
-    // double LeafboundaryLayer; // unused
+    // double BoundaryLayerThickness, DiffCoef, LeafboundaryLayer; unused
     double d, Zeta, Zetam, ga0, ga1, ga2; 
     double Ja, Deltat;
     double PhiN;
@@ -463,7 +467,6 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
     double OldDeltaT, rlc, ChangeInLeafTemp; 
     int Counter;
 
-    // WindSpeedTopCanopy = WindSpeed; // set but not used
     Tair = Airtemperature;
 
     if(CanopyHeight < 0.1)
@@ -495,11 +498,11 @@ struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double 
 
     LayerWindSpeed = WindSpeed;
 
-    /*' Convert light assuming 1 µmol PAR photons = 0.235 J/s Watts*/
+    /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
     totalradiation = Itot * 0.235;
 
-    tmpc4 = c4photoC(Itot,Airtemperature,RH,vmax2,alpha2,kparm,theta,beta,Rd2,b02,b12,StomataWS, Catm, ws,upperT,lowerT); 
-    LayerConductance = tmpc4.Gs;
+    photo_results = c4photoC(Itot,Airtemperature,RH,vmax2,alpha2,kparm,theta,beta,Rd2,b02,b12,StomataWS, Catm, ws,upperT,lowerT); 
+    LayerConductance = photo_results.Gs;
 
     /* Convert mmoles/m2/s to moles/m2/s
        LayerConductance = LayerConductance * 1e-3
@@ -617,14 +620,14 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
     /*  res[2] = LayerConductance; */
     /* Let us return the structure now */
 
-    tmp.TransR = TransR * 1e6 / 18; 
-    tmp.EPenman = EPen * 1e6 / 18; 
-    tmp.EPriestly = EPries * 1e6 / 18; 
-    tmp.Deltat = Deltat;
-    tmp.LayerCond = LayerConductance * 1e6 * (1/24.39);   
-    /*    tmp.LayerCond = RH2;   */
-    /*   tmp.LayerCond = 0.7; */
-    return(tmp);
+    et_results.TransR = TransR * 1e6 / 18; 
+    et_results.EPenman = EPen * 1e6 / 18; 
+    et_results.EPriestly = EPries * 1e6 / 18; 
+    et_results.Deltat = Deltat;
+    et_results.LayerCond = LayerConductance * 1e6 * (1/24.39);   
+    /*    et_results.LayerCond = RH2;   */
+    /*   et_results.LayerCond = 0.7; */
+    return(et_results);
 }
 
 /* Soil Evaporation Function */

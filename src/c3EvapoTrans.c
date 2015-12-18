@@ -32,12 +32,13 @@ struct ET_Str c3EvapoTrans(double Rad,
         double Catm2,
         double O2,
         double theta2,
-        double StomWS,int ws)
+        double StomWS,
+        int ws)
 
 {
     /* creating the structure to return */
-    struct ET_Str tmp;
-    struct c3_str tmpc3;
+    struct ET_Str et_results;
+    struct c3_str photo_results;
 
     // const double LeafWidth = 0.04; unused
     const double kappa = 0.41;
@@ -53,7 +54,7 @@ struct ET_Str c3EvapoTrans(double Rad,
     double DdryA, LHV, SlopeFS, SWVC;
     double LayerRelativeHumidity, LayerWindSpeed, totalradiation;
     double LayerConductance, DeltaPVa, PsycParam, ga;
-    // double BoundaryLayerThickness, DiffCoef,LeafboundaryLayer; unused
+    // double BoundaryLayerThickness, DiffCoef, LeafboundaryLayer; unused
     double d, Zeta, Zetam, ga0, ga1, ga2; 
     double Ja, Deltat;
     double PhiN;
@@ -93,11 +94,11 @@ struct ET_Str c3EvapoTrans(double Rad,
 
     LayerWindSpeed = WindSpeed;
 
-    /*' Convert light assuming 1 µmol PAR photons = 0.235 J/s Watts*/
+    /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
     totalradiation = Itot * 0.235;
 
-    tmpc3 = c3photoC(Rad,Airtemperature,RH,vcmax2,jmax2,Rd2,b02,b12,Catm2,O2,theta2,StomWS,ws); 
-    LayerConductance = tmpc3.Gs;
+    photo_results = c3photoC(Rad,Airtemperature,RH,vcmax2,jmax2,Rd2,b02,b12,Catm2,O2,theta2,StomWS,ws); 
+    LayerConductance = photo_results.Gs;
 
     /* Convert mmoles/m2/s to moles/m2/s
        LayerConductance = LayerConductance * 1e-3
@@ -138,9 +139,9 @@ struct ET_Str c3EvapoTrans(double Rad,
     if(ga < 0)
         error("ga is less than zero");
 
-    // DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature); unused
-    // BoundaryLayerThickness = 0.004 * sqrt(LeafWidth / LayerWindSpeed); unused
-    // LeafboundaryLayer = DiffCoef / BoundaryLayerThickness; unused
+    // DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature); set but not used
+    // BoundaryLayerThickness = 0.004 * sqrt(LeafWidth / LayerWindSpeed); set but not used
+    // LeafboundaryLayer = DiffCoef / BoundaryLayerThickness; // set but not used
 
     /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
     /* This version is non-iterative and an approximation*/
@@ -215,13 +216,13 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
     /*  res[2] = LayerConductance; */
     /* Let us return the structure now */
 
-    tmp.TransR = TransR * 1e6 / 18; 
-    tmp.EPenman = EPen * 1e6 / 18; 
-    tmp.EPriestly = EPries * 1e6 / 18; 
-    tmp.Deltat = Deltat;
-    tmp.LayerCond = LayerConductance * 1e6 * (1/24.39);   
-    /*    tmp.LayerCond = RH2;   */
-    /*   tmp.LayerCond = 0.7; */
-    return(tmp);
+    et_results.TransR = TransR * 1e6 / 18; 
+    et_results.EPenman = EPen * 1e6 / 18; 
+    et_results.EPriestly = EPries * 1e6 / 18; 
+    et_results.Deltat = Deltat;
+    et_results.LayerCond = LayerConductance * 1e6 * (1/24.39);   
+    /*    et_results.LayerCond = RH2;   */
+    /*   et_results.LayerCond = 0.7; */
+    return(et_results);
 }
 
