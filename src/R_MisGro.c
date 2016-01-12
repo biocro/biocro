@@ -559,8 +559,6 @@ SEXP MisGro(
 
         LAI = Leaf * Sp ;
 
-        if(LAI > 20.0) LAI = 20.0;
-
         /* New Stem*/
         if(kStem >= 0) {
             newStem = CanopyA * kStem ;

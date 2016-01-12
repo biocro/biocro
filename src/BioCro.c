@@ -12,10 +12,10 @@
 #include "BioCro.h"
 #include "Century.h"
 
-struct BioGro_results_str BioGro(
+void BioGro(
         double lat,                   /* Latitude                            1 */
         int doy[],                    /* Day of the year                     2 */
-        int hr[],                     /* Hour of the day                     3 */
+        int hour[],                     /* Hour of the day                     3 */
         double solar[],               /* Solar Radiation                     4 */
         double temp[],                /* Temperature                         5 */
         double rh[],                  /* Relative humidity                   6 */
@@ -68,7 +68,9 @@ struct BioGro_results_str BioGro(
         int lnfun ,                   /* Leaf N func flag                   53 */
         double upperT,                /* Upper photoParm temperature limit  54 */
         double lowerT,                /* Lower photoParm temperature limit  55 */
-        struct nitroParms nitroP)     /* Nitrogen parameters                56 */
+        struct nitroParms nitroP,     /* Nitrogen parameters                56 */
+		double (*leaf_n_limitation)(double, double, struct Model_state),
+    	struct BioGro_results_str *results)
 {
     double newLeafcol[8760];
     double newStemcol[8760];
@@ -81,6 +83,8 @@ struct BioGro_results_str BioGro(
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
     double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
+
+	struct Model_state current_state = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     /* Variables needed for collecting litter */
     double LeafLitter = centcoefs[20], StemLitter = centcoefs[21];
@@ -126,7 +130,6 @@ struct BioGro_results_str BioGro(
     const double seneRoot = sencoefs[2];
     const double seneRhizome = sencoefs[3];
 
-    struct BioGro_results_str results;
     struct Can_Str Canopy = {0,0,0};
     struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
     struct dbp_str dbpS;
@@ -197,7 +200,7 @@ struct BioGro_results_str BioGro(
 
         /* Do the magic! Calculate growth*/
 
-        Canopy = CanAC(LAI, doy[i], hr[i],
+        Canopy = CanAC(LAI, doy[i], hour[i],
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, alpha, kparm, beta,
                 Rd, Catm, b0, b1, theta, kd, chil,
@@ -233,7 +236,7 @@ struct BioGro_results_str BioGro(
         /*    Rprintf("kd %.2f \n",kd);                  */
         /*    Rprintf("Sp %.2f \n",Sp);                   */
         /*    Rprintf("doy[i] %.i %.i \n",i,doy[i]);  */
-        /*    Rprintf("hr[i] %.i %.i \n",i,hr[i]); */
+        /*    Rprintf("hour[i] %.i %.i \n",i,hour[i]); */
         /*    Rprintf("solar[i] %.i %.2f \n",i,solar[i]); */
         /*    Rprintf("temp[i] %.i %.2f \n",i,temp[i]); */
         /*    Rprintf("rh[i] %.i %.2f \n",i,rh[i]); */
@@ -287,7 +290,7 @@ struct BioGro_results_str BioGro(
              * This can be rearranged to Psim_l = Psim_s - E x R   */
             /* It is assumed that total resistance is 5e6 m^4 s^-1
              * kg^-1 
-             * Transpiration is in Mg ha-2 hr-1
+             * Transpiration is in Mg ha-2 hour-1
              * Multiply by 1e3 to go from Mg to kg
              * Multiply by 1e-4 to go from ha to m^2 
              * This needs to go from hours to seconds that's
@@ -343,10 +346,39 @@ struct BioGro_results_str BioGro(
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the Thermal time accumulated.*/
 
-        LeafN = LeafN_0 * exp(-kLN * TTc);
+        //LeafN = LeafN_0 * exp(-kLN * TTc);
+
+		current_state.leaf = Leaf;
+		current_state.stem = Stem;
+		current_state.root = Root;
+		current_state.rhizome = Rhizome;
+		current_state.lai = LAI;
+		current_state.grain = Grain;
+		current_state.k_leaf = kLeaf;
+		current_state.k_stem = kStem;
+		current_state.k_root = kRoot;
+		current_state.k_rhizome = kRhizome;
+		current_state.k_grain = kGrain;
+		current_state.new_leaf = newLeaf;
+		current_state.new_stem = newStem;
+		current_state.new_root = newRoot;
+		current_state.new_rhizome = newRhizome;
+		current_state.new_grain = newGrain;
+		current_state.thermal_time = TTc;
+
+		LeafN = leaf_n_limitation(-kLN, LeafN_0, current_state);
 
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
         alpha = (LeafN_0 - LeafN) * alphab1 + alpha1;
+
+        /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
+           This modifies the amount of N available in the soil. 
+           MinNitro is the available amount of N (kg/m2). 
+           The demand is in Mg/ha. I need a conversion factor of 
+           multiply by 1000, divide by 10000. */
+
+        MinNitro = MinNitro - LeafN * (Stem + Leaf) * 1e-1;
+        if(MinNitro < 0) MinNitro = 1e-3;
 
         if (kLeaf > 0) {
             newLeaf = CanopyA * kLeaf * LeafWS;
@@ -521,18 +553,39 @@ struct BioGro_results_str BioGro(
         ALitter = LeafLitter + StemLitter;
         BLitter = RootLitter + RhizomeLitter;
 
-        results.CanopyAssim[i] =  CanopyA;
-        results.Leafy[i] = Leaf;
-        results.Stemy[i] = Stem;
-        results.Rooty[i] =  Root;
-        results.Rhizomey[i] = Rhizome;
-        results.Grainy[i] = Grain;
-        results.LAIc[i] = LAI;
-		results.respiration[i] = Resp / (24*centTimestep);
-		results.above_ground_litter[i] = ALitter;
-		results.below_ground_litter[i] = BLitter;
+		results->day_of_year[i] = doy[i];
+		results->hour[i] = hour[i];
+        results->CanopyAssim[i] =  CanopyA;
+		results->canopy_transpiration[i] = CanopyT;
+        results->Leafy[i] = Leaf;
+        results->Stemy[i] = Stem;
+        results->Rooty[i] =  Root;
+        results->Rhizomey[i] = Rhizome;
+        results->Grainy[i] = Grain;
+        results->LAIc[i] = LAI;
+		results->thermal_time[i] = TTc;
+		results->soil_water_content[i] = waterCont;
+		results->stomata_cond_coefs[i] = StomataWS;
+		results->leaf_reduction_coefs[i] = LeafWS;
+		results->leaf_nitrogen[i] = LeafN;
+		results->above_ground_litter[i] = ALitter;
+		results->below_ground_litter[i] = BLitter;
+		results->vmax[i] = vmax;
+		results->alpha[i] = alpha;
+		results->specific_leaf_area[i] = Sp;
+		results->min_nitro[i] = MinNitro / (24 / centTimestep);
+		results->respiration[i] = Resp / (24*centTimestep);
+		results->soil_evaporation[i] = soilEvap;
+		results->leaf_psim[i] = LeafPsim;
+		// results.psim[i] = psi[i];  // how to pass these data needs to be worked out, but for not it's not even used,
+
+		for(int layer = 0; layer < soilLayers; layer++) {
+			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
+			results->cws[layer + i * soilLayers] = water_status[layer + i * soilLayers];
+			results->rd[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
+		}
     }
-    return(results);
+	results->centS = &centS;
 }
 
 double sel_phen(int phen)

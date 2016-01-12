@@ -85,7 +85,7 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 			/* First compute the matric potential */
 			psim1 = soTexS.air_entry * pow((cws[i]/theta_s),-soTexS.b) ; /* This is matric potential of current layer */
 			if(i > 0) {
-				psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s),-soTexS.b) ; /* This is matric potential of next layer */
+				psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s), -soTexS.b) ; /* This is matric potential of next layer */
 				dPsim = psim1 - psim2;
 				/* The substraction is from the layer i - (i-1). If this last term is positive then it will move upwards. If it is negative it will move downwards. Presumably this term is almost always positive. */
 			} else {

@@ -1439,4 +1439,37 @@ void cropcent_dbp(double coefs[25],double TherPrds[6], double TherTime, struct c
     return;
 }
 
+void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size)
+{
+	int i;
+	for (i = 0; i < vector_size; i++) {
+		results->day_of_year[i] = 0;
+		results->hour[i] = 0;
+		results->CanopyAssim[i] = 0;
+		results->canopy_transpiration[i] = 0;
+		results->Leafy[i] = 0;
+		results->Stemy[i] = 0;
+		results->Rooty[i] = 0;
+		results->Rhizomey[i] = 0;
+		results->Grainy[i] = 0;
+		results->LAIc[i] = 0;
+		results->thermal_time[i] = 0;
+		results->soil_water_content[i] = 0;
+		results->stomata_cond_coefs[i] = 0;
+		results->leaf_reduction_coefs[i] = 0;
+		results->leaf_nitrogen[i] = 0;
+		results->above_ground_litter[i] = 0;
+		results->below_ground_litter[i] = 0;
+		results->vmax[i] = 0;
+		results->alpha[i] = 0;
+		results->specific_leaf_area[i] = 0;
+		results->min_nitro[i] = 0;
+		results->respiration[i] = 0;
+		results->soil_evaporation[i] = 0;
+		results->leaf_psim[i] = 0;
+	}
+	results->psim = calloc(soil_layers * vector_size, sizeof(double));
+	results->cws = calloc(soil_layers * vector_size, sizeof(double));
+	results->rd = calloc(soil_layers * vector_size, sizeof(double));
+}
 
