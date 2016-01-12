@@ -40,7 +40,7 @@ struct BioGro_results_str {
 	double *psim;
 	double *cws;
 	double *rd;
-	struct cenT_str *centS;
+	struct cenT_str centS;
 };
 
 void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size);

@@ -133,7 +133,6 @@ void BioGro(
     struct Can_Str Canopy = {0,0,0};
     struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
     struct dbp_str dbpS;
-    struct cenT_str centS;
     struct soilML_str soilMLS;
     struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
     soTexS = soilTchoose(soilType);
@@ -171,16 +170,16 @@ void BioGro(
     /* Parameters for calculating leaf water potential */
 	double LeafPsim = 0.0;
 
-    centS.SCs[0] = 0.0;
-    centS.SCs[1] = 0.0;
-    centS.SCs[2] = 0.0;
-    centS.SCs[3] = 0.0;
-    centS.SCs[4] = 0.0;
-    centS.SCs[5] = 0.0;
-    centS.SCs[6] = 0.0;
-    centS.SCs[7] = 0.0;
-    centS.SCs[8] = 0.0;
-    centS.Resp = 0.0;
+    results->centS.SCs[0] = 0.0;
+    results->centS.SCs[1] = 0.0;
+    results->centS.SCs[2] = 0.0;
+    results->centS.SCs[3] = 0.0;
+    results->centS.SCs[4] = 0.0;
+    results->centS.SCs[5] = 0.0;
+    results->centS.SCs[6] = 0.0;
+    results->centS.SCs[7] = 0.0;
+    results->centS.SCs[8] = 0.0;
+    results->centS.Resp = 0.0;
 
     SCCs[0] = centcoefs[0];
     SCCs[1] = centcoefs[1];
@@ -521,7 +520,7 @@ void BioGro(
             RootLitter -= RootLitter_d;
             RhizomeLitter -= RhizomeLitter_d;
 
-            centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
+            results->centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
                     waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
                     Nfert, /* N fertilizer*/
                     MinNitro, /* initial Mineral nitrogen */
@@ -538,17 +537,17 @@ void BioGro(
                     centks);
         }
 
-        MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
-        Resp = centS.Resp;
-        SCCs[0] = centS.SCs[0];
-        SCCs[1] = centS.SCs[1];
-        SCCs[2] = centS.SCs[2];
-        SCCs[3] = centS.SCs[3];
-        SCCs[4] = centS.SCs[4];
-        SCCs[5] = centS.SCs[5];
-        SCCs[6] = centS.SCs[6];
-        SCCs[7] = centS.SCs[7];
-        SCCs[8] = centS.SCs[8];
+        MinNitro = results->centS.MinN; /* These should be kg / m^2 per week? */
+        Resp = results->centS.Resp;
+        SCCs[0] = results->centS.SCs[0];
+        SCCs[1] = results->centS.SCs[1];
+        SCCs[2] = results->centS.SCs[2];
+        SCCs[3] = results->centS.SCs[3];
+        SCCs[4] = results->centS.SCs[4];
+        SCCs[5] = results->centS.SCs[5];
+        SCCs[6] = results->centS.SCs[6];
+        SCCs[7] = results->centS.SCs[7];
+        SCCs[8] = results->centS.SCs[8];
 
         ALitter = LeafLitter + StemLitter;
         BLitter = RootLitter + RhizomeLitter;
@@ -577,7 +576,6 @@ void BioGro(
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
-		// results.psim[i] = psi[i];  // how to pass these data needs to be worked out, but for not it's not even used,
 
 		for(int layer = 0; layer < soilLayers; layer++) {
 			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
@@ -585,7 +583,6 @@ void BioGro(
 			results->rd[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
 		}
     }
-	results->centS = &centS;
 }
 
 double sel_phen(int phen)
