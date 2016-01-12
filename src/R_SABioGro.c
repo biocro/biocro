@@ -1061,7 +1061,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	setAttrib(lists,R_NamesSymbol,names);
 
 	UNPROTECT(25);
-	free(results);
+	free_biogro_results(results);
 	return(lists);
 }
 

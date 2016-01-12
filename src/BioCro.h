@@ -38,12 +38,13 @@ struct BioGro_results_str {
 	double soil_evaporation[8760];
 	double leaf_psim[8760];
 	double *psim;
-	double *cws;
-	double *rd;
+	double *water_status;
+	double *root_distribution;
 	struct cenT_str centS;
 };
 
 void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size);
+void free_biogro_results(struct BioGro_results_str *results);
 
 struct Model_state {
 	double leaf;

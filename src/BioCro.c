@@ -164,7 +164,7 @@ void BioGro(
 
 	double water_status[soilLayers * vecsize];
 	double root_distribution[soilLayers * vecsize];
-	double psi[vecsize];
+	double psi[soilLayers * vecsize];
     double cwsVecSum = 0.0;
 
     /* Parameters for calculating leaf water potential */
@@ -261,10 +261,10 @@ void BioGro(
                 cwsVecSum += cws[i3];
 				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
                 root_distribution[i3 + i*soilLayers] = soilMLS.rootDist[i3];
+				psi[i3 + i * soilLayers] = 0;
             }
             waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
-			psi[i] = 0;
 
         } else {
             soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
@@ -365,7 +365,7 @@ void BioGro(
 		current_state.new_grain = newGrain;
 		current_state.thermal_time = TTc;
 
-		LeafN = leaf_n_limitation(-kLN, LeafN_0, current_state);
+		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
 
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
         alpha = (LeafN_0 - LeafN) * alphab1 + alpha1;
@@ -576,11 +576,10 @@ void BioGro(
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
-
 		for(int layer = 0; layer < soilLayers; layer++) {
 			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
-			results->cws[layer + i * soilLayers] = water_status[layer + i * soilLayers];
-			results->rd[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
+			results->water_status[layer + i * soilLayers] = water_status[layer + i * soilLayers];
+			results->root_distribution[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
 		}
     }
 }
