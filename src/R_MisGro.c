@@ -303,7 +303,7 @@ SEXP MisGro(
 
 	double water_status[soilLayers * vecsize];
 	double root_distribution[soilLayers * vecsize];
-	double psi[vecsize];
+	double psi[soilLayers * vecsize];
     double cwsVecSum = 0.0;
 
     /* Parameters for calculating leaf water potential */
@@ -403,10 +403,10 @@ SEXP MisGro(
                 cwsVecSum += cws[i3];
 				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
                 root_distribution[i3 + i*soilLayers] = soilMLS.rootDist[i3];
+				psi[i3 + i * soilLayers] = 0;
             }
             waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
-			psi[i] = 0;
 
         } else {
             soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
@@ -708,9 +708,9 @@ SEXP MisGro(
         REAL(RespVec)[i] = Resp / (24*centTimestep);
         REAL(SoilEvaporation)[i] = soilEvap;
         REAL(LeafPsimVec)[i] = LeafPsim;
-		REAL(psimMat)[i] = psi[i];
 
 		for(int layer = 0; layer < soilLayers; layer++) {
+			REAL(psimMat)[layer + i * soilLayers] = psi[layer + i * soilLayers];
 			REAL(cwsMat)[layer + i * soilLayers] = water_status[layer + i * soilLayers];
 			REAL(rdMat)[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
 		}
