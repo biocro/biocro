@@ -212,530 +212,74 @@ SEXP MisGro(
     PROTECT(SNpools = allocVector(REALSXP,9));
     PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
-    double newLeafcol[8760];
-    double newStemcol[8760];
-    double newRootcol[8760];
-    double newRhizomecol[8760];
+    struct BioGro_results_str *results = malloc(sizeof(struct BioGro_results_str));
+    initialize_biogro_results(results, soilLayers, vecsize);
 
-    int i, i3;
-
-    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
-    double TTc = 0.0;
-    double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
-    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
-
-    /* Variables needed for collecting litter */
-    double LeafLitter = centcoefs[20], StemLitter = centcoefs[21];
-    double RootLitter = centcoefs[22], RhizomeLitter = centcoefs[23];
-    double LeafLitter_d = 0.0, StemLitter_d = 0.0;
-    double RootLitter_d = 0.0, RhizomeLitter_d = 0.0;
-    double ALitter = 0.0, BLitter = 0.0;
-
-    double *sti , *sti2, *sti3, *sti4; 
-    double Remob;
-    int k = 0, q = 0, m = 0, n = 0;
-    int ri = 0;
-
-    double StomataWS = 1, LeafWS = 1;
-    double CanopyA, CanopyT;
-    double LeafN_0 = ileafn;
-    double LeafN = ileafn; /* Need to set it because it is used by CanA before it is computed */
-    double iSp = Sp;
-	double vmax = vmax1;
-	double alpha = alpha1;
-
-    /* Century */
-    double MinNitro = centcoefs[19];
-    int doyNfert = centcoefs[18];
-    double Nfert;
-    double SCCs[9];
-    double Resp = 0.0;
-
-    /* Maintenance respiration */
-    const double mrc1 = mresp[0];
-    const double mrc2 = mresp[1]; 
-
-    const double FieldC = soilcoefs[0];
-    const double WiltP = soilcoefs[1];
-    const double phi1 = soilcoefs[2];
-    const double phi2 = soilcoefs[3];
-    const double soilDepth = soilcoefs[4];
-    double waterCont = soilcoefs[5];
-    double soilEvap, TotEvap;
-
-    const double seneLeaf = sencoefs[0];
-    const double seneStem = sencoefs[1];
-    const double seneRoot = sencoefs[2];
-    const double seneRhizome = sencoefs[3];
-
-    struct Can_Str Canopy = {0,0,0};
-    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
-    struct dbp_str dbpS;
-    struct cenT_str centS; 
-    struct soilML_str soilMLS;
-    struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
-    soTexS = soilTchoose(soilType);
-
-    Rhizome = iRhizome;
-    /* It is useful to assume that there is a small amount of
-       leaf area at the begining of the growing season. */
-    Leaf = Rhizome * irtl; 
-    /* Initial proportion of the rhizome that is turned
-       into leaf the first hour */
-    Stem = Rhizome * 0.001;
-    Root = Rhizome * 0.001;
-    LAI = Leaf * Sp;
-
-    /* Creation of pointers outside the loop */
-    sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
-                             in the newLeafcol vector */
-    sti2 = &newStemcol[0];
-    sti3 = &newRootcol[0];
-    sti4 = &newRhizomecol[0];
-
-    /* Some soil related empirical coefficients */
-    double rfl = secs[0];  /* root factor lambda */
-    double rsec = secs[1]; /* radiation soil evaporation coefficient */
-    double rsdf = secs[2]; /* root soil depth factor */
-    double scsf = soilcoefs[6]; /* stomatal conductance sensitivity factor */ /* Rprintf("scsf %.2f",scsf); */
-    double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
-    double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
-
-	double water_status[soilLayers * vecsize];
-	double root_distribution[soilLayers * vecsize];
-	double psi[soilLayers * vecsize];
-    double cwsVecSum = 0.0;
-
-    /* Parameters for calculating leaf water potential */
-    double LeafPsim = 0.0;
-
-    centS.SCs[0] = 0.0;
-    centS.SCs[1] = 0.0;
-    centS.SCs[2] = 0.0;
-    centS.SCs[3] = 0.0;
-    centS.SCs[4] = 0.0;
-    centS.SCs[5] = 0.0;
-    centS.SCs[6] = 0.0;
-    centS.SCs[7] = 0.0;
-    centS.SCs[8] = 0.0;
-    centS.Resp = 0.0;
-
-    SCCs[0] = centcoefs[0];
-    SCCs[1] = centcoefs[1];
-    SCCs[2] = centcoefs[2];
-    SCCs[3] = centcoefs[3];
-    SCCs[4] = centcoefs[4];
-    SCCs[5] = centcoefs[5];
-    SCCs[6] = centcoefs[6];
-    SCCs[7] = centcoefs[7];
-    SCCs[8] = centcoefs[8];
+    BioGro(lat, doy, hr, solar, temp, rh,
+            windspeed, precip, kd, chil,
+            leafwidth, et_equation, heightf, nlayers, iRhizome,
+            irtl, sencoefs, timestep, vecsize,
+            Sp, SpD, dbpcoefs, thermalp,
+            vmax1, alpha1, kparm, theta, beta, Rd, Catm, b0, b1, soilcoefs, ileafn, kLN,
+            vmaxb1, alphab1, mresp, soilType, wsFun,
+            ws, centcoefs, centTimestep, centks,
+            soilLayers, soilDepths, cws, hydrDist,
+            secs, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, biomass_leaf_nitrogen_limitation, results);
 
 
-    for(i = 0; i < vecsize; i++)
-    {
-        /* First calculate the elapsed Thermal Time*/
-        /* The idea is that here I need to divide by the time step
-           to calculate the thermal time. For example, a 3 hour time interval
-           would mean that the division would need to by 8 */
-        TTc += temp[i] / (24/timestep); 
+    for(int i = 0; i < vecsize; i++) {
+        REAL(DayofYear)[i] = results->day_of_year[i];
+        REAL(Hour)[i] = results->hour[i];
+        REAL(CanopyAssim)[i] = results->CanopyAssim[i];
+        REAL(CanopyTrans)[i] = results->canopy_transpiration[i];
+        REAL(Leafy)[i] = results->Leafy[i];
+        REAL(Stemy)[i] = results->Stemy[i];
+        REAL(Rooty)[i] = results->Rooty[i];
+        REAL(Rhizomey)[i] = results->Rhizomey[i];
+        REAL(Grainy)[i] = results->Grainy[i];
+        REAL(LAIc)[i] = results->LAIc[i];
+        REAL(TTTc)[i] = results->thermal_time[i];
+        REAL(SoilWatCont)[i] = results->soil_water_content[i];
+        REAL(StomatalCondCoefs)[i] = results->stomata_cond_coefs[i];
+        REAL(LeafReductionCoefs)[i] = results->leaf_reduction_coefs[i];
+        REAL(LeafNitrogen)[i] = results->leaf_nitrogen[i];
+        REAL(AboveLitter)[i] = results->above_ground_litter[i];
+        REAL(BelowLitter)[i] = results->below_ground_litter[i];
+        REAL(VmaxVec)[i] = results->vmax[i];
+        REAL(AlphaVec)[i] = results->alpha[i];
+        REAL(SpVec)[i] = results->specific_leaf_area[i];
+        REAL(MinNitroVec)[i] = results->min_nitro[i];
+        REAL(RespVec)[i] = results->respiration[i];
+        REAL(SoilEvaporation)[i] = results->soil_evaporation[i];
+        REAL(LeafPsimVec)[i] = results->leaf_psim[i];
 
-        /*  Do the magic! Calculate growth*/
-
-        Canopy = CanAC(LAI, doy[i], hr[i],
-                solar[i], temp[i], rh[i], windspeed[i],
-                lat, nlayers, vmax, alpha, kparm, beta,
-                Rd, Catm, b0, b1, theta, kd, chil,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, leafwidth, et_equation, StomataWS, ws);
-
-        CanopyA = Canopy.Assim * timestep;
-        CanopyT = Canopy.Trans * timestep;
-
-        /* if(ISNAN(Leaf)) { */
-        /*    Rprintf("Leaf %.2f \n",Leaf); */
-        /*    Rprintf("kLeaf %.2f \n",kLeaf); */
-        /*    Rprintf("newLeaf %.2f \n",newLeaf); */
-        /*    Rprintf("LeafWS %.2f \n",LeafWS); */
-        /*    error("something is NA \n"); */
-        /* } */
-
-        /* if(ISNAN(CanopyA)) { */
-        /*    Rprintf("LAI %.2f \n",LAI);  */
-        /*    Rprintf("Leaf %.2f \n",Leaf); */
-        /*    Rprintf("irtl %.2f \n", irtl); */
-        /*    Rprintf("Rhizome %.2f \n",Rhizome); */
-        /*    Rprintf("Sp %.2f \n",Sp);    */
-        /*    Rprintf("vmax1 %.2f \n",vmax1); */
-        /*    Rprintf("alpha1 %.2f \n",alpha1); */
-        /*    Rprintf("kparm %.2f \n",kparm); */
-        /*    Rprintf("theta %.2f \n",theta); */
-        /*    Rprintf("beta %.2f \n",beta); */
-        /*    Rprintf("Rd %.2f \n",Rd);  */
-        /*    Rprintf("Catm %.2f \n",Catm); */
-        /*    Rprintf("b01 %.2f \n",b01); */
-        /*    Rprintf("b11 %.2f \n",b11); */
-        /*    Rprintf("StomataWS %.2f \n",StomataWS); */
-        /*    Rprintf("kd %.2f \n",kd);                  */
-        /*    Rprintf("Sp %.2f \n",Sp);                   */
-        /*    Rprintf("doy[i] %.i %.i \n",i,doy[i]);  */
-        /*    Rprintf("hr[i] %.i %.i \n",i,hr[i]); */
-        /*    Rprintf("solar[i] %.i %.2f \n",i,solar[i]); */
-        /*    Rprintf("temp[i] %.i %.2f \n",i,temp[i]); */
-        /*    Rprintf("rh[i] %.i %.2f \n",i,rh[i]); */
-        /*    Rprintf("windspeed[i] %.i %.2f \n",i,windspeed[i]); */
-        /*    Rprintf("lat %.i %.2f \n",i,lat); */
-        /*    Rprintf("nlayers %.i %.i \n",i,nlayers);    */
-        /*    error("something is NA \n"); */
-        /* } */
-
-        /* Inserting the multilayer model */
-        if(soilLayers > 1) {
-            soilMLS = soilML(precip[i], CanopyT, cws, soilDepth, soilDepths, FieldC, WiltP,
-                    phi1, phi2, soTexS, wsFun, soilLayers, Root, 
-                    LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
-                    hydrDist, rfl, rsec, rsdf);
-
-            StomataWS = soilMLS.rcoefPhoto;
-            LeafWS = soilMLS.rcoefSpleaf;
-            soilEvap = soilMLS.SoilEvapo;
-
-            for(i3 = 0; i3 < soilLayers; i3++) {
-                cws[i3] = soilMLS.cws[i3];
-                cwsVecSum += cws[i3];
-				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
-                root_distribution[i3 + i*soilLayers] = soilMLS.rootDist[i3];
-				psi[i3 + i * soilLayers] = 0;
-            }
-            waterCont = cwsVecSum / soilLayers;
-            cwsVecSum = 0.0;
-
-        } else {
-            soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
-            TotEvap = soilEvap + CanopyT;
-            WaterS = watstr(precip[i], TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
-            waterCont = WaterS.awc;
-            StomataWS = WaterS.rcoefPhoto; 
-            LeafWS = WaterS.rcoefSpleaf;
-            water_status[i] = waterCont;
-			psi[i] = WaterS.psim;
-			root_distribution[i] = 0;
+        for(int layer = 0; layer < soilLayers; layer++) {
+            REAL(psimMat)[layer + i * soilLayers] = results->psim[layer + i * soilLayers];
+            REAL(cwsMat)[layer + i * soilLayers] = results->water_status[layer + i * soilLayers];
+            REAL(rdMat)[layer + i * soilLayers] = results->root_distribution[layer + i * soilLayers];
         }
-
-        /* An alternative way of computing water stress is by doing the leaf
-         * water potential. This is done if the wsFun is equal to 4 */
-
-        if(wsFun == 4) {
-            /* Calculating the leaf water potential */
-            /* From Campbell E = (Psim_s - Psim_l)/R or
-             * evaporation is equal to the soil water potential
-             * minus the leaf water potential divided by the resistance.
-             * This can be rearranged to Psim_l = Psim_s - E x R   */
-            /* It is assumed that total resistance is 5e6 m^4 s^-1
-             * kg^-1 
-             * Transpiration is in Mg ha-2 hr-1
-             * Multiply by 1e3 to go from Mg to kg
-             * Multiply by 1e-4 to go from ha to m^2 
-             * This needs to go from hours to seconds that's
-             * why the conversion factor is (1/3600).*/
-            LeafPsim = WaterS.psim - (CanopyT * 1e3 * 1e-4 * 1.0/3600.0) * transpRes;
-
-            /* From WIMOVAVC the proposed equation to simulate the effect of water
-             * stress on stomatal conductance */
-            if(LeafPsim < leafPotTh) {
-                /* StomataWS = 1 - ((LeafPsim - leafPotTh)/1000 *
-                 * scsf); In WIMOVAC this equation is used but
-                 * the absolute values are taken from the
-                 * potentials. Since they both should be
-                 * negative and leafPotTh is greater than
-                 * LeafPsim this can be rearranged to*/ 
-                StomataWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
-                /* StomataWS = 1; */
-                if(StomataWS < 0.1) StomataWS = 0.1;
-            } else {
-                StomataWS = 1;
-            }
-        } else {
-            LeafPsim = 0;
-        }
-
-        /* Picking the dry biomass partitioning coefficients */
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, TTc);
-
-        kLeaf = dbpS.kLeaf;
-        kStem = dbpS.kStem;
-        kRoot = dbpS.kRoot;
-        kGrain = dbpS.kGrain;
-        kRhizome = dbpS.kRhiz;
-
-        /* Nitrogen fertilizer */
-        /* Only the day in which the fertilizer was applied this is available */
-        /* When the day of the year is equal to the day the N fert was applied
-         * then there is addition of fertilizer */
-        if(doyNfert == doy[i]) {
-            Nfert = centcoefs[17] / 24.0;
-        } else {
-            Nfert = 0;
-        }                
-
-        if (ISNAN(kRhizome) || ISNAN(kLeaf) || ISNAN(kRoot) || ISNAN(kStem) || ISNAN(kGrain)) {
-            Rprintf("kLeaf %.2f, kStem %.2f, kRoot %.2f, kRhizome %.2f, kGrain %.2f \n", kLeaf, kStem, kRoot, kRhizome, kGrain);
-            Rprintf("iter %i \n", i);
-        }
-
-        /* Here I can insert the code for Nitrogen limitations on photosynthesis
-           parameters. This is taken From Harley et al. (1992) Modelling cotton under
-           elevated CO2. PCE. This is modeled as a simple linear relationship between
-           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
-           availability and possibly by the Thermal time accumulated.*/
-        /* The approach that seems to be used in general is N concentration as
-         * a function of biomass */
-
-        LeafN = LeafN_0 * pow(Stem + Leaf, -kLN); 
-        if(LeafN > LeafN_0) LeafN = LeafN_0;
-
-        vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1; 
-        alpha = (LeafN_0 - LeafN) * alphab1 + alpha1; 
-
-        /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
-           This modifies the amount of N available in the soil. 
-           MinNitro is the available amount of N (kg/m2). 
-           The demand is in Mg/ha. I need a conversion factor of 
-           multiply by 1000, divide by 10000. */
-
-        MinNitro = MinNitro - LeafN * (Stem + Leaf) * 1e-1;
-        if(MinNitro < 0) MinNitro = 1e-3;
-
-        if(kLeaf > 0) {
-            newLeaf = CanopyA * kLeaf * LeafWS; 
-            /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
-                Plant. Phys. 46, 233-235. For this the water stress coefficient is different
-                for leaf and vmax. */
-            /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
-            /* The 0.02 and 0.03 are constants here but vary depending on species
-               as pointed out in that reference. */
-
-            if(ISNAN(newLeaf)) {
-                Rprintf("LeafWS %.2f \n", LeafWS);
-                Rprintf("CanopyA %.2f \n", CanopyA);
-            }
-
-            newLeaf = resp(newLeaf, mrc1, temp[i]);
-
-            *(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
-                                   to use i because when kLeaf is negative no new leaf is
-                                   being accumulated and thus would not be subjected to senescence */
-        } else {
-            newLeaf = Leaf * kLeaf ;
-            Rhizome += kRhizome * -newLeaf * 0.9; /* 0.9 is the efficiency of retranslocation */
-            Stem += kStem * -newLeaf * 0.9;
-            Root += kRoot * -newLeaf * 0.9;
-            Grain += kGrain * -newLeaf * 0.9;
-        }
-
-        if(TTc < seneLeaf) {
-            Leaf += newLeaf;
-        } else {
-            Leaf += newLeaf - *(sti+k); /* This means that the new value of leaf is
-                                           the previous value plus the newLeaf
-                                           (Senescence might start when there is
-                                           still leaf being produced) minus the leaf
-                                           produced at the corresponding k.*/
-            Remob = *(sti+k) * 0.6 ;
-            LeafLitter += *(sti+k) * 0.4; /* Collecting the leaf litter */ 
-            Rhizome += kRhizome * Remob;
-            Stem += kStem * Remob; 
-            Root += kRoot * Remob;
-            Grain += kGrain * Remob;
-            k++;
-        }
-
-        /* The specific leaf area declines with the growing season at least in
-           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
-           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
-           management in north-eastern greece*/
-
-        if(i % 24 == 0) {
-            Sp = iSp - (doy[i] - doy[0]) * SpD;
-        }
-
-        LAI = Leaf * Sp ;
-
-        /* New Stem*/
-        if(kStem >= 0) {
-            newStem = CanopyA * kStem ;
-            newStem = resp(newStem, mrc1, temp[i]);
-            *(sti2+i) = newStem;
-        } else {
-            error("kStem should be positive");
-        }
-
-        if(TTc < seneStem) {
-            Stem += newStem;
-        } else {
-            Stem += newStem - *(sti2+q);
-            StemLitter += *(sti2+q);
-            q++;
-        }
-
-        if(kRoot > 0) {
-            newRoot = CanopyA * kRoot ;
-            newRoot = resp(newRoot, mrc2, temp[i]);
-            *(sti3+i) = newRoot;
-        } else {
-            newRoot = Root * kRoot ;
-            Rhizome += kRhizome * -newRoot * 0.9;
-            Stem += kStem * -newRoot       * 0.9;
-            Leaf += kLeaf * -newRoot * 0.9;
-            Grain += kGrain * -newRoot * 0.9;
-        }
-
-        if(TTc < seneRoot) {
-            Root += newRoot;
-        } else {
-            Root += newRoot - *(sti3+m);
-            RootLitter += *(sti3+m);
-            m++;
-        }
-
-        if(kRhizome > 0) {
-            newRhizome = CanopyA * kRhizome ;
-            newRhizome = resp(newRhizome, mrc2, temp[i]);
-            *(sti4+ri) = newRhizome;
-            /* Here i will not work because the rhizome goes from being a source
-               to a sink. I need its own index. Let's call it rhizome's i or ri.*/
-            ri++;
-        } else {
-            if(Rhizome < 0) {
-                Rhizome = 1e-4;
-                warning("Rhizome became negative");
-            }
-
-            newRhizome = Rhizome * kRhizome;
-            Root += kRoot * -newRhizome ;
-            Stem += kStem * -newRhizome ;
-            Leaf += kLeaf * -newRhizome ;
-            Grain += kGrain * -newRhizome;
-        }
-
-        if (TTc < seneRhizome) {
-            Rhizome += newRhizome;
-        } else {
-            Rhizome += newRhizome - *(sti4+n);
-            RhizomeLitter += *(sti4+n);
-            n++;
-        }
-
-        if ((kGrain < 1e-10) || (TTc < thermalp[4])) {
-            newGrain = 0.0;
-            Grain += newGrain;
-        } else {
-            newGrain = CanopyA * kGrain;
-            /* No respiration for grain at the moment */
-            /* No senescence either */
-            Grain += newGrain;  
-        }
-
-        /****************************************************************************
-        // CROPCENT SIMULATION BEGINS HHERE    
-        BiocroToCrocent(&LeafLitter,leaf.fallrate,leaf.lignin, &leaf.E, isotoperatio, 1, 0,leaflitter);
-        BiocroToCrocent(&StemLitter,stem.fallrate,stem.lignin, &stem.E, isotoperatio, 1, 0,stemlitter);
-        BiocroToCrocent(&RootLitter,root.fallrate,root.lignin, &root.E, isotoperatio, 0, 0,rootlitter);
-        BiocroToCrocent(&RhizomeLitter,rhiz.fallrate,rhiz.lignin, &rhiz.E, isotoperatio, 0, 0,rhizomelitter);
-         ***************************************************************************/
-        if(i % 24*centTimestep == 0) {
-            LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
-            StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
-            RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
-            RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
-
-            LeafLitter -= LeafLitter_d;
-            StemLitter -= StemLitter_d;
-            RootLitter -= RootLitter_d;
-            RhizomeLitter -= RhizomeLitter_d;
-
-            centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
-                    waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
-                    Nfert, /* N fertilizer*/
-                    MinNitro, /* initial Mineral nitrogen */
-                    precip[i], /* precipitation */
-                    centcoefs[9], /* Leaf litter lignin */
-                    centcoefs[10], /* Stem litter lignin */
-                    centcoefs[11], /* Root litter lignin */
-                    centcoefs[12], /* Rhizome litter lignin */
-                    centcoefs[13], /* Leaf litter N */
-                    centcoefs[14], /* Stem litter N */
-                    centcoefs[15],  /* Root litter N */
-                    centcoefs[16],   /* Rhizome litter N */
-                    soilType, 
-                    centks);
-        }
-
-        MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
-        Resp = centS.Resp;
-        SCCs[0] = centS.SCs[0];
-        SCCs[1] = centS.SCs[1];
-        SCCs[2] = centS.SCs[2];
-        SCCs[3] = centS.SCs[3];
-        SCCs[4] = centS.SCs[4];
-        SCCs[5] = centS.SCs[5];
-        SCCs[6] = centS.SCs[6];
-        SCCs[7] = centS.SCs[7];
-        SCCs[8] = centS.SCs[8];
-
-        ALitter = LeafLitter + StemLitter;
-        BLitter = RootLitter + RhizomeLitter;
-
-        REAL(DayofYear)[i] =  INTEGER(DOY)[i];
-        REAL(Hour)[i] =  INTEGER(HR)[i];
-        REAL(CanopyAssim)[i] =  CanopyA;
-        REAL(CanopyTrans)[i] =  CanopyT; 
-        REAL(Leafy)[i] = Leaf;
-        REAL(Stemy)[i] = Stem;
-        REAL(Rooty)[i] =  Root;
-        REAL(Rhizomey)[i] = Rhizome;
-        REAL(Grainy)[i] = Grain;
-        REAL(LAIc)[i] = LAI;
-        REAL(TTTc)[i] = TTc;
-        REAL(SoilWatCont)[i] = waterCont;
-        REAL(StomatalCondCoefs)[i] = StomataWS;
-        REAL(LeafReductionCoefs)[i] = LeafWS;
-        REAL(LeafNitrogen)[i] = LeafN;
-        REAL(AboveLitter)[i] = ALitter;
-        REAL(BelowLitter)[i] = BLitter;
-        REAL(VmaxVec)[i] = vmax;
-        REAL(AlphaVec)[i] = alpha;
-        REAL(SpVec)[i] = Sp;
-        REAL(MinNitroVec)[i] = MinNitro/ (24*centTimestep);
-        REAL(RespVec)[i] = Resp / (24*centTimestep);
-        REAL(SoilEvaporation)[i] = soilEvap;
-        REAL(LeafPsimVec)[i] = LeafPsim;
-
-		for(int layer = 0; layer < soilLayers; layer++) {
-			REAL(psimMat)[layer + i * soilLayers] = psi[layer + i * soilLayers];
-			REAL(cwsMat)[layer + i * soilLayers] = water_status[layer + i * soilLayers];
-			REAL(rdMat)[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
-		}
     }
 
     /* Populating the results of the Century model */
-    REAL(SCpools)[0] = centS.SCs[0];
-    REAL(SCpools)[1] = centS.SCs[1];
-    REAL(SCpools)[2] = centS.SCs[2];
-    REAL(SCpools)[3] = centS.SCs[3];
-    REAL(SCpools)[4] = centS.SCs[4];
-    REAL(SCpools)[5] = centS.SCs[5];
-    REAL(SCpools)[6] = centS.SCs[6];
-    REAL(SCpools)[7] = centS.SCs[7];
-    REAL(SCpools)[8] = centS.SCs[8];
+    REAL(SCpools)[0] = results->centS.SCs[0];
+    REAL(SCpools)[1] = results->centS.SCs[1];
+    REAL(SCpools)[2] = results->centS.SCs[2];
+    REAL(SCpools)[3] = results->centS.SCs[3];
+    REAL(SCpools)[4] = results->centS.SCs[4];
+    REAL(SCpools)[5] = results->centS.SCs[5];
+    REAL(SCpools)[6] = results->centS.SCs[6];
+    REAL(SCpools)[7] = results->centS.SCs[7];
+    REAL(SCpools)[8] = results->centS.SCs[8];
 
-    REAL(SNpools)[0] = centS.SNs[0];
-    REAL(SNpools)[1] = centS.SNs[1];
-    REAL(SNpools)[2] = centS.SNs[2];
-    REAL(SNpools)[3] = centS.SNs[3];
-    REAL(SNpools)[4] = centS.SNs[4];
-    REAL(SNpools)[5] = centS.SNs[5];
-    REAL(SNpools)[6] = centS.SNs[6];
-    REAL(SNpools)[7] = centS.SNs[7];
-    REAL(SNpools)[8] = centS.SNs[8];
+    REAL(SNpools)[0] = results->centS.SNs[0];
+    REAL(SNpools)[1] = results->centS.SNs[1];
+    REAL(SNpools)[2] = results->centS.SNs[2];
+    REAL(SNpools)[3] = results->centS.SNs[3];
+    REAL(SNpools)[4] = results->centS.SNs[4];
+    REAL(SNpools)[5] = results->centS.SNs[5];
+    REAL(SNpools)[6] = results->centS.SNs[6];
+    REAL(SNpools)[7] = results->centS.SNs[7];
+    REAL(SNpools)[8] = results->centS.SNs[8];
 
     SET_VECTOR_ELT(lists, 0, DayofYear);
     SET_VECTOR_ELT(lists, 1, Hour);
@@ -798,6 +342,7 @@ SEXP MisGro(
     SET_STRING_ELT(names,28,mkChar("LeafPsimVec"));
     setAttrib(lists,R_NamesSymbol,names);
     UNPROTECT(31);
+    free_biogro_results(results);
     return(lists);
 }
 
