@@ -93,7 +93,7 @@ caneGro <- function(WetDat, day1=5, dayn=360,
     frostP<-as.vector(unlist(frostP))
     
     tint <- 24 / timestep
-    vecsize <- (dayn - (day1-1)) * tint
+    vecsize <- (dayn - (day1-1)) * tint + 1
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
     

@@ -315,7 +315,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     centuryP[names(centuryControl)] <- centuryControl
 
     tint <- 24 / timestep
-    vecsize <- (dayn - (day1-1)) * tint
+    vecsize <- (dayn - (day1-1)) * tint + 1
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
     indesn <- ifelse(indesn > nrow(WetDat), nrow(WetDat), indesn) 

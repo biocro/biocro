@@ -182,7 +182,7 @@ MCMCBioGro <- function(niter = 10, niter2=10, phen=6, iCoef=NULL,
 
   tint <- 24 / timestep
   ndat <- dim(data)[1]
-  vecsize <- (dayn - (day1-1)) * tint;
+  vecsize <- (dayn - (day1-1)) * tint + 1
   indes1 <- (day1-1) * tint;
   indesn <- (dayn) * tint;
   Temp <- WetDat[indes1:indesn,5];
