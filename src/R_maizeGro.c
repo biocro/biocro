@@ -432,9 +432,9 @@ SEXP maizeGro(
 
             Canopy = CanAC(LAI, doy[i], hr[i],
                     solar[i], temp[i], rh[i], windspeed[i],
-                    lat, nlayers, vmax, alpha, kparm, theta, beta,
-					Rd, Catm, b0, b1, StomWS, ws, kd, chil,
-					heightf, LeafN, kpLN, lnb0, lnb1, lnFun, upperT, lowerT, nitrop, 0.04, 0);
+                    lat, nlayers, vmax, alpha, kparm, beta,
+					Rd, Catm, b0, b1, theta, kd, chil,
+					heightf, LeafN, kpLN, lnb0, lnb1, lnFun, upperT, lowerT, nitrop, 0.04, 0, StomWS, ws);
 
             CanopyA = Canopy.Assim * timestep;
             CanopyT = Canopy.Trans * timestep;

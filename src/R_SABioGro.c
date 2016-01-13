@@ -119,14 +119,15 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	nitroparms.minln=REAL(NNITROP)[13];
 	nitroparms.daymaxln=REAL(NNITROP)[14];
 
-	struct BioGro_results_str results = {{0}, {0}, {0}, {0}, {0}, {0}};
+	struct BioGro_results_str *results = malloc(sizeof(struct BioGro_results_str));
+    initialize_biogro_results(results, INTEGER(SOILLAYERS)[0], INTEGER(VECSIZE)[0]);
 
 	/* Index variables */
 	int j,k,m;
 	int niter, niter2, iters = 0, iters2 = 0;
 	int accept = 0;
 	int n1 = 0, n2 = 0;
-        double upperT=REAL(UPPERTEMP)[0];
+    double upperT=REAL(UPPERTEMP)[0];
 	double lowerT=REAL(LOWERTEMP)[0];
 	/* The all important vector size */
 	int vecsize;
@@ -561,7 +562,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		/* 	Rprintf("dbpcoef %.i %.3f \n",p,dbpcoef[p]); */
 		/* } */
 
-		results = BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
+		BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
 		       REAL(WINDSPEED),REAL(PRECIP), REAL(KD)[0], REAL(CHILHF)[0], REAL(CHILHF)[2], REAL(CHILHF)[3], 
 		       REAL(CHILHF)[1],nlayers,rhizome,
 		       irtl,REAL(SENESCTIME),INTEGER(TIMESTEP)[0],vecsize,
@@ -570,18 +571,18 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       vmaxb1, alphab1, REAL(MRESP), INTEGER(SOILTYPE)[0], INTEGER(WSFUN)[0],
 		       INTEGER(WS)[0], REAL(CENTCOEFS), INTEGER(CENTTIMESTEP)[0], REAL(CENTKS),
 		       INTEGER(SOILLAYERS)[0], REAL(SOILDEPTHS), REAL(CWS), INTEGER(HYDRDIST)[0], 
-		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms);
+		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, thermal_leaf_nitrogen_limitation, results);
 
 		/* pick the needed elements for the SSE */
 		for(k=0; k<Ndat; k++) {
 			ind = INTEGER(INDEX)[k];
-			// sCanopyAssim[k] = reuslts.CanopyAssim[ind];
-			sLeafy[k] = results.Leafy[ind];
-			sStemy[k] = results.Stemy[ind];
-			sRooty[k] = results.Rooty[ind];
-			sRhizomey[k] = results.Rhizomey[ind];
-			sGrainy[k] = results.Grainy[ind];
-			sLAIy[k] = results.LAIc[ind];
+			// sCanopyAssim[k] = results->CanopyAssim[ind];
+			sLeafy[k] = results->Leafy[ind];
+			sStemy[k] = results->Stemy[ind];
+			sRooty[k] = results->Rooty[ind];
+			sRhizomey[k] = results->Rhizomey[ind];
+			sGrainy[k] = results->Grainy[ind];
+			sLAIy[k] = results->LAIc[ind];
 		}
 
 
@@ -847,7 +848,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		dbpcoef[23] = kRhizome_6;
 		dbpcoef[24] = kGrain_6;
  
-		results = BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
+		BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
 		       REAL(WINDSPEED),REAL(PRECIP), REAL(KD)[0], REAL(CHILHF)[0], REAL(CHILHF)[2], REAL(CHILHF)[3], 
 		       REAL(CHILHF)[1],nlayers,rhizome,
 		       irtl,REAL(SENESCTIME),INTEGER(TIMESTEP)[0],vecsize,
@@ -856,17 +857,17 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       vmaxb1, alphab1, REAL(MRESP), INTEGER(SOILTYPE)[0], INTEGER(WSFUN)[0],
 		       INTEGER(WS)[0], REAL(CENTCOEFS), INTEGER(CENTTIMESTEP)[0], REAL(CENTKS),
 		       INTEGER(SOILLAYERS)[0], REAL(SOILDEPTHS), REAL(CWS), INTEGER(HYDRDIST)[0],
-		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms);
+		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, thermal_leaf_nitrogen_limitation, results);
 
 		/* pick the needed elements for the SSE */
 		for(k=0;k<Ndat;k++){
 			ind = INTEGER(INDEX)[k];
-			// sCanopyAssim[k] = results.CanopyAssim[ind]; unused
-			sLeafy[k] = results.Leafy[ind];
-			sStemy[k] = results.Stemy[ind];
-			sRooty[k] = results.Rooty[ind];
-			sRhizomey[k] = results.Rhizomey[ind];
-			sLAIy[k] = results.LAIc[ind];
+			// sCanopyAssim[k] = results->CanopyAssim[ind]; unused
+			sLeafy[k] = results->Leafy[ind];
+			sStemy[k] = results->Stemy[ind];
+			sRooty[k] = results->Rooty[ind];
+			sRhizomey[k] = results->Rhizomey[ind];
+			sLAIy[k] = results->LAIc[ind];
 		}
 
 		rss = RSS_BG(oStemy,oLeafy,oRooty,oRhizomey,oGrainy,oLAIy,
@@ -990,12 +991,12 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 	for(j=0;j<Ndat;j++){
 		ind = INTEGER(INDEX)[j];
-		REAL(simStem)[j] = results.Stemy[ind];
-		REAL(simLeaf)[j] = results.Leafy[ind];
-		REAL(simRhiz)[j] = results.Rhizomey[ind];
-		REAL(simRoot)[j] = results.Rooty[ind];
-		REAL(simGrain)[j] = results.Grainy[ind];
-		REAL(simLAI)[j] = results.LAIc[ind];
+		REAL(simStem)[j] = results->Stemy[ind];
+		REAL(simLeaf)[j] = results->Leafy[ind];
+		REAL(simRhiz)[j] = results->Rhizomey[ind];
+		REAL(simRoot)[j] = results->Rooty[ind];
+		REAL(simGrain)[j] = results->Grainy[ind];
+		REAL(simLAI)[j] = results->LAIc[ind];
 		REAL(TTime)[j] = REAL(oTHERMAL)[j];
 		REAL(inde)[j] = INTEGER(INDEX)[j];
 	}
@@ -1060,6 +1061,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	setAttrib(lists,R_NamesSymbol,names);
 
 	UNPROTECT(25);
+	free_biogro_results(results);
 	return(lists);
 }
 

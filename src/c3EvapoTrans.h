@@ -13,16 +13,10 @@
 
 /* Decalring functions used in this function */
 
-/* c3EvapoTrans.c:82: warning: implicit declaration of function ‘TempToDdryA’ */
-/* c3EvapoTrans.c:83: warning: implicit declaration of function ‘TempToLHV’ */
-/* c3EvapoTrans.c:86: warning: implicit declaration of function ‘TempToSFS’ */
-/* c3EvapoTrans.c:87: warning: implicit declaration of function ‘TempToSWVC’ */
-
 double TempToDdryA(double Temp);
 double TempToLHV(double Temp);
 double TempToSFS(double Temp);
 double TempToSWVC(double Temp);
-
 
 #endif
 
