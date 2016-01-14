@@ -9,12 +9,13 @@
 #include <Rinternals.h>
 #include "c3photo.h"
 #include "AuxBioCro.h"
-#include "Century.h"
 #include "AuxwillowGro.h"
 #include "AuxcaneGro.h"
 #include "crocent.h"
 #include "c3canopy.h"
 #include "BioCro.h"
+#include "Century.h"
+
 SEXP willowGro(
         SEXP LAT,              /* Latitude                            1 */
         SEXP DOY,              /* Day of the year                     2 */
@@ -100,7 +101,7 @@ SEXP willowGro(
     double SpD = REAL(SPD)[0];
     double *dbpcoefs = REAL(DBPCOEFS);
     double *thermalp = REAL(THERMALP);
-    double Tbase = REAL(TBASE)[0];
+    double tbase = REAL(TBASE)[0];
     double vmax1 = REAL(VMAX)[0];
     double alpha1 = REAL(ALPHA)[0];
     double theta = REAL(THETA)[0];
@@ -352,8 +353,8 @@ SEXP willowGro(
         /* The idea is that here I need to divide by the time step
            to calculate the thermal time. For example, a 3 hour time interval
            would mean that the division would need to by 8 */     
-        if(temp[i] > Tbase) {
-            TTc += (temp[i]-Tbase) / (24/timestep); 
+        if(temp[i] > tbase) {
+            TTc += (temp[i]-tbase) / (24/timestep); 
         }
 
         /*  Do the magic! Calculate growth*/

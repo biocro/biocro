@@ -76,7 +76,7 @@ void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], doub
         double windspeed[], double precip[], double kd, double chil, double leafwidth, int et_equation,
         double heightf, int nlayers,
         double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
-        double Sp, double SpD, double dbpcoefs[25], double thermalp[], double vmax1, 
+        double Sp, double SpD, double dbpcoefs[25], double thermalp[], double tbase, double vmax1, 
         double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,
         double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],

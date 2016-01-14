@@ -5,8 +5,8 @@
  *
  */
 
-#include <math.h>
 #include <R.h>
+#include <math.h>
 #include <Rmath.h>
 #include "AuxBioCro.h"
 #include "BioCro.h"
@@ -36,6 +36,7 @@ void BioGro(
         double SpD,                   /* Spec Lefa Area Dec                 21 */
         double dbpcoefs[25],          /* Dry Bio Coefs                      22 */
         double thermalp[],            /* Themal Periods                     23 */
+        double tbase                  /* Base temperature for thermal time     */
         double vmax1,                 /* Vmax of photo                      24 */
         double alpha1,                /* Quantum yield                      25 */
         double kparm,                 /* k parameter (photo)                26 */
@@ -195,7 +196,9 @@ void BioGro(
     for(i = 0; i < vecsize; i++)
     {
         /* First calculate the elapsed Thermal Time*/
-        TTc += temp[i] / (24/timestep);
+        if(temp[i] > tbase) {
+            TTc += (temp[i]-tbase) / (24/timestep); 
+        }
 
         /* Do the magic! Calculate growth*/
 
