@@ -388,7 +388,7 @@ SEXP willowGro(
                 cwsVecSum += cws[i3];
                 water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
                 root_distribution[i3 + i*soilLayers] = soilMLS.rootDist[i3];
-				cwsMatpsi[i3 + i * soilLayers] = 0;
+				psi[i3 + i * soilLayers] = 0;
             }
             waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
