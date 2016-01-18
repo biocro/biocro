@@ -317,10 +317,6 @@ SEXP willowGro(
     double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
     double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
 
-    double cwsVec[soilLayers];
-    for(i2 = 0; i2 < soilLayers; i2++) {
-        cwsVec[i2] = cws[i2];
-    }
     double cwsVecSum = 0.0;
     /* Parameters for calculating leaf water potential */
     double LeafPsim = 0.0;
@@ -377,7 +373,7 @@ SEXP willowGro(
 
         /* Inserting the multilayer model */
         if(soilLayers > 1) {
-            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, soilDepths, FieldC, WiltP,
+            soilMLS = soilML(precip[i], CanopyT, cws, soilDepth, soilDepths, FieldC, WiltP,
                     phi1, phi2, soTexS, wsFun, soilLayers, Root, 
                     LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
                     hydrDist, rfl, rsec, rsdf);
@@ -387,8 +383,8 @@ SEXP willowGro(
             soilEvap = soilMLS.SoilEvapo;
 
             for(i3=0; i3 < soilLayers; i3++) {
-                cwsVec[i3] = soilMLS.cws[i3];
-                cwsVecSum += cwsVec[i3];
+                cws[i3] = soilMLS.cws[i3];
+                cwsVecSum += cws[i3];
                 REAL(cwsMat)[i3 + i*soilLayers] = soilMLS.cws[i3];
                 REAL(rdMat)[i3 + i*soilLayers] = soilMLS.rootDist[i3];
             }
