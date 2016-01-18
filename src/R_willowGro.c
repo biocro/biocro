@@ -80,7 +80,7 @@ SEXP willowGro(
 {
     double lat = REAL(LAT)[0];
     int *doy = INTEGER(DOY);
-    int *hr = INTEGER(HR);
+    int *hour = INTEGER(HR);
     double *solar = REAL(SOLAR);
     double *temp = REAL(TEMP);
     double *rh = REAL(RH);
@@ -137,7 +137,7 @@ SEXP willowGro(
     // double jmaxb1 = REAL(JMAXB1)[0]; unused
     // double o2 = REAL(O2)[0];
     double GrowthRespFraction = REAL(GROWTHRESP)[0];
-    double StomWS = REAL(STOMATAWS)[0];
+    double StomataWS = REAL(STOMATAWS)[0];
 
 
     SEXP lists, names;
@@ -317,7 +317,11 @@ SEXP willowGro(
     double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
     double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
 
+	double water_status[soilLayers * vecsize];
+	double root_distribution[soilLayers * vecsize];
+	double psi[soilLayers * vecsize];
     double cwsVecSum = 0.0;
+
     /* Parameters for calculating leaf water potential */
     double LeafPsim = 0.0;
 
@@ -346,9 +350,6 @@ SEXP willowGro(
     for(i=0; i < vecsize; i++)
     {
         /* First calculate the elapsed Thermal Time*/
-        /* The idea is that here I need to divide by the time step
-           to calculate the thermal time. For example, a 3 hour time interval
-           would mean that the division would need to by 8 */     
         if(temp[i] > tbase) {
             TTc += (temp[i]-tbase) / (24/timestep); 
         }
@@ -357,19 +358,19 @@ SEXP willowGro(
         // Printing variables in R befor ecalling c3 canopy 
         //  Rprintf("\n LAI= %f",LAI);
         //      Rprintf("\n VMAX= %f", vmax);
-        //Rprintf("\n StomWS,LeafWS=%f",StomWS,LeafWS); 
+        //Rprintf("\n StomataWS,LeafWS=%f",StomataWS,LeafWS); 
 
-        Canopy = c3CanAC(LAI, doy[i], hr[i],
+        Canopy = c3CanAC(LAI, doy[i], hour[i],
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, jmax1, Rd, Catm, o2, b0, b1, theta, kd,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomWS, ws);
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomataWS, ws);
 
         CanopyA = Canopy.Assim * timestep * (1.0 - GrowthRespFraction);
         CanopyT = Canopy.Trans * timestep;
 
         /*Rprintf("%f,%f,%f\n",Canopy,CanopyA,GPP);*/      
         /* Inserting the multilayer model */
-        /*Rprintf("%f,%f,%f,%f\n",StomWS,LeafWS,kLeaf,newLeaf);*/
+        /*Rprintf("%f,%f,%f,%f\n",StomataWS,LeafWS,kLeaf,newLeaf);*/
 
         /* Inserting the multilayer model */
         if(soilLayers > 1) {
@@ -378,27 +379,30 @@ SEXP willowGro(
                     LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
                     hydrDist, rfl, rsec, rsdf);
 
-            StomWS = soilMLS.rcoefPhoto;
+            StomataWS = soilMLS.rcoefPhoto;
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
             for(i3=0; i3 < soilLayers; i3++) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
-                REAL(cwsMat)[i3 + i*soilLayers] = soilMLS.cws[i3];
-                REAL(rdMat)[i3 + i*soilLayers] = soilMLS.rootDist[i3];
+                water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
+                root_distribution[i3 + i*soilLayers] = soilMLS.rootDist[i3];
+				cwsMatpsi[i3 + i * soilLayers] = 0;
             }
             waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
+
         } else {
             soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
             TotEvap = soilEvap + CanopyT;
             WaterS = watstr(precip[i], TotEvap, waterCont, soilDepth, FieldC, WiltP, phi1, phi2, soilType, wsFun);   
             waterCont = WaterS.awc;
-            StomWS = WaterS.rcoefPhoto ; 
+            StomataWS = WaterS.rcoefPhoto ; 
             LeafWS = WaterS.rcoefSpleaf;
-            REAL(cwsMat)[i] = waterCont;
-            REAL(psimMat)[i] = WaterS.psim;
+            water_status[i] = waterCont;
+            psi[i] = WaterS.psim;
+			root_distribution[i] = 0;
         }
 
         /* An alternative way of computing water stress is by doing the leaf
@@ -412,7 +416,7 @@ SEXP willowGro(
              * This can be rearranged to Psim_l = Psim_s - E x R   */
             /* It is assumed that total resistance is 5e6 m^4 s^-1
              * kg^-1 
-             * Transpiration is in Mg ha-2 hr-1
+             * Transpiration is in Mg ha-2 hour-1
              * Multiply by 1e3 to go from Mg to kg
              * Multiply by 1e-4 to go from ha to m^2 
              * This needs to go from hours to seconds that's
@@ -422,17 +426,17 @@ SEXP willowGro(
             /* From WIMOVAVC the proposed equation to simulate the effect of water
              * stress on stomatal conductance */
             if(LeafPsim < leafPotTh) {
-                /* StomWS = 1 - ((LeafPsim - leafPotTh)/1000 *
+                /* StomataWS = 1 - ((LeafPsim - leafPotTh)/1000 *
                  * scsf); In WIMOVAC this equation is used but
                  * the absolute values are taken from the
                  * potentials. Since they both should be
                  * negative and leafPotTh is greater than
                  * LeafPsim this can be rearranged to*/ 
-                StomWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
-                /* StomWS = 1; */
-                if(StomWS < 0.1) StomWS = 0.1;
+                StomataWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
+                /* StomataWS = 1; */
+                if(StomataWS < 0.1) StomataWS = 0.1;
             } else {
-                StomWS = 1;
+                StomataWS = 1;
             }
         } else {
             LeafPsim = 0;
@@ -685,7 +689,7 @@ SEXP willowGro(
         REAL(LAIc)[i] = LAI;
 		REAL(TTTc)[i] = TTc;
         REAL(SoilWatCont)[i] = waterCont;
-        REAL(StomatalCondCoefs)[i] = StomWS;
+        REAL(StomatalCondCoefs)[i] = StomataWS;
         REAL(LeafReductionCoefs)[i] = LeafWS;
         REAL(LeafNitrogen)[i] = LeafN;
         REAL(AboveLitter)[i] = ALitter;
