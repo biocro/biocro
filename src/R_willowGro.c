@@ -239,6 +239,8 @@ SEXP willowGro(
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
     double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
 
+	struct Model_state current_state = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
     /* Variables needed for collecting litter */
     double LeafLitter = centcoefs[20], StemLitter = centcoefs[21];
     double RootLitter = centcoefs[22], RhizomeLitter = centcoefs[23];
@@ -283,11 +285,9 @@ SEXP willowGro(
     const double seneRoot = sencoefs[2];
     const double seneRhizome = sencoefs[3];
 
-
     struct Can_Str Canopy = {0,0,0};
     struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
     struct dbp_str dbpS;
-    struct cenT_str centS; 
     struct soilML_str soilMLS;
     struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
     soTexS = soilTchoose(soilType);
@@ -325,16 +325,16 @@ SEXP willowGro(
     /* Parameters for calculating leaf water potential */
     double LeafPsim = 0.0;
 
-    centS.SCs[0] = 0.0;
-    centS.SCs[1] = 0.0;
-    centS.SCs[2] = 0.0;
-    centS.SCs[3] = 0.0;
-    centS.SCs[4] = 0.0;
-    centS.SCs[5] = 0.0;
-    centS.SCs[6] = 0.0;
-    centS.SCs[7] = 0.0;
-    centS.SCs[8] = 0.0;
-    centS.Resp = 0.0;
+    results->centS.SCs[0] = 0.0;
+    results->centS.SCs[1] = 0.0;
+    results->centS.SCs[2] = 0.0;
+    results->centS.SCs[3] = 0.0;
+    results->centS.SCs[4] = 0.0;
+    results->centS.SCs[5] = 0.0;
+    results->centS.SCs[6] = 0.0;
+    results->centS.SCs[7] = 0.0;
+    results->centS.SCs[8] = 0.0;
+    results->centS.Resp = 0.0;
 
     SCCs[0] = centcoefs[0];
     SCCs[1] = centcoefs[1];
@@ -355,10 +355,6 @@ SEXP willowGro(
         }
 
         /*  Do the magic! Calculate growth*/
-        // Printing variables in R befor ecalling c3 canopy 
-        //  Rprintf("\n LAI= %f",LAI);
-        //      Rprintf("\n VMAX= %f", vmax);
-        //Rprintf("\n StomataWS,LeafWS=%f",StomataWS,LeafWS); 
 
         Canopy = c3CanAC(LAI, doy[i], hour[i],
                 solar[i], temp[i], rh[i], windspeed[i],
@@ -466,56 +462,35 @@ SEXP willowGro(
             Rprintf("iter %i \n", i);
         }
 
-        if(i % 24*centTimestep == 0) {
-            LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
-            StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
-            RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
-            RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
-
-            LeafLitter -= LeafLitter_d;
-            StemLitter -= StemLitter_d;
-            RootLitter -= RootLitter_d;
-            RhizomeLitter -= RhizomeLitter_d;
-
-            centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
-                    waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
-                    Nfert, /* N fertilizer*/
-                    MinNitro, /* initial Mineral nitrogen */
-                    precip[i], /* precipitation */
-                    centcoefs[9], /* Leaf litter lignin */
-                    centcoefs[10], /* Stem litter lignin */
-                    centcoefs[11], /* Root litter lignin */
-                    centcoefs[12], /* Rhizome litter lignin */
-                    centcoefs[13], /* Leaf litter N */
-                    centcoefs[14], /* Stem litter N */
-                    centcoefs[15],  /* Root litter N */
-                    centcoefs[16],   /* Rhizome litter N */
-                    soilType, 
-                    centks);
-        }
-
-        MinNitro = centS.MinN; /* These should be kg / m^2 per week? */
-        Resp = centS.Resp;
-        SCCs[0] = centS.SCs[0];
-        SCCs[1] = centS.SCs[1];
-        SCCs[2] = centS.SCs[2];
-        SCCs[3] = centS.SCs[3];
-        SCCs[4] = centS.SCs[4];
-        SCCs[5] = centS.SCs[5];
-        SCCs[6] = centS.SCs[6];
-        SCCs[7] = centS.SCs[7];
-        SCCs[8] = centS.SCs[8];
-
         /* Here I can insert the code for Nitrogen limitations on photosynthesis
            parameters. This is taken From Harley et al. (1992) Modelling cotton under
            elevated CO2. PCE. This is modeled as a simple linear relationship between
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the Thermal time accumulated.*/
-        /* The approach that seems to be used in general is N concentration as
-         * a function of biomass */
 
-        LeafN = LeafN_0 * pow(Stem + Leaf,-kLN); 
-        if(LeafN > LeafN_0) LeafN = LeafN_0;
+        //LeafN = LeafN_0 * pow(Stem + Leaf,-kLN); 
+        //if(LeafN > LeafN_0) LeafN = LeafN_0;
+
+		current_state.leaf = Leaf;
+		current_state.stem = Stem;
+		current_state.root = Root;
+		current_state.rhizome = Rhizome;
+		current_state.lai = LAI;
+		current_state.grain = Grain;
+		current_state.k_leaf = kLeaf;
+		current_state.k_stem = kStem;
+		current_state.k_root = kRoot;
+		current_state.k_rhizome = kRhizome;
+		current_state.k_grain = kGrain;
+		current_state.new_leaf = newLeaf;
+		current_state.new_stem = newStem;
+		current_state.new_root = newRoot;
+		current_state.new_rhizome = newRhizome;
+		current_state.new_grain = newGrain;
+		current_state.thermal_time = TTc;
+
+		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
+
 
         //		vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1; 
 
@@ -594,8 +569,6 @@ SEXP willowGro(
 
         LAI = Leaf * Sp ;
 
-        if(LAI > 20.0) LAI = 20.0;
-
         /* New Stem*/
         if(kStem >= 0) {
             newStem = CanopyA * kStem ;
@@ -671,11 +644,78 @@ SEXP willowGro(
             Grain += newGrain;  
         }
 
+        if(i % 24*centTimestep == 0) {
+            LeafLitter_d = LeafLitter * ((0.1/30)*centTimestep);
+            StemLitter_d = StemLitter * ((0.1/30)*centTimestep);
+            RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
+            RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
+
+            LeafLitter -= LeafLitter_d;
+            StemLitter -= StemLitter_d;
+            RootLitter -= RootLitter_d;
+            RhizomeLitter -= RhizomeLitter_d;
+
+            results->centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
+                    waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
+                    Nfert, /* N fertilizer*/
+                    MinNitro, /* initial Mineral nitrogen */
+                    precip[i], /* precipitation */
+                    centcoefs[9], /* Leaf litter lignin */
+                    centcoefs[10], /* Stem litter lignin */
+                    centcoefs[11], /* Root litter lignin */
+                    centcoefs[12], /* Rhizome litter lignin */
+                    centcoefs[13], /* Leaf litter N */
+                    centcoefs[14], /* Stem litter N */
+                    centcoefs[15],  /* Root litter N */
+                    centcoefs[16],   /* Rhizome litter N */
+                    soilType, 
+                    centks);
+        }
+
+        MinNitro = results->centS.MinN; /* These should be kg / m^2 per week? */
+        Resp = results->centS.Resp;
+        SCCs[0] = results->centS.SCs[0];
+        SCCs[1] = results->centS.SCs[1];
+        SCCs[2] = results->centS.SCs[2];
+        SCCs[3] = results->centS.SCs[3];
+        SCCs[4] = results->centS.SCs[4];
+        SCCs[5] = results->centS.SCs[5];
+        SCCs[6] = results->centS.SCs[6];
+        SCCs[7] = results->centS.SCs[7];
+        SCCs[8] = results->centS.SCs[8];
+
         ALitter = LeafLitter + StemLitter;
         BLitter = RootLitter + RhizomeLitter;
 
-        /* Here I could add a soil and nitrogen carbon component. I have soil
-           moisture, I have temperature and root and rhizome biomass */
+		results->day_of_year[i] = doy[i];
+		results->hour[i] = hour[i];
+        results->CanopyAssim[i] =  CanopyA;
+		results->canopy_transpiration[i] = CanopyT;
+        results->Leafy[i] = Leaf;
+        results->Stemy[i] = Stem;
+        results->Rooty[i] =  Root;
+        results->Rhizomey[i] = Rhizome;
+        results->Grainy[i] = Grain;
+        results->LAIc[i] = LAI;
+		results->thermal_time[i] = TTc;
+		results->soil_water_content[i] = waterCont;
+		results->stomata_cond_coefs[i] = StomataWS;
+		results->leaf_reduction_coefs[i] = LeafWS;
+		results->leaf_nitrogen[i] = LeafN;
+		results->above_ground_litter[i] = ALitter;
+		results->below_ground_litter[i] = BLitter;
+		results->vmax[i] = vmax;
+		results->alpha[i] = alpha;
+		results->specific_leaf_area[i] = Sp;
+		results->min_nitro[i] = MinNitro / (24 / centTimestep);
+		results->respiration[i] = Resp / (24*centTimestep);
+		results->soil_evaporation[i] = soilEvap;
+		results->leaf_psim[i] = LeafPsim;
+		for(int layer = 0; layer < soilLayers; layer++) {
+			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
+			results->water_status[layer + i * soilLayers] = water_status[layer + i * soilLayers];
+			results->root_distribution[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
+		}
 
         REAL(DayofYear)[i] =  INTEGER(DOY)[i];
         REAL(Hour)[i] =  INTEGER(HR)[i];
@@ -701,28 +741,34 @@ SEXP willowGro(
         REAL(RespVec)[i] = Resp / (24*centTimestep);
         REAL(SoilEvaporation)[i] = soilEvap;
         REAL(LeafPsimVec)[i] = LeafPsim;
+
+        for(int layer = 0; layer < soilLayers; layer++) {
+            REAL(psimMat)[layer + i * soilLayers] = results->psim[layer + i * soilLayers];
+            REAL(cwsMat)[layer + i * soilLayers] = results->water_status[layer + i * soilLayers];
+            REAL(rdMat)[layer + i * soilLayers] = results->root_distribution[layer + i * soilLayers];
+        }
     }
 
     /* Populating the results of the Century model */
-    REAL(SCpools)[0] = centS.SCs[0];
-    REAL(SCpools)[1] = centS.SCs[1];
-    REAL(SCpools)[2] = centS.SCs[2];
-    REAL(SCpools)[3] = centS.SCs[3];
-    REAL(SCpools)[4] = centS.SCs[4];
-    REAL(SCpools)[5] = centS.SCs[5];
-    REAL(SCpools)[6] = centS.SCs[6];
-    REAL(SCpools)[7] = centS.SCs[7];
-    REAL(SCpools)[8] = centS.SCs[8];
+    REAL(SCpools)[0] = results->centS.SCs[0];
+    REAL(SCpools)[1] = results->centS.SCs[1];
+    REAL(SCpools)[2] = results->centS.SCs[2];
+    REAL(SCpools)[3] = results->centS.SCs[3];
+    REAL(SCpools)[4] = results->centS.SCs[4];
+    REAL(SCpools)[5] = results->centS.SCs[5];
+    REAL(SCpools)[6] = results->centS.SCs[6];
+    REAL(SCpools)[7] = results->centS.SCs[7];
+    REAL(SCpools)[8] = results->centS.SCs[8];
 
-    REAL(SNpools)[0] = centS.SNs[0];
-    REAL(SNpools)[1] = centS.SNs[1];
-    REAL(SNpools)[2] = centS.SNs[2];
-    REAL(SNpools)[3] = centS.SNs[3];
-    REAL(SNpools)[4] = centS.SNs[4];
-    REAL(SNpools)[5] = centS.SNs[5];
-    REAL(SNpools)[6] = centS.SNs[6];
-    REAL(SNpools)[7] = centS.SNs[7];
-    REAL(SNpools)[8] = centS.SNs[8];
+    REAL(SNpools)[0] = results->centS.SNs[0];
+    REAL(SNpools)[1] = results->centS.SNs[1];
+    REAL(SNpools)[2] = results->centS.SNs[2];
+    REAL(SNpools)[3] = results->centS.SNs[3];
+    REAL(SNpools)[4] = results->centS.SNs[4];
+    REAL(SNpools)[5] = results->centS.SNs[5];
+    REAL(SNpools)[6] = results->centS.SNs[6];
+    REAL(SNpools)[7] = results->centS.SNs[7];
+    REAL(SNpools)[8] = results->centS.SNs[8];
 
     SET_VECTOR_ELT(lists,0,DayofYear);
     SET_VECTOR_ELT(lists,1,Hour);

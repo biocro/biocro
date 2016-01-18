@@ -348,8 +348,6 @@ void BioGro(
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the Thermal time accumulated.*/
 
-        //LeafN = LeafN_0 * exp(-kLN * TTc);
-
 		current_state.leaf = Leaf;
 		current_state.stem = Stem;
 		current_state.root = Root;
