@@ -249,7 +249,7 @@ MCMCBioGro <- function(niter = 10, niter2=10, phen=6, iCoef=NULL,
   leafwidth <- canopyP$leafwidth
   eteq <- canopyP$eteq
   thermal_base_temperature = 0
-  initial_biomass = c(iRhizome, iStem, iRoot, iLeaf)
+  initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
   
   res <- .Call(SABioGro,as.double(data[,1]), as.double(data[,2]),
                as.double(data[,3]), as.double(data[,4]),

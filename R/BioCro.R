@@ -376,7 +376,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     leafW <- canopyP$leafwidth
     eteq <- canopyP$eteq
 	thermal_base_temperature = 0
-	initial_biomass = c(iRhizome, iStem, iRoot, iLeaf)
+	initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
     
     res <- .Call(MisGro,
                  as.double(lat),

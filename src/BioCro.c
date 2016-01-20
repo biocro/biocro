@@ -79,8 +79,8 @@ void BioGro(
 
 	double Rhizome = initial_biomass[0];
 	double Stem = initial_biomass[1];
-	double Root = initial_biomass[2];
-	double Leaf = initial_biomass[3];
+	double Leaf = initial_biomass[2];
+	double Root = initial_biomass[3];
 
     int i, i3;
 

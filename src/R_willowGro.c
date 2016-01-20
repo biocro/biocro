@@ -31,7 +31,7 @@ SEXP willowGro(
 
         SEXP HEIGHTF,          /* Height factor                      11 */
         SEXP NLAYERS,          /* Number of layers int he canopy     12 */
-        SEXP IPLANT,           /* Ini PLANT                          13 */
+        SEXP INITIAL_BIOMASS,  /* Ini PLANT                          13 */
         SEXP IRTL,             /* i rhiz to leaf                     14 */
         SEXP SENCOEFS,         /* sene coefs                         15 */
         SEXP TIMESTEP,         /* time step                          16 */
@@ -92,8 +92,7 @@ SEXP willowGro(
     //
     double heightf = REAL(HEIGHTF)[0];
     int nlayers = INTEGER(NLAYERS)[0];
-    //
-    // rtl= REAL(IRTL)[0];  set but not used
+	double *initial_biomass = REAL(INITIAL_BIOMASS);
     double *sencoefs = REAL(SENCOEFS);
     int timestep = INTEGER(TIMESTEP)[0];
     int vecsize;
@@ -211,20 +210,6 @@ SEXP willowGro(
 	
 	double (*leaf_n_limitation)(double, double, struct Model_state) = biomass_leaf_nitrogen_limitation;
 
-    double newLeafcol[8760];
-    double newStemcol[8760];
-    double newRootcol[8760];
-    double newRhizomecol[8760];
-
-
-    double iRRHIZOME = REAL(IPLANT)[0];
-    double iSSTEM = REAL(IPLANT)[1];
-    double iRROOT=REAL(IPLANT)[3];
-    double ifrRRHIZOME = REAL(IPLANT)[4];
-    double ifrSSTEM = REAL(IPLANT)[5];
-    // double ifrLLEAF=REAL(IPLANT)[6]; unused
-    // double ifrRROOT=REAL(IPLANT)[7]; unused
-
     double o2 = 210;
 
     // double GPP; unused
@@ -236,9 +221,19 @@ SEXP willowGro(
     Tfrostlow = REAL(SENCOEFS)[5];
     leafdeathrate = REAL(SENCOEFS)[6];
 
+    double newLeafcol[8760];
+    double newStemcol[8760];
+    double newRootcol[8760];
+    double newRhizomecol[8760];
+
+    double Rhizome = initial_biomass[0];
+    double Stem = initial_biomass[1];
+    double Leaf = initial_biomass[2];
+    double Root = initial_biomass[3];
+
     int i, i3;
 
-    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
+    double LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
     double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
@@ -296,13 +291,7 @@ SEXP willowGro(
     struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
     soTexS = soilTchoose(soilType);
 
-    /* It is useful to assume that there is a small amount of
-       leaf area at the begining of the growing season. */
-    Leaf = iRRHIZOME * ifrRRHIZOME + iSSTEM*ifrSSTEM; 	
-    Stem = iSSTEM*(1 - ifrSSTEM); 
-    Root = iRROOT;
     LAI = Leaf * Sp;
-    Rhizome = iRRHIZOME*(1 - ifrRRHIZOME);
 
     /* Creation of pointers outside the loop */
     sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
