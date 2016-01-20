@@ -27,8 +27,7 @@ void BioGro(
         int et_equation,              /* Integer to indicate ET equation    12 */
         double heightf,               /* Height factor                      13 */
         int nlayers,                  /* Number of layers in the canopy     14 */
-        double iRhizome,              /* Ini Rhiz                           15 */
-        double irtl,                  /* i rhiz to leaf                     16 */
+		double initial_biomass[4],
         double sencoefs[],            /* sene coefs                         17 */
         int timestep,                 /* time step                          18 */
         int vecsize,                  /* vector size                        19 */
@@ -36,7 +35,7 @@ void BioGro(
         double SpD,                   /* Spec Lefa Area Dec                 21 */
         double dbpcoefs[25],          /* Dry Bio Coefs                      22 */
         double thermalp[],            /* Themal Periods                     23 */
-        double tbase                  /* Base temperature for thermal time     */
+        double tbase,                 /* Base temperature for thermal time     */
         double vmax1,                 /* Vmax of photo                      24 */
         double alpha1,                /* Quantum yield                      25 */
         double kparm,                 /* k parameter (photo)                26 */
@@ -78,9 +77,14 @@ void BioGro(
     double newRootcol[8760];
     double newRhizomecol[8760];
 
+	double Rhizome = initial_biomass[0];
+	double Stem = initial_biomass[1];
+	double Root = initial_biomass[2];
+	double Leaf = initial_biomass[3];
+
     int i, i3;
 
-    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
+    double LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
     double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
@@ -138,14 +142,6 @@ void BioGro(
     struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
     soTexS = soilTchoose(soilType);
 
-    Rhizome = iRhizome;
-    /* It is useful to assume that there is a small amount of
-       leaf area at the begining of the growing season. */
-    Leaf = Rhizome * irtl;
-    /* Initial proportion of the rhizome that is turned
-       into leaf the first hour */
-    Stem = Rhizome * 0.001;
-    Root = Rhizome * 0.001;
     LAI = Leaf * Sp;
 
     /* Creation of pointers outside the loop */
@@ -206,7 +202,8 @@ void BioGro(
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, alpha, kparm, beta,
                 Rd, Catm, b0, b1, theta, kd, chil,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation, StomataWS, ws);
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT,
+				nitroP, leafwidth, et_equation, StomataWS, ws);
 
         CanopyA = Canopy.Assim * timestep;
         CanopyT = Canopy.Trans * timestep;

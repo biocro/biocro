@@ -74,8 +74,8 @@ struct Light_model {
 
 void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
         double windspeed[], double precip[], double kd, double chil, double leafwidth, int et_equation,
-        double heightf, int nlayers,
-        double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
+        double heightf, int nlayers, double initial_biomass[4],
+        double sencoefs[], int timestep, int vecsize,
         double Sp, double SpD, double dbpcoefs[25], double thermalp[], double tbase, double vmax1, 
         double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,

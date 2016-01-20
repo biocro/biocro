@@ -206,6 +206,11 @@ SEXP willowGro(
     PROTECT(SNpools = allocVector(REALSXP, 9));
     PROTECT(LeafPsimVec = allocVector(REALSXP, vecsize));
 
+    struct BioGro_results_str *results = malloc(sizeof(struct BioGro_results_str));
+    initialize_biogro_results(results, soilLayers, vecsize);
+	
+	double (*leaf_n_limitation)(double, double, struct Model_state) = biomass_leaf_nitrogen_limitation;
+
     double newLeafcol[8760];
     double newStemcol[8760];
     double newRootcol[8760];
@@ -214,7 +219,6 @@ SEXP willowGro(
 
     double iRRHIZOME = REAL(IPLANT)[0];
     double iSSTEM = REAL(IPLANT)[1];
-    double iLLEAF=REAL(IPLANT)[2];
     double iRROOT=REAL(IPLANT)[3];
     double ifrRRHIZOME = REAL(IPLANT)[4];
     double ifrSSTEM = REAL(IPLANT)[5];
@@ -232,7 +236,7 @@ SEXP willowGro(
     Tfrostlow = REAL(SENCOEFS)[5];
     leafdeathrate = REAL(SENCOEFS)[6];
 
-    int i, i2, i3;
+    int i, i3;
 
     double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
@@ -294,12 +298,10 @@ SEXP willowGro(
 
     /* It is useful to assume that there is a small amount of
        leaf area at the begining of the growing season. */
-    iLLEAF = iRRHIZOME * ifrRRHIZOME + iSSTEM*ifrSSTEM; 	
-    LAI = iLLEAF * Sp;
-    // initialization based on iPlant 
+    Leaf = iRRHIZOME * ifrRRHIZOME + iSSTEM*ifrSSTEM; 	
     Stem = iSSTEM*(1 - ifrSSTEM); 
-    Leaf = iLLEAF;
     Root = iRROOT;
+    LAI = Leaf * Sp;
     Rhizome = iRRHIZOME*(1 - ifrRRHIZOME);
 
     /* Creation of pointers outside the loop */
@@ -358,15 +360,49 @@ SEXP willowGro(
 
         Canopy = c3CanAC(LAI, doy[i], hour[i],
                 solar[i], temp[i], rh[i], windspeed[i],
-                lat, nlayers, vmax, jmax1, Rd, Catm, o2, b0, b1, theta, kd,
+                lat, nlayers, vmax, jmax1,
+				Rd, Catm, o2, b0, b1, theta, kd,
                 heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomataWS, ws);
 
         CanopyA = Canopy.Assim * timestep * (1.0 - GrowthRespFraction);
         CanopyT = Canopy.Trans * timestep;
 
-        /*Rprintf("%f,%f,%f\n",Canopy,CanopyA,GPP);*/      
-        /* Inserting the multilayer model */
-        /*Rprintf("%f,%f,%f,%f\n",StomataWS,LeafWS,kLeaf,newLeaf);*/
+        /* if(ISNAN(Leaf)) { */
+        /*    Rprintf("Leaf %.2f \n",Leaf); */
+        /*    Rprintf("kLeaf %.2f \n",kLeaf); */
+        /*    Rprintf("newLeaf %.2f \n",newLeaf); */
+        /*    Rprintf("LeafWS %.2f \n",LeafWS); */
+        /*    error("something is NA \n"); */
+        /* } */
+
+        /* if(ISNAN(CanopyA)) { */
+        /*    Rprintf("LAI %.2f \n",LAI);  */
+        /*    Rprintf("Leaf %.2f \n",Leaf); */
+        /*    Rprintf("irtl %.2f \n", irtl); */
+        /*    Rprintf("Rhizome %.2f \n",Rhizome); */
+        /*    Rprintf("Sp %.2f \n",Sp);    */
+        /*    Rprintf("vmax1 %.2f \n",vmax1); */
+        /*    Rprintf("alpha1 %.2f \n",alpha1); */
+        /*    Rprintf("kparm %.2f \n",kparm); */
+        /*    Rprintf("theta %.2f \n",theta); */
+        /*    Rprintf("beta %.2f \n",beta); */
+        /*    Rprintf("Rd %.2f \n",Rd);  */
+        /*    Rprintf("Catm %.2f \n",Catm); */
+        /*    Rprintf("b01 %.2f \n",b01); */
+        /*    Rprintf("b11 %.2f \n",b11); */
+        /*    Rprintf("StomataWS %.2f \n",StomataWS); */
+        /*    Rprintf("kd %.2f \n",kd);                  */
+        /*    Rprintf("Sp %.2f \n",Sp);                   */
+        /*    Rprintf("doy[i] %.i %.i \n",i,doy[i]);  */
+        /*    Rprintf("hour[i] %.i %.i \n",i,hour[i]); */
+        /*    Rprintf("solar[i] %.i %.2f \n",i,solar[i]); */
+        /*    Rprintf("temp[i] %.i %.2f \n",i,temp[i]); */
+        /*    Rprintf("rh[i] %.i %.2f \n",i,rh[i]); */
+        /*    Rprintf("windspeed[i] %.i %.2f \n",i,windspeed[i]); */
+        /*    Rprintf("lat %.i %.2f \n",i,lat); */
+        /*    Rprintf("nlayers %.i %.i \n",i,nlayers);    */
+        /*    error("something is NA \n"); */
+        /* } */
 
         /* Inserting the multilayer model */
         if(soilLayers > 1) {
@@ -831,6 +867,7 @@ SEXP willowGro(
     SET_STRING_ELT(names,28,mkChar("LeafPsimVec"));
     setAttrib(lists,R_NamesSymbol,names);
     UNPROTECT(31);
+    free_biogro_results(results);
     return(lists);
 }
 

@@ -244,7 +244,7 @@
 ##' @export
 BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,
-                   lat=40,iRhizome=7,irtl=1e-4,
+                   lat=40,iRhizome=7, iLeaf = iRhizome * 1e-4, iStem = iRhizome * 1e-3, iRoot = iRhizome * 1e-3,
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
@@ -375,6 +375,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     nlayers <- canopyP$nlayers
     leafW <- canopyP$leafwidth
     eteq <- canopyP$eteq
+	thermal_base_temperature = 0
+	initial_biomass = c(iRhizome, iStem, iRoot, iLeaf)
     
     res <- .Call(MisGro,
                  as.double(lat),
@@ -391,8 +393,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(eteq),
                  as.double(heightF),
                  as.integer(nlayers),
-                 as.double(iRhizome),
-                 as.double(irtl),
+				 as.double(initial_biomass),
                  as.double(SENcoefs),
                  as.integer(timestep),
                  as.integer(vecsize),
@@ -400,6 +401,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(SpD),
                  as.double(DBPcoefs),
                  as.double(TPcoefs),
+				 as.double(thermal_base_temperature),
                  as.double(vmax),
                  as.double(alpha),
                  as.double(kparm),

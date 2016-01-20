@@ -27,8 +27,7 @@ SEXP MisGro(
         SEXP ET_EQUATION,      /* Integer to indicate ET equation    12 */
         SEXP HEIGHTF,          /* Height factor                      13 */
         SEXP NLAYERS,          /* Number of layers in the canopy     14 */
-        SEXP IRHIZOME,         /* Ini Rhiz                           15 */
-        SEXP IRTL,             /* i rhiz to leaf                     16 */
+		SEXP INITIAL_BIOMASS,
         SEXP SENCOEFS,         /* sene coefs                         17 */
         SEXP TIMESTEP,         /* time step                          18 */
         SEXP VECSIZE,          /* vector size                        19 */
@@ -36,6 +35,7 @@ SEXP MisGro(
         SEXP SPD,              /* Spec Lefa Area Dec                 21 */
         SEXP DBPCOEFS,         /* Dry Bio Coefs                      22 */
         SEXP THERMALP,         /* Themal Periods                     23 */
+		SEXP THERMAL_BASE_TEMP,/* Base temperature of GDD               */
         SEXP VMAX,             /* Vmax of photo                      24 */
         SEXP ALPHA,            /* Quantum yield                      25 */
         SEXP KPARM,            /* k parameter (photo)                26 */
@@ -85,8 +85,7 @@ SEXP MisGro(
     int et_equation = REAL(ET_EQUATION)[0]; /* It comes as a REAL but I use an integer from here on */
     double heightf = REAL(HEIGHTF)[0];
     int nlayers = INTEGER(NLAYERS)[0];
-    double iRhizome = REAL(IRHIZOME)[0];
-    double irtl = REAL(IRTL)[0];
+	double *initial_biomass = REAL(INITIAL_BIOMASS);
     double *sencoefs = REAL(SENCOEFS);
     int timestep = INTEGER(TIMESTEP)[0];
     int vecsize;
@@ -94,6 +93,7 @@ SEXP MisGro(
     double SpD = REAL(SPD)[0];
     double *dbpcoefs = REAL(DBPCOEFS);
     double *thermalp = REAL(THERMALP);
+	double thermal_base_temperature = REAL(THERMAL_BASE_TEMP)[0];
     double vmax1 = REAL(VMAX)[0];
     double alpha1 = REAL(ALPHA)[0];
     double kparm = REAL(KPARM)[0];
@@ -217,9 +217,9 @@ SEXP MisGro(
 
     BioGro(lat, doy, hr, solar, temp, rh,
             windspeed, precip, kd, chil,
-            leafwidth, et_equation, heightf, nlayers, iRhizome,
-            irtl, sencoefs, timestep, vecsize,
-            Sp, SpD, dbpcoefs, thermalp,
+            leafwidth, et_equation, heightf, nlayers, initial_biomass,
+            sencoefs, timestep, vecsize,
+            Sp, SpD, dbpcoefs, thermalp, thermal_base_temperature,
             vmax1, alpha1, kparm, theta, beta, Rd, Catm, b0, b1, soilcoefs, ileafn, kLN,
             vmaxb1, alphab1, mresp, soilType, wsFun,
             ws, centcoefs, centTimestep, centks,
