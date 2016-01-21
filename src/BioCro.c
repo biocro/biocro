@@ -69,6 +69,7 @@ void BioGro(
         double upperT,                /* Upper photoParm temperature limit  54 */
         double lowerT,                /* Lower photoParm temperature limit  55 */
         struct nitroParms nitroP,     /* Nitrogen parameters                56 */
+		double StomataWS,
 		double (*leaf_n_limitation)(double, double, struct Model_state),
     	struct BioGro_results_str *results)
 {
@@ -103,7 +104,7 @@ void BioGro(
     int k = 0, q = 0, m = 0, n = 0;
     int ri = 0;
 
-    double StomataWS = 1, LeafWS = 1;
+    double LeafWS;
     double CanopyA, CanopyT;
     double LeafN_0 = ileafn;
     double LeafN = ileafn; /* Need to set it because it is used by CanA before it is computed */

@@ -96,7 +96,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	      SEXP SCALE, SEXP SD, SEXP PHEN, 
 	      SEXP SOILLAYERS, SEXP SOILDEPTHS, 
 	      SEXP CWS, SEXP HYDRDIST, SEXP SECS, 
-	      SEXP NCOEFS, SEXP LNFUN,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP)
+	      SEXP NCOEFS, SEXP LNFUN,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP, SEXP STOMWS)
 {
        
 	// compatibility with CanAC to pass alpha parameters
@@ -129,6 +129,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	int n1 = 0, n2 = 0;
     double upperT=REAL(UPPERTEMP)[0];
 	double lowerT=REAL(LOWERTEMP)[0];
+	double StomWS = REAL(STOMWS)[0];
 	double *initial_biomass = REAL(INITIAL_BIOMASS);
 
 	/* The all important vector size */
@@ -571,7 +572,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       vmaxb1, alphab1, REAL(MRESP), INTEGER(SOILTYPE)[0], INTEGER(WSFUN)[0],
 		       INTEGER(WS)[0], REAL(CENTCOEFS), INTEGER(CENTTIMESTEP)[0], REAL(CENTKS),
 		       INTEGER(SOILLAYERS)[0], REAL(SOILDEPTHS), REAL(CWS), INTEGER(HYDRDIST)[0], 
-		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, thermal_leaf_nitrogen_limitation, results);
+		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, StomWS, thermal_leaf_nitrogen_limitation, results);
 
 		/* pick the needed elements for the SSE */
 		for(k=0; k<Ndat; k++) {
@@ -857,7 +858,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       vmaxb1, alphab1, REAL(MRESP), INTEGER(SOILTYPE)[0], INTEGER(WSFUN)[0],
 		       INTEGER(WS)[0], REAL(CENTCOEFS), INTEGER(CENTTIMESTEP)[0], REAL(CENTKS),
 		       INTEGER(SOILLAYERS)[0], REAL(SOILDEPTHS), REAL(CWS), INTEGER(HYDRDIST)[0],
-		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, thermal_leaf_nitrogen_limitation, results);
+		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, StomWS, thermal_leaf_nitrogen_limitation, results);
 
 		/* pick the needed elements for the SSE */
 		for(k=0;k<Ndat;k++){

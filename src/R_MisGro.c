@@ -68,7 +68,8 @@ SEXP MisGro(
         SEXP LNFUN,            /* Leaf N func flag                   53 */
         SEXP UPPERTEMP,        /* Upper photoParm temperature limit  54 */
         SEXP LOWERTEMP,        /* Lower photoParm temperature limit  55 */
-        SEXP NNITROP)          /* Nitrogen parameters                56 */
+        SEXP NNITROP,          /* Nitrogen parameters                56 */
+		SEXP STOMWS)
 {
     /* Creating pointers to avoid calling functions REAL and INTEGER so much */
     double lat = REAL(LAT)[0];
@@ -128,6 +129,7 @@ SEXP MisGro(
     double lowerT = REAL(LOWERTEMP)[0];
     /*Reading NitroP Variables */
     struct nitroParms nitrop;
+	double StomWS = REAL(STOMWS)[0];
     double TEMPdoubletoint;
     nitrop.ileafN = REAL(NNITROP)[0];
     nitrop.kln = REAL(NNITROP)[1];
@@ -224,7 +226,7 @@ SEXP MisGro(
             vmaxb1, alphab1, mresp, soilType, wsFun,
             ws, centcoefs, centTimestep, centks,
             soilLayers, soilDepths, cws, hydrDist,
-            secs, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, biomass_leaf_nitrogen_limitation, results);
+            secs, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, StomWS, biomass_leaf_nitrogen_limitation, results);
 
 
     for(int i = 0; i < vecsize; i++) {
