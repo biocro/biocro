@@ -10,8 +10,6 @@
 #include "AuxBioCro.h"
 #include "CanA.h"
 
-int enObs;
-
 /*%Second section for defining functions*/
 double eC4photoC(double QP, double TEMP, double RH, double CA,
 		double OA, double VCMAX, double VPMAX, double VPR,
@@ -500,10 +498,10 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
 /* In this section the McMCec4photo is included this is a work in 
 progress!*/
 
-double RsqeC4photo(double oAssim[enObs], double oQp[enObs], 
-		  double oTemp[enObs],  double oRH[enObs],
+double RsqeC4photo(double oAssim[], double oQp[], 
+		  double oTemp[],  double oRH[],
 		  double Ca, double Oa,  double Vcmax,
-		  double Vpmax, double Vpr, double Jmax );
+		  double Vpmax, double Vpr, double Jmax, int enObs );
 
 SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 		  SEXP oRelH, SEXP NITER, SEXP iCA,
@@ -511,7 +509,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 		  SEXP iJMAX,  SEXP THRESH, SEXP SCALE){
   /* First manipulate R objects */
   int niter;
-  enObs = length(oASSIM);
+  int enObs = length(oASSIM);
   niter = INTEGER(NITER)[0];
 
   /* Second define the needed variables */
@@ -614,7 +612,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
      /* Finish of the rnormCV function */
       Rsq = RsqeC4photo(assim,qp,temp,rh,Ca,Oa,
 		       rnewVcmax,rnewVpmax,rnewVpr,
-		       rnewJmax);
+		       rnewJmax, enObs);
 
       if(Rsq > oldRsq){
 	oldRsq = Rsq;
@@ -664,7 +662,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 
       Rsq = RsqeC4photo(assim,qp,temp,rh,Ca,Oa,
 		       rnewVcmax,rnewVpmax,rnewVpr,
-		       rnewJmax);
+		       rnewJmax, enObs);
 
         if(Rsq > poldRsq){
 	  /* This time I'm suming to avoid overflow */
@@ -734,10 +732,10 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 /* Calculates R-sq according to the Collatz model */
 /* and given values for the two most important */
 /* parameters Vcmax and alpha */
-double RsqeC4photo(double oAssim[enObs], double oQp[enObs], 
-		  double oTemp[enObs],  double oRH[enObs],
+double RsqeC4photo(double oAssim[], double oQp[], 
+		  double oTemp[],  double oRH[],
 		  double COa, double O2a,  double Vcmax,
-		  double Vpmax, double Vpr, double Jmax ){
+		  double Vpmax, double Vpr, double Jmax, int enObs ){
 
   double vec1[enObs];
   int i, j;
