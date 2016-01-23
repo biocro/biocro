@@ -99,7 +99,6 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
                  SEXP CATM, SEXP B0, SEXP B1, SEXP STOMWS,
                  SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR,SEXP UPPERTEMP, SEXP LOWERTEMP){
 	/* First manipulate R objects */
-	extern int nObs;
 	int niter;
 	nObs = length(ASSIM);
 	niter = INTEGER(NITER)[0];
@@ -178,7 +177,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 	  
 		lratio = log(rnum) - log(rden); 
 
-		RSS = RSS_C4photo(REAL(ASSIM),REAL(QP),REAL(TEMP),REAL(RH),rnewVcmax,rnewAlpha, ikparm, itheta, ibeta, Rd, Catm, b0, b1, StomWS, ws,upperT,lowerT);
+		RSS = RSS_C4photo(REAL(ASSIM),REAL(QP),REAL(TEMP),REAL(RH),rnewVcmax,rnewAlpha, ikparm, itheta, ibeta, Rd, Catm, b0, b1, StomWS, ws,upperT,lowerT, nObs);
 
 /*       mr = (exp(-RSS) / exp(-oldRSS)) * ratio; */
 /* In the previous expression we can take  the log and have instead the 
