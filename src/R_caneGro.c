@@ -331,7 +331,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
     ///////////////////////////////////////////////////////////
 
-    int i, i2, i3;
+    int i, i3;
 
     double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0;
     double TTc = 0.0;
@@ -887,6 +887,11 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         REAL(SoilEvaporation)[i] = soilEvap;
         REAL(LeafPsimVec)[i] = LeafPsim;
 
+        for(int layer = 0; layer < soilLayers; layer++) {
+            REAL(psimMat)[layer + i * soilLayers] = psi[layer + i * soilLayers];
+            REAL(cwsMat)[layer + i * soilLayers] = water_status[layer + i * soilLayers];
+            REAL(rdMat)[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
+        }
 
     }
 
