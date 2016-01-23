@@ -267,11 +267,10 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 /* Calculates RSS according to the Collatz model */
 /* and given values for the two most important */
 /* parameters Vcmax and alpha */
-double RSS_C4photo(double oAssim[nObs], double oQp[nObs], double oTemp[nObs], 
-		   double oRH[nObs], double vmax, double alpha, double kparm, /*\ref{eqn:Vmax}*/
+double RSS_C4photo(double oAssim[], double oQp[], double oTemp[], 
+		   double oRH[], double vmax, double alpha, double kparm, /*\ref{eqn:Vmax}*/
 		   double theta, double beta,
-                   double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT,double lowerT){ /*\ref{eqn:Rd}*/
-	extern int nObs;
+                   double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT,double lowerT, int nObs){ /*\ref{eqn:Rd}*/
 	struct c4_str tmp;
 	int i;
 	double RSS = 0.0, diff = 0.0;
