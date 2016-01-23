@@ -859,7 +859,6 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
             REAL(Rooty)[dayi] =  Root;
             REAL(Seedcaney)[dayi] = Seedcane;
             REAL(LAIc)[dayi] = LAI;
-			REAL(TTTc)[i] = TTc;
             REAL(LeafNitrogen)[dayi] = LeafN;
             REAL(AboveLitter)[dayi] = ALitter;
             REAL(BelowLitter)[dayi] = BLitter;
@@ -879,6 +878,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
         /* here I am writing REMAINING variables at hourly time step */
         REAL(Hour)[i] =  INTEGER(HR)[i];
+		REAL(TTTc)[i] = TTc;
         REAL(CanopyAssim)[i] =  CanopyA;
         REAL(CanopyTrans)[i] =  CanopyT; 
         REAL(SoilWatCont)[i] = waterCont;
