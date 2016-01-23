@@ -21,8 +21,7 @@ SEXP willowGro(
 
         SEXP HEIGHTF,          /* Height factor                      11 */
         SEXP NLAYERS,          /* Number of layers int he canopy     12 */
-        SEXP IPLANT,           /* Ini PLANT                          13 */
-        SEXP IRTL,             /* i rhiz to leaf                     14 */
+        SEXP INITIAL_BIOMASS,  /* Ini PLANT                          13 */
         SEXP SENCOEFS,         /* sene coefs                         15 */
         SEXP TIMESTEP,         /* time step                          16 */
         SEXP VECSIZE,          /* vector size                        17 */
