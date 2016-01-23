@@ -204,7 +204,7 @@ SEXP willowGro(
     PROTECT(SNpools = allocVector(REALSXP, 9));
     PROTECT(LeafPsimVec = allocVector(REALSXP, vecsize));
 
-    struct BioGro_results_str *results = malloc(sizeof(struct BioGro_results_str));
+    struct BioGro_results_str *results = (struct BioGro_results_str*)malloc(sizeof(struct BioGro_results_str));
     initialize_biogro_results(results, soilLayers, vecsize);
 	
 	double (*leaf_n_limitation)(double, double, struct Model_state) = biomass_leaf_nitrogen_limitation;

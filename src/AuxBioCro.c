@@ -1468,9 +1468,9 @@ void initialize_biogro_results(struct BioGro_results_str *results, int soil_laye
 		results->soil_evaporation[i] = 0;
 		results->leaf_psim[i] = 0;
 	}
-	results->psim = calloc(soil_layers * vector_size, sizeof(double));
-	results->water_status = calloc(soil_layers * vector_size, sizeof(double));
-	results->root_distribution = calloc(soil_layers * vector_size, sizeof(double));
+	results->psim = (double*)calloc(soil_layers * vector_size, sizeof(double));
+	results->water_status = (double*)calloc(soil_layers * vector_size, sizeof(double));
+	results->root_distribution = (double*)calloc(soil_layers * vector_size, sizeof(double));
 }
 
 void free_biogro_results(struct BioGro_results_str *results)

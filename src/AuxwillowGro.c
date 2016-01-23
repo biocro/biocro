@@ -26,9 +26,9 @@ void createCanopy (struct canopy *canopy, int Nlayers, double LAItotal)
   canopy->Idifftop=0.0;
   canopy->CosZenithAngle =0.0;
   canopy->LAItotal= LAItotal;
-  canopy->ENV =  malloc((Nlayers+1)*sizeof(*canopy->ENV));
-  canopy->Leaf = malloc((Nlayers+1)*sizeof(*canopy->Leaf));
-  canopy->OUT = malloc((Nlayers+1)*sizeof(*canopy->OUT));
+  canopy->ENV =  (struct canopyEnv*)malloc((Nlayers+1)*sizeof(*canopy->ENV));
+  canopy->Leaf = (struct canopyLeaf*)malloc((Nlayers+1)*sizeof(*canopy->Leaf));
+  canopy->OUT = (struct canopyoutput*)malloc((Nlayers+1)*sizeof(*canopy->OUT));
   for (i =0; i<Nlayers; i++)
   {
       canopy->ENV[i].Idir=0.0;

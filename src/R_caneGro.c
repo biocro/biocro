@@ -292,10 +292,10 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     double **canopy3Dstructure;
     int ihere,jhere;
 
-    canopy3Dstructure =  malloc(nrows * sizeof(double *));
+    canopy3Dstructure =  (double**)malloc(nrows * sizeof(double *));
 
     for(ihere = 0; ihere < nrows; ihere++) {
-        canopy3Dstructure[ihere] =  malloc((ncols+2) * sizeof(double));
+        canopy3Dstructure[ihere] =  (double*)malloc((ncols+2) * sizeof(double));
     }
     // Initializing the canopy matrix
     for (ihere = 0; ihere < nrows; ihere++) {
@@ -305,25 +305,25 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     }
     /*********************************************************/
 
-    double *newLeafcol = malloc(vecsize*sizeof(double));
+    double *newLeafcol = (double*)malloc(vecsize*sizeof(double));
     if(newLeafcol==NULL) { 
         Rprintf("Out of Memory for newLeafcol\n");
         return((SEXP)1);
     }
 
-    double *newStemcol = malloc(vecsize*sizeof(double));
+    double *newStemcol = (double*)malloc(vecsize*sizeof(double));
     if(newStemcol==NULL) { 
         Rprintf("Out of Memory for newStemcol\n");
         return((SEXP)1);
     }
 
-    double *newRootcol = malloc(vecsize*sizeof(double));
+    double *newRootcol = (double*)malloc(vecsize*sizeof(double));
     if(newRootcol==NULL) { 
         Rprintf("Out of Memory for newRootcol\n");
         return((SEXP)1);
     }
 
-    double *newRhizomecol = malloc(vecsize*sizeof(double));
+    double *newRhizomecol = (double*)malloc(vecsize*sizeof(double));
     if(newRhizomecol==NULL) { 
         Rprintf("Out of Memory for newRhizomecol\n");
         return((SEXP)1);

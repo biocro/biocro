@@ -31,8 +31,8 @@ void ComputeReadParameters(char *FileName,int *StartDay,int *EndDay,double *Delt
     fscanf(InputFile,"%c %lf %lf %lf %lf %lf %lf %lf \n",&Star,&Senescence->Leaf,&Senescence->Stem,&Senescence->Flower,
            &Senescence->Grain,&Senescence->Root,&Senescence->Rhizome,&Senescence->Nodule); // Senescence parameters
     fscanf(InputFile,"%c %lf %i \n",&Star,TBase,Stages);
-    *StageThermalTime = malloc((*Stages)*(sizeof(double)));
-	*PartitionCoefficients = malloc((*Stages)*(sizeof(struct PlantParts)));
+    *StageThermalTime = (double*)malloc((*Stages)*(sizeof(double)));
+	*PartitionCoefficients = (struct PlantParts*)malloc((*Stages)*(sizeof(struct PlantParts)));
 	for(PartitionLoop=0;PartitionLoop<*Stages;PartitionLoop++){
         fscanf(InputFile,"%c %lf %lf %lf %lf %lf %lf %lf %lf \n",&Star,&(*StageThermalTime)[PartitionLoop],
                &(*PartitionCoefficients)[PartitionLoop].Leaf,&(*PartitionCoefficients)[PartitionLoop].Stem,

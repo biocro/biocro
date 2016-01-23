@@ -119,7 +119,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	nitroparms.minln=REAL(NNITROP)[13];
 	nitroparms.daymaxln=REAL(NNITROP)[14];
 
-	struct BioGro_results_str *results = malloc(sizeof(struct BioGro_results_str));
+	struct BioGro_results_str *results = (struct BioGro_results_str*)malloc(sizeof(struct BioGro_results_str));
     initialize_biogro_results(results, INTEGER(SOILLAYERS)[0], INTEGER(VECSIZE)[0]);
 
 	/* Index variables */
