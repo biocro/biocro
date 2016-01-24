@@ -4,14 +4,6 @@
 #include "AuxBioCro.h"
 #include "Century.h"
 
-double CanopyAssim[8760];
-double Leafy[8760];
-double Stemy[8760];
-double Rooty[8760];
-double Rhizomey[8760];
-double Grainy[8760];
-double LAIc[8760];
-
 struct BioGro_results_str {
 	double day_of_year[8760];
 	double hour[8760];
@@ -74,14 +66,14 @@ struct Light_model {
 
 void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
         double windspeed[], double precip[], double kd, double chil, double leafwidth, int et_equation,
-        double heightf, int nlayers,
-        double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
-        double Sp, double SpD, double dbpcoefs[25], double thermalp[], double vmax1, 
+        double heightf, int nlayers, double initial_biomass[4],
+        double sencoefs[], int timestep, int vecsize,
+        double Sp, double SpD, double dbpcoefs[25], double thermalp[], double tbase, double vmax1, 
         double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,
         double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
         int centTimestep, double centks[], int soilLayers, double soilDepths[],
-        double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP,
+        double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP, double StomataWS,
 		double (*leaf_n_limitation)(double kLn, double leaf_n_0, struct Model_state current_state), struct BioGro_results_str *results);
 
 struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,

@@ -276,7 +276,7 @@
 
 willowGro <- function(WetDat, day1=120, dayn=300,
                    timestep=1,
-                   lat=40, iRhizome=1.0,irtl=1e-4,iPlant=1,
+                   lat=40, iRhizome=0.99, iLeaf = 0.02, iStem = 0.99, iRoot = 1, 
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
@@ -288,10 +288,6 @@ willowGro <- function(WetDat, day1=120, dayn=300,
   {
   
     ## Getting the Parameters
-    
-    iPlant <-iwillowParms()
-    iPlant[names(iPlantControl)]<-iPlantControl
-    
     canopyP <- willowcanopyParms()
     canopyP[names(canopyControl)] <- canopyControl
     
@@ -333,8 +329,6 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     if((min(hr) < 0) | (max(hr) > 23))
       stop("hr should be between 0 and 23")
 
-    iPlant<-as.vector(unlist(iPlant))
-    
     DBPcoefs <- valid_dbp(as.vector(unlist(willowphenoP)[7:31]))
 
     TPcoefs <- as.vector(unlist(willowphenoP)[1:6])
@@ -382,6 +376,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     GrowthRespFraction <- canopyP$GrowthRespFraction
     o2 <- photoP$O2
     StomWS <-photoP$StomWS
+	initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
 
     res <- .Call("willowGro",
                  as.double(lat),
@@ -398,8 +393,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
 
                  as.double(heightF),
                  as.integer(nlayers),
-                 as.double(iPlant),
-                 as.double(irtl),
+                 as.double(initial_biomass),
                  as.double(SENcoefs),
                  as.integer(timestep),
                  as.integer(vecsize),

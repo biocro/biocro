@@ -9,9 +9,9 @@
 #include <math.h>
 #include "c4photo.h"
 #include "c3photo.h"
-#include "AuxBioCro.h"
+#include "BioCro.h"
 #include "CanA.h"
-#include "R_c3CanA.h"
+#include "c3EvapoTrans.h"
 
 /* c3CanA function */
 /* This file will contain the function which will consolidate
@@ -177,7 +177,7 @@ SEXP c3CanA(SEXP Lai,
 		Leafsun = LAIc * pLeafsun;
 		/* Need a new evapo transpiration function specifically for c3*/
 		tmp5_ET = c3EvapoTrans(IDir,Itot,Temp,rh,WindS,LAIc,CanHeight,
-				vmax1,jmax1,Rd1,b01,b11,Catm,210,theta);
+				vmax1,jmax1,Rd1,b01,b11,Catm,210,theta, StomWS, ws);
 		TempIdir = Temp + tmp5_ET.Deltat;
 		tmpc3 = c3photoC(IDir,TempIdir,rh,vmax1,jmax1,Rd1,b01,b11,Catm,O2,theta,StomWS,ws);
 		AssIdir = tmpc3.Assim;
@@ -186,7 +186,7 @@ SEXP c3CanA(SEXP Lai,
 		pLeafshade = light_profile.shaded_fraction[current_layer];
 		Leafshade = LAIc * pLeafshade;
 		tmp6_ET = c3EvapoTrans(IDiff,Itot,Temp,rh,WindS,LAIc,CanHeight,
-				vmax1,jmax1,Rd1,b01,b11,Catm,210,theta);
+				vmax1,jmax1,Rd1,b01,b11,Catm,210,theta, StomWS, ws);
 		TempIdiff = Temp + tmp6_ET.Deltat;
 		tmpc32 = c3photoC(IDiff,TempIdiff,rh,vmax1,jmax1,Rd1,b01,b11,Catm,O2,theta,StomWS,ws);
 		AssIdiff = tmpc32.Assim;

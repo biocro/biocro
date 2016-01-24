@@ -2,7 +2,6 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"
@@ -11,10 +10,10 @@
 void createNULLmiscanthus(struct miscanthus *miscanthus,int vecsize)
 {
    int i;
-   miscanthus->leafvec=malloc((vecsize+1)*sizeof(*miscanthus->leafvec));
-   miscanthus->stemvec=malloc((vecsize+1)*sizeof(*miscanthus->stemvec));
-   miscanthus->rootvec=malloc((vecsize+1)*sizeof(*miscanthus->rootvec));
-   miscanthus->rhizomevec=malloc((vecsize+1)*sizeof(*miscanthus->rhizomevec));
+   miscanthus->leafvec=(struct dailyvec*)malloc((vecsize+1)*sizeof(*miscanthus->leafvec));
+   miscanthus->stemvec=(struct dailyvec*)malloc((vecsize+1)*sizeof(*miscanthus->stemvec));
+   miscanthus->rootvec=(struct dailyvec*)malloc((vecsize+1)*sizeof(*miscanthus->rootvec));
+   miscanthus->rhizomevec=(struct dailyvec*)malloc((vecsize+1)*sizeof(*miscanthus->rhizomevec));
   
    for (i = 0; i<=vecsize;i++)
    {

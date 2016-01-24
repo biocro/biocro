@@ -18,5 +18,22 @@ double TempToLHV(double Temp);
 double TempToSFS(double Temp);
 double TempToSWVC(double Temp);
 
+struct ET_Str c3EvapoTrans(double Rad, 
+			   double Itot, 
+			   double Airtemperature, 
+			   double RH,
+			   double WindSpeed,
+			   double LeafAreaIndex, 
+			   double CanopyHeight, 
+			   double vcmax2, 
+			   double jmax2, 
+			   double Rd2, 
+			   double b02, 
+			   double b12,
+			   double Catm2,
+			   double O2,
+			   double theta2,
+			   double StomWS,
+			   int ws);
 #endif
 

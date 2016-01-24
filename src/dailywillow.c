@@ -2,7 +2,6 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"
@@ -21,10 +20,10 @@ void UpdateC3treeAfterEmergence(struct c3tree *willow,struct management *managem
 void createNULLwillow(struct c3tree *willow,int vecsize)
 {
    int i;
-   willow->leafvec=malloc((vecsize+1)*sizeof(*willow->leafvec));
-   willow->stemvec=malloc((vecsize+1)*sizeof(*willow->stemvec));
-   willow->rootvec=malloc((vecsize+1)*sizeof(*willow->rootvec));
-   willow->rhizomevec=malloc((vecsize+1)*sizeof(*willow->rhizomevec));
+   willow->leafvec = (struct dailyvec*)malloc((vecsize+1)*sizeof(*willow->leafvec));
+   willow->stemvec = (struct dailyvec*)malloc((vecsize+1)*sizeof(*willow->stemvec));
+   willow->rootvec = (struct dailyvec*)malloc((vecsize+1)*sizeof(*willow->rootvec));
+   willow->rhizomevec = (struct dailyvec*)malloc((vecsize+1)*sizeof(*willow->rhizomevec));
   
    for (i = 0; i<=vecsize;i++)
    {

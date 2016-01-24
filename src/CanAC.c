@@ -3,7 +3,6 @@
 #include <Rinternals.h>
 #include "BioCro.h"
 #include "c4photo.h"
-#include "AuxBioCro.h"
 
 struct Can_Str CanAC(double LAI,
         int DOY,

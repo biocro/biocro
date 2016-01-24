@@ -17,6 +17,6 @@ double biomass_leaf_nitrogen_limitation(double kLn, double leaf_n_0, struct Mode
 {
 	double leaf_n = 0;
 	leaf_n = leaf_n_0 * pow(current_state.leaf + current_state.stem, -kLn);
-	return(leaf_n > leaf_n_0 ? leaf_n_0 :  leaf_n);
+	return(leaf_n > leaf_n_0 ? leaf_n_0 : leaf_n);
 }
 

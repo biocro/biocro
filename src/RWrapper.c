@@ -10,13 +10,13 @@
 SEXP RWrapper(SEXP RParameterFileName,SEXP RWeatherFileName,SEXP ROutputFolderName){
     // C local variables (Transfer R input variables)
     int FileLength=strlen(CHAR(STRING_ELT(RParameterFileName,0)));
-    char *ParameterFileName; ParameterFileName = malloc(sizeof(char)*FileLength);
+    char *ParameterFileName; ParameterFileName = (char*)malloc(sizeof(char)*FileLength);
     strcpy(ParameterFileName,CHAR(STRING_ELT(RParameterFileName, 0)));
     FileLength=strlen(CHAR(STRING_ELT(RWeatherFileName,0)));
-    char *WeatherFileName; WeatherFileName = malloc(sizeof(char)*FileLength);
+    char *WeatherFileName; WeatherFileName = (char*)malloc(sizeof(char)*FileLength);
     strcpy(WeatherFileName,CHAR(STRING_ELT(RWeatherFileName, 0)));
     FileLength=strlen(CHAR(STRING_ELT(ROutputFolderName,0)));
-    char *OutputFolderName; OutputFolderName = malloc(sizeof(char)*FileLength);
+    char *OutputFolderName; OutputFolderName = (char*)malloc(sizeof(char)*FileLength);
     strcpy(OutputFolderName,CHAR(STRING_ELT(ROutputFolderName, 0)));
     // Perform computations
     soyGro(ParameterFileName,WeatherFileName,OutputFolderName);

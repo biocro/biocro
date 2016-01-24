@@ -80,7 +80,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	      SEXP DOY, SEXP HR, SEXP SOLAR, 
               SEXP TEMP, SEXP RH, SEXP WINDSPEED, 
 	      SEXP PRECIP, SEXP DBPCOEF, SEXP VECSIZE, 
-	      SEXP LAT, SEXP NLAYERS, SEXP RHIZOMEIRTL, 
+	      SEXP LAT, SEXP NLAYERS, SEXP INITIAL_BIOMASS, 
 	      SEXP SENESCTIME, SEXP TIMESTEP, 
 	      SEXP VMAX, SEXP ALPHA, SEXP KPARM, 
 	      SEXP THETA, SEXP BETA, SEXP RD, 
@@ -90,13 +90,13 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	      SEXP ALPHAB1, SEXP MRESP, SEXP SOILTYPE, 
 	      SEXP CENTCOEFS, SEXP CENTKS, SEXP CENTTIMESTEP, 
 	      SEXP KD, SEXP CHILHF, SEXP SP, 
-	      SEXP SPD, SEXP THERMALP, SEXP INDEX, 
+	      SEXP SPD, SEXP THERMAL_BASE_TEMP, SEXP THERMALP, SEXP INDEX, 
 	      SEXP NDATA, SEXP N1DAT, SEXP NITER, 
 	      SEXP NITER2, SEXP SATEMP, SEXP COOLSAMP, 
 	      SEXP SCALE, SEXP SD, SEXP PHEN, 
 	      SEXP SOILLAYERS, SEXP SOILDEPTHS, 
 	      SEXP CWS, SEXP HYDRDIST, SEXP SECS, 
-	      SEXP NCOEFS, SEXP LNFUN,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP)
+	      SEXP NCOEFS, SEXP LNFUN,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP, SEXP STOMWS)
 {
        
 	// compatibility with CanAC to pass alpha parameters
@@ -119,7 +119,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	nitroparms.minln=REAL(NNITROP)[13];
 	nitroparms.daymaxln=REAL(NNITROP)[14];
 
-	struct BioGro_results_str *results = malloc(sizeof(struct BioGro_results_str));
+	struct BioGro_results_str *results = (struct BioGro_results_str*)malloc(sizeof(struct BioGro_results_str));
     initialize_biogro_results(results, INTEGER(SOILLAYERS)[0], INTEGER(VECSIZE)[0]);
 
 	/* Index variables */
@@ -129,6 +129,9 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	int n1 = 0, n2 = 0;
     double upperT=REAL(UPPERTEMP)[0];
 	double lowerT=REAL(LOWERTEMP)[0];
+	double StomWS = REAL(STOMWS)[0];
+	double *initial_biomass = REAL(INITIAL_BIOMASS);
+
 	/* The all important vector size */
 	int vecsize;
 	vecsize = INTEGER(VECSIZE)[0];
@@ -164,7 +167,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	kLN = REAL(KLN)[0];
 
 	/* Needed variables */
-	double lati, rhizome, irtl;
+	double lati;
 	int nlayers;
 	/* Creating vectors */
 	double dbpcoef[25];
@@ -281,8 +284,6 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 	/* Picking them */
 	lati = REAL(LAT)[0];
-	rhizome = REAL(RHIZOMEIRTL)[0];
-	irtl = REAL(RHIZOMEIRTL)[1];
 	nlayers = INTEGER(NLAYERS)[0];
 	Rd = REAL(RD)[0];
 	Ca = REAL(CATM)[0];
@@ -564,14 +565,14 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 		BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
 		       REAL(WINDSPEED),REAL(PRECIP), REAL(KD)[0], REAL(CHILHF)[0], REAL(CHILHF)[2], REAL(CHILHF)[3], 
-		       REAL(CHILHF)[1],nlayers,rhizome,
-		       irtl,REAL(SENESCTIME),INTEGER(TIMESTEP)[0],vecsize,
-		       REAL(SP)[0], REAL(SPD)[0], dbpcoef, REAL(THERMALP),
+		       REAL(CHILHF)[1],nlayers, initial_biomass,
+		       REAL(SENESCTIME),INTEGER(TIMESTEP)[0],vecsize,
+		       REAL(SP)[0], REAL(SPD)[0], dbpcoef, REAL(THERMALP), REAL(THERMAL_BASE_TEMP)[0],
 		       vmax,alpha,kparm,theta,beta,Rd,Ca,b0,b1, REAL(SOILCOEFS), LeafN, kLN,
 		       vmaxb1, alphab1, REAL(MRESP), INTEGER(SOILTYPE)[0], INTEGER(WSFUN)[0],
 		       INTEGER(WS)[0], REAL(CENTCOEFS), INTEGER(CENTTIMESTEP)[0], REAL(CENTKS),
 		       INTEGER(SOILLAYERS)[0], REAL(SOILDEPTHS), REAL(CWS), INTEGER(HYDRDIST)[0], 
-		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, thermal_leaf_nitrogen_limitation, results);
+		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, StomWS, thermal_leaf_nitrogen_limitation, results);
 
 		/* pick the needed elements for the SSE */
 		for(k=0; k<Ndat; k++) {
@@ -850,14 +851,14 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
  
 		BioGro(lati,INTEGER(DOY),INTEGER(HR),REAL(SOLAR),REAL(TEMP),REAL(RH),
 		       REAL(WINDSPEED),REAL(PRECIP), REAL(KD)[0], REAL(CHILHF)[0], REAL(CHILHF)[2], REAL(CHILHF)[3], 
-		       REAL(CHILHF)[1],nlayers,rhizome,
-		       irtl,REAL(SENESCTIME),INTEGER(TIMESTEP)[0],vecsize,
-		       REAL(SP)[0], REAL(SPD)[0], dbpcoef, REAL(THERMALP),
+		       REAL(CHILHF)[1],nlayers, initial_biomass,
+		       REAL(SENESCTIME),INTEGER(TIMESTEP)[0],vecsize,
+		       REAL(SP)[0], REAL(SPD)[0], dbpcoef, REAL(THERMALP), REAL(THERMAL_BASE_TEMP)[0],
 		       vmax,alpha,kparm,theta,beta,Rd,Ca,b0,b1, REAL(SOILCOEFS), LeafN, kLN,
 		       vmaxb1, alphab1, REAL(MRESP), INTEGER(SOILTYPE)[0], INTEGER(WSFUN)[0],
 		       INTEGER(WS)[0], REAL(CENTCOEFS), INTEGER(CENTTIMESTEP)[0], REAL(CENTKS),
 		       INTEGER(SOILLAYERS)[0], REAL(SOILDEPTHS), REAL(CWS), INTEGER(HYDRDIST)[0],
-		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, thermal_leaf_nitrogen_limitation, results);
+		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, StomWS, thermal_leaf_nitrogen_limitation, results);
 
 		/* pick the needed elements for the SSE */
 		for(k=0;k<Ndat;k++){

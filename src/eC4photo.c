@@ -7,10 +7,8 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "AuxBioCro.h"
+#include "BioCro.h"
 #include "CanA.h"
-
-int enObs;
 
 /*%Second section for defining functions*/
 double eC4photoC(double QP, double TEMP, double RH, double CA,
@@ -110,7 +108,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 		pLeafsun = light_profile.sunlit_fraction[current_layer];
 		CanHeight = light_profile.height[current_layer];
 		Leafsun = LAIc * pLeafsun;
-		direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
+		direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
 		/* not the right thing to do here to add these values at the end of the ET function
 		   but just a simple fix for now. The problem is that the eC4photoC function should have its own
 		   EvapoTrans function. */
@@ -121,7 +119,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 		IDiff = light_profile.diffuse_irradiance[current_layer];
 		pLeafshade = light_profile.shaded_fraction[current_layer];
 		Leafshade = LAIc * pLeafshade;
-		diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
+		diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
 		/* not the right thing to do here to add these values at the end of the ET function
 		   but just a simple fix for now*/
 		TempIdiff = Temp + diffuse_et.Deltat;
@@ -500,10 +498,10 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
 /* In this section the McMCec4photo is included this is a work in 
 progress!*/
 
-double RsqeC4photo(double oAssim[enObs], double oQp[enObs], 
-		  double oTemp[enObs],  double oRH[enObs],
+double RsqeC4photo(double oAssim[], double oQp[], 
+		  double oTemp[],  double oRH[],
 		  double Ca, double Oa,  double Vcmax,
-		  double Vpmax, double Vpr, double Jmax );
+		  double Vpmax, double Vpr, double Jmax, int enObs );
 
 SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 		  SEXP oRelH, SEXP NITER, SEXP iCA,
@@ -511,7 +509,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 		  SEXP iJMAX,  SEXP THRESH, SEXP SCALE){
   /* First manipulate R objects */
   int niter;
-  enObs = length(oASSIM);
+  int enObs = length(oASSIM);
   niter = INTEGER(NITER)[0];
 
   /* Second define the needed variables */
@@ -614,7 +612,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
      /* Finish of the rnormCV function */
       Rsq = RsqeC4photo(assim,qp,temp,rh,Ca,Oa,
 		       rnewVcmax,rnewVpmax,rnewVpr,
-		       rnewJmax);
+		       rnewJmax, enObs);
 
       if(Rsq > oldRsq){
 	oldRsq = Rsq;
@@ -664,7 +662,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 
       Rsq = RsqeC4photo(assim,qp,temp,rh,Ca,Oa,
 		       rnewVcmax,rnewVpmax,rnewVpr,
-		       rnewJmax);
+		       rnewJmax, enObs);
 
         if(Rsq > poldRsq){
 	  /* This time I'm suming to avoid overflow */
@@ -734,10 +732,10 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 /* Calculates R-sq according to the Collatz model */
 /* and given values for the two most important */
 /* parameters Vcmax and alpha */
-double RsqeC4photo(double oAssim[enObs], double oQp[enObs], 
-		  double oTemp[enObs],  double oRH[enObs],
+double RsqeC4photo(double oAssim[], double oQp[], 
+		  double oTemp[],  double oRH[],
 		  double COa, double O2a,  double Vcmax,
-		  double Vpmax, double Vpr, double Jmax ){
+		  double Vpmax, double Vpr, double Jmax, int enObs ){
 
   double vec1[enObs];
   int i, j;

@@ -21,7 +21,6 @@
 #include <Rmath.h>
 #include <Rinternals.h>
 #include <time.h>
-#include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"
@@ -50,6 +49,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         SEXP SPD,                 /* Spec Lefa Area Dec       18 */
         SEXP DBPCOEFS,            /* Dry Bio Coefs            19 */
         SEXP THERMALP,            /* Themal Periods           20 */
+		SEXP TBASE,
         SEXP VMAX,                /* Vmax of photo            21 */
         SEXP ALPHA,               /* Quantum yield            22 */
         SEXP KPARM,               /* k parameter (photo)      23 */
@@ -100,7 +100,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     /* Creating pointers to avoid calling functions REAL and INTEGER so much */
     double lat = REAL(LAT)[0];
     int *doy = INTEGER(DOY);
-    int *hr = INTEGER(HR);
+    int *hour = INTEGER(HR);
     double *solar = REAL(SOLAR);
     double *temp = REAL(TEMP);
     double *rh = REAL(RH);
@@ -119,6 +119,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     double SpD = REAL(SPD)[0];
     double *dbpcoefs = REAL(DBPCOEFS);
     double *thermalp = REAL(THERMALP);
+	double tbase = REAL(TBASE)[0];
     double vmax1 = REAL(VMAX)[0];
     double alpha1 = REAL(ALPHA)[0];
     double kparm = REAL(KPARM)[0];
@@ -140,7 +141,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     // double *centcoefs = REAL(CENTCOEFS);
     // int centTimestep = INTEGER(CENTTIMESTEP)[0];
     // double *centks = REAL(CENTKS);
-    int soillayers = INTEGER(SOILLAYERS)[0];
+    int soilLayers = INTEGER(SOILLAYERS)[0];
     double *soilDepths = REAL(SOILDEPTHS);
     double *cws = REAL(CWS);
     double hydrDist = INTEGER(HYDRDIST)[0];
@@ -160,7 +161,6 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     // double leafREMOB = REAL(LEAFREMOBILIZE)[0]; unused
     // int optiontocalculaterootdepth = INTEGER(OPTIONTOCALCULATEROOTDEPTH)[0];
     // double rootfrontvelocity = REAL(ROOTFRONTVELOCITY)[0];
-    // double irrig = REAL(IRRIG)[0];
 
     /*Reading NitroP Variables */
     struct nitroParms nitrop;
@@ -263,9 +263,9 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     PROTECT(AlphaVec = allocVector(REALSXP, dailyvecsize));
     PROTECT(SpVec = allocVector(REALSXP, dailyvecsize));
     PROTECT(SoilEvaporation = allocVector(REALSXP, vecsize));
-    PROTECT(cwsMat = allocMatrix(REALSXP, soillayers, vecsize));
-    PROTECT(psimMat = allocMatrix(REALSXP, soillayers, vecsize));
-    PROTECT(rdMat = allocMatrix(REALSXP, soillayers, vecsize));
+    PROTECT(cwsMat = allocMatrix(REALSXP, soilLayers, vecsize));
+    PROTECT(psimMat = allocMatrix(REALSXP, soilLayers, vecsize));
+    PROTECT(rdMat = allocMatrix(REALSXP, soilLayers, vecsize));
     PROTECT(LeafPsimVec = allocVector(REALSXP, vecsize));
     PROTECT(LeafLittervec = allocVector(REALSXP, dailyvecsize));
     PROTECT(StemLittervec = allocVector(REALSXP, dailyvecsize));
@@ -291,10 +291,10 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     double **canopy3Dstructure;
     int ihere,jhere;
 
-    canopy3Dstructure =  malloc(nrows * sizeof(double *));
+    canopy3Dstructure =  (double**)malloc(nrows * sizeof(double *));
 
     for(ihere = 0; ihere < nrows; ihere++) {
-        canopy3Dstructure[ihere] =  malloc((ncols+2) * sizeof(double));
+        canopy3Dstructure[ihere] =  (double*)malloc((ncols+2) * sizeof(double));
     }
     // Initializing the canopy matrix
     for (ihere = 0; ihere < nrows; ihere++) {
@@ -304,25 +304,25 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     }
     /*********************************************************/
 
-    double *newLeafcol = malloc(vecsize*sizeof(double));
+    double *newLeafcol = (double*)malloc(vecsize*sizeof(double));
     if(newLeafcol==NULL) { 
         Rprintf("Out of Memory for newLeafcol\n");
         return((SEXP)1);
     }
 
-    double *newStemcol = malloc(vecsize*sizeof(double));
+    double *newStemcol = (double*)malloc(vecsize*sizeof(double));
     if(newStemcol==NULL) { 
         Rprintf("Out of Memory for newStemcol\n");
         return((SEXP)1);
     }
 
-    double *newRootcol = malloc(vecsize*sizeof(double));
+    double *newRootcol = (double*)malloc(vecsize*sizeof(double));
     if(newRootcol==NULL) { 
         Rprintf("Out of Memory for newRootcol\n");
         return((SEXP)1);
     }
 
-    double *newRhizomecol = malloc(vecsize*sizeof(double));
+    double *newRhizomecol = (double*)malloc(vecsize*sizeof(double));
     if(newRhizomecol==NULL) { 
         Rprintf("Out of Memory for newRhizomecol\n");
         return((SEXP)1);
@@ -330,20 +330,16 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
     ///////////////////////////////////////////////////////////
 
-    int i, i2, i3;
+    int i, i3;
+
+    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0;
+    double TTc = 0.0;
+    double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kSeedcane = 0.0;
+    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0;
 
     double currentday;
     double laimax;
     double Sugar = 0.0, newSugar = 0.0;
-    // double SeneSeedcane;
-    // double Grain = 0.0; unused
-    // double kGrain = 0.0; unused
-    // double newRhizome, newGrain = 0.0; unused
-
-    double Leaf = 0.0, Stem = 0.0, Root = 0.0, Rhizome = 0.0, LAI = 0.0;
-    double TTc = 0.0, TT12c = 0.0;
-    double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kSeedcane = 0.0;
-    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0;
 
     /* Variables needed for collecting litter */
     // double LeafLitter_d = 0.0, StemLitter_d = 0.0; unused
@@ -356,7 +352,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     // int k = 0, q = 0, m = 0, n = 0; unused
     int ri = 0;
 
-    double StomWS = 1, LeafWS = 1;
+    double StomataWS = 1, LeafWS = 1;
     double CanopyA, CanopyT;
     double LeafN = ileafn;
     // double iSp = Sp;
@@ -415,11 +411,11 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     double transpRes = soilcoefs[7]; /* Resistance to transpiration from soil to leaf */
     double leafPotTh = soilcoefs[8]; /* Leaf water potential threshold */
 
-    double cwsVec[soillayers];
-    for(i2 = 0; i2 < soillayers; i2++) {
-        cwsVec[i2] = cws[i2];
-    }
+	double water_status[soilLayers * vecsize];
+	double root_distribution[soilLayers * vecsize];
+	double psi[soilLayers * vecsize];
     double cwsVecSum = 0.0;
+
     /* Parameters for calculating leaf water potential */
     double LeafPsim = 0.0;
 
@@ -471,8 +467,6 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     // double RhizomeResp; unused
     // double Litter; unused
     double LAIi;
-    // double delTT; unused
-    // double dap; unused
 
     double rootlitter = 0.0, deadroot = 0.0, leaflitter = 0.0, deadleaf = 0.0;
     double remobilizedleaf;
@@ -499,94 +493,27 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         Rd = nitrop.Rdb1 * LeafN + nitrop.Rdb0;
     }
 
-    /**************************************************************************************************************/
-
-    //Initialization for 3D canopy 
-    // update_3Dcanopy_structure(canopy3Dstructure,canparms,nrows, ncols);
-
     for(i = 0; i < vecsize; i++)
     {
         /* First calculate the elapsed Thermal Time*/
-        /* The idea is that here I need to divide by the time step
-           to calculate the thermal time. For example, a 3 hour time interval
-           would mean that the division would need to by 8 */
-        TTc += temp[i] / (24/timestep); 
-        if((temp[i])<9) {
-            TT12c = TT12c;
-            // delTT = 0.0; unused
+        if(temp[i] > tbase) {
+            TTc += (temp[i]-tbase) / (24/timestep);
         }
-        LAIold = Leaf * Sp;
-
-        // Adjusting rain based on irrigation amount
-        //   Rprintf("%f\n",irrig[0]);
-        /*
-           if (irrig[0]>0) {
-           TotEvap* = 0.01; //To convert total ET loss from Mg/ha to mm
-         precip[i]+ = (TotEvap*irrig[0]);
-         }
-         */
-
-        if((temp[i]) >= 9) {
-            TT12c = TT12c + (temp[i]-9) / (24/timestep);
-            // delTT = (temp[i]- 9)/24.0; unused
-        }
-
-        /* This calculated TTTc based on 0 base Temperature */    
-        //		REAL(TTTc)[i] = TTc;
-
-        /* Now we are calculating TTc based on 12 base Temperature */
-        REAL(TTTc)[i] = TT12c;
-
 
         /*  Do the magic! Calculate growth*/
-        /******************Here we are implementing 3D canopy with ray tracing model***************
-          if (canopymodel==1) {
-          if(newday) {
-          we are reading files directly
-          but we need to use matlab to C code to generate canopty structure using LAI and other canopy parameters
-          3Dcanopy = get3DCanopyStructure(3dparameters); 
-          }
-          3Dcanopy_light = runraytracing(3Dcanopy, lat, day, hour,Idir, Idiff,xmin,xmax,ymin,ymax,zmin,zmax);
 
-
-          Canopy = CanAC_3D(, doy[i], hr[i],
-         solar[i], temp[i],
-         rh[i], windspeed[i],
-         lat, nlayers,
-         vmax,alpha,kparm,
-         theta,beta,Rd,Catm,b0,b1,StomWS,
-         ws, kd,
-         chil, heightf,LeafN, kpLN, lnb0, lnb1, nitrop.lnFun,upperT,lowerT,nitrop);
-         }
-
-        //else {    
-        // Testing if I can call C++ ray tracing code from here
-
-
-        Canopy = CanAC_3D (canparms, canopy3Dstructure,nrows, ncols,LAI,doy[i], hr[i],
-         solar[i], temp[i],rh[i], windspeed[i],lat,vmax,alpha,kparm,
-         theta,beta,Rd,Catm,b0,b1,StomWS,
-         ws,kpLN,upperT,lowerT,LeafN,nitrop);
-         ********************/             
-
-
-        Canopy = CanAC(LAI, doy[i], hr[i],
+        Canopy = CanAC(LAI, doy[i], hour[i],
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, alpha, kparm, beta,
                 Rd, Catm, b0, b1, theta, kd, chil,
-                heightf, LeafN, kpLN, lnb0, lnb1, nitrop.lnFun, upperT, lowerT, nitrop, 0.04, 0, StomWS, ws);
+                heightf, LeafN, kpLN, lnb0, lnb1, nitrop.lnFun, upperT, lowerT,
+				nitrop, 0.04, 0, StomataWS, ws);
 
-
-        //}
-
-        /* This is an addition, which was omitted earlier */
-        /* WIMOVAC suggestsevaluating A grodd = Anet + Rd before proceeding with further calculations */
-
-        // A better way to evaluate gross canopy assimilation would be to evaluate for individual layer in CanAC functions using leaf temperature. However, this will require changing CanAC functon, which I do not want to distrub for now.
-
-        //		CanopyA = Canopy.Assim * timestep;
+        // CanopyA = Canopy.Assim * timestep;
         CanopyA = Canopy.GrossAssim * timestep;
         CanopyT = Canopy.Trans * timestep;
+
+        LAIold = Leaf * Sp;
 
         /* summing up hourly results to obtain daily assimilation */
         dailyassim =  dailyassim + CanopyA;
@@ -610,35 +537,36 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
         dailySeedcaneResp =  dailySeedcaneResp + SeedcaneResp;
 
         /* Inserting the multilayer model */
-        if(soillayers > 1) {
-            // dap = (double)dayi; // converting dayi to double before passing to soilML to avoid rounding error unused
-            soilMLS = soilML(precip[i], CanopyT, &cwsVec[0], soilDepth, soilDepths, FieldC, WiltP,
-                    phi1, phi2, soTexS, wsFun, soillayers, Root, 
+        if(soilLayers > 1) {
+            soilMLS = soilML(precip[i], CanopyT, cws, soilDepth, soilDepths, FieldC, WiltP,
+                    phi1, phi2, soTexS, wsFun, soilLayers, Root, 
                     LAI, 0.68, temp[i], solar[i], windspeed[i], rh[i], 
-                    hydrDist, rfl, rsec, rsdf); //,optiontocalculaterootdepth,rootfrontvelocity, dap);
+                    hydrDist, rfl, rsec, rsdf);
 
-
-            StomWS = soilMLS.rcoefPhoto;
+            StomataWS = soilMLS.rcoefPhoto;
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i3 = 0; i3 < soillayers; i3++) {
-                cwsVec[i3] = soilMLS.cws[i3];
-                cwsVecSum += cwsVec[i3];
-                REAL(cwsMat)[i3 + i*soillayers] = soilMLS.cws[i3];
-                REAL(rdMat)[i3 + i*soillayers] = soilMLS.rootDist[i3];
+            for(i3 = 0; i3 < soilLayers; i3++) {
+                cws[i3] = soilMLS.cws[i3];
+                cwsVecSum += cws[i3];
+				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
+                root_distribution[i3 + i*soilLayers] = soilMLS.rootDist[i3];
+				psi[i3 + i * soilLayers] = 0;
             }
-            waterCont = cwsVecSum / soillayers;
+            waterCont = cwsVecSum / soilLayers;
             cwsVecSum = 0.0;
+
         } else {
             soilEvap = SoilEvapo(LAI, 0.68, temp[i], solar[i], waterCont, FieldC, WiltP, windspeed[i], rh[i], rsec);
             TotEvap = soilEvap + CanopyT;
             WaterS = watstr(precip[i],TotEvap,waterCont,soilDepth,FieldC,WiltP,phi1,phi2,soilType, wsFun);   
             waterCont = WaterS.awc;
-            StomWS = WaterS.rcoefPhoto ; 
+            StomataWS = WaterS.rcoefPhoto ; 
             LeafWS = WaterS.rcoefSpleaf;
-            REAL(cwsMat)[i] = waterCont;
-            REAL(psimMat)[i] = WaterS.psim;
+            water_status[i] = waterCont;
+			psi[i] = WaterS.psim;
+			root_distribution[i] = 0;
         }
 
         /* An alternative way of computing water stress is by doing the leaf
@@ -652,7 +580,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
              * This can be rearranged to Psim_l = Psim_s - E x R   */
             /* It is assumed that total resistance is 5e6 m^4 s^-1
              * kg^-1 
-             * Transpiration is in Mg ha-2 hr-1
+             * Transpiration is in Mg ha-2 hour-1
              * Multiply by 1e3 to go from Mg to kg
              * Multiply by 1e-4 to go from ha to m^2 
              * This needs to go from hours to seconds that's
@@ -662,23 +590,23 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
             /* From WIMOVAVC the proposed equation to simulate the effect of water
              * stress on stomatal conductance */
             if(LeafPsim < leafPotTh) {
-                /* StomWS = 1 - ((LeafPsim - leafPotTh)/1000 *
+                /* StomataWS = 1 - ((LeafPsim - leafPotTh)/1000 *
                  * scsf); In WIMOVAC this equation is used but
                  * the absolute values are taken from the
                  * potentials. Since they both should be
                  * negative and leafPotTh is greater than
                  * LeafPsim this can be rearranged to*/ 
-                StomWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
-                /* StomWS = 1; */
-                if(StomWS < 0.1) StomWS = 0.1;
+                StomataWS = 1 - ((leafPotTh - LeafPsim)/1000 * scsf);
+                /* StomataWS = 1; */
+                if(StomataWS < 0.1) StomataWS = 0.1;
             } else {
-                StomWS = 1;
+                StomataWS = 1;
             }
         } else {
             LeafPsim = 0;
         }
 
-        /*	dbpS = SUGARCANE_DBP(TT12c); */
+        /*	dbpS = SUGARCANE_DBP(TTc); */
         /*See Details to check arguments ot CUADRA biomass partitionign function */
 
         /* A new day starts here */
@@ -712,8 +640,8 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
             /* call the biomass partitioning function */
 
-            //		  dbpS = SUGARCANE_DBP_CUADRA(TT12c,TT0,TTseed,Tmaturity,Rd,Alm,Arm,Clstem,Ilstem,Cestem,Iestem,Clsuc,Ilsuc,Cesuc,Iesuc,temp[i]);
-            dbpS_old = sel_dbp_coef(dbpcoefs, thermalp, TT12c); 
+            //		  dbpS = SUGARCANE_DBP_CUADRA(TTc,TT0,TTseed,Tmaturity,Rd,Alm,Arm,Clstem,Ilstem,Cestem,Iestem,Clsuc,Ilsuc,Cesuc,Iesuc,temp[i]);
+            dbpS_old = sel_dbp_coef(dbpcoefs, thermalp, TTc); 
 
             dbpS.kLeaf = dbpS_old.kLeaf;
             dbpS.kStem = dbpS_old.kStem;
@@ -744,7 +672,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
             REAL(kkfiber)[dayi]= dbpS.kFiber;
             REAL(kkroot)[dayi] = dbpS.kRoot;
             REAL(kkseedcane)[dayi] = dbpS.kSeedcane;
-            REAL(dailyThermalT)[dayi]= TT12c;
+            REAL(dailyThermalT)[dayi]= TTc;
 
 
             if(kLeaf >= 0) {
@@ -754,7 +682,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                 warning("kleaf is negative");
             }
 
-            if(TT12c < seneLeaf) {
+            if(TTc < seneLeaf) {
                 Leaf += newLeaf;
                 leaflitter = leaflitter+0.0;
                 REAL(LeafLittervec)[dayi]= leaflitter;
@@ -778,7 +706,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                 warning("kstem is negative");
             }
 
-            if(TT12c < seneStem) {
+            if(TTc < seneStem) {
                 Stem += newStem;
                 Fiber+=newFiber;
                 Sugar+=newSugar;
@@ -804,7 +732,7 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
                 error("kRoot should be positive");
             }
 
-            if(TT12c < seneRoot) {
+            if(TTc < seneRoot) {
                 Root += newRoot;
                 rootlitter = 0.0;
                 REAL(RootLittervec)[dayi]= rootlitter;
@@ -949,14 +877,20 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
 
         /* here I am writing REMAINING variables at hourly time step */
         REAL(Hour)[i] =  INTEGER(HR)[i];
+		REAL(TTTc)[i] = TTc;
         REAL(CanopyAssim)[i] =  CanopyA;
         REAL(CanopyTrans)[i] =  CanopyT; 
         REAL(SoilWatCont)[i] = waterCont;
-        REAL(StomatalCondCoefs)[i] = StomWS;
+        REAL(StomatalCondCoefs)[i] = StomataWS;
         REAL(LeafReductionCoefs)[i] = LeafWS;
         REAL(SoilEvaporation)[i] = soilEvap;
         REAL(LeafPsimVec)[i] = LeafPsim;
 
+        for(int layer = 0; layer < soilLayers; layer++) {
+            REAL(psimMat)[layer + i * soilLayers] = psi[layer + i * soilLayers];
+            REAL(cwsMat)[layer + i * soilLayers] = water_status[layer + i * soilLayers];
+            REAL(rdMat)[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
+        }
 
     }
 

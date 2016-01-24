@@ -244,7 +244,7 @@
 ##' @export
 BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,
-                   lat=40,iRhizome=7,irtl=1e-4,
+                   lat=40,iRhizome=7, iLeaf = iRhizome * 1e-4, iStem = iRhizome * 1e-3, iRoot = iRhizome * 1e-3,
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
@@ -375,6 +375,9 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     nlayers <- canopyP$nlayers
     leafW <- canopyP$leafwidth
     eteq <- canopyP$eteq
+	StomWS <- photoP$StomWS
+	thermal_base_temperature = 0
+	initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
     
     res <- .Call(MisGro,
                  as.double(lat),
@@ -391,8 +394,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(eteq),
                  as.double(heightF),
                  as.integer(nlayers),
-                 as.double(iRhizome),
-                 as.double(irtl),
+				 as.double(initial_biomass),
                  as.double(SENcoefs),
                  as.integer(timestep),
                  as.integer(vecsize),
@@ -400,6 +402,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(SpD),
                  as.double(DBPcoefs),
                  as.double(TPcoefs),
+				 as.double(thermal_base_temperature),
                  as.double(vmax),
                  as.double(alpha),
                  as.double(kparm),
@@ -432,7 +435,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.integer(nitroP$lnFun),
                  as.double(upperT),
                  as.double(lowerT),
-                 as.double(nnitroP)
+                 as.double(nnitroP),
+				 as.double(StomWS)
                  )
     
     res$cwsMat <- t(res$cwsMat)
@@ -472,13 +476,13 @@ canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
 
 }
 
-photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.08, b1=3, ws=c("gs","vmax"),uppertemp=37.5,lowertemp=3.0){
+photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.08, b1=3, StomWS=1, ws=c("gs","vmax"),uppertemp=37.5,lowertemp=3.0){
 
   ws <- match.arg(ws)
   if(ws == "gs") ws <- 1
   else ws <- 0
       
-  list(vmax=vmax,alpha=alpha,kparm=kparm,theta=theta,beta=beta,Rd=Rd,Catm=Catm,b0=b0,b1=b1,ws=ws,uppertemp=uppertemp,lowertemp=lowertemp)
+  list(vmax=vmax,alpha=alpha,kparm=kparm,theta=theta,beta=beta,Rd=Rd,Catm=Catm,b0=b0,b1=b1,StomWS=StomWS,ws=ws,uppertemp=uppertemp,lowertemp=lowertemp)
 
 }
 
