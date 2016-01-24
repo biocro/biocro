@@ -9,7 +9,7 @@
 #include <math.h>
 #include "c4photo.h"
 #include "c3photo.h"
-#include "AuxBioCro.h"
+#include "BioCro.h"
 #include "CanA.h"
 #include "c3EvapoTrans.h"
 

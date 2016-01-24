@@ -7,7 +7,7 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "AuxBioCro.h"
+#include "BioCro.h"
 #include "CanA.h"
 
 /*%Second section for defining functions*/
@@ -108,7 +108,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 		pLeafsun = light_profile.sunlit_fraction[current_layer];
 		CanHeight = light_profile.height[current_layer];
 		Leafsun = LAIc * pLeafsun;
-		direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
+		direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
 		/* not the right thing to do here to add these values at the end of the ET function
 		   but just a simple fix for now. The problem is that the eC4photoC function should have its own
 		   EvapoTrans function. */
@@ -119,7 +119,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 		IDiff = light_profile.diffuse_irradiance[current_layer];
 		pLeafshade = light_profile.shaded_fraction[current_layer];
 		Leafshade = LAIc * pLeafshade;
-		diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
+		diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
 		/* not the right thing to do here to add these values at the end of the ET function
 		   but just a simple fix for now*/
 		TempIdiff = Temp + diffuse_et.Deltat;

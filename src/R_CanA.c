@@ -9,7 +9,7 @@
 #include <Rmath.h>
 #include <math.h>
 #include "c4photo.h"
-#include "AuxBioCro.h"
+#include "BioCro.h"
 #include "CanA.h"
 
 /* CanA function */
