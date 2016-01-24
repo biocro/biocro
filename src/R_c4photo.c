@@ -100,7 +100,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
                  SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR,SEXP UPPERTEMP, SEXP LOWERTEMP){
 	/* First manipulate R objects */
 	int niter;
-	nObs = length(ASSIM);
+	int nObs = length(ASSIM);
 	niter = INTEGER(NITER)[0];
 
 	/* Second define the needed variables */
