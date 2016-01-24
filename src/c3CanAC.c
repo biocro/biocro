@@ -5,6 +5,7 @@
 #include "AuxwillowGro.h"
 #include "c3photo.h"
 #include "c3canopy.h"
+#include "c3EvapoTrans.h"
 
 struct Can_Str c3CanAC(double LAI,
 		int DOY,
@@ -122,7 +123,7 @@ struct Can_Str c3CanAC(double LAI,
 
         Leafsun = LAIc * pLeafsun;
 
-        tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta);
+        tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
 
         TempIdir = Temp + tmp5_ET.Deltat;
         temp_photo_results = c3photoC(IDir, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
@@ -133,7 +134,7 @@ struct Can_Str c3CanAC(double LAI,
         pLeafshade = light_profile.shaded_fraction[current_layer];
         Leafshade = LAIc * pLeafshade;
 
-        tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta);
+        tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         // TempIdiff = Temp + tmp6_ET.Deltat; set but not used
         temp_photo_results = c3photoC(IDiff, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         AssIdiff = temp_photo_results.Assim;

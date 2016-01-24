@@ -10,6 +10,7 @@
 #include "BioCro.h"
 #include "AuxwillowGro.h"
 #include "c3canopy.h"
+#include "c3EvapoTrans.h"
 
 void createCanopy (struct canopy *canopy, int Nlayers, double LAItotal)
 {
@@ -339,7 +340,7 @@ struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 	    Leafsun = ccanopy.Leaf[i].LAI *ccanopy.Leaf[i].pLeafsun;
    
       deepaktmp5_ET= c3EvapoTrans(ccanopy.ENV[i].Idir,ccanopy.ENV[i].Itotal,Temp,ccanopy.ENV[i].RH,ccanopy.ENV[i].windspeed,ccanopy.Leaf[i].LAI,ccanopy.Leaf[i].heightf,
-  			                           Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
+  			                           Vmax,Jmax,Rd,b0,b1,Catm,o2,theta, StomWS, ws);
 	    TempIdir = Temp + deepaktmp5_ET.Deltat;
       ccanopy.OUT[i].sunlittemp=TempIdir;
       ccanopy.OUT[i].sunlitTranspiration=deepaktmp5_ET.TransR;
@@ -351,7 +352,7 @@ struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
 
 	    Leafshade = ccanopy.Leaf[i].LAI *ccanopy.Leaf[i].pLeafshade;
       deepaktmp6_ET=c3EvapoTrans(ccanopy.ENV[i].Idiff,ccanopy.ENV[i].Itotal,Temp,ccanopy.ENV[i].RH,ccanopy.ENV[i].windspeed,ccanopy.Leaf[i].LAI,ccanopy.Leaf[i].heightf,
-    		 Vmax,Jmax,Rd,b0,b1,Catm,o2,theta);
+    		 Vmax,Jmax,Rd,b0,b1,Catm,o2,theta, StomWS, ws);
       TempIdiff=Temp + deepaktmp6_ET.Deltat;
       ccanopy.OUT[i].shadedtemp=TempIdiff;
       ccanopy.OUT[i].shadedTranspiration=deepaktmp6_ET.TransR;

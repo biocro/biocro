@@ -67,21 +67,5 @@ SEXP willowGro(
         SEXP GROWTHRESP,       /*                                    57 */
         SEXP STOMATAWS);       /*                                    58 */
 
-struct ET_Str c3EvapoTrans(double Rad, 
-        double Itot, 
-        double Airtemperature, 
-        double RH,
-        double WindSpeed,
-        double LeafAreaIndex, 
-        double CanopyHeight, 
-        double vcmax2, 
-        double jmax2, 
-        double Rd2, 
-        double b02, 
-        double b12,
-        double Catm2,
-        double O2,
-        double theta2);
-
 #endif
 
