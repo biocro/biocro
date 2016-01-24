@@ -6,7 +6,6 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "AuxBioCro.h"
 #include "BioCro.h"
 #include "Century.h"
 #include "R_maizeGro.h" 

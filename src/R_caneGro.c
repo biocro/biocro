@@ -21,7 +21,6 @@
 #include <Rmath.h>
 #include <Rinternals.h>
 #include <time.h>
-#include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"

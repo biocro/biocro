@@ -8,7 +8,6 @@
 #include <R.h>
 #include <math.h>
 #include <Rmath.h>
-#include "AuxBioCro.h"
 #include "BioCro.h"
 #include "Century.h"
 

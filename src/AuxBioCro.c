@@ -17,7 +17,6 @@
 #include <Rmath.h>
 #include <Rinternals.h>
 #include "c4photo.h"
-#include "AuxBioCro.h"
 #include "BioCro.h"
 
 

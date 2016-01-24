@@ -7,7 +7,6 @@
 #include <Rmath.h>
 #include <Rinternals.h>
 #include "c3photo.h"
-#include "AuxBioCro.h"
 #include "BioCro.h"
 #include "AuxwillowGro.h"
 #include "c3canopy.h"

@@ -10,7 +10,6 @@
 #include "c3photo.h"
 #include "AuxBioCro.h"
 #include "AuxwillowGro.h"
-#include "AuxcaneGro.h"
 #include "crocent.h"
 #include "c3canopy.h"
 #include "BioCro.h"
