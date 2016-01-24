@@ -4,14 +4,6 @@
 #include "AuxBioCro.h"
 #include "Century.h"
 
-double CanopyAssim[8760];
-double Leafy[8760];
-double Stemy[8760];
-double Rooty[8760];
-double Rhizomey[8760];
-double Grainy[8760];
-double LAIc[8760];
-
 struct BioGro_results_str {
 	double day_of_year[8760];
 	double hour[8760];
