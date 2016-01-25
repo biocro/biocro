@@ -15,109 +15,19 @@
 #include <math.h>
 #include "c4photo.h"
 
-/* Ball Berry stomatal conductance function */
-double ballBerry(double Amu, double Cappm, double Temp, double RelH, double beta0, double beta1)
-{
-
-	const double gbw = 1.2; /* According to Collatz et al. (1992) pg. 526*/
-	const double ptotPa = 101325; /* Atmospheric pressure */
-
-	double pwaPa, leafTk, Camf, assimn;
-	double wa, pwi, wi, gswmol, Cs, acs;
-	double aaa, bbb, ccc, ddd;
-	double gsmol;
-	double hs;
-
-	leafTk = Temp + 273.15;
-	pwi = fnpsvp(leafTk);
-	pwaPa = RelH * pwi;
-	Camf = Cappm * 1e-6;
-	assimn = Amu * 1e-6;
-  
-	/* Calculate mole fraction (mixing ratio) of water vapor in */
-	/* atmosphere from partial pressure of water in the atmosphere and*/
-	/* the total air pressure */
-	wa  = pwaPa / ptotPa;
-	/* Get saturation vapor pressure for water in the leaf based on */
-	/* current idea of the leaf temperature in Kelvin*/
-	/* Already calculated above */
-	/* Calculate mole fraction of water vapor in leaf interior */
-	wi  = pwi / ptotPa;
-
-	if(assimn < 0.0){
-		/* Set stomatal conductance to the minimum value, beta0*/
-		gswmol = beta0 ;
-		/* Calculate leaf surface relative humidity, hs, (as fraction)*/
-		/* for when C assimilation rate is <= 0*/
-		/* hs = (beta0 + (wa/wi)*gbw)/(beta0 + gbw); ! unused here??*/
-	}
-	else{
-		/* leaf surface CO2, mole fraction */
-		Cs  = Camf - (1.4/gbw)*assimn;
-		if(Cs < 0.0)
-			Cs = 1;
-		/* Constrain the ratio assimn/cs to be > 1.e-6*/
-		acs = assimn/Cs;
-
-		if(acs < 1e-6) 	acs = 1e-6;		
-
-		/* Calculate leaf surface relative humidity, hs, from quadratic */
-		/* equation: aaa*hs^2 + bbb*hs + ccc = 0 */
-		/*  aaa= beta1 * assimn / cs */
-		aaa = beta1 * acs;
-		/*      bbb= beta0 + gbw - (beta1 * assimn / cs)*/
-		bbb = beta0 + gbw - (beta1 * acs);
-		ccc = -(wa / wi) * gbw - beta0;
-
-		/* Solve the quadratic equation for leaf surface relative humidity */
-		/* (as fraction) */
-		ddd = bbb * bbb - 4*aaa*ccc;
-
-		hs  = (-bbb + sqrt(ddd)) / (2* aaa);
-
-		/* Ball-Berry equation (Collatz'91, eqn 1) */
-		gswmol = beta1 * hs * acs + beta0;
-	}
-	gsmol = gswmol * 1000; /* converting to mmol */
-
-	if(gsmol <= 0) gsmol = 1e-5;
-
-	return(gsmol);
-}
-
-
-double fnpsvp(double Tkelvin){
-	/* water boiling point = 373.16 oK*/
-/* This is the Arden Buck Equation 
-http://en.wikipedia.org/wiki/Arden_Buck_equation
- */
-	double u, v;
-	double tmp, esat;
-
-	tmp = Tkelvin - 273.15;
-	u = (18.678 - tmp/234.5)*tmp;
-	v = 257.14 + tmp;
-	esat = 6.1121 * exp(u/v);
-	esat /= 10;
-
-	return(esat);
-}
-
-
-/* c4photo function */ 
 struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alpha, 
 		       double kparm, double theta, double beta,
 		       double Rd, double bb0, double bb1, double StomaWS, double Ca, int ws,double upperT,double lowerT)
 {
 
-	struct c4_str tmp;
+	struct c4_str tmp = {0, 0, 0, 0};
 	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
 	const double P = AP / 1e3; /* kPa */
 	/*const double PS = 38;   Atmospheric pressure of CO2 */
 	const double Q10 = 2;  /* Q10 increase in a reaction by 10 C temp */
-	/* Defining biochemical variables */
 
+	/* Defining biochemical variables */
 	double Csurface ;
 	double InterCellularCO2 ;
 	double KQ10 , kT ;
@@ -125,21 +35,15 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	double Rtn , Rtd , RT ;
 	double b0 , b1 , b2 ;
 	double M1 , M2 , M ;
-	int iterCounter ;
 	double Quada , Quadb , Quadc ;
 	double a2 , Assim ,GrossAssim;
 	double csurfaceppm ;
-	double Gs , miC = 0.0 ;
-	double diff, OldAssim = 0.0, Tol = 0.1;
-	double kT_IC_P;
 
-/* When the method does not converge I do not use the iterative solution*/
-	// double Assim0 = 0.0; unused
-	// double Gs0 = 0.0; unused
-	// double IntCO2 = 0.0; unused
-	/* partial pressure of CO2 at the leaf surface */
-  
-	/* if(StomaWS < 0.5) ws = 0; */
+	int iterCounter ;
+	double Gs;
+	double diff, OldAssim = 0.0, Tol = 0.1;
+    double miC = 0.0;
+	double kT_IC_P;
 
 	Csurface = (Ca * 1e-6) * AP ;
   
@@ -262,6 +166,95 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	tmp.Ci = miC;
   tmp.GrossAssim=GrossAssim;
 	return(tmp);
+}
+
+
+/* Ball Berry stomatal conductance function */
+double ballBerry(double Amu, double Cappm, double Temp, double RelH, double beta0, double beta1)
+{
+
+	const double gbw = 1.2; /* According to Collatz et al. (1992) pg. 526*/
+	const double ptotPa = 101325; /* Atmospheric pressure */
+
+	double pwaPa, leafTk, Camf, assimn;
+	double wa, pwi, wi, gswmol, Cs, acs;
+	double aaa, bbb, ccc, ddd;
+	double gsmol;
+	double hs;
+
+	leafTk = Temp + 273.15;
+	pwi = fnpsvp(leafTk);
+	pwaPa = RelH * pwi;
+	Camf = Cappm * 1e-6;
+	assimn = Amu * 1e-6;
+  
+	/* Calculate mole fraction (mixing ratio) of water vapor in */
+	/* atmosphere from partial pressure of water in the atmosphere and*/
+	/* the total air pressure */
+	wa  = pwaPa / ptotPa;
+	/* Get saturation vapor pressure for water in the leaf based on */
+	/* current idea of the leaf temperature in Kelvin*/
+	/* Already calculated above */
+	/* Calculate mole fraction of water vapor in leaf interior */
+	wi  = pwi / ptotPa;
+
+	if(assimn < 0.0){
+		/* Set stomatal conductance to the minimum value, beta0*/
+		gswmol = beta0 ;
+		/* Calculate leaf surface relative humidity, hs, (as fraction)*/
+		/* for when C assimilation rate is <= 0*/
+		/* hs = (beta0 + (wa/wi)*gbw)/(beta0 + gbw); ! unused here??*/
+	}
+	else{
+		/* leaf surface CO2, mole fraction */
+		Cs  = Camf - (1.4/gbw)*assimn;
+		if(Cs < 0.0)
+			Cs = 1;
+		/* Constrain the ratio assimn/cs to be > 1.e-6*/
+		acs = assimn/Cs;
+
+		if(acs < 1e-6) 	acs = 1e-6;		
+
+		/* Calculate leaf surface relative humidity, hs, from quadratic */
+		/* equation: aaa*hs^2 + bbb*hs + ccc = 0 */
+		/*  aaa= beta1 * assimn / cs */
+		aaa = beta1 * acs;
+		/*      bbb= beta0 + gbw - (beta1 * assimn / cs)*/
+		bbb = beta0 + gbw - (beta1 * acs);
+		ccc = -(wa / wi) * gbw - beta0;
+
+		/* Solve the quadratic equation for leaf surface relative humidity */
+		/* (as fraction) */
+		ddd = bbb * bbb - 4*aaa*ccc;
+
+		hs  = (-bbb + sqrt(ddd)) / (2* aaa);
+
+		/* Ball-Berry equation (Collatz'91, eqn 1) */
+		gswmol = beta1 * hs * acs + beta0;
+	}
+	gsmol = gswmol * 1000; /* converting to mmol */
+
+	if(gsmol <= 0) gsmol = 1e-5;
+
+	return(gsmol);
+}
+
+
+double fnpsvp(double Tkelvin){
+	/* water boiling point = 373.16 oK*/
+/* This is the Arden Buck Equation 
+http://en.wikipedia.org/wiki/Arden_Buck_equation
+ */
+	double u, v;
+	double tmp, esat;
+
+	tmp = Tkelvin - 273.15;
+	u = (18.678 - tmp/234.5)*tmp;
+	v = 257.14 + tmp;
+	esat = 6.1121 * exp(u/v);
+	esat /= 10;
+
+	return(esat);
 }
 
 /* Calculates RSS according to the Collatz model */

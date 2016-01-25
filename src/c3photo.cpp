@@ -6,20 +6,18 @@
 #include <math.h>
 #include "c3photo.h"
 
-/* c3photo function */ 
 struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double Jmax, 
 		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet,double StomWS,int ws)
 {
-	struct c3_str tmp = {0,0,0,0};
+	struct c3_str tmp = {0, 0, 0, 0};
 	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
 	const double R = 0.008314472; /* Gas constant */
 	const double Spectral_Imbalance = 0.25;
 	const double Leaf_Reflectance = 0.2;
 	const double Rate_TPu = 23;
+
 	/* Defining biochemical variables */
-
-
 	double Ci = 0.0, Oi;/*\ref{parm:ci}\ref{parm:Oi}*/
 	double Kc, Ko, Gstar;/*\ref{parm:Kc}\ref{parm:K0}\ref{parm:gammaast}*/
 	double Vc = 0.0;
@@ -28,17 +26,12 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	double Aj1, Aj2, Aj;
 	double Ap;
 	double Assim, J, I2;/*\ref{parm:J}*/
-	// double Assim0; unused
-	// double Gs0; unused
 	double FEII;
 	double theta;
-	// double Citr1, Citr2; unused
-	// double Citr; unused
 
 	int iterCounter = 0;
 	double Gs ;
 	double diff, OldAssim = 0.0, Tol = 0.01;
-	// double OldCi = 0.0; unused
 
 	if(Ca <= 0)
 		Ca = 1e-4;
@@ -87,22 +80,20 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		  Aj1 = J * (Ci - Gstar) ;
 		  Aj2 = 4.5*Ci + 10.5*Gstar ;
 		  Aj = Aj1/Aj2;
-                  if (Aj<0.0) Aj=0.0;
+          if (Aj<0.0) Aj=0.0;
 
 		  /* Limited by tri phos utilization */
 		  Ap = (3 * Rate_TPu) / (1 - Gstar / Ci);
 
 
-		  if(Ac < Aj && Ac < Ap){
-			  Vc = Ac;
-		  }else
-			  if(Aj < Ac && Aj < Ap){
-				  Vc = Aj;
-			  }else
-				  if(Ap < Ac && Ap < Aj){
-					  if(Ap < 0) Ap = 0;
-					  Vc = Ap;
-				  }
+          if(Ac < Aj && Ac < Ap){
+              Vc = Ac;
+          }else if(Aj < Ac && Aj < Ap){
+              Vc = Aj;
+          }else if(Ap < Ac && Ap < Aj){
+              if(Ap < 0) Ap = 0;
+              Vc = Ap;
+          }
 
 		  Assim = Vc - Rd; /* micro mol m^-2 s^-1 */
       
