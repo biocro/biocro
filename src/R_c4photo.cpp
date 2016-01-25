@@ -1,9 +1,9 @@
 #include <R.h>
-#include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
 #include "c4photo.h"
 
+extern "C" {
 SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP STOMWS, SEXP WS,SEXP UPPERTEMP, SEXP LOWERTEMP)
 {
@@ -97,7 +97,8 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 		 SEXP iTHETA, SEXP iBETA,
 		 SEXP iRD,
                  SEXP CATM, SEXP B0, SEXP B1, SEXP STOMWS,
-                 SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR,SEXP UPPERTEMP, SEXP LOWERTEMP){
+                 SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR,SEXP UPPERTEMP, SEXP LOWERTEMP)
+{
 	/* First manipulate R objects */
 	int niter;
 	int nObs = length(ASSIM);
@@ -213,4 +214,6 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 
 	return(lists);
 }
+
+}  // extern "C"
 

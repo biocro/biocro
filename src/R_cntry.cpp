@@ -3,6 +3,8 @@
 #include "Century.h"
 #include "AuxBioCro.h"
 
+extern "C" {
+
 SEXP cntry(SEXP LEAFL,           /* 1 */ 
 	   SEXP STEML,           /* 2 */ 
 	   SEXP ROOTL,           /* 3 */ 
@@ -94,4 +96,5 @@ SEXP cntry(SEXP LEAFL,           /* 1 */
   return(lists);
 
 }
+}  // extern "C"
 

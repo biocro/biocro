@@ -11,6 +11,8 @@
 
 /* Here I will include a function which calculates the RSS */
 
+extern "C" {
+
 double RSS_BG(double oStem[], double oLeaf[],
 	      double oRoot[], double oRhizome[],
 	      double oGrain[], double oLAI[],
@@ -1065,4 +1067,5 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	free_biogro_results(results);
 	return(lists);
 }
+}  // extern "C"
 

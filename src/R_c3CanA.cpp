@@ -6,7 +6,6 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
-#include <math.h>
 #include "c4photo.h"
 #include "c3photo.h"
 #include "BioCro.h"
@@ -19,6 +18,7 @@
  existing LAI and weather conditions to canopy assimilation
  and transpiration */
 
+extern "C" {
 
 SEXP c3CanA(SEXP Lai,
 	    SEXP Doy,
@@ -248,4 +248,5 @@ SEXP c3CanA(SEXP Lai,
 	UNPROTECT(8);
 	return(lists);
 }
+}  // extern "C"
 

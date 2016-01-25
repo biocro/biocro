@@ -7,7 +7,6 @@
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
-#include <math.h>
 #include "c4photo.h"
 #include "BioCro.h"
 #include "CanA.h"
@@ -18,6 +17,7 @@
  existing LAI and weather conditions to canopy assimilation
  and transpiration */
 
+extern "C" {
 
 SEXP CanA(SEXP Lai,SEXP Doy,SEXP HR,SEXP SOLAR,SEXP TEMP,
 	  SEXP ReH,SEXP windspeed,SEXP LAT,SEXP NLAYERS, SEXP STOMATAWS,
@@ -276,3 +276,4 @@ layIdiff, layShade vectors. */
     UNPROTECT(9);
     return(lists);
    }
+}  // extern "C"

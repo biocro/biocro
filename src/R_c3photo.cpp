@@ -3,6 +3,8 @@
 #include <Rinternals.h>
 #include "c3photo.h"
 
+extern "C" {
+
 SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	     SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP OX2, SEXP THETA,SEXP STOMWS, SEXP WS)
 {
@@ -70,6 +72,7 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	UNPROTECT(5);   
 	return(lists);
 }
+}  // extern "C"
 
 
 

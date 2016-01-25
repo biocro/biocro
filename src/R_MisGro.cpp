@@ -6,11 +6,12 @@
  */
 
 #include <R.h>
-#include <Rmath.h>
 #include <Rinternals.h>
 #include "Century.h"
 #include "crocent.h"
 #include "BioCro.h"
+
+extern "C" {
 
 SEXP MisGro(
         SEXP LAT,              /* Latitude                            1 */
@@ -347,4 +348,4 @@ SEXP MisGro(
     free_biogro_results(results);
     return(lists);
 }
-
+}
