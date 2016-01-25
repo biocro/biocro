@@ -113,7 +113,7 @@ void BioGro(
 
     /* Century */
     double MinNitro = centcoefs[19];
-    int doyNfert = centcoefs[18];
+    int doyNfert = static_cast<int>(centcoefs[18]);
     double Nfert;
     double SCCs[9];
     double Resp = 0.0;
