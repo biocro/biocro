@@ -378,7 +378,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     StomWS <-photoP$StomWS
 	initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
 
-    res <- .Call("willowGro",
+    res <- .Call(willowGro_sym,
                  as.double(lat),
                  as.integer(doy),
                  as.integer(hr),

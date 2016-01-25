@@ -8,7 +8,10 @@ useDynLib(BioCro, MisGro,
           eC4photo_sym = eC4photo,
           eCanA_sym = eCanA,
           McMCEc4photo,
-          SABioGro)
+          SABioGro,
+          willowGro_sym = willowGro,
+          caneGro_sym = caneGro,
+          maizeGro_sym = maizeGro)
 
 import(stats, lattice)
 

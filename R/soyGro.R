@@ -111,7 +111,7 @@ soyGro <- function(WetDat,day1=180,dayn=300,
   # print(ParameterFileName)
   # print(WeatherFileName)
   # print(OutputFolderName)
-  Void <-.Call("RWrapper",ParameterFileName,WeatherFileName,OutputFolderName)
+  Void <-.Call(RWrapper,ParameterFileName,WeatherFileName,OutputFolderName)
   ##################################################################################################################
   # Import output data into R
   Sys.sleep(1)

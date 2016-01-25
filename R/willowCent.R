@@ -107,7 +107,7 @@ willowCent <- function(WetDat, day1=120, dayn=300,
   nlayers <- canopyP$nlayers
   GrowthRespFraction <- canopyP$GrowthRespFraction
 
-  res <- .Call("willowCent",
+  res <- .Call(willowCent,
                as.double(lat),
                as.integer(doy),
                as.integer(hr),

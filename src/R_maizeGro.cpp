@@ -3,13 +3,14 @@
  */
 
 #include <R.h>
-#include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
 #include "BioCro.h"
 #include "Century.h"
 #include "R_maizeGro.h" 
 #include "AuxMaizeGro.h"
+
+extern "C" {
 
 SEXP maizeGro(
 
@@ -710,3 +711,5 @@ SEXP maizeGro(
     UNPROTECT(25);
     return(lists);
 }
+}  // extern "C"
+

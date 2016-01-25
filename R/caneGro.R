@@ -154,7 +154,7 @@ caneGro <- function(WetDat, day1=5, dayn=360,
     nlayers <- canopyP$nlayers
 	thermal_base_temp = 9
     
-    res <- .Call("caneGro",
+    res <- .Call(caneGro_sym,
                  as.double(lat),
                  as.integer(doy),
                  as.integer(hr),

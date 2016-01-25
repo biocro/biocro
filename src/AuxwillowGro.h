@@ -6,6 +6,8 @@
  *
  */
 
+extern "C" {
+
 SEXP willowGro(
         SEXP LAT,              /* Latitude                            1 */
         SEXP DOY,              /* Day of the year                     2 */
@@ -68,4 +70,5 @@ SEXP willowGro(
         SEXP STOMATAWS);       /*                                    58 */
 
 #endif
+}  // extern "C"
 

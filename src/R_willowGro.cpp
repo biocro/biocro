@@ -4,8 +4,6 @@
  */
 
 #include <R.h>
-#include <math.h>
-#include <Rmath.h>
 #include <Rinternals.h>
 #include "c3photo.h"
 #include "AuxwillowGro.h"
@@ -13,6 +11,8 @@
 #include "c3canopy.h"
 #include "BioCro.h"
 #include "Century.h"
+
+extern "C" {
 
 SEXP willowGro(
         SEXP LAT,              /* Latitude                            1 */
@@ -856,4 +856,5 @@ SEXP willowGro(
     free_biogro_results(results);
     return(lists);
 }
+}  // extern "C"
 

@@ -462,7 +462,7 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     heightF <- canopyP$heightFactor
     nlayers <- canopyP$nlayers
     
-    res <- .Call("CropGro",
+    res <- .Call(CropGro,
                  as.double(lat),
                  as.integer(doy),
                  as.integer(hr),

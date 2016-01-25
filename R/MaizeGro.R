@@ -218,7 +218,7 @@ MaizeGro <- function(WetDat, plant.day = NULL,
     mCallocP[names(MaizeCAllocControl)] <- MaizeCAllocControl
     mCallocP <- c(unlist(mCallocP))
     
-    res <- .Call("maizeGro",
+    res <- .Call(maizeGro_sym,
                  as.integer(WetDat[,2]), ## Day of the year                         1
                  as.integer(WetDat[,3]), ## Hour of the day                         2
                  as.double(WetDat[,4]), ## Solar radiation                          3

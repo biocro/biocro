@@ -17,14 +17,13 @@
  */
 
 #include <R.h>
-#include <math.h>
-#include <Rmath.h>
 #include <Rinternals.h>
 #include <time.h>
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"
-//#include "CanA_3D_Structure.h"
+
+extern "C" {
 
 SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */ 
         SEXP DOY,                 /* Day of the year           2 */
@@ -993,4 +992,5 @@ SEXP caneGro(SEXP LAT,                 /* Latitude                  1 */
     free(newRhizomecol);
     return(lists);
 }
+}  // extern "C"
 
