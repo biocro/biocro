@@ -198,6 +198,34 @@ void BioGro(
 
         /* Do the magic! Calculate growth*/
 
+		current_state.leaf = Leaf;
+		current_state.stem = Stem;
+		current_state.root = Root;
+		current_state.rhizome = Rhizome;
+		current_state.lai = LAI;
+		current_state.grain = Grain;
+		current_state.k_leaf = kLeaf;
+		current_state.k_stem = kStem;
+		current_state.k_root = kRoot;
+		current_state.k_rhizome = kRhizome;
+		current_state.k_grain = kGrain;
+		current_state.new_leaf = newLeaf;
+		current_state.new_stem = newStem;
+		current_state.new_root = newRoot;
+		current_state.new_rhizome = newRhizome;
+		current_state.new_grain = newGrain;
+		current_state.thermal_time = TTc;
+		current_state.doy = doy[i];
+		current_state.hour = hour[i];
+		current_state.solar = solar[i];
+		current_state.temp = temp[i];
+		current_state.rh = rh[i];
+		current_state.windspeed = windspeed[i];
+		current_state.StomataWS = StomataWS;
+		current_state.LeafN = LeafN;
+		current_state.vmax = vmax;
+		current_state.alpha = alpha;
+
         Canopy = CanAC(LAI, doy[i], hour[i],
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, alpha, kparm, beta,
@@ -344,24 +372,6 @@ void BioGro(
            elevated CO2. PCE. This is modeled as a simple linear relationship between
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the Thermal time accumulated.*/
-
-		current_state.leaf = Leaf;
-		current_state.stem = Stem;
-		current_state.root = Root;
-		current_state.rhizome = Rhizome;
-		current_state.lai = LAI;
-		current_state.grain = Grain;
-		current_state.k_leaf = kLeaf;
-		current_state.k_stem = kStem;
-		current_state.k_root = kRoot;
-		current_state.k_rhizome = kRhizome;
-		current_state.k_grain = kGrain;
-		current_state.new_leaf = newLeaf;
-		current_state.new_stem = newStem;
-		current_state.new_root = newRoot;
-		current_state.new_rhizome = newRhizome;
-		current_state.new_grain = newGrain;
-		current_state.thermal_time = TTc;
 
 		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
 

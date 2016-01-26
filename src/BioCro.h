@@ -56,6 +56,16 @@ struct Model_state {
 	double new_rhizome;
 	double new_grain;
 	double thermal_time;
+	int doy;
+	int hour;
+	double solar;
+	double temp;
+	double rh;
+	double windspeed;
+	double vmax;
+	double alpha;
+	double LeafN;
+	double StomataWS;
 };
 
 struct Light_model {
