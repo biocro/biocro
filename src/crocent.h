@@ -603,7 +603,7 @@ void decomposeSOM1C1(struct som1c1 *som1c1, struct cropcentEnvironment *ENV, int
 void decomposeSOM1C2(struct som1c2 *som1c2, struct cropcentEnvironment *ENV, int flag, int Eflag);
 
 // Function definition to decompose som2c1 (slow surfcae pool)
-void decomposeSOM2C1(struct som2c2 *som2c1, struct cropcentEnvironment *ENV, int flag, int Eflag);
+void decomposeSOM2C1(struct som2c1 *som2c1, struct cropcentEnvironment *ENV, int flag, int Eflag);
 
 void decomposeSOM2C2(struct som2c2 *som2c2, struct cropcentEnvironment *ENV, int flag, int Eflag);
 
