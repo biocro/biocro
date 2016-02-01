@@ -1120,8 +1120,8 @@ double timescaling (double k ,double t)
   
   if (t >525600.0)
   {
-    Rprintf("Time Step is >525600.0 min ( 1 yr)");
-    return;
+    error("Time Step is >525600.0 min ( 1 yr)");
+    return 0;
   }
   
    if (k <=1.0) 
