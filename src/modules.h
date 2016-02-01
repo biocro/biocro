@@ -6,22 +6,31 @@
 #include "BioCro.h"
 #include "c3photo.h"
 
-class Module {
+class IModule {
     public:
-        Module(std::map<std::string, double> parameters)
-            : p(parameters)
+        IModule(std::string required_state, std::string modified_state) :
+			_required_state(required_state),
+			_modified_state(modified_state)
         {}
-        virtual ~Module() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
+		vector<std::string> list_required_state();
+		vector<std::string> list_modified_state();
+		double operator() (std::map<std::string, double> state)
+		bool state_requirements_are_met();
+        virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
     protected:
-        std::map<std::string, double> p;
+		vector<std::string> _required_state;
+		vector<std::string> _modified_state; 
+	private:
+		virtual double do_operation(std::map<std::string, double> state) = 0;
+		bool requirements_are_met;
 };
 
-inline Module::~Module() {};  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
+inline IModule::~IModule() {};  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
 
-class Leaf_photosynthesis_module : public Module {
+class Leaf_photosynthesis_module : public IModule {
     public:
         Leaf_photosynthesis_module(std::map<std::string, double> parameters)
-            : Module(parameters)
+            : IModule(parameters)
         {}
         virtual struct c3_str assimilation(struct Model_state) = 0;
 };
@@ -41,62 +50,55 @@ struct c3_str c3_leaf::assimilation(struct Model_state s) {
     return(result);
 }
 
-class Canopy_photosynthesis_model : public Module {
+class Canopy_photosynthesis_module : public IModule {
     public:
-        Canopy_photosynthesis_model(std::map<std::string, double> parameters)
-            : Module(parameters)
+        Canopy_photosynthesis_module(std::map<std::string, double> parameters)
+            : IModule(parameters)
         {}
         virtual struct Can_Str assimilation(struct Model_state) = 0;
 };
 
-class c4_canopy : public Canopy_photosynthesis_model {
+class c4_canopy : public Canopy_photosynthesis_module {
     public:
         c4_canopy(std::map<std::string, double> parameters)
-            : Canopy_photosynthesis_model(parameters)
+            : Canopy_photosynthesis_module(parameters)
         {}
         struct Can_Str assimilation(struct Model_state);
 };
 
 struct Can_Str c4_canopy::assimilation(struct Model_state s) {
-    struct Can_Str result;
-    struct nitroParms nitroP; 
+	struct Can_Str result;
+	struct nitroParms nitroP; 
 
-nitroP.ileafN = p["ileafN"];
-nitroP.kln = p["kln"];
-nitroP.Vmaxb1 = p["Vmaxb1"];
-nitroP.Vmaxb0 = p["Vmaxb0"];
-nitroP.alphab1 = p["alphab1"];
-nitroP.alphab0 = p["alphab0"];
-nitroP.Rdb1 = p["Rdb1"];
-nitroP.Rdb0 = p["Rdb0"];
-nitroP.kpLN = p["kpLN"];
-nitroP.lnb0 = p["lnb0"];
-nitroP.lnb1 = p["lnb1"];
-nitroP.lnFun = (int)p["lnFun"];
-nitroP.maxln = p["maxln"];
-nitroP.minln = p["minln"];
-nitroP.daymaxln = p["daymaxln"];
+	nitroP.ileafN = p["ileafN"];
+	nitroP.kln = p["kln"];
+	nitroP.Vmaxb1 = p["Vmaxb1"];
+	nitroP.Vmaxb0 = p["Vmaxb0"];
+	nitroP.alphab1 = p["alphab1"];
+	nitroP.alphab0 = p["alphab0"];
+	nitroP.Rdb1 = p["Rdb1"];
+	nitroP.Rdb0 = p["Rdb0"];
+	nitroP.kpLN = p["kpLN"];
+	nitroP.lnb0 = p["lnb0"];
+	nitroP.lnb1 = p["lnb1"];
+	nitroP.lnFun = (int)p["lnFun"];
+	nitroP.maxln = p["maxln"];
+	nitroP.minln = p["minln"];
+	nitroP.daymaxln = p["daymaxln"];
 
-    result = CanAC(s.lai, s.doy, s.hour, s.solar, s.temp, s.rh, s.windspeed,
-            p.at("lat"), (int)p.at("nlayers"), s.vmax,s.alpha, p.at("kparm"),
-            p.at("beta"), p.at("Rd"), p.at("Catm"), p.at("b0"), p.at("b1"), p.at("theta"),
-            p.at("kd"), p.at("chil"), p.at("heightf"), s.LeafN, p.at("kpLN"), p.at("lnb0"),
-            p.at("lnb1"), (int)p.at("lnfun"), p.at("upperT"), p.at("lowerT"), nitroP, p.at("leafwidth"),
-            (int)p.at("et_equation"), s.StomataWS, (int)p.at("ws"));
-    return(result);
+	result = CanAC(s.lai, s.doy, s.hour, s.solar, s.temp, s.rh, s.windspeed,
+			p.at("lat"), (int)p.at("nlayers"), s.vmax,s.alpha, p.at("kparm"),
+			p.at("beta"), p.at("Rd"), p.at("Catm"), p.at("b0"), p.at("b1"), p.at("theta"),
+			p.at("kd"), p.at("chil"), p.at("heightf"), s.LeafN, p.at("kpLN"), p.at("lnb0"),
+			p.at("lnb1"), (int)p.at("lnfun"), p.at("upperT"), p.at("lowerT"), nitroP, p.at("leafwidth"),
+			(int)p.at("et_equation"), s.StomataWS, (int)p.at("ws"));
+	return(result);
 }
 
-
-
-
-
-
-
-
-class Canopy_assimilation : public Module {
+class Canopy_assimilation : public IModule {
     public:
        Canopy_assimilation(std::map<std::string, double> parameters)
-          : Module(parameters)
+          : IModule(parameters)
        {} 
        double operator() (struct Model_state);
 };
