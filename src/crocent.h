@@ -563,6 +563,7 @@ void UpdateDirectAbsorp(struct InputToCropcent *INCROCENT, struct BioCroToCropce
 void UpdateCropcentPoolsFromBioCro(struct cropcentlayer *CROPCENT, struct InputToCropcent *INCROPCENT);
 // Function definition to decompose crocent layer
 void decomposeCROPCENT(struct cropcentlayer *CROPCENT, int woody, int Eflag);
+void BiocroToCrocent(double *stdedbc, double fallrate, double lignin, struct minerals *E, double isotoperatio, int surface, int woody,struct InputToCropcent *INCROCENT);
 
 
 //Function Definition to determine if decomposition of a source pool will occur or not based on flow requirement and ENV
