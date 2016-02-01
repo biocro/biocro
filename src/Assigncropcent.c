@@ -432,19 +432,6 @@ CROPCENT->som3c.parms.k= timescaling(CROPCENT->som3c.parms.k,CROPCENT->som3c.par
   return;
 }
 
-void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, 
-double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR){
- 
-  GetBioCroToCropcentParms(&CROPCENT->BcroTOCentParms,getbiocrotocropcentparmsfromR);
-  GetSymbNFixationParms(&CROPCENT->ENV.NFIX,getsymbnfixationparmsfromR);
-  GetLeachingParms(&CROPCENT->ENV.ORGLECH,getleachingparmsfromR);
-  GetC13Parms(&CROPCENT->ENV.C13,getc13parmsfromR);
-  GetErosionParms(&CROPCENT->ENV.EROSION,geterosionparmsfromR);
-  GetSoilTexture(&CROPCENT->ENV.SOILTEX,getsoiltexturefromR);
-  GetCropCentStateVar(&CROPCENT->ENV,getcropcentstatevarfromR);
-  return;
-}
-
 void GetCropCentStateVar(struct cropcentEnvironment *ENV, double *getcropcentstatevarfromR){
   
   ENV->minN=1e-6;
@@ -690,3 +677,17 @@ void GetBioCroToCropcentParms(struct BioCroToCropcentParms  *temp,double *getbio
   temp->pabres=100;
   return;
 }
+
+void assignENV(struct cropcentlayer *CROPCENT,double *getsoiltexturefromR,double *getcropcentstatevarfromR, 
+double *getbiocrotocropcentparmsfromR, double *geterosionparmsfromR,double *getc13parmsfromR,double *getleachingparmsfromR,double *getsymbnfixationparmsfromR){
+ 
+  GetBioCroToCropcentParms(&CROPCENT->BcroTOCentParms,getbiocrotocropcentparmsfromR);
+  GetSymbNFixationParms(&CROPCENT->ENV.NFIX,getsymbnfixationparmsfromR);
+  GetLeachingParms(&CROPCENT->ENV.ORGLECH,getleachingparmsfromR);
+  GetC13Parms(&CROPCENT->ENV.C13,getc13parmsfromR);
+  GetErosionParms(&CROPCENT->ENV.EROSION,geterosionparmsfromR);
+  GetSoilTexture(&CROPCENT->ENV.SOILTEX,getsoiltexturefromR);
+  GetCropCentStateVar(&CROPCENT->ENV,getcropcentstatevarfromR);
+  return;
+}
+
