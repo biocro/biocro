@@ -3,114 +3,87 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "BioCro.h"
 #include "c3photo.h"
 
+using std::vector;
+using std::string;
+using std::map;
+
 class IModule {
     public:
-        IModule(std::string required_state, std::string modified_state) :
-			_required_state(required_state),
-			_modified_state(modified_state)
-        {}
-		vector<std::string> list_required_state();
-		vector<std::string> list_modified_state();
-		double operator() (std::map<std::string, double> state)
-		bool state_requirements_are_met();
+        IModule(const vector<string> required_state, const vector<string> modified_state) :
+            _required_state(required_state),
+            _modified_state(modified_state)
+    {}
+        vector<string> list_required_state();
+        vector<string> list_modified_state();
+        map<string, double> operator() (map<string, double> state);
+        bool state_requirements_are_met();
         virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
-    protected:
-		vector<std::string> _required_state;
-		vector<std::string> _modified_state; 
-	private:
-		virtual double do_operation(std::map<std::string, double> state) = 0;
-		bool requirements_are_met;
+    private:
+        const vector<string> _required_state;
+        const vector<string> _modified_state; 
+        virtual map<string, double> do_operation(map<string, double> state) = 0;
+        bool requirements_are_met;
 };
 
 inline IModule::~IModule() {};  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
 
 class Leaf_photosynthesis_module : public IModule {
     public:
-        Leaf_photosynthesis_module(std::map<std::string, double> parameters)
-            : IModule(parameters)
+        Leaf_photosynthesis_module(const vector<string> required_state, const vector<string> modified_state)
+            : IModule(required_state, modified_state)
         {}
         virtual struct c3_str assimilation(struct Model_state) = 0;
 };
 
 class c3_leaf : public Leaf_photosynthesis_module {
     public:
-       c3_leaf(std::map<std::string, double> parameters)
-          : Leaf_photosynthesis_module(parameters)
-       {} 
-       double operator() (struct Model_state);
-       struct c3_str assimilation(struct Model_state s);
+        c3_leaf()
+            : Leaf_photosynthesis_module(vector<string> {"Qp", "Tleaf"} , vector<string> {})
+        {} 
+        double operator() (map<string, double> s);
+        struct c3_str assimilation(map<string, double> s);
 };
 
-struct c3_str c3_leaf::assimilation(struct Model_state s) {
+
+struct c3_str c3_leaf::assimilation(map<string, double> s) {
     struct c3_str result = {0, 0, 0, 0};
-    result = c3photoC(p.at("Qp"), p.at("Tleaf"), p.at("RH"), p.at("Vcmax0"), p.at("Jmax"), p.at("Rd0"), p.at("bb0"), p.at("bb1"), p.at("Ca"), p.at("O2"), p.at("thet"), p.at("StomWS"), p.at("ws"));
+    result = c3photoC(s.at("Qp"), s.at("Tleaf"), s.at("RH"), s.at("Vcmax0"), s.at("Jmax"), s.at("Rd0"), s.at("bb0"), s.at("bb1"), s.at("Ca"), s.at("O2"), s.at("thet"), s.at("StomWS"), s.at("ws"));
     return(result);
 }
 
+
 class Canopy_photosynthesis_module : public IModule {
     public:
-        Canopy_photosynthesis_module(std::map<std::string, double> parameters)
-            : IModule(parameters)
+        Canopy_photosynthesis_module(const vector<string> required_state, const vector<string> modified_state)
+            : IModule(required_state, modified_state)
         {}
-        virtual struct Can_Str assimilation(struct Model_state) = 0;
 };
 
-class c4_canopy : public Canopy_photosynthesis_module {
+class c4_canopy : public IModule {
     public:
-        c4_canopy(std::map<std::string, double> parameters)
-            : Canopy_photosynthesis_module(parameters)
+        c4_canopy()
+            : IModule(vector<string> {}, vector<string> {})
         {}
-        struct Can_Str assimilation(struct Model_state);
+    private:
+        virtual map<string, double> do_operation (map<string, double> s);
 };
 
-struct Can_Str c4_canopy::assimilation(struct Model_state s) {
-	struct Can_Str result;
-	struct nitroParms nitroP; 
-
-	nitroP.ileafN = p["ileafN"];
-	nitroP.kln = p["kln"];
-	nitroP.Vmaxb1 = p["Vmaxb1"];
-	nitroP.Vmaxb0 = p["Vmaxb0"];
-	nitroP.alphab1 = p["alphab1"];
-	nitroP.alphab0 = p["alphab0"];
-	nitroP.Rdb1 = p["Rdb1"];
-	nitroP.Rdb0 = p["Rdb0"];
-	nitroP.kpLN = p["kpLN"];
-	nitroP.lnb0 = p["lnb0"];
-	nitroP.lnb1 = p["lnb1"];
-	nitroP.lnFun = (int)p["lnFun"];
-	nitroP.maxln = p["maxln"];
-	nitroP.minln = p["minln"];
-	nitroP.daymaxln = p["daymaxln"];
-
-	result = CanAC(s.lai, s.doy, s.hour, s.solar, s.temp, s.rh, s.windspeed,
-			p.at("lat"), (int)p.at("nlayers"), s.vmax,s.alpha, p.at("kparm"),
-			p.at("beta"), p.at("Rd"), p.at("Catm"), p.at("b0"), p.at("b1"), p.at("theta"),
-			p.at("kd"), p.at("chil"), p.at("heightf"), s.LeafN, p.at("kpLN"), p.at("lnb0"),
-			p.at("lnb1"), (int)p.at("lnfun"), p.at("upperT"), p.at("lowerT"), nitroP, p.at("leafwidth"),
-			(int)p.at("et_equation"), s.StomataWS, (int)p.at("ws"));
-	return(result);
-}
-
-class Canopy_assimilation : public IModule {
+class c3_canopy : public IModule {
     public:
-       Canopy_assimilation(std::map<std::string, double> parameters)
-          : IModule(parameters)
-       {} 
-       double operator() (struct Model_state);
+        c4_canopy()
+            : IModule(vector<string> {}, vector<string> {})
+        {}
+    private:
+        virtual map<string, double> do_operation (map<string, double> s);
 };
-
-double Canopy_assimilation::operator() (struct Model_state) {
-    return (p["vcmax"]);
-}
-
 
 /* Testing code
     struct Model_state mystate;
-    std::map<std::string, double> myparameters;
+    map<string, double> myparameters;
 
 myparameters["Qp"] = 1000;
 myparameters["Tleaf"] = 25;
@@ -131,7 +104,7 @@ myparameters["ws"] = 0;
     c3_canopy myc3can(myparameters);
     Rprintf("can: %.2f, myphoto: %.2f\n", can(mystate), myc3can.assimilation(mystate).Assim);
 
-	std::map<std::string, double> parms;
+	map<string, double> parms;
 
 	parms["lat"] = lat;
 	parms["nlayers"] = nlayers;

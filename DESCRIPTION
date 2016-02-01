@@ -13,6 +13,7 @@ Imports: lattice, stats
 Suggests: testthat, knitr, roxygen2, data.table
 Enhances: data.table
 VignetteBuilder: knitr
+SystemRequirements: C++11
 License: FreeBSD + file LICENSE
 Packaged: 2013-03-29 07:12:38 UTC; djaiswal
 RoxygenNote: 5.0.1
