@@ -74,7 +74,7 @@ class c4_canopy : public IModule {
 
 class c3_canopy : public IModule {
     public:
-        c4_canopy()
+        c3_canopy()
             : IModule(vector<string> {}, vector<string> {})
         {}
     private:
