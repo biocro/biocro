@@ -57,12 +57,12 @@ struct Can_Str c3CanAC(double LAI,
     double TempIdir = 0.0,
 		   AssIdir = 0.0, AssIdiff = 0.0;
 	double GAssIdir = 0.0, GAssIdiff = 0.0; 
-    // double TempIdiff;
+    double TempIdiff = 0.0;
 
     double CanopyA = 0.0, CanopyT =0.0, GCanopyA = 0.0;
     double chil=1.0;
-    // double vmax1;
-	// double leafN_lay;
+    double vmax1;
+	double leafN_lay;
 
     struct Light_model light_model;
     light_model = lightME(lat, DOY, hr);
@@ -92,12 +92,13 @@ struct Can_Str c3CanAC(double LAI,
     {
         int current_layer = nlayers - 1 - i;
         /* vmax depends on leaf nitrogen and this in turn depends on the layer */
-        /* if(lnfun == 0) {
+		leafN_lay = leafN_profile[current_layer];
+        if(lnfun == 0) {
 			vmax1 = Vmax;
 		} else {
 			vmax1 = leafN_lay * lnb1 + lnb0;
-		} unused variables are assigned here */
-        /* For now alpha is not affected by leaf nitrogen */
+			/* For now alpha is not affected by leaf nitrogen */
+		}
 
         rh = relative_humidity_profile[current_layer];
         layerWindSpeed = wind_speed_profile[current_layer];
@@ -110,10 +111,10 @@ struct Can_Str c3CanAC(double LAI,
         Leafsun = LAIc * pLeafsun;
 
         tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight,
-				Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
 
         TempIdir = Temp + tmp5_ET.Deltat;
-        temp_photo_results = c3photoC(IDir, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        temp_photo_results = c3photoC(IDir, TempIdir, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         AssIdir = temp_photo_results.Assim;
         GAssIdir = temp_photo_results.GrossAssim;
 
@@ -122,10 +123,10 @@ struct Can_Str c3CanAC(double LAI,
         Leafshade = LAIc * pLeafshade;
 
         tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight,
-				Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
-        // TempIdiff = Temp + tmp6_ET.Deltat; set but not used
+				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        TempIdiff = Temp + tmp6_ET.Deltat;
 
-        temp_photo_results = c3photoC(IDiff, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        temp_photo_results = c3photoC(IDiff, TempIdiff, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         AssIdiff = temp_photo_results.Assim;
         GAssIdiff = temp_photo_results.GrossAssim;
 
