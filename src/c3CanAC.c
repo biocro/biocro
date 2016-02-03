@@ -1,8 +1,4 @@
-#include <R.h>
-#include <Rmath.h>
-#include <Rinternals.h>
 #include "BioCro.h"
-#include "AuxwillowGro.h"
 #include "c3photo.h"
 #include "c3canopy.h"
 #include "c3EvapoTrans.h"
@@ -35,44 +31,38 @@ struct Can_Str c3CanAC(double LAI,
 		int ws)
 {
 
-    struct ET_Str tmp5_ET , tmp6_ET; 
+    struct ET_Str tmp5_ET, tmp6_ET; 
     struct c3_str temp_photo_results = {0, 0, 0, 0};
     struct Can_Str ans = {0, 0, 0};
 
     const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
+
     /* Need a different conversion factor for transpiration */
     const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
+    /* For Transpiration */
+    /* 3600 - seconds per hour */
+    /* 1e-3 - millimoles per mole */
+    /* 18 - grams per mole for H2O */
+    /* 1e-6 - grams per  megagram */
+    /* 10000 - meters squared per hectare */
 
     int i;
     double Idir, Idiff, cosTh;
     double LAIc;
-    double IDir, IDiff, Itot,rh, layerWindSpeed;
+    double IDir, IDiff, Itot, rh, layerWindSpeed;
     double pLeafsun, pLeafshade;
     double Leafsun = 0.0, Leafshade = 0.0;
     double CanHeight;
 
-    // double vmax1, leafN_lay; unused
     double TempIdir = 0.0,
-		   AssIdir = 0.0, AssIdiff = 0.0,
-    	   GAssIdir = 0.0, GAssIdiff = 0.0; 
-    // double TempIdiff; unused
+		   AssIdir = 0.0, AssIdiff = 0.0;
+	double GAssIdir = 0.0, GAssIdiff = 0.0; 
+    // double TempIdiff;
 
     double CanopyA = 0.0, CanopyT =0.0, GCanopyA = 0.0;
     double chil=1.0;
-
-    /* For Assimilation */
-    /* 3600 converts seconds to hours */
-    /* 1e-6 converts micro mols to mols */
-    /* 30 is the grams in one mol of CO2 */
-    /* 1e-6 converts g to Mg */
-    /* 10000 scales from meter squared to hectare */
-
-    /* For Transpiration */
-    /* 3600 converts seconds to hours */
-    /* 1e-3 converts mili mols to mols */
-    /* 18 is the grams in one mol of H20 */
-    /* 1e-6 converts g to Mg */
-    /* 10000 scales from meter squared to hectare */
+    // double vmax1;
+	// double leafN_lay;
 
     struct Light_model light_model;
     light_model = lightME(lat, DOY, hr);
@@ -98,17 +88,13 @@ struct Can_Str c3CanAC(double LAI,
     LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);
 
     /* Next use the EvapoTrans function */
-    CanopyA=0.0;
-    GCanopyA=0.0;
-    CanopyT=0.0;
-
     for(i=0; i<nlayers; i++)
     {
         int current_layer = nlayers - 1 - i;
         /* vmax depends on leaf nitrogen and this in turn depends on the layer */
         /* if(lnfun == 0) {
 			vmax1 = Vmax;
-		}else{
+		} else {
 			vmax1 = leafN_lay * lnb1 + lnb0;
 		} unused variables are assigned here */
         /* For now alpha is not affected by leaf nitrogen */
@@ -123,35 +109,29 @@ struct Can_Str c3CanAC(double LAI,
 
         Leafsun = LAIc * pLeafsun;
 
-        tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight,
+				Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
 
         TempIdir = Temp + tmp5_ET.Deltat;
         temp_photo_results = c3photoC(IDir, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         AssIdir = temp_photo_results.Assim;
-        GAssIdir =temp_photo_results.GrossAssim;
+        GAssIdir = temp_photo_results.GrossAssim;
 
         IDiff = light_profile.diffuse_irradiance[current_layer];
         pLeafshade = light_profile.shaded_fraction[current_layer];
         Leafshade = LAIc * pLeafshade;
 
-        tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight,
+				Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         // TempIdiff = Temp + tmp6_ET.Deltat; set but not used
+
         temp_photo_results = c3photoC(IDiff, TempIdir, rh, Vmax, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
         AssIdiff = temp_photo_results.Assim;
         GAssIdiff = temp_photo_results.GrossAssim;
 
-        CanopyA = CanopyA + Leafsun * AssIdir + Leafshade * AssIdiff;
-        GCanopyA = GCanopyA + Leafsun * GAssIdir + Leafshade * GAssIdiff;
-        CanopyT = CanopyT + Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
-    }
-
-    if(ISNAN(CanopyA)) {
-        Rprintf("LAI %.2f \n",LAI); 
-        Rprintf("Leafsun %.2f \n",Leafsun);
-        Rprintf("AssIdir %.2f \n", AssIdir);
-        Rprintf("Leafshade %.2f \n",Leafshade);
-        Rprintf("AssIdiff %.2f \n", AssIdiff);    
-        error("Something is NA \n");
+        CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
+        GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
+        CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
     }
 
     /*## These are micro mols of CO2 per m2 per sec for Assimilation
@@ -165,9 +145,10 @@ struct Can_Str c3CanAC(double LAI,
     /* A similar conversion is made for water but
        replacing 30 by 18 and mili mols are converted to
        mols (instead of micro) */
-    ans.Assim = cf * CanopyA ;
+
+    ans.Assim = cf * CanopyA;
     ans.Trans = cf2 * CanopyT; 
-    ans.GrossAssim=cf*GCanopyA;
+    ans.GrossAssim = cf * GCanopyA;
     return(ans);
 }
 
