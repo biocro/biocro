@@ -11,17 +11,17 @@ Recent development has coupled DayCent (Parton et al 1998) to BioCro, expanding 
 ### Inputs:
 
 * species-specific plant physiological traits 
-** Photosynthetic Parameters
-** Phenological stages
-** Biomass partitioning
+ * Photosynthetic Parameters
+ * Phenological stages
+ * Biomass partitioning
 * soil physical properties:
-** (water holding capacity, wilting point, sand, silt, clay, organic matter, rooting depth). 
+ * (water holding capacity, wilting point, sand, silt, clay, organic matter, rooting depth). 
 * meteorological data (daily or hourly) 
-** precipitation
-** solar radiation
-** wind speed
-** temperature
-** humidity
+ * precipitation
+ * solar radiation
+ * wind speed
+ * temperature
+ * humidity
 
 ### Outputs
 
