@@ -145,13 +145,7 @@ c3CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
                  as.double(photoPs),
                  as.double(kd), as.double(heightFactor),
                  as.double(lnPs),as.double(StomWS),as.integer(ws))
-    res$LayMat <- t(res$LayMat)
-    colnames(res$LayMat) <- c("IDir","IDiff","Leafsun",
-                              "Leafshade","TransSun","TransShade",
-                              "AssimSun","AssimShade","DeltaSun",
-                              "DeltaShade","CondSun","CondShade",
-                              "LeafN", "Vmax")
-    res
+    return(res)
   }
 
 

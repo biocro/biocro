@@ -46,7 +46,7 @@ struct Can_Str CanAC(
     /* 3600 - seconds per hour */
     /* 1e-6 - micromoles per mole */
     /* 30 - grams per mole for CO2 */
-    /* 1e-6 - grams per megagram */
+    /* 1e-6 - megagrams per gram */
     /* 10000 - meters squared per hectare*/
 
     /* Need a different conversion factor for transpiration */
@@ -55,7 +55,7 @@ struct Can_Str CanAC(
     /* 3600 - seconds per hour */
     /* 1e-3 - millimoles per mole */
     /* 18 - grams per mole for H2O */
-    /* 1e-6 - grams per  megagram */
+    /* 1e-6 - megagrams per  gram */
     /* 10000 - meters squared per hectare */
 
     int i;
