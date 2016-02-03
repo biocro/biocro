@@ -85,8 +85,8 @@ SEXP CanA(
   SEXP trans;
   SEXP Ggrowth;
 
-  PROTECT(lists = allocVector(VECSXP,7));
-  PROTECT(names = allocVector(STRSXP,7));
+  PROTECT(lists = allocVector(VECSXP,5));
+  PROTECT(names = allocVector(STRSXP,5));
   PROTECT(growth = allocVector(REALSXP,1));
   PROTECT(trans = allocVector(REALSXP,1));
   PROTECT(Ggrowth = allocVector(REALSXP,1));
@@ -142,3 +142,4 @@ SEXP CanA(
     return(lists);
    }
 }  // extern "C"
+

@@ -58,8 +58,8 @@ SEXP c3CanA(SEXP Lai,
 	SEXP trans;
 	SEXP Ggrowth;
 
-	PROTECT(lists = allocVector(VECSXP,6));
-	PROTECT(names = allocVector(STRSXP,6));
+	PROTECT(lists = allocVector(VECSXP,5));
+	PROTECT(names = allocVector(STRSXP,5));
 	PROTECT(growth = allocVector(REALSXP,1));
 	PROTECT(trans = allocVector(REALSXP,1));
   PROTECT(Ggrowth = allocVector(REALSXP,1));
@@ -75,7 +75,6 @@ SEXP c3CanA(SEXP Lai,
     if(ISNAN(ans.Assim)) {
         error("Something is NA \n");
 	}
-
 
 	REAL(growth)[0] = ans.Assim;
 	REAL(trans)[0] = ans.Trans;
