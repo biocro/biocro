@@ -34,24 +34,30 @@ Recent development has coupled DayCent (Parton et al 1998) to BioCro, expanding 
 
 BioCro is an R package that provides a user-friendly interface to the underlying crop simulation model written in C. (A C standalone version is in development).
 
-* [R package](http://ebimodeling.github.io/biocro/documentation/r/)
-* [Vignette](http://biocro.r-forge.r-project.org/BioCro-Manual.pdf)
-* [C library](http://ebimodeling.github.io/biocro/documentation/doxygen/)
+#### For R users,
 
+To get started using the model, the quickest way to start is
 
-## Quick Start
+```
+library(devtools)
+install_github("ebimodeling/biocro")
+data(weather05)
+head(weather05) # take a look
+?weather05 # get info on data
 
-```{r}
-# install.packages('devtools')
-devtools::install_github('ebimodeling/biocro')
-data("weather05")
-miscanthus_growth <- BioGro(weather05)
-plot(miscanthus_growth)
+ans <- BioGro(weather05) # uses default parameters
 ?BioGro
+plot(ans)
+
 ```
 
+#### For developers,
+
+If you are interested in development please contact one of the package maintainers (see DESCRIPTION file). The development branch is generally open, but kept private to help with the coordination of research and publications.
 
 ## References 
+
+Copies of these papers can be found in the documentation/publications folder.
 
 Humphries S and Long SP (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371
 
