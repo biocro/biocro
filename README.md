@@ -55,6 +55,11 @@ plot(ans)
 
 If you are interested in development please contact one of the package maintainers (see DESCRIPTION file). The development branch is generally open, but kept private to help with the coordination of research and publications.
 
+Technical documentation for the [R package](http://ebimodeling.github.io/biocro/documentation/r/) and [C library](http://ebimodeling.github.io/biocro/documentation/doxygen/) are also provided as web pages. 
+
+Note that recent activity has made substantial improvements, making it easier to add new crop models. Sugarcane is waiting for a publication, Agave, Soy, Maize, and Cassava are all in various stages of development.
+
+
 ## References 
 
 Copies of these papers can be found in the [`documentation/publications`](https://github.com/ebimodeling/biocro/tree/master/documentation) folder.
@@ -66,4 +71,3 @@ Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP (2009) A semimechanistic mod
 Wang, D., Jaiswal, D., LeBauer, D. S., Wertin, T. M., Bollero, G. A., Leakey, A. D., & Long, S. P. (2015). A physiological and biophysical model of coppice willow (Salix spp.) production yields for the contiguous USA in current and future climate scenarios. Plant, cell & environment, 38(9), 1850-1865.
 [PDF](https://github.com/ebimodeling/biocro/blob/master/documentation/publications/wang2015pbm.pdf)
 
-Wang  want2015pbm.pdf
