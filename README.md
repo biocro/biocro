@@ -57,8 +57,8 @@ If you are interested in development please contact one of the package maintaine
 
 ## References 
 
-Copies of these papers can be found in the documentation/publications folder.
+Copies of these papers can be found in the [`documentation/publications`](https://github.com/ebimodeling/biocro/tree/master/documentation) folder.
 
-Humphries S and Long SP (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371
+Humphries S and Long SP (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371 [PDF](https://github.com/ebimodeling/biocro/raw/master/documentation/publications/migeuz2009smp.pdf)
 
-Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296
+Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296 [PDF]()
