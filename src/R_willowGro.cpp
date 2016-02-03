@@ -135,7 +135,6 @@ SEXP willowGro(
     double GrowthRespFraction = REAL(GROWTHRESP)[0];
     double StomataWS = REAL(STOMATAWS)[0];
 
-
     SEXP lists, names;
 
     SEXP DayofYear;
@@ -201,6 +200,8 @@ SEXP willowGro(
     PROTECT(SCpools = allocVector(REALSXP, 9));
     PROTECT(SNpools = allocVector(REALSXP, 9));
     PROTECT(LeafPsimVec = allocVector(REALSXP, vecsize));
+
+	if ( vecsize > 8760 ) error("The number of timesteps must be less than or equal to 8760. You probably want to change the day1 or dayn arguments.");
 
     struct BioGro_results_str *results = (struct BioGro_results_str*)malloc(sizeof(struct BioGro_results_str));
     initialize_biogro_results(results, soilLayers, vecsize);

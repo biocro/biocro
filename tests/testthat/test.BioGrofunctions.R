@@ -7,6 +7,7 @@ test_that("WillowGro runs in warm weather; refs bitbucket bug #7",{
     res_warm <- willowGro(warmer)
     res_warm <- BioGro(warmer)
     data(warm) ## weather from Sapelo Island that caused problem
+	warm$dayn = 365
     res_warm2 <- do.call(willowGro, warm)
 })
 
