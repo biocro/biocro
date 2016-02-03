@@ -59,6 +59,11 @@ If you are interested in development please contact one of the package maintaine
 
 Copies of these papers can be found in the [`documentation/publications`](https://github.com/ebimodeling/biocro/tree/master/documentation) folder.
 
-Humphries S and Long SP (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371 [PDF](https://github.com/ebimodeling/biocro/raw/master/documentation/publications/migeuz2009smp.pdf)
+Humphries S and Long SP (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371
 
-Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296 [PDF]()
+Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296 [PDF](https://github.com/ebimodeling/biocro/blob/master/documentation/publications/migeuz2009smp.pdf)
+
+Wang, D., Jaiswal, D., LeBauer, D. S., Wertin, T. M., Bollero, G. A., Leakey, A. D., & Long, S. P. (2015). A physiological and biophysical model of coppice willow (Salix spp.) production yields for the contiguous USA in current and future climate scenarios. Plant, cell & environment, 38(9), 1850-1865.
+[PDF](https://github.com/ebimodeling/biocro/blob/master/documentation/publications/wang2015pbm.pdf)
+
+Wang  want2015pbm.pdf
