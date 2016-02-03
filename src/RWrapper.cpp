@@ -7,6 +7,8 @@
 #include <string.h>
 #include "soyGro.h"
 
+extern "C" {
+
 SEXP RWrapper(SEXP RParameterFileName,SEXP RWeatherFileName,SEXP ROutputFolderName){
     // C local variables (Transfer R input variables)
     int FileLength=strlen(CHAR(STRING_ELT(RParameterFileName,0)));
@@ -25,3 +27,4 @@ SEXP RWrapper(SEXP RParameterFileName,SEXP RWeatherFileName,SEXP ROutputFolderNa
     INTEGER(Result)[0] = FileLength;
     UNPROTECT(1);
 return(Result);}
+} // extern "C"
