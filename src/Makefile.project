@@ -3,14 +3,14 @@ R_LIBS_USER="${USERPROFILE}"/Documents/R/win-library/3.2
 #export PATH:=${PATH};C:\Program Files\R\R-3.2.2\bin
 
 quick:
-	exec "${R_HOME}\bin\R.exe" CMD INSTALL --library=$(R_LIBS_USER) --no-html --no-help --no-docs --no-multiarch .
+	exec "${R_HOME}\bin\R.exe" CMD INSTALL --library=$(R_LIBS_USER) --no-html --no-help --no-docs --no-multiarch ..
 #	R CMD INSTALL --no-html --no-help --no-docs --no-multiarch .
 
 full:
-	exec "${R_HOME}\bin\R.exe" CMD INSTALL --library=$(R_LIBS_USER) --preclean --no-multiarch .
+	exec "${R_HOME}\bin\R.exe" CMD INSTALL --library=$(R_LIBS_USER) --no-multiarch ..
 	
 .PHONY: clean
 
 clean:
-	rm *~ ./src/*.o ./src/*~ ./src/*.dll
+	rm *~ *.o *.dll
 
