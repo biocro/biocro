@@ -20,7 +20,7 @@ class IModule {
         vector<string> list_required_state();
         vector<string> list_modified_state();
         map<string, double> operator() (map<string, double> state);
-        bool state_requirements_are_met();
+        vector<string> state_requirements_are_met(map<string, double> state);
         virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
     private:
         const vector<string> _required_state;
@@ -48,14 +48,6 @@ class c3_leaf : public Leaf_photosynthesis_module {
         struct c3_str assimilation(map<string, double> s);
 };
 
-
-struct c3_str c3_leaf::assimilation(map<string, double> s) {
-    struct c3_str result = {0, 0, 0, 0};
-    result = c3photoC(s.at("Qp"), s.at("Tleaf"), s.at("RH"), s.at("Vcmax0"), s.at("Jmax"), s.at("Rd0"), s.at("bb0"), s.at("bb1"), s.at("Ca"), s.at("O2"), s.at("thet"), s.at("StomWS"), s.at("ws"));
-    return(result);
-}
-
-
 class Canopy_photosynthesis_module : public IModule {
     public:
         Canopy_photosynthesis_module(const vector<string> required_state, const vector<string> modified_state)
@@ -75,7 +67,13 @@ class c4_canopy : public IModule {
 class c3_canopy : public IModule {
     public:
         c3_canopy()
-            : IModule(vector<string> {}, vector<string> {})
+            : IModule(vector<string> {"lai", "doy", "hour", "solarr", "temp",
+                   "rh", "windspeed", "lat", "nlayers", "vmax",
+                   "jmax", "rd", "catm", "o2", "b0",
+                   "b1", "theta", "kd", "heightf", "leafn",
+                   "kpln", "lnb0", "lnb1", "lnfun", "stomataws",
+                   "ws"},
+                   vector<string> {})
         {}
     private:
         virtual map<string, double> do_operation (map<string, double> s);
