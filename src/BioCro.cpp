@@ -226,12 +226,13 @@ void BioGro(
 		current_state.vmax = vmax;
 		current_state.alpha = alpha;
 
-        Canopy = CanAC(LAI, doy[i], hour[i],
-                solar[i], temp[i], rh[i], windspeed[i],
-                lat, nlayers, vmax, alpha, kparm, beta,
-                Rd, Catm, b0, b1, theta, kd, chil,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT,
-				nitroP, leafwidth, et_equation, StomataWS, ws);
+        Canopy = CanAC(LAI, doy[i], hour[i], solar[i], temp[i],
+                rh[i], windspeed[i], lat, nlayers, vmax,
+                alpha, kparm, beta, Rd, Catm,
+                b0, b1, theta, kd, chil,
+                heightf, LeafN, kpLN, lnb0, lnb1,
+                lnfun, upperT, lowerT, nitroP, leafwidth,
+                et_equation, StomataWS, ws); 
 
         CanopyA = Canopy.Assim * timestep;
         CanopyT = Canopy.Trans * timestep;
