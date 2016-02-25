@@ -22,3 +22,8 @@ firefox html/index.html
 
 
 After respective processes have been completed, a new directory under called latex/ will be created under documentation directory. A latex file called refman.tex will exist under the new latex dierectory. compile refman.tex into a pdf to view documentation. another latex file called equations.tex in the documentation directory already documents the equations on which BioCro is based. 
+
+# Options for ctags
+# --c++-kinds=+p will include symbols in header files.
+ctags --c++-kinds=+p
+
