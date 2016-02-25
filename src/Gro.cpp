@@ -1,0 +1,206 @@
+/*
+ *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez Copyright (C)
+ *  2007-2015 lower and upper temp contributed by Deepak Jaiswal,
+ *  nitroparms also contributed by Deepak Jaiswal
+ *
+ */
+
+#include <memory>
+#include <R.h>
+#include <Rinternals.h>
+#include <math.h>
+#include <Rmath.h>
+#include "BioCro.h"
+#include "Century.h"
+#include "modules.h"
+
+map<string, vector<double>> Gro(
+        map<string, double> initial_state,
+        map<string, double> invariant_parameters,
+        map<string, vector<double>> varying_parameters,
+        std::unique_ptr<IModule> const &canopy_photosynthesis_module,
+		double (*leaf_n_limitation)(state_map model_state))
+{
+    vector<double>::size_type n = varying_parameters.begin()->second.size();
+    map<string, vector<double>> results;
+    results["canopy_assimilation"] = vector<double>(n);
+    results["canopy_transpiration"] = vector<double>(n);
+    results["leaf_mass"] = vector<double>(n);
+    results["stem_mass"] = vector<double>(n);
+    results["root_mass"] = vector<double>(n);
+    results["rhizome_mass"] = vector<double>(n);
+    results["grain_mass"] = vector<double>(n);
+    results["lai"] = vector<double>(n);
+    results["thermal_time"] = vector<double>(n);
+    results["soil_water_content"] = vector<double>(n);
+    results["stomatal_conductance_coefs"] = vector<double>(n);
+    results["leaf_reduction_coefs"] = vector<double>(n);
+    results["leaf_nitrogen"] = vector<double>(n);
+    results["above_ground_litter"] = vector<double>(n);
+    results["below_ground_litter"] = vector<double>(n);
+    results["vmax"] = vector<double>(n);
+    results["alpha"] = vector<double>(n);
+    results["specific_leaf_area"] = vector<double>(n);
+    results["min_nitro"] = vector<double>(n);
+    results["respiration"] = vector<double>(n);
+    results["soil_evaporation"] = vector<double>(n);
+    results["leaf_psim"] = vector<double>(n);
+    results["kLeaf"] = vector<double>(n);
+
+    state_map state = initial_state;
+    state_map s;
+    map<string, double> fluxes;
+
+    int vecsize = n;
+
+    state["LeafN_0"] = state["ileafn"];
+    state["LeafN"] = state["ileafn"]; /* Need to set it because it is used by CanA before it is computed */
+    state["TTc"] = 0;
+
+
+
+    //// Old framework stuff.
+
+    int k = 0;
+    double newLeafcol[8760];
+
+    double CanopyA, CanopyT;
+    double soilEvap = 0;
+    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
+    struct dbp_str dbpS;
+    double kLeaf, kRoot, kStem, kRhizome, kGrain;
+    Rprintf("Before dbpcoefs\n");
+
+    double dbpcoefs[] = {
+        invariant_parameters.at("kStem1"), invariant_parameters.at("kLeaf1"), invariant_parameters.at("kRoot1"), invariant_parameters.at("kRhizome1"),
+        invariant_parameters.at("kStem2"), invariant_parameters.at("kLeaf2"), invariant_parameters.at("kRoot2"), invariant_parameters.at("kRhizome2"),
+        invariant_parameters.at("kStem3"), invariant_parameters.at("kLeaf3"), invariant_parameters.at("kRoot3"), invariant_parameters.at("kRhizome3"),
+        invariant_parameters.at("kStem4"), invariant_parameters.at("kLeaf4"), invariant_parameters.at("kRoot4"), invariant_parameters.at("kRhizome4"),
+        invariant_parameters.at("kStem5"), invariant_parameters.at("kLeaf5"), invariant_parameters.at("kRoot5"), invariant_parameters.at("kRhizome5"),
+        invariant_parameters.at("kStem6"), invariant_parameters.at("kLeaf6"), invariant_parameters.at("kRoot6"), invariant_parameters.at("kRhizome6"), invariant_parameters.at("kGrain6")
+    };
+
+    Rprintf("Before thermalp\n");
+    double thermalp[] = {
+        invariant_parameters.at("tp1"), invariant_parameters.at("tp2"), invariant_parameters.at("tp3"), invariant_parameters.at("tp4"), invariant_parameters.at("tp5"), invariant_parameters.at("tp6")
+    };
+
+    Rprintf("Before loop\n");
+    for(int i = 0; i < vecsize; ++i)
+    {
+        s = combine_state(state, invariant_parameters, varying_parameters, i);
+        s["Sp"] = s["iSp"] - (s["doy"] - varying_parameters["doy"][0]) * s["SpD"];
+
+        s["lai"] = s["Leaf"] * s["Sp"];
+		s["LeafN"] = leaf_n_limitation(s);
+        s["vmax"] = (s["LeafN_0"] - s["LeafN"]) * s["vmaxb1"] + s["vmax1"];
+        s["alpha"] = (s["LeafN_0"] - s["LeafN"]) * s["alphab1"] + s["alpha1"];
+
+        /* The specific leaf area declines with the growing season at least in
+           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
+           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
+           management in north-eastern greece*/
+
+        if(s["temp"] > s["tbase"]) {
+            s["TTc"] += (s["temp"]-s["tbase"]) / (24/s["timestep"]); 
+        }
+
+        fluxes = canopy_photosynthesis_module->run(s);
+
+        CanopyA = fluxes["Assim"] * s["timestep"];
+        CanopyT = fluxes["Trans"] * s["timestep"];
+
+        soilEvap = SoilEvapo(s["lai"], 0.68, s["temp"], s["solar"], s["waterCont"],
+                s["FieldC"], s["WiltP"], s["windspeed"], s["rh"], s["rsec"]);
+        s["TotEvap"] = soilEvap + CanopyT;
+        WaterS = watstr(s["precip"], s["TotEvap"], s["waterCont"], s["soilDepth"], s["FieldC"],
+                s["WiltP"], s["phi1"], s["phi2"], s["soilType"], s["wsFun"]);
+        s["waterCont"] = WaterS.awc;
+        s["LeafWS"] = WaterS.rcoefSpleaf;
+
+        /* Picking the dry biomass partitioning coefficients */
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, s["TTc"]);
+
+        kLeaf = dbpS.kLeaf;
+        kStem = dbpS.kStem;
+        kRoot = dbpS.kRoot;
+        kGrain = dbpS.kGrain;
+        kRhizome = dbpS.kRhiz;
+
+        /* Nitrogen fertilizer */
+        /* Only the day in which the fertilizer was applied this is available */
+        /* When the day of the year is equal to the day the N fert was applied
+         * then there is addition of fertilizer */
+        if(s["doyNfert"] == s["doy"]) {
+            s["Nfert"] = s["centcoefs17"] / 24.0;
+        } else {
+            s["Nfert"] = 0;
+        }                
+
+        /* Here I can insert the code for Nitrogen limitations on photosynthesis
+           parameters. This is taken From Harley et al. (1992) Modelling cotton under
+           elevated CO2. PCE. This is modeled as a simple linear relationship between
+           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
+           availability and possibly by the Thermal time accumulated.*/
+
+        if (kLeaf > 0) {
+            fluxes["newLeaf"] = CanopyA * kLeaf * s["LeafWS"];
+            /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
+                Plant. Phys. 46, 233-235. For this the water stress coefficient is different
+                for leaf and vmax. */
+            /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
+            /* The 0.02 and 0.03 are constants here but vary depending on species
+               as pointed out in that reference. */
+
+            fluxes["newLeaf"] = resp(fluxes["newLeaf"], s["mrc1"], s["temp"]);
+
+            *(newLeafcol+i) = fluxes["newLeaf"]; /* This populates the vector newLeafcol. It makes sense
+                                   to use i because when kLeaf is negative no new leaf is
+                                   being accumulated and thus would not be subjected to senescence */
+        } else {
+            fluxes["newLeaf"] = s["Leaf"] * kLeaf;
+            s["Rhizome"] += kRhizome * -fluxes["newLeaf"] * 0.9; /* 0.9 is the efficiency of retranslocation */
+            s["Stem"] += kStem * -fluxes["newLeaf"] * 0.9;
+            s["Root"] += kRoot * -fluxes["newLeaf"] * 0.9;
+            s["Grain"] += kGrain * -fluxes["newLeaf"] * 0.9;
+        }
+
+        if (s["TTc"] < s["seneLeaf"]) {
+            s["Leaf"] += fluxes["newLeaf"];
+        } else {
+            s["Leaf"] += fluxes["newLeaf"] - *(newLeafcol+k); /* This means that the new value of leaf is
+                                           the previous value plus the newLeaf
+                                           (Senescence might start when there is
+                                           still leaf being produced) minus the leaf
+                                           produced at the corresponding k.*/
+            double Remob = *(newLeafcol+k) * 0.6;
+            s["LeafLitter"] += *(newLeafcol+k) * 0.4; /* Collecting the leaf litter */ 
+            s["Rhizome"] += kRhizome * Remob;
+            s["Stem"] += kStem * Remob;
+            s["Root"] += kRoot * Remob;
+            s["Grain"] += kGrain * Remob;
+            ++k;
+        }
+        state = replace_state(state, s);
+
+        results["canopy_assimilation"][i] =  CanopyA;
+		results["canopy_transpiration"][i] = CanopyT;
+        results["leaf_mass"][i] = s["Leaf"];
+        results["stem_mass"][i] = s["Stem"];
+        results["root_mass"][i] =  s["Root"];
+        results["rhizome_mass"][i] = s["Rhizome"];
+        results["grain_mass"][i] = s["Grain"];
+        results["lai"][i] = s["lai"];
+		results["thermal_time"][i] = s["TTc"];
+		results["soil_water_content"][i] = s["waterCont"];
+		results["leaf_reduction_coefs"][i] = s["LeafWS"];
+		results["leaf_nitrogen"][i] = s["LeafN"];
+		results["vmax"][i] = s["vmax"];
+		results["alpha"][i] = s["alpha"];
+		results["specific_leaf_area"][i] =s[" Sp"];
+		results["soil_evaporation"][i] = soilEvap;
+		results["kLeaf"][i] = kLeaf;
+    }
+    return results;
+}
+
