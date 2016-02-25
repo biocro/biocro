@@ -4,12 +4,16 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
 #include "BioCro.h"
 #include "c3photo.h"
 
 using std::vector;
 using std::string;
 using std::map;
+
+typedef map<string, double> state_map;
+typedef map<string, vector<double>> state_vector_map;
 
 class IModule {
     public:
@@ -19,7 +23,7 @@ class IModule {
     {}
         vector<string> list_required_state();
         vector<string> list_modified_state();
-        map<string, double> operator() (map<string, double> state);
+        map<string, double> run (map<string, double> state);
         vector<string> state_requirements_are_met(map<string, double> state);
         virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
     private:
@@ -44,30 +48,40 @@ class c3_leaf : public Leaf_photosynthesis_module {
         c3_leaf()
             : Leaf_photosynthesis_module(vector<string> {"Qp", "Tleaf"} , vector<string> {})
         {} 
-        double operator() (map<string, double> s);
+        double run (map<string, double> s);
         struct c3_str assimilation(map<string, double> s);
 };
 
-class Canopy_photosynthesis_module : public IModule {
+class ICanopy_photosynthesis_module : public IModule {
     public:
-        Canopy_photosynthesis_module(const vector<string> required_state, const vector<string> modified_state)
+        ICanopy_photosynthesis_module(const vector<string> required_state, const vector<string> modified_state)
             : IModule(required_state, modified_state)
         {}
 };
 
-class c4_canopy : public IModule {
+class c4_canopy : public ICanopy_photosynthesis_module {
     public:
         c4_canopy()
-            : IModule(vector<string> {}, vector<string> {})
+            : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solar", "temp",
+                    "rh", "windspeed", "lat", "nlayers", "vmax1",
+                    "alpha1", "kparm", "beta", "Rd", "Catm",
+                    "b0", "b1", "theta", "kd", "chil",
+                    "heightf", "LeafN", "kpLN", "lnb0", "lnb1",
+                    "lnfun", "upperT", "lowerT", "leafwidth",
+                    "et_equation", "StomataWS", "ws",
+                    "ileafN", "kln", "Vmaxb0", "Vmaxb1", "alphab1",
+                    "Rdb1", "Rdb0", "kpLN", "maxln",
+                    "minln", "daymaxln"}, 
+                    vector<string> {})
         {}
     private:
         virtual map<string, double> do_operation (map<string, double> s);
 };
 
-class c3_canopy : public IModule {
+class c3_canopy : public ICanopy_photosynthesis_module {
     public:
         c3_canopy()
-            : IModule(vector<string> {"lai", "doy", "hour", "solarr", "temp",
+            : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solarr", "temp",
                    "rh", "windspeed", "lat", "nlayers", "vmax",
                    "jmax", "rd", "catm", "o2", "b0",
                    "b1", "theta", "kd", "heightf", "leafn",
@@ -79,80 +93,21 @@ class c3_canopy : public IModule {
         virtual map<string, double> do_operation (map<string, double> s);
 };
 
-/* Testing code
-    struct Model_state mystate;
-    map<string, double> myparameters;
 
-myparameters["Qp"] = 1000;
-myparameters["Tleaf"] = 25;
-myparameters["RH"] = 80;
-myparameters["Vcmax0"] = 100;
-myparameters["Jmax"] = 180;
-myparameters["Rd0"] = 1.1;
-myparameters["bb0"] = 0.08;
-myparameters["bb1"] = 5;
-myparameters["Ca"] = 380;
-myparameters["O2"] = 210;
-myparameters["thet"] = 0.7;
-myparameters["StomWS"] = 1;
-myparameters["ws"] = 0;
+state_map combine_state(state_map state, state_map invariant_parameters, state_vector_map varying_parameters, int timestep);
 
-    Canopy_assimilation can(myparameters);
-    c3_leaf myphoto(myparameters);
-    c3_canopy myc3can(myparameters);
-    Rprintf("can: %.2f, myphoto: %.2f\n", can(mystate), myc3can.assimilation(mystate).Assim);
+map<string, vector<double>> Gro(
+        map<string, double> initial_state,
+        map<string, double> invariant_parameters,
+        map<string, vector<double>> varying_parameters,
+        std::unique_ptr<IModule> const &canopy_photosynthesis_module,
+		double (*leaf_n_limitation)(state_map model_state));
 
-	map<string, double> parms;
+double biomass_leaf_nitrogen_limitation(state_map model_state);
 
-	parms["lat"] = lat;
-	parms["nlayers"] = nlayers;
-	parms["kparm"] = kparm;
-	parms["beta"] = beta;
-	parms["Rd"] = Rd;
-	parms["Catm"] = Catm;
-	parms["b0"] = b0;
-	parms["b1"] = b1;
-	parms["theta"] = theta;
-	parms["kd"] = kd;
-	parms["chil"] = chil;
-	parms["heightf"] = heightf;
-	parms["kpLN"] = kpLN;
-	parms["lnb0"] = lnb0;
-	parms["lnb1"] = lnb1;
-	parms["lnfun"] = lnfun;
-	parms["upperT"] = upperT;
-	parms["lowerT"] = lowerT;
+void output_map(map<string, double> m);
 
-	parms["ileafN"] = nitroP.ileafN;
-	parms["kln"] = nitroP.kln;
-	parms["Vmaxb1"] = nitroP.Vmaxb1;
-	parms["Vmaxb0"] = nitroP.Vmaxb0;
-	parms["alphab1"] = nitroP.alphab1;
-	parms["alphab0"] = nitroP.alphab0;
-	parms["Rdb1"] = nitroP.Rdb1;
-	parms["Rdb0"] = nitroP.Rdb0;
-	parms["kpLN"] = nitroP.kpLN;
-	parms["lnb0"] = nitroP.lnb0;
-	parms["lnb1"] = nitroP.lnb1;
-	parms["lnFun"] = nitroP.lnFun;
-	parms["maxln"] = nitroP.maxln;
-	parms["minln"] = nitroP.minln;
-	parms["daymaxln"] = nitroP.daymaxln;
-
-
-	parms["leafwidth"] = leafwidth;
-	parms["et_equation"] = et_equation;
-	parms["ws"] = ws;
-
-	c4_canopy mycanopy(parms);
-
-		struct Can_Str temp_canopy;
-		temp_canopy = mycanopy.assimilation(current_state);
-
-		if ( temp_canopy.Assim != Canopy.Assim || temp_canopy.Trans != Canopy.Trans || temp_canopy.GrossAssim != Canopy.GrossAssim)
-			Rprintf("%.2f, %.2f, %.2f\n%.2f, %.2f, %.2f\n\n", Canopy.Assim, Canopy.Trans, Canopy.GrossAssim, temp_canopy.Assim, temp_canopy.Trans, temp_canopy.GrossAssim);
-
-    */
+state_map replace_state(state_map state, state_map newstate);
 
 # endif
 

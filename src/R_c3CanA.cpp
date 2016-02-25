@@ -6,6 +6,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include "BioCro.h"
+#include "modules.h"
 
 extern "C" {
 
@@ -64,21 +65,55 @@ extern "C" {
         PROTECT(trans = allocVector(REALSXP,1));
         PROTECT(Ggrowth = allocVector(REALSXP,1));
 
-        struct Can_Str ans = {0, 0, 0};
+        map<string, double> s;
+        s["lai"] = LAI;
+        s["doy"] = DOY;
+        s["hour"] = hr;
+        s["solarr"] = solarR;
+        s["temp"] = Temp;
+        s["rh"] = RH;
+        s["windspeed"] = WindSpeed;
+        s["lat"] = lat;
+        s["nlayers"] = nlayers;
+        s["vmax"] = vmax;
+        s["jmax"] = jmax;
+        s["rd"] = Rd;
+        s["catm"] = Catm;
+        s["o2"] = o2;
+        s["b0"] = b0;
+        s["b1"] = b1;
+        s["theta"] = theta;
+        s["kd"] = kd;
+        s["heightf"] = heightf;
+        s["leafn"] = leafN;
+        s["kpln"] = kpLN;
+        s["lnb0"] = lnb0;
+        s["lnb1"] = lnb1;
+        s["lnfun"] = lnfun;
+        s["stomataws"] = StomataWS;
+        s["ws"] = ws;
 
-        ans = c3CanAC(LAI, DOY, hr, solarR, Temp,
-                RH, WindSpeed, lat, nlayers, vmax,
-                jmax, Rd, Catm, o2, b0,
-                b1, theta, kd, heightf, leafN,
-                kpLN, lnb0, lnb1, lnfun, StomataWS, ws);
+        c3_canopy canopy;
+        vector<string> missing_state = canopy.state_requirements_are_met(s);
+        if (!missing_state.empty()) {
+            Rprintf("The following state variables are required for c3CanA but are missing: ");
+            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; it++) {
+                Rprintf("%s, ", it->c_str());
+            }
+            Rprintf("%s.\n", missing_state.back().c_str());
+            error("This function cannot continue unless all state variables are set.");
+        }
 
-        if(ISNAN(ans.Assim)) {
+        map<string, double> ans;
+        ans = canopy.run(s);
+
+        if(ISNAN(ans.at("Assim"))) {
             error("Something is NA \n");
         }
 
-        REAL(growth)[0] = ans.Assim;
-        REAL(trans)[0] = ans.Trans;
-        REAL(Ggrowth)[0] = ans.GrossAssim;
+        REAL(growth)[0] = ans.at("Assim");
+        REAL(trans)[0] = ans.at("Trans");
+        REAL(Ggrowth)[0] = ans.at("GrossAssim");
 
         SET_VECTOR_ELT(lists, 0, growth);
         SET_VECTOR_ELT(lists, 1, trans);
