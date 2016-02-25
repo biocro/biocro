@@ -70,8 +70,7 @@ class c4_canopy : public ICanopy_photosynthesis_module {
                     "lnfun", "upperT", "lowerT", "leafwidth",
                     "et_equation", "StomataWS", "ws",
                     "ileafN", "kln", "Vmaxb0", "Vmaxb1", "alphab1",
-                    "Rdb1", "Rdb0", "kpLN", "maxln",
-                    "minln", "daymaxln"}, 
+                    "Rdb1", "Rdb0", "kpLN"}, 
                     vector<string> {})
         {}
     private:

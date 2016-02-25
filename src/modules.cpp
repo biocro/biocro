@@ -50,21 +50,17 @@ map<string, double> c4_canopy::do_operation(map<string, double> s) {
     struct nitroParms nitroP; 
     map<string, double> fluxes;
 
-    nitroP.ileafN = s["ileafN"];
-    nitroP.kln = s["kln"];
-    nitroP.Vmaxb1 = s["Vmaxb1"];
-    nitroP.Vmaxb0 = s["Vmaxb0"];
-    nitroP.alphab1 = s["alphab1"];
-    nitroP.alphab0 = s["alphab0"];
-    nitroP.Rdb1 = s["Rdb1"];
-    nitroP.Rdb0 = s["Rdb0"];
-    nitroP.kpLN = s["kpLN"];
-    nitroP.lnb0 = s["lnb0"];
-    nitroP.lnb1 = s["lnb1"];
-    nitroP.lnFun = (int)s["lnFun"];
-    nitroP.maxln = s["maxln"];
-    nitroP.minln = s["minln"];
-    nitroP.daymaxln = s["daymaxln"];
+    nitroP.ileafN = s.at("nileafn");
+    nitroP.kln = s.at("nkln");
+    nitroP.Vmaxb1 = s.at("nvmaxb1");
+    nitroP.Vmaxb0 = s.at("nvmaxb0");
+    nitroP.alphab1 = s.at("nalphab1");
+    nitroP.alphab0 = s.at("nalphab0");
+    nitroP.Rdb1 = s.at("nRdb1");
+    nitroP.Rdb0 = s.at("nRdb0");
+    nitroP.kpLN = s.at("nkpLN");
+    nitroP.lnb0 = s.at("nlnb0");
+    nitroP.lnb1 = s.at("nlnb1");
 
     result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
             s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax1"),
