@@ -89,53 +89,43 @@ map<string, vector<double>> Gro(
     for(int i = 0; i < vecsize; ++i)
     {
         s = combine_state(state, invariant_parameters, varying_parameters, i);
-        s["Sp"] = s["iSp"] - (s["doy"] - varying_parameters["doy"][0]) * s["SpD"];
+        s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");
 
-        s["lai"] = s["Leaf"] * s["Sp"];
+        s["lai"] = s.at("Leaf") * s.at("Sp");
 		s["LeafN"] = leaf_n_limitation(s);
-        s["vmax"] = (s["LeafN_0"] - s["LeafN"]) * s["vmaxb1"] + s["vmax1"];
-        s["alpha"] = (s["LeafN_0"] - s["LeafN"]) * s["alphab1"] + s["alpha1"];
+        s["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmaxb1") + s.at("vmax1");
+        s["alpha"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("alphab1") + s.at("alpha1");
 
         /* The specific leaf area declines with the growing season at least in
            Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
            Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
            management in north-eastern greece*/
 
-        if(s["temp"] > s["tbase"]) {
-            s["TTc"] += (s["temp"]-s["tbase"]) / (24/s["timestep"]); 
+        if(s.at("temp") > s.at("tbase")) {
+            s["TTc"] += (s.at("temp")-s.at("tbase")) / (24/s.at("timestep")); 
         }
 
         fluxes = canopy_photosynthesis_module->run(s);
 
-        CanopyA = fluxes["Assim"] * s["timestep"];
-        CanopyT = fluxes["Trans"] * s["timestep"];
+        CanopyA = fluxes["Assim"] * s.at("timestep");
+        CanopyT = fluxes["Trans"] * s.at("timestep");
 
-        soilEvap = SoilEvapo(s["lai"], 0.68, s["temp"], s["solar"], s["waterCont"],
-                s["FieldC"], s["WiltP"], s["windspeed"], s["rh"], s["rsec"]);
+        soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
+                s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
         s["TotEvap"] = soilEvap + CanopyT;
-        WaterS = watstr(s["precip"], s["TotEvap"], s["waterCont"], s["soilDepth"], s["FieldC"],
-                s["WiltP"], s["phi1"], s["phi2"], s["soilType"], s["wsFun"]);
+        WaterS = watstr(s.at("precip"), s.at("TotEvap"), s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
+                s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
         s["waterCont"] = WaterS.awc;
         s["LeafWS"] = WaterS.rcoefSpleaf;
 
         /* Picking the dry biomass partitioning coefficients */
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, s["TTc"]);
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, s.at("TTc"));
 
         kLeaf = dbpS.kLeaf;
         kStem = dbpS.kStem;
         kRoot = dbpS.kRoot;
         kGrain = dbpS.kGrain;
         kRhizome = dbpS.kRhiz;
-
-        /* Nitrogen fertilizer */
-        /* Only the day in which the fertilizer was applied this is available */
-        /* When the day of the year is equal to the day the N fert was applied
-         * then there is addition of fertilizer */
-        if(s["doyNfert"] == s["doy"]) {
-            s["Nfert"] = s["centcoefs17"] / 24.0;
-        } else {
-            s["Nfert"] = 0;
-        }                
 
         /* Here I can insert the code for Nitrogen limitations on photosynthesis
            parameters. This is taken From Harley et al. (1992) Modelling cotton under
@@ -144,7 +134,7 @@ map<string, vector<double>> Gro(
            availability and possibly by the Thermal time accumulated.*/
 
         if (kLeaf > 0) {
-            fluxes["newLeaf"] = CanopyA * kLeaf * s["LeafWS"];
+            fluxes["newLeaf"] = CanopyA * kLeaf * s.at("LeafWS");
             /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
                 Plant. Phys. 46, 233-235. For this the water stress coefficient is different
                 for leaf and vmax. */
@@ -152,23 +142,24 @@ map<string, vector<double>> Gro(
             /* The 0.02 and 0.03 are constants here but vary depending on species
                as pointed out in that reference. */
 
-            fluxes["newLeaf"] = resp(fluxes["newLeaf"], s["mrc1"], s["temp"]);
+            fluxes["newLeaf"] = resp(fluxes["newLeaf"], s.at("mrc1"), s.at("temp"));
 
-            *(newLeafcol+i) = fluxes["newLeaf"]; /* This populates the vector newLeafcol. It makes sense
+            *(newLeafcol+i) = fluxes.at("newLeaf"); /* This populates the vector newLeafcol. It makes sense
                                    to use i because when kLeaf is negative no new leaf is
                                    being accumulated and thus would not be subjected to senescence */
         } else {
-            fluxes["newLeaf"] = s["Leaf"] * kLeaf;
+            fluxes["newLeaf"] = s.at("Leaf") * kLeaf;
             s["Rhizome"] += kRhizome * -fluxes["newLeaf"] * 0.9; /* 0.9 is the efficiency of retranslocation */
             s["Stem"] += kStem * -fluxes["newLeaf"] * 0.9;
             s["Root"] += kRoot * -fluxes["newLeaf"] * 0.9;
             s["Grain"] += kGrain * -fluxes["newLeaf"] * 0.9;
         }
 
-        if (s["TTc"] < s["seneLeaf"]) {
-            s["Leaf"] += fluxes["newLeaf"];
+        if (i == 0) output_map(s);
+        if (s["TTc"] < s.at("seneLeaf")) {
+            s["Leaf"] += fluxes.at("newLeaf");
         } else {
-            s["Leaf"] += fluxes["newLeaf"] - *(newLeafcol+k); /* This means that the new value of leaf is
+            s["Leaf"] += fluxes.at("newLeaf") - *(newLeafcol+k); /* This means that the new value of leaf is
                                            the previous value plus the newLeaf
                                            (Senescence might start when there is
                                            still leaf being produced) minus the leaf
