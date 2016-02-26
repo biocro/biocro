@@ -51,21 +51,12 @@ map<string, vector<double>> Gro(
     state_map s;
     map<string, double> fluxes;
 
-    int vecsize = n_rows;
-
-    state["LeafN_0"] = state["ileafn"];
-    state["LeafN"] = state["ileafn"]; /* Need to set it because it is used by CanA before it is computed */
-    state["TTc"] = 0;
-
-
-
     //// Old framework stuff.
-
     int k = 0, ri = 0, q = 0, m = 0, n = 0;
     double newLeafcol[8760];
-    double newRhizomecol[8760];
     double newStemcol[8760];
     double newRootcol[8760];
+    double newRhizomecol[8760];
 
     double CanopyA, CanopyT;
     double soilEvap = 0;
@@ -89,7 +80,7 @@ map<string, vector<double>> Gro(
     };
 
     Rprintf("Before loop\n");
-    for(int i = 0; i < vecsize; ++i)
+    for(int i = 0; i < n_rows; ++i)
     {
         s = combine_state(state, invariant_parameters, varying_parameters, i);
         s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");
@@ -98,11 +89,6 @@ map<string, vector<double>> Gro(
 		s["LeafN"] = leaf_n_limitation(s);
         s["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmaxb1") + s.at("vmax1");
         s["alpha"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("alphab1") + s.at("alpha1");
-
-        /* The specific leaf area declines with the growing season at least in
-           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
-           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
-           management in north-eastern greece*/
 
         if(s.at("temp") > s.at("tbase")) {
             s["TTc"] += (s.at("temp")-s.at("tbase")) / (24/s.at("timestep")); 
@@ -119,6 +105,7 @@ map<string, vector<double>> Gro(
         WaterS = watstr(s.at("precip"), s.at("TotEvap"), s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
                 s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
         s["waterCont"] = WaterS.awc;
+        s["StomataWS"] = WaterS.rcoefPhoto;
         s["LeafWS"] = WaterS.rcoefSpleaf;
 
         /* Picking the dry biomass partitioning coefficients */
@@ -249,8 +236,6 @@ map<string, vector<double>> Gro(
             s["Grain"] += fluxes.at("newGrain");
         }
 
-        if (i == 0) {output_map(s); output_map(fluxes);}
-
         state = replace_state(state, s);
 
         results["canopy_assimilation"][i] =  CanopyA;
@@ -263,6 +248,7 @@ map<string, vector<double>> Gro(
         results["lai"][i] = s.at("lai");
 		results["thermal_time"][i] = s.at("TTc");
 		results["soil_water_content"][i] = s.at("waterCont");
+        results["stomatal_conductance_coefs"][i] = s.at("StomataWS");
 		results["leaf_reduction_coefs"][i] = s.at("LeafWS");
 		results["leaf_nitrogen"][i] = s.at("LeafN");
 		results["vmax"][i] = s.at("vmax");
