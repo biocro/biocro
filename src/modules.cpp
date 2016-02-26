@@ -132,7 +132,7 @@ state_map replace_state(state_map state, state_map newstate) {
 double biomass_leaf_nitrogen_limitation(state_map s)
 {
     double leaf_n = 0;
-    leaf_n = s["leaf_n_0"] * pow(s["Leaf"] + s["Stem"], -s["kLn"]);
-    return(leaf_n > s["leaf_n_0"] ? s["leaf_n_0"] : leaf_n);
+    leaf_n = s.at("LeafN_0") * pow(s.at("Leaf") + s.at("Stem"), -s.at("kln"));
+    return(leaf_n > s.at("LeafN_0") ? s.at("LeafN_0") : leaf_n);
 }
 
