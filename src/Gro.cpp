@@ -21,37 +21,37 @@ map<string, vector<double>> Gro(
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
 		double (*leaf_n_limitation)(state_map model_state))
 {
-    vector<double>::size_type n = varying_parameters.begin()->second.size();
+    vector<double>::size_type n_rows = varying_parameters.begin()->second.size();
     map<string, vector<double>> results;
-    results["canopy_assimilation"] = vector<double>(n);
-    results["canopy_transpiration"] = vector<double>(n);
-    results["leaf_mass"] = vector<double>(n);
-    results["stem_mass"] = vector<double>(n);
-    results["root_mass"] = vector<double>(n);
-    results["rhizome_mass"] = vector<double>(n);
-    results["grain_mass"] = vector<double>(n);
-    results["lai"] = vector<double>(n);
-    results["thermal_time"] = vector<double>(n);
-    results["soil_water_content"] = vector<double>(n);
-    results["stomatal_conductance_coefs"] = vector<double>(n);
-    results["leaf_reduction_coefs"] = vector<double>(n);
-    results["leaf_nitrogen"] = vector<double>(n);
-    results["above_ground_litter"] = vector<double>(n);
-    results["below_ground_litter"] = vector<double>(n);
-    results["vmax"] = vector<double>(n);
-    results["alpha"] = vector<double>(n);
-    results["specific_leaf_area"] = vector<double>(n);
-    results["min_nitro"] = vector<double>(n);
-    results["respiration"] = vector<double>(n);
-    results["soil_evaporation"] = vector<double>(n);
-    results["leaf_psim"] = vector<double>(n);
-    results["kLeaf"] = vector<double>(n);
+    results["canopy_assimilation"] = vector<double>(n_rows);
+    results["canopy_transpiration"] = vector<double>(n_rows);
+    results["leaf_mass"] = vector<double>(n_rows);
+    results["stem_mass"] = vector<double>(n_rows);
+    results["root_mass"] = vector<double>(n_rows);
+    results["rhizome_mass"] = vector<double>(n_rows);
+    results["grain_mass"] = vector<double>(n_rows);
+    results["lai"] = vector<double>(n_rows);
+    results["thermal_time"] = vector<double>(n_rows);
+    results["soil_water_content"] = vector<double>(n_rows);
+    results["stomatal_conductance_coefs"] = vector<double>(n_rows);
+    results["leaf_reduction_coefs"] = vector<double>(n_rows);
+    results["leaf_nitrogen"] = vector<double>(n_rows);
+    results["above_ground_litter"] = vector<double>(n_rows);
+    results["below_ground_litter"] = vector<double>(n_rows);
+    results["vmax"] = vector<double>(n_rows);
+    results["alpha"] = vector<double>(n_rows);
+    results["specific_leaf_area"] = vector<double>(n_rows);
+    results["min_nitro"] = vector<double>(n_rows);
+    results["respiration"] = vector<double>(n_rows);
+    results["soil_evaporation"] = vector<double>(n_rows);
+    results["leaf_psim"] = vector<double>(n_rows);
+    results["kLeaf"] = vector<double>(n_rows);
 
     state_map state = initial_state;
     state_map s;
     map<string, double> fluxes;
 
-    int vecsize = n;
+    int vecsize = n_rows;
 
     state["LeafN_0"] = state["ileafn"];
     state["LeafN"] = state["ileafn"]; /* Need to set it because it is used by CanA before it is computed */
@@ -61,7 +61,7 @@ map<string, vector<double>> Gro(
 
     //// Old framework stuff.
 
-    int k = 0, ri = 0, q = 0, m = 0;
+    int k = 0, ri = 0, q = 0, m = 0, n = 0;
     double newLeafcol[8760];
     double newRhizomecol[8760];
     double newStemcol[8760];
@@ -231,25 +231,43 @@ map<string, vector<double>> Gro(
             s["Grain"] += kGrain * -fluxes.at("newRhizome");
         }
 
+       if (s.at("TTc") < s.at("seneRhizome")) {
+            s["Rhizome"] += fluxes.at("newRhizome");
+        } else {
+            s["Rhizome"] += fluxes.at("newRhizome") - *(newRhizomecol+n);
+            s["RhizomeLitter"] += *(newRhizomecol+n);
+            ++n;
+        }
+
+        if ((kGrain < 1e-10) || (s["TTc"] < thermalp[4])) {
+            fluxes["newGrain"] = 0.0;
+            s["Grain"] += fluxes.at("newGrain");
+        } else {
+            fluxes["newGrain"] = CanopyA * kGrain;
+            /* No respiration for grain at the moment */
+            /* No senescence either */
+            s["Grain"] += fluxes.at("newGrain");
+        }
+
         if (i == 0) {output_map(s); output_map(fluxes);}
 
         state = replace_state(state, s);
 
         results["canopy_assimilation"][i] =  CanopyA;
 		results["canopy_transpiration"][i] = CanopyT;
-        results["leaf_mass"][i] = s["Leaf"];
-        results["stem_mass"][i] = s["Stem"];
-        results["root_mass"][i] =  s["Root"];
-        results["rhizome_mass"][i] = s["Rhizome"];
-        results["grain_mass"][i] = s["Grain"];
-        results["lai"][i] = s["lai"];
-		results["thermal_time"][i] = s["TTc"];
-		results["soil_water_content"][i] = s["waterCont"];
-		results["leaf_reduction_coefs"][i] = s["LeafWS"];
-		results["leaf_nitrogen"][i] = s["LeafN"];
-		results["vmax"][i] = s["vmax"];
-		results["alpha"][i] = s["alpha"];
-		results["specific_leaf_area"][i] =s[" Sp"];
+        results["leaf_mass"][i] = s.at("Leaf");
+        results["stem_mass"][i] = s.at("Stem");
+        results["root_mass"][i] =  s.at("Root");
+        results["rhizome_mass"][i] = s.at("Rhizome");
+        results["grain_mass"][i] = s.at("Grain");
+        results["lai"][i] = s.at("lai");
+		results["thermal_time"][i] = s.at("TTc");
+		results["soil_water_content"][i] = s.at("waterCont");
+		results["leaf_reduction_coefs"][i] = s.at("LeafWS");
+		results["leaf_nitrogen"][i] = s.at("LeafN");
+		results["vmax"][i] = s.at("vmax");
+		results["alpha"][i] = s.at("alpha");
+		results["specific_leaf_area"][i] =s.at("Sp");
 		results["soil_evaporation"][i] = soilEvap;
 		results["kLeaf"][i] = kLeaf;
     }

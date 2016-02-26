@@ -191,6 +191,12 @@ void BioGro(
 
     for(i = 0; i < vecsize; i++)
     {
+
+        Sp = iSp - (doy[i] - doy[0]) * SpD;
+        LAI = Leaf * Sp;
+		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
+        vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
+        alpha = (LeafN_0 - LeafN) * alphab1 + alpha1;
         /* First calculate the elapsed Thermal Time*/
         if(temp[i] > tbase) {
             TTc += (temp[i]-tbase) / (24/timestep); 
@@ -374,10 +380,6 @@ void BioGro(
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the Thermal time accumulated.*/
 
-		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
-
-        vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
-        alpha = (LeafN_0 - LeafN) * alphab1 + alpha1;
 
         /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
            This modifies the amount of N available in the soil. 
@@ -437,11 +439,7 @@ void BioGro(
            Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
            management in north-eastern greece*/
 
-        if (i%24 == 0) {
-            Sp = iSp - (doy[i] - doy[0]) * SpD;
-        }
 
-        LAI = Leaf * Sp;
 
         /* New Stem*/
         if (kStem >= 0) {
