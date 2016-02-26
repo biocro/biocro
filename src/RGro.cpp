@@ -78,10 +78,12 @@ void output_map(map<string, double> m) {
     map<string, double>::iterator last_iterator = m.end();
     --last_iterator;
     Rprintf("The map contains the following items: ");
+    int i = 0;
     for(map<string, double>::iterator it = m.begin(); it != last_iterator; it++) {
-        Rprintf("%s, %0.03f; ", it->first.c_str(), it->second);
+        Rprintf("%s, %0.04f; ", it->first.c_str(), it->second);
+        if (++i % 5 == 0) Rprintf("\n");
     }
-    Rprintf("%s, %0.03f.\n", last_iterator->first.c_str(), last_iterator->second);
+    Rprintf("%s, %0.04f.\n\n", last_iterator->first.c_str(), last_iterator->second);
 }
 
 void output_list(SEXP list) {
@@ -91,9 +93,9 @@ void output_list(SEXP list) {
     names = getAttrib(list, R_NamesSymbol);
     Rprintf("The list contains the following items: ");
     for (int i = 0; i < n - 1; i++) {
-        Rprintf("%s, %0.03f; ", CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]);
+        Rprintf("%s, %0.04f; ", CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]);
     }
-    Rprintf("%s, %0.03f.\n", CHAR(STRING_ELT(names, n - 1)), REAL(VECTOR_ELT(list, n - 1))[0]);
+    Rprintf("%s, %0.04f.\n\n", CHAR(STRING_ELT(names, n - 1)), REAL(VECTOR_ELT(list, n - 1))[0]);
     UNPROTECT(1);
 }
 
