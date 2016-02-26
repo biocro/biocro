@@ -12,12 +12,12 @@ vector<string> IModule::list_modified_state() {
     return(this->_modified_state);
 }
 
-map<string, double> IModule::run(map<string, double> state) {
+map<string, double> IModule::run(map<string, double> const &state) {
     map<string, double> result;
     try {
         result = this->do_operation(state);
     }
-    catch (const std::out_of_range& oor) {
+    catch (std::out_of_range const &oor) {
         vector<string> missing_state = this->state_requirements_are_met(state);
 
         if (!missing_state.empty()) {
@@ -35,9 +35,9 @@ map<string, double> IModule::run(map<string, double> state) {
     return(result);
 }
 
-vector<string> IModule::state_requirements_are_met(map<string, double> s) {
+vector<string> IModule::state_requirements_are_met(map<string, double> const &s) {
     vector<string> missing_state;
-    for (vector<string>::const_iterator it = _required_state.begin(); it != _required_state.end(); ++it) {
+    for (auto it = _required_state.begin(); it != _required_state.end(); ++it) {
         if (s.find(*it) == s.end()) {
             missing_state.push_back(*it);
         }
@@ -45,7 +45,7 @@ vector<string> IModule::state_requirements_are_met(map<string, double> s) {
     return(missing_state);
 }
 
-map<string, double> c4_canopy::do_operation(map<string, double> s) {
+map<string, double> c4_canopy::do_operation(map<string, double> const &s) {
     struct Can_Str result;
     struct nitroParms nitroP; 
     map<string, double> fluxes;
@@ -77,7 +77,7 @@ map<string, double> c4_canopy::do_operation(map<string, double> s) {
     return(fluxes);
 }
 
-map<string, double> c3_canopy::do_operation(map<string, double> s) {
+map<string, double> c3_canopy::do_operation(map<string, double> const &s) {
     struct Can_Str result;
     map<string, double> fluxes;
 
@@ -112,7 +112,7 @@ map<string, vector<double>> allocate_state(map<string, double> m, int n) {
     return(result);
 }
 
-state_map combine_state(state_map state, state_map invariant_parameters, state_vector_map varying_parameters, int timestep) {
+state_map combine_state(state_map const &state, state_map const &invariant_parameters, state_vector_map const &varying_parameters, int timestep) {
     state_map all_state = state;
     all_state.insert(invariant_parameters.begin(), invariant_parameters.end());
     for (auto it = varying_parameters.begin(); it != varying_parameters.end(); ++it) {
@@ -121,15 +121,15 @@ state_map combine_state(state_map state, state_map invariant_parameters, state_v
     return all_state;
 }
 
-state_map replace_state(state_map state, state_map newstate) {
+state_map replace_state(state_map const &state, state_map const &newstate) {
     state_map result = state;
     for (auto it = result.begin(); it != result.end(); ++it) {
-        it->second = newstate[it->first];
+        it->second = newstate.at(it->first);
     }
     return result;
 }
 
-double biomass_leaf_nitrogen_limitation(state_map s)
+double biomass_leaf_nitrogen_limitation(state_map const &s)
 {
     double leaf_n = 0;
     leaf_n = s.at("LeafN_0") * pow(s.at("Leaf") + s.at("Stem"), -s.at("kln"));

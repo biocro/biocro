@@ -8,7 +8,7 @@
 #include "Century.h"
 #include "modules.h"
 
-map<string, double> map_from_list(SEXP list)
+map<string, double> map_from_list(SEXP const &list)
 {
     SEXP names = getAttrib(list, R_NamesSymbol);
     map<string, double> m;
@@ -19,7 +19,7 @@ map<string, double> map_from_list(SEXP list)
     return m;
 }
 
-map<string, vector<double>> map_vector_from_list(SEXP list)
+map<string, vector<double>> map_vector_from_list(SEXP const &list)
 {
     SEXP names = getAttrib(list, R_NamesSymbol);
     int n = length(list);
@@ -37,7 +37,7 @@ map<string, vector<double>> map_vector_from_list(SEXP list)
 }
 
 
-SEXP list_from_map(map<string, double> m)
+SEXP list_from_map(map<string, double> const &m)
 {
     auto n = m.size();
     SEXP list =  PROTECT(allocVector(VECSXP, n));
@@ -52,7 +52,7 @@ SEXP list_from_map(map<string, double> m)
     return list;
 }
 
-SEXP list_from_map(map<string, vector<double>> m)
+SEXP list_from_map(map<string, vector<double>> const &m)
 {
     auto n = m.size();
     SEXP list =  PROTECT(allocVector(VECSXP, n));
@@ -74,19 +74,19 @@ SEXP list_from_map(map<string, vector<double>> m)
     return list;
 }
 
-void output_map(map<string, double> m) {
-    map<string, double>::iterator last_iterator = m.end();
+void output_map(map<string, double> const &m) {
+    auto last_iterator = m.end();
     --last_iterator;
     Rprintf("The map contains the following items: ");
     int i = 0;
-    for(map<string, double>::iterator it = m.begin(); it != last_iterator; it++) {
+    for(auto it = m.begin(); it != last_iterator; it++) {
         Rprintf("%s, %0.04f; ", it->first.c_str(), it->second);
         if (++i % 5 == 0) Rprintf("\n");
     }
     Rprintf("%s, %0.04f.\n\n", last_iterator->first.c_str(), last_iterator->second);
 }
 
-void output_list(SEXP list) {
+void output_list(SEXP const &list) {
     int n;
     n = length(list);
     SEXP names = PROTECT(allocVector(STRSXP, n));
@@ -99,7 +99,7 @@ void output_list(SEXP list) {
     UNPROTECT(1);
 }
 
-std::unique_ptr<IModule> make_module(string module_name)
+std::unique_ptr<IModule> make_module(string const &module_name)
 {
     if (module_name.compare("c4_canopy") == 0) {
         return std::unique_ptr<IModule>(new c4_canopy);

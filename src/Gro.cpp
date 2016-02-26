@@ -15,13 +15,13 @@
 #include "modules.h"
 
 map<string, vector<double>> Gro(
-        map<string, double> initial_state,
-        map<string, double> invariant_parameters,
-        map<string, vector<double>> varying_parameters,
+        map<string, double> const &initial_state,
+        map<string, double> const &invariant_parameters,
+        map<string, vector<double>> const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-		double (*leaf_n_limitation)(state_map model_state))
+		double (*leaf_n_limitation)(state_map const &model_state))
 {
-    vector<double>::size_type n_rows = varying_parameters.begin()->second.size();
+    auto n_rows = varying_parameters.begin()->second.size();
     map<string, vector<double>> results;
     results["canopy_assimilation"] = vector<double>(n_rows);
     results["canopy_transpiration"] = vector<double>(n_rows);
@@ -80,7 +80,7 @@ map<string, vector<double>> Gro(
     };
 
     Rprintf("Before loop\n");
-    for(int i = 0; i < n_rows; ++i)
+    for(size_t i = 0; i < n_rows; ++i)
     {
         s = combine_state(state, invariant_parameters, varying_parameters, i);
         s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");

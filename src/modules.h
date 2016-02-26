@@ -23,13 +23,13 @@ class IModule {
     {}
         vector<string> list_required_state();
         vector<string> list_modified_state();
-        map<string, double> run (map<string, double> state);
-        vector<string> state_requirements_are_met(map<string, double> state);
+        map<string, double> run (map<string, double>  const &state);
+        vector<string> state_requirements_are_met(map<string, double>  const &state);
         virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
     private:
-        const vector<string> _required_state;
-        const vector<string> _modified_state; 
-        virtual map<string, double> do_operation(map<string, double> state) = 0;
+        vector<string> const _required_state;
+        vector<string> const _modified_state; 
+        virtual map<string, double> do_operation(map<string, double> const &state) = 0;
         bool requirements_are_met;
 };
 
@@ -74,7 +74,7 @@ class c4_canopy : public ICanopy_photosynthesis_module {
                     vector<string> {})
         {}
     private:
-        virtual map<string, double> do_operation (map<string, double> s);
+        virtual map<string, double> do_operation (map<string, double> const &s);
 };
 
 class c3_canopy : public ICanopy_photosynthesis_module {
@@ -89,24 +89,24 @@ class c3_canopy : public ICanopy_photosynthesis_module {
                    vector<string> {})
         {}
     private:
-        virtual map<string, double> do_operation (map<string, double> s);
+        virtual map<string, double> do_operation (map<string, double> const &s);
 };
 
 
-state_map combine_state(state_map state, state_map invariant_parameters, state_vector_map varying_parameters, int timestep);
+state_map combine_state(state_map const &state, state_map const &invariant_parameters, state_vector_map const &varying_parameters, int timestep);
 
 map<string, vector<double>> Gro(
-        map<string, double> initial_state,
-        map<string, double> invariant_parameters,
-        map<string, vector<double>> varying_parameters,
+        map<string, double> const &initial_state,
+        map<string, double> const &invariant_parameters,
+        map<string, vector<double>> const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-		double (*leaf_n_limitation)(state_map model_state));
+		double (*leaf_n_limitation)(state_map const &model_state));
 
-double biomass_leaf_nitrogen_limitation(state_map model_state);
+double biomass_leaf_nitrogen_limitation(state_map const &model_state);
 
-void output_map(map<string, double> m);
+void output_map(map<string, double> const &m);
 
-state_map replace_state(state_map state, state_map newstate);
+state_map replace_state(state_map const &state, state_map const &newstate);
 
 # endif
 
