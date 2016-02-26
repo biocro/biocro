@@ -61,8 +61,11 @@ map<string, vector<double>> Gro(
 
     //// Old framework stuff.
 
-    int k = 0;
+    int k = 0, ri = 0, q = 0, m = 0;
     double newLeafcol[8760];
+    double newRhizomecol[8760];
+    double newStemcol[8760];
+    double newRootcol[8760];
 
     double CanopyA, CanopyT;
     double soilEvap = 0;
@@ -142,21 +145,20 @@ map<string, vector<double>> Gro(
             /* The 0.02 and 0.03 are constants here but vary depending on species
                as pointed out in that reference. */
 
-            fluxes["newLeaf"] = resp(fluxes["newLeaf"], s.at("mrc1"), s.at("temp"));
+            fluxes["newLeaf"] = resp(fluxes.at("newLeaf"), s.at("mrc1"), s.at("temp"));
 
             *(newLeafcol+i) = fluxes.at("newLeaf"); /* This populates the vector newLeafcol. It makes sense
                                    to use i because when kLeaf is negative no new leaf is
                                    being accumulated and thus would not be subjected to senescence */
         } else {
             fluxes["newLeaf"] = s.at("Leaf") * kLeaf;
-            s["Rhizome"] += kRhizome * -fluxes["newLeaf"] * 0.9; /* 0.9 is the efficiency of retranslocation */
-            s["Stem"] += kStem * -fluxes["newLeaf"] * 0.9;
-            s["Root"] += kRoot * -fluxes["newLeaf"] * 0.9;
-            s["Grain"] += kGrain * -fluxes["newLeaf"] * 0.9;
+            s["Rhizome"] += kRhizome * -fluxes.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
+            s["Stem"] += kStem * -fluxes.at("newLeaf") * 0.9;
+            s["Root"] += kRoot * -fluxes.at("newLeaf") * 0.9;
+            s["Grain"] += kGrain * -fluxes.at("newLeaf") * 0.9;
         }
 
-        if (i == 0) output_map(s);
-        if (s["TTc"] < s.at("seneLeaf")) {
+        if (s.at("TTc") < s.at("seneLeaf")) {
             s["Leaf"] += fluxes.at("newLeaf");
         } else {
             s["Leaf"] += fluxes.at("newLeaf") - *(newLeafcol+k); /* This means that the new value of leaf is
@@ -172,6 +174,65 @@ map<string, vector<double>> Gro(
             s["Grain"] += kGrain * Remob;
             ++k;
         }
+
+        if (kStem >= 0) {
+            fluxes["newStem"] = CanopyA * kStem;
+            fluxes["newStem"] = resp(fluxes.at("newStem"), s.at("mrc1"), s.at("temp"));
+            *(newStemcol+i) = fluxes.at("newStem");
+        } else {
+            error("kStem should be positive");
+        }
+
+        if (s.at("TTc") < s.at("seneStem")) {
+            s["Stem"] += fluxes.at("newStem");
+        } else {
+            s["Stem"] += fluxes.at("newStem") - *(newStemcol+q);
+            s["StemLitter"] += *(newStemcol+q);
+            ++q;
+        }
+
+        if (kRoot > 0) {
+            fluxes["newRoot"] = CanopyA * kRoot;
+            fluxes["newRoot"] = resp(fluxes.at("newRoot"), s.at("mrc2"), s.at("temp"));
+            *(newRootcol+i) = fluxes.at("newRoot");
+        } else {
+            fluxes["newRoot"] = s.at("Root") * kRoot;
+            s["Rhizome"] += kRhizome * -fluxes.at("newRoot") * 0.9;
+            s["Stem"] += kStem * -fluxes.at("newRoot")       * 0.9;
+            s["Leaf"] += kLeaf * -fluxes.at("newRoot") * 0.9;
+            s["Grain"] += kGrain * -fluxes.at("newRoot") * 0.9;
+        }
+
+        if (s.at("TTc") < s.at("seneRoot")) {
+            s["Root"] += fluxes.at("newRoot");
+        } else {
+            s["Root"] += fluxes.at("newRoot") - *(newRootcol+m);
+            s["RootLitter"] += *(newRootcol+m);
+            ++m;
+        }
+
+        if (kRhizome > 0) {
+            fluxes["newRhizome"] = CanopyA * kRhizome;
+            fluxes["newRhizome"] = resp(fluxes.at("newRhizome"), s.at("mrc2"), s.at("temp"));
+            *(newRhizomecol+ri) = fluxes.at("newRhizome");
+            /* Here i will not work because the rhizome goes from being a source
+               to a sink. I need its own index. Let's call it rhizome's i or ri.*/
+            ++ri;
+        } else {
+            if (s.at("Rhizome") < 0) {
+                s["Rhizome"] = 1e-4;
+                warning("Rhizome became negative");
+            }
+
+            fluxes["newRhizome"] = s.at("Rhizome") * kRhizome;
+            s["Root"] += kRoot * -fluxes.at("newRhizome");
+            s["Stem"] += kStem * -fluxes.at("newRhizome");
+            s["Leaf"] += kLeaf * -fluxes.at("newRhizome");
+            s["Grain"] += kGrain * -fluxes.at("newRhizome");
+        }
+
+        if (i == 0) {output_map(s); output_map(fluxes);}
+
         state = replace_state(state, s);
 
         results["canopy_assimilation"][i] =  CanopyA;
