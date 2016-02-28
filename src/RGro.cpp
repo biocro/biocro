@@ -119,8 +119,8 @@ SEXP RGro(SEXP initial_state,
     state_map ip = map_from_list(invariate_parameters);
     state_vector_map vp = map_vector_from_list(varying_parameters);
 
-    output_map(s);
-    output_map(ip);
+    //output_map(s);
+    //output_map(ip);
 
     std::unique_ptr<IModule> canopy = make_module(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
 

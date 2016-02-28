@@ -52,8 +52,14 @@ state_vector_map Gro(
     for(size_t i = 0; i < n_rows; ++i)
     {
         /*
-         * Calculate all state-dependent state variables.
+         * 1) Calculate all state-dependent state variables.
          */
+
+        /* NOTE: I think it's easier to follow things if all of the set up is done in one place,
+         * so I've moved all of those things to the top of the loop. This also will
+         * make it so that the things in section 2 are no long order dependent.
+         */
+
         fluxes.clear();  // Set all of the fluxes to 0.
         s = combine_state(state, invariant_parameters, varying_parameters, i);
         s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");
@@ -76,7 +82,14 @@ state_vector_map Gro(
         kRhizome = dbpS.kRhiz;
 
         /*
-         * Calculate fluxes between state variables.
+         * 2) Calculate fluxes between state variables.
+         */
+
+        /* NOTE: Eventually, this should be changed so that state is never updated here,
+         * but currently that's not the case. E.g., s["TTc"] is changed at the very begining.
+         * It should also be written so that fluxes depend only on state, and not other other fluxes.
+         * That's not currently adhered to either. E.g., all of the partitioning depends on
+         * CanopyA, which is a flux.
          */
         if(s.at("temp") > s.at("tbase")) {
             s["TTc"] += (s.at("temp") - s.at("tbase")) / (24/s.at("timestep")); 
@@ -204,8 +217,18 @@ state_vector_map Gro(
         }
 
         /*
-         * Update the state variables.
+         * 3) Update the state variables.
          */
+
+        /* NOTE: This is the only spot where where state should be updated.
+         * By updating everything at the end, the order of the previous statements will not
+         * affect output. It should also allow us to use an ODE solver.
+         *
+         * Now I'm writting out all of the changes, but I will change it so that it can be done
+         * with a function as follows: s = replace_state(s, fluxes);
+         * Then this section will always be two lines of code regardless of what comes previously.
+         */
+
         s["Leaf"] += fluxes["newLeaf"];
         s["Stem"] += fluxes["newStem"];
         s["Root"] += fluxes["newRoot"];
@@ -218,8 +241,15 @@ state_vector_map Gro(
         state = replace_state(state, s);  // Variables that exists in both "state" and "s" are copied from "s" to "state", overwriting values in "state".
 
         /*
-         * Record variables in the results map.
+         * 4) Record variables in the results map.
          */
+
+        /* NOTE: We can write a recorder function so that the user can specify
+         * what they want to record, but I don't know that anyone will care
+         * and for now it's easier to just record all of the state variables and other
+         * things of interest.
+         */
+
         // Record everything that is in "state".
         append_state_to_vector(state, results);
 
