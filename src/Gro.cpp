@@ -19,7 +19,7 @@ state_vector_map Gro(
         state_map const &invariant_parameters,
         state_vector_map const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-		double (*leaf_n_limitation)(state_map const &model_state))
+        double (*leaf_n_limitation)(state_map const &model_state))
 {
     state_map state = initial_state;
     state_map s;
@@ -57,7 +57,6 @@ state_vector_map Gro(
         fluxes.clear();  // Set all of the fluxes to 0.
         s = combine_state(state, invariant_parameters, varying_parameters, i);
         s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");
-
         s["lai"] = s.at("Leaf") * s.at("Sp");
 
         /* Model photosynthetic parameters as a linear relationship between
@@ -77,8 +76,8 @@ state_vector_map Gro(
         kRhizome = dbpS.kRhiz;
 
         /*
-        * Calculate fluxes between state variables.
-        */
+         * Calculate fluxes between state variables.
+         */
         if(s.at("temp") > s.at("tbase")) {
             s["TTc"] += (s.at("temp") - s.at("tbase")) / (24/s.at("timestep")); 
         }
@@ -107,8 +106,8 @@ state_vector_map Gro(
             newLeafcol[i] = resp(newLeafcol[i], s.at("mrc1"), s.at("temp"));
 
             fluxes["newLeaf"] = newLeafcol[i]; /* It makes sense to use i because when kLeaf
-                                                     is negative no new leaf is being accumulated
-                                                     and thus would not be subjected to senescence. */
+                                                  is negative no new leaf is being accumulated
+                                                  and thus would not be subjected to senescence. */
         } else {
             fluxes["newLeaf"] += s.at("Leaf") * kLeaf;
             fluxes["newRhizome"] += kRhizome * -fluxes.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
@@ -119,12 +118,12 @@ state_vector_map Gro(
 
         if (s.at("TTc") >= s.at("seneLeaf")) {
             fluxes["newLeaf"] -= newLeafcol[k]; /* This means that the new value of leaf is
-                                                                  the previous value plus the newLeaf
-                                                                  (Senescence might start when there is
-                                                                  still leaf being produced) minus the leaf
-                                                                  produced at the corresponding k. */
+                                                   the previous value plus the newLeaf
+                                                   (Senescence might start when there is
+                                                   still leaf being produced) minus the leaf
+                                                   produced at the corresponding k. */
             double Remob = newLeafcol[k] * 0.6;
-            s["LeafLitter"] += newLeafcol[k] * 0.4; /* Collecting the leaf litter */ 
+            fluxes["LeafLitter"] += newLeafcol[k] * 0.4; /* Collecting the leaf litter */ 
             fluxes["newRhizome"] += kRhizome * Remob;
             fluxes["newStem"] += kStem * Remob;
             fluxes["newRoot"] += kRoot * Remob;
@@ -142,7 +141,7 @@ state_vector_map Gro(
 
         if (s.at("TTc") >= s.at("seneStem")) {
             fluxes["newStem"] -= newStemcol[q];
-            s["StemLitter"] += newStemcol[q];
+            fluxes["StemLitter"] += newStemcol[q];
             ++q;
         }
 
@@ -160,7 +159,7 @@ state_vector_map Gro(
 
         if (s.at("TTc") >= s.at("seneRoot")) {
             fluxes["newRoot"] -= newRootcol[m];
-            s["RootLitter"] += newRootcol[m];
+            fluxes["RootLitter"] += newRootcol[m];
             ++m;
         }
 
@@ -172,21 +171,21 @@ state_vector_map Gro(
                to a sink. I need its own index. Let's call it rhizome's i or ri.*/
             ++ri;
         } else {
-            if (s.at("Rhizome") < 0) {
-                s["Rhizome"] = 1e-4;
+            fluxes["newRhizome"] += s.at("Rhizome") * kRhizome;
+            if ( fluxes["newRhizome"] > s.at("Rhizome") ) {  // Check if this would make the rhizome mass negative.
+                fluxes["newRhizome"] = s.at("Rhizome");
                 warning("Rhizome became negative");
             }
 
-            fluxes["newRhizome"] += s.at("Rhizome") * kRhizome;
             fluxes["newRoot"] += kRoot * -fluxes.at("newRhizome");
             fluxes["newStem"] += kStem * -fluxes.at("newRhizome");
             fluxes["newLeaf"] += kLeaf * -fluxes.at("newRhizome");
             fluxes["newGrain"] += kGrain * -fluxes.at("newRhizome");
         }
 
-       if (s.at("TTc") >= s.at("seneRhizome")) {
+        if (s.at("TTc") >= s.at("seneRhizome")) {
             fluxes["newRhizome"] -= newRhizomecol[n];
-            s["RhizomeLitter"] += newRhizomecol[n];
+            fluxes["RhizomeLitter"] += newRhizomecol[n];
             ++n;
         }
 
@@ -194,6 +193,14 @@ state_vector_map Gro(
             fluxes["newGrain"] += CanopyA * kGrain;
             /* No respiration for grain at the moment */
             /* No senescence either */
+        }
+
+        if (i % 24 * s.at("centTimestep") == 0) {
+            double coefficient = ((0.1 / 30) * s.at("centTimestep"));
+            fluxes["LeafLitter"] -= s.at("LeafLitter") * coefficient;
+            fluxes["StemLitter"] -= s.at("StemLitter") * coefficient;
+            fluxes["RootLitter"] -= s.at("RootLitter") * coefficient;
+            fluxes["RhizomeLitter"] -= s.at("RhizomeLitter") * coefficient;
         }
 
         /*
@@ -204,7 +211,11 @@ state_vector_map Gro(
         s["Root"] += fluxes["newRoot"];
         s["Rhizome"] += fluxes["newRhizome"];
         s["Grain"] += fluxes["newGrain"];
-        state = replace_state(state, s);
+        s["LeafLitter"] += fluxes["LeafLitter"];
+        s["RootLitter"] += fluxes["RootLitter"];
+        s["RhizomeLitter"] += fluxes["RhizomeLitter"];
+        s["StemLitter"] += fluxes["StemLitter"];
+        state = replace_state(state, s);  // Variables that exists in both "state" and "s" are copied from "s" to "state", overwriting values in "state".
 
         /*
          * Record variables in the results map.

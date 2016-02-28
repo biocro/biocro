@@ -87,7 +87,7 @@ void BioGro(
     double LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
-    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
+    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0, newStemLitter = 0.0, newLeafLitter = 0.0, newRhizomeLitter = 0.0, newRootLitter = 0.0;
 
 	struct Model_state current_state = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -191,8 +191,10 @@ void BioGro(
 
     for(i = 0; i < vecsize; ++i)
     {
-
-        Sp = iSp - (doy[i] - doy[0]) * SpD;
+        newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
+        if ( i % 24 == 0 ) {
+            Sp = iSp - (doy[i] - doy[0]) * SpD;
+        }
         LAI = Leaf * Sp;
 		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
@@ -425,7 +427,7 @@ void BioGro(
                                            still leaf being produced) minus the leaf
                                            produced at the corresponding k.*/
             Remob = *(sti+k) * 0.6;
-            LeafLitter += *(sti+k) * 0.4; /* Collecting the leaf litter */ 
+            newLeafLitter += *(sti+k) * 0.4; /* Collecting the leaf litter */ 
             Rhizome += kRhizome * Remob;
             Stem += kStem * Remob;
             Root += kRoot * Remob;
@@ -453,7 +455,7 @@ void BioGro(
             Stem += newStem;
         } else {
             Stem += newStem - *(sti2+q);
-            StemLitter += *(sti2+q);
+            newStemLitter += *(sti2+q);
             ++q;
         }
 
@@ -473,7 +475,7 @@ void BioGro(
             Root += newRoot;
         } else {
             Root += newRoot - *(sti3+m);
-            RootLitter += *(sti3+m);
+            newRootLitter += *(sti3+m);
             ++m;
         }
 
@@ -501,7 +503,7 @@ void BioGro(
             Rhizome += newRhizome;
         } else {
             Rhizome += newRhizome - *(sti4+n);
-            RhizomeLitter += *(sti4+n);
+            newRhizomeLitter += *(sti4+n);
             ++n;
         }
 
@@ -521,10 +523,10 @@ void BioGro(
             RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
             RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
 
-            LeafLitter -= LeafLitter_d;
-            StemLitter -= StemLitter_d;
-            RootLitter -= RootLitter_d;
-            RhizomeLitter -= RhizomeLitter_d;
+            newLeafLitter -= LeafLitter_d;
+            newStemLitter -= StemLitter_d;
+            newRootLitter -= RootLitter_d;
+            newRhizomeLitter -= RhizomeLitter_d;
 
             results->centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
                     waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
@@ -554,6 +556,11 @@ void BioGro(
         SCCs[6] = results->centS.SCs[6];
         SCCs[7] = results->centS.SCs[7];
         SCCs[8] = results->centS.SCs[8];
+
+        LeafLitter += newLeafLitter;
+        StemLitter += newStemLitter;
+        RootLitter += newRootLitter;
+        RhizomeLitter += newRhizomeLitter;
 
         ALitter = LeafLitter + StemLitter;
         BLitter = RootLitter + RhizomeLitter;
