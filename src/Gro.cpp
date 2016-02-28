@@ -21,17 +21,16 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
 		double (*leaf_n_limitation)(state_map const &model_state))
 {
-    auto n_rows = varying_parameters.begin()->second.size();
     state_map state = initial_state;
     state_map s;
     state_map fluxes;
 
+    auto n_rows = varying_parameters.begin()->second.size();
     state_vector_map results = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
 
-    vector<double> newLeafcol(n_rows), newStemcol(n_rows), newRootcol(n_rows), newRhizomecol(n_rows);
-    int k = 0, ri = 0, q = 0, m = 0, n = 0;  // These are indexes that keep track of the position in the previous four variables.
+    vector<double> newLeafcol(n_rows), newStemcol(n_rows), newRootcol(n_rows), newRhizomecol(n_rows);  // If a size is passed to a vector<double> all elements are automatically initialized to 0.
+    int k = 0, ri = 0, q = 0, m = 0, n = 0;  // These are indexes that keep track of positions in the previous four variables.
 
-    //// Old framework stuff.
     double CanopyA = 0, CanopyT = 0, soilEvap = 0;
     double kLeaf, kRoot, kStem, kRhizome, kGrain;
     struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
@@ -53,13 +52,19 @@ state_vector_map Gro(
     for(size_t i = 0; i < n_rows; ++i)
     {
         /*
-        * Calculate all state dependent state variables.
-        */
+         * Calculate all state-dependent state variables.
+         */
+        fluxes.clear();  // Set all of the fluxes to 0.
         s = combine_state(state, invariant_parameters, varying_parameters, i);
         s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");
 
         s["lai"] = s.at("Leaf") * s.at("Sp");
-		s["LeafN"] = leaf_n_limitation(s);
+
+        /* Model photosynthetic parameters as a linear relationship between
+           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
+           availability and possibly by the thermal time.
+           (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
+        s["LeafN"] = leaf_n_limitation(s);
         s["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmaxb1") + s.at("vmax1");
         s["alpha"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("alphab1") + s.at("alpha1");
 
@@ -92,91 +97,77 @@ state_vector_map Gro(
         s["StomataWS"] = WaterS.rcoefPhoto;
         s["LeafWS"] = WaterS.rcoefSpleaf;
 
-        /* Here I can insert the code for Nitrogen limitations on photosynthesis
-           parameters. This is taken From Harley et al. (1992) Modelling cotton under
-           elevated CO2. PCE. This is modeled as a simple linear relationship between
-           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
-           availability and possibly by the Thermal time accumulated.*/
-
         if (kLeaf > 0) {
-            fluxes["newLeaf"] = CanopyA * kLeaf * s.at("LeafWS");
+            newLeafcol[i] = CanopyA * kLeaf * s.at("LeafWS");
             /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
                 Plant. Phys. 46, 233-235. For this the water stress coefficient is different
                 for leaf and vmax. */
+
             /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
-            /* The 0.02 and 0.03 are constants here but vary depending on species
-               as pointed out in that reference. */
+            newLeafcol[i] = resp(newLeafcol[i], s.at("mrc1"), s.at("temp"));
 
-            fluxes["newLeaf"] = resp(fluxes.at("newLeaf"), s.at("mrc1"), s.at("temp"));
-
-            newLeafcol[i] = fluxes.at("newLeaf"); /* This populates the vector newLeafcol. It makes sense
-                                   to use i because when kLeaf is negative no new leaf is
-                                   being accumulated and thus would not be subjected to senescence */
+            fluxes["newLeaf"] = newLeafcol[i]; /* It makes sense to use i because when kLeaf
+                                                     is negative no new leaf is being accumulated
+                                                     and thus would not be subjected to senescence. */
         } else {
-            fluxes["newLeaf"] = s.at("Leaf") * kLeaf;
-            s["Rhizome"] += kRhizome * -fluxes.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
-            s["Stem"] += kStem * -fluxes.at("newLeaf") * 0.9;
-            s["Root"] += kRoot * -fluxes.at("newLeaf") * 0.9;
-            s["Grain"] += kGrain * -fluxes.at("newLeaf") * 0.9;
+            fluxes["newLeaf"] += s.at("Leaf") * kLeaf;
+            fluxes["newRhizome"] += kRhizome * -fluxes.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
+            fluxes["newStem"] += kStem * -fluxes.at("newLeaf") * 0.9;
+            fluxes["newRoot"] += kRoot * -fluxes.at("newLeaf") * 0.9;
+            fluxes["newGrain"] += kGrain * -fluxes.at("newLeaf") * 0.9;
         }
 
-        if (s.at("TTc") < s.at("seneLeaf")) {
-            s["Leaf"] += fluxes.at("newLeaf");
-        } else {
-            s["Leaf"] += fluxes.at("newLeaf") - newLeafcol[k]; /* This means that the new value of leaf is
-                                           the previous value plus the newLeaf
-                                           (Senescence might start when there is
-                                           still leaf being produced) minus the leaf
-                                           produced at the corresponding k.*/
+        if (s.at("TTc") >= s.at("seneLeaf")) {
+            fluxes["newLeaf"] -= newLeafcol[k]; /* This means that the new value of leaf is
+                                                                  the previous value plus the newLeaf
+                                                                  (Senescence might start when there is
+                                                                  still leaf being produced) minus the leaf
+                                                                  produced at the corresponding k. */
             double Remob = newLeafcol[k] * 0.6;
             s["LeafLitter"] += newLeafcol[k] * 0.4; /* Collecting the leaf litter */ 
-            s["Rhizome"] += kRhizome * Remob;
-            s["Stem"] += kStem * Remob;
-            s["Root"] += kRoot * Remob;
-            s["Grain"] += kGrain * Remob;
+            fluxes["newRhizome"] += kRhizome * Remob;
+            fluxes["newStem"] += kStem * Remob;
+            fluxes["newRoot"] += kRoot * Remob;
+            fluxes["newGrain"] += kGrain * Remob;
             ++k;
         }
 
         if (kStem >= 0) {
-            fluxes["newStem"] = CanopyA * kStem;
-            fluxes["newStem"] = resp(fluxes.at("newStem"), s.at("mrc1"), s.at("temp"));
-            newStemcol[i] = fluxes.at("newStem");
+            newStemcol[i] = CanopyA * kStem;
+            newStemcol[i] = resp(newStemcol[i], s.at("mrc1"), s.at("temp"));
+            fluxes["newStem"] += newStemcol[i];
         } else {
             error("kStem should be positive");
         }
 
-        if (s.at("TTc") < s.at("seneStem")) {
-            s["Stem"] += fluxes.at("newStem");
-        } else {
-            s["Stem"] += fluxes.at("newStem") - newStemcol[q];
+        if (s.at("TTc") >= s.at("seneStem")) {
+            fluxes["newStem"] -= newStemcol[q];
             s["StemLitter"] += newStemcol[q];
             ++q;
         }
 
         if (kRoot > 0) {
-            fluxes["newRoot"] = CanopyA * kRoot;
-            fluxes["newRoot"] = resp(fluxes.at("newRoot"), s.at("mrc2"), s.at("temp"));
-            newRootcol[i] = fluxes.at("newRoot");
+            newRootcol[i] = CanopyA * kRoot;
+            newRootcol[i] = resp(newRootcol[i], s.at("mrc2"), s.at("temp"));
+            fluxes["newRoot"] += newRootcol[i];
         } else {
-            fluxes["newRoot"] = s.at("Root") * kRoot;
-            s["Rhizome"] += kRhizome * -fluxes.at("newRoot") * 0.9;
-            s["Stem"] += kStem * -fluxes.at("newRoot") * 0.9;
-            s["Leaf"] += kLeaf * -fluxes.at("newRoot") * 0.9;
-            s["Grain"] += kGrain * -fluxes.at("newRoot") * 0.9;
+            fluxes["newRoot"] += s.at("Root") * kRoot;
+            fluxes["newRhizome"] += kRhizome * -fluxes.at("newRoot") * 0.9;
+            fluxes["newStem"] += kStem * -fluxes.at("newRoot") * 0.9;
+            fluxes["newLeaf"] += kLeaf * -fluxes.at("newRoot") * 0.9;
+            fluxes["newGrain"] += kGrain * -fluxes.at("newRoot") * 0.9;
         }
 
-        if (s.at("TTc") < s.at("seneRoot")) {
-            s["Root"] += fluxes.at("newRoot");
-        } else {
-            s["Root"] += fluxes.at("newRoot") - newRootcol[m];
+        if (s.at("TTc") >= s.at("seneRoot")) {
+            fluxes["newRoot"] -= newRootcol[m];
             s["RootLitter"] += newRootcol[m];
             ++m;
         }
 
         if (kRhizome > 0) {
-            fluxes["newRhizome"] = CanopyA * kRhizome;
-            fluxes["newRhizome"] = resp(fluxes.at("newRhizome"), s.at("mrc2"), s.at("temp"));
-            newRhizomecol[ri] = fluxes.at("newRhizome");
+            newRhizomecol[ri] = CanopyA * kRhizome;
+            newRhizomecol[ri] = resp(newRhizomecol[ri], s.at("mrc2"), s.at("temp"));
+            fluxes["newRhizome"] += newRhizomecol[ri];
             /* Here i will not work because the rhizome goes from being a source
                to a sink. I need its own index. Let's call it rhizome's i or ri.*/
             ++ri;
@@ -186,33 +177,38 @@ state_vector_map Gro(
                 warning("Rhizome became negative");
             }
 
-            fluxes["newRhizome"] = s.at("Rhizome") * kRhizome;
-            s["Root"] += kRoot * -fluxes.at("newRhizome");
-            s["Stem"] += kStem * -fluxes.at("newRhizome");
-            s["Leaf"] += kLeaf * -fluxes.at("newRhizome");
-            s["Grain"] += kGrain * -fluxes.at("newRhizome");
+            fluxes["newRhizome"] += s.at("Rhizome") * kRhizome;
+            fluxes["newRoot"] += kRoot * -fluxes.at("newRhizome");
+            fluxes["newStem"] += kStem * -fluxes.at("newRhizome");
+            fluxes["newLeaf"] += kLeaf * -fluxes.at("newRhizome");
+            fluxes["newGrain"] += kGrain * -fluxes.at("newRhizome");
         }
 
-       if (s.at("TTc") < s.at("seneRhizome")) {
-            s["Rhizome"] += fluxes.at("newRhizome");
-        } else {
-            s["Rhizome"] += fluxes.at("newRhizome") - newRhizomecol[n];
+       if (s.at("TTc") >= s.at("seneRhizome")) {
+            fluxes["newRhizome"] -= newRhizomecol[n];
             s["RhizomeLitter"] += newRhizomecol[n];
             ++n;
         }
 
-        if ((kGrain < 1e-10) || (s["TTc"] < thermalp[4])) {
-            fluxes["newGrain"] = 0.0;
-            s["Grain"] += fluxes.at("newGrain");
-        } else {
-            fluxes["newGrain"] = CanopyA * kGrain;
+        if ((kGrain >= 1e-10) && (s["TTc"] >= thermalp[4])) {
+            fluxes["newGrain"] += CanopyA * kGrain;
             /* No respiration for grain at the moment */
             /* No senescence either */
-            s["Grain"] += fluxes.at("newGrain");
         }
 
+        /*
+         * Update the state variables.
+         */
+        s["Leaf"] += fluxes["newLeaf"];
+        s["Stem"] += fluxes["newStem"];
+        s["Root"] += fluxes["newRoot"];
+        s["Rhizome"] += fluxes["newRhizome"];
+        s["Grain"] += fluxes["newGrain"];
         state = replace_state(state, s);
 
+        /*
+         * Record variables in the results map.
+         */
         // Record everything that is in "state".
         append_state_to_vector(state, results);
 

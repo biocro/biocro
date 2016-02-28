@@ -396,15 +396,13 @@ void BioGro(
             /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
                 Plant. Phys. 46, 233-235. For this the water stress coefficient is different
                 for leaf and vmax. */
-            /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
-            /* The 0.02 and 0.03 are constants here but vary depending on species
-               as pointed out in that reference. */
 
             if(ISNAN(newLeaf)) {
                 Rprintf("LeafWS %.2f \n", LeafWS);
                 Rprintf("CanopyA %.2f \n", CanopyA);
             }
 
+            /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
             newLeaf = resp(newLeaf, mrc1, temp[i]);
 
             *(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
