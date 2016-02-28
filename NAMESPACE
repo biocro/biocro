@@ -12,7 +12,7 @@ useDynLib(BioCro, MisGro,
           willowGro_sym = willowGro,
           caneGro_sym = caneGro,
           maizeGro_sym = maizeGro,
-          RWrapper)
+          RWrapper, RGro)
 
 import(stats, lattice)
 
