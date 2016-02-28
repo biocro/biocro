@@ -1,7 +1,7 @@
 #ifndef MODULES_H
 #define MODULES_H
 
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 #include <memory>
@@ -10,26 +10,26 @@
 
 using std::vector;
 using std::string;
-using std::map;
+using std::unordered_map;
 
-typedef map<string, double> state_map;
-typedef map<string, vector<double>> state_vector_map;
+typedef unordered_map<string, double> state_map;
+typedef unordered_map<string, vector<double>> state_vector_map;
 
 class IModule {
     public:
-        IModule(const vector<string> required_state, const vector<string> modified_state) :
+        IModule(vector<string> const required_state, vector<string> const modified_state) :
             _required_state(required_state),
             _modified_state(modified_state)
     {}
-        vector<string> list_required_state();
-        vector<string> list_modified_state();
-        map<string, double> run (map<string, double>  const &state);
-        vector<string> state_requirements_are_met(map<string, double>  const &state);
+        vector<string> list_required_state() const;
+        vector<string> list_modified_state() const;
+        state_map run (state_map const &state) const;
+        vector<string> state_requirements_are_met(state_map const &state) const;
         virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
     private:
         vector<string> const _required_state;
         vector<string> const _modified_state; 
-        virtual map<string, double> do_operation(map<string, double> const &state) = 0;
+        virtual state_map do_operation(state_map const &state) const = 0;
         bool requirements_are_met;
 };
 
@@ -48,8 +48,8 @@ class c3_leaf : public Leaf_photosynthesis_module {
         c3_leaf()
             : Leaf_photosynthesis_module(vector<string> {"Qp", "Tleaf"} , vector<string> {})
         {} 
-        double run (map<string, double> s);
-        struct c3_str assimilation(map<string, double> s);
+        double run (state_map s);
+        struct c3_str assimilation(state_map s);
 };
 
 class ICanopy_photosynthesis_module : public IModule {
@@ -74,7 +74,7 @@ class c4_canopy : public ICanopy_photosynthesis_module {
                     vector<string> {})
         {}
     private:
-        virtual map<string, double> do_operation (map<string, double> const &s);
+        virtual state_map do_operation (state_map const &s) const;
 };
 
 class c3_canopy : public ICanopy_photosynthesis_module {
@@ -89,24 +89,28 @@ class c3_canopy : public ICanopy_photosynthesis_module {
                    vector<string> {})
         {}
     private:
-        virtual map<string, double> do_operation (map<string, double> const &s);
+        virtual state_map do_operation (state_map const &s) const;
 };
 
 
 state_map combine_state(state_map const &state, state_map const &invariant_parameters, state_vector_map const &varying_parameters, int timestep);
 
-map<string, vector<double>> Gro(
-        map<string, double> const &initial_state,
-        map<string, double> const &invariant_parameters,
-        map<string, vector<double>> const &varying_parameters,
+state_vector_map Gro(
+        state_map const &initial_state,
+        state_map const &invariant_parameters,
+        state_vector_map const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
 		double (*leaf_n_limitation)(state_map const &model_state));
 
 double biomass_leaf_nitrogen_limitation(state_map const &model_state);
 
-void output_map(map<string, double> const &m);
+void output_map(state_map const &m);
 
 state_map replace_state(state_map const &state, state_map const &newstate);
+
+state_vector_map allocate_state(state_map const &m, int n);
+
+void append_state_to_vector(state_map const &state, state_vector_map &state_vector);
 
 # endif
 

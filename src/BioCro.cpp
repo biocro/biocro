@@ -189,7 +189,7 @@ void BioGro(
     SCCs[8] = centcoefs[8];
 
 
-    for(i = 0; i < vecsize; i++)
+    for(i = 0; i < vecsize; ++i)
     {
 
         Sp = iSp - (doy[i] - doy[0]) * SpD;
@@ -197,6 +197,16 @@ void BioGro(
 		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
         alpha = (LeafN_0 - LeafN) * alphab1 + alpha1;
+
+        /* Picking the dry biomass partitioning coefficients */
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, TTc);
+
+        kLeaf = dbpS.kLeaf;
+        kStem = dbpS.kStem;
+        kRoot = dbpS.kRoot;
+        kGrain = dbpS.kGrain;
+        kRhizome = dbpS.kRhiz;
+
         /* First calculate the elapsed Thermal Time*/
         if(temp[i] > tbase) {
             TTc += (temp[i]-tbase) / (24/timestep); 
@@ -291,7 +301,7 @@ void BioGro(
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i3 = 0; i3 < soilLayers; i3++) {
+            for(i3 = 0; i3 < soilLayers; ++i3) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
 				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
@@ -349,15 +359,6 @@ void BioGro(
         } else {
             LeafPsim = 0;
         }
-
-        /* Picking the dry biomass partitioning coefficients */
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, TTc);
-
-        kLeaf = dbpS.kLeaf;
-        kStem = dbpS.kStem;
-        kRoot = dbpS.kRoot;
-        kGrain = dbpS.kGrain;
-        kRhizome = dbpS.kRhiz;
 
         /* Nitrogen fertilizer */
         /* Only the day in which the fertilizer was applied this is available */
@@ -431,7 +432,7 @@ void BioGro(
             Stem += kStem * Remob;
             Root += kRoot * Remob;
             Grain += kGrain * Remob;
-            k++;
+            ++k;
         }
 
         /* The specific leaf area declines with the growing season at least in
@@ -455,7 +456,7 @@ void BioGro(
         } else {
             Stem += newStem - *(sti2+q);
             StemLitter += *(sti2+q);
-            q++;
+            ++q;
         }
 
         if (kRoot > 0) {
@@ -475,7 +476,7 @@ void BioGro(
         } else {
             Root += newRoot - *(sti3+m);
             RootLitter += *(sti3+m);
-            m++;
+            ++m;
         }
 
         if (kRhizome > 0) {
@@ -484,7 +485,7 @@ void BioGro(
             *(sti4+ri) = newRhizome;
             /* Here i will not work because the rhizome goes from being a source
                to a sink. I need its own index. Let's call it rhizome's i or ri.*/
-            ri++;
+            ++ri;
         } else {
             if (Rhizome < 0) {
                 Rhizome = 1e-4;
@@ -503,7 +504,7 @@ void BioGro(
         } else {
             Rhizome += newRhizome - *(sti4+n);
             RhizomeLitter += *(sti4+n);
-            n++;
+            ++n;
         }
 
         if ((kGrain < 1e-10) || (TTc < thermalp[4])) {
@@ -558,6 +559,34 @@ void BioGro(
 
         ALitter = LeafLitter + StemLitter;
         BLitter = RootLitter + RhizomeLitter;
+		current_state.leaf = Leaf;
+		current_state.stem = Stem;
+		current_state.root = Root;
+		current_state.rhizome = Rhizome;
+		current_state.lai = LAI;
+		current_state.grain = Grain;
+		current_state.k_leaf = kLeaf;
+		current_state.k_stem = kStem;
+		current_state.k_root = kRoot;
+		current_state.k_rhizome = kRhizome;
+		current_state.k_grain = kGrain;
+		current_state.new_leaf = newLeaf;
+		current_state.new_stem = newStem;
+		current_state.new_root = newRoot;
+		current_state.new_rhizome = newRhizome;
+		current_state.new_grain = newGrain;
+		current_state.thermal_time = TTc;
+		current_state.doy = doy[i];
+		current_state.hour = hour[i];
+		current_state.solar = solar[i];
+		current_state.temp = temp[i];
+		current_state.rh = rh[i];
+		current_state.windspeed = windspeed[i];
+		current_state.StomataWS = StomataWS;
+		current_state.LeafN = LeafN;
+		current_state.vmax = vmax;
+		current_state.alpha = alpha;
+
 
 		results->day_of_year[i] = doy[i];
 		results->hour[i] = hour[i];
@@ -583,7 +612,7 @@ void BioGro(
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
-		for(int layer = 0; layer < soilLayers; layer++) {
+		for(int layer = 0; layer < soilLayers; ++layer) {
 			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
 			results->water_status[layer + i * soilLayers] = water_status[layer + i * soilLayers];
 			results->root_distribution[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];

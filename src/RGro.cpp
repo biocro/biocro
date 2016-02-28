@@ -8,27 +8,27 @@
 #include "Century.h"
 #include "modules.h"
 
-map<string, double> map_from_list(SEXP const &list)
+state_map map_from_list(SEXP const &list)
 {
     SEXP names = getAttrib(list, R_NamesSymbol);
-    map<string, double> m;
+    state_map m;
     int n = length(list);
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; ++i) {
         m.insert(std::pair<string, double>(CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]));
     }
     return m;
 }
 
-map<string, vector<double>> map_vector_from_list(SEXP const &list)
+state_vector_map map_vector_from_list(SEXP const &list)
 {
     SEXP names = getAttrib(list, R_NamesSymbol);
     int n = length(list);
-    map<string, vector<double>> m;
-    for (int i = 0; i < n; i++) {
+    state_vector_map m;
+    for (int i = 0; i < n; ++i) {
         int p = length(VECTOR_ELT(list, i));
         vector<double> temporary;
         temporary.reserve(p);
-        for (int j = 0; j < p; j++) {
+        for (int j = 0; j < p; ++j) {
             temporary.push_back(REAL(VECTOR_ELT(list, i))[j]);
         }
         m.insert(std::pair<string, vector<double>>(CHAR(STRING_ELT(names, i)), temporary));
@@ -37,7 +37,7 @@ map<string, vector<double>> map_vector_from_list(SEXP const &list)
 }
 
 
-SEXP list_from_map(map<string, double> const &m)
+SEXP list_from_map(state_map const &m)
 {
     auto n = m.size();
     SEXP list =  PROTECT(allocVector(VECSXP, n));
@@ -52,17 +52,17 @@ SEXP list_from_map(map<string, double> const &m)
     return list;
 }
 
-SEXP list_from_map(map<string, vector<double>> const &m)
+SEXP list_from_map(state_vector_map const &m)
 {
     auto n = m.size();
     SEXP list =  PROTECT(allocVector(VECSXP, n));
     SEXP names = PROTECT(allocVector(STRSXP, n));
     int i = 0;
-    for (auto it = m.begin(); it != m.end(); it++, i++) {
+    for (auto it = m.begin(); it != m.end(); ++it, ++i) {
         int j = 0;
         auto p = it->second.size();
         SEXP values = PROTECT(allocVector(REALSXP, p));
-        for (auto vit = it->second.begin(); vit != it->second.end(); vit++, j++) {
+        for (auto vit = it->second.begin(); vit != it->second.end(); ++vit, ++j) {
             REAL(values)[j] = it->second[j];
         } 
         SET_VECTOR_ELT(list, i, values);
@@ -74,16 +74,15 @@ SEXP list_from_map(map<string, vector<double>> const &m)
     return list;
 }
 
-void output_map(map<string, double> const &m) {
-    auto last_iterator = m.end();
-    --last_iterator;
+void output_map(state_map const &m) {
     Rprintf("The map contains the following items: ");
     int i = 0;
-    for(auto it = m.begin(); it != last_iterator; it++) {
+    auto it = m.begin();
+    for(; std::next(it) != m.end(); ++it) {
         Rprintf("%s, %0.04f; ", it->first.c_str(), it->second);
         if (++i % 5 == 0) Rprintf("\n");
     }
-    Rprintf("%s, %0.04f.\n\n", last_iterator->first.c_str(), last_iterator->second);
+    Rprintf("%s, %0.04f.\n\n", it->first.c_str(), it->second);
 }
 
 void output_list(SEXP const &list) {
@@ -92,7 +91,7 @@ void output_list(SEXP const &list) {
     SEXP names = PROTECT(allocVector(STRSXP, n));
     names = getAttrib(list, R_NamesSymbol);
     Rprintf("The list contains the following items: ");
-    for (int i = 0; i < n - 1; i++) {
+    for (int i = 0; i < n - 1; ++i) {
         Rprintf("%s, %0.04f; ", CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]);
     }
     Rprintf("%s, %0.04f.\n\n", CHAR(STRING_ELT(names, n - 1)), REAL(VECTOR_ELT(list, n - 1))[0]);
@@ -116,20 +115,20 @@ SEXP RGro(SEXP initial_state,
         SEXP varying_parameters,
         SEXP canopy_photosynthesis_module)
 {
-    map<string, double> s = map_from_list(initial_state);
-    map<string, double> ip = map_from_list(invariate_parameters);
-    map<string, vector<double>> vp = map_vector_from_list(varying_parameters);
+    state_map s = map_from_list(initial_state);
+    state_map ip = map_from_list(invariate_parameters);
+    state_vector_map vp = map_vector_from_list(varying_parameters);
 
     output_map(s);
     output_map(ip);
 
     std::unique_ptr<IModule> canopy = make_module(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
 
-    map<string, vector<double>> ans;
+    state_vector_map ans;
     try {
     ans = Gro(s, ip, vp, canopy, biomass_leaf_nitrogen_limitation);
     }
-    catch (const std::out_of_range& oor) {
+    catch (std::out_of_range const &oor) {
             Rprintf("Exception thrown: %s\n", oor.what());
     }
 

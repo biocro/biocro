@@ -4,16 +4,19 @@
 #include <R.h>
 #include "modules.h"
 
-vector<string> IModule::list_required_state() {
+vector<string> IModule::list_required_state() const
+{
     return(this->_required_state);
 }
 
-vector<string> IModule::list_modified_state() {
+vector<string> IModule::list_modified_state() const
+{
     return(this->_modified_state);
 }
 
-map<string, double> IModule::run(map<string, double> const &state) {
-    map<string, double> result;
+state_map IModule::run(state_map const &state) const
+{
+    state_map result;
     try {
         result = this->do_operation(state);
     }
@@ -35,7 +38,8 @@ map<string, double> IModule::run(map<string, double> const &state) {
     return(result);
 }
 
-vector<string> IModule::state_requirements_are_met(map<string, double> const &s) {
+vector<string> IModule::state_requirements_are_met(state_map const &s) const
+{
     vector<string> missing_state;
     for (auto it = _required_state.begin(); it != _required_state.end(); ++it) {
         if (s.find(*it) == s.end()) {
@@ -45,10 +49,11 @@ vector<string> IModule::state_requirements_are_met(map<string, double> const &s)
     return(missing_state);
 }
 
-map<string, double> c4_canopy::do_operation(map<string, double> const &s) {
+state_map c4_canopy::do_operation(state_map const &s) const
+{
     struct Can_Str result;
     struct nitroParms nitroP; 
-    map<string, double> fluxes;
+    state_map fluxes;
 
     nitroP.ileafN = s.at("nileafn");
     nitroP.kln = s.at("nkln");
@@ -77,9 +82,10 @@ map<string, double> c4_canopy::do_operation(map<string, double> const &s) {
     return(fluxes);
 }
 
-map<string, double> c3_canopy::do_operation(map<string, double> const &s) {
+state_map c3_canopy::do_operation(state_map const &s) const
+{
     struct Can_Str result;
-    map<string, double> fluxes;
+    state_map fluxes;
 
     result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solarr"), s.at("temp"),
             s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
@@ -95,24 +101,27 @@ map<string, double> c3_canopy::do_operation(map<string, double> const &s) {
     return(fluxes);
 }
 
-struct c3_str c3_leaf::assimilation(map<string, double> s) {
+struct c3_str c3_leaf::assimilation(state_map s)
+{
     struct c3_str result = {0, 0, 0, 0};
     result = c3photoC(s.at("Qp"), s.at("Tleaf"), s.at("RH"), s.at("Vcmax0"), s.at("Jmax"), s.at("Rd0"), s.at("bb0"), s.at("bb1"), s.at("Ca"), s.at("O2"), s.at("thet"), s.at("StomWS"), s.at("ws"));
     return(result);
 }
 
-map<string, vector<double>> allocate_state(map<string, double> m, int n) {
-    map<string, vector<double>> result;
-    for (map<string, double>::iterator it = m.begin(); it != m.end(); ++it) {
+state_vector_map allocate_state(state_map const &m, int n)
+{
+    state_vector_map result;
+    for (auto it = m.begin(); it != m.end(); ++it) {
         vector<double> temp;
         temp.reserve(n);
-        temp.push_back(it->second);
-        result.insert(std::pair<string, vector<double>>(it->first, temp));
+        //temp.push_back(it->second);
+        //result.insert(std::pair<string, vector<double>>(it->first, temp));
     }
     return(result);
 }
 
-state_map combine_state(state_map const &state, state_map const &invariant_parameters, state_vector_map const &varying_parameters, int timestep) {
+state_map combine_state(state_map const &state, state_map const &invariant_parameters, state_vector_map const &varying_parameters, int timestep)
+{
     state_map all_state = state;
     all_state.insert(invariant_parameters.begin(), invariant_parameters.end());
     for (auto it = varying_parameters.begin(); it != varying_parameters.end(); ++it) {
@@ -121,12 +130,20 @@ state_map combine_state(state_map const &state, state_map const &invariant_param
     return all_state;
 }
 
-state_map replace_state(state_map const &state, state_map const &newstate) {
+state_map replace_state(state_map const &state, state_map const &newstate)
+{
     state_map result = state;
     for (auto it = result.begin(); it != result.end(); ++it) {
         it->second = newstate.at(it->first);
     }
     return result;
+}
+
+void append_state_to_vector(state_map const &state, state_vector_map &state_vector)
+{
+    for (auto it = state.begin(); it != state.end(); ++it) {
+        state_vector[it->first].push_back(it->second);
+    }
 }
 
 double biomass_leaf_nitrogen_limitation(state_map const &s)

@@ -65,7 +65,7 @@ extern "C" {
         PROTECT(trans = allocVector(REALSXP,1));
         PROTECT(Ggrowth = allocVector(REALSXP,1));
 
-        map<string, double> s;
+        state_map s;
         s["lai"] = LAI;
         s["doy"] = DOY;
         s["hour"] = hr;
@@ -97,14 +97,14 @@ extern "C" {
         vector<string> missing_state = canopy.state_requirements_are_met(s);
         if (!missing_state.empty()) {
             Rprintf("The following state variables are required for c3CanA but are missing: ");
-            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; it++) {
+            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
                 Rprintf("%s, ", it->c_str());
             }
             Rprintf("%s.\n", missing_state.back().c_str());
             error("This function cannot continue unless all state variables are set.");
         }
 
-        map<string, double> ans;
+        state_map ans;
         ans = canopy.run(s);
 
         if(ISNAN(ans.at("Assim"))) {
