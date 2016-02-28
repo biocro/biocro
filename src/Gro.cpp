@@ -90,6 +90,9 @@ state_vector_map Gro(
          * It should also be written so that fluxes depend only on state, and not other other fluxes.
          * That's not currently adhered to either. E.g., all of the partitioning depends on
          * CanopyA, which is a flux.
+         * When that's done, we can start replacing all of these sections with "modules",
+         * that are called as "fluxes = module->run(state);" like canopy_photosynthesis_module is
+         * called now.
          */
         if(s.at("temp") > s.at("tbase")) {
             s["TTc"] += (s.at("temp") - s.at("tbase")) / (24/s.at("timestep")); 
