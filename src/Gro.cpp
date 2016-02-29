@@ -8,8 +8,6 @@
 #include <memory>
 #include <R.h>
 #include <Rinternals.h>
-#include <math.h>
-#include <Rmath.h>
 #include "BioCro.h"
 #include "Century.h"
 #include "modules.h"
@@ -23,7 +21,7 @@ state_vector_map Gro(
 {
     state_map state = initial_state;
     state_map s;
-    state_map fluxes;
+    state_map derivs;
 
     auto n_rows = varying_parameters.begin()->second.size();
     state_vector_map results = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
@@ -55,12 +53,13 @@ state_vector_map Gro(
          * 1) Calculate all state-dependent state variables.
          */
 
-        /* NOTE: I think it's easier to follow things if all of the set up is done in one place,
-         * so I've moved all of those things to the top of the loop. This also will
-         * make it so that the things in section 2 are no long order dependent.
+        /* NOTE: I think it's easier to follow if all of the set up is done in one place,
+         * so I've moved all of those things to the top of the loop.
+         * This section is for state variables that are not modified directly by derivatives.
+         * No derivaties should be calulated here.
+         * This will make it so that the code in section 2 is order independent.
          */
 
-        fluxes.clear();  // Set all of the fluxes to 0.
         s = combine_state(state, invariant_parameters, varying_parameters, i);
         s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");
         s["lai"] = s.at("Leaf") * s.at("Sp");
@@ -82,26 +81,28 @@ state_vector_map Gro(
         kRhizome = dbpS.kRhiz;
 
         /*
-         * 2) Calculate fluxes between state variables.
+         * 2) Calculate derivatives between state variables.
          */
 
-        /* NOTE: Eventually, this should be changed so that state is never updated here,
-         * but currently that's not the case. E.g., s["TTc"] is changed at the very begining.
-         * It should also be written so that fluxes depend only on state, and not other other fluxes.
-         * That's not currently adhered to either. E.g., all of the partitioning depends on
-         * CanopyA, which is a flux.
-         * When that's done, we can start replacing all of these sections with "modules",
-         * that are called as "fluxes = module->run(state);" like canopy_photosynthesis_module is
-         * called now.
+        /* NOTE: This section should be written to calculate derivates only. No state should be modified.
+         * All derivatives should depend only on current state. I.e., derivates should not depend on other derivaties or previous state.
+         * I've changed it to try to meet these requirements, but it currently does not meet them.
+         * E.g., s["TTc"] is changed at the very begining, modifying state.
+         * All of the partitioning code depends on CanopyA, so it depends on a derivative.
+         * The senescence code depends on derivates from previous state. 
+         * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
+         * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
+        derivs.clear();  // There's no guarantee that each derivative will be set in each iteration, so start by setting every derivative to 0.
+
         if(s.at("temp") > s.at("tbase")) {
             s["TTc"] += (s.at("temp") - s.at("tbase")) / (24/s.at("timestep")); 
         }
 
-        fluxes = canopy_photosynthesis_module->run(s);
+        derivs = canopy_photosynthesis_module->run(s);
 
-        CanopyA = fluxes["Assim"] * s.at("timestep");
-        CanopyT = fluxes["Trans"] * s.at("timestep");
+        CanopyA = derivs["Assim"] * s.at("timestep");
+        CanopyT = derivs["Trans"] * s.at("timestep");
 
         soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
                 s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
@@ -121,102 +122,102 @@ state_vector_map Gro(
             /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
             newLeafcol[i] = resp(newLeafcol[i], s.at("mrc1"), s.at("temp"));
 
-            fluxes["newLeaf"] = newLeafcol[i]; /* It makes sense to use i because when kLeaf
+            derivs["newLeaf"] = newLeafcol[i]; /* It makes sense to use i because when kLeaf
                                                   is negative no new leaf is being accumulated
                                                   and thus would not be subjected to senescence. */
         } else {
-            fluxes["newLeaf"] += s.at("Leaf") * kLeaf;
-            fluxes["newRhizome"] += kRhizome * -fluxes.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
-            fluxes["newStem"] += kStem * -fluxes.at("newLeaf") * 0.9;
-            fluxes["newRoot"] += kRoot * -fluxes.at("newLeaf") * 0.9;
-            fluxes["newGrain"] += kGrain * -fluxes.at("newLeaf") * 0.9;
+            derivs["newLeaf"] += s.at("Leaf") * kLeaf;
+            derivs["newRhizome"] += kRhizome * -derivs.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
+            derivs["newStem"] += kStem * -derivs.at("newLeaf") * 0.9;
+            derivs["newRoot"] += kRoot * -derivs.at("newLeaf") * 0.9;
+            derivs["newGrain"] += kGrain * -derivs.at("newLeaf") * 0.9;
         }
 
         if (s.at("TTc") >= s.at("seneLeaf")) {
-            fluxes["newLeaf"] -= newLeafcol[k]; /* This means that the new value of leaf is
+            derivs["newLeaf"] -= newLeafcol[k]; /* This means that the new value of leaf is
                                                    the previous value plus the newLeaf
                                                    (Senescence might start when there is
                                                    still leaf being produced) minus the leaf
                                                    produced at the corresponding k. */
             double Remob = newLeafcol[k] * 0.6;
-            fluxes["LeafLitter"] += newLeafcol[k] * 0.4; /* Collecting the leaf litter */ 
-            fluxes["newRhizome"] += kRhizome * Remob;
-            fluxes["newStem"] += kStem * Remob;
-            fluxes["newRoot"] += kRoot * Remob;
-            fluxes["newGrain"] += kGrain * Remob;
+            derivs["LeafLitter"] += newLeafcol[k] * 0.4; /* Collecting the leaf litter */ 
+            derivs["newRhizome"] += kRhizome * Remob;
+            derivs["newStem"] += kStem * Remob;
+            derivs["newRoot"] += kRoot * Remob;
+            derivs["newGrain"] += kGrain * Remob;
             ++k;
         }
 
         if (kStem >= 0) {
             newStemcol[i] = CanopyA * kStem;
             newStemcol[i] = resp(newStemcol[i], s.at("mrc1"), s.at("temp"));
-            fluxes["newStem"] += newStemcol[i];
+            derivs["newStem"] += newStemcol[i];
         } else {
             error("kStem should be positive");
         }
 
         if (s.at("TTc") >= s.at("seneStem")) {
-            fluxes["newStem"] -= newStemcol[q];
-            fluxes["StemLitter"] += newStemcol[q];
+            derivs["newStem"] -= newStemcol[q];
+            derivs["StemLitter"] += newStemcol[q];
             ++q;
         }
 
         if (kRoot > 0) {
             newRootcol[i] = CanopyA * kRoot;
             newRootcol[i] = resp(newRootcol[i], s.at("mrc2"), s.at("temp"));
-            fluxes["newRoot"] += newRootcol[i];
+            derivs["newRoot"] += newRootcol[i];
         } else {
-            fluxes["newRoot"] += s.at("Root") * kRoot;
-            fluxes["newRhizome"] += kRhizome * -fluxes.at("newRoot") * 0.9;
-            fluxes["newStem"] += kStem * -fluxes.at("newRoot") * 0.9;
-            fluxes["newLeaf"] += kLeaf * -fluxes.at("newRoot") * 0.9;
-            fluxes["newGrain"] += kGrain * -fluxes.at("newRoot") * 0.9;
+            derivs["newRoot"] += s.at("Root") * kRoot;
+            derivs["newRhizome"] += kRhizome * -derivs.at("newRoot") * 0.9;
+            derivs["newStem"] += kStem * -derivs.at("newRoot") * 0.9;
+            derivs["newLeaf"] += kLeaf * -derivs.at("newRoot") * 0.9;
+            derivs["newGrain"] += kGrain * -derivs.at("newRoot") * 0.9;
         }
 
         if (s.at("TTc") >= s.at("seneRoot")) {
-            fluxes["newRoot"] -= newRootcol[m];
-            fluxes["RootLitter"] += newRootcol[m];
+            derivs["newRoot"] -= newRootcol[m];
+            derivs["RootLitter"] += newRootcol[m];
             ++m;
         }
 
         if (kRhizome > 0) {
             newRhizomecol[ri] = CanopyA * kRhizome;
             newRhizomecol[ri] = resp(newRhizomecol[ri], s.at("mrc2"), s.at("temp"));
-            fluxes["newRhizome"] += newRhizomecol[ri];
+            derivs["newRhizome"] += newRhizomecol[ri];
             /* Here i will not work because the rhizome goes from being a source
                to a sink. I need its own index. Let's call it rhizome's i or ri.*/
             ++ri;
         } else {
-            fluxes["newRhizome"] += s.at("Rhizome") * kRhizome;
-            if ( fluxes["newRhizome"] > s.at("Rhizome") ) {  // Check if this would make the rhizome mass negative.
-                fluxes["newRhizome"] = s.at("Rhizome");
-                warning("Rhizome became negative");
+            derivs["newRhizome"] += s.at("Rhizome") * kRhizome;
+            if ( derivs["newRhizome"] > s.at("Rhizome") ) {  // Check if this would make the rhizome mass negative.
+                derivs["newRhizome"] = s.at("Rhizome");
+                warning("Rhizome flux would make rhizome mass negative.");
             }
 
-            fluxes["newRoot"] += kRoot * -fluxes.at("newRhizome");
-            fluxes["newStem"] += kStem * -fluxes.at("newRhizome");
-            fluxes["newLeaf"] += kLeaf * -fluxes.at("newRhizome");
-            fluxes["newGrain"] += kGrain * -fluxes.at("newRhizome");
+            derivs["newRoot"] += kRoot * -derivs.at("newRhizome");
+            derivs["newStem"] += kStem * -derivs.at("newRhizome");
+            derivs["newLeaf"] += kLeaf * -derivs.at("newRhizome");
+            derivs["newGrain"] += kGrain * -derivs.at("newRhizome");
         }
 
         if (s.at("TTc") >= s.at("seneRhizome")) {
-            fluxes["newRhizome"] -= newRhizomecol[n];
-            fluxes["RhizomeLitter"] += newRhizomecol[n];
+            derivs["newRhizome"] -= newRhizomecol[n];
+            derivs["RhizomeLitter"] += newRhizomecol[n];
             ++n;
         }
 
         if ((kGrain >= 1e-10) && (s["TTc"] >= thermalp[4])) {
-            fluxes["newGrain"] += CanopyA * kGrain;
+            derivs["newGrain"] += CanopyA * kGrain;
             /* No respiration for grain at the moment */
             /* No senescence either */
         }
 
         if (i % 24 * s.at("centTimestep") == 0) {
             double coefficient = ((0.1 / 30) * s.at("centTimestep"));
-            fluxes["LeafLitter"] -= s.at("LeafLitter") * coefficient;
-            fluxes["StemLitter"] -= s.at("StemLitter") * coefficient;
-            fluxes["RootLitter"] -= s.at("RootLitter") * coefficient;
-            fluxes["RhizomeLitter"] -= s.at("RhizomeLitter") * coefficient;
+            derivs["LeafLitter"] -= s.at("LeafLitter") * coefficient;
+            derivs["StemLitter"] -= s.at("StemLitter") * coefficient;
+            derivs["RootLitter"] -= s.at("RootLitter") * coefficient;
+            derivs["RhizomeLitter"] -= s.at("RhizomeLitter") * coefficient;
         }
 
         /*
@@ -228,19 +229,19 @@ state_vector_map Gro(
          * affect output. It should also allow us to use an ODE solver.
          *
          * Now I'm writting out all of the changes, but I will change it so that it can be done
-         * with a function as follows: s = replace_state(s, fluxes);
+         * with a function as follows: s = replace_state(s, derivs);
          * Then this section will always be two lines of code regardless of what comes previously.
          */
 
-        s["Leaf"] += fluxes["newLeaf"];
-        s["Stem"] += fluxes["newStem"];
-        s["Root"] += fluxes["newRoot"];
-        s["Rhizome"] += fluxes["newRhizome"];
-        s["Grain"] += fluxes["newGrain"];
-        s["LeafLitter"] += fluxes["LeafLitter"];
-        s["RootLitter"] += fluxes["RootLitter"];
-        s["RhizomeLitter"] += fluxes["RhizomeLitter"];
-        s["StemLitter"] += fluxes["StemLitter"];
+        s["Leaf"] += derivs["newLeaf"];
+        s["Stem"] += derivs["newStem"];
+        s["Root"] += derivs["newRoot"];
+        s["Rhizome"] += derivs["newRhizome"];
+        s["Grain"] += derivs["newGrain"];
+        s["LeafLitter"] += derivs["LeafLitter"];
+        s["RootLitter"] += derivs["RootLitter"];
+        s["RhizomeLitter"] += derivs["RhizomeLitter"];
+        s["StemLitter"] += derivs["StemLitter"];
         state = replace_state(state, s);  // Variables that exists in both "state" and "s" are copied from "s" to "state", overwriting values in "state".
 
         /*

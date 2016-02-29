@@ -16,6 +16,7 @@ useDynLib(BioCro, MisGro,
 
 import(stats, lattice)
 
+export(Gro)
 export(MisGro)
 export(weach_imn)
 
