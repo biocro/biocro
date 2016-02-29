@@ -103,14 +103,25 @@ state_map c3_canopy::do_operation(state_map const &s) const
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
-    double result;
-    state_map fluxes;
+    double soilEvap, TotEvap;
+    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
+    state_map derivs;
 
-    result = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
+    soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
                 s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
+    TotEvap = soilEvap + s.at("CanopyT");
 
-    fluxes["soilEvap"] = result;
-    return(fluxes);
+    WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
+            s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
+
+    //derivs["waterCont"] = s.at("waterCont") - WaterS.awc;
+    //derivs["StomataWS"] = s.at("StomataWS") - WaterS.rcoefPhoto;
+    //derivs["LeafWS"] = s.at("LeafWS") - WaterS.rcoefSpleaf;
+    derivs["soilEvap"] = soilEvap;
+    derivs["waterCont"] =  WaterS.awc;
+    derivs["StomataWS"] =  WaterS.rcoefPhoto;
+    derivs["LeafWS"] =  WaterS.rcoefSpleaf;
+    return(derivs);
 }
 
 struct c3_str c3_leaf::assimilation(state_map s)

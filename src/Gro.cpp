@@ -23,6 +23,7 @@ state_vector_map Gro(
     state_map state = initial_state;
     state_map s;
     state_map derivs;
+    state_map temp_derivs;
 
     auto n_rows = varying_parameters.begin()->second.size();
     state_vector_map results = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
@@ -30,9 +31,8 @@ state_vector_map Gro(
     vector<double> newLeafcol(n_rows), newStemcol(n_rows), newRootcol(n_rows), newRhizomecol(n_rows);  // If initialized with a size, a vector<double> will start with that many elements, each initialized to 0.
     int k = 0, ri = 0, q = 0, m = 0, n = 0;  // These are indexes that keep track of positions in the previous four variables.
 
-    double CanopyA = 0, CanopyT = 0, soilEvap = 0;
+    double CanopyA = 0, soilEvap = 0;
     double kLeaf, kRoot, kStem, kRhizome, kGrain;
-    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
     struct dbp_str dbpS;
 
     double dbpcoefs[] = {
@@ -103,17 +103,14 @@ state_vector_map Gro(
         derivs = canopy_photosynthesis_module->run(s);
 
         CanopyA = derivs["Assim"] * s.at("timestep");
-        CanopyT = derivs["Trans"] * s.at("timestep");
+        s["CanopyT"] = derivs["Trans"] * s.at("timestep");
 
-        soilEvap = soil_evaporation_module->run(s).at("soilEvap");
-        s["TotEvap"] = soilEvap + CanopyT;
-
-        WaterS = watstr(s.at("precip"), s.at("TotEvap"), s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
-                s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
-
-        s["waterCont"] = WaterS.awc;
-        s["StomataWS"] = WaterS.rcoefPhoto;
-        s["LeafWS"] = WaterS.rcoefSpleaf;
+        temp_derivs = soil_evaporation_module->run(s); // This function doesn't actually return derivatives.
+        
+        soilEvap = temp_derivs.at("soilEvap");
+        s["waterCont"] = temp_derivs.at("waterCont");
+        s["StomataWS"] = temp_derivs.at("StomataWS");
+        s["LeafWS"] = temp_derivs.at("LeafWS");
 
         if (kLeaf > 0) {
             newLeafcol[i] = CanopyA * kLeaf * s.at("LeafWS");
@@ -261,7 +258,7 @@ state_vector_map Gro(
 
         // Record other parameters of interest.
         results["canopy_assimilation"].push_back(CanopyA);
-        results["canopy_transpiration"].push_back(CanopyT);
+        results["canopy_transpiration"].push_back(s.at("CanopyT"));
         results["lai"].push_back(s.at("lai"));
         results["soil_water_content"].push_back(s.at("waterCont"));
         results["stomatal_conductance_coefs"].push_back(s.at("StomataWS"));
@@ -271,6 +268,7 @@ state_vector_map Gro(
         results["alpha"].push_back(s.at("alpha"));
         results["specific_leaf_area"].push_back(s.at("Sp"));
         results["soil_evaporation"].push_back(soilEvap);
+        results["kLeaf"].push_back(kLeaf);
     }
     return results;
 }
