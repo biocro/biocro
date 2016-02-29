@@ -81,16 +81,35 @@ class c3_canopy : public ICanopy_photosynthesis_module {
     public:
         c3_canopy()
             : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solarr", "temp",
-                   "rh", "windspeed", "lat", "nlayers", "vmax",
-                   "jmax", "rd", "catm", "o2", "b0",
-                   "b1", "theta", "kd", "heightf", "leafn",
-                   "kpln", "lnb0", "lnb1", "lnfun", "stomataws",
-                   "ws"},
-                   vector<string> {})
+                    "rh", "windspeed", "lat", "nlayers", "vmax",
+                    "jmax", "rd", "catm", "o2", "b0",
+                    "b1", "theta", "kd", "heightf", "leafn",
+                    "kpln", "lnb0", "lnb1", "lnfun", "stomataws",
+                    "ws"},
+                    vector<string> {})
         {}
     private:
         virtual state_map do_operation (state_map const &s) const;
 };
+
+class ISoil_evaporation_module : public IModule {
+    public:
+        ISoil_evaporation_module(const vector<string> required_state, const vector<string> modified_state)
+            : IModule(required_state, modified_state)
+        {}
+};
+
+class one_layer_soil_profile : public ISoil_evaporation_module {
+    public:
+        one_layer_soil_profile()
+            : ISoil_evaporation_module(vector<string> {"lai", "temp", "solar", "waterCont",
+                    "FieldC", "WiltP", "windspeed", "rh", "rsec"},
+                    vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_map const &s) const;
+};
+
 
 
 state_map combine_state(state_map const &state, state_map const &invariant_parameters, state_vector_map const &varying_parameters, int timestep);
@@ -100,6 +119,7 @@ state_vector_map Gro(
         state_map const &invariant_parameters,
         state_vector_map const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
+        std::unique_ptr<IModule> const &soil_evaporation_module,
 		double (*leaf_n_limitation)(state_map const &model_state));
 
 double biomass_leaf_nitrogen_limitation(state_map const &model_state);

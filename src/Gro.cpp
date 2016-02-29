@@ -17,6 +17,7 @@ state_vector_map Gro(
         state_map const &invariant_parameters,
         state_vector_map const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
+        std::unique_ptr<IModule> const &soil_evaporation_module,
         double (*leaf_n_limitation)(state_map const &model_state))
 {
     state_map state = initial_state;
@@ -26,7 +27,7 @@ state_vector_map Gro(
     auto n_rows = varying_parameters.begin()->second.size();
     state_vector_map results = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
 
-    vector<double> newLeafcol(n_rows), newStemcol(n_rows), newRootcol(n_rows), newRhizomecol(n_rows);  // If a size is passed to a vector<double> all elements are automatically initialized to 0.
+    vector<double> newLeafcol(n_rows), newStemcol(n_rows), newRootcol(n_rows), newRhizomecol(n_rows);  // If initialized with a size, a vector<double> will start with that many elements, each initialized to 0.
     int k = 0, ri = 0, q = 0, m = 0, n = 0;  // These are indexes that keep track of positions in the previous four variables.
 
     double CanopyA = 0, CanopyT = 0, soilEvap = 0;
@@ -87,9 +88,9 @@ state_vector_map Gro(
         /* NOTE: This section should be written to calculate derivates only. No state should be modified.
          * All derivatives should depend only on current state. I.e., derivates should not depend on other derivaties or previous state.
          * I've changed it to try to meet these requirements, but it currently does not meet them.
-         * E.g., s["TTc"] is changed at the very begining, modifying state.
-         * All of the partitioning code depends on CanopyA, so it depends on a derivative.
-         * The senescence code depends on derivates from previous state. 
+         * E.g., 1) s["TTc"] is changed at the very begining, modifying state;
+         * 2) all of the partitioning code depends on CanopyA, so it depends on a derivative;
+         * 3) the senescence code depends on derivates from previous state. 
          * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
          * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
@@ -104,11 +105,12 @@ state_vector_map Gro(
         CanopyA = derivs["Assim"] * s.at("timestep");
         CanopyT = derivs["Trans"] * s.at("timestep");
 
-        soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
-                s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
+        soilEvap = soil_evaporation_module->run(s).at("soilEvap");
         s["TotEvap"] = soilEvap + CanopyT;
+
         WaterS = watstr(s.at("precip"), s.at("TotEvap"), s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
                 s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
+
         s["waterCont"] = WaterS.awc;
         s["StomataWS"] = WaterS.rcoefPhoto;
         s["LeafWS"] = WaterS.rcoefSpleaf;

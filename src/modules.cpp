@@ -101,6 +101,18 @@ state_map c3_canopy::do_operation(state_map const &s) const
     return(fluxes);
 }
 
+state_map one_layer_soil_profile::do_operation(state_map const &s) const
+{
+    double result;
+    state_map fluxes;
+
+    result = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
+                s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
+
+    fluxes["soilEvap"] = result;
+    return(fluxes);
+}
+
 struct c3_str c3_leaf::assimilation(state_map s)
 {
     struct c3_str result = {0, 0, 0, 0};

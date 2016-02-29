@@ -1,5 +1,5 @@
 
-Gro <- function(initial_values, parameters, varying_parameters, canopy_module_name)
+Gro <- function(initial_values, parameters, varying_parameters, canopy_module_name, soil_module_name)
 {
     for ( ilist in list(initial_values, parameters) ) {
         item_lengths = unlist(lapply(ilist, length))
@@ -13,7 +13,7 @@ Gro <- function(initial_values, parameters, varying_parameters, canopy_module_na
     names(varying_parameters)[match(c('solarR', 'DailyTemp.C'), names(varying_parameters))] = c('solar', 'temp')
     names(varying_parameters) = tolower(names(varying_parameters))
 
-    ans = as.data.frame(.Call(RGro, initial_values, parameters, varying_parameters, canopy_module_name))
+    ans = as.data.frame(.Call(RGro, initial_values, parameters, varying_parameters, canopy_module_name, soil_module_name))
     ans = cbind(ans, varying_parameters)
     return(ans)
 }

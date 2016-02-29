@@ -103,6 +103,9 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     if (module_name.compare("c4_canopy") == 0) {
         return std::unique_ptr<IModule>(new c4_canopy);
     }
+    else if (module_name.compare("one_layer_soil_profile") == 0) {
+        return std::unique_ptr<IModule>(new one_layer_soil_profile);
+    }
     else {
         return std::unique_ptr<IModule>(new c3_canopy);
     }
@@ -113,7 +116,8 @@ extern "C" {
 SEXP RGro(SEXP initial_state,
         SEXP invariate_parameters,
         SEXP varying_parameters,
-        SEXP canopy_photosynthesis_module)
+        SEXP canopy_photosynthesis_module,
+        SEXP soil_evaporation_module)
 {
     state_map s = map_from_list(initial_state);
     state_map ip = map_from_list(invariate_parameters);
@@ -123,10 +127,11 @@ SEXP RGro(SEXP initial_state,
     //output_map(ip);
 
     std::unique_ptr<IModule> canopy = make_module(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
+    std::unique_ptr<IModule> soil_evaporation = make_module(CHAR(STRING_ELT(soil_evaporation_module, 0)));
 
     state_vector_map ans;
     try {
-    ans = Gro(s, ip, vp, canopy, biomass_leaf_nitrogen_limitation);
+    ans = Gro(s, ip, vp, canopy, soil_evaporation, biomass_leaf_nitrogen_limitation);
     }
     catch (std::out_of_range const &oor) {
             Rprintf("Exception thrown: %s\n", oor.what());
