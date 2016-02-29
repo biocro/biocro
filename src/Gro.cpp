@@ -112,6 +112,12 @@ state_vector_map Gro(
         s["StomataWS"] = temp_derivs.at("StomataWS");
         s["LeafWS"] = temp_derivs.at("LeafWS");
 
+        // NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
+        // record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
+        // Since it's not recorded, that part will never senesce.
+        // Also, the partitioning coefficiencts (kLeaf, kRoot, etc.) must be set to 0 for a long enough time
+        // at the end of the season for all of the tissue to senesce.
+        // This doesn't seem like a good approach.
         if (kLeaf > 0) {
             newLeafcol[i] = CanopyA * kLeaf * s.at("LeafWS");
             /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
