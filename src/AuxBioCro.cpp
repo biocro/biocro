@@ -797,21 +797,22 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     const double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
     /* Variables */
     double precipM;
-    /* available water and per hectare */
-    double aw, naw, theta_s; 
+    /*    cws is current water status, which is normally in the wiltp-satur range */
+    /*    aw available water (full profile) */
+    double aw, naw; 
+    double drainage = 0.0;
     double K_psim, J_w;
     double pawha, Newpawha, npaw;
-    double runoff = 0.0, drainage = 0.0;
-    // double  runoff2 = 0.0; unused
+    double runoff = 0.0;
     /* variable needed for calculation of water stress*/
-    double wsPhoto = 0.0, wsSpleaf, phi10;
+    double wsPhoto = 0.0, wsSpleaf = 0.0, phi10;
     double slp = 0.0, intcpt = 0.0, theta = 0.0; 
     double Nleach = 0.0;
     /* Nleach is the NO3 leached and Ts is the sand content of the soil*/
+    double theta_s; /* This is the saturated soil water content. Larger than FeildC. */
 
     /* Specify the soil type */
     soTexS = soilTchoose(soiltype);
-    /*   Ts = soTexS.sand; */
 
     if(fieldc < 0) {
         fieldc = soTexS.fieldc;
@@ -825,8 +826,6 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     /* unit conversion for precip */
     precipM = precipit * 1e-3; /* convert precip in mm to m*/
 
-    /*    cws is current water status, which is normally in the wiltp-satur range */
-    /*    aw available water (full profile) */
 
     aw = precipM + cws * soildepth; /* aw in meters */
     aw = aw / soildepth; /* available water in the wiltp-satur range */
@@ -910,10 +909,10 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     /* returning the structure*/
     tmp.rcoefPhoto = wsPhoto;
-    tmp.rcoefSpleaf = wsSpleaf;
     tmp.awc = naw;
     tmp.runoff = runoff;
     tmp.Nleach = Nleach;
+    tmp.rcoefSpleaf = wsSpleaf;
     return(tmp);
 }
 
@@ -929,7 +928,6 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     struct rd_str root_distribution;
     struct soilML_str tmp;
     /* Constant */
-    /* const double G = 6.67428e-11;  m3 / (kg * s-2)  ##  http://en.wikipedia.org/wiki/Gravitational_constant */
     const double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
     /* Variables */
     double waterIn, oldWaterIn = 0.0;
@@ -948,8 +946,13 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     double EvapoTra = 0.0, oldEvapoTra = 0.0, Sevap = 0.0, Ctransp = 0.0;
     double psim1 = 0.0, psim2 = 0.0, K_psim = 0.0, J_w = 0.0, dPsim = 0.0;
     double theta_s; /* This is the saturated soil water content. Larger than FieldC.*/
-    int i;
-    int j = layers - 1; 
+
+    /* rooting depth */
+    /* Crude empirical relationship between root biomass and rooting depth*/
+    rootDepth = rootDB * rsdf;
+    if(rootDepth > soildepth) rootDepth = soildepth;
+
+    root_distribution = rootDist(layers,rootDepth,&depths[0],rfl);
 
     /* Specify the soil type */
 
@@ -961,27 +964,14 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     }
 
     theta_s = soTexS.satur;
-    /* rooting depth */
-    /* Crude empirical relationship between root biomass and rooting depth*/
-    rootDepth = rootDB * rsdf;
-    if(rootDepth > soildepth) rootDepth = soildepth;
-
-    root_distribution = rootDist(layers,rootDepth,&depths[0],rfl);
 
     /* unit conversion for precip */
     waterIn = precipit * 1e-3; /* convert precip in mm to m*/
 
-    for(j=0,i=layers-1;j<layers;j++,i--) {
-        ///* for(i=0;i<layers;i++)  */
-        /* It decreases because I increase the water content due to precipitation in the last layer first*/
+    for(int i = layers - 1; i >= 0; --i) { /* The counter, i, decreases because I increase the water content due to precipitation in the last layer first*/
 
         /* This supports unequal depths. */
-        if(i == 0) {
-            layerDepth = depths[1];
-        } else {
-            layerDepth = depths[i] - depths[i-1];
-        }
-
+        layerDepth = depths[i+1] - depths[i];
 
         if(hydrDist > 0) {
             /* For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9*/
