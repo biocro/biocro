@@ -7,7 +7,6 @@
 
 #include <memory>
 #include <R.h>
-#include <Rinternals.h>
 #include "BioCro.h"
 #include "Century.h"
 #include "modules.h"

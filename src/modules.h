@@ -132,5 +132,7 @@ state_vector_map allocate_state(state_map const &m, int n);
 
 void append_state_to_vector(state_map const &state, state_vector_map &state_vector);
 
+std::unique_ptr<IModule> make_module(string const &module_name);
+
 # endif
 

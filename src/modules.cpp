@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <R.h>
 #include "modules.h"
@@ -130,6 +131,20 @@ struct c3_str c3_leaf::assimilation(state_map s)
     result = c3photoC(s.at("Qp"), s.at("Tleaf"), s.at("RH"), s.at("Vcmax0"), s.at("Jmax"), s.at("Rd0"), s.at("bb0"), s.at("bb1"), s.at("Ca"), s.at("O2"), s.at("thet"), s.at("StomWS"), s.at("ws"));
     return(result);
 }
+
+std::unique_ptr<IModule> make_module(string const &module_name)
+{
+    if (module_name.compare("c4_canopy") == 0) {
+        return std::unique_ptr<IModule>(new c4_canopy);
+    }
+    else if (module_name.compare("one_layer_soil_profile") == 0) {
+        return std::unique_ptr<IModule>(new one_layer_soil_profile);
+    }
+    else {
+        return std::unique_ptr<IModule>(new c3_canopy);
+    }
+}
+
 
 state_vector_map allocate_state(state_map const &m, int n)
 {
