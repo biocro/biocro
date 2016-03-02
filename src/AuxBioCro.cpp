@@ -934,8 +934,9 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     /* Here is a convention aw is available water in volume and awc
        is available water content as a fraction of the soil section being investigated.
        paw is plant available water aw - wiltp */
-    double aw, pawha, awc, awc2, Newpawha;
+    double aw, awc, awc2;
     double drainage = 0.0;
+    double pawha, Newpawha;
     double wsPhoto = 0.0, wsSpleaf = 0.0, phi10;
     double wsPhotoCol = 0.0, wsSpleafCol = 0.0;
     double slp = 0.0, intcpt = 0.0, theta = 0.0; 
@@ -1008,9 +1009,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         }
 
         if(cws[i] > theta_s) cws[i] = theta_s; 
-        /* if(cws[i+1] > fieldc) cws[i+1] = fieldc; */
         if(cws[i] < wiltp) cws[i] = wiltp; 
-        /* if(cws[i+1] < wiltp) cws[i+1] = wiltp;  */
 
         aw = cws[i] * layerDepth;
         /* Available water (for this layer) is the current water status times the layer depth */
@@ -1073,7 +1072,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
     /* three different type of equations for modeling the effect of water stress on vmax and leaf area expansion. 
        The equation for leaf area expansion is more severe than the one for vmax. */
-        if(wsFun == 0) {
+        if(wsFun == 0) { /* linear */
             slp = 1/(fieldc - wiltp);
             intcpt = 1 - fieldc * slp;
             wsPhoto = slp * awc + intcpt;

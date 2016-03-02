@@ -131,7 +131,7 @@ SEXP RGro(SEXP initial_state,
 
     state_vector_map ans;
     try {
-    ans = Gro(s, ip, vp, canopy, soil_evaporation, biomass_leaf_nitrogen_limitation);
+        ans = Gro(s, ip, vp, canopy, soil_evaporation, biomass_leaf_nitrogen_limitation);
     }
     catch (std::out_of_range const &oor) {
             Rprintf("Exception thrown: %s\n", oor.what());
