@@ -160,3 +160,4 @@ export(CropGro)
 #soyGro.R
 export(soyGro)
 
+export(read_parameters)
