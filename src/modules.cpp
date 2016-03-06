@@ -149,19 +149,21 @@ state_map thermal_time_senescence_module::do_operation(state_vector_map const &s
     state_map derivs;
     Rprintf("Inside thermal: %d.\n", state_history.begin()->second.size());
     state_map s = at(state_history, state_history.begin()->second.size() - 1);
-    output_map(s);
-    if (s.at("TTc") >= parameters.at("seneLeaf")) {
+    //output_map(s);
+    double TTc = s.at("TTc");
+    if (TTc >= parameters.at("seneLeaf")) {
         Rprintf("Before newleaf\n");
-        Rprintf("newLeafcol[0] %.0.02f.\n", deriv_history.at("newLeafcol")[0]);
-        derivs["newLeaf"] -= deriv_history.at("newLeafcol")[s["leaf_senescence_index"]]; /* This means that the new value of leaf is
+        Rprintf("newLeafcol[i] %.0.02f.\n", deriv_history.at("newLeafcol")[deriv_history.begin()->second.size()]);
+        double change = deriv_history.at("newLeafcol")[s["leaf_senescence_index"]];
+        derivs["newLeaf"] -= change; /* This means that the new value of leaf is
                                                the previous value plus the newLeaf
                                                (Senescence might start when there is
                                                still leaf being produced) minus the leaf
                                                produced at the corresponding k. */
         Rprintf("0749 newleaf\n");
-        double Remob = deriv_history.at("newLeafcol")[s["leaf_senescence_index"]] * 0.6;
+        double Remob = change * 0.6;
         Rprintf("703964 newleaf\n");
-        derivs["LeafLitter"] += deriv_history.at("newLeafcol")[s["leaf_senescence_index"]] * 0.4; /* Collecting the leaf litter */ 
+        derivs["LeafLitter"] += change * 0.4; /* Collecting the leaf litter */ 
         Rprintf("8275 newleaf\n");
         derivs["newRhizome"] += s.at("kRhizome") * Remob;
         Rprintf("45234 newleaf\n");
@@ -172,21 +174,24 @@ state_map thermal_time_senescence_module::do_operation(state_vector_map const &s
         Rprintf("End newleaf\n");
     }
 
-    if (s.at("TTc") >= parameters.at("seneStem")) {
-        derivs["newStem"] -= deriv_history.at("newStemcol")[s["stem_senescence_index"]];
-        derivs["StemLitter"] += deriv_history.at("newStemcol")[s["stem_senescence_index"]];
+    if (TTc >= parameters.at("seneStem")) {
+        double change = deriv_history.at("newStemcol")[s["stem_senescence_index"]];
+        derivs["newStem"] -= change;
+        derivs["StemLitter"] += change;
         ++derivs["stem_senescence_index"];
     }
 
-    if (s.at("TTc") >= parameters.at("seneRoot")) {
-        derivs["newRoot"] -= deriv_history.at("newRootcol")[s["root_senescence_index"]];
-        derivs["RootLitter"] += deriv_history.at("newRootcol")[s["root_senescence_index"]];
+    if (TTc >= parameters.at("seneRoot")) {
+        double change = deriv_history.at("newRootcol")[s["root_senescence_index"]];
+        derivs["newRoot"] -= change;
+        derivs["RootLitter"] += change;
         ++derivs["root_senescence_index"];
     }
 
-    if (s.at("TTc") >= parameters.at("seneRhizome")) {
-        derivs["newRhizome"] -= deriv_history.at("newRhizomecol")[s["rhizome_senescence_index"]];
-        derivs["RhizomeLitter"] += deriv_history.at("newRhizomecol")[s["rhizome_senescence_index"]];
+    if (TTc >= parameters.at("seneRhizome")) {
+        double change = deriv_history.at("newRhizomecol")[s["rhizome_senescence_index"]];
+        derivs["newRhizome"] -= change;
+        derivs["RhizomeLitter"] += change;
         ++derivs["rhizome_senescence_index"];
     }
 
@@ -246,7 +251,7 @@ state_map at(state_vector_map const vector_map, vector<double>::size_type n)
 {
     state_map result;
     result.reserve(vector_map.size());
-    Rprintf("Before at for loop.\n");
+    //Rprintf("Before at for loop.\n");
     for (auto it = vector_map.begin(); it != vector_map.end(); ++it) {
         result.insert(std::pair<string, double>(it->first, it->second.at(n)));
     }

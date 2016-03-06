@@ -28,7 +28,7 @@ SEXP RGro(SEXP initial_state,
                             "mrc1", "seneLeaf", "Stem", "seneStem",
                             "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome"};
 
-    state_map all_state = combine_state(s, ip, vp, 0);
+    state_map all_state = combine_state(s, combine_state(ip, at(vp, 0)));
 
     vector<string> missing_state;
     for (auto it = required_state.begin(); it != required_state.end(); ++it) {

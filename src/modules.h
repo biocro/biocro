@@ -133,6 +133,27 @@ class thermal_time_senescence_module : public ISenescence_module {
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
+class IGrowth_module : public IModule {
+    public:
+        IGrowth_module(const vector<string> required_state, const vector<string> modified_state)
+            : IModule(required_state, modified_state)
+        {}
+};
+
+class thermal_time_senescence_module : public ISenescence_module {
+    public:
+        thermal_time_senescence_module()
+            : ISenescence_module(vector<string> {"TTc", "LeafWS", "temp", "CanopyA",
+                "Leaf", "Stem", "Root", "Rhizome", "Grain",
+                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
+                "newLeafcol", "newStemcol", "newRootcol", "newRhizomecol",
+                "senesced_leaf_index", "senesced_stem_index", "senesced_root_index", "senesced_rhizome_index",
+                "mrc1", "mrc2"},
+                vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+};
 
 state_map combine_state(state_map const &state_a, state_map const &state_b);
 

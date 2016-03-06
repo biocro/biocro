@@ -19,13 +19,36 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &soil_evaporation_module,
         double (*leaf_n_limitation)(state_map const &model_state))
 {
+
+    std::unique_ptr<IModule> senescence_module = std::unique_ptr<IModule>(new thermal_time_senescence_module);
+
     state_map state = initial_state;
-    state_map s;
-    state_map derivs;
     state_map temp_derivs;
+    state["CanopyT"] = 0;
+    state["LeafWS"] = 0;
+    state["leaf_senescence_index"] = 0;
+    state["stem_senescence_index"] = 0;
+    state["root_senescence_index"] = 0;
+    state["rhizome_senescence_index"] = 0;
+    state["Sp"] = 0;
+    state["lai"] = 0;
+    state["LeafN"] = 0;
+    state["vmax"] = 0;
+    state["alpha"] = 0;
+    state["kLeaf"] = 0;
+    state["kStem"] = 0;
+    state["kRoot"] = 0;
+    state["kGrain"] = 0;
+    state["kRhizome"] = 0;
+    state["canopy_assimilation"] = 0;
+    state["canopy_transpiration"] = 0;
+    state["stomatal_conductance_coefs"] = 0;
+    state["soil_evaporation"] = 0;
 
     auto n_rows = varying_parameters.begin()->second.size();
-    state_vector_map results = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
+    state_vector_map state_history = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
+    state_vector_map deriv_history = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
+
 
     vector<double> newLeafcol(n_rows), newStemcol(n_rows), newRootcol(n_rows), newRhizomecol(n_rows);  // If initialized with a size, a vector<double> will start with that many elements, each initialized to 0.
     int k = 0, ri = 0, q = 0, m = 0, n = 0;  // These are indexes that keep track of positions in the previous four variables.
@@ -49,6 +72,10 @@ state_vector_map Gro(
 
     for(size_t i = 0; i < n_rows; ++i)
     {
+        // The following copies state, invariant parameters, and the last values in varying_parameters into the variable "s";
+        state_map p = combine_state(invariant_parameters, at(varying_parameters, i));
+        state_map s = combine_state(state, p);
+
         /*
          * 1) Calculate all state-dependent state variables.
          */
@@ -60,7 +87,6 @@ state_vector_map Gro(
          * This will make it so that the code in section 2 is order independent.
          */
 
-        s = combine_state(state, invariant_parameters, varying_parameters, i);
         s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");
         s["lai"] = s.at("Leaf") * s.at("Sp");
 
@@ -80,6 +106,12 @@ state_vector_map Gro(
         kGrain = dbpS.kGrain;
         kRhizome = dbpS.kRhiz;
 
+        s["kLeaf"] = kLeaf;
+        s["kStem"] = kStem;
+        s["kRoot"] = kRoot;
+        s["kGrain"] = kGrain;
+        s["kRhizome"] = kRhizome;
+
         /*
          * 2) Calculate derivatives between state variables.
          */
@@ -93,7 +125,7 @@ state_vector_map Gro(
          * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
          * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
-        derivs.clear();  // There's no guarantee that each derivative will be set in each iteration, so start by setting every derivative to 0.
+        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
 
         if(s.at("temp") > s.at("tbase")) {
             s["TTc"] += (s.at("temp") - s.at("tbase")) / (24/s.at("timestep")); 
@@ -118,18 +150,19 @@ state_vector_map Gro(
         // at the end of the season for all of the tissue to senesce.
         // This doesn't seem like a good approach.
         if (kLeaf > 0) {
-            newLeafcol[i] = CanopyA * kLeaf * s.at("LeafWS");
+            derivs["newLeafcol"] = CanopyA * kLeaf * s.at("LeafWS");
             /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
                 Plant. Phys. 46, 233-235. For this the water stress coefficient is different
                 for leaf and vmax. */
 
             /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
-            newLeafcol[i] = resp(newLeafcol[i], s.at("mrc1"), s.at("temp"));
+            derivs["newLeafcol"] = resp(derivs["newLeafcol"], s.at("mrc1"), s.at("temp"));
 
-            derivs["newLeaf"] = newLeafcol[i]; /* It makes sense to use i because when kLeaf
+            derivs["newLeaf"] = derivs["newLeafcol"]; /* It makes sense to use i because when kLeaf
                                                   is negative no new leaf is being accumulated
                                                   and thus would not be subjected to senescence. */
         } else {
+            derivs["newLeafcol"] = 0;
             derivs["newLeaf"] += s.at("Leaf") * kLeaf;
             derivs["newRhizome"] += kRhizome * -derivs.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
             derivs["newStem"] += kStem * -derivs.at("newLeaf") * 0.9;
@@ -137,40 +170,20 @@ state_vector_map Gro(
             derivs["newGrain"] += kGrain * -derivs.at("newLeaf") * 0.9;
         }
 
-        if (s.at("TTc") >= s.at("seneLeaf")) {
-            derivs["newLeaf"] -= newLeafcol[k]; /* This means that the new value of leaf is
-                                                   the previous value plus the newLeaf
-                                                   (Senescence might start when there is
-                                                   still leaf being produced) minus the leaf
-                                                   produced at the corresponding k. */
-            double Remob = newLeafcol[k] * 0.6;
-            derivs["LeafLitter"] += newLeafcol[k] * 0.4; /* Collecting the leaf litter */ 
-            derivs["newRhizome"] += kRhizome * Remob;
-            derivs["newStem"] += kStem * Remob;
-            derivs["newRoot"] += kRoot * Remob;
-            derivs["newGrain"] += kGrain * Remob;
-            ++k;
-        }
-
         if (kStem >= 0) {
-            newStemcol[i] = CanopyA * kStem;
-            newStemcol[i] = resp(newStemcol[i], s.at("mrc1"), s.at("temp"));
-            derivs["newStem"] += newStemcol[i];
+            derivs["newStemcol"] = CanopyA * kStem;
+            derivs["newStemcol"] = resp(derivs["newStemcol"], s.at("mrc1"), s.at("temp"));
+            derivs["newStem"] += derivs["newStemcol"];
         } else {
             error("kStem should be positive");
         }
 
-        if (s.at("TTc") >= s.at("seneStem")) {
-            derivs["newStem"] -= newStemcol[q];
-            derivs["StemLitter"] += newStemcol[q];
-            ++q;
-        }
-
         if (kRoot > 0) {
-            newRootcol[i] = CanopyA * kRoot;
-            newRootcol[i] = resp(newRootcol[i], s.at("mrc2"), s.at("temp"));
-            derivs["newRoot"] += newRootcol[i];
+            derivs["newRootcol"] = CanopyA * kRoot;
+            derivs["newRootcol"] = resp(derivs["newRootcol"], s.at("mrc2"), s.at("temp"));
+            derivs["newRoot"] += derivs["newRootcol"];
         } else {
+            derivs["newRootcol"] = 0;
             derivs["newRoot"] += s.at("Root") * kRoot;
             derivs["newRhizome"] += kRhizome * -derivs.at("newRoot") * 0.9;
             derivs["newStem"] += kStem * -derivs.at("newRoot") * 0.9;
@@ -178,20 +191,15 @@ state_vector_map Gro(
             derivs["newGrain"] += kGrain * -derivs.at("newRoot") * 0.9;
         }
 
-        if (s.at("TTc") >= s.at("seneRoot")) {
-            derivs["newRoot"] -= newRootcol[m];
-            derivs["RootLitter"] += newRootcol[m];
-            ++m;
-        }
-
         if (kRhizome > 0) {
-            newRhizomecol[ri] = CanopyA * kRhizome;
-            newRhizomecol[ri] = resp(newRhizomecol[ri], s.at("mrc2"), s.at("temp"));
-            derivs["newRhizome"] += newRhizomecol[ri];
+            derivs["newRhizomecol"] = CanopyA * kRhizome;
+            derivs["newRhizomecol"] = resp(derivs["newRhizomecol"], s.at("mrc2"), s.at("temp"));
+            derivs["newRhizome"] += derivs["newRhizomecol"];
             /* Here i will not work because the rhizome goes from being a source
                to a sink. I need its own index. Let's call it rhizome's i or ri.*/
             ++ri;
         } else {
+            derivs["newRhizomecol"] = 0;
             derivs["newRhizome"] += s.at("Rhizome") * kRhizome;
             if ( derivs["newRhizome"] > s.at("Rhizome") ) {  // Check if this would make the rhizome mass negative.
                 derivs["newRhizome"] = s.at("Rhizome");
@@ -204,25 +212,32 @@ state_vector_map Gro(
             derivs["newGrain"] += kGrain * -derivs.at("newRhizome");
         }
 
-        if (s.at("TTc") >= s.at("seneRhizome")) {
-            derivs["newRhizome"] -= newRhizomecol[n];
-            derivs["RhizomeLitter"] += newRhizomecol[n];
-            ++n;
-        }
-
         if ((kGrain >= 1e-10) && (s["TTc"] >= thermalp[4])) {
             derivs["newGrain"] += CanopyA * kGrain;
             /* No respiration for grain at the moment */
             /* No senescence either */
         }
 
-        if (i % 24 * s.at("centTimestep") == 0) {
-            double coefficient = ((0.1 / 30) * s.at("centTimestep"));
-            derivs["LeafLitter"] -= s.at("LeafLitter") * coefficient;
-            derivs["StemLitter"] -= s.at("StemLitter") * coefficient;
-            derivs["RootLitter"] -= s.at("RootLitter") * coefficient;
-            derivs["RhizomeLitter"] -= s.at("RhizomeLitter") * coefficient;
-        }
+        state = replace_state(state, s);
+        append_state_to_vector(state, state_history);
+
+        //Rprintf("Before senescence.\n");
+        temp_derivs = senescence_module->run(state_history, deriv_history, p);
+        derivs["newLeaf"] += temp_derivs["newLeaf"];
+        derivs["newStem"] += temp_derivs["newStem"];
+        derivs["newRoot"] += temp_derivs["newRoot"];
+        derivs["newGrain"] += temp_derivs["newGrain"];
+        derivs["newRhizome"] += temp_derivs["newRhizome"];
+        derivs["LeafLitter"] += temp_derivs["LeafLitter"];
+        derivs["StemLitter"] += temp_derivs["StemLitter"];
+        derivs["RootLitter"] += temp_derivs["RootLitter"];
+        derivs["RhizomeLitter"] += temp_derivs["RhizomeLitter"];
+        derivs["leaf_senescence_index"] += temp_derivs["leaf_senescence_index"];
+        derivs["stem_senescence_index"] += temp_derivs["stem_senescence_index"];
+        derivs["root_senescence_index"] += temp_derivs["root_senescence_index"];
+        derivs["rhizome_senescence_index"] += temp_derivs["rhizome_senescence_index"];
+
+
 
         /*
          * 3) Update the state variables.
@@ -237,6 +252,7 @@ state_vector_map Gro(
          * Then this section will always be two lines of code regardless of what comes previously.
          */
 
+        //output_map(derivs);
         s["Leaf"] += derivs["newLeaf"];
         s["Stem"] += derivs["newStem"];
         s["Root"] += derivs["newRoot"];
@@ -246,10 +262,17 @@ state_vector_map Gro(
         s["RootLitter"] += derivs["RootLitter"];
         s["RhizomeLitter"] += derivs["RhizomeLitter"];
         s["StemLitter"] += derivs["StemLitter"];
-        state = replace_state(state, s);  // Variables that exists in both "state" and "s" are copied from "s" to "state", overwriting values in "state".
+        s["leaf_senescence_index"] += derivs["leaf_senescence_index"];
+        s["stem_senescence_index"] += derivs["stem_senescence_index"];
+        s["root_senescence_index"] += derivs["root_senescence_index"];
+        s["rhizome_senescence_index"] += derivs["rhizome_senescence_index"];
+        state = replace_state(state, s);
+
+    //    if ( i < n_rows - 1)
+     //       append_state_to_vector(state, state_history);
 
         /*
-         * 4) Record variables in the results map.
+         * 4) Record variables in the state_history map.
          */
 
         /* NOTE: We can write a recorder function so that the user can specify
@@ -259,22 +282,27 @@ state_vector_map Gro(
          */
 
         // Record everything that is in "state".
-        append_state_to_vector(state, results);
+        append_state_to_vector(derivs, deriv_history);
 
         // Record other parameters of interest.
-        results["canopy_assimilation"].push_back(CanopyA);
-        results["canopy_transpiration"].push_back(s.at("CanopyT"));
-        results["lai"].push_back(s.at("lai"));
-        results["soil_water_content"].push_back(s.at("waterCont"));
-        results["stomatal_conductance_coefs"].push_back(s.at("StomataWS"));
-        results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
-        results["leaf_nitrogen"].push_back(s.at("LeafN"));
-        results["vmax"].push_back(s.at("vmax"));
-        results["alpha"].push_back(s.at("alpha"));
-        results["specific_leaf_area"].push_back(s.at("Sp"));
-        results["soil_evaporation"].push_back(soilEvap);
-        results["kLeaf"].push_back(kLeaf);
+        state_history["canopy_assimilation"][i] = CanopyA;
+        //state_history["canopy_assimilation"].push_back(CanopyA);
+        //state_history["canopy_transpiration"].push_back(s.at("CanopyT"));
+        //state_history["lai"].push_back(s.at("lai"));
+        //state_history["soil_water_content"].push_back(s.at("waterCont"));
+        //state_history["stomatal_conductance_coefs"].push_back(s.at("StomataWS"));
+        //state_history["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
+        //state_history["leaf_nitrogen"].push_back(s.at("LeafN"));
+        //state_history["vmax"].push_back(s.at("vmax"));
+        //state_history["alpha"].push_back(s.at("alpha"));
+        //state_history["specific_leaf_area"].push_back(s.at("Sp"));
+        //state_history["soil_evaporation"].push_back(soilEvap);
+        //state_history["kLeaf"].push_back(kLeaf);
+        //state_history["newLeafcol"].push_back(newLeafcol[i]);
+        //state_history["newStemcol"].push_back(newStemcol[i]);
+        //state_history["newRootcol"].push_back(newRootcol[i]);
+        //state_history["newRhizomecol"].push_back(newRhizomecol[i]);
     }
-    return results;
+    return state_history;
 }
 
