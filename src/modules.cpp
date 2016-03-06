@@ -207,6 +207,92 @@ state_map thermal_time_senescence_module::do_operation(state_vector_map const &s
     return(derivs);
 }
 
+state_map partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+{
+    Rprintf("Inside partioning: %d.\n", state_history.begin()->second.size());
+    state_map derivs;
+    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
+    Rprintf("before constants.\n");
+    double kLeaf = s.at("kLeaf");
+    double kStem = s.at("kStem");
+    double kRoot = s.at("kRoot");
+    double kRhizome = s.at("kRhizome");
+    double kGrain = s.at("kGrain");
+    double CanopyA = s.at("CanopyA");
+    Rprintf("after constants.\n");
+
+    if (kLeaf > 0) {
+        Rprintf("in kleaf.\n");
+        derivs["newLeafcol"] = CanopyA * kLeaf * s.at("LeafWS");
+        /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
+            Plant. Phys. 46, 233-235. For this the water stress coefficient is different
+            for leaf and vmax. */
+
+        /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
+        derivs["newLeafcol"] = resp(derivs["newLeafcol"], s.at("mrc1"), s.at("temp"));
+
+        derivs["newLeaf"] = derivs["newLeafcol"]; /* It makes sense to use i because when kLeaf
+                                                     is negative no new leaf is being accumulated
+                                                     and thus would not be subjected to senescence. */
+    } else {
+        derivs["newLeafcol"] = 0;
+        derivs["newLeaf"] += s.at("Leaf") * kLeaf;
+        derivs["newRhizome"] += kRhizome * -derivs.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
+        derivs["newStem"] += kStem * -derivs.at("newLeaf") * 0.9;
+        derivs["newRoot"] += kRoot * -derivs.at("newLeaf") * 0.9;
+        derivs["newGrain"] += kGrain * -derivs.at("newLeaf") * 0.9;
+    }
+
+    if (kStem >= 0) {
+        derivs["newStemcol"] = CanopyA * kStem;
+        derivs["newStemcol"] = resp(derivs["newStemcol"], s.at("mrc1"), s.at("temp"));
+        derivs["newStem"] += derivs["newStemcol"];
+    } else {
+        error("kStem should be positive");
+    }
+
+    if (kRoot > 0) {
+        derivs["newRootcol"] = CanopyA * kRoot;
+        derivs["newRootcol"] = resp(derivs["newRootcol"], s.at("mrc2"), s.at("temp"));
+        derivs["newRoot"] += derivs["newRootcol"];
+    } else {
+        derivs["newRootcol"] = 0;
+        derivs["newRoot"] += s.at("Root") * kRoot;
+        derivs["newRhizome"] += kRhizome * -derivs.at("newRoot") * 0.9;
+        derivs["newStem"] += kStem * -derivs.at("newRoot") * 0.9;
+        derivs["newLeaf"] += kLeaf * -derivs.at("newRoot") * 0.9;
+        derivs["newGrain"] += kGrain * -derivs.at("newRoot") * 0.9;
+    }
+
+    if (kRhizome > 0) {
+        derivs["newRhizomecol"] = CanopyA * kRhizome;
+        derivs["newRhizomecol"] = resp(derivs["newRhizomecol"], s.at("mrc2"), s.at("temp"));
+        derivs["newRhizome"] += derivs["newRhizomecol"];
+        /* Here i will not work because the rhizome goes from being a source
+           to a sink. I need its own index. Let's call it rhizome's i or ri.*/
+        ++derivs["rhizome_index"];
+    } else {
+        derivs["newRhizomecol"] = 0;
+        derivs["newRhizome"] += s.at("Rhizome") * kRhizome;
+        if ( derivs["newRhizome"] > s.at("Rhizome") ) {  // Check if this would make the rhizome mass negative.
+            derivs["newRhizome"] = s.at("Rhizome");
+            warning("Rhizome flux would make rhizome mass negative.");
+        }
+
+        derivs["newRoot"] += kRoot * -derivs.at("newRhizome");
+        derivs["newStem"] += kStem * -derivs.at("newRhizome");
+        derivs["newLeaf"] += kLeaf * -derivs.at("newRhizome");
+        derivs["newGrain"] += kGrain * -derivs.at("newRhizome");
+    }
+
+    if ((kGrain >= 1e-10) && (s["TTc"] >= s.at("tp5"))) {
+        derivs["newGrain"] += CanopyA * kGrain;
+        /* No respiration for grain at the moment */
+        /* No senescence either */
+    }
+    return(derivs);
+}
+
 struct c3_str c3_leaf::assimilation(state_map s)
 {
     struct c3_str result = {0, 0, 0, 0};
@@ -281,3 +367,10 @@ double biomass_leaf_nitrogen_limitation(state_map const &s)
     return(leaf_n > s.at("LeafN_0") ? s.at("LeafN_0") : leaf_n);
 }
 
+state_map& operator+=(state_map &lhs, state_map const &rhs)
+{
+    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
+        lhs[it->first] += it->second;
+    }
+    return lhs;
+}

@@ -21,10 +21,12 @@ state_vector_map Gro(
 {
 
     std::unique_ptr<IModule> senescence_module = std::unique_ptr<IModule>(new thermal_time_senescence_module);
+    std::unique_ptr<IModule> growth_module = std::unique_ptr<IModule>(new partitioning_growth_module);
 
     state_map state = initial_state;
     state_map temp_derivs;
     state["CanopyT"] = 0;
+    state["CanopyA"] = 0;
     state["LeafWS"] = 0;
     state["leaf_senescence_index"] = 0;
     state["stem_senescence_index"] = 0;
@@ -133,7 +135,7 @@ state_vector_map Gro(
 
         derivs = canopy_photosynthesis_module->run(s);
 
-        CanopyA = derivs["Assim"] * s.at("timestep");
+        s["CanopyA"] = derivs["Assim"] * s.at("timestep");
         s["CanopyT"] = derivs["Trans"] * s.at("timestep");
 
         temp_derivs = soil_evaporation_module->run(s); // This function doesn't actually return derivatives.
@@ -149,95 +151,14 @@ state_vector_map Gro(
         // Also, the partitioning coefficiencts (kLeaf, kRoot, etc.) must be set to 0 for a long enough time
         // at the end of the season for all of the tissue to senesce.
         // This doesn't seem like a good approach.
-        if (kLeaf > 0) {
-            derivs["newLeafcol"] = CanopyA * kLeaf * s.at("LeafWS");
-            /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
-                Plant. Phys. 46, 233-235. For this the water stress coefficient is different
-                for leaf and vmax. */
-
-            /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
-            derivs["newLeafcol"] = resp(derivs["newLeafcol"], s.at("mrc1"), s.at("temp"));
-
-            derivs["newLeaf"] = derivs["newLeafcol"]; /* It makes sense to use i because when kLeaf
-                                                  is negative no new leaf is being accumulated
-                                                  and thus would not be subjected to senescence. */
-        } else {
-            derivs["newLeafcol"] = 0;
-            derivs["newLeaf"] += s.at("Leaf") * kLeaf;
-            derivs["newRhizome"] += kRhizome * -derivs.at("newLeaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
-            derivs["newStem"] += kStem * -derivs.at("newLeaf") * 0.9;
-            derivs["newRoot"] += kRoot * -derivs.at("newLeaf") * 0.9;
-            derivs["newGrain"] += kGrain * -derivs.at("newLeaf") * 0.9;
-        }
-
-        if (kStem >= 0) {
-            derivs["newStemcol"] = CanopyA * kStem;
-            derivs["newStemcol"] = resp(derivs["newStemcol"], s.at("mrc1"), s.at("temp"));
-            derivs["newStem"] += derivs["newStemcol"];
-        } else {
-            error("kStem should be positive");
-        }
-
-        if (kRoot > 0) {
-            derivs["newRootcol"] = CanopyA * kRoot;
-            derivs["newRootcol"] = resp(derivs["newRootcol"], s.at("mrc2"), s.at("temp"));
-            derivs["newRoot"] += derivs["newRootcol"];
-        } else {
-            derivs["newRootcol"] = 0;
-            derivs["newRoot"] += s.at("Root") * kRoot;
-            derivs["newRhizome"] += kRhizome * -derivs.at("newRoot") * 0.9;
-            derivs["newStem"] += kStem * -derivs.at("newRoot") * 0.9;
-            derivs["newLeaf"] += kLeaf * -derivs.at("newRoot") * 0.9;
-            derivs["newGrain"] += kGrain * -derivs.at("newRoot") * 0.9;
-        }
-
-        if (kRhizome > 0) {
-            derivs["newRhizomecol"] = CanopyA * kRhizome;
-            derivs["newRhizomecol"] = resp(derivs["newRhizomecol"], s.at("mrc2"), s.at("temp"));
-            derivs["newRhizome"] += derivs["newRhizomecol"];
-            /* Here i will not work because the rhizome goes from being a source
-               to a sink. I need its own index. Let's call it rhizome's i or ri.*/
-            ++ri;
-        } else {
-            derivs["newRhizomecol"] = 0;
-            derivs["newRhizome"] += s.at("Rhizome") * kRhizome;
-            if ( derivs["newRhizome"] > s.at("Rhizome") ) {  // Check if this would make the rhizome mass negative.
-                derivs["newRhizome"] = s.at("Rhizome");
-                warning("Rhizome flux would make rhizome mass negative.");
-            }
-
-            derivs["newRoot"] += kRoot * -derivs.at("newRhizome");
-            derivs["newStem"] += kStem * -derivs.at("newRhizome");
-            derivs["newLeaf"] += kLeaf * -derivs.at("newRhizome");
-            derivs["newGrain"] += kGrain * -derivs.at("newRhizome");
-        }
-
-        if ((kGrain >= 1e-10) && (s["TTc"] >= thermalp[4])) {
-            derivs["newGrain"] += CanopyA * kGrain;
-            /* No respiration for grain at the moment */
-            /* No senescence either */
-        }
 
         state = replace_state(state, s);
         append_state_to_vector(state, state_history);
 
+        derivs += growth_module->run(state_history, deriv_history, p);
+
         //Rprintf("Before senescence.\n");
-        temp_derivs = senescence_module->run(state_history, deriv_history, p);
-        derivs["newLeaf"] += temp_derivs["newLeaf"];
-        derivs["newStem"] += temp_derivs["newStem"];
-        derivs["newRoot"] += temp_derivs["newRoot"];
-        derivs["newGrain"] += temp_derivs["newGrain"];
-        derivs["newRhizome"] += temp_derivs["newRhizome"];
-        derivs["LeafLitter"] += temp_derivs["LeafLitter"];
-        derivs["StemLitter"] += temp_derivs["StemLitter"];
-        derivs["RootLitter"] += temp_derivs["RootLitter"];
-        derivs["RhizomeLitter"] += temp_derivs["RhizomeLitter"];
-        derivs["leaf_senescence_index"] += temp_derivs["leaf_senescence_index"];
-        derivs["stem_senescence_index"] += temp_derivs["stem_senescence_index"];
-        derivs["root_senescence_index"] += temp_derivs["root_senescence_index"];
-        derivs["rhizome_senescence_index"] += temp_derivs["rhizome_senescence_index"];
-
-
+        derivs += senescence_module->run(state_history, deriv_history, p);
 
         /*
          * 3) Update the state variables.
@@ -285,7 +206,7 @@ state_vector_map Gro(
         append_state_to_vector(derivs, deriv_history);
 
         // Record other parameters of interest.
-        state_history["canopy_assimilation"][i] = CanopyA;
+        state_history["canopy_assimilation"][i] = s["CanopyA"];
         //state_history["canopy_assimilation"].push_back(CanopyA);
         //state_history["canopy_transpiration"].push_back(s.at("CanopyT"));
         //state_history["lai"].push_back(s.at("lai"));

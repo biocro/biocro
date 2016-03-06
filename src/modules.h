@@ -140,14 +140,12 @@ class IGrowth_module : public IModule {
         {}
 };
 
-class thermal_time_senescence_module : public ISenescence_module {
+class partitioning_growth_module : public IGrowth_module {
     public:
-        thermal_time_senescence_module()
-            : ISenescence_module(vector<string> {"TTc", "LeafWS", "temp", "CanopyA",
+        partitioning_growth_module()
+            : IGrowth_module(vector<string> {"TTc", "LeafWS", "temp", "CanopyA",
                 "Leaf", "Stem", "Root", "Rhizome", "Grain",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-                "newLeafcol", "newStemcol", "newRootcol", "newRhizomecol",
-                "senesced_leaf_index", "senesced_stem_index", "senesced_root_index", "senesced_rhizome_index",
                 "mrc1", "mrc2"},
                 vector<string> {})
         {}
@@ -178,6 +176,8 @@ void append_state_to_vector(state_map const &state, state_vector_map &state_vect
 std::unique_ptr<IModule> make_module(string const &module_name);
 
 state_map at(state_vector_map const vector_map, vector<double>::size_type n);
+
+state_map& operator+=(state_map &lhs, state_map const &rhs);
 
 # endif
 
