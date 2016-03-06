@@ -7,8 +7,9 @@
 state_map map_from_list(SEXP const &list)
 {
     SEXP names = getAttrib(list, R_NamesSymbol);
-    state_map m;
     int n = length(list);
+    state_map m;
+    m.reserve(n);
     for (int i = 0; i < n; ++i) {
         m.insert(std::pair<string, double>(CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]));
     }
@@ -20,6 +21,7 @@ state_vector_map map_vector_from_list(SEXP const &list)
     SEXP names = getAttrib(list, R_NamesSymbol);
     int n = length(list);
     state_vector_map m;
+    m.reserve(n);
     for (int i = 0; i < n; ++i) {
         int p = length(VECTOR_ELT(list, i));
         vector<double> temporary;
@@ -71,14 +73,18 @@ SEXP list_from_map(state_vector_map const &m)
 }
 
 void output_map(state_map const &m) {
-    Rprintf("The map contains the following items: ");
     int i = 0;
-    auto it = m.begin();
-    for(; std::next(it) != m.end(); ++it) {
-        Rprintf("%s, %0.04f; ", it->first.c_str(), it->second);
-        if (++i % 5 == 0) Rprintf("\n");
+    if (!m.empty()) {
+        auto it = m.begin();
+        Rprintf("The map contains the following items: ");
+        for(; std::next(it) != m.end(); ++it) {
+            Rprintf("%s, %0.04f; ", it->first.c_str(), it->second);
+            if (++i % 5 == 0) Rprintf("\n");
+        }
+        Rprintf("%s, %0.04f.\n\n", it->first.c_str(), it->second);
+    } else {
+        Rprintf("The map empty.\n");
     }
-    Rprintf("%s, %0.04f.\n\n", it->first.c_str(), it->second);
 }
 
 void output_list(SEXP const &list) {

@@ -39,6 +39,25 @@ state_map IModule::run(state_map const &state) const
     return(result);
 }
 
+state_map IModule::run(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+{
+    state_map result;
+    try {
+        result = this->do_operation(state_history, deriv_history, parameters);
+    }
+    catch (std::out_of_range const &oor) {
+        error("An out of range exception was thrown.");
+
+    }
+    return(result);
+}
+
+state_map IModule::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
+{
+    state_map current_state = combine_state(at(state_history, state_history.begin()->second.size()), p);
+    return(this->run(current_state));
+}
+
 vector<string> IModule::state_requirements_are_met(state_map const &s) const
 {
     vector<string> missing_state;
@@ -125,6 +144,64 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     return(derivs);
 }
 
+state_map thermal_time_senescence_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+{
+    state_map derivs;
+    Rprintf("Inside thermal: %d.\n", state_history.begin()->second.size());
+    state_map s = at(state_history, state_history.begin()->second.size() - 1);
+    output_map(s);
+    if (s.at("TTc") >= parameters.at("seneLeaf")) {
+        Rprintf("Before newleaf\n");
+        Rprintf("newLeafcol[0] %.0.02f.\n", deriv_history.at("newLeafcol")[0]);
+        derivs["newLeaf"] -= deriv_history.at("newLeafcol")[s["leaf_senescence_index"]]; /* This means that the new value of leaf is
+                                               the previous value plus the newLeaf
+                                               (Senescence might start when there is
+                                               still leaf being produced) minus the leaf
+                                               produced at the corresponding k. */
+        Rprintf("0749 newleaf\n");
+        double Remob = deriv_history.at("newLeafcol")[s["leaf_senescence_index"]] * 0.6;
+        Rprintf("703964 newleaf\n");
+        derivs["LeafLitter"] += deriv_history.at("newLeafcol")[s["leaf_senescence_index"]] * 0.4; /* Collecting the leaf litter */ 
+        Rprintf("8275 newleaf\n");
+        derivs["newRhizome"] += s.at("kRhizome") * Remob;
+        Rprintf("45234 newleaf\n");
+        derivs["newStem"] += s.at("kStem") * Remob;
+        derivs["newRoot"] += s.at("kRoot") * Remob;
+        derivs["newGrain"] += s.at("kGrain") * Remob;
+        ++derivs["leaf_senescence_index"];
+        Rprintf("End newleaf\n");
+    }
+
+    if (s.at("TTc") >= parameters.at("seneStem")) {
+        derivs["newStem"] -= deriv_history.at("newStemcol")[s["stem_senescence_index"]];
+        derivs["StemLitter"] += deriv_history.at("newStemcol")[s["stem_senescence_index"]];
+        ++derivs["stem_senescence_index"];
+    }
+
+    if (s.at("TTc") >= parameters.at("seneRoot")) {
+        derivs["newRoot"] -= deriv_history.at("newRootcol")[s["root_senescence_index"]];
+        derivs["RootLitter"] += deriv_history.at("newRootcol")[s["root_senescence_index"]];
+        ++derivs["root_senescence_index"];
+    }
+
+    if (s.at("TTc") >= parameters.at("seneRhizome")) {
+        derivs["newRhizome"] -= deriv_history.at("newRhizomecol")[s["rhizome_senescence_index"]];
+        derivs["RhizomeLitter"] += deriv_history.at("newRhizomecol")[s["rhizome_senescence_index"]];
+        ++derivs["rhizome_senescence_index"];
+    }
+
+    /*
+    if (i % 24 * s.at("centTimestep") == 0) {
+        double coefficient = ((0.1 / 30) * s.at("centTimestep"));
+        derivs["LeafLitter"] -= s.at("LeafLitter") * coefficient;
+        derivs["StemLitter"] -= s.at("StemLitter") * coefficient;
+        derivs["RootLitter"] -= s.at("RootLitter") * coefficient;
+        derivs["RhizomeLitter"] -= s.at("RhizomeLitter") * coefficient;
+    }
+    */
+    return(derivs);
+}
+
 struct c3_str c3_leaf::assimilation(state_map s)
 {
     struct c3_str result = {0, 0, 0, 0};
@@ -158,14 +235,22 @@ state_vector_map allocate_state(state_map const &m, int n)
     return(result);
 }
 
-state_map combine_state(state_map const &state, state_map const &invariant_parameters, state_vector_map const &varying_parameters, int timestep)
+state_map combine_state(state_map const &state_a, state_map const &state_b)
 {
-    state_map all_state = state;
-    all_state.insert(invariant_parameters.begin(), invariant_parameters.end());
-    for (auto it = varying_parameters.begin(); it != varying_parameters.end(); ++it) {
-        all_state.insert(std::pair<string, double>(it->first, it->second[timestep]));
+    state_map result = state_a;
+    result.insert(state_b.begin(), state_b.end());
+    return result;
+}
+
+state_map at(state_vector_map const vector_map, vector<double>::size_type n)
+{
+    state_map result;
+    result.reserve(vector_map.size());
+    Rprintf("Before at for loop.\n");
+    for (auto it = vector_map.begin(); it != vector_map.end(); ++it) {
+        result.insert(std::pair<string, double>(it->first, it->second.at(n)));
     }
-    return all_state;
+    return result;
 }
 
 state_map replace_state(state_map const &state, state_map const &newstate)

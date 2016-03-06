@@ -24,12 +24,14 @@ class IModule {
         vector<string> list_required_state() const;
         vector<string> list_modified_state() const;
         state_map run (state_map const &state) const;
+        state_map run (state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
         vector<string> state_requirements_are_met(state_map const &state) const;
         virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
     private:
         vector<string> const _required_state;
         vector<string> const _modified_state; 
-        virtual state_map do_operation(state_map const &state) const = 0;
+        virtual state_map do_operation(state_map const &state) const {state_map derivs; return derivs;};
+        virtual state_map do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
         bool requirements_are_met;
 };
 
@@ -110,9 +112,29 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
         virtual state_map do_operation(state_map const &s) const;
 };
 
+class ISenescence_module : public IModule {
+    public:
+        ISenescence_module(const vector<string> required_state, const vector<string> modified_state)
+            : IModule(required_state, modified_state)
+        {}
+};
+
+class thermal_time_senescence_module : public ISenescence_module {
+    public:
+        thermal_time_senescence_module()
+            : ISenescence_module(vector<string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
+                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
+                "newLeafcol", "newStemcol", "newRootcol", "newRhizomecol",
+                "senesced_leaf_index", "senesced_stem_index", "senesced_root_index", "senesced_rhizome_index",
+                "mrc1", "mrc2"},
+                vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+};
 
 
-state_map combine_state(state_map const &state, state_map const &invariant_parameters, state_vector_map const &varying_parameters, int timestep);
+state_map combine_state(state_map const &state_a, state_map const &state_b);
 
 state_vector_map Gro(
         state_map const &initial_state,
@@ -133,6 +155,8 @@ state_vector_map allocate_state(state_map const &m, int n);
 void append_state_to_vector(state_map const &state, state_vector_map &state_vector);
 
 std::unique_ptr<IModule> make_module(string const &module_name);
+
+state_map at(state_vector_map const vector_map, vector<double>::size_type n);
 
 # endif
 
