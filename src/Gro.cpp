@@ -45,18 +45,12 @@ state_vector_map Gro(
     state["canopy_assimilation"] = 0;
     state["canopy_transpiration"] = 0;
     state["stomatal_conductance_coefs"] = 0;
-    state["soil_evaporation"] = 0;
+    state["soilEvap"] = 0;
 
     auto n_rows = varying_parameters.begin()->second.size();
     state_vector_map state_history = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
     state_vector_map deriv_history = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
 
-
-    vector<double> newLeafcol(n_rows), newStemcol(n_rows), newRootcol(n_rows), newRhizomecol(n_rows);  // If initialized with a size, a vector<double> will start with that many elements, each initialized to 0.
-    int k = 0, ri = 0, q = 0, m = 0, n = 0;  // These are indexes that keep track of positions in the previous four variables.
-
-    double CanopyA = 0, soilEvap = 0;
-    double kLeaf, kRoot, kStem, kRhizome, kGrain;
     struct dbp_str dbpS;
 
     double dbpcoefs[] = {
@@ -102,17 +96,11 @@ state_vector_map Gro(
 
         dbpS = sel_dbp_coef(dbpcoefs, thermalp, s.at("TTc"));
 
-        kLeaf = dbpS.kLeaf;
-        kStem = dbpS.kStem;
-        kRoot = dbpS.kRoot;
-        kGrain = dbpS.kGrain;
-        kRhizome = dbpS.kRhiz;
-
-        s["kLeaf"] = kLeaf;
-        s["kStem"] = kStem;
-        s["kRoot"] = kRoot;
-        s["kGrain"] = kGrain;
-        s["kRhizome"] = kRhizome;
+        s["kLeaf"] = dbpS.kLeaf;
+        s["kStem"] = dbpS.kStem;
+        s["kRoot"] = dbpS.kRoot;
+        s["kGrain"] = dbpS.kGrain;
+        s["kRhizome"] = dbpS.kRhiz;
 
         /*
          * 2) Calculate derivatives between state variables.
@@ -133,14 +121,14 @@ state_vector_map Gro(
             s["TTc"] += (s.at("temp") - s.at("tbase")) / (24/s.at("timestep")); 
         }
 
-        derivs = canopy_photosynthesis_module->run(s);
+        derivs += canopy_photosynthesis_module->run(s);
 
         s["CanopyA"] = derivs["Assim"] * s.at("timestep");
         s["CanopyT"] = derivs["Trans"] * s.at("timestep");
 
         temp_derivs = soil_evaporation_module->run(s); // This function doesn't actually return derivatives.
         
-        soilEvap = temp_derivs.at("soilEvap");
+        s["soilEvap"] = temp_derivs.at("soilEvap");
         s["waterCont"] = temp_derivs.at("waterCont");
         s["StomataWS"] = temp_derivs.at("StomataWS");
         s["LeafWS"] = temp_derivs.at("LeafWS");
@@ -167,30 +155,12 @@ state_vector_map Gro(
         /* NOTE: This is the only spot where where state should be updated.
          * By updating everything at the end, the order of the previous statements will not
          * affect output. It should also allow us to use an ODE solver.
-         *
-         * Now I'm writting out all of the changes, but I will change it so that it can be done
-         * with a function as follows: s = replace_state(s, derivs);
-         * Then this section will always be two lines of code regardless of what comes previously.
          */
 
-        //output_map(derivs);
-        s["Leaf"] += derivs["newLeaf"];
-        s["Stem"] += derivs["newStem"];
-        s["Root"] += derivs["newRoot"];
-        s["Rhizome"] += derivs["newRhizome"];
-        s["Grain"] += derivs["newGrain"];
-        s["LeafLitter"] += derivs["LeafLitter"];
-        s["RootLitter"] += derivs["RootLitter"];
-        s["RhizomeLitter"] += derivs["RhizomeLitter"];
-        s["StemLitter"] += derivs["StemLitter"];
-        s["leaf_senescence_index"] += derivs["leaf_senescence_index"];
-        s["stem_senescence_index"] += derivs["stem_senescence_index"];
-        s["root_senescence_index"] += derivs["root_senescence_index"];
-        s["rhizome_senescence_index"] += derivs["rhizome_senescence_index"];
+        //if (i < 5) output_map(derivs);
+        //
+        s += derivs;
         state = replace_state(state, s);
-
-    //    if ( i < n_rows - 1)
-     //       append_state_to_vector(state, state_history);
 
         /*
          * 4) Record variables in the state_history map.
