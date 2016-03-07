@@ -185,9 +185,9 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     //derivs["StomataWS"] = s.at("StomataWS") - WaterS.rcoefPhoto;
     //derivs["LeafWS"] = s.at("LeafWS") - WaterS.rcoefSpleaf;
     derivs["soilEvap"] = soilEvap;
-    derivs["waterCont"] =  WaterS.awc;
-    derivs["StomataWS"] =  WaterS.rcoefPhoto;
-    derivs["LeafWS"] =  WaterS.rcoefSpleaf;
+    derivs["waterCont"] = WaterS.awc - s.at("waterCont");
+    derivs["StomataWS"] = WaterS.rcoefPhoto - s.at("StomataWS");
+    derivs["LeafWS"] =  WaterS.rcoefSpleaf - s.at("LeafWS");
     return(derivs);
 }
 
@@ -253,6 +253,13 @@ state_map thermal_time_senescence_module::do_operation(state_vector_map const &s
 
 state_map partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
+// NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
+// record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
+// Since it's not recorded, that part will never senesce.
+// Also, the partitioning coefficiencts (kLeaf, kRoot, etc.) must be set to 0 for a long enough time
+// at the end of the season for all of the tissue to senesce.
+// This doesn't seem like a good approach.
+
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
     double kLeaf = s.at("kLeaf");

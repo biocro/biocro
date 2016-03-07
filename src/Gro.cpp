@@ -51,7 +51,8 @@ state_vector_map Gro(
     {
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
-        // The following copies state, invariant parameters, and the last values in varying_parameters into the variable "s";
+
+        // The following copies invariant parameters, and the last values in varying_parameters into the variable "p";
         state_map p = combine_state(invariant_parameters, at(varying_parameters, i));
 
         /*
@@ -83,8 +84,6 @@ state_vector_map Gro(
         p["kRoot"] = dbpS.kRoot;
         p["kGrain"] = dbpS.kGrain;
         p["kRhizome"] = dbpS.kRhiz;
-        //
-        //state_map s = combine_state(state, p);
 
         /*
          * 2) Calculate derivatives between state variables.
@@ -109,19 +108,7 @@ state_vector_map Gro(
         p["CanopyA"] = derivs["Assim"] * p.at("timestep");
         p["CanopyT"] = derivs["Trans"] * p.at("timestep");
 
-        temp_derivs = soil_evaporation_module->run(state_history, deriv_history, p); // This function doesn't actually return derivatives.
-        
-        derivs["soilEvap"] += temp_derivs.at("soilEvap");
-        state_history["waterCont"][i] = temp_derivs.at("waterCont");
-        state_history["StomataWS"][i] = temp_derivs.at("StomataWS");
-        state_history["LeafWS"][i] = temp_derivs.at("LeafWS");
-
-        // NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
-        // record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
-        // Since it's not recorded, that part will never senesce.
-        // Also, the partitioning coefficiencts (kLeaf, kRoot, etc.) must be set to 0 for a long enough time
-        // at the end of the season for all of the tissue to senesce.
-        // This doesn't seem like a good approach.
+        derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
         derivs += growth_module->run(state_history, deriv_history, p);
 
@@ -135,7 +122,6 @@ state_vector_map Gro(
          * By updating everything at the end, the order of the previous statements will not
          * affect output. It should also allow us to use an ODE solver.
          */
-
 
         current_state = at(state_history, i);
         current_state = update_state(current_state, derivs);
