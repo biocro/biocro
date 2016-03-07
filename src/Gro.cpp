@@ -28,9 +28,8 @@ state_vector_map Gro(
 
     auto n_rows = varying_parameters.begin()->second.size();
     state_vector_map state_history = allocate_state(current_state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
-    state_vector_map deriv_history = allocate_state(current_state, n_rows);  // TODO: I think these are allocated and never used. Maybe it's better to not allocate memory this map.
-
     state_vector_map results = state_history;
+    state_vector_map deriv_history;
 
     struct dbp_str dbpS;
 
@@ -73,11 +72,11 @@ state_vector_map Gro(
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the thermal time.
            (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
-        p["LeafN"] = leaf_n_limitation(combine_state(at(state_history, i), p));
+        p["LeafN"] = leaf_n_limitation(combine_state(current_state, p));
         p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
         p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, state_history.at("TTc")[i]);
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, current_state.at("TTc"));
 
         p["kLeaf"] = dbpS.kLeaf;
         p["kStem"] = dbpS.kStem;
@@ -101,7 +100,7 @@ state_vector_map Gro(
         state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
 
         if(p.at("temp") > p.at("tbase")) {
-            state_history["TTc"][i] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
+            derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
         derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
