@@ -77,6 +77,7 @@ class c4_canopy : public ICanopy_photosynthesis_module {
         {}
     private:
         virtual state_map do_operation (state_map const &s) const;
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
 class c3_canopy : public ICanopy_photosynthesis_module {
@@ -110,6 +111,7 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
         {}
     private:
         virtual state_map do_operation(state_map const &s) const;
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
 class ISenescence_module : public IModule {
@@ -168,6 +170,8 @@ double biomass_leaf_nitrogen_limitation(state_map const &model_state);
 void output_map(state_map const &m);
 
 state_map replace_state(state_map const &state, state_map const &newstate);
+
+state_map update_state(state_map const &state, state_map const &change_in_state);
 
 state_vector_map allocate_state(state_map const &m, int n);
 

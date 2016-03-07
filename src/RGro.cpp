@@ -23,7 +23,7 @@ SEXP RGro(SEXP initial_state,
     std::unique_ptr<IModule> soil_evaporation = make_module(CHAR(STRING_ELT(soil_evaporation_module, 0)));
 
     vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
-                            "LeafN_0", "LeafN", "vmaxb1", "vmax1", "alphab1",
+                            "LeafN_0", "vmaxb1", "vmax1", "alphab1",
                             "alpha1", "TTc", "temp", "tbase", "timestep",
                             "mrc1", "seneLeaf", "Stem", "seneStem",
                             "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome"};

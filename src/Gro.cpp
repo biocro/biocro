@@ -23,33 +23,14 @@ state_vector_map Gro(
     std::unique_ptr<IModule> senescence_module = std::unique_ptr<IModule>(new thermal_time_senescence_module);
     std::unique_ptr<IModule> growth_module = std::unique_ptr<IModule>(new partitioning_growth_module);
 
-    state_map state = initial_state;
+    state_map current_state = initial_state;
     state_map temp_derivs;
-    state["CanopyT"] = 0;
-    state["CanopyA"] = 0;
-    state["LeafWS"] = 0;
-    state["leaf_senescence_index"] = 0;
-    state["stem_senescence_index"] = 0;
-    state["root_senescence_index"] = 0;
-    state["rhizome_senescence_index"] = 0;
-    state["Sp"] = 0;
-    state["lai"] = 0;
-    state["LeafN"] = 0;
-    state["vmax"] = 0;
-    state["alpha"] = 0;
-    state["kLeaf"] = 0;
-    state["kStem"] = 0;
-    state["kRoot"] = 0;
-    state["kGrain"] = 0;
-    state["kRhizome"] = 0;
-    state["canopy_assimilation"] = 0;
-    state["canopy_transpiration"] = 0;
-    state["stomatal_conductance_coefs"] = 0;
-    state["soilEvap"] = 0;
 
     auto n_rows = varying_parameters.begin()->second.size();
-    state_vector_map state_history = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
-    state_vector_map deriv_history = allocate_state(state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
+    state_vector_map state_history = allocate_state(current_state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
+    state_vector_map deriv_history = allocate_state(current_state, n_rows);  // TODO: I think these are allocated and never used. Maybe it's better to not allocate memory this map.
+
+    state_vector_map results = state_history;
 
     struct dbp_str dbpS;
 
@@ -68,9 +49,10 @@ state_vector_map Gro(
 
     for(size_t i = 0; i < n_rows; ++i)
     {
+        append_state_to_vector(current_state, state_history);
+        append_state_to_vector(current_state, results);
         // The following copies state, invariant parameters, and the last values in varying_parameters into the variable "s";
         state_map p = combine_state(invariant_parameters, at(varying_parameters, i));
-        state_map s = combine_state(state, p);
 
         /*
          * 1) Calculate all state-dependent state variables.
@@ -83,24 +65,26 @@ state_vector_map Gro(
          * This will make it so that the code in section 2 is order independent.
          */
 
-        s["Sp"] = s.at("iSp") - (s.at("doy") - varying_parameters.at("doy")[0]) * s.at("SpD");
-        s["lai"] = s.at("Leaf") * s.at("Sp");
+        p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
+        p["lai"] = state_history.at("Leaf")[i] * p.at("Sp");
 
         /* Model photosynthetic parameters as a linear relationship between
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the thermal time.
            (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
-        s["LeafN"] = leaf_n_limitation(s);
-        s["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmaxb1") + s.at("vmax1");
-        s["alpha"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("alphab1") + s.at("alpha1");
+        p["LeafN"] = leaf_n_limitation(combine_state(at(state_history, i), p));
+        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+        p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, s.at("TTc"));
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, state_history.at("TTc")[i]);
 
-        s["kLeaf"] = dbpS.kLeaf;
-        s["kStem"] = dbpS.kStem;
-        s["kRoot"] = dbpS.kRoot;
-        s["kGrain"] = dbpS.kGrain;
-        s["kRhizome"] = dbpS.kRhiz;
+        p["kLeaf"] = dbpS.kLeaf;
+        p["kStem"] = dbpS.kStem;
+        p["kRoot"] = dbpS.kRoot;
+        p["kGrain"] = dbpS.kGrain;
+        p["kRhizome"] = dbpS.kRhiz;
+        //
+        //state_map s = combine_state(state, p);
 
         /*
          * 2) Calculate derivatives between state variables.
@@ -117,21 +101,20 @@ state_vector_map Gro(
          */
         state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
 
-        if(s.at("temp") > s.at("tbase")) {
-            s["TTc"] += (s.at("temp") - s.at("tbase")) / (24/s.at("timestep")); 
+        if(p.at("temp") > p.at("tbase")) {
+            state_history["TTc"][i] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
+        derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
-        derivs += canopy_photosynthesis_module->run(s);
+        p["CanopyA"] = derivs["Assim"] * p.at("timestep");
+        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
 
-        s["CanopyA"] = derivs["Assim"] * s.at("timestep");
-        s["CanopyT"] = derivs["Trans"] * s.at("timestep");
-
-        temp_derivs = soil_evaporation_module->run(s); // This function doesn't actually return derivatives.
+        temp_derivs = soil_evaporation_module->run(state_history, deriv_history, p); // This function doesn't actually return derivatives.
         
-        s["soilEvap"] = temp_derivs.at("soilEvap");
-        s["waterCont"] = temp_derivs.at("waterCont");
-        s["StomataWS"] = temp_derivs.at("StomataWS");
-        s["LeafWS"] = temp_derivs.at("LeafWS");
+        derivs["soilEvap"] += temp_derivs.at("soilEvap");
+        state_history["waterCont"][i] = temp_derivs.at("waterCont");
+        state_history["StomataWS"][i] = temp_derivs.at("StomataWS");
+        state_history["LeafWS"][i] = temp_derivs.at("LeafWS");
 
         // NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
         // record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
@@ -140,12 +123,8 @@ state_vector_map Gro(
         // at the end of the season for all of the tissue to senesce.
         // This doesn't seem like a good approach.
 
-        state = replace_state(state, s);
-        append_state_to_vector(state, state_history);
-
         derivs += growth_module->run(state_history, deriv_history, p);
 
-        //Rprintf("Before senescence.\n");
         derivs += senescence_module->run(state_history, deriv_history, p);
 
         /*
@@ -157,10 +136,9 @@ state_vector_map Gro(
          * affect output. It should also allow us to use an ODE solver.
          */
 
-        //if (i < 5) output_map(derivs);
-        //
-        s += derivs;
-        state = replace_state(state, s);
+
+        current_state = at(state_history, i);
+        current_state = update_state(current_state, derivs);
 
         /*
          * 4) Record variables in the state_history map.
@@ -176,24 +154,24 @@ state_vector_map Gro(
         append_state_to_vector(derivs, deriv_history);
 
         // Record other parameters of interest.
-        state_history["canopy_assimilation"][i] = s["CanopyA"];
-        //state_history["canopy_assimilation"].push_back(CanopyA);
-        //state_history["canopy_transpiration"].push_back(s.at("CanopyT"));
-        //state_history["lai"].push_back(s.at("lai"));
-        //state_history["soil_water_content"].push_back(s.at("waterCont"));
-        //state_history["stomatal_conductance_coefs"].push_back(s.at("StomataWS"));
-        //state_history["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
-        //state_history["leaf_nitrogen"].push_back(s.at("LeafN"));
-        //state_history["vmax"].push_back(s.at("vmax"));
-        //state_history["alpha"].push_back(s.at("alpha"));
-        //state_history["specific_leaf_area"].push_back(s.at("Sp"));
-        //state_history["soil_evaporation"].push_back(soilEvap);
-        //state_history["kLeaf"].push_back(kLeaf);
-        //state_history["newLeafcol"].push_back(newLeafcol[i]);
-        //state_history["newStemcol"].push_back(newStemcol[i]);
-        //state_history["newRootcol"].push_back(newRootcol[i]);
-        //state_history["newRhizomecol"].push_back(newRhizomecol[i]);
+        //results["canopy_assimilation"][i] = s["CanopyA"];
+        results["canopy_assimilation"].push_back(p["CanopyA"]);
+        results["canopy_transpiration"].push_back(p["CanopyT"]);
+        results["lai"].push_back(p.at("lai"));
+        //results["soil_water_content"].push_back(s.at("waterCont"));
+        results["stomatal_conductance_coefs"].push_back(current_state.at("StomataWS"));
+        //results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
+        //results["leaf_nitrogen"].push_back(s.at("LeafN"));
+        results["vmax"].push_back(p.at("vmax"));
+        results["alpha"].push_back(p.at("alpha"));
+        results["specific_leaf_area"].push_back(p.at("Sp"));
+        results["soil_evaporation"].push_back(derivs["soilEvap"]);
+        //results["kLeaf"].push_back(kLeaf);
+        //results["newLeafcol"].push_back(newLeafcol[i]);
+        //results["newStemcol"].push_back(newStemcol[i]);
+        //results["newRootcol"].push_back(newRootcol[i]);
+        //results["newRhizomecol"].push_back(newRhizomecol[i]);
     }
-    return state_history;
+    return results;
 }
 

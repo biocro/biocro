@@ -46,7 +46,19 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
         result = this->do_operation(state_history, deriv_history, parameters);
     }
     catch (std::out_of_range const &oor) {
-        error("An out of range exception was thrown.");
+        state_map state = combine_state(at(state_history, 0), parameters);
+        vector<string> missing_state = this->state_requirements_are_met(state);
+
+        if (!missing_state.empty()) {
+            Rprintf("The following state variables are required but are missing: ");
+            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
+                Rprintf("%s, ", it->c_str());
+            }
+            Rprintf("%s.\n", missing_state.back().c_str());
+            error("This function cannot continue unless all state variables are set.");
+        } else {
+            error("An out of range exception was thrown, but all required state variables are present.\nYou probabaly mistyped a variable in the C++ code\nor there is a required variable that has not been added to the module declaration.\n");
+        }
 
     }
     return(result);
@@ -74,6 +86,41 @@ state_map c4_canopy::do_operation(state_map const &s) const
     struct Can_Str result;
     struct nitroParms nitroP; 
     state_map fluxes;
+
+    nitroP.ileafN = s.at("nileafn");
+    nitroP.kln = s.at("nkln");
+    nitroP.Vmaxb1 = s.at("nvmaxb1");
+    nitroP.Vmaxb0 = s.at("nvmaxb0");
+    nitroP.alphab1 = s.at("nalphab1");
+    nitroP.alphab0 = s.at("nalphab0");
+    nitroP.Rdb1 = s.at("nRdb1");
+    nitroP.Rdb0 = s.at("nRdb0");
+    nitroP.kpLN = s.at("nkpLN");
+    nitroP.lnb0 = s.at("nlnb0");
+    nitroP.lnb1 = s.at("nlnb1");
+
+    result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
+            s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax1"),
+            s.at("alpha1"), s.at("kparm"), s.at("beta"), s.at("Rd"), s.at("Catm"),
+            s.at("b0"), s.at("b1"), s.at("theta"), s.at("kd"), s.at("chil"),
+            s.at("heightf"), s.at("LeafN"), s.at("kpLN"), s.at("lnb0"), s.at("lnb1"),
+            (int)s.at("lnfun"), s.at("upperT"), s.at("lowerT"), nitroP, s.at("leafwidth"),
+            (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("ws"));
+
+    fluxes["Assim"] = result.Assim;
+    fluxes["Trans"] = result.Trans;
+    fluxes["GrossAssim"] = result.GrossAssim;
+
+    return(fluxes);
+}
+
+state_map c4_canopy::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+{
+    struct Can_Str result;
+    struct nitroParms nitroP; 
+    state_map fluxes;
+
+    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
 
     nitroP.ileafN = s.at("nileafn");
     nitroP.kln = s.at("nkln");
@@ -144,34 +191,31 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     return(derivs);
 }
 
+state_map one_layer_soil_profile::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const {
+    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
+    return one_layer_soil_profile::do_operation(s);
+}
+
 state_map thermal_time_senescence_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
     state_map derivs;
-    //Rprintf("Inside thermal: %d.\n", state_history.begin()->second.size());
-    state_map s = at(state_history, state_history.begin()->second.size() - 1);
+    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
     //output_map(s);
     double TTc = s.at("TTc");
     if (TTc >= parameters.at("seneLeaf")) {
-        //Rprintf("Before newleaf\n");
-        //Rprintf("newLeafcol[i] %.0.02f.\n", deriv_history.at("newLeafcol")[deriv_history.begin()->second.size()]);
         double change = deriv_history.at("newLeafcol")[s["leaf_senescence_index"]];
         derivs["Leaf"] -= change; /* This means that the new value of leaf is
                                                the previous value plus the newLeaf
                                                (Senescence might start when there is
                                                still leaf being produced) minus the leaf
                                                produced at the corresponding k. */
-        //Rprintf("0749 newleaf\n");
         double Remob = change * 0.6;
-        //Rprintf("703964 newleaf\n");
         derivs["LeafLitter"] += change * 0.4; /* Collecting the leaf litter */ 
-        //Rprintf("8275 newleaf\n");
         derivs["Rhizome"] += s.at("kRhizome") * Remob;
-        //Rprintf("45234 newleaf\n");
         derivs["Stem"] += s.at("kStem") * Remob;
         derivs["Root"] += s.at("kRoot") * Remob;
         derivs["Grain"] += s.at("kGrain") * Remob;
         ++derivs["leaf_senescence_index"];
-        //Rprintf("End newleaf\n");
     }
 
     if (TTc >= parameters.at("seneStem")) {
@@ -209,20 +253,16 @@ state_map thermal_time_senescence_module::do_operation(state_vector_map const &s
 
 state_map partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
-    ////Rprintf("Inside partioning: %d.\n", state_history.begin()->second.size());
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-    ////Rprintf("before constants.\n");
     double kLeaf = s.at("kLeaf");
     double kStem = s.at("kStem");
     double kRoot = s.at("kRoot");
     double kRhizome = s.at("kRhizome");
     double kGrain = s.at("kGrain");
     double CanopyA = s.at("CanopyA");
-    ////Rprintf("after constants.\n");
 
     if (kLeaf > 0) {
-        //Rprintf("in kleaf.\n");
         derivs["newLeafcol"] = CanopyA * kLeaf * s.at("LeafWS");
         /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
             Plant. Phys. 46, 233-235. For this the water stress coefficient is different
@@ -337,7 +377,6 @@ state_map at(state_vector_map const vector_map, vector<double>::size_type n)
 {
     state_map result;
     result.reserve(vector_map.size());
-    //Rprintf("Before at for loop.\n");
     for (auto it = vector_map.begin(); it != vector_map.end(); ++it) {
         result.insert(std::pair<string, double>(it->first, it->second.at(n)));
     }
@@ -349,6 +388,18 @@ state_map replace_state(state_map const &state, state_map const &newstate)
     state_map result = state;
     for (auto it = result.begin(); it != result.end(); ++it) {
         it->second = newstate.at(it->first);
+    }
+    return result;
+}
+
+state_map update_state(state_map const &state, state_map const &change_in_state)
+{
+    state_map result = state;
+    for (auto it = result.begin(); it != result.end(); ++it) {
+        auto it_change = change_in_state.find(it->first);
+        if ( it_change != change_in_state.end()) {
+            it->second += it_change->second;
+        }
     }
     return result;
 }
