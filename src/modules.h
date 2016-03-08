@@ -106,7 +106,9 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
     public:
         one_layer_soil_profile()
             : ISoil_evaporation_module(vector<string> {"lai", "temp", "solar", "waterCont",
-                    "FieldC", "WiltP", "windspeed", "rh", "rsec"},
+                    "FieldC", "WiltP", "windspeed", "rh", "rsec",
+                    "CanopyT", "precip", "soilDepth", "phi1", "phi2",
+                    "soilType", "wsFun", "StomataWS", "LeafWS"},
                     vector<string> {})
         {}
     private:
@@ -127,7 +129,7 @@ class thermal_time_senescence_module : public ISenescence_module {
             : ISenescence_module(vector<string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                 "newLeafcol", "newStemcol", "newRootcol", "newRhizomecol",
-                "senesced_leaf_index", "senesced_stem_index", "senesced_root_index", "senesced_rhizome_index",
+                "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
                 "mrc1", "mrc2"},
                 vector<string> {})
         {}
