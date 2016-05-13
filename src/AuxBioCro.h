@@ -35,6 +35,10 @@ struct Can_Str {
   double Assim;
   double Trans;
   double GrossAssim;
+  double result_matrix[MAXLAY * 21];
+  double canopy_transpiration_penman;
+  double canopy_transpiration_priestly;
+  double canopy_conductance;
 };
 
 struct ws_str {

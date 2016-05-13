@@ -91,35 +91,35 @@
 ##' tmp <- numeric(24)
 ##'
 ##' for(i in 1:24){
-##'    lai <- doy124[i,1]
-##'    doy <- doy124[i,3]
-##'    hr  <- doy124[i,4]
-##'  solar <- doy124[i,5]
-##'   temp <- doy124[i,6]
-##'     rh <- doy124[i,7]
-##'     ws <- doy124[i,8]
+##'    lai <- doy124[i, 1]
+##'    doy <- doy124[i, 3]
+##'    hr  <- doy124[i, 4]
+##'  solar <- doy124[i, 5]
+##'   temp <- doy124[i, 6]
+##'     rh <- doy124[i, 7]
+##'     ws <- doy124[i, 8]
 ##'
-##'   tmp[i] <- CanA(lai,doy,hr,solar,temp,rh,ws)$CanopyAssim
+##'   tmp[i] <- CanA(lai, doy, hr, solar, temp, rh, ws)$CanopyAssim
 ##'
 ##' }
 ##'
-##' plot(c(0:23),tmp,
-##'             type='l',lwd=2,
+##' plot(c(0:23), tmp,
+##'             type='l', lwd=2,
 ##'             xlab='Hour',
 ##'             ylab=expression(paste('Canopy assimilation (kg  ',
-##'             m^-2,' ',h^-1,')')))
+##'             m^-2, ' ', h^-1, ')')))
 ##'
 ##' }
-CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
-                 lat=40,nlayers=8,kd=0.1,StomataWS=1,
+CanA <- function(lai, doy, hr, solar, temp, rh, windspeed,
+                 lat=40, nlayers=8, kd=0.1, StomataWS=1,
                  chi.l=1, leafwidth=0.04,
                  heightFactor=3,
                  photoControl = list(),
                  lnControl = list(),
-                 units=c("kg/m2/hr","Mg/ha/hr"))
+                 units=c("kg/m2/hr", "Mg/ha/hr"))
   {
     ## Add error checking to this function
-    if(length(c(lai,doy,hr,solar,temp,rh,windspeed)) != 7)
+    if(length(c(lai, doy, hr, solar, temp, rh, windspeed)) != 7)
       stop("all input should be of length 1")
 
     units <- match.arg(units)
@@ -144,21 +144,29 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
     canenitroP [names(lnControl)] <- lnControl
     nnitroP<-as.vector(unlist(canenitroP))
 
-    res <- .Call(CanA_sym,as.double(lai),as.integer(doy),
-                 as.integer(hr),as.double(solar),as.double(temp),
-                 as.double(rh),as.double(windspeed),
-                 as.double(lat),as.integer(nlayers),as.double(StomataWS),
-                 as.double(vmax),as.double(alpha),as.double(kparm),
+    res <- .Call(CanA_sym, as.double(lai), as.integer(doy),
+                 as.integer(hr), as.double(solar), as.double(temp),
+                 as.double(rh), as.double(windspeed),
+                 as.double(lat), as.integer(nlayers), as.double(StomataWS),
+                 as.double(vmax), as.double(alpha), as.double(kparm),
                  as.double(theta), as.double(beta),
-                 as.double(Rd),as.double(b0),
-                 as.double(b1),as.double(Catm),
+                 as.double(Rd), as.double(b0),
+                 as.double(b1), as.double(Catm),
                  as.double(kd), as.double(heightFactor),
                  as.integer(ws), as.double(canenitroP$iLeafN),
                  as.double(canenitroP$kpLN), as.double(canenitroP$lnb0),
                  as.double(canenitroP$lnb1), as.integer(canenitroP$lnFun),
-                 as.double(chi.l),as.double(upperT),
+                 as.double(chi.l), as.double(upperT),
                  as.double(lowerT), as.double(nnitroP),
                  as.double(leafwidth))
+
+    res$LayMat = t(res$LayMat)
+    colnames(res$LayMat) <- c("IDir", "IDiff", "Leafsun",
+                              "Leafshade", "TransSun", "TransShade",
+                              "AssimSun", "AssimShade", "DeltaSun",
+                              "DeltaShade", "CondSun", "CondShade",
+                              "LeafN", "Vmax", "RH", "GrossAssimSun", "GrossAssimShade",
+                              "Phi", "LeafN", "WindSpeed", "CanopyHeight")
 
     if(units == "Mg/ha/hr"){
       res
@@ -170,14 +178,16 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
       ## This is in kg of biomass per m2 per hour
       res$CanopyTrans <- res$CanopyTrans * cf
       ## This is in kg of water per m2 per hour
-      res$TranEpen <- res$TranEpen * cf
-      res$TranEpries <- res$TranEpries * cf
+      res$TranEpen <- res$canopy_transpiration_penman * cf
+      res$TranEpries <- res$canopy_transpiration_priestly * cf
+      res$CanopyCond <- res$canopy_conductance
+      res$LayMat[, 5:8] <- res$LayMat[, 5:8] * cf
     }
     res
   }
 
 ## Controlling the effect of leaf nitrogen on photosynthethic parameters
-lnParms <- function(LeafN = 2 , kpLN = 0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
+lnParms <- function(LeafN = 2 , kpLN = 0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none", "linear")){
 
   lnFun <- match.arg(lnFun)
   if(lnFun == "none"){

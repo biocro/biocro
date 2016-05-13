@@ -83,13 +83,21 @@ SEXP CanA(
   SEXP names;
   SEXP growth;
   SEXP trans;
+  SEXP canopy_transpiration_penman;
+  SEXP canopy_transpiration_priestly;
+  SEXP canopy_conductance;
   SEXP Ggrowth;
+  SEXP result_matrix;
 
-  PROTECT(lists = allocVector(VECSXP,5));
-  PROTECT(names = allocVector(STRSXP,5));
-  PROTECT(growth = allocVector(REALSXP,1));
-  PROTECT(trans = allocVector(REALSXP,1));
-  PROTECT(Ggrowth = allocVector(REALSXP,1));
+  PROTECT(lists = allocVector(VECSXP, 7));
+  PROTECT(names = allocVector(STRSXP, 7));
+  PROTECT(growth = allocVector(REALSXP, 1));
+  PROTECT(canopy_transpiration_penman = allocVector(REALSXP, 1));
+  PROTECT(canopy_transpiration_priestly = allocVector(REALSXP, 1));
+  PROTECT(canopy_conductance = allocVector(REALSXP, 1));
+  PROTECT(trans = allocVector(REALSXP, 1));
+  PROTECT(Ggrowth = allocVector(REALSXP, 1));
+  PROTECT(result_matrix = allocMatrix(REALSXP, 21, nlayers));
 
    //NITROPARMS STRUCTURE IS PASSED and READ
   struct nitroParms nitroP;
@@ -128,17 +136,31 @@ SEXP CanA(
     REAL(growth)[0] = ans.Assim;
     REAL(trans)[0] = ans.Trans;
     REAL(Ggrowth)[0] = ans.GrossAssim;
+    REAL(canopy_transpiration_penman)[0] = ans.canopy_transpiration_penman;
+    REAL(canopy_transpiration_priestly)[0] = ans.canopy_transpiration_priestly;
+    REAL(canopy_conductance)[0] = ans.canopy_conductance;
+    for (int i = 0; i < nlayers * 21; i++) {
+        REAL(result_matrix)[i] = ans.result_matrix[i];
+    }
 
     SET_VECTOR_ELT(lists, 0, growth);
     SET_VECTOR_ELT(lists, 1, trans);
     SET_VECTOR_ELT(lists, 2, Ggrowth);
+    SET_VECTOR_ELT(lists, 3, canopy_transpiration_penman);
+    SET_VECTOR_ELT(lists, 4, canopy_transpiration_priestly);
+    SET_VECTOR_ELT(lists, 5, canopy_conductance);
+    SET_VECTOR_ELT(lists, 6, result_matrix);
 
     SET_STRING_ELT(names, 0, mkChar("CanopyAssim"));
     SET_STRING_ELT(names, 1, mkChar("CanopyTrans"));
     SET_STRING_ELT(names, 2, mkChar("GrossCanopyAssim"));
+    SET_STRING_ELT(names, 3, mkChar("canopy_transpiration_penman"));
+    SET_STRING_ELT(names, 4, mkChar("canopy_transpiration_priestly"));
+    SET_STRING_ELT(names, 5, mkChar("canopy_conductance"));
+    SET_STRING_ELT(names, 6, mkChar("LayMat"));
     setAttrib(lists, R_NamesSymbol, names);
 
-    UNPROTECT(5);
+    UNPROTECT(9);
     return(lists);
    }
 }  // extern "C"

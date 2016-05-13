@@ -38,7 +38,7 @@ struct Can_Str CanAC(
 {
 
     struct Can_Str ans = {0, 0, 0};
-    struct ET_Str tmp5_ET, tmp6_ET;
+    struct ET_Str direct_ET, indirect_ET;
     struct c4_str temp_photo_results = {0, 0, 0, 0};
 
     const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
@@ -68,9 +68,13 @@ struct Can_Str CanAC(
 
     double CanopyA = 0.0, GCanopyA = 0.0;
     double CanopyT = 0.0;
+    double CanopyPe = 0.0, CanopyPr = 0.0;
+    double canopy_conductance = 0.0;
     double CanHeight;
 
     double vmax1, leafN_lay;
+
+    double result_matrix[21 * MAXLAY];
 
     struct Light_model light_model;
     light_model = lightME(lat, DOY, hr);
@@ -119,9 +123,9 @@ struct Can_Str CanAC(
         Leafsun = LAIc * pLeafsun;
 
         temp_photo_results = c4photoC(IDir, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
-        tmp5_ET = EvapoTrans2(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
+        direct_ET = EvapoTrans2(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
 
-        TempIdir = Temp + tmp5_ET.Deltat;
+        TempIdir = Temp + direct_ET.Deltat;
         temp_photo_results = c4photoC(IDir, TempIdir, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
         AssIdir = temp_photo_results.Assim;
         GAssIdir =temp_photo_results.GrossAssim;
@@ -131,15 +135,41 @@ struct Can_Str CanAC(
         Leafshade = LAIc * pLeafshade;
 
         temp_photo_results = c4photoC(IDiff, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
-        tmp6_ET = EvapoTrans2(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
-        TempIdiff = Temp + tmp6_ET.Deltat;
+        indirect_ET = EvapoTrans2(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
+        TempIdiff = Temp + indirect_ET.Deltat;
         temp_photo_results = c4photoC(IDiff, TempIdiff, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
         AssIdiff = temp_photo_results.Assim;
         GAssIdiff = temp_photo_results.GrossAssim;
 
         CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
-        CanopyT += Leafsun * tmp5_ET.TransR + Leafshade * tmp6_ET.TransR;
+        CanopyT += Leafsun * direct_ET.TransR + Leafshade * indirect_ET.TransR;
         GCanopyA += Leafsun * GAssIdir + Leafshade * GAssIdiff;
+
+        CanopyPe += Leafsun * direct_ET.EPenman + Leafshade * indirect_ET.EPenman;
+        CanopyPr += Leafsun * direct_ET.EPriestly + Leafshade * indirect_ET.EPriestly;
+        canopy_conductance += Leafsun * direct_ET.LayerCond + Leafshade * indirect_ET.LayerCond;
+        
+        result_matrix[    i*21] = IDir;
+        result_matrix[1 + i*21] = IDiff;
+        result_matrix[2 + i*21] = Leafsun;
+        result_matrix[3 + i*21] = Leafshade;
+        result_matrix[4 + i*21] = direct_ET.TransR;
+        result_matrix[5 + i*21] = indirect_ET.TransR;
+        result_matrix[6 + i*21] = AssIdir;
+        result_matrix[7 + i*21] = AssIdiff;
+        result_matrix[8 + i*21] = direct_ET.Deltat;
+        result_matrix[9 + i*21] = indirect_ET.Deltat;
+        result_matrix[10 + i*21] = direct_ET.LayerCond; 
+        result_matrix[11 + i*21] = indirect_ET.LayerCond; 
+        result_matrix[12 + i*21] = leafN_lay; 
+        result_matrix[13 + i*21] = vmax1;
+        result_matrix[14 + i*21] = rh; 
+        result_matrix[15 + i*21] = GAssIdir;
+        result_matrix[16 + i*21] = GAssIdiff;
+        result_matrix[17 + i*21] = Alpha;
+        result_matrix[18 + i*21] = leafN_lay;
+        result_matrix[19 + i*21] = layerWindSpeed;
+        result_matrix[20 + i*21] = CanHeight;
     }
     /*## These are micromoles of CO2 per m2 per sec for Assimilation
 ## and mili mols of H2O per m2 per sec for Transpiration
@@ -155,6 +185,13 @@ struct Can_Str CanAC(
     ans.Assim = cf * CanopyA;
     ans.Trans = cf2 * CanopyT; 
     ans.GrossAssim = cf * GCanopyA;
+    ans.canopy_transpiration_penman = CanopyPe;
+    ans.canopy_transpiration_priestly = CanopyPr;
+    ans.canopy_conductance = canopy_conductance;
+
+    for (int i = 0; i < nlayers * 21; i++) {
+        ans.result_matrix[i] = result_matrix[i];
+    }
     return(ans);
 }
 
