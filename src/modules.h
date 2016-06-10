@@ -71,8 +71,8 @@ class c4_canopy : public ICanopy_photosynthesis_module {
                     "heightf", "LeafN", "kpLN", "lnb0", "lnb1",
                     "lnfun", "upperT", "lowerT", "leafwidth",
                     "et_equation", "StomataWS", "ws",
-                    "ileafN", "kln", "Vmaxb0", "Vmaxb1", "alphab1",
-                    "Rdb1", "Rdb0", "kpLN"}, 
+                    "nileafn", "kln", "nvmaxb0", "nvmaxb1", "alphab1",
+                    "nRdb1", "nRdb0", "kpLN"}, 
                     vector<string> {})
         {}
     private:
@@ -128,7 +128,6 @@ class thermal_time_senescence_module : public ISenescence_module {
         thermal_time_senescence_module()
             : ISenescence_module(vector<string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-                "newLeafcol", "newStemcol", "newRootcol", "newRhizomecol",
                 "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
                 "mrc1", "mrc2"},
                 vector<string> {})

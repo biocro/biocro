@@ -46,13 +46,50 @@ state_vector_map Gro(
         invariant_parameters.at("tp1"), invariant_parameters.at("tp2"), invariant_parameters.at("tp3"), invariant_parameters.at("tp4"), invariant_parameters.at("tp5"), invariant_parameters.at("tp6")
     };
 
+
+    /*
+     * This is a badly hackish way of checking parameters before the loop start. The pointers to modules should be changed from unique_ptr to shared_ptr, so that a vector of pointers can be created.
+     * Then use a for loop to iterate through each module to get the list of missing parameters.
+     */
+
+    state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
+    p["CanopyA"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
+
+    vector<string> missing_state;
+    vector<string> temp;
+
+    temp = canopy_photosynthesis_module->state_requirements_are_met(p); 
+    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
+
+    temp = soil_evaporation_module->state_requirements_are_met(p); 
+    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
+
+    temp = senescence_module->state_requirements_are_met(p); 
+    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
+
+    temp = growth_module->state_requirements_are_met(p); 
+    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
+
+    /*
+     * End of hackish section.
+     */
+
+    if (!missing_state.empty()) {
+        Rprintf("The following state variables are required but are missing: ");
+        for(auto it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
+            Rprintf("%s, ", it->c_str());
+        }
+        Rprintf("%s.\n", missing_state.back().c_str());
+        error("This function cannot continue unless all state variables are set.");
+    }
+
     for(size_t i = 0; i < n_rows; ++i)
     {
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
         // The following copies invariant parameters, and the last values in varying_parameters into the variable "p";
-        state_map p = combine_state(invariant_parameters, at(varying_parameters, i));
+        p = combine_state(invariant_parameters, at(varying_parameters, i));
 
         /*
          * 1) Calculate all state-dependent state variables.
