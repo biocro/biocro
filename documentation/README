@@ -29,3 +29,9 @@ select run and run doxygen.
 After respective processes have been completed, a new directory under called
 html/ will be created under documentation directory.  Point your browser to
 /path/to/biocro/documentation/html/index.html
+
+# Options for ctags.
+# ctags is a program that generates tags for C and C++ files so that identifiers can be located easily.
+# This is useful for jumping between locations in the code with editors such as Vim.
+# If you use ctags, the flag "--c++-kinds=+p" will cause ctags to include symbols in header files, which is often useful.
+ctags --c++-kinds=+p
