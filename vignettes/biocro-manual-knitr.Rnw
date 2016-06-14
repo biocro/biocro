@@ -6,6 +6,7 @@
 
 \usepackage{amsmath}
 \usepackage{bm}
+\usepackage{siunitx}
 \usepackage[american]{babel}
 \usepackage[authoryear,round]{natbib}
 \usepackage{hyperref}
@@ -69,10 +70,7 @@ several publications using this model. I have used the model for some
 initial efforts at modeling \emph{Miscanthus} $\times$ \emph{giganteus}.
 
 This vignette was created using BioCro package version
-
-<<version>>=
-sessionInfo()$otherPkgs$BioCro$Version
-@ 
+\Sexpr{sessionInfo()$otherPkgs$BioCro$Version}.
 
 This version of \package{BioCro} has had contributions from Joe
 Iverson, Deepak Jaiswal, David LeBauer and Dandan Wang and possibly
@@ -84,8 +82,8 @@ species and algorithms being added.
 There is a large range in the complexity of models that have been used
 to simulate photosynthesis. \package{BioCro} offers functions
 \code{c4photo} and \code{c3photo}. Both functions take as minimum
-input radiation (PAR $\mu mol \; m^{-2} \; s^{-1}$), temperature (Celsius)
-and relative humidity (0-1).
+input radiation (PAR $\si{\micro\mol.\meter^{-2}.\second^{-1}}$),
+temperature (Celsius) and relative humidity (0--1).
 
 Since WIMOVAC originated as a photosynthesis model we can start with a
 simple example. For the C$_4$ photosynthesis model the best reference
@@ -190,12 +188,13 @@ xyplot(assim + cond ~ sws, type='l', main="stress on vmax")
 
 \subsection{Estimating photosynthesis parameters}
 
-The \code{c4photo} function has three main parameters that can be adjusted for
-different species or environments. These three parameters are $V_{max}$
-(light-saturated rate of photosynthesis which for C$_4$ plants is equivalent to
-the maximum rate of carboxylation, $\mu \; mol \; m^{-2} \; s^{-1}$), $alpha$
-(quantum efficiency, $mol \; mol^-1$) and dark respiration (net CO$_2$ exchange
-at zero light, $\mu \; mol \; m^{-2} \; s^{-1}$). 
+The \code{c4photo} function has three main parameters that can be
+adjusted for different species or environments. These three parameters
+are $V_{max}$ (light-saturated rate of photosynthesis which for C$_4$
+plants is equivalent to the maximum rate of carboxylation,
+\si{\micro\mole\per\square\meter\per\second}, $alpha$ (quantum
+efficiency, \si{\mole\per\mole}) and dark respiration (net CO$_2$
+exchange at zero light, \si{\micro\mole\per\square\meter\per\second}).
 
 Options for adjusting the parameters for simulation of biomass crops:
 
@@ -208,7 +207,7 @@ Using values from the literature can work well most of the time, but
 the source of the values should be carefully assessed. For example, an
 important consideration is whether the values were reported at the
 same reference temperature. In BioCro these values are assumed to be
-at 25 $C$. Another consideration is that different models might have
+at \SI{25}{\degreeCelsius}. Another consideration is that different models might have
 different parameterization of photosynthesis and what might work well
 in a different model might not work well in BioCro.
       
@@ -380,8 +379,8 @@ horizontal leaf projections to vertical leaf projections.
 apply(res$LayMat[,3:4], 2, sum)
 @ 
 
-In this example, 1.35 m$^2$ of leaf are in the sun and 1.65 of $m^2$
-are in the shade for a total of 3 LAI.
+In this example, 1.35 \si{m^2} of leaf are in the sun and 1.65 of
+\si{m^2} are in the shade for a total of 3 LAI.
 
 Next we can look in detail about the properties of the canopy by layer
 
