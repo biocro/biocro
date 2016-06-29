@@ -192,9 +192,15 @@ void BioGro(
     for(i = 0; i < vecsize; ++i)
     {
         newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
+
+        /* The specific leaf area declines with the growing season at least in
+           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
+           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
+           management in north-eastern greece. */
         if ( i % 24 == 0 ) {
             Sp = iSp - (doy[i] - doy[0]) * SpD;
         }
+
         LAI = Leaf * Sp;
 		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
@@ -383,7 +389,6 @@ void BioGro(
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the Thermal time accumulated.*/
 
-
         /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
            This modifies the amount of N available in the soil. 
            MinNitro is the available amount of N (kg/m2). 
@@ -434,13 +439,6 @@ void BioGro(
             Grain += kGrain * Remob;
             ++k;
         }
-
-        /* The specific leaf area declines with the growing season at least in
-           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
-           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
-           management in north-eastern greece*/
-
-
 
         /* New Stem*/
         if (kStem >= 0) {
