@@ -140,9 +140,8 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
     upperT<-photoP$uppertemp
     lowerT<-photoP$lowertemp
     
-    lnP <- lnParms()
-    lnP[names(lnControl)] <- lnControl
     canenitroP <- canenitroParms()
+    canenitroP [names(lnControl)] <- lnControl
     nnitroP<-as.vector(unlist(canenitroP))
 
     res <- .Call(CanA_sym,as.double(lai),as.integer(doy),
@@ -154,20 +153,13 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
                  as.double(Rd),as.double(b0),
                  as.double(b1),as.double(Catm),
                  as.double(kd), as.double(heightFactor),
-                 as.integer(ws), as.double(lnP$iLeafN),
-                 as.double(lnP$kpLN), as.double(lnP$lnb0),
-                 as.double(lnP$lnb1), as.integer(lnP$lnFun),
+                 as.integer(ws), as.double(canenitroP$iLeafN),
+                 as.double(canenitroP$kpLN), as.double(canenitroP$lnb0),
+                 as.double(canenitroP$lnb1), as.integer(canenitroP$lnFun),
                  as.double(chi.l),as.double(upperT),
                  as.double(lowerT), as.double(nnitroP),
                  as.double(leafwidth))
 
-    res$LayMat <- t(res$LayMat)
-    colnames(res$LayMat) <- c("IDir","IDiff","Leafsun",
-                              "Leafshade","TransSun","TransShade",
-                              "AssimSun","AssimShade","DeltaSun",
-                              "DeltaShade","CondSun","CondShade",
-                              "LeafN", "Vmax", "RH","GrossAssimSun","GrossAssimShade",
-                              "Phi","LeafN","WindSpeed","CanopyHeight")
     if(units == "Mg/ha/hr"){
       res
     }else{
@@ -180,7 +172,6 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
       ## This is in kg of water per m2 per hour
       res$TranEpen <- res$TranEpen * cf
       res$TranEpries <- res$TranEpries * cf
-      res$LayMat[,5:8] <- res$LayMat[,5:8] * cf
     }
     res
   }

@@ -2,54 +2,99 @@
 #define BIOCRO_H
 
 #include "AuxBioCro.h"
+#include "Century.h"
 
-double CanopyAssim[8760] ;
-double Leafy[8760] ;
-double Stemy[8760] ;
-double Rooty[8760] ;
-double Rhizomey[8760] ;
-double Grainy[8760] ;
-double LAIc[8760] ;
+struct BioGro_results_str {
+	double day_of_year[8760];
+	double hour[8760];
+	double CanopyAssim[8760];
+	double canopy_transpiration[8760];
+	double Leafy[8760];
+	double Stemy[8760];
+	double Rooty[8760];
+	double Rhizomey[8760];
+	double Grainy[8760];
+	double LAIc[8760];
+	double thermal_time[8760];
+	double soil_water_content[8760];
+	double stomata_cond_coefs[8760];
+	double leaf_reduction_coefs[8760];
+	double leaf_nitrogen[8760];
+	double above_ground_litter[8760];
+	double below_ground_litter[8760];
+	double vmax[8760];
+	double alpha[8760];
+	double specific_leaf_area[8760];
+	double min_nitro[8760];
+	double respiration[8760];
+	double soil_evaporation[8760];
+	double leaf_psim[8760];
+	double *psim;
+	double *water_status;
+	double *root_distribution;
+	struct cenT_str centS;
+};
 
-double RSS_BG(double oStem[], double oLeaf[],
-	      double oRhizome[],double oRoot[],
-	      double oGrain[],
-	      double oLAI[],
-	      double sStem[], double sLeaf[],
-	      double sRhizome[],double sRoot[],
-	      double sGrain[],
-	      double sLAI[] ,int N1Dat);
+void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size);
+void free_biogro_results(struct BioGro_results_str *results);
 
-void BioGro(double lat, int doy[],int hr[],double solar[],double temp[],double rh[],
-	    double windspeed[],double precip[], double kd, double chil, 
-	    double heightf, int nlayers,
-            double iRhizome, double irtl, double sencoefs[], int timestep, int vecsize,
-            double Sp, double SpD, double dbpcoefs[25], double thermalp[], double vmax1, 
-	    double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
-	    double soilcoefs[], double ileafn, double kLN, double vmaxb1,
-	    double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
-	    double centks[], int centTimestep, int soilLayers, double soilDepths[],
-	    double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun ,double upperT,double lowerT,struct nitroParms nitroP);
+struct Model_state {
+	double leaf;
+	double stem;
+	double root;
+	double rhizome;
+	double lai;
+	double grain;
+	double k_leaf;
+	double k_stem;
+	double k_root;
+	double k_rhizome;
+	double k_grain;
+	double new_leaf;
+	double new_stem;
+	double new_root;
+	double new_rhizome;
+	double new_grain;
+	double thermal_time;
+};
 
-struct Can_Str CanAC(double LAI,int DOY,int hr,double solarR,double Temp,
-		     double RH,double WindSpeed,double lat,int nlayers, double Vmax, double Alpha, 
-		     double Kparm, double theta, double beta, double Rd, double Catm, double b0, 
-		     double b1, double StomataWS, int ws, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double upperT,
-		     double lowerT, struct nitroParms nitroP, double leafwidth, int eteq);
+struct Light_model {
+	double irradiance_direct;
+	double irradiance_diffuse;
+	double cosine_zenith_angle;
+};
+
+void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
+        double windspeed[], double precip[], double kd, double chil, double leafwidth, int et_equation,
+        double heightf, int nlayers, double initial_biomass[4],
+        double sencoefs[], int timestep, int vecsize,
+        double Sp, double SpD, double dbpcoefs[25], double thermalp[], double tbase, double vmax1, 
+        double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
+        double soilcoefs[], double ileafn, double kLN, double vmaxb1,
+        double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
+        int centTimestep, double centks[], int soilLayers, double soilDepths[],
+        double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP, double StomataWS,
+		double (*leaf_n_limitation)(double kLn, double leaf_n_0, struct Model_state current_state), struct BioGro_results_str *results);
+
+struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
+		     double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Alpha, 
+		     double Kparm, double beta, double Rd, double Catm, double b0, 
+		     double b1, double theta, double kd, double chil, double heightf,
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
+		     double lowerT, struct nitroParms nitroP, double leafwidth, int eteq, double StomataWS, int ws);
          
-struct Can_Str c3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
-                       double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
+struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
+                       double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
   	                   double Rd, double Catm, double o2, double b0, double b1,
                        double theta, double kd, double heightf,
-		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws);
+		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int ws);
                         
 /**************** This is new C function avoiding use of Global Variables****************************/
- struct Can_Str newc3CanAC(double LAI,int DOY, int hr,double solarR,double Temp,
-               double RH,double WindSpeed,double lat,int nlayers, double Vmax,double Jmax,
+ struct Can_Str newc3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
+               double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
 		     double Rd, double Catm, double o2, double b0, double b1,
                      double theta, double kd, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun,double StomWS,int ws);
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomWS, int ws);
  /**********************************************************************************************/
 
          
@@ -75,10 +120,10 @@ double TempToSWVC(double Temp);
 double TempToSFS(double Temp);
 double TempToLHV(double Temp);
 double TempToDdryA(double Temp);
-void RHprof(double RH, int nlayers);
-void WINDprof(double WindSpeed, double LAI, int nlayers);
-void sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil,double heightf);
-void lightME(double lat, int DOY, int td);
+void RHprof(double RH, int nlayers, double* relative_humidity_profile);
+void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
+struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil, double heightf);
+struct Light_model lightME(double lat, int DOY, int td);
 
 struct cenT_str Century(double *LeafL, double *StemL, double *RootL, double *RhizL, double smoist, double stemp, int timestep, 
 			double SCs[9] , double leachWater, double Nfert, double MinN, double precip,
@@ -93,10 +138,17 @@ double AbiotEff(double smoist, double stemp);
 
 double sel_phen(int phen);
 struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
-                         double WindSpeed,double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
-                         double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12,double upperT,double lowerT, double Catm);
+                         double WindSpeed, double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
+                         double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12, double upperT, double lowerT, double Catm);
 /* Definition of the new EvapoTrans function */
 struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH,
-			 double WindSpeed,double LeafAreaIndex, double CanopyHeight, 
+			 double WindSpeed, double LeafAreaIndex, double CanopyHeight, 
 			  double stomatacond, double leafw, int eteq);
+
+// Function to calculate leaf N limitation. Definitions are in leaf_n_limitation_functions.c
+double thermal_leaf_nitrogen_limitation(double kLn, double leaf_n_0, struct Model_state current_state);
+
+double biomass_leaf_nitrogen_limitation(double kLn, double leaf_n_0, struct Model_state current_state);
+
 #endif
+

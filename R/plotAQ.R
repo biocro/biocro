@@ -35,14 +35,14 @@ plotAQ <- function(data,fittd,
 
   if(missing(fittd) || is.null(fittd)){
     if(by == "trt"){
-      plot1 <- xyplot(data[,Acol] ~ data[,Qp.col] | factor(data[,trt.col]),
+      plot1 <- lattice::xyplot(data[,Acol] ~ data[,Qp.col] | factor(data[,trt.col]),
                       ylab = ylab,
                       xlab = xlab,
                       type = type, ...)
                       
       plot(plot1)
     }else{
-      plot1 <- xyplot(data[,Acol] ~ data[,Qp.col] | factor(data[,id.col]),
+      plot1 <- lattice::xyplot(data[,Acol] ~ data[,Qp.col] | factor(data[,id.col]),
                       ylab = ylab,
                       xlab = xlab,
                       type = type, ...)
@@ -51,13 +51,13 @@ plotAQ <- function(data,fittd,
   }else{
     stopifnot(length(fittd) == nrow(data))
     if(by == "trt"){
-      plot1 <- xyplot(data[,Acol] + fittd ~ data[,Qp.col] | factor(data[,trt.col]),
+      plot1 <- lattice::xyplot(data[,Acol] + fittd ~ data[,Qp.col] | factor(data[,trt.col]),
                       ylab = ylab, 
                       xlab = xlab,
                       type = type, ...)
       plot(plot1)
     }else{
-      plot1 <- xyplot(data[,Acol] + fittd ~ data[,Qp.col] | factor(data[,id.col]),
+      plot1 <- lattice::xyplot(data[,Acol] + fittd ~ data[,Qp.col] | factor(data[,id.col]),
                       ylab = ylab, 
                       xlab = xlab,
                       type = type, ...)

@@ -42,7 +42,7 @@
 ##' \dontrun{
 ##' res2 <- sunML(1500,200,3,10)
 ##'
-##' xyplot(Fsun + Fshade ~ c(1:10), data=res2,
+##' lattice::xyplot(Fsun + Fshade ~ c(1:10), data=res2,
 ##'        ylab='LAI',
 ##'        xlab='layer',
 ##'        type='l',lwd=2,col=c('blue','green'),

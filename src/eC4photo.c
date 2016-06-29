@@ -7,10 +7,8 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "AuxBioCro.h"
+#include "BioCro.h"
 #include "CanA.h"
-
-int enObs;
 
 /*%Second section for defining functions*/
 double eC4photoC(double QP, double TEMP, double RH, double CA,
@@ -29,113 +27,117 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	   SEXP VCMAX, SEXP VPMAX,
 	  SEXP VPR, SEXP JMAX, SEXP STOMATAWS)
 {
-  /* const int NLAYERS = 3;  this should eventually be replaced with
-			    an argument coming in from R */
-  struct ET_Str tmp5, tmp6;
+	/* const int NLAYERS = 3;  this should eventually be replaced with
+	   an argument coming in from R */
+	struct ET_Str direct_et, diffuse_et;
 
 
-  int i;
-  double Idir, Idiff, cosTh;
-  double LAIc;
-  double IDir, IDiff, Itot, rh, WS;
-  double pLeafsun, pLeafshade;
-  double Leafsun, Leafshade;
+	int i;
+	double Idir, Idiff, cosTh;
+	double LAIc;
+	double IDir, IDiff, Itot, rh, WS;
+	double pLeafsun, pLeafshade;
+	double Leafsun, Leafshade;
 
-/*   double tmp5,tmp6; */
-  double TempIdir,TempIdiff,AssIdir,AssIdiff;
+	double TempIdir,TempIdiff,AssIdir,AssIdiff;
 
-  double CanopyA;
-  double CanHeight;
+	double CanopyA;
+	double CanHeight;
 
-  const double cf = 3600 * 1e-6 ;
+	const double cf = 3600 * 1e-6 ;
 
-  int DOY , hr;
-  double LAI, solarR, Temp, RH, WindSpeed;
-  double Ca, Oa, Vcmax, Vpmax, Vpr, Jmax;
-  double upperT=27.5, lowerT=3.0;
+	int DOY , hr;
+	double LAI, solarR, Temp, RH, WindSpeed;
+	double Ca, Oa, Vcmax, Vpmax, Vpr, Jmax;
+	double upperT=27.5, lowerT=3.0;
 
-  double lat = 40;
-  int nlayers = 3;
-  double kd = 0.1;
-  double chil = 1;
-  double stomataws;
+	double lat = 40;
+	int nlayers = 3;
+	double kd = 0.1;
+	double chil = 1;
+	double stomataws;
 
-  SEXP growth;
+	SEXP growth;
 
-  PROTECT(growth = allocVector(REALSXP,1));
+	PROTECT(growth = allocVector(REALSXP,1));
 
 
-  LAI = REAL(lai)[0];
-  DOY = INTEGER(Doy)[0];
-  hr = INTEGER(Hr)[0];
-  solarR = REAL(SolarR)[0];
-  Temp = REAL(ATemp)[0];
-  RH = REAL(RelH)[0];
-  WindSpeed = REAL(WindS)[0];
-  Ca = REAL(CA)[0];
-  Oa = REAL(OA)[0];
-  Vcmax = REAL(VCMAX)[0];
-  Vpmax = REAL(VPMAX)[0];
-  Vpr = REAL(VPR)[0];
-  Jmax = REAL(JMAX)[0];
-  stomataws = REAL(STOMATAWS)[0];
+	LAI = REAL(lai)[0];
+	DOY = INTEGER(Doy)[0];
+	hr = INTEGER(Hr)[0];
+	solarR = REAL(SolarR)[0];
+	Temp = REAL(ATemp)[0];
+	RH = REAL(RelH)[0];
+	WindSpeed = REAL(WindS)[0];
+	Ca = REAL(CA)[0];
+	Oa = REAL(OA)[0];
+	Vcmax = REAL(VCMAX)[0];
+	Vpmax = REAL(VPMAX)[0];
+	Vpr = REAL(VPR)[0];
+	Jmax = REAL(JMAX)[0];
+	stomataws = REAL(STOMATAWS)[0];
 
-  lightME(lat,DOY,hr);
+	struct Light_model light_model;
+	light_model = lightME(lat, DOY, hr);
 
-  Idir = tmp1[0] * solarR;
-  Idiff = tmp1[1] * solarR;
-  cosTh = tmp1[2];
-    
-  sunML(Idir,Idiff,LAI,nlayers,cosTh,kd,chil, 3);
+	Idir = light_model.irradiance_direct * solarR;
+	Idiff = light_model.irradiance_diffuse * solarR;
+	cosTh = light_model.cosine_zenith_angle;
 
-  /* results from multilayer model */
-  LAIc = LAI / nlayers;
-  /* Next I need the RH and wind profile */
-  RHprof(RH,nlayers);
-  WINDprof(WindSpeed,LAI,nlayers);
+	struct Light_profile light_profile;
+	light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, 3);
 
-  /* Next use the EvapoTrans function */
-  CanopyA=0.0;
-  for(i=0;i<nlayers;i++)
-    {
-      IDir = layIdir[--sp1];
-      Itot = layItotal[--sp3];
+	/* results from multilayer model */
+	LAIc = LAI / nlayers;
+	double relative_humidity_profile[nlayers];
+	RHprof(RH, nlayers, relative_humidity_profile);
 
-      rh = tmp4[--tp4];
-      WS = tmp3[--tp3];
-      pLeafsun = layFsun[--sp4];
-      CanHeight = layHeight[--sp6];
-      Leafsun = LAIc * pLeafsun;
-      tmp5 = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
-      /* not the right thing to do here to add these values at the end of the ET function
-but just a simple fix for now. The problem is that the eC4photoC function should have its own
-EvapoTrans function. */
-      TempIdir = Temp + tmp5.Deltat;
-      AssIdir = eC4photoC(IDir,TempIdir,rh,Ca,Oa,Vcmax,
-			 Vpmax,Vpr,Jmax);
+	double wind_speed_profile[nlayers];
+	WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);
 
-      IDiff = layIdiff[--sp2];
-      pLeafshade = layFshade[--sp5];
-      Leafshade = LAIc * pLeafshade;
-      tmp6 = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT);
-      /* not the right thing to do here to add these values at the end of the ET function
-but just a simple fix for now*/
-      TempIdiff = Temp + tmp6.Deltat;
-      AssIdiff = eC4photoC(IDiff,TempIdiff,rh,Ca,Oa,Vcmax,
-			  Vpmax,Vpr,Jmax);
+	/* Next use the EvapoTrans function */
+	CanopyA=0.0;
+	for(i=0;i<nlayers;i++)
+	{
+		int current_layer = nlayers - 1 - i;
+		rh = relative_humidity_profile[current_layer];
+		WS = wind_speed_profile[current_layer];
 
-     CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
-   }
-  /* These are micro mols of CO2 per m2 per sec
-    Need to convert to 
-    3600 converts seconds to hours
-    10^-6 converts micro mols to mols
-    */
-  REAL(growth)[0] = cf * CanopyA ;
-  UNPROTECT(1);  
-  return(growth);
+		IDir = light_profile.direct_irradiance[current_layer];
+		Itot = light_profile.total_irradiance[current_layer];
+		pLeafsun = light_profile.sunlit_fraction[current_layer];
+		CanHeight = light_profile.height[current_layer];
+		Leafsun = LAIc * pLeafsun;
+		direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
+		/* not the right thing to do here to add these values at the end of the ET function
+		   but just a simple fix for now. The problem is that the eC4photoC function should have its own
+		   EvapoTrans function. */
+		TempIdir = Temp + direct_et.Deltat;
+		AssIdir = eC4photoC(IDir,TempIdir,rh,Ca,Oa,Vcmax,
+				Vpmax,Vpr,Jmax);
 
-   }
+		IDiff = light_profile.diffuse_irradiance[current_layer];
+		pLeafshade = light_profile.shaded_fraction[current_layer];
+		Leafshade = LAIc * pLeafshade;
+		diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
+		/* not the right thing to do here to add these values at the end of the ET function
+		   but just a simple fix for now*/
+		TempIdiff = Temp + diffuse_et.Deltat;
+		AssIdiff = eC4photoC(IDiff,TempIdiff,rh,Ca,Oa,Vcmax,
+				Vpmax,Vpr,Jmax);
+
+		CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
+	}
+	/* These are micro mols of CO2 per m2 per sec
+	   Need to convert to 
+	   3600 converts seconds to hours
+	   10^-6 converts micro mols to mols
+	   */
+	REAL(growth)[0] = cf * CanopyA ;
+	UNPROTECT(1);  
+	return(growth);
+
+}
 
 double eC4photoC(double QP, double TEMP, double RH, double CA,
 		double OA, double VCMAX, double VPMAX, double VPR,
@@ -151,16 +153,16 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     const double a = 0.01 ; /* alpha in the notes*/
     const double Kp = 80 ; /*  mu bar */
     /* const double Kc1 = 650 * 1e-3  mbar at 25 C */
-    const double Kc1 = 1020 * 1e-3; /*  mbar at 25 C */
+    // const double Kc1 = 1020 * 1e-3; /*  mbar at 25 C */ unused
 
     const double theta = 0.7;
 
     /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
-    const double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/
     const double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
     const double Erb = 72 ; /* Activation energy of Rubisco kj/mol */
     /*    const double Q10bf = 1.7 */
-    const double ERd = 46.39;
+    // const double ERd = 46.39; unused
+    // const double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/ unused
     const double EKc = 79.43;
     const double EKo = 36.38;
     const double Q10cb = 1.7;
@@ -171,24 +173,24 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     double Kc = 1020 ; /*  mu bar at 25 C */
     
     /* VAriables */ 
-    double Idir, AirTemp, rh, Ca, Oa;
+    double Idir, AirTemp, Ca, Oa;
     double Vcmax, Vpmax, Vpr, Jmax;
 
-    double Q10pr, Q10p, Q10rb, Q10Rd, Q10Kc, Q10Ko;
+    // double Q10pr, Q10Rd; unused
+	double Q10p, Q10rb, Q10Kc, Q10Ko;
     double Cm, Om;
-    double Rd, Rm, Rs;
+    double Rd, Rm;
+    // double Rs; unused
 
     double I2, J, Aj0, Aj1, Aj;
     double Vp, Ko1 , Om1;
     double a1, b1, c1 , c3, Ac0;
     double AcLCO2, Ac, A;
-    double Os, Cs;
-    double Cs0, Cs1;
+    // double Os, Cs0, Cs1, Cs; unused
 
 
     Idir = QP;
     AirTemp = TEMP;
-    rh = RH;
     Ca = CA;
     Oa = OA;
     Vcmax = VCMAX;
@@ -196,10 +198,10 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     Vpr = VPR;
     Jmax = JMAX;
 
-    Q10pr = exp(Epr *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
+    // Q10pr = exp(Epr *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15)))); unused
+    // Q10Rd = exp(ERd *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15)))); unused
     Q10p = exp(Ep *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
     Q10rb = exp(Erb *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
-    Q10Rd = exp(ERd *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
     Q10Kc = exp(EKc *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
     Q10Ko = exp(EKo *(1/(0.008314*298.15)-1/(0.008314*(AirTemp+273.15))));
 
@@ -215,7 +217,7 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     /*    Rd = 0.01 * Vcmax; */
     Rd = 0.08;
     Rm = 0.5 * Rd ;
-    Rs = 0.5 * Rd;
+    // Rs = 0.5 * Rd; unused
         
     /* Light limited */
     I2 = (Idir * 0.85)/2;
@@ -268,19 +270,21 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
       A = Ac;
     }
         
+	/* Unused if-else statments
     Os = a * A / 0.047 * gs + Om;
-    if(Aj <= Ac){
+    if ( Aj <= Ac ) {
       Cs0 = (gammaStar * Os)*(7/3*(Aj + Rd) + (1-0.4)*J/3);
       Cs1 = (1-0.4)*J/3-(Aj) ; 
-      Cs = Cs0/Cs1;
-    }else{
+       Cs = Cs0/Cs1; unused
+    } else {
       Cs0 = gammaStar * Os + Kc1*(1+Os/Ko)*((Ac+Rd)/Vcmax);
           if((Ac+Rd) >= Vcmax){
 	    Ac = Vcmax - Rd - 0.5 ;
 	  }
 	  Cs1 = 1 - (Ac+Rd)/Vcmax;
-	  Cs = Cs0/Cs1;
+	   Cs = Cs0/Cs1; unused
     }
+	*/
     return(A);
 }
 
@@ -316,11 +320,11 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     /* This is 0 and 25 Celsius degrees in the Kelvin scale */
 
     /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
-    double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/
+    // double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/ unused
+    // double ERd = 46.39; unused
     double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
     double Erb = 72 ; /* Activation energy of Rubisco kj/mol */
     /*    const double Q10bf = 1.7 */
-    double ERd = 46.39;
     double EKc = 79.43;
     double EKo = 36.38;
     double Q10cb = 1.7;
@@ -337,9 +341,11 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     double Vcmax1, Vpmax1, Jmax1;
     double Vcmax, Vpmax, Vpr, Jmax;
 
-    double Q10pr, Q10p, Q10rb, Q10Rd, Q10Kc, Q10Ko;
+    // double Q10pr, Q10Rd; unused
+    double Q10p, Q10rb, Q10Kc, Q10Ko;
     double Cm, Om;
-    double Rd, Rm, Rs;
+    double Rd, Rm;
+    // double Rs; unused
 
     double I2, J, Aj;
     double Vp, Ko1 , Om1;
@@ -371,107 +377,107 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     Vpr = REAL(VPR)[0];
     Jmax1 = REAL(JMAX)[0];
 
-    for(i = 0;i < nqp;i++){
+    for (i = 0; i < nqp; i++) {
 
-    Idir = REAL(QP)[i];
-    AirTemp = REAL(TEMP)[i];
-    rh = REAL(RH)[i];
+        Idir = REAL(QP)[i];
+        AirTemp = REAL(TEMP)[i];
+        rh = REAL(RH)[i];
 
 
-    Q10pr = exp(Epr *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10p = exp(Ep *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10rb = exp(Erb *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10Rd = exp(ERd *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10Kc = exp(EKc *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-    Q10Ko = exp(EKo *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        // Q10pr = exp(Epr *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0)))); unused
+        // Q10Rd = exp(ERd *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0)))); unused
+        Q10p = exp(Ep *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        Q10rb = exp(Erb *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        Q10Kc = exp(EKc *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        Q10Ko = exp(EKo *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
 
-    Vcmax = Vcmax1 * Q10rb;
-    Kc = Kc2 * Q10Kc;
-    Ko = Ko2 * Q10Ko;
-    Vpmax = Vpmax1 * Q10p;        
-    Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
+        Vcmax = Vcmax1 * Q10rb;
+        Kc = Kc2 * Q10Kc;
+        Ko = Ko2 * Q10Ko;
+        Vpmax = Vpmax1 * Q10p;        
+        Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
 
-    Cm = 0.4 * Ca ; 
-    Om = Oa ;
-        
-    /*    Rd = 0.01 * Vcmax; */
-    Rd = 0.08;
-    Rm = 0.5 * Rd ;
-    Rs = 0.5 * Rd;
-        
-    /* Light limited */
-    I2 = (Idir * 0.85)/2;
-    J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
-    /* Long formula for light limited */
+        Cm = 0.4 * Ca ; 
+        Om = Oa ;
 
-    aa = 1 - (7 * gammaStar * alpha )/3 * 0.047;
-    bb = -(((0.4 * J)/2 - Rm + gs * Cm) + ((1-0.4)*J/3-Rd) + 
-	   gs*(7*gammaStar*Om/3) + 
-	   (alpha*gammaStar/0.047)*((1-0.04)*J/3 + 7*Rd/3));
-    cc = ((0.4 * J)/2 - Rm + gs * Cm)*((1-0.4)*J/3-Rd) -
-      gs * gammaStar * Om *((1-0.4)*J/3 + 7*Rd/3);
+        /*    Rd = 0.01 * Vcmax; */
+        Rd = 0.08;
+        Rm = 0.5 * Rd ;
+        // Rs = 0.5 * Rd; unused
 
-    Aj = (-bb - sqrt(pow(bb,2)-4*aa*cc))/2*aa;
+        /* Light limited */
+        I2 = (Idir * 0.85)/2;
+        J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
+        /* Long formula for light limited */
 
-    /* Other part */
-    Vp = (Cm * Vpmax) / (Cm + Kp) ;
-    if(Vpr < Vp){
-      Vp = Vpr;
-    }
-	        
-    /* Alternative formula */
-    Ko1 = Ko * 1e3;
-    Om1 = Om * 1e3;
+        aa = 1 - (7 * gammaStar * alpha )/3 * 0.047;
+        bb = -(((0.4 * J)/2 - Rm + gs * Cm) + ((1-0.4)*J/3-Rd) + 
+                gs*(7*gammaStar*Om/3) + 
+                (alpha*gammaStar/0.047)*((1-0.04)*J/3 + 7*Rd/3));
+        cc = ((0.4 * J)/2 - Rm + gs * Cm)*((1-0.4)*J/3-Rd) -
+            gs * gammaStar * Om *((1-0.4)*J/3 + 7*Rd/3);
 
-    a1 = 1 - alpha / 0.047 * Kc/Ko1 ;
-    b1 = -((Vp - Rm + gs * Cm)+
-	   (Vcmax - Rd)+
-	   gs*(Kc*(1+Om1/Ko1))+
-	   ((alpha/0.047)*(gammaStar*Vcmax+Rd*Kc/Ko1)));
-    c1 = (Vcmax - Rd)*(Vp-Rm+gs*Cm)-
-          (Vcmax * gs * gammaStar * Om1 + Rd*gs*Kc*(1+Om1/Ko1));
-         
-    c3 = pow(b1,2) - 4*a1*c1;
-      if(c3 < 0){
-	c3 = 0;
-      }
-    Ac0 = (-b1 - sqrt(c3)) / 2*a1 ;
+        Aj = (-bb - sqrt(pow(bb,2)-4*aa*cc))/2*aa;
 
-    AcLCO2 = (Cm * Vpmax/(Cm+Kp)) - Rm + gs * Cm;
-    
-    if(Ac0 < AcLCO2){
-      Ac = Ac0;
-    }else{
-      Ac = AcLCO2;
-    }
+        /* Other part */
+        Vp = (Cm * Vpmax) / (Cm + Kp) ;
+        if(Vpr < Vp){
+            Vp = Vpr;
+        }
 
-    if(Aj < Ac){
-      A = Aj;
-    }else{
-      A = Ac;
-    }
-        
-    Os = alpha * A / 0.047 * gs + Om;
+        /* Alternative formula */
+        Ko1 = Ko * 1e3;
+        Om1 = Om * 1e3;
 
-     if(Aj <= Ac){ 
-       Cs = Cm + (Vp - Aj - Rm)/gs;
-      }else{ 
-	  Cs0 = gammaStar * Os + Kc*(1+Os/Ko)*((Ac+Rd)/Vcmax); 
- 	  Cs1 = 1 - (Ac+Rd)/Vcmax; 
-	  Cs = Cs0/Cs1;
-    	   }
+        a1 = 1 - alpha / 0.047 * Kc/Ko1 ;
+        b1 = -((Vp - Rm + gs * Cm)+
+                (Vcmax - Rd)+
+                gs*(Kc*(1+Om1/Ko1))+
+                ((alpha/0.047)*(gammaStar*Vcmax+Rd*Kc/Ko1)));
+        c1 = (Vcmax - Rd)*(Vp-Rm+gs*Cm)-
+            (Vcmax * gs * gammaStar * Om1 + Rd*gs*Kc*(1+Om1/Ko1));
 
-    /* Calculating Gs */
-     if(A < 0){
-       StomCond = G0;
-     }else{
-       StomCond = G1 * (A * rh * P) / (Cm*1e-1) + G0;
-     }
-    /* Organizing the results */
-    REAL(Assim)[i] = A;
-    REAL(Gs)[i] = StomCond;
-    REAL(Ci)[i] = Cs;
-    REAL(Oxy)[i] = Os;
+        c3 = pow(b1,2) - 4*a1*c1;
+        if(c3 < 0){
+            c3 = 0;
+        }
+        Ac0 = (-b1 - sqrt(c3)) / 2*a1 ;
+
+        AcLCO2 = (Cm * Vpmax/(Cm+Kp)) - Rm + gs * Cm;
+
+        if(Ac0 < AcLCO2){
+            Ac = Ac0;
+        }else{
+            Ac = AcLCO2;
+        }
+
+        if(Aj < Ac){
+            A = Aj;
+        }else{
+            A = Ac;
+        }
+
+        Os = alpha * A / 0.047 * gs + Om;
+
+        if(Aj <= Ac){ 
+            Cs = Cm + (Vp - Aj - Rm)/gs;
+        }else{ 
+            Cs0 = gammaStar * Os + Kc*(1+Os/Ko)*((Ac+Rd)/Vcmax); 
+            Cs1 = 1 - (Ac+Rd)/Vcmax; 
+            Cs = Cs0/Cs1;
+        }
+
+        /* Calculating Gs */
+        if(A < 0){
+            StomCond = G0;
+        }else{
+            StomCond = G1 * (A * rh * P) / (Cm*1e-1) + G0;
+        }
+        /* Organizing the results */
+        REAL(Assim)[i] = A;
+        REAL(Gs)[i] = StomCond;
+        REAL(Ci)[i] = Cs;
+        REAL(Oxy)[i] = Os;
     }
 
     SET_VECTOR_ELT(lists,0,Assim);
@@ -492,10 +498,10 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
 /* In this section the McMCec4photo is included this is a work in 
 progress!*/
 
-double RsqeC4photo(double oAssim[enObs], double oQp[enObs], 
-		  double oTemp[enObs],  double oRH[enObs],
+double RsqeC4photo(double oAssim[], double oQp[], 
+		  double oTemp[],  double oRH[],
 		  double Ca, double Oa,  double Vcmax,
-		  double Vpmax, double Vpr, double Jmax );
+		  double Vpmax, double Vpr, double Jmax, int enObs );
 
 SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 		  SEXP oRelH, SEXP NITER, SEXP iCA,
@@ -503,7 +509,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 		  SEXP iJMAX,  SEXP THRESH, SEXP SCALE){
   /* First manipulate R objects */
   int niter;
-  enObs = length(oASSIM);
+  int enObs = length(oASSIM);
   niter = INTEGER(NITER)[0];
 
   /* Second define the needed variables */
@@ -526,7 +532,8 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
   double Rsq;
   double poldRsq;
   double Ca, Oa;
-  double  poldVcmax, poldVpmax, poldVpr, poldJmax;
+  // double poldVpr; unused
+  double  poldVcmax, poldVpmax, poldJmax;
   double rnewVcmax, rnewVpmax, rnewVpr, rnewJmax;
   double  oldVcmax, oldVpmax, oldVpr, oldJmax;
 
@@ -605,7 +612,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
      /* Finish of the rnormCV function */
       Rsq = RsqeC4photo(assim,qp,temp,rh,Ca,Oa,
 		       rnewVcmax,rnewVpmax,rnewVpr,
-		       rnewJmax);
+		       rnewJmax, enObs);
 
       if(Rsq > oldRsq){
 	oldRsq = Rsq;
@@ -626,7 +633,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
     poldRsq = oldRsq;
     poldVcmax = oldVcmax;
     poldVpmax = oldVpmax;
-    poldVpr = oldVpr;
+    // poldVpr = oldVpr; unused
     poldJmax = oldJmax;
 
     for(i = 0; i < niter; i++){
@@ -655,7 +662,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 
       Rsq = RsqeC4photo(assim,qp,temp,rh,Ca,Oa,
 		       rnewVcmax,rnewVpmax,rnewVpr,
-		       rnewJmax);
+		       rnewJmax, enObs);
 
         if(Rsq > poldRsq){
 	  /* This time I'm suming to avoid overflow */
@@ -725,10 +732,10 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
 /* Calculates R-sq according to the Collatz model */
 /* and given values for the two most important */
 /* parameters Vcmax and alpha */
-double RsqeC4photo(double oAssim[enObs], double oQp[enObs], 
-		  double oTemp[enObs],  double oRH[enObs],
+double RsqeC4photo(double oAssim[], double oQp[], 
+		  double oTemp[],  double oRH[],
 		  double COa, double O2a,  double Vcmax,
-		  double Vpmax, double Vpr, double Jmax ){
+		  double Vpmax, double Vpr, double Jmax, int enObs ){
 
   double vec1[enObs];
   int i, j;

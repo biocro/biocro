@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <R.h>
 #include "Structures.h"
 #include "Functions.h"
 #include "c3photo.h"
@@ -30,8 +31,8 @@ void ComputeReadParameters(char *FileName,int *StartDay,int *EndDay,double *Delt
     fscanf(InputFile,"%c %lf %lf %lf %lf %lf %lf %lf \n",&Star,&Senescence->Leaf,&Senescence->Stem,&Senescence->Flower,
            &Senescence->Grain,&Senescence->Root,&Senescence->Rhizome,&Senescence->Nodule); // Senescence parameters
     fscanf(InputFile,"%c %lf %i \n",&Star,TBase,Stages);
-    *StageThermalTime = malloc((*Stages)*(sizeof(double)));
-	*PartitionCoefficients = malloc((*Stages)*(sizeof(struct PlantParts)));
+    *StageThermalTime = (double*)malloc((*Stages)*(sizeof(double)));
+	*PartitionCoefficients = (struct PlantParts*)malloc((*Stages)*(sizeof(struct PlantParts)));
 	for(PartitionLoop=0;PartitionLoop<*Stages;PartitionLoop++){
         fscanf(InputFile,"%c %lf %lf %lf %lf %lf %lf %lf %lf \n",&Star,&(*StageThermalTime)[PartitionLoop],
                &(*PartitionCoefficients)[PartitionLoop].Leaf,&(*PartitionCoefficients)[PartitionLoop].Stem,
@@ -268,28 +269,30 @@ return;}
 return;}
 
 // Compute fraction of diffuse shortwave radiation Spitters et al 1986_AFM_SeparatingDirectDiffuse
-double ComputeDiffuseFraction(double SWRad,double Zenith,int DOY){
-     double DiffuseFraction;
-     double Elevation;
-     double SolarConstant = 1370; // [J/m2/s]
-     double Pi = acos(0)*2.0;
-     double So,R,K; // Temporary variables for calculating diffuse fraction
-     Elevation = Pi/2-Zenith;
-     if (Elevation>0 && Elevation<Pi/2){
+double ComputeDiffuseFraction(double SWRad,double Zenith,int DOY) {
+    double Pi = acos(0)*2.0;
+    double DiffuseFraction = 1;
+    double Elevation = Pi / 2 - Zenith;
+    double SolarConstant = 1370; // [J/m2/s]
+    double So, R, K; // Temporary variables for calculating diffuse fraction
+    if ( Elevation>0 && Elevation<Pi/2 ) {
         So = SolarConstant*(1+0.033*cos(DOY/365*360*Pi/180))*sin(Elevation);
         R = 0.847-1.61*sin(Elevation)+1.04*pow(sin(Elevation),2);
         K = (1.47-R)/1.66;
-        if (SWRad/So<=0.22){
-            DiffuseFraction = 1;}
-        else if (0.22<SWRad/So && SWRad/So<=0.35){
-            DiffuseFraction = 1-6.4*pow((SWRad/So-0.22),2);}
-        else if (0.35<SWRad/So && SWRad/So<=K){
-            DiffuseFraction = 1.47-1.66*SWRad/So;}
-        else if (K<SWRad/So){
-            DiffuseFraction = R;}}
-     else{
-        DiffuseFraction = 1;}
-return(DiffuseFraction);}
+        if ( SWRad/So<=0.22 ) {
+            DiffuseFraction = 1;
+        } else if ( 0.22<SWRad/So && SWRad/So<=0.35 ) {
+            DiffuseFraction = 1-6.4*pow((SWRad/So-0.22),2);
+        } else if ( 0.35<SWRad/So && SWRad/So<=K ) {
+            DiffuseFraction = 1.47-1.66*SWRad/So;
+        } else if ( K<SWRad/So ) {
+            DiffuseFraction = R;
+        }
+    } else {
+        DiffuseFraction = 1;
+    }
+    return(DiffuseFraction);
+}
 
 // Compute fractions of sunlit and shaded leaves
 void ComputeRadProfile(double DirectRad,double DiffuseRad,double LAIProfile[],int Layers,
@@ -464,14 +467,14 @@ void ComputeC3Canopy(int TimeCount,double LAI,double LAIProfile[],struct Weather
         // Canopy radiation variables
         double Zenith,DiffuseFraction;
         double Absorptivity = 0.8;
-        double Reflectivity,Transmissivity;
         double DirectSWRad,DiffuseSWRad;
         // Scalar canopy micro-environment variables
         double *WindProfile,*RHProfile,*LeafNProfile;
         WindProfile=(double *)malloc(sizeof(double)*Layers);
         RHProfile=(double *)malloc(sizeof(double)*Layers);
         LeafNProfile=(double *)malloc(sizeof(double)*Layers);
-        double TotalHeight=1.0,CanopyHeight;
+        // double TotalHeight=1.0; unused
+		// double CanopyHeight; unused
         // Local photosynthesis and transpiration variables
         double GPP=0,NPP=0,Transpiration=0;
         // struct ET_Str SunlitTranspiration,ShadedTranspiration;
@@ -507,7 +510,7 @@ void ComputeC3Canopy(int TimeCount,double LAI,double LAIProfile[],struct Weather
         ComputeLeafNProfile(LeafN,LAIProfile,Layers,KLeafN,LeafNProfile);
         // Compute photosynthesis and transpiration
         for(LayerCount=0;LayerCount<Layers;LayerCount++){
-            CanopyHeight = TotalHeight/Layers*(Layers-LayerCount);
+            // CanopyHeight = TotalHeight/Layers*(Layers-LayerCount); unused
             // Sunlit leaves
             // SunlitTranspiration = c3EvapoTrans(SunlitAbsorbed[LayerCount],SunlitAbsorbed[LayerCount],
             //                       WeatherData.Temp,RHProfile[LayerCount],WindProfile[LayerCount,
@@ -552,7 +555,7 @@ void ComputeC3Canopy(int TimeCount,double LAI,double LAIProfile[],struct Weather
         Canopy1->Assim = BiomassConvert*NPP;
         Canopy1->Trans = WaterConvert*Transpiration;
         if (Canopy1->GrossAssim<0 || Canopy1->GrossAssim<Canopy1->Assim){
-            printf("Problem at time step = %d, Canopy GPP = %f\t canopy NPP = %f\n",
+            Rprintf("Problem at time step = %d, Canopy GPP = %f\t canopy NPP = %f\n",
                    TimeCount,Canopy1->GrossAssim,Canopy1->Assim);
             Canopy1->GrossAssim = 0.0;
             Canopy1->Assim = 0.0;

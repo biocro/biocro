@@ -1,22 +1,18 @@
 Package: BioCro
-Version: 0.94
+Version: 0.95
 Title: BioCro Crop and Agroecosystem Simulator
-Description: Simulation of C4 Crops and Coppice Trees
+Description: Simulate C4 crops and coppice trees.
 Author: Fernando Miguez <femiguez@iastate.edu>,
     Deepak Jaiswal <djaiswal@illinois.edu>,
     Dan Wang <dwng@illinois.edu>,
     David LeBauer <dlebauer@illinois.edu>
-Maintainer: David LeBauer <dlebauer@illinois.edu>
-Depends: 
-    lattice,
-    data.table,
-    coda,
-    knitr,
-    roxygen2
-Imports: 
-    stats
-Suggests: 
-    testthat
+Maintainer: Deepak Jaiswal <djaiswal@illinois.edu>,
+    David LeBauer <dlebauer@illinois.edu>,
+    Fernando Miguez <femiguez@iastate.edu>
+Imports: lattice, stats
+Suggests: testthat, knitr, roxygen2, data.table
+Enhances: data.table
 VignetteBuilder: knitr
 License: FreeBSD + file LICENSE
 Packaged: 2013-03-29 07:12:38 UTC; djaiswal
+RoxygenNote: 5.0.1

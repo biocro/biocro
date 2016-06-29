@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <R.h>
 #include <string.h>
 #include "soyGro.h"
 #include "Structures.h"
@@ -19,7 +20,8 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     //***********************************************************************************************
     // Input variables
     double Latitude,DeltaT;
-    int Years,StartDay,EndDay;
+    // int Years; unused
+    int StartDay,EndDay;
     struct CanopyParameters Canopy; // Canopy structure variables
     struct PhotosynthesisParameters Photosynthesis; // Photosynthesis variables
     struct PlantParts GRespirationFraction; // Growth respiration variables
@@ -43,7 +45,7 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     if(Option==0){ // Specify values in code
         Latitude=40;
         DeltaT=1;
-        Years=2002;
+        // Years=2002; unused
         StartDay=180;
         EndDay=300;
         Canopy=(struct CanopyParameters){3.75,0,10,0.37,1,1,1}; // Canopy structure variables;
@@ -56,9 +58,9 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
         // Carbon partition variables
         TBase=0; // Thermal time base temperature  [C]
         Stages=6; // Number of partition stages
-        StageThermalTime = malloc(sizeof(double)*Stages); // Thermal time for stage change [C days]
+        StageThermalTime = (double*)malloc(sizeof(double)*Stages); // Thermal time for stage change [C days]
         memcpy(StageThermalTime,(double[6]){0,100,500,1000,2000,3000},sizeof(double)*6); // Thermal time for stage change [C days]
-        PartitionCoefficients = malloc(sizeof(struct PlantParts)*Stages);// Partition coefficients
+        PartitionCoefficients = (struct PlantParts*)malloc(sizeof(struct PlantParts)*Stages);// Partition coefficients
         PartitionCoefficients[0]=(struct PlantParts){0.3,0.5,0.0,0.0,0.2,0.0,0.0,1.0};
         PartitionCoefficients[1]=(struct PlantParts){0.3,0.5,0.0,0.0,0.2,0.0,0.0,1.0};
         PartitionCoefficients[2]=(struct PlantParts){0.3,0.5,0.0,0.0,0.2,0.0,0.0,1.0};
@@ -76,16 +78,16 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     // Weather data
     FILE *DataInput;
     DataInput = fopen(WeatherFileName,"r");
-    if (DataInput == NULL){printf("can not open file \n"); return 1;}
+    if (DataInput == NULL){Rprintf("can not open file \n"); return 1;}
     int Size=365*24/DeltaT;
-    int *Year; Year=malloc(sizeof(int)*Size);
-    int *DayOfYear; DayOfYear=malloc(sizeof(int)*Size);
-    int *Hour; Hour=malloc(sizeof(int)*Size);
-    double *Solar; Solar=malloc(sizeof(double)*Size);
-    double *Temperature; Temperature=malloc(sizeof(double)*Size);
-    double *RH; RH=malloc(sizeof(double)*Size);
-    double *Wind; Wind=malloc(sizeof(double)*Size);
-    double *Precipitation; Precipitation=malloc(sizeof(double)*Size);
+    int *Year; Year=(int*)malloc(sizeof(int)*Size);
+    int *DayOfYear; DayOfYear=(int*)malloc(sizeof(int)*Size);
+    int *Hour; Hour=(int*)malloc(sizeof(int)*Size);
+    double *Solar; Solar=(double*)malloc(sizeof(double)*Size);
+    double *Temperature; Temperature=(double*)malloc(sizeof(double)*Size);
+    double *RH; RH=(double*)malloc(sizeof(double)*Size);
+    double *Wind; Wind=(double*)malloc(sizeof(double)*Size);
+    double *Precipitation; Precipitation=(double*)malloc(sizeof(double)*Size);
     for(TimeCount=0;TimeCount<Size;TimeCount++){
         fscanf(DataInput,"%i %i %i %lf %lf %lf %lf %lf \n",&Year[TimeCount],
               &DayOfYear[TimeCount],&Hour[TimeCount],&Solar[TimeCount],&Temperature[TimeCount],
@@ -96,22 +98,22 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     // Output variables
     // Canopy structure variables
     double *LeafAngle; // Leaf angle distribution
-    LeafAngle=malloc(sizeof(double)*Canopy.Layers); memset(LeafAngle,0,Canopy.Layers);
+    LeafAngle=(double*)malloc(sizeof(double)*Canopy.Layers); memset(LeafAngle,0,Canopy.Layers * sizeof(double));
     for(LayerCount=0;LayerCount<Canopy.Layers;LayerCount++){
         // LeafAngle[LayerCount] = 0.5+0.25*AngleCount;}
         LeafAngle[LayerCount] = Canopy.Chi;}
     double *SunlitAssimilation,*ShadedAssimilation;
-    SunlitAssimilation=malloc(sizeof(double)*Canopy.Layers); memset(SunlitAssimilation,0,Canopy.Layers);
-    ShadedAssimilation=malloc(sizeof(double)*Canopy.Layers); memset(ShadedAssimilation,0,Canopy.Layers);
+    SunlitAssimilation=(double*)malloc(sizeof(double)*Canopy.Layers); memset(SunlitAssimilation,0,Canopy.Layers * sizeof(double));
+    ShadedAssimilation=(double*)malloc(sizeof(double)*Canopy.Layers); memset(ShadedAssimilation,0,Canopy.Layers * sizeof(double));
     // Litter variables
     struct PlantParts SenescenceIndex={0,0,0,0,0,0,0,0};
     struct PlantParts NewLitter={0,0,0,0,0,0,0,0};
     struct PlantParts Litter={0,0,0,0,0,0,0,0};
-    double AboveLitter=0.0,BelowLitter=0.0; // Above and below ground litter
+    // double AboveLitter=0.0,BelowLitter=0.0; // Above and below ground litter unused
     // Carbon partitioning variables
     int DaySize=(int)(DeltaT*Size/24);
     struct PlantParts AddBiomass,*StoreAddBiomass;
-    StoreAddBiomass=malloc(sizeof(struct PlantParts)*DaySize); memset(StoreAddBiomass,0,DaySize);
+    StoreAddBiomass=(struct PlantParts*)malloc(sizeof(struct PlantParts)*DaySize); memset(StoreAddBiomass,0,DaySize * sizeof(struct PlantParts));
     StoreAddBiomass[StartDay-1]=Biomass;
     AddBiomass=Biomass;
     // Canopy flux variables
@@ -119,19 +121,19 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
     struct CanopyStructure Canopy1={0,0,0};
     // Canopy radiation variables
     double *LAIProfile,*FSun,*FShade;
-    LAIProfile=malloc(sizeof(double)*Canopy.Layers); memset(LAIProfile,0,Canopy.Layers);
-    FSun=malloc(sizeof(double)*Canopy.Layers); memset(FSun,0,Canopy.Layers);
-    FShade=malloc(sizeof(double)*Canopy.Layers); memset(FShade,0,Canopy.Layers);
+    LAIProfile=(double*)malloc(sizeof(double)*Canopy.Layers); memset(LAIProfile,0,Canopy.Layers * sizeof(double));
+    FSun=(double*)malloc(sizeof(double)*Canopy.Layers); memset(FSun,0,Canopy.Layers * sizeof(double));
+    FShade=(double*)malloc(sizeof(double)*Canopy.Layers); memset(FShade,0,Canopy.Layers * sizeof(double));
     double *SunlitAbsorbed,*ShadedAbsorbed;
-    SunlitAbsorbed=malloc(sizeof(double)*Canopy.Layers); memset(SunlitAbsorbed,0,Canopy.Layers);
-    ShadedAbsorbed=malloc(sizeof(double)*Canopy.Layers); memset(ShadedAbsorbed,0,Canopy.Layers);
+    SunlitAbsorbed=(double*)malloc(sizeof(double)*Canopy.Layers); memset(SunlitAbsorbed,0,Canopy.Layers * sizeof(double));
+    ShadedAbsorbed=(double*)malloc(sizeof(double)*Canopy.Layers); memset(ShadedAbsorbed,0,Canopy.Layers * sizeof(double));
     // Respiration variables
     struct PlantParts GRespiration;
     struct PlantParts MRespiration,DailyMRespiration={0,0,0,0,0,0,0,0};
     // Thermal time variables
     double *ThermalTime,*DailyThermalTime;
-    ThermalTime=malloc(sizeof(double)*Size);
-    DailyThermalTime=malloc(sizeof(double)*DaySize);
+    ThermalTime=(double*)malloc(sizeof(double)*Size);
+    DailyThermalTime=(double*)malloc(sizeof(double)*DaySize);
     for(TimeCount=0;TimeCount<Size;TimeCount++){ThermalTime[TimeCount]=0.0;}
     for(DayCount=0;DayCount<DaySize;DayCount++){DailyThermalTime[DayCount]=0.0;}
     // Leaf area index variables
@@ -222,8 +224,8 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
             // Compute total litter
             ComputeLitter(NewLitter,&Litter);
             // Compute total above and below ground litter
-            AboveLitter = Litter.Leaf+Litter.Stem+Litter.Flower+Litter.Grain;
-            BelowLitter = Litter.Root+Litter.Rhizome+Litter.Nodule;
+            // AboveLitter = Litter.Leaf+Litter.Stem+Litter.Flower+Litter.Grain; unused
+            // BelowLitter = Litter.Root+Litter.Rhizome+Litter.Nodule; unused
             //***********************************************************************************************
             // Compute carbon available for partitioning
             dailyCanopyNPP += Biomass.Leaf*FrostFraction*RemobFraction; // Inputs from leaf frost remobilization
@@ -319,6 +321,4 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
 
     free(ThermalTime);
     free(DailyThermalTime);
-
-    printf("C program finished \n");
 return 0;}

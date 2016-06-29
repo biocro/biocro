@@ -1,0 +1,2 @@
+R --silent --vanilla -e "roxygen2::roxygenize('.', roclets='rd')"
+

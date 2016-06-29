@@ -93,7 +93,7 @@ caneGro <- function(WetDat, day1=5, dayn=360,
     frostP<-as.vector(unlist(frostP))
     
     tint <- 24 / timestep
-    vecsize <- (dayn - (day1-1)) * tint
+    vecsize <- (dayn - (day1-1)) * tint + 1
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
     
@@ -152,6 +152,7 @@ caneGro <- function(WetDat, day1=5, dayn=360,
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
     nlayers <- canopyP$nlayers
+	thermal_base_temp = 9
     
     res <- .Call("caneGro",
                  as.double(lat),
@@ -174,6 +175,7 @@ caneGro <- function(WetDat, day1=5, dayn=360,
                  as.double(SpD),
                  as.double(DBPcoefs),
                  as.double(TPcoefs),
+				 as.double(thermal_base_temp),
                  as.double(vmax),
                  as.double(alpha),
                  as.double(kparm),

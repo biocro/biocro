@@ -65,6 +65,14 @@ T_\text{air}  &=   T_\text{mean} + T_\text{range} \cdot T_\text{excursion} \labe
  A_\text{gross} &= \min\left[ \frac{ \left( M + k_{t} \cdot \frac{c_{i}}{P} \right) \pm \sqrt{ \left(M + k_{t} \cdot \frac{c_{i}}{P} \right)^2 - \left( 4 \cdot M \cdot k_{t} \cdot \frac{c_{i}}{P} \cdot \beta \right)}}{2 \cdot \beta}\right] \label{eqn:Agross}
  \end{align}
 
+\subsection*{Effect of Specific Leaf Nitrogen on C4 photosynthesis}
+\begin{align}
+V_\text{max}&= m_\text{vmax} N_\text{leaf} + c_\text{vmax}\\
+R_\text{d}&= m_\text{Rd} N_\text{leaf} + c_\text{Rd}\\
+\alpha_\text{slope}&= m_\alpha  N_\text{leaf} + c_\alpha
+\end{align}
+
+
 \newpage
 \subsection*{C3 Photosynthesis}
 
@@ -277,9 +285,12 @@ $b_{\text{stem}}$	&	Dimensionless	&	Coefficient for maintenance respiration for 
 $b_{\text{root}}$	&	Dimensionless	&	Coefficient for maintenance respiration for root	&	0.01	\\
 $\beta$	&		&	C$_4$ curvature parameter	&	0.93	\\
 $\beta_\Phi$ & \% & Fraction of absorbed quanta reaching PSII & \\
+$c_\alpha $ & $ mol\, mol^{-1}$& intercept of linear relationship between quantum yield of leaf photosynthesis rate and specific leaf nitrogen & \\
 $c_i$	&	$\mu mol\, mol^{-1}$	&	Intercellular concentration of O$_2$ in air corrected for solubility relative to 25$^\circ$C	&	\\
 $c_p$	&	$J\, kg^{-1}\, K{-1}$	&	Specific heat capacity of dry air 	&	1010	\\
 $C_{ov}$	&	Dimensionless	&	Coefficient of Variation for probability of rain in each month	&	-	\\
+$c_\text{Rd} $ & $\mu mol\, m^{-2} s^{-1}$& intercept of linear relationship between leaf dark respiration rate and specific leaf nitrogen & \\
+$c_\text{vmax} $ & $\mu mol\, m^{-2} s^{-1}$& intercept of linear relationship between maximum rate of carboxylation and specific leaf nitrogen & \\
 $d_s$	&	m	&	Soil depth	&	-	\\
 $D_j$	&	d	&	day of year	&	-	\\
 $D_{\text{start}}$	&	d	&	Day of year on which the sinusoidal temperature function is assumed to start	&	45	\\
@@ -371,8 +382,11 @@ $\Delta L_\text{stem}$ & & & \marginnote{undefined}\\
 $\Delta L_\text{sroot}$ & & & \marginnote{undefined}\\
 $\lambda$	&	MJ/Kg	&	Latent heat of vapourisation	&	-	\\
 $\lambda_\text{soil}$	&	$W/(m ^\circ C)$	&	Thermal conductivity for the soil surface	&	-	\\
-$M$\ref{eqn:M} & & \marginnote{undefined}& \label{parm:M}\\
+$M$\ref{eqn:M} & & \marginnote{undefined}& \label{parm:M} -\\
+$m_\alpha $ & $ mol\, mol^{-1} mmol N^{-1} m^{2}$& slope of linear relationship between quantum yield of leaf photosynthesis rate and specific leaf nitrogen & - \\
+$m_\text{Rd} $ & $\mu mol\, m^{-2} s^{-1} mmol N^{-1} m^{2}$ & slope of linear relationship between leaf dark respiration rate and specific leaf nitrogen & - \\
 $m_r$& mm month$^{-1}$& monthly precipitation rate& \\
+$m_\text{vmax} $ & $\mu mol\, m^{-2} s^{-1} mmol N^{-1} m^{2}$& slope of linear relationship between maximum rate of carboxylation and specific leaf nitrogen & \\
 $N_{\text{eff}}$& days/mo & effective length of rainy period & \marginnote{check units with equation \ref{eqn:Neff}}\\
 $n$	&	day	&	The number of days in a month	&	29, 30, or 31	\\
 $nr$	&	day 	&	The number of rainy days in a month	&	-	\\

@@ -73,9 +73,7 @@
 ##' shade.  col11: Stomatal conductance for leaves in the sun col12: Stomatal
 ##' conductance for leaves in the shade col13: Nitrogen concentration in the
 ##' leaf (g m^-2) col14: Vmax value as depending on leaf nitrogen
-##' @note %% ~~further notes~~
 ##' @author Fernando E. Miguez
-##' @seealso %% ~~objects to See Also as \code{\link{help}}, ~~~
 ##' @references Farquhar model %% ~put references to the literature/web site
 ##' here ~
 ##' @keywords models
@@ -147,13 +145,7 @@ c3CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
                  as.double(photoPs),
                  as.double(kd), as.double(heightFactor),
                  as.double(lnPs),as.double(StomWS),as.integer(ws))
-    res$LayMat <- t(res$LayMat)
-    colnames(res$LayMat) <- c("IDir","IDiff","Leafsun",
-                              "Leafshade","TransSun","TransShade",
-                              "AssimSun","AssimShade","DeltaSun",
-                              "DeltaShade","CondSun","CondShade",
-                              "LeafN", "Vmax")
-    res
+    return(res)
   }
 
 

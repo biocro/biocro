@@ -485,7 +485,7 @@ plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
   if(plot.kind == "DB"){
   if (missing(obs)) {
         sim <- x
-        plot1 <- xyplot(sim$Stem ~ sim$TTTc, type = "l", ...,
+        plot1 <- lattice::xyplot(sim$Stem ~ sim$TTTc, type = "l", ...,
                         ylim = c(0, I(max(sim$Grain,na.rm=TRUE) + 2)),
                         xlab = xlab,
                         ylab = ylab, 
@@ -521,7 +521,7 @@ plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
         stop("obs should have 6 columns")
       sim <- x
       ymax <-  I(max(c(sim$Grain,obs[,2]),na.rm=TRUE) +  2)
-      plot1 <- xyplot(sim$Stem ~ sim$TTTc, ..., ylim = c(0,ymax),
+      plot1 <- lattice::xyplot(sim$Stem ~ sim$TTTc, ..., ylim = c(0,ymax),
                       xlab = xlab,
                       ylab = ylab, 
                       panel = function(x, y, ...) {
@@ -570,7 +570,7 @@ plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
     matplot(x$TTTc,as.matrix(x$LAImat),type="l",ylab="Individual Leaf Area",xlab="Thermal Time")
   }else
   if(plot.kind == "pheno"){
-    xyplot(x$PhenoStage ~ x$TTTc,type="l",ylab="Phenological Stage",xlab="Thermal Time",...)
+    lattice::xyplot(x$PhenoStage ~ x$TTTc,type="l",ylab="Phenological Stage",xlab="Thermal Time",...)
   }
   
 }
