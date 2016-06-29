@@ -33,3 +33,4 @@ double Alogistic(double time, double A, double kei, double tei);
 struct maize_dbp_str maize_sel_dbp_coef(double dbpCoefs[13], double phenoStage);
 
 #endif
+

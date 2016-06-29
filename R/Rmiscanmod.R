@@ -110,7 +110,7 @@
 ##'
 ##' Yld <- res$Yield / 100
 ##'
-##' xyplot(Yld ~ 1:365 ,
+##' lattice::xyplot(Yld ~ 1:365 ,
 ##'        xlab='doy',
 ##'        ylab='Dry biomass (Mg/ha)')
 ##'

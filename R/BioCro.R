@@ -244,7 +244,7 @@
 ##' @export
 BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                    timestep=1,
-                   lat=40,iRhizome=7,irtl=1e-4,
+                   lat=40,iRhizome=7, iLeaf = iRhizome * 1e-4, iStem = iRhizome * 1e-3, iRoot = iRhizome * 1e-3,
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
@@ -302,7 +302,6 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     nnitroP <- canenitroParms()
     nnitroP<-as.vector(unlist(nnitroP))
     
-    
     phenoP <- phenoParms()
     phenoP[names(phenoControl)] <- phenoControl
 
@@ -316,7 +315,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     centuryP[names(centuryControl)] <- centuryControl
 
     tint <- 24 / timestep
-    vecsize <- (dayn - (day1-1)) * tint
+    vecsize <- (dayn - (day1-1)) * tint + 1
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
     if((dayn)*tint > nrow(WetDat))
@@ -341,7 +340,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
 
     SENcoefs <- as.vector(unlist(seneP))
 
-    soilCoefs <- c(unlist(soilP[1:5]),mean(soilP$iWatCont),soilP$scsf, soilP$transpRes, soilP$leafPotTh)
+    soilCoefs <- c(unlist(soilP[1:5]), mean(soilP$iWatCont), soilP$scsf, soilP$transpRes, soilP$leafPotTh)
+
     wsFun <- soilP$wsFun
     soilType <- soilP$soilType
 
@@ -366,16 +366,18 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     ws <- photoP$ws
     upperT<-photoP$uppertemp
     lowerT<-photoP$lowertemp
-    
     mResp <- canopyP$mResp
     kd <- canopyP$kd
     chi.l <- canopyP$chi.l
     Sp <- canopyP$Sp
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
+    nlayers <- canopyP$nlayers
     leafW <- canopyP$leafwidth
     eteq <- canopyP$eteq
-    nlayers <- canopyP$nlayers
+	StomWS <- photoP$StomWS
+	thermal_base_temperature = 0
+	initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
     
     res <- .Call(MisGro,
                  as.double(lat),
@@ -387,10 +389,12 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(windspeed),
                  as.double(precip),
                  as.double(kd),
-                 as.double(c(chi.l,heightF,leafW,eteq)),
+                 as.double(chi.l),
+                 as.double(leafW),
+                 as.double(eteq),
+                 as.double(heightF),
                  as.integer(nlayers),
-                 as.double(iRhizome),
-                 as.double(irtl),
+				 as.double(initial_biomass),
                  as.double(SENcoefs),
                  as.integer(timestep),
                  as.integer(vecsize),
@@ -398,6 +402,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(SpD),
                  as.double(DBPcoefs),
                  as.double(TPcoefs),
+				 as.double(thermal_base_temperature),
                  as.double(vmax),
                  as.double(alpha),
                  as.double(kparm),
@@ -407,7 +412,6 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(Catm),
                  as.double(b0),
                  as.double(b1),
-                 as.integer(ws),
                  as.double(soilCoefs),
                  as.double(nitroP$iLeafN),
                  as.double(nitroP$kLN), 
@@ -416,6 +420,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(mResp),
                  as.integer(soilType),
                  as.integer(wsFun),
+                 as.integer(ws),
                  as.double(centCoefs),
                  as.integer(centTimestep),
                  as.double(centuryP$Ks),
@@ -430,7 +435,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.integer(nitroP$lnFun),
                  as.double(upperT),
                  as.double(lowerT),
-                 as.double(nnitroP)
+                 as.double(nnitroP),
+				 as.double(StomWS)
                  )
     
     res$cwsMat <- t(res$cwsMat)
@@ -439,7 +445,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     colnames(res$rdMat) <- soilP$soilDepths[-1]
     res$psimMat <- t(res$psimMat)
     colnames(res$psimMat) <- soilP$soilDepths[-1]
-    structure(res,class="BioGro")
+    return(structure(res,class="BioGro"))
   }
 
 
@@ -470,13 +476,13 @@ canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
 
 }
 
-photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.08, b1=3, ws=c("gs","vmax"),uppertemp=37.5,lowertemp=3.0){
+photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.08, b1=3, StomWS=1, ws=c("gs","vmax"),uppertemp=37.5,lowertemp=3.0){
 
   ws <- match.arg(ws)
   if(ws == "gs") ws <- 1
   else ws <- 0
       
-  list(vmax=vmax,alpha=alpha,kparm=kparm,theta=theta,beta=beta,Rd=Rd,Catm=Catm,b0=b0,b1=b1,ws=ws,uppertemp=uppertemp,lowertemp=lowertemp)
+  list(vmax=vmax,alpha=alpha,kparm=kparm,theta=theta,beta=beta,Rd=Rd,Catm=Catm,b0=b0,b1=b1,StomWS=StomWS,ws=ws,uppertemp=uppertemp,lowertemp=lowertemp)
 
 }
 
@@ -625,33 +631,33 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
   if (missing(obs)) {
         sim <- x
         if(missing(ylim)) ylim <- c(0, I(max(sim$Stem,na.rm=TRUE) + 5)) 
-        plot1 <- xyplot(sim$Stem ~ sim$ThermalT, type = "l", ...,
+        plot1 <- lattice::xyplot(sim$Stem ~ sim$ThermalT, type = "l", ...,
                         ylim = ylim,
                         xlab = xlab,
                         ylab = ylab, 
                         panel = function(x, y, ...) {
                           if (stem == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], 
                                          lty = ltys[1], lwd = lwds[1],...)
                           }
                           if (leaf == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], 
                                          lty = ltys[2], lwd = lwds[2],...)
                           }
                           if (root == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], 
                                          lty=ltys[3], lwd = lwds[3],...)
                           }
                           if (rhizome == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], 
                                          lty = ltys[4], lwd = lwds[4],...)
                           }
                           if (grain == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], 
                                          lty=ltys[5], lwd = lwds[5],...)
                           }
                           if (LAI == TRUE) {
-                            panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
+                            lattice::panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
                                          lty = ltys[6], lwd = lwds[6],...)
                           }
 
@@ -665,46 +671,46 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
         stop("obs should have 7 columns")
       sim <- x
       if(missing(ylim)) ylim <- c(0, I(max(sim$Stem,na.rm=TRUE) + 5)) 
-      plot1 <- xyplot(sim$Stem ~ sim$ThermalT, ..., ylim = ylim,
+      plot1 <- lattice::xyplot(sim$Stem ~ sim$ThermalT, ..., ylim = ylim,
                       xlab = xlab,
                       ylab = ylab, 
                       panel = function(x, y, ...) {
                         if (stem == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Stem, col = cols[1], 
                                        lty = ltys[1], lwd = lwds[1], type = "l", ...)
                         }
                         if (leaf == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Leaf, col = cols[2], 
                                        lty = ltys[2], lwd = lwds[2], type = "l", ...)
                         }
                         if (root == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Root, col = cols[3], 
                                        lty = ltys[3], lwd = lwds[3], type = "l", ...)
                         }
                         if (rhizome == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Rhizome, col = cols[4], 
                                        lty = ltys[4], lwd = lwds[4], type = "l", ...)
                         }
                         if (grain == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$Grain, col = cols[5], 
                                        lty = ltys[5], lwd = lwds[5], type = "l", ...)
                         }
                         if (LAI == TRUE) {
-                          panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
+                          lattice::panel.xyplot(sim$ThermalT, sim$LAI, col = cols[6], 
                                        lty = ltys[6], lwd = lwds[6], type = "l", ...)
                         }
                         
-                        panel.xyplot(obs[, 1], obs[, 2], col = cols[1], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 2], col = cols[1], 
                                      pch=pchs[1],...)
-                        panel.xyplot(obs[, 1], obs[, 3], col = cols[2], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 3], col = cols[2], 
                                      pch=pchs[2],...)
-                        panel.xyplot(obs[, 1], obs[, 4], col = cols[3], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 4], col = cols[3], 
                                      pch=pchs[3],...)
-                        panel.xyplot(obs[, 1], obs[, 5], col = cols[4], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 5], col = cols[4], 
                                      pch=pchs[4],...)
-                        panel.xyplot(obs[, 1], obs[, 6], col = cols[5], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 6], col = cols[5], 
                                      pch=pchs[5],...)
-                        panel.xyplot(obs[, 1], obs[, 7], col = cols[6], 
+                        lattice::panel.xyplot(obs[, 1], obs[, 7], col = cols[6], 
                                      pch=pchs[6],...)
                       }, key = list(text = list(c("Stem", "Leaf", "Root", 
                                       "Rhizome", "Grain", "LAI")), col = cols, lines = TRUE, points=TRUE,
@@ -722,7 +728,7 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
     ## Soil evaporation
     tmp2 <- aggregate(x$SoilEvaporation, by = list(doy = x$DayofYear), FUN = sum)
     se <- tmp2$x * 1e-1
-    xyplot(et + se ~ tmp$doy,
+    lattice::xyplot(et + se ~ tmp$doy,
            ylab = "Daily EvapoTranspiration (mm)",
            xlab = "DOY",
            key = simpleKey(text = c("transp", "evapo")), ...)
@@ -736,14 +742,14 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
     tmp2 <- aggregate(x$SoilEvaporation, by = list(doy = x$DayofYear), FUN = sum)
     se <- tmp2$x * 1e-1
     cumse <- cumsum(se)
-    xyplot(cumet + cumse + I(cumet+cumse) ~ tmp$doy, type="l",
+    lattice::xyplot(cumet + cumse + I(cumet+cumse) ~ tmp$doy, type="l",
            ylab = "Cumulative EvapoTranspiration (mm)",
            xlab = "DOY",
            key = simpleKey(text = c("transp", "evapo", "ET")), ...)
   }else
     if(plot.kind == "stress"){
     ## First summarize by day
-    xyplot(x$StomatalCondCoef +
+    lattice::xyplot(x$StomatalCondCoef +
            x$LeafReductionCoefs ~ x$DayofYear, type="l",
            ylab = "Stress Indeces",
            xlab = "DOY",

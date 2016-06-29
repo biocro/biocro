@@ -7,6 +7,7 @@ test_that("WillowGro runs in warm weather; refs bitbucket bug #7",{
     res_warm <- willowGro(warmer)
     res_warm <- BioGro(warmer)
     data(warm) ## weather from Sapelo Island that caused problem
+	warm$dayn = 365
     res_warm2 <- do.call(willowGro, warm)
 })
 
@@ -44,13 +45,13 @@ for (biocrofn in c("soyGro", "willowGro", "BioGro")){#, "caneGro" , "MaizeGro"
     test_that("turning on soil layers increases aboveground productivity and reduces root allocation",{
         if(biocrofn != "soyGro"){# re-enable after soyGro has soil
           for(output in c("LAI", "Leaf", "Root", "Stem")){
-            print(output)
-            expect_true(mean(res0[[output]]) < mean(res1[[output]]))
+            passed = expect_true(mean(res0[[output]]) < mean(res1[[output]]))$passed
+            print(paste(output, 'is greater when turning on soil layers:', passed))
           }          
         }
     })
     
-    test_that("BioCro stem biomass is sensitive to key parameters ", {
+    test_that(paste(biocrofn, "stem biomass is sensitive to key parameters "), {
       get.biomass <- function(...){
         ans <- do.call(biocrofn, list(weather05, ...))        
         return(max(ans$Stem, ans$Leaf, ans$Root))
@@ -74,4 +75,6 @@ for (biocrofn in c("soyGro", "willowGro", "BioGro")){#, "caneGro" , "MaizeGro"
                          get.biomass(photoControl = photoParms(vmax = 80)))
       }
     })
+	cat('\n')
 }
+

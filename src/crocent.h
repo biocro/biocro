@@ -2,6 +2,7 @@
 #define CROCENT_H
 
 #define MAXSOILLAY 100 /* Maximum number of layers */
+#include "AuxBioCro.h"
 
 // structure to calculate daily climate
 //SWE is snow cover in watr equivalent of cm
@@ -601,6 +602,8 @@ void decomposeSOM1C1(struct som1c1 *som1c1, struct cropcentEnvironment *ENV, int
 
 // Function definition to decompose som1c2 (actve soil pool)
 void decomposeSOM1C2(struct som1c2 *som1c2, struct cropcentEnvironment *ENV, int flag, int Eflag);
+
+void decomposeSOM2C1(struct som2c1 *som2c1, struct cropcentEnvironment *ENV, int flag, int Eflag);
 
 // Function definition to decompose som2c1 (slow surfcae pool)
 void decomposeSOM2C2(struct som2c2 *som2c2, struct cropcentEnvironment *ENV, int flag, int Eflag);

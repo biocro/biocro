@@ -46,12 +46,12 @@ plotAC <- function(data,fittd,
 
   if(missing(fittd) || is.null(fittd)){
     if(by == "trt"){
-      plot1 <- xyplot(data[,Acol] ~ data[,Ci.col] | factor(data[,trt.col]),
+      plot1 <- lattice::xyplot(data[,Acol] ~ data[,Ci.col] | factor(data[,trt.col]),
                       ylab = ylab, type = type,
                       xlab = xlab)
       plot(plot1)
     }else{
-      plot1 <- xyplot(data[,Acol] ~ data[,Ci.col] | factor(data[,id.col]),
+      plot1 <- lattice::xyplot(data[,Acol] ~ data[,Ci.col] | factor(data[,id.col]),
                       ylab = ylab, type = type,
                       xlab = xlab)
       plot(plot1)
@@ -59,12 +59,12 @@ plotAC <- function(data,fittd,
   }else{
     stopifnot(length(fittd) == nrow(data))
     if(by == "trt"){
-      plot1 <- xyplot(data[,Acol] + fittd ~ data[,Ci.col] | factor(data[,trt.col]),
+      plot1 <- lattice::xyplot(data[,Acol] + fittd ~ data[,Ci.col] | factor(data[,trt.col]),
                       ylab = ylab, type = type,
                       xlab = xlab)
       plot(plot1)
     }else{
-      plot1 <- xyplot(data[,Acol] + fittd ~ data[,Ci.col] | factor(data[,id.col]),
+      plot1 <- lattice::xyplot(data[,Acol] + fittd ~ data[,Ci.col] | factor(data[,id.col]),
                       ylab = ylab, type = type,
                       xlab = xlab)
       plot(plot1)
