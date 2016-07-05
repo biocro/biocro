@@ -12,39 +12,45 @@
 ##'
 ##' @aliases BioGro print.BioGro soilParms nitroParms phenoParms photoParms
 ##' canopyParms seneParms centuryParms showSoilType SoilType
-##' @param WetDat weather data as produced by the \code{\link{weach}} function.
-##' @param day1 first day of the growing season, (1--365).
-##' @param dayn last day of the growing season, (1--365, but larger than
+##' @param WetDat Weather data as produced by the \code{\link{weach}} function.
+##' @param day1 First day of the growing season (1--365).
+##' @param dayn Last day of the growing season (1--365, but larger than
 ##' \code{day1}). See details.
-##' @param timestep Simulation timestep, the default of 1 requires houlry
+##' @param timestep Simulation timestep; the default of 1 requires hourly
 ##' weather data. A value of 3 would require weather data every 3 hours.  This
 ##' number should be a divisor of 24.
-##' @param lat latitude, default 40.
-##' @param iRhizome initial dry biomass of the Rhizome (Mg \eqn{ha^{-1}}).
-##' @param irtl Initial rhizome proportion that becomes leaf. This should not
-##' typically be changed, but it can be used to indirectly control the effect
-##' of planting density.
+##' @param lat Latitude (default 40).
+##' @param iRhizome Initial dry biomass of the Rhizome (Mg \eqn{ha^{-1}}; default 7).
+##' @param iLeaf (default \eqn{iRhizome * 1e-04}) 
+##' @param iStem (default \eqn{iRhizome * 0.001})
+##' @param iRoot (default \eqn{iRhizome * 0.001})
 ##' @param canopyControl List that controls aspects of the canopy simulation.
 ##' It should be supplied through the \code{canopyParms} function.
 ##'
-##' \code{Sp} (specific leaf area) here the units are ha \eqn{Mg^{-1}}.  If you
-##' have data in \eqn{m^2} of leaf per kg of dry matter (e.g. 15) then divide
+##' \code{Sp} (specific leaf area) Here the units are ha \eqn{Mg^{-1}}.  If you
+##' have data in \eqn{m^2} of leaf per kg of dry matter (e.g. 15), then divide
 ##' by 10 before inputting this coefficient.
 ##'
+##' \code{SpD}
+##'
 ##' \code{nlayers} (number of layers of the canopy) Maximum 50. To increase the
-##' number of layers (more than 50) the \code{C} source code needs to be
+##' number of layers (more than 50), the \code{C} source code needs to be
 ##' changed slightly.
 ##'
-##' \code{kd} (extinction coefficient for diffuse light) between 0 and 1.
+##' \code{kd} (extinction coefficient for diffuse light) Between 0 and 1.
 ##'
-##' \code{mResp} (maintenance respiration) a vector of length 2 with the first
+##' \code{chi.l}
+##'
+##' \code{mResp} (maintenance respiration) A vector of length 2 with the first
 ##' component for leaf and stem and the second component for rhizome and root.
 ##'
-##' \code{leafwidth} Leaf width which is incorporated in the calculation of
-##' transpiration
+##' \code{heightFactor}
 ##'
-##' \code{eteq} choice of evapo-transpiration equation.
-##' The options are "Penman-Monteith", "Penman" (this for potential) and "Priestly"
+##' \code{leafwidth} Leaf width which is incorporated in the calculation of
+##' transpiration.
+##'
+##' \code{eteq} Choice of evapo-transpiration equation.
+##' The options are "Penman-Monteith", "Penman" (this for potential), and "Priestly".
 ##' 
 ##' @param seneControl List that controls aspects of senescence simulation. It
 ##' should be supplied through the \code{seneParms} function.
@@ -56,6 +62,7 @@
 ##' \code{senRoot} Thermal time at which root senescence will start.
 ##'
 ##' \code{senRhizome} Thermal time at which rhizome senescence will start.
+##'
 ##' @param photoControl List that controls aspects of photosynthesis
 ##' simulation. It should be supplied through the \code{photoParms} function.
 ##'
@@ -77,35 +84,36 @@
 ##'
 ##' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
 ##'
-##' \code{ws} whether the stress should be applied to stomatal
-##' conductance or photosynthesis
+##' \code{StomWS}
 ##'
-##' \code{uppertemp} upper temperature response control
+##' \code{ws} Whether the stress should be applied to stomatal
+##' conductance or photosynthesis.
 ##'
-##' \code{lowertemp} lower temperature response control
+##' \code{uppertemp} Upper temperature response control.
+##'
+##' \code{lowertemp} Lower temperature response control.
 ##' 
 ##' @param phenoControl List that controls aspects of the crop phenology. It
 ##' should be supplied through the \code{phenoParms} function.
 ##'
-##' \code{tp1-tp6} thermal times which determine the time elapsed between
+##' \code{tp1}--\code{tp6} Thermal times which determine the time elapsed between
 ##' phenological stages. Between 0 and tp1 is the juvenile stage. etc.
 ##'
-##' \code{kLeaf1-6} proportion of the carbon that is allocated to leaf for
+##' \code{kLeaf1}--\code{kLeaf6} Proportion of the carbon that is allocated to leaf for
 ##' phenological stages 1 through 6.
 ##'
-##' \code{kStem1-6} proportion of the carbon that is allocated to stem for
+##' \code{kStem1}--\code{kStem6} Proportion of the carbon that is allocated to stem for
 ##' phenological stages 1 through 6.
 ##'
-##' \code{kRoot1-6} proportion of the carbon that is allocated to root for
+##' \code{kRoot1}--\code{kRoot6} Proportion of the carbon that is allocated to root for
 ##' phenological stages 1 through 6.
 ##'
-##' \code{kRhizome1-6} proportion of the carbon that is allocated to rhizome
+##' \code{kRhizome1}--\code{kRhizome6} Proportion of the carbon that is allocated to rhizome
 ##' for phenological stages 1 through 6.
 ##'
-##' \code{kGrain1-6} proportion of the carbon that is allocated to grain for
-##' phenological stages 1 through 6. At the moment only the last stage (i.e. 6
-##' or post-flowering) is allowed to be larger than zero. An error will be
-##' returned if kGrain1-5 are different from zero.
+##' \code{kGrain6} Proportion of the carbon that is allocated to grain for
+##' phenological stage 6.
+##'
 ##' @param soilControl List that controls aspects of the soil environment. It
 ##' should be supplied through the \code{soilParms} function.
 ##'
@@ -131,17 +139,23 @@
 ##' \code{soilType} Soil type, default is 6 (a more typical soil would be 3).
 ##' To see details use the function \code{\link{showSoilType}}.
 ##'
-##' \code{soilLayer} Integer between 1 and 50. The default is 5. If only one
+##' \code{soilLayers} Integer between 1 and 50. The default is 1. If only one
 ##' soil layer is used the behavior can be quite different.
 ##'
 ##' \code{soilDepths} Intervals for the soil layers.
 ##'
-##' \code{wsFun} one of 'logistic','linear','exp' or 'none'. Controls the
+##' \code{hydrDist}
+##'
+##' \code{wsFun} One of "logistic", "linear", "exp", or "none".  Controls the
 ##' method for the relationship between soil water content and water stress
 ##' factor.
 ##'
-##' \code{scsf} stomatal conductance sensitivity factor (default = 1). This is
+##' \code{scsf} Stomatal conductance sensitivity factor (default = 1). This is
 ##' an empirical coefficient that needs to be adjusted for different species.
+##'
+##' \code{transpRes}
+##'
+##' \code{leafPotTh}
 ##'
 ##' \code{rfl} Root factor lambda. A Poisson distribution is used to simulate
 ##' the distribution of roots in the soil profile and this parameter can be
@@ -155,19 +169,11 @@
 ##' @param nitroControl List that controls aspects of the nitrogen environment.
 ##' It should be supplied through the \code{nitrolParms} function.
 ##'
-##' \code{iLeafN} initial value of leaf nitrogen (g m-2).
-##'
-##' \code{kLN} coefficient of decrease in leaf nitrogen during the growing
-##' season. The equation is LN = iLeafN * (Stem + Leaf)^-kLN .
-##'
-##' \code{Vmax.b1} slope which determines the effect of leaf nitrogen on Vmax.
-##'
-##' \code{alpha.b1} slope which controls the effect of leaf nitrogen on alpha.
 ##' @param centuryControl List that controls aspects of the Century model for
 ##' carbon and nitrogen dynamics in the soil. It should be supplied through the
 ##' \code{centuryParms} function.
 ##'
-##' \code{SC1-9} Soil carbon pools in the soil.  SC1: Structural surface
+##' \code{SC1}--\code{SC9} Soil carbon pools in the soil.  SC1: Structural surface
 ##' litter.  SC2: Metabolic surface litter.  SC3: Structural root litter.  SC4:
 ##' Metabolic root litter.  SC5: Surface microbe.  SC6: Soil microbe.  SC7:
 ##' Slow carbon.  SC8: Passive carbon.  SC9: Leached carbon.
@@ -178,7 +184,7 @@
 ##'
 ##' \code{RootL.Ln} Root litter lignin content.
 ##'
-##' \code{RhizomeL.Ln} Rhizome litter lignin content.
+##' \code{RhizL.Ln} Rhizome litter lignin content.
 ##'
 ##' \code{LeafL.N} Leaf litter nitrogen content.
 ##'
@@ -186,7 +192,7 @@
 ##'
 ##' \code{RootL.N} Root litter nitrogen content.
 ##'
-##' \code{RhizomeL.N} Rhizome litter nitrogen content.
+##' \code{RhizL.N} Rhizome litter nitrogen content.
 ##'
 ##' \code{Nfert} Nitrogen from a fertilizer source.
 ##'
@@ -195,36 +201,39 @@
 ##' \code{Litter} Initial values of litter (leaf, stem, root, rhizome).
 ##'
 ##' \code{timestep} currently either week (default) or day.
+##'
+##' \code{Ks}
+##'
 ##' @export
 ##' @return
 ##'
 ##' a \code{\link{list}} structure with components
-##' \itemize{
-##' \item DayofYear Day of the year
-##' \item Hour Hour for each day
-##' \item CanopyAssim Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
-##' \eqn{hr^-1}).
-##' \item CanopyTrans Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
-##' \eqn{hr^-1}).
-##' \item Leaf leaf dry biomass (Mg \eqn{ha^-1}).
-##' \item Stem stem dry biomass(Mg \eqn{ha^-1}).
-##' \item Root root dry biomass (Mg \eqn{ha^-1}).
-##' \item Rhizome rhizome dry biomass (Mg \eqn{ha^-1}).
-##' \item LAI leaf area index (\eqn{m^2} \eqn{m^-2}).
-##' \item ThermalT thermal time (Celsius \eqn{day^-1}).
-##' \item StomatalCondCoefs Coefficeint which determines the effect of
-##' water stress on stomatal conductance and photosynthesis.
-##' \item LeafReductionCoefs Coefficient which determines the effect of
-##' water stress on leaf expansion reduction.
-##' \item LeafNitrogen Leaf nitrogen.
-##' \item AboveLitter Above ground biomass litter (Leaf + Stem).
-##' \item BelowLitter Below ground biomass litter (Root + Rhizome).
-##' \item VmaxVec Value of Vmax during the growing season.
-##' \item AlphaVec Value of alpha during the growing season.
-##' \item SpVec Value of the specific leaf area.
-##' \item MinNitroVec Nitrogen in the mineral pool.
-##' \item RespVec Soil respiration.
-##' \item SoilEvaporation Soil Evaporation.
+##' \describe{
+##' \item{DayofYear}{Day of the year}
+##' \item{Hour}{Hour for each day}
+##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
+##' \eqn{hr^-1}).}
+##' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
+##' \eqn{hr^-1}).}
+##' \item{Leaf}{leaf dry biomass (Mg \eqn{ha^-1}).}
+##' \item{Stem}{stem dry biomass(Mg \eqn{ha^-1}).}
+##' \item{Root}{root dry biomass (Mg \eqn{ha^-1}).}
+##' \item{Rhizome}{rhizome dry biomass (Mg \eqn{ha^-1}).}
+##' \item{LAI}{leaf area index (\eqn{m^2} \eqn{m^-2}).}
+##' \item{ThermalT}{thermal time (Celsius \eqn{day^-1}).}
+##' \item{StomatalCondCoefs}{Coefficeint which determines the effect of
+##' water stress on stomatal conductance and photosynthesis.}
+##' \item{LeafReductionCoefs}{Coefficient which determines the effect of
+##' water stress on leaf expansion reduction.}
+##' \item{LeafNitrogen}{Leaf nitrogen.}
+##' \item{AboveLitter}{Above ground biomass litter (Leaf + Stem).}
+##' \item{BelowLitter}{Below ground biomass litter (Root + Rhizome).}
+##' \item{VmaxVec}{Value of Vmax during the growing season.}
+##' \item{AlphaVec}{Value of alpha during the growing season.}
+##' \item{SpVec}{Value of the specific leaf area.}
+##' \item{MinNitroVec}{Nitrogen in the mineral pool.}
+##' \item{RespVec}{Soil respiration.}
+##' \item{SoilEvaporation}{Soil Evaporation.}
 ##' }
 ##' @keywords models
 ##' @examples
@@ -594,6 +603,9 @@ seneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
 ##' @param rhizome whether to plot simulated rhizome (default = TRUE).
 ##' @param grain whether to plot simulated grain (default = TRUE).
 ##' @param LAI whether to plot simulated LAI (default = TRUE).
+##' @param xlab (default NULL)
+##' @param ylab (default NULL)
+##' @param ylim (default NULL)
 ##' @param pch point character.
 ##' @param lty line type.
 ##' @param lwd line width.
