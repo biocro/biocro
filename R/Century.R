@@ -32,7 +32,6 @@
 ##' @param leachWater Leached water.
 ##' @param centuryControl See \code{\link{centuryParms}}.
 ##' @param verbose Only used in the R version for debugging.
-##' @param soilType See \code{\link{showSoilType}}.
 ##' @export
 ##' @return A list with,
 ##' \itemize{

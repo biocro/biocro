@@ -41,6 +41,9 @@
 ##'
 ##' lnb1: Slope of the linear decline of leaf nitrogen in the depth of the
 ##' canopy. The equation is 'vmax = leafN_lay * lnb1 + lnb0'.
+##'
+##' @param StomWS FILL IN HERE
+##'
 ##' @export
 ##' @return
 ##'

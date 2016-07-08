@@ -71,10 +71,13 @@
 #' \code{b0} b0 parameter passed to the \code{\link{c4photo}} function.
 #' 
 #' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
+#'
 #' @param MaizePhenoControl argument used to pass parameters related to
-#' phenology characteristics 
+#' phenology characteristics
+#' @param MaizeCAllocControl FILL IN HERE
+#' @param laiControl FILL IN HERE
 #' @param soilControl see \code{\link{BioGro}} function
-#' @param nitroControl see \code{\link{BioGro}} function
+#' @param MaizeNitroControl FILL IN HERE
 #' @param centuryControl see \code{\link{BioGro}} function
 #' @return
 #' 

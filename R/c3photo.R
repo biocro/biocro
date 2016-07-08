@@ -15,6 +15,8 @@
 ##' @param b0 Intercept for the Ball-Berry model
 ##' @param b1 Slope for the Ball-Berry model
 ##' @param theta Curvature parameter
+##' @param StomWS FILL IN HERE
+##' @param ws FILL IN HERE
 ##' @export
 ##' @return A list
 ##' \itemize{

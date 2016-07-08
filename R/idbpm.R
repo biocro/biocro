@@ -1,7 +1,7 @@
 ##  BioCro/R/idbpm.R by Fernando Ezequiel Miguez  Copyright (C) 2012
 
 ##' This estimates initial dry biomass partitioning coefficients based on data for an annual grass
-##' @title idpm
+##' @title idbpm
 ##' @param data data frame
 ##'      ThermalT     Stem    Leaf    Root Grain     LAI
 ##' 1       0.211  0.00733 0.00104 0.00704     0 0.00119

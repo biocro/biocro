@@ -148,6 +148,25 @@
 ##' \code{Vmax.b1} slope which determines the effect of leaf nitrogen on Vmax.
 ##'
 ##' \code{alpha.b1} slope which controls the effect of leaf nitrogen on alpha.
+##'
+##' @param SOMpoolsControl FILL IN HERE
+##'
+##' @param SOMAssignParmsControl FILL IN HERE
+##'
+##' @param GetCropCentStateVarParmsControl FILL IN HERE
+##'
+##' @param GetSoilTextureParmsControl FILL IN HERE
+##'
+##' @param GetBioCroToCropcentParmsControl FILL IN HERE
+##'
+##' @param GetErosionParmsControl FILL IN HERE
+##'
+##' @param GetC13ParmsControl FILL IN HERE
+##'
+##' @param GetLeachingParmsControl FILL IN HERE
+##'
+##' @param GetSymbNFixationParmsControl FILL IN HERE
+##'
 ##' @param centuryControl List that controls aspects of the Century model for
 ##' carbon and nitrogen dynamics in the soil. It should be supplied through the
 ##' \code{centuryParms} function.

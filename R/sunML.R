@@ -10,9 +10,9 @@
 ##' sunlit-shade model and the multiple layers.
 ##'
 ##'
-##' @param I.dir direct light (quantum flux), (\eqn{\mu mol \; m^{-2} \;
+##' @param Idir direct light (quantum flux), (\eqn{\mu mol \; m^{-2} \;
 ##' s^{-1}}{micro mol /m2/s}).
-##' @param I.diff indirect light (diffuse), (\eqn{\mu mol \; m^{-2} \;
+##' @param Idiff indirect light (diffuse), (\eqn{\mu mol \; m^{-2} \;
 ##' s^{-1}}{micro mol /m2/s}).
 ##' @param LAI leaf area index, default 8.
 ##' @param nlayers number of layers in which the canopy is partitioned, default
@@ -21,6 +21,7 @@
 ##' @param chi.l The ratio of horizontal:vertical projected area of leaves in
 ##' the canopy segment.
 ##' @param cos.theta cosine of \eqn{\theta}{theta}, solar zenith angle.
+##' @param heightf FILL IN HERE
 ##' @export
 ##' @return a \code{\link{list}} structure with components
 ##'

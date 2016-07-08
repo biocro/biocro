@@ -31,7 +31,9 @@
 ##' @param timestep Timestep see \code{\link{BioGro}}.
 ##' @param lat latitude.
 ##' @param iRhizome initial rhizome biomass.
-##' @param irtl See \code{\link{BioGro}}.
+##' @param iLeaf FILL IN HERE
+##' @param iStem FILL IN HERE
+##' @param iRoot FILL IN HERE
 ##' @param canopyControl See \code{\link{canopyParms}}.
 ##' @param seneControl See \code{\link{seneParms}}.
 ##' @param photoControl See \code{\link{photoParms}}.

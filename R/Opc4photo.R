@@ -30,6 +30,8 @@
 ##' @param ib1 initial value for the Ball-Berry slope.
 ##' @param iStomWS initial value for the stomata water stress factor.
 ##' @param ws \code{ws} flag. See \code{\link{c4photo}}.
+##' @param iupperT FILL IN HERE
+##' @param ilowerT FILL IN HERE
 ##' @param response Use \code{'Assim'} if you want to optimize assimilation
 ##' data and use \code{'StomCond'} if you want to optimize stomatal conductance
 ##' data. The parameters optimized will be different.
@@ -438,6 +440,8 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
 ##' \code{\link{c4photo}} function.
 ##' @param Rd Rd as in Collatz (default = 0.8); for more details see the
 ##' \code{\link{c4photo}} function.
+##' @param iupperT FILL IN HERE
+##' @param ilowerT FILL IN HERE
 ##' @param StomWS StomWS as in Collatz (default = 1); for more details see the
 ##' \code{\link{c4photo}} function.
 ##' @param Catm Atmospheric CO2 in ppm (or \eqn{\mu}mol/mol).
@@ -835,6 +839,8 @@ plot.Opc4photo <- function(x,plot.kind=c("RvsF","OandF","OvsF"),resid=c("std","r
 ##' of length equal to the number of runs.
 ##' @param iRd Initial value for vmax. It can be a single value or a vector of
 ##' length equal to the number of runs.
+##' @param iupperT FILL IN HERE
+##' @param ilowerT FILL IN HERE
 ##' @param ikparm Initial value for vmax. It can be a single value or a vector
 ##' of length equal to the number of runs.
 ##' @param itheta Initial value for vmax. It can be a single value or a vector

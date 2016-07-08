@@ -364,7 +364,7 @@ print.MCMCEc4photo <- function(x,level=0.95,...){
   cat("\n R-squared range:",range(x$resuMC[4,]),"\n")
   invisible(x)
 }
-##' Plottin function for MCMCEc4photo objects
+##' Plotting function for MCMCEc4photo objects
 ##'
 ##' By default it prints the trace of the four parameters being estimated by
 ##' the \code{\link{MCMCEc4photo}} function. As an option the density can be
