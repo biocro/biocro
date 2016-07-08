@@ -166,8 +166,26 @@
 ##'
 ##' \code{rsdf} Root soil depth factor. Empirical coefficient used in
 ##' calculating the depth of roots as a function of root biomass.
+##'
 ##' @param nitroControl List that controls aspects of the nitrogen environment.
-##' It should be supplied through the \code{nitrolParms} function.
+##' It should be supplied through the \code{nitroParms} function.
+##'
+##' \code{iLeafN} initial value of leaf nitrogen (g m-2).
+##'
+##' \code{kLN} coefficient of decrease in leaf nitrogen during the growing
+##' season. The equation is LN = iLeafN * (Stem + Leaf)^-kLN .
+##'
+##' \code{Vmax.b1} slope which determines the effect of leaf nitrogen on Vmax.
+##'
+##' \code{alpha.b1} slope which controls the effect of leaf nitrogen on alpha.
+##'
+##' \code{kpLN} FILL IN HERE
+##'
+##' \code{lnb0} FILL IN HERE
+##'
+##' \code{lnb1} FILL IN HERE
+##'
+##' \code{lnFun} FILL IN HERE
 ##'
 ##' @param centuryControl List that controls aspects of the Century model for
 ##' carbon and nitrogen dynamics in the soil. It should be supplied through the
