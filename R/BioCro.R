@@ -19,29 +19,29 @@
 ##' @param timestep Simulation timestep; the default of 1 requires hourly
 ##' weather data. A value of 3 would require weather data every 3 hours.  This
 ##' number should be a divisor of 24.
-##' @param lat Latitude (default 40).
-##' @param iRhizome Initial dry biomass of the Rhizome (Mg \eqn{ha^{-1}}; default 7).
-##' @param iLeaf (default \eqn{iRhizome * 1e-04}) 
-##' @param iStem (default \eqn{iRhizome * 0.001})
-##' @param iRoot (default \eqn{iRhizome * 0.001})
+##' @param lat Latitude (degrees north; default 40).
+##' @param iRhizome Initial dry biomass of the Rhizome (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}; default 7).
+##' @param iLeaf (default \code{iRhizome * 1e-04})
+##' @param iStem (default \code{iRhizome * 0.001})
+##' @param iRoot (default \code{iRhizome * 0.001})
 ##' @param canopyControl List that controls aspects of the canopy simulation.
 ##' It should be supplied through the \code{canopyParms} function.
 ##'
-##' \code{Sp} (specific leaf area) Here the units are ha \eqn{Mg^{-1}}.  If you
-##' have data in \eqn{m^2} of leaf per kg of dry matter (e.g. 15), then divide
+##' \code{Sp} (specific leaf area) Here the units are ha \eqn{\mathrm{Mg}^{-1}}{Mg-1}.  If you
+##' have data in \eqn{\mathrm{m}^2}{m^2} of leaf per kg of dry matter (e.g. 15), then divide
 ##' by 10 before inputting this coefficient.
 ##'
 ##' \code{SpD}
 ##'
-##' \code{nlayers} (number of layers of the canopy) Maximum 50. To increase the
+##' \code{nlayers} Number of layers of the canopy (maximum 50). To increase the
 ##' number of layers (more than 50), the \code{C} source code needs to be
 ##' changed slightly.
 ##'
-##' \code{kd} (extinction coefficient for diffuse light) Between 0 and 1.
+##' \code{kd} Extinction coefficient for diffuse light (0--1).
 ##'
 ##' \code{chi.l}
 ##'
-##' \code{mResp} (maintenance respiration) A vector of length 2 with the first
+##' \code{mResp} Maintenance respiration: A vector of length 2 with the first
 ##' component for leaf and stem and the second component for rhizome and root.
 ##'
 ##' \code{heightFactor}
@@ -51,7 +51,7 @@
 ##'
 ##' \code{eteq} Choice of evapo-transpiration equation.
 ##' The options are "Penman-Monteith", "Penman" (this for potential), and "Priestly".
-##' 
+##'
 ##' @param seneControl List that controls aspects of senescence simulation. It
 ##' should be supplied through the \code{seneParms} function.
 ##'
@@ -92,7 +92,7 @@
 ##' \code{uppertemp} Upper temperature response control.
 ##'
 ##' \code{lowertemp} Lower temperature response control.
-##' 
+##'
 ##' @param phenoControl List that controls aspects of the crop phenology. It
 ##' should be supplied through the \code{phenoParms} function.
 ##'
@@ -136,7 +136,7 @@
 ##' growing season. It can be a single value or a vector for the number of
 ##' layers specified.
 ##'
-##' \code{soilType} Soil type, default is 6 (a more typical soil would be 3).
+##' \code{soilType} Soil type; default is 6 (a more typical soil would be 3).
 ##' To see details use the function \code{\link{showSoilType}}.
 ##'
 ##' \code{soilLayers} Integer between 1 and 50. The default is 1. If only one
@@ -170,14 +170,14 @@
 ##' @param nitroControl List that controls aspects of the nitrogen environment.
 ##' It should be supplied through the \code{nitroParms} function.
 ##'
-##' \code{iLeafN} initial value of leaf nitrogen (g m-2).
+##' \code{iLeafN} initial value of leaf nitrogen (g \eqn{\mathrm{m}^{-2}}{m-2}).
 ##'
-##' \code{kLN} coefficient of decrease in leaf nitrogen during the growing
-##' season. The equation is LN = iLeafN * (Stem + Leaf)^-kLN .
+##' \code{kLN} Coefficient of decrease in leaf nitrogen during the growing
+##' season. The equation is \code{LN = iLeafN * (Stem + Leaf)^-kLN} .
 ##'
-##' \code{Vmax.b1} slope which determines the effect of leaf nitrogen on Vmax.
+##' \code{Vmax.b1} Slope which determines the effect of leaf nitrogen on Vmax.
 ##'
-##' \code{alpha.b1} slope which controls the effect of leaf nitrogen on alpha.
+##' \code{alpha.b1} Slope which controls the effect of leaf nitrogen on alpha.
 ##'
 ##' \code{kpLN} FILL IN HERE
 ##'
@@ -218,7 +218,7 @@
 ##'
 ##' \code{Litter} Initial values of litter (leaf, stem, root, rhizome).
 ##'
-##' \code{timestep} currently either week (default) or day.
+##' \code{timestep} Currently either week (default) or day.
 ##'
 ##' \code{Ks}
 ##'
@@ -227,25 +227,25 @@
 ##'
 ##' a \code{\link{list}} structure with components
 ##' \describe{
-##' \item{DayofYear}{Day of the year}
-##' \item{Hour}{Hour for each day}
-##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
-##' \eqn{hr^-1}).}
-##' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
-##' \eqn{hr^-1}).}
-##' \item{Leaf}{leaf dry biomass (Mg \eqn{ha^-1}).}
-##' \item{Stem}{stem dry biomass(Mg \eqn{ha^-1}).}
-##' \item{Root}{root dry biomass (Mg \eqn{ha^-1}).}
-##' \item{Rhizome}{rhizome dry biomass (Mg \eqn{ha^-1}).}
-##' \item{LAI}{leaf area index (\eqn{m^2} \eqn{m^-2}).}
-##' \item{ThermalT}{thermal time (Celsius \eqn{day^-1}).}
+##' \item{DayofYear}{Day of the year.}
+##' \item{Hour}{Hour for each day.}
+##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{\mathrm{ha}^{-1}}{ha-1} ground
+##' \eqn{\mathrm{hr}^{-1}}{hr-1}).}
+##' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{\mathrm{ha}^{-1}}{ha-1} ground
+##' \eqn{\mathrm{hr}^{-1}}{hr-1}).}
+##' \item{Leaf}{Leaf dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
+##' \item{Stem}{Stem dry biomass(Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
+##' \item{Root}{Root dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
+##' \item{Rhizome}{Rhizome dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
+##' \item{LAI}{Leaf area index (\eqn{\mathrm{m}^2}{m^2} \eqn{\mathrm{m}^{-2}}{m-2}).}
+##' \item{ThermalT}{Thermal time (\eqn{{}^\circ \mathrm{C}\,\mathrm{d}^{-1}}{degrees Celsius per day}).}
 ##' \item{StomatalCondCoefs}{Coefficeint which determines the effect of
 ##' water stress on stomatal conductance and photosynthesis.}
 ##' \item{LeafReductionCoefs}{Coefficient which determines the effect of
 ##' water stress on leaf expansion reduction.}
 ##' \item{LeafNitrogen}{Leaf nitrogen.}
-##' \item{AboveLitter}{Above ground biomass litter (Leaf + Stem).}
-##' \item{BelowLitter}{Below ground biomass litter (Root + Rhizome).}
+##' \item{AboveLitter}{Above ground biomass litter (\code{Leaf + Stem}).}
+##' \item{BelowLitter}{Below ground biomass litter (\code{Root + Rhizome}).}
 ##' \item{VmaxVec}{Value of Vmax during the growing season.}
 ##' \item{AlphaVec}{Value of alpha during the growing season.}
 ##' \item{SpVec}{Value of the specific leaf area.}
@@ -610,27 +610,27 @@ seneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
 ##' object. Optionally, the observed data can be plotted.
 ##'
 ##' This function uses internally \code{\link[lattice]{xyplot}} in the
-##' 'lattice' package.
+##' `lattice' package.
 ##'
 ##' @param x \code{\link{BioGro}} object.
-##' @param obs optional observed data object (format following the
-##' \code{\link{OpBioGro}} function .
-##' @param stem whether to plot simulated stem (default = TRUE).
-##' @param leaf whether to plot simulated leaf (default = TRUE).
-##' @param root whether to plot simulated root (default = TRUE).
-##' @param rhizome whether to plot simulated rhizome (default = TRUE).
-##' @param grain whether to plot simulated grain (default = TRUE).
-##' @param LAI whether to plot simulated LAI (default = TRUE).
+##' @param obs Optional observed data object (format following the
+##' \code{\link{OpBioGro}} function).
+##' @param stem Whether to plot simulated stem (default = TRUE).
+##' @param leaf Whether to plot simulated leaf (default = TRUE).
+##' @param root Whether to plot simulated root (default = TRUE).
+##' @param rhizome Whether to plot simulated rhizome (default = TRUE).
+##' @param grain Whether to plot simulated grain (default = TRUE).
+##' @param LAI Whether to plot simulated LAI (default = TRUE).
 ##' @param xlab (default NULL)
 ##' @param ylab (default NULL)
 ##' @param ylim (default NULL)
-##' @param pch point character.
-##' @param lty line type.
-##' @param lwd line width.
+##' @param pch Point character.
+##' @param lty Line type.
+##' @param lwd Line width.
 ##' @param col Control of colors.
-##' @param x1 position of the legend. x coordinate (0-1).
-##' @param y1 position of the legend. y coordinate (0-1).
-##' @param plot.kind DB plots dry biomass, SW plots soil water, ET plots evapotranspiration, cumET plots cumulative evapotranspiration and stress plots the leaf-level photosynthesis stress and the leaf expansion photosynthesis
+##' @param x1 Position of the legend x coordinate (0--1).
+##' @param y1 Position of the legend y coordinate (0--1).
+##' @param plot.kind DB plots dry biomass, SW plots soil water, ET plots evapotranspiration, cumET plots cumulative evapotranspiration, and stress plots the leaf-level photosynthesis stress and the leaf expansion photosynthesis.
 ##' @param \dots Optional arguments.
 ##' @seealso \code{\link{BioGro}} \code{\link{OpBioGro}}
 ##' @keywords hplot
