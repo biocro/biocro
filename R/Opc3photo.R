@@ -54,7 +54,7 @@
 ##' \item{op.level}{Level 1 means \code{vcmax} and \code{jmax} were
 ##' optimized; level 2 \code{vcmax}, \code{jmax}, and \code{Rd} were.}
 ##' \item{response}{\code{'Assim'} or \code{'StomCond'}.}
-##' }
+##'
 ##' @note ~~further notes~~ Additional notes about the assumptions.
 ##'
 ##' @author Fernando E. Miguez

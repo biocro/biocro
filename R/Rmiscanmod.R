@@ -41,52 +41,52 @@
 ##' Simple model to calculate crop growth and yield based on MISCANMOD (see
 ##' references).
 ##'
-##' The data.frame or matrix should contain
+##' The data.frame or matrix should contain:
 ##'
-##' column 1: year column 2: month column 3: day column 4: JD column 5: max T
-##' (Celsius) column 6: min T (Celsius) column 7: PPFD or solar radiation
-##' divided by 2 (MJ/m2) column 8: Potential evaporation column 9: precip (mm)
+##' column 1: Year. column 2: Month. column 3: Day. column 4: JD. column 5: Max T
+##' (Celsius). column 6: Min T (Celsius). column 7: PPFD or solar radiation
+##' divided by 2 (MJ/m2). column 8: Potential evaporation. column 9: Precip (mm).
 ##'
 ##' @param data data.frame or matrix described in details.
 ##' @param RUE Radiation use efficiency (g/MJ).
 ##' @param LER Leaf expansion rate LAI/GDD.
-##' @param Tb Base Temperature (Celsius).
-##' @param k extinction coefficient of light in the canopy.
-##' @param LAIdrd Leaf Area Index 'down regulation decline'.
-##' @param LAIStop Leaf Area Index 'down regulation decline' threshold .
-##' @param RUEdrd Radiation Use Efficieny 'down regulation decline'.
-##' @param RUEStop Radiation Use Efficieny 'down regulation decline' threshold.
-##' @param SMDdrd Soil Moisture Deficit 'down regulation decline'.
-##' @param SMDStop Soil Moisture Deficit 'down regulation decline' threshold.
+##' @param Tb Base temperature (Celsius).
+##' @param k Extinction coefficient of light in the canopy.
+##' @param LAIdrd Leaf Area Index `down regulation decline'.
+##' @param LAIStop Leaf Area Index `down regulation decline' threshold .
+##' @param RUEdrd Radiation Use Efficieny `down regulation decline'.
+##' @param RUEStop Radiation Use Efficieny `down regulation decline' threshold.
+##' @param SMDdrd Soil Moisture Deficit `down regulation decline'.
+##' @param SMDStop Soil Moisture Deficit `down regulation decline' threshold.
 ##' @param FieldC Soil field capacity.
 ##' @param iWatCont Initial water content.
 ##' @param a Soil parameter.
 ##' @param b Soil parameter.
 ##' @param soildepth Soil depth.
 ##' @export
-##' @return returns a list
-##' \itemize{
-##' \item PotEvp Potential Evaporation.
-##' \item Deficitp Deficitp
-##' \item SMDp Soil Moisture Deficit (potential)
-##' \item AE.PE Actual Evaporation / Potential Evaporation
-##' \item Deficitp2 Deficitp2
-##' \item SMDa Soil Moisture Deficit (actual)
-##' \item diffRainPE difference between Rainfall and potential
-##' evaporation.
-##' \item H2oper H2O percent.
-##' \item SoilMoist Soil Moisture.
-##' \item SoilMatPot Soil Matric Potential.
-##' \item WL.LER Water limited Leaf Expansion Rate.
-##' \item WL.RUE Water limited Radiation Use Efficiency.
-##' \item DDaTb Degree Days above base Temperature.
-##' \item DDcum Degree Days (cumulative).
-##' \item adjSumDD adjusted Sum of Degree Days.
-##' \item LAI Leaf Area Index.
-##' \item pLI proportion of light intercepted.
-##' \item Yield Yield (dry biomass) (g/m2) to convert to Mg/ha divide by
-##' 100.
-##' }
+##' @return Returns a list with these components:
+##'
+##' \item{PotEvp}{Potential Evaporation.}
+##' \item{Deficitp}{Deficitp.}
+##' \item{SMDp}{Soil Moisture Deficit (potential).}
+##' \item{AE.PE}{Actual Evaporation / Potential Evaporation.}
+##' \item{Deficitp2}{Deficitp2.}
+##' \item{SMDa}{Soil Moisture Deficit (actual).}
+##' \item{diffRainPE}{Difference between Rainfall and potential
+##' evaporation.}
+##' \item{H2oper}{H2O percent.}
+##' \item{SoilMoist}{Soil Moisture.}
+##' \item{SoilMatPot}{Soil Matric Potential.}
+##' \item{WL.LER}{Water limited Leaf Expansion Rate.}
+##' \item{WL.RUE}{Water limited Radiation Use Efficiency.}
+##' \item{DDaTb}{Degree days above base Temperature.}
+##' \item{DDcum}{Degree days (cumulative).}
+##' \item{adjSumDD}{Adjusted sum of degree days.}
+##' \item{LAI}{Leaf Area Index.}
+##' \item{pLI}{Proportion of light intercepted.}
+##' \item{Yield}{Yield (dry biomass) (g/m2); to convert to Mg/ha, divide by
+##' 100.}
+##'
 ##' @references Clifton-Brown, J. C.; Neilson, B.; Lewandowski, I. and Jones,
 ##' M. B. The modelled productivity of Miscanthus x giganteus (GREEF et DEU) in
 ##' Ireland. Industrial Crops and Products, 2000, 12, 97-109.

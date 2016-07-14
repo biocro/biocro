@@ -12,7 +12,7 @@
 ##' @export
 ##' @return Atomic vector with the residual sum of squares.
 ##' @author Fernando E. Miguez
-##' @seealso See Also \code{\link{BioGro}}.
+##' @seealso See also \code{\link{BioGro}}.
 ##' @keywords models
 ##' @examples
 ##'
