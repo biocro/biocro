@@ -1,17 +1,17 @@
 ##  R/Opc3photo.R by Fernando Ezequiel Miguez  Copyright (C) 2009
-## This is the Opc4photo and all of its realted functions
+## This is the Opc4photo and all of its related functions
 ##' Optimize parameters of the C3 photosynthesis model.
 ##'
 ##' Applies the \code{optim} function to C3 photosynthesis.
 ##'
-##'
 ##' @aliases Opc3photo plot.Opc3photo print.Opc3photo predict.Opc3photo
-##' @param data should be a \code{data.frame} or \code{matrix} with x columns
 ##'
-##' col 1: measured assimilation (CO2 uptake) col 2: Incomming PAR
-##' (photosynthetic active radiation) col 3: Leaf temperature col 4: Relative
-##' humidity col 5: Intercellular CO2 (for A/Ci curves) col 6: Reference CO2
-##' level
+##' @param data Should be a \code{data.frame} or \code{matrix} with x columns.
+##'
+##' col 1: Measured assimilation (CO2 uptake). col 2: Incomming PAR
+##' (photosynthetic active radiation). col 3: Leaf temperature. col 4: Relative
+##' humidity. col 5: Intercellular CO2 (for A/Ci curves). col 6: Reference CO2
+##' level.
 ##' @param ivcmax Initial value for \code{vcmax}.
 ##' @param ijmax Initial value for \code{jmax}.
 ##' @param iRd Initial value for \code{Rd}.
@@ -22,43 +22,43 @@
 ##' @param itheta Initial value for \code{theta}.
 ##' @param op.level Level 1 will optimize \code{Vcmax} and \code{Jmax} and
 ##' level 2 will optimize \code{Vcmax}, \code{Jmax} and \code{Rd}.
-##' @param op.method optimization method. At the moment only optim is
+##' @param op.method Optimization method. At the moment only optim is
 ##' implemented.
 ##' @param response \code{'Assim'} for assimilation and \code{'StomCond'} for
 ##' stomatal conductance.
 ##' @param level Confidence interval level.
-##' @param hessian Whether the hessian should be computed
+##' @param hessian Whether the hessian should be computed.
 ##' @param curve.kind Whether an A/Ci curve is being optimized or an A/Q curve.
-##' @param op.ci whether to optimize intercellular CO2.
-##' @param \dots Additioanl arguments to be passed to \code{\link{optim}}.
+##' @param op.ci Whether to optimize intercellular CO2.
+##' @param \dots Additional arguments to be passed to \code{\link{optim}}.
 ##' @export
 ##' @return
 ##'
 ##' An object of class \code{Opc3photo}.
 ##'
 ##' The following components can be extracted:
-##' \itemize{
-##' \item bestVmax optimized \code{vmax}.
-##' \item bestJmax optimized \code{jmax}.
-##' \item ReSumS Residual Sum of Squares.
-##' \item Convergence Convergence status.
-##' \item VarCov Variance-covariance matrix.
-##' \item df degress of freedom.
-##' \item ciVmax Confidence interval for \code{vmax}.
-##' \item ciJmax Confidence interval for \code{jmax}.
-##' \item corVJ correlation between \code{vmax} and \code{jmax}.
-##' \item level Confidence interval level.
-##' \item data Original data.
-##' \item xparms Additional parameters.
-##' \item curve.kind A/Ci or A/Q curve.
-##' \item op.level Level 1 means \code{vcmax} and \code{jmax} were
-##' optimized and level 2 \code{vcmax}, \code{jmax} and \code{Rd}.
-##' \item response \code{'Assim'} or \code{'StomCond'}.
+##'
+##' \item{bestVmax}{Optimized \code{vmax}.}
+##' \item{bestJmax}{Optimized \code{jmax}.}
+##' \item{ReSumS}{Residual Sum of Squares.}
+##' \item{Convergence}{Convergence status.}
+##' \item{VarCov}{Variance-covariance matrix.}
+##' \item{df}{Degress of freedom.}
+##' \item{ciVmax}{Confidence interval for \code{vmax}.}
+##' \item{ciJmax}{Confidence interval for \code{jmax}.}
+##' \item{corVJ}{Correlation between \code{vmax} and \code{jmax}.}
+##' \item{level}{Confidence interval level.}
+##' \item{data}{Original data.}
+##' \item{xparms}{Additional parameters.}
+##' \item{curve.kind}{A/Ci or A/Q curve.}
+##' \item{op.level}{Level 1 means \code{vcmax} and \code{jmax} were
+##' optimized; level 2 \code{vcmax}, \code{jmax}, and \code{Rd} were.}
+##' \item{response}{\code{'Assim'} or \code{'StomCond'}.}
 ##' }
 ##' @note ~~further notes~~ Additional notes about the assumptions.
 ##'
 ##' @author Fernando E. Miguez
-##' @seealso See Also \code{\link{mOpc3photo}}
+##' @seealso See also \code{\link{mOpc3photo}}.
 ##' @keywords optimize
 ##' @examples
 ##'
@@ -564,13 +564,13 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 ##'
 ##' Include more details about the data.
 ##'
-##' @param data should be a \code{data.frame} or \code{matrix} with x columns
+##' @param data Should be a \code{data.frame} or \code{matrix} with x columns.
 ##'
-##' col 1: should be an ID for the different runs col 2: measured assimilation
-##' (CO2 uptake) col 3: Incomming PAR (photosynthetic active radiation) col 4:
-##' Leaf temperature col 5: Relative humidity col 6: Intercellular CO2 (for
-##' A/Ci curves) col 7: Reference CO2 level
-##' @param ID optional argument to include ids. should be of length equal to
+##' col 1: Should be an ID for the different runs. col 2: Measured assimilation
+##' (CO2 uptake). col 3: Incomming PAR (photosynthetic active radiation). col 4:
+##' Leaf temperature. col 5: Relative humidity. col 6: Intercellular CO2 (for
+##' A/Ci curves). col 7: Reference CO2 level.
+##' @param ID Optional argument to include ids. Should be of length equal to
 ##' the number of runs.
 ##' @param iVcmax Single value or vector of length equal to number of runs to
 ##' supply starting values for the optimization of \code{vcmax}.
@@ -579,16 +579,16 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 ##' @param iRd Single value or vector of length equal to number of runs to
 ##' supply starting values for the optimization of \code{Rd}.
 ##' @param op.level Level 1 will optimize \code{Vcmax} and \code{Jmax} and
-##' level 2 will optimize \code{Vcmax}, \code{Jmax} and \code{Rd}.
+##' level 2 will optimize \code{Vcmax}, \code{Jmax}, and \code{Rd}.
 ##' @param curve.kind Whether an A/Ci curve is being optimized or an A/Q curve.
 ##' @param verbose Whether to print information about progress.
-##' @param \dots Additional arguments to be passed to \code{\link{Opc3photo}}
+##' @param \dots Additional arguments to be passed to \code{\link{Opc3photo}}.
 ##' @export
-##' @return an object of class 'mOpc3photo'
+##' @return An object of class `mOpc3photo'.
 ##'
-##' if op.level equals 1 best Vcmax, Jmax and convergence
+##' If \code{op.level} equals 1, best Vcmax, Jmax, and convergence.
 ##'
-##' if op.level equals 2 best Vcmax, Jmax, Rd and convergence
+##' If \code{op.level} equals 2, best Vcmax, Jmax, Rd, and convergence.
 
 ##' @author Fernando E. Miguez
 ##' @seealso See also \code{\link{Opc3photo}} 

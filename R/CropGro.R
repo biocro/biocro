@@ -205,7 +205,7 @@
 ##' @return
 ##'
 ##' A \code{\link{list}} structure with components:
-##' \itemize{
+##'
 ##' \item{DayofYear}{Day of the year.}
 ##' \item{Hour}{Hour for each day.}
 ##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg\eqn{\,\mathrm{ha}^{-1}}{/ha} ground
@@ -217,7 +217,7 @@
 ##' \item{Root}{root dry biomass (Mg\eqn{\,\mathrm{ha}^{-1}}{/ha}).}
 ##' \item{Rhizome}{rhizome dry biomass (Mg\eqn{\,\mathrm{ha}^{-1}}{/ha}).}
 ##' \item{LAI}{leaf area index (m\eqn{^2} m\eqn{^{-2}}{^-2}).}
-##' \item{ThermalT}{Thermal time (\eqn{{}^\circ \mathrm{C}\,\mathrm{d}^{-1}}{degrees Celsius per day}).}
+##' \item{ThermalT}{Thermal time (\eqn{{}^\circ\mathrm{C}\,\mathrm{d}}{degree-days}).}
 ##' \item{StomatalCondCoefs}{Coefficeint which determines the effect of
 ##' water stress on stomatal conductance and photosynthesis.}
 ##' \item{LeafReductionCoefs}{Coefficient which determines the effect of
@@ -231,7 +231,7 @@
 ##' \item{MinNitroVec}{Nitrogen in the mineral pool.}
 ##' \item{RespVec}{Soil respiration.}
 ##' \item{SoilEvaporation}{Soil Evaporation.}
-##' }
+##'
 ##' @keywords models
 ##' @examples
 ##'

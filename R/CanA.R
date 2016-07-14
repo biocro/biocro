@@ -83,7 +83,7 @@
 ##' temperature between the leaf and the air (i.e. TLeaf - TAir) for leaves in
 ##' shade.  \code{col11}: Stomatal conductance for leaves in the sun. \code{col12}: Stomatal
 ##' conductance for leaves in the shade. \code{col13}: Nitrogen concentration in the
-##' leaf (\eqn{\mathrm{g m}^{-2}}{g\,m-2}). \code{col14}: Vmax value as depending on leaf nitrogen.}
+##' leaf (\eqn{\mathrm{g\,m}^{-2}}{g m-2}). \code{col14}: Vmax value as depending on leaf nitrogen.}
 ##'
 ##' @keywords models
 ##' @examples

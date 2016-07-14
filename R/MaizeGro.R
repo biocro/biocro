@@ -6,36 +6,36 @@
 #' it produces phenology, photosynthesis, LAI, etc.
 #' 
 #' 
-#' The phenology follows the 'Corn Growth and Development' Iowa State
+#' The phenology follows the ``Corn Growth and Development'' Iowa State
 #' Publication. %% ~~ If necessary, more details than the description above ~~
 #' 
-#' @param WetDat weather data as produced by the \code{\link{weach}} function.
-#' @param plant.day Planting date (format 0-365)
-#' @param emerge.day Emergence date (format 0-365)
-#' @param harvest.day Harvest date (format 0-365)
-#' @param plant.density Planting density (plants per meter squared, default =
+#' @param WetDat Weather data as produced by the \code{\link{weach}} function.
+#' @param plant.day Planting date (0--365).
+#' @param emerge.day Emergence date (0--365).
+#' @param harvest.day Harvest date (0--365).
+#' @param plant.density Planting density (plants per meter squared; default =
 #' 7)
-#' @param timestep Simulation timestep, the default of 1 requires houlry
+#' @param timestep Simulation timestep; the default of 1 requires hourly
 #' weather data. A value of 3 would require weather data every 3 hours.  This
 #' number should be a divisor of 24.
-#' @param lat latitude, default 40.
+#' @param lat Latitude (degrees north; default 40).
 #' @param canopyControl List that controls aspects of the canopy simulation. It
 #' should be supplied through the \code{canopyParms} function.
 #' 
-#' \code{Sp} (specific leaf area) here the units are ha \eqn{Mg^{-1}}.  If you
-#' have data in \eqn{m^2} of leaf per kg of dry matter (e.g. 15) then divide by
+#' \code{Sp} (specific leaf area) Here the units are ha \eqn{\mathrm{Mg}^{-1}}{Mg-1}.  If you
+#' have data in \eqn{\mathrm{m}^2}{m^2} of leaf per kg of dry matter (e.g. 15), then divide by
 #' 10 before inputting this coefficient.
 #' 
-#' \code{SpD} decrease of specific leaf area. Empirical parameter. Default 0.
-#' example value (1.7e-3).
+#' \code{SpD} Decrease of specific leaf area. Empirical parameter. Default 0.
+#' Example value: 1.7e-3.
 #' 
 #' \code{nlayers} (number of layers of the canopy) Maximum 50. To increase the
-#' number of layers (more than 50) the \code{C} source code needs to be changed
+#' number of layers to more than 50, the \code{C} source code needs to be changed
 #' slightly.
 #' 
-#' \code{kd} (extinction coefficient for diffuse light) between 0 and 1.
+#' \code{kd} (extinction coefficient for diffuse light) Between 0 and 1.
 #' 
-#' \code{mResp} (maintenance respiration) a vector of length 2 with the first
+#' \code{mResp} (maintenance respiration) A vector of length 2 with the first
 #' component for leaf and stem and the second component for rhizome and root.
 #' @param MaizeSeneControl List that controls aspects of senescence simulation.
 #' It should be supplied through the \code{MaizeSeneParms} function.
@@ -72,32 +72,32 @@
 #' 
 #' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
 #'
-#' @param MaizePhenoControl argument used to pass parameters related to
+#' @param MaizePhenoControl Argument used to pass parameters related to.
 #' phenology characteristics
 #' @param MaizeCAllocControl FILL IN HERE
 #' @param laiControl FILL IN HERE
-#' @param soilControl see \code{\link{BioGro}} function
+#' @param soilControl See \code{\link{BioGro}} function
 #' @param MaizeNitroControl FILL IN HERE
-#' @param centuryControl see \code{\link{BioGro}} function
+#' @param centuryControl See \code{\link{BioGro}} function
 #' @return
 #' 
 #' It currently returns a list with the following components
 #' 
-#' \item{DayofYear}{Day of the year (0-365)}
+#' \item{DayofYear}{Day of the year (0--365).}
 #' 
-#' \item{Hour}{Hour of the day (0-23)}
+#' \item{Hour}{Hour of the day (0--23).}
 #' 
-#' \item{TTTc}{Accumulated thermal time}
+#' \item{TTTc}{Accumulated thermal time.}
 #' 
-#' \item{PhenoStage}{Phenological stage of the crop}
+#' \item{PhenoStage}{Phenological stage of the crop.}
 #' 
-#' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
-#' \eqn{hr^-1}).}
+#' \item{CanopyAssim}{Hourly canopy assimilation (Mg \eqn{\mathrm{ha}^{-1}}{ha-1} ground
+#' \eqn{\mathrm{hr}^{-1}}{hr-1}).}
 #' 
-#' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
-#' \eqn{hr^-1}).}
+#' \item{CanopyTrans}{Hourly canopy transpiration (Mg \eqn{\mathrm{ha}^{-1}}{ha-1} ground
+#' \eqn{\mathrm{hr}^{-1}}{hr-1}).}
 #' 
-#' \item{LAI}{Leaf Area Index}
+#' \item{LAI}{Leaf Area Index.}
 #' 
 #' @author Fernando E Miguez
 #' @seealso \code{\link{BioGro}} 
@@ -267,17 +267,17 @@ MaizeGro <- function(WetDat, plant.day = NULL,
   }
 
 ##' Lists values for phenology parameters
-##' @param base.temp inital temperatre
-##' @param max.leaves maximum leaves
-##' @param plant.emerg plant emergence
-##' @param phyllochron1 needs description
-##' @param phyllochron2 needs description
-##' @param R1 needs description
-##' @param R2 needs description
-##' @param R3 needs description 
-##' @param R4 needs description  
-##' @param R5 needs description
-##' @param R6 needs description    
+##' @param base.temp Initial temperature.
+##' @param max.leaves Maximum number of leaves.
+##' @param plant.emerg Plant emergence.
+##' @param phyllochron1 NEEDS DESCRIPTION
+##' @param phyllochron2 NEEDS DESCRIPTION
+##' @param R1 NEEDS DESCRIPTION
+##' @param R2 NEEDS DESCRIPTION
+##' @param R3 NEEDS DESCRIPTION 
+##' @param R4 NEEDS DESCRIPTION  
+##' @param R5 NEEDS DESCRIPTION
+##' @param R6 NEEDS DESCRIPTION    
 ##' @export MaizePhenoParms
 MaizePhenoParms <- function(base.temp = 10, max.leaves = 20, plant.emerg = 100,
                             phyllochron1 = 46.7, phyllochron2 = 31.1, R1 = 747,
@@ -290,9 +290,9 @@ MaizePhenoParms <- function(base.temp = 10, max.leaves = 20, plant.emerg = 100,
 
 }
 ##' Lists values for senecence parameters
-##' @param senStem senecence of stem
-##' @param senLeaf senecence of leaf 
-##' @param senRoot senecence of root
+##' @param senStem Senecence of stem.
+##' @param senLeaf Senecence of leaf. 
+##' @param senRoot Senecence of root.
 MaizeSeneParms <- function(senStem=3000,senLeaf=3500,senRoot=4000){
 
   list(senStem=senStem,senLeaf=senLeaf,senRoot=senRoot)

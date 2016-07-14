@@ -225,8 +225,8 @@
 ##' @export
 ##' @return
 ##'
-##' a \code{\link{list}} structure with components
-##' \describe{
+##' Returns a \code{\link{list}} structure with components
+##'
 ##' \item{DayofYear}{Day of the year.}
 ##' \item{Hour}{Hour for each day.}
 ##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{\mathrm{ha}^{-1}}{ha-1} ground
@@ -238,7 +238,7 @@
 ##' \item{Root}{Root dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
 ##' \item{Rhizome}{Rhizome dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
 ##' \item{LAI}{Leaf area index (\eqn{\mathrm{m}^2}{m^2} \eqn{\mathrm{m}^{-2}}{m-2}).}
-##' \item{ThermalT}{Thermal time (\eqn{{}^\circ \mathrm{C}\,\mathrm{d}^{-1}}{degrees Celsius per day}).}
+##' \item{ThermalT}{Thermal time (\eqn{{}^\circ\mathrm{C}\,\mathrm{d}}{degree-days}).}
 ##' \item{StomatalCondCoefs}{Coefficeint which determines the effect of
 ##' water stress on stomatal conductance and photosynthesis.}
 ##' \item{LeafReductionCoefs}{Coefficient which determines the effect of
@@ -252,7 +252,7 @@
 ##' \item{MinNitroVec}{Nitrogen in the mineral pool.}
 ##' \item{RespVec}{Soil respiration.}
 ##' \item{SoilEvaporation}{Soil Evaporation.}
-##' }
+##'
 ##' @keywords models
 ##' @examples
 ##'
