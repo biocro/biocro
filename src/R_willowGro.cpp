@@ -234,7 +234,7 @@ SEXP willowGro(
     double LAI = 0.0, Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
-    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0;
+    double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0, newStemLitter = 0.0, newLeafLitter = 0.0, newRhizomeLitter = 0.0, newRootLitter = 0.0;
 
 	struct Model_state current_state = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -260,7 +260,7 @@ SEXP willowGro(
 
     /* Century */
     double MinNitro = centcoefs[19];
-    int doyNfert = centcoefs[18];
+    int doyNfert = static_cast<int>(centcoefs[18]);
     double Nfert;
     double SCCs[9];
     double Resp = 0.0;
@@ -336,14 +336,66 @@ SEXP willowGro(
     SCCs[8] = centcoefs[8];
 
 
-    for(i=0; i < vecsize; i++)
+    for(i=0; i < vecsize; ++i)
     {
+        newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
+
+        /* The specific leaf area declines with the growing season at least in
+           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
+           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
+           management in north-eastern greece. */
+        if(i%24 == 0) {
+            Sp = iSp - (doy[i] - doy[0]) * SpD;
+        }
+
+        LAI = Leaf * Sp;
+		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
+        // vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1; 
+
+
+        /* Picking the dry biomass partitioning coefficients */
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, TTc);
+
+        kLeaf = dbpS.kLeaf;
+        kStem = dbpS.kStem;
+        kRoot = dbpS.kRoot;
+        kGrain = dbpS.kGrain;
+        kRhizome = dbpS.kRhiz;
+
         /* First calculate the elapsed Thermal Time*/
         if(temp[i] > tbase) {
             TTc += (temp[i]-tbase) / (24/timestep); 
         }
 
         /*  Do the magic! Calculate growth*/
+
+		current_state.leaf = Leaf;
+		current_state.stem = Stem;
+		current_state.root = Root;
+		current_state.rhizome = Rhizome;
+		current_state.lai = LAI;
+		current_state.grain = Grain;
+		current_state.k_leaf = kLeaf;
+		current_state.k_stem = kStem;
+		current_state.k_root = kRoot;
+		current_state.k_rhizome = kRhizome;
+		current_state.k_grain = kGrain;
+		current_state.new_leaf = newLeaf;
+		current_state.new_stem = newStem;
+		current_state.new_root = newRoot;
+		current_state.new_rhizome = newRhizome;
+		current_state.new_grain = newGrain;
+		current_state.thermal_time = TTc;
+		current_state.doy = doy[i];
+		current_state.hour = hour[i];
+		current_state.solar = solar[i];
+		current_state.temp = temp[i];
+		current_state.rh = rh[i];
+		current_state.windspeed = windspeed[i];
+		current_state.StomataWS = StomataWS;
+		current_state.LeafN = LeafN;
+		current_state.vmax = vmax;
+		current_state.alpha = alpha;
 
         Canopy = c3CanAC(LAI, doy[i], hour[i],
                 solar[i], temp[i], rh[i], windspeed[i],
@@ -402,7 +454,7 @@ SEXP willowGro(
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i3=0; i3 < soilLayers; i3++) {
+            for(i3=0; i3 < soilLayers; ++i3) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
                 water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
@@ -461,15 +513,6 @@ SEXP willowGro(
             LeafPsim = 0;
         }
 
-        /* Picking the dry biomass partitioning coefficients */
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, TTc);
-
-        kLeaf = dbpS.kLeaf;
-        kStem = dbpS.kStem;
-        kRoot = dbpS.kRoot;
-        kGrain = dbpS.kGrain;
-        kRhizome = dbpS.kRhiz;
-
         /* Nitrogen fertilizer */
         /* Only the day in which the fertilizer was applied this is available */
         /* When the day of the year is equal to the day the N fert was applied
@@ -491,32 +534,6 @@ SEXP willowGro(
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the Thermal time accumulated.*/
 
-        //LeafN = LeafN_0 * pow(Stem + Leaf,-kLN); 
-        //if(LeafN > LeafN_0) LeafN = LeafN_0;
-
-		current_state.leaf = Leaf;
-		current_state.stem = Stem;
-		current_state.root = Root;
-		current_state.rhizome = Rhizome;
-		current_state.lai = LAI;
-		current_state.grain = Grain;
-		current_state.k_leaf = kLeaf;
-		current_state.k_stem = kStem;
-		current_state.k_root = kRoot;
-		current_state.k_rhizome = kRhizome;
-		current_state.k_grain = kGrain;
-		current_state.new_leaf = newLeaf;
-		current_state.new_stem = newStem;
-		current_state.new_root = newRoot;
-		current_state.new_rhizome = newRhizome;
-		current_state.new_grain = newGrain;
-		current_state.thermal_time = TTc;
-
-		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
-
-
-        //		vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1; 
-
         /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
            This modifies the amount of N available in the soil. 
            MinNitro is the available amount of N (kg/m2). 
@@ -531,15 +548,13 @@ SEXP willowGro(
             /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
                 Plant. Phys. 46, 233-235. For this the water stress coefficient is different
                 for leaf and vmax. */
-            /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
-            /* The 0.02 and 0.03 are constants here but vary depending on species
-               as pointed out in that reference. */
 
             if(ISNAN(newLeaf)) {
                 Rprintf("LeafWS %.2f \n", LeafWS);
                 Rprintf("CanopyA %.2f \n", CanopyA);
             }
 
+            /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
             newLeaf = resp(newLeaf, mrc1, temp[i]);
 
             *(sti+i) = newLeaf; /* This populates the vector newLeafcol. It makes sense
@@ -568,7 +583,7 @@ SEXP willowGro(
                 leafdeathrate = (leafdeathrate > leafdeathrate1) ? leafdeathrate : leafdeathrate1;
                 Deadleaf = Leaf * leafdeathrate * (0.01 / 24); // 0.01 is to convert from percent to fraction and 24 iss to convert daily to hourly
                 Remob = Deadleaf * 0.6;
-                LeafLitter += (Deadleaf - Remob); /* Collecting the leaf litter */ 
+                newLeafLitter += (Deadleaf - Remob); /* Collecting the leaf litter */ 
                 Rhizome += kRhizome * Remob;
                 Stem += kStem * Remob;
                 Root += kRoot * Remob;
@@ -580,17 +595,6 @@ SEXP willowGro(
             }
             Leaf += newLeaf;
         }
-
-        /* The specific leaf area declines with the growing season at least in
-           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
-           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
-           management in north-eastern greece*/
-
-        if(i%24 == 0) {
-            Sp = iSp - (doy[i] - doy[0]) * SpD;
-        }
-
-        LAI = Leaf * Sp ;
 
         /* New Stem*/
         if(kStem >= 0) {
@@ -605,8 +609,8 @@ SEXP willowGro(
             Stem += newStem;
         } else {
             Stem += newStem - *(sti2+q);
-            StemLitter += *(sti2+q);
-            q++;
+            newStemLitter += *(sti2+q);
+            ++q;
         }
 
         if(kRoot > 0) {
@@ -625,8 +629,8 @@ SEXP willowGro(
             Root += newRoot;
         } else {
             Root += newRoot - *(sti3+m);
-            RootLitter += *(sti3+m);
-            m++;
+            newRootLitter += *(sti3+m);
+            ++m;
         }
 
         if(kRhizome > 0) {
@@ -635,7 +639,7 @@ SEXP willowGro(
             *(sti4+ri) = newRhizome;
             /* Here i will not work because the rhizome goes from being a source
                to a sink. I need its own index. Let's call it rhizome's i or ri.*/
-            ri++;
+            ++ri;
         } else {
             if(Rhizome < 0) {
                 Rhizome = 1e-4;
@@ -653,8 +657,8 @@ SEXP willowGro(
             Rhizome += newRhizome;
         } else {
             Rhizome += newRhizome - *(sti4+n);
-            RhizomeLitter += *(sti4+n);
-            n++;
+            newRhizomeLitter += *(sti4+n);
+            ++n;
         }
 
         if((kGrain < 1e-10) || (TTc < thermalp[4])) {
@@ -673,10 +677,10 @@ SEXP willowGro(
             RootLitter_d = RootLitter * ((0.1/30)*centTimestep);
             RhizomeLitter_d = RhizomeLitter * ((0.1/30)*centTimestep);
 
-            LeafLitter -= LeafLitter_d;
-            StemLitter -= StemLitter_d;
-            RootLitter -= RootLitter_d;
-            RhizomeLitter -= RhizomeLitter_d;
+            newLeafLitter -= LeafLitter_d;
+            newStemLitter -= StemLitter_d;
+            newRootLitter -= RootLitter_d;
+            newRhizomeLitter -= RhizomeLitter_d;
 
             results->centS = Century(&LeafLitter_d, &StemLitter_d, &RootLitter_d, &RhizomeLitter_d,
                     waterCont, temp[i], centTimestep, SCCs, WaterS.runoff,
@@ -707,6 +711,11 @@ SEXP willowGro(
         SCCs[7] = results->centS.SCs[7];
         SCCs[8] = results->centS.SCs[8];
 
+        LeafLitter += newLeafLitter;
+        StemLitter += newStemLitter;
+        RootLitter += newRootLitter;
+        RhizomeLitter += newRhizomeLitter;
+
         ALitter = LeafLitter + StemLitter;
         BLitter = RootLitter + RhizomeLitter;
 
@@ -734,7 +743,7 @@ SEXP willowGro(
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
-		for(int layer = 0; layer < soilLayers; layer++) {
+		for(int layer = 0; layer < soilLayers; ++layer) {
 			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
 			results->water_status[layer + i * soilLayers] = water_status[layer + i * soilLayers];
 			results->root_distribution[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];

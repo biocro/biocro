@@ -192,9 +192,15 @@ void BioGro(
     for(i = 0; i < vecsize; ++i)
     {
         newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
+
+        /* The specific leaf area declines with the growing season at least in
+           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
+           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
+           management in north-eastern greece. */
         if ( i % 24 == 0 ) {
             Sp = iSp - (doy[i] - doy[0]) * SpD;
         }
+
         LAI = Leaf * Sp;
 		LeafN = leaf_n_limitation(kLN, LeafN_0, current_state);
         vmax = (LeafN_0 - LeafN) * vmaxb1 + vmax1;
@@ -383,7 +389,6 @@ void BioGro(
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the Thermal time accumulated.*/
 
-
         /* The crop demand for nitrogen is the leaf concentration times the amount of biomass.
            This modifies the amount of N available in the soil. 
            MinNitro is the available amount of N (kg/m2). 
@@ -434,13 +439,6 @@ void BioGro(
             Grain += kGrain * Remob;
             ++k;
         }
-
-        /* The specific leaf area declines with the growing season at least in
-           Miscanthus.  See Danalatos, Nalianis and Kyritsis "Growth and Biomass
-           Productivity of Miscanthus sinensis "Giganteus" under optimum cultural
-           management in north-eastern greece*/
-
-
 
         /* New Stem*/
         if (kStem >= 0) {
@@ -564,34 +562,6 @@ void BioGro(
 
         ALitter = LeafLitter + StemLitter;
         BLitter = RootLitter + RhizomeLitter;
-		current_state.leaf = Leaf;
-		current_state.stem = Stem;
-		current_state.root = Root;
-		current_state.rhizome = Rhizome;
-		current_state.lai = LAI;
-		current_state.grain = Grain;
-		current_state.k_leaf = kLeaf;
-		current_state.k_stem = kStem;
-		current_state.k_root = kRoot;
-		current_state.k_rhizome = kRhizome;
-		current_state.k_grain = kGrain;
-		current_state.new_leaf = newLeaf;
-		current_state.new_stem = newStem;
-		current_state.new_root = newRoot;
-		current_state.new_rhizome = newRhizome;
-		current_state.new_grain = newGrain;
-		current_state.thermal_time = TTc;
-		current_state.doy = doy[i];
-		current_state.hour = hour[i];
-		current_state.solar = solar[i];
-		current_state.temp = temp[i];
-		current_state.rh = rh[i];
-		current_state.windspeed = windspeed[i];
-		current_state.StomataWS = StomataWS;
-		current_state.LeafN = LeafN;
-		current_state.vmax = vmax;
-		current_state.alpha = alpha;
-
 
 		results->day_of_year[i] = doy[i];
 		results->hour[i] = hour[i];
