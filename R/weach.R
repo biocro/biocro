@@ -14,30 +14,30 @@
 ##' Some flexibility has been added so that other units can be used. The input
 ##' data used originally looked as follows.
 ##' \itemize{
-##' \item col 1 year
-##' \item col 2 day of the year (1--365). Does not consider leap
+##' \item col 1 Year.
+##' \item col 2 Day of the year (1--365). Does not consider leap
 ##' years.
-##' \item col 3 total daily solar radiation (MJ/m^2).
-##' \item col 4 maximum temperature (Fahrenheit).
-##' \item col 5 minimum temperature (Fahrenheit).
-##' \item col 6 average temperature (Fahrenheit).
-##' \item col 7 maximum relative humidity (\%).
-##' \item col 8 minimum relative humidity (\%).
-##' \item col 9 average relative humidity (\%).
-##' \item col 10 average wind speed (miles per hour).
-##' \item col 11 precipitation (inches). 
+##' \item col 3 Total daily solar radiation (MJ/\eqn{\mathrm{m}^2}{m2}).
+##' \item col 4 Maximum temperature (Fahrenheit).
+##' \item col 5 Minimum temperature (Fahrenheit).
+##' \item col 6 Average temperature (Fahrenheit).
+##' \item col 7 Maximum relative humidity (\%).
+##' \item col 8 Minimum relative humidity (\%).
+##' \item col 9 Average relative humidity (\%).
+##' \item col 10 Average wind speed (miles per hour).
+##' \item col 11 Precipitation (inches). 
 ##' }
 ##'
 ##' All the units above are the defaults but they can be changed as part of the
 ##' arguments.
 ##'
-##' @param X a matrix (or data frame) containing weather information.  The
-##' input format is strict but it is meant to be used with the data usually
+##' @param X A matrix (or data frame) containing weather information.  The
+##' input format is strict, but it is meant to be used with the data usually
 ##' obtained from weather stations in Illinois. The data frame should have 11
 ##' columns (see details).
-##' @param lati latitude at the specific location
-##' @param ts timestep for the simulation of sub-daily data from daily. For
-##' example a value of 3 would return data every 3 hours. Only divisors of 24
+##' @param lati Latitude at the specific location.
+##' @param ts Timestep for the simulation of sub-daily data from daily. For
+##' example, a value of 3 would return data every 3 hours. Only divisors of 24
 ##' work (i.e. 1,2,3,4, etc.).
 ##' @param temp.units Option to specify the units in which the temperature is
 ##' entered. Default is Farenheit.
@@ -47,22 +47,21 @@
 ##' entered. Default is miles per hour.
 ##' @param pp.units Option to specify the units in which the precipitation is
 ##' entered. Default is inches.
-##' @param list() additional arguments to be passed to \code{\link{lightME}}
+##' @param list() Additional arguments to be passed to \code{\link{lightME}}.
 ##' @export
-##' @return a \code{\link{matrix}} returning hourly (or sub-daily) weather
-##' data. Dimensions 8760 (if hourly) by 8.
-##' \itemize{
-##' \item year Year.
-##' \item doy Day of the year.
-##' \item hour Hour of the day (0--23, depending on the timestep).
-##' \item SolarR Direct solar radiation (\eqn{\mu mol \; m^{-2} \;
-##' }{micro mol per meter squared per second}\eqn{ s^{-1}}{micro mol per meter
-##' squared per second}).
-##' \item Temp Air temperature (Celsius).
-##' \item RH Relative humidity (0--1).
-##' \item WS Average wind speed (\eqn{m \;s^{-1}}{meter per second}).
-##' \item precip Precipitation (\eqn{mm}{mm})
-##' }
+##' @return A \code{\link{matrix}} returning hourly (or sub-daily) weather
+##' data. Dimensions 8760 (if hourly) by 8.  The columns are
+##'
+##' \item{year}{Year.}
+##' \item{doy}{Day of the year.}
+##' \item{hour}{Hour of the day (0--23, depending on the timestep).}
+##' \item{SolarR}{Direct solar radiation (\eqn{\mu\mathrm{mol} \; \mathrm{m}^{-2} \;
+##'  \mathrm{s}^{-1}}{micromoles per meter squared per second}).}
+##' \item{Temp}{Air temperature (Celsius).}
+##' \item{RH}{Relative humidity (0--1).}
+##' \item{WS}{Average wind speed (\eqn{m \;s^{-1}}{meters per second}).}
+##' \item{precip}{Precipitation (mm).}
+##'
 ##' @keywords datagen
 ##' @examples
 ##'

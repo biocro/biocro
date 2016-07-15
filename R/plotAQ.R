@@ -1,25 +1,27 @@
 ##  BioCro/R/plotAQ.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2009
 
-##' Function to plot A/Q curves
+##' Function to plot A/Q curves.
 ##
-##' @title plot A/Q curve
-##' @param data is assumed to have the following structure 
-##' col 1: trt
-##' col 2 (optional): other treatment factor
-##' col 2: Assimilation
-##' col 3: Quantum flux
-##' col 4: Temperature
-##' col 5: Relative humidity
-##' col 6 (optional): Reference CO2
-##' @param fittd 
-##' @param id.col 
-##' @param trt.col 
-##' @param ylab 
-##' @param xlab 
-##' @param by 
-##' @param type 
-##' @param ... 
-##' @return NULL, creates plot
+##' @title Plot A/Q curve
+##' @param data Is assumed to have the following structure:
+##' \preformatted{
+##' col 1: trt.
+##' col 2 (optional): Other treatment factor.
+##' col 2: Assimilation.
+##' col 3: Quantum flux.
+##' col 4: Temperature.
+##' col 5: Relative humidity.
+##' col 6 (optional): Reference CO2.
+##' }
+##' @param fittd  FILL IN HERE
+##' @param id.col  FILL IN HERE
+##' @param trt.col  FILL IN HERE
+##' @param ylab  FILL IN HERE
+##' @param xlab  FILL IN HERE
+##' @param by  FILL IN HERE
+##' @param type  FILL IN HERE
+##' @param ...  FILL IN HERE
+##' @return NULL. Creates plot.
 ##' @export
 ##' @author Fernando E. Miguez
 plotAQ <- function(data,fittd,
