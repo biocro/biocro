@@ -381,20 +381,20 @@ NULL
 ##' Randomly picked dataset from the Illinois area from 1979
 ##'
 ##' Data from the Illinois area from one point from the 32km grid from NOAA
-##' from 1979. the purpuse is to illustrate the \code{\link{Rmiscanmod}}
+##' from 1979. The purpuse is to illustrate the \code{\link{Rmiscanmod}}
 ##' function.
 ##'
 ##'
 ##' @name WD1979
 ##' @docType data
 ##' @format A data frame with 365 observations on the following 9 variables.
-##' \describe{ \item{list('year')}{year} \item{list('month')}{month (not really
-##' needed)} \item{list('day')}{day of the month (not really needed)}
-##' \item{list('JD')}{day of the year (1-365)} \item{list('maxTemp')}{maximum
-##' temperature (Celsius)} \item{list('minTemp')}{minimum temperature
-##' (Celsius)} \item{list('SolarR')}{solar radiation (MJ/m2)}
-##' \item{list('PotEv')}{potential evaporation (kg/m2). Approx. mm.}
-##' \item{list('precip')}{precipitation (kg/m2). Approx. mm.} }
+##' \describe{ \item{list('year')}{Year.} \item{list('month')}{Month (not really
+##' needed).} \item{list('day')}{Day of the month (not really needed).}
+##' \item{list('JD')}{Day of the year (1--365).} \item{list('maxTemp')}{Maximum
+##' temperature (Celsius).} \item{list('minTemp')}{Minimum temperature
+##' (Celsius).} \item{list('SolarR')}{Solar radiation (MJ/m\eqn{{}^2}{2}).}
+##' \item{list('PotEv')}{Potential evaporation (kg/m\eqn{{}^2}{2}). Approx. mm..}
+##' \item{list('precip')}{Precipitation (kg/m\eqn{{}^2}{2}). Approx. mm.} }
 ##' @source \url{http://www.noaa.gov/}
 ##' @keywords datasets
 ##' @examples
@@ -417,8 +417,8 @@ NULL
 ##' @name weather05
 ##' @aliases weather05 weather04
 ##' @docType data
-##' @format data frame of dimensions 8760 by 7.
-##' @source simulated (based on Champaign, Illinois conditions).
+##' @format Data frame of dimensions 8760 by 7.
+##' @source Simulated (based on Champaign, Illinois conditions).
 ##' @keywords datasets
 NULL
 
@@ -434,11 +434,11 @@ NULL
 ##' @name weather06
 ##' @docType data
 ##' @format A data frame with 8760 observations on the following 8 variables.
-##' \describe{ \item{list('year')}{a numeric vector} \item{list('doy')}{a
-##' numeric vector} \item{list('hour')}{a numeric vector}
-##' \item{list('SolarR')}{a numeric vector} \item{list('Temp')}{a numeric
-##' vector} \item{list('RH')}{a numeric vector} \item{list('WS')}{a numeric
-##' vector} \item{list('precip')}{a numeric vector} }
+##' \describe{ \item{list('year')}{A numeric vector.} \item{list('doy')}{A
+##' numeric vector.} \item{list('hour')}{A numeric vector.}
+##' \item{list('SolarR')}{A numeric vector.} \item{list('Temp')}{a numeric
+##' vector} \item{list('RH')}{A numeric vector.} \item{list('WS')}{a numeric
+##' vector} \item{list('precip')}{A numeric vector.} }
 ##' @source %% ~~ reference to a publication or URL from which the data were
 ##' obtained ~~
 ##' @keywords datasets
