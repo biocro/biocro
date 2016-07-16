@@ -87,14 +87,14 @@
 ##' \item{Yield}{Yield (dry biomass) (g/m2); to convert to Mg/ha, divide by
 ##' 100.}
 ##'
-##' @references Clifton-Brown, J. C.; Neilson, B.; Lewandowski, I. and Jones,
-##' M. B. The modelled productivity of Miscanthus x giganteus (GREEF et DEU) in
-##' Ireland. Industrial Crops and Products, 2000, 12, 97-109.
+##' @references Clifton-Brown, J. C., B. Neilson, I. Lewandowski, and M. B. Jones.
+##' 2000.  The modelled productivity of Miscanthus x giganteus (GREEF et DEU) in
+##' Ireland. \emph{Industrial Crops and Products} 12 (2): 97--109.
 ##'
-##' Clifton-brown, J. C.; Stampfl, P. F. and Jones, M. B. Miscanthus biomass
+##' Clifton-Brown, J. C., P. F. Stampfl, and M. B. Jones.  2004.  Miscanthus biomass
 ##' production for energy in Europe and its potential contribution to
-##' decreasing fossil fuel carbon emissions. Global Change Biology, 2004, 10,
-##' 509-518.
+##' decreasing fossil fuel carbon emissions.  \emph{Global Change Biology} 10 (4)
+##' 509--518.
 ##'
 ##' @keywords models
 ##' @examples

@@ -3,7 +3,7 @@
 
 ##' Coupled photosynthesis-stomatal conductance simulation
 ##'
-##' The mathematical model is based on Collatz et al (1992) (see References).
+##' The mathematical model is based on Collatz et al. 1992 (see references).
 ##' Stomatal conductance is based on code provided by Joe Berry.
 ##'
 ##'
@@ -41,9 +41,9 @@
 ##' \item{Ci}{Intercellular CO2 (\eqn{\mu}mol \eqn{\mathrm{mol}^{-1}}{mol-1}).}
 ##'
 ##' @seealso \code{\link{eC4photo}}
-##' @references G. Collatz, M. Ribas-Carbo, J. Berry. (1992).  Coupled
+##' @references G. Collatz, M. Ribas-Carbo, and J. Berry. 1992.  Coupled
 ##' photosynthesis-stomatal conductance model for leaves of C4 plants.
-##' \emph{Australian Journal of Plant Physiology} 519--538.
+##' \emph{Australian Journal of Plant Physiology} 19 (5): 519--538.
 ##' @keywords models
 ##' @examples
 ##'
@@ -256,8 +256,8 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
 ##' \item{resuMC}{Matrix of dimensions \code{niter} by 3 containing the
 ##' values for Vmax and alpha and the RSS in each iteration of the chain.}
 ##'
-##' @references Brooks, Stephen. (1998). Markov chain Monte Carlo and its
-##' application. The Statistician. 47, Part 1, pp. 69-100.
+##' @references Brooks, Stephen.  1998.  Markov chain Monte Carlo and its
+##' application. \emph{The Statistician} 47 (1): 69--100.
 ##' @keywords optimize
 ##' @examples
 ##'

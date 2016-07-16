@@ -49,8 +49,8 @@
 ##' (\eqn{\mu}bar).}
 ##' \item{Os}{Oxygen evolution (mbar).}
 ##'
-##' @references Susanne von Caemmerer (2000) Biochemical Models of Leaf
-##' Photosynthesis. CSIRO Publishing. (In particular chapter 4).
+##' @references Susanne von Caemmerer. 2000.  \emph{Biochemical Models of Leaf
+##' Photosynthesis.} CSIRO Publishing. (In particular chapter 4).
 ##' @keywords models
 ##' @examples
 ##'
@@ -254,11 +254,11 @@ eCanA <- function(LAI,doy,hour,solarR,AirTemp,RH,WindS,
 ##' \item{accept2}{Number of accepted samples or length of the chain.}
 ##' \item{accept3}{Number of accepted moves in the chain.}
 ##'
-##' @references P. Marjoram, J. Molitor, V. Plagnol, S. Tavare, Markov chain
-##' monte carlo without likelihoods, PNAS 100 (26) (2003) 15324--15328.
+##' @references P. Marjoram, J. Molitor, V. Plagnol, and S. Tavare.  2003.
+##' Markov chain monte carlo without likelihoods. \emph{PNAS} 100 (26): 15324--15328.
 ##'
-##' Miguez (2007) Miscanthus x giganteus production: meta-analysis, field study
-##' and mathematical modeling. PhD Thesis. University of Illinois at
+##' Miguez, F. E.  2007.  Miscanthus x giganteus production: meta-analysis, field study
+##' and mathematical modeling.  PhD diss., University of Illinois at
 ##' Urbana-Champaign.
 ##' @keywords optimize
 ##' @examples
