@@ -36,7 +36,7 @@
 ##' @export
 ##' @return matrix with 8 (if hydrDist=0) or 12 (if hydrDist > 0). !!!NEEDS CLARIFICATION!!!
 ##' @author Fernando E. Miguez
-##' @seealso See Also \code{\link{wtrstr}}.
+##' @seealso See also \code{\link{wtrstr}}.
 ##' @keywords models
 ##' @examples
 ##'

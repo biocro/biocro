@@ -27,17 +27,17 @@
 ##' @param data Observed data.
 ##' @param day1 First day of the growing season.
 ##' @param dayn Last day of the growing season.
-##' @param timestep see \code{\link{BioGro}}
-##' @param lat see \code{\link{BioGro}}
-##' @param iRhizome see \code{\link{BioGro}}
-##' @param irtl see \code{\link{BioGro}}
-##' @param canopyControl see \code{\link{BioGro}}
-##' @param seneControl see \code{\link{BioGro}}
-##' @param photoControl see \code{\link{BioGro}}
-##' @param phenoControl see \code{\link{BioGro}}
-##' @param soilControl see \code{\link{BioGro}}
-##' @param nitroControl see \code{\link{BioGro}}
-##' @param centuryControl see \code{\link{BioGro}}
+##' @param timestep See \code{\link{BioGro}}.
+##' @param lat See \code{\link{BioGro}}.
+##' @param iRhizome See \code{\link{BioGro}}.
+##' @param irtl See \code{\link{BioGro}}.
+##' @param canopyControl See \code{\link{BioGro}}.
+##' @param seneControl See \code{\link{BioGro}}.
+##' @param photoControl See \code{\link{BioGro}}.
+##' @param phenoControl See \code{\link{BioGro}}.
+##' @param soilControl See \code{\link{BioGro}}.
+##' @param nitroControl See \code{\link{BioGro}}.
+##' @param centuryControl See \code{\link{BioGro}}.
 ##' @param op.method Optimization method: whether to use optim or nlminb.
 ##' @param verbose Displays additional information; originally used for
 ##' debugging.

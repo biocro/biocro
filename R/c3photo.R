@@ -26,7 +26,7 @@
 ##'
 ##' @note ~~further notes~~ ## Additional notes about assumptions
 ##' @author Fernando E. Miguez
-##' @seealso See Also \code{\link{Opc3photo}}
+##' @seealso See also \code{\link{Opc3photo}}.
 ##' @references
 ##'
 ##' Farquhar (1980) Ball-Berry (1987)

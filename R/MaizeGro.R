@@ -76,9 +76,9 @@
 #' phenology characteristics
 #' @param MaizeCAllocControl FILL IN HERE
 #' @param laiControl FILL IN HERE
-#' @param soilControl See \code{\link{BioGro}} function
+#' @param soilControl See \code{\link{BioGro}} function.
 #' @param MaizeNitroControl FILL IN HERE
-#' @param centuryControl See \code{\link{BioGro}} function
+#' @param centuryControl See \code{\link{BioGro}} function.
 #' @return
 #' 
 #' It currently returns a list with the following components

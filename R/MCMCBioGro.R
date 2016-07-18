@@ -57,7 +57,7 @@
 ##' \code{MCMCBioGro} adds one day to the last day of the growing season
 ##' though the upper limit is fixed at 330.
 ##' @author Fernando E. Miguez
-##' @seealso See Also as \code{\link{BioGro}}, \code{\link{OpBioGro}} and
+##' @seealso See also \code{\link{BioGro}}, \code{\link{OpBioGro}}, and
 ##' \code{\link{constrOpBioGro}}.
 ##' @keywords optimize
 ##' @examples

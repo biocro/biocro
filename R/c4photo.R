@@ -234,11 +234,11 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
 ##' @param ibeta Initial value for beta (default = 0.93). Not optimized at the
 ##' moment.
 ##' @param iRd Initial value for dark respiration (default = 0.8).
-##' @param Catm see \code{\link{c4photo}} function.
-##' @param b0 see \code{\link{c4photo}} function.
-##' @param b1 see \code{\link{c4photo}} function.
-##' @param StomWS see \code{\link{c4photo}} function.
-##' @param ws see \code{\link{c4photo}} function.
+##' @param Catm See \code{\link{c4photo}} function.
+##' @param b0 See \code{\link{c4photo}} function.
+##' @param b1 See \code{\link{c4photo}} function.
+##' @param StomWS See \code{\link{c4photo}} function.
+##' @param ws See \code{\link{c4photo}} function.
 ##' @param scale This scale parameter controls the size of the standard
 ##' deviations which generate the moves in the chain.
 ##' @param sds Finer control for the standard deviations of the prior normals.

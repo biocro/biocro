@@ -4,7 +4,7 @@
 ##
 ##' Downscales daily weather to hourly
 ##'
-##' Manipulates weather data in the format obtained from WARM (see link below)
+##' Manipulates weather data in the format obtained from \href{http://www.sws.uiuc.edu/warm/}{WARM}
 ##' and returns the format and units needed for most functions in this package.
 ##' This function should be used for one year at a time.
 ##' It returns hourly (or sub-daily) weather information.
