@@ -1,6 +1,16 @@
 
 Gro <- function(initial_values, parameters, varying_parameters, canopy_module_name, soil_module_name)
 {
+    # If 'initial_values' or 'parameters' are supplied as data.frames, convert them to lists.
+    for (var in c('initial_values', 'parameters')) {
+        if (class(get(var)) == 'data.frame') {
+            temp_var = as.list(get(var)$value)
+            names(temp_var) = get(var)$symbol
+            assign(var, temp_var)
+        }
+    }
+
+    if (class(initial_values) == 'data.frame')
     for ( ilist in list(initial_values, parameters) ) {
         item_lengths = unlist(lapply(ilist, length))
         if (!(all(item_lengths == 1))) {
