@@ -15,19 +15,19 @@
 ##' @param WetDat Weather data as produced by the \code{\link{weach}} function.
 ##' @param day1 First day of the growing season (1--365).
 ##' @param dayn Last day of the growing season (1--365, but larger than
-##' \code{day1}). See details.
+##' \code{day1}).
 ##' @param timestep Simulation timestep; the default of 1 requires hourly
 ##' weather data. A value of 3 would require weather data every 3 hours.  This
 ##' number should be a divisor of 24.
 ##' @param lat Latitude (degrees north; default 40).
-##' @param iRhizome Initial dry biomass of the Rhizome (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}; default 7).
+##' @param iRhizome Initial dry biomass of the Rhizome (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}; default 7).
 ##' @param iLeaf (default \code{iRhizome * 1e-04})
 ##' @param iStem (default \code{iRhizome * 0.001})
 ##' @param iRoot (default \code{iRhizome * 0.001})
 ##' @param canopyControl List that controls aspects of the canopy simulation.
 ##' It should be supplied through the \code{canopyParms} function.
 ##'
-##' \code{Sp} (specific leaf area) Here the units are ha \eqn{\mathrm{Mg}^{-1}}{Mg-1}.  If you
+##' \code{Sp} (specific leaf area) Here the units are ha \eqn{\mathrm{Mg}^{-1}}{Mg^-1}.  If you
 ##' have data in \eqn{\mathrm{m}^2}{m^2} of leaf per kg of dry matter (e.g. 15), then divide
 ##' by 10 before inputting this coefficient.
 ##'
@@ -170,7 +170,7 @@
 ##' @param nitroControl List that controls aspects of the nitrogen environment.
 ##' It should be supplied through the \code{nitroParms} function.
 ##'
-##' \code{iLeafN} initial value of leaf nitrogen (g \eqn{\mathrm{m}^{-2}}{m-2}).
+##' \code{iLeafN} initial value of leaf nitrogen (g \eqn{\mathrm{m}^{-2}}{m^-2}).
 ##'
 ##' \code{kLN} Coefficient of decrease in leaf nitrogen during the growing
 ##' season. The equation is \code{LN = iLeafN * (Stem + Leaf)^-kLN} .
@@ -225,19 +225,19 @@
 ##' @export
 ##' @return
 ##'
-##' Returns a \code{\link{list}} structure with components
+##' Returns a \code{\link{list}} structure with the following components:
 ##'
 ##' \item{DayofYear}{Day of the year.}
 ##' \item{Hour}{Hour for each day.}
-##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{\mathrm{ha}^{-1}}{ha-1} ground
-##' \eqn{\mathrm{hr}^{-1}}{hr-1}).}
-##' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{\mathrm{ha}^{-1}}{ha-1} ground
-##' \eqn{\mathrm{hr}^{-1}}{hr-1}).}
-##' \item{Leaf}{Leaf dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
-##' \item{Stem}{Stem dry biomass(Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
-##' \item{Root}{Root dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
-##' \item{Rhizome}{Rhizome dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha-1}).}
-##' \item{LAI}{Leaf area index (\eqn{\mathrm{m}^2}{m^2} \eqn{\mathrm{m}^{-2}}{m-2}).}
+##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1} ground
+##' \eqn{\mathrm{hr}^{-1}}{hr^-1}).}
+##' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1} ground
+##' \eqn{\mathrm{hr}^{-1}}{hr^-1}).}
+##' \item{Leaf}{Leaf dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}).}
+##' \item{Stem}{Stem dry biomass(Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}).}
+##' \item{Root}{Root dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}).}
+##' \item{Rhizome}{Rhizome dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}).}
+##' \item{LAI}{Leaf area index (\eqn{\mathrm{m}^2}{m^2} \eqn{\mathrm{m}^{-2}}{m^-2}).}
 ##' \item{ThermalT}{Thermal time (\eqn{{}^\circ\mathrm{C}\,\mathrm{d}}{degree-days}).}
 ##' \item{StomatalCondCoefs}{Coefficeint which determines the effect of
 ##' water stress on stomatal conductance and photosynthesis.}

@@ -15,7 +15,7 @@
 ##' @param WetDat Weather data as produced by the \code{\link{weach}} function.
 ##' @param day1 First day of the growing season (1--365).
 ##' @param dayn Last day of the growing season (1--365, but larger than
-##' \code{day1}). See details.
+##' \code{day1}).
 ##' @param timestep Simulation timestep.  The default of 1 requires hourly
 ##' weather data. A value of 3 would require weather data every 3 hours.  This
 ##' number should be a divisor of 24.
