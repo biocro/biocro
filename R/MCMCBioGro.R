@@ -3,7 +3,7 @@
 ##' Simulated annealing and MCMC  function
 ##' 
 ##' Simulated Annealing and Markov chain Monte Carlo for estimating parameters
-##' for Biomass Growth
+##' for Biomass Growth.
 ##'
 ##' This function atempts to implement the simulated annealing method for
 ##' estimating parameters of a generic C4 crop growth.
@@ -15,23 +15,25 @@
 ##' with niter and niter2.
 ##'
 ##' @aliases MCMCBioGro print.MCMCBioGro
-##' @param niter number of iterations for the simulated annealing portion of
+##' @param niter Number of iterations for the simulated annealing portion of
 ##' the optimization.
-##' @param niter2 number of iterations for the Markov chain Monte Carlo portion
+##' @param niter2 Number of iterations for the Markov chain Monte Carlo portion
 ##' of the optimization.
 ##' @param phen Phenological stage being optimized.
-##' @param iCoef initial coefficients for dry biomass partitioning.
-##' @param saTemp simulated annealing temperature.
-##' @param coolSamp number of cooling samples.
-##' @param scale scale parameter to control the standard deviations.
-##' @param WetDat weather data.
-##' @param data observed data.
-##' @param day1 first day of the growing season.
-##' @param dayn last day of the growing season.
-##' @param timestep Timestep see \code{\link{BioGro}}.
-##' @param lat latitude.
-##' @param iRhizome initial rhizome biomass.
-##' @param irtl See \code{\link{BioGro}}.
+##' @param iCoef Initial coefficients for dry biomass partitioning.
+##' @param saTemp Simulated annealing temperature.
+##' @param coolSamp Number of cooling samples.
+##' @param scale Scale parameter to control the standard deviations.
+##' @param WetDat Weather data.
+##' @param data Observed data.
+##' @param day1 First day of the growing season.
+##' @param dayn Last day of the growing season.
+##' @param timestep Timestep; see \code{\link{BioGro}}.
+##' @param lat Latitude.
+##' @param iRhizome Initial rhizome biomass.
+##' @param iLeaf FILL IN HERE
+##' @param iStem FILL IN HERE
+##' @param iRoot FILL IN HERE
 ##' @param canopyControl See \code{\link{canopyParms}}.
 ##' @param seneControl See \code{\link{seneParms}}.
 ##' @param photoControl See \code{\link{photoParms}}.
@@ -39,7 +41,7 @@
 ##' @param soilControl See \code{\link{soilParms}}.
 ##' @param nitroControl See \code{\link{nitroParms}}.
 ##' @param centuryControl See \code{\link{centuryParms}}.
-##' @param sd standard deviations for the parameters to be optimized. The first
+##' @param sd Standard deviations for the parameters to be optimized. The first
 ##' (0.02) is for the positive dry biomass partitioning coefficients. The
 ##' second (1e-6) is for the negative dry biomass partitioning coefficients.
 ##' @author Fernando E. Miguez
@@ -51,11 +53,11 @@
 ##' methods.
 ##' @note The automatic method for guessing the last day of the growing season
 ##' differs slightly from that in \code{BioGro}. To prevent error due to a
-##' shorter simulated growing season than the observed one the method in
-##' \code{MCMCBioGro} adds one day to the last day of the growing season.
-##' Although the upper limit is fixed at 330.
+##' shorter simulated growing season than the observed one, the method in
+##' \code{MCMCBioGro} adds one day to the last day of the growing season
+##' though the upper limit is fixed at 330.
 ##' @author Fernando E. Miguez
-##' @seealso See Also as \code{\link{BioGro}}, \code{\link{OpBioGro}} and
+##' @seealso See also \code{\link{BioGro}}, \code{\link{OpBioGro}}, and
 ##' \code{\link{constrOpBioGro}}.
 ##' @keywords optimize
 ##' @examples

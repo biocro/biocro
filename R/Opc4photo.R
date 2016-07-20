@@ -11,75 +11,77 @@
 ##'
 ##' @aliases Opc4photo print.Opc4photo summary.Opc4photo
 ##' print.summary.Opc4photo plot.Opc4photo predict.Opc4photo plotAQ
-##' @param data observed assimilation data, which should be a data frame or
+##' @param data Observed assimilation data, which should be a data frame or
 ##' matrix.  The first column should be observed net assimilation rate
-##' (\eqn{\mu} mol \eqn{m^{-2}} \eqn{s^{-1}}).  The second column should be the
-##' observed quantum flux (\eqn{\mu} mol \eqn{m^{-2}} \eqn{s^{-1}}).  The third
+##' (\eqn{\mu} mol \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).  The second column should be the
+##' observed quantum flux (\eqn{\mu} mol \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).  The third
 ##' column should be observed temperature of the leaf (Celsius).  The fourth
 ##' column should be the observed relative humidity in proportion (e.g. 0.7).
 ##' An optional fifth column can contain intercellular CO2. The reference level
 ##' of CO2 should be supplied to the function using the \code{Catm} argument.
-##' @param ivmax initial value for Vcmax (default = 39).
-##' @param ialpha initial value for alpha (default = 0.04).
-##' @param iRd initial value for dark respiration (default = 0.8).
-##' @param ikparm initial value for k (default = 0.7).
-##' @param itheta initial value for theta (default = 0.83).
-##' @param ibeta initial value for beta (default = 0.93).
+##' @param ivmax Initial value for Vcmax (default = 39).
+##' @param ialpha Initial value for alpha (default = 0.04).
+##' @param iRd Initial value for dark respiration (default = 0.8).
+##' @param ikparm Initial value for k (default = 0.7).
+##' @param itheta Initial value for theta (default = 0.83).
+##' @param ibeta Initial value for beta (default = 0.93).
 ##' @param Catm Atmospheric CO2 in ppm (or \eqn{\mu}mol/mol).
-##' @param ib0 initial value for the Ball-Berry intercept.
-##' @param ib1 initial value for the Ball-Berry slope.
-##' @param iStomWS initial value for the stomata water stress factor.
+##' @param ib0 Initial value for the Ball-Berry intercept.
+##' @param ib1 Initial value for the Ball-Berry slope.
+##' @param iStomWS Initial value for the stomata water stress factor.
 ##' @param ws \code{ws} flag. See \code{\link{c4photo}}.
+##' @param iupperT FILL IN HERE
+##' @param ilowerT FILL IN HERE
 ##' @param response Use \code{'Assim'} if you want to optimize assimilation
 ##' data and use \code{'StomCond'} if you want to optimize stomatal conductance
 ##' data. The parameters optimized will be different.
-##' @param curve.kind If \code{'Q'} a type of response which mainly depends on
-##' light will be assumed. Typically used to optimized light response curves or
+##' @param curve.kind If \code{'Q'}, a type of response which mainly depends on
+##' light will be assumed. Typically used to optimize light response curves or
 ##' diurnals. Use \code{'Ci'} for A/Ci curves (stomatal conductance could also
 ##' be optimized).
-##' @param op.level optimization level. If equal to 1 \code{vmax} and
-##' \code{alpha} will be optimized. If 2, \code{vmax}, \code{alpha} and
-##' \code{Rd} will be optimized. If 3, \code{vmax}, \code{alpha}, \code{theta}
+##' @param op.level Optimization level. If equal to 1, \code{vmax} and
+##' \code{alpha} will be optimized. If 2, \code{vmax}, \code{alpha}, and
+##' \code{Rd} will be optimized. If 3, \code{vmax}, \code{alpha}, \code{theta},
 ##' and \code{Rd} will be optimized.
-##' @param level level for the confidence intervals.
+##' @param level Level for the confidence intervals.
 ##' @param hessian Whether the hessian matrix should be computed. See
 ##' \code{\link{optim}}.
 ##' @param op.ci Whether to optimize intercellular CO2. Default is FALSE as
-##' 'fast-measured' light curves do not provide reliable values of Ci.
-##' @param list() Additional arguments passed to the \code{\link{optim}} in
-##' particular if a lower or upper bound is desired this could be achieved by
-##' adding \code{lower=c(0,0)} this will impose a lower bound on \code{vmax}
-##' and \code{alpha} of zero so preventing negative values from being returned.
-##' When the lower argument is added the optimization method changes from
+##' ``fast-measured'' light curves do not provide reliable values of Ci.
+##' @param list() Additional arguments passed to the \code{\link{optim}}. In
+##' particular, if a lower or upper bound is desired, this could be achieved by
+##' adding \code{lower=c(0,0)}. This will impose a lower bound on \code{vmax}
+##' and \code{alpha} of zero, thus preventing negative values from being returned.
+##' When the lower argument is added, the optimization method changes from
 ##' Nelder-Mead to BFGS.
 ##' @export
 ##' @return
 ##'
-##' An object of class \code{Opc4photo} a \code{\link{list}} with components
+##' An object of class \code{Opc4photo}, a \code{\link{list}} with the following components:
 ##'
-##' If \code{op.level} 2 \code{bestRd} will also be supplied.  If
-##' \code{op.level} 3 \code{theta} and \code{bestRd} will also be supplied.
+##' \item{bestVcmax}{Optimized value for \code{Vmax}.}
+##' \item{bestAlpha}{Optimized value for \code{alpha}.}
+##' \item{ReSumS}{Residual Sum of Squares.}
+##' \item{Convergence}{Integer indicating convergence. 0 is successful
+##' convergence. See the \code{\link{optim}} function for details..}
+##' \item{VarCov}{Variance-Covariance matrix.}
+##' \item{df}{Degrees of freedom.}
+##' \item{ciVmax}{Confidence interval for Vmax.}
+##' \item{ciAlpha}{Confidence interval for Alpha.}
+##' \item{corVA}{Correlation between Vmax and Alpha.}
+##' \item{level}{Level for the confidence interval.}
+##' \item{data}{data.frame with the original data.}
+##' \item{xparms}{FILL IN HERE}
+##' \item{ncold}{FILL IN HERE}
+##' \item{op.level}{Optimization level.}
+##' \item{response}{Type of response---either assimilation or stomatal
+##' conductance.}
+##' \item{curve.kind}{Whether it is \code{'Q'} or \code{'Ci'}.}
 ##'
-##' If \code{op.level} 2 \code{ciRd} will also be supplied.  If \code{op.level}
-##' 3 \code{ciTheta} and \code{ciRd} will also be supplied.
-##' \itemize{
-##' \item bestVcmax optimized value for \code{Vmax}
-##' \item bestAlpha optimized value for \code{alpha}
-##' \item ReSumS Residual Sum of Squares
-##' \item Convergence Integer indicating convergence 0 is succesful
-##' convergence. See the \code{\link{optim}} function for details.
-##' \item VarCov Variance-Covariance matrix
-##' \item df degrees of freedom
-##' \item ciVmax Confidence interval for Vmax
-##' \item ciAlpha Confidence interval for Alpha
-##' \item corVA correlation between Vmax and Alpha
-##' \item level level for the confidence interval
-##' \item data data.frame with the original data
-##' \item op.level optimization level
-##' \item response type of response either assimilation or stomatal
-##' conductance
-##' \item curve.kind whether it is \code{'Q'} or \code{'Ci'}
-##' }
+##' If \code{op.level} \eqn{\ge} 2, \code{bestRd} and \code{ciRd} will also be supplied.
+##'
+##' If \code{op.level} = 3, \code{theta} and \code{ciTheta} will also be supplied.
+##'
 ##' @seealso \code{\link{c4photo}} \code{\link{optim}}
 ##' @keywords optimize
 ##' @examples
@@ -420,10 +422,10 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
 ##' soon.  Notice that to be able to optimize k A/Ci type data are needed.
 ##'
 ##'
-##' @param data observed assimilation data, which should be a data frame or
+##' @param data Observed assimilation data, which should be a data frame or
 ##' matrix.  The first column should be observed net assimilation rate
-##' (\eqn{\mu} mol \eqn{m^{-2}} \eqn{s^{-1}}).  The second column should be the
-##' observed quantum flux (\eqn{\mu} mol \eqn{m^{-2}} \eqn{s^{-1}}).  The third
+##' (\eqn{\mu} mol \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).  The second column should be the
+##' observed quantum flux (\eqn{\mu} mol \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).  The third
 ##' column should be observed temperature of the leaf (Celsius).  The fourth
 ##' column should be the observed relative humidity in proportion (e.g. 0.7).
 ##' @param vmax Vcmax (default = 39); for more details see the
@@ -438,6 +440,8 @@ Opc4photo <- function(data,ivmax=39,ialpha=0.04,iRd=0.8,ikparm=0.7,
 ##' \code{\link{c4photo}} function.
 ##' @param Rd Rd as in Collatz (default = 0.8); for more details see the
 ##' \code{\link{c4photo}} function.
+##' @param iupperT FILL IN HERE
+##' @param ilowerT FILL IN HERE
 ##' @param StomWS StomWS as in Collatz (default = 1); for more details see the
 ##' \code{\link{c4photo}} function.
 ##' @param Catm Atmospheric CO2 in ppm (or \eqn{\mu}mol/mol).
@@ -669,7 +673,7 @@ predict.Opc4photo <- function(object, newdata,...){
 ## This function will implement simple calculations
 ## of predicted and residuals for the Opc4photo function
 ##' This function will implement simple calculations
-##' of predicted and residuals for the Opc4photo function
+##' of predicted and residuals for the Opc4photo function.
 ##' @export
 ##' @S3method summary Opc4photo
 ##' 
@@ -813,56 +817,57 @@ plot.Opc4photo <- function(x,plot.kind=c("RvsF","OandF","OvsF"),resid=c("std","r
 ##' curves.
 ##'
 ##' There are printing and plotting methods for the object created by this
-##' function. The plotting function has an argument that it is used to dsiplay
+##' function. The plotting function has an argument that it is used to display
 ##' either vmax or alpha (i.e. \code{parm=c('vmax','alpha')}). In both cases
 ##' the optimized value plus confidence intervals will be displayed for each
 ##' run.
 ##'
 ##' @aliases mOpc4photo plot.mOpc4photo print.mOpc4photo
-##' @param data observed assimilation data, which should be a data frame or
+##' @param data Observed assimilation data, which should be a data frame or
 ##' matrix. The first column should contain a run or id.  The second column
-##' should be observed net assimilation rate (\eqn{\mu} mol \eqn{m^{-2}}
-##' \eqn{s^{-1}}).  The third column should be the observed quantum flux
-##' (\eqn{\mu} mol \eqn{m^{-2}} \eqn{s^{-1}}).  The fourth column should be
+##' should be observed net assimilation rate (\eqn{\mu} mol \eqn{\mathrm{m}^{-2}}{m-2}
+##' \eqn{\mathrm{s}^{-1}}{s-1}).  The third column should be the observed quantum flux
+##' (\eqn{\mu} mol \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).  The fourth column should be
 ##' observed temperature of the leaf (Celsius).  The fifth column should be the
 ##' observed relative humidity in proportion (e.g. 0.7). An optional sixth
 ##' column can contain atmospheric CO2.
-##' @param ID Optional vector with an alternative ID tothe one used in data for
-##' runs. The length shoudl be equal to the number of runs.
+##' @param ID Optional vector with an alternative ID to the one used in data for
+##' runs. The length should be equal to the number of runs.
 ##' @param ivmax Initial value for vmax. It can be a single value or a vector
 ##' of length equal to the number of runs.
 ##' @param ialpha Initial value for alpha. It can be a single value or a vector
 ##' of length equal to the number of runs.
 ##' @param iRd Initial value for vmax. It can be a single value or a vector of
 ##' length equal to the number of runs.
+##' @param iupperT FILL IN HERE
+##' @param ilowerT FILL IN HERE
 ##' @param ikparm Initial value for vmax. It can be a single value or a vector
 ##' of length equal to the number of runs.
 ##' @param itheta Initial value for vmax. It can be a single value or a vector
 ##' of length equal to the number of runs.
 ##' @param ibeta Initial value for vmax. It can be a single value or a vector
 ##' of length equal to the number of runs.
-##' @param curve.kind If \code{'Q'} a type of response which mainly depends on
-##' light will be assumed. Typically used to optimized light response curves or
+##' @param curve.kind If \code{'Q'}, a type of response which mainly depends on
+##' light will be assumed. Typically used to optimize light response curves or
 ##' diurnals. Use \code{'Ci'} for A/Ci curves (stomatal conductance could also
 ##' be optimized).
-##' @param op.level optimization level. If equal to 1 \code{vmax} and
-##' \code{alpha} will be optimized. If 2, \code{vmax}, \code{alpha} and
-##' \code{Rd} will be optimized. If 3, \code{vmax}, \code{alpha}, \code{theta}
+##' @param op.level Optimization level. If equal to 1, \code{vmax} and
+##' \code{alpha} will be optimized. If 2, \code{vmax}, \code{alpha}, and
+##' \code{Rd} will be optimized. If 3, \code{vmax}, \code{alpha}, \code{theta},
 ##' and \code{Rd} will be optimized.
 ##' @param op.ci Whether to optimize intercellular CO2. Default is FALSE as
-##' 'fast-measured' light curves do not provide reliable values of Ci.
+##' ``fast-measured'' light curves do not provide reliable values of Ci.
 ##' @param verbose Whether to display output about convergence of each run.
 ##' @param \dots Used to supply additional arguments to \code{Opc4photo}.
 ##' @export
-##' @return An object of class \code{mOpc4photo} %% ~Describe the value
-##' returned %% If it is a LIST, use
-##' \itemize{
-##' \item mat Matrix with optimized parameters.
-##' \item op.level Optimization level..
-##' \item ciVmax confidence intervals for vmax.
-##' \item ciAlpha confidence intervals for alpha.
-##' \item curve.kind Whether A/Ci or A/Q curves were optimized.
-##' }
+##' @return An object of class \code{mOpc4photo}, a \code{\link{list}} with these components:
+##'
+##' \item{mat}{Matrix with optimized parameters.}
+##' \item{op.level}{Optimization level.}
+##' \item{ciVmax}{Confidence intervals for vmax.}
+##' \item{ciAlpha}{Confidence intervals for alpha.}
+##' \item{curve.kind}{Whether A/Ci or A/Q curves were optimized.}
+##'
 ##' @author Fernando E. miguez
 ##' @seealso \code{\link{Opc4photo}} \code{\link{c4photo}} \code{\link{optim}}
 ##' %% ~~objects to See Also as \code{\link{help}}, ~~~

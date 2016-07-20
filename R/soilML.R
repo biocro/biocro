@@ -1,7 +1,7 @@
 ## Function to simulate the multilayer drying of the soil
 ## This should probably take into account the distribution of
 ## root biomass in the profile
-##' soil multi-layered
+##' Soil multi-layered
 ##'
 ##' Simulates soil water content for a layered soil.
 ##'
@@ -9,7 +9,7 @@
 ##' @aliases soilML rootDist
 ##' @param precipt Precipitation (mm).
 ##' @param CanopyT Canopy transpiration.
-##' @param cws Current water status. Vector of length equal to soilLayers.
+##' @param cws Current water status. Vector of length equal to \code{soilLayers}.
 ##' @param soilDepth Rooting depth.
 ##' @param FieldC Field capacity.
 ##' @param WiltP Wilting point.
@@ -21,9 +21,9 @@
 ##' @param LAI Leaf area index.
 ##' @param k Light extinction coefficient.
 ##' @param AirTemp Air temperature (Celsius).
-##' @param IRad Direct irradiance (\eqn{\mu} \eqn{m^-2} \eqn{s^-1}).
+##' @param IRad Direct irradiance (\eqn{\mu} \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).
 ##' @param winds Wind speed (m/s).
-##' @param RelH Relative humidity (0-1).
+##' @param RelH Relative humidity (0--1).
 ##' @param soilType See \code{\link{showSoilType}}.
 ##' @param hydrDist Zero or otherwise positive integer. Zero does not calculate
 ##' hydraulic distribution, otherwise does.
@@ -34,9 +34,9 @@
 ##' @return rootfrontvelocity
 ##' @return dap
 ##' @export
-##' @return matrix with 8 (if hydrDist=0) or 12 (if hydrDist > 0).
+##' @return matrix with 8 (if hydrDist=0) or 12 (if hydrDist > 0). !!!NEEDS CLARIFICATION!!!
 ##' @author Fernando E. Miguez
-##' @seealso See Also \code{\link{wtrstr}}.
+##' @seealso See also \code{\link{wtrstr}}.
 ##' @keywords models
 ##' @examples
 ##'

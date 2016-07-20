@@ -10,33 +10,33 @@
 ##' sunlit-shade model and the multiple layers.
 ##'
 ##'
-##' @param I.dir direct light (quantum flux), (\eqn{\mu mol \; m^{-2} \;
-##' s^{-1}}{micro mol /m2/s}).
-##' @param I.diff indirect light (diffuse), (\eqn{\mu mol \; m^{-2} \;
-##' s^{-1}}{micro mol /m2/s}).
-##' @param LAI leaf area index, default 8.
-##' @param nlayers number of layers in which the canopy is partitioned, default
+##' @param Idir Direct light (quantum flux, \eqn{\mu \mathrm{mol} \; \mathrm{m}^{-2} \;
+##' \mathrm{s}^{-1}}{\mu mol /m2/s}).
+##' @param Idiff indirect light (diffuse; \eqn{\mu \mathrm{mol} \; \mathrm{m}^{-2} \;
+##' \mathrm{s}^{-1}}{\mu mol /m2/s}).
+##' @param LAI Leaf area index; default 8.
+##' @param nlayers Number of layers in which the canopy is partitioned; default
 ##' 8.
-##' @param kd extinction coefficient for diffuse light.
-##' @param chi.l The ratio of horizontal:vertical projected area of leaves in
+##' @param kd Extinction coefficient for diffuse light.
+##' @param chi.l The ratio of horizontal to vertical projected area of leaves in
 ##' the canopy segment.
-##' @param cos.theta cosine of \eqn{\theta}{theta}, solar zenith angle.
+##' @param cos.theta Cosine of \eqn{\theta}{theta}, the solar zenith angle.
+##' @param heightf FILL IN HERE
 ##' @export
-##' @return a \code{\link{list}} structure with components
+##' @return A \code{\link{list}} structure with the following component
+##' vectors whose size is equal to the number of layers.
 ##'
-##' Vectors size equal to the number of layers.
-##' \itemize{
-##' \item I.solar direct solar radiation.
-##' \item I.diffuse difusse solar radiation.
-##' \item I.total total solar radiation.
-##' \item LAI.sun proportion of the leaf area in each layer which is in
-##' direct light.
-##' \item LAI.shade proportion of the leaf area in each layer which is in
-##' indirect light.
-##' \item Fsun total leaf area in each layer which is in direct light.
-##' \item Fshade total leaf area in each layer which is in indirect
-##' light.
-##' }
+##' \item{I.Solar}{Direct solar radiation.}
+##' \item{I.diffuse}{Diffuse solar radiation.}
+##' \item{I.total}{Total solar radiation.}
+##' \item{LAI.sun}{Proportion of the leaf area in each layer which is in
+##' direct light.}
+##' \item{LAI.shade}{Proportion of the leaf area in each layer which is in
+##' indirect light.}
+##' \item{Fsun}{Total leaf area in each layer which is in direct light.}
+##' \item{Fshade}{Total leaf area in each layer which is in indirect
+##' light.}
+##'
 ##' @keywords models
 ##' @examples
 ##' \dontrun{

@@ -4,27 +4,29 @@
 ##'
 ##' Simulates coupled assimilation and stomatal conductance based on Farquhar
 ##' and Ball-Berry.
-##' @param Qp Quantum flux
-##' @param Tl Leaf temperature
-##' @param RH Relative humidity (fraction -- 0-1)
-##' @param vcmax Maximum rate of carboxylation
-##' @param jmax Maximum rate of electron transport
-##' @param Rd Leaf dark respiration
+##' @param Qp Quantum flux.
+##' @param Tl Leaf temperature.
+##' @param RH Relative humidity (fraction: 0--1).
+##' @param vcmax Maximum rate of carboxylation.
+##' @param jmax Maximum rate of electron transport.
+##' @param Rd Leaf dark respiration.
 ##' @param Catm Atmospheric carbon dioxide.
-##' @param O2 Atmospheric Oxygen concentration (mmol/mol)
-##' @param b0 Intercept for the Ball-Berry model
-##' @param b1 Slope for the Ball-Berry model
-##' @param theta Curvature parameter
+##' @param O2 Atmospheric oxygen concentration (mmol/mol).
+##' @param b0 Intercept for the Ball-Berry model.
+##' @param b1 Slope for the Ball-Berry model.
+##' @param theta Curvature parameter.
+##' @param StomWS FILL IN HERE
+##' @param ws FILL IN HERE
 ##' @export
-##' @return A list
-##' \itemize{
-##' \item Gs Stomatal Conductance
-##' \item Assim CO2 Assimilation
-##' \item Ci Intercellular CO2
-##' }
+##' @return A list having these components:
+##'
+##' \item{Gs}{Stomatal conductance}
+##' \item{Assim}{CO2 assimilation}
+##' \item{Ci}{Intercellular CO2}
+##'
 ##' @note ~~further notes~~ ## Additional notes about assumptions
 ##' @author Fernando E. Miguez
-##' @seealso See Also \code{\link{Opc3photo}}
+##' @seealso See also \code{\link{Opc3photo}}.
 ##' @references
 ##'
 ##' Farquhar (1980) Ball-Berry (1987)

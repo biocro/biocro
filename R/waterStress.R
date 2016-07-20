@@ -2,30 +2,30 @@
 ##' Simple function to illustrate soil water content effect on plant water
 ##' stress.
 ##'
-##' This is a very simple function which implements the 'bucket' model for soil
+##' This is a very simple function which implements the `bucket' model for soil
 ##' water content and it calculates a coefficient of plant water stress.
 ##'
 ##' This is a very simple function and the details can be seen in the code.
 ##'
 ##' @aliases ws wsRcoef
 ##' @param precipt Precipitation (mm).
-##' @param evapo Evaporation (Mg H2O ha-1 hr-1).
-##' @param cws current water content (fraction).
-##' @param soildepth Soil depth, typically 1m.
+##' @param evapo Evaporation (Mg H2O \eqn{\mathrm{ha}^{-1}\mathrm{hr}^{-1}}{ha-1 hr-1}).
+##' @param cws Current water content (fraction).
+##' @param soildepth Soil depth---typically 1m.
 ##' @param fieldc Field capacity of the soil (fraction).
 ##' @param wiltp Wilting point of the soil (fraction).
-##' @param phi1 coefficient which controls the spread of the logistic function.
-##' @param phi2 coefficient which controls the effect on leaf area expansion.
-##' @param wsFun option to control which method is used for the water stress
+##' @param phi1 Coefficient which controls the spread of the logistic function.
+##' @param phi2 Coefficient which controls the effect on leaf area expansion.
+##' @param wsFun Option to control which method is used for the water stress
 ##' function.
 ##' @export
 ##' @return A list with components:
-##' \itemize{
-##' \item rcoefPhoto coefficient of plant water stress for photosyntheis.
-##' \item rcoefSpleaf coefficient of plant water stress for specific leaf
-##' area.
-##' \item naw New available water in the soil.
-##' }
+##'
+##' \item{rcoefPhoto}{Coefficient of plant water stress for photosyntheis.}
+##' \item{rcoefSpleaf}{Coefficient of plant water stress for specific leaf
+##' area.}
+##' \item{naw}{New available water in the soil.}
+##'
 ##' @seealso \code{\link{wsRcoef}}
 ##' @keywords models
 ##' @examples

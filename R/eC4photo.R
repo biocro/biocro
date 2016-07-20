@@ -14,44 +14,43 @@
 ##'
 ##' Simulation of C4 photosynthesis based on the equations proposed by von
 ##' Caemmerer (2000).  At this point assimilation and stomatal conductance are
-##' not coupled and although, for example a lower relative humidity will lower
-##' stomatal conductance it will not affect assimilation.  Hopefully, this will
+##' not coupled and although, for example, a lower relative humidity will lower
+##' stomatal conductance, it will not affect assimilation.  Hopefully, this will
 ##' be improved in the future.
 ##'
 ##' The equations are taken from von Caemmerer (2000) for the assimilation part
 ##' and stomatal conductance is based on FORTRAN code by Joe Berry (translated
 ##' to C).
 ##'
-##' @param Qp quantum flux (\eqn{\mu}{micro} mol \eqn{m^{-2}}{m-2}
-##' \eqn{s^{-1}}{s-1}).
-##' @param airtemp air temperature (Celsius).
-##' @param rh relative humidity in proportion (e.g. 0.7).
-##' @param ca atmospheric carbon dioxide concentration (ppm or
-##' \eqn{\mu}{micro}bar) (e.g. 380).
-##' @param oa atmospheric oxygen concentration (mbar) (e.g. 210).
-##' @param vcmax Maximum rubisco activity (\eqn{\mu}{micro} mol
-##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' @param vpmax Maximum PEP carboxylase activity (\eqn{\mu}{micro} mol
-##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' @param vpr PEP regeneration rate (\eqn{\mu}{micro} mol \eqn{m^{-2}}{m-2}
-##' \eqn{s^{-1}}{s-1}).
-##' @param jmax Maximal electron transport rate (\eqn{\mu}{micro}mol electrons
-##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
+##' @param Qp Quantum flux (\eqn{\mu}mol \eqn{\mathrm{m}^{-2}}{m-2}
+##' \eqn{\mathrm{s}^{-1}}{s-1}).
+##' @param airtemp Air temperature (Celsius).
+##' @param rh Relative humidity in proportion (e.g. 0.7).
+##' @param ca Atmospheric carbon dioxide concentration (ppm or
+##' \eqn{\mu}bar) (e.g. 380).
+##' @param oa Atmospheric oxygen concentration (mbar) (e.g. 210).
+##' @param vcmax Maximum rubisco activity (\eqn{\mu}mol
+##' \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).
+##' @param vpmax Maximum PEP carboxylase activity (\eqn{\mu}mol
+##' \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).
+##' @param vpr PEP regeneration rate (\eqn{\mu}mol \eqn{\mathrm{m}^{-2}}{m-2}
+##' \eqn{\mathrm{s}^{-1}}{s-1}).
+##' @param jmax Maximal electron transport rate (\eqn{\mu}mol electrons
+##' \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).
 ##' @export
-##' @return results of call to C function eC4photo_sym
-##'
+##' @return Results of call to C function eC4photo_sym,
 ##' a \code{\link{list}} structure with components
-##' \itemize{
-##' \item Assim net assimilation rate (\eqn{\mu}{micro} mol
-##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' \item Gs stomatal conductance rate (\eqn{\mu}{micro} mol
-##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' \item Ci CO2 concentration in the bundle-sheath
-##' (\eqn{\mu}{micro}bar).
-##' \item Os oxygen evolution (mbar).
-##' }
-##' @references Susanne von Caemmerer (2000) Biochemical Models of Leaf
-##' Photosynthesis. CSIRO Publishing. (In particular chapter 4).
+##'
+##' \item{Assim}{Net assimilation rate (\eqn{\mu}mol
+##' \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).}
+##' \item{Gs}{Stomatal conductance rate (\eqn{\mu}mol
+##' \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).}
+##' \item{Ci}{CO2 concentration in the bundle-sheath
+##' (\eqn{\mu}bar).}
+##' \item{Os}{Oxygen evolution (mbar).}
+##'
+##' @references Susanne von Caemmerer. 2000.  \emph{Biochemical Models of Leaf
+##' Photosynthesis.} CSIRO Publishing. (In particular chapter 4).
 ##' @keywords models
 ##' @examples
 ##'
@@ -128,37 +127,37 @@ eC4photo <- function(Qp,airtemp,rh,ca=380,oa=210,vcmax=60,
 ##' Simulates canopy assimilation (von Caemmerer model)
 ##'
 ##' It represents an integration of the photosynthesis function
-##' \code{\link{eC4photo}}, canopy evapo/transpiration and the multilayer
+##' \code{\link{eC4photo}}, canopy evapo/transpiration, and the multilayer
 ##' canopy model \code{\link{sunML}}.
 ##'
 ##'
-##' @param LAI leaf area index.
-##' @param doy day of the year, (1--365).
-##' @param hour hour of the day, (0--23).
-##' @param solarR solar radiation (\eqn{\mu mol \; m^{-2} \; s^{-1}}{micro mol
+##' @param LAI Leaf area index.
+##' @param doy Day of the year (1--365).
+##' @param hour Hour of the day (0--23).
+##' @param solarR Solar radiation (\eqn{\mu\mathrm{mol} \; \mathrm{m}^{-2} \; \mathrm{s}^{-1}}{\mu mol
 ##' /m2/s}).
-##' @param AirTemp temperature (Celsius).
-##' @param RH relative humidity (0--1).
-##' @param WindS wind speed (\eqn{m \; s^{-1}}{m/s}).
-##' @param Vcmax Maximum rubisco activity (\eqn{\mu mol \; m^{-2} \;
-##' s^{-1}}{micro mol /m2/s}).
-##' @param Vpmax Maximum PEP carboxylase activity (\eqn{\mu mol \; m^{-2} \;
-##' s^{-1}}{micro mol /m2/s}).
-##' @param Vpr PEP regeneration rate (\eqn{\mu mol \; m^{-2} \; s^{-1}}{micro
-##' mol /m2/s}).
-##' @param Jmax Maximal electron transport rate (\eqn{\mu}{micro}mol electrons
-##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' @param Ca atmospheric carbon dioxide concentration (ppm or
-##' \eqn{\mu}{micro}bar) (e.g. 380).
-##' @param Oa atmospheric oxygen concentration (mbar) (e.g. 210).
+##' @param AirTemp Temperature (Celsius).
+##' @param RH Relative humidity (0--1).
+##' @param WindS Wind speed (\eqn{\mathrm{m} \; \mathrm{s}^{-1}}{m/s}).
+##' @param Vcmax Maximum rubisco activity (\eqn{\mu\mathrm{mol} \; \mathrm{m}^{-2} \;
+##' \mathrm{s}^{-1}}{\mu mol /m2/s}).
+##' @param Vpmax Maximum PEP carboxylase activity (\eqn{\mu\mathrm{mol} \; \mathrm{m}^{-2} \;
+##' \mathrm{s}^{-1}}{\mu mol /m2/s}).
+##' @param Vpr PEP regeneration rate (\eqn{\mu\mathrm{mol} \; \mathrm{m}^{-2} \;
+##' \mathrm{s}^{-1}}{\mu mol /m2/s}).
+##' @param Jmax Maximal electron transport rate (\eqn{\mu}mol electrons
+##' \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).
+##' @param Ca Atmospheric carbon dioxide concentration (ppm or
+##' \eqn{\mu}bar) (e.g. 380).
+##' @param Oa Atmospheric oxygen concentration (mbar) (e.g. 210).
 ##' @param StomataWS Effect of water stress on assimilation.
 ##' @export
 ##' @return
 ##'
 ##' \code{\link{numeric}}
 ##'
-##' returns a single value which is hourly canopy assimilation (mol
-##' \eqn{m^{-2}}{m-2} ground \eqn{hr^{-1}}{s-1})
+##' Returns a single value which is hourly canopy assimilation (mol
+##' \eqn{\mathrm{m}^{-2}}{m-2} ground \eqn{\mathrm{hr}^{-1}}{hr-1})
 ##' @keywords models
 ##' @examples
 ##'
@@ -214,52 +213,52 @@ eCanA <- function(LAI,doy,hour,solarR,AirTemp,RH,WindS,
 ##' Notice that you will get different results each time you run it.
 ##'
 ##'
-##' @param obsDat observed assimilation data, which should be a data frame or
+##' @param obsDat Observed assimilation data, which should be a data frame or
 ##' matrix.  The first column should be observed net assimilation rate
-##' (\eqn{\mu} mol \eqn{m^{-2}} \eqn{s^{-1}}).  The second column should be the
-##' observed quantum flux (\eqn{\mu} mol \eqn{m^{-2}} \eqn{s^{-1}}).  The third
+##' (\eqn{\mu}mol \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).  The second column should be the
+##' observed quantum flux (\eqn{\mu}mol \eqn{\mathrm{m}^{-2}}{m-2} \eqn{\mathrm{s}^{-1}}{s-1}).  The third
 ##' column should be observed temperature of the leaf (Celsius).  The fourth
 ##' column should be the observed relative humidity in proportion (e.g. 0.7).
-##' @param niter number of iterations to run the chain for (default = 30000).
+##' @param niter Number of iterations to run the chain for (default = 30000).
 ##' @param iCa CO2 atmospheric concentration (ppm or \eqn{\mu}bar).
 ##' @param iOa O2 atmospheric concentration (mbar).
-##' @param iVcmax initial value for Vcmax (default = 60).
-##' @param iVpmax initial value for Vpmax (default = 120).
-##' @param iVpr initial value for Vpr (default = 80).
-##' @param iJmax initial value for Jmax (default = 400).
-##' @param thresh this is a threshold that determines the ``convergence'' of
+##' @param iVcmax Initial value for Vcmax (default = 60).
+##' @param iVpmax Initial value for Vpmax (default = 120).
+##' @param iVpr Initial value for Vpr (default = 80).
+##' @param iJmax Initial value for Jmax (default = 400).
+##' @param thresh This is a threshold that determines the ``convergence'' of
 ##' the initial burn-in period. The convergence of the whole chain can be
 ##' evaluated by running the model with different starting values for Vcmax and
 ##' alpha. The chain should convergence, but for this, runs with similar
 ##' thresholds should be compared. This threshold reflects the fact that for
-##' any given data the model will not be able to simulate it perfectly so it
+##' any given data the model will not be able to simulate it perfectly, so it
 ##' represents a compromise between computability and fit.
 ##' @param scale This scale parameter controls the size of the standard
 ##' deviations which generate the moves in the chain. Decrease it to increase
-##' the acceptance rate and viceversa.
+##' the acceptance rate and vice versa.
 ##' @export
-##' @return a \code{\link{list}} structure with components
-##' \itemize{
-##' \item RsqBI This is the \eqn{R^2} for the ``burn-in'' period.  This
-##' value becomes the cut off value for the acceptance in the chain.
-##' \item CoefBI parameter estimates after the burn-in period.  These are
-##' not optimal as in the case of the optimization routine but are starting
-##' values for the chain.
-##' \item accept1 number of iterations for the initial burn-in period.
-##' \item resuBI matrix of dimensions 5 by \code{accept1} containing the
-##' values for Vcmax and alpha and the \eqn{R^2} in each iteration of the
-##' burn-in period.
-##' \item resuMC matrix of dimensions 5 by \code{accept2} containing the
-##' values for Vcmax and alpha and the \eqn{R^2} in each iteration of the chain
-##' period.
-##' \item accept2 number of accepted samples or length of the chain.
-##' \item accept3 number of accepted moves in the chain.
-##' }
-##' @references P. Marjoram, J. Molitor, V. Plagnol, S. Tavare, Markov chain
-##' monte carlo without likelihoods, PNAS 100 (26) (2003) 15324--15328.
+##' @return A \code{\link{list}} structure with components
 ##'
-##' Miguez (2007) Miscanthus x giganteus production: meta-analysis, field study
-##' and mathematical modeling. PhD Thesis. University of Illinois at
+##' \item{RsqBI}{This is the \eqn{R^2} for the ``burn-in'' period.  This
+##' value becomes the cut off value for the acceptance in the chain.}
+##' \item{CoefBI}{Parameter estimates after the burn-in period.  These are
+##' not optimal as in the case of the optimization routine but are starting
+##' values for the chain.}
+##' \item{accept1}{Number of iterations for the initial burn-in period.}
+##' \item{resuBI}{Matrix of dimensions 5 by \code{accept1} containing the
+##' values for Vcmax and alpha and the \eqn{R^2} in each iteration of the
+##' burn-in period.}
+##' \item{resuMC}{Matrix of dimensions 5 by \code{accept2} containing the
+##' values for Vcmax and alpha and the \eqn{R^2} in each iteration of the chain
+##' period.}
+##' \item{accept2}{Number of accepted samples or length of the chain.}
+##' \item{accept3}{Number of accepted moves in the chain.}
+##'
+##' @references P. Marjoram, J. Molitor, V. Plagnol, and S. Tavare.  2003.
+##' Markov chain monte carlo without likelihoods. \emph{PNAS} 100 (26): 15324--15328.
+##'
+##' Miguez, F. E.  2007.  Miscanthus x giganteus production: meta-analysis, field study
+##' and mathematical modeling.  PhD diss., University of Illinois at
 ##' Urbana-Champaign.
 ##' @keywords optimize
 ##' @examples
@@ -314,19 +313,19 @@ if(iVpr != 80)
 }
 ##' Print an MCMCEc4photo object
 ##'
-##' This functions doesn't just print the object components, but it also
-##' computes quantiles according to the \code{level} argument below and a
-##' correlation matrix as well as a summary for each parameter.
+##' This function doesn't just print the object components, but it also
+##' computes quantiles according to the \code{level} argument below, a
+##' correlation matrix, and a summary for each parameter.
 ##'
 ##' The Highest Posterior Density region is calculated using the
 ##' \code{\link{quantile}} function.  The correlation matrix is computed using
 ##' the \code{\link{cor}} function.  The summaries for each parameter are
 ##' computed using the \code{\link{summary}} function.
 ##'
-##' @param x \code{\link{MCMCEc4photo}} object
-##' @param level specified \code{level} for the Highest Posterior Density
+##' @param x \code{\link{MCMCEc4photo}} object.
+##' @param level Specified \code{level} for the Highest Posterior Density
 ##' region.
-##' @param \dots Optional arguments
+##' @param \dots Optional arguments.
 ##' @seealso \code{\link{MCMCEc4photo}}
 ##' @keywords optimize
 ##' @export
@@ -364,19 +363,19 @@ print.MCMCEc4photo <- function(x,level=0.95,...){
   cat("\n R-squared range:",range(x$resuMC[4,]),"\n")
   invisible(x)
 }
-##' Plottin function for MCMCEc4photo objects
+##' Plotting function for MCMCEc4photo objects
 ##'
 ##' By default it prints the trace of the four parameters being estimated by
 ##' the \code{\link{MCMCEc4photo}} function. As an option the density can be
 ##' plotted.
 ##'
 ##' This function uses internally \code{\link[lattice]{xyplot}} and
-##' \code{\link[lattice]{densityplot}} both in the 'lattice' package.
+##' \code{\link[lattice]{densityplot}} both in the `lattice' package.
 ##'
 ##' @param x \code{\link{MCMCEc4photo}} object.
-##' @param x2 optional additional \code{link{MCMCEc4photo}} object.
-##' @param x3 optional additional \code{link{MCMCEc4photo}} object.
-##' @param type 'trace' plots the iteration history and 'density' plots the
+##' @param x2 Optional additional \code{link{MCMCEc4photo}} object.
+##' @param x3 Optional additional \code{link{MCMCEc4photo}} object.
+##' @param type `trace' plots the iteration history and `density' plots the
 ##' kernel density.
 ##' @param \dots Optional arguments.
 ##' @seealso \code{\link{MCMCEc4photo}}

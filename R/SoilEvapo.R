@@ -1,9 +1,9 @@
 ## Function to calculate evaporation directly from the soil
 ##' Soil Evaporation
 ##'
-##' Calculates soil evaporation
+##' Calculates soil evaporation.
 ##'
-##' The style of the code is \code{C} like because this is a prototype for the
+##' The style of the code is \code{C}-like because this is a prototype for the
 ##' underlying \code{C} (like so many other functions in this package). I leave
 ##' it here for future development.
 ##'
@@ -17,7 +17,7 @@
 ##' @param winds Wind speed.
 ##' @param RelH Relative humidty.
 ##' @export
-##' @return Returns a single value of soil Evaporation in Mg H20 per hectare.
+##' @return Returns a single value of soil evaporation in Mg H20 per hectare.
 ##' @author Fernando Miguez
 ##' @seealso Source code :)
 ##' @keywords models

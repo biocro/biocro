@@ -18,49 +18,49 @@
 ##' \code{constrOpBioGro} is a wrapper for \code{constrOptim}.
 ##'
 ##' @aliases OpBioGro constrOpBioGro summary.OpBioGro
-##' @param phen integer taking values 1 through 6 which indicate the
+##' @param phen Integer taking values 1 through 6 indicating the
 ##' phenological stage being optimized. If all of the phenological stages need
 ##' to be optimized then use zero (0).
-##' @param iCoef initial vector of size 24 for the dry biomass partitioning
+##' @param iCoef Initial vector of size 24 for the dry biomass partitioning
 ##' coefficients.
 ##' @param WetDat Weather data.
-##' @param data observed data.
-##' @param day1 first day of the growing season.
-##' @param dayn last day of the growing season.
-##' @param timestep see \code{\link{BioGro}}
-##' @param lat see \code{\link{BioGro}}
-##' @param iRhizome see \code{\link{BioGro}}
-##' @param irtl see \code{\link{BioGro}}
-##' @param canopyControl see \code{\link{BioGro}}
-##' @param seneControl see \code{\link{BioGro}}
-##' @param photoControl see \code{\link{BioGro}}
-##' @param phenoControl see \code{\link{BioGro}}
-##' @param soilControl see \code{\link{BioGro}}
-##' @param nitroControl see \code{\link{BioGro}}
-##' @param centuryControl see \code{\link{BioGro}}
-##' @param op.method Optimization method. Whether to use optim or nlminb
-##' @param verbose Displays additional information, originally used for
+##' @param data Observed data.
+##' @param day1 First day of the growing season.
+##' @param dayn Last day of the growing season.
+##' @param timestep See \code{\link{BioGro}}.
+##' @param lat See \code{\link{BioGro}}.
+##' @param iRhizome See \code{\link{BioGro}}.
+##' @param irtl See \code{\link{BioGro}}.
+##' @param canopyControl See \code{\link{BioGro}}.
+##' @param seneControl See \code{\link{BioGro}}.
+##' @param photoControl See \code{\link{BioGro}}.
+##' @param phenoControl See \code{\link{BioGro}}.
+##' @param soilControl See \code{\link{BioGro}}.
+##' @param nitroControl See \code{\link{BioGro}}.
+##' @param centuryControl See \code{\link{BioGro}}.
+##' @param op.method Optimization method: whether to use optim or nlminb.
+##' @param verbose Displays additional information; originally used for
 ##' debugging.
-##' @param \dots additional arguments passed to \code{\link{optim}} or
+##' @param \dots Additional arguments passed to \code{\link{optim}} or
 ##' \code{\link{constrOptim}}.
 ##' @export
 ##' @return
 ##'
 ##' \code{\link{list}} of class \code{OpBioGro} with components
-##' \itemize{
-##' \item coefs Optimized coefficients.
-##' \item data It passes the data for subsequent plotting and printing.
-##' \item opar Results from the optimization function.
-##' \item phen Indicates the phenological stage being optimized.
-##' \item list1 a \code{\link{list}} with several components.
-##' }
+##'
+##' \item{coefs}{Optimized coefficients.}
+##' \item{data}{It passes the data for subsequent plotting and printing.}
+##' \item{opar}{Results from the optimization function.}
+##' \item{phen}{Indicates the phenological stage being optimized.}
+##' \item{list1}{A \code{\link{list}} with several components.}
+##'
 ##' @section Warning:
 ##'
 ##' This function has not had enough testing.
 ##'
 ##' @seealso \code{\link{BioGro}} \code{\link{constrOptim}} \code{\link{optim}}
 ##' \code{\link{c4photo}}
-##' @references no references yet.
+##' @references No references yet.
 ##' @keywords optimize
 ##' @examples
 ##'

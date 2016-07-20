@@ -13,21 +13,21 @@
 ##' Same as \code{\link{RUEmod}} but it handles multiple years.
 ##'
 ##'
-##' @param weatherdatafile weather data file (see example).
-##' @param doy.s first day of the growing season, default 91.
-##' @param doy.f last day of the growing season, default 227.
-##' @param ... additional arguments to be passed to the \code{\link{RUEmod}}
+##' @param weatherdatafile Weather data file (see example).
+##' @param doy.s First day of the growing season; default 91.
+##' @param doy.f Last day of the growing season; default 227.
+##' @param ... Additional arguments to be passed to the \code{\link{RUEmod}}
 ##' function.
 ##' @export
-##' @return a \code{\link{data.frame}} structure with components
-##' \itemize{
-##' \item year simulation year.
-##' \item doy day of the year.
-##' \item lai.cum cumulative leaf area index.
-##' \item AG.cum cumulative above ground dry biomass (Mg \eqn{ha^{-1}}).
-##' \item AGDD cumulative growing degree days.
-##' \item Int.e Intercepted solar radiation.
-##' }
+##' @return A \code{\link{data.frame}} structure with components
+##'
+##' \item{year}{simulation year.}
+##' \item{doy}{day of the year.}
+##' \item{lai.cum}{Cumulative leaf area index.}
+##' \item{AG.cum}{Cumulative above ground dry biomass (Mg \eqn{ha^{-1}}).}
+##' \item{AGDD}{Cumulative growing degree days.}
+##' \item{Int.e}{Intercepted solar radiation.}
+##'
 ##' @keywords models
 ##' @examples
 ##'

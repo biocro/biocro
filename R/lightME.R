@@ -1,27 +1,27 @@
 ##' Simulates the light macro environment
 ##'
-##' Simulates light macro environment based on latitude, day of the year.
+##' Simulates light macro environment based on latitude and day of the year.
 ##' Other coefficients can be adjusted.
 ##'
 ##' The equations used here can be found in
-##' http://www.life.illinois.edu/plantbio/wimovac/newpage9.htm
+##' \url{http://www.life.illinois.edu/plantbio/wimovac/newpage9.htm}.
 ##' The original source is Monteith, 1991
 ##'
-##' @param lat the latitude, default is 40 (Urbana, IL, U.S.).
-##' @param DOY the day of the year (1--365), default 190.
-##' @param t.d time of the day in hours (0--23), default 12.
-##' @param t.sn time of solar noon, default 12.
-##' @param atm.P atmospheric pressure, default 1e5 (kPa).
-##' @param alpha atmospheric transmittance, default 0.85.
+##' @param lat The latitude; default is 40 (Urbana, IL, U.S.).
+##' @param DOY The day of the year (1--365); default 190.
+##' @param t.d Time of the day in hours (0--23); default 12.
+##' @param t.sn Time of solar noon; default 12.
+##' @param atm.P Atmospheric pressure; default 1e5 (kPa).
+##' @param alpha Atmospheric transmittance; default 0.85.
 ##' @export
-##' @return a \code{\link{list}} structure with components:
-##' \itemize{
-##'  \item{"I.dir"}{Direct radiation (\eqn{\mu} mol \eqn{m^{-2}s^{-1}}}
-##'  \item{"I.diff"}{Indirect (diffuse) radiation (\eqn{\mu} mol\eqn{m^{-2}s^{-1}}}
-##'  \item{"cos.th"}{cosine of \eqn{\theta}, solar zenith angle.}
-##'  \item{"propIdir"}{proportion of direct radiation.}
-##'  \item{"propIdiff"}{proportion of indirect (diffuse) radiation.}
-##' }
+##' @return A \code{\link{list}} structure with components:
+##'
+##'  \item{I.dir}{Direct radiation (\eqn{\mu}mol \eqn{\mathrm{m}^{-2}\mathrm{s}^{-1}}{m-2 s-1}).}
+##'  \item{I.diff}{Indirect (diffuse) radiation (\eqn{\mu}mol \eqn{\mathrm{m}^{-2}\mathrm{s}^{-1}}{m-2 s-1}).}
+##'  \item{cos.th}{Cosine of \eqn{\theta}, the solar zenith angle.}
+##'  \item{propIdir}{Proportion of direct radiation.}
+##'  \item{propIdiff}{Proportion of indirect (diffuse) radiation.}
+##'
 ##' @keywords models
 ##' @examples
 ##'

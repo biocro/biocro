@@ -6,8 +6,8 @@
 ##' coefficients.
 ##'
 ##'
-##' @param x Vector of length equal to 25 containing the dry biomass
-##' partitioning coefficients for the 6 phenological stages as for example
+##' @param x Vector of length 25 containing the dry biomass
+##' partitioning coefficients for the 6 phenological stages as, for example,
 ##' produced by \code{\link{phenoParms}}.
 ##' @param tol Numerical tolerance passed to the \code{\link{all.equal}}
 ##' function.

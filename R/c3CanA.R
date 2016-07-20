@@ -3,76 +3,80 @@
 ##' Simulates canopy assimilation for C3 canopies
 ##'
 ##' It represents an integration of the photosynthesis function
-##' \code{\link{c3photo}}, canopy evapo/transpiration and the multilayer canopy
+##' \code{\link{c3photo}}, canopy evapo/transpiration, and the multilayer canopy
 ##' model \code{\link{sunML}}.
 ##'
 ##' The photosynthesis function is modeled after the version in WIMOVAC.  This
 ##' is based on the well known Farquar model.
 ##'
-##' @param lai leaf area index.
-##' @param doy day of the year, (1--365).
-##' @param hr hour of the day, (0--23).
-##' @param solar solar radiation (\eqn{\mu}{micro} mol \eqn{m^{-2}}{m-2}
-##' \eqn{s^{-1}}{s-1}).
-##' @param temp temperature (Celsius).
-##' @param rh relative humidity (0--1).
-##' @param windspeed wind speed (m \eqn{s^{-1}}{s-1}).
-##' @param lat latitude.
-##' @param nlayers number of layers in the simulation of the canopy (max
+##' @param lai Leaf area index.
+##' @param doy Day of the year (1--365).
+##' @param hr Hour of the day (0--23).
+##' @param solar Solar radiation (\eqn{\mu} mol \eqn{\mathrm{m}^{-2}}{m-2}
+##' \eqn{\mathrm{s}^{-1}}{s-1}).
+##' @param temp Temperature (Celsius).
+##' @param rh Relative humidity (0--1).
+##' @param windspeed Wind speed (m \eqn{\mathrm{s}^{-1}}{s-1}).
+##' @param lat Latitude.
+##' @param nlayers Number of layers in the simulation of the canopy (max
 ##' allowed is 50).
-##' @param kd Ligth extinction coefficient for diffuse light.
-##' @param heightFactor Height Factor. Divide LAI by this number to get the
+##' @param kd Light extinction coefficient for diffuse light.
+##' @param heightFactor Height factor. Divide LAI by this number to get the
 ##' height of a crop.
-##' @param c3photoControl list that sets the photosynthesis parameters for c3
-##' plants through the c3photoParms function
-##' @param lnControl list that sets the leaf nitrogen parameters.
+##' @param c3photoControl List that sets the photosynthesis parameters for c3
+##' plants through the c3photoParms function.
+##' @param lnControl List that sets the leaf nitrogen parameters.
 ##'
-##' LeafN: Initial value of leaf nitrogen (g m-2).
+##' \code{LeafN}: Initial value of leaf nitrogen (g m\eqn{^{-2}}{-2}).
 ##'
-##' kpLN: coefficient of decrease in leaf nitrogen during the growing season.
-##' The equation is LN = iLeafN * exp(-kLN * TTc).
+##' \code{kpLN}: Coefficient of decrease in leaf nitrogen during the growing season.
+##' The equation is \code{LN = iLeafN * exp(-kLN * TTc)}.
 ##'
-##' lnFun: controls whether there is a decline in leaf nitrogen with the depth
-##' of the canopy. 'none' means no decline, 'linear' means a linear decline
+##' \code{lnFun}: Controls whether there is a decline in leaf nitrogen with the depth
+##' of the canopy. `none' means no decline, `linear' means a linear decline
 ##' controlled by the following two parameters.
 ##'
-##' lnb0: Intercept of the linear decline of leaf nitrogen in the depth of the
+##' \code{lnb0}: Intercept of the linear decline of leaf nitrogen in the depth of the
 ##' canopy.
 ##'
-##' lnb1: Slope of the linear decline of leaf nitrogen in the depth of the
-##' canopy. The equation is 'vmax = leafN_lay * lnb1 + lnb0'.
+##' \code{lnb1}: Slope of the linear decline of leaf nitrogen in the depth of the
+##' canopy. The equation is \code{vmax = leafN_lay * lnb1 + lnb0}.
+##'
+##' @param StomWS FILL IN HERE
+##'
 ##' @export
 ##' @return
 ##'
 ##' \code{\link{list}}
 ##'
-##' returns a list with several elements
+##' Returns a list with several elements:
 ##'
-##' CanopyAssim: hourly canopy assimilation (\eqn{Mg ha^{-1}}{Mg/ha}
-##' \eqn{hr^{-1}}{per hour})
+##' \item{CanopyAssim}{Hourly canopy assimilation (\eqn{\mathrm{Mg\,ha}^{-1}}{Mg/ha}
+##' \eqn{\mathrm{hr}^{-1}}{per hour}).}
 ##'
-##' CanopyTrans: hourly canopy transpiration (\eqn{Mg ha^{-1}}{Mg/ha}
-##' \eqn{hr^{-1}}{per hour})
+##' \item{CanopyTrans}{Hourly canopy transpiration (\eqn{\mathrm{Mg\,ha}^{-1}}{Mg/ha}
+##' \eqn{\mathrm{hr}^{-1}}{per hour}).}
 ##'
-##' CanopyCond: hourly canopy conductance (units ?)
+##' \item{CanopyCond}{Hourly canopy conductance (units ?).}
 ##'
-##' TranEpen: hourly canopy transpiration according to Penman (\eqn{Mg ha^{-1}}
-##' \eqn{hr^{-1}}{per hour})
+##' \item{TranEpen}{Hourly canopy transpiration according to Penman (\eqn{\mathrm{Mg\,ha}^{-1}}{Mg/ha}
+##' \eqn{\mathrm{hr}^{-1}}{per hour}).}
 ##'
-##' TranEpen: hourly canopy transpiration according to Priestly (\eqn{Mg
-##' ha^{-1}}{Mg/ha} \eqn{hr^{-1}}{per hour})
+##' \item{TranEpen}{Hourly canopy transpiration according to Priestly (\eqn{\mathrm{Mg\,ha}^{-1}}{Mg/ha}
+##' \eqn{\mathrm{hr}^{-1}}{per hour}).}
 ##'
-##' LayMat: hourly by Layer matrix containing details of the calculations by
-##' layer (each layer is a row).  col1: Direct Irradiance col2: Diffuse
-##' Irradiance col3: Leaf area in the sun col4: Leaf area in the shade col5:
-##' Transpiration of leaf area in the sun col6: Transpiration of leaf area in
-##' the shade col7: Assimilation of leaf area in the sun col8: Assimilation of
-##' leaf area in the shade col9: Difference in temperature between the leaf and
+##' \item{LayMat}{Hourly by layer matrix containing details of the calculations by
+##' layer (each layer is a row).  col1: Direct Irradiance. col2: Diffuse
+##' Irradiance. col3: Leaf area in the sun. col4: Leaf area in the shade. col5:
+##' Transpiration of leaf area in the sun. col6: Transpiration of leaf area in
+##' the shade. col7: Assimilation of leaf area in the sun. col8: Assimilation of
+##' leaf area in the shade. col9: Difference in temperature between the leaf and
 ##' the air (i.e. TLeaf - TAir) for leaves in sun.  col10: Difference in
 ##' temperature between the leaf and the air (i.e. TLeaf - TAir) for leaves in
-##' shade.  col11: Stomatal conductance for leaves in the sun col12: Stomatal
-##' conductance for leaves in the shade col13: Nitrogen concentration in the
-##' leaf (g m^-2) col14: Vmax value as depending on leaf nitrogen
+##' shade.  col11: Stomatal conductance for leaves in the sun. col12: Stomatal
+##' conductance for leaves in the shade. col13: Nitrogen concentration in the
+##' leaf (g m\eqn{^{-2}}{-2}). col14: Vmax value as depending on leaf nitrogen.}
+##'
 ##' @author Fernando E. Miguez
 ##' @references Farquhar model %% ~put references to the literature/web site
 ##' here ~
