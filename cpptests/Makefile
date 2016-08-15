@@ -1,8 +1,9 @@
 CXXFLAGS=-I/Library/Frameworks/R.framework/Resources/include/
+CXXFLAGS+=-std=c++11
 
 LDFLAGS=
 # commented out what seems not to be needed:
-#LDFLAGS=-std=c++11
+#LDFLAGS+=-std=c++11
 #LDFLAGS+=-Wl,-headerpad_max_install_names
 LDFLAGS+=-undefined dynamic_lookup
 #LDFLAGS+=-single_module
