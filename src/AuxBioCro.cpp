@@ -29,17 +29,17 @@ double cos_zenith_angle(double lat, int DOY, int td) {
 
     constexpr double RADIANS_PER_DEGREE = M_PI/180;
     constexpr int SOLAR_NOON = 12;
-    constexpr double DEGREES_PER_HOUR = 15;
-    constexpr double AXIAL_TILT = 23.5;
+    constexpr double RADIANS_ROTATION_PER_HOUR = 15 * RADIANS_PER_DEGREE;
+    constexpr double AXIAL_TILT = 23.5 * RADIANS_PER_DEGREE;
 
     double phi = lat * RADIANS_PER_DEGREE;
     int NDS = DOY + 10;
 
-    double theta = 360.0 * (NDS / 365.0) * RADIANS_PER_DEGREE;
+    double omega = 360.0 * (NDS / 365.0) * RADIANS_PER_DEGREE;
     
-    double delta = -(RADIANS_PER_DEGREE * (AXIAL_TILT * cos(theta)));
+    double delta = -AXIAL_TILT * cos(omega);
 
-    double tau = (DEGREES_PER_HOUR * (td - SOLAR_NOON)) * RADIANS_PER_DEGREE;
+    double tau = (td - SOLAR_NOON) * RADIANS_ROTATION_PER_HOUR;
 
     return sin(delta) * sin(phi) + cos(delta) * cos(phi) * cos(tau);
 }

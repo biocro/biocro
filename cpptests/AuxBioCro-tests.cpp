@@ -148,7 +148,7 @@ TEST(irradiance_calculations, SampleValues) {
     // DBL_DIG = 15, so 16 s.d. should be enough
     double expected_direct_irradiance[13] = {
         0.000000000000000e+00, // hour = 6
-        2.892963275968294e-04,
+        2.892963275968324e-04,
         1.491902732207600e-01,
         4.870550993026899e-01,
         6.527225504827220e-01,
@@ -158,7 +158,7 @@ TEST(irradiance_calculations, SampleValues) {
         6.527225504827220e-01,
         4.870550993026899e-01,
         1.491902732207600e-01,
-        2.892963275968294e-04,
+        2.892963275968324e-04,
         0.000000000000000e+00 // hour = 18
         
     };
