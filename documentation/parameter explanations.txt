@@ -1,19 +1,19 @@
 symbol	valid_set	plausible_sorghum_values	units	
 lat	[-90, 90]	[-90, 90]	degree	
-iSp	(0, infinity)	0		
+iSp	(0, infinity)			
 SpD	(-infinity, infinity)			
 nlayers	positive integers			# The number of layers in the canopy model
 kd				
-chil	[0, infinity)			# An estimate for sorghum. Table 15.1, page 253 of Campbell and Norman. An introduction to environmental biophysics. 2nd edition.
+chil	[0, infinity)	[0.67, 2.6]		# Leaf angle distribution. The relative amount of horizontal to vertical leaf area, with 0 being all vertical and increasing unbounded with more horizontal area. Campbell and Norman. An introduction to environmental biophysics. 2nd edition.
 heightf	(0, infinity)			# delta_LAI / delta_height. An empirical factor relating leaf area index to the height of the canopy. The model currently assumes that leaf area is uniformly distributed vertically through the canopy.
-leafwidth	(0, infinity)	(0, 0.7]	meter	# The characteristic dimension of the leaf with regard to wind flow. See Norman and Campbell. Introduction to Biophysics. 2nd edition. page 107.
+leafwidth	(0, infinity)	[0.01, 0.7]	meter	# The characteristic dimension of the leaf with regard to wind flow. See Norman and Campbell. Introduction to Biophysics. 2nd edition. page 107.
 et_equation				
 seneLeaf				
 seneStem				
 seneRoot				
 seneRhizome				
-tbase	(-infinity, infinity)	[0, 15]	degree Celsius	
-vmax1	[0, infinity)			
+tbase	(-infinity, infinity)	[0, 15]	degree Celsius	# The base temperature for computing growing degree days.
+vmax1	[0, infinity)		microlmole meter^-2 second^-1	
 alpha1				
 kparm				
 theta				
@@ -109,7 +109,7 @@ nRdb0
 nkpLN				
 nlnb0				
 nlnb1				
-timestep	{1, 2, 3, 4, 6, 8, 12, 24}			
+timestep	{1, 2, 3, 4, 6, 8, 12, 24}			# The number of hours between each step in the model. Currently, it must be a divison of 24.
 centTimestep				
 doyNfert				
 mrc1	[0, infinity)			
