@@ -22,8 +22,36 @@
 #include <cassert>
 
 /**
- * Computation of the cosine of the zenith angle from latitute, day of the year,
- * and time of day.
+ * Computation of the cosine of the zenith angle from latitute (`lat`), day of
+ * the year (`DOY`), and time of day (`td`).
+ *
+ * For the values of angles in radians, we'll use the common practice of
+ * denoting the latitude by `phi` (\f$\phi\f$), the declination by `delta`
+ * (\f$\delta\f$), and the hour angle by `tau` (\f$\tau\f$).  `NDS` denotes the
+ * number of days after December solstice and `omega` (\f$\omega\f$) denotes the
+ * angle (in radians) of the orbital position of the earth around the sun
+ * relative to its position at the December solstice.
+ *
+ * Denoting the axial tilt of the earth by \f$\varepsilon\f$, the equation used
+ * for declination (`delta`) is
+ * \f[
+ *     \delta = -\varepsilon \cos(\omega)
+ * \f]
+ * which is an approximation (always accurate to within 0.26 degrees) of the
+ * more accurate formula
+ * \f[
+ *     \sin(\delta) = -\sin(\varepsilon) \cos(\omega)
+ * \f]
+ *
+ * The cosine of the solar zenith angle \f$\theta_s\f$ may be calculated from
+ * the declination \f$\delta\f$, the latitude \f$\phi\f$, and the hour angle
+ * \f$\tau\f$ by the formula
+ * \f[
+ *     \cos(\theta_s) = \sin(\delta) \sin(\phi) + \cos(\delta) \cos(\phi) \cos(\tau)
+ * \f]
+ * which is a straight-forward application of the law of cosines for spherical
+ * triangles, substituting cofunctions of coangles in the case of latitude and
+ * declination.
  */
 double cos_zenith_angle(double lat, int DOY, int td) {
 
@@ -46,12 +74,6 @@ double cos_zenith_angle(double lat, int DOY, int td) {
 
 /**
  * Light Macro Environment
- *
- * For the values of angles in radians, we'll use the common practice of
- * denoting the latitude by phi, the declination by delta, and the hour angle by
- * tau.  NDS denotes the number of days after December solstice and theta
- * denotes the angle (in radians) of the orbital position of the earth around
- * the sun relative to its position at the December solstice.
  */
 struct Light_model lightME(double lat, int DOY, int td)
 {
