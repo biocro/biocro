@@ -18,8 +18,6 @@
 #include <Rinternals.h>
 #include "c4photo.h"
 #include "BioCro.h"
-#include <stdio.h>
-#include <cassert>
 
 /**
  * Computation of the cosine of the zenith angle from latitute (`lat`), day of
