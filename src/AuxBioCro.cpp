@@ -22,16 +22,11 @@
 #include <cassert>
 
 /**
- * Light Macro Environment
- *
- * For the values of angles in radians, we'll use the common practice of
- * denoting the latitude by phi, the declination by delta, and the hour angle by
- * tau.  NDS denotes the number of days after December solstice and theta
- * denotes the angle (in radians) of the orbital position of the earth around
- * the sun relative to its position at the December solstice.
+ * Computation of the cosine of the zenith angle from latitute, day of the year,
+ * and time of day.
  */
-struct Light_model lightME(double lat, int DOY, int td)
-{
+double cos_zenith_angle(double lat, int DOY, int td) {
+
     constexpr double RADIANS_PER_DEGREE = M_PI/180;
     constexpr int SOLAR_NOON = 12;
     constexpr double DEGREES_PER_HOUR = 15;
@@ -46,8 +41,22 @@ struct Light_model lightME(double lat, int DOY, int td)
 
     double tau = (DEGREES_PER_HOUR * (td - SOLAR_NOON)) * RADIANS_PER_DEGREE;
 
-    double cosine_zenith_angle = sin(delta) * sin(phi) + cos(delta) * cos(phi) * cos(tau);
+    return sin(delta) * sin(phi) + cos(delta) * cos(phi) * cos(tau);
+}
 
+/**
+ * Light Macro Environment
+ *
+ * For the values of angles in radians, we'll use the common practice of
+ * denoting the latitude by phi, the declination by delta, and the hour angle by
+ * tau.  NDS denotes the number of days after December solstice and theta
+ * denotes the angle (in radians) of the orbital position of the earth around
+ * the sun relative to its position at the December solstice.
+ */
+struct Light_model lightME(double lat, int DOY, int td)
+{
+    double cosine_zenith_angle = cos_zenith_angle(lat, DOY, td);
+    
     // if(cosine_zenith_angle < pow(10,-10))
     //         cosine_zenith_angle = pow(10,-10);
     /* The code above caused problems when using measured hourly data in
