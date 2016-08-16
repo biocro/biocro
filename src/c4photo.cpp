@@ -23,6 +23,7 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	struct c4_str tmp = {0, 0, 0, 0};
 	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
+    const double P = AP / 1e3; /* kPa */
 	/*const double PS = 38;   Atmospheric pressure of CO2 */
 	const double Q10 = 2;  /* Q10 increase in a reaction by 10 C temp */
 
