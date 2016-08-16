@@ -1,4 +1,4 @@
-#ifndef C4PHOTO_h
+#ifndef C4PHOTO_H
 #define C4PHOTO_H
 /*
  *  /src/c4photo.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2008
