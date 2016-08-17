@@ -19,55 +19,92 @@
 #include "c4photo.h"
 #include "BioCro.h"
 
+/**
+ * Computation of the cosine of the zenith angle from latitute (`lat`), day of
+ * the year (`DOY`), and time of day (`td`).
+ *
+ * For the values of angles in radians, we'll use the common practice of
+ * denoting the latitude by `phi` (\f$\phi\f$), the declination by `delta`
+ * (\f$\delta\f$), and the hour angle by `tau` (\f$\tau\f$).  `NDS` denotes the
+ * number of days after December solstice and `omega` (\f$\omega\f$) denotes the
+ * angle (in radians) of the orbital position of the earth around the sun
+ * relative to its position at the December solstice.
+ *
+ * Denoting the axial tilt of the earth by \f$\varepsilon\f$, the equation used
+ * for declination (`delta`) is
+ * \f[
+ *     \delta = -\varepsilon \cos(\omega)
+ * \f]
+ * which is an approximation (always accurate to within 0.26 degrees) of the
+ * more accurate formula
+ * \f[
+ *     \sin(\delta) = -\sin(\varepsilon) \cos(\omega)
+ * \f]
+ *
+ * The cosine of the solar zenith angle \f$\theta_s\f$ may be calculated from
+ * the declination \f$\delta\f$, the latitude \f$\phi\f$, and the hour angle
+ * \f$\tau\f$ by the formula
+ * \f[
+ *     \cos(\theta_s) = \sin(\delta) \sin(\phi) + \cos(\delta) \cos(\phi) \cos(\tau)
+ * \f]
+ * which is a straight-forward application of the law of cosines for spherical
+ * triangles, substituting cofunctions of coangles in the case of latitude and
+ * declination.
+ */
+double cos_zenith_angle(double latitude, int day_of_year, int hour_of_day) {
 
-/* Light Macro Environment */
-struct Light_model lightME(double lat, int DOY, int td)
+    constexpr double RADIANS_PER_DEGREE = M_PI/180;
+    constexpr int SOLAR_NOON = 12;
+    constexpr double RADIANS_ROTATION_PER_HOUR = 15 * RADIANS_PER_DEGREE;
+    constexpr double AXIAL_TILT = 23.5 * RADIANS_PER_DEGREE;
+
+    double phi = latitude * RADIANS_PER_DEGREE;
+    int NDS = day_of_year + 10;
+
+    double omega = 360.0 * (NDS / 365.0) * RADIANS_PER_DEGREE;
+    
+    double delta = -AXIAL_TILT * cos(omega);
+
+    double tau = (hour_of_day - SOLAR_NOON) * RADIANS_ROTATION_PER_HOUR;
+
+    return sin(delta) * sin(phi) + cos(delta) * cos(phi) * cos(tau);
+}
+
+/**
+ * Light Macro Environment
+ */
+struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
 {
-    const double DTR = M_PI/180;
-    const double tsn = 12.0;
-    const double alpha = 0.85;
-    const double SolarConstant = 2650;
-    const double atmP = 1e5;
-    const double PPo = 1e5 / atmP;
+    // Return values.
+    //  light_model.irradiance_direct: The fraction of irradiance that is direct radiation. dimensionless.
+    //  light_model.irradiance_diffuse: The fraction of irradiance that is diffuse radiation. dimensionless.
+    //  light_model.cos_zenith_angle: The cosine of the zenith angle of the Sun. The angle is 0, and cos(angle) is 1, when the Sun is directly overhead. dimensionless.
+    //
+    // The basis for this function is given in equation 11.11 of Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
+    double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);
+    double direct_irradiance;
+    double diffuse_irradiance;
 
-    double omega = lat * DTR;
-    double delta0 = 360.0 * ((DOY + 10)/365.0);
-    double delta = -23.5 * cos(delta0*DTR);
-    double deltaR = delta * DTR;
-    double tf = (15.0*(td - tsn))*DTR;
-    double SSin = sin(deltaR) * sin(omega);
-    double CCos = cos(deltaR) * cos(omega);
+    if (abs(acos(cosine_zenith_angle)) >= M_PI / 2) { // Check that the Sun is above the horizon. If it is not, directly set direct_irradiance and diffuse_irradiance to avoid possible division by zero.
+        direct_irradiance = 0;
+        diffuse_irradiance = 1;
+    } else { // If the Sun is above the horizon, calculate diffuse and direct irradiance from the Sun's angle to the ground and the path through the atmosphere.
+        constexpr double atmospheric_transmittance = 0.85; // dimensionless
+        constexpr double atmospheric_pressure_at_sea_level = 1e5; // Pa
+        constexpr double local_atmospheric_pressure = 1e5; // Pa
+        constexpr double pressure_ratio = local_atmospheric_pressure / atmospheric_pressure_at_sea_level; // dimensionless.
+        constexpr double proportion_of_irradiance_scattered = 0.3;
+
+        direct_irradiance = pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle));
+        diffuse_irradiance = proportion_of_irradiance_scattered * (1 - direct_irradiance) * cosine_zenith_angle;
+    }
 
     struct Light_model light_model;
-    double CosZenithAngle, CosHour, CosHourDeg, Idir, Idiff;
+    light_model.irradiance_direct = direct_irradiance / (direct_irradiance + diffuse_irradiance); // dimensionless.
+    light_model.irradiance_diffuse = diffuse_irradiance / (direct_irradiance + diffuse_irradiance); // dimensionless.
+    light_model.cosine_zenith_angle = cosine_zenith_angle; // dimensionless.
 
-    CosZenithAngle = SSin + CCos * cos(tf);
-    // if(CosZenithAngle < pow(10,-10))
-    //         CosZenithAngle = pow(10,-10);
-    /* The code above caused problems when using measured hourly data in
-     * some cases when the value was really low. For the moment, the code below
-     * is a temporary fix. Some longer term solution is needed.*/
-    if(CosZenithAngle < 0.10) {
-        if(td > 18 && td < 22) { 
-            CosZenithAngle = 0.10;
-        } else {
-            if(CosZenithAngle < 0)
-                CosZenithAngle = 0.00001;
-        }
-    } 
-
-    CosHour = -tan(omega) * tan(deltaR);
-    CosHourDeg = CosHour / DTR;
-    if(CosHourDeg < -57)
-        CosHour = -0.994;
-
-    Idir = SolarConstant * (pow(alpha, (PPo / CosZenithAngle)));
-    Idiff = 0.3 * SolarConstant * (1 - pow(alpha, (PPo / CosZenithAngle))) * CosZenithAngle;
-
-    light_model.irradiance_direct = Idir / (Idir + Idiff);
-    light_model.irradiance_diffuse = Idiff / (Idir + Idiff);
-    light_model.cosine_zenith_angle = CosZenithAngle;
-    return(light_model);
+    return light_model;
 }
 
 struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
