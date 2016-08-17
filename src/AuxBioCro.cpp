@@ -91,12 +91,11 @@ struct Light_model lightME(double lat, int DOY, int td)
     }
 
     constexpr double alpha = 0.85;
-    constexpr double SolarConstant = 2650;
     constexpr double atmP = 1e5;
     constexpr double PPo = 1e5 / atmP;
     
-    double Idir = SolarConstant * (pow(alpha, (PPo / cosine_zenith_angle)));
-    double Idiff = 0.3 * SolarConstant * (1 - pow(alpha, (PPo / cosine_zenith_angle))) * cosine_zenith_angle;
+    double Idir = pow(alpha, (PPo / cosine_zenith_angle));
+    double Idiff = 0.3 * (1 - Idir) * cosine_zenith_angle;
 
     struct Light_model light_model;
     light_model.irradiance_direct = Idir / (Idir + Idiff);
