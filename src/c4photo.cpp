@@ -17,66 +17,60 @@
 
 struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alpha, 
 		       double kparm, double theta, double beta,
-		       double Rd, double bb0, double bb1, double StomaWS, double Ca, int ws,double upperT,double lowerT)
+		       double Rd, double bb0, double bb1, double StomaWS, double Ca, int ws, double upperT, double lowerT)
 {
 
 	struct c4_str tmp = {0, 0, 0, 0};
 	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
-	const double P = AP / 1e3; /* kPa */
+    const double P = AP / 1e3; /* kPa */
 	/*const double PS = 38;   Atmospheric pressure of CO2 */
 	const double Q10 = 2;  /* Q10 increase in a reaction by 10 C temp */
 
-	/* Defining biochemical variables */
-	double Csurface ;
-	double InterCellularCO2 ;
-	double KQ10 , kT ;
-	double Vtn , Vtd , VT ;
-	double Rtn , Rtd , RT ;
-	double b0 , b1 , b2 ;
-	double M1 , M2 , M ;
-	double Quada , Quadb , Quadc ;
-	double a2 , Assim ,GrossAssim;
-	double csurfaceppm ;
+	double Csurface;
+	double InterCellularCO2;
+	double KQ10 , kT;
+	double Vtn , Vtd , VT;
+	double Rtn , Rtd , RT;
+	double b0 , b1 , b2;
+	double M1 , M2 , M;
+	double Quada , Quadb , Quadc;
+	double a2 , Assim , GrossAssim;
+	double csurfaceppm;
 
-	int iterCounter ;
+	int iterCounter;
 	double Gs;
 	double diff, OldAssim = 0.0, Tol = 0.1;
     double miC = 0.0;
 	double kT_IC_P;
 
-	Csurface = (Ca * 1e-6) * AP ;
+	Csurface = (Ca * 1e-6) * AP;
   
-	InterCellularCO2 = Csurface * 0.4; /* Initial guestimate */
+	InterCellularCO2 = Csurface * 0.4; /* Assign an initial guess. */
 
-	KQ10 =  pow(Q10,((Tl - 25.0) / 10.0));
+	KQ10 =  pow(Q10, (Tl - 25.0) / 10.0);
 
 	kT = kparm * KQ10;
 
-	/* First chunk of code see Collatz (1992) */
-//	Vtn = vmax * pow(2,((Tl-25.0)/10.0));
-//	Vtd = ( 1 + exp(0.3 * (3.0-Tl)) ) * (1 + exp( 0.3*(Tl-37.5) ));
-//	VT  = Vtn / Vtd;
-
-//       This is the code implementing temperature limitations
-         Vtn = vmax * pow(2,((Tl-25.0)/10.0));
-         Vtd = ( 1 + exp(0.3 * (lowerT-Tl)) ) * (1 + exp( 0.3*(Tl-upperT) ));
-         VT  = Vtn / Vtd;
+    // This is the code implementing temperature limitations
+    Vtn = vmax * pow(2, (Tl - 25.0) / 10.0);
+    Vtd = (1 + exp(0.3 * (lowerT - Tl))) * (1 + exp(0.3 * (Tl - upperT)));
+    VT  = Vtn / Vtd;
 
 
 	/* Second chunk of code see Collatz (1992) */
-	Rtn = Rd * pow(2 , (Tl-25)/10 ) ;
-	Rtd =  1 + exp( 1.3 * (Tl-55) ) ;
-	RT = Rtn / Rtd ; 
+	Rtn = Rd * pow(2, (Tl - 25) / 10);
+	Rtd =  1 + exp(1.3 * (Tl - 55));
+	RT = Rtn / Rtd; 
 
 	/* Third chunk of code again see Collatz (1992) */
-	b0 = VT * alpha  * Qp ;
-	b1 = VT + alpha  * Qp ;
-	b2 = theta ;
+	b0 = VT * alpha * Qp;
+	b1 = VT + alpha * Qp;
+	b2 = theta;
 
 	/* Calculate the 2 roots */
-	M1 = (b1 + sqrt(b1*b1 - (4 * b0 * b2)))/(2*b2) ;
-	M2 = (b1 - sqrt(b1*b1 - (4 * b0 * b2)))/(2*b2) ;
+	M1 = (b1 + sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
+	M2 = (b1 - sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
 
 	/* This piece of code selects the smalles root */
 	if(M1 < M2)
@@ -87,48 +81,47 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	/* Here the iterations will start */
 	iterCounter = 0;
 
-	while(iterCounter < 50)
-	{
+	while (iterCounter < 50) {
 
-		kT_IC_P = kT * (InterCellularCO2 / P*1000);
+		kT_IC_P = kT * (InterCellularCO2 / P * 1000);
 		Quada = M * kT_IC_P;
 		Quadb = M + kT_IC_P;
-		Quadc = beta ;
+		Quadc = beta;
 
-		a2 = (Quadb - sqrt(Quadb*Quadb - (4 * Quada * Quadc))) / (2 * Quadc);
+		a2 = (Quadb - sqrt(Quadb * Quadb - (4 * Quada * Quadc))) / (2 * Quadc);
 
 		Assim = a2 - RT;
 
-		if(ws == 0) Assim *= StomaWS; 
+		if (ws == 0) Assim *= StomaWS; 
 
 		/* milimole per meter square per second*/
-		csurfaceppm = Csurface * 10 ;
+		csurfaceppm = Csurface * 10;
 
 		/* Need to create the Ball-Berry function */
-		Gs =  ballBerry(Assim,csurfaceppm, Tl, RH, bb0, bb1) ;
-		if(ws == 1) Gs *= StomaWS; 
+		Gs =  ballBerry(Assim, csurfaceppm, Tl, RH, bb0, bb1);
+		if (ws == 1) Gs *= StomaWS; 
 
 		InterCellularCO2 = Csurface - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);
 
-		if(InterCellularCO2 < 0)
+		if (InterCellularCO2 < 0)
 			InterCellularCO2 = 1e-5;
 
-		if(iterCounter == 0){
+		if (iterCounter == 0) {
 			// Assim0 = Assim; set but not used
 			// Gs0 = Gs; set but not used
 			// IntCO2 = InterCellularCO2; set but not used
 		}
 
 		diff = OldAssim - Assim;
-		if(diff < 0) diff = -diff;
-		if(diff < Tol){
+		if (diff < 0) diff = -diff;
+
+		if (diff < Tol) {
 			break;
-		}else{
+		} else {
 			OldAssim = Assim;
 		}
 
-		iterCounter++;
-
+		++iterCounter;
 	}
 
 /* This would ignore the optimization due to the iterative procedure
@@ -156,16 +149,16 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
  	/* 	error("Did not converge \n"); */
 	/* } */
 
-	miC = (InterCellularCO2 / AP) * 1e6 ;
+	miC = (InterCellularCO2 / AP) * 1e6;
 
 	if(Gs > 600)
 	  Gs = 600;
-  GrossAssim=Assim+RT;
-	tmp.Assim = Assim;
-	tmp.Gs = Gs;
-	tmp.Ci = miC;
-  tmp.GrossAssim=GrossAssim;
-	return(tmp);
+
+    tmp.Assim = Assim;
+    tmp.Gs = Gs;
+    tmp.Ci = miC;
+    tmp.GrossAssim=Assim + RT;
+    return(tmp);
 }
 
 
@@ -200,7 +193,7 @@ double ballBerry(double Amu, double Cappm, double Temp, double RelH, double beta
 
 	if(assimn < 0.0){
 		/* Set stomatal conductance to the minimum value, beta0*/
-		gswmol = beta0 ;
+		gswmol = beta0;
 		/* Calculate leaf surface relative humidity, hs, (as fraction)*/
 		/* for when C assimilation rate is <= 0*/
 		/* hs = (beta0 + (wa/wi)*gbw)/(beta0 + gbw); ! unused here??*/
@@ -263,14 +256,14 @@ http://en.wikipedia.org/wiki/Arden_Buck_equation
 double RSS_C4photo(double oAssim[], double oQp[], double oTemp[], 
 		   double oRH[], double vmax, double alpha, double kparm, /*\ref{eqn:Vmax}*/
 		   double theta, double beta,
-                   double Rd, double Catm, double b0, double b1, double StomWS, int ws,double upperT,double lowerT, int nObs){ /*\ref{eqn:Rd}*/
+                   double Rd, double Catm, double b0, double b1, double StomWS, int ws, double upperT, double lowerT, int nObs){ /*\ref{eqn:Rd}*/
 	struct c4_str tmp;
 	int i;
 	double RSS = 0.0, diff = 0.0;
 
 	for(i = 0;i < nObs; i++){
 
-		tmp = c4photoC(oQp[i],oTemp[i],oRH[i],vmax,alpha,kparm,theta, beta, Rd,b0,b1,StomWS,Catm,ws,upperT,lowerT);
+		tmp = c4photoC(oQp[i], oTemp[i], oRH[i], vmax, alpha, kparm, theta, beta, Rd, b0, b1, StomWS, Catm, ws, upperT, lowerT);
 		diff = oAssim[i] - tmp.Assim;
 		RSS += diff * diff;
 
