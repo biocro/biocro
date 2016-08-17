@@ -82,20 +82,20 @@ struct Light_model lightME(double lat, int DOY, int td)
     /* The code above caused problems when using measured hourly data in
      * some cases when the value was really low. For the moment, the code below
      * is a temporary fix. Some longer term solution is needed.*/
-    if (cosine_zenith_angle < 0.10) {
-        if (td > 18 && td < 22) { 
-            cosine_zenith_angle = 0.10;
-        } else if (cosine_zenith_angle < 0) {
-            cosine_zenith_angle = 0.00001;
-        }
-    }
+    double Idir;
+    double Idiff;
 
-    constexpr double alpha = 0.85;
-    constexpr double atmP = 1e5;
-    constexpr double PPo = 1e5 / atmP;
-    
-    double Idir = pow(alpha, (PPo / cosine_zenith_angle));
-    double Idiff = 0.3 * (1 - Idir) * cosine_zenith_angle;
+    if (abs(acos(cosine_zenith_angle)) >= M_PI / 2) {
+        Idir = 0;
+        Idiff = 1;
+    } else {
+        constexpr double alpha = 0.85;
+        constexpr double atmP = 1e5;
+        constexpr double PPo = 1e5 / atmP;
+
+        Idir = pow(alpha, (PPo / cosine_zenith_angle));
+        Idiff = 0.3 * (1 - Idir) * cosine_zenith_angle;
+    }
 
     struct Light_model light_model;
     light_model.irradiance_direct = Idir / (Idir + Idiff);
