@@ -85,6 +85,7 @@ struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
     double direct_irradiance;
     double diffuse_irradiance;
 
+    if (cosine_zenith_angle < DBL_MIN) { // Check that the Sun is above the horizon. If it is not, directly set direct_irradiance and diffuse_irradiance to avoid possible division by zero. The Sun is above the horizon when cosine_zenith_angle is greater than 0. Compare it with the smallest possible double value to protect against possible machine rounding errors.
         direct_irradiance = 0;
         diffuse_irradiance = 1;
     } else { // If the Sun is above the horizon, calculate diffuse and direct irradiance from the Sun's angle to the ground and the path through the atmosphere.
