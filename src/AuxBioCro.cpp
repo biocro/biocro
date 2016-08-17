@@ -85,7 +85,7 @@ struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
     double direct_irradiance;
     double diffuse_irradiance;
 
-    // Check that the sun is above the horizon. If it is not, directly set Idir and Idiff to avoid possible division by zero.
+    // Check that the sun is above the horizon. If it is not, directly set direct_irradiance and diffuse_irradiance to avoid possible division by zero.
     if (abs(acos(cosine_zenith_angle)) >= M_PI / 2) {
         direct_irradiance = 0;
         diffuse_irradiance = 1;
