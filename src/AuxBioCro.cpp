@@ -94,9 +94,10 @@ struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
         constexpr double atmospheric_pressure_at_sea_level = 1e5; // Pa
         constexpr double local_atmospheric_pressure = 1e5; // Pa
         constexpr double pressure_ratio = local_atmospheric_pressure / atmospheric_pressure_at_sea_level; // dimensionless.
+        constexpr double proportion_of_irradiance_scattered = 0.3;
 
         direct_irradiance = pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle));
-        diffuse_irradiance = 0.3 * (1 - direct_irradiance) * cosine_zenith_angle;
+        diffuse_irradiance = proportion_of_irradiance_scattered * (1 - direct_irradiance) * cosine_zenith_angle;
     }
 
     struct Light_model light_model;
