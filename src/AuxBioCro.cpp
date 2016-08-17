@@ -101,7 +101,7 @@ struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
 
     struct Light_model light_model;
     light_model.irradiance_direct = direct_irradiance / (direct_irradiance + diffuse_irradiance); // dimensionless.
-    light_model.irradiance_diffuse = direct_irradiance / (direct_irradiance + diffuse_irradiance); // dimensionless.
+    light_model.irradiance_diffuse = diffuse_irradiance / (direct_irradiance + diffuse_irradiance); // dimensionless.
     light_model.cosine_zenith_angle = cosine_zenith_angle; // dimensionless.
 
     return light_model;
