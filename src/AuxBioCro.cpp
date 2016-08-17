@@ -51,14 +51,14 @@
  * triangles, substituting cofunctions of coangles in the case of latitude and
  * declination.
  */
-double cos_zenith_angle(double lat, int day_of_year, int hour_of_day) {
+double cos_zenith_angle(double latitude, int day_of_year, int hour_of_day) {
 
     constexpr double RADIANS_PER_DEGREE = M_PI/180;
     constexpr int SOLAR_NOON = 12;
     constexpr double RADIANS_ROTATION_PER_HOUR = 15 * RADIANS_PER_DEGREE;
     constexpr double AXIAL_TILT = 23.5 * RADIANS_PER_DEGREE;
 
-    double phi = lat * RADIANS_PER_DEGREE;
+    double phi = latitude * RADIANS_PER_DEGREE;
     int NDS = day_of_year + 10;
 
     double omega = 360.0 * (NDS / 365.0) * RADIANS_PER_DEGREE;
@@ -73,10 +73,10 @@ double cos_zenith_angle(double lat, int day_of_year, int hour_of_day) {
 /**
  * Light Macro Environment
  */
-struct Light_model lightME(double lat, int day_of_year, int hour_of_day)
+struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
 {
     // The basis for this function is given in equation 11.11 of Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
-    double cosine_zenith_angle = cos_zenith_angle(lat, day_of_year, hour_of_day);
+    double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);
     double direct_irradiance;
     double diffuse_irradiance;
 
