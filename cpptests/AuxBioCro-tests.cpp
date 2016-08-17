@@ -82,47 +82,9 @@ TEST(zenith_angle_calculations, NoonAtSpringEquinox) {
     }
 }
 
-// The "adjusted" value of CosZenithAngle is always at least 0 no matter
-// what values of lat, DOY, or td are given.
-TEST(zenith_angle_calculations, GeneralLowerLimit) {
-    constexpr double LOWER_LIMIT = 0;
-
-    srand(time(NULL));
-    
-    for (int i = 0; i < 1e6; ++i) {
-        
-        double lat = ((rand() % (int) 180e4) / 1e4) - 90; 
-        int DOY = rand() % 365;
-        int td = rand() % 25;
-
-        // This basically says 0 <= cosine_zenith_angle with allowances made for
-        // rounding.
-        EXPECT_PRED_FORMAT2(::testing::DoubleLE, LOWER_LIMIT,
-                            lightME(lat, DOY, td).cosine_zenith_angle);
-    }
-}
-
-// The "adjusted" value of CosZenithAngle is always at least 1e-1 if td is 19,
-// 20, or 21 no matter what values of lat, DOY are given.
-TEST(zenith_angle_calculations, LowerLimit) {
-    constexpr double LOWER_LIMIT = 1e-1;
-
-    srand(time(NULL));
-    
-    for (int i = 0; i < 1e6; ++i) {
-        
-        double lat = ((rand() % (int) 180e4) / 1e4) - 90; 
-        int DOY = rand() % 365;
-        int td = 19 + (rand() % 3);
-        
-        EXPECT_PRED_FORMAT2(::testing::DoubleLE, LOWER_LIMIT,
-                            lightME(lat, DOY, td).cosine_zenith_angle);
-    }
-}
-
 // For any latitude, during the equinox the adjusted value of CosZenithAngle
 // will always be at most 1e-1 at hours 6 (sunrise) and 18 (sunset).
-TEST(zentih_angle_calculations, SunriseSunset) {
+TEST(zenith_angle_calculations, SunriseSunset) {
     constexpr double UPPER_LIMIT = 1E-1; // Upper limit when sun is near horizon
 
     srand(time(NULL));
