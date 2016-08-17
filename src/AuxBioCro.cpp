@@ -51,7 +51,7 @@
  * triangles, substituting cofunctions of coangles in the case of latitude and
  * declination.
  */
-double cos_zenith_angle(double lat, int DOY, int td) {
+double cos_zenith_angle(double lat, int day_of_year, int hour_of_day) {
 
     constexpr double RADIANS_PER_DEGREE = M_PI/180;
     constexpr int SOLAR_NOON = 12;
@@ -59,13 +59,13 @@ double cos_zenith_angle(double lat, int DOY, int td) {
     constexpr double AXIAL_TILT = 23.5 * RADIANS_PER_DEGREE;
 
     double phi = lat * RADIANS_PER_DEGREE;
-    int NDS = DOY + 10;
+    int NDS = day_of_year + 10;
 
     double omega = 360.0 * (NDS / 365.0) * RADIANS_PER_DEGREE;
     
     double delta = -AXIAL_TILT * cos(omega);
 
-    double tau = (td - SOLAR_NOON) * RADIANS_ROTATION_PER_HOUR;
+    double tau = (hour_of_day - SOLAR_NOON) * RADIANS_ROTATION_PER_HOUR;
 
     return sin(delta) * sin(phi) + cos(delta) * cos(phi) * cos(tau);
 }
@@ -73,28 +73,30 @@ double cos_zenith_angle(double lat, int DOY, int td) {
 /**
  * Light Macro Environment
  */
-struct Light_model lightME(double lat, int DOY, int td)
+struct Light_model lightME(double lat, int day_of_year, int hour_of_day)
 {
-    double cosine_zenith_angle = cos_zenith_angle(lat, DOY, td);
-    double Idir;
-    double Idiff;
+    // The basis for this function is given in equation 11.11 of Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
+    double cosine_zenith_angle = cos_zenith_angle(lat, day_of_year, hour_of_day);
+    double direct_irradiance;
+    double diffuse_irradiance;
 
     // Check that the sun is above the horizon. If it is not, directly set Idir and Idiff to avoid possible division by zero.
     if (abs(acos(cosine_zenith_angle)) >= M_PI / 2) {
-        Idir = 0;
-        Idiff = 1;
+        direct_irradiance = 0;
+        diffuse_irradiance = 1;
     } else {
-        constexpr double alpha = 0.85;
-        constexpr double atmP = 1e5;
-        constexpr double PPo = 1e5 / atmP;
+        constexpr double atmospheric_transmittance = 0.85;
+        constexpr double atmospheric_pressure_at_sea_level = 1e5;
+        constexpr double local_atmospheric_pressure = 1e5;
+        constexpr double pressure_ratio = local_atmospheric_pressure / atmospheric_pressure_at_sea_level;
 
-        Idir = pow(alpha, (PPo / cosine_zenith_angle));
-        Idiff = 0.3 * (1 - Idir) * cosine_zenith_angle;
+        direct_irradiance = pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle));
+        diffuse_irradiance = 0.3 * (1 - direct_irradiance) * cosine_zenith_angle;
     }
 
     struct Light_model light_model;
-    light_model.irradiance_direct = Idir / (Idir + Idiff);
-    light_model.irradiance_diffuse = Idiff / (Idir + Idiff);
+    light_model.irradiance_direct = direct_irradiance / (direct_irradiance + diffuse_irradiance);
+    light_model.irradiance_diffuse = direct_irradiance / (direct_irradiance + diffuse_irradiance);
     light_model.cosine_zenith_angle = cosine_zenith_angle;
 
     return light_model;
