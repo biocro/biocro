@@ -85,11 +85,10 @@ struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
     double direct_irradiance;
     double diffuse_irradiance;
 
-    // Check that the sun is above the horizon. If it is not, directly set direct_irradiance and diffuse_irradiance to avoid possible division by zero.
-    if (abs(acos(cosine_zenith_angle)) >= M_PI / 2) {
+    if (abs(acos(cosine_zenith_angle)) >= M_PI / 2) { // Check that the Sun is above the horizon. If it is not, directly set direct_irradiance and diffuse_irradiance to avoid possible division by zero.
         direct_irradiance = 0;
         diffuse_irradiance = 1;
-    } else {
+    } else { // If the Sun is above the horizon, calculate diffuse and direct irradiance from the Sun's angle to the ground and the path through the atmosphere.
         constexpr double atmospheric_transmittance = 0.85; // dimensionless
         constexpr double atmospheric_pressure_at_sea_level = 1e5; // Pa
         constexpr double local_atmospheric_pressure = 1e5; // Pa
