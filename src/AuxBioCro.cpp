@@ -76,15 +76,10 @@ double cos_zenith_angle(double lat, int DOY, int td) {
 struct Light_model lightME(double lat, int DOY, int td)
 {
     double cosine_zenith_angle = cos_zenith_angle(lat, DOY, td);
-    
-    // if(cosine_zenith_angle < pow(10,-10))
-    //         cosine_zenith_angle = pow(10,-10);
-    /* The code above caused problems when using measured hourly data in
-     * some cases when the value was really low. For the moment, the code below
-     * is a temporary fix. Some longer term solution is needed.*/
     double Idir;
     double Idiff;
 
+    // Check that the sun is above the horizon. If it is not, directly set Idir and Idiff to avoid possible division by zero.
     if (abs(acos(cosine_zenith_angle)) >= M_PI / 2) {
         Idir = 0;
         Idiff = 1;
