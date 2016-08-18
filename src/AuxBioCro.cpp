@@ -76,32 +76,32 @@ double cos_zenith_angle(double latitude, int day_of_year, int hour_of_day) {
 struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
 {
     // Return values.
-    //  light_model.irradiance_direct: The fraction of irradiance that is direct radiation. dimensionless.
-    //  light_model.irradiance_diffuse: The fraction of irradiance that is diffuse radiation. dimensionless.
+    //  light_model.direct_irradiance_fraction: The fraction of irradiance that is direct radiation. dimensionless.
+    //  light_model.diffuse_irradiance_fraction: The fraction of irradiance that is diffuse radiation. dimensionless.
     //  light_model.cos_zenith_angle: The cosine of the zenith angle of the Sun. The angle is 0, and cos(angle) is 1, when the Sun is directly overhead. dimensionless.
     //
-    // The basis for this function is given in equation 11.11 of Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
-    double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);
-    double direct_irradiance;
-    double diffuse_irradiance;
+    // The basis for this function is given in Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
+    double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day); // radians
+    double direct_irradiance_transmittance;
+    double diffuse_irradiance_transmittance;
 
-    if (cosine_zenith_angle < DBL_MIN) { // Check that the Sun is above the horizon. If it is not, directly set direct_irradiance and diffuse_irradiance to avoid possible division by zero. The Sun is above the horizon when cosine_zenith_angle is greater than 0. Compare it with the smallest possible double value to protect against possible machine rounding errors.
-        direct_irradiance = 0;
-        diffuse_irradiance = 1;
+    if (cosine_zenith_angle <= 0) { // Check that the Sun is above the horizon. If it is not, directly set direct_irradiance and diffuse_irradiance to avoid possible division by zero. The Sun is above the horizon when cosine_zenith_angle is greater than 0.
+        direct_irradiance_transmittance = 0;
+        diffuse_irradiance_transmittance = 1;
     } else { // If the Sun is above the horizon, calculate diffuse and direct irradiance from the Sun's angle to the ground and the path through the atmosphere.
         constexpr double atmospheric_transmittance = 0.85; // dimensionless
         constexpr double atmospheric_pressure_at_sea_level = 1e5; // Pa
         constexpr double local_atmospheric_pressure = 1e5; // Pa
         constexpr double pressure_ratio = local_atmospheric_pressure / atmospheric_pressure_at_sea_level; // dimensionless.
-        constexpr double proportion_of_irradiance_scattered = 0.3;
+        constexpr double proportion_of_irradiance_scattered = 0.3; // dimensionless.
 
-        direct_irradiance = pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle));
-        diffuse_irradiance = proportion_of_irradiance_scattered * (1 - direct_irradiance) * cosine_zenith_angle;
+        direct_irradiance_transmittance = pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle)); // Modified from equation 11.11 of Norman and Campbell.
+        diffuse_irradiance_transmittance = proportion_of_irradiance_scattered * (1 - direct_irradiance_transmittance) * cosine_zenith_angle; // Modified from equation 11.13 of Norman and Campbell.
     }
 
     struct Light_model light_model;
-    light_model.irradiance_direct = direct_irradiance / (direct_irradiance + diffuse_irradiance); // dimensionless.
-    light_model.irradiance_diffuse = diffuse_irradiance / (direct_irradiance + diffuse_irradiance); // dimensionless.
+    light_model.direct_irradiance_fraction = direct_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
+    light_model.diffuse_irradiance_fraction = diffuse_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
     light_model.cosine_zenith_angle = cosine_zenith_angle; // dimensionless.
 
     return light_model;

@@ -79,8 +79,8 @@ struct Can_Str CanAC(
     struct Light_model light_model;
     light_model = lightME(lat, DOY, hr);
 
-    Idir = light_model.irradiance_direct * solarR;
-    Idiff = light_model.irradiance_diffuse * solarR;
+    Idir = light_model.direct_irradiance_fraction * solarR;
+    Idiff = light_model.diffuse_irradiance_fraction * solarR;
     cosTh = light_model.cosine_zenith_angle;
 
     struct Light_profile light_profile;

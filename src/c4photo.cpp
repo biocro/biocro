@@ -35,7 +35,7 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	double b0 , b1 , b2;
 	double M1 , M2 , M;
 	double Quada , Quadb , Quadc;
-	double a2 , Assim , GrossAssim;
+	double a2 , Assim;
 	double csurfaceppm;
 
 	int iterCounter;

@@ -69,8 +69,8 @@ struct Model_state {
 };
 
 struct Light_model {
-	double irradiance_direct;
-	double irradiance_diffuse;
+	double direct_irradiance_fraction;
+	double diffuse_irradiance_fraction;
 	double cosine_zenith_angle;
 };
 
