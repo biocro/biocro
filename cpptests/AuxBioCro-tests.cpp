@@ -135,8 +135,8 @@ TEST(irradiance_calculations, SampleValues) {
 
         struct Light_model lm = lightME(87, DAY_OF_YEAR_OF_VERNAL_EQUINOX, td);
 
-        EXPECT_DOUBLE_EQ(lm.irradiance_direct, expected_direct_irradiance[i]);
-        EXPECT_DOUBLE_EQ(lm.irradiance_diffuse, expected_diffuse_irradiance[i]);
+        EXPECT_DOUBLE_EQ(lm.direct_irradiance_fraction, expected_direct_irradiance[i]);
+        EXPECT_DOUBLE_EQ(lm.diffuse_irradiance_fraction, expected_diffuse_irradiance[i]);
     }
 }
 
@@ -151,29 +151,29 @@ TEST(irradiance_calculations, DirectDiffuseSum) {
         
         struct Light_model lm = lightME(lat, DOY, td);
 
-        EXPECT_DOUBLE_EQ(lm.irradiance_direct + lm.irradiance_diffuse, 1.0);
+        EXPECT_DOUBLE_EQ(lm.direct_irradiance_fraction + lm.diffuse_irradiance_fraction, 1.0);
     }
 }
 
 // Miscellaneous sample values
 TEST(lightMETest, One) {
     struct Light_model result = lightME(45, 100, 15);
-    EXPECT_DOUBLE_EQ (0.94682042635862518, result.irradiance_direct);
-    EXPECT_DOUBLE_EQ (0.053179573641374746, result.irradiance_diffuse);
+    EXPECT_DOUBLE_EQ (0.94682042635862518, result.direct_irradiance_fraction);
+    EXPECT_DOUBLE_EQ (0.053179573641374746, result.diffuse_irradiance_fraction);
     EXPECT_DOUBLE_EQ (0.58750769610831033, result.cosine_zenith_angle);
 }
 
 TEST(lightMETest, Two) {
     struct Light_model result = lightME(45, 100, 12);
-    EXPECT_DOUBLE_EQ (0.94866559021836816, result.irradiance_direct);
-    EXPECT_DOUBLE_EQ (0.051334409781631909, result.irradiance_diffuse);
+    EXPECT_DOUBLE_EQ (0.94866559021836816, result.direct_irradiance_fraction);
+    EXPECT_DOUBLE_EQ (0.051334409781631909, result.diffuse_irradiance_fraction);
     EXPECT_DOUBLE_EQ (0.79286428947577225, result.cosine_zenith_angle);
 }
 
 
 TEST(lightMETest, Three) {
     struct Light_model result = lightME(45, 200, 12);
-    EXPECT_DOUBLE_EQ (0.94933880654434322, result.irradiance_direct);
-    EXPECT_DOUBLE_EQ (0.050661193455656631, result.irradiance_diffuse);
+    EXPECT_DOUBLE_EQ (0.94933880654434322, result.direct_irradiance_fraction);
+    EXPECT_DOUBLE_EQ (0.050661193455656631, result.diffuse_irradiance_fraction);
     EXPECT_DOUBLE_EQ (0.91294566229056384, result.cosine_zenith_angle);
 }
