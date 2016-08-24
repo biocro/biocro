@@ -936,7 +936,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     }
 
     if(wsPhoto <= 0 )
-        wsPhoto = 1e-20; /* This can be mathematically lower than zero in some cases but I should prevent that. */
+        wsPhoto = 1e-10; /* This can be mathematically lower than zero in some cases but I should prevent that. */
 
     wsSpleaf = pow(awc,phi2) * 1/pow(fieldc,phi2); 
     if(wsFun == 3) { 
@@ -1129,7 +1129,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         }
 
         if(wsPhoto <= 0 )
-            wsPhoto = 1e-20; /* This can be mathematically lower than zero in some cases but I should prevent that. */
+            wsPhoto = 1e-10; /* This can be mathematically lower than zero in some cases but I should prevent that. */
 
         wsPhotoCol += wsPhoto;
 

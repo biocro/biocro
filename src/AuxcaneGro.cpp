@@ -195,7 +195,7 @@ struct soilML_str soilML_rootfront(double precipit, double transp, double *cws, 
 		}
 
 		if(wsPhoto <= 0 )
-			wsPhoto = 1e-20; /* This can be mathematically lower than zero in some cases but I should prevent that. */
+			wsPhoto = 1e-10; /* This can be mathematically lower than zero in some cases but I should prevent that. */
 
 		wsPhotoCol += wsPhoto;
 
