@@ -75,23 +75,26 @@ double cos_zenith_angle(double latitude, int day_of_year, int hour_of_day) {
  */
 struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
 {
+    // day_of_year and hour_of_day are given as local time for the specified latitude.
+    //
     // Return values.
     //  light_model.direct_irradiance_fraction: The fraction of irradiance that is direct radiation. dimensionless.
     //  light_model.diffuse_irradiance_fraction: The fraction of irradiance that is diffuse radiation. dimensionless.
-    //  light_model.cos_zenith_angle: The cosine of the zenith angle of the Sun. The angle is 0, and cos(angle) is 1, when the Sun is directly overhead. dimensionless.
+    //  light_model.cosine_zenith_angle: The cosine of the zenith angle of the Sun. When the Sun is directly overhead, the angle is 0 and cos(angle) is 1. dimensionless.
     //
-    // The basis for this function is given in Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
-    double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day); // radians
+    // The basis for this function is given in chapter 11 of Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
+
+    double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);  // dimensionless.
     double direct_irradiance_transmittance;
     double diffuse_irradiance_transmittance;
 
-    if (cosine_zenith_angle <= 0) { // Check that the Sun is above the horizon. If it is not, directly set direct_irradiance and diffuse_irradiance to avoid possible division by zero. The Sun is above the horizon when cosine_zenith_angle is greater than 0.
+    if (cosine_zenith_angle <= 0) { // Check if the Sun is at or below the horizon. If it is, directly set direct_irradiance_transmittance and diffuse_irradiance_transmittance because the equations below would otherwise produce erroneous results. The Sun is at or below the horizon when cosine_zenith_angle is less than or equal to 0.
         direct_irradiance_transmittance = 0;
         diffuse_irradiance_transmittance = 1;
     } else { // If the Sun is above the horizon, calculate diffuse and direct irradiance from the Sun's angle to the ground and the path through the atmosphere.
-        constexpr double atmospheric_transmittance = 0.85; // dimensionless
-        constexpr double atmospheric_pressure_at_sea_level = 1e5; // Pa
-        constexpr double local_atmospheric_pressure = 1e5; // Pa
+        constexpr double atmospheric_transmittance = 0.85; // dimensionless.
+        constexpr double atmospheric_pressure_at_sea_level = 1e5; // Pa.
+        constexpr double local_atmospheric_pressure = 1e5; // Pa.
         constexpr double pressure_ratio = local_atmospheric_pressure / atmospheric_pressure_at_sea_level; // dimensionless.
         constexpr double proportion_of_irradiance_scattered = 0.3; // dimensionless.
 
@@ -933,7 +936,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     }
 
     if(wsPhoto <= 0 )
-        wsPhoto = 1e-20; /* This can be mathematically lower than zero in some cases but I should prevent that. */
+        wsPhoto = 1e-10; /* This can be mathematically lower than zero in some cases but I should prevent that. */
 
     wsSpleaf = pow(awc,phi2) * 1/pow(fieldc,phi2); 
     if(wsFun == 3) { 
@@ -1126,7 +1129,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         }
 
         if(wsPhoto <= 0 )
-            wsPhoto = 1e-20; /* This can be mathematically lower than zero in some cases but I should prevent that. */
+            wsPhoto = 1e-10; /* This can be mathematically lower than zero in some cases but I should prevent that. */
 
         wsPhotoCol += wsPhoto;
 
