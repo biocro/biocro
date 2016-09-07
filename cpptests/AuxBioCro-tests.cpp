@@ -589,7 +589,7 @@ TEST(WINDprof, survey) {
 constexpr auto num_trials = 5;
 
 // input
-double WINDpro_args[][3] = {
+double WINDprof_args[][3] = {
   {8.196468057, 0.08196468057, 18},
   {64.72380617, 0.6472380617, 20},
   {40.70143633, 0.4070143633, 15},
@@ -625,7 +625,7 @@ TEST(WINDprofTest, miscellaneous_test_data) {
   for (int i = 0; i < num_trials; ++i) {
     double arg_set[3];
     for (int j = 0; j < 3; ++j) {
-      arg_set[j] = WINDpro_args[i][j];
+      arg_set[j] = WINDprof_args[i][j];
     }
     int nlayers = arg_set[2];
     double wind_speed_profile[nlayers];
@@ -634,6 +634,77 @@ TEST(WINDprofTest, miscellaneous_test_data) {
 
     for (int layer = 0; layer < nlayers; ++layer) {
       EXPECT_NEAR(wind_speed_profile[layer], WINDprof_results[i][layer], 1E-5);
+    }
+  }
+}
+
+///////////////// RHprof /////////////////
+
+
+// For generating sample data only.
+TEST(RHprof, survey) {
+  Rand_double RH_generator { 0, 1 };
+  Rand_int nlayers_generator { 1, 20 };
+ 
+ for (int i = 0; i < 5; ++i) {
+    auto RH = RH_generator();
+    auto nlayers = nlayers_generator();
+    cout << setprecision(10) << "{" << RH << ", " << nlayers << "}" << endl;
+    double relative_humidity_profile[nlayers];
+    RHprof(RH, nlayers, relative_humidity_profile);
+    cout << "{";
+    for (int layer = 0; layer < nlayers; ++ layer) {
+      cout << relative_humidity_profile[layer];
+      if (layer < nlayers - 1) {
+        cout << ", ";
+      }
+    }
+    cout << "}" << endl;
+  }
+}
+
+
+// sample data
+
+// input
+double RHprof_args[][2] = {
+    {0.6578684265, 19},
+    {0.3867285004, 10},
+    {0.8407413091, 1},
+    {0.2415659511, 4},
+    {0.3329553391, 3}
+};
+
+// output
+double RHprof_results[][MAXLAY] = {
+    {0.6698219137, 0.681992596, 0.69438442, 0.7070014037, 0.7198476384,
+     0.7329272895, 0.7462445982, 0.7598038828, 0.7736095399, 0.7876660463,
+     0.8019779597, 0.8165499209, 0.8313866551, 0.8464929732, 0.8618737735,
+     0.8775340433, 0.8934788607, 0.9097133958, 0.9262429128},
+
+    {0.4111878012, 0.437194072, 0.4648451537, 0.4942450749, 0.5255044441,
+     0.5587408652, 0.5940793802, 0.6316529396, 0.6716029026, 0.7140795688},
+
+    {0.9858879473},
+
+    {0.2919991927, 0.352961699, 0.4266517309, 0.5157264938},
+
+    {0.4158632934, 0.5194158449, 0.6487536269}
+};
+
+TEST(RHprofTest, miscellaneous_test_data) {
+  for (int i = 0; i < num_trials; ++i) {
+    double arg_set[2];
+    for (int j = 0; j < 2; ++j) {
+      arg_set[j] = RHprof_args[i][j];
+    }
+    int nlayers = arg_set[1];
+    double relative_humidity_profile[nlayers];
+
+    RHprof(arg_set[0], arg_set[1], relative_humidity_profile);
+
+    for (int layer = 0; layer < nlayers; ++layer) {
+      EXPECT_NEAR(relative_humidity_profile[layer], RHprof_results[i][layer], 1E-5);
     }
   }
 }
