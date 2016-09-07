@@ -720,6 +720,7 @@ Rand_double Temp_generator { -88, 58 }; // lowest and highest recorded temps on
 
 ///////////////// TempToDdryA /////////////////
 
+/*
 // For generating sample data only.
 TEST(TempToDdryA, survey) {
 
@@ -745,6 +746,7 @@ TEST(TempToDdryA, survey) {
     }
     cout << "}" << endl;
 }
+*/
 
 
 // sample data
@@ -761,5 +763,52 @@ double DdryA[] = {1.34959, 1.24362, 1.29198, 1.28874, 1.12425, 1.27095, 1.57626,
 TEST(TempToDdryA, miscellaneous_test_data) {
     for (int i = 0; i < temp_function_trials; ++i) {
         EXPECT_NEAR(DdryA[i], TempToDdryA(temp[i]), 1E-5);
+    }
+}
+
+///////////////// TempToLHV /////////////////
+
+/*
+// For generating sample data only.
+TEST(TempToLHV, survey) {
+
+    double temp[temp_function_trials];
+
+    cout << "{";
+    for (int i = 0; i < temp_function_trials; ++i) {
+        temp[i] = Temp_generator();
+        cout << temp[i];
+        if (i < temp_function_trials - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}" << endl;
+
+    cout << "{";
+    for (int i = 0; i < temp_function_trials; ++i) {
+
+        cout << TempToLHV(temp[i]);
+        if (i < temp_function_trials - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}" << endl;
+}
+*/
+
+// sample data
+
+// input
+double temp2[] = {32.0425, 49.0254, 11.3617, 2.59461, 18.3041, 50.2254, 41.3477,
+                  -25.2844, -71.1602, 24.8255, 29.9093, -3.1921, 39.6624,
+                  20.116, -76.4605};
+
+double LHV[] = {2.42497, 2.38468, 2.47404, 2.49484, 2.45757, 2.38183, 2.40289,
+                2.56099, 2.66984, 2.4421, 2.43003, 2.50857, 2.40689, 2.45327,
+                2.68242};
+
+TEST(TempToLHV, miscellaneous_test_data) {
+    for (int i = 0; i < temp_function_trials; ++i) {
+        EXPECT_NEAR(LHV[i], TempToLHV(temp2[i]), 1E-5);
     }
 }
