@@ -179,18 +179,24 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
 /* Additional Functions needed for EvapoTrans */
 
 
-/* RH and Wind profile function */
+/**
+ * RH and Wind profile function
+ *
+ * Preconditions:
+ *     `WindSpeed` is non-negative.
+ *     `LAI` is non-negative
+ *     `nlayers` is at least 1 and at most MAXLAY.
+ *     `wind_speed_profile` is an array of at least size `nlayers`.
+ */
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile)
 {
-    int i;
-    const double k = 0.7;
-    double LI, CumLAI;
+    constexpr auto k = 0.7;
 
-    LI = LAI / nlayers;
-    for(i = 0; i < nlayers; i++)
+    auto LI = LAI / nlayers;
+    for (int i = 0; i < nlayers; i++)
     {
-        CumLAI = LI * (i + 1);
-        wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI-LI));
+        auto CumLAI = LI * (i + 1);
+        wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI - LI));
     }
 }
 
