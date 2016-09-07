@@ -188,7 +188,8 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
  *     `nlayers` is at least 1 and at most MAXLAY.
  *     `wind_speed_profile` is an array of at least size `nlayers`.
  */
-void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile)
+void WINDprof(double WindSpeed, double LAI, int nlayers,
+              double* wind_speed_profile)
 {
     constexpr auto k = 0.7;
 
@@ -200,23 +201,28 @@ void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_prof
     }
 }
 
+/**
+ * Preconditions:
+ *     `RH` is between 0 and 1.
+ *     `nlayers` is at least 1 and at most MAXLAY.
+ *     `relative_humidity_profile` is an array of at least size `nlayers`.
+ *
+ * Postconditions:
+ *     `relative_humidity_profile` contains values between 0 and 1.
+ */
 void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 {
-    int i;
     const double kh = 1 - RH;
     /* kh = 0.2; */
-    /*kh = log(1/RH);*/
-    double temp_rh, j;
+    /* kh = log(1/RH); */
 
-    for(i = 0; i < nlayers; i++)
+    for (int i = 0; i < nlayers; i++)
     {
-        j = i + 1;
-        temp_rh = RH * exp(kh * (j/nlayers));
-        // temp_rh = RH * exp(-kh * (j/nlayers));  // new simpler version from Joe Iverson*
-        if(temp_rh > 1) temp_rh = 0.99; 
+        auto j = i + 1;
+        auto temp_rh = RH * exp(kh * (j/nlayers));
+        //   temp_rh = RH * exp(-kh * (j/nlayers));  // new simpler version from Joe Iverson*
         relative_humidity_profile[i] = temp_rh;
     }
-    /* It should return values in the 0-1 range */
 }
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_profile)
