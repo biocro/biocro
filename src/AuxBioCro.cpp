@@ -218,7 +218,9 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 
     for (int i = 0; i < nlayers; i++)
     {
-        auto j = i + 1;
+        // explicitly make j a double so that j/nlayers isn't truncated:
+        double j = i + 1;
+
         auto temp_rh = RH * exp(kh * (j/nlayers));
         //   temp_rh = RH * exp(-kh * (j/nlayers));  // new simpler version from Joe Iverson*
         relative_humidity_profile[i] = temp_rh;
