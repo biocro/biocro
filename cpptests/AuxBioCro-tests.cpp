@@ -812,3 +812,50 @@ TEST(TempToLHV, miscellaneous_test_data) {
         EXPECT_NEAR(LHV[i], TempToLHV(temp2[i]), 1E-5);
     }
 }
+
+///////////////// TempToSFS /////////////////
+
+
+// For generating sample data only.
+TEST(TempToSFS, survey) {
+
+    double temp[temp_function_trials];
+
+    cout << "{";
+    for (int i = 0; i < temp_function_trials; ++i) {
+        temp[i] = Temp_generator();
+        cout << temp[i];
+        if (i < temp_function_trials - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}" << endl;
+
+    cout << "{";
+    for (int i = 0; i < temp_function_trials; ++i) {
+
+        cout << TempToSFS(temp[i]);
+        if (i < temp_function_trials - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}" << endl;
+}
+
+
+// sample data
+
+// input
+double temp3[] = {-48.9741, -54.4729, 10.4155, -29.4365, 52.2304, -54.7095,
+                  8.53117, -4.46423, -2.35123, -31.2189, -42.8268, 8.86809,
+                  45.0348, -4.11092, -11.9092};
+
+double SFS[] = {2.44327, 3.01243, 0.578024, 0.96453, 3.96681, 3.03842, 0.516805,
+                0.309467, 0.31763, 1.06427, 1.88654, 0.527172, 3.10687,
+                0.310141, 0.359771};
+
+TEST(TempToSFS, miscellaneous_test_data) {
+    for (int i = 0; i < temp_function_trials; ++i) {
+        EXPECT_NEAR(SFS[i], TempToSFS(temp3[i]), 1E-5);
+    }
+}
