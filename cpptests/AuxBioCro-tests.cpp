@@ -815,7 +815,7 @@ TEST(TempToLHV, miscellaneous_test_data) {
 
 ///////////////// TempToSFS /////////////////
 
-
+/*
 // For generating sample data only.
 TEST(TempToSFS, survey) {
 
@@ -841,7 +841,7 @@ TEST(TempToSFS, survey) {
     }
     cout << "}" << endl;
 }
-
+*/
 
 // sample data
 
@@ -857,5 +857,54 @@ double SFS[] = {2.44327, 3.01243, 0.578024, 0.96453, 3.96681, 3.03842, 0.516805,
 TEST(TempToSFS, miscellaneous_test_data) {
     for (int i = 0; i < temp_function_trials; ++i) {
         EXPECT_NEAR(SFS[i], TempToSFS(temp3[i]), 1E-5);
+    }
+}
+
+///////////////// TempToSWVC /////////////////
+
+/*
+// For generating sample data only.
+TEST(TempToSWVC, survey) {
+
+    double temp[temp_function_trials];
+
+    cout << "{";
+    for (int i = 0; i < temp_function_trials; ++i) {
+        temp[i] = Temp_generator();
+        cout << setprecision(10) << temp[i];
+        if (i < temp_function_trials - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}" << endl;
+
+    cout << "{";
+    for (int i = 0; i < temp_function_trials; ++i) {
+
+        cout << TempToSWVC(temp[i]);
+        if (i < temp_function_trials - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}" << endl;
+}
+*/
+
+// sample data
+
+// input
+double temp4[] = {-18.2580501, -8.39407392, -33.27833317, 23.51537921,
+                  41.13217144, -7.29201811, 17.48521285, -41.25376405,
+                  -86.00115419, 14.86395423, 6.267875647, 2.968594595,
+                  -0.1383391028, -68.9424391, 0.9925331285};
+
+double SWVC[] = {1.457519922, 3.250349887, 0.3725371654, 28.98704536,
+                 78.39856885, 3.540366004, 19.98015193, 0.1665381098,
+                 0.0004263947425, 16.90292043, 9.526557742, 7.563213512,
+                 6.050954835, 0.005859188571, 6.567097987};
+
+TEST(TempToSWVC, miscellaneous_test_data) {
+    for (int i = 0; i < temp_function_trials; ++i) {
+        EXPECT_NEAR(SWVC[i], TempToSWVC(temp4[i]), 1E-5);
     }
 }
