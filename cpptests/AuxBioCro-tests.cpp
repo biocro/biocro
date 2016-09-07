@@ -640,7 +640,7 @@ TEST(WINDprofTest, miscellaneous_test_data) {
 
 ///////////////// RHprof /////////////////
 
-
+/*
 // For generating sample data only.
 TEST(RHprof, survey) {
   Rand_double RH_generator { 0, 1 };
@@ -662,7 +662,7 @@ TEST(RHprof, survey) {
     cout << "}" << endl;
   }
 }
-
+*/
 
 // sample data
 
@@ -707,4 +707,59 @@ TEST(RHprofTest, miscellaneous_test_data) {
       EXPECT_NEAR(relative_humidity_profile[layer], RHprof_results[i][layer], 1E-5);
     }
   }
+}
+
+
+
+/// Temperature Functions ///
+
+constexpr auto temp_function_trials = 15; // For all temp function tests.
+
+Rand_double Temp_generator { -88, 58 }; // lowest and highest recorded temps on
+                                        // earth (Celsius)
+
+///////////////// TempToDdryA /////////////////
+
+// For generating sample data only.
+TEST(TempToDdryA, survey) {
+
+    double temp[temp_function_trials];
+
+    cout << "{";
+    for (int i = 0; i < temp_function_trials; ++i) {
+        temp[i] = Temp_generator();
+        cout << temp[i];
+        if (i < temp_function_trials - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}" << endl;
+
+    cout << "{";
+    for (int i = 0; i < temp_function_trials; ++i) {
+
+        cout << TempToDdryA(temp[i]);
+        if (i < temp_function_trials - 1) {
+            cout << ", ";
+        }
+    }
+    cout << "}" << endl;
+}
+
+
+// sample data
+
+// input
+double temp[] = {-12.7818, 12.1054, 0.746929, 1.50745, 40.1369, 5.6874,
+                 -66.0127, -65.4668, 57.2424, -44.9646, 35.8258, 32.2919,
+                 -9.62336, -31.5249, 22.2476};
+
+double DdryA[] = {1.34959, 1.24362, 1.29198, 1.28874, 1.12425, 1.27095, 1.57626,
+                  1.57393, 1.05142, 1.48663, 1.14261, 1.15766, 1.33614, 1.4294,
+                  1.20043};
+
+TEST(TempToDdryA, miscellaneous_test_data) {
+    for (int i = 0; i < temp_function_trials; ++i) {
+        EXPECT_NEAR(DdryA[i], TempToDdryA(temp[i]), 1E-5);
+    }
 }
