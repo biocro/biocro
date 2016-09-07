@@ -16,6 +16,7 @@
 #include <R.h>
 #include <Rmath.h>
 #include <Rinternals.h>
+#include <stdexcept>
 #include "c4photo.h"
 #include "BioCro.h"
 
@@ -73,7 +74,7 @@ double cos_zenith_angle(double latitude, int day_of_year, int hour_of_day) {
 /**
  * Light Macro Environment
  */
-struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
+Light_model lightME(double latitude, int day_of_year, int hour_of_day)
 {
     // day_of_year and hour_of_day are given as local time for the specified latitude.
     //
@@ -102,7 +103,7 @@ struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
         diffuse_irradiance_transmittance = proportion_of_irradiance_scattered * (1 - direct_irradiance_transmittance) * cosine_zenith_angle; // Modified from equation 11.13 of Norman and Campbell.
     }
 
-    struct Light_model light_model;
+    Light_model light_model;
     light_model.direct_irradiance_fraction = direct_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
     light_model.diffuse_irradiance_fraction = diffuse_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
     light_model.cosine_zenith_angle = cosine_zenith_angle; // dimensionless.
@@ -110,53 +111,69 @@ struct Light_model lightME(double latitude, int day_of_year, int hour_of_day)
     return light_model;
 }
 
-struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
+/**
+ * Computation of an n-layered light profile from the direct light `Idir`,
+ * diffuse light `Idiff`, leaf area index `LAI`, the cosine of the zenith angle
+ * `cosTheta` and other parameters.
+ *
+ * Preconditions:
+ *    `Idir` and `Idiff` are positive.
+ *    `LAI` is non-negative.
+ *    `nlayers` is at least 1 and not more than MAXLAY, the compile-time
+ *        constant defining the maximum array size for arrays used to store
+ *        profile data (enforced).
+ *    `cosTheta` is greater than 0 and at most 1 (enforced).
+ *    `kd` is between 0 and 1.
+ *    `chil` is non-negative.
+ *    `heightf` is positive.
+ */ 
+Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
         double cosTheta, double kd, double chil, double heightf)
 {
-    struct Light_profile light_profile;
-    int i;
-    double k0, k1, k;
-    double LAIi, CumLAI;
-    double Isolar, Idiffuse, Ibeam, Iscat, Iaverage, alphascatter;
-    double Ls, Ld;
-    double Fsun, Fshade;
-    // double Itotal;  // unused
-    alphascatter = 0.8;
-    k0 = sqrt(pow(chil ,2) + pow(tan(acos(cosTheta)),2));
-    k1 = chil + 1.744*pow((chil+1.183),-0.733);
-    k = k0/k1;
-    if(k < 0)
-        k = -k;
+    if (nlayers < 1 || nlayers > MAXLAY) {
+        throw std::out_of_range("nlayers must be at least 1 but no more than 200");
+    }
+    if (cosTheta > 1 || cosTheta <= 0) {
+        throw std::out_of_range("cosTheta must be positive but no more than 1.");
+    }
 
-    LAIi = LAI / nlayers;
+    constexpr auto alphascatter = 0.8;
 
-    for(i = 0; i < nlayers; i++)
-    {
-        CumLAI = LAIi * ((double)i+0.5);
+    auto theta = acos(cosTheta);
+    auto k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
+    auto k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
+    auto k = (k1 > 0) ? k0/k1 : -k0/k1;
+    
+    auto LAIi = LAI / nlayers;
 
-        Ibeam=Idir*cosTheta;
-        Iscat = Ibeam * exp(-k *sqrt(alphascatter)* CumLAI)-Ibeam * exp(-k * CumLAI);
+    Light_profile light_profile;
+    for (int i = 0; i < nlayers; i++) {
+        auto CumLAI = LAIi * (i + 0.5);
 
-        Isolar = Ibeam*k;
-        Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
+        auto Ibeam = Idir * cosTheta;
+        auto Iscat = Ibeam * exp(-k * sqrt(alphascatter) * CumLAI)
+            - Ibeam * exp(-k * CumLAI);
 
-        Ls = (1-exp(-k*LAIi))*exp(-k*CumLAI)/k;
-        Ld=LAIi-Ls;
+        auto Isolar = Ibeam * k;
+        auto Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
 
-        Fsun = Ls/(Ls+Ld);
-        Fshade = Ld/(Ls+Ld);
-        /*fraction intercepted*/
-        // Itotal = (Fsun*Isolar + Idiffuse) * (1-exp(-k*LAIi))/k; // set but not used.
-        Iaverage = (Fsun*(Isolar + Idiffuse) + Fshade*Idiffuse) * (1-exp(-k*LAIi))/k;
+        auto Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
+        auto Ld = LAIi - Ls;
+
+        auto Fsun = Ls/(Ls + Ld);
+        auto Fshade = Ld/(Ls + Ld);
+
+        auto Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse)
+            * (1 - exp(-k * LAIi)) / k;
 
         light_profile.direct_irradiance[i] = Isolar + Idiffuse;
         light_profile.diffuse_irradiance[i]= Idiffuse;
         light_profile.total_irradiance[i] = Iaverage;
         light_profile.sunlit_fraction[i] = Fsun;
         light_profile.shaded_fraction[i] = Fshade;
-        light_profile.height[i] = LAI/heightf - CumLAI/heightf;
+        light_profile.height[i] = (LAI - CumLAI)/heightf;
     }
-    return(light_profile);
+    return light_profile;
 }
 
 /* Additional Functions needed for EvapoTrans */
