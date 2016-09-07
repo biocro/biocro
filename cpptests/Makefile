@@ -1,5 +1,6 @@
 CXXFLAGS=-I/Library/Frameworks/R.framework/Resources/include/
 CXXFLAGS+=-std=c++11
+CXXFLAGS+=-Wunused-variable
 
 LDFLAGS=
 # commented out what seems not to be needed:
@@ -12,13 +13,16 @@ LDFLAGS+=-undefined dynamic_lookup
 #LDFLAGS+=-L/usr/local/lib
 
 
-OBJ= ../src/AuxBioCro.o ../src/c4photo.o
+OBJ= ../src/AuxBioCro.o Random.o ../src/c4photo.o
 
 
 
-test: AuxBioCro-tests.o test-runner.o ../src/AuxBioCro.o
+test: AuxBioCro-tests.o test-runner.o $(OBJ)
 	$(CXX) -v $(LDFLAGS) AuxBioCro-tests.o $(OBJ) test-runner.o -o test -lgtest
 
+AuxBioCro-tests.o: Random.h
+
+Random.o: Random.h
 
 clean:
 	$(RM) test *.o
