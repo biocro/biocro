@@ -242,36 +242,27 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_pr
 
 double TempToDdryA(double Temp)
 {
-    double DdryA;
-    DdryA = 1.295163636 + -0.004258182 * Temp;
-    return(DdryA);
+    return 1.295163636 + -0.004258182 * Temp;
 }
 
 double TempToLHV(double Temp)
 {
-    double LHV;
-    LHV = 2.501 + -0.002372727 * Temp;
-    return(LHV);
+    return 2.501 + -0.002372727 * Temp;
 }
 
 double TempToSFS(double Temp)
 {
-    double SlopeFS;
-    SlopeFS = 0.338376068 +  0.011435897 * Temp +  0.001111111 * pow(Temp,2);
-    return(SlopeFS);
+    return 0.338376068 + 0.011435897 * Temp + 0.001111111 * pow(Temp, 2);
 }
 
 double TempToSWVC(double Temp)
 {
     /* Temp should be in Celsius */
     /* This is the arden buck equation */
-    double SWVC;
-    double a, b;
-    a = (18.678 - Temp/234.5) * Temp;
-    b = 257.14 + Temp;
+    auto a = (18.678 - Temp/234.5) * Temp;
+    auto b = 257.14 + Temp;
     /* SWVC = (6.1121 * exp(a/b))/10; */
-    SWVC = (6.1121 * exp(a/b));
-    return(SWVC); /* This is in hecto Pascals */
+    return 6.1121 * exp(a/b); /* This is in hecto Pascals */
 }
 
 /* EvapoTrans function */
