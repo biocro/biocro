@@ -933,8 +933,8 @@ Rand_double lowerT_gen {1.5, 5};
 Rand_double Catm_gen {280, 500};
 
 TEST(EvapoTrans, random_test_data) {
+    constexpr double tolerance = 1E-14;
 
-    int nan_count = 0;
     for (int i = 0; i < 1e4; ++i) {
 
         double Rad = Rad_gen();
@@ -943,8 +943,8 @@ TEST(EvapoTrans, random_test_data) {
         double RH = RH_gen();
         double WindSpeed = WindSpeed_gen();
         double LeafAreaIndex = LeafAreaIndex_gen();
-        double CanopyHeight = CanopyHeight_gen(); // m?
-        double StomataWS = StomataWS_gen(); // ???
+        double CanopyHeight = CanopyHeight_gen();
+        double StomataWS = StomataWS_gen();
         int ws = ws_gen();
         double vmax2 = vmax2_gen();
         double alpha2 = alpha2_gen();
@@ -957,7 +957,6 @@ TEST(EvapoTrans, random_test_data) {
         double upperT = upperT_gen();
         double lowerT = lowerT_gen();
         double Catm = Catm_gen();
-
 
         ET_Str old_result =
             OldEvapoTrans(Rad, Itot, Airtemperature,
@@ -977,12 +976,10 @@ TEST(EvapoTrans, random_test_data) {
                        b12, upperT, lowerT,
                        Catm);
 
-        if (isnan(old_result.TransR)) {
-            ++nan_count;
-            //continue;
-        }
-        EXPECT_NEAR(new_result.TransR, old_result.TransR, 1E-7);
-
+        EXPECT_NEAR(new_result.TransR, old_result.TransR, tolerance);
+        EXPECT_NEAR(new_result.EPenman, old_result.EPenman, tolerance);
+        EXPECT_NEAR(new_result.EPriestly, old_result.EPriestly, tolerance);
+        EXPECT_NEAR(new_result.Deltat, old_result.Deltat, tolerance);
+        EXPECT_NEAR(new_result.LayerCond, old_result.LayerCond, tolerance);
     }
-    cout << "we got nan " << nan_count << " times." << endl;
 }
