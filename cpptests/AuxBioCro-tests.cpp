@@ -983,3 +983,64 @@ TEST(EvapoTrans, random_test_data) {
         EXPECT_NEAR(new_result.LayerCond, old_result.LayerCond, tolerance);
     }
 }
+
+///////////////// EvapoTrans2 /////////////////
+
+// Rand_double Rad_gen {0, 1e3};
+Rand_double Iave_gen {-100, 100}; // no idea what this should be
+// Temp_generator
+// Rand_double RH_gen {0, 1};
+// Rand_double WindSpeed_gen {0, 408};
+// Rand_double LeafAreaIndex_gen {0, 10};
+// Rand_double CanopyHeight_gen {0, 6.72};
+Rand_double stomatacond_gen {80, 700};
+Rand_double leafw_gen {1E-3, 1E-1};
+Rand_int eteq_gen {0, 2};
+
+TEST(EvapoTrans2, random_test_data) {
+    constexpr double tolerance = 1E-14;
+
+    for (int i = 0; i < 1e4; ++i) {
+
+        double Rad = Rad_gen();
+        double Iave = Iave_gen();
+        double airTemp =Temp_generator();
+        double RH = RH_gen();
+        double WindSpeed = WindSpeed_gen();
+        double LeafAreaIndex = LeafAreaIndex_gen();
+        double CanopyHeight = CanopyHeight_gen();
+        double stomatacond = stomatacond_gen();
+        double leafw = leafw_gen();
+        int eteq = eteq_gen();
+        
+        ET_Str old_result =
+            OldEvapoTrans2(Rad,
+                           Iave,
+                           airTemp,
+                           RH,
+                           WindSpeed,
+                           LeafAreaIndex,
+                           CanopyHeight,
+                           stomatacond,
+                           leafw,
+                           eteq);
+
+        ET_Str new_result =
+            EvapoTrans2(Rad,
+                        Iave,
+                        airTemp,
+                        RH,
+                        WindSpeed,
+                        LeafAreaIndex,
+                        CanopyHeight,
+                        stomatacond,
+                        leafw,
+                        eteq);
+
+        EXPECT_NEAR(new_result.TransR, old_result.TransR, tolerance);
+        EXPECT_NEAR(new_result.EPenman, old_result.EPenman, tolerance);
+        EXPECT_NEAR(new_result.EPriestly, old_result.EPriestly, tolerance);
+        EXPECT_NEAR(new_result.Deltat, old_result.Deltat, tolerance);
+        EXPECT_NEAR(new_result.LayerCond, old_result.LayerCond, tolerance);
+    }
+}
