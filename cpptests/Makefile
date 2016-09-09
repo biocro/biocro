@@ -13,7 +13,7 @@ LDFLAGS+=-undefined dynamic_lookup
 #LDFLAGS+=-L/usr/local/lib
 
 
-OBJ= ../src/AuxBioCro.o Random.o ../src/c4photo.o
+OBJ= ../src/AuxBioCro.o Random.o ../src/c4photo.o OldAuxBioCroFunctions.o
 
 
 

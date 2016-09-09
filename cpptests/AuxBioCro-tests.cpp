@@ -5,7 +5,7 @@
 #include "../src/BioCro.h" // functions we're testing
 #include "gtest/gtest.h" // test framework
 #include "Random.h" // custom random number generators
-
+#include "OldAuxBioCroFunctions.h" // copies of old function definitions from AuxBioCro.cpp
 
 ///////////////// lightME /////////////////
 
@@ -564,8 +564,8 @@ TEST(WINDprof, survey) {
   Rand_double LAI_generator { 0, 1 };
   Rand_int nlayers_generator { 1, 20 };
 
-  
- 
+
+
  for (int i = 0; i < 10; ++i) {
     auto WindSpeed = wind_speed_generator();
     auto LAI = LAI_generator();
@@ -602,20 +602,20 @@ double WINDprof_results[][MAXLAY] = {
   {8.196468057, 8.170383284, 8.144381525, 8.118462514, 8.092625989, 8.066871687,
    8.041199347, 8.015608708, 7.990099509, 7.964671492, 7.939324398, 7.914057969,
    7.88887195, 7.863766083, 7.838740114, 7.81379379, 7.788926855, 7.764139058},
-  
+
   {64.72380617, 63.27407886, 61.85682352, 60.47131282, 59.11683572, 57.7926971,
    56.49821743, 55.23273239, 53.99559253, 52.78616297, 51.60382302, 50.44796591,
    49.31799847, 48.21334079, 47.13342599, 46.07769984, 45.04562055, 44.03665847,
    43.0502958, 42.08602634},
-  
+
   {40.70143633, 39.93564881, 39.18426939, 38.447027, 37.72365563, 37.01389432,
    36.317487, 35.63418241, 34.96373402, 34.30589996, 33.66044289, 33.02712993,
    32.40573259, 31.7960267, 31.19779227},
-  
+
   {95.59181556, 91.90228281, 88.35515402, 84.94493284, 81.66633509, 78.51428054,
    75.48388503, 72.57045291, 69.76946979, 67.07659549, 64.48765737, 61.99864383,
    59.6056981, 57.30511229, 55.09332159, 52.96689882, 50.92254903},
-  
+
   {71.55012775, 69.0356631, 66.60956353, 64.26872364, 62.01014719, 59.83094321,
    57.72832234, 55.69959325, 53.74215917, 51.85351461, 50.03124212, 48.27300921,
    46.57656534, 44.93973909}
@@ -645,7 +645,7 @@ TEST(WINDprofTest, miscellaneous_test_data) {
 TEST(RHprof, survey) {
   Rand_double RH_generator { 0, 1 };
   Rand_int nlayers_generator { 1, 20 };
- 
+
  for (int i = 0; i < 5; ++i) {
     auto RH = RH_generator();
     auto nlayers = nlayers_generator();
@@ -907,4 +907,82 @@ TEST(TempToSWVC, miscellaneous_test_data) {
     for (int i = 0; i < temp_function_trials; ++i) {
         EXPECT_NEAR(SWVC[i], TempToSWVC(temp4[i]), 1E-5);
     }
+}
+
+///////////////// EvapoTrans /////////////////
+
+Rand_double Rad_gen {0, 1e3};
+Rand_double Itot_gen {0, 1e3};
+// Temp_generator
+Rand_double RH_gen {0, 1};
+Rand_double WindSpeed_gen {0, 408};
+Rand_double LeafAreaIndex_gen {0, 10};
+Rand_double CanopyHeight_gen {0, 6.72}; // m? Values > 6.73 give nan for ga1
+Rand_double StomataWS_gen {0.4, 1}; // ???
+Rand_int ws_gen {0, 1};
+Rand_double vmax2_gen {20, 50};
+Rand_double alpha2_gen {3e-2, 5e-2};
+Rand_double kparm_gen {0.5, 0.9};
+Rand_double theta_gen {0.73, 0.93};
+Rand_double beta_gen {0.8, 0.98};
+Rand_double Rd2_gen {0.7, 0.9};
+Rand_double b02_gen {0.05, 0.1};
+Rand_double b12_gen {2, 4};
+Rand_double upperT_gen {30, 50};
+Rand_double lowerT_gen {1.5, 5};
+Rand_double Catm_gen {280, 500};
+
+TEST(EvapoTrans, random_test_data) {
+
+    int nan_count = 0;
+    for (int i = 0; i < 1e4; ++i) {
+
+        double Rad = Rad_gen();
+        double Itot = Itot_gen();
+        double Airtemperature =Temp_generator();
+        double RH = RH_gen();
+        double WindSpeed = WindSpeed_gen();
+        double LeafAreaIndex = LeafAreaIndex_gen();
+        double CanopyHeight = CanopyHeight_gen(); // m?
+        double StomataWS = StomataWS_gen(); // ???
+        int ws = ws_gen();
+        double vmax2 = vmax2_gen();
+        double alpha2 = alpha2_gen();
+        double kparm = kparm_gen();
+        double theta = theta_gen();
+        double beta = beta_gen();
+        double Rd2 = Rd2_gen();
+        double b02 = b02_gen();
+        double b12 = b12_gen();
+        double upperT = upperT_gen();
+        double lowerT = lowerT_gen();
+        double Catm = Catm_gen();
+
+
+        ET_Str old_result =
+            OldEvapoTrans(Rad, Itot, Airtemperature,
+                          RH, WindSpeed, LeafAreaIndex,
+                          CanopyHeight, StomataWS, ws,
+                          vmax2, alpha2, kparm,
+                          theta, beta, Rd2, b02,
+                          b12, upperT, lowerT,
+                          Catm);
+
+        ET_Str new_result =
+            EvapoTrans(Rad, Itot, Airtemperature,
+                       RH, WindSpeed, LeafAreaIndex,
+                       CanopyHeight, StomataWS, ws,
+                       vmax2, alpha2, kparm,
+                       theta, beta, Rd2, b02,
+                       b12, upperT, lowerT,
+                       Catm);
+
+        if (isnan(old_result.TransR)) {
+            ++nan_count;
+            //continue;
+        }
+        EXPECT_NEAR(new_result.TransR, old_result.TransR, 1E-7);
+
+    }
+    cout << "we got nan " << nan_count << " times." << endl;
 }
