@@ -493,8 +493,10 @@ soilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatC
                       scsf = 1, transpRes = 5e6, leafPotTh = -800,
                       rfl=0.2, rsec=0.2, rsdf=0.44){
 
-  if(soilLayers < 1 || soilLayers > 50)
+  if(soilLayers < 1 || soilLayers > 50){
     stop("soilLayers must be an integer larger than 0 and smaller than 50")
+  }
+    
 
   if(missing(iWatCont)){
     if(missing(FieldC))

@@ -286,12 +286,12 @@ willowGro <- function(WetDat, day1=120, dayn=300,
                    iPlantControl=list(),
                    centuryControl=list())
   {
-  
+
     ## Getting the Parameters
     canopyP <- willowcanopyParms()
     canopyP[names(canopyControl)] <- canopyControl
     
-    soilP <- soilParms()
+    soilP <- willowsoilParms()
     soilP[names(soilControl)] <- soilControl
 
     nitroP <- nitroParms()
@@ -299,7 +299,6 @@ willowGro <- function(WetDat, day1=120, dayn=300,
 
     willowphenoP <- willowphenoParms()
     willowphenoP[names(willowphenoControl)] <- willowphenoControl
-    willowphenoP <- c(unlist(willowphenoP))
     
     photoP <- willowphotoParms()
     photoP[names(photoControl)] <- photoControl
@@ -368,7 +367,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     lowerT<- 0
     mResp <- canopyP$mResp
     kd <- canopyP$kd
-    chi.l <- 1.0
+    chi.l <- canopyP$chi.l
     Sp <- canopyP$Sp
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
@@ -376,7 +375,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     GrowthRespFraction <- canopyP$GrowthRespFraction
     o2 <- photoP$O2
     StomWS <-photoP$StomWS
-	initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
+    initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
 
     res <- .Call("willowGro",
                  as.double(lat),
@@ -389,8 +388,6 @@ willowGro <- function(WetDat, day1=120, dayn=300,
                  as.double(precip),
                  as.double(kd),
                  as.double(chi.l),
-
-
                  as.double(heightF),
                  as.integer(nlayers),
                  as.double(initial_biomass),
@@ -490,11 +487,9 @@ willowsoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1
                       scsf = 1, transpRes = 5e6, leafPotTh = -800,
                       rfl=0.2, rsec=0.2, rsdf=0.44){
   
-  if(soilLayers < 1 || soilLayers > 50)
-    stop("soilLayers must be an integer larger than 0 and smaller than 50")
-  
-  if(missing(iWatCont)){
-    if(missing(FieldC))
+
+  if(is.null(iWatCont)){
+    if(is.null(FieldC))
       iWatCont <- rep(SoilType(soilType)$fieldc,soilLayers)
     else
       iWatCont <- rep(FieldC,soilLayers)
@@ -507,15 +502,15 @@ willowsoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1
     stop("iWatCont should be NULL, of length 1 or length == soilLayers")
   }
   
-  if(missing(soilDepths)){
+  if(is.null(soilDepths)){
     soilDepths <- seq(0,soilDepth,length.out=I(soilLayers+1))
   }else{
     if(length(soilDepths) != I(soilLayers+1)) stop("soilDepths should be of length == soilLayers + 1")
   }
   
-  if(missing(FieldC)) FieldC <- -1
+  if(is.null(FieldC)) FieldC <- -1
   
-  if(missing(WiltP))  WiltP <- -1
+  if(is.null(WiltP))  WiltP <- -1
   
   wsFun <- match.arg(wsFun)
   if(wsFun == "linear")  wsFun <- 0
@@ -621,11 +616,11 @@ plot.willowGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE
                          x1=0.1,y1=0.8,plot.kind=c("DB","SW"),...) 
 {
 
-  if(missing(xlab)){
+  if(is.null(xlab)){
     xlab = expression(paste("Thermal Time (",degree,"C d)"))
   }
 
-  if(missing(ylab)){
+  if(is.null(ylab)){
     ylab = expression(paste("Dry willowmass (Mg ",ha^-1,")"))
   }  
 
@@ -635,7 +630,7 @@ plot.willowGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE
   lwds <- rep(lwd,length=6)
   plot.kind <- match.arg(plot.kind)
   if(plot.kind == "DB"){
-  if (missing(obs)) {
+  if (is.null(obs)) {
         sim <- x
         plot1 <- lattice::xyplot(sim$Stem ~ sim$ThermalT, type = "l", ...,
                         ylim = c(0, I(max(sim$Stem,na.rm=TRUE) + 5)),
