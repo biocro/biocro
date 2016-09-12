@@ -52,21 +52,22 @@
  * triangles, substituting cofunctions of coangles in the case of latitude and
  * declination.
  */
-double cos_zenith_angle(double latitude, int day_of_year, int hour_of_day) {
+double cos_zenith_angle(const double latitude, const int day_of_year,
+                        const int hour_of_day)
+{
+    constexpr double radians_per_degree = M_PI/180;
+    constexpr int solar_noon = 12;
+    constexpr double radians_rotation_per_hour = 15 * radians_per_degree;
+    constexpr double axial_tilt = 23.5 * radians_per_degree;
 
-    constexpr double RADIANS_PER_DEGREE = M_PI/180;
-    constexpr int SOLAR_NOON = 12;
-    constexpr double RADIANS_ROTATION_PER_HOUR = 15 * RADIANS_PER_DEGREE;
-    constexpr double AXIAL_TILT = 23.5 * RADIANS_PER_DEGREE;
+    const double phi = latitude * radians_per_degree;
+    const int NDS = day_of_year + 10;
 
-    double phi = latitude * RADIANS_PER_DEGREE;
-    int NDS = day_of_year + 10;
+    const double omega = 360.0 * (NDS / 365.0) * radians_per_degree;
 
-    double omega = 360.0 * (NDS / 365.0) * RADIANS_PER_DEGREE;
+    const double delta = -axial_tilt * cos(omega);
 
-    double delta = -AXIAL_TILT * cos(omega);
-
-    double tau = (hour_of_day - SOLAR_NOON) * RADIANS_ROTATION_PER_HOUR;
+    const double tau = (hour_of_day - solar_noon) * radians_rotation_per_hour;
 
     return sin(delta) * sin(phi) + cos(delta) * cos(phi) * cos(tau);
 }
@@ -74,7 +75,8 @@ double cos_zenith_angle(double latitude, int day_of_year, int hour_of_day) {
 /**
  * Light Macro Environment
  */
-Light_model lightME(double latitude, int day_of_year, int hour_of_day)
+Light_model lightME(const double latitude, const int day_of_year,
+                    const int hour_of_day)
 {
     // day_of_year and hour_of_day are given as local time for the specified latitude.
     //
@@ -85,7 +87,7 @@ Light_model lightME(double latitude, int day_of_year, int hour_of_day)
     //
     // The basis for this function is given in chapter 11 of Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
 
-    double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);  // dimensionless.
+    const double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);  // dimensionless.
     double direct_irradiance_transmittance;
     double diffuse_irradiance_transmittance;
 
@@ -267,77 +269,77 @@ double TempToSWVC(double Temp)
 
 /* EvapoTrans function */
 ET_Str EvapoTrans(
-        double Rad, // unused
-        double Itot,
-        double airTemp,
-        double RH,
+        const double Rad, // unused
+        const double Itot,
+        const double airTemp,
+        const double RH,
         double WindSpeed,
-        double LeafAreaIndex, // unused
+        const double LeafAreaIndex, // unused
         double CanopyHeight,
-        double StomataWS,
-        int ws,
-        double vmax2,
-        double alpha2,
-        double kparm,
-        double theta,
-        double beta,
-        double Rd2,
-        double b02,
-        double b12,
-        double upperT,
-        double lowerT,
-        double Catm)
+        const double StomataWS,
+        const int ws,
+        const double vmax2,
+        const double alpha2,
+        const double kparm,
+        const double theta,
+        const double beta,
+        const double Rd2,
+        const double b02,
+        const double b12,
+        const double upperT,
+        const double lowerT,
+        const double Catm)
 {
     // const double LeafWidth = 0.04; unused
-    const auto kappa = 0.41;
-    const auto WindSpeedHeight = 5;
-    const auto dCoef = 0.77;
-    const auto tau = 0.2;
-    const auto ZetaCoef = 0.026;
-    const auto ZetaMCoef = 0.13;
-    const auto LeafReflectance = 0.2;
-    const auto SpecificHeat = 1010;
+    constexpr auto kappa = 0.41;
+    constexpr auto WindSpeedHeight = 5;
+    constexpr auto dCoef = 0.77;
+    constexpr auto tau = 0.2;
+    constexpr auto ZetaCoef = 0.026;
+    constexpr auto ZetaMCoef = 0.13;
+    constexpr auto LeafReflectance = 0.2;
+    constexpr auto SpecificHeat = 1010;
 
     // double BoundaryLayerThickness, DiffCoef, LeafboundaryLayer; unused
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight's at least 0.1
     WindSpeed = fmax(0.5, WindSpeed); // ensure WindSpeed is as least 0.5
-    auto LayerWindSpeed = WindSpeed; // alias
+    const auto LayerWindSpeed = WindSpeed; // alias
 
-    auto DdryA = TempToDdryA(airTemp);
-    auto LHV = TempToLHV(airTemp) * 1e6;
+    const auto DdryA = TempToDdryA(airTemp);
+    const auto LHV = TempToLHV(airTemp) * 1e6;
     /* Here LHV is given in MJ kg-1 and this needs to be converted
        to Joules kg-1  */
-    auto SlopeFS = TempToSFS(airTemp) * 1e-3;
+    const auto SlopeFS = TempToSFS(airTemp) * 1e-3;
 
     /* Relative Humidity is giving me a headache */
     /* RH2 = RH * 1e2; A high value of RH makes the
        difference of temperature between the leaf and the air huge.
        This is what is causing the large difference in DeltaT at the
        bottom of the canopy. I think it is very likely.  */
-    auto LayerRelativeHumidity = RH * 100;
+    const auto LayerRelativeHumidity = RH * 100;
     if (LayerRelativeHumidity > 100) {
         error("LayerRelativehumidity > 100");
     }
 
-    auto SWVC = TempToSWVC(airTemp) * 1e-3;
+    const auto SWVC = TempToSWVC(airTemp) * 1e-3;
     if (SWVC < 0) {
         error("SWVC < 0");
     }
 
     /* FIRST CALCULATIONS*/
 
-    auto Zeta = ZetaCoef * CanopyHeight;
-    auto Zetam = ZetaMCoef * CanopyHeight;
-    auto d = dCoef * CanopyHeight;
+    const auto Zeta = ZetaCoef * CanopyHeight;
+    const auto Zetam = ZetaMCoef * CanopyHeight;
+    const auto d = dCoef * CanopyHeight;
 
     /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
-    auto totalradiation = Itot * 0.235;
+    const auto totalradiation = Itot * 0.235;
 
-    auto LayerConductance = (c4photoC(Itot, airTemp, RH, vmax2, alpha2, kparm,
-                                     theta, beta, Rd2, b02, b12, StomataWS,
-                                     Catm, ws, upperT, lowerT)
-                             ).Gs;
+    const auto LayerConductance = (c4photoC(Itot, airTemp, RH, vmax2, alpha2, kparm,
+                                            theta, beta, Rd2, b02, b12, StomataWS,
+                                            Catm, ws, upperT, lowerT)
+                                   ).Gs;
 
     /* Convert mmoles/m2/s to moles/m2/s
        LayerConductance = LayerConductance * 1e-3
@@ -355,21 +357,23 @@ ET_Str EvapoTrans(
     }
 
     /* Now RHprof returns relative humidity in the 0-1 range */
-    auto DeltaPVa = SWVC * (1 - LayerRelativeHumidity / 100);
+    const auto DeltaPVa = SWVC * (1 - LayerRelativeHumidity / 100);
 
-    auto PsycParam =(DdryA * SpecificHeat) / LHV;
+    const auto PsycParam =(DdryA * SpecificHeat) / LHV;
 
     /* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
     /* It seems that it is not correct to multiply by the leaf area index. Thornley
        and johnson pg. 400 suggest using (1-exp(-k*LAI) but note that for a full canopy
        this is 1. so I'm using 1 as an approximation. */
-    auto Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const auto Ja = 2 * totalradiation *
+        ((1 - LeafReflectance - tau) / (1 - tau));
+
     /* Calculation of ga */
     /* According to thornley and Johnson pg. 416 */
-    auto ga0 = pow(kappa, 2) * LayerWindSpeed;
-    auto ga1 = log( (WindSpeedHeight + Zeta - d) / Zeta );
-    auto ga2 = log( (WindSpeedHeight + Zetam - d) / Zetam );
-    auto ga = ga0 / (ga1 * ga2);
+    const auto ga0 = pow(kappa, 2) * LayerWindSpeed;
+    const auto ga1 = log( (WindSpeedHeight + Zeta - d) / Zeta );
+    const auto ga2 = log( (WindSpeedHeight + Zetam - d) / Zetam );
+    const auto ga = ga0 / (ga1 * ga2);
 
     /*  Rprintf("ga: %.5f \n", ga); */
     if (ga < 0) {
@@ -413,7 +417,7 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
 
     {
         auto ChangeInLeafTemp = 10.0;
-        auto BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance_in_m_per_s));
+        const auto BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance_in_m_per_s));
         for (auto Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
 
             auto OldDeltaT = Deltat;
@@ -433,13 +437,13 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
 
     PhiN = fmax(PhiN, 0); // ensure PhiN >= 0
 
-    auto TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
+    const auto TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
         /
         (LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance_in_m_per_s)));
 
-    auto EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
+    const auto EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
 
-    auto EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
+    const auto EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
         /
         (LHV * (SlopeFS + PsycParam));
 
@@ -466,25 +470,25 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
 }
 
 /* New EvapoTrans function */
-struct ET_Str EvapoTrans2(double Rad,
-        double Iave,
-        double airTemp,
-        double RH,
+struct ET_Str EvapoTrans2(const double Rad,
+        const double Iave,
+        const double airTemp,
+        const double RH,
         double WindSpeed,
-        double LeafAreaIndex,
+        const double LeafAreaIndex,
         double CanopyHeight,
-        double stomatacond,
-        double leafw,
-        int eteq)
+        const double stomatacond,
+        const double leafw,
+        const int eteq)
 {
     // const double kappa = 0.41; /* von Karmans constant */ unused
     // const double dCoef = 0.77;  unused
-    const double tau = 0.2; /* Leaf transmission coefficient */
+    constexpr double tau = 0.2; /* Leaf transmission coefficient */
     // const double ZetaCoef = 0.026; unused
     // const double ZetaMCoef = 0.13; unused
-    const double LeafReflectance = 0.2;
-    const double SpecificHeat = 1010; /* J kg-1 K-1 */
-    const double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
+    constexpr double LeafReflectance = 0.2;
+    constexpr double SpecificHeat = 1010; /* J kg-1 K-1 */
+    constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -496,39 +500,43 @@ struct ET_Str EvapoTrans2(double Rad,
         WindSpeedHeight = CanopyHeight + WindSpeedHeight;
     }
 
-
-    auto gvs = stomatacond; /* Conductance to vapor from stomata same as stomatacond (input variable) */
+    // Conductance to vapor from stomata same as stomatacond (input variable):
+    const auto gvs = stomatacond;
     /* Convert from mmol H20/m2/s to m/s */
-    gvs = gvs * (1.0/41000.0);
+    auto gvs_in_m_per_s = gvs * (1.0/41000.0);
     /* 1/41000 is the same as 24.39 * 1e-6 */
     /* Thornley and Johnson use m s^-1 on page 418 */
 
     /* Prevent errors due to extremely low Layer conductance */
-    if (gvs <= 0.001) {
-        gvs = 0.001;
+    if (gvs_in_m_per_s <= 0.001) {
+        gvs_in_m_per_s = 0.001;
     }
 
 
 
     // double WindSpeedTopCanopy = WindSpeed; // unused.
 
-    auto DdryA = TempToDdryA(airTemp); /* Density of dry air, kg / m^3 */
+    const auto DdryA = TempToDdryA(airTemp); /* Density of dry air, kg / m^3 */
 
     /* In the original code in WIMOVAC this is used in J kg-1
        but Thornley and Johnson use it as MJ kg-1  */
-    auto LHV = TempToLHV(airTemp); /* This should be MJ kg^-1*/
-    LHV = LHV * 1e6; /* Now it is converted to Joules kg^-1*/
-    auto SlopeFS = TempToSFS(airTemp) * 1e-3; /* kg m^-3 K^-1 */
-    auto SWVP = TempToSWVC(airTemp); /* this is hecto Pascals */
-    /* Convert to kg/m3 */
-    auto SWVC = (DdryA * 0.622 * SWVP)/1013.25; /* This last number is atmospheric pressure in hecto pascals */
+    const auto LHV_in_MJ_per_kg = TempToLHV(airTemp);
+    // Convert to Joules per kg:
+    const auto LHV = LHV_in_MJ_per_kg * 1e6;
+    const auto SlopeFS = TempToSFS(airTemp) * 1e-3; /* kg m^-3 K^-1 */
+    const auto SWVP = TempToSWVC(airTemp); // This is hecto Pascals.
+
+    // Express SWVC in kg/m3:
+    constexpr auto hPa_per_atm = 1013.25;
+    const auto SWVC = (DdryA * 0.622 * SWVP)/hPa_per_atm;
+
     /* SWVC is saturated water vapor concentration (or density) in kg/m3 */
 
-    auto PsycParam =(DdryA * SpecificHeat) / LHV; /* This is in kg m-3 K-1 */
+    const auto PsycParam =(DdryA * SpecificHeat) / LHV; /* This is in kg m-3 K-1 */
 
-    auto DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
+    const auto DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
 
-    auto ActualVaporPressure = RH * SWVP; /* hecto Pascals */
+    const auto ActualVaporPressure = RH * SWVP; /* hecto Pascals */
 
     /* SOLAR RADIATION COMPONENT*/
 
@@ -538,7 +546,7 @@ struct ET_Str EvapoTrans2(double Rad,
     /* There are 2.35 x 10^5 Joules in a mol */
     /* or 0.235 Joules in a micro mol */
     /* A Watt is equivalent to J/s */
-    auto totalradiation = Rad * 0.235; /* This is essentially Watts m^-2 */
+    const auto totalradiation = Rad * 0.235; /* This is essentially Watts m^-2 */
     /* On a clear sky it may exceed 1000 in some parts of the world
        Thornley and Johnson pg 400 */
     /* This values can not possibly be higher than 650 */
@@ -547,20 +555,15 @@ struct ET_Str EvapoTrans2(double Rad,
     /* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
     /* It seems that it is not correct to multiply by the leaf area index. The previous
        version was used in WIMOVAC (check) */
-    auto Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const auto Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
 
     /* The value below is only for leaf temperature */
-    auto Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const auto Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
 
     /* AERODYNAMIC COMPONENT */
     if(WindSpeed < 0.5) WindSpeed = 0.5;
 
-    auto LayerWindSpeed = WindSpeed; // alias
-
-
-    /* prevent errors due to extremely low Layer conductance */
-    if(gvs <= 0.001)
-        gvs = 0.001;
+    const auto LayerWindSpeed = WindSpeed; // alias
 
 
     // Declare variables we need after exiting the loop:
@@ -571,7 +574,8 @@ struct ET_Str EvapoTrans2(double Rad,
     {
         auto ChangeInLeafTemp = 10.0;
 
-        for (auto Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
+        for (auto Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10);
+             ++Counter) {
 
             auto OldDeltaT = Deltat;
 
@@ -586,35 +590,39 @@ struct ET_Str EvapoTrans2(double Rad,
             /* where 4*sigma*Tair^3 is the derivative of sigma*(Tair+deltaT)^4 evaluated at deltaT=0, */
 
             ga = leafboundarylayer(LayerWindSpeed, leafw, airTemp, Deltat,
-                                   gvs, ActualVaporPressure);
+                                   gvs_in_m_per_s, ActualVaporPressure);
             /* This returns leaf-level boundary layer conductance */
             /* In WIMOVAC this was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW);  */
 
-            auto PhiN2 = (Ja2 - rlc);  /* * LeafAreaIndex;  */
+            const auto PhiN2 = (Ja2 - rlc);  /* * LeafAreaIndex;  */
 
             /* This equation is from Thornley and Johnson pg. 418 */
-            auto TopValue = PhiN2 * (1 / ga + 1 / gvs) - LHV * DeltaPVa;
-            auto BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / gvs));
-            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // confine to interval [-10, 10]
+            const auto TopValue = PhiN2 * (1 / ga + 1 / gvs_in_m_per_s)
+                - LHV * DeltaPVa;
+            const auto BottomValue = LHV * (SlopeFS +
+                                      PsycParam * (1 + ga / gvs_in_m_per_s));
+
+             // confine to interval [-10, 10]:
+            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10);
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
         }
     }
 
     /* Net radiation */
-    auto PhiN = fmax(0, Ja - rlc); // ensure it's >= 0
+    const auto PhiN = fmax(0, Ja - rlc); // ensure it's >= 0
 
     auto TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
         /
-        (LHV * (SlopeFS + PsycParam * (1 + ga / gvs)));
+        (LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s)));
 
     /* Penman will use the WIMOVAC conductance */
-    auto EPen = (((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa))
+    const auto EPen = (((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa))
         /
         (LHV * (SlopeFS + PsycParam));
 
-    auto EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
+    const auto EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
 
     /* Choose equation to report */
     switch (eteq) {
@@ -640,7 +648,7 @@ struct ET_Str EvapoTrans2(double Rad,
     et_results.EPenman = EPen * 1e6 / 18;
     et_results.EPriestly = EPries * 1e6 / 18;
     et_results.Deltat = Deltat;
-    et_results.LayerCond = gvs * 41000;
+    et_results.LayerCond = gvs_in_m_per_s * 41000;
     return et_results;
 }
 
