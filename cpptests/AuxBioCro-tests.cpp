@@ -252,19 +252,19 @@ TEST(sunMLTest, CheckCosThetaRange) {
         args.generate_values();
         ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
 
-        args.cosTheta = 1e-9;
+        args.cosTheta = 1;
         ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
-
-        args.cosTheta = 1.0;
-        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
-
-        args.cosTheta += DBL_EPSILON;
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
 
         args.cosTheta = 0;
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
+
+        args.cosTheta = -1;
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
+
+        args.cosTheta = 1 + DBL_EPSILON;
         ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
 
-        args.cosTheta = -0.5;
+        args.cosTheta = -1 - DBL_EPSILON;
         ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
     }
 }
@@ -450,6 +450,24 @@ TEST(sunMLTest, miscellaneous_test_data) {
                                  args.heightf);
 
         compare_light_profiles(lp, result_sets[setNo], args.nlayers);
+    }
+}
+
+// Regression test on miscellaneous random input generated on the fly; check
+// that the output doesn't change.
+TEST(sunMLTest, miscellaneous_test_data_2) {
+    sunMLArgs args = sunMLArgs();
+    for (int i = 0; i < 1E4; ++i) {
+        args.generate_values();
+
+        Light_profile Oldlp = OldsunML(args.Idir, args.Idiff, args.LAI,
+                                       args.nlayers, args.cosTheta, args.kd,
+                                       args.chil, args.heightf);
+        Light_profile lp = sunML(args.Idir, args.Idiff, args.LAI, args.nlayers,
+                                 args.cosTheta, args.kd, args.chil,
+                                 args.heightf);
+
+        compare_light_profiles(lp, Oldlp, args.nlayers);
     }
 }
 

@@ -1,9 +1,62 @@
 #include <R.h>
 #include <Rmath.h>
 #include <Rinternals.h>
+#include <stdexcept>
 #include "../src/c4photo.h"
 #include "../src/BioCro.h"
 #include "OldAuxBioCroFunctions.h"
+
+// This is a verbatim copy of the sumML function as of commit
+// 043053a4702b391265beb6dfd0d7be3e205fa252 (Mon Sep 12 16:33:21 2016 -0500),
+// before beginning further revision.
+Light_profile OldsunML(double Idir, double Idiff, double LAI, int nlayers,
+        double cosTheta, double kd, double chil, double heightf)
+{
+    if (nlayers < 1 || nlayers > MAXLAY) {
+        throw std::out_of_range("nlayers must be at least 1 but no more than 200");
+    }
+    if (cosTheta > 1 || cosTheta <= 0) {
+        throw std::out_of_range("cosTheta must be positive but no more than 1.");
+    }
+
+    constexpr auto alphascatter = 0.8;
+
+    auto theta = acos(cosTheta);
+    auto k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
+    auto k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
+    auto k = (k1 > 0) ? k0/k1 : -k0/k1;
+
+    auto LAIi = LAI / nlayers;
+
+    Light_profile light_profile;
+    for (int i = 0; i < nlayers; i++) {
+        auto CumLAI = LAIi * (i + 0.5);
+
+        auto Ibeam = Idir * cosTheta;
+        auto Iscat = Ibeam * exp(-k * sqrt(alphascatter) * CumLAI)
+            - Ibeam * exp(-k * CumLAI);
+
+        auto Isolar = Ibeam * k;
+        auto Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
+
+        auto Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
+        auto Ld = LAIi - Ls;
+
+        auto Fsun = Ls/(Ls + Ld);
+        auto Fshade = Ld/(Ls + Ld);
+
+        auto Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse)
+            * (1 - exp(-k * LAIi)) / k;
+
+        light_profile.direct_irradiance[i] = Isolar + Idiffuse;
+        light_profile.diffuse_irradiance[i]= Idiffuse;
+        light_profile.total_irradiance[i] = Iaverage;
+        light_profile.sunlit_fraction[i] = Fsun;
+        light_profile.shaded_fraction[i] = Fshade;
+        light_profile.height[i] = (LAI - CumLAI)/heightf;
+    }
+    return light_profile;
+}
 
 
 // This is a verbatim copy of the EvapoTrans function as of commit

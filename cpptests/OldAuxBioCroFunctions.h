@@ -1,3 +1,6 @@
+Light_profile OldsunML(double Idir, double Idiff, double LAI, int nlayers,
+                       double cosTheta, double kd, double chil, double heightf);
+
 struct ET_Str OldEvapoTrans(double Rad, double Itot, double Airtemperature,
                             double RH, double WindSpeed, double LeafAreaIndex,
                             double CanopyHeight, double StomataWS, int ws,
