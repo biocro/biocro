@@ -236,12 +236,26 @@ struct sunMLArgs {
 };
 
 // Helper for
-void compare_light_profiles(Light_profile lp_1, Light_profile lp_2, int nlayers) {
-    constexpr auto TOLERANCE = 1E-5;
+void compare_light_profiles(Light_profile lp_1, Light_profile lp_2, int nlayers, double tolerance = 1E-5) {
     for (int layer = 0; layer < nlayers; ++layer) {
         EXPECT_NEAR(lp_1.direct_irradiance[layer],
                     lp_2.direct_irradiance[layer],
-                    TOLERANCE);
+                    tolerance);
+        EXPECT_NEAR(lp_1.diffuse_irradiance[layer],
+                    lp_2.diffuse_irradiance[layer],
+                    tolerance);
+        EXPECT_NEAR(lp_1.total_irradiance[layer],
+                    lp_2.total_irradiance[layer],
+                    tolerance);
+        EXPECT_NEAR(lp_1.sunlit_fraction[layer],
+                    lp_2.sunlit_fraction[layer],
+                    tolerance);
+        EXPECT_NEAR(lp_1.shaded_fraction[layer],
+                    lp_2.shaded_fraction[layer],
+                    tolerance);
+        EXPECT_NEAR(lp_1.height[layer],
+                    lp_2.height[layer],
+                    tolerance);
     }
 }
 
