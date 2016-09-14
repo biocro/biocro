@@ -5,6 +5,7 @@
 #include "../src/BioCro.h" // functions we're testing
 #include "gtest/gtest.h" // test framework
 #include "Random.h" // custom random number generators
+#include "relative_error.h" // custom assert/expect functions
 #include "OldAuxBioCroFunctions.h" // copies of old function definitions from AuxBioCro.cpp
 
 ///////////////// lightME /////////////////
@@ -201,6 +202,8 @@ struct sunMLArgs {
     double chil;
     double heightf;
 
+    double verySmallCosTheta;
+
     static constexpr double SolarConstant = 2650;
 
     // Used only in writing the tests.
@@ -226,8 +229,11 @@ struct sunMLArgs {
         static Rand_int layer_number {1, 20};
         nlayers = layer_number();
 
-        static Rand_double rd2 { DBL_MIN, 1 };
+        static Rand_double rd2 {-1, 1};
         cosTheta = rd2();
+
+        static Rand_double rd3 {-1E-10, 1E-10};
+        verySmallCosTheta = rd3();
 
         kd = rd();
         chil = 10 * rd();
@@ -236,26 +242,40 @@ struct sunMLArgs {
 };
 
 // Helper for
-void compare_light_profiles(Light_profile lp_1, Light_profile lp_2, int nlayers, double tolerance = 1E-5) {
+void compare_light_profiles(Light_profile lp_1, Light_profile lp_2, int nlayers,
+                            double absolute_tolerance = 0,
+                            double relative_tolerance = 1E-9) {
     for (int layer = 0; layer < nlayers; ++layer) {
-        EXPECT_NEAR(lp_1.direct_irradiance[layer],
-                    lp_2.direct_irradiance[layer],
-                    tolerance);
-        EXPECT_NEAR(lp_1.diffuse_irradiance[layer],
-                    lp_2.diffuse_irradiance[layer],
-                    tolerance);
-        EXPECT_NEAR(lp_1.total_irradiance[layer],
-                    lp_2.total_irradiance[layer],
-                    tolerance);
-        EXPECT_NEAR(lp_1.sunlit_fraction[layer],
-                    lp_2.sunlit_fraction[layer],
-                    tolerance);
-        EXPECT_NEAR(lp_1.shaded_fraction[layer],
-                    lp_2.shaded_fraction[layer],
-                    tolerance);
-        EXPECT_NEAR(lp_1.height[layer],
-                    lp_2.height[layer],
-                    tolerance);
+        expect_near_rel(lp_1.direct_irradiance[layer],
+                        lp_2.direct_irradiance[layer],
+                        absolute_tolerance,
+                        1E-5, // Allow greater relative difference here
+                        "\nTESTING direct_irradiance");
+        expect_near_rel(lp_1.diffuse_irradiance[layer],
+                        lp_2.diffuse_irradiance[layer],
+                        absolute_tolerance,
+                        0,//relative_tolerance,
+                        "\nTESTING diffuse_irradiance");
+        expect_near_rel(lp_1.total_irradiance[layer],
+                        lp_2.total_irradiance[layer],
+                        1E-5, // Values near zero; allow positive absolute difference.
+                        relative_tolerance,
+                        "\nTESTING total_irradiance");
+        expect_near_rel(lp_1.sunlit_fraction[layer],
+                        lp_2.sunlit_fraction[layer],
+                        absolute_tolerance,
+                        relative_tolerance,
+                        "\nTESTING sunlit_fraction");
+        expect_near_rel(lp_1.shaded_fraction[layer],
+                        lp_2.shaded_fraction[layer],
+                        absolute_tolerance,
+                        relative_tolerance,
+                        "\nTESTING shaded_fraction");
+        expect_near_rel(lp_1.height[layer],
+                        lp_2.height[layer],
+                        absolute_tolerance,
+                        relative_tolerance,
+                        "\nTESTING height[layer]");
     }
 }
 
@@ -474,14 +494,45 @@ TEST(sunMLTest, miscellaneous_test_data_2) {
     for (int i = 0; i < 1E4; ++i) {
         args.generate_values();
 
-        Light_profile Oldlp = OldsunML(args.Idir, args.Idiff, args.LAI,
-                                       args.nlayers, args.cosTheta, args.kd,
+        Light_profile Oldlp = OldsunML(args.Idir,
+
+                                       args.Idiff, args.LAI,
+                                       args.nlayers,
+
+                                       // If cosTheta <= 0, we want the revised
+                                       // function's results to match the old
+                                       // functions's results when a small
+                                       // positive number is substituted for
+                                       // values of cosTheta <= 0.  (NOTE: If we
+                                       // use DBL_MIN in place of 1E-10, we get
+                                       // results for the direct_irradiance that
+                                       // are further from the mathematical
+                                       // limit as we approach 0 from the
+                                       // right!)
+                                       fmax(1E-10, args.cosTheta),
+
+                                       args.kd,
                                        args.chil, args.heightf);
         Light_profile lp = sunML(args.Idir, args.Idiff, args.LAI, args.nlayers,
                                  args.cosTheta, args.kd, args.chil,
                                  args.heightf);
 
         compare_light_profiles(lp, Oldlp, args.nlayers);
+
+        // extra testing for values of cosTheta near zero:
+
+        Light_profile Oldlp2 = OldsunML(args.Idir, args.Idiff, args.LAI, args.nlayers,
+
+                                        fmax(1E-10, args.verySmallCosTheta),
+
+                                        args.kd, args.chil,
+                                        args.heightf);
+
+        Light_profile lp2 = sunML(args.Idir, args.Idiff, args.LAI, args.nlayers,
+                                  args.verySmallCosTheta, args.kd, args.chil,
+                                  args.heightf);
+
+        compare_light_profiles(lp2, Oldlp2, args.nlayers);
     }
 }
 
@@ -1044,7 +1095,7 @@ TEST(EvapoTrans2, random_test_data) {
         double stomatacond = stomatacond_gen();
         double leafw = leafw_gen();
         int eteq = eteq_gen();
-        
+
         ET_Str old_result =
             OldEvapoTrans2(Rad,
                            Iave,

@@ -13,7 +13,7 @@ LDFLAGS+=-undefined dynamic_lookup
 #LDFLAGS+=-L/usr/local/lib
 
 
-OBJ= ../src/AuxBioCro.o Random.o ../src/c4photo.o OldAuxBioCroFunctions.o
+OBJ= ../src/AuxBioCro.o Random.o ../src/c4photo.o OldAuxBioCroFunctions.o relative_error.o
 
 
 
@@ -23,6 +23,8 @@ test: AuxBioCro-tests.o test-runner.o $(OBJ)
 AuxBioCro-tests.o: Random.h
 
 Random.o: Random.h
+
+relative_error.o: relative_error.h
 
 clean:
 	$(RM) test *.o
