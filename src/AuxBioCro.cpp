@@ -169,6 +169,17 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
             auto Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse)
                 * (1 - exp(-k * LAIi)) / k;
 
+            // For values of cosTheta close to or less than 0, in place of the
+            // calculations above, we want to use the limits of the above
+            // expressions as cosTheta approaches 0 from the right:
+            if (cosTheta <= 1E-10) {
+                Isolar = Idir/k1;
+                Idiffuse = Idiff * exp(-kd * CumLAI);
+                Fsun = 0;
+                Fshade = 1;
+                Iaverage = 0;
+            }
+
             light_profile.direct_irradiance[i] = Isolar + Idiffuse;
             light_profile.diffuse_irradiance[i]= Idiffuse;
             light_profile.total_irradiance[i] = Iaverage;
