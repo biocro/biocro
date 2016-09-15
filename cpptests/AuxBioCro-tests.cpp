@@ -279,7 +279,7 @@ void compare_light_profiles(Light_profile lp_1, Light_profile lp_2, int nlayers,
     }
 }
 
-// Check that an out_of_range exception is thrown if cosTheta is not in (0, 1].
+// Check that an out_of_range exception is thrown if cosTheta is not in [-1, 1].
 TEST(sunMLTest, CheckCosThetaRange) {
     sunMLArgs args = sunMLArgs();
     for (int i = 0; i < 5; ++i) {
@@ -789,6 +789,25 @@ TEST(RHprofTest, miscellaneous_test_data) {
     for (int layer = 0; layer < nlayers; ++layer) {
       EXPECT_NEAR(relative_humidity_profile[layer], RHprof_results[i][layer], 1E-5);
     }
+
+    // Reset RH (the first argument) and check that we get an exception if it is
+    // just below 0 or just above 1 but not if it is 0 or 1:
+
+    ASSERT_NO_THROW(RHprof(0, arg_set[1], relative_humidity_profile));
+    ASSERT_THROW(RHprof(0 - DBL_MIN, arg_set[1], relative_humidity_profile), std::out_of_range);
+
+    ASSERT_NO_THROW(RHprof(1, arg_set[1], relative_humidity_profile));
+    ASSERT_THROW(RHprof(1 + DBL_MIN, arg_set[1], relative_humidity_profile), std::out_of_range);
+
+    // Reset nlayers (the second argument) and check that we get an exception if it is
+    // less than 1 or greater than MAXLAY but not if it is equal to one of these:
+
+    ASSERT_NO_THROW(RHprof(arg_set[0], 1, relative_humidity_profile));
+    ASSERT_THROW(RHprof(arg_set[0], 0, relative_humidity_profile), std::out_of_range);
+    ASSERT_THROW(RHprof(arg_set[0], -1, relative_humidity_profile), std::out_of_range);
+    
+    ASSERT_NO_THROW(RHprof(arg_set[0], MAXLAY, relative_humidity_profile));
+    ASSERT_THROW(RHprof(arg_set[0], MAXLAY + 1, relative_humidity_profile), std::out_of_range);
   }
 }
 
