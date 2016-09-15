@@ -150,21 +150,20 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
 
     Light_profile light_profile;
     {
-        auto Ibeam = Idir * cosTheta;
+        const auto Ibeam = Idir * cosTheta;
         auto Isolar = Ibeam * k;
         for (int i = 0; i < nlayers; i++) {
-            auto CumLAI = LAIi * (i + 0.5);
+            const auto CumLAI = LAIi * (i + 0.5);
 
-            auto Iscat = Ibeam * exp(-k * sqrt(alphascatter) * CumLAI)
-                - Ibeam * exp(-k * CumLAI);
+            const auto Iscat = Ibeam * (  exp(-k * sqrt(alphascatter) * CumLAI)
+                                        - exp(-k * CumLAI));
 
             auto Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
 
-            auto Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
-            auto Ld = LAIi - Ls;
+            const auto Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
 
-            auto Fsun = Ls/(Ls + Ld);
-            auto Fshade = Ld/(Ls + Ld);
+            auto Fsun = Ls/LAIi;
+            auto Fshade = 1 - Fsun;
 
             auto Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse)
                 * (1 - exp(-k * LAIi)) / k;
