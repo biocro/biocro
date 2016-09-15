@@ -345,10 +345,10 @@ TEST(sunMLTest, kd_range) {
         ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, 1 + DBL_EPSILON, args.chil, args.heightf), std::out_of_range);
     }
 }
-/*
+
 // Test that if the other arguments are valid, we get an out_of_range exception
-// if and only if nlayers is < 1 or > MAXLAY.
-TEST(sunMLTest, layer_size_limit) {
+// if and only if chil is < 0.
+TEST(sunMLTest, chil_range) {
     constexpr auto tries = 5;
 
     sunMLArgs args = sunMLArgs();
@@ -356,23 +356,15 @@ TEST(sunMLTest, layer_size_limit) {
     for (int i = 0; i < tries; ++i) {
         args.generate_values();
 
-        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, MAXLAY, args.cosTheta, args.kd, args.chil, args.heightf));
-
-        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, 1, args.cosTheta, args.kd, args.chil, args.heightf));
-
-        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
-
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, MAXLAY + 1, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
-
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, 0, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
-
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, -1, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, 0, args.heightf));
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, 0 - DBL_MIN, args.heightf), std::out_of_range);
     }
 }
 
+/*
 // Test that if the other arguments are valid, we get an out_of_range exception
-// if and only if nlayers is < 1 or > MAXLAY.
-TEST(sunMLTest, layer_size_limit) {
+// if and only if chil is < 0.
+TEST(sunMLTest, chil_range) {
     constexpr auto tries = 5;
 
     sunMLArgs args = sunMLArgs();
@@ -380,17 +372,11 @@ TEST(sunMLTest, layer_size_limit) {
     for (int i = 0; i < tries; ++i) {
         args.generate_values();
 
-        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, MAXLAY, args.cosTheta, args.kd, args.chil, args.heightf));
-
-        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, 1, args.cosTheta, args.kd, args.chil, args.heightf));
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
 
         ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
-
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, MAXLAY + 1, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
-
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, 0, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
-
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, -1, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
     }
 }
 */
