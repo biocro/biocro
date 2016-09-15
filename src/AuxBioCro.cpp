@@ -133,7 +133,7 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
         double cosTheta, double kd, double chil, double heightf)
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
-        throw std::out_of_range("nlayers must be at least 1 but no more than 200");
+        throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
     }
     if (cosTheta > 1 || cosTheta < -1) {
         throw std::out_of_range("cosTheta must be between -1 and 1.");
@@ -226,6 +226,13 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  */
 void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 {
+    if (RH > 1 || RH < 0) {
+        throw std::out_of_range("RH must be between 0 and 1.");
+    }
+    if (nlayers < 1 || nlayers > MAXLAY) {
+        throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
+    }
+
     const double kh = 1 - RH;
     /* kh = 0.2; */
     /* kh = log(1/RH); */

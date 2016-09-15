@@ -782,7 +782,7 @@ TEST(RHprofTest, miscellaneous_test_data) {
       arg_set[j] = RHprof_args[i][j];
     }
     int nlayers = arg_set[1];
-    double relative_humidity_profile[nlayers];
+    double relative_humidity_profile[MAXLAY];
 
     RHprof(arg_set[0], arg_set[1], relative_humidity_profile);
 
@@ -797,7 +797,7 @@ TEST(RHprofTest, miscellaneous_test_data) {
     ASSERT_THROW(RHprof(0 - DBL_MIN, arg_set[1], relative_humidity_profile), std::out_of_range);
 
     ASSERT_NO_THROW(RHprof(1, arg_set[1], relative_humidity_profile));
-    ASSERT_THROW(RHprof(1 + DBL_MIN, arg_set[1], relative_humidity_profile), std::out_of_range);
+    ASSERT_THROW(RHprof(1 + DBL_EPSILON, arg_set[1], relative_humidity_profile), std::out_of_range);
 
     // Reset nlayers (the second argument) and check that we get an exception if it is
     // less than 1 or greater than MAXLAY but not if it is equal to one of these:
