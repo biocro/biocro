@@ -263,8 +263,8 @@ void compare_light_profiles(Light_profile lp_1, Light_profile lp_2, int nlayers,
                         "\nTESTING total_irradiance");
         expect_near_rel(lp_1.sunlit_fraction[layer],
                         lp_2.sunlit_fraction[layer],
-                        absolute_tolerance,
-                        relative_tolerance,
+                        DBL_MIN,
+                        1E-7,
                         "\nTESTING sunlit_fraction");
         expect_near_rel(lp_1.shaded_fraction[layer],
                         lp_2.shaded_fraction[layer],
@@ -483,7 +483,7 @@ TEST(sunMLTest, miscellaneous_test_data) {
                                  args.cosTheta, args.kd, args.chil,
                                  args.heightf);
 
-        compare_light_profiles(lp, result_sets[setNo], args.nlayers);
+        compare_light_profiles(lp, result_sets[setNo], args.nlayers, 1E-5);
     }
 }
 
