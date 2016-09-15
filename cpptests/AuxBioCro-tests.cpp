@@ -254,7 +254,7 @@ void compare_light_profiles(Light_profile lp_1, Light_profile lp_2, int nlayers,
         expect_near_rel(lp_1.diffuse_irradiance[layer],
                         lp_2.diffuse_irradiance[layer],
                         absolute_tolerance,
-                        0,//relative_tolerance,
+                        relative_tolerance,
                         "\nTESTING diffuse_irradiance");
         expect_near_rel(lp_1.total_irradiance[layer],
                         lp_2.total_irradiance[layer],
