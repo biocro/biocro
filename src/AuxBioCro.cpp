@@ -153,7 +153,7 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
     auto theta = acos(cosTheta);
     auto k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
     auto k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
-    auto k = (k1 > 0) ? k0/k1 : -k0/k1;
+    auto k = k0 / k1;
 
     auto LAIi = LAI / nlayers;
 
