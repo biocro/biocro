@@ -361,10 +361,9 @@ TEST(sunMLTest, chil_range) {
     }
 }
 
-/*
 // Test that if the other arguments are valid, we get an out_of_range exception
-// if and only if chil is < 0.
-TEST(sunMLTest, chil_range) {
+// if and only if heightf is <= 0.
+TEST(sunMLTest, heightf_range) {
     constexpr auto tries = 5;
 
     sunMLArgs args = sunMLArgs();
@@ -372,14 +371,12 @@ TEST(sunMLTest, chil_range) {
     for (int i = 0; i < tries; ++i) {
         args.generate_values();
 
-        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
-
-        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
-        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, DBL_MIN));
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, 0), std::out_of_range);
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, 0 - DBL_MIN), std::out_of_range);
     }
 }
-*/
+
 // Data for regression tests of sunML:
 
 constexpr auto no_of_test_sets = 5;
