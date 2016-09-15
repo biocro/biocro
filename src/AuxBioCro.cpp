@@ -138,6 +138,15 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
     if (cosTheta > 1 || cosTheta < -1) {
         throw std::out_of_range("cosTheta must be between -1 and 1.");
     }
+    if (kd > 1 || kd < 0) {
+        throw std::out_of_range("kd must be between 0 and 1.");
+    }
+    if (chil < 0) {
+        throw std::out_of_range("chil must be non-negative.");
+    }
+    if (heightf <= 0) {
+        throw std::out_of_range("heightf must greater than zero.");
+    }
 
     constexpr auto alphascatter = 0.8;
 
