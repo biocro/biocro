@@ -328,6 +328,72 @@ TEST(sunMLTest, layer_size_limit) {
     }
 }
 
+// Test that if the other arguments are valid, we get an out_of_range exception
+// if and only if kd_range is < 0 or > 1.
+TEST(sunMLTest, kd_range) {
+    constexpr auto tries = 5;
+
+    sunMLArgs args = sunMLArgs();
+
+    for (int i = 0; i < tries; ++i) {
+        args.generate_values();
+
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, 0, args.chil, args.heightf));
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, 0 - DBL_MIN, args.chil, args.heightf), std::out_of_range);
+
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, 1, args.chil, args.heightf));
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, 1 + DBL_EPSILON, args.chil, args.heightf), std::out_of_range);
+    }
+}
+/*
+// Test that if the other arguments are valid, we get an out_of_range exception
+// if and only if nlayers is < 1 or > MAXLAY.
+TEST(sunMLTest, layer_size_limit) {
+    constexpr auto tries = 5;
+
+    sunMLArgs args = sunMLArgs();
+
+    for (int i = 0; i < tries; ++i) {
+        args.generate_values();
+
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, MAXLAY, args.cosTheta, args.kd, args.chil, args.heightf));
+
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, 1, args.cosTheta, args.kd, args.chil, args.heightf));
+
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
+
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, MAXLAY + 1, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, 0, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, -1, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+    }
+}
+
+// Test that if the other arguments are valid, we get an out_of_range exception
+// if and only if nlayers is < 1 or > MAXLAY.
+TEST(sunMLTest, layer_size_limit) {
+    constexpr auto tries = 5;
+
+    sunMLArgs args = sunMLArgs();
+
+    for (int i = 0; i < tries; ++i) {
+        args.generate_values();
+
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, MAXLAY, args.cosTheta, args.kd, args.chil, args.heightf));
+
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, 1, args.cosTheta, args.kd, args.chil, args.heightf));
+
+        ASSERT_NO_THROW(sunML(args.Idir, args.Idiff, args.LAI, args.nlayers, args.cosTheta, args.kd, args.chil, args.heightf));
+
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, MAXLAY + 1, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, 0, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+
+        ASSERT_THROW(sunML(args.Idir, args.Idiff, args.LAI, -1, args.cosTheta, args.kd, args.chil, args.heightf), std::out_of_range);
+    }
+}
+*/
 // Data for regression tests of sunML:
 
 constexpr auto no_of_test_sets = 5;
