@@ -203,6 +203,37 @@ state_map one_layer_soil_profile::do_operation(state_vector_map const &state_his
     return one_layer_soil_profile::do_operation(s);
 }
 
+state_map two_layer_soil_profile::do_operation(state_map const &s) const
+{
+    state_map derivs;
+    struct soilML_str soilMLS;
+    double cws[] = {s.at("cws1"), s.at("cws2")};
+    double soilDepths[] = {s.at("soilDepth1"), s.at("soilDepth2"), s.at("soilDepth3")};
+    struct soilText_str soTexS = soilTchoose(s.at("soilType"));
+
+    soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soilDepth3"), soilDepths,
+            s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS, s.at("wsFun"),
+            2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68, s.at("temp"),
+           s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"), s.at("rfl"),
+           s.at("rsec"), s.at("rsdf"));
+
+    derivs["StomataWS"] = soilMLS.rcoefPhoto - s.at("StomataWS");
+    derivs["LeafWS"] =  soilMLS.rcoefSpleaf - s.at("LeafWS");
+    derivs["soilEvap"] = soilMLS.SoilEvapo;
+
+    derivs["cws1"] = soilMLS.cws[0] - s.at("cws1");
+    derivs["cws2"] = soilMLS.cws[1] - s.at("cws2");
+    double cws_sum = soilMLS.cws[0] + soilMLS.cws[1];
+    derivs["waterCont"] =  cws_sum / 2 - s.at("waterCont");  // Divide by 2, the number of layers.
+    
+    return(derivs);
+}
+
+state_map two_layer_soil_profile::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const {
+    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
+    return two_layer_soil_profile::do_operation(s);
+}
+
 state_map thermal_time_senescence_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
     state_map derivs;
@@ -364,6 +395,9 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     }
     else if (module_name.compare("one_layer_soil_profile") == 0) {
         return std::unique_ptr<IModule>(new one_layer_soil_profile);
+    }
+    else if (module_name.compare("two_layer_soil_profile") == 0) {
+        return std::unique_ptr<IModule>(new two_layer_soil_profile);
     }
     else {
         return std::unique_ptr<IModule>(new c3_canopy);

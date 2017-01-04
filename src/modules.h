@@ -116,6 +116,21 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
+class two_layer_soil_profile : public ISoil_evaporation_module {
+    public:
+        two_layer_soil_profile()
+            : ISoil_evaporation_module(vector<string> {"precip", "CanopyT", "cws1", "cws2", "soilDepth1",
+                    "soilDepth2", "soilDepth3", "FieldC", "WiltP", "phi1",
+                    "phi2", "soilType" /* Instead of soTexS */, "wsFun", "Root", "lai",
+                    "temp", "solar", "windspeed", "rh", "hydrDist",
+                    "rfl", "rsec", "rsdf", "StomataWS", "LeafWS"},
+                    vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_map const &s) const;
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+};
+
 class ISenescence_module : public IModule {
     public:
         ISenescence_module(const vector<string> required_state, const vector<string> modified_state)

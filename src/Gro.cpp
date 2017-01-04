@@ -189,10 +189,12 @@ state_vector_map Gro(
         results["specific_leaf_area"].push_back(p.at("Sp"));
         results["soil_evaporation"].push_back(derivs["soilEvap"]);
         //results["kLeaf"].push_back(kLeaf);
-        //results["newLeafcol"].push_back(newLeafcol[i]);
-        //results["newStemcol"].push_back(newStemcol[i]);
-        //results["newRootcol"].push_back(newRootcol[i]);
-        //results["newRhizomecol"].push_back(newRhizomecol[i]);
+        results["newLeafcol"].push_back(derivs.at("newLeafcol"));
+        results["newStemcol"].push_back(derivs.at("newStemcol"));
+        results["newRootcol"].push_back(derivs.at("newRootcol"));
+        results["newRhizomecol"].push_back(derivs.at("newRhizomecol"));
+        //results["cws1"].push_back(current_state.at("cws1"));
+        //results["cws2"].push_back(current_state.at("cws2"));
     }
     return results;
 }
