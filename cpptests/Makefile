@@ -1,4 +1,4 @@
-CXXFLAGS=-I/Library/Frameworks/R.framework/Resources/include/
+CXXFLAGS=-I/Library/Frameworks/R.framework/Resources/include -I/usr/local/include
 CXXFLAGS+=-std=c++11
 CXXFLAGS+=-Wunused-variable
 
@@ -10,22 +10,26 @@ LDFLAGS+=-undefined dynamic_lookup
 #LDFLAGS+=-single_module
 #LDFLAGS+=-multiply_defined suppress
 #LDFLAGS+=-L/Library/Frameworks/R.framework/Resources/lib
-#LDFLAGS+=-L/usr/local/lib
+LDFLAGS+=-L/usr/local/lib
+
+TESTED_CODE_OBJ = ../src/AuxBioCro.o ../src/c4photo.o
+TEST_UTILITY_OBJ = Random.o relative_error.o
+TEST_CODE_OBJ = AuxBioCroTests/OldAuxBioCroFunctions.o \
+    test-runner.o \
+    AuxBioCroTests/lightME-test.o \
+    AuxBioCroTests/AuxBioCro-tests.o \
+
+OBJ = $(TESTED_CODE_OBJ) $(TEST_UTILITY_OBJ) $(TEST_CODE_OBJ)
 
 
-OBJ= ../src/AuxBioCro.o Random.o ../src/c4photo.o OldAuxBioCroFunctions.o relative_error.o
+test: $(OBJ)
+	$(CXX) -v $(LDFLAGS) $(OBJ) -o test -lgtest
 
-
-
-test: AuxBioCro-tests.o test-runner.o $(OBJ)
-	$(CXX) -v $(LDFLAGS) AuxBioCro-tests.o $(OBJ) test-runner.o -o test -lgtest
-
-AuxBioCro-tests.o: Random.h
+AuxBioCroTests/AuxBioCro-tests.o: Random.h
 
 Random.o: Random.h
 
 relative_error.o: relative_error.h
 
 clean:
-	$(RM) test *.o
-
+	$(RM) test *.o */*.o

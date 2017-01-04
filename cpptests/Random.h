@@ -1,3 +1,6 @@
+#ifndef TEST_UTILITY_RANDOM
+#define TEST_UTILITY_RANDOM
+
 #include <random>
 
 using namespace std;
@@ -17,3 +20,5 @@ public:
 private:
     function<double()> r;
 };
+
+#endif

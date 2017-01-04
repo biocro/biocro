@@ -2,8 +2,8 @@
 #include <Rmath.h>
 #include <Rinternals.h>
 #include <stdexcept>
-#include "../src/c4photo.h"
-#include "../src/BioCro.h"
+#include "../../src/c4photo.h"
+#include "../../src/BioCro.h"
 #include "OldAuxBioCroFunctions.h"
 
 // This is a verbatim copy of the sumML function as of commit

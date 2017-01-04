@@ -1,3 +1,8 @@
+#ifndef OLD_AUXBIOCRO_H
+#define OLD_AUXBIOCRO_H
+
+#include "../../src/BioCro.h"
+
 Light_profile OldsunML(double Idir, double Idiff, double LAI, int nlayers,
                        double cosTheta, double kd, double chil, double heightf);
 
@@ -13,3 +18,5 @@ struct ET_Str OldEvapoTrans2(double Rad, double Iave, double Airtemperature,
                              double RH, double WindSpeed, double LeafAreaIndex,
                              double CanopyHeight, double stomatacond,
                              double leafw, int eteq);
+
+#endif
