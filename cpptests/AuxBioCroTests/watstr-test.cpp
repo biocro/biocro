@@ -24,6 +24,18 @@ Rand_double phi2_gen {-100, 100};
 Rand_int soiltype_gen {0, 10};
 Rand_int wsFun_gen {0, 4};
 
+// Skips ASSERT_NEAR if both values are NaN, both are positive
+// infinity, or both are negative infinity.
+void assert_near_or_nan(double val1, double val2, double tolerance, string message) {
+  if (isnan(val1) && isnan(val2)
+      ||
+      isinf(val1) && (val1 == val2)) {
+    return;
+  }
+
+  ASSERT_NEAR(val1, val2, tolerance) << message;
+}
+
 TEST(watstr, RandomTestData) {
 
   constexpr auto tolerance = 1E-14;
@@ -58,12 +70,12 @@ TEST(watstr, RandomTestData) {
     auto new_result = watstr(precipit, evapo, cws, soildepth, fieldc, wiltp, phi1, phi2, soiltype, wsFun);
 
 
-    ASSERT_NEAR(new_result.rcoefPhoto, old_result.rcoefPhoto, tolerance) << input;
-    ASSERT_NEAR(new_result.rcoefSpleaf, old_result.rcoefSpleaf, tolerance) << input;
-    ASSERT_NEAR(new_result.awc, old_result.awc, tolerance) << input;
-    ASSERT_NEAR(new_result.psim, old_result.psim, tolerance) << input;
-    ASSERT_NEAR(new_result.runoff, old_result.runoff, tolerance) << input;
-    ASSERT_NEAR(new_result.Nleach, old_result.Nleach, tolerance) << input;
+    assert_near_or_nan(new_result.rcoefPhoto, old_result.rcoefPhoto, tolerance, input);
+    assert_near_or_nan(new_result.rcoefSpleaf, old_result.rcoefSpleaf, tolerance, input);
+    assert_near_or_nan(new_result.awc, old_result.awc, tolerance, input);
+    assert_near_or_nan(new_result.psim, old_result.psim, tolerance, input);
+    assert_near_or_nan(new_result.runoff, old_result.runoff, tolerance, input);
+    assert_near_or_nan(new_result.Nleach, old_result.Nleach, tolerance, input);
 
   }
 }
