@@ -11,6 +11,7 @@ public:
     int operator() () const;
 private:
     function<int()> r;
+    static int seed_offset;
 };
 
 class Rand_double {
@@ -19,6 +20,7 @@ public:
     double operator() () const;
 private:
     function<double()> r;
+    static int seed_offset;
 };
 
 #endif
