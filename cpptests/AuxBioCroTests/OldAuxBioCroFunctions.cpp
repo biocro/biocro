@@ -460,3 +460,134 @@ struct ET_Str OldEvapoTrans2(double Rad,
     tmp.LayerCond = gvs * 41000;   
     return(tmp);
 }
+// This is a verbatim copuy of the watstr function as of commit
+// 3d8e6e25f80821283755d7e243dcc0f1853d005b (Thu Sep 15 17:20:29 2016
+// -0500), before beginning the process of simplification.
+struct ws_str Oldwatstr(double precipit, double evapo, double cws, double soildepth,
+        double fieldc, double wiltp, double phi1, double phi2,
+        int soiltype, /* soil type indicator */
+        int wsFun) /* flag for which water stress function to use */
+{
+    struct ws_str tmp;
+    struct soilText_str soTexS;
+    const double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
+    /* Variables */
+    double precipM;
+    /*    cws is current water status, which is normally in the wiltp-satur range */
+    /*    aw available water (full profile) */
+    double aw, awc;
+    double drainage = 0.0;
+    double K_psim, J_w;
+    double pawha, Newpawha, npaw;
+    double runoff = 0.0;
+    /* variable needed for calculation of water stress*/
+    double wsPhoto = 0.0, wsSpleaf = 0.0, phi10;
+    double slp = 0.0, intcpt = 0.0, theta = 0.0;
+    double Nleach = 0.0;
+    /* Nleach is the NO3 leached and Ts is the sand content of the soil*/
+    double theta_s; /* This is the saturated soil water content. Larger than FieldC. */
+
+    /* Specify the soil type */
+    soTexS = soilTchoose(soiltype);
+
+    if(fieldc < 0) {
+        fieldc = soTexS.fieldc;
+    }
+    if(wiltp < 0) {
+        wiltp = soTexS.wiltp;
+    }
+
+    theta_s = soTexS.satur;
+
+    /* unit conversion for precip */
+    precipM = precipit * 1e-3; /* convert precip in mm to m*/
+
+
+    aw = precipM + cws * soildepth; /* aw in meters */
+    aw = aw / soildepth; /* available water in the wiltp-satur range */
+
+    if(aw > theta_s) {
+        runoff = (aw - theta_s) * soildepth; /* This is in meters */
+        /* Here runoff is interpreted as water content exceeding saturation level */
+        /* Need to convert to units used in the Parton et al 1988 paper. */
+        /* The data comes in mm/hr and it needs to be in cm/month */
+        // runoff2 = runoff * 0.10 * (1/24*30); set but not used
+        Nleach = runoff /18 * (0.2 + 0.7 * soTexS.sand);
+        aw = theta_s;
+    }
+
+    /* plant available water per ha (pawha) */
+    pawha = (aw - wiltp) * soildepth * 1e4;
+    /* The density of water is 998.2 kg/m3 at 20 degrees Celsius */
+    /* or 0.9982 Mg/m3 */
+    /* pawha is plant available water (m3) per hectare */
+    /* evapo is demanded water (Mg) per hectare */
+
+    Newpawha = pawha - evapo / 0.9982;
+
+    /*  Here both are in m3 of water per ha-1 so this */
+    /*  subtraction should be correct */
+    /* go back to original units of water in the profile */
+
+    npaw = Newpawha * 1e-4 / soildepth;
+
+    /* If demand exceeds supply the crop is getting close to wilting point
+       and transpiration will be over estimated. In this one layer model though
+       the crop is practically dead */
+    if(npaw < 0) { npaw = 0.0; }
+
+    awc = npaw + wiltp;
+
+    /* Calculating the soil water potential based on equations from Norman and Campbell */
+    /* tmp.psim = soTexS.air_entry * pow((awc/soTexS.fieldc*1.1),-soTexS.b); */
+    /* New version of the soil water potential is based on
+     * "Dynamic Simulation of Water Deficit Effects upon Maize
+     * Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
+    tmp.psim = -exp(log(0.033) + ((log(fieldc) - log(awc))/(log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033)))) * 1e3; /* This last term converts from MPa to kPa */
+
+    /* This is drainage */
+    if(awc > fieldc) {
+        K_psim = soTexS.Ks * pow((soTexS.air_entry/tmp.psim),2+3/soTexS.b); /* This is hydraulic conductivity */
+        J_w = -K_psim * (-tmp.psim/(soildepth*0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth*/
+        drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
+        awc = awc + drainage / soildepth;
+    }
+
+    /* three different type of equations for modeling the effect of water stress on vmax and leaf area expansion.
+       The equation for leaf area expansion is more severe than the one for vmax. */
+    if(wsFun == 0) { /* linear */
+        slp = 1/(fieldc - wiltp);
+        intcpt = 1 - fieldc * slp;
+        wsPhoto = slp * awc + intcpt;
+    } else if(wsFun == 1) {
+        phi10 = (fieldc + wiltp)/2;
+        wsPhoto = 1/(1 + exp((phi10 - awc)/ phi1));
+    } else if(wsFun == 2) {
+        slp = (1 - wiltp)/(fieldc - wiltp);
+        intcpt = 1 - fieldc * slp;
+        theta = slp * awc + intcpt;
+        wsPhoto = (1 - exp(-2.5 * (theta - wiltp)/(1 - wiltp))) / (1 - exp(-2.5));
+    } else if(wsFun == 3) {
+        wsPhoto = 1;
+    }
+
+    if(wsPhoto <= 0 )
+        wsPhoto = 1e-10; /* This can be mathematically lower than zero in some cases but I should prevent that. */
+
+    wsSpleaf = pow(awc,phi2) * 1/pow(fieldc,phi2);
+    if(wsFun == 3) {
+        wsSpleaf = 1;
+    }
+
+    /* Apparently wsPhoto and wsSpleaf can be greater than 1 */
+    if(wsPhoto > 1) wsPhoto = 1;
+    if(wsSpleaf > 1) wsSpleaf = 1;
+
+    /* returning the structure*/
+    tmp.rcoefPhoto = wsPhoto;
+    tmp.awc = awc;
+    tmp.runoff = runoff;
+    tmp.Nleach = Nleach;
+    tmp.rcoefSpleaf = wsSpleaf;
+    return(tmp);
+}

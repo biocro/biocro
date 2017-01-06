@@ -22,7 +22,7 @@ TEST_CODE_OBJ = AuxBioCroTests/OldAuxBioCroFunctions.o \
     AuxBioCroTests/WINDprof-test.o \
     AuxBioCroTests/temperature_functions-test.o \
     AuxBioCroTests/RHprof-test.o \
-
+    AuxBioCroTests/watstr-test.o \
 
 OBJ = $(TESTED_CODE_OBJ) $(TEST_UTILITY_OBJ) $(TEST_CODE_OBJ)
 
