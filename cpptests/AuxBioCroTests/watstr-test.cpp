@@ -40,19 +40,30 @@ TEST(watstr, RandomTestData) {
     auto phi2 = phi2_gen();
     auto soiltype = soiltype_gen();
     auto wsFun = wsFun_gen();
-    
+
+    // Assemble information to display in case of errors:
+    std::ostringstream oss;
+    oss << "precipit: " << precipit << "; evapo: " << evapo
+        << "; cws: " << cws << "; soildepth: "
+        << soildepth << "; fieldc: "
+        << fieldc << "; wiltp: " << wiltp
+        << "; phi1: " << phi1 << "; phi2: "
+        << phi2 << "; soiltype: " << soiltype
+        << "; wsFun: " << wsFun;
+    string input = oss.str();
+
 
     auto old_result = Oldwatstr(precipit, evapo, cws, soildepth, fieldc, wiltp, phi1, phi2, soiltype, wsFun);
 
     auto new_result = watstr(precipit, evapo, cws, soildepth, fieldc, wiltp, phi1, phi2, soiltype, wsFun);
 
 
-    EXPECT_NEAR(new_result.rcoefPhoto, old_result.rcoefPhoto, tolerance) << input;
-    EXPECT_NEAR(new_result.rcoefSpleaf, old_result.rcoefSpleaf, tolerance) << input;
-    EXPECT_NEAR(new_result.awc, old_result.awc, tolerance) << input;
-    EXPECT_NEAR(new_result.psim, old_result.psim, tolerance) << input;
-    EXPECT_NEAR(new_result.runoff, old_result.runoff, tolerance) << input;
-    EXPECT_NEAR(new_result.Nleach, old_result.Nleach, tolerance) << input;
+    ASSERT_NEAR(new_result.rcoefPhoto, old_result.rcoefPhoto, tolerance) << input;
+    ASSERT_NEAR(new_result.rcoefSpleaf, old_result.rcoefSpleaf, tolerance) << input;
+    ASSERT_NEAR(new_result.awc, old_result.awc, tolerance) << input;
+    ASSERT_NEAR(new_result.psim, old_result.psim, tolerance) << input;
+    ASSERT_NEAR(new_result.runoff, old_result.runoff, tolerance) << input;
+    ASSERT_NEAR(new_result.Nleach, old_result.Nleach, tolerance) << input;
 
   }
 }
