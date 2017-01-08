@@ -23,6 +23,7 @@ TEST_CODE_OBJ = AuxBioCroTests/OldAuxBioCroFunctions.o \
     AuxBioCroTests/temperature_functions-test.o \
     AuxBioCroTests/RHprof-test.o \
     AuxBioCroTests/watstr-test.o \
+    AuxBioCroTests/soilTchoose-test.o \
 
 OBJ = $(TESTED_CODE_OBJ) $(TEST_UTILITY_OBJ) $(TEST_CODE_OBJ)
 

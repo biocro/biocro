@@ -23,4 +23,6 @@ struct ws_str Oldwatstr(double precipit, double evapo, double cws,
                         double soildepth, double fieldc, double wiltp,
                         double phi1, double phi2, int soiltype, int wsFun);
 
+struct soilText_str OldsoilTchoose(int soiltype);
+
 #endif

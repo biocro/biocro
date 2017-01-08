@@ -460,7 +460,7 @@ struct ET_Str OldEvapoTrans2(double Rad,
     tmp.LayerCond = gvs * 41000;   
     return(tmp);
 }
-// This is a verbatim copuy of the watstr function as of commit
+// This is a verbatim copy of the watstr function as of commit
 // 3d8e6e25f80821283755d7e243dcc0f1853d005b (Thu Sep 15 17:20:29 2016
 // -0500), before beginning the process of simplification.
 struct ws_str Oldwatstr(double precipit, double evapo, double cws, double soildepth,
@@ -589,5 +589,165 @@ struct ws_str Oldwatstr(double precipit, double evapo, double cws, double soilde
     tmp.runoff = runoff;
     tmp.Nleach = Nleach;
     tmp.rcoefSpleaf = wsSpleaf;
+    return(tmp);
+}
+
+// This is a verbatim copy of the soilTchoose function as of commit
+// 0dcb42e49f13ddf2e62236c8e6b4ef491d00b77f (Fri Jan 6 15:44:38 2017
+// -0600), before beginning the process of simplification, with one
+// exception: the value of tmp.sand for soil type 3 (loam) has been
+// changed from 0.52 to 0.42 so that the silt, clay, and sand
+// components add up to 1.
+struct soilText_str OldsoilTchoose(int soiltype)
+{
+    /* This function is based on Campbell and Norman.
+       Introduction to Environmental Biophysics. pg 130. */
+    /* bulk density values are taken from function getsoilprop.c from Melanie (Colorado) */
+    struct soilText_str tmp;
+
+    tmp.silt = 0;
+    tmp.clay = 0;
+    tmp.sand = 0;
+    tmp.air_entry = 0;
+    tmp.b = 0;
+    tmp.Ks = 0;
+    tmp.satur = 0;
+    tmp.fieldc = 0;
+    tmp.wiltp = 0;
+    tmp.bulkd= 0.0;
+    if(soiltype == 0) {
+        /* sand soil */
+        tmp.silt = 0.05;
+        tmp.clay = 0.03;
+        tmp.sand = 0.92;
+        tmp.air_entry = -0.7;
+        tmp.b = 1.7;
+        tmp.Ks = 5.8e-3;
+        tmp.satur = 0.87;
+        tmp.fieldc = 0.09;
+        tmp.wiltp = 0.03;
+        tmp.bulkd= 0.01; // This value is zero/undefined for sandy soil I am assigning a low value [see getsoilprop.c]
+    } else if(soiltype == 1) {
+        /* loamy sand */
+        tmp.silt = 0.12;
+        tmp.clay = 0.07;
+        tmp.sand = 0.81;
+        tmp.air_entry = -0.9;
+        tmp.b = 2.1;
+        tmp.Ks = 1.7e-3;
+        tmp.satur = 0.72;
+        tmp.fieldc = 0.13;
+        tmp.wiltp = 0.06;
+        tmp.bulkd= 1.55;
+    } else if(soiltype == 2) {
+        /* sandy loam */
+        tmp.silt = 0.25;
+        tmp.clay = 0.10;
+        tmp.sand = 0.65;
+        tmp.air_entry = -1.5;
+        tmp.b = 3.1;
+        tmp.Ks = 7.2e-4;
+        tmp.satur = 0.57;
+        tmp.fieldc = 0.21;
+        tmp.wiltp = 0.10;
+        tmp.bulkd= 1.50;
+    } else if(soiltype == 3) {
+        /* loam */
+        tmp.silt = 0.40;
+        tmp.clay = 0.18;
+        tmp.sand = 0.42;
+        tmp.air_entry = -1.1;
+        tmp.b = 4.5;
+        tmp.Ks = 3.7e-4;
+        tmp.satur = 0.57;
+        tmp.fieldc = 0.27;
+        tmp.wiltp = 0.12;
+        tmp.bulkd= 1.43;
+    } else if(soiltype == 4) {
+        /* silt loam */
+        tmp.silt = 0.65;
+        tmp.clay = 0.15;
+        tmp.sand = 0.20;
+        tmp.air_entry = -2.1;
+        tmp.b = 4.7;
+        tmp.Ks = 1.9e-4;
+        tmp.satur = 0.59;
+        tmp.fieldc = 0.33;
+        tmp.wiltp = 0.13;
+        tmp.bulkd= 1.36;
+    } else if(soiltype == 5) {
+        /* sandy clay loam */
+        tmp.silt = 0.13;
+        tmp.clay = 0.27;
+        tmp.sand = 0.60;
+        tmp.air_entry = -2.8;
+        tmp.b = 4;
+        tmp.Ks = 1.2e-4;
+        tmp.satur = 0.48;
+        tmp.fieldc = 0.26;
+        tmp.wiltp = 0.15;
+        tmp.bulkd= 1.39;
+    } else if(soiltype == 6) {
+        /* clay loam */
+        tmp.silt = 0.34;
+        tmp.clay = 0.34;
+        tmp.sand = 0.32;
+        tmp.air_entry = -2.6;
+        tmp.b = 5.2;
+        tmp.Ks = 6.4e-5;
+        tmp.satur = 0.52;
+        tmp.fieldc = 0.32;
+        tmp.wiltp = 0.20;
+        tmp.bulkd= 1.35;
+    } else if(soiltype == 7) {
+        /* silty clay loam */
+        tmp.silt = 0.58;
+        tmp.clay = 0.33;
+        tmp.sand = 0.09;
+        tmp.air_entry = -3.3;
+        tmp.b = 6.6;
+        tmp.Ks = 4.2e-5;
+        tmp.satur = 0.52;
+        tmp.fieldc = 0.37;
+        tmp.wiltp = 0.21; /* Correction from the book from here http://www.public.iastate.edu/~bkh/teaching/505/norman_book_corrections.pdf */
+        tmp.bulkd= 1.24;
+    } else if(soiltype == 8) {
+        /* sandy clay */
+        tmp.silt = 0.07;
+        tmp.clay = 0.40;
+        tmp.sand = 0.53;
+        tmp.air_entry = -2.9;
+        tmp.b = 6;
+        tmp.Ks = 3.3e-5;
+        tmp.satur = 0.51;
+        tmp.fieldc = 0.34;
+        tmp.wiltp = 0.24;
+        tmp.bulkd= 1.30;
+
+    } else if(soiltype == 9) {
+        /* silty clay */
+        tmp.silt = 0.45;
+        tmp.clay = 0.45;
+        tmp.sand = 0.10;
+        tmp.air_entry = -3.4;
+        tmp.b = 7.9;
+        tmp.Ks = 2.5e-5;
+        tmp.satur = 0.52;
+        tmp.fieldc = 0.39;
+        tmp.wiltp = 0.25;
+        tmp.bulkd= 1.28;
+    } else if(soiltype == 10) {
+        /* clay */
+        tmp.silt = 0.20;
+        tmp.clay = 0.60;
+        tmp.sand = 0.20;
+        tmp.air_entry = -3.7;
+        tmp.b = 7.6;
+        tmp.Ks = 1.7e-5;
+        tmp.satur = 0.53;
+        tmp.fieldc = 0.4;
+        tmp.wiltp = 0.27;
+        tmp.bulkd= 1.19;
+    }
     return(tmp);
 }

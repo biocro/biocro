@@ -27,9 +27,9 @@ Rand_int wsFun_gen {0, 4};
 // Skips ASSERT_NEAR if both values are NaN, both are positive
 // infinity, or both are negative infinity.
 void assert_near_or_nan(double val1, double val2, double tolerance, string message) {
-  if (isnan(val1) && isnan(val2)
+  if ((isnan(val1) && isnan(val2))
       ||
-      isinf(val1) && (val1 == val2)) {
+      (isinf(val1) && (val1 == val2))) {
     return;
   }
 
