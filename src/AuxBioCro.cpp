@@ -857,6 +857,51 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
     return(Evaporation);
 }
 
+// Helper function for watstr.
+double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, double awc) {
+
+    // Three different type of equations for modeling the effect of
+    // water stress on vmax and leaf area expansion.  The equation for
+    // leaf area expansion is more severe than the one for vmax. */
+    double wsPhoto;
+    switch (wsFun) {
+    case 0: { /* linear */
+        auto slp = 1 / (fieldc - wiltp);
+        auto intcpt = 1 - fieldc * slp;
+        wsPhoto = slp * awc + intcpt;
+        break;
+    }
+    case 1: {
+        auto phi10 = (fieldc + wiltp) / 2;
+        wsPhoto = 1 / (1 + exp((phi10 - awc) / phi1));
+        break;
+    }
+    case 2: {
+        auto slp = (1 - wiltp) / (fieldc - wiltp);
+        auto intcpt = 1 - fieldc * slp;
+        auto theta = slp * awc + intcpt;
+        wsPhoto = (1 - exp(-2.5 * (theta - wiltp)/(1 - wiltp))) / (1 - exp(-2.5));
+        break;
+    }
+    case 3:
+        wsPhoto = 1;
+        break;
+    default:
+        wsPhoto = 0;
+    }
+
+    // wsPhoto can be mathematically lower than zero in some cases but
+    // I should prevent that:
+    if (wsPhoto <= 0) {
+        wsPhoto = 1e-10;
+    }
+
+    // Apparently wsPhoto can be greater than 1.
+    if (wsPhoto > 1) wsPhoto = 1;
+
+    return wsPhoto;
+}
+
 /* This is a new function that attempts to keep a water budget and then
    calcualte an empirical coefficient that reduces the specific leaf area.
    This results from the general idea that water stress reduces first the
@@ -945,36 +990,14 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         awc = awc + drainage / soildepth;
     }
 
-    /* three different type of equations for modeling the effect of water stress on vmax and leaf area expansion.
-       The equation for leaf area expansion is more severe than the one for vmax. */
-    auto wsPhoto = 0.0;
-    if (wsFun == 0) { /* linear */
-        auto slp = 1 / (fieldc - wiltp);
-        auto intcpt = 1 - fieldc * slp;
-        wsPhoto = slp * awc + intcpt;
-    } else if (wsFun == 1) {
-        auto phi10 = (fieldc + wiltp) / 2;
-        wsPhoto = 1 / (1 + exp((phi10 - awc) / phi1));
-    } else if (wsFun == 2) {
-        auto slp = (1 - wiltp) / (fieldc - wiltp);
-        auto intcpt = 1 - fieldc * slp;
-        auto theta = slp * awc + intcpt;
-        wsPhoto = (1 - exp(-2.5 * (theta - wiltp)/(1 - wiltp))) / (1 - exp(-2.5));
-    } else if (wsFun == 3) {
-        wsPhoto = 1;
-    }
-
-    if (wsPhoto <= 0) {
-        wsPhoto = 1e-10; /* This can be mathematically lower than zero in some cases but I should prevent that. */
-    }
+    auto wsPhoto = compute_wsPhoto(wsFun, fieldc, wiltp, phi1, awc);
 
     auto wsSpleaf = pow(awc, phi2) * 1 / pow(fieldc, phi2);
     if (wsFun == 3) {
         wsSpleaf = 1;
     }
 
-    /* Apparently wsPhoto and wsSpleaf can be greater than 1 */
-    if (wsPhoto > 1) wsPhoto = 1;
+    /* Apparently wsSpleaf can be greater than 1 */
     if (wsSpleaf > 1) wsSpleaf = 1;
 
     /* returning the structure*/
@@ -1140,6 +1163,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         tmp.cws[i] = awc;
         tmp.hourlyWflux[i] =J_w;
 
+        // To-do: Replace this block with a call to compute_wsPhoto.
     /* three different type of equations for modeling the effect of water stress on vmax and leaf area expansion.
        The equation for leaf area expansion is more severe than the one for vmax. */
         if(wsFun == 0) { /* linear */
