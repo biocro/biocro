@@ -949,36 +949,23 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         aw = theta_s;
     }
 
-    /* plant available water per ha (pawha) */
-    auto pawha = (aw - wiltp) * soildepth * 1e4;
-    /* The density of water is 998.2 kg/m3 at 20 degrees Celsius */
-    /* or 0.9982 Mg/m3 */
-    /* pawha is plant available water (m3) per hectare */
-    /* evapo is demanded water (Mg) per hectare */
+    /* The density of water is 998.2 kg/m3 at 20 degrees Celsius or 0.9982 Mg/m3 */
+    /* evapo is demanded water (Mg / ha) */
+    auto npaw = aw - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
 
-    auto Newpawha = pawha - evapo / 0.9982;
-
-    /*  Here both are in m3 of water per ha-1 so this */
-    /*  subtraction should be correct */
-    /* go back to original units of water in the profile */
-
-    auto npaw = Newpawha * 1e-4 / soildepth;
-
-    /* If demand exceeds supply the crop is getting close to wilting point
+    /* If demand exceeds supply, the crop is getting close to wilting point
        and transpiration will be over estimated. In this one layer model though
-       the crop is practically dead */
-    if (npaw < 0) { npaw = 0.0; }
+       the crop is practically dead. */
+    if (npaw < 0) npaw = 0.0;
 
     auto awc = npaw + wiltp;
 
-    // Declare a return value variable to start populating:
     ws_str tmp;
 
     /* Calculating the soil water potential based on equations from Norman and Campbell */
     /* tmp.psim = soTexS.air_entry * pow((awc/soTexS.fieldc*1.1),-soTexS.b); */
     /* New version of the soil water potential is based on
-     * "Dynamic Simulation of Water Deficit Effects upon Maize
-     * Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
+     * "Dynamic Simulation of Water Deficit Effects upon Maize Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
     tmp.psim = -exp(log(0.033) + ((log(fieldc) - log(awc)) / (log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033)))) * 1e3; /* This last term converts from MPa to kPa */
 
     /* This is drainage */
