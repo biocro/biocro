@@ -920,31 +920,21 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     auto soTexS = soilTchoose(soiltype);
 
-    if (fieldc < 0) {
-        fieldc = soTexS.fieldc;
-    }
-    if (wiltp < 0) {
-        wiltp = soTexS.wiltp;
-    }
+    if (fieldc < 0) fieldc = soTexS.fieldc;
+    if (wiltp < 0) wiltp = soTexS.wiltp;
 
     auto theta_s = soTexS.satur;
-
-    /* unit conversion for precip */
     auto precipM = precipit * 1e-3; /* convert precip in mm to m*/
-
-
     auto aw = precipM + cws * soildepth; /* aw in meters */
     aw = aw / soildepth; /* available water in the wiltp-satur range */
 
     auto runoff = 0.0;
-     /* Nleach is the NO3 leached and Ts is the sand content of the soil: */
-    double Nleach = 0.0;
+    double Nleach = 0.0;  /* Nleach is the NO3 leached. */
     if(aw > theta_s) {
         runoff = (aw - theta_s) * soildepth; /* This is in meters */
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
-        /* The data comes in mm/hr and it needs to be in cm/month */
-        // runoff2 = runoff * 0.10 * (1/24*30); set but not used
+        /* The data come in mm/hr and need to be in cm/month */
         Nleach = runoff / 18 * (0.2 + 0.7 * soTexS.sand);
         aw = theta_s;
     }
@@ -953,11 +943,9 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     /* evapo is demanded water (Mg / ha) */
     auto npaw = aw - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
 
-    /* If demand exceeds supply, the crop is getting close to wilting point
-       and transpiration will be over estimated. In this one layer model though
-       the crop is practically dead. */
+    /* If demand exceeds supply, the crop is getting close to wilting point and transpiration
+       will be over estimated. In this one layer model though, the crop is practically dead. */
     if (npaw < 0) npaw = 0.0;
-
     auto awc = npaw + wiltp;
 
     ws_str tmp;
@@ -977,16 +965,11 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     }
 
     auto wsPhoto = compute_wsPhoto(wsFun, fieldc, wiltp, phi1, awc);
-
     auto wsSpleaf = pow(awc, phi2) * 1 / pow(fieldc, phi2);
-    if (wsFun == 3) {
-        wsSpleaf = 1;
-    }
 
-    /* Apparently wsSpleaf can be greater than 1 */
+    if (wsFun == 3) wsSpleaf = 1;
     if (wsSpleaf > 1) wsSpleaf = 1;
 
-    /* returning the structure*/
     tmp.rcoefPhoto = wsPhoto;
     tmp.awc = awc;
     tmp.runoff = runoff;
