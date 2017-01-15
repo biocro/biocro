@@ -161,7 +161,7 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
     {
         const auto Ibeam = Idir * cosTheta;
         auto Isolar = Ibeam * k;
-        for (int i = 0; i < nlayers; i++) {
+        for (int i = 0; i < nlayers; ++i) {
             const auto CumLAI = LAIi * (i + 0.5);
 
             const auto Iscat = Ibeam * (  exp(-k * sqrt(alphascatter) * CumLAI)
@@ -217,7 +217,7 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
     constexpr auto k = 0.7;
 
     auto LI = LAI / nlayers;
-    for (int i = 0; i < nlayers; i++)
+    for (int i = 0; i < nlayers; ++i)
     {
         auto CumLAI = LI * (i + 1);
         wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI - LI));
@@ -246,7 +246,7 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
     /* kh = 0.2; */
     /* kh = log(1/RH); */
 
-    for (int i = 0; i < nlayers; i++)
+    for (int i = 0; i < nlayers; ++i)
     {
         // explicitly make j a double so that j/nlayers isn't truncated:
         double j = i + 1;
@@ -263,7 +263,7 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_pr
     double LI, CumLAI;
 
     LI = LAI / nlayers;
-    for(i = 0; i < nlayers; i++)
+    for(i = 0; i < nlayers; ++i)
     {
         CumLAI = LI * (i + 1);
         leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI-LI));
@@ -446,7 +446,7 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
     {
         auto ChangeInLeafTemp = 10.0;
         const auto BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance_in_m_per_s));
-        for (auto Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
+        for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
 
             auto OldDeltaT = Deltat;
 
@@ -602,8 +602,7 @@ struct ET_Str EvapoTrans2(const double Rad,
     {
         auto ChangeInLeafTemp = 10.0;
 
-        for (auto Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10);
-             ++Counter) {
+        for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
 
             auto OldDeltaT = Deltat;
 
@@ -1303,7 +1302,7 @@ struct seqRD_str seqRootDepth(double to, int lengthOut ) {
     /* This is because in this case from is always zero */
     by = to / lengthOut;
 
-    for(i=0;i<=lengthOut;i++) {
+    for(i = 0; i <= lengthOut; ++i) {
         tmp.rootDepths[i] = i * by;
     }
     return(tmp);
@@ -1320,7 +1319,7 @@ struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
     double rootDist[layer];
     double ca = 0.0, a = 0.0;
 
-    for(i=0;i<layer;i++) {
+    for(i = 0; i < layer; ++i) {
 
         if(i == 0) {
             layerDepth = depthsp[1];
@@ -1335,7 +1334,7 @@ struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
         }
     }
 
-    for(j=0;j<layer;j++) {
+    for(j = 0; j < layer; ++j) {
         if(j < CumRootDist) {
             a = dpois(j+1,CumRootDist*rfl,0);
             rootDist[j] = a;
@@ -1345,7 +1344,7 @@ struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
         }
     }
 
-    for(k=0;k<layer;k++) {
+    for(k = 0; k < layer; ++k) {
         tmp.rootDist[k] = rootDist[k] / ca;
     }
     return(tmp);
@@ -1381,7 +1380,7 @@ void cropcent_dbp(double coefs[25],double TherPrds[6], double TherTime, struct c
 void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size)
 {
 	int i;
-	for (i = 0; i < vector_size; i++) {
+	for (int i = 0; i < vector_size; ++i) {
 		results->day_of_year[i] = 0;
 		results->hour[i] = 0;
 		results->CanopyAssim[i] = 0;
