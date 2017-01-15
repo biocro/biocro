@@ -1379,7 +1379,6 @@ void cropcent_dbp(double coefs[25],double TherPrds[6], double TherTime, struct c
 
 void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size)
 {
-	int i;
 	for (int i = 0; i < vector_size; ++i) {
 		results->day_of_year[i] = 0;
 		results->hour[i] = 0;
