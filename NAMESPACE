@@ -19,6 +19,7 @@ import(stats, lattice)
 export(Gro)
 export(MisGro)
 export(weach_imn)
+export(partial_gro)
 
 ## BioCro.R 
 export(BioGro)
