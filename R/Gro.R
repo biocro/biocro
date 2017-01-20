@@ -54,16 +54,8 @@ partial_gro = function(initial_values, parameters, varying_parameters, modules, 
     else stop(paste(arg_name, " is not in any of the lists of parameters"))
     arg_list = list(initial_values=initial_values, parameters=parameters, varying_parameters=varying_parameters, modules=modules)
     function(x) {
-        #if (!is.data.frame(arg_list[[control]]))
-            #arg_list[[control]][[arg_name]] = x
-        #else
-        arg_list[[control]]$value[parm_ind] = x
+        arg_list[[control]][[arg_name]] = x
         do.call(Gro, arg_list)
     }
 }
 
-#data(sorghum_initial_state)
-#data(sorghum_parameters)
-
-myf2=partial_gro(sorghum_initial_state, sorghum_parameters, climate, modules=list(canopy_module_name='c4_canopy', soil_module_name='one_layer_soil_profile'), 'Rhizome')
-myf2(1e-4)
