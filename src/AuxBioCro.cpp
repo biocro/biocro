@@ -569,7 +569,7 @@ struct ET_Str EvapoTrans2(const double Rad,
     /* SOLAR RADIATION COMPONENT*/
 
     /* First calculate the Radiation term */
-    constexpr double = joules_per_mole_PAR = 2.35e5;  // j / mol. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules.
+    constexpr double joules_per_mole_PAR = 2.35e5;  // j / mol. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules.
     const auto totalradiation = Rad * 1e-6 * joules_per_mole_PAR;  // microwatts / m^2.
     /* On a clear sky it may exceed 1000 in some parts of the world
        Thornley and Johnson pg 400 */
