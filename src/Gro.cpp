@@ -17,11 +17,11 @@ state_vector_map Gro(
         state_vector_map const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
         std::unique_ptr<IModule> const &soil_evaporation_module,
+        std::unique_ptr<IModule> const &growth_module,
         double (*leaf_n_limitation)(state_map const &model_state))
 {
 
     std::unique_ptr<IModule> senescence_module = std::unique_ptr<IModule>(new thermal_time_senescence_module);
-    std::unique_ptr<IModule> growth_module = std::unique_ptr<IModule>(new partitioning_growth_module);
 
     state_map current_state = initial_state;
     state_map temp_derivs;

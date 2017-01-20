@@ -171,6 +171,19 @@ class partitioning_growth_module : public IGrowth_module {
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
+class no_leaf_resp_partitioning_growth_module : public IGrowth_module {
+    public:
+        no_leaf_resp_partitioning_growth_module()
+            : IGrowth_module(vector<string> {"TTc", "LeafWS", "temp", "CanopyA",
+                "Leaf", "Stem", "Root", "Rhizome", "Grain",
+                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
+                "mrc1", "mrc2"},
+                vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+};
+
 state_map combine_state(state_map const &state_a, state_map const &state_b);
 
 state_vector_map Gro(
@@ -179,6 +192,7 @@ state_vector_map Gro(
         state_vector_map const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
         std::unique_ptr<IModule> const &soil_evaporation_module,
+        std::unique_ptr<IModule> const &growth_module,
 		double (*leaf_n_limitation)(state_map const &model_state));
 
 double biomass_leaf_nitrogen_limitation(state_map const &model_state);

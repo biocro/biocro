@@ -381,6 +381,98 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
     return(derivs);
 }
 
+state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map const &s, state_vector_map const &deriv_history, state_map const &p) const
+{
+    // This is the same as paritioning_growth_module except that leaf respiration is treated differently.
+    // CanopyA already includes losses from leaf respiration, so it should only be removed from leaf mass.
+
+    state_map derivs;
+    auto t = s.begin()->second.size() - 1;
+    //state_map s = combine_state(at(state_history, t), parameters);
+    //auto &s = state_history;
+    //auto &p = parameters;
+    double kLeaf = p.at("kLeaf");
+    double kStem = p.at("kStem");
+    double kRoot = p.at("kRoot");
+    double kRhizome = p.at("kRhizome");
+    double kGrain = p.at("kGrain");
+    double CanopyA = p.at("CanopyA");
+    double nonleaf_carbon_flux;
+
+    if (CanopyA < 0) {
+        nonleaf_carbon_flux = 0;
+    } else {
+        nonleaf_carbon_flux = CanopyA;
+    }
+
+    if (kLeaf > 0) {
+        if (CanopyA < 0) {  // If CanopyA is negative then leaves are respiring more than photosynthesizing.
+            derivs["newLeafcol"] = CanopyA;  // CanopyA is negative here, so this removes leaf mass.
+        } else {
+            derivs["newLeafcol"] = CanopyA * kLeaf; // * s.at("LeafWS")[t];
+        }
+        /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
+            Plant. Phys. 46, 233-235. For this the water stress coefficient is different
+            for leaf and vmax. */
+
+        derivs["Leaf"] = derivs["newLeafcol"]; 
+    } else {
+        derivs["newLeafcol"] = 0;
+        derivs["Leaf"] += s.at("Leaf")[t] * kLeaf;
+        derivs["Rhizome"] += kRhizome * -derivs.at("Leaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
+        derivs["Stem"] += kStem * -derivs.at("Leaf") * 0.9;
+        derivs["Root"] += kRoot * -derivs.at("Leaf") * 0.9;
+        derivs["Grain"] += kGrain * -derivs.at("Leaf") * 0.9;
+    }
+
+    if (kStem >= 0) {
+        derivs["newStemcol"] = nonleaf_carbon_flux * kStem;
+        derivs["newStemcol"] = resp(derivs["newStemcol"], p.at("mrc1"), p.at("temp"));
+        derivs["Stem"] += derivs["newStemcol"];
+    } else {
+        error("kStem should be positive");
+    }
+
+    if (kRoot > 0) {
+        derivs["newRootcol"] = nonleaf_carbon_flux * kRoot;
+        derivs["newRootcol"] = resp(derivs["newRootcol"], p.at("mrc2"), p.at("temp"));
+        derivs["Root"] += derivs["newRootcol"];
+    } else {
+        derivs["newRootcol"] = 0;
+        derivs["Root"] += s.at("Root")[t] * kRoot;
+        derivs["Rhizome"] += kRhizome * -derivs.at("Root") * 0.9;
+        derivs["Stem"] += kStem * -derivs.at("Root") * 0.9;
+        derivs["Leaf"] += kLeaf * -derivs.at("Root") * 0.9;
+        derivs["Grain"] += kGrain * -derivs.at("Root") * 0.9;
+    }
+
+    if (kRhizome > 0) {
+        derivs["newRhizomecol"] = nonleaf_carbon_flux * kRhizome;
+        derivs["newRhizomecol"] = resp(derivs["newRhizomecol"], p.at("mrc2"), p.at("temp"));
+        derivs["Rhizome"] += derivs["newRhizomecol"];
+        ++derivs["rhizome_index"];
+    } else {
+        derivs["newRhizomecol"] = 0;
+        derivs["Rhizome"] += s.at("Rhizome")[t] * kRhizome;
+        if ( derivs["Rhizome"] > s.at("Rhizome")[t] ) {  // Check if this would make the rhizome mass negative.
+            derivs["Rhizome"] = s.at("Rhizome")[t];
+            warning("Rhizome flux would make rhizome mass negative.");
+        }
+
+        derivs["Root"] += kRoot * -derivs.at("Rhizome");
+        derivs["Stem"] += kStem * -derivs.at("Rhizome");
+        derivs["Leaf"] += kLeaf * -derivs.at("Rhizome");
+        derivs["Grain"] += kGrain * -derivs.at("Rhizome");
+    }
+
+    if ((kGrain >= 1e-10) && (s.at("TTc")[t] >= p.at("tp5"))) {
+        derivs["Grain"] += nonleaf_carbon_flux * kGrain;
+        /* No respiration for grain at the moment */
+        /* No senescence either */
+    }
+    return(derivs);
+}
+
 struct c3_str c3_leaf::assimilation(state_map s)
 {
     struct c3_str result = {0, 0, 0, 0};
@@ -398,6 +490,12 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     }
     else if (module_name.compare("two_layer_soil_profile") == 0) {
         return std::unique_ptr<IModule>(new two_layer_soil_profile);
+    }
+    else if (module_name.compare("partitioning_growth") == 0) {
+        return std::unique_ptr<IModule>(new partitioning_growth_module);
+    }
+    else if (module_name.compare("no_leaf_resp_partitioning_growth") == 0) {
+        return std::unique_ptr<IModule>(new no_leaf_resp_partitioning_growth_module);
     }
     else {
         return std::unique_ptr<IModule>(new c3_canopy);

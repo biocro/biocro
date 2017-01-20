@@ -569,12 +569,8 @@ struct ET_Str EvapoTrans2(const double Rad,
     /* SOLAR RADIATION COMPONENT*/
 
     /* First calculate the Radiation term */
-    /*' Convert light assuming 1 micromole PAR photons = 0.235 J */
-    /* The next step converts from PAR photons to Joules */
-    /* There are 2.35 x 10^5 Joules in a mol */
-    /* or 0.235 Joules in a micro mol */
-    /* A Watt is equivalent to J/s */
-    const auto totalradiation = Rad * 0.235; /* This is essentially Watts m^-2 */
+    constexpr double = joules_per_mole_PAR = 2.35e5;  // j / mol. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules.
+    const auto totalradiation = Rad * 1e-6 * joules_per_mole_PAR;  // microwatts / m^2.
     /* On a clear sky it may exceed 1000 in some parts of the world
        Thornley and Johnson pg 400 */
     /* This values can not possibly be higher than 650 */
