@@ -1,5 +1,5 @@
-# Do the calculations inside an NULL environment so that temporary variables are not created in .Global.
-miscanthus_x_giganteus_parameters = with(NULL, {
+# Do the calculations inside an empty list so that temporary variables are not created in .Global.
+miscanthus_x_giganteus_parameters = with(list(), {
     datalines =
     "symbol	value
     lat	40

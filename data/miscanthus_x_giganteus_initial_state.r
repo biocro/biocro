@@ -1,5 +1,5 @@
-# Do the calculations inside an NULL environment so that temporary variables are not created in .Global.
-miscanthus_x_giganteus_initial_state = with(NULL, {
+# Do the calculations inside an empty list so that temporary variables are not created in .Global.
+miscanthus_x_giganteus_initial_state = with(list(), {
     datalines =
     "symbol	value
     Rhizome	7
