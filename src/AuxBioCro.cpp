@@ -1130,7 +1130,6 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
         /* This might look like a weird place to populate the structure, but is more convenient*/
         tmp.cws[i] = awc;
-        tmp.hourlyWflux[i] =J_w;
 
         // To-do: Replace this block with a call to compute_wsPhoto.
     /* three different type of equations for modeling the effect of water stress on vmax and leaf area expansion.
