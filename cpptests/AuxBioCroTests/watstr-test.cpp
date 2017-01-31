@@ -40,7 +40,7 @@ TEST(watstr, RandomTestData) {
 
   constexpr auto tolerance = 1E-14;
 
-  for (int i = 0; i < 1e6; ++i) {
+  for (int i = 0; i < 1e5; ++i) {
 
     auto precipit = precipit_gen();
     auto evapo = evapo_gen();
