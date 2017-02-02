@@ -12,17 +12,17 @@
 
 ///////////////// watstr /////////////////
 
-Rand_double precipit_gen {-100, 100};
-Rand_double evapo_gen {-100, 100};
-Rand_double cws_gen {-100, 100};
-Rand_double soildepth_gen {-100, 100};
-Rand_double fieldc_gen {-100, 100};
-Rand_double wiltp_gen {-100, 100};
-Rand_double phi1_gen {-100, 100};
+Rand_double precipit_gen {0, 100};
+Rand_double evapo_gen {0, 100};
+Rand_double cws_gen {0, 1};
+Rand_double soildepth_gen {0, 100};
+Rand_double fieldc_gen {0, 1};
+Rand_double wiltp_gen {0, 1};
+Rand_double phi1_gen {0, 100};
 Rand_double phi2_gen {-100, 100};
 
 Rand_int soiltype_gen {0, 10};
-Rand_int wsFun_gen {0, 4};
+Rand_int wsFun_gen {0, 3};
 
 // Skips ASSERT_NEAR if both values are NaN, both are positive
 // infinity, or both are negative infinity.
