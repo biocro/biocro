@@ -13,12 +13,8 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
         }
     }
 
-    varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))
-    # The column names are not consistent the in the BioCro weather data sets. They should be unified, but for now find them and rename them.
-    column_inds = match(c('solarR', 'DailyTemp.C'), names(varying_parameters))  # Get the indexes of the columns.
-    not_na_inds = !is.na(column_inds)  # There is no guaruntee that the column is in the data set, so keep track of which ones were found.
-    names(varying_parameters)[column_inds[not_na_inds]] = c('solar', 'temp')[not_na_inds]
-    names(varying_parameters) = tolower(names(varying_parameters))
+    varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))  # C++ requires that all the variables have type `double  # C++ requires that all the variables have type `double`.
+    names(varying_parameters) = tolower(names(varying_parameters))  # Convert all names to lower case for easy of use.
 
     ans = as.data.frame(.Call(RGro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name, modules$senescence_module_name))
     ans = cbind(ans, varying_parameters)

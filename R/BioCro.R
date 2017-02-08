@@ -284,28 +284,9 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     
 ## Trying to guess the first and last day of the growing season from weather data
     
-    if(missing(day1)){
-        half <- as.integer(dim(WetDat)[1]/2)
-        WetDat1 <- WetDat[1:half,c(2,5)]
-        if(min(WetDat1[,2]) > 0){
-          day1 <- 90
-        }else{
-        WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
-        day1 <- max(WetDat1s[,1])
-        if(day1 < 90) day1 <- 90
-      }
-     }
-    if(missing(dayn)){
-        half <- as.integer(dim(WetDat)[1]/2)
-        WetDat1 <- WetDat[half:dim(WetDat)[1],c(2,5)]
-        if(min(WetDat1[,2]) > 0){
-          dayn <- 330
-        }else{
-          WetDat1s <- WetDat1[which(WetDat1[,2]<0),]
-          dayn <- min(WetDat1s[,1])
-          if(dayn > 330) dayn <- 330
-        }
-      }
+    doy_range = guess_growing_season_start_and_end_doy(WetDat)
+    day1 = doy_range[1]
+    dayn = doy_range[2]
     
     if((day1<0) || (day1>365) || (dayn<0) || (dayn>365))
       stop("day1 and dayn should be between 0 and 365")
@@ -343,7 +324,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
 
     tint <- 24 / timestep
     vecsize <- (dayn - (day1-1)) * tint + 1
-    indes1 <- (day1-1) * tint
+    indes1 <- (day1-1) * tint + 1
     indesn <- (dayn) * tint
     if((dayn)*tint > nrow(WetDat))
       stop ("weather data and dayN is not consistent")

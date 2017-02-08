@@ -102,15 +102,6 @@ export(Rmiscanmod)
 ## RssBioGro.R
 export(RssBioGro)
 
-## RUEmodMY.R
-export(RUEmodMY)
-
-## RUEmod.R
-export(RUEmod)
-
-## SatWatVap.R
-export(fnpsvp, ardBuck)
-
 ## showSoilType.R
 export(SoilType, showSoilType)
 
@@ -162,3 +153,5 @@ export(CropGro)
 export(soyGro)
 
 export(read_parameters)
+export(get_growing_season_climate)
+
