@@ -7,8 +7,6 @@
 
 #include <R.h>
 #include <Rinternals.h>
-#include "Century.h"
-#include "crocent.h"
 #include "BioCro.h"
 
 extern "C" {

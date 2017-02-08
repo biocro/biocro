@@ -788,7 +788,6 @@ struct management{
 };
 
 
-void assignManagement(struct management *management);
 void updateafterharvest(struct miscanthus *miscanthus,struct management *management);
 void updateafteremergence(struct miscanthus *miscanthus,struct management *management);
 void getsenescenceparms(struct senthermaltemp *senparms);
