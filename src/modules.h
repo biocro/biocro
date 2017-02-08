@@ -65,8 +65,8 @@ class c4_canopy : public ICanopy_photosynthesis_module {
     public:
         c4_canopy()
             : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solar", "temp",
-                    "rh", "windspeed", "lat", "nlayers", "vmax1",
-                    "alpha1", "kparm", "beta", "Rd", "Catm",
+                    "rh", "windspeed", "lat", "nlayers", "vmax",
+                    "alpha", "kparm", "beta", "Rd", "Catm",
                     "b0", "b1", "theta", "kd", "chil",
                     "heightf", "LeafN", "kpLN", "lnb0", "lnb1",
                     "lnfun", "upperT", "lowerT", "leafwidth",

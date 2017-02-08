@@ -142,8 +142,8 @@ state_map c4_canopy::do_operation(state_vector_map const &state_history, state_v
     nitroP.lnb1 = s.at("nlnb1");
 
     result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
-            s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax1"),
-            s.at("alpha1"), s.at("kparm"), s.at("beta"), s.at("Rd"), s.at("Catm"),
+            s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
+            s.at("alpha"), s.at("kparm"), s.at("beta"), s.at("Rd"), s.at("Catm"),
             s.at("b0"), s.at("b1"), s.at("theta"), s.at("kd"), s.at("chil"),
             s.at("heightf"), s.at("LeafN"), s.at("kpLN"), s.at("lnb0"), s.at("lnb1"),
             (int)s.at("lnfun"), s.at("upperT"), s.at("lowerT"), nitroP, s.at("leafwidth"),
