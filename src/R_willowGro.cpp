@@ -6,11 +6,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include "c3photo.h"
-#include "AuxwillowGro.h"
-#include "crocent.h"
-#include "c3canopy.h"
 #include "BioCro.h"
-#include "Century.h"
 
 extern "C" {
 

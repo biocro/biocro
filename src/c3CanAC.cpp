@@ -1,6 +1,5 @@
 #include "BioCro.h"
 #include "c3photo.h"
-#include "c3canopy.h"
 #include "c3EvapoTrans.h"
 
 struct Can_Str c3CanAC(double LAI,
