@@ -20,7 +20,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
     names(varying_parameters)[column_inds[not_na_inds]] = c('solar', 'temp')[not_na_inds]
     names(varying_parameters) = tolower(names(varying_parameters))
 
-    ans = as.data.frame(.Call(RGro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name))
+    ans = as.data.frame(.Call(RGro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name, modules$senescence_module_name))
     ans = cbind(ans, varying_parameters)
     return(ans)
 }

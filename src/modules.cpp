@@ -161,11 +161,32 @@ state_map c3_canopy::do_operation(state_map const &s) const
     struct Can_Str result;
     state_map fluxes;
 
-    result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solarr"), s.at("temp"),
+    result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
             s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
-            s.at("jmax"), s.at("rd"), s.at("catm"), s.at("o2"), s.at("b0"),
-            s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("leafn"),
-            s.at("kpln"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("stomataws"),
+            s.at("jmax"), s.at("Rd"), s.at("Catm"), s.at("O2"), s.at("b0"),
+            s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("LeafN"),
+            s.at("kpLN"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("StomataWS"),
+            (int)s.at("ws"));
+
+    fluxes["Assim"] = result.Assim;
+    fluxes["Trans"] = result.Trans;
+    fluxes["GrossAssim"] = result.GrossAssim;
+
+    return(fluxes);
+}
+
+state_map c3_canopy::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+{
+    struct Can_Str result;
+    state_map fluxes;
+
+    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
+
+    result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
+            s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
+            s.at("jmax"), s.at("Rd"), s.at("Catm"), s.at("O2"), s.at("b0"),
+            s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("LeafN"),
+            s.at("kpLN"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("StomataWS"),
             (int)s.at("ws"));
 
     fluxes["Assim"] = result.Assim;
@@ -234,7 +255,7 @@ state_map two_layer_soil_profile::do_operation(state_vector_map const &state_his
     return two_layer_soil_profile::do_operation(s);
 }
 
-state_map thermal_time_senescence_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+state_map thermal_time_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
@@ -277,15 +298,64 @@ state_map thermal_time_senescence_module::do_operation(state_vector_map const &s
         ++derivs["rhizome_senescence_index"];
     }
 
-    /*
-    if (i % 24 * s.at("centTimestep") == 0) {
-        double coefficient = ((0.1 / 30) * s.at("centTimestep"));
-        derivs["LeafLitter"] -= s.at("LeafLitter") * coefficient;
-        derivs["StemLitter"] -= s.at("StemLitter") * coefficient;
-        derivs["RootLitter"] -= s.at("RootLitter") * coefficient;
-        derivs["RhizomeLitter"] -= s.at("RhizomeLitter") * coefficient;
+    return(derivs);
+}
+
+state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+{
+    state_map derivs;
+    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
+    //output_map(s);
+    double TTc = s.at("TTc");
+    double leafdeathrate = s.at("leafdeathrate");
+    double frost_leaf_death_rate = 0;
+    if (TTc >= parameters.at("seneLeaf")) {
+        bool A = s.at("lat") >= 0.0;
+        bool B = s.at("doy") >= 180.0;
+
+        if ((A && B) || ((!A) && (!B))) {
+            if (s.at("temp") > parameters.at("Tfrostlow")) {
+                frost_leaf_death_rate = 100 * (s.at("temp") - parameters.at("Tfrosthigh")) / (parameters.at("Tfrostlow") - parameters.at("Tfrosthigh"));
+                frost_leaf_death_rate = (frost_leaf_death_rate > 100.0) ? 100.0 : frost_leaf_death_rate;
+            } else {
+                frost_leaf_death_rate = 0.0;
+            }
+            double current_leaf_death_rate = (leafdeathrate > frost_leaf_death_rate) ? leafdeathrate : frost_leaf_death_rate;
+            derivs["leafdeathrate"] = current_leaf_death_rate - leafdeathrate;
+  
+            double change = s.at("Leaf") * current_leaf_death_rate * (0.01 / 24);
+            double Remob = change * 0.6;
+            derivs["LeafLitter"] += (change - Remob); /* Collecting the leaf litter */ 
+            derivs["Rhizome"] += s.at("kRhizome") * Remob;
+            derivs["Stem"] += s.at("kStem") * Remob;
+            derivs["Root"] += s.at("kRoot") * Remob;
+            derivs["Grain"] += s.at("kGrain") * Remob;
+            derivs["Leaf"] += -change + s.at("kLeaf") * Remob;
+            ++derivs["leaf_senescence_index"];
+        }
     }
-    */
+
+    if (TTc >= parameters.at("seneStem")) {
+        double change = deriv_history.at("newStemcol")[s["stem_senescence_index"]];
+        derivs["Stem"] -= change;
+        derivs["StemLitter"] += change;
+        ++derivs["stem_senescence_index"];
+    }
+
+    if (TTc >= parameters.at("seneRoot")) {
+        double change = deriv_history.at("newRootcol")[s["root_senescence_index"]];
+        derivs["Root"] -= change;
+        derivs["RootLitter"] += change;
+        ++derivs["root_senescence_index"];
+    }
+
+    if (TTc >= parameters.at("seneRhizome")) {
+        double change = deriv_history.at("newRhizomecol")[s["rhizome_senescence_index"]];
+        derivs["Rhizome"] -= change;
+        derivs["RhizomeLitter"] += change;
+        ++derivs["rhizome_senescence_index"];
+    }
+
     return(derivs);
 }
 
@@ -496,6 +566,12 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     }
     else if (module_name.compare("no_leaf_resp_partitioning_growth") == 0) {
         return std::unique_ptr<IModule>(new no_leaf_resp_partitioning_growth_module);
+    }
+    else if (module_name.compare("thermal_time_and_frost_senescence") == 0) {
+        return std::unique_ptr<IModule>(new thermal_time_and_frost_senescence);
+    }
+    else if (module_name.compare("thermal_time_senescence") == 0) {
+        return std::unique_ptr<IModule>(new thermal_time_senescence);
     }
     else {
         return std::unique_ptr<IModule>(new c3_canopy);

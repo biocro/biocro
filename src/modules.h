@@ -83,16 +83,17 @@ class c4_canopy : public ICanopy_photosynthesis_module {
 class c3_canopy : public ICanopy_photosynthesis_module {
     public:
         c3_canopy()
-            : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solarr", "temp",
+            : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solar", "temp",
                     "rh", "windspeed", "lat", "nlayers", "vmax",
-                    "jmax", "rd", "catm", "o2", "b0",
-                    "b1", "theta", "kd", "heightf", "leafn",
-                    "kpln", "lnb0", "lnb1", "lnfun", "stomataws",
+                    "jmax", "Rd", "Catm", "O2", "b0",
+                    "b1", "theta", "kd", "heightf", "LeafN",
+                    "kpLN", "lnb0", "lnb1", "lnfun", "StomataWS",
                     "ws"},
                     vector<string> {})
         {}
     private:
         virtual state_map do_operation (state_map const &s) const;
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
 class ISoil_evaporation_module : public IModule {
@@ -138,13 +139,25 @@ class ISenescence_module : public IModule {
         {}
 };
 
-class thermal_time_senescence_module : public ISenescence_module {
+class thermal_time_senescence : public ISenescence_module {
     public:
-        thermal_time_senescence_module()
+        thermal_time_senescence()
             : ISenescence_module(vector<string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                 "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
                 "mrc1", "mrc2"},
+                vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+};
+
+class thermal_time_and_frost_senescence : public ISenescence_module {
+    public:
+        thermal_time_and_frost_senescence()
+            : ISenescence_module(vector<string> {"TTc", "leafdeathrate", "lat", "doy", "Tfrostlow", "Tfrosthigh", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
+                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
+                "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index"},
                 vector<string> {})
         {}
     private:
@@ -193,6 +206,7 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
         std::unique_ptr<IModule> const &soil_evaporation_module,
         std::unique_ptr<IModule> const &growth_module,
+        std::unique_ptr<IModule> const &senescence_module,
 		double (*leaf_n_limitation)(state_map const &model_state));
 
 double biomass_leaf_nitrogen_limitation(state_map const &model_state);
