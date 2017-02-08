@@ -226,7 +226,7 @@
 ##' @return
 ##'
 ##' Returns a \code{\link{list}} structure with the following components:
-##'
+##' \itemize{
 ##' \item{DayofYear}{Day of the year.}
 ##' \item{Hour}{Hour for each day.}
 ##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1} ground
@@ -252,7 +252,7 @@
 ##' \item{MinNitroVec}{Nitrogen in the mineral pool.}
 ##' \item{RespVec}{Soil respiration.}
 ##' \item{SoilEvaporation}{Soil Evaporation.}
-##'
+##' }
 ##' @keywords models
 ##' @examples
 ##'
@@ -365,6 +365,8 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
 
     TPcoefs <- as.vector(unlist(phenoP)[1:6])
 
+	thermal_base_temperature = 0
+
     SENcoefs <- as.vector(unlist(seneP))
 
     soilCoefs <- c(unlist(soilP[1:5]), mean(soilP$iWatCont), soilP$scsf, soilP$transpRes, soilP$leafPotTh)
@@ -403,7 +405,6 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
     leafW <- canopyP$leafwidth
     eteq <- canopyP$eteq
 	StomWS <- photoP$StomWS
-	thermal_base_temperature = 0
 	initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
     
     res <- .Call(MisGro,

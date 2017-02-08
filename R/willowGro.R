@@ -81,19 +81,19 @@
 ##' @param phenoControl List that controls aspects of the crop phenology. It
 ##' should be supplied through the \code{phenoParms} function.
 ##'
-##' \code{tp1-tp6} thermal times which determine the time elapsed between
+##' \code{tp1}--\code{tp6} Thermal times which determine the time elapsed between
 ##' phenological stages. Between 0 and tp1 is the juvenile stage. etc.
 ##'
-##' \code{kLeaf1-6} proportion of the carbon that is allocated to leaf for
+##' \code{kLeaf1}--\code{kLeaf6} Proportion of the carbon that is allocated to leaf for
 ##' phenological stages 1 through 6.
 ##'
-##' \code{kStem1-6} proportion of the carbon that is allocated to stem for
+##' \code{kStem1}--\code{kStem6} Proportion of the carbon that is allocated to stem for
 ##' phenological stages 1 through 6.
 ##'
-##' \code{kRoot1-6} proportion of the carbon that is allocated to root for
+##' \code{kRoot1}--\code{kRoot6} Proportion of the carbon that is allocated to root for
 ##' phenological stages 1 through 6.
 ##'
-##' \code{kRhizome1-6} proportion of the carbon that is allocated to rhizome
+##' \code{kRhizome1}--\code{kRhizome6} Proportion of the carbon that is allocated to rhizome
 ##' for phenological stages 1 through 6.
 ##'
 ##' \code{kGrain1-6} proportion of the carbon that is allocated to grain for
@@ -122,7 +122,7 @@
 ##' growing season. It can be a single value or a vector for the number of
 ##' layers specified.
 ##'
-##' \code{soilType} Soil type, default is 6 (a more typical soil would be 3).
+##' \code{soilType} Soil type; default is 6 (a more typical soil would be 3).
 ##' To see details use the function \code{\link{showSoilType}}.
 ##' 1 : clay (light); 2 : clay loam; 3 : clay(heavy); 4 : loam; 5 : loamy sand; 6 : sand; 7 : sandy clay; 8 : sandy clay loam; 9 : sandy loam; 10 : silt; 11 : silt loam; 12 : silty clay; 13 : silty clay loam
 ##' \code{soilLayer} Integer between 1 and 50. The default is 5. If only one
@@ -146,13 +146,14 @@
 ##'
 ##' \code{rsdf} Root soil depth factor. Empirical coefficient used in
 ##' calculating the depth of roots as a function of root biomass.
-##' @param nitroControl List that controls aspects of the nitrogen environment.
-##' It should be supplied through the \code{nitrolParms} function.
 ##'
-##' \code{iLeafN} initial value of leaf nitrogen (g m-2).
+##' @param nitroControl List that controls aspects of the nitrogen environment.
+##' It should be supplied through the \code{nitroParms} function.
+##'
+##' \code{iLeafN} initial value of leaf nitrogen (g \eqn{\mathrm{m}^{-2}}{m^-2}).
 ##'
 ##' \code{kLN} coefficient of decrease in leaf nitrogen during the growing
-##' season. The equation is LN = iLeafN * (Stem + Leaf)^-kLN .
+##' season. The equation is \code{LN = iLeafN * (Stem + Leaf)^-kLN} .
 ##'
 ##' \code{Vmax.b1} slope which determines the effect of leaf nitrogen on Vmax.
 ##'
@@ -161,7 +162,7 @@
 ##' carbon and nitrogen dynamics in the soil. It should be supplied through the
 ##' \code{centuryParms} function.
 ##'
-##' \code{SC1-9} Soil carbon pools in the soil.  SC1: Structural surface
+##' \code{SC1}--\code{SC9} Soil carbon pools in the soil.  SC1: Structural surface
 ##' litter.  SC2: Metabolic surface litter.  SC3: Structural root litter.  SC4:
 ##' Metabolic root litter.  SC5: Surface microbe.  SC6: Soil microbe.  SC7:
 ##' Slow carbon.  SC8: Passive carbon.  SC9: Leached carbon.
@@ -192,33 +193,33 @@
 ##' @export
 ##' @return
 ##'
-##' a \code{\link{list}} structure with components
+##' Returns a \code{\link{list}} structure with the following components:
 ##' \itemize{
-##' \item DayofYear Day of the year
-##' \item Hour Hour for each day
-##' \item CanopyAssim Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
-##' \eqn{hr^-1}).
-##' \item CanopyTrans Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
-##' \eqn{hr^-1}).
-##' \item Leaf leaf dry biomass (Mg \eqn{ha^-1}).
-##' \item Stem stem dry biomass(Mg \eqn{ha^-1}).
-##' \item Root root dry biomass (Mg \eqn{ha^-1}).
-##' \item Rhizome rhizome dry biomass (Mg \eqn{ha^-1}).
-##' \item LAI leaf area index (\eqn{m^2} \eqn{m^-2}).
-##' \item ThermalT thermal time (Celsius \eqn{day^-1}).
-##' \item StomatalCondCoefs Coefficeint which determines the effect of
-##' water stress on stomatal conductance and photosynthesis.
-##' \item LeafReductionCoefs Coefficient which determines the effect of
-##' water stress on leaf expansion reduction.
-##' \item LeafNitrogen Leaf nitrogen.
-##' \item AboveLitter Above ground biomass litter (Leaf + Stem).
-##' \item BelowLitter Below ground biomass litter (Root + Rhizome).
-##' \item VmaxVec Value of Vmax during the growing season.
-##' \item AlphaVec Value of alpha during the growing season.
-##' \item SpVec Value of the specific leaf area.
-##' \item MinNitroVec Nitrogen in the mineral pool.
-##' \item RespVec Soil respiration.
-##' \item SoilEvaporation Soil Evaporation.
+##' \item{DayofYear}{Day of the year.}
+##' \item{Hour}{Hour for each day.}
+##' \item{CanopyAssim}{Hourly canopy assimilation, (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1} ground
+##' \eqn{\mathrm{hr}^{-1}}{hr^-1}).}
+##' \item{CanopyTrans}{Hourly canopy transpiration, (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1} ground
+##' \eqn{\mathrm{hr}^{-1}}{hr^-1}).}
+##' \item{Leaf}{Leaf dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}).}
+##' \item{Stem}{Stem dry biomass(Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}).}
+##' \item{Root}{Root dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}).}
+##' \item{Rhizome}{Rhizome dry biomass (Mg \eqn{\mathrm{ha}^{-1}}{ha^-1}).}
+##' \item{LAI}{Leaf area index (\eqn{\mathrm{m}^2}{m^2} \eqn{\mathrm{m}^{-2}}{m^-2}).}
+##' \item{ThermalT}{Thermal time (\eqn{{}^\circ\mathrm{C}\,\mathrm{d}}{degree-days}).}
+##' \item{StomatalCondCoefs}{Coefficeint which determines the effect of
+##' water stress on stomatal conductance and photosynthesis.}
+##' \item{LeafReductionCoefs}{Coefficient which determines the effect of
+##' water stress on leaf expansion reduction.}
+##' \item{LeafNitrogen}{Leaf nitrogen.}
+##' \item{AboveLitter}{Above ground biomass litter (\code{Leaf + Stem}).}
+##' \item{BelowLitter}{Below ground biomass litter (\code{Root + Rhizome}).}
+##' \item{VmaxVec}{Value of Vmax during the growing season.}
+##' \item{AlphaVec}{Value of alpha during the growing season.}
+##' \item{SpVec}{Value of the specific leaf area.}
+##' \item{MinNitroVec}{Nitrogen in the mineral pool.}
+##' \item{RespVec}{Soil respiration.}
+##' \item{SoilEvaporation}{Soil Evaporation.}
 ##' }
 ##' @keywords models
 ##' @examples
@@ -280,10 +281,9 @@ willowGro <- function(WetDat, day1=120, dayn=300,
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
-                   willowphenoControl=list(),
+                   phenoControl=list(),
                    soilControl=list(),
                    nitroControl=list(),
-                   iPlantControl=list(),
                    centuryControl=list())
   {
 
@@ -291,14 +291,14 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     canopyP <- willowcanopyParms()
     canopyP[names(canopyControl)] <- canopyControl
     
-    soilP <- willowsoilParms()
+    soilP <- soilParms()
     soilP[names(soilControl)] <- soilControl
 
     nitroP <- nitroParms()
     nitroP[names(nitroControl)] <- nitroControl
 
-    willowphenoP <- willowphenoParms()
-    willowphenoP[names(willowphenoControl)] <- willowphenoControl
+    phenoP <- willowphenoParms()
+    phenoP[names(phenoControl)] <- phenoControl
     
     photoP <- willowphotoParms()
     photoP[names(photoControl)] <- photoControl
@@ -328,11 +328,11 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     if((min(hr) < 0) | (max(hr) > 23))
       stop("hr should be between 0 and 23")
 
-    DBPcoefs <- valid_dbp(as.vector(unlist(willowphenoP)[7:31]))
+    DBPcoefs <- valid_dbp(as.vector(unlist(phenoP)[7:31]))
 
-    TPcoefs <- as.vector(unlist(willowphenoP)[1:6])
+    TPcoefs <- as.vector(unlist(phenoP)[1:6])
     
-    Tbase <- as.vector(unlist(willowphenoP)[32])
+    thermal_base_temperature <- as.vector(unlist(phenoP)[32])
 
     SENcoefs <- as.vector(unlist(seneP))
 
@@ -398,7 +398,7 @@ willowGro <- function(WetDat, day1=120, dayn=300,
                  as.double(SpD),
                  as.double(DBPcoefs),
                  as.double(TPcoefs),
-                 as.double(Tbase),
+                 as.double(thermal_base_temperature),
                  as.double(vmax),
                  as.double(alpha),
                  as.double(theta),
@@ -479,74 +479,13 @@ willowphotoParms <- function(vmax=100, jmax=180, Rd=1.1, Catm=380, O2 = 210, b0=
   
 }
 
-
-
-willowsoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
-                      soilType=6, soilLayers=1, soilDepths=NULL, hydrDist=0,
-                      wsFun=c("linear","logistic","exp","none","lwp"),
-                      scsf = 1, transpRes = 5e6, leafPotTh = -800,
-                      rfl=0.2, rsec=0.2, rsdf=0.44){
-  
-
-  if(is.null(iWatCont)){
-    if(is.null(FieldC))
-      iWatCont <- rep(SoilType(soilType)$fieldc,soilLayers)
-    else
-      iWatCont <- rep(FieldC,soilLayers)
-  }else{
-    if(length(iWatCont) == 1)
-      iWatCont <- rep(iWatCont,soilLayers)
-  }
-  
-  if(length(iWatCont) != soilLayers){
-    stop("iWatCont should be NULL, of length 1 or length == soilLayers")
-  }
-  
-  if(is.null(soilDepths)){
-    soilDepths <- seq(0,soilDepth,length.out=I(soilLayers+1))
-  }else{
-    if(length(soilDepths) != I(soilLayers+1)) stop("soilDepths should be of length == soilLayers + 1")
-  }
-  
-  if(is.null(FieldC)) FieldC <- -1
-  
-  if(is.null(WiltP))  WiltP <- -1
-  
-  wsFun <- match.arg(wsFun)
-  if(wsFun == "linear")  wsFun <- 0
-  else if(wsFun == "logistic") wsFun <- 1
-  else if(wsFun =="exp") wsFun <- 2 
-  else if(wsFun == "none") wsFun <- 3
-  else if(wsFun == "lwp") wsFun <- 4
-  
-  list(FieldC=FieldC,WiltP=WiltP,phi1=phi1,phi2=phi2,soilDepth=soilDepth,iWatCont=iWatCont,
-       soilType=soilType,soilLayers=soilLayers,soilDepths=soilDepths, wsFun=wsFun,
-       scsf = scsf, transpRes = transpRes, leafPotTh = leafPotTh,
-       hydrDist=hydrDist, rfl=rfl, rsec=rsec, rsdf=rsdf)
-}
-
-willownitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
-                       kpLN=0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
-  
-  lnFun <- match.arg(lnFun)
-  if(lnFun == "none"){
-    lnFun <- 0
-  }else{
-    lnFun <- 1
-  }
-  
-  list(iLeafN=iLeafN, kLN=abs(kLN), Vmax.b1=Vmax.b1, alpha.b1=alpha.b1, kpLN=kpLN,
-       lnb0 = lnb0, lnb1 = lnb1, lnFun = lnFun)
-  
-}
-
 willowphenoParms <- function(tp1=250, tp2=350, tp3=900, tp4=1200, tp5=3939, tp6=7000,
                              kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
                              kStem2=0.01, kLeaf2=0.98, kRoot2=0.003, kRhizome2=0.007, 
                              kStem3=0.7, kLeaf3=0.15, kRoot3=0.045, kRhizome3=0.105, 
                              kStem4=0.7, kLeaf4=0.15, kRoot4=0.045, kRhizome4=0.105, 
                              kStem5=0.7, kLeaf5=0.00001, kRoot5=0.15, kRhizome5=0.15, 
-                             kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15, kGrain6=0.0, Tbase=0.0){
+                             kStem6=0.7, kLeaf6=0.000001, kRoot6=0.15, kRhizome6=0.15, kGrain6=0.0, thermal_base_temperature=0.0){
   
   if(kGrain6 < 0)
     stop("kGrain6 should be positive (zero is allowed)")
@@ -557,7 +496,7 @@ willowphenoParms <- function(tp1=250, tp2=350, tp3=900, tp4=1200, tp5=3939, tp6=
        kStem3=kStem3, kLeaf3=kLeaf3, kRoot3=kRoot3, kRhizome3=kRhizome3, 
        kStem4=kStem4, kLeaf4=kLeaf4, kRoot4=kRoot4, kRhizome4=kRhizome4, 
        kStem5=kStem5, kLeaf5=kLeaf5, kRoot5=kRoot5, kRhizome5=kRhizome5, 
-       kStem6=kStem6, kLeaf6=kLeaf6, kRoot6=kRoot6, kRhizome6=kRhizome6, kGrain6=kGrain6,Tbase=Tbase)
+       kStem6=kStem6, kLeaf6=kLeaf6, kRoot6=kRoot6, kRhizome6=kRhizome6, kGrain6=kGrain6,thermal_base_temperature=thermal_base_temperature)
   
   
 }
@@ -567,11 +506,6 @@ willowseneParms <- function(senLeaf=1600,senStem=5500, senRoot=5500,senRhizome=5
   list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome,Tfrosthigh=Tfrosthigh,Tfrostlow=Tfrostlow,leafdeathrate=leafdeathrate)
   
 }
-
-
-
-
-
 
 
 
@@ -616,12 +550,12 @@ plot.willowGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE
                          x1=0.1,y1=0.8,plot.kind=c("DB","SW"),...) 
 {
 
-  if(is.null(xlab)){
+  if(missing(xlab)){
     xlab = expression(paste("Thermal Time (",degree,"C d)"))
   }
 
-  if(is.null(ylab)){
-    ylab = expression(paste("Dry willowmass (Mg ",ha^-1,")"))
+  if(missing(ylab)){
+    ylab = expression(paste("Dry Biomass (Mg ",ha^-1,")"))
   }  
 
   pchs <- rep(pch,length=6)
@@ -630,7 +564,7 @@ plot.willowGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE
   lwds <- rep(lwd,length=6)
   plot.kind <- match.arg(plot.kind)
   if(plot.kind == "DB"){
-  if (is.null(obs)) {
+  if (missing(obs)) {
         sim <- x
         plot1 <- lattice::xyplot(sim$Stem ~ sim$ThermalT, type = "l", ...,
                         ylim = c(0, I(max(sim$Stem,na.rm=TRUE) + 5)),
