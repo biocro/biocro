@@ -9,9 +9,28 @@
 #include <Rmath.h>
 #include "BioCro.h"
 
-/* Here I will include a function which calculates the RSS */
+double sel_phen(int phen)
+{
+    double index = 0;
+
+    if (phen == 6) {
+        index = runif(20, 25);
+    } else if (phen == 5) {
+        index = runif(16, 20);
+    } else if (phen == 4) {
+        index = runif(12, 16);
+    } else if (phen == 3) {
+        index = runif(8, 12);
+    } else if (phen == 2) {
+        index = runif(4, 8);
+    } else if (phen == 1) {
+        index = runif(0, 4);
+    }
+    return(index);
+}
 
 extern "C" {
+/* Here I will include a function which calculates the RSS */
 
 double RSS_BG(double oStem[], double oLeaf[],
 	      double oRoot[], double oRhizome[],
@@ -100,8 +119,16 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	      SEXP CWS, SEXP HYDRDIST, SEXP SECS, 
 	      SEXP NCOEFS, SEXP LNFUN,SEXP UPPERTEMP, SEXP LOWERTEMP,SEXP NNITROP, SEXP STOMWS)
 {
+    // Optimizes the partitioning coefficients using observed data.
+    //
+    // Two optimizations are done in sequence. Each optimization has the following stages:
+    //      1: Randomly select a single partitioning coeffient from any stage of growth and assign it a random value.
+    //      2: Normalize the coefficients so that for each stage, they sum to 1.
+    //      3: Run BioCro with the set of coefficients.
+    //      4: Compare the sums of squares between the new set of coefficients and the set with the lowest observed sum of squares
+    //         to decide whether to keep the new set. The two optimization routines have different criteria to determine
+    //         whether the new parameters are kept.
        
-	// compatibility with CanAC to pass alpha parameters
        struct nitroParms nitroparms;
 	double TEMPdoubletoint;
 	nitroparms.ileafN=REAL(NNITROP)[0];

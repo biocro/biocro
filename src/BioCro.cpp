@@ -595,23 +595,3 @@ void BioGro(
     }
 }
 
-double sel_phen(int phen)
-{
-    double index = 0;
-
-    if (phen == 6) {
-        index = runif(20, 25);
-    } else if (phen == 5) {
-        index = runif(16, 20);
-    } else if (phen == 4) {
-        index = runif(12, 16);
-    } else if (phen == 3) {
-        index = runif(8, 12);
-    } else if (phen == 2) {
-        index = runif(4, 8);
-    } else if (phen == 1) {
-        index = runif(0, 4);
-    }
-    return(index);
-}
-
