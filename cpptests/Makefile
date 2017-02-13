@@ -13,7 +13,7 @@ LDFLAGS+=-undefined dynamic_lookup
 LDFLAGS+=-L/usr/local/lib
 
 TESTED_CODE_OBJ = ../src/AuxBioCro.o ../src/c4photo.o
-TEST_UTILITY_OBJ = Random.o relative_error.o
+TEST_UTILITY_OBJ = Random.o relative_error.o AuxBioCroTests/common_generators.o
 TEST_CODE_OBJ = AuxBioCroTests/OldAuxBioCroFunctions.o \
     test-runner.o \
     AuxBioCroTests/lightME-test.o \
@@ -24,6 +24,7 @@ TEST_CODE_OBJ = AuxBioCroTests/OldAuxBioCroFunctions.o \
     AuxBioCroTests/RHprof-test.o \
     AuxBioCroTests/watstr-test.o \
     AuxBioCroTests/soilTchoose-test.o \
+    AuxBioCroTests/soilML-test.o
 
 OBJ = $(TESTED_CODE_OBJ) $(TEST_UTILITY_OBJ) $(TEST_CODE_OBJ)
 

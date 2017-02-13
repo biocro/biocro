@@ -25,4 +25,13 @@ struct ws_str Oldwatstr(double precipit, double evapo, double cws,
 
 struct soilText_str OldsoilTchoose(int soiltype);
 
+struct soilML_str OldsoilML(double precipit, double transp, double *cws,
+                            double soildepth, double *depths, double fieldc,
+                            double wiltp, double phi1, double phi2,
+                            struct soilText_str soTexS, int wsFun, int layers,
+                            double rootDB, double LAI, double k,
+                            double AirTemp, double IRad, double winds,
+                            double RelH, int hydrDist, double rfl,
+                            double rsec, double rsdf);
+
 #endif
