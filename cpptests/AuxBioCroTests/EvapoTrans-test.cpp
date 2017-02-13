@@ -33,7 +33,7 @@ Rand_double upperT_gen {30, 50};
 Rand_double lowerT_gen {1.5, 5};
 Rand_double Catm_gen {280, 500};
 
-TEST(EvapoTrans, random_test_data) {
+TEST(EvapoTrans, RandomTestData) {
     constexpr double tolerance = 1E-14;
 
     for (int i = 0; i < 1e4; ++i) {
@@ -98,7 +98,7 @@ Rand_double stomatacond_gen {80, 700};
 Rand_double leafw_gen {1E-3, 1E-1};
 Rand_int eteq_gen {0, 2};
 
-TEST(EvapoTrans2, random_test_data) {
+TEST(EvapoTrans2, RandomTestData) {
     constexpr double tolerance = 1E-14;
 
     for (int i = 0; i < 1e4; ++i) {

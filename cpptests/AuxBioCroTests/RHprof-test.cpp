@@ -66,7 +66,7 @@ double RHprof_results[][MAXLAY] = {
 
 constexpr auto num_trials = 5;
 
-TEST(RHprofTest, miscellaneous_test_data) {
+TEST(RHprofTest, MiscellaneousTestData) {
   for (int i = 0; i < num_trials; ++i) {
     double arg_set[2];
     for (int j = 0; j < 2; ++j) {

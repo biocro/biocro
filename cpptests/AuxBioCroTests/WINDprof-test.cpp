@@ -76,7 +76,7 @@ double WINDprof_results[][MAXLAY] = {
    46.57656534, 44.93973909}
 };
 
-TEST(WINDprofTest, miscellaneous_test_data) {
+TEST(WINDprofTest, MiscellaneousTestData) {
   for (int i = 0; i < num_trials; ++i) {
     double arg_set[3];
     for (int j = 0; j < 3; ++j) {
