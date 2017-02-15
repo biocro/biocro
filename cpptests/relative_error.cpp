@@ -25,18 +25,48 @@ bool AlmostEqualRelativeAndAbs(double A, double B,
     return false;
 }
 
+bool equal_nan_or_infinite(double val1, double val2) {
+    return ((isnan(val1) && isnan(val2))
+            ||
+            (isinf(val1) && (val1 == val2)));
+}
+
 
 void expect_near_rel(double A, double B,
                      double maxDiff, double maxRelDiff = FLT_EPSILON,
                      std::string message = "") {
 
-            EXPECT_PRED5(AlmostEqualRelativeAndAbs, A, B, maxDiff, maxRelDiff, message);
+    EXPECT_PRED5(AlmostEqualRelativeAndAbs, A, B, maxDiff, maxRelDiff, message);
 }
 
 
 void assert_near_rel(double A, double B,
-                      double maxDiff, double maxRelDiff = FLT_EPSILON,
+                     double maxDiff, double maxRelDiff = FLT_EPSILON,
                      std::string message = "") {
 
     ASSERT_PRED5(AlmostEqualRelativeAndAbs, A, B, maxDiff, maxRelDiff, message);
+}
+
+
+void expect_near_rel_or_nan(double A, double B,
+                            double maxDiff, double maxRelDiff = FLT_EPSILON,
+                            std::string message = "") {
+
+    if (equal_nan_or_infinite(A, B)) {
+        return;
+    }
+
+    expect_near_rel(A, B, maxDiff, maxRelDiff, message);
+}
+
+
+void assert_near_rel_or_nan(double A, double B,
+                            double maxDiff, double maxRelDiff = FLT_EPSILON,
+                            std::string message = "") {
+
+    if (equal_nan_or_infinite(A, B)) {
+        return;
+    }
+
+    assert_near_rel(A, B, maxDiff, maxRelDiff, message);
 }
