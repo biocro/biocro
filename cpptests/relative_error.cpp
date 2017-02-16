@@ -25,10 +25,33 @@ bool AlmostEqualRelativeAndAbs(double A, double B,
     return false;
 }
 
+// Returns true if both values are NaN, both are positive infinity, or both are
+// negative infinity.
 bool equal_nan_or_infinite(double val1, double val2) {
     return ((isnan(val1) && isnan(val2))
             ||
             (isinf(val1) && (val1 == val2)));
+}
+
+void expect_near_or_nan(double val1, double val2, double tolerance,
+                        std::string message) {
+
+    if (equal_nan_or_infinite(val1, val2)) {
+        return;
+    }
+
+  EXPECT_NEAR(val1, val2, tolerance) << message;
+}
+
+
+void assert_near_or_nan(double val1, double val2, double tolerance,
+                        std::string message) {
+
+    if (equal_nan_or_infinite(val1, val2)) {
+        return;
+    }
+
+  ASSERT_NEAR(val1, val2, tolerance) << message;
 }
 
 

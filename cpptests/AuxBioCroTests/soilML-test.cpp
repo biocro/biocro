@@ -35,7 +35,7 @@ TEST(soilML, RandomTestData) {
         auto transp = evapo_gen();
         double cws[] = { cws_gen() }; // for now
         auto soildepth = soildepth_gen();
-        double depths[] = { soildepth }; // for now
+        double depths[] = { 0, soildepth }; // for now
         auto fieldc = fieldc_gen();
         auto wiltp = wiltp_gen();
         auto phi1 = phi1_gen();
@@ -58,28 +58,30 @@ TEST(soilML, RandomTestData) {
 
     // Assemble information to display in case of errors:
     std::ostringstream oss;
-    oss << "precipit: " << precipit << "; transp: " << transp
-        << "; cws: " << cws << "; soildepth: "
-        << soildepth << "; fieldc: "
-        << fieldc << "; wiltp: " << wiltp
-        << "; phi1: " << phi1 << "; phi2: "
-        << phi2 << "; soiltype: " << soiltype
-        << "; wsFun: " << wsFun;
+    oss << "precipit: " << precipit << "; transp: " << transp << "; cws[0]: "
+        << cws[0] << "; soildepth: " << soildepth << "; fieldc: " << fieldc
+        << "; wiltp: " << wiltp << "; phi1: " << phi1 << "; phi2: " << phi2
+        << "; soiltype: " << soiltype << "; wsFun: " << wsFun << "; rootDB: "
+        << rootDB << "; LAI: " << LAI << "; k: " << k << "; AirTemp: "
+        << AirTemp << "; IRad: " << IRad << "; winds: " << winds << "; RelH: "
+        << RelH << "; hydrDist: " << hydrDist << "; rfl: " << rfl
+        << "; rsec: " << rsec << "; rsdf: " << rsdf;
+
     string input = oss.str();
 
-    /*
+
     auto old_result = OldsoilML(precipit, transp, cws, soildepth, depths, fieldc, wiltp, phi1, phi2, soTexS, wsFun, layers, rootDB, LAI, k, AirTemp, IRad, winds, RelH, hydrDist, rfl, rsec, rsdf);
 
     auto new_result = soilML(precipit, transp, cws, soildepth, depths, fieldc, wiltp, phi1, phi2, soTexS, wsFun, layers, rootDB, LAI, k, AirTemp, IRad, winds, RelH, hydrDist, rfl, rsec, rsdf);
 
 
-    ASSERT_NEAR(new_result.rcoefPhoto, old_result.rcoefPhoto, tolerance) << input;
-    ASSERT_NEAR(new_result.rcoefSpleaf, old_result.rcoefSpleaf, tolerance) << input;
-    ASSERT_NEAR(new_result.cws[0], old_result.cws[0], tolerance) << input;
-    ASSERT_NEAR(new_result.drainage, old_result.drainage, tolerance) << input;
-    ASSERT_NEAR(new_result.Nleach, old_result.Nleach, tolerance) << input;
-    ASSERT_NEAR(new_result.SoilEvapo, old_result.SoilEvapo, tolerance) << input;
-    ASSERT_NEAR(new_result.rootDist[0], old_result.rootDist[0], tolerance) << input;
-    */
+    assert_near_or_nan(new_result.rcoefPhoto, old_result.rcoefPhoto, tolerance, input);
+    assert_near_or_nan(new_result.rcoefSpleaf, old_result.rcoefSpleaf, tolerance, input);
+    assert_near_or_nan(new_result.cws[0], old_result.cws[0], tolerance, input);
+    assert_near_or_nan(new_result.drainage, old_result.drainage, tolerance, input);
+    assert_near_or_nan(new_result.Nleach, old_result.Nleach, tolerance, input);
+    assert_near_or_nan(new_result.SoilEvapo, old_result.SoilEvapo, tolerance, input);
+    assert_near_or_nan(new_result.rootDist[0], old_result.rootDist[0], tolerance, input);
+
   }
 }
