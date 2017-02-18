@@ -12,15 +12,15 @@
 
 
 Rand_double rootDB_gen {0, 100};
-Rand_double LAI_gen {0, 100};
+Rand_double LAI_gen {0, 20}; // values above 20 will be rare or non-existent
 Rand_double k_gen {0, 100};
-Rand_double AirTemp_gen {-100, 100};
-Rand_double IRad_gen {0, 100};
-Rand_double winds_gen {0, 100};
+Rand_double AirTemp_gen {-20, 45}; // degrees C; values outside this range don't interest us
+Rand_double IRad_gen {0, 3000}; // micromoles per square meter per second
+Rand_double winds_gen {0, 30}; // m/s (30 m/s is ~67mph)
 Rand_double RelH_gen {0, 1};
 Rand_double rfl_gen {0, 100};
 Rand_double rsec_gen {0, 1};
-Rand_double rsdf_gen {-100, 100};
+Rand_double rsdf_gen {0, 2};
 
 Rand_int hydrDist_gen {0, 1};
 
