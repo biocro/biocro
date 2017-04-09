@@ -12,6 +12,13 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
             stop(error_message)
         }
     }
+    module_names = paste(c('canopy', 'soil', 'growth', 'senescence'), '_module_name', sep='')
+    
+    if (any(null_ind <- unlist(lapply(modules[module_names], is.null)))) {
+        message = 'The following modules names are NULL, but they must be defined: '
+        missing_modules = paste(module_names[null_ind], collapse=', ')
+        stop(paste(message, missing_modules, '.', sep=''))
+    }
 
     varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))  # C++ requires that all the variables have type `double  # C++ requires that all the variables have type `double`.
     names(varying_parameters) = tolower(names(varying_parameters))  # Convert all names to lower case for easy of use.

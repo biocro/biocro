@@ -22,6 +22,7 @@ state_map IModule::run(state_map const &state) const
         result = this->do_operation(state);
     }
     catch (std::out_of_range const &oor) {
+        Rprintf("Out of range exception %s.\n", oor.what());
         vector<string> missing_state = this->state_requirements_are_met(state);
 
         if (!missing_state.empty()) {
@@ -53,6 +54,7 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
         result = this->do_operation(state_history, deriv_history, parameters);
     }
     catch (std::out_of_range const &oor) {
+        Rprintf("Out of range exception %s.\n", oor.what());
         state_map state = combine_state(at(state_history, 0), parameters);
         vector<string> missing_state = this->state_requirements_are_met(state);
 
@@ -555,6 +557,9 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     if (module_name.compare("c4_canopy") == 0) {
         return std::unique_ptr<IModule>(new c4_canopy);
     }
+    else if (module_name.compare("c3_canopy") == 0) {
+        return std::unique_ptr<IModule>(new c3_canopy);
+    }
     else if (module_name.compare("one_layer_soil_profile") == 0) {
         return std::unique_ptr<IModule>(new one_layer_soil_profile);
     }
@@ -574,7 +579,7 @@ std::unique_ptr<IModule> make_module(string const &module_name)
         return std::unique_ptr<IModule>(new thermal_time_senescence);
     }
     else {
-        return std::unique_ptr<IModule>(new c3_canopy);
+        throw std::out_of_range(module_name);
     }
 }
 
