@@ -3,7 +3,7 @@ data(weather06, package = "BioCro")
 data(weather05, package = "BioCro")
 
 test_that("WillowGro runs in warm weather; refs bitbucket bug #7",{
-    warmer <- transform(weather06, Temp = Temp + 20.0)
+    warmer <- transform(weather06, temp = temp + 20.0)
     res_warm <- willowGro(warmer)
     res_warm <- BioGro(warmer)
     data(warm) ## weather from Sapelo Island that caused problem
