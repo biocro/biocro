@@ -34,8 +34,8 @@ test_that("c3CanA is sensitive to b1",{
               lat=40,nlayers=8,kd=0.1,
               heightFactor=3,
               c3photoControl = list(b1=10))
-  expect_less_than(c$CanopyAssim, d$CanopyAssim)
-  expect_less_than(c$CanopyTrans, d$CanopyTrans)
+  expect_lt(c$CanopyAssim, d$CanopyAssim)
+  expect_lt(c$CanopyTrans, d$CanopyTrans)
   
 }) 
 
@@ -50,7 +50,7 @@ test_that("c3CanA is sensitive to vmax",{
               lat=40,nlayers=8,kd=0.8,
               heightFactor=3,
               c3photoControl = willowphotoParms(vmax=200))
-  expect_less_than(e$CanopyAssim, f$CanopyAssim)
+  expect_lt(e$CanopyAssim, f$CanopyAssim)
   
 })
 
@@ -65,7 +65,7 @@ test_that("c3CanA is sensitive to jmax", {
               lat=40,nlayers=8,kd=0.8,
               heightFactor=3,
               c3photoControl = willowphotoParms(jmax=200))
-  expect_less_than(g$CanopyAssim, h$CanopyAssim)
+  expect_lt(g$CanopyAssim, h$CanopyAssim)
 })
 
 test_that("c3CanA is sensitive to kd", {
@@ -73,6 +73,6 @@ test_that("c3CanA is sensitive to kd", {
               lat=40,nlayers=8,kd=0.2)
   j <- c3CanA(lai = 4, doy = 180, hr = 12, solar = 1000, temp = 20, rh = 0.1, windspeed =6,
               lat=40,nlayers=8,kd=0.8)
-  expect_more_than(i$CanopyAssim, j$CanopyAssim)
+  expect_gt(i$CanopyAssim, j$CanopyAssim)
   
 })

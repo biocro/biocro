@@ -69,7 +69,7 @@ extern "C" {
         s["lai"] = LAI;
         s["doy"] = DOY;
         s["hour"] = hr;
-        s["solarr"] = solarR;
+        s["solar"] = solarR;
         s["temp"] = Temp;
         s["rh"] = RH;
         s["windspeed"] = WindSpeed;
@@ -77,20 +77,20 @@ extern "C" {
         s["nlayers"] = nlayers;
         s["vmax"] = vmax;
         s["jmax"] = jmax;
-        s["rd"] = Rd;
-        s["catm"] = Catm;
-        s["o2"] = o2;
+        s["Rd"] = Rd;
+        s["Catm"] = Catm;
+        s["O2"] = o2;
         s["b0"] = b0;
         s["b1"] = b1;
         s["theta"] = theta;
         s["kd"] = kd;
         s["heightf"] = heightf;
-        s["leafn"] = leafN;
-        s["kpln"] = kpLN;
+        s["LeafN"] = leafN;
+        s["kpLN"] = kpLN;
         s["lnb0"] = lnb0;
         s["lnb1"] = lnb1;
         s["lnfun"] = lnfun;
-        s["stomataws"] = StomataWS;
+        s["StomataWS"] = StomataWS;
         s["ws"] = ws;
 
         c3_canopy canopy;
