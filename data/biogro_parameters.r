@@ -1,4 +1,4 @@
-biogro symbol	description	how it is set	default value	units	has_derivative
+biogro_parameters = read.delim(textConnection("biogro symbol	description	how it is set	default value	units	has_derivative
 iRhizome	initial dry mass of rhizomes	argument	7	Mg / ha	1
 iLeaf	initial dry mass of leaves	argument	0.0007	Mg / ha	1
 iStem	initial dry mass of stems	argument	0.007	Mg / ha	1
@@ -105,4 +105,4 @@ kStem6		phenoControl	0.63		1
 kLeaf6		phenoControl	0.01		1
 kRoot6		phenoControl	0.01		1
 kRhizome6		phenoControl	0.35		1
-kGrain6		phenoControl	0		1
+kGrain6		phenoControl	0		1"))
