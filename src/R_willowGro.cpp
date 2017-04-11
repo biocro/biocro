@@ -200,7 +200,12 @@ SEXP willowGro(
 	if ( vecsize > 8760 ) error("The number of timesteps must be less than or equal to 8760. You probably want to change the day1 or dayn arguments.");
 
     struct BioGro_results_str *results = (struct BioGro_results_str*)malloc(sizeof(struct BioGro_results_str));
-    initialize_biogro_results(results, soilLayers, vecsize);
+    if (results) {
+        initialize_biogro_results(results, soilLayers, vecsize);
+    } else {
+        Rprintf("Out of memory in R_willoGro.cpp.\n");
+        return R_NilValue;
+    }
 	
 	double (*leaf_n_limitation)(double, double, struct Model_state) = biomass_leaf_nitrogen_limitation;
 
@@ -360,7 +365,7 @@ SEXP willowGro(
 
         /* First calculate the elapsed Thermal Time*/
         if(temp[i] > tbase) {
-            TTc += (temp[i]-tbase) / (24/timestep); 
+            TTc += (temp[i]-tbase) / (24/ (double)timestep); 
         }
 
         /*  Do the magic! Calculate growth*/
@@ -735,7 +740,7 @@ SEXP willowGro(
 		results->vmax[i] = vmax;
 		results->alpha[i] = alpha;
 		results->specific_leaf_area[i] = Sp;
-		results->min_nitro[i] = MinNitro / (24 / centTimestep);
+		results->min_nitro[i] = MinNitro / (24 / (double)centTimestep);
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;

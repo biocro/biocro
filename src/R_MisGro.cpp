@@ -214,7 +214,12 @@ SEXP MisGro(
     PROTECT(LeafPsimVec = allocVector(REALSXP,vecsize));
 
     struct BioGro_results_str *results = (struct BioGro_results_str*)malloc(sizeof(struct BioGro_results_str));
-    initialize_biogro_results(results, soilLayers, vecsize);
+    if (results) {
+        initialize_biogro_results(results, soilLayers, vecsize);
+    } else {
+        Rprintf("Out of memory in R_MisGro.cpp.\n");
+        return R_NilValue;
+    }
 
     BioGro(lat, doy, hr, solar, temp, rh,
             windspeed, precip, kd, chil,

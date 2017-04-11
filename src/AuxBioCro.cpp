@@ -641,7 +641,7 @@ struct ET_Str EvapoTrans2(const double Rad,
         (LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s)));
 
     /* Penman will use the WIMOVAC conductance */
-    const auto EPen = (((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa))
+    const auto EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
         /
         (LHV * (SlopeFS + PsycParam));
 

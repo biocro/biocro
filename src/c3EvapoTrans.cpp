@@ -203,7 +203,7 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
 
     EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
 
-    EPen = (((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)) / (LHV * (SlopeFS + PsycParam));
+    EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa) / (LHV * (SlopeFS + PsycParam));
 
     /* This values need to be converted from Kg/m2/s to
        mmol H20 /m2/s according to S Humphries */

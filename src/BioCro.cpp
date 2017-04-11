@@ -217,7 +217,7 @@ void BioGro(
 
         /* First calculate the elapsed Thermal Time*/
         if(temp[i] > tbase) {
-            TTc += (temp[i]-tbase) / (24/timestep); 
+            TTc += (temp[i] - tbase) / (24 / (double)timestep); 
         }
 
         /* Do the magic! Calculate growth*/
@@ -583,7 +583,7 @@ void BioGro(
 		results->vmax[i] = vmax;
 		results->alpha[i] = alpha;
 		results->specific_leaf_area[i] = Sp;
-		results->min_nitro[i] = MinNitro / (24 / centTimestep);
+		results->min_nitro[i] = MinNitro / (24 / (double)centTimestep);
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;

@@ -51,7 +51,6 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	/* Rprintf("Vcmax, %.1f, Rd %.1f, Gstar %.1f, theta %.1f \n",Vcmax,Rd,Gstar,theta); */
 
 	/* Light limited */
-	I2 = Qp * (1 - Spectral_Imbalance) * (1 - Leaf_Reflectance)/2;
 	FEII = 0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf,2) / 10000;
 	I2 = Qp * FEII * (1 - Leaf_Reflectance) / 2;
 

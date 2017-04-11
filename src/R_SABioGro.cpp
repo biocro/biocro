@@ -149,7 +149,12 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	nitroparms.daymaxln=REAL(NNITROP)[14];
 
 	struct BioGro_results_str *results = (struct BioGro_results_str*)malloc(sizeof(struct BioGro_results_str));
-    initialize_biogro_results(results, INTEGER(SOILLAYERS)[0], INTEGER(VECSIZE)[0]);
+    if (results) {
+        initialize_biogro_results(results, INTEGER(SOILLAYERS)[0], INTEGER(VECSIZE)[0]);
+    } else {
+        Rprintf("Out of memory in R_SABioGro.cpp.\n");
+        return R_NilValue;
+    }
 
 	/* Index variables */
 	int j,k,m;
