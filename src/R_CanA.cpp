@@ -120,8 +120,7 @@ SEXP CanA(
 	nitroP.daymaxln=REAL(NNITROP)[14];
   /////////////////////////////////////////
 
-  struct Can_Str ans = {0, 0, 0};
-  ans = CanAC(LAI, DOY, hr, solarR, temp,
+  struct Can_Str ans = CanAC(LAI, DOY, hr, solarR, temp,
 		  RH, WindSpeed, lat, nlayers, Vmax,
 		  alpha, kparm, beta, Rd, Catm,
 		  b0, b1, theta, kd, chil,

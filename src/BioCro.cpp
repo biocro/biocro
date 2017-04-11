@@ -67,7 +67,7 @@ void BioGro(
         int lnfun ,                   /* Leaf N func flag                   53 */
         double upperT,                /* Upper photoParm temperature limit  54 */
         double lowerT,                /* Lower photoParm temperature limit  55 */
-        struct nitroParms nitroP,     /* Nitrogen parameters                56 */
+        const struct nitroParms& nitroP,     /* Nitrogen parameters                56 */
 		double StomataWS,
 		double (*leaf_n_limitation)(double, double, struct Model_state),
     	struct BioGro_results_str *results)
@@ -84,7 +84,7 @@ void BioGro(
 
     int i, i3;
 
-    double LAI = 0.0, Grain = 0.0;
+    double Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
     double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0, newStemLitter = 0.0, newLeafLitter = 0.0, newRhizomeLitter = 0.0, newRootLitter = 0.0;
@@ -142,7 +142,7 @@ void BioGro(
     struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
     soTexS = soilTchoose(soilType);
 
-    LAI = Leaf * Sp;
+    double LAI = Leaf * Sp;
 
     /* Creation of pointers outside the loop */
     sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0

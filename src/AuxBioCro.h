@@ -176,7 +176,7 @@ struct nitroParms {
 	double lnb1;
 	int lnFun;
 	double maxln;
-        double minln;
+    double minln;
 	double daymaxln;
 };
 

@@ -201,14 +201,13 @@ state_map c3_canopy::do_operation(state_vector_map const &state_history, state_v
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
     double soilEvap, TotEvap;
-    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
     state_map derivs;
 
     soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
                 s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
     TotEvap = soilEvap + s.at("CanopyT");
 
-    WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
+    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
             s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
 
     //derivs["waterCont"] = s.at("waterCont") - WaterS.awc;
@@ -309,13 +308,13 @@ state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
     //output_map(s);
     double TTc = s.at("TTc");
-    double leafdeathrate = s.at("leafdeathrate");
-    double frost_leaf_death_rate = 0;
     if (TTc >= parameters.at("seneLeaf")) {
         bool A = s.at("lat") >= 0.0;
         bool B = s.at("doy") >= 180.0;
 
         if ((A && B) || ((!A) && (!B))) {
+            double frost_leaf_death_rate = 0;
+            double leafdeathrate = s.at("leafdeathrate");
             if (s.at("temp") > parameters.at("Tfrostlow")) {
                 frost_leaf_death_rate = 100 * (s.at("temp") - parameters.at("Tfrosthigh")) / (parameters.at("Tfrostlow") - parameters.at("Tfrosthigh"));
                 frost_leaf_death_rate = (frost_leaf_death_rate > 100.0) ? 100.0 : frost_leaf_death_rate;
@@ -547,8 +546,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
 
 struct c3_str c3_leaf::assimilation(state_map s)
 {
-    struct c3_str result = {0, 0, 0, 0};
-    result = c3photoC(s.at("Qp"), s.at("Tleaf"), s.at("RH"), s.at("Vcmax0"), s.at("Jmax"), s.at("Rd0"), s.at("bb0"), s.at("bb1"), s.at("Ca"), s.at("O2"), s.at("thet"), s.at("StomWS"), s.at("ws"));
+    struct c3_str result = c3photoC(s.at("Qp"), s.at("Tleaf"), s.at("RH"), s.at("Vcmax0"), s.at("Jmax"), s.at("Rd0"), s.at("bb0"), s.at("bb1"), s.at("Ca"), s.at("O2"), s.at("thet"), s.at("StomWS"), s.at("ws"));
     return(result);
 }
 

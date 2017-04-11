@@ -83,7 +83,7 @@ void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], doub
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,
         double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
         int centTimestep, double centks[], int soilLayers, double soilDepths[],
-        double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP, double StomataWS,
+        double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, const struct nitroParms &nitroP, double StomataWS,
 		double (*leaf_n_limitation)(double kLn, double leaf_n_0, struct Model_state current_state), struct BioGro_results_str *results);
 
 struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,

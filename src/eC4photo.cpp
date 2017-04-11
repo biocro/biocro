@@ -166,7 +166,7 @@ double RsqeC4photo(double oAssim[], double oQp[],
 
   double vec1[enObs];
   int i, j;
-  double SST = 0.0, SSE = 0.0, diff;
+  double SST = 0.0, SSE = 0.0;
   double Rsquare = 0.0;
 
   for(i = 0;i < enObs; i++){
@@ -178,7 +178,7 @@ double RsqeC4photo(double oAssim[], double oQp[],
    
   for(j = 0 ; j < enObs; j++){
     SST += pow(oAssim[j],2);
-    diff = oAssim[j] - vec1[j];
+    double diff = oAssim[j] - vec1[j];
     SSE += pow(diff,2);
   }
 

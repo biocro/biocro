@@ -29,6 +29,7 @@ missing_parms = within(sorghum_parameters, alpha1<-NULL)
 result = get_errors(Gro(sorghum_initial_state, missing_parms, weather05, sorghum_modules))
 if (conditionMessage(result) != 'This function cannot continue unless all state variables are set.') {
     warning('Missing parameters should produce an error.')
+}
 
-test = Gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules)
+test = Gro(sorghum_initial_state, sorghum_parameters, weather06, sorghum_modules)
 

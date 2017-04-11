@@ -20,7 +20,9 @@ class IModule {
         IModule(vector<string> const required_state, vector<string> const modified_state) :
             _required_state(required_state),
             _modified_state(modified_state)
-    {}
+        {
+            requirements_are_met = false;
+        }
         vector<string> list_required_state() const;
         vector<string> list_modified_state() const;
         state_map run (state_map const &state) const;

@@ -73,8 +73,8 @@ SEXP list_from_map(state_vector_map const &m)
 }
 
 void output_map(state_map const &m) {
-    int i = 0;
     if (!m.empty()) {
+        int i = 0;
         auto it = m.begin();
         Rprintf("The map contains the following items: ");
         for(; std::next(it) != m.end(); ++it) {
