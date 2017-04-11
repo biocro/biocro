@@ -8,7 +8,6 @@
 #include <memory>
 #include <R.h>
 #include "BioCro.h"
-#include "Century.h"
 #include "modules.h"
 
 state_vector_map Gro(
