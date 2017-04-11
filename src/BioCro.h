@@ -91,7 +91,7 @@ struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
 		     double Kparm, double beta, double Rd, double Catm, double b0, 
 		     double b1, double theta, double kd, double chil, double heightf,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
-		     double lowerT, struct nitroParms nitroP, double leafwidth, int eteq, double StomataWS, int ws);
+		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq, double StomataWS, int ws);
          
 struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
@@ -122,7 +122,7 @@ double SoilEvapo(double LAI, double k, double AirTemp, double DirectRad,
 
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth,
 			 double *depths, double fieldc, double wiltp, double phi1, double phi2,
-                         struct soilText_str soTexS, int wsFun, int layers, double rootDB,
+                         const struct soilText_str &soTexS, int wsFun, int layers, double rootDB,
 			 double LAI, double k, double AirTemp, double IRad, double winds, double RelH,
 			 int hydrDist, double rfl, double rsec, double rsdf);
 

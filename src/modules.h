@@ -202,7 +202,7 @@ state_map replace_state(state_map const &state, state_map const &newstate);
 
 state_map update_state(state_map const &state, state_map const &change_in_state);
 
-state_vector_map allocate_state(state_map const &m, int n);
+state_vector_map allocate_state(state_map const &m, size_t n);
 
 void append_state_to_vector(state_map const &state, state_vector_map &state_vector);
 

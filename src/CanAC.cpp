@@ -30,7 +30,7 @@ struct Can_Str CanAC(
         int lnfun,
         double upperT,
         double lowerT,
-        struct nitroParms nitroP,
+        const struct nitroParms &nitroP,
         double leafwidth,
         int eteq,
         double StomataWS,

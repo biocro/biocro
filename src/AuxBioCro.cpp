@@ -259,13 +259,10 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_profile)
 {
-    int i;
-    double LI, CumLAI;
-
-    LI = LAI / nlayers;
-    for(i = 0; i < nlayers; ++i)
+    double LI = LAI / nlayers;
+    for(int i = 0; i < nlayers; ++i)
     {
-        CumLAI = LI * (i + 1);
+        double CumLAI = LI * (i + 1);
         leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI-LI));
     }
 }
@@ -451,9 +448,9 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
             auto OldDeltaT = Deltat;
 
             /*         rlc = (4 * (5.67*1e-8) * pow(273 + Airtemperature, 3) * Deltat) * LeafAreaIndex;   */
-            rlc = (4 * (5.67*1e-8) * pow(273 + airTemp, 3) * Deltat);
+            rlc = 4 * (5.67*1e-8) * pow(273 + airTemp, 3) * Deltat;
 
-            PhiN = (Ja - rlc);
+            PhiN = Ja - rlc;
 
             auto TopValue = PhiN * (1 / ga + 1 / LayerConductance_in_m_per_s) - LHV * DeltaPVa;
             Deltat = fmin(fmax(TopValue / BottomValue, -5), 5); // confine to interval [-5, 5]
@@ -978,7 +975,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
    future this could be coupled with Campbell (BASIC) ideas to
    esitmate water potential. */
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
-        double fieldc, double wiltp, double phi1, double phi2, struct soilText_str soTexS, int wsFun,
+        double fieldc, double wiltp, double phi1, double phi2, const struct soilText_str &soTexS, int wsFun,
         int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds,
         double RelH, int hydrDist, double rfl, double rsec, double rsdf)
 {

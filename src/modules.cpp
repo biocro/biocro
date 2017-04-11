@@ -576,7 +576,7 @@ std::unique_ptr<IModule> make_module(string const &module_name)
 }
 
 
-state_vector_map allocate_state(state_map const &m, int n)
+state_vector_map allocate_state(state_map const &m, size_t n)
 {
     state_vector_map result;
     for (auto it = m.begin(); it != m.end(); ++it) {
