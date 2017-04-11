@@ -8,24 +8,24 @@ BioCro, adapted from WIMOVAC, models key physiological and biophysical processes
 BioCro has also been integrated into a suite of tools which link the model directly with crop trait and yield data, streamlining the entire modeling and data collection workflow (LeBauer et al, 2013). The Predictive Ecosystem Analyzer ([PEcAn](https://github.com/PecanProject/pecan)) couples BioCro to the [Biofuel Ecophysiological Traits and Yields database](https://www.betydb.org), enabling model parameterization and optimization, targeted data collection optimized to reduce uncertainty in model predictions, and the management of informatics and HPC computing resources. 
 
 ### Inputs
-* species-specific plant physiological traits
+* Species-specific plant physiological traits
     * Photosynthetic parameters
     * Phenological stages
     * Biomass partitioning
-* soil physical properties
-    * Wwater holding capacity
-    * wilting point
-    * sand
-    * silt
-    * clay
-    * organic matter
-    * rooting depth 
-* meteorological data (daily or hourly) 
-    * precipitation
-    * solar radiation
-    * wind speed
-    * temperature
-    * humidity
+* Soil physical properties
+    * Water holding capacity
+    * Wilting point
+    * Sand
+    * Silt
+    * Clay
+    * Organic matter
+    * Rooting depth 
+* Meteorological data (daily or hourly) 
+    * Precipitation
+    * Solar radiation
+    * Wind speed
+    * Temperature
+    * Humidity
 
 ### Outputs
 * Yield
