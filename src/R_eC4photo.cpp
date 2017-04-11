@@ -348,7 +348,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
   double scale = REAL(SCALE)[0];
   double sd1, sd2, sd3;
 
-  double index;
+  int index;
   double rlnum , rlden;
   double ratio;
   double U;
@@ -413,7 +413,7 @@ SEXP McMCEc4photo(SEXP oASSIM, SEXP oQP, SEXP oTEMP,
    while((iters < niter) && (crit > thresh)){ 
      iters++;
      /* Replacing the rnormCV */
-     index = floor(runif(1,4)); 
+     index = (int)floor(runif(1,4)); 
 
        rnewVcmax = oldVcmax;
        rnewVpmax = oldVpmax;

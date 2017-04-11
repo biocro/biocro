@@ -69,7 +69,7 @@ void BioGro(
         double lowerT,                /* Lower photoParm temperature limit  55 */
         const struct nitroParms& nitroP,     /* Nitrogen parameters                56 */
 		double StomataWS,
-		double (*leaf_n_limitation)(double, double, struct Model_state),
+		double (*leaf_n_limitation)(double, double, const struct Model_state &),
     	struct BioGro_results_str *results)
 {
     double newLeafcol[8760];
@@ -82,7 +82,7 @@ void BioGro(
 	double Leaf = initial_biomass[2];
 	double Root = initial_biomass[3];
 
-    int i, i3;
+    int i3;
 
     double Grain = 0.0;
     double TTc = 0.0;
@@ -189,7 +189,7 @@ void BioGro(
     SCCs[8] = centcoefs[8];
 
 
-    for(i = 0; i < vecsize; ++i)
+    for(int i = 0; i < vecsize; ++i)
     {
         newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
 

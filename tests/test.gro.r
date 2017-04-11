@@ -31,5 +31,7 @@ if (conditionMessage(result) != 'This function cannot continue unless all state 
     warning('Missing parameters should produce an error.')
 }
 
-test = Gro(sorghum_initial_state, sorghum_parameters, weather06, sorghum_modules)
+system.time({
+    test = Gro(sorghum_initial_state, sorghum_parameters, weather06, sorghum_modules)
+})
 

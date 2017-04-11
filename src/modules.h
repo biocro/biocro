@@ -17,7 +17,7 @@ typedef unordered_map<string, vector<double>> state_vector_map;
 
 class IModule {
     public:
-        IModule(vector<string> const required_state, vector<string> const modified_state) :
+        IModule(vector<string> const &required_state, vector<string> const &modified_state) :
             _required_state(required_state),
             _modified_state(modified_state)
         {
@@ -39,26 +39,9 @@ class IModule {
 
 inline IModule::~IModule() {};  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
 
-class Leaf_photosynthesis_module : public IModule {
-    public:
-        Leaf_photosynthesis_module(const vector<string> required_state, const vector<string> modified_state)
-            : IModule(required_state, modified_state)
-        {}
-        virtual struct c3_str assimilation(struct Model_state) = 0;
-};
-
-class c3_leaf : public Leaf_photosynthesis_module {
-    public:
-        c3_leaf()
-            : Leaf_photosynthesis_module(vector<string> {"Qp", "Tleaf"} , vector<string> {})
-        {} 
-        double run (state_map s);
-        struct c3_str assimilation(state_map s);
-};
-
 class ICanopy_photosynthesis_module : public IModule {
     public:
-        ICanopy_photosynthesis_module(const vector<string> required_state, const vector<string> modified_state)
+        ICanopy_photosynthesis_module(const vector<string> &required_state, const vector<string> &modified_state)
             : IModule(required_state, modified_state)
         {}
 };
@@ -100,7 +83,7 @@ class c3_canopy : public ICanopy_photosynthesis_module {
 
 class ISoil_evaporation_module : public IModule {
     public:
-        ISoil_evaporation_module(const vector<string> required_state, const vector<string> modified_state)
+        ISoil_evaporation_module(const vector<string> &required_state, const vector<string> &modified_state)
             : IModule(required_state, modified_state)
         {}
 };
@@ -136,7 +119,7 @@ class two_layer_soil_profile : public ISoil_evaporation_module {
 
 class ISenescence_module : public IModule {
     public:
-        ISenescence_module(const vector<string> required_state, const vector<string> modified_state)
+        ISenescence_module(const vector<string> &required_state, const vector<string> &modified_state)
             : IModule(required_state, modified_state)
         {}
 };
@@ -168,7 +151,7 @@ class thermal_time_and_frost_senescence : public ISenescence_module {
 
 class IGrowth_module : public IModule {
     public:
-        IGrowth_module(const vector<string> required_state, const vector<string> modified_state)
+        IGrowth_module(const vector<string> &required_state, const vector<string> &modified_state)
             : IModule(required_state, modified_state)
         {}
 };
@@ -225,7 +208,7 @@ void append_state_to_vector(state_map const &state, state_vector_map &state_vect
 
 std::unique_ptr<IModule> make_module(string const &module_name);
 
-state_map at(state_vector_map const vector_map, vector<double>::size_type n);
+state_map at(state_vector_map const &vector_map, vector<double>::size_type n);
 
 state_map& operator+=(state_map &lhs, state_map const &rhs);
 

@@ -8,12 +8,12 @@
 //
 // These are called from the Gro functions, and kLn, leaf_n_0 and current state are passed from the Gro functions.
 
-double thermal_leaf_nitrogen_limitation(double kLn, double leaf_n_0, struct Model_state current_state)
+double thermal_leaf_nitrogen_limitation(double kLn, double leaf_n_0, const struct Model_state &current_state)
 {
 	return(leaf_n_0 * exp(-kLn * current_state.thermal_time));
 }
 
-double biomass_leaf_nitrogen_limitation(double kLn, double leaf_n_0, struct Model_state current_state)
+double biomass_leaf_nitrogen_limitation(double kLn, double leaf_n_0, const struct Model_state &current_state)
 {
 	double leaf_n = 0;
 	leaf_n = leaf_n_0 * pow(current_state.leaf + current_state.stem, -kLn);

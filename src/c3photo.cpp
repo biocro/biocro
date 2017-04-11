@@ -13,7 +13,6 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
 	const double R = 0.008314472; /* Gas constant */
-	const double Spectral_Imbalance = 0.25;
 	const double Leaf_Reflectance = 0.2;
 	const double Rate_TPu = 23;
 

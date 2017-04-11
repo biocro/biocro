@@ -58,10 +58,11 @@ SEXP list_from_map(state_vector_map const &m)
     int i = 0;
     for (auto it = m.begin(); it != m.end(); ++it, ++i) {
         int j = 0;
-        auto p = it->second.size();
+        auto second = it->second;
+        auto p = second.size();
         SEXP values = PROTECT(allocVector(REALSXP, p));
-        for (auto vit = it->second.begin(); vit != it->second.end(); ++vit, ++j) {
-            REAL(values)[j] = it->second[j];
+        for (auto vit = second.begin(); vit != second.end(); ++vit, ++j) {
+            REAL(values)[j] = second[j];
         } 
         SET_VECTOR_ELT(list, i, values);
         SET_STRING_ELT(names, i, mkChar(it->first.c_str()));
@@ -83,7 +84,7 @@ void output_map(state_map const &m) {
         }
         Rprintf("%s, %0.04f.\n\n", it->first.c_str(), it->second);
     } else {
-        Rprintf("The map empty.\n");
+        Rprintf("The map is empty.\n");
     }
 }
 

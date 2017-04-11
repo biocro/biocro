@@ -88,7 +88,7 @@ SEXP MisGro(
 	double *initial_biomass = REAL(INITIAL_BIOMASS);
     double *sencoefs = REAL(SENCOEFS);
     int timestep = INTEGER(TIMESTEP)[0];
-    int vecsize;
+    size_t vecsize;
     double Sp = REAL(SPLEAF)[0]; 
     double SpD = REAL(SPD)[0];
     double *dbpcoefs = REAL(DBPCOEFS);
@@ -233,7 +233,7 @@ SEXP MisGro(
             secs, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, StomWS, biomass_leaf_nitrogen_limitation, results);
 
 
-    for(int i = 0; i < vecsize; i++) {
+    for(size_t i = 0; i < vecsize; i++) {
         REAL(DayofYear)[i] = results->day_of_year[i];
         REAL(Hour)[i] = results->hour[i];
         REAL(CanopyAssim)[i] = results->CanopyAssim[i];

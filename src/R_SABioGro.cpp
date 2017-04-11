@@ -41,7 +41,6 @@ double RSS_BG(double oStem[], double oLeaf[],
 	      int N1Dat)
 {
 
-	int i;
 	double diff1=0.0, RSS1=0.0, SST1=0.0;
 	double diff2=0.0, RSS2=0.0, SST2=0.0;
 	double diff3=0.0, RSS3=0.0, SST3=0.0;
@@ -50,7 +49,7 @@ double RSS_BG(double oStem[], double oLeaf[],
 	double diff6=0.0, RSS6=0.0, SST6=0.0;
 	double RSS=0.0;
 
-	for(i = 0 ; i < N1Dat; i++){
+	for(int i = 0 ; i < N1Dat; i++){
 		/* Stem */
 		if(oStem[i] >= 0){
 			SST1 += pow(oStem[i],2);
@@ -167,8 +166,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	double *initial_biomass = REAL(INITIAL_BIOMASS);
 
 	/* The all important vector size */
-	int vecsize;
-	vecsize = INTEGER(VECSIZE)[0];
+	int vecsize = INTEGER(VECSIZE)[0];
 	int Ndat;
 	int n1dat = 0;
 	Ndat = INTEGER(NDATA)[0];

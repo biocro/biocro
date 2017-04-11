@@ -544,12 +544,6 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
     return(derivs);
 }
 
-struct c3_str c3_leaf::assimilation(state_map s)
-{
-    struct c3_str result = c3photoC(s.at("Qp"), s.at("Tleaf"), s.at("RH"), s.at("Vcmax0"), s.at("Jmax"), s.at("Rd0"), s.at("bb0"), s.at("bb1"), s.at("Ca"), s.at("O2"), s.at("thet"), s.at("StomWS"), s.at("ws"));
-    return(result);
-}
-
 std::unique_ptr<IModule> make_module(string const &module_name)
 {
     if (module_name.compare("c4_canopy") == 0) {
@@ -601,7 +595,7 @@ state_map combine_state(state_map const &state_a, state_map const &state_b)
     return result;
 }
 
-state_map at(state_vector_map const vector_map, vector<double>::size_type n)
+state_map at(state_vector_map const &vector_map, vector<double>::size_type n)
 {
     state_map result;
     result.reserve(vector_map.size());

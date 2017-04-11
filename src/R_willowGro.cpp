@@ -207,7 +207,7 @@ SEXP willowGro(
         return R_NilValue;
     }
 	
-	double (*leaf_n_limitation)(double, double, struct Model_state) = biomass_leaf_nitrogen_limitation;
+	double (*leaf_n_limitation)(double, double, const struct Model_state &) = biomass_leaf_nitrogen_limitation;
 
     double o2 = 210;
 
