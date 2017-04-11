@@ -12,8 +12,10 @@ sudo apt-get install doxygen graphviz
 ```
 
 #### Compile documentation
+```
 cd /path/to/biocro/documentation
 doxygen Doxyfile
+```
 
 ###  Windows: 
 
@@ -35,4 +37,6 @@ html/ will be created under documentation directory.  Point your browser to
 ctags is a program that generates tags for C and C++ files so that identifiers can be located easily.
 This is useful for jumping between locations in the code with editors such as Vim.
 If you use ctags, the flag "--c++-kinds=+p" will cause ctags to include symbols in header files, which is often useful.
-* ctags --c++-kinds=+p
+```
+ctags --c++-kinds=+p
+```
