@@ -110,5 +110,5 @@ test_that('willowGro() and Gro() produce similar results.', {
     for (p in name_pairs) {
         expect_lt(d(p[1], p[2]), md, label=paste('willowGro vs Gro: relative difference of', p[1]), expected.label=md)
     }
-}   
+})
 
