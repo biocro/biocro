@@ -78,3 +78,37 @@ for (biocrofn in c("willowGro", "BioGro")){#, "caneGro" , "MaizeGro", "soyGro"
 	cat('\n')
 }
 
+test_that('willowGro() and Gro() produce similar results.', {
+    # Check the difference between variables in the two data sets at each time point.
+    # A relative difference is calculated for all time points,
+    # and that difference must be less than a maximum allowed difference (md).
+
+    md = 0.005  # The maximum allowed relative difference.
+
+    # The data sets don't always use the same names, so make a list of the pairs of names that represent the same variable.
+    name_pairs = list(
+        c('TTc', 'ThermalT'), 
+        c('lai', 'LAI'), 
+        c('Stem', 'Stem'), 
+        c('Leaf', 'Leaf'),
+        c('Root', 'Root'),
+        c('Rhizome', 'Rhizome'),
+        c('canopy_assimilation', 'CanopyAssim'),
+        c('canopy_transpiration', 'CanopyTrans')
+    )
+
+    d = function (g_var, w_var) {
+        # Convenience function to get a relative difference between g$g_var and w$w_var.
+        return(abs(sum(g[g_var] - w[w_var]) / sum(g[g_var])))
+    }
+
+    climate_like_willowGro = subset(weather06, doy >= 120 & doy <= 300)  # willowGro trims the climate data it is given, so you have to trim it before using it with Gro().
+
+    w = willowGro(weather06)
+    g = Gro(willow_initial_state, willow_parameters, climate_like_willowGro, modules = list(canopy_module_name='c3_canopy', soil_module_name='one_layer_soil_profile', growth_module_name='partitioning_growth', senescence_module_name='thermal_time_and_frost_senescence'))
+
+    for (p in name_pairs) {
+        expect_lt(d(p[1], p[2]), md, label=paste('willowGro vs Gro: relative difference of', p[1]), expected.label=md)
+    }
+}   
+
