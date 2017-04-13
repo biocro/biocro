@@ -24,7 +24,9 @@ extern "C" {
             SEXP HEIGHTF, 
             SEXP LNPS,
             SEXP STOMATAWS,
-            SEXP WS)
+            SEXP WS,
+            SEXP ELECTRONS_PER_CARBOXYLATION,
+            SEXP ELECTRONS_PER_OXYGENATION)
     {
         double LAI = REAL(Lai)[0];
         int DOY = INTEGER(Doy)[0];
@@ -52,6 +54,8 @@ extern "C" {
         int lnfun = REAL(LNPS)[4]; /* Coercing a double to integer */
         double StomataWS = REAL(STOMATAWS)[0];
         int ws = INTEGER(WS)[0];
+        double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
+        double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
 
         SEXP lists;
         SEXP names;
@@ -92,6 +96,8 @@ extern "C" {
         s["lnfun"] = lnfun;
         s["StomataWS"] = StomataWS;
         s["ws"] = ws;
+        s["electrons_per_carboxylation"] = electrons_per_carboxylation;
+        s["electrons_per_oxygenation"] = electrons_per_oxygenation;
 
         c3_canopy canopy;
         vector<string> missing_state = canopy.state_requirements_are_met(s);

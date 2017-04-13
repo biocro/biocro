@@ -376,6 +376,8 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     o2 <- photoP$O2
     StomWS <-photoP$StomWS
     initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
+    electrons_per_carboxylation = 4.5
+    electrons_per_oxygenation = 5.25
 
     res <- .Call(willowGro_sym,
                  as.double(lat),
@@ -434,7 +436,9 @@ willowGro <- function(WetDat, day1=120, dayn=300,
                  as.double(jmaxb1),
                  as.double(o2),
                  as.double(GrowthRespFraction),
-                 as.double(StomWS)
+                 as.double(StomWS),
+                 as.double(electrons_per_carboxylation),
+                 as.double(electrons_per_oxygenation)
     )
      
     res$cwsMat <- t(res$cwsMat)

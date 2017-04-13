@@ -87,7 +87,9 @@ willow_parameters = with(list(), {
      kpLN     0.2 
      lnb0     -5  
      lnb1     18  
-     lnfun    0"
+     lnfun    0
+     electrons_per_carboxylation    4.5
+     electrons_per_oxygenation 5.25"
     
     data_frame = read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)

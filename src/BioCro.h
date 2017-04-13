@@ -97,7 +97,7 @@ struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
   	                   double Rd, double Catm, double o2, double b0, double b1,
                        double theta, double kd, double heightf,
-		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int ws);
+		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int ws, double electrons_per_carboxylation, double electrons_per_oxygenation);
                         
 /**************** This is new C function avoiding use of Global Variables****************************/
  struct Can_Str newc3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,

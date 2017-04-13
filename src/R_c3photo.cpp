@@ -6,25 +6,23 @@
 extern "C" {
 
 SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
-	     SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP OX2, SEXP THETA,SEXP STOMWS, SEXP WS)
+	     SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP OX2, SEXP THETA,SEXP STOMWS, SEXP WS, SEXP ELECTRONS_PER_CARBOXYLATION, SEXP ELECTRONS_PER_OXYGENATION)
 {
 	struct c3_str tmp = {0,0,0,0};
 
-	double Qp, Tl, RH, Catm;
-	double Bet0,Bet1;
-	double vcmax, jmax, Rd, O2, theta,StomWS;
-
-	vcmax = REAL(VCMAX)[0];
-	jmax = REAL(JMAX)[0];
-	Bet0 = REAL(B0)[0];
-	Bet1 = REAL(B1)[0];
-	Rd = REAL(RD)[0];
-	O2 = REAL(OX2)[0];
-	theta = REAL(THETA)[0];
-	StomWS = REAL(STOMWS)[0];
+	double vcmax = REAL(VCMAX)[0];
+	double jmax = REAL(JMAX)[0];
+	double Bet0 = REAL(B0)[0];
+	double Bet1 = REAL(B1)[0];
+	double Rd = REAL(RD)[0];
+	double O2 = REAL(OX2)[0];
+	double theta = REAL(THETA)[0];
+	double StomWS = REAL(STOMWS)[0];
+    double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
+    double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
     // int nr; unused
     // int nt; unused
-	int nq , i;
+	int nq;
 	int ws = INTEGER(WS)[0];
 	SEXP lists, names;
 	SEXP GsV;
@@ -43,15 +41,15 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	PROTECT(CiV = allocVector(REALSXP,nq));
  
 	/* Start of the loop */
-	for(i = 0; i < nq ; i++)
+	for(int i = 0; i < nq; ++i)
 	{
 		/*pick the right element*/
-		Qp = REAL(Qp1)[i];
-		Tl = REAL(Tl1)[i];
-		RH = REAL(RH1)[i];
-		Catm = REAL(CA)[i];
+		double Qp = REAL(Qp1)[i];
+		double Tl = REAL(Tl1)[i];
+		double RH = REAL(RH1)[i];
+		double Catm = REAL(CA)[i];
 
-		tmp = c3photoC(Qp, Tl, RH, vcmax, jmax, Rd, Bet0, Bet1, Catm, O2, theta,StomWS,ws);
+		tmp = c3photoC(Qp, Tl, RH, vcmax, jmax, Rd, Bet0, Bet1, Catm, O2, theta,StomWS,ws, electrons_per_carboxylation, electrons_per_oxygenation);
 
 		REAL(GsV)[i] = tmp.Gs;
 		REAL(ASSV)[i] = tmp.Assim;    

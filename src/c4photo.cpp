@@ -21,10 +21,8 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 {
 
 	struct c4_str tmp = {0, 0, 0, 0};
-	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
     const double P = AP / 1e3; /* kPa */
-	/*const double PS = 38;   Atmospheric pressure of CO2 */
 	const double Q10 = 2;  /* Q10 increase in a reaction by 10 C temp */
 
 	double Csurface;
@@ -38,7 +36,6 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	double a2 , Assim;
 	double csurfaceppm;
 
-	int iterCounter;
 	double Gs;
 	double diff, OldAssim = 0.0, Tol = 0.1;
     double miC = 0.0;
@@ -72,15 +69,13 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	M1 = (b1 + sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
 	M2 = (b1 - sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
 
-	/* This piece of code selects the smalles root */
+	/* This piece of code selects the smallest root */
 	if(M1 < M2)
 		M = M1;
 	else
 		M = M2;
 
-	/* Here the iterations will start */
-	iterCounter = 0;
-
+	int iterCounter = 0;
 	while (iterCounter < 50) {
 
 		kT_IC_P = kT * (InterCellularCO2 / P * 1000);

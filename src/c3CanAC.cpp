@@ -27,7 +27,9 @@ struct Can_Str c3CanAC(double LAI,
 		double lnb1,
 		int lnfun,
 		double StomataWS,
-		int ws)
+		int ws,
+        double electrons_per_carboxylation,
+        double electrons_per_oxygenation)
 {
 
     struct ET_Str tmp5_ET, tmp6_ET; 
@@ -45,9 +47,7 @@ struct Can_Str c3CanAC(double LAI,
     /* 1e-6 - grams per  megagram */
     /* 10000 - meters squared per hectare */
 
-    int i;
     double Idir, Idiff, cosTh;
-    double LAIc;
     double IDir, IDiff, Itot, rh, layerWindSpeed;
     double pLeafsun, pLeafshade;
     double Leafsun = 0.0, Leafshade = 0.0;
@@ -74,7 +74,7 @@ struct Can_Str c3CanAC(double LAI,
     light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
 
     /* results from multilayer model */
-    LAIc = LAI / nlayers;
+    double LAIc = LAI / nlayers;
 
     /* Next I need the RH and wind profile */
     double relative_humidity_profile[nlayers];
@@ -87,7 +87,7 @@ struct Can_Str c3CanAC(double LAI,
     LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);
 
     /* Next use the EvapoTrans function */
-    for(i=0; i<nlayers; i++)
+    for(int i = 0; i < nlayers; ++i)
     {
         int current_layer = nlayers - 1 - i;
         /* vmax depends on leaf nitrogen and this in turn depends on the layer */
@@ -110,10 +110,10 @@ struct Can_Str c3CanAC(double LAI,
         Leafsun = LAIc * pLeafsun;
 
         tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight,
-				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
 
         TempIdir = Temp + tmp5_ET.Deltat;
-        temp_photo_results = c3photoC(IDir, TempIdir, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        temp_photo_results = c3photoC(IDir, TempIdir, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
         AssIdir = temp_photo_results.Assim;
         GAssIdir = temp_photo_results.GrossAssim;
 
@@ -122,10 +122,10 @@ struct Can_Str c3CanAC(double LAI,
         Leafshade = LAIc * pLeafshade;
 
         tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight,
-				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
         TempIdiff = Temp + tmp6_ET.Deltat;
 
-        temp_photo_results = c3photoC(IDiff, TempIdiff, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws);
+        temp_photo_results = c3photoC(IDiff, TempIdiff, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
         AssIdiff = temp_photo_results.Assim;
         GAssIdiff = temp_photo_results.GrossAssim;
 

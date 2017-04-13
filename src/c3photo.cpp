@@ -7,16 +7,14 @@
 #include "c3photo.h"
 
 struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double Jmax, 
-		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet,double StomWS,int ws)
+		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet,double StomWS,int ws, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
 	struct c3_str tmp = {0, 0, 0, 0};
-	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
 	const double R = 0.008314472; /* Gas constant */
 	const double Leaf_Reflectance = 0.2;
 	const double Rate_TPu = 23;
 
-	/* Defining biochemical variables */
 	double Ci = 0.0, Oi;/*\ref{parm:ci}\ref{parm:Oi}*/
 	double Kc, Ko, Gstar;/*\ref{parm:Kc}\ref{parm:K0}\ref{parm:gammaast}*/
 	double Vc = 0.0;
@@ -28,7 +26,6 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	double FEII;
 	double theta;
 
-	int iterCounter = 0;
 	double Gs ;
 	double diff, OldAssim = 0.0, Tol = 0.01;
 
@@ -64,10 +61,8 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	// OldCi = Ca * solc(Tleaf) * 0.7; /* Initial guesstimate */ set but not used
 	Oi = O2 * solo(Tleaf);/*\ref{eqn:Oi}*/
 
-	while(iterCounter < 50)
-	  {
-    /* Rprintf("Number of loop in c3photo=%i, Tol=%f \n",iterCounter, Tol); */
-    /* Rprintf("Gs=%f, Assim=%f, Ci=%f, StomWS=%f \n", Gs, Assim, Ci, StomWS); */
+	int iterCounter = 0;
+	while(iterCounter < 50) {
 		  /* Rubisco limited carboxylation */
 		  Ac1 =  Vcmax * (Ci - Gstar) ;
 		  Ac2 = Ci + Kc * (1 + Oi/Ko);
@@ -76,7 +71,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 
 		  /* Light lmited portion */ 
 		  Aj1 = J * (Ci - Gstar) ;
-		  Aj2 = 4.5*Ci + 10.5*Gstar ;
+		  Aj2 = electrons_per_carboxylation*Ci + 2*electrons_per_oxygenation*Gstar ;
 		  Aj = Aj1/Aj2;
           if (Aj<0.0) Aj=0.0;
 

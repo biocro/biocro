@@ -168,7 +168,7 @@ state_map c3_canopy::do_operation(state_map const &s) const
             s.at("jmax"), s.at("Rd"), s.at("Catm"), s.at("O2"), s.at("b0"),
             s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("LeafN"),
             s.at("kpLN"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("StomataWS"),
-            (int)s.at("ws"));
+            (int)s.at("ws"), s.at("electrons_per_carboxylation"), s.at("electrons_per_oxygenation"));
 
     fluxes["Assim"] = result.Assim;
     fluxes["Trans"] = result.Trans;
@@ -189,7 +189,7 @@ state_map c3_canopy::do_operation(state_vector_map const &state_history, state_v
             s.at("jmax"), s.at("Rd"), s.at("Catm"), s.at("O2"), s.at("b0"),
             s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("LeafN"),
             s.at("kpLN"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("StomataWS"),
-            (int)s.at("ws"));
+            (int)s.at("ws"), s.at("electrons_per_carboxylation"), s.at("electrons_per_oxygenation"));
 
     fluxes["Assim"] = result.Assim;
     fluxes["Trans"] = result.Trans;

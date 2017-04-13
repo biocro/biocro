@@ -1,7 +1,4 @@
 library(BioCro)
-data(sorghum_initial_state)
-data(sorghum_parameters)
-data(weather05)
 
 get_errors = function(expr) {
     errors = NULL

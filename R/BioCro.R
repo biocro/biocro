@@ -485,13 +485,13 @@ canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
 
 }
 
-photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.08, b1=3, StomWS=1, ws=c("gs","vmax"),uppertemp=37.5,lowertemp=3.0){
+photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.08, b1=3, StomWS=1, ws=c("gs", "vmax"), uppertemp=37.5, lowertemp=3.0){
 
   ws <- match.arg(ws)
   if(ws == "gs") ws <- 1
   else ws <- 0
       
-  list(vmax=vmax,alpha=alpha,kparm=kparm,theta=theta,beta=beta,Rd=Rd,Catm=Catm,b0=b0,b1=b1,StomWS=StomWS,ws=ws,uppertemp=uppertemp,lowertemp=lowertemp)
+  list(vmax=vmax, alpha=alpha, kparm=kparm, theta=theta, beta=beta, Rd=Rd, Catm=Catm, b0=b0, b1=b1, StomWS=StomWS, ws=ws, uppertemp=uppertemp, lowertemp=lowertemp)
 
 }
 

@@ -69,7 +69,9 @@ SEXP willowGro(
         SEXP JMAXB1,           /*                                    55 */
         SEXP O2,               /*                                    55 */
         SEXP GROWTHRESP,       /*                                    57 */
-        SEXP STOMATAWS)        /*                                    58 */
+        SEXP STOMATAWS,       /*                                    58 */
+        SEXP ELECTRONS_PER_CARBOXYLATION,
+        SEXP ELECTRONS_PER_OXYGENATION)
 {
     double lat = REAL(LAT)[0];
     int *doy = INTEGER(DOY);
@@ -130,6 +132,8 @@ SEXP willowGro(
     // double o2 = REAL(O2)[0];
     double GrowthRespFraction = REAL(GROWTHRESP)[0];
     double StomataWS = REAL(STOMATAWS)[0];
+    double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
+    double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
 
     SEXP lists, names;
 
@@ -402,7 +406,7 @@ SEXP willowGro(
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, jmax1,
 				Rd, Catm, o2, b0, b1, theta, kd,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomataWS, ws);
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
 
         CanopyA = Canopy.Assim * timestep * (1.0 - GrowthRespFraction);
         CanopyT = Canopy.Trans * timestep;
