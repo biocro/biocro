@@ -34,7 +34,6 @@ miscanthus_x_giganteus_parameters = with(list(), {
     phi1 0.01
     phi2 10
     soilDepth 1
-    iWatCont 0.32
     soilType 6
     soilLayers 1
     wsFun 0
