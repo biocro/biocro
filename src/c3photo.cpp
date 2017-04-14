@@ -7,141 +7,105 @@
 #include "c3photo.h"
 
 struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double Jmax, 
-		       double Rd0, double bb0, double bb1, double Ca, double O2, double thet,double StomWS,int ws, double electrons_per_carboxylation, double electrons_per_oxygenation)
+               double Rd0, double bb0, double bb1, double Ca, double O2,
+               double thet, double StomWS, int ws, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
-	struct c3_str tmp = {0, 0, 0, 0};
-	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
-	const double R = 0.008314472; /* Gas constant */
-	const double Leaf_Reflectance = 0.2;
-	const double Rate_TPu = 23;
+    const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
+    const double R = 0.008314472; /* Gas constant */
+    const double Leaf_Reflectance = 0.2;
+    const double Rate_TPu = 23;
 
-	double Ci = 0.0, Oi;/*\ref{parm:ci}\ref{parm:Oi}*/
-	double Kc, Ko, Gstar;/*\ref{parm:Kc}\ref{parm:K0}\ref{parm:gammaast}*/
-	double Vc = 0.0;
-	double Vcmax, Rd; /*\ref{parm:Vcmax}\ref{parm:Rd}*/
-	double Ac1, Ac2, Ac;
-	double Aj1, Aj2, Aj;
-	double Ap;
-	double Assim, J, I2;/*\ref{parm:J}*/
-	double FEII;
-	double theta;
+    double Ci = 0.0;/*\ref{parm:ci}\ref{parm:Oi}*/
+    double Vc = 0.0;
+    double OldAssim = 0.0, Tol = 0.01;
+    double Gs;
+    double Assim;
 
-	double Gs ;
-	double diff, OldAssim = 0.0, Tol = 0.01;
+    /* From Bernacchi 2001. Improved temperature response functions. */
+    /* Note: Values in Dubois and Bernacchi are incorrect. */    
+    double Kc = exp(38.05 - 79.43 / (R * (Tleaf + 273.15))); /*\ref{eqn:Kc}*/
+    double Ko = exp(20.30 - 36.38 / (R * (Tleaf + 273.15))); /*\ref{eqn:K0}*/
+    double Gstar = exp(19.02 - 37.83 / (R * (Tleaf + 273.15))); /*\ref{eqn:gammaast}*/
 
-	if(Ca <= 0)
-		Ca = 1e-4;
+    double Vcmax = Vcmax0 * exp(26.35 - 65.33 / (R * (Tleaf + 273.15))); /*\ref{eqn:Vcmax}*/
+    double Rd = Rd0 * exp(18.72 - 46.39 / (R * (Tleaf + 273.15)));/*\ref{eqn:Rd}*/
 
-	/* From Bernacchi 2001. Improved temperature response functions. */
-	/* note: values in Dubois and Bernacchi are incorrect */	
-	Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); /*\ref{eqn:Kc}*/
-	Ko = exp(20.30-36.38/(R*(Tleaf+273.15))); /*\ref{eqn:K0}*/
-	Gstar = exp(19.02-37.83/(R*(Tleaf+273.15))); /*\ref{eqn:gammaast}*/
+    double theta = thet + 0.018 * Tleaf - 3.7e-4 * pow(Tleaf, 2);
 
-	Vcmax = Vcmax0 * exp(26.35 - 65.33/(R * (Tleaf+273.15))); /*\ref{eqn:Vcmax}*/
-	Rd = Rd0 * exp(18.72 - 46.39/(R * (Tleaf+273.15)));/*\ref{eqn:Rd}*/
+    /* Light limited */
+    double FEII = 0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf, 2) / 10000;
+    double I2 = Qp * FEII * (1 - Leaf_Reflectance) / 2;
 
-        /* Effect of temperature on theta */
-	theta = thet + 0.018 * Tleaf - 3.7e-4 * pow(Tleaf,2);
+    double J = (Jmax + I2 - sqrt(pow(Jmax + I2, 2) - 4 * theta * I2 * Jmax )) / (2 * theta);/*\ref{eqn:J}*/ 
 
-	/* Rprintf("Vcmax, %.1f, Rd %.1f, Gstar %.1f, theta %.1f \n",Vcmax,Rd,Gstar,theta); */
+    double Oi = O2 * solo(Tleaf);/*\ref{eqn:Oi}*/
 
-	/* Light limited */
-	FEII = 0.352 + 0.022 * Tleaf - 3.4 * pow(Tleaf,2) / 10000;
-	I2 = Qp * FEII * (1 - Leaf_Reflectance) / 2;
+    if(Ca <= 0)
+        Ca = 1e-4;
 
-	J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/(2*theta);/*\ref{eqn:J}*/ 
+    int iterCounter = 0;
+    while (iterCounter < 50) {
+          /* Rubisco limited carboxylation */
+          double Ac1 =  Vcmax * (Ci - Gstar) ;
+          double Ac2 = Ci + Kc * (1 + Oi / Ko);
+          double Ac = Ac1 / Ac2;
 
-	/* Rprintf("I2, %.1f, FEII %.1f, J %.1f \n",I2,FEII,J); */
+          /* Light lmited portion */ 
+          double Aj1 = J * (Ci - Gstar) ;
+          double Aj2 = electrons_per_carboxylation * Ci + 2 * electrons_per_oxygenation * Gstar ;
+          double Aj = Aj1 / Aj2;
+          if (Aj < 0.0)
+              Aj = 0.0;
 
-	// Citr1 = Kc * J * (Ko + O2) - 8*Ko*Gstar*Vcmax; set but not used
-	// Citr2 = Ko * (4 * Vcmax - J); set but not used
-	// Citr = Citr1 / Citr2; set but not used
-
-	// OldCi = Ca * solc(Tleaf) * 0.7; /* Initial guesstimate */ set but not used
-	Oi = O2 * solo(Tleaf);/*\ref{eqn:Oi}*/
-
-	int iterCounter = 0;
-	while(iterCounter < 50) {
-		  /* Rubisco limited carboxylation */
-		  Ac1 =  Vcmax * (Ci - Gstar) ;
-		  Ac2 = Ci + Kc * (1 + Oi/Ko);
-		  Ac = Ac1/Ac2;
-
-
-		  /* Light lmited portion */ 
-		  Aj1 = J * (Ci - Gstar) ;
-		  Aj2 = electrons_per_carboxylation*Ci + 2*electrons_per_oxygenation*Gstar ;
-		  Aj = Aj1/Aj2;
-          if (Aj<0.0) Aj=0.0;
-
-		  /* Limited by tri phos utilization */
-		  Ap = (3 * Rate_TPu) / (1 - Gstar / Ci);
-
+          /* Limited by tri phos utilization */
+          double Ap = (3 * Rate_TPu) / (1 - Gstar / Ci);
 
           if(Ac < Aj && Ac < Ap){
               Vc = Ac;
-          }else if(Aj < Ac && Aj < Ap){
+          } else if (Aj < Ac && Aj < Ap){
               Vc = Aj;
-          }else if(Ap < Ac && Ap < Aj){
-              if(Ap < 0) Ap = 0;
+          } else if (Ap < Ac && Ap < Aj){
+              if (Ap < 0)
+                  Ap = 0;
               Vc = Ap;
           }
 
-		  Assim = Vc - Rd; /* micro mol m^-2 s^-1 */
+          Assim = Vc - Rd; /* micro mol m^-2 s^-1 */
       
-      if(ws == 0) Assim *= StomWS; 
-		  /* milimole per meter square per second*/
-		  Gs =  ballBerry(Assim,Ca, Tleaf, RH, bb0, bb1);
+      if (ws == 0) Assim *= StomWS; 
+          /* milimole per meter square per second*/
+          Gs = ballBerry(Assim, Ca, Tleaf, RH, bb0, bb1);
       
-		  if(ws == 1) Gs *= StomWS; 
+          if (ws == 1)
+              Gs *= StomWS; 
       
-		  if( Gs <= 0 )
-			  Gs = 1e-5;
+          if (Gs <= 0)
+              Gs = 1e-5;
 
-		  if(Gs > 800)
-			  Gs = 800;
+          if (Gs > 800)
+              Gs = 800;
 
-		  Ci = Ca - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);/*\ref{eqn:ci}*/
-		  /*Ci = Ca - (Assim * 1.6 * 100) / Gs ; Harley pg 272 eqn 10. PCE 1992 */
+          Ci = Ca - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);
 
-		  if(Ci < 0)
-			  Ci = 1e-5;
+          if (Ci < 0)
+              Ci = 1e-5;
 
-		 // diff = OldCi - Ci;
-		//  if(diff < 0) diff = -diff;
-		//  if(diff < Tol){
-	//		  break;
-	//	  }else{
-	//		  OldCi = Ci;
-	//	  }
-      
-      
-  	if(iterCounter == 0){
-			// Assim0 = Assim; set but not used
-			// Gs0 = Gs; set but not used
-			// OldCi = Ci; set but not used
-		}
-
-		diff = OldAssim - Assim;
-		if(diff < 0) diff = -diff;
-		if(diff < Tol){
-			break;
-		}else{
-			OldAssim = Assim;
-		}
-		  
-		  iterCounter++;
-		  
-	  }
-	tmp.Assim = Assim;
-	tmp.Gs = Gs;
-	tmp.Ci = Ci;
-  tmp.GrossAssim=Assim+Rd;
-  if(Assim>0){
-//  Rprintf(" in C3photoSynthesis Function : Net Leaf Photosynthesis is %f, Dark Respiration is %f, Gross Assimilation is %f \n", tmp.Assim, Rd, tmp.GrossAssim);
-  }
-	return(tmp);
+        double diff = OldAssim - Assim;
+        if (diff < 0) diff = -diff;
+        if (diff < Tol) {
+            break;
+        } else {
+            OldAssim = Assim;
+        }
+          
+          iterCounter++;
+    }
+    struct c3_str tmp;
+    tmp.Assim = Assim;
+    tmp.Gs = Gs;
+    tmp.Ci = Ci;
+    tmp.GrossAssim = Assim + Rd;
+    return(tmp);
 }
 
 
@@ -151,27 +115,27 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 
 double solc(double LeafT){
 
-	double tmp;
+    double tmp;
 
-	if(LeafT > 24 && LeafT < 26){
-		tmp = 1;
-	}else{
-		tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT,2) - 8.874081e-06 * pow(LeafT,3)) / 0.735465;
-	}
+    if(LeafT > 24 && LeafT < 26){
+        tmp = 1;
+    }else{
+        tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT,2) - 8.874081e-06 * pow(LeafT,3)) / 0.735465;
+    }
 
-	return(tmp);
+    return(tmp);
 }
 
 double solo(double LeafT){
 
-	double tmp;
+    double tmp;
 
-	if(LeafT > 24 && LeafT < 26){
-		tmp = 1;
-	}else{
-		tmp = (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT,2) - 2.1441e-07 * pow(LeafT,3)) / 0.026934;
-	}
+    if(LeafT > 24 && LeafT < 26){
+        tmp = 1;
+    }else{
+        tmp = (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT,2) - 2.1441e-07 * pow(LeafT,3)) / 0.026934;
+    }
 
-	return(tmp);
+    return(tmp);
 }
 
