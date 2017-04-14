@@ -20,15 +20,18 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
     double OldAssim = 0.0, Tol = 0.01;
     double Gs;
     double Assim;
+    double Tk = Tleaf + 273.15;
 
     /* From Bernacchi 2001. Improved temperature response functions. */
     /* Note: Values in Dubois and Bernacchi are incorrect. */    
-    double Kc = exp(38.05 - 79.43 / (R * (Tleaf + 273.15))); /*\ref{eqn:Kc}*/
-    double Ko = exp(20.30 - 36.38 / (R * (Tleaf + 273.15))); /*\ref{eqn:K0}*/
-    double Gstar = exp(19.02 - 37.83 / (R * (Tleaf + 273.15))); /*\ref{eqn:gammaast}*/
+    double Kc = exp(38.05 - 79.43 / (R * Tk)); /*\ref{eqn:Kc}*/
+    double Ko = exp(20.30 - 36.38 / (R * Tk)); /*\ref{eqn:K0}*/
+    double Gstar = exp(19.02 - 37.83 / (R * Tk)); /*\ref{eqn:gammaast}*/
 
-    double Vcmax = Vcmax0 * exp(26.35 - 65.33 / (R * (Tleaf + 273.15))); /*\ref{eqn:Vcmax}*/
-    double Rd = Rd0 * exp(18.72 - 46.39 / (R * (Tleaf + 273.15)));/*\ref{eqn:Rd}*/
+    
+
+    double Vcmax = Vcmax0 * exp(26.35 - 65.33 / (R * Tk)); /*\ref{eqn:Vcmax}*/
+    double Rd = Rd0 * exp(18.72 - 46.39 / (R * Tk));/*\ref{eqn:Rd}*/
 
     double theta = thet + 0.018 * Tleaf - 3.7e-4 * pow(Tleaf, 2);
 
