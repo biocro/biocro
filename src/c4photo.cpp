@@ -29,24 +29,23 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 
 	double Gs;
 	double OldAssim = 0.0, Tol = 0.1;
-    double miC = 0.0;
 
 	double Csurface = (Ca * 1e-6) * AP;
 	double InterCellularCO2 = Csurface * 0.4; /* Assign an initial guess. */
 	double KQ10 =  pow(Q10, (Tl - 25.0) / 10.0);
 	double kT = kparm * KQ10;
 
-    // This is the code implementing temperature limitations
+    // Collatz 1992. Appendix B. Equation set 5B.
     double Vtn = vmax * pow(2, (Tl - 25.0) / 10.0);
     double Vtd = (1 + exp(0.3 * (lowerT - Tl))) * (1 + exp(0.3 * (Tl - upperT)));
     double VT  = Vtn / Vtd;
 
-	/* Second chunk of code see Collatz (1992) */
+	// Collatz 1992. Appendix B. Equation set 5B.
 	double Rtn = Rd * pow(2, (Tl - 25) / 10);
 	double Rtd =  1 + exp(1.3 * (Tl - 55));
 	double RT = Rtn / Rtd; 
 
-	/* Third chunk of code again see Collatz (1992) */
+	// Collatz 1992. Appendix B. Equation 2B.
 	double b0 = VT * alpha * Qp;
 	double b1 = VT + alpha * Qp;
 	double b2 = theta;
@@ -65,11 +64,11 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	while (iterCounter < 50) {
 
 		double kT_IC_P = kT * (InterCellularCO2 / P * 1000);
-		double Quada = M * kT_IC_P;
-		double Quadb = M + kT_IC_P;
-		double Quadc = beta;
+		double a = M * kT_IC_P;
+		double b = M + kT_IC_P;
+		double c = beta;
 
-		double a2 = (Quadb - sqrt(Quadb * Quadb - (4 * Quada * Quadc))) / (2 * Quadc);
+		double a2 = (b - sqrt(b * b - (4 * a * c))) / (2 * c);
 
 		Assim = a2 - RT;
 
@@ -113,7 +112,7 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
  	/* 	error("Did not converge \n"); */
 	/* } */
 
-	miC = (InterCellularCO2 / AP) * 1e6;
+	double miC = (InterCellularCO2 / AP) * 1e6;
 
 	if(Gs > 600)
 	  Gs = 600;
