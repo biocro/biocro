@@ -55,7 +55,7 @@ class c4_canopy : public ICanopy_photosynthesis_module {
                     "b0", "b1", "theta", "kd", "chil",
                     "heightf", "LeafN", "kpLN", "lnb0", "lnb1",
                     "lnfun", "upperT", "lowerT", "leafwidth",
-                    "et_equation", "StomataWS", "ws",
+                    "et_equation", "StomataWS", "water_stress_approach",
                     "nileafn", "kln", "nvmaxb0", "nvmaxb1", "alphab1",
                     "nRdb1", "nRdb0", "kpLN"}, 
                     vector<string> {})
@@ -73,7 +73,7 @@ class c3_canopy : public ICanopy_photosynthesis_module {
                     "jmax", "Rd", "Catm", "O2", "b0",
                     "b1", "theta", "kd", "heightf", "LeafN",
                     "kpLN", "lnb0", "lnb1", "lnfun", "StomataWS",
-                    "ws", "electrons_per_carboxylation", "electrons_per_oxygenation"},
+                    "water_stress_approach", "electrons_per_carboxylation", "electrons_per_oxygenation"},
                     vector<string> {})
         {}
     private:

@@ -33,7 +33,7 @@ struct ET_Str c3EvapoTrans(double Rad,
         double O2,
         double theta2,
         double StomWS,
-        int ws,
+        int water_stress_approach,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation)
 
@@ -99,7 +99,7 @@ struct ET_Str c3EvapoTrans(double Rad,
     /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
     totalradiation = Itot * 0.235;
 
-    photo_results = c3photoC(Rad, Airtemperature, RH, vcmax2, jmax2, Rd2, b02, b12, Catm2, O2, theta2, StomWS, ws, electrons_per_carboxylation, electrons_per_oxygenation); 
+    photo_results = c3photoC(Rad, Airtemperature, RH, vcmax2, jmax2, Rd2, b02, b12, Catm2, O2, theta2, StomWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation); 
     LayerConductance = photo_results.Gs;
 
     /* Convert mmoles/m2/s to moles/m2/s

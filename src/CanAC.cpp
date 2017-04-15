@@ -34,7 +34,7 @@ struct Can_Str CanAC(
         double leafwidth,
         int eteq,
         double StomataWS,
-        int ws)
+        int water_stress_approach)
 {
 
     struct Can_Str ans = {0, 0, 0};
@@ -122,11 +122,11 @@ struct Can_Str CanAC(
         CanHeight = light_profile.height[current_layer];
         Leafsun = LAIc * pLeafsun;
 
-        temp_photo_results = c4photoC(IDir, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        temp_photo_results = c4photoC(IDir, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
         direct_ET = EvapoTrans2(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
 
         TempIdir = Temp + direct_ET.Deltat;
-        temp_photo_results = c4photoC(IDir, TempIdir, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        temp_photo_results = c4photoC(IDir, TempIdir, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
         AssIdir = temp_photo_results.Assim;
         GAssIdir =temp_photo_results.GrossAssim;
 
@@ -134,10 +134,10 @@ struct Can_Str CanAC(
         pLeafshade = light_profile.shaded_fraction[current_layer];
         Leafshade = LAIc * pLeafshade;
 
-        temp_photo_results = c4photoC(IDiff, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        temp_photo_results = c4photoC(IDiff, Temp, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
         indirect_ET = EvapoTrans2(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
         TempIdiff = Temp + indirect_ET.Deltat;
-        temp_photo_results = c4photoC(IDiff, TempIdiff, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, ws, upperT, lowerT);
+        temp_photo_results = c4photoC(IDiff, TempIdiff, rh, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
         AssIdiff = temp_photo_results.Assim;
         GAssIdiff = temp_photo_results.GrossAssim;
 

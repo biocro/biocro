@@ -27,7 +27,7 @@ struct Can_Str c3CanAC(double LAI,
 		double lnb1,
 		int lnfun,
 		double StomataWS,
-		int ws,
+		int water_stress_approach,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation)
 {
@@ -110,10 +110,10 @@ struct Can_Str c3CanAC(double LAI,
         Leafsun = LAIc * pLeafsun;
 
         tmp5_ET = c3EvapoTrans(IDir, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight,
-				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
+				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
 
         TempIdir = Temp + tmp5_ET.Deltat;
-        temp_photo_results = c3photoC(IDir, TempIdir, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
+        temp_photo_results = c3photoC(IDir, TempIdir, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
         AssIdir = temp_photo_results.Assim;
         GAssIdir = temp_photo_results.GrossAssim;
 
@@ -122,10 +122,10 @@ struct Can_Str c3CanAC(double LAI,
         Leafshade = LAIc * pLeafshade;
 
         tmp6_ET = c3EvapoTrans(IDiff, Itot, Temp, rh, layerWindSpeed, LAIc, CanHeight,
-				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
+				vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
         TempIdiff = Temp + tmp6_ET.Deltat;
 
-        temp_photo_results = c3photoC(IDiff, TempIdiff, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
+        temp_photo_results = c3photoC(IDiff, TempIdiff, rh, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
         AssIdiff = temp_photo_results.Assim;
         GAssIdiff = temp_photo_results.GrossAssim;
 

@@ -81,7 +81,7 @@ void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], doub
         double Sp, double SpD, double dbpcoefs[25], double thermalp[], double tbase, double vmax1, 
         double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,
-        double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
+        double alphab1, double mresp[], int soilType, int wsFun, int water_stress_approach, double centcoefs[],
         int centTimestep, double centks[], int soilLayers, double soilDepths[],
         double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, const struct nitroParms &nitroP, double StomataWS,
 		double (*leaf_n_limitation)(double kLn, double leaf_n_0, const struct Model_state &current_state), struct BioGro_results_str *results);
@@ -91,20 +91,20 @@ struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
 		     double Kparm, double beta, double Rd, double Catm, double b0, 
 		     double b1, double theta, double kd, double chil, double heightf,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
-		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq, double StomataWS, int ws);
+		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq, double StomataWS, int water_stress_approach);
          
 struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
   	                   double Rd, double Catm, double o2, double b0, double b1,
                        double theta, double kd, double heightf,
-		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int ws, double electrons_per_carboxylation, double electrons_per_oxygenation);
+		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
                         
 /**************** This is new C function avoiding use of Global Variables****************************/
  struct Can_Str newc3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
                double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
 		     double Rd, double Catm, double o2, double b0, double b1,
                      double theta, double kd, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomWS, int ws);
+		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomWS, int water_stress_approach);
  /**********************************************************************************************/
 
          
@@ -148,7 +148,7 @@ double AbiotEff(double smoist, double stemp);
 
 double sel_phen(int phen);
 struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
-                         double WindSpeed, double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
+                         double WindSpeed, double LeafAreaIndex, double CanopyHeight, double StomataWS, int water_stress_approach,
                          double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12, double upperT, double lowerT, double Catm);
 /* Definition of the new EvapoTrans function */
 struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH,

@@ -5,7 +5,7 @@
 
 extern "C" {
 SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
-	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP STOMWS, SEXP WS,SEXP UPPERTEMP, SEXP LOWERTEMP)
+	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP STOMWS, SEXP WATER_STRESS_APPROACH,SEXP UPPERTEMP, SEXP LOWERTEMP)
 {
 	struct c4_str tmp;
 
@@ -53,7 +53,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	double *pt_RH = REAL(RH);
 	double *pt_CA = REAL(CA);
   
-	int ws = INTEGER(WS)[0];
+	int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
 
 	double *pt_GSV = REAL(GsV);
 	double *pt_ASSV = REAL(ASSV);
@@ -66,7 +66,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 		tmp = c4photoC(*(pt_Qp+i), *(pt_Tl+i), *(pt_RH+i),
 			       vmax, alpha, K,theta, beta, Rd, /*\ref{parm:Vmax}\ref{parm:Rd}*/
 			       Bet0, Bet1, StomWS, 
-			       *(pt_CA+i), ws,upperT,lowerT);
+			       *(pt_CA+i), water_stress_approach,upperT,lowerT);
 
 		*(pt_GSV + i) = tmp.Gs;
 		*(pt_ASSV + i) = tmp.Assim;    
@@ -97,7 +97,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 		 SEXP iTHETA, SEXP iBETA,
 		 SEXP iRD,
                  SEXP CATM, SEXP B0, SEXP B1, SEXP STOMWS,
-                 SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WS, SEXP PRIOR,SEXP UPPERTEMP, SEXP LOWERTEMP)
+                 SEXP SCALE, SEXP SD1, SEXP SD2, SEXP WATER_STRESS_APPROACH, SEXP PRIOR,SEXP UPPERTEMP, SEXP LOWERTEMP)
 {
 	/* First manipulate R objects */
 	int niter;
@@ -121,7 +121,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 	double b0 = REAL(B0)[0];
 	double b1 = REAL(B1)[0];
 	double StomWS = REAL(STOMWS)[0];
-	int ws = INTEGER(WS)[0];
+	int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
 
 	double index;
 	double rnum , rden; 
@@ -178,7 +178,7 @@ SEXP McMCc4photo(SEXP ASSIM, SEXP QP, SEXP TEMP,
 	  
 		lratio = log(rnum) - log(rden); 
 
-		RSS = RSS_C4photo(REAL(ASSIM),REAL(QP),REAL(TEMP),REAL(RH),rnewVcmax,rnewAlpha, ikparm, itheta, ibeta, Rd, Catm, b0, b1, StomWS, ws,upperT,lowerT, nObs);
+		RSS = RSS_C4photo(REAL(ASSIM),REAL(QP),REAL(TEMP),REAL(RH),rnewVcmax,rnewAlpha, ikparm, itheta, ibeta, Rd, Catm, b0, b1, StomWS, water_stress_approach ,upperT,lowerT, nObs);
 
 /*       mr = (exp(-RSS) / exp(-oldRSS)) * ratio; */
 /* In the previous expression we can take  the log and have instead the 

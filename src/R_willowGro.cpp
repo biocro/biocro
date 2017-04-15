@@ -50,7 +50,7 @@ SEXP willowGro(
         SEXP MRESP,            /* Maintenance resp                   37 */
         SEXP SOILTYPE,         /* Soil type                          38 */
         SEXP WSFUN,            /* Water Stress Func                  39 */
-        SEXP WS,               /* Water stress flag                  31 */
+        SEXP WATER_STRESS_APPROACH,               /* Water stress flag                  31 */
         SEXP CENTCOEFS,        /* Century coefficients               40 */
         SEXP CENTTIMESTEP,     /* Century timestep                   41 */
         SEXP CENTKS,           /* Century decomp rates               42 */
@@ -112,7 +112,7 @@ SEXP willowGro(
     double *mresp = REAL(MRESP);
     int soilType = INTEGER(SOILTYPE)[0];
     int wsFun = INTEGER(WSFUN)[0];
-    int ws = INTEGER(WS)[0];
+    int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
     double *centcoefs = REAL(CENTCOEFS);
     int centTimestep = INTEGER(CENTTIMESTEP)[0];
     double *centks = REAL(CENTKS);
@@ -406,7 +406,7 @@ SEXP willowGro(
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, jmax1,
 				Rd, Catm, o2, b0, b1, theta, kd,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomataWS, ws, electrons_per_carboxylation, electrons_per_oxygenation);
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
 
         CanopyA = Canopy.Assim * timestep * (1.0 - GrowthRespFraction);
         CanopyT = Canopy.Trans * timestep;

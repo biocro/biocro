@@ -8,7 +8,7 @@
 
 struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double Jmax, 
                double Rd0, double bb0, double bb1, double Ca, double O2,
-               double thet, double StomWS, int ws, double electrons_per_carboxylation, double electrons_per_oxygenation)
+               double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
     const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
     const double R = 0.008314472; /* Gas constant */
@@ -75,11 +75,11 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 
           Assim = Vc - Rd; /* micro mol m^-2 s^-1 */
       
-      if (ws == 0) Assim *= StomWS; 
+      if (water_stress_approach == 0) Assim *= StomWS; 
           /* milimole per meter square per second*/
           Gs = ballBerry(Assim, Ca, Tleaf, RH, bb0, bb1);
       
-          if (ws == 1)
+          if (water_stress_approach == 1)
               Gs *= StomWS; 
       
           if (Gs <= 0)

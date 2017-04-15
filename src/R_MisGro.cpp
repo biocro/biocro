@@ -52,7 +52,7 @@ SEXP MisGro(
         SEXP MRESP,            /* Maintenance resp                   38 */
         SEXP SOILTYPE,         /* Soil type                          39 */
         SEXP WSFUN,            /* Water Stress Func                  40 */
-        SEXP WS,               /* Water stress flag                  41 */
+        SEXP WATER_STRESS_APPROACH,               /* Water stress flag                  41 */
         SEXP CENTCOEFS,        /* Century coefficients               42 */
         SEXP CENTTIMESTEP,     /* Century timestep                   43 */
         SEXP CENTKS,           /* Century decomp rates               44 */
@@ -111,7 +111,7 @@ SEXP MisGro(
     double *mresp = REAL(MRESP);
     int soilType = INTEGER(SOILTYPE)[0];
     int wsFun = INTEGER(WSFUN)[0];
-    int ws = INTEGER(WS)[0];
+    int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
     double *centcoefs = REAL(CENTCOEFS);
     int centTimestep = INTEGER(CENTTIMESTEP)[0];
     double *centks = REAL(CENTKS);
@@ -228,7 +228,7 @@ SEXP MisGro(
             Sp, SpD, dbpcoefs, thermalp, thermal_base_temperature,
             vmax1, alpha1, kparm, theta, beta, Rd, Catm, b0, b1, soilcoefs, ileafn, kLN,
             vmaxb1, alphab1, mresp, soilType, wsFun,
-            ws, centcoefs, centTimestep, centks,
+            water_stress_approach, centcoefs, centTimestep, centks,
             soilLayers, soilDepths, cws, hydrDist,
             secs, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitrop, StomWS, biomass_leaf_nitrogen_limitation, results);
 

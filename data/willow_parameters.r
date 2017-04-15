@@ -29,7 +29,7 @@ willow_parameters = with(list(), {
      b1     5   
      theta  0.7 
      StomataWS 1   
-     ws     0   
+     water_stress_approach     0   
      tp1       250   
      tp2       350   
      tp3       900   

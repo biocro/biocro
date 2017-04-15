@@ -26,7 +26,7 @@ sorghum_parameters = with(list(), {
     Catm 400
     b0 0.08
     b1 3
-    ws 1
+    water_stress_approach 1
     upperT 37.5
     lowerT 3
     FieldC -1

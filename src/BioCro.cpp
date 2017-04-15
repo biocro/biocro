@@ -52,7 +52,7 @@ void BioGro(
         double mresp[],               /* Maintenance resp                   38 */
         int soilType,                 /* Soil type                          39 */
         int wsFun,                    /* Water Stress Func                  40 */
-        int ws,                       /* Water stress flag                  41 */
+        int water_stress_approach,    /* Water stress flag                  41 */
         double centcoefs[],           /* Century coefficients               42 */
         int centTimestep,             /* Century timestep                   43 */
         double centks[],              /* Century decomp rates               44 */
@@ -256,7 +256,7 @@ void BioGro(
                 b0, b1, theta, kd, chil,
                 heightf, LeafN, kpLN, lnb0, lnb1,
                 lnfun, upperT, lowerT, nitroP, leafwidth,
-                et_equation, StomataWS, ws); 
+                et_equation, StomataWS, water_stress_approach); 
 
         CanopyA = Canopy.Assim * timestep;
         CanopyT = Canopy.Trans * timestep;

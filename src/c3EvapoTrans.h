@@ -34,7 +34,7 @@ struct ET_Str c3EvapoTrans(double Rad,
 			   double O2,
 			   double theta2,
 			   double StomWS,
-			   int ws,
+			   int water_stress_approach,
                double electrons_per_carboxylation,
                double electrons_per_oxygenation);
 #endif

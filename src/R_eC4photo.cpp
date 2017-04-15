@@ -20,7 +20,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	int i;
 	double Idir, Idiff, cosTh;
 	double LAIc;
-	double IDir, IDiff, Itot, rh, WS;
+	double IDir, IDiff, Itot, rh, wind_speed;
 	double pLeafsun, pLeafshade;
 	double Leafsun, Leafshade;
 
@@ -86,14 +86,14 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	{
 		int current_layer = nlayers - 1 - i;
 		rh = relative_humidity_profile[current_layer];
-		WS = wind_speed_profile[current_layer];
+		wind_speed = wind_speed_profile[current_layer];
 
 		IDir = light_profile.direct_irradiance[current_layer];
 		Itot = light_profile.total_irradiance[current_layer];
 		pLeafsun = light_profile.sunlit_fraction[current_layer];
 		CanHeight = light_profile.height[current_layer];
 		Leafsun = LAIc * pLeafsun;
-		direct_et = EvapoTrans(IDir,Itot,Temp,rh,WS,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
+		direct_et = EvapoTrans(IDir,Itot,Temp,rh,wind_speed,Leafsun,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
 		/* not the right thing to do here to add these values at the end of the ET function
 		   but just a simple fix for now. The problem is that the eC4photoC function should have its own
 		   EvapoTrans function. */
@@ -104,7 +104,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 		IDiff = light_profile.diffuse_irradiance[current_layer];
 		pLeafshade = light_profile.shaded_fraction[current_layer];
 		Leafshade = LAIc * pLeafshade;
-		diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,WS,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
+		diffuse_et = EvapoTrans(IDiff,Itot,Temp,rh,wind_speed,Leafshade,CanHeight,stomataws,1,39,0.04,0.7,0.83,0.93,0.8,0.01,3,upperT,lowerT, Ca);
 		/* not the right thing to do here to add these values at the end of the ET function
 		   but just a simple fix for now*/
 		TempIdiff = Temp + diffuse_et.Deltat;

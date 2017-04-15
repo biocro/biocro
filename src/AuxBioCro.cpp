@@ -302,7 +302,7 @@ ET_Str EvapoTrans(
         const double LeafAreaIndex, // unused
         double CanopyHeight,
         const double StomataWS,
-        const int ws,
+        const int water_stress_approach,
         const double vmax2,
         const double alpha2,
         const double kparm,
@@ -363,7 +363,7 @@ ET_Str EvapoTrans(
 
     const auto LayerConductance = (c4photoC(Itot, airTemp, RH, vmax2, alpha2, kparm,
                                             theta, beta, Rd2, b02, b12, StomataWS,
-                                            Catm, ws, upperT, lowerT)
+                                            Catm, water_stress_approach, upperT, lowerT)
                                    ).Gs;
 
     /* Convert mmoles/m2/s to moles/m2/s
@@ -686,7 +686,7 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     double Tak = AirTemp + 273.15; /* Converts from C to K */
     double Tlk = leaftemp + 273.15;  /* Converts from C to K */
     double ea = vappress * 1e2; /* From hPa to Pa */
-    double ws = windspeed; /* m s^-1 */
+    // windspeed; /* m s^-1 */
     double lw = leafwidth; /* meters */
 
     double esTl, eb;
@@ -697,7 +697,7 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
 
     /* Forced convection */
-    gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((ws/lw)/Pa),0.5);
+    gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);
     gbv_free = gbv_forced;
     eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
     Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/

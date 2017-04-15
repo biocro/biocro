@@ -24,7 +24,7 @@ extern "C" {
             SEXP HEIGHTF, 
             SEXP LNPS,
             SEXP STOMATAWS,
-            SEXP WS,
+            SEXP WATER_STRESS_APPROACH,
             SEXP ELECTRONS_PER_CARBOXYLATION,
             SEXP ELECTRONS_PER_OXYGENATION)
     {
@@ -53,7 +53,7 @@ extern "C" {
         double lnb1 = REAL(LNPS)[3];
         int lnfun = REAL(LNPS)[4]; /* Coercing a double to integer */
         double StomataWS = REAL(STOMATAWS)[0];
-        int ws = INTEGER(WS)[0];
+        int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
         double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
         double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
 
@@ -95,7 +95,7 @@ extern "C" {
         s["lnb1"] = lnb1;
         s["lnfun"] = lnfun;
         s["StomataWS"] = StomataWS;
-        s["ws"] = ws;
+        s["water_stress_approach"] = water_stress_approach;
         s["electrons_per_carboxylation"] = electrons_per_carboxylation;
         s["electrons_per_oxygenation"] = electrons_per_oxygenation;
 

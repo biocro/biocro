@@ -48,7 +48,7 @@ SEXP willowGro(
         SEXP MRESP,            /* Maintenance resp                   37 */
         SEXP SOILTYPE,         /* Soil type                          38 */
         SEXP WSFUN,            /* Water Stress Func                  39 */
-        SEXP WS,               /* Water stress flag                  31 */
+        SEXP WATER_STRESS_APPROACH,               /* Water stress flag                  31 */
         SEXP CENTCOEFS,        /* Century coefficients               40 */
         SEXP CENTTIMESTEP,     /* Century timestep                   41 */
         SEXP CENTKS,           /* Century decomp rates               42 */
