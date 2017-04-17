@@ -308,7 +308,7 @@ ET_Str EvapoTrans(
         const double kparm,
         const double theta,
         const double beta,
-        const double Rd2,
+        const double Rd,
         const double b02,
         const double b12,
         const double upperT,
@@ -362,7 +362,7 @@ ET_Str EvapoTrans(
     const auto totalradiation = Itot * 0.235;
 
     const auto LayerConductance = (c4photoC(Itot, airTemp, RH, vmax2, alpha2, kparm,
-                                            theta, beta, Rd2, b02, b12, StomataWS,
+                                            theta, beta, Rd, b02, b12, StomataWS,
                                             Catm, water_stress_approach, upperT, lowerT)
                                    ).Gs;
 
