@@ -35,7 +35,7 @@ struct BioGro_results_str {
 	struct cenT_str centS;
 };
 
-void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size);
+void initialize_biogro_results(struct BioGro_results_str *results, size_t soil_layers, size_t vector_size);
 void free_biogro_results(struct BioGro_results_str *results);
 
 struct Model_state {
@@ -77,12 +77,12 @@ struct Light_model {
 void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
         double windspeed[], double precip[], double kd, double chil, double leafwidth, int et_equation,
         double heightf, int nlayers, double initial_biomass[4],
-        double sencoefs[], int timestep, int vecsize,
+        double sencoefs[], int timestep, size_t vecsize,
         double Sp, double SpD, double dbpcoefs[25], double thermalp[], double tbase, double vmax1, 
         double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,
         double alphab1, double mresp[], int soilType, int wsFun, int water_stress_approach, double centcoefs[],
-        int centTimestep, double centks[], int soilLayers, double soilDepths[],
+        int centTimestep, double centks[], size_t soilLayers, double soilDepths[],
         double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, const struct nitroParms &nitroP, double StomataWS,
 		double (*leaf_n_limitation)(double kLn, double leaf_n_0, const struct Model_state &current_state), struct BioGro_results_str *results);
 

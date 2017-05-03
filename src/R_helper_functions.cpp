@@ -23,10 +23,10 @@ state_vector_map map_vector_from_list(SEXP const &list)
     state_vector_map m;
     m.reserve(n);
     for (size_t i = 0; i < n; ++i) {
-        int p = length(VECTOR_ELT(list, i));
+        size_t p = length(VECTOR_ELT(list, i));
         vector<double> temporary;
         temporary.reserve(p);
-        for (int j = 0; j < p; ++j) {
+        for (size_t j = 0; j < p; ++j) {
             temporary.push_back(REAL(VECTOR_ELT(list, i))[j]);
         }
         m.insert(std::pair<string, vector<double>>(CHAR(STRING_ELT(names, i)), temporary));
@@ -57,7 +57,7 @@ SEXP list_from_map(state_vector_map const &m)
     SEXP names = PROTECT(allocVector(STRSXP, n));
     size_t i = 0;
     for (auto it = m.begin(); it != m.end(); ++it, ++i) {
-        int j = 0;
+        size_t j = 0;
         auto second = it->second;
         auto p = second.size();
         SEXP values = PROTECT(allocVector(REALSXP, p));

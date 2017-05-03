@@ -29,7 +29,7 @@ void BioGro(
 		double initial_biomass[4],
         double sencoefs[],            /* sene coefs                         17 */
         int timestep,                 /* time step                          18 */
-        int vecsize,                  /* vector size                        19 */
+        size_t vecsize,                  /* vector size                        19 */
         double Sp,                    /* Spec Leaf Area                     20 */
         double SpD,                   /* Spec Lefa Area Dec                 21 */
         double dbpcoefs[25],          /* Dry Bio Coefs                      22 */
@@ -56,7 +56,7 @@ void BioGro(
         double centcoefs[],           /* Century coefficients               42 */
         int centTimestep,             /* Century timestep                   43 */
         double centks[],              /* Century decomp rates               44 */
-        int soilLayers,               /* # soil layers                      45 */
+        size_t soilLayers,               /* # soil layers                      45 */
         double soilDepths[],          /* Soil Depths                        46 */
         double cws[],                 /* Current water status               47 */
         int hydrDist,                 /* Hydraulic dist flag                48 */
@@ -81,8 +81,6 @@ void BioGro(
 	double Stem = initial_biomass[1];
 	double Leaf = initial_biomass[2];
 	double Root = initial_biomass[3];
-
-    int i3;
 
     double Grain = 0.0;
     double TTc = 0.0;
@@ -189,7 +187,7 @@ void BioGro(
     SCCs[8] = centcoefs[8];
 
 
-    for(int i = 0; i < vecsize; ++i)
+    for(size_t i = 0; i < vecsize; ++i)
     {
         newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
 
@@ -309,7 +307,7 @@ void BioGro(
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i3 = 0; i3 < soilLayers; ++i3) {
+            for(size_t i3 = 0; i3 < soilLayers; ++i3) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
 				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
@@ -587,7 +585,7 @@ void BioGro(
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
-		for(int layer = 0; layer < soilLayers; ++layer) {
+		for(size_t layer = 0; layer < soilLayers; ++layer) {
 			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
 			results->water_status[layer + i * soilLayers] = water_status[layer + i * soilLayers];
 			results->root_distribution[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];

@@ -90,7 +90,6 @@ SEXP willowGro(
 	double *initial_biomass = REAL(INITIAL_BIOMASS);
     double *sencoefs = REAL(SENCOEFS);
     int timestep = INTEGER(TIMESTEP)[0];
-    int vecsize;
     double Sp = REAL(SPLEAF)[0]; 
     double SpD = REAL(SPD)[0];
     double *dbpcoefs = REAL(DBPCOEFS);
@@ -116,7 +115,7 @@ SEXP willowGro(
     double *centcoefs = REAL(CENTCOEFS);
     int centTimestep = INTEGER(CENTTIMESTEP)[0];
     double *centks = REAL(CENTKS);
-    int soilLayers = INTEGER(SOILLAYERS)[0];
+    size_t soilLayers = INTEGER(SOILLAYERS)[0];
     double *soilDepths = REAL(SOILDEPTHS);
     double *cws = REAL(CWS);
     double hydrDist = INTEGER(HYDRDIST)[0];
@@ -167,7 +166,7 @@ SEXP willowGro(
     SEXP SNpools;
     SEXP LeafPsimVec;
 
-    vecsize = length(DOY);
+    size_t vecsize = length(DOY);
     PROTECT(lists = allocVector(VECSXP, 29));
     PROTECT(names = allocVector(STRSXP, 29));
 
@@ -233,8 +232,6 @@ SEXP willowGro(
     double Stem = initial_biomass[1];
     double Leaf = initial_biomass[2];
     double Root = initial_biomass[3];
-
-    int i, i3;
 
     double Grain = 0.0;
     double TTc = 0.0;
@@ -341,7 +338,7 @@ SEXP willowGro(
     SCCs[8] = centcoefs[8];
 
 
-    for(i=0; i < vecsize; ++i)
+    for(size_t i = 0; i < vecsize; ++i)
     {
         newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
 
@@ -459,7 +456,7 @@ SEXP willowGro(
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i3=0; i3 < soilLayers; ++i3) {
+            for(size_t i3 = 0; i3 < soilLayers; ++i3) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
                 water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
@@ -748,7 +745,7 @@ SEXP willowGro(
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
-		for(int layer = 0; layer < soilLayers; ++layer) {
+		for(size_t layer = 0; layer < soilLayers; ++layer) {
 			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
 			results->water_status[layer + i * soilLayers] = water_status[layer + i * soilLayers];
 			results->root_distribution[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
@@ -779,7 +776,7 @@ SEXP willowGro(
         REAL(SoilEvaporation)[i] = soilEvap;
         REAL(LeafPsimVec)[i] = LeafPsim;
 
-        for(int layer = 0; layer < soilLayers; layer++) {
+        for(size_t layer = 0; layer < soilLayers; ++layer) {
             REAL(psimMat)[layer + i * soilLayers] = results->psim[layer + i * soilLayers];
             REAL(cwsMat)[layer + i * soilLayers] = results->water_status[layer + i * soilLayers];
             REAL(rdMat)[layer + i * soilLayers] = results->root_distribution[layer + i * soilLayers];
