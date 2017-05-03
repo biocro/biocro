@@ -138,7 +138,7 @@ SEXP CanA(
     REAL(canopy_transpiration_penman)[0] = ans.canopy_transpiration_penman;
     REAL(canopy_transpiration_priestly)[0] = ans.canopy_transpiration_priestly;
     REAL(canopy_conductance)[0] = ans.canopy_conductance;
-    for (int i = 0; i < nlayers * 21; i++) {
+    for (int i = 0; i < nlayers * 21; ++i) {
         REAL(result_matrix)[i] = ans.result_matrix[i];
     }
 

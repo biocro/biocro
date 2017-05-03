@@ -173,7 +173,7 @@ struct Can_Str CanAC(
     ans.canopy_transpiration_priestly = CanopyPr;
     ans.canopy_conductance = canopy_conductance;
 
-    for (int i = 0; i < nlayers * 21; i++) {
+    for (int i = 0; i < nlayers * 21; ++i) {
         ans.result_matrix[i] = result_matrix[i];
     }
     return ans;

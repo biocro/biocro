@@ -35,7 +35,7 @@ struct BioGro_results_str {
 	struct cenT_str centS;
 };
 
-void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size);
+void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, size_t vector_size);
 void free_biogro_results(struct BioGro_results_str *results);
 
 struct Model_state {
@@ -77,7 +77,7 @@ struct Light_model {
 void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
         double windspeed[], double precip[], double kd, double chil, double leafwidth, int et_equation,
         double heightf, int nlayers, double initial_biomass[4],
-        double sencoefs[], int timestep, int vecsize,
+        double sencoefs[], int timestep, size_t vecsize,
         double Sp, double SpD, double dbpcoefs[25], double thermalp[], double tbase, double vmax1, 
         double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,
@@ -99,15 +99,6 @@ struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
                        double theta, double kd, double heightf,
 		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
                         
-/**************** This is new C function avoiding use of Global Variables****************************/
- struct Can_Str newc3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
-               double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
-		     double Rd, double Catm, double o2, double b0, double b1,
-                     double theta, double kd, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomWS, int water_stress_approach);
- /**********************************************************************************************/
-
-         
 
 struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime);
 

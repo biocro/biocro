@@ -22,14 +22,13 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
     double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
     // int nr; unused
     // int nt; unused
-	int nq;
 	int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
 	SEXP lists, names;
 	SEXP GsV;
 	SEXP ASSV;
 	SEXP CiV;
 
-	nq = length(Qp1);
+	size_t nq = length(Qp1);
     // nt = length(Tl1); unused
     // nr = length(RH1); unused
 
@@ -41,7 +40,7 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	PROTECT(CiV = allocVector(REALSXP,nq));
  
 	/* Start of the loop */
-	for(int i = 0; i < nq; ++i)
+	for(size_t i = 0; i < nq; ++i)
 	{
 		/*pick the right element*/
 		double Qp = REAL(Qp1)[i];

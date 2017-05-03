@@ -156,8 +156,6 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
     }
 
 	/* Index variables */
-	int j,k,m;
-	int niter, niter2, iters = 0, iters2 = 0;
 	int accept = 0;
 	int n1 = 0, n2 = 0;
     double upperT=REAL(UPPERTEMP)[0];
@@ -167,11 +165,10 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 	/* The all important vector size */
 	int vecsize = INTEGER(VECSIZE)[0];
-	int Ndat;
 	int n1dat = 0;
-	Ndat = INTEGER(NDATA)[0];
-	niter = INTEGER(NITER)[0];
-	niter2 = INTEGER(NITER2)[0];
+	size_t Ndat = INTEGER(NDATA)[0];
+	int niter = INTEGER(NITER)[0];
+	int niter2 = INTEGER(NITER2)[0];
 	double saTemp;
 	int coolSamp;
 	double scale;
@@ -200,7 +197,6 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 	/* Needed variables */
 	double lati;
-	int nlayers;
 	/* Creating vectors */
 	double dbpcoef[25];
 	/* Picking the simulation */
@@ -316,7 +312,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 	/* Picking them */
 	lati = REAL(LAT)[0];
-	nlayers = INTEGER(NLAYERS)[0];
+	int nlayers = INTEGER(NLAYERS)[0];
 	Rd = REAL(RD)[0];
 	Ca = REAL(CATM)[0];
 	vmax = REAL(VMAX)[0];
@@ -326,7 +322,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	beta = REAL(BETA)[0];
 
 	/* Pick the observed */
-	for(m=0;m<Ndat;m++){
+	for(size_t m = 0; m < Ndat; ++m) {
 		oStemy[m] = REAL(oSTEM)[m];
 		REAL(obsStem)[m] = REAL(oSTEM)[m];
 		oLeafy[m] = REAL(oLEAF)[m];
@@ -380,7 +376,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
         /* determining the n1dat */
 	n1dat = INTEGER(N1DAT)[phen-1];
 
-	for(iters=0;iters<niter;iters++){
+	for(int iters = 0; iters < niter; ++iters){
 
         /* Selecting the index to sample */
 
@@ -607,7 +603,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, StomWS, thermal_leaf_nitrogen_limitation, results);
 
 		/* pick the needed elements for the SSE */
-		for(k=0; k<Ndat; k++) {
+		for(size_t k = 0; k < Ndat; ++k) {
 			ind = INTEGER(INDEX)[k];
 			// sCanopyAssim[k] = results->CanopyAssim[ind];
 			sLeafy[k] = results->Leafy[ind];
@@ -669,27 +665,21 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 
 	}
 
-	for(iters2=0;iters2<niter2;iters2++){
-
+	for(int iters2 = 0; iters2 < niter2; ++iters2) {
 		index = sel_phen(phen);
 
 		/* First phenological stage */
-
 		kLeaf_1 = fabs(oldkLeaf_1);
 		kStem_1 = fabs(oldkStem_1);
 		kRoot_1 = fabs(oldkRoot_1);
         
-		if(index < 1){
-			kLeaf_1 = fabs(rnorm(kLeaf_1,sd1));
-		}else
-    
-			if(index < 2){
-				kStem_1 = fabs(rnorm(kStem_1,sd1));
-			}else
-
-				if(index < 3){
-					kRoot_1 = fabs(rnorm(kRoot_1,sd1));
-				}
+        if(index < 1) {
+            kLeaf_1 = fabs(rnorm(kLeaf_1,sd1));
+        } else if(index < 2) {
+            kStem_1 = fabs(rnorm(kStem_1,sd1));
+        } else if(index < 3) {
+            kRoot_1 = fabs(rnorm(kRoot_1,sd1));
+        }
     
 		k1 = kLeaf_1 + kStem_1 + kRoot_1;
 		kLeaf_1 = kLeaf_1/k1;
@@ -893,7 +883,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 		       REAL(SECS), REAL(NCOEFS)[0], REAL(NCOEFS)[1], REAL(NCOEFS)[2], INTEGER(LNFUN)[0],upperT,lowerT,nitroparms, StomWS, thermal_leaf_nitrogen_limitation, results);
 
 		/* pick the needed elements for the SSE */
-		for(k=0;k<Ndat;k++){
+		for(size_t k = 0; k < Ndat; ++k){
 			ind = INTEGER(INDEX)[k];
 			// sCanopyAssim[k] = results->CanopyAssim[ind]; unused
 			sLeafy[k] = results->Leafy[ind];
@@ -1022,7 +1012,7 @@ SEXP SABioGro(SEXP oTHERMAL, SEXP oSTEM, SEXP oLEAF,
 	REAL(accept3)[0] = n2;
 	REAL(SAtemp)[0] = saTemp;
 
-	for(j=0;j<Ndat;j++){
+	for(size_t j = 0; j < Ndat; ++j){
 		ind = INTEGER(INDEX)[j];
 		REAL(simStem)[j] = results->Stemy[ind];
 		REAL(simLeaf)[j] = results->Leafy[ind];

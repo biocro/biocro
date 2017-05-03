@@ -88,7 +88,6 @@ SEXP MisGro(
 	double *initial_biomass = REAL(INITIAL_BIOMASS);
     double *sencoefs = REAL(SENCOEFS);
     int timestep = INTEGER(TIMESTEP)[0];
-    size_t vecsize;
     double Sp = REAL(SPLEAF)[0]; 
     double SpD = REAL(SPD)[0];
     double *dbpcoefs = REAL(DBPCOEFS);
@@ -179,7 +178,7 @@ SEXP MisGro(
     SEXP SNpools;
     SEXP LeafPsimVec;
 
-    vecsize = length(DOY);
+    size_t vecsize = length(DOY);
     PROTECT(lists = allocVector(VECSXP,29));
     PROTECT(names = allocVector(STRSXP,29));
 
@@ -217,7 +216,7 @@ SEXP MisGro(
     if (results) {
         initialize_biogro_results(results, soilLayers, vecsize);
     } else {
-        Rprintf("Out of memory in R_MisGro.cpp.\n");
+        error("Out of memory in R_MisGro.cpp.\n");
         return R_NilValue;
     }
 

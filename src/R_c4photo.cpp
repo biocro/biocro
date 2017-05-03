@@ -27,17 +27,14 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
         upperT=REAL(UPPERTEMP)[0];
         lowerT=REAL(LOWERTEMP)[0];
 
-    // int nt, nr; unused
-	int nq , i;
 
 	SEXP lists, names;
 	SEXP GsV;
 	SEXP ASSV;
-  SEXP GASSV;
+    SEXP GASSV;
 	SEXP CiV;
 
-
-	nq = length(Qp);
+	size_t nq = length(Qp);
     // nt = length(Tl);nr = length(RH); unused
 
 	PROTECT(lists = allocVector(VECSXP,4));
@@ -60,7 +57,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
     double *pt_GASSV = REAL(GASSV);
 	double *pt_CiV = REAL(CiV);
 	/* Start of the loop */
-	for(i = 0; i < nq ; i++)
+	for(size_t i = 0; i < nq; ++i)
 	{
 
 		tmp = c4photoC(*(pt_Qp+i), *(pt_Tl+i), *(pt_RH+i),

@@ -22,7 +22,7 @@ state_vector_map Gro(
 {
     state_map current_state = initial_state;
 
-    auto n_rows = varying_parameters.begin()->second.size();
+    size_t n_rows = varying_parameters.begin()->second.size();
     state_vector_map state_history = allocate_state(current_state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
     state_vector_map results = state_history;
     state_vector_map deriv_history;
