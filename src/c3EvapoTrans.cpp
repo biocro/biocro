@@ -14,7 +14,7 @@
 #include <Rinternals.h>
 #include "c3photo.h"
 #include "AuxBioCro.h"
-#include "c3EvapoTrans.h"
+#include "BioCro.h"
 
 /* EvapoTrans function */
 struct ET_Str c3EvapoTrans(double Rad, 

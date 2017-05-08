@@ -146,6 +146,11 @@ struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double
 			 double WindSpeed, double LeafAreaIndex, double CanopyHeight, 
 			  double stomatacond, double leafw, int eteq);
 
+struct ET_Str c3EvapoTrans(double Rad, double Itot, double Airtemperature, double RH, double WindSpeed,
+			   double LeafAreaIndex, double CanopyHeight, double vcmax2, double jmax2, double Rd2, 
+			   double b02, double b12, double Catm2, double O2, double theta2,
+			   double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
+
 // Function to calculate leaf N limitation. Definitions are in leaf_n_limitation_functions.c
 double thermal_leaf_nitrogen_limitation(double kLn, double leaf_n_0, const struct Model_state &current_state);
 
