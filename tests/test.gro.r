@@ -8,8 +8,6 @@ get_errors = function(expr) {
     errors
 }
 
-sorghum_modules = list(canopy_module_name='c4_canopy', soil_module_name='one_layer_soil_profile', growth_module_name='partitioning_growth', senescence_module_name='thermal_time_senescence')
-
 wrong_modules = within(sorghum_modules, canopy_module_name<-'NONEXISTANTMODULE')
 result = get_errors({Gro(sorghum_initial_state, sorghum_parameters, weather05, wrong_modules)})
 if (conditionMessage(result) != 'NONEXISTANTMODULE was passed as a module, but that module could not be found.\n') {
