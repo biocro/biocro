@@ -114,7 +114,7 @@ SEXP MisGro(
     double *centcoefs = REAL(CENTCOEFS);
     int centTimestep = INTEGER(CENTTIMESTEP)[0];
     double *centks = REAL(CENTKS);
-    int soilLayers = INTEGER(SOILLAYERS)[0];
+    size_t soilLayers = INTEGER(SOILLAYERS)[0];
     double *soilDepths = REAL(SOILDEPTHS);
     double *cws = REAL(CWS);
     double hydrDist = INTEGER(HYDRDIST)[0];
@@ -258,7 +258,7 @@ SEXP MisGro(
         REAL(SoilEvaporation)[i] = results->soil_evaporation[i];
         REAL(LeafPsimVec)[i] = results->leaf_psim[i];
 
-        for(int layer = 0; layer < soilLayers; layer++) {
+        for(size_t layer = 0; layer < soilLayers; layer++) {
             REAL(psimMat)[layer + i * soilLayers] = results->psim[layer + i * soilLayers];
             REAL(cwsMat)[layer + i * soilLayers] = results->water_status[layer + i * soilLayers];
             REAL(rdMat)[layer + i * soilLayers] = results->root_distribution[layer + i * soilLayers];
