@@ -26,9 +26,7 @@ export(c3CanA, c3photoParms)
 
 export(c3photo)
 
-export(c4photo, MCMCc4photo)
-S3method(print, MCMCc4photo)
-S3method(plot, MCMCc4photo)
+export(c4photo)
 
 export(CanA)
 
@@ -36,17 +34,11 @@ export(Century, CenturyC)
 
 export(constrOpBioGro)
 
-export(eC4photo, eCanA, MCMCEc4photo)
-S3method(print, MCMCEc4photo)
-S3method(plot, MCMCEc4photo)
+export(eC4photo, eCanA)
 
 export(idbp)
 
 export(lightME)
-
-export(MCMCBioGro)
-S3method(print, MCMCBioGro)
-S3method(plot, MCMCBioGro)
 
 export(OpBioGro)
 S3method(print, OpBioGro)
