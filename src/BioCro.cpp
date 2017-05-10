@@ -56,7 +56,7 @@ void BioGro(
         double centcoefs[],           /* Century coefficients               42 */
         int centTimestep,             /* Century timestep                   43 */
         double centks[],              /* Century decomp rates               44 */
-        size_t soilLayers,               /* # soil layers                      45 */
+        int soilLayers,               /* # soil layers                      45 */
         double soilDepths[],          /* Soil Depths                        46 */
         double cws[],                 /* Current water status               47 */
         int hydrDist,                 /* Hydraulic dist flag                48 */
@@ -584,7 +584,7 @@ void BioGro(
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
-		for(size_t layer = 0; layer < soilLayers; ++layer) {
+		for(int layer = 0; layer < soilLayers; ++layer) {
 			results->psim[layer + i * soilLayers] = psi[layer + i * soilLayers];
 			results->water_status[layer + i * soilLayers] = water_status[layer + i * soilLayers];
 			results->root_distribution[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];

@@ -82,7 +82,7 @@ void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], doub
         double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,
         double alphab1, double mresp[], int soilType, int wsFun, int water_stress_approach, double centcoefs[],
-        int centTimestep, double centks[], size_t soilLayers, double soilDepths[],
+        int centTimestep, double centks[], int soilLayers, double soilDepths[],
         double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, const struct nitroParms &nitroP, double StomataWS,
 		double (*leaf_n_limitation)(double kLn, double leaf_n_0, const struct Model_state &current_state), struct BioGro_results_str *results);
 
