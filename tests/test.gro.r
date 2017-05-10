@@ -29,6 +29,8 @@ if (conditionMessage(result) != 'This function cannot continue unless all state 
 }
 
 system.time({
-    test = Gro(sorghum_initial_state, sorghum_parameters, weather06, sorghum_modules)
+    for (i in 1:5) {
+        test = Gro(sorghum_initial_state, sorghum_parameters, weather06, sorghum_modules)
+    }
 })
 

@@ -579,11 +579,8 @@ std::unique_ptr<IModule> make_module(string const &module_name)
 state_vector_map allocate_state(state_map const &m, size_t n)
 {
     state_vector_map result;
-    for (auto it = m.begin(); it != m.end(); ++it) {
-        vector<double> temp;
-        temp.reserve(n);
-        //temp.push_back(it->second);
-        //result.insert(std::pair<string, vector<double>>(it->first, temp));
+    for (auto it = result.begin(); it != result.end(); ++it) {
+        it->second.reserve(n);
     }
     return(result);
 }
