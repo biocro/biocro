@@ -582,8 +582,7 @@ state_vector_map allocate_state(state_map const &m, size_t n)
     for (auto it = m.begin(); it != m.end(); ++it) {
         vector<double> temp;
         temp.reserve(n);
-        //temp.push_back(it->second);
-        //result.insert(std::pair<string, vector<double>>(it->first, temp));
+        result.insert(std::pair<string, vector<double>>(it->first, temp));
     }
     return(result);
 }
