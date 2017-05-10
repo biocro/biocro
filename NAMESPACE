@@ -1,14 +1,11 @@
 useDynLib(BioCro, MisGro,
           c4photo_sym = c4photo,
           c3photo_sym = c3photo,
-          McMCc4photo,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
           cntry,
           eC4photo_sym = eC4photo,
           eCanA_sym = eCanA,
-          McMCEc4photo,
-          SABioGro,
           willowGro_sym = willowGro,
           RGro)
 
