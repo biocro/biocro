@@ -15,5 +15,6 @@ Enhances: data.table
 VignetteBuilder: knitr
 SystemRequirements: C++11
 License: FreeBSD + file LICENSE
+LazyData: true
 Packaged: 2013-03-29 07:12:38 UTC; djaiswal
 RoxygenNote: 5.0.1

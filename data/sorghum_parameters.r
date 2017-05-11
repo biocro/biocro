@@ -1,5 +1,5 @@
-# Do the calculations inside an NULL environment so that temporary variables are not created in .Global.
-sorghum_parameters = with(NULL, {
+# Do the calculations inside an empty list so that temporary variables are not created in .Global.
+sorghum_parameters = with(list(), {
     datalines =
     "symbol value
     lat 40
@@ -9,6 +9,7 @@ sorghum_parameters = with(NULL, {
     kd 0.1
     chil 1.43 # An estimate for sorghum. Table 15.1, page 253 of Campbell and Norman. An introduction to environmental biophysics. 2nd edition.
     heightf 3
+    growth_respiration_fraction 0
     leafwidth 0.04
     et_equation 0
     seneLeaf 3000
@@ -25,7 +26,7 @@ sorghum_parameters = with(NULL, {
     Catm 400
     b0 0.08
     b1 3
-    ws 1
+    water_stress_approach 1
     upperT 37.5
     lowerT 3
     FieldC -1
@@ -33,7 +34,6 @@ sorghum_parameters = with(NULL, {
     phi1 0.01
     phi2 10
     soilDepth 1
-    iWatCont 0.32
     soilType 6
     soilLayers 1
     wsFun 0

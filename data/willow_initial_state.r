@@ -1,11 +1,11 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-sorghum_initial_state = with(list(), {
+willow_initial_state = with(list(), {
     datalines =
     "symbol value
-    Rhizome 0.001455 # Page 130 of March 2014 lab book
-    Leaf 0.00001
-    Stem 0.00001
-    Root 0.00001
+    Rhizome 0.99
+    Leaf 0.02
+    Stem 0.99
+    Root 1
     Grain 0
     waterCont 0.32
     StomataWS 1

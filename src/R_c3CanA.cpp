@@ -24,7 +24,9 @@ extern "C" {
             SEXP HEIGHTF, 
             SEXP LNPS,
             SEXP STOMATAWS,
-            SEXP WS)
+            SEXP WATER_STRESS_APPROACH,
+            SEXP ELECTRONS_PER_CARBOXYLATION,
+            SEXP ELECTRONS_PER_OXYGENATION)
     {
         double LAI = REAL(Lai)[0];
         int DOY = INTEGER(Doy)[0];
@@ -51,7 +53,9 @@ extern "C" {
         double lnb1 = REAL(LNPS)[3];
         int lnfun = REAL(LNPS)[4]; /* Coercing a double to integer */
         double StomataWS = REAL(STOMATAWS)[0];
-        int ws = INTEGER(WS)[0];
+        int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
+        double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
+        double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
 
         SEXP lists;
         SEXP names;
@@ -69,7 +73,7 @@ extern "C" {
         s["lai"] = LAI;
         s["doy"] = DOY;
         s["hour"] = hr;
-        s["solarr"] = solarR;
+        s["solar"] = solarR;
         s["temp"] = Temp;
         s["rh"] = RH;
         s["windspeed"] = WindSpeed;
@@ -77,21 +81,23 @@ extern "C" {
         s["nlayers"] = nlayers;
         s["vmax"] = vmax;
         s["jmax"] = jmax;
-        s["rd"] = Rd;
-        s["catm"] = Catm;
-        s["o2"] = o2;
+        s["Rd"] = Rd;
+        s["Catm"] = Catm;
+        s["O2"] = o2;
         s["b0"] = b0;
         s["b1"] = b1;
         s["theta"] = theta;
         s["kd"] = kd;
         s["heightf"] = heightf;
-        s["leafn"] = leafN;
-        s["kpln"] = kpLN;
+        s["LeafN"] = leafN;
+        s["kpLN"] = kpLN;
         s["lnb0"] = lnb0;
         s["lnb1"] = lnb1;
         s["lnfun"] = lnfun;
-        s["stomataws"] = StomataWS;
-        s["ws"] = ws;
+        s["StomataWS"] = StomataWS;
+        s["water_stress_approach"] = water_stress_approach;
+        s["electrons_per_carboxylation"] = electrons_per_carboxylation;
+        s["electrons_per_oxygenation"] = electrons_per_oxygenation;
 
         c3_canopy canopy;
         vector<string> missing_state = canopy.state_requirements_are_met(s);

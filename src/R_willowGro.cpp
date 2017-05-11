@@ -6,11 +6,7 @@
 #include <R.h>
 #include <Rinternals.h>
 #include "c3photo.h"
-#include "AuxwillowGro.h"
-#include "crocent.h"
-#include "c3canopy.h"
 #include "BioCro.h"
-#include "Century.h"
 
 extern "C" {
 
@@ -54,7 +50,7 @@ SEXP willowGro(
         SEXP MRESP,            /* Maintenance resp                   37 */
         SEXP SOILTYPE,         /* Soil type                          38 */
         SEXP WSFUN,            /* Water Stress Func                  39 */
-        SEXP WS,               /* Water stress flag                  31 */
+        SEXP WATER_STRESS_APPROACH,               /* Water stress flag                  31 */
         SEXP CENTCOEFS,        /* Century coefficients               40 */
         SEXP CENTTIMESTEP,     /* Century timestep                   41 */
         SEXP CENTKS,           /* Century decomp rates               42 */
@@ -73,7 +69,9 @@ SEXP willowGro(
         SEXP JMAXB1,           /*                                    55 */
         SEXP O2,               /*                                    55 */
         SEXP GROWTHRESP,       /*                                    57 */
-        SEXP STOMATAWS)        /*                                    58 */
+        SEXP STOMATAWS,       /*                                    58 */
+        SEXP ELECTRONS_PER_CARBOXYLATION,
+        SEXP ELECTRONS_PER_OXYGENATION)
 {
     double lat = REAL(LAT)[0];
     int *doy = INTEGER(DOY);
@@ -89,10 +87,11 @@ SEXP willowGro(
     //
     double heightf = REAL(HEIGHTF)[0];
     int nlayers = INTEGER(NLAYERS)[0];
+    if (nlayers <= 0)
+        error("The number of layers must be greater than 0.");
 	double *initial_biomass = REAL(INITIAL_BIOMASS);
     double *sencoefs = REAL(SENCOEFS);
     int timestep = INTEGER(TIMESTEP)[0];
-    int vecsize;
     double Sp = REAL(SPLEAF)[0]; 
     double SpD = REAL(SPD)[0];
     double *dbpcoefs = REAL(DBPCOEFS);
@@ -114,7 +113,7 @@ SEXP willowGro(
     double *mresp = REAL(MRESP);
     int soilType = INTEGER(SOILTYPE)[0];
     int wsFun = INTEGER(WSFUN)[0];
-    int ws = INTEGER(WS)[0];
+    int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
     double *centcoefs = REAL(CENTCOEFS);
     int centTimestep = INTEGER(CENTTIMESTEP)[0];
     double *centks = REAL(CENTKS);
@@ -134,6 +133,8 @@ SEXP willowGro(
     // double o2 = REAL(O2)[0];
     double GrowthRespFraction = REAL(GROWTHRESP)[0];
     double StomataWS = REAL(STOMATAWS)[0];
+    double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
+    double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
 
     SEXP lists, names;
 
@@ -167,7 +168,7 @@ SEXP willowGro(
     SEXP SNpools;
     SEXP LeafPsimVec;
 
-    vecsize = length(DOY);
+    size_t vecsize = length(DOY);
     PROTECT(lists = allocVector(VECSXP, 29));
     PROTECT(names = allocVector(STRSXP, 29));
 
@@ -204,9 +205,14 @@ SEXP willowGro(
 	if ( vecsize > 8760 ) error("The number of timesteps must be less than or equal to 8760. You probably want to change the day1 or dayn arguments.");
 
     struct BioGro_results_str *results = (struct BioGro_results_str*)malloc(sizeof(struct BioGro_results_str));
-    initialize_biogro_results(results, soilLayers, vecsize);
+    if (results) {
+        initialize_biogro_results(results, soilLayers, vecsize);
+    } else {
+        Rprintf("Out of memory in R_willoGro.cpp.\n");
+        return R_NilValue;
+    }
 	
-	double (*leaf_n_limitation)(double, double, struct Model_state) = biomass_leaf_nitrogen_limitation;
+	double (*leaf_n_limitation)(double, double, const struct Model_state &) = biomass_leaf_nitrogen_limitation;
 
     double o2 = 210;
 
@@ -229,9 +235,7 @@ SEXP willowGro(
     double Leaf = initial_biomass[2];
     double Root = initial_biomass[3];
 
-    int i, i3;
-
-    double LAI = 0.0, Grain = 0.0;
+    double Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
     double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0, newStemLitter = 0.0, newLeafLitter = 0.0, newRhizomeLitter = 0.0, newRootLitter = 0.0;
@@ -289,7 +293,7 @@ SEXP willowGro(
     struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
     soTexS = soilTchoose(soilType);
 
-    LAI = Leaf * Sp;
+    double LAI = Leaf * Sp;
 
     /* Creation of pointers outside the loop */
     sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
@@ -336,7 +340,7 @@ SEXP willowGro(
     SCCs[8] = centcoefs[8];
 
 
-    for(i=0; i < vecsize; ++i)
+    for(size_t i = 0; i < vecsize; ++i)
     {
         newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
 
@@ -364,7 +368,7 @@ SEXP willowGro(
 
         /* First calculate the elapsed Thermal Time*/
         if(temp[i] > tbase) {
-            TTc += (temp[i]-tbase) / (24/timestep); 
+            TTc += (temp[i]-tbase) / (24/ (double)timestep); 
         }
 
         /*  Do the magic! Calculate growth*/
@@ -401,7 +405,7 @@ SEXP willowGro(
                 solar[i], temp[i], rh[i], windspeed[i],
                 lat, nlayers, vmax, jmax1,
 				Rd, Catm, o2, b0, b1, theta, kd,
-                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomataWS, ws);
+                heightf, LeafN, kpLN, lnb0, lnb1, lnfun, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
 
         CanopyA = Canopy.Assim * timestep * (1.0 - GrowthRespFraction);
         CanopyT = Canopy.Trans * timestep;
@@ -454,7 +458,7 @@ SEXP willowGro(
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i3=0; i3 < soilLayers; ++i3) {
+            for(int i3 = 0; i3 < soilLayers; ++i3) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
                 water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
@@ -739,7 +743,7 @@ SEXP willowGro(
 		results->vmax[i] = vmax;
 		results->alpha[i] = alpha;
 		results->specific_leaf_area[i] = Sp;
-		results->min_nitro[i] = MinNitro / (24 / centTimestep);
+		results->min_nitro[i] = MinNitro / (24 / (double)centTimestep);
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
@@ -774,7 +778,7 @@ SEXP willowGro(
         REAL(SoilEvaporation)[i] = soilEvap;
         REAL(LeafPsimVec)[i] = LeafPsim;
 
-        for(int layer = 0; layer < soilLayers; layer++) {
+        for(int layer = 0; layer < soilLayers; ++layer) {
             REAL(psimMat)[layer + i * soilLayers] = results->psim[layer + i * soilLayers];
             REAL(cwsMat)[layer + i * soilLayers] = results->water_status[layer + i * soilLayers];
             REAL(rdMat)[layer + i * soilLayers] = results->root_distribution[layer + i * soilLayers];

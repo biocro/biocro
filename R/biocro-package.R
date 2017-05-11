@@ -87,8 +87,6 @@ NULL
 NULL
 
 
-
-
 ##' Weather data
 ##'
 ##' Selected weather data corresponding to the Champaign weather station (IL,
@@ -102,44 +100,6 @@ NULL
 ##' @source \url{http://www.sws.uiuc.edu/warm/}
 ##' @keywords datasets
 NULL
-
-
-
-
-
-##' Weather data
-##'
-##' Layer data for evapo/transpiration. Simulated data to show the result of
-##' the EvapoTrans function.
-##'
-##' lfClass: Leaf class, `sun' or `shade'.
-##'
-##' layer: Layer in the canopy, 1 to 8.
-##'
-##' hour: Hour of the day (0--23).
-##'
-##' Rad: Direct light.
-##'
-##' Itot: Total radiation.
-##'
-##' Temp: Air temperature (Celsius).
-##'
-##' RH: Relative humidity (0--1).
-##'
-##' WindSpeed: Wind speed (m s\eqn{^{-1}}{-1}).
-##'
-##' LAI: Leaf area index.
-##'
-##'
-##' @name cmiWet
-##' @docType data
-##' @format Data frame of dimensions 384 by 9.
-##' @source Simulated.
-##' @keywords datasets
-NULL
-
-
-
 
 
 ##' Weather data
@@ -170,9 +130,6 @@ NULL
 ##' @source Simulated.
 ##' @keywords datasets
 NULL
-
-
-
 
 
 ##' Weather data corresponding to a paper by Clive Beale (see source).

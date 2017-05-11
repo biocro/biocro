@@ -29,7 +29,7 @@ void BioGro(
 		double initial_biomass[4],
         double sencoefs[],            /* sene coefs                         17 */
         int timestep,                 /* time step                          18 */
-        int vecsize,                  /* vector size                        19 */
+        size_t vecsize,                  /* vector size                        19 */
         double Sp,                    /* Spec Leaf Area                     20 */
         double SpD,                   /* Spec Lefa Area Dec                 21 */
         double dbpcoefs[25],          /* Dry Bio Coefs                      22 */
@@ -52,7 +52,7 @@ void BioGro(
         double mresp[],               /* Maintenance resp                   38 */
         int soilType,                 /* Soil type                          39 */
         int wsFun,                    /* Water Stress Func                  40 */
-        int ws,                       /* Water stress flag                  41 */
+        int water_stress_approach,    /* Water stress flag                  41 */
         double centcoefs[],           /* Century coefficients               42 */
         int centTimestep,             /* Century timestep                   43 */
         double centks[],              /* Century decomp rates               44 */
@@ -67,9 +67,9 @@ void BioGro(
         int lnfun ,                   /* Leaf N func flag                   53 */
         double upperT,                /* Upper photoParm temperature limit  54 */
         double lowerT,                /* Lower photoParm temperature limit  55 */
-        struct nitroParms nitroP,     /* Nitrogen parameters                56 */
+        const struct nitroParms& nitroP,     /* Nitrogen parameters                56 */
 		double StomataWS,
-		double (*leaf_n_limitation)(double, double, struct Model_state),
+		double (*leaf_n_limitation)(double, double, const struct Model_state &),
     	struct BioGro_results_str *results)
 {
     double newLeafcol[8760];
@@ -82,9 +82,7 @@ void BioGro(
 	double Leaf = initial_biomass[2];
 	double Root = initial_biomass[3];
 
-    int i, i3;
-
-    double LAI = 0.0, Grain = 0.0;
+    double Grain = 0.0;
     double TTc = 0.0;
     double kLeaf = 0.0, kStem = 0.0, kRoot = 0.0, kRhizome = 0.0, kGrain = 0.0;
     double newLeaf = 0.0, newStem = 0.0, newRoot = 0.0, newRhizome = 0.0, newGrain = 0.0, newStemLitter = 0.0, newLeafLitter = 0.0, newRhizomeLitter = 0.0, newRootLitter = 0.0;
@@ -100,8 +98,7 @@ void BioGro(
 
     double *sti , *sti2, *sti3, *sti4;
     double Remob;
-    int k = 0, q = 0, m = 0, n = 0;
-    int ri = 0;
+    size_t k = 0, q = 0, m = 0, n = 0, ri = 0;
 
     double LeafWS;
     double CanopyA, CanopyT;
@@ -142,7 +139,7 @@ void BioGro(
     struct soilText_str soTexS; /* , *soTexSp = &soTexS; */
     soTexS = soilTchoose(soilType);
 
-    LAI = Leaf * Sp;
+    double LAI = Leaf * Sp;
 
     /* Creation of pointers outside the loop */
     sti = &newLeafcol[0]; /* This creates sti to be a pointer to the position 0
@@ -189,7 +186,7 @@ void BioGro(
     SCCs[8] = centcoefs[8];
 
 
-    for(i = 0; i < vecsize; ++i)
+    for(size_t i = 0; i < vecsize; ++i)
     {
         newLeafLitter = newStemLitter = newRootLitter = newRhizomeLitter= 0;
 
@@ -217,7 +214,7 @@ void BioGro(
 
         /* First calculate the elapsed Thermal Time*/
         if(temp[i] > tbase) {
-            TTc += (temp[i]-tbase) / (24/timestep); 
+            TTc += (temp[i] - tbase) / (24 / (double)timestep); 
         }
 
         /* Do the magic! Calculate growth*/
@@ -256,7 +253,7 @@ void BioGro(
                 b0, b1, theta, kd, chil,
                 heightf, LeafN, kpLN, lnb0, lnb1,
                 lnfun, upperT, lowerT, nitroP, leafwidth,
-                et_equation, StomataWS, ws); 
+                et_equation, StomataWS, water_stress_approach); 
 
         CanopyA = Canopy.Assim * timestep;
         CanopyT = Canopy.Trans * timestep;
@@ -309,7 +306,7 @@ void BioGro(
             LeafWS = soilMLS.rcoefSpleaf;
             soilEvap = soilMLS.SoilEvapo;
 
-            for(i3 = 0; i3 < soilLayers; ++i3) {
+            for(int i3 = 0; i3 < soilLayers; ++i3) {
                 cws[i3] = soilMLS.cws[i3];
                 cwsVecSum += cws[i3];
 				water_status[i3 + i*soilLayers] = soilMLS.cws[i3];
@@ -583,7 +580,7 @@ void BioGro(
 		results->vmax[i] = vmax;
 		results->alpha[i] = alpha;
 		results->specific_leaf_area[i] = Sp;
-		results->min_nitro[i] = MinNitro / (24 / centTimestep);
+		results->min_nitro[i] = MinNitro / (24 / (double)centTimestep);
 		results->respiration[i] = Resp / (24*centTimestep);
 		results->soil_evaporation[i] = soilEvap;
 		results->leaf_psim[i] = LeafPsim;
@@ -593,25 +590,5 @@ void BioGro(
 			results->root_distribution[layer + i * soilLayers] = root_distribution[layer + i * soilLayers];
 		}
     }
-}
-
-double sel_phen(int phen)
-{
-    double index = 0;
-
-    if (phen == 6) {
-        index = runif(20, 25);
-    } else if (phen == 5) {
-        index = runif(16, 20);
-    } else if (phen == 4) {
-        index = runif(12, 16);
-    } else if (phen == 3) {
-        index = runif(8, 12);
-    } else if (phen == 2) {
-        index = runif(4, 8);
-    } else if (phen == 1) {
-        index = runif(0, 4);
-    }
-    return(index);
 }
 

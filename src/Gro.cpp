@@ -8,7 +8,6 @@
 #include <memory>
 #include <R.h>
 #include "BioCro.h"
-#include "Century.h"
 #include "modules.h"
 
 state_vector_map Gro(
@@ -18,15 +17,12 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
         std::unique_ptr<IModule> const &soil_evaporation_module,
         std::unique_ptr<IModule> const &growth_module,
+        std::unique_ptr<IModule> const &senescence_module,
         double (*leaf_n_limitation)(state_map const &model_state))
 {
-
-    std::unique_ptr<IModule> senescence_module = std::unique_ptr<IModule>(new thermal_time_senescence_module);
-
     state_map current_state = initial_state;
-    state_map temp_derivs;
 
-    auto n_rows = varying_parameters.begin()->second.size();
+    size_t n_rows = varying_parameters.begin()->second.size();
     state_vector_map state_history = allocate_state(current_state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
     state_vector_map results = state_history;
     state_vector_map deriv_history;
@@ -53,6 +49,15 @@ state_vector_map Gro(
      */
 
     state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
+    p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
+    p["lai"] = p.at("Leaf") * p.at("Sp");
+    p["LeafN"] = leaf_n_limitation(p);
+    leaf_n_limitation(p);
+    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+    p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
+
+    dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
+
     p["CanopyA"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
 
     vector<string> missing_state;
@@ -141,7 +146,7 @@ state_vector_map Gro(
         }
         derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
-        p["CanopyA"] = derivs["Assim"] * p.at("timestep");
+        p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
         p["CanopyT"] = derivs["Trans"] * p.at("timestep");
 
         derivs += soil_evaporation_module->run(state_history, deriv_history, p);

@@ -110,7 +110,7 @@
 
 c3CanA <- function(lai, doy, hr, solar, temp,
     rh, windspeed, lat=40, nlayers=8, kd=0.1,
-    heightFactor=3, c3photoControl=list(), lnControl=list(), StomWS=1)
+    heightFactor=3, c3photoControl=list(), lnControl=list(), StomWS=1, electrons_per_carboxylation=4.5, electrons_per_oxygenation=5.25)
 {
     ## Add error checking to this function
     if(length(c(lai, doy, hr, solar, temp, rh, windspeed)) != 7)
@@ -145,7 +145,7 @@ c3CanA <- function(lai, doy, hr, solar, temp,
                  as.double(lat),as.integer(nlayers),
                  as.double(photoPs),
                  as.double(kd), as.double(heightFactor),
-                 as.double(lnPs),as.double(StomWS),as.integer(ws))
+                 as.double(lnPs),as.double(StomWS),as.integer(ws), as.double(electrons_per_carboxylation), as.double(electrons_per_oxygenation))
     return(res)
 }
 

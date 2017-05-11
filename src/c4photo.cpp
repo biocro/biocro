@@ -17,102 +17,76 @@
 
 struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alpha, 
 		       double kparm, double theta, double beta,
-		       double Rd, double bb0, double bb1, double StomaWS, double Ca, int ws, double upperT, double lowerT)
+		       double Rd, double bb0, double bb1, double StomaWS, double Ca, int water_stress_approach, double upperT, double lowerT)
 {
 
-	struct c4_str tmp = {0, 0, 0, 0};
-	/* Constants */
 	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
     const double P = AP / 1e3; /* kPa */
-	/*const double PS = 38;   Atmospheric pressure of CO2 */
 	const double Q10 = 2;  /* Q10 increase in a reaction by 10 C temp */
 
-	double Csurface;
-	double InterCellularCO2;
-	double KQ10 , kT;
-	double Vtn , Vtd , VT;
-	double Rtn , Rtd , RT;
-	double b0 , b1 , b2;
-	double M1 , M2 , M;
-	double Quada , Quadb , Quadc;
-	double a2 , Assim;
-	double csurfaceppm;
+	double M;
+	double Assim;
 
-	int iterCounter;
 	double Gs;
-	double diff, OldAssim = 0.0, Tol = 0.1;
-    double miC = 0.0;
-	double kT_IC_P;
+	double OldAssim = 0.0, Tol = 0.1;
 
-	Csurface = (Ca * 1e-6) * AP;
-  
-	InterCellularCO2 = Csurface * 0.4; /* Assign an initial guess. */
+	double Csurface = (Ca * 1e-6) * AP;
+	double InterCellularCO2 = Csurface * 0.4; /* Assign an initial guess. */
+	double KQ10 =  pow(Q10, (Tl - 25.0) / 10.0);
+	double kT = kparm * KQ10;
 
-	KQ10 =  pow(Q10, (Tl - 25.0) / 10.0);
+    // Collatz 1992. Appendix B. Equation set 5B.
+    double Vtn = vmax * pow(2, (Tl - 25.0) / 10.0);
+    double Vtd = (1 + exp(0.3 * (lowerT - Tl))) * (1 + exp(0.3 * (Tl - upperT)));
+    double VT  = Vtn / Vtd;
 
-	kT = kparm * KQ10;
+	// Collatz 1992. Appendix B. Equation set 5B.
+	double Rtn = Rd * pow(2, (Tl - 25) / 10);
+	double Rtd =  1 + exp(1.3 * (Tl - 55));
+	double RT = Rtn / Rtd; 
 
-    // This is the code implementing temperature limitations
-    Vtn = vmax * pow(2, (Tl - 25.0) / 10.0);
-    Vtd = (1 + exp(0.3 * (lowerT - Tl))) * (1 + exp(0.3 * (Tl - upperT)));
-    VT  = Vtn / Vtd;
-
-
-	/* Second chunk of code see Collatz (1992) */
-	Rtn = Rd * pow(2, (Tl - 25) / 10);
-	Rtd =  1 + exp(1.3 * (Tl - 55));
-	RT = Rtn / Rtd; 
-
-	/* Third chunk of code again see Collatz (1992) */
-	b0 = VT * alpha * Qp;
-	b1 = VT + alpha * Qp;
-	b2 = theta;
+	// Collatz 1992. Appendix B. Equation 2B.
+	double b0 = VT * alpha * Qp;
+	double b1 = VT + alpha * Qp;
+	double b2 = theta;
 
 	/* Calculate the 2 roots */
-	M1 = (b1 + sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
-	M2 = (b1 - sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
+	double M1 = (b1 + sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
+	double M2 = (b1 - sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
 
-	/* This piece of code selects the smalles root */
+	/* This piece of code selects the smallest root */
 	if(M1 < M2)
 		M = M1;
 	else
 		M = M2;
 
-	/* Here the iterations will start */
-	iterCounter = 0;
-
+	int iterCounter = 0;
 	while (iterCounter < 50) {
 
-		kT_IC_P = kT * (InterCellularCO2 / P * 1000);
-		Quada = M * kT_IC_P;
-		Quadb = M + kT_IC_P;
-		Quadc = beta;
+		double kT_IC_P = kT * (InterCellularCO2 / P * 1000);
+		double a = M * kT_IC_P;
+		double b = M + kT_IC_P;
+		double c = beta;
 
-		a2 = (Quadb - sqrt(Quadb * Quadb - (4 * Quada * Quadc))) / (2 * Quadc);
+		double a2 = (b - sqrt(b * b - (4 * a * c))) / (2 * c);
 
 		Assim = a2 - RT;
 
-		if (ws == 0) Assim *= StomaWS; 
+		if (water_stress_approach == 0) Assim *= StomaWS; 
 
 		/* milimole per meter square per second*/
-		csurfaceppm = Csurface * 10;
+		double csurfaceppm = Csurface * 10;
 
 		/* Need to create the Ball-Berry function */
 		Gs =  ballBerry(Assim, csurfaceppm, Tl, RH, bb0, bb1);
-		if (ws == 1) Gs *= StomaWS; 
+		if (water_stress_approach == 1) Gs *= StomaWS; 
 
 		InterCellularCO2 = Csurface - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);
 
 		if (InterCellularCO2 < 0)
 			InterCellularCO2 = 1e-5;
 
-		if (iterCounter == 0) {
-			// Assim0 = Assim; set but not used
-			// Gs0 = Gs; set but not used
-			// IntCO2 = InterCellularCO2; set but not used
-		}
-
-		diff = OldAssim - Assim;
+		double diff = OldAssim - Assim;
 		if (diff < 0) diff = -diff;
 
 		if (diff < Tol) {
@@ -124,36 +98,12 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 		++iterCounter;
 	}
 
-/* This would ignore the optimization due to the iterative procedure
- * when it does not converge. It is turned off now*/
-
-
-	/* if(diff > Tol){ */
-	/* 	Assim = Assim0; */
-	/* 	Gs = Gs0; */
-	/* 	InterCellularCO2 = IntCO2; */
-	/* } */
-
-	/* if(diff > Tol){ */
-	/* 	Rprintf("iter %.i diff %.3f \n",iterCounter,diff); */
-	/* 	Rprintf("%.2f %.2f %.2f %.2f \n", Qp, Tl, RH, StomaWS); */
-	/* 	Rprintf("StomWS %.2f \n",StomaWS); */
-	/* 	Rprintf("InterCellular CO2 %.2f \n",InterCellularCO2); */
-	/* 	Rprintf("Assim %.2f \n",Assim); */
-	/* 	Rprintf("miC %.2f \n",(InterCellularCO2/AP)*1e6); */
-	/* 	Rprintf("vmax %.1f alpha %.3f \n", vmax, alpha); */
-	/* 	Rprintf("kparm %.3f theta %.3f \n", kparm, theta); */
-	/* 	Rprintf("beta %.3f Rd %.3f \n", beta, Rd); */
-	/* 	Rprintf("bb0 %.3f bb1 %.3f \n", bb0, bb1); */
-	/* 	Rprintf("Ca %.1f ws %i \n", Ca, ws); */
- 	/* 	error("Did not converge \n"); */
-	/* } */
-
-	miC = (InterCellularCO2 / AP) * 1e6;
+	double miC = (InterCellularCO2 / AP) * 1e6;
 
 	if(Gs > 600)
 	  Gs = 600;
 
+	struct c4_str tmp;
     tmp.Assim = Assim;
     tmp.Gs = Gs;
     tmp.Ci = miC;
@@ -248,26 +198,5 @@ http://en.wikipedia.org/wiki/Arden_Buck_equation
 	esat /= 10;
 
 	return(esat);
-}
-
-/* Calculates RSS according to the Collatz model */
-/* and given values for the two most important */
-/* parameters Vcmax and alpha */
-double RSS_C4photo(double oAssim[], double oQp[], double oTemp[], 
-		   double oRH[], double vmax, double alpha, double kparm, /*\ref{eqn:Vmax}*/
-		   double theta, double beta,
-                   double Rd, double Catm, double b0, double b1, double StomWS, int ws, double upperT, double lowerT, int nObs){ /*\ref{eqn:Rd}*/
-	struct c4_str tmp;
-	int i;
-	double RSS = 0.0, diff = 0.0;
-
-	for(i = 0;i < nObs; i++){
-
-		tmp = c4photoC(oQp[i], oTemp[i], oRH[i], vmax, alpha, kparm, theta, beta, Rd, b0, b1, StomWS, Catm, ws, upperT, lowerT);
-		diff = oAssim[i] - tmp.Assim;
-		RSS += diff * diff;
-
-	}
-	return(RSS);
 }
 

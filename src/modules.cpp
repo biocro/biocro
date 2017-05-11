@@ -22,6 +22,7 @@ state_map IModule::run(state_map const &state) const
         result = this->do_operation(state);
     }
     catch (std::out_of_range const &oor) {
+        Rprintf("Out of range exception %s.\n", oor.what());
         vector<string> missing_state = this->state_requirements_are_met(state);
 
         if (!missing_state.empty()) {
@@ -42,17 +43,11 @@ state_map IModule::run(state_map const &state) const
 state_map IModule::run(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
     state_map result;
-    /*
-    state_vector_map s;
-    for (auto it = _required_state.begin(); it != _required_state.end(); ++it) {
-        auto element = state_history.find(*it);
-        if (element != state_history.end()) s.insert(*element);
-    }
-    */
     try {
         result = this->do_operation(state_history, deriv_history, parameters);
     }
     catch (std::out_of_range const &oor) {
+        Rprintf("Out of range exception %s.\n", oor.what());
         state_map state = combine_state(at(state_history, 0), parameters);
         vector<string> missing_state = this->state_requirements_are_met(state);
 
@@ -73,8 +68,8 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
 
 state_map IModule::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
-    state_map current_state = combine_state(at(state_history, state_history.begin()->second.size()), p);
-    return(this->run(current_state));
+    state_map current_state = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
+    return(this->do_operation(current_state));
 }
 
 vector<string> IModule::state_requirements_are_met(state_map const &s) const
@@ -90,10 +85,7 @@ vector<string> IModule::state_requirements_are_met(state_map const &s) const
 
 state_map c4_canopy::do_operation(state_map const &s) const
 {
-    struct Can_Str result;
     struct nitroParms nitroP; 
-    state_map fluxes;
-
     nitroP.ileafN = s.at("nileafn");
     nitroP.kln = s.at("nkln");
     nitroP.Vmaxb1 = s.at("nvmaxb1");
@@ -106,49 +98,15 @@ state_map c4_canopy::do_operation(state_map const &s) const
     nitroP.lnb0 = s.at("nlnb0");
     nitroP.lnb1 = s.at("nlnb1");
 
-    result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
+    struct Can_Str result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
             s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax1"),
             s.at("alpha1"), s.at("kparm"), s.at("beta"), s.at("Rd"), s.at("Catm"),
             s.at("b0"), s.at("b1"), s.at("theta"), s.at("kd"), s.at("chil"),
             s.at("heightf"), s.at("LeafN"), s.at("kpLN"), s.at("lnb0"), s.at("lnb1"),
             (int)s.at("lnfun"), s.at("upperT"), s.at("lowerT"), nitroP, s.at("leafwidth"),
-            (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("ws"));
+            (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("water_stress_approach"));
 
-    fluxes["Assim"] = result.Assim;
-    fluxes["Trans"] = result.Trans;
-    fluxes["GrossAssim"] = result.GrossAssim;
-
-    return(fluxes);
-}
-
-state_map c4_canopy::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
-{
-    struct Can_Str result;
-    struct nitroParms nitroP; 
     state_map fluxes;
-
-    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-
-    nitroP.ileafN = s.at("nileafn");
-    nitroP.kln = s.at("nkln");
-    nitroP.Vmaxb1 = s.at("nvmaxb1");
-    nitroP.Vmaxb0 = s.at("nvmaxb0");
-    nitroP.alphab1 = s.at("nalphab1");
-    nitroP.alphab0 = s.at("nalphab0");
-    nitroP.Rdb1 = s.at("nRdb1");
-    nitroP.Rdb0 = s.at("nRdb0");
-    nitroP.kpLN = s.at("nkpLN");
-    nitroP.lnb0 = s.at("nlnb0");
-    nitroP.lnb1 = s.at("nlnb1");
-
-    result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
-            s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax1"),
-            s.at("alpha1"), s.at("kparm"), s.at("beta"), s.at("Rd"), s.at("Catm"),
-            s.at("b0"), s.at("b1"), s.at("theta"), s.at("kd"), s.at("chil"),
-            s.at("heightf"), s.at("LeafN"), s.at("kpLN"), s.at("lnb0"), s.at("lnb1"),
-            (int)s.at("lnfun"), s.at("upperT"), s.at("lowerT"), nitroP, s.at("leafwidth"),
-            (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("ws"));
-
     fluxes["Assim"] = result.Assim;
     fluxes["Trans"] = result.Trans;
     fluxes["GrossAssim"] = result.GrossAssim;
@@ -158,16 +116,15 @@ state_map c4_canopy::do_operation(state_vector_map const &state_history, state_v
 
 state_map c3_canopy::do_operation(state_map const &s) const
 {
-    struct Can_Str result;
-    state_map fluxes;
 
-    result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solarr"), s.at("temp"),
+    struct Can_Str result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
             s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
-            s.at("jmax"), s.at("rd"), s.at("catm"), s.at("o2"), s.at("b0"),
-            s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("leafn"),
-            s.at("kpln"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("stomataws"),
-            (int)s.at("ws"));
+            s.at("jmax"), s.at("Rd"), s.at("Catm"), s.at("O2"), s.at("b0"),
+            s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("LeafN"),
+            s.at("kpLN"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("StomataWS"),
+            (int)s.at("water_stress_approach"), s.at("electrons_per_carboxylation"), s.at("electrons_per_oxygenation"));
 
+    state_map fluxes;
     fluxes["Assim"] = result.Assim;
     fluxes["Trans"] = result.Trans;
     fluxes["GrossAssim"] = result.GrossAssim;
@@ -177,20 +134,14 @@ state_map c3_canopy::do_operation(state_map const &s) const
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
-    double soilEvap, TotEvap;
-    struct ws_str WaterS = {0, 0, 0, 0, 0, 0};
-    state_map derivs;
-
-    soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
+    double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
                 s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
-    TotEvap = soilEvap + s.at("CanopyT");
+    double TotEvap = soilEvap + s.at("CanopyT");
 
-    WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
+    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
             s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
 
-    //derivs["waterCont"] = s.at("waterCont") - WaterS.awc;
-    //derivs["StomataWS"] = s.at("StomataWS") - WaterS.rcoefPhoto;
-    //derivs["LeafWS"] = s.at("LeafWS") - WaterS.rcoefSpleaf;
+    state_map derivs;
     derivs["soilEvap"] = soilEvap;
     derivs["waterCont"] = WaterS.awc - s.at("waterCont");
     derivs["StomataWS"] = WaterS.rcoefPhoto - s.at("StomataWS");
@@ -198,25 +149,19 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     return(derivs);
 }
 
-state_map one_layer_soil_profile::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const {
-    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-    return one_layer_soil_profile::do_operation(s);
-}
-
 state_map two_layer_soil_profile::do_operation(state_map const &s) const
 {
-    state_map derivs;
-    struct soilML_str soilMLS;
     double cws[] = {s.at("cws1"), s.at("cws2")};
     double soilDepths[] = {s.at("soilDepth1"), s.at("soilDepth2"), s.at("soilDepth3")};
     struct soilText_str soTexS = soilTchoose(s.at("soilType"));
 
-    soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soilDepth3"), soilDepths,
+    struct soilML_str soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soilDepth3"), soilDepths,
             s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS, s.at("wsFun"),
             2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68, s.at("temp"),
            s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"), s.at("rfl"),
            s.at("rsec"), s.at("rsdf"));
 
+    state_map derivs;
     derivs["StomataWS"] = soilMLS.rcoefPhoto - s.at("StomataWS");
     derivs["LeafWS"] =  soilMLS.rcoefSpleaf - s.at("LeafWS");
     derivs["soilEvap"] = soilMLS.SoilEvapo;
@@ -229,12 +174,7 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     return(derivs);
 }
 
-state_map two_layer_soil_profile::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const {
-    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-    return two_layer_soil_profile::do_operation(s);
-}
-
-state_map thermal_time_senescence_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+state_map thermal_time_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
@@ -277,15 +217,64 @@ state_map thermal_time_senescence_module::do_operation(state_vector_map const &s
         ++derivs["rhizome_senescence_index"];
     }
 
-    /*
-    if (i % 24 * s.at("centTimestep") == 0) {
-        double coefficient = ((0.1 / 30) * s.at("centTimestep"));
-        derivs["LeafLitter"] -= s.at("LeafLitter") * coefficient;
-        derivs["StemLitter"] -= s.at("StemLitter") * coefficient;
-        derivs["RootLitter"] -= s.at("RootLitter") * coefficient;
-        derivs["RhizomeLitter"] -= s.at("RhizomeLitter") * coefficient;
+    return(derivs);
+}
+
+state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
+{
+    state_map derivs;
+    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
+    //output_map(s);
+    double TTc = s.at("TTc");
+    if (TTc >= parameters.at("seneLeaf")) {
+        bool A = s.at("lat") >= 0.0;
+        bool B = s.at("doy") >= 180.0;
+
+        if ((A && B) || ((!A) && (!B))) {
+            double frost_leaf_death_rate = 0;
+            double leafdeathrate = s.at("leafdeathrate");
+            if (s.at("temp") > parameters.at("Tfrostlow")) {
+                frost_leaf_death_rate = 100 * (s.at("temp") - parameters.at("Tfrosthigh")) / (parameters.at("Tfrostlow") - parameters.at("Tfrosthigh"));
+                frost_leaf_death_rate = (frost_leaf_death_rate > 100.0) ? 100.0 : frost_leaf_death_rate;
+            } else {
+                frost_leaf_death_rate = 0.0;
+            }
+            double current_leaf_death_rate = (leafdeathrate > frost_leaf_death_rate) ? leafdeathrate : frost_leaf_death_rate;
+            derivs["leafdeathrate"] = current_leaf_death_rate - leafdeathrate;
+  
+            double change = s.at("Leaf") * current_leaf_death_rate * (0.01 / 24);
+            double Remob = change * 0.6;
+            derivs["LeafLitter"] += (change - Remob); /* Collecting the leaf litter */ 
+            derivs["Rhizome"] += s.at("kRhizome") * Remob;
+            derivs["Stem"] += s.at("kStem") * Remob;
+            derivs["Root"] += s.at("kRoot") * Remob;
+            derivs["Grain"] += s.at("kGrain") * Remob;
+            derivs["Leaf"] += -change + s.at("kLeaf") * Remob;
+            ++derivs["leaf_senescence_index"];
+        }
     }
-    */
+
+    if (TTc >= parameters.at("seneStem")) {
+        double change = deriv_history.at("newStemcol")[s["stem_senescence_index"]];
+        derivs["Stem"] -= change;
+        derivs["StemLitter"] += change;
+        ++derivs["stem_senescence_index"];
+    }
+
+    if (TTc >= parameters.at("seneRoot")) {
+        double change = deriv_history.at("newRootcol")[s["root_senescence_index"]];
+        derivs["Root"] -= change;
+        derivs["RootLitter"] += change;
+        ++derivs["root_senescence_index"];
+    }
+
+    if (TTc >= parameters.at("seneRhizome")) {
+        double change = deriv_history.at("newRhizomecol")[s["rhizome_senescence_index"]];
+        derivs["Rhizome"] -= change;
+        derivs["RhizomeLitter"] += change;
+        ++derivs["rhizome_senescence_index"];
+    }
+
     return(derivs);
 }
 
@@ -473,17 +462,13 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
     return(derivs);
 }
 
-struct c3_str c3_leaf::assimilation(state_map s)
-{
-    struct c3_str result = {0, 0, 0, 0};
-    result = c3photoC(s.at("Qp"), s.at("Tleaf"), s.at("RH"), s.at("Vcmax0"), s.at("Jmax"), s.at("Rd0"), s.at("bb0"), s.at("bb1"), s.at("Ca"), s.at("O2"), s.at("thet"), s.at("StomWS"), s.at("ws"));
-    return(result);
-}
-
 std::unique_ptr<IModule> make_module(string const &module_name)
 {
     if (module_name.compare("c4_canopy") == 0) {
         return std::unique_ptr<IModule>(new c4_canopy);
+    }
+    else if (module_name.compare("c3_canopy") == 0) {
+        return std::unique_ptr<IModule>(new c3_canopy);
     }
     else if (module_name.compare("one_layer_soil_profile") == 0) {
         return std::unique_ptr<IModule>(new one_layer_soil_profile);
@@ -497,20 +482,25 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     else if (module_name.compare("no_leaf_resp_partitioning_growth") == 0) {
         return std::unique_ptr<IModule>(new no_leaf_resp_partitioning_growth_module);
     }
+    else if (module_name.compare("thermal_time_and_frost_senescence") == 0) {
+        return std::unique_ptr<IModule>(new thermal_time_and_frost_senescence);
+    }
+    else if (module_name.compare("thermal_time_senescence") == 0) {
+        return std::unique_ptr<IModule>(new thermal_time_senescence);
+    }
     else {
-        return std::unique_ptr<IModule>(new c3_canopy);
+        throw std::out_of_range(module_name);
     }
 }
 
 
-state_vector_map allocate_state(state_map const &m, int n)
+state_vector_map allocate_state(state_map const &m, size_t n)
 {
     state_vector_map result;
     for (auto it = m.begin(); it != m.end(); ++it) {
         vector<double> temp;
         temp.reserve(n);
-        //temp.push_back(it->second);
-        //result.insert(std::pair<string, vector<double>>(it->first, temp));
+        result.insert(std::pair<string, vector<double>>(it->first, temp));
     }
     return(result);
 }
@@ -522,7 +512,7 @@ state_map combine_state(state_map const &state_a, state_map const &state_b)
     return result;
 }
 
-state_map at(state_vector_map const vector_map, vector<double>::size_type n)
+state_map at(state_vector_map const &vector_map, vector<double>::size_type n)
 {
     state_map result;
     result.reserve(vector_map.size());
@@ -562,8 +552,7 @@ void append_state_to_vector(state_map const &state, state_vector_map &state_vect
 
 double biomass_leaf_nitrogen_limitation(state_map const &s)
 {
-    double leaf_n = 0;
-    leaf_n = s.at("LeafN_0") * pow(s.at("Leaf") + s.at("Stem"), -s.at("kln"));
+    double leaf_n = s.at("LeafN_0") * pow(s.at("Leaf") + s.at("Stem"), -s.at("kln"));
     return(leaf_n > s.at("LeafN_0") ? s.at("LeafN_0") : leaf_n);
 }
 
@@ -574,3 +563,4 @@ state_map& operator+=(state_map &lhs, state_map const &rhs)
     }
     return lhs;
 }
+

@@ -34,7 +34,7 @@ SEXP CanA(
 		SEXP CATM,
 		SEXP KD,
 		SEXP HEIGHTF,
-		SEXP WS,
+		SEXP WATER_STRESS_APPROACH,
 		SEXP LEAFN,
 		SEXP KPLN,
 		SEXP LNB0,
@@ -66,7 +66,7 @@ SEXP CanA(
   double Catm = REAL(CATM)[0];
   double kd = REAL(KD)[0];
   double heightf = REAL(HEIGHTF)[0];
-  int ws = INTEGER(WS)[0];
+  int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
   double leafN = REAL(LEAFN)[0];
   double kpLN = REAL(KPLN)[0];
   double lnb0 = REAL(LNB0)[0];
@@ -120,14 +120,13 @@ SEXP CanA(
 	nitroP.daymaxln=REAL(NNITROP)[14];
   /////////////////////////////////////////
 
-  struct Can_Str ans = {0, 0, 0};
-  ans = CanAC(LAI, DOY, hr, solarR, temp,
+  struct Can_Str ans = CanAC(LAI, DOY, hr, solarR, temp,
 		  RH, WindSpeed, lat, nlayers, Vmax,
 		  alpha, kparm, beta, Rd, Catm,
 		  b0, b1, theta, kd, chil,
 		  heightf, leafN, kpLN, lnb0, lnb1,
 		  lnfun, upperT, lowerT, nitroP, leafwidth,
-		  eteq, stomataws, ws);
+		  eteq, stomataws, water_stress_approach);
 
     if(ISNAN(ans.Assim)) {
         error("Something is NA \n");
@@ -139,7 +138,7 @@ SEXP CanA(
     REAL(canopy_transpiration_penman)[0] = ans.canopy_transpiration_penman;
     REAL(canopy_transpiration_priestly)[0] = ans.canopy_transpiration_priestly;
     REAL(canopy_conductance)[0] = ans.canopy_conductance;
-    for (int i = 0; i < nlayers * 21; i++) {
+    for (int i = 0; i < nlayers * 21; ++i) {
         REAL(result_matrix)[i] = ans.result_matrix[i];
     }
 

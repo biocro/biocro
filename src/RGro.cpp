@@ -11,7 +11,8 @@ SEXP RGro(SEXP initial_state,
         SEXP varying_parameters,
         SEXP canopy_photosynthesis_module,
         SEXP soil_evaporation_module,
-        SEXP growth_module)
+        SEXP growth_module,
+        SEXP senescence_module)
 {
     state_map s = map_from_list(initial_state);
     state_map ip = map_from_list(invariate_parameters);
@@ -19,16 +20,26 @@ SEXP RGro(SEXP initial_state,
 
     //output_map(s);
     //output_map(ip);
+    std::unique_ptr<IModule> canopy;
+    std::unique_ptr<IModule> soil_evaporation;
+    std::unique_ptr<IModule> growth;
+    std::unique_ptr<IModule> senescence;
 
-    std::unique_ptr<IModule> canopy = make_module(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
-    std::unique_ptr<IModule> soil_evaporation = make_module(CHAR(STRING_ELT(soil_evaporation_module, 0)));
-    std::unique_ptr<IModule> growth = make_module(CHAR(STRING_ELT(growth_module, 0)));
+    try {
+        canopy = make_module(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
+        soil_evaporation = make_module(CHAR(STRING_ELT(soil_evaporation_module, 0)));
+        growth = make_module(CHAR(STRING_ELT(growth_module, 0)));
+        senescence = make_module(CHAR(STRING_ELT(senescence_module, 0)));
+    }
+    catch (std::out_of_range const &oor) {
+        error("%s was passed as a module, but that module could not be found.\n", oor.what());
+    }
 
     vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
                             "LeafN_0", "vmaxb1", "vmax1", "alphab1",
                             "alpha1", "TTc", "temp", "tbase", "timestep",
                             "mrc1", "seneLeaf", "Stem", "seneStem",
-                            "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome"};
+                            "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome", "kln", "growth_respiration_fraction"};
 
     state_map all_state = combine_state(s, combine_state(ip, at(vp, 0)));
 
@@ -50,10 +61,10 @@ SEXP RGro(SEXP initial_state,
 
     state_vector_map ans;
     try {
-        ans = Gro(s, ip, vp, canopy, soil_evaporation, growth, biomass_leaf_nitrogen_limitation);
+        ans = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, biomass_leaf_nitrogen_limitation);
     }
     catch (std::out_of_range const &oor) {
-            Rprintf("Exception thrown: %s\n", oor.what());
+            Rprintf("Out of range exception thrown in RGro.cpp: %s\n", oor.what());
     }
 
     SEXP result = list_from_map(ans);

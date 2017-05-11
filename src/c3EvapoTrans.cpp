@@ -14,7 +14,7 @@
 #include <Rinternals.h>
 #include "c3photo.h"
 #include "AuxBioCro.h"
-#include "c3EvapoTrans.h"
+#include "BioCro.h"
 
 /* EvapoTrans function */
 struct ET_Str c3EvapoTrans(double Rad, 
@@ -26,14 +26,16 @@ struct ET_Str c3EvapoTrans(double Rad,
         double CanopyHeight, 
         double vcmax2, 
         double jmax2, 
-        double Rd2, 
-        double b02, 
-        double b12,
+        double Rd, 
+        double b0, 
+        double b1,
         double Catm2,
         double O2,
         double theta2,
         double StomWS,
-        int ws)
+        int water_stress_approach,
+        double electrons_per_carboxylation,
+        double electrons_per_oxygenation)
 
 {
     /* creating the structure to return */
@@ -97,7 +99,7 @@ struct ET_Str c3EvapoTrans(double Rad,
     /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
     totalradiation = Itot * 0.235;
 
-    photo_results = c3photoC(Rad,Airtemperature,RH,vcmax2,jmax2,Rd2,b02,b12,Catm2,O2,theta2,StomWS,ws); 
+    photo_results = c3photoC(Rad, Airtemperature, RH, vcmax2, jmax2, Rd, b0, b1, Catm2, O2, theta2, StomWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation); 
     LayerConductance = photo_results.Gs;
 
     /* Convert mmoles/m2/s to moles/m2/s
@@ -203,7 +205,7 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
 
     EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
 
-    EPen = (((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)) / (LHV * (SlopeFS + PsycParam));
+    EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa) / (LHV * (SlopeFS + PsycParam));
 
     /* This values need to be converted from Kg/m2/s to
        mmol H20 /m2/s according to S Humphries */

@@ -1,12 +1,7 @@
 ##  BioCro/R/showSoilType.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2011
 
 SoilType <- function(soiltype){
-
-if((soiltype < 0) || (soiltype > 10))
-  stop("Incorrect soiltype")
-
-  
-    if(soiltype == 0){
+  if(soiltype == 0){
     nm <- c("sand soil")
     silt <- 0.05
     clay <- 0.03
@@ -17,9 +12,9 @@ if((soiltype < 0) || (soiltype > 10))
     satur <- 0.87
     fieldc <- 0.09
     wiltp <-  0.03
-
+    
   } else
-
+    
   if(soiltype == 1){
     nm <- c("loamy sand")
     silt <- 0.12
@@ -160,7 +155,8 @@ if((soiltype < 0) || (soiltype > 10))
 
   }
 
-  list(type=nm, silt=silt,clay=clay, sand=sand, air.entry=air.entry, b=b, Ks=Ks, satur=satur, fieldc=fieldc, wiltp=wiltp) 
+  ans <- list(type=nm, silt=silt,clay=clay, sand=sand, air.entry=air.entry, b=b, Ks=Ks, satur=satur, fieldc=fieldc, wiltp=wiltp) 
+  return(ans)
 }
 
 

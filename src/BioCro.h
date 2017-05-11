@@ -35,7 +35,7 @@ struct BioGro_results_str {
 	struct cenT_str centS;
 };
 
-void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size);
+void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, size_t vector_size);
 void free_biogro_results(struct BioGro_results_str *results);
 
 struct Model_state {
@@ -77,37 +77,28 @@ struct Light_model {
 void BioGro(double lat, int doy[], int hr[], double solar[], double temp[], double rh[],
         double windspeed[], double precip[], double kd, double chil, double leafwidth, int et_equation,
         double heightf, int nlayers, double initial_biomass[4],
-        double sencoefs[], int timestep, int vecsize,
+        double sencoefs[], int timestep, size_t vecsize,
         double Sp, double SpD, double dbpcoefs[25], double thermalp[], double tbase, double vmax1, 
         double alpha1, double kparm, double theta, double beta, double Rd, double Catm, double b0, double b1, 
         double soilcoefs[], double ileafn, double kLN, double vmaxb1,
-        double alphab1, double mresp[], int soilType, int wsFun, int ws, double centcoefs[],
+        double alphab1, double mresp[], int soilType, int wsFun, int water_stress_approach, double centcoefs[],
         int centTimestep, double centks[], int soilLayers, double soilDepths[],
-        double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, struct nitroParms nitroP, double StomataWS,
-		double (*leaf_n_limitation)(double kLn, double leaf_n_0, struct Model_state current_state), struct BioGro_results_str *results);
+        double cws[], int hydrDist, double secs[], double kpLN, double lnb0, double lnb1, int lnfun , double upperT, double lowerT, const struct nitroParms &nitroP, double StomataWS,
+		double (*leaf_n_limitation)(double kLn, double leaf_n_0, const struct Model_state &current_state), struct BioGro_results_str *results);
 
 struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
 		     double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Alpha, 
 		     double Kparm, double beta, double Rd, double Catm, double b0, 
 		     double b1, double theta, double kd, double chil, double heightf,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
-		     double lowerT, struct nitroParms nitroP, double leafwidth, int eteq, double StomataWS, int ws);
+		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq, double StomataWS, int water_stress_approach);
          
 struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
   	                   double Rd, double Catm, double o2, double b0, double b1,
                        double theta, double kd, double heightf,
-		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int ws);
+		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomataWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
                         
-/**************** This is new C function avoiding use of Global Variables****************************/
- struct Can_Str newc3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
-               double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
-		     double Rd, double Catm, double o2, double b0, double b1,
-                     double theta, double kd, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double StomWS, int ws);
- /**********************************************************************************************/
-
-         
 
 struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime);
 
@@ -122,7 +113,7 @@ double SoilEvapo(double LAI, double k, double AirTemp, double DirectRad,
 
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth,
 			 double *depths, double fieldc, double wiltp, double phi1, double phi2,
-                         struct soilText_str soTexS, int wsFun, int layers, double rootDB,
+                         const struct soilText_str &soTexS, int wsFun, int layers, double rootDB,
 			 double LAI, double k, double AirTemp, double IRad, double winds, double RelH,
 			 int hydrDist, double rfl, double rsec, double rsdf);
 
@@ -146,19 +137,23 @@ struct FL_str FmLcFun(double Lig, double Nit);
 struct flow_str flow(double *SC, double CNratio, double A, double Lc, double Tm, double resp, int kno, double Ks[8]);
 double AbiotEff(double smoist, double stemp);
 
-double sel_phen(int phen);
 struct ET_Str EvapoTrans(double Rad, double Itot, double Airtemperature, double RH,
-                         double WindSpeed, double LeafAreaIndex, double CanopyHeight, double StomataWS, int ws,
+                         double WindSpeed, double LeafAreaIndex, double CanopyHeight, double StomataWS, int water_stress_approach,
                          double vmax2, double alpha2, double kparm, double theta, double beta, double Rd2, double b02, double b12, double upperT, double lowerT, double Catm);
 /* Definition of the new EvapoTrans function */
 struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH,
 			 double WindSpeed, double LeafAreaIndex, double CanopyHeight, 
 			  double stomatacond, double leafw, int eteq);
 
-// Function to calculate leaf N limitation. Definitions are in leaf_n_limitation_functions.c
-double thermal_leaf_nitrogen_limitation(double kLn, double leaf_n_0, struct Model_state current_state);
+struct ET_Str c3EvapoTrans(double Rad, double Itot, double Airtemperature, double RH, double WindSpeed,
+			   double LeafAreaIndex, double CanopyHeight, double vcmax2, double jmax2, double Rd2, 
+			   double b02, double b12, double Catm2, double O2, double theta2,
+			   double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
 
-double biomass_leaf_nitrogen_limitation(double kLn, double leaf_n_0, struct Model_state current_state);
+// Function to calculate leaf N limitation. Definitions are in leaf_n_limitation_functions.c
+double thermal_leaf_nitrogen_limitation(double kLn, double leaf_n_0, const struct Model_state &current_state);
+
+double biomass_leaf_nitrogen_limitation(double kLn, double leaf_n_0, const struct Model_state &current_state);
 
 #endif
 
