@@ -112,8 +112,6 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 }
 
 
-/* Calculate Quantum Yield */
-
 /* double quant_yield(double sp_im, double leaf_ref, double leaf_fna, */
 
 double solc(double LeafT){

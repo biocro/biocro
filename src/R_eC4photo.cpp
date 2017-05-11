@@ -1,4 +1,5 @@
 
+
 #include <R.h>
 #include <Rinternals.h>
 #include <Rmath.h>
@@ -18,7 +19,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	struct ET_Str direct_et, diffuse_et;
 
 	int i;
-	double Idir, Idiff, cosTh;
+	double Idiff, cosTh;
 	double LAIc;
 	double IDir, IDiff, Itot, rh, wind_speed;
 	double pLeafsun, pLeafshade;
@@ -65,7 +66,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	struct Light_model light_model;
 	light_model = lightME(lat, DOY, hr);
 
-	Idir = light_model.direct_irradiance_fraction * solarR;
+	double Idir = light_model.direct_irradiance_fraction * solarR;
 	Idiff = light_model.diffuse_irradiance_fraction * solarR;
 	cosTh = light_model.cosine_zenith_angle;
 
@@ -128,8 +129,7 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
 		SEXP OA, SEXP VCMAX, SEXP VPMAX, SEXP VPR,
 		SEXP JMAX)
 {
-  int nqp, i;
-  nqp = length(QP);
+  int nqp = length(QP);
     /* CONSTANTS */
   double P = 101.3;
   double G1 = 3;
@@ -144,16 +144,9 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     const double alpha = 0.01 ; /* alpha in the notes*/
     double Kp = 80 ; /*  mu bar */
     double theta = 0.7;
-    const double R = 0.008314472; /* Gas constant J K-1 mol-1 */
-    /* in the units stated should be 8.314 but 
-       XGZ determined it is * 1e-3 */ 
-    const double Kelvin0 = 273.15;
-    const double Kelvin25 = 298.15;
-    /* This is 0 and 25 Celsius degrees in the Kelvin scale */
+    const double R = 0.008314472; // kJ K^-1 mol^-1
 
     /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
-    // double Epr = 46.8 ; /* Activation energy of PPDK kj/mol*/ unused
-    // double ERd = 46.39; unused
     double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
     double Erb = 72 ; /* Activation energy of Rubisco kj/mol */
     /*    const double Q10bf = 1.7 */
@@ -161,32 +154,19 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     double EKo = 36.38;
     double Q10cb = 1.7;
 
-    /* double Ko = 450 ;  mbar at 25 C */
     double Ko2 = 450 ; /* mbar at 25 C */
-    /* double Kc = 650   mu bar at 25 C */
     double Kc2 = 650 ; /*  mu bar at 25 C */
     
     /* VAriables */ 
     double Kc, Ko;
     double StomCond;
-    double Idir, AirTemp, rh, Ca, Oa;
-    double Vcmax1, Vpmax1, Jmax1;
-    double Vcmax, Vpmax, Vpr, Jmax;
+    double Vcmax, Vpmax, Jmax;
 
-    // double Q10pr, Q10Rd; unused
-    double Q10p, Q10rb, Q10Kc, Q10Ko;
-    double Cm, Om;
-    double Rd, Rm;
-    // double Rs; unused
-
-    double I2, J, Aj;
     double Vp, Ko1 , Om1;
     double a1, b1, c1 , c3, Ac0;
-    double AcLCO2, Ac, A;
-    double Os, Cs;
+    double Ac, A;
+    double Cs;
     double Cs0, Cs1;
-
-    double aa, bb, cc;
 
     SEXP names, lists;
     SEXP Assim;
@@ -202,26 +182,24 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
     PROTECT(Ci = allocVector(REALSXP,nqp));
     PROTECT(Oxy = allocVector(REALSXP,nqp));
 
-    Ca = REAL(CA)[0];
-    Oa = REAL(OA)[0];
-    Vcmax1 = REAL(VCMAX)[0];
-    Vpmax1 = REAL(VPMAX)[0];
-    Vpr = REAL(VPR)[0];
-    Jmax1 = REAL(JMAX)[0];
+    double Ca = REAL(CA)[0];
+    double Oa = REAL(OA)[0];
+    double Vcmax1 = REAL(VCMAX)[0];
+    double Vpmax1 = REAL(VPMAX)[0];
+    double Vpr = REAL(VPR)[0];
+    double Jmax1 = REAL(JMAX)[0];
 
-    for (i = 0; i < nqp; i++) {
+    for (int i = 0; i < nqp; i++) {
 
-        Idir = REAL(QP)[i];
-        AirTemp = REAL(TEMP)[i];
-        rh = REAL(RH)[i];
+        double Idir = REAL(QP)[i];
+        double AirTemp = REAL(TEMP)[i];
+        double rh = REAL(RH)[i];
 
 
-        // Q10pr = exp(Epr *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0)))); unused
-        // Q10Rd = exp(ERd *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0)))); unused
-        Q10p = exp(Ep *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-        Q10rb = exp(Erb *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-        Q10Kc = exp(EKc *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
-        Q10Ko = exp(EKo *(1/(R * Kelvin25)-1/(R * (AirTemp + Kelvin0))));
+        double Q10p = exp(Ep *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
+        double Q10rb = exp(Erb *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
+        double Q10Kc = exp(EKc *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
+        double Q10Ko = exp(EKo *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
 
         Vcmax = Vcmax1 * Q10rb;
         Kc = Kc2 * Q10Kc;
@@ -229,27 +207,26 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
         Vpmax = Vpmax1 * Q10p;        
         Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
 
-        Cm = 0.4 * Ca ; 
-        Om = Oa ;
+        double Cm = 0.4 * Ca ; 
+        double Om = Oa ;
 
-        /*    Rd = 0.01 * Vcmax; */
-        Rd = 0.08;
-        Rm = 0.5 * Rd ;
+        double Rd = 0.08;
+        double Rm = 0.5 * Rd ;
         // Rs = 0.5 * Rd; unused
 
         /* Light limited */
-        I2 = (Idir * 0.85)/2;
-        J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
+        double I2 = (Idir * 0.85)/2;
+        double J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
         /* Long formula for light limited */
 
-        aa = 1 - (7 * gammaStar * alpha )/3 * 0.047;
-        bb = -(((0.4 * J)/2 - Rm + gs * Cm) + ((1-0.4)*J/3-Rd) + 
+        double aa = 1 - (7 * gammaStar * alpha )/3 * 0.047;
+        double bb = -(((0.4 * J)/2 - Rm + gs * Cm) + ((1-0.4)*J/3-Rd) + 
                 gs*(7*gammaStar*Om/3) + 
                 (alpha*gammaStar/0.047)*((1-0.04)*J/3 + 7*Rd/3));
-        cc = ((0.4 * J)/2 - Rm + gs * Cm)*((1-0.4)*J/3-Rd) -
+        double cc = ((0.4 * J)/2 - Rm + gs * Cm)*((1-0.4)*J/3-Rd) -
             gs * gammaStar * Om *((1-0.4)*J/3 + 7*Rd/3);
 
-        Aj = (-bb - sqrt(pow(bb,2)-4*aa*cc))/2*aa;
+        double Aj = (-bb - sqrt(pow(bb,2)-4*aa*cc))/2*aa;
 
         /* Other part */
         Vp = (Cm * Vpmax) / (Cm + Kp) ;
@@ -275,7 +252,7 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
         }
         Ac0 = (-b1 - sqrt(c3)) / 2*a1 ;
 
-        AcLCO2 = (Cm * Vpmax/(Cm+Kp)) - Rm + gs * Cm;
+        double AcLCO2 = (Cm * Vpmax/(Cm+Kp)) - Rm + gs * Cm;
 
         if(Ac0 < AcLCO2){
             Ac = Ac0;
@@ -289,7 +266,7 @@ SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
             A = Ac;
         }
 
-        Os = alpha * A / 0.047 * gs + Om;
+        double Os = alpha * A / 0.047 * gs + Om;
 
         if(Aj <= Ac){ 
             Cs = Cm + (Vp - Aj - Rm)/gs;

@@ -98,19 +98,6 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 		++iterCounter;
 	}
 
-/* This would ignore the optimization due to the iterative procedure
- * when it does not converge. It is turned off now*/
-
-
-	/* if(diff > Tol){ */
-	/* 	Assim = Assim0; */
-	/* 	Gs = Gs0; */
-	/* 	InterCellularCO2 = IntCO2; */
-	/* } */
-
-	/* if(diff > Tol){ */
- 	/* 	error("Did not converge \n"); */
-	/* } */
 
 	double miC = (InterCellularCO2 / AP) * 1e6;
 
@@ -212,26 +199,5 @@ http://en.wikipedia.org/wiki/Arden_Buck_equation
 	esat /= 10;
 
 	return(esat);
-}
-
-/* Calculates RSS according to the Collatz model */
-/* and given values for the two most important */
-/* parameters Vcmax and alpha */
-double RSS_C4photo(double oAssim[], double oQp[], double oTemp[], 
-		   double oRH[], double vmax, double alpha, double kparm, /*\ref{eqn:Vmax}*/
-		   double theta, double beta,
-                   double Rd, double Catm, double b0, double b1, double StomWS, int water_stress_approach, double upperT, double lowerT, int nObs){ /*\ref{eqn:Rd}*/
-	struct c4_str tmp;
-	int i;
-	double RSS = 0.0, diff = 0.0;
-
-	for(i = 0;i < nObs; i++){
-
-		tmp = c4photoC(oQp[i], oTemp[i], oRH[i], vmax, alpha, kparm, theta, beta, Rd, b0, b1, StomWS, Catm, water_stress_approach, upperT, lowerT);
-		diff = oAssim[i] - tmp.Assim;
-		RSS += diff * diff;
-
-	}
-	return(RSS);
 }
 
