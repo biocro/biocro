@@ -67,8 +67,6 @@ S3method(summary, OpEC4photo)
 
 export(plotAC)
 
-export(Rmiscanmod)
-
 export(RssBioGro)
 
 export(SoilType, showSoilType)

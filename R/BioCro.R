@@ -791,3 +791,104 @@ print.BioGro <- function(x,level=1,...){
 
 }
 
+canesoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
+                      soilType=6, soilLayers=1, soilDepths=NULL, hydrDist=0,
+                      wsFun=c("linear","logistic","exp","none","lwp"),
+                      scsf = 1, transpRes = 5e6, leafPotTh = -800,
+                      rfl=0.2, rsec=0.2, rsdf=0.44,optiontocalculaterootdepth=1,rootfrontvelocity=0.5){
+
+  if(soilLayers < 1 || soilLayers > 50)
+    stop("soilLayers must be an integer larger than 0 and smaller than 50")
+
+  if(missing(iWatCont)){
+    if(missing(FieldC))
+      iWatCont <- rep(SoilType(soilType)$fieldc,soilLayers)
+    else
+      iWatCont <- rep(FieldC,soilLayers)
+  }else{
+    if(length(iWatCont) == 1)
+      iWatCont <- rep(iWatCont,soilLayers)
+  }
+
+  if(length(iWatCont) != soilLayers){
+    stop("iWatCont should be NULL, of length 1 or length == soilLayers")
+  }
+
+  if(missing(soilDepths)){
+    soilDepths <- seq(0,soilDepth,length.out=I(soilLayers+1))
+  }else{
+    if(length(soilDepths) != I(soilLayers+1)) stop("soilDepths should be of length == soilLayers + 1")
+  }
+
+  if(missing(FieldC)) FieldC <- -1
+
+  if(missing(WiltP))  WiltP <- -1
+  
+  wsFun <- match.arg(wsFun)
+  if(wsFun == "linear")  wsFun <- 0
+  else if(wsFun == "logistic") wsFun <- 1
+  else if(wsFun =="exp") wsFun <- 2 
+  else if(wsFun == "none") wsFun <- 3
+  else if(wsFun == "lwp") wsFun <- 4
+  
+  list(FieldC=FieldC,WiltP=WiltP,phi1=phi1,phi2=phi2,soilDepth=soilDepth,iWatCont=iWatCont,
+       soilType=soilType,soilLayers=soilLayers,soilDepths=soilDepths, wsFun=wsFun,
+       scsf = scsf, transpRes = transpRes, leafPotTh = leafPotTh,
+       hydrDist=hydrDist, rfl=rfl, rsec=rsec, rsdf=rsdf,optiontocalculaterootdepth=optiontocalculaterootdepth,rootfrontvelocity=rootfrontvelocity)
+}
+
+canephenoParms <- function(TT0=400, TTseed=800, Tmaturity=3000,Rd=0.85,Alm=0.1,Arm=0.2,
+	Clstem=0.008, Ilstem=2.0,Cestem=-0.08,Iestem=6, Clsuc=0.006,Ilsuc=1.2,Cesuc=-0.01,Iesuc=20){
+
+  # Think about Error conditions in parameter values
+  # TT0= End of germination phase
+  # TTseed = seed cane stops providing nutrients/C for plant parts
+  # Tmaturity = Thermal time required to reach the maturity for the crop
+  # Rd= decline coefficients for root allocation
+  # Alm = minimum fraction to leaf
+  # minimum fraction to root
+  # Clstem and Ilstem togetehr determines when the linear phase of stem allocation ends
+  # Cestem and Iestem togetger determines when the log phase of stem allocation ends
+  # Clsuc and Ilsuc determines when the linear phase of sugar fraction ends
+  # Cesuc and Iesuc determines when the log phase of sugar fraction ends
+
+  if(Clsuc>0.01)
+    stop("Clsuc should be lower than 0.01") 
+  list(TT0=TT0,TTseed=TTseed, Tmaturity=Tmaturity,Rd=Rd,Alm=Alm,Arm=Arm,
+	Clstem=Clstem, Ilstem=Ilstem,Cestem=Cestem,Iestem=Iestem, Clsuc=Clsuc,Ilsuc=Ilsuc,Cesuc=Cesuc,Iesuc=Iesuc)
+  
+}
+
+
+
+caneseneParms <- function(senLeaf=0,senStem=10000,senRoot=0,senRhizome=4000,leafturnover=1.36,rootturnover=0.2,leafremobilizefraction=0.6){
+
+  list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome,leafturnover=leafturnover,rootturnover=rootturnover,leafremobilizefraction=leafremobilizefraction)
+
+}
+
+
+canenitroParms <- function(iLeafN=85, kLN=0.5, Vmax.b1=0.6938, Vmax.b0=-16.25,alpha.b1=0.000488,alpha.b0=0.02367,Rd.b1=0.1247,Rd.b0=-4.5917,
+                       kpLN=0.17, lnb0 = -5, lnb1 = 18, lnFun=c("linear"),maxln=85,minln=57,daymaxln=60){
+
+  lnFun <- match.arg(lnFun)
+  if(lnFun == "none"){
+    lnFun <- 0
+  }else{
+    lnFun <- 1
+  }
+  
+  list(iLeafN=iLeafN, kLN=abs(kLN), Vmax.b1=Vmax.b1, Vmax.b0=Vmax.b0,alpha.b1=alpha.b1, alpha.b0=alpha.b0,Rd.b1=Rd.b1,Rd.b0=Rd.b0,kpLN=kpLN,
+       lnb0 = lnb0, lnb1 = lnb1, lnFun = lnFun,maxln=maxln,minln=minln,daymaxln=daymaxln)
+
+}
+
+
+managementParms <-function (irrigationFactor=0.0){
+  list(irrigationFactor=irrigationFactor)
+}
+
+frostParms <-function (leafT0=0.0,leafT100=-5.6,stemT0=-272,stemT100=-273){
+  list(leafT0=leafT0,leafT100=leafT100,stemT0=stemT0,stemT100=stemT100)
+}
+
