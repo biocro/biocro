@@ -68,8 +68,8 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
 
 state_map IModule::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
-    state_map current_state = combine_state(at(state_history, state_history.begin()->second.size()), p);
-    return(this->run(current_state));
+    state_map current_state = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
+    return(this->do_operation(current_state));
 }
 
 vector<string> IModule::state_requirements_are_met(state_map const &s) const
@@ -114,60 +114,8 @@ state_map c4_canopy::do_operation(state_map const &s) const
     return(fluxes);
 }
 
-state_map c4_canopy::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
-{
-    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-
-    struct nitroParms nitroP; 
-    nitroP.ileafN = s.at("nileafn");
-    nitroP.kln = s.at("nkln");
-    nitroP.Vmaxb1 = s.at("nvmaxb1");
-    nitroP.Vmaxb0 = s.at("nvmaxb0");
-    nitroP.alphab1 = s.at("nalphab1");
-    nitroP.alphab0 = s.at("nalphab0");
-    nitroP.Rdb1 = s.at("nRdb1");
-    nitroP.Rdb0 = s.at("nRdb0");
-    nitroP.kpLN = s.at("nkpLN");
-    nitroP.lnb0 = s.at("nlnb0");
-    nitroP.lnb1 = s.at("nlnb1");
-
-    struct Can_Str result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
-            s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
-            s.at("alpha"), s.at("kparm"), s.at("beta"), s.at("Rd"), s.at("Catm"),
-            s.at("b0"), s.at("b1"), s.at("theta"), s.at("kd"), s.at("chil"),
-            s.at("heightf"), s.at("LeafN"), s.at("kpLN"), s.at("lnb0"), s.at("lnb1"),
-            (int)s.at("lnfun"), s.at("upperT"), s.at("lowerT"), nitroP, s.at("leafwidth"),
-            (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("water_stress_approach"));
-
-    state_map fluxes;
-    fluxes["Assim"] = result.Assim;
-    fluxes["Trans"] = result.Trans;
-    fluxes["GrossAssim"] = result.GrossAssim;
-
-    return(fluxes);
-}
-
 state_map c3_canopy::do_operation(state_map const &s) const
 {
-
-    struct Can_Str result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
-            s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
-            s.at("jmax"), s.at("Rd"), s.at("Catm"), s.at("O2"), s.at("b0"),
-            s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("LeafN"),
-            s.at("kpLN"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("StomataWS"),
-            (int)s.at("water_stress_approach"), s.at("electrons_per_carboxylation"), s.at("electrons_per_oxygenation"));
-
-    state_map fluxes;
-    fluxes["Assim"] = result.Assim;
-    fluxes["Trans"] = result.Trans;
-    fluxes["GrossAssim"] = result.GrossAssim;
-
-    return(fluxes);
-}
-
-state_map c3_canopy::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
-{
-    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
 
     struct Can_Str result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
             s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
@@ -201,11 +149,6 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     return(derivs);
 }
 
-state_map one_layer_soil_profile::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const {
-    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-    return one_layer_soil_profile::do_operation(s);
-}
-
 state_map two_layer_soil_profile::do_operation(state_map const &s) const
 {
     double cws[] = {s.at("cws1"), s.at("cws2")};
@@ -229,11 +172,6 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     derivs["waterCont"] =  cws_sum / 2 - s.at("waterCont");  // Divide by 2, the number of layers.
     
     return(derivs);
-}
-
-state_map two_layer_soil_profile::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const {
-    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-    return two_layer_soil_profile::do_operation(s);
 }
 
 state_map thermal_time_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const

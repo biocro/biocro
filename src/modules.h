@@ -62,7 +62,6 @@ class c4_canopy : public ICanopy_photosynthesis_module {
         {}
     private:
         virtual state_map do_operation (state_map const &s) const;
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
 class c3_canopy : public ICanopy_photosynthesis_module {
@@ -78,7 +77,6 @@ class c3_canopy : public ICanopy_photosynthesis_module {
         {}
     private:
         virtual state_map do_operation (state_map const &s) const;
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
 class ISoil_evaporation_module : public IModule {
@@ -99,7 +97,6 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
         {}
     private:
         virtual state_map do_operation(state_map const &s) const;
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
 class two_layer_soil_profile : public ISoil_evaporation_module {
@@ -114,7 +111,6 @@ class two_layer_soil_profile : public ISoil_evaporation_module {
         {}
     private:
         virtual state_map do_operation(state_map const &s) const;
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
 class ISenescence_module : public IModule {
