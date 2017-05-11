@@ -9,6 +9,176 @@
 
 extern "C" {
 
+SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
+		SEXP OA, SEXP VCMAX, SEXP VPMAX, SEXP VPR,
+		SEXP JMAX)
+{
+    int nqp = length(QP);
+    double P = 101.3;
+    double G1 = 3;
+    double G0 = 0.08;
+
+    SEXP names, lists;
+    SEXP Assim;
+    SEXP Gs;
+    SEXP Ci;
+    SEXP Oxy;
+
+    PROTECT(lists = allocVector(VECSXP,4));
+    PROTECT(names = allocVector(STRSXP,4));
+
+    PROTECT(Assim = allocVector(REALSXP,nqp));
+    PROTECT(Gs = allocVector(REALSXP,nqp));
+    PROTECT(Ci = allocVector(REALSXP,nqp));
+    PROTECT(Oxy = allocVector(REALSXP,nqp));
+
+    const double  gs = 3 * 1e-3 ;
+    /* mol m-2 s-1 physical conductance to CO2 leakage*/
+    /* const double gammaStar = 0.000193  */
+    const double gammaStar =  0.000193 ;
+    /* half the reciprocal of Rubisco specificity */
+    /*    const double go = 0.047 * gs     at 25 C */
+    const double alpha = 0.01 ; /* alpha in the notes*/
+    const double Kp = 80 ; /*  mu bar */
+    const double theta = 0.7;
+    const double R = 0.008314472; // kJ K^-1 mol^-1
+
+    /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
+    const double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
+    const double Erb = 72 ; /* Activation energy of Rubisco kj/mol */
+    /*    const double Q10bf = 1.7 */
+    const double EKc = 79.43;
+    const double EKo = 36.38;
+    const double Q10cb = 1.7;
+
+    const double Ko2 = 450 ; /* mbar at 25 C */
+    const double Kc2 = 650 ; /*  mu bar at 25 C */
+    
+    double Vcmax, Vpmax;
+    double Kc, Ko;
+    double Aj, Ac, A;
+
+    double Ca = REAL(CA)[0];
+    double Oa = REAL(OA)[0];
+    double Vcmax1 = REAL(VCMAX)[0];
+    double Vpmax1 = REAL(VPMAX)[0];
+    double Vpr = REAL(VPR)[0];
+    double Jmax1 = REAL(JMAX)[0];
+
+    double Cs;
+    double Cs0, Cs1;
+    double StomCond;
+    
+
+    for (int i = 0; i < nqp; i++) {
+
+        double Idir = REAL(QP)[i];
+        double AirTemp = REAL(TEMP)[i];
+        double rh = REAL(RH)[i];
+
+        double Q10p = exp(Ep *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
+        double Q10rb = exp(Erb *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
+        double Q10Kc = exp(EKc *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
+        double Q10Ko = exp(EKo *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
+
+        Vcmax = Vcmax1 * Q10rb;
+        Kc = Kc2 * Q10Kc;
+        Ko = Ko2 * Q10Ko;
+        Vpmax = Vpmax1 * Q10p;        
+        double Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
+
+        double Cm = 0.4 * Ca ; 
+        double Om = Oa ;
+
+        double Rd = 0.08;
+        double Rm = 0.5 * Rd ;
+
+        /* Light limited */
+        double I2 = (Idir * 0.85)/2;
+        double J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
+        /* Long formula for light limited */
+
+        double aa = 1 - (7 * gammaStar * alpha )/3 * 0.047;
+        double bb = -(((0.4 * J)/2 - Rm + gs * Cm) + ((1-0.4)*J/3-Rd) + 
+                gs*(7*gammaStar*Om/3) + 
+                (alpha*gammaStar/0.047)*((1-0.04)*J/3 + 7*Rd/3));
+        double cc = ((0.4 * J)/2 - Rm + gs * Cm)*((1-0.4)*J/3-Rd) -
+            gs * gammaStar * Om *((1-0.4)*J/3 + 7*Rd/3);
+
+        Aj = (-bb - sqrt(pow(bb,2)-4*aa*cc))/2*aa;
+
+        /* Other part */
+        double Vp = (Cm * Vpmax) / (Cm + Kp) ;
+        if (Vpr < Vp){
+            Vp = Vpr;
+        }
+
+        /* Alternative formula */
+        double Ko1 = Ko * 1e3;
+        double Om1 = Om * 1e3;
+
+        double a1 = 1 - alpha / 0.047 * Kc/Ko1;
+        double b1 = -((Vp - Rm + gs * Cm) + (Vcmax - Rd) +
+                gs * (Kc * (1 + Om1 / Ko1)) + ((alpha / 0.047) * (gammaStar * Vcmax + Rd * Kc / Ko1)));
+        double c1 = (Vcmax - Rd) * (Vp - Rm + gs * Cm) - (Vcmax * gs * gammaStar * Om1 + Rd * gs * Kc * (1 + Om1 / Ko1));
+
+        double c3 = pow(b1,2) - 4 * a1 * c1;
+        if (c3 < 0){
+            c3 = 0;
+        }
+        double Ac0 = (-b1 - sqrt(c3)) / 2 * a1 ;
+
+        double AcLCO2 = (Cm * Vpmax/(Cm+Kp)) - Rm + gs * Cm;
+
+        if (Ac0 < AcLCO2){
+            Ac = Ac0;
+        } else {
+            Ac = AcLCO2;
+        }
+
+        if (Aj < Ac){
+            A = Aj;
+        } else {
+            A = Ac;
+        }
+
+        double Os = alpha * A / 0.047 * gs + Om;
+
+        if (Aj <= Ac){ 
+            Cs = Cm + (Vp - Aj - Rm)/gs;
+        } else { 
+            Cs0 = gammaStar * Os + Kc*(1+Os/Ko)*((Ac+Rd)/Vcmax); 
+            Cs1 = 1 - (Ac+Rd)/Vcmax; 
+            Cs = Cs0/Cs1;
+        }
+
+        /* Calculating gs */
+        if (A < 0){
+            StomCond = G0;
+        } else {
+            StomCond = G1 * (A * rh * P) / (Cm*1e-1) + G0;
+        }
+        /* Organizing the results */
+        REAL(Assim)[i] = A;
+        REAL(Gs)[i] = StomCond;
+        REAL(Ci)[i] = Cs;
+        REAL(Oxy)[i] = Os;
+    }
+
+    SET_VECTOR_ELT(lists,0,Assim);
+    SET_VECTOR_ELT(lists,1,Gs);
+    SET_VECTOR_ELT(lists,2,Ci);
+    SET_VECTOR_ELT(lists,3,Oxy);
+
+    SET_STRING_ELT(names,0,mkChar("Assim"));
+    SET_STRING_ELT(names,1,mkChar("Gs"));
+    SET_STRING_ELT(names,2,mkChar("Ci"));
+    SET_STRING_ELT(names,3,mkChar("Oxy"));
+    setAttrib(lists,R_NamesSymbol,names);
+    UNPROTECT(6);
+    return(lists);
+}
+
 SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	  SEXP RelH, SEXP WindS, SEXP CA, SEXP OA,
 	   SEXP VCMAX, SEXP VPMAX,
@@ -18,9 +188,6 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	   an argument coming in from R */
 	struct ET_Str direct_et, diffuse_et;
 
-	int i;
-	double Idiff, cosTh;
-	double LAIc;
 	double IDir, IDiff, Itot, rh, wind_speed;
 	double pLeafsun, pLeafshade;
 	double Leafsun, Leafshade;
@@ -67,14 +234,14 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	light_model = lightME(lat, DOY, hr);
 
 	double Idir = light_model.direct_irradiance_fraction * solarR;
-	Idiff = light_model.diffuse_irradiance_fraction * solarR;
-	cosTh = light_model.cosine_zenith_angle;
+	double Idiff = light_model.diffuse_irradiance_fraction * solarR;
+	double cosTh = light_model.cosine_zenith_angle;
 
 	struct Light_profile light_profile;
 	light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, 3);
 
 	/* results from multilayer model */
-	LAIc = LAI / nlayers;
+	double LAIc = LAI / nlayers;
 	double relative_humidity_profile[nlayers];
 	RHprof(RH, nlayers, relative_humidity_profile);
 
@@ -83,7 +250,7 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 
 	/* Next use the EvapoTrans function */
 	CanopyA=0.0;
-	for(i=0;i<nlayers;i++)
+	for(int i = 0; i < nlayers; ++i)
 	{
 		int current_layer = nlayers - 1 - i;
 		rh = relative_humidity_profile[current_layer];
@@ -123,184 +290,6 @@ SEXP eCanA(SEXP lai, SEXP Doy, SEXP Hr, SEXP SolarR, SEXP ATemp,
 	UNPROTECT(1);  
 	return(growth);
 
-}
-
-SEXP eC4photo(SEXP QP, SEXP TEMP, SEXP RH, SEXP CA,
-		SEXP OA, SEXP VCMAX, SEXP VPMAX, SEXP VPR,
-		SEXP JMAX)
-{
-  int nqp = length(QP);
-    /* CONSTANTS */
-  double P = 101.3;
-  double G1 = 3;
-  double G0 = 0.08;
-
-    const double  gs = 3 * 1e-3 ;
-    /* mol m-2 s-1 physical conductance to CO2 leakage*/
-    /* const double gammaStar = 0.000193  */
-    const double gammaStar =  0.000193 ;
-    /* half the reciprocal of Rubisco specificity */
-    /*    const double go = 0.047 * gs     at 25 C */
-    const double alpha = 0.01 ; /* alpha in the notes*/
-    double Kp = 80 ; /*  mu bar */
-    double theta = 0.7;
-    const double R = 0.008314472; // kJ K^-1 mol^-1
-
-    /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
-    double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
-    double Erb = 72 ; /* Activation energy of Rubisco kj/mol */
-    /*    const double Q10bf = 1.7 */
-    double EKc = 79.43;
-    double EKo = 36.38;
-    double Q10cb = 1.7;
-
-    double Ko2 = 450 ; /* mbar at 25 C */
-    double Kc2 = 650 ; /*  mu bar at 25 C */
-    
-    /* VAriables */ 
-    double Kc, Ko;
-    double StomCond;
-    double Vcmax, Vpmax, Jmax;
-
-    double Vp, Ko1 , Om1;
-    double a1, b1, c1 , c3, Ac0;
-    double Ac, A;
-    double Cs;
-    double Cs0, Cs1;
-
-    SEXP names, lists;
-    SEXP Assim;
-    SEXP Gs;
-    SEXP Ci;
-    SEXP Oxy;
-
-    PROTECT(lists = allocVector(VECSXP,4));
-    PROTECT(names = allocVector(STRSXP,4));
-
-    PROTECT(Assim = allocVector(REALSXP,nqp));
-    PROTECT(Gs = allocVector(REALSXP,nqp));
-    PROTECT(Ci = allocVector(REALSXP,nqp));
-    PROTECT(Oxy = allocVector(REALSXP,nqp));
-
-    double Ca = REAL(CA)[0];
-    double Oa = REAL(OA)[0];
-    double Vcmax1 = REAL(VCMAX)[0];
-    double Vpmax1 = REAL(VPMAX)[0];
-    double Vpr = REAL(VPR)[0];
-    double Jmax1 = REAL(JMAX)[0];
-
-    for (int i = 0; i < nqp; i++) {
-
-        double Idir = REAL(QP)[i];
-        double AirTemp = REAL(TEMP)[i];
-        double rh = REAL(RH)[i];
-
-
-        double Q10p = exp(Ep *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
-        double Q10rb = exp(Erb *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
-        double Q10Kc = exp(EKc *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
-        double Q10Ko = exp(EKo *(1/(R * 298.15)-1/(R * (AirTemp + 273.15))));
-
-        Vcmax = Vcmax1 * Q10rb;
-        Kc = Kc2 * Q10Kc;
-        Ko = Ko2 * Q10Ko;
-        Vpmax = Vpmax1 * Q10p;        
-        Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
-
-        double Cm = 0.4 * Ca ; 
-        double Om = Oa ;
-
-        double Rd = 0.08;
-        double Rm = 0.5 * Rd ;
-        // Rs = 0.5 * Rd; unused
-
-        /* Light limited */
-        double I2 = (Idir * 0.85)/2;
-        double J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
-        /* Long formula for light limited */
-
-        double aa = 1 - (7 * gammaStar * alpha )/3 * 0.047;
-        double bb = -(((0.4 * J)/2 - Rm + gs * Cm) + ((1-0.4)*J/3-Rd) + 
-                gs*(7*gammaStar*Om/3) + 
-                (alpha*gammaStar/0.047)*((1-0.04)*J/3 + 7*Rd/3));
-        double cc = ((0.4 * J)/2 - Rm + gs * Cm)*((1-0.4)*J/3-Rd) -
-            gs * gammaStar * Om *((1-0.4)*J/3 + 7*Rd/3);
-
-        double Aj = (-bb - sqrt(pow(bb,2)-4*aa*cc))/2*aa;
-
-        /* Other part */
-        Vp = (Cm * Vpmax) / (Cm + Kp) ;
-        if(Vpr < Vp){
-            Vp = Vpr;
-        }
-
-        /* Alternative formula */
-        Ko1 = Ko * 1e3;
-        Om1 = Om * 1e3;
-
-        a1 = 1 - alpha / 0.047 * Kc/Ko1 ;
-        b1 = -((Vp - Rm + gs * Cm)+
-                (Vcmax - Rd)+
-                gs*(Kc*(1+Om1/Ko1))+
-                ((alpha/0.047)*(gammaStar*Vcmax+Rd*Kc/Ko1)));
-        c1 = (Vcmax - Rd)*(Vp-Rm+gs*Cm)-
-            (Vcmax * gs * gammaStar * Om1 + Rd*gs*Kc*(1+Om1/Ko1));
-
-        c3 = pow(b1,2) - 4*a1*c1;
-        if(c3 < 0){
-            c3 = 0;
-        }
-        Ac0 = (-b1 - sqrt(c3)) / 2*a1 ;
-
-        double AcLCO2 = (Cm * Vpmax/(Cm+Kp)) - Rm + gs * Cm;
-
-        if(Ac0 < AcLCO2){
-            Ac = Ac0;
-        }else{
-            Ac = AcLCO2;
-        }
-
-        if(Aj < Ac){
-            A = Aj;
-        }else{
-            A = Ac;
-        }
-
-        double Os = alpha * A / 0.047 * gs + Om;
-
-        if(Aj <= Ac){ 
-            Cs = Cm + (Vp - Aj - Rm)/gs;
-        }else{ 
-            Cs0 = gammaStar * Os + Kc*(1+Os/Ko)*((Ac+Rd)/Vcmax); 
-            Cs1 = 1 - (Ac+Rd)/Vcmax; 
-            Cs = Cs0/Cs1;
-        }
-
-        /* Calculating Gs */
-        if(A < 0){
-            StomCond = G0;
-        }else{
-            StomCond = G1 * (A * rh * P) / (Cm*1e-1) + G0;
-        }
-        /* Organizing the results */
-        REAL(Assim)[i] = A;
-        REAL(Gs)[i] = StomCond;
-        REAL(Ci)[i] = Cs;
-        REAL(Oxy)[i] = Os;
-    }
-
-    SET_VECTOR_ELT(lists,0,Assim);
-    SET_VECTOR_ELT(lists,1,Gs);
-    SET_VECTOR_ELT(lists,2,Ci);
-    SET_VECTOR_ELT(lists,3,Oxy);
-
-    SET_STRING_ELT(names,0,mkChar("Assim"));
-    SET_STRING_ELT(names,1,mkChar("Gs"));
-    SET_STRING_ELT(names,2,mkChar("Ci"));
-    SET_STRING_ELT(names,3,mkChar("Oxy"));
-    setAttrib(lists,R_NamesSymbol,names);
-    UNPROTECT(6);
-    return(lists);
 }
 
 }  // extern "C"

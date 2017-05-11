@@ -98,7 +98,6 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 		++iterCounter;
 	}
 
-
 	double miC = (InterCellularCO2 / AP) * 1e6;
 
 	if(Gs > 600)

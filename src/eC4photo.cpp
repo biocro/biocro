@@ -19,7 +19,7 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     const double alpha = 0.01 ; /* alpha in the notes*/
     const double Kp = 80 ; /*  mu bar */
     const double theta = 0.7;
-    const double R = 0.008314472; // J K^-1 mol^-1
+    const double R = 0.008314472; // kJ K^-1 mol^-1
 
     /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
     const double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
@@ -29,30 +29,33 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     const double EKo = 36.38;
     const double Q10cb = 1.7;
 
-    double Ko = 532.9 ; /* mbar at 25 C */
-    double Kc = 1020 ; /*  mu bar at 25 C */
+    const double Ko2 = 532.9 ; /* mbar at 25 C */
+    const double Kc2 = 1020 ; /*  mu bar at 25 C */
 
+    double Vcmax, Vpmax;
+    double Kc, Ko;
     double Aj, Ac, A;
+
+    double Ca = CA;
+    double Oa = OA;
+    double Vcmax1 = VCMAX;
+    double Vpmax1 = VPMAX;
+    double Vpr = VPR;
+    double Jmax1 = JMAX;
 
     double Idir = QP;
     double AirTemp = TEMP;
-    double Ca = CA;
-    double Oa = OA;
-    double Vcmax = VCMAX;
-    double Vpmax = VPMAX;
-    double Vpr = VPR;
-    double Jmax = JMAX;
 
     double Q10p = exp(Ep *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
     double Q10rb = exp(Erb *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
     double Q10Kc = exp(EKc *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
     double Q10Ko = exp(EKo *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
 
-    Vcmax = Vcmax * Q10rb;
-    Kc = Kc * Q10Kc;
-    Ko = Ko * Q10Ko;
-    Vpmax = Vpmax * Q10p;        
-    Jmax = Jmax * pow(Q10cb,(AirTemp-25)/10);
+    Vcmax = Vcmax1 * Q10rb;
+    Kc = Kc2 * Q10Kc;
+    Ko = Ko2 * Q10Ko;
+    Vpmax = Vpmax1 * Q10p;        
+    double Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
 
     double Cm = 0.4 * Ca ; 
     double Om = Oa ;
@@ -71,7 +74,6 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     } else {
         Aj = Aj1;
     }
-
 
     /* Other part */
     double Vp = (Cm * Vpmax) / (Cm + Kp);
@@ -92,7 +94,7 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     if (c3 < 0) {
         c3 = 0;
     }
-    double Ac0 = (-b1 - sqrt(c3)) / 2*a1;
+    double Ac0 = (-b1 - sqrt(c3)) / 2 * a1;
 
     double AcLCO2 = (Cm * Vpmax / (Cm + Kp)) - Rm + gs * Cm;
 
