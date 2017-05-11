@@ -15,7 +15,6 @@
 
 #include <R.h>
 #include <Rmath.h>
-#include <Rinternals.h>
 #include <stdexcept>
 #include "c4photo.h"
 #include "BioCro.h"
@@ -252,7 +251,6 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
         double j = i + 1;
 
         auto temp_rh = RH * exp(kh * (j/nlayers));
-        //   temp_rh = RH * exp(-kh * (j/nlayers));  // new simpler version from Joe Iverson*
         relative_humidity_profile[i] = temp_rh;
     }
 }
@@ -1184,10 +1182,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
    and Penning de Vries (1972) */
 
 double resp(double comp, double mrc, double temp) {
-
-    double ans;
-
-    ans = comp *  (1 - (mrc * pow(2,(temp/10.0))));
+    double ans = comp *  (1 - (mrc * pow(2, (temp / 10.0))));
 
     if(ans <0) ans = 0;
 
@@ -1257,34 +1252,27 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
 }
 
 struct seqRD_str seqRootDepth(double to, int lengthOut ) {
+    double by = to / lengthOut;
 
-    struct seqRD_str tmp;
-    int i;
-    double by;
-
-    /* This is because in this case from is always zero */
-    by = to / lengthOut;
-
-    for(i = 0; i <= lengthOut; ++i) {
-        tmp.rootDepths[i] = i * by;
+    struct seqRD_str result;
+    for(int i = 0; i <= lengthOut; ++i) {
+        result.rootDepths[i] = i * by;
     }
-    return(tmp);
+    return(result);
 }
 
 
 struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
 {
-    struct rd_str tmp;
-    int i, j, k;
     double layerDepth = 0.0;
     double CumLayerDepth = 0.0;
     double CumRootDist = 1.0;
     double rootDist[layer];
     double ca = 0.0, a = 0.0;
 
-    for(i = 0; i < layer; ++i) {
+    for (int i = 0; i < layer; ++i) {
 
-        if(i == 0) {
+        if (i == 0) {
             layerDepth = depthsp[1];
         } else {
             layerDepth = depthsp[i] - depthsp[i-1];
@@ -1292,13 +1280,13 @@ struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
 
         CumLayerDepth += layerDepth;
 
-        if(rootDepth > CumLayerDepth) {
+        if (rootDepth > CumLayerDepth) {
             CumRootDist++;
         }
     }
 
-    for(j = 0; j < layer; ++j) {
-        if(j < CumRootDist) {
+    for (int j = 0; j < layer; ++j) {
+        if (j < CumRootDist) {
             a = dpois(j+1,CumRootDist*rfl,0);
             rootDist[j] = a;
             ca += a;
@@ -1307,10 +1295,11 @@ struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
         }
     }
 
-    for(k = 0; k < layer; ++k) {
-        tmp.rootDist[k] = rootDist[k] / ca;
+    struct rd_str result;
+    for (int k = 0; k < layer; ++k) {
+        result.rootDist[k] = rootDist[k] / ca;
     }
-    return(tmp);
+    return(result);
 }
 
 
