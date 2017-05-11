@@ -1,4 +1,4 @@
-useDynLib(BioCro, MisGro,
+useDynLib(BioCro,
           c4photo_sym = c4photo,
           c3photo_sym = c3photo,
           CanA_sym = CanA,
@@ -6,23 +6,14 @@ useDynLib(BioCro, MisGro,
           cntry,
           eC4photo_sym = eC4photo,
           eCanA_sym = eCanA,
-          willowGro_sym = willowGro,
           RGro)
 
 import(stats, lattice)
 
 export(Gro)
-export(MisGro)
-export(weach_imn)
 export(partial_gro)
 
-export(BioGro)
-S3method(print, BioGro)
-S3method(plot, BioGro)
-
 exportPattern("Parms$")
-
-export(c3CanA, c3photoParms)
 
 export(c3photo)
 
@@ -30,67 +21,15 @@ export(c4photo)
 
 export(CanA)
 
-export(Century, CenturyC)
-
-export(constrOpBioGro)
-
 export(eC4photo, eCanA)
 
 export(idbp)
 
-export(lightME)
-
-export(OpBioGro)
-S3method(print, OpBioGro)
-S3method(summary, OpBioGro)
-
-export(Opc3photo, mOpc3photo)
-
-S3method(print, Opc3photo)
-S3method(plot, Opc3photo)
-S3method(print, mOpc3photo)
-S3method(plot, mOpc3photo)
-
-
-export(Opc4photo, RsqC4photo, mOpc4photo, plotAQ)
-S3method(print, Opc4photo)
-S3method(plot, Opc4photo)
-S3method(predict, Opc4photo)
-S3method(summary, Opc4photo)
-S3method(print, summary.Opc4photo)
-S3method(print, mOpc4photo)
-S3method(plot, mOpc4photo)
-
-export(OpEC4photo, RsqEC4photo)
-S3method(print, OpEC4photo)
-S3method(summary, OpEC4photo)
-
-export(plotAC)
-
-export(RssBioGro)
-
 export(SoilType, showSoilType)
-
-export(SoilEvapo)
-
-export(soilML, rootDist)
-
-export(sunML)
 
 export(valid_dbp)
 
-export(wtrstr, wsRcoef)
-
-export(weach)
-export(weach.default)
-S3method(weach, data.table)
-export(weach365)
-export(weach366)
-export(weachNEW)
-
 export(CheckLeapYear)
-
-export(willowGro)
 
 export(read_parameters)
 export(get_growing_season_climate)

@@ -24,7 +24,7 @@
 ##'
 ##' ## See ?OpBioGro
 ##'
-idbp <- function(data, phenoControl=list()){
+idbp <- function(data, TPcoefs){
 
   ## should have t
   if(any(is.na(data)))
@@ -34,11 +34,6 @@ idbp <- function(data, phenoControl=list()){
   if(any(is.na(unlist(lapply(names(data),pmatch,dnames)))))
     warning("data names and/or order might be wrong")
 
-  phenoP <- phenoParms()
-  phenoP[names(phenoControl)] <- phenoControl
-
-  TPcoefs <- as.vector(unlist(phenoP)[1:6])
-  
   n1dat <- numeric(6)
   for(i in 1:6) n1dat[i] <- nrow(data[data[,1] <= TPcoefs[i],])
 
