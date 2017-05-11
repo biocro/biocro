@@ -556,6 +556,12 @@ double biomass_leaf_nitrogen_limitation(state_map const &s)
     return(leaf_n > s.at("LeafN_0") ? s.at("LeafN_0") : leaf_n);
 }
 
+double thermal_leaf_nitrogen_limitation(state_map const &s)
+{
+	return(s.at("LeafN_0") * exp(-s.at("kln") * s.at("TTc")));
+}
+
+
 state_map& operator+=(state_map &lhs, state_map const &rhs)
 {
     for(auto it = rhs.begin(); it != rhs.end(); ++it) {
