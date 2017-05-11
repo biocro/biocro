@@ -259,13 +259,10 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_profile)
 {
-    int i;
-    double LI, CumLAI;
-
-    LI = LAI / nlayers;
-    for(i = 0; i < nlayers; ++i)
+    double LI = LAI / nlayers;
+    for(int i = 0; i < nlayers; ++i)
     {
-        CumLAI = LI * (i + 1);
+        double CumLAI = LI * (i + 1);
         leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI-LI));
     }
 }
@@ -305,13 +302,13 @@ ET_Str EvapoTrans(
         const double LeafAreaIndex, // unused
         double CanopyHeight,
         const double StomataWS,
-        const int ws,
+        const int water_stress_approach,
         const double vmax2,
         const double alpha2,
         const double kparm,
         const double theta,
         const double beta,
-        const double Rd2,
+        const double Rd,
         const double b02,
         const double b12,
         const double upperT,
@@ -365,8 +362,8 @@ ET_Str EvapoTrans(
     const auto totalradiation = Itot * 0.235;
 
     const auto LayerConductance = (c4photoC(Itot, airTemp, RH, vmax2, alpha2, kparm,
-                                            theta, beta, Rd2, b02, b12, StomataWS,
-                                            Catm, ws, upperT, lowerT)
+                                            theta, beta, Rd, b02, b12, StomataWS,
+                                            Catm, water_stress_approach, upperT, lowerT)
                                    ).Gs;
 
     /* Convert mmoles/m2/s to moles/m2/s
@@ -451,9 +448,9 @@ constant: 5.67 * 1e-8 W m^-2 K^-4. */
             auto OldDeltaT = Deltat;
 
             /*         rlc = (4 * (5.67*1e-8) * pow(273 + Airtemperature, 3) * Deltat) * LeafAreaIndex;   */
-            rlc = (4 * (5.67*1e-8) * pow(273 + airTemp, 3) * Deltat);
+            rlc = 4 * (5.67*1e-8) * pow(273 + airTemp, 3) * Deltat;
 
-            PhiN = (Ja - rlc);
+            PhiN = Ja - rlc;
 
             auto TopValue = PhiN * (1 / ga + 1 / LayerConductance_in_m_per_s) - LHV * DeltaPVa;
             Deltat = fmin(fmax(TopValue / BottomValue, -5), 5); // confine to interval [-5, 5]
@@ -645,7 +642,7 @@ struct ET_Str EvapoTrans2(const double Rad,
         (LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s)));
 
     /* Penman will use the WIMOVAC conductance */
-    const auto EPen = (((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa))
+    const auto EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
         /
         (LHV * (SlopeFS + PsycParam));
 
@@ -693,7 +690,7 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     double Tak = AirTemp + 273.15; /* Converts from C to K */
     double Tlk = leaftemp + 273.15;  /* Converts from C to K */
     double ea = vappress * 1e2; /* From hPa to Pa */
-    double ws = windspeed; /* m s^-1 */
+    // windspeed; /* m s^-1 */
     double lw = leafwidth; /* meters */
 
     double esTl, eb;
@@ -704,7 +701,7 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
 
     /* Forced convection */
-    gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((ws/lw)/Pa),0.5);
+    gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);
     gbv_free = gbv_forced;
     eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
     Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/
@@ -981,13 +978,10 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 /* Function to simulate the multilayer behavior of soil water. In the
    future this could be coupled with Campbell (BASIC) ideas to
    esitmate water potential. */
-soilML_str soilML(double precipit, double transp, double *cws,
-                  double soildepth, double *depths, double fieldc,
-                  double wiltp, double phi1, double phi2, soilText_str soTexS,
-                  int wsFun, int layers, double rootDB, double LAI, double k,
-                  double AirTemp, double IRad, double winds, double RelH,
-                  int hydrDist, double rfl, double rsec, double rsdf)
-    
+struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
+        double fieldc, double wiltp, double phi1, double phi2, const struct soilText_str &soTexS, int wsFun,
+        int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds,
+        double RelH, int hydrDist, double rfl, double rsec, double rsdf)
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
     
@@ -1345,9 +1339,9 @@ void cropcent_dbp(double coefs[25],double TherPrds[6], double TherTime, struct c
     return;
 }
 
-void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, int vector_size)
+void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, size_t vector_size)
 {
-	for (int i = 0; i < vector_size; ++i) {
+	for (size_t i = 0; i < vector_size; ++i) {
 		results->day_of_year[i] = 0;
 		results->hour[i] = 0;
 		results->CanopyAssim[i] = 0;
