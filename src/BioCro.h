@@ -2,7 +2,6 @@
 #define BIOCRO_H
 
 #include "AuxBioCro.h"
-#include "Century.h"
 
 struct BioGro_results_str {
 	double day_of_year[8760];
@@ -32,7 +31,6 @@ struct BioGro_results_str {
 	double *psim;
 	double *water_status;
 	double *root_distribution;
-	struct cenT_str centS;
 };
 
 void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, size_t vector_size);
@@ -125,12 +123,6 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
 struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil, double heightf);
 struct Light_model lightME(double lat, int DOY, int td);
-
-struct cenT_str Century(double *LeafL, double *StemL, double *RootL, double *RhizL, double smoist, double stemp, int timestep, 
-			double SCs[9] , double leachWater, double Nfert, double MinN, double precip,
-			double LeafL_Ln, double StemL_Ln, double RootL_Ln, double RhizL_Ln,
-			double LeafL_N, double StemL_N, double RootL_N, double RhizL_N, int soilType,
-			double Ks_cf[8]);
 
 struct FL_str FmLcFun(double Lig, double Nit);
 

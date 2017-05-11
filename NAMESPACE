@@ -3,9 +3,6 @@ useDynLib(BioCro,
           c3photo_sym = c3photo,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
-          cntry,
-          eC4photo_sym = eC4photo,
-          eCanA_sym = eCanA,
           RGro)
 
 import(stats, lattice)
@@ -20,8 +17,6 @@ export(c3photo)
 export(c4photo)
 
 export(CanA)
-
-export(eC4photo, eCanA)
 
 export(idbp)
 

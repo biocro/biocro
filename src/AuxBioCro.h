@@ -193,8 +193,6 @@ struct crop_phenology {
 double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
                          double deltat, double stomcond, double vappress);
 
-void cropcent_dbp(double coefs[25],double TherPrds[6], double TherTime, struct crop_phenology *cropdbp);
-
 double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
                  double awc, double fieldc, double wiltp, double winds, double RelH, double rsec );
 

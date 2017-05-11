@@ -1323,23 +1323,6 @@ const soilText_str soilTchoose(SoilType soiltype)
     return soil_parameters.at(soiltype);
 }
 
-void cropcent_dbp(double coefs[25],double TherPrds[6], double TherTime, struct crop_phenology *cropdbp)
-
-    // struct cropcent_phenolohy cropcent_dbp(double coefs[25], double TherPrds[6], double TherTime)
-
-{
-    struct dbp_str tmp;
-    // call old biomass partiitoning coefficient function
-    tmp =sel_dbp_coef(coefs, TherPrds, TherTime);
-    //assing it to the relevant sub structure of new cropdbp, to be retirned back to the main program
-    cropdbp->DBP=tmp;
-    // Here I must define what are CN ratios of different plant components under excess N fertilization
-
-
-    // I can leave it empty for now
-    return;
-}
-
 void initialize_biogro_results(struct BioGro_results_str *results, int soil_layers, size_t vector_size)
 {
 	for (size_t i = 0; i < vector_size; ++i) {
