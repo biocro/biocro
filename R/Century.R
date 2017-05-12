@@ -14,12 +14,12 @@
 ##' This function implements the Century model from Parton.
 ##'
 ##' Calculates flows of soil organic carbon and nitrogen based on the Century
-##' model. There are two versions one written in R (Century) and one in C
-##' (CenturyC) they should give the same result. The C version only runs at
+##' model. There are two versions, one written in R (Century) and one in C
+##' (CenturyC); they should give the same result. The C version only runs at
 ##' weekly timesteps.
 ##'
 ##' Most of the details can be found in the papers by Parton et al. (1987,
-##' 1988, 1993)
+##' 1988, 1993).
 ##'
 ##' @aliases Century CenturyC
 ##' @param LeafL Leaf litter.
@@ -32,14 +32,13 @@
 ##' @param leachWater Leached water.
 ##' @param centuryControl See \code{\link{centuryParms}}.
 ##' @param verbose Only used in the R version for debugging.
-##' @param soilType See \code{\link{showSoilType}}.
 ##' @export
-##' @return A list with,
+##' @return A list with
 ##' \itemize{
-##' \item SCs Soil carbon pools 1-9.
-##' \item SNs Soil nitrogen pools 1-9.
-##' \item MinN Mineralized nitrogen.
-##' \item Resp Soil respiration.
+##' \item \code{SCs} Soil carbon pools 1--9.
+##' \item \code{SNs} Soil nitrogen pools 1--9.
+##' \item \code{MinN} Mineralized nitrogen.
+##' \item \code{Resp} Soil respiration.
 ##' }
 ##' @author Fernando E. Miguez
 ##' @references ~put references to the literature/web site here ~

@@ -1,157 +1,31 @@
-useDynLib(BioCro, MisGro,
+useDynLib(BioCro,
           c4photo_sym = c4photo,
           c3photo_sym = c3photo,
-          McMCc4photo,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
-          cntry,
-          eC4photo_sym = eC4photo,
-          eCanA_sym = eCanA,
-          McMCEc4photo,
-          SABioGro)
+          RGro)
 
 import(stats, lattice)
 
-export(MisGro)
-export(weach_imn)
-
-## BioCro.R 
-export(BioGro)
-S3method(print, BioGro)
-S3method(plot, BioGro)
+export(Gro)
+export(partial_gro)
 
 exportPattern("Parms$")
 
-## c3CanA.R
-export(c3CanA, c3photoParms)
-
-## c3photo.R
 export(c3photo)
 
-## c4photo.R 
-export(c4photo, MCMCc4photo)
-S3method(print, MCMCc4photo)
-S3method(plot, MCMCc4photo)
+export(c4photo)
 
-## CanA.R 
 export(CanA)
 
-## Century.R 
-export(Century, CenturyC)
-
-## constrOpBioGro.R
-export(constrOpBioGro)
-
-## eC4photo.R
-export(eC4photo, eCanA, MCMCEc4photo)
-S3method(print, MCMCEc4photo)
-S3method(plot, MCMCEc4photo)
-
-## idbp.R
 export(idbp)
 
-## lightME.R
-export(lightME)
-
-## MCMCBioGro.R
-export(MCMCBioGro)
-S3method(print, MCMCBioGro)
-S3method(plot, MCMCBioGro)
-
-## OpBioGro.R
-export(OpBioGro)
-S3method(print, OpBioGro)
-S3method(summary, OpBioGro)
-
-## Opc3photo.R
-export(Opc3photo, mOpc3photo)
-
-S3method(print, Opc3photo)
-S3method(plot, Opc3photo)
-S3method(print, mOpc3photo)
-S3method(plot, mOpc3photo)
-
-
-## Opc4photo.R
-export(Opc4photo, RsqC4photo, mOpc4photo, plotAQ)
-S3method(print, Opc4photo)
-S3method(plot, Opc4photo)
-S3method(predict, Opc4photo)
-S3method(summary, Opc4photo)
-S3method(print, summary.Opc4photo)
-S3method(print, mOpc4photo)
-S3method(plot, mOpc4photo)
-
-## OpEC4photo.R
-export(OpEC4photo, RsqEC4photo)
-S3method(print, OpEC4photo)
-S3method(summary, OpEC4photo)
-
-## plotAC.R
-export(plotAC)
-
-## Rmiscanmod.R
-export(Rmiscanmod)
-
-## RssBioGro.R
-export(RssBioGro)
-
-## RUEmodMY.R
-export(RUEmodMY)
-
-## RUEmod.R
-export(RUEmod)
-
-## SatWatVap.R
-export(fnpsvp, ardBuck)
-
-## showSoilType.R
 export(SoilType, showSoilType)
 
-## SoilEvapo.R
-export(SoilEvapo)
-##exportPattern("^TempTo")
-
-## soilML.R
-export(soilML, rootDist)
-
-## sunML.R
-export(sunML)
-
-## valid_dbp.R
 export(valid_dbp)
 
-## waterStress.R
-export(wtrstr, wsRcoef)
-
-## weach.R
-export(weach)
-export(weach.default)
-S3method(weach, data.table)
-export(weach365)
-export(weach366)
-export(weachNEW)
-
-##CheckLeapYear to check leap years in weachNEW
 export(CheckLeapYear)
 
-#MaizeGro.R
-export(MaizeGro)
-S3method(print, MaizeGro)
-S3method(plot, MaizeGro)
-
-
-#caneGro.R
-export(caneGro)
-
-#willowGro.R
-
-export(willowGro)
-export(willowCent)
-
-#CropGro.R
-export(CropGro)
-
-#soyGro.R
-export(soyGro)
+export(read_parameters)
+export(get_growing_season_climate)
 

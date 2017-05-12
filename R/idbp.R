@@ -1,7 +1,7 @@
 ##  BioCro/R/idbp.R by Fernando Ezequiel Miguez  Copyright (C) 2009
 ##' Initial Dry Biomass Partitioning Coefficients
 ##'
-##' Atempts to guess good initial vales for dry biomass coefficients that can
+##' Attempts to guess good initial values for dry biomass coefficients that can
 ##' be passed to \code{BioGro}, \code{OpBioGro}, \code{constrOpBioGro}, or
 ##' \code{MCMCBioGro}.  It is very fragile.
 ##'
@@ -10,12 +10,12 @@
 ##'
 ##' @param data Should have at least five columns with: ThermalT, Stem, Leaf,
 ##' Root, Rhizome and Grain.
-##' @param phenoControl list that supplies mainly in this case the thrmal time
-##' periods that delimit the phenological stages,
+##' @param phenoControl List that supplies mainly in this case the thrmal time
+##' periods that delimit the phenological stages.
 ##' @export
 ##' @return It returns a vector of length 25 suitable for \code{BioGro},
 ##' \code{OpBioGro}, \code{constrOpBioGro}, or \code{MCMCBioGro}.
-##' @note It is highly recommended that the results of this function are tested
+##' @note It is highly recommended that the results of this function be tested
 ##' with \code{\link{valid_dbp}}.
 ##' @author Fernando E. Miguez
 ##' @seealso \code{\link{valid_dbp}}
@@ -24,7 +24,7 @@
 ##'
 ##' ## See ?OpBioGro
 ##'
-idbp <- function(data, phenoControl=list()){
+idbp <- function(data, TPcoefs){
 
   ## should have t
   if(any(is.na(data)))
@@ -34,11 +34,6 @@ idbp <- function(data, phenoControl=list()){
   if(any(is.na(unlist(lapply(names(data),pmatch,dnames)))))
     warning("data names and/or order might be wrong")
 
-  phenoP <- phenoParms()
-  phenoP[names(phenoControl)] <- phenoControl
-
-  TPcoefs <- as.vector(unlist(phenoP)[1:6])
-  
   n1dat <- numeric(6)
   for(i in 1:6) n1dat[i] <- nrow(data[data[,1] <= TPcoefs[i],])
 
