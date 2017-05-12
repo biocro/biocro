@@ -59,7 +59,7 @@ double DdryA[] = {1.34959, 1.24362, 1.29198, 1.28874, 1.12425, 1.27095, 1.57626,
                   1.57393, 1.05142, 1.48663, 1.14261, 1.15766, 1.33614, 1.4294,
                   1.20043};
 
-TEST(TempToDdryA, miscellaneous_test_data) {
+TEST(TempToDdryA, MiscellaneousTestData) {
     for (int i = 0; i < temp_function_trials; ++i) {
         EXPECT_NEAR(DdryA[i], TempToDdryA(temp[i]), 1E-5);
     }
@@ -106,7 +106,7 @@ double LHV[] = {2.42497, 2.38468, 2.47404, 2.49484, 2.45757, 2.38183, 2.40289,
                 2.56099, 2.66984, 2.4421, 2.43003, 2.50857, 2.40689, 2.45327,
                 2.68242};
 
-TEST(TempToLHV, miscellaneous_test_data) {
+TEST(TempToLHV, MiscellaneousTestData) {
     for (int i = 0; i < temp_function_trials; ++i) {
         EXPECT_NEAR(LHV[i], TempToLHV(temp2[i]), 1E-5);
     }
@@ -153,7 +153,7 @@ double SFS[] = {2.44327, 3.01243, 0.578024, 0.96453, 3.96681, 3.03842, 0.516805,
                 0.309467, 0.31763, 1.06427, 1.88654, 0.527172, 3.10687,
                 0.310141, 0.359771};
 
-TEST(TempToSFS, miscellaneous_test_data) {
+TEST(TempToSFS, MiscellaneousTestData) {
     for (int i = 0; i < temp_function_trials; ++i) {
         EXPECT_NEAR(SFS[i], TempToSFS(temp3[i]), 1E-5);
     }
@@ -202,7 +202,7 @@ double SWVC[] = {1.457519922, 3.250349887, 0.3725371654, 28.98704536,
                  0.0004263947425, 16.90292043, 9.526557742, 7.563213512,
                  6.050954835, 0.005859188571, 6.567097987};
 
-TEST(TempToSWVC, miscellaneous_test_data) {
+TEST(TempToSWVC, MiscellaneousTestData) {
     for (int i = 0; i < temp_function_trials; ++i) {
         EXPECT_NEAR(SWVC[i], TempToSWVC(temp4[i]), 1E-5);
     }

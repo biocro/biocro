@@ -26,7 +26,7 @@ constexpr double AXIAL_TILT = 23.5;
 // cosines are equal as well).  But lightME makes certain adjustments to
 // cosine_zenith_angle in certain cases, so we have to adjust our expectations
 // as well.
-TEST(zenith_angle_calculations, SpringEquinoxAtEquator) {
+TEST(ZenithAngleCalculations, SpringEquinoxAtEquator) {
 
     // This relatively large tolerance is necessary since specifying the time of
     // the vernal equinox only to the nearest day gives a solar declination
@@ -52,7 +52,7 @@ TEST(zenith_angle_calculations, SpringEquinoxAtEquator) {
 // equal to the latitude plus the angle of the earth's tilt so that the cosine
 // of the zenith angle is equal to the cosine of the sum of latitude and the
 // angle of the earth's tilt.
-TEST(zenith_angle_calculations, NoonAtDecemberSolstice) {
+TEST(ZenithAngleCalculations, NoonAtDecemberSolstice) {
     constexpr double TOLERANCE = 1E-15;
     for (int lat = -90; lat <= LATITUDE_OF_ARCTIC_CIRCLE; ++lat) {
         struct Light_model result = lightME(lat,
@@ -67,7 +67,7 @@ TEST(zenith_angle_calculations, NoonAtDecemberSolstice) {
 // At solar noon, during the equinox, we expect the zenith angle to be
 // equal to the latitude so that the cosine of the zenith angle is
 // equal to the cosine of the latitude.
-TEST(zenith_angle_calculations, NoonAtSpringEquinox) {
+TEST(ZenithAngleCalculations, NoonAtSpringEquinox) {
     // This relatively large tolerance is necessary since specifying the time of
     // the vernal equinox only to the nearest day gives a solar declination
     // insufficiently close to zero.
@@ -82,7 +82,7 @@ TEST(zenith_angle_calculations, NoonAtSpringEquinox) {
 
 // For any latitude, during the equinox the adjusted value of CosZenithAngle
 // will always be at most 1e-1 at hours 6 (sunrise) and 18 (sunset).
-TEST(zenith_angle_calculations, SunriseSunset) {
+TEST(ZenithAngleCalculations, SunriseSunset) {
     constexpr double UPPER_LIMIT = 1E-1; // Upper limit when sun is near horizon
 
     srand(time(NULL));
@@ -103,7 +103,7 @@ TEST(zenith_angle_calculations, SunriseSunset) {
 
 // Now we test irradiance.
 
-TEST(irradiance_calculations, SampleValues) {
+TEST(IrradianceCalculations, SampleValues) {
 
     // DBL_DIG = 15, so 16 s.d. should be enough
     double expected_direct_irradiance[13] = {
@@ -150,7 +150,7 @@ TEST(irradiance_calculations, SampleValues) {
 }
 
 // The sum of the direct and the diffuse irradiance should always be 1.
-TEST(irradiance_calculations, DirectDiffuseSum) {
+TEST(IrradianceCalculations, DirectDiffuseSum) {
     srand(time(NULL));
 
     for (int i = 0; i < 1e6; ++i) {

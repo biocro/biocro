@@ -3,6 +3,7 @@
 #include <gtest/gtest.h> // test framework
 
 #include "../Random.h" // custom random number generators
+#include "common_generators.h"
 #include "../relative_error.h" // custom assert/expect functions
 
 #include "OldAuxBioCroFunctions.h" // copies of old function definitions from AuxBioCro.cpp
@@ -12,35 +13,13 @@
 
 ///////////////// watstr /////////////////
 
-Rand_double precipit_gen {-100, 100};
-Rand_double evapo_gen {-100, 100};
-Rand_double cws_gen {-100, 100};
-Rand_double soildepth_gen {-100, 100};
-Rand_double fieldc_gen {-100, 100};
-Rand_double wiltp_gen {-100, 100};
-Rand_double phi1_gen {-100, 100};
-Rand_double phi2_gen {-100, 100};
-
-Rand_int soiltype_gen {0, 10};
-Rand_int wsFun_gen {0, 4};
-
-// Skips ASSERT_NEAR if both values are NaN, both are positive
-// infinity, or both are negative infinity.
-void assert_near_or_nan(double val1, double val2, double tolerance, string message) {
-  if ((isnan(val1) && isnan(val2))
-      ||
-      (isinf(val1) && (val1 == val2))) {
-    return;
-  }
-
-  ASSERT_NEAR(val1, val2, tolerance) << message;
-}
 
 TEST(watstr, RandomTestData) {
 
-  constexpr auto tolerance = 1E-14;
+  constexpr auto absolute_tolerance = 0.0;
+  constexpr auto relative_tolerance = 2E-11;
 
-  for (int i = 0; i < 1e6; ++i) {
+  for (int i = 0; i < 1e5; ++i) {
 
     auto precipit = precipit_gen();
     auto evapo = evapo_gen();
@@ -70,12 +49,12 @@ TEST(watstr, RandomTestData) {
     auto new_result = watstr(precipit, evapo, cws, soildepth, fieldc, wiltp, phi1, phi2, soiltype, wsFun);
 
 
-    assert_near_or_nan(new_result.rcoefPhoto, old_result.rcoefPhoto, tolerance, input);
-    assert_near_or_nan(new_result.rcoefSpleaf, old_result.rcoefSpleaf, tolerance, input);
-    assert_near_or_nan(new_result.awc, old_result.awc, tolerance, input);
-    assert_near_or_nan(new_result.psim, old_result.psim, tolerance, input);
-    assert_near_or_nan(new_result.runoff, old_result.runoff, tolerance, input);
-    assert_near_or_nan(new_result.Nleach, old_result.Nleach, tolerance, input);
+    assert_near_rel_or_nan(new_result.rcoefPhoto, old_result.rcoefPhoto, absolute_tolerance, relative_tolerance, input);
+    assert_near_rel_or_nan(new_result.rcoefSpleaf, old_result.rcoefSpleaf, absolute_tolerance, relative_tolerance, input);
+    assert_near_rel_or_nan(new_result.awc, old_result.awc, absolute_tolerance, relative_tolerance, input);
+    assert_near_rel_or_nan(new_result.psim, old_result.psim, absolute_tolerance, relative_tolerance, input);
+    assert_near_rel_or_nan(new_result.runoff, old_result.runoff, absolute_tolerance, relative_tolerance, input);
+    assert_near_rel_or_nan(new_result.Nleach, old_result.Nleach, absolute_tolerance, relative_tolerance, input);
 
   }
 }

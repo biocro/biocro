@@ -129,7 +129,7 @@ TEST(sunMLTest, CheckCosThetaRange) {
 
 // Test that if the other arguments are valid, we get an out_of_range exception
 // if and only if nlayers is < 1 or > MAXLAY.
-TEST(sunMLTest, layer_size_limit) {
+TEST(sunMLTest, LayerSizeLimit) {
     constexpr auto tries = 5;
 
     sunMLArgs args = sunMLArgs();
@@ -153,7 +153,7 @@ TEST(sunMLTest, layer_size_limit) {
 
 // Test that if the other arguments are valid, we get an out_of_range exception
 // if and only if kd_range is < 0 or > 1.
-TEST(sunMLTest, kd_range) {
+TEST(sunMLTest, kdRange) {
     constexpr auto tries = 5;
 
     sunMLArgs args = sunMLArgs();
@@ -171,7 +171,7 @@ TEST(sunMLTest, kd_range) {
 
 // Test that if the other arguments are valid, we get an out_of_range exception
 // if and only if chil is < 0.
-TEST(sunMLTest, chil_range) {
+TEST(sunMLTest, chilRange) {
     constexpr auto tries = 5;
 
     sunMLArgs args = sunMLArgs();
@@ -186,7 +186,7 @@ TEST(sunMLTest, chil_range) {
 
 // Test that if the other arguments are valid, we get an out_of_range exception
 // if and only if heightf is <= 0.
-TEST(sunMLTest, heightf_range) {
+TEST(sunMLTest, heightfRange) {
     constexpr auto tries = 5;
 
     sunMLArgs args = sunMLArgs();
@@ -347,7 +347,7 @@ Light_profile result_sets[no_of_test_sets] =  {
 
 // Regression test on miscellaneous random input; check that the output doesn't
 // change.
-TEST(sunMLTest, miscellaneous_test_data) {
+TEST(sunMLTest, MiscellaneousTestData) {
     for (int setNo = 0; setNo < no_of_test_sets; ++setNo) {
         sunMLArgs args = test_sets[setNo];
 
@@ -361,7 +361,7 @@ TEST(sunMLTest, miscellaneous_test_data) {
 
 // Regression test on miscellaneous random input generated on the fly; check
 // that the output doesn't change.
-TEST(sunMLTest, miscellaneous_test_data_2) {
+TEST(sunMLTest, MiscellaneousTestData2) {
     sunMLArgs args = sunMLArgs();
     for (int i = 0; i < 1E4; ++i) {
         args.generate_values();

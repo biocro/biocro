@@ -61,20 +61,6 @@ struct soilML_str {
   double Nleach;
   double SoilEvapo;
   double rootDist[MAXLAY];
-  double hourlyWflux[MAXLAY];
-  double dailyWflux[MAXLAY];
-  double width[MAXLAY];
-  double swclimit[MAXLAY];
-  double pH[MAXLAY];
-  double bulkd[MAXLAY];
-  double fieldc[MAXLAY];
-  double dpthmx[MAXLAY];
-  double dpthmn[MAXLAY];
-  double soiltavg[MAXLAY];
-  double sand[MAXLAY];
-  double silt[MAXLAY];
-  double clay[MAXLAY];
-  int Num_BioCro_soil_layers;
 };
 
 
