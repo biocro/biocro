@@ -10,8 +10,7 @@ Maintainer: Deepak Jaiswal <djaiswal@illinois.edu>,
     David LeBauer <dlebauer@illinois.edu>,
     Fernando Miguez <femiguez@iastate.edu>
 Imports: lattice, stats
-Suggests: testthat, knitr, roxygen2, data.table
-Enhances: data.table
+Suggests: testthat, knitr, roxygen2
 VignetteBuilder: knitr
 SystemRequirements: C++11
 License: FreeBSD + file LICENSE
