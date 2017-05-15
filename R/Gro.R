@@ -23,9 +23,9 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
     varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))  # C++ requires that all the variables have type `double  # C++ requires that all the variables have type `double`.
     names(varying_parameters) = tolower(names(varying_parameters))  # Convert all names to lower case for easy of use.
 
-    ans = as.data.frame(.Call(RGro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name, modules$senescence_module_name))
-    ans = cbind(ans, varying_parameters)
-    return(ans)
+    result = as.data.frame(.Call(RGro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name, modules$senescence_module_name))
+    result = cbind(varying_parameters[c('year', 'doy', 'hour')], result)
+    return(result)
 }
 
 partial_gro = function(initial_values, parameters, varying_parameters, modules, arg_name) {
