@@ -13,11 +13,24 @@
 /* routines in the BioCro package. These are functions needed */
 /* internally. The normal user will not need them */
 
-#include <R.h>
-#include <Rmath.h>
+#define _USE_MATH_DEFINES
+
 #include <stdexcept>
+#include <math.h>
 #include "c4photo.h"
 #include "BioCro.h"
+
+double poisson_density(int x, double lambda)
+{
+    // The probability density for the Poisson distribution is 
+    // e^-lambda * lambda^x / x!
+    // The factorial term produces numbers too large to hold, so perform the calculation in the log domain.
+    // n! can be estimated by the approximation sqrt(2 * pi * x) * (x / e)^x.
+
+    double factorial_x = sqrt(2 * M_PI * x) * pow((x / M_E), x); // Stirling's approximation for n!.
+    double log_result = -lambda + x * log(lambda) - log(factorial_x);
+    return exp(log_result);
+}
 
 /**
  * Computation of the cosine of the zenith angle from latitute (`lat`), day of
@@ -342,12 +355,12 @@ ET_Str EvapoTrans(
        bottom of the canopy. I think it is very likely.  */
     const auto LayerRelativeHumidity = RH * 100;
     if (LayerRelativeHumidity > 100) {
-        error("LayerRelativehumidity > 100");
+        throw std::range_error("Thrown in EvapoTrans: LayerRelativehumidity is greater than 100."); 
     }
 
     const auto SWVC = TempToSWVC(airTemp) * 1e-3;
     if (SWVC < 0) {
-        error("SWVC < 0");
+        throw std::range_error("Thrown in EvapoTrans: SWVC is less than 0."); 
     }
 
     /* FIRST CALCULATIONS*/
@@ -400,7 +413,7 @@ ET_Str EvapoTrans(
 
     /*  Rprintf("ga: %.5f \n", ga); */
     if (ga < 0) {
-        error("ga is less than zero");
+        throw std::range_error("Thrown in EvapoTrans: ga is less than zero."); 
     }
 
     // DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature); set but not used
@@ -573,7 +586,9 @@ struct ET_Str EvapoTrans2(const double Rad,
     /* On a clear sky it may exceed 1000 in some parts of the world
        Thornley and Johnson pg 400 */
     /* This values can not possibly be higher than 650 */
-    if (totalradiation > 650) error("total radiation too high");
+    if (totalradiation > 650) {
+        throw std::range_error("Thrown in EvapoTrans2: total radiation is too high."); 
+    }
 
     /* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
     /* It seems that it is not correct to multiply by the leaf area index. The previous
@@ -1267,10 +1282,9 @@ struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
     double CumLayerDepth = 0.0;
     double CumRootDist = 1.0;
     double rootDist[layer];
-    double ca = 0.0, a = 0.0;
+    double ca = 0.0;
 
     for (int i = 0; i < layer; ++i) {
-
         if (i == 0) {
             layerDepth = depthsp[1];
         } else {
@@ -1286,7 +1300,7 @@ struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
 
     for (int j = 0; j < layer; ++j) {
         if (j < CumRootDist) {
-            a = dpois(j+1,CumRootDist*rfl,0);
+            double a = poisson_density(j + 1, CumRootDist * rfl);
             rootDist[j] = a;
             ca += a;
         } else {

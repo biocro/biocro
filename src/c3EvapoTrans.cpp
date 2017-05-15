@@ -9,7 +9,7 @@
  *
  */
 
-#include <R.h>
+#include <math.h>
 #include "c3photo.h"
 #include "AuxBioCro.h"
 #include "BioCro.h"
@@ -63,7 +63,7 @@ struct ET_Str c3EvapoTrans(double Rad,
        bottom of the canopy. I think it is very likely.  */
     double LayerRelativeHumidity = RH * 100;
     if (LayerRelativeHumidity > 100) 
-        error("LayerRelativehumidity > 100"); 
+        throw std::range_error("Thrown in c3EvapoTrans: LayerRelativehumidity is greater than 100."); 
 
     if (WindSpeed < 0.5) WindSpeed = 0.5;
 
@@ -83,7 +83,7 @@ struct ET_Str c3EvapoTrans(double Rad,
         LayerConductance = 0.01;
 
     if (SWVC < 0)
-        error("SWVC < 0");
+        throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0."); 
     /* Now RHprof returns relative humidity in the 0-1 range */
     double DeltaPVa = SWVC * (1 - LayerRelativeHumidity / 100);
 
@@ -98,7 +98,7 @@ struct ET_Str c3EvapoTrans(double Rad,
     double ga = ga0/(ga1*ga2);
 
     if (ga < 0)
-        error("ga is less than zero");
+        throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero."); 
 
     /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
     /* This version is non-iterative and an approximation*/

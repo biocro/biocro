@@ -6,7 +6,7 @@
  */
 
 #include <memory>
-#include <R.h>
+#include <sstream>
 #include "BioCro.h"
 #include "modules.h"
 
@@ -80,12 +80,9 @@ state_vector_map Gro(
      */
 
     if (!missing_state.empty()) {
-        Rprintf("The following state variables are required but are missing: ");
-        for(auto it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
-            Rprintf("%s, ", it->c_str());
-        }
-        Rprintf("%s.\n", missing_state.back().c_str());
-        error("This function cannot continue unless all state variables are set.");
+        std::ostringstream message;
+        message << "The following required state variables are missing: " << join_string_vector(missing_state);
+        throw std::out_of_range(message.str());
     }
 
     for(size_t i = 0; i < n_rows; ++i)

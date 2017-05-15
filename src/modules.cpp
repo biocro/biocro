@@ -2,17 +2,27 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
-#include <R.h>
+#include <sstream>
+#include <math.h>
 #include "modules.h"
+
+string join_string_vector(vector<string> const &state_keys) {
+    std::ostringstream message;
+    for(auto it = state_keys.begin(); it != state_keys.end() - 1; ++it) {
+        message << *it << ", ";
+    }
+    message << state_keys.back();
+    return (message.str());
+}
 
 vector<string> IModule::list_required_state() const
 {
-    return(this->_required_state);
+    return (this->_required_state);
 }
 
 vector<string> IModule::list_modified_state() const
 {
-    return(this->_modified_state);
+    return (this->_modified_state);
 }
 
 state_map IModule::run(state_map const &state) const
@@ -22,6 +32,11 @@ state_map IModule::run(state_map const &state) const
         result = this->do_operation(state);
     }
     catch (std::out_of_range const &oor) {
+        vector<string> missing_state = this->state_requirements_are_met(state);
+        std::ostringstream message;
+        message << "The following required state variables are missing: " << join_string_vector(missing_state);
+        throw std::out_of_range(message.str());
+        /*
         Rprintf("Out of range exception %s.\n", oor.what());
         vector<string> missing_state = this->state_requirements_are_met(state);
 
@@ -35,9 +50,10 @@ state_map IModule::run(state_map const &state) const
         } else {
             error("An out of range exception was thrown, but all required state variables are present.\nYou probabaly mistyped a variable in the C++ code\nor there is a required variable that has not been added to the module declaration.\n");
         }
+        */
 
     }
-    return(result);
+    return (result);
 }
 
 state_map IModule::run(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
@@ -47,8 +63,13 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
         result = this->do_operation(state_history, deriv_history, parameters);
     }
     catch (std::out_of_range const &oor) {
-        Rprintf("Out of range exception %s.\n", oor.what());
         state_map state = combine_state(at(state_history, 0), parameters);
+        vector<string> missing_state = this->state_requirements_are_met(state);
+        std::ostringstream message;
+        message << "The following required state variables are missing: " << join_string_vector(missing_state);
+        throw std::out_of_range(message.str());
+        /*
+        Rprintf("Out of range exception %s.\n", oor.what());
         vector<string> missing_state = this->state_requirements_are_met(state);
 
         if (!missing_state.empty()) {
@@ -61,15 +82,16 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
         } else {
             error("An out of range exception was thrown, but all required state variables are present.\nYou probabaly mistyped a variable in the C++ code\nor there is a required variable that has not been added to the module declaration.\n");
         }
+        */
 
     }
-    return(result);
+    return (result);
 }
 
 state_map IModule::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
     state_map current_state = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
-    return(this->do_operation(current_state));
+    return (this->do_operation(current_state));
 }
 
 vector<string> IModule::state_requirements_are_met(state_map const &s) const
@@ -80,7 +102,7 @@ vector<string> IModule::state_requirements_are_met(state_map const &s) const
             missing_state.push_back(*it);
         }
     }
-    return(missing_state);
+    return (missing_state);
 }
 
 state_map c4_canopy::do_operation(state_map const &s) const
@@ -111,7 +133,7 @@ state_map c4_canopy::do_operation(state_map const &s) const
     fluxes["Trans"] = result.Trans;
     fluxes["GrossAssim"] = result.GrossAssim;
 
-    return(fluxes);
+    return (fluxes);
 }
 
 state_map c3_canopy::do_operation(state_map const &s) const
@@ -129,7 +151,7 @@ state_map c3_canopy::do_operation(state_map const &s) const
     fluxes["Trans"] = result.Trans;
     fluxes["GrossAssim"] = result.GrossAssim;
 
-    return(fluxes);
+    return (fluxes);
 }
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
@@ -146,7 +168,7 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     derivs["waterCont"] = WaterS.awc - s.at("waterCont");
     derivs["StomataWS"] = WaterS.rcoefPhoto - s.at("StomataWS");
     derivs["LeafWS"] =  WaterS.rcoefSpleaf - s.at("LeafWS");
-    return(derivs);
+    return (derivs);
 }
 
 state_map two_layer_soil_profile::do_operation(state_map const &s) const
@@ -171,7 +193,7 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     double cws_sum = soilMLS.cws[0] + soilMLS.cws[1];
     derivs["waterCont"] =  cws_sum / 2 - s.at("waterCont");  // Divide by 2, the number of layers.
     
-    return(derivs);
+    return (derivs);
 }
 
 state_map thermal_time_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
@@ -217,7 +239,7 @@ state_map thermal_time_senescence::do_operation(state_vector_map const &state_hi
         ++derivs["rhizome_senescence_index"];
     }
 
-    return(derivs);
+    return (derivs);
 }
 
 state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
@@ -275,7 +297,7 @@ state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const
         ++derivs["rhizome_senescence_index"];
     }
 
-    return(derivs);
+    return (derivs);
 }
 
 state_map partitioning_growth_module::do_operation(state_vector_map const &s, state_vector_map const &deriv_history, state_map const &p) const
@@ -325,7 +347,7 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
         derivs["newStemcol"] = resp(derivs["newStemcol"], p.at("mrc1"), p.at("temp"));
         derivs["Stem"] += derivs["newStemcol"];
     } else {
-        error("kStem should be positive");
+        throw std::range_error("kStem should be positive");
     }
 
     if (kRoot > 0) {
@@ -353,7 +375,6 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
         derivs["Rhizome"] += s.at("Rhizome")[t] * kRhizome;
         if ( derivs["Rhizome"] > s.at("Rhizome")[t] ) {  // Check if this would make the rhizome mass negative.
             derivs["Rhizome"] = s.at("Rhizome")[t];
-            warning("Rhizome flux would make rhizome mass negative.");
         }
 
         derivs["Root"] += kRoot * -derivs.at("Rhizome");
@@ -367,7 +388,7 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
         /* No respiration for grain at the moment */
         /* No senescence either */
     }
-    return(derivs);
+    return (derivs);
 }
 
 state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map const &s, state_vector_map const &deriv_history, state_map const &p) const
@@ -419,7 +440,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         derivs["newStemcol"] = resp(derivs["newStemcol"], p.at("mrc1"), p.at("temp"));
         derivs["Stem"] += derivs["newStemcol"];
     } else {
-        error("kStem should be positive");
+        throw std::range_error("kStem should be positive");
     }
 
     if (kRoot > 0) {
@@ -445,7 +466,6 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         derivs["Rhizome"] += s.at("Rhizome")[t] * kRhizome;
         if ( derivs["Rhizome"] > s.at("Rhizome")[t] ) {  // Check if this would make the rhizome mass negative.
             derivs["Rhizome"] = s.at("Rhizome")[t];
-            warning("Rhizome flux would make rhizome mass negative.");
         }
 
         derivs["Root"] += kRoot * -derivs.at("Rhizome");
@@ -459,7 +479,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         /* No respiration for grain at the moment */
         /* No senescence either */
     }
-    return(derivs);
+    return (derivs);
 }
 
 std::unique_ptr<IModule> make_module(string const &module_name)
@@ -502,7 +522,7 @@ state_vector_map allocate_state(state_map const &m, size_t n)
         temp.reserve(n);
         result.insert(std::pair<string, vector<double>>(it->first, temp));
     }
-    return(result);
+    return (result);
 }
 
 state_map combine_state(state_map const &state_a, state_map const &state_b)
@@ -553,12 +573,12 @@ void append_state_to_vector(state_map const &state, state_vector_map &state_vect
 double biomass_leaf_nitrogen_limitation(state_map const &s)
 {
     double leaf_n = s.at("LeafN_0") * pow(s.at("Leaf") + s.at("Stem"), -s.at("kln"));
-    return(leaf_n > s.at("LeafN_0") ? s.at("LeafN_0") : leaf_n);
+    return (leaf_n > s.at("LeafN_0") ? s.at("LeafN_0") : leaf_n);
 }
 
 double thermal_leaf_nitrogen_limitation(state_map const &s)
 {
-	return(s.at("LeafN_0") * exp(-s.at("kln") * s.at("TTc")));
+	return (s.at("LeafN_0") * exp(-s.at("kln") * s.at("TTc")));
 }
 
 

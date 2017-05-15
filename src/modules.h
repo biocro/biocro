@@ -209,5 +209,7 @@ state_map at(state_vector_map const &vector_map, vector<double>::size_type n);
 
 state_map& operator+=(state_map &lhs, state_map const &rhs);
 
+string join_string_vector(vector<string> const &state_keys);
+
 # endif
 

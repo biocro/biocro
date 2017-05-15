@@ -62,9 +62,12 @@ SEXP RGro(SEXP initial_state,
     state_vector_map ans;
     try {
         ans = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, biomass_leaf_nitrogen_limitation);
-    }
-    catch (std::out_of_range const &oor) {
-            Rprintf("Out of range exception thrown in RGro.cpp: %s\n", oor.what());
+    } catch (std::out_of_range const &oor) {
+        Rprintf("Out of range exception caught in RGro.cpp. %s\n", oor.what());
+        error("Out of range exception");
+    } catch (std::range_error const &re) {
+        Rprintf("Run-time error caught in in RGro. %s\n", re.what());
+        error("Run-time error");
     }
 
     SEXP result = list_from_map(ans);

@@ -20,9 +20,15 @@ if (conditionMessage(result) != 'The following modules names are NULL, but they 
     warning('Missing module names should produce an error.')
 } 
 
-missing_parms = within(sorghum_parameters, alpha1 <- NULL)
-result = get_errors(Gro(sorghum_initial_state, missing_parms, weather05, sorghum_modules))
-if (conditionMessage(result) != 'This function cannot continue unless all state variables are set.') {
+gro_missing_parms = within(sorghum_parameters, alpha1 <- NULL)
+result = get_errors(Gro(sorghum_initial_state, gro_missing_parms, weather05, sorghum_modules))
+if (is.null(result)) {
+    warning('Missing parameters should produce an error.')
+}
+
+module_missing_parms = within(sorghum_parameters, leafwidth <- NULL)
+result = get_errors(Gro(sorghum_initial_state, module_missing_parms, weather05, sorghum_modules))
+if (is.null(result)) {
     warning('Missing parameters should produce an error.')
 }
 

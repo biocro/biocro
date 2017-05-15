@@ -1,5 +1,4 @@
 #include <R.h>
-#include <Rmath.h>
 #include <Rinternals.h>
 #include "c4photo.h"
 
