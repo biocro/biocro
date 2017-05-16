@@ -205,7 +205,7 @@ void append_state_to_vector(state_map const &state, state_vector_map &state_vect
 
 std::unique_ptr<IModule> make_module(string const &module_name);
 
-state_map at(state_vector_map const &vector_map, vector<double>::size_type n);
+state_map at(state_vector_map const &vector_map, vector<double>::size_type const n);
 
 state_map& operator+=(state_map &lhs, state_map const &rhs);
 

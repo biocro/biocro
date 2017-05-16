@@ -532,7 +532,7 @@ state_map combine_state(state_map const &state_a, state_map const &state_b)
     return result;
 }
 
-state_map at(state_vector_map const &vector_map, vector<double>::size_type n)
+state_map at(state_vector_map const &vector_map, vector<double>::size_type const n)
 {
     state_map result;
     result.reserve(vector_map.size());
