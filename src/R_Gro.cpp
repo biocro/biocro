@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <sstream>
 #include <Rinternals.h>
 #include "BioCro.h"
 #include "modules.h"
@@ -56,28 +57,27 @@ SEXP R_Gro(SEXP initial_state,
         }
 
         if (!missing_state.empty()) {
-            Rprintf("The following state variables are required but are missing: ");
+            std::ostringstream message;
+            message << "The following state variables are required but are missing: ";
             for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
-                Rprintf("%s, ", it->c_str());
+                message << *it << ", ";
             }
-            Rprintf("%s.\n", missing_state.back().c_str());
-            error("This function cannot continue unless all state variables are set.");
+            message << missing_state.back() << ".";
+            error(message.str().c_str());
         }
 
         state_vector_map result;
         try {
             result = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, biomass_leaf_nitrogen_limitation);
-        } catch (std::out_of_range const &oor) {
-            Rprintf("Out of range exception caught in R_Gro.cpp. %s\n", oor.what());
-            error("Out of range exception");
-        } catch (std::range_error const &re) {
-            Rprintf("Run-time error caught in in R_Gro. %s\n", re.what());
-            error("Run-time error");
+        } catch (std::exception const &e) {
+            std::ostringstream message;
+            message << "Exception caught in R_Gro.cpp. " << e.what();
+            error(message.str().c_str());
         }
 
         return (list_from_map(result));
     } catch (std::exception const &e) {
-        error("Uncaught exception");
+        error("Caught unhandled exception in R_Gro.cpp");
     }
 }
 

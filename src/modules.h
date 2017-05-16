@@ -215,7 +215,7 @@ vector<string> keys(state_map const &state);
 
 vector<string> keys(state_vector_map const &state);
 
-bool any_key_is_duplicated(const vector<vector<string>> &keys);
+bool any_key_is_duplicated(vector<vector<string>> const &keys);
 
 # endif
 
