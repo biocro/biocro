@@ -6,7 +6,7 @@
 
 extern "C" {
 
-SEXP RGro(SEXP initial_state,
+SEXP R_Gro(SEXP initial_state,
         SEXP invariate_parameters,
         SEXP varying_parameters,
         SEXP canopy_photosynthesis_module,
@@ -63,10 +63,10 @@ SEXP RGro(SEXP initial_state,
     try {
         ans = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, biomass_leaf_nitrogen_limitation);
     } catch (std::out_of_range const &oor) {
-        Rprintf("Out of range exception caught in RGro.cpp. %s\n", oor.what());
+        Rprintf("Out of range exception caught in R_Gro.cpp. %s\n", oor.what());
         error("Out of range exception");
     } catch (std::range_error const &re) {
-        Rprintf("Run-time error caught in in RGro. %s\n", re.what());
+        Rprintf("Run-time error caught in in R_Gro. %s\n", re.what());
         error("Run-time error");
     }
 

@@ -3,7 +3,7 @@ useDynLib(BioCro,
           c3photo_sym = c3photo,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
-          RGro)
+          R_Gro)
 
 import(stats, lattice)
 
