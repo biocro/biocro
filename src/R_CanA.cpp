@@ -4,7 +4,6 @@
  *  and lower temperature and the nitrogen parameters.
  */
 
-#include <R.h>
 #include <Rinternals.h>
 #include "BioCro.h"
 #include "c4photo.h"

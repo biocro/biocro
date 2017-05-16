@@ -3,7 +3,6 @@
  *
  */
 
-#include <R.h>
 #include <Rinternals.h>
 #include "BioCro.h"
 #include "modules.h"

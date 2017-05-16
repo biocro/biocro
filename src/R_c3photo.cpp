@@ -1,5 +1,3 @@
-#include <R.h>
-#include <Rmath.h>
 #include <Rinternals.h>
 #include "c3photo.h"
 
@@ -20,8 +18,6 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	double StomWS = REAL(STOMWS)[0];
     double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
     double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
-    // int nr; unused
-    // int nt; unused
 	int water_stress_approach = INTEGER(WATER_STRESS_APPROACH)[0];
 	SEXP lists, names;
 	SEXP GsV;
@@ -29,8 +25,6 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	SEXP CiV;
 
 	size_t nq = length(Qp1);
-    // nt = length(Tl1); unused
-    // nr = length(RH1); unused
 
 	PROTECT(lists = allocVector(VECSXP,3));
 	PROTECT(names = allocVector(STRSXP,3));
@@ -39,10 +33,8 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	PROTECT(ASSV = allocVector(REALSXP,nq));
 	PROTECT(CiV = allocVector(REALSXP,nq));
  
-	/* Start of the loop */
 	for(size_t i = 0; i < nq; ++i)
 	{
-		/*pick the right element*/
 		double Qp = REAL(Qp1)[i];
 		double Tl = REAL(Tl1)[i];
 		double RH = REAL(RH1)[i];
@@ -66,19 +58,4 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	return(lists);
 }
 }  // extern "C"
-
-
-
-/* Solubility of CO2 and O2 */
-
-/* This function returns the solubility of CO2 at temperature t relative to CO2 */
-/* solubility at 25C it does this by using a polynomial which has been fitted to */
-/* experimental data. */
-
-/* Function result units: micro mol mol^-1 */
-/* Function found: */
-/* Plant cell and Environment, (1991) 14, 729-739. */
-/* Modification of the response of photosynthetic activity to */
-/* rising temperature by atmospheric CO2 concentrations: Has its */
-/* importance been underestimated? */
 

@@ -1,4 +1,3 @@
-#include <R.h>
 #include <Rinternals.h>
 #include "c4photo.h"
 
