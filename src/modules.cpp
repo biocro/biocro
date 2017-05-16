@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <sstream>
 #include <math.h>
+#include <algorithm>
 #include "modules.h"
 
 string join_string_vector(vector<string> const &state_keys) {
@@ -128,12 +129,12 @@ state_map c4_canopy::do_operation(state_map const &s) const
             (int)s.at("lnfun"), s.at("upperT"), s.at("lowerT"), nitroP, s.at("leafwidth"),
             (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("water_stress_approach"));
 
-    state_map fluxes;
-    fluxes["Assim"] = result.Assim;
-    fluxes["Trans"] = result.Trans;
-    fluxes["GrossAssim"] = result.GrossAssim;
+    state_map derivs;
+    derivs["Assim"] = result.Assim;
+    derivs["Trans"] = result.Trans;
+    derivs["GrossAssim"] = result.GrossAssim;
 
-    return (fluxes);
+    return (derivs);
 }
 
 state_map c3_canopy::do_operation(state_map const &s) const
@@ -146,12 +147,12 @@ state_map c3_canopy::do_operation(state_map const &s) const
             s.at("kpLN"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("StomataWS"),
             (int)s.at("water_stress_approach"), s.at("electrons_per_carboxylation"), s.at("electrons_per_oxygenation"));
 
-    state_map fluxes;
-    fluxes["Assim"] = result.Assim;
-    fluxes["Trans"] = result.Trans;
-    fluxes["GrossAssim"] = result.GrossAssim;
+    state_map derivs;
+    derivs["Assim"] = result.Assim;
+    derivs["Trans"] = result.Trans;
+    derivs["GrossAssim"] = result.GrossAssim;
 
-    return (fluxes);
+    return (derivs);
 }
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
@@ -588,5 +589,38 @@ state_map& operator+=(state_map &lhs, state_map const &rhs)
         lhs[it->first] += it->second;
     }
     return lhs;
+}
+
+vector<string> keys(state_map const &state) {
+    vector<string> result;
+    for (auto it = state.begin(); it != state.end(); ++it) {
+        result.push_back(it->first);
+    }
+    return (result);
+}
+
+vector<string> keys(state_vector_map const &state) {
+    vector<string> result;
+    for (auto it = state.begin(); it != state.end(); ++it) {
+        result.push_back(it->first);
+    }
+    return (result);
+}
+
+bool any_key_is_duplicated(vector<vector<string>> const &keys) {
+    vector<string> all_keys;
+    for (auto it = keys.begin(); it != keys.end(); ++it) {
+        for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
+            all_keys.push_back(*it2);
+        }
+    } 
+
+    auto last = all_keys.end();
+    for (auto it = all_keys.begin(); it != last; ++it) {
+        if (std::find(it + 1, last, *it) != last) {
+            return true;
+        }
+    }
+    return false;
 }
 

@@ -27,6 +27,11 @@ state_vector_map Gro(
     state_vector_map results = state_history;
     state_vector_map deriv_history;
 
+    vector<vector<string>> key_vector = {keys(initial_state), keys(invariant_parameters), keys(varying_parameters)};
+    if (any_key_is_duplicated(key_vector)) {
+        throw std::range_error("A parameter may appear in only one of the state lists.");
+    }
+
     struct dbp_str dbpS;
 
     double dbpcoefs[] = {
@@ -90,18 +95,16 @@ state_vector_map Gro(
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
-        // The following copies invariant parameters, and the last values in varying_parameters into the variable "p";
         p = combine_state(invariant_parameters, at(varying_parameters, i));
 
         /*
          * 1) Calculate all state-dependent state variables.
          */
 
-        /* NOTE: I think it's easier to follow if all of the set up is done in one place,
-         * so I've moved all of those things to the top of the loop.
+        /* NOTE: 
          * This section is for state variables that are not modified directly by derivatives.
          * No derivaties should be calulated here.
-         * This will make it so that the code in section 2 is order independent.
+         * This makes it so that the code in section 2 is order independent.
          */
 
         p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");

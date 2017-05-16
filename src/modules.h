@@ -211,5 +211,11 @@ state_map& operator+=(state_map &lhs, state_map const &rhs);
 
 string join_string_vector(vector<string> const &state_keys);
 
+vector<string> keys(state_map const &state);
+
+vector<string> keys(state_vector_map const &state);
+
+bool any_key_is_duplicated(const vector<vector<string>> &keys);
+
 # endif
 
