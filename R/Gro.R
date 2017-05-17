@@ -4,24 +4,24 @@
 ##' Models crop growth given species-specific parameters and climate data.
 ##' @param initial_values Initial values for parameters that will be calculated by the model. These are recorded in the result. (a list of named numeric values)
 ##' @param parameters Values for parameters that are constant. (a list of named numeric values)
-##' @param varying_parameters Times at which a solution is desired, and values for parameters that vary. (a data frame with at least the columns \code{year}, \code{doy}, and \code{hour})
+##' @param varying_parameters Times at which a solution is desired and values for parameters that vary. (a data frame with at least the columns \code{year}, \code{doy}, and \code{hour} and optionally columns for parameters that drive the model over time.)
 ##' @param modules The model modules that should be run. Required modules are given in the details. (a list of named character values)
-##' @return A data frame with the columns \code{year}, \code{doy}, and \code{hour}, and a column for each parameter in \code{initial_values} and a row for each row in code{varying_parameters}:
+##' @return A data frame with the columns \code{year}, \code{doy}, and \code{hour}, and a column for each parameter in \code{initial_values} and a row for each row in \code{varying_parameters}:
 ##'
 ##' @details
-##' The models that are run are given via the modules argument. Each module has parameters it requires, which must be given in exactly one of the state arguments: \code{initial_values}, \code{parameters}, \code{varying_parameters.}
+##' The models are defined by two types of arguments: the set of equations -- \code{modules} -- and the state -- \code{initial_values}, \code{parameters}, \code{varying_parameters.}.
 ##'
-##' The choice of which of the three state arguments to include a parameter depends on whether you want to record the parameter in the output and whether they are used to drive the model.
+##' Each module has parameters it requires, which must be given in exactly one of the state arguments.
 ##'
-##' \code{intial_values}: Values are recorded in the output. They do not drive the model. If the model calculates the parameter, it will change with time. If the model does not calculate the value, it will be constant with time, but will still be recorded.
+##' The choice of state argument in which to include a parameter depends on whether you want to record the parameter in the output and whether they are used to drive the model.
+##'
+##' \code{initial_values}: Values are recorded in the output. They do not drive the model. If the model calculates the parameter, it will change with time. If the model does not calculate the value, it will be constant with time, but will still be recorded.
 ##'
 ##' \code{parameters}: Values are not recorded in the output. They do not drive the model. If the model calculates the parameter, it will change internally, but will not be recorded in the output.
 ##'
 ##' \code{varying_parameters}: Values are not recored in the output. They do drive the model. If the model calculates the parameter, that parameter will be overwritten by the value in \code{varying_parameters}. Values are not recorded in the output, because they are known beforehand.
 ##'
-##' The list \code{varying_parameters} must contain at least the columns at least the columns \code{year}, \code{doy}, and \code{hour}, specifying the times at which a solution is required. Times must be evenly spaced, and the diffence must be given in the \code{timestep} parameter (units are hours).
-##'
-##' The result has the columns \code{year}, \code{doy}, and \code{hour}, and a column for each parameter in \code{initial_state}. It has as many rows as \code{varying_parameters}.
+##' The list \code{varying_parameters} must contain at least the columns \code{year}, \code{doy}, and \code{hour}, specifying the times at which a solution is required. Times must be evenly spaced, and the difference in times must be given in the \code{timestep} parameter (units are hours).
 ##'
 ##' Required module names and available modules:
 ##'
