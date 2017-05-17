@@ -1,4 +1,70 @@
 
+##' Simulate crop growth.
+##'
+##' Models crop growth given species-specific parameters and climate data.
+##' @param initial_values Initial values for parameters that will be calculated by the model. These are recorded in the result. (a list of named numeric values)
+##' @param parameters Values for parameters that are constant. (a list of named numeric values)
+##' @param varying_parameters Times at which a solution is desired, and values for parameters that vary. (a data frame with at least the columns \code{year}, \code{doy}, and \code{hour})
+##' @param modules The model modules that should be run. Required modules are given in the details. (a list of named character values)
+##' @return A data frame with the columns \code{year}, \code{doy}, and \code{hour}, and a column for each parameter in \code{initial_values} and a row for each row in code{varying_parameters}:
+##'
+##' @details
+##' The models that are run are given via the modules argument. Each module has parameters it requires, which must be given in exactly one of the state arguments: \code{initial_values}, \code{parameters}, \code{varying_parameters.}
+##'
+##' The choice of which of the three state arguments to include a parameter depends on whether you want to record the parameter in the output and whether they are used to drive the model.
+##'
+##' \code{intial_values}: Values are recorded in the output. They do not drive the model. If the model calculates the parameter, it will change with time. If the model does not calculate the value, it will be constant with time, but will still be recorded.
+##'
+##' \code{parameters}: Values are not recorded in the output. They do not drive the model. If the model calculates the parameter, it will change internally, but will not be recorded in the output.
+##'
+##' \code{varying_parameters}: Values are not recored in the output. They do drive the model. If the model calculates the parameter, that parameter will be overwritten by the value in \code{varying_parameters}. Values are not recorded in the output, because they are known beforehand.
+##'
+##' The list \code{varying_parameters} must contain at least the columns at least the columns \code{year}, \code{doy}, and \code{hour}, specifying the times at which a solution is required. Times must be evenly spaced, and the diffence must be given in the \code{timestep} parameter (units are hours).
+##'
+##' The result has the columns \code{year}, \code{doy}, and \code{hour}, and a column for each parameter in \code{initial_state}. It has as many rows as \code{varying_parameters}.
+##'
+##' Required module names and available modules:
+##'
+##' \itemize{
+##'     \item \code{canopy_module_name}
+##'         \itemize{
+##'             \item c3canopy
+##'             \item c4canopy
+##'         }
+##'     \item \code{soil_module_name}
+##'         \itemize{
+##'             \item one_layer_soil_profile
+##'             \item two_layer_soil_profile
+##'         }
+##'     \item \code{growth_module_name}
+##'         \itemize{
+##'             \item partitioning_growth
+##'         }
+##'     \item \code{senescence_module_name}
+##'         \itemize{
+##'             \item thermal_time_senescence
+##'             \item thermal_time_and_frost_senescence
+##'         }
+##' }
+##'
+##' Sets of parameters and modules are provided for sorghum, miscanthus, and willow, and are named [crop]_initial_state, [crop]_parameters, and [crop]_modules, e.g., sorghum_initial_state.
+##' 
+##' Weather data are provided. These are typically for one year (January 1 to December 31) and should be subsetted to include only the period of growth. The function \code{get_growing_season_climate()} is provided as one means of subsetting climate data.
+##'
+##' @examples
+##' ## Simulate sorghum growth
+##' result = Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules)
+##' lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l', auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)), xlab=expression('Thermal time'~(degree*C~day)))
+##' 
+##' ### The results can be combined with the data that were used to drive the model.
+##' result = cbind(result, get_growing_season_climate(weather05))
+##' 
+##' ## Change a subset of the parameters.
+##' canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
+##' architechture_result = Gro(sorghum_initial_state, canopy_architecture, get_growing_season_climate(weather05), sorghum_modules)
+##' lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l', auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)), xlab=expression('Thermal time'~(degree*C~day)))
+##'
+
 Gro <- function(initial_values, parameters, varying_parameters, modules)
 {
     for ( ilist in list(initial_values, parameters) ) {

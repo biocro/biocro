@@ -13,7 +13,7 @@ The Gro() function accepts initial values, parameters, climate variables, and a 
 library(BioCro)
 library(lattice)
 
-result = Gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules)
+result = Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules)
 xyplot(Stem + Leaf ~ TTc, result, type='l')
 ```
 

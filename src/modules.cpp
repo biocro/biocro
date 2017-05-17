@@ -37,22 +37,6 @@ state_map IModule::run(state_map const &state) const
         std::ostringstream message;
         message << "The following required state variables are missing: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
-        /*
-        Rprintf("Out of range exception %s.\n", oor.what());
-        vector<string> missing_state = this->state_requirements_are_met(state);
-
-        if (!missing_state.empty()) {
-            Rprintf("The following state variables are required but are missing: ");
-            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
-                Rprintf("%s, ", it->c_str());
-            }
-            Rprintf("%s.\n", missing_state.back().c_str());
-            error("This function cannot continue unless all state variables are set.");
-        } else {
-            error("An out of range exception was thrown, but all required state variables are present.\nYou probabaly mistyped a variable in the C++ code\nor there is a required variable that has not been added to the module declaration.\n");
-        }
-        */
-
     }
     return (result);
 }
@@ -69,22 +53,6 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
         std::ostringstream message;
         message << "The following required state variables are missing: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
-        /*
-        Rprintf("Out of range exception %s.\n", oor.what());
-        vector<string> missing_state = this->state_requirements_are_met(state);
-
-        if (!missing_state.empty()) {
-            Rprintf("The following state variables are required but are missing: ");
-            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
-                Rprintf("%s, ", it->c_str());
-            }
-            Rprintf("%s.\n", missing_state.back().c_str());
-            error("This function cannot continue unless all state variables are set.");
-        } else {
-            error("An out of range exception was thrown, but all required state variables are present.\nYou probabaly mistyped a variable in the C++ code\nor there is a required variable that has not been added to the module declaration.\n");
-        }
-        */
-
     }
     return (result);
 }
