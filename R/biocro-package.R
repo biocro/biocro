@@ -22,7 +22,6 @@
 ##' @examples
 ##'
 ##' data(aci)
-##' plotAC(aci)
 ##'
 NULL
 
@@ -82,7 +81,7 @@ NULL
 ##' @examples
 ##'
 ##' data(aq)
-##' plotAQ(aq)
+##' lattice::xyplot(A ~ PARi | trt, data=aq, ylab='CO2 uptake', xlab='Quantum flux')
 ##'
 NULL
 
