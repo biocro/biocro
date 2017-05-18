@@ -95,30 +95,30 @@ state_vector_map Gro(
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
-        p = combine_state(invariant_parameters, at(varying_parameters, i));
+        p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, i)));
 
         /*
          * 1) Calculate all state-dependent state variables.
          */
 
         /* NOTE: 
-         * This section is for state variables that are not modified directly by derivatives.
+         * This section is for state variables that are not modified by derivatives.
          * No derivaties should be calulated here.
          * This makes it so that the code in section 2 is order independent.
          */
 
         p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
-        p["lai"] = state_history.at("Leaf")[i] * p.at("Sp");
+        p["lai"] = p.at("Leaf") * p.at("Sp");
 
         /* Model photosynthetic parameters as a linear relationship between
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the thermal time.
            (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
-        p["LeafN"] = leaf_n_limitation(combine_state(current_state, p));
+        p["LeafN"] = leaf_n_limitation(p);
         p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
         p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, current_state.at("TTc"));
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
 
         p["kLeaf"] = dbpS.kLeaf;
         p["kStem"] = dbpS.kStem;

@@ -37,7 +37,7 @@ class IModule {
         bool requirements_are_met;
 };
 
-inline IModule::~IModule() {};  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
+inline IModule::~IModule() {}  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
 
 class ICanopy_photosynthesis_module : public IModule {
     public:
