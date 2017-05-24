@@ -37,22 +37,24 @@
 ##' An object of class \code{Opc3photo}.
 ##'
 ##' The following components can be extracted:
-##' @returnItem bestVmax optimized \code{vmax}.
-##' @returnItem bestJmax optimized \code{jmax}.
-##' @returnItem ReSumS Residual Sum of Squares.
-##' @returnItem Convergence Convergence status.
-##' @returnItem VarCov Variance-covariance matrix.
-##' @returnItem df degress of freedom.
-##' @returnItem ciVmax Confidence interval for \code{vmax}.
-##' @returnItem ciJmax Confidence interval for \code{jmax}.
-##' @returnItem corVJ correlation between \code{vmax} and \code{jmax}.
-##' @returnItem level Confidence interval level.
-##' @returnItem data Original data.
-##' @returnItem xparms Additional parameters.
-##' @returnItem curve.kind A/Ci or A/Q curve.
-##' @returnItem op.level Level 1 means \code{vcmax} and \code{jmax} were
+##' \itemize{
+##' \item bestVmax optimized \code{vmax}.
+##' \item bestJmax optimized \code{jmax}.
+##' \item ReSumS Residual Sum of Squares.
+##' \item Convergence Convergence status.
+##' \item VarCov Variance-covariance matrix.
+##' \item df degress of freedom.
+##' \item ciVmax Confidence interval for \code{vmax}.
+##' \item ciJmax Confidence interval for \code{jmax}.
+##' \item corVJ correlation between \code{vmax} and \code{jmax}.
+##' \item level Confidence interval level.
+##' \item data Original data.
+##' \item xparms Additional parameters.
+##' \item curve.kind A/Ci or A/Q curve.
+##' \item op.level Level 1 means \code{vcmax} and \code{jmax} were
 ##' optimized and level 2 \code{vcmax}, \code{jmax} and \code{Rd}.
-##' @returnItem response \code{'Assim'} or \code{'StomCond'}.
+##' \item response \code{'Assim'} or \code{'StomCond'}.
+##' }
 ##' @note ~~further notes~~ Additional notes about the assumptions.
 ##'
 ##' @author Fernando E. Miguez
@@ -498,7 +500,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 
   if(plot.kind == "RvsF"){
     if(resid == "std"){
-      plot1 <- xyplot(stdresid ~ fttA,...,
+      plot1 <- lattice::xyplot(stdresid ~ fttA,...,
                       xlab="fitted",
                       ylab="standardized resduals",
                       panel = function(x,y,...){
@@ -510,7 +512,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
       print(plot1)
     }
     if(resid == "raw"){
-         plot1 <-   xyplot(rsd ~ fttA,...,
+         plot1 <-   lattice::xyplot(rsd ~ fttA,...,
                            xlab="fitted",
                            ylab="resduals",
                            panel = function(x,y,...){
@@ -522,7 +524,7 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
     }
   }
   if(plot.kind == "OvsF"){
-    plot1 <- xyplot(obsvec ~ fttA,...,
+    plot1 <- lattice::xyplot(obsvec ~ fttA,...,
                     xlab="fitted",
                     ylab="observed",
                     panel = function(x,y,...){
@@ -533,13 +535,13 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
   }
   if(plot.kind == "OandF"){
     if(x$curve.kind == "Q"){
-      plot1 <- xyplot(obsvec + fttA ~ dat[,2],...,
+      plot1 <- lattice::xyplot(obsvec + fttA ~ dat[,2],...,
                       auto.key=TRUE,
                       ylab = "CO2 uptake",
                       xlab = "Quantum flux")
       print(plot1)
     }else{
-      plot1 <- xyplot(obsvec ~ dat[,5],...,
+      plot1 <- lattice::xyplot(obsvec ~ dat[,5],...,
                       ylab = "CO2 uptake",
                       xlab = "Ci",
                       panel = function(x,y,...){
@@ -586,12 +588,10 @@ plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","r
 ##'
 ##' if op.level equals 1 best Vcmax, Jmax and convergence
 ##'
-##' if op.level equals 2 best Vcmax, Jmax, Rd and convergence %% ~Describe the
-##' value returned %% If it is a LIST, use %% \item{comp1 }{Description of
-##' 'comp1'} %% \item{comp2 }{Description of 'comp2'} %% ...
+##' if op.level equals 2 best Vcmax, Jmax, Rd and convergence
+
 ##' @author Fernando E. Miguez
-##' @seealso See also \code{\link{Opc3photo}} %% ~~objects to See Also as
-##' \code{\link{help}}, ~~~
+##' @seealso See also \code{\link{Opc3photo}} 
 ##' @keywords optimize
 ##' @examples
 ##'
@@ -776,7 +776,7 @@ plot.mOpc3photo <- function(x, parm = c("vcmax","jmax"), ...){
     id <- factor(res$mat[,1])
     ymax <- max(civmax[,3],na.rm=TRUE) * 1.05
     ymin <- min(civmax[,2],na.rm=TRUE) * 0.95
-    xyplot(civmax[,3] ~ id, ylim = c(ymin, ymax),
+    lattice::xyplot(civmax[,3] ~ id, ylim = c(ymin, ymax),
            ylab = "Vcmax",
            xlab = "ID",
            panel = function(x,y,...){
@@ -791,7 +791,7 @@ plot.mOpc3photo <- function(x, parm = c("vcmax","jmax"), ...){
     id <- factor(res$mat[,1])
     ymax <- max(cijmax[,3],na.rm=TRUE) * 1.05
     ymin <- min(cijmax[,2],na.rm=TRUE) * 0.95
-    xyplot(cijmax[,3] ~ id, ylim = c(ymin, ymax),
+    lattice::xyplot(cijmax[,3] ~ id, ylim = c(ymin, ymax),
            ylab = "jmax",
            xlab = "ID",
            panel = function(x,y,...){

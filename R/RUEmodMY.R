@@ -20,12 +20,14 @@
 ##' function.
 ##' @export
 ##' @return a \code{\link{data.frame}} structure with components
-##' @returnItem year simulation year.
-##' @returnItem doy day of the year.
-##' @returnItem lai.cum cumulative leaf area index.
-##' @returnItem AG.cum cumulative above ground dry biomass (Mg \eqn{ha^{-1}}).
-##' @returnItem AGDD cumulative growing degree days.
-##' @returnItem Int.e Intercepted solar radiation.
+##' \itemize{
+##' \item year simulation year.
+##' \item doy day of the year.
+##' \item lai.cum cumulative leaf area index.
+##' \item AG.cum cumulative above ground dry biomass (Mg \eqn{ha^{-1}}).
+##' \item AGDD cumulative growing degree days.
+##' \item Int.e Intercepted solar radiation.
+##' }
 ##' @keywords models
 ##' @examples
 ##'
@@ -33,11 +35,12 @@
 ##' data(cmiWet)
 ##' tmp1 <- RUEmodMY(cmiWet)
 ##'
-##' xyplot(AG.cum ~ doy | factor(year), type='l', data = tmp1,
+##' lattice::xyplot(AG.cum ~ doy | factor(year), type='l', data = tmp1,
 ##'        lwd=2,
 ##'        ylab=expression(paste('dry biomass (Mg ',ha^-1,')')),
 ##'        xlab='DOY')
 ##'
+
 RUEmodMY <- function(weatherdatafile,doy.s=91,doy.f=227,...) {
 
 X <- weatherdatafile

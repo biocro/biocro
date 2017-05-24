@@ -1,8 +1,8 @@
 ## BioCro/R/caneGro.R by Deepak Jaiswal 
 
-caneGro <- function(WetDat, day1=NULL, dayn=NULL,
+caneGro <- function(WetDat, day1=5, dayn=360,
                    timestep=1,
-                   lat=40,iRhizome=7,irtl=1e-4,
+                   lat=40,iRhizome=3,irtl=1e-2,
                    canopyControl=list(),
                    seneControl=list(),
                    photoControl=list(),
@@ -75,7 +75,7 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     sugarphenoP<-canephenoParms()
     sugarphenoP[names(canephenoControl)]<-canephenoControl
 
-    photoP <- photoParms(b0=0.03, b1=12,Catm=380, UPPERTEMP=39.8, LOWERTEMP=9.0)
+    photoP <- photoParms(b0=0.03, b1=12,Catm=380, uppertemp=39.8, lowertemp=9.0)
     photoP[names(photoControl)] <- photoControl
 
     seneP <- caneseneParms()
@@ -93,7 +93,7 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     frostP<-as.vector(unlist(frostP))
     
     tint <- 24 / timestep
-    vecsize <- (dayn - (day1-1)) * tint
+    vecsize <- (dayn - (day1-1)) * tint + 1
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
     
@@ -142,8 +142,8 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-    upperT<-photoP$UPPERTEMP
-    lowerT<-photoP$LOWERTEMP
+    upperT<-photoP$uppertemp
+    lowerT<-photoP$lowertemp
 
     mResp <- canopyP$mResp
     kd <- canopyP$kd
@@ -152,6 +152,7 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
     SpD <- canopyP$SpD
     heightF <- canopyP$heightFactor
     nlayers <- canopyP$nlayers
+	thermal_base_temp = 9
     
     res <- .Call("caneGro",
                  as.double(lat),
@@ -174,6 +175,7 @@ caneGro <- function(WetDat, day1=NULL, dayn=NULL,
                  as.double(SpD),
                  as.double(DBPcoefs),
                  as.double(TPcoefs),
+				 as.double(thermal_base_temp),
                  as.double(vmax),
                  as.double(alpha),
                  as.double(kparm),

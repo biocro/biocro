@@ -72,10 +72,10 @@
 #' 
 #' \code{b1} b1 parameter passed to the \code{\link{c4photo}} function.
 #' @param MaizePhenoControl argument used to pass parameters related to
-#' phenology characteristics %% ~~Describe \code{MaizePhenoControl} here~~
-#' @param soilControl %% ~~Describe \code{soilControl} here~~
-#' @param nitroControl %% ~~Describe \code{nitroControl} here~~
-#' @param centuryControl %% ~~Describe \code{centuryControl} here~~
+#' phenology characteristics 
+#' @param soilControl see \code{\link{BioGro}} function
+#' @param nitroControl see \code{\link{BioGro}} function
+#' @param centuryControl see \code{\link{BioGro}} function
 #' @return
 #' 
 #' It currently returns a list with the following components
@@ -96,11 +96,8 @@
 #' 
 #' \item{LAI}{Leaf Area Index}
 #' 
-#' @note %% ~~further notes~~
 #' @author Fernando E Miguez
-#' @seealso \code{\link{BioGro}} %% ~~objects to See Also as
-#' \code{\link{help}}, ~~~
-#' @references %% ~put references to the literature/web site here ~
+#' @seealso \code{\link{BioGro}} 
 #' @keywords models
 #' @examples
 #' 
@@ -110,7 +107,7 @@
 #'                   MaizePhenoControl = MaizePhenoParms(R6 = 2000))
 #' 
 #' @export MaizeGro
-MaizeGro <- function(WetDat, plant.day=NULL,
+MaizeGro <- function(WetDat, plant.day = NULL,
                      emerge.day=NULL,
                      harvest.day=NULL,
                      plant.density = 7, 
@@ -144,8 +141,12 @@ MaizeGro <- function(WetDat, plant.day=NULL,
 
     
     ## How should I guess the first day of growth?
-    if(missing(plant.day))
-      stop("planting date should be supplied")
+    if(missing(plant.day)){
+      x <- as.vector(filter(WetDat$DailyTemp.C, rep(1/72, 72), sides = 1, circular = TRUE))
+      min.idx <- which.min(x[1:180]) #find min of moving average, start from here
+      plant.idx <- min.idx + which(x[min.idx:length(x)] > 10)[1] # mean daily temp above 10 
+      plant.day <- WetDat$doy[plant.idx]
+    }
 
     if(missing(emerge.day)) emerge.day <- -1
 
@@ -484,7 +485,7 @@ plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
   if(plot.kind == "DB"){
   if (missing(obs)) {
         sim <- x
-        plot1 <- xyplot(sim$Stem ~ sim$TTTc, type = "l", ...,
+        plot1 <- lattice::xyplot(sim$Stem ~ sim$TTTc, type = "l", ...,
                         ylim = c(0, I(max(sim$Grain,na.rm=TRUE) + 2)),
                         xlab = xlab,
                         ylab = ylab, 
@@ -520,7 +521,7 @@ plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
         stop("obs should have 6 columns")
       sim <- x
       ymax <-  I(max(c(sim$Grain,obs[,2]),na.rm=TRUE) +  2)
-      plot1 <- xyplot(sim$Stem ~ sim$TTTc, ..., ylim = c(0,ymax),
+      plot1 <- lattice::xyplot(sim$Stem ~ sim$TTTc, ..., ylim = c(0,ymax),
                       xlab = xlab,
                       ylab = ylab, 
                       panel = function(x, y, ...) {
@@ -569,7 +570,7 @@ plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
     matplot(x$TTTc,as.matrix(x$LAImat),type="l",ylab="Individual Leaf Area",xlab="Thermal Time")
   }else
   if(plot.kind == "pheno"){
-    xyplot(x$PhenoStage ~ x$TTTc,type="l",ylab="Phenological Stage",xlab="Thermal Time",...)
+    lattice::xyplot(x$PhenoStage ~ x$TTTc,type="l",ylab="Phenological Stage",xlab="Thermal Time",...)
   }
   
 }

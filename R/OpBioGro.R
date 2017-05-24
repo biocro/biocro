@@ -47,11 +47,13 @@
 ##' @return
 ##'
 ##' \code{\link{list}} of class \code{OpBioGro} with components
-##' @returnItem coefs Optimized coefficients.
-##' @returnItem data It passes the data for subsequent plotting and printing.
-##' @returnItem opar Results from the optimization function.
-##' @returnItem phen Indicates the phenological stage being optimized.
-##' @returnItem list1 a \code{\link{list}} with several components.
+##' \itemize{
+##' \item coefs Optimized coefficients.
+##' \item data It passes the data for subsequent plotting and printing.
+##' \item opar Results from the optimization function.
+##' \item phen Indicates the phenological stage being optimized.
+##' \item list1 a \code{\link{list}} with several components.
+##' }
 ##' @section Warning:
 ##'
 ##' This function has not had enough testing.
@@ -140,7 +142,7 @@ OpBioGro <- function(phen=1,iCoef=NULL,WetDat,
   if( (timestep<1) || (24%%timestep != 0))
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
   
-  vecsize <- (dayn - (day1-1)) * 24
+  vecsize <- (dayn - (day1-1)) * 24 + 1
   indes1 <- (day1-1) * 24
   indesn <- (dayn) * 24
   Temp <- WetDat[indes1:indesn,5]

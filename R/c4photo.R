@@ -1,4 +1,5 @@
-##  BioCro/R/c4photo.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2008
+##  BioCro/R/c4photo.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2015
+## Contributions by Deepak Jaiswal for the temperature response
 
 ##' Coupled photosynthesis-stomatal conductance simulation
 ##'
@@ -21,8 +22,8 @@
 ##' @param beta beta parameter according to the Collatz model. Curvature for
 ##' response to CO2.
 ##' @param Rd Rd parameter according to the Collatz model. Dark respiration.
-##' @param UPPERTEMP
-##' @param LOWERTEMP
+##' @param uppertemp parameter controlling the upper temperature response
+##' @param lowertemp parameter controlling the lower temperature response
 ##' @param Catm Atmospheric CO2 in ppm (or \eqn{\mu}{micro}mol/mol).
 ##' @param b0 intercept for the Ball-Berry stomatal conductance model.
 ##' @param b1 slope for the Ball-Berry stomatal conductance model.
@@ -32,12 +33,13 @@
 ##' stomatal conductance ('gs') or to Vmax ('vmax').
 ##' @export
 ##' @return a \code{\link{list}} structure with components
-##'
-##' @returnItem Gs stomatal conductance (mmol \eqn{m^-2}{m-2} \eqn{s^-
+##' \itemize{
+##' \item Gs stomatal conductance (mmol \eqn{m^-2}{m-2} \eqn{s^-
 ##' }{s-1}\eqn{ 1}{s-1}).
-##' @returnItem Assim Net Assimilation (\eqn{\mu}{micro}mol \eqn{m^-2}{m-2}
+##' \item Assim Net Assimilation (\eqn{\mu}{micro}mol \eqn{m^-2}{m-2}
 ##' \eqn{s^-1}{s-1}).
-##' @returnItem Ci Intercellular CO2 (\eqn{\mu}{micro}mol \eqn{mol^-1}{mol-1}).
+##' \item Ci Intercellular CO2 (\eqn{\mu}{micro}mol \eqn{mol^-1}{mol-1}).
+##' }
 ##' @seealso \code{\link{eC4photo}}
 ##' @references G. Collatz, M. Ribas-Carbo, J. Berry. (1992).  Coupled
 ##' photosynthesis-stomatal conductance model for leaves of C4 plants.
@@ -55,7 +57,7 @@
 ##'       res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,alpha=0.06)
 ##'
 ##'      ## Plot comparing alpha 0.04 vs. 0.06 for a range of conditions
-##'      xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##'      lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'             type='l',col=c('blue','green'),lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
 ##'                  mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -70,7 +72,7 @@
 ##'       res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH) ## default Vmax = 39
 ##'       res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,vmax=50)
 ##'
-##'      xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##'      lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'             type='l',col=c('blue','green'),lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
 ##'                  mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -86,7 +88,7 @@
 ##'       dat1 <- data.frame(expand.grid(Qp=Qps,Tl=Tls,RH=rhs))
 ##'       res1 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH)
 ##'      # plot for Assimilation and two RH
-##'       xyplot(res1$Assim ~ Qp | factor(Tl) , data = dat1,
+##'       lattice::xyplot(res1$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'              groups=RH, type='l',
 ##'              col=c('blue','green'),lwd=2,
 ##'              ylab=expression(paste('Assimilation (',
@@ -99,7 +101,7 @@
 ##'
 ##'     ## Effect of the previous runs on Stomatal conductance
 ##'
-##'     xyplot(res1$Gs ~ Qp | factor(Tl) , data = dat1,
+##'     lattice::xyplot(res1$Gs ~ Qp | factor(Tl) , data = dat1,
 ##'            type='l', groups=RH,
 ##'            col=c('blue','green'),lwd=2,
 ##'            ylab=expression(paste('Stomatal Conductance (',
@@ -126,7 +128,7 @@
 ##'   res2[i] <- c4photo(1500,25,0.7,Catm=Ca[i],kparm=0.8)$Assim
 ##' }
 ##'
-##' xyplot(res1 + res2 ~ Ca ,type='l',lwd=2,
+##' lattice::xyplot(res1 + res2 ~ Ca ,type='l',lwd=2,
 ##'        col=c('blue','green'),
 ##'      xlab=expression(paste(CO[2],' (ppm)')),
 ##'      ylab=expression(paste('Assimilation (',
@@ -146,7 +148,7 @@
 ##' res2 <- c4photo(dat1$Qp,dat1$Tl,dat1$RH,StomWS=0.5)
 ##'
 ##' ## Plot comparing StomWS = 1 vs. 0.5 for a range of conditions
-##' xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##' lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'        type='l',col=c('blue','green'),lwd=2,
 ##'        ylab=expression(paste('Assimilation (',
 ##'            mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -158,7 +160,7 @@
 ##'
 ##' ## Effect on Stomatal Conductance
 ##' ## Plot comparing StomWS = 1 vs. 0.5 for a range of conditions
-##' xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
+##' lattice::xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
 ##'         type='l',col=c('blue','green'),lwd=2,
 ##'         ylab=expression(paste('Stomatal Conductance (mmol ',
 ##'           m^-2,' ',s^-1,')')),
@@ -170,7 +172,8 @@
 ##'
 
 c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
-                    beta=0.93,Rd=0.8,UPPERTEMP=37.5,LOWERTEMP=3.0,Catm=380,b0=0.08,b1=3,
+                    beta=0.93,Rd=0.8,uppertemp=37.5,lowertemp=3.0,
+                    Catm=380,b0=0.08,b1=3,
                     StomWS=1,ws=c("gs","vmax"))
 {
     if((max(RH) > 1) || (min(RH) < 0))
@@ -196,7 +199,8 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
                  as.double(kparm),as.double(theta),
                  as.double(beta),
                  as.double(Rd),as.double(Catm),
-                 as.double(b0),as.double(b1),as.double(StomWS),as.integer(ws),as.double(UPPERTEMP),as.double(LOWERTEMP))
+                 as.double(b0),as.double(b1),as.double(StomWS),as.integer(ws),
+                 as.double(uppertemp),as.double(lowertemp))
     res
 }
 ##' Markov chain Monte Carlo for C4 photosynthesis parameters
@@ -243,12 +247,16 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
 ##' @param prior Vector of length 4 with first element prior mean for vmax,
 ##' second element prior standard deviation for vmax, third element prior mean
 ##' for alpha and fourth element prior standard deviation for alpha.
+##' @param uppertemp parameter controlling the upper temperature response
+##' @param lowertemp parameter controlling the lower temperature response
 ##' @export
 ##' @return
 ##' an object of class \code{MCMCc4photo} with components
-##' @returnItem accept number of accepted moves in the chain.
-##' @returnItem resuMC matrix of dimensions \code{niter} by 3 containing the
+##' \itemize{
+##' \item accept number of accepted moves in the chain.
+##' \item resuMC matrix of dimensions \code{niter} by 3 containing the
 ##' values for Vmax and alpha and the RSS in each iteration of the chain.
+##' }
 ##' @references Brooks, Stephen. (1998). Markov chain Monte Carlo and its
 ##' application. The Statistician. 47, Part 1, pp. 69-100.
 ##' @keywords optimize
@@ -275,7 +283,8 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
                         ialpha = 0.04, ikparm = 0.7, itheta=0.83,
                         ibeta=0.93, iRd = 0.8, Catm = 380,
                         b0 = 0.08, b1 = 3, StomWS=1, ws=c("gs","vmax"), scale = 1,
-                        sds=c(1,0.005),prior=c(39,10,0.04,0.02),UPPERTEMP=37.5,LOWERTEMP=3.0){
+                        sds=c(1,0.005),prior=c(39,10,0.04,0.02),
+                        uppertemp=37.5,lowertemp=3.0){
 
     if(ncol(data) != 4)
         stop("ncol data should be 4")
@@ -301,7 +310,8 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
                  as.double(itheta), as.double(ibeta),
                  as.double(iRd), as.double(Catm), as.double(b0), as.double(b1),
                  as.double(StomWS), as.double(scale), as.double(sds[1]),
-                 as.double(sds[2]), as.integer(ws), as.double(prior),as.double(UPPERTEMP),as.double(LOWERTEMP))
+                 as.double(sds[2]), as.integer(ws), as.double(prior),
+                 as.double(uppertemp),as.double(lowertemp))
     res$resuMC <- t(res$resuMC)
     res$niter <- niter
     colnames(res$resuMC) <- c("Vcmax","Alpha","RSS")
@@ -384,11 +394,11 @@ plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
     ## Ploting the trace
     if(missing(x2) && missing(x3)){
         if(plot.kind == "trace"){
-            plot1 <-  xyplot(x$resuMC[burnin:x$niter,1] ~ burnin:x$niter ,
+            plot1 <-  lattice::xyplot(x$resuMC[burnin:x$niter,1] ~ burnin:x$niter ,
                              xlab = "Iterations", type = type, col=cols[1],
                              ylab = expression(paste("Vmax (",mu,mol," ",m^-2," ",s^-1,")")),
                              ...)
-            plot2 <-  xyplot(x$resuMC[burnin:x$niter,2] ~ burnin:x$niter ,
+            plot2 <-  lattice::xyplot(x$resuMC[burnin:x$niter,2] ~ burnin:x$niter ,
                              xlab = "Iterations", type = type, col=cols[1],
                              ylab = expression(paste("alpha (",mol," ",m^-1,")")),
                              ...)
@@ -409,15 +419,15 @@ plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
                                       col=cols[1],
                                       plot.points=FALSE,
                                       panel = function(xi,...){
-                                          panel.densityplot(xi,...)
-                                          panel.mathdensity(dmath=dnorm, args=list(mean = x$prior[1], sd = x$prior[2]), col=pcol)
+                                          lattice::panel.densityplot(xi,...)
+                                          lattice::panel.mathdensity(dmath=dnorm, args=list(mean = x$prior[1], sd = x$prior[2]), col=pcol)
                                       },...)
                 plot2 <-  densityplot(~x$resuMC[burnin:x$niter,2],xlab="alpha",
                                       col=cols[1],
                                       plot.points=FALSE,
                                       panel = function(xi,...){
-                                          panel.densityplot(xi,...)
-                                          panel.mathdensity(dmath=dnorm, args=list(mean = x$prior[3], sd = x$prior[4]), col=pcol)
+                                          lattice::panel.densityplot(xi,...)
+                                          lattice::panel.mathdensity(dmath=dnorm, args=list(mean = x$prior[3], sd = x$prior[4]), col=pcol)
                                       },...)
             }
             print(plot1,position=c(0,0,0.5,1),more=TRUE)
@@ -439,23 +449,23 @@ plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
         ymin2 <- min(c(tmpvec21,tmpvec22))*0.95
         ymax2 <- max(c(tmpvec21,tmpvec22))*1.05
         if(plot.kind == "trace"){
-            plot1 <-  xyplot(tmpvec11 ~ burnin:n1 ,
+            plot1 <-  lattice::xyplot(tmpvec11 ~ burnin:n1 ,
                              xlim=c(I(burnin-0.05*maxchainLength),I(maxchainLength*1.05)),
                              ylim=c(ymin1,ymax1),
                              xlab = "Iterations", type = "l",
                              ylab = expression(paste("Vmax (",mu,mol," ",m^-2," ",s^-1,")")),
                              panel = function(x,y,...){
-                                 panel.xyplot(x,y,col=cols[1],...)
-                                 panel.xyplot(burnin:n2,tmpvec12,col=cols[2],...)
+                                 lattice::panel.xyplot(x,y,col=cols[1],...)
+                                 lattice::panel.xyplot(burnin:n2,tmpvec12,col=cols[2],...)
                              },...)
-            plot2 <-  xyplot(tmpvec21 ~ burnin:n2 ,
+            plot2 <-  lattice::xyplot(tmpvec21 ~ burnin:n2 ,
                              xlim=c(I(burnin-0.05*maxchainLength),I(maxchainLength*1.05)),
                              ylim=c(ymin2,ymax2),
                              xlab = "Iterations", type = "l",
                              ylab = expression(paste("alpha (",mol," ",m^-1,")")),
                              panel = function(x,y,...){
-                                 panel.xyplot(x,y,col=cols[1],...)
-                                 panel.xyplot(burnin:n2,tmpvec22,col=cols[2],...)
+                                 lattice::panel.xyplot(x,y,col=cols[1],...)
+                                 lattice::panel.xyplot(burnin:n2,tmpvec22,col=cols[2],...)
                              },...)                       
             print(plot1,position=c(0,0,0.5,1),more=TRUE)
             print(plot2,position=c(0.5,0,1,1))
@@ -486,26 +496,26 @@ plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
     ymin2 <- min(c(tmpvec21,tmpvec22,tmpvec23))*0.95
     ymax2 <- max(c(tmpvec21,tmpvec22,tmpvec23))*1.05
     if(plot.kind == "trace"){
-        plot1 <-  xyplot(tmpvec11 ~ burnin:n1 ,
+        plot1 <-  lattice::xyplot(tmpvec11 ~ burnin:n1 ,
                          xlim=c(I(burnin-0.05*maxchainLength),I(maxchainLength*1.05)),
                          ylim=c(ymin1,ymax1),
                          xlab = "Iterations", type = "l",
                          ylab = expression(paste("Vmax (",mu,mol," ",m^-2," ",s^-1,")")),
                          panel = function(x,y,...){
-                             panel.xyplot(x,y,col=cols[1],...)
-                             panel.xyplot(burnin:n2,tmpvec12,col=cols[2],...)
-                             panel.xyplot(burnin:n3,tmpvec13,col=cols[3],...)
+                             lattice::panel.xyplot(x,y,col=cols[1],...)
+                             lattice::panel.xyplot(burnin:n2,tmpvec12,col=cols[2],...)
+                             lattice::panel.xyplot(burnin:n3,tmpvec13,col=cols[3],...)
                          },...)                       
         
-        plot2 <-  xyplot(tmpvec21 ~ burnin:n1 ,
+        plot2 <-  lattice::xyplot(tmpvec21 ~ burnin:n1 ,
                          xlim=c(I(burnin-0.05*maxchainLength),I(maxchainLength*1.05)),
                          ylim=c(ymin2,ymax2),
                          xlab = "Iterations", type = "l",
                          ylab = expression(paste("alpha (",mol," ",m^-1,")")),
                          panel = function(x,y,...){
-                             panel.xyplot(x,y,col=cols[1],...)
-                             panel.xyplot(burnin:n2,tmpvec22,col=cols[2],...)
-                             panel.xyplot(burnin:n3,tmpvec23,col=cols[3],...)
+                             lattice::panel.xyplot(x,y,col=cols[1],...)
+                             lattice::panel.xyplot(burnin:n2,tmpvec22,col=cols[2],...)
+                             lattice::panel.xyplot(burnin:n3,tmpvec23,col=cols[3],...)
                          },...)                       
         
         print(plot1,position=c(0,0,0.5,1),more=TRUE)

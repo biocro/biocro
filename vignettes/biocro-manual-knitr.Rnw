@@ -724,7 +724,7 @@ for(i in 1:24){
     rh <- boo14.200[i,6]
     ws <- boo14.200[i,7]
     
-    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws,stress = 1,
+    tmp1 <- CanA(lai,doy,hr,solar,temp,rh,ws, StomataWS=1,
                  nlayers=layers, photoControl=photoP)
 
     tmp2[i,1] <- tmp1$CanopyAssim

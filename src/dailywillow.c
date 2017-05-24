@@ -2,11 +2,11 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"
 #include "crocent.h"
+#include "dailywillow.h"
 
 void UpdateC3treeAfterEmergence(struct c3tree *willow,struct management *management)
 {
@@ -20,10 +20,10 @@ void UpdateC3treeAfterEmergence(struct c3tree *willow,struct management *managem
 void createNULLwillow(struct c3tree *willow,int vecsize)
 {
    int i;
-   willow->leafvec=malloc((vecsize+1)*sizeof(*willow->leafvec));
-   willow->stemvec=malloc((vecsize+1)*sizeof(*willow->stemvec));
-   willow->rootvec=malloc((vecsize+1)*sizeof(*willow->rootvec));
-   willow->rhizomevec=malloc((vecsize+1)*sizeof(*willow->rhizomevec));
+   willow->leafvec = (struct dailyvec*)malloc((vecsize+1)*sizeof(*willow->leafvec));
+   willow->stemvec = (struct dailyvec*)malloc((vecsize+1)*sizeof(*willow->stemvec));
+   willow->rootvec = (struct dailyvec*)malloc((vecsize+1)*sizeof(*willow->rootvec));
+   willow->rhizomevec = (struct dailyvec*)malloc((vecsize+1)*sizeof(*willow->rhizomevec));
   
    for (i = 0; i<=vecsize;i++)
    {
@@ -84,16 +84,16 @@ struct respirationParms *RESP, int emergence)
 
 {
 
-  double remobStem,remobRoot,remobRhiz;
-  remobStem=canopyparms->remobFac;
-  remobRoot=canopyparms->remobFac;
-  remobRhiz=canopyparms->remobFac;
+  // double remobStem,remobRoot,remobRhiz; unused
+  // remobStem=canopyparms->remobFac; set but not used
+  // remobRoot=canopyparms->remobFac; set but not used
+  // remobRhiz=canopyparms->remobFac; set but not used
   double deadleaf,deadstem,deadroot,deadrhiz;
   double dailysenesced;
-  double remobilized;
+  // double remobilized; unused
   double totalassimilate;
   struct crop_phenology cropdbp;
-  double newleaf,newstem,newrhiz,newroot;
+  // double newleaf,newstem,newrhiz,newroot; unused
   double kLeaf,kStem,kRoot,kRhizome;
   double newLeaf,newStem,newRhizome,newRoot;
   double newLeaflitter,newStemlitter,newRhizomelitter,newRootlitter;

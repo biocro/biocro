@@ -49,7 +49,7 @@ constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
   if( (timestep<1) || (24%%timestep != 0))
       stop("timestep should be a divisor of 24 (e.g. 1,2,3,4,6,etc.)")
   
-  vecsize <- (dayn - (day1-1)) * 24
+  vecsize <- (dayn - (day1-1)) * 24 + 1
   indes1 <- (day1-1) * 24
   indesn <- (dayn) * 24
   Temp <- WetDat[indes1:indesn,5]

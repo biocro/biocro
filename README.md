@@ -1,4 +1,4 @@
-## BioCro
+## BioCro [![Build Status](https://magnum.travis-ci.com/ebimodeling/biocro-dev.svg?token=tjzJV6N6JPssJ6yfYPqH&branch=master)](https://magnum.travis-ci.com/ebimodeling/biocro-dev)
 
 BioCro is a detailed model that scales from leaf-level photosynthesis to ecosystem level carbon and water balance. 
 
@@ -58,7 +58,6 @@ If you are interested in development please contact one of the package maintaine
 Technical documentation for the [R package](http://ebimodeling.github.io/biocro/documentation/r/) and [C library](http://ebimodeling.github.io/biocro/documentation/doxygen/) are also provided as web pages. 
 
 Note that recent activity has made substantial improvements, making it easier to add new crop models. Sugarcane is waiting for a publication, Agave, Soy, Maize, and Cassava are all in various stages of development.
-
 
 ## References 
 

@@ -41,13 +41,15 @@
 ##' @return results of call to C function eC4photo_sym
 ##'
 ##' a \code{\link{list}} structure with components
-##' @returnItem Assim net assimilation rate (\eqn{\mu}{micro} mol
+##' \itemize{
+##' \item Assim net assimilation rate (\eqn{\mu}{micro} mol
 ##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' @returnItem Gs stomatal conductance rate (\eqn{\mu}{micro} mol
+##' \item Gs stomatal conductance rate (\eqn{\mu}{micro} mol
 ##' \eqn{m^{-2}}{m-2} \eqn{s^{-1}}{s-1}).
-##' @returnItem Ci CO2 concentration in the bundle-sheath
+##' \item Ci CO2 concentration in the bundle-sheath
 ##' (\eqn{\mu}{micro}bar).
-##' @returnItem Os oxygen evolution (mbar).
+##' \item Os oxygen evolution (mbar).
+##' }
 ##' @references Susanne von Caemmerer (2000) Biochemical Models of Leaf
 ##' Photosynthesis. CSIRO Publishing. (In particular chapter 4).
 ##' @keywords models
@@ -68,7 +70,7 @@
 ##' res2 <- eC4photo(dat1$Qp,dat1$Tl,dat1$RH,jmax=700)
 ##'
 ##' ## Plot comparing Jmax 400 vs. 700 for a range of conditions
-##' xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##' lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'             type='l',col=c('blue','green'),lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
 ##'                  mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -91,7 +93,7 @@
 ##'
 ##' ## Plot comparing different Vcmax
 ##' cols <- rev(heat.colors(9))
-##' xyplot(res1 ~ Qp | factor(Tl) , data = dat1,col=cols,
+##' lattice::xyplot(res1 ~ Qp | factor(Tl) , data = dat1,col=cols,
 ##'             groups=vcmax,
 ##'             type='l',lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
@@ -237,20 +239,22 @@ eCanA <- function(LAI,doy,hour,solarR,AirTemp,RH,WindS,
 ##' the acceptance rate and viceversa.
 ##' @export
 ##' @return a \code{\link{list}} structure with components
-##' @returnItem RsqBI This is the \eqn{R^2} for the ``burn-in'' period.  This
+##' \itemize{
+##' \item RsqBI This is the \eqn{R^2} for the ``burn-in'' period.  This
 ##' value becomes the cut off value for the acceptance in the chain.
-##' @returnItem CoefBI parameter estimates after the burn-in period.  These are
+##' \item CoefBI parameter estimates after the burn-in period.  These are
 ##' not optimal as in the case of the optimization routine but are starting
 ##' values for the chain.
-##' @returnItem accept1 number of iterations for the initial burn-in period.
-##' @returnItem resuBI matrix of dimensions 5 by \code{accept1} containing the
+##' \item accept1 number of iterations for the initial burn-in period.
+##' \item resuBI matrix of dimensions 5 by \code{accept1} containing the
 ##' values for Vcmax and alpha and the \eqn{R^2} in each iteration of the
 ##' burn-in period.
-##' @returnItem resuMC matrix of dimensions 5 by \code{accept2} containing the
+##' \item resuMC matrix of dimensions 5 by \code{accept2} containing the
 ##' values for Vcmax and alpha and the \eqn{R^2} in each iteration of the chain
 ##' period.
-##' @returnItem accept2 number of accepted samples or length of the chain.
-##' @returnItem accept3 number of accepted moves in the chain.
+##' \item accept2 number of accepted samples or length of the chain.
+##' \item accept3 number of accepted moves in the chain.
+##' }
 ##' @references P. Marjoram, J. Molitor, V. Plagnol, S. Tavare, Markov chain
 ##' monte carlo without likelihoods, PNAS 100 (26) (2003) 15324--15328.
 ##'
@@ -389,15 +393,15 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
   ## Ploting the trace
   if(missing(x2) && missing(x3)){
     if(type == "trace"){
-    plot1 <-  xyplot(x$resuMC[1,] ~ 1:x$accept2 ,
+    plot1 <-  lattice::xyplot(x$resuMC[1,] ~ 1:x$accept2 ,
                      xlab = "Iterations", type = "l",
                      ylab = expression(paste("Vcmax (",mu,mol," ",m^-2," ",s^-1,")")),
                      ...)
-    plot2 <-  xyplot(x$resuMC[2,] ~ 1:x$accept2 ,
+    plot2 <-  lattice::xyplot(x$resuMC[2,] ~ 1:x$accept2 ,
                      xlab = "Iterations", type = "l",
                      ylab = expression(paste("Vpmax (",mu,mol," ",m^-2," ",s^-1,")")),
                      ...)
-    plot3 <-  xyplot(x$resuMC[3,] ~ 1:x$accept2 ,
+    plot3 <-  lattice::xyplot(x$resuMC[3,] ~ 1:x$accept2 ,
                      xlab = "Iterations", type = "l",
                      ylab = expression(paste("Jmax (",mu,mol," ",m^-2," ",s^-1,")")),
                      ...)
@@ -431,15 +435,15 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
     tmpvec31 <- x$resuMC[3,1:minchainLength]
     tmpvec32 <- x2$resuMC[3,1:minchainLength]
     if(type == "trace"){
-      plot1 <-  xyplot(tmpvec11 + tmpvec12 ~ 1:minchainLength ,
+      plot1 <-  lattice::xyplot(tmpvec11 + tmpvec12 ~ 1:minchainLength ,
                        xlab = "Iterations", type = "l",
                        ylab = expression(paste("Vcmax (",mu,mol," ",m^-2," ",s^-1,")")),
                        ...)
-      plot2 <-  xyplot(tmpvec21 + tmpvec22 ~ 1:minchainLength ,
+      plot2 <-  lattice::xyplot(tmpvec21 + tmpvec22 ~ 1:minchainLength ,
                        xlab = "Iterations", type = "l",
                        ylab = expression(paste("Vpmax (",mu,mol," ",m^-2," ",s^-1,")")),
                        ...)
-      plot3 <-  xyplot(tmpvec31 + tmpvec32 ~ 1:minchainLength ,
+      plot3 <-  lattice::xyplot(tmpvec31 + tmpvec32 ~ 1:minchainLength ,
                        xlab = "Iterations", type = "l",
                        ylab = expression(paste("Jmax (",mu,mol," ",m^-2," ",s^-1,")")),
                        ...)
@@ -476,17 +480,17 @@ plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,
     tmpvec33 <- x3$resuMC[3,1:minchainLength]
 
   if(type == "trace"){
-     plot1 <-  xyplot(tmpvec11 + tmpvec12 + tmpvec13
+     plot1 <-  lattice::xyplot(tmpvec11 + tmpvec12 + tmpvec13
                       ~ 1:minchainLength ,
                       xlab = "Iterations", type = "l",
                       ylab = expression(paste("Vmax (",mu,mol," ",m^-2," ",s^-1,")")),
                       ...)
-     plot2 <-  xyplot(tmpvec21 + tmpvec22 + tmpvec23
+     plot2 <-  lattice::xyplot(tmpvec21 + tmpvec22 + tmpvec23
                       ~ 1:minchainLength ,
                       xlab = "Iterations", type = "l",
                       ylab = expression(paste("Vpmax (",mu,mol," ",m^-2," ",s^-1,")")),
                       ...)
-     plot3 <-  xyplot(tmpvec31 + tmpvec32 + tmpvec33
+     plot3 <-  lattice::xyplot(tmpvec31 + tmpvec32 + tmpvec33
                       ~ 1:minchainLength ,
                       xlab = "Iterations", type = "l",
                       ylab = expression(paste("Jmax (",mu,mol," ",m^-2," ",s^-1,")")),

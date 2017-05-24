@@ -184,31 +184,33 @@
 ##' @return
 ##'
 ##' a \code{\link{list}} structure with components
-##' @returnItem DayofYear Day of the year
-##' @returnItem Hour Hour for each day
-##' @returnItem CanopyAssim Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
+##' \itemize{
+##' \item DayofYear Day of the year
+##' \item Hour Hour for each day
+##' \item CanopyAssim Hourly canopy assimilation, (Mg \eqn{ha^-1} ground
 ##' \eqn{hr^-1}).
-##' @returnItem CanopyTrans Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
+##' \item CanopyTrans Hourly canopy transpiration, (Mg \eqn{ha^-1} ground
 ##' \eqn{hr^-1}).
-##' @returnItem Leaf leaf dry biomass (Mg \eqn{ha^-1}).
-##' @returnItem Stem stem dry biomass(Mg \eqn{ha^-1}).
-##' @returnItem Root root dry biomass (Mg \eqn{ha^-1}).
-##' @returnItem Rhizome rhizome dry biomass (Mg \eqn{ha^-1}).
-##' @returnItem LAI leaf area index (\eqn{m^2} \eqn{m^-2}).
-##' @returnItem ThermalT thermal time (Celsius \eqn{day^-1}).
-##' @returnItem StomatalCondCoefs Coefficeint which determines the effect of
+##' \item Leaf leaf dry biomass (Mg \eqn{ha^-1}).
+##' \item Stem stem dry biomass(Mg \eqn{ha^-1}).
+##' \item Root root dry biomass (Mg \eqn{ha^-1}).
+##' \item Rhizome rhizome dry biomass (Mg \eqn{ha^-1}).
+##' \item LAI leaf area index (\eqn{m^2} \eqn{m^-2}).
+##' \item ThermalT thermal time (Celsius \eqn{day^-1}).
+##' \item StomatalCondCoefs Coefficeint which determines the effect of
 ##' water stress on stomatal conductance and photosynthesis.
-##' @returnItem LeafReductionCoefs Coefficient which determines the effect of
+##' \item LeafReductionCoefs Coefficient which determines the effect of
 ##' water stress on leaf expansion reduction.
-##' @returnItem LeafNitrogen Leaf nitrogen.
-##' @returnItem AboveLitter Above ground biomass litter (Leaf + Stem).
-##' @returnItem BelowLitter Below ground biomass litter (Root + Rhizome).
-##' @returnItem VmaxVec Value of Vmax during the growing season.
-##' @returnItem AlphaVec Value of alpha during the growing season.
-##' @returnItem SpVec Value of the specific leaf area.
-##' @returnItem MinNitroVec Nitrogen in the mineral pool.
-##' @returnItem RespVec Soil respiration.
-##' @returnItem SoilEvaporation Soil Evaporation.
+##' \item LeafNitrogen Leaf nitrogen.
+##' \item AboveLitter Above ground biomass litter (Leaf + Stem).
+##' \item BelowLitter Below ground biomass litter (Root + Rhizome).
+##' \item VmaxVec Value of Vmax during the growing season.
+##' \item AlphaVec Value of alpha during the growing season.
+##' \item SpVec Value of the specific leaf area.
+##' \item MinNitroVec Nitrogen in the mineral pool.
+##' \item RespVec Soil respiration.
+##' \item SoilEvaporation Soil Evaporation.
+##' }
 ##' @keywords models
 ##' @examples
 ##'
@@ -240,7 +242,7 @@
 ##' ans.2 <- BioGro(weather05,soilControl=ll.2)
 ##' ans.3 <-BioGro(weather05,soilControl=ll.3)
 ##'
-##' xyplot(ans.0$SoilWatCont +
+##' lattice::xyplot(ans.0$SoilWatCont +
 ##'        ans.1$SoilWatCont +
 ##'        ans.2$SoilWatCont +
 ##'        ans.3$SoilWatCont ~ ans.0$DayofYear,
@@ -250,7 +252,7 @@
 ##'
 ##' ## Compare LAI
 ##'
-##' xyplot(ans.0$LAI +
+##' lattice::xyplot(ans.0$LAI +
 ##'        ans.1$LAI +
 ##'        ans.2$LAI +
 ##'        ans.3$LAI ~ ans.0$DayofYear,
@@ -403,7 +405,7 @@ CropGro <- function(WetDat, day1=NULL, dayn=NULL,
     centuryP[names(centuryControl)] <- centuryControl
 
     tint <- 24 / timestep
-    vecsize <- (dayn - (day1-1)) * tint
+    vecsize <- (dayn - (day1-1)) * tint + 1
     indes1 <- (day1-1) * tint
     indesn <- (dayn) * tint
     

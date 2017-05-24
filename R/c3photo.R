@@ -17,9 +17,11 @@
 ##' @param theta Curvature parameter
 ##' @export
 ##' @return A list
-##' @returnItem Gs Stomatal Conductance
-##' @returnItem Assim CO2 Assimilation
-##' @returnItem Ci Intercellular CO2
+##' \itemize{
+##' \item Gs Stomatal Conductance
+##' \item Assim CO2 Assimilation
+##' \item Ci Intercellular CO2
+##' }
 ##' @note ~~further notes~~ ## Additional notes about assumptions
 ##' @author Fernando E. Miguez
 ##' @seealso See Also \code{\link{Opc3photo}}
@@ -41,7 +43,7 @@
 ##' res2 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH,vcmax=120)
 ##'
 ##' ## Plot comparing alpha 0.04 vs. 0.06 for a range of conditions
-##' xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##' lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'             type='l',col=c('blue','green'),lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
 ##'                  mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -56,7 +58,7 @@
 ##' res1 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH) ## default Jmax = 300
 ##' res2 <- c3photo(dat1$Qp,dat1$Tl,dat1$RH,jmax=100)
 ##'
-##' xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
+##' lattice::xyplot(res1$Assim + res2$Assim ~ Qp | factor(Tl) , data = dat1,
 ##'            type='l',col=c('blue','green'),lwd=2,
 ##'             ylab=expression(paste('Assimilation (',
 ##'                  mu,mol,' ',m^-2,' ',s^-1,')')),
@@ -72,11 +74,11 @@
 ##' res1 <- c3photo(dat2$Qp, dat2$Tl, dat2$rh, Catm = Ca)
 ##' res2 <- c3photo(dat2$Qp, dat2$Tl, dat2$rh, Catm = Ca, vcmax = 70)
 ##'
-##' xyplot(res1$Assim ~ res1$Ci,
+##' lattice::xyplot(res1$Assim ~ res1$Ci,
 ##'            lwd=2,
 ##'            panel = function(x,y,...){
-##'                    panel.xyplot(x,y,type='l',col='blue',...)
-##'                    panel.xyplot(res2$Ci,res2$Assim, type='l', col =
+##'                    lattice::panel.xyplot(x,y,type='l',col='blue',...)
+##'                    lattice::panel.xyplot(res2$Ci,res2$Assim, type='l', col =
 ##'            'green',...)
 ##'            },
 ##'             ylab=expression(paste('Assimilation (',

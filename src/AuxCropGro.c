@@ -2,7 +2,6 @@
 #include <math.h>
 #include <Rmath.h>
 #include <Rinternals.h>
-#include "AuxBioCro.h"
 #include "Century.h"
 #include "BioCro.h"
 #include "AuxcaneGro.h"
@@ -11,10 +10,10 @@
 void createNULLmiscanthus(struct miscanthus *miscanthus,int vecsize)
 {
    int i;
-   miscanthus->leafvec=malloc((vecsize+1)*sizeof(*miscanthus->leafvec));
-   miscanthus->stemvec=malloc((vecsize+1)*sizeof(*miscanthus->stemvec));
-   miscanthus->rootvec=malloc((vecsize+1)*sizeof(*miscanthus->rootvec));
-   miscanthus->rhizomevec=malloc((vecsize+1)*sizeof(*miscanthus->rhizomevec));
+   miscanthus->leafvec=(struct dailyvec*)malloc((vecsize+1)*sizeof(*miscanthus->leafvec));
+   miscanthus->stemvec=(struct dailyvec*)malloc((vecsize+1)*sizeof(*miscanthus->stemvec));
+   miscanthus->rootvec=(struct dailyvec*)malloc((vecsize+1)*sizeof(*miscanthus->rootvec));
+   miscanthus->rhizomevec=(struct dailyvec*)malloc((vecsize+1)*sizeof(*miscanthus->rhizomevec));
   
    for (i = 0; i<=vecsize;i++)
    {
@@ -466,16 +465,16 @@ struct respirationParms *RESP, int emergence)
 
 {
 
-  double remobStem,remobRoot,remobRhiz;
-  remobStem=canopyparms->remobFac;
-  remobRoot=canopyparms->remobFac;
-  remobRhiz=canopyparms->remobFac;
+  // double remobStem,remobRoot,remobRhiz; unused
+  // remobStem=canopyparms->remobFac; set but not used
+  // remobRoot=canopyparms->remobFac; set but not used
+  // remobRhiz=canopyparms->remobFac; set but not used
   double deadleaf,deadstem,deadroot,deadrhiz;
   double dailysenesced;
-  double remobilized;
+  // double remobilized; unused
   double totalassimilate;
   struct crop_phenology cropdbp;
-  double newleaf,newstem,newrhiz,newroot;
+  // double newleaf,newstem,newrhiz,newroot; unused
   double kLeaf,kStem,kRoot,kRhizome;
   double newLeaf,newStem,newRhizome,newRoot;
   double newLeaflitter,newStemlitter,newRhizomelitter,newRootlitter;
@@ -757,11 +756,13 @@ void dailymiscanthusupdate(struct miscanthus *miscanthus,struct miscanthus *delt
 
 void updatedormantstage(struct miscanthus *miscanthus)
 {
-  double LostinRespiration,availablecarb,newcarb;
+  double LostinRespiration;
+  // double availablecarb; unused
+  // double newcarb; unused
   LostinRespiration=miscanthus->autoresp.stemmaint + miscanthus->autoresp.rootmaint +  miscanthus->autoresp.rhizomemaint;
   // This loss will occur at the expense of carbohydrate fraction of rhizome, resulting in change in the carbohydrate fraction of the rhizome
-  availablecarb= miscanthus->rhizome.biomass*miscanthus->rhizome.carbohydratefraction;
-  newcarb=availablecarb-LostinRespiration;
+  // availablecarb= miscanthus->rhizome.biomass*miscanthus->rhizome.carbohydratefraction;
+  // newcarb=availablecarb-LostinRespiration; // unused
   miscanthus->rhizome.biomass= miscanthus->rhizome.biomass- LostinRespiration;
  
   if((miscanthus->rhizome.carbohydratefraction)<0.05)miscanthus->rhizome.carbohydratefraction=0.05;

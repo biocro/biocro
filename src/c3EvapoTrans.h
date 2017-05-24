@@ -13,15 +13,27 @@
 
 /* Decalring functions used in this function */
 
-/* c3EvapoTrans.c:82: warning: implicit declaration of function ‘TempToDdryA’ */
-/* c3EvapoTrans.c:83: warning: implicit declaration of function ‘TempToLHV’ */
-/* c3EvapoTrans.c:86: warning: implicit declaration of function ‘TempToSFS’ */
-/* c3EvapoTrans.c:87: warning: implicit declaration of function ‘TempToSWVC’ */
-
 double TempToDdryA(double Temp);
 double TempToLHV(double Temp);
 double TempToSFS(double Temp);
 double TempToSWVC(double Temp);
 
-
+struct ET_Str c3EvapoTrans(double Rad, 
+			   double Itot, 
+			   double Airtemperature, 
+			   double RH,
+			   double WindSpeed,
+			   double LeafAreaIndex, 
+			   double CanopyHeight, 
+			   double vcmax2, 
+			   double jmax2, 
+			   double Rd2, 
+			   double b02, 
+			   double b12,
+			   double Catm2,
+			   double O2,
+			   double theta2,
+			   double StomWS,
+			   int ws);
 #endif
+

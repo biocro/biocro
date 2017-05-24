@@ -7,3 +7,7 @@ build.sh
 calibration.RData
 documentation
 ^.*.log
+.git/*
+^\.travis\.yml$
+tags
+

@@ -22,6 +22,8 @@
 ##' @param kd Ligth extinction coefficient for diffuse light.
 ##' @param StomataWS coefficient controlling the effect of water stress on
 ##' stomatal conductance and assimilation.
+##' @param chi.l leaf angle as described by projection of horizontal to vertical leaf area
+##' @param leafwidth leaf width in meters
 ##' @param heightFactor Height Factor. Divide LAI by this number to get the
 ##' height of a crop.
 ##' @param photoControl list that sets the photosynthesis parameters. See
@@ -110,7 +112,7 @@
 ##' }
 CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
                  lat=40,nlayers=8,kd=0.1,StomataWS=1,
-                 chi.l=1,
+                 chi.l=1, leafwidth=0.04,
                  heightFactor=3,
                  photoControl = list(),
                  lnControl = list(),
@@ -135,12 +137,12 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
     b0 <- photoP$b0
     b1 <- photoP$b1
     ws <- photoP$ws
-    upperT<-photoP$UPPERTEMP
-    lowerT<-photoP$LOWERTEMP
+    upperT<-photoP$uppertemp
+    lowerT<-photoP$lowertemp
     
-    lnP <- canenitroParms()
-    lnP[names(lnControl)] <- lnControl
-    nnitroP<-as.vector(unlist(lnP))
+    canenitroP <- canenitroParms()
+    canenitroP [names(lnControl)] <- lnControl
+    nnitroP<-as.vector(unlist(canenitroP))
 
     res <- .Call(CanA_sym,as.double(lai),as.integer(doy),
                  as.integer(hr),as.double(solar),as.double(temp),
@@ -151,16 +153,13 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
                  as.double(Rd),as.double(b0),
                  as.double(b1),as.double(Catm),
                  as.double(kd), as.double(heightFactor),
-                 as.integer(ws), as.double(lnP$iLeafN),
-                 as.double(lnP$kpLN), as.double(lnP$lnb0),
-                 as.double(lnP$lnb1), as.integer(lnP$lnFun), as.double(chi.l),as.double(upperT),as.double(lowerT),as.double(nnitroP))
+                 as.integer(ws), as.double(canenitroP$iLeafN),
+                 as.double(canenitroP$kpLN), as.double(canenitroP$lnb0),
+                 as.double(canenitroP$lnb1), as.integer(canenitroP$lnFun),
+                 as.double(chi.l),as.double(upperT),
+                 as.double(lowerT), as.double(nnitroP),
+                 as.double(leafwidth))
 
-    res$LayMat <- t(res$LayMat)
-    colnames(res$LayMat) <- c("IDir","IDiff","Leafsun",
-                              "Leafshade","TransSun","TransShade",
-                              "AssimSun","AssimShade","DeltaSun",
-                              "DeltaShade","CondSun","CondShade",
-                              "LeafN", "Vmax", "RH","GrossAssimSun","GrossAssimShade","Phi","LeafN")
     if(units == "Mg/ha/hr"){
       res
     }else{
@@ -173,7 +172,6 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
       ## This is in kg of water per m2 per hour
       res$TranEpen <- res$TranEpen * cf
       res$TranEpries <- res$TranEpries * cf
-      res$LayMat[,5:8] <- res$LayMat[,5:8] * cf
     }
     res
   }
