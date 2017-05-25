@@ -46,6 +46,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
     if(Ca <= 0)
         Ca = 1e-4;
 
+    double Ca_pa = Ca * 1e6 * AP;  // Pa.
 
     int iterCounter = 0;
     while (iterCounter < 50) {
