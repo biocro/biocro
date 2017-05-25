@@ -46,6 +46,8 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
     if(Ca <= 0)
         Ca = 1e-4;
 
+    double Ca_pa = Ca * 1e6 * AP;  // Pa.
+
     int iterCounter = 0;
     while (iterCounter < 50) {
           /* Rubisco limited carboxylation */
@@ -88,7 +90,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
           if (Gs > 800)
               Gs = 800;
 
-          Ci = Ca - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);
+          Ci = Ca_pa - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);
 
           if (Ci < 0)
               Ci = 1e-5;
