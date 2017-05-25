@@ -56,5 +56,9 @@ There are parameters and modules for micanthus (_Miscanthus_ x _giganteus_), sor
 
 * [Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP][Miguez et al., 2009] (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296.
 
+* [Wang D, Jaiswal D, Lebauer DS, Wertin TM, Bollero GA, Leakey ADB, Long SP][Want et al. 2015] (2015) A physiological and biophysical model of coppice willow (Salix spp.) production yields for the contiguous USA in current and future climate scenarios. Plant, cell & environment, 38(9), 1850-1865.
+
 [Humphries and Long, 1995]:https://academic.oup.com/bioinformatics/article-abstract/11/4/361/214034/WIMOVAC-a-software-package-for-modelling-the
 [Miguez et al., 2009]:http://onlinelibrary.wiley.com/doi/10.1111/j.1757-1707.2009.01019.x/full
+[Want et al. 2015]:https://github.com/ebimodeling/biocro/blob/master/documentation/publications/wang2015pbm.pdf
+
