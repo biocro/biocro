@@ -1,9 +1,6 @@
 ##  BioCro/R/showSoilType.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2011
 
 SoilType <- function(soiltype){
-
-  print(soiltype)
-
   if(soiltype == 0){
     nm <- c("sand soil")
     silt <- 0.05

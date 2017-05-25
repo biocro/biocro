@@ -1,0 +1,116 @@
+symbol	valid_set	plausible_sorghum_values	units	
+lat	[-90, 90]	[-90, 90]	degree	
+iSp	(0, infinity)			
+SpD	(-infinity, infinity)			
+nlayers	positive integers			# The number of layers in the canopy model
+kd				
+chil	[0, infinity)	[0.67, 2.6]		# Leaf angle distribution. The relative amount of horizontal to vertical leaf area, with 0 being all vertical and increasing unbounded with more horizontal area. Campbell and Norman. An introduction to environmental biophysics. 2nd edition.
+heightf	(0, infinity)			# delta_LAI / delta_height. An empirical factor relating leaf area index to the height of the canopy. The model currently assumes that leaf area is uniformly distributed vertically through the canopy.
+leafwidth	(0, infinity)	[0.01, 0.7]	meter	# The characteristic dimension of the leaf with regard to wind flow. See Norman and Campbell. Introduction to Biophysics. 2nd edition. page 107.
+et_equation				
+seneLeaf				
+seneStem				
+seneRoot				
+seneRhizome				
+tbase	(-infinity, infinity)	[0, 15]	degree Celsius	# The base temperature for computing growing degree days.
+vmax1	[0, infinity)		microlmole meter^-2 second^-1	
+alpha1				
+kparm				
+theta				
+beta				
+Rd				
+Catm	[0, infinity)			
+b0				
+b1				
+ws				
+upperT	(-infinity, infinity)			
+lowerT	(-infinity, infinity)			
+FieldC				
+WiltP				
+phi1				
+phi2				
+soilDepth				
+iWatCont				
+soilType				
+soilLayers				
+wsFun				
+scsf				
+transpRes				
+leafPotTh				
+hydrDist				
+rfl				
+rsec				
+rsdf				
+SC1				
+SC2				
+SC3				
+SC4				
+SC5				
+SC6				
+SC7				
+SC8				
+SC9				
+LeafL.Ln				
+StemL.Ln				
+RootL.Ln				
+RhizL.Ln				
+LeafL.N				
+StemL.N				
+RootL.N				
+RhizL.N				
+iMinN				
+tp1	[0, infinity)			
+tp2	[0, infinity)			
+tp3	[0, infinity)			
+tp4	[0, infinity)			
+tp5	[0, infinity)			
+tp6	[0, infinity)			
+kStem1	[0, 1]			
+kLeaf1	[0, 1]			
+kRoot1	[0, 1]			
+kRhizome1	[0, 1]			
+kStem2	[0, 1]			
+kLeaf2	[0, 1]			
+kRoot2	[0, 1]			
+kRhizome2	[0, 1]			
+kStem3	[0, 1]			
+kLeaf3	[0, 1]			
+kRoot3	[0, 1]			
+kRhizome3	[0, 1]			
+kStem4	[0, 1]			
+kLeaf4	[0, 1]			
+kRoot4	[0, 1]			
+kRhizome4	[0, 1]			
+kStem5	[0, 1]			
+kLeaf5	[0, 1]			
+kRoot5	[0, 1]			
+kRhizome5	[0, 1]			
+kStem6	[0, 1]			
+kLeaf6	[0, 1]			
+kRoot6	[0, 1]			
+kRhizome6	[0, 1]			
+kGrain6	[0, 1]			
+LeafN_0				
+kln				
+vmaxb1				
+alphab1				
+kpLN				
+lnb0				
+lnb1				
+lnfun				
+nileafn				
+nkln				
+nvmaxb1				
+nvmaxb0				
+nalphab1				
+nalphab0				
+nRdb1				
+nRdb0				
+nkpLN				
+nlnb0				
+nlnb1				
+timestep	{1, 2, 3, 4, 6, 8, 12, 24}			# The number of hours between each step in the model. Currently, it must be a divison of 24.
+centTimestep				
+doyNfert				
+mrc1	[0, infinity)			
+mrc2	[0, infinity)			

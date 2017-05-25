@@ -9,20 +9,19 @@
 ##' @name aci
 ##' @docType data
 ##' @format A data frame with 32 observations on the following 7 variables.
-##' \describe{ \item{list('ID')}{Identification for each curve. a numeric
-##' vector} \item{list('Photo')}{Assimilation. a numeric vector}
-##' \item{list('PARi')}{Incident Photosynthetic Active Radiation. a numeric
-##' vector} \item{list('Tleaf')}{Temperature of the leaf. a numeric vector}
-##' \item{list('RH_S')}{Realtive humidity. a numeric vector}
-##' \item{list('Ci')}{Intercellular CO2. a numeric vector}
-##' \item{list('CO2_R')}{Reference CO2. a numeric vector} }
+##' \describe{ \item{list('ID')}{Identification for each curve. A numeric
+##' vector.} \item{list('Photo')}{Assimilation. A numeric vector.}
+##' \item{list('PARi')}{Incident Photosynthetic Active Radiation. A numeric
+##' vector.} \item{list('Tleaf')}{Temperature of the leaf. A numeric vector.}
+##' \item{list('RH_S')}{Realtive humidity. A numeric vector.}
+##' \item{list('Ci')}{Intercellular CO2. A numeric vector.}
+##' \item{list('CO2_R')}{Reference CO2. A numeric vector.} }
 ##' @references Dandan Wang
 ##' @source Measurements taken by Dandan Wang.
 ##' @keywords datasets
 ##' @examples
 ##'
 ##' data(aci)
-##' plotAC(aci)
 ##'
 NULL
 
@@ -32,9 +31,9 @@ NULL
 
 ##' Miscanthus dry biomass data.
 ##'
-##' The first column is the thermal time. The second, third, fourth and fifth
-##' columns are miscanthus stem, leaf, root and rhizome dry biomass in Mg
-##' ha\eqn{^{-1}} (root is missing). The sixth column is the leaf area index.
+##' The first column is the thermal time. The second, third, fourth, and fifth
+##' columns are miscanthus stem, leaf, root, and rhizome dry biomass in Mg
+##' ha\eqn{^{-1}}{-1} (root is missing). The sixth column is the leaf area index.
 ##' The \code{annualDB.c} version is altered so that root biomass is not
 ##' missing and LAI is smaller. The purpose of this last modification is for
 ##' testing some functions.
@@ -43,10 +42,10 @@ NULL
 ##' @name annualDB
 ##' @aliases annualDB annualDB2
 ##' @docType data
-##' @format data frame of dimensions 5 by 6.
-##' @source Clive Beale and Stephen Long. (1997) Seasonal dynamics of nutrient
+##' @format Data frame of dimensions 5 by 6.
+##' @source Clive Beale and Stephen Long. 1997. Seasonal dynamics of nutrient
 ##' accumulation and partitioning in the perennial C4 grasses Miscanthus x
-##' giganteus and Spartina cynosuroides. Biomass and Bioenergy. 419-428.
+##' giganteus and Spartina cynosuroides. \emph{Biomass and Bioenergy} 12 (6): 419--428.
 ##' @keywords datasets
 NULL
 
@@ -61,85 +60,45 @@ NULL
 ##'
 
 ##'
-##' \code{swg} stand for switchgrass (Panicum virgatum) \code{mxg} stands for
-##' miscanthus (Miscanthus x gignateus)
+##' \code{swg} stands for switchgrass (Panicum virgatum). \code{mxg} stands for
+##' miscanthus (Miscanthus x giganteus).
 ##'
 ##' %% ~~ If necessary, more details than the __description__ above ~~
 ##'
 ##' @name aq
 ##' @docType data
 ##' @format A data frame with 64 observations on the following 6 variables.
-##' \describe{ \item{list('ID')}{a numeric vector} \item{list('trt')}{a factor
-##' with levels \code{mxg} \code{swg}} \item{list('A')}{a numeric vector.
-##' Assimilation} \item{list('PARi')}{a numeric vector. Photosynthetic Active
-##' Radiation (incident).} \item{list('Tleaf')}{a numeric vector. Temperature
-##' of the leaf.} \item{list('RH_S')}{a numeric vector. Relative humidity
+##' \describe{ \item{list('ID')}{A numeric vector.} \item{list('trt')}{A factor
+##' with levels \code{mxg} \code{swg}.} \item{list('A')}{A numeric vector.
+##' Assimilation.} \item{list('PARi')}{A numeric vector. Photosynthetic Active
+##' Radiation (incident).} \item{list('Tleaf')}{A numeric vector. Temperature
+##' of the leaf.} \item{list('RH_S')}{A numeric vector. Relative humidity
 ##' (fraction).} }
 ##' @references Dandan Wang %% ~~ possibly secondary sources and usages ~~
-##' @source Data based on measurements made by Dandan Wang. %% ~~ reference to
+##' @source Data based on measurements made by Dandan Wang.  ~~ reference to
 ##' a publication or URL from which the data were obtained ~~
 ##' @keywords datasets
 ##' @examples
 ##'
 ##' data(aq)
-##' plotAQ(aq)
+##' lattice::xyplot(A ~ PARi | trt, data=aq, ylab='CO2 uptake', xlab='Quantum flux')
 ##'
 NULL
 
 
-
-
 ##' Weather data
 ##'
-##' selected weather data corresponding to the Champaign weather station (IL,
+##' Selected weather data corresponding to the Champaign weather station (IL,
 ##' U.S.). It has two years: 2005 and 2006. Dimensions: 730 by 11. The columns
 ##' correspond to the input necessary for the \code{\link{weach}} function.
 ##'
 ##'
 ##' @name cmi0506
 ##' @docType data
-##' @format data frame of dimensions 730 by 11.
+##' @format Data frame of dimensions 730 by 11.
 ##' @source \url{http://www.sws.uiuc.edu/warm/}
 ##' @keywords datasets
 NULL
-
-
-
-
-
-##' Weather data
-##'
-##' Layer data for evapo/transpiration. Simulated data to show the result of
-##' the EvapoTrans function.
-##'
-##' lfClass: leaf class, 'sun' or 'shade'.
-##'
-##' layer: layer in the canopy, 1 to 8.
-##'
-##' hour: hour of the day, (0--23).
-##'
-##' Rad: direct light.
-##'
-##' Itot: total radiation.
-##'
-##' Temp: air temperature, (Celsius).
-##'
-##' RH: relative humidity, (0--1).
-##'
-##' WindSpeed: wind speed, (m \eqn{s^{-1}}).
-##'
-##' LAI: leaf area index.
-##'
-##'
-##' @name cmiWet
-##' @docType data
-##' @format data frame of dimensions 384 by 9.
-##' @source simulated
-##' @keywords datasets
-NULL
-
-
-
 
 
 ##' Weather data
@@ -147,32 +106,29 @@ NULL
 ##' Example for a given day of the year to illustrate the \code{\link{CanA}}
 ##' function.
 ##'
-##' LAI: leaf area index.
+##' LAI: Leaf area index.
 ##'
-##' year: year.
+##' year: Year.
 ##'
 ##' doy: 124 in this case.
 ##'
-##' hour: hour of the day, (0--23).
+##' hour: Hour of the day (0--23).
 ##'
-##' solarR: direct solar radiation.
+##' solarR: Direct solar radiation.
 ##'
-##' DailyTemp.C: hourly air temperature (Celsius).
+##' DailyTemp.C: Hourly air temperature (Celsius).
 ##'
-##' RH: relative humidity, (0--1).
+##' RH: Relative humidity (0--1).
 ##'
-##' WindSpeed: 4.1 m \eqn{s^{-1}} average daily value in this case.
+##' WindSpeed: 4.1 m s\eqn{^{-1}}{-1} average daily value in this case.
 ##'
 ##'
 ##' @name doy124
 ##' @docType data
-##' @format data frame of dimensions 24 by 8.
-##' @source simulated
+##' @format Data frame of dimensions 24 by 8.
+##' @source Simulated.
 ##' @keywords datasets
 NULL
-
-
-
 
 
 ##' Weather data corresponding to a paper by Clive Beale (see source).
@@ -185,12 +141,12 @@ NULL
 ##' @name EngWea94i
 ##' @docType data
 ##' @format A data frame with 8760 observations on the following 8 variables.
-##' \describe{ \item{list('year')}{a numeric vector} \item{list('doy')}{a
-##' numeric vector} \item{list('hour')}{a numeric vector}
-##' \item{list('solarR')}{a numeric vector} \item{list('DailyTemp.C')}{a
-##' numeric vector} \item{list('RH')}{a numeric vector}
-##' \item{list('WindSpeed')}{a numeric vector} \item{list('precip')}{a numeric
-##' vector} }
+##' \describe{ \item{list('year')}{A numeric vector.} \item{list('doy')}{A
+##' numeric vector.} \item{list('hour')}{A numeric vector.}
+##' \item{list('solarR')}{A numeric vector.} \item{list('DailyTemp.C')}{A
+##' numeric vector.} \item{list('RH')}{A numeric vector.}
+##' \item{list('WindSpeed')}{A numeric vector.} \item{list('precip')}{A numeric
+##' vector.} }
 ##' @references ~~ possibly secondary sources and usages ~~
 ##' @source ~~ reference to a publication or URL from which the data were
 ##' obtained ~~
@@ -216,12 +172,12 @@ NULL
 ##' @name EngWea94rf
 ##' @docType data
 ##' @format A data frame with 8760 observations on the following 8 variables.
-##' \describe{ \item{list('year')}{a numeric vector} \item{list('doy')}{a
-##' numeric vector} \item{list('hour')}{a numeric vector}
-##' \item{list('solarR')}{a numeric vector} \item{list('DailyTemp.C')}{a
-##' numeric vector} \item{list('RH')}{a numeric vector}
-##' \item{list('WindSpeed')}{a numeric vector} \item{list('precip')}{a numeric
-##' vector} }
+##' \describe{ \item{list('year')}{A numeric vector.} \item{list('doy')}{A
+##' numeric vector.} \item{list('hour')}{A numeric vector.}
+##' \item{list('solarR')}{A numeric vector.} \item{list('DailyTemp.C')}{A
+##' numeric vector.} \item{list('RH')}{A numeric vector.}
+##' \item{list('WindSpeed')}{A numeric vector.} \item{list('precip')}{A numeric
+##' vector.} }
 ##' @references ~~ possibly secondary sources and usages ~~
 ##' @source ~~ reference to a publication or URL from which the data were
 ##' obtained ~~
@@ -242,29 +198,29 @@ NULL
 ##' Layer data for evapo/transpiration. Simulated data to show the result of
 ##' the EvapoTrans function.
 ##'
-##' lfClass: leaf class, 'sun' or 'shade'.
+##' lfClass: Leaf class, `sun' or `shade'.
 ##'
-##' layer: layer in the canopy, 1 to 8.
+##' layer: Layer in the canopy, 1 to 8.
 ##'
-##' hour: hour of the day, (0--23).
+##' hour: Hour of the day (0--23).
 ##'
-##' Rad: direct light.
+##' Rad: Direct light.
 ##'
-##' Itot: total radiation.
+##' Itot: Total radiation.
 ##'
-##' Temp: air temperature, (Celsius).
+##' Temp: Air temperature (Celsius).
 ##'
-##' RH: relative humidity, (0--1).
+##' RH: Relative humidity (0--1).
 ##'
-##' WindSpeed: wind speed, (m \eqn{s^{-1}}).
+##' WindSpeed: Wind speed (m s\eqn{^{-1}}{-1}).
 ##'
-##' LAI: leaf area index.
+##' LAI: Leaf area index.
 ##'
 ##'
 ##' @name LayET
 ##' @docType data
-##' @format data frame of dimensions 384 by 9.
-##' @source simulated
+##' @format Data frame of dimensions 384 by 9.
+##' @source Simulated.
 ##' @keywords datasets
 NULL
 
@@ -276,26 +232,26 @@ NULL
 ##'
 
 ##'
-##' Assimilation and stomatal conductance as measured in Beale, Bint and Long
-##' (1996) in Miscanthus (missing data are also included).  The first column is
+##' Assimilation and stomatal conductance in Miscanthus as measured in Beale, Bint, and Long
+##' 1996.  (Missing data are also included.)  The first column is
 ##' the date, the second the hour. Columns 3 and 4 are assimilation and
 ##' stomatal conductance respectively.
 ##'
 ##' The third column is the observed net assimilation rate (\eqn{\mu} mol
-##' \eqn{m^{-2}} \eqn{s^{-1}}).
+##' m\eqn{^{-2}}{-2} s\eqn{^{-1}}{-1}).
 ##'
-##' The fifth column is the observed quantum flux (\eqn{\mu} mol \eqn{m^{-2}}
-##' \eqn{s^{-1}}).
+##' The fifth column is the observed quantum flux (\eqn{\mu} mol m\eqn{^{-2}}{-2}
+##' s\eqn{^{-1}}{-1}).
 ##'
 ##' The sixth column is the temperature (Celsius).
 ##'
 ##'
 ##' @name obsBeaC
 ##' @docType data
-##' @format data frame of dimensions 35 by 6.
-##' @source C. V. Beale, D. A. Bint, S. P. Long, Leaf photosynthesis in the
-##' C4-grass miscanthus x giganteus, growing in the cool temperate climate of
-##' southern England, \emph{J. Exp. Bot.} 47 (2) (1996) 267--273.
+##' @format Data frame of dimensions 35 by 6.
+##' @source C. V. Beale, D. A. Bint, S. P. Long. 1996. Leaf photosynthesis in the
+##' C4-grass Miscanthus x giganteus, growing in the cool temperate climate of
+##' southern England. \emph{J. Exp. Bot.} 47 (2): 267--273.
 ##' @keywords datasets
 NULL
 
@@ -305,20 +261,20 @@ NULL
 
 ##' Miscanthus assimilation field data
 ##'
-##' assimilation as measured in Beale, Bint and Long (1996) in Miscanthus.  The
+##' Assimilation in Miscanthus as measured in Beale, Bint, and Long 1996.  The
 ##' first column is the observed net assimilation rate (\eqn{\mu} mol
-##' \eqn{m^{-2}} \eqn{s^{-1}}).  The second column is the observed quantum flux
-##' (\eqn{\mu} mol \eqn{m^{-2}} \eqn{s^{-1}}). The third column is the
-##' temperature (Celsius).Relative humidity was not reported and thus was
+##' m\eqn{^{-2}}{-2} s\eqn{^{-1}}{-1}).  The second column is the observed quantum flux
+##' (\eqn{\mu} mol m\eqn{^{-2}}{-2} s\eqn{^{-1}}{-1}). The third column is the
+##' temperature (Celsius).  Relative humidity was not reported and thus was
 ##' assumed to be 0.7.
 ##'
 ##'
 ##' @name obsBea
 ##' @docType data
-##' @format data frame of dimensions 27 by 4.
-##' @source C. V. Beale, D. A. Bint, S. P. Long, Leaf photosynthesis in the
-##' C4-grass miscanthus x giganteus, growing in the cool temperate climate of
-##' southern England, \emph{J. Exp. Bot.} 47 (2) (1996) 267--273.
+##' @format Data frame of dimensions 27 by 4.
+##' @source C. V. Beale, D. A. Bint, S. P. Long. 1996. Leaf photosynthesis in the
+##' C4-grass Miscanthus x giganteus, growing in the cool temperate climate of
+##' southern England. \emph{J. Exp. Bot.} 47 (2): 267--273.
 ##' @keywords datasets
 NULL
 
@@ -328,21 +284,21 @@ NULL
 
 ##' Miscanthus assimilation data
 ##'
-##' assimilation as measured in Naidu et al. (2003) in Miscanthus. The first
-##' column is the observed net assimilation rate (\eqn{\mu} mol \eqn{m^{-2}}
-##' \eqn{s^{-1}}) The second column is the observed quantum flux (\eqn{\mu} mol
-##' \eqn{m^{-2}} \eqn{s^{-1}}) The third column is the temperature (Celsius).
+##' Assimilation in Miscanthus as measured in Naidu et al. (2003). The first
+##' column is the observed net assimilation rate (\eqn{\mu} mol m\eqn{^{-2}}{-2}
+##' s\eqn{^{-1}}{-1}).  The second column is the observed quantum flux (\eqn{\mu} mol
+##' m\eqn{^{-2}}{-2} s\eqn{^{-1}}{-1}).  The third column is the temperature (Celsius).
 ##' The fourth column is the observed relative humidity in proportion (e.g.
 ##' 0.7).
 ##'
 ##'
 ##' @name obsNaid
 ##' @docType data
-##' @format data frame of dimensions 16 by 4.
+##' @format Data frame of dimensions 16 by 4.
 ##' @source S. L. Naidu, S. P. Moose, A. K. AL-Shoaibi, C. A. Raines, S. P.
-##' Long, Cold Tolerance of C4 photosynthesis in Miscanthus x giganteus:
-##' Adaptation in Amounts and Sequence of C4 Photosynthetic Enzymes,
-##' \emph{Plant Physiol.} 132 (3) (2003) 1688--1697.
+##' Long.  2003. Cold Tolerance of C4 photosynthesis in Miscanthus x giganteus:
+##' Adaptation in Amounts and Sequence of C4 Photosynthetic Enzymes.
+##' \emph{Plant Physiol.} 132 (3): 1688--1697.
 ##' @keywords datasets
 NULL
 
@@ -359,10 +315,10 @@ NULL
 ##' @name simDat2
 ##' @docType data
 ##' @format A data frame with 5 observations on the following 6 variables.
-##' \describe{ \item{list('TT')}{a numeric vector} \item{list('Stem')}{a
-##' numeric vector} \item{list('Leaf')}{a numeric vector} \item{list('Root')}{a
-##' numeric vector} \item{list('Rhiz')}{a numeric vector} \item{list('LAI')}{a
-##' numeric vector} }
+##' \describe{ \item{list('TT')}{A numeric vector.} \item{list('Stem')}{A
+##' numeric vector.} \item{list('Leaf')}{A numeric vector.} \item{list('Root')}{A
+##' numeric vector.} \item{list('Rhiz')}{A numeric vector.} \item{list('LAI')}{A
+##' numeric vector.} }
 ##' @references ~~ possibly secondary sources and usages ~~
 ##' @source ~~ reference to a publication or URL from which the data were
 ##' obtained ~~
@@ -381,20 +337,20 @@ NULL
 ##' Randomly picked dataset from the Illinois area from 1979
 ##'
 ##' Data from the Illinois area from one point from the 32km grid from NOAA
-##' from 1979. the purpuse is to illustrate the \code{\link{Rmiscanmod}}
+##' from 1979. The purpuse is to illustrate the \code{\link{Rmiscanmod}}
 ##' function.
 ##'
 ##'
 ##' @name WD1979
 ##' @docType data
 ##' @format A data frame with 365 observations on the following 9 variables.
-##' \describe{ \item{list('year')}{year} \item{list('month')}{month (not really
-##' needed)} \item{list('day')}{day of the month (not really needed)}
-##' \item{list('JD')}{day of the year (1-365)} \item{list('maxTemp')}{maximum
-##' temperature (Celsius)} \item{list('minTemp')}{minimum temperature
-##' (Celsius)} \item{list('SolarR')}{solar radiation (MJ/m2)}
-##' \item{list('PotEv')}{potential evaporation (kg/m2). Approx. mm.}
-##' \item{list('precip')}{precipitation (kg/m2). Approx. mm.} }
+##' \describe{ \item{list('year')}{Year.} \item{list('month')}{Month (not really
+##' needed).} \item{list('day')}{Day of the month (not really needed).}
+##' \item{list('JD')}{Day of the year (1--365).} \item{list('maxTemp')}{Maximum
+##' temperature (Celsius).} \item{list('minTemp')}{Minimum temperature
+##' (Celsius).} \item{list('SolarR')}{Solar radiation (MJ/m\eqn{{}^2}{2}).}
+##' \item{list('PotEv')}{Potential evaporation (kg/m\eqn{{}^2}{2}). Approx. mm..}
+##' \item{list('precip')}{Precipitation (kg/m\eqn{{}^2}{2}). Approx. mm.} }
 ##' @source \url{http://www.noaa.gov/}
 ##' @keywords datasets
 ##' @examples
@@ -417,8 +373,8 @@ NULL
 ##' @name weather05
 ##' @aliases weather05 weather04
 ##' @docType data
-##' @format data frame of dimensions 8760 by 7.
-##' @source simulated (based on Champaign, Illinois conditions).
+##' @format Data frame of dimensions 8760 by 7.
+##' @source Simulated (based on Champaign, Illinois conditions).
 ##' @keywords datasets
 NULL
 
@@ -434,11 +390,11 @@ NULL
 ##' @name weather06
 ##' @docType data
 ##' @format A data frame with 8760 observations on the following 8 variables.
-##' \describe{ \item{list('year')}{a numeric vector} \item{list('doy')}{a
-##' numeric vector} \item{list('hour')}{a numeric vector}
-##' \item{list('SolarR')}{a numeric vector} \item{list('Temp')}{a numeric
-##' vector} \item{list('RH')}{a numeric vector} \item{list('WS')}{a numeric
-##' vector} \item{list('precip')}{a numeric vector} }
+##' \describe{ \item{list('year')}{A numeric vector.} \item{list('doy')}{A
+##' numeric vector.} \item{list('hour')}{A numeric vector.}
+##' \item{list('SolarR')}{A numeric vector.} \item{list('Temp')}{A numeric
+##' vector.} \item{list('RH')}{A numeric vector.} \item{list('WS')}{A numeric
+##' vector.} \item{list('precip')}{A numeric vector.} }
 ##' @source %% ~~ reference to a publication or URL from which the data were
 ##' obtained ~~
 ##' @keywords datasets
