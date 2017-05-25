@@ -43,6 +43,8 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	if(Ca <= 0)
 		Ca = 1e-4;
 
+    Ca_pa = Ca / 1e6 * AP;  // Pa.
+
 	/* From Bernacchi 2001. Improved temperature response functions. */
 	/* note: values in Dubois and Bernacchi are incorrect */	
 	Kc = exp(38.05-79.43/(R*(Tleaf+273.15))); /*\ref{eqn:Kc}*/
@@ -108,7 +110,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
       
       if(ws == 0) Assim *= StomWS; 
 		  /* milimole per meter square per second*/
-		  Gs =  ballBerry(Assim,Ca, Tleaf, RH, bb0, bb1);
+		  Gs =  ballBerry(Assim, Ca, Tleaf, RH, bb0, bb1);
       
 		  if(ws == 1) Gs *= StomWS; 
       
@@ -118,8 +120,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 		  if(Gs > 800)
 			  Gs = 800;
 
-		  Ci = Ca - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);/*\ref{eqn:ci}*/
-		  /*Ci = Ca - (Assim * 1.6 * 100) / Gs ; Harley pg 272 eqn 10. PCE 1992 */
+		  Ci = Ca_pa - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);/*\ref{eqn:ci}*/
 
 		  if(Ci < 0)
 			  Ci = 1e-5;
