@@ -48,7 +48,6 @@
 ##' @param units Whether to return units in kg/m2/hr or Mg/ha/hr. This is
 ##' typically run at hourly intervals, that is why the hr is kept, but it could
 ##' be used with data at finer timesteps and then convert the results.
-##' @export
 ##' @return
 ##'
 ##' \code{\link{list}}

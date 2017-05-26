@@ -17,7 +17,6 @@
 ##' @param theta Curvature parameter.
 ##' @param StomWS FILL IN HERE
 ##' @param ws FILL IN HERE
-##' @export
 ##' @return A list having these components:
 ##'
 ##' \item{Gs}{Stomatal conductance}
