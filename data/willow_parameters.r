@@ -23,7 +23,7 @@ willow_parameters = with(list(), {
      alpha1  0
      jmax   180 
      Rd     1.1 
-     Catm   380 
+     Catm   400 
      O2     210 
      b0     0.08
      b1     5   

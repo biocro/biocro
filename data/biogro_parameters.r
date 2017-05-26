@@ -22,7 +22,7 @@ kparm		photoControl	0.7		1
 theta		photoControl	0.83		1
 beta		photoControl	0.93		1
 Rd		photoControl	0.8		1
-Catm		photoControl	380		1
+Catm		photoControl	400		1
 b0		photoControl	0.08		1
 b1		photoControl	3		1
 ws		photoControl	1		0
