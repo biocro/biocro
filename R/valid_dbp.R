@@ -10,7 +10,6 @@
 ##' partitioning coefficients for the 6 phenological stages.
 ##' @param tol Numerical tolerance passed to the \code{\link{all.equal}}
 ##' function.
-##' @export
 ##' @return It will return the vector of coefficients unchanged if no errors
 ##' are detected.
 ##' @author Fernando E. Miguez

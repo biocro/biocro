@@ -31,7 +31,6 @@
 ##' stomatal conductance and assimilation.
 ##' @param ws Option to control whether the water stress factor is applied to
 ##' stomatal conductance (`gs') or to Vmax (`vmax').
-##' @export
 ##' @return A \code{\link{list}} structure with components
 ##'
 ##' \item{Gs}{Stomatal conductance (mmol \eqn{\mathrm{m}^{-2}}{m-2}{ }

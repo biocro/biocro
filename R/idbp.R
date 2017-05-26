@@ -12,7 +12,6 @@
 ##' Root, Rhizome and Grain.
 ##' @param phenoControl List that supplies mainly in this case the thrmal time
 ##' periods that delimit the phenological stages.
-##' @export
 ##' @return It returns a vector of length 25 suitable for \code{BioGro},
 ##' \code{OpBioGro}, \code{constrOpBioGro}, or \code{MCMCBioGro}.
 ##' @note It is highly recommended that the results of this function be tested
