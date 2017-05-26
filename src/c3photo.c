@@ -43,7 +43,7 @@ struct c3_str c3photoC(double Qp, double Tleaf, double RH, double Vcmax0, double
 	if(Ca <= 0)
 		Ca = 1e-4;
 
-    Ca_pa = Ca / 1e6 * AP;  // Pa.
+    double Ca_pa = Ca / 1e6 * AP;  // Pa.
 
 	/* From Bernacchi 2001. Improved temperature response functions. */
 	/* note: values in Dubois and Bernacchi are incorrect */	
