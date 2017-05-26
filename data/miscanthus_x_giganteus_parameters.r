@@ -23,7 +23,7 @@ miscanthus_x_giganteus_parameters = with(list(), {
     theta 0.83
     beta 0.93
     Rd 0.8
-    Catm 380
+    Catm 400
     b0 0.08
     b1 3
     water_stress_approach 1
