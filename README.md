@@ -19,6 +19,13 @@ xyplot(Stem + Leaf ~ TTc, result, type='l')
 
 There are parameters and modules for micanthus (_Miscanthus_ x _giganteus_), sorghum (_Sorghum bicolor_) and willow (_Saliceae salix_).
 
+
+### Installation
+Download the source code from GitHub and run the command below from the directory containing the source code. The command assumes the code in a directory named "biocro".
+```
+R CMD INSTALL biocro
+```
+
 ### Inputs
 * Species-specific plant physiological traits
     * Photosynthetic parameters
