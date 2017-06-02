@@ -12,13 +12,10 @@
 /* Ball Berry stomatal conductance function */
 double ballBerry(double assimilation, double atmospheric_co2_concentration, double atmospheric_relative_humidity, double beta0, double beta1)
 {
-    const double gbw = 1.2;  // micromole / m^2 / s.  Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526.
-    double gswmol;
+    const double gbw = 1.2;  // micromole / m^2 / s.  Boundary-layer conductance. Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526.
+    double gswmol;  // mol / m^2 / s. stomatal conductance to water vapor.
 
-    if (assimilation < 0.0) {
-        /* Set stomatal conductance to the minimum value, beta0 */
-        gswmol = beta0;
-    } else {
+    if (assimilation > 0) {
         double Cs = atmospheric_co2_concentration - (1.4 / gbw) * assimilation;  // mol / mol.
         if (Cs < 0.0) {
             Cs = 1;
@@ -32,16 +29,29 @@ double ballBerry(double assimilation, double atmospheric_co2_concentration, doub
         /* Calculate leaf surface relative humidity, hs, from the quadratic equation:
          * a * hs^2 + b * hs + c = 0
          * 
-         * These coefficients come from personal communication with Joe Berry to Steve Long.
+         * This can be derived as follows:
+         * At steady-state
+         *  E = gs * (hs - hi)  -- Equation 1
+         *  and
+         *  E = gb * (ha - hs)  -- Equation 2
+         * From Ball-Berry model
+         *  gs = b1 * A * hs / cs + b0
+         * Assume hi = 1 based on saturation of water vapor in the interal airspace of a leaf.
+         *
+         * Use the equality of equations 1 and 2 to solve for hs, and it's a quadratic with the coefficients given in the code. 
          */
-        double a = beta1 * acs;  // Equivalent to a = beta1 * assimilation / cs
-        double b = beta0 + gbw - beta1 * acs;  // Equivalent to b = beta0 + gbw - beta1 * assimilation / cs
-        double c = -atmospheric_relative_humidity * gbw - beta0;
+        const double a = beta1 * acs;  // Equivalent to a = beta1 * assimilation / cs
+        const double b = beta0 + gbw - beta1 * acs;  // Equivalent to b = beta0 + gbw - beta1 * assimilation / cs
+        const double c = -atmospheric_relative_humidity * gbw - beta0;
 
-        double root_term = b * b - 4 * a * c;
-        double hs = (-b + sqrt(root_term)) / (2 * a);
+        const double root_term = b * b - 4 * a * c;
+        const double hs = (-b + sqrt(root_term)) / (2 * a);
 
         gswmol = beta1 * hs * acs + beta0; // Ball-Berry equation (Collatz 1991, equation 1).
+    } else {
+        /* Set stomatal conductance to the minimum value, beta0 */
+        gswmol = beta0;
+        // hs = (beta0 + atmospheric_relative_humidity * gbw) / (beta0 + gbw)
     }
 
     if (gswmol <= 0) {
