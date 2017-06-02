@@ -1,24 +1,25 @@
 /*
  *  /src/ball_berry.cpp by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
  *
- *  The ballBerry code is based on code provided by Joe Berry in an e-mail.
+ *  The ball_berry code is based on code provided by Joe Berry in an e-mail.
  *  The original function was written in Fortran. I translated it to C.
  * 
  */
 
 #include <math.h>
+#include <stdexcept>
 #include "ball_berry.h"
 
 /* Ball Berry stomatal conductance function */
-double ballBerry(double assimilation, double atmospheric_co2_concentration, double atmospheric_relative_humidity, double beta0, double beta1)
+double ball_berry(double assimilation, double atmospheric_co2_concentration, double atmospheric_relative_humidity, double beta0, double beta1)
 {
-    const double gbw = 1.2 * 1e-6;  // mol / m^2 / s.  Boundary-layer conductance. Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526.
+    const double gbw = 1.2;  // mol / m^2 / s.  Boundary-layer conductance. Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526. The units in the manuscript, micromole / m^2 / s, are wrong . They are actually mol / m^2 / s.
     double gswmol;  // mol / m^2 / s. stomatal conductance to water vapor.
 
     if (assimilation > 0) {
         double Cs = atmospheric_co2_concentration - (1.4 / gbw) * assimilation;  // mol / mol.
         if (Cs < 0.0) {
-            Cs = 1;
+            throw std::range_error("Thrown in ball_berry: Cs is less than 0."); 
         }
 
         double acs = assimilation / Cs;
@@ -47,7 +48,7 @@ double ballBerry(double assimilation, double atmospheric_co2_concentration, doub
         const double root_term = b * b - 4 * a * c;
         const double hs = (-b + sqrt(root_term)) / (2 * a);
 
-        gswmol = beta1 * hs * acs + beta0; // Ball-Berry equation (Collatz 1991, equation 1).
+        gswmol = beta1 * hs * assimilation / Cs + beta0; // Ball-Berry equation (Collatz 1991, equation 1).
     } else {
         /* Set stomatal conductance to the minimum value, beta0 */
         gswmol = beta0;
