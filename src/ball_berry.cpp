@@ -12,7 +12,7 @@
 /* Ball Berry stomatal conductance function */
 double ballBerry(double assimilation, double atmospheric_co2_concentration, double atmospheric_relative_humidity, double beta0, double beta1)
 {
-    const double gbw = 1.2;  // micromole / m^2 / s.  Boundary-layer conductance. Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526.
+    const double gbw = 1.2 * 1e-6;  // mol / m^2 / s.  Boundary-layer conductance. Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526.
     double gswmol;  // mol / m^2 / s. stomatal conductance to water vapor.
 
     if (assimilation > 0) {
