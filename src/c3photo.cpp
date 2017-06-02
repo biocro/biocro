@@ -103,7 +103,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
         if (water_stress_approach == 0) co2_assimilation_rate *= quantity<dimensionless>(StomWS); 
         /* milimole per meter square per second*/
-        Gs = ballBerry(co2_assimilation_rate.value(), Ca * 1e-6, leaf_temperature_celsius, RH, bb0, bb1) * 1e-3 * mole / square_meter / second;
+        Gs = ballBerry(co2_assimilation_rate.value(), Ca * 1e-6, RH, bb0, bb1) * 1e-3 * mole / square_meter / second;
 
         if (water_stress_approach == 1)
             Gs *= StomWS; 

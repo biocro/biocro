@@ -76,7 +76,7 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 		double csurfaceppm = Csurface * 10;
 
 		/* Need to create the Ball-Berry function */
-		Gs =  ballBerry(Assim * 1e-6, csurfaceppm * 1e-6, Tl, RH, bb0, bb1);
+		Gs = ballBerry(Assim * 1e-6, csurfaceppm * 1e-6, RH, bb0, bb1);
 		if (water_stress_approach == 1) Gs *= StomaWS; 
 
 		InterCellularCO2 = Csurface - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);

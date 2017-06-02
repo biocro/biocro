@@ -10,7 +10,7 @@
 #include "ball_berry.h"
 
 /* Ball Berry stomatal conductance function */
-double ballBerry(double assimilation, double Ca, double Temp, double RelH, double beta0, double beta1)
+double ballBerry(double assimilation, double atmospheric_co2_concentration, double atmospheric_relative_humidity, double beta0, double beta1)
 {
     const double gbw = 1.2;  // micromole / m^2 / s.  Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526.
     double gswmol;
@@ -19,7 +19,7 @@ double ballBerry(double assimilation, double Ca, double Temp, double RelH, doubl
         /* Set stomatal conductance to the minimum value, beta0 */
         gswmol = beta0;
     } else {
-        double Cs = Ca - (1.4 / gbw) * assimilation;  // mol / mol.
+        double Cs = atmospheric_co2_concentration - (1.4 / gbw) * assimilation;  // mol / mol.
         if (Cs < 0.0) {
             Cs = 1;
         }
@@ -36,7 +36,7 @@ double ballBerry(double assimilation, double Ca, double Temp, double RelH, doubl
          */
         double a = beta1 * acs;  // Equivalent to a = beta1 * assimilation / cs
         double b = beta0 + gbw - beta1 * acs;  // Equivalent to b = beta0 + gbw - beta1 * assimilation / cs
-        double c = -RelH * gbw - beta0;
+        double c = -atmospheric_relative_humidity * gbw - beta0;
 
         double root_term = b * b - 4 * a * c;
         double hs = (-b + sqrt(root_term)) / (2 * a);

@@ -1,7 +1,7 @@
 #ifndef BALL_BERRY_H
 #define BALL_BERRY_H
 
-double ballBerry(double Amu, double Cappm, double Temp, double RelH, double beta0, double beta1);
+double ballBerry(double assimilation, double atmospheric_co2_concentration, double atmospheric_relative_humidity, double beta0, double beta1);
 
 double water_saturation_vapor_pressure(double Tkelvin);
 
