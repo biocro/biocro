@@ -1,5 +1,5 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-willow_initial_state = with(list(), {
+glycine_max_initial_state = with(list(), {
     datalines =
     "symbol value
     Rhizome 0.99
