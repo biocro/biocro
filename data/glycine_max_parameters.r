@@ -11,7 +11,7 @@ glycine_max_parameters = with(list(), {
      Tfrosthigh    5   
      Tfrostlow     0   
      leafdeathrate 5
-     iSp                 1.1      
+     iSp                 2.8      
      SpD                0        
      nlayers            10       
      kd                 0.37     
@@ -19,10 +19,10 @@ glycine_max_parameters = with(list(), {
      mrc2             0.03
      heightf       3        
      growth_respiration_fraction 0.3
-     vmax1   100 
-     alpha1  0
-     jmax   180 
-     Rd     1.1 
+     vmax1   111.2 
+     alpha1  32.5
+     jmax   213.2 
+     Rd     1.55 
      Catm   400 
      O2     210 
      b0     0.08
