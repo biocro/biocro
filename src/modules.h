@@ -152,12 +152,12 @@ class IGrowth_module : public IModule {
         {}
 };
 
-class utilzation_growth_module : public IGrowth_module {
+class utilization_growth_module : public IGrowth_module {
     public:
-        partitioning_growth_module()
+        utilization_growth_module()
             : IGrowth_module(vector<string> {"CanopyA",
                 "Leaf", "Stem", "Root", "Rhizome", "Grain",
-                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain"
+                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                 "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
                 "resistance_leaf_to_stem",
                 "resistance_stem_to_grain",

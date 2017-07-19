@@ -86,7 +86,7 @@ state_vector_map Gro(
 
     if (!missing_state.empty()) {
         std::ostringstream message;
-        message << "The following required state variables are missing: " << join_string_vector(missing_state);
+        message << "The following required state variables are missing in Gro: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
     }
 

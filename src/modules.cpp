@@ -469,7 +469,7 @@ std::unique_ptr<IModule> make_module(string const &module_name)
         return std::unique_ptr<IModule>(new partitioning_growth_module);
     }
     else if (module_name.compare("utilization_growth") == 0) {
-        return std::unique_ptr<IModule>(new partitioning_growth_module);
+        return std::unique_ptr<IModule>(new utilization_growth_module);
     }
     else if (module_name.compare("no_leaf_resp_partitioning_growth") == 0) {
         return std::unique_ptr<IModule>(new no_leaf_resp_partitioning_growth_module);
