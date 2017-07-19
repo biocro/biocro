@@ -152,6 +152,24 @@ class IGrowth_module : public IModule {
         {}
 };
 
+class utilzation_growth_module : public IGrowth_module {
+    public:
+        partitioning_growth_module()
+            : IGrowth_module(vector<string> {"CanopyA",
+                "Leaf", "Stem", "Root", "Rhizome", "Grain",
+                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain"
+                "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
+                "resistance_leaf_to_stem",
+                "resistance_stem_to_grain",
+                "resistance_stem_to_root",
+                "resistance_stem_to_rhizome"},
+                vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+};
+
+
 class partitioning_growth_module : public IGrowth_module {
     public:
         partitioning_growth_module()
