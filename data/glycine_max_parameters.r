@@ -60,16 +60,16 @@ glycine_max_parameters = with(list(), {
      kRoot6    0.15  
      kRhizome6 0.15  
      kGrain6   0  
-     KmLeaf     0  
-     KmStem     0 
-     KmRoot     0 
-     KmRhizome  0 
-     KmGrain    0  
-     resistance_leaf_to_stem 0 
-     resistance_stem_to_grain 0
-     resistance_stem_to_root 0
-     resistance_stem_to_rhizome 0
-     conversion_efficiency 0
+     KmLeaf     10  
+     KmStem     10 
+     KmRoot     10 
+     KmRhizome  10 
+     KmGrain    10  
+     resistance_leaf_to_stem 1 
+     resistance_stem_to_grain 1
+     resistance_stem_to_root 1
+     resistance_stem_to_rhizome 1
+     conversion_efficiency 1
      tbase     0     
      FieldC     -1       
      WiltP      -1       
