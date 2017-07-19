@@ -19,7 +19,12 @@ glycine_max_initial_state = with(list(), {
     leaf_senescence_index 0
     stem_senescence_index 0
     root_senescence_index 0
-    rhizome_senescence_index 0"
+    rhizome_senescence_index 0
+    substrate_pool_leaf 0
+    substrate_pool_grain 0
+    substrate_pool_stem 0
+    substrate_pool_root 0
+    substrate_pool_rhizome 0"
     
     data_frame = read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
