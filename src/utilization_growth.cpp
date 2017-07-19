@@ -56,18 +56,20 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double substrate_pool_rhizome = s.at("substrate_pool_rhizome");
 
     derivs["Leaf"] = conversion_efficiency*substrate_pool_leaf*kLeaf/(KmLeaf+Leaf);
+
+    derivs["newLeafcol"] = derivs["Leaf"] = conversion_efficiency*substrate_pool_leaf*kLeaf/(KmLeaf+Leaf);
     derivs["substrate_pool_leaf"] = CanopyA - beta*(Leaf-Stem)/resistance_leaf_to_stem - substrate_pool_leaf*kLeaf/(KmLeaf+Leaf);
 
-    derivs["Stem"] = conversion_efficiency*substrate_pool_stem*kStem/(KmStem+Stem);
+    derivs["newStemcol"] = derivs["Stem"] = conversion_efficiency*substrate_pool_stem*kStem/(KmStem+Stem);
     derivs[substrate_pool_stem] = beta*(Leaf-Stem)/resistance_leaf_to_stem - beta*(Stem-Grain)/resistance_stem_to_grain - beta*(Stem-Root)/resistance_stem_to_root - beta*(Stem-Rhizome)/resistance_stem_to_rhizome - substrate_pool_stem*kStem/(KmStem+Stem);
 
     derivs["Grain"] = conversion_efficiency*substrate_pool_grain*kGrain/(KmGrain+Grain);
     derivs[substrate_pool_grain] = beta*(Stem-Grain)/resistance_stem_to_grain - substrate_pool_grain*kGrain/(KmGrain+Grain);
 
-    derivs["Root"] = conversion_efficiency*substrate_pool_root*kRoot/(KmRoot+Root);
+    derivs["newRootcol"] = derivs["Root"] = conversion_efficiency*substrate_pool_root*kRoot/(KmRoot+Root);
     derivs[substrate_pool_root] = beta*(Stem-Root)/resistance_stem_to_root - substrate_pool_root*kRoot/(KmRoot+Root);
 
-    derivs["Rhizome"] = conversion_efficiency*substrate_pool_rhizome*kRoot/(KmRoot+Rhizome);
+    derivs["newRhizomecol"] = derivs["Rhizome"] = conversion_efficiency*substrate_pool_rhizome*kRoot/(KmRoot+Rhizome);
     derivs[substrate_pool_rhizome] = beta*(Stem-Rhizome)/resistance_stem_to_rhizome - substrate_pool_rhizome*kRhizome/(KmRhizome+Rhizome);
 
     return (derivs);
