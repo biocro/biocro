@@ -55,7 +55,6 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double substrate_pool_root = s.at("substrate_pool_root");
     double substrate_pool_rhizome = s.at("substrate_pool_rhizome");
 
-    derivs["Leaf"] = conversion_efficiency*substrate_pool_leaf*kLeaf/(KmLeaf+Leaf);
 
     derivs["newLeafcol"] = derivs["Leaf"] = conversion_efficiency*substrate_pool_leaf*kLeaf/(KmLeaf+Leaf);
     derivs["substrate_pool_leaf"] = CanopyA - beta*(Leaf-Stem)/resistance_leaf_to_stem - substrate_pool_leaf*kLeaf/(KmLeaf+Leaf);
