@@ -57,10 +57,10 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double ratio_stem = 1;
 
     double mass_fraction_leaf = substrate_pool_leaf / Leaf;
-    double mass_fraction_stem = substrate_pool_leaf / Stem;
-    double mass_fraction_root = substrate_pool_leaf / Root;
-    double mass_fraction_rhizome = substrate_pool_leaf / Rhizome;
-    double mass_fraction_grain = substrate_pool_leaf / Grain;
+    double mass_fraction_stem = substrate_pool_stem / Stem;
+    double mass_fraction_root = substrate_pool_root / Root;
+    double mass_fraction_rhizome = substrate_pool_rhizome / Rhizome;
+    double mass_fraction_grain = substrate_pool_grain / Grain;
 
     // TODO: Change these so that S / T is 0 instead of transport = 0;
     double transport_leaf_to_stem = (Leaf <= 0 || Stem <= 0) ? 0 : beta*(mass_fraction_leaf - mass_fraction_stem) / resistance_leaf_to_stem;
