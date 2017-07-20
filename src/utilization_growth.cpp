@@ -55,7 +55,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double ratio_leaf = 1;
     double ratio_stem = 1;
 
-    double mass_fraction_leaf = mass_fraction_stem = mass_fraction_root = mass_fraction_rhizome = mass_fraction_grain = 0;
+    double mass_fraction_leaf = 0, mass_fraction_stem = 0, mass_fraction_root = 0, mass_fraction_rhizome = 0, mass_fraction_grain = 0;
     if (Leaf != 0) mass_fraction_leaf = substrate_pool_leaf / Leaf;
     if (Stem != 0) mass_fraction_stem = substrate_pool_stem / Stem;
     if (Root != 0) mass_fraction_root = substrate_pool_root / Root;
@@ -85,6 +85,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
             ratio_leaf = (substrate_pool_leaf + carbon_input) / (transport_leaf_to_stem + utilization_leaf);
             derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf * ratio_leaf ;
             derivs["substrate_pool_leaf"] = carbon_input + (-transport_leaf_to_stem - utilization_leaf) * ratio_leaf;
+        }
     } else {
         derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf;
         derivs["substrate_pool_leaf"] = carbon_input - transport_leaf_to_stem - utilization_leaf;
