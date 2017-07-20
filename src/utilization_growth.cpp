@@ -19,7 +19,6 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     auto t = s.begin()->second.size() - 1;
 
     double carbon_input = p.at("CanopyA"); //Pg in paper
-    if (carbon_input < 0) carbon_input = 0;
 
     double Leaf = s.at("Leaf")[t];
     double Stem = s.at("Stem")[t];
@@ -74,15 +73,21 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double utilization_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome);
 
 
-    if (transport_leaf_to_stem + utilization_leaf > substrate_pool_leaf + carbon_input) {
-        ratio_leaf = (substrate_pool_leaf + carbon_input) / (transport_leaf_to_stem + utilization_leaf);
+    // When the change in the substrate pool would make the substrate pool negative, there are two special cases to handle: 1) The large time step produces nonsensible derivatives and 2) respiration uses more carbon than is available in the soluble substrate pool.
+    if (carbon_input - transport_leaf_to_stem - utilization_leaf > -substrate_pool_leaf) {
+        if (carbon_input < -substrate_pool_leaf) {  // Respiration uses more carbon than there is in the substrate pool. The carbon must come from somewhere, so even though utilization for growth is thought of as irreversible, remove previously fixed carbon and don't grow or transport carbon.
+            transport_leaf_to_stem = 0;
+            utilization_leaf = 0;
+            derivs["substrate_pool_leaf"] = -substrate_pool_leaf;  // Use up anything remainaing in the substrate pool.
+            derivs["Leaf"] = carbon_input - derivs["substrate_pool_leaf"];  // Take respiration away from carbon previously fixes in leaves, accounting for what was already removed from the substrate pool.
+        } else {
+            ratio_leaf = (substrate_pool_leaf + carbon_input) / (transport_leaf_to_stem + utilization_leaf);
+            derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf * ratio_leaf ;
+            derivs["substrate_pool_leaf"] = carbon_input + (-transport_leaf_to_stem - utilization_leaf) * ratio_leaf;
+    } else {
+        derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf;
+        derivs["substrate_pool_leaf"] = carbon_input - transport_leaf_to_stem - utilization_leaf;
     }
-    derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf * ratio_leaf ;
-    derivs["substrate_pool_leaf"] = carbon_input + (-transport_leaf_to_stem - utilization_leaf) * ratio_leaf;
-
-
-
-
 
 
     if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem > substrate_pool_stem + transport_leaf_to_stem) {
