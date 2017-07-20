@@ -29,11 +29,11 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double Grain = s.at("Grain")[t];
     double Rhizome = s.at("Rhizome")[t];
 
-    double kLeaf = p.at("kLeaf");
-    double kStem = p.at("kStem");
-    double kRoot = p.at("kRoot");
-    double kRhizome = p.at("kRhizome");
-    double kGrain = p.at("kGrain");
+    double kLeaf = p.at("rate_constant_leaf");
+    double kStem = p.at("rate_constant_stem");
+    double kRoot = p.at("rate_constant_root");
+    double kRhizome = p.at("rate_constant_rhizome");
+    double kGrain = p.at("rate_constant_grain");
 
     double beta = Leaf+Grain+Stem+Root+Rhizome;
 
@@ -67,9 +67,8 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     if (Rhizome != 0) mass_fraction_rhizome = substrate_pool_rhizome / Rhizome;
     if (Grain != 0) mass_fraction_grain = substrate_pool_grain / Grain;
 
-    // TODO: Change these so that S / T is 0 instead of transport = 0;
-    double transport_leaf_to_stem =  std::max(beta*(mass_fraction_leaf - mass_fraction_stem) / resistance_leaf_to_stem, 0.0);
-    double transport_stem_to_grain =  std::max(beta*(mass_fraction_stem - mass_fraction_grain) / resistance_stem_to_grain, 0.0);
+    double transport_leaf_to_stem = std::max(beta*(mass_fraction_leaf - mass_fraction_stem) / resistance_leaf_to_stem, 0.0);
+    double transport_stem_to_grain = std::max(beta*(mass_fraction_stem - mass_fraction_grain) / resistance_stem_to_grain, 0.0);
     double transport_stem_to_root = std::max(beta*(mass_fraction_stem - mass_fraction_root) / resistance_stem_to_root, 0.0);
     double transport_stem_to_rhizome = std::max(beta*(mass_fraction_stem - mass_fraction_rhizome) / resistance_stem_to_rhizome, 0.0);
 
@@ -79,27 +78,28 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double utilization_root = mass_fraction_root * kRoot / (KmRoot + mass_fraction_root);
     double utilization_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome);
 
-    Rprintf("Before leaf\n");
+    //Rprintf("Before leaf\n");
     // When the change in the substrate pool would make the substrate pool negative, there are two special cases to handle: 1) The large time step produces nonsensible derivatives and 2) respiration uses more carbon than is available in the soluble substrate pool.
     if (carbon_input - transport_leaf_to_stem - utilization_leaf <= -substrate_pool_leaf) {
-    Rprintf("large derivative\n");
+    //Rprintf("large derivative\n");
         if (carbon_input < -substrate_pool_leaf) {  // Respiration uses more carbon than there is in the substrate pool. The carbon must come from somewhere, so even though utilization for growth is thought of as irreversible, remove previously fixed carbon and don't grow or transport carbon.
-    Rprintf("very negative carbon_input\n");
+    //Rprintf("very negative carbon_input\n");
             transport_leaf_to_stem = 0;
             utilization_leaf = 0;
             derivs["newLeafcol"] = 0;
             derivs["substrate_pool_leaf"] = -substrate_pool_leaf;  // Use up anything remainaing in the substrate pool.
             derivs["Leaf"] = carbon_input - derivs["substrate_pool_leaf"];  // Take respiration away from carbon previously fixes in leaves, accounting for what was already removed from the substrate pool.
         } else {
-    Rprintf("probably broken intergration\n");
+    //Rprintf("probably broken intergration\n");
             transport_leaf_to_stem = 0;
             ratio_leaf = (substrate_pool_leaf + carbon_input) / (transport_leaf_to_stem + utilization_leaf);
             derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf * ratio_leaf ;
             derivs["substrate_pool_leaf"] = carbon_input + (-transport_leaf_to_stem - utilization_leaf) * ratio_leaf;
         }
     } else {
-    Rprintf("everything is ok\n");
+    //Rprintf("everything is ok\n");
         derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf;
+        if (derivs["newLeafcol"] < 0) derivs["newLeafcol"] = 0;  // TODO: This check wouldn't be necessary if we could limit leaf mass to greater or equal to 0.
         derivs["substrate_pool_leaf"] = carbon_input - transport_leaf_to_stem - utilization_leaf;
     }
 
