@@ -91,13 +91,10 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
 
     }
 
-    /*if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem > substrate_pool_stem + transport_leaf_to_stem) {
-        ratio_stem = (substrate_pool_stem + transport_leaf_to_stem) / (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem);
-    }*/
-
-    if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem + transport_leaf_to_stem > 0 && transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem + transport_leaf_to_stem > -substrate_pool_stem ){
+    if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem > substrate_pool_stem + transport_leaf_to_stem) {
         ratio_stem = (substrate_pool_stem + transport_leaf_to_stem) / (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem);
     }
+
 
 
 
