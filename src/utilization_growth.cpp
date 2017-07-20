@@ -56,17 +56,20 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double ratio_leaf = 1;
     double ratio_stem = 1;
 
-    double mass_fraction_leaf = substrate_pool_leaf / Leaf;
-    double mass_fraction_stem = substrate_pool_leaf / Stem;
-    double mass_fraction_root = substrate_pool_leaf / Root;
-    double mass_fraction_rhizome = substrate_pool_leaf / Rhizome;
-    double mass_fraction_grain = substrate_pool_leaf / Grain;
+    double mass_fraction_leaf = mass_fraction_stem = mass_fraction_root = mass_fraction_rhizome = mass_fraction_grain = 0;
+    if (Leaf != 0) mass_fraction_leaf = substrate_pool_leaf / Leaf;
+    if (Stem != 0) mass_fraction_stem = substrate_pool_stem / Stem;
+    if (Root != 0) mass_fraction_root = substrate_pool_root / Root;
+    if (Rhizome != 0) mass_fraction_rhizome = substrate_pool_rhizome / Rhizome;
+    if (Grain != 0) mass_fraction_grain = substrate_pool_grain / Grain;
+
 
     // TODO: Change these so that S / T is 0 instead of transport = 0;
-    double transport_leaf_to_stem = (Leaf <= 0 || Stem <= 0) ? 0 : beta*(mass_fraction_leaf - mass_fraction_stem) / resistance_leaf_to_stem;
-    double transport_stem_to_grain = (Stem <= 0 || Grain <= 0) ? 0 : beta*(mass_fraction_stem - mass_fraction_grain) / resistance_stem_to_grain;
-    double transport_stem_to_root = (Stem <= 0 || Root <= 0) ? 0 : beta*(mass_fraction_stem - mass_fraction_root) / resistance_stem_to_root;
-    double transport_stem_to_rhizome = (Stem <= 0 || Rhizome <= 0) ? 0 : beta*(mass_fraction_stem - mass_fraction_rhizome) / resistance_stem_to_rhizome;
+    double transport_leaf_to_stem =  beta*(mass_fraction_leaf - mass_fraction_stem) / resistance_leaf_to_stem;
+    double transport_stem_to_grain =  beta*(mass_fraction_stem - mass_fraction_grain) / resistance_stem_to_grain;
+    double transport_stem_to_root = beta*(mass_fraction_stem - mass_fraction_root) / resistance_stem_to_root;
+    double transport_stem_to_rhizome = beta*(mass_fraction_stem - mass_fraction_rhizome) / resistance_stem_to_rhizome;
+
     double utilization_leaf = mass_fraction_leaf * kLeaf / (KmLeaf + mass_fraction_leaf);
     double utilization_grain = mass_fraction_grain * kGrain / (KmGrain + mass_fraction_grain);
     double utilization_stem = mass_fraction_stem * kStem / (KmStem + mass_fraction_stem);
@@ -74,7 +77,13 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double utilization_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome);
 
 
-    if (transport_leaf_to_stem + utilization_leaf > substrate_pool_leaf + carbon_input) {
+    /*if (transport_leaf_to_stem + utilization_leaf > substrate_pool_leaf + carbon_input) {
+        ratio_leaf = (substrate_pool_leaf + carbon_input) / (transport_leaf_to_stem + utilization_leaf);
+    }
+    derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf * ratio_leaf ;
+    derivs["substrate_pool_leaf"] = carbon_input + (-transport_leaf_to_stem - utilization_leaf) * ratio_leaf;*/
+
+    if (transport_leaf_to_stem + utilization_leaf + carbon_input < 0 && transport_leaf_to_stem + utilization_leaf + carbon_input > -carbon_input){
         ratio_leaf = (substrate_pool_leaf + carbon_input) / (transport_leaf_to_stem + utilization_leaf);
     }
     derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf * ratio_leaf ;
@@ -84,10 +93,16 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
 
 
 
+    /*if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem > substrate_pool_stem + transport_leaf_to_stem) {
+        ratio_stem = (substrate_pool_stem + transport_leaf_to_stem) / (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem);
+    }*/
 
-    if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem > substrate_pool_stem + transport_leaf_to_stem) {
+    if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem + transport_leaf_to_stem > 0 && transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem + transport_leaf_to_stem > -substrate_pool_stem ){
         ratio_stem = (substrate_pool_stem + transport_leaf_to_stem) / (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem);
     }
+
+
+
     derivs["newStemcol"] = derivs["Stem"] = utilization_stem * ratio_stem;
     derivs["substrate_pool_stem"] = transport_leaf_to_stem + (-transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem) * ratio_stem;
     derivs["ratio_stem"] = ratio_stem;
