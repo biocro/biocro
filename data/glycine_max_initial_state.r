@@ -2,10 +2,10 @@
 glycine_max_initial_state = with(list(), {
     datalines =
     "symbol value
-    Rhizome 0.99
-    Leaf 0.02
-    Stem 0.99
-    Root 1
+    Rhizome 0.0
+    Leaf 0.05  # The total of Leaf, Stem and Root masses is 0.08, which comes from http://www.montana.edu/cpa/news/wwwpb-archives/ag/baudr182.html and https://www.extension.purdue.edu/extmedia/ay/ay-217-w.pdf.
+    Stem 0.02
+    Root 0.01
     Grain 0
     waterCont 0.32
     StomataWS 1

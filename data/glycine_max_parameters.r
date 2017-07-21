@@ -4,8 +4,8 @@ glycine_max_parameters = with(list(), {
     "symbol value
      timestep      1
      lat           40
-     seneLeaf       1600
-     seneStem       5500
+     seneLeaf       800
+     seneStem       1200
      seneRoot       5500
      seneRhizome    5500
      Tfrosthigh    5   
@@ -29,37 +29,42 @@ glycine_max_parameters = with(list(), {
      b1     5   
      theta  0.7 
      water_stress_approach     0   
-     tp1       250   
-     tp2       350   
-     tp3       900   
-     tp4       1200  
-     tp5       3939  
-     tp6       7000  
-     kStem1    0.01  
-     kLeaf1    0.98  
-     kRoot1    0.01  
-     kRhizome1 -8e-04
-     kStem2    0.01  
-     kLeaf2    0.98  
-     kRoot2    0.003 
-     kRhizome2 0.007 
-     kStem3    0.7   
-     kLeaf3    0.15  
-     kRoot3    0.045 
-     kRhizome3 0.105 
-     kStem4    0.7   
-     kLeaf4    0.15  
-     kRoot4    0.045 
-     kRhizome4 0.105 
-     kStem5    0.7   
-     kLeaf5    1e-05 
-     kRoot5    0.15  
-     kRhizome5 0.15  
-     kStem6    0.7   
-     kLeaf6    1e-06 
-     kRoot6    0.15  
-     kRhizome6 0.15  
-     kGrain6   0  
+     tp1       100   
+     tp2       300   
+     tp3       700   
+     tp4       900  
+     tp5       1200  
+     tp6       1600  
+     kStem1    0.28
+     kLeaf1    0.82
+     kRoot1    0.1  
+     kRhizome1 0
+     kGrain1   0
+     kStem2    0.45  
+     kLeaf2    0.45
+     kRoot2    0.1
+     kRhizome2 0.00 
+     kGrain2   0
+     kStem3    0.1
+     kLeaf3    0.1
+     kRoot3    0.1
+     kRhizome3 0.0 
+     kGrain3   0.7
+     kStem4    0.1
+     kLeaf4    0.1
+     kRoot4    0.1
+     kRhizome4 0.0
+     kGrain4   0.7
+     kStem5    0.1
+     kLeaf5    0.1
+     kRoot5    0.1  
+     kRhizome5 0.0  
+     kGrain5   0.7
+     kStem6    0.1   
+     kLeaf6    0.1
+     kRoot6    0.1  
+     kRhizome6 0.0  
+     kGrain6   0.7  
      rate_constant_leaf 0.1
      rate_constant_stem 1
      rate_constant_root 1
@@ -74,7 +79,7 @@ glycine_max_parameters = with(list(), {
      resistance_stem_to_grain 9
      resistance_stem_to_root 9
      resistance_stem_to_rhizome 9
-     tbase     0     
+     tbase     10     
      FieldC     -1       
      WiltP      -1       
      phi1       0.01     
@@ -96,7 +101,7 @@ glycine_max_parameters = with(list(), {
      kln      0.5 
      vmaxb1  0   
      alphab1 0   
-     kpLN     0.2 
+     kpLN     0.2
      lnb0     -5  
      lnb1     18  
      lnfun    0

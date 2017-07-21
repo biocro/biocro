@@ -5,9 +5,8 @@
 #include <math.h>
 #include <algorithm>
 #include "modules.h"
-#include <R.h>
 
-static int counter = 0;
+//static int counter = 0;
 
 state_map utilization_growth_module::do_operation(state_vector_map const &s, state_vector_map const &deriv_history, state_map const &p) const
 {
@@ -57,8 +56,8 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
 
     double ratio_leaf = 1;
     double ratio_stem = 1;
-    Rprintf("Loop %d\n", counter++);
-    Rprintf("Before mass fraction\n");
+    //Rprintf("Loop %d\n", counter++);
+    //Rprintf("Before mass fraction\n");
 
     double mass_fraction_leaf = 0, mass_fraction_stem = 0, mass_fraction_root = 0, mass_fraction_rhizome = 0, mass_fraction_grain = 0;
     if (Leaf != 0) mass_fraction_leaf = substrate_pool_leaf / Leaf;

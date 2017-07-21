@@ -1204,10 +1204,7 @@ double resp(double comp, double mrc, double temp) {
 
 }
 
-/* Function to select the correct dry biomass partitioning coefficients */
-/* It should take a vector of size 24 as an argument and return a structure with four numbers */
-
-struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime)
+struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
 {
 
     struct dbp_str tmp;
@@ -1216,7 +1213,7 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
     tmp.kStem = 0.0;
     tmp.kRoot = 0.0;
     tmp.kRhiz = 0.0;
-    tmp.kGrain = 0.0; /* kGrain is always zero except for the last thermal period */
+    tmp.kGrain = 0.0;
 
     if(TherTime < TherPrds[0])
     {
@@ -1224,42 +1221,47 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
         tmp.kLeaf = coefs[1];
         tmp.kRoot = coefs[2];
         tmp.kRhiz = coefs[3];
+        tmp.kGrain = coefs[4];
 
     } else if( TherTime < TherPrds[1] )
     {
-        tmp.kStem = coefs[4];
-        tmp.kLeaf = coefs[5];
-        tmp.kRoot = coefs[6];
-        tmp.kRhiz = coefs[7];
+        tmp.kStem = coefs[5];
+        tmp.kLeaf = coefs[6];
+        tmp.kRoot = coefs[7];
+        tmp.kRhiz = coefs[8];
+        tmp.kGrain = coefs[9];
 
     } else if( TherTime < TherPrds[2])
     {
-        tmp.kStem = coefs[8];
-        tmp.kLeaf = coefs[9];
-        tmp.kRoot = coefs[10];
-        tmp.kRhiz = coefs[11];
+        tmp.kStem = coefs[10];
+        tmp.kLeaf = coefs[11];
+        tmp.kRoot = coefs[12];
+        tmp.kRhiz = coefs[13];
+        tmp.kGrain = coefs[14];
 
     } else if(TherTime < TherPrds[3])
     {
-        tmp.kStem = coefs[12];
-        tmp.kLeaf = coefs[13];
-        tmp.kRoot = coefs[14];
-        tmp.kRhiz = coefs[15];
+        tmp.kStem = coefs[15];
+        tmp.kLeaf = coefs[16];
+        tmp.kRoot = coefs[17];
+        tmp.kRhiz = coefs[18];
+        tmp.kGrain = coefs[19];
 
     } else if(TherTime < TherPrds[4])
     {
-        tmp.kStem = coefs[16];
-        tmp.kLeaf = coefs[17];
-        tmp.kRoot = coefs[18];
-        tmp.kRhiz = coefs[19];
-
-    } else {
-
         tmp.kStem = coefs[20];
         tmp.kLeaf = coefs[21];
         tmp.kRoot = coefs[22];
         tmp.kRhiz = coefs[23];
         tmp.kGrain = coefs[24];
+
+    } else {
+
+        tmp.kStem = coefs[25];
+        tmp.kLeaf = coefs[26];
+        tmp.kRoot = coefs[27];
+        tmp.kRhiz = coefs[28];
+        tmp.kGrain = coefs[29];
 
     }
     return(tmp);
