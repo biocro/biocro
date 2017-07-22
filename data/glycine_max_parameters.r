@@ -35,31 +35,31 @@ glycine_max_parameters = with(list(), {
      tp4       1000
      tp5       1250
      tp6       1400  
-     kStem1    0.35
-     kLeaf1    0.35
-     kRoot1    0.3
+     kStem1    0.2
+     kLeaf1    0.2
+     kRoot1    0.6
      kRhizome1 0
      kGrain1   0
-     kStem2    0.3
-     kLeaf2    0.65
-     kRoot2    0.05
+     kStem2    0.4
+     kLeaf2    0.59
+     kRoot2    0.01
      kRhizome2 0.00 
      kGrain2   0
-     kStem3    0.3
-     kLeaf3    0.65
-     kRoot3    0.05
+     kStem3    0.90
+     kLeaf3    0.09
+     kRoot3    0.01
      kRhizome3 0.0 
      kGrain3   0.0
-     kStem4    0.02
-     kLeaf4    0.02
-     kRoot4    0.02
+     kStem4    0.01
+     kLeaf4    0.01
+     kRoot4    0.01
      kRhizome4 0.0
-     kGrain4   0.94
-     kStem5    0.02
-     kLeaf5    0.02
-     kRoot5    0.02  
+     kGrain4   0.97
+     kStem5    0.01
+     kLeaf5    0.01
+     kRoot5    0.01  
      kRhizome5 0
-     kGrain5   0.94
+     kGrain5   0.97
      kStem6    0.0   
      kLeaf6    0.0
      kRoot6    0.0  
