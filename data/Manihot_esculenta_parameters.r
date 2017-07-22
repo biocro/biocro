@@ -1,5 +1,5 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-glycine_max_parameters = with(list(), {
+manihot_esculenta_parameters = with(list(), {
     datalines =
     "symbol value
      timestep      1

@@ -4,62 +4,62 @@ glycine_max_parameters = with(list(), {
     "symbol value
      timestep      1
      lat           40
-     seneLeaf       800
-     seneStem       1200
+     seneLeaf       950
+     seneStem       1500
      seneRoot       5500
      seneRhizome    5500
      Tfrosthigh    5   
      Tfrostlow     0   
      leafdeathrate 5
-     iSp                 2.8      
+     iSp                 2.5      
      SpD                0        
      nlayers            10       
      kd                 0.37     
      mrc1             0.02
      mrc2             0.03
      heightf       3        
-     growth_respiration_fraction 0.3
+     growth_respiration_fraction 0
      vmax1   111.2 
      alpha1  32.5
      jmax   213.2 
      Rd     1.1 
-     Catm   400 
+     Catm   370
      O2     210 
-     b0     0.08
+     b0     0.048
      b1     5   
      theta  0.7 
      water_stress_approach     0   
-     tp1       100   
-     tp2       300   
-     tp3       700   
-     tp4       900  
-     tp5       1200  
-     tp6       1600  
-     kStem1    0.14
-     kLeaf1    0.49
-     kRoot1    0.37
+     tp1       400   
+     tp2       600
+     tp3       800
+     tp4       1000
+     tp5       1250
+     tp6       1400  
+     kStem1    0.35
+     kLeaf1    0.35
+     kRoot1    0.3
      kRhizome1 0
      kGrain1   0
-     kStem2    0.48
-     kLeaf2    0.29
-     kRoot2    0.23
+     kStem2    0.3
+     kLeaf2    0.65
+     kRoot2    0.05
      kRhizome2 0.00 
      kGrain2   0
-     kStem3    0.51
-     kLeaf3    0.0
-     kRoot3    0.0
+     kStem3    0.3
+     kLeaf3    0.65
+     kRoot3    0.05
      kRhizome3 0.0 
-     kGrain3   0.49
-     kStem4    0.16
-     kLeaf4    0.12
-     kRoot4    0.0
+     kGrain3   0.0
+     kStem4    0.02
+     kLeaf4    0.02
+     kRoot4    0.02
      kRhizome4 0.0
-     kGrain4   0.72
-     kStem5    0.59
-     kLeaf5    0.32
-     kRoot5    0.0  
-     kRhizome5 0.0  
-     kGrain5   0.09
+     kGrain4   0.94
+     kStem5    0.02
+     kLeaf5    0.02
+     kRoot5    0.02  
+     kRhizome5 0
+     kGrain5   0.94
      kStem6    0.0   
      kLeaf6    0.0
      kRoot6    0.0  

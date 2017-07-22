@@ -122,7 +122,6 @@ partial_gro = function(initial_values, parameters, varying_parameters, modules, 
     for (i in seq_along(arg_list)) {
         if (!is.na(ind <- match(arg_name, names(arg_list[[i]])))) {
             control = names(arg_list)[i]
-            parm_ind = ind
             break
         }
     }
