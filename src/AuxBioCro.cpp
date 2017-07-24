@@ -881,7 +881,7 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
         break;
     }
     case 1: {
-        auto phi10 = (fieldc + wiltp) / 2;
+        auto phi10 = (fieldc - wiltp) / 2;
         wsPhoto = 1 / (1 + exp((phi10 - awc) / phi1));
         break;
     }
