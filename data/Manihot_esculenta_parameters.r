@@ -18,7 +18,7 @@ manihot_esculenta_parameters = with(list(), {
      mrc1             0.02
      mrc2             0.03
      heightf       3        
-     growth_respiration_fraction 0.3
+     growth_respiration_fraction 0
      vmax1   133 
      alpha1  0
      jmax   226 
@@ -28,7 +28,7 @@ manihot_esculenta_parameters = with(list(), {
      b0     0.08
      b1     5   
      theta  0.7 
-     water_stress_approach     0   
+     water_stress_approach     1   
      tp1       250   
      tp2       350   
      tp3       900   
