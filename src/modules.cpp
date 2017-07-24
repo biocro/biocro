@@ -352,8 +352,13 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
         derivs["Grain"] += kGrain * -derivs.at("Rhizome");
     }
 
-    if ((kGrain >= 1e-10) && (s.at("TTc")[t] >= p.at("tp5"))) {
-        derivs["Grain"] += CanopyA * kGrain;
+    if ((kGrain > 0)) {
+        double change = CanopyA * kGrain;
+        if (change > 0) {
+            derivs["Grain"] += change;
+        } else {
+            derivs["Grain"] += 0;
+        }
         /* No respiration for grain at the moment */
         /* No senescence either */
     }
