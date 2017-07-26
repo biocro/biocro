@@ -104,33 +104,46 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
     return(result)
 }
 
-partial_gro = function(initial_values, parameters, varying_parameters, modules, arg_name) {
-# Accepts the same parameters as Gro() with an additional 'arg_name' parameter.
-# Returns a function that runs Gro() with all of the parameters, except 'arg_name'
-# set as default. The only parameter in the new function is the value of 'arg_name'.
+partial_gro = function(initial_values, parameters, varying_parameters, modules, arg_names) {
+# Accepts the same parameters as Gro() with an additional 'arg_names' parameter, which is a vector of character variables.
+# Returns a function that runs Gro() with all of the parameters, except 'arg_names
+# set as default. The only parameter in the new function is the value of 'arg_names'.
 # This technique is called partial application, hence the name partial_gro.
 
 # initial_values: same as Gro()
 # parameters: same as Gro()
 # varying_parameters: same as Gro()
 # modules: same as Gro()
-# arg_name: character. The name of the argument that will be the only argument of the new function.
-#          It must be the name of a parameter in 'intial_values', 'parameters', or 'varying_parameters'.
+# arg_name: vector of character variables. The names of the arguments that the new function accepts.
+#          It must contain the names of parameters in 'intial_values', 'parameters', or 'varying_parameters'.
 
 # returns f(arg).
-    arg_list = list(initial_values=initial_values, parameters=parameters, varying_parameters=varying_parameters, modules=modules)
-    for (i in seq_along(arg_list)) {
-        if (!is.na(ind <- match(arg_name, names(arg_list[[i]])))) {
-            control = names(arg_list)[i]
-            parm_ind = ind
-            break
-        }
-    }
-    if (is.na(ind)) stop(paste(arg_name, " is not in any of the lists of parameters."))
+#
+# Example:
+# senescence_gro = partial_gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
+# result = senescence_gro(c(3000, 3000, 3000, 3000))
 
+    arg_list = list(initial_values=sorghum_initial_state, parameters=sorghum_parameters, varying_parameters=weather05, modules=sorghum_modules)
+
+    df = data.frame(control=character(), arg_name=character(), stringsAsFactors=FALSE)
+    for (i in seq_along(arg_list)) {
+        df = rbind(df, data.frame(control = names(arg_list)[i], arg_name=names(arg_list[[i]]), stringsAsFactors=FALSE))
+    }
+
+    controls = df[match(arg_names, df$arg_name), ]
+    if (any(is.na(controls))) {
+        missing = arg_names[which(is.na(controls$control))]
+        stop(paste('The following arguments in "arg_names" are not in any of the paramter lists:', paste(missing, collapse=', ')))
+    }
     function(x) {
-        arg_list[[control]][[arg_name]] = x
-        do.call(Gro, arg_list)
+        if (length(x) != length(arg_names)) stop("The length of x does not match the length of arguments when this function was defined.")
+        temp_arg_list = arg_list
+        for (i in seq_along(arg_names)) {
+            c_row = controls[i, ]
+            temp_arg_list[[c_row$control]][[c_row$arg_name]] = x[i]
+        }
+        do.call(Gro, temp_arg_list)
     }
 }
+
 
