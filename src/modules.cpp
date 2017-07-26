@@ -353,7 +353,12 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
     }
 
     if ((kGrain > 0)) {
-        derivs["Grain"] += CanopyA * kGrain;
+        double change = CanopyA * kGrain;
+        if (change > 0) {
+            derivs["Grain"] += change;
+        } else {
+            derivs["Grain"] += 0;
+        }
         /* No respiration for grain at the moment */
         /* No senescence either */
     }

@@ -115,7 +115,7 @@ g_{s} &= g_{0} + g_{1} \cdot A_{\text{gross}} \cdot \frac{h_{s}}{c_{a}} \label{e
 % g_1 &= g_1 \cdot (1-g_{w,\text{mod}}) \label{eqn:g1} \\
 \text{Four options for water stress model:} \label{eqn:gws}\\
 g_\text{ws, linear}&= \frac{W_s-W_p}{F_c-W_p}\\
-g_\text{ws, logistic}&= \frac{1}{1+\exp\left(\frac{\frac{1}{2}(F_c-W_p)-W_s)}{\phi_i}\right)}\\
+g_\text{ws, logistic}&= \frac{1}{1+\exp\left(\frac{\frac{1}{2}(F_c+W_p)-W_s)}{\phi_i}\right)}\\
 g_\text{ws, exponential}&= \frac{1-\exp\left(\frac{F_c-W_s}{F_c-W_p}+\frac{W_p}{1-W_p}\right)}{0.631206}\\
 g_\text{ws, none}&= 1\\
 \text{Calculate $g_s$ and $A_n$ under water stress:}\\
