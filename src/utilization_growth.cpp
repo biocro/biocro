@@ -5,6 +5,7 @@
 #include <math.h>
 #include <algorithm>
 #include "modules.h"
+#include <R.h>
 
 //static int counter = 0;
 
@@ -54,64 +55,81 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double substrate_pool_rhizome = s.at("substrate_pool_rhizome")[t];
 
 
-    double ratio_leaf = 1;
     double ratio_stem = 1;
+    double time_step_adjustment = 1;
     //Rprintf("Loop %d\n", counter++);
     //Rprintf("Before mass fraction\n");
 
     double mass_fraction_leaf = 0, mass_fraction_stem = 0, mass_fraction_root = 0, mass_fraction_rhizome = 0, mass_fraction_grain = 0;
-    if (Leaf != 0) mass_fraction_leaf = substrate_pool_leaf / Leaf;
-    if (Stem != 0) mass_fraction_stem = substrate_pool_stem / Stem;
-    if (Root != 0) mass_fraction_root = substrate_pool_root / Root;
-    if (Rhizome != 0) mass_fraction_rhizome = substrate_pool_rhizome / Rhizome;
-    if (Grain != 0) mass_fraction_grain = substrate_pool_grain / Grain;
+    double transport_leaf_to_stem = 0, transport_stem_to_grain = 0, transport_stem_to_root = 0, transport_stem_to_rhizome = 0;
+    double utilization_leaf = 0, utilization_grain = 0, utilization_stem = 0, utilization_root = 0, utilization_rhizome = 0; 
 
-    double transport_leaf_to_stem = std::max(beta*(mass_fraction_leaf - mass_fraction_stem) / resistance_leaf_to_stem, 0.0);
-    double transport_stem_to_grain = std::max(beta*(mass_fraction_stem - mass_fraction_grain) / resistance_stem_to_grain, 0.0);
-    double transport_stem_to_root = std::max(beta*(mass_fraction_stem - mass_fraction_root) / resistance_stem_to_root, 0.0);
-    double transport_stem_to_rhizome = std::max(beta*(mass_fraction_stem - mass_fraction_rhizome) / resistance_stem_to_rhizome, 0.0);
+    size_t counter = 0;
 
-    double utilization_leaf = mass_fraction_leaf * kLeaf / (KmLeaf + mass_fraction_leaf);
-    double utilization_grain = mass_fraction_grain * kGrain / (KmGrain + mass_fraction_grain);
-    double utilization_stem = mass_fraction_stem * kStem / (KmStem + mass_fraction_stem);
-    double utilization_root = mass_fraction_root * kRoot / (KmRoot + mass_fraction_root);
-    double utilization_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome);
-
-    //Rprintf("Before leaf\n");
-    // When the change in the substrate pool would make the substrate pool negative, there are two special cases to handle: 1) The large time step produces nonsensible derivatives and 2) respiration uses more carbon than is available in the soluble substrate pool.
-    if (carbon_input - transport_leaf_to_stem - utilization_leaf <= -substrate_pool_leaf) {
-    //Rprintf("large derivative\n");
-        if (carbon_input < -substrate_pool_leaf) {  // Respiration uses more carbon than there is in the substrate pool. The carbon must come from somewhere, so even though utilization for growth is thought of as irreversible, remove previously fixed carbon and don't grow or transport carbon.
-    //Rprintf("very negative carbon_input\n");
-            transport_leaf_to_stem = 0;
-            utilization_leaf = 0;
-            derivs["newLeafcol"] = 0;
-            derivs["substrate_pool_leaf"] = -substrate_pool_leaf;  // Use up anything remainaing in the substrate pool.
-            derivs["Leaf"] = carbon_input - derivs["substrate_pool_leaf"];  // Take respiration away from carbon previously fixes in leaves, accounting for what was already removed from the substrate pool.
-        } else {
-    //Rprintf("probably broken intergration\n");
-            transport_leaf_to_stem = 0;
-            ratio_leaf = (substrate_pool_leaf + carbon_input) / (transport_leaf_to_stem + utilization_leaf);
-            derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf * ratio_leaf ;
-            derivs["substrate_pool_leaf"] = carbon_input + (-transport_leaf_to_stem - utilization_leaf) * ratio_leaf;
+    while (true) {
+        if (Leaf != 0) {
+            mass_fraction_leaf = substrate_pool_leaf / Leaf;
+            utilization_leaf = mass_fraction_leaf * kLeaf / (KmLeaf + mass_fraction_leaf) * time_step_adjustment;
         }
-    } else {
-    //Rprintf("everything is ok\n");
-        derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf;
-        if (derivs["newLeafcol"] < 0) derivs["newLeafcol"] = 0;  // TODO: This check wouldn't be necessary if we could limit leaf mass to greater or equal to 0.
-        derivs["substrate_pool_leaf"] = carbon_input - transport_leaf_to_stem - utilization_leaf;
+        if (Stem != 0) {
+            mass_fraction_stem = substrate_pool_stem / Stem;
+            utilization_stem = mass_fraction_stem * kStem / (KmStem + mass_fraction_stem) * time_step_adjustment;
+        }
+        if (Root != 0) {
+            mass_fraction_root = substrate_pool_root / Root;
+            utilization_root = mass_fraction_root * kRoot / (KmRoot + mass_fraction_root) * time_step_adjustment;
+        }
+        if (Rhizome != 0) {
+            mass_fraction_rhizome = substrate_pool_rhizome;
+            utilization_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome) * time_step_adjustment;
+        }
+        if (Grain != 0) {
+            mass_fraction_grain = substrate_pool_grain / Grain;
+            utilization_grain = mass_fraction_grain * kGrain / (KmGrain + mass_fraction_grain) * time_step_adjustment;
+        }
+
+        if ((Leaf != 0) & (Stem != 0)) transport_leaf_to_stem = std::max(beta*(mass_fraction_leaf - mass_fraction_stem) / resistance_leaf_to_stem * time_step_adjustment, 0.0);
+        if ((Stem != 0) & (Grain != 0)) transport_stem_to_grain = std::max(beta*(mass_fraction_stem - mass_fraction_grain) / resistance_stem_to_grain * time_step_adjustment, 0.0);
+        if ((Stem != 0) & (Root != 0)) transport_stem_to_root = std::max(beta*(mass_fraction_stem - mass_fraction_root) / resistance_stem_to_root * time_step_adjustment, 0.0);
+        if ((Stem != 0) & (Rhizome != 0)) transport_stem_to_rhizome = std::max(beta*(mass_fraction_stem - mass_fraction_rhizome) / resistance_stem_to_rhizome * time_step_adjustment, 0.0);
+
+
+        if (carbon_input < -substrate_pool_leaf) {  // Respiration uses more carbon than there is in the substrate pool. The carbon must come from somewhere, so even though utilization for growth is thought of as irreversible, remove previously fixed carbon and don't grow or transport carbon.
+            transport_leaf_to_stem = 0;
+            double respiratory_deficit = substrate_pool_leaf + carbon_input;  // carbon_input is negative in this case, so the deficit is the amount in excess of the amount currently in the substrate pool.
+            utilization_leaf = respiratory_deficit;  // Account for the deficit by taking mass from leaves.
+        }
+
+        if (++counter > 10) {
+            //Rprintf("Broken iteration %f, %f.\n", p.at("doy"), p.at("hour"));
+            break;
+        }
+        if ((substrate_pool_leaf + carbon_input - transport_leaf_to_stem - utilization_leaf < 0) |
+            (substrate_pool_stem + transport_leaf_to_stem -transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem < 0) |
+            (substrate_pool_grain + transport_stem_to_grain - utilization_grain < 0) |
+            (substrate_pool_root + transport_stem_to_root - utilization_root < 0) |
+            (substrate_pool_rhizome + transport_stem_to_rhizome - utilization_rhizome < 0)) {
+                time_step_adjustment *= time_step_adjustment * 0.9;
+                continue;
+            } else {
+                break;
+            }
     }
 
-    if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem > substrate_pool_stem + transport_leaf_to_stem) {
-        if (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem != 0)
-            ratio_stem = (substrate_pool_stem + transport_leaf_to_stem) / (transport_stem_to_grain + transport_stem_to_root + transport_stem_to_rhizome + utilization_stem);
-    }
+    derivs["newLeafcol"] = derivs["Leaf"] = utilization_leaf;
+    derivs["substrate_pool_leaf"] = carbon_input - transport_leaf_to_stem - utilization_leaf;
 
+    derivs["newStemcol"] = derivs["Stem"] = utilization_stem;
+    derivs["substrate_pool_stem"] = transport_leaf_to_stem + -transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem;
 
-    derivs["newStemcol"] = derivs["Stem"] = utilization_stem * ratio_stem;
-    derivs["substrate_pool_stem"] = transport_leaf_to_stem + (-transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem) * ratio_stem;
+    derivs["Grain"] = utilization_grain;
+    derivs["substrate_pool_grain"] = transport_stem_to_grain - utilization_grain;
 
+    derivs["newRootcol"] = derivs["Root"] = utilization_root;
+    derivs["substrate_pool_root"] = transport_stem_to_root - utilization_root;
 
+    derivs["newRhizomecol"] = derivs["Rhizome"] = utilization_rhizome;
+    derivs["substrate_pool_rhizome"] = transport_stem_to_rhizome - utilization_rhizome;
 
     derivs["ratio_stem"] = ratio_stem;
     derivs["transport_leaf_to_stem"] = transport_leaf_to_stem;
@@ -119,29 +137,8 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     derivs["transport_stem_to_root"] = transport_stem_to_root;
     derivs["transport_stem_to_rhizome"] = transport_stem_to_rhizome;
     derivs["utilization_stem"] = utilization_stem;
+    derivs["utilization_leaf"] = utilization_leaf;
 
-
-
-
-
-
-    if (utilization_grain > substrate_pool_grain + transport_stem_to_grain) {
-        utilization_grain = substrate_pool_grain + transport_stem_to_grain;
-    }
-    derivs["Grain"] = utilization_grain;
-    derivs["substrate_pool_grain"] = transport_stem_to_grain - utilization_grain;
-
-    if (utilization_root > substrate_pool_root + transport_stem_to_root) {
-        utilization_root = substrate_pool_root + transport_stem_to_root;
-    }
-    derivs["newRootcol"] = derivs["Root"] = utilization_root;
-    derivs["substrate_pool_root"] = transport_stem_to_root - utilization_root;
-
-    if (utilization_rhizome > substrate_pool_rhizome + transport_stem_to_rhizome) {
-        utilization_rhizome = substrate_pool_rhizome + transport_stem_to_rhizome;
-    }
-    derivs["newRhizomecol"] = derivs["Rhizome"] = utilization_rhizome;
-    derivs["substrate_pool_rhizome"] = transport_stem_to_rhizome - utilization_rhizome;
 
     return (derivs);
 }
