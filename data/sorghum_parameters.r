@@ -72,22 +72,27 @@ sorghum_parameters = with(list(), {
     kLeaf1 0.8
     kRoot1 0.1
     kRhizome1 -0.0008
+    kGrain1 0
     kStem2 0.29
     kLeaf2 0.7
     kRoot2 0.01
     kRhizome2 0
+    kGrain2 0
     kStem3 0.5
     kLeaf3 0.49
     kRoot3 0.01
     kRhizome3 0
+    kGrain3 0
     kStem4 0.5
     kLeaf4 0.49
     kRoot4 0.01
     kRhizome4 0
+    kGrain4 0
     kStem5 0.5
     kLeaf5 0.49
     kRoot5 0.01
     kRhizome5 0
+    kGrain5 0
     kStem6 0.5
     kLeaf6 0.49
     kRoot6 0.01
