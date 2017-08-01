@@ -8,9 +8,6 @@ glycine_max_parameters = with(list(), {
      seneStem       850
      seneRoot       850
      seneRhizome    850
-     Tfrosthigh    5   
-     Tfrostlow     0   
-     leafdeathrate 5
      iSp                 2.5      
      chil           1
      SpD                0        
