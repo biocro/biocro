@@ -89,7 +89,6 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
             if (Root != 0) {
                 mass_fraction_root = substrate_pool_root / Root;
                 utilization_root = mass_fraction_root * kRoot / (KmRoot + mass_fraction_root);
-                if (Root > p.at("maxRoot")) utilization_root = 0;
             }
             if (Rhizome != 0) {
                 mass_fraction_rhizome = substrate_pool_rhizome;
