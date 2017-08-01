@@ -71,7 +71,7 @@ class c3_canopy : public ICanopy_photosynthesis_module {
                     "rh", "windspeed", "lat", "nlayers", "vmax",
                     "jmax", "Rd", "Catm", "O2", "b0",
                     "b1", "theta", "kd", "heightf", "LeafN",
-                    "kpLN", "lnb0", "lnb1", "lnfun", "StomataWS",
+                    "kpLN", "lnb0", "lnb1", "lnfun", "chil", "StomataWS",
                     "water_stress_approach", "electrons_per_carboxylation", "electrons_per_oxygenation"},
                     vector<string> {})
         {}
