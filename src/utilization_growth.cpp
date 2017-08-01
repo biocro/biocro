@@ -18,7 +18,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
 // at the end of the season for all of the tissue to senesce.
 // This doesn't seem like a good approach.
 
-    int max_loops = 7;
+    size_t max_loops = 10;
     state_map derivs;
     auto t = s.begin()->second.size() - 1;
 
@@ -40,14 +40,15 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double resistance_stem_to_rhizome = p.at("resistance_stem_to_rhizome");
 
     double total_time = p.at("timestep");
-    size_t sub_time_steps = 1;
+    size_t sub_time_steps = 60;
+    double carbon_input = p.at("CanopyA"); //Pg in paper
 
-    double TTc = p.at("TTc");
+    //double TTc = p.at("TTc");
 
     // BioCro uses a fixed time-step integrator, which works very poorly with this growth model. The while loop here is a crappy integrator that checks whether the values are feasible. If they are not feasible, it breaks the time period into a smaller period and integrates that. It repeats until the integration produces valid results.
+    size_t counter = 0;
 
     while (true) {
-        double carbon_input = p.at("CanopyA") / sub_time_steps; //Pg in paper
 
         double Leaf = s.at("Leaf")[t];
         double Stem = s.at("Stem")[t];
@@ -73,8 +74,9 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
         double d_leaf = 0, d_stem = 0, d_grain = 0, d_root = 0, d_rhizome = 0;
 
         size_t i;
-        for ( i = 0; i < sub_time_steps; ++i) {
-            double current_time_step_size = total_time / sub_time_steps;
+        bool failed = false;
+        for (i = 0; i < sub_time_steps; ++i) {
+            double d_time = total_time / sub_time_steps;
 
             if (Leaf != 0) {
                 mass_fraction_leaf = substrate_pool_leaf / Leaf;
@@ -114,17 +116,17 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
                 utilization_leaf = respiratory_deficit;  // Account for the deficit by taking mass from leaves.
             }
 
-            double current_d_substrate_leaf = (carbon_input - transport_leaf_to_stem - utilization_leaf) * current_time_step_size;
-            double current_d_substrate_stem = (transport_leaf_to_stem -transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem) * current_time_step_size;
-            double current_d_substrate_grain = (transport_stem_to_grain - utilization_grain) * current_time_step_size;
-            double current_d_substrate_root = (transport_stem_to_root - utilization_root) * current_time_step_size;
-            double current_d_substrate_rhizome = (transport_stem_to_rhizome - utilization_rhizome) * current_time_step_size;
+            double current_d_substrate_leaf = (carbon_input - transport_leaf_to_stem - utilization_leaf) * d_time;
+            double current_d_substrate_stem = (transport_leaf_to_stem -transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem) * d_time;
+            double current_d_substrate_grain = (transport_stem_to_grain - utilization_grain) * d_time;
+            double current_d_substrate_root = (transport_stem_to_root - utilization_root) * d_time;
+            double current_d_substrate_rhizome = (transport_stem_to_rhizome - utilization_rhizome) * d_time;
 
-            double current_d_leaf = utilization_leaf * current_time_step_size;
-            double current_d_stem = utilization_stem * current_time_step_size;
-            double current_d_grain = utilization_grain * current_time_step_size;
-            double current_d_root = utilization_root * current_time_step_size;
-            double current_d_rhizome = utilization_rhizome * current_time_step_size;
+            double current_d_leaf = utilization_leaf * d_time;
+            double current_d_stem = utilization_stem * d_time;
+            double current_d_grain = utilization_grain * d_time;
+            double current_d_root = utilization_root * d_time;
+            double current_d_rhizome = utilization_rhizome * d_time;
 
             d_substrate_leaf += current_d_substrate_leaf;
             d_substrate_stem += current_d_substrate_stem;
@@ -149,25 +151,34 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
             Grain += current_d_grain;
             Root += current_d_root;
             Rhizome += current_d_rhizome;
-        }
 
-        // The following conditions are not possible. If They occur, double the number of time steps up to a limit. After that limit, abort the integration early.
-        if (((substrate_pool_leaf < 0) |
-            (substrate_pool_stem < 0) |
-            (substrate_pool_grain < 0) |
-            (substrate_pool_root < 0) |
-            (substrate_pool_rhizome < 0) |
-            (utilization_stem < 0) |
-            (utilization_grain < 0) |
-            (utilization_stem < 0) |
-            (utilization_rhizome < 0)) & (sub_time_steps < pow(10, max_loops)))
+            // The following conditions are not possible and will not be corrected with futher iteration, so abort immediately.
+            if ((substrate_pool_leaf < 0) |
+                (substrate_pool_stem < 0) |
+                (substrate_pool_grain < 0) |
+                (substrate_pool_root < 0) |
+                (substrate_pool_rhizome < 0) |
+                (utilization_stem < 0) |
+                (utilization_grain < 0) |
+                (utilization_stem < 0) |
+                (utilization_rhizome < 0))
+            {
+                failed = true;
+                break;
+            }
+
+        }
+        // If iteration failed, increase the number of steps. After that limit, abort the integration early.
+        if (failed & (counter < max_loops))
         {
             sub_time_steps = sub_time_steps * 10;
+            ++counter;
             continue;
         } else {
             //if (TTc < 1) Rprintf("For loop %f, %d.\n", TTc, i);
-            if (sub_time_steps >= pow(10, max_loops)) Rprintf("Broken integrator.\n");
-            //if (d_grain < 0) Rprintf("i: %d, d_grain: %f, Grain: %f, substrate_pool_grain: %f.\n", i, d_grain, s.at("Grain")[t], s.at("substrate_pool_grain")[t]); 
+            if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu.\n", counter, sub_time_steps);
+            //Rprintf("Loops %zu, counter: %zu\n", i, sub_time_steps, counter);
+            //if (d_grain < 0) Rprintf("i: %zu, d_grain: %f, Grain: %f, substrate_pool_grain: %f.\n", i, d_grain, s.at("Grain")[t], s.at("substrate_pool_grain")[t]); 
 
             derivs["newLeafcol"] = derivs["Leaf"] = d_leaf;
             derivs["substrate_pool_leaf"] = d_substrate_leaf;
@@ -187,6 +198,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
             derivs["utilization_leaf"] = d_leaf;
             derivs["utilization_stem"] = d_stem;
             derivs["utilization_grain"] = d_grain;
+            derivs["utilization_root"] = d_root;
             break;
         }
     }

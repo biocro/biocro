@@ -214,9 +214,11 @@ state_vector_map Gro(
         results["transport_stem_to_grain"].push_back(derivs["transport_stem_to_grain"]);
         results["transport_stem_to_root"].push_back(derivs["transport_stem_to_root"]);
         results["transport_stem_to_rhizome"].push_back(derivs["transport_stem_to_rhizome"]);
+
+        results["utilization_leaf"].push_back(derivs["utilization_leaf"]);
         results["utilization_stem"].push_back(derivs["utilization_stem"]);
         results["utilization_grain"].push_back(derivs.at("utilization_grain"));
-
+        results["utilization_root"].push_back(derivs.at("utilization_root"));
 
 
 
