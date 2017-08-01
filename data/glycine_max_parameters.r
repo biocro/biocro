@@ -4,10 +4,10 @@ glycine_max_parameters = with(list(), {
     "symbol value
      timestep      1
      lat           40
-     seneLeaf       950
-     seneStem       1500
-     seneRoot       5500
-     seneRhizome    5500
+     seneLeaf       750
+     seneStem       850
+     seneRoot       850
+     seneRhizome    850
      Tfrosthigh    5   
      Tfrostlow     0   
      leafdeathrate 5
@@ -66,19 +66,19 @@ glycine_max_parameters = with(list(), {
      kRhizome6 0.0  
      kGrain6   1
      rate_constant_leaf 0.1
-     rate_constant_stem 1
-     rate_constant_root 1
-     rate_constant_rhizome 1
-     rate_constant_grain 1
-     KmLeaf     10  
-     KmStem     10 
-     KmRoot     10 
-     KmRhizome  10 
-     KmGrain    10  
-     resistance_leaf_to_stem 9
-     resistance_stem_to_grain 9
+     rate_constant_stem 0.3
+     rate_constant_root 0.1
+     rate_constant_rhizome  0
+     rate_constant_grain 1.6
+     KmLeaf     10.8
+     KmStem     12
+     KmRoot     12
+     KmRhizome  10.7
+     KmGrain    11
+     resistance_leaf_to_stem 6
+     resistance_stem_to_grain 10
      resistance_stem_to_root 9
-     resistance_stem_to_rhizome 9
+     resistance_stem_to_rhizome 1
      tbase     10     
      FieldC     -1       
      WiltP      -1       
@@ -106,7 +106,11 @@ glycine_max_parameters = with(list(), {
      lnb1     18  
      lnfun    0
      electrons_per_carboxylation    4.5
-     electrons_per_oxygenation 5.25"
+     electrons_per_oxygenation 5.25
+     assimilation_multiplier    1
+     kc25   406.8055
+     ko25   277.1209
+     gstar25    42.92"
     
     data_frame = read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
