@@ -25,6 +25,7 @@ struct Can_Str c3CanAC(double LAI,
 		double lnb0,
 		double lnb1,
 		int lnfun,
+        double chil,
 		double StomataWS,
 		int water_stress_approach,
         double electrons_per_carboxylation,
@@ -45,7 +46,6 @@ struct Can_Str c3CanAC(double LAI,
 
     double IDir, IDiff;
 
-    double chil = 1.0;
     double vmax1;
 	double leafN_lay;
 
