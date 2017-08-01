@@ -199,21 +199,23 @@ state_vector_map Gro(
         results["newRootcol"].push_back(derivs.at("newRootcol"));
         results["newRhizomecol"].push_back(derivs.at("newRhizomecol"));
         results["dLeaf"].push_back(derivs.at("Leaf"));
+        results["dGrain"].push_back(derivs.at("Grain"));
         results["dStem"].push_back(derivs.at("Stem"));
         results["dRoot"].push_back(derivs.at("Root"));
         results["dRhizome"].push_back(derivs.at("Rhizome"));
 
         results["dsubstrate_pool_leaf"].push_back(derivs["substrate_pool_leaf"]);
         results["dsubstrate_pool_stem"].push_back(derivs["substrate_pool_stem"]);
+        results["dsubstrate_pool_grain"].push_back(derivs["substrate_pool_grain"]);
         results["dsubstrate_pool_root"].push_back(derivs["substrate_pool_root"]);
         results["dsubstrate_pool_rhizome"].push_back(derivs["substrate_pool_rhizome"]);
-        results["dratio_stem"].push_back(derivs["ratio_stem"]);
 
         results["transport_leaf_to_stem"].push_back(derivs["transport_leaf_to_stem"]);
         results["transport_stem_to_grain"].push_back(derivs["transport_stem_to_grain"]);
         results["transport_stem_to_root"].push_back(derivs["transport_stem_to_root"]);
         results["transport_stem_to_rhizome"].push_back(derivs["transport_stem_to_rhizome"]);
         results["utilization_stem"].push_back(derivs["utilization_stem"]);
+        results["utilization_grain"].push_back(derivs.at("utilization_grain"));
 
 
 
