@@ -40,22 +40,27 @@ willow_parameters = with(list(), {
      kLeaf1    0.98  
      kRoot1    0.01  
      kRhizome1 -8e-04
+     kGrain1    0
      kStem2    0.01  
      kLeaf2    0.98  
      kRoot2    0.003 
      kRhizome2 0.007 
+     kGrain2   0
      kStem3    0.7   
      kLeaf3    0.15  
      kRoot3    0.045 
      kRhizome3 0.105 
+     kGrain3   0
      kStem4    0.7   
      kLeaf4    0.15  
      kRoot4    0.045 
      kRhizome4 0.105 
+     kGrain4   0
      kStem5    0.7   
      kLeaf5    1e-05 
      kRoot5    0.15  
      kRhizome5 0.15  
+     kGrain5   0
      kStem6    0.7   
      kLeaf6    1e-06 
      kRoot6    0.15  
