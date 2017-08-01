@@ -34,9 +34,13 @@ state_map IModule::run(state_map const &state) const
     }
     catch (std::out_of_range const &oor) {
         vector<string> missing_state = this->state_requirements_are_met(state);
-        std::ostringstream message;
-        message << "The following required state variables are missing: " << join_string_vector(missing_state);
-        throw std::out_of_range(message.str());
+        if (missing_state.size() > 0) {
+            std::ostringstream message;
+            message << "The following required state variables are missing: " << join_string_vector(missing_state);
+            throw std::out_of_range(message.str());
+        } else {
+            throw std::out_of_range(oor.what());
+        }
     }
     return (result);
 }
@@ -50,9 +54,13 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
     catch (std::out_of_range const &oor) {
         state_map state = combine_state(at(state_history, 0), parameters);
         vector<string> missing_state = this->state_requirements_are_met(state);
-        std::ostringstream message;
-        message << "The following required state variables are missing: " << join_string_vector(missing_state);
-        throw std::out_of_range(message.str());
+        if (missing_state.size() > 0) {
+            std::ostringstream message;
+            message << "The following required state variables are missing: " << join_string_vector(missing_state);
+            throw std::out_of_range(message.str());
+        } else {
+            throw std::out_of_range(oor.what());
+        }
     }
     return (result);
 }
