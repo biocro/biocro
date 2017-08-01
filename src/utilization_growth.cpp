@@ -18,7 +18,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
 // at the end of the season for all of the tissue to senesce.
 // This doesn't seem like a good approach.
 
-    size_t max_loops = 10;
+    size_t max_loops = 3;
     state_map derivs;
     auto t = s.begin()->second.size() - 1;
 
@@ -39,8 +39,8 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
     double resistance_stem_to_root = p.at("resistance_stem_to_root");
     double resistance_stem_to_rhizome = p.at("resistance_stem_to_rhizome");
 
-    double total_time = p.at("timestep");
-    size_t sub_time_steps = 60;
+    double total_time = p.at("timestep"); // hours
+    size_t sub_time_steps = total_time * 60;  // At the start, integrate over each minute.
     double carbon_input = p.at("CanopyA"); //Pg in paper
 
     //double TTc = p.at("TTc");
@@ -152,7 +152,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
             Root += current_d_root;
             Rhizome += current_d_rhizome;
 
-            // The following conditions are not possible and will not be corrected with futher iteration, so abort immediately.
+            // The following conditions are not possible and will not be corrected with futher iteration.
             if ((substrate_pool_leaf < 0) |
                 (substrate_pool_stem < 0) |
                 (substrate_pool_grain < 0) |
@@ -163,20 +163,22 @@ state_map utilization_growth_module::do_operation(state_vector_map const &s, sta
                 (utilization_stem < 0) |
                 (utilization_rhizome < 0))
             {
-                failed = true;
-                break;
+                if (counter < max_loops) {  // Abort if the maximum number of loops hasn't been reached. Otherwise, continue knowing it won't provide the right solution.
+                    failed = true;
+                    break;
+                }
             }
 
         }
         // If iteration failed, increase the number of steps. After that limit, abort the integration early.
         if (failed & (counter < max_loops))
         {
-            sub_time_steps = sub_time_steps * 10;
+            sub_time_steps = sub_time_steps * 2;
             ++counter;
             continue;
         } else {
             //if (TTc < 1) Rprintf("For loop %f, %d.\n", TTc, i);
-            if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu.\n", counter, sub_time_steps);
+            //if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu.\n", counter, sub_time_steps);
             //Rprintf("Loops %zu, counter: %zu\n", i, sub_time_steps, counter);
             //if (d_grain < 0) Rprintf("i: %zu, d_grain: %f, Grain: %f, substrate_pool_grain: %f.\n", i, d_grain, s.at("Grain")[t], s.at("substrate_pool_grain")[t]); 
 
