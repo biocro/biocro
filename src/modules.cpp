@@ -493,6 +493,9 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     else if (module_name.compare("thermal_time_senescence") == 0) {
         return std::unique_ptr<IModule>(new thermal_time_senescence);
     }
+    else if (module_name.compare("utilization_senescence") == 0) {
+        return std::unique_ptr<IModule>(new utilization_senescence);
+    }
     else {
         throw std::out_of_range(module_name);
     }

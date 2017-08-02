@@ -152,6 +152,23 @@ class IGrowth_module : public IModule {
         {}
 };
 
+class utilization_senescence: public ISenescence_module {
+    public:
+        utilization_senescence()
+            : ISenescence_module(vector<string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
+                "Leaf", "Stem", "Root", "Rhizome", "Grain",
+                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
+                "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
+                "resistance_leaf_to_stem",
+                "resistance_stem_to_grain",
+                "resistance_stem_to_root",
+                "resistance_stem_to_rhizome"},
+                vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+};
+
 class utilization_growth_module : public IGrowth_module {
     public:
         utilization_growth_module()
