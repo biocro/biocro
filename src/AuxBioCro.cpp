@@ -303,210 +303,8 @@ double TempToSWVC(double Temp)
     return 6.1121 * exp(a/b); /* This is in hecto Pascals */
 }
 
-/* EvapoTrans function */
-ET_Str EvapoTrans(
-        const double Rad, // unused
-        const double Itot,
-        const double airTemp,
-        const double RH,
-        double WindSpeed,
-        const double LeafAreaIndex, // unused
-        double CanopyHeight,
-        const double StomataWS,
-        const int water_stress_approach,
-        const double vmax2,
-        const double alpha2,
-        const double kparm,
-        const double theta,
-        const double beta,
-        const double Rd,
-        const double b02,
-        const double b12,
-        const double upperT,
-        const double lowerT,
-        const double Catm)
-{
-    // const double LeafWidth = 0.04; unused
-    constexpr double kappa = 0.41;
-    constexpr double WindSpeedHeight = 5;
-    constexpr double dCoef = 0.77;
-    constexpr double tau = 0.2;
-    constexpr double ZetaCoef = 0.026;
-    constexpr double ZetaMCoef = 0.13;
-    constexpr double LeafReflectance = 0.2;
-    constexpr double SpecificHeat = 1010;
-
-    // double BoundaryLayerThickness, DiffCoef, LeafboundaryLayer; unused
-
-    CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight's at least 0.1
-    WindSpeed = fmax(0.5, WindSpeed); // ensure WindSpeed is as least 0.5
-    const double LayerWindSpeed = WindSpeed; // alias
-
-    const double DdryA = TempToDdryA(airTemp);
-    const double LHV = TempToLHV(airTemp) * 1e6;
-    /* Here LHV is given in MJ kg-1 and this needs to be converted
-       to Joules kg-1  */
-    const double SlopeFS = TempToSFS(airTemp) * 1e-3;
-
-    /* Relative Humidity is giving me a headache */
-    /* RH2 = RH * 1e2; A high value of RH makes the
-       difference of temperature between the leaf and the air huge.
-       This is what is causing the large difference in DeltaT at the
-       bottom of the canopy. I think it is very likely.  */
-    const double LayerRelativeHumidity = RH * 100;
-    if (LayerRelativeHumidity > 100) {
-        throw std::range_error("Thrown in EvapoTrans: LayerRelativehumidity is greater than 100."); 
-    }
-
-    const double SWVC = TempToSWVC(airTemp) * 1e-3;
-    if (SWVC < 0) {
-        throw std::range_error("Thrown in EvapoTrans: SWVC is less than 0."); 
-    }
-
-    /* FIRST CALCULATIONS*/
-
-    const double Zeta = ZetaCoef * CanopyHeight;
-    const double Zetam = ZetaMCoef * CanopyHeight;
-    const double d = dCoef * CanopyHeight;
-
-    /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
-    const double totalradiation = Itot * 0.235;
-
-    const double LayerConductance = (c4photoC(Itot, airTemp, RH, vmax2, alpha2, kparm,
-                                            theta, beta, Rd, b02, b12, StomataWS,
-                                            Catm, water_stress_approach, upperT, lowerT)
-                                   ).Gs;
-
-    /* Convert mmoles/m2/s to moles/m2/s
-       LayerConductance = LayerConductance * 1e-3
-       Convert moles/m2/s to mm/s
-       LayerConductance = LayerConductance * 24.39
-       Convert mm/s to m/s
-       LayerConductance = LayerConductance * 1e-3 */
-
-    double LayerConductance_in_m_per_s = LayerConductance * 1e-6 * 24.39;
-    /* Thornley and Johnson use m s^-1 on page 418 */
-
-    /* prevent errors due to extremely low Layer conductance */
-    if (LayerConductance_in_m_per_s <= 0) {
-        LayerConductance_in_m_per_s = 0.01;
-    }
-
-    /* Now RHprof returns relative humidity in the 0-1 range */
-    const double DeltaPVa = SWVC * (1 - LayerRelativeHumidity / 100);
-
-    const double PsycParam =(DdryA * SpecificHeat) / LHV;
-
-    /* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
-    /* It seems that it is not correct to multiply by the leaf area index. Thornley
-       and johnson pg. 400 suggest using (1-exp(-k*LAI) but note that for a full canopy
-       this is 1. so I'm using 1 as an approximation. */
-    const double Ja = 2 * totalradiation *
-        ((1 - LeafReflectance - tau) / (1 - tau));
-
-    /* Calculation of ga */
-    /* According to thornley and Johnson pg. 416 */
-    const double ga0 = pow(kappa, 2) * LayerWindSpeed;
-    const double ga1 = log( (WindSpeedHeight + Zeta - d) / Zeta );
-    const double ga2 = log( (WindSpeedHeight + Zetam - d) / Zetam );
-    const double ga = ga0 / (ga1 * ga2);
-
-    /*  Rprintf("ga: %.5f \n", ga); */
-    if (ga < 0) {
-        throw std::range_error("Thrown in EvapoTrans: ga is less than zero."); 
-    }
-
-    // DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature); set but not used
-    // BoundaryLayerThickness = 0.004 * sqrt(LeafWidth / LayerWindSpeed); set but not used
-    // LeafboundaryLayer = DiffCoef / BoundaryLayerThickness; // set but not used
-
-    /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
-    /* This version is non-iterative and an approximation*/
-    /* Stefan-Boltzmann law: B = sigma * T^4. where sigma is the Boltzmann
-constant: 5.67 * 1e-8 W m^-2 K^-4. */
-
-    /* From Table A.3 in the book we know that*/
-
-    /*  rlc = (4 * (5.67*1e-8) * pow(273 + Airtemperature, 3) * Deltat) * LeafAreaIndex;   */
-    /*  PhiN = Ja - rlc; */
-
-    /*  dd = 0.72 * LeafWidth; */
-    /*  gHa = 1.4 * 0.135 * sqrt(LayerWindSpeed * 0.72 * LeafWidth);  */
-    /*  gva = 1.4 * 0.147 * sqrt(LayerWindSpeed * 0.72 * LeafWidth);  */
-
-    /*  TopValue = Ja - (SWVC/7.28) * 5.67*1e-8 * pow(Airtemperature + 273.15,4) - LHV * LayerConductance * 1e-3 * DeltaPVa / 101.3; */
-    /* Here I divide SWVC by 7.28 to approximately change from g/m3 to kPa */
-    /* I'm also multiplying Layer conductance by 1e-3 since it should be in mol m^-2 s^-1 */
-
-    /*  BottomValue = SpecificHeat * gHr + LHV * SlopeFS * LayerConductance * 1e-3;  */
-
-    /*  Deltat = Airtemperature + TopValue/BottomValue; */
-
-    /*  PhiN = TopValue; */
-
-    /* This is the original from WIMOVAC*/
-
-    // Declare variables we need after exiting the loop:
-    double Deltat = 0.01;
-    double PhiN;
-    double rlc;
-
-    {
-        double ChangeInLeafTemp = 10.0;
-        const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance_in_m_per_s));
-        for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
-
-            double OldDeltaT = Deltat;
-
-            /*         rlc = (4 * (5.67*1e-8) * pow(273 + Airtemperature, 3) * Deltat) * LeafAreaIndex;   */
-            rlc = 4 * (5.67*1e-8) * pow(273 + airTemp, 3) * Deltat;
-
-            PhiN = Ja - rlc;
-
-            double TopValue = PhiN * (1 / ga + 1 / LayerConductance_in_m_per_s) - LHV * DeltaPVa;
-            Deltat = fmin(fmax(TopValue / BottomValue, -5), 5); // confine to interval [-5, 5]
-
-            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
-        }
-    }
-
-
-    PhiN = fmax(PhiN, 0); // ensure PhiN >= 0
-
-    const double TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
-        /
-        (LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance_in_m_per_s)));
-
-    const double EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
-
-    const double EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
-        /
-        (LHV * (SlopeFS + PsycParam));
-
-    /* This values need to be converted from Kg/m2/s to
-       mmol H20 /m2/s according to S Humphries */
-    /*res[1,1] = EPen * 10e6 / 18;*/
-    /*res[1,2] = EPries * 10e6 / 18;*/
-    /* 1e3 - kgrams to grams  */
-    /* 1e3 - mols to mmols */
-    /*  res[0] = ((TransR * 1e3) / 18) * 1e3; */
-    /*  res[1] = Deltat; */
-    /*  res[2] = LayerConductance; */
-    /* Let us return the structure now */
-
-    ET_Str et_results;
-    et_results.TransR = TransR * 1e6 / 18;
-    et_results.EPenman = EPen * 1e6 / 18;
-    et_results.EPriestly = EPries * 1e6 / 18;
-    et_results.Deltat = Deltat;
-    et_results.LayerCond = LayerConductance_in_m_per_s * 1e6 * (1/24.39);
-    /*    et_results.LayerCond = RH2;   */
-    /*   et_results.LayerCond = 0.7; */
-    return et_results;
-}
-
-/* New EvapoTrans function */
-struct ET_Str EvapoTrans2(const double Rad,
+struct ET_Str EvapoTrans2(
+        const double Rad,
         const double Iave,
         const double airTemp,
         const double RH,
@@ -517,6 +315,7 @@ struct ET_Str EvapoTrans2(const double Rad,
         const double leafw,
         const int eteq)
 {
+    constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
     // const double kappa = 0.41; /* von Karmans constant */ unused
     // const double dCoef = 0.77;  unused
     constexpr double tau = 0.2; /* Leaf transmission coefficient */
@@ -524,7 +323,6 @@ struct ET_Str EvapoTrans2(const double Rad,
     // const double ZetaMCoef = 0.13; unused
     constexpr double LeafReflectance = 0.2;
     constexpr double SpecificHeat = 1010; /* J kg-1 K-1 */
-    constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -538,9 +336,17 @@ struct ET_Str EvapoTrans2(const double Rad,
 
     // Conductance to vapor from stomata same as stomatacond (input variable):
     const double gvs = stomatacond;
-    /* Convert from mmol H20/m2/s to m/s */
-    double gvs_in_m_per_s = gvs * (1.0/41000.0);
-    /* 1/41000 is the same as 24.39 * 1e-6 */
+
+    /* Convert mmoles/m2/s to moles/m2/s
+       LayerConductance = LayerConductance * 1e-3
+       
+       Convert moles/m2/s to mm/s
+       LayerConductance = LayerConductance * 24.39
+
+       Convert mm/s to m/s
+       LayerConductance = LayerConductance * 1e-3 */
+
+    double gvs_in_m_per_s = gvs * 1e-6 * 24.29;
     /* Thornley and Johnson use m s^-1 on page 418 */
 
     /* Prevent errors due to extremely low Layer conductance */
@@ -580,7 +386,7 @@ struct ET_Str EvapoTrans2(const double Rad,
 
     // For the wavelengths that make up PAR in sunlight, one mole of photons
     // has, on average, approximately 2.35 x 10^5 joules or 0.235 megajoules:
-    constexpr double megajoules_per_mole_PAR = 0.235;  // Mj / mol. 
+    constexpr double megajoules_per_mole_PAR = 0.235;  // MJ / mol. 
     const double totalradiation = Rad * megajoules_per_mole_PAR;  // microwatts / m^2.
 
     /* On a clear sky it may exceed 1000 in some parts of the world
@@ -613,6 +419,12 @@ struct ET_Str EvapoTrans2(const double Rad,
         double ChangeInLeafTemp = 10.0;
 
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
+            ga = leafboundarylayer(LayerWindSpeed, leafw, airTemp, Deltat,
+                                   gvs_in_m_per_s, ActualVaporPressure);
+            /* This returns leaf-level boundary layer conductance */
+            /* In WIMOVAC this was added to the canopy conductance */
+            /* ga = (ga * gbcW)/(ga + gbcW);  */
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s));
 
             double OldDeltaT = Deltat;
 
@@ -626,22 +438,12 @@ struct ET_Str EvapoTrans2(const double Rad,
 
             /* where 4*sigma*Tair^3 is the derivative of sigma*(Tair+deltaT)^4 evaluated at deltaT=0, */
 
-            ga = leafboundarylayer(LayerWindSpeed, leafw, airTemp, Deltat,
-                                   gvs_in_m_per_s, ActualVaporPressure);
-            /* This returns leaf-level boundary layer conductance */
-            /* In WIMOVAC this was added to the canopy conductance */
-            /* ga = (ga * gbcW)/(ga + gbcW);  */
 
-            const double PhiN2 = (Ja2 - rlc);  /* * LeafAreaIndex;  */
+            const double PhiN2 = Ja2 - rlc;  /* * LeafAreaIndex;  */
 
             /* This equation is from Thornley and Johnson pg. 418 */
-            const double TopValue = PhiN2 * (1 / ga + 1 / gvs_in_m_per_s)
-                - LHV * DeltaPVa;
-            const double BottomValue = LHV * (SlopeFS +
-                                      PsycParam * (1 + ga / gvs_in_m_per_s));
-
-             // confine to interval [-10, 10]:
-            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10);
+            const double TopValue = PhiN2 * (1 / ga + 1 / gvs_in_m_per_s) - LHV * DeltaPVa;
+            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // confine to interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
         }
@@ -928,7 +730,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 {
     constexpr double g = 9.8; // m/s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
-    double soTexS = soilTchoose(soiltype);
+    soilText_str soTexS = soilTchoose(soiltype);
 
     if (fieldc < 0) fieldc = soTexS.fieldc;
     if (wiltp < 0) wiltp = soTexS.wiltp;
@@ -1004,7 +806,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     /* Crude empirical relationship between root biomass and rooting depth*/
     double rootDepth = fmin(rootDB * rsdf, soildepth);
 
-    double root_distribution = rootDist(layers, rootDepth, &depths[0], rfl);
+    rd_str root_distribution = rootDist(layers, rootDepth, &depths[0], rfl);
 
     /* Specify the soil type */
 
