@@ -4,15 +4,15 @@ glycine_max_parameters = with(list(), {
     "symbol value
      timestep      1
      lat           40
-     seneLeaf       750
+     seneLeaf       850
      seneStem       850
      seneRoot       850
      seneRhizome    850
      iSp                 2.5      
-     chil           1
+     chil           0.8
      SpD                0        
      nlayers            10       
-     kd                 0.37     
+     kd                 0.1     
      mrc1             0.02
      mrc2             0.03
      heightf       3        
@@ -63,19 +63,19 @@ glycine_max_parameters = with(list(), {
      kRoot6    0.0  
      kRhizome6 0.0  
      kGrain6   1
-     rate_constant_leaf 0.1
-     rate_constant_stem 0.3
-     rate_constant_root 0.1
+     rate_constant_leaf 0.4
+     rate_constant_stem 0.75
+     rate_constant_root 2
      rate_constant_rhizome  0
-     rate_constant_grain 1.6
-     KmLeaf     10.8
-     KmStem     12
-     KmRoot     12
-     KmRhizome  10.7
-     KmGrain    11
-     resistance_leaf_to_stem 6
-     resistance_stem_to_grain 10
-     resistance_stem_to_root 9
+     rate_constant_grain 3
+     KmLeaf     4
+     KmStem     6.5
+     KmRoot     6
+     KmRhizome  5
+     KmGrain    5
+     resistance_leaf_to_stem 0.15
+     resistance_stem_to_grain 3.5
+     resistance_stem_to_root 0.26
      resistance_stem_to_rhizome 1
      tbase     10     
      FieldC     -1       
