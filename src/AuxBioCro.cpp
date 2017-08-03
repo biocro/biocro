@@ -316,11 +316,7 @@ struct ET_Str EvapoTrans2(
         const int eteq)
 {
     constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
-    // const double kappa = 0.41; /* von Karmans constant */ unused
-    // const double dCoef = 0.77;  unused
     constexpr double tau = 0.2; /* Leaf transmission coefficient */
-    // const double ZetaCoef = 0.026; unused
-    // const double ZetaMCoef = 0.13; unused
     constexpr double LeafReflectance = 0.2;
     constexpr double SpecificHeat = 1010; /* J kg-1 K-1 */
 
@@ -353,10 +349,6 @@ struct ET_Str EvapoTrans2(
     if (gvs_in_m_per_s <= 0.001) {
         gvs_in_m_per_s = 0.001;
     }
-
-
-
-    // double WindSpeedTopCanopy = WindSpeed; // unused.
 
     const double DdryA = TempToDdryA(airTemp); /* Density of dry air, kg / m^3 */
 
@@ -396,9 +388,6 @@ struct ET_Str EvapoTrans2(
         throw std::range_error("Thrown in EvapoTrans2: total radiation is too high."); 
     }
 
-    /* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
-    /* It seems that it is not correct to multiply by the leaf area index. The previous
-       version was used in WIMOVAC (check) */
     const double Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
 
     /* The value below is only for leaf temperature */
