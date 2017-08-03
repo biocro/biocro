@@ -17,7 +17,7 @@ double ball_berry(double assimilation, double atmospheric_co2_concentration, dou
     double gswmol;  // mol / m^2 / s. stomatal conductance to water vapor.
 
     if (assimilation > 0) {
-        double Cs = atmospheric_co2_concentration - (1.4 / gbw) * assimilation;  // mol / mol.
+        const double Cs = atmospheric_co2_concentration - (1.4 / gbw) * assimilation;  // mol / mol.
         if (Cs < 0.0) {
             throw std::range_error("Thrown in ball_berry: Cs is less than 0."); 
         }
@@ -35,10 +35,11 @@ double ball_berry(double assimilation, double atmospheric_co2_concentration, dou
          *  E = gs * (hs - hi)  -- Equation 1
          *  and
          *  E = gb * (ha - hs)  -- Equation 2
-         * From Ball-Berry model
-         *  gs = b1 * A * hs / cs + b0
-         * Assume hi = 1 based on saturation of water vapor in the interal airspace of a leaf.
          *
+         * Substitute gs in equation 1 using the Ball-Berry model:
+         *  gs = b1 * A * hs / cs + b0
+         *
+         * Assume hi = 1 based on saturation of water vapor in the interal airspace of a leaf.
          * Use the equality of equations 1 and 2 to solve for hs, and it's a quadratic with the coefficients given in the code. 
          */
         const double a = beta1 * acs;  // Equivalent to a = beta1 * assimilation / cs

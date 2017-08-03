@@ -160,33 +160,33 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
         throw std::out_of_range("heightf must greater than zero.");
     }
 
-    constexpr auto alphascatter = 0.8;
+    constexpr double alphascatter = 0.8;
 
-    auto theta = acos(cosTheta);
-    auto k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
-    auto k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
-    auto k = k0 / k1;
+    double theta = acos(cosTheta);
+    double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
+    double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
+    double k = k0 / k1;
 
-    auto LAIi = LAI / nlayers;
+    double LAIi = LAI / nlayers;
 
     Light_profile light_profile;
     {
-        const auto Ibeam = Idir * cosTheta;
-        auto Isolar = Ibeam * k;
+        const double Ibeam = Idir * cosTheta;
+        double Isolar = Ibeam * k;
         for (int i = 0; i < nlayers; ++i) {
-            const auto CumLAI = LAIi * (i + 0.5);
+            const double CumLAI = LAIi * (i + 0.5);
 
-            const auto Iscat = Ibeam * (  exp(-k * sqrt(alphascatter) * CumLAI)
+            const double Iscat = Ibeam * (  exp(-k * sqrt(alphascatter) * CumLAI)
                                         - exp(-k * CumLAI));
 
-            auto Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
+            double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
 
-            const auto Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
+            const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
 
-            auto Fsun = Ls/LAIi;
-            auto Fshade = 1 - Fsun;
+            double Fsun = Ls/LAIi;
+            double Fshade = 1 - Fsun;
 
-            auto Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse)
+            double Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse)
                 * (1 - exp(-k * LAIi)) / k;
 
             // For values of cosTheta close to or less than 0, in place of the
@@ -226,12 +226,12 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
 void WINDprof(double WindSpeed, double LAI, int nlayers,
               double* wind_speed_profile)
 {
-    constexpr auto k = 0.7;
+    constexpr double k = 0.7;
 
-    auto LI = LAI / nlayers;
+    double LI = LAI / nlayers;
     for (int i = 0; i < nlayers; ++i)
     {
-        auto CumLAI = LI * (i + 1);
+        double CumLAI = LI * (i + 1);
         wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI - LI));
     }
 }
@@ -263,7 +263,7 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
         // explicitly make j a double so that j/nlayers isn't truncated:
         double j = i + 1;
 
-        auto temp_rh = RH * exp(kh * (j/nlayers));
+        double temp_rh = RH * exp(kh * (j/nlayers));
         relative_humidity_profile[i] = temp_rh;
     }
 }
@@ -297,216 +297,14 @@ double TempToSWVC(double Temp)
 {
     /* Temp should be in Celsius */
     /* This is the arden buck equation */
-    auto a = (18.678 - Temp/234.5) * Temp;
-    auto b = 257.14 + Temp;
+    double a = (18.678 - Temp/234.5) * Temp;
+    double b = 257.14 + Temp;
     /* SWVC = (6.1121 * exp(a/b))/10; */
     return 6.1121 * exp(a/b); /* This is in hecto Pascals */
 }
 
-/* EvapoTrans function */
-ET_Str EvapoTrans(
-        const double Rad, // unused
-        const double Itot,
-        const double airTemp,
-        const double RH,
-        double WindSpeed,
-        const double LeafAreaIndex, // unused
-        double CanopyHeight,
-        const double StomataWS,
-        const int water_stress_approach,
-        const double vmax2,
-        const double alpha2,
-        const double kparm,
-        const double theta,
-        const double beta,
-        const double Rd,
-        const double b02,
-        const double b12,
-        const double upperT,
-        const double lowerT,
-        const double Catm)
-{
-    // const double LeafWidth = 0.04; unused
-    constexpr auto kappa = 0.41;
-    constexpr auto WindSpeedHeight = 5;
-    constexpr auto dCoef = 0.77;
-    constexpr auto tau = 0.2;
-    constexpr auto ZetaCoef = 0.026;
-    constexpr auto ZetaMCoef = 0.13;
-    constexpr auto LeafReflectance = 0.2;
-    constexpr auto SpecificHeat = 1010;
-
-    // double BoundaryLayerThickness, DiffCoef, LeafboundaryLayer; unused
-
-    CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight's at least 0.1
-    WindSpeed = fmax(0.5, WindSpeed); // ensure WindSpeed is as least 0.5
-    const auto LayerWindSpeed = WindSpeed; // alias
-
-    const auto DdryA = TempToDdryA(airTemp);
-    const auto LHV = TempToLHV(airTemp) * 1e6;
-    /* Here LHV is given in MJ kg-1 and this needs to be converted
-       to Joules kg-1  */
-    const auto SlopeFS = TempToSFS(airTemp) * 1e-3;
-
-    /* Relative Humidity is giving me a headache */
-    /* RH2 = RH * 1e2; A high value of RH makes the
-       difference of temperature between the leaf and the air huge.
-       This is what is causing the large difference in DeltaT at the
-       bottom of the canopy. I think it is very likely.  */
-    const auto LayerRelativeHumidity = RH * 100;
-    if (LayerRelativeHumidity > 100) {
-        throw std::range_error("Thrown in EvapoTrans: LayerRelativehumidity is greater than 100."); 
-    }
-
-    const auto SWVC = TempToSWVC(airTemp) * 1e-3;
-    if (SWVC < 0) {
-        throw std::range_error("Thrown in EvapoTrans: SWVC is less than 0."); 
-    }
-
-    /* FIRST CALCULATIONS*/
-
-    const auto Zeta = ZetaCoef * CanopyHeight;
-    const auto Zetam = ZetaMCoef * CanopyHeight;
-    const auto d = dCoef * CanopyHeight;
-
-    /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
-    const auto totalradiation = Itot * 0.235;
-
-    const auto LayerConductance = (c4photoC(Itot, airTemp, RH, vmax2, alpha2, kparm,
-                                            theta, beta, Rd, b02, b12, StomataWS,
-                                            Catm, water_stress_approach, upperT, lowerT)
-                                   ).Gs;
-
-    /* Convert mmoles/m2/s to moles/m2/s
-       LayerConductance = LayerConductance * 1e-3
-       Convert moles/m2/s to mm/s
-       LayerConductance = LayerConductance * 24.39
-       Convert mm/s to m/s
-       LayerConductance = LayerConductance * 1e-3 */
-
-    auto LayerConductance_in_m_per_s = LayerConductance * 1e-6 * 24.39;
-    /* Thornley and Johnson use m s^-1 on page 418 */
-
-    /* prevent errors due to extremely low Layer conductance */
-    if (LayerConductance_in_m_per_s <= 0) {
-        LayerConductance_in_m_per_s = 0.01;
-    }
-
-    /* Now RHprof returns relative humidity in the 0-1 range */
-    const auto DeltaPVa = SWVC * (1 - LayerRelativeHumidity / 100);
-
-    const auto PsycParam =(DdryA * SpecificHeat) / LHV;
-
-    /* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
-    /* It seems that it is not correct to multiply by the leaf area index. Thornley
-       and johnson pg. 400 suggest using (1-exp(-k*LAI) but note that for a full canopy
-       this is 1. so I'm using 1 as an approximation. */
-    const auto Ja = 2 * totalradiation *
-        ((1 - LeafReflectance - tau) / (1 - tau));
-
-    /* Calculation of ga */
-    /* According to thornley and Johnson pg. 416 */
-    const auto ga0 = pow(kappa, 2) * LayerWindSpeed;
-    const auto ga1 = log( (WindSpeedHeight + Zeta - d) / Zeta );
-    const auto ga2 = log( (WindSpeedHeight + Zetam - d) / Zetam );
-    const auto ga = ga0 / (ga1 * ga2);
-
-    /*  Rprintf("ga: %.5f \n", ga); */
-    if (ga < 0) {
-        throw std::range_error("Thrown in EvapoTrans: ga is less than zero."); 
-    }
-
-    // DiffCoef = (2.126 * 1e-5) + ((1.48 * 1e-7) * Airtemperature); set but not used
-    // BoundaryLayerThickness = 0.004 * sqrt(LeafWidth / LayerWindSpeed); set but not used
-    // LeafboundaryLayer = DiffCoef / BoundaryLayerThickness; // set but not used
-
-    /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
-    /* This version is non-iterative and an approximation*/
-    /* Stefan-Boltzmann law: B = sigma * T^4. where sigma is the Boltzmann
-constant: 5.67 * 1e-8 W m^-2 K^-4. */
-
-    /* From Table A.3 in the book we know that*/
-
-    /*  rlc = (4 * (5.67*1e-8) * pow(273 + Airtemperature, 3) * Deltat) * LeafAreaIndex;   */
-    /*  PhiN = Ja - rlc; */
-
-    /*  dd = 0.72 * LeafWidth; */
-    /*  gHa = 1.4 * 0.135 * sqrt(LayerWindSpeed * 0.72 * LeafWidth);  */
-    /*  gva = 1.4 * 0.147 * sqrt(LayerWindSpeed * 0.72 * LeafWidth);  */
-
-    /*  TopValue = Ja - (SWVC/7.28) * 5.67*1e-8 * pow(Airtemperature + 273.15,4) - LHV * LayerConductance * 1e-3 * DeltaPVa / 101.3; */
-    /* Here I divide SWVC by 7.28 to approximately change from g/m3 to kPa */
-    /* I'm also multiplying Layer conductance by 1e-3 since it should be in mol m^-2 s^-1 */
-
-    /*  BottomValue = SpecificHeat * gHr + LHV * SlopeFS * LayerConductance * 1e-3;  */
-
-    /*  Deltat = Airtemperature + TopValue/BottomValue; */
-
-    /*  PhiN = TopValue; */
-
-    /* This is the original from WIMOVAC*/
-
-    // Declare variables we need after exiting the loop:
-    auto Deltat = 0.01;
-    double PhiN;
-    double rlc;
-
-    {
-        auto ChangeInLeafTemp = 10.0;
-        const auto BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance_in_m_per_s));
-        for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
-
-            auto OldDeltaT = Deltat;
-
-            /*         rlc = (4 * (5.67*1e-8) * pow(273 + Airtemperature, 3) * Deltat) * LeafAreaIndex;   */
-            rlc = 4 * (5.67*1e-8) * pow(273 + airTemp, 3) * Deltat;
-
-            PhiN = Ja - rlc;
-
-            auto TopValue = PhiN * (1 / ga + 1 / LayerConductance_in_m_per_s) - LHV * DeltaPVa;
-            Deltat = fmin(fmax(TopValue / BottomValue, -5), 5); // confine to interval [-5, 5]
-
-            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
-        }
-    }
-
-
-    PhiN = fmax(PhiN, 0); // ensure PhiN >= 0
-
-    const auto TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
-        /
-        (LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance_in_m_per_s)));
-
-    const auto EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
-
-    const auto EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
-        /
-        (LHV * (SlopeFS + PsycParam));
-
-    /* This values need to be converted from Kg/m2/s to
-       mmol H20 /m2/s according to S Humphries */
-    /*res[1,1] = EPen * 10e6 / 18;*/
-    /*res[1,2] = EPries * 10e6 / 18;*/
-    /* 1e3 - kgrams to grams  */
-    /* 1e3 - mols to mmols */
-    /*  res[0] = ((TransR * 1e3) / 18) * 1e3; */
-    /*  res[1] = Deltat; */
-    /*  res[2] = LayerConductance; */
-    /* Let us return the structure now */
-
-    ET_Str et_results;
-    et_results.TransR = TransR * 1e6 / 18;
-    et_results.EPenman = EPen * 1e6 / 18;
-    et_results.EPriestly = EPries * 1e6 / 18;
-    et_results.Deltat = Deltat;
-    et_results.LayerCond = LayerConductance_in_m_per_s * 1e6 * (1/24.39);
-    /*    et_results.LayerCond = RH2;   */
-    /*   et_results.LayerCond = 0.7; */
-    return et_results;
-}
-
-/* New EvapoTrans function */
-struct ET_Str EvapoTrans2(const double Rad,
+struct ET_Str EvapoTrans2(
+        const double Rad,
         const double Iave,
         const double airTemp,
         const double RH,
@@ -517,14 +315,10 @@ struct ET_Str EvapoTrans2(const double Rad,
         const double leafw,
         const int eteq)
 {
-    // const double kappa = 0.41; /* von Karmans constant */ unused
-    // const double dCoef = 0.77;  unused
+    constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
     constexpr double tau = 0.2; /* Leaf transmission coefficient */
-    // const double ZetaCoef = 0.026; unused
-    // const double ZetaMCoef = 0.13; unused
     constexpr double LeafReflectance = 0.2;
     constexpr double SpecificHeat = 1010; /* J kg-1 K-1 */
-    constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -537,10 +331,18 @@ struct ET_Str EvapoTrans2(const double Rad,
     }
 
     // Conductance to vapor from stomata same as stomatacond (input variable):
-    const auto gvs = stomatacond;
-    /* Convert from mmol H20/m2/s to m/s */
-    auto gvs_in_m_per_s = gvs * (1.0/41000.0);
-    /* 1/41000 is the same as 24.39 * 1e-6 */
+    const double gvs = stomatacond;
+
+    /* Convert mmoles/m2/s to moles/m2/s
+       LayerConductance = LayerConductance * 1e-3
+       
+       Convert moles/m2/s to mm/s
+       LayerConductance = LayerConductance * 24.39
+
+       Convert mm/s to m/s
+       LayerConductance = LayerConductance * 1e-3 */
+
+    double gvs_in_m_per_s = gvs * 1e-6 * 24.29;
     /* Thornley and Johnson use m s^-1 on page 418 */
 
     /* Prevent errors due to extremely low Layer conductance */
@@ -548,31 +350,27 @@ struct ET_Str EvapoTrans2(const double Rad,
         gvs_in_m_per_s = 0.001;
     }
 
-
-
-    // double WindSpeedTopCanopy = WindSpeed; // unused.
-
-    const auto DdryA = TempToDdryA(airTemp); /* Density of dry air, kg / m^3 */
+    const double DdryA = TempToDdryA(airTemp); /* Density of dry air, kg / m^3 */
 
     /* In the original code in WIMOVAC this is used in J kg-1
        but Thornley and Johnson use it as MJ kg-1  */
-    const auto LHV_in_MJ_per_kg = TempToLHV(airTemp);
+    const double LHV_in_MJ_per_kg = TempToLHV(airTemp);
     // Convert to Joules per kg:
-    const auto LHV = LHV_in_MJ_per_kg * 1e6;
-    const auto SlopeFS = TempToSFS(airTemp) * 1e-3; /* kg m^-3 K^-1 */
-    const auto SWVP = TempToSWVC(airTemp); // This is hecto Pascals.
+    const double LHV = LHV_in_MJ_per_kg * 1e6;
+    const double SlopeFS = TempToSFS(airTemp) * 1e-3; /* kg m^-3 K^-1 */
+    const double SWVP = TempToSWVC(airTemp); // This is hecto Pascals.
 
     // Express SWVC in kg/m3:
-    constexpr auto hPa_per_atm = 1013.25;
-    const auto SWVC = (DdryA * 0.622 * SWVP)/hPa_per_atm;
+    constexpr double hPa_per_atm = 1013.25;
+    const double SWVC = (DdryA * 0.622 * SWVP)/hPa_per_atm;
 
     /* SWVC is saturated water vapor concentration (or density) in kg/m3 */
 
-    const auto PsycParam =(DdryA * SpecificHeat) / LHV; /* This is in kg m-3 K-1 */
+    const double PsycParam =(DdryA * SpecificHeat) / LHV; /* This is in kg m-3 K-1 */
 
-    const auto DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
+    const double DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
 
-    const auto ActualVaporPressure = RH * SWVP; /* hecto Pascals */
+    const double ActualVaporPressure = RH * SWVP; /* hecto Pascals */
 
     /* SOLAR RADIATION COMPONENT*/
 
@@ -580,8 +378,8 @@ struct ET_Str EvapoTrans2(const double Rad,
 
     // For the wavelengths that make up PAR in sunlight, one mole of photons
     // has, on average, approximately 2.35 x 10^5 joules or 0.235 megajoules:
-    constexpr double megajoules_per_mole_PAR = 0.235;  // Mj / mol. 
-    const auto totalradiation = Rad * megajoules_per_mole_PAR;  // microwatts / m^2.
+    constexpr double megajoules_per_mole_PAR = 0.235;  // MJ / mol. 
+    const double totalradiation = Rad * megajoules_per_mole_PAR;  // microwatts / m^2.
 
     /* On a clear sky it may exceed 1000 in some parts of the world
        Thornley and Johnson pg 400 */
@@ -590,31 +388,34 @@ struct ET_Str EvapoTrans2(const double Rad,
         throw std::range_error("Thrown in EvapoTrans2: total radiation is too high."); 
     }
 
-    /* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
-    /* It seems that it is not correct to multiply by the leaf area index. The previous
-       version was used in WIMOVAC (check) */
-    const auto Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const double Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
 
     /* The value below is only for leaf temperature */
-    const auto Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const double Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
 
     /* AERODYNAMIC COMPONENT */
     if(WindSpeed < 0.5) WindSpeed = 0.5;
 
-    const auto LayerWindSpeed = WindSpeed; // alias
+    const double LayerWindSpeed = WindSpeed; // alias
 
 
     // Declare variables we need after exiting the loop:
     /* This is the original from WIMOVAC*/
-    auto Deltat = 0.01;
+    double Deltat = 0.01;
     double ga;
     double rlc; /* Long wave radiation for iterative calculation */
     {
-        auto ChangeInLeafTemp = 10.0;
+        double ChangeInLeafTemp = 10.0;
 
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
+            ga = leafboundarylayer(LayerWindSpeed, leafw, airTemp, Deltat,
+                                   gvs_in_m_per_s, ActualVaporPressure);
+            /* This returns leaf-level boundary layer conductance */
+            /* In WIMOVAC this was added to the canopy conductance */
+            /* ga = (ga * gbcW)/(ga + gbcW);  */
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s));
 
-            auto OldDeltaT = Deltat;
+            double OldDeltaT = Deltat;
 
             rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;
 
@@ -626,40 +427,30 @@ struct ET_Str EvapoTrans2(const double Rad,
 
             /* where 4*sigma*Tair^3 is the derivative of sigma*(Tair+deltaT)^4 evaluated at deltaT=0, */
 
-            ga = leafboundarylayer(LayerWindSpeed, leafw, airTemp, Deltat,
-                                   gvs_in_m_per_s, ActualVaporPressure);
-            /* This returns leaf-level boundary layer conductance */
-            /* In WIMOVAC this was added to the canopy conductance */
-            /* ga = (ga * gbcW)/(ga + gbcW);  */
 
-            const auto PhiN2 = (Ja2 - rlc);  /* * LeafAreaIndex;  */
+            const double PhiN2 = Ja2 - rlc;  /* * LeafAreaIndex;  */
 
             /* This equation is from Thornley and Johnson pg. 418 */
-            const auto TopValue = PhiN2 * (1 / ga + 1 / gvs_in_m_per_s)
-                - LHV * DeltaPVa;
-            const auto BottomValue = LHV * (SlopeFS +
-                                      PsycParam * (1 + ga / gvs_in_m_per_s));
-
-             // confine to interval [-10, 10]:
-            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10);
+            const double TopValue = PhiN2 * (1 / ga + 1 / gvs_in_m_per_s) - LHV * DeltaPVa;
+            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // confine to interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
         }
     }
 
     /* Net radiation */
-    const auto PhiN = fmax(0, Ja - rlc); // ensure it's >= 0
+    const double PhiN = fmax(0, Ja - rlc); // ensure it's >= 0
 
-    auto TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
+    double TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
         /
         (LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s)));
 
     /* Penman will use the WIMOVAC conductance */
-    const auto EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
+    const double EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
         /
         (LHV * (SlopeFS + PsycParam));
 
-    const auto EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
+    const double EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
 
     /* Choose equation to report */
     switch (eteq) {
@@ -875,20 +666,20 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
     double wsPhoto;
     switch (wsFun) {
     case 0: { /* linear */
-        auto slp = 1 / (fieldc - wiltp);
-        auto intcpt = 1 - fieldc * slp;
+        double slp = 1 / (fieldc - wiltp);
+        double intcpt = 1 - fieldc * slp;
         wsPhoto = slp * awc + intcpt;
         break;
     }
     case 1: {
-        auto phi10 = (fieldc + wiltp) / 2;
+        double phi10 = (fieldc + wiltp) / 2;
         wsPhoto = 1 / (1 + exp((phi10 - awc) / phi1));
         break;
     }
     case 2: {
-        auto slp = (1 - wiltp) / (fieldc - wiltp);
-        auto intcpt = 1 - fieldc * slp;
-        auto theta = slp * awc + intcpt;
+        double slp = (1 - wiltp) / (fieldc - wiltp);
+        double intcpt = 1 - fieldc * slp;
+        double theta = slp * awc + intcpt;
         wsPhoto = (1 - exp(-2.5 * (theta - wiltp)/(1 - wiltp))) / (1 - exp(-2.5));
         break;
     }
@@ -928,17 +719,17 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 {
     constexpr double g = 9.8; // m/s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
-    auto soTexS = soilTchoose(soiltype);
+    soilText_str soTexS = soilTchoose(soiltype);
 
     if (fieldc < 0) fieldc = soTexS.fieldc;
     if (wiltp < 0) wiltp = soTexS.wiltp;
 
-    auto theta_s = soTexS.satur;
-    auto precipM = precipit * 1e-3; /* convert precip in mm to m*/
-    auto aw = precipM + cws * soildepth; /* aw in meters */
+    double theta_s = soTexS.satur;
+    double precipM = precipit * 1e-3; /* convert precip in mm to m*/
+    double aw = precipM + cws * soildepth; /* aw in meters */
     aw = aw / soildepth; /* available water in the wiltp-satur range */
 
-    auto runoff = 0.0;
+    double runoff = 0.0;
     double Nleach = 0.0;  /* Nleach is the NO3 leached. */
     if(aw > theta_s) {
         runoff = (aw - theta_s) * soildepth; /* This is in meters */
@@ -951,12 +742,12 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     /* The density of water is 998.2 kg/m3 at 20 degrees Celsius or 0.9982 Mg/m3 */
     /* evapo is demanded water (Mg / ha) */
-    auto npaw = aw - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
+    double npaw = aw - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
 
     /* If demand exceeds supply, the crop is getting close to wilting point and transpiration
        will be over estimated. In this one layer model though, the crop is practically dead. */
     if (npaw < 0) npaw = 0.0;
-    auto awc = npaw + wiltp;
+    double awc = npaw + wiltp;
 
     ws_str tmp;
 
@@ -968,14 +759,14 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     /* This is drainage */
     if(awc > fieldc) {
-        auto K_psim = soTexS.Ks * pow((soTexS.air_entry / tmp.psim), 2 + 3 / soTexS.b); /* This is hydraulic conductivity */
-        auto J_w = -K_psim * (-tmp.psim / (soildepth * 0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth */
-        auto drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
+        double K_psim = soTexS.Ks * pow((soTexS.air_entry / tmp.psim), 2 + 3 / soTexS.b); /* This is hydraulic conductivity */
+        double J_w = -K_psim * (-tmp.psim / (soildepth * 0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth */
+        double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
         awc = awc + drainage / soildepth;
     }
 
-    auto wsPhoto = compute_wsPhoto(wsFun, fieldc, wiltp, phi1, awc);
-    auto wsSpleaf = pow(awc, phi2) * 1 / pow(fieldc, phi2);
+    double wsPhoto = compute_wsPhoto(wsFun, fieldc, wiltp, phi1, awc);
+    double wsSpleaf = pow(awc, phi2) * 1 / pow(fieldc, phi2);
 
     if (wsFun == 3) wsSpleaf = 1;
     if (wsSpleaf > 1) wsSpleaf = 1;
@@ -1002,9 +793,9 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
     /* rooting depth */
     /* Crude empirical relationship between root biomass and rooting depth*/
-    auto rootDepth = fmin(rootDB * rsdf, soildepth);
+    double rootDepth = fmin(rootDB * rsdf, soildepth);
 
-    auto root_distribution = rootDist(layers, rootDepth, &depths[0], rfl);
+    rd_str root_distribution = rootDist(layers, rootDepth, &depths[0], rfl);
 
     /* Specify the soil type */
 
@@ -1015,37 +806,37 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         wiltp = soTexS.wiltp;
     }
 
-    auto theta_s = soTexS.satur; /* This is the saturated soil water content. Larger than FieldC. */
+    double theta_s = soTexS.satur; /* This is the saturated soil water content. Larger than FieldC. */
 
     /* unit conversion for precip */
-    auto oldWaterIn = 0.0;
-    auto waterIn = precipit * 1e-3; /* convert precip in mm to m */
+    double oldWaterIn = 0.0;
+    double waterIn = precipit * 1e-3; /* convert precip in mm to m */
 
-    auto drainage = 0.0;
-    auto wsPhotoCol = 0.0;
-    auto wsSpleafCol = 0.0;
-    auto Sevap = 0.0;
-    auto oldEvapoTra = 0.0;
+    double drainage = 0.0;
+    double wsPhotoCol = 0.0;
+    double wsSpleafCol = 0.0;
+    double Sevap = 0.0;
+    double oldEvapoTra = 0.0;
 
     for (int i = layers - 1; i >= 0; --i) { /* The counter, i, decreases because I increase the water content due to precipitation in the last layer first*/
 
         /* This supports unequal depths. */
-        auto layerDepth = depths[i+1] - depths[i];
+        double layerDepth = depths[i+1] - depths[i];
 
         if (hydrDist > 0) {
             /* For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9*/
             /* First compute the matric potential */
-            auto psim1 = soTexS.air_entry * pow((cws[i]/theta_s), -soTexS.b); /* This is matric potential of current layer */
-            auto dPsim = 0.0;
+            double psim1 = soTexS.air_entry * pow((cws[i]/theta_s), -soTexS.b); /* This is matric potential of current layer */
+            double dPsim = 0.0;
             if (i > 0) {
-                auto psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s), -soTexS.b); /* This is matric potential of next layer */
+                double psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s), -soTexS.b); /* This is matric potential of next layer */
                 dPsim = psim1 - psim2;
                 /* The substraction is from the layer i - (i-1). If this last term is positive then it will move upwards. If it is negative it will move downwards. Presumably this term is almost always positive. */
             } else {
                 dPsim = 0;
             }
-            auto K_psim = soTexS.Ks * pow((soTexS.air_entry/psim1), 2+3/soTexS.b); /* This is hydraulic conductivity */
-            auto J_w = K_psim * (dPsim/layerDepth) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect*/
+            double K_psim = soTexS.Ks * pow((soTexS.air_entry/psim1), 2+3/soTexS.b); /* This is hydraulic conductivity */
+            double J_w = K_psim * (dPsim/layerDepth) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect*/
             /* Notice that K_psim is positive because my
                reference system is reversed */
             /* This last result should be in kg/(m2 * s) */
@@ -1071,7 +862,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         if (cws[i] < wiltp) cws[i] = wiltp;
         // Here is a convention aw is available water in volume and awc
         // is available water content as a fraction of the soil section being investigated.
-        auto aw = cws[i] * layerDepth;
+        double aw = cws[i] * layerDepth;
         /* Available water (for this layer) is the current water status times the layer depth */
 
         if (waterIn > 0) {
@@ -1079,7 +870,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             aw += waterIn / layers + oldWaterIn; /* They are both in meters so it works */
             /* Adding the same amount to water to each layer */
             /* In case there is overflow */
-            auto diffw = fieldc * layerDepth - aw;
+            double diffw = fieldc * layerDepth - aw;
 
             if (diffw < 0) {
                 /* This means that precipitation exceeded the capacity of the first layer */
@@ -1092,21 +883,21 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         }
 
         /* Root Biomass */
-        auto rootATdepth = rootDB * root_distribution.rootDist[i];
+        double rootATdepth = rootDB * root_distribution.rootDist[i];
         return_value.rootDist[i] = rootATdepth;
         /* Plant available water is only between current water status and permanent wilting point */
         /* Plant available water */
-        auto pawha = (aw - wiltp * layerDepth) * 1e4;
+        double pawha = (aw - wiltp * layerDepth) * 1e4;
         double Newpawha;
 
         if (pawha < 0) pawha = 0;
 
-        auto Ctransp = 0.0;
-        auto EvapoTra = 0.0;
+        double Ctransp = 0.0;
+        double EvapoTra = 0.0;
         
         if (i == 0) {
             /* Only the first layer is affected by soil evaporation */
-            auto awc2 = aw / layerDepth;
+            double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
             Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, fieldc, wiltp, winds, RelH, rsec);
             /* I assume that crop transpiration is distributed simlarly to
@@ -1129,7 +920,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             aw = wiltp * layerDepth;
         }
 
-        auto awc = Newpawha / 1e4 / layerDepth + wiltp;
+        double awc = Newpawha / 1e4 / layerDepth + wiltp;
 
         /* This might look like a weird place to populate the structure, but is more convenient*/
         return_value.cws[i] = awc;
@@ -1137,17 +928,17 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         // To-do: Replace this block with a call to compute_wsPhoto.
     /* three different type of equations for modeling the effect of water stress on vmax and leaf area expansion.
        The equation for leaf area expansion is more severe than the one for vmax. */
-        auto wsPhoto = 0.0;
-        auto slp = 0.0;
-        auto intcpt = 0.0;
-        auto theta = 0.0;
+        double wsPhoto = 0.0;
+        double slp = 0.0;
+        double intcpt = 0.0;
+        double theta = 0.0;
         
         if (wsFun == 0) { /* linear */
             slp = 1/(fieldc - wiltp);
             intcpt = 1 - fieldc * slp;
             wsPhoto = slp * awc + intcpt;
         } else if (wsFun == 1) {
-            auto phi10 = (fieldc + wiltp)/2;
+            double phi10 = (fieldc + wiltp)/2;
             wsPhoto = 1/(1 + exp((phi10 - awc)/ phi1));
         } else if (wsFun == 2) {
             slp = (1 - wiltp)/(fieldc - wiltp);
@@ -1163,7 +954,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
         wsPhotoCol += wsPhoto;
 
-        auto wsSpleaf = pow(awc, phi2) * 1/pow(fieldc, phi2);
+        double wsSpleaf = pow(awc, phi2) * 1/pow(fieldc, phi2);
         if (wsFun == 3) {
             wsSpleaf = 1;
         }

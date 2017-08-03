@@ -14,13 +14,14 @@
 #include "c4photo.h"
 
 struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alpha, 
-		       double kparm, double theta, double beta,
-		       double Rd, double bb0, double bb1, double StomaWS, double Ca, int water_stress_approach, double upperT, double lowerT)
+		       double kparm, double theta, double beta, double Rd, double bb0,
+               double bb1, double StomaWS, double Ca, int water_stress_approach, double upperT,
+               double lowerT)
 {
 
-	const double AP = 101325; /*Atmospheric pressure According to wikipedia (Pa)*/
-    const double P = AP / 1e3; /* kPa */
-	const double Q10 = 2;  /* Q10 increase in a reaction by 10 C temp */
+	const double AP = 101325; // Pascals
+    const double P = AP / 1e3; // KPa
+	const double Q10 = 2;  /* Q10 increase in a reaction by 10 degrees C */
 
 	double M;
 	double Assim;
@@ -72,11 +73,9 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 
 		if (water_stress_approach == 0) Assim *= StomaWS; 
 
-		/* milimole per meter square per second*/
 		double csurfaceppm = Csurface * 10;
 
-		/* Need to create the Ball-Berry function */
-		Gs = ball_berry(Assim * 1e-6, csurfaceppm * 1e-6, RH, bb0, bb1);
+		Gs = ball_berry(Assim * 1e-6, csurfaceppm * 1e-6, RH, bb0, bb1);  // mmol / m^2 / s
 		if (water_stress_approach == 1) Gs *= StomaWS; 
 
 		InterCellularCO2 = Csurface - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);
@@ -102,8 +101,8 @@ struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alph
 	  Gs = 600;
 
 	struct c4_str tmp;
-    tmp.Assim = Assim;
-    tmp.Gs = Gs;
+    tmp.Assim = Assim;  //micromole / m^2 /s
+    tmp.Gs = Gs;  // mmol / m^2 / s
     tmp.Ci = miC;
     tmp.GrossAssim=Assim + RT;
     return(tmp);
