@@ -140,8 +140,8 @@ struct Can_Str CanAC(
         result_matrix[7 + i*21] = AssIdiff;
         result_matrix[8 + i*21] = et_direct.Deltat;
         result_matrix[9 + i*21] = et_diffuse.Deltat;
-        result_matrix[10 + i*21] = et_direct.LayerCond; 
-        result_matrix[11 + i*21] = et_diffuse.LayerCond; 
+        result_matrix[10 + i*21] = direct_photo_results.Gs;
+        result_matrix[11 + i*21] = diffuse_photo_results.Gs; 
         result_matrix[12 + i*21] = leafN_lay; 
         result_matrix[13 + i*21] = vmax1;
         result_matrix[14 + i*21] = relative_humidity; 

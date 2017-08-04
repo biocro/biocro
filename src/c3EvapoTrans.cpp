@@ -127,7 +127,6 @@ struct ET_Str c3EvapoTrans(
     et_results.EPenman = EPen * 1e6 / 18; 
     et_results.EPriestly = EPries * 1e6 / 18; 
     et_results.Deltat = Deltat;
-    et_results.LayerCond = LayerConductance * 1e6 * (1/24.39);   
 
     return(et_results);
 }

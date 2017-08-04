@@ -30,7 +30,6 @@ struct ET_Str {
   double EPenman;
   double EPriestly;
   double Deltat;
-  double LayerCond;
 };
 
 struct Can_Str {
