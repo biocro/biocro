@@ -476,7 +476,6 @@ struct ET_Str EvapoTrans2(
     et_results.EPenman = EPen * 1e6 / 18;
     et_results.EPriestly = EPries * 1e6 / 18;
     et_results.Deltat = Deltat;
-    et_results.LayerCond = gvs_in_m_per_s * 41000;
     return et_results;
 }
 

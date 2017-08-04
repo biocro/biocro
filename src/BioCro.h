@@ -54,14 +54,11 @@ struct FL_str FmLcFun(double Lig, double Nit);
 struct flow_str flow(double *SC, double CNratio, double A, double Lc, double Tm, double resp, int kno, double Ks[8]);
 double AbiotEff(double smoist, double stemp);
 
-struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH,
-			 double WindSpeed, double LeafAreaIndex, double CanopyHeight, 
-			  double stomatacond, double leafw, int eteq);
+struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH, double WindSpeed,
+        double LeafAreaIndex, double CanopyHeight, double stomatacond, double leafw, int eteq);
 
-struct ET_Str c3EvapoTrans(double Rad, double Itot, double Airtemperature, double RH, double WindSpeed,
-			   double LeafAreaIndex, double CanopyHeight, double vcmax2, double jmax2, double Rd2, 
-			   double b02, double b12, double Catm2, double O2, double theta2,
-			   double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
+struct ET_Str c3EvapoTrans(double Itot, double Airtemperature, double RH, double WindSpeed, double CanopyHeight,
+        double stomtal_conductance);
 
 #endif
 
