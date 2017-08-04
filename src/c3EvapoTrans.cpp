@@ -15,25 +15,13 @@
 #include "BioCro.h"
 
 /* EvapoTrans function */
-struct ET_Str c3EvapoTrans(double Rad, 
+struct ET_Str c3EvapoTrans(
         double Itot, 
         double air_temperature, 
         double RH,
         double WindSpeed,
-        double LeafAreaIndex, 
-        double CanopyHeight, 
-        double vcmax2, 
-        double jmax2, 
-        double Rd, 
-        double b0, 
-        double b1,
-        double Catm2,
-        double O2,
-        double theta2,
-        double StomWS,
-        int water_stress_approach,
-        double electrons_per_carboxylation,
-        double electrons_per_oxygenation)
+        double CanopyHeight,
+        double stomatal_conductance)
 
 {
     const double kappa = 0.41;
@@ -72,10 +60,7 @@ struct ET_Str c3EvapoTrans(double Rad,
     /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
     double totalradiation = Itot * 0.235;
 
-    struct c3_str photo_results = c3photoC(Rad, air_temperature, RH, vcmax2, jmax2, Rd, b0, b1, Catm2, O2, theta2, StomWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation); 
-    double LayerConductance = photo_results.Gs;
-
-    LayerConductance = LayerConductance * 1e-6 * 24.39;  
+    double LayerConductance = stomatal_conductance * 1e-6 * 24.39;  
 
     /* Thornley and Johnson use m s^-1 on page 418 */
 
