@@ -97,32 +97,30 @@ struct Can_Str CanAC(
 
         double relative_humidity = relative_humidity_profile[current_layer];
         double layer_wind_speed = wind_speed_profile[current_layer];
+        double CanHeight = light_profile.height[current_layer];
+        double Itot = light_profile.total_irradiance[current_layer];
 
         IDir = light_profile.direct_irradiance[current_layer];
-        double Itot = light_profile.total_irradiance[current_layer];
         double pLeafsun = light_profile.sunlit_fraction[current_layer];
-        double CanHeight = light_profile.height[current_layer];
-
         double Leafsun = LAIc * pLeafsun;
 
-        struct c4_str temp_photo_results = c4photoC(IDir, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
-        struct ET_Str et_direct = EvapoTrans2(IDir, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
-
+        struct c4_str direct_photo_results = c4photoC(IDir, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
+        struct ET_Str et_direct = EvapoTrans2(IDir, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, direct_photo_results.Gs, leafwidth, eteq);
         double leaf_temperature_Idir = temperature + et_direct.Deltat;
-        temp_photo_results = c4photoC(IDir, leaf_temperature_Idir, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
-        double AssIdir = temp_photo_results.Assim;
-        double GAssIdir =temp_photo_results.GrossAssim;
+        direct_photo_results = c4photoC(IDir, leaf_temperature_Idir, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
+        double AssIdir = direct_photo_results.Assim;
+        double GAssIdir = direct_photo_results.GrossAssim;
 
         IDiff = light_profile.diffuse_irradiance[current_layer];
         double pLeafshade = light_profile.shaded_fraction[current_layer];
         double Leafshade = LAIc * pLeafshade;
 
-        temp_photo_results = c4photoC(IDiff, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
-        struct ET_Str et_diffuse = EvapoTrans2(IDiff, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, temp_photo_results.Gs, leafwidth, eteq);
+        struct c4_str diffuse_photo_results = c4photoC(IDiff, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
+        struct ET_Str et_diffuse = EvapoTrans2(IDiff, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, diffuse_photo_results.Gs, leafwidth, eteq);
         double leaf_temp_Idiffuse = temperature + et_diffuse.Deltat;
-        temp_photo_results = c4photoC(IDiff, leaf_temp_Idiffuse, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
-        double AssIdiff = temp_photo_results.Assim;
-        double GAssIdiff = temp_photo_results.GrossAssim;
+        diffuse_photo_results = c4photoC(IDiff, leaf_temp_Idiffuse, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
+        double AssIdiff = diffuse_photo_results.Assim;
+        double GAssIdiff = diffuse_photo_results.GrossAssim;
 
         CanopyA += Leafsun * AssIdir + Leafshade * AssIdiff;
         CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;
@@ -130,7 +128,7 @@ struct Can_Str CanAC(
 
         CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;
         CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;
-        canopy_conductance += Leafsun * et_direct.LayerCond + Leafshade * et_diffuse.LayerCond;
+        canopy_conductance += Leafsun * direct_photo_results.Gs + Leafshade * diffuse_photo_results.Gs;
         
         result_matrix[    i*21] = IDir;
         result_matrix[1 + i*21] = IDiff;
