@@ -1068,19 +1068,28 @@ struct seqRD_str seqRootDepth(double to, int lengthOut ) {
 }
 
 
-struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
+struct rd_str rootDist(int n_layers, double rootDepth, double *depths, double rfl)
 {
+    /*
+     * Calculate the fraction of total root mass for each layer in `depths` assuming the mass
+     * is follows a Poisson distribution along the depth.
+     *
+     * Returns a struct with one array of size `n_layers`.
+     * Each element in the array is the fraction of total root mass in that layer.
+     * The sum of all elements of the result equals 1.
+     */
+
     double layerDepth = 0.0;
     double CumLayerDepth = 0.0;
-    double CumRootDist = 1.0;
-    double rootDist[layer];
-    double ca = 0.0;
+    int CumRootDist = 1;
+    double rootDist[n_layers];
+    double cumulative_a = 0.0;
 
-    for (int i = 0; i < layer; ++i) {
+    for (int i = 0; i < n_layers; ++i) {
         if (i == 0) {
-            layerDepth = depthsp[1];
+            layerDepth = depths[1];
         } else {
-            layerDepth = depthsp[i] - depthsp[i-1];
+            layerDepth = depths[i] - depths[i-1];
         }
 
         CumLayerDepth += layerDepth;
@@ -1090,19 +1099,19 @@ struct rd_str rootDist(int layer, double rootDepth, double *depthsp, double rfl)
         }
     }
 
-    for (int j = 0; j < layer; ++j) {
+    for (int j = 0; j < n_layers; ++j) {
         if (j < CumRootDist) {
-            double a = poisson_density(j + 1, CumRootDist * rfl);
+            double a = poisson_density(j + 1, (double)CumRootDist * rfl);
             rootDist[j] = a;
-            ca += a;
+            cumulative_a += a;
         } else {
             rootDist[j] = 0;
         }
     }
 
     struct rd_str result;
-    for (int k = 0; k < layer; ++k) {
-        result.rootDist[k] = rootDist[k] / ca;
+    for (int k = 0; k < n_layers; ++k) {
+        result.rootDist[k] = rootDist[k] / cumulative_a;
     }
     return(result);
 }
