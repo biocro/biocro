@@ -546,6 +546,7 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
     const double SpecificHeat = 1010;
     const double StefanBoltzman = 5.67e-8;
 
+    /* A simple way of calculating the proportion of the soil that is hit by direct radiation. */
     double soil_area_sunlit_fraction = exp(-k * LAI);  // dimensionless.
 
     /* For now the temperature of the soil will be the same as the air.
@@ -690,7 +691,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     double runoff = 0.0;
     double Nleach = 0.0;  /* Nleach is the NO3 leached. */
-    if(aw > theta_s) {
+    if (aw > theta_s) {
         runoff = (aw - theta_s) * soildepth; /* This is in meters */
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
@@ -717,7 +718,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     tmp.psim = -exp(log(0.033) + ((log(fieldc) - log(awc)) / (log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033)))) * 1e3; /* This last term converts from MPa to kPa */
 
     /* This is drainage */
-    if(awc > fieldc) {
+    if (awc > fieldc) {
         double K_psim = soTexS.Ks * pow((soTexS.air_entry / tmp.psim), 2 + 3 / soTexS.b); /* This is hydraulic conductivity */
         double J_w = -K_psim * (-tmp.psim / (soildepth * 0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth */
         double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */

@@ -9,6 +9,7 @@
 #include <sstream>
 #include "BioCro.h"
 #include "modules.h"
+#include "math.h"
 
 state_vector_map Gro(
         state_map const &initial_state,
@@ -92,6 +93,7 @@ state_vector_map Gro(
 
     for(size_t i = 0; i < n_rows; ++i)
     {
+        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
@@ -126,6 +128,28 @@ state_vector_map Gro(
         p["kGrain"] = dbpS.kGrain;
         p["kRhizome"] = dbpS.kRhiz;
 
+        derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
+
+        p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
+        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
+
+        derivs += soil_evaporation_module->run(state_history, deriv_history, p);
+
+        soilText_str soTexS = soilTchoose(p.at("soilType"));
+        double wiltp = soTexS.wiltp;
+        double fieldc = soTexS.fieldc;
+
+
+
+        double root_depth = fmin(p.at("Root") * p.at("rsdf") / 2, p.at("soilDepth"));
+        double root_depth_fraction = root_depth / p.at("soilDepth");
+        double evaporation_rate = (derivs.at("soilEvap") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth * 48 / p.at("timestep");
+        double root_available_water_fraction = fmax(fmin(1 + (p.at("waterCont") - 1) / root_depth_fraction, 1), 0);
+        
+        //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (p.at("waterCont") - wiltp), 1), 0);
+        //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (root_available_water_fraction - wiltp), 1), 0);
+        p["rate_constant_root_scale"] = fmax((fieldc - (root_available_water_fraction - evaporation_rate)) / (fieldc - wiltp), 0);
+
         /*
          * 2) Calculate derivatives between state variables.
          */
@@ -139,17 +163,10 @@ state_vector_map Gro(
          * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
          * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
-        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
 
         if(p.at("temp") > p.at("tbase")) {
             derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
-        derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
-
-        p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
-        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
-
-        derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
         derivs += growth_module->run(state_history, deriv_history, p);
 
@@ -184,6 +201,7 @@ state_vector_map Gro(
         //results["canopy_assimilation"][i] = s["CanopyA"];
         results["canopy_assimilation"].push_back(p["CanopyA"]);
         results["canopy_transpiration"].push_back(p["CanopyT"]);
+        results["rate_constant_root_scale"].push_back(p["rate_constant_root_scale"]);
         results["lai"].push_back(p.at("lai"));
         //results["soil_water_content"].push_back(s.at("waterCont"));
         results["stomatal_conductance_coefs"].push_back(current_state.at("StomataWS"));

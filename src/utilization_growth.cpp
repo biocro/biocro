@@ -18,13 +18,13 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
 // at the end of the season for all of the tissue to senesce.
 // This doesn't seem like a good approach.
 
-    size_t max_loops = 3;
+    size_t max_loops = 4;
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
 
     double kLeaf = p.at("rate_constant_leaf");
     double kStem = p.at("rate_constant_stem");
-    double kRoot = p.at("rate_constant_root");
+    double kRoot = p.at("rate_constant_root") * p.at("rate_constant_root_scale");
     double kRhizome = p.at("rate_constant_rhizome");
     double kGrain = p.at("rate_constant_grain");
 
@@ -166,7 +166,8 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
                 (utilization_stem < 0) |
                 (utilization_grain < 0) |
                 (utilization_stem < 0) |
-                (utilization_rhizome < 0))
+                (utilization_rhizome < 0) |
+                (utilization_root < 0))
             {
                 if (counter < max_loops) {  // Abort if the maximum number of loops hasn't been reached. Otherwise, continue knowing it won't provide the right solution.
                     failed = true;
@@ -183,7 +184,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
             continue;
         } else {
             //if (TTc < 1) Rprintf("For loop %f, %d.\n", TTc, i);
-            //if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu.\n", counter, sub_time_steps);
+            if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu.\n", counter, sub_time_steps);
             //Rprintf("Loops %zu, counter: %zu\n", i, sub_time_steps, counter);
             //if (d_grain < 0) Rprintf("i: %zu, d_grain: %f, Grain: %f, substrate_pool_grain: %f.\n", i, d_grain, s.at("Grain")[t], s.at("substrate_pool_grain")[t]); 
 
