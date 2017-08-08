@@ -496,6 +496,12 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     else if (module_name.compare("utilization_senescence") == 0) {
         return std::unique_ptr<IModule>(new utilization_senescence);
     }
+    else if (module_name.compare("utilization_growth_and_senescence") == 0) {
+        return std::unique_ptr<IModule>(new utilization_growth_and_senescence_module);
+    }
+    else if (module_name.compare("empty_senescence") == 0) {
+        return std::unique_ptr<IModule>(new empty_senescence);
+    }
     else {
         throw std::out_of_range(module_name);
     }
