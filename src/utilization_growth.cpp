@@ -270,12 +270,12 @@ state_map utilization_senescence::do_operation(state_vector_map const &state_his
         double senescence_leaf = 0, senescence_stem = 0, senescence_root = 0, senescence_rhizome = 0; 
         double d_substrate_leaf = 0, d_substrate_stem = 0, d_substrate_root = 0, d_substrate_rhizome = 0;
         double d_leaf = 0, d_stem = 0, d_grain = 0, d_root = 0, d_rhizome = 0;
-        double start_grain = 0;
 
         size_t i;
         bool failed = false;
         for (i = 0; i < sub_time_steps; ++i) {
             double d_time = total_time / sub_time_steps;
+            double start_grain = 0;
 
             if ((Leaf != 0) & (TTc >= seneLeaf)) {
                 mass_fraction_leaf = substrate_pool_leaf / Leaf;
