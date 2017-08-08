@@ -10,6 +10,7 @@
 #include "BioCro.h"
 #include "modules.h"
 #include "math.h"
+#include <R.h>
 
 state_vector_map Gro(
         state_map const &initial_state,
@@ -141,14 +142,15 @@ state_vector_map Gro(
 
 
 
-        double root_depth = fmin(p.at("Root") * p.at("rsdf") / 2, p.at("soilDepth"));
+        double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soilDepth"));
         double root_depth_fraction = root_depth / p.at("soilDepth");
-        double evaporation_rate = (derivs.at("soilEvap") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth * 48 / p.at("timestep");
-        double root_available_water_fraction = fmax(fmin(1 + (p.at("waterCont") - 1) / root_depth_fraction, 1), 0);
-        
+        double evaporation_rate = (derivs.at("soilEvap") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth;
+        //double root_available_water_fraction = fmax(fmin(1 + (p.at("waterCont") / fieldc - 1) / root_depth_fraction, 1), 0);
+        double root_available_water_fraction = fmin(1 - (fieldc - p.at("waterCont")) / root_depth_fraction, 1);
         //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (p.at("waterCont") - wiltp), 1), 0);
         //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (root_available_water_fraction - wiltp), 1), 0);
-        p["rate_constant_root_scale"] = fmax((fieldc - (root_available_water_fraction - evaporation_rate)) / (fieldc - wiltp), 0);
+        p["rate_constant_root_scale"] = fmin(fmax((fieldc - (root_available_water_fraction - evaporation_rate)) / (fieldc - wiltp), 1), 20);
+        //Rprintf("%f, %f, %f.\n", root_depth_fraction, p.at("waterCont"), root_available_water_fraction);
 
         /*
          * 2) Calculate derivatives between state variables.

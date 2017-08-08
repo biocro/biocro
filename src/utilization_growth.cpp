@@ -18,7 +18,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
 // at the end of the season for all of the tissue to senesce.
 // This doesn't seem like a good approach.
 
-    size_t max_loops = 4;
+    size_t max_loops = 10;
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
 
@@ -184,7 +184,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
             continue;
         } else {
             //if (TTc < 1) Rprintf("For loop %f, %d.\n", TTc, i);
-            if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu.\n", counter, sub_time_steps);
+            if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu, ttc %f.\n", counter, sub_time_steps, TTc);
             //Rprintf("Loops %zu, counter: %zu\n", i, sub_time_steps, counter);
             //if (d_grain < 0) Rprintf("i: %zu, d_grain: %f, Grain: %f, substrate_pool_grain: %f.\n", i, d_grain, s.at("Grain")[t], s.at("substrate_pool_grain")[t]); 
 
