@@ -137,6 +137,7 @@ partial_gro = function(initial_values, parameters, varying_parameters, modules, 
     }
     function(x) {
         if (length(x) != length(arg_names)) stop("The length of x does not match the length of arguments when this function was defined.")
+        x = unlist(x)
         temp_arg_list = arg_list
         for (i in seq_along(arg_names)) {
             c_row = controls[i, ]
