@@ -71,13 +71,15 @@ state_map utilization_growth_flowering_module::do_operation(state_vector_map con
 
 
     //set dawn timing
-    Rprintf("hour: %.1f, solar: %.1f, dawn %.1f\n", hour, solar, dawn);
+    //Rprintf("hour: %.1f, solar: %.1f, dawn %.1f\n", hour, solar, dawn);
     if ( (solar != 0) & (dawn == 100)) {
-        derivs["dawn"] = hour - 100;
+        derivs["dawn"] = hour - 100; //update value for following time steps
+        dawn = hour; //update value for this time step
     } 
 
     if (solar == 0) {
         derivs["dawn"] = 100 - dawn;
+        dawn = 100;
     }
 
     while (true) {
