@@ -108,7 +108,18 @@ glycine_max_parameters = with(list(), {
      assimilation_multiplier    1
      kc25   406.8055
      ko25   277.1209
-     gstar25    42.92"
+     gstar25    42.92
+     GI_on 1
+     GI_off 1
+     FKF1_on 1
+     FKF1_off 1
+     CDF_on 1
+     CDF_off 1
+     FT_on 1
+     FT_inhibition 1
+     FT_off 1
+     FKF1_timing 1
+     CDF_timing 1"
     
     data_frame = read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
