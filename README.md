@@ -25,7 +25,7 @@ There are parameters and modules for miscanthus (_Miscanthus_ x _giganteus_), so
 
 The [R environment](https://cran.r-project.org/) version 3.2.3 or greater.
 
-On Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) version 3.3 or higher (3.4 is not recommended as of 2017-09-12 since that version is not frozen), and on Linux, gcc and g++ version 4.9.3 or greater (consult documentation for you distribution for installation instructions).
+On Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) version 3.3 or higher (3.4 is not recommended as of 2017-09-12 since that version is not frozen), and on Linux, gcc and g++ version 4.9.3 or greater (consult documentation for your distribution for installation instructions).
 
 The roxygen2 R package; from within R, use `install.packages('roxygen2')`.
 
