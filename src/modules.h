@@ -196,7 +196,9 @@ class utilization_growth_and_senescence_module: public ISenescence_module {
                 "resistance_leaf_to_stem",
                 "resistance_stem_to_grain",
                 "resistance_stem_to_root",
-                "resistance_stem_to_rhizome"},
+                "resistance_stem_to_rhizome",
+                "rate_constant_leaf", "rate_constant_stem", "rate_constant_root", "rate_constant_root_scale", "rate_constant_rhizome",
+                "remobilization_fraction", "grain_TTc"},
                 vector<string> {})
         {}
     private:
