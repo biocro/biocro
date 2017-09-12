@@ -203,6 +203,24 @@ class utilization_growth_and_senescence_module: public ISenescence_module {
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
+class utilization_growth_flowering_module: public ISenescence_module {
+    public:
+        utilization_growth_flowering_module()
+            : ISenescence_module(vector<string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
+                "Leaf", "Stem", "Root", "Rhizome", "Grain",
+                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
+                "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
+                "resistance_leaf_to_stem",
+                "resistance_stem_to_grain",
+                "resistance_stem_to_root",
+                "resistance_stem_to_rhizome",
+                "GI_on", "GI_off", "FKF1_on", "FKF1_off", "CDF_on", "CDF_off", "FT_on", "FT_off", "FT_inhibition", "FKF1_timing", "CDF_timing", "dawn"},
+                vector<string> {})
+        {}
+    private:
+        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+};
+
 class empty_senescence: public ISenescence_module {
     public:
         empty_senescence()
