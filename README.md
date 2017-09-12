@@ -35,13 +35,13 @@ Download the BioCro source code from GitHub, unzip the file, and install from th
 
 These assume that the source files are in a directory named "biocro".
 
-##### From the command line
+* From the command line
 ```
 cd path_to_unzipped_directory
 R CMD INSTALL biocro
 ```
 
-#### From within R
+* From within R
 ```
 setwd('path_to_unzipped_directory')
 install.packages('biocro', repos=NULL, type='SOURCE')
