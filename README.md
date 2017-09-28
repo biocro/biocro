@@ -21,9 +21,30 @@ There are parameters and modules for miscanthus (_Miscanthus_ x _giganteus_), so
 
 
 ### Installation
-Download the source code from GitHub and run the command below from the directory containing the source code. The command assumes the code is in a directory named "biocro".
+#### Requirements
+
+The [R environment](https://cran.r-project.org/) version 3.2.3 or greater.
+
+On Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) version 3.3 or higher (3.4 is not recommended as of 2017-09-12 since that version is not frozen), and on Linux, gcc and g++ version 4.9.3 or greater (consult documentation for you distribution for installation instructions).
+
+The roxygen2 R package; from within R, use `install.packages('roxygen2')`.
+
+#### BioCro installation
+
+Download the BioCro source code from GitHub, unzip the file, and install from the either the command line or from within R using one of the following sets of commands. 
+
+These assume that the source files are in a directory named "biocro".
+
+* From the command line
 ```
+cd path_to_unzipped_directory
 R CMD INSTALL biocro
+```
+
+* From within R
+```
+setwd('path_to_unzipped_directory')
+install.packages('biocro', repos=NULL, type='SOURCE')
 ```
 
 ### Inputs
