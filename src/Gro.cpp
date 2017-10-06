@@ -205,12 +205,10 @@ state_vector_map Gro(
     return results;
 }
 
-state_vector_map Gro(
-        state_map const &initial_state,
-        state_map const &invariant_parameters,
-        state_vector_map const &varying_parameters,
-        std::vector<IModule> const &steady_state_modules,
-        std::vector<IModule> const &derivative_modules)
+state_map Gro(
+        state_map const &state,
+        std::vector<IModule*> const &steady_state_modules,
+        std::vector<IModule*> const &derivative_modules)
 {
-    return state_vector_map();
+    return state_map();
 }

@@ -190,6 +190,11 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &senescence_module,
 		double (*leaf_n_limitation)(state_map const &model_state));
 
+state_map Gro(
+        state_map const &state,
+        std::vector<IModule*> const &steady_state_modules,
+        std::vector<IModule*> const &derivative_modules);
+
 double biomass_leaf_nitrogen_limitation(state_map const &state);
 double thermal_leaf_nitrogen_limitation(state_map const &state);
 
