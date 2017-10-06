@@ -10,6 +10,7 @@
  */
 
 #include <math.h>
+#include <stdexcept>
 #include "c3photo.h"
 #include "AuxBioCro.h"
 #include "BioCro.h"

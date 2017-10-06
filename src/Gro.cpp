@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include "BioCro.h"
 #include "modules.h"
 
