@@ -1,4 +1,4 @@
-#export PATH:=${PATH};C:\Program Files\R\R-3.2.2\bin
+# One Windows,this will likely only work from a Unix-like prompt, like Cygwin or msys.
 
 CC=g++
 CC_FLAGS = -w -std=c++11 -I"boost_1_64_0"
