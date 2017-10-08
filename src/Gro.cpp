@@ -207,8 +207,8 @@ state_vector_map Gro(
 
 state_map Gro(
         state_map const &state,
-        std::vector<IModule*> const &steady_state_modules,
-        std::vector<IModule*> const &derivative_modules)
+        std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
+        std::vector<std::unique_ptr<IModule>> const &derivative_modules)
 {
     return state_map();
 }
