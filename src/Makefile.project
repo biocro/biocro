@@ -8,10 +8,16 @@ CC_FLAGS = -w -std=c++0x -I"boost_1_64_0"
 # File names
 GRO_SOURCES = $(filter-out $(wildcard R_*), $(wildcard *.cpp))
 GRO_OBJECTS = $(GRO_SOURCES:.cpp=.o)
+
+ODE_SOURCES = odeint_test.cpp
+ODE_OBJECTS = $(ODE_SOURCES:.cpp=.o)
  
 # Main target
 biocro: $(GRO_OBJECTS)
 	$(CC) $(GRO_OBJECTS) -o biocro
+
+odetest: $(ODE_OBJECTS)
+	$(CC) $(ODE_OBJECTS) -o odetest
  
 # To obtain object files
 %.o: %.cpp
