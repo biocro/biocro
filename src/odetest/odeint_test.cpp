@@ -14,12 +14,10 @@
 #include <boost/serialization/array_wrapper.hpp>
 #include <boost/numeric/odeint.hpp>
 
-//#include "state_map.h"
+#include "../state_map.h"
 
-//[ rhs_function
 /* The type of container used to hold the state vector */
 typedef std::vector< double > state_type;
-#include "../state_map.h"
 
 namespace boost { namespace numeric { namespace odeint {
 template<>
@@ -44,12 +42,11 @@ struct vector_space_norm_inf< state_map >
 state_map abs(state_map x)
 {
     for(auto it = x.begin(); it != x.end(); ++it) {
-        /*it->second =*/ abs(it->second);
+        it->second = abs(it->second);
     }
     return x;
 }
 
-//[ rhs_class
 /* The rhs of x' = f(x) defined as a class */
 class harm_osc {
     double m_gam;
