@@ -9,6 +9,8 @@
 
 #include <iostream>
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 #include <boost/serialization/array_wrapper.hpp>
 #include <boost/numeric/odeint.hpp>
@@ -16,6 +18,98 @@
 //[ rhs_function
 /* The type of container used to hold the state vector */
 typedef std::vector< double > state_type;
+typedef std::unordered_map<std::string, double> state_map;
+
+state_map& operator+=(state_map &lhs, state_map const &rhs)
+{
+    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
+        lhs[it->first] += it->second;
+    }
+    return lhs;
+}
+
+inline state_map operator+(state_map lhs, state_map const &rhs)
+{
+    lhs += rhs;
+    return lhs;
+}
+
+state_map& operator+=(state_map &x, double const a)
+{
+    for(auto it = x.begin(); it != x.end(); ++it) {
+        it->second += a;
+    }
+    return x;
+}
+
+inline state_map operator+(state_map x, double const a)
+{
+    x += a;
+    return x;
+}
+
+inline state_map operator+(double const a, state_map x)
+{
+    x += a;
+    return x;
+}
+
+state_map& operator*=(state_map &x, double const a)
+{
+    for(auto it = x.begin(); it != x.end(); ++it) {
+        it->second *= a;
+    }
+    return x;
+}
+
+inline state_map operator*(state_map x, double const a)
+{
+    x *= a;
+    return x;
+}
+
+inline state_map operator*(double const a, state_map x)
+{
+    x *= a;
+    return x;
+}
+
+
+state_map operator/(state_map lhs, state_map const& rhs)
+{
+    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
+        lhs[it->first] /= it->second;
+    }
+    return lhs;
+}
+
+state_map abs(state_map x)
+{
+    for(auto it = x.begin(); it != x.end(); ++it) {
+        it->second = abs(it->second);
+    }
+    return x;
+}
+
+namespace boost { namespace numeric { namespace odeint {
+template<>
+struct vector_space_norm_inf< state_map >
+{
+    typedef double result_type;
+    double operator()( const state_map &x ) const
+    {
+        using std::max;
+        using std::abs;
+        auto it = x.begin();
+        double result = it->second;
+        ++it;
+        for(;it != x.end(); ++it) {
+            result = max(result, it->second);
+        }
+        return result;
+    }
+};
+} } }
 
 //[ rhs_class
 /* The rhs of x' = f(x) defined as a class */
@@ -25,37 +119,34 @@ class harm_osc {
 public:
     harm_osc( double gam ) : m_gam(gam) { }
 
-    void operator() ( const state_type &x, state_type &dxdt, const double /* t */ )
+//    void operator() ( const state_type &x, state_type &dxdt, const double /* t */ )
+//    {
+//        dxdt[0] = x[1];
+//        dxdt[1] = -x[0] - m_gam*x[1];
+//    }
+
+    void operator() ( const state_map &x, state_map &dxdt, const double /* t */ )
     {
-        dxdt[0] = x[1];
-        dxdt[1] = -x[0] - m_gam*x[1];
+        dxdt["zero"] = x.at("one");
+        dxdt["one"] = -x.at("zero") - m_gam*x.at("one");
     }
 };
 //]
 
-
-//[ integrate_observer
+template <typename T>
 struct push_back_state_and_time
 {
-    std::vector< state_type >& m_states;
     std::vector< double >& m_times;
-
-    push_back_state_and_time( std::vector< state_type > &states, std::vector< double > &times )
+    std::vector< T >& m_states;
+    
+    push_back_state_and_time( std::vector< T > &states, std::vector< double > &times )
     : m_states( states ), m_times( times ) { }
 
-    void operator()( const state_type &x, double t )
+
+    void operator()( const T &x, double t )
     {
         m_states.push_back( x );
         m_times.push_back( t );
-    }
-};
-//]
-
-struct write_state
-{
-    void operator()( const state_type &x ) const
-    {
-        std::cout << x[0] << "\t" << x[1] << "\n";
     }
 };
 
@@ -65,76 +156,106 @@ int main(int /* argc */, char** /* argv */ )
     using namespace std;
     using namespace boost::numeric::odeint;
 
-
-    //[ state_initialization
-    state_type x(2);
-    x[0] = 1.0; // start at x=1.0, p=0.0
-    x[1] = 0.0;
-    //]
-
-    //[ integration_class
     harm_osc ho(0.15);
-    size_t steps = integrate( ho, x, 0.0, 10.0, 0.1 );
-    //]
 
-    //[ integrate_observ
-    vector<state_type> x_vec;
-    vector<double> times;
+//    state_type x(2);
+//    x[0] = 1.0; // start at x=1.0, p=0.0
+//    x[1] = 0.0;
+//
+//    //[ integrate_observ
+//    vector<state_type> x_vec;
+//    vector<double> times;
+//
+//    cout << "Before try\n";
+//    try {
+//        size_t steps = integrate( ho, x, 0.0, 10.0, 0.1,
+//                push_back_state_and_time<state_type>( x_vec, times ) );
+//        cout << "after integrate\n";
+//
+//        /* output */
+//        for( size_t i=0; i<=steps; i++ )
+//        {
+//            cout << times[i] << '\t' << x_vec[i][0] << '\t' << x_vec[i][1] << '\t' << x_vec[i][2] << '\n';
+//        }
+//    } catch (...) {
+//        cout << "Caught exception: " << '\n';
+//
+//    }
 
-    steps = integrate( ho, x, 0.0, 10.0, 0.1,
-            push_back_state_and_time( x_vec, times ) );
+    state_map x_map;
+    x_map["zero"] = 1.0; // start at x=1.0, p=0.0
+    x_map["one"] = 0.0;
 
-    /* output */
-    for( size_t i=0; i<=steps; i++ )
-    {
-        cout << times[i] << '\t' << x_vec[i][0] << '\t' << x_vec[i][1] << '\n';
+    vector<state_map> x_map_vec;
+    vector<double> times_map;
+
+    cout << "Before try\n";
+    try {
+        runge_kutta4<state_map, double, state_map, double, vector_space_algebra> stepper;
+
+        //integrate_const(stepper, ho, x_map, 0.0, 10.0, 0.01 );
+        size_t steps = integrate_const(stepper, ho, x_map, 0.0, 10.0, 0.01,
+                push_back_state_and_time<state_map>( x_map_vec, times_map ) );
+        //size_t steps = integrate( ho, x_map, 0.0, 10.0, 0.1,
+                //push_back_state_and_time<state_map>( x_map_vec, times_map ) );
+        cout << "after integrate\n";
+
+        /* output */
+        for( size_t i=0; i<=steps; i++ )
+        {
+            cout << times_map[i] << '\t' << x_map_vec[i]["zero"] << '\t' << x_map_vec[i]["one"] << '\n';
+        }
+    } catch (...) {
+        cout << "Caught exception: " << '\n';
+
     }
-    //]
+//
 
+    //]
 
     //[ define_const_stepper
-    runge_kutta4< state_type > stepper;
-    integrate_const( stepper, ho, x, 0.0, 10.0, 0.01 );
+//    runge_kutta4< state_type > stepper;
+//    integrate_const( stepper, ho, x, 0.0, 10.0, 0.01 );
     //]
 
     //[ integrate_const_loop
-    const double dt = 0.01;
-    for( double t = 0.0; t < 10.0; t += dt )
-        stepper.do_step( ho, x, t, dt );
-    //]
-
-
-    //[ define_adapt_stepper
-    typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
-    //]
-
-    //[ integrate_adapt
-    typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
-    controlled_stepper_type controlled_stepper;
-    integrate_adaptive( controlled_stepper, ho, x, 0.0, 10.0, 0.01 );
-    //]
-
-    {
-    //[integrate_adapt_full
-    double abs_err = 1.0e-10 , rel_err = 1.0e-6 , a_x = 1.0 , a_dxdt = 1.0;
-    controlled_stepper_type controlled_stepper( 
-        default_error_checker< double , range_algebra , default_operations >( abs_err , rel_err , a_x , a_dxdt ) );
-    integrate_adaptive( controlled_stepper , ho , x , 0.0 , 10.0 , 0.01 );
-    //]
-    }
-
-
-    //[integrate_adapt_make_controlled
-    integrate_adaptive( make_controlled< error_stepper_type >( 1.0e-10 , 1.0e-6 ) , 
-                        ho , x , 0.0 , 10.0 , 0.01 );
-    //]
-
-
-
-
-    //[integrate_adapt_make_controlled_alternative
-    integrate_adaptive( make_controlled( 1.0e-10 , 1.0e-6 , error_stepper_type() ) , 
-                        ho , x , 0.0 , 10.0 , 0.01 );
-    //]
+//    const double dt = 0.01;
+//    for( double t = 0.0; t < 10.0; t += dt )
+//        stepper.do_step( ho, x, t, dt );
+//    //]
+//
+//
+//    //[ define_adapt_stepper
+//    typedef runge_kutta_cash_karp54< state_type > error_stepper_type;
+//    //]
+//
+//    //[ integrate_adapt
+//    typedef controlled_runge_kutta< error_stepper_type > controlled_stepper_type;
+//    controlled_stepper_type controlled_stepper;
+//    integrate_adaptive( controlled_stepper, ho, x, 0.0, 10.0, 0.01 );
+//    //]
+//
+//    {
+//    //[integrate_adapt_full
+//    double abs_err = 1.0e-10 , rel_err = 1.0e-6 , a_x = 1.0 , a_dxdt = 1.0;
+//    controlled_stepper_type controlled_stepper( 
+//        default_error_checker< double , range_algebra , default_operations >( abs_err , rel_err , a_x , a_dxdt ) );
+//    integrate_adaptive( controlled_stepper , ho , x , 0.0 , 10.0 , 0.01 );
+//    //]
+//    }
+//
+//
+//    //[integrate_adapt_make_controlled
+//    integrate_adaptive( make_controlled< error_stepper_type >( 1.0e-10 , 1.0e-6 ) , 
+//                        ho , x , 0.0 , 10.0 , 0.01 );
+//    //]
+//
+//
+//
+//
+//    //[integrate_adapt_make_controlled_alternative
+//    integrate_adaptive( make_controlled( 1.0e-10 , 1.0e-6 , error_stepper_type() ) , 
+//                        ho , x , 0.0 , 10.0 , 0.01 );
+//    //]
 }
 

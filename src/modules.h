@@ -214,6 +214,12 @@ state_map at(state_vector_map const &vector_map, vector<double>::size_type const
 
 state_map& operator+=(state_map &lhs, state_map const &rhs);
 
+state_map operator+(state_map lhs, state_map const &rhs);
+
+state_map& operator*=(state_map &lhs, double const a);
+
+state_map operator*(state_map lhs, double const a);
+
 string join_string_vector(vector<string> const &state_keys);
 
 vector<string> keys(state_map const &state);

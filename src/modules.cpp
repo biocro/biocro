@@ -564,6 +564,26 @@ state_map& operator+=(state_map &lhs, state_map const &rhs)
     return lhs;
 }
 
+inline state_map operator+(state_map lhs, state_map const &rhs)
+{
+    lhs += rhs;
+    return lhs;
+}
+
+state_map& operator*=(state_map &lhs, double const a)
+{
+    for(auto it = lhs.begin(); it != lhs.end(); ++it) {
+        lhs[it->first] *= a;
+    }
+    return lhs;
+}
+
+inline state_map operator*(state_map lhs, double const a)
+{
+    lhs *= a;
+    return lhs;
+}
+
 vector<string> keys(state_map const &state) {
     vector<string> result;
     for (auto it = state.begin(); it != state.end(); ++it) {
