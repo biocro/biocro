@@ -9,7 +9,7 @@ CC_FLAGS = -w -std=c++0x -I"boost_1_64_0"
 GRO_SOURCES = $(filter-out $(wildcard R_*), $(wildcard *.cpp))
 GRO_OBJECTS = $(GRO_SOURCES:.cpp=.o)
 
-ODE_SOURCES = odeint_test.cpp
+ODE_SOURCES = odetest/odeint_test.cpp state_map.cpp
 ODE_OBJECTS = $(ODE_SOURCES:.cpp=.o)
  
 # Main target
@@ -17,7 +17,7 @@ biocro: $(GRO_OBJECTS)
 	$(CC) $(GRO_OBJECTS) -o biocro
 
 odetest: $(ODE_OBJECTS)
-	$(CC) $(ODE_OBJECTS) -o odetest
+	$(CC) $(ODE_OBJECTS) -o odetest/odetest
  
 # To obtain object files
 %.o: %.cpp

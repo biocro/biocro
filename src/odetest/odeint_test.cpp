@@ -9,87 +9,17 @@
 
 #include <iostream>
 #include <vector>
-#include <unordered_map>
 #include <string>
 
 #include <boost/serialization/array_wrapper.hpp>
 #include <boost/numeric/odeint.hpp>
 
+//#include "state_map.h"
+
 //[ rhs_function
 /* The type of container used to hold the state vector */
 typedef std::vector< double > state_type;
-typedef std::unordered_map<std::string, double> state_map;
-
-state_map& operator+=(state_map &lhs, state_map const &rhs)
-{
-    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
-        lhs[it->first] += it->second;
-    }
-    return lhs;
-}
-
-inline state_map operator+(state_map lhs, state_map const &rhs)
-{
-    lhs += rhs;
-    return lhs;
-}
-
-state_map& operator+=(state_map &x, double const a)
-{
-    for(auto it = x.begin(); it != x.end(); ++it) {
-        it->second += a;
-    }
-    return x;
-}
-
-inline state_map operator+(state_map x, double const a)
-{
-    x += a;
-    return x;
-}
-
-inline state_map operator+(double const a, state_map x)
-{
-    x += a;
-    return x;
-}
-
-state_map& operator*=(state_map &x, double const a)
-{
-    for(auto it = x.begin(); it != x.end(); ++it) {
-        it->second *= a;
-    }
-    return x;
-}
-
-inline state_map operator*(state_map x, double const a)
-{
-    x *= a;
-    return x;
-}
-
-inline state_map operator*(double const a, state_map x)
-{
-    x *= a;
-    return x;
-}
-
-
-state_map operator/(state_map lhs, state_map const& rhs)
-{
-    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
-        lhs[it->first] /= it->second;
-    }
-    return lhs;
-}
-
-state_map abs(state_map x)
-{
-    for(auto it = x.begin(); it != x.end(); ++it) {
-        it->second = abs(it->second);
-    }
-    return x;
-}
+#include "../state_map.h"
 
 namespace boost { namespace numeric { namespace odeint {
 template<>
@@ -111,6 +41,14 @@ struct vector_space_norm_inf< state_map >
 };
 } } }
 
+state_map abs(state_map x)
+{
+    for(auto it = x.begin(); it != x.end(); ++it) {
+        /*it->second =*/ abs(it->second);
+    }
+    return x;
+}
+
 //[ rhs_class
 /* The rhs of x' = f(x) defined as a class */
 class harm_osc {
@@ -119,11 +57,11 @@ class harm_osc {
 public:
     harm_osc( double gam ) : m_gam(gam) { }
 
-//    void operator() ( const state_type &x, state_type &dxdt, const double /* t */ )
-//    {
-//        dxdt[0] = x[1];
-//        dxdt[1] = -x[0] - m_gam*x[1];
-//    }
+    void operator() ( const state_type &x, state_type &dxdt, const double /* t */ )
+    {
+        dxdt[0] = x[1];
+        dxdt[1] = -x[0] - m_gam*x[1];
+    }
 
     void operator() ( const state_map &x, state_map &dxdt, const double /* t */ )
     {
@@ -158,29 +96,30 @@ int main(int /* argc */, char** /* argv */ )
 
     harm_osc ho(0.15);
 
-//    state_type x(2);
-//    x[0] = 1.0; // start at x=1.0, p=0.0
-//    x[1] = 0.0;
-//
-//    //[ integrate_observ
-//    vector<state_type> x_vec;
-//    vector<double> times;
-//
-//    cout << "Before try\n";
-//    try {
-//        size_t steps = integrate( ho, x, 0.0, 10.0, 0.1,
-//                push_back_state_and_time<state_type>( x_vec, times ) );
-//        cout << "after integrate\n";
-//
-//        /* output */
-//        for( size_t i=0; i<=steps; i++ )
-//        {
-//            cout << times[i] << '\t' << x_vec[i][0] << '\t' << x_vec[i][1] << '\t' << x_vec[i][2] << '\n';
-//        }
-//    } catch (...) {
-//        cout << "Caught exception: " << '\n';
-//
-//    }
+    state_type x(2);
+    x[0] = 1.0; // start at x=1.0, p=0.0
+    x[1] = 0.0;
+
+    //[ integrate_observ
+    vector<state_type> x_vec;
+    vector<double> times;
+
+    cout << "Before try\n";
+    try {
+        runge_kutta4<state_type, double, state_type, double> stepper;
+        size_t steps = integrate_const(stepper, ho, x, 0.0, 10.0, 0.1,
+                push_back_state_and_time<state_type>( x_vec, times ) );
+        cout << "after integrate\n";
+
+        /* output */
+        for( size_t i=0; i<=steps; i++ )
+        {
+            cout << times[i] << '\t' << x_vec[i][0] << '\t' << x_vec[i][1] << '\n';
+        }
+    } catch (...) {
+        cout << "Caught exception: " << '\n';
+
+    }
 
     state_map x_map;
     x_map["zero"] = 1.0; // start at x=1.0, p=0.0
@@ -194,7 +133,7 @@ int main(int /* argc */, char** /* argv */ )
         runge_kutta4<state_map, double, state_map, double, vector_space_algebra> stepper;
 
         //integrate_const(stepper, ho, x_map, 0.0, 10.0, 0.01 );
-        size_t steps = integrate_const(stepper, ho, x_map, 0.0, 10.0, 0.01,
+        size_t steps = integrate_const(stepper, ho, x_map, 0.0, 10.0, 0.1,
                 push_back_state_and_time<state_map>( x_map_vec, times_map ) );
         //size_t steps = integrate( ho, x_map, 0.0, 10.0, 0.1,
                 //push_back_state_and_time<state_map>( x_map_vec, times_map ) );

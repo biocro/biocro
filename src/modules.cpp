@@ -6,6 +6,7 @@
 #include <math.h>
 #include <algorithm>
 #include "modules.h"
+#include "state_map.h"
 
 string join_string_vector(vector<string> const &state_keys) {
     std::ostringstream message;
@@ -487,63 +488,6 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     }
 }
 
-
-state_vector_map allocate_state(state_map const &m, size_t n)
-{
-    state_vector_map result;
-    for (auto it = m.begin(); it != m.end(); ++it) {
-        vector<double> temp;
-        temp.reserve(n);
-        result.insert(std::pair<string, vector<double>>(it->first, temp));
-    }
-    return (result);
-}
-
-state_map combine_state(state_map const &state_a, state_map const &state_b)
-{
-    state_map result = state_a;
-    result.insert(state_b.begin(), state_b.end());
-    return result;
-}
-
-state_map at(state_vector_map const &vector_map, vector<double>::size_type const n)
-{
-    state_map result;
-    result.reserve(vector_map.size());
-    for (auto it = vector_map.begin(); it != vector_map.end(); ++it) {
-        result.insert(std::pair<string, double>(it->first, it->second.at(n)));
-    }
-    return result;
-}
-
-state_map replace_state(state_map const &state, state_map const &newstate)
-{
-    state_map result = state;
-    for (auto it = result.begin(); it != result.end(); ++it) {
-        it->second = newstate.at(it->first);
-    }
-    return result;
-}
-
-state_map update_state(state_map const &state, state_map const &change_in_state)
-{
-    state_map result = state;
-    for (auto it = result.begin(); it != result.end(); ++it) {
-        auto it_change = change_in_state.find(it->first);
-        if ( it_change != change_in_state.end()) {
-            it->second += it_change->second;
-        }
-    }
-    return result;
-}
-
-void append_state_to_vector(state_map const &state, state_vector_map &state_vector)
-{
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        state_vector[it->first].push_back(it->second);
-    }
-}
-
 double biomass_leaf_nitrogen_limitation(state_map const &s)
 {
     double leaf_n = s.at("LeafN_0") * pow(s.at("Leaf") + s.at("Stem"), -s.at("kln"));
@@ -553,51 +497,6 @@ double biomass_leaf_nitrogen_limitation(state_map const &s)
 double thermal_leaf_nitrogen_limitation(state_map const &s)
 {
 	return (s.at("LeafN_0") * exp(-s.at("kln") * s.at("TTc")));
-}
-
-
-state_map& operator+=(state_map &lhs, state_map const &rhs)
-{
-    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
-        lhs[it->first] += it->second;
-    }
-    return lhs;
-}
-
-inline state_map operator+(state_map lhs, state_map const &rhs)
-{
-    lhs += rhs;
-    return lhs;
-}
-
-state_map& operator*=(state_map &lhs, double const a)
-{
-    for(auto it = lhs.begin(); it != lhs.end(); ++it) {
-        lhs[it->first] *= a;
-    }
-    return lhs;
-}
-
-inline state_map operator*(state_map lhs, double const a)
-{
-    lhs *= a;
-    return lhs;
-}
-
-vector<string> keys(state_map const &state) {
-    vector<string> result;
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        result.push_back(it->first);
-    }
-    return (result);
-}
-
-vector<string> keys(state_vector_map const &state) {
-    vector<string> result;
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        result.push_back(it->first);
-    }
-    return (result);
 }
 
 bool any_key_is_duplicated(vector<vector<string>> const &keys) {

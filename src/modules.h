@@ -1,19 +1,15 @@
 #ifndef MODULES_H
 #define MODULES_H
 
-#include <unordered_map>
 #include <string>
 #include <vector>
 #include <memory>
 #include "BioCro.h"
 #include "c3photo.h"
+#include "state_map.h"
 
 using std::vector;
 using std::string;
-using std::unordered_map;
-
-typedef unordered_map<string, double> state_map;
-typedef unordered_map<string, vector<double>> state_vector_map;
 
 class IModule {
     public:
@@ -178,8 +174,6 @@ class no_leaf_resp_partitioning_growth_module : public IGrowth_module {
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
-state_map combine_state(state_map const &state_a, state_map const &state_b);
-
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,
@@ -198,33 +192,10 @@ state_map Gro(
 double biomass_leaf_nitrogen_limitation(state_map const &state);
 double thermal_leaf_nitrogen_limitation(state_map const &state);
 
-void output_map(state_map const &m);
-
-state_map replace_state(state_map const &state, state_map const &newstate);
-
-state_map update_state(state_map const &state, state_map const &change_in_state);
-
-state_vector_map allocate_state(state_map const &m, size_t n);
-
-void append_state_to_vector(state_map const &state, state_vector_map &state_vector);
 
 std::unique_ptr<IModule> make_module(string const &module_name);
 
-state_map at(state_vector_map const &vector_map, vector<double>::size_type const n);
-
-state_map& operator+=(state_map &lhs, state_map const &rhs);
-
-state_map operator+(state_map lhs, state_map const &rhs);
-
-state_map& operator*=(state_map &lhs, double const a);
-
-state_map operator*(state_map lhs, double const a);
-
 string join_string_vector(vector<string> const &state_keys);
-
-vector<string> keys(state_map const &state);
-
-vector<string> keys(state_vector_map const &state);
 
 bool any_key_is_duplicated(vector<vector<string>> const &keys);
 
