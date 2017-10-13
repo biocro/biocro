@@ -5,6 +5,9 @@
 #include "modules.h"
 #include "R_helper_functions.h"
 
+using std::string;
+using std::vector;
+
 extern "C" {
 
 SEXP R_Gro(SEXP initial_state,

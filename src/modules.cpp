@@ -8,6 +8,9 @@
 #include "modules.h"
 #include "state_map.h"
 
+using std::string;
+using std::vector;
+
 string join_string_vector(vector<string> const &state_keys) {
     std::ostringstream message;
     for(auto it = state_keys.begin(); it != state_keys.end() - 1; ++it) {

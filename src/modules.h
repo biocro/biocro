@@ -8,26 +8,23 @@
 #include "c3photo.h"
 #include "state_map.h"
 
-using std::vector;
-using std::string;
-
 class IModule {
     public:
-        IModule(vector<string> const &required_state, vector<string> const &modified_state) :
+        IModule(std::vector<std::string> const &required_state, std::vector<std::string> const &modified_state) :
             _required_state(required_state),
             _modified_state(modified_state)
         {
             requirements_are_met = false;
         }
-        vector<string> list_required_state() const;
-        vector<string> list_modified_state() const;
+        std::vector<std::string> list_required_state() const;
+        std::vector<std::string> list_modified_state() const;
         state_map run (state_map const &state) const;
         state_map run (state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
-        vector<string> state_requirements_are_met(state_map const &state) const;
+        std::vector<std::string> state_requirements_are_met(state_map const &state) const;
         virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
     private:
-        vector<string> const _required_state;
-        vector<string> const _modified_state; 
+        std::vector<std::string> const _required_state;
+        std::vector<std::string> const _modified_state; 
         virtual state_map do_operation(state_map const &state) const {state_map derivs; return derivs;};
         virtual state_map do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
         bool requirements_are_met;
@@ -37,7 +34,7 @@ inline IModule::~IModule() {}  // A destructor must be defined, and since the de
 
 class ICanopy_photosynthesis_module : public IModule {
     public:
-        ICanopy_photosynthesis_module(const vector<string> &required_state, const vector<string> &modified_state)
+        ICanopy_photosynthesis_module(const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
             : IModule(required_state, modified_state)
         {}
 };
@@ -45,7 +42,7 @@ class ICanopy_photosynthesis_module : public IModule {
 class c4_canopy : public ICanopy_photosynthesis_module {
     public:
         c4_canopy()
-            : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solar", "temp",
+            : ICanopy_photosynthesis_module(std::vector<std::string> {"lai", "doy", "hour", "solar", "temp",
                     "rh", "windspeed", "lat", "nlayers", "vmax",
                     "alpha", "kparm", "beta", "Rd", "Catm",
                     "b0", "b1", "theta", "kd", "chil",
@@ -54,7 +51,7 @@ class c4_canopy : public ICanopy_photosynthesis_module {
                     "et_equation", "StomataWS", "water_stress_approach",
                     "nileafn", "kln", "nvmaxb0", "nvmaxb1", "alphab1",
                     "nRdb1", "nRdb0", "kpLN"}, 
-                    vector<string> {})
+                    std::vector<std::string> {})
         {}
     private:
         virtual state_map do_operation (state_map const &s) const;
@@ -63,13 +60,13 @@ class c4_canopy : public ICanopy_photosynthesis_module {
 class c3_canopy : public ICanopy_photosynthesis_module {
     public:
         c3_canopy()
-            : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solar", "temp",
+            : ICanopy_photosynthesis_module(std::vector<std::string> {"lai", "doy", "hour", "solar", "temp",
                     "rh", "windspeed", "lat", "nlayers", "vmax",
                     "jmax", "Rd", "Catm", "O2", "b0",
                     "b1", "theta", "kd", "heightf", "LeafN",
                     "kpLN", "lnb0", "lnb1", "lnfun", "chil", "StomataWS",
                     "water_stress_approach", "electrons_per_carboxylation", "electrons_per_oxygenation"},
-                    vector<string> {})
+                    std::vector<std::string> {})
         {}
     private:
         virtual state_map do_operation (state_map const &s) const;
@@ -77,7 +74,7 @@ class c3_canopy : public ICanopy_photosynthesis_module {
 
 class ISoil_evaporation_module : public IModule {
     public:
-        ISoil_evaporation_module(const vector<string> &required_state, const vector<string> &modified_state)
+        ISoil_evaporation_module(const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
             : IModule(required_state, modified_state)
         {}
 };
@@ -85,11 +82,11 @@ class ISoil_evaporation_module : public IModule {
 class one_layer_soil_profile : public ISoil_evaporation_module {
     public:
         one_layer_soil_profile()
-            : ISoil_evaporation_module(vector<string> {"lai", "temp", "solar", "waterCont",
+            : ISoil_evaporation_module(std::vector<std::string> {"lai", "temp", "solar", "waterCont",
                     "FieldC", "WiltP", "windspeed", "rh", "rsec",
                     "CanopyT", "precip", "soilDepth", "phi1", "phi2",
                     "soilType", "wsFun", "StomataWS", "LeafWS"},
-                    vector<string> {})
+                    std::vector<std::string> {})
         {}
     private:
         virtual state_map do_operation(state_map const &s) const;
@@ -98,12 +95,12 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
 class two_layer_soil_profile : public ISoil_evaporation_module {
     public:
         two_layer_soil_profile()
-            : ISoil_evaporation_module(vector<string> {"precip", "CanopyT", "cws1", "cws2", "soilDepth1",
+            : ISoil_evaporation_module(std::vector<std::string> {"precip", "CanopyT", "cws1", "cws2", "soilDepth1",
                     "soilDepth2", "soilDepth3", "FieldC", "WiltP", "phi1",
                     "phi2", "soilType" /* Instead of soTexS */, "wsFun", "Root", "lai",
                     "temp", "solar", "windspeed", "rh", "hydrDist",
                     "rfl", "rsec", "rsdf", "StomataWS", "LeafWS"},
-                    vector<string> {})
+                    std::vector<std::string> {})
         {}
     private:
         virtual state_map do_operation(state_map const &s) const;
@@ -111,7 +108,7 @@ class two_layer_soil_profile : public ISoil_evaporation_module {
 
 class ISenescence_module : public IModule {
     public:
-        ISenescence_module(const vector<string> &required_state, const vector<string> &modified_state)
+        ISenescence_module(const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
             : IModule(required_state, modified_state)
         {}
 };
@@ -119,11 +116,11 @@ class ISenescence_module : public IModule {
 class thermal_time_senescence : public ISenescence_module {
     public:
         thermal_time_senescence()
-            : ISenescence_module(vector<string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
+            : ISenescence_module(std::vector<std::string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                 "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
                 "mrc1", "mrc2"},
-                vector<string> {})
+                std::vector<std::string> {})
         {}
     private:
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
@@ -132,10 +129,10 @@ class thermal_time_senescence : public ISenescence_module {
 class thermal_time_and_frost_senescence : public ISenescence_module {
     public:
         thermal_time_and_frost_senescence()
-            : ISenescence_module(vector<string> {"TTc", "leafdeathrate", "lat", "doy", "Tfrostlow", "Tfrosthigh", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
+            : ISenescence_module(std::vector<std::string> {"TTc", "leafdeathrate", "lat", "doy", "Tfrostlow", "Tfrosthigh", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                 "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index"},
-                vector<string> {})
+                std::vector<std::string> {})
         {}
     private:
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
@@ -143,7 +140,7 @@ class thermal_time_and_frost_senescence : public ISenescence_module {
 
 class IGrowth_module : public IModule {
     public:
-        IGrowth_module(const vector<string> &required_state, const vector<string> &modified_state)
+        IGrowth_module(const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
             : IModule(required_state, modified_state)
         {}
 };
@@ -151,11 +148,11 @@ class IGrowth_module : public IModule {
 class partitioning_growth_module : public IGrowth_module {
     public:
         partitioning_growth_module()
-            : IGrowth_module(vector<string> {"TTc", "LeafWS", "temp", "CanopyA",
+            : IGrowth_module(std::vector<std::string> {"TTc", "LeafWS", "temp", "CanopyA",
                 "Leaf", "Stem", "Root", "Rhizome", "Grain",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                 "mrc1", "mrc2"},
-                vector<string> {})
+                std::vector<std::string> {})
         {}
     private:
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
@@ -164,11 +161,11 @@ class partitioning_growth_module : public IGrowth_module {
 class no_leaf_resp_partitioning_growth_module : public IGrowth_module {
     public:
         no_leaf_resp_partitioning_growth_module()
-            : IGrowth_module(vector<string> {"TTc", "LeafWS", "temp", "CanopyA",
+            : IGrowth_module(std::vector<std::string> {"TTc", "LeafWS", "temp", "CanopyA",
                 "Leaf", "Stem", "Root", "Rhizome", "Grain",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                 "mrc1", "mrc2"},
-                vector<string> {})
+                std::vector<std::string> {})
         {}
     private:
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
@@ -193,11 +190,11 @@ double biomass_leaf_nitrogen_limitation(state_map const &state);
 double thermal_leaf_nitrogen_limitation(state_map const &state);
 
 
-std::unique_ptr<IModule> make_module(string const &module_name);
+std::unique_ptr<IModule> make_module(std::string const &module_name);
 
-string join_string_vector(vector<string> const &state_keys);
+std::string join_string_vector(std::vector<std::string> const &state_keys);
 
-bool any_key_is_duplicated(vector<vector<string>> const &keys);
+bool any_key_is_duplicated(std::vector<std::vector<std::string>> const &keys);
 
 # endif
 

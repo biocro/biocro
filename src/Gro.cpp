@@ -11,6 +11,9 @@
 #include "BioCro.h"
 #include "modules.h"
 
+using std::string;
+using std::vector;
+
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,

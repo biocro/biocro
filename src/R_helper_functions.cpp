@@ -4,6 +4,9 @@
 #include "modules.h"
 #include "R_helper_functions.h"
 
+using std::string;
+using std::vector;
+
 state_map map_from_list(SEXP const &list)
 {
     SEXP names = getAttrib(list, R_NamesSymbol);

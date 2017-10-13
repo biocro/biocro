@@ -7,6 +7,9 @@
 #include "BioCro.h"
 #include "modules.h"
 
+using std::string;
+using std::vector;
+
 extern "C" {
 
     SEXP c3CanA(SEXP Lai,
