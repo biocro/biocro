@@ -11,9 +11,6 @@
 #include "BioCro.h"
 #include "modules.h"
 
-using std::string;
-using std::vector;
-
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,
@@ -155,7 +152,7 @@ state_vector_map Gro(
 
         derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
-        derivs += growth_module->run(state_history, deriv_history, p);
+        derivs += growth_module->run(state_history, deriv_history, p);//we dont want to run this for soil, growth and senescence, instead iterate thru all different modules in deriv_mods
 
         derivs += senescence_module->run(state_history, deriv_history, p);
 
@@ -209,9 +206,115 @@ state_vector_map Gro(
 }
 
 state_map Gro(
-        state_map const &state,
-        std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
-        std::vector<std::unique_ptr<IModule>> const &derivative_modules)
+    state_map const &state,
+    std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
+    std::vector<std::unique_ptr<IModule>> const &derivative_modules)
 {
-    return state_map();
+state_map current_state = state;
+state_vector_map results;
+
+struct dbp_str dbpS;
+
+    double dbpcoefs[] = {
+        state.at("kStem1"), state.at("kLeaf1"), state.at("kRoot1"), state.at("kRhizome1"),
+        state.at("kStem2"), state.at("kLeaf2"), state.at("kRoot2"), state.at("kRhizome2"),
+        state.at("kStem3"), state.at("kLeaf3"), state.at("kRoot3"), state.at("kRhizome3"),
+        state.at("kStem4"), state.at("kLeaf4"), state.at("kRoot4"), state.at("kRhizome4"),
+        state.at("kStem5"), state.at("kLeaf5"), state.at("kRoot5"), state.at("kRhizome5"),
+        state.at("kStem6"), state.at("kLeaf6"), state.at("kRoot6"), state.at("kRhizome6"), state.at("kGrain6")
+    };
+
+    double thermalp[] = {
+        state.at("tp1"), state.at("tp2"), state.at("tp3"), state.at("tp4"), state.at("tp5"), state.at("tp6")
+    };
+
+    state_map p = state;
+    p["Sp"] = p.at("iSp") - (p.at("doy") - derivative_modules.at("doy")[0]) * p.at("SpD");
+    p["lai"] = p.at("Leaf") * p.at("Sp");
+    p["LeafN"] = leaf_n_limitation(p);
+    leaf_n_limitation(p);
+    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+    p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
+
+    dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
+
+    p["CanopyA"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
+
+    vector<string> missing_state;
+    vector<string> temp;
+
+    for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+        temp = it->state_requirements_are_met(p);
+        missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
+    }
+    for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+        temp = it->state_requirements_are_met(p);
+        missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
+    }
+
+    if (!missing_state.empty()) {
+        std::ostringstream message;
+        message << "The following required state variables are missing: " << join_string_vector(missing_state);
+        throw std::out_of_range(message.str());
+    }
+        /*
+         * 1) Calculate all state-dependent state variables.
+         */
+
+        /* NOTE: 
+         * This section is for state variables that are not modified by derivatives.
+         * No derivaties should be calulated here.
+         * This makes it so that the code in section 2 is order independent.
+         */
+
+        p["Sp"] = p.at("iSp") - (p.at("doy") - state.at("doy")[0]) * p.at("SpD");
+        p["lai"] = p.at("Leaf") * p.at("Sp");
+
+        /* Model photosynthetic parameters as a linear relationship between
+           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
+           availability and possibly by the thermal time.
+           (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
+        p["LeafN"] = leaf_n_limitation(p);
+        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+        p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
+
+        dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
+
+        p["kLeaf"] = dbpS.kLeaf;
+        p["kStem"] = dbpS.kStem;
+        p["kRoot"] = dbpS.kRoot;
+        p["kGrain"] = dbpS.kGrain;
+        p["kRhizome"] = dbpS.kRhiz;
+
+        /*
+         * 2) Calculate derivatives between state variables.
+         */
+
+        /* NOTE: This section should be written to calculate derivates only. No state should be modified.
+         * All derivatives should depend only on current state. I.e., derivates should not depend on other derivaties or previous state.
+         * I've changed it to try to meet these requirements, but it currently does not meet them.
+         * E.g., 1) s["TTc"] is changed at the very begining, modifying state;
+         * 2) all of the partitioning code depends on CanopyA, so it depends on a derivative;
+         * 3) the senescence code depends on derivates from previous state. 
+         * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
+         * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
+         */
+        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
+
+        if(p.at("temp") > p.at("tbase")) {
+            derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
+        }
+
+        for(auto it = steady_state_modules.begin(); it != steady_state)_modules.end(); ++it) {
+            derivs += it->run(state)
+        }
+
+        p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
+        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
+
+        for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+            derivs += it->run(state)
+        }
+        
+return derivs;
 }
