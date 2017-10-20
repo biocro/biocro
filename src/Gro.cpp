@@ -11,6 +11,9 @@
 #include "BioCro.h"
 #include "modules.h"
 
+using std::vector;
+using std::string;
+
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,
@@ -58,7 +61,6 @@ state_vector_map Gro(
     p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
     p["lai"] = p.at("Leaf") * p.at("Sp");
     p["LeafN"] = leaf_n_limitation(p);
-    leaf_n_limitation(p);
     p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
     p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
@@ -152,7 +154,7 @@ state_vector_map Gro(
 
         derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
-        derivs += growth_module->run(state_history, deriv_history, p);//we dont want to run this for soil, growth and senescence, instead iterate thru all different modules in deriv_mods
+        derivs += growth_module->run(state_history, deriv_history, p);
 
         derivs += senescence_module->run(state_history, deriv_history, p);
 
@@ -229,10 +231,8 @@ struct dbp_str dbpS;
     };
 
     state_map p = state;
-    p["Sp"] = p.at("iSp") - (p.at("doy") - derivative_modules.at("doy")[0]) * p.at("SpD");
+    p["Sp"] = p.at("iSp") - p.at("TTc") * p.at("Sp_thermal_time_decay");
     p["lai"] = p.at("Leaf") * p.at("Sp");
-    p["LeafN"] = leaf_n_limitation(p);
-    leaf_n_limitation(p);
     p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
     p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
@@ -244,11 +244,11 @@ struct dbp_str dbpS;
     vector<string> temp;
 
     for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        temp = it->state_requirements_are_met(p);
+        temp = (*it)->state_requirements_are_met(p);
         missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
     }
     for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-        temp = it->state_requirements_are_met(p);
+        temp = (*it)->state_requirements_are_met(p);
         missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
     }
 
@@ -267,14 +267,13 @@ struct dbp_str dbpS;
          * This makes it so that the code in section 2 is order independent.
          */
 
-        p["Sp"] = p.at("iSp") - (p.at("doy") - state.at("doy")[0]) * p.at("SpD");
+        p["Sp"] = p.at("iSp") - p.at("TTc") * p.at("Sp_thermal_time_decay");
         p["lai"] = p.at("Leaf") * p.at("Sp");
 
         /* Model photosynthetic parameters as a linear relationship between
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the thermal time.
            (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
-        p["LeafN"] = leaf_n_limitation(p);
         p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
         p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
@@ -305,16 +304,17 @@ struct dbp_str dbpS;
             derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
 
-        for(auto it = steady_state_modules.begin(); it != steady_state)_modules.end(); ++it) {
-            derivs += it->run(state)
+        for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+            derivs += (*it)->run(state);
         }
 
         p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
         p["CanopyT"] = derivs["Trans"] * p.at("timestep");
 
         for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-            derivs += it->run(state)
+            derivs += (*it)->run(state);
         }
         
 return derivs;
 }
+

@@ -32,6 +32,17 @@ class IModule {
 
 inline IModule::~IModule() {}  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
 
+class biomass_leaf_n_limitation : public IModule {
+    public:
+        biomass_leaf_n_limitation()
+            : IModule(std::vector<std::string> {"LeafN_0", "Leaf", "Stem", "kln"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        virtual state_map do_operation (state_map const &s) const;
+
+};
+
 class ICanopy_photosynthesis_module : public IModule {
     public:
         ICanopy_photosynthesis_module(const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)

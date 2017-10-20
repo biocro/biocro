@@ -78,6 +78,13 @@ vector<string> IModule::state_requirements_are_met(state_map const &s) const
     return (missing_state);
 }
 
+state_map biomass_leaf_n_limitation::do_operation(state_map const &s) const
+{
+    state_map calculated_state;
+    calculated_state["LeafN"] = biomass_leaf_nitrogen_limitation(s);
+    return calculated_state;
+}
+
 state_map c4_canopy::do_operation(state_map const &s) const
 {
     struct nitroParms nitroP; 
@@ -518,4 +525,5 @@ bool any_key_is_duplicated(vector<vector<string>> const &keys) {
     }
     return false;
 }
+
 
