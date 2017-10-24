@@ -5,9 +5,13 @@
  *
  */
 
+#include <R.h>
+
 #include <memory>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
+#include <string>
 #include "BioCro.h"
 #include "modules.h"
 
@@ -93,7 +97,7 @@ state_vector_map Gro(
         throw std::out_of_range(message.str());
     }
 
-    for(size_t i = 0; i < n_rows; ++i)
+    for (size_t i = 0; i < n_rows; ++i)
     {
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
@@ -144,7 +148,7 @@ state_vector_map Gro(
          */
         state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
 
-        if(p.at("temp") > p.at("tbase")) {
+        if (p.at("temp") > p.at("tbase")) {
             derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
         derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
@@ -217,6 +221,20 @@ state_vector_map results;
 
 struct dbp_str dbpS;
 
+Rprintf("Start of Gro.\n");
+
+    /*
+     * 1) Calculate all state-dependent state variables.
+     */
+
+    /* NOTE: 
+     * This section is for state variables that are not modified by derivatives.
+     * No derivaties should be calulated here.
+     * This makes it so that the code in section 2 is order independent.
+     */
+
+Rprintf("Before calculated state\n");
+
     double dbpcoefs[] = {
         state.at("kStem1"), state.at("kLeaf1"), state.at("kRoot1"), state.at("kRhizome1"),
         state.at("kStem2"), state.at("kLeaf2"), state.at("kRoot2"), state.at("kRhizome2"),
@@ -231,23 +249,33 @@ struct dbp_str dbpS;
     };
 
     state_map p = state;
+
+Rprintf("1\n");
     p["Sp"] = p.at("iSp") - p.at("TTc") * p.at("Sp_thermal_time_decay");
+Rprintf("2\n");
     p["lai"] = p.at("Leaf") * p.at("Sp");
+Rprintf("3\n");
     p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+Rprintf("4\n");
     p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
     dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
 
-    p["CanopyA"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
+    p["kLeaf"] = dbpS.kLeaf;
+    p["kStem"] = dbpS.kStem;
+    p["kRoot"] = dbpS.kRoot;
+    p["kGrain"] = dbpS.kGrain;
+    p["kRhizome"] = dbpS.kRhiz;
 
+Rprintf("Before module missing state\n");
     vector<string> missing_state;
     vector<string> temp;
 
-    for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+    for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
         temp = (*it)->state_requirements_are_met(p);
         missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
     }
-    for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         temp = (*it)->state_requirements_are_met(p);
         missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
     }
@@ -257,64 +285,37 @@ struct dbp_str dbpS;
         message << "The following required state variables are missing: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
     }
-        /*
-         * 1) Calculate all state-dependent state variables.
-         */
 
-        /* NOTE: 
-         * This section is for state variables that are not modified by derivatives.
-         * No derivaties should be calulated here.
-         * This makes it so that the code in section 2 is order independent.
-         */
+    /*
+     * 2) Calculate derivatives between state variables.
+     */
 
-        p["Sp"] = p.at("iSp") - p.at("TTc") * p.at("Sp_thermal_time_decay");
-        p["lai"] = p.at("Leaf") * p.at("Sp");
+    /* NOTE: This section should be written to calculate derivates only. No state should be modified.
+     * All derivatives should depend only on current state. I.e., derivates should not depend on other derivaties or previous state.
+     * I've changed it to try to meet these requirements, but it currently does not meet them.
+     * E.g., the senescence code depends on derivates from previous state. 
+     * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
+     * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
+     */
+    state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
 
-        /* Model photosynthetic parameters as a linear relationship between
-           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
-           availability and possibly by the thermal time.
-           (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
-        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
-        p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
+    if (p.at("temp") > p.at("tbase")) {
+        p["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
+    }
 
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
+Rprintf("Before steady module calls\n");
+    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+        p = combine_state(p, (*it)->run(p));
+    }
 
-        p["kLeaf"] = dbpS.kLeaf;
-        p["kStem"] = dbpS.kStem;
-        p["kRoot"] = dbpS.kRoot;
-        p["kGrain"] = dbpS.kGrain;
-        p["kRhizome"] = dbpS.kRhiz;
+    for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+        state_map temp = (*it)->run(p);
+        //output_map(temp);
+        derivs += temp;
+    }
 
-        /*
-         * 2) Calculate derivatives between state variables.
-         */
-
-        /* NOTE: This section should be written to calculate derivates only. No state should be modified.
-         * All derivatives should depend only on current state. I.e., derivates should not depend on other derivaties or previous state.
-         * I've changed it to try to meet these requirements, but it currently does not meet them.
-         * E.g., 1) s["TTc"] is changed at the very begining, modifying state;
-         * 2) all of the partitioning code depends on CanopyA, so it depends on a derivative;
-         * 3) the senescence code depends on derivates from previous state. 
-         * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
-         * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
-         */
-        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
-
-        if(p.at("temp") > p.at("tbase")) {
-            derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
-        }
-
-        for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-            derivs += (*it)->run(state);
-        }
-
-        p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
-        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
-
-        for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-            derivs += (*it)->run(state);
-        }
-        
+    
+    
 return derivs;
 }
 

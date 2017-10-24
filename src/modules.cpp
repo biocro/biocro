@@ -1,3 +1,4 @@
+#include <R.h>
 
 #include <iostream>
 #include <memory>

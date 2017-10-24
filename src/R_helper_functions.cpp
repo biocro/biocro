@@ -37,6 +37,15 @@ state_vector_map map_vector_from_list(SEXP const &list)
     return m;
 }
 
+vector<string> make_vector(SEXP const &r_string_vector) {
+    vector<string> v;
+    size_t n = length(r_string_vector);
+    v.reserve(n);
+    for (size_t i = 0; i < n; ++i) {
+        v.push_back(CHAR(STRING_ELT(r_string_vector, i)));
+    }
+    return v;
+}
 
 SEXP list_from_map(state_map const &m)
 {

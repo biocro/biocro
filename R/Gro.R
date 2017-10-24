@@ -104,6 +104,27 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
     return(result)
 }
 
+Gro_ode <- function(initial_values, parameters, varying_parameters, steady_state_modules, derivative_modules)
+{
+    for ( ilist in list(initial_values, parameters) ) {
+        if (class(ilist) != 'list') {
+            stop('"initial_values" and "parameters" must each be a list.')
+        }
+        
+        item_lengths = unlist(lapply(ilist, length))
+        if (!(all(item_lengths == 1))) {
+            error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+            stop(error_message)
+        }
+    }
+    
+    varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))  # C++ requires that all the variables have type `double  # C++ requires that all the variables have type `double`.
+    names(varying_parameters) = tolower(names(varying_parameters))  # Convert all names to lower case for easy of use.
+
+    result = as.data.frame(.Call(R_Gro_ode, initial_values, parameters, varying_parameters, steady_state_modules, derivative_modules))
+    return(result)
+}
+
 partial_gro = function(initial_values, parameters, varying_parameters, modules, arg_names) {
 # Accepts the same parameters as Gro() with an additional 'arg_names' parameter, which is a vector of character variables.
 # Returns a function that runs Gro() with all of the parameters, except 'arg_names

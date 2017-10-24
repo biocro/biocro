@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <stdexcept>
 #include "BioCro.h"
 #include "c3photo.h"
 #include "state_map.h"
@@ -25,7 +26,7 @@ class IModule {
     private:
         std::vector<std::string> const _required_state;
         std::vector<std::string> const _modified_state; 
-        virtual state_map do_operation(state_map const &state) const {state_map derivs; return derivs;};
+        virtual state_map do_operation(state_map const &state) const {throw std::logic_error("This module cannot call run().\n"); state_map derivs; return derivs;};
         virtual state_map do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
         bool requirements_are_met;
 };

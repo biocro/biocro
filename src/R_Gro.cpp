@@ -84,5 +84,85 @@ SEXP R_Gro(SEXP initial_state,
     }
 }
 
+SEXP R_Gro_ode(SEXP initial_state,
+        SEXP invariate_parameters,
+        SEXP varying_parameters,
+        SEXP steady_state_modules_list,
+        SEXP derivative_modules_list)
+{
+Rprintf("Start of R_Gro_ode.\n");
+    try {
+        state_map s = map_from_list(initial_state);
+        state_map ip = map_from_list(invariate_parameters);
+        state_vector_map vp = map_vector_from_list(varying_parameters);
+
+        if (vp.begin()->second.size() == 0) {
+            return R_NilValue;
+        }
+
+        //output_map(s);
+        //output_map(ip);
+        std::vector<std::unique_ptr<IModule>> steady_state_modules;
+        std::vector<std::unique_ptr<IModule>> derivative_modules;
+
+        try {
+            vector<string> steady_state_names_vector = make_vector(steady_state_modules_list);
+            for (auto it = steady_state_names_vector.begin(); it != steady_state_names_vector.end(); ++it) {
+                steady_state_modules.push_back(make_module(*it));
+            }
+
+            vector<string> derivative_names_vector = make_vector(derivative_modules_list);
+            for (auto it = derivative_names_vector.begin(); it != derivative_names_vector.end(); ++it) {
+                derivative_modules.push_back(make_module(*it));
+            }
+        }
+        catch (std::out_of_range const &oor) {
+            error("%s was passed as a module, but that module could not be found.\n", oor.what());
+        }
+
+        vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
+            "LeafN_0", "vmaxb1", "vmax1", "alphab1",
+            "alpha1", "TTc", "temp", "tbase", "timestep",
+            "mrc1", "seneLeaf", "Stem", "seneStem",
+            "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome", "kln", "growth_respiration_fraction"};
+
+        state_map all_state = combine_state(s, combine_state(ip, at(vp, 0)));
+
+        vector<string> missing_state;
+        for (auto it = required_state.begin(); it != required_state.end(); ++it) {
+            if (all_state.find(*it) == all_state.end()) {
+                missing_state.push_back(*it);
+            }
+        }
+
+        if (!missing_state.empty()) {
+            std::ostringstream message;
+            message << "The following state variables are required but are missing: ";
+            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
+                message << *it << ", ";
+            }
+            message << missing_state.back() << ".";
+            error(message.str().c_str());
+        }
+
+Rprintf("Before Gro call.\n");
+        state_vector_map result;
+        try {
+            state_map state = combine_state(s, combine_state(ip, at(vp, 0)));
+            append_state_to_vector(Gro(state, steady_state_modules, derivative_modules), result);
+        } catch (std::exception const &e) {
+            std::ostringstream message;
+            message << "Exception caught in R_Gro.cpp: R_Gro_ode. " << e.what();
+            error(message.str().c_str());
+        }
+
+        return (list_from_map(result));
+    } catch (std::exception const &e) {
+        error("Caught unhandled exception in R_Gro.cpp");
+    } catch (...) {
+        error("Caught unhandled exception in R_Gro.cpp");
+    }
+}
+
 } // extern "C"
 
