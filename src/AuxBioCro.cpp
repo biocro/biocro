@@ -402,7 +402,7 @@ struct ET_Str EvapoTrans2(
     const double Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
 
     /* AERODYNAMIC COMPONENT */
-    if(WindSpeed < 0.5) WindSpeed = 0.5;
+    if (WindSpeed < 0.5) WindSpeed = 0.5;
 
     const double LayerWindSpeed = WindSpeed; // alias
 
@@ -517,11 +517,11 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
     Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/
 
-    if(Tvdiff < 0) Tvdiff = -Tvdiff;
+    if (Tvdiff < 0) Tvdiff = -Tvdiff;
 
     gbv_free = cf * pow(Tlk,0.56) * pow((Tlk+120)/Pa,0.5) * pow(Tvdiff/lw,0.25);
 
-    if(gbv_forced > gbv_free) {
+    if (gbv_forced > gbv_free) {
         gbv = gbv_forced;
     } else {
         gbv = gbv_free;
@@ -637,10 +637,10 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
        similar. I will leave it like this for now. */
 
     PhiN = Ja - rlc; /* Calculate the net radiation balance*/
-    if(PhiN < 0) PhiN = 1e-7;
+    if (PhiN < 0) PhiN = 1e-7;
 
     /* Priestly-Taylor */
-    if(method == 0) {
+    if (method == 0) {
         Evaporation = 1.26 * (SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam));
     } else {
         /* Penman-Monteith */
@@ -659,7 +659,7 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
     /* Converting from m2 to ha (times 1e4) */
     /* Converting to hour */
     Evaporation *= SoilArea * Up * cf2;
-    if(Evaporation < 0) Evaporation = 1e-6;
+    if (Evaporation < 0) Evaporation = 1e-6;
 
     return(Evaporation);
 }
@@ -738,7 +738,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     double runoff = 0.0;
     double Nleach = 0.0;  /* Nleach is the NO3 leached. */
-    if(aw > theta_s) {
+    if (aw > theta_s) {
         runoff = (aw - theta_s) * soildepth; /* This is in meters */
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
@@ -765,7 +765,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     tmp.psim = -exp(log(0.033) + ((log(fieldc) - log(awc)) / (log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033)))) * 1e3; /* This last term converts from MPa to kPa */
 
     /* This is drainage */
-    if(awc > fieldc) {
+    if (awc > fieldc) {
         double K_psim = soTexS.Ks * pow((soTexS.air_entry / tmp.psim), 2 + 3 / soTexS.b); /* This is hydraulic conductivity */
         double J_w = -K_psim * (-tmp.psim / (soildepth * 0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth */
         double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
@@ -996,7 +996,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 double resp(double comp, double mrc, double temp) {
     double ans = comp *  (1 - (mrc * pow(2, (temp / 10.0))));
 
-    if(ans <0) ans = 0;
+    if (ans <0) ans = 0;
 
     return(ans);
 
@@ -1016,35 +1016,35 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
     tmp.kRhiz = 0.0;
     tmp.kGrain = 0.0; /* kGrain is always zero except for the last thermal period */
 
-    if(TherTime < TherPrds[0])
+    if (TherTime < TherPrds[0])
     {
         tmp.kStem = coefs[0];
         tmp.kLeaf = coefs[1];
         tmp.kRoot = coefs[2];
         tmp.kRhiz = coefs[3];
 
-    } else if( TherTime < TherPrds[1] )
+    } else if ( TherTime < TherPrds[1] )
     {
         tmp.kStem = coefs[4];
         tmp.kLeaf = coefs[5];
         tmp.kRoot = coefs[6];
         tmp.kRhiz = coefs[7];
 
-    } else if( TherTime < TherPrds[2])
+    } else if ( TherTime < TherPrds[2])
     {
         tmp.kStem = coefs[8];
         tmp.kLeaf = coefs[9];
         tmp.kRoot = coefs[10];
         tmp.kRhiz = coefs[11];
 
-    } else if(TherTime < TherPrds[3])
+    } else if (TherTime < TherPrds[3])
     {
         tmp.kStem = coefs[12];
         tmp.kLeaf = coefs[13];
         tmp.kRoot = coefs[14];
         tmp.kRhiz = coefs[15];
 
-    } else if(TherTime < TherPrds[4])
+    } else if (TherTime < TherPrds[4])
     {
         tmp.kStem = coefs[16];
         tmp.kLeaf = coefs[17];
