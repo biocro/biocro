@@ -686,12 +686,12 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
    according to the water stress of the plant. This is done
    for now, with a very simple empirical approach. */
 
-struct ws_str watstr(double precipit, double evapo, double cws, double soildepth,
-        double fieldc, double wiltp, double phi1, double phi2,
+struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
+        double wiltp, double phi1, double phi2,
         int soiltype, /* soil type indicator */
-        int wsFun) /* flag for which water stress function to use */
+        int wsFun) /* flag indicating which water stress function to use */
 {
-    constexpr double g = 9.8; // m/s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
+    constexpr double g = 9.8; // m / s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
     soilText_str soTexS = soilTchoose(soiltype);
 
@@ -714,7 +714,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         aw = theta_s;
     }
 
-    /* The density of water is 998.2 kg/m3 at 20 degrees Celsius or 0.9982 Mg/m3 */
+    /* The density of water is 0.9982 Mg / m^3 at 20 degrees Celsius. */
     /* evapo is demanded water (Mg / ha) */
     double npaw = aw - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
 
@@ -735,7 +735,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     if (awc > fieldc) {
         double K_psim = soTexS.Ks * pow((soTexS.air_entry / tmp.psim), 2 + 3 / soTexS.b); /* This is hydraulic conductivity */
         double J_w = -K_psim * (-tmp.psim / (soildepth * 0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth */
-        double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
+        double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m^3 / (m^2 * hr). */
         awc = awc + drainage / soildepth;
     }
 
