@@ -138,7 +138,9 @@ state_map c3_canopy::do_operation(state_map const &s) const
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
     double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
-                s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
+                s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"), 
+                s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
+                s.at("specific_heat"), s.at("stefan_boltzman")));
     double TotEvap = soilEvap + s.at("CanopyT");
 
     struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),

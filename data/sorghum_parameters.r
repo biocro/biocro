@@ -3,6 +3,11 @@ sorghum_parameters = with(list(), {
     datalines =
     "symbol value
     lat 40
+    soil_clod_size 0.04
+    soil_reflectance 0.2
+    soil_transmission 0.01
+    specific_heat 1010
+    stefan_boltzman 5.67e-8
     iSp 1.7
     SpD 0
     nlayers 10

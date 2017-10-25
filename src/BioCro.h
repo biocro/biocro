@@ -32,13 +32,15 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
 
 double SoilEvapo(double LAI, double k, double AirTemp, double DirectRad,
-		 double awc, double fieldc, double wiltp, double winds, double RelH, double rsec);
+		 double awc, double fieldc, double wiltp, double winds, double RelH, double rsec,
+		 double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman);
 
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth,
 			 double *depths, double fieldc, double wiltp, double phi1, double phi2,
                          const struct soilText_str &soTexS, int wsFun, int layers, double rootDB,
 			 double LAI, double k, double AirTemp, double IRad, double winds, double RelH,
-			 int hydrDist, double rfl, double rsec, double rsdf);
+			 int hydrDist, double rfl, double rsec, double rsdf,
+			 double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman);
 
 double TempToSWVC(double Temp);
 double TempToSFS(double Temp);

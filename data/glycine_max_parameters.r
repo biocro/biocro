@@ -11,6 +11,11 @@ glycine_max_parameters = with(list(), {
      Tfrosthigh    5   
      Tfrostlow     0   
      leafdeathrate 5
+     soil_clod_size 0.04
+     soil_reflectance 0.2
+     soil_transmission 0.01
+     specific_heat 1010
+     stefan_boltzman 5.67e-8
      chil           1
      iSp                 2.8      
      SpD                0        

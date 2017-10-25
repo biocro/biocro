@@ -544,16 +544,17 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
 /* winds = wind speed */
 
 double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
-        double fieldc, double wiltp, double winds, double RelH, double rsec )
+        double fieldc, double wiltp, double winds, double RelH, double rsec, 
+        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
 {
     double Evaporation = 0.0;
     int method = 1;
 
-    const double SoilClodSize = 0.04;
-    const double SoilReflectance = 0.2;
-    const double SoilTransmission = 0.01;
-    const double SpecificHeat = 1010;
-    const double StefanBoltzman = 5.67e-8;
+    //const double SoilClodSize = 0.04;
+    //const double SoilReflectance = 0.2;
+    //const double SoilTransmission = 0.01;
+    //const double SpecificHeat = 1010;
+    //const double StefanBoltzman = 5.67e-8;
 
     /* A simple way of calculating the proportion of the soil with direct radiation. */
     double SoilArea = exp(-k * LAI);
@@ -759,7 +760,8 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
         double fieldc, double wiltp, double phi1, double phi2, const struct soilText_str &soTexS, int wsFun,
         int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds,
-        double RelH, int hydrDist, double rfl, double rsec, double rsdf)
+        double RelH, int hydrDist, double rfl, double rsec, double rsdf, 
+        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
     
@@ -873,7 +875,8 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             /* Only the first layer is affected by soil evaporation */
             double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
-            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, fieldc, wiltp, winds, RelH, rsec);
+            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, fieldc, wiltp, winds, RelH, rsec,
+                soil_clod_size, soil_reflectance, soil_transmission, specific_heat, stefan_boltzman );
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
                to the amount of root in each respective layer.*/
