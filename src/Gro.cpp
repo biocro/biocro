@@ -190,7 +190,7 @@ state_vector_map Gro(
         results["canopy_assimilation"].push_back(p["CanopyA"]);
         results["canopy_transpiration"].push_back(p["CanopyT"]);
         results["lai"].push_back(p.at("lai"));
-        //results["soil_water_content"].push_back(s.at("waterCont"));
+        //results["soil_water_content"].push_back(s.at("soil_water_content"));
         results["stomatal_conductance_coefs"].push_back(current_state.at("StomataWS"));
         //results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
         //results["leaf_nitrogen"].push_back(s.at("LeafN"));

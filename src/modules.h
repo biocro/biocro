@@ -94,7 +94,7 @@ class ISoil_evaporation_module : public IModule {
 class one_layer_soil_profile : public ISoil_evaporation_module {
     public:
         one_layer_soil_profile()
-            : ISoil_evaporation_module(std::vector<std::string> {"lai", "temp", "solar", "waterCont",
+            : ISoil_evaporation_module(std::vector<std::string> {"lai", "temp", "solar", "soil_water_content",
                     "FieldC", "WiltP", "windspeed", "rh", "rsec",
                     "CanopyT", "precip", "soilDepth", "phi1", "phi2",
                     "soilType", "wsFun", "StomataWS", "LeafWS"},

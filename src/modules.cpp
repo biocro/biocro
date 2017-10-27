@@ -152,18 +152,18 @@ state_map c3_canopy::do_operation(state_map const &s) const
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
-    double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
+    double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("soil_water_content"),
                 s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"), 
                 s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
                 s.at("specific_heat"), s.at("stefan_boltzman"));
     double TotEvap = soilEvap + s.at("CanopyT");
 
-    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
+    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soilDepth"), s.at("FieldC"),
             s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
 
     state_map derivs;
     derivs["soilEvap"] = soilEvap;
-    derivs["waterCont"] = WaterS.awc - s.at("waterCont");
+    derivs["soil_water_content"] = WaterS.awc - s.at("soil_water_content");
     derivs["StomataWS"] = WaterS.rcoefPhoto - s.at("StomataWS");
     derivs["LeafWS"] =  WaterS.rcoefSpleaf - s.at("LeafWS");
     return (derivs);
@@ -190,7 +190,7 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     derivs["cws1"] = soilMLS.cws[0] - s.at("cws1");
     derivs["cws2"] = soilMLS.cws[1] - s.at("cws2");
     double cws_sum = soilMLS.cws[0] + soilMLS.cws[1];
-    derivs["waterCont"] =  cws_sum / 2 - s.at("waterCont");  // Divide by 2, the number of layers.
+    derivs["soil_water_content"] =  cws_sum / 2 - s.at("soil_water_content");  // Divide by 2, the number of layers.
     
     return (derivs);
 }

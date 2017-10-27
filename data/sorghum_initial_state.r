@@ -7,7 +7,7 @@ sorghum_initial_state = with(list(), {
     Stem 0.00001
     Root 0.00001
     Grain 0
-    waterCont 0.32
+    soil_water_content 0.32
     StomataWS 1
     LeafN 2
     TTc 0

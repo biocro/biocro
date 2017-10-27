@@ -7,7 +7,7 @@ miscanthus_x_giganteus_initial_state = with(list(), {
     Stem	0.007
     Root	0.007
     Grain	0
-    waterCont	0.32
+    soil_water_content	0.32
     StomataWS	1
     LeafN	2
     TTc	0
