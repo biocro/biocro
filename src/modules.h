@@ -183,6 +183,26 @@ class no_leaf_resp_partitioning_growth_module : public IGrowth_module {
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
+class test_derivs : public IModule {
+    public:
+        test_derivs()
+            : IModule(std::vector<std::string> {"LeafArea", "PAR"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const;
+};
+
+class test_calc_state : public IModule {
+    public:
+        test_calc_state()
+            : IModule(std::vector<std::string> {"LeafArea", "parameter"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const;
+};
+
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,

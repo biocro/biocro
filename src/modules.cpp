@@ -86,6 +86,23 @@ state_map biomass_leaf_n_limitation::do_operation(state_map const &s) const
     return calculated_state;
 }
 
+
+state_map test_derivs::do_operation(state_map const &s) const
+{
+    state_map derivs;
+    derivs["CarbonAvailableForGrowth"] = s.at("LeafArea") * s.at("PAR");
+
+    return (derivs);
+}
+
+state_map test_calc_state::do_operation(state_map const &s) const
+{
+    state_map new_state;
+    new_state["useless_parameters"] = s.at("LeafArea") * s.at("parameter");
+
+    return (new_state);
+}
+
 state_map c4_canopy::do_operation(state_map const &s) const
 {
     struct nitroParms nitroP; 
@@ -495,6 +512,12 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     }
     else if (module_name.compare("thermal_time_senescence") == 0) {
         return std::unique_ptr<IModule>(new thermal_time_senescence);
+    }
+    else if (module_name.compare("test_derivs") == 0) {
+        return std::unique_ptr<IModule>(new test_derivs);
+    }
+    else if (module_name.compare("test_calc_state") == 0) {
+        return std::unique_ptr<IModule>(new test_calc_state);
     }
     else {
         throw std::out_of_range(module_name);
