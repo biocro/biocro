@@ -2,7 +2,7 @@
 #include <memory>
 #include "modules.h"
 
-void test_gro(state_map const &state) {
+state_map test_gro(state_map const &state) {
     state_map results;
 
     std::vector<std::unique_ptr<IModule>> steady_modules;
@@ -12,6 +12,7 @@ void test_gro(state_map const &state) {
     derivative_modules.push_back(std::unique_ptr<IModule>(new test_derivs));
 
     results = Gro(state, steady_modules, derivative_modules);
+    return results;
 }
 
 
