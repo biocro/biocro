@@ -203,6 +203,23 @@ class test_calc_state : public IModule {
         state_map do_operation(state_map const &s) const;
 };
 
+class ws_photo_linear : public IModule {
+    public:
+        ws_photo_linear()
+            : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "soil_wilting_point"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const&s) const
+        {
+            state_map result;
+            double slope = 1 / (s.at("soil_field_capacity") - s.at("soil_wilting_point"));
+            double intercept = 1 - s.at("soil_field_capacity") * intercept;
+            result["wsPhoto"] = slope * s.at("soil_water_content");
+            return result;
+        };
+};
+
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,
