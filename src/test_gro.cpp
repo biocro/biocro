@@ -2,10 +2,9 @@
 #include <memory>
 #include "modules.h"
 
-void test_gro () {
+void test_gro(state_map const &state) {
     state_map results;
 
-    state_map state;
     std::vector<std::unique_ptr<IModule>> steady_modules;
     std::vector<std::unique_ptr<IModule>> derivative_modules;
 

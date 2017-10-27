@@ -5,8 +5,6 @@
  *
  */
 
-#include <R.h>
-
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -216,10 +214,8 @@ state_map Gro(
     std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
     std::vector<std::unique_ptr<IModule>> const &derivative_modules)
 {
-Rprintf("Start of Gro.\n");
     state_map p = state;
 
-Rprintf("Before module missing state\n");
     vector<string> missing_state;
     vector<string> temp;
 
@@ -239,7 +235,6 @@ Rprintf("Before module missing state\n");
     }
 
 
-Rprintf("Before steady module calls\n");
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         p = combine_state(p, (*it)->run(p));
     }
