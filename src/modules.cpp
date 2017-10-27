@@ -157,7 +157,7 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
                 s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"), 
                 s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
-                s.at("specific_heat"), s.at("stefan_boltzman")));
+                s.at("specific_heat"), s.at("stefan_boltzman"));
     double TotEvap = soilEvap + s.at("CanopyT");
 
     struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
@@ -178,10 +178,11 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     struct soilText_str soTexS = soilTchoose(s.at("soilType"));
 
     struct soilML_str soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soilDepth3"), soilDepths,
-            s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS, s.at("wsFun"),
-            2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68, s.at("temp"),
-           s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"), s.at("rfl"),
-           s.at("rsec"), s.at("rsdf"));
+            s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS,
+            s.at("wsFun"), 2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68,
+            s.at("temp"), s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"),
+            s.at("rfl"), s.at("rsec"), s.at("rsdf"), s.at("soil_clod_size"), s.at("soil_reflectance"),
+            s.at("soil_transmission"), s.at("specific_heat"), s.at("stefan_boltzman"));
 
     state_map derivs;
     derivs["StomataWS"] = soilMLS.rcoefPhoto - s.at("StomataWS");

@@ -550,12 +550,6 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
     double Evaporation = 0.0;
     int method = 1;
 
-    //const double SoilClodSize = 0.04;
-    //const double SoilReflectance = 0.2;
-    //const double SoilTransmission = 0.01;
-    //const double SpecificHeat = 1010;
-    //const double StefanBoltzman = 5.67e-8;
-
     /* A simple way of calculating the proportion of the soil with direct radiation. */
     double SoilArea = exp(-k * LAI);
 
@@ -594,16 +588,16 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
     double SlopeFS = TempToSFS(AirTemp) * 1e-3;
     double SWVC = TempToSWVC(AirTemp) * 1e-3;
 
-    double PsycParam = (DdryA * SpecificHeat) / LHV;
+    double PsycParam = (DdryA * specific_heat) / LHV;
     double DeltaPVa = SWVC * (1 - RelH / 100);
 
-    double BoundaryLayerThickness = 4e-3 * sqrt(SoilClodSize / winds);
+    double BoundaryLayerThickness = 4e-3 * sqrt(soil_clod_size / winds);
     double DiffCoef = 2.126e-5 * 1.48e-7 * SoilTemp;
     double SoilBoundaryLayer = DiffCoef / BoundaryLayerThickness;
 
-    double Ja = 2 * TotalRadiation * ((1 - SoilReflectance - SoilTransmission) / (1 - SoilTransmission));
+    double Ja = 2 * TotalRadiation * ((1 - soil_reflectance - soil_transmission) / (1 - soil_transmission));
 
-    double rlc = 4 * StefanBoltzman * pow((273 + SoilTemp), 3) * 0.005;
+    double rlc = 4 * stefan_boltzman * pow((273 + SoilTemp), 3) * 0.005;
     /* the last term should be the difference between air temperature and
        soil. This is not actually calculated at the moment. Since this is
        mostly relevant to the first soil layer where the temperatures are
