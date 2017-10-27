@@ -9,8 +9,8 @@ void test_gro () {
     std::vector<std::unique_ptr<IModule>> steady_modules;
     std::vector<std::unique_ptr<IModule>> derivative_modules;
 
-    derivative_modules.push_back(std::unique_ptr<IModule>(new c3_canopy));
-    derivative_modules.push_back(std::unique_ptr<IModule>(new one_layer_soil_profile));
+    steady_modules.push_back(std::unique_ptr<IModule>(new test_calc_state));
+    derivative_modules.push_back(std::unique_ptr<IModule>(new test_derivs));
 
     results = Gro(state, steady_modules, derivative_modules);
 }

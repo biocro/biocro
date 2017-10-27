@@ -216,56 +216,8 @@ state_map Gro(
     std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
     std::vector<std::unique_ptr<IModule>> const &derivative_modules)
 {
-state_map current_state = state;
-state_vector_map results;
-
-struct dbp_str dbpS;
-
 Rprintf("Start of Gro.\n");
-
-    /*
-     * 1) Calculate all state-dependent state variables.
-     */
-
-    /* NOTE: 
-     * This section is for state variables that are not modified by derivatives.
-     * No derivaties should be calulated here.
-     * This makes it so that the code in section 2 is order independent.
-     */
-
-Rprintf("Before calculated state\n");
-
-    double dbpcoefs[] = {
-        state.at("kStem1"), state.at("kLeaf1"), state.at("kRoot1"), state.at("kRhizome1"),
-        state.at("kStem2"), state.at("kLeaf2"), state.at("kRoot2"), state.at("kRhizome2"),
-        state.at("kStem3"), state.at("kLeaf3"), state.at("kRoot3"), state.at("kRhizome3"),
-        state.at("kStem4"), state.at("kLeaf4"), state.at("kRoot4"), state.at("kRhizome4"),
-        state.at("kStem5"), state.at("kLeaf5"), state.at("kRoot5"), state.at("kRhizome5"),
-        state.at("kStem6"), state.at("kLeaf6"), state.at("kRoot6"), state.at("kRhizome6"), state.at("kGrain6")
-    };
-
-    double thermalp[] = {
-        state.at("tp1"), state.at("tp2"), state.at("tp3"), state.at("tp4"), state.at("tp5"), state.at("tp6")
-    };
-
     state_map p = state;
-
-Rprintf("1\n");
-    p["Sp"] = p.at("iSp") - p.at("TTc") * p.at("Sp_thermal_time_decay");
-Rprintf("2\n");
-    p["lai"] = p.at("Leaf") * p.at("Sp");
-Rprintf("3\n");
-    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
-Rprintf("4\n");
-    p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
-
-    dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
-
-    p["kLeaf"] = dbpS.kLeaf;
-    p["kStem"] = dbpS.kStem;
-    p["kRoot"] = dbpS.kRoot;
-    p["kGrain"] = dbpS.kGrain;
-    p["kRhizome"] = dbpS.kRhiz;
 
 Rprintf("Before module missing state\n");
     vector<string> missing_state;
@@ -286,35 +238,16 @@ Rprintf("Before module missing state\n");
         throw std::out_of_range(message.str());
     }
 
-    /*
-     * 2) Calculate derivatives between state variables.
-     */
-
-    /* NOTE: This section should be written to calculate derivates only. No state should be modified.
-     * All derivatives should depend only on current state. I.e., derivates should not depend on other derivaties or previous state.
-     * I've changed it to try to meet these requirements, but it currently does not meet them.
-     * E.g., the senescence code depends on derivates from previous state. 
-     * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
-     * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
-     */
-    state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
-
-    if (p.at("temp") > p.at("tbase")) {
-        p["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
-    }
 
 Rprintf("Before steady module calls\n");
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         p = combine_state(p, (*it)->run(p));
     }
 
+    state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
     for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        state_map temp = (*it)->run(p);
-        //output_map(temp);
-        derivs += temp;
+        derivs += (*it)->run(p);
     }
-
-    
     
 return derivs;
 }
