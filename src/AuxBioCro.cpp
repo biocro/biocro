@@ -695,23 +695,22 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     double theta_s = soTexS.satur;
     double precipM = precipit * 1e-3; /* convert precip in mm to m*/
-    double aw = precipM + cws * soildepth; /* aw in meters */
-    aw = aw / soildepth; /* available water in the wiltp-satur range */
+    double soil_water_fraction = precipM / soildepth + cws;  // m^3 m^-3
 
     double runoff = 0.0;
     double Nleach = 0.0;  /* Nleach is the NO3 leached. */
-    if (aw > theta_s) {
-        runoff = (aw - theta_s) * soildepth; /* This is in meters */
+    if (soil_water_fraction > theta_s) {
+        runoff = (soil_water_fraction - theta_s) * soildepth; /* This is in meters */
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
         Nleach = runoff / 18 * (0.2 + 0.7 * soTexS.sand);
-        aw = theta_s;
+        soil_water_fraction = theta_s;
     }
 
     /* The density of water is 0.9982 Mg / m^3 at 20 degrees Celsius. */
     /* evapo is demanded water (Mg / ha) */
-    double npaw = aw - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
+    double npaw = soil_water_fraction - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
 
     /* If demand exceeds supply, the crop is getting close to wilting point and transpiration
        will be over estimated. In this one layer model though, the crop is practically dead. */
@@ -724,7 +723,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     /* tmp.psim = soTexS.air_entry * pow((awc/soTexS.fieldc*1.1),-soTexS.b); */
     /* New version of the soil water potential is based on
      * "Dynamic Simulation of Water Deficit Effects upon Maize Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
-    tmp.psim = -exp(log(0.033) + ((log(fieldc) - log(awc)) / (log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033)))) * 1e3; /* This last term converts from MPa to kPa */
+    tmp.psim = -exp(log(0.033) + (log(fieldc) - log(awc)) / (log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033))) * 1e3; /* This last term converts from MPa to kPa */
 
     /* This is drainage */
     if (awc > fieldc) {
@@ -761,7 +760,6 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     
     soilML_str return_value;
 
-    /* rooting depth */
     /* Crude empirical relationship between root biomass and rooting depth*/
     double rootDepth = fmin(rootDB * rsdf, soildepth);
 
@@ -790,41 +788,35 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
     for (int i = layers - 1; i >= 0; --i) { /* The counter, i, decreases because I increase the water content due to precipitation in the last layer first*/
 
-        /* This supports unequal depths. */
-        double layerDepth = depths[i+1] - depths[i];
+        double layerDepth = depths[i+1] - depths[i];  /* This supports unequal depths. */
 
         if (hydrDist > 0) {
             /* For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9*/
             /* First compute the matric potential */
             double psim1 = soTexS.air_entry * pow((cws[i]/theta_s), -soTexS.b); /* This is matric potential of current layer */
-            double dPsim = 0.0;
+            double dPsim;
             if (i > 0) {
                 double psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s), -soTexS.b); /* This is matric potential of next layer */
                 dPsim = psim1 - psim2;
                 /* The substraction is from the layer i - (i-1). If this last term is positive then it will move upwards. If it is negative it will move downwards. Presumably this term is almost always positive. */
             } else {
-                dPsim = 0;
+                dPsim = 0.0;
             }
+
             double K_psim = soTexS.Ks * pow((soTexS.air_entry/psim1), 2+3/soTexS.b); /* This is hydraulic conductivity */
             double J_w = K_psim * (dPsim/layerDepth) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect*/
-            /* Notice that K_psim is positive because my
-               reference system is reversed */
+            /* Notice that K_psim is positive because my reference system is reversed */
             /* This last result should be in kg/(m2 * s) */
             J_w *= 3600 * 0.9882 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
-            /* Rprintf("J_w %.10f \n",J_w);  */
+
             if (i == (layers-1) && J_w < 0) {
-                /* cws[i] = cws[i] + J_w /
-                 * layerDepth; Although this
-                 * should be done it drains
-                 * the last layer too much.*/
+                /* cws[i] = cws[i] + J_w / layerDepth; Although this should be done it drains the last layer too much.*/
                 drainage += J_w;
             } else {
+                    cws[i] = cws[i] - J_w / layerDepth;
                 if (i > 0) {
-                    cws[i] = cws[i] -  J_w / layerDepth;
-                    cws[i - 1] =  cws[i-1] +  J_w / layerDepth;
-                } else {
-                    cws[i] = cws[i] -  J_w / layerDepth;
-                }
+                    cws[i - 1] = cws[i - 1] + J_w / layerDepth;
+                } 
             }
         }
 
@@ -858,12 +850,12 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         /* Plant available water is only between current water status and permanent wilting point */
         /* Plant available water */
         double pawha = (aw - wiltp * layerDepth) * 1e4;
-        double Newpawha;
 
         if (pawha < 0) pawha = 0;
 
         double Ctransp = 0.0;
         double EvapoTra = 0.0;
+        double Newpawha;
         
         if (i == 0) {
             /* Only the first layer is affected by soil evaporation */
