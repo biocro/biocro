@@ -673,18 +673,13 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
    for now, with a very simple empirical approach. */
 
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
-        double wiltp, double phi1, double phi2,
+        double wiltp, double phi1, double phi2, double satur, double sand, double Ks, double air_entries, double b,
         int soiltype, /* soil type indicator */
         int wsFun) /* flag indicating which water stress function to use */
 {
     constexpr double g = 9.8; // m / s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
-    soilText_str soTexS = get_soil_properties(soiltype);
-
-    if (fieldc < 0) fieldc = soTexS.fieldc;
-    if (wiltp < 0) wiltp = soTexS.wiltp;
-
-    double theta_s = soTexS.satur;
+    double theta_s = satur;
     double precipM = precipit * 1e-3; /* convert precip in mm to m*/
     double soil_water_fraction = precipM / soildepth + cws;  // m^3 m^-3
 
@@ -695,7 +690,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
-        Nleach = runoff / 18 * (0.2 + 0.7 * soTexS.sand);
+        Nleach = runoff / 18 * (0.2 + 0.7 * sand);
         soil_water_fraction = theta_s;
     }
 
@@ -718,7 +713,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     /* This is drainage */
     if (awc > fieldc) {
-        double K_psim = soTexS.Ks * pow((soTexS.air_entry / tmp.psim), 2 + 3 / soTexS.b); /* This is hydraulic conductivity */
+        double K_psim = Ks * pow((air_entry / tmp.psim), 2 + 3 / b); /* This is hydraulic conductivity */
         double J_w = -K_psim * (-tmp.psim / (soildepth * 0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth */
         double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m^3 / (m^2 * hr). */
         awc = awc + drainage / soildepth;

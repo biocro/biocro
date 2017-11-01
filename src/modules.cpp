@@ -158,8 +158,10 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
                 s.at("specific_heat"), s.at("stefan_boltzman"));
     double TotEvap = soilEvap + s.at("CanopyT");
 
+    soilText_str soTexS = get_soil_properties(soiltype);
+    
     struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soil_depth"), s.at("FieldC"),
-            s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soil_type_indicator"), s.at("wsFun"));
+            s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS.satur, soTexS.sand, soTexS.Ks, soTexS.air_entries, soTexS.b, s.at("soil_type_indicator"), s.at("wsFun"));
 
     state_map derivs;
     derivs["soilEvap"] = soilEvap;
