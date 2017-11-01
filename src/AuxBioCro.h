@@ -82,22 +82,17 @@ struct soilText_str{
   double satur;
   double fieldc;
   double wiltp;
-  double bulkd;
-
+  double bulk_density;
 };
-
-
 
 enum class SoilType { sand, loamy_sand, sandy_loam, loam, silt_loam,
                       sandy_clay_loam, clay_loam, silty_clay_loam, sandy_clay,
                       silty_clay, clay };
 
-const soilText_str soilTchoose(SoilType soiltype);
+const soilText_str get_soil_properties(SoilType soiltype);
 
 // For backward compatibility:
-soilText_str soilTchoose(int soiltype);
-
-
+soilText_str get_soil_properties(int soiltype);
 // This map is based on Table 9.1 on page 130 of Campbell and Norman,
 // Introduction to Environmental Biophysics.  Bulk density values are
 // taken from function getsoilprop.c from Melanie (Colorado).  The
@@ -108,11 +103,11 @@ soilText_str soilTchoose(int soiltype);
 // is based on the list of book corrections published at
 // http://www.public.iastate.edu/~bkh/teaching/505/norman_book_corrections.pdf.
 
-const std::map<SoilType, soilText_str> soil_parameters
+const std::map<SoilType, soilText_str> soil_parameters = 
 {
   //                             d = dimensionless
   //                             d     d     d     J kg^-1     d     J s m^-3     d     d      d     Mg m^-3
-  //                             silt  clay  sand  air_entry   b     Ks           satur fieldc wiltp bulkd
+  //                             silt  clay  sand  air_entry   b     Ks           satur fieldc wiltp bulk_density
   { SoilType::sand,            { 0.05, 0.03, 0.92,      -0.7,  1.7,  5.8e-3,      0.87, 0.09,  0.03, 0.01 } },
   { SoilType::loamy_sand,      { 0.12, 0.07, 0.81,      -0.9,  2.1,  1.7e-3,      0.72, 0.13,  0.06, 1.55 } },
   { SoilType::sandy_loam,      { 0.25, 0.10, 0.65,      -1.5,  3.1,  7.2e-4,      0.57, 0.21,  0.10, 1.50 } },

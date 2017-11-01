@@ -31,9 +31,10 @@ vector<string> IModule::list_modified_state() const
 
 state_map IModule::run(state_map const &state) const
 {
-    state_map result;
     try {
+        state_map result;
         result = this->do_operation(state);
+        return result;
     }
     catch (std::out_of_range const &oor) {
         vector<string> missing_state = this->state_requirements_are_met(state);
@@ -41,14 +42,14 @@ state_map IModule::run(state_map const &state) const
         message << "The following required state variables are missing: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
     }
-    return (result);
 }
 
 state_map IModule::run(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
-    state_map result;
     try {
+        state_map result;
         result = this->do_operation(state_history, deriv_history, parameters);
+        return result;
     }
     catch (std::out_of_range const &oor) {
         state_map state = combine_state(at(state_history, 0), parameters);
@@ -57,7 +58,6 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
         message << "The following required state variables are missing: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
     }
-    return (result);
 }
 
 state_map IModule::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
@@ -158,8 +158,8 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
                 s.at("specific_heat"), s.at("stefan_boltzman"));
     double TotEvap = soilEvap + s.at("CanopyT");
 
-    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soilDepth"), s.at("FieldC"),
-            s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
+    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soil_depth"), s.at("FieldC"),
+            s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soil_type_indicator"), s.at("wsFun"));
 
     state_map derivs;
     derivs["soilEvap"] = soilEvap;
@@ -172,10 +172,10 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
 state_map two_layer_soil_profile::do_operation(state_map const &s) const
 {
     double cws[] = {s.at("cws1"), s.at("cws2")};
-    double soilDepths[] = {s.at("soilDepth1"), s.at("soilDepth2"), s.at("soilDepth3")};
-    struct soilText_str soTexS = soilTchoose(s.at("soilType"));
+    double soil_depths[] = {s.at("soil_depth1"), s.at("soil_depth2"), s.at("soil_depth3")};
+    struct soilText_str soTexS = get_soil_properties(s.at("soil_type_indicator"));
 
-    struct soilML_str soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soilDepth3"), soilDepths,
+    struct soilML_str soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soil_depth3"), soil_depths,
             s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS,
             s.at("wsFun"), 2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68,
             s.at("temp"), s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"),
@@ -484,43 +484,6 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         /* No senescence either */
     }
     return (derivs);
-}
-
-std::unique_ptr<IModule> make_module(string const &module_name)
-{
-    if (module_name.compare("c4_canopy") == 0) {
-        return std::unique_ptr<IModule>(new c4_canopy);
-    }
-    else if (module_name.compare("c3_canopy") == 0) {
-        return std::unique_ptr<IModule>(new c3_canopy);
-    }
-    else if (module_name.compare("one_layer_soil_profile") == 0) {
-        return std::unique_ptr<IModule>(new one_layer_soil_profile);
-    }
-    else if (module_name.compare("two_layer_soil_profile") == 0) {
-        return std::unique_ptr<IModule>(new two_layer_soil_profile);
-    }
-    else if (module_name.compare("partitioning_growth") == 0) {
-        return std::unique_ptr<IModule>(new partitioning_growth_module);
-    }
-    else if (module_name.compare("no_leaf_resp_partitioning_growth") == 0) {
-        return std::unique_ptr<IModule>(new no_leaf_resp_partitioning_growth_module);
-    }
-    else if (module_name.compare("thermal_time_and_frost_senescence") == 0) {
-        return std::unique_ptr<IModule>(new thermal_time_and_frost_senescence);
-    }
-    else if (module_name.compare("thermal_time_senescence") == 0) {
-        return std::unique_ptr<IModule>(new thermal_time_senescence);
-    }
-    else if (module_name.compare("test_derivs") == 0) {
-        return std::unique_ptr<IModule>(new test_derivs);
-    }
-    else if (module_name.compare("test_calc_state") == 0) {
-        return std::unique_ptr<IModule>(new test_calc_state);
-    }
-    else {
-        throw std::out_of_range(module_name);
-    }
 }
 
 double biomass_leaf_nitrogen_limitation(state_map const &s)

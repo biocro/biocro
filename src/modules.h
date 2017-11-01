@@ -8,6 +8,7 @@
 #include "BioCro.h"
 #include "c3photo.h"
 #include "state_map.h"
+#include <math.h>
 
 class IModule {
     public:
@@ -96,8 +97,8 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
         one_layer_soil_profile()
             : ISoil_evaporation_module(std::vector<std::string> {"lai", "temp", "solar", "soil_water_content",
                     "FieldC", "WiltP", "windspeed", "rh", "rsec",
-                    "CanopyT", "precip", "soilDepth", "phi1", "phi2",
-                    "soilType", "wsFun", "StomataWS", "LeafWS"},
+                    "CanopyT", "precip", "soil_depth", "phi1", "phi2",
+                    "soil_type_indicator", "wsFun", "StomataWS", "LeafWS"},
                     std::vector<std::string> {})
         {}
     private:
@@ -107,9 +108,9 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
 class two_layer_soil_profile : public ISoil_evaporation_module {
     public:
         two_layer_soil_profile()
-            : ISoil_evaporation_module(std::vector<std::string> {"precip", "CanopyT", "cws1", "cws2", "soilDepth1",
-                    "soilDepth2", "soilDepth3", "FieldC", "WiltP", "phi1",
-                    "phi2", "soilType" /* Instead of soTexS */, "wsFun", "Root", "lai",
+            : ISoil_evaporation_module(std::vector<std::string> {"precip", "CanopyT", "cws1", "cws2", "soil_depth1",
+                    "soil_depth2", "soil_depth3", "FieldC", "WiltP", "phi1",
+                    "phi2", "soil_type_indicator" /* Instead of soTexS */, "wsFun", "Root", "lai",
                     "temp", "solar", "windspeed", "rh", "hydrDist",
                     "rfl", "rsec", "rsdf", "StomataWS", "LeafWS"},
                     std::vector<std::string> {})
@@ -220,12 +221,27 @@ class ws_photo_linear : public IModule {
         };
 };
 
+class leaf_ws_exponential : public IModule {
+    public:
+        leaf_ws_exponential()
+            : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "phi1", "phi2"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const
+        {
+            state_map result;
+            result["LeafWS"] = fmin(pow(s.at("soil_water_content") / s.at("soil_field_capacity"), s.at("phi2")), 1);
+            return result;
+        };
+};
+
 class one_layer_soil_profile_derivatives : public IModule {
     public:
         one_layer_soil_profile_derivatives()
-            : IModule(std::vector<std::string> {"precipitation", "soil_saturation", "soil_field_capactiy", "soil_wilting_point", "soil_water_content",
-                    "soil_depth", "soil_sand_content", "evapotranspiration", "soil_saturated_conductivity", "soil_air_entry", "soil_moisture_release_coef",
-                    "soil_b", "acceleration_from_gravity", "precipitation"},
+            : IModule(std::vector<std::string> {"precipitation_rate", "soil_saturation_content", "soil_field_capacity", "soil_wilting_point", "soil_water_content",
+                    "soil_depth", "soil_sand_content", "evapotranspiration", "soil_saturated_conductivity", "soil_air_entry",
+                    "soil_b_coefficient", "acceleration_from_gravity"},
                     std::vector<std::string> {})
             {}
     private:
@@ -235,7 +251,7 @@ class one_layer_soil_profile_derivatives : public IModule {
             const double soil_depth = s.at("soil_depth");
 
             double soil_water_potential = -exp(log(0.033) + ((log(s.at("soil_field_capacity")) - log(soil_water_content)) / (log(s.at("soil_field_capacity")) - log(s.at("soil_wilting_point"))) * (log(1.5) - log(0.033)))) * 1e3; // kPa.
-            double hydraulic_conductivity = s.at("soil_saturated_conductivity") * pow(s.at("soil_air_entry") / soil_water_potential, 2 + 3 / s.at("soil_moisture_release_coef")); // Kg s m^-3.
+            double hydraulic_conductivity = s.at("soil_saturated_conductivity") * pow(s.at("soil_air_entry") / soil_water_potential, 2 + 3 / s.at("soil_b_coefficient")); // Kg s m^-3.
             double J_w = -hydraulic_conductivity * (-soil_water_potential / (soil_depth * 0.5)) - s.at("acceleration_from_gravity") * hydraulic_conductivity; // kg m^-2 s^-1. Campbell, pg 129. I multiply soil depth by 0.5 to calculate the average depth.
 
             constexpr double density_of_water_at_20_celcius = 998.2; // kg m^-3
@@ -257,6 +273,81 @@ class one_layer_soil_profile_derivatives : public IModule {
         }
 };
 
+class linear_vmax_from_leaf_n : public IModule {
+    public:
+        linear_vmax_from_leaf_n()
+            : IModule(std::vector<std::string> {"LeafN", "LeafN_0", "vmax_n_intercept", "vmax_n_slope"},
+                    std::vector<std::string> {})
+            {}
+    private:
+        state_map do_operation(state_map const &s) const
+        {
+            state_map result;
+            result["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmax_n_intercept") + s.at("vmax1");
+            return result;
+        }
+};
+
+
+
+
+class soil_type_selector : public IModule {
+    public:
+        soil_type_selector()
+            : IModule(std::vector<std::string> {"soil_type_identifier"},
+                       std::vector<std::string> {})
+            {}
+    private:
+        state_map do_operation(state_map const &s) const
+        {
+            soilText_str soil_properties = get_soil_properties(s.at("soil_type_indicator"));
+            state_map result;
+            result["soil_silt_content"] = soil_properties.silt;
+            result["soil_clay_content"] = soil_properties.clay;
+            result["soil_sand_content"] = soil_properties.sand;
+            result["soil_air_entry"] = soil_properties.air_entry;
+            result["soil_b_coefficient"] = soil_properties.b;
+            result["soil_saturated_conductivity"] = soil_properties.Ks;
+            result["soil_saturation_content"] = soil_properties.satur;
+            result["soil_field_capacity"] = soil_properties.fieldc;
+            result["soil_wilting_point"] = soil_properties.wiltp;
+            result["soil_bulk_density"] = soil_properties.bulk_density;
+            return result;
+        }
+};
+
+template<typename T> std::unique_ptr<IModule> createModule() { return std::unique_ptr<IModule>(new T); }
+class ModuleFactory {
+    private:
+        typedef std::map<std::string, std::unique_ptr<IModule>(*)()> module_map;
+        const module_map modules
+        {
+            { "c4_canopy",                          &createModule<c4_canopy>},
+            { "c3_canopy",                          &createModule<c3_canopy>},
+            { "one_layer_soil_profile",             &createModule<one_layer_soil_profile>},
+            { "two_layer_soil_profile",             &createModule<two_layer_soil_profile>},
+            { "partitioning_growth",                &createModule<partitioning_growth_module>},
+            { "no_leaf_resp_partitioning_growth",   &createModule<no_leaf_resp_partitioning_growth_module>},
+            { "thermal_time_and_frost_senescence",  &createModule<thermal_time_and_frost_senescence>},
+            { "thermal_time_senescence",            &createModule<thermal_time_senescence>},
+            { "one_layer_soil_profile_derivatives", &createModule<one_layer_soil_profile_derivatives>},
+            { "soil_type_selector",                 &createModule<soil_type_selector>},
+            { "test_derivs",                        &createModule<test_derivs>},
+            { "test_calc_state",                    &createModule<test_calc_state>}
+        };
+
+    public:
+        std::unique_ptr<IModule> operator()(std::string const &module_name) {
+            try {
+                return this->modules.at(module_name)();
+            } catch (std::out_of_range const &oor) {
+                throw std::out_of_range(module_name + std::string(" was given as a module name, but no module with that name could be found.\n"));
+            }
+
+        }
+};
+
+
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,
@@ -275,8 +366,6 @@ state_map Gro(
 double biomass_leaf_nitrogen_limitation(state_map const &state);
 double thermal_leaf_nitrogen_limitation(state_map const &state);
 
-
-std::unique_ptr<IModule> make_module(std::string const &module_name);
 
 std::string join_string_vector(std::vector<std::string> const &state_keys);
 

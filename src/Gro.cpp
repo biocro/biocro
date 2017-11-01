@@ -63,7 +63,7 @@ state_vector_map Gro(
     p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
     p["lai"] = p.at("Leaf") * p.at("Sp");
     p["LeafN"] = leaf_n_limitation(p);
-    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmax_n_intercept") + p.at("vmax1");
     p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
     dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
@@ -120,7 +120,7 @@ state_vector_map Gro(
            availability and possibly by the thermal time.
            (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
         p["LeafN"] = leaf_n_limitation(p);
-        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmax_n_intercept") + p.at("vmax1");
         p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
         dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
@@ -216,6 +216,7 @@ state_map Gro(
 {
     state_map p = state;
 
+    /*
     vector<string> missing_state;
     vector<string> temp;
 
@@ -233,6 +234,7 @@ state_map Gro(
         message << "The following required state variables are missing: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
     }
+    */
 
 
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {

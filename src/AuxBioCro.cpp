@@ -538,12 +538,11 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
 /* Variables I need */
 /* LAI = Leaf Area Index */
 /* k = extinction coefficient */
-/* Temp = Air Temperature */
-/* DirectRad = Direct Total Radiation */
+/* ppfd = Photosynthetic photon flux density */
 /* awc, wiltp, fieldc = available water content, wilting point and field capacity */
 /* winds = wind speed */
 
-double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
+double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, double soil_water_content,
         double fieldc, double wiltp, double winds, double RelH, double rsec, 
         double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
 {
@@ -554,15 +553,13 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
     double SoilArea = exp(-k * LAI);
 
     /* For now the temperature of the soil will be the same as the air.
-       At a later time this can be made more accurate. I looked at the
-       equations for this and the issue is that it is strongly dependent on
-       depth. Since the soil model now has a single layer, this cannot be
-       implemented correctly at the moment.  */
-    double SoilTemp = AirTemp;
+       At a later time this can be made more accurate. I looked at the equations for this and the issue is that it is strongly dependent on
+       depth. Since the soil model now has a single layer, this cannot be implemented correctly at the moment.  */
+    double SoilTemp = air_temperature;
 
     /* Let us use an idea of Campbell and Norman. Environmental Biophysics. */
     /* If relative available water content is */
-    double rawc = (awc - wiltp) / (fieldc - wiltp);
+    double rawc = (soil_water_content - wiltp) / (fieldc - wiltp);
 
     /* Campbell and Norman. Environmental Physics, page 142 */
     /* Maximum Uptake Rate */
@@ -570,23 +567,19 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
 
     /* Total Radiation */
     /* Convert light assuming 1 micromole PAR photons = 0.235 J/s Watts*/
-    /* At the moment soil evaporation is grossly overestimated. In WIMOVAC
-       the light reaching the last layer of leaves is used. Here instead
-       of calculating this again, I will for now assume a 10% as a rough
-       estimate. Note that I could maybe get this since layIdir and
-       layIDiff in sunML are external variables.  Rprintf("IRad
-       %.5f",layIdir[0],"\n"); Update: 03-13-2009. I tried printing this
-       value but it is still too high and will likely overestimate soil
-       evaporation. However, this is still a work in progress.
+    /* At the moment soil evaporation is grossly overestimated. In WIMOVAC the light reaching the last layer of leaves is used. Here instead
+       of calculating this again, I will for now assume a 10% as a rough estimate. Note that I could maybe get this since layIdir and
+       layIDiff in sunML are external variables.  Rprintf("ppfd %.5f",layIdir[0],"\n"); Update: 03-13-2009. I tried printing this
+       value but it is still too high and will likely overestimate soil evaporation. However, this is still a work in progress.
        */
-    IRad *= rsec; /* Radiation soil evaporation coefficient */
+    ppfd *= rsec; /* Radiation soil evaporation coefficient */
 
-    double TotalRadiation = IRad * 0.235;
+    double TotalRadiation = ppfd * 0.235;
 
-    double DdryA = TempToDdryA(AirTemp);
-    double LHV = TempToLHV(AirTemp) * 1e6;  // J kg^-1. Given in MJ kg^-1 and converted to J kg^-1. 
-    double SlopeFS = TempToSFS(AirTemp) * 1e-3;
-    double SWVC = TempToSWVC(AirTemp) * 1e-3;
+    double DdryA = TempToDdryA(air_temperature);
+    double LHV = TempToLHV(air_temperature) * 1e6;  // J kg^-1. Given in MJ kg^-1 and converted to J kg^-1. 
+    double SlopeFS = TempToSFS(air_temperature) * 1e-3;
+    double SWVC = TempToSWVC(air_temperature) * 1e-3;
 
     double PsycParam = (DdryA * specific_heat) / LHV;
     double DeltaPVa = SWVC * (1 - RelH / 100);
@@ -598,10 +591,8 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
     double Ja = 2 * TotalRadiation * ((1 - soil_reflectance - soil_transmission) / (1 - soil_transmission));
 
     double rlc = 4 * stefan_boltzman * pow((273 + SoilTemp), 3) * 0.005;
-    /* the last term should be the difference between air temperature and
-       soil. This is not actually calculated at the moment. Since this is
-       mostly relevant to the first soil layer where the temperatures are
-       similar. I will leave it like this for now. */
+    /* the last term should be the difference between air temperature and soil. This is not actually calculated at the moment. Since this is
+       mostly relevant to the first soil layer where the temperatures are similar. I will leave it like this for now. */
 
     double PhiN = Ja - rlc; /* Calculate the net radiation balance*/
     if (PhiN < 0) PhiN = 1e-7;
@@ -688,7 +679,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 {
     constexpr double g = 9.8; // m / s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
-    soilText_str soTexS = soilTchoose(soiltype);
+    soilText_str soTexS = get_soil_properties(soiltype);
 
     if (fieldc < 0) fieldc = soTexS.fieldc;
     if (wiltp < 0) wiltp = soTexS.wiltp;
@@ -734,16 +725,16 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     }
 
     double wsPhoto = compute_wsPhoto(wsFun, fieldc, wiltp, phi1, awc);
-    double wsSpleaf = pow(awc, phi2) * 1 / pow(fieldc, phi2);
+    double LeafWS = pow(awc, phi2) * 1 / pow(fieldc, phi2);
 
-    if (wsFun == 3) wsSpleaf = 1;
-    if (wsSpleaf > 1) wsSpleaf = 1;
+    if (wsFun == 3) LeafWS = 1;
+    if (LeafWS > 1) LeafWS = 1;
 
     tmp.rcoefPhoto = wsPhoto;
     tmp.awc = awc;
     tmp.runoff = runoff;
     tmp.Nleach = Nleach;
-    tmp.rcoefSpleaf = wsSpleaf;
+    tmp.rcoefSpleaf = LeafWS;
     return tmp;
 }
 
@@ -782,7 +773,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
     double drainage = 0.0;
     double wsPhotoCol = 0.0;
-    double wsSpleafCol = 0.0;
+    double LeafWSCol = 0.0;
     double Sevap = 0.0;
     double oldEvapoTra = 0.0;
 
@@ -917,11 +908,11 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
         wsPhotoCol += wsPhoto;
 
-        double wsSpleaf = pow(awc, phi2) * 1/pow(fieldc, phi2);
+        double LeafWS = pow(awc, phi2) * 1/pow(fieldc, phi2);
         if (wsFun == 3) {
-            wsSpleaf = 1;
+            LeafWS = 1;
         }
-        wsSpleafCol += wsSpleaf;
+        LeafWSCol += LeafWS;
 
     }
 
@@ -938,7 +929,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
     return_value.rcoefPhoto = (wsPhotoCol/layers);
     return_value.drainage = drainage;
-    return_value.rcoefSpleaf = (wsSpleafCol/layers);
+    return_value.rcoefSpleaf = (LeafWSCol/layers);
     return_value.SoilEvapo = Sevap;
 
     return return_value;
@@ -1079,11 +1070,11 @@ struct rd_str rootDist(int n_layers, double rootDepth, double *depths, double rf
 }
 
 
-soilText_str soilTchoose(int soiltype) {
-    return soilTchoose(static_cast<SoilType>(soiltype));
+soilText_str get_soil_properties(int soiltype) {
+    return get_soil_properties(static_cast<SoilType>(soiltype));
 }
 
-const soilText_str soilTchoose(SoilType soiltype)
+const soilText_str get_soil_properties(SoilType soiltype)
 {
     return soil_parameters.at(soiltype);
 }

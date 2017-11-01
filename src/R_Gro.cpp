@@ -34,18 +34,13 @@ SEXP R_Gro(SEXP initial_state,
         std::unique_ptr<IModule> growth;
         std::unique_ptr<IModule> senescence;
 
-        try {
-            canopy = make_module(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
-            soil_evaporation = make_module(CHAR(STRING_ELT(soil_evaporation_module, 0)));
-            growth = make_module(CHAR(STRING_ELT(growth_module, 0)));
-            senescence = make_module(CHAR(STRING_ELT(senescence_module, 0)));
-        }
-        catch (std::out_of_range const &oor) {
-            error("%s was passed as a module, but that module could not be found.\n", oor.what());
-        }
+        canopy = ModuleFactory()(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
+        soil_evaporation = ModuleFactory()(CHAR(STRING_ELT(soil_evaporation_module, 0)));
+        growth = ModuleFactory()(CHAR(STRING_ELT(growth_module, 0)));
+        senescence = ModuleFactory()(CHAR(STRING_ELT(senescence_module, 0)));
 
         vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
-            "LeafN_0", "vmaxb1", "vmax1", "alphab1",
+            "LeafN_0", "vmax_n_intercept", "vmax1", "alphab1",
             "alpha1", "TTc", "temp", "tbase", "timestep",
             "mrc1", "seneLeaf", "Stem", "seneStem",
             "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome", "kln", "growth_respiration_fraction"};
@@ -80,7 +75,9 @@ SEXP R_Gro(SEXP initial_state,
 
         return (list_from_map(result));
     } catch (std::exception const &e) {
-        error("Caught unhandled exception in R_Gro.cpp");
+        error(std::string(std::string("Caught exception in R_Gro: ") + e.what()).c_str());
+    } catch (...) {
+        error("Caught unhandled exception in R_Gro.");
     }
 }
 
@@ -105,62 +102,30 @@ Rprintf("Start of R_Gro_ode.\n");
         std::vector<std::unique_ptr<IModule>> steady_state_modules;
         std::vector<std::unique_ptr<IModule>> derivative_modules;
 
-        try {
-            vector<string> steady_state_names_vector = make_vector(steady_state_modules_list);
-            for (auto it = steady_state_names_vector.begin(); it != steady_state_names_vector.end(); ++it) {
-                steady_state_modules.push_back(make_module(*it));
-            }
-
-            vector<string> derivative_names_vector = make_vector(derivative_modules_list);
-            for (auto it = derivative_names_vector.begin(); it != derivative_names_vector.end(); ++it) {
-                derivative_modules.push_back(make_module(*it));
-            }
-        }
-        catch (std::out_of_range const &oor) {
-            error("%s was passed as a module, but that module could not be found.\n", oor.what());
+        vector<string> steady_state_names_vector = make_vector(steady_state_modules_list);
+        for (auto it = steady_state_names_vector.begin(); it != steady_state_names_vector.end(); ++it) {
+            steady_state_modules.push_back(ModuleFactory()(*it));
         }
 
-        vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
-            "LeafN_0", "vmaxb1", "vmax1", "alphab1",
-            "alpha1", "TTc", "temp", "tbase", "timestep",
-            "mrc1", "seneLeaf", "Stem", "seneStem",
-            "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome", "kln", "growth_respiration_fraction"};
+        vector<string> derivative_names_vector = make_vector(derivative_modules_list);
+        for (auto it = derivative_names_vector.begin(); it != derivative_names_vector.end(); ++it) {
+            derivative_modules.push_back(ModuleFactory()(*it));
+        }
 
         state_map all_state = combine_state(s, combine_state(ip, at(vp, 0)));
 
-        vector<string> missing_state;
-        for (auto it = required_state.begin(); it != required_state.end(); ++it) {
-            if (all_state.find(*it) == all_state.end()) {
-                missing_state.push_back(*it);
-            }
-        }
-
-        if (!missing_state.empty()) {
-            std::ostringstream message;
-            message << "The following state variables are required but are missing: ";
-            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
-                message << *it << ", ";
-            }
-            message << missing_state.back() << ".";
-            error(message.str().c_str());
-        }
 
 Rprintf("Before Gro call.\n");
-        state_vector_map result;
-        try {
-            state_map state = combine_state(s, combine_state(ip, at(vp, 0)));
-            append_state_to_vector(Gro(state, steady_state_modules, derivative_modules), result);
-        } catch (std::exception const &e) {
-            std::ostringstream message;
-            message << "Exception caught in R_Gro.cpp: R_Gro_ode. " << e.what();
-            error(message.str().c_str());
-        }
 
+        state_vector_map result;
+        state_map state = combine_state(s, combine_state(ip, at(vp, 0)));
+        append_state_to_vector(Gro(state, steady_state_modules, derivative_modules), result);
         return (list_from_map(result));
+
     } catch (std::exception const &e) {
-        error("Caught unhandled exception in R_Gro.cpp");
+        error(std::string(std::string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
     } catch (...) {
-        error("Caught unhandled exception in R_Gro.cpp");
+        error("Caught unhandled exception in R_Gro_ode.");
     }
 }
 
