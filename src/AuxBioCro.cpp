@@ -546,24 +546,22 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
         double fieldc, double wiltp, double winds, double RelH, double rsec, 
         double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
 {
-    double Evaporation = 0.0;
     int method = 1;
-
-    /* A simple way of calculating the proportion of the soil with direct radiation. */
-    double SoilArea = exp(-k * LAI);
+    /* A simple way of calculating the proportion of the soil that is hit by direct radiation. */
+    double soil_area_sunlit_fraction = exp(-k * LAI);  // dimensionless.
 
     /* For now the temperature of the soil will be the same as the air.
        At a later time this can be made more accurate. I looked at the equations for this and the issue is that it is strongly dependent on
        depth. Since the soil model now has a single layer, this cannot be implemented correctly at the moment.  */
     double SoilTemp = air_temperature;
 
-    /* Let us use an idea of Campbell and Norman. Environmental Biophysics. */
+    /* From Campbell and Norman. Environmental Biophysics. */
     /* If relative available water content is */
-    double rawc = (soil_water_content - wiltp) / (fieldc - wiltp);
+    double rawc = (awc - wiltp) / (fieldc - wiltp);  // dimensionless. relative available water content.
 
     /* Campbell and Norman. Environmental Physics, page 142 */
-    /* Maximum Uptake Rate */
-    double Up = 1 - pow((1 + 1.3 * rawc), -5);  // dimensionless. This is a useful idea because dry soils evaporate little water when dry.
+    double maximum_uptake_rate = 1 - pow((1 + 1.3 * rawc), -5);  // dimenionless
+    /* This is a useful idea because dry soils evaporate little water when dry*/
 
     /* Total Radiation */
     /* Convert light assuming 1 micromole PAR photons = 0.235 J/s Watts*/
@@ -597,24 +595,19 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     double PhiN = Ja - rlc; /* Calculate the net radiation balance*/
     if (PhiN < 0) PhiN = 1e-7;
 
+    double Evaporation = 0.0;
     if (method == 0) {
         /* Priestly-Taylor */
-        Evaporation = 1.26 * (SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam));
+        Evaporation = 1.26 * (SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
     } else {
         /* Penman-Monteith */
-        Evaporation = (SlopeFS * PhiN + LHV * PsycParam * SoilBoundaryLayer * DeltaPVa) / (LHV * (SlopeFS + PsycParam));
+        Evaporation = (SlopeFS * PhiN + LHV * PsycParam * SoilBoundaryLayer * DeltaPVa) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
     }
 
-    const double cf2 = 3600 * 1e-3 * 10000;
-    /* 3600 converts seconds to hours */
-    /* 1e-3 converts millimoles to moles */
-    /* 10000 scales from meter squared to hectare */
+    Evaporation *= soil_area_sunlit_fraction * maximum_uptake_rate * 3600 * 1e-3 * 10000;  // Mg / ha / hr.  3600 s / hr. 1e-3 Mg / kg. 10000 m^2 / ha.
+    if (Evaporation < 0) Evaporation = 1e-6;  // Prevent odd values at very low light levels.
 
-    /* Adding the area dependence and the effect of drying */
-    Evaporation *= SoilArea * Up * cf2;
-    if (Evaporation < 0) Evaporation = 1e-6;  // Prevent any odd values which might get through at very low light levels. 
-
-    return (Evaporation);
+    return Evaporation;  // Mg / ha / hr.
 }
 
 // Helper function for watstr.
@@ -685,8 +678,10 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     double runoff = 0.0;
     double Nleach = 0.0;  /* Nleach is the NO3 leached. */
+
     if (soil_water_fraction > theta_s) {
         runoff = (soil_water_fraction - theta_s) * soildepth; /* This is in meters */
+
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
@@ -714,6 +709,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     /* This is drainage */
     if (awc > fieldc) {
         double K_psim = Ks * pow((air_entry / tmp.psim), 2 + 3 / b); /* This is hydraulic conductivity */
+
         double J_w = -K_psim * (-tmp.psim / (soildepth * 0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth */
         double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m^3 / (m^2 * hr). */
         awc = awc + drainage / soildepth;
@@ -945,10 +941,7 @@ double resp(double comp, double mrc, double temp) {
 
 }
 
-/* Function to select the correct dry biomass partitioning coefficients */
-/* It should take a vector of size 24 as an argument and return a structure with four numbers */
-
-struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime)
+struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
 {
 
     struct dbp_str tmp;
@@ -957,7 +950,7 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
     tmp.kStem = 0.0;
     tmp.kRoot = 0.0;
     tmp.kRhiz = 0.0;
-    tmp.kGrain = 0.0; /* kGrain is always zero except for the last thermal period */
+    tmp.kGrain = 0.0;
 
     if (TherTime < TherPrds[0])
     {
@@ -965,42 +958,47 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
         tmp.kLeaf = coefs[1];
         tmp.kRoot = coefs[2];
         tmp.kRhiz = coefs[3];
+        tmp.kGrain = coefs[4];
 
     } else if ( TherTime < TherPrds[1] )
     {
-        tmp.kStem = coefs[4];
-        tmp.kLeaf = coefs[5];
-        tmp.kRoot = coefs[6];
-        tmp.kRhiz = coefs[7];
+        tmp.kStem = coefs[5];
+        tmp.kLeaf = coefs[6];
+        tmp.kRoot = coefs[7];
+        tmp.kRhiz = coefs[8];
+        tmp.kGrain = coefs[9];
 
     } else if ( TherTime < TherPrds[2])
     {
-        tmp.kStem = coefs[8];
-        tmp.kLeaf = coefs[9];
-        tmp.kRoot = coefs[10];
-        tmp.kRhiz = coefs[11];
+        tmp.kStem = coefs[10];
+        tmp.kLeaf = coefs[11];
+        tmp.kRoot = coefs[12];
+        tmp.kRhiz = coefs[13];
+        tmp.kGrain = coefs[14];
 
     } else if (TherTime < TherPrds[3])
     {
-        tmp.kStem = coefs[12];
-        tmp.kLeaf = coefs[13];
-        tmp.kRoot = coefs[14];
-        tmp.kRhiz = coefs[15];
+        tmp.kStem = coefs[15];
+        tmp.kLeaf = coefs[16];
+        tmp.kRoot = coefs[17];
+        tmp.kRhiz = coefs[18];
+        tmp.kGrain = coefs[19];
 
     } else if (TherTime < TherPrds[4])
     {
-        tmp.kStem = coefs[16];
-        tmp.kLeaf = coefs[17];
-        tmp.kRoot = coefs[18];
-        tmp.kRhiz = coefs[19];
-
-    } else {
-
         tmp.kStem = coefs[20];
         tmp.kLeaf = coefs[21];
         tmp.kRoot = coefs[22];
         tmp.kRhiz = coefs[23];
         tmp.kGrain = coefs[24];
+
+    } else {
+
+        tmp.kStem = coefs[25];
+        tmp.kLeaf = coefs[26];
+        tmp.kRoot = coefs[27];
+        tmp.kRhiz = coefs[28];
+        tmp.kGrain = coefs[29];
 
     }
     return(tmp);

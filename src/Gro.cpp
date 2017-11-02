@@ -12,6 +12,8 @@
 #include <string>
 #include "BioCro.h"
 #include "modules.h"
+#include "math.h"
+#include <R.h>
 
 using std::vector;
 using std::string;
@@ -41,11 +43,11 @@ state_vector_map Gro(
     struct dbp_str dbpS;
 
     double dbpcoefs[] = {
-        invariant_parameters.at("kStem1"), invariant_parameters.at("kLeaf1"), invariant_parameters.at("kRoot1"), invariant_parameters.at("kRhizome1"),
-        invariant_parameters.at("kStem2"), invariant_parameters.at("kLeaf2"), invariant_parameters.at("kRoot2"), invariant_parameters.at("kRhizome2"),
-        invariant_parameters.at("kStem3"), invariant_parameters.at("kLeaf3"), invariant_parameters.at("kRoot3"), invariant_parameters.at("kRhizome3"),
-        invariant_parameters.at("kStem4"), invariant_parameters.at("kLeaf4"), invariant_parameters.at("kRoot4"), invariant_parameters.at("kRhizome4"),
-        invariant_parameters.at("kStem5"), invariant_parameters.at("kLeaf5"), invariant_parameters.at("kRoot5"), invariant_parameters.at("kRhizome5"),
+        invariant_parameters.at("kStem1"), invariant_parameters.at("kLeaf1"), invariant_parameters.at("kRoot1"), invariant_parameters.at("kRhizome1"), invariant_parameters.at("kGrain1"),
+        invariant_parameters.at("kStem2"), invariant_parameters.at("kLeaf2"), invariant_parameters.at("kRoot2"), invariant_parameters.at("kRhizome2"), invariant_parameters.at("kGrain2"),
+        invariant_parameters.at("kStem3"), invariant_parameters.at("kLeaf3"), invariant_parameters.at("kRoot3"), invariant_parameters.at("kRhizome3"), invariant_parameters.at("kGrain3"),
+        invariant_parameters.at("kStem4"), invariant_parameters.at("kLeaf4"), invariant_parameters.at("kRoot4"), invariant_parameters.at("kRhizome4"), invariant_parameters.at("kGrain4"),
+        invariant_parameters.at("kStem5"), invariant_parameters.at("kLeaf5"), invariant_parameters.at("kRoot5"), invariant_parameters.at("kRhizome5"), invariant_parameters.at("kGrain5"),
         invariant_parameters.at("kStem6"), invariant_parameters.at("kLeaf6"), invariant_parameters.at("kRoot6"), invariant_parameters.at("kRhizome6"), invariant_parameters.at("kGrain6")
     };
 
@@ -91,12 +93,13 @@ state_vector_map Gro(
 
     if (!missing_state.empty()) {
         std::ostringstream message;
-        message << "The following required state variables are missing: " << join_string_vector(missing_state);
+        message << "The following required state variables are missing in Gro: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
     }
 
     for (size_t i = 0; i < n_rows; ++i)
     {
+        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
@@ -131,6 +134,29 @@ state_vector_map Gro(
         p["kGrain"] = dbpS.kGrain;
         p["kRhizome"] = dbpS.kRhiz;
 
+        derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
+
+        p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
+        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
+
+        derivs += soil_evaporation_module->run(state_history, deriv_history, p);
+
+        soilText_str soTexS = soilTchoose(p.at("soilType"));
+        double wiltp = soTexS.wiltp;
+        double fieldc = soTexS.fieldc;
+
+
+
+        double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soilDepth"));
+        double root_depth_fraction = root_depth / p.at("soilDepth");
+        double evaporation_rate = (derivs.at("soilEvap") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth;
+        //double root_available_water_fraction = fmax(fmin(1 + (p.at("waterCont") / fieldc - 1) / root_depth_fraction, 1), 0);
+        double root_available_water_fraction = fmin(1 - (fieldc - p.at("waterCont")) / root_depth_fraction, 1);
+        //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (p.at("waterCont") - wiltp), 1), 0);
+        //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (root_available_water_fraction - wiltp), 1), 0);
+        p["rate_constant_root_scale"] = fmin(fmax((fieldc - (root_available_water_fraction - evaporation_rate)) / (fieldc - wiltp), 1), 20);
+        //Rprintf("%f, %f, %f.\n", root_depth_fraction, p.at("waterCont"), root_available_water_fraction);
+
         /*
          * 2) Calculate derivatives between state variables.
          */
@@ -144,17 +170,10 @@ state_vector_map Gro(
          * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
          * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
-        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
 
         if (p.at("temp") > p.at("tbase")) {
             derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
-        derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
-
-        p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
-        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
-
-        derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
         derivs += growth_module->run(state_history, deriv_history, p);
 
@@ -189,6 +208,7 @@ state_vector_map Gro(
         //results["canopy_assimilation"][i] = s["CanopyA"];
         results["canopy_assimilation"].push_back(p["CanopyA"]);
         results["canopy_transpiration"].push_back(p["CanopyT"]);
+        results["rate_constant_root_scale"].push_back(p["rate_constant_root_scale"]);
         results["lai"].push_back(p.at("lai"));
         //results["soil_water_content"].push_back(s.at("soil_water_content"));
         results["stomatal_conductance_coefs"].push_back(current_state.at("StomataWS"));
@@ -203,6 +223,30 @@ state_vector_map Gro(
         results["newStemcol"].push_back(derivs.at("newStemcol"));
         results["newRootcol"].push_back(derivs.at("newRootcol"));
         results["newRhizomecol"].push_back(derivs.at("newRhizomecol"));
+        results["dLeaf"].push_back(derivs.at("Leaf"));
+        results["dGrain"].push_back(derivs.at("Grain"));
+        results["dStem"].push_back(derivs.at("Stem"));
+        results["dRoot"].push_back(derivs.at("Root"));
+        results["dRhizome"].push_back(derivs.at("Rhizome"));
+
+        results["dsubstrate_pool_leaf"].push_back(derivs["substrate_pool_leaf"]);
+        results["dsubstrate_pool_stem"].push_back(derivs["substrate_pool_stem"]);
+        results["dsubstrate_pool_grain"].push_back(derivs["substrate_pool_grain"]);
+        results["dsubstrate_pool_root"].push_back(derivs["substrate_pool_root"]);
+        results["dsubstrate_pool_rhizome"].push_back(derivs["substrate_pool_rhizome"]);
+
+        results["transport_leaf_to_stem"].push_back(derivs["transport_leaf_to_stem"]);
+        results["transport_stem_to_grain"].push_back(derivs["transport_stem_to_grain"]);
+        results["transport_stem_to_root"].push_back(derivs["transport_stem_to_root"]);
+        results["transport_stem_to_rhizome"].push_back(derivs["transport_stem_to_rhizome"]);
+
+        results["utilization_leaf"].push_back(derivs["utilization_leaf"]);
+        results["utilization_stem"].push_back(derivs["utilization_stem"]);
+        results["utilization_grain"].push_back(derivs.at("utilization_grain"));
+        results["utilization_root"].push_back(derivs.at("utilization_root"));
+
+
+
         //results["cws1"].push_back(current_state.at("cws1"));
         //results["cws2"].push_back(current_state.at("cws2"));
     }

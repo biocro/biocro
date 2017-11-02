@@ -144,7 +144,7 @@ partial_gro = function(initial_values, parameters, varying_parameters, modules, 
 # senescence_gro = partial_gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
 # result = senescence_gro(c(3000, 3000, 3000, 3000))
 
-    arg_list = list(initial_values=sorghum_initial_state, parameters=sorghum_parameters, varying_parameters=weather05, modules=sorghum_modules)
+    arg_list = list(initial_values=initial_values, parameters=parameters, varying_parameters=varying_parameters, modules=modules)
 
     df = data.frame(control=character(), arg_name=character(), stringsAsFactors=FALSE)
     for (i in seq_along(arg_list)) {
