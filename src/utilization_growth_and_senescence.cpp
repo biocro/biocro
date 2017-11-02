@@ -23,6 +23,9 @@ state_map utilization_growth_and_senescence_module::do_operation(state_vector_ma
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
 
+    std::unique_ptr<IModule> growth_module = std::unique_ptr<IModule>(new utilization_growth_module);
+    std::unique_ptr<IModule> senescence_module = std::unique_ptr<IModule>(new utilization_senescence);
+
     double remobilization_fraction = s.at("remobilization_fraction");
 
     double kLeaf = p.at("rate_constant_leaf");
@@ -146,6 +149,9 @@ state_map utilization_growth_and_senescence_module::do_operation(state_vector_ma
                 double respiratory_deficit = substrate_pool_leaf + carbon_input;  // carbon_input is negative in this case, so the deficit is the amount in excess of the amount currently in the substrate pool.
                 utilization_leaf = respiratory_deficit;  // Account for the deficit by taking mass from leaves.
             }
+
+            state_map sub_derivs;
+            sub_derivs = growth_module->run(s);
 
             double current_d_substrate_leaf = (carbon_input - transport_leaf_to_stem - utilization_leaf + senescence_leaf * remobilization_fraction) * d_time;
             double current_d_substrate_stem = (transport_leaf_to_stem -transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem + senescence_stem * remobilization_fraction - start_grain) * d_time;

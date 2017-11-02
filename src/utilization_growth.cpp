@@ -54,11 +54,11 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
             double current_d_substrate_root = sub_derivs["substrate_pool_root"] * d_time;
             double current_d_substrate_rhizome = sub_derivs["substrate_pool_rhizome"] * d_time;
 
-            double current_d_leaf = sub_derivs["utilization_leaf"] * d_time;
-            double current_d_stem = sub_derivs["utilization_stem"] * d_time;
-            double current_d_grain = sub_derivs["utilization_grain"] * d_time;
-            double current_d_root = sub_derivs["utilization_root"] * d_time;
-            double current_d_rhizome = sub_derivs["utilization_rhizome"] * d_time;
+            double current_d_leaf = sub_derivs["Leaf"] * d_time;
+            double current_d_stem = sub_derivs["Stem"] * d_time;
+            double current_d_grain = sub_derivs["Grain"] * d_time;
+            double current_d_root = sub_derivs["Root"] * d_time;
+            double current_d_rhizome = sub_derivs["Rhizome"] * d_time;
 
             d_substrate_leaf += current_d_substrate_leaf;
             d_substrate_stem += current_d_substrate_stem;
@@ -255,33 +255,15 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
 
 state_map utilization_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
+    size_t max_loops = 3;
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-    double TTc = s.at("TTc");
 
-    size_t max_loops = 3;
-
-    double remobilization_fraction = s.at("remobilization_fraction");
-
-    double kLeaf = s.at("rate_constant_leaf_senescence");
-    double kStem = s.at("rate_constant_stem_senescence");
-    double kRoot = s.at("rate_constant_root_senescence");
-    double kRhizome = s.at("rate_constant_rhizome_senescence");
-
-    double KmLeaf = s.at("KmLeaf_senescence");
-    double KmStem = s.at("KmStem_senescence");
-    double KmRoot = s.at("KmRoot_senescence");
-    double KmRhizome = s.at("KmRhizome_senescence");
-
-    double seneLeaf = s.at("seneLeaf");
-    double seneStem = s.at("seneStem");
-    double seneRoot = s.at("seneRoot");
-    double seneRhizome = s.at("seneRhizome");
-
-    double grain_TTc = s.at("grain_TTc");
 
     double total_time = s.at("timestep"); // hours
     size_t sub_time_steps = total_time * 60;  // At the start, integrate over each minute.
+
+    double remobilization_fraction = s.at("remobilization_fraction");
 
     // BioCro uses a fixed time-step integrator, which works very poorly with this growth model. The while loop here is a crappy integrator that checks whether the values are feasible. If they are not feasible, it breaks the time period into a smaller period and integrates that. It repeats until the integration produces valid results.
     size_t counter = 0;
@@ -302,48 +284,27 @@ state_map utilization_senescence::do_operation(state_vector_map const &state_his
         //Rprintf("Loop %d\n", counter++);
         //Rprintf("Before mass fraction\n");
 
-        double mass_fraction_leaf = 0, mass_fraction_stem = 0, mass_fraction_root = 0, mass_fraction_rhizome = 0;
-        double senescence_leaf = 0, senescence_stem = 0, senescence_root = 0, senescence_rhizome = 0; 
         double d_substrate_leaf = 0, d_substrate_stem = 0, d_substrate_root = 0, d_substrate_rhizome = 0;
         double d_leaf = 0, d_stem = 0, d_grain = 0, d_root = 0, d_rhizome = 0;
 
         size_t i;
         bool failed = false;
         for (i = 0; i < sub_time_steps; ++i) {
+            state_map sub_derivs;
             double d_time = total_time / sub_time_steps;
-            double start_grain = 0;
 
-            if ((Leaf != 0) & (TTc >= seneLeaf)) {
-                mass_fraction_leaf = substrate_pool_leaf / Leaf;
-                senescence_leaf = mass_fraction_leaf * kLeaf / (KmLeaf + mass_fraction_leaf);
-            }
-            if ((Stem != 0) & (TTc >= seneStem)) {
-                mass_fraction_stem = substrate_pool_stem / Stem;
-                senescence_stem = mass_fraction_stem * kStem / (KmStem + mass_fraction_stem);
-            }
-            if ((Root != 0) & (TTc >= seneRoot)) {
-                mass_fraction_root = substrate_pool_root / Root;
-                senescence_root = mass_fraction_root * kRoot / (KmRoot + mass_fraction_root);
-            }
-            if ((Rhizome != 0) & (TTc >= seneRhizome)) {
-                mass_fraction_rhizome = substrate_pool_rhizome;
-                senescence_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome);
-            }
-            if ((Grain <= 0) & (TTc >= grain_TTc)) {
-                start_grain = 0.01;
-            }
+            sub_derivs = this->run(s);
 
-            double current_d_substrate_leaf = senescence_leaf * remobilization_fraction * d_time;
-            double current_d_substrate_stem = (senescence_stem * remobilization_fraction - start_grain) * d_time;
-            double current_d_substrate_root = senescence_root * remobilization_fraction * d_time;
-            double current_d_substrate_rhizome = senescence_rhizome * remobilization_fraction * d_time;
+            double current_d_substrate_leaf = sub_derivs["substrate_pool_leaf"] * d_time;
+            double current_d_substrate_stem = sub_derivs["substrate_pool_stem"] * d_time;
+            double current_d_substrate_root = sub_derivs["substrate_pool_root"] * d_time;
+            double current_d_substrate_rhizome = sub_derivs["substrate_pool_rhizome"] * d_time;
 
-            double current_d_leaf = -senescence_leaf * d_time;
-            double current_d_stem = -senescence_stem * d_time;
-            double current_d_grain = start_grain;
-            double current_d_root = -senescence_root * d_time;
-            double current_d_rhizome = -senescence_rhizome * d_time;
-
+            double current_d_leaf = sub_derivs["Leaf"] * d_time;
+            double current_d_stem = sub_derivs["Stem"] * d_time;
+            double current_d_grain = sub_derivs["Grain"] * d_time;
+            double current_d_root = sub_derivs["Root"] * d_time;
+            double current_d_rhizome = sub_derivs["Rhizome"] * d_time;
 
             d_substrate_leaf += current_d_substrate_leaf;
             d_substrate_stem += current_d_substrate_stem;
@@ -372,9 +333,10 @@ state_map utilization_senescence::do_operation(state_vector_map const &state_his
                 (substrate_pool_stem < 0) |
                 (substrate_pool_root < 0) |
                 (substrate_pool_rhizome < 0) |
-                (senescence_stem < 0) |
-                (senescence_stem < 0) |
-                (senescence_rhizome < 0))
+                (current_d_leaf > 0) |
+                (current_d_stem > 0) |
+                (current_d_root > 0) |
+                (current_d_rhizome > 0))
             {
                 if (counter < max_loops) {  // Abort if the maximum number of loops hasn't been reached. It the maximun number of loops is reached, continue with the caveat that something is wrong.
                     failed = true;
