@@ -288,8 +288,16 @@ class linear_vmax_from_leaf_n : public IModule {
         }
 };
 
-
-
+class parameter_calculator : public IModule {
+    public:
+        parameter_calculator()
+            : IModule(std::vector<std::string> {"iSp", "Sp_thermal_time_decay", "Leaf", "LeafN_0",
+                    "vmax_n_intercept", "vmax1", "alphab1", "alpha1"},
+                      std::vector<std::string> {})
+            {}
+    private:
+        state_map do_operation(state_map const &s) const;
+};
 
 class soil_type_selector : public IModule {
     public:
@@ -333,7 +341,9 @@ class ModuleFactory {
             { "one_layer_soil_profile_derivatives", &createModule<one_layer_soil_profile_derivatives>},
             { "soil_type_selector",                 &createModule<soil_type_selector>},
             { "test_derivs",                        &createModule<test_derivs>},
-            { "test_calc_state",                    &createModule<test_calc_state>}
+            { "test_calc_state",                    &createModule<test_calc_state>},
+            { "parameter_calculator",               &createModule<parameter_calculator>},
+            { "biomass_leaf_n_limitation",          &createModule<biomass_leaf_n_limitation>}
         };
 
     public:

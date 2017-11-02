@@ -84,6 +84,15 @@ state_map biomass_leaf_n_limitation::do_operation(state_map const &s) const
     return calculated_state;
 }
 
+state_map parameter_calculator::do_operation(state_map const &s) const
+{
+    state_map result;
+    result["Sp"] = s.at("iSp") - s.at("TTc") * s.at("Sp_thermal_time_decay");
+    result["lai"] = s.at("Leaf") * result.at("Sp");
+    result["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmax_n_intercept") + s.at("vmax1");
+    result["alpha"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("alphab1") + s.at("alpha1");
+    return result;
+}
 
 state_map test_derivs::do_operation(state_map const &s) const
 {
