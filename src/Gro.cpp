@@ -216,32 +216,11 @@ state_map Gro(
 {
     state_map p = state;
 
-    /*
-    vector<string> missing_state;
-    vector<string> temp;
-
-    for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        temp = (*it)->state_requirements_are_met(p);
-        missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-    }
-    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-        temp = (*it)->state_requirements_are_met(p);
-        missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-    }
-
-    if (!missing_state.empty()) {
-        std::ostringstream message;
-        message << "The following required state variables are missing: " << join_string_vector(missing_state);
-        throw std::out_of_range(message.str());
-    }
-    */
-
-
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         p = combine_state(p, (*it)->run(p));
     }
 
-    state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
+    state_map derivs;
     for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
         derivs += (*it)->run(p);
     }

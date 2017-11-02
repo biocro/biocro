@@ -65,15 +65,9 @@ SEXP R_Gro(SEXP initial_state,
         }
 
         state_vector_map result;
-        try {
-            result = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, biomass_leaf_nitrogen_limitation);
-        } catch (std::exception const &e) {
-            std::ostringstream message;
-            message << "Exception caught in R_Gro.cpp. " << e.what();
-            error(message.str().c_str());
-        }
-
+        result = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, biomass_leaf_nitrogen_limitation);
         return (list_from_map(result));
+
     } catch (std::exception const &e) {
         error(std::string(std::string("Caught exception in R_Gro: ") + e.what()).c_str());
     } catch (...) {
