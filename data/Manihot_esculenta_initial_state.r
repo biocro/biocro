@@ -1,11 +1,11 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-glycine_max_initial_state = with(list(), {
+manihot_esculenta_initial_state = with(list(), {
     datalines =
     "symbol value
-    Rhizome 0.0
-    Leaf 0.06  # The total of Leaf, Stem and Root masses is 0.08, which comes from http://www.montana.edu/cpa/news/wwwpb-archives/ag/baudr182.html and https://www.extension.purdue.edu/extmedia/ay/ay-217-w.pdf.
-    Stem 0.01
-    Root 0.01
+    Rhizome 0.99
+    Leaf 0.02
+    Stem 0.99
+    Root 1
     Grain 0
     waterCont 0.32
     StomataWS 1
@@ -24,12 +24,7 @@ glycine_max_initial_state = with(list(), {
     substrate_pool_grain 0
     substrate_pool_stem 0
     substrate_pool_root 0
-    substrate_pool_rhizome 0
-    GI 0
-    FKF1 0
-    CDF 0
-    FT 0
-    dawn 100"
+    substrate_pool_rhizome 0"
     
     data_frame = read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)

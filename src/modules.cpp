@@ -34,9 +34,13 @@ state_map IModule::run(state_map const &state) const
     }
     catch (std::out_of_range const &oor) {
         vector<string> missing_state = this->state_requirements_are_met(state);
-        std::ostringstream message;
-        message << "The following required state variables are missing: " << join_string_vector(missing_state);
-        throw std::out_of_range(message.str());
+        if (missing_state.size() > 0) {
+            std::ostringstream message;
+            message << "The following required state variables are missing: " << join_string_vector(missing_state);
+            throw std::out_of_range(message.str());
+        } else {
+            throw std::out_of_range(oor.what());
+        }
     }
     return (result);
 }
@@ -50,9 +54,13 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
     catch (std::out_of_range const &oor) {
         state_map state = combine_state(at(state_history, 0), parameters);
         vector<string> missing_state = this->state_requirements_are_met(state);
-        std::ostringstream message;
-        message << "The following required state variables are missing: " << join_string_vector(missing_state);
-        throw std::out_of_range(message.str());
+        if (missing_state.size() > 0) {
+            std::ostringstream message;
+            message << "The following required state variables are missing: " << join_string_vector(missing_state);
+            throw std::out_of_range(message.str());
+        } else {
+            throw std::out_of_range(oor.what());
+        }
     }
     return (result);
 }
@@ -473,6 +481,9 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     else if (module_name.compare("partitioning_growth") == 0) {
         return std::unique_ptr<IModule>(new partitioning_growth_module);
     }
+    else if (module_name.compare("utilization_growth") == 0) {
+        return std::unique_ptr<IModule>(new utilization_growth_module);
+    }
     else if (module_name.compare("no_leaf_resp_partitioning_growth") == 0) {
         return std::unique_ptr<IModule>(new no_leaf_resp_partitioning_growth_module);
     }
@@ -481,6 +492,18 @@ std::unique_ptr<IModule> make_module(string const &module_name)
     }
     else if (module_name.compare("thermal_time_senescence") == 0) {
         return std::unique_ptr<IModule>(new thermal_time_senescence);
+    }
+    else if (module_name.compare("utilization_senescence") == 0) {
+        return std::unique_ptr<IModule>(new utilization_senescence);
+    }
+    else if (module_name.compare("utilization_growth_and_senescence") == 0) {
+        return std::unique_ptr<IModule>(new utilization_growth_and_senescence_module);
+    }
+    else if (module_name.compare("utilization_growth_and_flowering") == 0) {
+        return std::unique_ptr<IModule>(new utilization_growth_flowering_module);
+    }
+    else if (module_name.compare("empty_senescence") == 0) {
+        return std::unique_ptr<IModule>(new empty_senescence);
     }
     else {
         throw std::out_of_range(module_name);
