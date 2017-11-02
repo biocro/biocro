@@ -27,8 +27,9 @@ struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTim
 
 double resp(double comp, double mrc, double temp);
 
-struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, 
-                     double fieldc, double wiltp, double phi1, double phi2, int soiltype, int wsFun);
+struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
+                     double wiltp, double phi1, double phi2, double soil_saturation_content, double soil_sand_content,
+                     double Ks, double air_entry, double b, int wsFun);
 
 
 double SoilEvapo(double LAI, double k, double AirTemp, double DirectRad,
