@@ -167,6 +167,7 @@ class utilization_senescence: public ISenescence_module {
         {}
     private:
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+        virtual state_map do_operation(state_map const &s) const;
 };
 
 class utilization_growth_module : public IGrowth_module {
