@@ -854,7 +854,8 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
                to the amount of root in each respective layer.*/
             Ctransp = transp * root_distribution.rootDist[0];
             EvapoTra = Ctransp + Sevap;
-            Newpawha = pawha - EvapoTra / 0.9982; /* See the watstr function for this last number 0.9882 */
+            constexpr double density_of_water_at_20_celcius = 0.9982;  // Mg m^-3.
+            Newpawha = pawha - EvapoTra / density_of_water_at_20_celcius;
             /* The first term in the rhs pawha is the m3 of water available in this layer.
                EvapoTra is the Mg H2O ha-1 of transpired and evaporated water. 1/0.9882 converts from Mg to m3 */
         } else {
