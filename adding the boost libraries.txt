@@ -1,0 +1,14 @@
+BioCro uses software from the Boost project for C++. Not all of Boost needs to be included, and this document lists steps to extract the relevant portion of Boost.
+
+BioCro uses the units and odeint packages. To extract them use the bcp tool included with Boost. bcp accepts a list of files or modules and extracts the relevant parts of the Boost library to a directory.
+The modules BioCro uses are as follows:
+"boost/units"
+"boost/typeof/incr_registration_group.hpp" -- This is needed for boost/units but it is not exported properly and must be explicitly specificed as of Boost version 1.64
+"boost/numeric/odeint"
+
+1: Run the following command:
+    bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/units" "boost/typeof/incr_registration_group.hpp" "boost/numeric/odeint" PATH_TO_TEMPORARY_DIRECTORY
+2: Copy PATH_TO_TEMPORARY_DIRECTORY/boost to the biocro/src/boost_[version_number] directory. Other files and directories my be created in PATH_TO_TEMPORARY_DIRECTORY, but they are not needed.
+3: If necessary, updated the PKG_CPPFLAGS line in biocro/src/Makevars
+    E.g., PKG_CPPFLAGS=-I"boost_1_64_0"
+

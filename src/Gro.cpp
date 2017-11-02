@@ -7,10 +7,16 @@
 
 #include <memory>
 #include <sstream>
+#include <stdexcept>
+#include <vector>
+#include <string>
 #include "BioCro.h"
 #include "modules.h"
 #include "math.h"
 #include <R.h>
+
+using std::vector;
+using std::string;
 
 state_vector_map Gro(
         state_map const &initial_state,
@@ -59,8 +65,7 @@ state_vector_map Gro(
     p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
     p["lai"] = p.at("Leaf") * p.at("Sp");
     p["LeafN"] = leaf_n_limitation(p);
-    leaf_n_limitation(p);
-    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmax_n_intercept") + p.at("vmax1");
     p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
     dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
@@ -92,7 +97,7 @@ state_vector_map Gro(
         throw std::out_of_range(message.str());
     }
 
-    for(size_t i = 0; i < n_rows; ++i)
+    for (size_t i = 0; i < n_rows; ++i)
     {
         state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
         append_state_to_vector(current_state, state_history);
@@ -118,7 +123,7 @@ state_vector_map Gro(
            availability and possibly by the thermal time.
            (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
         p["LeafN"] = leaf_n_limitation(p);
-        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
+        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmax_n_intercept") + p.at("vmax1");
         p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
 
         dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
@@ -166,7 +171,7 @@ state_vector_map Gro(
          * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
 
-        if(p.at("temp") > p.at("tbase")) {
+        if (p.at("temp") > p.at("tbase")) {
             derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
 
@@ -205,7 +210,7 @@ state_vector_map Gro(
         results["canopy_transpiration"].push_back(p["CanopyT"]);
         results["rate_constant_root_scale"].push_back(p["rate_constant_root_scale"]);
         results["lai"].push_back(p.at("lai"));
-        //results["soil_water_content"].push_back(s.at("waterCont"));
+        //results["soil_water_content"].push_back(s.at("soil_water_content"));
         results["stomatal_conductance_coefs"].push_back(current_state.at("StomataWS"));
         //results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
         //results["leaf_nitrogen"].push_back(s.at("LeafN"));
@@ -246,5 +251,24 @@ state_vector_map Gro(
         //results["cws2"].push_back(current_state.at("cws2"));
     }
     return results;
+}
+
+state_map Gro(
+    state_map const &state,
+    std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
+    std::vector<std::unique_ptr<IModule>> const &derivative_modules)
+{
+    state_map p = state;
+
+    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+        p = combine_state(p, (*it)->run(p));
+    }
+
+    state_map derivs;
+    for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+        derivs += (*it)->run(p);
+    }
+    
+return derivs;
 }
 

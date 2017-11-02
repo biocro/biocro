@@ -2,7 +2,13 @@
 sorghum_parameters = with(list(), {
     datalines =
     "symbol value
+    acceleration_from_gravity 9.8
     lat 40
+    soil_clod_size 0.04
+    soil_reflectance 0.2
+    soil_transmission 0.01
+    specific_heat 1010
+    stefan_boltzman 5.67e-8
     iSp 1.7
     SpD 0
     nlayers 10
@@ -33,8 +39,8 @@ sorghum_parameters = with(list(), {
     WiltP -1
     phi1 0.01
     phi2 10
-    soilDepth 1
-    soilType 6
+    soil_depth 1
+    soil_type_indicator 6
     soilLayers 1
     wsFun 0
     scsf 1
@@ -100,7 +106,7 @@ sorghum_parameters = with(list(), {
     kGrain6 0
     LeafN_0 2
     kln 0.5
-    vmaxb1 0
+    vmax_n_intercept 0
     alphab1 0
     kpLN 0.2
     lnb0 -5

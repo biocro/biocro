@@ -145,7 +145,7 @@ struct Can_Str CanAC(
     /* 18 - grams per mole for H2O */
     /* 1e-6 - megagrams per  gram */
     /* 10000 - meters squared per hectare */
-    ans.Trans = CanopyT * 3600 * 1e-3 * 18 * 1e-6 * 10000; 
+    ans.Trans = CanopyT * 3600 * 1e-3 * 18 * 1e-6 * 10000;  // Mg / ha / hr.
     ans.canopy_transpiration_penman = CanopyPe;
     ans.canopy_transpiration_priestly = CanopyPr;
     ans.canopy_conductance = canopy_conductance;

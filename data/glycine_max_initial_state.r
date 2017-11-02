@@ -7,7 +7,7 @@ glycine_max_initial_state = with(list(), {
     Stem 0.01
     Root 0.01
     Grain 0
-    waterCont 0.32
+    soil_water_content 0.32
     StomataWS 1
     LeafN 2
     TTc 0

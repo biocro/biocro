@@ -1,16 +1,36 @@
-R_HOME=C:\PROGRA~1\R\R-32~1.2
-R_LIBS_USER="${USERPROFILE}"/Documents/R/win-library/3.2
-#export PATH:=${PATH};C:\Program Files\R\R-3.2.2\bin
+# On Windows, this script does not work well because Rtools is a boondogle.
+#    To build targets that use R CMD INSTALL, you must run from a shell that has Rtools in the path.
+#    To build the "biocro" target, you must run from a shell that does not have Rtools in the path.
 
+CC=g++
+CC_FLAGS = -w -std=c++0x -I"boost_1_64_0"
+ 
+# File names
+GRO_SOURCES = $(filter-out $(wildcard R_*), $(wildcard *.cpp))
+GRO_OBJECTS = $(GRO_SOURCES:.cpp=.o)
+
+ODE_SOURCES = odetest/odeint_test.cpp state_map.cpp
+ODE_OBJECTS = $(ODE_SOURCES:.cpp=.o)
+ 
+# Main target
+biocro: $(GRO_OBJECTS)
+	$(CC) $(GRO_OBJECTS) -o biocro
+
+odetest: $(ODE_OBJECTS)
+	$(CC) $(ODE_OBJECTS) -o odetest/odetest
+ 
+# To obtain object files
+%.o: %.cpp
+	$(CC) -c $(CC_FLAGS) $< -o $@
+ 
 quick:
-	exec "${R_HOME}\bin\R.exe" CMD INSTALL --library=$(R_LIBS_USER) --no-html --no-help --no-docs --no-demo --no-multiarch ..
-#	R CMD INSTALL --no-html --no-help --no-docs --no-multiarch .
+	R CMD INSTALL --no-html --no-help --no-docs --no-demo --no-multiarch ..
 
 full:
-	exec "${R_HOME}\bin\R.exe" CMD INSTALL --library=$(R_LIBS_USER) --no-multiarch ..
+	R CMD INSTALL --no-multiarch ..
 	
 .PHONY: clean
 
 clean:
-	rm *~ *.o *.dll
+	rm -f *~ *.o *.dll
 

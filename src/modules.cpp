@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -6,6 +5,10 @@
 #include <math.h>
 #include <algorithm>
 #include "modules.h"
+#include "state_map.h"
+
+using std::string;
+using std::vector;
 
 string join_string_vector(vector<string> const &state_keys) {
     std::ostringstream message;
@@ -28,9 +31,10 @@ vector<string> IModule::list_modified_state() const
 
 state_map IModule::run(state_map const &state) const
 {
-    state_map result;
     try {
+        state_map result;
         result = this->do_operation(state);
+        return result;
     }
     catch (std::out_of_range const &oor) {
         vector<string> missing_state = this->state_requirements_are_met(state);
@@ -42,14 +46,14 @@ state_map IModule::run(state_map const &state) const
             throw std::out_of_range(oor.what());
         }
     }
-    return (result);
 }
 
 state_map IModule::run(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
-    state_map result;
     try {
+        state_map result;
         result = this->do_operation(state_history, deriv_history, parameters);
+        return result;
     }
     catch (std::out_of_range const &oor) {
         state_map state = combine_state(at(state_history, 0), parameters);
@@ -62,7 +66,6 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
             throw std::out_of_range(oor.what());
         }
     }
-    return (result);
 }
 
 state_map IModule::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
@@ -80,6 +83,39 @@ vector<string> IModule::state_requirements_are_met(state_map const &s) const
         }
     }
     return (missing_state);
+}
+
+state_map biomass_leaf_n_limitation::do_operation(state_map const &s) const
+{
+    state_map calculated_state;
+    calculated_state["LeafN"] = biomass_leaf_nitrogen_limitation(s);
+    return calculated_state;
+}
+
+state_map parameter_calculator::do_operation(state_map const &s) const
+{
+    state_map result;
+    result["Sp"] = s.at("iSp") - s.at("TTc") * s.at("Sp_thermal_time_decay");
+    result["lai"] = s.at("Leaf") * result.at("Sp");
+    result["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmax_n_intercept") + s.at("vmax1");
+    result["alpha"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("alphab1") + s.at("alpha1");
+    return result;
+}
+
+state_map test_derivs::do_operation(state_map const &s) const
+{
+    state_map derivs;
+    derivs["CarbonAvailableForGrowth"] = s.at("LeafArea") * s.at("PAR");
+
+    return (derivs);
+}
+
+state_map test_calc_state::do_operation(state_map const &s) const
+{
+    state_map new_state;
+    new_state["useless_parameter"] = s.at("LeafArea") * s.at("parameter");
+
+    return (new_state);
 }
 
 state_map c4_canopy::do_operation(state_map const &s) const
@@ -133,16 +169,21 @@ state_map c3_canopy::do_operation(state_map const &s) const
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
-    double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("waterCont"),
-                s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"));
+    double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("soil_water_content"),
+                s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"), 
+                s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
+                s.at("specific_heat"), s.at("stefan_boltzman"));
     double TotEvap = soilEvap + s.at("CanopyT");
 
-    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("waterCont"), s.at("soilDepth"), s.at("FieldC"),
-            s.at("WiltP"), s.at("phi1"), s.at("phi2"), s.at("soilType"), s.at("wsFun"));
+    soilText_str soTexS = get_soil_properties(s.at("soil_type_indicator"));
+    
+    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soil_depth"), s.at("FieldC"),
+            s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS.satur, soTexS.sand,
+            soTexS.Ks, soTexS.air_entry, soTexS.b, s.at("wsFun"));
 
     state_map derivs;
     derivs["soilEvap"] = soilEvap;
-    derivs["waterCont"] = WaterS.awc - s.at("waterCont");
+    derivs["soil_water_content"] = WaterS.awc - s.at("soil_water_content");
     derivs["StomataWS"] = WaterS.rcoefPhoto - s.at("StomataWS");
     derivs["LeafWS"] =  WaterS.rcoefSpleaf - s.at("LeafWS");
     return (derivs);
@@ -151,14 +192,15 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
 state_map two_layer_soil_profile::do_operation(state_map const &s) const
 {
     double cws[] = {s.at("cws1"), s.at("cws2")};
-    double soilDepths[] = {s.at("soilDepth1"), s.at("soilDepth2"), s.at("soilDepth3")};
-    struct soilText_str soTexS = soilTchoose(s.at("soilType"));
+    double soil_depths[] = {s.at("soil_depth1"), s.at("soil_depth2"), s.at("soil_depth3")};
+    struct soilText_str soTexS = get_soil_properties(s.at("soil_type_indicator"));
 
-    struct soilML_str soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soilDepth3"), soilDepths,
-            s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS, s.at("wsFun"),
-            2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68, s.at("temp"),
-           s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"), s.at("rfl"),
-           s.at("rsec"), s.at("rsdf"));
+    struct soilML_str soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soil_depth3"), soil_depths,
+            s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS,
+            s.at("wsFun"), 2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68,
+            s.at("temp"), s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"),
+            s.at("rfl"), s.at("rsec"), s.at("rsdf"), s.at("soil_clod_size"), s.at("soil_reflectance"),
+            s.at("soil_transmission"), s.at("specific_heat"), s.at("stefan_boltzman"));
 
     state_map derivs;
     derivs["StomataWS"] = soilMLS.rcoefPhoto - s.at("StomataWS");
@@ -168,7 +210,7 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     derivs["cws1"] = soilMLS.cws[0] - s.at("cws1");
     derivs["cws2"] = soilMLS.cws[1] - s.at("cws2");
     double cws_sum = soilMLS.cws[0] + soilMLS.cws[1];
-    derivs["waterCont"] =  cws_sum / 2 - s.at("waterCont");  // Divide by 2, the number of layers.
+    derivs["soil_water_content"] =  cws_sum / 2 - s.at("soil_water_content");  // Divide by 2, the number of layers.
     
     return (derivs);
 }
@@ -464,109 +506,6 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
     return (derivs);
 }
 
-std::unique_ptr<IModule> make_module(string const &module_name)
-{
-    if (module_name.compare("c4_canopy") == 0) {
-        return std::unique_ptr<IModule>(new c4_canopy);
-    }
-    else if (module_name.compare("c3_canopy") == 0) {
-        return std::unique_ptr<IModule>(new c3_canopy);
-    }
-    else if (module_name.compare("one_layer_soil_profile") == 0) {
-        return std::unique_ptr<IModule>(new one_layer_soil_profile);
-    }
-    else if (module_name.compare("two_layer_soil_profile") == 0) {
-        return std::unique_ptr<IModule>(new two_layer_soil_profile);
-    }
-    else if (module_name.compare("partitioning_growth") == 0) {
-        return std::unique_ptr<IModule>(new partitioning_growth_module);
-    }
-    else if (module_name.compare("utilization_growth") == 0) {
-        return std::unique_ptr<IModule>(new utilization_growth_module);
-    }
-    else if (module_name.compare("no_leaf_resp_partitioning_growth") == 0) {
-        return std::unique_ptr<IModule>(new no_leaf_resp_partitioning_growth_module);
-    }
-    else if (module_name.compare("thermal_time_and_frost_senescence") == 0) {
-        return std::unique_ptr<IModule>(new thermal_time_and_frost_senescence);
-    }
-    else if (module_name.compare("thermal_time_senescence") == 0) {
-        return std::unique_ptr<IModule>(new thermal_time_senescence);
-    }
-    else if (module_name.compare("utilization_senescence") == 0) {
-        return std::unique_ptr<IModule>(new utilization_senescence);
-    }
-    else if (module_name.compare("utilization_growth_and_senescence") == 0) {
-        return std::unique_ptr<IModule>(new utilization_growth_and_senescence_module);
-    }
-    else if (module_name.compare("utilization_growth_and_flowering") == 0) {
-        return std::unique_ptr<IModule>(new utilization_growth_flowering_module);
-    }
-    else if (module_name.compare("empty_senescence") == 0) {
-        return std::unique_ptr<IModule>(new empty_senescence);
-    }
-    else {
-        throw std::out_of_range(module_name);
-    }
-}
-
-
-state_vector_map allocate_state(state_map const &m, size_t n)
-{
-    state_vector_map result;
-    for (auto it = m.begin(); it != m.end(); ++it) {
-        vector<double> temp;
-        temp.reserve(n);
-        result.insert(std::pair<string, vector<double>>(it->first, temp));
-    }
-    return (result);
-}
-
-state_map combine_state(state_map const &state_a, state_map const &state_b)
-{
-    state_map result = state_a;
-    result.insert(state_b.begin(), state_b.end());
-    return result;
-}
-
-state_map at(state_vector_map const &vector_map, vector<double>::size_type const n)
-{
-    state_map result;
-    result.reserve(vector_map.size());
-    for (auto it = vector_map.begin(); it != vector_map.end(); ++it) {
-        result.insert(std::pair<string, double>(it->first, it->second.at(n)));
-    }
-    return result;
-}
-
-state_map replace_state(state_map const &state, state_map const &newstate)
-{
-    state_map result = state;
-    for (auto it = result.begin(); it != result.end(); ++it) {
-        it->second = newstate.at(it->first);
-    }
-    return result;
-}
-
-state_map update_state(state_map const &state, state_map const &change_in_state)
-{
-    state_map result = state;
-    for (auto it = result.begin(); it != result.end(); ++it) {
-        auto it_change = change_in_state.find(it->first);
-        if ( it_change != change_in_state.end()) {
-            it->second += it_change->second;
-        }
-    }
-    return result;
-}
-
-void append_state_to_vector(state_map const &state, state_vector_map &state_vector)
-{
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        state_vector[it->first].push_back(it->second);
-    }
-}
-
 double biomass_leaf_nitrogen_limitation(state_map const &s)
 {
     double leaf_n = s.at("LeafN_0") * pow(s.at("Leaf") + s.at("Stem"), -s.at("kln"));
@@ -576,31 +515,6 @@ double biomass_leaf_nitrogen_limitation(state_map const &s)
 double thermal_leaf_nitrogen_limitation(state_map const &s)
 {
 	return (s.at("LeafN_0") * exp(-s.at("kln") * s.at("TTc")));
-}
-
-
-state_map& operator+=(state_map &lhs, state_map const &rhs)
-{
-    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
-        lhs[it->first] += it->second;
-    }
-    return lhs;
-}
-
-vector<string> keys(state_map const &state) {
-    vector<string> result;
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        result.push_back(it->first);
-    }
-    return (result);
-}
-
-vector<string> keys(state_vector_map const &state) {
-    vector<string> result;
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        result.push_back(it->first);
-    }
-    return (result);
 }
 
 bool any_key_is_duplicated(vector<vector<string>> const &keys) {
@@ -619,4 +533,5 @@ bool any_key_is_duplicated(vector<vector<string>> const &keys) {
     }
     return false;
 }
+
 

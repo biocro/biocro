@@ -3,6 +3,11 @@ willow_parameters = with(list(), {
     datalines =
     "symbol value
      timestep      1
+     soil_clod_size 0.04
+     soil_reflectance 0.2
+     soil_transmission 0.01
+     specific_heat 1010
+     stefan_boltzman 5.67e-8
      lat           40
      seneLeaf       1600
      seneStem       5500
@@ -71,11 +76,11 @@ willow_parameters = with(list(), {
      WiltP      -1       
      phi1       0.01     
      phi2       10       
-     soilDepth  1        
+     soil_depth  1        
      soilType   6        
      soilLayers 1        
-     soilDepths1 0
-     soilDepths2 1
+     soil_depths1 0
+     soil_depths2 1
      wsFun      0        
      scsf       1        
      transpRes  5e+06    
@@ -86,7 +91,7 @@ willow_parameters = with(list(), {
      rsdf       0.44   
      LeafN_0   2   
      kln      0.5 
-     vmaxb1  0   
+     vmax_n_intercept  0   
      alphab1 0   
      kpLN     0.2 
      lnb0     -5  

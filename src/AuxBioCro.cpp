@@ -20,6 +20,14 @@
 #include "c4photo.h"
 #include "BioCro.h"
 
+#ifndef M_PI
+#define M_PI           3.14159265358979323846
+#endif
+
+#ifndef M_E
+# define M_E            2.7182818284590452354
+#endif
+
 double poisson_density(int x, double lambda)
 {
     // The probability density for the Poisson distribution is 
@@ -394,7 +402,7 @@ struct ET_Str EvapoTrans2(
     const double Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
 
     /* AERODYNAMIC COMPONENT */
-    if(WindSpeed < 0.5) WindSpeed = 0.5;
+    if (WindSpeed < 0.5) WindSpeed = 0.5;
 
     const double LayerWindSpeed = WindSpeed; // alias
 
@@ -509,11 +517,11 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
     Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/
 
-    if(Tvdiff < 0) Tvdiff = -Tvdiff;
+    if (Tvdiff < 0) Tvdiff = -Tvdiff;
 
     gbv_free = cf * pow(Tlk,0.56) * pow((Tlk+120)/Pa,0.5) * pow(Tvdiff/lw,0.25);
 
-    if(gbv_forced > gbv_free) {
+    if (gbv_forced > gbv_free) {
         gbv = gbv_forced;
     } else {
         gbv = gbv_free;
@@ -530,87 +538,72 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
 /* Variables I need */
 /* LAI = Leaf Area Index */
 /* k = extinction coefficient */
-/* Temp = Air Temperature */
-/* DirectRad = Direct Total Radiation */
+/* ppfd = Photosynthetic photon flux density */
 /* awc, wiltp, fieldc = available water content, wilting point and field capacity */
 /* winds = wind speed */
 
-double SoilEvapo(double LAI, double k, double AirTemp, double IRad, double awc,
-        double fieldc, double wiltp, double winds, double RelH, double rsec )
+double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, double soil_water_content,
+        double fieldc, double wiltp, double winds, double RelH, double rsec, 
+        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
 {
     int method = 1;
-
-    const double SoilClodSize = 0.04;
-    const double SoilReflectance = 0.2;
-    const double SoilTransmission = 0.01;
-    const double SpecificHeat = 1010;
-    const double StefanBoltzman = 5.67e-8;
-
     /* A simple way of calculating the proportion of the soil that is hit by direct radiation. */
     double soil_area_sunlit_fraction = exp(-k * LAI);  // dimensionless.
 
     /* For now the temperature of the soil will be the same as the air.
-       At a later time this can be made more accurate. I looked at the
-       equations for this and the issue is that it is strongly dependent on
-       depth. Since the soil model now has a single layer, this cannot be
-       implemented correctly at the moment.  */
-
-    double SoilTemp = AirTemp;
+       At a later time this can be made more accurate. I looked at the equations for this and the issue is that it is strongly dependent on
+       depth. Since the soil model now has a single layer, this cannot be implemented correctly at the moment.  */
+    double SoilTemp = air_temperature;
 
     /* From Campbell and Norman. Environmental Biophysics. */
     /* If relative available water content is */
     double rawc = (awc - wiltp) / (fieldc - wiltp);  // dimensionless. relative available water content.
 
-    /* Page 142 */
+    /* Campbell and Norman. Environmental Physics, page 142 */
     double maximum_uptake_rate = 1 - pow((1 + 1.3 * rawc), -5);  // dimenionless
     /* This is a useful idea because dry soils evaporate little water when dry*/
 
     /* Total Radiation */
-    /*' Convert light assuming 1 micromole PAR photons = 0.235 J/s Watts*/
-    /* At the moment soil evaporation is grossly overestimated. In WIMOVAC
-       the light reaching the last layer of leaves is used. Here instead
-       of calculating this again, I will for now assume a 10% as a rough
-       estimate. Note that I could maybe get this since layIdir and
-       layIDiff in sunML are external variables.  Rprintf("IRad
-       %.5f",layIdir[0],"\n"); Update: 03-13-2009. I tried printing this
-       value but it is still too high and will likely overestimate soil
-       evaporation. However, this is still a work in progress.
+    /* Convert light assuming 1 micromole PAR photons = 0.235 J/s Watts*/
+    /* At the moment soil evaporation is grossly overestimated. In WIMOVAC the light reaching the last layer of leaves is used. Here instead
+       of calculating this again, I will for now assume a 10% as a rough estimate. Note that I could maybe get this since layIdir and
+       layIDiff in sunML are external variables.  Rprintf("ppfd %.5f",layIdir[0],"\n"); Update: 03-13-2009. I tried printing this
+       value but it is still too high and will likely overestimate soil evaporation. However, this is still a work in progress.
        */
-    IRad *= rsec; /* Radiation soil evaporation coefficient */
+    ppfd *= rsec; /* Radiation soil evaporation coefficient */
 
-    double TotalRadiation = IRad * 0.235;
+    double TotalRadiation = ppfd * 0.235;
 
-    double DdryA = TempToDdryA(AirTemp);
-    double LHV = TempToLHV(AirTemp) * 1e6;  // J / kg.
-    double SlopeFS = TempToSFS(AirTemp) * 1e-3;
-    double SWVC = TempToSWVC(AirTemp) * 1e-3;
+    double DdryA = TempToDdryA(air_temperature);
+    double LHV = TempToLHV(air_temperature) * 1e6;  // J kg^-1. Given in MJ kg^-1 and converted to J kg^-1. 
+    double SlopeFS = TempToSFS(air_temperature) * 1e-3;
+    double SWVC = TempToSWVC(air_temperature) * 1e-3;
 
-    double PsycParam = (DdryA * SpecificHeat) / LHV;
+    double PsycParam = (DdryA * specific_heat) / LHV;
     double DeltaPVa = SWVC * (1 - RelH / 100);
 
-    double BoundaryLayerThickness = 4e-3 * sqrt(SoilClodSize / winds);
+    double BoundaryLayerThickness = 4e-3 * sqrt(soil_clod_size / winds);
     double DiffCoef = 2.126e-5 * 1.48e-7 * SoilTemp;
     double SoilBoundaryLayer = DiffCoef / BoundaryLayerThickness;
 
-    double Ja = 2 * TotalRadiation * ((1 - SoilReflectance - SoilTransmission) / (1 - SoilTransmission));
+    double Ja = 2 * TotalRadiation * ((1 - soil_reflectance - soil_transmission) / (1 - soil_transmission));
 
-    double rlc = 4 * StefanBoltzman * pow((273 + SoilTemp),3) * 0.005;
-    /* the last term should be the difference between air temperature and
-       soil. This is not actually calculated at the moment. Since this is
-       mostly relevant to the first soil layer where the temperatures are
-       similar. I will leave it like this for now. */
+    double rlc = 4 * stefan_boltzman * pow((273 + SoilTemp), 3) * 0.005;
+    /* the last term should be the difference between air temperature and soil. This is not actually calculated at the moment. Since this is
+       mostly relevant to the first soil layer where the temperatures are similar. I will leave it like this for now. */
 
-    double PhiN = Ja - rlc; /* Net radiation. */
+    double PhiN = Ja - rlc; /* Calculate the net radiation balance*/
     if (PhiN < 0) PhiN = 1e-7;
 
     double Evaporation = 0.0;
-    if (method == 0) { /* Priestly-Taylor */
+    if (method == 0) {
+        /* Priestly-Taylor */
         Evaporation = 1.26 * (SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
-    } else { /* Penman-Monteith */
+    } else {
+        /* Penman-Monteith */
         Evaporation = (SlopeFS * PhiN + LHV * PsycParam * SoilBoundaryLayer * DeltaPVa) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
     }
 
-    /* Adding the area dependence and the effect of drying */
     Evaporation *= soil_area_sunlit_fraction * maximum_uptake_rate * 3600 * 1e-3 * 10000;  // Mg / ha / hr.  3600 s / hr. 1e-3 Mg / kg. 10000 m^2 / ha.
     if (Evaporation < 0) Evaporation = 1e-6;  // Prevent odd values at very low light levels.
 
@@ -672,37 +665,33 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
    according to the water stress of the plant. This is done
    for now, with a very simple empirical approach. */
 
-struct ws_str watstr(double precipit, double evapo, double cws, double soildepth,
-        double fieldc, double wiltp, double phi1, double phi2,
-        int soiltype, /* soil type indicator */
-        int wsFun) /* flag for which water stress function to use */
+struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
+                     double wiltp, double phi1, double phi2, double satur, double sand,
+                     double Ks, double air_entry, double b,
+                     int wsFun) /* flag indicating which water stress function to use */
 {
-    constexpr double g = 9.8; // m/s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
+    constexpr double g = 9.8; // m / s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
-    soilText_str soTexS = soilTchoose(soiltype);
-
-    if (fieldc < 0) fieldc = soTexS.fieldc;
-    if (wiltp < 0) wiltp = soTexS.wiltp;
-
-    double theta_s = soTexS.satur;
+    double theta_s = satur;
     double precipM = precipit * 1e-3; /* convert precip in mm to m*/
-    double aw = precipM + cws * soildepth; /* aw in meters */
-    aw = aw / soildepth; /* available water in the wiltp-satur range */
+    double soil_water_fraction = precipM / soildepth + cws;  // m^3 m^-3
 
     double runoff = 0.0;
     double Nleach = 0.0;  /* Nleach is the NO3 leached. */
-    if (aw > theta_s) {
-        runoff = (aw - theta_s) * soildepth; /* This is in meters */
+
+    if (soil_water_fraction > theta_s) {
+        runoff = (soil_water_fraction - theta_s) * soildepth; /* This is in meters */
+
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
-        Nleach = runoff / 18 * (0.2 + 0.7 * soTexS.sand);
-        aw = theta_s;
+        Nleach = runoff / 18 * (0.2 + 0.7 * sand);
+        soil_water_fraction = theta_s;
     }
 
-    /* The density of water is 998.2 kg/m3 at 20 degrees Celsius or 0.9982 Mg/m3 */
+    /* The density of water is 0.9982 Mg / m^3 at 20 degrees Celsius. */
     /* evapo is demanded water (Mg / ha) */
-    double npaw = aw - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
+    double npaw = soil_water_fraction - wiltp - evapo / 0.9982 / 1e4 / soildepth;  // fraction of saturation.
 
     /* If demand exceeds supply, the crop is getting close to wilting point and transpiration
        will be over estimated. In this one layer model though, the crop is practically dead. */
@@ -715,27 +704,28 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     /* tmp.psim = soTexS.air_entry * pow((awc/soTexS.fieldc*1.1),-soTexS.b); */
     /* New version of the soil water potential is based on
      * "Dynamic Simulation of Water Deficit Effects upon Maize Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
-    tmp.psim = -exp(log(0.033) + ((log(fieldc) - log(awc)) / (log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033)))) * 1e3; /* This last term converts from MPa to kPa */
+    tmp.psim = -exp(log(0.033) + (log(fieldc) - log(awc)) / (log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033))) * 1e3; /* This last term converts from MPa to kPa */
 
     /* This is drainage */
     if (awc > fieldc) {
-        double K_psim = soTexS.Ks * pow((soTexS.air_entry / tmp.psim), 2 + 3 / soTexS.b); /* This is hydraulic conductivity */
+        double K_psim = Ks * pow((air_entry / tmp.psim), 2 + 3 / b); /* This is hydraulic conductivity */
+
         double J_w = -K_psim * (-tmp.psim / (soildepth * 0.5)) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect. I multiply soil depth by 0.5 to calculate the average depth */
-        double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
+        double drainage = J_w * 3600 * 0.9982 * 1e-3; /* This is flow in m^3 / (m^2 * hr). */
         awc = awc + drainage / soildepth;
     }
 
     double wsPhoto = compute_wsPhoto(wsFun, fieldc, wiltp, phi1, awc);
-    double wsSpleaf = pow(awc, phi2) * 1 / pow(fieldc, phi2);
+    double LeafWS = pow(awc, phi2) * 1 / pow(fieldc, phi2);
 
-    if (wsFun == 3) wsSpleaf = 1;
-    if (wsSpleaf > 1) wsSpleaf = 1;
+    if (wsFun == 3) LeafWS = 1;
+    if (LeafWS > 1) LeafWS = 1;
 
     tmp.rcoefPhoto = wsPhoto;
     tmp.awc = awc;
     tmp.runoff = runoff;
     tmp.Nleach = Nleach;
-    tmp.rcoefSpleaf = wsSpleaf;
+    tmp.rcoefSpleaf = LeafWS;
     return tmp;
 }
 
@@ -745,13 +735,13 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
         double fieldc, double wiltp, double phi1, double phi2, const struct soilText_str &soTexS, int wsFun,
         int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds,
-        double RelH, int hydrDist, double rfl, double rsec, double rsdf)
+        double RelH, int hydrDist, double rfl, double rsec, double rsdf, 
+        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
     
     soilML_str return_value;
 
-    /* rooting depth */
     /* Crude empirical relationship between root biomass and rooting depth*/
     double rootDepth = fmin(rootDB * rsdf, soildepth);
 
@@ -774,47 +764,41 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
     double drainage = 0.0;
     double wsPhotoCol = 0.0;
-    double wsSpleafCol = 0.0;
+    double LeafWSCol = 0.0;
     double Sevap = 0.0;
     double oldEvapoTra = 0.0;
 
     for (int i = layers - 1; i >= 0; --i) { /* The counter, i, decreases because I increase the water content due to precipitation in the last layer first*/
 
-        /* This supports unequal depths. */
-        double layerDepth = depths[i+1] - depths[i];
+        double layerDepth = depths[i+1] - depths[i];  /* This supports unequal depths. */
 
         if (hydrDist > 0) {
             /* For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9*/
             /* First compute the matric potential */
             double psim1 = soTexS.air_entry * pow((cws[i]/theta_s), -soTexS.b); /* This is matric potential of current layer */
-            double dPsim = 0.0;
+            double dPsim;
             if (i > 0) {
                 double psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s), -soTexS.b); /* This is matric potential of next layer */
                 dPsim = psim1 - psim2;
                 /* The substraction is from the layer i - (i-1). If this last term is positive then it will move upwards. If it is negative it will move downwards. Presumably this term is almost always positive. */
             } else {
-                dPsim = 0;
+                dPsim = 0.0;
             }
+
             double K_psim = soTexS.Ks * pow((soTexS.air_entry/psim1), 2+3/soTexS.b); /* This is hydraulic conductivity */
             double J_w = K_psim * (dPsim/layerDepth) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect*/
-            /* Notice that K_psim is positive because my
-               reference system is reversed */
+            /* Notice that K_psim is positive because my reference system is reversed */
             /* This last result should be in kg/(m2 * s) */
             J_w *= 3600 * 0.9882 * 1e-3; /* This is flow in m3 / (m^2 * hr). */
-            /* Rprintf("J_w %.10f \n",J_w);  */
+
             if (i == (layers-1) && J_w < 0) {
-                /* cws[i] = cws[i] + J_w /
-                 * layerDepth; Although this
-                 * should be done it drains
-                 * the last layer too much.*/
+                /* cws[i] = cws[i] + J_w / layerDepth; Although this should be done it drains the last layer too much.*/
                 drainage += J_w;
             } else {
+                    cws[i] = cws[i] - J_w / layerDepth;
                 if (i > 0) {
-                    cws[i] = cws[i] -  J_w / layerDepth;
-                    cws[i - 1] =  cws[i-1] +  J_w / layerDepth;
-                } else {
-                    cws[i] = cws[i] -  J_w / layerDepth;
-                }
+                    cws[i - 1] = cws[i - 1] + J_w / layerDepth;
+                } 
             }
         }
 
@@ -848,24 +832,26 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         /* Plant available water is only between current water status and permanent wilting point */
         /* Plant available water */
         double pawha = (aw - wiltp * layerDepth) * 1e4;
-        double Newpawha;
 
         if (pawha < 0) pawha = 0;
 
         double Ctransp = 0.0;
         double EvapoTra = 0.0;
+        double Newpawha;
         
         if (i == 0) {
             /* Only the first layer is affected by soil evaporation */
             double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
-            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, fieldc, wiltp, winds, RelH, rsec);
+            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, fieldc, wiltp, winds, RelH, rsec,
+                soil_clod_size, soil_reflectance, soil_transmission, specific_heat, stefan_boltzman );
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
                to the amount of root in each respective layer.*/
             Ctransp = transp * root_distribution.rootDist[0];
             EvapoTra = Ctransp + Sevap;
-            Newpawha = pawha - EvapoTra / 0.9982; /* See the watstr function for this last number 0.9882 */
+            constexpr double density_of_water_at_20_celcius = 0.9982;  // Mg m^-3.
+            Newpawha = pawha - EvapoTra / density_of_water_at_20_celcius;
             /* The first term in the rhs pawha is the m3 of water available in this layer.
                EvapoTra is the Mg H2O ha-1 of transpired and evaporated water. 1/0.9882 converts from Mg to m3 */
         } else {
@@ -914,11 +900,11 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
         wsPhotoCol += wsPhoto;
 
-        double wsSpleaf = pow(awc, phi2) * 1/pow(fieldc, phi2);
+        double LeafWS = pow(awc, phi2) * 1/pow(fieldc, phi2);
         if (wsFun == 3) {
-            wsSpleaf = 1;
+            LeafWS = 1;
         }
-        wsSpleafCol += wsSpleaf;
+        LeafWSCol += LeafWS;
 
     }
 
@@ -935,7 +921,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
     return_value.rcoefPhoto = (wsPhotoCol/layers);
     return_value.drainage = drainage;
-    return_value.rcoefSpleaf = (wsSpleafCol/layers);
+    return_value.rcoefSpleaf = (LeafWSCol/layers);
     return_value.SoilEvapo = Sevap;
 
     return return_value;
@@ -949,7 +935,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 double resp(double comp, double mrc, double temp) {
     double ans = comp *  (1 - (mrc * pow(2, (temp / 10.0))));
 
-    if(ans <0) ans = 0;
+    if (ans <0) ans = 0;
 
     return(ans);
 
@@ -966,7 +952,7 @@ struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
     tmp.kRhiz = 0.0;
     tmp.kGrain = 0.0;
 
-    if(TherTime < TherPrds[0])
+    if (TherTime < TherPrds[0])
     {
         tmp.kStem = coefs[0];
         tmp.kLeaf = coefs[1];
@@ -974,7 +960,7 @@ struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
         tmp.kRhiz = coefs[3];
         tmp.kGrain = coefs[4];
 
-    } else if( TherTime < TherPrds[1] )
+    } else if ( TherTime < TherPrds[1] )
     {
         tmp.kStem = coefs[5];
         tmp.kLeaf = coefs[6];
@@ -982,7 +968,7 @@ struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
         tmp.kRhiz = coefs[8];
         tmp.kGrain = coefs[9];
 
-    } else if( TherTime < TherPrds[2])
+    } else if ( TherTime < TherPrds[2])
     {
         tmp.kStem = coefs[10];
         tmp.kLeaf = coefs[11];
@@ -990,7 +976,7 @@ struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
         tmp.kRhiz = coefs[13];
         tmp.kGrain = coefs[14];
 
-    } else if(TherTime < TherPrds[3])
+    } else if (TherTime < TherPrds[3])
     {
         tmp.kStem = coefs[15];
         tmp.kLeaf = coefs[16];
@@ -998,7 +984,7 @@ struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
         tmp.kRhiz = coefs[18];
         tmp.kGrain = coefs[19];
 
-    } else if(TherTime < TherPrds[4])
+    } else if (TherTime < TherPrds[4])
     {
         tmp.kStem = coefs[20];
         tmp.kLeaf = coefs[21];
@@ -1078,11 +1064,11 @@ struct rd_str rootDist(int n_layers, double rootDepth, double *depths, double rf
 }
 
 
-soilText_str soilTchoose(int soiltype) {
-    return soilTchoose(static_cast<SoilType>(soiltype));
+soilText_str get_soil_properties(int soiltype) {
+    return get_soil_properties(static_cast<SoilType>(soiltype));
 }
 
-const soilText_str soilTchoose(SoilType soiltype)
+const soilText_str get_soil_properties(SoilType soiltype)
 {
     return soil_parameters.at(soiltype);
 }

@@ -13,7 +13,9 @@ struct c4_str {
 };
 
 struct c4_str c4photoC(double Qp, double Tl, double RH, double vmax, double alpha, 
-        double kparm, double theta, double beta, double Rd, double bb0, double bb1, double StomaWS, double Ca, int water_stress_approach,double upperT,double lowerT);
+        double kparm, double theta, double beta, double Rd, double bb0,
+        double bb1, double StomaWS, double Ca, int water_stress_approach,double upperT,
+        double lowerT);
 
 #endif
 
