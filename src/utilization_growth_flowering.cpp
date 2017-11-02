@@ -39,10 +39,10 @@ state_map utilization_growth_flowering_module::do_operation(state_vector_map con
     double resistance_stem_to_root = p.at("resistance_stem_to_root");
     double resistance_stem_to_rhizome = p.at("resistance_stem_to_rhizome");
 
-    double seneLeaf = s.at("seneLeaf");
-    double seneStem = s.at("seneStem");
-    double seneRoot = s.at("seneRoot");
-    double seneRhizome = s.at("seneRhizome");
+    //double seneLeaf = s.at("seneLeaf");
+    //double seneStem = s.at("seneStem");
+    //double seneRoot = s.at("seneRoot");
+    //double seneRhizome = s.at("seneRhizome");
 
     double total_time = p.at("timestep"); // hours
     size_t sub_time_steps = total_time * 60;  // At the start, integrate over each minute.
