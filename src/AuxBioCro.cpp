@@ -557,7 +557,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
 
     /* From Campbell and Norman. Environmental Biophysics. */
     /* If relative available water content is */
-    double rawc = (awc - wiltp) / (fieldc - wiltp);  // dimensionless. relative available water content.
+    double rawc = (soil_water_content - wiltp) / (fieldc - wiltp);  // dimensionless. relative available water content.
 
     /* Campbell and Norman. Environmental Physics, page 142 */
     double maximum_uptake_rate = 1 - pow((1 + 1.3 * rawc), -5);  // dimenionless

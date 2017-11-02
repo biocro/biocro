@@ -13,7 +13,6 @@
 #include "BioCro.h"
 #include "modules.h"
 #include "math.h"
-#include <R.h>
 
 using std::vector;
 using std::string;
@@ -141,7 +140,7 @@ state_vector_map Gro(
 
         derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
-        soilText_str soTexS = soilTchoose(p.at("soilType"));
+        soilText_str soTexS = get_soil_properties(p.at("soilType"));
         double wiltp = soTexS.wiltp;
         double fieldc = soTexS.fieldc;
 
