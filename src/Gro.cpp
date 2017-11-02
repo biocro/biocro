@@ -137,23 +137,23 @@ state_vector_map Gro(
 
         p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
         p["CanopyT"] = derivs["Trans"] * p.at("timestep");
-
+        
         derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
-        soilText_str soTexS = get_soil_properties(p.at("soilType"));
-        double wiltp = soTexS.wiltp;
-        double fieldc = soTexS.fieldc;
+        //soilText_str soTexS = get_soil_properties(p.at("soil_type_indicator"));
+        //double wiltp = soTexS.wiltp;
+        //double fieldc = soTexS.fieldc;
 
 
 
-        double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soilDepth"));
-        double root_depth_fraction = root_depth / p.at("soilDepth");
-        double evaporation_rate = (derivs.at("soilEvap") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth;
+        //double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soil_depth"));
+        //double root_depth_fraction = root_depth / p.at("soil_depth");
+        //double evaporation_rate = (derivs.at("soilEvap") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth;
         //double root_available_water_fraction = fmax(fmin(1 + (p.at("waterCont") / fieldc - 1) / root_depth_fraction, 1), 0);
-        double root_available_water_fraction = fmin(1 - (fieldc - p.at("waterCont")) / root_depth_fraction, 1);
+        //double root_available_water_fraction = fmin(1 - (fieldc - p.at("soil_water_content")) / root_depth_fraction, 1);
         //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (p.at("waterCont") - wiltp), 1), 0);
         //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (root_available_water_fraction - wiltp), 1), 0);
-        p["rate_constant_root_scale"] = fmin(fmax((fieldc - (root_available_water_fraction - evaporation_rate)) / (fieldc - wiltp), 1), 20);
+        //p["rate_constant_root_scale"] = fmin(fmax((fieldc - (root_available_water_fraction - evaporation_rate)) / (fieldc - wiltp), 1), 20);
         //Rprintf("%f, %f, %f.\n", root_depth_fraction, p.at("waterCont"), root_available_water_fraction);
 
         /*
@@ -241,8 +241,8 @@ state_vector_map Gro(
 
         results["utilization_leaf"].push_back(derivs["utilization_leaf"]);
         results["utilization_stem"].push_back(derivs["utilization_stem"]);
-        results["utilization_grain"].push_back(derivs.at("utilization_grain"));
-        results["utilization_root"].push_back(derivs.at("utilization_root"));
+        results["utilization_grain"].push_back(derivs["utilization_grain"]);
+        results["utilization_root"].push_back(derivs["utilization_root"]);
 
 
 
