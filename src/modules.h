@@ -420,6 +420,8 @@ class ModuleFactory {
             { "two_layer_soil_profile",             &createModule<two_layer_soil_profile>},
             { "partitioning_growth",                &createModule<partitioning_growth_module>},
             { "no_leaf_resp_partitioning_growth",   &createModule<no_leaf_resp_partitioning_growth_module>},
+            { "utilization_growth_and_senescence",  &createModule<utilization_growth_and_senescence_module>},
+            { "empty_senescence",                   &createModule<empty_senescence>},
             { "thermal_time_and_frost_senescence",  &createModule<thermal_time_and_frost_senescence>},
             { "thermal_time_senescence",            &createModule<thermal_time_senescence>},
             { "one_layer_soil_profile_derivatives", &createModule<one_layer_soil_profile_derivatives>},
