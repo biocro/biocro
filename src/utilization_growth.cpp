@@ -84,7 +84,7 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
     double resistance_stem_to_root = s.at("resistance_stem_to_root");
     double resistance_stem_to_rhizome = s.at("resistance_stem_to_rhizome");
 
-    double carbon_input = s.at("CanopyA"); //Pg in paper
+    double carbon_input = s.at("Assim"); //Pg in paper
 
     double Leaf = s.at("Leaf");
     double Stem = s.at("Stem");

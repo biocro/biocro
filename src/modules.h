@@ -179,7 +179,7 @@ class utilization_senescence: public ISenescence_module {
 class utilization_growth_module : public IGrowth_module {
     public:
         utilization_growth_module()
-            : IGrowth_module(std::vector<std::string> {"CanopyA",
+            : IGrowth_module(std::vector<std::string> {"Assim",
                 "Leaf", "Stem", "Root", "Rhizome", "Grain",
                 "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                 "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
