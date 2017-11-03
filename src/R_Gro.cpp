@@ -7,6 +7,7 @@
 
 using std::string;
 using std::vector;
+using std::unique_ptr;
 
 extern "C" {
 
@@ -19,6 +20,7 @@ SEXP R_Gro(SEXP initial_state,
         SEXP senescence_module)
 {
     try {
+
         state_map s = map_from_list(initial_state);
         state_map ip = map_from_list(invariate_parameters);
         state_vector_map vp = map_vector_from_list(varying_parameters);
@@ -27,12 +29,10 @@ SEXP R_Gro(SEXP initial_state,
             return R_NilValue;
         }
 
-        //output_map(s);
-        //output_map(ip);
-        std::unique_ptr<IModule> canopy;
-        std::unique_ptr<IModule> soil_evaporation;
-        std::unique_ptr<IModule> growth;
-        std::unique_ptr<IModule> senescence;
+        unique_ptr<IModule> canopy;
+        unique_ptr<IModule> soil_evaporation;
+        unique_ptr<IModule> growth;
+        unique_ptr<IModule> senescence;
 
         canopy = ModuleFactory()(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
         soil_evaporation = ModuleFactory()(CHAR(STRING_ELT(soil_evaporation_module, 0)));
@@ -69,7 +69,7 @@ SEXP R_Gro(SEXP initial_state,
         return (list_from_map(result));
 
     } catch (std::exception const &e) {
-        error(std::string(std::string("Caught exception in R_Gro: ") + e.what()).c_str());
+        error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
     } catch (...) {
         error("Caught unhandled exception in R_Gro.");
     }
@@ -81,7 +81,6 @@ SEXP R_Gro_ode(SEXP initial_state,
         SEXP steady_state_modules_list,
         SEXP derivative_modules_list)
 {
-Rprintf("Start of R_Gro_ode.\n");
     try {
         state_map s = map_from_list(initial_state);
         state_map ip = map_from_list(invariate_parameters);
@@ -91,10 +90,8 @@ Rprintf("Start of R_Gro_ode.\n");
             return R_NilValue;
         }
 
-        //output_map(s);
-        //output_map(ip);
-        std::vector<std::unique_ptr<IModule>> steady_state_modules;
-        std::vector<std::unique_ptr<IModule>> derivative_modules;
+        vector<unique_ptr<IModule>> steady_state_modules;
+        vector<unique_ptr<IModule>> derivative_modules;
 
         vector<string> steady_state_names_vector = make_vector(steady_state_modules_list);
         for (auto it = steady_state_names_vector.begin(); it != steady_state_names_vector.end(); ++it) {
@@ -108,16 +105,13 @@ Rprintf("Start of R_Gro_ode.\n");
 
         state_map all_state = combine_state(s, combine_state(ip, at(vp, 0)));
 
-
-Rprintf("Before Gro call.\n");
-
         state_vector_map result;
         state_map state = combine_state(s, combine_state(ip, at(vp, 0)));
         append_state_to_vector(Gro(state, steady_state_modules, derivative_modules), result);
         return (list_from_map(result));
 
     } catch (std::exception const &e) {
-        error(std::string(std::string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
+        error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
     } catch (...) {
         error("Caught unhandled exception in R_Gro_ode.");
     }
