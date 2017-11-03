@@ -169,17 +169,18 @@ state_map c3_canopy::do_operation(state_map const &s) const
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
+    soilText_str soil = get_soil_properties(s.at("soil_type_indicator"));
+
     double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("soil_water_content"),
-                s.at("FieldC"), s.at("WiltP"), s.at("windspeed"), s.at("rh"), s.at("rsec"), 
+                soil.fieldc, soil.wiltp, s.at("windspeed"), s.at("rh"), s.at("rsec"), 
                 s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
                 s.at("specific_heat"), s.at("stefan_boltzman"));
     double TotEvap = soilEvap + s.at("CanopyT");
 
-    soilText_str soTexS = get_soil_properties(s.at("soil_type_indicator"));
     
-    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soil_depth"), s.at("FieldC"),
-            s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS.satur, soTexS.sand,
-            soTexS.Ks, soTexS.air_entry, soTexS.b, s.at("wsFun"));
+    struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soil_depth"), soil.fieldc,
+            soil.wiltp, s.at("phi1"), s.at("phi2"), soil.satur, soil.sand,
+            soil.Ks, soil.air_entry, soil.b, s.at("wsFun"));
 
     state_map derivs;
     derivs["soilEvap"] = soilEvap;
