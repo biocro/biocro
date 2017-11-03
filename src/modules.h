@@ -411,7 +411,7 @@ class soil_type_selector : public IModule {
 template<typename T> std::unique_ptr<IModule> createModule() { return std::unique_ptr<IModule>(new T); }
 class ModuleFactory {
     private:
-        typedef std::map<std::string, std::unique_ptr<IModule>(*)()> module_map;
+        typedef std::map<std::string, std::unique_ptr<IModule>(*)()> module_map;  // A map of strings to function pointers.
         const module_map modules
         {
             { "c4_canopy",                          &createModule<c4_canopy>},
@@ -421,6 +421,7 @@ class ModuleFactory {
             { "partitioning_growth",                &createModule<partitioning_growth_module>},
             { "no_leaf_resp_partitioning_growth",   &createModule<no_leaf_resp_partitioning_growth_module>},
             { "utilization_growth_and_senescence",  &createModule<utilization_growth_and_senescence_module>},
+            { "utilization_growth",                 &createModule<utilization_growth_module>},
             { "empty_senescence",                   &createModule<empty_senescence>},
             { "thermal_time_and_frost_senescence",  &createModule<thermal_time_and_frost_senescence>},
             { "thermal_time_senescence",            &createModule<thermal_time_senescence>},
@@ -437,7 +438,7 @@ class ModuleFactory {
             try {
                 return this->modules.at(module_name)();
             } catch (std::out_of_range const &oor) {
-                throw std::out_of_range(module_name + std::string(" was given as a module name, but no module with that name could be found.\n"));
+                throw std::out_of_range(std::string("\"") + module_name + std::string("\"") + std::string(" was given as a module name, but no module with that name could be found.\n"));
             }
 
         }

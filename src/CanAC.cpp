@@ -132,12 +132,12 @@ struct Can_Str CanAC(
     struct Can_Str ans;
     /* For Assimilation */
     /* 3600 - seconds per hour */
-    /* 1e-6 - micromoles per mole */
+    /* 1e-6 - moles per micromole */
     /* 30 - grams per mole for CO2 */
     /* 1e-6 - megagrams per gram */
     /* 10000 - meters squared per hectare*/
-    ans.Assim = CanopyA * 3600 * 1e-6 * 30 * 1e-6 * 10000;;
-    ans.GrossAssim = GCanopyA * 3600 * 1e-6 * 30 * 1e-6 * 10000;
+    ans.Assim = CanopyA * 3600 * 1e-6 * 30 * 1e-6 * 10000;  // Mg / ha / hr.
+    ans.GrossAssim = GCanopyA * 3600 * 1e-6 * 30 * 1e-6 * 10000;  // Mg / ha / hr.
 
     /* For Transpiration */
     /* 3600 - seconds per hour */
