@@ -75,18 +75,14 @@ SEXP R_Gro(SEXP initial_state,
     }
 }
 
-SEXP R_Gro_ode(SEXP initial_state,
-        SEXP invariate_parameters,
-        SEXP varying_parameters,
+SEXP R_Gro_ode(SEXP state,
         SEXP steady_state_modules_list,
         SEXP derivative_modules_list)
 {
     try {
-        state_map s = map_from_list(initial_state);
-        state_map ip = map_from_list(invariate_parameters);
-        state_vector_map vp = map_vector_from_list(varying_parameters);
+        state_map s = map_from_list(state);
 
-        if (vp.begin()->second.size() == 0) {
+        if (s.size() == 0) {
             return R_NilValue;
         }
 
@@ -103,11 +99,7 @@ SEXP R_Gro_ode(SEXP initial_state,
             derivative_modules.push_back(ModuleFactory()(*it));
         }
 
-        state_map all_state = combine_state(s, combine_state(ip, at(vp, 0)));
-
-        state_vector_map result;
-        state_map state = combine_state(s, combine_state(ip, at(vp, 0)));
-        append_state_to_vector(Gro(state, steady_state_modules, derivative_modules), result);
+        state_map result = Gro(s, steady_state_modules, derivative_modules);
         return (list_from_map(result));
 
     } catch (std::exception const &e) {

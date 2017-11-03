@@ -96,19 +96,19 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
         stop(paste(message, missing_modules, '.', sep=''))
     }
 
-    varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))  # C++ requires that all the variables have type `double  # C++ requires that all the variables have type `double`.
-    names(varying_parameters) = tolower(names(varying_parameters))  # Convert all names to lower case for easy of use.
+    varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))  # C++ requires that all the variables have type `double`.
+    names(varying_parameters) = tolower(names(varying_parameters))  # Convert all names to lower case for ease of use.
 
     result = as.data.frame(.Call(R_Gro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name, modules$senescence_module_name))
     result = cbind(varying_parameters[c('year', 'doy', 'hour')], result)
     return(result)
 }
 
-Gro_ode <- function(initial_values, parameters, varying_parameters, steady_state_modules, derivative_modules)
+Gro_ode <- function(state, steady_state_modules, derivative_modules)
 {
-    for ( ilist in list(initial_values, parameters) ) {
+    for ( ilist in list(state) ) {
         if (class(ilist) != 'list') {
-            stop('"initial_values" and "parameters" must each be a list.')
+            stop('"state" must be a list.')
         }
         
         item_lengths = unlist(lapply(ilist, length))
@@ -118,10 +118,9 @@ Gro_ode <- function(initial_values, parameters, varying_parameters, steady_state
         }
     }
     
-    varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))  # C++ requires that all the variables have type `double  # C++ requires that all the variables have type `double`.
-    names(varying_parameters) = tolower(names(varying_parameters))  # Convert all names to lower case for easy of use.
+    state = lapply(as.list(state), as.numeric)  # C++ requires that all the variables have type `double`.
 
-    result = as.data.frame(.Call(R_Gro_ode, initial_values, parameters, varying_parameters, steady_state_modules, derivative_modules))
+    result = .Call(R_Gro_ode, state, steady_state_modules, derivative_modules)
     return(result)
 }
 
