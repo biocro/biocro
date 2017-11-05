@@ -9,9 +9,38 @@ myparms['Sp_thermal_time_decay'] = 0
 state = c(glycine_max_initial_state, myparms, weather05[1, ])
 r = Gro_ode(state, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth'))
 
+# Given a data frame with r rows and c columns, one column being time, and a desired time, t, return a vector of c elements, one for each column, of values interpolated between values in the two rows whose times are an interval that contains t.
+#
+# v = interpolate(df, t)
+
+# Given a data frame, and an interpolation method, return an interpolation function.
+# interpolate(df, t) = interpolator(df, method)
+
+interpolater = function(df, time_name, method) {
+    n_col = ncol(df)
+    times = df[[time_name]]
+    func_list = vector('list', n_col - 1)
+    not_time_columns = setdiff(names(df), time_name)
+    for (col_name in not_time_columns) {
+        func_list[[col_name]] = method(times, df[[col_name]])
+    }
+    interpolate = function(t) {
+        result = vector('list', n_col)
+        names(result) = names(df)
+        result[[time_name]] = t
+        for (col_name in not_time_columns) {
+            result[[col_name]] = func_list[[col_name]](t)
+        }
+        return(as.data.frame(result))
+    }
+    return(interpolate)
+}
+
 Gro_desolve = function(parameters, varying_parameters, steady_state_modules, derivative_modules) {
-    function(t, state, parms) {
-        vp = varying_parameters[floor(t + 1L), ]
+    counter_ = 0
+    ode=function(t, state, parms) {
+        counter_ <<- counter_ + 1
+        vp = varying_parameters(t)
         all_state = c(state, parameters, vp)
         result = Gro_ode(all_state, steady_state_modules, derivative_modules)
         result[setdiff(names(state), names(result))] = 0
@@ -19,16 +48,39 @@ Gro_desolve = function(parameters, varying_parameters, steady_state_modules, der
         state_of_interest = c(result[setdiff(names(result), names(state))], vp)
         return(list(derivatives, state_of_interest))
     }
+    
+    counter = function() return(counter_)
+    return(list(counter=counter, func=ode))
 }
 
-myfunc = Gro_desolve(myparms, weather05, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth'))
+weather05$time = seq_len(nrow(weather05))
+linear_weather = interpolater(weather05, 'time', approxfun)
+step_weather = interpolater(weather05, 'time', function(x, y) approxfun(x, y, method='constant'))
+step_weather2 = function(t) weather05[floor(t), ]
+
+times = seq(1, 8, length=100)
+all.equal(step_weather(times), step_weather2(times))
+
+x11(); xyplot(linear_weather(times)[['temp']] + step_weather(times)[['temp']] + step_weather2(times)[['temp']] ~ times, type='l', auto=TRUE)
+
+linear_gro = Gro_desolve(myparms, linear_weather, steady_state_modules=c(), derivative_modules=c('thermal_time_accumulator'))
+step_gro = Gro_desolve(myparms, step_weather, steady_state_modules=c(), derivative_modules=c('thermal_time_accumulator'))
 
 result = as.data.frame(lsodes(unlist(glycine_max_initial_state),
-    times=seq_len(nrow(weather05) - 5000) + 7,
-    myfunc,
+    times=seq_len(nrow(weather05) - 8000) + 7,
+    my_gro$func,
     parms=0))
 
+my_gro$counter()
+
+climate = weather05
+climate$TTc = c(0, cumsum((climate$temp - 10) * as.numeric(climate$temp > 10))[-nrow(climate)]) / 24
+climate$time = seq_len(nrow(climate))
+
 xyplot(Stem + Leaf + Root + Rhizome + Grain + substrate_pool_leaf ~ time, result, type='l', auto=TRUE)
+xyplot(Stem + Leaf + Root + Rhizome + Grain + substrate_pool_leaf ~ TTc, result, type='l', auto=TRUE)
+x11(); xyplot(TTc ~ time, result, type='l', auto=TRUE, subset=time < 761)
+x11(); xyplot(TTc ~ time, climate, type='l', auto=TRUE, subset=time < 761)
 xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, result, type='l', auto=TRUE)
 xyplot(substrate_pool_leaf ~ time, result, type='l', auto=TRUE)
 
@@ -49,7 +101,7 @@ r = Gro_ode(sorghum_initial_state, soil_parms, weather05, steady_state_modules=c
 
 library(BioCro)
 library(lattice)
-r = Gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules)
+r = Gro(glycine_max_initial_state, glycine_max_parameters, weather05, glycine_max_modules)
 x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, r, type='l', auto=TRUE)
 x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, nr, type='l', auto=TRUE)
 
