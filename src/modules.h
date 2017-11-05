@@ -408,6 +408,22 @@ class soil_type_selector : public IModule {
         }
 };
 
+class thermal_time_accumulator : public IModule {
+    public:
+        thermal_time_accumulator()
+            : IModule(std::vector<std::string> {"TTc", "temp", "tbase"},
+                       std::vector<std::string> {})
+            {}
+    private:
+        state_map do_operation(state_map const &s) const
+        {
+            state_map result;
+            double temp_diff = s.at("temp") - s.at("tbase");
+            result["TTc"] = (temp_diff > 0) ? temp_diff / 24 : 0;
+            return result;
+        }
+};
+
 template<typename T> std::unique_ptr<IModule> createModule() { return std::unique_ptr<IModule>(new T); }
 class ModuleFactory {
     private:
@@ -422,6 +438,7 @@ class ModuleFactory {
             { "no_leaf_resp_partitioning_growth",   &createModule<no_leaf_resp_partitioning_growth_module>},
             { "utilization_growth_and_senescence",  &createModule<utilization_growth_and_senescence_module>},
             { "utilization_growth",                 &createModule<utilization_growth_module>},
+            { "utilization_senescence",             &createModule<utilization_senescence>},
             { "empty_senescence",                   &createModule<empty_senescence>},
             { "thermal_time_and_frost_senescence",  &createModule<thermal_time_and_frost_senescence>},
             { "thermal_time_senescence",            &createModule<thermal_time_senescence>},
@@ -430,6 +447,7 @@ class ModuleFactory {
             { "test_derivs",                        &createModule<test_derivs>},
             { "test_calc_state",                    &createModule<test_calc_state>},
             { "parameter_calculator",               &createModule<parameter_calculator>},
+            { "thermal_time_accumulator",           &createModule<thermal_time_accumulator>},
             { "biomass_leaf_n_limitation",          &createModule<biomass_leaf_n_limitation>}
         };
 
