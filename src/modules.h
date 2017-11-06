@@ -181,7 +181,7 @@ class utilization_growth_module : public IGrowth_module {
         utilization_growth_module()
             : IGrowth_module(std::vector<std::string> {"Assim",
                 "Leaf", "Stem", "Root", "Rhizome", "Grain",
-                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
+                "rate_constant_leaf", "rate_constant_stem", "rate_constant_root", "rate_constant_rhizome", "rate_constant_grain",
                 "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
                 "resistance_leaf_to_stem",
                 "resistance_stem_to_grain",
