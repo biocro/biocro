@@ -106,19 +106,17 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
 
 Gro_ode <- function(state, steady_state_modules, derivative_modules)
 {
-    for ( ilist in list(state) ) {
-        if (class(ilist) != 'list') {
-            stop('"state" must be a list.')
-        }
-        
-        item_lengths = unlist(lapply(ilist, length))
-        if (!(all(item_lengths == 1))) {
-            error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-            stop(error_message)
-        }
+    if (class(state) != 'list') {
+        stop('"state" must be a list.')
     }
     
-    state = lapply(as.list(state), as.numeric)  # C++ requires that all the variables have type `double`.
+    if (length(state) != length(unlist(state))) {
+        item_lengths = unlist(lapply(state, length))
+        error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+        stop(error_message)
+    }
+    
+    state = lapply(state, as.numeric)  # C++ requires that all the variables have type `double`.
 
     result = .Call(R_Gro_ode, state, steady_state_modules, derivative_modules)
     return(result)

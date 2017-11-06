@@ -264,6 +264,7 @@ state_map Gro(
     }
 
     state_map derivs;
+    derivs.reserve(p.size());
     for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
         derivs += (*it)->run(p);
     }

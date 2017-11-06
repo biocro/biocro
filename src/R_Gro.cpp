@@ -100,7 +100,7 @@ SEXP R_Gro_ode(SEXP state,
         }
 
         state_map result = Gro(s, steady_state_modules, derivative_modules);
-        return (list_from_map(result));
+        return list_from_map(result);
 
     } catch (std::exception const &e) {
         error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());

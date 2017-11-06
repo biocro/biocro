@@ -297,7 +297,34 @@ state_map utilization_senescence::do_operation(state_map const &s) const
         start_grain = 0.01;
     }
 
+    state_map derivs {
+        {"Leaf", -senescence_leaf},
+        {"substrate_pool_leaf", senescence_leaf * remobilization_fraction},
+        {"LeafLitter", senescence_leaf * (1 - remobilization_fraction)},
+
+        {"Stem", -senescence_stem},
+        {"substrate_pool_stem", senescence_stem * remobilization_fraction - start_grain},
+        {"StemLitter", senescence_stem * (1 - remobilization_fraction)},
+
+        {"Grain", start_grain},
+
+        {"Root", -senescence_root},
+        {"substrate_pool_root", senescence_root * remobilization_fraction},
+        {"RootLitter", senescence_root * (1 - remobilization_fraction)},
+
+        {"Rhizome", -senescence_rhizome},
+        {"substrate_pool_rhizome", senescence_rhizome * remobilization_fraction},
+        {"RhizomeLitter", senescence_rhizome * (1 - remobilization_fraction)},
+
+        {"senescence_leaf", senescence_leaf},
+        {"senescence_stem", senescence_stem},
+        {"senescence_root", senescence_root},
+        {"senescence_rhizome", senescence_rhizome},
+    };
+
+    /*
     state_map derivs;
+//    derivs.reserve(17);
     derivs["Leaf"] = -senescence_leaf;
     derivs["substrate_pool_leaf"] = senescence_leaf * remobilization_fraction;
     derivs["LeafLitter"] = senescence_leaf * (1 - remobilization_fraction);
@@ -320,6 +347,7 @@ state_map utilization_senescence::do_operation(state_map const &s) const
     derivs["senescence_stem"] = senescence_stem;
     derivs["senescence_root"] = senescence_root;
     derivs["senescence_rhizome"] = senescence_rhizome;
+    */
 
     return (derivs);
 }
