@@ -79,7 +79,7 @@ Gro_desolve = function(parameters, varying_parameters, steady_state_modules, der
         vp = varying_parameters(t)
         all_state = c(state, parameters, vp)
         reporter$update(all_state, t)
-        result = Gro_ode(all_state, steady_state_modules, derivative_modules)
+        result = Gro_ode(all_state, steady_state_modules, derivative_modules, check_parameters=FALSE)
         result[setdiff(names(state), names(result))] = 0
         derivatives = result[names(state)]
         state_of_interest = c(result[setdiff(names(result), names(state))], vp)
@@ -110,13 +110,14 @@ empty_reporter = list(update=function(s, t) {}, reset=function() {})
 
 myparms = glycine_max_parameters
 myparms['Sp_thermal_time_decay'] = 0
-gro_func = Gro_desolve(myparms, spline2_weather, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator'), my_timer)
+gro_func = Gro_desolve(myparms, linear_from_spline_weather, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator'), my_timer)
 
 all_state = c(glycine_max_initial_state, myparms, spline2_weather(8))
 system.time({
 test_state = state
     for (t in seq(7, 300, length=2604)) {
-        #Gro_ode(all_state, c(), c())
+        linear_from_spline_weather(t)
+        Gro_ode(all_state, c('parameter_calculator', 'c3_canopy'), c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator'), check_parameters=FALSE)
         #for (i in names(test_state)) {
             #if (is.integer(test_state[[i]]))
                 #test_state[[i]] = as.numeric(test_state[[i]])
@@ -124,7 +125,6 @@ test_state = state
         #newstate = lapply(state, function(x) if (!is.numeric(x)) as.numeric(x))  # C++ requires that all the variables have type `double`.
         #newstate = lapply(state, as.numeric)  # C++ requires that all the variables have type `double`.
         #result = .Call(BioCro:::R_Gro_ode, newstate, c(), c())
-        linear_from_spline(t)
     }
 })
 
