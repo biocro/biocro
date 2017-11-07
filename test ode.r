@@ -7,8 +7,7 @@ myparms['Sp_thermal_time_decay'] = 0
 
 #r = Gro_ode(sorghum_initial_state, myparms, weather05, steady_state_modules='c4_canopy', derivative_modules=c('one_layer_soil_profile', 'partitioning_growth', 'thermal_time_senescence'))
 state = c(glycine_max_initial_state, myparms, weather05[1, ])
-r = Gro_ode(state, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth'))
-
+r = Gro_ode(state, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth_and_senescence'))
 
 previous_times = c()
 # Given a data frame with r rows and c columns, one column being time, and a desired time, t, return a vector of c elements, one for each column, of values interpolated between values in the two rows whose times are an interval that contains t.
@@ -49,22 +48,25 @@ time_reporter = function() {
     is.na(iter_times_) = TRUE
 
     pb = winProgressBar("Progress", label=0)
+    gc()  # Force stray progress bar windows to close.
 
     reset = function() {
         counter_ <<- 0
+        last_update_ <<- counter_
         iter_times_ <<- numeric(iter_size_)
         is.na(iter_times_) <<- TRUE
-        close(pb)
-        pb <<- winProgressBar("Progress", label=0)
+        setWinProgressBar(pb, value=0, label=0)
+        invisible()
     }
 
     update = function(state, t) {
         counter_ <<- counter_ + 1
         iter_times_[counter_] <<- t
-        if (counter_ - last_update_ > 11) {
+        if (counter_ - last_update_ > 51) {
             setWinProgressBar(pb, value=0, label=sprintf("count: %d, time: %0.2f\n", counter_, t))
             last_update_ <<- counter_
         }
+        invisible()
     }
 
     counter = function() { counter_ }
@@ -74,15 +76,110 @@ time_reporter = function() {
     return(list(counter=counter, iter_times=iter_times, update=update, reset=reset))
 }
 
+combine_reporters = function(x) {
+    stopifnot(is.list(x))
+    stopifnot(is.function(x[[1]][[1]]))
+    functions = list()
+
+    for (reporter in x) {
+        for (func_name in names(reporter)) {
+            functions[[func_name]][length(functions[[func_name]]) + 1] = reporter[func_name]
+        }
+    }
+
+    caller = function(fn) {
+        fn = fn  # Force evaluation of fn so that each caller has its own copy.
+        function(...) {
+            result = list()
+            for (func in functions[[fn]]) result[[length(result) + 1]] = do.call(func, list(...))
+
+            if (length(result) == 0)
+                invisible()
+            else if (length(result) == 1)
+                return(result[[1]])
+            else
+                return(result)
+        }
+    }
+
+    func_calls = list()
+    for (func_name in names(functions)) {
+        func_calls[[func_name]] = caller(func_name)
+    }
+
+    return (func_calls)
+}
+
+state_reporter = function() {
+    state_df = list()
+    times = numeric()
+    state_index = 0L
+    highest_index = 0L
+    state_ = NULL
+    updated = FALSE
+    rows = 2^20
+
+    reset = function() {
+        state_df <<- list()
+        times <<- numeric()
+        state_index <<- 0L
+        highest_index <<- 0L
+        state_ <<- NULL
+        updated <<- FALSE
+        rows <<- 1e5
+        invisible()
+    }
+
+    update = function(state, time) {
+        updated <<- TRUE
+        if (length(state_df) == 0L) {
+            state_df <<- vector('list', rows)
+            times <<- numeric(rows)
+        }
+        valid_times = times[seq_len(state_index)]
+        if (suppressWarnings(max(valid_times, na.rm=TRUE)) < time) {
+            state_index <<- state_index + 1L
+        } else {
+            state_index <<- as.integer(min(which(valid_times >= time), na.rm=TRUE))
+        }
+        if (state_index > highest_index) {
+            highest_index <<- state_index
+            if (state_index > rows) {
+                copy = state_df
+                rows <<- rows * 2
+                state_df <<- vector('list', rows)
+                state_df[seq_len(state_index - 1)] <<- copy
+            }
+        }
+        state_df[[state_index]] <<- unlist(state)
+        times[state_index] <<- time
+    }
+
+    state = function() {
+        if (updated) {
+            state_df[seq(state_index + 1L, highest_index + 1L)] <<- list(NULL)
+            state_ <<- as.data.frame(do.call(rbind, state_df[!is.na(state_df)]))
+            updated <<- FALSE
+        }
+        return (state_)
+    }
+
+    return(list(reset=reset, update=update, state=state))
+}
+
+#test = state_reporter()
+#test$update(c(this=5, that=7), 2)
+
 Gro_desolve = function(parameters, varying_parameters, steady_state_modules, derivative_modules, reporter) {
     ode=function(t, state, parms) {
         vp = varying_parameters(t)
         all_state = c(state, parameters, vp)
-        reporter$update(all_state, t)
-        result = Gro_ode(all_state, steady_state_modules, derivative_modules, check_parameters=FALSE)
+        #result = Gro_ode(all_state, steady_state_modules, derivative_modules, check_parameters=FALSE)
+        result = .Call(R_Gro_ode, all_state, steady_state_modules, derivative_modules)
         result[setdiff(names(state), names(result))] = 0
         derivatives = result[names(state)]
         state_of_interest = c(result[setdiff(names(result), names(state))], vp)
+        reporter$update(c(state_of_interest, all_state), t)
         return(list(derivatives, state_of_interest))
     }
     
@@ -91,26 +188,42 @@ Gro_desolve = function(parameters, varying_parameters, steady_state_modules, der
 }
 
 weather05$time = seq_len(nrow(weather05))
+weather05$year = NULL
 linear_weather = interpolater(weather05, 'time', approxfun)
-step_weather = interpolater(weather05, 'time', function(x, y) approxfun(x, y, method='constant'))
-step_weather2 = function(t) weather05[floor(t), ]
-spline_weather = interpolater(weather05, 'time', splinefun)
-spline2_weather = interpolater(weather05, 'time', function(x, y) splinefun(x, y, method='monoH.FC'))
-linear_from_spline_weather = interpolater(as.data.frame(spline2_weather(seq(1, 8760, length=8760*60))), 'time', approxfun)
-pchip_weather = interpolater(weather05, 'time', pracma::pchipfun)
+spline_weather = interpolater(weather05, 'time', function(x, y) splinefun(x, y, method='monoH.FC'))
+linear_from_spline_weather = interpolater(as.data.frame(spline_weather(seq(1, 8760, length=8760*60))), 'time', approxfun)
 
 times = seq(22, 27, length=1000)
 
 var = 'precip'
-x11(); xyplot(linear_weather(times)[[var]] + step_weather(times)[[var]] + step_weather2(times)[[var]] + spline_weather(times)[[var]] + pchip_weather(times)[[var]] + spline2_weather(times)[[var]] + linear_from_spline(times)[[var]] ~ times, type='l', auto=TRUE)
-x11(); xyplot( spline_weather(times)[[var]] + pchip_weather(times)[[var]] + spline2_weather(times)[[var]] + linear_from_spline(times)[[var]] ~ times, type='l', auto=TRUE)
+#x11(); xyplot(linear_weather(times)[[var]] + spline_weather(times)[[var]] + linear_from_spline_weather(times)[[var]] ~ times, type='l', auto=TRUE)
 
-my_timer = time_reporter()
+my_timer = combine_reporters(list(time_reporter(), state_reporter()))
 empty_reporter = list(update=function(s, t) {}, reset=function() {})
 
 myparms = glycine_max_parameters
-myparms['Sp_thermal_time_decay'] = 0
-gro_func = Gro_desolve(myparms, linear_from_spline_weather, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator'), my_timer)
+myparms$Sp_thermal_time_decay = 0
+myparms$rate_constant_root = 2
+myparms$rate_constant_grain = 9
+myparms$rate_constant_leaf = 1
+myparms$soil_type_indicator = 6
+gro_func = Gro_desolve(myparms, linear_from_spline_weather, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth_and_senescence', 'thermal_time_accumulator'), my_timer)
+
+
+(previous_times = rbind(previous_times, system.time({
+    gro_func$reporter$reset()
+    start_row = 7
+    sim_rows = 5000 #nrow(weather05)
+    result = as.data.frame(lsodes(unlist(glycine_max_initial_state),
+        times=seq(start_row, sim_rows + start_row, length=sim_rows),
+        gro_func$func,
+        atol=1e-6,
+        rtol=1e-6,
+        parms=0))
+    })
+))
+
+ns = my_timer$state()
 
 all_state = c(glycine_max_initial_state, myparms, spline2_weather(8))
 system.time({
@@ -128,19 +241,6 @@ test_state = state
     }
 })
 
-(previous_times = rbind(previous_times, system.time({
-    gro_func$reporter$reset()
-    sim_rows = 300
-    result = as.data.frame(lsodes(unlist(glycine_max_initial_state),
-        times=seq(7, sim_rows, length=sim_rows),
-        gro_func$func,
-        atol=1e-7,
-        rtol=1e-7,
-        maxstep=1000,
-        parms=0))
-    })
-))
-
 my_timer$counter()
 x11(); densityplot(my_timer$iter_times(), plot.points=FALSE)
 x11(); xyplot(my_timer$iter_times() ~ seq_along(my_timer$iter_times()), type='l')
@@ -149,17 +249,56 @@ climate = weather05
 climate$TTc = c(0, cumsum((climate$temp - 10) * as.numeric(climate$temp > 10))[-nrow(climate)]) / 24
 climate$time = seq_len(nrow(climate))
 
-#x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ time, result, type='l', auto=TRUE)
-#x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, result, type='l', auto=TRUE)
+x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ time, result, type='l', auto=TRUE)
+x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, result, type='l', auto=TRUE)
 x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, result, type='l', auto=TRUE)
+x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, my_timer$state(), type='l', auto=TRUE, subset=time > 4616 & time < 4620)
 x11(); xyplot(substrate_pool_leaf ~ time, result, type='l', auto=TRUE, ylim=c(-0.00001, 0.00001))
 any(result$substrate_pool_leaf < 0)
 subset(result, substrate_pool_leaf < 0)
+subset(result, substrate_pool_grain < 0)
 
-gresult = Gro(glycine_max_initial_state, within(glycine_max_parameters, soil_type_indicator<-6), weather05, within(glycine_max_modules, growth_module_name<-'partitioning_growth'))
+test_func = Gro_desolve(myparms, linear_from_spline_weather, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth_and_senescence', 'thermal_time_accumulator'), my_timer)
+istate = result[4614, ]
+istate$otime = istate$time
+istate$time = NULL
+(previous_times = rbind(previous_times, system.time({
+    test_func$reporter$reset()
+    test_result = as.data.frame(lsodes(unlist(result[4614,]),
+        times=seq(1, 2, length=100),
+        test_func$func,
+        atol=1e-7,
+        rtol=1e-7,
+        parms=0))
+    })
+))
+
+str(my_timer$grain(), 2)
+
+(all_results = do.call(rbind, my_timer$grain()[[1]][95:101]))
+
+xyplot(grain ~ time, my_timer$grain()[[1]], type='l')
+
+x11(); xyplot(Grain ~ time, test_result, type='l', auto=TRUE)
+x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ time, test_result, type='l', auto=TRUE)
+x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, test_result, type='l', auto=TRUE)
+x11(); xyplot(substrate_pool_leaf +  substrate_pool_grain ~ time, test_result, type='l', auto=TRUE)
+x11(); xyplot(substrate_pool_leaf ~ time, test_result, type='l', auto=TRUE, ylim=c(-0.00001, 0.00001))
+any(test_result$substrate_pool_leaf < 0)
+subset(test_result, substrate_pool_leaf < 0)
+
+
+glycine_max_parameters$rate_constant_root = 2
+glycine_max_parameters$rate_constant_grain = 9
+glycine_max_parameters$rate_constant_leaf = 1
+glycine_max_parameters$soil_type_indicator = 6
+gresult = Gro(glycine_max_initial_state, glycine_max_parameters, weather05, within(glycine_max_modules, {growth_module_name<-'utilization_growth_and_senescence'; senescence_module_name<-'empty_senescence'}))
+
 gresult$time = seq_len(nrow(gresult))
 x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ time, gresult, type='l', auto=TRUE)
 x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, gresult, type='l', auto=TRUE)
+x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, gresult, type='l', auto=TRUE)
+x11(); xyplot(substrate_pool_leaf ~ time, gresult, type='l', auto=TRUE, ylim=c(-0.00001, 0.00001))
 
 easy_parms = sorghum_parameters
 easy_parms['Sp_thermal_time_decay'] = 0

@@ -75,7 +75,7 @@ glycine_max_parameters = with(list(), {
      rate_constant_root_enzyme_inactivation 0.09
      rate_constant_leaf 1.0
      rate_constant_stem 2.6
-     rate_constant_root 8.1
+     rate_constant_root 2
      rate_constant_rhizome  0
      rate_constant_grain 6.1
      KmLeaf     2.5

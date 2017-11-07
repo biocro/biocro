@@ -1,3 +1,5 @@
+#include <R.h>
+
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -10,7 +12,7 @@
 
 state_map utilization_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
-    size_t max_loops = 10;
+    size_t max_loops = 3;
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
 
@@ -41,8 +43,8 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
                 (s_copy.at("substrate_pool_rhizome") < 0) |
                 (sub_derivs.at("utilization_stem") < 0) |
                 (sub_derivs.at("utilization_grain") < 0) |
-                (sub_derivs.at("utilization_rhizome") < 0) |
-                (sub_derivs.at("utilization_root") < 0))
+                (sub_derivs.at("utilization_root") < 0) |
+                (sub_derivs.at("utilization_rhizome") < 0))
             {
                 if (counter < max_loops) {  // Abort if the maximum number of loops hasn't been reached. Otherwise, continue knowing it won't provide the right solution.
                     failed = true;
@@ -107,24 +109,24 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
     double d_leaf = 0, d_stem = 0, d_grain = 0, d_root = 0, d_rhizome = 0;
 
 
-    if ((Leaf != 0)) {
+    if ((Leaf > 0) & (substrate_pool_leaf > 0)) {
         mass_fraction_leaf = substrate_pool_leaf / Leaf;
         utilization_leaf = mass_fraction_leaf * kLeaf / (KmLeaf + mass_fraction_leaf);
     }
-    if ((Stem != 0)) {
+    if ((Stem > 0) & (substrate_pool_stem > 0)) {
         mass_fraction_stem = substrate_pool_stem / Stem;
         utilization_stem = mass_fraction_stem * kStem / (KmStem + mass_fraction_stem);
     }
-    if ((Root != 0)) {
+    if ((Root > 0) & (substrate_pool_root > 0)) {
         mass_fraction_root = substrate_pool_root / Root;
         utilization_root = mass_fraction_root * kRoot / (KmRoot + mass_fraction_root);
         //if ((Root > 2.2) | (Grain > 0)) utilization_root = 0;
     }
-    if ((Rhizome != 0)) {
+    if ((Rhizome > 0) & (substrate_pool_rhizome > 0)) {
         mass_fraction_rhizome = substrate_pool_rhizome;
         utilization_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome);
     }
-    if (Grain != 0) {
+    if ((Grain > 0) & (substrate_pool_grain > 0)) {
         mass_fraction_grain = substrate_pool_grain / Grain;
         utilization_grain = mass_fraction_grain * kGrain / (KmGrain + mass_fraction_grain);
     }
@@ -157,6 +159,43 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
     d_root = utilization_root;
     d_rhizome = utilization_rhizome;
 
+    state_map derivs {
+        { "newLeafcol", d_leaf },
+        { "Leaf", d_leaf },
+        { "substrate_pool_leaf", d_substrate_leaf },
+
+        { "newStemcol", d_stem },
+        { "Stem", d_stem },
+        { "substrate_pool_stem", d_substrate_stem },
+
+        { "Grain", d_grain },
+        { "substrate_pool_grain", d_substrate_grain },
+
+        { "newRootcol", d_root },
+        { "Root", d_root },
+        { "substrate_pool_root", d_substrate_root },
+
+        { "newRhizomecol", d_rhizome },
+        { "Rhizome", d_rhizome },
+        { "substrate_pool_rhizome", d_substrate_rhizome },
+
+        { "utilization_leaf", d_leaf },
+        { "utilization_stem", d_stem },
+        { "utilization_grain", d_grain },
+        { "utilization_root", d_root },
+
+        { "transport_leaf_to_stem", transport_leaf_to_stem },
+        { "transport_stem_to_grain", transport_stem_to_grain },
+        { "transport_stem_to_root", transport_stem_to_root },
+        { "transport_stem_to_rhizome", transport_stem_to_rhizome },
+
+        { "mass_fraction_leaf", mass_fraction_leaf },
+        { "mass_fraction_stem", mass_fraction_stem },
+        { "mass_fraction_root", mass_fraction_root },
+        { "mass_fraction_rhizome", mass_fraction_rhizome },
+        { "mass_fraction_grain", mass_fraction_grain }
+    };
+    /*
     state_map derivs;
     derivs["newLeafcol"] = derivs["Leaf"] = d_leaf;
     derivs["substrate_pool_leaf"] = d_substrate_leaf;
@@ -177,6 +216,8 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
     derivs["utilization_stem"] = d_stem;
     derivs["utilization_grain"] = d_grain;
     derivs["utilization_root"] = d_root;
+    derivs["utilization_rhizome"] = d_rhizome;
+    */
 
     return (derivs);
 }
@@ -275,7 +316,7 @@ state_map utilization_senescence::do_operation(state_map const &s) const
     double mass_fraction_leaf = 0, mass_fraction_stem = 0, mass_fraction_root = 0, mass_fraction_rhizome = 0;
     double senescence_leaf = 0, senescence_stem = 0, senescence_root = 0, senescence_rhizome = 0; 
 
-    double start_grain = 0;
+    double start_grain = 0, start_grain_substrate_pool = 0;;
 
     if ((Leaf != 0) & (TTc >= seneLeaf)) {
         mass_fraction_leaf = substrate_pool_leaf / Leaf;
@@ -294,7 +335,9 @@ state_map utilization_senescence::do_operation(state_map const &s) const
         senescence_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome);
     }
     if ((Grain <= 0) & (TTc >= grain_TTc)) {
-        start_grain = 0.01;
+        // Base grain growth on the amount of stem mass. In the derivatives, remove this from soluble carbon in the stem.
+        start_grain = substrate_pool_stem * 0.001;
+        start_grain_substrate_pool = mass_fraction_stem * start_grain; // Choose this so that mass_fraction_grain == mass_fraction_stem, which keeps transport from jumping when grains appear.
     }
 
     state_map derivs {
@@ -303,10 +346,11 @@ state_map utilization_senescence::do_operation(state_map const &s) const
         {"LeafLitter", senescence_leaf * (1 - remobilization_fraction)},
 
         {"Stem", -senescence_stem},
-        {"substrate_pool_stem", senescence_stem * remobilization_fraction - start_grain},
+        {"substrate_pool_stem", senescence_stem * remobilization_fraction - start_grain - start_grain_substrate_pool},
         {"StemLitter", senescence_stem * (1 - remobilization_fraction)},
 
         {"Grain", start_grain},
+        {"substrate_pool_grain", start_grain_substrate_pool},
 
         {"Root", -senescence_root},
         {"substrate_pool_root", senescence_root * remobilization_fraction},

@@ -70,6 +70,7 @@ state_vector_map Gro(
     dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
 
     p["CanopyA"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
+    p["Assim"] = 0;
 
     vector<string> missing_state;
     vector<string> temp;
@@ -137,6 +138,7 @@ state_vector_map Gro(
 
         p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
         p["CanopyT"] = derivs["Trans"] * p.at("timestep");
+        p["Assim"] = derivs["Assim"];
         
         derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
