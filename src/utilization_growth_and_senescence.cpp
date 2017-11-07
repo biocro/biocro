@@ -80,3 +80,15 @@ state_map empty_senescence::do_operation(state_vector_map const &state_history, 
     return (derivs);
 }
 
+
+state_map utilization_growth_and_senescence_module::do_operation(state_map const &s) const
+{
+    std::unique_ptr<IModule> growth_module = std::unique_ptr<IModule>(new utilization_growth_module);
+    std::unique_ptr<IModule> senescence_module = std::unique_ptr<IModule>(new utilization_senescence);
+
+    state_map derivs = growth_module->run(s);
+    derivs += senescence_module->run(s);
+
+    return derivs;
+}
+
