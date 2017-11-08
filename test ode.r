@@ -37,6 +37,8 @@ interpolater = function(df, time_name, method) {
         }
         return(result)
     }
+
+    rm(df, times, n_col, method, col_name)
     return(interpolate)
 }
 
@@ -167,20 +169,17 @@ state_reporter = function() {
     return(list(reset=reset, update=update, state=state))
 }
 
-#test = state_reporter()
-#test$update(c(this=5, that=7), 2)
-
 Gro_desolve = function(parameters, varying_parameters, steady_state_modules, derivative_modules, reporter) {
     ode=function(t, state, parms) {
         vp = varying_parameters(t)
         all_state = c(state, parameters, vp)
         #result = Gro_ode(all_state, steady_state_modules, derivative_modules, check_parameters=FALSE)
-        result = .Call(R_Gro_ode, all_state, steady_state_modules, derivative_modules)
+        result = .Call(BioCro:::R_Gro_ode, all_state, steady_state_modules, derivative_modules)
         result[setdiff(names(state), names(result))] = 0
         derivatives = result[names(state)]
         state_of_interest = c(result[setdiff(names(result), names(state))], vp)
-        reporter$update(c(state_of_interest, all_state), t)
-        return(list(derivatives, state_of_interest))
+        reporter$update(c(state_of_interest[setdiff(names(state_of_interest), names(all_state))], all_state, derivatives), t)
+        return(list(derivatives, c(state_of_interest, derivatives)))
     }
     
     counter = function() return(counter_)
@@ -204,7 +203,7 @@ empty_reporter = list(update=function(s, t) {}, reset=function() {})
 myparms = glycine_max_parameters
 myparms$Sp_thermal_time_decay = 0
 myparms$rate_constant_root = 2
-myparms$rate_constant_grain = 9
+myparms$rate_constant_grain = 5
 myparms$rate_constant_leaf = 1
 myparms$soil_type_indicator = 6
 gro_func = Gro_desolve(myparms, linear_from_spline_weather, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth_and_senescence', 'thermal_time_accumulator'), my_timer)
@@ -213,17 +212,26 @@ gro_func = Gro_desolve(myparms, linear_from_spline_weather, steady_state_modules
 (previous_times = rbind(previous_times, system.time({
     gro_func$reporter$reset()
     start_row = 7
-    sim_rows = 5000 #nrow(weather05)
+    sim_rows = 4650 #nrow(weather05)
     result = as.data.frame(lsodes(unlist(glycine_max_initial_state),
         times=seq(start_row, sim_rows + start_row, length=sim_rows),
         gro_func$func,
-        atol=1e-6,
-        rtol=1e-6,
+        atol=1e-7,
+        rtol=1e-7,
         parms=0))
     })
 ))
 
+
 ns = my_timer$state()
+subns = subset(ns, time > 4617.4 & time < 4617.6)
+subns[grepl("(substrate_|transport_|mass_|utilization_|\\<(Leaf|Stem|Root|Rhizome|Grain)\\>|start_grain|d_grain|time)", names(subns))]
+
+cbind(
+subns$substrate_pool_stem.1[-nrow(subns)] * diff(subns$time),
+diff(subns$substrate_pool_stem),
+subns$substrate_pool_stem[-nrow(subns)])
+
 
 all_state = c(glycine_max_initial_state, myparms, spline2_weather(8))
 system.time({
@@ -250,22 +258,29 @@ climate$TTc = c(0, cumsum((climate$temp - 10) * as.numeric(climate$temp > 10))[-
 climate$time = seq_len(nrow(climate))
 
 x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ time, result, type='l', auto=TRUE)
+x11(); xyplot(Grain ~ time, result, type='l', auto=TRUE)
+x11(); xyplot(Grain ~ time, ns, type='l', auto=TRUE, subset=time > 4617.51 & time < 4617.515)
+x11(); xyplot(substrate_pool_grain ~ time, ns, type='l', auto=TRUE, subset=time > 4617.51)
+x11(); xyplot(substrate_pool_grain ~ TTc, ns, type='l', auto=TRUE, subset=time > 4617.51)
+x11(); xyplot(Grain ~ time, ns, type='l', auto=TRUE)
 x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, result, type='l', auto=TRUE)
 x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, result, type='l', auto=TRUE)
-x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, my_timer$state(), type='l', auto=TRUE, subset=time > 4616 & time < 4620)
+
+plot(substrate_pool_grain ~ time, ns, type='l', subset=time>4614)
+lines(substrate_pool_grain ~ time, os, col='red', type='l')
+
+x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, ns, type='l', auto=TRUE, subset=time > 4617 & time < 4618)
+x11(); xyplot(mass_fraction_leaf + mass_fraction_stem + mass_fraction_grain ~ time, ns, type='l', auto=TRUE, subset=time > 4617 & time < 4618)
 x11(); xyplot(substrate_pool_leaf ~ time, result, type='l', auto=TRUE, ylim=c(-0.00001, 0.00001))
 any(result$substrate_pool_leaf < 0)
 subset(result, substrate_pool_leaf < 0)
 subset(result, substrate_pool_grain < 0)
 
 test_func = Gro_desolve(myparms, linear_from_spline_weather, steady_state_modules=c('parameter_calculator', 'c3_canopy'), derivative_modules=c('utilization_growth_and_senescence', 'thermal_time_accumulator'), my_timer)
-istate = result[4614, ]
-istate$otime = istate$time
-istate$time = NULL
 (previous_times = rbind(previous_times, system.time({
     test_func$reporter$reset()
-    test_result = as.data.frame(lsodes(unlist(result[4614,]),
-        times=seq(1, 2, length=100),
+    test_result = as.data.frame(lsodes(unlist(ns[52048,]),
+        times=seq(1, 2, length=2),
         test_func$func,
         atol=1e-7,
         rtol=1e-7,
@@ -273,11 +288,8 @@ istate$time = NULL
     })
 ))
 
-str(my_timer$grain(), 2)
-
-(all_results = do.call(rbind, my_timer$grain()[[1]][95:101]))
-
-xyplot(grain ~ time, my_timer$grain()[[1]], type='l')
+my_timer$state()[grepl("(substrate_|mass_|utilization_|\\<(Leaf|Stem|Root|Rhizome|Grain)\\>|start_grain|d_grain)", names(my_timer$state()))]
+xyplot(Grain ~ time, my_timer$state(), type='l')
 
 x11(); xyplot(Grain ~ time, test_result, type='l', auto=TRUE)
 x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ time, test_result, type='l', auto=TRUE)
