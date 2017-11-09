@@ -77,7 +77,7 @@ willow_parameters = with(list(), {
      phi1       0.01     
      phi2       10       
      soil_depth  1        
-     soilType   6        
+     soil_type_indicator   6        
      soilLayers 1        
      soil_depths1 0
      soil_depths2 1

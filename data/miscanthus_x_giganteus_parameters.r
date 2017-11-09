@@ -2,6 +2,7 @@
 miscanthus_x_giganteus_parameters = with(list(), {
     datalines =
     "symbol value
+    acceleration_from_gravity 9.8
     lat 40
     soil_clod_size 0.04
     soil_reflectance 0.2
@@ -39,7 +40,7 @@ miscanthus_x_giganteus_parameters = with(list(), {
     phi1 0.01
     phi2 10
     soil_depth 1
-    soilType 6
+    soil_type_indicator 6
     soilLayers 1
     wsFun 0
     scsf 1
@@ -77,22 +78,27 @@ miscanthus_x_giganteus_parameters = with(list(), {
     kLeaf1 0.33
     kRoot1 0.3
     kRhizome1 -8e-04
+    kGrain1 0
     kStem2 0.85
     kLeaf2 0.14
     kRoot2 0.01
     kRhizome2 -5e-04
+    kGrain2 0
     kStem3 0.63
     kLeaf3 0.01
     kRoot3 0.01
     kRhizome3 0.35
+    kGrain3 0
     kStem4 0.63
     kLeaf4 0.01
     kRoot4 0.01
     kRhizome4 0.35
+    kGrain4 0
     kStem5 0.63
     kLeaf5 0.01
     kRoot5 0.01
     kRhizome5 0.35
+    kGrain5 0
     kStem6 0.63
     kLeaf6 0.01
     kRoot6 0.01

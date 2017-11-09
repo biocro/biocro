@@ -2,6 +2,7 @@
 glycine_max_parameters = with(list(), {
     datalines =
     "symbol value
+     acceleration_from_gravity 9.8
      timestep      1
      lat           40
      Tfrosthigh    5   
@@ -102,7 +103,7 @@ glycine_max_parameters = with(list(), {
      phi1       0.01     
      phi2       10       
      soil_depth  1        
-     soilType   6        
+     soil_type_indicator   6        
      soilLayers 1        
      soil_depths1 0
      soil_depths2 1

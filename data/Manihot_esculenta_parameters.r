@@ -75,7 +75,7 @@ manihot_esculenta_parameters = with(list(), {
      phi1       0.01     
      phi2       10       
      soilDepth  1        
-     soilType   6        
+     soil_type_indicator   6        
      soilLayers 1        
      soilDepths1 0
      soilDepths2 1
