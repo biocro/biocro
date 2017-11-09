@@ -489,6 +489,10 @@ class ModuleFactory {
             { "test_calc_state",                    &createModule<test_calc_state>},
             { "parameter_calculator",               &createModule<parameter_calculator>},
             { "thermal_time_accumulator",           &createModule<thermal_time_accumulator>},
+            { "ws_photo_linear",                    &createModule<ws_photo_linear>},
+            { "ws_photo_sigmoid",                   &createModule<ws_photo_sigmoid>},
+            { "ws_photo_exponential",               &createModule<ws_photo_exponential>},
+            { "thermal_time_accumulator",           &createModule<thermal_time_accumulator>},
             { "biomass_leaf_n_limitation",          &createModule<biomass_leaf_n_limitation>}
         };
 
