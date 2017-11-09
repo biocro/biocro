@@ -73,8 +73,9 @@ SEXP list_from_map(state_vector_map const &m)
         auto second = it->second;
         auto p = second.size();
         SEXP values = PROTECT(allocVector(REALSXP, p));
+        double* vp = REAL(values);  // It's a litte faster if you get a pointer and reuse it.
         for (auto vit = second.begin(); vit != second.end(); ++vit, ++j) {
-            REAL(values)[j] = second[j];
+            vp[j] = second[j];
         } 
         SET_VECTOR_ELT(list, i, values);
         SET_STRING_ELT(names, i, mkChar(it->first.c_str()));
@@ -83,6 +84,22 @@ SEXP list_from_map(state_vector_map const &m)
     setAttrib(list, R_NamesSymbol, names);
     UNPROTECT(2);
     return list;
+}
+
+SEXP vector_from_map(state_map const &m)
+{
+    auto n = m.size();
+    SEXP vector = PROTECT(allocVector(REALSXP, n));
+    SEXP names = PROTECT(allocVector(STRSXP, n));
+    double* vp = REAL(vector);  // It's a little faster if you get a pointer and reuse it.
+    size_t i = 0;
+    for (auto it = m.begin(); it != m.end(); ++it, ++i) {
+        vp[i] = it->second;
+        SET_STRING_ELT(names, i, mkChar(it->first.c_str()));
+    }
+    setAttrib(vector, R_NamesSymbol, names);
+    UNPROTECT(2);
+    return vector;
 }
 
 void output_map(state_map const &m) {
