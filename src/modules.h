@@ -300,8 +300,43 @@ class ws_photo_linear : public IModule {
         {
             state_map result;
             double slope = 1 / (s.at("soil_field_capacity") - s.at("soil_wilting_point"));
-            double intercept = 1 - s.at("soil_field_capacity") * intercept;
-            result["wsPhoto"] = slope * s.at("soil_water_content");
+            double intercept = 1 - s.at("soil_field_capacity") * slope;
+            result["wsPhoto"] = std::min(std::max(slope * s.at("soil_water_content") + intercept, 0.0), 1.0);
+            return result;
+        };
+};
+
+class ws_photo_sigmoid : public IModule {
+    public:
+        ws_photo_sigmoid()
+            : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "soil_wilting_point", "phi1"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const
+        {
+            const double phi10 = (s.at("soil_field_capacity") + s.at("soil_wilting_point")) / 2;
+            state_map result { {"wsPhoto", std::min(std::max(1 / (1 + exp((phi10 - s.at("soil_water_content")) / s.at("phi1"))), 0.0), 1.0)} };
+            return result;
+        };
+};
+
+class ws_photo_exponential : public IModule {
+    public:
+        ws_photo_exponential()
+            : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "soil_wilting_point"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const
+        {
+            double wilting_point = s.at("soil_wilting_point");
+            double field_capacity = s.at("soil_field_capacity");
+
+            double slope = (1 - wilting_point) / (field_capacity - wilting_point);
+            double intercept = 1 - field_capacity * slope;
+            double theta = slope * s.at("soil_water_content") + intercept;
+            state_map result { {"wsPhoto", (1 - exp(-2.5 * (theta - wilting_point)/(1 - wilting_point))) / (1 - exp(-2.5))} };
             return result;
         };
 };
