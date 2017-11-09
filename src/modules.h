@@ -186,7 +186,12 @@ class utilization_growth_module : public IGrowth_module {
                 "resistance_leaf_to_stem",
                 "resistance_stem_to_grain",
                 "resistance_stem_to_root",
-                "resistance_stem_to_rhizome"},
+                "resistance_stem_to_rhizome",
+                "substrate_pool_leaf",
+                "substrate_pool_stem",
+                "substrate_pool_root",
+                "substrate_pool_rhizome",
+                "substrate_pool_grain"},
                 std::vector<std::string> {})
         {}
     private:

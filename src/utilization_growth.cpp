@@ -38,13 +38,13 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
             // The following conditions are not possible and will not be corrected with futher iteration.
             if ((s_copy.at("substrate_pool_leaf") < 0) |
                 (s_copy.at("substrate_pool_stem") < 0) |
-                (s_copy.at("substrate_pool_grain") < 0) |
                 (s_copy.at("substrate_pool_root") < 0) |
                 (s_copy.at("substrate_pool_rhizome") < 0) |
+                (s_copy.at("substrate_pool_grain") < 0) |
                 (sub_derivs.at("utilization_stem") < 0) |
-                (sub_derivs.at("utilization_grain") < 0) |
                 (sub_derivs.at("utilization_root") < 0) |
-                (sub_derivs.at("utilization_rhizome") < 0))
+                (sub_derivs.at("utilization_rhizome") < 0) |
+                (sub_derivs.at("utilization_grain") < 0))
             {
                 if (counter < max_loops) {  // Abort if the maximum number of loops hasn't been reached. Otherwise, continue knowing it won't provide the right solution.
                     failed = true;
@@ -101,10 +101,10 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
     double beta = Leaf + Grain + Stem + Root + Rhizome;
 
     double substrate_pool_leaf = s.at("substrate_pool_leaf");
-    double substrate_pool_grain = s.at("substrate_pool_grain");
     double substrate_pool_stem = s.at("substrate_pool_stem");
     double substrate_pool_root = s.at("substrate_pool_root");
     double substrate_pool_rhizome = s.at("substrate_pool_rhizome");
+    double substrate_pool_grain = s.at("substrate_pool_grain");
 
     double mass_fraction_leaf = 0, mass_fraction_stem = 0, mass_fraction_root = 0, mass_fraction_rhizome = 0, mass_fraction_grain = 0;
     double transport_leaf_to_stem = 0, transport_stem_to_grain = 0, transport_stem_to_root = 0, transport_stem_to_rhizome = 0;
@@ -184,8 +184,9 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
 
         { "utilization_leaf", d_leaf },
         { "utilization_stem", d_stem },
-        { "utilization_grain", d_grain },
         { "utilization_root", d_root },
+        { "utilization_rhizome", d_rhizome },
+        { "utilization_grain", d_grain },
 
         { "transport_leaf_to_stem", transport_leaf_to_stem },
         { "transport_stem_to_grain", transport_stem_to_grain },
