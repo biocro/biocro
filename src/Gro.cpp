@@ -1,3 +1,4 @@
+#include <R.h>
 /*
  *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez Copyright (C)
  *  2007-2015 lower and upper temp contributed by Deepak Jaiswal,
@@ -156,7 +157,6 @@ state_vector_map Gro(
         //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (p.at("waterCont") - wiltp), 1), 0);
         //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (root_available_water_fraction - wiltp), 1), 0);
         //p["rate_constant_root_scale"] = fmin(fmax((fieldc - (root_available_water_fraction - evaporation_rate)) / (fieldc - wiltp), 1), 20);
-        //Rprintf("%f, %f, %f.\n", root_depth_fraction, p.at("waterCont"), root_available_water_fraction);
 
         /*
          * 2) Calculate derivatives between state variables.
@@ -210,25 +210,25 @@ state_vector_map Gro(
         results["canopy_assimilation"].push_back(p["CanopyA"]);
         results["canopy_transpiration"].push_back(p["CanopyT"]);
         results["rate_constant_root_scale"].push_back(p["rate_constant_root_scale"]);
-        results["lai"].push_back(p.at("lai"));
+        results["lai"].push_back(p["lai"]);
         //results["soil_water_content"].push_back(s.at("soil_water_content"));
-        results["stomatal_conductance_coefs"].push_back(current_state.at("StomataWS"));
+        results["stomatal_conductance_coefs"].push_back(current_state["StomataWS"]);
         //results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
         //results["leaf_nitrogen"].push_back(s.at("LeafN"));
-        results["vmax"].push_back(p.at("vmax"));
-        results["alpha"].push_back(p.at("alpha"));
-        results["specific_leaf_area"].push_back(p.at("Sp"));
+        results["vmax"].push_back(p["vmax"]);
+        results["alpha"].push_back(p["alpha"]);
+        results["specific_leaf_area"].push_back(p["Sp"]);
         results["soil_evaporation"].push_back(derivs["soilEvap"]);
         //results["kLeaf"].push_back(kLeaf);
-        results["newLeafcol"].push_back(derivs.at("newLeafcol"));
-        results["newStemcol"].push_back(derivs.at("newStemcol"));
-        results["newRootcol"].push_back(derivs.at("newRootcol"));
-        results["newRhizomecol"].push_back(derivs.at("newRhizomecol"));
-        results["dLeaf"].push_back(derivs.at("Leaf"));
-        results["dGrain"].push_back(derivs.at("Grain"));
-        results["dStem"].push_back(derivs.at("Stem"));
-        results["dRoot"].push_back(derivs.at("Root"));
-        results["dRhizome"].push_back(derivs.at("Rhizome"));
+        results["newLeafcol"].push_back(derivs["newLeafcol"]);
+        results["newStemcol"].push_back(derivs["newStemcol"]);
+        results["newRootcol"].push_back(derivs["newRootcol"]);
+        results["newRhizomecol"].push_back(derivs["newRhizomecol"]);
+        results["dLeaf"].push_back(derivs["Leaf"]);
+        results["dGrain"].push_back(derivs["Grain"]);
+        results["dStem"].push_back(derivs["Stem"]);
+        results["dRoot"].push_back(derivs["Root"]);
+        results["dRhizome"].push_back(derivs["Rhizome"]);
 
         results["dsubstrate_pool_leaf"].push_back(derivs["substrate_pool_leaf"]);
         results["dsubstrate_pool_stem"].push_back(derivs["substrate_pool_stem"]);
