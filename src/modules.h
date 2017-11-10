@@ -294,9 +294,9 @@ class test_calc_state : public IModule {
         state_map do_operation(state_map const &s) const;
 };
 
-class ws_photo_linear : public IModule {
+class stomata_water_stress_linear : public IModule {
     public:
-        ws_photo_linear()
+        stomata_water_stress_linear()
             : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "soil_wilting_point"},
                     std::vector<std::string> {})
         {}
@@ -306,14 +306,14 @@ class ws_photo_linear : public IModule {
             state_map result;
             double slope = 1 / (s.at("soil_field_capacity") - s.at("soil_wilting_point"));
             double intercept = 1 - s.at("soil_field_capacity") * slope;
-            result["wsPhoto"] = std::min(std::max(slope * s.at("soil_water_content") + intercept, 0.0), 1.0);
+            result["StomataWS"] = std::min(std::max(slope * s.at("soil_water_content") + intercept, 0.0), 1.0);
             return result;
         };
 };
 
-class ws_photo_sigmoid : public IModule {
+class stomata_water_stress_sigmoid : public IModule {
     public:
-        ws_photo_sigmoid()
+        stomata_water_stress_sigmoid()
             : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "soil_wilting_point", "phi1"},
                     std::vector<std::string> {})
         {}
@@ -321,14 +321,14 @@ class ws_photo_sigmoid : public IModule {
         state_map do_operation(state_map const &s) const
         {
             const double phi10 = (s.at("soil_field_capacity") + s.at("soil_wilting_point")) / 2;
-            state_map result { {"wsPhoto", std::min(std::max(1 / (1 + exp((phi10 - s.at("soil_water_content")) / s.at("phi1"))), 0.0), 1.0)} };
+            state_map result { {"StomataWS", std::min(std::max(1 / (1 + exp((phi10 - s.at("soil_water_content")) / s.at("phi1"))), 0.0), 1.0)} };
             return result;
         };
 };
 
-class ws_photo_exponential : public IModule {
+class stomata_water_stress_exponential : public IModule {
     public:
-        ws_photo_exponential()
+        stomata_water_stress_exponential()
             : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "soil_wilting_point"},
                     std::vector<std::string> {})
         {}
@@ -341,7 +341,7 @@ class ws_photo_exponential : public IModule {
             double slope = (1 - wilting_point) / (field_capacity - wilting_point);
             double intercept = 1 - field_capacity * slope;
             double theta = slope * s.at("soil_water_content") + intercept;
-            state_map result { {"wsPhoto", (1 - exp(-2.5 * (theta - wilting_point)/(1 - wilting_point))) / (1 - exp(-2.5))} };
+            state_map result { {"StomataWS", (1 - exp(-2.5 * (theta - wilting_point)/(1 - wilting_point))) / (1 - exp(-2.5))} };
             return result;
         };
 };
@@ -489,10 +489,9 @@ class ModuleFactory {
             { "test_calc_state",                    &createModule<test_calc_state>},
             { "parameter_calculator",               &createModule<parameter_calculator>},
             { "thermal_time_accumulator",           &createModule<thermal_time_accumulator>},
-            { "ws_photo_linear",                    &createModule<ws_photo_linear>},
-            { "ws_photo_sigmoid",                   &createModule<ws_photo_sigmoid>},
-            { "ws_photo_exponential",               &createModule<ws_photo_exponential>},
-            { "thermal_time_accumulator",           &createModule<thermal_time_accumulator>},
+            { "stomata_water_stress_linear",        &createModule<stomata_water_stress_linear>},
+            { "stomata_water_stress_sigmoid",       &createModule<stomata_water_stress_sigmoid>},
+            { "stomata_water_stress_exponential",   &createModule<stomata_water_stress_exponential>},
             { "biomass_leaf_n_limitation",          &createModule<biomass_leaf_n_limitation>}
         };
 
@@ -516,6 +515,7 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &soil_evaporation_module,
         std::unique_ptr<IModule> const &growth_module,
         std::unique_ptr<IModule> const &senescence_module,
+        std::unique_ptr<IModule> const &stomata_water_stress_module,
 		double (*leaf_n_limitation)(state_map const &model_state));
 
 state_map Gro(

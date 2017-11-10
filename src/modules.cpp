@@ -185,7 +185,6 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     state_map derivs;
     derivs["soilEvap"] = soilEvap;
     derivs["soil_water_content"] = WaterS.awc - s.at("soil_water_content");
-    derivs["StomataWS"] = WaterS.rcoefPhoto - s.at("StomataWS");
     derivs["LeafWS"] =  WaterS.rcoefSpleaf - s.at("LeafWS");
     return (derivs);
 }

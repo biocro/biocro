@@ -26,6 +26,7 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &soil_evaporation_module,
         std::unique_ptr<IModule> const &growth_module,
         std::unique_ptr<IModule> const &senescence_module,
+        std::unique_ptr<IModule> const &stomata_water_stress_module,
         double (*leaf_n_limitation)(state_map const &model_state))
 {
     state_map current_state = initial_state;
@@ -62,6 +63,12 @@ state_vector_map Gro(
      */
 
     state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
+
+    soilText_str soil = get_soil_properties(p.at("soil_type_indicator"));
+    p["soil_wilting_point"] = soil.wiltp;
+    p["soil_field_capacity"] = soil.fieldc;
+    p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
+
     p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
     p["lai"] = p.at("Leaf") * p.at("Sp");
     p["LeafN"] = leaf_n_limitation(p);
@@ -105,6 +112,11 @@ state_vector_map Gro(
         append_state_to_vector(current_state, results);
 
         p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, i)));
+
+        soilText_str soil = get_soil_properties(p.at("soil_type_indicator"));
+        p["soil_wilting_point"] = soil.wiltp;
+        p["soil_field_capacity"] = soil.fieldc;
+        p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
 
         /*
          * 1) Calculate all state-dependent state variables.
@@ -212,7 +224,7 @@ state_vector_map Gro(
         results["rate_constant_root_scale"].push_back(p["rate_constant_root_scale"]);
         results["lai"].push_back(p["lai"]);
         //results["soil_water_content"].push_back(s.at("soil_water_content"));
-        results["stomatal_conductance_coefs"].push_back(current_state["StomataWS"]);
+        results["stomatal_conductance_coefs"].push_back(p["StomataWS"]);
         //results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
         //results["leaf_nitrogen"].push_back(s.at("LeafN"));
         results["vmax"].push_back(p["vmax"]);

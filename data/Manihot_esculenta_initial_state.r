@@ -8,7 +8,6 @@ manihot_esculenta_initial_state = with(list(), {
     Root 1
     Grain 0
     waterCont 0.32
-    StomataWS 1
     LeafN 2
     TTc 0
     LeafLitter 0

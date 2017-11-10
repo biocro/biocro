@@ -17,7 +17,8 @@ SEXP R_Gro(SEXP initial_state,
         SEXP canopy_photosynthesis_module,
         SEXP soil_evaporation_module,
         SEXP growth_module,
-        SEXP senescence_module)
+        SEXP senescence_module,
+        SEXP water_stress_module)
 {
     try {
 
@@ -29,16 +30,14 @@ SEXP R_Gro(SEXP initial_state,
             return R_NilValue;
         }
 
-        unique_ptr<IModule> canopy;
-        unique_ptr<IModule> soil_evaporation;
-        unique_ptr<IModule> growth;
-        unique_ptr<IModule> senescence;
+        Rprintf("alksjdf;aj\n");
+        unique_ptr<IModule> canopy = ModuleFactory()(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
+        unique_ptr<IModule> soil_evaporation = ModuleFactory()(CHAR(STRING_ELT(soil_evaporation_module, 0)));
+        unique_ptr<IModule> growth = ModuleFactory()(CHAR(STRING_ELT(growth_module, 0)));
+        unique_ptr<IModule> senescence = ModuleFactory()(CHAR(STRING_ELT(senescence_module, 0)));
+        unique_ptr<IModule> stomata_water_stress = ModuleFactory()(CHAR(STRING_ELT(water_stress_module, 0)));
 
-        canopy = ModuleFactory()(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
-        soil_evaporation = ModuleFactory()(CHAR(STRING_ELT(soil_evaporation_module, 0)));
-        growth = ModuleFactory()(CHAR(STRING_ELT(growth_module, 0)));
-        senescence = ModuleFactory()(CHAR(STRING_ELT(senescence_module, 0)));
-
+        Rprintf("kaj\n");
         vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
             "LeafN_0", "vmax_n_intercept", "vmax1", "alphab1",
             "alpha1", "TTc", "temp", "tbase", "timestep",
@@ -65,7 +64,7 @@ SEXP R_Gro(SEXP initial_state,
         }
 
         state_vector_map result;
-        result = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, biomass_leaf_nitrogen_limitation);
+        result = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, stomata_water_stress, biomass_leaf_nitrogen_limitation);
         return (list_from_map(result));
 
     } catch (std::exception const &e) {

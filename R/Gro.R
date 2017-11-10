@@ -99,7 +99,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
     varying_parameters = as.data.frame(lapply(as.list(varying_parameters), as.numeric))  # C++ requires that all the variables have type `double`.
     names(varying_parameters) = tolower(names(varying_parameters))  # Convert all names to lower case for ease of use.
 
-    result = as.data.frame(.Call(R_Gro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name, modules$senescence_module_name))
+    result = as.data.frame(.Call(R_Gro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name, modules$senescence_module_name, modules$stomata_water_stress_module_name))
     result = cbind(varying_parameters[c('year', 'doy', 'hour')], result)
     return(result)
 }

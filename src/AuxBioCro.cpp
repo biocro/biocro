@@ -681,7 +681,6 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
     if (soil_water_fraction > theta_s) {
         runoff = (soil_water_fraction - theta_s) * soildepth; /* This is in meters */
-
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
