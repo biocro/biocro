@@ -665,8 +665,7 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
 
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
                      double wiltp, double phi1, double phi2, double soil_saturation_capacity, double sand,
-                     double Ks, double air_entry, double b,
-                     int wsFun) /* flag indicating which water stress function to use */
+                     double Ks, double air_entry, double b) 
 {
     constexpr double g = 9.8; // m / s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
