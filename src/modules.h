@@ -96,9 +96,9 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
     public:
         one_layer_soil_profile()
             : ISoil_evaporation_module(std::vector<std::string> {"lai", "temp", "solar", "soil_water_content",
-                    "FieldC", "WiltP", "windspeed", "rh", "rsec",
+                    "soil_field_capacity", "soil_wilting_point", "windspeed", "rh", "rsec",
                     "CanopyT", "precip", "soil_depth", "phi1", "phi2",
-                    "soil_type_indicator", "wsFun", "StomataWS", "LeafWS"},
+                    "wsFun", "StomataWS", "LeafWS"},
                     std::vector<std::string> {})
         {}
     private:
@@ -363,7 +363,7 @@ class leaf_water_stress_exponential : public IModule {
 class one_layer_soil_profile_derivatives : public IModule {
     public:
         one_layer_soil_profile_derivatives()
-            : IModule(std::vector<std::string> {"precipitation_rate", "soil_saturation_content", "soil_field_capacity", "soil_wilting_point", "soil_water_content",
+            : IModule(std::vector<std::string> {"precipitation_rate", "soil_saturation_capacity", "soil_field_capacity", "soil_wilting_point", "soil_water_content",
                     "soil_depth", "soil_sand_content", "evapotranspiration", "soil_saturated_conductivity", "soil_air_entry",
                     "soil_b_coefficient", "acceleration_from_gravity"},
                     std::vector<std::string> {})
@@ -384,7 +384,7 @@ class one_layer_soil_profile_derivatives : public IModule {
             double precipitation_m_s = s.at("precipitation_rate") * 1e-3; // m s^-2.
 
             constexpr double second_per_hour = 3600;
-            double runoff = (soil_water_content - s.at("soil_saturation")) * soil_depth / second_per_hour;  // m s^-1. The previous model drained everything in a single time-step. By default the time step was one hour, so use a rate that drains everything in one hour.
+            double runoff = (soil_water_content - s.at("soil_saturation_capacity")) * soil_depth / second_per_hour;  // m s^-1. The previous model drained everything in a single time-step. By default the time step was one hour, so use a rate that drains everything in one hour.
             double n_leach = runoff / 18 * (0.2 + 0.7 * s.at("soil_sand_content")) / second_per_hour;  // Base the rate on an hour for the same reason as was used with `runoff`.
 
             double evapotranspiration_volume = s.at("evapotranspiration") / density_of_water_at_20_celcius / 1e4 / second_per_hour;  // m^3 m^-2 s^-1
@@ -440,7 +440,7 @@ class soil_type_selector : public IModule {
             result["soil_air_entry"] = soil_properties.air_entry;
             result["soil_b_coefficient"] = soil_properties.b;
             result["soil_saturated_conductivity"] = soil_properties.Ks;
-            result["soil_saturation_content"] = soil_properties.satur;
+            result["soil_saturation_capacity"] = soil_properties.satur;
             result["soil_field_capacity"] = soil_properties.fieldc;
             result["soil_wilting_point"] = soil_properties.wiltp;
             result["soil_bulk_density"] = soil_properties.bulk_density;

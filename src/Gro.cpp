@@ -65,9 +65,9 @@ state_vector_map Gro(
 
     state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
 
-    soilText_str soil = get_soil_properties(p.at("soil_type_indicator"));
-    p["soil_wilting_point"] = soil.wiltp;
-    p["soil_field_capacity"] = soil.fieldc;
+    std::unique_ptr<IModule> const soil_property_module = ModuleFactory()("soil_type_selector");
+    p += soil_property_module->run(p);
+
     p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
     p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
 
@@ -115,9 +115,8 @@ state_vector_map Gro(
 
         p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, i)));
 
-        soilText_str soil = get_soil_properties(p.at("soil_type_indicator"));
-        p["soil_wilting_point"] = soil.wiltp;
-        p["soil_field_capacity"] = soil.fieldc;
+        p += soil_property_module->run(p);
+        
         p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
         p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
 

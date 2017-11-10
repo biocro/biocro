@@ -664,26 +664,25 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
    for now, with a very simple empirical approach. */
 
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
-                     double wiltp, double phi1, double phi2, double satur, double sand,
+                     double wiltp, double phi1, double phi2, double soil_saturation_capacity, double sand,
                      double Ks, double air_entry, double b,
                      int wsFun) /* flag indicating which water stress function to use */
 {
     constexpr double g = 9.8; // m / s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
-    double theta_s = satur;
     double precipM = precipit * 1e-3; /* convert precip in mm to m*/
     double soil_water_fraction = precipM / soildepth + cws;  // m^3 m^-3
 
     double runoff = 0.0;
     double Nleach = 0.0;  /* Nleach is the NO3 leached. */
 
-    if (soil_water_fraction > theta_s) {
-        runoff = (soil_water_fraction - theta_s) * soildepth; /* This is in meters */
+    if (soil_water_fraction > soil_saturation_capacity) {
+        runoff = (soil_water_fraction - soil_saturation_capacity) * soildepth; /* This is in meters */
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
         Nleach = runoff / 18 * (0.2 + 0.7 * sand);
-        soil_water_fraction = theta_s;
+        soil_water_fraction = soil_saturation_capacity;
     }
 
     /* The density of water is 0.9982 Mg / m^3 at 20 degrees Celsius. */
