@@ -397,6 +397,26 @@ class one_layer_soil_profile_derivatives : public IModule {
         }
 };
 
+class bucket_soil_drainage : public IModule {
+    public:
+        bucket_soil_drainage()
+            : IModule(std::vector<std::string> {"precipitation_rate", "evapotranspiration_rate", "soil_water_content", "soil_field_capacity", "soil_wilting_point",
+                    "soil_depth", "soil_sand_content", "evapotranspiration", "soil_saturated_conductivity", "soil_air_entry",
+                    "soil_b_coefficient"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const
+        {
+            state_map result;
+            /* TODO:
+             * Need surface water and infiltration rate. Page 129 of Norman and Campbell
+             * gives an equation for drainage, and someone this can be applied to infiltration.
+             */
+            return result;
+        };
+};
+
 class linear_vmax_from_leaf_n : public IModule {
     public:
         linear_vmax_from_leaf_n()
