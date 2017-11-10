@@ -14,7 +14,6 @@ miscanthus_x_giganteus_initial_state = with(list(), {
     RootLitter	0
     RhizomeLitter	0
     StemLitter	0
-    LeafWS	0	
     leaf_senescence_index	0
     stem_senescence_index	0
     root_senescence_index	0

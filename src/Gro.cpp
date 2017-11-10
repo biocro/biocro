@@ -27,6 +27,7 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &growth_module,
         std::unique_ptr<IModule> const &senescence_module,
         std::unique_ptr<IModule> const &stomata_water_stress_module,
+        std::unique_ptr<IModule> const &leaf_water_stress_module,
         double (*leaf_n_limitation)(state_map const &model_state))
 {
     state_map current_state = initial_state;
@@ -68,6 +69,7 @@ state_vector_map Gro(
     p["soil_wilting_point"] = soil.wiltp;
     p["soil_field_capacity"] = soil.fieldc;
     p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
+    p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
 
     p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
     p["lai"] = p.at("Leaf") * p.at("Sp");
@@ -117,6 +119,7 @@ state_vector_map Gro(
         p["soil_wilting_point"] = soil.wiltp;
         p["soil_field_capacity"] = soil.fieldc;
         p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
+        p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
 
         /*
          * 1) Calculate all state-dependent state variables.
@@ -188,7 +191,9 @@ state_vector_map Gro(
             derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
 
+    Rprintf("a;sldfja)(*\n");
         derivs += growth_module->run(state_history, deriv_history, p);
+Rprintf("ff(af(sd(faj\n");
 
         derivs += senescence_module->run(state_history, deriv_history, p);
 
@@ -225,6 +230,7 @@ state_vector_map Gro(
         results["lai"].push_back(p["lai"]);
         //results["soil_water_content"].push_back(s.at("soil_water_content"));
         results["stomatal_conductance_coefs"].push_back(p["StomataWS"]);
+        results["LeafWS"].push_back(p["LeafWS"]);
         //results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
         //results["leaf_nitrogen"].push_back(s.at("LeafN"));
         results["vmax"].push_back(p["vmax"]);

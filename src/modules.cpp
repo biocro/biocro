@@ -185,7 +185,6 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     state_map derivs;
     derivs["soilEvap"] = soilEvap;
     derivs["soil_water_content"] = WaterS.awc - s.at("soil_water_content");
-    derivs["LeafWS"] =  WaterS.rcoefSpleaf - s.at("LeafWS");
     return (derivs);
 }
 
@@ -319,7 +318,7 @@ state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const
     return (derivs);
 }
 
-state_map partitioning_growth_module::do_operation(state_vector_map const &s, state_vector_map const &deriv_history, state_map const &p) const
+state_map partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
 // NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
 // record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
@@ -329,8 +328,8 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
 // This doesn't seem like a good approach.
 
     state_map derivs;
-    auto t = s.begin()->second.size() - 1;
-    //state_map s = combine_state(at(state_history, t), parameters);
+    auto t = state_history.begin()->second.size() - 1;
+    state_map s = combine_state(at(state_history, t), p);
     //auto &s = state_history;
     //auto &p = parameters;
     double kLeaf = p.at("kLeaf");
@@ -341,7 +340,7 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
     double CanopyA = p.at("CanopyA");
 
     if (kLeaf > 0) {
-        derivs["newLeafcol"] = CanopyA * kLeaf * s.at("LeafWS")[t];
+        derivs["newLeafcol"] = CanopyA * kLeaf * s.at("LeafWS");
         /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
             Plant. Phys. 46, 233-235. For this the water stress coefficient is different
             for leaf and vmax. */
@@ -354,7 +353,7 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
                                                      and thus would not be subjected to senescence. */
     } else {
         derivs["newLeafcol"] = 0;
-        derivs["Leaf"] += s.at("Leaf")[t] * kLeaf;
+        derivs["Leaf"] += s.at("Leaf") * kLeaf;
         derivs["Rhizome"] += kRhizome * -derivs.at("Leaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
         derivs["Stem"] += kStem * -derivs.at("Leaf") * 0.9;
         derivs["Root"] += kRoot * -derivs.at("Leaf") * 0.9;
@@ -375,7 +374,7 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
         derivs["Root"] += derivs["newRootcol"];
     } else {
         derivs["newRootcol"] = 0;
-        derivs["Root"] += s.at("Root")[t] * kRoot;
+        derivs["Root"] += s.at("Root") * kRoot;
         derivs["Rhizome"] += kRhizome * -derivs.at("Root") * 0.9;
         derivs["Stem"] += kStem * -derivs.at("Root") * 0.9;
         derivs["Leaf"] += kLeaf * -derivs.at("Root") * 0.9;
@@ -391,9 +390,9 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
         ++derivs["rhizome_index"];
     } else {
         derivs["newRhizomecol"] = 0;
-        derivs["Rhizome"] += s.at("Rhizome")[t] * kRhizome;
-        if ( derivs["Rhizome"] > s.at("Rhizome")[t] ) {  // Check if this would make the rhizome mass negative.
-            derivs["Rhizome"] = s.at("Rhizome")[t];
+        derivs["Rhizome"] += s.at("Rhizome") * kRhizome;
+        if ( derivs["Rhizome"] > s.at("Rhizome") ) {  // Check if this would make the rhizome mass negative.
+            derivs["Rhizome"] = s.at("Rhizome");
         }
 
         derivs["Root"] += kRoot * -derivs.at("Rhizome");
@@ -415,14 +414,14 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &s, st
     return (derivs);
 }
 
-state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map const &s, state_vector_map const &deriv_history, state_map const &p) const
+state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
     // This is the same as paritioning_growth_module except that leaf respiration is treated differently.
     // CanopyA already includes losses from leaf respiration, so it should only be removed from leaf mass.
 
     state_map derivs;
-    auto t = s.begin()->second.size() - 1;
-    //state_map s = combine_state(at(state_history, t), parameters);
+    auto t = state_history.begin()->second.size() - 1;
+    state_map s = combine_state(at(state_history, t), p);
     //auto &s = state_history;
     //auto &p = parameters;
     double kLeaf = p.at("kLeaf");
@@ -443,7 +442,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         if (CanopyA < 0) {  // If CanopyA is negative then leaves are respiring more than photosynthesizing.
             derivs["newLeafcol"] = CanopyA;  // CanopyA is negative here, so this removes leaf mass.
         } else {
-            derivs["newLeafcol"] = CanopyA * kLeaf; // * s.at("LeafWS")[t];
+            derivs["newLeafcol"] = CanopyA * kLeaf; // * p.at("LeafWS")[t];
         }
         /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
             Plant. Phys. 46, 233-235. For this the water stress coefficient is different
@@ -452,7 +451,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         derivs["Leaf"] = derivs["newLeafcol"]; 
     } else {
         derivs["newLeafcol"] = 0;
-        derivs["Leaf"] += s.at("Leaf")[t] * kLeaf;
+        derivs["Leaf"] += s.at("Leaf") * kLeaf;
         derivs["Rhizome"] += kRhizome * -derivs.at("Leaf") * 0.9; /* 0.9 is the efficiency of retranslocation */
         derivs["Stem"] += kStem * -derivs.at("Leaf") * 0.9;
         derivs["Root"] += kRoot * -derivs.at("Leaf") * 0.9;
@@ -473,7 +472,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         derivs["Root"] += derivs["newRootcol"];
     } else {
         derivs["newRootcol"] = 0;
-        derivs["Root"] += s.at("Root")[t] * kRoot;
+        derivs["Root"] += s.at("Root") * kRoot;
         derivs["Rhizome"] += kRhizome * -derivs.at("Root") * 0.9;
         derivs["Stem"] += kStem * -derivs.at("Root") * 0.9;
         derivs["Leaf"] += kLeaf * -derivs.at("Root") * 0.9;
@@ -487,9 +486,9 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         ++derivs["rhizome_index"];
     } else {
         derivs["newRhizomecol"] = 0;
-        derivs["Rhizome"] += s.at("Rhizome")[t] * kRhizome;
-        if ( derivs["Rhizome"] > s.at("Rhizome")[t] ) {  // Check if this would make the rhizome mass negative.
-            derivs["Rhizome"] = s.at("Rhizome")[t];
+        derivs["Rhizome"] += s.at("Rhizome") * kRhizome;
+        if ( derivs["Rhizome"] > s.at("Rhizome") ) {  // Check if this would make the rhizome mass negative.
+            derivs["Rhizome"] = s.at("Rhizome");
         }
 
         derivs["Root"] += kRoot * -derivs.at("Rhizome");
@@ -498,7 +497,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         derivs["Grain"] += kGrain * -derivs.at("Rhizome");
     }
 
-    if ((kGrain >= 1e-10) && (s.at("TTc")[t] >= p.at("tp5"))) {
+    if ((kGrain >= 1e-10) && (s.at("TTc") >= p.at("tp5"))) {
         derivs["Grain"] += nonleaf_carbon_flux * kGrain;
         /* No respiration for grain at the moment */
         /* No senescence either */

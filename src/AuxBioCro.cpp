@@ -610,9 +610,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     return Evaporation;  // Mg / ha / hr.
 }
 
-// Helper function for watstr.
 double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, double awc) {
-
     // Three different type of equations for modeling the effect of
     // water stress on vmax and leaf area expansion.  The equation for
     // leaf area expansion is more severe than the one for vmax. */
@@ -714,17 +712,9 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         awc = awc + drainage / soildepth;
     }
 
-    double wsPhoto = compute_wsPhoto(wsFun, fieldc, wiltp, phi1, awc);
-    double LeafWS = pow(awc, phi2) * 1 / pow(fieldc, phi2);
-
-    if (wsFun == 3) LeafWS = 1;
-    if (LeafWS > 1) LeafWS = 1;
-
-    tmp.rcoefPhoto = wsPhoto;
     tmp.awc = awc;
     tmp.runoff = runoff;
     tmp.Nleach = Nleach;
-    tmp.rcoefSpleaf = LeafWS;
     return tmp;
 }
 

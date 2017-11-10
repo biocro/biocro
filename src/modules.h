@@ -346,17 +346,16 @@ class stomata_water_stress_exponential : public IModule {
         };
 };
 
-class leaf_ws_exponential : public IModule {
+class leaf_water_stress_exponential : public IModule {
     public:
-        leaf_ws_exponential()
-            : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "phi1", "phi2"},
+        leaf_water_stress_exponential()
+            : IModule(std::vector<std::string> {"soil_water_content", "soil_field_capacity", "phi2"},
                     std::vector<std::string> {})
         {}
     private:
         state_map do_operation(state_map const &s) const
         {
-            state_map result;
-            result["LeafWS"] = fmin(pow(s.at("soil_water_content") / s.at("soil_field_capacity"), s.at("phi2")), 1);
+            state_map result { {"LeafWS",  std::min(pow(s.at("soil_water_content") / s.at("soil_field_capacity"), s.at("phi2")), 1.0)} };
             return result;
         };
 };
@@ -492,6 +491,7 @@ class ModuleFactory {
             { "stomata_water_stress_linear",        &createModule<stomata_water_stress_linear>},
             { "stomata_water_stress_sigmoid",       &createModule<stomata_water_stress_sigmoid>},
             { "stomata_water_stress_exponential",   &createModule<stomata_water_stress_exponential>},
+            { "leaf_water_stress_exponential",      &createModule<leaf_water_stress_exponential>},
             { "biomass_leaf_n_limitation",          &createModule<biomass_leaf_n_limitation>}
         };
 
@@ -516,6 +516,7 @@ state_vector_map Gro(
         std::unique_ptr<IModule> const &growth_module,
         std::unique_ptr<IModule> const &senescence_module,
         std::unique_ptr<IModule> const &stomata_water_stress_module,
+        std::unique_ptr<IModule> const &leaf_water_stress_module,
 		double (*leaf_n_limitation)(state_map const &model_state));
 
 state_map Gro(

@@ -43,13 +43,10 @@ struct Can_Str {
 };
 
 struct ws_str {
-  double rcoefPhoto;
-  double rcoefSpleaf;
   double awc;
   double psim;
   double runoff;
   double Nleach;
-
 };
 
 struct soilML_str {

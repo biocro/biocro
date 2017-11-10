@@ -18,7 +18,8 @@ SEXP R_Gro(SEXP initial_state,
         SEXP soil_evaporation_module,
         SEXP growth_module,
         SEXP senescence_module,
-        SEXP water_stress_module)
+        SEXP stomata_water_stress_module,
+        SEXP leaf_water_stress_module)
 {
     try {
 
@@ -35,7 +36,8 @@ SEXP R_Gro(SEXP initial_state,
         unique_ptr<IModule> soil_evaporation = ModuleFactory()(CHAR(STRING_ELT(soil_evaporation_module, 0)));
         unique_ptr<IModule> growth = ModuleFactory()(CHAR(STRING_ELT(growth_module, 0)));
         unique_ptr<IModule> senescence = ModuleFactory()(CHAR(STRING_ELT(senescence_module, 0)));
-        unique_ptr<IModule> stomata_water_stress = ModuleFactory()(CHAR(STRING_ELT(water_stress_module, 0)));
+        unique_ptr<IModule> stomata_water_stress = ModuleFactory()(CHAR(STRING_ELT(stomata_water_stress_module, 0)));
+        unique_ptr<IModule> leaf_water_stress = ModuleFactory()(CHAR(STRING_ELT(leaf_water_stress_module, 0)));
 
         Rprintf("kaj\n");
         vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
@@ -64,7 +66,7 @@ SEXP R_Gro(SEXP initial_state,
         }
 
         state_vector_map result;
-        result = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, stomata_water_stress, biomass_leaf_nitrogen_limitation);
+        result = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, stomata_water_stress, leaf_water_stress, biomass_leaf_nitrogen_limitation);
         return (list_from_map(result));
 
     } catch (std::exception const &e) {
