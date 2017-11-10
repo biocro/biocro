@@ -172,7 +172,7 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
     double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("soil_water_content"),
                 s.at("soil_field_capacity"), s.at("soil_wilting_point"), s.at("windspeed"), s.at("rh"), s.at("rsec"), 
                 s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
-                s.at("specific_heat"), s.at("stefan_boltzman"));
+                s.at("specific_heat"), s.at("stefan_boltzman")) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
     double TotEvap = soilEvap + s.at("CanopyT");
 
     

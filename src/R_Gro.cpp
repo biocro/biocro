@@ -31,7 +31,6 @@ SEXP R_Gro(SEXP initial_state,
             return R_NilValue;
         }
 
-        Rprintf("alksjdf;aj\n");
         unique_ptr<IModule> canopy = ModuleFactory()(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
         unique_ptr<IModule> soil_evaporation = ModuleFactory()(CHAR(STRING_ELT(soil_evaporation_module, 0)));
         unique_ptr<IModule> growth = ModuleFactory()(CHAR(STRING_ELT(growth_module, 0)));
@@ -39,7 +38,6 @@ SEXP R_Gro(SEXP initial_state,
         unique_ptr<IModule> stomata_water_stress = ModuleFactory()(CHAR(STRING_ELT(stomata_water_stress_module, 0)));
         unique_ptr<IModule> leaf_water_stress = ModuleFactory()(CHAR(STRING_ELT(leaf_water_stress_module, 0)));
 
-        Rprintf("kaj\n");
         vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
             "LeafN_0", "vmax_n_intercept", "vmax1", "alphab1",
             "alpha1", "TTc", "temp", "tbase", "timestep",

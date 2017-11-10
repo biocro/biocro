@@ -604,10 +604,10 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
         Evaporation = (SlopeFS * PhiN + LHV * PsycParam * SoilBoundaryLayer * DeltaPVa) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
     }
 
-    Evaporation *= soil_area_sunlit_fraction * maximum_uptake_rate * 3600 * 1e-3 * 10000;  // Mg / ha / hr.  3600 s / hr. 1e-3 Mg / kg. 10000 m^2 / ha.
+    Evaporation *= soil_area_sunlit_fraction * maximum_uptake_rate;  // kg / m^2 / s.
     if (Evaporation < 0) Evaporation = 1e-6;  // Prevent odd values at very low light levels.
 
-    return Evaporation;  // Mg / ha / hr.
+    return Evaporation;  // kg / m^2 / s.
 }
 
 double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, double awc) {
@@ -831,7 +831,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
             Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, fieldc, wiltp, winds, RelH, rsec,
-                soil_clod_size, soil_reflectance, soil_transmission, specific_heat, stefan_boltzman );
+                soil_clod_size, soil_reflectance, soil_transmission, specific_heat, stefan_boltzman ) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
                to the amount of root in each respective layer.*/

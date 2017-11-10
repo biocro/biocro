@@ -233,12 +233,12 @@ diff(subns$substrate_pool_stem),
 subns$substrate_pool_stem[-nrow(subns)])
 
 
-all_state = c(glycine_max_initial_state, myparms, spline2_weather(8))
+all_state = c(glycine_max_initial_state, myparms, linear_from_spline_weather(8))
 system.time({
 test_state = state
-    for (t in seq(7, 300, length=2604)) {
+    for (t in seq(7, 300, length=15e3)) {
         linear_from_spline_weather(t)
-        Gro_ode(all_state, c('parameter_calculator', 'c3_canopy'), c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator'), check_parameters=FALSE)
+        Gro_ode(all_state, c('parameter_calculator', 'soil_type_selector', 'leaf_water_stress_exponential', 'stomata_water_stress_linear', 'c3_canopy'), c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator'), check_parameters=FALSE)
         #for (i in names(test_state)) {
             #if (is.integer(test_state[[i]]))
                 #test_state[[i]] = as.numeric(test_state[[i]])
@@ -266,8 +266,7 @@ x11(); xyplot(Grain ~ time, ns, type='l', auto=TRUE)
 x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, result, type='l', auto=TRUE)
 x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, result, type='l', auto=TRUE)
 
-plot(substrate_pool_grain ~ time, ns, type='l', subset=time>4614)
-lines(substrate_pool_grain ~ time, os, col='red', type='l')
+plot(substrate_pool_grain ~ time, result, type='l', subset=time>4614)
 
 x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, ns, type='l', auto=TRUE, subset=time > 4617 & time < 4618)
 x11(); xyplot(mass_fraction_leaf + mass_fraction_stem + mass_fraction_grain ~ time, ns, type='l', auto=TRUE, subset=time > 4617 & time < 4618)

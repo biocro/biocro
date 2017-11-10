@@ -31,17 +31,6 @@ struct Can_Str c3CanAC(double LAI,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation)
 {
-    const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
-
-    /* Need a different conversion factor for transpiration */
-    const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
-    /* For Transpiration */
-    /* 3600 - seconds per hour */
-    /* 1e-3 - millimoles per mole */
-    /* 18 - grams per mole for H2O */
-    /* 1e-6 - grams per  megagram */
-    /* 10000 - meters squared per hectare */
-
     double CanopyA = 0.0, CanopyT = 0.0, GCanopyA = 0.0;
 
     double IDir, IDiff;
@@ -113,17 +102,23 @@ struct Can_Str c3CanAC(double LAI,
         CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;
     }
 
-    /* These are micro mols of CO2 per m2 per sec for Assimilation
-       and mili mols of H2O per m2 per sec for Transpiration
-       Need to convert to 
-       3600 converts seconds to hours
-       10^-6 converts micro mols to mols
-       30 converts mols of CO2 to grams
-       (1/10^6) converts grams to Mg
-       10000 scales up to ha */
-    /* A similar conversion is made for water but
-       replacing 30 by 18 and mili mols are converted to
-       mols (instead of micro) */
+   /* CanopyA has units of micromole CO2 / m^2 / s.
+    * 3600 s / hr
+    * 10^-6 mol / micromole
+    * 30 g / (mol CO2)
+    * 10^-6 Mg / g
+    * 10000 m^2 / ha
+    */
+    const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
+
+   /* CanopyT has units of mmol H2O / m^2 / s.
+    * 3600 s / hr
+    * 10^-3 mol / mmol
+    * 18 g / (mol H2O)
+    * 10^-6 Mg / g
+    * 10000 m^2 / ha
+    */
+    const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
 
     struct Can_Str ans;
     ans.Assim = cf * CanopyA;

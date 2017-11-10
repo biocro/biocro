@@ -190,9 +190,7 @@ state_vector_map Gro(
             derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
 
-    Rprintf("a;sldfja)(*\n");
         derivs += growth_module->run(state_history, deriv_history, p);
-Rprintf("ff(af(sd(faj\n");
 
         derivs += senescence_module->run(state_history, deriv_history, p);
 
