@@ -279,7 +279,8 @@ state_map Gro(
     state_map p = state;
 
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-        p = combine_state(p, (*it)->run(p));
+        state_map temp = (*it)->run(p);
+        p.insert(temp.begin(), temp.end());
     }
 
     state_map derivs;
