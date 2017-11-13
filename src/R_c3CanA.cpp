@@ -112,15 +112,14 @@ extern "C" {
             error("This function cannot continue unless all state variables are set.");
         }
 
-        state_map ans;
-        ans = canopy.run(s);
+        state_map ans = canopy.run(s);
 
         if(ISNAN(ans.at("Assim"))) {
             error("Something is NA \n");
         }
 
         REAL(growth)[0] = ans.at("Assim");
-        REAL(trans)[0] = ans.at("Trans");
+        REAL(trans)[0] = ans.at("canopy_transpiration_rate");
         REAL(Ggrowth)[0] = ans.at("GrossAssim");
 
         SET_VECTOR_ELT(lists, 0, growth);

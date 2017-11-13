@@ -152,7 +152,7 @@ state_vector_map Gro(
         derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
         p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
-        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
+        p["CanopyT"] = derivs["canopy_transpiration_rate"] * p.at("timestep");
         p["Assim"] = derivs["Assim"];
         
         derivs += soil_evaporation_module->run(state_history, deriv_history, p);

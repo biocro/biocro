@@ -143,7 +143,7 @@ state_map c4_canopy::do_operation(state_map const &s) const
 
     state_map derivs;
     derivs["Assim"] = result.Assim;
-    derivs["Trans"] = result.Trans;
+    derivs["canopy_transpiration_rate"] = result.Trans;
     derivs["GrossAssim"] = result.GrossAssim;
 
     return (derivs);
@@ -161,7 +161,7 @@ state_map c3_canopy::do_operation(state_map const &s) const
 
     state_map derivs;
     derivs["Assim"] = result.Assim;
-    derivs["Trans"] = result.Trans;
+    derivs["canopy_transpiration_rate"] = result.Trans;
     derivs["GrossAssim"] = result.GrossAssim;
 
     return (derivs);
