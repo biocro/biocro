@@ -179,7 +179,7 @@ class utilization_senescence: public ISenescence_module {
 class utilization_growth_module : public IGrowth_module {
     public:
         utilization_growth_module()
-            : IGrowth_module(std::vector<std::string> {"Assim",
+            : IGrowth_module(std::vector<std::string> {"canopy_assimilation_rate",
                 "Leaf", "Stem", "Root", "Rhizome", "Grain",
                 "rate_constant_leaf", "rate_constant_stem", "rate_constant_root", "rate_constant_rhizome", "rate_constant_grain",
                 "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",

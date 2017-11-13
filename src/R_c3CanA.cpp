@@ -114,11 +114,11 @@ extern "C" {
 
         state_map ans = canopy.run(s);
 
-        if(ISNAN(ans.at("Assim"))) {
+        if(ISNAN(ans.at("canopy_assimilation_rate"))) {
             error("Something is NA \n");
         }
 
-        REAL(growth)[0] = ans.at("Assim");
+        REAL(growth)[0] = ans.at("canopy_assimilation_rate");
         REAL(trans)[0] = ans.at("canopy_transpiration_rate");
         REAL(Ggrowth)[0] = ans.at("GrossAssim");
 

@@ -51,7 +51,7 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	SET_VECTOR_ELT(lists,1,ASSV);
 	SET_VECTOR_ELT(lists,2,CiV);
 	SET_STRING_ELT(names,0,mkChar("Gs"));
-	SET_STRING_ELT(names,1,mkChar("Assim"));
+	SET_STRING_ELT(names,1,mkChar("canopy_assimilation_rate"));
 	SET_STRING_ELT(names,2,mkChar("Ci"));
 	setAttrib(lists,R_NamesSymbol,names);
 	UNPROTECT(5);   

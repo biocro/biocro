@@ -142,7 +142,7 @@ state_map c4_canopy::do_operation(state_map const &s) const
             (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("water_stress_approach"));
 
     state_map derivs;
-    derivs["Assim"] = result.Assim;
+    derivs["canopy_assimilation_rate"] = result.Assim;
     derivs["canopy_transpiration_rate"] = result.Trans;
     derivs["GrossAssim"] = result.GrossAssim;
 
@@ -160,7 +160,7 @@ state_map c3_canopy::do_operation(state_map const &s) const
             (int)s.at("water_stress_approach"), s.at("electrons_per_carboxylation"), s.at("electrons_per_oxygenation"));
 
     state_map derivs;
-    derivs["Assim"] = result.Assim;
+    derivs["canopy_assimilation_rate"] = result.Assim;
     derivs["canopy_transpiration_rate"] = result.Trans;
     derivs["GrossAssim"] = result.GrossAssim;
 
