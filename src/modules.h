@@ -430,7 +430,6 @@ class bucket_soil_drainage : public IModule {
         {
             constexpr double g = 9.8; // m / s^2. Acceleration due to gravity.
             constexpr double density_of_water_at_20_celcius = 998.2;  // kg m^-3.
-            constexpr double seconds_per_hour = 3600;
 
             double field_capacity = s.at("soil_field_capacity");  // m^3 / m^3.
             double wilting_point = s.at("soil_wilting_point");  // m^3 / m^3.
@@ -443,7 +442,8 @@ class bucket_soil_drainage : public IModule {
             double hydraulic_conductivity = s.at("soil_saturated_conductivity") * pow(s.at("soil_air_entry") / soil_matric_potential, 2 + 3 / s.at("soil_b_coefficient");  // kg s / m^3.
 
             double drainage = - hydraulic_conductivity * g / density_of_water_at_20_celcius;  // m / s.
-            double runoff = std::min(0, (water_capacity - saturation_capacity) / second_per_hour * soil_depth); // m / s. Get rid of any water in excess of the saturation point in one hour.
+            constexpr double runoff_rate = 1 / 3600;  // Runoff 1 m^3 / hr.
+            double runoff = std::min(0, runoff_rate * (water_capacity - saturation_capacity) * soil_depth); // m / s.
 
             state_map result { {"soil_water_content", s.at("precipitation_rate") - s.at("soil_evaporation_rate") - s.at("transpiration_rate") - runoff - drainage } };  // m / s;
             return result;
