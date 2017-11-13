@@ -43,7 +43,7 @@ state_map IModule::run(state_map const &state) const
             message << "The following required state variables are missing: " << join_string_vector(missing_state);
             throw std::out_of_range(message.str());
         } else {
-            throw std::out_of_range(oor.what());
+            throw std::out_of_range(std::string("Exception while running module \"") + _module_name + "\": " + oor.what());
         }
     }
 }
@@ -63,7 +63,7 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
             message << "The following required state variables are missing: " << join_string_vector(missing_state);
             throw std::out_of_range(message.str());
         } else {
-            throw std::out_of_range(oor.what());
+            throw std::out_of_range(std::string("Exception while running module \"") + _module_name + "\": " + oor.what());
         }
     }
 }
