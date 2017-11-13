@@ -438,12 +438,12 @@ class bucket_soil_drainage : public IModule {
             double soil_depth = s.at("soil_depth"); // meters;
 
             /* soil_matric_potential is calculated as per "Dynamic Simulation of Water Deficit Effects upon Maize Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
-            double soil_matric_potential = -exp(log(0.033) + log(field_capacity / awc) / log(field_capacity / wilting_point) * log(1.5 / 0.033)) * 1e3;  // This last term converts from MPa to kPa.
-            double hydraulic_conductivity = s.at("soil_saturated_conductivity") * pow(s.at("soil_air_entry") / soil_matric_potential, 2 + 3 / s.at("soil_b_coefficient");  // kg s / m^3.
+            double soil_matric_potential = -exp(log(0.033) + log(field_capacity / water_capacity) / log(field_capacity / wilting_point) * log(1.5 / 0.033)) * 1e3;  // This last term converts from MPa to kPa.
+            double hydraulic_conductivity = s.at("soil_saturated_conductivity") * pow(s.at("soil_air_entry") / soil_matric_potential, 2 + 3 / s.at("soil_b_coefficient"));  // kg s / m^3.
 
             double drainage = - hydraulic_conductivity * g / density_of_water_at_20_celcius;  // m / s.
             constexpr double runoff_rate = 1 / 3600;  // Runoff 1 m^3 / hr.
-            double runoff = std::min(0, runoff_rate * (water_capacity - saturation_capacity) * soil_depth); // m / s.
+            double runoff = std::min(0.0, runoff_rate * (water_capacity - saturation_capacity) * soil_depth); // m / s.
 
             state_map result { {"soil_water_content", s.at("precipitation_rate") - s.at("soil_evaporation_rate") - s.at("transpiration_rate") - runoff - drainage } };  // m / s;
             return result;
