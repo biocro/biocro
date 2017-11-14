@@ -40,10 +40,10 @@ state_map IModule::run(state_map const &state) const
         vector<string> missing_state = this->state_requirements_are_met(state);
         if (missing_state.size() > 0) {
             std::ostringstream message;
-            message << "The following required state variables are missing: " << join_string_vector(missing_state);
+            message << "The following state variables, required by " << _module_name << " are missing: " << join_string_vector(missing_state);
             throw std::out_of_range(message.str());
         } else {
-            throw std::out_of_range(std::string("Exception while running module \"") + _module_name + "\": " + oor.what());
+            throw std::out_of_range(std::string("Out of range exception while running module \"") + _module_name + "\": " + oor.what());
         }
     }
 }
@@ -60,10 +60,10 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
         vector<string> missing_state = this->state_requirements_are_met(state);
         if (missing_state.size() > 0) {
             std::ostringstream message;
-            message << "The following required state variables are missing: " << join_string_vector(missing_state);
+            message << "The following state variables, required by " << _module_name << " are missing: " << join_string_vector(missing_state);
             throw std::out_of_range(message.str());
         } else {
-            throw std::out_of_range(std::string("Exception while running module \"") + _module_name + "\": " + oor.what());
+            throw std::out_of_range(std::string("Out of range exception while running module \"") + _module_name + "\": " + oor.what());
         }
     }
 }
