@@ -88,7 +88,13 @@ Gro <- function(initial_values, parameters, varying_parameters, modules)
             stop(error_message)
         }
     }
-    module_names = paste(c('canopy', 'soil', 'growth', 'senescence'), '_module_name', sep='')
+
+    module_names = paste(c('canopy', 'soil', 'growth', 'senescence', 'stomata_water_stress', 'leaf_water_stress'), '_module_name', sep='')
+    if (any(unused_modules_ind <- !names(modules) %in% module_names)) {
+        message = 'The following modules were supplied, but are not used by this function: '
+        unused_modules = paste(names(modules)[unused_modules_ind], collaspe=', ')
+        stop(paste(message, unused_modules, ',', sep=''))
+    }
     
     if (any(null_ind <- unlist(lapply(modules[module_names], is.null)))) {
         message = 'The following modules names are NULL, but they must be defined: '
@@ -108,13 +114,13 @@ Gro_ode <- function(state, steady_state_modules, derivative_modules, check_param
 {
     if (check_parameters) {
         if (class(state) != 'list') {
-            #stop('"state" must be a list.')
+            stop('"state" must be a list.')
         }
         
         if (length(state) != length(unlist(state))) {
-            #item_lengths = unlist(lapply(state, length))
-            #error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-            #stop(error_message)
+            item_lengths = unlist(lapply(state, length))
+            error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+            stop(error_message)
         }
         
         state = lapply(state, as.numeric)  # C++ requires that all the variables have type `double`.
