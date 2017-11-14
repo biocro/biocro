@@ -427,20 +427,20 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
     double kRoot = p.at("kRoot");
     double kRhizome = p.at("kRhizome");
     double kGrain = p.at("kGrain");
-    double CanopyA = p.at("CanopyA");
+    double assimilation = p.at("canopy_assimilation_rate");
     double nonleaf_carbon_flux;
 
-    if (CanopyA < 0) {
+    if (assimilation < 0) {
         nonleaf_carbon_flux = 0;
     } else {
-        nonleaf_carbon_flux = CanopyA;
+        nonleaf_carbon_flux = assimilation;
     }
 
     if (kLeaf > 0) {
-        if (CanopyA < 0) {  // If CanopyA is negative then leaves are respiring more than photosynthesizing.
-            derivs["newLeafcol"] = CanopyA;  // CanopyA is negative here, so this removes leaf mass.
+        if (assimilation < 0) {  // If assimilation is negative then leaves are respiring more than photosynthesizing.
+            derivs["newLeafcol"] = assimilation;  // assimilation is negative here, so this removes leaf mass.
         } else {
-            derivs["newLeafcol"] = CanopyA * kLeaf; // * p.at("LeafWS")[t];
+            derivs["newLeafcol"] = assimilation * kLeaf; // * p.at("LeafWS")[t];
         }
         /*  The major effect of water stress is on leaf expansion rate. See Boyer (1970)
             Plant. Phys. 46, 233-235. For this the water stress coefficient is different
