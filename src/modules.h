@@ -470,14 +470,12 @@ class bucket_soil_drainage : public IModule {
             double drainage = - hydraulic_conductivity * g / density_of_water_at_20_celcius;  // m / s.
             if (water_content < field_capacity) drainage = 0;
             constexpr double runoff_rate = 1 / 3600;  // Runoff 1 m^3 / hr.
-            double runoff = std::min(0.0, runoff_rate * (water_content - saturation_capacity) * soil_depth); // m / s.
+            double runoff = std::min(0.0, water_content - saturation_capacity) * runoff_rate * soil_depth; // m / s.
 
             double transpiration_rate = s.at("canopy_transpiration_rate") / density_of_water_at_20_celcius * 1000 / 10000 / 3600;  // m / s.
             double evaporation_rate = s.at("soil_evaporation_rate") / density_of_water_at_20_celcius;  // m / s.
 
-            double test = (precipitation_rate - transpiration_rate - evaporation_rate - runoff - drainage) / soil_depth * 3600;
-
-            state_map result { {"soil_water_content", test} };  // m^3 / m^3 / s;
+            state_map result { {"soil_water_content", (precipitation_rate - transpiration_rate - evaporation_rate - runoff - drainage) / soil_depth * 3600} };  // m^3 / m^3 / hr;
             return result;
         };
 };
