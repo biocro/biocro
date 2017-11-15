@@ -468,7 +468,6 @@ class bucket_soil_drainage : public IModule {
             double hydraulic_conductivity = s.at("soil_saturated_conductivity") * pow(s.at("soil_air_entry") / soil_matric_potential, 2 + 3 / s.at("soil_b_coefficient"));  // kg s / m^3.
 
             double drainage = - hydraulic_conductivity * g / density_of_water_at_20_celcius;  // m / s.
-            if (water_content < field_capacity) drainage = 0;
             constexpr double runoff_rate = 1 / 3600;  // Runoff 1 m^3 / hr.
             double runoff = std::min(0.0, water_content - saturation_capacity) * runoff_rate * soil_depth; // m / s.
 
