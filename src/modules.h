@@ -175,10 +175,7 @@ class utilization_senescence: public ISenescence_module {
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                     "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
-                    "resistance_leaf_to_stem",
-                    "resistance_stem_to_grain",
-                    "resistance_stem_to_root",
-                    "resistance_stem_to_rhizome"},
+                    "resistance_leaf_to_stem", "resistance_stem_to_grain", "resistance_stem_to_root", "resistance_stem_to_rhizome"},
                     std::vector<std::string> {})
         {}
     private:
@@ -194,15 +191,8 @@ class utilization_growth_module : public IGrowth_module {
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "rate_constant_leaf", "rate_constant_stem", "rate_constant_root", "rate_constant_rhizome", "rate_constant_grain",
                     "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
-                    "resistance_leaf_to_stem",
-                    "resistance_stem_to_grain",
-                    "resistance_stem_to_root",
-                    "resistance_stem_to_rhizome",
-                    "substrate_pool_leaf",
-                    "substrate_pool_stem",
-                    "substrate_pool_root",
-                    "substrate_pool_rhizome",
-                    "substrate_pool_grain"},
+                    "resistance_leaf_to_stem", "resistance_stem_to_grain", "resistance_stem_to_root", "resistance_stem_to_rhizome",
+                    "substrate_pool_leaf", "substrate_pool_stem", "substrate_pool_root", "substrate_pool_rhizome", "substrate_pool_grain"},
                     std::vector<std::string> {})
         {}
     private:
@@ -218,10 +208,7 @@ class utilization_growth_and_senescence_module: public ISenescence_module {
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                     "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
-                    "resistance_leaf_to_stem",
-                    "resistance_stem_to_grain",
-                    "resistance_stem_to_root",
-                    "resistance_stem_to_rhizome",
+                    "resistance_leaf_to_stem", "resistance_stem_to_grain", "resistance_stem_to_root", "resistance_stem_to_rhizome",
                     "rate_constant_leaf", "rate_constant_stem", "rate_constant_root", "rate_constant_rhizome",
                     "remobilization_fraction", "grain_TTc"},
                     std::vector<std::string> {})
@@ -239,10 +226,7 @@ class utilization_growth_flowering_module: public ISenescence_module {
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                     "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
-                    "resistance_leaf_to_stem",
-                    "resistance_stem_to_grain",
-                    "resistance_stem_to_root",
-                    "resistance_stem_to_rhizome",
+                    "resistance_leaf_to_stem", "resistance_stem_to_grain", "resistance_stem_to_root", "resistance_stem_to_rhizome",
                     "GI_on", "GI_off", "FKF1_on", "FKF1_off", "CDF_on", "CDF_off", "FT_on", "FT_off", "FT_inhibition", "FKF1_timing", "CDF_timing", "dawn"},
                     std::vector<std::string> {})
         {}
@@ -322,10 +306,9 @@ class stomata_water_stress_linear : public IModule {
     private:
         state_map do_operation(state_map const &s) const
         {
-            state_map result;
             double slope = 1 / (s.at("soil_field_capacity") - s.at("soil_wilting_point"));
             double intercept = 1 - s.at("soil_field_capacity") * slope;
-            result["StomataWS"] = std::min(std::max(slope * s.at("soil_water_content") + intercept, 0.0), 1.0);
+            state_map result { {"StomataWS", std::min(std::max(slope * s.at("soil_water_content") + intercept, 0.0), 1.0)} };
             return result;
         };
 };
@@ -453,7 +436,7 @@ class bucket_soil_drainage : public IModule {
     private:
         state_map do_operation(state_map const &s) const
         {
-            constexpr double g = 9.8; // m / s^2. Acceleration due to gravity.
+            constexpr double g = 9.8;  // m / s^2. Acceleration due to gravity.
             constexpr double density_of_water_at_20_celcius = 998.2;  // kg m^-3.
 
             double field_capacity = s.at("soil_field_capacity");  // m^3 / m^3.
@@ -468,6 +451,7 @@ class bucket_soil_drainage : public IModule {
             double hydraulic_conductivity = s.at("soil_saturated_conductivity") * pow(s.at("soil_air_entry") / soil_matric_potential, 2 + 3 / s.at("soil_b_coefficient"));  // kg s / m^3.
 
             double drainage = - hydraulic_conductivity * g / density_of_water_at_20_celcius;  // m / s.
+
             constexpr double runoff_rate = 1 / 3600;  // Runoff 1 m^3 / hr.
             double runoff = std::min(0.0, water_content - saturation_capacity) * runoff_rate * soil_depth; // m / s.
 
@@ -476,7 +460,7 @@ class bucket_soil_drainage : public IModule {
 
             state_map result { {"soil_water_content", (precipitation_rate - transpiration_rate - evaporation_rate - runoff - drainage) / soil_depth * 3600} };  // m^3 / m^3 / hr;
             return result;
-        };
+        }
 };
 
 class linear_vmax_from_leaf_n : public IModule {
@@ -489,8 +473,7 @@ class linear_vmax_from_leaf_n : public IModule {
     private:
         state_map do_operation(state_map const &s) const
         {
-            state_map result;
-            result["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmax_n_intercept") + s.at("vmax1");
+            state_map result { {"vmax", (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmax_n_intercept") + s.at("vmax1") } };
             return result;
         }
 };
@@ -518,17 +501,18 @@ class soil_type_selector : public IModule {
         state_map do_operation(state_map const &s) const
         {
             soilText_str soil_properties = get_soil_properties(s.at("soil_type_indicator"));
-            state_map result;
-            result["soil_silt_content"] = soil_properties.silt;
-            result["soil_clay_content"] = soil_properties.clay;
-            result["soil_sand_content"] = soil_properties.sand;
-            result["soil_air_entry"] = soil_properties.air_entry;
-            result["soil_b_coefficient"] = soil_properties.b;
-            result["soil_saturated_conductivity"] = soil_properties.Ks;
-            result["soil_saturation_capacity"] = soil_properties.satur;
-            result["soil_field_capacity"] = soil_properties.fieldc;
-            result["soil_wilting_point"] = soil_properties.wiltp;
-            result["soil_bulk_density"] = soil_properties.bulk_density;
+            state_map result {
+                { "soil_silt_content",  soil_properties.silt },
+                { "soil_clay_content",  soil_properties.clay },
+                { "soil_sand_content",  soil_properties.sand },
+                { "soil_air_entry",  soil_properties.air_entry },
+                { "soil_b_coefficient",  soil_properties.b },
+                { "soil_saturated_conductivity",  soil_properties.Ks },
+                { "soil_saturation_capacity",  soil_properties.satur },
+                { "soil_field_capacity",  soil_properties.fieldc },
+                { "soil_wilting_point",  soil_properties.wiltp },
+                { "soil_bulk_density",  soil_properties.bulk_density }
+            };
             return result;
         }
 };
@@ -543,9 +527,8 @@ class thermal_time_accumulator : public IModule {
     private:
         state_map do_operation(state_map const &s) const
         {
-            state_map result;
             double temp_diff = s.at("temp") - s.at("tbase");
-            result["TTc"] = (temp_diff > 0) ? temp_diff / 24 : 0;
+            state_map result { {"TTc", (temp_diff > 0) ? temp_diff / 24 : 0 } };
             return result;
         }
 };
