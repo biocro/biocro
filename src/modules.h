@@ -175,7 +175,8 @@ class utilization_senescence: public ISenescence_module {
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                     "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
-                    "resistance_leaf_to_stem", "resistance_stem_to_grain", "resistance_stem_to_root", "resistance_stem_to_rhizome"},
+                    "resistance_leaf_to_stem", "resistance_stem_to_grain", "resistance_stem_to_root", "resistance_stem_to_rhizome",
+                    "remobilization_fraction", "grain_TTc"},
                     std::vector<std::string> {})
         {}
     private:
