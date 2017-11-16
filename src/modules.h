@@ -173,6 +173,7 @@ class utilization_senescence: public ISenescence_module {
             : ISenescence_module("utilization_senescence",
                     std::vector<std::string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
+                    "rate_constant_leaf_senescence", "rate_constant_stem_senescence", "rate_constant_root_senescence", "rate_constant_rhizome_senescence", "rate_constant_grain_senescence",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                     "KmLeaf", "KmStem", "KmRoot", "KmRhizome", "KmGrain",
                     "resistance_leaf_to_stem", "resistance_stem_to_grain", "resistance_stem_to_root", "resistance_stem_to_rhizome",
