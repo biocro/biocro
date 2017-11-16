@@ -393,7 +393,7 @@ struct ET_Str EvapoTrans2(
        Thornley and Johnson pg 400 */
     /* This values can not possibly be higher than 650 */
     if (totalradiation > 650) {
-        throw std::range_error("Thrown in EvapoTrans2: total radiation is too high."); 
+        throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high."); 
     }
 
     const double Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
