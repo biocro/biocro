@@ -12,7 +12,7 @@
 state_map utilization_growth_and_senescence_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
     // BioCro uses a fixed time-step integrator, which works very poorly with this growth model. The while loop here is a crappy integrator that checks whether the values are feasible. If they are not feasible, it breaks the time period into a smaller period and integrates that. It repeats until the integration produces valid results.
-    size_t max_loops = 5;
+    size_t max_loops = 3;
     state_map derivs;
     state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
 
@@ -20,7 +20,7 @@ state_map utilization_growth_and_senescence_module::do_operation(state_vector_ma
     std::unique_ptr<IModule> senescence_module = std::unique_ptr<IModule>(new utilization_senescence);
 
     double total_time = s.at("timestep"); // hours
-    size_t sub_time_steps = total_time * 60;  // At the start, integrate over each minute.
+    size_t sub_time_steps = total_time * 30;  // At the start, integrate over two minute intervals.
 
     // BioCro uses a fixed time-step integrator, which works very poorly with this growth model. The while loop here is a crappy integrator that checks whether the values are feasible. If they are not feasible, it breaks the time period into a smaller period and integrates that. It repeats until the integration produces valid results.
     size_t counter = 0;
