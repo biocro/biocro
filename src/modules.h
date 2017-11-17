@@ -310,7 +310,7 @@ class stomata_water_stress_linear : public IModule {
         {
             double slope = 1 / (s.at("soil_field_capacity") - s.at("soil_wilting_point"));
             double intercept = 1 - s.at("soil_field_capacity") * slope;
-            state_map result { {"StomataWS", std::min(std::max(slope * s.at("soil_water_content") + intercept, 0.0), 1.0)} };
+            state_map result { {"StomataWS", std::min(std::max(slope * s.at("soil_water_content") + intercept, 1e-10), 1.0)} };
             return result;
         };
 };
@@ -326,7 +326,7 @@ class stomata_water_stress_sigmoid : public IModule {
         state_map do_operation(state_map const &s) const
         {
             const double phi10 = (s.at("soil_field_capacity") + s.at("soil_wilting_point")) / 2;
-            state_map result { {"StomataWS", std::min(std::max(1 / (1 + exp((phi10 - s.at("soil_water_content")) / s.at("phi1"))), 0.0), 1.0)} };
+            state_map result { {"StomataWS", std::min(std::max(1 / (1 + exp((phi10 - s.at("soil_water_content")) / s.at("phi1"))), 1e-10), 1.0)} };
             return result;
         };
 };
@@ -347,7 +347,7 @@ class stomata_water_stress_exponential : public IModule {
             double slope = (1 - wilting_point) / (field_capacity - wilting_point);
             double intercept = 1 - field_capacity * slope;
             double theta = slope * s.at("soil_water_content") + intercept;
-            state_map result { {"StomataWS", (1 - exp(-2.5 * (theta - wilting_point)/(1 - wilting_point))) / (1 - exp(-2.5))} };
+            state_map result { {"StomataWS", std::min(std::max((1 - exp(-2.5 * (theta - wilting_point)/(1 - wilting_point))) / (1 - exp(-2.5)), 1e-10), 1.0)} };
             return result;
         };
 };
@@ -362,7 +362,7 @@ class leaf_water_stress_exponential : public IModule {
     private:
         state_map do_operation(state_map const &s) const
         {
-            state_map result { {"LeafWS",  std::min(pow(s.at("soil_water_content") / s.at("soil_field_capacity"), s.at("phi2")), 1.0)} };
+            state_map result { {"LeafWS",  std::min(std::max(pow(s.at("soil_water_content") / s.at("soil_field_capacity"), s.at("phi2")), 1e-10), 1.0)} };
             return result;
         };
 };
