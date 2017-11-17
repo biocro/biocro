@@ -173,31 +173,16 @@ partial_gro = function(initial_values, parameters, varying_parameters, modules, 
     }
 }
 
-Gro_deriv = function(parameters, varying_parameters, steady_state_modules, derivative_modules, reporter=NULL) {
-    if (is.null(reporter)) {
-        ode = function(t, state, parms) {
-            vp = varying_parameters(t)
-            all_state = c(state, parameters, vp)
-            #result = Gro_ode(all_state, steady_state_modules, derivative_modules, check_parameters=FALSE)
-            result = .Call(BioCro:::R_Gro_ode, all_state, steady_state_modules, derivative_modules)
-            result[setdiff(names(state), names(result))] = 0
-            derivatives = result[names(state)]
-            state_of_interest = c(result[setdiff(names(result), names(state))], vp)
-            return(list(derivatives, c(state_of_interest, derivatives)))
-        }
-    } else {  # This is identical to the previous function, but as an extra line to call the reporter.
-        ode = function(t, state, parms) {
-            vp = varying_parameters(t)
-            all_state = c(state, parameters, vp)
-            #result = Gro_ode(all_state, steady_state_modules, derivative_modules, check_parameters=FALSE)
-            result = .Call(BioCro:::R_Gro_ode, all_state, steady_state_modules, derivative_modules)
-            result[setdiff(names(state), names(result))] = 0
-            derivatives = result[names(state)]
-            state_of_interest = c(result[setdiff(names(result), names(state))], vp)
-            reporter$update(c(state_of_interest[setdiff(names(state_of_interest), names(all_state))], all_state, derivatives), t)
-            return(list(derivatives, c(state_of_interest, derivatives)))
-        }
+Gro_deriv = function(parameters, varying_parameters, steady_state_modules, derivative_modules) {
+    function(t, state, parms) {
+        vp = varying_parameters(t)
+        all_state = c(state, parameters, vp)
+        #result = Gro_ode(all_state, steady_state_modules, derivative_modules, check_parameters=FALSE)
+        result = .Call(BioCro:::R_Gro_ode, all_state, steady_state_modules, derivative_modules)
+        result[setdiff(names(state), names(result))] = 0
+        derivatives = result[names(state)]
+        state_of_interest = c(result[setdiff(names(result), names(state))], vp)
+        return(list(derivatives, c(state_of_interest, derivatives)))
     }
-    return(list(func=compiler::cmpfun(ode), reporter=reporter))
 }
 

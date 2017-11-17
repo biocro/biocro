@@ -26,8 +26,6 @@ linear_from_spline_weather = interpolater(as.data.frame(spline_weather(seq(1, 87
 #linear_weather = interpolater(weather05, 'time', approxfun)
 #x11(); xyplot(linear_weather(times)[[var]] + spline_weather(times)[[var]] + linear_from_spline_weather(times)[[var]] ~ times, type='l', auto=TRUE)
 
-#my_timer = combine_reporters(list(time_reporter(), state_reporter()))
-my_timer = time_reporter()
 
 myparms = glycine_max_parameters
 myparms$Sp_thermal_time_decay = 0
@@ -35,23 +33,25 @@ myparms$rate_constant_root = 2
 myparms$rate_constant_grain = 5
 myparms$rate_constant_leaf = 1
 myparms$soil_type_indicator = 6
-gro_func = Gro_deriv(myparms, linear_from_spline_weather, steady_state_modules=c('soil_type_selector', 'leaf_water_stress_exponential', 'stomata_water_stress_linear', 'parameter_calculator', 'c3_canopy', 'soil_evaporation'), derivative_modules=c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator', 'bucket_soil_drainage'), my_timer)
+gro_func = Gro_deriv(myparms, linear_from_spline_weather, steady_state_modules=c('soil_type_selector', 'leaf_water_stress_exponential', 'stomata_water_stress_linear', 'parameter_calculator', 'c3_canopy', 'soil_evaporation'), derivative_modules=c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator', 'bucket_soil_drainage'))
+gro_reporter = combine_reporters(list(time_reporter(), state_reporter()), 
+    gro_func$func
+)
 
 (previous_times = rbind(previous_times, system.time({
     #gro_func$reporter$reset()
     start_row = 2953
-    sim_rows = 7000 - start_row #nrow(weather05)
+    sim_rows = 5000 - start_row #nrow(weather05)
     result = as.data.frame(lsodes(unlist(glycine_max_initial_state),
         times=seq(start_row, sim_rows + start_row, length=sim_rows),
-        gro_func$func,
+        gro_reporter$ode,
         atol=1e-4,
         rtol=1e-4,
         parms=0))
     })
 ))
 
-
-ns = my_timer$state()
+ns = gro_reporter$state()
 subns = subset(ns, time > 4617.4 & time < 4617.6)
 subns[grepl("(substrate_|transport_|mass_|utilization_|\\<(Leaf|Stem|Root|Rhizome|Grain)\\>|start_grain|d_grain|time)", names(subns))]
 
@@ -77,9 +77,9 @@ test_state = state
     }
 })
 
-my_timer$counter()
-x11(); densityplot(my_timer$iter_times(), plot.points=FALSE)
-x11(); xyplot(my_timer$iter_times() ~ seq_along(my_timer$iter_times()), type='l')
+gro_reporter$counter()
+x11(); densityplot(gro_reporter$iter_times(), plot.points=FALSE)
+x11(); xyplot(gro_reporter$iter_times() ~ seq_along(gro_reporter$iter_times()), type='l')
 
 climate = weather05
 climate$TTc = c(0, cumsum((climate$temp - 10) * as.numeric(climate$temp > 10))[-nrow(climate)]) / 24
