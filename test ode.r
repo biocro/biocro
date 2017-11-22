@@ -35,7 +35,7 @@ myparms$rate_constant_leaf = 1
 myparms$soil_type_indicator = 6
 gro_func = Gro_deriv(myparms, linear_from_spline_weather, steady_state_modules=c('soil_type_selector', 'leaf_water_stress_exponential', 'stomata_water_stress_linear', 'parameter_calculator', 'c3_canopy', 'soil_evaporation'), derivative_modules=c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator', 'bucket_soil_drainage'))
 gro_reporter = combine_reporters(list(time_reporter(), state_reporter()), 
-    gro_func$func
+    gro_func
 )
 
 (previous_times = rbind(previous_times, system.time({
