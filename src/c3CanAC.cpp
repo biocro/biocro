@@ -27,6 +27,7 @@ struct Can_Str c3CanAC(double LAI,
 		int lnfun,
         double chil,
 		double StomataWS,
+        double growth_respiration_fraction,
 		int water_stress_approach,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation)
@@ -121,7 +122,7 @@ struct Can_Str c3CanAC(double LAI,
     const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
 
     struct Can_Str ans;
-    ans.Assim = cf * CanopyA;
+    ans.Assim = cf * CanopyA * (1.0 - growth_respiration_fraction);
     ans.Trans = cf2 * CanopyT; 
     ans.GrossAssim = cf * GCanopyA;
     return(ans);

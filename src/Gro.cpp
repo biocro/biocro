@@ -151,7 +151,7 @@ state_vector_map Gro(
 
         derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
-        p["CanopyA"] = derivs["canopy_assimilation_rate"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
+        p["CanopyA"] = derivs["canopy_assimilation_rate"] * p.at("timestep");
         p["CanopyT"] = derivs["canopy_transpiration_rate"] * p.at("timestep");
         p["canopy_assimilation_rate"] = derivs["canopy_assimilation_rate"];
         

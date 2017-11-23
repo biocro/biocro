@@ -17,10 +17,11 @@ struct Can_Str CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
 		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq, double StomataWS, int water_stress_approach);
          
 struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
-                       double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Jmax,
-  	                   double Rd, double Catm, double o2, double b0, double b1,
-                       double theta, double kd, double heightf,
-		                    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double chil, double StomataWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
+                       double RH, double WindSpeed, double lat, int nlayers, double Vmax,
+                       double Jmax, double Rd, double Catm, double o2, double b0,
+                       double b1, double theta, double kd, double heightf, double leafN,
+                       double kpLN, double lnb0, double lnb1, int lnfun, double chil,
+                       double StomataWS, double growth_respiration_fraction, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
                         
 
 struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime);
