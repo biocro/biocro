@@ -122,8 +122,8 @@ struct Can_Str c3CanAC(double LAI,
     const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
 
     struct Can_Str ans;
-    ans.Assim = cf * CanopyA * (1.0 - growth_respiration_fraction);
-    ans.Trans = cf2 * CanopyT; 
+    ans.Assim = cf * CanopyA * (1.0 - growth_respiration_fraction);  // Mg / ha / hr.
+    ans.Trans = cf2 * CanopyT;   // Mg / ha / hr.
     ans.GrossAssim = cf * GCanopyA;
     return(ans);
 }

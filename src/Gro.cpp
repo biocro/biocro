@@ -23,7 +23,7 @@ state_vector_map Gro(
         state_map const &invariant_parameters,
         state_vector_map const &varying_parameters,
         std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-        std::unique_ptr<IModule> const &soil_evaporation_module,
+        std::unique_ptr<IModule> const &soil_water_module,
         std::unique_ptr<IModule> const &growth_module,
         std::unique_ptr<IModule> const &senescence_module,
         std::unique_ptr<IModule> const &stomata_water_stress_module,
@@ -81,6 +81,8 @@ state_vector_map Gro(
 
     p["CanopyA"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
     p["canopy_assimilation_rate"] = 0;
+    std::unique_ptr<IModule> const soil_evaporation_module = ModuleFactory()("soil_evaporation");
+    p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
 
     vector<string> missing_state;
     vector<string> temp;
@@ -88,7 +90,7 @@ state_vector_map Gro(
     temp = canopy_photosynthesis_module->state_requirements_are_met(p); 
     missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
 
-    temp = soil_evaporation_module->state_requirements_are_met(p); 
+    temp = soil_water_module->state_requirements_are_met(p); 
     missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
 
     temp = senescence_module->state_requirements_are_met(p); 
@@ -151,11 +153,12 @@ state_vector_map Gro(
 
         derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
-        p["CanopyA"] = derivs["canopy_assimilation_rate"] * p.at("timestep");
+        p["CanopyA"] = derivs["canopy_assimilation_rate"];
         p["CanopyT"] = derivs["canopy_transpiration_rate"] * p.at("timestep");
         p["canopy_assimilation_rate"] = derivs["canopy_assimilation_rate"];
+
+        p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
         
-        derivs += soil_evaporation_module->run(state_history, deriv_history, p);
 
         //soilText_str soTexS = get_soil_properties(p.at("soil_type_indicator"));
         //double wiltp = soTexS.wiltp;
@@ -165,7 +168,7 @@ state_vector_map Gro(
 
         //double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soil_depth"));
         //double root_depth_fraction = root_depth / p.at("soil_depth");
-        //double evaporation_rate = (derivs.at("soilEvap") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth;
+        //double evaporation_rate = (p.at("soil_evaporation_rate") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth;
         //double root_available_water_fraction = fmax(fmin(1 + (p.at("waterCont") / fieldc - 1) / root_depth_fraction, 1), 0);
         //double root_available_water_fraction = fmin(1 - (fieldc - p.at("soil_water_content")) / root_depth_fraction, 1);
         //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (p.at("waterCont") - wiltp), 1), 0);
@@ -190,7 +193,9 @@ state_vector_map Gro(
             derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
         }
 
-        derivs += growth_module->run(state_history, deriv_history, p);
+        derivs += growth_module->run(state_history, deriv_history, p) * p.at("timestep");
+
+        derivs += soil_water_module->run(state_history, deriv_history, p) * s.at("timestep");
 
         derivs += senescence_module->run(state_history, deriv_history, p);
 
@@ -233,7 +238,7 @@ state_vector_map Gro(
         results["vmax"].push_back(p["vmax"]);
         results["alpha"].push_back(p["alpha"]);
         results["specific_leaf_area"].push_back(p["Sp"]);
-        results["soil_evaporation"].push_back(derivs["soilEvap"]);
+        results["soil_evaporation_rate"].push_back(p["soil_evaporation_rate"]);
         //results["kLeaf"].push_back(kLeaf);
         results["newLeafcol"].push_back(derivs["newLeafcol"]);
         results["newStemcol"].push_back(derivs["newStemcol"]);

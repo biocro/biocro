@@ -104,7 +104,7 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
                     std::vector<std::string> {"lai", "temp", "solar", "soil_water_content",
                     "soil_field_capacity", "soil_wilting_point", "windspeed", "rh", "rsec",
                     "CanopyT", "precip", "soil_depth", "phi1", "phi2",
-                    "StomataWS", "LeafWS"},
+                    "StomataWS", "LeafWS", "soil_evaporation_rate"},
                     std::vector<std::string> {})
         {}
     private:

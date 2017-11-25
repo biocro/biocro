@@ -142,8 +142,8 @@ state_map c4_canopy::do_operation(state_map const &s) const
             (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("water_stress_approach"));
 
     state_map derivs;
-    derivs["canopy_assimilation_rate"] = result.Assim;
-    derivs["canopy_transpiration_rate"] = result.Trans;
+    derivs["canopy_assimilation_rate"] = result.Assim;  // Mg / ha / hr.
+    derivs["canopy_transpiration_rate"] = result.Trans;  // Mg / ha / hr.
     derivs["GrossAssim"] = result.GrossAssim;
 
     return (derivs);
@@ -160,8 +160,8 @@ state_map c3_canopy::do_operation(state_map const &s) const
             s.at("StomataWS"), s.at("growth_respiration_fraction"), (int)s.at("water_stress_approach"), s.at("electrons_per_carboxylation"), s.at("electrons_per_oxygenation"));
 
     state_map derivs;
-    derivs["canopy_assimilation_rate"] = result.Assim;
-    derivs["canopy_transpiration_rate"] = result.Trans;
+    derivs["canopy_assimilation_rate"] = result.Assim;  // Mg / ha / hr
+    derivs["canopy_transpiration_rate"] = result.Trans;  // Mg / ha / hr
     derivs["GrossAssim"] = result.GrossAssim;
 
     return (derivs);
@@ -169,19 +169,14 @@ state_map c3_canopy::do_operation(state_map const &s) const
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
-    double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("soil_water_content"),
-                s.at("soil_field_capacity"), s.at("soil_wilting_point"), s.at("windspeed"), s.at("rh"), s.at("rsec"), 
-                s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
-                s.at("specific_heat"), s.at("stefan_boltzman")) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
+    double soilEvap = s.at("soil_evaporation_rate") * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
     double TotEvap = soilEvap + s.at("CanopyT");
-
     
     struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soil_depth"), s.at("soil_field_capacity"),
             s.at("soil_wilting_point"), s.at("phi1"), s.at("phi2"), s.at("soil_saturation_capacity"), s.at("soil_sand_content"),
             s.at("soil_saturated_conductivity"), s.at("soil_air_entry"), s.at("soil_b_coefficient"));
 
     state_map derivs;
-    derivs["soilEvap"] = soilEvap;
     derivs["soil_water_content"] = WaterS.awc - s.at("soil_water_content");
     return (derivs);
 }

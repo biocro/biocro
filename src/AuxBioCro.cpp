@@ -693,12 +693,11 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
     if (npaw < 0) npaw = 0.0;
     double awc = npaw + wiltp;
 
-    ws_str tmp;
-
     /* Calculating the soil water potential based on equations from Norman and Campbell */
     /* tmp.psim = soTexS.air_entry * pow((awc/soTexS.fieldc*1.1),-soTexS.b); */
     /* New version of the soil water potential is based on
      * "Dynamic Simulation of Water Deficit Effects upon Maize Yield" R. F. Grant Agricultural Systems. 33(1990) 13-39. */
+    ws_str tmp;
     tmp.psim = -exp(log(0.033) + (log(fieldc) - log(awc)) / (log(fieldc) - log(wiltp)) * (log(1.5) - log(0.033))) * 1e3; /* This last term converts from MPa to kPa */
 
     /* This is drainage */
