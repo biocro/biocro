@@ -151,20 +151,17 @@ state_vector_map Gro(
         p["kGrain"] = dbpS.kGrain;
         p["kRhizome"] = dbpS.kRhiz;
 
-        derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
+        state_map temp_map = canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
-        p["CanopyA"] = derivs["canopy_assimilation_rate"];
-        p["CanopyT"] = derivs["canopy_transpiration_rate"] * p.at("timestep");
-        p["canopy_assimilation_rate"] = derivs["canopy_assimilation_rate"];
+        p["CanopyA"] = temp_map["canopy_assimilation_rate"];
+        p["CanopyT"] = temp_map["canopy_transpiration_rate"] * p.at("timestep");
+        p["canopy_assimilation_rate"] = temp_map["canopy_assimilation_rate"];
 
         p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
         
-
         //soilText_str soTexS = get_soil_properties(p.at("soil_type_indicator"));
         //double wiltp = soTexS.wiltp;
         //double fieldc = soTexS.fieldc;
-
-
 
         //double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soil_depth"));
         //double root_depth_fraction = root_depth / p.at("soil_depth");
@@ -195,7 +192,7 @@ state_vector_map Gro(
 
         derivs += growth_module->run(state_history, deriv_history, p) * p.at("timestep");
 
-        derivs += soil_water_module->run(state_history, deriv_history, p) * s.at("timestep");
+        derivs += soil_water_module->run(state_history, deriv_history, p) * p.at("timestep");
 
         derivs += senescence_module->run(state_history, deriv_history, p);
 
