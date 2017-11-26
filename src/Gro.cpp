@@ -83,6 +83,8 @@ state_vector_map Gro(
     std::unique_ptr<IModule> const soil_evaporation_module = ModuleFactory()("soil_evaporation");
     p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
 
+    std::unique_ptr<IModule> const thermal_time_module = ModuleFactory()("thermal_time_accumulator");
+
     vector<string> missing_state;
     vector<string> temp;
 
@@ -184,15 +186,14 @@ state_vector_map Gro(
          * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
 
-        if (p.at("temp") > p.at("tbase")) {
-            derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
-        }
 
-        derivs += growth_module->run(state_history, deriv_history, p) * p.at("timestep");
+        derivs += thermal_time_module->run(state_history, deriv_history, p);
 
-        derivs += soil_water_module->run(state_history, deriv_history, p) * p.at("timestep");
+        derivs += growth_module->run(state_history, deriv_history, p);
 
-        derivs += senescence_module->run(state_history, deriv_history, p) * p.at("timestep");
+        derivs += soil_water_module->run(state_history, deriv_history, p);
+
+        derivs += senescence_module->run(state_history, deriv_history, p);
 
         /*
          * 3) Update the state variables.
@@ -204,7 +205,7 @@ state_vector_map Gro(
          */
 
         current_state = at(state_history, i);
-        current_state = update_state(current_state, derivs);
+        current_state = update_state(current_state, derivs * p.at("timestep"));
 
         /*
          * 4) Record variables in the state_history map.
