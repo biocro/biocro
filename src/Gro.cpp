@@ -42,21 +42,8 @@ state_vector_map Gro(
         throw std::range_error("A parameter may appear in only one of the state lists.");
     }
 
-    struct dbp_str dbpS;
 
-    double dbpcoefs[] = {
-        invariant_parameters.at("kStem1"), invariant_parameters.at("kLeaf1"), invariant_parameters.at("kRoot1"), invariant_parameters.at("kRhizome1"), invariant_parameters.at("kGrain1"),
-        invariant_parameters.at("kStem2"), invariant_parameters.at("kLeaf2"), invariant_parameters.at("kRoot2"), invariant_parameters.at("kRhizome2"), invariant_parameters.at("kGrain2"),
-        invariant_parameters.at("kStem3"), invariant_parameters.at("kLeaf3"), invariant_parameters.at("kRoot3"), invariant_parameters.at("kRhizome3"), invariant_parameters.at("kGrain3"),
-        invariant_parameters.at("kStem4"), invariant_parameters.at("kLeaf4"), invariant_parameters.at("kRoot4"), invariant_parameters.at("kRhizome4"), invariant_parameters.at("kGrain4"),
-        invariant_parameters.at("kStem5"), invariant_parameters.at("kLeaf5"), invariant_parameters.at("kRoot5"), invariant_parameters.at("kRhizome5"), invariant_parameters.at("kGrain5"),
-        invariant_parameters.at("kStem6"), invariant_parameters.at("kLeaf6"), invariant_parameters.at("kRoot6"), invariant_parameters.at("kRhizome6"), invariant_parameters.at("kGrain6")
-    };
-
-    double thermalp[] = {
-        invariant_parameters.at("tp1"), invariant_parameters.at("tp2"), invariant_parameters.at("tp3"), invariant_parameters.at("tp4"), invariant_parameters.at("tp5"), invariant_parameters.at("tp6")
-    };
-
+    std::unique_ptr<IModule> const partitioning_coef_selector_module = ModuleFactory()("partitioning_coefficient_selector");
 
     /*
      * This is a badly hackish way of checking parameters before the loop start. The pointers to modules should be changed from unique_ptr to shared_ptr, so that a vector of pointers can be created.
@@ -81,7 +68,6 @@ state_vector_map Gro(
     p["vmax"] = temp_parms.at("vmax");
     p["alpha"] = temp_parms.at("alpha");
 
-    dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
 
     p["canopy_assimilation_rate"] = p["canopy_transpiration_rate"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
     std::unique_ptr<IModule> const soil_evaporation_module = ModuleFactory()("soil_evaporation");
@@ -150,13 +136,7 @@ state_vector_map Gro(
         p["vmax"] = temp_parms.at("vmax");
         p["alpha"] = temp_parms.at("alpha");
 
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
-
-        p["kLeaf"] = dbpS.kLeaf;
-        p["kStem"] = dbpS.kStem;
-        p["kRoot"] = dbpS.kRoot;
-        p["kGrain"] = dbpS.kGrain;
-        p["kRhizome"] = dbpS.kRhiz;
+        p += partitioning_coef_selector_module->run(state_history, deriv_history, p);
 
         state_map temp_map = canopy_photosynthesis_module->run(state_history, deriv_history, p);
 

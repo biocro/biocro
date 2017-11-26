@@ -24,8 +24,6 @@ struct Can_Str c3CanAC(double LAI, int DOY, int hr, double solarR, double Temp,
                        double StomataWS, double growth_respiration_fraction, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
                         
 
-struct dbp_str sel_dbp_coef(double coefs[25], double TherPrds[6], double TherTime);
-
 double resp(double comp, double mrc, double temp);
 
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,

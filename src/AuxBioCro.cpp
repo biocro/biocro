@@ -927,35 +927,6 @@ double resp(double comp, double mrc, double temp) {
 
 }
 
-struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
-{
-
-    constexpr int n_tissues = 5;
-
-    struct dbp_str tmp;
-    tmp.kLeaf = 0.0;
-    tmp.kStem = 0.0;
-    tmp.kRoot = 0.0;
-    tmp.kRhiz = 0.0;
-    tmp.kGrain = 0.0;
-
-    // Find the interval that contains TherTime.
-    int interval = 5;
-    for ( ; interval >= 0; --interval) {
-        if (TherTime > TherPrds[interval]) break;
-    }
-
-    int offset = (interval + 1) * n_tissues;
-
-    tmp.kStem = coefs[0 + offset];
-    tmp.kLeaf = coefs[1 + offset];
-    tmp.kRoot = coefs[2 + offset];
-    tmp.kRhiz = coefs[3 + offset];
-    tmp.kGrain = coefs[4 + offset];
-
-    return tmp;
-}
-
 struct seqRD_str seqRootDepth(double to, int lengthOut ) {
     double by = to / lengthOut;
 
