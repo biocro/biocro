@@ -930,64 +930,30 @@ double resp(double comp, double mrc, double temp) {
 struct dbp_str sel_dbp_coef(double* coefs, double* TherPrds, double TherTime)
 {
 
-    struct dbp_str tmp;
+    constexpr int n_tissues = 5;
 
+    struct dbp_str tmp;
     tmp.kLeaf = 0.0;
     tmp.kStem = 0.0;
     tmp.kRoot = 0.0;
     tmp.kRhiz = 0.0;
     tmp.kGrain = 0.0;
 
-    if (TherTime < TherPrds[0])
-    {
-        tmp.kStem = coefs[0];
-        tmp.kLeaf = coefs[1];
-        tmp.kRoot = coefs[2];
-        tmp.kRhiz = coefs[3];
-        tmp.kGrain = coefs[4];
-
-    } else if ( TherTime < TherPrds[1] )
-    {
-        tmp.kStem = coefs[5];
-        tmp.kLeaf = coefs[6];
-        tmp.kRoot = coefs[7];
-        tmp.kRhiz = coefs[8];
-        tmp.kGrain = coefs[9];
-
-    } else if ( TherTime < TherPrds[2])
-    {
-        tmp.kStem = coefs[10];
-        tmp.kLeaf = coefs[11];
-        tmp.kRoot = coefs[12];
-        tmp.kRhiz = coefs[13];
-        tmp.kGrain = coefs[14];
-
-    } else if (TherTime < TherPrds[3])
-    {
-        tmp.kStem = coefs[15];
-        tmp.kLeaf = coefs[16];
-        tmp.kRoot = coefs[17];
-        tmp.kRhiz = coefs[18];
-        tmp.kGrain = coefs[19];
-
-    } else if (TherTime < TherPrds[4])
-    {
-        tmp.kStem = coefs[20];
-        tmp.kLeaf = coefs[21];
-        tmp.kRoot = coefs[22];
-        tmp.kRhiz = coefs[23];
-        tmp.kGrain = coefs[24];
-
-    } else {
-
-        tmp.kStem = coefs[25];
-        tmp.kLeaf = coefs[26];
-        tmp.kRoot = coefs[27];
-        tmp.kRhiz = coefs[28];
-        tmp.kGrain = coefs[29];
-
+    // Find the interval that contains TherTime.
+    int interval = 5;
+    for ( ; interval >= 0; --interval) {
+        if (TherTime > TherPrds[interval]) break;
     }
-    return(tmp);
+
+    int offset = (interval + 1) * n_tissues;
+
+    tmp.kStem = coefs[0 + offset];
+    tmp.kLeaf = coefs[1 + offset];
+    tmp.kRoot = coefs[2 + offset];
+    tmp.kRhiz = coefs[3 + offset];
+    tmp.kGrain = coefs[4 + offset];
+
+    return tmp;
 }
 
 struct seqRD_str seqRootDepth(double to, int lengthOut ) {
