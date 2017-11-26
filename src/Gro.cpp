@@ -71,11 +71,15 @@ state_vector_map Gro(
     p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
     p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
 
-    p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
-    p["lai"] = p.at("Leaf") * p.at("Sp");
     p["LeafN"] = leaf_n_limitation(p);
-    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmax_n_intercept") + p.at("vmax1");
-    p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
+
+    std::unique_ptr<IModule> const parameter_calculator_module = ModuleFactory()("parameter_calculator");
+    state_map temp_parms = parameter_calculator_module->run(p);
+
+    p["Sp"] = temp_parms.at("Sp");
+    p["lai"] = temp_parms.at("lai");
+    p["vmax"] = temp_parms.at("vmax");
+    p["alpha"] = temp_parms.at("alpha");
 
     dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
 
@@ -133,16 +137,18 @@ state_vector_map Gro(
          * This makes it so that the code in section 2 is order independent.
          */
 
-        p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
-        p["lai"] = p.at("Leaf") * p.at("Sp");
 
         /* Model photosynthetic parameters as a linear relationship between
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the thermal time.
            (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
         p["LeafN"] = leaf_n_limitation(p);
-        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmax_n_intercept") + p.at("vmax1");
-        p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
+        state_map temp_parms = parameter_calculator_module->run(p);
+
+        p["Sp"] = temp_parms.at("Sp");
+        p["lai"] = temp_parms.at("lai");
+        p["vmax"] = temp_parms.at("vmax");
+        p["alpha"] = temp_parms.at("alpha");
 
         dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
 
