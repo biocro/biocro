@@ -79,7 +79,7 @@ state_vector_map Gro(
 
     dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
 
-    p["canopy_assimilation_rate"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
+    p["canopy_assimilation_rate"] = p["canopy_transpiration_rate"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
     std::unique_ptr<IModule> const soil_evaporation_module = ModuleFactory()("soil_evaporation");
     p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
 
@@ -153,7 +153,7 @@ state_vector_map Gro(
         state_map temp_map = canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
         p["canopy_assimilation_rate"] = temp_map["canopy_assimilation_rate"];
-        p["CanopyT"] = temp_map["canopy_transpiration_rate"] * p.at("timestep");
+        p["canopy_transpiration_rate"] = temp_map["canopy_transpiration_rate"];
 
         p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
         
@@ -163,7 +163,7 @@ state_vector_map Gro(
 
         //double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soil_depth"));
         //double root_depth_fraction = root_depth / p.at("soil_depth");
-        //double evaporation_rate = (p.at("soil_evaporation_rate") + p.at("CanopyT")) / 0.9982 / 1e4 / root_depth;
+        //double evaporation_rate = (p.at("soil_evaporation_rate") + p.at("canopy_transpiration_rate")) / 0.9982 / 1e4 / root_depth;
         //double root_available_water_fraction = fmax(fmin(1 + (p.at("waterCont") / fieldc - 1) / root_depth_fraction, 1), 0);
         //double root_available_water_fraction = fmin(1 - (fieldc - p.at("soil_water_content")) / root_depth_fraction, 1);
         //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (p.at("waterCont") - wiltp), 1), 0);
@@ -192,7 +192,7 @@ state_vector_map Gro(
 
         derivs += soil_water_module->run(state_history, deriv_history, p) * p.at("timestep");
 
-        derivs += senescence_module->run(state_history, deriv_history, p);
+        derivs += senescence_module->run(state_history, deriv_history, p) * p.at("timestep");
 
         /*
          * 3) Update the state variables.
@@ -220,8 +220,8 @@ state_vector_map Gro(
         append_state_to_vector(derivs, deriv_history);
 
         // Record other parameters of interest.
-        results["canopy_assimilation"].push_back(p["canopy_assimilation_rate"]);
-        results["canopy_transpiration"].push_back(p["CanopyT"]);
+        results["canopy_assimilation_rate"].push_back(p["canopy_assimilation_rate"]);
+        results["canopy_transpiration_rate"].push_back(p["canopy_transpiration_rate"]);
         results["rate_constant_root_scale"].push_back(p["rate_constant_root_scale"]);
         results["lai"].push_back(p["lai"]);
         //results["soil_water_content"].push_back(s.at("soil_water_content"));

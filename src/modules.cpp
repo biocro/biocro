@@ -170,7 +170,7 @@ state_map c3_canopy::do_operation(state_map const &s) const
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
     double soilEvap = s.at("soil_evaporation_rate") * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
-    double TotEvap = soilEvap + s.at("CanopyT");
+    double TotEvap = soilEvap + s.at("canopy_transpiration_rate");
     
     struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soil_depth"), s.at("soil_field_capacity"),
             s.at("soil_wilting_point"), s.at("phi1"), s.at("phi2"), s.at("soil_saturation_capacity"), s.at("soil_sand_content"),
@@ -187,7 +187,7 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     double soil_depths[] = {s.at("soil_depth1"), s.at("soil_depth2"), s.at("soil_depth3")};
     struct soilText_str soTexS = get_soil_properties(s.at("soil_type_indicator"));
 
-    struct soilML_str soilMLS = soilML(s.at("precip"), s.at("CanopyT"), cws, s.at("soil_depth3"), soil_depths,
+    struct soilML_str soilMLS = soilML(s.at("precip"), s.at("canopy_transpiration_rate"), cws, s.at("soil_depth3"), soil_depths,
             s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS,
             s.at("wsFun"), 2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68,
             s.at("temp"), s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"),

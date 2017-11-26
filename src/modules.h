@@ -103,7 +103,7 @@ class one_layer_soil_profile : public ISoil_evaporation_module {
             : ISoil_evaporation_module("one_layer_soil_profile",
                     std::vector<std::string> {"lai", "temp", "solar", "soil_water_content",
                     "soil_field_capacity", "soil_wilting_point", "windspeed", "rh", "rsec",
-                    "CanopyT", "precip", "soil_depth", "phi1", "phi2",
+                    "canopy_transpiration_rate", "precip", "soil_depth", "phi1", "phi2",
                     "StomataWS", "LeafWS", "soil_evaporation_rate"},
                     std::vector<std::string> {})
         {}
@@ -115,7 +115,7 @@ class two_layer_soil_profile : public ISoil_evaporation_module {
     public:
         two_layer_soil_profile()
             : ISoil_evaporation_module("two_layer_soil_profile",
-                    std::vector<std::string> {"precip", "CanopyT", "cws1", "cws2", "soil_depth1",
+                    std::vector<std::string> {"precip", "canopy_transpiration_rate", "cws1", "cws2", "soil_depth1",
                     "soil_depth2", "soil_depth3", "FieldC", "WiltP", "phi1",
                     "phi2", "soil_type_indicator", "wsFun", "Root", "lai",
                     "temp", "solar", "windspeed", "rh", "hydrDist",
