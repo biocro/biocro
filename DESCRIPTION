@@ -15,4 +15,4 @@ Enhances: data.table
 VignetteBuilder: knitr
 License: FreeBSD + file LICENSE
 Packaged: 2013-03-29 07:12:38 UTC; djaiswal
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

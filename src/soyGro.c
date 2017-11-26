@@ -59,7 +59,7 @@ int soyGro(char *ParameterFileName,char *WeatherFileName,char *OutputFolderName)
         TBase=0; // Thermal time base temperature  [C]
         Stages=6; // Number of partition stages
         StageThermalTime = (double*)malloc(sizeof(double)*Stages); // Thermal time for stage change [C days]
-        memcpy(StageThermalTime,(double[6]){0,100,500,1000,2000,3000},sizeof(double)*6); // Thermal time for stage change [C days]
+        memcpy(StageThermalTime,((double[6]){0,100,500,1000,2000,3000}),sizeof(double)*6); // Thermal time for stage change [C days]
         PartitionCoefficients = (struct PlantParts*)malloc(sizeof(struct PlantParts)*Stages);// Partition coefficients
         PartitionCoefficients[0]=(struct PlantParts){0.3,0.5,0.0,0.0,0.2,0.0,0.0,1.0};
         PartitionCoefficients[1]=(struct PlantParts){0.3,0.5,0.0,0.0,0.2,0.0,0.0,1.0};
