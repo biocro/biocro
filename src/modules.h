@@ -252,7 +252,7 @@ class partitioning_growth_module : public IGrowth_module {
     public:
         partitioning_growth_module()
             : IGrowth_module("partitioning_growth_module",
-                    std::vector<std::string> {"TTc", "LeafWS", "temp", "CanopyA",
+                    std::vector<std::string> {"TTc", "LeafWS", "temp", "canopy_assimilation_rate",
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                     "mrc1", "mrc2"},
@@ -266,7 +266,7 @@ class no_leaf_resp_partitioning_growth_module : public IGrowth_module {
     public:
         no_leaf_resp_partitioning_growth_module()
             : IGrowth_module("no_leaf_resp_partitioning_growth_module",
-                    std::vector<std::string> {"TTc", "LeafWS", "temp", "CanopyA",
+                    std::vector<std::string> {"TTc", "LeafWS", "temp", "canopy_assimilation_rate",
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                     "mrc1", "mrc2"},

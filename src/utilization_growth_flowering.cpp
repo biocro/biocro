@@ -46,7 +46,7 @@ state_map utilization_growth_flowering_module::do_operation(state_vector_map con
 
     double total_time = p.at("timestep"); // hours
     size_t sub_time_steps = total_time * 60;  // At the start, integrate over each minute.
-    double carbon_input = p.at("CanopyA"); //Pg in paper
+    double carbon_input = p.at("canopy_assimilation_rate"); //Pg in paper
 
     double TTc = p.at("TTc");
 

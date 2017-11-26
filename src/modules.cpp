@@ -323,14 +323,13 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &state
     state_map derivs;
     auto t = state_history.begin()->second.size() - 1;
     state_map s = combine_state(at(state_history, t), p);
-    //auto &s = state_history;
-    //auto &p = parameters;
+
     double kLeaf = p.at("kLeaf");
     double kStem = p.at("kStem");
     double kRoot = p.at("kRoot");
     double kRhizome = p.at("kRhizome");
     double kGrain = p.at("kGrain");
-    double CanopyA = p.at("CanopyA");
+    double CanopyA = p.at("canopy_assimilation_rate");
 
     if (kLeaf > 0) {
         derivs["newLeafcol"] = CanopyA * kLeaf * s.at("LeafWS");

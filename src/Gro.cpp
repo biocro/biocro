@@ -79,8 +79,7 @@ state_vector_map Gro(
 
     dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
 
-    p["CanopyA"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
-    p["canopy_assimilation_rate"] = 0;
+    p["canopy_assimilation_rate"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
     std::unique_ptr<IModule> const soil_evaporation_module = ModuleFactory()("soil_evaporation");
     p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
 
@@ -153,9 +152,8 @@ state_vector_map Gro(
 
         state_map temp_map = canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
-        p["CanopyA"] = temp_map["canopy_assimilation_rate"];
-        p["CanopyT"] = temp_map["canopy_transpiration_rate"] * p.at("timestep");
         p["canopy_assimilation_rate"] = temp_map["canopy_assimilation_rate"];
+        p["CanopyT"] = temp_map["canopy_transpiration_rate"] * p.at("timestep");
 
         p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
         
@@ -222,8 +220,7 @@ state_vector_map Gro(
         append_state_to_vector(derivs, deriv_history);
 
         // Record other parameters of interest.
-        //results["canopy_assimilation"][i] = s["CanopyA"];
-        results["canopy_assimilation"].push_back(p["CanopyA"]);
+        results["canopy_assimilation"].push_back(p["canopy_assimilation_rate"]);
         results["canopy_transpiration"].push_back(p["CanopyT"]);
         results["rate_constant_root_scale"].push_back(p["rate_constant_root_scale"]);
         results["lai"].push_back(p["lai"]);
