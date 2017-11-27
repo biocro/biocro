@@ -15,7 +15,7 @@ SEXP R_Gro(SEXP initial_state,
         SEXP invariate_parameters,
         SEXP varying_parameters,
         SEXP canopy_photosynthesis_module,
-        SEXP soil_evaporation_module,
+        SEXP soil_water_module,
         SEXP growth_module,
         SEXP senescence_module,
         SEXP stomata_water_stress_module,
@@ -31,12 +31,21 @@ SEXP R_Gro(SEXP initial_state,
             return R_NilValue;
         }
 
-        unique_ptr<IModule> canopy = ModuleFactory()(CHAR(STRING_ELT(canopy_photosynthesis_module, 0)));
-        unique_ptr<IModule> soil_evaporation = ModuleFactory()(CHAR(STRING_ELT(soil_evaporation_module, 0)));
-        unique_ptr<IModule> growth = ModuleFactory()(CHAR(STRING_ELT(growth_module, 0)));
-        unique_ptr<IModule> senescence = ModuleFactory()(CHAR(STRING_ELT(senescence_module, 0)));
-        unique_ptr<IModule> stomata_water_stress = ModuleFactory()(CHAR(STRING_ELT(stomata_water_stress_module, 0)));
-        unique_ptr<IModule> leaf_water_stress = ModuleFactory()(CHAR(STRING_ELT(leaf_water_stress_module, 0)));
+        vector<unique_ptr<IModule>> steady_state_modules;
+        vector<unique_ptr<IModule>> derivative_modules;
+
+        steady_state_modules.push_back(ModuleFactory()("soil_type_selector"));
+        steady_state_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(stomata_water_stress_module, 0))));
+        steady_state_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(leaf_water_stress_module, 0))));
+        steady_state_modules.push_back(ModuleFactory()("parameter_calculator"));
+        steady_state_modules.push_back(ModuleFactory()("partitioning_coefficient_selector"));
+        steady_state_modules.push_back(ModuleFactory()("soil_evaporation"));
+        steady_state_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(canopy_photosynthesis_module, 0))));
+
+        derivative_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(senescence_module, 0))));
+        derivative_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(growth_module, 0))));
+        derivative_modules.push_back(ModuleFactory()("thermal_time_accumulator"));
+        derivative_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(soil_water_module, 0))));
 
         vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
             "LeafN_0", "vmax_n_intercept", "vmax1", "alphab1",
@@ -64,7 +73,8 @@ SEXP R_Gro(SEXP initial_state,
         }
 
         state_vector_map result;
-        result = Gro(s, ip, vp, canopy, soil_evaporation, growth, senescence, stomata_water_stress, leaf_water_stress, biomass_leaf_nitrogen_limitation);
+        //result = Gro(s, ip, vp, canopy, soil_water, growth, senescence, stomata_water_stress, leaf_water_stress, biomass_leaf_nitrogen_limitation);
+        result = Gro(s, ip, vp, steady_state_modules, derivative_modules);
         return (list_from_map(result));
 
     } catch (std::exception const &e) {

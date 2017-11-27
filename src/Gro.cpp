@@ -22,13 +22,15 @@ state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,
         state_vector_map const &varying_parameters,
-        std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-        std::unique_ptr<IModule> const &soil_water_module,
-        std::unique_ptr<IModule> const &growth_module,
-        std::unique_ptr<IModule> const &senescence_module,
-        std::unique_ptr<IModule> const &stomata_water_stress_module,
-        std::unique_ptr<IModule> const &leaf_water_stress_module,
-        double (*leaf_n_limitation)(state_map const &model_state))
+        std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
+        std::vector<std::unique_ptr<IModule>> const &derivative_modules)
+        //std::unique_ptr<IModule> const &canopy_photosynthesis_module,
+        //std::unique_ptr<IModule> const &soil_water_module,
+        //std::unique_ptr<IModule> const &growth_module,
+        //std::unique_ptr<IModule> const &senescence_module,
+        //std::unique_ptr<IModule> const &stomata_water_stress_module,
+        //std::unique_ptr<IModule> const &leaf_water_stress_module,
+        //double (*leaf_n_limitation)(state_map const &model_state))
 {
     state_map current_state = initial_state;
 
@@ -42,13 +44,6 @@ state_vector_map Gro(
         throw std::range_error("A parameter may appear in only one of the state lists.");
     }
 
-
-    std::unique_ptr<IModule> const soil_property_module = ModuleFactory()("soil_type_selector");
-    std::unique_ptr<IModule> const partitioning_coef_selector_module = ModuleFactory()("partitioning_coefficient_selector");
-    std::unique_ptr<IModule> const parameter_calculator_module = ModuleFactory()("parameter_calculator");
-    std::unique_ptr<IModule> const soil_evaporation_module = ModuleFactory()("soil_evaporation");
-    std::unique_ptr<IModule> const thermal_time_module = ModuleFactory()("thermal_time_accumulator");
-
     /*
      * This is a badly hackish way of checking parameters before the loop start. The pointers to modules should be changed from unique_ptr to shared_ptr, so that a vector of pointers can be created.
      * Then use a for loop to iterate through each module to get the list of missing parameters.
@@ -56,6 +51,12 @@ state_vector_map Gro(
 
     state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
 
+    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+        state_map temp = (*it)->run(p);
+        p.insert(temp.begin(), temp.end());
+    }
+
+    /*
     p += soil_property_module->run(p);
 
     p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
@@ -74,6 +75,9 @@ state_vector_map Gro(
     p["canopy_assimilation_rate"] = p["canopy_transpiration_rate"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
     p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
 
+    */
+    
+    /*
 
     vector<string> missing_state;
     vector<string> temp;
@@ -89,29 +93,35 @@ state_vector_map Gro(
 
     temp = growth_module->state_requirements_are_met(p); 
     missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
+    */
 
     /*
      * End of hackish section.
      */
 
-    if (!missing_state.empty()) {
+    /*if (!missing_state.empty()) {
         std::ostringstream message;
         message << "The following required state variables are missing in Gro: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
     }
+    */
 
     for (size_t i = 0; i < n_rows; ++i)
     {
-        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
         p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, i)));
 
-        p += soil_property_module->run(p);
+        for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+            p.insert(temp.begin(), temp.end());
+        }
+
+
+        //p += soil_property_module->run(p);
         
-        p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
-        p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
+        //p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
+        //p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
 
         /*
          * 1) Calculate all state-dependent state variables.
@@ -128,22 +138,22 @@ state_vector_map Gro(
            leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
            availability and possibly by the thermal time.
            (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
-        p["LeafN"] = leaf_n_limitation(p);
-        state_map temp_parms = parameter_calculator_module->run(p);
+        //p["LeafN"] = leaf_n_limitation(p);
+        //state_map temp_parms = parameter_calculator_module->run(p);
 
-        p["Sp"] = temp_parms.at("Sp");
-        p["lai"] = temp_parms.at("lai");
-        p["vmax"] = temp_parms.at("vmax");
-        p["alpha"] = temp_parms.at("alpha");
+        //p["Sp"] = temp_parms.at("Sp");
+        //p["lai"] = temp_parms.at("lai");
+        //p["vmax"] = temp_parms.at("vmax");
+        //p["alpha"] = temp_parms.at("alpha");
 
-        p += partitioning_coef_selector_module->run(state_history, deriv_history, p);
+        //p += partitioning_coef_selector_module->run(state_history, deriv_history, p);
 
-        state_map temp_map = canopy_photosynthesis_module->run(state_history, deriv_history, p);
+        //state_map temp_map = canopy_photosynthesis_module->run(state_history, deriv_history, p);
 
-        p["canopy_assimilation_rate"] = temp_map["canopy_assimilation_rate"];
-        p["canopy_transpiration_rate"] = temp_map["canopy_transpiration_rate"];
+        //p["canopy_assimilation_rate"] = temp_map["canopy_assimilation_rate"];
+        //p["canopy_transpiration_rate"] = temp_map["canopy_transpiration_rate"];
 
-        p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
+        //p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
         
         //soilText_str soTexS = get_soil_properties(p.at("soil_type_indicator"));
         //double wiltp = soTexS.wiltp;
@@ -172,14 +182,20 @@ state_vector_map Gro(
          * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
 
+        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
+        derivs.reserve(p.size());
+        for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+            derivs += (*it)->run(state_history, deriv_history, p);
+        }
+    
 
-        derivs += thermal_time_module->run(state_history, deriv_history, p);
+        //derivs += thermal_time_module->run(state_history, deriv_history, p);
 
-        derivs += growth_module->run(state_history, deriv_history, p);
+        //derivs += growth_module->run(state_history, deriv_history, p);
 
-        derivs += soil_water_module->run(state_history, deriv_history, p);
+        //derivs += soil_water_module->run(state_history, deriv_history, p);
 
-        derivs += senescence_module->run(state_history, deriv_history, p);
+        //derivs += senescence_module->run(state_history, deriv_history, p);
 
         /*
          * 3) Update the state variables.
