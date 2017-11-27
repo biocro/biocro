@@ -628,19 +628,6 @@ class ModuleFactory {
         }
 };
 
-
-state_vector_map Gro(
-        state_map const &initial_state,
-        state_map const &invariant_parameters,
-        state_vector_map const &varying_parameters,
-        std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-        std::unique_ptr<IModule> const &soil_evaporation_module,
-        std::unique_ptr<IModule> const &growth_module,
-        std::unique_ptr<IModule> const &senescence_module,
-        std::unique_ptr<IModule> const &stomata_water_stress_module,
-        std::unique_ptr<IModule> const &leaf_water_stress_module,
-		double (*leaf_n_limitation)(state_map const &model_state));
-
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,
@@ -649,7 +636,7 @@ state_vector_map Gro(
         std::vector<std::unique_ptr<IModule>> const &derivative_modules);
 
 state_map Gro(
-        state_map const &state,
+        state_map state,
         std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
         std::vector<std::unique_ptr<IModule>> const &derivative_modules);
 

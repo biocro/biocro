@@ -205,21 +205,19 @@ state_vector_map Gro(
 }
 
 state_map Gro(
-    state_map const &state,
+    state_map state,
     std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
     std::vector<std::unique_ptr<IModule>> const &derivative_modules)
 {
-    state_map p = state;
-
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-        state_map temp = (*it)->run(p);
-        p.insert(temp.begin(), temp.end());
+        state_map temp = (*it)->run(state);
+        state.insert(temp.begin(), temp.end());
     }
 
     state_map derivs;
-    derivs.reserve(p.size());
+    derivs.reserve(state.size());
     for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        derivs += (*it)->run(p);
+        derivs += (*it)->run(state);
     }
     
 return derivs;
