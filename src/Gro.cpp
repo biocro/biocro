@@ -111,9 +111,11 @@ state_vector_map Gro(
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
-        p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, i)));
+        //p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, i)));
+        p = combine_state(combine_state(invariant_parameters, at(varying_parameters, i)), current_state);
 
         for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+            state_map temp = (*it)->run(p);
             p.insert(temp.begin(), temp.end());
         }
 

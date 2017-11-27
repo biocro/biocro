@@ -53,7 +53,7 @@ SEXP R_Gro(SEXP initial_state,
             "mrc1", "seneLeaf", "Stem", "seneStem",
             "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome", "kln", "growth_respiration_fraction"};
 
-        state_map all_state = combine_state(s, combine_state(ip, at(vp, 0)));
+        state_map all_state = combine_state(combine_state(ip, at(vp, 0)), s);
 
         vector<string> missing_state;
         for (auto it = required_state.begin(); it != required_state.end(); ++it) {
