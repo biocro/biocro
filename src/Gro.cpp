@@ -43,7 +43,11 @@ state_vector_map Gro(
     }
 
 
+    std::unique_ptr<IModule> const soil_property_module = ModuleFactory()("soil_type_selector");
     std::unique_ptr<IModule> const partitioning_coef_selector_module = ModuleFactory()("partitioning_coefficient_selector");
+    std::unique_ptr<IModule> const parameter_calculator_module = ModuleFactory()("parameter_calculator");
+    std::unique_ptr<IModule> const soil_evaporation_module = ModuleFactory()("soil_evaporation");
+    std::unique_ptr<IModule> const thermal_time_module = ModuleFactory()("thermal_time_accumulator");
 
     /*
      * This is a badly hackish way of checking parameters before the loop start. The pointers to modules should be changed from unique_ptr to shared_ptr, so that a vector of pointers can be created.
@@ -52,7 +56,6 @@ state_vector_map Gro(
 
     state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
 
-    std::unique_ptr<IModule> const soil_property_module = ModuleFactory()("soil_type_selector");
     p += soil_property_module->run(p);
 
     p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
@@ -60,7 +63,6 @@ state_vector_map Gro(
 
     p["LeafN"] = leaf_n_limitation(p);
 
-    std::unique_ptr<IModule> const parameter_calculator_module = ModuleFactory()("parameter_calculator");
     state_map temp_parms = parameter_calculator_module->run(p);
 
     p["Sp"] = temp_parms.at("Sp");
@@ -70,10 +72,8 @@ state_vector_map Gro(
 
 
     p["canopy_assimilation_rate"] = p["canopy_transpiration_rate"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
-    std::unique_ptr<IModule> const soil_evaporation_module = ModuleFactory()("soil_evaporation");
     p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
 
-    std::unique_ptr<IModule> const thermal_time_module = ModuleFactory()("thermal_time_accumulator");
 
     vector<string> missing_state;
     vector<string> temp;
