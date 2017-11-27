@@ -7,7 +7,7 @@ glycine_max_parameters['Sp_thermal_time_decay'] = 0
 willow_parameters['Sp_thermal_time_decay'] = 0
 
 glycine_max_modules = within(glycine_max_modules, growth_module_name <- 'partitioning_growth')
-glycine_max_modules = within(glycine_max_modules, senescence_module_name <- 'empty_senescence')
+glycine_max_modules = within(glycine_max_modules, senescence_module_name <- 'thermal_time_senescence')
 
 glycine_max_initial_state["GI"] = NULL
 glycine_max_initial_state["FKF1"] = NULL
@@ -22,7 +22,6 @@ system.time({
     wresult = Gro(willow_initial_state, willow_parameters,(weather05), willow_modules)
 })
 
-#old_sresult = sresult; old_mresult = mresult; old_gresult = gresult; old_wresult = wresult; save(old_sresult, old_mresult, old_gresult, old_wresult, file='old_result.rdata')
 load('old_result.rdata')
 
 for (i in c('s', 'm', 'g', 'w')) {
@@ -37,5 +36,5 @@ for (i in c('s', 'm', 'g', 'w')) {
     x11(); print(xyplot(Stem + Leaf + Root ~ TTc, main=result_name, old_result, type='l'))
 }
 
+#old_sresult = sresult; old_mresult = mresult; old_gresult = gresult; old_wresult = wresult; save(old_sresult, old_mresult, old_gresult, old_wresult, file='old_result.rdata')
 
-    x11(); print(xyplot(Stem + Leaf + Root ~ TTc, main=result_name, gresult, type='l'))
