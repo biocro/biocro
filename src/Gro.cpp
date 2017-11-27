@@ -24,13 +24,6 @@ state_vector_map Gro(
         state_vector_map const &varying_parameters,
         std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
         std::vector<std::unique_ptr<IModule>> const &derivative_modules)
-        //std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-        //std::unique_ptr<IModule> const &soil_water_module,
-        //std::unique_ptr<IModule> const &growth_module,
-        //std::unique_ptr<IModule> const &senescence_module,
-        //std::unique_ptr<IModule> const &stomata_water_stress_module,
-        //std::unique_ptr<IModule> const &leaf_water_stress_module,
-        //double (*leaf_n_limitation)(state_map const &model_state))
 {
     state_map current_state = initial_state;
 
@@ -56,27 +49,6 @@ state_vector_map Gro(
         p.insert(temp.begin(), temp.end());
     }
 
-    /*
-    p += soil_property_module->run(p);
-
-    p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
-    p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
-
-    p["LeafN"] = leaf_n_limitation(p);
-
-    state_map temp_parms = parameter_calculator_module->run(p);
-
-    p["Sp"] = temp_parms.at("Sp");
-    p["lai"] = temp_parms.at("lai");
-    p["vmax"] = temp_parms.at("vmax");
-    p["alpha"] = temp_parms.at("alpha");
-
-
-    p["canopy_assimilation_rate"] = p["canopy_transpiration_rate"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
-    p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
-
-    */
-    
     /*
 
     vector<string> missing_state;
@@ -111,19 +83,12 @@ state_vector_map Gro(
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
-        //p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, i)));
         p = combine_state(combine_state(invariant_parameters, at(varying_parameters, i)), current_state);
 
         for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
             state_map temp = (*it)->run(p);
             p.insert(temp.begin(), temp.end());
         }
-
-
-        //p += soil_property_module->run(p);
-        
-        //p["StomataWS"] = stomata_water_stress_module->run(p)["StomataWS"];
-        //p["LeafWS"] = leaf_water_stress_module->run(p)["LeafWS"];
 
         /*
          * 1) Calculate all state-dependent state variables.
@@ -135,31 +100,6 @@ state_vector_map Gro(
          * This makes it so that the code in section 2 is order independent.
          */
 
-
-        /* Model photosynthetic parameters as a linear relationship between
-           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
-           availability and possibly by the thermal time.
-           (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
-        //p["LeafN"] = leaf_n_limitation(p);
-        //state_map temp_parms = parameter_calculator_module->run(p);
-
-        //p["Sp"] = temp_parms.at("Sp");
-        //p["lai"] = temp_parms.at("lai");
-        //p["vmax"] = temp_parms.at("vmax");
-        //p["alpha"] = temp_parms.at("alpha");
-
-        //p += partitioning_coef_selector_module->run(state_history, deriv_history, p);
-
-        //state_map temp_map = canopy_photosynthesis_module->run(state_history, deriv_history, p);
-
-        //p["canopy_assimilation_rate"] = temp_map["canopy_assimilation_rate"];
-        //p["canopy_transpiration_rate"] = temp_map["canopy_transpiration_rate"];
-
-        //p["soil_evaporation_rate"] = soil_evaporation_module->run(p)["soil_evaporation_rate"];
-        
-        //soilText_str soTexS = get_soil_properties(p.at("soil_type_indicator"));
-        //double wiltp = soTexS.wiltp;
-        //double fieldc = soTexS.fieldc;
 
         //double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soil_depth"));
         //double root_depth_fraction = root_depth / p.at("soil_depth");
@@ -190,15 +130,6 @@ state_vector_map Gro(
             derivs += (*it)->run(state_history, deriv_history, p);
         }
     
-
-        //derivs += thermal_time_module->run(state_history, deriv_history, p);
-
-        //derivs += growth_module->run(state_history, deriv_history, p);
-
-        //derivs += soil_water_module->run(state_history, deriv_history, p);
-
-        //derivs += senescence_module->run(state_history, deriv_history, p);
-
         /*
          * 3) Update the state variables.
          */
