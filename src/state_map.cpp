@@ -9,7 +9,7 @@ state_vector_map allocate_state(state_map const &m, size_t n)
     for (auto it = m.begin(); it != m.end(); ++it) {
         vector<double> temp;
         temp.reserve(n);
-        result.insert(std::pair<string, vector<double>>(it->first, temp));
+        result.insert({it->first, temp});
     }
     return (result);
 }
@@ -24,8 +24,11 @@ state_map at(state_vector_map const &vector_map, vector<double>::size_type const
 {
     state_map result;
     result.reserve(vector_map.size());
-    for (auto it = vector_map.begin(); it != vector_map.end(); ++it) {
-        result.insert(std::pair<string, double>(it->first, it->second.at(n)));
+
+    auto it = vector_map.begin();
+    it->second.at(n);  // Try to access the value in the vector using vector.at(). If n is out of range, an exception is thrown. If it works here, then the faster operator[ is safe later.
+    for (; it != vector_map.end(); ++it) {
+        result.emplace(it->first, it->second[n]);
     }
     return result;
 }
@@ -54,7 +57,7 @@ state_map update_state(state_map const &state, state_map const &change_in_state)
 void append_state_to_vector(state_map const &state, state_vector_map &state_vector)
 {
     for (auto it = state.begin(); it != state.end(); ++it) {
-        state_vector[it->first].push_back(it->second);
+        state_vector[it->first].emplace_back(it->second);
     }
 }
 
