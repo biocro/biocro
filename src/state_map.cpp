@@ -14,11 +14,10 @@ state_vector_map allocate_state(state_map const &m, size_t n)
     return (result);
 }
 
-state_map combine_state(state_map const &state_a, state_map const &state_b)
+state_map combine_state(state_map state_a, state_map const &state_b)
 {
-    state_map result = state_a;
-    result.insert(state_b.begin(), state_b.end());
-    return result;
+    state_a.insert(state_b.begin(), state_b.end());
+    return state_a;
 }
 
 state_map at(state_vector_map const &vector_map, vector<double>::size_type const n)

@@ -55,7 +55,7 @@ private:
 };
 */
 
-state_map combine_state(state_map const &state_a, state_map const &state_b);
+state_map combine_state(state_map state_a, state_map const &state_b);
 
 void output_map(state_map const &m);
 
