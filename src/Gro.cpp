@@ -156,50 +156,50 @@ state_vector_map Gro(
         append_state_to_vector(derivs, deriv_history);
 
         // Record other parameters of interest.
-        results["canopy_assimilation_rate"].push_back(p["canopy_assimilation_rate"]);
-        results["canopy_transpiration_rate"].push_back(p["canopy_transpiration_rate"]);
-        results["rate_constant_root_scale"].push_back(p["rate_constant_root_scale"]);
-        results["lai"].push_back(p["lai"]);
-        //results["soil_water_content"].push_back(s.at("soil_water_content"));
-        results["stomatal_conductance_coefs"].push_back(p["StomataWS"]);
-        results["LeafWS"].push_back(p["LeafWS"]);
-        //results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
-        //results["leaf_nitrogen"].push_back(s.at("LeafN"));
-        results["vmax"].push_back(p["vmax"]);
-        results["alpha"].push_back(p["alpha"]);
-        results["specific_leaf_area"].push_back(p["Sp"]);
-        results["soil_evaporation_rate"].push_back(p["soil_evaporation_rate"]);
-        //results["kLeaf"].push_back(kLeaf);
-        results["newLeafcol"].push_back(derivs["newLeafcol"]);
-        results["newStemcol"].push_back(derivs["newStemcol"]);
-        results["newRootcol"].push_back(derivs["newRootcol"]);
-        results["newRhizomecol"].push_back(derivs["newRhizomecol"]);
-        results["dLeaf"].push_back(derivs["Leaf"]);
-        results["dGrain"].push_back(derivs["Grain"]);
-        results["dStem"].push_back(derivs["Stem"]);
-        results["dRoot"].push_back(derivs["Root"]);
-        results["dRhizome"].push_back(derivs["Rhizome"]);
+        results["canopy_assimilation_rate"].emplace_back(p["canopy_assimilation_rate"]);
+        results["canopy_transpiration_rate"].emplace_back(p["canopy_transpiration_rate"]);
+        results["rate_constant_root_scale"].emplace_back(p["rate_constant_root_scale"]);
+        results["lai"].emplace_back(p["lai"]);
+        //results["soil_water_content"].emplace_back(s.at("soil_water_content"));
+        results["stomatal_conductance_coefs"].emplace_back(p["StomataWS"]);
+        results["LeafWS"].emplace_back(p["LeafWS"]);
+        //results["leaf_reduction_coefs"].emplace_back(s.at("LeafWS"));
+        //results["leaf_nitrogen"].emplace_back(s.at("LeafN"));
+        results["vmax"].emplace_back(p["vmax"]);
+        results["alpha"].emplace_back(p["alpha"]);
+        results["specific_leaf_area"].emplace_back(p["Sp"]);
+        results["soil_evaporation_rate"].emplace_back(p["soil_evaporation_rate"]);
+        //results["kLeaf"].emplace_back(kLeaf);
+        results["newLeafcol"].emplace_back(derivs["newLeafcol"]);
+        results["newStemcol"].emplace_back(derivs["newStemcol"]);
+        results["newRootcol"].emplace_back(derivs["newRootcol"]);
+        results["newRhizomecol"].emplace_back(derivs["newRhizomecol"]);
+        results["dLeaf"].emplace_back(derivs["Leaf"]);
+        results["dGrain"].emplace_back(derivs["Grain"]);
+        results["dStem"].emplace_back(derivs["Stem"]);
+        results["dRoot"].emplace_back(derivs["Root"]);
+        results["dRhizome"].emplace_back(derivs["Rhizome"]);
 
-        results["dsubstrate_pool_leaf"].push_back(derivs["substrate_pool_leaf"]);
-        results["dsubstrate_pool_stem"].push_back(derivs["substrate_pool_stem"]);
-        results["dsubstrate_pool_grain"].push_back(derivs["substrate_pool_grain"]);
-        results["dsubstrate_pool_root"].push_back(derivs["substrate_pool_root"]);
-        results["dsubstrate_pool_rhizome"].push_back(derivs["substrate_pool_rhizome"]);
+        results["dsubstrate_pool_leaf"].emplace_back(derivs["substrate_pool_leaf"]);
+        results["dsubstrate_pool_stem"].emplace_back(derivs["substrate_pool_stem"]);
+        results["dsubstrate_pool_grain"].emplace_back(derivs["substrate_pool_grain"]);
+        results["dsubstrate_pool_root"].emplace_back(derivs["substrate_pool_root"]);
+        results["dsubstrate_pool_rhizome"].emplace_back(derivs["substrate_pool_rhizome"]);
 
-        results["transport_leaf_to_stem"].push_back(derivs["transport_leaf_to_stem"]);
-        results["transport_stem_to_grain"].push_back(derivs["transport_stem_to_grain"]);
-        results["transport_stem_to_root"].push_back(derivs["transport_stem_to_root"]);
-        results["transport_stem_to_rhizome"].push_back(derivs["transport_stem_to_rhizome"]);
+        results["transport_leaf_to_stem"].emplace_back(derivs["transport_leaf_to_stem"]);
+        results["transport_stem_to_grain"].emplace_back(derivs["transport_stem_to_grain"]);
+        results["transport_stem_to_root"].emplace_back(derivs["transport_stem_to_root"]);
+        results["transport_stem_to_rhizome"].emplace_back(derivs["transport_stem_to_rhizome"]);
 
-        results["utilization_leaf"].push_back(derivs["utilization_leaf"]);
-        results["utilization_stem"].push_back(derivs["utilization_stem"]);
-        results["utilization_grain"].push_back(derivs["utilization_grain"]);
-        results["utilization_root"].push_back(derivs["utilization_root"]);
+        results["utilization_leaf"].emplace_back(derivs["utilization_leaf"]);
+        results["utilization_stem"].emplace_back(derivs["utilization_stem"]);
+        results["utilization_grain"].emplace_back(derivs["utilization_grain"]);
+        results["utilization_root"].emplace_back(derivs["utilization_root"]);
 
 
 
-        //results["cws1"].push_back(current_state.at("cws1"));
-        //results["cws2"].push_back(current_state.at("cws2"));
+        //results["cws1"].emplace_back(current_state.at("cws1"));
+        //results["cws2"].emplace_back(current_state.at("cws2"));
     }
     return results;
 }
