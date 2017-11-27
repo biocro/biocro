@@ -32,8 +32,7 @@ vector<string> IModule::list_modified_state() const
 state_map IModule::run(state_map const &state) const
 {
     try {
-        state_map result;
-        result = this->do_operation(state);
+        state_map result = this->do_operation(state);
         return result;
     }
     catch (std::out_of_range const &oor) {
@@ -51,8 +50,7 @@ state_map IModule::run(state_map const &state) const
 state_map IModule::run(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
     try {
-        state_map result;
-        result = this->do_operation(state_history, deriv_history, parameters);
+        state_map result = this->do_operation(state_history, deriv_history, parameters);
         return result;
     }
     catch (std::out_of_range const &oor) {
