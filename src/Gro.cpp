@@ -209,7 +209,7 @@ state_vector_map Gro(
          */
 
         current_state = at(state_history, i);
-        current_state = update_state(current_state, derivs * p.at("timestep"));
+        update_state(current_state, derivs * p.at("timestep"));
 
         /*
          * 4) Record variables in the state_history map.

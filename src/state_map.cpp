@@ -42,16 +42,14 @@ state_map replace_state(state_map const &state, state_map const &newstate)
     return result;
 }
 
-state_map update_state(state_map const &state, state_map const &change_in_state)
+void update_state(state_map &state, state_map const &change_in_state)
 {
-    state_map result = state;
-    for (auto it = result.begin(); it != result.end(); ++it) {
+    for (auto it = state.begin(); it != state.end(); ++it) {
         auto it_change = change_in_state.find(it->first);
         if ( it_change != change_in_state.end()) {
             it->second += it_change->second;
         }
     }
-    return result;
 }
 
 void append_state_to_vector(state_map const &state, state_vector_map &state_vector)

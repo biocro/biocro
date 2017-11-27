@@ -61,7 +61,8 @@ void output_map(state_map const &m);
 
 state_map replace_state(state_map const &state, state_map const &newstate);
 
-state_map update_state(state_map const &state, state_map const &change_in_state);
+//state_map update_state(state_map const &state, state_map const &change_in_state);
+void update_state(state_map &state, state_map const &change_in_state);
 
 state_vector_map allocate_state(state_map const &m, size_t n);
 
