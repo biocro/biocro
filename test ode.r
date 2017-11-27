@@ -12,7 +12,6 @@ r = Gro_ode(state, steady_state_modules=c('soil_type_selector', 'leaf_water_stre
 
 previous_times = c()
 
-
 test_weather = within(weather05, {
     time = seq_len(nrow(weather05))
     year = NULL
@@ -52,6 +51,7 @@ gro_reporter = combine_reporters(list(time_reporter(), state_reporter()),
 ))
 
 ns = gro_reporter$state()
+gro_reporter$counter()
 subns = subset(ns, time > 4617.4 & time < 4617.6)
 subns[grepl("(substrate_|transport_|mass_|utilization_|\\<(Leaf|Stem|Root|Rhizome|Grain)\\>|start_grain|d_grain|time)", names(subns))]
 
@@ -77,7 +77,6 @@ test_state = state
     }
 })
 
-gro_reporter$counter()
 x11(); densityplot(gro_reporter$iter_times(), plot.points=FALSE)
 x11(); xyplot(gro_reporter$iter_times() ~ seq_along(gro_reporter$iter_times()), type='l')
 

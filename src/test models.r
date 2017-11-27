@@ -4,11 +4,6 @@ library(BioCro)
 system.time({
 ngr = Gro(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), within(glycine_max_modules, {growth_module_name<-'utilization_growth_and_senescence'; senescence_module_name<-'empty_senescence'}))
 })
-ngr = Gro_ode(glycine_max_initial_state,
-    glycine_max_parameters,
-    get_growing_season_climate(weather05),
-    steady_state_modules=c('parameter_calculator', 'c3_canopy', 'soil_evaporation'),
-    derivative_modules=c('utilization_growth_and_senescence', 'thermal_time_accumulator', 'bucket_soil_drainage'))
 
 #save(gr, sr, wr, mr, file='old_results.rdata')
 load('old_results.rdata')
