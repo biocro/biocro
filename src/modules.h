@@ -521,19 +521,20 @@ class partitioning_coefficient_selector : public IModule {
             }
 
             // Find the interval that contains TTc.
-            int interval = thermal_periods.size() - 1;
+            const int highest_interval = thermal_periods.size() - 1;
+            int interval = highest_interval;
             for ( ; interval >= 0; --interval) {
                 if (s.at("TTc") > thermal_periods[interval]) break;
             }
 
             constexpr int n_tissues = 5;
-            int offset = (interval + 1) * n_tissues;
+            int offset = std::min(interval + 1, highest_interval) * n_tissues;  // The thermal period variables mark the end of an interval. If the thermal time is larger than the last defined interval, then use the values in the last defined interval.
 
-            state_map result {{"kStem",    coefficients[0 + offset]},
-                              {"kLeaf",    coefficients[1 + offset]},
-                              {"kRoot",    coefficients[2 + offset]},
-                              {"kRhizome", coefficients[3 + offset]},
-                              {"kGrain",   coefficients[4 + offset]}};
+            state_map result {{"kStem",    coefficients.at(0 + offset)},
+                              {"kLeaf",    coefficients.at(1 + offset)},
+                              {"kRoot",    coefficients.at(2 + offset)},
+                              {"kRhizome", coefficients.at(3 + offset)},
+                              {"kGrain",   coefficients.at(4 + offset)}};
 
             return result;
         }
