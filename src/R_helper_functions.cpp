@@ -14,7 +14,6 @@ state_map map_from_list(SEXP const &list)
     state_map m;
     m.reserve(n);
     for (size_t i = 0; i < n; ++i) {
-        //m.insert(std::pair<string, double>(CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]));
         m.emplace(CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]);
     }
     return m;
