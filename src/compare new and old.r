@@ -1,11 +1,6 @@
 library(lattice)
 library(BioCro)
 
-sorghum_parameters['Sp_thermal_time_decay'] = 0
-miscanthus_x_giganteus_parameters['Sp_thermal_time_decay'] = 0
-glycine_max_parameters['Sp_thermal_time_decay'] = 0
-willow_parameters['Sp_thermal_time_decay'] = 0
-
 glycine_max_modules = within(glycine_max_modules, growth_module_name <- 'partitioning_growth')
 glycine_max_modules = within(glycine_max_modules, senescence_module_name <- 'thermal_time_senescence')
 

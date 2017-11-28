@@ -20,7 +20,7 @@ glycine_max_parameters = with(list(), {
      grain_TTc 950
      iSp                 2.5      
      chil           0.8
-     SpD                0        
+     Sp_thermal_time_decay      0        
      nlayers            10       
      kd                 0.1     
      mrc1             0.02

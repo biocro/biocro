@@ -49,7 +49,7 @@ SEXP R_Gro(SEXP initial_state,
         derivative_modules.push_back(factory("thermal_time_accumulator"));
         derivative_modules.push_back(factory(CHAR(STRING_ELT(soil_water_module, 0))));
 
-        vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
+        vector<string> required_state = {"iSp", "doy", "Leaf",
             "LeafN_0", "vmax_n_intercept", "vmax1", "alphab1",
             "alpha1", "TTc", "temp", "tbase", "timestep",
             "mrc1", "seneLeaf", "Stem", "seneStem",

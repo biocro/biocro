@@ -10,7 +10,7 @@ sorghum_parameters = with(list(), {
     specific_heat 1010
     stefan_boltzman 5.67e-8
     iSp 1.7
-    SpD 0
+    Sp_thermal_time_decay 0
     nlayers 10
     kd 0.1
     chil 1.43 # An estimate for sorghum. Table 15.1, page 253 of Campbell and Norman. An introduction to environmental biophysics. 2nd edition.

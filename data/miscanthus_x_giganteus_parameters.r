@@ -10,7 +10,7 @@ miscanthus_x_giganteus_parameters = with(list(), {
     specific_heat 1010
     stefan_boltzman 5.67e-8
     iSp 1.7
-    SpD 0
+    Sp_thermal_time_decay 0
     nlayers 10
     kd 0.1
     chil 1

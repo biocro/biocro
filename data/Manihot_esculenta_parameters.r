@@ -12,7 +12,7 @@ manihot_esculenta_parameters = with(list(), {
      Tfrostlow     0   
      leafdeathrate 5
      iSp                 2.27      
-     SpD                0        
+     Sp_thermal_time_decay       0        
      nlayers            10       
      kd                 0.37     
      mrc1             0.02
