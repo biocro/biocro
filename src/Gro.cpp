@@ -1,4 +1,3 @@
-#include <R.h>
 /*
  *  BioCro/src/BioCro.c by Fernando Ezequiel Miguez Copyright (C)
  *  2007-2015 lower and upper temp contributed by Deepak Jaiswal,
@@ -64,13 +63,6 @@ state_vector_map Gro(
         append_state_to_vector(current_state, state_history);
         append_state_to_vector(current_state, results);
 
-        p = combine_state(combine_state(invariant_parameters, at(varying_parameters, i)), current_state);
-
-        for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-            state_map temp = (*it)->run(p);
-            p.insert(temp.begin(), temp.end());
-        }
-
         /*
          * 1) Calculate all state-dependent state variables.
          */
@@ -80,16 +72,12 @@ state_vector_map Gro(
          * No derivaties should be calulated here.
          * This makes it so that the code in section 2 is order independent.
          */
+        p = combine_state(combine_state(invariant_parameters, at(varying_parameters, i)), current_state);
 
-
-        //double root_depth = fmin(p.at("Root") * p.at("rsdf"), p.at("soil_depth"));
-        //double root_depth_fraction = root_depth / p.at("soil_depth");
-        //double evaporation_rate = (p.at("soil_evaporation_rate") + p.at("canopy_transpiration_rate")) / 0.9982 / 1e4 / root_depth;
-        //double root_available_water_fraction = fmax(fmin(1 + (p.at("waterCont") / fieldc - 1) / root_depth_fraction, 1), 0);
-        //double root_available_water_fraction = fmin(1 - (fieldc - p.at("soil_water_content")) / root_depth_fraction, 1);
-        //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (p.at("waterCont") - wiltp), 1), 0);
-        //p["rate_constant_root_scale"] = fmax(fmin( evaporation_rate / (root_available_water_fraction - wiltp), 1), 0);
-        //p["rate_constant_root_scale"] = fmin(fmax((fieldc - (root_available_water_fraction - evaporation_rate)) / (fieldc - wiltp), 1), 20);
+        for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+            state_map temp = (*it)->run(p);
+            p.insert(temp.begin(), temp.end());
+        }
 
         /*
          * 2) Calculate derivatives between state variables.
@@ -117,8 +105,10 @@ state_vector_map Gro(
         current_state = at(state_history, i);
         update_state(current_state, derivs * p.at("timestep"));
 
+        append_state_to_vector(derivs, deriv_history);
+
         /*
-         * 4) Record variables in the state_history map.
+         * 4) Record additional variables the results.
          */
 
         /* NOTE: We can write a recorder function so that the user can specify
@@ -127,10 +117,6 @@ state_vector_map Gro(
          * things of interest.
          */
 
-        // Record everything that is in "state".
-        append_state_to_vector(derivs, deriv_history);
-
-        // Record other parameters of interest.
         results["canopy_assimilation_rate"].emplace_back(p["canopy_assimilation_rate"]);
         results["canopy_transpiration_rate"].emplace_back(p["canopy_transpiration_rate"]);
         results["rate_constant_root_scale"].emplace_back(p["rate_constant_root_scale"]);
