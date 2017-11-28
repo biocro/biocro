@@ -14,7 +14,8 @@ state_map map_from_list(SEXP const &list)
     state_map m;
     m.reserve(n);
     for (size_t i = 0; i < n; ++i) {
-        m.insert(std::pair<string, double>(CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]));
+        //m.insert(std::pair<string, double>(CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]));
+        m.emplace(CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]);
     }
     return m;
 }
@@ -30,9 +31,9 @@ state_vector_map map_vector_from_list(SEXP const &list)
         vector<double> temporary;
         temporary.reserve(p);
         for (size_t j = 0; j < p; ++j) {
-            temporary.push_back(REAL(VECTOR_ELT(list, i))[j]);
+            temporary.emplace_back(REAL(VECTOR_ELT(list, i))[j]);
         }
-        m.insert(std::pair<string, vector<double>>(CHAR(STRING_ELT(names, i)), temporary));
+        m.insert(state_vector_map::value_type(CHAR(STRING_ELT(names, i)), temporary));
     }
     return m;
 }
@@ -42,7 +43,7 @@ vector<string> make_vector(SEXP const &r_string_vector) {
     size_t n = length(r_string_vector);
     v.reserve(n);
     for (size_t i = 0; i < n; ++i) {
-        v.push_back(CHAR(STRING_ELT(r_string_vector, i)));
+        v.emplace_back(CHAR(STRING_ELT(r_string_vector, i)));
     }
     return v;
 }
