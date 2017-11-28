@@ -16,24 +16,24 @@ string join_string_vector(vector<string> const &state_keys) {
         message << *it << ", ";
     }
     message << state_keys.back();
-    return (message.str());
+    return message.str();
 }
 
 vector<string> IModule::list_required_state() const
 {
-    return (this->_required_state);
+    return this->_required_state;
 }
 
 vector<string> IModule::list_modified_state() const
 {
-    return (this->_modified_state);
+    return this->_modified_state;
 }
 
 state_map IModule::run(state_map const &state) const
 {
     try {
-        state_map result = this->do_operation(state);
-        return result;
+        state_map derivs = this->do_operation(state);
+        return derivs;
     }
     catch (std::out_of_range const &oor) {
         vector<string> missing_state = this->state_requirements_are_met(state);
@@ -50,8 +50,8 @@ state_map IModule::run(state_map const &state) const
 state_map IModule::run(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
     try {
-        state_map result = this->do_operation(state_history, deriv_history, parameters);
-        return result;
+        state_map derivs = this->do_operation(state_history, deriv_history, parameters);
+        return derivs;
     }
     catch (std::out_of_range const &oor) {
         state_map state = combine_state(at(state_history, 0), parameters);
@@ -69,7 +69,7 @@ state_map IModule::run(state_vector_map const &state_history, state_vector_map c
 state_map IModule::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
     state_map current_state = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
-    return (this->do_operation(current_state));
+    return this->do_operation(current_state);
 }
 
 vector<string> IModule::state_requirements_are_met(state_map const &s) const
@@ -80,7 +80,7 @@ vector<string> IModule::state_requirements_are_met(state_map const &s) const
             missing_state.push_back(*it);
         }
     }
-    return (missing_state);
+    return missing_state;
 }
 
 state_map biomass_leaf_n_limitation::do_operation(state_map const &s) const
@@ -92,12 +92,14 @@ state_map biomass_leaf_n_limitation::do_operation(state_map const &s) const
 
 state_map parameter_calculator::do_operation(state_map const &s) const
 {
-    state_map result;
-    result["Sp"] = s.at("iSp") - s.at("TTc") * s.at("Sp_thermal_time_decay");
-    result["lai"] = s.at("Leaf") * result.at("Sp");
-    result["vmax"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmax_n_intercept") + s.at("vmax1");
-    result["alpha"] = (s.at("LeafN_0") - s.at("LeafN")) * s.at("alphab1") + s.at("alpha1");
-    return result;
+    const double Sp = s.at("iSp") - s.at("TTc") * s.at("Sp_thermal_time_decay");
+    state_map new_state {
+        { "Sp", Sp },
+        { "lai",  s.at("Leaf") * Sp },
+        { "vmax",  (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmax_n_intercept") + s.at("vmax1") },
+        { "alpha",  (s.at("LeafN_0") - s.at("LeafN")) * s.at("alphab1") + s.at("alpha1") }
+    };
+    return new_state;
 }
 
 state_map test_derivs::do_operation(state_map const &s) const
@@ -105,7 +107,7 @@ state_map test_derivs::do_operation(state_map const &s) const
     state_map derivs;
     derivs["CarbonAvailableForGrowth"] = s.at("LeafArea") * s.at("PAR");
 
-    return (derivs);
+    return derivs;
 }
 
 state_map test_calc_state::do_operation(state_map const &s) const
@@ -113,7 +115,7 @@ state_map test_calc_state::do_operation(state_map const &s) const
     state_map new_state;
     new_state["useless_parameter"] = s.at("LeafArea") * s.at("parameter");
 
-    return (new_state);
+    return new_state;
 }
 
 state_map c4_canopy::do_operation(state_map const &s) const
@@ -131,7 +133,7 @@ state_map c4_canopy::do_operation(state_map const &s) const
     nitroP.lnb0 = s.at("nlnb0");
     nitroP.lnb1 = s.at("nlnb1");
 
-    struct Can_Str result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
+    struct Can_Str can_result = CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
             s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax1"),
             s.at("alpha1"), s.at("kparm"), s.at("beta"), s.at("Rd"), s.at("Catm"),
             s.at("b0"), s.at("b1"), s.at("theta"), s.at("kd"), s.at("chil"),
@@ -139,30 +141,32 @@ state_map c4_canopy::do_operation(state_map const &s) const
             (int)s.at("lnfun"), s.at("upperT"), s.at("lowerT"), nitroP, s.at("leafwidth"),
             (int)s.at("et_equation"), s.at("StomataWS"), (int)s.at("water_stress_approach"));
 
-    state_map derivs;
-    derivs["canopy_assimilation_rate"] = result.Assim;  // Mg / ha / hr.
-    derivs["canopy_transpiration_rate"] = result.Trans;  // Mg / ha / hr.
-    derivs["GrossAssim"] = result.GrossAssim;
+    state_map new_state {
+        { "canopy_assimilation_rate", can_result.Assim },  // Mg / ha / hr.
+        { "canopy_transpiration_rate", can_result.Trans },  // Mg / ha / hr.
+        { "GrossAssim", can_result.GrossAssim }
+    };
 
-    return (derivs);
+    return new_state;
 }
 
 state_map c3_canopy::do_operation(state_map const &s) const
 {
 
-    struct Can_Str result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
+    struct Can_Str can_result = c3CanAC(s.at("lai"), s.at("doy"), s.at("hour"), s.at("solar"), s.at("temp"),
             s.at("rh"), s.at("windspeed"), s.at("lat"), (int)s.at("nlayers"), s.at("vmax"),
             s.at("jmax"), s.at("Rd"), s.at("Catm"), s.at("O2"), s.at("b0"),
             s.at("b1"), s.at("theta"), s.at("kd"), s.at("heightf"), s.at("LeafN"),
             s.at("kpLN"), s.at("lnb0"), s.at("lnb1"), (int)s.at("lnfun"), s.at("chil"),
             s.at("StomataWS"), s.at("growth_respiration_fraction"), (int)s.at("water_stress_approach"), s.at("electrons_per_carboxylation"), s.at("electrons_per_oxygenation"));
 
-    state_map derivs;
-    derivs["canopy_assimilation_rate"] = result.Assim;  // Mg / ha / hr
-    derivs["canopy_transpiration_rate"] = result.Trans;  // Mg / ha / hr
-    derivs["GrossAssim"] = result.GrossAssim;
+    state_map new_state {
+        { "canopy_assimilation_rate", can_result.Assim },  // Mg / ha / hr.
+        { "canopy_transpiration_rate", can_result.Trans },  // Mg / ha / hr.
+        { "GrossAssim", can_result.GrossAssim }
+    };
 
-    return (derivs);
+    return new_state;
 }
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
@@ -174,9 +178,8 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
             s.at("soil_wilting_point"), s.at("phi1"), s.at("phi2"), s.at("soil_saturation_capacity"), s.at("soil_sand_content"),
             s.at("soil_saturated_conductivity"), s.at("soil_air_entry"), s.at("soil_b_coefficient"));
 
-    state_map derivs;
-    derivs["soil_water_content"] = WaterS.awc - s.at("soil_water_content");
-    return (derivs);
+    state_map derivs { { "soil_water_content", WaterS.awc - s.at("soil_water_content") } };
+    return derivs;
 }
 
 state_map two_layer_soil_profile::do_operation(state_map const &s) const
@@ -192,17 +195,19 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
             s.at("rfl"), s.at("rsec"), s.at("rsdf"), s.at("soil_clod_size"), s.at("soil_reflectance"),
             s.at("soil_transmission"), s.at("specific_heat"), s.at("stefan_boltzman"));
 
-    state_map derivs;
-    derivs["StomataWS"] = soilMLS.rcoefPhoto - s.at("StomataWS");
-    derivs["LeafWS"] =  soilMLS.rcoefSpleaf - s.at("LeafWS");
-    derivs["soilEvap"] = soilMLS.SoilEvapo;
-
-    derivs["cws1"] = soilMLS.cws[0] - s.at("cws1");
-    derivs["cws2"] = soilMLS.cws[1] - s.at("cws2");
     double cws_sum = soilMLS.cws[0] + soilMLS.cws[1];
-    derivs["soil_water_content"] =  cws_sum / 2 - s.at("soil_water_content");  // Divide by 2, the number of layers.
+
+    state_map new_state {
+        { "StomataWS", soilMLS.rcoefPhoto - s.at("StomataWS") },
+        { "LeafWS",  soilMLS.rcoefSpleaf - s.at("LeafWS") },
+        { "soilEvap", soilMLS.SoilEvapo },
+
+        { "cws1", soilMLS.cws[0] - s.at("cws1") },
+        { "cws2", soilMLS.cws[1] - s.at("cws2") },
+        { "soil_water_content",  cws_sum / 2 - s.at("soil_water_content") }  // Divide by 2, the number of layers.
+    };
     
-    return (derivs);
+    return new_state;
 }
 
 state_map thermal_time_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
@@ -248,7 +253,7 @@ state_map thermal_time_senescence::do_operation(state_vector_map const &state_hi
         ++derivs["rhizome_senescence_index"];
     }
 
-    return (derivs);
+    return derivs;
 }
 
 state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
@@ -306,7 +311,7 @@ state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const
         ++derivs["rhizome_senescence_index"];
     }
 
-    return (derivs);
+    return derivs;
 }
 
 state_map partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
@@ -401,7 +406,7 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &state
         /* No respiration for grain at the moment */
         /* No senescence either */
     }
-    return (derivs);
+    return derivs;
 }
 
 state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
@@ -492,7 +497,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
         /* No respiration for grain at the moment */
         /* No senescence either */
     }
-    return (derivs);
+    return derivs;
 }
 
 double biomass_leaf_nitrogen_limitation(state_map const &s)
