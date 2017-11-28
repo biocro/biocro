@@ -72,6 +72,11 @@ state_vector_map Gro(
          * No derivaties should be calulated here.
          * This makes it so that the code in section 2 is order independent.
          */
+
+        /* CAVEAT:
+         * These modules are not order independent. They must be ordered in the vector
+         * such that if A is dependent on B, B is before A.
+         */
         p = combine_state(combine_state(invariant_parameters, at(varying_parameters, i)), current_state);
 
         for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
@@ -98,8 +103,7 @@ state_vector_map Gro(
          */
 
         /* NOTE: This is the only spot where where state should be updated.
-         * By updating everything at the end, the order of the previous statements will not
-         * affect output. It should also allow us to use an ODE solver.
+         * By updating everything at the end, derivative calculations are order independent.
          */
 
         current_state = at(state_history, i);
@@ -156,8 +160,6 @@ state_vector_map Gro(
         results["utilization_stem"].emplace_back(derivs["utilization_stem"]);
         results["utilization_grain"].emplace_back(derivs["utilization_grain"]);
         results["utilization_root"].emplace_back(derivs["utilization_root"]);
-
-
 
         //results["cws1"].emplace_back(current_state.at("cws1"));
         //results["cws2"].emplace_back(current_state.at("cws2"));
