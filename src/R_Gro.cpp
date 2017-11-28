@@ -31,21 +31,23 @@ SEXP R_Gro(SEXP initial_state,
             return R_NilValue;
         }
 
+        ModuleFactory factory;
+
         vector<unique_ptr<IModule>> steady_state_modules;
         vector<unique_ptr<IModule>> derivative_modules;
 
-        steady_state_modules.push_back(ModuleFactory()("soil_type_selector"));
-        steady_state_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(stomata_water_stress_module, 0))));
-        steady_state_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(leaf_water_stress_module, 0))));
-        steady_state_modules.push_back(ModuleFactory()("parameter_calculator"));
-        steady_state_modules.push_back(ModuleFactory()("partitioning_coefficient_selector"));
-        steady_state_modules.push_back(ModuleFactory()("soil_evaporation"));
-        steady_state_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(canopy_photosynthesis_module, 0))));
+        steady_state_modules.push_back(factory("soil_type_selector"));
+        steady_state_modules.push_back(factory(CHAR(STRING_ELT(stomata_water_stress_module, 0))));
+        steady_state_modules.push_back(factory(CHAR(STRING_ELT(leaf_water_stress_module, 0))));
+        steady_state_modules.push_back(factory("parameter_calculator"));
+        steady_state_modules.push_back(factory("partitioning_coefficient_selector"));
+        steady_state_modules.push_back(factory("soil_evaporation"));
+        steady_state_modules.push_back(factory(CHAR(STRING_ELT(canopy_photosynthesis_module, 0))));
 
-        derivative_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(senescence_module, 0))));
-        derivative_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(growth_module, 0))));
-        derivative_modules.push_back(ModuleFactory()("thermal_time_accumulator"));
-        derivative_modules.push_back(ModuleFactory()(CHAR(STRING_ELT(soil_water_module, 0))));
+        derivative_modules.push_back(factory(CHAR(STRING_ELT(senescence_module, 0))));
+        derivative_modules.push_back(factory(CHAR(STRING_ELT(growth_module, 0))));
+        derivative_modules.push_back(factory("thermal_time_accumulator"));
+        derivative_modules.push_back(factory(CHAR(STRING_ELT(soil_water_module, 0))));
 
         vector<string> required_state = {"iSp", "doy", "SpD", "Leaf",
             "LeafN_0", "vmax_n_intercept", "vmax1", "alphab1",
@@ -72,9 +74,7 @@ SEXP R_Gro(SEXP initial_state,
             error(message.str().c_str());
         }
 
-        state_vector_map result;
-        //result = Gro(s, ip, vp, canopy, soil_water, growth, senescence, stomata_water_stress, leaf_water_stress, biomass_leaf_nitrogen_limitation);
-        result = Gro(s, ip, vp, steady_state_modules, derivative_modules);
+        state_vector_map result = Gro(s, ip, vp, steady_state_modules, derivative_modules);
         return (list_from_map(result));
 
     } catch (std::exception const &e) {
@@ -95,17 +95,20 @@ SEXP R_Gro_ode(SEXP state,
             return R_NilValue;
         }
 
-        vector<unique_ptr<IModule>> steady_state_modules;
-        vector<unique_ptr<IModule>> derivative_modules;
+        ModuleFactory factory;
 
         vector<string> steady_state_names_vector = make_vector(steady_state_modules_list);
+        vector<unique_ptr<IModule>> steady_state_modules;
+        steady_state_names_vector.reserve(steady_state_names_vector.size());
         for (auto it = steady_state_names_vector.begin(); it != steady_state_names_vector.end(); ++it) {
-            steady_state_modules.push_back(ModuleFactory()(*it));
+            steady_state_modules.push_back(factory(*it));
         }
 
         vector<string> derivative_names_vector = make_vector(derivative_modules_list);
+        vector<unique_ptr<IModule>> derivative_modules;
+        derivative_modules.reserve(derivative_names_vector.size());
         for (auto it = derivative_names_vector.begin(); it != derivative_names_vector.end(); ++it) {
-            derivative_modules.push_back(ModuleFactory()(*it));
+            derivative_modules.push_back(factory(*it));
         }
 
         state_map result = Gro(s, steady_state_modules, derivative_modules);
