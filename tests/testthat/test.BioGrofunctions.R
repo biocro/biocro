@@ -45,9 +45,9 @@ for (i in seq_along(parameter_lists)) {
                     modules$soil_module_name = 'two_layer_soil_profile'
                     parameters$cws1 = 0.32
                     parameters$cws2 = 0.32
-                    parameters$soilDepth1 = 0
-                    parameters$soilDepth2 = 1
-                    parameters$soilDepth3 = 2
+                    parameters$soil_depth1 = 0
+                    parameters$soil_depth2 = 1
+                    parameters$soil_depth3 = 2
                     }) 
 
         two_soil_layer_results <- do.call(Gro, two_layer_parameters)
