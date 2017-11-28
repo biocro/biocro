@@ -14,6 +14,8 @@
 #include "modules.h"
 #include "math.h"
 
+void allocate_state_vector_map(state_vector_map &vm, size_t n); // Declaration for a function defined at the end of this file.
+
 using std::vector;
 using std::string;
 
@@ -110,6 +112,7 @@ state_vector_map Gro(
         update_state(current_state, derivs * p.at("timestep"));
 
         append_state_to_vector(derivs, deriv_history);
+        if (i == 0) allocate_state_vector_map(deriv_history, n_rows);  // This is a crappy allocation check. When we add what variables each module provides, this can be allocated before the loop.
 
         /*
          * 4) Record additional variables the results.
@@ -184,5 +187,18 @@ state_map Gro(
     }
     
 return derivs;
+}
+
+/*
+ * You can allocate the state_history beforehand because you know how many columns there are.
+ * You can't allocate the deriv_history until we add the "modified_state" fields to modules,
+ * but you can allocate once the columns are created.
+ * allocate_state_vector_map() reserves space in already existing columns.
+ * It's hackish and isn't needed elsewhere, so it's defined here.
+ */
+void allocate_state_vector_map(state_vector_map &vm, size_t n) {
+    for (auto it = vm.begin(); it != vm.end(); ++it) {
+        it->second.reserve(n);
+    }
 }
 
