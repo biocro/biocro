@@ -251,7 +251,7 @@ state_map utilization_growth_flowering_module::do_operation(state_vector_map con
             continue;
         } else {
             //if (TTc < 1) Rprintf("For loop %f, %d.\n", TTc, i);
-            if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu, ttc %f. FT: %.1f CDF: %.1f\n", counter, sub_time_steps, TTc, FT, CDF);
+            //if (counter >= max_loops) Rprintf("Broken integrator, counter %zu, sub_time_steps %zu, ttc %f. FT: %.1f CDF: %.1f\n", counter, sub_time_steps, TTc, FT, CDF);
             //Rprintf("Loops %zu, counter: %zu\n", i, sub_time_steps, counter);
             //if (d_grain < 0) Rprintf("i: %zu, d_grain: %f, Grain: %f, substrate_pool_grain: %f.\n", i, d_grain, s.at("Grain")[t], s.at("substrate_pool_grain")[t]); 
 
