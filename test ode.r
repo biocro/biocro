@@ -50,6 +50,10 @@ gro_reporter = combine_reporters(list(time_reporter(), state_reporter()),
     })
 ))
 
+#old_reporter = gro_reporter; save(old_reporter, file='old_reporter.rdata')
+load('old_reporter.rdata')
+identical(old_reporter$state(), gro_reporter$state())
+
 ns = gro_reporter$state()
 gro_reporter$counter()
 subns = subset(ns, time > 4617.4 & time < 4617.6)
