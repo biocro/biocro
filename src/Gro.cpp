@@ -37,41 +37,22 @@ state_vector_map Gro(
         throw std::range_error("A parameter may appear in only one of the state lists.");
     }
 
-    /*
-     * This is a badly hackish way of checking parameters before the loop start. The pointers to modules should be changed from unique_ptr to shared_ptr, so that a vector of pointers can be created.
-     * Then use a for loop to iterate through each module to get the list of missing parameters.
-     */
-
     state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
+    vector<string> missing_state;
+
+    /* 
+     * This should use dependency resolution to find missing state. It currently doesn't work because it's checking
+     * whether the initial state has all of the required values, but it also needs to check whether a module provides a value.
+     *
+     * Modules check for missing state if exceptions are thrown, so this isn't necessary, but it has the advantage that 
+     * it will break before any calculations are done, and compiles a list of all missing state.
 
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-        state_map temp = (*it)->run(p);
-        p.insert(temp.begin(), temp.end());
+        vector<string> temp = (*it)->state_requirements_are_met(p);
+        missing_state.insert(missing_state.end(), temp.begin(), temp.end());
     }
 
-    /*
-
-    vector<string> missing_state;
-    vector<string> temp;
-
-    temp = canopy_photosynthesis_module->state_requirements_are_met(p); 
-    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-
-    temp = soil_water_module->state_requirements_are_met(p); 
-    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-
-    temp = senescence_module->state_requirements_are_met(p); 
-    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-
-    temp = growth_module->state_requirements_are_met(p); 
-    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-    */
-
-    /*
-     * End of hackish section.
-     */
-
-    /*if (!missing_state.empty()) {
+    if (!missing_state.empty()) {
         std::ostringstream message;
         message << "The following required state variables are missing in Gro: " << join_string_vector(missing_state);
         throw std::out_of_range(message.str());
@@ -116,12 +97,6 @@ state_vector_map Gro(
 
         /* NOTE: This section should be written to calculate derivates only. No state should be modified.
          * All derivatives should depend only on current state. I.e., derivates should not depend on other derivaties or previous state.
-         * I've changed it to try to meet these requirements, but it currently does not meet them.
-         * E.g., 1) s["TTc"] is changed at the very begining, modifying state;
-         * 2) all of the partitioning code depends on CanopyA, so it depends on a derivative;
-         * 3) the senescence code depends on derivates from previous state. 
-         * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
-         * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
          */
 
         state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
