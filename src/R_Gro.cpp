@@ -3,6 +3,7 @@
 #include <Rinternals.h>
 #include "BioCro.h"
 #include "modules.h"
+#include "ModuleFactory.h"
 #include "R_helper_functions.h"
 
 using std::string;
@@ -95,7 +96,7 @@ SEXP R_Gro_ode(SEXP state,
             return R_NilValue;
         }
 
-        ModuleFactory module_factory;
+        //ModuleFactory module_factory;
 
         vector<string> steady_state_names_vector = make_vector(steady_state_modules_list);
         vector<unique_ptr<IModule>> steady_state_modules;
