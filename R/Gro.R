@@ -173,15 +173,28 @@ partial_gro = function(initial_values, parameters, varying_parameters, modules, 
     }
 }
 
-Gro_deriv = function(parameters, varying_parameters, steady_state_modules, derivative_modules) {
+Gro_deriv = function (parameters, varying_parameters, steady_state_modules, derivative_modules) {
+    state_names = character(0)
+    result_names = character(0)
+    result_name_length = 0
+    state_diff = character(0)
+    result_diff = character(0)
+
     function(t, state, parms) {
         vp = varying_parameters(t)
         all_state = c(state, parameters, vp)
-        #result = Gro_ode(all_state, steady_state_modules, derivative_modules, check_parameters=FALSE)
         result = .Call(BioCro:::R_Gro_ode, all_state, steady_state_modules, derivative_modules)
-        result[setdiff(names(state), names(result))] = 0
-        derivatives = result[names(state)]
-        state_of_interest = c(result[setdiff(names(result), names(state))], vp)
+        temp = names(result)
+        if (length(temp) != result_name_length) {
+            state_names <<- names(state)
+            result_names <<- temp
+            result_name_length <<- length(result_names)
+            state_diff <<- setdiff(state_names, result_names) 
+            result_diff <<- setdiff(result_names, state_names)
+        }
+        result[state_diff] = 0
+        derivatives = result[state_names]
+        state_of_interest = c(result[result_diff], vp)
         return(list(derivatives, c(state_of_interest, derivatives)))
     }
 }
