@@ -197,31 +197,8 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
         { "mass_fraction_rhizome", mass_fraction_rhizome },
         { "mass_fraction_grain", mass_fraction_grain }
     };
-    /*
-    state_map derivs;
-    derivs["newLeafcol"] = derivs["Leaf"] = d_leaf;
-    derivs["substrate_pool_leaf"] = d_substrate_leaf;
 
-    derivs["newStemcol"] = derivs["Stem"] = d_stem;
-    derivs["substrate_pool_stem"] = d_substrate_stem;
-
-    derivs["Grain"] = d_grain;
-    derivs["substrate_pool_grain"] = d_substrate_grain;
-
-    derivs["newRootcol"] = derivs["Root"] = d_root;
-    derivs["substrate_pool_root"] = d_substrate_root;
-
-    derivs["newRhizomecol"] = derivs["Rhizome"] = d_rhizome;
-    derivs["substrate_pool_rhizome"] = d_substrate_rhizome;
-
-    derivs["utilization_leaf"] = d_leaf;
-    derivs["utilization_stem"] = d_stem;
-    derivs["utilization_grain"] = d_grain;
-    derivs["utilization_root"] = d_root;
-    derivs["utilization_rhizome"] = d_rhizome;
-    */
-
-    return (derivs);
+    return derivs;
 }
 
 
@@ -366,32 +343,6 @@ state_map utilization_senescence::do_operation(state_map const &s) const
         {"senescence_rhizome", senescence_rhizome}
     };
 
-    /*
-    state_map derivs;
-//    derivs.reserve(17);
-    derivs["Leaf"] = -senescence_leaf;
-    derivs["substrate_pool_leaf"] = senescence_leaf * remobilization_fraction;
-    derivs["LeafLitter"] = senescence_leaf * (1 - remobilization_fraction);
-
-    derivs["Stem"] = -senescence_stem;
-    derivs["substrate_pool_stem"] = senescence_stem * remobilization_fraction - start_grain;
-    derivs["StemLitter"] = senescence_stem * (1 - remobilization_fraction);
-
-    derivs["Grain"] = start_grain;
-
-    derivs["Root"] = -senescence_root;
-    derivs["substrate_pool_root"] = senescence_root * remobilization_fraction;
-    derivs["RootLitter"] = senescence_root * (1 - remobilization_fraction);
-
-    derivs["Rhizome"] = -senescence_rhizome;
-    derivs["substrate_pool_rhizome"] = senescence_rhizome * remobilization_fraction;
-    derivs["RhizomeLitter"] = senescence_rhizome * (1 - remobilization_fraction);
-
-    derivs["senescence_leaf"] = senescence_leaf;
-    derivs["senescence_stem"] = senescence_stem;
-    derivs["senescence_root"] = senescence_root;
-    derivs["senescence_rhizome"] = senescence_rhizome;
-    */
-
-    return (derivs);
+    return derivs;
 }
+

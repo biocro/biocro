@@ -25,10 +25,12 @@ for (i in c('s', 'm', 'g', 'w')) {
     old_result = get(paste('old_', i, 'result', sep=''))
     
     both_names = intersect(names(result), names(old_result))
-    print(identical(result[both_names], old_result[both_names]))
+    print(are_same = identical(result[both_names], old_result[both_names]))
 
-    x11(); print(xyplot(Stem + Leaf + Root ~ TTc, main=result_name, result, type='l'))
-    x11(); print(xyplot(Stem + Leaf + Root ~ TTc, main=result_name, old_result, type='l'))
+    if (!are_same) {
+        x11(); print(xyplot(Stem + Leaf + Root ~ TTc, main=result_name, result, type='l'))
+        x11(); print(xyplot(Stem + Leaf + Root ~ TTc, main=result_name, old_result, type='l'))
+    }
 }
 
 #old_sresult = sresult; old_mresult = mresult; old_gresult = gresult; old_wresult = wresult; save(old_sresult, old_mresult, old_gresult, old_wresult, file='old_result.rdata')

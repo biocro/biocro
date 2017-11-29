@@ -95,20 +95,20 @@ SEXP R_Gro_ode(SEXP state,
             return R_NilValue;
         }
 
-        ModuleFactory factory;
+        ModuleFactory module_factory;
 
         vector<string> steady_state_names_vector = make_vector(steady_state_modules_list);
         vector<unique_ptr<IModule>> steady_state_modules;
         steady_state_names_vector.reserve(steady_state_names_vector.size());
         for (auto it = steady_state_names_vector.begin(); it != steady_state_names_vector.end(); ++it) {
-            steady_state_modules.push_back(factory(*it));
+            steady_state_modules.push_back(module_factory(*it));
         }
 
         vector<string> derivative_names_vector = make_vector(derivative_modules_list);
         vector<unique_ptr<IModule>> derivative_modules;
         derivative_modules.reserve(derivative_names_vector.size());
         for (auto it = derivative_names_vector.begin(); it != derivative_names_vector.end(); ++it) {
-            derivative_modules.push_back(factory(*it));
+            derivative_modules.push_back(module_factory(*it));
         }
 
         state_map result = Gro(s, steady_state_modules, derivative_modules);

@@ -7,6 +7,29 @@
 using std::string;
 using std::vector;
 
+/*
+ * !!!!! IMPORTANT NOTE !!!!!:
+ * This is a C++ interface to the C library in R. C++ supports exceptions, but C does not.
+ * R's C library requires you to explicitly PROTECT() and UNPROTECT() memory for garbage collection.
+ * If care is not taken, and an exception is thrown after memory has been PROTECTed, but before it has been UNPROTECTed, UNPROTECT will not be called.
+ *
+ * Every effort should be made to not use exception-throwing functions between PROTECT and UNPROTECT pairs.
+ * If an exception-throwing function is used between pairs, a means of ensuring that UNPROTECT is called when exceptions are thrown is required.
+ *
+ * The ScopeGuard pattern could be used which would store protect_count internally, and call UNPROTECT(protect_count) in the destructor.
+ * It would be used as follows:
+ *
+ * guard = ProtectGuard();  // ProtectGuard is an implementation of the ScopeGuard pattern.
+ * PROTECT(something);
+ * guard.increment_protect_count(1);  //  Call this immediately after each set of PROTECT calls using the appropriate number of items to protect.
+ *
+ * The ProtectGuard destructor will be called when the function exists, regardless whether exceptions were thrown.
+ *
+ * Reference:
+ * For std::unordered_map and std::vector, begin(), end(), size() and operator[() are guaranteed to not throw exceptions.
+ *
+ */
+
 state_map map_from_list(SEXP const &list)
 {
     SEXP names = getAttrib(list, R_NamesSymbol);

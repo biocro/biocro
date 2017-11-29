@@ -18,13 +18,14 @@ void allocate_state_vector_map(state_vector_map &vm, size_t n); // Declaration f
 
 using std::vector;
 using std::string;
+using std::unique_ptr;
 
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,
         state_vector_map const &varying_parameters,
-        std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
-        std::vector<std::unique_ptr<IModule>> const &derivative_modules)
+        vector<unique_ptr<IModule>> const &steady_state_modules,
+        vector<unique_ptr<IModule>> const &derivative_modules)
 {
     state_map current_state = initial_state;
 
@@ -172,8 +173,8 @@ state_vector_map Gro(
 
 state_map Gro(
     state_map state,
-    std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
-    std::vector<std::unique_ptr<IModule>> const &derivative_modules)
+    vector<unique_ptr<IModule>> const &steady_state_modules,
+    vector<unique_ptr<IModule>> const &derivative_modules)
 {
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         state_map temp = (*it)->run(state);

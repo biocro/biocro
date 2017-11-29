@@ -4,7 +4,6 @@ library(lattice)
 library(integration.helpers)
 
 myparms = glycine_max_parameters
-myparms['Sp_thermal_time_decay'] = 0
 
 #r = Gro_ode(sorghum_initial_state, myparms, weather05, steady_state_modules='c4_canopy', derivative_modules=c('one_layer_soil_profile', 'partitioning_growth', 'thermal_time_senescence'))
 state = c(glycine_max_initial_state, myparms, weather05[1, ])
@@ -27,7 +26,6 @@ linear_from_spline_weather = interpolater(as.data.frame(spline_weather(seq(1, 87
 
 
 myparms = glycine_max_parameters
-myparms$Sp_thermal_time_decay = 0
 myparms$rate_constant_root = 2
 myparms$rate_constant_grain = 5
 myparms$rate_constant_leaf = 1
@@ -40,7 +38,7 @@ gro_reporter = combine_reporters(list(time_reporter(), state_reporter()),
 (previous_times = rbind(previous_times, system.time({
     #gro_func$reporter$reset()
     start_row = 2953
-    sim_rows = 5000 - start_row #nrow(weather05)
+    sim_rows = 7000 - start_row #nrow(weather05)
     result = as.data.frame(lsodes(unlist(glycine_max_initial_state),
         times=seq(start_row, sim_rows + start_row, length=sim_rows),
         gro_reporter$ode,
@@ -52,7 +50,8 @@ gro_reporter = combine_reporters(list(time_reporter(), state_reporter()),
 
 #old_reporter = gro_reporter; save(old_reporter, file='old_reporter.rdata')
 load('old_reporter.rdata')
-identical(old_reporter$state(), gro_reporter$state())
+both_names = intersect(names(old_reporter$state()), names(gro_reporter$state()))
+identical(old_reporter$state()[both_names], gro_reporter$state()[both_names])
 
 ns = gro_reporter$state()
 gro_reporter$counter()
@@ -152,7 +151,6 @@ x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~
 x11(); xyplot(substrate_pool_leaf ~ time, gresult, type='l', auto=TRUE, ylim=c(-0.00001, 0.00001))
 
 easy_parms = sorghum_parameters
-easy_parms['Sp_thermal_time_decay'] = 0
 easy_parms['LeafN'] = 0
 easy_parms['LeafArea'] = 2
 easy_parms['parameter'] = 5
