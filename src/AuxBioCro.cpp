@@ -493,42 +493,32 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     /* This is the leaf boundary layer computed using the approach in MLcan
        which is based on (Nikolov, Massman, Schoettle),         %
        Ecological Modelling, 80 (1995), 205-235 */
-    const double Pa = 101325;
-    const double cf = 1.6361e-3;
+    constexpr double Pa = 101325;
+    constexpr double cf = 1.6361e-3;
 
     double leaftemp = AirTemp + deltat;
     double gsv = stomcond; /* input is in m/s */
     double Tak = AirTemp + 273.15; /* Converts from C to K */
     double Tlk = leaftemp + 273.15;  /* Converts from C to K */
     double ea = vappress * 1e2; /* From hPa to Pa */
-    // windspeed; /* m s^-1 */
     double lw = leafwidth; /* meters */
 
-    double esTl, eb;
-    double gbv_forced, gbv_free, gbv;
-    // double gbh; // unused
-    double Tvdiff;
-
-    esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
+    double esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
 
     /* Forced convection */
-    gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);
-    gbv_free = gbv_forced;
-    eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
-    Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/
+    double gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);
+    double gbv_free = gbv_forced;
+    double eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
+
+    double Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/
 
     if (Tvdiff < 0) Tvdiff = -Tvdiff;
 
     gbv_free = cf * pow(Tlk,0.56) * pow((Tlk+120)/Pa,0.5) * pow(Tvdiff/lw,0.25);
 
-    if (gbv_forced > gbv_free) {
-        gbv = gbv_forced;
-    } else {
-        gbv = gbv_free;
-    }
-    // gbh = 0.924 * gbv; // set but not used
+    double gbv = std::max(gbv_forced, gbv_free);
 
-    return(gbv);
+    return gbv;
 }
 
 

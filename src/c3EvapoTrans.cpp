@@ -107,8 +107,7 @@ struct ET_Str c3EvapoTrans(
         double TopValue = PhiN * (1 / ga + 1 / LayerConductance) - LHV * DeltaPVa;
         double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance));
         Deltat = TopValue / BottomValue;
-        if (Deltat > 5)	Deltat = 5;
-        if (Deltat < -5)	Deltat = -5;
+        Deltat = std::min(std::max(Deltat, -5.0), 5.0);
 
         ChangeInLeafTemp = OldDeltaT - Deltat;
         if (ChangeInLeafTemp <0)
