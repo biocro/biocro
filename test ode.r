@@ -3,12 +3,6 @@ library(deSolve)
 library(lattice)
 library(integration.helpers)
 
-myparms = glycine_max_parameters
-
-#r = Gro_ode(sorghum_initial_state, myparms, weather05, steady_state_modules='c4_canopy', derivative_modules=c('one_layer_soil_profile', 'partitioning_growth', 'thermal_time_senescence'))
-state = c(glycine_max_initial_state, myparms, weather05[1, ])
-r = Gro_ode(state, steady_state_modules=c('soil_type_selector', 'leaf_water_stress_exponential', 'stomata_water_stress_linear', 'parameter_calculator', 'c3_canopy', 'soil_evaporation'), derivative_modules=c('utilization_growth_and_senescence', 'thermal_time_accumulator'))
-
 previous_times = c()
 
 test_weather = within(weather05, {
@@ -19,28 +13,23 @@ test_weather = within(weather05, {
 spline_weather = interpolater(test_weather, 'time', function(x, y) splinefun(x, y, method='monoH.FC'))
 linear_from_spline_weather = interpolater(as.data.frame(spline_weather(seq(1, 8760, length=8760*60))), 'time', approxfun)
 
-#times = seq(3000, 3020, length=1000)
-#var = 'temp'
-#linear_weather = interpolater(weather05, 'time', approxfun)
-#x11(); xyplot(linear_weather(times)[[var]] + spline_weather(times)[[var]] + linear_from_spline_weather(times)[[var]] ~ times, type='l', auto=TRUE)
-
-
 myparms = glycine_max_parameters
 myparms$rate_constant_root = 2
 myparms$rate_constant_grain = 5
 myparms$rate_constant_leaf = 1
-myparms$soil_type_indicator = 6
 gro_func = Gro_deriv(myparms, linear_from_spline_weather, steady_state_modules=c('soil_type_selector', 'leaf_water_stress_exponential', 'stomata_water_stress_linear', 'parameter_calculator', 'c3_canopy', 'soil_evaporation'), derivative_modules=c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator', 'bucket_soil_drainage'))
 gro_reporter = combine_reporters(list(time_reporter(), state_reporter()), 
     gro_func
 )
+#gro_reporter = time_reporter(gro_func) 
 
 (previous_times = rbind(previous_times, system.time({
-    #gro_func$reporter$reset()
-    start_row = 2953
-    sim_rows = 7000 - start_row #nrow(weather05)
+#    gro_reporter$reset()
+    start_time = 2953
+    end_time = 5000
+    duration = end_time - start_time
     result = as.data.frame(lsodes(unlist(glycine_max_initial_state),
-        times=seq(start_row, sim_rows + start_row, length=sim_rows),
+        times=seq(start_time, end_time, length=duration),
         gro_reporter$ode,
         atol=1e-4,
         rtol=1e-4,
@@ -87,8 +76,8 @@ climate = weather05
 climate$TTc = c(0, cumsum((climate$temp - 10) * as.numeric(climate$temp > 10))[-nrow(climate)]) / 24
 climate$time = seq_len(nrow(climate))
 
-x11(); xyplot(Leaf + Stem + Root + Rhizome + Grain ~ time, result, type='l', auto=TRUE, ylim=c(-0.1, 8))
-x11(); xyplot(Leaf + Stem + Root + Rhizome + Grain ~ TTc , result, type='l', auto=TRUE, ylim=c(-0.1, 8))
+x11(); xyplot(Leaf + Stem + Root + Rhizome + Grain ~ time, result, type='l', auto=TRUE, ylim=c(-0.1, 10))
+x11(); xyplot(Leaf + Stem + Root + Rhizome + Grain ~ TTc , result, type='l', auto=TRUE, ylim=c(-0.1, 10))
 x11(); xyplot(soil_water_content + I(precip / 1000 + .3) ~ time, result, type='l', auto=TRUE, subset = TTc > 10)
 x11(); xyplot(soil_water_content ~ time, ns,     type='l', auto=TRUE, subset = TTc > 10)
 x11(); xyplot(soil_water_content ~ time, result,     type='l', auto=TRUE, subset = TTc > 10)
@@ -98,12 +87,12 @@ x11(); xyplot(precipitation_rate ~ TTc, ns, type='l', auto=TRUE)
 
 x11(); xyplot(Grain ~ time, result, type='l', auto=TRUE)
 x11(); xyplot(ns[[27]] + ns[[201]] ~ time, ns, type='l', auto=TRUE)
-x11(); xyplot(Grain ~ time, ns, type='l', auto=TRUE, subset=time > 4617.51 & time < 4617.515)
+x11(); xyplot(Grain ~ time, ns, type='l', auto=TRUE)
 x11(); xyplot(substrate_pool_grain ~ time, ns, type='l', auto=TRUE, subset=time > 4617.51)
 x11(); xyplot(substrate_pool_grain ~ TTc, ns, type='l', auto=TRUE, subset=time > 4617.51)
 x11(); xyplot(Grain ~ time, ns, type='l', auto=TRUE)
-x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ TTc, result, type='l', auto=TRUE)
-x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, result, type='l', auto=TRUE)
+x11(); xyplot(Stem + Leaf + Root + Rhizome + Grain ~ time, ns, type='l', auto=TRUE)
+x11(); xyplot(substrate_pool_leaf + substrate_pool_stem + substrate_pool_grain ~ time, ns, type='l', auto=TRUE)
 
 plot(substrate_pool_grain ~ time, result, type='l', subset=time>4614)
 

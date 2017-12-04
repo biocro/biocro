@@ -11,21 +11,24 @@ glycine_max_initial_state["FT"] = NULL
 glycine_max_initial_state["dawn"] = NULL
 
 system.time({
-    sresult = Gro(sorghum_initial_state, sorghum_parameters,(weather05), sorghum_modules)
-    mresult = Gro(miscanthus_x_giganteus_initial_state, miscanthus_x_giganteus_parameters,(weather05), miscanthus_x_giganteus_modules)
+    for (i in 1:3) {
+    #sresult = Gro(sorghum_initial_state, sorghum_parameters,(weather05), sorghum_modules)
+    #mresult = Gro(miscanthus_x_giganteus_initial_state, miscanthus_x_giganteus_parameters,(weather05), miscanthus_x_giganteus_modules)
     gresult = Gro(glycine_max_initial_state, glycine_max_parameters,(weather05), glycine_max_modules)
     wresult = Gro(willow_initial_state, willow_parameters,(weather05), willow_modules)
+    }
 })
 
 load('old_result.rdata')
 
-for (i in c('s', 'm', 'g', 'w')) {
+#for (i in c('s', 'm', 'g', 'w')) {
+for (i in c('g', 'w')) {
     result_name = paste(i, 'result', sep='')
     result = get(result_name)
     old_result = get(paste('old_', i, 'result', sep=''))
     
     both_names = intersect(names(result), names(old_result))
-    print(are_same = identical(result[both_names], old_result[both_names]))
+    print(are_same <- identical(result[both_names], old_result[both_names]))
 
     if (!are_same) {
         x11(); print(xyplot(Stem + Leaf + Root ~ TTc, main=result_name, result, type='l'))
@@ -35,3 +38,16 @@ for (i in c('s', 'm', 'g', 'w')) {
 
 #old_sresult = sresult; old_mresult = mresult; old_gresult = gresult; old_wresult = wresult; save(old_sresult, old_mresult, old_gresult, old_wresult, file='old_result.rdata')
 
+original
+9.47
+9.2
+9.09
+8.95
+8.96
+
+new for loop
+9.39
+9.21
+9.28
+9.19
+9.06

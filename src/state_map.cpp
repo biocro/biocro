@@ -44,35 +44,35 @@ state_map replace_state(state_map const &state, state_map const &newstate)
 
 void update_state(state_map &state, state_map const &change_in_state)
 {
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        auto it_change = change_in_state.find(it->first);
+    for (auto &it : state) {
+        auto it_change = change_in_state.find(it.first);
         if ( it_change != change_in_state.end()) {
-            it->second += it_change->second;
+            it.second += it_change->second;
         }
     }
 }
 
 void append_state_to_vector(state_map const &state, state_vector_map &state_vector)
 {
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        state_vector[it->first].emplace_back(it->second);
+    for (auto const& it : state) {
+        state_vector[it.first].emplace_back(it.second);
     }
 }
 
 vector<string> keys(state_map const &state) {
     vector<string> result;
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        result.push_back(it->first);
+    for (auto const& it : state) {
+        result.push_back(it.first);
     }
-    return (result);
+    return result;
 }
 
 vector<string> keys(state_vector_map const &state) {
     vector<string> result;
-    for (auto it = state.begin(); it != state.end(); ++it) {
-        result.push_back(it->first);
+    for (auto const& it : state) {
+        result.push_back(it.first);
     }
-    return (result);
+    return result;
 }
 
 state_map& operator+=(state_map &lhs, state_map const &rhs)
