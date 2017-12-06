@@ -6,8 +6,6 @@
 #include <algorithm>
 #include "modules.h"
 
-//static int counter = 0;
-
 state_map utilization_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
     size_t max_loops = 3;
@@ -30,7 +28,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
 
             state_map sub_derivs = this->run(s) * d_time;
 
-            s_copy += sub_derivs;
+            update_state(s_copy, sub_derivs);
             total_derivs += sub_derivs;
 
             // The following conditions are not possible and will not be corrected with futher iteration.
@@ -52,7 +50,7 @@ state_map utilization_growth_module::do_operation(state_vector_map const &state_
 
         }
         // If iteration failed, increase the number of steps. After that limit, abort the integration early.
-        if (failed & (counter < max_loops))
+        if (failed && (counter < max_loops))
         {
             sub_time_steps = sub_time_steps * 2;
             ++counter;
@@ -69,7 +67,7 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
 {
     double grain_TTc = s.at("grain_TTc");
     double TTc = s.at("TTc");
-    double kGrain_scale = std::max(std::min((TTc - grain_TTc)/16, 0.0), 1.0);  // Create a linear scaling coefficient in the interval [0, 1] that delays grain growth until grain_TTC + 1, and ramps it up over 16 growing degree days.  This prevents a jump when grains appear.
+    double kGrain_scale = std::min(std::max(0.0, (TTc - grain_TTc)/16), 1.0);  // Create a linear scaling coefficient in the interval [0, 1] that delays grain growth until grain_TTC + 1, and ramps it up over 16 growing degree days.  This prevents a jump when grains appear.
 
     double kLeaf = s.at("rate_constant_leaf");
     double kStem = s.at("rate_constant_stem");
@@ -142,9 +140,10 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
     if ((Stem != 0) & (Root != 0))    transport_stem_to_root    = beta * (mass_fraction_stem - mass_fraction_root)    / resistance_stem_to_root;
     if ((Stem != 0) & (Rhizome != 0)) transport_stem_to_rhizome = beta * (mass_fraction_stem - mass_fraction_rhizome) / resistance_stem_to_rhizome;
 
+    double respiratory_deficit = 0;
     if (carbon_input < -substrate_pool_leaf) {  // This is true when respiration uses more carbon than there is in the substrate pool. The carbon must come from somewhere, so even though utilization for growth is thought of as irreversible, remove previously fixed carbon and don't grow or transport carbon.
         transport_leaf_to_stem = 0;
-        double respiratory_deficit = substrate_pool_leaf + carbon_input;  // carbon_input is negative in this case, so the deficit is the amount in excess of the amount currently in the substrate pool.
+        respiratory_deficit = substrate_pool_leaf + carbon_input;  // carbon_input is negative in this case, so the deficit is the amount in excess of the amount currently in the substrate pool.
         utilization_leaf = respiratory_deficit;  // Account for the deficit by taking mass from leaves.
     }
 
@@ -161,6 +160,10 @@ state_map utilization_growth_module::do_operation(state_map const &s) const
     d_rhizome = utilization_rhizome;
 
     state_map derivs {
+        { "respiratory_deficit", respiratory_deficit },
+        { "carbon_input", carbon_input },
+        { "kGrain_scale", kGrain_scale },
+
         { "newLeafcol", d_leaf },
         { "Leaf", d_leaf },
         { "substrate_pool_leaf", d_substrate_leaf },
@@ -224,7 +227,7 @@ state_map utilization_senescence::do_operation(state_vector_map const &state_his
 
             state_map sub_derivs = this->run(s_copy) * d_time;
 
-            s_copy += sub_derivs;
+            update_state(s_copy, sub_derivs);
             total_derivs += sub_derivs;
 
             // The following conditions are not possible and will not be corrected with futher iteration.
@@ -295,7 +298,7 @@ state_map utilization_senescence::do_operation(state_map const &s) const
     double mass_fraction_leaf = 0, mass_fraction_stem = 0, mass_fraction_root = 0, mass_fraction_rhizome = 0;
     double senescence_leaf = 0, senescence_stem = 0, senescence_root = 0, senescence_rhizome = 0; 
 
-    double start_grain = 0;
+    double start_grain = 0, start_sub = 0;
 
     if ((Leaf != 0) & (TTc >= seneLeaf)) {
         mass_fraction_leaf = substrate_pool_leaf / Leaf;
@@ -313,9 +316,10 @@ state_map utilization_senescence::do_operation(state_map const &s) const
         mass_fraction_rhizome = substrate_pool_rhizome;
         senescence_rhizome = mass_fraction_rhizome * kRhizome / (KmRhizome + mass_fraction_rhizome);
     }
-    if ((Grain <= 0) & (TTc >= grain_TTc)) {
+    if ((Grain <= 0) & (TTc >= grain_TTc) & (substrate_pool_stem > 0)) {
         // Base grain growth on the amount of stem mass. In the derivatives, remove this from soluble carbon in the stem.
-        start_grain = substrate_pool_stem * 0.1;
+        start_grain = substrate_pool_stem * 100;
+        start_sub = substrate_pool_stem * start_grain / Stem;
     }
 
     state_map derivs {
@@ -324,10 +328,11 @@ state_map utilization_senescence::do_operation(state_map const &s) const
         {"LeafLitter", senescence_leaf * (1 - remobilization_fraction)},
 
         {"Stem", -senescence_stem},
-        {"substrate_pool_stem", senescence_stem * remobilization_fraction - start_grain},
+        {"substrate_pool_stem", senescence_stem * remobilization_fraction - start_grain - start_sub},
         {"StemLitter", senescence_stem * (1 - remobilization_fraction)},
 
         {"Grain", start_grain},
+        {"substrate_pool_grain", start_sub},
 
         {"Root", -senescence_root},
         {"substrate_pool_root", senescence_root * remobilization_fraction},
