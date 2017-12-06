@@ -32,23 +32,21 @@ SEXP R_Gro(SEXP initial_state,
             return R_NilValue;
         }
 
-        ModuleFactory factory;
-
         vector<unique_ptr<IModule>> steady_state_modules;
         vector<unique_ptr<IModule>> derivative_modules;
 
-        steady_state_modules.push_back(factory("soil_type_selector"));
-        steady_state_modules.push_back(factory(CHAR(STRING_ELT(stomata_water_stress_module, 0))));
-        steady_state_modules.push_back(factory(CHAR(STRING_ELT(leaf_water_stress_module, 0))));
-        steady_state_modules.push_back(factory("parameter_calculator"));
-        steady_state_modules.push_back(factory("partitioning_coefficient_selector"));
-        steady_state_modules.push_back(factory("soil_evaporation"));
-        steady_state_modules.push_back(factory(CHAR(STRING_ELT(canopy_photosynthesis_module, 0))));
+        steady_state_modules.push_back(module_factory("soil_type_selector"));
+        steady_state_modules.push_back(module_factory(CHAR(STRING_ELT(stomata_water_stress_module, 0))));
+        steady_state_modules.push_back(module_factory(CHAR(STRING_ELT(leaf_water_stress_module, 0))));
+        steady_state_modules.push_back(module_factory("parameter_calculator"));
+        steady_state_modules.push_back(module_factory("partitioning_coefficient_selector"));
+        steady_state_modules.push_back(module_factory("soil_evaporation"));
+        steady_state_modules.push_back(module_factory(CHAR(STRING_ELT(canopy_photosynthesis_module, 0))));
 
-        derivative_modules.push_back(factory(CHAR(STRING_ELT(senescence_module, 0))));
-        derivative_modules.push_back(factory(CHAR(STRING_ELT(growth_module, 0))));
-        derivative_modules.push_back(factory("thermal_time_accumulator"));
-        derivative_modules.push_back(factory(CHAR(STRING_ELT(soil_water_module, 0))));
+        derivative_modules.push_back(module_factory(CHAR(STRING_ELT(senescence_module, 0))));
+        derivative_modules.push_back(module_factory(CHAR(STRING_ELT(growth_module, 0))));
+        derivative_modules.push_back(module_factory("thermal_time_accumulator"));
+        derivative_modules.push_back(module_factory(CHAR(STRING_ELT(soil_water_module, 0))));
 
         vector<string> required_state = {"iSp", "doy", "Leaf",
             "LeafN_0", "vmax_n_intercept", "vmax1", "alphab1",

@@ -220,10 +220,10 @@ class utilization_growth_and_senescence_module: public ISenescence_module {
         virtual state_map do_operation(state_map const &s) const;
 };
 
-class utilization_growth_flowering_module: public ISenescence_module {
+class utilization_growth_flowering: public ISenescence_module {
     public:
-        utilization_growth_flowering_module()
-            : ISenescence_module("utilization_growth_flowering_module",
+        utilization_growth_flowering()
+            : ISenescence_module("utilization_growth_flowering",
                     std::vector<std::string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",

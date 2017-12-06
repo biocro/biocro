@@ -7,7 +7,7 @@
 #include "modules.h"
 
 
-state_map utilization_growth_flowering_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
+state_map utilization_growth_flowering::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
 // NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
 // record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
@@ -22,7 +22,7 @@ state_map utilization_growth_flowering_module::do_operation(state_vector_map con
 
     double kLeaf = p.at("rate_constant_leaf");
     double kStem = p.at("rate_constant_stem");
-    double kRoot = p.at("rate_constant_root") * p.at("rate_constant_root_scale");
+    double kRoot = p.at("rate_constant_root");
     double kRhizome = p.at("rate_constant_rhizome");
     double kGrain = p.at("rate_constant_grain");
 

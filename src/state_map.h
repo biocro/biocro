@@ -114,6 +114,8 @@ inline state_map operator*(double const a, state_map x)
 
 state_map operator/(state_map lhs, state_map const& rhs);
 
+state_map& operator/=(state_map& lhs, double const a);
+
 state_map abs(state_map x);
 
 #endif

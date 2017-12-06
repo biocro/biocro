@@ -11,6 +11,7 @@ const ModuleFactory::module_map ModuleFactory::modules = {
                 { "no_leaf_resp_partitioning_growth",   &createModule<no_leaf_resp_partitioning_growth_module>},
                 { "utilization_growth_and_senescence",  &createModule<utilization_growth_and_senescence_module>},
                 { "utilization_growth",                 &createModule<utilization_growth_module>},
+                { "utilization_growth_flowering",       &createModule<utilization_growth_flowering>},
                 { "utilization_senescence",             &createModule<utilization_senescence>},
                 { "empty_senescence",                   &createModule<empty_senescence>},
                 { "thermal_time_and_frost_senescence",  &createModule<thermal_time_and_frost_senescence>},

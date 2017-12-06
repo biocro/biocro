@@ -107,3 +107,11 @@ state_map operator/(state_map lhs, state_map const& rhs)
     return lhs;
 }
 
+state_map& operator/=(state_map &x, double const a)
+{
+    for(auto it = x.begin(); it != x.end(); ++it) {
+        it->second /= a;
+    }
+    return x;
+}
+

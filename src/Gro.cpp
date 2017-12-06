@@ -165,6 +165,10 @@ state_vector_map Gro(
         results["utilization_grain"].emplace_back(derivs["utilization_grain"]);
         results["utilization_root"].emplace_back(derivs["utilization_root"]);
 
+        results["kGrain_scale"].emplace_back(derivs["kGrain_scale"]);
+        results["respiratory_deficit"].emplace_back(derivs["respiratory_deficit"]);
+        results["carbon_input"].emplace_back(derivs["carbon_input"]);
+
         //results["cws1"].emplace_back(current_state.at("cws1"));
         //results["cws2"].emplace_back(current_state.at("cws2"));
     }
