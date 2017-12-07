@@ -3,7 +3,7 @@
 #    To build the "biocro" target, you must run from a shell that does not have Rtools in the path.
 
 CC=g++
-CC_FLAGS = -w -std=c++0x -I"boost_1_64_0"
+CC_FLAGS = -std=c++0x -I"boost_1_64_0"
  
 # File names
 GRO_SOURCES = $(filter-out $(wildcard R_*), $(wildcard *.cpp))
@@ -11,6 +11,13 @@ GRO_OBJECTS = $(GRO_SOURCES:.cpp=.o)
 
 ODE_SOURCES = odetest/odeint_test.cpp state_map.cpp
 ODE_OBJECTS = $(ODE_SOURCES:.cpp=.o)
+
+LIBRARY_SOURCES = Gro.cpp state_map.cpp AuxBioCro.cpp ball_berry.cpp \
+c3CanAC.cpp c3EvapoTrans.cpp c3photo.cpp c4photo.cpp CanAC.cpp \
+eC4photo.cpp ModuleFactory.cpp modules.cpp utilization_growth_and_senescence.cpp utilization_growth.cpp \
+utilization_growth_flowering.cpp
+
+LIBRARY_OBJECTS = $(LIBRARY_SOURCES:.cpp=.o)
  
 # Main target
 biocro: $(GRO_OBJECTS)
@@ -23,14 +30,21 @@ odetest: $(ODE_OBJECTS)
 %.o: %.cpp
 	$(CC) -c $(CC_FLAGS) $< -o $@
  
+libbiocro.a: $(LIBRARY_OBJECTS)
+	ar crs libbiocro.a $(LIBRARY_OBJECTS)
+
+biocro_library: libbiocro.a
+
+.PHONY: quick full clean biocro_library
+	
+
 quick:
 	R CMD INSTALL --no-html --no-help --no-docs --no-demo --no-multiarch ..
 
 full:
 	R CMD INSTALL --no-multiarch ..
 	
-.PHONY: clean
 
 clean:
-	rm -f *~ *.o *.dll
+	rm --force *~ *.o *.dll libbiocro.a
 
