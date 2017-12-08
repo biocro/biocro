@@ -37,7 +37,7 @@ struct vector_space_norm_inf< state_map >
         return result;
     }
 };
-} } }
+} } }  // boost, numeric, odeint.
 
 state_map abs(state_map x)
 {
