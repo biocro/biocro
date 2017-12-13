@@ -3,6 +3,9 @@
 template<typename T> std::unique_ptr<IModule> createModule() { return std::unique_ptr<IModule>(new T); }
 
 const ModuleFactory::module_map ModuleFactory::modules = {
+                { "velocity_oscillator",                &createModule<velocity_oscillator>},
+                { "position_oscillator",                &createModule<position_oscillator>},
+                { "gamma_oscillator",                   &createModule<gamma_oscillator>},
                 { "c4_canopy",                          &createModule<c4_canopy>},
                 { "c3_canopy",                          &createModule<c3_canopy>},
                 { "one_layer_soil_profile",             &createModule<one_layer_soil_profile>},

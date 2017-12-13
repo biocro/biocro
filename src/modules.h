@@ -298,6 +298,39 @@ class test_calc_state : public IModule {
         state_map do_operation(state_map const &s) const;
 };
 
+class position_oscillator : public IModule {
+    public:
+        position_oscillator()
+            : IModule("position_oscillator",
+                    std::vector<std::string> {"velocity"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const;
+};
+
+class velocity_oscillator : public IModule {
+    public:
+        velocity_oscillator()
+            : IModule("velocity_oscillator",
+                    std::vector<std::string> {"position"},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const;
+};
+
+class gamma_oscillator : public IModule {
+    public:
+        gamma_oscillator()
+            : IModule("gamma_oscillator",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation(state_map const &s) const;
+};
+
 class stomata_water_stress_linear : public IModule {
     public:
         stomata_water_stress_linear()

@@ -118,6 +118,21 @@ state_map test_calc_state::do_operation(state_map const &s) const
     return new_state;
 }
 
+state_map position_oscillator::do_operation(state_map const &s) const
+{
+    return { {"position", s.at("velocity") } };
+}
+
+state_map velocity_oscillator::do_operation(state_map const &s) const
+{
+    return { {"velocity", -s.at("position") } };
+}
+
+state_map gamma_oscillator::do_operation(state_map const &s) const
+{
+    return { {"gamma", 0 } };
+}
+
 state_map c4_canopy::do_operation(state_map const &s) const
 {
     struct nitroParms nitroP; 
