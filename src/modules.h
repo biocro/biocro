@@ -637,4 +637,3 @@ std::string join_string_vector(std::vector<std::string> const &state_keys);
 bool any_key_is_duplicated(std::vector<std::vector<std::string>> const &keys);
 
 # endif
-

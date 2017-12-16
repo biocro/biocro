@@ -51,19 +51,22 @@ inline void parameter_list::add(std::string const &s, char const delim, bool con
 }
 
 parameter_list parameters {
-    { "windspeed"                       ,{"Wind speed at the top of the canopy."                          ,"m / s"               }},
-    { "soilEvap"                        ,{"Rate of evaporation of water from the soil."                   ,""                    }},
-    { "solar"                           ,{"Photosynthetically active radiation at the top of the canopy." ,"micromole / m^2 / s" }},
-    { "lat"                             ,{"Latitude"                                                      ,"degrees N"           }},
-    { "rh"                              ,{"Relative humidity"                                             ,"Pa / Pa"             }},
-    { "soil_bulk_density"               ,{"Mass of soil per volume of bulk soil."                         ,"Mg / m^3"            }},
-    { "soil_water_content"              ,{"Volume of water per volume of bulk soil."                      ,"m^3 / m^3"           }},
-    { "soil_saturated_conductivity"     ,{""                                                              ,""                    }},
-    { "soil_saturation_capacity"        ,{"The maximum soil_water_content that the soil can hold."        ,"m^3 / m^3"           }},
-    { "Leaf"                            ,{"Dry mass of leaves per area of ground."                        ,"Mg / ha"             }},
-    { "Stem"                            ,{"Dry mass of stems per area of ground."                         ,"Mg / ha"             }},
-    { "Root"                            ,{"Dry mass of roots per area of ground."                         ,"Mg / ha"             }},
-    //{ "                                 ,{"                                                               ,"                     }},
+  { "windspeed"                       ,{"Wind speed at the top of the canopy."                                     ,"m / s"               }},
+  { "soilEvap"                        ,{"Rate of evaporation of water from the soil."                              ,""                    }},
+  { "solar"                           ,{"Photosynthetically active radiation photon flux at the top of the canopy" ,"micromole / m^2 / s" }},
+  { "lat"                             ,{"Latitude"                                                                 ,"degrees N"           }},
+  { "rh"                              ,{"Relative humidity"                                                        ,"Pa / Pa"             }},
+  { "soil_bulk_density"               ,{"Mass of soil per volume of bulk soil."                                    ,"Mg / m^3"            }},
+  { "soil_water_content"              ,{"Volume of water per volume of bulk soil."                                 ,"m^3 / m^3"           }},
+  { "soil_saturated_conductivity"     ,{"Conductivity of soil when soil_saturation_capacity is 1"                  ,"kg / s / m^3"        }},
+  { "soil_saturation_capacity"        ,{"The maximum soil_water_content that the soil can hold."                   ,"m^3 / m^3"           }},
+  { "Leaf"                            ,{"Dry mass of leaves per area of ground."                                   ,"Mg / ha"             }},
+  { "Stem"                            ,{"Dry mass of stems per area of ground."                                    ,"Mg / ha"             }},
+  { "Root"                            ,{"Dry mass of roots per area of ground."                                    ,"Mg / ha"             }},
+  { "Sp"                              ,{"Specific leaf area, one-sided leaf area per mass of leaf"                 ,"ha / Mg"             }},
+  { "iSp"                             ,{"Initial value of specific leaf area when TTc is 0."                       ,"ha / Mg"             }},
+  { "TTc"                             ,{"Thermal time as growing degree days."                                     ,"degrees C * day"     }},
+  //{ "                                 ,{"                                                                          ,"                     }},
 };
 
 
