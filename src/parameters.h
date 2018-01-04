@@ -64,8 +64,10 @@ parameter_list parameters {
   { "Stem"                            ,{"Dry mass of stems per area of ground."                                    ,"Mg / ha"             }},
   { "Root"                            ,{"Dry mass of roots per area of ground."                                    ,"Mg / ha"             }},
   { "Sp"                              ,{"Specific leaf area, one-sided leaf area per mass of leaf"                 ,"ha / Mg"             }},
+  { "Sp_thermal_time_decay"           ,{"The rate at which Sp decreases"                                           ,"ha / Mg / TTc"       }},
   { "iSp"                             ,{"Initial value of specific leaf area when TTc is 0."                       ,"ha / Mg"             }},
   { "TTc"                             ,{"Thermal time as growing degree days."                                     ,"degrees C * day"     }},
+  { "precipitation_rate"              ,{"Precipitation per time"                                                   ,"mm / s"              }},
   //{ "                                 ,{"                                                                          ,"                     }},
 };
 

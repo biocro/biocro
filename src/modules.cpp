@@ -210,7 +210,9 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
             s.at("rfl"), s.at("rsec"), s.at("rsdf"), s.at("soil_clod_size"), s.at("soil_reflectance"),
             s.at("soil_transmission"), s.at("specific_heat"), s.at("stefan_boltzman"));
 
-    double cws_sum = soilMLS.cws[0] + soilMLS.cws[1];
+    double layer_one_depth = s.at("soil_depth2") - s.at("soil_depth1");
+    double layer_two_depth = s.at("soil_depth3") - s.at("soil_depth2");
+    double cws_mean = (soilMLS.cws[0] * layer_one_depth + soilMLS.cws[1] * layer_two_depth) / (layer_one_depth + layer_two_depth);
 
     state_map new_state {
         { "StomataWS", soilMLS.rcoefPhoto - s.at("StomataWS") },
@@ -219,7 +221,7 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
 
         { "cws1", soilMLS.cws[0] - s.at("cws1") },
         { "cws2", soilMLS.cws[1] - s.at("cws2") },
-        { "soil_water_content",  cws_sum / 2 - s.at("soil_water_content") }  // Divide by 2, the number of layers.
+        { "soil_water_content",  cws_mean - s.at("soil_water_content") }
     };
     
     return new_state;
