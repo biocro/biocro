@@ -709,10 +709,12 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
    future this could be coupled with Campbell (BASIC) ideas to
    esitmate water potential. */
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
-        double fieldc, double wiltp, double phi1, double phi2, const struct soilText_str &soTexS, int wsFun,
-        int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds,
-        double RelH, int hydrDist, double rfl, double rsec, double rsdf, 
-        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
+        double soil_field_capacity, double soil_wilting_point, double soil_saturation_capacity, double soil_air_entry, double soil_saturated_conductivity,
+        double soil_b_coefficient, double soil_sand_content, double phi1, double phi2, int wsFun,
+        int layers, double rootDB, double LAI, double k, double AirTemp,
+        double IRad, double winds, double RelH, int hydrDist, double rfl,
+        double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
+        double specific_heat, double stefan_boltzman )
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
     
@@ -722,17 +724,6 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     double rootDepth = fmin(rootDB * rsdf, soildepth);
 
     rd_str root_distribution = rootDist(layers, rootDepth, &depths[0], rfl);
-
-    /* Specify the soil type */
-
-    if (fieldc < 0) {
-        fieldc = soTexS.fieldc;
-    }
-    if (wiltp < 0) {
-        wiltp = soTexS.wiltp;
-    }
-
-    double theta_s = soTexS.satur; /* This is the saturated soil water content. Larger than FieldC. */
 
     /* unit conversion for precip */
     double oldWaterIn = 0.0;
@@ -751,17 +742,17 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         if (hydrDist > 0) {
             /* For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9*/
             /* First compute the matric potential */
-            double psim1 = soTexS.air_entry * pow((cws[i]/theta_s), -soTexS.b); /* This is matric potential of current layer */
+            double psim1 = soil_air_entry * pow((cws[i]/soil_saturation_capacity), -soil_b_coefficient); /* This is matric potential of current layer */
             double dPsim;
             if (i > 0) {
-                double psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s), -soTexS.b); /* This is matric potential of next layer */
+                double psim2 = soil_air_entry * pow((cws[i-1]/soil_saturation_capacity), -soil_b_coefficient); /* This is matric potential of next layer */
                 dPsim = psim1 - psim2;
                 /* The substraction is from the layer i - (i-1). If this last term is positive then it will move upwards. If it is negative it will move downwards. Presumably this term is almost always positive. */
             } else {
                 dPsim = 0.0;
             }
 
-            double K_psim = soTexS.Ks * pow((soTexS.air_entry/psim1), 2+3/soTexS.b); /* This is hydraulic conductivity */
+            double K_psim = soil_saturated_conductivity * pow((soil_air_entry/psim1), 2+3/soil_b_coefficient); /* This is hydraulic conductivity */
             double J_w = K_psim * (dPsim/layerDepth) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect*/
             /* Notice that K_psim is positive because my reference system is reversed */
             /* This last result should be in kg/(m2 * s) */
@@ -778,8 +769,8 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             }
         }
 
-        if (cws[i] > theta_s) cws[i] = theta_s;
-        if (cws[i] < wiltp) cws[i] = wiltp;
+        if (cws[i] > soil_saturation_capacity) cws[i] = soil_saturation_capacity;
+        if (cws[i] < soil_wilting_point) cws[i] = soil_wilting_point;
         // Here is a convention aw is available water in volume and awc
         // is available water content as a fraction of the soil section being investigated.
         double aw = cws[i] * layerDepth;
@@ -790,13 +781,13 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             aw += waterIn / layers + oldWaterIn; /* They are both in meters so it works */
             /* Adding the same amount to water to each layer */
             /* In case there is overflow */
-            double diffw = fieldc * layerDepth - aw;
+            double diffw = soil_field_capacity * layerDepth - aw;
 
             if (diffw < 0) {
                 /* This means that precipitation exceeded the capacity of the first layer */
                 /* Save this amount of water for the next layer */
                 oldWaterIn = -diffw;
-                aw = fieldc * layerDepth;
+                aw = soil_field_capacity * layerDepth;
             } else {
                 oldWaterIn = 0.0;
             }
@@ -807,7 +798,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         return_value.rootDist[i] = rootATdepth;
         /* Plant available water is only between current water status and permanent wilting point */
         /* Plant available water */
-        double pawha = (aw - wiltp * layerDepth) * 1e4;
+        double pawha = (aw - soil_wilting_point * layerDepth) * 1e4;
 
         if (pawha < 0) pawha = 0;
 
@@ -819,7 +810,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             /* Only the first layer is affected by soil evaporation */
             double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
-            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, fieldc, wiltp, winds, RelH, rsec,
+            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, soil_field_capacity, soil_wilting_point, winds, RelH, rsec,
                 soil_clod_size, soil_reflectance, soil_transmission, specific_heat, stefan_boltzman ) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
@@ -839,10 +830,10 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         if (Newpawha < 0) {
             /* If the Demand is not satisfied by this layer. This will be stored and added to subsequent layers*/
             oldEvapoTra = -Newpawha;
-            aw = wiltp * layerDepth;
+            aw = soil_wilting_point * layerDepth;
         }
 
-        double awc = Newpawha / 1e4 / layerDepth + wiltp;
+        double awc = Newpawha / 1e4 / layerDepth + soil_wilting_point;
 
         /* This might look like a weird place to populate the structure, but is more convenient*/
         return_value.cws[i] = awc;
@@ -856,17 +847,17 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         double theta = 0.0;
         
         if (wsFun == 0) { /* linear */
-            slp = 1/(fieldc - wiltp);
-            intcpt = 1 - fieldc * slp;
+            slp = 1/(soil_field_capacity - soil_wilting_point);
+            intcpt = 1 - soil_field_capacity * slp;
             wsPhoto = slp * awc + intcpt;
         } else if (wsFun == 1) {
-            double phi10 = (fieldc + wiltp)/2;
+            double phi10 = (soil_field_capacity + soil_wilting_point)/2;
             wsPhoto = 1/(1 + exp((phi10 - awc)/ phi1));
         } else if (wsFun == 2) {
-            slp = (1 - wiltp)/(fieldc - wiltp);
-            intcpt = 1 - fieldc * slp;
+            slp = (1 - soil_wilting_point)/(soil_field_capacity - soil_wilting_point);
+            intcpt = 1 - soil_field_capacity * slp;
             theta = slp * awc + intcpt;
-            wsPhoto = (1 - exp(-2.5 * (theta - wiltp)/(1 - wiltp))) / (1 - exp(-2.5));
+            wsPhoto = (1 - exp(-2.5 * (theta - soil_wilting_point)/(1 - soil_wilting_point))) / (1 - exp(-2.5));
         } else if (wsFun == 3) {
             wsPhoto = 1;
         }
@@ -876,7 +867,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
         wsPhotoCol += wsPhoto;
 
-        double LeafWS = pow(awc, phi2) * 1/pow(fieldc, phi2);
+        double LeafWS = pow(awc, phi2) * 1/pow(soil_field_capacity, phi2);
         if (wsFun == 3) {
             LeafWS = 1;
         }
@@ -888,7 +879,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         drainage = waterIn;
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data comes in mm/hr and it needs to be in cm/month */
-        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (18 * (0.2 + 0.7 * soTexS.sand));
+        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (18 * (0.2 + 0.7 * soil_sand_content));
     }
     else {
         return_value.Nleach = 0.0;
