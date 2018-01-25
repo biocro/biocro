@@ -90,6 +90,32 @@ class c3_canopy : public ICanopy_photosynthesis_module {
         virtual state_map do_operation (state_map const &s) const;
 };
 
+
+class FvCB : public IModule {
+    // The Farquhar, von Caemmerer, Berry model.
+    public:
+        FvCB()
+            : IModule("FvCB",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+class ball_berry_module : public IModule {
+    // The Farquhar, von Caemmerer, Berry model.
+    public:
+        ball_berry_module()
+            : IModule("ball_berry_module",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+
 class ISoil_evaporation_module : public IModule {
     public:
         ISoil_evaporation_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)

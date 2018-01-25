@@ -67,7 +67,10 @@ parameter_list parameters {
   { "Sp_thermal_time_decay"           ,{"The rate at which Sp decreases"                                           ,"ha / Mg / TTc"       }},
   { "iSp"                             ,{"Initial value of specific leaf area when TTc is 0."                       ,"ha / Mg"             }},
   { "TTc"                             ,{"Thermal time as growing degree days."                                     ,"degrees C * day"     }},
-  { "precipitation_rate"              ,{"Precipitation per time"                                                   ,"mm / s"              }},
+  { "precipitation_rate"              ,{"Precipitation per time."                                                   ,"mm / s"              }},
+  { "b0"                              ,{"Ball-Berry model intercept."                                               ,"mol / m^2 / s"       }},
+  { "b1"                              ,{"Ball-Berry model slope."                                                   ,"dimensionless"       }},
+  //{ "                                 ,{"                                                                          ,"                     }},
   //{ "                                 ,{"                                                                          ,"                     }},
 };
 

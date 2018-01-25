@@ -977,3 +977,8 @@ const soilText_str get_soil_properties(SoilType soiltype)
     return soil_parameters.at(soiltype);
 }
 
+inline double arrhenius_exponent(double c, double activation_energy, double thermodynamic_temperature) {
+    constexpr double R = 8.314472; // joule / kelvin / mole.
+    return exp(c - activation_energy / (R * thermodynamic_temperature));
+};
+
