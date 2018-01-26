@@ -319,7 +319,7 @@ struct ET_Str EvapoTrans2(
         double WindSpeed,
         const double LeafAreaIndex,
         double CanopyHeight,
-        const double stomatacond,
+        const double stomatal_conductance,
         const double leafw,
         const int eteq)
 {
@@ -331,31 +331,18 @@ struct ET_Str EvapoTrans2(
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
     double WindSpeedHeight = 2; // This is the height at which the wind speed was measured.
-    // When the height at which wind was measured is lower than the canopy height,
-    // there can be problems with the calculations.
+    // When the height at which wind was measured is lower than the canopy height, there can be problems with the calculations.
     // This is a very crude way of solving this problem.
     if (WindSpeedHeight < CanopyHeight + 1) {
         WindSpeedHeight = CanopyHeight + WindSpeedHeight;
     }
 
-    // Conductance to vapor from stomata same as stomatacond (input variable):
-    const double gvs = stomatacond;
-
-    /* Convert mmoles/m2/s to moles/m2/s
-       LayerConductance = LayerConductance * 1e-3
-       
-       Convert moles/m2/s to mm/s
-       LayerConductance = LayerConductance * 24.39
-
-       Convert mm/s to m/s
-       LayerConductance = LayerConductance * 1e-3 */
-
-    double gvs_in_m_per_s = gvs * 1e-6 * 24.29;
+    double conductance_in_m_per_s = stomatal_conductance * 1e-6 * 24.29;
     /* Thornley and Johnson use m s^-1 on page 418 */
 
     /* Prevent errors due to extremely low Layer conductance */
-    if (gvs_in_m_per_s <= 0.001) {
-        gvs_in_m_per_s = 0.001;
+    if (conductance_in_m_per_s <= 0.001) {
+        conductance_in_m_per_s = 0.001;
     }
 
     const double DdryA = TempToDdryA(airTemp); /* Density of dry air, kg / m^3 */
@@ -370,11 +357,11 @@ struct ET_Str EvapoTrans2(
 
     // Express SWVC in kg/m3:
     constexpr double hPa_per_atm = 1013.25;
-    const double SWVC = (DdryA * 0.622 * SWVP)/hPa_per_atm;
+    const double SWVC = DdryA * 0.622 * SWVP / hPa_per_atm;
 
     /* SWVC is saturated water vapor concentration (or density) in kg/m3 */
 
-    const double PsycParam =(DdryA * SpecificHeat) / LHV; /* This is in kg m-3 K-1 */
+    const double PsycParam = DdryA * SpecificHeat / LHV; /* This is in kg m-3 K-1 */
 
     const double DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
 
@@ -396,16 +383,13 @@ struct ET_Str EvapoTrans2(
         throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high."); 
     }
 
-    const double Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);
 
     /* The value below is only for leaf temperature */
-    const double Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const double Ja2 = 2 * Iave * 0.235 * (1 - LeafReflectance - tau) / (1 - tau);
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
-
-    const double LayerWindSpeed = WindSpeed; // alias
-
 
     // Declare variables we need after exiting the loop:
     /* This is the original from WIMOVAC*/
@@ -416,49 +400,45 @@ struct ET_Str EvapoTrans2(
         double ChangeInLeafTemp = 10.0;
 
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
-            ga = leafboundarylayer(LayerWindSpeed, leafw, airTemp, Deltat,
-                                   gvs_in_m_per_s, ActualVaporPressure);
+            ga = leafboundarylayer(WindSpeed, leafw, airTemp, Deltat,
+                                   conductance_in_m_per_s, ActualVaporPressure);
             /* This returns leaf-level boundary layer conductance */
             /* In WIMOVAC this was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW);  */
-            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s));
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));
 
             double OldDeltaT = Deltat;
 
             rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;
 
-            /* rlc=net long wave radiation emittted per second =radiation emitted per second - radiation absorbed per second=sigma*(Tair+deltaT)^4-sigma*Tair^4 */
+            /* rlc = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
+             * Then you do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
+             * rlc = sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) - sigma * Tair^4 = 4 * sigma * Tair^3 * deltaT
+             * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
+             */
 
-            /* Then you do a Taylor series about deltaT = 0 and keep only the zero and first order terms. */
-
-            /* or rlc=sigma*Tair^4+deltaT*(4*sigma*Tair^3)-sigma*Tair^4=4*sigma*Tair^3*deltaT */
-
-            /* where 4*sigma*Tair^3 is the derivative of sigma*(Tair+deltaT)^4 evaluated at deltaT=0, */
-
-
-            const double PhiN2 = Ja2 - rlc;  /* * LeafAreaIndex;  */
+            const double PhiN2 = Ja2 - rlc;
 
             /* This equation is from Thornley and Johnson pg. 418 */
-            const double TopValue = PhiN2 * (1 / ga + 1 / gvs_in_m_per_s) - LHV * DeltaPVa;
-            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // confine to interval [-10, 10]:
+            const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;
+            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // Confine Deltat to the interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
         }
     }
 
     /* Net radiation */
-    const double PhiN = fmax(0, Ja - rlc); // ensure it's >= 0
+    const double PhiN = fmax(0, Ja - rlc);
 
-    double TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
+    double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
         /
-        (LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s)));
+        (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));
 
-    /* Penman will use the WIMOVAC conductance */
-    const double EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
+    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
         /
         (LHV * (SlopeFS + PsycParam));
 
-    const double EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
+    const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));
 
     /* Choose equation to report */
     switch (eteq) {
@@ -472,17 +452,16 @@ struct ET_Str EvapoTrans2(
         break; // use the value defined above
     }
 
-    /* This values need to be converted from Kg/m2/s to
-       mmol H20 /m2/s according to S Humphries */
-    /* 1e3 - kgrams to grams  */
-    /* 1e3 - mols to mmols */
-    /* grams to mols - 18g in a mol */
-    /* Let us return the structure now */
+    // TransR has units of kg / m^2 / s.
+    // Convert to mm / m^2 / s.
+    /* 1e3 - g / kg  */
+    /* 18 - g / mol for water */
+    /* 1e3 - mmol / mol */
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e6 / 18;
-    et_results.EPenman = EPen * 1e6 / 18;
-    et_results.EPriestly = EPries * 1e6 / 18;
+    et_results.TransR = TransR * 1e3 * 1e3 / 18;
+    et_results.EPenman = EPen * 1e3 * 1e3 / 18;
+    et_results.EPriestly = EPries * 1e3 * 1e3 / 18;
     et_results.Deltat = Deltat;
     return et_results;
 }
@@ -904,7 +883,7 @@ double resp(double comp, double mrc, double temp) {
 
     if (ans <0) ans = 0;
 
-    return(ans);
+    return ans;
 
 }
 
@@ -912,10 +891,10 @@ struct seqRD_str seqRootDepth(double to, int lengthOut ) {
     double by = to / lengthOut;
 
     struct seqRD_str result;
-    for(int i = 0; i <= lengthOut; ++i) {
+    for (int i = 0; i <= lengthOut; ++i) {
         result.rootDepths[i] = i * by;
     }
-    return(result);
+    return result;
 }
 
 
@@ -964,7 +943,7 @@ struct rd_str rootDist(int n_layers, double rootDepth, double *depths, double rf
     for (int k = 0; k < n_layers; ++k) {
         result.rootDist[k] = rootDist[k] / cumulative_a;
     }
-    return(result);
+    return  result;
 }
 
 
