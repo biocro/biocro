@@ -104,7 +104,6 @@ class FvCB : public IModule {
 };
 
 class ball_berry_module : public IModule {
-    // The Farquhar, von Caemmerer, Berry model.
     public:
         ball_berry_module()
             : IModule("ball_berry_module",
@@ -115,6 +114,16 @@ class ball_berry_module : public IModule {
         state_map do_operation (state_map const &s) const;
 };
 
+class leaf_boundary_layer_Nikolov : public IModule {
+    public:
+        canopy_conductance()
+            : IModule("canopy_conductance",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
 
 class ISoil_evaporation_module : public IModule {
     public:
