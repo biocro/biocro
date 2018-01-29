@@ -214,6 +214,11 @@ state_map ball_berry_module::do_operation(state_map const &s) const
     return { {"stomatal_conductance", stomatal_conductance } };
 }
 
+state_map leaf_boundary_layer_conductance_nikolov::do_operation(state_map const &s) const
+{
+    return { {"leaf_boundary_layer_conductance", leaf_boundary_layer_conductance } };
+}
+
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
     double soilEvap = s.at("soil_evaporation_rate") * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
