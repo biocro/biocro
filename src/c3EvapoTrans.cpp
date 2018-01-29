@@ -39,7 +39,7 @@ struct ET_Str c3EvapoTrans(
     double DdryA = TempToDdryA(air_temperature);
     double LHV = TempToLHV(air_temperature) * 1e6; // Convert from MJ kg^-1 to J kg^-1.
     double SlopeFS = TempToSFS(air_temperature) * 1e-3;
-    double SWVC = TempToSWVC(air_temperature) * 1e-3;
+    double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;
 
     double Zeta = ZetaCoef * CanopyHeight;
     double Zetam = ZetaMCoef * CanopyHeight;

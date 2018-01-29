@@ -189,5 +189,10 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla)
  */
 double arrhenius_exponent(double c, double activation_energy, double thermodynamic_temperature);
 
+double saturation_vapor_pressure(double air_temperature);
+double TempToSFS(double Temp);
+double TempToLHV(double Temp);
+double TempToDdryA(double Temp);
+
 #endif
 

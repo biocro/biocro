@@ -178,43 +178,39 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
     double LAIi = LAI / nlayers;
 
     Light_profile light_profile;
-    {
-        const double Ibeam = Idir * cosTheta;
-        double Isolar = Ibeam * k;
-        for (int i = 0; i < nlayers; ++i) {
-            const double CumLAI = LAIi * (i + 0.5);
+    const double Ibeam = Idir * cosTheta;
+    double Isolar = Ibeam * k;
+    for (int i = 0; i < nlayers; ++i) {
+        const double CumLAI = LAIi * (i + 0.5);
 
-            const double Iscat = Ibeam * (  exp(-k * sqrt(alphascatter) * CumLAI)
-                                        - exp(-k * CumLAI));
+        const double Iscat = Ibeam * (exp(-k * sqrt(alphascatter) * CumLAI) - exp(-k * CumLAI));
 
-            double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
+        double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
 
-            const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
+        const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
 
-            double Fsun = Ls/LAIi;
-            double Fshade = 1 - Fsun;
+        double Fsun = Ls / LAIi;
+        double Fshade = 1 - Fsun;
 
-            double Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse)
-                * (1 - exp(-k * LAIi)) / k;
+        double Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse) * (1 - exp(-k * LAIi)) / k;
 
-            // For values of cosTheta close to or less than 0, in place of the
-            // calculations above, we want to use the limits of the above
-            // expressions as cosTheta approaches 0 from the right:
-            if (cosTheta <= 1E-10) {
-                Isolar = Idir/k1;
-                Idiffuse = Idiff * exp(-kd * CumLAI);
-                Fsun = 0;
-                Fshade = 1;
-                Iaverage = 0;
-            }
-
-            light_profile.direct_irradiance[i] = Isolar + Idiffuse;
-            light_profile.diffuse_irradiance[i]= Idiffuse;
-            light_profile.total_irradiance[i] = Iaverage;
-            light_profile.sunlit_fraction[i] = Fsun;
-            light_profile.shaded_fraction[i] = Fshade;
-            light_profile.height[i] = (LAI - CumLAI)/heightf;
+        // For values of cosTheta close to or less than 0, in place of the
+        // calculations above, we want to use the limits of the above
+        // expressions as cosTheta approaches 0 from the right:
+        if (cosTheta <= 1E-10) {
+            Isolar = Idir / k1;
+            Idiffuse = Idiff * exp(-kd * CumLAI);
+            Fsun = 0;
+            Fshade = 1;
+            Iaverage = 0;
         }
+
+        light_profile.direct_irradiance[i] = Isolar + Idiffuse;
+        light_profile.diffuse_irradiance[i]= Idiffuse;
+        light_profile.total_irradiance[i] = Iaverage;
+        light_profile.sunlit_fraction[i] = Fsun;
+        light_profile.shaded_fraction[i] = Fshade;
+        light_profile.height[i] = (LAI - CumLAI)/heightf;
     }
     return light_profile;
 }
@@ -235,8 +231,8 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
               double* wind_speed_profile)
 {
     constexpr double k = 0.7;
-
     double LI = LAI / nlayers;
+
     for (int i = 0; i < nlayers; ++i)
     {
         double CumLAI = LI * (i + 1);
@@ -263,15 +259,11 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
     }
 
     const double kh = 1 - RH;
-    /* kh = 0.2; */
-    /* kh = log(1/RH); */
 
     for (int i = 0; i < nlayers; ++i)
     {
-        // explicitly make j a double so that j/nlayers isn't truncated:
-        double j = i + 1;
-
-        double temp_rh = RH * exp(kh * (j/nlayers));
+        double j = i + 1;  // Explicitly make j a double so that j / nlayers isn't truncated.
+        double temp_rh = RH * exp(kh * (j / nlayers));
         relative_humidity_profile[i] = temp_rh;
     }
 }
@@ -282,7 +274,7 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_pr
     for(int i = 0; i < nlayers; ++i)
     {
         double CumLAI = LI * (i + 1);
-        leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI-LI));
+        leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI - LI));
     }
 }
 
@@ -291,9 +283,11 @@ double TempToDdryA(double Temp)
     return 1.295163636 + -0.004258182 * Temp;
 }
 
-double TempToLHV(double Temp)
+double TempToLHV(double air_temperature)
+    // Calculate latent heat of vaporization from air temperature.
+    // air_temperature - degrees Celsius
 {
-    return 2.501 + -0.002372727 * Temp;
+    return 2.501 + -0.002372727 * air_temperature;  // MJ / kg^1.
 }
 
 double TempToSFS(double Temp)
@@ -301,14 +295,13 @@ double TempToSFS(double Temp)
     return 0.338376068 + 0.011435897 * Temp + 0.001111111 * pow(Temp, 2);
 }
 
-double TempToSWVC(double Temp)
+double saturation_vapor_pressure(double air_temperature)
 {
-    /* Temp should be in Celsius */
-    /* This is the arden buck equation */
-    double a = (18.678 - Temp/234.5) * Temp;
-    double b = 257.14 + Temp;
-    /* SWVC = (6.1121 * exp(a/b))/10; */
-    return 6.1121 * exp(a/b); /* This is in hecto Pascals */
+    // Determine saturation vapor pressure of water given air temperature.
+    // air_temperature - degrees Celsius/
+    double a = (18.678 - air_temperature / 234.5) * air_temperature;
+    double b = 257.14 + air_temperature;
+    return 6.1121 * exp(a / b); /* This is in hecto Pascals */
 }
 
 struct ET_Str EvapoTrans2(
@@ -326,7 +319,7 @@ struct ET_Str EvapoTrans2(
     constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
     constexpr double tau = 0.2; /* Leaf transmission coefficient */
     constexpr double LeafReflectance = 0.2;
-    constexpr double SpecificHeat = 1010; /* J kg-1 K-1 */
+    constexpr double SpecificHeat = 1010; /* J kg^-1 K^-1 */
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -353,7 +346,7 @@ struct ET_Str EvapoTrans2(
     // Convert to Joules per kg:
     const double LHV = LHV_in_MJ_per_kg * 1e6;
     const double SlopeFS = TempToSFS(airTemp) * 1e-3; /* kg m^-3 K^-1 */
-    const double SWVP = TempToSWVC(airTemp); // This is hecto Pascals.
+    const double SWVP = saturation_vapor_pressure(airTemp); // This is hecto Pascals.
 
     // Express SWVC in kg/m3:
     constexpr double hPa_per_atm = 1013.25;
@@ -482,7 +475,7 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     double ea = vappress * 1e2; /* From hPa to Pa */
     double lw = leafwidth; /* meters */
 
-    double esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
+    double esTl = saturation_vapor_pressure(leaftemp) * 100; /* The function returns hPa, but need Pa */
 
     /* Forced convection */
     double gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);
@@ -546,7 +539,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     double DdryA = TempToDdryA(air_temperature);
     double LHV = TempToLHV(air_temperature) * 1e6;  // J kg^-1. Given in MJ kg^-1 and converted to J kg^-1. 
     double SlopeFS = TempToSFS(air_temperature) * 1e-3;
-    double SWVC = TempToSWVC(air_temperature) * 1e-3;
+    double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;
 
     double PsycParam = (DdryA * specific_heat) / LHV;
     double DeltaPVa = SWVC * (1 - RelH / 100);

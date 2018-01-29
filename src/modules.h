@@ -114,10 +114,10 @@ class ball_berry_module : public IModule {
         state_map do_operation (state_map const &s) const;
 };
 
-class leaf_boundary_layer_Nikolov : public IModule {
+class leaf_boundary_layer_conductance_nikolov : public IModule {
     public:
-        canopy_conductance()
-            : IModule("canopy_conductance",
+        leaf_boundary_layer_conductance_nikolov()
+            : IModule("leaf_boundary_layer_conductance_nikolov",
                     std::vector<std::string> {},
                     std::vector<std::string> {})
         {}
@@ -160,6 +160,39 @@ class two_layer_soil_profile : public ISoil_evaporation_module {
         {}
     private:
         virtual state_map do_operation(state_map const &s) const;
+};
+
+class penman_monteith_evapotranspiration : public IModule {
+    public:
+        penman_monteith_evapotranspiration()
+            : IModule("penman_monteith_evapotranspiration",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+class priestley_evapotranspiration : public IModule {
+    public:
+        priestley_evapotranspiration()
+            : IModule("priestley_evapotranspiration",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+class evapotranspiration : public IModule {
+    public:
+        evapotranspiration()
+            : IModule("evapotranspiration",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
 };
 
 class ISenescence_module : public IModule {

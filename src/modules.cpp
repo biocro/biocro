@@ -214,10 +214,12 @@ state_map ball_berry_module::do_operation(state_map const &s) const
     return { {"stomatal_conductance", stomatal_conductance } };
 }
 
+/*
 state_map leaf_boundary_layer_conductance_nikolov::do_operation(state_map const &s) const
 {
     return { {"leaf_boundary_layer_conductance", leaf_boundary_layer_conductance } };
 }
+*/
 
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
@@ -266,8 +268,9 @@ state_map penman_monteith_evapotranspiration::do_operation(state_map const &s) c
 {
     const double slope_water_vapor = s.at("slope_water_vapor");
     const double psychr_parameter = s.at("psychrometric_parameter");
-    const double LHV = 
-    const double evapotranspiration = (slope_water_vapor * PhiN + LHV * psychr_parameter * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
+    const double LHV = s.at("latent_heat_evaporation");
+    const double DeltaPVa = s.at("saturation_water_vapor_pressure") * (1 - s.at("RH"));
+    const double evapotranspiration = (slope_water_vapor * s.at("PhiN") + LHV * psychr_parameter * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
         /
         (LHV * (slope_water_vapor + psychr_parameter));
 
@@ -275,25 +278,26 @@ state_map penman_monteith_evapotranspiration::do_operation(state_map const &s) c
     return new_state;
 }
 
-state_map priestley_evapostranspiration::do_operation(state_map const &s) const
+state_map priestley_evapotranspiration::do_operation(state_map const &s) const
 {
     const double slope_water_vapor = s.at("slope_water_vapor");
     const double psychr_parameter = s.at("psychrometric_parameter");
-    const double LHV = 
-    const double evapotranspiration = 1.26 * slope_water_vapor * PhiN / (LHV * (slope_water_vapor + psychr_parameter));
+    const double LHV = s.at("latent_heat_evaporation");
+    const double evapotranspiration = 1.26 * slope_water_vapor * s.at("PhiN") / (LHV * (slope_water_vapor + psychr_parameter));
 
     state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
     return new_state;
 }
 
-state_map evapostranspiration::do_operation(state_map const &s) const
+state_map evapotranspiration::do_operation(state_map const &s) const
 {
     const double slope_wv = s.at("slope_water_vapor");
     const double psychr_param = s.at("psychrometric_parameter");
-    const double LHV = 
-    const double evapotranspiration = (slope_wv * PhiN + LHV * psychr_param * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
+    const double LHV = s.at("latent_heat_evaporation");
+    const double DeltaPVa = s.at("saturation_water_vapor_pressure") * (1 - s.at("RH"));
+    const double evapotranspiration = (slope_wv * s.at("PhiN") + LHV * psychr_param * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
             /
-            (LHV * (slope_wv + psychr_param * (1 + ga / LayerConductance)));
+            (LHV * (slope_wv + psychr_param * (1 + s.at("leaf_boundary_layer_conductance") / s.at("LayerConductance"))));
 
     state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
     return new_state;
