@@ -262,6 +262,43 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     return new_state;
 }
 
+state_map penman_monteith_evapotranspiration::do_operation(state_map const &s) const
+{
+    const double slope_water_vapor = s.at("slope_water_vapor");
+    const double psychr_parameter = s.at("psychrometric_parameter");
+    const double LHV = 
+    const double evapotranspiration = (slope_water_vapor * PhiN + LHV * psychr_parameter * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
+        /
+        (LHV * (slope_water_vapor + psychr_parameter));
+
+    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
+    return new_state;
+}
+
+state_map priestley_evapostranspiration::do_operation(state_map const &s) const
+{
+    const double slope_water_vapor = s.at("slope_water_vapor");
+    const double psychr_parameter = s.at("psychrometric_parameter");
+    const double LHV = 
+    const double evapotranspiration = 1.26 * slope_water_vapor * PhiN / (LHV * (slope_water_vapor + psychr_parameter));
+
+    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
+    return new_state;
+}
+
+state_map evapostranspiration::do_operation(state_map const &s) const
+{
+    const double slope_wv = s.at("slope_water_vapor");
+    const double psychr_param = s.at("psychrometric_parameter");
+    const double LHV = 
+    const double evapotranspiration = (slope_wv * PhiN + LHV * psychr_param * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
+            /
+            (LHV * (slope_wv + psychr_param * (1 + ga / LayerConductance)));
+
+    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
+    return new_state;
+}
+
 state_map thermal_time_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
 {
     state_map derivs;
