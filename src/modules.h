@@ -133,6 +133,41 @@ class c3_canopy : public ICanopy_photosynthesis_module {
         virtual state_map do_operation (state_map const &s) const;
 };
 
+
+class FvCB : public IModule {
+    // The Farquhar, von Caemmerer, Berry model.
+    public:
+        FvCB()
+            : IModule("FvCB",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+class ball_berry_module : public IModule {
+    public:
+        ball_berry_module()
+            : IModule("ball_berry_module",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+class leaf_boundary_layer_conductance_nikolov : public IModule {
+    public:
+        leaf_boundary_layer_conductance_nikolov()
+            : IModule("leaf_boundary_layer_conductance_nikolov",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
 class ISoil_evaporation_module : public IModule {
     public:
         ISoil_evaporation_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
@@ -159,7 +194,8 @@ class two_layer_soil_profile : public ISoil_evaporation_module {
         two_layer_soil_profile()
             : ISoil_evaporation_module("two_layer_soil_profile",
                     std::vector<std::string> {"precip", "canopy_transpiration_rate", "cws1", "cws2", "soil_depth1",
-                    "soil_depth2", "soil_depth3", "FieldC", "WiltP", "phi1",
+                    "soil_depth2", "soil_depth3", "soil_field_capacity", "soil_wilting_point", "soil_saturation_capacity",
+                    "soil_air_entry", "soil_saturated_conductivity", "soil_b_coefficient", "soil_sand_content", "phi1",
                     "phi2", "soil_type_indicator", "wsFun", "Root", "lai",
                     "temp", "solar", "windspeed", "rh", "hydrDist",
                     "rfl", "rsec", "rsdf", "StomataWS", "LeafWS"},
@@ -167,6 +203,39 @@ class two_layer_soil_profile : public ISoil_evaporation_module {
         {}
     private:
         virtual state_map do_operation(state_map const &s) const;
+};
+
+class penman_monteith_evapotranspiration : public IModule {
+    public:
+        penman_monteith_evapotranspiration()
+            : IModule("penman_monteith_evapotranspiration",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+class priestley_evapotranspiration : public IModule {
+    public:
+        priestley_evapotranspiration()
+            : IModule("priestley_evapotranspiration",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+class evapotranspiration : public IModule {
+    public:
+        evapotranspiration()
+            : IModule("evapotranspiration",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
 };
 
 class ISenescence_module : public IModule {
@@ -680,4 +749,3 @@ std::string join_string_vector(std::vector<std::string> const &state_keys);
 bool any_key_is_duplicated(std::vector<std::vector<std::string>> const &keys);
 
 # endif
-

@@ -177,5 +177,22 @@ double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla);
 
+/*! Calculate the exponential term of the Arrhenius function.
+ *
+ * The Arrhenius equation is A * e^(c - E_a / R / temperature).
+ * The result has the same units as A, which depends on the quantity of interest.
+ * In order to make this function reusable, it only calculates the exponential term, which is always dimensionless.
+     c                              dimensionless
+     activation_energy              J / mol
+     thermodynamic_temperature      k
+     return value                   dimensionless 
+ */
+double arrhenius_exponent(double c, double activation_energy, double thermodynamic_temperature);
+
+double saturation_vapor_pressure(double air_temperature);
+double TempToSFS(double Temp);
+double TempToLHV(double Temp);
+double TempToDdryA(double Temp);
+
 #endif
 

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include "modules.h"
 #include "state_map.h"
+#include "ball_berry.h"
 
 using std::string;
 using std::vector;
@@ -189,6 +190,42 @@ state_map c3_canopy::do_operation(state_map const &s) const
     return new_state;
 }
 
+state_map FvCB::do_operation(state_map const &s) const
+{
+    double Ci = s.at("Ci");
+    double Gstar = s.at("Gstar");
+    double rubisco_limited = s.at("Vcmax") * (Ci - Gstar) / (Ci + s.at("Kc") * (1.0 + s.at("O2") / s.at("Ko")));
+
+    double rubp_limited = s.at("J") * (Ci - Gstar) / (s.at("electrons_per_carboxylation") * Ci + 2.0 * s.at("electrons_per_oxygenation") * Gstar);
+    rubp_limited = std::max(rubp_limited, 0.0);  // This rate can't be negative.
+
+    double tpu_limited = 3.0 * s.at("maximum_tpu_rate") / (1.0 - Gstar / Ci);
+
+    double carboxylation_rate = std::min(rubisco_limited, std::min(rubp_limited, tpu_limited));  // The overall carboxylation rate is the rate of the slowest process.
+    double net_assimilation_rate = carboxylation_rate - s.at("Rd");
+
+    Ci = s.at("Ca") - net_assimilation_rate * 1.6 * s.at("atmospheric_pressure") / s.at("stomatal_conductance");
+
+    return {
+        { "carboxylation_rate", carboxylation_rate },
+        { "net_assimilation_rate", net_assimilation_rate },
+        { "Ci", Ci }
+    };
+}
+
+state_map ball_berry_module::do_operation(state_map const &s) const
+{
+    const double stomatal_conductance = ball_berry(s.at("net_assimilation_rate"), s.at("atmospheric_co2_concentration"), s.at("rh"), s.at("b0"), s.at("b1"));
+    return { {"stomatal_conductance", stomatal_conductance } };
+}
+
+/*
+state_map leaf_boundary_layer_conductance_nikolov::do_operation(state_map const &s) const
+{
+    return { {"leaf_boundary_layer_conductance", leaf_boundary_layer_conductance } };
+}
+*/
+
 state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
     double soilEvap = s.at("soil_evaporation_rate") * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
@@ -206,16 +243,18 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
 {
     double cws[] = {s.at("cws1"), s.at("cws2")};
     double soil_depths[] = {s.at("soil_depth1"), s.at("soil_depth2"), s.at("soil_depth3")};
-    struct soilText_str soTexS = get_soil_properties(s.at("soil_type_indicator"));
 
     struct soilML_str soilMLS = soilML(s.at("precip"), s.at("canopy_transpiration_rate"), cws, s.at("soil_depth3"), soil_depths,
-            s.at("FieldC"), s.at("WiltP"), s.at("phi1"), s.at("phi2"), soTexS,
-            s.at("wsFun"), 2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68,
-            s.at("temp"), s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"),
-            s.at("rfl"), s.at("rsec"), s.at("rsdf"), s.at("soil_clod_size"), s.at("soil_reflectance"),
-            s.at("soil_transmission"), s.at("specific_heat"), s.at("stefan_boltzman"));
+            s.at("soil_field_capacity"), s.at("soil_wilting_point"), s.at("soil_saturation_capacity"), s.at("soil_air_entry"), s.at("soil_saturated_conductivity"),
+            s.at("soil_b_coefficient"), s.at("soil_sand_content"), s.at("phi1"), s.at("phi2"), s.at("wsFun"),
+            2 /* Always uses 2 layers. */, s.at("Root"), s.at("lai"), 0.68, s.at("temp"),
+            s.at("solar"), s.at("windspeed"), s.at("rh"), s.at("hydrDist"), s.at("rfl"),
+            s.at("rsec"), s.at("rsdf"), s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
+            s.at("specific_heat"), s.at("stefan_boltzman"));
 
-    double cws_sum = soilMLS.cws[0] + soilMLS.cws[1];
+    double layer_one_depth = s.at("soil_depth2") - s.at("soil_depth1");
+    double layer_two_depth = s.at("soil_depth3") - s.at("soil_depth2");
+    double cws_mean = (soilMLS.cws[0] * layer_one_depth + soilMLS.cws[1] * layer_two_depth) / (layer_one_depth + layer_two_depth);
 
     state_map new_state {
         { "StomataWS", soilMLS.rcoefPhoto - s.at("StomataWS") },
@@ -224,9 +263,48 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
 
         { "cws1", soilMLS.cws[0] - s.at("cws1") },
         { "cws2", soilMLS.cws[1] - s.at("cws2") },
-        { "soil_water_content",  cws_sum / 2 - s.at("soil_water_content") }  // Divide by 2, the number of layers.
+        { "soil_water_content",  cws_mean - s.at("soil_water_content") }
     };
     
+    return new_state;
+}
+
+state_map penman_monteith_evapotranspiration::do_operation(state_map const &s) const
+{
+    const double slope_water_vapor = s.at("slope_water_vapor");
+    const double psychr_parameter = s.at("psychrometric_parameter");
+    const double LHV = s.at("latent_heat_evaporation");
+    const double DeltaPVa = s.at("saturation_water_vapor_pressure") * (1 - s.at("RH"));
+    const double evapotranspiration = (slope_water_vapor * s.at("PhiN") + LHV * psychr_parameter * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
+        /
+        (LHV * (slope_water_vapor + psychr_parameter));
+
+    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
+    return new_state;
+}
+
+state_map priestley_evapotranspiration::do_operation(state_map const &s) const
+{
+    const double slope_water_vapor = s.at("slope_water_vapor");
+    const double psychr_parameter = s.at("psychrometric_parameter");
+    const double LHV = s.at("latent_heat_evaporation");
+    const double evapotranspiration = 1.26 * slope_water_vapor * s.at("PhiN") / (LHV * (slope_water_vapor + psychr_parameter));
+
+    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
+    return new_state;
+}
+
+state_map evapotranspiration::do_operation(state_map const &s) const
+{
+    const double slope_wv = s.at("slope_water_vapor");
+    const double psychr_param = s.at("psychrometric_parameter");
+    const double LHV = s.at("latent_heat_evaporation");
+    const double DeltaPVa = s.at("saturation_water_vapor_pressure") * (1 - s.at("RH"));
+    const double evapotranspiration = (slope_wv * s.at("PhiN") + LHV * psychr_param * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
+            /
+            (LHV * (slope_wv + psychr_param * (1 + s.at("leaf_boundary_layer_conductance") / s.at("LayerConductance"))));
+
+    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
     return new_state;
 }
 

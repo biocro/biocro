@@ -81,7 +81,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
         /* Light lmited portion */ 
         quantity<flux> Aj1 = J * (Ci - Gstar);
-        double Aj2 = electrons_per_carboxylation * Ci + 2 * electrons_per_oxygenation * Gstar;
+        double Aj2 = electrons_per_carboxylation * Ci + 2.0 * electrons_per_oxygenation * Gstar;
         quantity<flux> Aj = Aj1 / Aj2;
         if (Aj < 0.0 * mole / square_meter / second)
             Aj = 0.0 * mole / square_meter / second;

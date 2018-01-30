@@ -2,7 +2,7 @@
 sorghum_initial_state = with(list(), {
     datalines =
     "symbol value
-    Rhizome 0.001455 # Page 130 of March 2014 lab book
+    Rhizome 0.008886 # Page 130 of March 2014 lab book
     Leaf 0.00001
     Stem 0.00001
     Root 0.00001

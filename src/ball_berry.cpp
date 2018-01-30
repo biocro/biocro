@@ -11,7 +11,11 @@
 #include "ball_berry.h"
 
 /* Ball Berry stomatal conductance function */
-double ball_berry(double assimilation, double atmospheric_co2_concentration, double atmospheric_relative_humidity, double beta0, double beta1)
+double ball_berry(double assimilation,  // mol / m^2 / s
+                  double atmospheric_co2_concentration,  // mol / mol
+                  double atmospheric_relative_humidity,  // Pa / Pa
+                  double beta0,  // mol / m^2 / s
+                  double beta1)  // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
 {
     const double gbw = 1.2;  // mol / m^2 / s.  Boundary-layer conductance. Collatz et al. (1992) Aust. J. Plant Physiol. pg. 526. The units in the manuscript, micromole / m^2 / s, are wrong . They are actually mol / m^2 / s.
     double gswmol;  // mol / m^2 / s. stomatal conductance to water vapor.
@@ -38,6 +42,8 @@ double ball_berry(double assimilation, double atmospheric_co2_concentration, dou
          *
          * Substitute gs in equation 1 using the Ball-Berry model:
          *  gs = b1 * A * hs / cs + b0
+         *
+         *  Where A is assimilation rate, hs is relative humidity at the surface of the leaf, and cs is the CO2 mole fraction at the surface of the leaf.
          *
          * Assume hi = 1 based on saturation of water vapor in the interal airspace of a leaf.
          * Use the equality of equations 1 and 2 to solve for hs, and it's a quadratic with the coefficients given in the code. 

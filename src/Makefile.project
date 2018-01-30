@@ -3,7 +3,7 @@
 #    To build the "biocro" target, you must run from a shell that does not have Rtools in the path.
 
 CC=g++
-CC_FLAGS = -std=c++0x -I"boost_1_64_0"
+CC_FLAGS = -std=c++0x -I"boost_1_64_0" -lm
  
 # File names
 ALL_SOURCES = $(wildcard *.cpp)

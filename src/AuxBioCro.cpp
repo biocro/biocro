@@ -178,43 +178,39 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
     double LAIi = LAI / nlayers;
 
     Light_profile light_profile;
-    {
-        const double Ibeam = Idir * cosTheta;
-        double Isolar = Ibeam * k;
-        for (int i = 0; i < nlayers; ++i) {
-            const double CumLAI = LAIi * (i + 0.5);
+    const double Ibeam = Idir * cosTheta;
+    double Isolar = Ibeam * k;
+    for (int i = 0; i < nlayers; ++i) {
+        const double CumLAI = LAIi * (i + 0.5);
 
-            const double Iscat = Ibeam * (  exp(-k * sqrt(alphascatter) * CumLAI)
-                                        - exp(-k * CumLAI));
+        const double Iscat = Ibeam * (exp(-k * sqrt(alphascatter) * CumLAI) - exp(-k * CumLAI));
 
-            double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
+        double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
 
-            const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
+        const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
 
-            double Fsun = Ls/LAIi;
-            double Fshade = 1 - Fsun;
+        double Fsun = Ls / LAIi;
+        double Fshade = 1 - Fsun;
 
-            double Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse)
-                * (1 - exp(-k * LAIi)) / k;
+        double Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse) * (1 - exp(-k * LAIi)) / k;
 
-            // For values of cosTheta close to or less than 0, in place of the
-            // calculations above, we want to use the limits of the above
-            // expressions as cosTheta approaches 0 from the right:
-            if (cosTheta <= 1E-10) {
-                Isolar = Idir/k1;
-                Idiffuse = Idiff * exp(-kd * CumLAI);
-                Fsun = 0;
-                Fshade = 1;
-                Iaverage = 0;
-            }
-
-            light_profile.direct_irradiance[i] = Isolar + Idiffuse;
-            light_profile.diffuse_irradiance[i]= Idiffuse;
-            light_profile.total_irradiance[i] = Iaverage;
-            light_profile.sunlit_fraction[i] = Fsun;
-            light_profile.shaded_fraction[i] = Fshade;
-            light_profile.height[i] = (LAI - CumLAI)/heightf;
+        // For values of cosTheta close to or less than 0, in place of the
+        // calculations above, we want to use the limits of the above
+        // expressions as cosTheta approaches 0 from the right:
+        if (cosTheta <= 1E-10) {
+            Isolar = Idir / k1;
+            Idiffuse = Idiff * exp(-kd * CumLAI);
+            Fsun = 0;
+            Fshade = 1;
+            Iaverage = 0;
         }
+
+        light_profile.direct_irradiance[i] = Isolar + Idiffuse;
+        light_profile.diffuse_irradiance[i]= Idiffuse;
+        light_profile.total_irradiance[i] = Iaverage;
+        light_profile.sunlit_fraction[i] = Fsun;
+        light_profile.shaded_fraction[i] = Fshade;
+        light_profile.height[i] = (LAI - CumLAI)/heightf;
     }
     return light_profile;
 }
@@ -235,8 +231,8 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
               double* wind_speed_profile)
 {
     constexpr double k = 0.7;
-
     double LI = LAI / nlayers;
+
     for (int i = 0; i < nlayers; ++i)
     {
         double CumLAI = LI * (i + 1);
@@ -263,15 +259,11 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile)
     }
 
     const double kh = 1 - RH;
-    /* kh = 0.2; */
-    /* kh = log(1/RH); */
 
     for (int i = 0; i < nlayers; ++i)
     {
-        // explicitly make j a double so that j/nlayers isn't truncated:
-        double j = i + 1;
-
-        double temp_rh = RH * exp(kh * (j/nlayers));
+        double j = i + 1;  // Explicitly make j a double so that j / nlayers isn't truncated.
+        double temp_rh = RH * exp(kh * (j / nlayers));
         relative_humidity_profile[i] = temp_rh;
     }
 }
@@ -282,7 +274,7 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_pr
     for(int i = 0; i < nlayers; ++i)
     {
         double CumLAI = LI * (i + 1);
-        leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI-LI));
+        leafN_profile[i] = LeafN * exp(-kpLN * (CumLAI - LI));
     }
 }
 
@@ -291,9 +283,11 @@ double TempToDdryA(double Temp)
     return 1.295163636 + -0.004258182 * Temp;
 }
 
-double TempToLHV(double Temp)
+double TempToLHV(double air_temperature)
+    // Calculate latent heat of vaporization from air temperature.
+    // air_temperature - degrees Celsius
 {
-    return 2.501 + -0.002372727 * Temp;
+    return 2.501 + -0.002372727 * air_temperature;  // MJ / kg^1.
 }
 
 double TempToSFS(double Temp)
@@ -301,14 +295,13 @@ double TempToSFS(double Temp)
     return 0.338376068 + 0.011435897 * Temp + 0.001111111 * pow(Temp, 2);
 }
 
-double TempToSWVC(double Temp)
+double saturation_vapor_pressure(double air_temperature)
 {
-    /* Temp should be in Celsius */
-    /* This is the arden buck equation */
-    double a = (18.678 - Temp/234.5) * Temp;
-    double b = 257.14 + Temp;
-    /* SWVC = (6.1121 * exp(a/b))/10; */
-    return 6.1121 * exp(a/b); /* This is in hecto Pascals */
+    // Determine saturation vapor pressure of water given air temperature.
+    // air_temperature - degrees Celsius/
+    double a = (18.678 - air_temperature / 234.5) * air_temperature;
+    double b = 257.14 + air_temperature;
+    return 6.1121 * exp(a / b); /* This is in hecto Pascals */
 }
 
 struct ET_Str EvapoTrans2(
@@ -319,43 +312,30 @@ struct ET_Str EvapoTrans2(
         double WindSpeed,
         const double LeafAreaIndex,
         double CanopyHeight,
-        const double stomatacond,
+        const double stomatal_conductance,
         const double leafw,
         const int eteq)
 {
     constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
     constexpr double tau = 0.2; /* Leaf transmission coefficient */
     constexpr double LeafReflectance = 0.2;
-    constexpr double SpecificHeat = 1010; /* J kg-1 K-1 */
+    constexpr double SpecificHeat = 1010; /* J kg^-1 K^-1 */
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
     double WindSpeedHeight = 2; // This is the height at which the wind speed was measured.
-    // When the height at which wind was measured is lower than the canopy height,
-    // there can be problems with the calculations.
+    // When the height at which wind was measured is lower than the canopy height, there can be problems with the calculations.
     // This is a very crude way of solving this problem.
     if (WindSpeedHeight < CanopyHeight + 1) {
         WindSpeedHeight = CanopyHeight + WindSpeedHeight;
     }
 
-    // Conductance to vapor from stomata same as stomatacond (input variable):
-    const double gvs = stomatacond;
-
-    /* Convert mmoles/m2/s to moles/m2/s
-       LayerConductance = LayerConductance * 1e-3
-       
-       Convert moles/m2/s to mm/s
-       LayerConductance = LayerConductance * 24.39
-
-       Convert mm/s to m/s
-       LayerConductance = LayerConductance * 1e-3 */
-
-    double gvs_in_m_per_s = gvs * 1e-6 * 24.29;
+    double conductance_in_m_per_s = stomatal_conductance * 1e-6 * 24.29;
     /* Thornley and Johnson use m s^-1 on page 418 */
 
     /* Prevent errors due to extremely low Layer conductance */
-    if (gvs_in_m_per_s <= 0.001) {
-        gvs_in_m_per_s = 0.001;
+    if (conductance_in_m_per_s <= 0.001) {
+        conductance_in_m_per_s = 0.001;
     }
 
     const double DdryA = TempToDdryA(airTemp); /* Density of dry air, kg / m^3 */
@@ -366,15 +346,15 @@ struct ET_Str EvapoTrans2(
     // Convert to Joules per kg:
     const double LHV = LHV_in_MJ_per_kg * 1e6;
     const double SlopeFS = TempToSFS(airTemp) * 1e-3; /* kg m^-3 K^-1 */
-    const double SWVP = TempToSWVC(airTemp); // This is hecto Pascals.
+    const double SWVP = saturation_vapor_pressure(airTemp); // This is hecto Pascals.
 
     // Express SWVC in kg/m3:
     constexpr double hPa_per_atm = 1013.25;
-    const double SWVC = (DdryA * 0.622 * SWVP)/hPa_per_atm;
+    const double SWVC = DdryA * 0.622 * SWVP / hPa_per_atm;
 
     /* SWVC is saturated water vapor concentration (or density) in kg/m3 */
 
-    const double PsycParam =(DdryA * SpecificHeat) / LHV; /* This is in kg m-3 K-1 */
+    const double PsycParam = DdryA * SpecificHeat / LHV; /* This is in kg m-3 K-1 */
 
     const double DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
 
@@ -396,16 +376,13 @@ struct ET_Str EvapoTrans2(
         throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high."); 
     }
 
-    const double Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);
 
     /* The value below is only for leaf temperature */
-    const double Ja2 = (2 * Iave * 0.235 * ((1 - LeafReflectance - tau) / (1 - tau)));
+    const double Ja2 = 2 * Iave * 0.235 * (1 - LeafReflectance - tau) / (1 - tau);
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
-
-    const double LayerWindSpeed = WindSpeed; // alias
-
 
     // Declare variables we need after exiting the loop:
     /* This is the original from WIMOVAC*/
@@ -416,49 +393,45 @@ struct ET_Str EvapoTrans2(
         double ChangeInLeafTemp = 10.0;
 
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
-            ga = leafboundarylayer(LayerWindSpeed, leafw, airTemp, Deltat,
-                                   gvs_in_m_per_s, ActualVaporPressure);
+            ga = leafboundarylayer(WindSpeed, leafw, airTemp, Deltat,
+                                   conductance_in_m_per_s, ActualVaporPressure);
             /* This returns leaf-level boundary layer conductance */
             /* In WIMOVAC this was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW);  */
-            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s));
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));
 
             double OldDeltaT = Deltat;
 
             rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;
 
-            /* rlc=net long wave radiation emittted per second =radiation emitted per second - radiation absorbed per second=sigma*(Tair+deltaT)^4-sigma*Tair^4 */
+            /* rlc = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
+             * Then you do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
+             * rlc = sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) - sigma * Tair^4 = 4 * sigma * Tair^3 * deltaT
+             * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
+             */
 
-            /* Then you do a Taylor series about deltaT = 0 and keep only the zero and first order terms. */
-
-            /* or rlc=sigma*Tair^4+deltaT*(4*sigma*Tair^3)-sigma*Tair^4=4*sigma*Tair^3*deltaT */
-
-            /* where 4*sigma*Tair^3 is the derivative of sigma*(Tair+deltaT)^4 evaluated at deltaT=0, */
-
-
-            const double PhiN2 = Ja2 - rlc;  /* * LeafAreaIndex;  */
+            const double PhiN2 = Ja2 - rlc;
 
             /* This equation is from Thornley and Johnson pg. 418 */
-            const double TopValue = PhiN2 * (1 / ga + 1 / gvs_in_m_per_s) - LHV * DeltaPVa;
-            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // confine to interval [-10, 10]:
+            const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;
+            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // Confine Deltat to the interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
         }
     }
 
     /* Net radiation */
-    const double PhiN = fmax(0, Ja - rlc); // ensure it's >= 0
+    const double PhiN = fmax(0, Ja - rlc);
 
-    double TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa))
+    double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
         /
-        (LHV * (SlopeFS + PsycParam * (1 + ga / gvs_in_m_per_s)));
+        (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));
 
-    /* Penman will use the WIMOVAC conductance */
-    const double EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa)
+    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
         /
         (LHV * (SlopeFS + PsycParam));
 
-    const double EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
+    const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));
 
     /* Choose equation to report */
     switch (eteq) {
@@ -472,17 +445,16 @@ struct ET_Str EvapoTrans2(
         break; // use the value defined above
     }
 
-    /* This values need to be converted from Kg/m2/s to
-       mmol H20 /m2/s according to S Humphries */
-    /* 1e3 - kgrams to grams  */
-    /* 1e3 - mols to mmols */
-    /* grams to mols - 18g in a mol */
-    /* Let us return the structure now */
+    // TransR has units of kg / m^2 / s.
+    // Convert to mm / m^2 / s.
+    /* 1e3 - g / kg  */
+    /* 18 - g / mol for water */
+    /* 1e3 - mmol / mol */
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e6 / 18;
-    et_results.EPenman = EPen * 1e6 / 18;
-    et_results.EPriestly = EPries * 1e6 / 18;
+    et_results.TransR = TransR * 1e3 * 1e3 / 18;
+    et_results.EPenman = EPen * 1e3 * 1e3 / 18;
+    et_results.EPriestly = EPries * 1e3 * 1e3 / 18;
     et_results.Deltat = Deltat;
     return et_results;
 }
@@ -503,7 +475,7 @@ double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
     double ea = vappress * 1e2; /* From hPa to Pa */
     double lw = leafwidth; /* meters */
 
-    double esTl = TempToSWVC(leaftemp) * 100; /* The function returns hPa, but need Pa */
+    double esTl = saturation_vapor_pressure(leaftemp) * 100; /* The function returns hPa, but need Pa */
 
     /* Forced convection */
     double gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);
@@ -567,7 +539,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     double DdryA = TempToDdryA(air_temperature);
     double LHV = TempToLHV(air_temperature) * 1e6;  // J kg^-1. Given in MJ kg^-1 and converted to J kg^-1. 
     double SlopeFS = TempToSFS(air_temperature) * 1e-3;
-    double SWVC = TempToSWVC(air_temperature) * 1e-3;
+    double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;
 
     double PsycParam = (DdryA * specific_heat) / LHV;
     double DeltaPVa = SWVC * (1 - RelH / 100);
@@ -709,10 +681,12 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
    future this could be coupled with Campbell (BASIC) ideas to
    esitmate water potential. */
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
-        double fieldc, double wiltp, double phi1, double phi2, const struct soilText_str &soTexS, int wsFun,
-        int layers, double rootDB, double LAI, double k, double AirTemp, double IRad, double winds,
-        double RelH, int hydrDist, double rfl, double rsec, double rsdf, 
-        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
+        double soil_field_capacity, double soil_wilting_point, double soil_saturation_capacity, double soil_air_entry, double soil_saturated_conductivity,
+        double soil_b_coefficient, double soil_sand_content, double phi1, double phi2, int wsFun,
+        int layers, double rootDB, double LAI, double k, double AirTemp,
+        double IRad, double winds, double RelH, int hydrDist, double rfl,
+        double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
+        double specific_heat, double stefan_boltzman )
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
     
@@ -722,17 +696,6 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     double rootDepth = fmin(rootDB * rsdf, soildepth);
 
     rd_str root_distribution = rootDist(layers, rootDepth, &depths[0], rfl);
-
-    /* Specify the soil type */
-
-    if (fieldc < 0) {
-        fieldc = soTexS.fieldc;
-    }
-    if (wiltp < 0) {
-        wiltp = soTexS.wiltp;
-    }
-
-    double theta_s = soTexS.satur; /* This is the saturated soil water content. Larger than FieldC. */
 
     /* unit conversion for precip */
     double oldWaterIn = 0.0;
@@ -751,17 +714,17 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         if (hydrDist > 0) {
             /* For this section see Campbell and Norman "Environmental BioPhysics" Chapter 9*/
             /* First compute the matric potential */
-            double psim1 = soTexS.air_entry * pow((cws[i]/theta_s), -soTexS.b); /* This is matric potential of current layer */
+            double psim1 = soil_air_entry * pow((cws[i]/soil_saturation_capacity), -soil_b_coefficient); /* This is matric potential of current layer */
             double dPsim;
             if (i > 0) {
-                double psim2 = soTexS.air_entry * pow((cws[i-1]/theta_s), -soTexS.b); /* This is matric potential of next layer */
+                double psim2 = soil_air_entry * pow((cws[i-1]/soil_saturation_capacity), -soil_b_coefficient); /* This is matric potential of next layer */
                 dPsim = psim1 - psim2;
                 /* The substraction is from the layer i - (i-1). If this last term is positive then it will move upwards. If it is negative it will move downwards. Presumably this term is almost always positive. */
             } else {
                 dPsim = 0.0;
             }
 
-            double K_psim = soTexS.Ks * pow((soTexS.air_entry/psim1), 2+3/soTexS.b); /* This is hydraulic conductivity */
+            double K_psim = soil_saturated_conductivity * pow((soil_air_entry/psim1), 2+3/soil_b_coefficient); /* This is hydraulic conductivity */
             double J_w = K_psim * (dPsim/layerDepth) - g * K_psim; /*  Campbell, pg 129 do not ignore the graviational effect*/
             /* Notice that K_psim is positive because my reference system is reversed */
             /* This last result should be in kg/(m2 * s) */
@@ -778,8 +741,8 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             }
         }
 
-        if (cws[i] > theta_s) cws[i] = theta_s;
-        if (cws[i] < wiltp) cws[i] = wiltp;
+        if (cws[i] > soil_saturation_capacity) cws[i] = soil_saturation_capacity;
+        if (cws[i] < soil_wilting_point) cws[i] = soil_wilting_point;
         // Here is a convention aw is available water in volume and awc
         // is available water content as a fraction of the soil section being investigated.
         double aw = cws[i] * layerDepth;
@@ -790,13 +753,13 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             aw += waterIn / layers + oldWaterIn; /* They are both in meters so it works */
             /* Adding the same amount to water to each layer */
             /* In case there is overflow */
-            double diffw = fieldc * layerDepth - aw;
+            double diffw = soil_field_capacity * layerDepth - aw;
 
             if (diffw < 0) {
                 /* This means that precipitation exceeded the capacity of the first layer */
                 /* Save this amount of water for the next layer */
                 oldWaterIn = -diffw;
-                aw = fieldc * layerDepth;
+                aw = soil_field_capacity * layerDepth;
             } else {
                 oldWaterIn = 0.0;
             }
@@ -807,7 +770,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         return_value.rootDist[i] = rootATdepth;
         /* Plant available water is only between current water status and permanent wilting point */
         /* Plant available water */
-        double pawha = (aw - wiltp * layerDepth) * 1e4;
+        double pawha = (aw - soil_wilting_point * layerDepth) * 1e4;
 
         if (pawha < 0) pawha = 0;
 
@@ -819,7 +782,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             /* Only the first layer is affected by soil evaporation */
             double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
-            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, fieldc, wiltp, winds, RelH, rsec,
+            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, soil_field_capacity, soil_wilting_point, winds, RelH, rsec,
                 soil_clod_size, soil_reflectance, soil_transmission, specific_heat, stefan_boltzman ) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
@@ -839,10 +802,10 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         if (Newpawha < 0) {
             /* If the Demand is not satisfied by this layer. This will be stored and added to subsequent layers*/
             oldEvapoTra = -Newpawha;
-            aw = wiltp * layerDepth;
+            aw = soil_wilting_point * layerDepth;
         }
 
-        double awc = Newpawha / 1e4 / layerDepth + wiltp;
+        double awc = Newpawha / 1e4 / layerDepth + soil_wilting_point;
 
         /* This might look like a weird place to populate the structure, but is more convenient*/
         return_value.cws[i] = awc;
@@ -856,17 +819,17 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         double theta = 0.0;
         
         if (wsFun == 0) { /* linear */
-            slp = 1/(fieldc - wiltp);
-            intcpt = 1 - fieldc * slp;
+            slp = 1/(soil_field_capacity - soil_wilting_point);
+            intcpt = 1 - soil_field_capacity * slp;
             wsPhoto = slp * awc + intcpt;
         } else if (wsFun == 1) {
-            double phi10 = (fieldc + wiltp)/2;
+            double phi10 = (soil_field_capacity + soil_wilting_point)/2;
             wsPhoto = 1/(1 + exp((phi10 - awc)/ phi1));
         } else if (wsFun == 2) {
-            slp = (1 - wiltp)/(fieldc - wiltp);
-            intcpt = 1 - fieldc * slp;
+            slp = (1 - soil_wilting_point)/(soil_field_capacity - soil_wilting_point);
+            intcpt = 1 - soil_field_capacity * slp;
             theta = slp * awc + intcpt;
-            wsPhoto = (1 - exp(-2.5 * (theta - wiltp)/(1 - wiltp))) / (1 - exp(-2.5));
+            wsPhoto = (1 - exp(-2.5 * (theta - soil_wilting_point)/(1 - soil_wilting_point))) / (1 - exp(-2.5));
         } else if (wsFun == 3) {
             wsPhoto = 1;
         }
@@ -876,7 +839,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
         wsPhotoCol += wsPhoto;
 
-        double LeafWS = pow(awc, phi2) * 1/pow(fieldc, phi2);
+        double LeafWS = pow(awc, phi2) * 1/pow(soil_field_capacity, phi2);
         if (wsFun == 3) {
             LeafWS = 1;
         }
@@ -888,7 +851,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         drainage = waterIn;
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data comes in mm/hr and it needs to be in cm/month */
-        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (18 * (0.2 + 0.7 * soTexS.sand));
+        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (18 * (0.2 + 0.7 * soil_sand_content));
     }
     else {
         return_value.Nleach = 0.0;
@@ -913,7 +876,7 @@ double resp(double comp, double mrc, double temp) {
 
     if (ans <0) ans = 0;
 
-    return(ans);
+    return ans;
 
 }
 
@@ -921,10 +884,10 @@ struct seqRD_str seqRootDepth(double to, int lengthOut ) {
     double by = to / lengthOut;
 
     struct seqRD_str result;
-    for(int i = 0; i <= lengthOut; ++i) {
+    for (int i = 0; i <= lengthOut; ++i) {
         result.rootDepths[i] = i * by;
     }
-    return(result);
+    return result;
 }
 
 
@@ -973,7 +936,7 @@ struct rd_str rootDist(int n_layers, double rootDepth, double *depths, double rf
     for (int k = 0; k < n_layers; ++k) {
         result.rootDist[k] = rootDist[k] / cumulative_a;
     }
-    return(result);
+    return  result;
 }
 
 
@@ -985,4 +948,9 @@ const soilText_str get_soil_properties(SoilType soiltype)
 {
     return soil_parameters.at(soiltype);
 }
+
+inline double arrhenius_exponent(double c, double activation_energy, double thermodynamic_temperature) {
+    constexpr double R = 8.314472; // joule / kelvin / mole.
+    return exp(c - activation_energy / (R * thermodynamic_temperature));
+};
 

@@ -35,8 +35,6 @@ sorghum_parameters = with(list(), {
     water_stress_approach 1
     upperT 37.5
     lowerT 3
-    FieldC -1
-    WiltP -1
     phi1 0.01
     phi2 10
     soil_depth 1

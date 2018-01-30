@@ -23,7 +23,6 @@ struct ET_Str c3EvapoTrans(
         double WindSpeed,
         double CanopyHeight,
         double stomatal_conductance)
-
 {
     const double kappa = 0.41;
     const double WindSpeedHeight = 5;
@@ -40,7 +39,7 @@ struct ET_Str c3EvapoTrans(
     double DdryA = TempToDdryA(air_temperature);
     double LHV = TempToLHV(air_temperature) * 1e6; // Convert from MJ kg^-1 to J kg^-1.
     double SlopeFS = TempToSFS(air_temperature) * 1e-3;
-    double SWVC = TempToSWVC(air_temperature) * 1e-3;
+    double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;
 
     double Zeta = ZetaCoef * CanopyHeight;
     double Zetam = ZetaMCoef * CanopyHeight;
@@ -50,15 +49,12 @@ struct ET_Str c3EvapoTrans(
        difference of temperature between the leaf and the air huge.
        This is what is causing the large difference in DeltaT at the 
        bottom of the canopy. I think it is very likely.  */
-    double LayerRelativeHumidity = RH * 100;
-    if (LayerRelativeHumidity > 100) 
-        throw std::range_error("Thrown in c3EvapoTrans: LayerRelativehumidity is greater than 100."); 
+    if (RH > 1) 
+        throw std::range_error("Thrown in c3EvapoTrans: RH (relative humidity) is greater than 1."); 
 
     if (WindSpeed < 0.5) WindSpeed = 0.5;
 
-    double LayerWindSpeed = WindSpeed;
-
-    /* Convert light assuming 1 micromole PAR photons = 0.235 J/s */
+    /* Convert light assuming 1 micromole PAR photons = 0.235 J / s */
     double totalradiation = Itot * 0.235;
 
     double LayerConductance = stomatal_conductance * 1e-6 * 24.39;  
@@ -70,18 +66,18 @@ struct ET_Str c3EvapoTrans(
 
     if (SWVC < 0)
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0."); 
-    /* Now RHprof returns relative humidity in the 0-1 range */
-    double DeltaPVa = SWVC * (1 - LayerRelativeHumidity / 100);
 
-    double PsycParam =(DdryA * SpecificHeat) / LHV;
+    double DeltaPVa = SWVC * (1 - RH);
 
-    double Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau)));
+    double PsycParam = DdryA * SpecificHeat / LHV;
+
+    double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);
     /* Calculation of ga */
     /* According to thornley and Johnson pg. 416 */
-    double ga0 = pow(kappa,2) * LayerWindSpeed;
+    double ga0 = pow(kappa,2) * WindSpeed;
     double ga1 = log((WindSpeedHeight + Zeta - d)/Zeta);
     double ga2 = log((WindSpeedHeight + Zetam - d)/Zetam);
-    double ga = ga0/(ga1*ga2);
+    double ga = ga0 / (ga1 * ga2);
 
     if (ga < 0)
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero."); 
@@ -100,9 +96,9 @@ struct ET_Str c3EvapoTrans(
     {
         double OldDeltaT = Deltat;
 
-        double rlc = (4 * (5.67*1e-8) * pow(273 + air_temperature, 3) * Deltat);  
+        double rlc = 4.0 * 5.67 * 1e-8 * pow(273.0 + air_temperature, 3.0) * Deltat;  
 
-        PhiN = (Ja - rlc);
+        PhiN = Ja - rlc;
 
         double TopValue = PhiN * (1 / ga + 1 / LayerConductance) - LHV * DeltaPVa;
         double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance));
@@ -118,16 +114,22 @@ struct ET_Str c3EvapoTrans(
     if (PhiN < 0)
         PhiN = 0;
 
-    double TransR = (SlopeFS * PhiN + (LHV * PsycParam * ga * DeltaPVa)) / (LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance)));
-    double EPries = 1.26 * ((SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam)));
-    double EPen = ((SlopeFS * PhiN) + LHV * PsycParam * ga * DeltaPVa) / (LHV * (SlopeFS + PsycParam));
+    double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) / (LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance)));
+    double EPries = 1.26 * (SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam)));
+    double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) / (LHV * (SlopeFS + PsycParam));
+
+    // TransR has units of kg / m^2 / s.
+    // Convert to mm / m^2 / s.
+    /* 1e3 - g / kg  */
+    /* 18 - g / mol for water */
+    /* 1e3 - mmol / mol */
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e6 / 18; 
-    et_results.EPenman = EPen * 1e6 / 18; 
-    et_results.EPriestly = EPries * 1e6 / 18; 
+    et_results.TransR = TransR * 1e3 * 1e3 / 18; 
+    et_results.EPenman = EPen * 1e3 * 1e3 / 18; 
+    et_results.EPriestly = EPries * 1e3 * 1e3 / 18; 
     et_results.Deltat = Deltat;
 
-    return(et_results);
+    return et_results;
 }
 

@@ -32,13 +32,6 @@ struct Can_Str c3CanAC(double LAI,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation)
 {
-    double CanopyA = 0.0, CanopyT = 0.0, GCanopyA = 0.0;
-
-    double IDir, IDiff;
-
-    double vmax1;
-	double leafN_lay;
-
     struct Light_model light_model = lightME(lat, DOY, hr);
 
     double Idir = light_model.direct_irradiance_fraction * solarR;
@@ -58,10 +51,14 @@ struct Can_Str c3CanAC(double LAI,
     double leafN_profile[nlayers];
     LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);
 
+    double CanopyA = 0.0, CanopyT = 0.0, GCanopyA = 0.0;
+
     for (int i = 0; i < nlayers; ++i)
     {
         int current_layer = nlayers - 1 - i;
-		leafN_lay = leafN_profile[current_layer];
+		double leafN_lay = leafN_profile[current_layer];
+
+        double vmax1;
         if (lnfun == 0) {
 			vmax1 = Vmax;
 		} else {
@@ -71,7 +68,7 @@ struct Can_Str c3CanAC(double LAI,
         double relative_humidity = relative_humidity_profile[current_layer];
         double layer_wind_speed = wind_speed_profile[current_layer];
 
-        IDir = light_profile.direct_irradiance[current_layer];
+        double IDir = light_profile.direct_irradiance[current_layer];
         double Itot = light_profile.total_irradiance[current_layer];
         double pLeafsun = light_profile.sunlit_fraction[current_layer];
         double CanHeight = light_profile.height[current_layer];
@@ -86,7 +83,7 @@ struct Can_Str c3CanAC(double LAI,
         double AssIdir = temp_photo_results.Assim;
         double GAssIdir = temp_photo_results.GrossAssim;
 
-        IDiff = light_profile.diffuse_irradiance[current_layer];
+        double IDiff = light_profile.diffuse_irradiance[current_layer];
         double pLeafshade = light_profile.shaded_fraction[current_layer];
         double Leafshade = LAIc * pLeafshade;
 
@@ -125,6 +122,6 @@ struct Can_Str c3CanAC(double LAI,
     ans.Assim = cf * CanopyA * (1.0 - growth_respiration_fraction);  // Mg / ha / hr.
     ans.Trans = cf2 * CanopyT;   // Mg / ha / hr.
     ans.GrossAssim = cf * GCanopyA;
-    return(ans);
+    return ans;
 }
 
