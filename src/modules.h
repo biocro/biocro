@@ -19,8 +19,10 @@ class IModule {
         {
             requirements_are_met = false;
         }
+        inline std::string get_name() const  {return this->_module_name;};
         std::vector<std::string> list_required_state() const;
         std::vector<std::string> list_modified_state() const;
+        std::string list_module_name() const;
         state_map run (state_map const &state) const;
         state_map run (state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
         std::vector<std::string> state_requirements_are_met(state_map const &state) const;
@@ -35,6 +37,47 @@ class IModule {
 };
 
 inline IModule::~IModule() {}  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
+
+class Module_1: public IModule {
+    public:
+        Module_1()
+            : IModule ("Module_1",
+                    std::vector<std::string> {}, 
+                    std::vector<std::string> {"A", "B"})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const {
+            return { {"A", 0}, {"B", 0} };
+        };
+};
+
+
+class Module_2: public IModule {
+    public:
+        Module_2()
+            : IModule ("Module_2",
+                    std::vector<std::string> {"B"}, 
+                    std::vector<std::string> {"C", "D"})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const {
+            return { {"C", 0}, {"D", 0} };
+        };
+};
+
+
+class Module_3: public IModule {
+    public:
+        Module_3()
+            : IModule ("Module_3",
+                    std::vector<std::string> {"A", "C"}, 
+                    std::vector<std::string> {"E"})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const {
+            return { {"E", 0} };
+        };
+};
 
 class biomass_leaf_n_limitation : public IModule {
     public:
