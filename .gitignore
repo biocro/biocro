@@ -56,3 +56,5 @@ out.log
 # Tags file from ctags.
 tags
 
+#File from VSC
+.vscode

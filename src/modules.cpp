@@ -29,6 +29,11 @@ vector<string> IModule::list_modified_state() const
     return this->_modified_state;
 }
 
+string IModule::list_module_name() const
+{   
+    return this->_module_name;
+}
+
 state_map IModule::run(state_map const &state) const
 {
     try {
