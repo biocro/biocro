@@ -24,6 +24,7 @@ struct ET_Str c3EvapoTrans(
         double CanopyHeight,
         double stomatal_conductance)
 {
+    constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
     const double kappa = 0.41;
     const double WindSpeedHeight = 5;
     const double dCoef = 0.77;
@@ -92,11 +93,11 @@ struct ET_Str c3EvapoTrans(
     double ChangeInLeafTemp = 10;
     int Counter = 0;
     double PhiN;
-    while ((ChangeInLeafTemp > 0.5) && (Counter <= 10))
+    for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter)
     {
         double OldDeltaT = Deltat;
 
-        double rlc = 4.0 * 5.67 * 1e-8 * pow(273.0 + air_temperature, 3.0) * Deltat;  
+        double rlc = 4.0 * StefanBoltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  
 
         PhiN = Ja - rlc;
 
@@ -105,10 +106,7 @@ struct ET_Str c3EvapoTrans(
         Deltat = TopValue / BottomValue;
         Deltat = std::min(std::max(Deltat, -5.0), 5.0);
 
-        ChangeInLeafTemp = OldDeltaT - Deltat;
-        if (ChangeInLeafTemp <0)
-            ChangeInLeafTemp = -ChangeInLeafTemp;
-        ++Counter;
+        ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
     }
 
     if (PhiN < 0)

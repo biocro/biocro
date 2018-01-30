@@ -393,19 +393,16 @@ struct ET_Str EvapoTrans2(
         double ChangeInLeafTemp = 10.0;
 
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
-            ga = leafboundarylayer(WindSpeed, leafw, airTemp, Deltat,
-                                   conductance_in_m_per_s, ActualVaporPressure);
-            /* This returns leaf-level boundary layer conductance */
-            /* In WIMOVAC this was added to the canopy conductance */
-            /* ga = (ga * gbcW)/(ga + gbcW);  */
-            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));
+            ga = leaf_boundary_layer_conductance(WindSpeed, leafw, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);
+            /* In WIMOVAC, ga was added to the canopy conductance */
+            /* ga = (ga * gbcW)/(ga + gbcW); */
 
             double OldDeltaT = Deltat;
 
             rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;
 
             /* rlc = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
-             * Then you do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
+             * To make it a linear function of deltaT, do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
              * rlc = sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) - sigma * Tair^4 = 4 * sigma * Tair^3 * deltaT
              * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
              */
@@ -414,6 +411,7 @@ struct ET_Str EvapoTrans2(
 
             /* This equation is from Thornley and Johnson pg. 418 */
             const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));
             Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // Confine Deltat to the interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
@@ -460,7 +458,7 @@ struct ET_Str EvapoTrans2(
 }
 
 
-double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
+double leaf_boundary_layer_conductance(double windspeed, double leafwidth, double AirTemp,
         double deltat, double stomcond, double vappress) {
     /* This is the leaf boundary layer computed using the approach in MLcan
        which is based on (Nikolov, Massman, Schoettle),         %
