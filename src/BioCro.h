@@ -43,10 +43,6 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
         double specific_heat, double stefan_boltzman);
 
-double TempToSWVC(double Temp);
-double TempToSFS(double Temp);
-double TempToLHV(double Temp);
-double TempToDdryA(double Temp);
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
 struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil, double heightf);

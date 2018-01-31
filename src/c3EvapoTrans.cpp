@@ -15,64 +15,64 @@
 #include "AuxBioCro.h"
 #include "BioCro.h"
 
-/* EvapoTrans function */
 struct ET_Str c3EvapoTrans(
         double Itot, 
         double air_temperature, 
         double RH,
         double WindSpeed,
-        double CanopyHeight,
+        double CanopyHeight,            // meters
         double stomatal_conductance)
 {
-    constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
-    const double kappa = 0.41;
-    const double WindSpeedHeight = 5;
-    const double dCoef = 0.77;
-    const double tau = 0.2;
-    const double ZetaCoef = 0.026;
-    const double ZetaMCoef = 0.13;
-    const double LeafReflectance = 0.2;
-    const double SpecificHeat = 1010;
+    // TODO: Is `Itot` here, the same as `Rad` in Evapotrans2?
+    constexpr double StefanBoltzmann = 5.67037e-8;  // J / m^2 / s^1 / K^4
+    constexpr const double tau = 0.2;               // dimensionless. Leaf thransmission coefficient.
+    constexpr double LeafReflectance = 0.2;         // dimensionless..
+    constexpr double SpecificHeat = 1010;           // J / kg / K
+    constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
+    constexpr double WindSpeedHeight = 5;           // meters
+    constexpr double dCoef = 0.77;                  // dimensionless
+    constexpr double ZetaCoef = 0.026;              // dimensionless 
+    constexpr double ZetaMCoef = 0.13;              // dimensionless
+    double Zeta = ZetaCoef * CanopyHeight;          // meters
+    double Zetam = ZetaMCoef * CanopyHeight;        // meters
+    double d = dCoef * CanopyHeight;                // meters
 
     if (CanopyHeight < 0.1)
         CanopyHeight = 0.1; 
 
+
     double DdryA = TempToDdryA(air_temperature);
-    double LHV = TempToLHV(air_temperature) * 1e6; // Convert from MJ kg^-1 to J kg^-1.
+    double LHV = TempToLHV(air_temperature) * 1e6;
     double SlopeFS = TempToSFS(air_temperature) * 1e-3;
-    double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;
+    double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;  // dPa
 
-    double Zeta = ZetaCoef * CanopyHeight;
-    double Zetam = ZetaMCoef * CanopyHeight;
-    double d = dCoef * CanopyHeight;
+    double conductance_in_m_per_s = stomatal_conductance * 1e-6 * 24.39;  // TODO: What is 24.39?
 
-    /* RH2 = RH * 1e2; A high value of RH makes the 
-       difference of temperature between the leaf and the air huge.
-       This is what is causing the large difference in DeltaT at the 
-       bottom of the canopy. I think it is very likely.  */
+    if (conductance_in_m_per_s <= 0) /* Prevent errors due to extremely low Layer conductance. */
+        conductance_in_m_per_s = 0.01;
+
     if (RH > 1) 
         throw std::range_error("Thrown in c3EvapoTrans: RH (relative humidity) is greater than 1."); 
 
-    if (WindSpeed < 0.5) WindSpeed = 0.5;
+    /* SOLAR RADIATION COMPONENT*/
 
-    /* Convert light assuming 1 micromole PAR photons = 0.235 J / s */
-    double totalradiation = Itot * 0.235;
-
-    double LayerConductance = stomatal_conductance * 1e-6 * 24.39;  
-
-    /* Thornley and Johnson use m s^-1 on page 418 */
-
-    if (LayerConductance <= 0) /* Prevent errors due to extremely low Layer conductance. */
-        LayerConductance = 0.01;
+    // For the wavelengths that make up PAR in sunlight, one mole of photons
+    // has, on average, approximately 2.35 x 10^5 joules:
+    constexpr double joules_per_micromole_PAR = 0.235;  // J / micromole. 
+    const double totalradiation = Rad * joules_per_micromole_PAR;  // W / m^2.
 
     if (SWVC < 0)
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0."); 
 
-    double DeltaPVa = SWVC * (1 - RH);
-
     double PsycParam = DdryA * SpecificHeat / LHV;
 
+    double DeltaPVa = SWVC * (1 - RH);  // dPa.
+
     double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);
+
+    /* AERODYNAMIC COMPONENT */
+    if (WindSpeed < 0.5) WindSpeed = 0.5;
+    
     /* Calculation of ga */
     /* According to thornley and Johnson pg. 416 */
     double ga0 = pow(kappa,2) * WindSpeed;
@@ -90,31 +90,35 @@ struct ET_Str c3EvapoTrans(
 
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;
-    double ChangeInLeafTemp = 10;
-    int Counter = 0;
     double PhiN;
-    for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter)
     {
-        double OldDeltaT = Deltat;
+        double ChangeInLeafTemp = 10;
+        for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
+            double OldDeltaT = Deltat;
 
-        double rlc = 4.0 * StefanBoltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  
+            double rlc = 4.0 * StefanBoltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  
 
-        PhiN = Ja - rlc;
+            PhiN = Ja - rlc;
 
-        double TopValue = PhiN * (1 / ga + 1 / LayerConductance) - LHV * DeltaPVa;
-        double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance));
-        Deltat = TopValue / BottomValue;
-        Deltat = std::min(std::max(Deltat, -5.0), 5.0);
+            double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;
+            double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));
+            Deltat = TopValue / BottomValue;
+            Deltat = std::min(std::max(Deltat, -5.0), 5.0);
 
-        ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
+            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
+        }
     }
 
     if (PhiN < 0)
         PhiN = 0;
 
-    double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) / (LHV * (SlopeFS + PsycParam * (1 + ga / LayerConductance)));
+    double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+        / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));
+
+    double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+        / (LHV * (SlopeFS + PsycParam));
+
     double EPries = 1.26 * (SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam)));
-    double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) / (LHV * (SlopeFS + PsycParam));
 
     // TransR has units of kg / m^2 / s.
     // Convert to mm / m^2 / s.

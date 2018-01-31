@@ -149,8 +149,14 @@ Light_model lightME(const double latitude, const int day_of_year,
  *    `chil` is non-negative.
  *    `heightf` is positive.
  */
-Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
-        double cosTheta, double kd, double chil, double heightf)
+Light_profile sunML(double Idir,          // micromole / m^2 / s 
+        double Idiff,                     // micromole / m^2 / s
+        double LAI,                       // dimensionless from m^2 / m^2
+        int nlayers,
+        double cosTheta,                  // dimensionless
+        double kd,                        //  
+        double chil,                      // dimensionless from m^2 / m^2.
+        double heightf)                   // m^-1 from m^2 / m^2 / m.  Leaf area density; LAI per height of canopy.
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
         throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
@@ -173,7 +179,7 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
     double theta = acos(cosTheta);
     double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
     double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
-    double k = k0 / k1;
+    double k = k0 / k1;  // Canopy extinction coefficient for an ellipsoidal leaf angle distribution. Page 251, Campbell and Norman. Environmental Biophysics. second edition.
 
     double LAIi = LAI / nlayers;
 
@@ -185,8 +191,7 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
 
         const double Iscat = Ibeam * (exp(-k * sqrt(alphascatter) * CumLAI) - exp(-k * CumLAI));
 
-        double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;
-
+        double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.  
         const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
 
         double Fsun = Ls / LAIi;
@@ -205,12 +210,12 @@ Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers,
             Iaverage = 0;
         }
 
-        light_profile.direct_irradiance[i] = Isolar + Idiffuse;
-        light_profile.diffuse_irradiance[i]= Idiffuse;
-        light_profile.total_irradiance[i] = Iaverage;
-        light_profile.sunlit_fraction[i] = Fsun;
-        light_profile.shaded_fraction[i] = Fshade;
-        light_profile.height[i] = (LAI - CumLAI)/heightf;
+        light_profile.direct_irradiance[i] = Isolar + Idiffuse;  // micromole / m^2 / s
+        light_profile.diffuse_irradiance[i]= Idiffuse;  // micromole / m^2 / s
+        light_profile.total_irradiance[i] = Iaverage;  // micromole / m^2 / s
+        light_profile.sunlit_fraction[i] = Fsun;  // dimensionless from m^2 / m^2
+        light_profile.shaded_fraction[i] = Fshade;  // dimensionless from m^2 / m^2
+        light_profile.height[i] = (LAI - CumLAI) / heightf;  // meters
     }
     return light_profile;
 }
@@ -305,21 +310,21 @@ double saturation_vapor_pressure(double air_temperature)
 }
 
 struct ET_Str EvapoTrans2(
-        const double Rad,
-        const double Iave,
-        const double airTemp,
-        const double RH,
-        double WindSpeed,
-        const double LeafAreaIndex,
-        double CanopyHeight,
-        const double stomatal_conductance,
-        const double leafw,
-        const int eteq)
+        const double Rad,                           // micromoles / m^2 / s
+        const double Iave,                          // micromoles / m^2 / s
+        const double airTemp,                       // degrees C
+        const double RH,                            // dimensionless from Pa / Pa
+        double WindSpeed,                           // m / s
+        const double LeafAreaIndex,                 // dimensionless from m^2 / m^2
+        double CanopyHeight,                        // meters
+        const double stomatal_conductance,          // mmol / m^2 / s
+        const double leaf_width,                    // meter
+        const int eteq)                             // unitless parameter
 {
-    constexpr double StefanBoltzmann = 5.67037e-8; /* J m^-2 s^-1 K^-4 */
-    constexpr double tau = 0.2; /* Leaf transmission coefficient */
-    constexpr double LeafReflectance = 0.2;
-    constexpr double SpecificHeat = 1010; /* J kg^-1 K^-1 */
+    constexpr double StefanBoltzmann = 5.67037e-8;  // J / m^2 / s / K^4
+    constexpr double tau = 0.2;                     // dimensionless. Leaf transmission coefficient.
+    constexpr double LeafReflectance = 0.2;         // dimensionless.
+    constexpr double SpecificHeat = 1010;           // J / kg / K
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -330,44 +335,26 @@ struct ET_Str EvapoTrans2(
         WindSpeedHeight = CanopyHeight + WindSpeedHeight;
     }
 
-    double conductance_in_m_per_s = stomatal_conductance * 1e-6 * 24.29;
-    /* Thornley and Johnson use m s^-1 on page 418 */
+    const double DdryA = TempToDdryA(airTemp);  // kg / m^3. Density of dry air.,
+    const double LHV = TempToLHV(airTemp) * 1e6;  // J / kg
+    const double SlopeFS = TempToSFS(airTemp) * 1e-3;  // kg / m^3 / K
+    const double SWVP = saturation_vapor_pressure(airTemp);  // hectopascals.
 
-    /* Prevent errors due to extremely low Layer conductance */
+    double conductance_in_m_per_s = stomatal_conductance * 1e-6 * 24.29;
+
     if (conductance_in_m_per_s <= 0.001) {
         conductance_in_m_per_s = 0.001;
     }
 
-    const double DdryA = TempToDdryA(airTemp); /* Density of dry air, kg / m^3 */
-
-    /* In the original code in WIMOVAC this is used in J kg-1
-       but Thornley and Johnson use it as MJ kg-1  */
-    const double LHV_in_MJ_per_kg = TempToLHV(airTemp);
-    // Convert to Joules per kg:
-    const double LHV = LHV_in_MJ_per_kg * 1e6;
-    const double SlopeFS = TempToSFS(airTemp) * 1e-3; /* kg m^-3 K^-1 */
-    const double SWVP = saturation_vapor_pressure(airTemp); // This is hecto Pascals.
-
-    // Express SWVC in kg/m3:
-    constexpr double hPa_per_atm = 1013.25;
-    const double SWVC = DdryA * 0.622 * SWVP / hPa_per_atm;
-
-    /* SWVC is saturated water vapor concentration (or density) in kg/m3 */
-
-    const double PsycParam = DdryA * SpecificHeat / LHV; /* This is in kg m-3 K-1 */
-
-    const double DeltaPVa = SWVC * (1 - RH); /* kg/m3 */
-
-    const double ActualVaporPressure = RH * SWVP; /* hecto Pascals */
+    if (RH > 1) 
+        throw std::range_error("Thrown in EvapoTrans2: RH (relative humidity) is greater than 1."); 
 
     /* SOLAR RADIATION COMPONENT*/
 
-    /* First calculate the Radiation term */
-
     // For the wavelengths that make up PAR in sunlight, one mole of photons
-    // has, on average, approximately 2.35 x 10^5 joules or 0.235 megajoules:
-    constexpr double megajoules_per_mole_PAR = 0.235;  // MJ / mol. 
-    const double totalradiation = Rad * megajoules_per_mole_PAR;  // microwatts / m^2.
+    // has, on average, approximately 2.35 x 10^5 joules:
+    constexpr double joules_per_micromole_PAR = 0.235;  // J / micromole. 
+    const double totalradiation = Rad * joules_per_micromole_PAR;  // W / m^2.
 
     /* On a clear sky it may exceed 1000 in some parts of the world
        Thornley and Johnson pg 400 */
@@ -375,6 +362,18 @@ struct ET_Str EvapoTrans2(
     if (totalradiation > 650) {
         throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high."); 
     }
+
+    constexpr double hPa_per_atm = 1013.25;
+    const double SWVC = DdryA * 0.622 * SWVP / hPa_per_atm;  // kg / m^3. SWVC is saturated water vapor density.
+
+    if (SWVC < 0)
+        throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0."); 
+
+    const double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
+
+    const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
+
+    const double ActualVaporPressure = RH * SWVP; /* hecto Pascals */
 
     const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);
 
@@ -384,16 +383,14 @@ struct ET_Str EvapoTrans2(
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
 
-    // Declare variables we need after exiting the loop:
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;
     double ga;
     double rlc; /* Long wave radiation for iterative calculation */
     {
         double ChangeInLeafTemp = 10.0;
-
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
-            ga = leaf_boundary_layer_conductance(WindSpeed, leafw, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);
+            ga = leaf_boundary_layer_conductance(WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */
 
@@ -422,12 +419,10 @@ struct ET_Str EvapoTrans2(
     const double PhiN = fmax(0, Ja - rlc);
 
     double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
-        /
-        (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));
+        / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));
 
     const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
-        /
-        (LHV * (SlopeFS + PsycParam));
+        / (LHV * (SlopeFS + PsycParam));
 
     const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));
 
@@ -454,6 +449,7 @@ struct ET_Str EvapoTrans2(
     et_results.EPenman = EPen * 1e3 * 1e3 / 18;
     et_results.EPriestly = EPries * 1e3 * 1e3 / 18;
     et_results.Deltat = Deltat;
+
     return et_results;
 }
 

@@ -6,9 +6,9 @@ struct Can_Str CanAC(
         int DOY,
         int hr,
         double solarR,
-        double temperature,
-        double RH,
-        double WindSpeed,
+        double temperature,  // degrees C
+        double RH,           // dimensionless from Pa / Pa
+        double WindSpeed,    // m / s
         double lat,
         int nlayers,
         double Vmax,
@@ -31,7 +31,7 @@ struct Can_Str CanAC(
         double upperT,
         double lowerT,
         const struct nitroParms &nitroP,
-        double leafwidth,
+        double leafwidth,    // meter
         int eteq,
         double StomataWS,
         int water_stress_approach)
@@ -77,20 +77,20 @@ struct Can_Str CanAC(
 
         double relative_humidity = relative_humidity_profile[current_layer];
         double layer_wind_speed = wind_speed_profile[current_layer];
-        double CanHeight = light_profile.height[current_layer];
-        double Itot = light_profile.total_irradiance[current_layer];
+        double CanHeight = light_profile.height[current_layer];  // meters
+        double Itot = light_profile.total_irradiance[current_layer];  // micromole / m^2 / s
 
-        double IDir = light_profile.direct_irradiance[current_layer];
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];
+        double IDir = light_profile.direct_irradiance[current_layer];  // micromole / m^2 / s
+        double pLeafsun = light_profile.sunlit_fraction[current_layer];  // dimensionless. Fraction of LAI that is sunlit.
         double Leafsun = LAIc * pLeafsun;
 
-        double direct_stomatal_conductance = c4photoC(IDir, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT).Gs;
+        double direct_stomatal_conductance = c4photoC(IDir, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT).Gs; // mmol / m^2 / s
         struct ET_Str et_direct = EvapoTrans2(IDir, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, direct_stomatal_conductance, leafwidth, eteq);
         double leaf_temperature_Idir = temperature + et_direct.Deltat;
         struct c4_str direct_photo = c4photoC(IDir, leaf_temperature_Idir, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT);
 
-        double IDiff = light_profile.diffuse_irradiance[current_layer];
-        double pLeafshade = light_profile.shaded_fraction[current_layer];
+        double IDiff = light_profile.diffuse_irradiance[current_layer];  // micromole / m^2 / s
+        double pLeafshade = light_profile.shaded_fraction[current_layer];  // dimensionless. Fraction of LAI that is shaded.
         double Leafshade = LAIc * pLeafshade;
 
         double diffuse_stomatal_conductance = c4photoC(IDiff, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT).Gs;
