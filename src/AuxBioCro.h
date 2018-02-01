@@ -169,7 +169,7 @@ struct crop_phenology {
       }leaf,stem,root,rhiz;
 };
 
-double leafboundarylayer(double windspeed, double leafwidth, double AirTemp,
+double leaf_boundary_layer_conductance(double windspeed, double leafwidth, double AirTemp,
                          double deltat, double stomcond, double vappress);
 
 double SoilEvapo(double LAI, double k, double AirTemp, double IRad,

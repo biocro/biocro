@@ -5,9 +5,9 @@ struct Can_Str c3CanAC(double LAI,
 		int DOY,
 		int hr,
 		double solarR,
-		double air_temperature,
-		double RH,
-		double WindSpeed,
+		double air_temperature,  // degrees C
+		double RH,  // Pa / Pa
+		double WindSpeed,  // m / s
 		double lat,
 		int nlayers,
 		double Vmax,
@@ -68,14 +68,14 @@ struct Can_Str c3CanAC(double LAI,
         double relative_humidity = relative_humidity_profile[current_layer];
         double layer_wind_speed = wind_speed_profile[current_layer];
 
-        double IDir = light_profile.direct_irradiance[current_layer];
-        double Itot = light_profile.total_irradiance[current_layer];
-        double pLeafsun = light_profile.sunlit_fraction[current_layer];
-        double CanHeight = light_profile.height[current_layer];
+        double IDir = light_profile.direct_irradiance[current_layer];  // micromole / m^2 / s
+        double Itot = light_profile.total_irradiance[current_layer];  // micromole / m^2 / s
+        double pLeafsun = light_profile.sunlit_fraction[current_layer];  // dimensionless
+        double CanHeight = light_profile.height[current_layer];  // meters
 
         double Leafsun = LAIc * pLeafsun;
 
-        double stomatal_conductance_direct = c3photoC(IDir, air_temperature, relative_humidity, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation).Gs;  // Estimate stomatal_conductance by assuming the leaf has the same temperature as the air.
+        double stomatal_conductance_direct = c3photoC(IDir, air_temperature, relative_humidity, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation).Gs;  // mmol / m^2 / s. Estimate stomatal_conductance by assuming the leaf has the same temperature as the air.
         struct ET_Str et_direct = c3EvapoTrans(Itot, air_temperature, relative_humidity, layer_wind_speed, CanHeight, stomatal_conductance_direct);
 
         double leaf_temperature_Idir = air_temperature + et_direct.Deltat;
@@ -83,11 +83,11 @@ struct Can_Str c3CanAC(double LAI,
         double AssIdir = temp_photo_results.Assim;
         double GAssIdir = temp_photo_results.GrossAssim;
 
-        double IDiff = light_profile.diffuse_irradiance[current_layer];
-        double pLeafshade = light_profile.shaded_fraction[current_layer];
+        double IDiff = light_profile.diffuse_irradiance[current_layer];  // micromole / m^2 /s
+        double pLeafshade = light_profile.shaded_fraction[current_layer];  // dimensionless
         double Leafshade = LAIc * pLeafshade;
 
-        double stomatal_conductance_diffuse = c3photoC(IDiff, air_temperature, relative_humidity, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation).Gs;  // Estimate stomatal_conductance by assuming the leaf has the same temperature as the air.
+        double stomatal_conductance_diffuse = c3photoC(IDiff, air_temperature, relative_humidity, vmax1, Jmax, Rd, b0, b1, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation).Gs;  // mmol / m^2 / s. Estimate stomatal_conductance by assuming the leaf has the same temperature as the air.
         struct ET_Str et_diffuse = c3EvapoTrans(Itot, air_temperature, relative_humidity, layer_wind_speed, CanHeight, stomatal_conductance_diffuse);
         double leaf_temperature_Idiffuse = air_temperature + et_diffuse.Deltat;
 

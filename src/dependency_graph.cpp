@@ -49,6 +49,7 @@ vector<pair<string,string>> get_edges(std::vector<IModule*> modules) //first mod
 }
 
 
+/*
 int main(int argc, char** argv)
 {
     std::vector<IModule*> test_modules;
@@ -70,3 +71,4 @@ int main(int argc, char** argv)
 }
 
 
+*/

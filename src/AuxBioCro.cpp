@@ -283,26 +283,51 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_pr
     }
 }
 
-double TempToDdryA(double Temp)
+double TempToDdryA(
+        double air_temperature)  // degrees C
 {
-    return 1.295163636 + -0.004258182 * Temp;
+    return 1.295163636 + -0.004258182 * air_temperature;  // kg / m^3
 }
 
-double TempToLHV(double air_temperature)
-    // Calculate latent heat of vaporization from air temperature.
-    // air_temperature - degrees Celsius
+double dry_air_density(
+/*! Calculate the density of dry air from temperature and pressure.
+ * This is based on the ideal gas law. See https://en.wikipedia.org/wiki/Density_of_air for details.
+ * */
+        const double air_temperature,       // kelvin
+        const double air_pressure)          // Pa
 {
-    return 2.501 + -0.002372727 * air_temperature;  // MJ / kg^1.
+    constexpr double r_specific = 287.058;  // J / kg / K. The specific gas constant for dry air, i.e., the gas constant divided by the molar mass of air.
+    return air_pressure / r_specific / air_temperature;  // kg / m^3
 }
 
-double TempToSFS(double Temp)
+double TempToLHV(
+/*! Calculate latent heat of vaporization from air temperature.
+ */
+        double air_temperature)  // degrees C
 {
-    return 0.338376068 + 0.011435897 * Temp + 0.001111111 * pow(Temp, 2);
+    return 2.501 + -0.002372727 * air_temperature;  // MJ / kg.
+}
+
+double water_latent_heat_of_vaporization_henderson(
+/*! Calculate the latent heat of vaporization of water from temperature.
+ * B. Henderson-Sellers. 1984. Quarterly journal of royal meterological society. 110(446): 1186-1190. DOI: 10.1002/qj.49711046626.
+ * Equation 8.
+ */
+        double temperature)  // kelvin
+{
+    return 1.91846e6 * pow(temperature / (temperature - 33.91), 2);  // J / kg
+}
+
+double TempToSFS(
+        double air_temperature)  // degrees C
+{
+    return 0.338376068 + 0.011435897 * air_temperature + 0.001111111 * pow(air_temperature, 2);
 }
 
 double saturation_vapor_pressure(double air_temperature)
 {
     // Determine saturation vapor pressure of water given air temperature.
+    // This is based on the Arden-Buck equation.
     // air_temperature - degrees Celsius/
     double a = (18.678 - air_temperature / 234.5) * air_temperature;
     double b = 257.14 + air_temperature;
@@ -325,6 +350,8 @@ struct ET_Str EvapoTrans2(
     constexpr double tau = 0.2;                     // dimensionless. Leaf transmission coefficient.
     constexpr double LeafReflectance = 0.2;         // dimensionless.
     constexpr double SpecificHeat = 1010;           // J / kg / K
+    constexpr double R = 8.314472;                  // joule / kelvin / mole.
+    constexpr double atmospheric_pressure = 101325; // Pa
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -337,10 +364,11 @@ struct ET_Str EvapoTrans2(
 
     const double DdryA = TempToDdryA(airTemp);  // kg / m^3. Density of dry air.,
     const double LHV = TempToLHV(airTemp) * 1e6;  // J / kg
-    const double SlopeFS = TempToSFS(airTemp) * 1e-3;  // kg / m^3 / K
+    const double SlopeFS = TempToSFS(airTemp) * 1e-3;  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
     const double SWVP = saturation_vapor_pressure(airTemp);  // hectopascals.
 
-    double conductance_in_m_per_s = stomatal_conductance * 1e-6 * 24.29;
+    double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure  
+    double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (conductance_in_m_per_s <= 0.001) {
         conductance_in_m_per_s = 0.001;
@@ -363,8 +391,9 @@ struct ET_Str EvapoTrans2(
         throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high."); 
     }
 
-    constexpr double hPa_per_atm = 1013.25;
-    const double SWVC = DdryA * 0.622 * SWVP / hPa_per_atm;  // kg / m^3. SWVC is saturated water vapor density.
+    const double SWVC = DdryA * 0.622 * SWVP * 100 / atmospheric_pressure;  // kg / m^3. SWVC is saturated water vapor density.
+    // constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
+    // const double SWVC = SWVP * 100 / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3
 
     if (SWVC < 0)
         throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0."); 
@@ -375,28 +404,28 @@ struct ET_Str EvapoTrans2(
 
     const double ActualVaporPressure = RH * SWVP; /* hecto Pascals */
 
-    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);
+    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* The value below is only for leaf temperature */
-    const double Ja2 = 2 * Iave * 0.235 * (1 - LeafReflectance - tau) / (1 - tau);
+    const double Ja2 = 2 * Iave * 0.235 * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
 
     /* This is the original from WIMOVAC*/
-    double Deltat = 0.01;
+    double Deltat = 0.01;  // degrees C
     double ga;
     double rlc; /* Long wave radiation for iterative calculation */
     {
-        double ChangeInLeafTemp = 10.0;
+        double ChangeInLeafTemp = 10.0;  // degrees C
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
-            ga = leaf_boundary_layer_conductance(WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);
+            ga = leaf_boundary_layer_conductance(WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);  // m / s
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */
 
             double OldDeltaT = Deltat;
 
-            rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;
+            rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;  // W / m^2
 
             /* rlc = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
              * To make it a linear function of deltaT, do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
@@ -404,14 +433,14 @@ struct ET_Str EvapoTrans2(
              * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
              */
 
-            const double PhiN2 = Ja2 - rlc;
+            const double PhiN2 = Ja2 - rlc;  // W / m^2
 
             /* This equation is from Thornley and Johnson pg. 418 */
-            const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;
-            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));
-            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // Confine Deltat to the interval [-10, 10]:
+            const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;  // J / m^3
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^3 / K
+            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // kelvin. Confine Deltat to the interval [-10, 10]:
 
-            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
+            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin
         }
     }
 
@@ -472,19 +501,19 @@ double leaf_boundary_layer_conductance(double windspeed, double leafwidth, doubl
     double esTl = saturation_vapor_pressure(leaftemp) * 100; /* The function returns hPa, but need Pa */
 
     /* Forced convection */
-    double gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);
+    double gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);  // m / s. TODO: Nikolov et. al equation 29 use cf = 4.322e-3, not cf = 1.6e-3 as is used here.
     double gbv_free = gbv_forced;
-    double eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); /* Eq 35 */
+    double eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); // Pa. Eq 35
 
-    double Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); /* Eq 34*/
+    double Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); // kelvin. It is also degrees C since it is a temperature difference. Eq. 34
 
     if (Tvdiff < 0) Tvdiff = -Tvdiff;
 
-    gbv_free = cf * pow(Tlk,0.56) * pow((Tlk+120)/Pa,0.5) * pow(Tvdiff/lw,0.25);
+    gbv_free = cf * pow(Tlk,0.56) * pow((Tlk+120)/Pa,0.5) * pow(Tvdiff/lw,0.25);  // m / s. Eq. 33
 
     double gbv = std::max(gbv_forced, gbv_free);
 
-    return gbv;
+    return gbv;  // m / s
 }
 
 

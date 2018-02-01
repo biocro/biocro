@@ -16,37 +16,39 @@
 #include "BioCro.h"
 
 struct ET_Str c3EvapoTrans(
-        double Itot, 
-        double air_temperature, 
-        double RH,
-        double WindSpeed,
-        double CanopyHeight,            // meters
-        double stomatal_conductance)
+        double Itot,                                // micromole / m^2 / s
+        double air_temperature,                     // degrees C
+        double RH,                                  // Pa / Pa
+        double WindSpeed,                           // m / s
+        double CanopyHeight,                        // meters
+        double stomatal_conductance)                // mmol / m^2 / s
 {
-    // TODO: Is `Itot` here, the same as `Rad` in Evapotrans2?
     constexpr double StefanBoltzmann = 5.67037e-8;  // J / m^2 / s^1 / K^4
-    constexpr const double tau = 0.2;               // dimensionless. Leaf thransmission coefficient.
-    constexpr double LeafReflectance = 0.2;         // dimensionless..
+    constexpr double tau = 0.2;                     // dimensionless. Leaf transmission coefficient.
+    constexpr double LeafReflectance = 0.2;         // dimensionless
     constexpr double SpecificHeat = 1010;           // J / kg / K
     constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;           // meters
     constexpr double dCoef = 0.77;                  // dimensionless
     constexpr double ZetaCoef = 0.026;              // dimensionless 
     constexpr double ZetaMCoef = 0.13;              // dimensionless
-    double Zeta = ZetaCoef * CanopyHeight;          // meters
-    double Zetam = ZetaMCoef * CanopyHeight;        // meters
-    double d = dCoef * CanopyHeight;                // meters
+    const double Zeta = ZetaCoef * CanopyHeight;    // meters
+    const double Zetam = ZetaMCoef * CanopyHeight;  // meters
+    const double d = dCoef * CanopyHeight;          // meters
+    constexpr double R = 8.314472;                  // joule / kelvin / mole.
+    constexpr double atmospheric_pressure = 101325; // Pa
 
     if (CanopyHeight < 0.1)
         CanopyHeight = 0.1; 
 
 
-    double DdryA = TempToDdryA(air_temperature);
-    double LHV = TempToLHV(air_temperature) * 1e6;
-    double SlopeFS = TempToSFS(air_temperature) * 1e-3;
+    double DdryA = TempToDdryA(air_temperature);  // kg / m^3
+    double LHV = TempToLHV(air_temperature) * 1e6;  // J / kg
+    double SlopeFS = TempToSFS(air_temperature) * 1e-3;  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
     double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;  // dPa
 
-    double conductance_in_m_per_s = stomatal_conductance * 1e-6 * 24.39;  // TODO: What is 24.39?
+    double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure  
+    double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (conductance_in_m_per_s <= 0) /* Prevent errors due to extremely low Layer conductance. */
         conductance_in_m_per_s = 0.01;
@@ -59,26 +61,26 @@ struct ET_Str c3EvapoTrans(
     // For the wavelengths that make up PAR in sunlight, one mole of photons
     // has, on average, approximately 2.35 x 10^5 joules:
     constexpr double joules_per_micromole_PAR = 0.235;  // J / micromole. 
-    const double totalradiation = Rad * joules_per_micromole_PAR;  // W / m^2.
+    const double totalradiation = Itot * joules_per_micromole_PAR;  // W / m^2.
 
     if (SWVC < 0)
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0."); 
 
-    double PsycParam = DdryA * SpecificHeat / LHV;
+    double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
 
     double DeltaPVa = SWVC * (1 - RH);  // dPa.
 
-    double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);
+    double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
     
     /* Calculation of ga */
     /* According to thornley and Johnson pg. 416 */
-    double ga0 = pow(kappa,2) * WindSpeed;
-    double ga1 = log((WindSpeedHeight + Zeta - d)/Zeta);
-    double ga2 = log((WindSpeedHeight + Zetam - d)/Zetam);
-    double ga = ga0 / (ga1 * ga2);
+    double ga0 = pow(kappa, 2) * WindSpeed;                     // m / s
+    double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);      // dimensionless
+    double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);    // dimensionless
+    double ga = ga0 / (ga1 * ga2);                              // m / s
 
     if (ga < 0)
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero."); 
@@ -89,20 +91,20 @@ struct ET_Str c3EvapoTrans(
     /* From Table A.3 in Campbell and Norman.*/
 
     /* This is the original from WIMOVAC*/
-    double Deltat = 0.01;
+    double Deltat = 0.01;  // degrees C
     double PhiN;
     {
-        double ChangeInLeafTemp = 10;
+        double ChangeInLeafTemp = 10;  // degrees C
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
             double OldDeltaT = Deltat;
 
-            double rlc = 4.0 * StefanBoltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  
+            double rlc = 4.0 * StefanBoltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  // W / m^2
 
-            PhiN = Ja - rlc;
+            PhiN = Ja - rlc;  // W / m^2
 
-            double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;
-            double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));
-            Deltat = TopValue / BottomValue;
+            double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;  // TODO: These units do not work out.
+            double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^2 / K
+            Deltat = TopValue / BottomValue;  // TODO: These unit don't work, because the units in TopValue don't work.
             Deltat = std::min(std::max(Deltat, -5.0), 5.0);
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);
