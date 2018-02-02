@@ -350,7 +350,7 @@ struct ET_Str EvapoTrans2(
     constexpr double tau = 0.2;                     // dimensionless. Leaf transmission coefficient.
     constexpr double LeafReflectance = 0.2;         // dimensionless.
     constexpr double SpecificHeat = 1010;           // J / kg / K
-    constexpr double R = 8.314472;                  // joule / kelvin / mole.
+    //constexpr double R = 8.314472;                  // joule / kelvin / mole.
     constexpr double atmospheric_pressure = 101325; // Pa
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
@@ -445,17 +445,18 @@ struct ET_Str EvapoTrans2(
     }
 
     /* Net radiation */
-    const double PhiN = fmax(0, Ja - rlc);
+    const double PhiN = fmax(0, Ja - rlc);  // W / m^2
 
-    double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
-        / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));
+    const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+        / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s.  Thornley and Johnson. 1990. Plant and Crop Modeling. Equation 14.4k. Page 408.
 
     const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
-        / (LHV * (SlopeFS + PsycParam));
+        / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
-    const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));
+    const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     /* Choose equation to report */
+    double TransR;
     switch (eteq) {
     case 1:
         TransR = EPen;
@@ -464,6 +465,7 @@ struct ET_Str EvapoTrans2(
         TransR = EPries;
         break;
     default:
+        TransR = penman_monieth;
         break; // use the value defined above
     }
 
@@ -474,10 +476,10 @@ struct ET_Str EvapoTrans2(
     /* 1e3 - mmol / mol */
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e3 * 1e3 / 18;
-    et_results.EPenman = EPen * 1e3 * 1e3 / 18;
-    et_results.EPriestly = EPries * 1e3 * 1e3 / 18;
-    et_results.Deltat = Deltat;
+    et_results.TransR = TransR * 1e3 * 1e3 / 18;    // mmol / m^2 / s
+    et_results.EPenman = EPen * 1e3 * 1e3 / 18;     // mmol / m^2 / s
+    et_results.EPriestly = EPries * 1e3 * 1e3 / 18; // mmol / m^2 / s
+    et_results.Deltat = Deltat;                     // degrees C
 
     return et_results;
 }

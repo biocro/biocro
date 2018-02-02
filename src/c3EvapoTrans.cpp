@@ -35,12 +35,11 @@ struct ET_Str c3EvapoTrans(
     const double Zeta = ZetaCoef * CanopyHeight;    // meters
     const double Zetam = ZetaMCoef * CanopyHeight;  // meters
     const double d = dCoef * CanopyHeight;          // meters
-    constexpr double R = 8.314472;                  // joule / kelvin / mole.
-    constexpr double atmospheric_pressure = 101325; // Pa
+    //constexpr double R = 8.314472;                  // joule / kelvin / mole.
+    //constexpr double atmospheric_pressure = 101325; // Pa
 
     if (CanopyHeight < 0.1)
         CanopyHeight = 0.1; 
-
 
     double DdryA = TempToDdryA(air_temperature);  // kg / m^3
     double LHV = TempToLHV(air_temperature) * 1e6;  // J / kg
