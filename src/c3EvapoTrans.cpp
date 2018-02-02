@@ -41,12 +41,12 @@ struct ET_Str c3EvapoTrans(
     if (CanopyHeight < 0.1)
         CanopyHeight = 0.1; 
 
-    double DdryA = TempToDdryA(air_temperature);  // kg / m^3
-    double LHV = TempToLHV(air_temperature) * 1e6;  // J / kg
-    double SlopeFS = TempToSFS(air_temperature) * 1e-3;  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
-    double SWVP = saturation_vapor_pressure(air_temperature) * 100;  // Pa
+    const double DdryA = TempToDdryA(air_temperature);  // kg / m^3
+    const double LHV = TempToLHV(air_temperature) * 1e6;  // J / kg
+    const double SlopeFS = TempToSFS(air_temperature) * 1e-3;  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double SWVP = saturation_vapor_pressure(air_temperature) * 100;  // Pa
 
-    double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure  
+    constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure  
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (conductance_in_m_per_s <= 0) /* Prevent errors due to extremely low Layer conductance. */
@@ -68,21 +68,21 @@ struct ET_Str c3EvapoTrans(
     if (SWVC < 0)
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0."); 
 
-    double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
+    const double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
 
-    double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
+    const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 
-    double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
+    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
     
     /* Calculation of ga */
     /* According to thornley and Johnson pg. 416 */
-    double ga0 = pow(kappa, 2) * WindSpeed;                     // m / s
-    double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);      // dimensionless
-    double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);    // dimensionless
-    double ga = ga0 / (ga1 * ga2);                              // m / s
+    const double ga0 = pow(kappa, 2) * WindSpeed;                     // m / s
+    const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);      // dimensionless
+    const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);    // dimensionless
+    const double ga = ga0 / (ga1 * ga2);                              // m / s
 
     if (ga < 0)
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero."); 
@@ -116,13 +116,13 @@ struct ET_Str c3EvapoTrans(
     if (PhiN < 0)
         PhiN = 0;
 
-    double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+    const double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
         / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s
 
-    double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
         / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
-    double EPries = 1.26 * (SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam)));  // kg / m^2 / s
+    const double EPries = 1.26 * (SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam)));  // kg / m^2 / s
 
     // TransR has units of kg / m^2 / s.
     // Convert to mm / m^2 / s.
