@@ -335,23 +335,25 @@ double saturation_vapor_pressure(double air_temperature)
 }
 
 struct ET_Str EvapoTrans2(
-        const double Rad,                           // micromoles / m^2 / s
-        const double Iave,                          // micromoles / m^2 / s
-        const double airTemp,                       // degrees C
-        const double RH,                            // dimensionless from Pa / Pa
-        double WindSpeed,                           // m / s
-        const double LeafAreaIndex,                 // dimensionless from m^2 / m^2
-        double CanopyHeight,                        // meters
-        const double stomatal_conductance,          // mmol / m^2 / s
-        const double leaf_width,                    // meter
-        const int eteq)                             // unitless parameter
+        const double Rad,                                // micromoles / m^2 / s
+        const double Iave,                               // micromoles / m^2 / s
+        const double airTemp,                            // degrees C
+        const double RH,                                 // dimensionless from Pa / Pa
+        double WindSpeed,                                // m / s
+        const double LeafAreaIndex,                      // dimensionless from m^2 / m^2
+        double CanopyHeight,                             // meters
+        const double stomatal_conductance,               // mmol / m^2 / s
+        const double leaf_width,                         // meter
+        const int eteq)                                  // unitless parameter
 {
-    constexpr double StefanBoltzmann = 5.67037e-8;  // J / m^2 / s / K^4
-    constexpr double tau = 0.2;                     // dimensionless. Leaf transmission coefficient.
-    constexpr double LeafReflectance = 0.2;         // dimensionless.
-    constexpr double SpecificHeat = 1010;           // J / kg / K
-    constexpr double R = 8.314472;                  // joule / kelvin / mole.
-    //constexpr double atmospheric_pressure = 101325; // Pa
+    constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
+    constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
+    constexpr double LeafReflectance = 0.2;              // dimensionless.
+    constexpr double SpecificHeat = 1010;                // J / kg / K
+    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
+    constexpr double R = 8.314472;                       // joule / kelvin / mole.
+    //constexpr double atmospheric_pressure = 101325;      // Pa
+    constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -379,9 +381,6 @@ struct ET_Str EvapoTrans2(
 
     /* SOLAR RADIATION COMPONENT*/
 
-    // For the wavelengths that make up PAR in sunlight, one mole of photons
-    // has, on average, approximately 2.35 x 10^5 joules:
-    constexpr double joules_per_micromole_PAR = 0.235;  // J / micromole. 
     const double totalradiation = Rad * joules_per_micromole_PAR;  // W / m^2.
 
     /* On a clear sky it may exceed 1000 in some parts of the world
@@ -391,7 +390,6 @@ struct ET_Str EvapoTrans2(
         throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high."); 
     }
 
-    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     const double SWVC = SWVP * 100 / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
     if (SWVC < 0)

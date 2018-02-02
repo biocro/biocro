@@ -16,27 +16,29 @@
 #include "BioCro.h"
 
 struct ET_Str c3EvapoTrans(
-        double Itot,                                // micromole / m^2 / s
-        double air_temperature,                     // degrees C
-        double RH,                                  // Pa / Pa
-        double WindSpeed,                           // m / s
-        double CanopyHeight,                        // meters
-        double stomatal_conductance)                // mmol / m^2 / s
+        double Itot,                                     // micromole / m^2 / s
+        double air_temperature,                          // degrees C
+        double RH,                                       // Pa / Pa
+        double WindSpeed,                                // m / s
+        double CanopyHeight,                             // meters
+        double stomatal_conductance)                     // mmol / m^2 / s
 {
-    constexpr double StefanBoltzmann = 5.67037e-8;  // J / m^2 / s^1 / K^4
-    constexpr double tau = 0.2;                     // dimensionless. Leaf transmission coefficient.
-    constexpr double LeafReflectance = 0.2;         // dimensionless
-    constexpr double SpecificHeat = 1010;           // J / kg / K
-    constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
-    constexpr double WindSpeedHeight = 5;           // meters
-    constexpr double dCoef = 0.77;                  // dimensionless
-    constexpr double ZetaCoef = 0.026;              // dimensionless 
-    constexpr double ZetaMCoef = 0.13;              // dimensionless
-    const double Zeta = ZetaCoef * CanopyHeight;    // meters
-    const double Zetam = ZetaMCoef * CanopyHeight;  // meters
-    const double d = dCoef * CanopyHeight;          // meters
-    constexpr double R = 8.314472;                  // joule / kelvin / mole.
-    //constexpr double atmospheric_pressure = 101325; // Pa
+    constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s^1 / K^4
+    constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
+    constexpr double LeafReflectance = 0.2;              // dimensionless
+    constexpr double SpecificHeat = 1010;                // J / kg / K
+    constexpr double kappa = 0.41;                       // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
+    constexpr double WindSpeedHeight = 5;                // meters
+    constexpr double dCoef = 0.77;                       // dimensionless
+    constexpr double ZetaCoef = 0.026;                   // dimensionless 
+    constexpr double ZetaMCoef = 0.13;                   // dimensionless
+    const double Zeta = ZetaCoef * CanopyHeight;         // meters
+    const double Zetam = ZetaMCoef * CanopyHeight;       // meters
+    const double d = dCoef * CanopyHeight;               // meters
+    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
+    constexpr double R = 8.314472;                       // joule / kelvin / mole.
+    //constexpr double atmospheric_pressure = 101325;      // Pa
+    constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
     if (CanopyHeight < 0.1)
         CanopyHeight = 0.1; 
@@ -57,12 +59,8 @@ struct ET_Str c3EvapoTrans(
 
     /* SOLAR RADIATION COMPONENT*/
 
-    // For the wavelengths that make up PAR in sunlight, one mole of photons
-    // has, on average, approximately 2.35 x 10^5 joules:
-    constexpr double joules_per_micromole_PAR = 0.235;  // J / micromole. 
     const double totalradiation = Itot * joules_per_micromole_PAR;  // W / m^2.
 
-    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     const double SWVC = SWVP / R / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
     if (SWVC < 0)
