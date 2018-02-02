@@ -350,8 +350,8 @@ struct ET_Str EvapoTrans2(
     constexpr double tau = 0.2;                     // dimensionless. Leaf transmission coefficient.
     constexpr double LeafReflectance = 0.2;         // dimensionless.
     constexpr double SpecificHeat = 1010;           // J / kg / K
-    //constexpr double R = 8.314472;                  // joule / kelvin / mole.
-    constexpr double atmospheric_pressure = 101325; // Pa
+    constexpr double R = 8.314472;                  // joule / kelvin / mole.
+    //constexpr double atmospheric_pressure = 101325; // Pa
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -391,9 +391,8 @@ struct ET_Str EvapoTrans2(
         throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high."); 
     }
 
-    const double SWVC = DdryA * 0.622 * SWVP * 100 / atmospheric_pressure;  // kg / m^3. SWVC is saturated water vapor density.
-    // constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
-    // const double SWVC = SWVP * 100 / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3
+    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
+    const double SWVC = SWVP * 100 / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
     if (SWVC < 0)
         throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0."); 
