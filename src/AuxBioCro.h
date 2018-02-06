@@ -92,9 +92,9 @@ const soilText_str get_soil_properties(SoilType soiltype);
 soilText_str get_soil_properties(int soiltype);
 // This map is based on Table 9.1 on page 130 of Campbell and Norman,
 // Introduction to Environmental Biophysics.  Bulk density values are
-// taken from function getsoilprop.c from Melanie (Colorado).  The
-// bulk density value for sandy soil is actually zero or undefined but
-// is assigned the value 0.01 here (again, see getsoilprop.c).
+// taken from function getsoilprop.c from Melanie (Colorado). The bulk
+// density of sand in getsoilprop.c is 0, which isn't sensible, and 
+// here 1.60 Mg / m^-3 is used.
 //
 // The wiltp value of 0.21 (corrected from 0.32) for silty clay loam
 // is based on the list of book corrections published at
@@ -105,7 +105,7 @@ const std::map<SoilType, soilText_str> soil_parameters =
   //                             d = dimensionless
   //                             d     d     d     J kg^-1     d     J s m^-3     d     d      d     Mg m^-3
   //                             silt  clay  sand  air_entry   b     Ks           satur fieldc wiltp bulk_density
-  { SoilType::sand,            { 0.05, 0.03, 0.92,      -0.7,  1.7,  5.8e-3,      0.87, 0.09,  0.03, 0.01 } },
+  { SoilType::sand,            { 0.05, 0.03, 0.92,      -0.7,  1.7,  5.8e-3,      0.87, 0.09,  0.03, 1.60 } },
   { SoilType::loamy_sand,      { 0.12, 0.07, 0.81,      -0.9,  2.1,  1.7e-3,      0.72, 0.13,  0.06, 1.55 } },
   { SoilType::sandy_loam,      { 0.25, 0.10, 0.65,      -1.5,  3.1,  7.2e-4,      0.57, 0.21,  0.10, 1.50 } },
   { SoilType::loam,            { 0.40, 0.18, 0.42,      -1.1,  4.5,  3.7e-4,      0.57, 0.27,  0.12, 1.43 } },
