@@ -3,7 +3,7 @@ BIOCRO_INCLUDE = ".."
 
 LDFLAGS = -L$(BIOCRO_INCLUDE) -lbiocro
 
-CXXFLAGS = -std=c++0x -I$(BIOCRO_INCLUDE)
+CXXFLAGS = -std=c++0x -g -I$(BIOCRO_INCLUDE)
 
 SOURCES = main.cpp ../dependency_graph.cpp
 OBJECTS = $(SOURCES:.cpp=.o)

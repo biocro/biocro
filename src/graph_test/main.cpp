@@ -25,21 +25,15 @@ int main(int argc, char** argv)
     test_modules.push_back(B);
     test_modules.push_back(C);
 
-    cout << "Basdfjfj;\n";
-
     vector<pair<string,string>> edges = get_edges(test_modules);
-
-    cout << "$&%&&%#\n";
 
     for(auto it=edges.begin(); it!=edges.end(); ++it)
     {
     cout << it->first << " => " << it->second << '\n';
     }
 
-    cout << "&an 54]n";
     } catch (...) {
         cout << "Caught exception: \n";
-
     }
     return 0;
 }

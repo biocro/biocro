@@ -19,14 +19,13 @@ using std::cout;
 
 std::map<string,string> get_provided_variables(std::vector<IModule*> modules)
 {
-    cout << "in get_provied\n";
     std::map<string,string> result;
     for(auto it = modules.begin(); it != modules.end(); ++it)
     {
         vector<string> provided = (*it)->list_modified_state();
-        for(auto it2 = provided.begin(); it2 != provided.end(); ++it)
+        for(auto it2 = provided.begin(); it2 != provided.end(); ++it2)
         {
-            result[*it2] = (*it)->get_name();
+            result[*it2] = (*it)->list_module_name();
         }   
     }
     return result;
@@ -34,7 +33,6 @@ std::map<string,string> get_provided_variables(std::vector<IModule*> modules)
 
 vector<pair<string,string>> get_edges(std::vector<IModule*> modules) //first module depends on the second
 {
-    cout << "in get_edges\n";
     std::map<string, string> provided = get_provided_variables(modules);
     vector<pair<string,string>> result;
     for(auto it = modules.begin(); it != modules.end(); ++it)

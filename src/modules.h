@@ -19,7 +19,7 @@ class IModule {
         {
             requirements_are_met = false;
         }
-        inline std::string get_name() const  {return this->_module_name;};
+        inline std::string get_name() const  {return _module_name;};
         std::vector<std::string> list_required_state() const;
         std::vector<std::string> list_modified_state() const;
         std::string list_module_name() const;
