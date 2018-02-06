@@ -15,9 +15,11 @@
 using std::string;
 using std::vector;
 using std::pair;
+using std::cout;
 
 std::map<string,string> get_provided_variables(std::vector<IModule*> modules)
 {
+    cout << "in get_provied\n";
     std::map<string,string> result;
     for(auto it = modules.begin(); it != modules.end(); ++it)
     {
@@ -32,6 +34,7 @@ std::map<string,string> get_provided_variables(std::vector<IModule*> modules)
 
 vector<pair<string,string>> get_edges(std::vector<IModule*> modules) //first module depends on the second
 {
+    cout << "in get_edges\n";
     std::map<string, string> provided = get_provided_variables(modules);
     vector<pair<string,string>> result;
     for(auto it = modules.begin(); it != modules.end(); ++it)
@@ -49,26 +52,3 @@ vector<pair<string,string>> get_edges(std::vector<IModule*> modules) //first mod
 }
 
 
-/*
-int main(int argc, char** argv)
-{
-    std::vector<IModule*> test_modules;
-    IModule *A = new Module_1;
-    IModule *B = new Module_2;
-    IModule *C = new Module_3;
-
-    test_modules.push_back(A);
-    test_modules.push_back(B);
-    test_modules.push_back(C);
-
-    vector<pair<string,string>> edges = get_edges(test_modules);
-
-    for(auto it=edges.begin(); it!=edges.end(); ++it)
-    {
-    std::cout << it->first << " => " << it->second << '\n';
-    }
-    return 0;
-}
-
-
-*/
