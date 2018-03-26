@@ -415,7 +415,8 @@ struct ET_Str EvapoTrans2(
     double rlc; /* Long wave radiation for iterative calculation */
     {
         double ChangeInLeafTemp = 10.0;  // degrees C
-        for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
+        double Counter = 0;
+        do {
             ga = leaf_boundary_layer_conductance(WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);  // m / s
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */
@@ -438,7 +439,7 @@ struct ET_Str EvapoTrans2(
             Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // kelvin. Confine Deltat to the interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin
-        }
+        } while ( (++Counter <= 10) && (ChangeInLeafTemp > 0.5) );
     }
 
     /* Net radiation */

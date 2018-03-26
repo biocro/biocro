@@ -42,11 +42,11 @@ state_vector_map Gro(
     state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
     vector<string> missing_state;
 
-    /* 
+    /*
      * This should use dependency resolution to find missing state. It currently doesn't work because it's checking
      * whether the initial state has all of the required values, but it also needs to check whether a module provides a value.
      *
-     * Modules check for missing state if exceptions are thrown, so this isn't necessary, but it has the advantage that 
+     * Modules check for missing state if exceptions are thrown, so this isn't necessary, but it has the advantage that
      * it will break before any calculations are done, and compiles a list of all missing state.
 
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
@@ -70,7 +70,7 @@ state_vector_map Gro(
          * 1) Calculate all state-dependent state variables.
          */
 
-        /* NOTE: 
+        /* NOTE:
          * This section is for state variables that are not modified by derivatives.
          * No derivaties should be calulated here.
          * This makes it so that the code in section 2 is order independent.
@@ -100,8 +100,8 @@ state_vector_map Gro(
         for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
             derivs += (*it)->run(state_history, deriv_history, p);
         }
-    
         /*
+         *
          * 3) Update the state variables.
          */
 
@@ -190,7 +190,7 @@ state_map Gro(
     for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
         derivs += (*it)->run(state);
     }
-    
+
     return derivs;
 }
 
