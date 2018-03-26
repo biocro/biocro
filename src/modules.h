@@ -103,14 +103,15 @@ class c4_canopy : public ICanopy_photosynthesis_module {
         c4_canopy()
             : ICanopy_photosynthesis_module("c4_canopy",
                     std::vector<std::string> {"lai", "doy", "hour", "solar", "temp",
-                    "rh", "windspeed", "lat", "nlayers", "vmax",
-                    "alpha", "kparm", "beta", "Rd", "Catm",
+                    "rh", "windspeed", "lat", "nlayers", "vmax1",
+                    "alpha1", "kparm", "beta", "Rd", "Catm",
                     "b0", "b1", "theta", "kd", "chil",
                     "heightf", "LeafN", "kpLN", "lnb0", "lnb1",
                     "lnfun", "upperT", "lowerT", "leafwidth",
                     "et_equation", "StomataWS", "water_stress_approach",
-                    "nileafn", "kln", "nvmaxb0", "nvmaxb1", "alphab1",
-                    "nRdb1", "nRdb0", "kpLN"}, 
+                    "nileafn", "nkln", "kln", "nvmaxb0", "nvmaxb1",
+                    "nalphab1", "nalphab0", "nRdb1", "nRdb0", "nkpLN",
+                    "nlnb0", "nlnb1"}, 
                     std::vector<std::string> {})
         {}
     private:
