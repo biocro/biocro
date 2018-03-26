@@ -118,5 +118,22 @@ state_map& operator/=(state_map& lhs, double const a);
 
 state_map abs(state_map x);
 
+
+class safe_state_map {
+private:
+        state_map s;
+public:
+        safe_state_map(state_map s_) : s(s_)
+        {};
+
+        double at(std::string const& str) {
+            try {
+                return s.at(str);
+            } catch (std::out_of_range const& e) {
+                throw std::out_of_range(std::string(e.what()) + " " + str);
+            }
+        };
+};
+
 #endif
 
