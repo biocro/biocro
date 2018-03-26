@@ -70,9 +70,18 @@ parameter_list parameters {
   { "precipitation_rate"              ,{"Precipitation per time."                                                  ,"mm / s"                       }},
   { "b0"                              ,{"Ball-Berry model intercept."                                              ,"mol / m^2 / s"                }},
   { "b1"                              ,{"Ball-Berry model slope."                                                  ,"dimensionless"                }},
-  { "heightf"                         ,{"The LAI per height of the canopy"                                         ,"m^2 / m^2 / m"                }},  // The units simplify to m^-1, but m^2 / m^2 is included for clarity with leaf area index.
+  { "heightf"                         ,{"The LAI per vertical height of the canopy"                                ,"m^2 / m^2 / m"                }},  // The units simplify to m^-1, but m^2 / m^2 is included for clarity with leaf area index.
   { "temp"                            ,{"Air temperature"                                                          ,"degrees C"                    }},
   { "leafwidth"                       ,{"Leaf width"                                                               ,"m"                            }},
+  { "canopy_assimilation_rate"        ,{"Canopy carbon assimilation rate on a ground-area basis"                   ,"Mg / ha / hr"                 }},
+  { "canopy_transpiration_rate"       ,{"Canopy water transpiation rate on a ground-area basis"                    ,"Mg / ha / hr"                 }},
+  { "Leaf"                            ,{"Mass of leaves per ground area"                                           ,"Mg / ha"                      }},
+  { "Stem"                            ,{"Mass of stems per ground area"                                            ,"Mg / ha"                      }},
+  { "Root"                            ,{"Mass of roots per ground area"                                            ,"Mg / ha"                      }},
+  { "Grain"                           ,{"Mass of grain per ground area"                                            ,"Mg / ha"                      }},
+  { "Rhizome"                         ,{"Mass of rhizomes per ground area"                                         ,"Mg / ha"                      }},
+  { "acceleration_from_gravity"       ,{"Accerlation from gravity"                                                 ,"m / s^2"                      }},
+  { "lai"                             ,{"Leaf area index"                                                          ,"m^2 / m^2"                    }},
   //{ "                                 ,{"                                                                          ,"                              }},
 };
 
