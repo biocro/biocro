@@ -32,10 +32,16 @@ if (is.null(result)) {
     warning('Missing parameters should produce an error.')
 }
 
-bad_state= within(sorghum_initial_state, chil<- 10)
+bad_state = within(sorghum_initial_state, chil <- 10)
 result = get_errors(Gro(bad_state, module_missing_parms, weather05, sorghum_modules))
 if (is.null(result)) {
     warning('A parameter appearing in more than one state list should produce an error.')
+}
+
+sorghum_results = Gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules)
+stored_sorghum_results = read.delim('stored_sorghum_results.tsv')
+if (!isTRUE(all.equal(stored_sorghum_results, sorghum_results))) {
+    warning('Results are different from previous runs. Verify them and update "stored_sorghum_results.tsv"')
 }
 
 system.time({
