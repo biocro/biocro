@@ -2,7 +2,7 @@
 #include "c4photo.h"
 
 struct Can_Str CanAC(
-		double LAI,
+        double LAI,
         int DOY,
         int hr,
         double solarR,
@@ -70,7 +70,7 @@ struct Can_Str CanAC(
         } else {
             vmax1 = nitroP.Vmaxb1 * leafN_lay + nitroP.Vmaxb0;
             if (vmax1 < 0) vmax1 = 0.0;
-		    if (vmax1 > Vmax) vmax1 = Vmax;
+            if (vmax1 > Vmax) vmax1 = Vmax;
             Alpha = nitroP.alphab1 * leafN_lay + nitroP.alphab0;
             Rd = nitroP.Rdb1 * leafN_lay + nitroP.Rdb0;
         }
@@ -105,7 +105,7 @@ struct Can_Str CanAC(
         CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;
         CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;
         canopy_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;
-        
+
         result_matrix[    i*21] = IDir;
         result_matrix[1 + i*21] = IDiff;
         result_matrix[2 + i*21] = Leafsun;
@@ -117,10 +117,10 @@ struct Can_Str CanAC(
         result_matrix[8 + i*21] = et_direct.Deltat;
         result_matrix[9 + i*21] = et_diffuse.Deltat;
         result_matrix[10 + i*21] = direct_photo.Gs;
-        result_matrix[11 + i*21] = diffuse_photo.Gs; 
-        result_matrix[12 + i*21] = leafN_lay; 
+        result_matrix[11 + i*21] = diffuse_photo.Gs;
+        result_matrix[12 + i*21] = leafN_lay;
         result_matrix[13 + i*21] = vmax1;
-        result_matrix[14 + i*21] = relative_humidity; 
+        result_matrix[14 + i*21] = relative_humidity;
         result_matrix[15 + i*21] = direct_photo.GrossAssim;
         result_matrix[16 + i*21] = diffuse_photo.GrossAssim;
         result_matrix[17 + i*21] = Alpha;

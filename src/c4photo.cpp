@@ -13,30 +13,41 @@
 #include "ball_berry.h"
 #include "c4photo.h"
 
-struct c4_str c4photoC(double Qp,    double Tl,      double RH,   double vmax,               double alpha,
-                       double kparm, double theta,   double beta, double Rd,                 double bb0,
-                       double bb1,   double StomaWS, double Ca,   int water_stress_approach, double upperT,
+struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
+                       double leaf_temperature,  // degrees C
+                       double relative_humidity,  // dimensionless from Pa / Pa
+                       double vmax,  // micromole / m^2 / s
+                       double alpha,  // mol / mol
+                       double kparm,  // mol / m%2 / s
+                       double theta,
+                       double beta,
+                       double Rd,
+                       double bb0,
+                       double bb1,
+                       double StomaWS,
+                       double Ca,  // micromole / mol
+                       int water_stress_approach,
+                       double upperT,
                        double lowerT)
 {
 
-    constexpr double AP = 101325; // Pascals
-    constexpr double P = AP / 1e3; // KPa
-    constexpr double Q10 = 2;  // Q10 increase in a reaction by 10 degrees Celsius.
+    constexpr double AP = 101325; // Pa
+    constexpr double Q10 = 2;  // dimensionless. Increase in a reaction rate per temperature increase of 10 degrees Celsius.
 
-    double Csurface = (Ca * 1e-6) * AP;
-    double InterCellularCO2 = Csurface * 0.4; /* Assign an initial guess. */
-    double KQ10 = pow(Q10, (Tl - 25.0) / 10.0);
+    double Csurface = Ca * 1e-6 * AP;  // Pa
+    double InterCellularCO2 = Csurface * 0.4;  // Pa. Use an initial guess.
+    double KQ10 = pow(Q10, (leaf_temperature - 25.0) / 10.0);  // dimensionless
     double kT = kparm * KQ10;
 
     // Collatz 1992. Appendix B. Equation set 5B.
-    double Vtn = vmax * pow(2, (Tl - 25.0) / 10.0);  //micromole / m^2 / s
-    double Vtd = (1 + exp(0.3 * (lowerT - Tl))) * (1 + exp(0.3 * (Tl - upperT)));  // dimensionless
+    double Vtn = vmax * pow(2, (leaf_temperature - 25.0) / 10.0);  // micromole / m^2 / s
+    double Vtd = (1 + exp(0.3 * (lowerT - leaf_temperature))) * (1 + exp(0.3 * (leaf_temperature - upperT)));  // dimensionless
     double VT  = Vtn / Vtd;  // micromole / m^2 / s
 
     // Collatz 1992. Appendix B. Equation set 5B.
-    double Rtn = Rd * pow(2, (Tl - 25) / 10);  //micromole / m^2 / s
-    double Rtd = 1 + exp(1.3 * (Tl - 55));  // dimensionless
-    double RT  = Rtn / Rtd;   //micromole / m^2 / s
+    double Rtn = Rd * pow(2, (leaf_temperature - 25) / 10);  // micromole / m^2 / s
+    double Rtd = 1 + exp(1.3 * (leaf_temperature - 55));  // dimensionless
+    double RT  = Rtn / Rtd;  // micromole / m^2 / s
 
     // Collatz 1992. Appendix B. Equation 2B.
     double b0 = VT * alpha * Qp;
@@ -44,8 +55,8 @@ struct c4_str c4photoC(double Qp,    double Tl,      double RH,   double vmax,  
     double b2 = theta;
 
     /* Calculate the 2 roots */
-    double M1 = (b1 + sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
-    double M2 = (b1 - sqrt(b1 * b1 - (4 * b0 * b2))) / (2 * b2);
+    double M1 = (b1 + sqrt(b1 * b1 - 4 * b0 * b2)) / 2 / b2;
+    double M2 = (b1 - sqrt(b1 * b1 - 4 * b0 * b2)) / 2 / b2;
 
     double M = M1 < M2 ? M1 : M2; // Use the smallest root.
 
@@ -54,43 +65,44 @@ struct c4_str c4photoC(double Qp,    double Tl,      double RH,   double vmax,  
         double OldAssim = 0.0, Tol = 0.1, diff;
         int iterCounter = 0;
         do {
-            double kT_IC_P = kT * (InterCellularCO2 / P * 1000);
+            // Collatz 1992. Appendix B. Equation 3B.
+            double kT_IC_P = kT * InterCellularCO2 / AP * 1e6;  // micromole / m^2 / s
             double a = M * kT_IC_P;
             double b = M + kT_IC_P;
             double c = beta;
 
-            double a2 = (b - sqrt(b * b - (4 * a * c))) / (2 * c);
+            double gross_assim = (b - sqrt(b * b - 4 * a * c)) / 2 / c;  // micromole / m^2 / s
 
-            Assim = a2 - RT;  // micromole / m^2 / s.
+            Assim = gross_assim - RT;  // micromole / m^2 / s.
 
             if (water_stress_approach == 0) Assim *= StomaWS;
 
-            double csurfaceppm = Csurface * 10;
-
-            Gs = ball_berry(Assim * 1e-6, csurfaceppm * 1e-6, RH, bb0, bb1);  // mmol / m^2 / s
+            Gs = ball_berry(Assim * 1e-6, Ca * 1e-6, relative_humidity, bb0, bb1);  // mmol / m^2 / s
             if (water_stress_approach == 1) Gs *= StomaWS;
 
-            InterCellularCO2 = Csurface - (Assim * 1e-6 * 1.6 * AP) / (Gs * 0.001);
+            InterCellularCO2 = Csurface - Assim * 1e-6 * 1.6 * AP / (Gs * 0.001);  // Pa
 
             if (InterCellularCO2 < 0)
                 InterCellularCO2 = 1e-5;
 
-            diff = fabs(OldAssim - Assim);
+            diff = fabs(OldAssim - Assim);  // micromole / m^2 / s
 
-            OldAssim = Assim;
+            OldAssim = Assim;  // micromole / m^2 / s
 
         } while (diff >= Tol && ++iterCounter < 50);
     }
 
-    double miC = (InterCellularCO2 / AP) * 1e6;
+    double Ci = InterCellularCO2 / AP * 1e6;  // micromole / mol
 
     if (Gs > 600) Gs = 600;
 
-    struct c4_str tmp;
-    tmp.Assim = Assim;  //micromole / m^2 /s
-    tmp.Gs = Gs;  // mmol / m^2 / s
-    tmp.Ci = miC;
-    tmp.GrossAssim = Assim + RT;
+    struct c4_str tmp {
+            Assim,      // micromole / m^0 /s
+            Gs,         // mmol / m^0 / s
+            Ci,         // micromole / mol
+            Assim + RT  // micromole / m^0 / s
+    };
+
     return tmp;
 }
 

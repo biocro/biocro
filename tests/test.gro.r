@@ -18,7 +18,7 @@ missing_modules = within(sorghum_modules, canopy_module_name <- NULL)
 result = get_errors(Gro(sorghum_initial_state, sorghum_parameters, weather05, missing_modules))
 if (conditionMessage(result) != 'The following modules names are NULL, but they must be defined: canopy_module_name.') {
     warning('Missing module names should produce an error.')
-} 
+}
 
 gro_missing_parms = within(sorghum_parameters, alpha1 <- NULL)
 result = get_errors(Gro(sorghum_initial_state, gro_missing_parms, weather05, sorghum_modules))
@@ -40,6 +40,7 @@ if (is.null(result)) {
 
 sorghum_results = Gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules)
 stored_sorghum_results = read.delim('stored_sorghum_results.tsv')
+#write.table(sorghum_results, file='stored_sorghum_results.tsv', sep='\t', row.names=FALSE)
 if (!isTRUE(all.equal(stored_sorghum_results, sorghum_results))) {
     warning('Results are different from previous runs. Verify them and update "stored_sorghum_results.tsv"')
 }
