@@ -1,8 +1,6 @@
 #include "ModuleFactory.h"
 
-template<typename T> std::unique_ptr<IModule> createModule() { return std::unique_ptr<IModule>(new T); }
-
-const ModuleFactory::module_map ModuleFactory::modules = {
+ModuleFactory::module_map ModuleFactory::modules = {
                 { "velocity_oscillator",                &createModule<velocity_oscillator>},
                 { "position_oscillator",                &createModule<position_oscillator>},
                 { "gamma_oscillator",                   &createModule<gamma_oscillator>},
@@ -35,7 +33,7 @@ const ModuleFactory::module_map ModuleFactory::modules = {
                 { "partitioning_coefficient_selector",  &createModule<partitioning_coefficient_selector>}
             };
 
-std::unique_ptr<IModule> ModuleFactory::operator()(std::string const &module_name) {
+std::unique_ptr<IModule> ModuleFactory::operator()(std::string const &module_name) const {
             try {
                 return this->modules.at(module_name)();
             } catch (std::out_of_range const &oor) {
