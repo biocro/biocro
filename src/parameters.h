@@ -82,6 +82,10 @@ parameter_list parameters {
   { "Rhizome"                         ,{"Mass of rhizomes per ground area"                                         ,"Mg / ha"                      }},
   { "acceleration_from_gravity"       ,{"Accerlation from gravity"                                                 ,"m / s^2"                      }},
   { "lai"                             ,{"Leaf area index"                                                          ,"m^2 / m^2"                    }},
+  { "Catm"                            ,{"Atmospheric CO2 concentration"                                            ,"micromole / mol"              }},
+  { "vmax"                            ,{"Maximum carboxylation rate of C4 photosynthesis."                         ,"micromole / m^2 / s"          }},
+  { "alpha"                           ,{"Quantum efficiency of CO2 assimiliation"                                  ,"mol / mol"                    }},
+  { "kparm"                           ,{"Slope of the roughly linear portion of an A-Ci curve."                    ,"mol / m^2 / s / Pa"           }},
   //{ "                                 ,{"                                                                          ,"                              }},
 };
 

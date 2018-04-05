@@ -31,7 +31,7 @@ vector<string> IModule::list_modified_state() const
 }
 
 string IModule::list_module_name() const
-{   
+{
     return this->_module_name;
 }
 
@@ -141,7 +141,7 @@ state_map gamma_oscillator::do_operation(state_map const &s) const
 
 state_map c4_canopy::do_operation(state_map const &s) const
 {
-    struct nitroParms nitroP; 
+    struct nitroParms nitroP;
     nitroP.ileafN = s.at("nileafn");
     nitroP.kln = s.at("nkln");
     nitroP.Vmaxb1 = s.at("nvmaxb1");
@@ -230,7 +230,7 @@ state_map one_layer_soil_profile::do_operation(state_map const &s) const
 {
     double soilEvap = s.at("soil_evaporation_rate") * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
     double TotEvap = soilEvap + s.at("canopy_transpiration_rate");
-    
+
     struct ws_str WaterS = watstr(s.at("precip"), TotEvap, s.at("soil_water_content"), s.at("soil_depth"), s.at("soil_field_capacity"),
             s.at("soil_wilting_point"), s.at("phi1"), s.at("phi2"), s.at("soil_saturation_capacity"), s.at("soil_sand_content"),
             s.at("soil_saturated_conductivity"), s.at("soil_air_entry"), s.at("soil_b_coefficient"));
@@ -265,7 +265,7 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
         { "cws2", soilMLS.cws[1] - s.at("cws2") },
         { "soil_water_content",  cws_mean - s.at("soil_water_content") }
     };
-    
+
     return new_state;
 }
 
@@ -322,7 +322,7 @@ state_map thermal_time_senescence::do_operation(state_vector_map const &state_hi
                                                still leaf being produced) minus the leaf
                                                produced at the corresponding k. */
         double Remob = change * 0.6;
-        derivs["LeafLitter"] += change * 0.4; /* Collecting the leaf litter */ 
+        derivs["LeafLitter"] += change * 0.4; /* Collecting the leaf litter */
         derivs["Rhizome"] += s.at("kRhizome") * Remob;
         derivs["Stem"] += s.at("kStem") * Remob;
         derivs["Root"] += s.at("kRoot") * Remob;
@@ -375,10 +375,10 @@ state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const
             }
             double current_leaf_death_rate = (leafdeathrate > frost_leaf_death_rate) ? leafdeathrate : frost_leaf_death_rate;
             derivs["leafdeathrate"] = current_leaf_death_rate - leafdeathrate;
-  
+
             double change = s.at("Leaf") * current_leaf_death_rate * (0.01 / 24);
             double Remob = change * 0.6;
-            derivs["LeafLitter"] += (change - Remob); /* Collecting the leaf litter */ 
+            derivs["LeafLitter"] += (change - Remob); /* Collecting the leaf litter */
             derivs["Rhizome"] += s.at("kRhizome") * Remob;
             derivs["Stem"] += s.at("kStem") * Remob;
             derivs["Root"] += s.at("kRoot") * Remob;
@@ -438,7 +438,7 @@ state_map partitioning_growth_module::do_operation(state_vector_map const &state
             Plant. Phys. 46, 233-235. For this the water stress coefficient is different
             for leaf and vmax. */
 
-        /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/ 
+        /* Tissue respiration. See Amthor (1984) PCE 7, 561-*/
         derivs["newLeafcol"] = resp(derivs["newLeafcol"], p.at("mrc1"), p.at("temp"));
 
         derivs["Leaf"] = derivs["newLeafcol"]; /* It makes sense to use i because when kLeaf
@@ -541,7 +541,7 @@ state_map no_leaf_resp_partitioning_growth_module::do_operation(state_vector_map
             Plant. Phys. 46, 233-235. For this the water stress coefficient is different
             for leaf and vmax. */
 
-        derivs["Leaf"] = derivs["newLeafcol"]; 
+        derivs["Leaf"] = derivs["newLeafcol"];
     } else {
         derivs["newLeafcol"] = 0;
         derivs["Leaf"] += s.at("Leaf") * kLeaf;
@@ -606,7 +606,7 @@ double biomass_leaf_nitrogen_limitation(state_map const &s)
 
 double thermal_leaf_nitrogen_limitation(state_map const &s)
 {
-	return (s.at("LeafN_0") * exp(-s.at("kln") * s.at("TTc")));
+    return (s.at("LeafN_0") * exp(-s.at("kln") * s.at("TTc")));
 }
 
 bool any_key_is_duplicated(vector<vector<string>> const &keys) {
@@ -615,7 +615,7 @@ bool any_key_is_duplicated(vector<vector<string>> const &keys) {
         for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
             all_keys.push_back(*it2);
         }
-    } 
+    }
 
     auto last = all_keys.end();
     for (auto it = all_keys.begin(); it != last; ++it) {

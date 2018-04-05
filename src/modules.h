@@ -30,7 +30,7 @@ class IModule {
     private:
         std::string const _module_name;
         std::vector<std::string> const _required_state;
-        std::vector<std::string> const _modified_state; 
+        std::vector<std::string> const _modified_state;
         virtual state_map do_operation(state_map const &state) const {throw std::logic_error("This module cannot call run().\n"); state_map derivs; return derivs;};
         virtual state_map do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
         bool requirements_are_met;
@@ -42,7 +42,7 @@ class Module_1: public IModule {
     public:
         Module_1()
             : IModule ("Module_1",
-                    std::vector<std::string> {}, 
+                    std::vector<std::string> {},
                     std::vector<std::string> {"A", "B"})
         {}
     private:
@@ -56,7 +56,7 @@ class Module_2: public IModule {
     public:
         Module_2()
             : IModule ("Module_2",
-                    std::vector<std::string> {"B"}, 
+                    std::vector<std::string> {"B"},
                     std::vector<std::string> {"C", "D"})
         {}
     private:
@@ -70,7 +70,7 @@ class Module_3: public IModule {
     public:
         Module_3()
             : IModule ("Module_3",
-                    std::vector<std::string> {"A", "C"}, 
+                    std::vector<std::string> {"A", "C"},
                     std::vector<std::string> {"E"})
         {}
     private:
@@ -111,7 +111,7 @@ class c4_canopy : public ICanopy_photosynthesis_module {
                     "et_equation", "StomataWS", "water_stress_approach",
                     "nileafn", "nkln", "kln", "nvmaxb0", "nvmaxb1",
                     "nalphab1", "nalphab0", "nRdb1", "nRdb0", "nkpLN",
-                    "nlnb0", "nlnb1"}, 
+                    "nlnb0", "nlnb1"},
                     std::vector<std::string> {})
         {}
     private:
@@ -564,7 +564,7 @@ class soil_evaporation : public IModule {
         state_map do_operation(state_map const &s) const
         {
             double soilEvap = SoilEvapo(s.at("lai"), 0.68, s.at("temp"), s.at("solar"), s.at("soil_water_content"),
-                        s.at("soil_field_capacity"), s.at("soil_wilting_point"), s.at("windspeed"), s.at("rh"), s.at("rsec"), 
+                        s.at("soil_field_capacity"), s.at("soil_wilting_point"), s.at("windspeed"), s.at("rh"), s.at("rsec"),
                         s.at("soil_clod_size"), s.at("soil_reflectance"), s.at("soil_transmission"),
                         s.at("specific_heat"), s.at("stefan_boltzman"));  // kg / m^2 / s.
             state_map result { {"soil_evaporation_rate", soilEvap } };
