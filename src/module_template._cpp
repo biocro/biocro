@@ -2,7 +2,8 @@
 // TODO: Delete all of the template comments.
 #include "class_name.hpp"
 
-state_map class_name::do_operation (state_map const& s) const {
+state_map class_name::do_operation (state_map const& s) const
+{
     // TODO: Fill out the function body.
     // Return values in a new state_map.
     // The function should return either 1) new state variables that are not
