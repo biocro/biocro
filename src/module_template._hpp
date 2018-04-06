@@ -3,7 +3,7 @@
 //TODO: Delete all of the template comments.
 #ifndef CLASS_NAME
 #define CLASS_NAME
-#include <modules.h>
+#include "modules.h"
 
 class class_name : public IModule {
     public:
@@ -16,6 +16,6 @@ class class_name : public IModule {
             {}
     private:
         state_map do_operation (state_map const& s) const;
-}
+};
 
 #endif
