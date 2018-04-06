@@ -32,12 +32,11 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
 {
 
     constexpr double AP = 101325; // Pa
-    constexpr double Q10 = 2;  // dimensionless. Increase in a reaction rate per temperature increase of 10 degrees Celsius.
+    constexpr double k_Q10 = 2;  // dimensionless. Increase in a reaction rate per temperature increase of 10 degrees Celsius.
 
     double Csurface = Ca * 1e-6 * AP;  // Pa
     double InterCellularCO2 = Csurface * 0.4;  // Pa. Use an initial guess.
-    double KQ10 = pow(Q10, (leaf_temperature - 25.0) / 10.0);  // dimensionless
-    double kT = kparm * KQ10;
+    double kT = kparm * pow(k_Q10, (leaf_temperature - 25.0) / 10.0);  // dimensionless
 
     // Collatz 1992. Appendix B. Equation set 5B.
     double Vtn = vmax * pow(2, (leaf_temperature - 25.0) / 10.0);  // micromole / m^2 / s
