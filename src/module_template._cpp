@@ -1,6 +1,6 @@
 // TODO: Replace "class_name" with the class name in all lower case letters.
 // TODO: Delete all of the template comments.
-#include <class_name.hpp>
+#include "class_name.hpp"
 
 state_map class_name::do_operation (state_map const& s) const {
     // TODO: Fill out the function body.
@@ -12,7 +12,7 @@ state_map class_name::do_operation (state_map const& s) const {
     // Values in s can be accessed using the at() method.
     // You can set values in the state_map using the [] operator.
     state_map result;
-    result["first"]  = s.at("parameter_a") * s.at("parameter_b");  // mol / m^2 / s 
+    result["first"]  = s.at("parameter_a") * s.at("parameter_b");  // mol / m^2 / s
     result["second"] = s.at("parameter_c") * 100;  // Pa
     // Intermediate results can be stored in local scope.
     double intermediate_value = s.at("parameter_d") * 3.14;  // units
