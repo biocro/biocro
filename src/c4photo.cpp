@@ -96,13 +96,13 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
 
     if (Gs > 600) Gs = 600;
 
-    struct c4_str tmp {
-            Assim,      // micromole / m^0 /s
-            Gs,         // mmol / m^0 / s
-            Ci,         // micromole / mol
-            Assim + RT  // micromole / m^0 / s
+    struct c4_str result {
+            .Assim = Assim,           // micromole / m^2 /s
+            .Gs = Gs,                 // mmol / m^2 / s
+            .Ci = Ci,                 // micromole / mol
+            .GrossAssim = Assim + RT  // micromole / m^2 / s
     };
 
-    return tmp;
+    return result;
 }
 
