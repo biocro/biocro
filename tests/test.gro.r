@@ -40,8 +40,13 @@ if (is.null(result)) {
 
 sorghum_results = Gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules)
 stored_sorghum_results = read.delim('stored_sorghum_results.tsv')
-#write.table(sorghum_results, file='stored_sorghum_results.tsv', sep='\t', row.names=FALSE)
-if (!isTRUE(all.equal(stored_sorghum_results, sorghum_results))) {
+# library(lattice)
+# x11(); xyplot(Leaf + Stem + Root + lai ~ TTc, sorghum_results, type='l')
+# x11(); xyplot(Leaf + Stem + Root + lai ~ TTc, stored_sorghum_results, type='l')
+# x11(); xyplot(canopy_assimilation_rate ~ TTc, sorghum_results, type='l')
+# x11(); xyplot(canopy_assimilation_rate ~ TTc, stored_sorghum_results, type='l')
+# write.table(sorghum_results, file='stored_sorghum_results.tsv', sep='\t', row.names=FALSE)
+if (!isTRUE(all.equal(stored_sorghum_results[sort(names(stored_sorghum_results))], sorghum_results[sort(names(sorghum_results))], tolerance = .Machine$double.eps ^ 0.4))) {  # The default tolerance is .Machine$double.eps ^ 0.5. That is too small for differences between operating systems, so make it a little larger.
     warning('Results are different from previous runs. Verify them and update "stored_sorghum_results.tsv"')
 }
 
