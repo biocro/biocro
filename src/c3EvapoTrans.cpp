@@ -30,7 +30,7 @@ struct ET_Str c3EvapoTrans(
     constexpr double kappa = 0.41;                       // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;                // meters
     constexpr double dCoef = 0.77;                       // dimensionless
-    constexpr double ZetaCoef = 0.026;                   // dimensionless 
+    constexpr double ZetaCoef = 0.026;                   // dimensionless
     constexpr double ZetaMCoef = 0.13;                   // dimensionless
     const double Zeta = ZetaCoef * CanopyHeight;         // meters
     const double Zetam = ZetaMCoef * CanopyHeight;       // meters
@@ -41,21 +41,21 @@ struct ET_Str c3EvapoTrans(
     constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
     if (CanopyHeight < 0.1)
-        CanopyHeight = 0.1; 
+        CanopyHeight = 0.1;
 
     const double DdryA = TempToDdryA(air_temperature);  // kg / m^3
     const double LHV = TempToLHV(air_temperature) * 1e6;  // J / kg
     const double SlopeFS = TempToSFS(air_temperature) * 1e-3;  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
     const double SWVP = saturation_vapor_pressure(air_temperature) * 100;  // Pa
 
-    constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure  
+    constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (conductance_in_m_per_s <= 0) /* Prevent errors due to extremely low Layer conductance. */
         conductance_in_m_per_s = 0.01;
 
-    if (RH > 1) 
-        throw std::range_error("Thrown in c3EvapoTrans: RH (relative humidity) is greater than 1."); 
+    if (RH > 1)
+        throw std::range_error("Thrown in c3EvapoTrans: RH (relative humidity) is greater than 1.");
 
     /* SOLAR RADIATION COMPONENT*/
 
@@ -64,7 +64,7 @@ struct ET_Str c3EvapoTrans(
     const double SWVC = SWVP / R / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
     if (SWVC < 0)
-        throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0."); 
+        throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");
 
     const double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
 
@@ -74,7 +74,7 @@ struct ET_Str c3EvapoTrans(
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
-    
+
     /* Calculation of ga */
     /* According to thornley and Johnson pg. 416 */
     const double ga0 = pow(kappa, 2) * WindSpeed;                     // m / s
@@ -83,7 +83,7 @@ struct ET_Str c3EvapoTrans(
     const double ga = ga0 / (ga1 * ga2);                              // m / s
 
     if (ga < 0)
-        throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero."); 
+        throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero.");
 
     /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
     /* This version is non-iterative and an approximation*/
@@ -129,9 +129,9 @@ struct ET_Str c3EvapoTrans(
     /* 1e3 - mmol / mol */
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e3 * 1e3 / 18; 
-    et_results.EPenman = EPen * 1e3 * 1e3 / 18; 
-    et_results.EPriestly = EPries * 1e3 * 1e3 / 18; 
+    et_results.TransR = TransR * 1e3 * 1e3 / 18;
+    et_results.EPenman = EPen * 1e3 * 1e3 / 18;
+    et_results.EPriestly = EPries * 1e3 * 1e3 / 18;
     et_results.Deltat = Deltat;
 
     return et_results;
