@@ -54,3 +54,50 @@ state_map collatz_canopy::do_operation (state_map const& s) const
     return result;
 }
 
+//! penman_montieth_leaf_temperature
+// Calculate leaf temperature given environmental conditions.
+// Based on Thornley and Johnson. Plant and Crop Modelling. 1990.
+// Equation 14.11e, page 418.
+double penman_montieth_leaf_temperature(
+        double const irradiance,  // W / (m^2 ground). Total irradiance, power per ground area for the entire spectrum, not photosynthetically active radiation, quanta per ground area of photosynthetically active wavelengths.
+        double const leaf_boundary_layer_conductance,  // m / s
+        double const leaf_reflectance,  // dimensionless. Fraction of radiation power incident on the leaf that is absorbed by the leaf. 
+        double const leaf_transmission,  // dimensionless.  Fraction of radiation power incident on the leaf that is transmitted through the leaf.
+        double const air_temperature // degrees C
+        )
+{
+    constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
+    const double Ja = 2 * irradiance * 0.235 * (1 - leaf_reflectance - leaf_transmission) / (1 - leaf_transmission);  // W / m^2. Thornley and Johnson. Equation 14.1a.
+
+    /* This is the original from WIMOVAC*/
+    double delta_t = 0.01;  // degrees C
+    double rlc; /* Long wave radiation for iterative calculation */
+    {
+        double ChangeInLeafTemp = 10.0;  // degrees C
+        double Counter = 0;
+        do {
+            /* In WIMOVAC, ga was added to the canopy conductance */
+            /* ga = (ga * gbcW)/(ga + gbcW); */
+
+            double OldDeltaT = delta_t;
+
+            rlc = 4 * StefanBoltzmann * pow(273 + air_temperature, 3) * delta_t;  // W / m^2
+
+            /* rlc = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
+             * To make it a linear function of deltaT, do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
+             * rlc = sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) - sigma * Tair^4 = 4 * sigma * Tair^3 * deltaT
+             * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
+             */
+
+            const double PhiN2 = Ja - rlc;  // W / m^2
+
+            /* This equation is from Thornley and Johnson pg. 418 */
+            const double TopValue = PhiN2 * (1 / leaf_boundary_layer_conductance + 1 / conductance_in_m_per_s) - LHV * delta_t;  // J / m^3
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + leaf_boundary_layer_conductance / conductance_in_m_per_s));  // J / m^3 / K
+            delta_t = fmin(fmax(TopValue / BottomValue, -10), 10); // kelvin. Confine Deltat to the interval [-10, 10]:
+
+            ChangeInLeafTemp = fabs(OldDeltaT - delta_t);  // kelvin
+        } while ( (++Counter <= 10) && (ChangeInLeafTemp > 0.5) );
+    }
+    return air_temperature + delta_t;
+}
