@@ -47,8 +47,8 @@ state_map collatz_canopy::do_operation (state_map const& s) const
     };
 
     state_map result {
-        { "layer_assimilation_rate", r.assimilation },  // TODO: Fix this! r.assimilation is leaf-level assimlation, not canopy total.
-        { "layer_stomatal_conductance", gs },  // TODO: Fix this! r.assimilation is leaf-level assimlation, not canopy total.
+        { "leaf_assimilation_rate", r.assimilation },
+        { "leaf_stomatal_conductance", gs },
     };
 
     return result;
