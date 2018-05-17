@@ -299,7 +299,7 @@ state_map penman_monteith_leaf_temperature::do_operation(state_map const &s) con
     double const slope_water_vapor = s.at("slope_water_vapor");
     double const psychr_parameter = s.at("psychrometric_parameter");
     double const LHV = s.at("latent_heat_vaporization_of_water");
-    double const ga = s.at("leaf_boudary_layer_conductance");  // m / s
+    double const ga = s.at("leaf_boundary_layer_conductance");  // m / s
 
     double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
     double const gc = s.at("stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
@@ -320,7 +320,7 @@ state_map penman_monteith_transpiration::do_operation(state_map const &s) const
     double const slope_water_vapor = s.at("slope_water_vapor");
     double const psychr_parameter = s.at("psychrometric_parameter");
     double const LHV = s.at("latent_heat_vaporization_of_water");
-    double const ga = s.at("leaf_boudary_layer_conductance");  // m / s
+    double const ga = s.at("leaf_boundary_layer_conductance");  // m / s
 
     double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
     double const gc = s.at("stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
