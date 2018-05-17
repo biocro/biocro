@@ -30,7 +30,7 @@
 
 double poisson_density(int x, double lambda)
 {
-    // The probability density for the Poisson distribution is
+    // The probability density for the Poisson distribution is 
     // e^-lambda * lambda^x / x!
     // The factorial term produces numbers too large to hold, so perform the calculation in the log domain.
     // n! can be estimated by the approximation sqrt(2 * pi * x) * (x / e)^x.
@@ -353,7 +353,6 @@ struct ET_Str EvapoTrans2(
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
     //constexpr double atmospheric_pressure = 101325;      // Pa
-    constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -369,7 +368,7 @@ struct ET_Str EvapoTrans2(
     const double SlopeFS = TempToSFS(airTemp) * 1e-3;  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
     const double SWVP = saturation_vapor_pressure(airTemp);  // hectopascals.
 
-    double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (conductance_in_m_per_s <= 0.001) {
@@ -379,16 +378,6 @@ struct ET_Str EvapoTrans2(
     if (RH > 1)
         throw std::range_error("Thrown in EvapoTrans2: RH (relative humidity) is greater than 1.");
 
-    /* SOLAR RADIATION COMPONENT*/
-
-    const double totalradiation = Rad * joules_per_micromole_PAR;  // W / m^2.
-
-    /* On a clear sky it may exceed 1000 in some parts of the world
-       Thornley and Johnson pg 400 */
-    /* This values can not possibly be higher than 650 */
-    if (totalradiation > 650) {
-        throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high.");
-    }
 
     const double SWVC = SWVP * 100 / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
@@ -397,14 +386,26 @@ struct ET_Str EvapoTrans2(
 
     const double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
 
-    const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
+    const double vapor_density_deficit = SWVC * (1 - RH);  // kg / m^3
 
     const double ActualVaporPressure = RH * SWVP; /* hecto Pascals */
 
-    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
+    /* SOLAR RADIATION COMPONENT */
+    // Convert from PPFD to irradiance.
+    double constexpr fraction_of_irradiance_in_PAR = 0.5;  // dimensionless.
+    double constexpr joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
+    double const total_irradiance = Rad * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2.
+    double const total_average_irradiance = Iave * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2
+
+    /* With a clear sky, irradiance may exceed 1000 W / m^2 in some parts of the world. Thornley and Johnson pg 400. */
+    /* This value cannot possibly be higher than 1300 W / m^2. */
+    if (total_irradiance > 1300) {
+        throw std::range_error("Thrown in EvapoTrans2: total irradiance is " + std::to_string(total_irradiance) + ", which is too high.");
+    }
+    const double Ja = total_irradiance * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* The value below is only for leaf temperature */
-    const double Ja2 = 2 * Iave * 0.235 * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
+    const double Ja2 = total_average_irradiance * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
@@ -434,7 +435,7 @@ struct ET_Str EvapoTrans2(
             const double PhiN2 = Ja2 - rlc;  // W / m^2
 
             /* This equation is from Thornley and Johnson pg. 418 */
-            const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;  // J / m^3
+            const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * vapor_density_deficit;  // J / m^3
             const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^3 / K
             Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // kelvin. Confine Deltat to the interval [-10, 10]:
 
@@ -445,10 +446,10 @@ struct ET_Str EvapoTrans2(
     /* Net radiation */
     const double PhiN = fmax(0, Ja - rlc);  // W / m^2
 
-    const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+    const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
         / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s.  Thornley and Johnson. 1990. Plant and Crop Modeling. Equation 14.4k. Page 408.
 
-    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
         / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
@@ -565,7 +566,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;
 
     double PsycParam = (DdryA * specific_heat) / LHV;
-    double DeltaPVa = SWVC * (1 - RelH / 100);
+    double vapor_density_deficit = SWVC * (1 - RelH / 100);
 
     double BoundaryLayerThickness = 4e-3 * sqrt(soil_clod_size / winds);
     double DiffCoef = 2.126e-5 * 1.48e-7 * SoilTemp;
@@ -586,7 +587,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
         Evaporation = 1.26 * (SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
     } else {
         /* Penman-Monteith */
-        Evaporation = (SlopeFS * PhiN + LHV * PsycParam * SoilBoundaryLayer * DeltaPVa) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
+        Evaporation = (SlopeFS * PhiN + LHV * PsycParam * SoilBoundaryLayer * vapor_density_deficit) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
     }
 
     Evaporation *= soil_area_sunlit_fraction * maximum_uptake_rate;  // kg / m^2 / s.
@@ -912,7 +913,6 @@ struct seqRD_str seqRootDepth(double to, int lengthOut ) {
     }
     return result;
 }
-
 
 struct rd_str rootDist(int n_layers, double rootDepth, double *depths, double rfl)
 {

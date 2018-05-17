@@ -206,10 +206,10 @@ class two_layer_soil_profile : public ISoil_evaporation_module {
         virtual state_map do_operation(state_map const &s) const;
 };
 
-class penman_monteith_evapotranspiration : public IModule {
+class penman_monteith_leaf_temperature : public IModule {
     public:
-        penman_monteith_evapotranspiration()
-            : IModule("penman_monteith_evapotranspiration",
+        penman_monteith_leaf_temperature()
+            : IModule("penman_monteith_leaf_temperature",
                     std::vector<std::string> {},
                     std::vector<std::string> {})
         {}
@@ -217,10 +217,10 @@ class penman_monteith_evapotranspiration : public IModule {
         state_map do_operation (state_map const &s) const;
 };
 
-class priestley_evapotranspiration : public IModule {
+class penman_monteith_transpiration : public IModule {
     public:
-        priestley_evapotranspiration()
-            : IModule("priestley_evapotranspiration",
+        penman_monteith_transpiration()
+            : IModule("penman_monteith_transpiration",
                     std::vector<std::string> {},
                     std::vector<std::string> {})
         {}
@@ -228,10 +228,21 @@ class priestley_evapotranspiration : public IModule {
         state_map do_operation (state_map const &s) const;
 };
 
-class evapotranspiration : public IModule {
+class priestley_transpiration : public IModule {
     public:
-        evapotranspiration()
-            : IModule("evapotranspiration",
+        priestley_transpiration()
+            : IModule("priestley_transpiration",
+                    std::vector<std::string> {},
+                    std::vector<std::string> {})
+        {}
+    private:
+        state_map do_operation (state_map const &s) const;
+};
+
+class water_vapor_properties_from_air_temperature : public IModule {
+    public:
+        water_vapor_properties_from_air_temperature()
+            : IModule("water_vapor_properties_from_air_temperature",
                     std::vector<std::string> {},
                     std::vector<std::string> {})
         {}
