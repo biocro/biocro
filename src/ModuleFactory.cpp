@@ -30,7 +30,9 @@ ModuleFactory::module_map ModuleFactory::modules = {
                 { "biomass_leaf_n_limitation",          &createModule<biomass_leaf_n_limitation>},
                 { "bucket_soil_drainage",               &createModule<bucket_soil_drainage>},
                 { "soil_evaporation",                   &createModule<soil_evaporation>},
-                { "partitioning_coefficient_selector",  &createModule<partitioning_coefficient_selector>}
+                { "partitioning_coefficient_selector",  &createModule<partitioning_coefficient_selector>},
+                { "collatz_leaf",                       &createModule<collatz_leaf>},
+                { "water_vapor_properties_from_air_temperature",  &createModule<water_vapor_properties_from_air_temperature>}
             };
 
 std::unique_ptr<IModule> ModuleFactory::operator()(std::string const &module_name) const {
