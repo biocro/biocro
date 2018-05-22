@@ -243,7 +243,7 @@ class water_vapor_properties_from_air_temperature : public IModule {
     public:
         water_vapor_properties_from_air_temperature()
             : IModule("water_vapor_properties_from_air_temperature",
-                    std::vector<std::string> {},
+                    std::vector<std::string> {"temp", "rh"},
                     std::vector<std::string> {})
         {}
     private:

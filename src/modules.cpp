@@ -281,20 +281,23 @@ state_map water_vapor_properties_from_air_temperature::do_operation(state_map co
     double const latent_heat_vaporization_of_water = TempToLHV(air_temperature);  // J / kg
     double const saturation_water_vapor_pressure = saturation_vapor_pressure(air_temperature) * 100;  // Pa
     double const saturation_water_vapor_content = saturation_water_vapor_pressure / R / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
-    double const vapor_density_deficit = saturation_water_vapor_content * (1 - s.at("RH"));
+    double const vapor_density_deficit = saturation_water_vapor_content * (1 - s.at("rh"));
 
     state_map new_state {
         { "latent_heat_vaporization_of_water", latent_heat_vaporization_of_water },  // J / kg
         { "slope_water_vapor", TempToSFS(air_temperature) },  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
         { "saturation_water_vapor_pressure", saturation_water_vapor_pressure },  // Pa
+        { "water_vapor_pressure", saturation_water_vapor_pressure * s.at("rh") },  // Pa
         { "vapor_density_deficit", vapor_density_deficit },  // kg / m^3
         { "psychrometric_parameter", density_of_dry_air * specific_heat_of_water / latent_heat_vaporization_of_water},  // kg / m^3 / K
     };
     return new_state;
 }
 
-state_map penman_monteith_leaf_temperature::do_operation(state_map const &s) const
+state_map penman_monteith_leaf_temperature::do_operation(state_map const &ss) const
 {
+    check_state s(ss);
+    //output_map(s);
     // From Thornley and Johnson 1990. pg 418. equation 14.11e.
     double const slope_water_vapor = s.at("slope_water_vapor");
     double const psychr_parameter = s.at("psychrometric_parameter");
