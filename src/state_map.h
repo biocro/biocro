@@ -7,6 +7,7 @@
 
 typedef std::unordered_map<std::string, std::vector<double>> state_vector_map;
 typedef std::unordered_map<std::string, double> state_map;
+
 /*
 class state_map
 {
@@ -133,6 +134,19 @@ public:
                 throw std::out_of_range(std::string(e.what()) + " " + str);
             }
         };
+};
+
+class check_state : public state_map {
+    public:
+    check_state(state_map s) : state_map(s) {};
+    double at(std::string key)
+    {
+        try {
+            return state_map::at(key);
+        } catch (std::exception &e) {
+            throw std::out_of_range(key);
+        }
+    }
 };
 
 #endif
