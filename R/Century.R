@@ -560,7 +560,7 @@ CenturyC <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWat
   if(timestep == "week") timestep <- 7
   if(timestep == "day") timestep <- 1
 
-   res <- .Call(cntry,
+   res <- .Call("cntry",
                 as.double(LeafL),             # 1
                 as.double(StemL),             # 2
                 as.double(RootL),             # 3

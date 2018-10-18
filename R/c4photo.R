@@ -192,7 +192,7 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
         stop("length of Catm should be either 1 or equal to length of Qp")
     }
     
-    res <- .Call(c4photo_sym,as.double(Qp),
+    res <- .Call("c4photo",as.double(Qp),
                  as.double(Tl),as.double(RH),
                  as.double(vmax),as.double(alpha),
                  as.double(kparm),as.double(theta),
@@ -303,7 +303,7 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
     if(ws == "gs") ws <- 1
     else ws <- 0
     
-    res <- .Call(McMCc4photo, as.double(assim), as.double(qp),
+    res <- .Call("McMCc4photo", as.double(assim), as.double(qp),
                  as.double(temp), as.double(rh), as.integer(niter),
                  as.double(ivmax), as.double(ialpha), as.double(ikparm),
                  as.double(itheta), as.double(ibeta),

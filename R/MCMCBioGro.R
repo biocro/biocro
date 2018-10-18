@@ -251,7 +251,7 @@ MCMCBioGro <- function(niter = 10, niter2=10, phen=6, iCoef=NULL,
   thermal_base_temperature = 0
   initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
   
-  res <- .Call(SABioGro,as.double(data[,1]), as.double(data[,2]),
+  res <- .Call("SABioGro",as.double(data[,1]), as.double(data[,2]),
                as.double(data[,3]), as.double(data[,4]),
                as.double(data[,5]), as.double(data[,6]),
                as.double(data[,7]), as.integer(doy),

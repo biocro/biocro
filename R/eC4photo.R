@@ -117,7 +117,7 @@ eC4photo <- function(Qp,airtemp,rh,ca=380,oa=210,vcmax=60,
     stop("ca, oa, vcmax, vpmax, vpr, jmax should all be of length 1")
   }
 
-  res <- .Call(eC4photo_sym,as.double(Qp),as.double(airtemp),
+  res <- .Call("eC4photo",as.double(Qp),as.double(airtemp),
                as.double(rh),as.double(ca),as.double(oa),
                as.double(vcmax),as.double(vpmax),
                as.double(vpr),as.double(jmax))
@@ -193,7 +193,7 @@ eCanA <- function(LAI,doy,hour,solarR,AirTemp,RH,WindS,
   if(length(inputs) != 12)
     stop("The inputs should all be of length 1")
   
-  res <- .Call(eCanA_sym,as.double(LAI),as.integer(doy),as.integer(hour),
+  res <- .Call("eCanA",as.double(LAI),as.integer(doy),as.integer(hour),
                as.double(solarR),as.double(AirTemp),as.double(RH),
                as.double(WindS),as.double(Ca),as.double(Oa),
                as.double(Vcmax),as.double(Vpmax),
@@ -298,7 +298,7 @@ MCMCEc4photo <- function(obsDat, niter = 30000, iCa=380, iOa=210,
 if(iVpr != 80)
   warning("\n Vpr is not optimized at the moment \n")
   
-  res <- .Call(McMCEc4photo,as.double(assim),
+  res <- .Call("McMCEc4photo",as.double(assim),
                as.double(qp),as.double(temp),
                as.double(rh),as.integer(niter),
                as.double(iCa),as.double(iOa),

@@ -138,7 +138,7 @@ c3CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
 
     lnPs <- as.vector(unlist(lnP))
     
-    res <- .Call(c3CanA_sym,as.double(lai),as.integer(doy),
+    res <- .Call("c3CanA",as.double(lai),as.integer(doy),
                  as.integer(hr),as.double(solar),as.double(temp),
                  as.double(rh),as.double(windspeed),
                  as.double(lat),as.integer(nlayers),

@@ -144,7 +144,7 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
     canenitroP [names(lnControl)] <- lnControl
     nnitroP<-as.vector(unlist(canenitroP))
 
-    res <- .Call(CanA_sym,as.double(lai),as.integer(doy),
+    res <- .Call("CanA",as.double(lai),as.integer(doy),
                  as.integer(hr),as.double(solar),as.double(temp),
                  as.double(rh),as.double(windspeed),
                  as.double(lat),as.integer(nlayers),as.double(StomataWS),
