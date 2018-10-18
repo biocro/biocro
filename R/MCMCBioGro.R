@@ -312,6 +312,7 @@ indfun <- function(obs,pred){
   colind
 }
 
+#' @export
 print.MCMCBioGro <- function(x,...){
 
   cfs <- c(x$coefs[1:4],NA,x$coefs[5:8],NA,
@@ -329,6 +330,7 @@ print.MCMCBioGro <- function(x,...){
   cat("RSS:",x$rss,"\n")
 }
 
+#' @export
 plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT","trace","density"),
                             type=c("l","p"),coef=1,cols=c("blue","green","red","magenta","black","purple"),...){
 

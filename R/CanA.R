@@ -177,6 +177,7 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
   }
 
 ## Controlling the effect of leaf nitrogen on photosynthethic parameters
+#' @export
 lnParms <- function(LeafN = 2 , kpLN = 0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
 
   lnFun <- match.arg(lnFun)

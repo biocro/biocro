@@ -496,7 +496,8 @@ flow <- function(SC,CNratio,A,Lc,Tm,resp,kno,Ks,verbose=FALSE){
   list(SC=SC, fC=fC, Resp=Resp, Kf=Kf, MinN=MinN)
 
 }
-  
+
+#' @export
 centuryParms <- function(SC1=1,SC2=1,SC3=1,SC4=1,SC5=1,SC6=1,
                        SC7=1,SC8=1,SC9=1,
                        LeafL.Ln=0.17,StemL.Ln=0.17,RootL.Ln=0.17,RhizL.Ln=0.17,
@@ -524,6 +525,7 @@ centuryParms <- function(SC1=1,SC2=1,SC3=1,SC4=1,SC5=1,SC6=1,
 
 ## The Century C version need to be rewritten
 
+#' @export
 CenturyC <- function(LeafL, StemL, RootL, RhizL, smoist, stemp, precip, leachWater, centuryControl = list(),soilType=0){
 
   ## The C version accepts biomass in Mg ha^-1

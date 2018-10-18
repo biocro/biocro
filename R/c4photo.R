@@ -170,7 +170,6 @@
 ##'            lines=TRUE,col=c('blue','green'),lwd=2))
 ##' }
 ##'
-
 c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
                     beta=0.93,Rd=0.8,uppertemp=37.5,lowertemp=3.0,
                     Catm=380,b0=0.08,b1=3,

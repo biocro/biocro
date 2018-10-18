@@ -718,6 +718,7 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
 
 
 ## Printing method
+#' @export
 print.mOpc3photo <- function(x,...){
 
   ncolm <- ncol(unclass(x)$mat)

@@ -8,7 +8,7 @@
 ## of the simulation time goes in running the BioGro function which
 ## is almost completely written in C
 
-
+#' @export
 constrOpBioGro <- function(phen=1,iCoef=NULL,WetDat,
                      data,
                      day1=NULL, dayn=NULL,

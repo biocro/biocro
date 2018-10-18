@@ -1,5 +1,6 @@
 
 
+#' @export
 assignPoolsParms <- function (
   strucc1.C.totalC=28.4,
   strucc1.C.unlablTOlabl=1.0,
@@ -185,6 +186,7 @@ assignPoolsParms <- function (
 }
 
 
+#' @export
 assignParms <- function (strucc1.parms.k=3.9,
   strucc1.parms.timestep=1440.0,
   strucc1.parms.strmx=5000.0,
@@ -843,6 +845,7 @@ assignParms <- function (strucc1.parms.k=3.9,
 
 
 
+#' @export
 GetCropCentStateVarParms <- function(
   minN=1e-6,
   minP=5.0,
@@ -880,6 +883,7 @@ GetCropCentStateVarParms <- function(
 
 
 
+#' @export
 replaceMineralStructParms <- function(
   CNFROM=CN,
 CPFROM=CP,
@@ -895,6 +899,7 @@ CKFROM=CK){
 
 
 
+#' @export
 GetSymbNFixationParms <- function(FXMCA=-0.125,
   FXMCB=0.005,
   FXMXS=0.35,
@@ -910,6 +915,7 @@ GetSymbNFixationParms <- function(FXMCA=-0.125,
 }
 
 
+#' @export
 GetLeachingParms <- function(
 DailyThresholdFlow=1.5,
 OMLEACH0=0.03,
@@ -931,6 +937,7 @@ som1c2toleach.CK=2.0){
 
 
 
+#' @export
 GetC13Parms <- function(
 DRESP=0.999, 
 DLIGDF=-4.0) {
@@ -941,6 +948,7 @@ DLIGDF=-4.0) {
 
   
 
+#' @export
 GetErosionParms <- function (
 LHZF0=0.2, 
 LHZF1=0.4,
@@ -967,6 +975,7 @@ clay=0.40){
 
 
 
+#' @export
 GetBioCroToCropcentParms <- function (structometaSLOPE=-0.013,
 structometaINTERCEP=0.85,
 surfacedamrN=0.0,

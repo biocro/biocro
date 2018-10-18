@@ -1,5 +1,6 @@
 ##  BioCro/R/weach_imn.R by Fernando Ezequiel Miguez  Copyright (C) 2011
 
+#' @export
 weach_imn <- function(data, lati, ts=1, temp.units=c("Fahrenheit","Celsius"),
                       rh.units=c("percent","fraction"),
                       ws.units=c("mph","mps"),

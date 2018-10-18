@@ -251,7 +251,7 @@ soilML <- function(precipt,CanopyT,cws,soilDepth,FieldC,WiltP,phi1=0.01,phi2 =10
   mat
 }
 
-
+#' @export
 rootDist <- function(layers,rootDepth,depthsp,rfl){
 
   if(layers < 2)

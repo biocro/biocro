@@ -151,6 +151,7 @@ wtrstr <- function(precipt,evapo,cws,soildepth,fieldc,wiltp,phi1=0.01,phi2 =10, 
 
 }
 
+#' @export
 wsRcoef <- function(aw,fieldc,wiltp,phi1,phi2, wsFun = c("linear","logistic","exp","none") ){
 
   wsFun <- match.arg(wsFun)

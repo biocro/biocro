@@ -1,5 +1,6 @@
 ## BioCro/R/caneGro.R by Deepak Jaiswal 
 
+#' @export
 caneGro <- function(WetDat, day1=5, dayn=360,
                    timestep=1,
                    lat=40,iRhizome=3,irtl=1e-2,
@@ -231,6 +232,7 @@ caneGro <- function(WetDat, day1=5, dayn=360,
     structure(res,class="caneGro")
   }
 
+#' @export
 canesoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
                       soilType=6, soilLayers=1, soilDepths=NULL, hydrDist=0,
                       wsFun=c("linear","logistic","exp","none","lwp"),
@@ -278,6 +280,7 @@ canesoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,i
 }
 
 
+#' @export
 canephenoParms <- function(TT0=400, TTseed=800, Tmaturity=3000,Rd=0.85,Alm=0.1,Arm=0.2,
 	Clstem=0.008, Ilstem=2.0,Cestem=-0.08,Iestem=6, Clsuc=0.006,Ilsuc=1.2,Cesuc=-0.01,Iesuc=20){
 
@@ -302,6 +305,7 @@ canephenoParms <- function(TT0=400, TTseed=800, Tmaturity=3000,Rd=0.85,Alm=0.1,A
 
 
 
+#' @export
 caneseneParms <- function(senLeaf=0,senStem=10000,senRoot=0,senRhizome=4000,leafturnover=1.36,rootturnover=0.2,leafremobilizefraction=0.6){
 
   list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome,leafturnover=leafturnover,rootturnover=rootturnover,leafremobilizefraction=leafremobilizefraction)
@@ -309,6 +313,7 @@ caneseneParms <- function(senLeaf=0,senStem=10000,senRoot=0,senRhizome=4000,leaf
 }
 
 
+#' @export
 canenitroParms <- function(iLeafN=85, kLN=0.5, Vmax.b1=0.6938, Vmax.b0=-16.25,alpha.b1=0.000488,alpha.b0=0.02367,Rd.b1=0.1247,Rd.b0=-4.5917,
                        kpLN=0.17, lnb0 = -5, lnb1 = 18, lnFun=c("linear"),maxln=85,minln=57,daymaxln=60){
 
@@ -325,10 +330,12 @@ canenitroParms <- function(iLeafN=85, kLN=0.5, Vmax.b1=0.6938, Vmax.b0=-16.25,al
 }
 
 
+#' @export
 managementParms <-function (irrigationFactor=0.0){
   list(irrigationFactor=irrigationFactor)
 }
 
+#' @export
 frostParms <-function (leafT0=0.0,leafT100=-5.6,stemT0=-272,stemT100=-273){
   list(leafT0=leafT0,leafT100=leafT100,stemT0=stemT0,stemT100=stemT100)
 }
