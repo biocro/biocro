@@ -1,2 +1,2 @@
-R --silent --vanilla -e "roxygen2::roxygenize('.', roclets='rd')"
+R --silent --vanilla -e "devtools::document('.', roclets='rd')"
 
