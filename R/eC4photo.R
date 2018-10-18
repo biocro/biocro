@@ -330,7 +330,6 @@ if(iVpr != 80)
 ##' @seealso \code{\link{MCMCEc4photo}}
 ##' @keywords optimize
 ##' @export
-##' @S3method print MCMCEc4photo
 
 print.MCMCEc4photo <- function(x,level=0.95,...){
 
@@ -382,7 +381,6 @@ print.MCMCEc4photo <- function(x,level=0.95,...){
 ##' @seealso \code{\link{MCMCEc4photo}}
 ##' @keywords hplot
 ##' @export
-##' @S3method plot MCMCEc4photo
 
            
 plot.MCMCEc4photo <- function(x,x2=NULL,x3=NULL,

@@ -611,7 +611,6 @@ seneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
 ##' @seealso \code{\link{BioGro}} \code{\link{OpBioGro}}
 ##' @keywords hplot
 ##' @export
-##' @S3method plot BioGro
 plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, 
                          rhizome = TRUE, LAI = TRUE, grain = TRUE,
                          xlab=NULL,ylab=NULL,ylim=NULL,
@@ -765,7 +764,6 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
 }
 
 ##' @export
-##' @S3method print BioGro
 print.BioGro <- function(x,level=1,...){
 
   if(level == 0){

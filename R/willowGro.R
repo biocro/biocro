@@ -614,7 +614,6 @@ willowseneParms <- function(senLeaf=1600,senStem=5500, senRoot=5500,senRhizome=5
 ##' @seealso \code{\link{willowGro}} \code{\link{OpwillowGro}}
 ##' @keywords hplot
 ##' @export
-##' @S3method plot willowGro
 plot.willowGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, 
                          rhizome = TRUE, LAI = TRUE, grain = TRUE,
                          xlab=NULL,ylab=NULL,
@@ -731,7 +730,6 @@ plot.willowGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE
   }
 }
 ##' @export
-##' @S3method print willowGro
 print.willowGro <- function(x,level=1,...){
 
   if(level == 0){

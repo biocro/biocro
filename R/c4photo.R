@@ -323,7 +323,6 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
 
 ## Function for printing the MCMCc4photo objects
 ##' @export
-##' @S3method print MCMCc4photo
 print.MCMCc4photo <- function(x,burnin=1,level=0.95,digits=1,...){
 
     ul <- 1 - (1-level)/2
@@ -381,7 +380,6 @@ print.MCMCc4photo <- function(x,burnin=1,level=0.95,digits=1,...){
 ##' @seealso \code{\link{MCMCc4photo}}
 ##' @keywords hplot
 ##' @export
-##' @S3method plot MCMCc4photo
 
 plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
                              plot.kind=c("trace","density"),type=c("l","p"),
