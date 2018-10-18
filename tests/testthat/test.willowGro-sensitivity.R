@@ -1,3 +1,6 @@
+
+context("willowGro sensitivity")
+
 pp <- willowphotoParms()
 cc <- willowcanopyParms()
 day1 <- 100
@@ -38,9 +41,9 @@ test_that("willowGro is sensitive to b0 stomatal slope",{
                  canopyControl=cc, 
                  day1 = day1, dayn = dayn)
   
-  expect_more_than(max(b$Stem), max(c$Stem))
-  expect_less_than(mean(b$CanopyTrans), mean(c$CanopyTrans))
-  expect_more_than(mean(b$CanopyAssim), mean(c$CanopyAssim))
+  expect_gt(max(b$Stem), max(c$Stem))
+  expect_lt(mean(b$CanopyTrans), mean(c$CanopyTrans))
+  expect_gt(mean(b$CanopyAssim), mean(c$CanopyAssim))
   
   
 })
@@ -61,9 +64,9 @@ test_that("willowGro is sensitive to stomatal Slope", {
                  #canopyControl=cc, 
                  day1 = day1, dayn = dayn)
   
-  expect_more_than(max(b$Stem), max(c$Stem))
-  expect_less_than(mean(b$CanopyTrans), mean(c$CanopyTrans))
-  expect_more_than(mean(b$CanopyAssim), mean(c$CanopyAssim))
+  expect_gt(max(b$Stem), max(c$Stem))
+  expect_lt(mean(b$CanopyTrans), mean(c$CanopyTrans))
+  expect_gt(mean(b$CanopyAssim), mean(c$CanopyAssim))
   
 })
 
@@ -80,8 +83,8 @@ test_that("BioGro sensitive to Soil parameter phi1", {
                  iPlantControl = iplant,
                  #canopyControl=cc, 
                  day1 = day1, dayn = dayn)
-  expect_less_than(max(b$Stem), max(c$Stem))
-  expect_less_than(mean(b$CanopyTrans), mean(c$CanopyTrans))
-  expect_less_than(mean(b$CanopyAssim), mean(c$CanopyAssim))
+  expect_lt(max(b$Stem), max(c$Stem))
+  expect_lt(mean(b$CanopyTrans), mean(c$CanopyTrans))
+  expect_lt(mean(b$CanopyAssim), mean(c$CanopyAssim))
   
 })
