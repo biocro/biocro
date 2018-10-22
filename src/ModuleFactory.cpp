@@ -1,4 +1,5 @@
 #include "ModuleFactory.h"
+#include "big_leaf_multilayer_canopy.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {
                 { "velocity_oscillator",                &createModule<velocity_oscillator>},
@@ -32,7 +33,8 @@ ModuleFactory::module_map ModuleFactory::modules = {
                 { "soil_evaporation",                   &createModule<soil_evaporation>},
                 { "partitioning_coefficient_selector",  &createModule<partitioning_coefficient_selector>},
                 { "collatz_leaf",                       &createModule<collatz_leaf>},
-                { "water_vapor_properties_from_air_temperature",  &createModule<water_vapor_properties_from_air_temperature>}
+                { "water_vapor_properties_from_air_temperature",  &createModule<water_vapor_properties_from_air_temperature>},
+                { "big_leaf_multilayer_canopy",         &createModule<big_leaf_multilayer_canopy>},
             };
 
 std::unique_ptr<IModule> ModuleFactory::operator()(std::string const &module_name) const {

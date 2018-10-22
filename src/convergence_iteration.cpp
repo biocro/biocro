@@ -21,12 +21,18 @@ state_map collatz_leaf::do_operation (state_map const& ss) const
     double boundary_layer_conductance = leaf_boundary_layer_conductance(s.at("layer_wind_speed"),
                                 s.at("leafwidth"), s.at("temp"), leaf_temperature - s.at("temp"), conductance_in_m_per_s, s.at("water_vapor_pressure"));  // m / s
 
+    double const absorbed_irradiance = s.at("incident_irradiance") * (1 - s.at("leaf_reflectance") - s.at("leaf_transmittance")) / (1 - s.at("leaf_transmittance"));  // W / m^2. Leaf area basis.
+
+    double delta_t = 0;
+    double black_body_radiation = 0;  // W / m^2. Leaf area basis.
+    double leaf_net_irradiance = absorbed_irradiance - black_body_radiation;  // W / m^2. Leaf area basis.
 
     state_map leaf_state {
         {"leaf_assimiliation_rate", r.assimilation},
         {"leaf_boundary_layer_conductance", boundary_layer_conductance},
-        {"stomatal_conductance", gs},
+        {"leaf_stomatal_conductance", gs},
         {"leaf_temperature", leaf_temperature},
+        {"leaf_net_irradiance", leaf_net_irradiance},
     };
 
     output_map(leaf_state);
@@ -38,7 +44,7 @@ state_map collatz_leaf::do_operation (state_map const& ss) const
         double const previous_assimilation = r.assimilation;
 
         state_map temp = leaf_temperature_module->run(leaf_state);
-        leaf_temperature = temp["leaf_temperature"];
+        leaf_temperature = temp.at("leaf_temperature");
 
         intercelluar_co2_molar_fraction = s.at("Catm") - r.assimilation / gs;
 
@@ -54,11 +60,23 @@ state_map collatz_leaf::do_operation (state_map const& ss) const
 
         boundary_layer_conductance = leaf_boundary_layer_conductance(s.at("layer_wind_speed"), s.at("leafwidth"), s.at("temp"), leaf_temperature - s.at("temp"), conductance_in_m_per_s, s.at("water_vapor_pressure"));  // m / s
 
+        delta_t = leaf_state.at("leaf_temperature") - leaf_state.at("temp");
+        black_body_radiation = 4 * s.at("stefan_boltzman") * pow(273.15 + leaf_state.at("temp"), 3) * delta_t;  // W / m^2. Leaf area basis.
+
+        /* black_body_radiation = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
+         * To make it a linear function of deltaT, do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
+         * black_body_radiation = sigma * (Tair - 0)^4 - sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) = 4 * sigma * Tair^3 * deltaT
+         * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
+         */
+
+        leaf_net_irradiance = absorbed_irradiance - black_body_radiation;  // W / m^2. Leaf area basis.
+
         leaf_state = {
             {"leaf_assimiliation_rate", r.assimilation},
             {"leaf_boundary_layer_conductance", boundary_layer_conductance},
-            {"stomatal_conductance", gs},
+            {"leaf_stomatal_conductance", gs},
             {"leaf_temperature", leaf_temperature},
+            {"leaf_net_irradiance", leaf_net_irradiance},
         };
 
         Rprintf("Loop %i\n", n);
@@ -80,6 +98,7 @@ state_map collatz_leaf::do_operation (state_map const& ss) const
         { "leaf_boundary_layer_conductance", boundary_layer_conductance },
         { "leaf_temperature", leaf_temperature },
         { "ci", intercelluar_co2_molar_fraction },
+        { "leaf_net_irradiance", leaf_net_irradiance },
     };
 
     //output_map(leaf_state);

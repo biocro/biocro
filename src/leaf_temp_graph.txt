@@ -1,0 +1,19 @@
+digraph leaf_temperature {
+    leaf_temperature -> {airTemp Deltat}
+    Deltat -> {PsycParam PhiN2 ga conductance_in_m_per_s LHV DeltaPVa SlopeFS}
+    PhiN2 -> {Ja2 rlc}
+    rlc -> {airTemp Deltat StefanBoltmann}
+    Ja2 -> {Iave LeafReflectance tau}
+    ga -> {WindSpeed leaf_width airTemp Deltat conductance_in_m_per_s ActualVaporPressure}
+    conductance_in_m_per_s -> {stomatal_conductance}
+    ActualVaporPressure -> {RH SWVP}
+    SWVP -> {airTemp}
+    penman_monieth -> {SlopeFS PhiN LHV PsycParam ga DeltaPVa}
+    EPen -> {SlopeFS PhiN LHV PsycParam ga DeltaPVa}
+    PsycParam -> {DdryA SpecificHeat LHV}
+    DdryA -> airTemp
+    PhiN -> {Ja rlc}
+    Ja -> {total_radiation LeafReflectance tau}
+    DeltaPVa -> SWVC
+    SWVC -> {SWVP RH}
+}

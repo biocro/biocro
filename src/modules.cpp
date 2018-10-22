@@ -205,7 +205,7 @@ state_map FvCB::do_operation(state_map const &s) const
     double carboxylation_rate = std::min(rubisco_limited, std::min(rubp_limited, tpu_limited));  // The overall carboxylation rate is the rate of the slowest process.
     double net_assimilation_rate = carboxylation_rate - s.at("Rd");
 
-    Ci = s.at("Ca") - net_assimilation_rate * 1.6 * s.at("atmospheric_pressure") / s.at("stomatal_conductance");
+    Ci = s.at("Ca") - net_assimilation_rate * 1.6 * s.at("atmospheric_pressure") / s.at("leaf_stomatal_conductance");
 
     return {
         { "carboxylation_rate", carboxylation_rate },
@@ -217,7 +217,7 @@ state_map FvCB::do_operation(state_map const &s) const
 state_map ball_berry_module::do_operation(state_map const &s) const
 {
     double const stomatal_conductance = ball_berry(s.at("net_assimilation_rate"), s.at("atmospheric_co2_concentration"), s.at("rh"), s.at("b0"), s.at("b1"));
-    return { {"stomatal_conductance", stomatal_conductance } };
+    return { {"leaf_stomatal_conductance", stomatal_conductance } };
 }
 
 /*
@@ -305,7 +305,7 @@ state_map penman_monteith_leaf_temperature::do_operation(state_map const &ss) co
     double const ga = s.at("leaf_boundary_layer_conductance");  // m / s
 
     double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
-    double const gc = s.at("stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
+    double const gc = s.at("leaf_stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     double const PhiN = s.at("leaf_net_irradiance");  // W / m^2. Leaf area basis.
 
@@ -317,8 +317,9 @@ state_map penman_monteith_leaf_temperature::do_operation(state_map const &ss) co
     return new_state;
 }
 
-state_map penman_monteith_transpiration::do_operation(state_map const &s) const
+state_map penman_monteith_transpiration::do_operation(state_map const &ss) const
 {
+    check_state s(ss);
     // From Thornley and Johnson 1990. pg 408. equation 14.4k.
     double const slope_water_vapor = s.at("slope_water_vapor");
     double const psychr_parameter = s.at("psychrometric_parameter");
@@ -326,7 +327,7 @@ state_map penman_monteith_transpiration::do_operation(state_map const &s) const
     double const ga = s.at("leaf_boundary_layer_conductance");  // m / s
 
     double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
-    double const gc = s.at("stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
+    double const gc = s.at("leaf_stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     double const PhiN = s.at("leaf_net_irradiance");  // W / m^2. Leaf area basis.
 

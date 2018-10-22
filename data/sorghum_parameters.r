@@ -125,7 +125,9 @@ sorghum_parameters = with(list(), {
     centTimestep 1
     doyNfert 0
     mrc1 0.02
-    mrc2 0.03"
+    mrc2 0.03
+    leaf_reflectance 0.2
+    leaf_transmittance 0.2"
     
     data_frame = read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
