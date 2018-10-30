@@ -1,5 +1,6 @@
 ## File containing the OpEC4photo and all it auxiliary functions
 
+#' @export
 OpEC4photo <- function(obsDat,iVcmax=60,iVpmax=120,
                        iVpr=80,iJmax=400,co2=380,o2=210,level=0.95){
 
@@ -58,6 +59,7 @@ OpEC4photo <- function(obsDat,iVcmax=60,iVpmax=120,
             , class = "OpEC4photo")
 }
 
+#' @export
 RsqEC4photo <- function(obsDat, iVcmax=60,iVpmax=120,
                         iVpr=80,iJmax=400,co2=380,o2=210,
                            type=c("Assim","StomCond")){
@@ -88,7 +90,7 @@ RsqEC4photo <- function(obsDat, iVcmax=60,iVpmax=120,
   Rsquare
 }
 
-
+#' @export
 print.OpEC4photo <- function(x,...){
 
   cat("\nOptimization of C4 photosynthesis\n")
@@ -112,7 +114,7 @@ print.OpEC4photo <- function(x,...){
 
 }
 
-
+#' @export
 summary.OpEC4photo <- function(object,...){
 
   dat <- object$data

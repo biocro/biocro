@@ -449,7 +449,7 @@ BioGro <- function(WetDat, day1=NULL, dayn=NULL,
   }
 
 
-
+#' @export
 canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
                         kd = 0.1, chi.l = 1,
                         mResp=c(0.02,0.03), heightFactor=3,
@@ -476,6 +476,7 @@ canopyParms <- function(Sp = 1.7, SpD = 0, nlayers = 10,
 
 }
 
+#' @export
 photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=380, b0=0.08, b1=3, StomWS=1, ws=c("gs","vmax"),uppertemp=37.5,lowertemp=3.0){
 
   ws <- match.arg(ws)
@@ -486,7 +487,7 @@ photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd
 
 }
 
-
+#' @export
 soilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
                       soilType=6, soilLayers=1, soilDepths=NULL, hydrDist=0,
                       wsFun=c("linear","logistic","exp","none","lwp"),
@@ -535,6 +536,7 @@ soilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatC
        hydrDist=hydrDist, rfl=rfl, rsec=rsec, rsdf=rsdf)
 }
 
+#' @export
 nitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
                        kpLN=0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
 
@@ -550,6 +552,7 @@ nitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
 
 }
 
+#' @export
 phenoParms <- function(tp1=562, tp2=1312, tp3=2063, tp4=2676, tp5=3211, tp6=7000,
                        kStem1=0.37, kLeaf1=0.33, kRoot1=0.3, kRhizome1=-8e-4, 
                        kStem2=0.85, kLeaf2=0.14, kRoot2=0.01, kRhizome2=-5e-4, 
@@ -572,6 +575,7 @@ phenoParms <- function(tp1=562, tp2=1312, tp3=2063, tp4=2676, tp5=3211, tp6=7000
   
 }
 
+#' @export
 seneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
 
   list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome)
@@ -607,7 +611,6 @@ seneParms <- function(senLeaf=3000,senStem=3500,senRoot=4000,senRhizome=4000){
 ##' @seealso \code{\link{BioGro}} \code{\link{OpBioGro}}
 ##' @keywords hplot
 ##' @export
-##' @S3method plot BioGro
 plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, 
                          rhizome = TRUE, LAI = TRUE, grain = TRUE,
                          xlab=NULL,ylab=NULL,ylim=NULL,
@@ -761,7 +764,6 @@ plot.BioGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
 }
 
 ##' @export
-##' @S3method print BioGro
 print.BioGro <- function(x,level=1,...){
 
   if(level == 0){

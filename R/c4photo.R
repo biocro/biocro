@@ -170,7 +170,6 @@
 ##'            lines=TRUE,col=c('blue','green'),lwd=2))
 ##' }
 ##'
-
 c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
                     beta=0.93,Rd=0.8,uppertemp=37.5,lowertemp=3.0,
                     Catm=380,b0=0.08,b1=3,
@@ -193,7 +192,7 @@ c4photo <- function(Qp,Tl,RH,vmax=39,alpha=0.04,kparm=0.7,theta=0.83,
         stop("length of Catm should be either 1 or equal to length of Qp")
     }
     
-    res <- .Call(c4photo_sym,as.double(Qp),
+    res <- .Call("c4photo",as.double(Qp),
                  as.double(Tl),as.double(RH),
                  as.double(vmax),as.double(alpha),
                  as.double(kparm),as.double(theta),
@@ -304,7 +303,7 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
     if(ws == "gs") ws <- 1
     else ws <- 0
     
-    res <- .Call(McMCc4photo, as.double(assim), as.double(qp),
+    res <- .Call("McMCc4photo", as.double(assim), as.double(qp),
                  as.double(temp), as.double(rh), as.integer(niter),
                  as.double(ivmax), as.double(ialpha), as.double(ikparm),
                  as.double(itheta), as.double(ibeta),
@@ -324,7 +323,6 @@ MCMCc4photo <- function(data, niter = 20000, ivmax = 39,
 
 ## Function for printing the MCMCc4photo objects
 ##' @export
-##' @S3method print MCMCc4photo
 print.MCMCc4photo <- function(x,burnin=1,level=0.95,digits=1,...){
 
     ul <- 1 - (1-level)/2
@@ -382,7 +380,6 @@ print.MCMCc4photo <- function(x,burnin=1,level=0.95,digits=1,...){
 ##' @seealso \code{\link{MCMCc4photo}}
 ##' @keywords hplot
 ##' @export
-##' @S3method plot MCMCc4photo
 
 plot.MCMCc4photo <- function(x,x2=NULL,x3=NULL,
                              plot.kind=c("trace","density"),type=c("l","p"),

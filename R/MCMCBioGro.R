@@ -251,7 +251,7 @@ MCMCBioGro <- function(niter = 10, niter2=10, phen=6, iCoef=NULL,
   thermal_base_temperature = 0
   initial_biomass = c(iRhizome, iStem, iLeaf, iRoot)
   
-  res <- .Call(SABioGro,as.double(data[,1]), as.double(data[,2]),
+  res <- .Call("SABioGro",as.double(data[,1]), as.double(data[,2]),
                as.double(data[,3]), as.double(data[,4]),
                as.double(data[,5]), as.double(data[,6]),
                as.double(data[,7]), as.integer(doy),
@@ -312,6 +312,7 @@ indfun <- function(obs,pred){
   colind
 }
 
+#' @export
 print.MCMCBioGro <- function(x,...){
 
   cfs <- c(x$coefs[1:4],NA,x$coefs[5:8],NA,
@@ -329,6 +330,7 @@ print.MCMCBioGro <- function(x,...){
   cat("RSS:",x$rss,"\n")
 }
 
+#' @export
 plot.MCMCBioGro <- function(x,x2=NULL,x3=NULL,plot.kind=c("rss","OF","RF","OFT","trace","density"),
                             type=c("l","p"),coef=1,cols=c("blue","green","red","magenta","black","purple"),...){
 

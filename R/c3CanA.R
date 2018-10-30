@@ -138,7 +138,7 @@ c3CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
 
     lnPs <- as.vector(unlist(lnP))
     
-    res <- .Call(c3CanA_sym,as.double(lai),as.integer(doy),
+    res <- .Call("c3CanA",as.double(lai),as.integer(doy),
                  as.integer(hr),as.double(solar),as.double(temp),
                  as.double(rh),as.double(windspeed),
                  as.double(lat),as.integer(nlayers),
@@ -149,6 +149,7 @@ c3CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
   }
 
 
+#' @export
 c3photoParms <- function(vmax=100, jmax=180, Rd=1.1, Catm=380, O2 = 210, b0=0.08, b1=5, theta=0.7,StomWS=1.0,ws=c("gs","vmax")){
 
 ws <- match.arg(ws)

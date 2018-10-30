@@ -1,5 +1,6 @@
 ##  BioCro/R/weach.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2009
 ##
+#' @export
 weach366 <- function(X,lati,ts=1,temp.units=c("Farenheit","Celsius"),rh.units=c("percent","fraction"),ws.units=c("mph","mps"),pp.units=c("in","mm"),...){
 
   

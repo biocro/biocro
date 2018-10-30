@@ -109,7 +109,7 @@ c3photo <- function(Qp,Tl,RH,vcmax=100,jmax=180,Rd=1.1,Catm=380,O2=210,b0=0.08,b
         stop("length of Catm should be either 1 or equal to length of Qp")
     }
 
-    res <- .Call(c3photo_sym,as.double(Qp),
+    res <- .Call("c3photo",as.double(Qp),
                  as.double(Tl),as.double(RH),
                  as.double(vcmax),as.double(jmax),
                  as.double(Rd),as.double(Catm),

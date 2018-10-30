@@ -281,7 +281,6 @@ Opc3photo <- function(data,ivcmax=100,ijmax=180,iRd=1.1,
 ## Display methods for Opc4photo and OpEC4photo
 ##' Display methods for Opc4photo and OpEC4photo
 ##' @export
-##' @S3method print Opc3photo
 print.Opc3photo <- function(x,digits=2,...){
 
   cat("\nOptimization of C3 photosynthesis\n")
@@ -332,7 +331,6 @@ print.Opc3photo <- function(x,digits=2,...){
 ## Predict method
 ##' Predict method
 ##' @export
-##' @S3method predict Opc3photo
 predict.Opc3photo <- function(object,newdata,...){
 
   x <- object
@@ -471,7 +469,6 @@ predict.Opc3photo <- function(object,newdata,...){
 ## }
 
 ##' @export
-##' @S3method plot Opc3photo
 plot.Opc3photo <- function(x,plot.kind=c("RvsF","OvsF","OandF"),resid=c("std","raw"),...){
 
   dat <- x$data
@@ -718,6 +715,7 @@ mOpc3photo <- function(data,ID=NULL,iVcmax=100,iJmax=180,iRd=1.1,
 
 
 ## Printing method
+#' @export
 print.mOpc3photo <- function(x,...){
 
   ncolm <- ncol(unclass(x)$mat)
@@ -765,7 +763,6 @@ print.mOpc3photo <- function(x,...){
 ## Plotting method
 ##' Plotting method
 ##' @export
-##' @S3method plot mOpc3photo
 plot.mOpc3photo <- function(x, parm = c("vcmax","jmax"), ...){
 
   parm <- match.arg(parm)

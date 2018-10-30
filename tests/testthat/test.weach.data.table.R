@@ -1,3 +1,6 @@
+
+context("weach.data.table")
+
 data(forweach.test)
 test_that("weachDT produces the same result as weachNEW, only faster",{
     cat('Time taken to run weachNEW\n')

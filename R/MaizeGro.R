@@ -106,7 +106,7 @@
 #' res <- MaizeGro(weather05, plant.day = 110, emerge.day = 120, harvest.day=300,
 #'                   MaizePhenoControl = MaizePhenoParms(R6 = 2000))
 #' 
-#' @export MaizeGro
+#' @export
 MaizeGro <- function(WetDat, plant.day = NULL,
                      emerge.day=NULL,
                      harvest.day=NULL,
@@ -275,7 +275,7 @@ MaizeGro <- function(WetDat, plant.day = NULL,
 ##' @param R4 needs description  
 ##' @param R5 needs description
 ##' @param R6 needs description    
-##' @export MaizePhenoParms
+##' @export
 MaizePhenoParms <- function(base.temp = 10, max.leaves = 20, plant.emerg = 100,
                             phyllochron1 = 46.7, phyllochron2 = 31.1, R1 = 747,
                             R2 = 858, R3 = 969, R4 = 1080, R5 = 1136, R6 = 1452){
@@ -290,12 +290,14 @@ MaizePhenoParms <- function(base.temp = 10, max.leaves = 20, plant.emerg = 100,
 ##' @param senStem senecence of stem
 ##' @param senLeaf senecence of leaf 
 ##' @param senRoot senecence of root
+#' @export
 MaizeSeneParms <- function(senStem=3000,senLeaf=3500,senRoot=4000){
 
   list(senStem=senStem,senLeaf=senLeaf,senRoot=senRoot)
 
 }
 
+#' @export
 MaizePhotoParms <- function(vmax = 56, alpha = 0.05, kparm = 0.7,
                             theta = 0.83, beta = 0.93, Rd = 1.3,
                             Catm = 380, b0 = 0.01, b1 = 3, ws = c("gs", "vmax"),UPPERTEMP=37.5,LOWERTEMP=3.0){
@@ -314,6 +316,7 @@ MaizePhotoParms <- function(vmax = 56, alpha = 0.05, kparm = 0.7,
 
 }
 
+#' @export
 MaizeNitroParms <- function(iLeafN=5, kLN=0.25, Vmax.b1=0.569, alpha.b1=0,
                        kpLN=0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
 
@@ -373,6 +376,7 @@ phenoConv <- function(x){
 }
 
 
+#' @export
 laiParms <- function(lai.method=c("spla","TT","ind-leaf-Lizaso","Birch-Discontinuous", "Birch-Continuous"),
                      TTcoef = 0.003, max.lai = 6, Aex = 650, LT = 20, a1 = -5.61,
                      a2 = -0.59, k0 = 0.23, L0 = 133, LLx = 800, Lx = LLx-L0,
@@ -446,6 +450,7 @@ laiParms <- function(lai.method=c("spla","TT","ind-leaf-Lizaso","Birch-Discontin
 
 }
 
+#' @export
 MaizeCAllocParms <- function(kStem1 = 0.45, kLeaf1 = 0.45, kRoot1 = 0.10,
                              kStem2 = 0.60, kLeaf2 = 0.30, kRoot2 = 0.10,
                              kStem3 = 0.70, kLeaf3 = 0.25, kRoot3 = 0.05,
@@ -461,6 +466,7 @@ MaizeCAllocParms <- function(kStem1 = 0.45, kLeaf1 = 0.45, kRoot1 = 0.10,
 
 ## Colors Stem, Leaf, Root, Rhizome, LAI
 
+#' @export
 plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, 
                          LAI = TRUE, grain = TRUE,
                          xlab=NULL,ylab=NULL,
@@ -578,7 +584,8 @@ plot.MaizeGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE,
   
   
 
-      
+
+ #' @export
 print.MaizeGro <- function(x,level=1,...){
 
   if(level == 0){

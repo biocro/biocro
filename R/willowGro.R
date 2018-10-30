@@ -446,11 +446,13 @@ willowGro <- function(WetDat, day1=120, dayn=300,
     return(structure(res, class="BioGro"))
 }
 
+#' @export
 iwillowParms<-function(iRhizome=1.0,iStem=1.0,iLeaf=0.0,iRoot=1.0,ifrRhizome=0.01,ifrStem=0.01,ifrLeaf=0.0,ifrRoot=0.0){
   list(iRhizome=iRhizome,iStem=iStem,iLeaf=iLeaf,iRoot=iRoot,ifrRhizome=ifrRhizome,ifrStem=ifrStem,ifrLeaf=ifrLeaf,ifrRoot=ifrRoot)
 }
 
 
+#' @export
 willowcanopyParms <- function(Sp = 1.1, SpD = 0, nlayers = 10,
                         kd = 0.37, 
                         mResp=c(0.02,0.03), heightFactor=3,GrowthRespFraction=0.3){
@@ -469,6 +471,7 @@ willowcanopyParms <- function(Sp = 1.1, SpD = 0, nlayers = 10,
   
 }
 
+#' @export
 willowphotoParms <- function(vmax=100, jmax=180, Rd=1.1, Catm=380, O2 = 210, b0=0.08, b1=5, theta=0.7, StomWS=1.0, ws=c("vmax")){
   
   ws <- match.arg(ws)
@@ -481,6 +484,7 @@ willowphotoParms <- function(vmax=100, jmax=180, Rd=1.1, Catm=380, O2 = 210, b0=
 
 
 
+#' @export
 willowsoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1,iWatCont=NULL,
                       soilType=6, soilLayers=1, soilDepths=NULL, hydrDist=0,
                       wsFun=c("linear","logistic","exp","none","lwp"),
@@ -525,6 +529,7 @@ willowsoilParms <- function(FieldC=NULL,WiltP=NULL,phi1=0.01,phi2=10,soilDepth=1
        hydrDist=hydrDist, rfl=rfl, rsec=rsec, rsdf=rsdf)
 }
 
+#' @export
 willownitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
                        kpLN=0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
   
@@ -540,6 +545,7 @@ willownitroParms <- function(iLeafN=2, kLN=0.5, Vmax.b1=0, alpha.b1=0,
   
 }
 
+#' @export
 willowphenoParms <- function(tp1=250, tp2=350, tp3=900, tp4=1200, tp5=3939, tp6=7000,
                              kStem1=0.01, kLeaf1=0.98, kRoot1=0.01, kRhizome1=-8e-4, 
                              kStem2=0.01, kLeaf2=0.98, kRoot2=0.003, kRhizome2=0.007, 
@@ -562,6 +568,7 @@ willowphenoParms <- function(tp1=250, tp2=350, tp3=900, tp4=1200, tp5=3939, tp6=
   
 }
 
+#' @export
 willowseneParms <- function(senLeaf=1600,senStem=5500, senRoot=5500,senRhizome=5500,Tfrosthigh=5,Tfrostlow=0,leafdeathrate=5){
   
   list(senLeaf=senLeaf,senStem=senStem,senRoot=senRoot,senRhizome=senRhizome,Tfrosthigh=Tfrosthigh,Tfrostlow=Tfrostlow,leafdeathrate=leafdeathrate)
@@ -607,7 +614,6 @@ willowseneParms <- function(senLeaf=1600,senStem=5500, senRoot=5500,senRhizome=5
 ##' @seealso \code{\link{willowGro}} \code{\link{OpwillowGro}}
 ##' @keywords hplot
 ##' @export
-##' @S3method plot willowGro
 plot.willowGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE, 
                          rhizome = TRUE, LAI = TRUE, grain = TRUE,
                          xlab=NULL,ylab=NULL,
@@ -724,7 +730,6 @@ plot.willowGro <- function (x, obs = NULL, stem = TRUE, leaf = TRUE, root = TRUE
   }
 }
 ##' @export
-##' @S3method print willowGro
 print.willowGro <- function(x,level=1,...){
 
   if(level == 0){

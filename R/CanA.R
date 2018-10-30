@@ -144,7 +144,7 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
     canenitroP [names(lnControl)] <- lnControl
     nnitroP<-as.vector(unlist(canenitroP))
 
-    res <- .Call(CanA_sym,as.double(lai),as.integer(doy),
+    res <- .Call("CanA",as.double(lai),as.integer(doy),
                  as.integer(hr),as.double(solar),as.double(temp),
                  as.double(rh),as.double(windspeed),
                  as.double(lat),as.integer(nlayers),as.double(StomataWS),
@@ -177,6 +177,7 @@ CanA <- function(lai,doy,hr,solar,temp,rh,windspeed,
   }
 
 ## Controlling the effect of leaf nitrogen on photosynthethic parameters
+#' @export
 lnParms <- function(LeafN = 2 , kpLN = 0.2, lnb0 = -5, lnb1 = 18, lnFun=c("none","linear")){
 
   lnFun <- match.arg(lnFun)

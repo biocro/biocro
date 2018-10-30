@@ -1,5 +1,6 @@
 ##  BioCro/R/showSoilType.R by Fernando Ezequiel Miguez  Copyright (C) 2007-2011
 
+#' @export
 SoilType <- function(soiltype){
 
   print(soiltype)
@@ -163,6 +164,7 @@ SoilType <- function(soiltype){
 }
 
 
+#' @export
 showSoilType <- function(soiltype){
 
 if((soiltype < 0) || (soiltype > 10))
