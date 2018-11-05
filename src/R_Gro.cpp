@@ -120,5 +120,62 @@ SEXP R_Gro_ode(SEXP state,
     }
 }
 
+SEXP R_run_modules(SEXP state,
+        SEXP modules_list)
+{
+    try {
+        state_map s = map_from_list(state);
+
+        if (s.size() == 0) {
+            return R_NilValue;
+        }
+
+        //ModuleFactory module_factory;
+
+        vector<string> names_vector = make_vector(modules_list);
+        vector<unique_ptr<IModule>> modules;
+        names_vector.reserve(names_vector.size());
+        for (auto it = names_vector.begin(); it != names_vector.end(); ++it) {
+            modules.push_back(module_factory(*it));
+        }
+
+        for (auto it = modules.begin(); it != modules.end(); ++it) {
+            state_map temp = (*it)->run(s);
+            s.insert(temp.begin(), temp.end());
+        }
+
+        return list_from_map(s);
+
+    } catch (std::exception const &e) {
+        error(string(string("Caught exception in R_run_module: ") + e.what()).c_str());
+    } catch (...) {
+        error("Caught unhandled exception in R_run_module.");
+    }
+}
+
+SEXP R_get_module_requirements(SEXP modules_list)
+{
+    try {
+        vector<string> names_vector = make_vector(modules_list);
+        vector<unique_ptr<IModule>> modules;
+        for (auto it = names_vector.begin(); it != names_vector.end(); ++it) {
+            modules.push_back(module_factory(*it));
+        }
+
+        vector<string> parameters;
+        for (auto it = modules.begin(); it != modules.end(); ++it) {
+            std::vector<string> temp = (*it)->list_required_state();
+            parameters.insert(parameters.end(), temp.begin(), temp.end());
+        }
+
+        return r_string_vector_from_vector(parameters);
+
+    } catch (std::exception const &e) {
+        error(string(string("Caught exception in R_run_module: ") + e.what()).c_str());
+    } catch (...) {
+        error("Caught unhandled exception in R_run_module.");
+    }
+}
+
 } // extern "C"
 

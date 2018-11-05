@@ -7,6 +7,7 @@
 #include "modules.h"
 #include "state_map.h"
 #include "ball_berry.h"
+#include "AuxBioCro.h"
 
 using std::string;
 using std::vector;
@@ -98,7 +99,7 @@ state_map biomass_leaf_n_limitation::do_operation(state_map const &s) const
 
 state_map parameter_calculator::do_operation(state_map const &s) const
 {
-    const double Sp = s.at("iSp") - s.at("TTc") * s.at("Sp_thermal_time_decay");
+    double const Sp = s.at("iSp") - s.at("TTc") * s.at("Sp_thermal_time_decay");
     state_map new_state {
         { "Sp", Sp },
         { "lai",  s.at("Leaf") * Sp },
@@ -165,6 +166,7 @@ state_map c4_canopy::do_operation(state_map const &s) const
     state_map new_state {
         { "canopy_assimilation_rate", can_result.Assim },  // Mg / ha / hr.
         { "canopy_transpiration_rate", can_result.Trans },  // Mg / ha / hr.
+        { "canopy_conductance", can_result.canopy_conductance },
         { "GrossAssim", can_result.GrossAssim }
     };
 
@@ -204,7 +206,7 @@ state_map FvCB::do_operation(state_map const &s) const
     double carboxylation_rate = std::min(rubisco_limited, std::min(rubp_limited, tpu_limited));  // The overall carboxylation rate is the rate of the slowest process.
     double net_assimilation_rate = carboxylation_rate - s.at("Rd");
 
-    Ci = s.at("Ca") - net_assimilation_rate * 1.6 * s.at("atmospheric_pressure") / s.at("stomatal_conductance");
+    Ci = s.at("Ca") - net_assimilation_rate * 1.6 * s.at("atmospheric_pressure") / s.at("leaf_stomatal_conductance");
 
     return {
         { "carboxylation_rate", carboxylation_rate },
@@ -215,8 +217,8 @@ state_map FvCB::do_operation(state_map const &s) const
 
 state_map ball_berry_module::do_operation(state_map const &s) const
 {
-    const double stomatal_conductance = ball_berry(s.at("net_assimilation_rate"), s.at("atmospheric_co2_concentration"), s.at("rh"), s.at("b0"), s.at("b1"));
-    return { {"stomatal_conductance", stomatal_conductance } };
+    double const stomatal_conductance = ball_berry(s.at("net_assimilation_rate"), s.at("atmospheric_co2_concentration"), s.at("rh"), s.at("b0"), s.at("b1"));
+    return { {"leaf_stomatal_conductance", stomatal_conductance } };  // mmol / m^2 / s
 }
 
 /*
@@ -269,42 +271,85 @@ state_map two_layer_soil_profile::do_operation(state_map const &s) const
     return new_state;
 }
 
-state_map penman_monteith_evapotranspiration::do_operation(state_map const &s) const
+state_map water_vapor_properties_from_air_temperature::do_operation(state_map const &s) const
 {
-    const double slope_water_vapor = s.at("slope_water_vapor");
-    const double psychr_parameter = s.at("psychrometric_parameter");
-    const double LHV = s.at("latent_heat_evaporation");
-    const double DeltaPVa = s.at("saturation_water_vapor_pressure") * (1 - s.at("RH"));
-    const double evapotranspiration = (slope_water_vapor * s.at("PhiN") + LHV * psychr_parameter * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
+    double constexpr specific_heat_of_water = 1010;                // J / kg / K
+    double constexpr molar_mass_of_water = 18.01528e-3;  // kg / mol
+    double constexpr R = 8.314472;                       // joule / kelvin / mole.
+
+    double const air_temperature = s.at("temp");  // degrees C.
+    double const density_of_dry_air = TempToDdryA(air_temperature);  // kg / m^3. 
+    double const latent_heat_vaporization_of_water = TempToLHV(air_temperature);  // J / kg
+    double const saturation_water_vapor_pressure = saturation_vapor_pressure(air_temperature);  // Pa
+    double const saturation_water_vapor_content = saturation_water_vapor_pressure / R / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
+    double const vapor_density_deficit = saturation_water_vapor_content * (1 - s.at("rh"));
+
+    state_map new_state {
+        { "latent_heat_vaporization_of_water", latent_heat_vaporization_of_water },  // J / kg
+        { "slope_water_vapor", TempToSFS(air_temperature) },  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+        { "saturation_water_vapor_pressure", saturation_water_vapor_pressure },  // Pa
+        { "water_vapor_pressure", saturation_water_vapor_pressure * s.at("rh") },  // Pa
+        { "vapor_density_deficit", vapor_density_deficit },  // kg / m^3
+        { "psychrometric_parameter", density_of_dry_air * specific_heat_of_water / latent_heat_vaporization_of_water},  // kg / m^3 / K
+    };
+    return new_state;
+}
+
+state_map penman_monteith_leaf_temperature::do_operation(state_map const &s) const
+{
+    //check_state s(ss);
+    //output_map(s);
+    // From Thornley and Johnson 1990. pg 418. equation 14.11e.
+    double const slope_water_vapor = s.at("slope_water_vapor");
+    double const psychr_parameter = s.at("psychrometric_parameter");
+    double const LHV = s.at("latent_heat_vaporization_of_water");
+    double const ga = s.at("leaf_boundary_layer_conductance");  // m / s
+
+    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    double const gc = s.at("leaf_stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
+
+    double const PhiN = s.at("leaf_net_irradiance");  // W / m^2. Leaf area basis.
+
+    double const delta_t = (PhiN * (1 / ga + 1 / gc) - LHV * s.at("vapor_density_deficit"))
         /
-        (LHV * (slope_water_vapor + psychr_parameter));
+        (LHV * (slope_water_vapor + psychr_parameter * (1 + ga / gc)));  // K. It is also degrees C because it's a change in temperature.
 
-    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
+    state_map new_state { { "leaf_temperature", s.at("temp") + delta_t } };
     return new_state;
 }
 
-state_map priestley_evapotranspiration::do_operation(state_map const &s) const
+state_map penman_monteith_transpiration::do_operation(state_map const &s) const
 {
-    const double slope_water_vapor = s.at("slope_water_vapor");
-    const double psychr_parameter = s.at("psychrometric_parameter");
-    const double LHV = s.at("latent_heat_evaporation");
-    const double evapotranspiration = 1.26 * slope_water_vapor * s.at("PhiN") / (LHV * (slope_water_vapor + psychr_parameter));
+    //check_state s(ss);
+    // From Thornley and Johnson 1990. pg 408. equation 14.4k.
+    double const slope_water_vapor = s.at("slope_water_vapor");  // kg / m^3 / K
+    double const psychr_parameter = s.at("psychrometric_parameter");  // kg / m^3 / K
+    double const LHV = s.at("latent_heat_vaporization_of_water");  // J / kg
+    double const ga = s.at("leaf_boundary_layer_conductance");  // m / s
 
-    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
+    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    double const gc = s.at("leaf_stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
+
+    double const PhiN = s.at("leaf_net_irradiance");  // W / m^2. Leaf area basis.
+
+    //Rprintf("SlopeFS %f, PhiN %f, LHV %f, PsycParam %f, ga %f, vapor_density_deficit %f, conductance_in... %f\n", slope_water_vapor, PhiN, LHV, psychr_parameter, ga, s.at("vapor_density_deficit"), gc);
+    double const evapotranspiration = (slope_water_vapor * PhiN + LHV * psychr_parameter * ga * s.at("vapor_density_deficit"))
+        /
+        (LHV * (slope_water_vapor + psychr_parameter * (1 + ga / gc)));
+
+    //Rprintf("trans rate %f\n", evapotranspiration * 1e3 * 1e3 / 18);
+    state_map new_state { { "leaf_transpiration_rate", evapotranspiration } };  // kg / m^2 / s. Leaf area basis.
     return new_state;
 }
 
-state_map evapotranspiration::do_operation(state_map const &s) const
+state_map priestley_transpiration::do_operation(state_map const &s) const
 {
-    const double slope_wv = s.at("slope_water_vapor");
-    const double psychr_param = s.at("psychrometric_parameter");
-    const double LHV = s.at("latent_heat_evaporation");
-    const double DeltaPVa = s.at("saturation_water_vapor_pressure") * (1 - s.at("RH"));
-    const double evapotranspiration = (slope_wv * s.at("PhiN") + LHV * psychr_param * s.at("leaf_boudary_layer_conductance") * DeltaPVa)
-            /
-            (LHV * (slope_wv + psychr_param * (1 + s.at("leaf_boundary_layer_conductance") / s.at("LayerConductance"))));
+    double const slope_water_vapor = s.at("slope_water_vapor");
+    double const psychr_parameter = s.at("psychrometric_parameter");
+    double const LHV = s.at("latent_heat_vaporization_of_water");
+    double const evapotranspiration = 1.26 * slope_water_vapor * s.at("PhiN") / (LHV * (slope_water_vapor + psychr_parameter));
 
-    state_map new_state { { "canopy_evapotranspiration_rate", evapotranspiration } };
+    state_map new_state { { "transpiration_rate", evapotranspiration } };  // kg / m^2 / s. Leaf area basis.
     return new_state;
 }
 

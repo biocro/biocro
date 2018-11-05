@@ -128,6 +128,7 @@ state_vector_map Gro(
         results["canopy_assimilation_rate"].emplace_back(p["canopy_assimilation_rate"]);
         results["canopy_transpiration_rate"].emplace_back(p["canopy_transpiration_rate"]);
         results["rate_constant_root_scale"].emplace_back(p["rate_constant_root_scale"]);
+        results["canopy_conductance"].emplace_back(p["canopy_conductance"]);
         results["lai"].emplace_back(p["lai"]);
         //results["soil_water_content"].emplace_back(s.at("soil_water_content"));
         results["stomatal_conductance_coefs"].emplace_back(p["StomataWS"]);

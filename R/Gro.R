@@ -130,6 +130,36 @@ Gro_ode <- function(state, steady_state_modules, derivative_modules, check_param
     return(result)
 }
 
+run_modules <- function(state, steady_state_modules, check_parameters=TRUE)
+{
+    if (check_parameters) {
+        if (class(state) != 'list') {
+            stop('"state" must be a list.')
+        }
+        
+        if (length(state) != length(unlist(state))) {
+            item_lengths = unlist(lapply(state, length))
+            error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+            stop(error_message)
+        }
+        
+        state = lapply(state, as.numeric)  # C++ requires that all the variables have type `double`.
+    }
+
+    result = .Call(R_run_modules, state, steady_state_modules)
+    return(result)
+}
+
+get_module_requirements <- function(modules)
+{
+    if (class(modules) != 'character') {
+        stop('"modules" must be a character vector')
+    }
+
+    result = .Call(R_get_module_requirements, modules)
+    return(result)
+}
+
 partial_gro = function(initial_values, parameters, varying_parameters, modules, arg_names) {
 # Accepts the same parameters as Gro() with an additional 'arg_names' parameter, which is a vector of character variables.
 # Returns a function that runs Gro() with all of the parameters, except 'arg_names

@@ -38,7 +38,7 @@ struct Can_Str CanAC(
 {
     struct Light_model light_model = lightME(lat, DOY, hr);
 
-    double Idir = light_model.direct_irradiance_fraction * solarR;
+    double Idir = light_model.direct_irradiance_fraction * solarR;  // micromole / m^2 / s. Flux parallel to the rays of the sun.
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
@@ -101,6 +101,8 @@ struct Can_Str CanAC(
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;
         CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;
         GCanopyA += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;
+
+        //Rprintf("shade leaf assim %f; sun leaf assim %f; shade trans %f; sun trans %f\n", diffuse_photo.Assim, direct_photo.Assim, et_diffuse.TransR, et_direct.TransR);
 
         CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;
         CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;

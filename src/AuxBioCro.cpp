@@ -149,12 +149,12 @@ Light_model lightME(const double latitude, const int day_of_year,
  *    `chil` is non-negative.
  *    `heightf` is positive.
  */
-Light_profile sunML(double Idir,          // micromole / m^2 / s 
+Light_profile sunML(double Idir,          // micromole / m^2 / s
         double Idiff,                     // micromole / m^2 / s
         double LAI,                       // dimensionless from m^2 / m^2
         int nlayers,
         double cosTheta,                  // dimensionless
-        double kd,                        //  
+        double kd,                        //
         double chil,                      // dimensionless from m^2 / m^2.
         double heightf)                   // m^-1 from m^2 / m^2 / m.  Leaf area density; LAI per height of canopy.
 {
@@ -191,7 +191,7 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
 
         const double Iscat = Ibeam * (exp(-k * sqrt(alphascatter) * CumLAI) - exp(-k * CumLAI));
 
-        double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.  
+        double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.
         const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
 
         double Fsun = Ls / LAIi;
@@ -305,7 +305,7 @@ double TempToLHV(
  */
         double air_temperature)  // degrees C
 {
-    return 2.501 + -0.002372727 * air_temperature;  // MJ / kg.
+    return 2501000 + -2372.727 * air_temperature;  // J / kg.
 }
 
 double water_latent_heat_of_vaporization_henderson(
@@ -321,7 +321,7 @@ double water_latent_heat_of_vaporization_henderson(
 double TempToSFS(
         double air_temperature)  // degrees C
 {
-    return 0.338376068 + 0.011435897 * air_temperature + 0.001111111 * pow(air_temperature, 2);
+    return (0.338376068 + 0.011435897 * air_temperature + 0.001111111 * pow(air_temperature, 2)) * 1e-3;  //  kg / m^3 / degree C
 }
 
 double saturation_vapor_pressure(double air_temperature)
@@ -329,9 +329,9 @@ double saturation_vapor_pressure(double air_temperature)
     // Determine saturation vapor pressure of water given air temperature.
     // This is based on the Arden-Buck equation.
     // air_temperature - degrees Celsius/
-    double a = (18.678 - air_temperature / 234.5) * air_temperature;
+    double a = 18.678 * air_temperature - 1 / 234.5; // In the source, this is given as `a = (18.678 - air_temperature / 234.5) * air_temperature`. The code here is equivalent with fewer calculations.
     double b = 257.14 + air_temperature;
-    return 6.1121 * exp(a / b); /* This is in hecto Pascals */
+    return 611.21 * exp(a / b);  // Pa
 }
 
 struct ET_Str EvapoTrans2(
@@ -353,7 +353,6 @@ struct ET_Str EvapoTrans2(
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
     //constexpr double atmospheric_pressure = 101325;      // Pa
-    constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -365,46 +364,48 @@ struct ET_Str EvapoTrans2(
     }
 
     const double DdryA = TempToDdryA(airTemp);  // kg / m^3. Density of dry air.,
-    const double LHV = TempToLHV(airTemp) * 1e6;  // J / kg
-    const double SlopeFS = TempToSFS(airTemp) * 1e-3;  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
-    const double SWVP = saturation_vapor_pressure(airTemp);  // hectopascals.
+    const double LHV = TempToLHV(airTemp);  // J / kg
+    const double SlopeFS = TempToSFS(airTemp);  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double SWVP = saturation_vapor_pressure(airTemp);  // Pa.
 
-    double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure  
+    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (conductance_in_m_per_s <= 0.001) {
         conductance_in_m_per_s = 0.001;
     }
 
-    if (RH > 1) 
-        throw std::range_error("Thrown in EvapoTrans2: RH (relative humidity) is greater than 1."); 
+    if (RH > 1)
+        throw std::range_error("Thrown in EvapoTrans2: RH (relative humidity) is greater than 1.");
 
-    /* SOLAR RADIATION COMPONENT*/
 
-    const double totalradiation = Rad * joules_per_micromole_PAR;  // W / m^2.
-
-    /* On a clear sky it may exceed 1000 in some parts of the world
-       Thornley and Johnson pg 400 */
-    /* This values can not possibly be higher than 650 */
-    if (totalradiation > 650) {
-        throw std::range_error("Thrown in EvapoTrans2: total radiation is " + std::to_string(totalradiation) + ", which is too high."); 
-    }
-
-    const double SWVC = SWVP * 100 / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
+    const double SWVC = SWVP / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
     if (SWVC < 0)
-        throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0."); 
+        throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0.");
 
     const double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
 
-    const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
+    const double vapor_density_deficit = SWVC * (1 - RH);  // kg / m^3
 
-    const double ActualVaporPressure = RH * SWVP; /* hecto Pascals */
+    const double ActualVaporPressure = RH * SWVP;  // Pa
 
-    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
+    /* SOLAR RADIATION COMPONENT */
+    // Convert from PPFD to irradiance.
+    double constexpr fraction_of_irradiance_in_PAR = 0.5;  // dimensionless.
+    double constexpr joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
+    double const total_irradiance = Rad * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2.
+    double const total_average_irradiance = Iave * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2
+
+    /* With a clear sky, irradiance may exceed 1000 W / m^2 in some parts of the world. Thornley and Johnson pg 400. */
+    /* This value cannot possibly be higher than 1300 W / m^2. */
+    if (total_irradiance > 1300) {
+        throw std::range_error("Thrown in EvapoTrans2: total irradiance is " + std::to_string(total_irradiance) + ", which is too high.");
+    }
+    const double Ja = total_irradiance * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* The value below is only for leaf temperature */
-    const double Ja2 = 2 * Iave * 0.235 * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
+    const double Ja2 = total_average_irradiance * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
@@ -434,7 +435,7 @@ struct ET_Str EvapoTrans2(
             const double PhiN2 = Ja2 - rlc;  // W / m^2
 
             /* This equation is from Thornley and Johnson pg. 418 */
-            const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;  // J / m^3
+            const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * vapor_density_deficit;  // J / m^3
             const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^3 / K
             Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // kelvin. Confine Deltat to the interval [-10, 10]:
 
@@ -445,10 +446,11 @@ struct ET_Str EvapoTrans2(
     /* Net radiation */
     const double PhiN = fmax(0, Ja - rlc);  // W / m^2
 
-    const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+    //Rprintf("SlopeFS %f, PhiN %f, LHV %f, PsycParam %f, ga %f, vapor_density_deficit %f, conductance_in... %f\n", SlopeFS, PhiN, LHV, PsycParam, ga, vapor_density_deficit, conductance_in_m_per_s);
+    const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
         / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s.  Thornley and Johnson. 1990. Plant and Crop Modeling. Equation 14.4k. Page 408.
 
-    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
+    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
         / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
@@ -464,7 +466,7 @@ struct ET_Str EvapoTrans2(
         break;
     default:
         TransR = penman_monieth;
-        break; // use the value defined above
+        break;
     }
 
     // TransR has units of kg / m^2 / s.
@@ -483,33 +485,39 @@ struct ET_Str EvapoTrans2(
 }
 
 
-double leaf_boundary_layer_conductance(double windspeed, double leafwidth, double AirTemp,
-        double deltat, double stomcond, double vappress) {
+double leaf_boundary_layer_conductance(
+        double windspeed,  // m / s
+        double leafwidth,  // m
+        double air_temperature,  // degrees C
+        double delta_t,  // degrees C
+        double stomcond,  // m / s
+        double water_vapor_pressure)  // Pa
+{
     /* This is the leaf boundary layer computed using the approach in MLcan
        which is based on (Nikolov, Massman, Schoettle),         %
        Ecological Modelling, 80 (1995), 205-235 */
-    constexpr double Pa = 101325;
-    constexpr double cf = 1.6361e-3;
+    constexpr double p = 101325;  // Pa. atmospheric pressure
 
-    double leaftemp = AirTemp + deltat;
-    double gsv = stomcond; /* input is in m/s */
-    double Tak = AirTemp + 273.15; /* Converts from C to K */
-    double Tlk = leaftemp + 273.15;  /* Converts from C to K */
-    double ea = vappress * 1e2; /* From hPa to Pa */
-    double lw = leafwidth; /* meters */
+    double leaftemp = air_temperature + delta_t;  // degrees C
+    double gsv = stomcond;  // m / s
+    double Tak = air_temperature + 273.15;  // K
+    double Tlk = leaftemp + 273.15;  // K
+    double ea = water_vapor_pressure;  // Pa
+    double lw = leafwidth;  // m
 
-    double esTl = saturation_vapor_pressure(leaftemp) * 100; /* The function returns hPa, but need Pa */
+    double esTl = saturation_vapor_pressure(leaftemp);  // Pa.
 
     /* Forced convection */
-    double gbv_forced = cf *  pow(Tak,0.56) * pow((Tak+120)*((windspeed/lw)/Pa),0.5);  // m / s. TODO: Nikolov et. al equation 29 use cf = 4.322e-3, not cf = 1.6e-3 as is used here.
+    constexpr double cf = 1.6361e-3;  // TODO: Nikolov et. al equation 29 use cf = 4.322e-3, not cf = 1.6e-3 as is used here.
+    double gbv_forced = cf *  pow(Tak, 0.56) * pow((Tak + 120) * ((windspeed / lw) / p), 0.5);  // m / s.
     double gbv_free = gbv_forced;
-    double eb = (gsv * esTl + gbv_free * ea)/(gsv + gbv_free); // Pa. Eq 35
+    double eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free); // Pa. Eq 35
 
-    double Tvdiff = (Tlk / (1 - 0.378 * eb/Pa)) - (Tak / (1-0.378*ea/Pa)); // kelvin. It is also degrees C since it is a temperature difference. Eq. 34
+    double Tvdiff = (Tlk / (1 - 0.378 * eb / p)) - (Tak / (1 - 0.378 * ea / p)); // kelvin. It is also degrees C since it is a temperature difference. Eq. 34
 
     if (Tvdiff < 0) Tvdiff = -Tvdiff;
 
-    gbv_free = cf * pow(Tlk,0.56) * pow((Tlk+120)/Pa,0.5) * pow(Tvdiff/lw,0.25);  // m / s. Eq. 33
+    gbv_free = cf * pow(Tlk, 0.56) * pow((Tlk + 120) / p, 0.5) * pow(Tvdiff / lw, 0.25);  // m / s. Eq. 33
 
     double gbv = std::max(gbv_forced, gbv_free);
 
@@ -528,7 +536,7 @@ double leaf_boundary_layer_conductance(double windspeed, double leafwidth, doubl
 /* winds = wind speed */
 
 double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, double soil_water_content,
-        double fieldc, double wiltp, double winds, double RelH, double rsec, 
+        double fieldc, double wiltp, double winds, double RelH, double rsec,
         double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
 {
     int method = 1;
@@ -560,12 +568,12 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     double TotalRadiation = ppfd * 0.235;
 
     double DdryA = TempToDdryA(air_temperature);
-    double LHV = TempToLHV(air_temperature) * 1e6;  // J kg^-1. Given in MJ kg^-1 and converted to J kg^-1. 
-    double SlopeFS = TempToSFS(air_temperature) * 1e-3;
-    double SWVC = saturation_vapor_pressure(air_temperature) * 1e-3;
+    double LHV = TempToLHV(air_temperature);  // J / kg
+    double SlopeFS = TempToSFS(air_temperature);
+    double SWVC = saturation_vapor_pressure(air_temperature) * 1e-5;
 
     double PsycParam = (DdryA * specific_heat) / LHV;
-    double DeltaPVa = SWVC * (1 - RelH / 100);
+    double vapor_density_deficit = SWVC * (1 - RelH / 100);
 
     double BoundaryLayerThickness = 4e-3 * sqrt(soil_clod_size / winds);
     double DiffCoef = 2.126e-5 * 1.48e-7 * SoilTemp;
@@ -586,7 +594,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
         Evaporation = 1.26 * (SlopeFS * PhiN) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
     } else {
         /* Penman-Monteith */
-        Evaporation = (SlopeFS * PhiN + LHV * PsycParam * SoilBoundaryLayer * DeltaPVa) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
+        Evaporation = (SlopeFS * PhiN + LHV * PsycParam * SoilBoundaryLayer * vapor_density_deficit) / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s.
     }
 
     Evaporation *= soil_area_sunlit_fraction * maximum_uptake_rate;  // kg / m^2 / s.
@@ -650,7 +658,7 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
 
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
                      double wiltp, double phi1, double phi2, double soil_saturation_capacity, double sand,
-                     double Ks, double air_entry, double b) 
+                     double Ks, double air_entry, double b)
 {
     constexpr double g = 9.8; // m / s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity
 
@@ -712,7 +720,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         double specific_heat, double stefan_boltzman )
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
-    
+
     soilML_str return_value;
 
     /* Crude empirical relationship between root biomass and rooting depth*/
@@ -760,7 +768,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
                     cws[i] = cws[i] - J_w / layerDepth;
                 if (i > 0) {
                     cws[i - 1] = cws[i - 1] + J_w / layerDepth;
-                } 
+                }
             }
         }
 
@@ -800,7 +808,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         double Ctransp = 0.0;
         double EvapoTra = 0.0;
         double Newpawha;
-        
+
         if (i == 0) {
             /* Only the first layer is affected by soil evaporation */
             double awc2 = aw / layerDepth;
@@ -840,7 +848,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         double slp = 0.0;
         double intcpt = 0.0;
         double theta = 0.0;
-        
+
         if (wsFun == 0) { /* linear */
             slp = 1/(soil_field_capacity - soil_wilting_point);
             intcpt = 1 - soil_field_capacity * slp;
@@ -912,7 +920,6 @@ struct seqRD_str seqRootDepth(double to, int lengthOut ) {
     }
     return result;
 }
-
 
 struct rd_str rootDist(int n_layers, double rootDepth, double *depths, double rfl)
 {

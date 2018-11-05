@@ -76,7 +76,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	SET_VECTOR_ELT(lists,2,CiV);
   SET_VECTOR_ELT(lists,3,GASSV);
 	SET_STRING_ELT(names,0,mkChar("Gs"));
-	SET_STRING_ELT(names,1,mkChar("canopy_assimilation_rate"));
+	SET_STRING_ELT(names,1,mkChar("assimilation_rate"));
 	SET_STRING_ELT(names,2,mkChar("Ci"));
   SET_STRING_ELT(names,3,mkChar("GrossAssim"));
 	setAttrib(lists,R_NamesSymbol,names);

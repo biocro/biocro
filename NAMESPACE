@@ -4,13 +4,18 @@ useDynLib(BioCro,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
           R_Gro,
-          R_Gro_ode)
+          R_Gro_ode,
+          R_run_modules,
+          R_get_module_requirements,
+          collatz_photoC)
 
 import(stats, lattice)
 
 export(Gro)
 export(Gro_ode)
 export(Gro_deriv)
+export(run_modules)
+export(get_module_requirements)
 export(partial_gro)
 
 exportPattern("Parms$")
@@ -31,4 +36,6 @@ export(CheckLeapYear)
 
 export(read_parameters)
 export(get_growing_season_climate)
+
+export(collatz_photo)
 

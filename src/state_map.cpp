@@ -33,11 +33,20 @@ state_map at(state_vector_map const &vector_map, vector<double>::size_type const
     return result;
 }
 
-state_map replace_state(state_map const &state, state_map const &newstate)
+state_map replace_state(state_map const &state, state_map const &new_state)
 {
     state_map result = state;
     for (auto it = result.begin(); it != result.end(); ++it) {
-        it->second = newstate.at(it->first);
+        it->second = new_state.at(it->first);
+    }
+    return result;
+}
+
+state_map replace_or_insert_state(state_map const &state, state_map const &new_state)
+{
+    state_map result = state;
+    for (auto it = new_state.begin(); it != new_state.end(); ++it) {
+        result[it->first] = it->second;
     }
     return result;
 }
