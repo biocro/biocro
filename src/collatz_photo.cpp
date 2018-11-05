@@ -13,19 +13,19 @@
 #include <math.h>
 #include "collatz_photo.hpp"
 
-struct collatz_result collatz_photo(double Qp,  // micromole / m^2 / s
-                            double leaf_temperature,  // degrees C
-                            double vmax,  // micromole / m^2 / s
-                            double alpha,  // mol / mol
-                            double kparm,  // mol / m%2 / s
-                            double theta,
-                            double beta,
-                            double Rd,
-                            double upperT,
-                            double lowerT,
-                            double k_Q10, // dimensionless
-                            double intercellular_co2_molar_fraction  // micromole / mol
-                            )
+struct collatz_result collatz_photo(double Qp,  // micromole / m^2 / s. Incident photon flux density.
+                                    double leaf_temperature,  // degrees C
+                                    double vmax,  // micromole / m^2 / s
+                                    double alpha,  // mol / mol. CO2 fixed per incident photon flux density.
+                                    double kparm,  // mol / m%2 / s
+                                    double theta,
+                                    double beta,
+                                    double Rd,
+                                    double upperT,
+                                    double lowerT,
+                                    double k_Q10, // dimensionless
+                                    double intercellular_co2_molar_fraction  // micromole / mol
+                                    )
 {
 
     double kT = kparm * pow(k_Q10, (leaf_temperature - 25.0) / 10.0);  // dimensionless
@@ -46,8 +46,10 @@ struct collatz_result collatz_photo(double Qp,  // micromole / m^2 / s
     double b2 = theta;
 
     /* Calculate the two roots */
-    double M1 = (b1 + sqrt(b1 * b1 - 4 * b0 * b2)) / 2 / b2;
-    double M2 = (b1 - sqrt(b1 * b1 - 4 * b0 * b2)) / 2 / b2;
+    double const c1 = sqrt(b1 * b1 - 4 * b0 * b2);
+    double const c2 = 2 * b2;
+    double M1 = (b1 + c1) / c2;
+    double M2 = (b1 - c1) / c2;
 
     double M = M1 < M2 ? M1 : M2; // Use the smallest root.
 

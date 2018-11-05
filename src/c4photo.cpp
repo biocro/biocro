@@ -8,7 +8,6 @@
  *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
  *
  */
-
 #include <math.h>
 #include "ball_berry.h"
 #include "c4photo.h"
@@ -62,7 +61,8 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
     double Assim, Gs;
     {
         double OldAssim = 0.0, Tol = 0.1, diff;
-        int iterCounter = 0;
+        unsigned int iterCounter = 0;
+        unsigned int constexpr max_iterations = 50;
         do {
             // Collatz 1992. Appendix B. Equation 3B.
             double kT_IC_P = kT * InterCellularCO2 / AP * 1e6;  // micromole / m^2 / s
@@ -79,6 +79,10 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
             Gs = ball_berry(Assim * 1e-6, Ca * 1e-6, relative_humidity, bb0, bb1);  // mmol / m^2 / s
             if (water_stress_approach == 1) Gs *= StomaWS;
 
+            if (iterCounter > max_iterations - 10)
+                Gs = bb1 * 1e3;  // mmol / m^2 / s. If it has gone through this many iterations, the convergence is not stable. This convergence is inapproriate for high water stress conditions, so use the minimum gs to try to get a stable system.
+
+            //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / AP * 1e6, Assim, Gs, leaf_temperature);
             InterCellularCO2 = Csurface - Assim * 1e-6 * 1.6 * AP / (Gs * 0.001);  // Pa
 
             if (InterCellularCO2 < 0)
@@ -88,7 +92,10 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
 
             OldAssim = Assim;  // micromole / m^2 / s
 
-        } while (diff >= Tol && ++iterCounter < 50);
+
+        } while (diff >= Tol && ++iterCounter < max_iterations);
+        //if (iterCounter > 49)
+            //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / AP * 1e6, Assim, Gs, leaf_temperature);
     }
 
     double Ci = InterCellularCO2 / AP * 1e6;  // micromole / mol

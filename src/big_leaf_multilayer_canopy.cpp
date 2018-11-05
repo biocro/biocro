@@ -95,7 +95,7 @@ state_map big_leaf_multilayer_canopy::do_operation (state_map const& s) const
     constexpr double leaf_radiation_absorptivity = 0.8;
 
     Light_model irradiance_fractions = lightME(s.at("lat"), s.at("doy"), s.at("hour"));
-    
+
     // TODO: The light at the top of the canopy should not be part of this function. They should be calculated before this is called.
     // If cos(theta) is less than zero, the Sun is below the horizon, and lightME sets direct fraction to 0.
     // Thus, calculation depending on direct_par_at_canopy_top should not need to check cos(theta), although other calcuations may need to.
@@ -109,7 +109,8 @@ state_map big_leaf_multilayer_canopy::do_operation (state_map const& s) const
     const double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
     const double light_extinction_k = k0 / k1;  // Canopy extinction coefficient for an ellipsoidal leaf angle distribution. Page 251, Campbell and Norman. Environmental Biophysics. second edition.
 
-    const double mean_incident_direct_par = direct_par_at_canopy_top * light_extinction_k;  // This is the same for all layers.
+    const double beam_radiation_at_canopy_top = direct_par_at_canopy_top * cosine_theta;
+    double mean_incident_direct_par = beam_radiation_at_canopy_top * light_extinction_k;  // This is the same for all layers.
     const double n_layers = s.at("nlayers");
     //const double LeafN = s.at("LeafN");
     //const double kpLN = s.at("kpLN");
@@ -119,21 +120,21 @@ state_map big_leaf_multilayer_canopy::do_operation (state_map const& s) const
     double canopy_conductance = 0;
     double canopy_transpiration = 0;
 
-    IModule * water_vapor_module = new water_vapor_properties_from_air_temperature();
-    IModule * leaf_assim_module = new collatz_leaf();
-    IModule * leaf_evapo_module = new penman_monteith_transpiration();
+    state_map layer_state(s);
+    layer_state["vmax"] = s.at("vmax1");
+    layer_state["alpha"] = s.at("alpha1");
 
     for (unsigned int n = 0; n < n_layers; ++n) {
         const double layer_lai = canopy_lai / n_layers;
         const double CumLAI = layer_lai * (n + 1);
-        const double layer_wind_speed = wind_speed * exp(-wind_speed_extinction    * (CumLAI - layer_LAI));
+        const double layer_wind_speed = wind_speed * exp(-wind_speed_extinction * (CumLAI - layer_LAI));
         //const double layer_leafN      = LeafN     * exp(-kpLN * (CumLAI - layer_LAI));
 
         const double j = n + 1;  // Explicitly make j a double so that j / n_layers isn't truncated.
         const double layer_relative_humidity = RH * exp(kh * (j / n_layers));
 
-        const double layer_diffuse_par = diffuse_par_at_canopy_top * exp(-kd * CumLAI);  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.
-        const double layer_scattered_par = direct_par_at_canopy_top * (exp(-light_extinction_k * sqrt(leaf_radiation_absorptivity) * CumLAI) - exp(-light_extinction_k * CumLAI));
+        const double layer_scattered_par = beam_radiation_at_canopy_top * (exp(-light_extinction_k * sqrt(leaf_radiation_absorptivity) * CumLAI) - exp(-light_extinction_k * CumLAI));
+        double layer_diffuse_par = diffuse_par_at_canopy_top * exp(-kd * CumLAI) + layer_scattered_par;  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.
 
         double sunlit_lai = (1 - exp(-light_extinction_k * layer_lai)) * exp(-light_extinction_k * CumLAI) / light_extinction_k;
 
@@ -142,54 +143,59 @@ state_map big_leaf_multilayer_canopy::do_operation (state_map const& s) const
             // In that case, no leaves are sunlit.
             // I don't know how C++ handles that calculation since light_extinction_k would be infinite, so set sunlai_lai to 0 explicitly.
             sunlit_lai = 0;
+            mean_incident_direct_par = direct_par_at_canopy_top / k1;
+            layer_diffuse_par = diffuse_par_at_canopy_top * exp(-light_extinction_k * CumLAI);
+
+            //Rprintf("below horizon\n");
         }
 
-        const double shaded_lai = canopy_lai - sunlit_lai;
+        const double shaded_lai = layer_lai - sunlit_lai;
 
-        const double layer_shaded_par = layer_diffuse_par + layer_scattered_par;
+        const double layer_shaded_par = layer_diffuse_par;
         const double layer_sunlit_par = mean_incident_direct_par + layer_shaded_par;
 
         constexpr double fraction_of_irradiance_in_PAR = 0.5;  // dimensionless.
         constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
         const double layer_sunlit_incident_irradiance = layer_sunlit_par * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2.
-        const double layer_shaded_incident_irradiance = layer_sunlit_par * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR; // W / m^2.
+        const double layer_shaded_incident_irradiance = layer_shaded_par * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR; // W / m^2.
 
-        const double layer_vmax = s.at("vmax1");
-        const double layer_alpha = s.at("alpha1");
-        state_map layer_state(s);
         layer_state["layer_wind_speed"] = layer_wind_speed;
-        layer_state["vmax"] = layer_vmax;
-        layer_state["alpha"] = layer_alpha;
         layer_state["rh"] = layer_relative_humidity;
 
-        layer_state = combine_state(layer_state, water_vapor_module->run(layer_state));
+        layer_state = replace_or_insert_state(layer_state, this->water_vapor_module->run(layer_state));
 
         layer_state["incident_par"] = layer_sunlit_par;
         layer_state["incident_irradiance"] = layer_sunlit_incident_irradiance;
-        state_map sunlit_leaf = combine_state(layer_state, leaf_assim_module->run(layer_state));
-        sunlit_leaf = combine_state(sunlit_leaf, leaf_evapo_module->run(sunlit_leaf));
+
+        state_map sunlit_leaf = combine_state(layer_state, this->leaf_assim_module->run(layer_state));
+        //sunlit_leaf = combine_state(sunlit_leaf, this->leaf_evapo_module->run(sunlit_leaf));
+        state_map sunlit_trans = this->leaf_evapo_module->run(sunlit_leaf);
 
         layer_state["incident_par"] = layer_shaded_par;
         layer_state["incident_irradiance"] = layer_shaded_incident_irradiance;
-        state_map shaded_leaf = combine_state(layer_state, leaf_assim_module->run(layer_state));
-        shaded_leaf = combine_state(shaded_leaf, leaf_evapo_module->run(shaded_leaf));
+        state_map shaded_leaf = combine_state(layer_state, this->leaf_assim_module->run(layer_state));
+        //shaded_leaf = combine_state(shaded_leaf, this->leaf_evapo_module->run(shaded_leaf));
+        state_map shaded_trans = this->leaf_evapo_module->run(shaded_leaf);
 
         canopy_assimilation += sunlit_lai * sunlit_leaf["leaf_assimilation_rate"] + shaded_lai * shaded_leaf["leaf_assimilation_rate"];  // micromoles / m^2 / s. Ground-area basis.
         canopy_conductance += sunlit_lai * sunlit_leaf["leaf_stomatal_conductance"] + shaded_lai * shaded_leaf["leaf_stomatal_conductance"];  // mmol / m^2 / s. Ground-area basis.
-        canopy_transpiration += sunlit_lai * sunlit_leaf["leaf_transpiration_rate"] + shaded_lai * shaded_leaf["leaf_transpiration_rate"];  // kg / m^2 / s. Ground-area basis.
+        canopy_transpiration += sunlit_lai * sunlit_trans["leaf_transpiration_rate"] + shaded_lai * shaded_trans["leaf_transpiration_rate"];  // kg / m^2 / s. Ground-area basis.
+
+        //canopy_assimilation += shaded_lai * shaded_leaf["leaf_assimilation_rate"];  // micromoles / m^2 / s. Ground-area basis.
+        //canopy_conductance += shaded_lai * shaded_leaf["leaf_stomatal_conductance"];  // mmol / m^2 / s. Ground-area basis.
+        //canopy_transpiration += shaded_lai * shaded_leaf["leaf_transpiration_rate"];  // kg / m^2 / s. Ground-area basis.
+
 
         if (canopy_assimilation * 3600 * 1e-6 * 30 * 1e-6 * 10000 < -0.01) {
             //output_map(sunlit_leaf);
-            ////output_map(shaded_leaf);
-            Rprintf("cosine_theta: %f\n", cosine_theta);
-        }
+            //output_map(shaded_leaf);
             //Rprintf("cosine_theta: %f\n", cosine_theta);
+        }
+        //output_map(sunlit_leaf);
+        //Rprintf("Loop %i; canopy_transpiration %f; shaded_trans %f; sunlit_trans %f; shaded_lai %f; sunlit_lai %f; canopy_lai %f; solar %f; shaded_par %f; shade_leaf[assim] %f; sunlit_par %f; sun_leaf[assim] %f\n", n, canopy_transpiration, shaded_leaf.at("leaf_transpiration_rate"), sunlit_leaf.at("leaf_transpiration_rate"), shaded_lai, sunlit_lai, canopy_lai, s.at("solar"), layer_shaded_par, shaded_leaf.at("leaf_assimilation_rate"), layer_sunlit_par, sunlit_leaf.at("leaf_assimilation_rate"));
+        //output_map(shaded_leaf);
     }
-
-    delete leaf_assim_module;
-    delete leaf_evapo_module;
-    delete water_vapor_module;
 
     /* Convert assimilation units
      * 3600 - seconds per hour
@@ -205,10 +211,11 @@ state_map big_leaf_multilayer_canopy::do_operation (state_map const& s) const
      * 10000 - meters squared per hectare
      */
 
+    //TODO: Figure out why canopy_conductance is always 0.
     state_map new_state = {
         { "canopy_assimilation_rate", canopy_assimilation * 3600 * 1e-6 * 30 * 1e-6 * 10000 },
         { "canopy_transpiration_rate", canopy_transpiration * 3600 * 1e-3 * 10000 },
-        { "canopy_conductance_rate", canopy_conductance },
+        { "canopy_conductance", canopy_conductance },
     };
 
     return new_state;

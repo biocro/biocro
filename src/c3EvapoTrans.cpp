@@ -44,9 +44,9 @@ struct ET_Str c3EvapoTrans(
         CanopyHeight = 0.1;
 
     const double DdryA = TempToDdryA(air_temperature);  // kg / m^3
-    const double LHV = TempToLHV(air_temperature) * 1e6;  // J / kg
-    const double SlopeFS = TempToSFS(air_temperature) * 1e-3;  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
-    const double SWVP = saturation_vapor_pressure(air_temperature) * 100;  // Pa
+    const double LHV = TempToLHV(air_temperature);  // J / kg
+    const double SlopeFS = TempToSFS(air_temperature);  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double SWVP = saturation_vapor_pressure(air_temperature);  // Pa
 
     constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s

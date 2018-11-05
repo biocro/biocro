@@ -150,6 +150,16 @@ run_modules <- function(state, steady_state_modules, check_parameters=TRUE)
     return(result)
 }
 
+get_module_requirements <- function(modules)
+{
+    if (class(modules) != 'character') {
+        stop('"modules" must be a character vector')
+    }
+
+    result = .Call(R_get_module_requirements, modules)
+    return(result)
+}
+
 partial_gro = function(initial_values, parameters, varying_parameters, modules, arg_names) {
 # Accepts the same parameters as Gro() with an additional 'arg_names' parameter, which is a vector of character variables.
 # Returns a function that runs Gro() with all of the parameters, except 'arg_names

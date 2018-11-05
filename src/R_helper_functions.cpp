@@ -70,6 +70,16 @@ vector<string> make_vector(SEXP const &r_string_vector) {
     return v;
 }
 
+SEXP r_string_vector_from_vector(vector<string> const &v) {
+    auto n = v.size();
+    SEXP r_string_vector = PROTECT(allocVector(STRSXP, n));
+    for (size_t i = 0; i < n; ++i) {
+        SET_STRING_ELT(r_string_vector, i, mkChar(v[i].c_str()));
+    }
+    UNPROTECT(1);
+    return r_string_vector;
+}
+
 SEXP list_from_map(state_map const &m)
 {
     auto n = m.size();

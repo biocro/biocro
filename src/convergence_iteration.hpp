@@ -11,6 +11,12 @@ class collatz_leaf : public IModule {
             {}
     private:
         state_map do_operation (state_map const& s) const;
+
+        IModule const * const leaf_temperature_module = new penman_monteith_leaf_temperature();
+
+        ~collatz_leaf() {
+            delete leaf_temperature_module;
+        }
 };
 
 #endif
