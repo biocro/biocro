@@ -16,8 +16,8 @@ parms$incident_irradiance = parms$incident_par * joules_per_micromole_PAR / frac
 #result[c('leaf_assimilation_rate', 'leaf_temperature', 'temp', 'leaf_stomatal_conductance')]
 
 
-Qp = 1500
-Tl = 20
+Qp = 1900
+Tl = 36
 RH = .9
 vmax = 39
 alpha = 0.04
@@ -71,3 +71,41 @@ intercellular_co2_molar_fraction = c4result$Ci
 
 c4result$assimilation_rate / collatz_result$assimilation_rate
 c4result$GrossAssim / collatz_result$gross_assimilation_rate
+
+k_Q10 = 2
+intercellular_co2_molar_fraction = 40
+(collatz_result = collatz_photo(
+    Qp = Qp,
+    leaf_temperature = Tl,
+    vmax = vmax,
+    alpha = alpha,
+    kparm = kparm,
+    theta = theta,
+    beta = beta,
+    Rd = Rd,
+    upperT = uppertemp,
+    lowerT = lowertemp,
+    k_Q10 = k_Q10,
+    intercellular_co2_molar_fraction = intercellular_co2_molar_fraction
+))
+
+cis = seq(1, 400, length=50)
+values = numeric(length(cis))
+for (i in seq_along(cis)) {
+    values[i] = (collatz_photo(
+        Qp = Qp,
+        leaf_temperature = Tl,
+        vmax = vmax,
+        alpha = alpha,
+        kparm = kparm,
+        theta = theta,
+        beta = beta,
+        Rd = Rd,
+        upperT = uppertemp,
+        lowerT = lowertemp,
+        k_Q10 = k_Q10,
+        intercellular_co2_molar_fraction = cis[i]
+    ))$assimilation_rate
+}
+
+plot(values ~ cis, type='l')
