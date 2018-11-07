@@ -151,20 +151,18 @@ option of including stress. The argument is \code{StomWS}. The stress
 can be applied to stomatal conductance (default) or $V_{max}$. 
 
 <<c4photo-stress-gs, fig.height=4.5, tidy=TRUE, echo=FALSE>>=
-sws <- seq(0,1,0.01)
+sws <- seq(0, 1, 0.01)
 
 assim <- numeric(length(sws))
 cond <- numeric(length(sws))
 ws <- 'gs'
 
-for(i in 1:length(sws)){
-
-    assim[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$Assim
-    cond[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$Gs
-
+for (i in seq_along(sws)) {
+    assim[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i], ws=ws)$assimilation_rate
+    cond[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i], ws=ws)$Gs
 }
 
-xyplot(assim + cond ~ sws, type='l', main="stress on gs")
+xyplot(assim + cond ~ sws, type='l', auto=TRUE, main="stress on gs")
 @ 
 
 % | 
@@ -178,7 +176,7 @@ ws <- 'vmax'
 
 for(i in 1:length(sws)){
 
-    assim[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$Assim
+    assim[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$assimilation_rate
     cond[i] <- c4photo(1500, 25, 0.7, StomWS=sws[i],ws=ws)$Gs
 
 }
@@ -324,7 +322,7 @@ To be complete there is even the option of using \code{nls}.
 
 <<nls-photo>>=
 c4photo2 <- function(A,T,RH, vmax=39, alpha=0.04){
-    res <- c4photo(A,T,RH, vmax=vmax, alpha=alpha)$Assim
+    res <- c4photo(A,T,RH, vmax=vmax, alpha=alpha)$assimilation_rate
     res
 }
 fit <- nls(A ~ c4photo2(PARi, Tleaf, RH_S, vmax, alpha),

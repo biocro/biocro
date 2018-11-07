@@ -1,29 +1,6 @@
 library(BioCro)
 library(lattice)
 
-canenitroParms <- function(iLeafN=85, kLN=0.5, Vmax.b1=0.6938, Vmax.b0=-16.25, alpha.b1=0.000488, alpha.b0=0.02367, Rd.b1=0.1247, Rd.b0=-4.5917,
-                       kpLN=0.20, lnb0=-5, lnb1=18, lnFun=c("linear"), maxln=85, minln=57, daymaxln=60)
-{
-  lnFun <- match.arg(lnFun)
-  if (lnFun == "none") {
-    lnFun <- 0
-  } else {
-    lnFun <- 1
-  }
-  
-  list(iLeafN=iLeafN, kLN=abs(kLN), Vmax.b1=Vmax.b1, Vmax.b0=Vmax.b0, alpha.b1=alpha.b1, alpha.b0=alpha.b0, Rd.b1=Rd.b1, Rd.b0=Rd.b0, kpLN=kpLN,
-       lnb0=lnb0, lnb1=lnb1, lnFun=lnFun, maxln=maxln, minln=minln, daymaxln=daymaxln)
-}
-
-photoParms <- function(vmax=39, alpha=0.04, kparm=0.7, theta=0.83, beta=0.93, Rd=0.8, Catm=400, b0=0.08, b1=3, ws=c("gs", "vmax"), uppertemp=37.5, lowertemp=3.0)
-{
-  ws <- match.arg(ws)
-  if (ws == "gs") ws <- 1
-  else ws <- 0
-      
-  list(vmax=vmax, alpha=alpha, kparm=kparm, theta=theta, beta=beta, Rd=Rd, Catm=Catm, b0=b0, b1=b1, ws=ws, uppertemp=uppertemp, lowertemp=lowertemp)
-}
-
 subweather = get_growing_season_climate(weather05)[1:700, ]
 subweather = get_growing_season_climate(weather05)
 

@@ -213,7 +213,7 @@ Gro_deriv = function (parameters, varying_parameters, steady_state_modules, deri
     function(t, state, parms) {
         vp = varying_parameters(t)
         all_state = c(state, parameters, vp)
-        result = .Call(BioCro:::R_Gro_ode, all_state, steady_state_modules, derivative_modules)
+        result = .Call(R_Gro_ode, all_state, steady_state_modules, derivative_modules)
         temp = names(result)
         if (length(temp) != result_name_length) {
             state_names <<- names(state)
