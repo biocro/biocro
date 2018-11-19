@@ -19,7 +19,7 @@ ODE_OBJECTS = $(ODE_SOURCES:.cpp=.o)
 LIBRARY_SOURCES = Gro.cpp state_map.cpp AuxBioCro.cpp ball_berry.cpp \
 c3CanAC.cpp c3EvapoTrans.cpp c3photo.cpp c4photo.cpp CanAC.cpp \
 eC4photo.cpp ModuleFactory.cpp modules.cpp utilization_growth_and_senescence.cpp utilization_growth.cpp \
-utilization_growth_flowering.cpp
+utilization_growth_flowering.cpp big_leaf_multilayer_canopy.cpp convergence_iteration.cpp collatz_photo.cpp
 LIBRARY_OBJECTS = $(LIBRARY_SOURCES:.cpp=.o)
  
 biocro: $(GRO_OBJECTS)
