@@ -1,6 +1,7 @@
 #ifndef BIG_LEAF_MULTILAYER_CANOPY
 #define BIG_LEAF_MULTILAYER_CANOPY
 #include "modules.h"
+#include "convergence_iteration.hpp"
 
 class big_leaf_multilayer_canopy : public IModule {
     public:

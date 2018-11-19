@@ -1,5 +1,3 @@
-#include <R.h>
-
 #include <math.h>
 #include "convergence_iteration.hpp"
 #include "big_leaf_multilayer_canopy.hpp"
@@ -261,7 +259,7 @@ struct Can_Str newCanAC(
     IModule * water_vapor_module = new water_vapor_properties_from_air_temperature();
     struct Light_model light_model = lightME(lat, DOY, hr);
 
-    double Idir = light_model.direct_irradiance_fraction * solarR;
+    double Idir = light_model.direct_irradiance_fraction * solarR;  // micromole / m^2 / s. Flux through a plane perpendicular to the rays of the sun.
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
