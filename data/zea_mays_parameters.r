@@ -129,7 +129,7 @@ zea_mays_parameters = with(list(), {
     leaf_reflectance 0.2
     leaf_transmittance 0.2
     aba_influence_coefficient -22.3071 # Chosen so that 5 mol / ha ABA results in a 20% decrease in b0. Calculate c for e(5/c) = 0.8. 5 mol / ha is based on 50 mL of 100 micromolar ABA per L of soil, with a soil depth of 10 cm.
-    aba_decay_constant = 0.09"  # Chosen so that 10 % of ABA remains after 24 hours. Solve dABA/dt = -k * ABA, and calculate k for ABA(0) = 1, ABA(24) = 0.1.
+    aba_decay_constant 0.09"  # Chosen so that 10 % of ABA remains after 24 hours. Solve dABA/dt = -k * ABA, and calculate k for ABA(0) = 1, ABA(24) = 0.1.
     
     data_frame = read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
