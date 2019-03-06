@@ -7,14 +7,14 @@ It uses models of key physiological and biophysical processes underlying plant g
 BioCro has also been integrated into a suite of tools that link the model directly with crop trait and yield data, streamlining the entire modeling and data collection workflow (LeBauer et al, 2013). The Predictive Ecosystem Analyzer ([PEcAn](https://github.com/PecanProject/pecan)) couples BioCro to the [Biofuel Ecophysiological Traits and Yields database](https://www.betydb.org), enabling model parameterization and optimization, targeted data collection optimized to reduce uncertainty in model predictions, and the management of informatics and HPC computing resources. 
 
 ### An example
-The Gro() function accepts initial values, parameters, climate variables, and a set of modules to run. It returns the results in a data frame.
+The BioGro() function accepts initial values, parameters, climate variables, and a set of modules to run. It returns the results in a data frame.
 
 ```r
 library(BioCro)
-library(lattice)
+data(weather05)
+res <- BioGro(weather05)
 
-result = Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules)
-xyplot(Stem + Leaf ~ TTc, result, type='l')
+plot(res)
 ```
 
 There are parameters and modules for miscanthus (_Miscanthus_ x _giganteus_), sorghum (_Sorghum bicolor_) and willow (_Saliceae salix_).
@@ -29,7 +29,17 @@ On Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) version 3.3
 
 #### BioCro installation
 
-Download the BioCro source code from GitHub, unzip the file, and install from the either the command line or from within R using one of the following sets of commands. 
+
+##### Easy method:
+
+```r
+library(devtools)
+install_github('ebimodeling/biocro')
+```
+
+Alternatives Easy method:
+
+Clone the BioCro source code from GitHub with `git clone https://github.com/ebimodeling/biocro`. Or, [download the source](https://github.com/ebimodeling/biocro/archive/master.zip), unzip the file, and install from the either the command line or from within R using one of the following sets of commands. 
 
 These assume that the source files are in a directory named "biocro".
 
