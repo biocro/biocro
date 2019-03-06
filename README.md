@@ -37,7 +37,7 @@ library(devtools)
 install_github('ebimodeling/biocro')
 ```
 
-Alternatives Easy method:
+Alternatives methods:
 
 Clone the BioCro source code from GitHub with `git clone https://github.com/ebimodeling/biocro`. Or, [download the source](https://github.com/ebimodeling/biocro/archive/master.zip), unzip the file, and install from the either the command line or from within R using one of the following sets of commands. 
 
