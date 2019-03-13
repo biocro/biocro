@@ -5,5 +5,52 @@ author: "Kristina Riemer"
 
 ## Installing BioCro package
 
-## Example model run
+## First component: leaf-level photosynthesis
+
+```{r}
+library(BioCro)
+```
+
+This function, `c4photo`, is for estimating photosynthesis from photosynthetically active radiation, temperature, and relative humidity. Others parameters it can take include maximum carboxylation of Rubsicso, quantum efficiency, the Collatz model K, theta, and beta, dark respiration, atmospheric CO2, and the two Ball-Berry model parameters. The function has default values for these. 
+
+```{r}
+c4photo(Qp = 1500, Tl = 25, RH = 0.7)
+```
+
+Can specify upper and lower temperatures. Higher upper temperatures result in greater photosynthesis at higher temperatures, and smaller lower temperatures in less photosynthesis at lower temperatures. 
+```{r}
+idat <- data.frame(Qp=1500, temp = 0:50, rh = 0.7)
+res <- c4photo(idat$Qp, idat$temp, idat$rh)
+res2 <- c4photo(idat$Qp, idat$temp, idat$rh, uppertemp = 45, lowertemp = 10)
+lattice::xyplot(res$Assim + res2$Assim ~ idat$temp, type = 'o',
+                xlab = "Temperature (*C)", ylab = "Assimilation (um m-2 s-1)",
+                key = lattice::simpleKey(c('default','U = 45, L = 10')))
+```
+
+```{r}
+data(aq)
+head(aq)
+plotAQ(aq, type = "p")
+```
+
+
+## Third component: biomass
+
+All this function `BioGro` needs is a year of hourly weather data, at minimum. Below, it's also taking soil properties, but this is optional. 
+
+```{r}
+data(cmi04)
+summary(cmi04)
+weather_only <- BioGro(cmi04)
+
+
+soilP <- soilParms(wsFun='linear')
+res <- BioGro(cmi04, soilControl=soilP)
+plot(res)
+plot(res, plot.kind="SW")
+plot(res, plot.kind="ET")
+plot(res, plot.kind="cumET")
+plot(res, plot.kind="stress")
+names(res)
+```
 
