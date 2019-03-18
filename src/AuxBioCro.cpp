@@ -16,6 +16,7 @@
 #define _USE_MATH_DEFINES
 
 #include <stdexcept>
+#include <string>
 #include <math.h>
 #include "c4photo.h"
 #include "BioCro.h"
