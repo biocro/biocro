@@ -3,38 +3,96 @@ title: "Intro Vignette"
 author: "Kristina Riemer"
 ---
 
+TODO: 
+* all plots in ggplot
+* add levels (leaf, canopy, season) and that they're integrated
+* simplify parameter estimation
+
+## Purpose of BioCro model
+
+Uses weather/other inputs to simulate growth and photosynthesis (respiration?) of plants. 
+
 ## Installing BioCro package
 
-## First component: leaf-level photosynthesis
+Run below to install the current stable release of BioCro. 
+
+```{r, eval=FALSE}
+devtools::install_github('ebimodeling/biocro')
+```
 
 ```{r}
 library(BioCro)
 ```
 
-This function, `c4photo`, is for estimating photosynthesis from photosynthetically active radiation, temperature, and relative humidity. Others parameters it can take include maximum carboxylation of Rubsicso, quantum efficiency, the Collatz model K, theta, and beta, dark respiration, atmospheric CO2, and the two Ball-Berry model parameters. The function has default values for these. 
+## First component: leaf-level photosynthesis
+
+-Required parameters vs optional parameters
+
+This function, `c4photo`, is for estimating photosynthesis from photosynthetically active radiation, temperature, and relative humidity. It returns values for stomatal conductance, net assimilation, intercellular CO2, and gross assimilation. 
 
 ```{r}
 c4photo(Qp = 1500, Tl = 25, RH = 0.7)
+
+# TODO: add plot of net assimilation where RH varies
 ```
 
-Can specify upper and lower temperatures. Higher upper temperatures result in greater photosynthesis at higher temperatures, and smaller lower temperatures in less photosynthesis at lower temperatures. 
+Others parameters it can take include maximum carboxylation of Rubsicso, quantum efficiency, the Collatz model K, theta, and beta, dark respiration, atmospheric CO2, and the two Ball-Berry model parameters. The function has default values for these. It can also accomodate upper and lower temperature bounds. See the function's help page for more info.  
+
 ```{r}
-idat <- data.frame(Qp=1500, temp = 0:50, rh = 0.7)
-res <- c4photo(idat$Qp, idat$temp, idat$rh)
-res2 <- c4photo(idat$Qp, idat$temp, idat$rh, uppertemp = 45, lowertemp = 10)
-lattice::xyplot(res$Assim + res2$Assim ~ idat$temp, type = 'o',
-                xlab = "Temperature (*C)", ylab = "Assimilation (um m-2 s-1)",
-                key = lattice::simpleKey(c('default','U = 45, L = 10')))
+?c4photo()
 ```
 
+getting priors (Vcmax, quantum efficiency, dark respiration)
 ```{r}
 data(aq)
 head(aq)
 plotAQ(aq, type = "p")
 ```
 
+single curve
+```{r}
+curve1 <- subset(aq, ID == 1)
+op <- Opc4photo(curve1[,3:6])
+op
+```
+
+multiple curves at once
+```{r}
+aq2 <- data.frame(aq[,-2], Catm=390)
+mop <- mOpc4photo(aq2, verbose=TRUE)
+mop
+```
+
+optimize rd or all three with `op.level`
+
+bayesian approach for priors (Vcmax and quantum efficieny only)
+
+```{r}
+op.mc1 <- MCMCc4photo(curve1[,3:6], scale=1.5)
+op.mc2 <- MCMCc4photo(curve1[,3:6], scale=1.5)
+op.mc1
+plot(op.mc1, op.mc2, plot.kind="density", burnin=1e4)
+```
+
+## Second component: canopy photosynthesis and transpiration
+
+TODO: how is this canopy stuff related to above leaf-level simulations? 
+
+uses `CanA` 
+simulates CO2 assimilation (PS) of canopy
+
+```{r}
+nlay <- 8
+res <- CanA(lai=3, doy=200, hr=12, solar=1500, temp=25, rh=0.7,
+            windspeed=2, nlayers=nlay)
+```
+
+also transpiration of canopy
+should be second three values returned from `CanA`, but returns nothing
 
 ## Third component: biomass
+
+whole growing season
 
 All this function `BioGro` needs is a year of hourly weather data, at minimum. Below, it's also taking soil properties, but this is optional. 
 
@@ -54,3 +112,6 @@ plot(res, plot.kind="stress")
 names(res)
 ```
 
+also transpiration
+
+optionally include soil info
