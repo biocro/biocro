@@ -207,7 +207,7 @@ partial_gro = function(initial_values, parameters, varying_parameters, modules, 
 # parameters: a list of named parameters that don't change with time.
 # varying_parameters: a function of the form `f(t)` that returns a named list of parameters, where `t` is time.
 # steady_state_modules: a character vector module names.
-# derivative: a character vector module names.
+# derivative: a character vector of module names.
 
 # A simple example with only derivatives.
 # oscillator_system = Gro_deriv(list(), function(t) return(list()), c(), c('position_oscillator', 'velocity_oscillator'))
