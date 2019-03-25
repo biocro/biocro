@@ -203,6 +203,18 @@ partial_gro = function(initial_values, parameters, varying_parameters, modules, 
     }
 }
 
+# Gro_deriv is used to create a function that can be called by a solver such as `lsodes`.
+# parameters: a list of named parameters that don't change with time.
+# varying_parameters: a function of the form `f(t)` that returns a named list of parameters, where `t` is time.
+# steady_state_modules: a character vector module names.
+# derivative: a character vector module names.
+
+# A simple example with only derivatives.
+# oscillator_system = Gro_deriv(list(), function(t) return(list()), c(), c('position_oscillator', 'velocity_oscillator'))
+# state = c(position=0, velocity=1)
+# times = seq(0, 5, length=100)
+# result = as.data.frame(lsodes(state, times, oscillator_system))
+
 Gro_deriv = function (parameters, varying_parameters, steady_state_modules, derivative_modules) {
     state_names = character(0)
     result_names = character(0)
