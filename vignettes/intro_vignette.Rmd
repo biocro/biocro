@@ -25,6 +25,42 @@ devtools::install_github('ebimodeling/biocro')
 library(BioCro)
 ```
 
+## Estimating biomass for growing season
+
+The function `BioGro` is used for this. The only required input is a year of hourly weather data. Here we're using such weather data from a site in Illinois. 
+
+This returns a list where each element is a variable resulting from the model run. This includes biomass values for different parts of the plants and leaf traits such as stomatal conductance and maximum carboxylation rate. 
+
+```{r}
+data(cmi04)
+head(cmi04)
+cmi04_results <- BioGro(cmi04)
+names(cmi04_results)
+head(cmi04_results$Stem)
+```
+
+These results can be visualized using `plot`, which is a modified version of `xyplot` from the `lattice` R package. The default plots the dry biomass of the different plant parts, and other results can be plotted by specifying the `plot.kind`. The cumulative evapotranspiration plot is shown as an example. 
+
+```{r}
+plot(cmi04_results)
+plot(cmi04_results, plot.kind = "cumET")
+```
+
+Many other model parameters can be specified. For example, information about soil properties can be added. The model outputs are plotted for low and high values for the effect of water stress on leaf growth. There is not a built-in way to plot 
+
+```{r}
+low_phi <- soilParms(FieldC = 0.37, WiltP = 0.2, phi2 = 1)
+high_phi <- soilParms(FieldC = 0.37, WiltP = 0.2, phi2 = 4)
+
+cmi04_results_lowphi <- BioGro(cmi04, soilControl = low_phi)
+cmi04_results_highphi <- BioGro(cmi04, soilControl = high_phi)
+
+plot(cmi04_results_lowphi, plot.kind = "SW")
+plot(cmi04_results_highphi, plot.kind = "SW")
+```
+
+`BioGro` is built on the `c4photo`/`c3photo` and `CanA` functions. Their use is illustrated below. 
+
 ## First component: leaf-level photosynthesis
 
 -Required parameters vs optional parameters
@@ -91,39 +127,3 @@ res <- CanA(lai=3, doy=200, hr=12, solar=1500, temp=25, rh=0.7,
 also transpiration of canopy
 should be second three values returned from `CanA`, but returns nothing
 
-## Third component: biomass
-
-whole growing season
-
-All this function `BioGro` needs is a year of hourly weather data, at minimum. Below, it's also taking soil properties, but this is optional. 
-
-```{r}
-data(cmi04)
-summary(cmi04)
-weather_only <- BioGro(cmi04)
-
-
-soilP <- soilParms(wsFun='linear')
-res <- BioGro(cmi04, soilControl=soilP)
-plot(res)
-plot(res, plot.kind="SW")
-plot(res, plot.kind="ET")
-plot(res, plot.kind="cumET")
-plot(res, plot.kind="stress")
-names(res)
-```
-
-also transpiration
-
-optionally include soil info
-
-```{r}
-lowphi <- soilParms(FieldC = 0.37, WiltP = 0.2, phi2 = 1)
-highphi <- soilParms(FieldC = 0.37, WiltP = 0.2, phi2 = 4)
-
-lowphirun <- BioGro(cmi04, soilControl = lowphi)
-highphirun <- BioGro(cmi04, soilControl = highphi)
-
-library(lattice)
-xyplot(lowphirun$SoilWatCont + highphirun$SoilWatCont ~ lowphirun$DayofYear, type = 'l')
-```
