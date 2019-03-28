@@ -1,6 +1,7 @@
 ---
 title: "Intro Vignette"
 author: "Kristina Riemer"
+output: pdf_document
 ---
 
 TODO: 
@@ -115,3 +116,14 @@ names(res)
 also transpiration
 
 optionally include soil info
+
+```{r}
+lowphi <- soilParms(FieldC = 0.37, WiltP = 0.2, phi2 = 1)
+highphi <- soilParms(FieldC = 0.37, WiltP = 0.2, phi2 = 4)
+
+lowphirun <- BioGro(cmi04, soilControl = lowphi)
+highphirun <- BioGro(cmi04, soilControl = highphi)
+
+library(lattice)
+xyplot(lowphirun$SoilWatCont + highphirun$SoilWatCont ~ lowphirun$DayofYear, type = 'l')
+```
