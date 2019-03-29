@@ -1,20 +1,14 @@
 ---
-title: "Intro Vignette"
+title: "Introduction to BioCro Model"
 author: "Kristina Riemer"
 output: pdf_document
 ---
 
-TODO: 
+## Purpose of model
 
-* all plots in ggplot
-* add levels (leaf, canopy, season) and that they're integrated
-* simplify parameter estimation
+Simulate growth and photosynthesis of plants using weather and plant traits. 
 
-## Purpose of BioCro model
-
-Uses weather/other inputs to simulate growth and photosynthesis (respiration?) of plants. 
-
-## Installing BioCro package
+## Installing package
 
 Run below to install the current stable release of BioCro. 
 
@@ -104,19 +98,22 @@ aq_observations_priors$bestAlpha
 
 These estimates can also be produced for multiple curves at once (`mOpc4photo`) or with a Bayesian approach (`MCMCc4photo`). 
 
-## Second component: canopy photosynthesis and transpiration
+## Simulate canopy carbon assimilation
 
-TODO: how is this canopy stuff related to above leaf-level simulations? 
+Estimates at the canopy-level of carbon assimilation and transpiration are done with the function `CanA`, which is built on `c4photo`. Required inputs include environmental variables, day and time, and leaf area index. 
 
-uses `CanA` 
-simulates CO2 assimilation (PS) of canopy
+The number of layers in the canopy can also be specified. While the default is eight layers, an example with more layers is shown. Both carbon assimilation and transpiration outputs are shown. 
+
 
 ```{r}
-nlay <- 8
-res <- CanA(lai=3, doy=200, hr=12, solar=1500, temp=25, rh=0.7,
-            windspeed=2, nlayers=nlay)
+canopy_fewlayers <- CanA(lai = 3, doy = 200, hr = 12, solar = 1500, temp = 25, 
+                         rh = 0.7, windspeed = 2)
+canopy_morelayers <- CanA(lai = 3, doy = 200, hr = 12, solar = 1500, temp = 25, 
+                          rh = 0.7, windspeed = 2, nlayers = 14)
+
+canopy_fewlayers$CanopyAssim
+canopy_morelayers$CanopyAssim
+
+canopy_fewlayers$CanopyTrans
+canopy_morelayers$CanopyTrans
 ```
-
-also transpiration of canopy
-should be second three values returned from `CanA`, but returns nothing
-
