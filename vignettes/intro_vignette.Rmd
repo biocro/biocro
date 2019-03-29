@@ -5,6 +5,7 @@ output: pdf_document
 ---
 
 TODO: 
+
 * all plots in ggplot
 * add levels (leaf, canopy, season) and that they're integrated
 * simplify parameter estimation
@@ -20,6 +21,8 @@ Run below to install the current stable release of BioCro.
 ```{r, eval=FALSE}
 devtools::install_github('ebimodeling/biocro')
 ```
+
+Read in the library. 
 
 ```{r}
 library(BioCro)
@@ -61,55 +64,45 @@ plot(cmi04_results_highphi, plot.kind = "SW")
 
 `BioGro` is built on the `c4photo`/`c3photo` and `CanA` functions. Their use is illustrated below. 
 
-## First component: leaf-level photosynthesis
+## Estimating photosynthesis variables at the leaf level
 
--Required parameters vs optional parameters
-
-This function, `c4photo`, is for estimating photosynthesis from photosynthetically active radiation, temperature, and relative humidity. It returns values for stomatal conductance, net assimilation, intercellular CO2, and gross assimilation. 
+The function `c4photo` estimates stomatal conductance, net assimilation, intercellular CO~2~, and gross assimilation from photosynthetically active radiation, temperature, and relative humidity. A value for net assimilation is returned below. 
 
 ```{r}
-c4photo(Qp = 1500, Tl = 25, RH = 0.7)
-
-# TODO: add plot of net assimilation where RH varies
+photosynthesis_c4 <- c4photo(Qp = 1500, Tl = 25, RH = 0.7)
+photosynthesis_c4$Assim
 ```
 
-Others parameters it can take include maximum carboxylation of Rubsicso, quantum efficiency, the Collatz model K, theta, and beta, dark respiration, atmospheric CO2, and the two Ball-Berry model parameters. The function has default values for these. It can also accomodate upper and lower temperature bounds. See the function's help page for more info.  
+This function can take a lot of other parameters, including Vcmax and temperature bounds. The example below shows the difference in output when atmospheric CO~2~ varies. 
 
 ```{r}
-?c4photo()
+photosynthesis_c4_lowco2 <- c4photo(Qp = 1250, Tl = 35, RH = 0.7, Catm = 350)
+photosynthesis_c4_highco2 <- c4photo(Qp = 1250, Tl = 35, RH = 0.7, Catm = 400)
+
+photosynthesis_c4_lowco2$Assim
+photosynthesis_c4_highco2$Assim
 ```
 
-getting priors (Vcmax, quantum efficiency, dark respiration)
-```{r}
+Observations of net assimilation rate, quantum flux, leaf temperature, and relative humidity can be used to better estimate maximum rate of carboxylation and quantum efficiency to put into `c4photo`/`c3photo`. Example observations from a built-in dataset are shown. 
+
+```{r, message = FALSE}
+library(dplyr)
 data(aq)
-head(aq)
-plotAQ(aq, type = "p")
+aq_observations <- aq %>% 
+  filter(ID == 1) %>% 
+  select(A, PARi, Tleaf, RH_S)
+aq_observations
 ```
 
-single curve
-```{r}
-curve1 <- subset(aq, ID == 1)
-op <- Opc4photo(curve1[,3:6])
-op
-```
-
-multiple curves at once
-```{r}
-aq2 <- data.frame(aq[,-2], Catm=390)
-mop <- mOpc4photo(aq2, verbose=TRUE)
-mop
-```
-
-optimize rd or all three with `op.level`
-
-bayesian approach for priors (Vcmax and quantum efficieny only)
+The function `Opc4photo` takes these observations to produce estimates of Vmax and alpha. 
 
 ```{r}
-op.mc1 <- MCMCc4photo(curve1[,3:6], scale=1.5)
-op.mc2 <- MCMCc4photo(curve1[,3:6], scale=1.5)
-op.mc1
-plot(op.mc1, op.mc2, plot.kind="density", burnin=1e4)
+aq_observations_priors <- Opc4photo(aq_observations)
+aq_observations_priors$bestVmax
+aq_observations_priors$bestAlpha
 ```
+
+These estimates can also be produced for multiple curves at once (`mOpc4photo`) or with a Bayesian approach (`MCMCc4photo`). 
 
 ## Second component: canopy photosynthesis and transpiration
 
