@@ -91,6 +91,8 @@ parameter_list parameters {
   { "saturation_water_vapor_pressure"   , {"Vapor pressure of water that saturates the air's capacity."               ,"Pa"                           }},
   { "vapor_density_deficit"             , {"The different between vapor density and saturated vapor density"          ,"kg / m^3"                     }},
   { "psychrometric_parameter"           , {"Parameter to relate change in air temperature to air density"             ,"kg / m^3 / K"                 }},
+  { "soil_aba_concentration"            , {"The concentration of ABA in the soil."                                    ,""                             }},
+  //{ "                                   , {"                                                                          ,"                              }},
   //{ "                                   , {"                                                                          ,"                              }},
 };
 

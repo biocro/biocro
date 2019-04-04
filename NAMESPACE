@@ -7,6 +7,7 @@ useDynLib(BioCro,
           R_Gro_ode,
           R_run_modules,
           R_get_module_requirements,
+          R_sunML,
           collatz_photoC)
 
 import(stats, lattice)
@@ -27,6 +28,8 @@ export(c4photo)
 export(CanA)
 
 export(idbp)
+
+export(sunML)
 
 export(SoilType, showSoilType)
 
