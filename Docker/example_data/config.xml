@@ -3,7 +3,7 @@
  <run>
   <start.date>2013-04-20 0:00:00</start.date>
   <end.date>2013-12-30 23:00:00</end.date>
-  <met.file>merged_tully_narr.csv</met.file>
+  <met.path>merged_tully_narr.csv</met.path>
   <soil.file></soil.file>
  </run>
  <location>
