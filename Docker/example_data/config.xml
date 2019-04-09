@@ -7,8 +7,8 @@
   <soil.file></soil.file>
  </run>
  <location>
-  <latitude></latitude>
-  <longitude></longitude>
+  <latitude>33.448</latitude>
+  <longitude>-112.074</longitude>
  </location>
  <simulationPeriod>
   <dateofplanting>2013/04/20</dateofplanting>
