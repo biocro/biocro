@@ -1,16 +1,16 @@
 #!/usr/bin/env Rscript
 
-if(!file.exists('biocro_helpers.R')){
+if(!file.exists('/work/biocro_helpers.R')){
   download.file('https://gist.githubusercontent.com/dlebauer/8010fc210ea6552b8f6df66f22d00c6c/raw/e99240b0607bf8c88eb053a40a2906aec46e06f1/biocro_helpers.R',
               destfile = 'biocro_helpers.R')
 }
 
 
-source('biocro_helpers.R')
+source('/work/biocro_helpers.R')
 
-if(!file.exists('merged_tully_narr.csv')){
+if(!file.exists('/data/rundir/met.2013.csv')){
   download.file('https://gist.githubusercontent.com/dlebauer/8010fc210ea6552b8f6df66f22d00c6c/raw/63704cdcad884be716b2d75bfb8405cdc4445e68/merged_tully_narr.csv',
-                destfile = 'merged_tully_narr.csv')
+                destfile = '/data/rundir/met.2013.csv')
 }
 
 # need to download the config.xml below
