@@ -6,7 +6,7 @@ CC=g++
 CC_FLAGS = -std=c++0x -I"boost_1_64_0" -lm
  
 # File names
-ALL_SOURCES = $(wildcard *.cpp)
+ALL_SOURCES = $(wildcard *.cpp module_library/*.cpp)
 ALL_OBJECTS = $(ALL_SOURCES:.cpp=.o)
 ALL_DEPS    = $(ALL_SOURCES:.cpp=.d)
 
@@ -45,6 +45,6 @@ full:
 	R CMD INSTALL --no-multiarch ..
 	
 clean:
-	rm --force *~ *.o *.dll libbiocro.a $(ALL_DEPS)
+	rm --force *~ *.o *.dll libbiocro.a $(ALL_DEPS) $(ALL_OBJECTS)
 
 -include $(ALL_DEPS)
