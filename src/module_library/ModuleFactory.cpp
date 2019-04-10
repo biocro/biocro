@@ -1,5 +1,5 @@
 #include "ModuleFactory.h"
-#include "big_leaf_multilayer_canopy.hpp"
+#include "../big_leaf_multilayer_canopy.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {
                 { "velocity_oscillator",                &createModule<velocity_oscillator>},

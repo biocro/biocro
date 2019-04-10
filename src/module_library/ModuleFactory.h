@@ -1,7 +1,7 @@
 #include <memory>
 #include <string>
-#include "modules.h"
-#include "convergence_iteration.hpp"
+#include "../modules.h"
+#include "../convergence_iteration.hpp"
 
 template<typename T> std::unique_ptr<IModule> createModule() { return std::unique_ptr<IModule>(new T); }
 

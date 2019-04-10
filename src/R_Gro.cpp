@@ -3,7 +3,7 @@
 #include <Rinternals.h>
 #include "BioCro.h"
 #include "modules.h"
-#include "ModuleFactory.h"
+#include "module_library/ModuleFactory.h"
 #include "R_helper_functions.h"
 
 using std::string;
