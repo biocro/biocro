@@ -79,83 +79,11 @@ class Module_3: public IModule {
         };
 };
 
-class biomass_leaf_n_limitation : public IModule {
-    public:
-        biomass_leaf_n_limitation()
-            : IModule(std::string("biomass_leaf_n_limitation"),
-                    std::vector<std::string> {"LeafN_0", "Leaf", "Stem", "kln"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation (state_map const &s) const;
-
-};
-
 class ICanopy_photosynthesis_module : public IModule {
     public:
         ICanopy_photosynthesis_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
             : IModule(module_name, required_state, modified_state)
         {}
-};
-
-class c4_canopy : public ICanopy_photosynthesis_module {
-    public:
-        c4_canopy()
-            : ICanopy_photosynthesis_module("c4_canopy",
-                    std::vector<std::string> {"lai", "doy", "hour", "solar", "temp",
-                    "rh", "windspeed", "lat", "nlayers", "vmax1",
-                    "alpha1", "kparm", "beta", "Rd", "Catm",
-                    "b0", "b1", "theta", "kd", "chil",
-                    "heightf", "LeafN", "kpLN", "lnb0", "lnb1",
-                    "lnfun", "upperT", "lowerT", "leafwidth",
-                    "et_equation", "StomataWS", "water_stress_approach",
-                    "nileafn", "nkln", "kln", "nvmaxb0", "nvmaxb1",
-                    "nalphab1", "nalphab0", "nRdb1", "nRdb0", "nkpLN",
-                    "nlnb0", "nlnb1"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation (state_map const &s) const;
-};
-
-class c3_canopy : public ICanopy_photosynthesis_module {
-    public:
-        c3_canopy()
-            : ICanopy_photosynthesis_module("c3_canopy",
-                    std::vector<std::string> {"lai", "doy", "hour", "solar", "temp",
-                    "rh", "windspeed", "lat", "nlayers", "vmax",
-                    "jmax", "Rd", "Catm", "O2", "b0",
-                    "b1", "theta", "kd", "heightf", "LeafN",
-                    "kpLN", "lnb0", "lnb1", "lnfun", "chil", "StomataWS",
-                    "water_stress_approach", "electrons_per_carboxylation", "electrons_per_oxygenation"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation (state_map const &s) const;
-};
-
-
-class FvCB : public IModule {
-    // The Farquhar, von Caemmerer, Berry model.
-    public:
-        FvCB()
-            : IModule("FvCB",
-                    std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation (state_map const &s) const;
-};
-
-class ball_berry_module : public IModule {
-    public:
-        ball_berry_module()
-            : IModule("ball_berry_module",
-                    std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation (state_map const &s) const;
 };
 
 class leaf_boundary_layer_conductance_nikolov : public IModule {
@@ -174,36 +102,6 @@ class ISoil_evaporation_module : public IModule {
         ISoil_evaporation_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
             : IModule(module_name, required_state, modified_state)
         {}
-};
-
-class one_layer_soil_profile : public ISoil_evaporation_module {
-    public:
-        one_layer_soil_profile()
-            : ISoil_evaporation_module("one_layer_soil_profile",
-                    std::vector<std::string> {"lai", "temp", "solar", "soil_water_content",
-                    "soil_field_capacity", "soil_wilting_point", "windspeed", "rh", "rsec",
-                    "canopy_transpiration_rate", "precip", "soil_depth", "phi1", "phi2",
-                    "StomataWS", "LeafWS", "soil_evaporation_rate"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_map const &s) const;
-};
-
-class two_layer_soil_profile : public ISoil_evaporation_module {
-    public:
-        two_layer_soil_profile()
-            : ISoil_evaporation_module("two_layer_soil_profile",
-                    std::vector<std::string> {"precip", "canopy_transpiration_rate", "cws1", "cws2", "soil_depth1",
-                    "soil_depth2", "soil_depth3", "soil_field_capacity", "soil_wilting_point", "soil_saturation_capacity",
-                    "soil_air_entry", "soil_saturated_conductivity", "soil_b_coefficient", "soil_sand_content", "phi1",
-                    "phi2", "soil_type_indicator", "wsFun", "Root", "lai",
-                    "temp", "solar", "windspeed", "rh", "hydrDist",
-                    "rfl", "rsec", "rsdf", "StomataWS", "LeafWS"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_map const &s) const;
 };
 
 class penman_monteith_leaf_temperature : public IModule {
@@ -233,17 +131,6 @@ class priestley_transpiration : public IModule {
         priestley_transpiration()
             : IModule("priestley_transpiration",
                     std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation (state_map const &s) const;
-};
-
-class water_vapor_properties_from_air_temperature : public IModule {
-    public:
-        water_vapor_properties_from_air_temperature()
-            : IModule("water_vapor_properties_from_air_temperature",
-                    std::vector<std::string> {"temp", "rh"},
                     std::vector<std::string> {})
         {}
     private:
@@ -398,61 +285,6 @@ class no_leaf_resp_partitioning_growth_module : public IGrowth_module {
         {}
     private:
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
-};
-
-class test_derivs : public IModule {
-    public:
-        test_derivs()
-            : IModule("test_derivs",
-                    std::vector<std::string> {"LeafArea", "PAR"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation(state_map const &s) const;
-};
-
-class test_calc_state : public IModule {
-    public:
-        test_calc_state()
-            : IModule("test_calc_state",
-                    std::vector<std::string> {"LeafArea", "parameter"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation(state_map const &s) const;
-};
-
-class position_oscillator : public IModule {
-    public:
-        position_oscillator()
-            : IModule("position_oscillator",
-                    std::vector<std::string> {"velocity"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation(state_map const &s) const;
-};
-
-class velocity_oscillator : public IModule {
-    public:
-        velocity_oscillator()
-            : IModule("velocity_oscillator",
-                    std::vector<std::string> {"position"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation(state_map const &s) const;
-};
-
-class gamma_oscillator : public IModule {
-    public:
-        gamma_oscillator()
-            : IModule("gamma_oscillator",
-                    std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation(state_map const &s) const;
 };
 
 class stomata_water_stress_linear : public IModule {
@@ -635,18 +467,6 @@ class linear_vmax_from_leaf_n : public IModule {
             state_map result { {"vmax", (s.at("LeafN_0") - s.at("LeafN")) * s.at("vmax_n_intercept") + s.at("vmax1") } };
             return result;
         }
-};
-
-class parameter_calculator : public IModule {
-    public:
-        parameter_calculator()
-            : IModule("parameter_calculator",
-                    std::vector<std::string> {"iSp", "Sp_thermal_time_decay", "Leaf", "LeafN_0",
-                    "vmax_n_intercept", "vmax1", "alphab1", "alpha1"},
-                      std::vector<std::string> {})
-            {}
-    private:
-        state_map do_operation(state_map const &s) const;
 };
 
 class partitioning_coefficient_selector : public IModule {

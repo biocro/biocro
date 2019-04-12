@@ -1,5 +1,19 @@
 #include "ModuleFactory.h"
 #include "../big_leaf_multilayer_canopy.hpp"
+#include "biomass_leaf_n_limitation.hpp"
+#include "parameter_calculator.hpp"
+#include "test_derivs.hpp"
+#include "test_calc_state.hpp"
+#include "position_oscillator.hpp"
+#include "velocity_oscillator.hpp"
+#include "gamma_oscillator.hpp"
+#include "c4_canopy.hpp"
+#include "c3_canopy.hpp"
+#include "FvCB.hpp"
+#include "ball_berry_module.hpp"
+#include "one_layer_soil_profile.hpp"
+#include "two_layer_soil_profile.hpp"
+#include "water_vapor_properties_from_air_temperature.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {
                 { "velocity_oscillator",                &createModule<velocity_oscillator>},

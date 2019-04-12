@@ -1,6 +1,8 @@
 #include <vector>
 #include <memory>
 #include "modules.h"
+#include "module_library/test_calc_state.hpp"
+#include "module_library/test_derivs.hpp"
 
 state_map test_gro(state_map const &state) {
     std::vector<std::unique_ptr<IModule>> steady_modules;

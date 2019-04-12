@@ -6,7 +6,7 @@
 #include <Rinternals.h>
 #include "BioCro.h"
 #include "modules.h"
-
+#include "module_library/c3_canopy.hpp"
 using std::string;
 using std::vector;
 
