@@ -86,44 +86,11 @@ class ICanopy_photosynthesis_module : public IModule {
         {}
 };
 
-class leaf_boundary_layer_conductance_nikolov : public IModule {
-    public:
-        leaf_boundary_layer_conductance_nikolov()
-            : IModule("leaf_boundary_layer_conductance_nikolov",
-                    std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation (state_map const &s) const;
-};
-
 class ISoil_evaporation_module : public IModule {
     public:
         ISoil_evaporation_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
             : IModule(module_name, required_state, modified_state)
         {}
-};
-
-class penman_monteith_transpiration : public IModule {
-    public:
-        penman_monteith_transpiration()
-            : IModule("penman_monteith_transpiration",
-                    std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation (state_map const &s) const;
-};
-
-class priestley_transpiration : public IModule {
-    public:
-        priestley_transpiration()
-            : IModule("priestley_transpiration",
-                    std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation (state_map const &s) const;
 };
 
 class ISenescence_module : public IModule {
@@ -152,7 +119,6 @@ state_map Gro(
         std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
         std::vector<std::unique_ptr<IModule>> const &derivative_modules);
 
-double biomass_leaf_nitrogen_limitation(state_map const &state);
 double thermal_leaf_nitrogen_limitation(state_map const &state);
 
 

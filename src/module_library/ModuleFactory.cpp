@@ -33,6 +33,8 @@
 #include "soil_type_selector.hpp"
 #include "thermal_time_accumulator.hpp"
 #include "one_layer_soil_profile_derivatives.hpp"
+#include "penman_monteith_transpiration.hpp"
+#include "priestley_transpiration.hpp"
 #include "penman_monteith_leaf_temperature.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {

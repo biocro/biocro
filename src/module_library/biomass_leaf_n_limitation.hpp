@@ -14,4 +14,6 @@ class biomass_leaf_n_limitation : public IModule {
 
 };
 
+double biomass_leaf_nitrogen_limitation(state_map const &state);
+
 #endif
