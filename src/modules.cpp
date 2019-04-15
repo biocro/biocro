@@ -97,6 +97,29 @@ state_map leaf_boundary_layer_conductance_nikolov::do_operation(state_map const 
 }
 */
 
+state_map penman_monteith_leaf_temperature::do_operation(state_map const &s) const
+{
+    //check_state s(ss);
+    //output_map(s);
+    // From Thornley and Johnson 1990. pg 418. equation 14.11e.
+    double const slope_water_vapor = s.at("slope_water_vapor");
+    double const psychr_parameter = s.at("psychrometric_parameter");
+    double const LHV = s.at("latent_heat_vaporization_of_water");
+    double const ga = s.at("leaf_boundary_layer_conductance");  // m / s
+
+    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    double const gc = s.at("leaf_stomatal_conductance") * 1e-3 * volume_of_one_mole_of_air;  // m / s
+
+    double const PhiN = s.at("leaf_net_irradiance");  // W / m^2. Leaf area basis.
+
+    double const delta_t = (PhiN * (1 / ga + 1 / gc) - LHV * s.at("vapor_density_deficit"))
+        /
+        (LHV * (slope_water_vapor + psychr_parameter * (1 + ga / gc)));  // K. It is also degrees C because it's a change in temperature.
+
+    state_map new_state { { "leaf_temperature", s.at("temp") + delta_t } };
+    return new_state;
+}
+
 state_map penman_monteith_transpiration::do_operation(state_map const &s) const
 {
     //check_state s(ss);
@@ -130,64 +153,6 @@ state_map priestley_transpiration::do_operation(state_map const &s) const
 
     state_map new_state { { "transpiration_rate", evapotranspiration } };  // kg / m^2 / s. Leaf area basis.
     return new_state;
-}
-
-state_map thermal_time_and_frost_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
-{
-    state_map derivs;
-    state_map s = combine_state(at(state_history, state_history.begin()->second.size() - 1), parameters);
-    //output_map(s);
-    double TTc = s.at("TTc");
-    if (TTc >= parameters.at("seneLeaf")) {
-        bool A = s.at("lat") >= 0.0;
-        bool B = s.at("doy") >= 180.0;
-
-        if ((A && B) || ((!A) && (!B))) {
-            double frost_leaf_death_rate = 0;
-            double leafdeathrate = s.at("leafdeathrate");
-            if (s.at("temp") > parameters.at("Tfrostlow")) {
-                frost_leaf_death_rate = 100 * (s.at("temp") - parameters.at("Tfrosthigh")) / (parameters.at("Tfrostlow") - parameters.at("Tfrosthigh"));
-                frost_leaf_death_rate = (frost_leaf_death_rate > 100.0) ? 100.0 : frost_leaf_death_rate;
-            } else {
-                frost_leaf_death_rate = 0.0;
-            }
-            double current_leaf_death_rate = (leafdeathrate > frost_leaf_death_rate) ? leafdeathrate : frost_leaf_death_rate;
-            derivs["leafdeathrate"] = current_leaf_death_rate - leafdeathrate;
-
-            double change = s.at("Leaf") * current_leaf_death_rate * (0.01 / 24);
-            double Remob = change * 0.6;
-            derivs["LeafLitter"] += (change - Remob); /* Collecting the leaf litter */
-            derivs["Rhizome"] += s.at("kRhizome") * Remob;
-            derivs["Stem"] += s.at("kStem") * Remob;
-            derivs["Root"] += s.at("kRoot") * Remob;
-            derivs["Grain"] += s.at("kGrain") * Remob;
-            derivs["Leaf"] += -change + s.at("kLeaf") * Remob;
-            ++derivs["leaf_senescence_index"];
-        }
-    }
-
-    if (TTc >= parameters.at("seneStem")) {
-        double change = deriv_history.at("newStemcol")[s["stem_senescence_index"]];
-        derivs["Stem"] -= change;
-        derivs["StemLitter"] += change;
-        ++derivs["stem_senescence_index"];
-    }
-
-    if (TTc >= parameters.at("seneRoot")) {
-        double change = deriv_history.at("newRootcol")[s["root_senescence_index"]];
-        derivs["Root"] -= change;
-        derivs["RootLitter"] += change;
-        ++derivs["root_senescence_index"];
-    }
-
-    if (TTc >= parameters.at("seneRhizome")) {
-        double change = deriv_history.at("newRhizomecol")[s["rhizome_senescence_index"]];
-        derivs["Rhizome"] -= change;
-        derivs["RhizomeLitter"] += change;
-        ++derivs["rhizome_senescence_index"];
-    }
-
-    return derivs;
 }
 
 state_map partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const

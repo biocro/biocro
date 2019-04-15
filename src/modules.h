@@ -133,19 +133,6 @@ class ISenescence_module : public IModule {
         {}
 };
 
-class thermal_time_and_frost_senescence : public ISenescence_module {
-    public:
-        thermal_time_and_frost_senescence()
-            : ISenescence_module("thermal_time_and_frost_senescence",
-                    std::vector<std::string> {"TTc", "leafdeathrate", "lat", "doy", "Tfrostlow", "Tfrosthigh", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
-                    "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-                    "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
-};
-
 class IGrowth_module : public IModule {
     public:
         IGrowth_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)

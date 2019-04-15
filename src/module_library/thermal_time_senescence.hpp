@@ -1,5 +1,5 @@
-#ifndef thermal_time_senescense
-#define thermal_time_senescense
+#ifndef m_thermal_time_senescense
+#define m_thermal_time_senescense
 #include "../modules.h"
 
 class thermal_time_senescence : public IModule {
