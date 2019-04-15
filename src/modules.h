@@ -156,17 +156,6 @@ class utilization_growth_flowering: public ISenescence_module {
         virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
 };
 
-class empty_senescence: public ISenescence_module {
-    public:
-        empty_senescence()
-            : ISenescence_module("empty_senescence",
-                    std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
-};
-
 
 class partitioning_growth_module : public IGrowth_module {
     public:

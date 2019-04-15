@@ -18,6 +18,7 @@
 #include "thermal_time_and_frost_senescence.hpp"
 #include "utilization_senescence.hpp"
 #include "utilization_growth_module.hpp"
+#include "empty_senescence.hpp"
 #include "penman_monteith_leaf_temperature.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {
