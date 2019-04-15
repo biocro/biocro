@@ -140,20 +140,6 @@ class IGrowth_module : public IModule {
         {}
 };
 
-class no_leaf_resp_partitioning_growth_module : public IGrowth_module {
-    public:
-        no_leaf_resp_partitioning_growth_module()
-            : IGrowth_module("no_leaf_resp_partitioning_growth_module",
-                    std::vector<std::string> {"TTc", "LeafWS", "temp", "canopy_assimilation_rate",
-                    "Leaf", "Stem", "Root", "Rhizome", "Grain",
-                    "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-                    "mrc1", "mrc2"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
-};
-
 class stomata_water_stress_linear : public IModule {
     public:
         stomata_water_stress_linear()
