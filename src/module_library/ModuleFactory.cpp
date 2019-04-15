@@ -22,6 +22,17 @@
 #include "utilization_growth_flowering.hpp"
 #include "partitioning_growth_module.hpp"
 #include "no_leaf_resp_partitioning_growth_module.hpp"
+#include "stomata_water_stress_linear.hpp"
+#include "stomata_water_stress_sigmoid.hpp"
+#include "stomata_water_stress_exponential.hpp"
+#include "leaf_water_stress_exponential.hpp"
+#include "soil_evaporation.hpp"
+#include "bucket_soil_drainage.hpp"
+#include "linear_vmax_from_leaf_n.hpp"
+#include "partitioning_coefficient_selector.hpp"
+#include "soil_type_selector.hpp"
+#include "thermal_time_accumulator.hpp"
+#include "one_layer_soil_profile_derivatives.hpp"
 #include "penman_monteith_leaf_temperature.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {
