@@ -16,6 +16,7 @@
 #include "water_vapor_properties_from_air_temperature.hpp"
 #include "thermal_time_senescence.hpp"
 #include "thermal_time_and_frost_senescence.h"
+#include "utilization_senescence.h"
 #include "penman_monteith_leaf_temperature.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {

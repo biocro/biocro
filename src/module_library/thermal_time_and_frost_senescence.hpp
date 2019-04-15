@@ -5,7 +5,7 @@
 class thermal_time_and_frost_senescence : public IModule {
     public:
         thermal_time_and_frost_senescence()
-            : ISenescence_module("thermal_time_and_frost_senescence",
+            : IModule("thermal_time_and_frost_senescence",
                     std::vector<std::string> {"TTc", "leafdeathrate", "lat", "doy", "Tfrostlow", "Tfrosthigh", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
                     "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index"},
