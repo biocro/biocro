@@ -2,10 +2,10 @@
 #define m_utilization_growth_flowering
 #include "../modules.h"
 
-class utilization_growth_flowering: public ISenescence_module {
+class utilization_growth_flowering: public IModule {
     public:
         utilization_growth_flowering()
-            : ISenescence_module("utilization_growth_flowering",
+            : IModule("utilization_growth_flowering",
                     std::vector<std::string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
                     "Leaf", "Stem", "Root", "Rhizome", "Grain",
                     "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",

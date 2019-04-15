@@ -20,6 +20,7 @@
 #include "utilization_growth_module.hpp"
 #include "empty_senescence.hpp"
 #include "utilization_growth_flowering.hpp"
+#include "partitioning_growth_module.hpp"
 #include "penman_monteith_leaf_temperature.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {
