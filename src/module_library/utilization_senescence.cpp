@@ -1,4 +1,10 @@
-#include "utilization_senescence.h"
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <sstream>
+#include <math.h>
+#include <algorithm>
+#include "utilization_senescence.hpp"
 
 state_map utilization_senescence::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
