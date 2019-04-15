@@ -15,6 +15,7 @@
 #include "two_layer_soil_profile.hpp"
 #include "water_vapor_properties_from_air_temperature.hpp"
 #include "thermal_time_senescence.hpp"
+#include "penman_monteith_leaf_temperature.hpp"
 
 ModuleFactory::module_map ModuleFactory::modules = {
                 { "velocity_oscillator",                &createModule<velocity_oscillator>},
