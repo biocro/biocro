@@ -20,6 +20,7 @@
 #include "utilization_growth_module.hpp"
 #include "empty_senescence.hpp"
 #include "utilization_growth_flowering.hpp"
+#include "utilization_growth_and_senescence_module.hpp"
 #include "partitioning_growth_module.hpp"
 #include "no_leaf_resp_partitioning_growth_module.hpp"
 #include "stomata_water_stress_linear.hpp"

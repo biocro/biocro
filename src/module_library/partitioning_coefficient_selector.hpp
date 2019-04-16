@@ -1,5 +1,3 @@
-#ifndef m_partitioning_coefficient_selector
-#define m_partitioning_coefficient_selector
 #include "../modules.h"
 
 class partitioning_coefficient_selector : public IModule {
@@ -49,3 +47,5 @@ class partitioning_coefficient_selector : public IModule {
             return result;
         }
 };
+
+#endif

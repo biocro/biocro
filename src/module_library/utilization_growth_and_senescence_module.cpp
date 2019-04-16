@@ -5,6 +5,8 @@
 #include <math.h>
 #include <algorithm>
 #include "utilization_growth_and_senescence_module.hpp"
+#include "utilization_growth_module.hpp"
+#include "utilization_senescence.hpp"
 
 state_map utilization_growth_and_senescence_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {
