@@ -2,10 +2,10 @@
 #define C4_CANOPY
 #include "../modules.h"
 
-class c4_canopy : public ICanopy_photosynthesis_module {
+class c4_canopy : public IModule {
     public:
         c4_canopy()
-            : ICanopy_photosynthesis_module("c4_canopy",
+            : IModule("c4_canopy",
                     std::vector<std::string> {"lai", "doy", "hour", "solar", "temp",
                     "rh", "windspeed", "lat", "nlayers", "vmax1",
                     "alpha1", "kparm", "beta", "Rd", "Catm",

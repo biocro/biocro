@@ -2,10 +2,10 @@
 #define ONE_LAYER_SOIL_PROFILE
 #include "../modules.h"
 
-class one_layer_soil_profile : public ISoil_evaporation_module {
+class one_layer_soil_profile : public IModule {
     public:
         one_layer_soil_profile()
-            : ISoil_evaporation_module("one_layer_soil_profile",
+            : IModule("one_layer_soil_profile",
                     std::vector<std::string> {"lai", "temp", "solar", "soil_water_content",
                     "soil_field_capacity", "soil_wilting_point", "windspeed", "rh", "rsec",
                     "canopy_transpiration_rate", "precip", "soil_depth", "phi1", "phi2",

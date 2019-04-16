@@ -2,10 +2,10 @@
 #define TWO_LAYER_SOIL_PROFILE
 #include "../modules.h"
 
-class two_layer_soil_profile : public ISoil_evaporation_module {
+class two_layer_soil_profile : public IModule {
     public:
         two_layer_soil_profile()
-            : ISoil_evaporation_module("two_layer_soil_profile",
+            : IModule("two_layer_soil_profile",
                     std::vector<std::string> {"precip", "canopy_transpiration_rate", "cws1", "cws2", "soil_depth1",
                     "soil_depth2", "soil_depth3", "soil_field_capacity", "soil_wilting_point", "soil_saturation_capacity",
                     "soil_air_entry", "soil_saturated_conductivity", "soil_b_coefficient", "soil_sand_content", "phi1",

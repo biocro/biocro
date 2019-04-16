@@ -79,34 +79,6 @@ class Module_3: public IModule {
         };
 };
 
-class ICanopy_photosynthesis_module : public IModule {
-    public:
-        ICanopy_photosynthesis_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
-            : IModule(module_name, required_state, modified_state)
-        {}
-};
-
-class ISoil_evaporation_module : public IModule {
-    public:
-        ISoil_evaporation_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
-            : IModule(module_name, required_state, modified_state)
-        {}
-};
-
-class ISenescence_module : public IModule {
-    public:
-        ISenescence_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
-            : IModule(module_name, required_state, modified_state)
-        {}
-};
-
-class IGrowth_module : public IModule {
-    public:
-        IGrowth_module(const std::string &module_name, const std::vector<std::string> &required_state, const std::vector<std::string> &modified_state)
-            : IModule(module_name, required_state, modified_state)
-        {}
-};
-
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,

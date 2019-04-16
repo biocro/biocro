@@ -1,3 +1,5 @@
+#ifndef PARTITIONING_COEFFICIENT_SELECTOR
+#define PARTITIONING_COEFFICIENT_SELECTOR
 #include "../modules.h"
 
 class partitioning_coefficient_selector : public IModule {

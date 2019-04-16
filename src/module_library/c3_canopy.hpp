@@ -2,10 +2,10 @@
 #define C3_CANOPY
 #include "../modules.h"
 
-class c3_canopy : public ICanopy_photosynthesis_module {
+class c3_canopy : public IModule {
     public:
         c3_canopy()
-            : ICanopy_photosynthesis_module("c3_canopy",
+            : IModule("c3_canopy",
                     std::vector<std::string> {"lai", "doy", "hour", "solar", "temp",
                     "rh", "windspeed", "lat", "nlayers", "vmax",
                     "jmax", "Rd", "Catm", "O2", "b0",
