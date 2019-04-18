@@ -1,4 +1,5 @@
 #include "partitioning_growth_module.hpp"
+#include "BioCro.h"
 
 state_map partitioning_growth_module::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
 {

@@ -9,7 +9,7 @@
  *
  */
 #include <math.h>
-#include "ball_berry.h"
+#include "ball_berry.hpp"
 #include "c4photo.h"
 
 struct c4_str c4photoC(double Qp,  // micromole / m^2 / s

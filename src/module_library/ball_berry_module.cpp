@@ -1,5 +1,5 @@
 #include "ball_berry_module.hpp"
-#include "../ball_berry.h"
+#include "ball_berry.hpp"
 
 state_map ball_berry_module::do_operation(state_map const &s) const
 {

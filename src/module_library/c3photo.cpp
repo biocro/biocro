@@ -4,8 +4,8 @@
  */
 
 #include <math.h>
-#include "c3photo.h"
-#include "ball_berry.h"
+#include "c3photo.hpp"
+#include "ball_berry.hpp"
 #include "biocro_units.h"
 
 using namespace biocro_units;

@@ -1,4 +1,5 @@
 #include "water_vapor_properties_from_air_temperature.hpp"
+#include "BioCro.h"
 
 state_map water_vapor_properties_from_air_temperature::do_operation(state_map const &s) const
 {

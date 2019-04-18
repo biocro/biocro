@@ -1,6 +1,7 @@
 #ifndef m_soil_evaporation
 #define m_soil_evaporation
 #include "../modules.h"
+#include "BioCro.h"
 
 class soil_evaporation : public IModule {
     public:

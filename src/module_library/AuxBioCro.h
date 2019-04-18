@@ -172,9 +172,6 @@ struct crop_phenology {
 double leaf_boundary_layer_conductance(double windspeed, double leafwidth, double AirTemp,
                          double deltat, double stomcond, double vappress);
 
-double SoilEvapo(double LAI, double k, double AirTemp, double IRad,
-                 double awc, double fieldc, double wiltp, double winds, double RelH, double rsec );
-
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla);
 
 /*! Calculate the exponential term of the Arrhenius function.

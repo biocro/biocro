@@ -1,8 +1,8 @@
 #ifndef BIG_LEAF_MULTILAYER_CANOPY
 #define BIG_LEAF_MULTILAYER_CANOPY
-#include "modules.h"
-#include "module_library/water_vapor_properties_from_air_temperature.hpp"
-#include "module_library/penman_monteith_transpiration.hpp"
+#include "../modules.h"
+#include "water_vapor_properties_from_air_temperature.hpp"
+#include "penman_monteith_transpiration.hpp"
 #include "convergence_iteration.hpp"
 
 class big_leaf_multilayer_canopy : public IModule {

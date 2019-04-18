@@ -6,8 +6,6 @@
 #include <algorithm>
 #include "modules.h"
 #include "state_map.h"
-#include "ball_berry.h"
-#include "AuxBioCro.h"
 
 using std::string;
 using std::vector;

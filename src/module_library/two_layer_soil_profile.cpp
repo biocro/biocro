@@ -1,4 +1,5 @@
 #include "two_layer_soil_profile.hpp"
+#include "BioCro.h"
 
 state_map two_layer_soil_profile::do_operation(state_map const &s) const
 {

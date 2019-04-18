@@ -1,4 +1,5 @@
 #include "c3_canopy.hpp"
+#include "BioCro.h"
 
 state_map c3_canopy::do_operation(state_map const &s) const
 {

@@ -1,7 +1,7 @@
 #ifndef COLLATZ_LEAF
 #define COLLATZ_LEAF
-#include "modules.h"
-#include "module_library/penman_monteith_leaf_temperature.hpp"
+#include "../modules.h"
+#include "penman_monteith_leaf_temperature.hpp"
 
 class collatz_leaf : public IModule {
     public:

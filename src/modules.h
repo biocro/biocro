@@ -5,8 +5,6 @@
 #include <vector>
 #include <memory>
 #include <stdexcept>
-#include "BioCro.h"
-#include "c3photo.h"
 #include "state_map.h"
 #include <math.h>
 

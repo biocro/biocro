@@ -1,6 +1,7 @@
 #include <math.h>
 #include "convergence_iteration.hpp"
 #include "big_leaf_multilayer_canopy.hpp"
+#include "BioCro.h"
 
 /*
 state_map light_extinction(double Idir,          // micromole / m^2 / s

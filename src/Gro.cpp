@@ -10,7 +10,6 @@
 #include <stdexcept>
 #include <vector>
 #include <string>
-#include "BioCro.h"
 #include "modules.h"
 #include "math.h"
 

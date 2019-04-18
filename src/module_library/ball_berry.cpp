@@ -8,7 +8,7 @@
 
 #include <math.h>
 #include <stdexcept>
-#include "ball_berry.h"
+#include "ball_berry.hpp"
 
 /* Ball Berry stomatal conductance function */
 double ball_berry(double assimilation,  // mol / m^2 / s

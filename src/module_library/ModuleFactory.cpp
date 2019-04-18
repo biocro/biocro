@@ -1,5 +1,5 @@
 #include "ModuleFactory.h"
-#include "../big_leaf_multilayer_canopy.hpp"
+#include "big_leaf_multilayer_canopy.hpp"
 #include "biomass_leaf_n_limitation.hpp"
 #include "parameter_calculator.hpp"
 #include "test_derivs.hpp"

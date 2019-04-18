@@ -1,7 +1,8 @@
 #include <math.h>
 #include "convergence_iteration.hpp"
 #include "collatz_photo.hpp"
-#include "ball_berry.h"
+#include "ball_berry.hpp"
+#include "AuxBioCro.h"
 
 state_map collatz_leaf::do_operation (state_map const& s) const
 {
