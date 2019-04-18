@@ -37,21 +37,6 @@ class IModule {
 inline IModule::~IModule() {}  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
 
 
-state_vector_map Gro(
-        state_map const &initial_state,
-        state_map const &invariant_parameters,
-        state_vector_map const &varying_parameters,
-        std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
-        std::vector<std::unique_ptr<IModule>> const &derivative_modules);
-
-state_map Gro(
-        state_map state,
-        std::vector<std::unique_ptr<IModule>> const &steady_state_modules,
-        std::vector<std::unique_ptr<IModule>> const &derivative_modules);
-
-double thermal_leaf_nitrogen_limitation(state_map const &state);
-
-
 std::string join_string_vector(std::vector<std::string> const &state_keys);
 
 bool any_key_is_duplicated(std::vector<std::vector<std::string>> const &keys);

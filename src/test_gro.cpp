@@ -1,6 +1,7 @@
 #include <vector>
 #include <memory>
 #include "modules.h"
+#include "Gro.h"
 #include "module_library/test_calc_state.hpp"
 #include "module_library/test_derivs.hpp"
 

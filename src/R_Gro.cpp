@@ -3,6 +3,7 @@
 #include <Rinternals.h>
 #include "module_library/BioCro.h"
 #include "modules.h"
+#include "Gro.h"
 #include "module_library/ModuleFactory.h"
 #include "R_helper_functions.h"
 

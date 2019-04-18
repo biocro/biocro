@@ -88,11 +88,6 @@ vector<string> IModule::state_requirements_are_met(state_map const &s) const
     return missing_state;
 }
 
-double thermal_leaf_nitrogen_limitation(state_map const &s)
-{
-    return (s.at("LeafN_0") * exp(-s.at("kln") * s.at("TTc")));
-}
-
 bool any_key_is_duplicated(vector<vector<string>> const &keys) {
     vector<string> all_keys;
     for (auto it = keys.begin(); it != keys.end(); ++it) {
