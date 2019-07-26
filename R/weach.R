@@ -48,7 +48,6 @@
 ##' @param pp.units Option to specify the units in which the precipitation is
 ##' entered. Default is inches.
 ##' @param list() additional arguments to be passed to \code{\link{lightME}}
-##' @export
 ##' @return a \code{\link{matrix}} returning hourly (or sub-daily) weather
 ##' data. Dimensions 8760 (if hourly) by 8.
 ##' \itemize{
