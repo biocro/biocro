@@ -87,7 +87,6 @@ CanA(lai, doy, hr, solar, temp, rh, windspeed, lat = 40, nlayers = 8,
 \description{
     It represents an integration of the photosynthesis function
     \code{\link{c4photo}}, canopy evapo/transpiration and the multilayer canopy
-    model \code{\link{sunML}}.
 }
 
 \author{

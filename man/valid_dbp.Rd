@@ -18,7 +18,6 @@ valid_dbp(x, tol = 0.001)
     coefficients.
 }
 \seealso{
-    \code{\link{BioGro}}
 }
 \author{
     Fernando E. Miguez

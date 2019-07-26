@@ -15,7 +15,6 @@
 \source{
 }
 \description{
-    Simulated data produced by \code{\link{BioGro}}.
 }
 \details{
 }

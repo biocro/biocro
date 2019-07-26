@@ -20,7 +20,7 @@
 }
 \description{
     Data from the Illinois area from one point from the 32km grid from NOAA
-    from 1979. The purpuse is to illustrate the \code{\link{Rmiscanmod}} function.
+    from 1979.
 }
 \examples{
 

@@ -103,7 +103,6 @@ lattice::xyplot(res1$Assim ~ res1$Ci,
     Farquhar (1980) Ball-Berry (1987)
 }
 \seealso{
-    See also \code{\link{Opc3photo}}.
 }
 \author{
     Fernando E. Miguez

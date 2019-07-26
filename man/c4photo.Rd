@@ -163,6 +163,5 @@ lattice::xyplot(res1$Gs + res2$Gs ~ Qp | factor(Tl) , data = dat1,
     \emph{Australian Journal of Plant Physiology} 19 (5): 519--538.
 }
 \seealso{
-    \code{\link{eC4photo}}
 }
 \keyword{models}

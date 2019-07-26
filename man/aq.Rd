@@ -17,8 +17,7 @@
     a publication or URL from which the data were obtained ~~
 }
 \description{
-    Example of A/Q curves which serves as a template for using the
-    \code{\link{Opc4photo}} and \code{\link{mOpc4photo}} functions.
+    Example of A/Q curves.
 }
 \details{
     \code{swg} stands for switchgrass (Panicum virgatum). \code{mxg} stands for
