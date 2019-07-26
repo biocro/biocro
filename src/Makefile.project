@@ -6,7 +6,7 @@ CC=g++
 CC_FLAGS = -std=c++0x -I"boost_1_64_0" -lm
  
 # File names
-ALL_SOURCES = $(wildcard *.cpp)
+ALL_SOURCES = $(wildcard *.cpp module_library/*.cpp)
 ALL_OBJECTS = $(ALL_SOURCES:.cpp=.o)
 ALL_DEPS    = $(ALL_SOURCES:.cpp=.d)
 
@@ -16,10 +16,12 @@ GRO_OBJECTS = $(GRO_SOURCES:.cpp=.o)
 ODE_SOURCES = odetest/odeint_test.cpp state_map.cpp
 ODE_OBJECTS = $(ODE_SOURCES:.cpp=.o)
 
-LIBRARY_SOURCES = Gro.cpp state_map.cpp AuxBioCro.cpp ball_berry.cpp \
+MODULE_SOURCES = $(addprefix module_library/, AuxBioCro.cpp ball_berry.cpp \
 c3CanAC.cpp c3EvapoTrans.cpp c3photo.cpp c4photo.cpp CanAC.cpp \
-eC4photo.cpp ModuleFactory.cpp modules.cpp utilization_growth_and_senescence.cpp utilization_growth.cpp \
-utilization_growth_flowering.cpp big_leaf_multilayer_canopy.cpp convergence_iteration.cpp collatz_photo.cpp
+eC4photo.cpp ModuleFactory.cpp utilization_growth_and_senescence_module.cpp utilization_growth_module.cpp \
+utilization_growth_flowering.cpp big_leaf_multilayer_canopy.cpp convergence_iteration.cpp collatz_photo.cpp)
+
+LIBRARY_SOURCES = Gro.cpp state_map.cpp modules.cpp $(MODULE_SOURCES)
 LIBRARY_OBJECTS = $(LIBRARY_SOURCES:.cpp=.o)
  
 biocro: $(GRO_OBJECTS)
@@ -45,6 +47,6 @@ full:
 	R CMD INSTALL --no-multiarch ..
 	
 clean:
-	rm --force *~ *.o *.dll libbiocro.a $(ALL_DEPS)
+	rm --force *~ *.o *.dll libbiocro.a $(ALL_DEPS) $(ALL_OBJECTS)
 
 -include $(ALL_DEPS)

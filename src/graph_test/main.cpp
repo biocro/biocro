@@ -1,7 +1,9 @@
+#include <map>
 #include <stdexcept>
 #include <iostream>
 #include <vector>
 #include "../modules.h"
+#include "module_library/module_graph_test.hpp"
 #include "../state_map.h"
 
 using std::string;

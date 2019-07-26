@@ -1,5 +1,5 @@
 #include <Rinternals.h>
-#include "c3photo.h"
+#include "module_library/c3photo.hpp"
 
 extern "C" {
 

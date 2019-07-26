@@ -1,5 +1,5 @@
 #include <Rinternals.h>
-#include "collatz_photo.hpp"
+#include "module_library/collatz_photo.hpp"
 
 extern "C" {
 SEXP collatz_photoC(

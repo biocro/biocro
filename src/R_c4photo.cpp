@@ -1,5 +1,5 @@
 #include <Rinternals.h>
-#include "c4photo.h"
+#include "module_library/c4photo.h"
 
 extern "C" {
 SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,

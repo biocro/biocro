@@ -5,9 +5,9 @@
  */
 
 #include <Rinternals.h>
-#include "BioCro.h"
-#include "c4photo.h"
-#include "CanA.h"
+#include "module_library/BioCro.h"
+#include "module_library/c4photo.h"
+#include "module_library/CanA.h"
 
 extern "C" {
 
