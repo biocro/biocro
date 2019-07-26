@@ -43,8 +43,8 @@ c4photo(Qp, Tl, RH, vmax = 39, alpha = 0.04, kparm = 0.7, theta = 0.83,
     A \code{\link{list}} structure with components
 
     \item{Gs}{Stomatal conductance (mmol \ifelse{html}{\out{m<sup>-2</sup> s<sup>-1</sup>}}{\eqn{m^{-2} s^{-1}}{m^-2 s^-1}}).}
-    \item{Assim}{Net Assimilation (\ifelse{html}{\out{&mu;mol m<sup>-2</sup> s<sup>-1</sup>}}{\eqn{\mumol m^{-2} s^{-1}}{micromoles m^-2 s^-1}}).}
-    \item{Ci}{Intercellular CO2 (\ifelse{html}{\out{&mu;mol mol<sup>-1</sup>}}{\eqn{\mumol mol^{-1}}{micromoles mol^-1}}).}
+    \item{Assim}{Net assimilation (\ifelse{html}{\out{&mu;mol m<sup>-2</sup> s<sup>-1</sup>}}{\eqn{\mumol m^{-2} s^{-1}}{micromoles m^-2 s^-1}}).}
+    \item{Ci}{Leaf intercellular carbon dioxide concentration (\ifelse{html}{\out{&mu;mol mol<sup>-1</sup>}}{\eqn{\mumol mol^{-1}}{micromoles mol^-1}}).}
 }
 
 \description{
