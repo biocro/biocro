@@ -1,7 +1,7 @@
 #ifndef MODULE_FACTORY_H
 #define MODULE_FACTORY_H
 
-#include "../module.hpp"
+#include "../Modules.h"
 
 template<typename T> std::unique_ptr<Module> createModule(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) { return std::unique_ptr<Module>(new T(input_parameters, output_parameters)); }
 

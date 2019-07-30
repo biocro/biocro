@@ -14,6 +14,35 @@ using std::unique_ptr;
 extern "C" {
 
 SEXP R_Gro(SEXP initial_state,
+        SEXP parameters,
+        SEXP varying_parameters,
+        SEXP steady_state_module_names,
+        SEXP derivative_module_names)
+{
+	try {
+		state_map s = map_from_list(initial_state);
+		state_map ip = map_from_list(parameters);
+		state_vector_map vp = map_vector_from_list(varying_parameters);
+
+        if (vp.begin()->second.size() == 0) {
+            return R_NilValue;
+        }
+        
+        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+        
+        state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names);
+        return (list_from_map(result));
+        
+	} catch (std::exception const &e) {
+        error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+    } catch (...) {
+        error("Caught unhandled exception in R_Gro.");
+    }
+}
+
+/*
+SEXP R_Gro(SEXP initial_state,
         SEXP invariate_parameters,
         SEXP varying_parameters,
         SEXP canopy_photosynthesis_module,
@@ -177,6 +206,7 @@ SEXP R_get_module_requirements(SEXP modules_list)
         error("Caught unhandled exception in R_run_module.");
     }
 }
+*/
 
 } // extern "C"
 
