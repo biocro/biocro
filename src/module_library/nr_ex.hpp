@@ -1,7 +1,7 @@
 #ifndef NR_EX_H
 #define NR_EX_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 // This module is an example in Chapter 16 of Numerical Recipes in C
 // The analytical solution is:

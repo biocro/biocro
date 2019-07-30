@@ -1,7 +1,7 @@
 #ifndef UTILIZATION_SENESCENCE_CALCULATOR_H
 #define UTILIZATION_SENESCENCE_CALCULATOR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class utilization_senescence_calculator : public SteadyModule {
 	public:

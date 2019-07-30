@@ -1,7 +1,7 @@
 #ifndef CIRCADIAN_CLOCK_CALCULATOR_H
 #define CIRCADIAN_CLOCK_CALCULATOR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class circadian_clock_calculator : public SteadyModule {
 	public:

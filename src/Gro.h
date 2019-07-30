@@ -1,6 +1,8 @@
 #ifndef GRO_H
 #define GRO_H
 
+#include "state_map.h"
+
 state_vector_map Gro(
         state_map const &initial_state,
         state_map const &invariant_parameters,

@@ -1,7 +1,7 @@
 #ifndef STOMATA_WATER_STRESS_LINEAR_H
 #define STOMATA_WATER_STRESS_LINEAR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class stomata_water_stress_linear : public SteadyModule {
 	public:

@@ -15,8 +15,6 @@
 #include "Gro.h"
 #include "math.h"
 
-void allocate_state_vector_map(state_vector_map &vm, size_t n); // Declaration for a function defined at the end of this file.
-
 using std::vector;
 using std::string;
 using std::unique_ptr;

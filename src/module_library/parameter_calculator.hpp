@@ -1,7 +1,7 @@
 #ifndef PARAMETER_CALCULATOR_H
 #define PARAMETER_CALCULATOR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class parameter_calculator : public SteadyModule {
 	public:

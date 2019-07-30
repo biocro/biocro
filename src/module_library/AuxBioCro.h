@@ -2,7 +2,6 @@
 #define AUXBIOCRO_H
 
 #include <map>
-#include <iostream>	// Make sure we can debug things by printing to the terminal
 
 /*
  *  /src/AuxBioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010

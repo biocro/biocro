@@ -1,7 +1,7 @@
 #ifndef UTILIZATION_GROWTH_H
 #define UTILIZATION_GROWTH_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class utilization_growth : public DerivModule {
 	public:

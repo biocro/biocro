@@ -1,7 +1,7 @@
 #ifndef SONG_FLOWERING_H
 #define SONG_FLOWERING_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 // This module is based on the photoperiodic flowering model described in
 //  Song, Y. H., Smith, R. W., To, B. J., Millar, A. J. & Imaizumi, T. FKF1 Conveys Timing Information for CONSTANS Stabilization in Photoperiodic Flowering. Science 336, 1045–1049 (2012).

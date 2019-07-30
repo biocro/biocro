@@ -100,7 +100,9 @@ extern "C" {
         s["water_stress_approach"] = water_stress_approach;
         s["electrons_per_carboxylation"] = electrons_per_carboxylation;
         s["electrons_per_oxygenation"] = electrons_per_oxygenation;
-
+		
+		// Need to comment out part of this because modules have changed (EBL)
+		/*
         c3_canopy canopy;
         vector<string> missing_state = canopy.state_requirements_are_met(s);
         if (!missing_state.empty()) {
@@ -132,7 +134,7 @@ extern "C" {
         setAttrib(lists,R_NamesSymbol,names);
 
         UNPROTECT(5);
+        */
         return(lists);
     }
 }  // extern "C"
-

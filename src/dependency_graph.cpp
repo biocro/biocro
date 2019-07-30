@@ -48,5 +48,3 @@ vector<pair<string,string>> get_edges(std::vector<IModule*> modules) //first mod
     }
     return result;
 }
-
-

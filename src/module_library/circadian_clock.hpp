@@ -1,7 +1,7 @@
 #ifndef CIRCADIAN_CLOCK_H
 #define CIRCADIAN_CLOCK_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class circadian_clock : public DerivModule {
 	public:

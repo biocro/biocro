@@ -1,7 +1,7 @@
 #ifndef BIOMASS_LEAF_N_LIMITATION_H
 #define BIOMASS_LEAF_N_LIMITATION_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class biomass_leaf_n_limitation : public SteadyModule {
 	public:

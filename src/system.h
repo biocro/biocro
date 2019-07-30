@@ -1,7 +1,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <iostream>		// For saving results to a file
+#include <Rinternals.h>	// For Rprintf
 #include <vector>
 #include <set>
 #include <memory>		// For unique_ptr and shared_ptr
@@ -50,13 +50,13 @@ class System {
 		// For integrating via odeint
 		template<class vector_type> void get_state(vector_type& x) const;
 		template<class vector_type, class time_type> void operator()(const vector_type& x, vector_type& dxdt, const time_type& t);
-		template<class time_type> void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);
+		//template<class time_type> void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);
 		// For saving or returning the results of an odeint calculation
-		template<class vector_type, class time_type> void print_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times, const std::string& name);
+		//template<class vector_type, class time_type> void print_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times, const std::string& name);
 		template<class vector_type, class time_type> std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times);
 		// For testing speed
 		template<class vector_type, class time_type> int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
-		template<class time_type> int speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);
+		//template<class time_type> int speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);
 	private:
 		// Map for storing the central parameter list
 		std::unordered_map<std::string, double> parameters;
@@ -103,7 +103,7 @@ class SystemCaller {
 	public:
 		SystemCaller(std::shared_ptr<System> sys) : _sys(sys) {}
 		template<class vector_type, class time_type> void operator() (const vector_type& x, vector_type& dxdt, const time_type& t) {_sys->operator()(x, dxdt, t);}
-		template<class time_type> void operator() (const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt) {_sys->operator()(x, jacobi, t, dfdt);}
+		//template<class time_type> void operator() (const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt) {_sys->operator()(x, jacobi, t, dfdt);}
 	private:
 		std::shared_ptr<System> _sys;
 };
@@ -134,7 +134,8 @@ struct push_back_state_and_time_verbose
 
     void operator()(const state_type &x, time_type t) {
     	if(t/_max_time > threshold) {
-    		std::cout << "\nTime = " << t << " (" <<  t/_max_time*100.0 << "% done) at clock = " << clock() << "\n";
+    		Rprintf("\nTime = %f ( %f%% done) at clock = %u", t, t/_max_time*100.0, (unsigned int) clock());
+    		//std::cout << "\nTime = " << t << " (" <<  t/_max_time*100.0 << "% done) at clock = " << clock() << "\n";
     		threshold += 0.02;
 		}
     	m_states.push_back(x);

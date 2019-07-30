@@ -1,7 +1,7 @@
 #ifndef SIZE_TESTING_H
 #define SIZE_TESTING_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class P1000 : public DerivModule {
 	public:

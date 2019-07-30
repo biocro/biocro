@@ -1,7 +1,7 @@
 #ifndef UTILIZATION_GROWTH_CALCULATOR_H
 #define UTILIZATION_GROWTH_CALCULATOR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class utilization_growth_calculator : public SteadyModule {
 	public:

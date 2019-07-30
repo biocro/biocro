@@ -1,7 +1,7 @@
 #ifndef CLOCK_TESTING_CALC_H
 #define CLOCK_TESTING_CALC_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class clock_testing_calc : public SteadyModule {
 	public:
@@ -135,7 +135,6 @@ void clock_testing_calc::do_operation() const {
 	//if(F_per <= max_F_per && F_time >= F_start && F_time < F_end) F = A;	// Apply a periodic force for a certain number of periods
 	if(N_per == max_F_per && N_time >= (F_start - 1e-8) && N_time < (F_end + 1e-8)) {
 		F = A;	// Apply a force once at a particular time, determined by the phase of the reference oscillator (theta)
-		std::cout << "Applying force!\n";
 	}
 	
 	//////////////////////////////////////

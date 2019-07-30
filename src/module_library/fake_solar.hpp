@@ -1,7 +1,7 @@
 #ifndef FAKE_SOLAR_H
 #define FAKE_SOLAR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class fake_solar : public SteadyModule {
 	public:

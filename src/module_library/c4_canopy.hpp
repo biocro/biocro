@@ -1,7 +1,7 @@
 #ifndef C4_CANOPY_H
 #define C4_CANOPY_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class c4_canopy : public SteadyModule {
 	public:

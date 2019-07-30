@@ -1,7 +1,7 @@
 #ifndef REACTION_H
 #define REACTION_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class reaction : public DerivModule {
 	public:

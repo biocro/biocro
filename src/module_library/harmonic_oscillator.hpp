@@ -1,7 +1,7 @@
 #ifndef OSCILLATOR_H
 #define OSCILLATOR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class harmonic_oscillator : public DerivModule {
 	public:

@@ -3,6 +3,8 @@
 
 #include <math.h>						// For isnan
 #include <unordered_map>
+#include <vector>						// Include this here so all modules will have access to std::vector
+#include "state_map.h"					// Include this here so all modules will have access to state_map
 #include "module_library/BioCro.h"		// Include this here so all modules will have access to the auxilliary functions
 #include "module_library/AuxBioCro.h"	// Include this here so all modules will have access to the auxilliary functions
 
@@ -49,7 +51,7 @@ void Module::do_operation() const {
 // This should only be used for debugging purposes since it will slow down the module execution
 double Module::get_val_debug(const double* ptr, const std::string name) const {
 	double val = *ptr;
-	if(std::isnan(val)) throw std::logic_error(std::string("Found NaN when accessing parameter '") + name + ("'.\n"));
+	//if(std::isnan(val)) throw std::logic_error(std::string("Found NaN when accessing parameter '") + name + ("'.\n"));	// What is wrong with this line??
 	if(fabs(val) > 10000) throw std::logic_error(std::string("Parameter '") + name + ("' has a huge value: ") + std::to_string(val) + std::string("\n"));
 	return val;
 }
@@ -83,5 +85,41 @@ class DerivModule : public Module {
 	protected:
 		void update(double* output_ptr, const double& value) const {*output_ptr += value;}	// The output parameters of a derivative module are not necessarily unique, so we should add a new one to the previously stored value
 };
+
+/////////////////////////////////////////////////////
+// KEEPING OLD MODEL INFO TO REDUCE COMPILE ERRORS //
+/////////////////////////////////////////////////////
+
+class IModule {
+    public:
+        IModule(std::string const& module_name, std::vector<std::string> const &required_state, std::vector<std::string> const &modified_state) :
+            _module_name(module_name),
+            _required_state(required_state),
+            _modified_state(modified_state)
+        {
+            requirements_are_met = false;
+        }
+        inline std::string get_name() const  {return _module_name;};
+        std::vector<std::string> list_required_state() const;
+        std::vector<std::string> list_modified_state() const;
+        std::string list_module_name() const;
+        state_map run (state_map const &state) const;
+        state_map run (state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
+        std::vector<std::string> state_requirements_are_met(state_map const &state) const;
+        virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
+    private:
+        std::string const _module_name;
+        std::vector<std::string> const _required_state;
+        std::vector<std::string> const _modified_state;
+        virtual state_map do_operation(state_map const &state) const {throw std::logic_error("This module cannot call run().\n"); state_map derivs; return derivs;};
+        virtual state_map do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
+        bool requirements_are_met;
+};
+
+inline IModule::~IModule() {}  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
+
+std::string join_string_vector(std::vector<std::string> const &state_keys);
+
+bool any_key_is_duplicated(std::vector<std::vector<std::string>> const &keys);
 
 #endif

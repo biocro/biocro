@@ -1,7 +1,7 @@
 #ifndef LEAF_WATER_STRESS_EXPONENTIAL_H
 #define LEAF_WATER_STRESS_EXPONENTIAL_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class leaf_water_stress_exponential : public SteadyModule {
 	public:

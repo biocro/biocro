@@ -1,7 +1,7 @@
 #ifndef SOIL_TYPE_SELECTOR_H
 #define SOIL_TYPE_SELECTOR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class soil_type_selector : public SteadyModule {
 	public:

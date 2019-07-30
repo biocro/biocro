@@ -1,7 +1,7 @@
 #ifndef UTILIZATION_SENESCENCE_H
 #define UTILIZATION_SENESCENCE_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class utilization_senescence : public DerivModule {
 	public:

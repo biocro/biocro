@@ -1,7 +1,7 @@
 #ifndef SOIL_EVAPORATION_H
 #define SOIL_EVAPORATION_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class soil_evaporation : public SteadyModule {
 	public:

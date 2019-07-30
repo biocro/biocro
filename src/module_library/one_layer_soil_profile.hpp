@@ -1,7 +1,7 @@
 #ifndef ONE_LAYER_SOIL_PROFILE_H
 #define ONE_LAYER_SOIL_PROFILE_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class one_layer_soil_profile : public DerivModule {
 	public:

@@ -18,7 +18,7 @@
 #include <stdexcept>
 #include <string>
 #include <math.h>
-//#include "c4photo.h"
+#include "c4photo.h"
 #include "BioCro.h"
 
 #ifndef M_PI
@@ -258,7 +258,6 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
 void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 {
     if (RH > 1 || RH < 0) {
-    	//std::cout << "Got RH = " << RH << "\n";
         throw std::out_of_range("RH must be between 0 and 1.");
     }
     if (nlayers < 1 || nlayers > MAXLAY) {

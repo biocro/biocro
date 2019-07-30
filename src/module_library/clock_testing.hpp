@@ -1,7 +1,7 @@
 #ifndef CLOCK_TESTING_H
 #define CLOCK_TESTING_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class clock_testing : public DerivModule {
 	public:

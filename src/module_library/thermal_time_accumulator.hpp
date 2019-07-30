@@ -1,7 +1,7 @@
 #ifndef THERMAL_TIME_ACCUMULATOR_H
 #define THERMAL_TIME_ACCUMULATOR_H
 
-#include "../module.hpp"
+#include "../modules.h"
 
 class thermal_time_accumulator : public DerivModule {
 	public:

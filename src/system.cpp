@@ -8,6 +8,7 @@ template<class vector_type, class time_type> void System::operator()(const vecto
 	run_derivative_modules(dxdt);
 }
 
+/*
 template<class time_type> void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt) {
 	// Numerically compute the Jacobian matrix
 	//  The odeint Rosenbrock stepper requires the use of UBLAS vectors and matrices and the Jacobian is only required when using this
@@ -79,6 +80,7 @@ template<class time_type> void System::operator()(const boost::numeric::ublas::v
 		for(int j = 0; j < n; j++) dfdt[j] = (dxdt_c[j] - dxdt_p[j])/h;
 	}
 }
+*/
 
 System::System(
 	std::unordered_map<std::string, double> const& initial_state,
@@ -129,22 +131,15 @@ System::System(
 	std::vector<std::string> incorrect_modules;						// A list of mischaracterized modules, e.g., derivative modules included in the steady state module list
 	std::string error_string;										// A message to send to the user about any issues that were discovered during the system setup
 	
-	// Open an output file
-	std::ofstream myfile;
-	if(_verbose) {
-	  	myfile.open ("system_startup_record.txt", std::ios::out | std::ios::trunc);
-		myfile << "Starting to apply checks and build a system...\n\n";
-	}
-	
 	// Check to make sure at least one module was supplied
-	if(_verbose) myfile << "Checking to make sure at least one module was specified... ";
+	if(_verbose) Rprintf("Checking to make sure at least one module was specified... ");
 	if(steady_state_module_names.size() == 0 && derivative_module_names.size() == 0) {
 		throw std::logic_error(std::string("No input modules were found! A system requires at least one module.\n"));
 	}
-	if(_verbose) myfile << "done!\n\n";
+	if(_verbose) Rprintf("done!\n\n");
 	
 	// Check to make sure the timing information has been properly supplied
-	if(_verbose) myfile << "Checking to make sure the time parameters are properly defined... ";
+	if(_verbose) Rprintf("Checking to make sure the time parameters are properly defined... ");
 	if(invariant_parameters.find("timestep") == invariant_parameters.end()) {
 		throw std::logic_error(std::string("The 'timestep' parameter was not defined in the invariant parameters. This is a required parameter for any system.\n"));
 	}
@@ -170,38 +165,41 @@ System::System(
 	_varying_parameters["doy_dbl"] = doy_dbl_vec;
 	_varying_parameters.erase("doy");
 	_varying_parameters.erase("hour");
-	if(_verbose) myfile << "done!\n\n";
+	if(_verbose) Rprintf("done!\n\n");
 	
 	// Start collecting parameter names and check to make sure all the requirements are met
-	if(_verbose) myfile << "Building list of parameters...\n\n";
+	if(_verbose) Rprintf("Building list of parameters...\n\n");
 	
 	// Go through the initial state, invariant parameters, and varying parameters
-	if(_verbose) myfile << "Varying parameters:\n";
+	if(_verbose) Rprintf("Varying parameters:\n");
 	for(auto x : _varying_parameters) {
 		if(unique_parameter_names.find(x.first) == unique_parameter_names.end()) {
 			unique_parameter_names.insert(x.first);
 			unique_changing_parameters.insert(x.first);
 			parameters[x.first] = x.second[0];
-			if(_verbose) myfile << "  " << x.first << "[0] = " << x.second[0] << "\n";
+			//if(_verbose) myfile << "  " << x.first << "[0] = " << x.second[0] << "\n";
+			if(_verbose) Rprintf("  %s[0] = %f\n", (x.first).c_str(), x.second[0]);
 		}
 		else duplicate_parameter_names.push_back(std::string("Parameter '") + x.first + std::string("' from the varying parameters"));
 	}
-	if(_verbose) myfile << "State variables:\n";
+	if(_verbose) Rprintf("State variables:\n");
 	for(auto x : initial_state) {
 		if(unique_parameter_names.find(x.first) == unique_parameter_names.end()) {
 			unique_parameter_names.insert(x.first);
 			unique_changing_parameters.insert(x.first);
 			parameters[x.first] = x.second;
-			if(_verbose) myfile << "  " << x.first << "[0] = " << x.second << "\n";
+			//if(_verbose) myfile << "  " << x.first << "[0] = " << x.second << "\n";
+			if(_verbose) Rprintf("  %s[0] = %f\n", (x.first).c_str(), x.second);
 		}
 		else duplicate_parameter_names.push_back(std::string("Parameter '") + x.first + std::string("' from the initial state"));
 	}
-	if(_verbose) myfile << "Invariant parameters:\n";
+	if(_verbose) Rprintf("Invariant parameters:\n");
 	for(auto x : invariant_parameters) {
 		if(unique_parameter_names.find(x.first) == unique_parameter_names.end()) {
 			unique_parameter_names.insert(x.first);
 			parameters[x.first] = x.second;
-			if(_verbose) myfile << "  " << x.first << " = " << x.second << "\n";
+			//if(_verbose) myfile << "  " << x.first << " = " << x.second << "\n";
+			if(_verbose) Rprintf("  %s = %f\n", (x.first).c_str(), x.second);
 		}
 		else duplicate_parameter_names.push_back(std::string("Parameter '") + x.first + std::string("' from the invariant parameters"));
 	}
@@ -213,7 +211,7 @@ System::System(
 	ModuleFactory module_factory(&parameters, &vector_module_output);
 	
 	// Continue collecting parameter names from the steady state modules
-	if(_verbose) myfile << "Steady state parameters:\n";
+	if(_verbose) Rprintf("Steady state parameters:\n");
 	for(std::string module_name : steady_state_module_names) {
 		if(unique_steady_state_module_names.find(module_name) == unique_steady_state_module_names.end()) {
 			unique_steady_state_module_names.insert(module_name);
@@ -227,17 +225,18 @@ System::System(
 					unique_steady_state_parameter_names.insert(p);
 					unique_changing_parameters.insert(p);
 					parameters[p] = 0.0;
-					if(_verbose) myfile << "  " << p << "\n";
+					//if(_verbose) myfile << "  " << p << "\n";
+					if(_verbose) Rprintf("  %s\n", p.c_str());
 				}
 				else duplicate_output_parameters.push_back(std::string("Parameter '") + p + std::string("' from the '") + module_name + std::string("' module"));
 			}
 		}
 		else duplicate_module_names.push_back(std::string("Steady state module '") + module_name);
 	}
-	if(_verbose) myfile << "\n...done building list of parameters!\n\n";
+	if(_verbose) Rprintf("\n...done building list of parameters!\n\n");
 	
 	// Check the derivative modules
-	if(_verbose) myfile << "Checking the derivative module input and output parameters... ";
+	if(_verbose) Rprintf("Checking the derivative module input and output parameters... ");
 	for(std::string module_name : derivative_module_names) {
 		if(unique_derivative_module_names.find(module_name) == unique_derivative_module_names.end()) {
 			for(std::string p : module_factory.get_inputs(module_name)) {
@@ -254,56 +253,58 @@ System::System(
 		else duplicate_module_names.push_back(std::string("Derivative module '") + module_name);
 		
 	}
-	if(_verbose) myfile << "done!\n\n";
+	if(_verbose) Rprintf("done!\n\n");
 	
 	// Collect information about any errors that may have occurred while checking the parameters
 	if(duplicate_parameter_names.size() != 0) {
 		error_string += "Some parameters in the initial state, invariant parameters, and/or varying parameters were duplicated.\n";
 		if(_verbose) {
-			myfile << "The following parameters in the initial state, invariant parameters, and/or varying parameters were duplicated:\n";
-			for(std::string s : duplicate_parameter_names) myfile << s << "\n";
-			myfile << "\n";
+			Rprintf("The following parameters in the initial state, invariant parameters, and/or varying parameters were duplicated:\n");
+			//for(std::string s : duplicate_parameter_names) myfile << s << "\n";
+			for(std::string s : duplicate_parameter_names) Rprintf("%s\n", s.c_str());
+			Rprintf("\n");
 		}
 	}
 	if(duplicate_module_names.size() != 0) {
 		error_string += "Some modules were duplicated in the steady state and/or derivative module lists.\n";
 		if(_verbose) {
-			myfile << "The following modules were duplicated:\n";
-			for(std::string s : duplicate_module_names) myfile << s << "\n";
-			myfile << "\n";
+			Rprintf("The following modules were duplicated:\n");
+			for(std::string s : duplicate_module_names) Rprintf("%s\n", s.c_str());
+			Rprintf("\n");
 		}
 	}
 	if(duplicate_output_parameters.size() != 0) {
 		error_string += "Some steady state module output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules.\n";
 		if(_verbose) {
-			myfile << "The following steady state output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules:\n";
-			for(std::string s : duplicate_output_parameters) myfile << s << "\n";
-			myfile << "\n";
+			Rprintf("The following steady state output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules:\n");
+			for(std::string s : duplicate_output_parameters) Rprintf("%s\n", s.c_str());
+			Rprintf("\n");
 		}
 	}
 	if(undefined_input_parameters.size() != 0) {
 		error_string += "Some modules required inputs parameters that were not defined by the initial state, invariant parameters, varying parameters, or previous steady state modules.\n";
 		if(_verbose) {
-			myfile << "The following module input parameters were not defined by the initial state, invariant parameters, varying parameters, or previous steady state modules:\n";
-			for(std::string s : undefined_input_parameters) myfile << s << "\n";
-			myfile << "\n";
+			Rprintf("The following module input parameters were not defined by the initial state, invariant parameters, varying parameters, or previous steady state modules:\n");
+			for(std::string s : undefined_input_parameters) Rprintf("%s\n", s.c_str());
+			Rprintf("\n");
 		}
 	}
 	if(illegal_output_parameters.size() != 0) {
 		error_string += "Some derivative modules returned derivatives for parameters that were not included in the initial state.\n";
 		if(_verbose) {
-			myfile << "The following parameters were output by derivative modules but not included in the initial state:\n";
-			for(std::string s : illegal_output_parameters) myfile << s << "\n";
-			myfile << "\n";
+			Rprintf("The following parameters were output by derivative modules but not included in the initial state:\n");
+			for(std::string s : illegal_output_parameters) Rprintf("%s\n", s.c_str());
+			Rprintf("\n");
 		}
 	}
 	if(unique_derivative_outputs.size() != initial_state.size()) {
 		if(_verbose) {
-			myfile << "No derivatives were supplied for the following state variables:\n";
+			Rprintf("No derivatives were supplied for the following state variables:\n");
 			for(auto x : initial_state) {
-				if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) myfile << x.first << "\n";
+				//if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) myfile << x.first << "\n";
+				if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) Rprintf("%s\n", (x.first).c_str());
 			}
-			myfile << "These variables will not change with time. You may want to consider adding one or more derivative modules that describe them.\n\n";
+			Rprintf("These variables will not change with time. You may want to consider adding one or more derivative modules that describe them.\n\n");
 		}
 	}
 	if(_verbose) {
@@ -311,26 +312,28 @@ System::System(
 		for(auto x : invariant_parameters) {
 			if(unique_module_inputs.find(x.first) == unique_module_inputs.end()) {
 				if(found_unused_invariant_parameter == false) {
-					myfile << "The following invariant parameters were not used as inputs to any module:\n" << x.first << "\n";
+					//myfile << "The following invariant parameters were not used as inputs to any module:\n" << x.first << "\n";
+					Rprintf("The following invariant parameters were not used as inputs to any module:\n%s\n", (x.first).c_str());
 					found_unused_invariant_parameter = true;
 				}
-				else myfile << x.first << "\n";
+				//else myfile << x.first << "\n";
+				else Rprintf("%s\n", (x.first).c_str());
 			}
 		}
-		if(found_unused_invariant_parameter) myfile << "You may want to consider removing them from the input list.\n\n";
-		else myfile << "All invariant parameters were used as module inputs.\n\n";
+		if(found_unused_invariant_parameter) Rprintf("You may want to consider removing them from the input list.\n\n");
+		else Rprintf("All invariant parameters were used as module inputs.\n\n");
 	}
 	if(_verbose) {
-		myfile << "The following parameters were used as inputs to at least one module:\n";
-		for(std::string p : unique_module_inputs) myfile << p << "\n";
-		myfile << "\n";
+		Rprintf("The following parameters were used as inputs to at least one module:\n");
+		//for(std::string p : unique_module_inputs) myfile << p << "\n";
+		for(std::string p : unique_module_inputs) Rprintf("%s\n", p.c_str());
+		Rprintf("\n");
 	}
 	
 	// If any errors occurred, notify the user
 	if(error_string.size() > 0) {
 		if(!_verbose) error_string += "Rerun the system in verbose mode for more information.\n";
-		else error_string += "Check the system startup record for more information.\n";
-		myfile.close();
+		else error_string += "Check the previous messages for more information.\n";
 		throw std::logic_error(error_string);
 	}
 	
@@ -364,34 +367,33 @@ System::System(
 	std::copy(unique_changing_parameters.begin(), unique_changing_parameters.end(), output_param_vector.begin());
 	
 	// Create the modules
-	if(_verbose) myfile << "Creating the steady state modules from the list and making sure the list only includes steady state modules... ";
+	if(_verbose) Rprintf("Creating the steady state modules from the list and making sure the list only includes steady state modules... ");
 	for(std::string module_name : steady_state_module_names) {
 		steady_state_modules.push_back(module_factory.create(module_name));
 		if(steady_state_modules.back()->is_deriv()) incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of steady state modules, but it returns a derivative"));
 	}
-	if(_verbose) myfile << "done!\n\n";
-	if(_verbose) myfile << "Creating the derivative modules from the list and making sure the list only includes derivative modules... ";
+	if(_verbose) Rprintf("done!\n\n");
+	if(_verbose) Rprintf("Creating the derivative modules from the list and making sure the list only includes derivative modules... ");
 	for(std::string module_name : derivative_module_names) {
 		derivative_modules.push_back(module_factory.create(module_name));
 		if(!derivative_modules.back()->is_deriv()) incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of derivative modules, but it does not return a derivative"));
 	}
-	if(_verbose) myfile << "done!\n\n";
+	if(_verbose) Rprintf("done!\n\n");
 	
 	// Collect information about any errors that may have occurred while creating the modules
 	if(incorrect_modules.size() != 0) {
 		error_string += "Some modules were mischaracterized in the input lists.\n";
 		if(_verbose) {
-			myfile << "The following modules were mischaracterized:\n";
-			for(std::string s : incorrect_modules) myfile << s << "\n";
-			myfile << "\n";
+			Rprintf("The following modules were mischaracterized:\n");
+			for(std::string s : incorrect_modules) Rprintf("%s", s.c_str());
+			Rprintf("\n");
 		}
 	}
 	
 	// If any errors occurred, notify the user
 	if(error_string.size() > 0) {
 		if(!_verbose) error_string += "Rerun the system in verbose mode for more information.\n";
-		else error_string += "Check the system startup record for more information.\n";
-		myfile.close();
+		else error_string += "Check the previous messages for more information.\n";
 		throw std::logic_error(error_string);
 	}
 	
@@ -399,26 +401,22 @@ System::System(
 	ntimes = (_varying_parameters.at("doy_dbl")).size();
 	
 	// Fill in the initial values and test the modules
-	if(_verbose) myfile << "Trying to run all the modules... ";
+	if(_verbose) Rprintf("Trying to run all the modules... ");
 	try {test_steady_state_modules();}
 	catch (const std::exception& e) {error_string += e.what();}
 	std::vector<double> temp_vec(state_ptrs.size());
 	test_derivative_modules(temp_vec);
-	if(_verbose) myfile << "done!\n\n";
+	if(_verbose) Rprintf("done!\n\n");
 	
 	// If any errors occurred, notify the user
 	if(error_string.size() > 0) {
 		if(!_verbose) error_string += "Rerun the system in verbose mode for more information.\n";
-		else error_string += "Check the system startup record for more information.\n";
-		myfile.close();
+		else error_string += "Check the previous messages for more information.\n";
 		throw std::logic_error(error_string);
 	}
 	
 	// Otherwise, we are done!
-	if(_verbose) {
-		myfile << "Done applying checks and building the system!\n\n";
-		myfile.close();
-	}
+	if(_verbose) Rprintf("Done applying checks and building the system!\n\n");
 }
 
 bool System::get_state_indx(int& state_indx, const std::string& parameter_name) const {
@@ -462,6 +460,8 @@ template<class vector_type> void System::get_state(vector_type& x) const {
 	for(size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
 }
 
+// Not compatible with R
+/*
 template<class vector_type, class time_type> void System::print_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times, const std::string& name) {
 	// Get ready to store the index of doy_dbl
 	size_t doy_dbl_indx;
@@ -507,6 +507,7 @@ template<class vector_type, class time_type> void System::print_results(const st
   	// Close the file
 	myfile.close();
 }
+*/
 
 template<class vector_type, class time_type> std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times) {
 	// Make the result map
@@ -583,7 +584,8 @@ void System::test_steady_state_modules() {
 	for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
 		try {(*it)->run();}
 		catch (const std::exception& e) {
-			for(auto x : parameters) std::cout << x.first << ": " << x.second << "\n";
+			for(auto x : parameters) Rprintf("%s: %f\n", (x.first).c_str(), x.second);
+			//for(auto x : parameters) std::cout << x.first << ": " << x.second << "\n";
 			throw std::logic_error(std::string("Steady state module '") + (*it)->get_name() + std::string("' generated an exception while calculating steady state parameters: ") + e.what() + std::string("\n"));
 		}
 		for(auto x : steady_state_ptrs) *x.first = *x.second;
@@ -611,6 +613,7 @@ template<class vector_type, class time_type> int System::speed_test(int n, const
 	return (int)ct;
 }
 
+/*
 template<class time_type> int System::speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt) {
 	// Run the system operator n times
 	clock_t ct = clock();
@@ -618,3 +621,4 @@ template<class time_type> int System::speed_test(int n, const boost::numeric::ub
 	ct = clock() - ct;
 	return (int)ct;
 }
+*/
