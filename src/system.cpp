@@ -455,61 +455,13 @@ void System::set_param(const std::vector<double>& values, const std::vector<std:
 	for(size_t i = 0; i < values.size(); i++) set_param(values[i], parameter_names[i]);
 }
 
-template<class vector_type> void System::get_state(vector_type& x) const {
+void System::get_state(std::vector<double>& x) const {
 	x.resize(state_ptrs.size());
 	for(size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
 }
 
-// Not compatible with R
-/*
-template<class vector_type, class time_type> void System::print_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times, const std::string& name) {
-	// Get ready to store the index of doy_dbl
-	size_t doy_dbl_indx;
-	
-	// Open a text file
-	std::ofstream myfile;
-  	myfile.open (name, std::ios::out | std::ios::trunc);
-  	
-  	// Write the parameter names
-  	for(size_t i = 0; i < output_param_vector.size(); i++) {
-		if (i) myfile << ",";
-  		myfile << output_param_vector[i];
-  		if(output_param_vector[i] == std::string("doy_dbl")) {
-  			doy_dbl_indx = i;
-  			myfile << ",doy,hour";
-		}
-	}
-	myfile << "\n";
-	
-	// Write the data
-	for(size_t i = 0; i < x_vec.size(); i++) {
-		// Unpack the latest time and state from the calculation results
-		vector_type current_state = x_vec[i];
-		time_type current_time = times[i];
-		// Get the corresponding parameter list
-		update_varying_params(current_time);
-		update_state_params(current_state);
-		run_steady_state_modules();
-		// Save it
-		for(size_t j = 0; j < output_param_vector.size(); j++) {
-			if(j) myfile << ",";
-			myfile << parameters[output_param_vector[j]];
-			if(j == doy_dbl_indx) {
-				double doy_dbl = parameters[output_param_vector[j]];
-				int doy = floor(doy_dbl);
-				double hour = 24.0 * (doy_dbl - doy);
-				myfile << "," << doy << "," << hour;
-			}
-		}
-		if(i < x_vec.size() - 1) myfile << "\n";
-	}
-  	
-  	// Close the file
-	myfile.close();
-}
-*/
-
-template<class vector_type, class time_type> std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times) {
+// For integer time and std::vector state
+std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times) {
 	// Make the result map
 	std::unordered_map<std::string, std::vector<double>> results;
 	
@@ -522,8 +474,8 @@ template<class vector_type, class time_type> std::unordered_map<std::string, std
 	// Store the data
 	for(size_t i = 0; i < x_vec.size(); i++) {
 		// Unpack the latest time and state from the calculation results
-		vector_type current_state = x_vec[i];
-		time_type current_time = times[i];
+		std::vector<double> current_state = x_vec[i];
+		int current_time = times[i];
 		// Get the corresponding parameter list
 		update_varying_params(current_time);
 		update_state_params(current_state);

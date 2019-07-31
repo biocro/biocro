@@ -1,12 +1,12 @@
 #ifndef MODULES_H
 #define MODULES_H
 
-#include <math.h>						// For isnan
 #include <unordered_map>
 #include <vector>						// Include this here so all modules will have access to std::vector
 #include "state_map.h"					// Include this here so all modules will have access to state_map
 #include "module_library/BioCro.h"		// Include this here so all modules will have access to the auxilliary functions
 #include "module_library/AuxBioCro.h"	// Include this here so all modules will have access to the auxilliary functions
+#include <math.h>						// Include this here so all modules will have access to the standard math functions
 
 class Module {
 	// This class represents a component of a larger system of differential equations
@@ -39,21 +39,9 @@ class Module {
         double get_val_debug(const double* ptr, const std::string name) const;
 };
 
-// A small number to use when checking to see if a double is different than 0, positive, equal to another number, etc
-const double Module::eps = 1e-10;
-
 // If a concrete module has not defined a do_operation method, throw an error if its run method is called
-void Module::do_operation() const {
+inline void Module::do_operation() const {
 	throw std::logic_error(std::string("Module '") + _module_name + std::string("' does not have a 'do_operation()' method defined.\n"));
-}
-
-// This is a helping function that returns the value pointed to by a pointer, throwing an error if NaN occurs
-// This should only be used for debugging purposes since it will slow down the module execution
-double Module::get_val_debug(const double* ptr, const std::string name) const {
-	double val = *ptr;
-	//if(std::isnan(val)) throw std::logic_error(std::string("Found NaN when accessing parameter '") + name + ("'.\n"));	// What is wrong with this line??
-	if(fabs(val) > 10000) throw std::logic_error(std::string("Parameter '") + name + ("' has a huge value: ") + std::to_string(val) + std::string("\n"));
-	return val;
 }
 
 // This is a helping function that returns a pointer to an element of an output map, i.e., an output pointer (op)

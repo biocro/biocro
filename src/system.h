@@ -4,6 +4,7 @@
 #include <Rinternals.h>	// For Rprintf
 #include <vector>
 #include <set>
+#include <unordered_map>
 #include <memory>		// For unique_ptr and shared_ptr
 #include <cmath>		// For fmod
 #include <time.h>		// For timing during performance testing
@@ -48,12 +49,11 @@ class System {
 		void set_param(const double& value, const std::string& parameter_name);
 		void set_param(const std::vector<double>& values, const std::vector<std::string>& parameter_names);
 		// For integrating via odeint
-		template<class vector_type> void get_state(vector_type& x) const;
+		void get_state(std::vector<double>& x) const;
 		template<class vector_type, class time_type> void operator()(const vector_type& x, vector_type& dxdt, const time_type& t);
 		//template<class time_type> void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);
-		// For saving or returning the results of an odeint calculation
-		//template<class vector_type, class time_type> void print_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times, const std::string& name);
-		template<class vector_type, class time_type> std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<vector_type>& x_vec, const std::vector<time_type>& times);
+		// For returning the results of an odeint calculation
+		std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times);
 		// For testing speed
 		template<class vector_type, class time_type> int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
 		//template<class time_type> int speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);

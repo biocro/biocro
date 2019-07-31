@@ -133,3 +133,33 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"clock_testing_calc",					clock_testing_calc::get_outputs()}
 	};
 }
+
+std::unique_ptr<Module> ModuleFactory::create(std::string const &module_name) const {
+	try {
+		return this->modules.at(module_name)(_input_parameters, _output_parameters);
+	}
+	catch (std::out_of_range) {
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but the ModuleFactory::create could not find a module with that name.\n"));
+	}
+	catch (std::logic_error const &e) {
+		throw std::logic_error(std::string("Upon construction, module '") + module_name + std::string("'") + std::string(" tried to access a parameter called '") + std::string(e.what()) + std::string("', but this parameter was not in the list. Check for spelling errors!\n"));
+	}
+}
+
+std::vector<std::string> ModuleFactory::get_inputs(std::string const &module_name) const {
+	try {
+		return this->input_parameter_names.at(module_name);
+	}
+	catch (std::out_of_range) {
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but the ModuleFactory::get_input could not find a module with that name.\n"));
+	}
+}
+
+std::vector<std::string> ModuleFactory::get_outputs(std::string const &module_name) const {
+	try {
+		return this->output_parameter_names.at(module_name);
+	}
+	catch (std::out_of_range) {
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but the ModuleFactory::get_output could not find a module with that name.\n"));
+	}
+}
