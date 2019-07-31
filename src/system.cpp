@@ -1,6 +1,7 @@
 #include "system.h"
 
-template<class vector_type, class time_type> void System::operator()(const vector_type& x, vector_type& dxdt, const time_type& t) {
+// For integer time and std::vector state
+void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt, const int& t) {
 	// Update the internally stored parameter list and use it to calculate a derivative
 	update_varying_params(t);
 	update_state_params(x);

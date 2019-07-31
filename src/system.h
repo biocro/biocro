@@ -50,7 +50,7 @@ class System {
 		void set_param(const std::vector<double>& values, const std::vector<std::string>& parameter_names);
 		// For integrating via odeint
 		void get_state(std::vector<double>& x) const;
-		template<class vector_type, class time_type> void operator()(const vector_type& x, vector_type& dxdt, const time_type& t);
+		void operator()(const std::vector<double>& x, std::vector<double>& dxdt, const int& t);
 		//template<class time_type> void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);
 		// For returning the results of an odeint calculation
 		std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times);

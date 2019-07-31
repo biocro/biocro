@@ -1,16 +1,35 @@
-#ifndef m_empty_senescence
-#define m_empty_senescence
+#ifndef EMPTY_SENESCENCE_H
+#define EMPTY_SENESCENCE_H
+
 #include "../modules.h"
 
-class empty_senescence: public IModule {
-    public:
-        empty_senescence()
-            : IModule("empty_senescence",
-                    std::vector<std::string> {},
-                    std::vector<std::string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
+class empty_senescence : public DerivModule {
+	public:
+		empty_senescence(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+			// Define basic module properties by passing its name to its parent class
+			DerivModule("empty_senescence")
+		{}
+		static std::vector<std::string> get_inputs();
+		static std::vector<std::string> get_outputs();
+	private:
+		// Main operation
+		void do_operation() const;
 };
+
+std::vector<std::string> empty_senescence::get_inputs() {
+	return {
+		// No inputs
+	};
+}
+
+std::vector<std::string> empty_senescence::get_outputs() {
+	return {
+		// No outputs
+	};
+}
+
+void empty_senescence::do_operation() const {
+	// Don't do anything
+}
 
 #endif

@@ -28,6 +28,10 @@
 #include "fake_solar.hpp"
 #include "clock_testing.hpp"
 #include "clock_testing_calc.hpp"
+#include "partitioning_coefficient_selector.hpp"
+#include "partitioning_growth.hpp"
+#include "partitioning_growth_calculator.hpp"
+#include "empty_senescence.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -64,7 +68,11 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"song_flowering",						createModule<song_flowering>},
 		{"fake_solar",							createModule<fake_solar>},
 		{"clock_testing",						createModule<clock_testing>},
-		{"clock_testing_calc",					createModule<clock_testing_calc>}
+		{"clock_testing_calc",					createModule<clock_testing_calc>},
+		{"partitioning_coefficient_selector",	createModule<partitioning_coefficient_selector>},
+		{"partitioning_growth",					createModule<partitioning_growth>},
+		{"partitioning_growth_calculator",		createModule<partitioning_growth_calculator>},
+		{"empty_senescence",					createModule<empty_senescence>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",					harmonic_oscillator::get_inputs()},
@@ -97,7 +105,11 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"song_flowering",						song_flowering::get_inputs()},
 		{"fake_solar",							fake_solar::get_inputs()},
 		{"clock_testing",						clock_testing::get_inputs()},
-		{"clock_testing_calc",					clock_testing_calc::get_inputs()}
+		{"clock_testing_calc",					clock_testing_calc::get_inputs()},
+		{"partitioning_coefficient_selector",	partitioning_coefficient_selector::get_inputs()},
+		{"partitioning_growth",					partitioning_growth::get_inputs()},
+		{"partitioning_growth_calculator",		partitioning_growth_calculator::get_inputs()},
+		{"empty_senescence",					empty_senescence::get_inputs()},
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",					harmonic_oscillator::get_outputs()},
@@ -130,7 +142,11 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"song_flowering",						song_flowering::get_outputs()},
 		{"fake_solar",							fake_solar::get_outputs()},
 		{"clock_testing",						clock_testing::get_outputs()},
-		{"clock_testing_calc",					clock_testing_calc::get_outputs()}
+		{"clock_testing_calc",					clock_testing_calc::get_outputs()},
+		{"partitioning_coefficient_selector",	partitioning_coefficient_selector::get_outputs()},
+		{"partitioning_growth",					partitioning_growth::get_outputs()},
+		{"partitioning_growth_calculator",		partitioning_growth_calculator::get_outputs()},
+		{"empty_senescence",					empty_senescence::get_outputs()}
 	};
 }
 
@@ -151,7 +167,7 @@ std::vector<std::string> ModuleFactory::get_inputs(std::string const &module_nam
 		return this->input_parameter_names.at(module_name);
 	}
 	catch (std::out_of_range) {
-		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but the ModuleFactory::get_input could not find a module with that name.\n"));
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but ModuleFactory::get_inputs could not find a module with that name.\n"));
 	}
 }
 
@@ -160,6 +176,6 @@ std::vector<std::string> ModuleFactory::get_outputs(std::string const &module_na
 		return this->output_parameter_names.at(module_name);
 	}
 	catch (std::out_of_range) {
-		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but the ModuleFactory::get_output could not find a module with that name.\n"));
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but ModuleFactory::get_outputs could not find a module with that name.\n"));
 	}
 }

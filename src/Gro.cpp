@@ -21,16 +21,28 @@ std::unordered_map<std::string, std::vector<double>> Gro(
 	std::vector<double> state;
 	sys.get_state(state);
 	
-	// Initialize the time
-	int time = 0;
+	// Make a vector to store the derivative
+	std::vector<double> dstatedt = state;
+	
+	// Get the number of time points
+	int ntimes = (int) sys.get_ntimes();
 	
 	// Make vectors to store the model output
 	std::vector<std::vector<double>> state_vec;
 	std::vector<int> time_vec;
 	
-	// Store the initial state and time
-	state_vec.push_back(state);
-	time_vec.push_back(time);
+	// Run through all the times
+	for(int t = 0; t < ntimes; t++) {
+		// Store the state and time
+		state_vec.push_back(state);
+		time_vec.push_back(t);
+		
+		// Calculate the derivative based on the current time and state
+		sys(state, dstatedt, t);
+		
+		// Update the state
+		for(size_t j = 0; j < state.size(); j++) state[j] += dstatedt[j];	// The derivative has already been multiplied by the timestep
+	}
 	
 	// Return the output
 	return sys.get_results(state_vec, time_vec);
