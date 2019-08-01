@@ -15,9 +15,6 @@ std::unordered_map<std::string, std::vector<double>> Gro(
 		std::vector<std::string> const &derivative_module_names,
 		bool verbose)
 {
-	// Start a timer
-	clock_t ct = clock();
-	
 	// Create a system based on the intputs
 	System sys(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose);
 	
@@ -54,10 +51,6 @@ std::unordered_map<std::string, std::vector<double>> Gro(
 	// Make the result map
 	std::unordered_map<std::string, std::vector<double>> results;
 	for(size_t i = 0; i < output_param_vector.size(); i++) results[output_param_vector[i]] = result_vec[i];
-	
-	// End the timer
-	ct = clock() - ct;
-	Rprintf("\nGro.cpp required %u microseconds to run\n\n", (unsigned int) ct);
 	
 	// Return the results
 	return results;
