@@ -17,7 +17,8 @@ SEXP R_Gro(SEXP initial_state,
         SEXP parameters,
         SEXP varying_parameters,
         SEXP steady_state_module_names,
-        SEXP derivative_module_names)
+        SEXP derivative_module_names,
+		SEXP verbose)
 {
 	try {
 		state_map s = map_from_list(initial_state);
@@ -31,7 +32,9 @@ SEXP R_Gro(SEXP initial_state,
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         std::vector<std::string> deriv_names = make_vector(derivative_module_names);
         
-        state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names);
+        bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+        
+        state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names, verb);
         return (list_from_map(result));
         
 	} catch (std::exception const &e) {

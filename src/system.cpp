@@ -367,6 +367,10 @@ System::System(
 	output_param_vector.resize(unique_changing_parameters.size());
 	std::copy(unique_changing_parameters.begin(), unique_changing_parameters.end(), output_param_vector.begin());
 	
+	// Create a vector of pointers to the output parameters (useful for saving the output of a calculation)
+	output_ptr_vector.resize(unique_changing_parameters.size());
+	for(size_t i = 0; i < output_param_vector.size(); i++) output_ptr_vector[i] = &parameters.at(output_param_vector[i]);
+	
 	// Create the modules
 	if(_verbose) Rprintf("Creating the steady state modules from the list and making sure the list only includes steady state modules... ");
 	for(std::string module_name : steady_state_module_names) {

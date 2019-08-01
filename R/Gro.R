@@ -1,12 +1,14 @@
-Gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names)
+Gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose)
 {
 	# C++ requires that all the variables have type `double`
 	initial_state = lapply(initial_state, as.numeric)
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
 	
+	verbose = lapply(verbose, as.logical)
+	
 	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names))
+	result = as.data.frame(.Call(R_Gro, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
 	return(result)
 }
 

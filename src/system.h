@@ -52,8 +52,10 @@ class System {
 		void get_state(std::vector<double>& x) const;
 		void operator()(const std::vector<double>& x, std::vector<double>& dxdt, const int& t);
 		//template<class time_type> void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);
-		// For returning the results of an odeint calculation
-		std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times);
+		// For returning the results of a calculation
+		std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times);	// Used with ODEINT
+		std::vector<std::string> get_output_param_names() const {return output_param_vector;}
+		std::vector<const double*> get_output_ptrs() const {return output_ptr_vector;}
 		// For testing speed
 		template<class vector_type, class time_type> int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
 		//template<class time_type> int speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);
@@ -81,6 +83,7 @@ class System {
 		// For integrating via odeint
 		size_t ntimes;
 		std::vector<std::string> output_param_vector;
+		std::vector<const double*> output_ptr_vector;
 		std::vector<std::string> state_parameter_names;
 		// For running the modules
 		void run_steady_state_modules();
