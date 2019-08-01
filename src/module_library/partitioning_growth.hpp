@@ -108,7 +108,7 @@ void partitioning_growth::do_operation() const {
 	
 	double dLeaf = 0.0, dStem = 0.0, dRoot = 0.0, dRhizome = 0.0, dGrain = 0.0, drhizome_senescence_index = 0.0;
 	
-	double retrans = 0.9;	// 0.9 is the efficiency of retranslocation (EBL: should this be hard-coded into the model?)
+	double retrans = 0.9;	// 0.9 is the efficiency of retranslocation (EBL: should this really be hard-coded into the model?)
 	
 	// Determine whether leaf is growing or decaying
 	if(kLeaf > 0.0) dLeaf += newLeafcol;
@@ -122,7 +122,7 @@ void partitioning_growth::do_operation() const {
 	
 	// Add any new Stem growth
 	if(kStem > 0.0) dStem += newStemcol;
-	else throw std::range_error("Thrown in partitioning_growth_calculator: kStem should be positive");
+	else throw std::range_error("Thrown in partitioning_growth: kStem should be positive");
 	
 	// Determine whether Root is growing or decaying
 	if(kRoot > 0.0) dRoot += newRootcol;

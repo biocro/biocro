@@ -4,6 +4,7 @@
 #include <vector>
 #include "state_map.h"
 #include "system.h"
+#include <Rinternals.h>	// For Rprintf
 
 std::unordered_map<std::string, std::vector<double>> Gro(
         std::unordered_map<std::string, double> const &initial_state,

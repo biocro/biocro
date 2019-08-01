@@ -31,6 +31,9 @@ std::unordered_map<std::string, std::vector<double>> Gro(
 	std::vector<std::vector<double>> state_vec;
 	std::vector<int> time_vec;
 	
+	// Give an update
+	Rprintf("Running simulation!\n\n");
+	
 	// Run through all the times
 	for(int t = 0; t < ntimes; t++) {
 		// Store the state and time

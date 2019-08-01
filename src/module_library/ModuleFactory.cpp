@@ -31,6 +31,7 @@
 #include "partitioning_coefficient_selector.hpp"
 #include "partitioning_growth.hpp"
 #include "partitioning_growth_calculator.hpp"
+#include "thermal_time_senescence.hpp"
 #include "empty_senescence.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
@@ -72,6 +73,7 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_coefficient_selector",	createModule<partitioning_coefficient_selector>},
 		{"partitioning_growth",					createModule<partitioning_growth>},
 		{"partitioning_growth_calculator",		createModule<partitioning_growth_calculator>},
+		{"thermal_time_senescence",				createModule<thermal_time_senescence>},
 		{"empty_senescence",					createModule<empty_senescence>}
 	};
 	input_parameter_names = {
@@ -109,7 +111,8 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_coefficient_selector",	partitioning_coefficient_selector::get_inputs()},
 		{"partitioning_growth",					partitioning_growth::get_inputs()},
 		{"partitioning_growth_calculator",		partitioning_growth_calculator::get_inputs()},
-		{"empty_senescence",					empty_senescence::get_inputs()},
+		{"thermal_time_senescence",				thermal_time_senescence::get_inputs()},
+		{"empty_senescence",					empty_senescence::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",					harmonic_oscillator::get_outputs()},
@@ -146,6 +149,7 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_coefficient_selector",	partitioning_coefficient_selector::get_outputs()},
 		{"partitioning_growth",					partitioning_growth::get_outputs()},
 		{"partitioning_growth_calculator",		partitioning_growth_calculator::get_outputs()},
+		{"thermal_time_senescence",				thermal_time_senescence::get_outputs()},
 		{"empty_senescence",					empty_senescence::get_outputs()}
 	};
 }
