@@ -1,12 +1,13 @@
 #include <vector>
 #include <memory>
+
+// Need to comment out part of this because Gro has changed (EBL)
+/*
 #include "modules.h"
 #include "Gro.h"
 #include "module_library/test_calc_state.hpp"
 #include "module_library/test_derivs.hpp"
 
-// Need to comment out part of this because Gro has changed (EBL)
-		/*
 state_map test_gro(state_map const &state) {
     std::vector<std::unique_ptr<IModule>> steady_modules;
     std::vector<std::unique_ptr<IModule>> derivative_modules;

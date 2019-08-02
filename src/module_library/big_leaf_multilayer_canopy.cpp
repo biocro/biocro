@@ -80,7 +80,8 @@ state_map light_extinction(double Idir,          // micromole / m^2 / s
 }
 */
 
-
+// Disabled for now... do we need this type of mini-loop anymore?
+/*
 state_map big_leaf_multilayer_canopy::do_operation (state_map const& s) const
 {
 //    check_state s = check_state(ss);
@@ -196,19 +197,17 @@ state_map big_leaf_multilayer_canopy::do_operation (state_map const& s) const
         //output_map(shaded_leaf);
     }
 
-    /* Convert assimilation units
-     * 3600 - seconds per hour
-     * 1e-6 - moles per micromole
-     * 30 - grams per mole for CO2
-     * 1e-6 - megagrams per gram
-     * 10000 - meters squared per hectar
-     */
+    // Convert assimilation units
+    // 3600 - seconds per hour
+    // 1e-6 - moles per micromole
+    // 30 - grams per mole for CO2
+    // 1e-6 - megagrams per gram
+    // 10000 - meters squared per hectar
 
-    /* Convert transpiration units
-     * 3600 - seconds per hour
-     * 1e-3 - megagrams per kilogram
-     * 10000 - meters squared per hectare
-     */
+    // Convert transpiration units
+    // 3600 - seconds per hour
+    // 1e-3 - megagrams per kilogram
+    // 10000 - meters squared per hectare
 
     //TODO: Figure out why canopy_conductance is always 0.
     state_map new_state = {
@@ -356,20 +355,20 @@ struct Can_Str newCanAC(
     delete water_vapor_module;
 
     struct Can_Str ans;
-    /* For Assimilation */
-    /* 3600 - seconds per hour */
-    /* 1e-6 - moles per micromole */
-    /* 30 - grams per mole for CO2 */
-    /* 1e-6 - megagrams per gram */
-    /* 10000 - meters squared per hectare*/
+    // For Assimilation
+    // 3600 - seconds per hour
+    // 1e-6 - moles per micromole
+    // 30 - grams per mole for CO2
+    // 1e-6 - megagrams per gram
+    // 10000 - meters squared per hectare
     ans.Assim = CanopyA * 3600 * 1e-6 * 30 * 1e-6 * 10000;  // Mg / ha / hr.
 
-    /* For Transpiration */
-    /* 3600 - seconds per hour */
-    /* 1e-3 - millimoles per mole */
-    /* 18 - grams per mole for H2O */
-    /* 1e-6 - megagrams per  gram */
-    /* 10000 - meters squared per hectare */
+    // For Transpiration
+    // 3600 - seconds per hour
+    // 1e-3 - millimoles per mole
+    // 18 - grams per mole for H2O
+    // 1e-6 - megagrams per  gram
+    // 10000 - meters squared per hectare
     ans.Trans = CanopyT * 3600 * 1e-3 * 18 * 1e-6 * 10000;  // Mg / ha / hr.
     ans.canopy_conductance = canopy_conductance;
 
@@ -409,3 +408,4 @@ state_map canac_with_collatz::do_operation (state_map const& s) const
     return new_state;
 }
 
+*/

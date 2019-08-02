@@ -4,6 +4,8 @@
 #include "ball_berry.hpp"
 #include "AuxBioCro.h"
 
+// Disabled for now... do we need this type of mini-loop anymore?
+/*
 state_map collatz_leaf::do_operation (state_map const& s) const
 {
     //check_state s = check_state(ss);
@@ -95,11 +97,10 @@ state_map collatz_leaf::do_operation (state_map const& s) const
             double delta_t = leaf_temperature - air_temperature;
             black_body_radiation = 4 * stefan_boltzman * pow(273.15 + air_temperature, 3) * delta_t;  // W / m^2. Leaf area basis.
 
-            /* black_body_radiation = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
-             * To make it a linear function of deltaT, do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
-             * black_body_radiation = sigma * (Tair - 0)^4 - sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) = 4 * sigma * Tair^3 * deltaT
-             * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
-             */
+            // black_body_radiation = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
+            // To make it a linear function of deltaT, do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
+            // black_body_radiation = sigma * (Tair - 0)^4 - sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) = 4 * sigma * Tair^3 * deltaT
+            // where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
 
 
             double constexpr tol = 0.01;  // micromole / m^2 / s
@@ -120,3 +121,4 @@ state_map collatz_leaf::do_operation (state_map const& s) const
     };
 }
 
+*/

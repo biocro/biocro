@@ -1,5 +1,8 @@
 #ifndef BIG_LEAF_MULTILAYER_CANOPY
 #define BIG_LEAF_MULTILAYER_CANOPY
+
+// Disabled for now... do we need this type of mini-loop anymore?
+/*
 #include "../modules.h"
 #include "water_vapor_properties_from_air_temperature.hpp"
 #include "penman_monteith_transpiration.hpp"
@@ -44,6 +47,7 @@ class canac_with_collatz : public IModule {
     private:
         state_map do_operation (state_map const& s) const;
 };
+*/
 
 #endif
 

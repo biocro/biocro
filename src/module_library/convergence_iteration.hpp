@@ -1,5 +1,8 @@
 #ifndef COLLATZ_LEAF
 #define COLLATZ_LEAF
+
+// Disabled for now... do we need this type of mini-loop anymore?
+/*
 #include "../modules.h"
 #include "penman_monteith_leaf_temperature.hpp"
 
@@ -19,6 +22,7 @@ class collatz_leaf : public IModule {
             delete leaf_temperature_module;
         }
 };
+*/
 
 #endif
 
