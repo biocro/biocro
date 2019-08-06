@@ -44,11 +44,15 @@ std::vector<std::string> stomata_water_stress_linear::get_outputs() {
 
 void stomata_water_stress_linear::do_operation() const {	
 	// Collect inputs and make calculations
-    double slope = 1 / ((*soil_field_capacity_ip) - (*soil_wilting_point_ip));
-    double intercept = 1 - (*soil_field_capacity_ip) * slope;
+	double soil_wilting_point = *soil_wilting_point_ip;
+	double soil_field_capacity = *soil_field_capacity_ip;
+	double soil_water_content = *soil_water_content_ip;
+	
+    double slope = 1.0 / (soil_field_capacity - soil_wilting_point);
+    double intercept = 1.0 - soil_field_capacity * slope;
 	
 	// Update the output parameter list
-	update(StomataWS_op, std::min(std::max(slope * (*soil_water_content_ip) + intercept, 1e-10), 1.0));
+	update(StomataWS_op, std::min(std::max(slope * soil_water_content + intercept, 1e-10), 1.0));
 }
 
 #endif

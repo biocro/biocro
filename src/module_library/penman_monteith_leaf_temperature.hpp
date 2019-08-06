@@ -57,27 +57,34 @@ std::vector<std::string> penman_monteith_leaf_temperature::get_outputs() {
 	};
 }
 
+// Make the central calculation available to other functions
+double penman_monteith_leaf_temperature_fcn(double slope_water_vapor, double psychrometric_parameter,
+		double latent_heat_vaporization_of_water, double leaf_boundary_layer_conductance, double leaf_stomatal_conductance,
+		double leaf_net_irradiance, double vapor_density_deficit, double air_temperature)
+{
+	// From Thornley and Johnson 1990. pg 408. equation 14.4k.
+	double volume_of_one_mole_of_air = 24.39e-3;	// m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+	double gc = leaf_stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;		// m / s
+	double delta_t = (leaf_net_irradiance * (1 / leaf_boundary_layer_conductance + 1 /gc) - latent_heat_vaporization_of_water * vapor_density_deficit) / (latent_heat_vaporization_of_water * (slope_water_vapor + psychrometric_parameter * (1 + leaf_boundary_layer_conductance / gc)));	// K. It is also degrees C because it's a change in temperature.
+	
+	return air_temperature + delta_t;
+}
+
 void penman_monteith_leaf_temperature::do_operation() const {
 	// Collect input parameters and make calculations
 	
-	// From Thornley and Johnson 1990. pg 408. equation 14.4k.
 	double slope_water_vapor = *slope_water_vapor_ip;		// kg / m^3 / K
 	double psychr_parameter = *psychrometric_parameter_ip;	// kg / m^3 / K
 	double LHV = *latent_heat_vaporization_of_water_ip;		// J / kg
 	double ga = *leaf_boundary_layer_conductance_ip;		// m / s
 	double air_temperature = *temp_ip;						// C
 	
-	double volume_of_one_mole_of_air = 24.39e-3;											// m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
-	double gc = *leaf_boundary_layer_conductance_ip * 1e-3 * volume_of_one_mole_of_air;		// m / s
+	double leaf_temperature = penman_monteith_leaf_temperature_fcn(slope_water_vapor, psychr_parameter,
+			LHV, ga, *leaf_stomatal_conductance_ip,
+			*leaf_net_irradiance_ip, *vapor_density_deficit_ip, air_temperature);
 	
-	double PhiN = *leaf_net_irradiance_ip;
-	
-	double vapor_density_deficit = *vapor_density_deficit_ip;
-	
-	double delta_t = (PhiN * (1 / ga + 1 /gc) - LHV * vapor_density_deficit) / (LHV * (slope_water_vapor + psychr_parameter * (1 + ga / gc)));	// K. It is also degrees C because it's a change in temperature.
-
 	// Update the output parameter list
-	update(leaf_temperature_op, air_temperature + delta_t);
+	update(leaf_temperature_op, leaf_temperature);
 }
 
 #endif

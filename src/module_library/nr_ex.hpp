@@ -49,5 +49,4 @@ void nr_ex::do_operation() const {
 	update(v_op, -999.0 * (*u_ip) - 1999.0 * (*v_ip));
 }
 
-
 #endif

@@ -6,12 +6,17 @@
 #include "reaction.hpp"
 #include "nr_ex.hpp"
 #include "one_layer_soil_profile.hpp"
+#include "one_layer_soil_profile_derivatives.hpp"
+#include "two_layer_soil_profile.hpp"
 #include "soil_type_selector.hpp"
 #include "soil_evaporation.hpp"
 #include "parameter_calculator.hpp"
 #include "c3_canopy.hpp"
 #include "c4_canopy.hpp"
 #include "stomata_water_stress_linear.hpp"
+#include "stomata_water_stress_exponential.hpp"
+#include "stomata_water_stress_linear_aba_response.hpp"
+#include "stomata_water_stress_sigmoid.hpp"
 #include "thermal_time_accumulator.hpp"
 #include "utilization_growth.hpp"
 #include "utilization_growth_calculator.hpp"
@@ -31,7 +36,10 @@
 #include "partitioning_coefficient_selector.hpp"
 #include "partitioning_growth.hpp"
 #include "partitioning_growth_calculator.hpp"
+#include "no_leaf_resp_partitioning_growth_calculator.hpp"
 #include "thermal_time_senescence.hpp"
+#include "thermal_time_and_frost_senescence_calculator.hpp"
+#include "thermal_time_and_frost_senescence.hpp"
 #include "empty_senescence.hpp"
 #include "aba_decay.hpp"
 #include "ball_berry_module.hpp"
@@ -46,6 +54,10 @@
 #include "test_module.hpp"
 #include "test_calc_state.hpp"
 #include "test_derivs.hpp"
+#include "bucket_soil_drainage.hpp"
+#include "linear_vmax_from_leaf_n.hpp"
+#include "module_graph_test.hpp"		// Includes Module_1, Module_2, and Module_3
+#include "collatz_leaf.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -61,12 +73,17 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"reaction",										createModule<reaction>},
 		{"nr_ex",											createModule<nr_ex>},
 		{"one_layer_soil_profile",							createModule<one_layer_soil_profile>},
+		{"one_layer_soil_profile_derivatives",				createModule<one_layer_soil_profile_derivatives>},
+		{"two_layer_soil_profile",							createModule<two_layer_soil_profile>},
 		{"soil_type_selector",								createModule<soil_type_selector>},
 		{"soil_evaporation",								createModule<soil_evaporation>},
 		{"parameter_calculator",							createModule<parameter_calculator>},
 		{"c3_canopy",										createModule<c3_canopy>},
 		{"c4_canopy",										createModule<c4_canopy>},
 		{"stomata_water_stress_linear",						createModule<stomata_water_stress_linear>},
+		{"stomata_water_stress_exponential",				createModule<stomata_water_stress_exponential>},
+		{"stomata_water_stress_linear_and_aba_response",	createModule<stomata_water_stress_linear_and_aba_response>},
+		{"stomata_water_stress_sigmoid",					createModule<stomata_water_stress_sigmoid>},
 		{"thermal_time_accumulator",						createModule<thermal_time_accumulator>},
 		{"utilization_growth",								createModule<utilization_growth>},
 		{"utilization_growth_calculator",					createModule<utilization_growth_calculator>},
@@ -86,7 +103,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_coefficient_selector",				createModule<partitioning_coefficient_selector>},
 		{"partitioning_growth",								createModule<partitioning_growth>},
 		{"partitioning_growth_calculator",					createModule<partitioning_growth_calculator>},
+		{"no_leaf_resp_partitioning_growth_calculator",		createModule<no_leaf_resp_partitioning_growth_calculator>},
 		{"thermal_time_senescence",							createModule<thermal_time_senescence>},
+		{"thermal_time_and_frost_senescence_calculator",	createModule<thermal_time_and_frost_senescence_calculator>},
+		{"thermal_time_and_frost_senescence",				createModule<thermal_time_and_frost_senescence>},
 		{"empty_senescence",								createModule<empty_senescence>},
 		{"aba_decay",										createModule<aba_decay>},
 		{"ball_berry_module",								createModule<ball_berry_module>},
@@ -100,7 +120,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"velocity_oscillator",								createModule<velocity_oscillator>},
 		{"test_module",										createModule<test_module>},
 		{"test_calc_state",									createModule<test_calc_state>},
-		{"test_derivs",										createModule<test_derivs>}
+		{"test_derivs",										createModule<test_derivs>},
+		{"bucket_soil_drainage",							createModule<bucket_soil_drainage>},
+		{"linear_vmax_from_leaf_n",							createModule<linear_vmax_from_leaf_n>},
+		{"Module_1",										createModule<Module_1>},
+		{"Module_2",										createModule<Module_2>},
+		{"Module_3",										createModule<Module_3>},
+		{"collatz_leaf",									createModule<collatz_leaf>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -112,12 +138,17 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"reaction",										reaction::get_inputs()},
 		{"nr_ex",											nr_ex::get_inputs()},
 		{"one_layer_soil_profile",							one_layer_soil_profile::get_inputs()},
+		{"one_layer_soil_profile_derivatives",				one_layer_soil_profile_derivatives::get_inputs()},
+		{"two_layer_soil_profile",							two_layer_soil_profile::get_inputs()},
 		{"soil_type_selector",								soil_type_selector::get_inputs()},
 		{"soil_evaporation",								soil_evaporation::get_inputs()},
 		{"parameter_calculator",							parameter_calculator::get_inputs()},
 		{"c3_canopy",										c3_canopy::get_inputs()},
 		{"c4_canopy",										c4_canopy::get_inputs()},
 		{"stomata_water_stress_linear",						stomata_water_stress_linear::get_inputs()},
+		{"stomata_water_stress_exponential",				stomata_water_stress_exponential::get_inputs()},
+		{"stomata_water_stress_linear_and_aba_response",	stomata_water_stress_linear_and_aba_response::get_inputs()},
+		{"stomata_water_stress_sigmoid",					stomata_water_stress_sigmoid::get_inputs()},
 		{"thermal_time_accumulator",						thermal_time_accumulator::get_inputs()},
 		{"utilization_growth",								utilization_growth::get_inputs()},
 		{"utilization_growth_calculator",					utilization_growth_calculator::get_inputs()},
@@ -137,7 +168,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_coefficient_selector",				partitioning_coefficient_selector::get_inputs()},
 		{"partitioning_growth",								partitioning_growth::get_inputs()},
 		{"partitioning_growth_calculator",					partitioning_growth_calculator::get_inputs()},
+		{"no_leaf_resp_partitioning_growth_calculator",		no_leaf_resp_partitioning_growth_calculator::get_inputs()},
 		{"thermal_time_senescence",							thermal_time_senescence::get_inputs()},
+		{"thermal_time_and_frost_senescence_calculator",	thermal_time_and_frost_senescence_calculator::get_inputs()},
+		{"thermal_time_and_frost_senescence",				thermal_time_and_frost_senescence::get_inputs()},
 		{"empty_senescence",								empty_senescence::get_inputs()},
 		{"aba_decay",										aba_decay::get_inputs()},
 		{"ball_berry_module",								ball_berry_module::get_inputs()},
@@ -151,7 +185,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"velocity_oscillator",								velocity_oscillator::get_inputs()},
 		{"test_module",										test_module::get_inputs()},
 		{"test_calc_state",									test_calc_state::get_inputs()},
-		{"test_derivs",										test_derivs::get_inputs()}
+		{"test_derivs",										test_derivs::get_inputs()},
+		{"bucket_soil_drainage",							bucket_soil_drainage::get_inputs()},
+		{"linear_vmax_from_leaf_n",							linear_vmax_from_leaf_n::get_inputs()},
+		{"Module_1",										Module_1::get_inputs()},
+		{"Module_2",										Module_2::get_inputs()},
+		{"Module_3",										Module_3::get_inputs()},
+		{"collatz_leaf",									collatz_leaf::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -163,12 +203,17 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"reaction",										reaction::get_outputs()},
 		{"nr_ex",											nr_ex::get_outputs()},
 		{"one_layer_soil_profile",							one_layer_soil_profile::get_outputs()},
+		{"one_layer_soil_profile_derivatives",				one_layer_soil_profile_derivatives::get_outputs()},
+		{"two_layer_soil_profile",							two_layer_soil_profile::get_outputs()},
 		{"soil_type_selector",								soil_type_selector::get_outputs()},
 		{"soil_evaporation",								soil_evaporation::get_outputs()},
 		{"parameter_calculator",							parameter_calculator::get_outputs()},
 		{"c3_canopy",										c3_canopy::get_outputs()},
 		{"c4_canopy",										c4_canopy::get_outputs()},
 		{"stomata_water_stress_linear",						stomata_water_stress_linear::get_outputs()},
+		{"stomata_water_stress_exponential",				stomata_water_stress_exponential::get_outputs()},
+		{"stomata_water_stress_linear_and_aba_response",	stomata_water_stress_linear_and_aba_response::get_outputs()},
+		{"stomata_water_stress_sigmoid",					stomata_water_stress_sigmoid::get_outputs()},
 		{"thermal_time_accumulator",						thermal_time_accumulator::get_outputs()},
 		{"utilization_growth",								utilization_growth::get_outputs()},
 		{"utilization_growth_calculator",					utilization_growth_calculator::get_outputs()},
@@ -188,7 +233,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_coefficient_selector",				partitioning_coefficient_selector::get_outputs()},
 		{"partitioning_growth",								partitioning_growth::get_outputs()},
 		{"partitioning_growth_calculator",					partitioning_growth_calculator::get_outputs()},
+		{"no_leaf_resp_partitioning_growth_calculator",		no_leaf_resp_partitioning_growth_calculator::get_outputs()},
 		{"thermal_time_senescence",							thermal_time_senescence::get_outputs()},
+		{"thermal_time_and_frost_senescence_calculator",	thermal_time_and_frost_senescence_calculator::get_outputs()},
+		{"thermal_time_and_frost_senescence",				thermal_time_and_frost_senescence::get_outputs()},
 		{"empty_senescence",								empty_senescence::get_outputs()},
 		{"aba_decay",										aba_decay::get_outputs()},
 		{"ball_berry_module",								ball_berry_module::get_outputs()},
@@ -202,7 +250,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"velocity_oscillator",								velocity_oscillator::get_outputs()},
 		{"test_module",										test_module::get_outputs()},
 		{"test_calc_state",									test_calc_state::get_outputs()},
-		{"test_derivs",										test_derivs::get_outputs()}
+		{"test_derivs",										test_derivs::get_outputs()},
+		{"bucket_soil_drainage",							bucket_soil_drainage::get_outputs()},
+		{"linear_vmax_from_leaf_n",							linear_vmax_from_leaf_n::get_outputs()},
+		{"Module_1",										Module_1::get_outputs()},
+		{"Module_2",										Module_2::get_outputs()},
+		{"Module_3",										Module_3::get_outputs()},
+		{"collatz_leaf",									collatz_leaf::get_outputs()}
 	};
 }
 

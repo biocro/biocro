@@ -3,6 +3,9 @@
 
 #include "../modules.h"
 
+// This module determines tissue mass derivatives based on the output of either
+//  partitioning_growth_calculator or no_leaf_resp_partitioning_growth_calculator
+
 class partitioning_growth : public DerivModule {
 	public:
 		partitioning_growth(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
