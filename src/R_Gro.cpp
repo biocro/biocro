@@ -6,6 +6,7 @@
 #include "Gro.h"
 #include "module_library/ModuleFactory.h"
 #include "R_helper_functions.h"
+#include "standalone_ss.h"
 
 using std::string;
 using std::vector;
@@ -109,6 +110,37 @@ SEXP R_get_module_info(SEXP module_name_input)
 	catch (...) {
 		error("Caught unhandled exception in R_Gro.");
 	}
+}
+
+SEXP R_get_standalone_ss_info(SEXP module_name_input)
+{
+	try {
+		// module_name_input should be a string vector with one or more elements
+		std::vector<std::string> module_name_vector = make_vector(module_name_input);
+		
+		// Make a standalone_ss object with verbose = TRUE
+		// Supply empty in/output_param_ptrs since we don't
+		// know which are required. This will cause
+		// a std::length_error to be generated.
+		std::unordered_map<std::string, const double*> input_param_ptrs;
+		std::unordered_map<std::string, double*> output_param_ptrs;
+		Standalone_SS module_combo(module_name_vector, input_param_ptrs, output_param_ptrs, true);
+	}
+	catch (std::length_error const &e) {
+		// This is to be expected, so
+		// don't do anything special
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_Gro.");
+	}
+	
+	// Return an indication of success
+	vector<string> result;
+	result.push_back("success");
+	return r_string_vector_from_vector(result);
 }
 
 SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)

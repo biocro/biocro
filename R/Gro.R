@@ -22,6 +22,16 @@ get_module_info <- function(module_name)
 	return(result)
 }
 
+get_standalone_ss_info <- function(module_names)
+{
+	if (!is.character(module_names)) {
+		stop('"module_name" must be a list of strings')
+	}
+	
+	result = .Call(R_get_standalone_ss_info, module_names)
+	return(result)
+}
+
 test_module <- function(module_name, input_parameters)
 {
 	if (!is.character(module_name) & length(module_name) != 1) {

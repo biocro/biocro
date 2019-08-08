@@ -390,7 +390,7 @@ System::System(
 		error_string += "Some modules were mischaracterized in the input lists.\n";
 		if(_verbose) {
 			Rprintf("The following modules were mischaracterized:\n");
-			for(std::string s : incorrect_modules) Rprintf("%s", s.c_str());
+			for(std::string s : incorrect_modules) Rprintf("%s\n", s.c_str());
 			Rprintf("\n");
 		}
 	}

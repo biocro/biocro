@@ -3,6 +3,7 @@
 
 #include "../modules.h"
 #include "../system.h"
+#include "../standalone_ss.h"
 #include "water_vapor_properties_from_air_temperature.hpp"
 #include "penman_monteith_transpiration.hpp"
 #include "collatz_leaf.hpp"
@@ -44,7 +45,7 @@ struct Can_Str newCanAC(
 		double leaf_transmittance,
 		double leaf_reflectance)
 {
-	// First, set up a system with a few other modules that we will be using
+	// Set up a few standalone modules that we will be using
 	
 	// Make the steady state module list
 	// The order is important, since the outputs from the first module
@@ -56,66 +57,61 @@ struct Can_Str newCanAC(
 		"penman_monteith_transpiration"					// leaf_evapo_module
 	};
 	
-	// Make the derivative module list
-	std::vector<std::string> derivative_modules = {
-		// Nothing here
+	// Set up the input parameters
+	// Note: the list of required inputs was quickly determined by using the following R command
+	//  with the BioCro library loaded:
+	//  get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))
+	// Note that some of these parameters have not been defined yet
+	double Itot;
+	double Ipar;
+	double layer_wind_speed;
+	double relative_humidity;
+	double vmax1;
+	double wsa = (double) water_stress_approach;
+	double k_Q10 = 2.0;
+	double stefan_boltzman = 5.67e-8;
+	std::unordered_map<std::string, const double*> input_param_ptrs = {
+		{"Catm", 					&Catm},
+		{"Rd", 						&Rd},
+		{"StomataWS", 				&StomataWS},
+		{"alpha", 					&Alpha},
+		{"b0", 						&b0},
+		{"b1", 						&b1},
+		{"beta", 					&beta},
+		{"incident_irradiance", 	&Itot},
+		{"incident_par", 			&Ipar},
+		{"k_Q10", 					&k_Q10},
+		{"kparm", 					&Kparm},
+		{"layer_wind_speed", 		&layer_wind_speed},
+		{"leaf_reflectance", 		&leaf_reflectance},
+		{"leaf_transmittance", 		&leaf_transmittance},
+		{"leafwidth", 				&leafwidth},
+		{"lowerT", 					&lowerT},
+		{"rh", 						&relative_humidity},
+		{"stefan_boltzman", 		&stefan_boltzman},
+		{"temp", 					&temperature},
+		{"theta", 					&theta},
+		{"upperT", 					&upperT},
+		{"vmax", 					&vmax1},
+		{"water_stress_approach", 	&wsa}
 	};
-
-	// Set the initial state
-	// Its contents should be the state variables, i.e., the outputs
-	//  of the derivative modules
-	// In this case, it's empty
-	std::unordered_map<std::string, double> initial_state;
 	
-	// Set the invariant parameters
-	// Note: the system requires a timestep parameter,
-	//  although it won't be used in this case
-	// The other parameters should be the inputs to the steady
-	//  state modules
-	std::unordered_map<std::string, double> invariant_parameters = {
-		{"timestep", 	1.0}
-	};
-	for(std::string param : water_vapor_properties_from_air_temperature::get_inputs()) invariant_parameters[param] = 1.0;	// The values will be set later
-	for(std::string param : collatz_leaf::get_inputs()) invariant_parameters[param] = 1.0;	// The values will be set later
-	for(std::string param : penman_monteith_transpiration::get_inputs()) invariant_parameters[param] = 1.0;	// The values will be set later
-	
-	// Set the varying parameters
-	// Note: the system requires a few varying parameters,
-	//  although they won't be used in this case
-	std::vector<double> temp_vector(1, 0.0);	// Make a vector with just one entry of 0.0
-	std::unordered_map<std::string, std::vector<double>> varying_parameters {
-		{"time", temp_vector},
-		{"doy", temp_vector},
-		{"hour", temp_vector}
+	// Set up the output parameters
+	// Note: the list of all possible outputs can be quickly determined by using
+	//  the following R command with the BioCro library loaded:
+	//  get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))
+	// Here were are only interested in a few of them
+	double leaf_ass;
+	double leaf_trans;
+	double leaf_cond;
+	std::unordered_map<std::string, double*> output_param_ptrs = {
+		{"leaf_assimilation_rate", 				&leaf_ass},
+		{"leaf_transpiration_rate", 			&leaf_trans},
+		{"leaf_boundary_layer_conductance",		&leaf_cond}
 	};
 	
-	// Now that the inputs are defined, make the system (with verbose = false) and store a smart pointer to it
-	std::shared_ptr<System> sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules, true));
-	
-	// Make state and derivative vectors to pass to the system
-	// They are required for calculations, although we don't
-	// need them in this case (so they are empty)
-	std::vector<double> x;
-	std::vector<double> dxdt;
-	
-	// Set some parameters for the system that don't vary by layer
-	// See individual module files for details about their required inputs
-	sys->set_param(temperature, "temp");
-	sys->set_param(Kparm, "kparm");
-	sys->set_param(theta, "theta");
-	sys->set_param(beta, "beta");
-	sys->set_param(upperT, "upperT");
-	sys->set_param(lowerT, "lowerT");
-	sys->set_param(2, "k_Q10");
-	sys->set_param(Catm, "Catm");
-	sys->set_param(b0, "b0");
-	sys->set_param(b1, "b1");
-	sys->set_param(leafwidth, "leafwidth");
-	sys->set_param(5.67e-8, "stefan_boltzman");
-	sys->set_param(leaf_reflectance, "leaf_reflectance");
-	sys->set_param(leaf_transmittance, "leaf_transmittance");
-	sys->set_param(water_stress_approach, "water_stress_approach");
-	sys->set_param(StomataWS, "StomataWS");
+	// Now that the inputs are defined, make the standalone modules and store a smart pointer to them
+	std::shared_ptr<Standalone_SS> canopy_modules = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs, false));
 	
 	// Calculate the light and humidity properties at each layer of the canopy
 	struct Light_model light_model = lightME(lat, DOY, hr);
@@ -155,7 +151,6 @@ struct Can_Str newCanAC(
 		int current_layer = nlayers - 1 - i;
 		double leafN_lay = leafN_profile[current_layer];
 		
-		double vmax1;
 		if (lnfun == 0) {
 			vmax1 = Vmax;
 		} else {
@@ -166,38 +161,27 @@ struct Can_Str newCanAC(
 			Rd = nitroP.Rdb1 * leafN_lay + nitroP.Rdb0;
 		}
 		
-		double relative_humidity = relative_humidity_profile[current_layer];
-		double layer_wind_speed = wind_speed_profile[current_layer];
-		double Itot = light_profile.total_irradiance[current_layer];  // micromole / m^2 / s
-		
-		// Set some system parameters that do vary by layer
-		// See individual module files for details about their required inputs
-		sys->set_param(relative_humidity, "rh");
-		sys->set_param(Itot, "incident_irradiance");
-		sys->set_param(vmax1, "vmax");
-		sys->set_param(Alpha, "alpha");
-		sys->set_param(Rd, "Rd");
-		sys->set_param(layer_wind_speed, "layer_wind_speed");
+		relative_humidity = relative_humidity_profile[current_layer];
+		layer_wind_speed = wind_speed_profile[current_layer];
+		Itot = light_profile.total_irradiance[current_layer];  // micromole / m^2 / s
 		
 		// Get assimilation, transpiration, and conductance rates for sunlit leaves
-		double IDir = light_profile.direct_irradiance[current_layer];  // micromole / m^2 / s
+		Ipar = light_profile.direct_irradiance[current_layer];  // micromole / m^2 / s
 		double pLeafsun = light_profile.sunlit_fraction[current_layer];  // dimensionless. Fraction of LAI that is sunlit.
 		double Leafsun = LAIc * pLeafsun;
-		sys->set_param(IDir, "incident_par");
-		sys->operator()(x, dxdt, 0);
-		sys->get_param(sunlit_leaf_assimilation_rate, "leaf_assimilation_rate");
-		sys->get_param(sunlit_leaf_transpiration_rate, "leaf_transpiration_rate");
-		sys->get_param(sunlit_leaf_conductance, "leaf_conductance");
+		canopy_modules->run();
+		sunlit_leaf_assimilation_rate = leaf_ass;
+		sunlit_leaf_transpiration_rate = leaf_trans;
+		sunlit_leaf_conductance = leaf_cond;
 		
 		// Get assimilation, transpiration, and conductance rates for shaded leaves
-		double IDiff = light_profile.diffuse_irradiance[current_layer];  // micromole / m^2 / s
+		Ipar = light_profile.diffuse_irradiance[current_layer];  // micromole / m^2 / s
 		double pLeafshade = light_profile.shaded_fraction[current_layer];  // dimensionless. Fraction of LAI that is shaded.
 		double Leafshade = LAIc * pLeafshade;
-		sys->set_param(IDiff, "incident_par");
-		sys->operator()(x, dxdt, 0);
-		sys->get_param(shaded_leaf_assimilation_rate, "leaf_assimilation_rate");
-		sys->get_param(shaded_leaf_transpiration_rate, "leaf_transpiration_rate");
-		sys->get_param(shaded_leaf_conductance, "leaf_conductance");
+		canopy_modules->run();
+		shaded_leaf_assimilation_rate = leaf_ass;
+		shaded_leaf_transpiration_rate = leaf_trans;
+		shaded_leaf_conductance = leaf_cond;
 		
 		// Add rates to the total canopy assimilation, transpiration, and conductance
 		CanopyA += Leafsun * sunlit_leaf_assimilation_rate + Leafshade * shaded_leaf_assimilation_rate;
