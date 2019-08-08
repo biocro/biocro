@@ -58,6 +58,8 @@
 #include "linear_vmax_from_leaf_n.hpp"
 #include "module_graph_test.hpp"		// Includes Module_1, Module_2, and Module_3
 #include "collatz_leaf.hpp"
+#include "canac_with_collatz.hpp"
+#include "big_leaf_multilayer_canopy.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -126,7 +128,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"Module_1",										createModule<Module_1>},
 		{"Module_2",										createModule<Module_2>},
 		{"Module_3",										createModule<Module_3>},
-		{"collatz_leaf",									createModule<collatz_leaf>}
+		{"collatz_leaf",									createModule<collatz_leaf>},
+		{"canac_with_collatz",								createModule<canac_with_collatz>},
+		{"big_leaf_multilayer_canopy",						createModule<big_leaf_multilayer_canopy>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -191,7 +195,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"Module_1",										Module_1::get_inputs()},
 		{"Module_2",										Module_2::get_inputs()},
 		{"Module_3",										Module_3::get_inputs()},
-		{"collatz_leaf",									collatz_leaf::get_inputs()}
+		{"collatz_leaf",									collatz_leaf::get_inputs()},
+		{"canac_with_collatz",								canac_with_collatz::get_inputs()},
+		{"big_leaf_multilayer_canopy",						big_leaf_multilayer_canopy::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -256,7 +262,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"Module_1",										Module_1::get_outputs()},
 		{"Module_2",										Module_2::get_outputs()},
 		{"Module_3",										Module_3::get_outputs()},
-		{"collatz_leaf",									collatz_leaf::get_outputs()}
+		{"collatz_leaf",									collatz_leaf::get_outputs()},
+		{"canac_with_collatz",								canac_with_collatz::get_outputs()},
+		{"big_leaf_multilayer_canopy",						big_leaf_multilayer_canopy::get_outputs()}
 	};
 }
 
@@ -265,7 +273,7 @@ std::unique_ptr<Module> ModuleFactory::create(std::string const &module_name) co
 		return this->modules.at(module_name)(_input_parameters, _output_parameters);
 	}
 	catch (std::out_of_range) {
-		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but the ModuleFactory::create could not find a module with that name.\n"));
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but ModuleFactory::create could not find a module with that name.\n"));
 	}
 	catch (std::logic_error const &e) {
 		throw std::logic_error(std::string("Upon construction, module '") + module_name + std::string("'") + std::string(" tried to access a parameter called '") + std::string(e.what()) + std::string("', but this parameter was not in the list. Check for spelling errors!\n"));
@@ -277,7 +285,7 @@ std::vector<std::string> ModuleFactory::get_inputs(std::string const &module_nam
 		return this->input_parameter_names.at(module_name);
 	}
 	catch (std::out_of_range) {
-		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but ModuleFactory::get_inputs could not find a module with that name.\n"));
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, ModuleFactory::get_inputs could not find a module with that name.\n"));
 	}
 }
 
@@ -286,6 +294,6 @@ std::vector<std::string> ModuleFactory::get_outputs(std::string const &module_na
 		return this->output_parameter_names.at(module_name);
 	}
 	catch (std::out_of_range) {
-		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but ModuleFactory::get_outputs could not find a module with that name.\n"));
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, ModuleFactory::get_outputs could not find a module with that name.\n"));
 	}
 }

@@ -14,34 +14,142 @@ using std::unique_ptr;
 extern "C" {
 
 SEXP R_Gro(SEXP initial_state,
-        SEXP parameters,
-        SEXP varying_parameters,
-        SEXP steady_state_module_names,
-        SEXP derivative_module_names,
+		SEXP parameters,
+		SEXP varying_parameters,
+		SEXP steady_state_module_names,
+		SEXP derivative_module_names,
 		SEXP verbose)
 {
 	try {
 		state_map s = map_from_list(initial_state);
 		state_map ip = map_from_list(parameters);
 		state_vector_map vp = map_vector_from_list(varying_parameters);
+		
+		if (vp.begin()->second.size() == 0) {
+			return R_NilValue;
+		}
+		
+		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+		
+		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+		
+		state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names, verb);
+		return (list_from_map(result));
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_Gro.");
+	}
+}
 
-        if (vp.begin()->second.size() == 0) {
-            return R_NilValue;
-        }
-        
-        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
-        
-        bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
-        
-        state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names, verb);
-        return (list_from_map(result));
-        
-	} catch (std::exception const &e) {
-        error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
-    } catch (...) {
-        error("Caught unhandled exception in R_Gro.");
-    }
+SEXP R_get_module_info(SEXP module_name_input)
+{
+	try {
+		// module_name_input should be a string vector with one element
+		std::vector<std::string> module_name_vector = make_vector(module_name_input);
+		std::string module_name = module_name_vector[0];
+		
+		// Make a module factory
+		std::unordered_map<std::string, double> parameters;
+		std::unordered_map<std::string, double> vector_module_output;
+		ModuleFactory module_factory(&parameters, &vector_module_output);
+		
+		// Get the module's inputs and add them to the parameter list with default
+		//  values
+		std::vector<std::string> module_inputs = module_factory.get_inputs(module_name);
+		for(std::string param : module_inputs) parameters[param] = 1.0;
+		std::unordered_map<std::string, double> input_map = parameters;
+		
+		// Get the module's outputs and add them to the parameter list with default
+		//  values
+		std::vector<std::string> module_outputs = module_factory.get_outputs(module_name);
+		for(std::string param : module_outputs) parameters[param] = 1.0;
+		
+		// Try to create an instance of the module
+		vector_module_output = parameters;
+		std::unique_ptr<Module> module_ptr = module_factory.create(module_name);
+		
+		// Check to see if the module is a derivative module
+		bool is_deriv = module_ptr->is_deriv();
+		
+		// Send some messages to the user
+		
+		// Module name
+		Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
+		
+		// Module type
+		if(is_deriv) Rprintf("Module type (derivative or steady state):\n  derivative\n\n");
+		else Rprintf("Module type (derivative or steady state):\n  steady state\n\n");
+		
+		// Module inputs
+		Rprintf("Module input parameters:");
+		if(module_inputs.size() == 0) Rprintf(" none\n\n");
+		else {
+			for(std::string param : module_inputs) Rprintf("\n  %s", param.c_str());
+			Rprintf("\n\n");
+		}
+		
+		// Module outputs
+		Rprintf("Module output parameters:");
+		if(module_outputs.size() == 0) Rprintf(" none\n\n");
+		else {
+			for(std::string param : module_outputs) Rprintf("\n  %s", param.c_str());
+			Rprintf("\n\n");
+		}
+		
+		// Return a map containing the module's input parameters
+		return list_from_map(input_map);
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_Gro.");
+	}
+}
+
+SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
+{
+	try {
+		// module_name_input should be a string vector with one element
+		std::vector<std::string> module_name_vector = make_vector(module_name_input);
+		std::string module_name = module_name_vector[0];
+		
+		// input_parameters should be a state map
+		// use it to initialize the parameter list
+		state_map parameters = map_from_list(input_parameters);
+		
+		// Make a module factory
+		std::unordered_map<std::string, double> vector_module_output;
+		ModuleFactory module_factory(&parameters, &vector_module_output);
+		
+		// Get the module's outputs and add them to the parameter list with default
+		//  values of -1000000.0, which should make it clear if a module fails to
+		//  update one of its outputs
+		std::vector<std::string> module_outputs = module_factory.get_outputs(module_name);
+		for(std::string param : module_outputs) parameters[param] = -1000000.0;
+		
+		// Create an instance of the module
+		vector_module_output = parameters;
+		std::unique_ptr<Module> module_ptr = module_factory.create(module_name);
+		
+		// Run the module
+		Rprintf("\n\nStarting to run %s...", module_name.c_str());
+		module_ptr->run();
+		Rprintf(" done!\n\n");
+		
+		// Return a map containing the module's parameter list
+		return list_from_map(vector_module_output);
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_Gro.");
+	}
 }
 
 /*

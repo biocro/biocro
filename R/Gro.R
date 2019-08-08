@@ -12,6 +12,38 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 	return(result)
 }
 
+get_module_info <- function(module_name)
+{
+	if (!is.character(module_name) & length(module_name) != 1) {
+		stop('"module_name" must be a string')
+	}
+	
+	result = .Call(R_get_module_info, module_name)
+	return(result)
+}
+
+test_module <- function(module_name, input_parameters)
+{
+	if (!is.character(module_name) & length(module_name) != 1) {
+		stop('"module_name" must be a string')
+	}
+	
+	if(!is.list(input_parameters)) {
+		stop('"input_parameters" must be a list')
+	}
+	
+	if(length(input_parameters) != length(unlist(input_parameters))) {
+		item_lengths = unlist(lapply(input_parameters, length))
+		error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	input_parameters = lapply(input_parameters, as.numeric)
+	
+	result = .Call(R_test_module, module_name, input_parameters)
+	return(result)
+}
+
 ## 'Comment out' older versions of Gro with an if(FALSE) block
 if(FALSE) {
 	Gro <- function(initial_values, parameters, varying_parameters, modules)

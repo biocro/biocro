@@ -4,12 +4,18 @@ useDynLib(BioCro,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
           R_Gro,
+          R_get_module_info,
+		  R_test_module,
           R_sunML,
           collatz_photoC)
 
 import(stats, lattice)
 
 export(Gro)
+
+export(get_module_info)
+
+export(test_module)
 
 exportPattern("Parms$")
 

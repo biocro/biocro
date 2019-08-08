@@ -2,6 +2,7 @@
 #define COLLATZ_LEAF_H
 
 #include "../modules.h"
+#include "../system.h"
 #include "penman_monteith_leaf_temperature.hpp"
 #include "collatz_photo.hpp"
 
@@ -38,7 +39,6 @@ class collatz_leaf : public SteadyModule {
 			slope_water_vapor_ip(get_ip(input_parameters, "slope_water_vapor")),
 			psychrometric_parameter_ip(get_ip(input_parameters, "psychrometric_parameter")),
 			latent_heat_vaporization_of_water_ip(get_ip(input_parameters, "latent_heat_vaporization_of_water")),
-			leaf_boundary_layer_conductance_ip(get_ip(input_parameters, "leaf_boundary_layer_conductance")),
 			leaf_net_irradiance_ip(get_ip(input_parameters, "leaf_net_irradiance")),
 			vapor_density_deficit_ip(get_ip(input_parameters, "vapor_density_deficit")),
 			// Get pointers to output parameters
@@ -48,10 +48,54 @@ class collatz_leaf : public SteadyModule {
 			leaf_temperature_op(get_op(output_parameters, "leaf_temperature")),
 			ci_op(get_op(output_parameters, "ci")),
 			leaf_net_irradiance_op(get_op(output_parameters, "leaf_net_irradiance"))
-		{}
+		{
+			// Here we need to initialize a system in order to use the leaf temperature module
+			
+			// Make the steady state module list
+			std::vector<std::string> steady_state_modules = {
+				"penman_monteith_leaf_temperature"
+			};
+			
+			// Make the derivative module list
+			std::vector<std::string> derivative_modules = {
+				// Nothing here
+			};
+		
+			// Set the initial state
+			// Its contents should be the state variables, i.e., the outputs
+			//  of the derivative modules
+			// In this case, it's empty
+			std::unordered_map<std::string, double> initial_state;
+			
+			// Set the invariant parameters
+			// Note: the system requires a timestep parameter,
+			//  although it won't be used in this case
+			// The other parameters should be the inputs to the steady
+			//  state modules
+			std::unordered_map<std::string, double> invariant_parameters = {
+				{"timestep", 	1.0}
+			};
+			for(std::string param : penman_monteith_leaf_temperature::get_inputs()) invariant_parameters[param] = 1.0;	// The values will be set later
+			
+			// Set the varying parameters
+			// Note: the system requires a few varying parameters,
+			//  although they won't be used in this case
+			std::vector<double> temp_vector(1, 0.0);	// Make a vector with just one entry of 0.0
+			std::unordered_map<std::string, std::vector<double>> varying_parameters {
+				{"time", temp_vector},
+				{"doy", temp_vector},
+				{"hour", temp_vector}
+			};
+			
+			// Finally, make the system (with verbose = false) and store a smart pointer to it
+			leaf_temperature_sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules, false));
+		}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
+		// This module require a system member so it can
+		//  use other modules to make calculations
+		std::shared_ptr<System> leaf_temperature_sys;
 		// Pointers to input parameters
 		const double* incident_irradiance_ip;
 		const double* incident_par_ip;
@@ -80,7 +124,6 @@ class collatz_leaf : public SteadyModule {
 		const double* slope_water_vapor_ip;
 		const double* psychrometric_parameter_ip;
 		const double* latent_heat_vaporization_of_water_ip;
-		const double* leaf_boundary_layer_conductance_ip;
 		const double* leaf_net_irradiance_ip;
 		const double* vapor_density_deficit_ip;
 		// Pointers to output parameters
@@ -120,12 +163,10 @@ std::vector<std::string> collatz_leaf::get_inputs() {
 		"leaf_transmittance",
 		"water_stress_approach",
 		"StomataWS",
-		"slope_water_vapor",
-		"psychrometric_parameter",
-		"latent_heat_vaporization_of_water",
-		"leaf_boundary_layer_conductance",
-		"leaf_net_irradiance",
-		"vapor_density_deficit"
+		"slope_water_vapor",					// Required for penman_monteith_leaf_temperature
+		"psychrometric_parameter",				// Required for penman_monteith_leaf_temperature
+		"latent_heat_vaporization_of_water",	// Required for penman_monteith_leaf_temperature
+		"vapor_density_deficit"					// Required for penman_monteith_leaf_temperature
 	};
 }
 
@@ -171,7 +212,9 @@ void collatz_leaf::do_operation() const {
 	
 	// Initial guesses
 	double intercelluar_co2_molar_fraction = Catm * 0.4;  // micromole / mol
+	
 	double leaf_temperature = temp;
+	
 	struct collatz_result r = collatz_photo(incident_par, leaf_temperature, vmax,
 			alpha, kparm, theta, beta, Rd,
 			upperT, lowerT, k_Q10, intercelluar_co2_molar_fraction);
@@ -184,9 +227,19 @@ void collatz_leaf::do_operation() const {
 	
 	double absorbed_irradiance = incident_irradiance * (1 - leaf_reflectance - leaf_transmittance) / (1 - leaf_transmittance);  // W / m^2. Leaf area basis.
 	
-	// Convergence iteration
 	double black_body_radiation = 0;  // W / m^2. Leaf area basis.
+	
 	double leaf_net_irradiance = absorbed_irradiance;  // W / m^2. Leaf area basis.
+	
+	// Set some of the parameters required by the leaf temperature module
+	//  (the ones that won't change throughout the convergence loop)
+	leaf_temperature_sys->set_param(*slope_water_vapor_ip, "slope_water_vapor");
+	leaf_temperature_sys->set_param(*psychrometric_parameter_ip, "psychrometric_parameter");
+	leaf_temperature_sys->set_param(*latent_heat_vaporization_of_water_ip, "latent_heat_vaporization_of_water");
+	leaf_temperature_sys->set_param(*vapor_density_deficit_ip, "vapor_density_deficit");
+	leaf_temperature_sys->set_param(temp, "temp");
+	
+	// Convergence iteration
 	unsigned int constexpr max_iterations = 50;
 	for (unsigned int n = 0; n < max_iterations; ++n) {
 		// Store the previous assimilation rate
@@ -194,13 +247,17 @@ void collatz_leaf::do_operation() const {
 		
 		// Collect new inputs for the penman monteith leaf temperature model
 		leaf_net_irradiance = absorbed_irradiance - black_body_radiation;  // W / m^2. Leaf area basis.
-		double leaf_assimiliation_rate = r.assimilation;
-		double leaf_stomatal_conductance = gs;
 		
-		// Use the penman monteith model to calculate a new leaf temperature
-		leaf_temperature = penman_monteith_leaf_temperature_fcn(*slope_water_vapor_ip, *psychrometric_parameter_ip,
-				*latent_heat_vaporization_of_water_ip, boundary_layer_conductance, leaf_stomatal_conductance,
-				leaf_net_irradiance, *vapor_density_deficit_ip, temp);
+		// Update the leaf temperature module inputs that do change throughout the loop
+		leaf_temperature_sys->set_param(boundary_layer_conductance, "leaf_boundary_layer_conductance");
+		leaf_temperature_sys->set_param(gs, "leaf_stomatal_conductance");
+		leaf_temperature_sys->set_param(leaf_net_irradiance, "leaf_net_irradiance");
+		
+		// Get the new leaf temperature
+		std::vector<double> x;		// A required input for the system, but not important in this case
+		std::vector<double> dxdt;	// A required input for the system, but not important in this case
+		leaf_temperature_sys->operator()(x, dxdt, 0);
+		leaf_temperature_sys->get_param(leaf_temperature, "leaf_temperature");
 		
 		// Update ci
 		double constexpr ratio = 1.6;  // The ratio of the diffusivities of H2O and CO2 in air.
