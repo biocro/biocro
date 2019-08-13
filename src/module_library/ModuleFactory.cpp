@@ -276,7 +276,7 @@ std::unique_ptr<Module> ModuleFactory::create(std::string const &module_name) co
 		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but ModuleFactory::create could not find a module with that name.\n"));
 	}
 	catch (std::logic_error const &e) {
-		throw std::logic_error(std::string("Upon construction, module '") + module_name + std::string("'") + std::string(" tried to access a parameter called '") + std::string(e.what()) + std::string("', but this parameter was not in the list. Check for spelling errors!\n"));
+		throw std::logic_error(std::string("Thrown by ModuleFactory::create: Upon construction, module '") + module_name + std::string("'") + std::string(" tried to access a parameter called '") + std::string(e.what()) + std::string("', but this parameter was not in the list. Check for spelling errors or incomplete get_inputs/get_outputs functions\n"));
 	}
 }
 

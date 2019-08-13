@@ -20,8 +20,8 @@ class big_leaf_multilayer_canopy : public SteadyModule {
 			chil_ip(get_ip(input_parameters, "chil")),
 			vmax1_ip(get_ip(input_parameters, "vmax1")),
 			alpha1_ip(get_ip(input_parameters, "alpha1")),
-			temperature_ip(get_ip(input_parameters, "temperature")),
-			Kparm_ip(get_ip(input_parameters, "Kparm")),
+			temp_ip(get_ip(input_parameters, "temp")),
+			kparm_ip(get_ip(input_parameters, "kparm")),
 			beta_ip(get_ip(input_parameters, "beta")),
 			upperT_ip(get_ip(input_parameters, "upperT")),
 			lowerT_ip(get_ip(input_parameters, "lowerT")),
@@ -34,12 +34,14 @@ class big_leaf_multilayer_canopy : public SteadyModule {
 			water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
 			StomataWS_ip(get_ip(input_parameters, "StomataWS")),
 			Rd_ip(get_ip(input_parameters, "Rd")),
+			stefan_boltzman_ip(get_ip(input_parameters, "stefan_boltzman")),
+			k_Q10_ip(get_ip(input_parameters, "k_Q10")),
 			// Get pointers to output parameters
 			canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
 			canopy_transpiration_rate_op(get_op(output_parameters, "canopy_transpiration_rate")),
 			canopy_conductance_op(get_op(output_parameters, "canopy_conductance"))
 		{
-			// Set up a system with a few other modules that we will be using
+			// Set up a few standalone modules that we will be using
 			
 			// Make the steady state module list
 			// The order is important, since the outputs from the first module
@@ -51,48 +53,68 @@ class big_leaf_multilayer_canopy : public SteadyModule {
 				"penman_monteith_transpiration"					// leaf_evapo_module
 			};
 			
-			// Make the derivative module list
-			std::vector<std::string> derivative_modules = {
-				// Nothing here
-			};
-
-			// Set the initial state
-			// Its contents should be the state variables, i.e., the outputs
-			//  of the derivative modules
-			// In this case, it's empty
-			std::unordered_map<std::string, double> initial_state;
-			
-			// Set the invariant parameters
-			// Note: the system requires a timestep parameter,
-			//  although it won't be used in this case
-			// The other parameters should be the inputs to the steady
-			//  state modules
-			std::unordered_map<std::string, double> invariant_parameters = {
-				{"timestep", 	1.0}
-			};
-			for(std::string param : water_vapor_properties_from_air_temperature::get_inputs()) invariant_parameters[param] = 1.0;	// The values will be set later
-			for(std::string param : collatz_leaf::get_inputs()) invariant_parameters[param] = 1.0;	// The values will be set later
-			for(std::string param : penman_monteith_transpiration::get_inputs()) invariant_parameters[param] = 1.0;	// The values will be set later
-			
-			// Set the varying parameters
-			// Note: the system requires a few varying parameters,
-			//  although they won't be used in this case
-			std::vector<double> temp_vector(1, 0.0);	// Make a vector with just one entry of 0.0
-			std::unordered_map<std::string, std::vector<double>> varying_parameters {
-				{"time", temp_vector},
-				{"doy", temp_vector},
-				{"hour", temp_vector}
+			// Set up the input parameters
+			// Note: the list of required inputs was quickly determined by using the following R command
+			//  with the BioCro library loaded:
+			//  get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))
+			// Note that some of these parameters have not been defined yet
+			std::unordered_map<std::string, const double*> input_param_ptrs = {
+				{"Catm", 					Catm_ip},
+				{"Rd", 						Rd_ip},
+				{"StomataWS", 				StomataWS_ip},
+				{"alpha", 					alpha1_ip},
+				{"b0", 						b0_ip},
+				{"b1", 						b1_ip},
+				{"beta", 					beta_ip},
+				{"incident_irradiance", 	&Irad},
+				{"incident_par", 			&Ipar},
+				{"k_Q10", 					k_Q10_ip},
+				{"kparm", 					kparm_ip},
+				{"layer_wind_speed", 		&layer_wind_speed},
+				{"leaf_reflectance", 		leaf_reflectance_ip},
+				{"leaf_transmittance", 		leaf_transmittance_ip},
+				{"leafwidth", 				leafwidth_ip},
+				{"lowerT", 					lowerT_ip},
+				{"rh", 						&layer_relative_humidity},
+				{"stefan_boltzman", 		stefan_boltzman_ip},
+				{"temp", 					temp_ip},
+				{"theta", 					&theta},
+				{"upperT", 					upperT_ip},
+				{"vmax", 					vmax1_ip},
+				{"water_stress_approach", 	water_stress_approach_ip},
 			};
 			
-			// Now that the inputs are defined, make the system (with verbose = false) and store a smart pointer to it
-			canopy_sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules, false));
+			// Set up the output parameters
+			// Note: the list of all possible outputs can be quickly determined by using
+			//  the following R command with the BioCro library loaded:
+			//  get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))
+			// Here were are only interested in a few of them
+			std::unordered_map<std::string, double*> output_param_ptrs = {
+				{"leaf_assimilation_rate", 				&leaf_ass},
+				{"leaf_transpiration_rate", 			&leaf_trans},
+				{"leaf_stomatal_conductance",			&leaf_cond}
+			};
+			
+			// Now that the inputs are defined, make the standalone modules and store a smart pointer to them
+			std::shared_ptr<Standalone_SS> canopy_modules = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs, true));
+			
 		}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// This module require a system member so it can
-		//  use other modules to make calculations
-		std::shared_ptr<System> canopy_sys;
+		// This module uses other modules to make calculations,
+		//  so it requres a standalone_ss member
+		// Some of the module's inputs and outputs require additional
+		//  member variables, which must be mutable
+		std::shared_ptr<Standalone_SS> canopy_modules;
+		mutable double theta;
+		mutable double layer_wind_speed;
+		mutable double layer_relative_humidity;
+		mutable double Ipar;
+		mutable double Irad;
+		mutable double leaf_ass;
+		mutable double leaf_trans;
+		mutable double leaf_cond;
 		// Pointers to input parameters
 		const double* lai_ip;
 		const double* nlayers_ip;
@@ -105,8 +127,8 @@ class big_leaf_multilayer_canopy : public SteadyModule {
 		const double* chil_ip;
 		const double* vmax1_ip;
 		const double* alpha1_ip;
-		const double* temperature_ip;
-		const double* Kparm_ip;
+		const double* temp_ip;
+		const double* kparm_ip;
 		const double* beta_ip;
 		const double* upperT_ip;
 		const double* lowerT_ip;
@@ -119,6 +141,8 @@ class big_leaf_multilayer_canopy : public SteadyModule {
 		const double* water_stress_approach_ip;
 		const double* StomataWS_ip;
 		const double* Rd_ip;
+		const double* stefan_boltzman_ip;
+		const double* k_Q10_ip;
 		// Pointers to output parameters
 		double* canopy_assimilation_rate_op;
 		double* canopy_transpiration_rate_op;
@@ -140,8 +164,8 @@ std::vector<std::string> big_leaf_multilayer_canopy::get_inputs() {
 		"chil",
 		"vmax1",
 		"alpha1",
-		"temperature",
-		"Kparm",
+		"temp",
+		"kparm",
 		"beta",
 		"upperT",
 		"lowerT",
@@ -153,7 +177,9 @@ std::vector<std::string> big_leaf_multilayer_canopy::get_inputs() {
 		"leaf_transmittance",
 		"water_stress_approach",
 		"StomataWS",
-		"Rd"
+		"Rd",
+		"stefan_boltzman",
+		"k_Q10"
 	};
 }
 
@@ -178,8 +204,8 @@ void big_leaf_multilayer_canopy::do_operation() const {
 	double chil = *chil_ip;
 	double vmax1 = *vmax1_ip;
 	double alpha1 = *alpha1_ip;
-	double temperature = *temperature_ip;
-	double Kparm = *Kparm_ip;
+	double temp = *temp_ip;
+	double kparm = *kparm_ip;
 	double beta = *beta_ip;
 	double upperT = *upperT_ip;
 	double lowerT = *lowerT_ip;
@@ -206,12 +232,6 @@ void big_leaf_multilayer_canopy::do_operation() const {
 	constexpr double fraction_of_irradiance_in_PAR = 0.5;  // dimensionless.
 	constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 	
-	// Make state and derivative vectors to pass to the canopy system
-	// They are required for calculations, although we don't
-	// need them in this case (so they are empty)
-	std::vector<double> x;
-	std::vector<double> dxdt;
-	
 	// Get light properties
 	Light_model irradiance_fractions = lightME(lat, doy, hour);
 	
@@ -222,7 +242,7 @@ void big_leaf_multilayer_canopy::do_operation() const {
 	const double diffuse_par_at_canopy_top = irradiance_fractions.diffuse_irradiance_fraction * solar;
 	
 	const double cosine_theta = irradiance_fractions.cosine_zenith_angle;
-	const double theta = acos(cosine_theta);
+	theta = acos(cosine_theta);
 	const double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
 	const double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
 	const double light_extinction_k = k0 / k1;  // Canopy extinction coefficient for an ellipsoidal leaf angle distribution. Page 251, Campbell and Norman. Environmental Biophysics. second edition.
@@ -241,35 +261,14 @@ void big_leaf_multilayer_canopy::do_operation() const {
 	double shaded_leaf_stomatal_conductance;
 	double shaded_leaf_transpiration_rate;
 	
-	// Set some system parameters that don't change with the layer
-	canopy_sys->set_param(5.67e-8, "stefan_boltzman");
-	canopy_sys->set_param(2, "k_Q10");
-	canopy_sys->set_param(vmax1, "vmax");
-	canopy_sys->set_param(alpha1, "alpha");
-	canopy_sys->set_param(theta, "theta");
-	canopy_sys->set_param(temperature, "temp");
-	canopy_sys->set_param(Kparm, "kparm");
-	canopy_sys->set_param(beta, "beta");
-	canopy_sys->set_param(upperT, "upperT");
-	canopy_sys->set_param(lowerT, "lowerT");
-	canopy_sys->set_param(Catm, "Catm");
-	canopy_sys->set_param(b0, "b0");
-	canopy_sys->set_param(b1, "b1");
-	canopy_sys->set_param(leafwidth, "leafwidth");
-	canopy_sys->set_param(leaf_reflectance, "leaf_reflectance");
-	canopy_sys->set_param(leaf_transmittance, "leaf_transmittance");
-	canopy_sys->set_param(water_stress_approach, "water_stress_approach");
-	canopy_sys->set_param(StomataWS, "StomataWS");
-	canopy_sys->set_param(Rd, "Rd");
-	
 	// Iterate over the canopy layers
 	for (unsigned int n = 0; n < n_layers; ++n) {
 		// Get properties of this layer
 		const double CumLAI = layer_lai * (n + 1);
-		const double layer_wind_speed = windspeed * exp(-wind_speed_extinction * (CumLAI - layer_lai));
+		layer_wind_speed = windspeed * exp(-wind_speed_extinction * (CumLAI - layer_lai));
 		
 		const double j = n + 1;  // Explicitly make j a double so that j / n_layers isn't truncated.
-		const double layer_relative_humidity = rh * exp(kh * (j / n_layers));
+		layer_relative_humidity = rh * exp(kh * (j / n_layers));
 		
 		const double layer_scattered_par = beam_radiation_at_canopy_top * (exp(-light_extinction_k * sqrt(leaf_radiation_absorptivity) * CumLAI) - exp(-light_extinction_k * CumLAI));
 		double layer_diffuse_par = diffuse_par_at_canopy_top * exp(-kd * CumLAI) + layer_scattered_par;  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.
@@ -293,25 +292,21 @@ void big_leaf_multilayer_canopy::do_operation() const {
 		const double layer_sunlit_incident_irradiance = layer_sunlit_par * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2.
 		const double layer_shaded_incident_irradiance = layer_shaded_par * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR; // W / m^2.
 		
-		// Set some system parameters that do change with the layer
-		canopy_sys->set_param(layer_wind_speed, "layer_wind_speed");
-		canopy_sys->set_param(layer_relative_humidity, "rh");
-		
 		// Run a calculation for the sunlit leaves and get the resulting rates
-		canopy_sys->set_param(layer_sunlit_par, "incident_par");
-		canopy_sys->set_param(layer_sunlit_incident_irradiance, "incident_irradiance");
-		canopy_sys->operator()(x, dxdt, 0);
-		canopy_sys->get_param(sunlit_leaf_assimilation_rate, "leaf_assimilation_rate");
-		canopy_sys->get_param(sunlit_leaf_stomatal_conductance, "leaf_stomatal_conductance");
-		canopy_sys->get_param(sunlit_leaf_transpiration_rate, "leaf_transpiration_rate");
+		Ipar = layer_sunlit_par;
+		Irad = layer_sunlit_incident_irradiance;
+		canopy_modules->run();
+		sunlit_leaf_assimilation_rate = leaf_ass;
+		sunlit_leaf_transpiration_rate = leaf_trans;
+		sunlit_leaf_stomatal_conductance = leaf_cond;
 		
 		// Run a calculation for the shaded leaves and get the resulting rates
-		canopy_sys->set_param(layer_shaded_par, "incident_par");
-		canopy_sys->set_param(layer_shaded_incident_irradiance, "incident_irradiance");
-		canopy_sys->operator()(x, dxdt, 0);
-		canopy_sys->get_param(shaded_leaf_assimilation_rate, "leaf_assimilation_rate");
-		canopy_sys->get_param(shaded_leaf_stomatal_conductance, "leaf_stomatal_conductance");
-		canopy_sys->get_param(shaded_leaf_transpiration_rate, "leaf_transpiration_rate");
+		Ipar = layer_shaded_par;
+		Irad = layer_shaded_incident_irradiance;
+		canopy_modules->run();
+		shaded_leaf_assimilation_rate = leaf_ass;
+		shaded_leaf_transpiration_rate = leaf_trans;
+		shaded_leaf_stomatal_conductance = leaf_cond;
 		
 		// Add the results to the totals
 		canopy_assimilation += sunlit_lai * sunlit_leaf_assimilation_rate + shaded_lai * shaded_leaf_assimilation_rate;  // micromoles / m^2 / s. Ground-area basis.
@@ -332,7 +327,6 @@ void big_leaf_multilayer_canopy::do_operation() const {
 	// 3600 - seconds per hour
 	// 1e-3 - megagrams per kilogram
 	// 10000 - meters squared per hectare
-	
 	
 	//TODO: Figure out why canopy_conductance is always 0.
 	update(canopy_assimilation_rate_op, canopy_assimilation * 3600 * 1e-6 * 30 * 1e-6 * 10000);

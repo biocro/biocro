@@ -17,6 +17,7 @@ class Standalone_SS {
 			std::unordered_map<std::string, const double*> const &input_param_ptrs,
 			std::unordered_map<std::string, double*> const &output_param_ptrs,
 			bool verbose);
+		Standalone_SS(const Standalone_SS &standalone) {Rprintf("Copy constructor called!\n");}
 		void run();
 	private:
 		// Pointers to the modules

@@ -56,15 +56,21 @@ class collatz_leaf : public SteadyModule {
 				"penman_monteith_leaf_temperature"
 			};
 			
+			// Initialize pointers used for some input and output parameters
+			boundary_layer_conductance_ptr = new double;
+			gs_ptr = new double;
+			leaf_net_irradiance_ptr = new double;
+			leaf_temperature_ptr = new double;
+			
 			// Set up the input parameters
 			// Note: the list of required inputs was quickly determined by using the following R command
 			//  with the BioCro library loaded:
 			//  get_standalone_ss_info("penman_monteith_leaf_temperature")
 			std::unordered_map<std::string, const double*> input_param_ptrs {
 				{"latent_heat_vaporization_of_water", 	latent_heat_vaporization_of_water_ip},
-				{"leaf_boundary_layer_conductance", 	&boundary_layer_conductance},
-				{"leaf_net_irradiance", 				&leaf_net_irradiance},
-				{"leaf_stomatal_conductance", 			&gs},
+				{"leaf_boundary_layer_conductance", 	boundary_layer_conductance_ptr},
+				{"leaf_net_irradiance", 				leaf_net_irradiance_ptr},
+				{"leaf_stomatal_conductance", 			gs_ptr},
 				{"psychrometric_parameter", 			psychrometric_parameter_ip},
 				{"slope_water_vapor", 					slope_water_vapor_ip},
 				{"temp", 								temp_ip},
@@ -73,11 +79,21 @@ class collatz_leaf : public SteadyModule {
 			
 			// Set up the output parameters
 			std::unordered_map<std::string, double*> output_param_ptrs = {
-				{"leaf_temperature", 					&leaf_temperature},
+				{"leaf_temperature", 					leaf_temperature_ptr},
 			};
 			
 			// Now that the inputs are defined, make the standalone modules and store a smart pointer to them
 			std::shared_ptr<Standalone_SS> leaf_temperature_module = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs, false));
+			
+			// Test the modules
+			leaf_temperature_module->run();
+		}
+		~collatz_leaf() {
+			// This class has pointer members, so they must be deleted in its destructor
+			delete boundary_layer_conductance_ptr;
+			delete gs_ptr;
+			delete leaf_net_irradiance_ptr;
+			delete leaf_temperature_ptr;
 		}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
@@ -85,12 +101,13 @@ class collatz_leaf : public SteadyModule {
 		// This module uses other modules to make calculations,
 		//  so it requres a standalone_ss member
 		// Some of the module's inputs and outputs require additional
-		//  member variables, which must be mutable
+		//  member variables, which must be mutable since do_operation
+		//  is a const function
 		std::shared_ptr<Standalone_SS> leaf_temperature_module;
-		mutable double boundary_layer_conductance;
-		mutable double gs;
-		mutable double leaf_net_irradiance;
-		mutable double leaf_temperature;
+		double* boundary_layer_conductance_ptr;
+		double* gs_ptr;
+		double* leaf_net_irradiance_ptr;
+		double* leaf_temperature_ptr;
 		// Pointers to input parameters
 		const double* incident_irradiance_ip;
 		const double* incident_par_ip;
@@ -213,17 +230,17 @@ void collatz_leaf::do_operation() const {
 			alpha, kparm, theta, beta, Rd,
 			upperT, lowerT, k_Q10, intercelluar_co2_molar_fraction);
 	
-	gs = ball_berry(r.assimilation * 1e-6, Catm * 1e-6, rh, b0, b1);  // mmol / m^2 / s
+	double gs = ball_berry(r.assimilation * 1e-6, Catm * 1e-6, rh, b0, b1);  // mmol / m^2 / s
 	double conductance_in_m_per_s = gs * 1e-3 * volume_of_one_mole_of_air;  // m / s
 	
-	boundary_layer_conductance = leaf_boundary_layer_conductance(layer_wind_speed,
+	double boundary_layer_conductance = leaf_boundary_layer_conductance(layer_wind_speed,
 			leafwidth, temp, leaf_temperature - temp, conductance_in_m_per_s, water_vapor_pressure);  // m / s
 	
 	double absorbed_irradiance = incident_irradiance * (1 - leaf_reflectance - leaf_transmittance) / (1 - leaf_transmittance);  // W / m^2. Leaf area basis.
 	
 	double black_body_radiation = 0;  // W / m^2. Leaf area basis.
 	
-	leaf_net_irradiance = absorbed_irradiance;  // W / m^2. Leaf area basis.
+	double leaf_net_irradiance = absorbed_irradiance;  // W / m^2. Leaf area basis.
 	
 	// Convergence iteration
 	unsigned int constexpr max_iterations = 50;
@@ -234,8 +251,14 @@ void collatz_leaf::do_operation() const {
 		// Collect new inputs for the penman monteith leaf temperature model
 		leaf_net_irradiance = absorbed_irradiance - black_body_radiation;  // W / m^2. Leaf area basis.
 		
+		// Update the module input parameter values
+		*gs_ptr = gs;
+		*boundary_layer_conductance_ptr = boundary_layer_conductance;
+		*leaf_net_irradiance_ptr = leaf_net_irradiance;
+		
 		// Get the new leaf temperature
 		leaf_temperature_module->run();
+		leaf_temperature = *leaf_temperature_ptr;
 		
 		// Update ci
 		double constexpr ratio = 1.6;  // The ratio of the diffusivities of H2O and CO2 in air.

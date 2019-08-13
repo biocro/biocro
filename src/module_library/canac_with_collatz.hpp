@@ -107,7 +107,7 @@ struct Can_Str newCanAC(
 	std::unordered_map<std::string, double*> output_param_ptrs = {
 		{"leaf_assimilation_rate", 				&leaf_ass},
 		{"leaf_transpiration_rate", 			&leaf_trans},
-		{"leaf_boundary_layer_conductance",		&leaf_cond}
+		{"leaf_stomatal_conductance",			&leaf_cond}
 	};
 	
 	// Now that the inputs are defined, make the standalone modules and store a smart pointer to them
