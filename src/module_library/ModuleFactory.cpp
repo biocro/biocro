@@ -1,5 +1,7 @@
 #include "ModuleFactory.h"
 
+// IMPORTANT: each module in the factory must have one entry each in the modules, input_parameter_names, and output_parameter_names lists
+
 // Include all the m_XXXXXX.h header files that describe the modules
 #include "harmonic_oscillator.hpp"	// Contains harmonic_oscillator and harmonic_energy
 #include "size_testing.hpp"			// Contains P1, P10, P100, and P1000
@@ -296,4 +298,26 @@ std::vector<std::string> ModuleFactory::get_outputs(std::string const &module_na
 	catch (std::out_of_range) {
 		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, ModuleFactory::get_outputs could not find a module with that name.\n"));
 	}
+}
+
+std::vector<std::string> ModuleFactory::get_modules() {
+	// Make a vector to store the results
+	std::vector<std::string> module_name_list;
+	
+	// Go through the module names in the modules list
+	for(auto x : modules) module_name_list.push_back(module_name);
+	
+	// Check for consistency with the other lists
+	for(auto x : input_parameter_names) {
+		std::string module_name = x.first;
+		if(module_name_list.find(module_name) == module_name_list.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'input_parameter_names' map but not the 'modules' map."));
+	}
+	for(auto x : output_parameter_names) {
+		std::string module_name = x.first;
+		if(module_name_list.find(module_name) == module_name_list.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'output_parameter_names' map but not the 'modules' map."));
+	}
+	
+	// Sort the vector and return it
+	std::sort(module_name_list.begin(), module_name_list.end());
+	return module_name_list;
 }

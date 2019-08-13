@@ -7,6 +7,7 @@ useDynLib(BioCro,
           R_get_module_info,
 		  R_get_standalone_ss_info,
 		  R_test_module,
+		  R_get_all_modules,
           R_sunML,
           collatz_photoC)
 
@@ -19,6 +20,8 @@ export(get_module_info)
 export(get_standalone_ss_info)
 
 export(test_module)
+
+export(get_all_modules)
 
 exportPattern("Parms$")
 

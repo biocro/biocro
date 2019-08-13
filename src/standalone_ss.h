@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>		// For unique_ptr and shared_ptr
+#include <unordered_map>
 #include <set>
 #include <Rinternals.h>	// For Rprintf
 #include "modules.h"
@@ -18,7 +19,8 @@ class Standalone_SS {
 			std::unordered_map<std::string, double*> const &output_param_ptrs,
 			bool verbose);
 		Standalone_SS(const Standalone_SS &standalone) {Rprintf("Copy constructor called!\n");}
-		void run();
+		Standalone_SS & operator=(const Standalone_SS &standalone) {Rprintf("Assignment operator called!\n"); return *this;}
+		void run() const;
 	private:
 		// Pointers to the modules
 		std::vector<std::unique_ptr<Module>> steady_state_modules;

@@ -105,10 +105,10 @@ SEXP R_get_module_info(SEXP module_name_input)
 		return list_from_map(input_map);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+		error(string(string("Caught exception in R_get_module_info: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_Gro.");
+		error("Caught unhandled exception in R_get_module_info.");
 	}
 }
 
@@ -131,10 +131,10 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
 		// don't do anything special
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+		error(string(string("Caught exception in R_get_standalone_ss_info: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_Gro.");
+		error("Caught unhandled exception in R_get_standalone_ss_info.");
 	}
 	
 	// Return an indication of success
@@ -177,10 +177,32 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 		return list_from_map(vector_module_output);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+		error(string(string("Caught exception in R_test_module: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_Gro.");
+		error("Caught unhandled exception in R_test_module.");
+	}
+}
+
+SEXP R_get_all_modules()
+{
+	try {
+		// Make a module factory using some bogus inputs
+		std::unordered_map<std::string, double> parameters;
+		std::unordered_map<std::string, double> vector_module_output;
+		ModuleFactory module_factory(&parameters, &vector_module_output);
+		
+		// Get the list of all modules from the module factory
+		std::vector<std::string> result = module_factory.get_modules();
+		
+		// Return it
+		return r_string_vector_from_vector(result);
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_get_all_modules.");
 	}
 }
 

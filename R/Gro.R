@@ -54,6 +54,12 @@ test_module <- function(module_name, input_parameters)
 	return(result)
 }
 
+get_all_modules <- function()
+{
+	result = .Call(R_get_all_modules)
+	return(result)
+}
+
 ## 'Comment out' older versions of Gro with an if(FALSE) block
 if(FALSE) {
 	Gro <- function(initial_values, parameters, varying_parameters, modules)

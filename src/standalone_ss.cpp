@@ -214,15 +214,7 @@ Standalone_SS::Standalone_SS(
 	if(_verbose) Rprintf("Done applying checks and building the standalone module set!\n\n");
 }
 
-void Standalone_SS::run() {
-	Rprintf("Running standalone_ss!\n\n");
-	
-	Rprintf("Input parameter addresses:");
-	for(size_t i = 0; i < input_ptrs.size(); i++) Rprintf("\n  %i: %p", i, (input_ptrs[i]).second);
-	Rprintf("\n\nOutput parameter addresses:");
-	for(size_t i = 0; i < output_ptrs.size(); i++) Rprintf("\n  %i: %p", i, (output_ptrs[i]).second);
-	
-	/*
+void Standalone_SS::run() const {	
 	// First get the input parameter values
 	for(auto x : input_ptrs) *(x.first) = *(x.second);
 	
@@ -237,5 +229,4 @@ void Standalone_SS::run() {
 	
 	// Finally, export the output parameter values
 	for(auto x : output_ptrs) *(x.second) = *(x.first);
-	*/
 }
