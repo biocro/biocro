@@ -119,6 +119,29 @@ SEXP list_from_map(state_vector_map const &m)
     return list;
 }
 
+SEXP list_from_map(std::unordered_map<std::string, std::vector<std::string>> const &m)
+{
+	auto n = m.size();
+    SEXP list =  PROTECT(allocVector(VECSXP, n));
+    SEXP names = PROTECT(allocVector(STRSXP, n));
+    size_t i = 0;
+    for (auto it = m.begin(); it != m.end(); ++it, ++i) {
+        size_t j = 0;
+        auto second = it->second;
+        auto p = second.size();
+        SEXP values = PROTECT(allocVector(STRSXP, p));
+        for (auto vit = second.begin(); vit != second.end(); ++vit, ++j) {
+			SET_STRING_ELT(values, j, mkChar((second[j]).c_str()));
+        } 
+        SET_VECTOR_ELT(list, i, values);
+        SET_STRING_ELT(names, i, mkChar(it->first.c_str()));
+        UNPROTECT(1);
+    }
+    setAttrib(list, R_NamesSymbol, names);
+    UNPROTECT(2);
+    return list;
+}
+
 SEXP vector_from_map(state_map const &m)
 {
     auto n = m.size();

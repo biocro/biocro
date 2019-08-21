@@ -36,7 +36,7 @@ SEXP R_Gro(SEXP initial_state,
 		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 		
 		state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names, verb);
-		return (list_from_map(result));
+		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
 		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
@@ -203,6 +203,28 @@ SEXP R_get_all_modules()
 	}
 	catch (...) {
 		error("Caught unhandled exception in R_get_all_modules.");
+	}
+}
+
+SEXP R_get_all_param()
+{
+	try {
+		// Make a module factory using some bogus inputs
+		std::unordered_map<std::string, double> parameters;
+		std::unordered_map<std::string, double> vector_module_output;
+		ModuleFactory module_factory(&parameters, &vector_module_output);
+		
+		// Get the list of all modules from the module factory
+		std::unordered_map<std::string, std::vector<std::string>> result = module_factory.get_all_param();
+		
+		// Return it
+		return list_from_map(result);
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_get_all_param: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_get_all_param.");
 	}
 }
 

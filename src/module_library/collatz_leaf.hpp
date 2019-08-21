@@ -56,7 +56,7 @@ class collatz_leaf : public SteadyModule {
 		double* leaf_stomatal_conductance_op;
 		double* leaf_boundary_layer_conductance_op;
 		double* leaf_temperature_op;
-		double* ci_op;
+		double* Ci_op;
 		double* leaf_net_irradiance_op;
 		// Main operation
 		void do_operation() const;

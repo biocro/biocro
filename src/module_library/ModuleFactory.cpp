@@ -70,10 +70,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 	modules = {
 		{"harmonic_oscillator",								createModule<harmonic_oscillator>},
 		{"harmonic_energy",									createModule<harmonic_energy>},
-		{"P1000",											createModule<P1000>},
-		{"P100",											createModule<P100>},
-		{"P10",												createModule<P10>},
-		{"P1",												createModule<P1>},
+		//{"P1000",											createModule<P1000>},		// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P100",											createModule<P100>},		// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P10",											createModule<P10>},			// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P1",											createModule<P1>},			// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
 		{"reaction",										createModule<reaction>},
 		{"nr_ex",											createModule<nr_ex>},
 		{"one_layer_soil_profile",							createModule<one_layer_soil_profile>},
@@ -137,10 +137,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
 		{"harmonic_energy",									harmonic_energy::get_inputs()},
-		{"P1000",											P1000::get_inputs()},
-		{"P100",											P100::get_inputs()},
-		{"P10",												P10::get_inputs()},
-		{"P1",												P1::get_inputs()},
+		//{"P1000",											P1000::get_inputs()},		// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P100",											P100::get_inputs()},		// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P10",											P10::get_inputs()},			// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P1",											P1::get_inputs()},			// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
 		{"reaction",										reaction::get_inputs()},
 		{"nr_ex",											nr_ex::get_inputs()},
 		{"one_layer_soil_profile",							one_layer_soil_profile::get_inputs()},
@@ -204,10 +204,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
 		{"harmonic_energy",									harmonic_energy::get_outputs()},
-		{"P1000",											P1000::get_outputs()},
-		{"P100",											P100::get_outputs()},
-		{"P10",												P10::get_outputs()},
-		{"P1",												P1::get_outputs()},
+		//{"P1000",											P1000::get_outputs()},		// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P100",											P100::get_outputs()},		// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P10",											P10::get_outputs()},		// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
+		//{"P1",											P1::get_outputs()},			// These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
 		{"reaction",										reaction::get_outputs()},
 		{"nr_ex",											nr_ex::get_outputs()},
 		{"one_layer_soil_profile",							one_layer_soil_profile::get_outputs()},
@@ -300,24 +300,80 @@ std::vector<std::string> ModuleFactory::get_outputs(std::string const &module_na
 	}
 }
 
-std::vector<std::string> ModuleFactory::get_modules() {
+std::vector<std::string> ModuleFactory::get_modules() const {
 	// Make a vector to store the results
-	std::vector<std::string> module_name_list;
+	std::vector<std::string> module_name_vector;
 	
 	// Go through the module names in the modules list
-	for(auto x : modules) module_name_list.push_back(module_name);
+	for(auto x : modules) module_name_vector.push_back(x.first);
 	
 	// Check for consistency with the other lists
 	for(auto x : input_parameter_names) {
 		std::string module_name = x.first;
-		if(module_name_list.find(module_name) == module_name_list.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'input_parameter_names' map but not the 'modules' map."));
+		if(std::find(module_name_vector.begin(), module_name_vector.end(), module_name) == module_name_vector.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'input_parameter_names' map but not the 'modules' map."));
 	}
 	for(auto x : output_parameter_names) {
 		std::string module_name = x.first;
-		if(module_name_list.find(module_name) == module_name_list.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'output_parameter_names' map but not the 'modules' map."));
+		if(std::find(module_name_vector.begin(), module_name_vector.end(), module_name) == module_name_vector.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'output_parameter_names' map but not the 'modules' map."));
 	}
 	
 	// Sort the vector and return it
-	std::sort(module_name_list.begin(), module_name_list.end());
-	return module_name_list;
+	std::sort(module_name_vector.begin(), module_name_vector.end(), ModuleFactory::cisc);
+	return module_name_vector;
+}
+
+std::unordered_map<std::string, std::vector<std::string>> ModuleFactory::get_all_param() const {
+	// Get a list of all the module names
+	std::vector<std::string> module_name_vector = get_modules();
+	
+	// Make the output map
+	std::vector<std::string> temp_vec;
+	std::unordered_map<std::string, std::vector<std::string>> param_map = {
+		{"module_name",		temp_vec},
+		{"parameter_type",	temp_vec},
+		{"parameter_name",	temp_vec}
+	};
+	
+	// Fill in the output map with all the parameters
+	std::string module_name;
+	for(size_t i = 0; i < module_name_vector.size(); i++) {
+		// Get the current module name
+		module_name = module_name_vector[i];
+		
+		// Get the module's inputs and add them to the parameter map
+		temp_vec = get_inputs(module_name);
+		for(size_t j = 0; j < temp_vec.size(); j++) {
+			(param_map["module_name"]).push_back(module_name);
+			(param_map["parameter_type"]).push_back(std::string("input"));
+			(param_map["parameter_name"]).push_back(temp_vec[j]);
+		}
+		
+		// Get the module's outputs and add them to the parameter map
+		temp_vec = get_outputs(module_name);
+		for(size_t j = 0; j < temp_vec.size(); j++) {
+			(param_map["module_name"]).push_back(module_name);
+			(param_map["parameter_type"]).push_back(std::string("output"));
+			(param_map["parameter_name"]).push_back(temp_vec[j]);
+		}
+	}
+	
+	// Return the parameter map
+	return param_map;
+}
+
+bool ModuleFactory::cisc(std::string const &a, std::string const &b) {
+	// Make a lowercase copy of a
+	std::string al = a;
+	std::transform(al.begin(), al.end(), al.begin(), [](unsigned char c){return std::tolower(c);});
+	
+	// Make a lowercase copy of b
+	std::string bl = b;
+	std::transform(bl.begin(), bl.end(), bl.begin(), [](unsigned char c){return std::tolower(c);});
+	
+	// Compare the two lowercase strings
+	int compare = al.compare(bl);
+	
+	// Return the result
+	if(compare > 0) return false;
+	else return true;
 }

@@ -8,6 +8,7 @@ useDynLib(BioCro,
 		  R_get_standalone_ss_info,
 		  R_test_module,
 		  R_get_all_modules,
+		  R_get_all_param,
           R_sunML,
           collatz_photoC)
 
@@ -22,6 +23,8 @@ export(get_standalone_ss_info)
 export(test_module)
 
 export(get_all_modules)
+
+export(get_all_param)
 
 exportPattern("Parms$")
 
@@ -42,6 +45,7 @@ export(valid_dbp)
 export(CheckLeapYear)
 
 export(read_parameters)
+
 export(get_growing_season_climate)
 
 export(collatz_photo)

@@ -13,7 +13,7 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 }
 
 get_module_info <- function(module_name)
-{
+{	
 	if (!is.character(module_name) & length(module_name) != 1) {
 		stop('"module_name" must be a string')
 	}
@@ -24,6 +24,20 @@ get_module_info <- function(module_name)
 
 get_standalone_ss_info <- function(module_names)
 {
+	# Example: finding the required input parameters for a combination
+	# of the water_vapor_properties_from_air_temperature, collatz_leaf, and
+	# penman_monteith_transpiration modules
+	#
+	#  get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))
+	#
+	# Note that this function can also be helpful for verifying that the modules
+	# have been combined in the correct order. For example, the command
+	#
+	#  get_standalone_ss_info(c("collatz_leaf", "water_vapor_properties_from_air_temperature", "penman_monteith_transpiration"))
+	#
+	# produces an error because some of the outputs from "water_vapor_properties_from_air_temperature" were already required as
+	# inputs to "collatz_leaf"
+	
 	if (!is.character(module_names)) {
 		stop('"module_name" must be a list of strings')
 	}
@@ -34,6 +48,16 @@ get_standalone_ss_info <- function(module_names)
 
 test_module <- function(module_name, input_parameters)
 {
+	# Example: testing the output of the big_leaf_multilayer_canopy module
+	#
+	#  big_leaf_multilayer_canopy_inputs <- get_module_info("big_leaf_multilayer_canopy")
+	#  <<modify individual input parameters to desired values>>
+	#  big_leaf_multilayer_canopy_param <- test_module("big_leaf_multilayer_canopy", big_leaf_multilayer_canopy_inputs)
+	#  <<check the values of the output parameters to confirm they make sense>>
+	#
+	# Important note: during the testing process, the output parameters are initialized to -1000000.0.
+	# If the module fails to update one of its output parameters, it will retain this unusual value and should be obvious.
+	
 	if (!is.character(module_name) & length(module_name) != 1) {
 		stop('"module_name" must be a string')
 	}
@@ -57,6 +81,39 @@ test_module <- function(module_name, input_parameters)
 get_all_modules <- function()
 {
 	result = .Call(R_get_all_modules)
+	return(result)
+}
+
+get_all_param <- function()
+{
+	# Example 1: getting a list of all unique parameters (which can be useful when writing a new module
+	# that is intended to work along with pre-existing modules)
+	#
+	#  all_param <- get_all_param()
+	#  all_param_names <- all_param$parameter_name
+	#  all_unique_param <- unique(all_param_names)
+	#  all_unique_param <- sort(all_unique_param)
+	#  View(all_unique_param)
+	#
+	#
+	# Example 2: getting a list of all modules that have "ci" or "Ci" as an input or output parameter
+	#
+	#  all_param <- get_all_param()
+	#  ci_modules <- subset(all_param, parameter_name=="ci" | parameter_name=="Ci")
+	#  View(ci_modules)
+	#
+	#
+	# Example 3: counting the number of modules that use each parameter as an input or output
+	#
+	#  install.packages("plyr")	# required for the count function
+	#  library(plyr)
+	#  all_param <- get_all_param()
+	#  all_param_subset <- all_param[c("parameter_name", "module_name")]	# remove information about whether each parameter is an input or output
+	#  all_param_subset <- unique(all_param_subset)							# remove any duplicated names where a parameter is both an input and an output for the same module
+	#  param_usage <- count(all_param_subset, "parameter_name")
+	#  View(param_usage)
+	
+	result = as.data.frame(.Call(R_get_all_param))
 	return(result)
 }
 

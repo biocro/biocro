@@ -31,7 +31,6 @@ class thermal_time_and_frost_senescence : public DerivModule {
 			// Get pointers to output parameters
 			Leaf_op(get_op(output_parameters, "Leaf")),
 			LeafLitter_op(get_op(output_parameters, "LeafLitter")),
-			leaf_senescence_index_op(get_op(output_parameters, "leaf_senescence_index")),
 			Stem_op(get_op(output_parameters, "Stem")),
 			StemLitter_op(get_op(output_parameters, "StemLitter")),
 			stem_senescence_index_op(get_op(output_parameters, "stem_senescence_index")),
@@ -77,7 +76,6 @@ class thermal_time_and_frost_senescence : public DerivModule {
 		// Pointers to output parameters
 		double* Leaf_op;
 		double* LeafLitter_op;
-		double* leaf_senescence_index_op;
 		double* Stem_op;
 		double* StemLitter_op;
 		double* stem_senescence_index_op;
@@ -96,7 +94,7 @@ std::vector<std::string> thermal_time_and_frost_senescence::get_inputs() {
 	return {
 		"TTc",
 		"seneLeaf", "seneStem", "seneRoot", "seneRhizome",
-		"leafdeathrate", "leaf",
+		"leafdeathrate", "Leaf",
 		"stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
 		"kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
 		"newLeafcol", "newStemcol", "newRootcol", "newRhizomecol"

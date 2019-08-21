@@ -38,7 +38,7 @@ collatz_leaf::collatz_leaf(const std::unordered_map<std::string, double>* input_
 	leaf_stomatal_conductance_op(get_op(output_parameters, "leaf_stomatal_conductance")),
 	leaf_boundary_layer_conductance_op(get_op(output_parameters, "leaf_boundary_layer_conductance")),
 	leaf_temperature_op(get_op(output_parameters, "leaf_temperature")),
-	ci_op(get_op(output_parameters, "ci")),
+	Ci_op(get_op(output_parameters, "Ci")),
 	leaf_net_irradiance_op(get_op(output_parameters, "leaf_net_irradiance"))
 {
 	// Here we need to initialize a standalone module to calculate the leaf temperature
@@ -127,7 +127,7 @@ std::vector<std::string> collatz_leaf::get_outputs() {
 		"leaf_stomatal_conductance",
 		"leaf_boundary_layer_conductance",
 		"leaf_temperature",
-		"ci",
+		"Ci",
 		"leaf_net_irradiance"
 	};
 }
@@ -201,7 +201,7 @@ void collatz_leaf::do_operation() const {
 		leaf_temperature_module->run();
 		leaf_temperature = *leaf_temperature_ptr;
 		
-		// Update ci
+		// Update Ci
 		double constexpr ratio = 1.6;  // The ratio of the diffusivities of H2O and CO2 in air.
 		intercelluar_co2_molar_fraction = Catm - r.assimilation / gs * 1e3 * ratio;  // micromole / mol
 		intercelluar_co2_molar_fraction = fmax(0, intercelluar_co2_molar_fraction);
@@ -243,6 +243,6 @@ void collatz_leaf::do_operation() const {
 	update(leaf_stomatal_conductance_op, gs);
 	update(leaf_boundary_layer_conductance_op, boundary_layer_conductance);
 	update(leaf_temperature_op, leaf_temperature);
-	update(ci_op, intercelluar_co2_molar_fraction);
+	update(Ci_op, intercelluar_co2_molar_fraction);
 	update(leaf_net_irradiance_op, leaf_net_irradiance);
 }

@@ -12,10 +12,7 @@ class priestley_transpiration : public SteadyModule {
 			slope_water_vapor_ip(get_ip(input_parameters, "slope_water_vapor")),
 			psychrometric_parameter_ip(get_ip(input_parameters, "psychrometric_parameter")),
 			latent_heat_vaporization_of_water_ip(get_ip(input_parameters, "latent_heat_vaporization_of_water")),
-			leaf_boundary_layer_conductance_ip(get_ip(input_parameters, "leaf_boundary_layer_conductance")),
-			leaf_stomatal_conductance_ip(get_ip(input_parameters, "leaf_stomatal_conductance")),
 			PhiN_ip(get_ip(input_parameters, "PhiN")),
-			vapor_density_deficit_ip(get_ip(input_parameters, "vapor_density_deficit")),
 			// Get pointers to output parameters
 			transpiration_rate_op(get_op(output_parameters, "transpiration_rate"))
 		{}
@@ -26,10 +23,7 @@ class priestley_transpiration : public SteadyModule {
 		const double* slope_water_vapor_ip;
 		const double* psychrometric_parameter_ip;
 		const double* latent_heat_vaporization_of_water_ip;
-		const double* leaf_boundary_layer_conductance_ip;
-		const double* leaf_stomatal_conductance_ip;
 		const double* PhiN_ip;
-		const double* vapor_density_deficit_ip;
 		// Pointers to output parameters
 		double* transpiration_rate_op;
 		// Main operation
@@ -41,10 +35,7 @@ std::vector<std::string> priestley_transpiration::get_inputs() {
 		"slope_water_vapor",
 		"psychrometric_parameter",
 		"latent_heat_vaporization_of_water",
-		"leaf_boundary_layer_conductance",
-		"leaf_stomatal_conductance",
-		"leaf_net_irradiance",
-		"vapor_density_deficit"
+		"PhiN"
 	};
 }
 
