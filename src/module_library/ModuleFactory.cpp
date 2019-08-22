@@ -62,6 +62,8 @@
 #include "collatz_leaf.hpp"
 #include "canac_with_collatz.hpp"
 #include "big_leaf_multilayer_canopy.hpp"
+#include "flowering.hpp"
+#include "flowering_calculator.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -132,7 +134,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"Module_3",										createModule<Module_3>},
 		{"collatz_leaf",									createModule<collatz_leaf>},
 		{"canac_with_collatz",								createModule<canac_with_collatz>},
-		{"big_leaf_multilayer_canopy",						createModule<big_leaf_multilayer_canopy>}
+		{"big_leaf_multilayer_canopy",						createModule<big_leaf_multilayer_canopy>},
+		{"flowering",										createModule<flowering>},
+		{"flowering_calculator",							createModule<flowering_calculator>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -199,7 +203,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"Module_3",										Module_3::get_inputs()},
 		{"collatz_leaf",									collatz_leaf::get_inputs()},
 		{"canac_with_collatz",								canac_with_collatz::get_inputs()},
-		{"big_leaf_multilayer_canopy",						big_leaf_multilayer_canopy::get_inputs()}
+		{"big_leaf_multilayer_canopy",						big_leaf_multilayer_canopy::get_inputs()},
+		{"flowering",										flowering::get_inputs()},
+		{"flowering_calculator",							flowering_calculator::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -266,7 +272,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"Module_3",										Module_3::get_outputs()},
 		{"collatz_leaf",									collatz_leaf::get_outputs()},
 		{"canac_with_collatz",								canac_with_collatz::get_outputs()},
-		{"big_leaf_multilayer_canopy",						big_leaf_multilayer_canopy::get_outputs()}
+		{"big_leaf_multilayer_canopy",						big_leaf_multilayer_canopy::get_outputs()},
+		{"flowering",										flowering::get_outputs()},
+		{"flowering_calculator",							flowering_calculator::get_outputs()}
 	};
 }
 
@@ -298,28 +306,6 @@ std::vector<std::string> ModuleFactory::get_outputs(std::string const &module_na
 	catch (std::out_of_range) {
 		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, ModuleFactory::get_outputs could not find a module with that name.\n"));
 	}
-}
-
-std::vector<std::string> ModuleFactory::get_modules() const {
-	// Make a vector to store the results
-	std::vector<std::string> module_name_vector;
-	
-	// Go through the module names in the modules list
-	for(auto x : modules) module_name_vector.push_back(x.first);
-	
-	// Check for consistency with the other lists
-	for(auto x : input_parameter_names) {
-		std::string module_name = x.first;
-		if(std::find(module_name_vector.begin(), module_name_vector.end(), module_name) == module_name_vector.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'input_parameter_names' map but not the 'modules' map."));
-	}
-	for(auto x : output_parameter_names) {
-		std::string module_name = x.first;
-		if(std::find(module_name_vector.begin(), module_name_vector.end(), module_name) == module_name_vector.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'output_parameter_names' map but not the 'modules' map."));
-	}
-	
-	// Sort the vector and return it
-	std::sort(module_name_vector.begin(), module_name_vector.end(), ModuleFactory::cisc);
-	return module_name_vector;
 }
 
 std::unordered_map<std::string, std::vector<std::string>> ModuleFactory::get_all_param() const {
@@ -359,6 +345,28 @@ std::unordered_map<std::string, std::vector<std::string>> ModuleFactory::get_all
 	
 	// Return the parameter map
 	return param_map;
+}
+
+std::vector<std::string> ModuleFactory::get_modules() const {
+	// Make a vector to store the results
+	std::vector<std::string> module_name_vector;
+	
+	// Go through the module names in the modules list
+	for(auto x : modules) module_name_vector.push_back(x.first);
+	
+	// Check for consistency with the other lists
+	for(auto x : input_parameter_names) {
+		std::string module_name = x.first;
+		if(std::find(module_name_vector.begin(), module_name_vector.end(), module_name) == module_name_vector.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'input_parameter_names' map but not the 'modules' map."));
+	}
+	for(auto x : output_parameter_names) {
+		std::string module_name = x.first;
+		if(std::find(module_name_vector.begin(), module_name_vector.end(), module_name) == module_name_vector.end()) throw std::logic_error(std::string("Thrown by ModuleFactory::get_modules: A module named '") + module_name + std::string("' was included in the 'output_parameter_names' map but not the 'modules' map."));
+	}
+	
+	// Sort the vector and return it
+	std::sort(module_name_vector.begin(), module_name_vector.end(), ModuleFactory::cisc);
+	return module_name_vector;
 }
 
 bool ModuleFactory::cisc(std::string const &a, std::string const &b) {

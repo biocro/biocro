@@ -1,8 +1,9 @@
+// EBL is commenting out this entire file because the module class has changed significantly (2019-08-22)
+// Note: the "f" and "intergrator" functions were already commented out
+
+/*
 #include <vector>
 #include <memory>
-
-// Need to comment out part of this because Gro has changed (EBL)
-/*
 #include "modules.h"
 #include "Gro.h"
 #include "module_library/test_calc_state.hpp"

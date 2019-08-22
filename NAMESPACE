@@ -4,9 +4,11 @@ useDynLib(BioCro,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
           R_Gro,
+		  R_Gro_ode,
           R_get_module_info,
 		  R_get_standalone_ss_info,
 		  R_test_module,
+		  R_test_system,
 		  R_get_all_modules,
 		  R_get_all_param,
           R_sunML,
@@ -16,11 +18,15 @@ import(stats, lattice)
 
 export(Gro)
 
+export(Gro_ode)
+
 export(get_module_info)
 
 export(get_standalone_ss_info)
 
 export(test_module)
+
+export(test_system)
 
 export(get_all_modules)
 

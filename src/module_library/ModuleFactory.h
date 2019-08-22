@@ -16,8 +16,8 @@ class ModuleFactory {
     	std::unique_ptr<Module> create(std::string const &module_name) const;
     	std::vector<std::string> get_inputs(std::string const &module_name) const;
     	std::vector<std::string> get_outputs(std::string const &module_name) const;
-		std::vector<std::string> get_modules() const;
 		std::unordered_map<std::string, std::vector<std::string>> get_all_param() const;
+		std::vector<std::string> get_modules() const;
 		static bool cisc(std::string const &a, std::string const &b);	// Simple function for case-insensitive string comparison, used for sorting the list of all module names
 	private:
 		std::unordered_map<std::string, std::unique_ptr<Module>(*)(const std::unordered_map<std::string, double>*, std::unordered_map<std::string, double>*)> modules;

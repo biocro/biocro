@@ -46,6 +46,104 @@ SEXP R_Gro(SEXP initial_state,
 	}
 }
 
+SEXP R_Gro_ode(SEXP state,
+		SEXP steady_state_module_names,
+		SEXP derivative_module_names,
+		SEXP verbose)
+{
+	try {
+		// Get the input state
+		state_map s = map_from_list(state);
+		
+		// There are a few special parameters that a system requires at startup,
+		//  so make sure they are properly defined
+		
+		// Form the list of invariant parameters, making sure it includes the timestep
+		state_map ip;
+		if(s.find("timestep") == s.end()) {
+			// The timestep is not defined in the input state, so assume it is 1
+			ip["timestep"] = 1.0;
+		}
+		else {
+			// The timestep is defined in the input state, so copy its value into the invariant parameters
+			//  and remove it from the state
+			ip["timestep"] = s["timestep"];
+			s.erase("timestep");
+		}
+		
+		// Form the list of varying parameters, making sure it includes doy and hour
+		state_vector_map vp;
+		if(s.find("doy") == s.end()) {
+			// The doy is not defined in the input state, so assume it is 0
+			std::vector<double> temp_vec;
+			temp_vec.push_back(0.0);
+			vp["doy"] = temp_vec;
+		}
+		else {
+			// The doy is defined in the input state, so copy its value into the varying parameters
+			std::vector<double> temp_vec;
+			temp_vec.push_back(s["doy"]);
+			vp["doy"] = temp_vec;
+			s.erase("doy");
+		}
+		if(s.find("hour") == s.end()) {
+			// The hour is not defined in the input state, so assume it is 0
+			std::vector<double> temp_vec;
+			temp_vec.push_back(0.0);
+			vp["hour"] = temp_vec;
+		}
+		else {
+			// The hour is defined in the input state, so copy its value into the varying parameters
+			std::vector<double> temp_vec;
+			temp_vec.push_back(s["hour"]);
+			vp["hour"] = temp_vec;
+			s.erase("hour");
+		}
+		
+		// Get the module names
+		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+		
+		// Get the verbosity
+		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+		
+		// Make the system
+		System sys(s, ip, vp, ss_names, deriv_names, verb);
+		
+		// Get the current state in the correct format (a required input to the system)
+		std::vector<double> state;
+		sys.get_state(state);
+		
+		// Make a vector to store the derivative (a required input to the system that otherwise won't be used)
+		std::vector<double> dstatedt = state;
+		
+		// Run the system once
+		sys.operator()(state, dstatedt, 0);
+		
+		// Get the output parameter names and pointers to them
+		std::vector<std::string> output_param_names = sys.get_output_param_names();
+		std::vector<const double*> output_ptrs = sys.get_output_ptrs();
+		
+		// Make the output map
+		state_map result;
+		for(size_t i = 0; i < output_param_names.size(); i++) result[output_param_names[i]] = *(output_ptrs[i]);
+		
+		// Return the resulting derivatives
+		return list_from_map(result);
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_Gro_ode.");
+	}
+	
+	// Return an indication of success
+	vector<string> result;
+	result.push_back("System test completed");
+	return r_string_vector_from_vector(result);
+}
+
 SEXP R_get_module_info(SEXP module_name_input)
 {
 	try {
@@ -139,7 +237,7 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
 	
 	// Return an indication of success
 	vector<string> result;
-	result.push_back("success");
+	result.push_back("Standalone_ss test completed");
 	return r_string_vector_from_vector(result);
 }
 
@@ -182,6 +280,39 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 	catch (...) {
 		error("Caught unhandled exception in R_test_module.");
 	}
+}
+
+SEXP R_test_system(SEXP initial_state,
+		SEXP parameters,
+		SEXP varying_parameters,
+		SEXP steady_state_module_names,
+		SEXP derivative_module_names)
+{
+	try {
+		state_map s = map_from_list(initial_state);
+		state_map ip = map_from_list(parameters);
+		state_vector_map vp = map_vector_from_list(varying_parameters);
+		
+		if (vp.begin()->second.size() == 0) {
+			return R_NilValue;
+		}
+		
+		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+		
+		System sys(s, ip, vp, ss_names, deriv_names, TRUE);
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_test_system: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_test_system.");
+	}
+	
+	// Return an indication of success
+	vector<string> result;
+	result.push_back("System test completed");
+	return r_string_vector_from_vector(result);
 }
 
 SEXP R_get_all_modules()

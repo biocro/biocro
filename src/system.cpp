@@ -183,7 +183,7 @@ System::System(
 		}
 		else duplicate_parameter_names.push_back(std::string("Parameter '") + x.first + std::string("' from the varying parameters"));
 	}
-	if(_verbose) Rprintf("State variables:\n");
+	if(_verbose) Rprintf("\nState variables:\n");
 	for(auto x : initial_state) {
 		if(unique_parameter_names.find(x.first) == unique_parameter_names.end()) {
 			unique_parameter_names.insert(x.first);
@@ -194,7 +194,7 @@ System::System(
 		}
 		else duplicate_parameter_names.push_back(std::string("Parameter '") + x.first + std::string("' from the initial state"));
 	}
-	if(_verbose) Rprintf("Invariant parameters:\n");
+	if(_verbose) Rprintf("\nInvariant parameters:\n");
 	for(auto x : invariant_parameters) {
 		if(unique_parameter_names.find(x.first) == unique_parameter_names.end()) {
 			unique_parameter_names.insert(x.first);
@@ -212,7 +212,7 @@ System::System(
 	ModuleFactory module_factory(&parameters, &vector_module_output);
 	
 	// Continue collecting parameter names from the steady state modules
-	if(_verbose) Rprintf("Steady state parameters:\n");
+	if(_verbose) Rprintf("\nSteady state parameters:\n");
 	for(std::string module_name : steady_state_module_names) {
 		if(unique_steady_state_module_names.find(module_name) == unique_steady_state_module_names.end()) {
 			unique_steady_state_module_names.insert(module_name);

@@ -1,10 +1,57 @@
-Gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose)
+#######################################
+#                                     #
+#  Functions for running simulations  #
+#                                     #
+#######################################
+
+Gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
 {
+	# This function runs a full simulation using the fixed-step Euler method
+	#
+	# Example: running a sorghum simulation using weather data from 2005
+	#
+	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
+	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  result <- Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, TRUE)
+	#
+	# The result is a data frame showing all time-dependent variables as they change throughout the growing season.
+	# When Gro is run in verbose mode (as in this example, where verbose = TRUE), information about the input and output parameters
+	# will be printed to the R console before the simulation runs. This can be very useful when attempting to combine a set of modules
+	# for the first time.
+	
+	# Check to make sure the initial_state is properly defined
+	if(!is.list(initial_state)) {
+		stop('"initial_state" must be a list')
+	}
+	
+	if(length(initial_state) != length(unlist(initial_state))) {
+		item_lengths = unlist(lapply(initial_state, length))
+		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the parameters are properly defined
+	if(!is.list(parameters)) {
+		stop('"parameters" must be a list')
+	}
+	
+	if(length(parameters) != length(unlist(parameters))) {
+		item_lengths = unlist(lapply(parameters, length))
+		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the varying_parameters are properly defined
+	if(!is.list(varying_parameters)) {
+		stop('"varying_parameters" must be a list')
+	}
+	
 	# C++ requires that all the variables have type `double`
 	initial_state = lapply(initial_state, as.numeric)
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
 	
+	# Make sure verbose is a logical variable
 	verbose = lapply(verbose, as.logical)
 	
 	# Run the C++ code
@@ -12,8 +59,90 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 	return(result)
 }
 
+Gro_ode <- function(state, steady_state_module_names, derivative_module_names, verbose = FALSE)
+{
+	# This function calculates derivatives using the parameters defined in the state as inputs to the
+	# supplied steady state and derivative modules
+	# Note: the state should contain state variables along with any other required parameters
+	# Note: the derivative modules will only provide derivatives for state variables. Run the function
+	# with verbose = TRUE to see which parameters do not have defined derivatives.
+	#
+	# Example: calculating derivatives for a harmonic oscillator
+	#
+	#  oscillator_deriv_modules <- c("harmonic_oscillator")
+	#  oscillator_ss_modules <- c("harmonic_energy")
+	#  oscillator_state <- data.frame("mass"=1, "spring_constant"=1, "position"=0, "velocity"=1)
+	#  oscillator_deriv <- Gro_ode(oscillator_state, oscillator_ss_modules, oscillator_deriv_modules)
+	#
+	# To understand the output better, it may be helpful to run the final command as:
+	#
+	#  oscillator_deriv <- Gro_ode(oscillator_state, oscillator_ss_modules, oscillator_deriv_modules, TRUE)
+	#
+	# There are several things to notice:
+	#  (1) Even though doy_dbl and timestep were not supplied as parameters, they show up in the lists
+	#      of invariant and varying parameters. The system requires these parameters, so Gro_ode supplies
+	#      default values if none are specified, as in the case of this example
+	#  (2) No derivatives were supplied for spring_constant or mass, yet they are included in the oscillator_deriv
+	#      output. Note that their "derivative" values in the output are just zero, the default value for a parameter
+	#      that does not change with time.
+	
+	
+	# Check to make sure the state is properly defined
+	if(!is.list(state)) {
+		stop('"state" must be a list')
+	}
+	
+	if(length(state) != length(unlist(state))) {
+		item_lengths = unlist(lapply(state, length))
+		error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the module names are properly defined
+	if (!is.character(steady_state_module_names)) {
+		stop('"steady_state_module_names" must be a list of strings')
+	}
+	if (!is.character(derivative_module_names)) {
+		stop('"derivative_module_names" must be a list of strings')
+	}
+	
+	# C++ requires that all the variables have type `double`
+	state = lapply(state, as.numeric)
+	
+	# Make sure verbose is a logical variable
+	verbose = lapply(verbose, as.logical)
+	
+	# Run the C++ code
+	result = as.data.frame(.Call(R_Gro_ode, state, steady_state_module_names, derivative_module_names, verbose))
+	return(result)
+}
+
+###################################################
+#                                                 #
+#  Functions for exploring the available modules  #
+#                                                 #
+###################################################
+
+get_all_modules <- function()
+{
+	# Intended usage:
+	#
+	#  all_modules <- get_all_modules()
+	#  View(all_modules)
+	
+	result = .Call(R_get_all_modules)
+	return(result)
+}
+
 get_module_info <- function(module_name)
 {	
+	# Example: getting information about the big_leaf_multilayer_canopy module
+	#
+	#  big_leaf_multilayer_canopy_inputs <- get_module_info("big_leaf_multilayer_canopy")
+	#
+	# The function returns a dataframe with all the inputs required by the module
+	# It also prints the module's type (derivative or steady state), its inputs, and its outputs to the R console
+	
 	if (!is.character(module_name) & length(module_name) != 1) {
 		stop('"module_name" must be a string')
 	}
@@ -45,6 +174,12 @@ get_standalone_ss_info <- function(module_names)
 	result = .Call(R_get_standalone_ss_info, module_names)
 	return(result)
 }
+
+###############################################
+#                                             #
+#  Functions for running and testing modules  #
+#                                             #
+###############################################
 
 test_module <- function(module_name, input_parameters)
 {
@@ -78,11 +213,29 @@ test_module <- function(module_name, input_parameters)
 	return(result)
 }
 
-get_all_modules <- function()
+test_system <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names)
 {
-	result = .Call(R_get_all_modules)
+	# Example: confirming that the parameters and modules for a sorghum simulation are properly defined
+	#
+	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
+	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  test_system(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules)
+	
+	# C++ requires that all the variables have type `double`
+	initial_state = lapply(initial_state, as.numeric)
+	parameters = lapply(parameters, as.numeric)
+	varying_parameters = lapply(varying_parameters, as.numeric)
+	
+	# Run the C++ code
+	result = .Call(R_test_system, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names)
 	return(result)
 }
+
+#######################################################################
+#                                                                     #
+#  Additional functions that may be helpful when writing new modules  #
+#                                                                     #
+#######################################################################
 
 get_all_param <- function()
 {
