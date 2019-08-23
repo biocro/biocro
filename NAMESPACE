@@ -4,6 +4,7 @@ useDynLib(BioCro,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
           R_Gro,
+		  R_Gro_deriv,
 		  R_Gro_ode,
           R_get_module_info,
 		  R_get_standalone_ss_info,
@@ -17,6 +18,10 @@ useDynLib(BioCro,
 import(stats, lattice)
 
 export(Gro)
+
+export(partial_gro)
+
+export(Gro_deriv)
 
 export(Gro_ode)
 

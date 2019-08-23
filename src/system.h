@@ -56,7 +56,7 @@ class System {
 		std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times);	// Used with ODEINT
 		std::vector<std::string> get_output_param_names() const {return output_param_vector;}
 		std::vector<const double*> get_output_ptrs() const {return output_ptr_vector;}
-		std::vector<double> get_state_parameter_names() const {return state_parameter_names;}
+		std::vector<std::string> get_state_parameter_names() const {return state_parameter_names;}
 		// For testing speed
 		template<class vector_type, class time_type> int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
 		//template<class time_type> int speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt);

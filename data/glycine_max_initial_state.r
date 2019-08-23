@@ -2,7 +2,7 @@
 glycine_max_initial_state = with(list(), {
     datalines =
     "symbol value
-    Rhizome 0.0
+    Rhizome 0.0001	# No tissue mass can be zero with the utilization growth module, so just leave Rhizome very small
     Leaf 0.06  # The total of Leaf, Stem and Root masses is 0.08, which comes from http://www.montana.edu/cpa/news/wwwpb-archives/ag/baudr182.html and https://www.extension.purdue.edu/extmedia/ay/ay-217-w.pdf.
     Stem 0.01
     Root 0.01
@@ -18,11 +18,11 @@ glycine_max_initial_state = with(list(), {
     stem_senescence_index 0
     root_senescence_index 0
     rhizome_senescence_index 0
-    substrate_pool_leaf 0
-    substrate_pool_grain 0
-    substrate_pool_stem 0
-    substrate_pool_root 0
-    substrate_pool_rhizome 0
+    substrate_pool_leaf 0.03		# No substrate pool can be zero with the utilization growth module
+    substrate_pool_grain 0.00005	# No substrate pool can be zero with the utilization growth module
+    substrate_pool_stem 0.005		# No substrate pool can be zero with the utilization growth module
+    substrate_pool_root 0.005		# No substrate pool can be zero with the utilization growth module
+    substrate_pool_rhizome 0.00005	# No substrate pool can be zero with the utilization growth module
     GI 0
     FKF1 0
     CDF 0
@@ -34,4 +34,3 @@ glycine_max_initial_state = with(list(), {
     names(values) = data_frame$symbol
     values
 })
-

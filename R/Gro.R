@@ -8,6 +8,15 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 {
 	# This function runs a full simulation using the fixed-step Euler method
 	#
+	# initial_state: a list of named parameters representing state variables
+	# parameters: a list of named parameters that don't change with time
+	# varying_parameters: a dataframe of parameters defined at equally spaced time intervals
+	#  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
+	#  Note: the varying parameters must include "doy" and "hour"
+	# steady_state_module_names: a character vector of steady state module names
+	# steady_state_module_names: a character vector of derivative module names
+	# verbose: a logical variable indicating whether or not to print system startup information
+	#
 	# Example: running a sorghum simulation using weather data from 2005
 	#
 	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
@@ -59,8 +68,178 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 	return(result)
 }
 
+partial_gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, verbose = FALSE)
+{
+	# Accepts the same parameters as Gro() with an additional 'arg_names' parameter, which is a vector of character variables.
+	# Returns a function that runs Gro() with all of the parameters, except 'arg_names
+	# set as default. The only parameter in the new function is the value of 'arg_names'.
+	# This technique is called partial application, hence the name partial_gro.
+	# 
+	# initial_state: same as Gro()
+	# parameters: same as Gro()
+	# varying_parameters: same as Gro()
+	# steady_state_module_names: same as Gro()
+	# derivative_module_names: same as Gro()
+	# verbose: same as Gro()
+	# arg_names: vector of character variables. The names of the arguments that the new function accepts.
+	#  Note: 'arg_names' must contain the names of parameters in 'initial_state', 'parameters', or 'varying_parameters'.
+	# 
+	# returns f(arg).
+	# 
+	# Example: varying the TTc values at which senescence starts for a sorghum simulation
+	# 
+	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
+	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), TRUE)
+	#  result = senescence_gro(c(2000, 2000, 2000, 2000))
+	# 
+	# Note that in this example, typing 'sorghum_parameters$seneStem' returns the original default value for seneStem: 3500.
+	# However, after running senescence_gro, the system startup messages (in verbose mode) indicate a value of 2000 for seneStem, as desired.
+	# To remove system startup messages, change verbose to FALSE in the partial_gro command or omit it altogether to use the default value of FALSE, i.e.
+	# 
+	#  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), FALSE)
+	#  OR
+	#  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
+	
+	# Form the argument list to pass to Gro
+	arg_list = list(initial_state=initial_state, parameters=parameters, varying_parameters=varying_parameters, steady_state_module_names=steady_state_module_names, derivative_module_names=derivative_module_names, verbose=verbose)
+	
+	# Make a data frame containing the names of all parameters in the initial_state, parameters, and varying_parameters inputs
+	df = data.frame(control=character(), arg_name=character(), stringsAsFactors=FALSE)
+	for (i in seq_along(arg_list)) {
+		if (length(names(arg_list[[i]])) > 0) {
+			df = rbind(df, data.frame(control = names(arg_list)[i], arg_name=names(arg_list[[i]]), stringsAsFactors=FALSE))
+		}
+	}
+	
+	# Find the locations of the parameters specified in arg_names and check for errors
+	controls = df[match(arg_names, df$arg_name), ]
+	if (any(is.na(controls))) {
+		missing = arg_names[which(is.na(controls$control))]
+		stop(paste('The following arguments in "arg_names" are not in any of the paramter lists:', paste(missing, collapse=', ')))
+	}
+	
+	# Make a function that calls Gro with new values for the parameters specified in arg_names
+	function(x)
+	{
+		if (length(x) != length(arg_names)) stop("The length of x does not match the length of arguments when this function was defined.")
+		x = unlist(x)
+		temp_arg_list = arg_list
+		for (i in seq_along(arg_names)) {
+			c_row = controls[i, ]
+			temp_arg_list[[c_row$control]][[c_row$arg_name]] = x[i]
+		}
+		do.call(Gro, temp_arg_list)
+	}
+}
+
+Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose=FALSE)
+{
+	# Gro_deriv is used to create a function that can be called by a solver such as LSODES
+	#
+	# initial_state: a list of named parameters representing state variables
+	#  Note: the values of these parameters are not important and won't be used in this function, but their names are critical
+	# parameters: a list of named parameters that don't change with time
+	# varying_parameters: a dataframe of parameters defined at equally spaced time intervals
+	#  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
+	#  Note: the varying parameters must include "doy" and "hour"
+	# steady_state_module_names: a character vector of steady state module names
+	# steady_state_module_names: a character vector of derivative module names
+	# verbose: a logical variable indicating whether or not to print system startup information
+	#  Note: verbose should usually be FALSE for Gro_deriv, since this function would get called many times during a simulation
+	#
+	# The return value of Gro_deriv is a function with three inputs (t, state, and param) that returns derivatives for each of the
+	# parameters in the state. These parameters must have the same names as the state variables defined in the initial_state.
+	#
+	# Example 2: solving 1000 hours of a soybean simulation
+	#
+	#  soybean_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "soil_evaporation", "c3_canopy", "utilization_growth_calculator", "utilization_senescence_calculator")
+	#  soybean_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  soybean_system <- Gro_deriv(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), soybean_ss_modules, soybean_deriv_modules, FALSE)
+	#  is <- as.numeric(glycine_max_initial_state)		# We need to convert the initial state to a different format
+	#  names(is) <- names(glycine_max_initial_state)	# We need to convert the initial state to a different format
+	#  times = seq(from=0, to=1000, by=1)
+	#  library(deSolve)									# Required to use LSODES
+	#  result = as.data.frame(lsodes(is, times, soybean_system))
+	#
+	# A simple example with only derivatives.
+	# oscillator_system = Gro_deriv(list(), function(t) return(list()), c(), c('position_oscillator', 'velocity_oscillator'))
+	# state = c(position=0, velocity=1)
+	# times = seq(0, 5, length=100)
+	# result = as.data.frame(lsodes(state, times, oscillator_system))
+	
+	#  sorghum_deriv <- Gro_deriv(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, TRUE)
+	
+	# Check to make sure the initial_state is properly defined
+	if(!is.list(initial_state)) {
+		stop('"initial_state" must be a list')
+	}
+	
+	if(length(initial_state) != length(unlist(initial_state))) {
+		item_lengths = unlist(lapply(initial_state, length))
+		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the parameters are properly defined
+	if(!is.list(parameters)) {
+		stop('"parameters" must be a list')
+	}
+	
+	if(length(parameters) != length(unlist(parameters))) {
+		item_lengths = unlist(lapply(parameters, length))
+		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the varying_parameters are properly defined
+	if(!is.list(varying_parameters)) {
+		stop('"varying_parameters" must be a list')
+	}
+	
+	# C++ requires that all the variables have type `double`
+	initial_state = lapply(initial_state, as.numeric)
+	parameters = lapply(parameters, as.numeric)
+	varying_parameters = lapply(varying_parameters, as.numeric)
+	
+	# Make sure verbose is a logical variable
+	verbose = lapply(verbose, as.logical)
+	
+	# Define some items for the function
+	state_names = character(0)
+	result_names = character(0)
+	result_name_length = 0
+	state_diff = character(0)
+	result_diff = character(0)
+	
+	# Create a function that returns a derivative
+	function(t, state, parms)
+	{
+		# Note: parms is required by LSODES but we aren't using it here
+		
+		# We don't need to do any error checking here because LSODES will have already done it
+		
+		# Convert the state into the proper format
+		temp_state = initial_state;
+		for(i in seq_along(state)) {
+			param_name = names(state[i])
+			temp_state$param_name = state[i]
+		}
+		
+		# Call the C++ code that calculates a derivative
+		derivs <- .Call(R_Gro_deriv, temp_state, t, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose)
+		
+		# Return the result
+		result <- list(derivs)
+		return(result)
+	}
+}
+
 Gro_ode <- function(state, steady_state_module_names, derivative_module_names, verbose = FALSE)
 {
+	# Important note: this function is clunky and not recommended. Gro_deriv is better suited for
+	#  calculating derivatives
+	#
 	# This function calculates derivatives using the parameters defined in the state as inputs to the
 	# supplied steady state and derivative modules
 	# Note: the state should contain state variables along with any other required parameters
@@ -71,10 +250,11 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names, v
 	#
 	#  oscillator_deriv_modules <- c("harmonic_oscillator")
 	#  oscillator_ss_modules <- c("harmonic_energy")
-	#  oscillator_state <- data.frame("mass"=1, "spring_constant"=1, "position"=0, "velocity"=1)
+	#  oscillator_state <- data.frame("mass"=0.5, "spring_constant"=0.3, "position"=2, "velocity"=1)
 	#  oscillator_deriv <- Gro_ode(oscillator_state, oscillator_ss_modules, oscillator_deriv_modules)
+	#  View(oscillator_deriv)
 	#
-	# To understand the output better, it may be helpful to run the final command as:
+	# To understand the output better, it may be helpful to run the Gro_ide command as:
 	#
 	#  oscillator_deriv <- Gro_ode(oscillator_state, oscillator_ss_modules, oscillator_deriv_modules, TRUE)
 	#
@@ -85,7 +265,6 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names, v
 	#  (2) No derivatives were supplied for spring_constant or mass, yet they are included in the oscillator_deriv
 	#      output. Note that their "derivative" values in the output are just zero, the default value for a parameter
 	#      that does not change with time.
-	
 	
 	# Check to make sure the state is properly defined
 	if(!is.list(state)) {
@@ -188,7 +367,7 @@ test_module <- function(module_name, input_parameters)
 	#  big_leaf_multilayer_canopy_inputs <- get_module_info("big_leaf_multilayer_canopy")
 	#  <<modify individual input parameters to desired values>>
 	#  big_leaf_multilayer_canopy_param <- test_module("big_leaf_multilayer_canopy", big_leaf_multilayer_canopy_inputs)
-	#  <<check the values of the output parameters to confirm they make sense>>
+	#  <<check the values of the output parameters to confirm they are correct>>
 	#
 	# Important note: during the testing process, the output parameters are initialized to -1000000.0.
 	# If the module fails to update one of its output parameters, it will retain this unusual value and should be obvious.
@@ -220,6 +399,22 @@ test_system <- function(initial_state, parameters, varying_parameters, steady_st
 	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
 	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
 	#  test_system(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules)
+	#
+	# Note: this example doesn't generate any serious issues. However, if we omit an important module such as the soil_type_selector, we will have a problem. Try this example:
+	#
+	#  sorghum_ss_modules <- c("stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
+	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  test_system(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules)
+	#
+	# In this case, some input parameters for the stomata_water_stress_linear, leaf_water_stress_exponential, soil_evaporation, and one_layer_soil_profile modules are not defined and an exception is thrown
+	# Note that module order is important. Putting the soil_type_selector in the wrong spot also causes errors:
+	#
+	#  sorghum_ss_modules <- c("stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator", "soil_type_selector")
+	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  test_system(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules)
+	#
+	# In this case, some input parameters for the stomata_water_stress_linear, leaf_water_stress_exponential, and soil_evaporation modules are not defined and an exception is thrown.
+	# In contrast to the previous example, the one_layer_soil_profile module is fine because all steady state modules are run before any derivative modules
 	
 	# C++ requires that all the variables have type `double`
 	initial_state = lapply(initial_state, as.numeric)

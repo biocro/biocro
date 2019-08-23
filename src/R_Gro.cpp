@@ -46,6 +46,61 @@ SEXP R_Gro(SEXP initial_state,
 	}
 }
 
+SEXP R_Gro_deriv(SEXP state,
+		SEXP time,
+		SEXP parameters,
+		SEXP varying_parameters,
+		SEXP steady_state_module_names,
+		SEXP derivative_module_names,
+		SEXP verbose)
+{
+	try {
+		// Convert the inputs into the proper format
+		state_map s = map_from_list(state);
+		state_map ip = map_from_list(parameters);
+		state_vector_map vp = map_vector_from_list(varying_parameters);
+		
+		if (vp.begin()->second.size() == 0) {
+			return R_NilValue;
+		}
+		
+		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+		
+		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+		double t = REAL(time)[0];
+		
+		// Create a system
+		System sys(s, ip, vp, ss_names, deriv_names, verb);
+		
+		// Get the state in the correct format
+		std::vector<double> x;
+		sys.get_state(x);
+		
+		// Get the state parameter names in the correct order
+		std::vector<std::string> state_param_names = sys.get_state_parameter_names();
+		
+		// Make a vector to store the derivative
+		std::vector<double> dxdt = x;
+		
+		// Run the system once
+		sys.operator()(x, dxdt, t);
+		
+		// Make the output map
+		state_map result;
+		for(size_t i = 0; i < state_param_names.size(); i++) result[state_param_names[i]] = dxdt[i];
+		
+		// Return the resulting derivatives
+		return list_from_map(result);
+	}
+	catch (std::exception const &e) {
+		error(string(string("Caught exception in R_Gro_deriv: ") + e.what()).c_str());
+	}
+	catch (...) {
+		error("Caught unhandled exception in R_Gro_deriv.");
+	}
+}
+
 SEXP R_Gro_ode(SEXP state,
 		SEXP steady_state_module_names,
 		SEXP derivative_module_names,
@@ -110,23 +165,22 @@ SEXP R_Gro_ode(SEXP state,
 		// Make the system
 		System sys(s, ip, vp, ss_names, deriv_names, verb);
 		
-		// Get the current state in the correct format (a required input to the system)
-		std::vector<double> state;
-		sys.get_state(state);
+		// Get the current state in the correct format
+		std::vector<double> x;
+		sys.get_state(x);
 		
-		// Make a vector to store the derivative (a required input to the system that otherwise won't be used)
-		std::vector<double> dstatedt = state;
+		// Get the state parameter names in the correct order
+		std::vector<std::string> state_param_names = sys.get_state_parameter_names();
+		
+		// Make a vector to store the derivative
+		std::vector<double> dxdt = x;
 		
 		// Run the system once
-		sys.operator()(state, dstatedt, 0);
-		
-		// Get the output parameter names and pointers to them
-		std::vector<std::string> output_param_names = sys.get_output_param_names();
-		std::vector<const double*> output_ptrs = sys.get_output_ptrs();
+		sys.operator()(x, dxdt, 0);
 		
 		// Make the output map
 		state_map result;
-		for(size_t i = 0; i < output_param_names.size(); i++) result[output_param_names[i]] = *(output_ptrs[i]);
+		for(size_t i = 0; i < state_param_names.size(); i++) result[state_param_names[i]] = dxdt[i];
 		
 		// Return the resulting derivatives
 		return list_from_map(result);

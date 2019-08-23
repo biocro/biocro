@@ -9,7 +9,7 @@ class utilization_growth_calculator : public SteadyModule {
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("utilization_growth_calculator"),
 			// Get pointers to input parameters
-			dawn_phase_ip(get_ip(input_parameters, "dawn_phase")),
+			//dawn_phase_ip(get_ip(input_parameters, "dawn_phase")),
 			grain_TTc_ip(get_ip(input_parameters, "grain_TTc")),
 			TTc_ip(get_ip(input_parameters, "TTc")),
 			rate_constant_leaf_ip(get_ip(input_parameters, "rate_constant_leaf")),
@@ -57,7 +57,7 @@ class utilization_growth_calculator : public SteadyModule {
 		static std::vector<std::string> get_outputs();
 	private:
 		// Pointers to input parameters
-		const double* dawn_phase_ip;
+		//const double* dawn_phase_ip;
 		const double* grain_TTc_ip;
 		const double* TTc_ip;
 		const double* rate_constant_leaf_ip;
@@ -106,7 +106,7 @@ class utilization_growth_calculator : public SteadyModule {
 
 std::vector<std::string> utilization_growth_calculator::get_inputs() {
 	return {
-		"dawn_phase",
+		//"dawn_phase",
 		"grain_TTc",
 		"TTc",
 		"rate_constant_leaf",
@@ -163,26 +163,26 @@ inline double utilization_hill(double KM, double n, double concentration) {
 void utilization_growth_calculator::do_operation() const {	
 	// Collect inputs and make calculations	
 	
-	double dawn_phase = *dawn_phase_ip;
-	if(dawn_phase > 3.14159265358979323846) dawn_phase -= 2*3.14159265358979323846;
-	double rate_factor = exp(-(dawn_phase + 1) * (dawn_phase + 1));
+	//double dawn_phase = *dawn_phase_ip;
+	//if(dawn_phase > 3.14159265358979323846) dawn_phase -= 2*3.14159265358979323846;
+	//double rate_factor = exp(-(dawn_phase + 1) * (dawn_phase + 1));
 	
 	double grain_TTc = *grain_TTc_ip;
     double TTc = *TTc_ip;
 	
-	/*
     double kLeaf = *rate_constant_leaf_ip;
     double kStem = *rate_constant_stem_ip;
     double kRoot = *rate_constant_root_ip;
     double kRhizome = *rate_constant_rhizome_ip;
     double kGrain = *rate_constant_grain_ip;
-    */
     
+	/*
     double kLeaf = *rate_constant_leaf_ip * rate_factor;
     double kStem = *rate_constant_stem_ip * rate_factor;
     double kRoot = *rate_constant_root_ip * rate_factor;
     double kRhizome = *rate_constant_rhizome_ip * rate_factor;
     double kGrain = *rate_constant_grain_ip * rate_factor;
+	 */
 
     double KmLeaf = *KmLeaf_ip;
     double KmStem = *KmStem_ip;
@@ -233,7 +233,7 @@ void utilization_growth_calculator::do_operation() const {
     //  The total substrate utilization is this rate multiplied by the leaf volume, i.e.
     //    kLeaf * Leaf * mass_fraction_leaf / (KmLeaf + mass_fraction_leaf) = kLeaf * substrate_pool_leaf / (KmLeaf + mass_fraction_leaf)
     //    where kLeaf includes the various proportionality constants mentioned previously
-    //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419–430 (1972)
+    //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419Â–430 (1972)
     // Alternatively, we could use a Hill equation to model utilization. This may be especially helpful for the leaf, since utilization
     //  can be made to fall off faster at small substrate concentrations. Note that the M-M equation is a special case of the Hill
     //  equation when n = 1.
@@ -262,7 +262,7 @@ void utilization_growth_calculator::do_operation() const {
     //  It is important to scale the transport as the plant grows. For example, if the plant uniformly doubles in volume,
     //   the roots now require twice as much carbon substrate to continue growth at the same rate, so the resistance between
     //   the stem and root should be halved (or transport should double). We accomplish this scaling with the beta factor.
-    //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419–430 (1972)
+    //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419Â–430 (1972)
     
     double beta = Leaf + Grain + Stem + Root + Rhizome;
     
