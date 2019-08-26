@@ -150,6 +150,22 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 	#
 	# The return value of Gro_deriv is a function with three inputs (t, state, and param) that returns derivatives for each of the
 	# parameters in the state. These parameters must have the same names as the state variables defined in the initial_state.
+	# Here, state must be a numeric vector with names, rather than a list
+	#
+	# Example 1: a simple oscillator with derivatives only
+	# Note that we need to define timestep, doy, and hour parameters as required by the C++ "system" class, even though doy and hour
+	# won't be used for this example
+	#
+	#  oscillator_ss_modules <- c()
+	#  oscillator_deriv_modules <- c("position_oscillator", "velocity_oscillator")
+	#  oscillator_initial_state <- list(position=0, velocity=1)
+	#  oscillator_system <- Gro_deriv(oscillator_initial_state, list("timestep"=1), get_growing_season_climate(weather05), oscillator_ss_modules, oscillator_deriv_modules, FALSE)
+	#  is <- as.numeric(oscillator_initial_state)		# We need to convert the initial state to a different format
+	#  names(is) <- names(oscillator_initial_state)		# We need to convert the initial state to a different format
+	#  times = seq(0, 5, length=100)
+	#  library(deSolve)									# Required to use LSODES
+	#  result = as.data.frame(lsodes(oscillator_initial_state, times, oscillator_system))
+	#  xyplot(position + velocity ~ time, type='l', auto=TRUE, data=result)
 	#
 	# Example 2: solving 1000 hours of a soybean simulation
 	#
@@ -162,13 +178,11 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 	#  library(deSolve)									# Required to use LSODES
 	#  result = as.data.frame(lsodes(is, times, soybean_system))
 	#
-	# A simple example with only derivatives.
-	# oscillator_system = Gro_deriv(list(), function(t) return(list()), c(), c('position_oscillator', 'velocity_oscillator'))
-	# state = c(position=0, velocity=1)
-	# times = seq(0, 5, length=100)
-	# result = as.data.frame(lsodes(state, times, oscillator_system))
-	
-	#  sorghum_deriv <- Gro_deriv(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, TRUE)
+	# Note that for this example, we needed to convert the initial state to a different format
+	# It's also possible to just calculate a single derivative:
+	#
+	#  derivs <- soybean_system(0, is, NULL)
+	#  View(derivs)
 	
 	# Check to make sure the initial_state is properly defined
 	if(!is.list(initial_state)) {
@@ -217,13 +231,14 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 	{
 		# Note: parms is required by LSODES but we aren't using it here
 		
-		# We don't need to do any error checking here because LSODES will have already done it
+		# We don't need to do any format checking here because LSODES will have already done it
 		
 		# Convert the state into the proper format
-		temp_state = initial_state;
+		temp_state <- initial_state;
 		for(i in seq_along(state)) {
 			param_name = names(state[i])
-			temp_state$param_name = state[i]
+			param_value = as.numeric(state[i])
+			temp_state[param_name] = param_value
 		}
 		
 		# Call the C++ code that calculates a derivative
@@ -254,7 +269,7 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names, v
 	#  oscillator_deriv <- Gro_ode(oscillator_state, oscillator_ss_modules, oscillator_deriv_modules)
 	#  View(oscillator_deriv)
 	#
-	# To understand the output better, it may be helpful to run the Gro_ide command as:
+	# To understand the output better, it may be helpful to run the Gro_ode command as:
 	#
 	#  oscillator_deriv <- Gro_ode(oscillator_state, oscillator_ss_modules, oscillator_deriv_modules, TRUE)
 	#
