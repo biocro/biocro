@@ -103,7 +103,7 @@ struct Can_Str c3CanAC(double LAI,
    /* CanopyA has units of micromole CO2 / m^2 / s.
     * 3600 s / hr
     * 10^-6 mol / micromole
-    * 30 g / (mol CO2)
+    * 30 g / mol - grams of C6H12O6 (glucose) incorporated into dry biomass per mole of CO2
     * 10^-6 Mg / g
     * 10000 m^2 / ha
     */
