@@ -32,8 +32,8 @@ using std::vector;
 
 state_map map_from_list(SEXP const &list)
 {
-    SEXP names = getAttrib(list, R_NamesSymbol);
-    size_t n = length(list);
+    SEXP names = Rf_getAttrib(list, R_NamesSymbol);
+    size_t n = Rf_length(list);
     state_map m;
     m.reserve(n);
     for (size_t i = 0; i < n; ++i) {
@@ -44,12 +44,12 @@ state_map map_from_list(SEXP const &list)
 
 state_vector_map map_vector_from_list(SEXP const &list)
 {
-    SEXP names = getAttrib(list, R_NamesSymbol);
-    size_t n = length(list);
+    SEXP names = Rf_getAttrib(list, R_NamesSymbol);
+    size_t n = Rf_length(list);
     state_vector_map m;
     m.reserve(n);
     for (size_t i = 0; i < n; ++i) {
-        size_t p = length(VECTOR_ELT(list, i));
+        size_t p = Rf_length(VECTOR_ELT(list, i));
         vector<double> temporary;
         temporary.reserve(p);
         for (size_t j = 0; j < p; ++j) {
@@ -62,7 +62,7 @@ state_vector_map map_vector_from_list(SEXP const &list)
 
 vector<string> make_vector(SEXP const &r_string_vector) {
     vector<string> v;
-    size_t n = length(r_string_vector);
+    size_t n = Rf_length(r_string_vector);
     v.reserve(n);
     for (size_t i = 0; i < n; ++i) {
         v.emplace_back(CHAR(STRING_ELT(r_string_vector, i)));
@@ -72,9 +72,9 @@ vector<string> make_vector(SEXP const &r_string_vector) {
 
 SEXP r_string_vector_from_vector(vector<string> const &v) {
     auto n = v.size();
-    SEXP r_string_vector = PROTECT(allocVector(STRSXP, n));
+    SEXP r_string_vector = PROTECT(Rf_allocVector(STRSXP, n));
     for (size_t i = 0; i < n; ++i) {
-        SET_STRING_ELT(r_string_vector, i, mkChar(v[i].c_str()));
+        SET_STRING_ELT(r_string_vector, i, Rf_mkChar(v[i].c_str()));
     }
     UNPROTECT(1);
     return r_string_vector;
@@ -83,14 +83,14 @@ SEXP r_string_vector_from_vector(vector<string> const &v) {
 SEXP list_from_map(state_map const &m)
 {
     auto n = m.size();
-    SEXP list =  PROTECT(allocVector(VECSXP, n));
-    SEXP names = PROTECT(allocVector(STRSXP, n));
+    SEXP list =  PROTECT(Rf_allocVector(VECSXP, n));
+    SEXP names = PROTECT(Rf_allocVector(STRSXP, n));
     size_t i = 0;
     for (auto it = m.begin(); it != m.end(); ++it, ++i) {
-        SET_VECTOR_ELT(list, i, ScalarReal(it->second));
-        SET_STRING_ELT(names, i, mkChar(it->first.c_str()));
+        SET_VECTOR_ELT(list, i, Rf_ScalarReal(it->second));
+        SET_STRING_ELT(names, i, Rf_mkChar(it->first.c_str()));
     }
-    setAttrib(list, R_NamesSymbol, names);
+    Rf_setAttrib(list, R_NamesSymbol, names);
     UNPROTECT(2);
     return list;
 }
@@ -98,23 +98,23 @@ SEXP list_from_map(state_map const &m)
 SEXP list_from_map(state_vector_map const &m)
 {
     auto n = m.size();
-    SEXP list =  PROTECT(allocVector(VECSXP, n));
-    SEXP names = PROTECT(allocVector(STRSXP, n));
+    SEXP list =  PROTECT(Rf_allocVector(VECSXP, n));
+    SEXP names = PROTECT(Rf_allocVector(STRSXP, n));
     size_t i = 0;
     for (auto it = m.begin(); it != m.end(); ++it, ++i) {
         size_t j = 0;
         auto second = it->second;
         auto p = second.size();
-        SEXP values = PROTECT(allocVector(REALSXP, p));
+        SEXP values = PROTECT(Rf_allocVector(REALSXP, p));
         double* vp = REAL(values);  // It's a litte faster if you get a pointer and reuse it.
         for (auto vit = second.begin(); vit != second.end(); ++vit, ++j) {
             vp[j] = second[j];
         } 
         SET_VECTOR_ELT(list, i, values);
-        SET_STRING_ELT(names, i, mkChar(it->first.c_str()));
+        SET_STRING_ELT(names, i, Rf_mkChar(it->first.c_str()));
         UNPROTECT(1);
     }
-    setAttrib(list, R_NamesSymbol, names);
+    Rf_setAttrib(list, R_NamesSymbol, names);
     UNPROTECT(2);
     return list;
 }
@@ -122,22 +122,22 @@ SEXP list_from_map(state_vector_map const &m)
 SEXP list_from_map(std::unordered_map<std::string, std::vector<std::string>> const &m)
 {
 	auto n = m.size();
-    SEXP list =  PROTECT(allocVector(VECSXP, n));
-    SEXP names = PROTECT(allocVector(STRSXP, n));
+    SEXP list =  PROTECT(Rf_allocVector(VECSXP, n));
+    SEXP names = PROTECT(Rf_allocVector(STRSXP, n));
     size_t i = 0;
     for (auto it = m.begin(); it != m.end(); ++it, ++i) {
         size_t j = 0;
         auto second = it->second;
         auto p = second.size();
-        SEXP values = PROTECT(allocVector(STRSXP, p));
+        SEXP values = PROTECT(Rf_allocVector(STRSXP, p));
         for (auto vit = second.begin(); vit != second.end(); ++vit, ++j) {
-			SET_STRING_ELT(values, j, mkChar((second[j]).c_str()));
+			SET_STRING_ELT(values, j, Rf_mkChar((second[j]).c_str()));
         } 
         SET_VECTOR_ELT(list, i, values);
-        SET_STRING_ELT(names, i, mkChar(it->first.c_str()));
+        SET_STRING_ELT(names, i, Rf_mkChar(it->first.c_str()));
         UNPROTECT(1);
     }
-    setAttrib(list, R_NamesSymbol, names);
+    Rf_setAttrib(list, R_NamesSymbol, names);
     UNPROTECT(2);
     return list;
 }
@@ -145,15 +145,15 @@ SEXP list_from_map(std::unordered_map<std::string, std::vector<std::string>> con
 SEXP vector_from_map(state_map const &m)
 {
     auto n = m.size();
-    SEXP vector = PROTECT(allocVector(REALSXP, n));
-    SEXP names = PROTECT(allocVector(STRSXP, n));
+    SEXP vector = PROTECT(Rf_allocVector(REALSXP, n));
+    SEXP names = PROTECT(Rf_allocVector(STRSXP, n));
     double* vp = REAL(vector);  // It's a little faster if you get a pointer and reuse it.
     size_t i = 0;
     for (auto it = m.begin(); it != m.end(); ++it, ++i) {
         vp[i] = it->second;
-        SET_STRING_ELT(names, i, mkChar(it->first.c_str()));
+        SET_STRING_ELT(names, i, Rf_mkChar(it->first.c_str()));
     }
-    setAttrib(vector, R_NamesSymbol, names);
+    Rf_setAttrib(vector, R_NamesSymbol, names);
     UNPROTECT(2);
     return vector;
 }
@@ -174,9 +174,9 @@ void output_map(state_map const &m) {
 }
 
 void output_list(SEXP const &list) {
-    size_t n = length(list);
-    SEXP names = PROTECT(allocVector(STRSXP, n));
-    names = getAttrib(list, R_NamesSymbol);
+    size_t n = Rf_length(list);
+    SEXP names = PROTECT(Rf_allocVector(STRSXP, n));
+    names = Rf_getAttrib(list, R_NamesSymbol);
     Rprintf("The list contains the following items: ");
     for (size_t i = 0; i < n - 1; ++i) {
         Rprintf("%s, %0.04f; ", CHAR(STRING_ELT(names, i)), REAL(VECTOR_ELT(list, i))[0]);

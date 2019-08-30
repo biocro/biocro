@@ -6,7 +6,7 @@ glycine_max_initial_state = with(list(), {
     Leaf 0.06  # The total of Leaf, Stem and Root masses is 0.08, which comes from http://www.montana.edu/cpa/news/wwwpb-archives/ag/baudr182.html and https://www.extension.purdue.edu/extmedia/ay/ay-217-w.pdf.
     Stem 0.01
     Root 0.01
-    Grain 0
+    Grain 0.0001
     soil_water_content 0.32
     LeafN 2
     TTc 0

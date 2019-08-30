@@ -65,11 +65,11 @@ extern "C" {
 		SEXP Ggrowth;
 		
 		// Allocate space
-		PROTECT(lists = allocVector(VECSXP,5));
-		PROTECT(names = allocVector(STRSXP,5));
-		PROTECT(growth = allocVector(REALSXP,1));
-		PROTECT(trans = allocVector(REALSXP,1));
-		PROTECT(Ggrowth = allocVector(REALSXP,1));
+		PROTECT(lists = Rf_allocVector(VECSXP,5));
+		PROTECT(names = Rf_allocVector(STRSXP,5));
+		PROTECT(growth = Rf_allocVector(REALSXP,1));
+		PROTECT(trans = Rf_allocVector(REALSXP,1));
+		PROTECT(Ggrowth = Rf_allocVector(REALSXP,1));
 		
 		// Set up a standalone version of the c3 canopy module
 		
@@ -178,7 +178,7 @@ extern "C" {
 		
 		// Check the outputs
 		if(ISNAN(canopy_assimilation_rate)) {
-            error("Something is NA \n");
+            Rf_error("Something is NA \n");
         }
 		
 		// Format the outputs properly for R
@@ -190,10 +190,10 @@ extern "C" {
 		SET_VECTOR_ELT(lists, 1, trans);
 		SET_VECTOR_ELT(lists, 2, Ggrowth);
 
-		SET_STRING_ELT(names, 0, mkChar("CanopyAssim"));
-		SET_STRING_ELT(names, 1, mkChar("CanopyTrans"));
-		SET_STRING_ELT(names, 2, mkChar("GrossCanopyAssim"));
-		setAttrib(lists,R_NamesSymbol,names);
+		SET_STRING_ELT(names, 0, Rf_mkChar("CanopyAssim"));
+		SET_STRING_ELT(names, 1, Rf_mkChar("CanopyTrans"));
+		SET_STRING_ELT(names, 2, Rf_mkChar("GrossCanopyAssim"));
+		Rf_setAttrib(lists,R_NamesSymbol,names);
 
 		UNPROTECT(5);
 		return(lists);

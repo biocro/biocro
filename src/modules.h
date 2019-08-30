@@ -13,22 +13,28 @@ class Module {
 	// A module can be one of the following subtypes:
 	//   (1) "steady state" (i.e. it returns some parameters based on the current state) or
 	//   (2) "derivative" (i.e. it returns the rate of change for some elements of the state)
+	// A module must also indicate whether or not is compatible with adaptive step size integrators
+	//   For most modules, this is the case. However, a few require information from previous
+	//   steps and will only work properly with fixed step size methods
 	// Module and the derived classes listed above are all abstract, so no objects of these
 	//  classes can be instantiated. Instead, concrete (i.e., not abstract) subclasses must be
 	//  defined elsewhere.
 	public:
-		Module(std::string const& module_name, bool const &is_deriv) :
+		Module(std::string const& module_name, bool const &deriv, bool const &adaptive_compatible) :
 			_module_name(module_name),
-			_is_deriv(is_deriv)
+			_is_deriv(deriv),
+			_is_adaptive_compatible(adaptive_compatible)
 			{}
 		// Functions for returning module information
         std::string get_name() const {return _module_name;}
         bool is_deriv() const {return _is_deriv;}
+		bool is_adaptive_compatible() const {return _is_adaptive_compatible;}
         // Functions for running the module
         void run() const {do_operation();}
 	private:
 		std::string const _module_name;
 		bool const _is_deriv;
+		bool const _is_adaptive_compatible;
         virtual void do_operation() const;
     protected:
     	// Helpful functions for writing concrete module code
@@ -61,7 +67,7 @@ inline const double* Module::get_ip(const std::unordered_map<std::string, double
 // This derived class represents a steady state module
 class SteadyModule : public Module {
 	public:
-		SteadyModule(const std::string & module_name) : Module(module_name, 0) {}
+		SteadyModule(const std::string & module_name, bool adaptive_compatible = true) : Module(module_name, 0, adaptive_compatible) {}
 	protected:
 		void update(double* output_ptr, const double& value) const {*output_ptr = value;}	// The output parameters of a steady state module are unique, so we can just overwrite the previously stored value
 };
@@ -69,7 +75,7 @@ class SteadyModule : public Module {
 // This derived class represents a derivative module
 class DerivModule : public Module {
 	public:
-		DerivModule(const std::string& module_name) : Module(module_name, 1) {}
+		DerivModule(const std::string& module_name, bool adaptive_compatible = true) : Module(module_name, 1, adaptive_compatible) {}
 	protected:
 		void update(double* output_ptr, const double& value) const {*output_ptr += value;}	// The output parameters of a derivative module are not necessarily unique, so we should add a new one to the previously stored value
 };

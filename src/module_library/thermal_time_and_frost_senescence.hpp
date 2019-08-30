@@ -7,7 +7,7 @@ class thermal_time_and_frost_senescence : public DerivModule {
 	public:
 		thermal_time_and_frost_senescence(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 			// Define basic module properties by passing its name to its parent class
-			DerivModule("thermal_time_and_frost_senescence"),
+			DerivModule("thermal_time_and_frost_senescence", false),	// Indicate that this module is not compatible with adaptive step size integrators
 			// Get pointers to input parameters
 			TTc_ip(get_ip(input_parameters, "TTc")),
 			seneLeaf_ip(get_ip(input_parameters, "seneLeaf")),

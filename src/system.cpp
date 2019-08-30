@@ -9,19 +9,45 @@ void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt,
 	run_derivative_modules(dxdt);
 }
 
-/*
-template<class time_type> void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt) {
+// For double time and std::vector state
+void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt, const double& t) {
+	// Update the internally stored parameter list and use it to calculate a derivative
+	update_varying_params(t);
+	update_state_params(x);
+	run_steady_state_modules();
+	run_derivative_modules(dxdt);
+}
+
+// For integer time and boost::numeric::ublas::vector state
+void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const int& t) {
+	// Update the internally stored parameter list and use it to calculate a derivative
+	update_varying_params(t);
+	update_state_params(x);
+	run_steady_state_modules();
+	run_derivative_modules(dxdt);
+}
+
+// For double time and boost::numeric::ublas::vector state
+void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const double& t) {
+	// Update the internally stored parameter list and use it to calculate a derivative
+	update_varying_params(t);
+	update_state_params(x);
+	run_steady_state_modules();
+	run_derivative_modules(dxdt);
+}
+
+void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const double& t, boost::numeric::ublas::vector<double>& dfdt) {
 	// Numerically compute the Jacobian matrix
 	//  The odeint Rosenbrock stepper requires the use of UBLAS vectors and matrices and the Jacobian is only required when using this
 	//    stepper, so we can restrict the state vector type to be UBLAS
 	// Discussion of step size from http://www.iue.tuwien.ac.at/phd/khalil/node14.html:
-	//  It is also known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
+	//  "It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
 	//  Decreasing the step size will reduce the truncation error.
 	//  Unfortunately a smaller step has the opposite effect on the cancellation error.
 	//  Selecting the optimal step size for a certain problem is computationally expensive and the benefits achieved are not justifiable
 	//    as the effect of small errors in the values of the elements of the Jacobian matrix is minor.
-	//  For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient.
-	// In BioCro, we only evaluate the forward perturbation to reduce calculation costs
+	//  For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient."
+	// In BioCro, we fix a step size and only evaluate the forward perturbation to reduce calculation costs
 	//  In other words:
 	//    (1) We calculate dxdt using the input (x,t) (called dxdt_c for current)
 	//    (2) We make a forward perturbation by adding h to one state variable and calculating the time derivatives (called dxdt_p for perturbation)
@@ -37,7 +63,7 @@ template<class time_type> void System::operator()(const boost::numeric::ublas::v
 	//  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro derivatives are expensive
 	//  Likewise, higher-order numerical derivative calculations are also not worthwhile
 	
-	int n = x.size();
+	size_t n = x.size();
 	
 	// Make vectors to store the current and perturbed dxdt
 	boost::numeric::ublas::vector<double> dxdt_c(n);
@@ -49,7 +75,7 @@ template<class time_type> void System::operator()(const boost::numeric::ublas::v
 	// Perturb each state variable and find the corresponding change in the derivative
 	double h;
 	boost::numeric::ublas::vector<double> xperturb = x;
-	for(int i = 0; i < n; i++) {
+	for(size_t i = 0; i < n; i++) {
 		// Ensure that the step size h is close to eps but is exactly representable
 		//  (see Numerical Recipes in C, 2nd ed., Section 5.7)
 		h = eps;
@@ -61,7 +87,7 @@ template<class time_type> void System::operator()(const boost::numeric::ublas::v
 		operator()(xperturb, dxdt_p, t);	// Calculate dxdt_p
 		
 		// Store the results in the Jacobian matrix
-		for(int j = 0; j < n; j++) jacobi(j,i) = (dxdt_p[j] - dxdt_c[j])/h;
+		for(size_t j = 0; j < n; j++) jacobi(j,i) = (dxdt_p[j] - dxdt_c[j])/h;
 		
 		// Reset the ith state variable
 		xperturb[i] = x[i];				// Reset the ith state variable
@@ -74,14 +100,13 @@ template<class time_type> void System::operator()(const boost::numeric::ublas::v
 	h = temp - t;
 	if(t + h <= (double)ntimes - 1.0) {
 		operator()(x, dxdt_p, t + h);
-		for(int j = 0; j < n; j++) dfdt[j] = (dxdt_p[j] - dxdt_c[j])/h;
+		for(size_t j = 0; j < n; j++) dfdt[j] = (dxdt_p[j] - dxdt_c[j])/h;
 	}
 	else {
 		operator()(x, dxdt_p, t - h);
-		for(int j = 0; j < n; j++) dfdt[j] = (dxdt_c[j] - dxdt_p[j])/h;
+		for(size_t j = 0; j < n; j++) dfdt[j] = (dxdt_c[j] - dxdt_p[j])/h;
 	}
 }
-*/
 
 System::System(
 	std::unordered_map<std::string, double> const& initial_state,
@@ -123,6 +148,7 @@ System::System(
 	std::set<std::string> unique_derivative_outputs;				// All parameters output by derivative modules
 	std::set<std::string> unique_module_inputs;						// All parameters used as inputs to modules
 	std::set<std::string> unique_changing_parameters;				// All parameters that change throughout a simulation (used for saving/returning results, since we shouldn't include invariant parameters)
+	std::vector<std::string> adaptive_step_size_incompat;			// All modules that are incompatible with adaptive step size integrators
 	// Lists for describing problems with the inputs
 	std::vector<std::string> duplicate_parameter_names;				// A list of parameter names that are duplicated in the initial state, invariant parameters, and varying parameters
 	std::vector<std::string> duplicate_module_names;				// A list of module names that are duplicated
@@ -376,12 +402,14 @@ System::System(
 	for(std::string module_name : steady_state_module_names) {
 		steady_state_modules.push_back(module_factory.create(module_name));
 		if(steady_state_modules.back()->is_deriv()) incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of steady state modules, but it returns a derivative"));
+		if(!steady_state_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
 	}
 	if(_verbose) Rprintf("done!\n\n");
 	if(_verbose) Rprintf("Creating the derivative modules from the list and making sure the list only includes derivative modules... ");
 	for(std::string module_name : derivative_module_names) {
 		derivative_modules.push_back(module_factory.create(module_name));
 		if(!derivative_modules.back()->is_deriv()) incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of derivative modules, but it does not return a derivative"));
+		if(!derivative_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
 	}
 	if(_verbose) Rprintf("done!\n\n");
 	
@@ -393,6 +421,20 @@ System::System(
 			for(std::string s : incorrect_modules) Rprintf("%s\n", s.c_str());
 			Rprintf("\n");
 		}
+	}
+	
+	// Let the user know about adaptive step size compatibility
+	if(adaptive_step_size_incompat.size() != 0) {
+		_is_adaptive_compatible = false;
+		if(_verbose) {
+			Rprintf("The following modules are incompatible with adaptive step size integrators, so this system can only be solved with the fixed-step-size Euler method:\n");
+			for(std::string s : adaptive_step_size_incompat) Rprintf("%s\n", s.c_str());
+			Rprintf("\n");
+		}
+	}
+	else {
+		_is_adaptive_compatible = true;
+		if(_verbose) Rprintf("All modules are compatible with adaptive step size integrators, so this system can be solved using adaptive Runge-Kutta or Rosenbrock methods.\n\n");
 	}
 	
 	// If any errors occurred, notify the user
@@ -459,8 +501,14 @@ void System::set_param(const std::vector<double>& values, const std::vector<std:
 	if(values.size() != parameter_names.size()) throw std::logic_error("Thrown by System::set_param - input vector lengths are different\n");
 	for(size_t i = 0; i < values.size(); i++) set_param(values[i], parameter_names[i]);
 }
-
+// For std::vector state
 void System::get_state(std::vector<double>& x) const {
+	x.resize(state_ptrs.size());
+	for(size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
+}
+
+// For boost::numeric::ublas::vector state
+void System::get_state(boost::numeric::ublas::vector<double>& x) const {
 	x.resize(state_ptrs.size());
 	for(size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
 }
@@ -480,6 +528,43 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
 	for(size_t i = 0; i < x_vec.size(); i++) {
 		// Unpack the latest time and state from the calculation results
 		std::vector<double> current_state = x_vec[i];
+		int current_time = times[i];
+		// Get the corresponding parameter list
+		update_varying_params(current_time);
+		update_state_params(current_state);
+		run_steady_state_modules();
+		// Add the list to the results map
+		for(size_t j = 0; j < output_param_vector.size(); j++) {
+			(results[output_param_vector[j]])[i] = parameters[output_param_vector[j]];
+			if(output_param_vector[j] == std::string("doy_dbl")) {
+				double doy_dbl = parameters[output_param_vector[j]];
+				int doy = floor(doy_dbl);
+				double hour = 24.0 * (doy_dbl - doy);
+				results["doy"][i] = doy;
+				results["hour"][i] = hour;
+			}
+		}
+	}
+	
+	// Return the result map
+	return results;
+}
+
+// For double time and boost::numeric::ublas::vector state
+std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<boost::numeric::ublas::vector<double>>& x_vec, const std::vector<double>& times) {
+	// Make the result map
+	std::unordered_map<std::string, std::vector<double>> results;
+	
+	// Initialize the parameter names
+	std::vector<double> temp(x_vec.size());
+	for(std::string p : output_param_vector) results[p] = temp;
+	results["doy"] = temp;
+	results["hour"] = temp;
+	
+	// Store the data
+	for(size_t i = 0; i < x_vec.size(); i++) {
+		// Unpack the latest time and state from the calculation results
+		boost::numeric::ublas::vector<double> current_state = x_vec[i];
 		int current_time = times[i];
 		// Get the corresponding parameter list
 		update_varying_params(current_time);

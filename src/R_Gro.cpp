@@ -39,10 +39,10 @@ SEXP R_Gro(SEXP initial_state,
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_Gro.");
+		Rf_error("Caught unhandled exception in R_Gro.");
 	}
 }
 
@@ -84,7 +84,7 @@ SEXP R_Gro_deriv(SEXP state,
 		std::vector<double> dxdt = x;
 		
 		// Run the system once
-		sys.operator()(x, dxdt, t);
+		sys(x, dxdt, t);
 		
 		// Make the output map
 		state_map result;
@@ -94,10 +94,10 @@ SEXP R_Gro_deriv(SEXP state,
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_Gro_deriv: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_Gro_deriv: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_Gro_deriv.");
+		Rf_error("Caught unhandled exception in R_Gro_deriv.");
 	}
 }
 
@@ -176,7 +176,7 @@ SEXP R_Gro_ode(SEXP state,
 		std::vector<double> dxdt = x;
 		
 		// Run the system once
-		sys.operator()(x, dxdt, 0);
+		sys(x, dxdt, 0);
 		
 		// Make the output map
 		state_map result;
@@ -186,10 +186,10 @@ SEXP R_Gro_ode(SEXP state,
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_Gro_ode.");
+		Rf_error("Caught unhandled exception in R_Gro_ode.");
 	}
 	
 	// Return an indication of success
@@ -257,10 +257,10 @@ SEXP R_get_module_info(SEXP module_name_input)
 		return list_from_map(input_map);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_get_module_info: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_get_module_info: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_get_module_info.");
+		Rf_error("Caught unhandled exception in R_get_module_info.");
 	}
 }
 
@@ -283,10 +283,10 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
 		// don't do anything special
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_get_standalone_ss_info: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_get_standalone_ss_info: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_get_standalone_ss_info.");
+		Rf_error("Caught unhandled exception in R_get_standalone_ss_info.");
 	}
 	
 	// Return an indication of success
@@ -329,10 +329,10 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 		return list_from_map(vector_module_output);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_test_module: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_test_module: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_test_module.");
+		Rf_error("Caught unhandled exception in R_test_module.");
 	}
 }
 
@@ -357,10 +357,10 @@ SEXP R_test_system(SEXP initial_state,
 		System sys(s, ip, vp, ss_names, deriv_names, TRUE);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_test_system: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_test_system: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_test_system.");
+		Rf_error("Caught unhandled exception in R_test_system.");
 	}
 	
 	// Return an indication of success
@@ -384,10 +384,10 @@ SEXP R_get_all_modules()
 		return r_string_vector_from_vector(result);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_get_all_modules.");
+		Rf_error("Caught unhandled exception in R_get_all_modules.");
 	}
 }
 
@@ -406,10 +406,10 @@ SEXP R_get_all_param()
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
-		error(string(string("Caught exception in R_get_all_param: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_get_all_param: ") + e.what()).c_str());
 	}
 	catch (...) {
-		error("Caught unhandled exception in R_get_all_param.");
+		Rf_error("Caught unhandled exception in R_get_all_param.");
 	}
 }
 

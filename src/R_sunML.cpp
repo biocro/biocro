@@ -31,14 +31,14 @@ SEXP R_sunML(
     SEXP shaded_fraction;
     SEXP height;
 
-    PROTECT(list = allocVector(VECSXP, 6));
-    PROTECT(names = allocVector(STRSXP, 6));
-    PROTECT(direct_irradiance = allocVector(REALSXP, nlayers));
-    PROTECT(diffuse_irradiance = allocVector(REALSXP, nlayers));
-    PROTECT(total_irradiance = allocVector(REALSXP, nlayers));
-    PROTECT(sunlit_fraction = allocVector(REALSXP, nlayers));
-    PROTECT(shaded_fraction = allocVector(REALSXP, nlayers));
-    PROTECT(height = allocVector(REALSXP, nlayers));
+    PROTECT(list = Rf_allocVector(VECSXP, 6));
+    PROTECT(names = Rf_allocVector(STRSXP, 6));
+    PROTECT(direct_irradiance = Rf_allocVector(REALSXP, nlayers));
+    PROTECT(diffuse_irradiance = Rf_allocVector(REALSXP, nlayers));
+    PROTECT(total_irradiance = Rf_allocVector(REALSXP, nlayers));
+    PROTECT(sunlit_fraction = Rf_allocVector(REALSXP, nlayers));
+    PROTECT(shaded_fraction = Rf_allocVector(REALSXP, nlayers));
+    PROTECT(height = Rf_allocVector(REALSXP, nlayers));
 
     Light_profile result = sunML(i_dir, i_diff, lai, nlayers, cos_theta, kd, chi_l, height_f);
 
@@ -58,13 +58,13 @@ SEXP R_sunML(
     SET_VECTOR_ELT(list, 4, shaded_fraction);
     SET_VECTOR_ELT(list, 5, height);
 
-    SET_STRING_ELT(names, 0, mkChar("direct_irradiance"));
-    SET_STRING_ELT(names, 1, mkChar("diffuse_irradiance"));
-    SET_STRING_ELT(names, 2, mkChar("total_irradiance"));
-    SET_STRING_ELT(names, 3, mkChar("sunlit_fraction"));
-    SET_STRING_ELT(names, 4, mkChar("shaded_fraction"));
-    SET_STRING_ELT(names, 5, mkChar("height"));
-    setAttrib(list, R_NamesSymbol, names);
+    SET_STRING_ELT(names, 0, Rf_mkChar("direct_irradiance"));
+    SET_STRING_ELT(names, 1, Rf_mkChar("diffuse_irradiance"));
+    SET_STRING_ELT(names, 2, Rf_mkChar("total_irradiance"));
+    SET_STRING_ELT(names, 3, Rf_mkChar("sunlit_fraction"));
+    SET_STRING_ELT(names, 4, Rf_mkChar("shaded_fraction"));
+    SET_STRING_ELT(names, 5, Rf_mkChar("height"));
+    Rf_setAttrib(list, R_NamesSymbol, names);
 
     UNPROTECT(8);
     return list;
