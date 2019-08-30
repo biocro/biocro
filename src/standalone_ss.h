@@ -5,7 +5,7 @@
 #include <memory>		// For unique_ptr and shared_ptr
 #include <unordered_map>
 #include <set>
-#include <Rinternals.h>	// For Rprintf
+#include "system.h"		// For void_printf
 #include "modules.h"
 #include "module_library/ModuleFactory.h"
 
@@ -17,9 +17,8 @@ class Standalone_SS {
 			std::vector<std::string> const &steady_state_module_names,
 			std::unordered_map<std::string, const double*> const &input_param_ptrs,
 			std::unordered_map<std::string, double*> const &output_param_ptrs,
-			bool verbose);
-		Standalone_SS(const Standalone_SS &standalone) {Rprintf("Copy constructor called!\n");}
-		Standalone_SS & operator=(const Standalone_SS &standalone) {Rprintf("Assignment operator called!\n"); return *this;}
+			bool verbose,
+			void (*print_fcn_ptr) (char const *format, ...) = void_printf);
 		void run() const;
 	private:
 		// Pointers to the modules
@@ -34,6 +33,7 @@ class Standalone_SS {
 		std::vector<std::pair<double*, double*>> output_ptrs;
 		// For user feedback
 		bool _verbose;
+		void (*print_msg) (char const *format, ...);	// A pointer to a function that (1) returns an int and (2) takes a pointer to a null-terminated string followed by additional optional arguments, e.g., printf
 };
 
 #endif

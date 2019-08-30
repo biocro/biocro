@@ -1,23 +1,21 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
-#include <Rinternals.h>	// For Rprintf
 #include <vector>
 #include <set>
 #include <unordered_map>
 #include <memory>		// For unique_ptr and shared_ptr
 #include <cmath>		// For fmod
 #include <time.h>		// For timing during performance testing
+#include <stdio.h>		// For vprintf
+#include <stdarg.h>		// For va_list
 #include <boost/numeric/ublas/vector.hpp>	// For use with ODEINT
 #include <boost/numeric/ublas/matrix.hpp>	// For use with ODEINT
-#include <boost/numeric/odeint.hpp>		// For use with ODEINT
+#include <boost/numeric/odeint.hpp>			// For use with ODEINT
 #include "modules.h"
 #include "module_library/ModuleFactory.h"
 
-//typedef double time_type;
-//typedef double value_type;
-//typedef boost::numeric::ublas::vector<value_type> state_type;
-//typedef std::vector<value_type> state_type;
+void void_printf (char const *format, ...);	// Forward declaration for a printing function
 
 class System {
 	// This class defines a system of differential equations by storing a state, a list of modules, and all of their input/output parameters
@@ -38,7 +36,8 @@ class System {
 			std::unordered_map<std::string, std::vector<double>> const &varying_parameters,
 			std::vector<std::string> const &steady_state_module_names,
 			std::vector<std::string> const &derivative_module_names,
-			bool const verbose);
+			bool const verbose,
+			void (*print_fcn_ptr) (char const *format, ...) = void_printf);
 		// Possibly helpful functions
 		double get_timestep() const {return *timestep_ptr;}
 		bool get_state_indx(int& state_indx, const std::string& parameter_name) const;
@@ -102,8 +101,9 @@ class System {
 		template<class vector_type> void test_derivative_modules(vector_type& derivs);
 		// For numerically calculating derivatives
 		const double eps = 1e-11;
-		// For user feedback
+		// For user feedback and printing
 		bool _verbose;
+		void (*print_msg) (char const *format, ...);	// A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
 };
 
 /////////////////////////
@@ -131,13 +131,27 @@ struct push_back_state_and_time_rsnbrk
 	double _max_time;
 	double threshold = 0;
 	bool _verbose;
+	void (*print_msg) (char const *format, ...);	// A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
 	
-	push_back_state_and_time_rsnbrk(std::vector<boost::numeric::ublas::vector<double>> &states, std::vector<double> &times, double max_time, bool verbose) : m_states(states), m_times(times), _max_time(max_time), _verbose(verbose) {}
+	push_back_state_and_time_rsnbrk(
+		std::vector<boost::numeric::ublas::vector<double>> &states,
+		std::vector<double> &times, double max_time,
+		bool verbose,
+		void (*print_fcn_ptr) (char const *format, ...) = void_printf) :
+		m_states(states),
+		m_times(times),
+		_max_time(max_time),
+		_verbose(verbose),
+		print_msg(print_fcn_ptr)
+	{}
 	
 	void operator()(const boost::numeric::ublas::vector<double> &x, double t) {
-		if(_verbose && t/_max_time > threshold) {
-			Rprintf("\nTimestep = %f (%f%% done) at clock = %u microseconds", t, t/_max_time*100.0, (unsigned int) clock());
-			threshold += 0.02;
+		if(_verbose) {
+			if(t >= _max_time) print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
+			else if(t/_max_time >= threshold) {
+				print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
+				threshold += 0.02;
+			}
 		}
 		m_states.push_back(x);
 		m_times.push_back(t);

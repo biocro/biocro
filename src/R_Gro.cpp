@@ -14,7 +14,7 @@ using std::unique_ptr;
 
 extern "C" {
 
-SEXP R_Gro(SEXP initial_state,
+SEXP R_Gro_auto(SEXP initial_state,
 		SEXP parameters,
 		SEXP varying_parameters,
 		SEXP steady_state_module_names,
@@ -35,14 +35,78 @@ SEXP R_Gro(SEXP initial_state,
 		
 		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 		
-		state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names, verb);
+		state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
-		Rf_error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_Gro_auto: ") + e.what()).c_str());
 	}
 	catch (...) {
-		Rf_error("Caught unhandled exception in R_Gro.");
+		Rf_error("Caught unhandled exception in R_Gro_auto.");
+	}
+}
+
+SEXP R_Gro_euler(SEXP initial_state,
+		SEXP parameters,
+		SEXP varying_parameters,
+		SEXP steady_state_module_names,
+		SEXP derivative_module_names,
+		SEXP verbose)
+{
+	try {
+		state_map s = map_from_list(initial_state);
+		state_map ip = map_from_list(parameters);
+		state_vector_map vp = map_vector_from_list(varying_parameters);
+		
+		if (vp.begin()->second.size() == 0) {
+			return R_NilValue;
+		}
+		
+		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+		
+		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+		
+		state_vector_map result = Gro_euler(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
+		return list_from_map(result);
+	}
+	catch (std::exception const &e) {
+		Rf_error(string(string("Caught exception in R_Gro_euler: ") + e.what()).c_str());
+	}
+	catch (...) {
+		Rf_error("Caught unhandled exception in R_Gro_euler.");
+	}
+}
+
+SEXP R_Gro_rsnbrk(SEXP initial_state,
+		SEXP parameters,
+		SEXP varying_parameters,
+		SEXP steady_state_module_names,
+		SEXP derivative_module_names,
+		SEXP verbose)
+{
+	try {
+		state_map s = map_from_list(initial_state);
+		state_map ip = map_from_list(parameters);
+		state_vector_map vp = map_vector_from_list(varying_parameters);
+		
+		if (vp.begin()->second.size() == 0) {
+			return R_NilValue;
+		}
+		
+		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+		
+		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+		
+		state_vector_map result = Gro_rsnbrk(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
+		return list_from_map(result);
+	}
+	catch (std::exception const &e) {
+		Rf_error(string(string("Caught exception in R_Gro_rsnbrk: ") + e.what()).c_str());
+	}
+	catch (...) {
+		Rf_error("Caught unhandled exception in R_Gro_rsnbrk.");
 	}
 }
 
@@ -71,7 +135,7 @@ SEXP R_Gro_deriv(SEXP state,
 		double t = REAL(time)[0];
 		
 		// Create a system
-		System sys(s, ip, vp, ss_names, deriv_names, verb);
+		System sys(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
 		
 		// Get the state in the correct format
 		std::vector<double> x;
@@ -163,7 +227,7 @@ SEXP R_Gro_ode(SEXP state,
 		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 		
 		// Make the system
-		System sys(s, ip, vp, ss_names, deriv_names, verb);
+		System sys(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
 		
 		// Get the current state in the correct format
 		std::vector<double> x;
@@ -276,7 +340,7 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
 		// a std::length_error to be generated.
 		std::unordered_map<std::string, const double*> input_param_ptrs;
 		std::unordered_map<std::string, double*> output_param_ptrs;
-		Standalone_SS module_combo(module_name_vector, input_param_ptrs, output_param_ptrs, true);
+		Standalone_SS module_combo(module_name_vector, input_param_ptrs, output_param_ptrs, true, Rprintf);
 	}
 	catch (std::length_error const &e) {
 		// This is to be expected, so

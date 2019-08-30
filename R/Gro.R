@@ -4,9 +4,66 @@
 #                                     #
 #######################################
 
-Gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
+Gro <- function(initial_values, parameters, varying_parameters, modules, verbose = FALSE)
 {
-	# This function runs a full crop growth simulation
+	# Check to make sure the initial_state is properly defined
+	if(!is.list(initial_state)) {
+		stop('"initial_state" must be a list')
+	}
+	
+	if(length(initial_state) != length(unlist(initial_state))) {
+		item_lengths = unlist(lapply(initial_state, length))
+		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the parameters are properly defined
+	if(!is.list(parameters)) {
+		stop('"parameters" must be a list')
+	}
+	
+	if(length(parameters) != length(unlist(parameters))) {
+		item_lengths = unlist(lapply(parameters, length))
+		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the varying_parameters are properly defined
+	if(!is.list(varying_parameters)) {
+		stop('"varying_parameters" must be a list')
+	}
+	
+	# C++ requires that all the variables have type `double`
+	initial_state = lapply(initial_state, as.numeric)
+	parameters = lapply(parameters, as.numeric)
+	varying_parameters = lapply(varying_parameters, as.numeric)
+	
+	# Check to make sure the modules are properly defined
+	module_names = paste(c('canopy', 'soil', 'growth', 'senescence', 'stomata_water_stress', 'leaf_water_stress'), '_module_name', sep='')
+	if (any(unused_modules_ind <- !names(modules) %in% module_names)) {
+		message = 'The following modules were supplied, but are not used by this function: '
+		unused_modules = paste(names(modules)[unused_modules_ind], collaspe=', ')
+		stop(paste(message, unused_modules, ',', sep=''))
+	}
+	
+	if (any(null_ind <- unlist(lapply(modules[module_names], is.null)))) {
+		message = 'The following modules names are NULL, but they must be defined: '
+		missing_modules = paste(module_names[null_ind], collapse=', ')
+		stop(paste(message, missing_modules, '.', sep=''))
+	}
+	
+	# Make sure verbose is a logical variable
+	verbose = lapply(verbose, as.logical)
+	
+
+	#result = as.data.frame(.Call(R_Gro, initial_values, parameters, varying_parameters, modules$canopy_module_name, modules$soil_module_name, modules$growth_module_name, modules$senescence_module_name, modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name))
+	#result = cbind(varying_parameters[c('year', 'doy', 'hour')], result)
+	#return(result)
+}
+
+Gro_auto <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
+{
+	# This function runs a full crop growth simulation, automatically choosing the Rosenbrock integration method when possible
 	#
 	# initial_state: a list of named parameters representing state variables
 	# parameters: a list of named parameters that don't change with time
@@ -21,7 +78,7 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 	#
 	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
 	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
-	#  result <- Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, TRUE)
+	#  result <- Gro_auto(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, TRUE)
 	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
 	#
 	# The result is a data frame showing all time-dependent variables as they change throughout the growing season.
@@ -36,7 +93,7 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 	# 
 	#  glycine_max_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "soil_evaporation", "c3_canopy", "utilization_growth_calculator", "utilization_senescence_calculator")
 	#  glycine_max_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_accumulator", "one_layer_soil_profile")
-	#  result <- Gro(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_ss_modules, glycine_max_deriv_modules, TRUE)
+	#  result <- Gro_auto(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_ss_modules, glycine_max_deriv_modules, TRUE)
 	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
 	#
 	# In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
@@ -78,23 +135,111 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 	verbose = lapply(verbose, as.logical)
 	
 	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	result = as.data.frame(.Call(R_Gro_auto, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	return(result)
+}
+
+Gro_euler <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
+{
+	# This function runs a full crop growth simulation using the fixed step size Euler method. All inputs are the same as Gro_auto
+	
+	# Check to make sure the initial_state is properly defined
+	if(!is.list(initial_state)) {
+		stop('"initial_state" must be a list')
+	}
+	
+	if(length(initial_state) != length(unlist(initial_state))) {
+		item_lengths = unlist(lapply(initial_state, length))
+		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the parameters are properly defined
+	if(!is.list(parameters)) {
+		stop('"parameters" must be a list')
+	}
+	
+	if(length(parameters) != length(unlist(parameters))) {
+		item_lengths = unlist(lapply(parameters, length))
+		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the varying_parameters are properly defined
+	if(!is.list(varying_parameters)) {
+		stop('"varying_parameters" must be a list')
+	}
+	
+	# C++ requires that all the variables have type `double`
+	initial_state = lapply(initial_state, as.numeric)
+	parameters = lapply(parameters, as.numeric)
+	varying_parameters = lapply(varying_parameters, as.numeric)
+	
+	# Make sure verbose is a logical variable
+	verbose = lapply(verbose, as.logical)
+	
+	# Run the C++ code
+	result = as.data.frame(.Call(R_Gro_euler, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	return(result)
+}
+
+Gro_rsnbrk <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
+{
+	# This function runs a full crop growth simulation using the adaptive step size Rosenbrock method. All inputs are the same as Gro_auto
+	
+	# Check to make sure the initial_state is properly defined
+	if(!is.list(initial_state)) {
+		stop('"initial_state" must be a list')
+	}
+	
+	if(length(initial_state) != length(unlist(initial_state))) {
+		item_lengths = unlist(lapply(initial_state, length))
+		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the parameters are properly defined
+	if(!is.list(parameters)) {
+		stop('"parameters" must be a list')
+	}
+	
+	if(length(parameters) != length(unlist(parameters))) {
+		item_lengths = unlist(lapply(parameters, length))
+		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	# Check to make sure the varying_parameters are properly defined
+	if(!is.list(varying_parameters)) {
+		stop('"varying_parameters" must be a list')
+	}
+	
+	# C++ requires that all the variables have type `double`
+	initial_state = lapply(initial_state, as.numeric)
+	parameters = lapply(parameters, as.numeric)
+	varying_parameters = lapply(varying_parameters, as.numeric)
+	
+	# Make sure verbose is a logical variable
+	verbose = lapply(verbose, as.logical)
+	
+	# Run the C++ code
+	result = as.data.frame(.Call(R_Gro_rsnbrk, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
 	return(result)
 }
 
 partial_gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, verbose = FALSE)
 {
-	# Accepts the same parameters as Gro() with an additional 'arg_names' parameter, which is a vector of character variables.
-	# Returns a function that runs Gro() with all of the parameters, except 'arg_names
+	# Accepts the same parameters as Gro_auto() with an additional 'arg_names' parameter, which is a vector of character variables.
+	# Returns a function that runs Gro_auto() with all of the parameters, except 'arg_names
 	# set as default. The only parameter in the new function is the value of 'arg_names'.
 	# This technique is called partial application, hence the name partial_gro.
 	# 
-	# initial_state: same as Gro()
-	# parameters: same as Gro()
-	# varying_parameters: same as Gro()
-	# steady_state_module_names: same as Gro()
-	# derivative_module_names: same as Gro()
-	# verbose: same as Gro()
+	# initial_state: same as Gro_auto()
+	# parameters: same as Gro_auto()
+	# varying_parameters: same as Gro_auto()
+	# steady_state_module_names: same as Gro_auto()
+	# derivative_module_names: same as Gro_auto()
+	# verbose: same as Gro_auto()
 	# arg_names: vector of character variables. The names of the arguments that the new function accepts.
 	#  Note: 'arg_names' must contain the names of parameters in 'initial_state', 'parameters', or 'varying_parameters'.
 	# 

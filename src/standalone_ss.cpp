@@ -4,8 +4,10 @@ Standalone_SS::Standalone_SS(
 	std::vector<std::string> const &steady_state_module_names,
 	std::unordered_map<std::string, const double*> const &input_param_ptrs,
 	std::unordered_map<std::string, double*> const &output_param_ptrs,
-	bool verbose) :
-	_verbose(verbose)
+	bool verbose,
+	void (*print_fcn_ptr) (char const *format, ...)) :
+	_verbose(verbose),
+	print_msg(print_fcn_ptr)
 {
 	// Lists for collecting parameters and modules
 	std::set<std::string> unique_parameter_names;					// All parameter names
@@ -22,17 +24,17 @@ Standalone_SS::Standalone_SS(
 	std::string error_string;										// A message to send to the user about any issues that were discovered during the system setup
 	
 	// Begin to initialize
-	if(_verbose) Rprintf("\nStarting to initialize a standalone_ss (standalone steady state module combination)\n\n");
+	if(_verbose) print_msg("\nStarting to initialize a standalone_ss (standalone steady state module combination)\n\n");
 	
 	// Check to make sure at least one module was supplied
-	if(_verbose) Rprintf("Checking to make sure at least one module was specified... ");
+	if(_verbose) print_msg("Checking to make sure at least one module was specified... ");
 	if(steady_state_module_names.size() == 0) {
 		throw std::logic_error(std::string("No input modules were found! A standalone_ss requires at least one module.\n"));
 	}
-	if(_verbose) Rprintf("done!\n\n");
+	if(_verbose) print_msg("done!\n\n");
 	
 	// Start collecting parameter names and check to make sure all the requirements are met
-	if(_verbose) Rprintf("Building list of parameters...");
+	if(_verbose) print_msg("Building list of parameters...");
 	
 	// Initialize a module factory
 	// Note: the inputs to the module factory have not been fully initialized yet. We can
@@ -77,37 +79,37 @@ Standalone_SS::Standalone_SS(
 		}
 		else duplicate_module_names.push_back(std::string("Steady state module '") + module_name);
 	}
-	if(_verbose) Rprintf(" done!\n\n");
+	if(_verbose) print_msg(" done!\n\n");
 	
 	// Let the user know which inputs are required
 	if(_verbose) {
-		Rprintf("The following parameters are required as inputs to at least one module:\n");
-		for(std::string p : unique_module_inputs) Rprintf("%s\n", p.c_str());
-		Rprintf("\n");
+		print_msg("The following parameters are required as inputs to at least one module:\n");
+		for(std::string p : unique_module_inputs) print_msg("%s\n", p.c_str());
+		print_msg("\n");
 	}
 	
 	// Let the user know which parameters are output
 	if(_verbose) {
-		Rprintf("The following parameters are produced as outputs:\n");
-		for(std::string p : unique_module_outputs) Rprintf("%s\n", p.c_str());
-		Rprintf("\n");
+		print_msg("The following parameters are produced as outputs:\n");
+		for(std::string p : unique_module_outputs) print_msg("%s\n", p.c_str());
+		print_msg("\n");
 	}
 	
 	// Collect information about any errors that may have occurred while checking the parameters
 	if(duplicate_module_names.size() != 0) {
 		error_string += "Some modules were duplicated in the input list.\n";
 		if(_verbose) {
-			Rprintf("The following modules were duplicated:\n");
-			for(std::string s : duplicate_module_names) Rprintf("%s\n", s.c_str());
-			Rprintf("\n");
+			print_msg("The following modules were duplicated:\n");
+			for(std::string s : duplicate_module_names) print_msg("%s\n", s.c_str());
+			print_msg("\n");
 		}
 	}
 	if(duplicate_output_parameters.size() != 0) {
 		error_string += "Some steady state module output parameters were already included by previous steady state modules.\n";
 		if(_verbose) {
-			Rprintf("The following steady state output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules:\n");
-			for(std::string s : duplicate_output_parameters) Rprintf("%s\n", s.c_str());
-			Rprintf("\n");
+			print_msg("The following steady state output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules:\n");
+			for(std::string s : duplicate_output_parameters) print_msg("%s\n", s.c_str());
+			print_msg("\n");
 		}
 	}
 	
@@ -131,20 +133,20 @@ Standalone_SS::Standalone_SS(
 	}
 	
 	// Create the modules
-	if(_verbose) Rprintf("Creating the steady state modules from the list and making sure the list only includes steady state modules... ");
+	if(_verbose) print_msg("Creating the steady state modules from the list and making sure the list only includes steady state modules... ");
 	for(std::string module_name : steady_state_module_names) {
 		steady_state_modules.push_back(module_factory.create(module_name));
 		if(steady_state_modules.back()->is_deriv()) incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of steady state modules, but it returns a derivative"));
 	}
-	if(_verbose) Rprintf("done!\n\n");
+	if(_verbose) print_msg("done!\n\n");
 	
 	// Collect information about any errors that may have occurred while creating the modules
 	if(incorrect_modules.size() != 0) {
 		error_string += "Some modules were mischaracterized in the input lists.\n";
 		if(_verbose) {
-			Rprintf("The following modules were mischaracterized:\n");
-			for(std::string s : incorrect_modules) Rprintf("%s\n", s.c_str());
-			Rprintf("\n");
+			print_msg("The following modules were mischaracterized:\n");
+			for(std::string s : incorrect_modules) print_msg("%s\n", s.c_str());
+			print_msg("\n");
 		}
 	}
 	
@@ -189,17 +191,17 @@ Standalone_SS::Standalone_SS(
 	if(bad_input_names.size() != 0) {
 		error_string += "Some of the supplied input parameters were not required by the modules.\n";
 		if(_verbose) {
-			Rprintf("The following input parameters were not required:\n");
-			for(std::string s : bad_input_names) Rprintf("%s\n", s.c_str());
-			Rprintf("\n");
+			print_msg("The following input parameters were not required:\n");
+			for(std::string s : bad_input_names) print_msg("%s\n", s.c_str());
+			print_msg("\n");
 		}
 	}
 	if(bad_output_names.size() != 0) {
 		error_string += "Some of the supplied output parameters were not produced by the modules.\n";
 		if(_verbose) {
-			Rprintf("The following output parameters were not valid:\n");
-			for(std::string s : bad_output_names) Rprintf("%s\n", s.c_str());
-			Rprintf("\n");
+			print_msg("The following output parameters were not valid:\n");
+			for(std::string s : bad_output_names) print_msg("%s\n", s.c_str());
+			print_msg("\n");
 		}
 	}
 	
@@ -211,7 +213,7 @@ Standalone_SS::Standalone_SS(
 	}
 	
 	// Otherwise, we are done!
-	if(_verbose) Rprintf("Done applying checks and building the standalone module set!\n\n");
+	if(_verbose) print_msg("Done applying checks and building the standalone module set!\n\n");
 }
 
 void Standalone_SS::run() const {	
