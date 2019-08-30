@@ -136,7 +136,7 @@ struct push_back_state_and_time_rsnbrk
 	
 	void operator()(const boost::numeric::ublas::vector<double> &x, double t) {
 		if(_verbose && t/_max_time > threshold) {
-			Rprintf("\nTime = %f ( %f%% done) at clock = %u", t, t/_max_time*100.0, (unsigned int) clock());
+			Rprintf("\nTimestep = %f (%f%% done) at clock = %u microseconds", t, t/_max_time*100.0, (unsigned int) clock());
 			threshold += 0.02;
 		}
 		m_states.push_back(x);

@@ -6,7 +6,7 @@
 
 Gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
 {
-	# This function runs a full simulation using the fixed-step Euler method
+	# This function runs a full crop growth simulation
 	#
 	# initial_state: a list of named parameters representing state variables
 	# parameters: a list of named parameters that don't change with time
