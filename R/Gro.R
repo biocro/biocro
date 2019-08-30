@@ -22,11 +22,25 @@ Gro <- function(initial_state, parameters, varying_parameters, steady_state_modu
 	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
 	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
 	#  result <- Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, TRUE)
+	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
 	#
 	# The result is a data frame showing all time-dependent variables as they change throughout the growing season.
 	# When Gro is run in verbose mode (as in this example, where verbose = TRUE), information about the input and output parameters
 	# will be printed to the R console before the simulation runs. This can be very useful when attempting to combine a set of modules
 	# for the first time.
+	#
+	# In the sorghum example, the simulation is performed using the fixed-step size Euler method for numerical integration. One of its modules (thermal_time_senescence)
+	# requires a history of all parameters, making it incompatible with any other integration method.
+	# 
+	# Example 2: running a soybean simulation using weather data from 2005
+	# 
+	#  glycine_max_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "soil_evaporation", "c3_canopy", "utilization_growth_calculator", "utilization_senescence_calculator")
+	#  glycine_max_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  result <- Gro(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_ss_modules, glycine_max_deriv_modules, TRUE)
+	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
+	#
+	# In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
+	# ODEINT's implementation of an implicit Rosenbrock solver to run the simulation.
 	
 	# Check to make sure the initial_state is properly defined
 	if(!is.list(initial_state)) {
