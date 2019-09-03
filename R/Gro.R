@@ -382,6 +382,9 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 {
 	# Gro_deriv is used to create a function that can be called by a solver such as LSODES
 	#
+	# Important note: this strategy is not recommended, since Gro, Gro_auto, and Gro_rsnbrk now implement
+	#  the ODEINT stiff system solver in a more efficient way then LSODES would
+	#
 	# initial_state: a list of named parameters representing state variables
 	#  Note: the values of these parameters are not important and won't be used in this function, but their names are critical
 	# parameters: a list of named parameters that don't change with time
