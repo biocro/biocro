@@ -1,8 +1,9 @@
 #include "ModuleFactory.h"
 
 // IMPORTANT: each module in the factory must have one entry each in the modules, input_parameter_names, and output_parameter_names lists
+// The descriptions included in module_descriptions are recommended but not necessary
 
-// Include all the m_XXXXXX.h header files that describe the modules
+// Include all the header files that describe the modules
 #include "harmonic_oscillator.hpp"	// Contains harmonic_oscillator and harmonic_energy
 #include "size_testing.hpp"			// Contains P1, P10, P100, and P1000
 #include "reaction.hpp"
@@ -276,6 +277,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"flowering",										flowering::get_outputs()},
 		{"flowering_calculator",							flowering_calculator::get_outputs()}
 	};
+	module_descriptions = {
+		{"utilization_growth",								utilization_growth::get_description()},
+		{"utilization_growth_calculator",					utilization_growth_calculator::get_description()}
+	};
 }
 
 std::unique_ptr<Module> ModuleFactory::create(std::string const &module_name) const {
@@ -306,6 +311,11 @@ std::vector<std::string> ModuleFactory::get_outputs(std::string const &module_na
 	catch (std::out_of_range) {
 		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, ModuleFactory::get_outputs could not find a module with that name.\n"));
 	}
+}
+
+std::string ModuleFactory::get_description(std::string const &module_name) const {
+	if(module_descriptions.find(module_name) == module_descriptions.end()) return std::string("No description was provided for this module.");
+	else return module_descriptions.at(module_name);
 }
 
 std::unordered_map<std::string, std::vector<std::string>> ModuleFactory::get_all_param() const {

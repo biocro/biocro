@@ -27,7 +27,6 @@ class System {
 	//    varying_parameters[ceil(time)]. This method is applicable for adaptive integration methods such as Runge-Kutta-Cash-Karp or fixed-step
 	//    integration methods that evaluate derivatives at fractional time steps such as 4th Order Runge-Kutta
 	// The state vector (and its derivative) can be either std::vector<double> or boost::numeric::ublas::vector<double>
-	//  - std::vector<double> is significantly faster for non-stiff systems (by a factor of 3-4)
 	//  - boost::numeric::ublas::vector<double> is required for stiff systems, since the odeint rosenbrock4 stepper can only use this type
 	public:
 		System(

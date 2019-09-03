@@ -55,6 +55,7 @@ class utilization_growth_calculator : public SteadyModule {
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
+		static std::string get_description();
 	private:
 		// Pointers to input parameters
 		//const double* dawn_phase_ip;
@@ -154,6 +155,14 @@ std::vector<std::string> utilization_growth_calculator::get_outputs() {
 		"mass_fraction_rhizome",
 		"mass_fraction_grain"
 	};
+}
+
+std::string utilization_growth_calculator::get_description() {
+	std::string description = std::string("The utilization growth model is based on several papers published by Thornley and is implemented in BioCro via two separate modules.\n");
+	description += std::string("This module calculates utilization and transport rates for different plant tissue types.\n");
+	description += std::string("It is intended to be run along with the utilization_growth module.\n");
+	description += std::string("See utilization_growth.hpp and utilization_growth_calculator.hpp for more information.");
+	return description;
 }
 
 inline double utilization_hill(double KM, double n, double concentration) {

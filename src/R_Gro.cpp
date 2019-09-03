@@ -14,7 +14,7 @@ using std::unique_ptr;
 
 extern "C" {
 
-SEXP R_Gro_auto(SEXP initial_state,
+SEXP R_Gro(SEXP initial_state,
 		SEXP parameters,
 		SEXP varying_parameters,
 		SEXP steady_state_module_names,
@@ -39,10 +39,10 @@ SEXP R_Gro_auto(SEXP initial_state,
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
-		Rf_error(string(string("Caught exception in R_Gro_auto: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
 	}
 	catch (...) {
-		Rf_error("Caught unhandled exception in R_Gro_auto.");
+		Rf_error("Caught unhandled exception in R_Gro.");
 	}
 }
 
@@ -274,6 +274,9 @@ SEXP R_get_module_info(SEXP module_name_input)
 		std::unordered_map<std::string, double> vector_module_output;
 		ModuleFactory module_factory(&parameters, &vector_module_output);
 		
+		// Get the module's description
+		std::string description = module_factory.get_description(module_name);
+		
 		// Get the module's inputs and add them to the parameter list with default
 		//  values
 		std::vector<std::string> module_inputs = module_factory.get_inputs(module_name);
@@ -300,6 +303,9 @@ SEXP R_get_module_info(SEXP module_name_input)
 		// Module type
 		if(is_deriv) Rprintf("Module type (derivative or steady state):\n  derivative\n\n");
 		else Rprintf("Module type (derivative or steady state):\n  steady state\n\n");
+		
+		// Module description
+		Rprintf("Module description:\n%s\n\n", description.c_str());
 		
 		// Module inputs
 		Rprintf("Module input parameters:");
