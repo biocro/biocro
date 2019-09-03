@@ -340,7 +340,6 @@ System::System(
 		if(_verbose) {
 			print_msg("No derivatives were supplied for the following state variables:\n");
 			for(auto x : initial_state) {
-				//if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) myfile << x.first << "\n";
 				if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) print_msg("%s\n", (x.first).c_str());
 			}
 			print_msg("These variables will not change with time. You may want to consider adding one or more derivative modules that describe them.\n\n");
@@ -351,7 +350,6 @@ System::System(
 		for(auto x : invariant_parameters) {
 			if(unique_module_inputs.find(x.first) == unique_module_inputs.end()) {
 				if(found_unused_invariant_parameter == false) {
-					//myfile << "The following invariant parameters were not used as inputs to any module:\n" << x.first << "\n";
 					print_msg("The following invariant parameters were not used as inputs to any module:\n%s\n", (x.first).c_str());
 					found_unused_invariant_parameter = true;
 				}
@@ -533,8 +531,6 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
 	// Initialize the parameter names
 	std::vector<double> temp(x_vec.size());
 	for(std::string p : output_param_vector) results[p] = temp;
-	results["doy"] = temp;
-	results["hour"] = temp;
 	
 	// Store the data
 	for(size_t i = 0; i < x_vec.size(); i++) {
@@ -546,16 +542,7 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
 		update_state_params(current_state);
 		run_steady_state_modules();
 		// Add the list to the results map
-		for(size_t j = 0; j < output_param_vector.size(); j++) {
-			(results[output_param_vector[j]])[i] = parameters[output_param_vector[j]];
-			if(output_param_vector[j] == std::string("doy_dbl")) {
-				double doy_dbl = parameters[output_param_vector[j]];
-				int doy = floor(doy_dbl);
-				double hour = 24.0 * (doy_dbl - doy);
-				results["doy"][i] = doy;
-				results["hour"][i] = hour;
-			}
-		}
+		for(size_t j = 0; j < output_param_vector.size(); j++) (results[output_param_vector[j]])[i] = parameters[output_param_vector[j]];
 	}
 	
 	// Return the result map
@@ -570,8 +557,6 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
 	// Initialize the parameter names
 	std::vector<double> temp(x_vec.size());
 	for(std::string p : output_param_vector) results[p] = temp;
-	results["doy"] = temp;
-	results["hour"] = temp;
 	
 	// Store the data
 	for(size_t i = 0; i < x_vec.size(); i++) {
@@ -583,16 +568,7 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
 		update_state_params(current_state);
 		run_steady_state_modules();
 		// Add the list to the results map
-		for(size_t j = 0; j < output_param_vector.size(); j++) {
-			(results[output_param_vector[j]])[i] = parameters[output_param_vector[j]];
-			if(output_param_vector[j] == std::string("doy_dbl")) {
-				double doy_dbl = parameters[output_param_vector[j]];
-				int doy = floor(doy_dbl);
-				double hour = 24.0 * (doy_dbl - doy);
-				results["doy"][i] = doy;
-				results["hour"][i] = hour;
-			}
-		}
+		for(size_t j = 0; j < output_param_vector.size(); j++) (results[output_param_vector[j]])[i] = parameters[output_param_vector[j]];
 	}
 	
 	// Return the result map

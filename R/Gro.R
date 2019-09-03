@@ -120,6 +120,12 @@ Gro <- function(initial_state, parameters, varying_parameters, modules, verbose 
 	
 	# Run the C++ code
 	result = as.data.frame(.Call(R_Gro, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	
+	# Make sure doy and hour are properly defined
+	result$doy = floor(result$doy_dbl)
+	result$hour = 24.0*(result$doy_dbl - result$doy)
+	
+	# Return the result
 	return(result)
 }
 
@@ -198,6 +204,12 @@ Gro_auto <- function(initial_state, parameters, varying_parameters, steady_state
 	
 	# Run the C++ code
 	result = as.data.frame(.Call(R_Gro, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	
+	# Make sure doy and hour are properly defined
+	result$doy = floor(result$doy_dbl)
+	result$hour = 24.0*(result$doy_dbl - result$doy)
+	
+	# Return the result
 	return(result)
 }
 
@@ -242,6 +254,12 @@ Gro_euler <- function(initial_state, parameters, varying_parameters, steady_stat
 	
 	# Run the C++ code
 	result = as.data.frame(.Call(R_Gro_euler, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	
+	# Make sure doy and hour are properly defined
+	result$doy = floor(result$doy_dbl)
+	result$hour = 24.0*(result$doy_dbl - result$doy)
+	
+	# Return the result
 	return(result)
 }
 
@@ -286,6 +304,12 @@ Gro_rsnbrk <- function(initial_state, parameters, varying_parameters, steady_sta
 	
 	# Run the C++ code
 	result = as.data.frame(.Call(R_Gro_rsnbrk, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	
+	# Make sure doy and hour are properly defined
+	result$doy = floor(result$doy_dbl)
+	result$hour = 24.0*(result$doy_dbl - result$doy)
+	
+	# Return the result
 	return(result)
 }
 
