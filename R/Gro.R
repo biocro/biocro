@@ -6,6 +6,42 @@
 
 Gro <- function(initial_state, parameters, varying_parameters, modules, verbose = FALSE)
 {
+	# This function runs a full crop growth simulation, automatically choosing the Rosenbrock integration method when possible
+	#
+	# initial_state: a list of named parameters representing state variables
+	# parameters: a list of named parameters that don't change with time
+	# varying_parameters: a dataframe of parameters defined at equally spaced time intervals
+	#  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
+	#  Note: the varying parameters must include "doy" and "hour"
+	# modules: a list of named strings specifying which modules to use for the simulation which must include:
+	#  'canopy'
+	#  'soil'
+	#  'growth'
+	#  'senescence'
+	#  'stomata_water_stress'
+	#  'leaf_water_stress'
+	# verbose: a logical variable indicating whether or not to print system startup information
+	#
+	# Example: running a sorghum simulation using weather data from 2005
+	#
+	#  result = Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules, TRUE)
+	#  xyplot(Leaf + Stem + Root ~ TTc, data=result, type='l', auto=TRUE)
+	#
+	# The result is a data frame showing all time-dependent variables as they change throughout the growing season.
+	# When Gro is run in verbose mode (as in this example, where verbose = TRUE), information about the input and output parameters
+	# will be printed to the R console before the simulation runs.
+	#
+	# In the sorghum example, the simulation is performed using the fixed-step size Euler method for numerical integration. One of its modules (thermal_time_senescence)
+	# requires a history of all parameters, making it incompatible with any other integration method.
+	# 
+	# Example 2: running a soybean simulation using weather data from 2005
+	# 
+	#  result = Gro(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_modules, TRUE)
+	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
+	#
+	# In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
+	# ODEINT's implementation of an implicit Rosenbrock solver to run the simulation.
+	
 	# Check to make sure the initial_state is properly defined
 	if(!is.list(initial_state)) {
 		stop('"initial_state" must be a list')
