@@ -17,7 +17,8 @@ willow_initial_state = with(list(), {
     leaf_senescence_index 0
     stem_senescence_index 0
     root_senescence_index 0
-    rhizome_senescence_index 0"
+    rhizome_senescence_index 0
+    leafdeathrate 5"
     
     data_frame = read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)

@@ -4,11 +4,11 @@
 #                                     #
 #######################################
 
-Gro <- function(initial_state, parameters, varying_parameters, modules, verbose = FALSE)
+Gro <- function(initial_values, parameters, varying_parameters, modules, verbose = FALSE)
 {
 	# This function runs a full crop growth simulation, automatically choosing the Rosenbrock integration method when possible
 	#
-	# initial_state: a list of named parameters representing state variables
+	# initial_values: a list of named parameters representing state variables
 	# parameters: a list of named parameters that don't change with time
 	# varying_parameters: a dataframe of parameters defined at equally spaced time intervals
 	#  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
@@ -42,14 +42,14 @@ Gro <- function(initial_state, parameters, varying_parameters, modules, verbose 
 	# In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
 	# ODEINT's implementation of an implicit Rosenbrock solver to run the simulation.
 	
-	# Check to make sure the initial_state is properly defined
-	if(!is.list(initial_state)) {
-		stop('"initial_state" must be a list')
+	# Check to make sure the initial_values is properly defined
+	if(!is.list(initial_values)) {
+		stop('"initial_values" must be a list')
 	}
 	
-	if(length(initial_state) != length(unlist(initial_state))) {
-		item_lengths = unlist(lapply(initial_state, length))
-		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+	if(length(initial_values) != length(unlist(initial_values))) {
+		item_lengths = unlist(lapply(initial_values, length))
+		error_message = sprintf("The following initial_values members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
 		stop(error_message)
 	}
 	
@@ -70,7 +70,7 @@ Gro <- function(initial_state, parameters, varying_parameters, modules, verbose 
 	}
 	
 	# C++ requires that all the variables have type `double`
-	initial_state = lapply(initial_state, as.numeric)
+	initial_values = lapply(initial_values, as.numeric)
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
 	
@@ -123,10 +123,10 @@ Gro <- function(initial_state, parameters, varying_parameters, modules, verbose 
 	else if(modules$senescence_module_name == "thermal_time_and_frost_senescence") {
 		# The thermal time and frost senescence model implementation requires several modules:
 		#  Deriv: thermal_time_and_frost_senescence
-		#  SS: partitioning_coefficient_selector and thermal_time_and_frost_senescence_calculator
+		#  SS: partitioning_coefficient_selector
 		# We need to be careful since the partitioning_coefficient_selector may already have been defined
 		senescence_module <- "thermal_time_and_frost_senescence"
-		senescence_module_support <- c("partitioning_coefficient_selector", "thermal_time_and_frost_senescence_calculator")
+		senescence_module_support <- "partitioning_coefficient_selector"
 	}
 	else if(modules$senescence_module_name == "utilization_senescence") {
 		# The utilization senescence model implementation requires several modules:
@@ -138,16 +138,10 @@ Gro <- function(initial_state, parameters, varying_parameters, modules, verbose 
 	else stop("The senescence module you chose is not supported by Gro. Use one of the supported modules (thermal_time_senescence, thermal_time_and_frost_senescence, or utilization_senescence) or use a different Gro variant such as Gro_auto.")
 	
 	# Build the module lists
-	# senescence_module_support may just be an empty string... in this case, we should not include it
-	# It's also possible that some modules are included more than once, e.g. partitioning_coefficient_selector, so we should check for this
-	if(senescence_module_support != "") {
-		steady_state_module_names <- c("soil_type_selector", modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name, "parameter_calculator", "soil_evaporation", modules$canopy_module_name, growth_module_support, senescence_module_support)
-		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
-	}
-	else {
-		steady_state_module_names <- c("soil_type_selector", modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name, "parameter_calculator", "soil_evaporation", modules$canopy_module_name, growth_module_support)
-		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
-	}
+	steady_state_module_names <- c("soil_type_selector", modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name, "parameter_calculator", "soil_evaporation", modules$canopy_module_name, growth_module_support, senescence_module_support)
+	derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
+	
+	# Remove any duplicates in the lists
 	steady_state_module_names = unique(steady_state_module_names)
 	derivative_module_names = unique(derivative_module_names)
 	
@@ -155,7 +149,7 @@ Gro <- function(initial_state, parameters, varying_parameters, modules, verbose 
 	verbose = lapply(verbose, as.logical)
 	
 	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	result = as.data.frame(.Call(R_Gro, initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
 	
 	# Make sure doy and hour are properly defined
 	result$doy = floor(result$doy_dbl)

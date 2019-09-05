@@ -15,7 +15,6 @@ willow_parameters = with(list(), {
      seneRhizome    5500
      Tfrosthigh    5   
      Tfrostlow     0   
-     leafdeathrate 5
      chil           1
      iSp                 1.1      
      Sp_thermal_time_decay      0        

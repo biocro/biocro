@@ -41,7 +41,6 @@
 #include "partitioning_growth_calculator.hpp"
 #include "no_leaf_resp_partitioning_growth_calculator.hpp"
 #include "thermal_time_senescence.hpp"
-#include "thermal_time_and_frost_senescence_calculator.hpp"
 #include "thermal_time_and_frost_senescence.hpp"
 #include "empty_senescence.hpp"
 #include "aba_decay.hpp"
@@ -112,7 +111,6 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_growth_calculator",					createModule<partitioning_growth_calculator>},
 		{"no_leaf_resp_partitioning_growth_calculator",		createModule<no_leaf_resp_partitioning_growth_calculator>},
 		{"thermal_time_senescence",							createModule<thermal_time_senescence>},
-		{"thermal_time_and_frost_senescence_calculator",	createModule<thermal_time_and_frost_senescence_calculator>},
 		{"thermal_time_and_frost_senescence",				createModule<thermal_time_and_frost_senescence>},
 		{"empty_senescence",								createModule<empty_senescence>},
 		{"aba_decay",										createModule<aba_decay>},
@@ -181,7 +179,6 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_growth_calculator",					partitioning_growth_calculator::get_inputs()},
 		{"no_leaf_resp_partitioning_growth_calculator",		no_leaf_resp_partitioning_growth_calculator::get_inputs()},
 		{"thermal_time_senescence",							thermal_time_senescence::get_inputs()},
-		{"thermal_time_and_frost_senescence_calculator",	thermal_time_and_frost_senescence_calculator::get_inputs()},
 		{"thermal_time_and_frost_senescence",				thermal_time_and_frost_senescence::get_inputs()},
 		{"empty_senescence",								empty_senescence::get_inputs()},
 		{"aba_decay",										aba_decay::get_inputs()},
@@ -250,7 +247,6 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"partitioning_growth_calculator",					partitioning_growth_calculator::get_outputs()},
 		{"no_leaf_resp_partitioning_growth_calculator",		no_leaf_resp_partitioning_growth_calculator::get_outputs()},
 		{"thermal_time_senescence",							thermal_time_senescence::get_outputs()},
-		{"thermal_time_and_frost_senescence_calculator",	thermal_time_and_frost_senescence_calculator::get_outputs()},
 		{"thermal_time_and_frost_senescence",				thermal_time_and_frost_senescence::get_outputs()},
 		{"empty_senescence",								empty_senescence::get_outputs()},
 		{"aba_decay",										aba_decay::get_outputs()},

@@ -14,8 +14,13 @@ class thermal_time_and_frost_senescence : public DerivModule {
 			seneStem_ip(get_ip(input_parameters, "seneStem")),
 			seneRoot_ip(get_ip(input_parameters, "seneRoot")),
 			seneRhizome_ip(get_ip(input_parameters, "seneRhizome")),
-			leafdeathrate_ip(get_ip(input_parameters, "leafdeathrate")),
 			Leaf_ip(get_ip(input_parameters, "Leaf")),
+			leafdeathrate_ip(get_ip(input_parameters, "leafdeathrate")),
+			lat_ip(get_ip(input_parameters, "lat")),
+			doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+			temp_ip(get_ip(input_parameters, "temp")),
+			Tfrostlow_ip(get_ip(input_parameters, "Tfrostlow")),
+			Tfrosthigh_ip(get_ip(input_parameters, "Tfrosthigh")),
 			stem_senescence_index_ip(get_ip(input_parameters, "stem_senescence_index")),
 			root_senescence_index_ip(get_ip(input_parameters, "root_senescence_index")),
 			rhizome_senescence_index_ip(get_ip(input_parameters, "rhizome_senescence_index")),
@@ -29,6 +34,7 @@ class thermal_time_and_frost_senescence : public DerivModule {
 			newRootcol_ip(get_ip(input_parameters, "newRootcol")),
 			newRhizomecol_ip(get_ip(input_parameters, "newRhizomecol")),
 			// Get pointers to output parameters
+			leafdeathrate_op(get_op(output_parameters, "leafdeathrate")),
 			Leaf_op(get_op(output_parameters, "Leaf")),
 			LeafLitter_op(get_op(output_parameters, "LeafLitter")),
 			Stem_op(get_op(output_parameters, "Stem")),
@@ -59,8 +65,13 @@ class thermal_time_and_frost_senescence : public DerivModule {
 		const double* seneStem_ip;
 		const double* seneRoot_ip;
 		const double* seneRhizome_ip;
-		const double* leafdeathrate_ip;
 		const double* Leaf_ip;
+		const double* leafdeathrate_ip;
+		const double* lat_ip;
+		const double* doy_dbl_ip;
+		const double* temp_ip;
+		const double* Tfrostlow_ip;
+		const double* Tfrosthigh_ip;
 		const double* stem_senescence_index_ip;
 		const double* root_senescence_index_ip;
 		const double* rhizome_senescence_index_ip;
@@ -74,6 +85,7 @@ class thermal_time_and_frost_senescence : public DerivModule {
 		const double* newRootcol_ip;
 		const double* newRhizomecol_ip;
 		// Pointers to output parameters
+		double* leafdeathrate_op;
 		double* Leaf_op;
 		double* LeafLitter_op;
 		double* Stem_op;
@@ -94,7 +106,7 @@ std::vector<std::string> thermal_time_and_frost_senescence::get_inputs() {
 	return {
 		"TTc",
 		"seneLeaf", "seneStem", "seneRoot", "seneRhizome",
-		"leafdeathrate", "Leaf",
+		"Leaf", "leafdeathrate", "lat", "doy_dbl", "temp", "Tfrostlow", "Tfrosthigh",
 		"stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
 		"kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
 		"newLeafcol", "newStemcol", "newRootcol", "newRhizomecol"
@@ -103,6 +115,7 @@ std::vector<std::string> thermal_time_and_frost_senescence::get_inputs() {
 
 std::vector<std::string> thermal_time_and_frost_senescence::get_outputs() {
 	return {
+		"leafdeathrate",
 		"Leaf", "LeafLitter",
 		"Stem", "StemLitter", "stem_senescence_index",
 		"Root", "RootLitter", "root_senescence_index",
@@ -125,8 +138,13 @@ void thermal_time_and_frost_senescence::do_operation() const {
 	double seneRoot = *seneRoot_ip;
 	double seneRhizome = *seneRhizome_ip;
 	
-	double leafdeathrate = *leafdeathrate_ip;
 	double Leaf = *Leaf_ip;
+	double leafdeathrate = *leafdeathrate_ip;
+	double lat = *lat_ip;
+	double doy_dbl = *doy_dbl_ip;
+	double temp = *temp_ip;
+	double Tfrostlow = *Tfrostlow_ip;
+	double Tfrosthigh = *Tfrosthigh_ip;
 	
 	int stem_senescence_index = (int) *stem_senescence_index_ip;
 	int root_senescence_index = (int) *root_senescence_index_ip;
@@ -138,13 +156,34 @@ void thermal_time_and_frost_senescence::do_operation() const {
 	double kRhizome = *kRhizome_ip;
 	double kGrain = *kGrain_ip;
 	
+	double dLeafdeathrate = 0.0;
 	double dLeaf = 0.0, dStem = 0.0, dRoot = 0.0, dRhizome = 0.0, dGrain = 0.0;
 	double dLeafLitter = 0.0, dStemLitter = 0.0, dRootLitter = 0.0, dRhizomeLitter = 0.0;
 	double dstem_senescence_index = 0.0, droot_senescence_index = 0.0, drhizome_senescence_index = 0.0;
 	
+	// Calculate the leaf death rate due to frost
+	double frost_leaf_death_rate = 0.0;
+	if(TTc >= seneLeaf) {	// Leaf senescence has started
+		bool A = lat >= 0.0;		// In Northern hemisphere
+		bool B = doy_dbl >= 180.0;	// In second half of the year
+		if((A && B) || ((!A) && (!B))) {	// Winter in either hemisphere
+			// frost_leaf_death_rate changes linearly from 100 to 0 as temp changes from Tfrostlow to Tfrosthigh and is limited to [0,100]
+			std::max(0.0, std::min(100.0, 100.0 * (Tfrosthigh - temp) / (Tfrosthigh - Tfrostlow)));
+		}
+	}
+	
+	// The current leaf death rate is the larger of the previously stored leaf death rate and the new frost death rate
+	// I.e., the leaf death rate sometimes increases but never decreases
+	double current_leaf_death_rate = std::max(leafdeathrate, frost_leaf_death_rate);
+	
+	// Report the change in leaf death rate as the derivative of leafdeathrate
+	// Note: this will probably only work well with the Euler method
+	dLeafdeathrate = current_leaf_death_rate - leafdeathrate;
+	
+	// Calculate leaf senescence
 	if(TTc >= seneLeaf) {
 		// Use the leaf death rate to determine the change in leaf mass
-		double change = Leaf * leafdeathrate * (0.01 / 24);
+		double change = Leaf * current_leaf_death_rate * (0.01 / 24);
 		
 		// Remobilize some of the lost leaf tissue and send the rest to the litter
 		double remob = 0.6;
@@ -156,6 +195,7 @@ void thermal_time_and_frost_senescence::do_operation() const {
 		dGrain += kGrain * change * remob;
 	}
 	
+	// Calculate stem senescence
 	if(TTc >= seneStem) {
 		// Look back in time to find out how much the tissue grew in the past.
 		// Note: the module will run once during system initialization, so the first "real" history entry has index 1.
@@ -171,6 +211,7 @@ void thermal_time_and_frost_senescence::do_operation() const {
 		dstem_senescence_index++;
 	}
 	
+	// Calculate root senescence
 	if(TTc >= seneRoot) {
 		// Look back in time to find out how much the tissue grew in the past.
 		// Note: the module will run once during system initialization, so the first "real" history entry has index 1.
@@ -186,6 +227,7 @@ void thermal_time_and_frost_senescence::do_operation() const {
 		droot_senescence_index++;
 	}
 	
+	// Calculate rhizome senescence
 	if(TTc >= seneRhizome) {
 		// Look back in time to find out how much the tissue grew in the past.
 		// Note: the module will run once during system initialization, so the first "real" history entry has index 1.
@@ -201,7 +243,11 @@ void thermal_time_and_frost_senescence::do_operation() const {
 		drhizome_senescence_index++;
 	}
 	
+	// No grain senescence, although grain might gain some remobilized leaf tissue
+	
 	// Update the output parameter list
+	update(leafdeathrate_op, dLeafdeathrate);
+	
 	update(Leaf_op, dLeaf);
 	update(Stem_op, dStem);
 	update(Root_op, dRoot);

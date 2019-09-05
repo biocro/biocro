@@ -411,17 +411,27 @@ System::System(
 	if(_verbose) print_msg("Creating the steady state modules from the list and making sure the list only includes steady state modules... ");
 	for(std::string module_name : steady_state_module_names) {
 		steady_state_modules.push_back(module_factory.create(module_name));
-		if(steady_state_modules.back()->is_deriv()) incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of steady state modules, but it returns a derivative"));
+		if(_verbose) print_msg("\n  %s --> ", steady_state_modules.back()->get_name().c_str());
+		if(steady_state_modules.back()->is_deriv()) {
+			if(_verbose) print_msg("derivative module");
+			incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of steady state modules, but it returns a derivative"));
+		}
+		else if(_verbose) print_msg("steady state module");
 		if(!steady_state_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
 	}
-	if(_verbose) print_msg("done!\n\n");
+	if(_verbose) print_msg("...done!\n\n");
 	if(_verbose) print_msg("Creating the derivative modules from the list and making sure the list only includes derivative modules... ");
 	for(std::string module_name : derivative_module_names) {
 		derivative_modules.push_back(module_factory.create(module_name));
-		if(!derivative_modules.back()->is_deriv()) incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of derivative modules, but it does not return a derivative"));
+		if(_verbose) print_msg("\n  %s --> ", module_name.c_str());
+		if(!derivative_modules.back()->is_deriv()) {
+			if(_verbose) print_msg("steady state module");
+			incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of derivative modules, but it does not return a derivative"));
+		}
+		else if(_verbose) print_msg("derivative module");
 		if(!derivative_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
 	}
-	if(_verbose) print_msg("done!\n\n");
+	if(_verbose) print_msg("...done!\n\n");
 	
 	// Collect information about any errors that may have occurred while creating the modules
 	if(incorrect_modules.size() != 0) {
