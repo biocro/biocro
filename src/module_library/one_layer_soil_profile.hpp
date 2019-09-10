@@ -77,7 +77,7 @@ std::vector<std::string> one_layer_soil_profile::get_outputs() {
 
 void one_layer_soil_profile::do_operation() const {	
 	// Collect inputs and make calculations
-	double soilEvap = (*soil_evaporation_rate_ip) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
+	double soilEvap = (*soil_evaporation_rate_ip);	// Mg / ha / hr
 	double TotEvap = soilEvap + (*canopy_transpiration_rate_ip);
 	
 	// watstr(...) is located in AuxBioCro.cpp

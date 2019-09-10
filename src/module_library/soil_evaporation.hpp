@@ -80,7 +80,9 @@ void soil_evaporation::do_operation() const {
 	// SoilEvapo(...) is located in AuxBioCro.cpp
 	double soilEvap = SoilEvapo(*lai_ip, 0.68, *temp_ip, *solar_ip, *soil_water_content_ip,
 		*soil_field_capacity_ip, *soil_wilting_point_ip, *windspeed_ip, *rh_ip, *rsec_ip,
-		*soil_clod_size_ip, *soil_reflectance_ip, *soil_transmission_ip, *specific_heat_ip, *stefan_boltzman_ip);	// kg / m^2 / s.
+		*soil_clod_size_ip, *soil_reflectance_ip, *soil_transmission_ip, *specific_heat_ip, *stefan_boltzman_ip);	// kg / m^2 / s
+	
+	soilEvap *= 3600 * 1e-3 * 10000;	// Convert to Mg / ha / hr for consistency with canopy_transpiration_rate and two_layer_soil_profile's output
 	
 	// Update the output parameter list
 	update(soil_evaporation_rate_op, soilEvap);

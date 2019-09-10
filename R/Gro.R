@@ -138,8 +138,18 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	else stop("The senescence module you chose is not supported by Gro. Use one of the supported modules (thermal_time_senescence, thermal_time_and_frost_senescence, or utilization_senescence) or use a different Gro variant such as Gro_auto.")
 	
 	# Build the module lists
-	steady_state_module_names <- c("soil_type_selector", modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name, "parameter_calculator", "soil_evaporation", modules$canopy_module_name, growth_module_support, senescence_module_support)
-	derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
+	# Note that the included modules depend on the choice of soil module, since one_layer_soil_profile requires a few supporting modules while two_layer_soil_profile does not
+	#  In fact, the leaf and stomata water stress module choices will be disregarded when two_layer_soil_profile is chosen. This module relies on a parameter (wsFun) to indicate
+	#   the appropriate methods to calculate LeafWS and StomataWS.
+	if(modules$soil_module_name == "one_layer_soil_profile") {
+		steady_state_module_names <- c("soil_type_selector", modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name, "parameter_calculator", "soil_evaporation", modules$canopy_module_name, growth_module_support, senescence_module_support)
+		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
+	}
+	else if(modules$soil_module_name == "two_layer_soil_profile") {
+		steady_state_module_names <- c("soil_type_selector", "parameter_calculator", modules$canopy_module_name, growth_module_support, senescence_module_support)
+		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
+	}
+	else stop("The soil profile module you chose is not supported by Gro. Use one of the supported modules (one_layer_soil_profile or two_layer_soil_profile) or use a different Gro variant such as Gro_auto.")
 	
 	# Remove any duplicates in the lists
 	steady_state_module_names = unique(steady_state_module_names)

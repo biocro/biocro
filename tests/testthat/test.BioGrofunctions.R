@@ -43,15 +43,20 @@ for (i in seq_along(parameter_lists)) {
     test_that("turning on soil layers increases aboveground productivity and reduces root allocation", {
         two_layer_parameters = within(parameter_list, {
                     modules$soil_module_name = 'two_layer_soil_profile'
-                    parameters$cws1 = 0.32
-                    parameters$cws2 = 0.32
                     parameters$soil_depth1 = 0
                     parameters$soil_depth2 = 1
                     parameters$soil_depth3 = 2
+                    initial_values$cws1 = 0.32
+                    initial_values$cws2 = 0.32
+                    initial_values$StomataWS = 1
+                    initial_values$LeafWS = 1
+                    initial_values$soil_evaporation_rate = 0
                     }) 
 
         two_soil_layer_results <- do.call(Gro, two_layer_parameters)
-        for (output in c("lai", "Leaf", "Root", "Stem")){
+		
+		expect_true(mean(base_results[["Root"]]) > mean(two_soil_layer_results[["Root"]]))
+        for (output in c("lai", "Leaf", "Stem")){
                 expect_true(mean(base_results[[output]]) < mean(two_soil_layer_results[[output]]))
             }          
     })

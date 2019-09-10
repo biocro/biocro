@@ -419,7 +419,7 @@ System::System(
 		else if(_verbose) print_msg("steady state module");
 		if(!steady_state_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
 	}
-	if(_verbose) print_msg("...done!\n\n");
+	if(_verbose) print_msg("\n...done!\n\n");
 	if(_verbose) print_msg("Creating the derivative modules from the list and making sure the list only includes derivative modules... ");
 	for(std::string module_name : derivative_module_names) {
 		derivative_modules.push_back(module_factory.create(module_name));
@@ -431,7 +431,7 @@ System::System(
 		else if(_verbose) print_msg("derivative module");
 		if(!derivative_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
 	}
-	if(_verbose) print_msg("...done!\n\n");
+	if(_verbose) print_msg("\n...done!\n\n");
 	
 	// Collect information about any errors that may have occurred while creating the modules
 	if(incorrect_modules.size() != 0) {
