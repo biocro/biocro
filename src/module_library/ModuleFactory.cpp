@@ -296,7 +296,7 @@ std::vector<std::string> ModuleFactory::get_inputs(std::string const &module_nam
 		return this->input_parameter_names.at(module_name);
 	}
 	catch (std::out_of_range) {
-		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, ModuleFactory::get_inputs could not find a module with that name.\n"));
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but ModuleFactory::get_inputs could not find a module with that name.\n"));
 	}
 }
 
@@ -305,7 +305,7 @@ std::vector<std::string> ModuleFactory::get_outputs(std::string const &module_na
 		return this->output_parameter_names.at(module_name);
 	}
 	catch (std::out_of_range) {
-		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, ModuleFactory::get_outputs could not find a module with that name.\n"));
+		throw std::out_of_range(std::string("'") + module_name + std::string("'") + std::string(" was given as a module name, but ModuleFactory::get_outputs could not find a module with that name.\n"));
 	}
 }
 
