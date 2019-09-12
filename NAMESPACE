@@ -11,6 +11,7 @@ useDynLib(BioCro,
           R_get_module_info,
 		  R_get_standalone_ss_info,
 		  R_test_module,
+		  R_test_standalone_ss,
 		  R_test_system,
 		  R_get_all_modules,
 		  R_get_all_param,
@@ -38,6 +39,8 @@ export(get_module_info)
 export(get_standalone_ss_info)
 
 export(test_module)
+
+export(test_standalone_ss)
 
 export(test_system)
 

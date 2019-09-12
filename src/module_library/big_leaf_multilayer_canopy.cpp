@@ -286,6 +286,6 @@ void big_leaf_multilayer_canopy::do_operation() const {
 	
 	//TODO: Figure out why canopy_conductance is always 0. NOTE: I don't think this is true anymore (EBL)
 	update(canopy_assimilation_rate_op, canopy_assimilation * 3600 * 1e-6 * 30 * 1e-6 * 10000);
-	update(canopy_assimilation_rate_op, canopy_transpiration * 3600 * 1e-3 * 10000);
+	update(canopy_transpiration_rate_op, canopy_transpiration * 3600 * 1e-3 * 10000);
 	update(canopy_conductance_op, canopy_conductance);
 }

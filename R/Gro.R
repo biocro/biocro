@@ -540,8 +540,9 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 
 Gro_ode <- function(state, steady_state_module_names, derivative_module_names, verbose = FALSE)
 {
-	# Important note: this function is clunky and not recommended. Gro_deriv is better suited for
-	#  calculating derivatives
+	# Important note: this function is clunky and not recommended for solving a system, and should only be
+	#  used to check the output values of a single derivative calculation. Even for this application, Gro_deriv
+	#  might be more straightforward.
 	#
 	# This function calculates derivatives using the parameters defined in the state as inputs to the
 	# supplied steady state and derivative modules
@@ -650,7 +651,7 @@ get_standalone_ss_info <- function(module_names)
 	# inputs to "collatz_leaf"
 	
 	if (!is.character(module_names)) {
-		stop('"module_name" must be a list of strings')
+		stop('"module_names" must be a list of strings')
 	}
 	
 	result = .Call(R_get_standalone_ss_info, module_names)
@@ -669,7 +670,7 @@ test_module <- function(module_name, input_parameters)
 	#
 	#  big_leaf_multilayer_canopy_inputs <- get_module_info("big_leaf_multilayer_canopy")
 	#  <<modify individual input parameters to desired values>>
-	#  big_leaf_multilayer_canopy_param <- test_module("big_leaf_multilayer_canopy", big_leaf_multilayer_canopy_inputs)
+	#  big_leaf_multilayer_canopy_param <- test_module("big_leaf_multilayer_canopy", big_leaf_multilayer_canopy_inputs, TRUE)
 	#  <<check the values of the output parameters to confirm they are correct>>
 	#
 	# Important note: during the testing process, the output parameters are initialized to -1000000.0.
@@ -692,6 +693,61 @@ test_module <- function(module_name, input_parameters)
 	input_parameters = lapply(input_parameters, as.numeric)
 	
 	result = .Call(R_test_module, module_name, input_parameters)
+	return(result)
+}
+
+test_standalone_ss <- function(module_names, input_parameters, verbose = FALSE)
+{
+	# Example: testing the output of a combination
+	# of the water_vapor_properties_from_air_temperature, collatz_leaf, and
+	# penman_monteith_transpiration modules
+	#
+	#  get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))	# get info about required parameters
+	#  input = list(
+	#  	Catm = 400, 
+	#  	Rd = 0.8, 
+	#  	StomataWS = 0.99, 
+	#  	alpha = 2.04, 
+	#  	b0 = 0.08, 
+	#  	b1 = 3.0, 
+	#  	beta = 0.93, 
+	#  	incident_irradiance = 1000.00,
+	#  	incident_par = 2127.66,
+	#  	k_Q10 = 2.0, 
+	#  	kparm = 0.7, 
+	#  	layer_wind_speed = 1.07, 
+	#  	leaf_reflectance = 0.2, 
+	#  	leaf_transmittance = 0.2, 
+	#  	leafwidth = 0.04, 
+	#  	lowerT = 3.0, 
+	#  	rh = 0.68, 
+	#  	stefan_boltzman = 5.67e-8, 
+	#  	temp = 21.9, 
+	#  	theta = 0.83, 
+	#  	upperT = 37.5, 
+	#  	vmax = 41, 
+	#  	water_stress_approach = 1)
+	#  output <- test_standalone_ss(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"), input, TRUE)
+	
+	if (!is.character(module_names)) {
+		stop('"module_names" must be a list of strings')
+	}
+	
+	if(!is.list(input_parameters)) {
+		stop('"input_parameters" must be a list')
+	}
+	
+	if(length(input_parameters) != length(unlist(input_parameters))) {
+		item_lengths = unlist(lapply(input_parameters, length))
+		error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+		stop(error_message)
+	}
+	
+	input_parameters = lapply(input_parameters, as.numeric)
+	
+	verbose = lapply(verbose, as.logical)
+	
+	result = .Call(R_test_standalone_ss, module_names, input_parameters, verbose)
 	return(result)
 }
 

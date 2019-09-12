@@ -19,7 +19,8 @@ Standalone_SS::Standalone_SS(
 	std::vector<std::string> duplicate_module_names;				// A list of module names that are duplicated
 	std::vector<std::string> duplicate_output_parameters;			// A list of parameter names that are duplicated in the output of steady state modules
 	std::vector<std::string> incorrect_modules;						// A list of mischaracterized modules, e.g., derivative modules included in the steady state module list
-	std::vector<std::string> bad_input_names;						// A list of supplied input parameter names that don't match the input parameter list
+	std::vector<std::string> extra_input_names;						// A list of supplied input parameter names that don't match the input parameter list
+	std::vector<std::string> undefined_inputs;						// A list of required input parameters that were not in the input parameter list
 	std::vector<std::string> bad_output_names;						// A list of supplied output parameter names that don't match the output parameter list
 	std::string error_string;										// A message to send to the user about any issues that were discovered during the system setup
 	
@@ -162,16 +163,28 @@ Standalone_SS::Standalone_SS(
 	//  while the second points to an input variable outside the class
 	// If the input_param_ptrs map has the wrong size, throw a length_error.
 	// This will allow R_get_standalone_ss_info to disregard the problem.
-	if(input_param_ptrs.size() == unique_module_inputs.size()) {
+	if(input_param_ptrs.size() >= unique_module_inputs.size()) {
+		// Go through the supplied input_param_ptrs map, checking for extraneous parameters and storing required pointers
 		for(auto x : input_param_ptrs) {
-			if(unique_module_inputs.find(x.first) == unique_module_inputs.end()) bad_input_names.push_back(x.first);
+			if(unique_module_inputs.find(x.first) == unique_module_inputs.end()) extra_input_names.push_back(x.first);
 			else {
 				std::pair<double*, const double*> temp(&parameters.at(x.first), x.second);
 				input_ptrs.push_back(temp);
 			}
 		}
+		// Check to see if any required inputs are missing
+		for(std::string p : unique_module_inputs) {
+			if(input_param_ptrs.find(p) == input_param_ptrs.end()) undefined_inputs.push_back(p);
+		}
 	}
-	else throw std::length_error(std::string("Thrown by standalone_ss: the supplied input pointer map does not have the correct length. Are all required parameters defined? Are too many defined?\n"));
+	else throw std::length_error(std::string("Thrown by standalone_ss: the supplied input pointer map does not have enough parameters.\n"));
+	
+	// Let the user know about any extra input parameters
+	if(extra_input_names.size() != 0 && _verbose) {
+		print_msg("The following input parameters were supplied but are not required by the modules:\n");
+		for(std::string s : extra_input_names) print_msg("%s\n", s.c_str());
+		print_msg("\n");
+	}
 	
 	// Create the output pointer map, which contains pairs of pointers
 	// In each pair, the first points to an entry in the module_output map,
@@ -188,14 +201,15 @@ Standalone_SS::Standalone_SS(
 	else error_string += "The supplied output pointer map is empty.\n";
 	
 	// Collect information about any errors that may have occurred while creating the modules
-	if(bad_input_names.size() != 0) {
-		error_string += "Some of the supplied input parameters were not required by the modules.\n";
+	if(undefined_inputs.size() != 0) {
+		error_string += "Some of the required input parameters were not provided by the input pointer map.\n";
 		if(_verbose) {
-			print_msg("The following input parameters were not required:\n");
-			for(std::string s : bad_input_names) print_msg("%s\n", s.c_str());
+			print_msg("The following required input parameters were not defined:\n");
+			for(std::string s : undefined_inputs) print_msg("%s\n", s.c_str());
 			print_msg("\n");
 		}
 	}
+	
 	if(bad_output_names.size() != 0) {
 		error_string += "Some of the supplied output parameters were not produced by the modules.\n";
 		if(_verbose) {

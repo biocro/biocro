@@ -108,4 +108,4 @@ for (i in seq_along(cis)) {
     ))$assimilation_rate
 }
 
-plot(values ~ cis, type='l')
+x11(); plot(values ~ cis, type='l')

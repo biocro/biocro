@@ -93,13 +93,13 @@ std::unordered_map<std::string, std::vector<double>> Gro_euler_solve(
 			}
 		}
 		
+		// Update all the parameters and calculate the derivative based on the current time and state
+		sys->operator()(state, dstatedt, t);
+		
 		// Store the current parameter values
 		for(size_t i = 0; i < result_vec.size(); i++) (result_vec[i])[t] = *output_ptr_vector[i];
 		
-		// Calculate the derivative based on the current time and state
-		sys->operator()(state, dstatedt, t);
-		
-		// Update the state
+		// Update the state for the next step
 		for(size_t j = 0; j < state.size(); j++) state[j] += dstatedt[j];	// The derivative has already been multiplied by the timestep
 	}
 	
