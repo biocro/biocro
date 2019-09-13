@@ -25,6 +25,7 @@ class Module {
 			_is_deriv(deriv),
 			_is_adaptive_compatible(adaptive_compatible)
 			{}
+		virtual ~Module() = 0;	// Make the destructor a pure virtual function so that no objects can be made directly from this class. Note: clang is unhappy if an abstract class has a non-virtual destructor.
 		// Functions for returning module information
         std::string get_name() const {return _module_name;}
         bool is_deriv() const {return _is_deriv;}
@@ -39,11 +40,14 @@ class Module {
     protected:
     	// Helpful functions for writing concrete module code
     	static const double eps;
-    	virtual void update(double* output_ptr, const double& value) const = 0;		// This pure virtual function ensures that module is an abstract class and allows different update functions for steady and deriv modules
+    	virtual void update(double* output_ptr, const double& value) const = 0;		// This pure virtual function allows different update functions for steady and deriv modules
         double* get_op(std::unordered_map<std::string, double>* output_parameters, const std::string& name);
         const double* get_ip(const std::unordered_map<std::string, double>* input_parameters, const std::string& name) const;
         double get_val_debug(const double* ptr, const std::string name) const;
 };
+
+// A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header
+inline Module::~Module() {}
 
 // If a concrete module has not defined a do_operation method, throw an error if its run method is called
 inline void Module::do_operation() const {
