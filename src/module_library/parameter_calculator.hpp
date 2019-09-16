@@ -79,8 +79,8 @@ void parameter_calculator::do_operation() const {
 	// Update the output parameter list
 	update(Sp_op, Sp);
 	update(lai_op, (*Leaf_ip) * Sp);
-	update(vmax_op, (*LeafN_0_ip) - (*LeafN_ip) * (*vmax_n_intercept_ip) + (*vmax1_ip));
-	update(alpha_op, (*LeafN_0_ip) - (*LeafN_ip) * (*alphab1_ip) + (*alpha1_ip));
+	update(vmax_op, ((*LeafN_0_ip) - (*LeafN_ip)) * (*vmax_n_intercept_ip) + (*vmax1_ip));
+	update(alpha_op, ((*LeafN_0_ip) - (*LeafN_ip)) * (*alphab1_ip) + (*alpha1_ip));
 }
 
 #endif
