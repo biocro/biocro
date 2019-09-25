@@ -1,5 +1,6 @@
 #include "BioCro.h"
 #include "c4photo.h"
+#include <Rinternals.h>		// Temporary, for testing
 
 struct Can_Str CanAC(
         double LAI,
@@ -92,6 +93,9 @@ struct Can_Str CanAC(
         double IDiff = light_profile.diffuse_irradiance[current_layer];  // micromole / m^2 / s
         double pLeafshade = light_profile.shaded_fraction[current_layer];  // dimensionless. Fraction of LAI that is shaded.
         double Leafshade = LAIc * pLeafshade;
+
+		Rprintf("current_layer,CumLAI,leafN_lay,relative_humidity,layer_wind_speed,CanHeight,Itot,IDir,pLeafSun,IDiff,pLeafShade\n");
+		Rprintf("%i,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n", current_layer, LAIc * (current_layer + 0.5), leafN_lay, relative_humidity, layer_wind_speed, CanHeight, Itot, IDir, pLeafsun, IDiff, pLeafshade);
 
         double diffuse_stomatal_conductance = c4photoC(IDiff, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, StomataWS, Catm, water_stress_approach, upperT, lowerT).Gs;
         struct ET_Str et_diffuse = EvapoTrans2(IDiff, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, diffuse_stomatal_conductance, leafwidth, eteq);

@@ -64,6 +64,7 @@
 #include "big_leaf_multilayer_canopy.hpp"
 #include "flowering.hpp"
 #include "flowering_calculator.hpp"
+#include "ed_testing.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -135,7 +136,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"canac_with_collatz",								createModule<canac_with_collatz>},
 		{"big_leaf_multilayer_canopy",						createModule<big_leaf_multilayer_canopy>},
 		{"flowering",										createModule<flowering>},
-		{"flowering_calculator",							createModule<flowering_calculator>}
+		{"flowering_calculator",							createModule<flowering_calculator>},
+		{"solar_zenith_angle",								createModule<solar_zenith_angle>},
+		{"light_macro_environment",							createModule<light_macro_environment>},
+		{"ten_layer_canopy_properties",						createModule<ten_layer_canopy_properties>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -203,7 +207,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"canac_with_collatz",								canac_with_collatz::get_inputs()},
 		{"big_leaf_multilayer_canopy",						big_leaf_multilayer_canopy::get_inputs()},
 		{"flowering",										flowering::get_inputs()},
-		{"flowering_calculator",							flowering_calculator::get_inputs()}
+		{"flowering_calculator",							flowering_calculator::get_inputs()},
+		{"solar_zenith_angle",								solar_zenith_angle::get_inputs()},
+		{"light_macro_environment",							light_macro_environment::get_inputs()},
+		{"ten_layer_canopy_properties",						ten_layer_canopy_properties::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -271,7 +278,10 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"canac_with_collatz",								canac_with_collatz::get_outputs()},
 		{"big_leaf_multilayer_canopy",						big_leaf_multilayer_canopy::get_outputs()},
 		{"flowering",										flowering::get_outputs()},
-		{"flowering_calculator",							flowering_calculator::get_outputs()}
+		{"flowering_calculator",							flowering_calculator::get_outputs()},
+		{"solar_zenith_angle",								solar_zenith_angle::get_outputs()},
+		{"light_macro_environment",							light_macro_environment::get_outputs()},
+		{"ten_layer_canopy_properties",						ten_layer_canopy_properties::get_outputs()}
 	};
 	module_descriptions = {
 		{"utilization_growth",								utilization_growth::get_description()},

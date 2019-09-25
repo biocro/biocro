@@ -631,6 +631,7 @@ get_module_info <- function(module_name)
 	}
 	
 	result = .Call(R_get_module_info, module_name)
+	result = result[order(names(result))]
 	return(result)
 }
 
@@ -693,6 +694,7 @@ test_module <- function(module_name, input_parameters)
 	input_parameters = lapply(input_parameters, as.numeric)
 	
 	result = .Call(R_test_module, module_name, input_parameters)
+	result = result[order(names(result))]
 	return(result)
 }
 
