@@ -64,7 +64,9 @@
 #include "big_leaf_multilayer_canopy.hpp"
 #include "flowering.hpp"
 #include "flowering_calculator.hpp"
-#include "ed_testing.hpp"
+#include "solar_zenith_angle.hpp"
+#include "light_macro_environment.hpp"
+#include "multilayer_canopy_properties.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -284,6 +286,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"ten_layer_canopy_properties",						ten_layer_canopy_properties::get_outputs()}
 	};
 	module_descriptions = {
+		{"solar_zenith_angle",								solar_zenith_angle::get_description()},
+		{"light_macro_environment",							light_macro_environment::get_description()},
+		{"ten_layer_canopy_properties",						ten_layer_canopy_properties::get_description()},
 		{"utilization_growth",								utilization_growth::get_description()},
 		{"utilization_growth_calculator",					utilization_growth_calculator::get_description()}
 	};

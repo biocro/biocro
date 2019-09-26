@@ -92,10 +92,10 @@ std::vector<std::string> utilization_growth::get_outputs() {
 }
 
 std::string utilization_growth::get_description() {
-	std::string description = std::string("The utilization growth model is based on several papers published by Thornley and is implemented in BioCro via two separate modules.\n");
-	description += std::string("This module returns derivatives for the plant tissue mass state variables.\n");
-	description += std::string("It is intended to be run along with the utilization_growth_calculator module.\n");
-	description += std::string("See utilization_growth.hpp and utilization_growth_calculator.hpp for more information.");
+	std::string description = std::string("  The utilization growth model is based on several papers published by Thornley and is implemented in BioCro via two separate modules.\n");
+	description += std::string("  This module returns derivatives for the plant tissue mass state variables.\n");
+	description += std::string("  It is intended to be run along with the utilization_growth_calculator module.\n");
+	description += std::string("  See utilization_growth.hpp and utilization_growth_calculator.hpp for more information.");
 	return description;
 }
 
