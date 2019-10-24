@@ -86,9 +86,9 @@ void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::n
     double h;
     boost::numeric::ublas::vector<double> xperturb = x;
     for(size_t i = 0; i < n; i++) {
-        // Ensure that the step size h is close to eps but is exactly representable
+        // Ensure that the step size h is close to eps_deriv but is exactly representable
         //  (see Numerical Recipes in C, 2nd ed., Section 5.7)
-        h = eps;
+        h = eps_deriv;
         double temp = x[i] + h;
         h = temp - x[i];
         
@@ -105,7 +105,7 @@ void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::n
     
     // Perturb the time and find the corresponding change in dxdt
     // Use a forward step whenever possible
-    h = eps;
+    h = eps_deriv;
     double temp = t + h;
     h = temp - t;
     if(t + h <= (double)ntimes - 1.0) {
@@ -119,20 +119,23 @@ void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::n
 }
 
 System::System(
-    std::unordered_map<std::string, double> const& initial_state,
-    std::unordered_map<std::string, double> const& invariant_parameters,
-    std::unordered_map<std::string, std::vector<double>> const &varying_parameters,
-    std::vector<std::string> const &steady_state_module_names,
-    std::vector<std::string> const &derivative_module_names,
-    bool const verbose,
+    std::unordered_map<std::string, double> const& init_state,
+    std::unordered_map<std::string, double> const& invariant_params,
+    std::unordered_map<std::string, std::vector<double>> const &varying_params,
+    std::vector<std::string> const &ss_module_names,
+    std::vector<std::string> const &deriv_module_names,
+    bool const verb,
     void (*print_fcn_ptr) (char const *format, ...)) :
-    _initial_state(initial_state),
-    _varying_parameters(varying_parameters),
-    _verbose(verbose),
+    initial_state(init_state),
+    invariant_parameters(invariant_params),
+    varying_parameters(varying_params),
+    steady_state_module_names(ss_module_names),
+    derivative_module_names(deriv_module_names),
+    verbose(verb),
     print_msg(print_fcn_ptr)
 {
-    // A note about parameters:
-    //  The system stores an unordered_map of parameters, which includes several types:
+    // A note about variables:
+    //  The system stores an unordered_map of variables, which includes several types:
     //   - The state variables that evolve according to differential equations and whose initial values are an input to the system
     //       (e.g. position and velocity for a mass-on-a-spring harmonic oscillator)
     //   - The invariant parameters that remain constant throughout the calculation
@@ -142,7 +145,7 @@ System::System(
     //   - The 'steady state' parameters that are calculated from other parameters at each time step
     //       (e.g. total biomass calculated by adding several state variables together)
     //
-    // Rules for parameters that are enforced while building the system:
+    // Rules for variables that are enforced while building the system:
     //  - The invariant parameters must include one called 'timestep'
     //  - The parameters in the initial state, invariant parameters, and varying parameters must be unique
     //  - A module's input parameters must be included in the state, invariant parameters, or varying parameters OR be output by a previous module
@@ -152,136 +155,248 @@ System::System(
     //  - A derivative module's output parameters must be included in the state
     //      (i.e., derivatives can only be defined for state variables)
     
-    // Lists for collecting parameters and modules
-    std::set<std::string> unique_parameter_names;                   // All parameter names
+    // Lists for collecting variables and modules
+    std::set<std::string> unique_steady_state_parameter_names;      // All parameters output by steady state modules
+    std::set<std::string> unique_changing_parameters;               // All variables that change throughout a simulation (used for saving/returning results, since we shouldn't include invariant parameters)
+    
+    // A string for describing problems with the inputs
+    std::string error_string;                                       // A message to send to the user about any issues that were discovered during the system setup
+    
+    // Check through the input variables and modules, making sure everything is consistent.
+    // If everything is okay, generate a central variable map, a module output map, lists
+    //  of modules, and information about which variables will be changing throughout
+    //  a simulation
+    // This function will throw an exception if serious errors are found with the inputs
+    process_variable_and_module_inputs(unique_steady_state_parameter_names, unique_changing_parameters);
+    
+    // Get pairs of pointers to important subsets of the variables, e.g.,
+    //  pairs of pointers to the state variables in the main map and the
+    //  module output map.
+    // These pairs allow us to efficiently retrieve the output of each
+    //  module and store it in the main variable map when running the system,
+    //  to update the varying parameters at new time points, etc
+    // Also get a pointer to the timestep variable
+    get_pointer_pairs(unique_steady_state_parameter_names);
+    
+    // Fill in the initial values and test the modules
+    test_all_modules(error_string);
+    
+    // If any errors have occurred, notify the user and throw an error to halt the operation,
+    //  since the user needs to address these problems before continuing
+    report_errors(error_string);
+    
+    // Get information that we will need when running a simulation and returning the results
+    get_simulation_info(unique_changing_parameters);
+    
+    // Now we are done!
+    if(verbose) print_msg("Done applying checks and building the system!\n\n");
+}
+
+void System::process_variable_and_module_inputs(std::set<std::string>& unique_steady_state_parameter_names, std::set<std::string>& unique_changing_parameters) {
+    // Lists for collecting variables and modules
+    std::set<std::string> unique_variable_names;                    // All variable names
     std::set<std::string> unique_steady_state_module_names;         // All steady state module names
     std::set<std::string> unique_derivative_module_names;           // All derivative module names
-    std::set<std::string> unique_steady_state_parameter_names;      // All parameters output by steady state modules
-    std::set<std::string> unique_derivative_outputs;                // All parameters output by derivative modules
-    std::set<std::string> unique_module_inputs;                     // All parameters used as inputs to modules
-    std::set<std::string> unique_changing_parameters;               // All parameters that change throughout a simulation (used for saving/returning results, since we shouldn't include invariant parameters)
-    std::vector<std::string> adaptive_step_size_incompat;           // All modules that are incompatible with adaptive step size integrators
+    std::set<std::string> unique_derivative_outputs;                // All state variables output by derivative modules
+    std::set<std::string> unique_module_inputs;                     // All variables used as inputs to modules
     // Lists for describing problems with the inputs
-    std::vector<std::string> duplicate_parameter_names;             // A list of parameter names that are duplicated in the initial state, invariant parameters, and varying parameters
+    std::vector<std::string> duplicate_variable_names;              // A list of variable names that are duplicated in the initial state, invariant parameters, and varying parameters
     std::vector<std::string> duplicate_module_names;                // A list of module names that are duplicated
-    std::vector<std::string> duplicate_output_parameters;           // A list of parameter names that are duplicated in the output of steady state modules
-    std::vector<std::string> undefined_input_parameters;            // A list of module input parameter names that are not defined when the module runs
-    std::vector<std::string> illegal_output_parameters;             // A list of derivative module output parameter names that are not state variables
+    std::vector<std::string> duplicate_output_variables;            // A list of variable names that are duplicated in the output of steady state modules
+    std::vector<std::string> undefined_input_variables;             // A list of module input variable names that are not defined when the module runs
+    std::vector<std::string> illegal_output_variables;              // A list of derivative module output variable names that are not state variables
     std::vector<std::string> incorrect_modules;                     // A list of mischaracterized modules, e.g., derivative modules included in the steady state module list
     std::string error_string;                                       // A message to send to the user about any issues that were discovered during the system setup
     
+    // Make sure the inputs meet some basic requirements
+    //  and create the "doy_dbl" varying parameter
+    basic_input_checks();
+    
+    // Start collecting variable names from the input lists
+    //  of state variables and parameters
+    // Along the way, check for any duplicated variable names
+    get_variables_from_input_lists(unique_variable_names, unique_changing_parameters, duplicate_variable_names);
+    
+    // Initialize a module factory, which will be used to get module I/O information
+    //  and to create modules
+    // Note: the inputs to the module factory have not been fully initialized yet. We can
+    //  get the module input/output variables right now, but any attempt to create a module
+    //  will fail
+    ModuleFactory module_factory(&parameters, &module_output_map);
+    
+    // Continue collecting variable names from the modules
+    // Along the way, check for any duplicated variable or module
+    //  names, and any undefined module inputs
+    get_variables_from_modules(module_factory,
+        unique_steady_state_module_names, unique_steady_state_parameter_names,
+        unique_derivative_module_names, unique_derivative_outputs,
+        unique_variable_names, unique_module_inputs, unique_changing_parameters,
+        undefined_input_variables, duplicate_output_variables, duplicate_module_names, illegal_output_variables
+    );
+    unique_module_inputs.insert("timestep");    // Even when no modules explicitly use the timestep variable, include it here to prevent spurious warning messages about timestep being unused
+    
+    // Check the variable usage, i.e., check whether all state variables have
+    //  associated derivatives, whether all invariant parameters are actually
+    //  required, etc.
+    // This information may be useful to the user but isn't serious enough to
+    //  prevent the system from running
+    if(verbose) check_variable_usage(unique_derivative_outputs, unique_module_inputs);
+    
+    // Collect information about any errors that may have occurred while checking the parameters
+    process_errors(duplicate_variable_names, std::string("Some variables in the initial state, invariant parameters, and/or varying parameters were duplicated"), error_string);
+    process_errors(duplicate_module_names, std::string("Some modules were duplicated in the steady state and/or derivative module lists"), error_string);
+    process_errors(duplicate_output_variables, std::string("Some steady state module output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules"), error_string);
+    process_errors(undefined_input_variables, std::string("Some modules required inputs variables that were not defined by the initial state, invariant parameters, varying parameters, or previous steady state modules"), error_string);
+    process_errors(illegal_output_variables, std::string("Some derivative modules returned derivatives for variables that were not included in the initial state"), error_string);
+    
+    // If any errors have occurred, notify the user and throw an error to halt the operation,
+    //  since the user needs to address these problems before continuing
+    report_errors(error_string);
+    
+    // Initialize the module output map
+    module_output_map = parameters;
+    
+    // Create the modules, checking for any problems
+    create_modules(module_factory, incorrect_modules);
+    
+    // Collect information about any errors that may have occurred while creating the modules
+    process_errors(incorrect_modules, std::string("Some modules were mischaracterized in the input lists"), error_string);
+    
+    // If any errors have occurred, notify the user and throw an error to halt the operation,
+    //  since the user needs to address these problems before continuing
+    report_errors(error_string);
+}
+
+void System::basic_input_checks() {    
     // Check to make sure at least one module was supplied
-    if(_verbose) print_msg("\nChecking to make sure at least one module was specified... ");
+    if(verbose) print_msg("\nChecking to make sure at least one module was specified... ");
     if(steady_state_module_names.size() == 0 && derivative_module_names.size() == 0) {
         throw std::logic_error(std::string("No input modules were found! A system requires at least one module.\n"));
     }
-    if(_verbose) print_msg("done!\n\n");
+    if(verbose) print_msg("done!\n\n");
     
-    // Check to make sure the timing information has been properly supplied
-    if(_verbose) print_msg("Checking to make sure the time parameters are properly defined... ");
+    // Check to make sure the timing information has been properly supplied.
+    // Here we expect to find "doy" and "hour" inputs, but we need to
+    //  convert them into a continuous time parameter (called "doy_dbl").
+    // We also check to make sure the time points are evenly spaced by the
+    //  value set by the "timestep" parameter.
+    if(verbose) print_msg("Checking to make sure the time parameters are properly defined... ");
     if(invariant_parameters.find("timestep") == invariant_parameters.end()) {
         throw std::logic_error(std::string("The 'timestep' parameter was not defined in the invariant parameters. This is a required parameter for any system.\n"));
     }
-    unique_module_inputs.insert("timestep");
-    if(_varying_parameters.find("doy") == _varying_parameters.end()) {
+    if(varying_parameters.find("doy") == varying_parameters.end()) {
         throw std::logic_error(std::string("The 'doy' parameter was not defined in the varying parameters. This is a required parameter for any system.\n"));
     }
-    if(_varying_parameters.find("hour") == _varying_parameters.end()) {
+    if(varying_parameters.find("hour") == varying_parameters.end()) {
         throw std::logic_error(std::string("The 'hour' parameter was not defined in the varying parameters. This is a required parameter for any system.\n"));
     }
-    if(_varying_parameters.find("doy_dbl") != _varying_parameters.end() || invariant_parameters.find("doy_dbl") != invariant_parameters.end() || initial_state.find("doy_dbl") != initial_state.end()) {
-        throw std::logic_error(std::string("'doy_dbl' is a reserved parameter name. Please remove or rename this parameter.\n"));
+    if(varying_parameters.find("doy_dbl") != varying_parameters.end() || invariant_parameters.find("doy_dbl") != invariant_parameters.end() || initial_state.find("doy_dbl") != initial_state.end()) {
+        throw std::logic_error(std::string("'doy_dbl' is a reserved parameter name, and it will be automatically calculated from the 'doy' and 'hour' parameters. Please remove or rename this parameter.\n"));
     }
-    std::vector<double> hour_vec = _varying_parameters.at("hour");
+    std::vector<double> hour_vec = varying_parameters.at("hour");
     for(size_t i = 1; i < hour_vec.size(); i++ ) {
         if(abs(hour_vec[i] - hour_vec[i-1] - 24.0 * floor((hour_vec[i] - hour_vec[i-1]) / 24.0) - invariant_parameters.at("timestep")) > 0.01) {
             throw std::logic_error(std::string("At least one pair of sequential values of 'hour' are not separated by the value of 'timestep'. Please check over the inputs.\n"));
         }
     }
-    std::vector<double> doy_vec = _varying_parameters.at("doy");
+    std::vector<double> doy_vec = varying_parameters.at("doy");
     std::vector<double> doy_dbl_vec(doy_vec.size());
     for(size_t i = 0; i < doy_dbl_vec.size(); i++) doy_dbl_vec[i] = hour_vec[i]/24.0 + doy_vec[i];      // Make a new parameter expressing the day of year as a double (note: might have trouble with multi-year simulations)
-    _varying_parameters["doy_dbl"] = doy_dbl_vec;
-    _varying_parameters.erase("doy");
-    _varying_parameters.erase("hour");
-    if(_verbose) print_msg("done!\n\n");
-    
-    // Start collecting parameter names and check to make sure all the requirements are met
-    if(_verbose) print_msg("Building list of parameters...\n\n");
-    
-    // Go through the initial state, invariant parameters, and varying parameters
-    if(_verbose) print_msg("Varying parameters:\n");
-    for(auto x : _varying_parameters) {
-        if(unique_parameter_names.find(x.first) == unique_parameter_names.end()) {
-            unique_parameter_names.insert(x.first);
+    varying_parameters["doy_dbl"] = doy_dbl_vec;
+    varying_parameters.erase("doy");
+    varying_parameters.erase("hour");
+    if(verbose) print_msg("done!\n\n");
+}
+
+void System::get_variables_from_input_lists(
+    std::set<std::string>& unique_variable_names,
+    std::set<std::string>& unique_changing_parameters,
+    std::vector<std::string>& duplicate_variable_names)
+{
+    // Go through the varying parameters
+    if(verbose) print_msg("\nGetting variable names from the varying parameters:\n");
+    for(auto x : varying_parameters) {
+        if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
+            unique_variable_names.insert(x.first);
             unique_changing_parameters.insert(x.first);
             parameters[x.first] = x.second[0];
-            if(_verbose) print_msg("  %s[0] = %f\n", (x.first).c_str(), x.second[0]);
+            if(verbose) print_msg("  %s[0] = %f\n", (x.first).c_str(), x.second[0]);
         }
-        else duplicate_parameter_names.push_back(std::string("Parameter '") + x.first + std::string("' from the varying parameters"));
+        else duplicate_variable_names.push_back(std::string("Parameter '") + x.first + std::string("' from the varying parameters"));
     }
-    if(_verbose) print_msg("\nState variables:\n");
+    
+    // Go through the initial state
+    if(verbose) print_msg("\nGetting variable names from the initial state:\n");
     for(auto x : initial_state) {
-        if(unique_parameter_names.find(x.first) == unique_parameter_names.end()) {
-            unique_parameter_names.insert(x.first);
+        if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
+            unique_variable_names.insert(x.first);
             unique_changing_parameters.insert(x.first);
             parameters[x.first] = x.second;
-            if(_verbose) print_msg("  %s[0] = %f\n", (x.first).c_str(), x.second);
+            if(verbose) print_msg("  %s[0] = %f\n", (x.first).c_str(), x.second);
         }
-        else duplicate_parameter_names.push_back(std::string("Parameter '") + x.first + std::string("' from the initial state"));
+        else duplicate_variable_names.push_back(std::string("Parameter '") + x.first + std::string("' from the initial state"));
     }
-    if(_verbose) print_msg("\nInvariant parameters:\n");
+    
+    // Go through the invariant parameters
+    if(verbose) print_msg("\nGetting variable names from the invariant parameters:\n");
     for(auto x : invariant_parameters) {
-        if(unique_parameter_names.find(x.first) == unique_parameter_names.end()) {
-            unique_parameter_names.insert(x.first);
+        if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
+            unique_variable_names.insert(x.first);
             parameters[x.first] = x.second;
-            if(_verbose) print_msg("  %s = %f\n", (x.first).c_str(), x.second);
+            if(verbose) print_msg("  %s = %f\n", (x.first).c_str(), x.second);
         }
-        else duplicate_parameter_names.push_back(std::string("Parameter '") + x.first + std::string("' from the invariant parameters"));
+        else duplicate_variable_names.push_back(std::string("Parameter '") + x.first + std::string("' from the invariant parameters"));
     }
-    
-    // Initialize a module factory
-    // Note: the inputs to the module factory have not been fully initialized yet. We can
-    //  get the module input/output parameters right now, but any attempt to create a module
-    //  will fail
-    ModuleFactory module_factory(&parameters, &vector_module_output);
-    
-    // Continue collecting parameter names from the steady state modules
-    if(_verbose) print_msg("\nSteady state parameters:\n");
+}
+
+void System::get_variables_from_modules(
+    ModuleFactory& module_factory,
+    std::set<std::string>& unique_steady_state_module_names,
+    std::set<std::string>& unique_steady_state_parameter_names,
+    std::set<std::string>& unique_derivative_module_names,
+    std::set<std::string>& unique_derivative_outputs,
+    std::set<std::string>& unique_variable_names,
+    std::set<std::string>& unique_module_inputs,
+    std::set<std::string>& unique_changing_parameters,
+    std::vector<std::string>& undefined_input_variables,
+    std::vector<std::string>& duplicate_output_variables,
+    std::vector<std::string>& duplicate_module_names,
+    std::vector<std::string>& illegal_output_variables)
+{
+    // Collect variable names from the steady state modules
+    if(verbose) print_msg("\nGetting variable names from the steady state modules:\n");
     for(std::string module_name : steady_state_module_names) {
         if(unique_steady_state_module_names.find(module_name) == unique_steady_state_module_names.end()) {
             unique_steady_state_module_names.insert(module_name);
             for(std::string p : module_factory.get_inputs(module_name)) {
-                if(unique_parameter_names.find(p) == unique_parameter_names.end()) undefined_input_parameters.push_back(std::string("Parameter '") + p + std::string("' for the '") + module_name + std::string("' steady state module"));
+                if(unique_variable_names.find(p) == unique_variable_names.end()) undefined_input_variables.push_back(std::string("Parameter '") + p + std::string("' for the '") + module_name + std::string("' steady state module"));
                 if(unique_module_inputs.find(p) == unique_module_inputs.end()) unique_module_inputs.insert(p);
             }
             for(std::string p : module_factory.get_outputs(module_name)) {
-                if(unique_parameter_names.find(p) == unique_parameter_names.end()) {
-                    unique_parameter_names.insert(p);
+                if(unique_variable_names.find(p) == unique_variable_names.end()) {
+                    unique_variable_names.insert(p);
                     unique_steady_state_parameter_names.insert(p);
                     unique_changing_parameters.insert(p);
                     parameters[p] = 0.0;
-                    //if(_verbose) myfile << "  " << p << "\n";
-                    if(_verbose) print_msg("  %s\n", p.c_str());
+                    if(verbose) print_msg("  %s\n", p.c_str());
                 }
-                else duplicate_output_parameters.push_back(std::string("Parameter '") + p + std::string("' from the '") + module_name + std::string("' module"));
+                else duplicate_output_variables.push_back(std::string("Parameter '") + p + std::string("' from the '") + module_name + std::string("' module"));
             }
         }
         else duplicate_module_names.push_back(std::string("Steady state module '") + module_name);
     }
-    if(_verbose) print_msg("\n...done building list of parameters!\n\n");
     
     // Check the derivative modules
-    if(_verbose) print_msg("Checking the derivative module input and output parameters... ");
+    if(verbose) print_msg("Checking the derivative module input and output parameters... ");
     for(std::string module_name : derivative_module_names) {
         if(unique_derivative_module_names.find(module_name) == unique_derivative_module_names.end()) {
             for(std::string p : module_factory.get_inputs(module_name)) {
-                if(unique_parameter_names.find(p) == unique_parameter_names.end()) undefined_input_parameters.push_back(std::string("Parameter '") + p + std::string("' for the '") + module_name + std::string("' derivative module"));
+                if(unique_variable_names.find(p) == unique_variable_names.end()) undefined_input_variables.push_back(std::string("Parameter '") + p + std::string("' for the '") + module_name + std::string("' derivative module"));
                 if(unique_module_inputs.find(p) == unique_module_inputs.end()) unique_module_inputs.insert(p);
             }
             for(std::string p : module_factory.get_outputs(module_name)) {
                 if(initial_state.find(p) == initial_state.end()) {
-                    illegal_output_parameters.push_back(std::string("Parameter '") + p + std::string("' from the '") + module_name + std::string("' module"));
+                    illegal_output_variables.push_back(std::string("Parameter '") + p + std::string("' from the '") + module_name + std::string("' module"));
                 }
                 else if(unique_derivative_outputs.find(p) == unique_derivative_outputs.end()) unique_derivative_outputs.insert(p);
             }
@@ -289,197 +404,165 @@ System::System(
         else duplicate_module_names.push_back(std::string("Derivative module '") + module_name);
         
     }
-    if(_verbose) print_msg("done!\n\n");
-    
-    // Collect information about any errors that may have occurred while checking the parameters
-    if(duplicate_parameter_names.size() != 0) {
-        error_string += "Some parameters in the initial state, invariant parameters, and/or varying parameters were duplicated.\n";
-        if(_verbose) {
-            print_msg("The following parameters in the initial state, invariant parameters, and/or varying parameters were duplicated:\n");
-            //for(std::string s : duplicate_parameter_names) myfile << s << "\n";
-            for(std::string s : duplicate_parameter_names) print_msg("%s\n", s.c_str());
-            print_msg("\n");
-        }
-    }
-    if(duplicate_module_names.size() != 0) {
-        error_string += "Some modules were duplicated in the steady state and/or derivative module lists.\n";
-        if(_verbose) {
-            print_msg("The following modules were duplicated:\n");
-            for(std::string s : duplicate_module_names) print_msg("%s\n", s.c_str());
-            print_msg("\n");
-        }
-    }
-    if(duplicate_output_parameters.size() != 0) {
-        error_string += "Some steady state module output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules.\n";
-        if(_verbose) {
-            print_msg("The following steady state output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules:\n");
-            for(std::string s : duplicate_output_parameters) print_msg("%s\n", s.c_str());
-            print_msg("\n");
-        }
-    }
-    if(undefined_input_parameters.size() != 0) {
-        error_string += "Some modules required inputs parameters that were not defined by the initial state, invariant parameters, varying parameters, or previous steady state modules.\n";
-        if(_verbose) {
-            print_msg("The following module input parameters were not defined by the initial state, invariant parameters, varying parameters, or previous steady state modules:\n");
-            for(std::string s : undefined_input_parameters) print_msg("%s\n", s.c_str());
-            print_msg("\n");
-        }
-    }
-    if(illegal_output_parameters.size() != 0) {
-        error_string += "Some derivative modules returned derivatives for parameters that were not included in the initial state.\n";
-        if(_verbose) {
-            print_msg("The following parameters were output by derivative modules but not included in the initial state:\n");
-            for(std::string s : illegal_output_parameters) print_msg("%s\n", s.c_str());
-            print_msg("\n");
-        }
-    }
+    if(verbose) print_msg("done!\n\n");
+}
+
+void System::check_variable_usage(
+    std::set<std::string> const& unique_derivative_outputs,
+    std::set<std::string> const& unique_module_inputs) const
+{
+    // Check for state variables that lack derivatives
     if(unique_derivative_outputs.size() != initial_state.size()) {
-        if(_verbose) {
-            print_msg("No derivatives were supplied for the following state variables:\n");
-            for(auto x : initial_state) {
-                if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) print_msg("%s\n", (x.first).c_str());
+        print_msg("No derivatives were supplied for the following state variables:\n");
+        for(auto x : initial_state) {
+            if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) print_msg("%s\n", (x.first).c_str());
+        }
+        print_msg("These variables will not change with time. You may want to consider adding one or more derivative modules that describe them.\n\n");
+    }
+    
+    // Check for unused invariant parameters
+    bool found_unused_invariant_parameter = false;
+    for(auto x : invariant_parameters) {
+        if(unique_module_inputs.find(x.first) == unique_module_inputs.end()) {
+            if(found_unused_invariant_parameter == false) {
+                print_msg("The following invariant parameters were not used as inputs to any module:\n%s\n", (x.first).c_str());
+                found_unused_invariant_parameter = true;
             }
-            print_msg("These variables will not change with time. You may want to consider adding one or more derivative modules that describe them.\n\n");
+            else print_msg("%s\n", (x.first).c_str());
         }
     }
-    if(_verbose) {
-        bool found_unused_invariant_parameter = false;
-        for(auto x : invariant_parameters) {
-            if(unique_module_inputs.find(x.first) == unique_module_inputs.end()) {
-                if(found_unused_invariant_parameter == false) {
-                    print_msg("The following invariant parameters were not used as inputs to any module:\n%s\n", (x.first).c_str());
-                    found_unused_invariant_parameter = true;
-                }
-                //else myfile << x.first << "\n";
-                else print_msg("%s\n", (x.first).c_str());
-            }
-        }
-        if(found_unused_invariant_parameter) print_msg("You may want to consider removing them from the input list.\n\n");
-        else print_msg("All invariant parameters were used as module inputs.\n\n");
-    }
-    if(_verbose) {
-        print_msg("The following parameters were used as inputs to at least one module:\n");
-        for(std::string p : unique_module_inputs) print_msg("%s\n", p.c_str());
-        print_msg("\n");
-    }
+    if(found_unused_invariant_parameter) print_msg("You may want to consider removing them from the input list.\n\n");
+    else print_msg("All invariant parameters were used as module inputs.\n\n");
     
-    // If any errors occurred, notify the user
-    if(error_string.size() > 0) {
-        if(!_verbose) error_string += "Rerun the system in verbose mode for more information.\n";
-        else error_string += "Check the previous messages for more information.\n";
-        throw std::logic_error(error_string);
-    }
+    // Let the user know which parameters were used by at least one module
+    print_msg("The following parameters were used as inputs to at least one module:\n");
+    for(std::string p : unique_module_inputs) print_msg("%s\n", p.c_str());
+    print_msg("\n");
+}
+
+void System::create_modules(ModuleFactory& module_factory, std::vector<std::string>& incorrect_modules) {
+    // Make a vector to store the names of modules that are incompatible with adaptive step size integrators
+    std::vector<std::string> adaptive_step_size_incompat;
     
-    // Initialize the steady state and derivative module output map
-    vector_module_output = parameters;
-    
-    // Get a pointer to the timestep
-    timestep_ptr = &parameters.at("timestep");
-    
-    // Get pointers to the state variables in the parameter and module output maps
-    for(auto x : initial_state) {
-        std::pair<double*, double*> temp(&parameters.at(x.first), &vector_module_output.at(x.first));
-        state_parameter_names.push_back(x.first);
-        state_ptrs.push_back(temp);
-    }
-    
-    // Get pointers to the steady state parameters in the parameter and module output maps
-    for(std::string p : unique_steady_state_parameter_names) {
-        std::pair<double*, double*> temp(&parameters.at(p), &vector_module_output.at(p));
-        steady_state_ptrs.push_back(temp);
-    }
-    
-    // Get pointers to the varying parameters in the parameter and varying parameter maps
-    for(auto x : _varying_parameters) {
-        std::pair<double*, std::vector<double>*> temp(&parameters.at(x.first), &_varying_parameters.at(x.first));
-        varying_ptrs.push_back(temp);
-    }
-    
-    // Create a vector of parameter names (useful for saving the output of a calculation)
-    output_param_vector.resize(unique_changing_parameters.size());
-    std::copy(unique_changing_parameters.begin(), unique_changing_parameters.end(), output_param_vector.begin());
-    
-    // Create a vector of pointers to the output parameters (useful for saving the output of a calculation)
-    output_ptr_vector.resize(unique_changing_parameters.size());
-    for(size_t i = 0; i < output_param_vector.size(); i++) output_ptr_vector[i] = &parameters.at(output_param_vector[i]);
-    
-    // Create the modules
-    if(_verbose) print_msg("Creating the steady state modules from the list and making sure the list only includes steady state modules... ");
+    // Create the steady state modules, checking to make sure they are properly categorized and whether they are
+    //  compatible with adaptive step size integrators
+    if(verbose) print_msg("Creating the steady state modules from the list and making sure the list only includes steady state modules... ");
     for(std::string module_name : steady_state_module_names) {
         steady_state_modules.push_back(module_factory.create(module_name));
-        if(_verbose) print_msg("\n  %s --> ", steady_state_modules.back()->get_name().c_str());
+        if(verbose) print_msg("\n  %s --> ", steady_state_modules.back()->get_name().c_str());
         if(steady_state_modules.back()->is_deriv()) {
-            if(_verbose) print_msg("derivative module");
+            if(verbose) print_msg("derivative module");
             incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of steady state modules, but it returns a derivative"));
         }
-        else if(_verbose) print_msg("steady state module");
+        else if(verbose) print_msg("steady state module");
         if(!steady_state_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
     }
-    if(_verbose) print_msg("\n...done!\n\n");
-    if(_verbose) print_msg("Creating the derivative modules from the list and making sure the list only includes derivative modules... ");
+    if(verbose) print_msg("\n...done!\n\n");
+    
+    // Create the derivative modules, checking to make sure they are properly categorized and whether they are
+    //  compatible with adaptive step size integrators
+    if(verbose) print_msg("Creating the derivative modules from the list and making sure the list only includes derivative modules... ");
     for(std::string module_name : derivative_module_names) {
         derivative_modules.push_back(module_factory.create(module_name));
-        if(_verbose) print_msg("\n  %s --> ", module_name.c_str());
+        if(verbose) print_msg("\n  %s --> ", module_name.c_str());
         if(!derivative_modules.back()->is_deriv()) {
-            if(_verbose) print_msg("steady state module");
+            if(verbose) print_msg("steady state module");
             incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of derivative modules, but it does not return a derivative"));
         }
-        else if(_verbose) print_msg("derivative module");
+        else if(verbose) print_msg("derivative module");
         if(!derivative_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
     }
-    if(_verbose) print_msg("\n...done!\n\n");
-    
-    // Collect information about any errors that may have occurred while creating the modules
-    if(incorrect_modules.size() != 0) {
-        error_string += "Some modules were mischaracterized in the input lists.\n";
-        if(_verbose) {
-            print_msg("The following modules were mischaracterized:\n");
-            for(std::string s : incorrect_modules) print_msg("%s\n", s.c_str());
-            print_msg("\n");
-        }
-    }
+    if(verbose) print_msg("\n...done!\n\n");
     
     // Let the user know about adaptive step size compatibility
     if(adaptive_step_size_incompat.size() != 0) {
-        _is_adaptive_compatible = false;
-        if(_verbose) {
+        adaptive_compatible = false;
+        if(verbose) {
             print_msg("The following modules are incompatible with adaptive step size integrators, so this system can only be solved with the fixed step size Euler method:\n");
             for(std::string s : adaptive_step_size_incompat) print_msg("%s\n", s.c_str());
             print_msg("\n");
         }
     }
     else {
-        _is_adaptive_compatible = true;
-        if(_verbose) print_msg("All modules are compatible with adaptive step size integrators, so this system can be solved using adaptive Runge-Kutta or Rosenbrock methods.\n\n");
+        adaptive_compatible = true;
+        if(verbose) print_msg("All modules are compatible with adaptive step size integrators, so this system can be solved using adaptive Runge-Kutta or Rosenbrock methods.\n\n");
+    }
+}
+
+void System::get_pointer_pairs(std::set<std::string> const& unique_steady_state_parameter_names) {
+    // Get a pointer to the timestep
+    timestep_ptr = &parameters.at("timestep");
+    
+    // Get pointers to the state variables in the parameter and module output maps
+    for(auto x : initial_state) {
+        std::pair<double*, double*> temp(&parameters.at(x.first), &module_output_map.at(x.first));
+        state_ptrs.push_back(temp);
     }
     
-    // If any errors occurred, notify the user
-    if(error_string.size() > 0) {
-        if(!_verbose) error_string += "Rerun the system in verbose mode for more information.\n";
-        else error_string += "Check the previous messages for more information.\n";
-        throw std::logic_error(error_string);
+    // Get pointers to the steady state parameters in the parameter and module output maps
+    for(std::string p : unique_steady_state_parameter_names) {
+        std::pair<double*, double*> temp(&parameters.at(p), &module_output_map.at(p));
+        steady_state_ptrs.push_back(temp);
     }
     
-    // Get the number of time points
-    ntimes = (_varying_parameters.at("doy_dbl")).size();
+    // Get pointers to the varying parameters in the parameter and varying parameter maps
+    for(auto x : varying_parameters) {
+        std::pair<double*, std::vector<double>*> temp(&parameters.at(x.first), &varying_parameters.at(x.first));
+        varying_ptrs.push_back(temp);
+    }
+}
+
+void System::test_all_modules(std::string& total_error_string) {
+    if(verbose) print_msg("Trying to run all the modules... ");
     
-    // Fill in the initial values and test the modules
-    if(_verbose) print_msg("Trying to run all the modules... ");
+    // Test the steady state modules
     try {test_steady_state_modules();}
-    catch (const std::exception& e) {error_string += e.what();}
+    catch (const std::exception& e) {total_error_string += e.what();}
+    
+    // Test the derivative modules
     std::vector<double> temp_vec(state_ptrs.size());
-    test_derivative_modules(temp_vec);
-    if(_verbose) print_msg("done!\n\n");
+    try {test_derivative_modules(temp_vec);}
+    catch (const std::exception& e) {total_error_string += e.what();}
     
-    // If any errors occurred, notify the user
-    if(error_string.size() > 0) {
-        if(!_verbose) error_string += "Rerun the system in verbose mode for more information.\n";
-        else error_string += "Check the previous messages for more information.\n";
-        throw std::logic_error(error_string);
+    if(verbose) print_msg("done!\n\n");
+}
+
+void System::get_simulation_info(std::set<std::string> const& unique_changing_parameters) {
+    // Get the number of time points
+    ntimes = (varying_parameters.at("doy_dbl")).size();
+    
+    // Get the names of the state variables
+    for(auto x : initial_state) state_parameter_names.push_back(x.first);
+    
+    // Create a vector of the names of variables that change throughout a simulation
+    output_param_vector.resize(unique_changing_parameters.size());
+    std::copy(unique_changing_parameters.begin(), unique_changing_parameters.end(), output_param_vector.begin());
+    
+    // Create a vector of pointers to the variables that change throughout a simulation
+    output_ptr_vector.resize(unique_changing_parameters.size());
+    for(size_t i = 0; i < output_param_vector.size(); i++) output_ptr_vector[i] = &parameters.at(output_param_vector[i]);
+}
+
+void System::process_errors(std::vector<std::string> const& error_list, std::string error_msg, std::string& total_error_string) const {
+    if(error_list.size() != 0) {
+        // The error list size is nonzero, indicating that some errors of this type have occurred
+        total_error_string += error_msg + std::string(".\n");   // Add the error message to the total error string
+        if(verbose) {
+            std::string msg = error_msg + std::string(":\n");
+            print_msg(msg.c_str());
+            for(std::string s : error_list) print_msg("  %s\n", s.c_str());
+            print_msg("\n");
+        }
     }
-    
-    // Otherwise, we are done!
-    if(_verbose) print_msg("Done applying checks and building the system!\n\n");
+}
+
+void System::report_errors(std::string& total_error_string) const {
+    // If any errors occurred, notify the user
+    if(total_error_string.size() > 0) {
+        if(!verbose) total_error_string += "Rerun the system in verbose mode for more information.\n";
+        else total_error_string += "Check the previous messages for more information.\n";
+        throw std::logic_error(total_error_string);
+    }
 }
 
 bool System::get_state_indx(int& state_indx, const std::string& parameter_name) const {
@@ -504,7 +587,7 @@ void System::reset() {
     // Put all parameters back to their original values
     int t = 0;
     update_varying_params(t);
-    for(auto x : _initial_state) parameters[x.first] = x.second;
+    for(auto x : initial_state) parameters[x.first] = x.second;
     run_steady_state_modules();
 }
 
@@ -517,6 +600,7 @@ void System::set_param(const std::vector<double>& values, const std::vector<std:
     if(values.size() != parameter_names.size()) throw std::logic_error("Thrown by System::set_param - input vector lengths are different\n");
     for(size_t i = 0; i < values.size(); i++) set_param(values[i], parameter_names[i]);
 }
+
 // For std::vector state
 void System::get_state(std::vector<double>& x) const {
     x.resize(state_ptrs.size());
@@ -620,7 +704,6 @@ void System::test_steady_state_modules() {
     for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         try {(*it)->run();}
         catch (const std::exception& e) {
-            for(auto x : parameters) print_msg("%s: %f\n", (x.first).c_str(), x.second);
             throw std::logic_error(std::string("Steady state module '") + (*it)->get_name() + std::string("' generated an exception while calculating steady state parameters: ") + e.what() + std::string("\n"));
         }
         for(auto x : steady_state_ptrs) *x.first = *x.second;
