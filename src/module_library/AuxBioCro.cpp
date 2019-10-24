@@ -20,7 +20,6 @@
 #include <math.h>
 #include "c4photo.h"
 #include "BioCro.h"
-#include <Rinternals.h>		// Temporary, for testing
 
 #ifndef M_PI
 #define M_PI           3.14159265358979323846
@@ -211,8 +210,6 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
             Fshade = 1;
             Iaverage = 0;
         }
-		
-		Rprintf("Iscat,%i,%f,", nlayers - 1 - i, Iscat);
 
         light_profile.direct_irradiance[i] = Isolar + Idiffuse;  // micromole / m^2 / s
         light_profile.diffuse_irradiance[i]= Idiffuse;  // micromole / m^2 / s

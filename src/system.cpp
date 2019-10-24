@@ -162,6 +162,8 @@ System::System(
     // A string for describing problems with the inputs
     std::string error_string;                                       // A message to send to the user about any issues that were discovered during the system setup
     
+    if(verbose) print_msg("\nStarting to apply checks and build the system:\n");
+    
     // Check through the input variables and modules, making sure everything is consistent.
     // If everything is okay, generate a central variable map, a module output map, lists
     //  of modules, and information about which variables will be changing throughout
@@ -256,7 +258,7 @@ void System::process_variable_and_module_inputs(std::set<std::string>& unique_st
     // Initialize the module output map
     module_output_map = parameters;
     
-    // Create the modules, checking for any problems
+    // Now that we have a complete list of variables, we can use the module factory to create the modules
     create_modules(module_factory, incorrect_modules);
     
     // Collect information about any errors that may have occurred while creating the modules
@@ -305,7 +307,7 @@ void System::basic_input_checks() {
     varying_parameters["doy_dbl"] = doy_dbl_vec;
     varying_parameters.erase("doy");
     varying_parameters.erase("hour");
-    if(verbose) print_msg("done!\n\n");
+    if(verbose) print_msg("done!\n");
 }
 
 void System::get_variables_from_input_lists(
@@ -387,7 +389,7 @@ void System::get_variables_from_modules(
     }
     
     // Check the derivative modules
-    if(verbose) print_msg("Checking the derivative module input and output parameters... ");
+    if(verbose) print_msg("\nChecking the derivative module input and output parameters... ");
     for(std::string module_name : derivative_module_names) {
         if(unique_derivative_module_names.find(module_name) == unique_derivative_module_names.end()) {
             for(std::string p : module_factory.get_inputs(module_name)) {
@@ -415,9 +417,11 @@ void System::check_variable_usage(
     if(unique_derivative_outputs.size() != initial_state.size()) {
         print_msg("No derivatives were supplied for the following state variables:\n");
         for(auto x : initial_state) {
-            if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) print_msg("%s\n", (x.first).c_str());
+            if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) print_msg("  %s\n", (x.first).c_str());
         }
-        print_msg("These variables will not change with time. You may want to consider adding one or more derivative modules that describe them.\n\n");
+        print_msg("These variables will not change with time.\n");
+        print_msg("You may want to consider adding one or more derivative modules that describe them,\n");
+        print_msg("or remove them from the initial state.\n\n");
     }
     
     // Check for unused invariant parameters
@@ -425,10 +429,10 @@ void System::check_variable_usage(
     for(auto x : invariant_parameters) {
         if(unique_module_inputs.find(x.first) == unique_module_inputs.end()) {
             if(found_unused_invariant_parameter == false) {
-                print_msg("The following invariant parameters were not used as inputs to any module:\n%s\n", (x.first).c_str());
+                print_msg("The following invariant parameters were not used as inputs to any module:\n  %s\n", (x.first).c_str());
                 found_unused_invariant_parameter = true;
             }
-            else print_msg("%s\n", (x.first).c_str());
+            else print_msg("  %s\n", (x.first).c_str());
         }
     }
     if(found_unused_invariant_parameter) print_msg("You may want to consider removing them from the input list.\n\n");
@@ -436,7 +440,7 @@ void System::check_variable_usage(
     
     // Let the user know which parameters were used by at least one module
     print_msg("The following parameters were used as inputs to at least one module:\n");
-    for(std::string p : unique_module_inputs) print_msg("%s\n", p.c_str());
+    for(std::string p : unique_module_inputs) print_msg("  %s\n", p.c_str());
     print_msg("\n");
 }
 
