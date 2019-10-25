@@ -30,100 +30,100 @@ multilayer_canopy_results <- test_standalone_ss(multilayer_canopy_modules, multi
 
 # cumulative lai
 cum_lai_profile <- c(
-	multilayer_canopy_results$layer_cum_lai_00,
-	multilayer_canopy_results$layer_cum_lai_01,
-	multilayer_canopy_results$layer_cum_lai_02,
-	multilayer_canopy_results$layer_cum_lai_03,
-	multilayer_canopy_results$layer_cum_lai_04,
-	multilayer_canopy_results$layer_cum_lai_05,
-	multilayer_canopy_results$layer_cum_lai_06,
-	multilayer_canopy_results$layer_cum_lai_07,
-	multilayer_canopy_results$layer_cum_lai_08,
-	multilayer_canopy_results$layer_cum_lai_09
+	multilayer_canopy_results$layer_cum_lai_0,
+	multilayer_canopy_results$layer_cum_lai_1,
+	multilayer_canopy_results$layer_cum_lai_2,
+	multilayer_canopy_results$layer_cum_lai_3,
+	multilayer_canopy_results$layer_cum_lai_4,
+	multilayer_canopy_results$layer_cum_lai_5,
+	multilayer_canopy_results$layer_cum_lai_6,
+	multilayer_canopy_results$layer_cum_lai_7,
+	multilayer_canopy_results$layer_cum_lai_8,
+	multilayer_canopy_results$layer_cum_lai_9
 )
 
 # height
 height_profile <- c(
-	multilayer_canopy_results$layer_height_00,
-	multilayer_canopy_results$layer_height_01,
-	multilayer_canopy_results$layer_height_02,
-	multilayer_canopy_results$layer_height_03,
-	multilayer_canopy_results$layer_height_04,
-	multilayer_canopy_results$layer_height_05,
-	multilayer_canopy_results$layer_height_06,
-	multilayer_canopy_results$layer_height_07,
-	multilayer_canopy_results$layer_height_08,
-	multilayer_canopy_results$layer_height_09
+	multilayer_canopy_results$layer_height_0,
+	multilayer_canopy_results$layer_height_1,
+	multilayer_canopy_results$layer_height_2,
+	multilayer_canopy_results$layer_height_3,
+	multilayer_canopy_results$layer_height_4,
+	multilayer_canopy_results$layer_height_5,
+	multilayer_canopy_results$layer_height_6,
+	multilayer_canopy_results$layer_height_7,
+	multilayer_canopy_results$layer_height_8,
+	multilayer_canopy_results$layer_height_9
 )
 
 # rh
 rh_profile <- c(
-	multilayer_canopy_results$layer_rh_00,
-	multilayer_canopy_results$layer_rh_01,
-	multilayer_canopy_results$layer_rh_02,
-	multilayer_canopy_results$layer_rh_03,
-	multilayer_canopy_results$layer_rh_04,
-	multilayer_canopy_results$layer_rh_05,
-	multilayer_canopy_results$layer_rh_06,
-	multilayer_canopy_results$layer_rh_07,
-	multilayer_canopy_results$layer_rh_08,
-	multilayer_canopy_results$layer_rh_09
+	multilayer_canopy_results$layer_rh_0,
+	multilayer_canopy_results$layer_rh_1,
+	multilayer_canopy_results$layer_rh_2,
+	multilayer_canopy_results$layer_rh_3,
+	multilayer_canopy_results$layer_rh_4,
+	multilayer_canopy_results$layer_rh_5,
+	multilayer_canopy_results$layer_rh_6,
+	multilayer_canopy_results$layer_rh_7,
+	multilayer_canopy_results$layer_rh_8,
+	multilayer_canopy_results$layer_rh_9
 )
 
 # LeafN
 LeafN_profile <- c(
-	multilayer_canopy_results$layer_LeafN_00,
-	multilayer_canopy_results$layer_LeafN_01,
-	multilayer_canopy_results$layer_LeafN_02,
-	multilayer_canopy_results$layer_LeafN_03,
-	multilayer_canopy_results$layer_LeafN_04,
-	multilayer_canopy_results$layer_LeafN_05,
-	multilayer_canopy_results$layer_LeafN_06,
-	multilayer_canopy_results$layer_LeafN_07,
-	multilayer_canopy_results$layer_LeafN_08,
-	multilayer_canopy_results$layer_LeafN_09
+	multilayer_canopy_results$layer_LeafN_0,
+	multilayer_canopy_results$layer_LeafN_1,
+	multilayer_canopy_results$layer_LeafN_2,
+	multilayer_canopy_results$layer_LeafN_3,
+	multilayer_canopy_results$layer_LeafN_4,
+	multilayer_canopy_results$layer_LeafN_5,
+	multilayer_canopy_results$layer_LeafN_6,
+	multilayer_canopy_results$layer_LeafN_7,
+	multilayer_canopy_results$layer_LeafN_8,
+	multilayer_canopy_results$layer_LeafN_9
 )
 
 # windspeed
 windspeed_profile <- c(
-	multilayer_canopy_results$layer_windspeed_00,
-	multilayer_canopy_results$layer_windspeed_01,
-	multilayer_canopy_results$layer_windspeed_02,
-	multilayer_canopy_results$layer_windspeed_03,
-	multilayer_canopy_results$layer_windspeed_04,
-	multilayer_canopy_results$layer_windspeed_05,
-	multilayer_canopy_results$layer_windspeed_06,
-	multilayer_canopy_results$layer_windspeed_07,
-	multilayer_canopy_results$layer_windspeed_08,
-	multilayer_canopy_results$layer_windspeed_09
+	multilayer_canopy_results$layer_windspeed_0,
+	multilayer_canopy_results$layer_windspeed_1,
+	multilayer_canopy_results$layer_windspeed_2,
+	multilayer_canopy_results$layer_windspeed_3,
+	multilayer_canopy_results$layer_windspeed_4,
+	multilayer_canopy_results$layer_windspeed_5,
+	multilayer_canopy_results$layer_windspeed_6,
+	multilayer_canopy_results$layer_windspeed_7,
+	multilayer_canopy_results$layer_windspeed_8,
+	multilayer_canopy_results$layer_windspeed_9
 )
 
 # Iscat
 Iscat_profile <- c(
-	multilayer_canopy_results$layer_Iscat_00,
-	multilayer_canopy_results$layer_Iscat_01,
-	multilayer_canopy_results$layer_Iscat_02,
-	multilayer_canopy_results$layer_Iscat_03,
-	multilayer_canopy_results$layer_Iscat_04,
-	multilayer_canopy_results$layer_Iscat_05,
-	multilayer_canopy_results$layer_Iscat_06,
-	multilayer_canopy_results$layer_Iscat_07,
-	multilayer_canopy_results$layer_Iscat_08,
-	multilayer_canopy_results$layer_Iscat_09
+	multilayer_canopy_results$layer_Iscat_0,
+	multilayer_canopy_results$layer_Iscat_1,
+	multilayer_canopy_results$layer_Iscat_2,
+	multilayer_canopy_results$layer_Iscat_3,
+	multilayer_canopy_results$layer_Iscat_4,
+	multilayer_canopy_results$layer_Iscat_5,
+	multilayer_canopy_results$layer_Iscat_6,
+	multilayer_canopy_results$layer_Iscat_7,
+	multilayer_canopy_results$layer_Iscat_8,
+	multilayer_canopy_results$layer_Iscat_9
 )
 
 # Idiff
 Idiff_profile <- c(
-	multilayer_canopy_results$layer_Idiff_00,
-	multilayer_canopy_results$layer_Idiff_01,
-	multilayer_canopy_results$layer_Idiff_02,
-	multilayer_canopy_results$layer_Idiff_03,
-	multilayer_canopy_results$layer_Idiff_04,
-	multilayer_canopy_results$layer_Idiff_05,
-	multilayer_canopy_results$layer_Idiff_06,
-	multilayer_canopy_results$layer_Idiff_07,
-	multilayer_canopy_results$layer_Idiff_08,
-	multilayer_canopy_results$layer_Idiff_09
+	multilayer_canopy_results$layer_Idiff_0,
+	multilayer_canopy_results$layer_Idiff_1,
+	multilayer_canopy_results$layer_Idiff_2,
+	multilayer_canopy_results$layer_Idiff_3,
+	multilayer_canopy_results$layer_Idiff_4,
+	multilayer_canopy_results$layer_Idiff_5,
+	multilayer_canopy_results$layer_Idiff_6,
+	multilayer_canopy_results$layer_Idiff_7,
+	multilayer_canopy_results$layer_Idiff_8,
+	multilayer_canopy_results$layer_Idiff_9
 )
 
 # Isun
@@ -142,30 +142,30 @@ Isun_profile <- c(
 
 # Itot
 Itot_profile <- c(
-	multilayer_canopy_results$layer_Itot_00,
-	multilayer_canopy_results$layer_Itot_01,
-	multilayer_canopy_results$layer_Itot_02,
-	multilayer_canopy_results$layer_Itot_03,
-	multilayer_canopy_results$layer_Itot_04,
-	multilayer_canopy_results$layer_Itot_05,
-	multilayer_canopy_results$layer_Itot_06,
-	multilayer_canopy_results$layer_Itot_07,
-	multilayer_canopy_results$layer_Itot_08,
-	multilayer_canopy_results$layer_Itot_09
+	multilayer_canopy_results$layer_Itot_0,
+	multilayer_canopy_results$layer_Itot_1,
+	multilayer_canopy_results$layer_Itot_2,
+	multilayer_canopy_results$layer_Itot_3,
+	multilayer_canopy_results$layer_Itot_4,
+	multilayer_canopy_results$layer_Itot_5,
+	multilayer_canopy_results$layer_Itot_6,
+	multilayer_canopy_results$layer_Itot_7,
+	multilayer_canopy_results$layer_Itot_8,
+	multilayer_canopy_results$layer_Itot_9
 )
 
 # Fsunlit
 Fsun_profile <- c(
-	multilayer_canopy_results$layer_Fsun_00,
-	multilayer_canopy_results$layer_Fsun_01,
-	multilayer_canopy_results$layer_Fsun_02,
-	multilayer_canopy_results$layer_Fsun_03,
-	multilayer_canopy_results$layer_Fsun_04,
-	multilayer_canopy_results$layer_Fsun_05,
-	multilayer_canopy_results$layer_Fsun_06,
-	multilayer_canopy_results$layer_Fsun_07,
-	multilayer_canopy_results$layer_Fsun_08,
-	multilayer_canopy_results$layer_Fsun_09
+	multilayer_canopy_results$layer_Fsun_0,
+	multilayer_canopy_results$layer_Fsun_1,
+	multilayer_canopy_results$layer_Fsun_2,
+	multilayer_canopy_results$layer_Fsun_3,
+	multilayer_canopy_results$layer_Fsun_4,
+	multilayer_canopy_results$layer_Fsun_5,
+	multilayer_canopy_results$layer_Fsun_6,
+	multilayer_canopy_results$layer_Fsun_7,
+	multilayer_canopy_results$layer_Fsun_8,
+	multilayer_canopy_results$layer_Fsun_9
 )
 
 # Create some plots
@@ -216,30 +216,30 @@ multilayer_canopy_results_dusk <- test_standalone_ss(multilayer_canopy_modules, 
 
 # cumulative lai
 cum_lai_profile_dusk <- c(
-	multilayer_canopy_results_dusk$layer_cum_lai_00,
-	multilayer_canopy_results_dusk$layer_cum_lai_01,
-	multilayer_canopy_results_dusk$layer_cum_lai_02,
-	multilayer_canopy_results_dusk$layer_cum_lai_03,
-	multilayer_canopy_results_dusk$layer_cum_lai_04,
-	multilayer_canopy_results_dusk$layer_cum_lai_05,
-	multilayer_canopy_results_dusk$layer_cum_lai_06,
-	multilayer_canopy_results_dusk$layer_cum_lai_07,
-	multilayer_canopy_results_dusk$layer_cum_lai_08,
-	multilayer_canopy_results_dusk$layer_cum_lai_09
+	multilayer_canopy_results_dusk$layer_cum_lai_0,
+	multilayer_canopy_results_dusk$layer_cum_lai_1,
+	multilayer_canopy_results_dusk$layer_cum_lai_2,
+	multilayer_canopy_results_dusk$layer_cum_lai_3,
+	multilayer_canopy_results_dusk$layer_cum_lai_4,
+	multilayer_canopy_results_dusk$layer_cum_lai_5,
+	multilayer_canopy_results_dusk$layer_cum_lai_6,
+	multilayer_canopy_results_dusk$layer_cum_lai_7,
+	multilayer_canopy_results_dusk$layer_cum_lai_8,
+	multilayer_canopy_results_dusk$layer_cum_lai_9
 )
 
 # Idiff
 Idiff_profile_dusk <- c(
-	multilayer_canopy_results_dusk$layer_Idiff_00,
-	multilayer_canopy_results_dusk$layer_Idiff_01,
-	multilayer_canopy_results_dusk$layer_Idiff_02,
-	multilayer_canopy_results_dusk$layer_Idiff_03,
-	multilayer_canopy_results_dusk$layer_Idiff_04,
-	multilayer_canopy_results_dusk$layer_Idiff_05,
-	multilayer_canopy_results_dusk$layer_Idiff_06,
-	multilayer_canopy_results_dusk$layer_Idiff_07,
-	multilayer_canopy_results_dusk$layer_Idiff_08,
-	multilayer_canopy_results_dusk$layer_Idiff_09
+	multilayer_canopy_results_dusk$layer_Idiff_0,
+	multilayer_canopy_results_dusk$layer_Idiff_1,
+	multilayer_canopy_results_dusk$layer_Idiff_2,
+	multilayer_canopy_results_dusk$layer_Idiff_3,
+	multilayer_canopy_results_dusk$layer_Idiff_4,
+	multilayer_canopy_results_dusk$layer_Idiff_5,
+	multilayer_canopy_results_dusk$layer_Idiff_6,
+	multilayer_canopy_results_dusk$layer_Idiff_7,
+	multilayer_canopy_results_dusk$layer_Idiff_8,
+	multilayer_canopy_results_dusk$layer_Idiff_9
 )
 
 # Isun
@@ -258,16 +258,16 @@ Isun_profile_dusk <- c(
 
 # Iscat
 Itot_profile_dusk <- c(
-	multilayer_canopy_results_dusk$layer_Itot_00,
-	multilayer_canopy_results_dusk$layer_Itot_01,
-	multilayer_canopy_results_dusk$layer_Itot_02,
-	multilayer_canopy_results_dusk$layer_Itot_03,
-	multilayer_canopy_results_dusk$layer_Itot_04,
-	multilayer_canopy_results_dusk$layer_Itot_05,
-	multilayer_canopy_results_dusk$layer_Itot_06,
-	multilayer_canopy_results_dusk$layer_Itot_07,
-	multilayer_canopy_results_dusk$layer_Itot_08,
-	multilayer_canopy_results_dusk$layer_Itot_09
+	multilayer_canopy_results_dusk$layer_Itot_0,
+	multilayer_canopy_results_dusk$layer_Itot_1,
+	multilayer_canopy_results_dusk$layer_Itot_2,
+	multilayer_canopy_results_dusk$layer_Itot_3,
+	multilayer_canopy_results_dusk$layer_Itot_4,
+	multilayer_canopy_results_dusk$layer_Itot_5,
+	multilayer_canopy_results_dusk$layer_Itot_6,
+	multilayer_canopy_results_dusk$layer_Itot_7,
+	multilayer_canopy_results_dusk$layer_Itot_8,
+	multilayer_canopy_results_dusk$layer_Itot_9
 )
 
 # Create and print a plot

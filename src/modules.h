@@ -6,7 +6,9 @@
 #include "state_map.h"                  // Include this here so all modules will have access to state_map
 #include "module_library/BioCro.h"      // Include this here so all modules will have access to the auxilliary functions
 #include "module_library/AuxBioCro.h"   // Include this here so all modules will have access to the auxilliary functions
-#include <math.h>                       // Include this here so all modules will have access to the standard math functions
+#include <cmath>                        // For log10
+#include <sstream>                      // For replicating old sprintf functionality with strings
+#include <iomanip>                      // For replicating old sprintf functionality with strings
 
 class Module {
     // This class represents a component of a larger system of differential equations

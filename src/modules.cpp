@@ -14,14 +14,15 @@ double Module::get_val_debug(const double* ptr, const std::string name) const {
 
 // This function generates a list of parameter names based on the number of layers
 std::vector<std::string> MultilayerModule::get_multilayer_param_names(int nlayers, std::vector<std::string> param_names) {
-    char buff[128];     // Hopefully no parameter names are this long!
     std::vector<std::string> full_multilayer_output_vector;
+    std::stringstream param_name_stream;
+    int num_digits = ceil(log10(nlayers - 1.0));    // Get the number of digits in the largest layer number
     for(size_t i = 0; i < param_names.size(); i++) {
         std::string basename = param_names[i];
         for(int j = 0; j < nlayers; j++) {
-            if(nlayers < 10) sprintf(buff, "%.1i", j);
-            else sprintf(buff, "%.2i", j);
-            full_multilayer_output_vector.push_back(basename + std::string(buff));
+            param_name_stream << basename << std::setfill('0') << std::setw(num_digits) << j;
+            full_multilayer_output_vector.push_back(param_name_stream.str());
+            param_name_stream.str("");  // Reset the string stream
         }
     }
     return full_multilayer_output_vector;
