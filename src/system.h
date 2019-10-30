@@ -83,9 +83,7 @@ class System {
         );
         void get_variables_from_modules(
             ModuleFactory& module_factory,
-            std::set<std::string>& unique_steady_state_module_names,
             std::set<std::string>& unique_steady_state_parameter_names,
-            std::set<std::string>& unique_derivative_module_names,
             std::set<std::string>& unique_derivative_outputs,
             std::set<std::string>& unique_variable_names,
             std::set<std::string>& unique_module_inputs,
@@ -106,8 +104,6 @@ class System {
         void get_pointer_pairs(std::set<std::string> const& unique_steady_state_parameter_names);
         void test_all_modules(std::string& total_error_string);
         void get_simulation_info(std::set<std::string> const& unique_changing_parameters);
-        void process_errors(std::vector<std::string> const& error_list, std::string error_msg, std::string& total_error_string) const;
-        void report_errors(std::string& total_error_string) const;
         // Map for storing the central parameter list
         std::unordered_map<std::string, double> parameters;
         // Map for storing module outputs

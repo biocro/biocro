@@ -1,3 +1,6 @@
+#ifndef SYSTEM_HELPER_FUNCTIONS_H
+#define SYSTEM_HELPER_FUNCTIONS_H
+
 #include <vector>
 #include <set>
 #include <unordered_map>
@@ -14,7 +17,6 @@
 void get_variables_from_ss_modules(
     std::vector<std::string> const& steady_state_module_names,
     ModuleFactory const& module_factory,
-    std::set<std::string>& unique_steady_state_module_names,
     std::set<std::string>& unique_module_inputs,
     std::set<std::string>& unique_module_outputs,
     std::vector<std::string>& duplicate_output_variables,
@@ -24,11 +26,12 @@ void get_variables_from_ss_modules(
 void get_variables_from_derivative_modules(
     std::vector<std::string> const& derivative_module_names,
     ModuleFactory const& module_factory,
-    std::set<std::string>& unique_derivative_module_names,
     std::set<std::string>& unique_module_inputs,
     std::set<std::string>& unique_module_outputs,
     std::vector<std::string>& duplicate_module_names
 );
+
+void void_printf (char const *format, ...);
 
 void create_modules_from_names(
     std::vector<std::string> const& module_names,
@@ -38,10 +41,8 @@ void create_modules_from_names(
     std::vector<std::string>& incorrect_modules,
     std::vector<std::string>& adaptive_step_size_incompat,
     bool verbose,
-    void (*print_msg) (char const *format, ...)
+    void (*print_msg) (char const *format, ...) = void_printf
 );
-
-void void_printf (char const *format, ...);
 
 void process_errors(
     std::vector<std::string> const& error_list,
@@ -55,3 +56,5 @@ void report_errors(
     std::string& total_error_string,
     bool verbose
 );
+
+#endif

@@ -3,12 +3,12 @@
 void get_variables_from_ss_modules(
     std::vector<std::string> const& steady_state_module_names,
     ModuleFactory const& module_factory,
-    std::set<std::string>& unique_steady_state_module_names,
     std::set<std::string>& unique_module_inputs,
     std::set<std::string>& unique_module_outputs,
     std::vector<std::string>& duplicate_output_variables,
     std::vector<std::string>& duplicate_module_names)
 {
+    std::set<std::string> unique_steady_state_module_names; // Make a container for storing module names
     for (std::string module_name : steady_state_module_names) {
         if (unique_steady_state_module_names.find(module_name) == unique_steady_state_module_names.end()) {
             // Record the module's name
@@ -33,11 +33,11 @@ void get_variables_from_ss_modules(
 void get_variables_from_derivative_modules(
     std::vector<std::string> const& derivative_module_names,
     ModuleFactory const& module_factory,
-    std::set<std::string>& unique_derivative_module_names,
     std::set<std::string>& unique_module_inputs,
     std::set<std::string>& unique_module_outputs,
     std::vector<std::string>& duplicate_module_names)
 {
+    std::set<std::string> unique_derivative_module_names;   // Make a container for storing module names
     for (std::string module_name : derivative_module_names) {
         if (unique_derivative_module_names.find(module_name) == unique_derivative_module_names.end()) {
             // Record the module's name
@@ -52,6 +52,16 @@ void get_variables_from_derivative_modules(
         }
         else duplicate_module_names.push_back(std::string("Derivative module '") + module_name);
     }
+}
+
+// This is a simple wrapper for vprintf that returns void instead of an int
+// The purpose of this function is to create a printing function
+//  having the same output and syntax as Rprintf
+void void_printf(char const* format, ...) {
+    va_list args;               // Get the input arguments
+    va_start (args, format);    // Enable access to the input arguments
+    vprintf (format, args);     // Pass the arguments to vprintf, which is just like printf except it doesn't use variadic inputs
+    va_end (args);              // Cleanup the input argument list
 }
 
 void create_modules_from_names(
@@ -77,16 +87,6 @@ void create_modules_from_names(
         if (module_list.back()->is_deriv() != is_deriv) incorrect_modules.push_back(std::string("'") + module_name + error_msg);
         if (!module_list.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
     }
-}
-
-// This is a simple wrapper for vprintf that returns void instead of an int
-// The purpose of this function is to create a printing function
-//  having the same output and syntax as Rprintf
-void void_printf(char const* format, ...) {
-    va_list args;               // Get the input arguments
-    va_start (args, format);    // Enable access to the input arguments
-    vprintf (format, args);     // Pass the arguments to vprintf, which is just like printf except it doesn't use variadic inputs
-    va_end (args);              // Cleanup the input argument list
 }
 
 // This function either:

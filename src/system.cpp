@@ -145,7 +145,7 @@ System::System(
     //  - A derivative module's output parameters must be included in the state
     //      (i.e., derivatives can only be defined for state variables)
     
-    // Lists for collecting variables and modules
+    // Lists for collecting variables
     std::set<std::string> unique_steady_state_parameter_names;      // All parameters output by steady state modules
     std::set<std::string> unique_changing_parameters;               // All variables that change throughout a simulation (used for saving/returning results, since we shouldn't include invariant parameters)
     
@@ -175,7 +175,7 @@ System::System(
     
     // If any errors have occurred, notify the user and throw an error to halt the operation,
     //  since the user needs to address these problems before continuing
-    report_errors(error_string);
+    report_errors(error_string, verbose);
     
     // Get information that we will need when running a simulation and returning the results
     get_simulation_info(unique_changing_parameters);
@@ -220,8 +220,8 @@ void System::process_variable_and_module_inputs(std::set<std::string>& unique_st
     // Along the way, check for any duplicated variable or module
     //  names, and any undefined module inputs
     get_variables_from_modules(module_factory,
-        unique_steady_state_module_names, unique_steady_state_parameter_names,
-        unique_derivative_module_names, unique_derivative_outputs,
+        unique_steady_state_parameter_names,
+        unique_derivative_outputs,
         unique_variable_names, unique_module_inputs, unique_changing_parameters,
         undefined_input_variables, duplicate_output_variables, duplicate_module_names, illegal_output_variables
     );
@@ -235,15 +235,15 @@ void System::process_variable_and_module_inputs(std::set<std::string>& unique_st
     if(verbose) check_variable_usage(unique_derivative_outputs, unique_module_inputs);
     
     // Collect information about any errors that may have occurred while checking the parameters
-    process_errors(duplicate_variable_names, std::string("Some variables in the initial state, invariant parameters, and/or varying parameters were duplicated"), error_string);
-    process_errors(duplicate_module_names, std::string("Some modules were duplicated in the steady state and/or derivative module lists"), error_string);
-    process_errors(duplicate_output_variables, std::string("Some steady state module output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules"), error_string);
-    process_errors(undefined_input_variables, std::string("Some modules required inputs variables that were not defined by the initial state, invariant parameters, varying parameters, or previous steady state modules"), error_string);
-    process_errors(illegal_output_variables, std::string("Some derivative modules returned derivatives for variables that were not included in the initial state"), error_string);
+    process_errors(duplicate_variable_names, std::string("Some variables in the initial state, invariant parameters, and/or varying parameters were duplicated"), error_string, verbose, print_msg);
+    process_errors(duplicate_module_names, std::string("Some modules were duplicated in the steady state and/or derivative module lists"), error_string, verbose, print_msg);
+    process_errors(duplicate_output_variables, std::string("Some steady state module output parameters were already included in the initial state, invariant parameters, varying parameters, or previous steady state modules"), error_string, verbose, print_msg);
+    process_errors(undefined_input_variables, std::string("Some modules required inputs variables that were not defined by the initial state, invariant parameters, varying parameters, or previous steady state modules"), error_string, verbose, print_msg);
+    process_errors(illegal_output_variables, std::string("Some derivative modules returned derivatives for variables that were not included in the initial state"), error_string, verbose, print_msg);
     
     // If any errors have occurred, notify the user and throw an error to halt the operation,
     //  since the user needs to address these problems before continuing
-    report_errors(error_string);
+    report_errors(error_string, verbose);
     
     // Initialize the module output map
     module_output_map = parameters;
@@ -252,11 +252,11 @@ void System::process_variable_and_module_inputs(std::set<std::string>& unique_st
     create_modules(module_factory, incorrect_modules);
     
     // Collect information about any errors that may have occurred while creating the modules
-    process_errors(incorrect_modules, std::string("Some modules were mischaracterized in the input lists"), error_string);
+    process_errors(incorrect_modules, std::string("Some modules were mischaracterized in the input lists"), error_string, verbose, print_msg);
     
     // If any errors have occurred, notify the user and throw an error to halt the operation,
     //  since the user needs to address these problems before continuing
-    report_errors(error_string);
+    report_errors(error_string, verbose);
 }
 
 void System::basic_input_checks() {    
@@ -343,9 +343,7 @@ void System::get_variables_from_input_lists(
 
 void System::get_variables_from_modules(
     ModuleFactory& module_factory,
-    std::set<std::string>& unique_steady_state_module_names,
     std::set<std::string>& unique_steady_state_parameter_names,
-    std::set<std::string>& unique_derivative_module_names,
     std::set<std::string>& unique_derivative_outputs,
     std::set<std::string>& unique_variable_names,
     std::set<std::string>& unique_module_inputs,
@@ -364,7 +362,6 @@ void System::get_variables_from_modules(
     get_variables_from_ss_modules(
         steady_state_module_names,
         module_factory,
-        unique_steady_state_module_names,
         unique_module_inputs,
         unique_ss_outputs,
         duplicate_output_variables,
@@ -391,7 +388,6 @@ void System::get_variables_from_modules(
     get_variables_from_derivative_modules(
         derivative_module_names,
         module_factory,
-        unique_derivative_module_names,
         unique_module_inputs,
         unique_derivative_outputs,
         duplicate_module_names
@@ -545,28 +541,6 @@ void System::get_simulation_info(std::set<std::string> const& unique_changing_pa
     // Create a vector of pointers to the variables that change throughout a simulation
     output_ptr_vector.resize(unique_changing_parameters.size());
     for(size_t i = 0; i < output_param_vector.size(); i++) output_ptr_vector[i] = &parameters.at(output_param_vector[i]);
-}
-
-void System::process_errors(std::vector<std::string> const& error_list, std::string error_msg, std::string& total_error_string) const {
-    if(error_list.size() != 0) {
-        // The error list size is nonzero, indicating that some errors of this type have occurred
-        total_error_string += error_msg + std::string(".\n");   // Add the error message to the total error string
-        if(verbose) {
-            std::string msg = error_msg + std::string(":\n");
-            print_msg(msg.c_str());
-            for(std::string s : error_list) print_msg("  %s\n", s.c_str());
-            print_msg("\n");
-        }
-    }
-}
-
-void System::report_errors(std::string& total_error_string) const {
-    // If any errors occurred, notify the user
-    if(total_error_string.size() > 0) {
-        if(!verbose) total_error_string += "Rerun the system in verbose mode for more information.\n";
-        else total_error_string += "Check the previous messages for more information.\n";
-        throw std::logic_error(total_error_string);
-    }
 }
 
 bool System::get_state_indx(int& state_indx, const std::string& parameter_name) const {
