@@ -7,15 +7,12 @@
 #include <memory>       // For unique_ptr and shared_ptr
 #include <cmath>        // For fmod
 #include <time.h>       // For timing during performance testing
-#include <stdio.h>      // For vprintf
-#include <stdarg.h>     // For va_list
 #include <boost/numeric/ublas/vector.hpp>   // For use with ODEINT
 #include <boost/numeric/ublas/matrix.hpp>   // For use with ODEINT
 #include <boost/numeric/odeint.hpp>         // For use with ODEINT
 #include "modules.h"
 #include "module_library/ModuleFactory.h"
-
-void void_printf (char const *format, ...); // Forward declaration for a printing function
+#include "system_helper_functions.h"
 
 class System {
     // This class defines a system of differential equations by storing a state, a list of modules, and all of their input/output parameters

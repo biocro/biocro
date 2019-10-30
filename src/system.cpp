@@ -1,15 +1,5 @@
 #include "system.h"
 
-// This is a simple wrapper for vprintf that returns void instead of an int
-// The purpose of this function is to create a printing function
-//  having the same output and syntax as Rprintf
-void void_printf(char const* format, ...) {
-    va_list args;               // Get the input arguments
-    va_start (args, format);    // Enable access to the input arguments
-    vprintf (format, args);     // Pass the arguments to vprintf, which is just like printf except it doesn't use variadic inputs
-    va_end (args);              // Cleanup the input argument list
-}
-
 // For integer time and std::vector state
 void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt, const int& t) {
     // Update the internally stored parameter list and use it to calculate a derivative
@@ -365,48 +355,58 @@ void System::get_variables_from_modules(
     std::vector<std::string>& duplicate_module_names,
     std::vector<std::string>& illegal_output_variables)
 {
+    // Define containers for collecting important variable names
+    std::set<std::string> unique_ss_outputs;
+    std::set<std::string> deriv_module_outputs;
+    
     // Collect variable names from the steady state modules
     if(verbose) print_msg("\nGetting variable names from the steady state modules:\n");
-    for(std::string module_name : steady_state_module_names) {
-        if(unique_steady_state_module_names.find(module_name) == unique_steady_state_module_names.end()) {
-            unique_steady_state_module_names.insert(module_name);
-            for(std::string p : module_factory.get_inputs(module_name)) {
-                if(unique_variable_names.find(p) == unique_variable_names.end()) undefined_input_variables.push_back(std::string("Parameter '") + p + std::string("' for the '") + module_name + std::string("' steady state module"));
-                if(unique_module_inputs.find(p) == unique_module_inputs.end()) unique_module_inputs.insert(p);
-            }
-            for(std::string p : module_factory.get_outputs(module_name)) {
-                if(unique_variable_names.find(p) == unique_variable_names.end()) {
-                    unique_variable_names.insert(p);
-                    unique_steady_state_parameter_names.insert(p);
-                    unique_changing_parameters.insert(p);
-                    parameters[p] = 0.0;
-                    if(verbose) print_msg("  %s\n", p.c_str());
-                }
-                else duplicate_output_variables.push_back(std::string("Parameter '") + p + std::string("' from the '") + module_name + std::string("' module"));
-            }
-        }
-        else duplicate_module_names.push_back(std::string("Steady state module '") + module_name);
+    get_variables_from_ss_modules(
+        steady_state_module_names,
+        module_factory,
+        unique_steady_state_module_names,
+        unique_module_inputs,
+        unique_ss_outputs,
+        duplicate_output_variables,
+        duplicate_module_names
+    );
+    
+    // Check for any steady state module outputs that were already defined by the initial state,
+    //  invariant parameters, or varying parameters
+    for(std::string p : unique_ss_outputs) {
+        if(unique_variable_names.find(p) != unique_variable_names.end()) duplicate_output_variables.push_back(std::string("Variable '") + p + std::string("'"));
     }
     
-    // Check the derivative modules
-    if(verbose) print_msg("\nChecking the derivative module input and output parameters... ");
-    for(std::string module_name : derivative_module_names) {
-        if(unique_derivative_module_names.find(module_name) == unique_derivative_module_names.end()) {
-            for(std::string p : module_factory.get_inputs(module_name)) {
-                if(unique_variable_names.find(p) == unique_variable_names.end()) undefined_input_variables.push_back(std::string("Parameter '") + p + std::string("' for the '") + module_name + std::string("' derivative module"));
-                if(unique_module_inputs.find(p) == unique_module_inputs.end()) unique_module_inputs.insert(p);
-            }
-            for(std::string p : module_factory.get_outputs(module_name)) {
-                if(initial_state.find(p) == initial_state.end()) {
-                    illegal_output_variables.push_back(std::string("Parameter '") + p + std::string("' from the '") + module_name + std::string("' module"));
-                }
-                else if(unique_derivative_outputs.find(p) == unique_derivative_outputs.end()) unique_derivative_outputs.insert(p);
-            }
-        }
-        else duplicate_module_names.push_back(std::string("Derivative module '") + module_name);
-        
+    // Update the variable lists to include the steady state module output variables
+    for(std::string p : unique_ss_outputs) {
+        unique_variable_names.insert(p);
+        unique_steady_state_parameter_names.insert(p);
+        unique_changing_parameters.insert(p);
+        parameters[p] = 0.0;
+        if(verbose) print_msg("  %s\n", p.c_str());
     }
+    
+    // Collect variable names from the derivative modules
+    if(verbose) print_msg("\nChecking the derivative module input and output parameters... ");
+    get_variables_from_derivative_modules(
+        derivative_module_names,
+        module_factory,
+        unique_derivative_module_names,
+        unique_module_inputs,
+        unique_derivative_outputs,
+        duplicate_module_names
+    );
     if(verbose) print_msg("done!\n\n");
+    
+    // Check for any illegal derivative output variables
+    for(std::string p : unique_derivative_outputs) {
+        if(initial_state.find(p) == initial_state.end()) illegal_output_variables.push_back(std::string("Variable '") + p + std::string("'"));
+    }
+    
+    // Check for any undefined input variables
+    for(std::string p : unique_module_inputs) {
+        if(unique_variable_names.find(p) == unique_variable_names.end()) undefined_input_variables.push_back(std::string("Variable '") + p + std::string("'"));
+    }
 }
 
 void System::check_variable_usage(
@@ -451,31 +451,31 @@ void System::create_modules(ModuleFactory& module_factory, std::vector<std::stri
     // Create the steady state modules, checking to make sure they are properly categorized and whether they are
     //  compatible with adaptive step size integrators
     if(verbose) print_msg("Creating the steady state modules from the list and making sure the list only includes steady state modules... ");
-    for(std::string module_name : steady_state_module_names) {
-        steady_state_modules.push_back(module_factory.create(module_name));
-        if(verbose) print_msg("\n  %s --> ", steady_state_modules.back()->get_name().c_str());
-        if(steady_state_modules.back()->is_deriv()) {
-            if(verbose) print_msg("derivative module");
-            incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of steady state modules, but it returns a derivative"));
-        }
-        else if(verbose) print_msg("steady state module");
-        if(!steady_state_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
-    }
+    create_modules_from_names(
+        steady_state_module_names,
+        false,
+        steady_state_modules,
+        module_factory,
+        incorrect_modules,
+        adaptive_step_size_incompat,
+        verbose,
+        print_msg
+    );
     if(verbose) print_msg("\n...done!\n\n");
     
     // Create the derivative modules, checking to make sure they are properly categorized and whether they are
     //  compatible with adaptive step size integrators
     if(verbose) print_msg("Creating the derivative modules from the list and making sure the list only includes derivative modules... ");
-    for(std::string module_name : derivative_module_names) {
-        derivative_modules.push_back(module_factory.create(module_name));
-        if(verbose) print_msg("\n  %s --> ", module_name.c_str());
-        if(!derivative_modules.back()->is_deriv()) {
-            if(verbose) print_msg("steady state module");
-            incorrect_modules.push_back(std::string("'") + module_name + std::string("' was included in the list of derivative modules, but it does not return a derivative"));
-        }
-        else if(verbose) print_msg("derivative module");
-        if(!derivative_modules.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
-    }
+    create_modules_from_names(
+        derivative_module_names,
+        true,
+        derivative_modules,
+        module_factory,
+        incorrect_modules,
+        adaptive_step_size_incompat,
+        verbose,
+        print_msg
+    );
     if(verbose) print_msg("\n...done!\n\n");
     
     // Let the user know about adaptive step size compatibility
