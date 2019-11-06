@@ -27,15 +27,9 @@
 #include "utilization_senescence_calculator.hpp"
 #include "leaf_water_stress_exponential.hpp"
 #include "biomass_leaf_n_limitation.hpp"
-#include "circadian_clock.hpp"
-#include "circadian_clock_calculator.hpp"
-#include "circadian_clock2.hpp"
-#include "circadian_clock_calculator2.hpp"
 #include "pokhilko_circadian_clock.hpp"
 #include "song_flowering.hpp"
 #include "fake_solar.hpp"
-#include "clock_testing.hpp"
-#include "clock_testing_calc.hpp"
 #include "partitioning_coefficient_selector.hpp"
 #include "partitioning_growth.hpp"
 #include "partitioning_growth_calculator.hpp"
@@ -67,6 +61,12 @@
 #include "solar_zenith_angle.hpp"
 #include "light_macro_environment.hpp"
 #include "multilayer_canopy_properties.hpp"
+#include "light_from_solar.hpp"
+#include "night_and_day_trackers.hpp"
+#include "oscillator_clock_calculator.hpp"
+#include "poincare_clock.hpp"
+#include "magic_clock.hpp"
+#include "phase_clock.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -100,15 +100,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"utilization_senescence_calculator",				createModule<utilization_senescence_calculator>},
 		{"leaf_water_stress_exponential",					createModule<leaf_water_stress_exponential>},
 		{"biomass_leaf_n_limitation",						createModule<biomass_leaf_n_limitation>},
-		{"circadian_clock",									createModule<circadian_clock>},
-		{"circadian_clock_calculator",						createModule<circadian_clock_calculator>},
-		{"circadian_clock2",								createModule<circadian_clock2>},
-		{"circadian_clock_calculator2",						createModule<circadian_clock_calculator2>},
 		{"pokhilko_circadian_clock",						createModule<pokhilko_circadian_clock>},
 		{"song_flowering",									createModule<song_flowering>},
 		{"fake_solar",										createModule<fake_solar>},
-		{"clock_testing",									createModule<clock_testing>},
-		{"clock_testing_calc",								createModule<clock_testing_calc>},
 		{"partitioning_coefficient_selector",				createModule<partitioning_coefficient_selector>},
 		{"partitioning_growth",								createModule<partitioning_growth>},
 		{"partitioning_growth_calculator",					createModule<partitioning_growth_calculator>},
@@ -141,7 +135,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"flowering_calculator",							createModule<flowering_calculator>},
 		{"solar_zenith_angle",								createModule<solar_zenith_angle>},
 		{"light_macro_environment",							createModule<light_macro_environment>},
-		{"ten_layer_canopy_properties",						createModule<ten_layer_canopy_properties>}
+		{"ten_layer_canopy_properties",						createModule<ten_layer_canopy_properties>},
+		{"magic_clock",                                     createModule<magic_clock>},
+		{"poincare_clock",                                  createModule<poincare_clock>},
+		{"phase_clock",                                     createModule<phase_clock>},
+		{"oscillator_clock_calculator",                     createModule<oscillator_clock_calculator>},
+		{"night_and_day_trackers",                          createModule<night_and_day_trackers>},
+		{"light_from_solar",                                createModule<light_from_solar>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -171,15 +171,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"utilization_senescence_calculator",				utilization_senescence_calculator::get_inputs()},
 		{"leaf_water_stress_exponential",					leaf_water_stress_exponential::get_inputs()},
 		{"biomass_leaf_n_limitation",						biomass_leaf_n_limitation::get_inputs()},
-		{"circadian_clock",									circadian_clock::get_inputs()},
-		{"circadian_clock_calculator",						circadian_clock_calculator::get_inputs()},
-		{"circadian_clock2",								circadian_clock2::get_inputs()},
-		{"circadian_clock_calculator2",						circadian_clock_calculator2::get_inputs()},
 		{"pokhilko_circadian_clock",						pokhilko_circadian_clock::get_inputs()},
 		{"song_flowering",									song_flowering::get_inputs()},
 		{"fake_solar",										fake_solar::get_inputs()},
-		{"clock_testing",									clock_testing::get_inputs()},
-		{"clock_testing_calc",								clock_testing_calc::get_inputs()},
 		{"partitioning_coefficient_selector",				partitioning_coefficient_selector::get_inputs()},
 		{"partitioning_growth",								partitioning_growth::get_inputs()},
 		{"partitioning_growth_calculator",					partitioning_growth_calculator::get_inputs()},
@@ -212,7 +206,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"flowering_calculator",							flowering_calculator::get_inputs()},
 		{"solar_zenith_angle",								solar_zenith_angle::get_inputs()},
 		{"light_macro_environment",							light_macro_environment::get_inputs()},
-		{"ten_layer_canopy_properties",						ten_layer_canopy_properties::get_inputs()}
+		{"ten_layer_canopy_properties",						ten_layer_canopy_properties::get_inputs()},
+		{"magic_clock",                                     magic_clock::get_inputs()},
+		{"poincare_clock",                                  poincare_clock::get_inputs()},
+		{"phase_clock",                                     phase_clock::get_inputs()},
+		{"oscillator_clock_calculator",                     oscillator_clock_calculator::get_inputs()},
+		{"night_and_day_trackers",                          night_and_day_trackers::get_inputs()},
+		{"light_from_solar",                                light_from_solar::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -242,15 +242,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"utilization_senescence_calculator",				utilization_senescence_calculator::get_outputs()},
 		{"leaf_water_stress_exponential",					leaf_water_stress_exponential::get_outputs()},
 		{"biomass_leaf_n_limitation",						biomass_leaf_n_limitation::get_outputs()},
-		{"circadian_clock",									circadian_clock::get_outputs()},
-		{"circadian_clock_calculator",						circadian_clock_calculator::get_outputs()},
-		{"circadian_clock2",								circadian_clock2::get_outputs()},
-		{"circadian_clock_calculator2",						circadian_clock_calculator2::get_outputs()},
 		{"pokhilko_circadian_clock",						pokhilko_circadian_clock::get_outputs()},
 		{"song_flowering",									song_flowering::get_outputs()},
 		{"fake_solar",										fake_solar::get_outputs()},
-		{"clock_testing",									clock_testing::get_outputs()},
-		{"clock_testing_calc",								clock_testing_calc::get_outputs()},
 		{"partitioning_coefficient_selector",				partitioning_coefficient_selector::get_outputs()},
 		{"partitioning_growth",								partitioning_growth::get_outputs()},
 		{"partitioning_growth_calculator",					partitioning_growth_calculator::get_outputs()},
@@ -283,7 +277,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"flowering_calculator",							flowering_calculator::get_outputs()},
 		{"solar_zenith_angle",								solar_zenith_angle::get_outputs()},
 		{"light_macro_environment",							light_macro_environment::get_outputs()},
-		{"ten_layer_canopy_properties",						ten_layer_canopy_properties::get_outputs()}
+		{"ten_layer_canopy_properties",						ten_layer_canopy_properties::get_outputs()},
+		{"magic_clock",                                     magic_clock::get_outputs()},
+		{"poincare_clock",                                  poincare_clock::get_outputs()},
+		{"phase_clock",                                     phase_clock::get_outputs()},
+		{"oscillator_clock_calculator",                     oscillator_clock_calculator::get_outputs()},
+		{"night_and_day_trackers",                          night_and_day_trackers::get_outputs()},
+		{"light_from_solar",                                light_from_solar::get_outputs()}
 	};
 	module_descriptions = {
 		{"solar_zenith_angle",								solar_zenith_angle::get_description()},

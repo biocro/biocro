@@ -381,14 +381,14 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 		std::unordered_map<std::string, double> module_output_map;
 		ModuleFactory module_factory(&parameters, &module_output_map);
 		
-		// Get the module's outputs and add them to the parameter list with default
-		//  values of -1000000.0, which should make it clear if a module fails to
-		//  update one of its outputs
+		// Get the module's outputs and add them to the output list with default
+		//  values of 0.0
+        // Note: since derivative modules add their output to the module_output_map,
+        //  the result only makes sense if each parameter is initialized to 0
 		std::vector<std::string> module_outputs = module_factory.get_outputs(module_name);
-		for(std::string param : module_outputs) parameters[param] = -1000000.0;
+		for(std::string param : module_outputs) module_output_map[param] = 0.0;
 		
 		// Create an instance of the module
-		module_output_map = parameters;
 		std::unique_ptr<Module> module_ptr = module_factory.create(module_name);
 		
 		// Run the module
