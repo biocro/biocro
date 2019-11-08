@@ -24,7 +24,9 @@ class oscillator_clock_calculator : public SteadyModule {
             dusk_kick_op(get_op(output_parameters, "dusk_kick")),
             dawn_phase_op(get_op(output_parameters, "dawn_phase")),
             dusk_phase_op(get_op(output_parameters, "dusk_phase")),
-            ref_phase_op(get_op(output_parameters, "ref_phase"))
+            ref_phase_op(get_op(output_parameters, "ref_phase")),
+            day_length_op(get_op(output_parameters, "day_length")),
+            night_length_op(get_op(output_parameters, "night_length"))
         {}
         static std::vector<std::string> get_inputs();
         static std::vector<std::string> get_outputs();
@@ -46,6 +48,8 @@ class oscillator_clock_calculator : public SteadyModule {
         double* dawn_phase_op;
         double* dusk_phase_op;
         double* ref_phase_op;
+        double* day_length_op;
+        double* night_length_op;
         // Main operation
         void do_operation() const;
 };
@@ -71,7 +75,9 @@ std::vector<std::string> oscillator_clock_calculator::get_outputs() {
         "dusk_kick",
         "dawn_phase",
         "dusk_phase",
-        "ref_phase"
+        "ref_phase",
+        "day_length",
+        "night_length"
     };
 }
 
@@ -121,6 +127,10 @@ void oscillator_clock_calculator::do_operation() const {
     double ref_phase = atan2(ref_b, ref_a);         // Output lies within [-pi,pi]
     if(ref_phase < 0) ref_phase += 2 * M_PI;        // Change output domain to [0,2*pi)
     
+    // Calculate the day and night length indicators
+    double day_length = dusk_phase > dawn_phase ? (dawn_phase - dusk_phase + 2 * M_PI) * 12.0 / M_PI : 0;
+    double night_length = dawn_phase > dusk_phase ? (dusk_phase - dawn_phase + 2 * M_PI) * 12.0 / M_PI : 0;
+    
     //////////////////////////////////////
     // Update the output parameter list //
     //////////////////////////////////////
@@ -130,6 +140,8 @@ void oscillator_clock_calculator::do_operation() const {
     update(dawn_phase_op, dawn_phase);
     update(dusk_phase_op, dusk_phase);
     update(ref_phase_op, ref_phase);
+    update(day_length_op, day_length);
+    update(night_length_op, night_length);
 }
 
 #endif
