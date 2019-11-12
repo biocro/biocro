@@ -169,91 +169,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	return(result)
 }
 
-Gro_auto <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
-{
-	# This function runs a full crop growth simulation, automatically choosing the Rosenbrock integration method when possible
-	#
-	# initial_state: a list of named parameters representing state variables
-	# parameters: a list of named parameters that don't change with time
-	# varying_parameters: a dataframe of parameters defined at equally spaced time intervals
-	#  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
-	#  Note: the varying parameters must include "doy" and "hour"
-	# steady_state_module_names: a character vector of steady state module names
-	# steady_state_module_names: a character vector of derivative module names
-	# verbose: a logical variable indicating whether or not to print system startup information
-	#
-	# Example: running a sorghum simulation using weather data from 2005
-	#
-	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
-	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
-	#  result <- Gro_auto(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, TRUE)
-	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
-	#
-	# The result is a data frame showing all time-dependent variables as they change throughout the growing season.
-	# When Gro is run in verbose mode (as in this example, where verbose = TRUE), information about the input and output parameters
-	# will be printed to the R console before the simulation runs. This can be very useful when attempting to combine a set of modules
-	# for the first time.
-	#
-	# In the sorghum example, the simulation is performed using the fixed-step size Euler method for numerical integration. One of its modules (thermal_time_senescence)
-	# requires a history of all parameters, making it incompatible with any other integration method.
-	# 
-	# Example 2: running a soybean simulation using weather data from 2005
-	# 
-	#  glycine_max_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "soil_evaporation", "c3_canopy", "utilization_growth_calculator", "utilization_senescence_calculator")
-	#  glycine_max_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_accumulator", "one_layer_soil_profile")
-	#  result <- Gro_auto(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_ss_modules, glycine_max_deriv_modules, TRUE)
-	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
-	#
-	# In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
-	# ODEINT's implementation of an implicit Rosenbrock solver to run the simulation.
-	
-	# Check to make sure the initial_state is properly defined
-	if(!is.list(initial_state)) {
-		stop('"initial_state" must be a list')
-	}
-	
-	if(length(initial_state) != length(unlist(initial_state))) {
-		item_lengths = unlist(lapply(initial_state, length))
-		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-		stop(error_message)
-	}
-	
-	# Check to make sure the parameters are properly defined
-	if(!is.list(parameters)) {
-		stop('"parameters" must be a list')
-	}
-	
-	if(length(parameters) != length(unlist(parameters))) {
-		item_lengths = unlist(lapply(parameters, length))
-		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-		stop(error_message)
-	}
-	
-	# Check to make sure the varying_parameters are properly defined
-	if(!is.list(varying_parameters)) {
-		stop('"varying_parameters" must be a list')
-	}
-	
-	# C++ requires that all the variables have type `double`
-	initial_state = lapply(initial_state, as.numeric)
-	parameters = lapply(parameters, as.numeric)
-	varying_parameters = lapply(varying_parameters, as.numeric)
-	
-	# Make sure verbose is a logical variable
-	verbose = lapply(verbose, as.logical)
-	
-	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
-	
-	# Make sure doy and hour are properly defined
-	result$doy = floor(result$doy_dbl)
-	result$hour = 24.0*(result$doy_dbl - result$doy)
-	
-	# Return the result
-	return(result)
-}
-
-Gro_euler <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
+Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver='Gro', verbose = FALSE)
 {
 	# This function runs a full crop growth simulation using the fixed step size Euler method. All inputs are the same as Gro_auto
 	
@@ -293,57 +209,7 @@ Gro_euler <- function(initial_state, parameters, varying_parameters, steady_stat
 	verbose = lapply(verbose, as.logical)
 	
 	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro_euler, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
-	
-	# Make sure doy and hour are properly defined
-	result$doy = floor(result$doy_dbl)
-	result$hour = 24.0*(result$doy_dbl - result$doy)
-	
-	# Return the result
-	return(result)
-}
-
-Gro_rsnbrk <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose = FALSE)
-{
-	# This function runs a full crop growth simulation using the adaptive step size Rosenbrock method. All inputs are the same as Gro_auto
-	
-	# Check to make sure the initial_state is properly defined
-	if(!is.list(initial_state)) {
-		stop('"initial_state" must be a list')
-	}
-	
-	if(length(initial_state) != length(unlist(initial_state))) {
-		item_lengths = unlist(lapply(initial_state, length))
-		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-		stop(error_message)
-	}
-	
-	# Check to make sure the parameters are properly defined
-	if(!is.list(parameters)) {
-		stop('"parameters" must be a list')
-	}
-	
-	if(length(parameters) != length(unlist(parameters))) {
-		item_lengths = unlist(lapply(parameters, length))
-		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-		stop(error_message)
-	}
-	
-	# Check to make sure the varying_parameters are properly defined
-	if(!is.list(varying_parameters)) {
-		stop('"varying_parameters" must be a list')
-	}
-	
-	# C++ requires that all the variables have type `double`
-	initial_state = lapply(initial_state, as.numeric)
-	parameters = lapply(parameters, as.numeric)
-	varying_parameters = lapply(varying_parameters, as.numeric)
-	
-	# Make sure verbose is a logical variable
-	verbose = lapply(verbose, as.logical)
-	
-	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro_rsnbrk, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
+	result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver, verbose))
 	
 	# Make sure doy and hour are properly defined
 	result$doy = floor(result$doy_dbl)

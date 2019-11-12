@@ -8,6 +8,7 @@
 #include "module_library/ModuleFactory.h"
 #include "R_helper_functions.h"
 #include "standalone_ss.h"
+#include "SystemSolverFactory.hpp"
 
 using std::string;
 using std::vector;
@@ -47,11 +48,12 @@ SEXP R_Gro(SEXP initial_state,
 	}
 }
 
-SEXP R_Gro_euler(SEXP initial_state,
+SEXP R_Gro_solver(SEXP initial_state,
 		SEXP parameters,
 		SEXP varying_parameters,
 		SEXP steady_state_module_names,
 		SEXP derivative_module_names,
+		SEXP solver_name,
 		SEXP verbose)
 {
 	try {
@@ -67,47 +69,17 @@ SEXP R_Gro_euler(SEXP initial_state,
 		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 		
 		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
-		
-		state_vector_map result = Gro_euler(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
-		return list_from_map(result);
-	}
-	catch (std::exception const &e) {
-		Rf_error(string(string("Caught exception in R_Gro_euler: ") + e.what()).c_str());
-	}
-	catch (...) {
-		Rf_error("Caught unhandled exception in R_Gro_euler.");
-	}
-}
+		string solver_name_string = CHAR(STRING_ELT(solver_name, 0));
+		auto solver = system_solver_factory(solver_name_string);
 
-SEXP R_Gro_rsnbrk(SEXP initial_state,
-		SEXP parameters,
-		SEXP varying_parameters,
-		SEXP steady_state_module_names,
-		SEXP derivative_module_names,
-		SEXP verbose)
-{
-	try {
-		state_map s = map_from_list(initial_state);
-		state_map ip = map_from_list(parameters);
-		state_vector_map vp = map_vector_from_list(varying_parameters);
-		
-		if (vp.begin()->second.size() == 0) {
-			return R_NilValue;
-		}
-		
-		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
-		
-		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
-		
-		state_vector_map result = Gro_rsnbrk(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
+		state_vector_map result = solver(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
-		Rf_error(string(string("Caught exception in R_Gro_rsnbrk: ") + e.what()).c_str());
+		Rf_error(string(string("Caught exception in R_Gro_solver: ") + e.what()).c_str());
 	}
 	catch (...) {
-		Rf_error("Caught unhandled exception in R_Gro_rsnbrk.");
+		Rf_error("Caught unhandled exception in R_Gro_solver.");
 	}
 }
 
