@@ -630,7 +630,7 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
     for(size_t i = 0; i < x_vec.size(); i++) {
         // Unpack the latest time and state from the calculation results
         boost::numeric::ublas::vector<double> current_state = x_vec[i];
-        int current_time = times[i];
+        double current_time = times[i];
         // Get the corresponding parameter list
         update_varying_params(current_time);
         update_state_params(current_state);
