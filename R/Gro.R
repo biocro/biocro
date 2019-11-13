@@ -42,37 +42,6 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	# In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
 	# ODEINT's implementation of an implicit Rosenbrock solver to run the simulation.
 	
-	# Check to make sure the initial_values is properly defined
-	if(!is.list(initial_values)) {
-		stop('"initial_values" must be a list')
-	}
-	
-	if(length(initial_values) != length(unlist(initial_values))) {
-		item_lengths = unlist(lapply(initial_values, length))
-		error_message = sprintf("The following initial_values members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-		stop(error_message)
-	}
-	
-	# Check to make sure the parameters are properly defined
-	if(!is.list(parameters)) {
-		stop('"parameters" must be a list')
-	}
-	
-	if(length(parameters) != length(unlist(parameters))) {
-		item_lengths = unlist(lapply(parameters, length))
-		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-		stop(error_message)
-	}
-	
-	# Check to make sure the varying_parameters are properly defined
-	if(!is.list(varying_parameters)) {
-		stop('"varying_parameters" must be a list')
-	}
-	
-	# C++ requires that all the variables have type `double`
-	initial_values = lapply(initial_values, as.numeric)
-	parameters = lapply(parameters, as.numeric)
-	varying_parameters = lapply(varying_parameters, as.numeric)
 	
 	# Check to make sure the modules are properly defined
 	module_names = paste(c('canopy', 'soil', 'growth', 'senescence', 'stomata_water_stress', 'leaf_water_stress'), '_module_name', sep='')
@@ -155,15 +124,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	steady_state_module_names = unique(steady_state_module_names)
 	derivative_module_names = unique(derivative_module_names)
 	
-	# Make sure verbose is a logical variable
-	verbose = lapply(verbose, as.logical)
-	
-	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro, initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose))
-	
-	# Make sure doy and hour are properly defined
-	result$doy = floor(result$doy_dbl)
-	result$hour = 24.0*(result$doy_dbl - result$doy)
+        result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, 'Gro', verbose)
 	
 	# Return the result
 	return(result)
