@@ -128,8 +128,8 @@ void oscillator_clock_calculator::do_operation() const {
     if(ref_phase < 0) ref_phase += 2 * M_PI;        // Change output domain to [0,2*pi)
     
     // Calculate the day and night length indicators
-    double day_length = dusk_phase > dawn_phase ? (dawn_phase - dusk_phase + 2 * M_PI) * 12.0 / M_PI : 0;
-    double night_length = dawn_phase > dusk_phase ? (dusk_phase - dawn_phase + 2 * M_PI) * 12.0 / M_PI : 0;
+    double day_length = dusk_phase > dawn_phase ? (dawn_phase - dusk_phase + 2 * M_PI) * 12.0 / M_PI : (dawn_phase - dusk_phase) * 12.0 / M_PI;
+    double night_length = dawn_phase > dusk_phase ? (dusk_phase - dawn_phase + 2 * M_PI) * 12.0 / M_PI : (dusk_phase - dawn_phase) * 12.0 / M_PI;
     
     //////////////////////////////////////
     // Update the output parameter list //
