@@ -182,17 +182,17 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 
 partial_gro <- function(initial_values, parameters, varying_parameters, modules, arg_names, verbose = FALSE)
 {
-	# Accepts the same parameters as Gro_auto() with an additional 'arg_names' parameter, which is a vector of character variables.
-	# Returns a function that runs Gro_auto() with all of the parameters, except 'arg_names
+	# Accepts the same parameters as Gro() with an additional 'arg_names' parameter, which is a vector of character variables.
+	# Returns a function that runs Gro() with all of the parameters, except 'arg_names
 	# set as default. The only parameter in the new function is the value of 'arg_names'.
 	# This technique is called partial application, hence the name partial_gro.
 	# 
-	# initial_values: same as Gro_auto()
-	# parameters: same as Gro_auto()
-	# varying_parameters: same as Gro_auto()
-	# steady_state_module_names: same as Gro_auto()
-	# derivative_module_names: same as Gro_auto()
-	# verbose: same as Gro_auto()
+	# initial_values: same as Gro()
+	# parameters: same as Gro()
+	# varying_parameters: same as Gro()
+	# steady_state_module_names: same as Gro()
+	# derivative_module_names: same as Gro()
+	# verbose: same as Gro()
 	# arg_names: vector of character variables. The names of the arguments that the new function accepts.
 	#  Note: 'arg_names' must contain the names of parameters in 'initial_values', 'parameters', or 'varying_parameters'.
 	# 
