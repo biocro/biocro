@@ -180,21 +180,21 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	return(result)
 }
 
-partial_gro <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, verbose = FALSE)
+partial_gro <- function(initial_values, parameters, varying_parameters, modules, arg_names, verbose = FALSE)
 {
 	# Accepts the same parameters as Gro_auto() with an additional 'arg_names' parameter, which is a vector of character variables.
 	# Returns a function that runs Gro_auto() with all of the parameters, except 'arg_names
 	# set as default. The only parameter in the new function is the value of 'arg_names'.
 	# This technique is called partial application, hence the name partial_gro.
 	# 
-	# initial_state: same as Gro_auto()
+	# initial_values: same as Gro_auto()
 	# parameters: same as Gro_auto()
 	# varying_parameters: same as Gro_auto()
 	# steady_state_module_names: same as Gro_auto()
 	# derivative_module_names: same as Gro_auto()
 	# verbose: same as Gro_auto()
 	# arg_names: vector of character variables. The names of the arguments that the new function accepts.
-	#  Note: 'arg_names' must contain the names of parameters in 'initial_state', 'parameters', or 'varying_parameters'.
+	#  Note: 'arg_names' must contain the names of parameters in 'initial_values', 'parameters', or 'varying_parameters'.
 	# 
 	# returns f(arg).
 	# 
@@ -214,9 +214,9 @@ partial_gro <- function(initial_state, parameters, varying_parameters, steady_st
 	#  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
 	
 	# Form the argument list to pass to Gro
-	arg_list = list(initial_state=initial_state, parameters=parameters, varying_parameters=varying_parameters, steady_state_module_names=steady_state_module_names, derivative_module_names=derivative_module_names, verbose=verbose)
+	arg_list = list(initial_values=initial_values, parameters=parameters, varying_parameters=varying_parameters, modules=modules, verbose=verbose)
 	
-	# Make a data frame containing the names of all parameters in the initial_state, parameters, and varying_parameters inputs
+	# Make a data frame containing the names of all parameters in the initial_values, parameters, and varying_parameters inputs
 	df = data.frame(control=character(), arg_name=character(), stringsAsFactors=FALSE)
 	for (i in seq_along(arg_list)) {
 		if (length(names(arg_list[[i]])) > 0) {
