@@ -59,7 +59,8 @@ class System {
         std::vector<std::string> get_output_param_names() const {return output_param_vector;}
         std::vector<const double*> get_output_ptrs() const {return output_ptr_vector;}
         std::vector<std::string> get_state_parameter_names() const {return state_parameter_names;}
-        // For testing speed
+        // For performance testing
+        int get_ncalls() const {return ncalls;}
         template<class vector_type, class time_type> int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
         int speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const double& t, boost::numeric::ublas::vector<double>& dfdt);
     private:
@@ -132,6 +133,8 @@ class System {
         // For testing the modules
         void test_steady_state_modules();
         template<class vector_type> void test_derivative_modules(vector_type& derivs);
+        // For performance testing
+        int ncalls;
         // For numerically calculating derivatives
         const double eps_deriv = 1e-11;
 };

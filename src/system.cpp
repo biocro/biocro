@@ -3,6 +3,7 @@
 // For integer time and std::vector state
 void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt, const int& t) {
     // Update the internally stored parameter list and use it to calculate a derivative
+    ncalls ++;
     update_varying_params(t);
     update_state_params(x);
     run_steady_state_modules();
@@ -12,6 +13,7 @@ void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt,
 // For double time and std::vector state
 void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt, const double& t) {
     // Update the internally stored parameter list and use it to calculate a derivative
+    ncalls ++;
     update_varying_params(t);
     update_state_params(x);
     run_steady_state_modules();
@@ -21,6 +23,7 @@ void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt,
 // For integer time and boost::numeric::ublas::vector state
 void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const int& t) {
     // Update the internally stored parameter list and use it to calculate a derivative
+    ncalls ++;
     update_varying_params(t);
     update_state_params(x);
     run_steady_state_modules();
@@ -30,6 +33,7 @@ void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::n
 // For double time and boost::numeric::ublas::vector state
 void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const double& t) {
     // Update the internally stored parameter list and use it to calculate a derivative
+    ncalls ++;
     update_varying_params(t);
     update_state_params(x);
     run_steady_state_modules();
@@ -180,6 +184,9 @@ System::System(
     // Get information that we will need when running a simulation and returning the results
     get_simulation_info(unique_changing_parameters);
     
+    // Reset the derivative evaluation counter
+    ncalls = 0;
+    
     // Now we are done!
     if(verbose) print_msg("Done applying checks and building the system!\n\n");
 }
@@ -298,6 +305,12 @@ void System::basic_input_checks() {
     varying_parameters.erase("doy");
     varying_parameters.erase("hour");
     if(verbose) print_msg("done!\n");
+    
+    // Check for any other prohibited parameter names
+    if(varying_parameters.find("ncalls") != varying_parameters.end() || invariant_parameters.find("ncalls") != invariant_parameters.end() || initial_state.find("ncalls") != initial_state.end()) {
+        throw std::logic_error(std::string("'ncalls' is a reserved parameter name, and it will be automatically filled with the number of derivative evaluations performed during a simulation. Please remove or rename this parameter.\n"));
+    }
+    
 }
 
 void System::get_variables_from_input_lists(
@@ -600,6 +613,12 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
     std::vector<double> temp(x_vec.size());
     for(std::string p : output_param_vector) results[p] = temp;
     
+    // Store the derivative evaluation counter
+    //  It will show up as a whole vector with the same value at every time point
+    //  Maybe there is a better way to do this?
+    std::fill(temp.begin(), temp.end(), ncalls);
+    results["ncalls"] = temp;
+    
     // Store the data
     for(size_t i = 0; i < x_vec.size(); i++) {
         // Unpack the latest time and state from the calculation results
@@ -625,6 +644,12 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
     // Initialize the parameter names
     std::vector<double> temp(x_vec.size());
     for(std::string p : output_param_vector) results[p] = temp;
+    
+    // Store the derivative evaluation counter
+    //  It will show up as a whole vector with the same value at every time point
+    //  Maybe there is a better way to do this?
+    std::fill(temp.begin(), temp.end(), ncalls);
+    results["ncalls"] = temp;
     
     // Store the data
     for(size_t i = 0; i < x_vec.size(); i++) {

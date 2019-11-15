@@ -105,8 +105,14 @@ std::unordered_map<std::string, std::vector<double>> Gro_euler_solve(
 	
 	if(verbose) print_msg("\n");	// Make the output look nice
 	
-	// Fill in the result map and return it
+	// Fill in the result map
 	for(size_t i = 0; i < output_param_vector.size(); i++) results[output_param_vector[i]] = result_vec[i];
+    
+    // Add the number of derivative calculations
+    std::fill(temp.begin(), temp.end(), sys->get_ncalls());
+    results["ncalls"] = temp;
+    
+    // Return the results
 	return results;
 }
 
