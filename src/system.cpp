@@ -668,6 +668,38 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
     return results;
 }
 
+// For double time and std::vector state
+std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<double>& times) {
+    // Make the result map
+    std::unordered_map<std::string, std::vector<double>> results;
+    
+    // Initialize the parameter names
+    std::vector<double> temp(x_vec.size());
+    for(std::string p : output_param_vector) results[p] = temp;
+    
+    // Store the derivative evaluation counter
+    //  It will show up as a whole vector with the same value at every time point
+    //  Maybe there is a better way to do this?
+    std::fill(temp.begin(), temp.end(), ncalls);
+    results["ncalls"] = temp;
+    
+    // Store the data
+    for(size_t i = 0; i < x_vec.size(); i++) {
+        // Unpack the latest time and state from the calculation results
+        std::vector<double> current_state = x_vec[i];
+        double current_time = times[i];
+        // Get the corresponding parameter list
+        update_varying_params(current_time);
+        update_state_params(current_state);
+        run_steady_state_modules();
+        // Add the list to the results map
+        for(size_t j = 0; j < output_param_vector.size(); j++) (results[output_param_vector[j]])[i] = parameters[output_param_vector[j]];
+    }
+    
+    // Return the result map
+    return results;
+}
+
 // For integer time
 void System::update_varying_params(int time_indx) {
     for(auto x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];

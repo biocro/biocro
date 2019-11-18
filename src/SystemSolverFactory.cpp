@@ -3,9 +3,12 @@
 
 
 SystemSolverFactory::system_solver_map SystemSolverFactory::system_solvers = {
-    { "Gro",        Gro },
-    { "Gro_euler",  Gro_euler },
-    { "Gro_rsnbrk", Gro_rsnbrk },
+    { "Gro",                Gro },
+    { "Gro_euler",          Gro_euler },
+    { "Gro_euler_odeint",   Gro_euler_odeint },
+    { "Gro_rsnbrk",         Gro_rsnbrk },
+    { "Gro_rk4",            Gro_rk4 },
+    { "Gro_rkck54",         Gro_rkck54 },
 };
 
 SystemSolverFactory::SYSTEM_SOLVER SystemSolverFactory::operator()(std::string const &system_solver_name) const {

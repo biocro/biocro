@@ -56,6 +56,7 @@ class System {
         // For returning the results of a calculation
         std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times);
         std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<boost::numeric::ublas::vector<double>>& x_vec, const std::vector<double>& times);
+        std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<double>& times);
         std::vector<std::string> get_output_param_names() const {return output_param_vector;}
         std::vector<const double*> get_output_ptrs() const {return output_ptr_vector;}
         std::vector<std::string> get_state_parameter_names() const {return state_parameter_names;}
@@ -179,6 +180,41 @@ struct push_back_state_and_time_rsnbrk
     {}
     
     void operator()(const boost::numeric::ublas::vector<double> &x, double t) {
+        if(_verbose) {
+            if(t >= _max_time) print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
+            else if(t/_max_time >= threshold) {
+                print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
+                threshold += 0.02;
+            }
+        }
+        m_states.push_back(x);
+        m_times.push_back(t);
+    }
+};
+
+// Observer used to store values
+struct push_back_state_and_time_rk
+{
+    std::vector<std::vector<double>>& m_states;
+    std::vector<double>& m_times;
+    double _max_time;
+    double threshold = 0;
+    bool _verbose;
+    void (*print_msg) (char const *format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
+    
+    push_back_state_and_time_rk(
+        std::vector<std::vector<double>> &states,
+        std::vector<double> &times, double max_time,
+        bool verbose,
+        void (*print_fcn_ptr) (char const *format, ...) = void_printf) :
+        m_states(states),
+        m_times(times),
+        _max_time(max_time),
+        _verbose(verbose),
+        print_msg(print_fcn_ptr)
+    {}
+    
+    void operator()(const std::vector<double> &x, double t) {
         if(_verbose) {
             if(t >= _max_time) print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
             else if(t/_max_time >= threshold) {

@@ -130,7 +130,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	return(result)
 }
 
-Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver='Gro', verbose = FALSE)
+Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver=list(type = 'Gro', output_step_size = 1.0, adaptive_error_tol = 1e-4, adaptive_max_steps = 200), verbose = FALSE)
 {
 	# This function runs a full crop growth simulation with a user-specified solver
 	#
@@ -141,10 +141,16 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	#  Note: the varying parameters must include "doy" and "hour"
 	# steady_state_module_names: a character vector of steady state module names
 	# steady_state_module_names: a character vector of derivative module names
-	# solver: a string specifying the solver to use. Options are:
-	#  "Gro": automatically uses Rosenbrock if possible, uses Euler otherwise
-	#  "Gro_euler": fixed-step Euler method
-	#  "Gro_rsnbrk": adaptive step-size Rosenbrock method (useful for stiff systems)
+	# solver: a list specifying details about the solver. Elements are:
+	#  type: s string specifying the solver to use. Options are:
+	#   "Gro": automatically uses Rosenbrock if possible, uses Euler otherwise
+	#   "Gro_euler": fixed-step Euler method
+	#   "Gro_rsnbrk": adaptive step-size Rosenbrock method (implicit method useful for stiff systems)
+	#   "Gro_rk4": fixed-step 4th order Runge-Kutta method
+	#   "Gro_rkck54": adaptive step-size Runge-Kutta-Cash-Karp method (5th order Runge-Kutta with 4th order error estimation)
+	#  output_step_size: the output step size... can be smaller than 1.0, but should equal 1.0 / N for some integer NULL
+	#  adaptive_error_tol: used to set the error tolerance for adaptive step size methods like Rosenbrock or RKCK54
+	#  adaptive_max_steps: determines how many times an adaptive step size method will attempt to find a new step size before failing
 	# verbose: a logical variable indicating whether or not to print system startup information
 	#
 	# Example: running a sorghum simulation using weather data from 2005
@@ -199,16 +205,31 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 		stop('"varying_parameters" must be a list')
 	}
 	
+	# Check to make sure the solver properties are properly defined
+	if(!is.list(solver)) {
+		stop("'solver' must be a list")
+	}
+	solver_type <- solver$type
+	if (!is.character(solver_type) & length(solver_type) != 1) {
+		stop('"solver_type" must be a string')
+	}
+	solver_output_step_size <- solver$output_step_size
+	solver_adaptive_error_tol <- solver$adaptive_error_tol
+	solver_adaptive_max_steps <- solver$adaptive_max_steps
+	
 	# C++ requires that all the variables have type `double`
 	initial_state = lapply(initial_state, as.numeric)
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
+	#solver_output_step_size = lapply(solver_output_step_size, as.numeric)
+	#solver_adaptive_error_tol = lapply(solver_adaptive_error_tol, as.numeric)
+	#solver_adaptive_max_steps = lapply(solver_adaptive_max_steps, as.numeric)
 	
 	# Make sure verbose is a logical variable
 	verbose = lapply(verbose, as.logical)
 	
 	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver, verbose))
+	result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver_type, solver_output_step_size, solver_adaptive_error_tol, solver_adaptive_max_steps, verbose))
 	
 	# Make sure doy and hour are properly defined
 	result$doy = floor(result$doy_dbl)

@@ -19,7 +19,7 @@
 
 class SystemSolverFactory {
     public:
-        typedef state_vector_map (*SYSTEM_SOLVER)(state_map const &, state_map const &, state_vector_map const &, std::vector<std::string> const &, std::vector<std::string> const &, bool, void (*)(char const*, ...));  // Typedef the function signature for a SystemSolver to the name SYSTEM_SOLVER.
+        typedef state_vector_map (*SYSTEM_SOLVER)(state_map const &, state_map const &, state_vector_map const &, std::vector<std::string> const &, std::vector<std::string> const &, double, double, int, bool, void (*)(char const*, ...));  // Typedef the function signature for a SystemSolver to the name SYSTEM_SOLVER.
         SYSTEM_SOLVER operator()(std::string const &system_solver_name) const;
 
     private:
