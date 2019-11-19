@@ -123,14 +123,14 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	# Remove any duplicates in the lists
 	steady_state_module_names = unique(steady_state_module_names)
 	derivative_module_names = unique(derivative_module_names)
-	
-        result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, 'Gro', verbose)
+
+        result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, list(type='Gro', output_step_size=1.0, adaptive_error_tol=1e-4, adaptive_max_steps=200), verbose)
 	
 	# Return the result
 	return(result)
 }
 
-Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver=list(type = 'Gro', output_step_size = 1.0, adaptive_error_tol = 1e-4, adaptive_max_steps = 200), verbose = FALSE)
+Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver=list(type='Gro', output_step_size=1.0, adaptive_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
 {
 	# This function runs a full crop growth simulation with a user-specified solver
 	#
