@@ -25,6 +25,9 @@ class oscillator_clock_calculator : public SteadyModule {
             dawn_phase_op(get_op(output_parameters, "dawn_phase")),
             dusk_phase_op(get_op(output_parameters, "dusk_phase")),
             ref_phase_op(get_op(output_parameters, "ref_phase")),
+            dawn_radius_op(get_op(output_parameters, "dawn_radius")),
+            dusk_radius_op(get_op(output_parameters, "dusk_radius")),
+            ref_radius_op(get_op(output_parameters, "ref_radius")),
             day_length_op(get_op(output_parameters, "day_length")),
             night_length_op(get_op(output_parameters, "night_length"))
         {}
@@ -48,6 +51,9 @@ class oscillator_clock_calculator : public SteadyModule {
         double* dawn_phase_op;
         double* dusk_phase_op;
         double* ref_phase_op;
+        double* dawn_radius_op;
+        double* dusk_radius_op;
+        double* ref_radius_op;
         double* day_length_op;
         double* night_length_op;
         // Main operation
@@ -76,6 +82,9 @@ std::vector<std::string> oscillator_clock_calculator::get_outputs() {
         "dawn_phase",
         "dusk_phase",
         "ref_phase",
+        "dawn_radius",
+        "dusk_radius",
+        "ref_radius",
         "day_length",
         "night_length"
     };
@@ -140,6 +149,9 @@ void oscillator_clock_calculator::do_operation() const {
     update(dawn_phase_op, dawn_phase);
     update(dusk_phase_op, dusk_phase);
     update(ref_phase_op, ref_phase);
+    update(dawn_radius_op, sqrt(dawn_a * dawn_a + dawn_b * dawn_b));
+    update(dusk_radius_op, sqrt(dusk_a * dusk_a + dusk_b * dusk_b));
+    update(ref_radius_op, sqrt(ref_a * ref_a + ref_b * ref_b));
     update(day_length_op, day_length);
     update(night_length_op, night_length);
 }
