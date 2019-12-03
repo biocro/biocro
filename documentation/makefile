@@ -6,6 +6,12 @@
 # all:       Generate both the HTML and the PDF documentation for all files in
 #            the src and src/module_library directories.
 #
+# all-html:  Generate the HTML documentation for all files in the src and
+#            src/module_library directories.
+#
+# all-pdf:   Generate the PDF documentation for all files in the src and
+#            src/module_library directories.
+#
 # view:      View the HTML documentation (first generating it if needed)
 #            produced by the default target.
 #
@@ -24,7 +30,7 @@
 # This makefile uses some GNU-make-specific features and therefore may need to
 # be rewritten if included as part of a CRAN R package.
 
-.PHONY: default all clean clean-all view view-all view-pdf
+.PHONY: default all all-html all-pdf clean clean-all view view-all view-pdf
 
 default: html
 
@@ -39,6 +45,18 @@ complete: ../src/* ../src/module_library/*
 	# Generate the PDF file from the LaTeX output:
 	pushd complete/latex; make
 
+all-html: complete/html
+
+complete/html: ../src/* ../src/module_library/*
+	# Override some of the settings in Doxyfile:
+	( cat Doxyfile ; echo "OUTPUT_DIRECTORY = complete\nGENERATE_LATEX = YES\nINPUT += ../src/module_library" ) | doxygen -
+
+all-pdf: complete/latex
+
+complete/latex: ../src/* ../src/module_library/*
+	# Generate the PDF file from the LaTeX output:
+	pushd complete/latex; make
+
 clean:
 	rm -fr html
 
@@ -48,11 +66,12 @@ clean-all:
 view: html
 	open html/index.html
 
-view-all: all
+view-all: all-html
 	open complete/html/index.html
 
-view-pdf: all
+view-pdf: all-pdf
 	open complete/latex/refman.pdf
 
-
-
+# Make sure we don't try to compile any of the source code:
+../src/* ../src/module_library/*:
+	#
