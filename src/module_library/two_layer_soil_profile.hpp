@@ -23,7 +23,6 @@ class two_layer_soil_profile : public DerivModule {
 			soil_saturated_conductivity_ip(get_ip(input_parameters, "soil_saturated_conductivity")),
 			soil_b_coefficient_ip(get_ip(input_parameters, "soil_b_coefficient")),
 			soil_sand_content_ip(get_ip(input_parameters, "soil_sand_content")),
-			soil_evaporation_rate_ip(get_ip(input_parameters, "soil_evaporation_rate")),
 			phi1_ip(get_ip(input_parameters, "phi1")),
 			phi2_ip(get_ip(input_parameters, "phi2")),
 			wsFun_ip(get_ip(input_parameters, "wsFun")),
@@ -42,13 +41,8 @@ class two_layer_soil_profile : public DerivModule {
 			soil_transmission_ip(get_ip(input_parameters, "soil_transmission")),
 			specific_heat_ip(get_ip(input_parameters, "specific_heat")),
 			stefan_boltzman_ip(get_ip(input_parameters, "stefan_boltzman")),
-			StomataWS_ip(get_ip(input_parameters, "StomataWS")),
-			LeafWS_ip(get_ip(input_parameters, "LeafWS")),
 			soil_water_content_ip(get_ip(input_parameters, "soil_water_content")),
 			// Get pointers to output parameters
-			StomataWS_op(get_op(output_parameters, "StomataWS")),
-			LeafWS_op(get_op(output_parameters, "LeafWS")),
-			soil_evaporation_rate_op(get_op(output_parameters, "soil_evaporation_rate")),
 			cws1_op(get_op(output_parameters, "cws1")),
 			cws2_op(get_op(output_parameters, "cws2")),
 			soil_water_content_op(get_op(output_parameters, "soil_water_content"))
@@ -71,7 +65,6 @@ class two_layer_soil_profile : public DerivModule {
 		const double* soil_saturated_conductivity_ip;
 		const double* soil_b_coefficient_ip;
 		const double* soil_sand_content_ip;
-		const double* soil_evaporation_rate_ip;
 		const double* phi1_ip;
 		const double* phi2_ip;
 		const double* wsFun_ip;
@@ -96,7 +89,6 @@ class two_layer_soil_profile : public DerivModule {
 		// Pointers to output parameters
 		double* StomataWS_op;
 		double* LeafWS_op;
-		double* soil_evaporation_rate_op;
 		double* cws1_op;
 		double* cws2_op;
 		double* soil_water_content_op;
@@ -120,7 +112,6 @@ std::vector<std::string> two_layer_soil_profile::get_inputs() {
 		"soil_saturated_conductivity",
 		"soil_b_coefficient",
 		"soil_sand_content",
-		"soil_evaporation_rate",
 		"phi1",
 		"phi2",
 		"wsFun",
@@ -139,17 +130,12 @@ std::vector<std::string> two_layer_soil_profile::get_inputs() {
 		"soil_transmission",
 		"specific_heat",
 		"stefan_boltzman",
-		"StomataWS",
-		"LeafWS",
 		"soil_water_content"
 	};
 }
 
 std::vector<std::string> two_layer_soil_profile::get_outputs() {
 	return {
-		"StomataWS",
-		"LeafWS",
-		"soil_evaporation_rate",
 		"cws1",
 		"cws2",
 		"soil_water_content"
@@ -163,10 +149,7 @@ void two_layer_soil_profile::do_operation() const {
 	double soil_depth1 = *soil_depth1_ip;
 	double soil_depth2 = *soil_depth2_ip;
 	double soil_depth3 = *soil_depth3_ip;
-	double StomataWS = *StomataWS_ip;
-	double LeafWS = *LeafWS_ip;
 	double soil_water_content = *soil_water_content_ip;
-	double soil_evaporation_rate = *soil_evaporation_rate_ip;
 	
 	double cws[] = {cws1, cws2};
 	double soil_depths[] = {soil_depth1, soil_depth2, soil_depth3};
@@ -184,9 +167,6 @@ void two_layer_soil_profile::do_operation() const {
 	double cws_mean = (soilMLS.cws[0] * layer_one_depth + soilMLS.cws[1] * layer_two_depth) / (layer_one_depth + layer_two_depth);
 	
 	// Update the output parameter list
-	update(StomataWS_op, soilMLS.rcoefPhoto - StomataWS);
-	update(LeafWS_op, soilMLS.rcoefSpleaf - LeafWS);
-	update(soil_evaporation_rate_op, soilMLS.SoilEvapo - soil_evaporation_rate);
 	update(cws1_op, soilMLS.cws[0] - cws1);
 	update(cws2_op, soilMLS.cws[1] - cws2);
 	update(soil_water_content_op, cws_mean - soil_water_content);

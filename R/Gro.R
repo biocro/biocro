@@ -115,7 +115,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
 	}
 	else if(modules$soil_module_name == "two_layer_soil_profile") {
-		steady_state_module_names <- c("soil_type_selector", "parameter_calculator", modules$canopy_module_name, growth_module_support, senescence_module_support)
+		steady_state_module_names <- c("soil_type_selector", modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name, "parameter_calculator", modules$canopy_module_name, growth_module_support, senescence_module_support)
 		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
 	}
 	else stop("The soil profile module you chose is not supported by Gro. Use one of the supported modules (one_layer_soil_profile or two_layer_soil_profile) or use a different Gro variant such as Gro_auto.")
