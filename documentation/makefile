@@ -49,11 +49,13 @@ all-html: complete/html
 
 complete/html: ../src/* ../src/module_library/*
 	# Override some of the settings in Doxyfile:
-	( cat Doxyfile ; echo "OUTPUT_DIRECTORY = complete\nGENERATE_LATEX = YES\nINPUT += ../src/module_library" ) | doxygen -
+	( cat Doxyfile ; echo "OUTPUT_DIRECTORY = complete\nINPUT += ../src/module_library" ) | doxygen -
 
 all-pdf: complete/latex
 
 complete/latex: ../src/* ../src/module_library/*
+	# Override some of the settings in Doxyfile:
+	( cat Doxyfile ; echo "OUTPUT_DIRECTORY = complete\nGENERATE_HTML = NO\nGENERATE_LATEX = YES\nINPUT += ../src/module_library" ) | doxygen -
 	# Generate the PDF file from the LaTeX output:
 	pushd complete/latex; make
 
