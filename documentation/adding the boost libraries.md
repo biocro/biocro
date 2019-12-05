@@ -13,11 +13,11 @@ The packages BioCro uses are as follows:
 | `boost/typeof/incr_registration_group.hpp`   | This is needed for `boost/units` but it is not exported properly and must be explicitly specificed as of Boost version 1.71 |
 | `boost/algorithm`                            | Used in `parameters.h`                                                                                                      |
 | `boost/graph`                                | Used in `dependency_graph.cpp`                                                                                              |
-| `boost/numeric/ublas`                        | Used in `system.h,` among others                                                                                            |
+| `boost/numeric/ublas`                        | Used in `system.h`, among others                                                                                            |
 | `boost/numeric/odeint.hpp`                   | Used in `Gro.cpp`                                                                                                           |
 
 1. Run the following command:
- - `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/units" "boost/typeof/incr_registration_group.hpp" "boost/algorithm" "boost/numeric/odeint.hpp" "boost/numeric/ublas" "boost/graph" PATH_TO_TEMPORARY_DIRECTORY`
+   - `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/units" "boost/typeof/incr_registration_group.hpp" "boost/algorithm" "boost/numeric/odeint.hpp" "boost/numeric/ublas" "boost/graph" PATH_TO_TEMPORARY_DIRECTORY`
 2. Copy `PATH_TO_TEMPORARY_DIRECTORY/boost` to the `biocro/src/boost_[version_number]` directory. Other files and directories my be created in `PATH_TO_TEMPORARY_DIRECTORY,` but they are not needed.
 3. If necessary, update the `PKG_CPPFLAGS` line in `biocro/src/Makevars`: e.g., `PKG_CPPFLAGS=-I"boost_1_71_0"`
 
@@ -28,7 +28,7 @@ For V1.71.0, this entails the following:
  - Download the full Boost library, unzip it, and put it somewhere convenient: e.g., `C:\Program Files\boost\boost_1_71_0`.
  - Open a VS developer prompt and cd into the boost root directory: e.g., cd `C:\Program Files\boost\boost_1_71_0`.
  - Type bootstrap and press enter. This may take a minute or so to complete.
- - Type .\b2 and press enter. This may also take a little while.
+ - Type `.\b2` and press enter. This may also take a little while.
 
 Now the Boost libraries have been built, and we are almost ready to use bcp. However, we need to explicitly build the bcp tool using the "Boost.Build" tool, which is cryptically named "b2.exe".
  - In a VS developer prompt, cd into the tools/bcp directory: e.g., `cd C:\Program Files\boost\boost_1_71_0\tools\bcp`.
