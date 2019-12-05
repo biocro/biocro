@@ -1,4 +1,4 @@
-PKG_CPPFLAGS+=-Iboost_1_71_0
+PKG_CPPFLAGS+=-I../boost_1_71_0
 
 SOURCES = $(wildcard *.cpp module_library/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
