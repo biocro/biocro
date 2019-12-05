@@ -56,7 +56,7 @@
 * Prefer an asterisk to indicate multiplication, but exactly one space is acceptable. Prefer exactly one space on each side of the asterisk: `kg * m / s` or `kg m / s`.
 * Either a solidus or negative exponents are acceptable to indicate division, but ensure that the solidus is used correctly if used multiple times. Prefer exactly one space on each side of the solidus.
 
-##### Document parmaters
+##### Document paramaters
 * When adding models that require new parameters, document the parameters in the parameter table in [src/parameters.h](../src/parameters.h). Please keep the table well formatted.
 * If you are working on a model with undocumented parameters, it would be nice if you added them to the table as you work through the issue.
 
@@ -115,6 +115,7 @@
 * The most important aspect of formatting is that the code is easy to understand. Below are unenforced preferences.
 * Regarding formatting (but not aspects of design), something similar to the [Google C++ style guide](https://google.github.io/styleguide/cppguide.html) is preferred (with some differences; see [.clang-format](../.clang-format) for differences), except in cases where the code has been formatted in a more readable way, such as when aligning parts in a table. The program [clang-format](https://clang.llvm.org/docs/ClangFormat.html), using the [.clang-format](../.clang-format) file provided in the base directory of BioCro, produces code with the preferred formatting. **Do not apply clang-format to the all files indiscriminately**, as that will ruin manually aligned tables.
  * One can install clang-format on Ubunutu using `sudo apt install clang-format` and on MacOS through Homebrew.
+ * On Windows, MacOS, or Linux, the Codelite IDE includes clang-format and provides an easy way to use it. First go to Plugins -> Source Code Formatter -> Options. In the C++ tab, select `use .clang-format file`. Now press `Ctrl-I` or click Plugins -> Source Code Formatter -> Format Current Source to format a file.
  * Files can be formatted using `clang-format file_name > new_file` or edited in place using `clang-format -i file_name`.
 * The C++ guidelines offer some advice about [formatting conventions](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming) that are informative, particulary regarding the use of code comments, but that are not enforced here. 
 * Prefer `underscores_in_identifiers` not `CamelCaseInIdentifiers` and, in R, not `dots.in.identifiers`.
