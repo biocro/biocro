@@ -62,7 +62,7 @@
 
 #### General design
 * Do not use C-style arrays. Use an appropriate data type from the standard library instead.
-* Use cmath, not math.h, for common mathematical functions. 
+* Use cmath, not math.h, for common mathematical functions.
 * Do not use `using` statements in places that have nonlocal influence, such as in header files.
 * Strongly prefer the [coherent](https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29) set of SI units. Doing so reduces code complexity remarkably as no conversions are necessary. Yes, no one publishes values with these units, but do the conversion in one place, the manuscript, instead of dozens of times in the code, constantly having to look up units for variables, and then spending hours debugging silly, difficult-to-find, errors.
  * The coherent set of SI units consists of all the units without prefixes, except that kg is the coherent unit of mass, not g.
@@ -117,7 +117,6 @@
  * One can install clang-format on Ubunutu using `sudo apt install clang-format` and on MacOS through Homebrew.
  * Files can be formatted using `clang-format file_name > new_file` or edited in place using `clang-format -i file_name`.
  * On Windows, MacOS, or Linux, the Codelite IDE includes clang-format and provides an easy way to use it. First go to Plugins -> Source Code Formatter -> Options. In the C++ tab, select `use .clang-format file`. Now press `Ctrl-I` or click Plugins -> Source Code Formatter -> Format Current Source to format a file.
-* The C++ guidelines offer some advice about [formatting conventions](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming) that are informative, particulary regarding the use of code comments, but that are not enforced here. 
+* The C++ guidelines offer some advice about [formatting conventions](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming) that are informative, particulary regarding the use of code comments, but that are not enforced here.
 * Prefer `underscores_in_identifiers` not `CamelCaseInIdentifiers` and, in R, not `dots.in.identifiers`.
 * Avoid unnecessary parentheses. Use `a / b * c` instead of `(a / b) * c` or write the equation more sensibly, doing something like listing all variables in the numerator first followed by variables in the denominator for the most clarity, such as `z * q / d / e` instead of `z / d * q / e`. Of note is that return statements in C++ do not require parentheses, but in R they are required.
-

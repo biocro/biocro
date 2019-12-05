@@ -18,10 +18,10 @@ myparms$rate_constant_root = 2
 myparms$rate_constant_grain = 5
 myparms$rate_constant_leaf = 1
 gro_func = Gro_deriv(myparms, linear_from_spline_weather, steady_state_modules=c('soil_type_selector', 'leaf_water_stress_exponential', 'stomata_water_stress_linear', 'parameter_calculator', 'c3_canopy', 'soil_evaporation'), derivative_modules=c('utilization_growth', 'utilization_senescence', 'thermal_time_accumulator', 'bucket_soil_drainage'))
-gro_reporter = combine_reporters(list(time_reporter(), state_reporter()), 
+gro_reporter = combine_reporters(list(time_reporter(), state_reporter()),
     gro_func
 )
-#gro_reporter = time_reporter(gro_func) 
+#gro_reporter = time_reporter(gro_func)
 
 (previous_times = rbind(previous_times, system.time({
 #    gro_reporter$reset()
