@@ -22,10 +22,10 @@
  ```c++
  // In function signatures
  double ball_berry(double assimilation,                   // mol / m^2 / s
-                    double atmospheric_co2_concentration,  // mol / mol
-                    double atmospheric_relative_humidity,  // Pa / Pa
-                    double beta0,                          // mol / m^2 / s
-                    double beta1)                          // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
+                   double atmospheric_co2_concentration,  // mol / mol
+                   double atmospheric_relative_humidity,  // Pa / Pa
+                   double beta0,                          // mol / m^2 / s
+                   double beta1)                          // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
 
  // In assignments
  double leaf_temperature = air_temperature - delta_t;  // K.
