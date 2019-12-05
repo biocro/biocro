@@ -17,7 +17,7 @@
 * See the [Ball-Berry model](../src/module_library/ball_berry.cpp) for an example.
 
 ##### Document units in the code
-* After every [physical quantity](https://en.wikipedia.org/wiki/Physical_quantity), include a comment with the units. The idea is that every quantity will roughly be read as if it were written in normal text: ```double yield = 10  // Mg / ha``` is somthing like "the yield was 10 Mg / ha". Using dimensions instead of units is acceptable if the code is written with the expectation that coherent units are used.
+* After every [physical quantity](https://en.wikipedia.org/wiki/Physical_quantity), include a comment with the units. The idea is that every quantity will roughly be read as if it were written in normal text: ```double yield = 10  // Mg / ha``` is somthing like "the yield was 10 Mg / ha". Using dimensions instead of units is acceptable if the code is written with the expectation that [coherent units](https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29) are used.
 
  ```c++
  // In function signatures
@@ -65,7 +65,7 @@
 * Use cmath, not math.h, for common mathematical functions. 
 * Do not use `using` statements in places that have nonlocal influence, such as in header files.
 * Strongly prefer the [coherent](https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29) set of SI units. Doing so reduces code complexity remarkably as no conversions are necessary. Yes, no one publishes values with these units, but do the conversion in one place, the manuscript, instead of dozens of times in the code, constantly having to look up units for variables, and then spending hours debugging silly, difficult-to-find, errors.
- * The coherent set of SI units consists of all the units without prefixes, except for kg, which is the coherent unit of mass.
+ * The coherent set of SI units consists of all the units without prefixes, except that kg is the coherent unit of mass, not g.
 * Do not copy and paste code, changing only smalls parts. Choose a design that eliminates the duplication. Duplication is often the result of not separating control flow from data. Consider the following R code.
 
  ```r
@@ -113,11 +113,11 @@
 
 #### Formatting
 * The most important aspect of formatting is that the code is easy to understand. Below are unenforced preferences.
-* Regarding formatting (but not aspects of design), something similar to the [Google C++ style guide](https://google.github.io/styleguide/cppguide.html) is preferred (with some differences; see [.clang-format](../.clang-format) for differences), except in cases where the code has been formatted in a more readable way, such as when aligning parts in a table. The program [clang-format](https://clang.llvm.org/docs/ClangFormat.html), using the [.clang-format](../.clang-format) file provided in the base directory of BioCro, produces code with the preferred formatting. **Do not apply clang-format to the all files indiscriminately**, as that will ruin manually aligned tables.
+* Regarding formatting (but not aspects of design), something similar to the [Google C++ style guide](https://google.github.io/styleguide/cppguide.html) is preferred (with some differences; see [.clang-format](../.clang-format) for differences), except in cases where the code has been formatted in a more readable way, such as when aligning parts in a table. The program [clang-format](https://clang.llvm.org/docs/ClangFormat.html), using the [.clang-format](../.clang-format) file provided in the base directory of BioCro, produces code with the preferred formatting. **Do not apply clang-format to all files indiscriminately**, as that will ruin manually aligned tables.
  * One can install clang-format on Ubunutu using `sudo apt install clang-format` and on MacOS through Homebrew.
  * Files can be formatted using `clang-format file_name > new_file` or edited in place using `clang-format -i file_name`.
  * On Windows, MacOS, or Linux, the Codelite IDE includes clang-format and provides an easy way to use it. First go to Plugins -> Source Code Formatter -> Options. In the C++ tab, select `use .clang-format file`. Now press `Ctrl-I` or click Plugins -> Source Code Formatter -> Format Current Source to format a file.
 * The C++ guidelines offer some advice about [formatting conventions](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming) that are informative, particulary regarding the use of code comments, but that are not enforced here. 
 * Prefer `underscores_in_identifiers` not `CamelCaseInIdentifiers` and, in R, not `dots.in.identifiers`.
-* Avoid unnecessary parentheses. Use `a / b * c` instead of `(a / b) * c` or write the equation more sensible, doing something like listing all variables in the numerator first followed by variables in the denominator for the most clarity, such as `z * q / d / e` instead of `z / d * q / e`. Of note is that return statements in C++ do not require parentheses, but in R they are required.
+* Avoid unnecessary parentheses. Use `a / b * c` instead of `(a / b) * c` or write the equation more sensibly, doing something like listing all variables in the numerator first followed by variables in the denominator for the most clarity, such as `z * q / d / e` instead of `z / d * q / e`. Of note is that return statements in C++ do not require parentheses, but in R they are required.
 
