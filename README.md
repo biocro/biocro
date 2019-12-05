@@ -44,6 +44,8 @@ R CMD INSTALL biocro
 setwd('path_to_unzipped_directory')
 install.packages('biocro', repos=NULL, type='SOURCE')
 ```
+### Making contributions
+Please see the [contribution guidelines](documentation/contribution_guidelines.md) before submitting changes.
 
 ### Inputs
 * Species-specific plant physiological traits
