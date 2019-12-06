@@ -1,6 +1,5 @@
 ## BioCro [![Build Status](https://magnum.travis-ci.com/ebimodeling/biocro-dev.svg?token=tjzJV6N6JPssJ6yfYPqH&branch=master)](https://magnum.travis-ci.com/ebimodeling/biocro-dev)
-
-BioCro is a model that predicts plant growth over time given climate as input.
+BioCro is a model that predicts plant growth over time given crop-specific parameters and environmental data as input.
 
 It uses models of key physiological and biophysical processes underlying plant growth ([Humphries and Long, 1995]), and has previously been used for predicting biomass yield and leaf area index of switchgrass and miscanthus ([Miguez et al., 2009]).
 
@@ -23,14 +22,14 @@ There are parameters and modules for miscanthus (_Miscanthus_ x _giganteus_), so
 ### Installation
 #### Requirements
 - The [R environment](https://cran.r-project.org/) version 3.2.3 or greater.
-- On Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) version 3.3 or higher (3.5 is not recommended as of 2019-12-05 since that version is not frozen)
+- On Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) version 3.3 or higher (3.5 is not recommended as of 2019-12-05 since that version is not frozen).
 - On Linux, gcc and g++ version 4.9.3 or greater (consult documentation for your distribution for installation instructions).
-- On MacOS, Xcode is required.
+- On MacOS, Xcode.
 
 #### Installation steps
 Download the BioCro source code from GitHub, unzip the file, and install from the either the command line or from within R using one of the following sets of commands. 
 
-These assume that the source files are in a directory named "biocro".
+Do one of the sets of instruction below. These assume that the source files are in a directory named "biocro".
 
 - From the command line
 ```
@@ -38,7 +37,7 @@ cd path_to_unzipped_directory
 R CMD INSTALL biocro
 ```
 
-- From within R
+- Or from within R
 ```
 setwd('path_to_unzipped_directory')
 install.packages('biocro', repos=NULL, type='SOURCE')
