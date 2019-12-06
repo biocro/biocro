@@ -18,8 +18,10 @@ The packages BioCro uses are as follows:
 
 1. Run the following command:
    - `bcp --boost="PATH_TO_BOOST_ROOT_DIRECTORY" "boost/units" "boost/typeof/incr_registration_group.hpp" "boost/algorithm" "boost/numeric/odeint.hpp" "boost/numeric/ublas" "boost/graph" PATH_TO_TEMPORARY_DIRECTORY`
-2. Copy `PATH_TO_TEMPORARY_DIRECTORY/boost` to the `biocro/src/boost_[version_number]` directory. Other files and directories my be created in `PATH_TO_TEMPORARY_DIRECTORY,` but they are not needed.
-3. If necessary, update the `PKG_CPPFLAGS` line in `biocro/src/Makevars`: e.g., `PKG_CPPFLAGS=-I"boost_1_71_0"`
+2. Copy `PATH_TO_TEMPORARY_DIRECTORY/boost` to the `biocro/boost_[version_number]` directory. Other files and directories my be created in `PATH_TO_TEMPORARY_DIRECTORY,` but they are not needed.
+3. If necessary, update the `PKG_CPPFLAGS` line in `biocro/src/Makevars`: e.g., `PKG_CPPFLAGS=-I"../boost_1_71_0"`
+4. Check that the Boost license at `biocro/boost_[version_num]` is correct for the version used, and update `biocro/LICENSE` if necssary.
+5. Update the path to the Boost license in `biocro/LICENSE`.
 
 ### Notes for using bcp in Windows
 First, follow the instructions in the "Getting Started on Windows" [Boost page](https://www.boost.org/doc/libs/1_71_0/more/getting_started/windows.html).
