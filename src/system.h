@@ -40,19 +40,19 @@ class System {
         bool get_param(double& value, const std::string& parameter_name) const;
         size_t get_ntimes() const {return ntimes;}
         bool is_adaptive_compatible() const {return adaptive_compatible;}
+
         // For fitting via nlopt
         void reset();
         void set_param(const double& value, const std::string& parameter_name);
         void set_param(const std::vector<double>& values, const std::vector<std::string>& parameter_names);
+
         // For integrating
-        // Note: I can't seem use a template for get_state(x) or operator(x, dxdt, t). I'm not sure why.
         void get_state(std::vector<double>& x) const;
         void get_state(boost::numeric::ublas::vector<double>& x) const;
-        void operator()(const std::vector<double>& x, std::vector<double>& dxdt, const int& t);
-        void operator()(const std::vector<double>& x, std::vector<double>& dxdt, const double& t);
-        void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const int& t);
-        void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const double& t);
+        template<typename state_type, typename time_type>
+            void operator()(const state_type& x, state_type& dxdt, const time_type& t);
         void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const double& t, boost::numeric::ublas::vector<double>& dfdt);
+
         // For returning the results of a calculation
         std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times);
         std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<boost::numeric::ublas::vector<double>>& x_vec, const std::vector<double>& times);
@@ -60,10 +60,12 @@ class System {
         std::vector<std::string> get_output_param_names() const {return output_param_vector;}
         std::vector<const double*> get_output_ptrs() const {return output_ptr_vector;}
         std::vector<std::string> get_state_parameter_names() const {return state_parameter_names;}
+
         // For performance testing
         int get_ncalls() const {return ncalls;}
         template<class vector_type, class time_type> int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
         int speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const double& t, boost::numeric::ublas::vector<double>& dfdt);
+
     private:
         // Members for storing the original inputs
         std::unordered_map<std::string, double> initial_state;
@@ -73,6 +75,7 @@ class System {
         std::vector<std::string> derivative_module_names;
         bool verbose;
         void (*print_msg) (char const *format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
+
         // Functions for checking and processing inputs when constructing a system
         void process_variable_and_module_inputs(
             std::set<std::string>& unique_steady_state_parameter_names,
@@ -106,40 +109,104 @@ class System {
         void get_pointer_pairs(std::set<std::string> const& unique_steady_state_parameter_names);
         void test_all_modules(std::string& total_error_string);
         void get_simulation_info(std::set<std::string> const& unique_changing_parameters);
+
         // Map for storing the central parameter list
         std::unordered_map<std::string, double> parameters;
+
         // Map for storing module outputs
         std::unordered_map<std::string, double> module_output_map;
+
         // Pointers for accessing various inputs and outputs
         double* timestep_ptr;
         std::vector<std::pair<double*, double*>> state_ptrs;
         std::vector<std::pair<double*, double*>> steady_state_ptrs;
         std::vector<std::pair<double*, std::vector<double>*>> varying_ptrs;
+
         // Functions for updating the central parameter list
         void update_varying_params(int time_indx);      // For integer time
         void update_varying_params(double time_indx);   // For double time
         template<class vector_type> void update_state_params(const vector_type& new_state);
+
         // Lists of modules
         std::vector<std::unique_ptr<Module>> steady_state_modules;
         std::vector<std::unique_ptr<Module>> derivative_modules;
+
         // For integrating via odeint or other methods
         size_t ntimes;
         std::vector<std::string> output_param_vector;
         std::vector<const double*> output_ptr_vector;
         std::vector<std::string> state_parameter_names;
         bool adaptive_compatible;
+
         // For running the modules
         void run_steady_state_modules();
         template<class vector_type> void run_derivative_modules(vector_type& derivs);
+
         // For testing the modules
         void test_steady_state_modules();
         template<class vector_type> void test_derivative_modules(vector_type& derivs);
+
         // For performance testing
         int ncalls;
+
         // For numerically calculating derivatives
         const double eps_deriv = 1e-11;
 };
 
+template<typename state_type, typename time_type>
+void System::operator()(const state_type& x, state_type& dxdt, const time_type& t) {
+    ++ncalls;
+    update_varying_params(t);
+    update_state_params(x);
+    run_steady_state_modules();
+    run_derivative_modules(dxdt);
+}
+
+template<class vector_type>
+void System::update_state_params(const vector_type& new_state) {
+    for(size_t i = 0; i < new_state.size(); i++) *(state_ptrs[i].first) = new_state[i];
+}
+
+template<class vector_type>
+void System::run_derivative_modules(vector_type& dxdt) {
+    for(auto x : state_ptrs) *x.second = 0.0;                                                               // Reset the module output map
+    std::fill(dxdt.begin(), dxdt.end(), 0);                                                                 // Reset the derivative vector
+    for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) (*it)->run();           // Run the modules
+    for(size_t i = 0; i < dxdt.size(); i++) dxdt[i] += *(state_ptrs[i].second)*(*timestep_ptr);             // Store the output in the derivative vector
+}
+
+template<class vector_type>
+void System::test_derivative_modules(vector_type& dxdt) {
+    // Identical to run_derivative_modules except for a try-catch block
+    for(auto x : state_ptrs) *x.second = 0.0;
+    std::fill(dxdt.begin(), dxdt.end(), 0);
+    for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+        try {(*it)->run();}
+        catch (const std::exception& e) {
+            throw std::logic_error(std::string("Derivative module '") + (*it)->get_name() + std::string("' generated an exception while calculating time derivatives: ") + e.what() + std::string("\n"));
+        }
+    }
+    for(size_t i = 0; i < dxdt.size(); i++) dxdt[i] += *(state_ptrs[i].second)*(*timestep_ptr);
+}
+
+template<class vector_type, class time_type>
+int System::speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t) {
+    // Run the system operator n times
+    clock_t ct = clock();
+    for(int i = 0; i < n; i++) operator()(x, dxdt, t);
+    ct = clock() - ct;
+    return (int)ct;
+}
+
+/*
+template<class time_type> int System::speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt) {
+    // Run the system operator n times
+    clock_t ct = clock();
+    for(int i = 0; i < n; i++) operator()(x, jacobi, t, dfdt);
+    ct = clock() - ct;
+    return (int)ct;
+}
+*/
 /////////////////////////
 // FOR USE WITH ODEINT //
 /////////////////////////

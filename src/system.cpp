@@ -1,45 +1,5 @@
 #include "system.h"
 
-// For integer time and std::vector state
-void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt, const int& t) {
-    // Update the internally stored parameter list and use it to calculate a derivative
-    ncalls ++;
-    update_varying_params(t);
-    update_state_params(x);
-    run_steady_state_modules();
-    run_derivative_modules(dxdt);
-}
-
-// For double time and std::vector state
-void System::operator()(const std::vector<double>& x, std::vector<double>& dxdt, const double& t) {
-    // Update the internally stored parameter list and use it to calculate a derivative
-    ncalls ++;
-    update_varying_params(t);
-    update_state_params(x);
-    run_steady_state_modules();
-    run_derivative_modules(dxdt);
-}
-
-// For integer time and boost::numeric::ublas::vector state
-void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const int& t) {
-    // Update the internally stored parameter list and use it to calculate a derivative
-    ncalls ++;
-    update_varying_params(t);
-    update_state_params(x);
-    run_steady_state_modules();
-    run_derivative_modules(dxdt);
-}
-
-// For double time and boost::numeric::ublas::vector state
-void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const double& t) {
-    // Update the internally stored parameter list and use it to calculate a derivative
-    ncalls ++;
-    update_varying_params(t);
-    update_state_params(x);
-    run_steady_state_modules();
-    run_derivative_modules(dxdt);
-}
-
 void System::operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const double& t, boost::numeric::ublas::vector<double>& dfdt) {
     // Numerically compute the Jacobian matrix
     //  The odeint Rosenbrock stepper requires the use of UBLAS vectors and matrices and the Jacobian is only required when using this
@@ -714,23 +674,12 @@ void System::update_varying_params(double time_indx) {
     for(auto x : varying_ptrs) *(x.first) = (*(x.second))[t1] + (time_indx - t1) * ((*(x.second))[t2] - (*(x.second))[t1]) / (t2 - t1);
 }
 
-template<class vector_type> void System::update_state_params(const vector_type& new_state) {
-    for(size_t i = 0; i < new_state.size(); i++) *(state_ptrs[i].first) = new_state[i];
-}
-
 void System::run_steady_state_modules() {
     for(auto x : steady_state_ptrs) *x.second = 0.0;                                                        // Clear the module output map
     for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         (*it)->run();                                                                                       // Run the module
         for(auto x : steady_state_ptrs) *x.first = *x.second;                                               // Store its output in the main parameter map
     }
-}
-
-template<class vector_type> void System::run_derivative_modules(vector_type& dxdt) {
-    for(auto x : state_ptrs) *x.second = 0.0;                                                               // Reset the module output map
-    std::fill(dxdt.begin(), dxdt.end(), 0);                                                                 // Reset the derivative vector
-    for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) (*it)->run();           // Run the modules
-    for(size_t i = 0; i < dxdt.size(); i++) dxdt[i] += *(state_ptrs[i].second)*(*timestep_ptr);             // Store the output in the derivative vector
 }
 
 void System::test_steady_state_modules() {
@@ -744,34 +693,3 @@ void System::test_steady_state_modules() {
         for(auto x : steady_state_ptrs) *x.first = *x.second;
     }
 }
-
-template<class vector_type> void System::test_derivative_modules(vector_type& dxdt) {
-    // Identical to run_derivative_modules except for a try-catch block
-    for(auto x : state_ptrs) *x.second = 0.0;
-    std::fill(dxdt.begin(), dxdt.end(), 0);
-    for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        try {(*it)->run();}
-        catch (const std::exception& e) {
-            throw std::logic_error(std::string("Derivative module '") + (*it)->get_name() + std::string("' generated an exception while calculating time derivatives: ") + e.what() + std::string("\n"));
-        }
-    }
-    for(size_t i = 0; i < dxdt.size(); i++) dxdt[i] += *(state_ptrs[i].second)*(*timestep_ptr);
-}
-
-template<class vector_type, class time_type> int System::speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t) {
-    // Run the system operator n times
-    clock_t ct = clock();
-    for(int i = 0; i < n; i++) operator()(x, dxdt, t);
-    ct = clock() - ct;
-    return (int)ct;
-}
-
-/*
-template<class time_type> int System::speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt) {
-    // Run the system operator n times
-    clock_t ct = clock();
-    for(int i = 0; i < n; i++) operator()(x, jacobi, t, dfdt);
-    ct = clock() - ct;
-    return (int)ct;
-}
-*/
