@@ -5,6 +5,8 @@
  *
  */
 
+#include <boost/numeric/ublas/vector.hpp>   // For use with ODEINT
+#include <boost/numeric/odeint.hpp>         // For use with ODEINT
 #include "Gro.h"
 
 std::unordered_map<std::string, std::vector<double>> Gro(
@@ -179,7 +181,7 @@ std::unordered_map<std::string, std::vector<double>> Gro_euler_odeint_solve(
                 0.0,
                 (double)ntimes - 1.0,
                 output_step_size,
-                push_back_state_and_time_rk(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg)
+                push_back_state_and_time<std::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg)
             );
         }
         catch (std::exception &e) {
@@ -263,7 +265,7 @@ std::unordered_map<std::string, std::vector<double>> Gro_rsnbrk_solve(
                         0.0,
                         (double)ntimes - 1.0,
                         output_step_size,
-                        push_back_state_and_time_rsnbrk(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg),
+                        push_back_state_and_time<boost::numeric::ublas::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg),
             boost::numeric::odeint::max_step_checker(adaptive_max_steps)
                 );
         }
@@ -353,7 +355,7 @@ std::unordered_map<std::string, std::vector<double>> Gro_rk4_solve(
                 0.0,
                 (double)ntimes - 1.0,
                 output_step_size,
-                push_back_state_and_time_rk(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg)
+                push_back_state_and_time<std::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg)
             );
         }
         catch (std::exception &e) {
@@ -437,7 +439,7 @@ std::unordered_map<std::string, std::vector<double>> Gro_rkck54_solve(
                     0.0,
                     (double)ntimes - 1.0,
                     output_step_size,
-                    push_back_state_and_time_rk(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg),
+                    push_back_state_and_time<std::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg),
                     boost::numeric::odeint::max_step_checker(adaptive_max_steps)
                 );
         }
