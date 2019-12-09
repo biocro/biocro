@@ -67,6 +67,12 @@
 #include "poincare_clock.hpp"
 #include "magic_clock.hpp"
 #include "phase_clock.hpp"
+#include "partitioning_coefficient_logistic.hpp"
+#include "partitioning_coefficient_logistic_seed.hpp"
+#include "partitioning_growth_seed.hpp"
+#include "senescence_coefficient_logistic.hpp"
+#include "thermal_time_senescence_logistic.hpp"
+#include "thermal_time_senescence_logistic_seed.hpp"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -141,7 +147,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"phase_clock",                                     createModule<phase_clock>},
 		{"oscillator_clock_calculator",                     createModule<oscillator_clock_calculator>},
 		{"night_and_day_trackers",                          createModule<night_and_day_trackers>},
-		{"light_from_solar",                                createModule<light_from_solar>}
+		{"light_from_solar",                                createModule<light_from_solar>},
+        {"partitioning_coefficient_logistic",               createModule<partitioning_coefficient_logistic>},
+        {"partitioning_coefficient_logistic_seed",          createModule<partitioning_coefficient_logistic_seed>},
+        {"partitioning_growth_seed",                        createModule<partitioning_growth_seed>},
+        {"senescence_coefficient_logistic",                 createModule<senescence_coefficient_logistic>},
+        {"thermal_time_senescence_logistic",                createModule<thermal_time_senescence_logistic>},
+        {"thermal_time_senescence_logistic_seed",           createModule<thermal_time_senescence_logistic_seed>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -212,7 +224,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"phase_clock",                                     phase_clock::get_inputs()},
 		{"oscillator_clock_calculator",                     oscillator_clock_calculator::get_inputs()},
 		{"night_and_day_trackers",                          night_and_day_trackers::get_inputs()},
-		{"light_from_solar",                                light_from_solar::get_inputs()}
+		{"light_from_solar",                                light_from_solar::get_inputs()},
+        {"partitioning_coefficient_logistic",               partitioning_coefficient_logistic::get_inputs},
+        {"partitioning_coefficient_logistic_seed",          partitioning_coefficient_logistic_seed::get_inputs},
+        {"partitioning_growth_seed",                        partitioning_growth_seed::get_inputs},
+        {"senescence_coefficient_logistic",                 senescence_coefficient_logistic::get_inputs},
+        {"thermal_time_senescence_logistic",                thermal_time_senescence_logistic::get_inputs},
+        {"thermal_time_senescence_logistic_seed",           thermal_time_senescence_logistic_seed::get_inputs}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -283,7 +301,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"phase_clock",                                     phase_clock::get_outputs()},
 		{"oscillator_clock_calculator",                     oscillator_clock_calculator::get_outputs()},
 		{"night_and_day_trackers",                          night_and_day_trackers::get_outputs()},
-		{"light_from_solar",                                light_from_solar::get_outputs()}
+		{"light_from_solar",                                light_from_solar::get_outputs()},
+        {"partitioning_coefficient_logistic",               partitioning_coefficient_logistic::get_outputs},
+        {"partitioning_coefficient_logistic_seed",          partitioning_coefficient_logistic_seed::get_outputs},
+        {"partitioning_growth_seed",                        partitioning_growth_seed::get_outputs},
+        {"senescence_coefficient_logistic",                 senescence_coefficient_logistic::get_outputs},
+        {"thermal_time_senescence_logistic",                thermal_time_senescence_logistic::get_outputs},
+        {"thermal_time_senescence_logistic_seed",           thermal_time_senescence_logistic_seed::get_outputs}
 	};
 	module_descriptions = {
 		{"solar_zenith_angle",								solar_zenith_angle::get_description()},
