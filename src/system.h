@@ -7,9 +7,6 @@
 #include <memory>       // For unique_ptr and shared_ptr
 #include <cmath>        // For fmod
 #include <time.h>       // For timing during performance testing
-#include <boost/numeric/ublas/vector.hpp>   // For use with ODEINT
-#include <boost/numeric/ublas/matrix.hpp>   // For use with ODEINT
-#include <boost/numeric/odeint.hpp>         // For use with ODEINT
 #include "modules.h"
 #include "module_library/ModuleFactory.h"
 #include "system_helper_functions.h"
@@ -47,16 +44,19 @@ class System {
         void set_param(const std::vector<double>& values, const std::vector<std::string>& parameter_names);
 
         // For integrating
-        void get_state(std::vector<double>& x) const;
-        void get_state(boost::numeric::ublas::vector<double>& x) const;
+        template<typename state_type>
+            void get_state(state_type& x) const;
+
         template<typename state_type, typename time_type>
             void operator()(const state_type& x, state_type& dxdt, const time_type& t);
-        void operator()(const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const double& t, boost::numeric::ublas::vector<double>& dfdt);
+
+        template<typename state_type, typename jacobi_type, typename time_type>
+            void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt);
 
         // For returning the results of a calculation
-        std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<int>& times);
-        std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<boost::numeric::ublas::vector<double>>& x_vec, const std::vector<double>& times);
-        std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<std::vector<double>>& x_vec, const std::vector<double>& times);
+        template<typename state_type, typename time_type>
+            std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times);
+
         std::vector<std::string> get_output_param_names() const {return output_param_vector;}
         std::vector<const double*> get_output_ptrs() const {return output_ptr_vector;}
         std::vector<std::string> get_state_parameter_names() const {return state_parameter_names;}
@@ -64,7 +64,6 @@ class System {
         // For performance testing
         int get_ncalls() const {return ncalls;}
         template<class vector_type, class time_type> int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
-        int speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const double& t, boost::numeric::ublas::vector<double>& dfdt);
 
     private:
         // Members for storing the original inputs
@@ -153,13 +152,123 @@ class System {
         const double eps_deriv = 1e-11;
 };
 
+// For std::vector state
+
+template<typename state_type>
+void System::get_state(state_type& x) const {
+    x.resize(state_ptrs.size());
+    for(size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
+}
+
 template<typename state_type, typename time_type>
-void System::operator()(const state_type& x, state_type& dxdt, const time_type& t) {
+void System::operator()(const state_type& x, state_type& dxdt, const time_type& t)
+{
     ++ncalls;
     update_varying_params(t);
     update_state_params(x);
     run_steady_state_modules();
     run_derivative_modules(dxdt);
+}
+
+template<typename state_type, typename jacobi_type, typename time_type>
+void System::operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt)
+{
+    // Numerically compute the Jacobian matrix
+    //  The odeint Rosenbrock stepper requires the use of UBLAS vectors and matrices and the Jacobian is only required when using this
+    //    stepper, so we can restrict the state vector type to be UBLAS
+    // Discussion of step size from http://www.iue.tuwien.ac.at/phd/khalil/node14.html:
+    //  "It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
+    //  Decreasing the step size will reduce the truncation error.
+    //  Unfortunately a smaller step has the opposite effect on the cancellation error.
+    //  Selecting the optimal step size for a certain problem is computationally expensive and the benefits achieved are not justifiable
+    //    as the effect of small errors in the values of the elements of the Jacobian matrix is minor.
+    //  For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient."
+    // In BioCro, we fix a step size and only evaluate the forward perturbation to reduce calculation costs
+    //  In other words:
+    //    (1) We calculate dxdt using the input (x,t) (called dxdt_c for current)
+    //    (2) We make a forward perturbation by adding h to one state variable and calculating the time derivatives (called dxdt_p for perturbation)
+    //    (3) We calculate the rate of change for each state variable according to (dxdt_p[i] - dxdt_c[i])/h
+    //    (4) We repeat steps (2) and (3) for each state variable
+    //  The alternative method would be:
+    //    (1) We make a backward perturbation by substracting h from one state variable and calculating the time derivatives (called dxdt_b for backward)
+    //    (2) We make a forward perturbation by adding h to the same state variable and calculating the time derivatives (called dxdt_f for forward)
+    //    (3) We calculate the rate of change for each state variable according to (dxdt_f[i] - dxdt_b[i])/(2*h)
+    //    (4) We repeat steps (1) through (3) for each state variable
+    //  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of state variables
+    //  In the other scheme, we make 2N derivative evaluations
+    //  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro derivatives are expensive
+    //  Likewise, higher-order numerical derivative calculations are also not worthwhile
+    
+    size_t n = x.size();
+    
+    // Make vectors to store the current and perturbed dxdt
+    state_type dxdt_c(n);
+    state_type dxdt_p(n);
+    
+    // Get the current dxdt
+    operator()(x, dxdt_c, t);
+    
+    // Perturb each state variable and find the corresponding change in the derivative
+    double h;
+    state_type xperturb = x;
+    for(size_t i = 0; i < n; i++) {
+        // Ensure that the step size h is close to eps_deriv but is exactly representable
+        //  (see Numerical Recipes in C, 2nd ed., Section 5.7)
+        h = eps_deriv;
+        double temp = x[i] + h;
+        h = temp - x[i];
+        
+        // Calculate the new derivatives
+        xperturb[i] = x[i] + h;             // Add h to the ith state variable
+        operator()(xperturb, dxdt_p, t);    // Calculate dxdt_p
+        
+        // Store the results in the Jacobian matrix
+        for(size_t j = 0; j < n; j++) jacobi(j,i) = (dxdt_p[j] - dxdt_c[j])/h;
+        
+        // Reset the ith state variable
+        xperturb[i] = x[i];                 // Reset the ith state variable
+    }
+    
+    // Perturb the time and find the corresponding change in dxdt
+    // Use a forward step whenever possible
+    h = eps_deriv;
+    double temp = t + h;
+    h = temp - t;
+    if(t + h <= (double)ntimes - 1.0) {
+        operator()(x, dxdt_p, t + h);
+        for(size_t j = 0; j < n; j++) dfdt[j] = (dxdt_p[j] - dxdt_c[j])/h;
+    }
+    else {
+        operator()(x, dxdt_p, t - h);
+        for(size_t j = 0; j < n; j++) dfdt[j] = (dxdt_c[j] - dxdt_p[j])/h;
+    }
+}
+
+template<typename state_type, typename time_type>
+std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times)
+{
+    std::unordered_map<std::string, std::vector<double>> results;
+    
+    // Initialize the parameter names
+    std::vector<double> temp(x_vec.size());
+    for (std::string p : output_param_vector) results[p] = temp;
+    
+    std::fill(temp.begin(), temp.end(), ncalls);
+    results["ncalls"] = temp;
+    
+    // Store the data
+    for (size_t i = 0; i < x_vec.size(); ++i) {
+        state_type current_state = x_vec[i];
+        time_type current_time = times[i];
+        // Get the corresponding parameter list
+        update_varying_params(current_time);
+        update_state_params(current_state);
+        run_steady_state_modules();
+        // Add the list to the results map
+        for (size_t j = 0; j < output_param_vector.size(); ++j) (results[output_param_vector[j]])[i] = parameters[output_param_vector[j]];
+    }
+    
+    return results;
 }
 
 template<class vector_type>
@@ -198,15 +307,6 @@ int System::speed_test(int n, const vector_type& x, vector_type& dxdt, const tim
     return (int)ct;
 }
 
-/*
-template<class time_type> int System::speed_test(int n, const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const time_type& t, boost::numeric::ublas::vector<double>& dfdt) {
-    // Run the system operator n times
-    clock_t ct = clock();
-    for(int i = 0; i < n; i++) operator()(x, jacobi, t, dfdt);
-    ct = clock() - ct;
-    return (int)ct;
-}
-*/
 /////////////////////////
 // FOR USE WITH ODEINT //
 /////////////////////////
@@ -215,62 +315,30 @@ class SystemCaller {
     // This is a simple class whose purpose is to prevent odeint from making zillions of copies of an input system
     public:
         SystemCaller(std::shared_ptr<System> sys) : _sys(sys) {}
-        void operator() (const std::vector<double>& x, std::vector<double>& dxdt, const int& t) {_sys->operator()(x, dxdt, t);}
-        void operator() (const std::vector<double>& x, std::vector<double>& dxdt, const double& t) {_sys->operator()(x, dxdt, t);}
-        void operator() (const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const int& t) {_sys->operator()(x, dxdt, t);}
-        void operator() (const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::vector<double>& dxdt, const double& t) {_sys->operator()(x, dxdt, t);}
-        void operator() (const boost::numeric::ublas::vector<double>& x, boost::numeric::ublas::matrix<double>& jacobi, const double& t, boost::numeric::ublas::vector<double>& dfdt) {_sys->operator()(x, jacobi, t, dfdt);}
+        template<typename state_type, typename time_type>
+        void operator() (const state_type& x, state_type& dxdt, const time_type& t) {_sys->operator()(x, dxdt, t);}
+
+        template<typename state_type, typename jacobi_type, typename time_type>
+        void operator() (const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt) {_sys->operator()(x, jacobi, t, dfdt);}
+
     private:
         std::shared_ptr<System> _sys;
 };
 
 // Observer used to store values
-struct push_back_state_and_time_rsnbrk
-{
-    std::vector<boost::numeric::ublas::vector<double>>& m_states;
-    std::vector<double>& m_times;
-    double _max_time;
-    double threshold = 0;
-    bool _verbose;
-    void (*print_msg) (char const *format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
-    
-    push_back_state_and_time_rsnbrk(
-        std::vector<boost::numeric::ublas::vector<double>> &states,
-        std::vector<double> &times, double max_time,
-        bool verbose,
-        void (*print_fcn_ptr) (char const *format, ...) = void_printf) :
-        m_states(states),
-        m_times(times),
-        _max_time(max_time),
-        _verbose(verbose),
-        print_msg(print_fcn_ptr)
-    {}
-    
-    void operator()(const boost::numeric::ublas::vector<double> &x, double t) {
-        if(_verbose) {
-            if(t >= _max_time) print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
-            else if(t/_max_time >= threshold) {
-                print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
-                threshold += 0.02;
-            }
-        }
-        m_states.push_back(x);
-        m_times.push_back(t);
-    }
-};
 
-// Observer used to store values
-struct push_back_state_and_time_rk
+template <typename state_type>
+struct push_back_state_and_time
 {
-    std::vector<std::vector<double>>& m_states;
+    std::vector<state_type>& m_states;
     std::vector<double>& m_times;
     double _max_time;
     double threshold = 0;
     bool _verbose;
     void (*print_msg) (char const *format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
     
-    push_back_state_and_time_rk(
-        std::vector<std::vector<double>> &states,
+    push_back_state_and_time(
+        std::vector<state_type>& states,
         std::vector<double> &times, double max_time,
         bool verbose,
         void (*print_fcn_ptr) (char const *format, ...) = void_printf) :
@@ -281,7 +349,7 @@ struct push_back_state_and_time_rk
         print_msg(print_fcn_ptr)
     {}
     
-    void operator()(const std::vector<double> &x, double t) {
+    void operator()(const state_type & x, double t) {
         if(_verbose) {
             if(t >= _max_time) print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
             else if(t/_max_time >= threshold) {

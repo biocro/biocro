@@ -1,4 +1,5 @@
 #include "system_helper_functions.h"
+#include "state_map.h"
 
 void get_variables_from_ss_modules(
     std::vector<std::string> const& steady_state_module_names,
@@ -83,6 +84,67 @@ void create_modules_from_names(
     // Create each module and make sure it's correctly classified
     for(std::string module_name : module_names) {
         module_list.push_back(module_factory.create(module_name));
+        if (verbose) print_msg("\n  %s", module_list.back()->get_name().c_str());
+        if (module_list.back()->is_deriv() != is_deriv) incorrect_modules.push_back(std::string("'") + module_name + error_msg);
+        if (!module_list.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
+    }
+}
+
+template<typename list_type>
+bool all_are_in_list(list_type find_these, list_type in_this) {
+    bool found;
+    for (auto const & find_this : find_these) {
+        found = false;
+        for (auto const & this_it : in_this) {
+            if (find_this == this_it) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            break;
+        }
+    }
+    return found;
+}
+
+void create_modules_from_names(
+    std::vector<std::string> const& module_names,
+    bool is_deriv,
+    std::vector<std::unique_ptr<Module>>& module_list,
+    std::unordered_map<std::string, double> initial_state,
+    std::unordered_map<std::string, double> parameters,
+    std::unordered_map<std::string, std::vector<double>> varying_parameters,
+    ModuleFactory const& module_factory,
+    std::vector<std::string>& incorrect_modules,
+    std::vector<std::string>& adaptive_step_size_incompat,
+    bool verbose,
+    void (*print_msg) (char const *format, ...))
+{
+    // Set the content of the error message, depending on whether the modules are supposed to
+    //  be derivative or steady state
+    std::string error_msg;
+    if (is_deriv) error_msg = std::string("' was included in the list of derivative modules, but it does not return a derivative");
+    else error_msg = std::string("' was included in the list of steady state modules, but it returns a derivative");
+    
+    // Create each module and make sure it's correctly classified
+    
+    auto temp = keys(initial_state);
+    std::vector<std::string> defined = keys(initial_state);
+    temp = keys(parameters);
+    defined.insert(defined.end(), temp.begin(), temp.end()); 
+    temp = keys(varying_parameters);
+    defined.insert(defined.end(), temp.begin(), temp.end()); 
+
+    for(std::string module_name : module_names) {
+        module_list.push_back(module_factory.create(module_name));
+        auto required = module_factory.get_inputs(module_name);
+        if (!all_are_in_list(required, defined)) {
+            throw std::logic_error(std::string("The modules are given in the wrong order. The following module is before a module that provides its input:" + module_name + "\n"));
+        }
+        auto newly_defined = module_factory.get_outputs(module_name);
+        defined.insert(defined.end(), newly_defined.begin(), newly_defined.end());
+
         if (verbose) print_msg("\n  %s", module_list.back()->get_name().c_str());
         if (module_list.back()->is_deriv() != is_deriv) incorrect_modules.push_back(std::string("'") + module_name + error_msg);
         if (!module_list.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
