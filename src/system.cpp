@@ -5,6 +5,84 @@ System::System(
     std::unordered_map<std::string, double> const& invariant_params,
     std::unordered_map<std::string, std::vector<double>> const &varying_params,
     std::vector<std::string> const &ss_module_names,
+    std::vector<std::string> const &deriv_module_names) :
+    initial_state(init_state),
+    invariant_parameters(invariant_params),
+    varying_parameters(varying_params),
+    steady_state_module_names(ss_module_names),
+    derivative_module_names(deriv_module_names)
+{
+    /* Check that the definition is valid. Using the name `quantities` for
+     *    all quantities defined in `initial_state`, `invariant_params`,
+     *    `varying_params` and `steady_state_module_names`, below are
+     *    the necessary critera for validity.
+     * 1) Each quantity is defined only once in `quantities`.
+     * 2) Quantities required by all modules are defined in `quantities`.
+     * 3) Derivatives of quantities calculated by `deriv_module_names` are
+     *       in `initial_state`.
+     * 4) Modules that require quantities calculated by other modules are
+     *       listed after the modules that calculate those quantities.
+     */
+    try {
+        // Create a set of all quantity names. Since elements of a std::set
+        // must be unique, you can check whether a quantity has already been
+        // defined by checking that whether the size of the set is the smaller
+        // than the combined sizes of the vectors.
+        ModuleFactory module_factory;
+        std::set<std::string> quantity_names;
+        {   // A block to narrow scope of temporary names.
+            // Put all of the names, including ones calculated by `steady_state_module_names`,
+            // into one vector.
+            std::vector<std::vector<std::string>> quantity_name_vectors
+                { keys(init_state), keys(invariant_params), keys(varying_params) };
+
+            for (auto & m : steady_state_module_names) {
+                auto names = module_factory.get_inputs(m);
+                quantity_name_vectors.push_back(names);
+            }
+
+            // Insert the names into a set, and check the size for correctness.
+            size_t size_inserted = 0;
+            for (auto & v : quantity_name_vectors) {
+                quantity_names.insert(v.begin(), v.end());
+                size_inserted += v.size();
+            }
+            if (quantity_names.size() < size_inserted) {
+                throw std::logic_error(std::string("A quantity is defined more than once."));
+            }
+        }
+
+
+        // Create a list of all quantities required by modules. Duplicates are fine, but
+        // use a set to remove them since we don't need to check twice.
+
+        std::vector<std::vector<std::string>> all_module_names_vector { steady_state_module_names, derivative_module_names };
+        std::set<std::string> required_quantity_names;
+        for (auto & v : all_module_names_vector) {
+            for (auto & m : v) {
+                auto names = module_factory.get_inputs(m);
+                required_quantity_names.insert(names.begin(), names.end());
+            }
+        }
+        // std::includes: is range 2 a subset of range 1.  It requires sorted ranges, and std::sets are always sorted.
+        if (!std::includes(quantity_names.begin(), quantity_names.end(),
+                          required_quantity_names.begin(), required_quantity_names.end())) {
+            throw std::logic_error(std::string("Required quantities are not defined."));
+        }
+
+    // I've listed these catch statements here for now, but likely they should be handled by the calling function.
+    } catch (std::logic_error &e) {
+        // TODO: Handle std::logic_error(std::string("A quantity is defined more than once.") by making a list of the duplicates.
+        // TODO: Handle std::logic_error(std::string("Required quantities are not defined.") by determining which quantities are missing.
+    } catch (std::exception &e) {
+    }
+}
+
+System::System(
+    std::unordered_map<std::string, double> const& init_state,
+    std::unordered_map<std::string, double> const& invariant_params,
+    std::unordered_map<std::string, std::vector<double>> const &varying_params,
+    std::vector<std::string> const &ss_module_names,
     std::vector<std::string> const &deriv_module_names,
     bool const verb,
     void (*print_fcn_ptr) (char const *format, ...)) :

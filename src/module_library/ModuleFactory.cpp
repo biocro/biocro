@@ -68,9 +68,7 @@
 #include "magic_clock.hpp"
 #include "phase_clock.hpp"
 
-ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
-	_input_parameters(input_parameters),
-	_output_parameters(output_parameters)
+ModuleFactory::ModuleFactory()
 {
 	modules = {
 		{"harmonic_oscillator",								createModule<harmonic_oscillator>},
@@ -292,6 +290,13 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"utilization_growth",								utilization_growth::get_description()},
 		{"utilization_growth_calculator",					utilization_growth_calculator::get_description()}
 	};
+}
+
+ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+	_input_parameters(input_parameters),
+	_output_parameters(output_parameters)
+{
+    ModuleFactory();
 }
 
 std::unique_ptr<Module> ModuleFactory::create(std::string const &module_name) const {

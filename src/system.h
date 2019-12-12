@@ -31,6 +31,13 @@ class System {
             std::vector<std::string> const &deriv_module_names,
             bool const verb,
             void (*print_fcn_ptr) (char const *format, ...) = void_printf);
+
+        System(
+            std::unordered_map<std::string, double> const& init_state,
+            std::unordered_map<std::string, double> const& invariant_params,
+            std::unordered_map<std::string, std::vector<double>> const &varying_params,
+            std::vector<std::string> const &ss_module_names,
+            std::vector<std::string> const &deriv_module_names);
         // Possibly helpful functions
         double get_timestep() const {return *timestep_ptr;}
         bool get_state_indx(int& state_indx, const std::string& parameter_name) const;

@@ -12,6 +12,7 @@ template<typename T> std::unique_ptr<Module> createModule(const std::unordered_m
 class ModuleFactory {
 	// This is a factory class that creates module objects and returns info about them
 	public:
+		ModuleFactory();
 		ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters);
     	std::unique_ptr<Module> create(std::string const &module_name) const;				// Returns a pointer to a module object
     	std::vector<std::string> get_inputs(std::string const &module_name) const;			// Returns a module's input parameters
