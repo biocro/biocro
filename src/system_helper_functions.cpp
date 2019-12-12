@@ -91,30 +91,12 @@ void create_modules_from_names(
     }
 }
 
-template<typename list_type>
-bool all_are_in_list(list_type find_these, list_type in_this) {
-    bool found;
-    for (auto const & find_this : find_these) {
-        found = false;
-        for (auto const & this_it : in_this) {
-            if (find_this == this_it) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            break;
-        }
-    }
-    return found;
-}
-
 void create_modules_from_names(
     std::vector<std::string> const& module_names,
     bool is_deriv,
     std::vector<std::unique_ptr<Module>>& module_list,
     std::unordered_map<std::string, double> initial_state,
-    std::unordered_map<std::string, double> parameters,
+    std::unordered_map<std::string, double> invariant_parameters,
     std::unordered_map<std::string, std::vector<double>> varying_parameters,
     ModuleFactory const& module_factory,
     std::vector<std::string>& incorrect_modules,
@@ -132,7 +114,7 @@ void create_modules_from_names(
     
     auto temp = keys(initial_state);
     std::vector<std::string> defined = keys(initial_state);
-    temp = keys(parameters);
+    temp = keys(invariant_parameters);
     defined.insert(defined.end(), temp.begin(), temp.end()); 
     temp = keys(varying_parameters);
     defined.insert(defined.end(), temp.begin(), temp.end()); 

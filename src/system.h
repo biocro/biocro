@@ -41,14 +41,11 @@ class System {
         // Possibly helpful functions
         double get_timestep() const {return *timestep_ptr;}
         bool get_state_indx(int& state_indx, const std::string& parameter_name) const;
-        bool get_param(double& value, const std::string& parameter_name) const;
         size_t get_ntimes() const {return ntimes;}
         bool is_adaptive_compatible() const {return adaptive_compatible;}
 
         // For fitting via nlopt
         void reset();
-        void set_param(const double& value, const std::string& parameter_name);
-        void set_param(const std::vector<double>& values, const std::vector<std::string>& parameter_names);
 
         // For integrating
         template<typename state_type>
@@ -112,12 +109,14 @@ class System {
             ModuleFactory& module_factory,
             std::vector<std::string>& incorrect_modules
         );
-        void get_pointer_pairs(std::set<std::string> const& unique_steady_state_parameter_names);
+        template<typename name_list>
+        void get_pointer_pairs(name_list const& unique_steady_state_parameter_names);
+
         void test_all_modules(std::string& total_error_string);
         void get_simulation_info(std::set<std::string> const& unique_changing_parameters);
 
-        // Map for storing the central parameter list
-        std::unordered_map<std::string, double> parameters;
+        // Map for storing the central quantities list
+        std::unordered_map<std::string, double> quantities;
 
         // Map for storing module outputs
         std::unordered_map<std::string, double> module_output_map;
@@ -272,7 +271,7 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
         update_state_params(current_state);
         run_steady_state_modules();
         // Add the list to the results map
-        for (size_t j = 0; j < output_param_vector.size(); ++j) (results[output_param_vector[j]])[i] = parameters[output_param_vector[j]];
+        for (size_t j = 0; j < output_param_vector.size(); ++j) (results[output_param_vector[j]])[i] = quantities[output_param_vector[j]];
     }
     
     return results;
