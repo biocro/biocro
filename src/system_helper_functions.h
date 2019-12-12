@@ -72,4 +72,22 @@ void report_errors(
     bool verbose
 );
 
+template<typename list_type>
+bool all_are_in_list(list_type find_these, list_type in_this) {
+    bool found;
+    for (auto const & find_this : find_these) {
+        found = false;
+        for (auto const & this_it : in_this) {
+            if (find_this == this_it) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            break;
+        }
+    }
+    return found;
+}
+
 #endif

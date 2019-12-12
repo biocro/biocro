@@ -1,4 +1,5 @@
 #include "system.h"
+#include "state_map.h"
 
 System::System(
     std::unordered_map<std::string, double> const& init_state,
@@ -22,40 +23,44 @@ System::System(
      *       in `initial_state`.
      * 4) Modules that require quantities calculated by other modules are
      *       listed after the modules that calculate those quantities.
+     *       This isn't truly a criterion for validity, but we need to make
+     *       sure that quantities are calculated in the correct order
+     *       or modules will access invalid values.
      */
     try {
+        // Criterion 1
         // Create a set of all quantity names. Since elements of a std::set
         // must be unique, you can check whether a quantity has already been
-        // defined by checking that whether the size of the set is the smaller
+        // defined by checking whether the size of the set is the smaller
         // than the combined sizes of the vectors.
         ModuleFactory module_factory;
-        std::set<std::string> quantity_names;
-        {   // A block to narrow scope of temporary names.
-            // Put all of the names, including ones calculated by `steady_state_module_names`,
-            // into one vector.
-            std::vector<std::vector<std::string>> quantity_name_vectors
-                { keys(init_state), keys(invariant_params), keys(varying_params) };
+        // Put all of the names, including ones calculated by `steady_state_module_names`,
+        // into one vector.
 
-            for (auto & m : steady_state_module_names) {
-                auto names = module_factory.get_inputs(m);
-                quantity_name_vectors.push_back(names);
-            }
-
-            // Insert the names into a set, and check the size for correctness.
-            size_t size_inserted = 0;
-            for (auto & v : quantity_name_vectors) {
-                quantity_names.insert(v.begin(), v.end());
-                size_inserted += v.size();
-            }
-            if (quantity_names.size() < size_inserted) {
-                throw std::logic_error(std::string("A quantity is defined more than once."));
-            }
+        std::vector<std::string> steady_state_output_names;
+        for (auto & m : steady_state_module_names) {
+            auto names = module_factory.get_outputs(m);
+            steady_state_module_names.insert(steady_state_module_names.begin(), names.begin(), names.end());
         }
 
+        std::vector<std::vector<std::string>> quantity_name_vectors
+            { keys(initial_state), keys(invariant_params), keys(varying_params), steady_state_output_names };
 
-        // Create a list of all quantities required by modules. Duplicates are fine, but
-        // use a set to remove them since we don't need to check twice.
 
+        // Insert the names into a set, and check the size for correctness.
+        std::set<std::string> quantity_names;
+        size_t size_inserted = 0;
+        for (auto & v : quantity_name_vectors) {
+            quantity_names.insert(v.begin(), v.end());
+            size_inserted += v.size();
+        }
+        if (quantity_names.size() < size_inserted) {
+            throw std::logic_error(std::string("A quantity is defined more than once."));
+        }
+
+        // Criterion 2
+        // Create a list of all quantities that are required by modules. Duplicates
+        // are fine, but use a set to remove them since we don't need to check twice.
         std::vector<std::vector<std::string>> all_module_names_vector { steady_state_module_names, derivative_module_names };
         std::set<std::string> required_quantity_names;
         for (auto & v : all_module_names_vector) {
@@ -64,17 +69,110 @@ System::System(
                 required_quantity_names.insert(names.begin(), names.end());
             }
         }
+        required_quantity_names.insert(std::string("doy_dbl"));
         // std::includes: is range 2 a subset of range 1.  It requires sorted ranges, and std::sets are always sorted.
         if (!std::includes(quantity_names.begin(), quantity_names.end(),
                           required_quantity_names.begin(), required_quantity_names.end())) {
             throw std::logic_error(std::string("Required quantities are not defined."));
         }
 
+        // Criterion 3
+        std::set<std::string> derivative_quantity_names;
+        for (auto & m : deriv_module_names) {
+            auto names = module_factory.get_outputs(m);
+            derivative_quantity_names.insert(names.begin(), names.end());
+        }
+
+        auto initial_state_names = keys(initial_state);
+        if (!std::includes(initial_state_names.begin(), initial_state_names.end(),
+                          derivative_quantity_names.begin(), derivative_quantity_names.end())) {
+            throw std::logic_error(std::string("Quantities have derivatives, but are not listed in `initial_state`."));
+        }
+
+        // Criterion 4
+        // At this point, the model is valid in general. However, when solving,
+        // each calculated quantity starts the loop equal to 0, and if a module
+        // accesses the value before it's properly calculated it will be wrong.
+        // We can ensure that doesn't happen by making sure the models are run
+        // in the right order.
+        // Check that modules are in the right order by keeping track of what has
+        // been previously defined.
+        // Ulitimately, it would be nice to automatically determine the correct
+        // order using dependency resolution.
+        std::vector<std::string> defined = keys(initial_state);
+        std::vector<std::string> temp = keys(invariant_params);
+        defined.insert(defined.end(), temp.begin(), temp.end()); 
+        temp = keys(varying_parameters);
+        defined.insert(defined.end(), temp.begin(), temp.end()); 
+
+        for (auto & m : steady_state_module_names) {
+            auto required_names = module_factory.get_inputs(m);
+            if (!all_are_in_list(required_names, defined)) {
+                throw std::logic_error(std::string("The modules are given in the wrong order. The following module is before a module that provides its input:" + m + "\n"));
+            }
+            auto newly_defined = module_factory.get_outputs(m);
+            defined.insert(defined.end(), newly_defined.begin(), newly_defined.end());
+        }
+
+
+        // Start assembling the system.
+        std::vector<std::unordered_map<std::string, double>> quantities_vector
+            { initial_state, invariant_params, at(varying_params, 0) };
+
+        for (auto & v : quantities_vector) {
+            this->quantities.insert(v.begin(), v.end());
+        }
+
+        for (auto & m : steady_state_module_names) {
+            auto names = module_factory.get_outputs(m);
+                for (auto & n : names) {
+                    this->quantities[n] = 0;
+                }
+        }
+
+        module_output_map = quantities;
+
+        ModuleFactory complete_factory(&quantities, &module_output_map);
+        for (auto & m : steady_state_module_names) {
+            steady_state_modules.push_back(complete_factory.create(m));
+        }
+
+        for (auto & m : derivative_module_names) {
+            derivative_modules.push_back(complete_factory.create(m));
+        }
+
+        // Get pairs of pointers to important subsets of the variables, e.g.,
+        //  pairs of pointers to the state variables in the main map and the
+        //  module output map.
+        // These pairs allow us to efficiently retrieve the output of each
+        //  module and store it in the main variable map when running the system,
+        //  to update the varying parameters at new time points, etc
+        // Also get a pointer to the timestep variable
+        get_pointer_pairs(steady_state_output_names);
+    
+        // Fill in the initial values and test the modules
+        std::string error_string;                                       // A message to send to the user about any issues that were discovered during the system setup
+        test_all_modules(error_string);
+        
+        // If any errors have occurred, notify the user and throw an error to halt the operation,
+        //  since the user needs to address these problems before continuing
+        report_errors(error_string, verbose);
+        
+        // Get information that we will need when running a simulation and returning the results
+        std::set<std::string> changing_quantities;
+        for (auto & names : std::vector<std::vector<std::string>> {keys(varying_parameters), steady_state_output_names }) {
+            changing_quantities.insert(names.begin(), names.end());
+
+        }
+        get_simulation_info(changing_quantities);
+        
+        // Reset the derivative evaluation counter
+        ncalls = 0;
     // I've listed these catch statements here for now, but likely they should be handled by the calling function.
     } catch (std::logic_error &e) {
         // TODO: Handle std::logic_error(std::string("A quantity is defined more than once.") by making a list of the duplicates.
         // TODO: Handle std::logic_error(std::string("Required quantities are not defined.") by determining which quantities are missing.
-    } catch (std::exception &e) {
+        // TODO: Handle std::logic_error(std::string("Quantities have derivatives, but are not listed in `initial_state`.") by determining which quantities are missing in `initial_state`.
     }
 }
 
@@ -187,7 +285,7 @@ void System::process_variable_and_module_inputs(std::set<std::string>& unique_st
     // Note: the inputs to the module factory have not been fully initialized yet. We can
     //  get the module input/output variables right now, but any attempt to create a module
     //  will fail
-    ModuleFactory module_factory(&parameters, &module_output_map);
+    ModuleFactory module_factory(&quantities, &module_output_map);
     
     // Continue collecting variable names from the modules
     // Along the way, check for any duplicated variable or module
@@ -219,7 +317,7 @@ void System::process_variable_and_module_inputs(std::set<std::string>& unique_st
     report_errors(error_string, verbose);
     
     // Initialize the module output map
-    module_output_map = parameters;
+    module_output_map = quantities;
     
     // Now that we have a complete list of variables, we can use the module factory to create the modules
     create_modules(module_factory, incorrect_modules);
@@ -290,7 +388,7 @@ void System::get_variables_from_input_lists(
         if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
             unique_variable_names.insert(x.first);
             unique_changing_parameters.insert(x.first);
-            parameters[x.first] = x.second[0];
+            quantities[x.first] = x.second[0];
             if(verbose) print_msg("  %s[0] = %f\n", (x.first).c_str(), x.second[0]);
         }
         else duplicate_variable_names.push_back(std::string("Parameter '") + x.first + std::string("' from the varying parameters"));
@@ -302,7 +400,7 @@ void System::get_variables_from_input_lists(
         if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
             unique_variable_names.insert(x.first);
             unique_changing_parameters.insert(x.first);
-            parameters[x.first] = x.second;
+            quantities[x.first] = x.second;
             if(verbose) print_msg("  %s[0] = %f\n", (x.first).c_str(), x.second);
         }
         else duplicate_variable_names.push_back(std::string("Parameter '") + x.first + std::string("' from the initial state"));
@@ -313,7 +411,7 @@ void System::get_variables_from_input_lists(
     for(auto x : invariant_parameters) {
         if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
             unique_variable_names.insert(x.first);
-            parameters[x.first] = x.second;
+            quantities[x.first] = x.second;
             if(verbose) print_msg("  %s = %f\n", (x.first).c_str(), x.second);
         }
         else duplicate_variable_names.push_back(std::string("Parameter '") + x.first + std::string("' from the invariant parameters"));
@@ -358,7 +456,7 @@ void System::get_variables_from_modules(
         unique_variable_names.insert(p);
         unique_steady_state_parameter_names.insert(p);
         unique_changing_parameters.insert(p);
-        parameters[p] = 0.0;
+        quantities[p] = 0.0;
         if(verbose) print_msg("  %s\n", p.c_str());
     }
     
@@ -471,25 +569,26 @@ void System::create_modules(ModuleFactory& module_factory, std::vector<std::stri
     }
 }
 
-void System::get_pointer_pairs(std::set<std::string> const& unique_steady_state_parameter_names) {
+template <typename name_list>
+void System::get_pointer_pairs(name_list const& unique_steady_state_parameter_names) {
     // Get a pointer to the timestep
-    timestep_ptr = &parameters.at("timestep");
+    timestep_ptr = &quantities.at("timestep");
     
     // Get pointers to the state variables in the parameter and module output maps
     for(auto x : initial_state) {
-        std::pair<double*, double*> temp(&parameters.at(x.first), &module_output_map.at(x.first));
+        std::pair<double*, double*> temp(&quantities.at(x.first), &module_output_map.at(x.first));
         state_ptrs.push_back(temp);
     }
     
     // Get pointers to the steady state parameters in the parameter and module output maps
     for(std::string p : unique_steady_state_parameter_names) {
-        std::pair<double*, double*> temp(&parameters.at(p), &module_output_map.at(p));
+        std::pair<double*, double*> temp(&quantities.at(p), &module_output_map.at(p));
         steady_state_ptrs.push_back(temp);
     }
     
     // Get pointers to the varying parameters in the parameter and varying parameter maps
     for(auto x : varying_parameters) {
-        std::pair<double*, std::vector<double>*> temp(&parameters.at(x.first), &varying_parameters.at(x.first));
+        std::pair<double*, std::vector<double>*> temp(&quantities.at(x.first), &varying_parameters.at(x.first));
         varying_ptrs.push_back(temp);
     }
 }
@@ -522,7 +621,7 @@ void System::get_simulation_info(std::set<std::string> const& unique_changing_pa
     
     // Create a vector of pointers to the variables that change throughout a simulation
     output_ptr_vector.resize(unique_changing_parameters.size());
-    for(size_t i = 0; i < output_param_vector.size(); i++) output_ptr_vector[i] = &parameters.at(output_param_vector[i]);
+    for(size_t i = 0; i < output_param_vector.size(); i++) output_ptr_vector[i] = &quantities.at(output_param_vector[i]);
 }
 
 bool System::get_state_indx(int& state_indx, const std::string& parameter_name) const {
@@ -535,30 +634,12 @@ bool System::get_state_indx(int& state_indx, const std::string& parameter_name) 
     return false;
 }
 
-bool System::get_param(double& value, const std::string& parameter_name) const {
-    if(parameters.find(parameter_name) != parameters.end()) {
-        value = parameters.at(parameter_name);
-        return true;
-    }
-    return false;
-}
-
 void System::reset() {
     // Put all parameters back to their original values
     int t = 0;
     update_varying_params(t);
-    for(auto x : initial_state) parameters[x.first] = x.second;
+    for(auto x : initial_state) quantities[x.first] = x.second;
     run_steady_state_modules();
-}
-
-void System::set_param(const double& value, const std::string& parameter_name) {
-    if(parameters.find(parameter_name) != parameters.end()) parameters[parameter_name] = value;
-    else throw std::logic_error(std::string("Thrown by System::set_param - could not find a parameter called ") + parameter_name);
-}
-
-void System::set_param(const std::vector<double>& values, const std::vector<std::string>& parameter_names) {
-    if(values.size() != parameter_names.size()) throw std::logic_error("Thrown by System::set_param - input vector lengths are different\n");
-    for(size_t i = 0; i < values.size(); i++) set_param(values[i], parameter_names[i]);
 }
 
 // For integer time
