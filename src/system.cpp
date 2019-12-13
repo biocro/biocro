@@ -36,6 +36,7 @@ System::System(
         // must be unique, you can check whether a quantity has already been
         // defined by checking whether the size of the set is the smaller
         // than the combined sizes of the vectors.
+
         ModuleFactory module_factory;
         // Put all of the names, including ones calculated by `steady_state_module_names`,
         // into one vector.
@@ -46,8 +47,11 @@ System::System(
             steady_state_output_names.insert(steady_state_output_names.begin(), names.begin(), names.end());
         }
 
+        auto istate_names = keys(initial_state);
+        auto ip_names = keys(invariant_params);
+        auto vp_names = keys(varying_params);
         std::vector<std::vector<std::string>> quantity_name_vectors
-            { keys(initial_state), keys(invariant_params), keys(varying_params), steady_state_output_names };
+            { istate_names, ip_names, vp_names, steady_state_output_names };
 
 
         // Insert the names into a set, and check the size for correctness.
@@ -92,7 +96,7 @@ System::System(
             derivative_quantity_names.insert(names.begin(), names.end());
         }
 
-        auto initial_state_names = keys(initial_state);
+        auto initial_state_names = istate_names;
         std::sort(initial_state_names.begin(), initial_state_names.end());
 
 
@@ -112,10 +116,10 @@ System::System(
         // been previously defined.
         // Ulitimately, it would be nice to automatically determine the correct
         // order using dependency resolution.
-        std::vector<std::string> defined = keys(initial_state);
-        std::vector<std::string> temp = keys(invariant_params);
+        std::vector<std::string> defined = istate_names;
+        std::vector<std::string> temp = ip_names;
         defined.insert(defined.end(), temp.begin(), temp.end()); 
-        temp = keys(varying_parameters);
+        temp = vp_names;
         defined.insert(defined.end(), temp.begin(), temp.end()); 
 
 
@@ -128,7 +132,6 @@ System::System(
             auto newly_defined = module_factory.get_outputs(m);
             defined.insert(defined.end(), newly_defined.begin(), newly_defined.end());
         }
-
 
 
         // Start assembling the system.
@@ -181,7 +184,7 @@ System::System(
         
         // Get information that we will need when running a simulation and returning the results
         std::set<std::string> changing_quantities;
-        for (auto & names : std::vector<std::vector<std::string>> {keys(initial_state), keys(varying_parameters), steady_state_output_names }) {
+        for (auto & names : std::vector<std::vector<std::string>> {istate_names, vp_names, steady_state_output_names }) {
             changing_quantities.insert(names.begin(), names.end());
 
         }
