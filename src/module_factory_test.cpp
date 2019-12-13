@@ -37,16 +37,15 @@ int main() {
         output.insert({s, 1});
     }
 
-    auto m = unique_ptr<c3_canopy>(dynamic_cast<c3_canopy*>((w->createModule(input, output)).get()));
+    auto m = dynamic_cast<c3_canopy*>((w->createModule(input, output)).get());
 
     inputs = m->get_inputs();
 
-    cout << "Inputs Again!!!: " << endl;
+    cout << "\nInputs Again!!!: \n" << endl;
 
     for (auto s : inputs) {
         cout << s << endl;
     }
 
-    cout << "\ngot here\n" << endl;
-
+    cout << "\nend of main\n" << endl;
 }
