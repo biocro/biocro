@@ -37,7 +37,8 @@ class System {
             std::unordered_map<std::string, double> const& invariant_params,
             std::unordered_map<std::string, std::vector<double>> const &varying_params,
             std::vector<std::string> const &ss_module_names,
-            std::vector<std::string> const &deriv_module_names);
+            std::vector<std::string> const &deriv_module_names,
+            void (*print_fcn_ptr) (char const *format, ...) = void_printf);
         // Possibly helpful functions
         double get_timestep() const {return *timestep_ptr;}
         bool get_state_indx(int& state_indx, const std::string& parameter_name) const;
@@ -74,8 +75,8 @@ class System {
         std::unordered_map<std::string, double> initial_state;
         std::unordered_map<std::string, double> invariant_parameters;
         std::unordered_map<std::string, std::vector<double>> varying_parameters;
-        std::vector<std::string> steady_state_module_names;
-        std::vector<std::string> derivative_module_names;
+        const std::vector<std::string> steady_state_module_names;
+        const std::vector<std::string> derivative_module_names;
         bool verbose;
         void (*print_msg) (char const *format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
 
@@ -157,8 +158,6 @@ class System {
         // For numerically calculating derivatives
         const double eps_deriv = 1e-11;
 };
-
-// For std::vector state
 
 template<typename state_type>
 void System::get_state(state_type& x) const {

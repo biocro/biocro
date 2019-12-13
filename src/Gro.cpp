@@ -21,8 +21,17 @@ std::unordered_map<std::string, std::vector<double>> Gro(
         bool verbose,
         void (*print_msg) (char const *format, ...))
 {
+        std::shared_ptr<System> sys;
+        if (invariant_parameters.find("simple_system") == invariant_parameters.end()) {
         // Create a system based on the inputs and store a smart pointer to it
-        std::shared_ptr<System> sys(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
+            print_msg("old system");
+            std::shared_ptr<System> temp(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
+            sys = std::move(temp);
+        } else {
+            print_msg("new system");
+            std::shared_ptr<System> temp(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, print_msg));
+            sys = std::move(temp);
+        }
 
         // Check to see if it is compatible with adaptive step size methods
         bool is_adaptive_compatible = sys->is_adaptive_compatible();

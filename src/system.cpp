@@ -6,12 +6,15 @@ System::System(
     std::unordered_map<std::string, double> const& invariant_params,
     std::unordered_map<std::string, std::vector<double>> const &varying_params,
     std::vector<std::string> const &ss_module_names,
-    std::vector<std::string> const &deriv_module_names) :
+    std::vector<std::string> const &deriv_module_names,
+    void (*print_fcn_ptr) (char const *format, ...)) :
     initial_state(init_state),
     invariant_parameters(invariant_params),
     varying_parameters(varying_params),
     steady_state_module_names(ss_module_names),
-    derivative_module_names(deriv_module_names)
+    derivative_module_names(deriv_module_names),
+    print_msg(print_fcn_ptr)
+
 {
     /* Check that the definition is valid. Using the name `quantities` for
      *    all quantities defined in `initial_state`, `invariant_params`,
@@ -40,7 +43,7 @@ System::System(
         std::vector<std::string> steady_state_output_names;
         for (auto & m : steady_state_module_names) {
             auto names = module_factory.get_outputs(m);
-            steady_state_module_names.insert(steady_state_module_names.begin(), names.begin(), names.end());
+            steady_state_output_names.insert(steady_state_output_names.begin(), names.begin(), names.end());
         }
 
         std::vector<std::vector<std::string>> quantity_name_vectors
@@ -54,9 +57,12 @@ System::System(
             quantity_names.insert(v.begin(), v.end());
             size_inserted += v.size();
         }
+
+
         if (quantity_names.size() < size_inserted) {
-            throw std::logic_error(std::string("A quantity is defined more than once."));
+            throw std::logic_error(std::string("At least one quantity is defined more than once."));
         }
+
 
         // Criterion 2
         // Create a list of all quantities that are required by modules. Duplicates
@@ -71,10 +77,13 @@ System::System(
         }
         required_quantity_names.insert(std::string("doy_dbl"));
         // std::includes: is range 2 a subset of range 1.  It requires sorted ranges, and std::sets are always sorted.
+
+
         if (!std::includes(quantity_names.begin(), quantity_names.end(),
                           required_quantity_names.begin(), required_quantity_names.end())) {
             throw std::logic_error(std::string("Required quantities are not defined."));
         }
+
 
         // Criterion 3
         std::set<std::string> derivative_quantity_names;
@@ -84,10 +93,14 @@ System::System(
         }
 
         auto initial_state_names = keys(initial_state);
+        std::sort(initial_state_names.begin(), initial_state_names.end());
+
+
         if (!std::includes(initial_state_names.begin(), initial_state_names.end(),
                           derivative_quantity_names.begin(), derivative_quantity_names.end())) {
             throw std::logic_error(std::string("Quantities have derivatives, but are not listed in `initial_state`."));
         }
+
 
         // Criterion 4
         // At this point, the model is valid in general. However, when solving,
@@ -105,6 +118,8 @@ System::System(
         temp = keys(varying_parameters);
         defined.insert(defined.end(), temp.begin(), temp.end()); 
 
+
+
         for (auto & m : steady_state_module_names) {
             auto required_names = module_factory.get_inputs(m);
             if (!all_are_in_list(required_names, defined)) {
@@ -113,6 +128,7 @@ System::System(
             auto newly_defined = module_factory.get_outputs(m);
             defined.insert(defined.end(), newly_defined.begin(), newly_defined.end());
         }
+
 
 
         // Start assembling the system.
@@ -135,10 +151,12 @@ System::System(
         ModuleFactory complete_factory(&quantities, &module_output_map);
         for (auto & m : steady_state_module_names) {
             steady_state_modules.push_back(complete_factory.create(m));
+            if (!steady_state_modules.back()->is_adaptive_compatible()) this->adaptive_compatible = false;
         }
 
         for (auto & m : derivative_module_names) {
             derivative_modules.push_back(complete_factory.create(m));
+            if (!derivative_modules.back()->is_adaptive_compatible()) this->adaptive_compatible = false;
         }
 
         // Get pairs of pointers to important subsets of the variables, e.g.,
@@ -148,6 +166,9 @@ System::System(
         //  module and store it in the main variable map when running the system,
         //  to update the varying parameters at new time points, etc
         // Also get a pointer to the timestep variable
+        //std::set<std::string> unique_output;
+        //unique_output.insert(steady_state_output_names.begin(), steady_state_output_names.end());
+        //get_pointer_pairs(unique_output);
         get_pointer_pairs(steady_state_output_names);
     
         // Fill in the initial values and test the modules
@@ -160,7 +181,7 @@ System::System(
         
         // Get information that we will need when running a simulation and returning the results
         std::set<std::string> changing_quantities;
-        for (auto & names : std::vector<std::vector<std::string>> {keys(varying_parameters), steady_state_output_names }) {
+        for (auto & names : std::vector<std::vector<std::string>> {keys(initial_state), keys(varying_parameters), steady_state_output_names }) {
             changing_quantities.insert(names.begin(), names.end());
 
         }
@@ -168,11 +189,15 @@ System::System(
         
         // Reset the derivative evaluation counter
         ncalls = 0;
+
     // I've listed these catch statements here for now, but likely they should be handled by the calling function.
     } catch (std::logic_error &e) {
         // TODO: Handle std::logic_error(std::string("A quantity is defined more than once.") by making a list of the duplicates.
         // TODO: Handle std::logic_error(std::string("Required quantities are not defined.") by determining which quantities are missing.
         // TODO: Handle std::logic_error(std::string("Quantities have derivatives, but are not listed in `initial_state`.") by determining which quantities are missing in `initial_state`.
+        throw e;
+    } catch (std::exception &e) {
+        throw e;
     }
 }
 
