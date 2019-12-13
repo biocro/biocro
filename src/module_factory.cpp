@@ -72,9 +72,9 @@
 #include "module_library/phase_clock.hpp"
 
 
-module_wrapper_base* ModuleFactory::operator()(std::string const &module_name) const {
+module_wrapper_base* ModuleFactory::create(std::string const &module_name) {
     try {
-        return this->modules.at(module_name);
+        return modules.at(module_name);
     } catch (std::out_of_range const &oor) {
         throw std::out_of_range(std::string("\"") + module_name + std::string("\"") + std::string(" was given as a module name, but no module with that name could be found.\n"));
     }
@@ -154,7 +154,7 @@ const std::unordered_map<std::string, module_wrapper_base*> ModuleFactory::modul
      {"light_from_solar",                                new module_wrapper<light_from_solar>()}
     };
 
-std::vector<std::string> ModuleFactory::get_modules() const {
+std::vector<std::string> ModuleFactory::get_modules() {
     // Make a vector to store the results
     std::vector<std::string> module_name_vector;
     
@@ -165,19 +165,19 @@ std::vector<std::string> ModuleFactory::get_modules() const {
     class Case_Insensitive_Compare {
     public:
         bool operator()(std::string const &a, std::string const &b) {
-        // Make a lowercase copy of a
-        std::string al = a;
-        std::transform(al.begin(), al.end(), al.begin(), [](unsigned char c){return std::tolower(c);});
+            // Make a lowercase copy of a
+            std::string al = a;
+            std::transform(al.begin(), al.end(), al.begin(), [](unsigned char c){return std::tolower(c);});
     
-        // Make a lowercase copy of b
-        std::string bl = b;
-        std::transform(bl.begin(), bl.end(), bl.begin(), [](unsigned char c){return std::tolower(c);});
+            // Make a lowercase copy of b
+            std::string bl = b;
+            std::transform(bl.begin(), bl.end(), bl.begin(), [](unsigned char c){return std::tolower(c);});
     
-        // Compare the two lowercase strings
-        int compare = al.compare(bl);
+            // Compare the two lowercase strings
+            int compare = al.compare(bl);
     
-        // Return the result
-        return (compare > 0) ? false : true;
+            // Return the result
+            return (compare > 0) ? false : true;
         }
     };
 

@@ -10,9 +10,9 @@
 class ModuleFactory {
 	// This is a factory class that creates module objects and returns info about them
  public:
-    module_wrapper_base* operator()(std::string const &module_name) const;
+    static module_wrapper_base* create(std::string const &module_name);
     std::string get_description(std::string const &module_name) const;					// Returns a module's description
-    std::vector<std::string> get_modules() const;										// Returns a list of all available modules
+    static std::vector<std::string> get_modules();										// Returns a list of all available modules
  private:
     // Maps for linking module names to their constructors and descriptions
     const static std::unordered_map<std::string, module_wrapper_base*> modules;
