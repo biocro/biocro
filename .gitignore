@@ -3,10 +3,13 @@ src/*.o
 src/*.so
 src/*.dll
 cpptests/**/*.o
+cpptests/**/*.d
+cpptests/**/*.exe
 src/graph_test/*.o
 src/graph_test/*.exe
 src/*.d
 src/*.a
+src/*.exe
 src/module_library/*.o
 src/module_library/*.d
 

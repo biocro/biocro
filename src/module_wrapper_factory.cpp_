@@ -2,12 +2,9 @@
 #include <vector>
 #include <algorithm>
 #include "module_wrapper.h"
-#include "module_factory.h"
+#include "module_wrapper_factory.h"
 
-// IMPORTANT: each module in the factory must have one entry each in the modules, input_parameter_names, and output_parameter_names lists
-// The descriptions included in module_descriptions are recommended but not necessary
-
-// Include all the header files that describe the modules
+// Include all the header files that define the modules.
 #include "module_library/harmonic_oscillator.hpp"    // Contains harmonic_oscillator and harmonic_energy
 #include "module_library/size_testing.hpp"            // Contains P1, P10, P100, and P1000
 #include "module_library/reaction.hpp"
@@ -73,7 +70,7 @@
 #include "module_library/phase_clock.hpp"
 
 
-std::unique_ptr<module_wrapper_base> ModuleFactory::create(std::string const &module_name) {
+std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string const &module_name) {
     try {
         return std::unique_ptr<module_wrapper_base>(modules.at(module_name));
     } catch (std::out_of_range const &oor) {
@@ -82,7 +79,7 @@ std::unique_ptr<module_wrapper_base> ModuleFactory::create(std::string const &mo
 }
 
 
-const std::unordered_map<std::string, module_wrapper_base*> ModuleFactory::modules =
+const std::unordered_map<std::string, module_wrapper_base*> module_wrapper_factory::modules =
     {
      {"harmonic_oscillator",                             new module_wrapper<harmonic_oscillator>()},
      {"harmonic_energy",                                 new module_wrapper<harmonic_energy>()},
@@ -155,7 +152,7 @@ const std::unordered_map<std::string, module_wrapper_base*> ModuleFactory::modul
      {"light_from_solar",                                new module_wrapper<light_from_solar>()}
     };
 
-std::vector<std::string> ModuleFactory::get_modules() {
+std::vector<std::string> module_wrapper_factory::get_modules() {
     std::vector<std::string> module_name_vector;
     for (auto const& x : modules) {
         module_name_vector.push_back(x.first);
