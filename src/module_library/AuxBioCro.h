@@ -16,6 +16,15 @@
 
 #define MAXLAY    200 /* Maximum number of layers */
 
+#ifndef M_PI
+#define M_PI           3.14159265358979323846
+#endif
+
+#ifndef M_E
+# define M_E            2.7182818284590452354
+#endif
+
+
 struct Light_profile {
 	double direct_irradiance[MAXLAY];
 	double diffuse_irradiance[MAXLAY];

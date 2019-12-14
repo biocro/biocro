@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "module_wrapper.h"
 #include "module_factory.h"
 
@@ -155,12 +156,10 @@ const std::unordered_map<std::string, module_wrapper_base*> ModuleFactory::modul
     };
 
 std::vector<std::string> ModuleFactory::get_modules() {
-    // Make a vector to store the results
     std::vector<std::string> module_name_vector;
-    
-    // Go through the module names in the modules list
-    for(auto x : modules) module_name_vector.push_back(x.first);
-
+    for (auto const& x : modules) {
+        module_name_vector.push_back(x.first);
+    }
 
     class Case_Insensitive_Compare {
     public:
@@ -173,15 +172,11 @@ std::vector<std::string> ModuleFactory::get_modules() {
             std::string bl = b;
             std::transform(bl.begin(), bl.end(), bl.begin(), [](unsigned char c){return std::tolower(c);});
     
-            // Compare the two lowercase strings
             int compare = al.compare(bl);
-    
-            // Return the result
             return (compare > 0) ? false : true;
         }
     };
 
-    // Sort the vector and return it
     std::sort(module_name_vector.begin(), module_name_vector.end());//, Case_Insensitive_Compare {});
 
     return module_name_vector;

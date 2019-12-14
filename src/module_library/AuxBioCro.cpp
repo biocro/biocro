@@ -21,14 +21,6 @@
 #include "c4photo.h"
 #include "BioCro.h"
 
-#ifndef M_PI
-#define M_PI           3.14159265358979323846
-#endif
-
-#ifndef M_E
-# define M_E            2.7182818284590452354
-#endif
-
 double poisson_density(int x, double lambda)
 {
     // The probability density for the Poisson distribution is 
