@@ -1,6 +1,5 @@
 #include <iostream>
 #include "module_factory.h"
-#include "module_wrapper.h"
 #include "module_library/c3_canopy.hpp"
 
 using namespace std;
@@ -16,7 +15,7 @@ int main() {
         cout << s << endl;
     }
 
-    module_wrapper_base*  w = ModuleFactory::create("c3_canopy");
+    unique_ptr<module_wrapper_base> w(ModuleFactory::create("c3_canopy"));
     auto inputs = w->get_inputs();
 
     cout << "\nInputs: \n" << endl;
@@ -37,9 +36,8 @@ int main() {
         output.insert({s, 1});
     }
 
-    auto m = dynamic_cast<c3_canopy*>((w->createModule(input, output)).get());
-
-    inputs = m->get_inputs();
+    auto m = w->createModule(input, output);
+    inputs = dynamic_cast<c3_canopy*>(m.get())->get_inputs();
 
     cout << "\nInputs Again!!!: \n" << endl;
 
