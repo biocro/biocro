@@ -4,12 +4,13 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 #include "module_wrapper.h"
 
 class ModuleFactory {
     // This is a factory class that creates module wrapper objects.
     public:
-        static module_wrapper_base* create(std::string const &module_name);
+        static std::unique_ptr<module_wrapper_base> create(std::string const &module_name);
         std::string get_description(std::string const &module_name) const;
         static std::vector<std::string> get_modules();
     private:
