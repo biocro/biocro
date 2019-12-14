@@ -73,9 +73,9 @@
 #include "module_library/phase_clock.hpp"
 
 
-module_wrapper_base* ModuleFactory::create(std::string const &module_name) {
+std::unique_ptr<module_wrapper_base> ModuleFactory::create(std::string const &module_name) {
     try {
-        return modules.at(module_name);
+        return std::unique_ptr<module_wrapper_base>(modules.at(module_name));
     } catch (std::out_of_range const &oor) {
         throw std::out_of_range(std::string("\"") + module_name + std::string("\"") + std::string(" was given as a module name, but no module with that name could be found.\n"));
     }
