@@ -9,10 +9,11 @@
 #include <stdio.h>      // For vprintf
 #include <stdarg.h>     // For va_list
 #include "modules.h"
+#include "module_library/ModuleFactory.h"
 
 // Functions for collecting info and reporting errors when constructing a System
 //  or another object that requires a list of modules
-/*
+
 void get_variables_from_ss_modules(
     std::vector<std::string> const& steady_state_module_names,
     ModuleFactory const& module_factory,
@@ -29,9 +30,9 @@ void get_variables_from_derivative_modules(
     std::set<std::string>& unique_module_outputs,
     std::vector<std::string>& duplicate_module_names
 );
-*/
+
 void void_printf (char const *format, ...);
-/*
+
 void create_modules_from_names(
     std::vector<std::string> const& module_names,
     bool is_deriv,
@@ -57,6 +58,7 @@ void create_modules_from_names(
     void (*print_msg) (char const *format, ...) = void_printf
 );
 
+
 void process_errors(
     std::vector<std::string> const& error_list,
     std::string error_msg,
@@ -69,5 +71,5 @@ void report_errors(
     std::string& total_error_string,
     bool verbose
 );
-*/
+
 #endif

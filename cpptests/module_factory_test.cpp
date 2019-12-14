@@ -1,5 +1,5 @@
 #include <iostream>
-#include "module_factory.h"
+#include "module_wrapper_factory.h"
 #include "module_library/c3_canopy.hpp"
 
 using namespace std;
@@ -7,7 +7,7 @@ using namespace std;
 int main() {
 
 
-    auto list = ModuleFactory::get_modules();
+    auto list = module_wrapper_factory::get_modules();
 
     cout << "\nAvailable modules: \n" << endl;
     
@@ -15,7 +15,7 @@ int main() {
         cout << s << endl;
     }
 
-    unique_ptr<module_wrapper_base> w(ModuleFactory::create("c3_canopy"));
+    unique_ptr<module_wrapper_base> w(module_wrapper_factory::create("c3_canopy"));
     auto inputs = w->get_inputs();
 
     cout << "\nInputs: \n" << endl;

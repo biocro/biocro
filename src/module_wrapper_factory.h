@@ -1,5 +1,5 @@
-#ifndef MODULE_FACTORY_H
-#define MODULE_FACTORY_H
+#ifndef MODULE_WRAPPER_FACTORY_H
+#define MODULE_WRAPPER_FACTORY_H
 
 #include <string>
 #include <unordered_map>
@@ -7,7 +7,7 @@
 #include <memory>
 #include "module_wrapper.h"
 
-class ModuleFactory {
+class module_wrapper_factory {
     // This is a factory class that creates module wrapper objects.
     public:
         static std::unique_ptr<module_wrapper_base> create(std::string const &module_name);

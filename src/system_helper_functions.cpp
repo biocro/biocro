@@ -1,7 +1,7 @@
 #include "system_helper_functions.h"
 #include "state_map.h"
 
-/*
+
 void get_variables_from_ss_modules(
     std::vector<std::string> const& steady_state_module_names,
     ModuleFactory const& module_factory,
@@ -55,7 +55,7 @@ void get_variables_from_derivative_modules(
         else duplicate_module_names.push_back(std::string("Derivative module '") + module_name);
     }
 }
-*/
+
 // This is a simple wrapper for vprintf that returns void instead of an int
 // The purpose of this function is to create a printing function
 //  having the same output and syntax as Rprintf
@@ -65,7 +65,7 @@ void void_printf(char const* format, ...) {
     vprintf (format, args);     // Pass the arguments to vprintf, which is just like printf except it doesn't use variadic inputs
     va_end (args);              // Cleanup the input argument list
 }
-/*
+
 void create_modules_from_names(
     std::vector<std::string> const& module_names,
     bool is_deriv,
@@ -188,5 +188,5 @@ void report_errors(
     }
 }
 
-*/
+
 
