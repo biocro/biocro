@@ -77,7 +77,7 @@ class System {
         std::unordered_map<std::string, std::vector<double>> varying_parameters;
         const std::vector<std::string> steady_state_module_names;
         const std::vector<std::string> derivative_module_names;
-        bool verbose;
+        bool verbose = false;
         void (*print_msg) (char const *format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
 
         // Functions for checking and processing inputs when constructing a system
@@ -256,7 +256,7 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
     
     // Initialize the parameter names
     std::vector<double> temp(x_vec.size());
-    for (std::string p : output_param_vector) results[p] = temp;
+    for (std::string const & p : output_param_vector) results[p] = temp;
     
     std::fill(temp.begin(), temp.end(), ncalls);
     results["ncalls"] = temp;
@@ -278,21 +278,29 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
 
 template<class vector_type>
 void System::update_state_params(const vector_type& new_state) {
-    for(size_t i = 0; i < new_state.size(); i++) *(state_ptrs[i].first) = new_state[i];
+    for(size_t i = 0; i < new_state.size(); i++) {
+        *(state_ptrs[i].first) = new_state[i];
+    }
 }
 
 template<class vector_type>
 void System::run_derivative_modules(vector_type& dxdt) {
-    for(auto x : state_ptrs) *x.second = 0.0;                                                               // Reset the module output map
+    for(auto const & x : state_ptrs) {
+        *x.second = 0.0;                                                               // Reset the module output map
+    }
     std::fill(dxdt.begin(), dxdt.end(), 0);                                                                 // Reset the derivative vector
-    for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) (*it)->run();           // Run the modules
-    for(size_t i = 0; i < dxdt.size(); i++) dxdt[i] += *(state_ptrs[i].second)*(*timestep_ptr);             // Store the output in the derivative vector
+    for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+        (*it)->run();           // Run the modules
+    }
+    for(size_t i = 0; i < dxdt.size(); i++) {
+        dxdt[i] += *(state_ptrs[i].second)*(*timestep_ptr);             // Store the output in the derivative vector
+    }
 }
 
 template<class vector_type>
 void System::test_derivative_modules(vector_type& dxdt) {
     // Identical to run_derivative_modules except for a try-catch block
-    for(auto x : state_ptrs) *x.second = 0.0;
+    for(auto const & x : state_ptrs) *x.second = 0.0;
     std::fill(dxdt.begin(), dxdt.end(), 0);
     for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
         try {(*it)->run();}

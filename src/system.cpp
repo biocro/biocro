@@ -42,7 +42,7 @@ System::System(
         // into one vector.
 
         std::vector<std::string> steady_state_output_names;
-        for (auto & m : steady_state_module_names) {
+        for (auto const & m : steady_state_module_names) {
             auto w = module_wrapper_factory::create(m);
             auto names = w->get_outputs();
             steady_state_output_names.insert(steady_state_output_names.begin(), names.begin(), names.end());
@@ -58,7 +58,7 @@ System::System(
         // Insert the names into a set, and check the size for correctness.
         std::set<std::string> quantity_names;
         size_t size_inserted = 0;
-        for (auto & v : quantity_name_vectors) {
+        for (auto const & v : quantity_name_vectors) {
             quantity_names.insert(v.begin(), v.end());
             size_inserted += v.size();
         }
@@ -75,8 +75,8 @@ System::System(
         std::vector<std::vector<std::string>> all_module_names_vector { steady_state_module_names, derivative_module_names };
         std::set<std::string> required_quantity_names;
         
-        for (auto & v : all_module_names_vector) {
-            for (auto & m : v) {
+        for (auto const & v : all_module_names_vector) {
+            for (auto const & m : v) {
                 auto w = module_wrapper_factory::create(m);
                 auto names = w->get_inputs();
                 required_quantity_names.insert(names.begin(), names.end());
@@ -94,7 +94,7 @@ System::System(
 
         // Criterion 3
         std::set<std::string> derivative_quantity_names;
-        for (auto & m : deriv_module_names) {
+        for (auto const & m : deriv_module_names) {
             auto w = module_wrapper_factory::create(m);
             auto names = w->get_outputs();
             derivative_quantity_names.insert(names.begin(), names.end());
@@ -128,7 +128,7 @@ System::System(
 
 
 
-        for (auto & m : steady_state_module_names) {
+        for (auto const & m : steady_state_module_names) {
             auto w = module_wrapper_factory::create(m);
             auto required_names = w->get_inputs();
             if (!all_are_in_list(required_names, defined)) {
@@ -143,27 +143,27 @@ System::System(
         std::vector<std::unordered_map<std::string, double>> quantities_vector
             { initial_state, invariant_params, at(varying_params, 0) };
 
-        for (auto & v : quantities_vector) {
+        for (auto const & v : quantities_vector) {
             this->quantities.insert(v.begin(), v.end());
         }
 
-        for (auto & m : steady_state_module_names) {
+        for (auto const & m : steady_state_module_names) {
             auto w = module_wrapper_factory::create(m);
             auto names = w->get_outputs();
-                for (auto & n : names) {
+                for (auto const & n : names) {
                     this->quantities[n] = 0;
                 }
         }
 
         module_output_map = quantities;
 
-        for (auto & m : steady_state_module_names) {
+        for (auto const & m : steady_state_module_names) {
             auto w = module_wrapper_factory::create(m);
             steady_state_modules.push_back(w->createModule(&quantities, &module_output_map));
             if (!steady_state_modules.back()->is_adaptive_compatible()) this->adaptive_compatible = false;
         }
 
-        for (auto & m : derivative_module_names) {
+        for (auto const & m : derivative_module_names) {
             auto w = module_wrapper_factory::create(m);
             derivative_modules.push_back(w->createModule(&quantities, &module_output_map));
             if (!derivative_modules.back()->is_adaptive_compatible()) this->adaptive_compatible = false;
@@ -191,7 +191,7 @@ System::System(
         
         // Get information that we will need when running a simulation and returning the results
         std::set<std::string> changing_quantities;
-        for (auto & names : std::vector<std::vector<std::string>> {istate_names, vp_names, steady_state_output_names }) {
+        for (auto const & names : std::vector<std::vector<std::string>> {istate_names, vp_names, steady_state_output_names }) {
             changing_quantities.insert(names.begin(), names.end());
 
         }
@@ -419,7 +419,7 @@ void System::get_variables_from_input_lists(
 {
     // Go through the varying parameters
     if(verbose) print_msg("\nGetting variable names from the varying parameters:\n");
-    for(auto x : varying_parameters) {
+    for(auto const & x : varying_parameters) {
         if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
             unique_variable_names.insert(x.first);
             unique_changing_parameters.insert(x.first);
@@ -431,7 +431,7 @@ void System::get_variables_from_input_lists(
     
     // Go through the initial state
     if(verbose) print_msg("\nGetting variable names from the initial state:\n");
-    for(auto x : initial_state) {
+    for(auto const & x : initial_state) {
         if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
             unique_variable_names.insert(x.first);
             unique_changing_parameters.insert(x.first);
@@ -443,7 +443,7 @@ void System::get_variables_from_input_lists(
     
     // Go through the invariant parameters
     if(verbose) print_msg("\nGetting variable names from the invariant parameters:\n");
-    for(auto x : invariant_parameters) {
+    for(auto const & x : invariant_parameters) {
         if(unique_variable_names.find(x.first) == unique_variable_names.end()) {
             unique_variable_names.insert(x.first);
             quantities[x.first] = x.second;
@@ -482,12 +482,12 @@ void System::get_variables_from_modules(
     
     // Check for any steady state module outputs that were already defined by the initial state,
     //  invariant parameters, or varying parameters
-    for(std::string p : unique_ss_outputs) {
+    for(std::string const & p : unique_ss_outputs) {
         if(unique_variable_names.find(p) != unique_variable_names.end()) duplicate_output_variables.push_back(std::string("Variable '") + p + std::string("'"));
     }
     
     // Update the variable lists to include the steady state module output variables
-    for(std::string p : unique_ss_outputs) {
+    for(std::string const & p : unique_ss_outputs) {
         unique_variable_names.insert(p);
         unique_steady_state_parameter_names.insert(p);
         unique_changing_parameters.insert(p);
@@ -507,12 +507,12 @@ void System::get_variables_from_modules(
     if(verbose) print_msg("done!\n\n");
     
     // Check for any illegal derivative output variables
-    for(std::string p : unique_derivative_outputs) {
+    for(std::string const & p : unique_derivative_outputs) {
         if(initial_state.find(p) == initial_state.end()) illegal_output_variables.push_back(std::string("Variable '") + p + std::string("'"));
     }
     
     // Check for any undefined input variables
-    for(std::string p : unique_module_inputs) {
+    for(std::string const & p : unique_module_inputs) {
         if(unique_variable_names.find(p) == unique_variable_names.end()) undefined_input_variables.push_back(std::string("Variable '") + p + std::string("'"));
     }
 }
@@ -524,7 +524,7 @@ void System::check_variable_usage(
     // Check for state variables that lack derivatives
     if(unique_derivative_outputs.size() != initial_state.size()) {
         print_msg("No derivatives were supplied for the following state variables:\n");
-        for(auto x : initial_state) {
+        for(auto const & x : initial_state) {
             if(unique_derivative_outputs.find(x.first) == unique_derivative_outputs.end()) print_msg("  %s\n", (x.first).c_str());
         }
         print_msg("These variables will not change with time.\n");
@@ -534,7 +534,7 @@ void System::check_variable_usage(
     
     // Check for unused invariant parameters
     bool found_unused_invariant_parameter = false;
-    for(auto x : invariant_parameters) {
+    for(auto const & x : invariant_parameters) {
         if(unique_module_inputs.find(x.first) == unique_module_inputs.end()) {
             if(found_unused_invariant_parameter == false) {
                 print_msg("The following invariant parameters were not used as inputs to any module:\n  %s\n", (x.first).c_str());
@@ -548,7 +548,7 @@ void System::check_variable_usage(
     
     // Let the user know which parameters were used by at least one module
     print_msg("The following parameters were used as inputs to at least one module:\n");
-    for(std::string p : unique_module_inputs) print_msg("  %s\n", p.c_str());
+    for(std::string const & p : unique_module_inputs) print_msg("  %s\n", p.c_str());
     print_msg("\n");
 }
 
@@ -598,7 +598,7 @@ void System::create_modules(module_wrapper_factory& module_factory, std::vector<
         adaptive_compatible = false;
         if(verbose) {
             print_msg("The following modules are incompatible with adaptive step size integrators, so this system can only be solved with the fixed step size Euler method:\n");
-            for(std::string s : adaptive_step_size_incompat) print_msg("%s\n", s.c_str());
+            for(std::string const & s : adaptive_step_size_incompat) print_msg("%s\n", s.c_str());
             print_msg("\n");
         }
     }
@@ -614,19 +614,19 @@ void System::get_pointer_pairs(name_list const& unique_steady_state_parameter_na
     timestep_ptr = &quantities.at("timestep");
     
     // Get pointers to the state variables in the parameter and module output maps
-    for(auto x : initial_state) {
+    for(auto const & x : initial_state) {
         std::pair<double*, double*> temp(&quantities.at(x.first), &module_output_map.at(x.first));
         state_ptrs.push_back(temp);
     }
     
     // Get pointers to the steady state parameters in the parameter and module output maps
-    for(std::string p : unique_steady_state_parameter_names) {
+    for(std::string const & p : unique_steady_state_parameter_names) {
         std::pair<double*, double*> temp(&quantities.at(p), &module_output_map.at(p));
         steady_state_ptrs.push_back(temp);
     }
     
     // Get pointers to the varying parameters in the parameter and varying parameter maps
-    for(auto x : varying_parameters) {
+    for(auto const & x : varying_parameters) {
         std::pair<double*, std::vector<double>*> temp(&quantities.at(x.first), &varying_parameters.at(x.first));
         varying_ptrs.push_back(temp);
     }
@@ -652,7 +652,7 @@ void System::get_simulation_info(std::set<std::string> const& unique_changing_pa
     ntimes = (varying_parameters.at("doy_dbl")).size();
     
     // Get the names of the state variables
-    for(auto x : initial_state) state_parameter_names.push_back(x.first);
+    for(auto const & x : initial_state) state_parameter_names.push_back(x.first);
     
     // Create a vector of the names of variables that change throughout a simulation
     output_param_vector.resize(unique_changing_parameters.size());
@@ -677,13 +677,13 @@ void System::reset() {
     // Put all parameters back to their original values
     int t = 0;
     update_varying_params(t);
-    for(auto x : initial_state) quantities[x.first] = x.second;
+    for(auto const & x : initial_state) quantities[x.first] = x.second;
     run_steady_state_modules();
 }
 
 // For integer time
 void System::update_varying_params(int time_indx) {
-    for(auto x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];
+    for(auto const & x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];
 }
 
 // For double time
@@ -692,25 +692,31 @@ void System::update_varying_params(double time_indx) {
     int t1 = (int)(time_indx + 0.5);
     int t2 = (t1 > time_indx) ? (t1 - 1) : (t1 + 1);
     // Make a linear interpolation
-    for(auto x : varying_ptrs) *(x.first) = (*(x.second))[t1] + (time_indx - t1) * ((*(x.second))[t2] - (*(x.second))[t1]) / (t2 - t1);
+    for (auto const & x : varying_ptrs) {
+        *(x.first) = (*(x.second))[t1] + (time_indx - t1) * ((*(x.second))[t2] - (*(x.second))[t1]) / (t2 - t1);
+    }
 }
 
 void System::run_steady_state_modules() {
-    for(auto x : steady_state_ptrs) *x.second = 0.0;                                                        // Clear the module output map
-    for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
+    for (auto const & x : steady_state_ptrs) {
+        *x.second = 0.0;                                                        // Clear the module output map
+    }
+    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         (*it)->run();                                                                                       // Run the module
-        for(auto x : steady_state_ptrs) *x.first = *x.second;                                               // Store its output in the main parameter map
+        for(auto const & x : steady_state_ptrs) {
+            *x.first = *x.second;                                               // Store its output in the main parameter map
+        }
     }
 }
 
 void System::test_steady_state_modules() {
     // Identical to run_steady_state_modules except for a try-catch block
-    for(auto x : steady_state_ptrs) *x.second = 0.0;
+    for(auto const & x : steady_state_ptrs) *x.second = 0.0;
     for(auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         try {(*it)->run();}
         catch (const std::exception& e) {
             throw std::logic_error(std::string("Steady state module '") + (*it)->get_name() + std::string("' generated an exception while calculating steady state parameters: ") + e.what() + std::string("\n"));
         }
-        for(auto x : steady_state_ptrs) *x.first = *x.second;
+        for(auto const & x : steady_state_ptrs) *x.first = *x.second;
     }
 }
