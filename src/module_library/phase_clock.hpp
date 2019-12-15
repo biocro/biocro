@@ -1,6 +1,8 @@
 #ifndef PHASE_CLOCK_H
 #define PHASE_CLOCK_H
 
+#include <cmath>
+#include "../constants.h"
 #include "../modules.h"
 
 class phase_clock : public DerivModule {
@@ -58,12 +60,14 @@ void phase_clock::do_operation() const {
     //////////////////////////////////////////
     // Collect inputs and make calculations //
     //////////////////////////////////////////
+
+    using math_constants::pi;
     
     // Get the current phase value
     const double phi = *phi_ip;
     
     // Bring phi back to the [0, 2*pi) range
-    const double phi_mod = phi - 2.0 * M_PI * floor(phi / (2.0 * M_PI));
+    const double phi_mod = phi - 2.0 * pi * floor(phi / (2.0 * pi));
     
     // Get the current light value
     const double light = *light_ip;
@@ -75,21 +79,25 @@ void phase_clock::do_operation() const {
     const double s = *clock_r_scale_ip;
     
     // Determine a, b, alpha, and beta for the response function
-    const double a = M_PI * (1.0 - d + delta);
-    const double b = M_PI * (1.0 - d - delta);;
+    const double a = pi * (1.0 - d + delta);
+    const double b = pi * (1.0 - d - delta);;
     const double alpha = s * (1.0 + 0.5 * epsilon);
     const double beta = s * (1.0 - 0.5 * epsilon);
     
     // Calculate the response
-    double R;
-    if(0.0 <= phi_mod && phi_mod < a) R = -6.0 * alpha * phi_mod * (phi_mod - a) / (a * a * a);
-    else if(phi_mod < 2.0 * M_PI - b) R = 0.0;
-    else if(phi_mod < 2.0 * M_PI) R = 6.0 * beta * (phi_mod - 2.0 * M_PI) * (phi_mod - 2.0 * M_PI + b) / (b * b * b);
-    else throw std::logic_error(std::string("Thrown by phase_clock: something is wrong with phi_mod!\n"));
+    const double R =
+        (0.0 <= phi_mod && phi_mod < a) ? -6.0 * alpha * phi_mod * (phi_mod - a)
+                                               / (a * a * a)
+      : (phi_mod < 2.0 * pi - b)        ?  0.0
+      : (phi_mod < 2.0 * pi)            ?  6.0 * beta * (phi_mod - 2.0 * pi)
+                                               * (phi_mod - 2.0 * pi + b)
+                                               / (b * b * b)
+      :
+        throw std::logic_error(std::string("Thrown by phase_clock: something is wrong with phi_mod!\n"));
     
     // Get the intrinsic clock period
-    const double natural_period = *clock_period_ip;             // Natural period in hours
-    const double natural_freq = 2.0 * M_PI / natural_period;    // Corresponding angular frequency in radians per hour
+    const double natural_period = *clock_period_ip;           // Natural period in hours
+    const double natural_freq = 2.0 * pi / natural_period;    // Corresponding angular frequency in radians per hour
     
     //////////////////////////////////////
     // Update the output parameter list //

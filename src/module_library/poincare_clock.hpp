@@ -1,6 +1,8 @@
 #ifndef POINCARE_CLOCK_H
 #define POINCARE_CLOCK_H
 
+#include <cmath>
+#include "../constants.h"
 #include "../modules.h"
 
 class poincare_clock : public DerivModule {
@@ -85,6 +87,8 @@ void poincare_clock::do_operation() const {
     //////////////////////////////////////////
     // Collect inputs and make calculations //
     //////////////////////////////////////////
+
+    using math_constants::pi;
     
     // Get the current values of the dawn and dusk kicks
     double dawn_kick = *dawn_kick_ip;
@@ -103,8 +107,8 @@ void poincare_clock::do_operation() const {
     double ref_a = *ref_a_ip;
     
     // Define the constants for the tracking oscillators
-    const double natural_period = *clock_period_ip;             // Natural period in hours
-    const double natural_freq = 2.0 * M_PI / natural_period;    // Corresponding angular frequency in radians per hour
+    const double natural_period = *clock_period_ip;           // Natural period in hours
+    const double natural_freq = 2.0 * pi / natural_period;    // Corresponding angular frequency in radians per hour
     const double gamma = *clock_gamma_ip;
     const double r_0 = *clock_r0_ip;
     
