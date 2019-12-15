@@ -13,7 +13,6 @@ useDynLib(BioCro,
 		  R_test_standalone_ss,
 		  R_test_system,
 		  R_get_all_modules,
-		  R_get_all_param,
           R_sunML,
           collatz_photoC)
 
@@ -40,8 +39,6 @@ export(test_standalone_ss)
 export(test_system)
 
 export(get_all_modules)
-
-export(get_all_param)
 
 exportPattern("Parms$")
 

@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <set>
 #include "modules.h"
-#include "module_library/ModuleFactory.h"
+#include "module_wrapper_factory.h"
 #include "system_helper_functions.h"
 
 class Standalone_SS {
@@ -33,15 +33,16 @@ private:
         void process_module_inputs();
         void basic_input_checks();
         void get_variables_from_modules(
-            ModuleFactory& module_factory,
+            module_wrapper_factory & module_factory,
             std::vector<std::string>& duplicate_output_variables,
             std::vector<std::string>& duplicate_module_names
         );
         void report_variable_usage();
         void create_modules(
-            ModuleFactory& module_factory,
-            std::vector<std::string>& incorrect_modules
-        );
+            module_wrapper_factory & module_factory,
+            std::vector<std::string>& incorrect_modules,
+            std::unordered_map<std::string, double>* quantities,
+            std::unordered_map<std::string, double>* module_output_map);
         void get_pointer_pairs(
             std::unordered_map<std::string, const double*> const& input_var_ptrs,
             std::unordered_map<std::string, double*> const& output_var_ptrs

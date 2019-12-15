@@ -8,7 +8,7 @@
 #include <cmath>        // For fmod
 #include <time.h>       // For timing during performance testing
 #include "modules.h"
-#include "module_library/ModuleFactory.h"
+#include "module_wrapper_factory.h"
 #include "system_helper_functions.h"
 
 class System {
@@ -91,7 +91,7 @@ class System {
             std::vector<std::string>& duplicate_parameter_names
         );
         void get_variables_from_modules(
-            ModuleFactory& module_factory,
+            module_wrapper_factory& module_factory,
             std::set<std::string>& unique_steady_state_parameter_names,
             std::set<std::string>& unique_derivative_outputs,
             std::set<std::string>& unique_variable_names,
@@ -107,7 +107,7 @@ class System {
             std::set<std::string> const& unique_module_inputs
         ) const;
         void create_modules(
-            ModuleFactory& module_factory,
+            module_wrapper_factory& module_factory,
             std::vector<std::string>& incorrect_modules
         );
         template<typename name_list>

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "system.h"
 #include "state_map.h"
 
@@ -37,13 +38,13 @@ System::System(
         // defined by checking whether the size of the set is the smaller
         // than the combined sizes of the vectors.
 
-        ModuleFactory module_factory;
         // Put all of the names, including ones calculated by `steady_state_module_names`,
         // into one vector.
 
         std::vector<std::string> steady_state_output_names;
         for (auto & m : steady_state_module_names) {
-            auto names = module_factory.get_outputs(m);
+            auto w = module_wrapper_factory::create(m);
+            auto names = w->get_outputs();
             steady_state_output_names.insert(steady_state_output_names.begin(), names.begin(), names.end());
         }
 
@@ -73,9 +74,11 @@ System::System(
         // are fine, but use a set to remove them since we don't need to check twice.
         std::vector<std::vector<std::string>> all_module_names_vector { steady_state_module_names, derivative_module_names };
         std::set<std::string> required_quantity_names;
+        
         for (auto & v : all_module_names_vector) {
             for (auto & m : v) {
-                auto names = module_factory.get_inputs(m);
+                auto w = module_wrapper_factory::create(m);
+                auto names = w->get_inputs();
                 required_quantity_names.insert(names.begin(), names.end());
             }
         }
@@ -92,7 +95,8 @@ System::System(
         // Criterion 3
         std::set<std::string> derivative_quantity_names;
         for (auto & m : deriv_module_names) {
-            auto names = module_factory.get_outputs(m);
+            auto w = module_wrapper_factory::create(m);
+            auto names = w->get_outputs();
             derivative_quantity_names.insert(names.begin(), names.end());
         }
 
@@ -125,11 +129,12 @@ System::System(
 
 
         for (auto & m : steady_state_module_names) {
-            auto required_names = module_factory.get_inputs(m);
+            auto w = module_wrapper_factory::create(m);
+            auto required_names = w->get_inputs();
             if (!all_are_in_list(required_names, defined)) {
                 throw std::logic_error(std::string("The modules are given in the wrong order. The following module is before a module that provides its input:" + m + "\n"));
             }
-            auto newly_defined = module_factory.get_outputs(m);
+            auto newly_defined = w->get_outputs();
             defined.insert(defined.end(), newly_defined.begin(), newly_defined.end());
         }
 
@@ -143,7 +148,8 @@ System::System(
         }
 
         for (auto & m : steady_state_module_names) {
-            auto names = module_factory.get_outputs(m);
+            auto w = module_wrapper_factory::create(m);
+            auto names = w->get_outputs();
                 for (auto & n : names) {
                     this->quantities[n] = 0;
                 }
@@ -151,14 +157,15 @@ System::System(
 
         module_output_map = quantities;
 
-        ModuleFactory complete_factory(&quantities, &module_output_map);
         for (auto & m : steady_state_module_names) {
-            steady_state_modules.push_back(complete_factory.create(m));
+            auto w = module_wrapper_factory::create(m);
+            steady_state_modules.push_back(w->createModule(&quantities, &module_output_map));
             if (!steady_state_modules.back()->is_adaptive_compatible()) this->adaptive_compatible = false;
         }
 
         for (auto & m : derivative_module_names) {
-            derivative_modules.push_back(complete_factory.create(m));
+            auto w = module_wrapper_factory::create(m);
+            derivative_modules.push_back(w->createModule(&quantities, &module_output_map));
             if (!derivative_modules.back()->is_adaptive_compatible()) this->adaptive_compatible = false;
         }
 
@@ -313,7 +320,7 @@ void System::process_variable_and_module_inputs(std::set<std::string>& unique_st
     // Note: the inputs to the module factory have not been fully initialized yet. We can
     //  get the module input/output variables right now, but any attempt to create a module
     //  will fail
-    ModuleFactory module_factory(&quantities, &module_output_map);
+    module_wrapper_factory module_factory;
     
     // Continue collecting variable names from the modules
     // Along the way, check for any duplicated variable or module
@@ -447,7 +454,7 @@ void System::get_variables_from_input_lists(
 }
 
 void System::get_variables_from_modules(
-    ModuleFactory& module_factory,
+    module_wrapper_factory& module_factory,
     std::set<std::string>& unique_steady_state_parameter_names,
     std::set<std::string>& unique_derivative_outputs,
     std::set<std::string>& unique_variable_names,
@@ -545,7 +552,7 @@ void System::check_variable_usage(
     print_msg("\n");
 }
 
-void System::create_modules(ModuleFactory& module_factory, std::vector<std::string>& incorrect_modules) {
+void System::create_modules(module_wrapper_factory& module_factory, std::vector<std::string>& incorrect_modules) {
     // Make a vector to store the names of modules that are incompatible with adaptive step size integrators
     std::vector<std::string> adaptive_step_size_incompat;
     
@@ -560,6 +567,8 @@ void System::create_modules(ModuleFactory& module_factory, std::vector<std::stri
         this->invariant_parameters,
         this->varying_parameters,
         module_factory,
+        &quantities,
+        &module_output_map,
         incorrect_modules,
         adaptive_step_size_incompat,
         verbose,
@@ -575,6 +584,8 @@ void System::create_modules(ModuleFactory& module_factory, std::vector<std::stri
         true,
         derivative_modules,
         module_factory,
+        &quantities,
+        &module_output_map,
         incorrect_modules,
         adaptive_step_size_incompat,
         verbose,

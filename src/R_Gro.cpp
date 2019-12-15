@@ -5,7 +5,7 @@
 #include "module_library/BioCro.h"
 #include "modules.h"
 #include "Gro.h"
-#include "module_library/ModuleFactory.h"
+#include "module_wrapper_factory.h"
 #include "R_helper_functions.h"
 #include "standalone_ss.h"
 #include "SystemSolverFactory.hpp"
@@ -251,25 +251,26 @@ SEXP R_get_module_info(SEXP module_name_input)
 		// Make a module factory
 		std::unordered_map<std::string, double> parameters;
 		std::unordered_map<std::string, double> module_output_map;
-		ModuleFactory module_factory(&parameters, &module_output_map);
+		module_wrapper_factory module_factory;
 		
 		// Get the module's description
-		std::string description = module_factory.get_description(module_name);
+                auto w = module_factory.create(module_name);
+		std::string description = w->get_description();
 		
 		// Get the module's inputs and add them to the parameter list with default
 		//  values
-		std::vector<std::string> module_inputs = module_factory.get_inputs(module_name);
+		std::vector<std::string> module_inputs = w->get_inputs();
 		for(std::string param : module_inputs) parameters[param] = 1.0;
 		std::unordered_map<std::string, double> input_map = parameters;
 		
 		// Get the module's outputs and add them to the parameter list with default
 		//  values
-		std::vector<std::string> module_outputs = module_factory.get_outputs(module_name);
+		std::vector<std::string> module_outputs = w->get_outputs();
 		for(std::string param : module_outputs) parameters[param] = 1.0;
 		
 		// Try to create an instance of the module
 		module_output_map = parameters;
-		std::unique_ptr<Module> module_ptr = module_factory.create(module_name);
+		std::unique_ptr<Module> module_ptr = w->createModule(&parameters, &module_output_map);
 		
 		// Check to see if the module is a derivative module
 		bool is_deriv = module_ptr->is_deriv();
@@ -355,24 +356,21 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 		// use it to initialize the parameter list
 		state_map parameters = map_from_list(input_parameters);
 		
-		// Make a module factory
 		std::unordered_map<std::string, double> module_output_map;
-		ModuleFactory module_factory(&parameters, &module_output_map);
+		module_wrapper_factory module_factory;
 		
 		// Get the module's outputs and add them to the output list with default
 		//  values of 0.0
-        // Note: since derivative modules add their output to the module_output_map,
-        //  the result only makes sense if each parameter is initialized to 0
-		std::vector<std::string> module_outputs = module_factory.get_outputs(module_name);
-		for(std::string param : module_outputs) module_output_map[param] = 0.0;
+                // Note: since derivative modules add their output to the module_output_map,
+                //  the result only makes sense if each parameter is initialized to 0
+                auto w = module_factory.create(module_name);
+		std::vector<std::string> module_outputs = w->get_outputs();
+		for (std::string param : module_outputs) module_output_map[param] = 0.0;
 		
-		// Create an instance of the module
-		std::unique_ptr<Module> module_ptr = module_factory.create(module_name);
+		std::unique_ptr<Module> module_ptr = w->createModule(&parameters, &module_output_map);
 		
-		// Run the module
 		module_ptr->run();
 		
-		// Return a map containing the module's parameter list
 		return list_from_map(module_output_map);
 	}
 	catch (std::exception const &e) {
@@ -395,16 +393,15 @@ SEXP R_test_standalone_ss(SEXP module_name_input, SEXP input_parameters, SEXP ve
 		// Get the verbosity
 		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 		
-		// Make a module factory
-		std::unordered_map<std::string, double> module_output_map;
-		ModuleFactory module_factory(&i_parameters, &module_output_map);
+		module_wrapper_factory module_factory;
 		
 		// Get all the outputs from the modules in the list, initializing
 		//  their values to -1000000.0, which should make it obvious if any are not
 		//  updated by the standalone_ss object
 		state_map o_parameters;
 		for(size_t i = 0; i < module_name_vector.size(); i++) {
-			std::vector<std::string> outputs = module_factory.get_outputs(module_name_vector[i]);
+                        auto w = module_factory.create(module_name_vector[i]);
+			std::vector<std::string> outputs = w->get_outputs();
 			for(std::string p : outputs) o_parameters[p] = -1000000.0;
 		}
 		
@@ -473,15 +470,10 @@ SEXP R_test_system(SEXP initial_state,
 SEXP R_get_all_modules()
 {
 	try {
-		// Make a module factory using some bogus inputs
-		std::unordered_map<std::string, double> parameters;
-		std::unordered_map<std::string, double> module_output_map;
-		ModuleFactory module_factory(&parameters, &module_output_map);
+		module_wrapper_factory module_factory;
 		
-		// Get the list of all modules from the module factory
 		std::vector<std::string> result = module_factory.get_modules();
 		
-		// Return it
 		return r_string_vector_from_vector(result);
 	}
 	catch (std::exception const &e) {
@@ -489,28 +481,6 @@ SEXP R_get_all_modules()
 	}
 	catch (...) {
 		Rf_error("Caught unhandled exception in R_get_all_modules.");
-	}
-}
-
-SEXP R_get_all_param()
-{
-	try {
-		// Make a module factory using some bogus inputs
-		std::unordered_map<std::string, double> parameters;
-		std::unordered_map<std::string, double> module_output_map;
-		ModuleFactory module_factory(&parameters, &module_output_map);
-		
-		// Get the list of all modules from the module factory
-		std::unordered_map<std::string, std::vector<std::string>> result = module_factory.get_all_param();
-		
-		// Return it
-		return list_from_map(result);
-	}
-	catch (std::exception const &e) {
-		Rf_error(string(string("Caught exception in R_get_all_param: ") + e.what()).c_str());
-	}
-	catch (...) {
-		Rf_error("Caught unhandled exception in R_get_all_param.");
 	}
 }
 

@@ -4,7 +4,7 @@
 
 void get_variables_from_ss_modules(
     std::vector<std::string> const& steady_state_module_names,
-    ModuleFactory const& module_factory,
+    module_wrapper_factory const& module_factory,
     std::set<std::string>& unique_module_inputs,
     std::set<std::string>& unique_module_outputs,
     std::vector<std::string>& duplicate_output_variables,
@@ -17,13 +17,14 @@ void get_variables_from_ss_modules(
             // Keep track of duplicate names since they will be treated as errors by the system constructor
             unique_steady_state_module_names.insert(module_name);
             // Check through the module's inputs, storing any that have not already appeared as inputs or outputs
-            for (std::string p : module_factory.get_inputs(module_name)) {
+            auto w = module_factory.create(module_name);
+            for (std::string p : w->get_inputs()) {
                 if (unique_module_inputs.find(p) == unique_module_inputs.end() && unique_module_outputs.find(p) == unique_module_outputs.end()) unique_module_inputs.insert(p);
             }
             // Check through the module's outputs, storing any that have not already appeared as outputs
             // Keep track of duplicates in the list of all output variables since they will be treated as errors
             //  by the system constructor
-            for (std::string p : module_factory.get_outputs(module_name)) {
+            for (std::string p : w->get_outputs()) {
                 if (unique_module_outputs.find(p) == unique_module_outputs.end()) unique_module_outputs.insert(p);
                 else duplicate_output_variables.push_back(std::string("Variable '") + p + std::string("' from the '") + module_name + std::string("' module"));
             }
@@ -34,7 +35,7 @@ void get_variables_from_ss_modules(
 
 void get_variables_from_derivative_modules(
     std::vector<std::string> const& derivative_module_names,
-    ModuleFactory const& module_factory,
+    module_wrapper_factory const& module_factory,
     std::set<std::string>& unique_module_inputs,
     std::set<std::string>& unique_module_outputs,
     std::vector<std::string>& duplicate_module_names)
@@ -45,12 +46,13 @@ void get_variables_from_derivative_modules(
             // Record the module's name
             // Keep track of duplicate names since they will be treated as errors by the system constructor
             unique_derivative_module_names.insert(module_name);
+            auto w = module_factory.create(module_name);
             // Check through the module's inputs
             // unique_module_inputs is a set, so it will only store unique values
-            for (std::string p : module_factory.get_inputs(module_name)) unique_module_inputs.insert(p);
+            for (std::string p : w->get_inputs()) unique_module_inputs.insert(p);
             // Check through the module's outputs
             // unique_module_outputs is a set, so it will only store unique values
-            for (std::string p : module_factory.get_outputs(module_name)) unique_module_outputs.insert(p);
+            for (std::string p : w->get_outputs()) unique_module_outputs.insert(p);
         }
         else duplicate_module_names.push_back(std::string("Derivative module '") + module_name);
     }
@@ -70,7 +72,9 @@ void create_modules_from_names(
     std::vector<std::string> const& module_names,
     bool is_deriv,
     std::vector<std::unique_ptr<Module>>& module_list,
-    ModuleFactory const& module_factory,
+    module_wrapper_factory const& module_factory,
+    std::unordered_map<std::string, double>* quantities,
+    std::unordered_map<std::string, double>* module_output_map,
     std::vector<std::string>& incorrect_modules,
     std::vector<std::string>& adaptive_step_size_incompat,
     bool verbose,
@@ -81,10 +85,11 @@ void create_modules_from_names(
     std::string error_msg;
     if (is_deriv) error_msg = std::string("' was included in the list of derivative modules, but it does not return a derivative");
     else error_msg = std::string("' was included in the list of steady state modules, but it returns a derivative");
-    
+
     // Create each module and make sure it's correctly classified
     for(std::string module_name : module_names) {
-        module_list.push_back(module_factory.create(module_name));
+        auto w = module_factory.create(module_name);
+        module_list.push_back(w->createModule(quantities, module_output_map));
         if (verbose) print_msg("\n  %s", module_list.back()->get_name().c_str());
         if (module_list.back()->is_deriv() != is_deriv) incorrect_modules.push_back(std::string("'") + module_name + error_msg);
         if (!module_list.back()->is_adaptive_compatible()) adaptive_step_size_incompat.push_back(module_name);
@@ -98,7 +103,9 @@ void create_modules_from_names(
     std::unordered_map<std::string, double> initial_state,
     std::unordered_map<std::string, double> invariant_parameters,
     std::unordered_map<std::string, std::vector<double>> varying_parameters,
-    ModuleFactory const& module_factory,
+    module_wrapper_factory const& module_factory,
+    std::unordered_map<std::string, double>* quantities,
+    std::unordered_map<std::string, double>* module_output_map,
     std::vector<std::string>& incorrect_modules,
     std::vector<std::string>& adaptive_step_size_incompat,
     bool verbose,
@@ -120,12 +127,13 @@ void create_modules_from_names(
     defined.insert(defined.end(), temp.begin(), temp.end()); 
 
     for(std::string module_name : module_names) {
-        module_list.push_back(module_factory.create(module_name));
-        auto required = module_factory.get_inputs(module_name);
+        auto w = module_factory.create(module_name);
+        module_list.push_back(w->createModule(quantities, module_output_map));
+        auto required = w->get_inputs();
         if (!all_are_in_list(required, defined)) {
             throw std::logic_error(std::string("The modules are given in the wrong order. The following module is before a module that provides its input:" + module_name + "\n"));
         }
-        auto newly_defined = module_factory.get_outputs(module_name);
+        auto newly_defined = w->get_outputs();
         defined.insert(defined.end(), newly_defined.begin(), newly_defined.end());
 
         if (verbose) print_msg("\n  %s", module_list.back()->get_name().c_str());

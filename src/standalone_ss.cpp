@@ -48,7 +48,7 @@ void Standalone_SS::process_module_inputs() {
     // Note: the inputs to the module factory have not been fully initialized yet. We can
     //  get the module input/output variables right now, but any attempt to create a module
     //  will fail
-    ModuleFactory module_factory(&variables, &module_output_map);
+    module_wrapper_factory module_factory;
     
     // Collect variable names from the modules
     // Along the way, check for any duplicated variable or module
@@ -71,7 +71,7 @@ void Standalone_SS::process_module_inputs() {
     report_errors(error_string, verbose);
     
     // Now that we have a complete list of variables, we can use the module factory to create the modules
-    create_modules(module_factory, incorrect_modules);
+    create_modules(module_factory, incorrect_modules, &variables, &module_output_map);
     
     // Collect information about any errors that may have occurred while creating the modules
     process_errors(incorrect_modules, std::string("Some modules were mischaracterized in the input lists"), error_string, verbose, print_msg);
@@ -91,7 +91,7 @@ void Standalone_SS::basic_input_checks() {
 }
 
 void Standalone_SS::get_variables_from_modules(
-    ModuleFactory& module_factory,
+    module_wrapper_factory& module_factory,
     std::vector<std::string>& duplicate_output_variables,
     std::vector<std::string>& duplicate_module_names)
 {
@@ -128,7 +128,11 @@ void Standalone_SS::report_variable_usage() {
     print_msg("\n");
 }
 
-void Standalone_SS::create_modules(ModuleFactory& module_factory, std::vector<std::string>& incorrect_modules) {
+void Standalone_SS::create_modules(module_wrapper_factory& module_factory,
+        std::vector<std::string>& incorrect_modules,
+        std::unordered_map<std::string, double>* quantities,
+        std::unordered_map<std::string, double>* module_output_map )
+{
     // Make a vector to store the names of modules that are incompatible with adaptive step size integrators
     std::vector<std::string> adaptive_step_size_incompat;
     
@@ -140,6 +144,8 @@ void Standalone_SS::create_modules(ModuleFactory& module_factory, std::vector<st
         false,
         steady_state_modules,
         module_factory,
+        quantities,
+        module_output_map,
         incorrect_modules,
         adaptive_step_size_incompat,
         verbose,
