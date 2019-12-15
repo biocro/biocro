@@ -11,11 +11,12 @@ class module_wrapper_factory {
     // This is a factory class that creates module wrapper objects.
     public:
         static std::unique_ptr<module_wrapper_base> create(std::string const &module_name);
-        std::string get_description(std::string const &module_name) const;
+        static std::string get_description(std::string const &module_name);
         static std::vector<std::string> get_modules();
     private:
         // Map that links module names to wrapper constructors.
-        const static std::unordered_map<std::string, module_wrapper_base*> modules;
+        typedef std::unique_ptr<module_wrapper_base>(*f_ptr)();
+        const static std::unordered_map<std::string, f_ptr> modules;
 };
 
 #endif

@@ -24,11 +24,9 @@ std::unordered_map<std::string, std::vector<double>> Gro(
         std::shared_ptr<System> sys;
         if (invariant_parameters.find("simple_system") == invariant_parameters.end()) {
         // Create a system based on the inputs and store a smart pointer to it
-            print_msg("old system");
             std::shared_ptr<System> temp(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
             sys = std::move(temp);
         } else {
-            print_msg("new system");
             std::shared_ptr<System> temp(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, print_msg));
             sys = std::move(temp);
         }
