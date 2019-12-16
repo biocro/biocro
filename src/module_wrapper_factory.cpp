@@ -54,14 +54,14 @@
 #include "module_library/bucket_soil_drainage.hpp"
 #include "module_library/linear_vmax_from_leaf_n.hpp"
 #include "module_library/module_graph_test.hpp"        // Includes Module_1, Module_2, and Module_3
-//#include "module_library/collatz_leaf.hpp"
-//#include "module_library/canac_with_collatz.hpp"
-//#include "module_library/big_leaf_multilayer_canopy.hpp"
+#include "module_library/collatz_leaf.hpp"
+#include "module_library/canac_with_collatz.hpp"
+#include "module_library/big_leaf_multilayer_canopy.hpp"
 #include "module_library/flowering.hpp"
 #include "module_library/flowering_calculator.hpp"
 #include "module_library/solar_zenith_angle.hpp"
 #include "module_library/light_macro_environment.hpp"
-//#include "module_library/multilayer_canopy_properties.hpp"
+#include "module_library/multilayer_canopy_properties.hpp"
 #include "module_library/light_from_solar.hpp"
 #include "module_library/night_and_day_trackers.hpp"
 #include "module_library/oscillator_clock_calculator.hpp"
@@ -141,14 +141,14 @@ const std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrap
      {"Module_1",                                        &create_wrapper<Module_1>},
      {"Module_2",                                        &create_wrapper<Module_2>},
      {"Module_3",                                        &create_wrapper<Module_3>},
-     //{"collatz_leaf",                                    &create_wrapper<collatz_leaf>},
-     //{"canac_with_collatz",                              &create_wrapper<canac_with_collatz>},
-     //{"big_leaf_multilayer_canopy",                      &create_wrapper<big_leaf_multilayer_canopy>},
+     {"collatz_leaf",                                    &create_wrapper<collatz_leaf>},
+     {"canac_with_collatz",                              &create_wrapper<canac_with_collatz>},
+     {"big_leaf_multilayer_canopy",                      &create_wrapper<big_leaf_multilayer_canopy>},
      {"flowering",                                       &create_wrapper<flowering>},
      {"flowering_calculator",                            &create_wrapper<flowering_calculator>},
      {"solar_zenith_angle",                              &create_wrapper<solar_zenith_angle>},
      {"light_macro_environment",                         &create_wrapper<light_macro_environment>},
-     //{"ten_layer_canopy_properties",                     &create_wrapper<ten_layer_canopy_properties>},
+     {"ten_layer_canopy_properties",                     &create_wrapper<ten_layer_canopy_properties>},
      {"magic_clock",                                     &create_wrapper<magic_clock>},
      {"poincare_clock",                                  &create_wrapper<poincare_clock>},
      {"phase_clock",                                     &create_wrapper<phase_clock>},
