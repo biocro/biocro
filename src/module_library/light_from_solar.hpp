@@ -10,6 +10,7 @@ class light_from_solar : public SteadyModule {
             SteadyModule("light_from_solar"),
             // Get pointers to input parameters
             solar_ip(get_ip(input_parameters, "solar")),
+            light_threshold_ip(get_ip(input_parameters, "light_threshold")),
             // Get pointers to output parameters
             light_op(get_op(output_parameters, "light"))
         {}
@@ -18,6 +19,7 @@ class light_from_solar : public SteadyModule {
     private:
         // Pointers to input parameters
         const double* solar_ip;
+        const double* light_threshold_ip;
         // Pointers to output parameters
         double* light_op;
         // Main operation
@@ -26,7 +28,8 @@ class light_from_solar : public SteadyModule {
 
 std::vector<std::string> light_from_solar::get_inputs() {
     return {
-        "solar"
+        "solar",
+        "light_threshold"
     };
 }
 
@@ -44,14 +47,18 @@ void light_from_solar::do_operation() const {
     // Get the current level of solar radiation
     double solar = *solar_ip;
     
+    // Get the light threshold
+    double light_threshold = *light_threshold_ip;
+    
     // Check whether the plant is illuminated
     // Rather than simply using a step function (i.e., light = solar > 0),
     //  this logistic function smoothly turns on as the solar radiation
     //  increases
     // Coefficients have been chosen so that light:
     //  (1) roughly equals exp(-10) for solar = 0
-    //  (2) roughly equals 1 - exp(-10) for solar = 40
-    double light = 1.0 / (1.0 + exp(-0.5 * (solar - 20.0)));
+    //  (2) roughly equals 1 - exp(-10) for solar = light_threshold
+    //  (3) equals 1/2 for solar = light_threshold/2
+    double light = 1.0 / (1.0 + exp(-20.0 * (solar - 0.5 * light_threshold) / light_threshold));
     
     //////////////////////////////////////
     // Update the output parameter list //
