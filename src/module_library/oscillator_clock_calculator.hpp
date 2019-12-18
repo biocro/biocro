@@ -1,6 +1,8 @@
 #ifndef OSCILLATOR_CLOCK_CALCULATOR_H
 #define OSCILLATOR_CLOCK_CALCULATOR_H
 
+#include <cmath>
+#include "../constants.h"
 #include "../modules.h"
 
 class oscillator_clock_calculator : public SteadyModule {
@@ -90,55 +92,66 @@ std::vector<std::string> oscillator_clock_calculator::get_outputs() {
     };
 }
 
+/// This is like atan2 but with a range of [0, 2pi) instead of (-pi, pi]: When
+/// the point (x, y) is in the third or fourth quadrant (i.e., when y < 0), add
+/// 2pi to the value in (-pi, 0) returned by atan2 so that dawn_phase is always
+/// in the interval [0, 2pi).
+inline double range_adjusted_atan2(double y, double x) {
+    using math_constants::pi;
+    return (y >= 0) ? atan2(y, x)
+                    : atan2(y, x) + 2 * pi;
+}
+
+
 void oscillator_clock_calculator::do_operation() const {
     //////////////////////////////////////////
     // Collect inputs and make calculations //
     //////////////////////////////////////////
+
+    using math_constants::pi;
     
     // Get the current light value
-    double light = *light_ip;
+    const double light = *light_ip;
     
     // Get the current state of the night and day trackers
-    double night_tracker = *night_tracker_ip;
-    double day_tracker = *day_tracker_ip;
+    const double night_tracker = *night_tracker_ip;
+    const double day_tracker = *day_tracker_ip;
     
     // Get the kick strength
-    double kick_strength = *kick_strength_ip;
+    const double kick_strength = *kick_strength_ip;
     
     // Calculate the kicks
     // The dawn kick is created by taking the night tracker value during
     //  the day, which is just a short decay portion
     // The dusk kick is created by taking the day tracker value during
     //  the night, which is just a short decay portion
-    double dawn_kick = light * kick_strength * night_tracker;
-    double dusk_kick = (1.0 - light) * kick_strength * day_tracker;
+    const double dawn_kick = light * kick_strength * night_tracker;
+    const double dusk_kick = (1.0 - light) * kick_strength * day_tracker;
     
     // Get the current state of the dawn and dusk tracking oscillators
-    double dawn_b = *dawn_b_ip;
-    double dawn_a = *dawn_a_ip;
-    double dusk_b = *dusk_b_ip;
-    double dusk_a = *dusk_a_ip;
-    double ref_b = *ref_b_ip;
-    double ref_a = *ref_a_ip;
+    const double dawn_b = *dawn_b_ip;
+    const double dawn_a = *dawn_a_ip;
+    const double dusk_b = *dusk_b_ip;
+    const double dusk_a = *dusk_a_ip;
+    const double ref_b = *ref_b_ip;
+    const double ref_a = *ref_a_ip;
     
-    // Calculate the dawn phase angle, which is zero around dawn
-    //  and increases throughout the day
-    double dawn_phase = atan2(dawn_b, dawn_a);      // Output lies within [-pi,pi]
-    if(dawn_phase < 0) dawn_phase += 2 * M_PI;      // Change output domain to [0,2*pi)
+    // Calculate the dawn phase angle, which is zero around dawn and increases
+    // throughout the day.
+    const double dawn_phase = range_adjusted_atan2(dawn_b, dawn_a);
+
+    // Calculate the dusk phase angle, which is zero around dusk and increases
+    // throughout the night.
+    const double dusk_phase = range_adjusted_atan2(dusk_b, dusk_a);
     
-    // Calculate the dusk phase angle, which is zero around dusk
-    //  and increases throughout the night
-    double dusk_phase = atan2(dusk_b, dusk_a);      // Output lies within [-pi,pi]
-    if(dusk_phase < 0) dusk_phase += 2  *M_PI;      // Change output domain to [0,2*pi)
+    // Calculate the reference phase angle, which is not coupled to the light.
+    const double ref_phase = range_adjusted_atan2(ref_b, ref_a);
     
-    // Calculate the reference phase angle, which is not coupled
-    //  to the light
-    double ref_phase = atan2(ref_b, ref_a);         // Output lies within [-pi,pi]
-    if(ref_phase < 0) ref_phase += 2 * M_PI;        // Change output domain to [0,2*pi)
-    
-    // Calculate the day and night length indicators
-    double day_length = dusk_phase > dawn_phase ? (dawn_phase - dusk_phase + 2 * M_PI) * 12.0 / M_PI : (dawn_phase - dusk_phase) * 12.0 / M_PI;
-    double night_length = dawn_phase > dusk_phase ? (dusk_phase - dawn_phase + 2 * M_PI) * 12.0 / M_PI : (dusk_phase - dawn_phase) * 12.0 / M_PI;
+    // Calculate the day and night length indicators (in hours):
+    const double day_length   = dusk_phase > dawn_phase ? (dawn_phase - dusk_phase + 2 * pi) * 12.0 / pi
+                              :                           (dawn_phase - dusk_phase)          * 12.0 / pi;
+    const double night_length = dawn_phase > dusk_phase ? (dusk_phase - dawn_phase + 2 * pi) * 12.0 / pi
+                              :                           (dusk_phase - dawn_phase)          * 12.0 / pi;
     
     //////////////////////////////////////
     // Update the output parameter list //

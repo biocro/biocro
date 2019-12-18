@@ -3,7 +3,7 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include "c3photo.hpp"
 #include "ball_berry.hpp"
 #include "biocro_units.h"

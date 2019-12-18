@@ -1,6 +1,8 @@
 #ifndef SOLAR_ZENITH_ANGLE_H
 #define SOLAR_ZENITH_ANGLE_H
 
+#include <cmath>
+#include "../constants.h"
 #include "../modules.h"
 
 class solar_zenith_angle : public SteadyModule {
@@ -48,6 +50,9 @@ std::string solar_zenith_angle::get_description() {
 }
 
 void solar_zenith_angle::do_operation() const {
+
+    using math_constants::pi;
+
 	// Collect inputs and make calculations
 	const double lat = *lat_ip;
 	const double doy_dbl = *doy_dbl_ip;
@@ -57,7 +62,7 @@ void solar_zenith_angle::do_operation() const {
 	const double hour = 24.0 * (doy_dbl - doy);
 	
 	// Convert latitude to radians (=phi)
-	const double phi = lat * M_PI / 180.0;
+	const double phi = lat * pi / 180.0;
 	
 	// Determine the number of days since the December solstice (=NDS)
 	//  January 1 => DOY = 0
@@ -67,10 +72,10 @@ void solar_zenith_angle::do_operation() const {
 	
 	// Find the angular position of the Earth relative to the Sun in
 	//   radians (=omega), where omega = 0 corresponds to the winter solstice
-	const double omega = (NDS / 365.0) * (2 * M_PI);
+	const double omega = (NDS / 365.0) * (2 * pi);
 	
 	// Find the sun's declination in radians (=delta) using the Earth's axial tilt (23.5 degrees)
-	constexpr double axial_tilt = 23.5 * M_PI / 180.0;
+	constexpr double axial_tilt = 23.5 * pi / 180.0;
 	const double delta = -axial_tilt * cos(omega);
 	
 	// Find the hour angle in radians (=tau), noting that the Earth rotates once every
@@ -78,7 +83,7 @@ void solar_zenith_angle::do_operation() const {
 	// Here we don't apply any corrections to calculate noon and assume it occurs at 12:00,
 	//  in contrast to equation 11.3 in Campbell & Norman (1998)
 	constexpr int solar_noon = 12;
-	const double tau = (hour - solar_noon) * M_PI / 12.0;
+	const double tau = (hour - solar_noon) * pi / 12.0;
 	
 	// Find the cosine of the solar zenith angle using a straight-forward application
 	//  of the law of cosines for spherical triangles, substituting cofunctions of coangles
