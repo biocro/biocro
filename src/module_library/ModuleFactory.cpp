@@ -67,6 +67,7 @@
 #include "poincare_clock.hpp"
 #include "magic_clock.hpp"
 #include "phase_clock.hpp"
+#include "grimm_soybean_flowering.h"
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 	_input_parameters(input_parameters),
@@ -141,7 +142,8 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"phase_clock",                                     createModule<phase_clock>},
 		{"oscillator_clock_calculator",                     createModule<oscillator_clock_calculator>},
 		{"night_and_day_trackers",                          createModule<night_and_day_trackers>},
-		{"light_from_solar",                                createModule<light_from_solar>}
+		{"light_from_solar",                                createModule<light_from_solar>},
+		{"grimm_soybean_flowering",                         createModule<grimm_soybean_flowering>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -212,7 +214,8 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"phase_clock",                                     phase_clock::get_inputs()},
 		{"oscillator_clock_calculator",                     oscillator_clock_calculator::get_inputs()},
 		{"night_and_day_trackers",                          night_and_day_trackers::get_inputs()},
-		{"light_from_solar",                                light_from_solar::get_inputs()}
+		{"light_from_solar",                                light_from_solar::get_inputs()},
+		{"grimm_soybean_flowering",                         grimm_soybean_flowering::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -283,7 +286,8 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"phase_clock",                                     phase_clock::get_outputs()},
 		{"oscillator_clock_calculator",                     oscillator_clock_calculator::get_outputs()},
 		{"night_and_day_trackers",                          night_and_day_trackers::get_outputs()},
-		{"light_from_solar",                                light_from_solar::get_outputs()}
+		{"light_from_solar",                                light_from_solar::get_outputs()},
+		{"grimm_soybean_flowering",                         grimm_soybean_flowering::get_outputs()}
 	};
 	module_descriptions = {
 		{"solar_zenith_angle",								solar_zenith_angle::get_description()},
