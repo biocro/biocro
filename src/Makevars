@@ -24,8 +24,8 @@ OBJECTS = $(SOURCES:.cpp=.o)
 #    listed there for making %.o files from %.cpp files by using the recipe-less
 #    rule "%.o : %.cpp", so we make our new rule for this into a static pattern
 #    rule, which automatically gives it higher priority.
-# 6. Adding to the recipe for DEPDIR so that the subdirectory module_library is
-#    also made.
+# 6. Modifying the recipe for making the directories that contain the dependency
+#    files so that the subdirectory module_library is also made.
 # 7. Changing the variable name SRCS to SOURCES to match what the
 #    previously-existing version of this file used.
 
@@ -33,16 +33,18 @@ OBJECTS = $(SOURCES:.cpp=.o)
 all:
 
 DEPDIR := .deps
+DEPSUBDIR = $(DEPDIR)/module_library
+
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
 OUTPUT_OPTION = -o $@
 COMPILE.cpp = $(CXX) $(DEPFLAGS) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c
 
-$(OBJECTS) : %.o : %.cpp $(DEPDIR)/%.d | $(DEPDIR)
+$(OBJECTS) : %.o : %.cpp $(DEPDIR)/%.d | $(DEPSUBDIR)
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
-$(DEPDIR):
-	@mkdir -p $@; cd $@; mkdir -p module_library
+$(DEPSUBDIR):
+	@mkdir -p $@
 
 DEPFILES := $(SOURCES:%.cpp=$(DEPDIR)/%.d)
 $(DEPFILES):
