@@ -1,3 +1,13 @@
+# Ideally, there would be one Makevars file for all systems. However, at the time
+# of writing, the version of GNU make included with Rtools does not support
+# order-only dependencies, which is needed to sensibly create the .deps and
+# .deps/module_library directories. Thus, this Makevars file creates those
+# directories every time the .d files are built, which on Windows has
+# no effect if the directories already exist. 
+#
+# If the version of make included with Rtools is updated to version 3.80 or later,
+# then the file will likely be unnecessary.
+
 PKG_CPPFLAGS+=-I../boost_1_71_0 -DR_NO_REMAP
 
 SOURCES = $(wildcard *.cpp module_library/*.cpp)
