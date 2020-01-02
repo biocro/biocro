@@ -10,6 +10,7 @@
 #include "modules.h"
 #include "module_wrapper_factory.h"
 #include "system_helper_functions.h"
+#include "state_map.h"
 
 class System {
     // This class defines a system of differential equations by storing a state, a list of modules, and all of their input/output parameters
@@ -41,7 +42,6 @@ class System {
             void (*print_fcn_ptr) (char const *format, ...) = void_printf);
         // Possibly helpful functions
         double get_timestep() const {return *timestep_ptr;}
-        bool get_state_indx(int& state_indx, const std::string& parameter_name) const;
         size_t get_ntimes() const {return ntimes;}
         bool is_adaptive_compatible() const {return adaptive_compatible;}
 
@@ -64,7 +64,7 @@ class System {
 
         std::vector<std::string> get_output_param_names() const {return output_param_vector;}
         std::vector<const double*> get_output_ptrs() const {return output_ptr_vector;}
-        std::vector<std::string> get_state_parameter_names() const {return state_parameter_names;}
+        std::vector<std::string> get_state_parameter_names() const {return keys(initial_state);}
 
         // For performance testing
         int get_ncalls() const {return ncalls;}
@@ -141,7 +141,6 @@ class System {
         size_t ntimes;
         std::vector<std::string> output_param_vector;
         std::vector<const double*> output_ptr_vector;
-        std::vector<std::string> state_parameter_names;
         bool adaptive_compatible;
 
         // For running the modules

@@ -1,6 +1,5 @@
 #include <algorithm>
 #include "system.h"
-#include "state_map.h"
 
 System::System(
     std::unordered_map<std::string, double> const& init_state,
@@ -184,10 +183,6 @@ System::System(
         // Fill in the initial values and test the modules
         std::string error_string;                                       // A message to send to the user about any issues that were discovered during the system setup
         test_all_modules(error_string);
-        
-        // If any errors have occurred, notify the user and throw an error to halt the operation,
-        //  since the user needs to address these problems before continuing
-        report_errors(error_string, verbose);
         
         // Get information that we will need when running a simulation and returning the results
         std::set<std::string> changing_quantities;
@@ -651,9 +646,6 @@ void System::get_simulation_info(std::set<std::string> const& unique_changing_pa
     // Get the number of time points
     ntimes = (varying_parameters.at("doy_dbl")).size();
     
-    // Get the names of the state variables
-    for(auto const & x : initial_state) state_parameter_names.push_back(x.first);
-    
     // Create a vector of the names of variables that change throughout a simulation
     output_param_vector.resize(unique_changing_parameters.size());
     std::copy(unique_changing_parameters.begin(), unique_changing_parameters.end(), output_param_vector.begin());
@@ -661,16 +653,6 @@ void System::get_simulation_info(std::set<std::string> const& unique_changing_pa
     // Create a vector of pointers to the variables that change throughout a simulation
     output_ptr_vector.resize(unique_changing_parameters.size());
     for(size_t i = 0; i < output_param_vector.size(); i++) output_ptr_vector[i] = &quantities.at(output_param_vector[i]);
-}
-
-bool System::get_state_indx(int& state_indx, const std::string& parameter_name) const {
-    for(size_t i = 0; i < state_parameter_names.size(); i++) {
-        if(state_parameter_names[i] == parameter_name) {
-            state_indx = i;
-            return true;
-        }
-    }
-    return false;
 }
 
 void System::reset() {
