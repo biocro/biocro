@@ -10,7 +10,7 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include "collatz_photo.hpp"
 
 struct collatz_result collatz_photo(double Qp,  // micromole / m^2 / s. Incident photon flux density.

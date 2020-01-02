@@ -9,7 +9,7 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include "c3photo.hpp"
 #include "AuxBioCro.h"

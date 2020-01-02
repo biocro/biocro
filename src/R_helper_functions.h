@@ -4,6 +4,7 @@
 #include <Rinternals.h>
 #include <vector>
 #include <string>
+#include "state_map.h"
 
 state_map map_from_list(SEXP const &list);
 

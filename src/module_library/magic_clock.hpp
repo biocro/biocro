@@ -1,6 +1,8 @@
 #ifndef MAGIC_CLOCK_H
 #define MAGIC_CLOCK_H
 
+#include <cmath>
+#include "../constants.h"
 #include "../modules.h"
 
 class magic_clock : public DerivModule {
@@ -85,26 +87,28 @@ void magic_clock::do_operation() const {
     //////////////////////////////////////////
     // Collect inputs and make calculations //
     //////////////////////////////////////////
+
+    using math_constants::pi;
     
     // Get the current values of the dawn and dusk kicks
-    double dawn_kick = *dawn_kick_ip;
-    double dusk_kick = *dusk_kick_ip;
+    const double dawn_kick = *dawn_kick_ip;
+    const double dusk_kick = *dusk_kick_ip;
     
     // Get the current state of the dawn tracking oscillator
-    double dawn_b = *dawn_b_ip;
-    double dawn_a = *dawn_a_ip;
+    const double dawn_b = *dawn_b_ip;
+    const double dawn_a = *dawn_a_ip;
     
     // Get the current state of the dusk tracking oscillator
-    double dusk_b = *dusk_b_ip;
-    double dusk_a = *dusk_a_ip;
+    const double dusk_b = *dusk_b_ip;
+    const double dusk_a = *dusk_a_ip;
     
     // Get the current state of the reference oscillator
-    double ref_b = *ref_b_ip;
-    double ref_a = *ref_a_ip;
+    const double ref_b = *ref_b_ip;
+    const double ref_a = *ref_a_ip;
     
     // Define the constants for the tracking oscillators
-    const double natural_period = *clock_period_ip;             // Natural period in hours
-    const double natural_freq = 2.0 * M_PI / natural_period;    // Corresponding angular frequency in radians per hour
+    const double natural_period = *clock_period_ip;           // Natural period in hours
+    const double natural_freq = 2.0 * pi / natural_period;    // Corresponding angular frequency in radians per hour
     const double gamma = *clock_gamma_ip;
     const double r_0 = *clock_r0_ip;
     
