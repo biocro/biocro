@@ -8,7 +8,7 @@
  *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
  *
  */
-#include <math.h>
+#include <cmath>
 #include "ball_berry.hpp"
 #include "c4photo.h"
 

@@ -32,8 +32,8 @@ SEXP collatz_photoC(
     SEXP assimilation;
     SEXP gross_assimilation;
 
-    PROTECT(assimilation = allocVector(REALSXP, 1));
-    PROTECT(gross_assimilation = allocVector(REALSXP, 1));
+    PROTECT(assimilation = Rf_allocVector(REALSXP, 1));
+    PROTECT(gross_assimilation = Rf_allocVector(REALSXP, 1));
 
     struct collatz_result const result = collatz_photo(
                     qp,
@@ -53,15 +53,15 @@ SEXP collatz_photoC(
     REAL(gross_assimilation)[0] = result.gross_assimilation;
 
     SEXP lists, names;
-    PROTECT(lists = allocVector(VECSXP,2));
-    PROTECT(names = allocVector(STRSXP,2));
+    PROTECT(lists = Rf_allocVector(VECSXP,2));
+    PROTECT(names = Rf_allocVector(STRSXP,2));
 
     SET_VECTOR_ELT(lists, 0, assimilation);
     SET_VECTOR_ELT(lists, 1, gross_assimilation);
 
-    SET_STRING_ELT(names, 0, mkChar("assimilation_rate"));
-    SET_STRING_ELT(names, 1, mkChar("gross_assimilation_rate"));
-    setAttrib(lists, R_NamesSymbol, names);
+    SET_STRING_ELT(names, 0, Rf_mkChar("assimilation_rate"));
+    SET_STRING_ELT(names, 1, Rf_mkChar("gross_assimilation_rate"));
+    Rf_setAttrib(lists, R_NamesSymbol, names);
 
     UNPROTECT(4);   
 

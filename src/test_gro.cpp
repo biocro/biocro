@@ -1,3 +1,7 @@
+// EBL is commenting out this entire file because the module class has changed significantly (2019-08-22)
+// Note: the "f" and "intergrator" functions were already commented out
+
+/*
 #include <vector>
 #include <memory>
 #include "modules.h"
@@ -14,6 +18,7 @@ state_map test_gro(state_map const &state) {
 
     return Gro(state, steady_modules, derivative_modules);
 }
+*/
 
 
 /*

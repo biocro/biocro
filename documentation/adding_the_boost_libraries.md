@@ -4,7 +4,7 @@ BioCro uses software from the Boost C++ libraries. Boost does not assure backwar
 Boost is very large, so we want to include only the necessary parts. This document lists steps to extract the relevant parts and update files in BioCro to use them.
 
 ## How to extract parts of Boost
-To extract the parts of Boost BioCro needs use the bcp tool included with Boost. bcp accepts a list of files or modules and extracts the relevant parts of the Boost library to a directory.
+Use the bcp tool included with Boost to extract parts of the Boost library. bcp accepts a list of files or modules and extracts the relevant parts of the Boost library to a directory.
 The packages BioCro uses are as follows:
 
 | Package name                                 | Notes                                                                                                                       |

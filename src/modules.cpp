@@ -1,108 +1,55 @@
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <sstream>
-#include <math.h>
-#include <algorithm>
 #include "modules.h"
-#include "state_map.h"
 
-using std::string;
-using std::vector;
+// A small number to use when checking to see if a double is different than 0, positive, equal to another number, etc
+const double Module::eps = 1e-10;
 
-string join_string_vector(vector<string> const &state_keys) {
-    std::ostringstream message;
-    for(auto it = state_keys.begin(); it != state_keys.end() - 1; ++it) {
-        message << *it << ", ";
-    }
-    message << state_keys.back();
-    return message.str();
+// This is a helping function that returns the value pointed to by a pointer, throwing an error if NaN occurs
+// This should only be used for debugging purposes since it will slow down the module execution
+double Module::get_val_debug(const double* ptr, const std::string name) const {
+    double val = *ptr;
+    //if(std::isnan(val)) throw std::logic_error(std::string("Found NaN when accessing parameter '") + name + ("'.\n"));    // What is wrong with this line??
+    if(fabs(val) > 10000) throw std::logic_error(std::string("Parameter '") + name + ("' has a huge value: ") + std::to_string(val) + std::string("\n"));
+    return val;
 }
 
-vector<string> IModule::list_required_state() const
-{
-    return this->_required_state;
-}
-
-vector<string> IModule::list_modified_state() const
-{
-    return this->_modified_state;
-}
-
-string IModule::list_module_name() const
-{
-    return this->_module_name;
-}
-
-state_map IModule::run(state_map const &state) const
-{
-    try {
-        state_map derivs = this->do_operation(state);
-        return derivs;
-    }
-    catch (std::out_of_range const &oor) {
-        vector<string> missing_state = this->state_requirements_are_met(state);
-        if (missing_state.size() > 0) {
-            std::ostringstream message;
-            message << "The following state variables, required by " << _module_name << ", are missing: " << join_string_vector(missing_state);
-            throw std::out_of_range(message.str());
-        } else {
-            throw std::out_of_range(std::string("Out of range exception while running module \"") + _module_name + "\": " + oor.what());
+// This function generates a list of parameter names based on the number of layers
+std::vector<std::string> MultilayerModule::get_multilayer_param_names(int nlayers, std::vector<std::string> param_names) {
+    std::vector<std::string> full_multilayer_output_vector;
+    std::stringstream param_name_stream;
+    int num_digits = ceil(log10(nlayers - 1.0));    // Get the number of digits in the largest layer number
+    for(size_t i = 0; i < param_names.size(); i++) {
+        std::string basename = param_names[i];
+        for(int j = 0; j < nlayers; j++) {
+            param_name_stream << basename << std::setfill('0') << std::setw(num_digits) << j;
+            full_multilayer_output_vector.push_back(param_name_stream.str());
+            param_name_stream.str("");  // Reset the string stream
         }
     }
+    return full_multilayer_output_vector;
 }
 
-state_map IModule::run(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const
-{
-    try {
-        state_map derivs = this->do_operation(state_history, deriv_history, parameters);
-        return derivs;
+// Analagous to Module::get_op
+const std::vector<double*> MultilayerModule::get_multilayer_op(std::unordered_map<std::string, double>* output_parameters, int nlayers, const std::string& name) const {
+    std::vector<std::string> param_base_name_vector(1, name);
+    std::vector<std::string> param_names = get_multilayer_param_names(nlayers, param_base_name_vector);
+    std::vector<double*> multilayer_op(nlayers);
+    for(int i = 0; i < nlayers; i++) {
+        std::string layer_name = param_names[i];
+        if(output_parameters->find(layer_name) != output_parameters->end()) multilayer_op[i] = &((*output_parameters).at(layer_name));
+        else throw std::logic_error(layer_name);
     }
-    catch (std::out_of_range const &oor) {
-        state_map state = combine_state(at(state_history, 0), parameters);
-        vector<string> missing_state = this->state_requirements_are_met(state);
-        if (missing_state.size() > 0) {
-            std::ostringstream message;
-            message << "The following state variables, required by " << _module_name << ", are missing: " << join_string_vector(missing_state);
-            throw std::out_of_range(message.str());
-        } else {
-            throw std::out_of_range(std::string("Out of range exception while running module \"") + _module_name + "\": " + oor.what());
-        }
-    }
+    return multilayer_op;
 }
 
-state_map IModule::do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &p) const
-{
-    state_map current_state = combine_state(at(state_history, state_history.begin()->second.size() - 1), p);
-    return this->do_operation(current_state);
-}
-
-vector<string> IModule::state_requirements_are_met(state_map const &s) const
-{
-    vector<string> missing_state;
-    for (auto it = _required_state.begin(); it != _required_state.end(); ++it) {
-        if (s.find(*it) == s.end()) {
-            missing_state.push_back(*it);
-        }
+// Analagous to Module::get_ip
+const std::vector<const double*> MultilayerModule::get_multilayer_ip(const std::unordered_map<std::string, double>* input_parameters, int nlayers, const std::string& name) const {
+    std::vector<std::string> param_base_name_vector(1, name);
+    std::vector<std::string> param_names = get_multilayer_param_names(nlayers, param_base_name_vector);
+    std::vector<const double*> multilayer_ip(nlayers);
+    for(int i = 0; i < nlayers; i++) {
+        std::string layer_name = param_names[i];
+        if(input_parameters->find(layer_name) != input_parameters->end()) multilayer_ip[i] = &((*input_parameters).at(layer_name));
+        else throw std::logic_error(layer_name);
     }
-    return missing_state;
+    return multilayer_ip;
 }
-
-bool any_key_is_duplicated(vector<vector<string>> const &keys) {
-    vector<string> all_keys;
-    for (auto it = keys.begin(); it != keys.end(); ++it) {
-        for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
-            all_keys.push_back(*it2);
-        }
-    }
-
-    auto last = all_keys.end();
-    for (auto it = all_keys.begin(); it != last; ++it) {
-        if (std::find(it + 1, last, *it) != last) {
-            return true;
-        }
-    }
-    return false;
-}
-
-

@@ -1,49 +1,63 @@
-#ifndef BIG_LEAF_MULTILAYER_CANOPY
-#define BIG_LEAF_MULTILAYER_CANOPY
+#ifndef BIG_LEAF_MULTILAYER_CANOPY_H
+#define BIG_LEAF_MULTILAYER_CANOPY_H
+
 #include "../modules.h"
-#include "water_vapor_properties_from_air_temperature.hpp"
-#include "penman_monteith_transpiration.hpp"
-#include "convergence_iteration.hpp"
+#include "../standalone_ss.h"
 
-class big_leaf_multilayer_canopy : public IModule {
-    public:
-        big_leaf_multilayer_canopy()
-            : IModule("big_leaf_multilayer_canopy",
-                    std::vector<std::string> {
-                        "lat", "doy", "hour", "chil", "nlayers",
-                        "rh", "lai", "vmax1", "alpha1", "windspeed",
-                        "solar", "kd",
-                        // Required from collatz_leaf.
-                        "k_Q10", "StomataWS",
-                    },
-                    std::vector<std::string> {})
-            {}
-    private:
-        state_map do_operation (state_map const& s) const;
-
-        IModule const * const water_vapor_module = new water_vapor_properties_from_air_temperature();
-        IModule const * const leaf_assim_module = new collatz_leaf();
-        IModule const * const leaf_evapo_module = new penman_monteith_transpiration();
-
-        ~big_leaf_multilayer_canopy() {
-            delete leaf_evapo_module;
-            delete leaf_assim_module;
-            delete water_vapor_module;
-        }
-};
-
-
-
-class canac_with_collatz : public IModule {
-    public:
-        canac_with_collatz()
-            : IModule("canac_with_collatz",
-                    std::vector<std::string> {"lat", "doy", "hour", "chil", "nlayers", "rh", "lai", "vmax1", "alpha1", "windspeed", "vmax1", "alpha1", "solar"},
-                    std::vector<std::string> {})
-            {}
-    private:
-        state_map do_operation (state_map const& s) const;
+class big_leaf_multilayer_canopy : public SteadyModule {
+	public:
+		big_leaf_multilayer_canopy(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters);
+		~big_leaf_multilayer_canopy();	// This class has pointer members, so they must be deleted in its destructor
+		static std::vector<std::string> get_inputs();
+		static std::vector<std::string> get_outputs();
+	private:
+		// This module uses other modules to make calculations,
+		//  so it requres a standalone_ss member
+		// Some of the module's inputs and outputs require additional
+		//  member variables
+		std::shared_ptr<Standalone_SS> canopy_modules;
+		double* theta_ptr;
+		double* layer_wind_speed_ptr;
+		double* layer_relative_humidity_ptr;
+		double* Ipar_ptr;
+		double* Irad_ptr;
+		double* leaf_ass_ptr;
+		double* leaf_trans_ptr;
+		double* leaf_cond_ptr;
+		// Pointers to input parameters
+		const double* lai_ip;
+		const double* nlayers_ip;
+		const double* rh_ip;
+		const double* windspeed_ip;
+		const double* kd_ip;
+		const double* lat_ip;
+		const double* doy_dbl_ip;
+		const double* solar_ip;
+		const double* chil_ip;
+		const double* vmax1_ip;
+		const double* alpha1_ip;
+		const double* temp_ip;
+		const double* kparm_ip;
+		const double* beta_ip;
+		const double* upperT_ip;
+		const double* lowerT_ip;
+		const double* Catm_ip;
+		const double* b0_ip;
+		const double* b1_ip;
+		const double* leafwidth_ip;
+		const double* leaf_reflectance_ip;
+		const double* leaf_transmittance_ip;
+		const double* water_stress_approach_ip;
+		const double* StomataWS_ip;
+		const double* Rd_ip;
+		const double* stefan_boltzman_ip;
+		const double* k_Q10_ip;
+		// Pointers to output parameters
+		double* canopy_assimilation_rate_op;
+		double* canopy_transpiration_rate_op;
+		double* canopy_conductance_op;
+		// Main operation
+		void do_operation() const;
 };
 
 #endif
-

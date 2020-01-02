@@ -1,26 +1,59 @@
-#ifndef m_stomata_water_stress_exponential
-#define m_stomata_water_stress_exponential
+#ifndef STOMATA_WATER_STRESS_EXPONENTIAL_H
+#define STOMATA_WATER_STRESS_EXPONENTIAL_H
+
 #include "../modules.h"
 
-class stomata_water_stress_exponential : public IModule {
-    public:
-        stomata_water_stress_exponential()
-            : IModule("stomata_water_stress_exponential",
-                    std::vector<std::string> {"soil_water_content", "soil_field_capacity", "soil_wilting_point"},
-                    std::vector<std::string> {})
-        {}
-    private:
-        state_map do_operation(state_map const &s) const
-        {
-            double wilting_point = s.at("soil_wilting_point");
-            double field_capacity = s.at("soil_field_capacity");
-
-            double slope = (1 - wilting_point) / (field_capacity - wilting_point);
-            double intercept = 1 - field_capacity * slope;
-            double theta = slope * s.at("soil_water_content") + intercept;
-            state_map result { {"StomataWS", std::min(std::max((1 - exp(-2.5 * (theta - wilting_point)/(1 - wilting_point))) / (1 - exp(-2.5)), 1e-10), 1.0)} };
-            return result;
-        };
+class stomata_water_stress_exponential : public SteadyModule {
+	public:
+		stomata_water_stress_exponential(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+			// Define basic module properties by passing its name to its parent class
+			SteadyModule("stomata_water_stress_exponential"),
+			// Get pointers to input parameters
+			soil_field_capacity_ip(get_ip(input_parameters, "soil_field_capacity")),
+			soil_wilting_point_ip(get_ip(input_parameters, "soil_wilting_point")),
+			soil_water_content_ip(get_ip(input_parameters, "soil_water_content")),
+			// Get pointers to output parameters
+			StomataWS_op(get_op(output_parameters, "StomataWS"))
+		{}
+		static std::vector<std::string> get_inputs();
+		static std::vector<std::string> get_outputs();
+	private:
+		// Pointers to input parameters
+		const double* soil_field_capacity_ip;
+		const double* soil_wilting_point_ip;
+		const double* soil_water_content_ip;
+		// Pointers to output parameters
+		double* StomataWS_op;
+		// Main operation
+		void do_operation() const;
 };
+
+std::vector<std::string> stomata_water_stress_exponential::get_inputs() {
+	return {
+		"soil_field_capacity",
+		"soil_wilting_point",
+		"soil_water_content"
+	};
+}
+
+std::vector<std::string> stomata_water_stress_exponential::get_outputs() {
+	return {
+		"StomataWS"
+	};
+}
+
+void stomata_water_stress_exponential::do_operation() const {	
+	// Collect inputs and make calculations
+	double soil_wilting_point = *soil_wilting_point_ip;
+	double soil_field_capacity = *soil_field_capacity_ip;
+	double soil_water_content = *soil_water_content_ip;
+	
+	double slope = (1.0 - soil_wilting_point) / (soil_field_capacity - soil_wilting_point);
+	double intercept = 1.0 - soil_field_capacity * slope;
+	double theta = slope * soil_water_content + intercept;
+	
+	// Update the output parameter list
+	update(StomataWS_op, std::min(std::max((1.0 - exp(-2.5 * (theta - soil_wilting_point)/(1.0 - soil_wilting_point))) / (1.0 - exp(-2.5)), 1e-10), 1.0));
+}
 
 #endif

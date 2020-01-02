@@ -13,21 +13,12 @@
 /* routines in the BioCro package. These are functions needed */
 /* internally. The normal user will not need them */
 
-#define _USE_MATH_DEFINES
-
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
+#include "../constants.h" // for pi and e
 #include "c4photo.h"
 #include "BioCro.h"
-
-#ifndef M_PI
-#define M_PI           3.14159265358979323846
-#endif
-
-#ifndef M_E
-# define M_E            2.7182818284590452354
-#endif
 
 double poisson_density(int x, double lambda)
 {
@@ -35,9 +26,14 @@ double poisson_density(int x, double lambda)
     // e^-lambda * lambda^x / x!
     // The factorial term produces numbers too large to hold, so perform the calculation in the log domain.
     // n! can be estimated by the approximation sqrt(2 * pi * x) * (x / e)^x.
+    using math_constants::pi;
+    using math_constants::e;
 
-    double factorial_x = sqrt(2 * M_PI * x) * pow((x / M_E), x); // Stirling's approximation for n!.
+    // Stirling's approximation for n!:
+    double factorial_x = sqrt(2 * pi * x) * pow((x / e), x);
+
     double log_result = -lambda + x * log(lambda) - log(factorial_x);
+
     return exp(log_result);
 }
 
@@ -74,9 +70,9 @@ double poisson_density(int x, double lambda)
  * declination.
  */
 double cos_zenith_angle(const double latitude, const int day_of_year,
-                        const int hour_of_day)
+                        const double hour_of_day)
 {
-    constexpr double radians_per_degree = M_PI/180;
+    constexpr double radians_per_degree = math_constants::pi/180;
     constexpr int solar_noon = 12;
     constexpr double radians_rotation_per_hour = 15 * radians_per_degree;
     constexpr double axial_tilt = 23.5 * radians_per_degree;
@@ -97,7 +93,7 @@ double cos_zenith_angle(const double latitude, const int day_of_year,
  * Light Macro Environment
  */
 Light_model lightME(const double latitude, const int day_of_year,
-                    const int hour_of_day)
+                    const double hour_of_day)
 {
     // day_of_year and hour_of_day are given as local time for the specified latitude.
     //
@@ -181,7 +177,7 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
     double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
     double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
     double k = k0 / k1;  // Canopy extinction coefficient for an ellipsoidal leaf angle distribution. Page 251, Campbell and Norman. Environmental Biophysics. second edition.
-
+    
     double LAIi = LAI / nlayers;
 
     Light_profile light_profile;

@@ -32,16 +32,16 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
     SEXP GASSV;
 	SEXP CiV;
 
-	size_t nq = length(Qp);
-    // nt = length(Tl);nr = length(RH); unused
+	size_t nq = Rf_length(Qp);
+    // nt = Rf_length(Tl);nr = Rf_length(RH); unused
 
-	PROTECT(lists = allocVector(VECSXP,4));
-	PROTECT(names = allocVector(STRSXP,4));
+	PROTECT(lists = Rf_allocVector(VECSXP,4));
+	PROTECT(names = Rf_allocVector(STRSXP,4));
 
-	PROTECT(GsV = allocVector(REALSXP,nq));
-	PROTECT(ASSV = allocVector(REALSXP,nq));
-  PROTECT(GASSV = allocVector(REALSXP,nq));
-	PROTECT(CiV = allocVector(REALSXP,nq));
+	PROTECT(GsV = Rf_allocVector(REALSXP,nq));
+	PROTECT(ASSV = Rf_allocVector(REALSXP,nq));
+  PROTECT(GASSV = Rf_allocVector(REALSXP,nq));
+	PROTECT(CiV = Rf_allocVector(REALSXP,nq));
   
 	double *pt_Qp = REAL(Qp);
 	double *pt_Tl = REAL(Tl);
@@ -75,11 +75,11 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	SET_VECTOR_ELT(lists,1,ASSV);
 	SET_VECTOR_ELT(lists,2,CiV);
   SET_VECTOR_ELT(lists,3,GASSV);
-	SET_STRING_ELT(names,0,mkChar("Gs"));
-	SET_STRING_ELT(names,1,mkChar("assimilation_rate"));
-	SET_STRING_ELT(names,2,mkChar("Ci"));
-  SET_STRING_ELT(names,3,mkChar("GrossAssim"));
-	setAttrib(lists,R_NamesSymbol,names);
+	SET_STRING_ELT(names,0,Rf_mkChar("Gs"));
+	SET_STRING_ELT(names,1,Rf_mkChar("assimilation_rate"));
+	SET_STRING_ELT(names,2,Rf_mkChar("Ci"));
+  SET_STRING_ELT(names,3,Rf_mkChar("GrossAssim"));
+	Rf_setAttrib(lists,R_NamesSymbol,names);
 	UNPROTECT(6);   
 	return(lists);
 }

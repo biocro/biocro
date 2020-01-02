@@ -10,7 +10,7 @@ get_errors = function(expr) {
 
 wrong_modules = within(sorghum_modules, canopy_module_name<-'NONEXISTANTMODULE')
 result = get_errors({Gro(sorghum_initial_state, sorghum_parameters, weather05, wrong_modules)})
-if (conditionMessage(result) != 'Caught exception in R_Gro: "NONEXISTANTMODULE" was given as a module name, but no module with that name could be found.\n') {
+if (conditionMessage(result) != "Caught exception in R_Gro_solver: 'NONEXISTANTMODULE' was given as a module name, but ModuleFactory::get_inputs could not find a module with that name.\n") {
     warning('Nonexistant module names should produce an error.')
 }
 
@@ -38,21 +38,31 @@ if (is.null(result)) {
     warning('A parameter appearing in more than one state list should produce an error.')
 }
 
-sorghum_results = Gro(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules)
-stored_sorghum_results = read.delim('stored_sorghum_results.tsv')
-# library(lattice)
-# x11(); xyplot(Leaf + Stem + Root + lai ~ TTc, sorghum_results, type='l')
-# x11(); xyplot(Leaf + Stem + Root + lai ~ TTc, stored_sorghum_results, type='l')
-# x11(); xyplot(canopy_assimilation_rate ~ TTc, sorghum_results, type='l')
-# x11(); xyplot(canopy_assimilation_rate ~ TTc, stored_sorghum_results, type='l')
-# write.table(sorghum_results, file='stored_sorghum_results.tsv', sep='\t', row.names=FALSE)
-if (!isTRUE(all.equal(stored_sorghum_results[sort(names(stored_sorghum_results))], sorghum_results[sort(names(sorghum_results))], tolerance = .Machine$double.eps ^ 0.4))) {  # The default tolerance is .Machine$double.eps ^ 0.5. That is too small for differences between operating systems, so make it a little larger.
-    warning('Results are different from previous runs. Verify them and update "stored_sorghum_results.tsv"')
-}
+crop_list = list(
+    list(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules, 'stored_sorghum_results.tsv'),
+    list(willow_initial_state, willow_parameters, weather05, willow_modules, 'stored_willow_results.tsv'),
+    list(miscanthus_x_giganteus_initial_state, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_modules, 'stored_miscanthus_x_giganteus_results.tsv')
+)
 
-system.time({
-    for (i in 1:5) {
-        test = Gro(sorghum_initial_state, sorghum_parameters, weather06, sorghum_modules)
+library(lattice)
+for (crop in crop_list) {
+    crop_results = Gro(crop[[1]], crop[[2]], crop[[3]], crop[[4]])
+    stored_crop_results = read.delim(crop[[5]])
+    x11(); print(xyplot(Leaf + Stem + Root + lai ~ TTc, crop_results, type='l'))
+    x11(); print(xyplot(Leaf + Stem + Root + lai ~ TTc, stored_crop_results, type='l'))
+    x11(); print(xyplot(canopy_assimilation_rate ~ TTc, crop_results, type='l'))
+    x11(); print(xyplot(canopy_assimilation_rate ~ TTc, stored_crop_results, type='l'))
+    #write.table(crop_results, file=crop[[5]], sep='\t', row.names=FALSE)
+
+    # this test is not good since sometimes the names / types of output columns change
+    #if (!isTRUE(all.equal(stored_crop_results[sort(names(stored_crop_results))], crop_results[sort(names(crop_results))], tolerance = .Machine$double.eps ^ 0.4))) {  # The default tolerance is .Machine$double.eps ^ 0.5. That is too small for differences between operating systems, so make it a little larger.
+    #    warning('Results are different from previous runs. Verify them and update "stored_crop_results.tsv"')
+    #}
+
+    crop_subresults <- crop_results[c("Leaf", "Stem", "Root", "lai", "canopy_assimilation_rate")]
+    stored_crop_subresults <- stored_crop_results[c("Leaf", "Stem", "Root", "lai", "canopy_assimilation_rate")]
+    if (!isTRUE(all.equal(stored_crop_subresults[sort(names(stored_crop_subresults))], crop_subresults[sort(names(crop_subresults))], tolerance = .Machine$double.eps ^ 0.4))) {  # The default tolerance is .Machine$double.eps ^ 0.5. That is too small for differences between operating systems, so make it a little larger.
+        warning('Results are different from previous runs. Verify them and update "stored_crop_results.tsv"')
     }
-})
+}
 

@@ -13,8 +13,9 @@ partial_parms = within(partial_parms, {
 days = expand.grid(hour=0:23, doy=do.call(seq, as.list(range(subweather$doy))))
 for (i in seq_len(nrow(days))) {
     canopy_parms = c(partial_parms, subweather[i, ])
+	canopy_parms = within(canopy_parms, {doy_dbl = doy + hour / 24.0})
     cresult = CanA(lai=1, doy=days$doy[i], hr=days$hour[i], StomataWS=canopy_parms$StomataWS, solar=10, temp=canopy_parms$temp, rh=canopy_parms$rh, windspeed=canopy_parms$windspeed, nlayers=10)
-    result = run_modules(canopy_parms, c('big_leaf_multilayer_canopy'))
+    result = test_module('big_leaf_multilayer_canopy', canopy_parms)
     days[i, c('canopy_assimilation_rate')] = result$canopy_assimilation_rate
     days[i, 'CanopyAssim'] = cresult$CanopyAssim
 }
@@ -33,4 +34,4 @@ for (i in seq_along(angles)) {
     #result[[i]] = r
 }
 
-xyplot(result ~ angles)
+x11(); xyplot(result ~ angles)
