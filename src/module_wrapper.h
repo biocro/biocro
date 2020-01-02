@@ -16,12 +16,11 @@ class module_wrapper_base {
     virtual std::vector<std::string> get_inputs() = 0;
     virtual std::vector<std::string> get_outputs() = 0;
     virtual std::unique_ptr<Module> createModule(const std::unordered_map<std::string, double>* input, std::unordered_map<std::string, double>* output) = 0;
-    virtual std::string get_description();
+    virtual std::string get_description() = 0;
     virtual ~module_wrapper_base() = 0;
 };
 
 inline module_wrapper_base::~module_wrapper_base() {}  // The destructor of the base class must always be implemented, even if it's pure virtual.
-
 
 // Define a template class that wraps the behavior of Modules.
 template<typename T>
