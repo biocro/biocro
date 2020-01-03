@@ -304,6 +304,38 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
 	}
 }
 
+partial_gro_solver = function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, solver=list(type='Gro', output_step_size=1.0, adaptive_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
+{
+	arg_list = list(initial_state=initial_state, parameters=parameters, varying_parameters=varying_parameters, steady_state_module_names=steady_state_module_names, derivative_module_names=derivative_module_names, solver=solver, verbose=verbose)
+
+	df = data.frame(control=character(), arg_name=character(), stringsAsFactors=FALSE)
+	for (i in seq_along(arg_list)) {
+		if (length(names(arg_list[[i]])) > 0) {
+			df = rbind(df, data.frame(control = names(arg_list)[i], arg_name=names(arg_list[[i]]), stringsAsFactors=FALSE))
+		}
+	}
+	
+	# Find the locations of the parameters specified in arg_names and check for errors
+	controls = df[match(arg_names, df$arg_name), ]
+	if (any(is.na(controls))) {
+		missing = arg_names[which(is.na(controls$control))]
+		stop(paste('The following arguments in "arg_names" are not in any of the paramter lists:', paste(missing, collapse=', ')))
+	}
+	
+	# Make a function that calls Gro with new values for the parameters specified in arg_names
+	function(x)
+	{
+		if (length(x) != length(arg_names)) stop("The length of x does not match the length of arguments when this function was defined.")
+		x = unlist(x)
+		temp_arg_list = arg_list
+		for (i in seq_along(arg_names)) {
+			c_row = controls[i, ]
+			temp_arg_list[[c_row$control]][[c_row$arg_name]] = x[i]
+		}
+		do.call(Gro_solver, temp_arg_list)
+	}
+}
+
 Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose=FALSE)
 {
 	# Gro_deriv is used to create a function that can be called by a solver such as LSODES
