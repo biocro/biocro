@@ -50,7 +50,7 @@ std::vector<std::string> soybean_growth_stages::get_inputs()
     };
 }
 
-std::vector<std::string> soybean_growth_stages::get_outpus()
+std::vector<std::string> soybean_growth_stages::get_outputs()
 {
     return {
         "DVI"

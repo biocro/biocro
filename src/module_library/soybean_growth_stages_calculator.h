@@ -8,6 +8,9 @@
  * \brief
  */
 
+double photoFunc(double P, double Popt, double Pcrit);
+double tempFunc(double temperature, double Tmin, double Topt, double Tmax);
+
 class soybean_growth_stages_calculator : public SteadyModule
 {
 public: soybean_growth_stages_calculator( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
@@ -46,7 +49,7 @@ public: soybean_growth_stages_calculator( const std::unordered_map<std::string, 
     const double* maturity_group_ip;
     const double* DVI_ip;
     const double* day_length_ip;
-    const double* temp;
+    const double* temp_ip;
     const double* Tbase_emr_ip;
     const double* TTemr_threshold_ip;
     const double* Rmax_emrV0_ip;
@@ -174,8 +177,7 @@ void soybean_growth_stages_calculator::do_operation() const
     update(soybean_development_rate_per_hour_op, (soybean_development_rate_per_hour > eps) ? soybean_development_rate_per_hour : 0);
 }
 
-double tempFunc(temperature, Tmin, Topt, Tmax) const
-{
+double tempFunc(double temperature, double Tmin, double Topt, double Tmax) {
     double fT;
     
     if (temperature > Tmin && temperature < Tmax) {
@@ -193,7 +195,7 @@ double tempFunc(temperature, Tmin, Topt, Tmax) const
     
 }
 
-double photoFunc(P, Popt, Pcrit) const {
+double photoFunc(double P, double Popt, double Pcrit) {
     double m = 3.0; // hrs; Setiyono et al., 2007 Equation 4, value in text below equation
     double fp;
     

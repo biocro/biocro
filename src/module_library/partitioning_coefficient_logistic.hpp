@@ -1,7 +1,7 @@
 #ifndef PARTITIONING_COEFFICIENT_LOGISTIC_H
 #define PARTITIONING_COEFFICIENT_LOGISTIC_H
 
-#include <math.h>
+#include <cmath>
 #include  <iostream>
 #include "../modules.h"
 
