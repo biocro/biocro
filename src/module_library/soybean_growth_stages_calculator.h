@@ -6,6 +6,11 @@
 
 /**
  * \brief
+ *
+ * References:
+ *  Setiyono, T.D. et al. 2007. “Understanding and Modeling the Effect of Temperature and Daylength on Soybean Phenology under High-Yield Conditions.” Field Crops Research 100(2–3): 257–71. https://doi.org/10.1016/j.fcr.2006.07.011
+ *
+ *  Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55.
  */
 
 double photoFunc(double P, double Popt, double Pcrit);
@@ -147,7 +152,7 @@ void soybean_growth_stages_calculator::do_operation() const
     if (DVI >= -1 && DVI < 0) {
         // 1. Sowing to emergence
         double temp_diff = temp - Tbase_emr; // degrees C
-        soybean_development_rate = temp_diff / TTemr_threshold;
+        soybean_development_rate = temp_diff / TTemr_threshold; // day^-1
         
     } else if (DVI >= 0 && DVI < 1) {
         // 2. Vegetative stages
@@ -178,42 +183,42 @@ void soybean_growth_stages_calculator::do_operation() const
 }
 
 double tempFunc(double T, double Tmin, double Topt, double Tmax) {
-    double fT;
+    double fT; // dimensionless
     
     if (T > Tmin && T < Tmax) {
-        double alpha = log(2.0) / log((Tmax - Tmin) / (Topt - Tmin));
-        double fT_num_pt1 = 2.0 * pow(T - Tmin, alpha) * pow(Topt - Tmin, alpha);
-        double fT_num_pt2 = pow(T - Tmin, 2.0 * alpha);
-        double fT_denom = pow(Topt - Tmin, 2.0 * alpha);
+        double alpha = log(2.0) / log((Tmax - Tmin) / (Topt - Tmin)); // dimensionless
+        double fT_num_pt1 = 2.0 * pow(T - Tmin, alpha) * pow(Topt - Tmin, alpha); // dimensionless
+        double fT_num_pt2 = pow(T - Tmin, 2.0 * alpha); // dimensionless
+        double fT_denom = pow(Topt - Tmin, 2.0 * alpha); // dimensionless
         
-        fT = (fT_num_pt1 - fT_num_pt2) / fT_denom;
+        fT = (fT_num_pt1 - fT_num_pt2) / fT_denom; // dimensionless
     } else {
-        fT = 0.0;
+        fT = 0.0; // dimensionless
     }
     
-    return fT;
+    return fT; // dimensionless
     
 }
 
 double photoFunc(double P, double Popt, double Pcrit) {
     double m = 3.0; // hrs; Setiyono et al., 2007 Equation 4, value in text below equation
-    double fP;
+    double fP; // dimensionless
     
     if (P >= Popt && P <= Pcrit) {
-        double alpha = log(2.0) / log(1.0 + (Pcrit - Popt) / m); //dimensionless
-        double fP_pt1 = 1.0 + (P - Popt) / m;
-        double fP_pt2 = (Pcrit - P) / (Pcrit - Popt);
-        double fP_pt3 = (Pcrit - Popt) / m;
+        double alpha = log(2.0) / log(1.0 + (Pcrit - Popt) / m); // dimensionless
+        double fP_pt1 = 1.0 + (P - Popt) / m; // dimensionless
+        double fP_pt2 = (Pcrit - P) / (Pcrit - Popt); // dimensionless
+        double fP_pt3 = (Pcrit - Popt) / m; // dimensionless
         
-        fP = pow(fP_pt1 * pow(fP_pt2, fP_pt3), alpha);
+        fP = pow(fP_pt1 * pow(fP_pt2, fP_pt3), alpha); // dimensionless
         
     } else if (P < Popt) {
-        fP = 1.0;
+        fP = 1.0; // dimensionless
     } else {
-        fP = 0.0;
+        fP = 0.0; // dimensionless
     }
     
-    return fP;
+    return fP; // dimensionless
     
 }
 
