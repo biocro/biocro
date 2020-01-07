@@ -174,9 +174,6 @@ void soybean_growth_stages_calculator::do_operation() const
     update(soybean_development_rate_per_hour_op, (soybean_development_rate_per_hour > eps) ? soybean_development_rate_per_hour : 0);
 }
 
-
-#endif
-
 double tempFunc(temperature, Tmin, Topt, Tmax) const
 {
     double fT;
@@ -217,3 +214,7 @@ double photoFunc(P, Popt, Pcrit) const {
     return fP;
     
 }
+
+#endif
+
+

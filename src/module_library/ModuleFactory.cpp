@@ -75,6 +75,8 @@
 #include "thermal_time_senescence_logistic_seed.hpp"
 #include "grimm_soybean_flowering.h"
 #include "grimm_soybean_flowering_calculator.h"
+#include "soybean_growth_stages.h"
+#include "soybean_growth_stages_calculator.h"
 
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
@@ -158,7 +160,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
         {"thermal_time_senescence_logistic",                createModule<thermal_time_senescence_logistic>},
         {"thermal_time_senescence_logistic_seed",           createModule<thermal_time_senescence_logistic_seed>},
 		{"grimm_soybean_flowering",                         createModule<grimm_soybean_flowering>},
-		{"grimm_soybean_flowering_calculator",              createModule<grimm_soybean_flowering_calculator>}
+		{"grimm_soybean_flowering_calculator",              createModule<grimm_soybean_flowering_calculator>},
+        {"soybean_growth_stages",                           createModule<soybean_growth_stages>},
+        {"soybean_growth_stages_calculator",                createModule<soybean_growth_stages_calculator>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -237,7 +241,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
         {"thermal_time_senescence_logistic",                thermal_time_senescence_logistic::get_inputs()},
         {"thermal_time_senescence_logistic_seed",           thermal_time_senescence_logistic_seed::get_inputs()},
 		{"grimm_soybean_flowering",                         grimm_soybean_flowering::get_inputs()},
-		{"grimm_soybean_flowering_calculator",              grimm_soybean_flowering_calculator::get_inputs()}
+		{"grimm_soybean_flowering_calculator",              grimm_soybean_flowering_calculator::get_inputs()},
+        {"soybean_growth_stages",                           soybean_growth_stages::get_inputs()},
+        {"soybean_growth_stages_calculator",                soybean_growth_stages_calculator::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -316,7 +322,9 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
         {"thermal_time_senescence_logistic",                thermal_time_senescence_logistic::get_outputs()},
         {"thermal_time_senescence_logistic_seed",           thermal_time_senescence_logistic_seed::get_outputs()},
 		{"grimm_soybean_flowering",                         grimm_soybean_flowering::get_outputs()},
-		{"grimm_soybean_flowering_calculator",              grimm_soybean_flowering_calculator::get_outputs()}
+		{"grimm_soybean_flowering_calculator",              grimm_soybean_flowering_calculator::get_outputs()},
+        {"soybean_growth_stages",                           soybean_growth_stages::get_outputs()},
+        {"soybean_growth_stages_calculator",                soybean_growth_stages_calculator::get_outputs()}
 	};
 	module_descriptions = {
 		{"solar_zenith_angle",								solar_zenith_angle::get_description()},
