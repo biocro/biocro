@@ -158,7 +158,7 @@ void soybean_growth_stages_calculator::do_operation() const
             // 2b. V0 - R0; r = Rmax * f(P)
             double day_length_civil = 1.072 * day_length; // hrs; converts day length calculated based on solar elevation = -0.83 degrees to civil day length (based on solar elevation angle = -6 degrees)
             soybean_development_rate = Rmax_V0R0 * photoFunc(day_length_civil, Popt_V0R0, Pcrit_V0R0) / 3.0; // day^-1
-        } else if (DVI >= 2/3 && DVI < 1) {
+        } else {
             // 2c. R0 - R1; r = Rmax * f(T)
             soybean_development_rate = Rmax_R0R1 * tempFunc(temp, Tmin_R0R1, Topt_R0R1, Tmax_R0R1) / 3.0; // day^-1
         }
@@ -166,10 +166,11 @@ void soybean_growth_stages_calculator::do_operation() const
         // Reproductive stages, R1 - R7; r = Rmax * f(T) * f(P)
         soybean_development_rate = Rmax_R1R7 * tempFunc(temp, Tmin_R1R7, Topt_R1R7, Tmax_R1R7) * photoFunc(day_length, Popt_R1R7, Pcrit_R1R7); // day^-1
         
-    } //else {
-//        // error, DVI out of bounds
-//
-//    }
+    } else {
+        // error, DVI out of bounds
+        throw std::out_of_range(std::string("DVI not in range, thrown by soybean_growth_stages_calculator.\n"));
+
+    }
     
     double soybean_development_rate_per_hour = soybean_development_rate / 24.0; // hr^-1
     
@@ -197,7 +198,7 @@ double tempFunc(double temperature, double Tmin, double Topt, double Tmax) {
 
 double photoFunc(double P, double Popt, double Pcrit) {
     double m = 3.0; // hrs; Setiyono et al., 2007 Equation 4, value in text below equation
-    double fp;
+    double fP;
     
     if (P >= Popt && P <= Pcrit) {
         double alpha = log(2.0) / log(1.0 + (Pcrit - Popt) / m); //dimensionless
@@ -205,7 +206,7 @@ double photoFunc(double P, double Popt, double Pcrit) {
         double fP_pt2 = (Pcrit - P) / (Pcrit - Popt);
         double fP_pt3 = (Pcrit - Popt) / m;
         
-        fP = pow(fP_pt1 * pow(fP_pt2, fp_pt3), alpha);
+        fP = pow(fP_pt1 * pow(fP_pt2, fP_pt3), alpha);
         
     } else if (P < Popt) {
         fP = 1.0;
