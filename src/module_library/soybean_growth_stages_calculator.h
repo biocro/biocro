@@ -210,7 +210,7 @@ double photoFunc(double P, double Popt, double Pcrit) {
         
     } else if (P < Popt) {
         fP = 1.0;
-    } else if (P > Pcrit) {
+    } else {
         fP = 0.0;
     }
     
