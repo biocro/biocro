@@ -1,7 +1,7 @@
 #ifndef SENESCENCE_COEFFICIENT_LOGISTIC_H
 #define SENESCENCE_COEFFICIENT_LOGISTIC_H
 
-#include <math.h>
+#include <cmath>
 #include "../modules.h"
 
 /**
