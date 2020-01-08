@@ -1,5 +1,5 @@
-#ifndef SOYBEAN_GROWTH_STAGES_CALCULATOR_h
-#define SOYBEAN_GROWTH_STAGES_CALCULATOR_h
+#ifndef SOYBEAN_DEVELOPMENT_RATE_CALCULATOR_h
+#define SOYBEAN_DEVELOPEMTN_RATE_CALCULATOR_h
 
 #include "../modules.h"
 #include <cmath>
@@ -10,18 +10,18 @@
  * References:
  *  Setiyono, T.D. et al. 2007. “Understanding and Modeling the Effect of Temperature and Daylength on Soybean Phenology under High-Yield Conditions.” Field Crops Research 100(2–3): 257–71. https://doi.org/10.1016/j.fcr.2006.07.011
  *
- *  Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55.
+ *  Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55. https://doi.org/10.5194/gmd-8-1139-2015
  */
 
 double photoFunc(double P, double Popt, double Pcrit);
 double tempFunc(double T, double Tmin, double Topt, double Tmax);
 
-class soybean_growth_stages_calculator : public SteadyModule
+class soybean_development_rate_calculator : public SteadyModule
 {
-public: soybean_growth_stages_calculator( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+public: soybean_development_rate_calculator( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
     
     // Define basic module properties by passing its name to its parent class
-    SteadyModule("soybean_growth_stages_calculator"),
+    SteadyModule("soybean_development_rate_calculator"),
     
     // Get pointers to input parameters
     maturity_group_ip(get_ip(input_parameters,"maturity_group")),
@@ -42,7 +42,7 @@ public: soybean_growth_stages_calculator( const std::unordered_map<std::string, 
     Tmax_R1R7_ip(get_ip(input_parameters,"Tmax_R1R7")),
     
     // Get pointers to output parameters
-  soybean_development_rate_per_hour_op(get_op(output_parameters,"soybean_development_rate_per_hour"))
+  development_rate_per_hour_op(get_op(output_parameters,"development_rate_per_hour"))
     
     {
     }
@@ -69,14 +69,14 @@ public: soybean_growth_stages_calculator( const std::unordered_map<std::string, 
     const double* Tmax_R1R7_ip;
     
     // Pointers to output parameters
-    double* soybean_development_rate_per_hour_op;
+    double* development_rate_per_hour_op;
     
     // Main operation
     void do_operation() const;
     
 };
 
-std::vector<std::string> soybean_growth_stages_calculator::get_inputs()
+std::vector<std::string> soybean_development_rate_calculator::get_inputs()
 {
     return {
         "maturity_group",
@@ -98,14 +98,14 @@ std::vector<std::string> soybean_growth_stages_calculator::get_inputs()
     };
 }
 
-std::vector<std::string> soybean_growth_stages_calculator::get_outputs()
+std::vector<std::string> soybean_development_rate_calculator::get_outputs()
 {
     return {
-        "soybean_development_rate_per_hour"
+        "development_rate_per_hour"
     };
 }
 
-void soybean_growth_stages_calculator::do_operation() const
+void soybean_development_rate_calculator::do_operation() const
 {
     // Gather parameters not specific to growth stages
     const double maturity_group = *maturity_group_ip; // dimensionless; maturity group of soybean cultivar
@@ -173,13 +173,13 @@ void soybean_growth_stages_calculator::do_operation() const
         
     } else {
         // error, DVI out of bounds
-        throw std::out_of_range(std::string("DVI not in range, thrown by soybean_growth_stages_calculator.\n"));
+        throw std::out_of_range(std::string("DVI not in range, thrown by soybean_development_rate_calculator.\n"));
     }
     
-    double soybean_development_rate_per_hour = soybean_development_rate / 24.0; // hr^-1
+    double development_rate_per_hour = soybean_development_rate / 24.0; // hr^-1
     
     // Update the output parameter list
-    update(soybean_development_rate_per_hour_op, (soybean_development_rate_per_hour > eps) ? soybean_development_rate_per_hour : 0);
+    update(development_rate_per_hour_op, (development_rate_per_hour > eps) ? development_rate_per_hour : 0);
 }
 
 double tempFunc(double T, double Tmin, double Topt, double Tmax) {
