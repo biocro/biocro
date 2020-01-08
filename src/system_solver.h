@@ -260,14 +260,14 @@ void boost_rkck54_system_solver<state_type>::do_boost_solve(
 }
 
 // A class representing the boost rosenbrock solver
-template <class state_type>
-class boost_rsnbrk_system_solver : public boost_system_solver<state_type>
+// Note that this solver is only compatible with boost::numeric::ublas::vector<double> state vectors
+class boost_rsnbrk_system_solver : public boost_system_solver<boost::numeric::ublas::vector<double>>
 {
    public:
     boost_rsnbrk_system_solver(
         double output_step_size,
         double adaptive_error_tol,
-        int adaptive_max_steps) : boost_system_solver<state_type>("rsnbrk", output_step_size, true),
+        int adaptive_max_steps) : boost_system_solver<boost::numeric::ublas::vector<double>>("rsnbrk", output_step_size, true),
                                   adaptive_error_tol(adaptive_error_tol),
                                   adaptive_max_steps(adaptive_max_steps)
     {
@@ -278,21 +278,20 @@ class boost_rsnbrk_system_solver : public boost_system_solver<state_type>
     int adaptive_max_steps;
     void do_boost_solve(
         size_t ntimes,
-        state_type state,
-        std::vector<state_type>& state_vec,
+        boost::numeric::ublas::vector<double> state,
+        std::vector<boost::numeric::ublas::vector<double>>& state_vec,
         std::vector<double>& time_vec,
         SystemCaller syscall,
-        push_back_state_and_time<state_type> observer) const;
+        push_back_state_and_time<boost::numeric::ublas::vector<double>> observer) const;
 };
 
-template <class state_type>
-void boost_rsnbrk_system_solver<state_type>::do_boost_solve(
+void boost_rsnbrk_system_solver::do_boost_solve(
     size_t ntimes,
-    state_type state,
-    std::vector<state_type>& state_vec,
+    boost::numeric::ublas::vector<double> state,
+    std::vector<boost::numeric::ublas::vector<double>>& state_vec,
     std::vector<double>& time_vec,
     SystemCaller syscall,
-    push_back_state_and_time<state_type> observer) const
+    push_back_state_and_time<boost::numeric::ublas::vector<double>> observer) const
 {
     // Set up a rosenbrock stepper
     double const abs_err = adaptive_error_tol;
