@@ -65,6 +65,56 @@ inline std::unordered_map<std::string, std::vector<double>> system_solver<state_
     throw std::logic_error(std::string("system_solver '") + solver_name + std::string("' does not have a 'do_solve()' method defined.\n"));
 }
 
+// A class representing our homemade euler solver
+template <class state_type>
+class homemade_euler_solver : public system_solver<state_type>
+{
+   public:
+    homemade_euler_solver(double output_step_size) : system_solver<state_type>("homemade_euler", output_step_size, false) {}
+
+   private:
+    std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
+};
+
+template <class state_type>
+std::unordered_map<std::string, std::vector<double>> homemade_euler_solver<state_type>::do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const
+{
+    // Get the names of the output parameters and pointers to them
+    std::vector<std::string> output_param_vector = sys->get_output_param_names();
+    std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
+
+    // Make the results map
+    std::unordered_map<std::string, std::vector<double>> results;
+
+    // Make the result vector
+    std::vector<double> temp(ntimes);
+    std::vector<std::vector<double>> result_vec(output_param_vector.size(), temp);
+
+    // Make a vector to store the derivative
+    std::vector<double> dstatedt = state;
+
+    // Run through all the times
+    for (int t = 0; t < ntimes; t++) {
+        // Update all the parameters and calculate the derivative based on the current time and state
+        sys->operator()(state, dstatedt, t);
+
+        // Store the current parameter values
+        for (size_t i = 0; i < result_vec.size(); i++) (result_vec[i])[t] = *output_ptr_vector[i];
+
+        // Update the state for the next step
+        for (size_t j = 0; j < state.size(); j++) state[j] += dstatedt[j];  // The derivative has already been multiplied by the timestep
+    }
+
+    // Fill in the result map
+    for (size_t i = 0; i < output_param_vector.size(); i++) results[output_param_vector[i]] = result_vec[i];
+
+    // Add the number of derivative calculations
+    std::fill(temp.begin(), temp.end(), sys->get_ncalls());
+    results["ncalls"] = temp;
+
+    return results;
+}
+
 // A class representing a generic boost system solver
 template <class state_type>
 class boost_system_solver : public system_solver<state_type>
