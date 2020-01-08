@@ -3,18 +3,27 @@
 
 #include <memory>
 #include "system.h"
-
-/*
+#include "system_solver.h"
+ 
+ // Define a function that returns a pointer to a system solver that needs the following as inputs to its constructor:
+ //  - output step size
+ template <class solver_type, class state_type>
+ inline std::unique_ptr<system_solver<state_type>> createSystemSolver(double output_step_size) {
+     return std::unique_ptr<system_solver<state_type>>(new solver_type(output_step_size));
+ }
+ 
+ // Define a function that returns a pointer to a system solver that needs the following as inputs to its constructor:
+ //  - output step size
+ //  - adaptive error tolerance
+ //  - adaptive max steps
+ template <class solver_type, class state_type>
+ inline std::unique_ptr<system_solver<state_type>> createSystemSolver(double output_step_size, double adaptive_error_tol, int adaptive_max_steps) {
+     return std::unique_ptr<system_solver<state_type>>(new solver_type(output_step_size, adaptive_error_tol, adaptive_max_steps));
+ }
+ 
+ /*
  * We are passing names from R as strings, so we need a way to create objects from strings.
  * This is a factory that makes system solvers from strings.
- * For this context, a system solver is any function with the following signature:
- * state_vector_map f(state_map const &,
- *                    state_map const &,
- *                    state_vector_map const &,
- *                    vector<string> const &,
- *                    vector<string> const &,
- *                    bool,
- *                    void (*)(char const*, ...))
  */
 
 class SystemSolverFactory {

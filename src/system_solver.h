@@ -8,7 +8,7 @@
 #include "system.h"
 
 // An abstract class for a generic system solver
-// Its operator() provides a uniform interface for all derived solvers,
+// Its solve function provides a uniform interface for all derived solvers,
 //  and its constructor requires inputs that are common to all solvers
 template <class state_type>
 class system_solver
@@ -19,11 +19,9 @@ class system_solver
         double output_step_size,
         bool check_adaptive_compatible) : solver_name(solver_name),
                                           output_step_size(output_step_size),
-                                          check_adaptive_compatible(check_adaptive_compatible)
-    {
-    }
+                                          check_adaptive_compatible(check_adaptive_compatible) {}
     virtual ~system_solver() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class
-    std::unordered_map<std::string, std::vector<double>> operator()(std::shared_ptr<System> sys) const;
+    std::unordered_map<std::string, std::vector<double>> solve(std::shared_ptr<System> sys) const;
 
    protected:
     std::string const solver_name;
@@ -31,6 +29,7 @@ class system_solver
 
    private:
     bool check_adaptive_compatible;
+    virtual std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
     virtual std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
 };
 
@@ -42,11 +41,8 @@ inline system_solver<state_type>::~system_solver()
 
 // Create some variables that will be useful to any type of solver, and then call the private do_solve method
 template <class state_type>
-std::unordered_map<std::string, std::vector<double>> system_solver<state_type>::operator()(std::shared_ptr<System> sys) const
+std::unordered_map<std::string, std::vector<double>> system_solver<state_type>::solve(std::shared_ptr<System> sys) const
 {
-    // Check compatibility with adaptive step sizes
-    if (check_adaptive_compatible && !sys->is_adaptive_compatible()) throw std::logic_error("Thrown by system_solver: the system is not compatible with the chosen solution method.\n");
-
     // Get the number of time points
     size_t ntimes = sys->get_ntimes();
 
@@ -55,14 +51,27 @@ std::unordered_map<std::string, std::vector<double>> system_solver<state_type>::
     sys->get_state(state);
 
     // Solve the system and return the results
-    return this->do_solve(ntimes, state, sys);
+    if (check_adaptive_compatible && !sys->is_adaptive_compatible()) {
+        return this->handle_adaptive_incompatibility(ntimes, state, sys);
+    }
+
+    else {
+        return this->do_solve(ntimes, state, sys);
+    }
 }
 
 // Throw an error if a derived class hasn't defined its own do_solve method
 template <class state_type>
-inline std::unordered_map<std::string, std::vector<double>> system_solver<state_type>::do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const
+inline std::unordered_map<std::string, std::vector<double>> system_solver<state_type>::do_solve(size_t /*ntimes*/, state_type /*state*/, std::shared_ptr<System> /*sys*/) const
 {
     throw std::logic_error(std::string("system_solver '") + solver_name + std::string("' does not have a 'do_solve()' method defined.\n"));
+}
+
+// Define the standard response to a problem with adaptive compatibility
+template <class state_type>
+inline std::unordered_map<std::string, std::vector<double>> system_solver<state_type>::handle_adaptive_incompatibility(size_t /*ntimes*/, state_type /*state*/, std::shared_ptr<System> /*sys*/) const
+{
+    throw std::logic_error("Thrown by system_solver: the system is not compatible with the chosen solution method.\n");
 }
 
 // A class representing our homemade euler solver
@@ -123,19 +132,15 @@ class boost_system_solver : public system_solver<state_type>
     boost_system_solver(
         std::string solver_name,
         double output_step_size,
-        bool check_adaptive_compatible) : system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible)
-    {
-    }
+        bool check_adaptive_compatible) : system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible) {}
 
    private:
     std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
     virtual void do_boost_solve(
         size_t ntimes,
         state_type state,
-        std::vector<state_type>& state_vec,
-        std::vector<double>& time_vec,
         SystemCaller syscall,
-        push_back_state_and_time<state_type> observer) const;
+        push_back_state_and_time<state_type>& observer) const;
 };
 
 // Create some variables that will be useful to any type of boost solver, and then call the private do_boost_solve method
@@ -153,7 +158,7 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
     SystemCaller syscall(sys);
 
     // Solve the system, storing the results in state_vec and time_vec
-    do_boost_solve(ntimes, state, state_vec, time_vec, syscall, observer);
+    do_boost_solve(ntimes, state, syscall, observer);
 
     // Return the results
     return sys->get_results(state_vec, time_vec);
@@ -162,12 +167,10 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
 // Throw an error if a derived class hasn't defined its own do_boost_solve method
 template <class state_type>
 inline void boost_system_solver<state_type>::do_boost_solve(
-    size_t ntimes,
-    state_type state,
-    std::vector<state_type>& state_vec,
-    std::vector<double>& time_vec,
-    SystemCaller syscall,
-    push_back_state_and_time<state_type> observer) const
+    size_t /*ntimes*/,
+    state_type /*state*/,
+    SystemCaller /*syscall*/,
+    push_back_state_and_time<state_type>& /*observer*/) const
 {
     throw std::logic_error(std::string("boost_system_solver '") + this->solver_name + std::string("' does not have a 'do_boost_solve()' method defined.\n"));
 }
@@ -177,28 +180,22 @@ template <class state_type>
 class boost_euler_system_solver : public boost_system_solver<state_type>
 {
    public:
-    boost_euler_system_solver(double output_step_size) : boost_system_solver<state_type>("euler_odeint", output_step_size, false)
-    {
-    }
+    boost_euler_system_solver(double output_step_size) : boost_system_solver<state_type>("euler_odeint", output_step_size, false) {}
 
    private:
     void do_boost_solve(
         size_t ntimes,
         state_type state,
-        std::vector<state_type>& state_vec,
-        std::vector<double>& time_vec,
         SystemCaller syscall,
-        push_back_state_and_time<state_type> observer) const;
+        push_back_state_and_time<state_type>& observer) const;
 };
 
 template <class state_type>
 void boost_euler_system_solver<state_type>::do_boost_solve(
     size_t ntimes,
     state_type state,
-    std::vector<state_type>& state_vec,
-    std::vector<double>& time_vec,
     SystemCaller syscall,
-    push_back_state_and_time<state_type> observer) const
+    push_back_state_and_time<state_type>& observer) const
 {
     // Make an euler stepper
     typedef boost::numeric::odeint::euler<state_type, double, state_type, double> stepper_type;
@@ -220,28 +217,22 @@ template <class state_type>
 class boost_rk4_system_solver : public boost_system_solver<state_type>
 {
    public:
-    boost_rk4_system_solver(double output_step_size) : boost_system_solver<state_type>("rk4", output_step_size, true)
-    {
-    }
+    boost_rk4_system_solver(double output_step_size) : boost_system_solver<state_type>("rk4", output_step_size, true) {}
 
    private:
     void do_boost_solve(
         size_t ntimes,
         state_type state,
-        std::vector<state_type>& state_vec,
-        std::vector<double>& time_vec,
         SystemCaller syscall,
-        push_back_state_and_time<state_type> observer) const;
+        push_back_state_and_time<state_type>& observer) const;
 };
 
 template <class state_type>
 void boost_rk4_system_solver<state_type>::do_boost_solve(
     size_t ntimes,
     state_type state,
-    std::vector<state_type>& state_vec,
-    std::vector<double>& time_vec,
     SystemCaller syscall,
-    push_back_state_and_time<state_type> observer) const
+    push_back_state_and_time<state_type>& observer) const
 {
     // Make an rk4 stepper
     typedef boost::numeric::odeint::runge_kutta4<state_type, double, state_type, double> stepper_type;
@@ -268,9 +259,7 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
         double adaptive_error_tol,
         int adaptive_max_steps) : boost_system_solver<state_type>("rkck54", output_step_size, true),
                                   adaptive_error_tol(adaptive_error_tol),
-                                  adaptive_max_steps(adaptive_max_steps)
-    {
-    }
+                                  adaptive_max_steps(adaptive_max_steps) {}
 
    private:
     double adaptive_error_tol;
@@ -278,20 +267,16 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
     void do_boost_solve(
         size_t ntimes,
         state_type state,
-        std::vector<state_type>& state_vec,
-        std::vector<double>& time_vec,
         SystemCaller syscall,
-        push_back_state_and_time<state_type> observer) const;
+        push_back_state_and_time<state_type>& observer) const;
 };
 
 template <class state_type>
 void boost_rkck54_system_solver<state_type>::do_boost_solve(
     size_t ntimes,
     state_type state,
-    std::vector<state_type>& state_vec,
-    std::vector<double>& time_vec,
     SystemCaller syscall,
-    push_back_state_and_time<state_type> observer) const
+    push_back_state_and_time<state_type>& observer) const
 {
     // Set up an rkck54 stepper
     double const abs_err = adaptive_error_tol;
@@ -319,9 +304,7 @@ class boost_rsnbrk_system_solver : public boost_system_solver<boost::numeric::ub
         double adaptive_error_tol,
         int adaptive_max_steps) : boost_system_solver<boost::numeric::ublas::vector<double>>("rsnbrk", output_step_size, true),
                                   adaptive_error_tol(adaptive_error_tol),
-                                  adaptive_max_steps(adaptive_max_steps)
-    {
-    }
+                                  adaptive_max_steps(adaptive_max_steps) {}
 
    private:
     double adaptive_error_tol;
@@ -329,34 +312,38 @@ class boost_rsnbrk_system_solver : public boost_system_solver<boost::numeric::ub
     void do_boost_solve(
         size_t ntimes,
         boost::numeric::ublas::vector<double> state,
-        std::vector<boost::numeric::ublas::vector<double>>& state_vec,
-        std::vector<double>& time_vec,
         SystemCaller syscall,
-        push_back_state_and_time<boost::numeric::ublas::vector<double>> observer) const;
+        push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer) const;
 };
 
-void boost_rsnbrk_system_solver::do_boost_solve(
-    size_t ntimes,
-    boost::numeric::ublas::vector<double> state,
-    std::vector<boost::numeric::ublas::vector<double>>& state_vec,
-    std::vector<double>& time_vec,
-    SystemCaller syscall,
-    push_back_state_and_time<boost::numeric::ublas::vector<double>> observer) const
+// A class representing the auto solver which chooses default methods
+template <class state_type>
+class auto_solver : public system_solver<state_type>
 {
-    // Set up a rosenbrock stepper
-    double const abs_err = adaptive_error_tol;
-    double const rel_err = adaptive_error_tol;
-    typedef boost::numeric::odeint::rosenbrock4<double> dense_stepper_type;
+   public:
+    auto_solver(double output_step_size, double adaptive_error_tol, int adaptive_max_steps) : system_solver<state_type>("auto", output_step_size, true),
+                                                                                              adaptive_error_tol(adaptive_error_tol),
+                                                                                              adaptive_max_steps(adaptive_max_steps) {}
 
-    // Use integrate_const to populate state_vec and time_vec
-    boost::numeric::odeint::integrate_const(
-        boost::numeric::odeint::make_dense_output<dense_stepper_type>(abs_err, rel_err),
-        std::make_pair(syscall, syscall),
-        state,
-        0.0,
-        ntimes - 1.0,
-        this->output_step_size,
-        observer);
+   private:
+    double const adaptive_error_tol;
+    int const adaptive_max_steps;
+    std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
+    std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
+};
+
+template <class state_type>
+std::unordered_map<std::string, std::vector<double>> auto_solver<state_type>::do_solve(size_t /*ntimes*/, state_type /*state*/, std::shared_ptr<System> sys) const {
+    // The system is compatible with adaptive step size methods, so make a rosenbrock solver to solve the system
+    boost_rsnbrk_system_solver solver(this->output_step_size, adaptive_error_tol, adaptive_max_steps);
+    return solver.solve(sys);
+}
+
+template <class state_type>
+std::unordered_map<std::string, std::vector<double>> auto_solver<state_type>::handle_adaptive_incompatibility(size_t /*ntimes*/, state_type /*state*/, std::shared_ptr<System> sys) const {
+    // The system is not compatible with adaptive step size methods, so use an euler solver to solve the system
+    homemade_euler_solver<state_type> solver(this->output_step_size);
+    return solver.solve(sys);
 }
 
 #endif
