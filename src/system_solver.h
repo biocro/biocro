@@ -8,7 +8,8 @@
 #include "system.h"
 
 // An abstract class for a generic system solver
-// Its operator() provides a uniform interface for all derived solvers
+// Its operator() provides a uniform interface for all derived solvers,
+//  and its constructor requires inputs that are common to all solvers
 template <class state_type>
 class system_solver
 {
@@ -24,16 +25,16 @@ class system_solver
     virtual ~system_solver() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class
     std::unordered_map<std::string, std::vector<double>> operator()(std::shared_ptr<System> sys) const;
 
-   private:
-    bool check_adaptive_compatible;
-    virtual std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
-
    protected:
     std::string const solver_name;
     double const output_step_size;
+
+   private:
+    bool check_adaptive_compatible;
+    virtual std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
 };
 
-// Destructor must be defined outside the class
+// Pure virtual destructor must be redefined outside the class
 template <class state_type>
 inline system_solver<state_type>::~system_solver()
 {
@@ -72,24 +73,19 @@ class boost_system_solver : public system_solver<state_type>
     boost_system_solver(
         std::string solver_name,
         double output_step_size,
-        bool check_adaptive_compatible,
-        int adaptive_max_steps,
-        typename boost::numeric::odeint::algebra_stepper_base<typename boost::numeric::odeint::algebra_dispatcher<state_type>::algebra_type, typename boost::numeric::odeint::operations_dispatcher<state_type>::operations_type> stepper) : system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible),
-                                                                                                                                                                                                                                             adaptive_max_steps(adaptive_max_steps),
-                                                                                                                                                                                                                                             stepper(stepper)
+        bool check_adaptive_compatible) : system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible)
     {
     }
 
    private:
     std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
-    virtual void do_boost_solve(size_t ntimes, state_type state, std::vector<state_type>& state_vec, std::vector<double>& time_vec, SystemCaller syscall) const;
-
-   protected:
-    typedef typename boost::numeric::odeint::algebra_dispatcher<state_type>::algebra_type algebra_type;
-    typedef typename boost::numeric::odeint::operations_dispatcher<state_type>::operations_type operations_type;
-    typedef typename boost::numeric::odeint::algebra_stepper_base<algebra_type, operations_type> generic_stepper_type;
-    int const adaptive_max_steps;
-    generic_stepper_type stepper;
+    virtual void do_boost_solve(
+        size_t ntimes,
+        state_type state,
+        std::vector<state_type>& state_vec,
+        std::vector<double>& time_vec,
+        SystemCaller syscall,
+        push_back_state_and_time<state_type> observer) const;
 };
 
 // Create some variables that will be useful to any type of boost solver, and then call the private do_boost_solve method
@@ -100,11 +96,14 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
     std::vector<state_type> state_vec;
     std::vector<double> time_vec;
 
+    // Make the observer
+    push_back_state_and_time<state_type> observer(state_vec, time_vec, ntimes - 1.0, false);
+
     // Make a system caller
     SystemCaller syscall(sys);
 
     // Solve the system, storing the results in state_vec and time_vec
-    do_boost_solve(ntimes, state, state_vec, time_vec, syscall);
+    do_boost_solve(ntimes, state, state_vec, time_vec, syscall, observer);
 
     // Return the results
     return sys->get_results(state_vec, time_vec);
@@ -117,85 +116,198 @@ inline void boost_system_solver<state_type>::do_boost_solve(
     state_type state,
     std::vector<state_type>& state_vec,
     std::vector<double>& time_vec,
-    SystemCaller syscall) const
+    SystemCaller syscall,
+    push_back_state_and_time<state_type> observer) const
 {
     throw std::logic_error(std::string("boost_system_solver '") + this->solver_name + std::string("' does not have a 'do_boost_solve()' method defined.\n"));
 }
 
-// A class representing a boost solver using an explicit stepper
+// A class representing the boost euler solver
 template <class state_type>
-class boost_explicit_system_solver : public boost_system_solver<state_type>
+class boost_euler_system_solver : public boost_system_solver<state_type>
 {
    public:
-    boost_explicit_system_solver(
-        std::string solver_name,
-        double output_step_size,
-        bool check_adaptive_compatible,
-        int adaptive_max_steps,
-        typename boost_system_solver<state_type>::generic_stepper_type stepper) : boost_system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible, adaptive_max_steps, stepper)
+    boost_euler_system_solver(double output_step_size) : boost_system_solver<state_type>("euler_odeint", output_step_size, false)
     {
     }
 
    private:
-    void do_boost_solve(size_t ntimes, state_type state, std::vector<state_type>& state_vec, std::vector<double>& time_vec, SystemCaller syscall) const;
+    void do_boost_solve(
+        size_t ntimes,
+        state_type state,
+        std::vector<state_type>& state_vec,
+        std::vector<double>& time_vec,
+        SystemCaller syscall,
+        push_back_state_and_time<state_type> observer) const;
 };
 
-// Use integrate_const to populate state_vec and time_vec
 template <class state_type>
-void boost_explicit_system_solver<state_type>::do_boost_solve(
+void boost_euler_system_solver<state_type>::do_boost_solve(
     size_t ntimes,
     state_type state,
     std::vector<state_type>& state_vec,
     std::vector<double>& time_vec,
-    SystemCaller syscall) const
+    SystemCaller syscall,
+    push_back_state_and_time<state_type> observer) const
 {
+    // Make an euler stepper
+    typedef boost::numeric::odeint::euler<state_type, double, state_type, double> stepper_type;
+    stepper_type stepper;
+
+    // Use integrate_const to populate state_vec and time_vec
     boost::numeric::odeint::integrate_const(
-        this->stepper,
+        stepper,
         syscall,
         state,
         0.0,
         ntimes - 1.0,
         this->output_step_size,
-        push_back_state_and_time<state_type>(state_vec, time_vec, ntimes - 1.0, false),
-        boost::numeric::odeint::max_step_checker(this->adaptive_max_steps));
+        observer);
 }
 
-// A class representing a boost solver using an implicit stepper
+// A class representing the boost RK4 solver
 template <class state_type>
-class boost_implicit_system_solver : public boost_system_solver<state_type>
+class boost_rk4_system_solver : public boost_system_solver<state_type>
 {
    public:
-    boost_implicit_system_solver(
-        std::string solver_name,
-        double output_step_size,
-        bool check_adaptive_compatible,
-        int adaptive_max_steps,
-        typename boost_system_solver<state_type>::generic_stepper_type stepper) : boost_system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible, adaptive_max_steps, stepper)
+    boost_rk4_system_solver(double output_step_size) : boost_system_solver<state_type>("rk4", output_step_size, true)
     {
     }
 
    private:
-    void do_boost_solve(size_t ntimes, state_type state, std::vector<state_type>& state_vec, std::vector<double>& time_vec, SystemCaller syscall) const;
+    void do_boost_solve(
+        size_t ntimes,
+        state_type state,
+        std::vector<state_type>& state_vec,
+        std::vector<double>& time_vec,
+        SystemCaller syscall,
+        push_back_state_and_time<state_type> observer) const;
 };
 
-// Use integrate_const to populate state_vec and time_vec
 template <class state_type>
-void boost_implicit_system_solver<state_type>::do_boost_solve(
+void boost_rk4_system_solver<state_type>::do_boost_solve(
     size_t ntimes,
     state_type state,
     std::vector<state_type>& state_vec,
     std::vector<double>& time_vec,
-    SystemCaller syscall) const
+    SystemCaller syscall,
+    push_back_state_and_time<state_type> observer) const
 {
+    // Make an rk4 stepper
+    typedef boost::numeric::odeint::runge_kutta4<state_type, double, state_type, double> stepper_type;
+    stepper_type stepper;
+
+    // Use integrate_const to populate state_vec and time_vec
     boost::numeric::odeint::integrate_const(
-        this->stepper,
+        stepper,
+        syscall,
+        state,
+        0.0,
+        ntimes - 1.0,
+        this->output_step_size,
+        observer);
+}
+
+// A class representing the boost RKCK54 solver
+template <class state_type>
+class boost_rkck54_system_solver : public boost_system_solver<state_type>
+{
+   public:
+    boost_rkck54_system_solver(
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps) : boost_system_solver<state_type>("rkck54", output_step_size, true),
+                                  adaptive_error_tol(adaptive_error_tol),
+                                  adaptive_max_steps(adaptive_max_steps)
+    {
+    }
+
+   private:
+    double adaptive_error_tol;
+    int adaptive_max_steps;
+    void do_boost_solve(
+        size_t ntimes,
+        state_type state,
+        std::vector<state_type>& state_vec,
+        std::vector<double>& time_vec,
+        SystemCaller syscall,
+        push_back_state_and_time<state_type> observer) const;
+};
+
+template <class state_type>
+void boost_rkck54_system_solver<state_type>::do_boost_solve(
+    size_t ntimes,
+    state_type state,
+    std::vector<state_type>& state_vec,
+    std::vector<double>& time_vec,
+    SystemCaller syscall,
+    push_back_state_and_time<state_type> observer) const
+{
+    // Set up an rkck54 stepper
+    double const abs_err = adaptive_error_tol;
+    double const rel_err = adaptive_error_tol;
+    typedef boost::numeric::odeint::runge_kutta_cash_karp54<state_type, double, state_type, double> error_stepper_type;
+
+    // Use integrate_const to populate state_vec and time_vec
+    boost::numeric::odeint::integrate_const(
+        boost::numeric::odeint::make_controlled<error_stepper_type>(abs_err, rel_err),
+        syscall,
+        state,
+        0.0,
+        ntimes - 1.0,
+        this->output_step_size,
+        observer);
+}
+
+// A class representing the boost rosenbrock solver
+template <class state_type>
+class boost_rsnbrk_system_solver : public boost_system_solver<state_type>
+{
+   public:
+    boost_rsnbrk_system_solver(
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps) : boost_system_solver<state_type>("rsnbrk", output_step_size, true),
+                                  adaptive_error_tol(adaptive_error_tol),
+                                  adaptive_max_steps(adaptive_max_steps)
+    {
+    }
+
+   private:
+    double adaptive_error_tol;
+    int adaptive_max_steps;
+    void do_boost_solve(
+        size_t ntimes,
+        state_type state,
+        std::vector<state_type>& state_vec,
+        std::vector<double>& time_vec,
+        SystemCaller syscall,
+        push_back_state_and_time<state_type> observer) const;
+};
+
+template <class state_type>
+void boost_rsnbrk_system_solver<state_type>::do_boost_solve(
+    size_t ntimes,
+    state_type state,
+    std::vector<state_type>& state_vec,
+    std::vector<double>& time_vec,
+    SystemCaller syscall,
+    push_back_state_and_time<state_type> observer) const
+{
+    // Set up a rosenbrock stepper
+    double const abs_err = adaptive_error_tol;
+    double const rel_err = adaptive_error_tol;
+    typedef boost::numeric::odeint::rosenbrock4<double> dense_stepper_type;
+
+    // Use integrate_const to populate state_vec and time_vec
+    boost::numeric::odeint::integrate_const(
+        boost::numeric::odeint::make_dense_output<dense_stepper_type>(abs_err, rel_err),
         std::make_pair(syscall, syscall),
         state,
         0.0,
         ntimes - 1.0,
         this->output_step_size,
-        push_back_state_and_time<state_type>(state_vec, time_vec, ntimes - 1.0, false),
-        boost::numeric::odeint::max_step_checker(this->adaptive_max_steps));
+        observer);
 }
 
 #endif
