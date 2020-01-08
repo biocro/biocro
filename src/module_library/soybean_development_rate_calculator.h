@@ -1,5 +1,5 @@
 #ifndef SOYBEAN_DEVELOPMENT_RATE_CALCULATOR_h
-#define SOYBEAN_DEVELOPEMTN_RATE_CALCULATOR_h
+#define SOYBEAN_DEVELOPMENT_RATE_CALCULATOR_h
 
 #include "../modules.h"
 #include <cmath>
