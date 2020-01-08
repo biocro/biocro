@@ -8,6 +8,7 @@
 #include <boost/numeric/ublas/vector.hpp>   // For use with ODEINT
 #include <boost/numeric/odeint.hpp>         // For use with ODEINT
 #include "Gro.h"
+#include "system_solver.h"
 
 std::unordered_map<std::string, std::vector<double>> Gro(
         std::unordered_map<std::string, double> const &initial_state,
@@ -148,52 +149,11 @@ std::unordered_map<std::string, std::vector<double>> Gro_euler_odeint_solve(
         bool verbose,
         void (*print_msg) (char const *format, ...))
 {
-        // Solve the system using the ODEINT Euler stepper
-
-        // Get the number of time points
-        int ntimes = (int) sys->get_ntimes();
-
-        // Get the names of the output parameters and pointers to them
-        std::vector<std::string> output_param_vector = sys->get_output_param_names();
-        std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
-
-        // Get the current state in the correct format
-        std::vector<double> state;
-        sys->get_state(state);
-
-        // Make a vector to store the derivative
-        std::vector<double> dstatedt = state;
-
-        // Make a system caller to pass to odeint
-        SystemCaller syscall(sys);
-
-        // Make vectors to store the observer output
-        std::vector<std::vector<double>> state_vec;
-        std::vector<double> time_vec;
-
-        // Run the calculation and get the results
-        try {
-            boost::numeric::odeint::euler<std::vector<double>, double, std::vector<double>, double> euler_stepper;
-            boost::numeric::odeint::integrate_const(
-                euler_stepper,
-                syscall,
-                state,
-                0.0,
-                (double)ntimes - 1.0,
-                output_step_size,
-                push_back_state_and_time<std::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg)
-            );
-        }
-        catch (std::exception &e) {
-            // Just return whatever progresss we have made
-            if (verbose) print_msg("\n");  // Make the output look nice
-            print_msg("Error encountered while running the ODEINT Euler stepper... returning a partial result.\n\nODEINT reports the following: %s\n\n", e.what());
-            return sys->get_results(state_vec, time_vec);
-        }
-
-        if (verbose) print_msg("\n");  // Make the output look nice
-
-        return sys->get_results(state_vec, time_vec);
+        // Solve the system using the system_solver class
+        typedef std::vector<double> euler_state_type;
+        typedef boost::numeric::odeint::euler<euler_state_type, double, euler_state_type, double> euler_stepper_type;
+        boost_explicit_system_solver<euler_state_type, euler_stepper_type> solver(std::string("euler_odeint"), output_step_size, 200, false);
+        return solver(sys);
 }
 
 std::unordered_map<std::string, std::vector<double>> Gro_rsnbrk(
@@ -315,59 +275,11 @@ std::unordered_map<std::string, std::vector<double>> Gro_rk4_solve(
         bool verbose,
         void (*print_msg) (char const *format, ...))
 {
-        // Solve the system using the ODEINT RK4 stepper
-
-        // Check to make sure the system can be solved using adaptive step size methods
-        //  Note: RK4 is not an adaptive step size algorithm. However, it will not function
-        //   with the thermal time senescence module. Maybe the is_adaptive_compatible
-        //   boolean should be changed to something like is_only_euler_compatible which
-        //   might be more descriptive.
-        if (!sys->is_adaptive_compatible()) throw std::logic_error("Thrown by Gro_rk4: the system is not compatible with adaptive step size integration methods.\n");
-
-        // Get the number of time points
-        int ntimes = (int) sys->get_ntimes();
-
-        // Get the names of the output parameters and pointers to them
-        std::vector<std::string> output_param_vector = sys->get_output_param_names();
-        std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
-
-        // Get the current state in the correct format
-        std::vector<double> state;
-        sys->get_state(state);
-
-        // Make a vector to store the derivative
-        std::vector<double> dstatedt = state;
-
-        // Make a system caller to pass to odeint
-        SystemCaller syscall(sys);
-
-        // Make vectors to store the observer output
-        std::vector<std::vector<double>> state_vec;
-        std::vector<double> time_vec;
-
-        // Run the calculation and get the results
-        try {
-            boost::numeric::odeint::runge_kutta4<std::vector<double>, double, std::vector<double>, double> rk4_stepper;
-            boost::numeric::odeint::integrate_const(
-                rk4_stepper,
-                syscall,
-                state,
-                0.0,
-                (double)ntimes - 1.0,
-                output_step_size,
-                push_back_state_and_time<std::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg)
-            );
-        }
-        catch (std::exception &e) {
-            // Just return whatever progresss we have made
-                    if (verbose) print_msg("\n");  // Make the output look nice
-                    print_msg("Error encountered while running the ODEINT RK4 stepper... returning a partial result.\n\nODEINT reports the following: %s\n\n", e.what());
-                    return sys->get_results(state_vec, time_vec);
-        }
-
-        if (verbose) print_msg("\n");  // Make the output look nice
-
-        return sys->get_results(state_vec, time_vec);
+        // Solve the system using the system_solver class
+        typedef std::vector<double> rk4_state_type;
+        typedef boost::numeric::odeint::runge_kutta4<rk4_state_type, double, rk4_state_type, double> rk4_stepper_type;
+        boost_explicit_system_solver<rk4_state_type, rk4_stepper_type> solver(std::string("rk4"), output_step_size, 200, true);
+        return solver(sys);
 }
 
 std::unordered_map<std::string, std::vector<double>> Gro_rkck54(
