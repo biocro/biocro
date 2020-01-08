@@ -25,8 +25,8 @@ class system_solver
     std::unordered_map<std::string, std::vector<double>> operator()(std::shared_ptr<System> sys) const;
 
    private:
-    virtual std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
     bool check_adaptive_compatible;
+    virtual std::unordered_map<std::string, std::vector<double>> do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const;
 
    protected:
     std::string const solver_name;
@@ -65,16 +65,18 @@ inline std::unordered_map<std::string, std::vector<double>> system_solver<state_
 }
 
 // A class representing a generic boost system solver
-template <class state_type, class stepper_type>
+template <class state_type>
 class boost_system_solver : public system_solver<state_type>
 {
    public:
     boost_system_solver(
         std::string solver_name,
         double output_step_size,
+        bool check_adaptive_compatible,
         int adaptive_max_steps,
-        bool check_adaptive_compatible) : system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible),
-                                          adaptive_max_steps(adaptive_max_steps)
+        typename boost::numeric::odeint::algebra_stepper_base<typename boost::numeric::odeint::algebra_dispatcher<state_type>::algebra_type, typename boost::numeric::odeint::operations_dispatcher<state_type>::operations_type> stepper) : system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible),
+                                                                                                                                                                                                                                             adaptive_max_steps(adaptive_max_steps),
+                                                                                                                                                                                                                                             stepper(stepper)
     {
     }
 
@@ -83,13 +85,16 @@ class boost_system_solver : public system_solver<state_type>
     virtual void do_boost_solve(size_t ntimes, state_type state, std::vector<state_type>& state_vec, std::vector<double>& time_vec, SystemCaller syscall) const;
 
    protected:
+    typedef typename boost::numeric::odeint::algebra_dispatcher<state_type>::algebra_type algebra_type;
+    typedef typename boost::numeric::odeint::operations_dispatcher<state_type>::operations_type operations_type;
+    typedef typename boost::numeric::odeint::algebra_stepper_base<algebra_type, operations_type> generic_stepper_type;
     int const adaptive_max_steps;
-    stepper_type stepper;
+    generic_stepper_type stepper;
 };
 
 // Create some variables that will be useful to any type of boost solver, and then call the private do_boost_solve method
-template <class state_type, class stepper_type>
-std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_type, stepper_type>::do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const
+template <class state_type>
+std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_type>::do_solve(size_t ntimes, state_type state, std::shared_ptr<System> sys) const
 {
     // Make vectors to store the observer output
     std::vector<state_type> state_vec;
@@ -106,8 +111,8 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
 }
 
 // Throw an error if a derived class hasn't defined its own do_boost_solve method
-template <class state_type, class stepper_type>
-inline void boost_system_solver<state_type, stepper_type>::do_boost_solve(
+template <class state_type>
+inline void boost_system_solver<state_type>::do_boost_solve(
     size_t ntimes,
     state_type state,
     std::vector<state_type>& state_vec,
@@ -118,15 +123,16 @@ inline void boost_system_solver<state_type, stepper_type>::do_boost_solve(
 }
 
 // A class representing a boost solver using an explicit stepper
-template <class state_type, class stepper_type>
-class boost_explicit_system_solver : public boost_system_solver<state_type, stepper_type>
+template <class state_type>
+class boost_explicit_system_solver : public boost_system_solver<state_type>
 {
    public:
     boost_explicit_system_solver(
         std::string solver_name,
         double output_step_size,
+        bool check_adaptive_compatible,
         int adaptive_max_steps,
-        bool check_adaptive_compatible) : boost_system_solver<state_type, stepper_type>(solver_name, output_step_size, adaptive_max_steps, check_adaptive_compatible)
+        typename boost_system_solver<state_type>::generic_stepper_type stepper) : boost_system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible, adaptive_max_steps, stepper)
     {
     }
 
@@ -135,8 +141,8 @@ class boost_explicit_system_solver : public boost_system_solver<state_type, step
 };
 
 // Use integrate_const to populate state_vec and time_vec
-template <class state_type, class stepper_type>
-void boost_explicit_system_solver<state_type, stepper_type>::do_boost_solve(
+template <class state_type>
+void boost_explicit_system_solver<state_type>::do_boost_solve(
     size_t ntimes,
     state_type state,
     std::vector<state_type>& state_vec,
@@ -155,15 +161,16 @@ void boost_explicit_system_solver<state_type, stepper_type>::do_boost_solve(
 }
 
 // A class representing a boost solver using an implicit stepper
-template <class state_type, class stepper_type>
-class boost_implicit_system_solver : public boost_system_solver<state_type, stepper_type>
+template <class state_type>
+class boost_implicit_system_solver : public boost_system_solver<state_type>
 {
    public:
     boost_implicit_system_solver(
         std::string solver_name,
         double output_step_size,
+        bool check_adaptive_compatible,
         int adaptive_max_steps,
-        bool check_adaptive_compatible) : boost_system_solver<state_type, stepper_type>(solver_name, output_step_size, adaptive_max_steps, check_adaptive_compatible)
+        typename boost_system_solver<state_type>::generic_stepper_type stepper) : boost_system_solver<state_type>(solver_name, output_step_size, check_adaptive_compatible, adaptive_max_steps, stepper)
     {
     }
 
@@ -172,8 +179,8 @@ class boost_implicit_system_solver : public boost_system_solver<state_type, step
 };
 
 // Use integrate_const to populate state_vec and time_vec
-template <class state_type, class stepper_type>
-void boost_implicit_system_solver<state_type, stepper_type>::do_boost_solve(
+template <class state_type>
+void boost_implicit_system_solver<state_type>::do_boost_solve(
     size_t ntimes,
     state_type state,
     std::vector<state_type>& state_vec,

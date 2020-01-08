@@ -152,7 +152,8 @@ std::unordered_map<std::string, std::vector<double>> Gro_euler_odeint_solve(
         // Solve the system using the system_solver class
         typedef std::vector<double> euler_state_type;
         typedef boost::numeric::odeint::euler<euler_state_type, double, euler_state_type, double> euler_stepper_type;
-        boost_explicit_system_solver<euler_state_type, euler_stepper_type> solver(std::string("euler_odeint"), output_step_size, 200, false);
+        euler_stepper_type stepper;
+        boost_explicit_system_solver<euler_state_type> solver(std::string("euler_odeint"), output_step_size, false, 200, stepper);
         return solver(sys);
 }
 
@@ -278,7 +279,8 @@ std::unordered_map<std::string, std::vector<double>> Gro_rk4_solve(
         // Solve the system using the system_solver class
         typedef std::vector<double> rk4_state_type;
         typedef boost::numeric::odeint::runge_kutta4<rk4_state_type, double, rk4_state_type, double> rk4_stepper_type;
-        boost_explicit_system_solver<rk4_state_type, rk4_stepper_type> solver(std::string("rk4"), output_step_size, 200, true);
+        rk4_stepper_type stepper;
+        boost_explicit_system_solver<rk4_state_type> solver(std::string("rk4"), output_step_size, true, 200, stepper);
         return solver(sys);
 }
 
