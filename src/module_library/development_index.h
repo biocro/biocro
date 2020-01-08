@@ -1,7 +1,7 @@
 
 
-#ifndef SOYBEAN_GROWTH_STAGES_h
-#define SOYBEAN_GROWTH_STAGES_h
+#ifndef DEVELOPMENT_INDEX_h
+#define DEVELOPMENT_INDEX_h
 
 #include "../modules.h"
 
@@ -22,15 +22,15 @@
  *
  */
 
-class soybean_growth_stages : public DerivModule
+class development_index : public DerivModule
 {
-public: soybean_growth_stages( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+public: development_index( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
     
     // Define basic module properties by passing its name to its parent class
-    DerivModule("soybean_growth_stages"),
+    DerivModule("development_index"),
     
     // Get pointers to input parameters
-    soybean_development_rate_per_hour_ip(get_ip(input_parameters,"soybean_development_rate_per_hour")),
+    development_rate_per_hour_ip(get_ip(input_parameters,"development_rate_per_hour")),
     
     // Get pointers to output parameters
     DVI_op(get_op(output_parameters,"DVI"))
@@ -41,7 +41,7 @@ public: soybean_growth_stages( const std::unordered_map<std::string, double>* in
     
 private:
     // Pointers to input parameters
-    const double* soybean_development_rate_per_hour_ip;
+    const double* development_rate_per_hour_ip;
     
     // Pointers to output parameters
     double* DVI_op;
@@ -50,27 +50,27 @@ private:
     void do_operation() const;
 };
 
-std::vector<std::string> soybean_growth_stages::get_inputs()
+std::vector<std::string> development_index::get_inputs()
 {
     return {
-        "soybean_development_rate_per_hour"
+        "development_rate_per_hour"
     };
 }
 
-std::vector<std::string> soybean_growth_stages::get_outputs()
+std::vector<std::string> development_index::get_outputs()
 {
     return {
         "DVI"
     };
 }
 
-void soybean_growth_stages::do_operation() const
+void development_index::do_operation() const
 {
     // Collect inputs
-    const double soybean_development_rate_per_hour = *soybean_development_rate_per_hour_ip; // hr^-1; development rate per hour
+    const double development_rate_per_hour = *development_rate_per_hour_ip; // hr^-1; development rate per hour
     
     // Update the output parameter list
-    update(DVI_op, soybean_development_rate_per_hour); // dimensionless
+    update(DVI_op, development_rate_per_hour); // dimensionless
 }
 
 #endif
