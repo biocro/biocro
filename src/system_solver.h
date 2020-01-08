@@ -31,7 +31,6 @@ class system_solver
    protected:
     std::string const solver_name;
     double const output_step_size;
-    int const adaptive_max_steps;
 };
 
 // Destructor must be defined outside the class
