@@ -8,7 +8,7 @@
 #include "module_library/ModuleFactory.h"
 #include "R_helper_functions.h"
 #include "standalone_ss.h"
-#include "SystemSolverFactory.hpp"
+#include "solver_library/SystemSolverFactory.hpp"
 
 using std::string;
 using std::vector;

@@ -4,6 +4,8 @@
 #include <vector>
 #include "state_map.h"
 #include "system.h"
+#include "solver_library/SystemSolverFactory.hpp"
+#include "system_solver.h"
 
 // General Gro function that uses an arbitrary solver
 std::unordered_map<std::string, std::vector<double>> Gro_solve(
