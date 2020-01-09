@@ -1,7 +1,4 @@
 #include "SystemSolverFactory.hpp"
-#include "boost_solvers.h"
-#include "homemade_euler.h"
-#include "auto_solver.h"
 
 SystemSolverFactory::system_solver_creator_map SystemSolverFactory::system_solver_creators = {
     { "Gro",                createSystemSolver<auto_solver<preferred_state_type>> },
