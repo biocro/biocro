@@ -37,7 +37,7 @@ void boost_rsnbrk_system_solver::do_boost_solve(
     // Use integrate_const to populate state_vec and time_vec
     boost::numeric::odeint::integrate_const(
         boost::numeric::odeint::make_dense_output<dense_stepper_type>(abs_err, rel_err),
-        std::make_pair(syscall, syscall),
+        syscall,
         state,
         0.0,
         ntimes - 1.0,

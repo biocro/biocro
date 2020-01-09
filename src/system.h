@@ -317,27 +317,42 @@ int System::speed_test(int n, const vector_type& x, vector_type& dxdt, const tim
 // FOR USE WITH ODEINT //
 /////////////////////////
 
-// This is a simple class with two purposes:
-//  (1) it prevents odeint from making zillions of copies of an input system
-//  (2) it allows the same object to be used as inputs to integrate_const with
-class SystemCaller
+// This is a simple class that prevents odeint from making zillions of copies of an input system
+class SystemPointerWrapper
 {
    public:
-    SystemCaller(std::shared_ptr<System> sys) : _sys(sys) {}
+    SystemPointerWrapper(std::shared_ptr<System> sys) : sys(sys) {}
+
     template <typename state_type, typename time_type>
     void operator()(const state_type& x, state_type& dxdt, const time_type& t)
     {
-        _sys->operator()(x, dxdt, t);
+        sys->operator()(x, dxdt, t);
     }
 
     template <typename state_type, typename jacobi_type, typename time_type>
     void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt)
     {
-        _sys->operator()(x, jacobi, t, dfdt);
+        sys->operator()(x, jacobi, t, dfdt);
     }
 
    private:
-    std::shared_ptr<System> _sys;
+    std::shared_ptr<System> sys;
+};
+
+// This is a simple class that allows the same object to be used as inputs to integrate_const with
+//  explicit and rosenbrock steppers
+class SystemCaller : public SystemPointerWrapper
+{
+   public:
+    SystemCaller(std::shared_ptr<System> sys) : SystemPointerWrapper(sys),
+                                                first(SystemPointerWrapper(sys)),
+                                                second(SystemPointerWrapper(sys)) {}
+
+    // Provide the member types and variables that a std::pair would have
+    typedef SystemPointerWrapper first_type;
+    typedef first_type second_type;
+    first_type first;
+    second_type second;
 };
 
 // Observer used to store values
