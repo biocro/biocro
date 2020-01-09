@@ -121,6 +121,7 @@ class System
 
     // Functions for updating the central parameter list
     void update_varying_params(int time_indx);     // For integer time
+    void update_varying_params(size_t time_indx);  // For size_t time
     void update_varying_params(double time_indx);  // For double time
     template <class vector_type>
     void update_state_params(const vector_type& new_state);

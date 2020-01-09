@@ -36,8 +36,8 @@ SEXP R_Gro(SEXP initial_state,
 		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 		
 		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
-		
-		state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names, 1.0, 1e-6, 200, verb, Rprintf);
+        
+        state_vector_map result = Gro_solve(s, ip, vp, ss_names, deriv_names, "Gro", 1.0, 1e-6, 200, verb, Rprintf);
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
@@ -76,9 +76,8 @@ SEXP R_Gro_solver(SEXP initial_state,
         double output_step_size = REAL(solver_output_step_size)[0];
         double adaptive_error_tol = REAL(solver_adaptive_error_tol)[0];
         int adaptive_max_steps = (int) REAL(solver_adaptive_max_steps)[0];
-		auto solver = system_solver_factory(solver_type_string);
-
-		state_vector_map result = solver(s, ip, vp, ss_names, deriv_names, output_step_size, adaptive_error_tol, adaptive_max_steps, verb, Rprintf);
+        
+        state_vector_map result = Gro_solve(s, ip, vp, ss_names, deriv_names, solver_type_string, output_step_size, adaptive_error_tol, adaptive_max_steps, verb, Rprintf);
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {

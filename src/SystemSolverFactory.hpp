@@ -2,29 +2,28 @@
 #define SYSTEM_SOLVER_FACTORY_HPP
 
 #include <memory>
-#include "system.h"
 #include "system_solver.h"
- 
- // Define a function that returns a pointer to a system solver that needs the following as inputs to its constructor:
- //  - output step size
- template <class solver_type>
- inline std::unique_ptr<system_solver> createSystemSolver() {
-     return std::unique_ptr<system_solver>(new solver_type());
- }
- 
- /*
- * We are passing names from R as strings, so we need a way to create objects from strings.
- * This is a factory that makes system solvers from strings.
- */
 
-class SystemSolverFactory {
-    public:
-        typedef state_vector_map (*SYSTEM_SOLVER)(state_map const &, state_map const &, state_vector_map const &, std::vector<std::string> const &, std::vector<std::string> const &, double, double, int, bool, void (*)(char const*, ...));  // Typedef the function signature for a SystemSolver to the name SYSTEM_SOLVER.
-        SYSTEM_SOLVER operator()(std::string const &system_solver_name) const;
+// Define a function that returns a pointer to a system solver
+template <class solver_type>
+std::unique_ptr<system_solver> createSystemSolver()
+{
+    return std::unique_ptr<system_solver>(new solver_type());
+}
 
-    private:
-        typedef std::map<std::string, SYSTEM_SOLVER> system_solver_map;  // A map of strings to SYSTEM_SOLVERs.
-        static system_solver_map system_solvers;
+// We are passing names from R as strings, so we need a way to create objects from strings.
+// This is a factory that makes system solvers from strings.
+
+class SystemSolverFactory
+{
+   public:
+    typedef std::unique_ptr<system_solver> (*system_solver_creator)();  // Define a system_solver_creator to be a pointer to a function that has no arguments and returns a std::unique_ptr<system_solver>
+    std::unique_ptr<system_solver> operator()(std::string const& system_solver_name) const;
+
+   private:
+    typedef std::map<std::string, system_solver_creator> system_solver_creator_map;  // A map of strings to system_solver_creators
+    typedef std::vector<double> preferred_state_type;                                // A default value for state type
+    static system_solver_creator_map system_solver_creators;
 };
 
 extern SystemSolverFactory system_solver_factory;

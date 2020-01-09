@@ -36,9 +36,7 @@ class system_solver
 };
 
 // Pure virtual destructor must be redefined outside the class
-inline system_solver::~system_solver()
-{
-}
+inline system_solver::~system_solver() {}
 
 // Throw an error if a derived class hasn't defined its own do_solve method
 inline std::unordered_map<std::string, std::vector<double>> system_solver::do_solve(std::shared_ptr<System> /*sys*/)
@@ -85,7 +83,7 @@ std::unordered_map<std::string, std::vector<double>> homemade_euler_solver<state
     state_type dstatedt = state;
 
     // Run through all the times
-    for (int t = 0; t < this->ntimes; t++) {
+    for (size_t t = 0; t < this->ntimes; t++) {
         // Update all the parameters and calculate the derivative based on the current time and state
         sys->operator()(state, dstatedt, t);
 
@@ -159,15 +157,19 @@ template <class state_type>
 template <class stepper_type>
 void boost_system_solver<state_type>::run_integrate_const(stepper_type stepper, SystemCaller syscall, push_back_state_and_time<state_type> observer)
 {
-    boost::numeric::odeint::integrate_const(
-        stepper,
-        syscall,
-        state,
-        0.0,
-        this->ntimes - 1.0,
-        this->output_step_size,
-        observer,
-        boost::numeric::odeint::max_step_checker(this->adaptive_max_steps));
+    try {
+        boost::numeric::odeint::integrate_const(
+            stepper,
+            syscall,
+            state,
+            0.0,
+            this->ntimes - 1.0,
+            this->output_step_size,
+            observer,
+            boost::numeric::odeint::max_step_checker(this->adaptive_max_steps));
+    } catch (std::exception&) {
+        // Don't do anything... just let the solver return the partial results
+    }
 }
 
 // A class representing the boost euler solver
@@ -251,14 +253,14 @@ class auto_solver : public system_solver
     std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys)
     {
         // The system is compatible with adaptive step size methods, so use a rosenbrock solver to solve the system
-        boost_rsnbrk_system_solver solver();
+        boost_rsnbrk_system_solver solver;
         return solver.solve(sys, this->output_step_size, this->adaptive_error_tol, this->adaptive_max_steps);
     }
 
     std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys)
     {
         // The system is not compatible with adaptive step size methods, so use an euler solver to solve the system
-        homemade_euler_solver<state_type> solver();
+        homemade_euler_solver<state_type> solver;
         return solver.solve(sys, this->output_step_size, this->adaptive_error_tol, this->adaptive_max_steps);
     }
 };
