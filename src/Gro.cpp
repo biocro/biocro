@@ -156,8 +156,8 @@ std::unordered_map<std::string, std::vector<double>> Gro_euler_odeint_solve(
         //return solver(sys);
         
         // Solve the system using the system_solver class
-        std::unique_ptr<system_solver<euler_state_type>> solver = createSystemSolver<boost_euler_system_solver<euler_state_type>, euler_state_type>(output_step_size);
-        return solver->solve(sys);
+        std::unique_ptr<system_solver> solver = createSystemSolver<boost_euler_system_solver<euler_state_type>>();
+        return solver->solve(sys, output_step_size, 1, 1);
 }
 
 std::unordered_map<std::string, std::vector<double>> Gro_rsnbrk(
@@ -281,8 +281,8 @@ std::unordered_map<std::string, std::vector<double>> Gro_rk4_solve(
 {
         // Solve the system using the system_solver class
         typedef std::vector<double> rk4_state_type;
-        boost_rk4_system_solver<rk4_state_type> solver(output_step_size);
-        return solver.solve(sys);
+        std::unique_ptr<system_solver> solver = createSystemSolver<boost_rk4_system_solver<rk4_state_type>>();
+        return solver->solve(sys, output_step_size, 1, 1);
 }
 
 std::unordered_map<std::string, std::vector<double>> Gro_rkck54(

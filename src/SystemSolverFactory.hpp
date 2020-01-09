@@ -7,18 +7,9 @@
  
  // Define a function that returns a pointer to a system solver that needs the following as inputs to its constructor:
  //  - output step size
- template <class solver_type, class state_type>
- inline std::unique_ptr<system_solver<state_type>> createSystemSolver(double output_step_size) {
-     return std::unique_ptr<system_solver<state_type>>(new solver_type(output_step_size));
- }
- 
- // Define a function that returns a pointer to a system solver that needs the following as inputs to its constructor:
- //  - output step size
- //  - adaptive error tolerance
- //  - adaptive max steps
- template <class solver_type, class state_type>
- inline std::unique_ptr<system_solver<state_type>> createSystemSolver(double output_step_size, double adaptive_error_tol, int adaptive_max_steps) {
-     return std::unique_ptr<system_solver<state_type>>(new solver_type(output_step_size, adaptive_error_tol, adaptive_max_steps));
+ template <class solver_type>
+ inline std::unique_ptr<system_solver> createSystemSolver() {
+     return std::unique_ptr<system_solver>(new solver_type());
  }
  
  /*
