@@ -14,7 +14,7 @@ class system_solver
 {
    public:
     system_solver(std::string solver_name, bool check_adaptive_compatible) : solver_name(solver_name), check_adaptive_compatible(check_adaptive_compatible) {}
-    virtual ~system_solver() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class
+    virtual ~system_solver() {}
 
     std::unordered_map<std::string, std::vector<double>> solve(
         std::shared_ptr<System> sys,
@@ -31,18 +31,9 @@ class system_solver
 
    private:
     bool check_adaptive_compatible;
-    virtual std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys);
+    virtual std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) = 0;
     virtual std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys);
 };
-
-// Pure virtual destructor must be redefined outside the class
-inline system_solver::~system_solver() {}
-
-// Throw an error if a derived class hasn't defined its own do_solve method
-inline std::unordered_map<std::string, std::vector<double>> system_solver::do_solve(std::shared_ptr<System> /*sys*/)
-{
-    throw std::logic_error(std::string("system_solver '") + solver_name + std::string("' does not have a 'do_solve()' method defined.\n"));
-}
 
 // Define the standard response to a problem with adaptive compatibility
 inline std::unordered_map<std::string, std::vector<double>> system_solver::handle_adaptive_incompatibility(std::shared_ptr<System> /*sys*/)
@@ -58,7 +49,7 @@ class homemade_euler_solver : public system_solver
     homemade_euler_solver() : system_solver("homemade_euler", false) {}
 
    private:
-    std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys);
+    std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
 };
 
 template <class state_type>
@@ -119,7 +110,7 @@ class boost_system_solver : public system_solver
     state_type state;
     std::vector<state_type> state_vec;
     std::vector<double> time_vec;
-    std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys);
+    std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
     virtual void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer);
 };
 
@@ -250,14 +241,14 @@ class auto_solver : public system_solver
     auto_solver() : system_solver("auto", true) {}
 
    private:
-    std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys)
+    std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override
     {
         // The system is compatible with adaptive step size methods, so use a rosenbrock solver to solve the system
         boost_rsnbrk_system_solver solver;
         return solver.solve(sys, this->output_step_size, this->adaptive_error_tol, this->adaptive_max_steps);
     }
 
-    std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys)
+    std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys) override
     {
         // The system is not compatible with adaptive step size methods, so use an euler solver to solve the system
         homemade_euler_solver<state_type> solver;
