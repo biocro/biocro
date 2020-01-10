@@ -111,7 +111,7 @@ class boost_system_solver : public system_solver
     std::vector<state_type> state_vec;
     std::vector<double> time_vec;
     std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
-    virtual void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer);
+    virtual void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) = 0;
 };
 
 // Store some information that will be useful to any type of boost solver, and then call the private do_boost_solve method
@@ -134,13 +134,6 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
 
     // Return the results
     return sys->get_results(state_vec, time_vec);
-}
-
-// Throw an error if a derived class hasn't defined its own do_boost_solve method
-template <class state_type>
-inline void boost_system_solver<state_type>::do_boost_solve(SystemCaller /*syscall*/, push_back_state_and_time<state_type>& /*observer*/)
-{
-    throw std::logic_error(std::string("boost_system_solver '") + this->solver_name + std::string("' does not have a 'do_boost_solve()' method defined.\n"));
 }
 
 // Run integrate_const using stored information and the supplied stepper
@@ -171,7 +164,7 @@ class boost_euler_system_solver : public boost_system_solver<state_type>
     boost_euler_system_solver() : boost_system_solver<state_type>("euler_odeint", false) {}
 
    private:
-    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer)
+    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
     {
         // Make an euler stepper
         typedef boost::numeric::odeint::euler<state_type, double, state_type, double> stepper_type;
@@ -190,7 +183,7 @@ class boost_rk4_system_solver : public boost_system_solver<state_type>
     boost_rk4_system_solver() : boost_system_solver<state_type>("rk4", true) {}
 
    private:
-    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer)
+    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
     {
         // Make an rk4 stepper
         typedef boost::numeric::odeint::runge_kutta4<state_type, double, state_type, double> stepper_type;
@@ -209,7 +202,7 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
     boost_rkck54_system_solver() : boost_system_solver<state_type>("rkck54", true) {}
 
    private:
-    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer)
+    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
     {
         // Set up an rkck54 stepper
         double const abs_err = this->adaptive_error_tol;
@@ -230,7 +223,7 @@ class boost_rsnbrk_system_solver : public boost_system_solver<boost::numeric::ub
     boost_rsnbrk_system_solver() : boost_system_solver<boost::numeric::ublas::vector<double>>("rsnbrk", true) {}
 
    private:
-    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer);
+    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer) override;
 };
 
 // A class representing the auto solver which chooses default methods
