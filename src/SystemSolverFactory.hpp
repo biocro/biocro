@@ -17,12 +17,12 @@ std::unique_ptr<system_solver> createSystemSolver()
 class SystemSolverFactory
 {
    public:
-    typedef std::unique_ptr<system_solver> (*system_solver_creator)();  // Define a system_solver_creator to be a pointer to a function that has no arguments and returns a std::unique_ptr<system_solver>
+    using system_solver_creator = std::unique_ptr<system_solver> (*)();  // Define a system_solver_creator to be a pointer to a function that has no arguments and returns a std::unique_ptr<system_solver>
     std::unique_ptr<system_solver> operator()(std::string const& system_solver_name) const;
 
    private:
-    typedef std::map<std::string, system_solver_creator> system_solver_creator_map;  // A map of strings to system_solver_creators
-    typedef std::vector<double> preferred_state_type;                                // A default value for state type
+    using system_solver_creator_map = std::map<std::string, system_solver_creator>;  // A map of strings to system_solver_creators
+    using preferred_state_type = std::vector<double>;                                // A default value for state type
     static system_solver_creator_map system_solver_creators;
 };
 
