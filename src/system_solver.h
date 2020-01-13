@@ -23,14 +23,14 @@ class system_solver
         int adaptive_max_steps);
 
    protected:
-    std::string const solver_name;
     double output_step_size;
     double adaptive_error_tol;
     int adaptive_max_steps;
     size_t ntimes;
 
    private:
-    bool check_adaptive_compatible;
+    const std::string solver_name;
+    const bool check_adaptive_compatible;
     virtual std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) = 0;
     virtual std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys);
 };
