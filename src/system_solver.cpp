@@ -11,7 +11,6 @@ std::unordered_map<std::string, std::vector<double>> system_solver::solve(
     this->output_step_size = output_step_size;
     this->adaptive_error_tol = adaptive_error_tol;
     this->adaptive_max_steps = adaptive_max_steps;
-    this->ntimes = sys->get_ntimes();
 
     // Solve the system and return the results
     if (check_adaptive_compatible && !sys->is_adaptive_compatible()) {

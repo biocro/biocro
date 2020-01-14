@@ -336,6 +336,8 @@ class SystemPointerWrapper
         sys->operator()(x, jacobi, t, dfdt);
     }
 
+    size_t get_ntimes() const { return sys->get_ntimes(); }
+
    private:
     std::shared_ptr<System> sys;
 };

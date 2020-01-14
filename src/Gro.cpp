@@ -23,7 +23,7 @@ std::unordered_map<std::string, std::vector<double>> Gro_solve(
     std::shared_ptr<System> sys(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
 
     // Create a solver
-    std::shared_ptr<system_solver> solver = system_solver_factory(solver_name);
+    std::unique_ptr<system_solver> solver = system_solver_factory(solver_name);
 
     // Solve the system and return the result
     return solver->solve(sys, output_step_size, adaptive_error_tol, adaptive_max_steps);

@@ -26,7 +26,6 @@ class system_solver
     double output_step_size;
     double adaptive_error_tol;
     int adaptive_max_steps;
-    size_t ntimes;
 
    private:
     const std::string solver_name;
@@ -63,7 +62,7 @@ std::unordered_map<std::string, std::vector<double>> homemade_euler_solver<state
     std::unordered_map<std::string, std::vector<double>> results;
 
     // Make the result vector
-    std::vector<double> temp(this->ntimes);
+    std::vector<double> temp(sys->get_ntimes());
     std::vector<std::vector<double>> result_vec(output_param_vector.size(), temp);
 
     // Get the current state in the correct format
@@ -74,7 +73,7 @@ std::unordered_map<std::string, std::vector<double>> homemade_euler_solver<state
     state_type dstatedt = state;
 
     // Run through all the times
-    for (size_t t = 0; t < this->ntimes; t++) {
+    for (size_t t = 0; t < sys->get_ntimes(); t++) {
         // Update all the parameters and calculate the derivative based on the current time and state
         sys->operator()(state, dstatedt, t);
 
@@ -124,7 +123,7 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
     time_vec.clear();
 
     // Make an observer
-    push_back_state_and_time<state_type> observer(state_vec, time_vec, this->ntimes - 1.0, false);
+    push_back_state_and_time<state_type> observer(state_vec, time_vec, sys->get_ntimes() - 1.0, false);
 
     // Make a system caller
     SystemCaller syscall(sys);
@@ -147,7 +146,7 @@ void boost_system_solver<state_type>::run_integrate_const(stepper_type stepper, 
             syscall,
             state,
             0.0,
-            this->ntimes - 1.0,
+            syscall.get_ntimes() - 1.0,
             this->output_step_size,
             observer,
             boost::numeric::odeint::max_step_checker(this->adaptive_max_steps));
