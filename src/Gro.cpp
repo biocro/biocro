@@ -1,9 +1,6 @@
-#include <boost/numeric/ublas/vector.hpp>  // For use with ODEINT
-#include <boost/numeric/odeint.hpp>        // For use with ODEINT
 #include "Gro.h"
-#include "system.h"
 #include "system_solver.h"
-#include "SystemSolverFactory.hpp"
+#include "solver_library/SystemSolverFactory.hpp"
 
 // General Gro function that uses an arbitrary solver
 std::unordered_map<std::string, std::vector<double>> Gro_solve(
