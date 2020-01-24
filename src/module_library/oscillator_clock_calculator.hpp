@@ -11,6 +11,7 @@ class oscillator_clock_calculator : public SteadyModule {
             // Define basic module properties by passing its name to its parent class
             SteadyModule("oscillator_clock_calculator"),
             // Get pointers to input parameters
+            doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
             kick_strength_ip(get_ip(input_parameters, "kick_strength")),
             night_tracker_ip(get_ip(input_parameters, "night_tracker")),
             day_tracker_ip(get_ip(input_parameters, "day_tracker")),
@@ -31,12 +32,15 @@ class oscillator_clock_calculator : public SteadyModule {
             dusk_radius_op(get_op(output_parameters, "dusk_radius")),
             ref_radius_op(get_op(output_parameters, "ref_radius")),
             day_length_op(get_op(output_parameters, "day_length")),
-            night_length_op(get_op(output_parameters, "night_length"))
+            night_length_op(get_op(output_parameters, "night_length")),
+            sunrise_op(get_op(output_parameters, "sunrise")),
+            sunset_op(get_op(output_parameters, "sunset"))
         {}
         static std::vector<std::string> get_inputs();
         static std::vector<std::string> get_outputs();
     private:
         // Pointers to input parameters
+        const double* doy_dbl_ip;
         const double* kick_strength_ip;
         const double* night_tracker_ip;
         const double* day_tracker_ip;
@@ -58,12 +62,15 @@ class oscillator_clock_calculator : public SteadyModule {
         double* ref_radius_op;
         double* day_length_op;
         double* night_length_op;
+        double* sunrise_op;
+        double* sunset_op;
         // Main operation
         void do_operation() const;
 };
 
 std::vector<std::string> oscillator_clock_calculator::get_inputs() {
     return {
+        "doy_dbl",
         "kick_strength",
         "night_tracker",
         "day_tracker",
@@ -88,7 +95,9 @@ std::vector<std::string> oscillator_clock_calculator::get_outputs() {
         "dusk_radius",
         "ref_radius",
         "day_length",
-        "night_length"
+        "night_length",
+        "sunrise",
+        "sunset"
     };
 }
 
@@ -109,6 +118,10 @@ void oscillator_clock_calculator::do_operation() const {
     //////////////////////////////////////////
 
     using math_constants::pi;
+    
+    // Get the current time value
+    const double doy_dbl = *doy_dbl_ip;
+    const double hour = 24.0 * (doy_dbl - floor(doy_dbl));
     
     // Get the current light value
     const double light = *light_ip;
@@ -152,6 +165,12 @@ void oscillator_clock_calculator::do_operation() const {
                               :                           (dawn_phase - dusk_phase)          * 12.0 / pi;
     const double night_length = dawn_phase > dusk_phase ? (dusk_phase - dawn_phase + 2 * pi) * 12.0 / pi
                               :                           (dusk_phase - dawn_phase)          * 12.0 / pi;
+                              
+    // Calculate the sunrise and sunset times
+    const double sunrise = dawn_phase * 12 / pi < hour ? (hour - dawn_phase * 12 / pi)
+                         :                               (hour - dawn_phase * 12 / pi + 24.0);
+    const double sunset  = dusk_phase * 12 / pi < hour ? (hour - dusk_phase * 12 / pi)
+                         :                               (hour - dusk_phase * 12 / pi + 24.0);
     
     //////////////////////////////////////
     // Update the output parameter list //
@@ -167,6 +186,8 @@ void oscillator_clock_calculator::do_operation() const {
     update(ref_radius_op, sqrt(ref_a * ref_a + ref_b * ref_b));
     update(day_length_op, day_length);
     update(night_length_op, night_length);
+    update(sunrise_op, sunrise);
+    update(sunset_op, sunset);
 }
 
 #endif
