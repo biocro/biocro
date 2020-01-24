@@ -8,16 +8,20 @@ std::unordered_map<std::string, std::vector<double>> system_solver::solve(
     int adaptive_max_steps)
 {
     // Update the stored objects
-    this->output_step_size = output_step_size;
-    this->adaptive_error_tol = adaptive_error_tol;
-    this->adaptive_max_steps = adaptive_max_steps;
+    set_solver_parameters(output_step_size, adaptive_error_tol, adaptive_max_steps);
 
+    return solve(sys);
+}
+
+std::unordered_map<std::string, std::vector<double>> system_solver::solve(
+    std::shared_ptr<System> sys)
+{
     // Solve the system and return the results
     if (check_adaptive_compatible && !sys->is_adaptive_compatible()) {
-        return this->handle_adaptive_incompatibility(sys);
+        return handle_adaptive_incompatibility(sys);
     }
 
     else {
-        return this->do_solve(sys);
+        return do_solve(sys);
     }
 }

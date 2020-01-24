@@ -17,14 +17,14 @@ class auto_solver : public system_solver
     {
         // The system is compatible with adaptive step size methods, so use a rosenbrock solver to solve the system
         boost_rsnbrk_system_solver solver;
-        return solver.solve(sys, this->output_step_size, this->adaptive_error_tol, this->adaptive_max_steps);
+        return solver.solve(sys, get_output_step_size(), get_adaptive_error_tol(), get_adaptive_max_steps());
     }
 
     std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys) override
     {
         // The system is not compatible with adaptive step size methods, so use an euler solver to solve the system
         homemade_euler_solver<state_type> solver;
-        return solver.solve(sys, this->output_step_size, this->adaptive_error_tol, this->adaptive_max_steps);
+        return solver.solve(sys);
     }
 };
 

@@ -57,9 +57,9 @@ void boost_system_solver<state_type>::run_integrate_const(stepper_type stepper, 
             state,
             0.0,
             syscall.get_ntimes() - 1.0,
-            this->output_step_size,
+            get_output_step_size(),
             observer,
-            boost::numeric::odeint::max_step_checker(this->adaptive_max_steps));
+            boost::numeric::odeint::max_step_checker(get_adaptive_max_steps()));
     } catch (std::exception&) {
         // Don't do anything... just let the solver return the partial results
     }
@@ -114,8 +114,8 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
     void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
     {
         // Set up an rkck54 stepper
-        double const abs_err = this->adaptive_error_tol;
-        double const rel_err = this->adaptive_error_tol;
+        double const abs_err = this->get_adaptive_error_tol();
+        double const rel_err = this->get_adaptive_error_tol();
         typedef boost::numeric::odeint::runge_kutta_cash_karp54<state_type, double, state_type, double> error_stepper_type;
         auto stepper = boost::numeric::odeint::make_controlled<error_stepper_type>(abs_err, rel_err);
 
@@ -132,7 +132,7 @@ class boost_rsnbrk_system_solver : public boost_system_solver<boost::numeric::ub
     boost_rsnbrk_system_solver() : boost_system_solver<boost::numeric::ublas::vector<double>>("rsnbrk", true) {}
 
    private:
-    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer);
+    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer) override;
 };
 
 #endif

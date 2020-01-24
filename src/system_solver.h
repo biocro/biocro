@@ -21,14 +21,28 @@ class system_solver
         double adaptive_error_tol,
         int adaptive_max_steps);
 
+    std::unordered_map<std::string, std::vector<double>> solve(
+        std::shared_ptr<System> sys);
+
+    void set_solver_parameters(double step_size, double error_tolerance, int max_steps) {
+        output_step_size = step_size;
+        adaptive_error_tol = error_tolerance;
+        adaptive_max_steps = max_steps;
+    }
+
    protected:
-    double output_step_size;
-    double adaptive_error_tol;
-    int adaptive_max_steps;
+    double get_output_step_size() { return output_step_size; }
+    double get_adaptive_error_tol() { return adaptive_error_tol; }
+    int get_adaptive_max_steps() { return adaptive_max_steps; }
 
    private:
     const std::string solver_name;
     const bool check_adaptive_compatible;
+
+    double output_step_size;
+    double adaptive_error_tol;
+    int adaptive_max_steps;
+
     virtual std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) = 0;
     virtual std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys);
 };
