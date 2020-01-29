@@ -25,10 +25,12 @@ class system_solver
         adaptive_max_steps = max_steps;
     }
 
+    std::string generate_info_report() const { return std::string("Solver name: ") + solver_name + std::string("\n") + get_param_info(); }
+
    protected:
-    double get_output_step_size() { return output_step_size; }
-    double get_adaptive_error_tol() { return adaptive_error_tol; }
-    int get_adaptive_max_steps() { return adaptive_max_steps; }
+    double get_output_step_size() const { return output_step_size; }
+    double get_adaptive_error_tol() const { return adaptive_error_tol; }
+    int get_adaptive_max_steps() const { return adaptive_max_steps; }
 
    private:
     const std::string solver_name;
@@ -40,6 +42,7 @@ class system_solver
 
     virtual std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) = 0;
     virtual std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys);
+    virtual std::string get_param_info() const = 0;
 };
 
 // Define the standard response to a problem with adaptive compatibility

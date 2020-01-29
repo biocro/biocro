@@ -11,3 +11,8 @@ void boost_rsnbrk_system_solver::do_boost_solve(SystemCaller syscall, push_back_
     // Run integrate_const
     run_integrate_const(stepper, syscall, observer);
 }
+
+std::string boost_rsnbrk_system_solver::get_boost_param_info() const
+{
+    return std::string("Error tolerance: ") + std::to_string(get_adaptive_error_tol()) + std::string("\nMaximum steps: ") + std::to_string(get_adaptive_max_steps());
+}

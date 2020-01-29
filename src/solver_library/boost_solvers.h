@@ -21,6 +21,8 @@ class boost_system_solver : public system_solver
     std::vector<double> time_vec;
     std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
     virtual void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) = 0;
+    std::string get_param_info() const override { return std::string("Output step size: ") + std::to_string(get_output_step_size()) + std::string("\n") + get_boost_param_info(); }  // All boost solvers use the output_step_size
+    virtual std::string get_boost_param_info() const = 0;
 };
 
 // Store some information that will be useful to any type of boost solver, and then call the private do_boost_solve method
@@ -82,6 +84,7 @@ class boost_euler_system_solver : public boost_system_solver<state_type>
         // Run integrate_const
         this->run_integrate_const(stepper, syscall, observer);
     }
+    std::string get_boost_param_info() const override { return std::string(""); }  // The boost Euler solver has no new parameters to report
 };
 
 // A class representing the boost RK4 solver
@@ -101,6 +104,7 @@ class boost_rk4_system_solver : public boost_system_solver<state_type>
         // Run integrate_const
         this->run_integrate_const(stepper, syscall, observer);
     }
+    std::string get_boost_param_info() const override { return std::string(""); }  // The boost RK4 solver has no new parameters to report
 };
 
 // A class representing the boost RKCK54 solver
@@ -122,6 +126,7 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
         // Run integrate_const
         this->run_integrate_const(stepper, syscall, observer);
     }
+    std::string get_boost_param_info() const override { return std::string("Error tolerance: ") + std::to_string(this->get_adaptive_error_tol()) + std::string("\nMaximum steps: ") + std::to_string(this->get_adaptive_max_steps()); }
 };
 
 // A class representing the boost rosenbrock solver
@@ -133,6 +138,7 @@ class boost_rsnbrk_system_solver : public boost_system_solver<boost::numeric::ub
 
    private:
     void do_boost_solve(SystemCaller syscall, push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer) override;
+    std::string get_boost_param_info() const override;
 };
 
 #endif
