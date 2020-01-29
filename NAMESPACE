@@ -3,12 +3,45 @@ useDynLib(BioCro,
           c3photo_sym = c3photo,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
-          R_Gro)
+          R_Gro,
+		  R_Gro_solver,
+		  R_Gro_deriv,
+		  R_Gro_ode,
+          R_get_module_info,
+		  R_get_standalone_ss_info,
+		  R_test_module,
+		  R_test_standalone_ss,
+		  R_test_system,
+		  R_get_all_modules,
+		  R_get_all_param,
+          R_sunML,
+          collatz_photoC)
 
 import(stats, lattice)
 
 export(Gro)
+
+export(Gro_solver)
+
 export(partial_gro)
+
+export(Gro_deriv)
+
+export(Gro_ode)
+
+export(get_module_info)
+
+export(get_standalone_ss_info)
+
+export(test_module)
+
+export(test_standalone_ss)
+
+export(test_system)
+
+export(get_all_modules)
+
+export(get_all_param)
 
 exportPattern("Parms$")
 
@@ -20,6 +53,8 @@ export(CanA)
 
 export(idbp)
 
+export(sunML)
+
 export(SoilType, showSoilType)
 
 export(valid_dbp)
@@ -27,5 +62,8 @@ export(valid_dbp)
 export(CheckLeapYear)
 
 export(read_parameters)
+
 export(get_growing_season_climate)
+
+export(collatz_photo)
 

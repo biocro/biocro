@@ -32,11 +32,11 @@ FieldC		soilControl	-1		1
 WiltP		soilControl	-1		1
 phi1		soilControl	0.01		1
 phi2		soilControl	10		1
-soilDepth		soilControl	1		1
+soil_depth		soilControl	1		1
 iWatCont		soilControl	0.32		1
 soilType		soilControl	6		0
 soilLayers		soilControl	1		0
-soilDepths		soilControl	0, 1		0
+soil_depths		soilControl	0, 1		0
 wsFun		soilControl	0		0
 scsf		soilControl	1		1
 transpRes		soilControl	5000000		1

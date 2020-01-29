@@ -1,22 +1,3 @@
-##  BioCro/R/valid_dbp.R by Fernando Ezequiel Miguez  Copyright (C) 2009
-##
-##' Validate dry biomass partitioning coefficients
-##'
-##' It attempts to check the requirements of the dry biomass partitioning
-##' coefficients.
-##'
-##'
-##' @param x Vector of length 25 containing the dry biomass
-##' partitioning coefficients for the 6 phenological stages.
-##' @param tol Numerical tolerance passed to the \code{\link{all.equal}}
-##' function.
-##' @return It will return the vector of coefficients unchanged if no errors
-##' are detected.
-##' @author Fernando E. Miguez
-##' @seealso \code{\link{BioGro}}
-##' @keywords utilities
-##'
-
 valid_dbp <- function(x, tol=1e-3){
 
   if(!is.vector(x) || length(x) != 25)

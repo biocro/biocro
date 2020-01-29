@@ -1,5 +1,5 @@
 #include <Rinternals.h>
-#include "c3photo.h"
+#include "module_library/c3photo.hpp"
 
 extern "C" {
 
@@ -24,14 +24,14 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	SEXP ASSV;
 	SEXP CiV;
 
-	size_t nq = length(Qp1);
+	size_t nq = Rf_length(Qp1);
 
-	PROTECT(lists = allocVector(VECSXP,3));
-	PROTECT(names = allocVector(STRSXP,3));
+	PROTECT(lists = Rf_allocVector(VECSXP,3));
+	PROTECT(names = Rf_allocVector(STRSXP,3));
 
-	PROTECT(GsV = allocVector(REALSXP,nq));
-	PROTECT(ASSV = allocVector(REALSXP,nq));
-	PROTECT(CiV = allocVector(REALSXP,nq));
+	PROTECT(GsV = Rf_allocVector(REALSXP,nq));
+	PROTECT(ASSV = Rf_allocVector(REALSXP,nq));
+	PROTECT(CiV = Rf_allocVector(REALSXP,nq));
  
 	for(size_t i = 0; i < nq; ++i)
 	{
@@ -50,10 +50,10 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX,
 	SET_VECTOR_ELT(lists,0,GsV);
 	SET_VECTOR_ELT(lists,1,ASSV);
 	SET_VECTOR_ELT(lists,2,CiV);
-	SET_STRING_ELT(names,0,mkChar("Gs"));
-	SET_STRING_ELT(names,1,mkChar("Assim"));
-	SET_STRING_ELT(names,2,mkChar("Ci"));
-	setAttrib(lists,R_NamesSymbol,names);
+	SET_STRING_ELT(names,0,Rf_mkChar("Gs"));
+	SET_STRING_ELT(names,1,Rf_mkChar("canopy_assimilation_rate"));
+	SET_STRING_ELT(names,2,Rf_mkChar("Ci"));
+	Rf_setAttrib(lists,R_NamesSymbol,names);
 	UNPROTECT(5);   
 	return(lists);
 }

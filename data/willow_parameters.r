@@ -3,6 +3,11 @@ willow_parameters = with(list(), {
     datalines =
     "symbol value
      timestep      1
+     soil_clod_size 0.04
+     soil_reflectance 0.2
+     soil_transmission 0.01
+     specific_heat 1010
+     stefan_boltzman 5.67e-8
      lat           40
      seneLeaf       1600
      seneStem       5500
@@ -10,9 +15,9 @@ willow_parameters = with(list(), {
      seneRhizome    5500
      Tfrosthigh    5   
      Tfrostlow     0   
-     leafdeathrate 5
+     chil           1
      iSp                 1.1      
-     SpD                0        
+     Sp_thermal_time_decay      0        
      nlayers            10       
      kd                 0.37     
      mrc1             0.02
@@ -39,37 +44,40 @@ willow_parameters = with(list(), {
      kLeaf1    0.98  
      kRoot1    0.01  
      kRhizome1 -8e-04
+     kGrain1    0
      kStem2    0.01  
      kLeaf2    0.98  
      kRoot2    0.003 
      kRhizome2 0.007 
+     kGrain2   0
      kStem3    0.7   
      kLeaf3    0.15  
      kRoot3    0.045 
      kRhizome3 0.105 
+     kGrain3   0
      kStem4    0.7   
      kLeaf4    0.15  
      kRoot4    0.045 
      kRhizome4 0.105 
+     kGrain4   0
      kStem5    0.7   
      kLeaf5    1e-05 
      kRoot5    0.15  
      kRhizome5 0.15  
+     kGrain5   0
      kStem6    0.7   
      kLeaf6    1e-06 
      kRoot6    0.15  
      kRhizome6 0.15  
      kGrain6   0     
      tbase     0     
-     FieldC     -1       
-     WiltP      -1       
      phi1       0.01     
      phi2       10       
-     soilDepth  1        
-     soilType   6        
+     soil_depth  1        
+     soil_type_indicator   6        
      soilLayers 1        
-     soilDepths1 0
-     soilDepths2 1
+     soil_depths1 0
+     soil_depths2 1
      wsFun      0        
      scsf       1        
      transpRes  5e+06    
@@ -80,7 +88,7 @@ willow_parameters = with(list(), {
      rsdf       0.44   
      LeafN_0   2   
      kln      0.5 
-     vmaxb1  0   
+     vmax_n_intercept  0   
      alphab1 0   
      kpLN     0.2 
      lnb0     -5  

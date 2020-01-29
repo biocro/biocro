@@ -43,29 +43,35 @@ for (i in seq_along(parameter_lists)) {
     test_that("turning on soil layers increases aboveground productivity and reduces root allocation", {
         two_layer_parameters = within(parameter_list, {
                     modules$soil_module_name = 'two_layer_soil_profile'
-                    parameters$cws1 = 0.32
-                    parameters$cws2 = 0.32
-                    parameters$soilDepth1 = 0
-                    parameters$soilDepth2 = 1
-                    parameters$soilDepth3 = 2
+                    parameters$soil_depth1 = 0
+                    parameters$soil_depth2 = 1
+                    parameters$soil_depth3 = 2
+                    initial_values$cws1 = 0.32
+                    initial_values$cws2 = 0.32
+                    initial_values$StomataWS = 1
+                    initial_values$LeafWS = 1
+                    initial_values$soil_evaporation_rate = 0
                     }) 
 
         two_soil_layer_results <- do.call(Gro, two_layer_parameters)
-        for (output in c("lai", "Leaf", "Root", "Stem")){
-                expect_true(mean(base_results[[output]]) < mean(two_soil_layer_results[[output]]))
-            }          
+		
+		expect_true(mean(base_results[["Root"]]) > mean(two_soil_layer_results[["Root"]]))
+		expect_true(mean(base_results[["lai"]]) < mean(two_soil_layer_results[["lai"]]))
+		expect_true(mean(base_results[["Leaf"]]) < mean(two_soil_layer_results[["Leaf"]]))
+		expect_true(mean(base_results[["Stem"]]) < mean(two_soil_layer_results[["Stem"]]))         
     })
 
     test_that(paste(species, "stem biomass is sensitive to key parameters "), {
             get_max_biomass <- function(parameters) {
                 results = do.call(Gro, parameters)
-                return(with(results, max(Stem, Leaf, Root)))
+				results$total_mass = results$Stem + results$Leaf + results$Root
+				return(with(results, max(total_mass)))
+                #return(with(results, max(Stem, Leaf, Root)))
             } 
 
 
             low_kd = within(parameter_list, {parameters$kd = 0.1})
             high_kd = within(parameter_list, {parameters$kd = 0.9})
-            expect_gt(get_max_biomass(low_kd), get_max_biomass(high_kd))
 
             low_chil = within(parameter_list, {parameters$chil = 0.4; parameters$iSp = 5})
             high_chil = within(parameter_list, {parameters$chil = 9; parameters$iSp = 5})
@@ -76,10 +82,9 @@ for (i in seq_along(parameter_lists)) {
             # willowGro insensitive to chi.l, b1 
             # pending implementation ebimodeling/biocro-dev#5
 
-            if (species != "willow") {
-                expect_gt(get_max_biomass(low_chil), get_max_biomass(high_chil))
-                expect_lt(get_max_biomass(low_b1), get_max_biomass(high_b1))
-            }
+            expect_gt(get_max_biomass(low_kd), get_max_biomass(high_kd))
+			expect_gt(get_max_biomass(low_chil), get_max_biomass(high_chil))
+			expect_lt(get_max_biomass(low_b1), get_max_biomass(high_b1))
     })
     cat('\n')
 }

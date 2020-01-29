@@ -1,0 +1,48 @@
+// TODO: Replace "class_name" with the class name in all lower case letters.
+// TODO: Delete all of the template comments.
+#include "class_name.hpp"
+
+state_map class_name::do_operation (state_map const& s) const
+{
+    // TODO: Fill out the function body.
+    // Return values in a new state_map.
+    // The function should return either 1) new state variables that are not
+    // already present in `s`, or 2) rates of change for state variables already
+    // present in `s`.
+
+    // Values in s can be accessed using the at() method.
+    // You can set values in the state_map using the [] operator.
+    state_map result;
+    result["first"]  = s.at("parameter_a") * s.at("parameter_b");  // mol / m^2 / s
+    result["second"] = s.at("parameter_c") * 100;  // Pa
+    // Intermediate results can be stored in local scope.
+    double intermediate_value = s.at("parameter_d") * 3.14;  // units
+    result["third"] = intermediate_result * 1e-6;  // units
+
+    // As an alternative to using [], you can initialize the state_map
+    // directly, which can look nicer if the calculations are simple.
+    state_map result {
+        {"first",  s.at("parameter_a") * s.at("parameter_b") },  // units
+        {"second", s.at("parameter_c") * 100 },  // units
+        {"third",  intermediate_result * 1e-6 },  // units
+    };
+
+    return result;
+}
+
+    // TODO: Include units in the first part of the comment after every
+    // assignment. Use a caret to express exponentiation. Do not write the
+    // exponentent without a caret.
+    // For example, use mol / m^2 or mol m^-2, not mol / m2 nor mol m-2.
+    double acceleration_due_to_gravity = 9.8;  // m / s^2.
+
+    // WARNING: You can, but shouldn't, access a state_map using the [] operator.
+    // With [], if the key doesn't exist, it will be created with a value of 0.
+    // Thus, if you mistype the name, it will compile, and you won't get an
+    // obvious error when the code runs, so you may not notice the problem,
+    // and when you do see it, you'll spend hours debugging.
+    // Therefore *always* access a state_map with at(), which gives an error if
+    // the key is not in the map.
+    result["first"] = s["parameter_a"] * s["parmeter_b"];  // "parameter_b" is misspelled, but it will run without giving an error!
+    result["first"] = s.at("parameter_a") * s.at("parmeter_b");  // With at(), it will compile, but when it runs you will get an error.
+

@@ -5,202 +5,452 @@
  *
  */
 
-#include <memory>
-#include <sstream>
-#include "BioCro.h"
-#include "modules.h"
+#include <boost/numeric/ublas/vector.hpp>   // For use with ODEINT
+#include <boost/numeric/odeint.hpp>         // For use with ODEINT
+#include "Gro.h"
 
-state_vector_map Gro(
-        state_map const &initial_state,
-        state_map const &invariant_parameters,
-        state_vector_map const &varying_parameters,
-        std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-        std::unique_ptr<IModule> const &soil_evaporation_module,
-        std::unique_ptr<IModule> const &growth_module,
-        std::unique_ptr<IModule> const &senescence_module,
-        double (*leaf_n_limitation)(state_map const &model_state))
+std::unordered_map<std::string, std::vector<double>> Gro(
+        std::unordered_map<std::string, double> const &initial_state,
+        std::unordered_map<std::string, double> const &invariant_parameters,
+        std::unordered_map<std::string, std::vector<double>> const &varying_parameters,
+        std::vector<std::string> const &steady_state_module_names,
+        std::vector<std::string> const &derivative_module_names,
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
 {
-    state_map current_state = initial_state;
+        // Create a system based on the inputs and store a smart pointer to it
+        std::shared_ptr<System> sys(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
 
-    size_t n_rows = varying_parameters.begin()->second.size();
-    state_vector_map state_history = allocate_state(current_state, n_rows);  // Allocating memory is not necessary, but it makes it slightly faster.
-    state_vector_map results = state_history;
-    state_vector_map deriv_history;
+        // Check to see if it is compatible with adaptive step size methods
+        bool is_adaptive_compatible = sys->is_adaptive_compatible();
 
-    vector<vector<string>> key_vector = {keys(initial_state), keys(invariant_parameters), keys(varying_parameters)};
-    if (any_key_is_duplicated(key_vector)) {
-        throw std::range_error("A parameter may appear in only one of the state lists.");
-    }
-
-    struct dbp_str dbpS;
-
-    double dbpcoefs[] = {
-        invariant_parameters.at("kStem1"), invariant_parameters.at("kLeaf1"), invariant_parameters.at("kRoot1"), invariant_parameters.at("kRhizome1"),
-        invariant_parameters.at("kStem2"), invariant_parameters.at("kLeaf2"), invariant_parameters.at("kRoot2"), invariant_parameters.at("kRhizome2"),
-        invariant_parameters.at("kStem3"), invariant_parameters.at("kLeaf3"), invariant_parameters.at("kRoot3"), invariant_parameters.at("kRhizome3"),
-        invariant_parameters.at("kStem4"), invariant_parameters.at("kLeaf4"), invariant_parameters.at("kRoot4"), invariant_parameters.at("kRhizome4"),
-        invariant_parameters.at("kStem5"), invariant_parameters.at("kLeaf5"), invariant_parameters.at("kRoot5"), invariant_parameters.at("kRhizome5"),
-        invariant_parameters.at("kStem6"), invariant_parameters.at("kLeaf6"), invariant_parameters.at("kRoot6"), invariant_parameters.at("kRhizome6"), invariant_parameters.at("kGrain6")
-    };
-
-    double thermalp[] = {
-        invariant_parameters.at("tp1"), invariant_parameters.at("tp2"), invariant_parameters.at("tp3"), invariant_parameters.at("tp4"), invariant_parameters.at("tp5"), invariant_parameters.at("tp6")
-    };
-
-
-    /*
-     * This is a badly hackish way of checking parameters before the loop start. The pointers to modules should be changed from unique_ptr to shared_ptr, so that a vector of pointers can be created.
-     * Then use a for loop to iterate through each module to get the list of missing parameters.
-     */
-
-    state_map p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, 0)));
-    p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
-    p["lai"] = p.at("Leaf") * p.at("Sp");
-    p["LeafN"] = leaf_n_limitation(p);
-    leaf_n_limitation(p);
-    p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
-    p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
-
-    dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
-
-    p["CanopyA"] = p["CanopyT"] = p["lai"] = p["kLeaf"] = p["kStem"] = p["kRoot"] = p["kRhizome"] = p["kGrain"] = 0; // These are defined in the loop. The framework should be changed so that they are not part of the loop.
-
-    vector<string> missing_state;
-    vector<string> temp;
-
-    temp = canopy_photosynthesis_module->state_requirements_are_met(p); 
-    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-
-    temp = soil_evaporation_module->state_requirements_are_met(p); 
-    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-
-    temp = senescence_module->state_requirements_are_met(p); 
-    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-
-    temp = growth_module->state_requirements_are_met(p); 
-    missing_state.insert(missing_state.begin(), temp.begin(), temp.end());
-
-    /*
-     * End of hackish section.
-     */
-
-    if (!missing_state.empty()) {
-        std::ostringstream message;
-        message << "The following required state variables are missing: " << join_string_vector(missing_state);
-        throw std::out_of_range(message.str());
-    }
-
-    for(size_t i = 0; i < n_rows; ++i)
-    {
-        append_state_to_vector(current_state, state_history);
-        append_state_to_vector(current_state, results);
-
-        p = combine_state(current_state, combine_state(invariant_parameters, at(varying_parameters, i)));
-
-        /*
-         * 1) Calculate all state-dependent state variables.
-         */
-
-        /* NOTE: 
-         * This section is for state variables that are not modified by derivatives.
-         * No derivaties should be calulated here.
-         * This makes it so that the code in section 2 is order independent.
-         */
-
-        p["Sp"] = p.at("iSp") - (p.at("doy") - varying_parameters.at("doy")[0]) * p.at("SpD");
-        p["lai"] = p.at("Leaf") * p.at("Sp");
-
-        /* Model photosynthetic parameters as a linear relationship between
-           leaf nitrogen and vmax and alpha. Leaf Nitrogen should be modulated by N
-           availability and possibly by the thermal time.
-           (Harley et al. 1992. Modelling cotton under elevated CO2. PCE) */
-        p["LeafN"] = leaf_n_limitation(p);
-        p["vmax"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("vmaxb1") + p.at("vmax1");
-        p["alpha"] = (p.at("LeafN_0") - p.at("LeafN")) * p.at("alphab1") + p.at("alpha1");
-
-        dbpS = sel_dbp_coef(dbpcoefs, thermalp, p.at("TTc"));
-
-        p["kLeaf"] = dbpS.kLeaf;
-        p["kStem"] = dbpS.kStem;
-        p["kRoot"] = dbpS.kRoot;
-        p["kGrain"] = dbpS.kGrain;
-        p["kRhizome"] = dbpS.kRhiz;
-
-        /*
-         * 2) Calculate derivatives between state variables.
-         */
-
-        /* NOTE: This section should be written to calculate derivates only. No state should be modified.
-         * All derivatives should depend only on current state. I.e., derivates should not depend on other derivaties or previous state.
-         * I've changed it to try to meet these requirements, but it currently does not meet them.
-         * E.g., 1) s["TTc"] is changed at the very begining, modifying state;
-         * 2) all of the partitioning code depends on CanopyA, so it depends on a derivative;
-         * 3) the senescence code depends on derivates from previous state. 
-         * When this section adheres to those guidelines, we can start replacing all of these sections with "modules",
-         * that are called as "derivs = module->run(state);" like the canopy_photosynthesis_module is called now.
-         */
-        state_map derivs; // There's no guarantee that each derivative will be set in each iteration, by declaring the variable within the loop all derivates will be set to 0 at each iteration.
-
-        if(p.at("temp") > p.at("tbase")) {
-            derivs["TTc"] += (p.at("temp") - p.at("tbase")) / (24/p.at("timestep")); 
+        // Update the user and solve the system
+        if (is_adaptive_compatible) {
+                if (verbose) print_msg("Solving the system using the adaptive step size Rosenbrock method:\n\n");
+                return Gro_rsnbrk_solve(sys, output_step_size, adaptive_error_tol, adaptive_max_steps, verbose, print_msg);
+        } else {
+                if (verbose) print_msg("Solving the system using the fixed step size Euler method:\n\n");
+                return Gro_euler_solve(sys, verbose, print_msg);
         }
-        derivs += canopy_photosynthesis_module->run(state_history, deriv_history, p);
-
-        p["CanopyA"] = derivs["Assim"] * p.at("timestep") * (1.0 - p.at("growth_respiration_fraction"));
-        p["CanopyT"] = derivs["Trans"] * p.at("timestep");
-
-        derivs += soil_evaporation_module->run(state_history, deriv_history, p);
-
-        derivs += growth_module->run(state_history, deriv_history, p);
-
-        derivs += senescence_module->run(state_history, deriv_history, p);
-
-        /*
-         * 3) Update the state variables.
-         */
-
-        /* NOTE: This is the only spot where where state should be updated.
-         * By updating everything at the end, the order of the previous statements will not
-         * affect output. It should also allow us to use an ODE solver.
-         */
-
-        current_state = at(state_history, i);
-        current_state = update_state(current_state, derivs);
-
-        /*
-         * 4) Record variables in the state_history map.
-         */
-
-        /* NOTE: We can write a recorder function so that the user can specify
-         * what they want to record, but I don't know that anyone will care
-         * and for now it's easier to just record all of the state variables and other
-         * things of interest.
-         */
-
-        // Record everything that is in "state".
-        append_state_to_vector(derivs, deriv_history);
-
-        // Record other parameters of interest.
-        //results["canopy_assimilation"][i] = s["CanopyA"];
-        results["canopy_assimilation"].push_back(p["CanopyA"]);
-        results["canopy_transpiration"].push_back(p["CanopyT"]);
-        results["lai"].push_back(p.at("lai"));
-        //results["soil_water_content"].push_back(s.at("waterCont"));
-        results["stomatal_conductance_coefs"].push_back(current_state.at("StomataWS"));
-        //results["leaf_reduction_coefs"].push_back(s.at("LeafWS"));
-        //results["leaf_nitrogen"].push_back(s.at("LeafN"));
-        results["vmax"].push_back(p.at("vmax"));
-        results["alpha"].push_back(p.at("alpha"));
-        results["specific_leaf_area"].push_back(p.at("Sp"));
-        results["soil_evaporation"].push_back(derivs["soilEvap"]);
-        //results["kLeaf"].push_back(kLeaf);
-        results["newLeafcol"].push_back(derivs.at("newLeafcol"));
-        results["newStemcol"].push_back(derivs.at("newStemcol"));
-        results["newRootcol"].push_back(derivs.at("newRootcol"));
-        results["newRhizomecol"].push_back(derivs.at("newRhizomecol"));
-        //results["cws1"].push_back(current_state.at("cws1"));
-        //results["cws2"].push_back(current_state.at("cws2"));
-    }
-    return results;
 }
 
+std::unordered_map<std::string, std::vector<double>> Gro_euler(
+        std::unordered_map<std::string, double> const &initial_state,
+        std::unordered_map<std::string, double> const &invariant_parameters,
+        std::unordered_map<std::string, std::vector<double>> const &varying_parameters,
+        std::vector<std::string> const &steady_state_module_names,
+        std::vector<std::string> const &derivative_module_names,
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Create a system based on the inputs and store a smart pointer to it
+        std::shared_ptr<System> sys(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
+
+        // Give the user an update if necessary
+        if (verbose) print_msg("Solving the system using the fixed step size Euler method:\n\n");
+
+        return Gro_euler_solve(sys, verbose, print_msg);
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_euler_solve(
+        std::shared_ptr<System> sys,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Solve the system with our own Euler implementation
+
+        // Get the number of time points
+        int ntimes = (int) sys->get_ntimes();
+
+        // Get the names of the output parameters and pointers to them
+        std::vector<std::string> output_param_vector = sys->get_output_param_names();
+        std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
+
+        // Make the results map
+        std::unordered_map<std::string, std::vector<double>> results;
+
+        // Make the result vector
+        std::vector<double> temp(ntimes);
+        std::vector<std::vector<double>> result_vec(output_param_vector.size(), temp);
+
+        // Get the current state in the correct format
+        std::vector<double> state;
+        sys->get_state(state);
+
+        // Make a vector to store the derivative
+        std::vector<double> dstatedt = state;
+
+        // Run through all the times
+        double max_time = ntimes - 1.0;
+        double threshold = 0.0;
+        for (int t = 0; t < ntimes; t++) {
+                // Give the user an update, if required
+                if (verbose) {
+                        if (t >= max_time) print_msg("Timestep = %i (%f%% done) at clock = %u microseconds\n", t, t/max_time*100.0, (unsigned int) clock());
+                        else if (t/max_time >= threshold) {
+                                print_msg("Timestep = %i (%f%% done) at clock = %u microseconds\n", t, t/max_time*100.0, (unsigned int) clock());
+                                threshold += 0.02;
+                        }
+                }
+
+                // Update all the parameters and calculate the derivative based on the current time and state
+                sys->operator()(state, dstatedt, t);
+
+                // Store the current parameter values
+                for (size_t i = 0; i < result_vec.size(); i++) (result_vec[i])[t] = *output_ptr_vector[i];
+
+                // Update the state for the next step
+                for (size_t j = 0; j < state.size(); j++) state[j] += dstatedt[j];  // The derivative has already been multiplied by the timestep
+        }
+
+        if (verbose) print_msg("\n");  // Make the output look nice
+
+        // Fill in the result map
+        for (size_t i = 0; i < output_param_vector.size(); i++) results[output_param_vector[i]] = result_vec[i];
+
+        // Add the number of derivative calculations
+        std::fill(temp.begin(), temp.end(), sys->get_ncalls());
+        results["ncalls"] = temp;
+
+        return results;
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_euler_odeint(
+        std::unordered_map<std::string, double> const &initial_state,
+        std::unordered_map<std::string, double> const &invariant_parameters,
+        std::unordered_map<std::string, std::vector<double>> const &varying_parameters,
+        std::vector<std::string> const &steady_state_module_names,
+        std::vector<std::string> const &derivative_module_names,
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Create a system based on the inputs and store a smart pointer to it
+        std::shared_ptr<System> sys(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
+
+        // Give the user an update if necessary
+        if (verbose) print_msg("Solving the system using the fixed step size Euler method:\n\n");
+
+        return Gro_euler_odeint_solve(sys, output_step_size, verbose, print_msg);
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_euler_odeint_solve(
+        std::shared_ptr<System> sys,
+        double output_step_size,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Solve the system using the ODEINT Euler stepper
+
+        // Get the number of time points
+        int ntimes = (int) sys->get_ntimes();
+
+        // Get the names of the output parameters and pointers to them
+        std::vector<std::string> output_param_vector = sys->get_output_param_names();
+        std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
+
+        // Get the current state in the correct format
+        std::vector<double> state;
+        sys->get_state(state);
+
+        // Make a vector to store the derivative
+        std::vector<double> dstatedt = state;
+
+        // Make a system caller to pass to odeint
+        SystemCaller syscall(sys);
+
+        // Make vectors to store the observer output
+        std::vector<std::vector<double>> state_vec;
+        std::vector<double> time_vec;
+
+        // Run the calculation and get the results
+        try {
+            boost::numeric::odeint::euler<std::vector<double>, double, std::vector<double>, double> euler_stepper;
+            boost::numeric::odeint::integrate_const(
+                euler_stepper,
+                syscall,
+                state,
+                0.0,
+                (double)ntimes - 1.0,
+                output_step_size,
+                push_back_state_and_time<std::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg)
+            );
+        }
+        catch (std::exception &e) {
+            // Just return whatever progresss we have made
+            if (verbose) print_msg("\n");  // Make the output look nice
+            print_msg("Error encountered while running the ODEINT Euler stepper... returning a partial result.\n\nODEINT reports the following: %s\n\n", e.what());
+            return sys->get_results(state_vec, time_vec);
+        }
+
+        if (verbose) print_msg("\n");  // Make the output look nice
+
+        return sys->get_results(state_vec, time_vec);
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_rsnbrk(
+        std::unordered_map<std::string, double> const &initial_state,
+        std::unordered_map<std::string, double> const &invariant_parameters,
+        std::unordered_map<std::string, std::vector<double>> const &varying_parameters,
+        std::vector<std::string> const &steady_state_module_names,
+        std::vector<std::string> const &derivative_module_names,
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Create a system based on the inputs and store a smart pointer to it
+        std::shared_ptr<System> sys(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
+
+        // Check to make sure the system can be solved using adaptive step size methods
+        if (!sys->is_adaptive_compatible()) throw std::logic_error("Thrown by Gro_rsnbrk: the system is not compatible with adaptive step size integration methods.\n");
+
+        // Give the user an update if necessary
+        if (verbose) print_msg("Solving the system using the adaptive step size Rosenbrock method:\n\n");
+
+        return Gro_rsnbrk_solve(sys, output_step_size, adaptive_error_tol, adaptive_max_steps, verbose, print_msg);
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_rsnbrk_solve(
+        std::shared_ptr<System> sys,
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Solve the system using the ODEINT Rosenbrock stepper
+
+        // Check to make sure the system can be solved using adaptive step size methods
+        if (!sys->is_adaptive_compatible()) throw std::logic_error("Thrown by Gro_rsnbrk: the system is not compatible with adaptive step size integration methods.\n");
+
+        // Get the number of time points
+        int ntimes = (int) sys->get_ntimes();
+
+        // Get the names of the output parameters and pointers to them
+        std::vector<std::string> output_param_vector = sys->get_output_param_names();
+        std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
+
+        // Get the current state in the correct format
+        boost::numeric::ublas::vector<double> state;
+        sys->get_state(state);
+
+        // Make a vector to store the derivative
+        boost::numeric::ublas::vector<double> dstatedt = state;
+
+        // Make a system caller to pass to odeint
+        SystemCaller syscall(sys);
+
+        // Make vectors to store the observer output
+        std::vector<boost::numeric::ublas::vector<double>> state_vec;
+        std::vector<double> time_vec;
+
+        // Run the calculation and get the results
+        double abs_err = adaptive_error_tol, rel_err = adaptive_error_tol;
+        typedef boost::numeric::odeint::rosenbrock4<double> dense_stepper_type;
+        try {
+                boost::numeric::odeint::integrate_const(
+                        boost::numeric::odeint::make_dense_output<dense_stepper_type>(abs_err, rel_err),
+                        std::make_pair(syscall, syscall),
+                        state,
+                        0.0,
+                        (double)ntimes - 1.0,
+                        output_step_size,
+                        push_back_state_and_time<boost::numeric::ublas::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg),
+            boost::numeric::odeint::max_step_checker(adaptive_max_steps)
+                );
+        }
+        catch (std::exception &e) {
+                // Just return whatever progresss we have made
+                if (verbose) print_msg("\n");  // Make the output look nice
+                print_msg("Error encountered while running the ODEINT Rosenbrock stepper... returning a partial result.\n\nODEINT reports the following: %s\n\n", e.what());
+                return sys->get_results(state_vec, time_vec);
+        }
+
+        if (verbose) print_msg("\n");  // Make the output look nice
+
+        return sys->get_results(state_vec, time_vec);
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_rk4(
+        std::unordered_map<std::string, double> const &initial_state,
+        std::unordered_map<std::string, double> const &invariant_parameters,
+        std::unordered_map<std::string, std::vector<double>> const &varying_parameters,
+        std::vector<std::string> const &steady_state_module_names,
+        std::vector<std::string> const &derivative_module_names,
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Create a system based on the inputs and store a smart pointer to it
+        std::shared_ptr<System> sys(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
+
+        // Check to make sure the system can be solved using adaptive step size methods
+        //  Note: RK4 is not an adaptive step size algorithm. However, it will not function
+        //   with the thermal time senescence module. Maybe the is_adaptive_compatible
+        //   boolean should be changed to something like is_only_euler_compatible which
+        //   might be more descriptive.
+        if (!sys->is_adaptive_compatible()) throw std::logic_error("Thrown by Gro_rk4: the system is not compatible with adaptive step size integration methods.\n");
+
+        // Give the user an update if necessary
+        if (verbose) print_msg("Solving the system using the 4th order Runge-Kutta method:\n\n");
+
+        return Gro_rk4_solve(sys, output_step_size, verbose, print_msg);
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_rk4_solve(
+        std::shared_ptr<System> sys,
+        double output_step_size,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Solve the system using the ODEINT RK4 stepper
+
+        // Check to make sure the system can be solved using adaptive step size methods
+        //  Note: RK4 is not an adaptive step size algorithm. However, it will not function
+        //   with the thermal time senescence module. Maybe the is_adaptive_compatible
+        //   boolean should be changed to something like is_only_euler_compatible which
+        //   might be more descriptive.
+        if (!sys->is_adaptive_compatible()) throw std::logic_error("Thrown by Gro_rk4: the system is not compatible with adaptive step size integration methods.\n");
+
+        // Get the number of time points
+        int ntimes = (int) sys->get_ntimes();
+
+        // Get the names of the output parameters and pointers to them
+        std::vector<std::string> output_param_vector = sys->get_output_param_names();
+        std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
+
+        // Get the current state in the correct format
+        std::vector<double> state;
+        sys->get_state(state);
+
+        // Make a vector to store the derivative
+        std::vector<double> dstatedt = state;
+
+        // Make a system caller to pass to odeint
+        SystemCaller syscall(sys);
+
+        // Make vectors to store the observer output
+        std::vector<std::vector<double>> state_vec;
+        std::vector<double> time_vec;
+
+        // Run the calculation and get the results
+        try {
+            boost::numeric::odeint::runge_kutta4<std::vector<double>, double, std::vector<double>, double> rk4_stepper;
+            boost::numeric::odeint::integrate_const(
+                rk4_stepper,
+                syscall,
+                state,
+                0.0,
+                (double)ntimes - 1.0,
+                output_step_size,
+                push_back_state_and_time<std::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg)
+            );
+        }
+        catch (std::exception &e) {
+            // Just return whatever progresss we have made
+                    if (verbose) print_msg("\n");  // Make the output look nice
+                    print_msg("Error encountered while running the ODEINT RK4 stepper... returning a partial result.\n\nODEINT reports the following: %s\n\n", e.what());
+                    return sys->get_results(state_vec, time_vec);
+        }
+
+        if (verbose) print_msg("\n");  // Make the output look nice
+
+        return sys->get_results(state_vec, time_vec);
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_rkck54(
+        std::unordered_map<std::string, double> const &initial_state,
+        std::unordered_map<std::string, double> const &invariant_parameters,
+        std::unordered_map<std::string, std::vector<double>> const &varying_parameters,
+        std::vector<std::string> const &steady_state_module_names,
+        std::vector<std::string> const &derivative_module_names,
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Create a system based on the inputs and store a smart pointer to it
+        std::shared_ptr<System> sys(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose, print_msg));
+
+        // Check to make sure the system can be solved using adaptive step size methods
+        if (!sys->is_adaptive_compatible()) throw std::logic_error("Thrown by Gro_rkck54: the system is not compatible with adaptive step size integration methods.\n");
+
+        // Give the user an update if necessary
+        if (verbose) print_msg("Solving the system using the adaptive step size 5th order Runge-Kutta method with 4th order error estimation:\n\n");
+
+        return Gro_rkck54_solve(sys, output_step_size, adaptive_error_tol, adaptive_max_steps, verbose, print_msg);
+}
+
+std::unordered_map<std::string, std::vector<double>> Gro_rkck54_solve(
+        std::shared_ptr<System> sys,
+        double output_step_size,
+        double adaptive_error_tol,
+        int adaptive_max_steps,
+        bool verbose,
+        void (*print_msg) (char const *format, ...))
+{
+        // Solve the system using the ODEINT RKCK54 stepper
+
+        // Check to make sure the system can be solved using adaptive step size methods
+        if (!sys->is_adaptive_compatible()) throw std::logic_error("Thrown by Gro_rkck54: the system is not compatible with adaptive step size integration methods.\n");
+
+        // Get the number of time points
+        int ntimes = (int) sys->get_ntimes();
+
+        // Get the names of the output parameters and pointers to them
+        std::vector<std::string> output_param_vector = sys->get_output_param_names();
+        std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
+
+        // Get the current state in the correct format
+        std::vector<double> state;
+        sys->get_state(state);
+
+        // Make a vector to store the derivative
+        std::vector<double> dstatedt = state;
+
+        // Make a system caller to pass to odeint
+        SystemCaller syscall(sys);
+
+        // Make vectors to store the observer output
+        std::vector<std::vector<double>> state_vec;
+        std::vector<double> time_vec;
+
+        // Run the calculation and get the results
+        double abs_err = adaptive_error_tol, rel_err = adaptive_error_tol;
+        typedef boost::numeric::odeint::runge_kutta_cash_karp54<std::vector<double>, double, std::vector<double>, double> error_stepper_type;
+        try {
+                boost::numeric::odeint::integrate_const(
+                    boost::numeric::odeint::make_controlled<error_stepper_type>(abs_err, rel_err),
+                    syscall,
+                    state,
+                    0.0,
+                    (double)ntimes - 1.0,
+                    output_step_size,
+                    push_back_state_and_time<std::vector<double>>(state_vec, time_vec, (double)ntimes - 1.0, verbose, print_msg),
+                    boost::numeric::odeint::max_step_checker(adaptive_max_steps)
+                );
+        }
+        catch (std::exception &e) {
+                // Just return whatever progresss we have made
+                if (verbose) print_msg("\n");  // Make the output look nice
+                print_msg("Error encountered while running the ODEINT RKCK54 stepper... returning a partial result.\n\nODEINT reports the following: %s\n\n", e.what());
+                return sys->get_results(state_vec, time_vec);
+        }
+
+        if (verbose) print_msg("\n"); // Make the output look nice
+
+        return sys->get_results(state_vec, time_vec);
+}

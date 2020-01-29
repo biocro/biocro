@@ -1,0 +1,21 @@
+//TODO: Replace "CLASS_NAME" with the class name in all capital letters.
+//TODO: Replace "class_name" with the class name in all lower case letters.
+//TODO: Delete all of the template comments.
+#ifndef CLASS_NAME
+#define CLASS_NAME
+#include "modules.h"
+
+class class_name : public IModule {
+    public:
+        class_name()
+            : IModule("class_name",
+                    // TODO: Fill in the list of names of required state variables.
+                    // TODO: Add unlisted parameters to the table in parameters.h, including a description and units.
+                    std::vector<std::string> {"parameter_a", "parameter_b"},  // The first vector is state the module requires.
+                    std::vector<std::string> {})  // The second vector is state the module creates or modifies.
+            {}
+    private:
+        state_map do_operation (state_map const& s) const;
+};
+
+#endif

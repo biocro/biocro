@@ -5,9 +5,9 @@
  */
 
 #include <Rinternals.h>
-#include "BioCro.h"
-#include "c4photo.h"
-#include "CanA.h"
+#include "module_library/BioCro.h"
+#include "module_library/c4photo.h"
+#include "module_library/CanA.h"
 
 extern "C" {
 
@@ -88,15 +88,15 @@ SEXP CanA(
   SEXP Ggrowth;
   SEXP result_matrix;
 
-  PROTECT(lists = allocVector(VECSXP, 7));
-  PROTECT(names = allocVector(STRSXP, 7));
-  PROTECT(growth = allocVector(REALSXP, 1));
-  PROTECT(canopy_transpiration_penman = allocVector(REALSXP, 1));
-  PROTECT(canopy_transpiration_priestly = allocVector(REALSXP, 1));
-  PROTECT(canopy_conductance = allocVector(REALSXP, 1));
-  PROTECT(trans = allocVector(REALSXP, 1));
-  PROTECT(Ggrowth = allocVector(REALSXP, 1));
-  PROTECT(result_matrix = allocMatrix(REALSXP, 21, nlayers));
+  PROTECT(lists = Rf_allocVector(VECSXP, 7));
+  PROTECT(names = Rf_allocVector(STRSXP, 7));
+  PROTECT(growth = Rf_allocVector(REALSXP, 1));
+  PROTECT(canopy_transpiration_penman = Rf_allocVector(REALSXP, 1));
+  PROTECT(canopy_transpiration_priestly = Rf_allocVector(REALSXP, 1));
+  PROTECT(canopy_conductance = Rf_allocVector(REALSXP, 1));
+  PROTECT(trans = Rf_allocVector(REALSXP, 1));
+  PROTECT(Ggrowth = Rf_allocVector(REALSXP, 1));
+  PROTECT(result_matrix = Rf_allocMatrix(REALSXP, 21, nlayers));
 
    //NITROPARMS STRUCTURE IS PASSED and READ
   struct nitroParms nitroP;
@@ -128,7 +128,7 @@ SEXP CanA(
 		  eteq, stomataws, water_stress_approach);
 
     if(ISNAN(ans.Assim)) {
-        error("Something is NA \n");
+        Rf_error("Something is NA \n");
     }
 
     REAL(growth)[0] = ans.Assim;
@@ -149,14 +149,14 @@ SEXP CanA(
     SET_VECTOR_ELT(lists, 5, canopy_conductance);
     SET_VECTOR_ELT(lists, 6, result_matrix);
 
-    SET_STRING_ELT(names, 0, mkChar("CanopyAssim"));
-    SET_STRING_ELT(names, 1, mkChar("CanopyTrans"));
-    SET_STRING_ELT(names, 2, mkChar("GrossCanopyAssim"));
-    SET_STRING_ELT(names, 3, mkChar("canopy_transpiration_penman"));
-    SET_STRING_ELT(names, 4, mkChar("canopy_transpiration_priestly"));
-    SET_STRING_ELT(names, 5, mkChar("canopy_conductance"));
-    SET_STRING_ELT(names, 6, mkChar("LayMat"));
-    setAttrib(lists, R_NamesSymbol, names);
+    SET_STRING_ELT(names, 0, Rf_mkChar("CanopyAssim"));
+    SET_STRING_ELT(names, 1, Rf_mkChar("CanopyTrans"));
+    SET_STRING_ELT(names, 2, Rf_mkChar("GrossCanopyAssim"));
+    SET_STRING_ELT(names, 3, Rf_mkChar("canopy_transpiration_penman"));
+    SET_STRING_ELT(names, 4, Rf_mkChar("canopy_transpiration_priestly"));
+    SET_STRING_ELT(names, 5, Rf_mkChar("canopy_conductance"));
+    SET_STRING_ELT(names, 6, Rf_mkChar("LayMat"));
+    Rf_setAttrib(lists, R_NamesSymbol, names);
 
     UNPROTECT(9);
     return(lists);

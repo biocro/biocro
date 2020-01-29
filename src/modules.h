@@ -2,220 +2,104 @@
 #define MODULES_H
 
 #include <unordered_map>
-#include <string>
-#include <vector>
-#include <memory>
-#include "BioCro.h"
-#include "c3photo.h"
+#include <vector>                       // Include this here so all modules will have access to std::vector
+#include "state_map.h"                  // Include this here so all modules will have access to state_map
+#include "module_library/BioCro.h"      // Include this here so all modules will have access to the auxilliary functions
+#include "module_library/AuxBioCro.h"   // Include this here so all modules will have access to the auxilliary functions
+#include <cmath>                        // For log10
+#include <sstream>                      // For replicating old sprintf functionality with strings
+#include <iomanip>                      // For replicating old sprintf functionality with strings
 
-using std::vector;
-using std::string;
-using std::unordered_map;
-
-typedef unordered_map<string, double> state_map;
-typedef unordered_map<string, vector<double>> state_vector_map;
-
-class IModule {
+class Module {
+    // This class represents a component of a larger system of differential equations
+    // A module can be one of the following subtypes:
+    //   (1) "steady state" (i.e. it returns some parameters based on the current state) or
+    //   (2) "derivative" (i.e. it returns the rate of change for some elements of the state)
+    // A module must also indicate whether or not is compatible with adaptive step size integrators
+    //   For most modules, this is the case. However, a few require information from previous
+    //   steps and will only work properly with fixed step size methods
+    // Module and the derived classes listed above are all abstract, so no objects of these
+    //  classes can be instantiated. Instead, concrete (i.e., not abstract) subclasses must be
+    //  defined elsewhere.
     public:
-        IModule(vector<string> const &required_state, vector<string> const &modified_state) :
-            _required_state(required_state),
-            _modified_state(modified_state)
-        {
-            requirements_are_met = false;
-        }
-        vector<string> list_required_state() const;
-        vector<string> list_modified_state() const;
-        state_map run (state_map const &state) const;
-        state_map run (state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
-        vector<string> state_requirements_are_met(state_map const &state) const;
-        virtual ~IModule() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class.
+        Module(std::string const& module_name, bool const &deriv, bool const &adaptive_compatible) :
+            _module_name(module_name),
+            _is_deriv(deriv),
+            _is_adaptive_compatible(adaptive_compatible)
+            {}
+        virtual ~Module() = 0;  // Make the destructor a pure virtual function so that no objects can be made directly from this class. Note: clang is unhappy if an abstract class has a non-virtual destructor.
+        // Functions for returning module information
+        std::string get_name() const {return _module_name;}
+        bool is_deriv() const {return _is_deriv;}
+        bool is_adaptive_compatible() const {return _is_adaptive_compatible;}
+        // Functions for running the module
+        void run() const {do_operation();}
     private:
-        vector<string> const _required_state;
-        vector<string> const _modified_state; 
-        virtual state_map do_operation(state_map const &state) const {state_map derivs; return derivs;};
-        virtual state_map do_operation(state_vector_map const &state_history, state_vector_map const &deriv_history, state_map const &parameters) const;
-        bool requirements_are_met;
+        std::string const _module_name;
+        bool const _is_deriv;
+        bool const _is_adaptive_compatible;
+        virtual void do_operation() const;
+    protected:
+        // Helpful functions for writing concrete module code
+        static const double eps;
+        virtual void update(double* output_ptr, const double& value) const = 0;     // This pure virtual function allows different update functions for steady and deriv modules
+        double* get_op(std::unordered_map<std::string, double>* output_parameters, const std::string& name);
+        const double* get_ip(const std::unordered_map<std::string, double>* input_parameters, const std::string& name) const;
+        double get_val_debug(const double* ptr, const std::string name) const;
 };
 
-inline IModule::~IModule() {}  // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header.
+// A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header
+inline Module::~Module() {}
 
-class ICanopy_photosynthesis_module : public IModule {
+// If a concrete module has not defined a do_operation method, throw an error if its run method is called
+inline void Module::do_operation() const {
+    throw std::logic_error(std::string("Module '") + _module_name + std::string("' does not have a 'do_operation()' method defined.\n"));
+}
+
+// This is a helping function that returns a pointer to an element of an output map, i.e., an output pointer (op)
+// It is designed to simplify the code in a module's initializer list and reduce possible errors
+inline double* Module::get_op(std::unordered_map<std::string, double>* output_parameters, const std::string& name) {
+    if(output_parameters->find(name) != output_parameters->end()) return &((*output_parameters).at(name));
+    else throw std::logic_error(name);
+}
+
+// This is a helping function that returns a pointer to an element of an input map, i.e., an input pointer (ip)
+// It is designed to simplify the code in a module's initializer list and reduce possible errors
+inline const double* Module::get_ip(const std::unordered_map<std::string, double>* input_parameters, const std::string& name) const {
+    if(input_parameters->find(name) != input_parameters->end()) return &((*input_parameters).at(name));
+    else throw std::logic_error(name);
+}
+
+// This derived class represents a steady state module
+class SteadyModule : public Module {
     public:
-        ICanopy_photosynthesis_module(const vector<string> &required_state, const vector<string> &modified_state)
-            : IModule(required_state, modified_state)
-        {}
+        SteadyModule(const std::string & module_name, bool adaptive_compatible = true) : Module(module_name, 0, adaptive_compatible) {}
+    protected:
+        void update(double* output_ptr, const double& value) const {*output_ptr = value;}    // The output parameters of a steady state module are unique, so we can just overwrite the previously stored value
 };
 
-class c4_canopy : public ICanopy_photosynthesis_module {
+// This derived class represents a derivative module
+class DerivModule : public Module {
     public:
-        c4_canopy()
-            : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solar", "temp",
-                    "rh", "windspeed", "lat", "nlayers", "vmax",
-                    "alpha", "kparm", "beta", "Rd", "Catm",
-                    "b0", "b1", "theta", "kd", "chil",
-                    "heightf", "LeafN", "kpLN", "lnb0", "lnb1",
-                    "lnfun", "upperT", "lowerT", "leafwidth",
-                    "et_equation", "StomataWS", "water_stress_approach",
-                    "nileafn", "kln", "nvmaxb0", "nvmaxb1", "alphab1",
-                    "nRdb1", "nRdb0", "kpLN"}, 
-                    vector<string> {})
-        {}
-    private:
-        virtual state_map do_operation (state_map const &s) const;
+        DerivModule(const std::string& module_name, bool adaptive_compatible = true) : Module(module_name, 1, adaptive_compatible) {}
+    protected:
+        void update(double* output_ptr, const double& value) const {*output_ptr += value;}    // The output parameters of a derivative module are not necessarily unique, so we should add a new one to the previously stored value
 };
 
-class c3_canopy : public ICanopy_photosynthesis_module {
+class MultilayerModule {
+    // The purpose of this class is to give a module some new functions
+    //  used with multilayer parameter lists
+    // It is an abstract class with several private static member functions
     public:
-        c3_canopy()
-            : ICanopy_photosynthesis_module(vector<string> {"lai", "doy", "hour", "solar", "temp",
-                    "rh", "windspeed", "lat", "nlayers", "vmax",
-                    "jmax", "Rd", "Catm", "O2", "b0",
-                    "b1", "theta", "kd", "heightf", "LeafN",
-                    "kpLN", "lnb0", "lnb1", "lnfun", "StomataWS",
-                    "water_stress_approach", "electrons_per_carboxylation", "electrons_per_oxygenation"},
-                    vector<string> {})
-        {}
-    private:
-        virtual state_map do_operation (state_map const &s) const;
+        MultilayerModule() {}
+        virtual ~MultilayerModule() = 0;
+    protected:
+        static std::vector<std::string> get_multilayer_param_names(int nlayers, std::vector<std::string> param_names);      // Should be protected so only child classes can access it
+        const std::vector<double*> get_multilayer_op(std::unordered_map<std::string, double>* output_parameters, int nlayers, const std::string& name) const;
+        const std::vector<const double*> get_multilayer_ip(const std::unordered_map<std::string, double>* input_parameters, int nlayers, const std::string& name) const;
 };
 
-class ISoil_evaporation_module : public IModule {
-    public:
-        ISoil_evaporation_module(const vector<string> &required_state, const vector<string> &modified_state)
-            : IModule(required_state, modified_state)
-        {}
-};
+// A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header
+inline MultilayerModule::~MultilayerModule() {}
 
-class one_layer_soil_profile : public ISoil_evaporation_module {
-    public:
-        one_layer_soil_profile()
-            : ISoil_evaporation_module(vector<string> {"lai", "temp", "solar", "waterCont",
-                    "FieldC", "WiltP", "windspeed", "rh", "rsec",
-                    "CanopyT", "precip", "soilDepth", "phi1", "phi2",
-                    "soilType", "wsFun", "StomataWS", "LeafWS"},
-                    vector<string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_map const &s) const;
-};
-
-class two_layer_soil_profile : public ISoil_evaporation_module {
-    public:
-        two_layer_soil_profile()
-            : ISoil_evaporation_module(vector<string> {"precip", "CanopyT", "cws1", "cws2", "soilDepth1",
-                    "soilDepth2", "soilDepth3", "FieldC", "WiltP", "phi1",
-                    "phi2", "soilType" /* Instead of soTexS */, "wsFun", "Root", "lai",
-                    "temp", "solar", "windspeed", "rh", "hydrDist",
-                    "rfl", "rsec", "rsdf", "StomataWS", "LeafWS"},
-                    vector<string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_map const &s) const;
-};
-
-class ISenescence_module : public IModule {
-    public:
-        ISenescence_module(const vector<string> &required_state, const vector<string> &modified_state)
-            : IModule(required_state, modified_state)
-        {}
-};
-
-class thermal_time_senescence : public ISenescence_module {
-    public:
-        thermal_time_senescence()
-            : ISenescence_module(vector<string> {"TTc", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
-                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-                "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
-                "mrc1", "mrc2"},
-                vector<string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
-};
-
-class thermal_time_and_frost_senescence : public ISenescence_module {
-    public:
-        thermal_time_and_frost_senescence()
-            : ISenescence_module(vector<string> {"TTc", "leafdeathrate", "lat", "doy", "Tfrostlow", "Tfrosthigh", "seneLeaf", "seneStem", "seneRoot", "seneRhizome",
-                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-                "leaf_senescence_index", "stem_senescence_index", "root_senescence_index", "rhizome_senescence_index"},
-                vector<string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
-};
-
-class IGrowth_module : public IModule {
-    public:
-        IGrowth_module(const vector<string> &required_state, const vector<string> &modified_state)
-            : IModule(required_state, modified_state)
-        {}
-};
-
-class partitioning_growth_module : public IGrowth_module {
-    public:
-        partitioning_growth_module()
-            : IGrowth_module(vector<string> {"TTc", "LeafWS", "temp", "CanopyA",
-                "Leaf", "Stem", "Root", "Rhizome", "Grain",
-                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-                "mrc1", "mrc2"},
-                vector<string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
-};
-
-class no_leaf_resp_partitioning_growth_module : public IGrowth_module {
-    public:
-        no_leaf_resp_partitioning_growth_module()
-            : IGrowth_module(vector<string> {"TTc", "LeafWS", "temp", "CanopyA",
-                "Leaf", "Stem", "Root", "Rhizome", "Grain",
-                "kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-                "mrc1", "mrc2"},
-                vector<string> {})
-        {}
-    private:
-        virtual state_map do_operation(state_vector_map const &s_history, state_vector_map const &d_history, state_map const &parameters) const;
-};
-
-state_map combine_state(state_map const &state_a, state_map const &state_b);
-
-state_vector_map Gro(
-        state_map const &initial_state,
-        state_map const &invariant_parameters,
-        state_vector_map const &varying_parameters,
-        std::unique_ptr<IModule> const &canopy_photosynthesis_module,
-        std::unique_ptr<IModule> const &soil_evaporation_module,
-        std::unique_ptr<IModule> const &growth_module,
-        std::unique_ptr<IModule> const &senescence_module,
-		double (*leaf_n_limitation)(state_map const &model_state));
-
-double biomass_leaf_nitrogen_limitation(state_map const &state);
-double thermal_leaf_nitrogen_limitation(state_map const &state);
-
-void output_map(state_map const &m);
-
-state_map replace_state(state_map const &state, state_map const &newstate);
-
-state_map update_state(state_map const &state, state_map const &change_in_state);
-
-state_vector_map allocate_state(state_map const &m, size_t n);
-
-void append_state_to_vector(state_map const &state, state_vector_map &state_vector);
-
-std::unique_ptr<IModule> make_module(string const &module_name);
-
-state_map at(state_vector_map const &vector_map, vector<double>::size_type const n);
-
-state_map& operator+=(state_map &lhs, state_map const &rhs);
-
-string join_string_vector(vector<string> const &state_keys);
-
-vector<string> keys(state_map const &state);
-
-vector<string> keys(state_vector_map const &state);
-
-bool any_key_is_duplicated(vector<vector<string>> const &keys);
-
-# endif
-
+#endif
