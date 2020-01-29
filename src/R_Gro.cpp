@@ -4,7 +4,7 @@
 #include <cmath>	// For isnan
 #include "module_library/BioCro.h"
 #include "modules.h"
-#include "Gro.h"
+#include "biocro_simulation.h"
 #include "module_library/ModuleFactory.h"
 #include "R_helper_functions.h"
 #include "standalone_ss.h"
@@ -15,38 +15,6 @@ using std::vector;
 using std::unique_ptr;
 
 extern "C" {
-
-SEXP R_Gro(SEXP initial_state,
-		SEXP parameters,
-		SEXP varying_parameters,
-		SEXP steady_state_module_names,
-		SEXP derivative_module_names,
-		SEXP verbose)
-{
-	try {
-		state_map s = map_from_list(initial_state);
-		state_map ip = map_from_list(parameters);
-		state_vector_map vp = map_vector_from_list(varying_parameters);
-		
-		if (vp.begin()->second.size() == 0) {
-			return R_NilValue;
-		}
-		
-		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
-		
-		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
-        
-        state_vector_map result = Gro_solve(s, ip, vp, ss_names, deriv_names, "Gro", 1.0, 1e-6, 200, verb, Rprintf);
-		return list_from_map(result);
-	}
-	catch (std::exception const &e) {
-		Rf_error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
-	}
-	catch (...) {
-		Rf_error("Caught unhandled exception in R_Gro.");
-	}
-}
 
 SEXP R_Gro_solver(SEXP initial_state,
 		SEXP parameters,
@@ -77,7 +45,12 @@ SEXP R_Gro_solver(SEXP initial_state,
         double adaptive_error_tol = REAL(solver_adaptive_error_tol)[0];
         int adaptive_max_steps = (int) REAL(solver_adaptive_max_steps)[0];
         
-        state_vector_map result = Gro_solve(s, ip, vp, ss_names, deriv_names, solver_type_string, output_step_size, adaptive_error_tol, adaptive_max_steps, verb, Rprintf);
+        //state_vector_map result = Gro_solve(s, ip, vp, ss_names, deriv_names, solver_type_string, output_step_size, adaptive_error_tol, adaptive_max_steps, verb, Rprintf);
+        
+        biocro_simulation gro(s, ip, vp, ss_names, deriv_names, solver_type_string, output_step_size, adaptive_error_tol, adaptive_max_steps);  // Make a biocro_simulation object
+        state_vector_map result = gro.run_simulation();                                                                                         // Run the simulation
+        Rprintf(gro.generate_report().c_str());                                                                                                 // Print the report
+        
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {

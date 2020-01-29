@@ -15,14 +15,14 @@ class system_solver
     system_solver(std::string solver_name, bool check_adaptive_compatible) : solver_name(solver_name), check_adaptive_compatible(check_adaptive_compatible) {}
     virtual ~system_solver() {}
 
-    std::unordered_map<std::string, std::vector<double>> solve(
-        std::shared_ptr<System> sys);
+    std::unordered_map<std::string, std::vector<double>> solve(std::shared_ptr<System> sys);
 
     void set_solver_parameters(double step_size, double error_tolerance, int max_steps)
     {
         output_step_size = step_size;
         adaptive_error_tol = error_tolerance;
         adaptive_max_steps = max_steps;
+        additional_set_solver_parameters(); // Allow derived classes to do extra operations if necessary
     }
 
     std::string generate_info_report() const { return std::string("Solver name: ") + solver_name + std::string("\n") + get_param_info(); }
@@ -39,7 +39,8 @@ class system_solver
     double output_step_size;
     double adaptive_error_tol;
     int adaptive_max_steps;
-
+    
+    virtual void additional_set_solver_parameters() {}
     virtual std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) = 0;
     virtual std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys);
     virtual std::string get_param_info() const = 0;

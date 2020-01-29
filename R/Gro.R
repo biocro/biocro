@@ -123,8 +123,9 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	# Remove any duplicates in the lists
 	steady_state_module_names = unique(steady_state_module_names)
 	derivative_module_names = unique(derivative_module_names)
-
-        result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, list(type='Gro', output_step_size=1.0, adaptive_error_tol=1e-4, adaptive_max_steps=200), verbose)
+	
+	# Use Gro_solver to get the result
+    result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, list(type='Gro', output_step_size=1.0, adaptive_error_tol=1e-4, adaptive_max_steps=200), verbose)
 	
 	# Return the result
 	return(result)
@@ -221,9 +222,9 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	initial_state = lapply(initial_state, as.numeric)
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
-	#solver_output_step_size = lapply(solver_output_step_size, as.numeric)
-	#solver_adaptive_error_tol = lapply(solver_adaptive_error_tol, as.numeric)
-	#solver_adaptive_max_steps = lapply(solver_adaptive_max_steps, as.numeric)
+	solver_output_step_size = as.numeric(solver_output_step_size)
+	solver_adaptive_error_tol = as.numeric(solver_adaptive_error_tol)
+	solver_adaptive_max_steps = as.numeric(solver_adaptive_max_steps)
 	
 	# Make sure verbose is a logical variable
 	verbose = lapply(verbose, as.logical)
