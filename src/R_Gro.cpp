@@ -49,7 +49,7 @@ SEXP R_Gro_solver(SEXP initial_state,
         
         biocro_simulation gro(s, ip, vp, ss_names, deriv_names, solver_type_string, output_step_size, adaptive_error_tol, adaptive_max_steps);  // Make a biocro_simulation object
         state_vector_map result = gro.run_simulation();                                                                                         // Run the simulation
-        Rprintf(gro.generate_report().c_str());                                                                                                 // Print the report
+        if (verb) Rprintf(gro.generate_report().c_str());                                                                                       // Print the report
         
 		return list_from_map(result);
 	}

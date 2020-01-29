@@ -33,7 +33,11 @@ class biocro_simulation
     }
 
     std::unordered_map<std::string, std::vector<double>> run_simulation() { return solver->solve(sys); }
-    std::string generate_report() const { return solver->generate_info_report() + std::string("\n"); }
+    std::string generate_report() const
+    {
+        return std::string("Solver description:\n") + solver->generate_info_report() +
+               std::string("\n\nSolution details:\n") + solver->generate_solve_report() + std::string("\n");
+    }
 
    private:
     std::shared_ptr<System> sys;
