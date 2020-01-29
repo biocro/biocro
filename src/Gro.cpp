@@ -22,6 +22,9 @@ std::unordered_map<std::string, std::vector<double>> Gro_solve(
     // Create a solver
     std::unique_ptr<system_solver> solver = system_solver_factory(solver_name);
 
+    // Set the solver's parameters
+    solver->set_solver_parameters(output_step_size, adaptive_error_tol, adaptive_max_steps);
+
     // Solve the system and return the result
-    return solver->solve(sys, output_step_size, adaptive_error_tol, adaptive_max_steps);
+    return solver->solve(sys);
 }

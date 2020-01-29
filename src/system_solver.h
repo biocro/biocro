@@ -2,7 +2,7 @@
 #define SYSTEM_SOLVER_H
 
 #include <vector>
-#include <boost/numeric/odeint.hpp>        // For use with ODEINT
+#include <boost/numeric/odeint.hpp>  // For use with ODEINT
 #include "state_map.h"
 #include "system.h"
 
@@ -16,15 +16,10 @@ class system_solver
     virtual ~system_solver() {}
 
     std::unordered_map<std::string, std::vector<double>> solve(
-        std::shared_ptr<System> sys,
-        double output_step_size,
-        double adaptive_error_tol,
-        int adaptive_max_steps);
-
-    std::unordered_map<std::string, std::vector<double>> solve(
         std::shared_ptr<System> sys);
 
-    void set_solver_parameters(double step_size, double error_tolerance, int max_steps) {
+    void set_solver_parameters(double step_size, double error_tolerance, int max_steps)
+    {
         output_step_size = step_size;
         adaptive_error_tol = error_tolerance;
         adaptive_max_steps = max_steps;
