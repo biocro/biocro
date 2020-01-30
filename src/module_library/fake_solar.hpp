@@ -66,8 +66,8 @@ void fake_solar::do_operation() const {
 	double ws_dawn = 6.7;			// Start of civil twilight in Chicago on winter solstice 2018
 	double ws_dusk = 17.0;			// End of civil twilight in Chicago on winter solstice 2018 (length = 10.3)
 	
-	double se_dawn = 6.5;			// Start of civil twilight in Chicago on spring equinox 2019
-	double se_dusk = 19.5;			// End of civil twilight in Chicago on spring equinox 2019 (length = 13.0)
+	//double se_dawn = 6.5;			// Start of civil twilight in Chicago on spring equinox 2019
+	//double se_dusk = 19.5;			// End of civil twilight in Chicago on spring equinox 2019 (length = 13.0)
 	
 	double dawn = ss_dawn + (doy - min_doy) * (ws_dawn - ss_dawn) / (max_doy - min_doy);
 	double dusk = ss_dusk + (doy - min_doy) * (ws_dusk - ss_dusk) / (max_doy - min_doy);
