@@ -61,9 +61,13 @@ class System
     std::vector<std::string> get_output_param_names() const { return output_param_vector; }
     std::vector<const double*> get_output_ptrs() const { return output_ptr_vector; }
     std::vector<std::string> get_state_parameter_names() const { return state_parameter_names; }
+    
+    // For generating reports to the user
+    int get_ncalls() const { return ncalls; }
+    void reset_ncalls() { ncalls = 0; }
+    std::string generate_usage_report() const { return std::to_string(ncalls) + std::string(" derivatives were calculated"); }
 
     // For performance testing
-    int get_ncalls() const { return ncalls; }
     template <class vector_type, class time_type>
     int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
 

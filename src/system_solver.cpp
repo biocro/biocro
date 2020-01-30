@@ -7,6 +7,7 @@ std::unordered_map<std::string, std::vector<double>> system_solver::solve(std::s
     if (check_adaptive_compatible && !sys->is_adaptive_compatible()) {
         return handle_adaptive_incompatibility(sys);
     } else {
+        sys->reset_ncalls();
         return do_solve(sys);
     }
 }
