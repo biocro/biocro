@@ -12,7 +12,11 @@
 class system_solver
 {
    public:
-    system_solver(std::string solver_name, bool check_adaptive_compatible) : solver_name(solver_name), check_adaptive_compatible(check_adaptive_compatible) {}
+
+    system_solver(std::string solver_name, bool check_adaptive_compatible) :
+        solver_name(solver_name),
+        check_adaptive_compatible(check_adaptive_compatible) {}
+
     virtual ~system_solver() {}
 
     std::unordered_map<std::string, std::vector<double>> solve(std::shared_ptr<System> sys);
@@ -22,7 +26,9 @@ class system_solver
         output_step_size = step_size;
         adaptive_error_tol = error_tolerance;
         adaptive_max_steps = max_steps;
-        additional_set_solver_parameters();  // Allow derived classes to do extra operations if necessary
+
+        // Allow derived classes to do extra operations if necessary:
+        set_additional_solver_parameters();
     }
 
     std::string generate_info_report() const { return std::string("Name: ") + solver_name + get_param_info(); }
@@ -51,7 +57,7 @@ class system_solver
 
     bool solve_method_has_been_called = false;
 
-    virtual void additional_set_solver_parameters() {}
+    virtual void set_additional_solver_parameters() {}
     virtual std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) = 0;
     virtual std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys);
     virtual std::string get_param_info() const = 0;
@@ -59,9 +65,13 @@ class system_solver
 };
 
 // Define the standard response to a problem with adaptive compatibility
-inline std::unordered_map<std::string, std::vector<double>> system_solver::handle_adaptive_incompatibility(std::shared_ptr<System> /*sys*/)
+inline std::unordered_map<std::string, std::vector<double>>
+system_solver::handle_adaptive_incompatibility(std::shared_ptr<System> /*sys*/)
 {
-    throw std::logic_error(std::string("system_solver '") + solver_name + std::string("' is not compatible with the input system.\n"));
+    throw std::logic_error(
+        std::string("system_solver '") + solver_name +
+        std::string("' is not compatible with the input system.\n")
+    );
 }
 
 #endif

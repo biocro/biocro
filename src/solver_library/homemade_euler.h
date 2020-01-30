@@ -12,8 +12,14 @@ class homemade_euler_solver : public system_solver
 
    private:
     std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
-    std::string get_param_info() const override { return std::string(""); }        // The homemade Euler solver has no new parameters to report
-    std::string get_solution_info() const override { return std::string("N/A"); }  // The homemade Euler solver doesn't have much to contribute
+
+    std::string get_param_info() const override {
+        return std::string("");
+    } // The homemade Euler solver has no new parameters to report
+
+    std::string get_solution_info() const override {
+        return std::string("N/A");
+    } // The homemade Euler solver doesn't have much to contribute
 };
 
 template <class state_type>

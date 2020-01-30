@@ -1,6 +1,7 @@
 #include "system_solver.h"
 
-std::unordered_map<std::string, std::vector<double>> system_solver::solve(std::shared_ptr<System> sys)
+std::unordered_map<std::string, std::vector<double>>
+system_solver::solve(std::shared_ptr<System> sys)
 {
     solve_method_has_been_called = true;
 

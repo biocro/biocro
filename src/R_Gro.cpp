@@ -39,18 +39,21 @@ SEXP R_Gro_solver(SEXP initial_state,
 		std::vector<std::string> ss_names = make_vector(steady_state_module_names);
 		std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 		
-		bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+		bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 		string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
         double output_step_size = REAL(solver_output_step_size)[0];
         double adaptive_error_tol = REAL(solver_adaptive_error_tol)[0];
         int adaptive_max_steps = (int) REAL(solver_adaptive_max_steps)[0];
         
-        //state_vector_map result = Gro_solve(s, ip, vp, ss_names, deriv_names, solver_type_string, output_step_size, adaptive_error_tol, adaptive_max_steps, verb, Rprintf);
-        
-        biocro_simulation gro(s, ip, vp, ss_names, deriv_names, solver_type_string, output_step_size, adaptive_error_tol, adaptive_max_steps);  // Make a biocro_simulation object
-        state_vector_map result = gro.run_simulation();                                                                                         // Run the simulation
-        if (verb) Rprintf(gro.generate_report().c_str());                                                                                       // Print the report
-        
+        biocro_simulation gro(s, ip, vp, ss_names, deriv_names,
+                              solver_type_string, output_step_size,
+                              adaptive_error_tol, adaptive_max_steps);
+        state_vector_map result = gro.run_simulation();
+
+        if (loquacious) {
+            Rprintf(gro.generate_report().c_str());
+        }
+
 		return list_from_map(result);
 	}
 	catch (std::exception const &e) {
