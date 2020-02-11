@@ -51,23 +51,23 @@ for (i in seq_along(parameter_lists)) {
                     initial_values$StomataWS = 1
                     initial_values$LeafWS = 1
                     initial_values$soil_evaporation_rate = 0
-                    }) 
+                    })
 
         two_soil_layer_results <- do.call(Gro, two_layer_parameters)
-		
-		expect_true(mean(base_results[["Root"]]) > mean(two_soil_layer_results[["Root"]]))
-		expect_true(mean(base_results[["lai"]]) < mean(two_soil_layer_results[["lai"]]))
-		expect_true(mean(base_results[["Leaf"]]) < mean(two_soil_layer_results[["Leaf"]]))
-		expect_true(mean(base_results[["Stem"]]) < mean(two_soil_layer_results[["Stem"]]))         
+
+        expect_true(mean(base_results[["Root"]]) > mean(two_soil_layer_results[["Root"]]))
+        expect_true(mean(base_results[["lai"]]) < mean(two_soil_layer_results[["lai"]]))
+        expect_true(mean(base_results[["Leaf"]]) < mean(two_soil_layer_results[["Leaf"]]))
+        expect_true(mean(base_results[["Stem"]]) < mean(two_soil_layer_results[["Stem"]]))
     })
 
     test_that(paste(species, "stem biomass is sensitive to key parameters "), {
             get_max_biomass <- function(parameters) {
                 results = do.call(Gro, parameters)
-				results$total_mass = results$Stem + results$Leaf + results$Root
-				return(with(results, max(total_mass)))
+                results$total_mass = results$Stem + results$Leaf + results$Root
+                return(with(results, max(total_mass)))
                 #return(with(results, max(Stem, Leaf, Root)))
-            } 
+            }
 
 
             low_kd = within(parameter_list, {parameters$kd = 0.1})
@@ -79,12 +79,12 @@ for (i in seq_along(parameter_lists)) {
             low_b1 = within(parameter_list, {parameters$b1 = 3})
             high_b1 = within(parameter_list, {parameters$b1 = 10})
 
-            # willowGro insensitive to chi.l, b1 
+            # willowGro insensitive to chi.l, b1
             # pending implementation ebimodeling/biocro-dev#5
 
             expect_gt(get_max_biomass(low_kd), get_max_biomass(high_kd))
-			expect_gt(get_max_biomass(low_chil), get_max_biomass(high_chil))
-			expect_lt(get_max_biomass(low_b1), get_max_biomass(high_b1))
+            expect_gt(get_max_biomass(low_chil), get_max_biomass(high_chil))
+            expect_lt(get_max_biomass(low_b1), get_max_biomass(high_b1))
     })
     cat('\n')
 }
