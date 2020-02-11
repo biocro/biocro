@@ -83,12 +83,8 @@ class two_layer_soil_profile : public DerivModule {
 		const double* soil_transmission_ip;
 		const double* specific_heat_ip;
 		const double* stefan_boltzman_ip;
-		const double* StomataWS_ip;
-		const double* LeafWS_ip;
 		const double* soil_water_content_ip;
 		// Pointers to output parameters
-		double* StomataWS_op;
-		double* LeafWS_op;
 		double* cws1_op;
 		double* cws2_op;
 		double* soil_water_content_op;

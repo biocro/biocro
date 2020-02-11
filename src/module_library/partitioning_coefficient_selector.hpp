@@ -9,37 +9,36 @@ class partitioning_coefficient_selector : public SteadyModule {
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("partitioning_coefficient_selector"),
 			// Get pointers to input parameters
-			tp1_ip(get_ip(input_parameters, "tp1")),
 			kStem1_ip(get_ip(input_parameters, "kStem1")),
 			kLeaf1_ip(get_ip(input_parameters, "kLeaf1")),
 			kRoot1_ip(get_ip(input_parameters, "kRoot1")),
 			kRhizome1_ip(get_ip(input_parameters, "kRhizome1")),
 			kGrain1_ip(get_ip(input_parameters, "kGrain1")),
-			tp2_ip(get_ip(input_parameters, "tp2")),
+			tp1_ip(get_ip(input_parameters, "tp1")),
 			kStem2_ip(get_ip(input_parameters, "kStem2")),
 			kLeaf2_ip(get_ip(input_parameters, "kLeaf2")),
 			kRoot2_ip(get_ip(input_parameters, "kRoot2")),
 			kRhizome2_ip(get_ip(input_parameters, "kRhizome2")),
 			kGrain2_ip(get_ip(input_parameters, "kGrain2")),
-			tp3_ip(get_ip(input_parameters, "tp3")),
+			tp2_ip(get_ip(input_parameters, "tp2")),
 			kStem3_ip(get_ip(input_parameters, "kStem3")),
 			kLeaf3_ip(get_ip(input_parameters, "kLeaf3")),
 			kRoot3_ip(get_ip(input_parameters, "kRoot3")),
 			kRhizome3_ip(get_ip(input_parameters, "kRhizome3")),
 			kGrain3_ip(get_ip(input_parameters, "kGrain3")),
-			tp4_ip(get_ip(input_parameters, "tp4")),
+			tp3_ip(get_ip(input_parameters, "tp3")),
 			kStem4_ip(get_ip(input_parameters, "kStem4")),
 			kLeaf4_ip(get_ip(input_parameters, "kLeaf4")),
 			kRoot4_ip(get_ip(input_parameters, "kRoot4")),
 			kRhizome4_ip(get_ip(input_parameters, "kRhizome4")),
 			kGrain4_ip(get_ip(input_parameters, "kGrain4")),
-			tp5_ip(get_ip(input_parameters, "tp5")),
+			tp4_ip(get_ip(input_parameters, "tp4")),
 			kStem5_ip(get_ip(input_parameters, "kStem5")),
 			kLeaf5_ip(get_ip(input_parameters, "kLeaf5")),
 			kRoot5_ip(get_ip(input_parameters, "kRoot5")),
 			kRhizome5_ip(get_ip(input_parameters, "kRhizome5")),
 			kGrain5_ip(get_ip(input_parameters, "kGrain5")),
-			tp6_ip(get_ip(input_parameters, "tp6")),
+			tp5_ip(get_ip(input_parameters, "tp5")),
 			kStem6_ip(get_ip(input_parameters, "kStem6")),
 			kLeaf6_ip(get_ip(input_parameters, "kLeaf6")),
 			kRoot6_ip(get_ip(input_parameters, "kRoot6")),
@@ -57,37 +56,36 @@ class partitioning_coefficient_selector : public SteadyModule {
 		static std::vector<std::string> get_outputs();
 	private:
 		// Pointers to input parameters
-		const double* tp1_ip;
 		const double* kStem1_ip;
 		const double* kLeaf1_ip;
 		const double* kRoot1_ip;
 		const double* kRhizome1_ip;
 		const double* kGrain1_ip;
-		const double* tp2_ip;
+		const double* tp1_ip;
 		const double* kStem2_ip;
 		const double* kLeaf2_ip;
 		const double* kRoot2_ip;
 		const double* kRhizome2_ip;
 		const double* kGrain2_ip;
-		const double* tp3_ip;
+		const double* tp2_ip;
 		const double* kStem3_ip;
 		const double* kLeaf3_ip;
 		const double* kRoot3_ip;
 		const double* kRhizome3_ip;
 		const double* kGrain3_ip;
-		const double* tp4_ip;
+		const double* tp3_ip;
 		const double* kStem4_ip;
 		const double* kLeaf4_ip;
 		const double* kRoot4_ip;
 		const double* kRhizome4_ip;
 		const double* kGrain4_ip;
-		const double* tp5_ip;
+		const double* tp4_ip;
 		const double* kStem5_ip;
 		const double* kLeaf5_ip;
 		const double* kRoot5_ip;
 		const double* kRhizome5_ip;
 		const double* kGrain5_ip;
-		const double* tp6_ip;
+		const double* tp5_ip;
 		const double* kStem6_ip;
 		const double* kLeaf6_ip;
 		const double* kRoot6_ip;
@@ -106,12 +104,12 @@ class partitioning_coefficient_selector : public SteadyModule {
 
 std::vector<std::string> partitioning_coefficient_selector::get_inputs() {
 	return {
-		"tp1", "kStem1", "kLeaf1", "kRoot1", "kRhizome1", "kGrain1",
-		"tp2", "kStem2", "kLeaf2", "kRoot2", "kRhizome2", "kGrain2",
-		"tp3", "kStem3", "kLeaf3", "kRoot3", "kRhizome3", "kGrain3",
-		"tp4", "kStem4", "kLeaf4", "kRoot4", "kRhizome4", "kGrain4",
-		"tp5", "kStem5", "kLeaf5", "kRoot5", "kRhizome5", "kGrain5",
-		"tp6", "kStem6", "kLeaf6", "kRoot6", "kRhizome6", "kGrain6",
+		"kStem1", "kLeaf1", "kRoot1", "kRhizome1", "kGrain1", "tp1",
+		"kStem2", "kLeaf2", "kRoot2", "kRhizome2", "kGrain2", "tp2",
+		"kStem3", "kLeaf3", "kRoot3", "kRhizome3", "kGrain3", "tp3",
+		"kStem4", "kLeaf4", "kRoot4", "kRhizome4", "kGrain4", "tp4",
+		"kStem5", "kLeaf5", "kRoot5", "kRhizome5", "kGrain5", "tp5",
+		"kStem6", "kLeaf6", "kRoot6", "kRhizome6", "kGrain6",
 		"TTc"
 	};
 }
@@ -129,11 +127,9 @@ void partitioning_coefficient_selector::do_operation() const {
 	double tp3 = *tp3_ip;
 	double tp4 = *tp4_ip;
 	double tp5 = *tp5_ip;
-	double tp6 = *tp6_ip;
 	double kStem, kLeaf, kRoot, kRhizome, kGrain;
 	
 	// Determine the coefficients based on the current TTc value
-	// Why do we need tp6? It was included in the original code, but doesn't seem to be necessary (EBL)
 	if(0.0 <= TTc && TTc < tp1) {
 		// TTc is in interval 1
 		kStem = *kStem1_ip;
