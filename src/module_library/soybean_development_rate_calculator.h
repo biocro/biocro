@@ -5,7 +5,7 @@
 #include <cmath>
 
 /**
- * \brief
+ * \brief This module uses photothermal functions to determine the hourly development rate for soybean growth. 
  *
  * References:
  *  Setiyono, T.D. et al. 2007. “Understanding and Modeling the Effect of Temperature and Daylength on Soybean Phenology under High-Yield Conditions.” Field Crops Research 100(2–3): 257–71. https://doi.org/10.1016/j.fcr.2006.07.011
