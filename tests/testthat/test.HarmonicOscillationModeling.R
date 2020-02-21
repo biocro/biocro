@@ -37,6 +37,22 @@ SAMPLE_SIZE <- 5       # number of time points to test in each simulation result
 ##
 ##   E = 1/2 * kA^2
 ##
+##
+## A note on units
+##
+## In the equations above, we assume a consistent set of units so that no
+## conversion factors are required.  Moreover, φ is assumed to be in radians and
+## ω in radians per unit time.
+##
+## Although it is a goal of BioCro to work exclusively in SI units, currently,
+## the base time unit for BioCro is always an hour.  This means that even if we
+## choose meters for the unit of length and kilogram for the unit of mass, the
+## derived units in which the quantities v (velocity), k (the spring constant),
+## and E (the system energy) will not be expressed in SI units.  v, for example,
+## will be in meters per hour, and k will be in kilograms per hour squared, or
+## in other words, a unit equivalent to 7.716 x 10^-8 newtons per meter.  E will
+## be in units of kilogram-meters squared per hour squared, a unit equivalent to
+## 7.716 x 10^-8 joules.
 
 
 ## helper functions:
@@ -61,6 +77,7 @@ debug_view <- function(ob) {
 
 derivative_modules <- c("harmonic_oscillator")
 steady_state_modules <- c("harmonic_energy")
+varying_parameters <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
@@ -74,8 +91,6 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant)
     debug_print(invariant_parameters)
 
     
-    varying_parameters <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
-
     ## compute equation of motion parameters:
     amplitude <- sqrt(initial_position^2 + initial_velocity^2 * mass / spring_constant)
     angular_frequency <- sqrt(spring_constant / mass)
@@ -98,7 +113,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant)
     result <- Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
 
     ## add useful columns to the resulting data frame:    
-    result$time <- result$doy_dbl * 24
+    result$time <- result$doy_dbl * 24 # time is in hours
     result$expected_position <- position(result$time, amplitude, angular_frequency, phase)
     result$expected_velocity <- velocity(result$time, amplitude, angular_frequency, phase)
 
