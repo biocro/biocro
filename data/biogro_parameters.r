@@ -1,4 +1,4 @@
-biogro_parameters = read.delim(textConnection("biogro symbol	description	how it is set	default value	units	has_derivative
+biogro_parameters = utils::read.delim(textConnection("biogro symbol	description	how it is set	default value	units	has_derivative
 iRhizome	initial dry mass of rhizomes	argument	7	Mg / ha	1
 iLeaf	initial dry mass of leaves	argument	0.0007	Mg / ha	1
 iStem	initial dry mass of stems	argument	0.007	Mg / ha	1

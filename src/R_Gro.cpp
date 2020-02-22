@@ -4,47 +4,17 @@
 #include <cmath>  // For isnan
 #include "module_library/BioCro.h"
 #include "modules.h"
-#include "Gro.h"
+#include "biocro_simulation.h"
 #include "module_wrapper_factory.h"
 #include "R_helper_functions.h"
 #include "standalone_ss.h"
-#include "SystemSolverFactory.hpp"
+#include "solver_library/SystemSolverFactory.hpp"
 
 using std::string;
 using std::vector;
 using std::unique_ptr;
 
 extern "C" {
-
-SEXP R_Gro(SEXP initial_state,
-           SEXP parameters,
-           SEXP varying_parameters,
-           SEXP steady_state_module_names,
-           SEXP derivative_module_names,
-           SEXP verbose)
-{
-    try {
-        state_map s = map_from_list(initial_state);
-        state_map ip = map_from_list(parameters);
-        state_vector_map vp = map_vector_from_list(varying_parameters);
-
-        if (vp.begin()->second.size() == 0) {
-            return R_NilValue;
-        }
-
-        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
-
-        bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
-
-        state_vector_map result = Gro(s, ip, vp, ss_names, deriv_names, 1.0, 1e-6, 200, verb, Rprintf);
-        return list_from_map(result);
-    } catch (std::exception const& e) {
-        Rf_error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
-    } catch (...) {
-        Rf_error("Caught unhandled exception in R_Gro.");
-    }
-}
 
 SEXP R_Gro_solver(SEXP initial_state,
                   SEXP parameters,
@@ -69,18 +39,27 @@ SEXP R_Gro_solver(SEXP initial_state,
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
-        bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+        bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
         string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
         double output_step_size = REAL(solver_output_step_size)[0];
         double adaptive_error_tol = REAL(solver_adaptive_error_tol)[0];
-        int adaptive_max_steps = (int)REAL(solver_adaptive_max_steps)[0];
-        auto solver = system_solver_factory(solver_type_string);
+        int adaptive_max_steps = (int) REAL(solver_adaptive_max_steps)[0];
 
-        state_vector_map result = solver(s, ip, vp, ss_names, deriv_names, output_step_size, adaptive_error_tol, adaptive_max_steps, verb, Rprintf);
+        biocro_simulation gro(s, ip, vp, ss_names, deriv_names,
+                              solver_type_string, output_step_size,
+                              adaptive_error_tol, adaptive_max_steps);
+        state_vector_map result = gro.run_simulation();
+
+        if (loquacious) {
+            Rprintf(gro.generate_report().c_str());
+        }
+
         return list_from_map(result);
-    } catch (std::exception const& e) {
+    }
+    catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_Gro_solver: ") + e.what()).c_str());
-    } catch (...) {
+    }
+    catch (...) {
         Rf_error("Caught unhandled exception in R_Gro_solver.");
     }
 }

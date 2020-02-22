@@ -4,15 +4,16 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
-#include <memory>       // For unique_ptr and shared_ptr
-#include <cmath>        // For fmod
-#include <time.h>       // For timing during performance testing
+#include <memory>  // For unique_ptr and shared_ptr
+#include <cmath>   // For fmod
+#include <time.h>  // For timing during performance testing
 #include "modules.h"
 #include "module_wrapper_factory.h"
 #include "system_helper_functions.h"
 #include "state_map.h"
 
-class System {
+class System
+{
     // This class defines a system of differential equations by storing a state, a list of modules, and all of their input/output parameters
     // It is designed to be passed to a boost::odeint integrator via a SystemCaller
     // The time input to operator() can be integer or double (any other type will throw an error):
@@ -27,23 +28,23 @@ class System {
         System(
             std::unordered_map<std::string, double> const& init_state,
             std::unordered_map<std::string, double> const& invariant_params,
-            std::unordered_map<std::string, std::vector<double>> const &varying_params,
-            std::vector<std::string> const &ss_module_names,
-            std::vector<std::string> const &deriv_module_names,
+            std::unordered_map<std::string, std::vector<double>> const& varying_params,
+            std::vector<std::string> const& ss_module_names,
+            std::vector<std::string> const& deriv_module_names,
             bool const verb,
-            void (*print_fcn_ptr) (char const *format, ...) = void_printf);
+            void (*print_fcn_ptr) (char const* format, ...) = void_printf);
 
         System(
             std::unordered_map<std::string, double> const& init_state,
             std::unordered_map<std::string, double> const& invariant_params,
-            std::unordered_map<std::string, std::vector<double>> const &varying_params,
-            std::vector<std::string> const &ss_module_names,
-            std::vector<std::string> const &deriv_module_names,
-            void (*print_fcn_ptr) (char const *format, ...) = void_printf);
+            std::unordered_map<std::string, std::vector<double>> const& varying_params,
+            std::vector<std::string> const& ss_module_names,
+            std::vector<std::string> const& deriv_module_names,
+            void (*print_fcn_ptr) (char const* format, ...) = void_printf);
         // Possibly helpful functions
-        double get_timestep() const {return *timestep_ptr;}
-        size_t get_ntimes() const {return ntimes;}
-        bool is_adaptive_compatible() const {return adaptive_compatible;}
+        double get_timestep() const { return *timestep_ptr; }
+        size_t get_ntimes() const { return ntimes; }
+        bool is_adaptive_compatible() const { return adaptive_compatible; }
 
         // For fitting via nlopt
         void reset();
@@ -62,13 +63,21 @@ class System {
         template<typename state_type, typename time_type>
             std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times);
 
-        std::vector<std::string> get_output_param_names() const {return output_param_vector;}
-        std::vector<const double*> get_output_ptrs() const {return output_ptr_vector;}
-        std::vector<std::string> get_state_parameter_names() const {return keys(initial_state);}
+        std::vector<std::string> get_output_param_names() const { return output_param_vector; }
+        std::vector<const double*> get_output_ptrs() const { return output_ptr_vector; }
+        std::vector<std::string> get_state_parameter_names() const { return keys(initial_state); }
+
+        // For generating reports to the user
+        int get_ncalls() const { return ncalls; }
+        void reset_ncalls() { ncalls = 0; }
+        std::string generate_usage_report() const {
+            return std::to_string(ncalls) +
+                std::string(" derivatives were calculated");
+        }
 
         // For performance testing
-        int get_ncalls() const {return ncalls;}
-        template<class vector_type, class time_type> int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
+        template <class vector_type, class time_type>
+        int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
 
     private:
         // Members for storing the original inputs
@@ -78,7 +87,7 @@ class System {
         const std::vector<std::string> steady_state_module_names;
         const std::vector<std::string> derivative_module_names;
         bool verbose = false;
-        void (*print_msg) (char const *format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
+        void (*print_msg) (char const* format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
 
         // Functions for checking and processing inputs when constructing a system
         void process_variable_and_module_inputs(
@@ -110,6 +119,7 @@ class System {
             module_wrapper_factory& module_factory,
             std::vector<std::string>& incorrect_modules
         );
+
         template<typename name_list>
         void get_pointer_pairs(name_list const& unique_steady_state_parameter_names);
 
@@ -129,9 +139,11 @@ class System {
         std::vector<std::pair<double*, std::vector<double>*>> varying_ptrs;
 
         // Functions for updating the central parameter list
-        void update_varying_params(int time_indx);      // For integer time
-        void update_varying_params(double time_indx);   // For double time
-        template<class vector_type> void update_state_params(const vector_type& new_state);
+        void update_varying_params(int time_indx);     // For integer time
+        void update_varying_params(size_t time_indx);  // For size_t time
+        void update_varying_params(double time_indx);  // For double time
+        template<class vector_type>
+        void update_state_params(const vector_type& new_state);
 
         // Lists of modules
         std::vector<std::unique_ptr<Module>> steady_state_modules;
@@ -145,11 +157,13 @@ class System {
 
         // For running the modules
         void run_steady_state_modules();
-        template<class vector_type> void run_derivative_modules(vector_type& derivs);
+        template<class vector_type>
+        void run_derivative_modules(vector_type& derivs);
 
         // For testing the modules
         void test_steady_state_modules();
-        template<class vector_type> void test_derivative_modules(vector_type& derivs);
+        template<class vector_type>
+        void test_derivative_modules(vector_type& derivs);
 
         // For performance testing
         int ncalls;
@@ -159,12 +173,13 @@ class System {
 };
 
 template<typename state_type>
-void System::get_state(state_type& x) const {
+void System::get_state(state_type& x) const
+{
     x.resize(state_ptrs.size());
-    for(size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
+    for (size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
 }
 
-template<typename state_type, typename time_type>
+template <typename state_type, typename time_type>
 void System::operator()(const state_type& x, state_type& dxdt, const time_type& t)
 {
     ++ncalls;
@@ -174,7 +189,7 @@ void System::operator()(const state_type& x, state_type& dxdt, const time_type& 
     run_derivative_modules(dxdt);
 }
 
-template<typename state_type, typename jacobi_type, typename time_type>
+template <typename state_type, typename jacobi_type, typename time_type>
 void System::operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt)
 {
     // Numerically compute the Jacobian matrix
@@ -202,64 +217,63 @@ void System::operator()(const state_type& x, jacobi_type& jacobi, const time_typ
     //  In the other scheme, we make 2N derivative evaluations
     //  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro derivatives are expensive
     //  Likewise, higher-order numerical derivative calculations are also not worthwhile
-    
+
     size_t n = x.size();
-    
+
     // Make vectors to store the current and perturbed dxdt
     state_type dxdt_c(n);
     state_type dxdt_p(n);
-    
+
     // Get the current dxdt
     operator()(x, dxdt_c, t);
-    
+
     // Perturb each state variable and find the corresponding change in the derivative
     double h;
     state_type xperturb = x;
-    for(size_t i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         // Ensure that the step size h is close to eps_deriv but is exactly representable
         //  (see Numerical Recipes in C, 2nd ed., Section 5.7)
         h = eps_deriv;
         double temp = x[i] + h;
         h = temp - x[i];
-        
+
         // Calculate the new derivatives
-        xperturb[i] = x[i] + h;             // Add h to the ith state variable
-        operator()(xperturb, dxdt_p, t);    // Calculate dxdt_p
-        
+        xperturb[i] = x[i] + h;           // Add h to the ith state variable
+        operator()(xperturb, dxdt_p, t);  // Calculate dxdt_p
+
         // Store the results in the Jacobian matrix
-        for(size_t j = 0; j < n; j++) jacobi(j,i) = (dxdt_p[j] - dxdt_c[j])/h;
-        
+        for (size_t j = 0; j < n; j++) jacobi(j, i) = (dxdt_p[j] - dxdt_c[j]) / h;
+
         // Reset the ith state variable
-        xperturb[i] = x[i];                 // Reset the ith state variable
+        xperturb[i] = x[i];  // Reset the ith state variable
     }
-    
+
     // Perturb the time and find the corresponding change in dxdt
     // Use a forward step whenever possible
     h = eps_deriv;
     double temp = t + h;
     h = temp - t;
-    if(t + h <= (double)ntimes - 1.0) {
+    if (t + h <= (double)ntimes - 1.0) {
         operator()(x, dxdt_p, t + h);
-        for(size_t j = 0; j < n; j++) dfdt[j] = (dxdt_p[j] - dxdt_c[j])/h;
-    }
-    else {
+        for (size_t j = 0; j < n; j++) dfdt[j] = (dxdt_p[j] - dxdt_c[j]) / h;
+    } else {
         operator()(x, dxdt_p, t - h);
-        for(size_t j = 0; j < n; j++) dfdt[j] = (dxdt_c[j] - dxdt_p[j])/h;
+        for (size_t j = 0; j < n; j++) dfdt[j] = (dxdt_c[j] - dxdt_p[j]) / h;
     }
 }
 
-template<typename state_type, typename time_type>
+template <typename state_type, typename time_type>
 std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times)
 {
     std::unordered_map<std::string, std::vector<double>> results;
-    
+
     // Initialize the parameter names
     std::vector<double> temp(x_vec.size());
-    for (std::string const & p : output_param_vector) results[p] = temp;
+    for (std::string const& p : output_param_vector) results[p] = temp;
     
     std::fill(temp.begin(), temp.end(), ncalls);
     results["ncalls"] = temp;
-    
+
     // Store the data
     for (size_t i = 0; i < x_vec.size(); ++i) {
         state_type current_state = x_vec[i];
@@ -271,50 +285,55 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
         // Add the list to the results map
         for (size_t j = 0; j < output_param_vector.size(); ++j) (results[output_param_vector[j]])[i] = quantities[output_param_vector[j]];
     }
-    
+
     return results;
 }
 
 template<class vector_type>
-void System::update_state_params(const vector_type& new_state) {
-    for(size_t i = 0; i < new_state.size(); i++) {
+void System::update_state_params(const vector_type& new_state)
+{
+    for (size_t i = 0; i < new_state.size(); i++) {
         *(state_ptrs[i].first) = new_state[i];
     }
 }
 
 template<class vector_type>
-void System::run_derivative_modules(vector_type& dxdt) {
-    for(auto const & x : state_ptrs) {
-        *x.second = 0.0;                                                               // Reset the module output map
+void System::run_derivative_modules(vector_type& dxdt)
+{
+    for (auto const& x : state_ptrs) {
+        *x.second = 0.0;                                                // Reset the module output map
     }
-    std::fill(dxdt.begin(), dxdt.end(), 0);                                                                 // Reset the derivative vector
+    std::fill(dxdt.begin(), dxdt.end(), 0);                             // Reset the derivative vector
     for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
         (*it)->run();           // Run the modules
     }
-    for(size_t i = 0; i < dxdt.size(); i++) {
-        dxdt[i] += *(state_ptrs[i].second)*(*timestep_ptr);             // Store the output in the derivative vector
+    for (size_t i = 0; i < dxdt.size(); i++) {
+        dxdt[i] += *(state_ptrs[i].second) * (*timestep_ptr);           // Store the output in the derivative vector
     }
 }
 
-template<class vector_type>
-void System::test_derivative_modules(vector_type& dxdt) {
+template <class vector_type>
+void System::test_derivative_modules(vector_type& dxdt)
+{
     // Identical to run_derivative_modules except for a try-catch block
-    for(auto const & x : state_ptrs) *x.second = 0.0;
+    for (auto const& x : state_ptrs) *x.second = 0.0;
     std::fill(dxdt.begin(), dxdt.end(), 0);
-    for(auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        try {(*it)->run();}
-        catch (const std::exception& e) {
+    for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
+        try {
+            (*it)->run();
+        } catch (const std::exception& e) {
             throw std::logic_error(std::string("Derivative module '") + (*it)->get_name() + std::string("' generated an exception while calculating time derivatives: ") + e.what() + std::string("\n"));
         }
     }
-    for(size_t i = 0; i < dxdt.size(); i++) dxdt[i] += *(state_ptrs[i].second)*(*timestep_ptr);
+    for (size_t i = 0; i < dxdt.size(); i++) dxdt[i] += *(state_ptrs[i].second) * (*timestep_ptr);
 }
 
-template<class vector_type, class time_type>
-int System::speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t) {
+template <class vector_type, class time_type>
+int System::speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t)
+{
     // Run the system operator n times
     clock_t ct = clock();
-    for(int i = 0; i < n; i++) operator()(x, dxdt, t);
+    for (int i = 0; i < n; i++) operator()(x, dxdt, t);
     ct = clock() - ct;
     return (int)ct;
 }
@@ -323,49 +342,77 @@ int System::speed_test(int n, const vector_type& x, vector_type& dxdt, const tim
 // FOR USE WITH ODEINT //
 /////////////////////////
 
-class SystemCaller {
-    // This is a simple class whose purpose is to prevent odeint from making zillions of copies of an input system
-    public:
-        SystemCaller(std::shared_ptr<System> sys) : _sys(sys) {}
-        template<typename state_type, typename time_type>
-        void operator() (const state_type& x, state_type& dxdt, const time_type& t) {_sys->operator()(x, dxdt, t);}
+// This is a simple class that prevents odeint from making zillions of copies of an input system
+class SystemPointerWrapper
+{
+   public:
+    SystemPointerWrapper(std::shared_ptr<System> sys) : sys(sys) {}
 
-        template<typename state_type, typename jacobi_type, typename time_type>
-        void operator() (const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt) {_sys->operator()(x, jacobi, t, dfdt);}
+    template <typename state_type, typename time_type>
+    void operator()(const state_type& x, state_type& dxdt, const time_type& t)
+    {
+        sys->operator()(x, dxdt, t);
+    }
 
-    private:
-        std::shared_ptr<System> _sys;
+    template <typename state_type, typename jacobi_type, typename time_type>
+    void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt)
+    {
+        sys->operator()(x, jacobi, t, dfdt);
+    }
+
+    size_t get_ntimes() const { return sys->get_ntimes(); }
+
+   private:
+    std::shared_ptr<System> sys;
+};
+
+// This is a simple class that allows the same object to be used as inputs to integrate_const with
+//  explicit and rosenbrock steppers
+class SystemCaller : public SystemPointerWrapper
+{
+   public:
+    SystemCaller(std::shared_ptr<System> sys) : SystemPointerWrapper(sys),
+                                                first(SystemPointerWrapper(sys)),
+                                                second(SystemPointerWrapper(sys)) {}
+
+    // Provide the member types and variables that a std::pair would have
+    typedef SystemPointerWrapper first_type;
+    typedef first_type second_type;
+    first_type first;
+    second_type second;
 };
 
 // Observer used to store values
 
 template <typename state_type>
-struct push_back_state_and_time
-{
+struct push_back_state_and_time {
     std::vector<state_type>& m_states;
     std::vector<double>& m_times;
     double _max_time;
     double threshold = 0;
     bool _verbose;
-    void (*print_msg) (char const *format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
-    
+    void (*print_msg)(char const* format, ...);  // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
+
     push_back_state_and_time(
         std::vector<state_type>& states,
-        std::vector<double> &times, double max_time,
+        std::vector<double>& times,
+        double max_time,
         bool verbose,
-        void (*print_fcn_ptr) (char const *format, ...) = void_printf) :
-        m_states(states),
-        m_times(times),
-        _max_time(max_time),
-        _verbose(verbose),
-        print_msg(print_fcn_ptr)
-    {}
-    
-    void operator()(const state_type & x, double t) {
-        if(_verbose) {
-            if(t >= _max_time) print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
-            else if(t/_max_time >= threshold) {
-                print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t/_max_time*100.0, (unsigned int) clock());
+        void (*print_fcn_ptr)(char const* format, ...) = void_printf) : m_states(states),
+                                                                        m_times(times),
+                                                                        _max_time(max_time),
+                                                                        _verbose(verbose),
+                                                                        print_msg(print_fcn_ptr)
+    {
+    }
+
+    void operator()(const state_type& x, double t)
+    {
+        if (_verbose) {
+            if (t >= _max_time)
+                print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t / _max_time * 100.0, (unsigned int)clock());
+            else if (t / _max_time >= threshold) {
+                print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t / _max_time * 100.0, (unsigned int)clock());
                 threshold += 0.02;
             }
         }

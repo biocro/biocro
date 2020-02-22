@@ -668,6 +668,11 @@ void System::update_varying_params(int time_indx) {
     for(auto const & x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];
 }
 
+// For size_t time
+void System::update_varying_params(size_t time_indx) {
+    for(auto x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];
+}
+
 // For double time
 void System::update_varying_params(double time_indx) {
     // Find the two closest integers

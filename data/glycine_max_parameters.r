@@ -139,7 +139,7 @@ glycine_max_parameters = with(list(), {
      FKF1_timing 1
      CDF_timing 1"
     
-    data_frame = read.table(textConnection(datalines), header=TRUE)
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
     names(values) = data_frame$symbol
     values
