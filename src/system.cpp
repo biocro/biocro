@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "system.h"
+#include "validate_system.h"
 
 System::System(
     std::unordered_map<std::string, double> const& init_state,

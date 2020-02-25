@@ -38,6 +38,8 @@ export(test_standalone_ss)
 
 export(test_system)
 
+export(validate_system_inputs)
+
 export(get_all_modules)
 
 exportPattern("Parms$")

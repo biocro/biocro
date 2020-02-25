@@ -29,21 +29,19 @@ std::vector<std::string> find_undefined_module_outputs(
     state_map initial_state,
     std::vector<std::string> deriv_module_names);
 
+std::vector<std::string> find_misordered_modules(
+    state_map initial_state,
+    state_map invariant_params,
+    state_vector_map varying_params,
+    std::vector<std::string> ss_module_names);
+
 std::string create_message_from_duplicated_quantities(std::vector<std::string> duplicated_quantities);
 
 std::string create_message_from_undefined_module_inputs(std::vector<std::string> undefined_module_inputs);
 
 std::string create_message_from_undefined_module_outputs(std::vector<std::string> undefined_module_outputs);
 
-/**
- * Inserts all the keys from map into name_vector
- */
-template <typename map_type>
-void insert_key_names(std::vector<std::string>& name_vector, map_type map)
-{
-    std::vector<std::string> map_key_names = keys(map);
-    name_vector.insert(name_vector.begin(), map_key_names.begin(), map_key_names.end());
-}
+std::string create_message_from_misordered_modules(std::vector<std::string> misordered_modules);
 
 void insert_quantity_name_if_new(
     std::string quantity_name,
@@ -55,5 +53,37 @@ void insert_module_input_if_undefined(
     std::string module_name,
     std::vector<std::string> defined_quantity_names,
     std::vector<std::string>& undefined_module_inputs);
+
+/**
+ * Inserts all the keys from map into name_vector
+ */
+template <typename map_type>
+void insert_key_names(std::vector<std::string>& name_vector, map_type map)
+{
+    std::vector<std::string> map_key_names = keys(map);
+    name_vector.insert(name_vector.begin(), map_key_names.begin(), map_key_names.end());
+}
+
+/**
+ * Checks whether all of the elements of list find_these are in the list in_this
+ */
+template <typename list_type>
+bool all_are_in_list(list_type find_these, list_type in_this)
+{
+    bool found;
+    for (auto const& find_this : find_these) {
+        found = false;
+        for (auto const& this_it : in_this) {
+            if (find_this == this_it) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            break;
+        }
+    }
+    return found;
+}
 
 #endif

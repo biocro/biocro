@@ -12,6 +12,7 @@
   * 1) Each quantity is defined only once
   * 2) All module inputs are defined
   * 3) Derivatives are calculated only for quantities in the initial state
+  * 4) All steady state module inputs are calculated before they are accessed
   */
 bool validate_system_inputs(
     std::string& message,
@@ -46,6 +47,13 @@ bool validate_system_inputs(
         valid = false;
     }
 
+    // Criterion 4
+    std::vector<std::string> misordered_modules = find_misordered_modules(initial_state, invariant_params, varying_params, ss_module_names);
+    message += create_message_from_misordered_modules(misordered_modules);
+    if (misordered_modules.size() > 0) {
+        valid = false;
+    }
+
     return valid;
 }
 
@@ -68,8 +76,8 @@ std::vector<std::string> define_quantities(
     // Get quantity names from the steady state modules
     for (std::string module_name : ss_module_names) {
         auto module = module_wrapper_factory::create(module_name);
-        std::vector<std::string> names = module->get_outputs();
-        defined_quantity_names.insert(defined_quantity_names.begin(), names.begin(), names.end());
+        std::vector<std::string> output_names = module->get_outputs();
+        defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
     }
 
     return defined_quantity_names;
@@ -90,7 +98,7 @@ std::vector<std::string> find_multiple_quantity_definitions(std::vector<std::str
 }
 
 /**
- * Finds quantities that are required by modules but not already defined
+ * Finds quantities that are required by modules but are not defined
  */
 std::vector<std::string> find_undefined_module_inputs(
     std::vector<std::string> quantity_names,
@@ -131,6 +139,36 @@ std::vector<std::string> find_undefined_module_outputs(
         }
     }
     return undefined_module_outputs;
+}
+
+/**
+ * Finds modules that access variables before their values have been calculated
+ */
+std::vector<std::string> find_misordered_modules(
+    state_map initial_state,
+    state_map invariant_params,
+    state_vector_map varying_params,
+    std::vector<std::string> ss_module_names)
+{
+    // Get quantity names from the input lists
+    std::vector<std::string> defined_quantity_names;
+    insert_key_names(defined_quantity_names, initial_state);
+    insert_key_names(defined_quantity_names, invariant_params);
+    insert_key_names(defined_quantity_names, varying_params);
+
+    // Check the steady state module order
+    std::vector<std::string> misordered_modules;
+    for (std::string module_name : ss_module_names) {
+        auto module = module_wrapper_factory::create(module_name);
+        std::vector<std::string> input_names = module->get_inputs();
+        if (!all_are_in_list(input_names, defined_quantity_names)) {
+            misordered_modules.push_back(module_name);
+        }
+        std::vector<std::string> output_names = module->get_outputs();
+        defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
+    }
+
+    return misordered_modules;
 }
 
 /**
@@ -187,6 +225,27 @@ std::string create_message_from_undefined_module_outputs(std::vector<std::string
     } else {
         message = std::string("The following derivative module outputs were not part of the initial state:\n");
         for (std::string name : undefined_module_outputs) {
+            message += std::string(" ") + name + std::string("\n");
+        }
+    }
+
+    message += std::string("\n");
+
+    return message;
+}
+
+/**
+ * Forms a user feedback message from a list of misordered modules
+ */
+std::string create_message_from_misordered_modules(std::vector<std::string> misordered_modules)
+{
+    std::string message;
+
+    if (misordered_modules.size() == 0) {
+        message = std::string("All modules are ordered in a consistent way\n");
+    } else {
+        message = std::string("The following modules are out of order, i.e., they require input variables whose values have not yet been calculated:\n");
+        for (std::string name : misordered_modules) {
             message += std::string(" ") + name + std::string("\n");
         }
     }
