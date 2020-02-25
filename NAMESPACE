@@ -11,6 +11,7 @@ useDynLib(BioCro,
 		  R_test_module,
 		  R_test_standalone_ss,
 		  R_test_system,
+		  R_validate_system_inputs,
 		  R_get_all_modules,
           R_sunML,
           collatz_photoC)

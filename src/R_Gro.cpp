@@ -9,6 +9,7 @@
 #include "R_helper_functions.h"
 #include "standalone_ss.h"
 #include "solver_library/SystemSolverFactory.hpp"
+#include "validate_system.h"
 
 using std::string;
 using std::vector;
@@ -425,6 +426,37 @@ SEXP R_test_system(SEXP initial_state,
     // Return an indication of success
     vector<string> result;
     result.push_back("System test completed");
+    return r_string_vector_from_vector(result);
+}
+
+SEXP R_validate_system_inputs(
+    SEXP initial_state,
+    SEXP parameters,
+    SEXP varying_parameters,
+    SEXP steady_state_module_names,
+    SEXP derivative_module_names)
+{
+    // Convert inputs from R formats
+    state_map s = map_from_list(initial_state);
+    state_map ip = map_from_list(parameters);
+    state_vector_map vp = map_vector_from_list(varying_parameters);
+    std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+    std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+
+    // Check the validity
+    std::string msg;
+    bool valid = validate_system_inputs(msg, s, ip, vp, ss_names, deriv_names);
+
+    Rprintf(msg.c_str());
+
+    // Return an indication of success
+    vector<string> result;
+    if (valid) {
+        result.push_back("System inputs are valid");
+    } else {
+        result.push_back("System inputs are not valid");
+    }
+
     return r_string_vector_from_vector(result);
 }
 
