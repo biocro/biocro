@@ -40,6 +40,8 @@ export(test_system)
 
 export(validate_system_inputs)
 
+export(add_time_to_weather_data)
+
 export(get_all_modules)
 
 exportPattern("Parms$")
