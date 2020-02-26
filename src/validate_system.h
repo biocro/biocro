@@ -12,6 +12,13 @@ bool validate_system_inputs(
     std::vector<std::string> ss_module_names,
     std::vector<std::string> deriv_module_names);
 
+std::string analyze_system_inputs(
+    state_map initial_state,
+    state_map invariant_params,
+    state_vector_map varying_params,
+    std::vector<std::string> ss_module_names,
+    std::vector<std::string> deriv_module_names);
+
 std::vector<std::string> define_quantities(
     state_map initial_state,
     state_map invariant_params,
@@ -35,6 +42,14 @@ std::vector<std::string> find_misordered_modules(
     state_vector_map varying_params,
     std::vector<std::string> ss_module_names);
 
+std::set<std::string> find_all_module_inputs(
+    std::vector<std::string> ss_module_names,
+    std::vector<std::string> deriv_module_names);
+
+std::vector<std::string> find_unused_parameters(
+    std::set<std::string> all_module_inputs,
+    state_map invariant_params);
+
 std::string create_message_from_duplicated_quantities(std::vector<std::string> duplicated_quantities);
 
 std::string create_message_from_undefined_module_inputs(std::vector<std::string> undefined_module_inputs);
@@ -43,16 +58,23 @@ std::string create_message_from_undefined_module_outputs(std::vector<std::string
 
 std::string create_message_from_misordered_modules(std::vector<std::string> misordered_modules);
 
+std::string create_message_from_unused_invariant_params(std::vector<std::string> unused_invariant_params);
+
 void insert_quantity_name_if_new(
     std::string quantity_name,
     std::vector<std::string>& target_vector,
     std::vector<std::string>& duplicate_vector);
 
-void insert_module_input_if_undefined(
-    std::string input_name,
+void insert_module_param_if_undefined(
+    std::string param_name,
     std::string module_name,
     std::vector<std::string> defined_quantity_names,
     std::vector<std::string>& undefined_module_inputs);
+
+void insert_quantity_if_undefined(
+    std::string quantity_name,
+    std::vector<std::string> defined_quantity_names,
+    std::vector<std::string>& undefined_quantity_names);
 
 /**
  * Inserts all the keys from map into name_vector
@@ -62,6 +84,21 @@ void insert_key_names(std::vector<std::string>& name_vector, map_type map)
 {
     std::vector<std::string> map_key_names = keys(map);
     name_vector.insert(name_vector.begin(), map_key_names.begin(), map_key_names.end());
+}
+
+/**
+ * If quantity_name is not included in defined_quantity_names,
+ * it is inserted into undefined_quantity_names
+ */
+template <typename list_type>
+void insert_quantity_if_undefined(
+    std::string quantity_name,
+    list_type defined_quantity_names,
+    std::vector<std::string>& undefined_quantity_names)
+{
+    if (std::find(defined_quantity_names.begin(), defined_quantity_names.end(), quantity_name) == defined_quantity_names.end()) {
+        undefined_quantity_names.push_back(quantity_name);
+    }
 }
 
 /**

@@ -434,7 +434,8 @@ SEXP R_validate_system_inputs(
     SEXP parameters,
     SEXP varying_parameters,
     SEXP steady_state_module_names,
-    SEXP derivative_module_names)
+    SEXP derivative_module_names,
+    SEXP print_extra_info)
 {
     // Convert inputs from R formats
     state_map s = map_from_list(initial_state);
@@ -442,12 +443,23 @@ SEXP R_validate_system_inputs(
     state_vector_map vp = map_vector_from_list(varying_parameters);
     std::vector<std::string> ss_names = make_vector(steady_state_module_names);
     std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+    bool print_extra = LOGICAL(VECTOR_ELT(print_extra_info, 0))[0];
 
     // Check the validity
+    Rprintf("\nChecking the validity of the system inputs:\n");
     std::string msg;
     bool valid = validate_system_inputs(msg, s, ip, vp, ss_names, deriv_names);
-
     Rprintf(msg.c_str());
+    
+    // Print additional information if required
+    if (print_extra) {
+        Rprintf("\nPrinting additional information about the system inputs:\n");
+        msg = analyze_system_inputs(s, ip, vp, ss_names, deriv_names);
+        Rprintf(msg.c_str());
+    }
+    
+    // Print a space to improve readability
+    Rprintf("\n");
 
     // Return an indication of success
     vector<string> result;
