@@ -10,6 +10,7 @@ DEBUG_TEST <- FALSE    # Change this to TRUE to get useful output for debugging 
 NUMBER_OF_TRIALS <- 10 # number of different sets of parameters and initial conditions to test
 MAX_INDEX <- 100       # how long to run the simulation
 SAMPLE_SIZE <- 5       # number of time points to test in each simulation result
+TOLERANCE_FACTOR <- 0.01
 
 
 ## Equations for the position x and velocity v of an undamped oscillating mass are
@@ -78,11 +79,12 @@ debug_view <- function(ob) {
 derivative_modules <- c("harmonic_oscillator")
 steady_state_modules <- c("harmonic_energy")
 varying_parameters <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
+default_solver <- list(type='Gro', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
 ## from harmonic motion equations.
-run_trial <- function(initial_position, initial_velocity, mass, spring_constant) {
+run_trial <- function(initial_position, initial_velocity, mass, spring_constant, solver, trial_description) {
     initial_state <- list(position=initial_position, velocity=initial_velocity)
     invariant_parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
 
@@ -110,7 +112,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant)
 
     
     ## try out the solver
-    result <- Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+    result <- Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules, solver)
 
     ## add useful columns to the resulting data frame:    
     result$time <- result$doy_dbl * 24 # time is in hours
@@ -129,35 +131,33 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant)
     }
 
     
-    test_that("Harmonic oscillator position and velocity values match the expected values.", {
+	overall_description <- paste("Harmonic oscillator position and velocity values match the expected values (", trial_description, ")", sep="")
+	
+    test_that(overall_description, {
         expect_true(class(result) == "data.frame") # sanity check
 
-        sample <- sample(1:MAX_INDEX, SAMPLE_SIZE) # randomly chose a number of points in the evolution of the system to test
+        sample <- sample(1:MAX_INDEX, SAMPLE_SIZE) # randomly choose a number of points in the evolution of the system to test
 
         for (index in sample) {
             time <- result$time[index] # for convenience
 
-            ## in these tests, we set the tolerance to 0.5% of the maximum posible value for each quantity:
-            expect_equal(result$position[index], result$expected_position[index], tolerance = amplitude / 200)
-            expect_equal(result$velocity[index], result$expected_velocity[index], tolerance = angular_frequency * amplitude / 200)
-            expect_equal(result$total_energy[index], total_energy, tolerance = total_energy / 200)
+            ## in these tests, we set the tolerance based on the maximum posible value for each quantity:
+            expect_equal(result$position[index], result$expected_position[index], tolerance = amplitude * TOLERANCE_FACTOR)
+            expect_equal(result$velocity[index], result$expected_velocity[index], tolerance = angular_frequency * amplitude * TOLERANCE_FACTOR)
+            expect_equal(result$total_energy[index], total_energy, tolerance = total_energy * TOLERANCE_FACTOR)
         }
     })
 }
 
 ## some special cases
 
-## initial position 0, amplitude 100, and period 24
-run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1)
+run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_solver, "initial position 0, amplitude 100, and period 24")
 
-## a mass at rest:
-run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100)
+run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass at rest")
 
-## a mass with no initial velocity with initial positive displacement:
-run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100)
+run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass with no initial velocity with initial positive displacement")
 
-## a mass with no initial velocity and with initial negative displacement:
-run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100)
+run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass with no initial velocity and with initial negative displacement")
 
 
 ## run a number of randomly-chosen cases
@@ -169,5 +169,14 @@ for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
     mass <- runif(1, 0, 100)[1]
     spring_constant <- runif(1, 0, 100)[1]
 
-    run_trial(initial_position, initial_velocity, mass, spring_constant)
+    run_trial(initial_position, initial_velocity, mass, spring_constant, default_solver, "random parameters and initial state")
+}
+
+## test each solver method using a really weak spring (so the Euler methods still work)
+all_solver_types <- get_all_solvers()
+for (solver_type in all_solver_types) {
+	solver <- default_solver
+	solver$type <- solver_type
+	description <- paste("using the ", solver_type, " method", sep="")
+	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, solver, description)
 }
