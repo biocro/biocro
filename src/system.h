@@ -26,23 +26,6 @@ class System
     //  - boost::numeric::ublas::vector<double> is required for stiff systems, since the odeint rosenbrock4 stepper can only use this type
    public:
     System(
-        std::unordered_map<std::string, double> const& init_state,
-        std::unordered_map<std::string, double> const& invariant_params,
-        std::unordered_map<std::string, std::vector<double>> const& varying_params,
-        std::vector<std::string> const& ss_module_names,
-        std::vector<std::string> const& deriv_module_names,
-        bool const verb,
-        void (*print_fcn_ptr)(char const* format, ...) = void_printf);
-
-    System(
-        std::unordered_map<std::string, double> const& init_state,
-        std::unordered_map<std::string, double> const& invariant_params,
-        std::unordered_map<std::string, std::vector<double>> const& varying_params,
-        std::vector<std::string> const& ss_module_names,
-        std::vector<std::string> const& deriv_module_names,
-        void (*print_fcn_ptr)(char const* format, ...));
-
-    System(
         state_map const& init_state,
         state_map const& invariant_params,
         state_vector_map const& varying_params,
