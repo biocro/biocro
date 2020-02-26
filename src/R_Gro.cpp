@@ -90,7 +90,7 @@ SEXP R_Gro_deriv(SEXP state,
         double t = REAL(time)[0];
 
         // Create a system
-        System sys(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
+        System sys(s, ip, vp, ss_names, deriv_names);
 
         // Get the state in the correct format
         std::vector<double> x;
@@ -177,7 +177,7 @@ SEXP R_Gro_ode(SEXP state,
         bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Make the system
-        System sys(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
+        System sys(s, ip, vp, ss_names, deriv_names);
 
         // Get the current state in the correct format
         std::vector<double> x;
@@ -416,7 +416,7 @@ SEXP R_test_system(SEXP initial_state,
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
-        System sys(s, ip, vp, ss_names, deriv_names, TRUE);
+        System sys(s, ip, vp, ss_names, deriv_names);
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_test_system: ") + e.what()).c_str());
     } catch (...) {

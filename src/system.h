@@ -12,18 +12,13 @@
 #include "system_helper_functions.h"
 #include "state_map.h"
 
+/**
+ * @class System
+ * 
+ * Defines a system of differential equations
+ */
 class System
 {
-    // This class defines a system of differential equations by storing a state, a list of modules, and all of their input/output parameters
-    // It is designed to be passed to a boost::odeint integrator via a SystemCaller
-    // The time input to operator() can be integer or double (any other type will throw an error):
-    //  - For integer time, the varying parameters are extracted using the time as an index, i.e. varying_parameters[time]. This method can only work
-    //    with fixed-step-size integration methods such as the Euler method.
-    //  - For double time, the varying parameters are extracted by interpolating between two indices, e.g. between varying_parameters[floor(time)] and
-    //    varying_parameters[ceil(time)]. This method is applicable for adaptive integration methods such as Runge-Kutta-Cash-Karp or fixed-step
-    //    integration methods that evaluate derivatives at fractional time steps such as 4th Order Runge-Kutta
-    // The state vector (and its derivative) can be either std::vector<double> or boost::numeric::ublas::vector<double>
-    //  - boost::numeric::ublas::vector<double> is required for stiff systems, since the odeint rosenbrock4 stepper can only use this type
    public:
     System(
         state_map const& init_state,
@@ -61,11 +56,13 @@ class System
     // For generating reports to the user
     int get_ncalls() const { return ncalls; }
     void reset_ncalls() { ncalls = 0; }
+
     std::string generate_usage_report() const
     {
         return std::to_string(ncalls) +
                std::string(" derivatives were calculated");
     }
+
     std::string generate_startup_report() const
     {
         return startup_message;
@@ -77,48 +74,14 @@ class System
 
    private:
     // Members for storing the original inputs
-    std::unordered_map<std::string, double> initial_state;
-    std::unordered_map<std::string, double> invariant_parameters;
-    std::unordered_map<std::string, std::vector<double>> varying_parameters;
+    const state_map initial_state;
+    const state_map invariant_parameters;
+    state_vector_map varying_parameters;
     const std::vector<std::string> steady_state_module_names;
     const std::vector<std::string> derivative_module_names;
-    bool verbose = false;
-    void (*print_msg)(char const* format, ...);  // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
 
+    // For generating reports to the user
     std::string startup_message;
-
-    // Functions for checking and processing inputs when constructing a system
-    void process_variable_and_module_inputs(
-        std::set<std::string>& unique_steady_state_parameter_names,
-        std::set<std::string>& unique_changing_parameters);
-    void basic_input_checks();
-    void get_variables_from_input_lists(
-        std::set<std::string>& unique_variable_names,
-        std::set<std::string>& unique_changing_parameters,
-        std::vector<std::string>& duplicate_parameter_names);
-    void get_variables_from_modules(
-        module_wrapper_factory& module_factory,
-        std::set<std::string>& unique_steady_state_parameter_names,
-        std::set<std::string>& unique_derivative_outputs,
-        std::set<std::string>& unique_variable_names,
-        std::set<std::string>& unique_module_inputs,
-        std::set<std::string>& unique_changing_parameters,
-        std::vector<std::string>& undefined_input_variables,
-        std::vector<std::string>& duplicate_output_variables,
-        std::vector<std::string>& duplicate_module_names,
-        std::vector<std::string>& illegal_output_variables);
-    void check_variable_usage(
-        std::set<std::string> const& unique_derivative_outputs,
-        std::set<std::string> const& unique_module_inputs) const;
-    void create_modules(
-        module_wrapper_factory& module_factory,
-        std::vector<std::string>& incorrect_modules);
-
-    template <typename name_list>
-    void get_pointer_pairs(name_list const& unique_steady_state_parameter_names);
-
-    void test_all_modules(std::string& total_error_string);
-    void get_simulation_info(std::set<std::string> const& unique_changing_parameters);
 
     // Map for storing the central quantities list
     std::unordered_map<std::string, double> quantities;
@@ -136,6 +99,7 @@ class System
     void update_varying_params(int time_indx);     // For integer time
     void update_varying_params(size_t time_indx);  // For size_t time
     void update_varying_params(double time_indx);  // For double time
+
     template <class vector_type>
     void update_state_params(const vector_type& new_state);
 
@@ -183,35 +147,37 @@ void System::operator()(const state_type& x, state_type& dxdt, const time_type& 
     run_derivative_modules(dxdt);
 }
 
+/**
+ * @brief Numerically compute the Jacobian matrix
+ * 
+ * The odeint Rosenbrock stepper requires the use of UBLAS vectors and matrices and the Jacobian is only required when using this
+ *  stepper, so we can restrict the state vector type to be UBLAS
+ * Discussion of step size from http://www.iue.tuwien.ac.at/phd/khalil/node14.html:
+ *  "It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
+ *  Decreasing the step size will reduce the truncation error.
+ *  Unfortunately a smaller step has the opposite effect on the cancellation error.
+ *  Selecting the optimal step size for a certain problem is computationally expensive and the benefits achieved are not justifiable
+ *   as the effect of small errors in the values of the elements of the Jacobian matrix is minor.
+ *  For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient."
+ * In BioCro, we fix a step size and only evaluate the forward perturbation to reduce calculation costs
+ *  In other words:
+ *   (1) We calculate dxdt using the input (x,t) (called dxdt_c for current)
+ *   (2) We make a forward perturbation by adding h to one state variable and calculating the time derivatives (called dxdt_p for perturbation)
+ *   (3) We calculate the rate of change for each state variable according to (dxdt_p[i] - dxdt_c[i])/h
+ *   (4) We repeat steps (2) and (3) for each state variable
+ *  The alternative method would be:
+ *   (1) We make a backward perturbation by substracting h from one state variable and calculating the time derivatives (called dxdt_b for backward)
+ *   (2) We make a forward perturbation by adding h to the same state variable and calculating the time derivatives (called dxdt_f for forward)
+ *   (3) We calculate the rate of change for each state variable according to (dxdt_f[i] - dxdt_b[i])/(2*h)
+ *   (4) We repeat steps (1) through (3) for each state variable
+ *  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of state variables
+ *  In the other scheme, we make 2N derivative evaluations
+ *  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro derivatives are expensive
+ *  Likewise, higher-order numerical derivative calculations are also not worthwhile
+ */
 template <typename state_type, typename jacobi_type, typename time_type>
 void System::operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt)
 {
-    // Numerically compute the Jacobian matrix
-    //  The odeint Rosenbrock stepper requires the use of UBLAS vectors and matrices and the Jacobian is only required when using this
-    //    stepper, so we can restrict the state vector type to be UBLAS
-    // Discussion of step size from http://www.iue.tuwien.ac.at/phd/khalil/node14.html:
-    //  "It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
-    //  Decreasing the step size will reduce the truncation error.
-    //  Unfortunately a smaller step has the opposite effect on the cancellation error.
-    //  Selecting the optimal step size for a certain problem is computationally expensive and the benefits achieved are not justifiable
-    //    as the effect of small errors in the values of the elements of the Jacobian matrix is minor.
-    //  For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient."
-    // In BioCro, we fix a step size and only evaluate the forward perturbation to reduce calculation costs
-    //  In other words:
-    //    (1) We calculate dxdt using the input (x,t) (called dxdt_c for current)
-    //    (2) We make a forward perturbation by adding h to one state variable and calculating the time derivatives (called dxdt_p for perturbation)
-    //    (3) We calculate the rate of change for each state variable according to (dxdt_p[i] - dxdt_c[i])/h
-    //    (4) We repeat steps (2) and (3) for each state variable
-    //  The alternative method would be:
-    //    (1) We make a backward perturbation by substracting h from one state variable and calculating the time derivatives (called dxdt_b for backward)
-    //    (2) We make a forward perturbation by adding h to the same state variable and calculating the time derivatives (called dxdt_f for forward)
-    //    (3) We calculate the rate of change for each state variable according to (dxdt_f[i] - dxdt_b[i])/(2*h)
-    //    (4) We repeat steps (1) through (3) for each state variable
-    //  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of state variables
-    //  In the other scheme, we make 2N derivative evaluations
-    //  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro derivatives are expensive
-    //  Likewise, higher-order numerical derivative calculations are also not worthwhile
-
     size_t n = x.size();
 
     // Make vectors to store the current and perturbed dxdt

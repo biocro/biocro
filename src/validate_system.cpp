@@ -106,7 +106,7 @@ std::string analyze_system_inputs(
             message += std::string(" ") + name + std::string("\n");
         }
         message += std::string("These quantities will not change with time,\n");
-        message += std::string("so you may want to consider moving them to the invariant parameters for clarity\n");
+        message += std::string("so you may want to consider moving them to the invariant parameters for clarity or provide derivatives\n");
     }
 
     // Get a list of all derivatives that are calculated by more than one module and add them to the message

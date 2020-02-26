@@ -206,6 +206,11 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 		stop('"varying_parameters" must be a list')
 	}
 	
+	# If the varying parameter input doesn't have a doy_dbl column, add one
+	if (!"doy_dbl" %in% colnames(varying_parameters)) {
+		varying_parameters <- add_time_to_weather_data(varying_parameters)
+	}
+	
 	# Check to make sure the solver properties are properly defined
 	if(!is.list(solver)) {
 		stop("'solver' must be a list")
