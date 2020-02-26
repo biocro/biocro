@@ -10,8 +10,9 @@ class homemade_euler_solver : public system_solver
    public:
     homemade_euler_solver(
         double step_size,
-        double error_tolerance,
-        int max_steps) : system_solver("homemade_euler", false, step_size, error_tolerance, max_steps) {}
+        double rel_error_tolerance,
+        double abs_error_tolerance,
+        int max_steps) : system_solver("homemade_euler", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;

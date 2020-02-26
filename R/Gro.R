@@ -125,13 +125,13 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	derivative_module_names = unique(derivative_module_names)
 	
 	# Use Gro_solver to get the result
-    result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, list(type='Gro', output_step_size=1.0, adaptive_error_tol=1e-4, adaptive_max_steps=200), verbose)
+    result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose)
 	
 	# Return the result
 	return(result)
 }
 
-Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver=list(type='Gro', output_step_size=1.0, adaptive_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
+Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose=FALSE)
 {
 	# This function runs a full crop growth simulation with a user-specified solver
 	#
@@ -215,7 +215,8 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 		stop('"solver_type" must be a string')
 	}
 	solver_output_step_size <- solver$output_step_size
-	solver_adaptive_error_tol <- solver$adaptive_error_tol
+	solver_adaptive_rel_error_tol <- solver$adaptive_rel_error_tol
+	solver_adaptive_abs_error_tol <- solver$adaptive_abs_error_tol
 	solver_adaptive_max_steps <- solver$adaptive_max_steps
 	
 	# C++ requires that all the variables have type `double`
@@ -223,14 +224,15 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
 	solver_output_step_size = as.numeric(solver_output_step_size)
-	solver_adaptive_error_tol = as.numeric(solver_adaptive_error_tol)
+	solver_adaptive_rel_error_tol = as.numeric(solver_adaptive_rel_error_tol)
+	solver_adaptive_abs_error_tol = as.numeric(solver_adaptive_abs_error_tol)
 	solver_adaptive_max_steps = as.numeric(solver_adaptive_max_steps)
 	
 	# Make sure verbose is a logical variable
 	verbose = lapply(verbose, as.logical)
 	
 	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver_type, solver_output_step_size, solver_adaptive_error_tol, solver_adaptive_max_steps, verbose))
+	result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver_type, solver_output_step_size, solver_adaptive_rel_error_tol, solver_adaptive_abs_error_tol, solver_adaptive_max_steps, verbose))
 	
 	# Make sure doy and hour are properly defined
 	result$doy = floor(result$doy_dbl)

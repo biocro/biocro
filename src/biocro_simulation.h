@@ -19,14 +19,15 @@ class biocro_simulation
         std::vector<std::string> const& derivative_module_names,
         std::string solver_name,
         double output_step_size,
-        double adaptive_error_tol,
+        double adaptive_rel_error_tol,
+        double adaptive_abs_error_tol,
         int adaptive_max_steps)
     {
         // Create the system
         sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, false));
 
         // Create the solver
-        solver = system_solver_factory(solver_name, output_step_size, adaptive_error_tol, adaptive_max_steps);
+        solver = system_solver_factory(solver_name, output_step_size, adaptive_rel_error_tol, adaptive_abs_error_tol, adaptive_max_steps);
     }
 
     std::unordered_map<std::string, std::vector<double>> run_simulation() { return solver->solve(sys); }

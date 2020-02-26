@@ -16,11 +16,13 @@ class system_solver
         std::string solver_name,
         bool check_adaptive_compatible,
         double step_size,
-        double error_tolerance,
+        double rel_error_tolerance,
+        double abs_error_tolerance,
         int max_steps) : solver_name(solver_name),
                          check_adaptive_compatible(check_adaptive_compatible),
                          output_step_size(step_size),
-                         adaptive_error_tol(error_tolerance),
+                         adaptive_rel_error_tol(rel_error_tolerance),
+                         adaptive_abs_error_tol(abs_error_tolerance),
                          adaptive_max_steps(max_steps) {}
 
     virtual ~system_solver() {}
@@ -40,7 +42,8 @@ class system_solver
 
    protected:
     double get_output_step_size() const { return output_step_size; }
-    double get_adaptive_error_tol() const { return adaptive_error_tol; }
+    double get_adaptive_rel_error_tol() const { return adaptive_rel_error_tol; }
+    double get_adaptive_abs_error_tol() const { return adaptive_abs_error_tol; }
     int get_adaptive_max_steps() const { return adaptive_max_steps; }
 
    private:
@@ -48,7 +51,8 @@ class system_solver
     const bool check_adaptive_compatible;
 
     double output_step_size;
-    double adaptive_error_tol;
+    double adaptive_rel_error_tol;
+    double adaptive_abs_error_tol;
     int adaptive_max_steps;
 
     bool solve_method_has_been_called = false;

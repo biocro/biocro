@@ -9,6 +9,7 @@ context("Test different solution methods using a harmonic oscillator.")
 MAX_INDEX <- 100
 SAMPLE_SIZE <- 5
 TOLERANCE_FACTOR <- 0.01
+VERBOSE = FALSE
 
 initial_state <- list(
 	position = 1,
@@ -33,7 +34,8 @@ derivative_module_names <- c("harmonic_oscillator")
 solver <- list(
 	type='',
 	output_step_size = 1,
-	adaptive_error_tol = 1e-4,
+	adaptive_rel_error_tol = 1e-4,
+	adaptive_abs_error_tol = 1e-4,
 	adaptive_max_steps = 200
 )
 
@@ -47,7 +49,7 @@ for (solver_type in all_solver_types) {
 	solver$type <- solver_type
 	
 	# Run the simulation
-	result <- Gro_solver(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver, verbose=FALSE)
+	result <- Gro_solver(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver, VERBOSE)
 	
 	# Make the description string
 	description_string <- paste("The ", solver_type, " method conserves energy reasonably well (within ", TOLERANCE_FACTOR*100, "%)", sep="")

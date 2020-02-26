@@ -15,11 +15,12 @@ SystemSolverFactory::system_solver_creator_map SystemSolverFactory::system_solve
 std::unique_ptr<system_solver> SystemSolverFactory::operator()(
     std::string const& system_solver_name,
     double step_size,
-    double error_tolerance,
+    double rel_error_tolerance,
+    double abs_error_tolerance,
     int max_steps) const
 {
     try {
-        return this->system_solver_creators.at(system_solver_name)(step_size, error_tolerance, max_steps);
+        return this->system_solver_creators.at(system_solver_name)(step_size, rel_error_tolerance, abs_error_tolerance, max_steps);
     } catch (std::out_of_range) {
         auto message = std::string("\"") + system_solver_name +
                        std::string("\"") +
@@ -30,7 +31,8 @@ std::unique_ptr<system_solver> SystemSolverFactory::operator()(
     }
 }
 
-std::vector<std::string> SystemSolverFactory::get_solvers() {
+std::vector<std::string> SystemSolverFactory::get_solvers()
+{
     std::vector<std::string> solver_name_vector;
     for (auto const& x : system_solver_creators) {
         solver_name_vector.push_back(x.first);

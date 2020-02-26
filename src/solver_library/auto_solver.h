@@ -12,14 +12,15 @@ class auto_solver : public system_solver
    public:
     auto_solver(
         double step_size,
-        double error_tolerance,
-        int max_steps) : system_solver("auto", true, step_size, error_tolerance, max_steps),
+        double rel_error_tolerance,
+        double abs_error_tolerance,
+        int max_steps) : system_solver("auto", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps),
                          adaptive_solver(
                              std::unique_ptr<system_solver>(
-                                 new boost_rsnbrk_system_solver(step_size, error_tolerance, max_steps))),
+                                 new boost_rsnbrk_system_solver(step_size, rel_error_tolerance, abs_error_tolerance, max_steps))),
                          other_solver(
                              std::unique_ptr<system_solver>(
-                                 new homemade_euler_solver<state_type>(step_size, error_tolerance, max_steps))) {}
+                                 new homemade_euler_solver<state_type>(step_size, rel_error_tolerance, abs_error_tolerance, max_steps))) {}
 
    private:
     std::unique_ptr<system_solver> adaptive_solver;

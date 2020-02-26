@@ -8,10 +8,11 @@
 template <class solver_type>
 std::unique_ptr<system_solver> createSystemSolver(
     double step_size,
-    double error_tolerance,
+    double rel_error_tolerance,
+    double abs_error_tolerance,
     int max_steps)
 {
-    return std::unique_ptr<system_solver>(new solver_type(step_size, error_tolerance, max_steps));
+    return std::unique_ptr<system_solver>(new solver_type(step_size, rel_error_tolerance, abs_error_tolerance, max_steps));
 }
 
 // We are passing names from R as strings, so we need a way to create objects from strings.
@@ -22,15 +23,16 @@ class SystemSolverFactory
     std::unique_ptr<system_solver> operator()(
         std::string const& system_solver_name,
         double step_size,
-        double error_tolerance,
+        double rel_error_tolerance,
+        double abs_error_tolerance,
         int max_steps) const;
-    
+
     static std::vector<std::string> get_solvers();
 
    private:
-    using system_solver_creator = std::unique_ptr<system_solver> (*)(double, double, int);  // Define a system_solver_creator to be a pointer to a function that has no arguments and returns a std::unique_ptr<system_solver>
-    using system_solver_creator_map = std::map<std::string, system_solver_creator>;         // A map of strings to system_solver_creators
-    using preferred_state_type = std::vector<double>;                                       // A default value for state type
+    using system_solver_creator = std::unique_ptr<system_solver> (*)(double, double, double, int);  // Define a system_solver_creator to be a pointer to a function that has no arguments and returns a std::unique_ptr<system_solver>
+    using system_solver_creator_map = std::map<std::string, system_solver_creator>;                 // A map of strings to system_solver_creators
+    using preferred_state_type = std::vector<double>;                                               // A default value for state type
     static system_solver_creator_map system_solver_creators;
 };
 

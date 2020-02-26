@@ -13,8 +13,9 @@ class boost_system_solver : public system_solver
         std::string solver_name,
         bool check_adaptive_compatible,
         double step_size,
-        double error_tolerance,
-        int max_steps) : system_solver(solver_name, check_adaptive_compatible, step_size, error_tolerance, max_steps) {}
+        double rel_error_tolerance,
+        double abs_error_tolerance,
+        int max_steps) : system_solver(solver_name, check_adaptive_compatible, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    protected:
     template <class stepper_type>
@@ -106,8 +107,9 @@ class boost_euler_system_solver : public boost_system_solver<state_type>
    public:
     boost_euler_system_solver(
         double step_size,
-        double error_tolerance,
-        int max_steps) : boost_system_solver<state_type>("euler_odeint", false, step_size, error_tolerance, max_steps) {}
+        double rel_error_tolerance,
+        double abs_error_tolerance,
+        int max_steps) : boost_system_solver<state_type>("euler_odeint", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
@@ -121,8 +123,9 @@ class boost_euler_system_solver : public boost_system_solver<state_type>
     }
     std::string get_boost_param_info() const override
     {
+        // The boost Euler solver has no new parameters to report
         return std::string("");
-    }  // The boost Euler solver has no new parameters to report
+    }
 };
 
 // A class representing the boost RK4 solver
@@ -132,8 +135,9 @@ class boost_rk4_system_solver : public boost_system_solver<state_type>
    public:
     boost_rk4_system_solver(
         double step_size,
-        double error_tolerance,
-        int max_steps) : boost_system_solver<state_type>("rk4", true, step_size, error_tolerance, max_steps) {}
+        double rel_error_tolerance,
+        double abs_error_tolerance,
+        int max_steps) : boost_system_solver<state_type>("rk4", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
@@ -147,8 +151,9 @@ class boost_rk4_system_solver : public boost_system_solver<state_type>
     }
     std::string get_boost_param_info() const override
     {
+        // The boost RK4 solver has no new parameters to report
         return std::string("");
-    }  // The boost RK4 solver has no new parameters to report
+    }
 };
 
 // A class representing the boost RKCK54 solver
@@ -158,15 +163,16 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
    public:
     boost_rkck54_system_solver(
         double step_size,
-        double error_tolerance,
-        int max_steps) : boost_system_solver<state_type>("rkck54", true, step_size, error_tolerance, max_steps) {}
+        double rel_error_tolerance,
+        double abs_error_tolerance,
+        int max_steps) : boost_system_solver<state_type>("rkck54", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
     {
         // Set up an rkck54 stepper
-        double const abs_err = this->get_adaptive_error_tol();
-        double const rel_err = this->get_adaptive_error_tol();
+        double const rel_err = this->get_adaptive_rel_error_tol();
+        double const abs_err = this->get_adaptive_abs_error_tol();
         typedef boost::numeric::odeint::runge_kutta_cash_karp54<state_type, double, state_type, double> error_stepper_type;
         auto stepper = boost::numeric::odeint::make_controlled<error_stepper_type>(abs_err, rel_err);
 
@@ -175,8 +181,10 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
     }
     std::string get_boost_param_info() const override
     {
-        return std::string("\nError tolerance: ") +
-               std::to_string(this->get_adaptive_error_tol()) +
+        return std::string("\nRelative error tolerance: ") +
+               std::to_string(this->get_adaptive_rel_error_tol()) +
+               std::string("\nAbsolute error tolerance: ") +
+               std::to_string(this->get_adaptive_abs_error_tol()) +
                std::string("\nMaximum attempts to find a new step size: ") +
                std::to_string(this->get_adaptive_max_steps());
     }
@@ -189,8 +197,9 @@ class boost_rsnbrk_system_solver : public boost_system_solver<boost::numeric::ub
    public:
     boost_rsnbrk_system_solver(
         double step_size,
-        double error_tolerance,
-        int max_steps) : boost_system_solver<boost::numeric::ublas::vector<double>>("rsnbrk", true, step_size, error_tolerance, max_steps) {}
+        double rel_error_tolerance,
+        double abs_error_tolerance,
+        int max_steps) : boost_system_solver<boost::numeric::ublas::vector<double>>("rsnbrk", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     void do_boost_solve(

@@ -6,8 +6,8 @@ void boost_rsnbrk_system_solver::do_boost_solve(
 )
 {
     // Set up a rosenbrock stepper
-    double const abs_err = get_adaptive_error_tol();
-    double const rel_err = get_adaptive_error_tol();
+    double const rel_err = get_adaptive_rel_error_tol();
+    double const abs_err = get_adaptive_abs_error_tol();
     typedef boost::numeric::odeint::rosenbrock4<double> dense_stepper_type;
     auto stepper = boost::numeric::odeint::make_dense_output<dense_stepper_type>(abs_err, rel_err);
 
@@ -17,8 +17,10 @@ void boost_rsnbrk_system_solver::do_boost_solve(
 
 std::string boost_rsnbrk_system_solver::get_boost_param_info() const
 {
-    return std::string("\nError tolerance: ") +
-        std::to_string(get_adaptive_error_tol()) +
+    return std::string("\nRelative error tolerance: ") +
+        std::to_string(get_adaptive_rel_error_tol()) +
+        std::string("\nAbsolute error tolerance: ") +
+        std::to_string(get_adaptive_abs_error_tol()) +
         std::string("\nMaximum attempts to find a new step size: ") +
         std::to_string(get_adaptive_max_steps());
 }
