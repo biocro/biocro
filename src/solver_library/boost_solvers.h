@@ -9,7 +9,12 @@ template <class state_type>
 class boost_system_solver : public system_solver
 {
    public:
-    boost_system_solver(std::string solver_name, bool check_adaptive_compatible) : system_solver(solver_name, check_adaptive_compatible) {}
+    boost_system_solver(
+        std::string solver_name,
+        bool check_adaptive_compatible,
+        double step_size,
+        double error_tolerance,
+        int max_steps) : system_solver(solver_name, check_adaptive_compatible, step_size, error_tolerance, max_steps) {}
 
    protected:
     template <class stepper_type>
@@ -25,11 +30,13 @@ class boost_system_solver : public system_solver
     std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
     virtual void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) = 0;
 
-    std::string get_param_info() const override {
+    std::string get_param_info() const override
+    {
+        // All boost solvers use the output_step_size
         return std::string("\nOutput step size: ") +
-            std::to_string(get_output_step_size()) +
-            get_boost_param_info();
-    }  // All boost solvers use the output_step_size
+               std::to_string(get_output_step_size()) +
+               get_boost_param_info();
+    }
 
     virtual std::string get_boost_param_info() const = 0;
 
@@ -37,12 +44,12 @@ class boost_system_solver : public system_solver
     {
         if (boost_error_string.empty()) {
             return std::string("boost::numeric::odeint::integrate_const required ") +
-                std::to_string(nsteps) +
-                std::string(" steps to solve the system");
+                   std::to_string(nsteps) +
+                   std::string(" steps to solve the system");
         } else {
             return std::string("boost::numeric::odeint::integrate_const ") +
-                std::string("encountered an error and has returned ") +
-                std::string("a partial result:\n") + boost_error_string;
+                   std::string("encountered an error and has returned ") +
+                   std::string("a partial result:\n") + boost_error_string;
         }
     }
 };
@@ -97,7 +104,10 @@ template <class state_type>
 class boost_euler_system_solver : public boost_system_solver<state_type>
 {
    public:
-    boost_euler_system_solver() : boost_system_solver<state_type>("euler_odeint", false) {}
+    boost_euler_system_solver(
+        double step_size,
+        double error_tolerance,
+        int max_steps) : boost_system_solver<state_type>("euler_odeint", false, step_size, error_tolerance, max_steps) {}
 
    private:
     void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
@@ -109,7 +119,8 @@ class boost_euler_system_solver : public boost_system_solver<state_type>
         // Run integrate_const
         this->run_integrate_const(stepper, syscall, observer);
     }
-    std::string get_boost_param_info() const override {
+    std::string get_boost_param_info() const override
+    {
         return std::string("");
     }  // The boost Euler solver has no new parameters to report
 };
@@ -119,7 +130,10 @@ template <class state_type>
 class boost_rk4_system_solver : public boost_system_solver<state_type>
 {
    public:
-    boost_rk4_system_solver() : boost_system_solver<state_type>("rk4", true) {}
+    boost_rk4_system_solver(
+        double step_size,
+        double error_tolerance,
+        int max_steps) : boost_system_solver<state_type>("rk4", true, step_size, error_tolerance, max_steps) {}
 
    private:
     void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
@@ -131,7 +145,8 @@ class boost_rk4_system_solver : public boost_system_solver<state_type>
         // Run integrate_const
         this->run_integrate_const(stepper, syscall, observer);
     }
-    std::string get_boost_param_info() const override {
+    std::string get_boost_param_info() const override
+    {
         return std::string("");
     }  // The boost RK4 solver has no new parameters to report
 };
@@ -141,7 +156,10 @@ template <class state_type>
 class boost_rkck54_system_solver : public boost_system_solver<state_type>
 {
    public:
-    boost_rkck54_system_solver() : boost_system_solver<state_type>("rkck54", true) {}
+    boost_rkck54_system_solver(
+        double step_size,
+        double error_tolerance,
+        int max_steps) : boost_system_solver<state_type>("rkck54", true, step_size, error_tolerance, max_steps) {}
 
    private:
     void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
@@ -155,11 +173,12 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
         // Run integrate_const
         this->run_integrate_const(stepper, syscall, observer);
     }
-    std::string get_boost_param_info() const override {
+    std::string get_boost_param_info() const override
+    {
         return std::string("\nError tolerance: ") +
-            std::to_string(this->get_adaptive_error_tol()) +
-            std::string("\nMaximum attempts to find a new step size: ") +
-            std::to_string(this->get_adaptive_max_steps());
+               std::to_string(this->get_adaptive_error_tol()) +
+               std::string("\nMaximum attempts to find a new step size: ") +
+               std::to_string(this->get_adaptive_max_steps());
     }
 };
 
@@ -168,17 +187,17 @@ class boost_rkck54_system_solver : public boost_system_solver<state_type>
 class boost_rsnbrk_system_solver : public boost_system_solver<boost::numeric::ublas::vector<double>>
 {
    public:
-    boost_rsnbrk_system_solver() : boost_system_solver<boost::numeric::ublas::vector<double>>("rsnbrk", true) {}
+    boost_rsnbrk_system_solver(
+        double step_size,
+        double error_tolerance,
+        int max_steps) : boost_system_solver<boost::numeric::ublas::vector<double>>("rsnbrk", true, step_size, error_tolerance, max_steps) {}
 
    private:
-
     void do_boost_solve(
         SystemCaller syscall,
-        push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer
-    ) override;
+        push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer) override;
 
     std::string get_boost_param_info() const override;
-
 };
 
 #endif

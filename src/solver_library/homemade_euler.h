@@ -8,18 +8,25 @@ template <class state_type>
 class homemade_euler_solver : public system_solver
 {
    public:
-    homemade_euler_solver() : system_solver("homemade_euler", false) {}
+    homemade_euler_solver(
+        double step_size,
+        double error_tolerance,
+        int max_steps) : system_solver("homemade_euler", false, step_size, error_tolerance, max_steps) {}
 
    private:
     std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
 
-    std::string get_param_info() const override {
+    std::string get_param_info() const override
+    {
+        // The homemade Euler solver has no new parameters to report
         return std::string("");
-    } // The homemade Euler solver has no new parameters to report
+    }
 
-    std::string get_solution_info() const override {
+    std::string get_solution_info() const override
+    {
+        // The homemade Euler solver doesn't have much to contribute
         return std::string("N/A");
-    } // The homemade Euler solver doesn't have much to contribute
+    }
 };
 
 template <class state_type>

@@ -443,6 +443,18 @@ SEXP R_get_all_modules()
     }
 }
 
+SEXP R_get_all_solvers()
+{
+    try {
+        std::vector<std::string> result = system_solver_factory.get_solvers();
+        return r_string_vector_from_vector(result);
+    } catch (std::exception const& e) {
+        Rf_error(string(string("Caught exception in R_get_all_solvers: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_get_all_solvers.");
+    }
+}
+
 /*
 SEXP R_Gro(SEXP initial_state,
         SEXP invariate_parameters,

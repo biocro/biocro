@@ -26,10 +26,7 @@ class biocro_simulation
         sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, false));
 
         // Create the solver
-        solver = system_solver_factory(solver_name);
-
-        // Set the solver parameters
-        solver->set_solver_parameters(output_step_size, adaptive_error_tol, adaptive_max_steps);
+        solver = system_solver_factory(solver_name, output_step_size, adaptive_error_tol, adaptive_max_steps);
     }
 
     std::unordered_map<std::string, std::vector<double>> run_simulation() { return solver->solve(sys); }

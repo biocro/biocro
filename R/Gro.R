@@ -712,3 +712,25 @@ get_all_param <- function()
 	result = as.data.frame(.Call(R_get_all_param))
 	return(result)
 }
+
+###################################################
+#                                                 #
+#  Functions for exploring the available solvers  #
+#                                                 #
+###################################################
+
+
+get_all_solvers <- function()
+{
+	# Intended usage:
+	#
+	#  all_solvers <- get_all_solvers()
+	#  View(all_solvers)
+	# 
+	# OR
+	#
+	#  View(get_all_solvers())
+	
+	result = .Call(R_get_all_solvers)
+	return(result)
+}
