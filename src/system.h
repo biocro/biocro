@@ -24,155 +24,152 @@ class System
     //    integration methods that evaluate derivatives at fractional time steps such as 4th Order Runge-Kutta
     // The state vector (and its derivative) can be either std::vector<double> or boost::numeric::ublas::vector<double>
     //  - boost::numeric::ublas::vector<double> is required for stiff systems, since the odeint rosenbrock4 stepper can only use this type
-    public:
-        System(
-            std::unordered_map<std::string, double> const& init_state,
-            std::unordered_map<std::string, double> const& invariant_params,
-            std::unordered_map<std::string, std::vector<double>> const& varying_params,
-            std::vector<std::string> const& ss_module_names,
-            std::vector<std::string> const& deriv_module_names,
-            bool const verb,
-            void (*print_fcn_ptr) (char const* format, ...) = void_printf);
+   public:
+    System(
+        std::unordered_map<std::string, double> const& init_state,
+        std::unordered_map<std::string, double> const& invariant_params,
+        std::unordered_map<std::string, std::vector<double>> const& varying_params,
+        std::vector<std::string> const& ss_module_names,
+        std::vector<std::string> const& deriv_module_names,
+        bool const verb,
+        void (*print_fcn_ptr)(char const* format, ...) = void_printf);
 
-        System(
-            std::unordered_map<std::string, double> const& init_state,
-            std::unordered_map<std::string, double> const& invariant_params,
-            std::unordered_map<std::string, std::vector<double>> const& varying_params,
-            std::vector<std::string> const& ss_module_names,
-            std::vector<std::string> const& deriv_module_names,
-            void (*print_fcn_ptr) (char const* format, ...) = void_printf);
-        // Possibly helpful functions
-        double get_timestep() const { return *timestep_ptr; }
-        size_t get_ntimes() const { return ntimes; }
-        bool is_adaptive_compatible() const { return adaptive_compatible; }
+    System(
+        std::unordered_map<std::string, double> const& init_state,
+        std::unordered_map<std::string, double> const& invariant_params,
+        std::unordered_map<std::string, std::vector<double>> const& varying_params,
+        std::vector<std::string> const& ss_module_names,
+        std::vector<std::string> const& deriv_module_names,
+        void (*print_fcn_ptr)(char const* format, ...) = void_printf);
+    // Possibly helpful functions
+    double get_timestep() const { return *timestep_ptr; }
+    size_t get_ntimes() const { return ntimes; }
+    bool is_adaptive_compatible() const { return adaptive_compatible; }
 
-        // For fitting via nlopt
-        void reset();
+    // For fitting via nlopt
+    void reset();
 
-        // For integrating
-        template<typename state_type>
-            void get_state(state_type& x) const;
+    // For integrating
+    template <typename state_type>
+    void get_state(state_type& x) const;
 
-        template<typename state_type, typename time_type>
-            void operator()(const state_type& x, state_type& dxdt, const time_type& t);
+    template <typename state_type, typename time_type>
+    void operator()(const state_type& x, state_type& dxdt, const time_type& t);
 
-        template<typename state_type, typename jacobi_type, typename time_type>
-            void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt);
+    template <typename state_type, typename jacobi_type, typename time_type>
+    void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt);
 
-        // For returning the results of a calculation
-        template<typename state_type, typename time_type>
-            std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times);
+    // For returning the results of a calculation
+    template <typename state_type, typename time_type>
+    std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times);
 
-        std::vector<std::string> get_output_param_names() const { return output_param_vector; }
-        std::vector<const double*> get_output_ptrs() const { return output_ptr_vector; }
-        std::vector<std::string> get_state_parameter_names() const { return keys(initial_state); }
+    std::vector<std::string> get_output_param_names() const { return output_param_vector; }
+    std::vector<const double*> get_output_ptrs() const { return output_ptr_vector; }
+    std::vector<std::string> get_state_parameter_names() const { return keys(initial_state); }
 
-        // For generating reports to the user
-        int get_ncalls() const { return ncalls; }
-        void reset_ncalls() { ncalls = 0; }
-        std::string generate_usage_report() const {
-            return std::to_string(ncalls) +
-                std::string(" derivatives were calculated");
-        }
+    // For generating reports to the user
+    int get_ncalls() const { return ncalls; }
+    void reset_ncalls() { ncalls = 0; }
+    std::string generate_usage_report() const
+    {
+        return std::to_string(ncalls) +
+               std::string(" derivatives were calculated");
+    }
 
-        // For performance testing
-        template <class vector_type, class time_type>
-        int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
+    // For performance testing
+    template <class vector_type, class time_type>
+    int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
 
-    private:
-        // Members for storing the original inputs
-        std::unordered_map<std::string, double> initial_state;
-        std::unordered_map<std::string, double> invariant_parameters;
-        std::unordered_map<std::string, std::vector<double>> varying_parameters;
-        const std::vector<std::string> steady_state_module_names;
-        const std::vector<std::string> derivative_module_names;
-        bool verbose = false;
-        void (*print_msg) (char const* format, ...);    // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
+   private:
+    // Members for storing the original inputs
+    std::unordered_map<std::string, double> initial_state;
+    std::unordered_map<std::string, double> invariant_parameters;
+    std::unordered_map<std::string, std::vector<double>> varying_parameters;
+    const std::vector<std::string> steady_state_module_names;
+    const std::vector<std::string> derivative_module_names;
+    bool verbose = false;
+    void (*print_msg)(char const* format, ...);  // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
 
-        // Functions for checking and processing inputs when constructing a system
-        void process_variable_and_module_inputs(
-            std::set<std::string>& unique_steady_state_parameter_names,
-            std::set<std::string>& unique_changing_parameters);
-        void basic_input_checks();
-        void get_variables_from_input_lists(
-            std::set<std::string>& unique_variable_names,
-            std::set<std::string>& unique_changing_parameters,
-            std::vector<std::string>& duplicate_parameter_names
-        );
-        void get_variables_from_modules(
-            module_wrapper_factory& module_factory,
-            std::set<std::string>& unique_steady_state_parameter_names,
-            std::set<std::string>& unique_derivative_outputs,
-            std::set<std::string>& unique_variable_names,
-            std::set<std::string>& unique_module_inputs,
-            std::set<std::string>& unique_changing_parameters,
-            std::vector<std::string>& undefined_input_variables,
-            std::vector<std::string>& duplicate_output_variables,
-            std::vector<std::string>& duplicate_module_names,
-            std::vector<std::string>& illegal_output_variables
-        );
-        void check_variable_usage(
-            std::set<std::string> const& unique_derivative_outputs,
-            std::set<std::string> const& unique_module_inputs
-        ) const;
-        void create_modules(
-            module_wrapper_factory& module_factory,
-            std::vector<std::string>& incorrect_modules
-        );
+    // Functions for checking and processing inputs when constructing a system
+    void process_variable_and_module_inputs(
+        std::set<std::string>& unique_steady_state_parameter_names,
+        std::set<std::string>& unique_changing_parameters);
+    void basic_input_checks();
+    void get_variables_from_input_lists(
+        std::set<std::string>& unique_variable_names,
+        std::set<std::string>& unique_changing_parameters,
+        std::vector<std::string>& duplicate_parameter_names);
+    void get_variables_from_modules(
+        module_wrapper_factory& module_factory,
+        std::set<std::string>& unique_steady_state_parameter_names,
+        std::set<std::string>& unique_derivative_outputs,
+        std::set<std::string>& unique_variable_names,
+        std::set<std::string>& unique_module_inputs,
+        std::set<std::string>& unique_changing_parameters,
+        std::vector<std::string>& undefined_input_variables,
+        std::vector<std::string>& duplicate_output_variables,
+        std::vector<std::string>& duplicate_module_names,
+        std::vector<std::string>& illegal_output_variables);
+    void check_variable_usage(
+        std::set<std::string> const& unique_derivative_outputs,
+        std::set<std::string> const& unique_module_inputs) const;
+    void create_modules(
+        module_wrapper_factory& module_factory,
+        std::vector<std::string>& incorrect_modules);
 
-        template<typename name_list>
-        void get_pointer_pairs(name_list const& unique_steady_state_parameter_names);
+    template <typename name_list>
+    void get_pointer_pairs(name_list const& unique_steady_state_parameter_names);
 
-        void test_all_modules(std::string& total_error_string);
-        void get_simulation_info(std::set<std::string> const& unique_changing_parameters);
+    void test_all_modules(std::string& total_error_string);
+    void get_simulation_info(std::set<std::string> const& unique_changing_parameters);
 
-        // Map for storing the central quantities list
-        std::unordered_map<std::string, double> quantities;
+    // Map for storing the central quantities list
+    std::unordered_map<std::string, double> quantities;
 
-        // Map for storing module outputs
-        std::unordered_map<std::string, double> module_output_map;
+    // Map for storing module outputs
+    std::unordered_map<std::string, double> module_output_map;
 
-        // Pointers for accessing various inputs and outputs
-        double* timestep_ptr;
-        std::vector<std::pair<double*, double*>> state_ptrs;
-        std::vector<std::pair<double*, double*>> steady_state_ptrs;
-        std::vector<std::pair<double*, std::vector<double>*>> varying_ptrs;
+    // Pointers for accessing various inputs and outputs
+    double* timestep_ptr;
+    std::vector<std::pair<double*, double*>> state_ptrs;
+    std::vector<std::pair<double*, double*>> steady_state_ptrs;
+    std::vector<std::pair<double*, std::vector<double>*>> varying_ptrs;
 
-        // Functions for updating the central parameter list
-        void update_varying_params(int time_indx);     // For integer time
-        void update_varying_params(size_t time_indx);  // For size_t time
-        void update_varying_params(double time_indx);  // For double time
-        template<class vector_type>
-        void update_state_params(const vector_type& new_state);
+    // Functions for updating the central parameter list
+    void update_varying_params(int time_indx);     // For integer time
+    void update_varying_params(size_t time_indx);  // For size_t time
+    void update_varying_params(double time_indx);  // For double time
+    template <class vector_type>
+    void update_state_params(const vector_type& new_state);
 
-        // Lists of modules
-        std::vector<std::unique_ptr<Module>> steady_state_modules;
-        std::vector<std::unique_ptr<Module>> derivative_modules;
+    // Lists of modules
+    std::vector<std::unique_ptr<Module>> steady_state_modules;
+    std::vector<std::unique_ptr<Module>> derivative_modules;
 
-        // For integrating via odeint or other methods
-        size_t ntimes;
-        std::vector<std::string> output_param_vector;
-        std::vector<const double*> output_ptr_vector;
-        bool adaptive_compatible;
+    // For integrating via odeint or other methods
+    size_t ntimes;
+    std::vector<std::string> output_param_vector;
+    std::vector<const double*> output_ptr_vector;
+    bool adaptive_compatible;
 
-        // For running the modules
-        void run_steady_state_modules();
-        template<class vector_type>
-        void run_derivative_modules(vector_type& derivs);
+    // For running the modules
+    void run_steady_state_modules();
+    template <class vector_type>
+    void run_derivative_modules(vector_type& derivs);
 
-        // For testing the modules
-        void test_steady_state_modules();
-        template<class vector_type>
-        void test_derivative_modules(vector_type& derivs);
+    // For testing the modules
+    void test_steady_state_modules();
+    template <class vector_type>
+    void test_derivative_modules(vector_type& derivs);
 
-        // For performance testing
-        int ncalls;
+    // For performance testing
+    int ncalls;
 
-        // For numerically calculating derivatives
-        const double eps_deriv = 1e-11;
+    // For numerically calculating derivatives
+    const double eps_deriv = 1e-11;
 };
 
-template<typename state_type>
+template <typename state_type>
 void System::get_state(state_type& x) const
 {
     x.resize(state_ptrs.size());
@@ -270,7 +267,7 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
     // Initialize the parameter names
     std::vector<double> temp(x_vec.size());
     for (std::string const& p : output_param_vector) results[p] = temp;
-    
+
     std::fill(temp.begin(), temp.end(), ncalls);
     results["ncalls"] = temp;
 
@@ -289,7 +286,7 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
     return results;
 }
 
-template<class vector_type>
+template <class vector_type>
 void System::update_state_params(const vector_type& new_state)
 {
     for (size_t i = 0; i < new_state.size(); i++) {
@@ -297,18 +294,18 @@ void System::update_state_params(const vector_type& new_state)
     }
 }
 
-template<class vector_type>
+template <class vector_type>
 void System::run_derivative_modules(vector_type& dxdt)
 {
     for (auto const& x : state_ptrs) {
-        *x.second = 0.0;                                                // Reset the module output map
+        *x.second = 0.0;  // Reset the module output map
     }
-    std::fill(dxdt.begin(), dxdt.end(), 0);                             // Reset the derivative vector
+    std::fill(dxdt.begin(), dxdt.end(), 0);  // Reset the derivative vector
     for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        (*it)->run();           // Run the modules
+        (*it)->run();  // Run the modules
     }
     for (size_t i = 0; i < dxdt.size(); i++) {
-        dxdt[i] += *(state_ptrs[i].second) * (*timestep_ptr);           // Store the output in the derivative vector
+        dxdt[i] += *(state_ptrs[i].second) * (*timestep_ptr);  // Store the output in the derivative vector
     }
 }
 
@@ -402,9 +399,7 @@ struct push_back_state_and_time {
                                                                         m_times(times),
                                                                         _max_time(max_time),
                                                                         _verbose(verbose),
-                                                                        print_msg(print_fcn_ptr)
-    {
-    }
+                                                                        print_msg(print_fcn_ptr) {}
 
     void operator()(const state_type& x, double t)
     {
