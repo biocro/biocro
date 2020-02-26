@@ -12,10 +12,10 @@
 class system_solver
 {
    public:
-
-    system_solver(std::string solver_name, bool check_adaptive_compatible) :
-        solver_name(solver_name),
-        check_adaptive_compatible(check_adaptive_compatible) {}
+    system_solver(
+        std::string solver_name,
+        bool check_adaptive_compatible) : solver_name(solver_name),
+                                          check_adaptive_compatible(check_adaptive_compatible) {}
 
     virtual ~system_solver() {}
 
@@ -66,12 +66,11 @@ class system_solver
 
 // Define the standard response to a problem with adaptive compatibility
 inline std::unordered_map<std::string, std::vector<double>>
-system_solver::handle_adaptive_incompatibility(std::shared_ptr<System> /*sys*/)
+    system_solver::handle_adaptive_incompatibility(std::shared_ptr<System> /*sys*/)
 {
     throw std::logic_error(
         std::string("system_solver '") + solver_name +
-        std::string("' is not compatible with the input system.\n")
-    );
+        std::string("' is not compatible with the input system.\n"));
 }
 
 #endif
