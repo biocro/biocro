@@ -23,7 +23,8 @@ class biocro_simulation
         int adaptive_max_steps)
     {
         // Create the system
-        sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, false));
+        //sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names, false));
+        sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names));
 
         // Create the solver
         solver = system_solver_factory(solver_name);
@@ -36,7 +37,8 @@ class biocro_simulation
 
     std::string generate_report() const
     {
-        return std::string("\nSolver description:\n") + solver->generate_info_report() +
+        return std::string("\nSystem startup information:\n") + sys->generate_startup_report() +
+               std::string("\n\nSolver description:\n") + solver->generate_info_report() +
                std::string("\n\nThe solver reports the following:\n") + solver->generate_solve_report() +
                std::string("\n\nThe system reports the following:\n") + sys->generate_usage_report() + std::string("\n\n");
     }

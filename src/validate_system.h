@@ -3,6 +3,7 @@
 
 #include <string>
 #include "state_map.h"
+#include "modules.h"
 
 bool validate_system_inputs(
     std::string& message,
@@ -19,7 +20,13 @@ std::string analyze_system_inputs(
     std::vector<std::string> ss_module_names,
     std::vector<std::string> deriv_module_names);
 
-std::vector<std::string> define_quantities(
+std::vector<std::string> define_quantity_names(
+    state_map initial_state,
+    state_map invariant_params,
+    state_vector_map varying_params,
+    std::vector<std::string> ss_module_names);
+
+state_map define_quantity_map(
     state_map initial_state,
     state_map invariant_params,
     state_vector_map varying_params,

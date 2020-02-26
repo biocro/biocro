@@ -25,7 +25,7 @@ bool validate_system_inputs(
 {
     bool valid = true;
 
-    std::vector<std::string> quantity_names = define_quantities(initial_state, invariant_params, varying_params, ss_module_names);
+    std::vector<std::string> quantity_names = define_quantity_names(initial_state, invariant_params, varying_params, ss_module_names);
 
     // Criterion 1
     std::vector<std::string> duplicated_quantities = find_multiple_quantity_definitions(quantity_names);
@@ -116,9 +116,9 @@ std::string analyze_system_inputs(
 }
 
 /**
- * Assembles all quantity definitions from a group of input lists and modules
+ * Assembles the names of all quantities defined by a group of input lists and modules
  */
-std::vector<std::string> define_quantities(
+std::vector<std::string> define_quantity_names(
     state_map initial_state,
     state_map invariant_params,
     state_vector_map varying_params,
@@ -142,6 +142,34 @@ std::vector<std::string> define_quantities(
 }
 
 /**
+ * Assembles a map of all quantities defined by a group of input lists and modules
+ */
+state_map define_quantity_map(
+    state_map initial_state,
+    state_map invariant_params,
+    state_vector_map varying_params,
+    std::vector<std::string> ss_module_names)
+{
+    state_map quantities;
+    
+    std::vector<state_map> quantities_vector{initial_state, invariant_params, at(varying_params, 0)};
+
+    for (auto const& v : quantities_vector) {
+        quantities.insert(v.begin(), v.end());
+    }
+
+    for (auto const& m : ss_module_names) {
+        auto w = module_wrapper_factory::create(m);
+        std::vector<std::string> names = w->get_outputs();
+        for (auto const& n : names) {
+            quantities[n] = 0;
+        }
+    }
+    
+    return quantities;
+}
+
+/**
  * Finds quantities that are defined multiple times
  */
 std::vector<std::string> find_multiple_quantity_definitions(std::vector<std::string> quantity_names)
@@ -151,7 +179,7 @@ std::vector<std::string> find_multiple_quantity_definitions(std::vector<std::str
     for (std::string name : quantity_names) {
         insert_quantity_name_if_new(name, defined_quantities, duplicated_quantities);
     }
-    
+
     std::sort(duplicated_quantities.begin(), duplicated_quantities.end());
 
     return duplicated_quantities;
@@ -178,7 +206,7 @@ std::vector<std::string> find_undefined_module_inputs(
             insert_module_param_if_undefined(input, module_name, quantity_names, undefined_module_inputs);
         }
     }
-    
+
     std::sort(undefined_module_inputs.begin(), undefined_module_inputs.end());
 
     return undefined_module_inputs;
@@ -192,7 +220,7 @@ std::vector<std::string> find_undefined_module_outputs(
     std::vector<std::string> deriv_module_names)
 {
     std::vector<std::string> initial_state_names = keys(initial_state);
-    
+
     std::vector<std::string> undefined_module_outputs;
     for (std::string module_name : deriv_module_names) {
         auto module = module_wrapper_factory::create(module_name);
@@ -201,9 +229,9 @@ std::vector<std::string> find_undefined_module_outputs(
             insert_module_param_if_undefined(output, module_name, initial_state_names, undefined_module_outputs);
         }
     }
-    
+
     std::sort(undefined_module_outputs.begin(), undefined_module_outputs.end());
-    
+
     return undefined_module_outputs;
 }
 
@@ -273,7 +301,7 @@ std::vector<std::string> find_unused_parameters(
     for (std::string name : invariant_param_names) {
         insert_quantity_if_undefined(name, all_module_inputs, unused_invariant_params);
     }
-    
+
     std::sort(unused_invariant_params.begin(), unused_invariant_params.end());
 
     return unused_invariant_params;

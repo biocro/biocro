@@ -40,7 +40,15 @@ class System
         std::unordered_map<std::string, std::vector<double>> const& varying_params,
         std::vector<std::string> const& ss_module_names,
         std::vector<std::string> const& deriv_module_names,
-        void (*print_fcn_ptr)(char const* format, ...) = void_printf);
+        void (*print_fcn_ptr)(char const* format, ...));
+
+    System(
+        state_map const& init_state,
+        state_map const& invariant_params,
+        state_vector_map const& varying_params,
+        std::vector<std::string> const& ss_module_names,
+        std::vector<std::string> const& deriv_module_names);
+
     // Possibly helpful functions
     double get_timestep() const { return *timestep_ptr; }
     size_t get_ntimes() const { return ntimes; }
@@ -75,6 +83,10 @@ class System
         return std::to_string(ncalls) +
                std::string(" derivatives were calculated");
     }
+    std::string generate_startup_report() const
+    {
+        return startup_message;
+    }
 
     // For performance testing
     template <class vector_type, class time_type>
@@ -89,6 +101,8 @@ class System
     const std::vector<std::string> derivative_module_names;
     bool verbose = false;
     void (*print_msg)(char const* format, ...);  // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
+
+    std::string startup_message;
 
     // Functions for checking and processing inputs when constructing a system
     void process_variable_and_module_inputs(
