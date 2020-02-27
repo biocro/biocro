@@ -76,8 +76,9 @@ bool validate_system_inputs(
  * The following information is reported:
  * 1) A list of all quantities required by the modules as inputs
  * 2) A list of unused quantities in the invariant parameter list
- * 3) A list of quantities in the initial state that lack derivatives
- * 4) A list of quantities whose derivatives have terms calculated by multiple modules
+ * 3) A list of unused quantities in the varying parameter list
+ * 4) A list of quantities in the initial state that lack derivatives
+ * 5) A list of quantities whose derivatives have terms calculated by multiple modules
  */
 std::string analyze_system_inputs(
     state_map initial_state,
@@ -110,6 +111,16 @@ std::string analyze_system_inputs(
                                                            std::string("You may want to consider removing them for clarity"),
                                                            string_list); });
 
+    // List any unused quantities in the varying parameters
+    process_criterion<string_vector>(
+        message,
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(varying_params, 0)}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [](string_vector string_list) -> std::string { return create_message(
+                                                           std::string("Each varying parameter was used as an input to one or more modules"),
+                                                           std::string("The following varying parameters were not used as inputs to any module:"),
+                                                           std::string("You may want to consider removing them for clarity"),
+                                                           string_list); });
+
     // List any quantities in the initial state that lack derivatives
     process_criterion<string_vector>(
         message,
@@ -129,7 +140,7 @@ std::string analyze_system_inputs(
         message,
         [=]() -> string_vector { return find_multiple_quantity_definitions(derivative_module_outputs); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("Each derivative is determined by a single module"),
+                                                           std::string("No derivative is determined by more than one module"),
                                                            std::string("Derivatives for the following quantities are each determined by more than one module:"),
                                                            std::string(""),
                                                            string_list); });

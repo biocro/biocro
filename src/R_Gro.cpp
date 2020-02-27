@@ -435,7 +435,7 @@ SEXP R_validate_system_inputs(
     SEXP varying_parameters,
     SEXP steady_state_module_names,
     SEXP derivative_module_names,
-    SEXP print_extra_info)
+    SEXP silent)
 {
     // Convert inputs from R formats
     state_map s = map_from_list(initial_state);
@@ -443,33 +443,34 @@ SEXP R_validate_system_inputs(
     state_vector_map vp = map_vector_from_list(varying_parameters);
     std::vector<std::string> ss_names = make_vector(steady_state_module_names);
     std::vector<std::string> deriv_names = make_vector(derivative_module_names);
-    bool print_extra = LOGICAL(VECTOR_ELT(print_extra_info, 0))[0];
+    bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
 
     // Check the validity
-    Rprintf("\nChecking the validity of the system inputs:\n");
     std::string msg;
     bool valid = validate_system_inputs(msg, s, ip, vp, ss_names, deriv_names);
-    Rprintf(msg.c_str());
     
-    // Print additional information if required
-    if (print_extra) {
+    // Print feedback and additional information if required
+    if (!be_quiet) {
+        Rprintf("\nChecking the validity of the system inputs:\n");
+        
+        Rprintf(msg.c_str());
+        
+        if (valid) {
+            Rprintf("\nSystem inputs are valid\n");
+        } else {
+            Rprintf("\nSystem inputs are not valid\n");
+        }
+        
         Rprintf("\nPrinting additional information about the system inputs:\n");
+        
         msg = analyze_system_inputs(s, ip, vp, ss_names, deriv_names);
         Rprintf(msg.c_str());
+        
+        // Print a space to improve readability
+        Rprintf("\n");
     }
     
-    // Print a space to improve readability
-    Rprintf("\n");
-
-    // Return an indication of success
-    vector<string> result;
-    if (valid) {
-        result.push_back("System inputs are valid");
-    } else {
-        result.push_back("System inputs are not valid");
-    }
-
-    return r_string_vector_from_vector(result);
+    return r_logical_from_boolean(valid);
 }
 
 SEXP R_get_all_modules()

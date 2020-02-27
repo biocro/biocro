@@ -679,7 +679,7 @@ test_system <- function(initial_state, parameters, varying_parameters, steady_st
 	return(result)
 }
 
-validate_system_inputs <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, print_extra_information = TRUE)
+validate_system_inputs <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent = FALSE)
 {
 	# Example: confirming that the parameters and modules for a sorghum simulation are properly defined
 	#
@@ -708,11 +708,11 @@ validate_system_inputs <- function(initial_state, parameters, varying_parameters
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
 	
-	# Make sure print_extra_information is a logical variable
-	print_extra_information = lapply(print_extra_information, as.logical)
+	# Make sure silent is a logical variable
+	silent = lapply(silent, as.logical)
 	
 	# Run the C++ code
-	result = .Call(R_validate_system_inputs, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, print_extra_information)
+	result = .Call(R_validate_system_inputs, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent)
 	return(result)
 }
 
