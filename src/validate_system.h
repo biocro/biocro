@@ -57,15 +57,7 @@ std::vector<std::string> find_unused_parameters(
     std::set<std::string> all_module_inputs,
     state_map invariant_params);
 
-std::string create_message_from_duplicated_quantities(std::vector<std::string> duplicated_quantities);
-
-std::string create_message_from_undefined_module_inputs(std::vector<std::string> undefined_module_inputs);
-
-std::string create_message_from_undefined_module_outputs(std::vector<std::string> undefined_module_outputs);
-
-std::string create_message_from_misordered_modules(std::vector<std::string> misordered_modules);
-
-std::string create_message_from_unused_invariant_params(std::vector<std::string> unused_invariant_params);
+void add_indented_line(std::string& message, std::string text_to_add, int num_spaces);
 
 void insert_quantity_name_if_new(
     std::string quantity_name,
@@ -82,6 +74,29 @@ void insert_quantity_if_undefined(
     std::string quantity_name,
     std::vector<std::string> defined_quantity_names,
     std::vector<std::string>& undefined_quantity_names);
+
+/**
+ * Forms a user feedback message from a list of quantities, modules, etc
+ */
+template <typename string_list_type>
+std::string create_message(std::string message_if_empty, std::string message_at_beginning, std::string message_at_end, string_list_type string_list)
+{
+    std::string message;
+
+    if (string_list.size() == 0) {
+        message = std::string("\n") + message_if_empty + std::string("\n");
+    } else {
+        message = std::string("\n") + message_at_beginning + std::string("\n");
+        for (std::string text_item : string_list) {
+            add_indented_line(message, text_item, 1);
+        }
+        if (message_at_end.size() > 0) {
+            message += message_at_end + std::string("\n");
+        }
+    }
+
+    return message;
+}
 
 /**
  * Inserts all the keys from map into name_vector

@@ -29,28 +29,52 @@ bool validate_system_inputs(
 
     // Criterion 1
     std::vector<std::string> duplicated_quantities = find_multiple_quantity_definitions(quantity_names);
-    message += create_message_from_duplicated_quantities(duplicated_quantities);
+
+    message += create_message(
+        std::string("No quantities were defined multiple times in the inputs"),
+        std::string("The following quantities were defined more than once in the inputs:"),
+        std::string(""),
+        duplicated_quantities);
+
     if (duplicated_quantities.size() > 0) {
         valid = false;
     }
 
     // Criterion 2
     std::vector<std::string> undefined_module_inputs = find_undefined_module_inputs(quantity_names, ss_module_names, deriv_module_names);
-    message += create_message_from_undefined_module_inputs(undefined_module_inputs);
+
+    message += create_message(
+        std::string("All module inputs were properly defined"),
+        std::string("The following module inputs were not defined:"),
+        std::string(""),
+        undefined_module_inputs);
+
     if (undefined_module_inputs.size() > 0) {
         valid = false;
     }
 
     // Criterion 3
     std::vector<std::string> undefined_module_outputs = find_undefined_module_outputs(initial_state, deriv_module_names);
-    message += create_message_from_undefined_module_outputs(undefined_module_outputs);
+
+    message += create_message(
+        std::string("All derivative module outputs were included in the initial state"),
+        std::string("The following derivative module outputs were not part of the initial state:"),
+        std::string(""),
+        undefined_module_outputs);
+
     if (undefined_module_outputs.size() > 0) {
         valid = false;
     }
 
     // Criterion 4
     std::vector<std::string> misordered_modules = find_misordered_modules(initial_state, invariant_params, varying_params, ss_module_names);
-    message += create_message_from_misordered_modules(misordered_modules);
+
+    message += create_message(
+        std::string("All modules are ordered in a consistent way"),
+        std::string("The following modules are out of order, i.e., they require input variables whose values have not yet been calculated:"),
+        std::string(""),
+        misordered_modules);
+
     if (misordered_modules.size() > 0) {
         valid = false;
     }
@@ -76,16 +100,23 @@ std::string analyze_system_inputs(
 {
     std::string message;
 
-    // Get a list of all quantities used as inputs to modules
+    // Get a list of all quantities used as inputs to modules and add them to the message
     std::set<std::string> all_module_inputs = find_all_module_inputs(ss_module_names, deriv_module_names);
-    message += std::string("\nThe following quantities were each required by at least one module:\n");
-    for (std::string name : all_module_inputs) {
-        message += std::string(" ") + name + std::string("\n");
-    }
+
+    message += create_message(
+        std::string("No quantities were required as inputs to any of the modules"),
+        std::string("The following quantities were each required by at least one module:"),
+        std::string(""),
+        all_module_inputs);
 
     // Get a list of all the unused quantities in the invariant parameters and add them to the message
     std::vector<std::string> unused_invariant_params = find_unused_parameters(all_module_inputs, invariant_params);
-    message += create_message_from_unused_invariant_params(unused_invariant_params);
+
+    message += create_message(
+        std::string("Each invariant parameter was used as an input to one or more modules"),
+        std::string("The following invariant parameters were not used as inputs to any module:"),
+        std::string("You may want to consider removing them for clarity"),
+        unused_invariant_params);
 
     /*
     // Get a list of all derivative module outputs
@@ -151,7 +182,7 @@ state_map define_quantity_map(
     std::vector<std::string> ss_module_names)
 {
     state_map quantities;
-    
+
     std::vector<state_map> quantities_vector{initial_state, invariant_params, at(varying_params, 0)};
 
     for (auto const& v : quantities_vector) {
@@ -165,7 +196,7 @@ state_map define_quantity_map(
             quantities[n] = 0;
         }
     }
-    
+
     return quantities;
 }
 
@@ -308,99 +339,14 @@ std::vector<std::string> find_unused_parameters(
 }
 
 /**
- * Forms a user feedback message from a list of duplicated quantities
+ * Adds an indented line to a message
  */
-std::string create_message_from_duplicated_quantities(std::vector<std::string> duplicated_quantities)
+void add_indented_line(std::string& message, std::string text_to_add, int num_spaces)
 {
-    std::string message;
-
-    if (duplicated_quantities.size() == 0) {
-        message = std::string("\nNo quantities were defined multiple times in the inputs\n");
-    } else {
-        message = std::string("\nThe following quantities were defined more than once in the inputs:\n");
-        for (std::string name : duplicated_quantities) {
-            message += std::string(" ") + name + std::string("\n");
-        }
+    for (int i = 0; i < num_spaces; i++) {
+        message += std::string(" ");
     }
-
-    return message;
-}
-
-/**
- * Forms a user feedback message from a list of undefined module inputs
- */
-std::string create_message_from_undefined_module_inputs(std::vector<std::string> undefined_module_inputs)
-{
-    std::string message;
-
-    if (undefined_module_inputs.size() == 0) {
-        message = std::string("\nAll module inputs were properly defined\n");
-    } else {
-        message = std::string("\nThe following module inputs were not defined:\n");
-        for (std::string name : undefined_module_inputs) {
-            message += std::string(" ") + name + std::string("\n");
-        }
-    }
-
-    return message;
-}
-
-/**
- * Forms a user feedback message from a list of undefined module outputs
- */
-std::string create_message_from_undefined_module_outputs(std::vector<std::string> undefined_module_outputs)
-{
-    std::string message;
-
-    if (undefined_module_outputs.size() == 0) {
-        message = std::string("\nAll derivative module outputs were included in the initial state\n");
-    } else {
-        message = std::string("\nThe following derivative module outputs were not part of the initial state:\n");
-        for (std::string name : undefined_module_outputs) {
-            message += std::string(" ") + name + std::string("\n");
-        }
-    }
-
-    return message;
-}
-
-/**
- * Forms a user feedback message from a list of misordered modules
- */
-std::string create_message_from_misordered_modules(std::vector<std::string> misordered_modules)
-{
-    std::string message;
-
-    if (misordered_modules.size() == 0) {
-        message = std::string("\nAll modules are ordered in a consistent way\n");
-    } else {
-        message = std::string("\nThe following modules are out of order, i.e., they require input variables whose values have not yet been calculated:\n");
-        for (std::string name : misordered_modules) {
-            message += std::string(" ") + name + std::string("\n");
-        }
-    }
-
-    return message;
-}
-
-/**
- * Forms a user feedback message from a list of unused invariant parameters
- */
-std::string create_message_from_unused_invariant_params(std::vector<std::string> unused_invariant_params)
-{
-    std::string message;
-
-    if (unused_invariant_params.size() == 0) {
-        message = std::string("\nEach invariant parameter was used as an input to one or more modules\n");
-    } else {
-        message = std::string("\nThe following invariant parameters were not used as inputs to any module:\n");
-        for (std::string name : unused_invariant_params) {
-            message += std::string(" ") + name + std::string("\n");
-        }
-        message += std::string("You may want to consider removing them for clarity\n");
-    }
-
-    return message;
+    message += text_to_add + std::string("\n");
 }
 
 /**
