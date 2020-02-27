@@ -25,10 +25,8 @@ std::string analyze_system_inputs(
     string_vector deriv_module_names);
 
 string_vector define_quantity_names(
-    state_map initial_state,
-    state_map invariant_params,
-    state_vector_map varying_params,
-    string_vector ss_module_names);
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors);
 
 state_map define_quantity_map(
     std::vector<state_map> state_maps,
@@ -38,36 +36,27 @@ string_vector find_multiple_quantity_definitions(string_vector quantity_names);
 
 string_vector find_undefined_module_inputs(
     string_vector quantity_names,
-    string_vector ss_module_names,
-    string_vector deriv_module_names);
+    std::vector<string_vector> module_name_vectors);
 
 string_vector find_undefined_module_outputs(
-    state_map initial_state,
-    string_vector deriv_module_names);
+    string_vector quantity_names,
+    std::vector<string_vector> module_name_vectors);
 
 string_vector find_misordered_modules(
-    state_map initial_state,
-    state_map invariant_params,
-    state_vector_map varying_params,
-    string_vector ss_module_names);
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors);
 
-string_set find_all_module_inputs(
-    string_vector ss_module_names,
-    string_vector deriv_module_names);
+string_set find_unique_module_inputs(std::vector<string_vector> module_name_vectors);
 
-string_vector find_unused_parameters(
-    string_set all_module_inputs,
-    state_map invariant_params);
+string_set find_unique_module_outputs(std::vector<string_vector> module_name_vectors);
 
-string_set find_all_deriv_outputs(
-    string_vector deriv_module_names);
+string_vector find_unused_input_parameters(
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors);
 
-string_vector find_zero_derivatives(
-    state_map initial_state,
-    string_vector deriv_module_names);
-
-string_vector find_distributed_derivatives(
-    string_vector deriv_module_names);
+string_vector find_static_output_parameters(
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors);
 
 void add_indented_line(std::string& message, std::string text_to_add, int num_spaces);
 
@@ -80,7 +69,7 @@ void insert_module_param_if_undefined(
     std::string param_name,
     std::string module_name,
     string_vector defined_quantity_names,
-    string_vector& undefined_module_inputs);
+    string_vector& undefined_module_names);
 
 /**
  * @brief Function for testing a system input criterion

@@ -25,7 +25,9 @@ bool validate_system_inputs(
 {
     size_t num_problems = 0;
 
-    string_vector quantity_names = define_quantity_names(initial_state, invariant_params, varying_params, ss_module_names);
+    string_vector quantity_names = define_quantity_names(
+        std::vector<state_map>{initial_state, invariant_params, at(varying_params, 0)},
+        std::vector<string_vector>{ss_module_names});
 
     // Criterion 1
     num_problems += process_criterion<string_vector>(
@@ -39,7 +41,7 @@ bool validate_system_inputs(
     // Criterion 2
     num_problems += process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_undefined_module_inputs(quantity_names, ss_module_names, deriv_module_names); },
+        [=]() -> string_vector { return find_undefined_module_inputs(quantity_names, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All module inputs were properly defined"),
                                                            std::string("The following module inputs were not defined:"),
@@ -48,16 +50,17 @@ bool validate_system_inputs(
     // Criterion 3
     num_problems += process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_undefined_module_outputs(initial_state, deriv_module_names); },
+        [=]() -> string_vector { return find_undefined_module_outputs(keys(initial_state), std::vector<string_vector>{deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All derivative module outputs were included in the initial state"),
                                                            std::string("The following derivative module outputs were not part of the initial state:"),
                                                            std::string(""),
                                                            string_list); });
+
     // Criterion 4
     num_problems += process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_misordered_modules(initial_state, invariant_params, varying_params, ss_module_names); },
+        [=]() -> string_vector { return find_misordered_modules(std::vector<state_map>{initial_state, invariant_params, at(varying_params, 0)}, std::vector<string_vector>{ss_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All steady state modules are ordered in a consistent way"),
                                                            std::string("The following steady state modules are out of order, i.e., they require input variables whose values have not yet been calculated:"),
@@ -85,7 +88,7 @@ std::string analyze_system_inputs(
 {
     std::string message;
 
-    string_set all_module_inputs = find_all_module_inputs(ss_module_names, deriv_module_names);
+    string_set all_module_inputs = find_unique_module_inputs(std::vector<string_vector>{ss_module_names, deriv_module_names});
 
     // List the quantities used as inputs to the modules
     process_criterion<string_set>(
@@ -100,7 +103,7 @@ std::string analyze_system_inputs(
     // List any unused quantities in the invariant parameters
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_parameters(all_module_inputs, invariant_params); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{invariant_params}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each invariant parameter was used as an input to one or more modules"),
                                                            std::string("The following invariant parameters were not used as inputs to any module:"),
@@ -110,54 +113,57 @@ std::string analyze_system_inputs(
     // List any quantities in the initial state that lack derivatives
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_zero_derivatives(initial_state, deriv_module_names); },
+        [=]() -> string_vector { return find_static_output_parameters(std::vector<state_map>{initial_state}, std::vector<string_vector>{deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All quantities in the initial state have associated derivatives"),
                                                            std::string("The following quantities in the initial state lack associated derivatives:"),
                                                            std::string("These quantities will not change with time, so you may want to consider moving them to the invariant parameters for clarity"),
                                                            string_list); });
 
+    string_vector derivative_module_outputs = define_quantity_names(
+        std::vector<state_map>{},
+        std::vector<string_vector>{deriv_module_names});
+
     // List any quantities whose derivative is determined by more than one module
-    /*
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_distributed_derivatives(deriv_module_names); },
+        [=]() -> string_vector { return find_multiple_quantity_definitions(derivative_module_outputs); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each derivative is determined by a single module"),
                                                            std::string("Derivatives for the following quantities are each determined by more than one module:"),
                                                            std::string(""),
-                                                           string_list); });*/
+                                                           string_list); });
     return message;
 }
 
 /**
- * Assembles the names of all quantities defined by a group of input lists and modules
+ * Assembles the names of all quantities defined by a group of state_maps and module outputs, including any duplicates
  */
 string_vector define_quantity_names(
-    state_map initial_state,
-    state_map invariant_params,
-    state_vector_map varying_params,
-    string_vector ss_module_names)
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors)
 {
     std::vector<std::string> defined_quantity_names;
 
-    // Get quantity names from the input lists
-    insert_key_names(defined_quantity_names, initial_state);
-    insert_key_names(defined_quantity_names, invariant_params);
-    insert_key_names(defined_quantity_names, varying_params);
+    // Get quantity names from the state maps
+    for (state_map const& m : state_maps) {
+        insert_key_names(defined_quantity_names, m);
+    }
 
-    // Get quantity names from the steady state modules
-    for (std::string module_name : ss_module_names) {
-        auto module = module_wrapper_factory::create(module_name);
-        std::vector<std::string> output_names = module->get_outputs();
-        defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
+    // Get quantity names from the modules
+    for (string_vector const& names : module_name_vectors) {
+        for (std::string const& module_name : names) {
+            auto w = module_wrapper_factory::create(module_name);
+            string_vector output_names = w->get_outputs();
+            defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
+        }
     }
 
     return defined_quantity_names;
 }
 
 /**
- * Assembles a map of all quantities defined by a group of state_maps and module outputs
+ * Assembles a map of all unique quantities defined by a group of state_maps and module outputs
  */
 state_map define_quantity_map(
     std::vector<state_map> state_maps,
@@ -185,12 +191,13 @@ state_map define_quantity_map(
 }
 
 /**
- * Finds quantities that are defined multiple times
+ * Finds quantities that are defined multiple times in a vector of strings
  */
 string_vector find_multiple_quantity_definitions(string_vector quantity_names)
 {
     string_vector defined_quantities;
     string_vector duplicated_quantities;
+
     for (std::string name : quantity_names) {
         insert_quantity_name_if_new(name, defined_quantities, duplicated_quantities);
     }
@@ -201,51 +208,47 @@ string_vector find_multiple_quantity_definitions(string_vector quantity_names)
 }
 
 /**
- * Finds quantities that are required by modules but are not defined
+ * Finds quantities that are required by modules but are not defined by quantity_names.
+ * The output includes the module associated with each undefined input.
  */
 string_vector find_undefined_module_inputs(
     string_vector quantity_names,
-    string_vector ss_module_names,
-    string_vector deriv_module_names)
+    std::vector<string_vector> module_name_vectors)
 {
-    // Combine the lists of module names
-    string_vector module_names = ss_module_names;
-    module_names.insert(module_names.begin(), deriv_module_names.begin(), deriv_module_names.end());
-
-    // Check all the inputs
     string_vector undefined_module_inputs;
-    for (std::string module_name : module_names) {
-        auto module = module_wrapper_factory::create(module_name);
-        string_vector input_names = module->get_inputs();
-        for (std::string input : input_names) {
-            insert_module_param_if_undefined(input, module_name, quantity_names, undefined_module_inputs);
+
+    for (string_vector const& names : module_name_vectors) {
+        for (std::string const& module_name : names) {
+            auto w = module_wrapper_factory::create(module_name);
+            string_vector input_names = w->get_inputs();
+            for (std::string input : input_names) {
+                insert_module_param_if_undefined(input, module_name, quantity_names, undefined_module_inputs);
+            }
         }
     }
-
-    std::sort(undefined_module_inputs.begin(), undefined_module_inputs.end());
 
     return undefined_module_inputs;
 }
 
 /**
- * Finds quantities output by derivative modules that are not included in the initial state
+ * Finds quantities that are output by modules but are not defined by quantity_names.
+ * The output includes the module associated with each undefined output.
  */
 string_vector find_undefined_module_outputs(
-    state_map initial_state,
-    string_vector deriv_module_names)
+    string_vector quantity_names,
+    std::vector<string_vector> module_name_vectors)
 {
-    string_vector initial_state_names = keys(initial_state);
-
     string_vector undefined_module_outputs;
-    for (std::string module_name : deriv_module_names) {
-        auto module = module_wrapper_factory::create(module_name);
-        string_vector output_names = module->get_outputs();
-        for (std::string output : output_names) {
-            insert_module_param_if_undefined(output, module_name, initial_state_names, undefined_module_outputs);
+
+    for (string_vector const& names : module_name_vectors) {
+        for (std::string const& module_name : names) {
+            auto w = module_wrapper_factory::create(module_name);
+            string_vector output_names = w->get_outputs();
+            for (std::string output : output_names) {
+                insert_module_param_if_undefined(output, module_name, quantity_names, undefined_module_outputs);
+            }
         }
     }
-
-    std::sort(undefined_module_outputs.begin(), undefined_module_outputs.end());
 
     return undefined_module_outputs;
 }
@@ -254,50 +257,41 @@ string_vector find_undefined_module_outputs(
  * Finds modules that access variables before their values have been calculated
  */
 string_vector find_misordered_modules(
-    state_map initial_state,
-    state_map invariant_params,
-    state_vector_map varying_params,
-    string_vector ss_module_names)
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors)
 {
     // Get quantity names from the input lists
-    string_vector defined_quantity_names;
-    insert_key_names(defined_quantity_names, initial_state);
-    insert_key_names(defined_quantity_names, invariant_params);
-    insert_key_names(defined_quantity_names, varying_params);
+    string_vector defined_quantity_names = define_quantity_names(state_maps, std::vector<string_vector>{});
 
-    // Check the steady state module order
+    // Check the module order
     string_vector misordered_modules;
-    for (std::string module_name : ss_module_names) {
-        auto module = module_wrapper_factory::create(module_name);
-        string_vector input_names = module->get_inputs();
-        if (!all_are_in_list(input_names, defined_quantity_names)) {
-            misordered_modules.push_back(module_name);
+    for (string_vector const& names : module_name_vectors) {
+        for (std::string const& module_name : names) {
+            auto w = module_wrapper_factory::create(module_name);
+            string_vector input_names = w->get_inputs();
+            if (!all_are_in_list(input_names, defined_quantity_names)) {
+                misordered_modules.push_back(module_name);
+            }
+            string_vector output_names = w->get_outputs();
+            defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
         }
-        string_vector output_names = module->get_outputs();
-        defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
     }
 
     return misordered_modules;
 }
 
 /**
- * Returns a set containing all inputs to the modules
+ * Returns a set containing all unique inputs to the modules
  */
-string_set find_all_module_inputs(
-    string_vector ss_module_names,
-    string_vector deriv_module_names)
+string_set find_unique_module_inputs(std::vector<string_vector> module_name_vectors)
 {
-    // Combine the lists of module names
-    string_vector module_names = ss_module_names;
-    module_names.insert(module_names.begin(), deriv_module_names.begin(), deriv_module_names.end());
-
-    // Assemble all the inputs
     string_set module_inputs;
-    for (std::string module_name : module_names) {
-        auto module = module_wrapper_factory::create(module_name);
-        string_vector input_names = module->get_inputs();
-        for (std::string input : input_names) {
-            module_inputs.insert(input);
+
+    for (string_vector const& names : module_name_vectors) {
+        for (std::string const& module_name : names) {
+            auto w = module_wrapper_factory::create(module_name);
+            string_vector input_names = w->get_inputs();
+            module_inputs.insert(input_names.begin(), input_names.end());
         }
     }
 
@@ -305,35 +299,17 @@ string_set find_all_module_inputs(
 }
 
 /**
- * Returns a set containing invariant parameters that are not used as inputs
+ * Returns a set containing all unique outputs produced by the modules
  */
-string_vector find_unused_parameters(
-    string_set all_module_inputs,
-    state_map invariant_params)
-{
-    string_vector invariant_param_names = keys(invariant_params);
-    string_vector unused_invariant_params;
-    for (std::string name : invariant_param_names) {
-        insert_quantity_if_undefined(name, all_module_inputs, unused_invariant_params);
-    }
-
-    std::sort(unused_invariant_params.begin(), unused_invariant_params.end());
-
-    return unused_invariant_params;
-}
-
-/**
- * Returns all derivative module outputs
- */
-string_set find_all_deriv_outputs(
-    string_vector deriv_module_names)
+string_set find_unique_module_outputs(std::vector<string_vector> module_name_vectors)
 {
     string_set module_outputs;
-    for (std::string module_name : deriv_module_names) {
-        auto module = module_wrapper_factory::create(module_name);
-        string_vector output_names = module->get_outputs();
-        for (std::string output : output_names) {
-            module_outputs.insert(output);
+
+    for (string_vector const& names : module_name_vectors) {
+        for (std::string const& module_name : names) {
+            auto w = module_wrapper_factory::create(module_name);
+            string_vector output_names = w->get_outputs();
+            module_outputs.insert(output_names.begin(), output_names.end());
         }
     }
 
@@ -341,42 +317,49 @@ string_set find_all_deriv_outputs(
 }
 
 /**
- * Returns a list of quantities in the initial state that lack derivatives
+ * Returns parameters in the state maps that are not used as inputs to the modules
  */
-string_vector find_zero_derivatives(
-    state_map initial_state,
-    string_vector deriv_module_names)
+string_vector find_unused_input_parameters(
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors)
 {
-    string_vector zero_derivatives;
+    string_vector unused_params;
 
-    string_set all_derivative_outputs = find_all_deriv_outputs(deriv_module_names);
+    string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
 
-    string_vector istate_names = keys(initial_state);
-    for (std::string name : istate_names) {
-        insert_quantity_if_undefined(name, all_derivative_outputs, zero_derivatives);
-    }
-
-    return zero_derivatives;
-}
-
-/**
- * Returns a list of quantities that have derivatives calculated by more than one module
- */
-string_vector find_distributed_derivatives(
-    string_vector deriv_module_names)
-{
-    string_vector unique_derivatives;
-    string_vector distributed_derivatives;
-
-    for (std::string module_name : deriv_module_names) {
-        auto module = module_wrapper_factory::create(module_name);
-        string_vector output_names = module->get_outputs();
-        for (std::string output : output_names) {
-            insert_quantity_if_undefined(output, unique_derivatives, distributed_derivatives);
+    for (state_map const& m : state_maps) {
+        string_vector parameters = keys(m);
+        for (std::string const& name : parameters) {
+            insert_quantity_if_undefined(name, all_module_inputs, unused_params);
         }
     }
 
-    return distributed_derivatives;
+    std::sort(unused_params.begin(), unused_params.end());
+
+    return unused_params;
+}
+
+/**
+ * Returns parameters in the state maps that are not provided as outputs from the modules
+ */
+string_vector find_static_output_parameters(
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors)
+{
+    string_vector unused_params;
+
+    string_set all_module_outputs = find_unique_module_outputs(module_name_vectors);
+
+    for (state_map const& m : state_maps) {
+        string_vector parameters = keys(m);
+        for (std::string const& name : parameters) {
+            insert_quantity_if_undefined(name, all_module_outputs, unused_params);
+        }
+    }
+
+    std::sort(unused_params.begin(), unused_params.end());
+
+    return unused_params;
 }
 
 /**
@@ -408,16 +391,16 @@ void insert_quantity_name_if_new(
 
 /**
  * If input_name is not included in defined_quantity_names,
- * a new entry is inserted into undefined_module_inputs
+ * a new entry is inserted into undefined_module_names
  * that includes input_name and its associated module_name
  */
 void insert_module_param_if_undefined(
     std::string param_name,
     std::string module_name,
     string_vector defined_quantity_names,
-    string_vector& undefined_module_inputs)
+    string_vector& undefined_module_names)
 {
     if (std::find(defined_quantity_names.begin(), defined_quantity_names.end(), param_name) == defined_quantity_names.end()) {
-        undefined_module_inputs.push_back(param_name + std::string(" from the '") + module_name + std::string("' module"));
+        undefined_module_names.push_back(param_name + std::string(" from the '") + module_name + std::string("' module"));
     }
 }
