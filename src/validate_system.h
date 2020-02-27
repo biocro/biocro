@@ -2,78 +2,111 @@
 #define VALIDATE_SYSTEM_H
 
 #include <string>
+#include <functional>
 #include "state_map.h"
 #include "modules.h"
+
+using string_vector = std::vector<std::string>;
+using string_set = std::set<std::string>;
 
 bool validate_system_inputs(
     std::string& message,
     state_map initial_state,
     state_map invariant_params,
     state_vector_map varying_params,
-    std::vector<std::string> ss_module_names,
-    std::vector<std::string> deriv_module_names);
+    string_vector ss_module_names,
+    string_vector deriv_module_names);
 
 std::string analyze_system_inputs(
     state_map initial_state,
     state_map invariant_params,
     state_vector_map varying_params,
-    std::vector<std::string> ss_module_names,
-    std::vector<std::string> deriv_module_names);
+    string_vector ss_module_names,
+    string_vector deriv_module_names);
 
-std::vector<std::string> define_quantity_names(
+string_vector define_quantity_names(
     state_map initial_state,
     state_map invariant_params,
     state_vector_map varying_params,
-    std::vector<std::string> ss_module_names);
+    string_vector ss_module_names);
 
 state_map define_quantity_map(
+    std::vector<state_map> state_maps,
+    std::vector<string_vector> module_name_vectors);
+
+string_vector find_multiple_quantity_definitions(string_vector quantity_names);
+
+string_vector find_undefined_module_inputs(
+    string_vector quantity_names,
+    string_vector ss_module_names,
+    string_vector deriv_module_names);
+
+string_vector find_undefined_module_outputs(
+    state_map initial_state,
+    string_vector deriv_module_names);
+
+string_vector find_misordered_modules(
     state_map initial_state,
     state_map invariant_params,
     state_vector_map varying_params,
-    std::vector<std::string> ss_module_names);
+    string_vector ss_module_names);
 
-std::vector<std::string> find_multiple_quantity_definitions(std::vector<std::string> quantity_names);
+string_set find_all_module_inputs(
+    string_vector ss_module_names,
+    string_vector deriv_module_names);
 
-std::vector<std::string> find_undefined_module_inputs(
-    std::vector<std::string> quantity_names,
-    std::vector<std::string> ss_module_names,
-    std::vector<std::string> deriv_module_names);
-
-std::vector<std::string> find_undefined_module_outputs(
-    state_map initial_state,
-    std::vector<std::string> deriv_module_names);
-
-std::vector<std::string> find_misordered_modules(
-    state_map initial_state,
-    state_map invariant_params,
-    state_vector_map varying_params,
-    std::vector<std::string> ss_module_names);
-
-std::set<std::string> find_all_module_inputs(
-    std::vector<std::string> ss_module_names,
-    std::vector<std::string> deriv_module_names);
-
-std::vector<std::string> find_unused_parameters(
-    std::set<std::string> all_module_inputs,
+string_vector find_unused_parameters(
+    string_set all_module_inputs,
     state_map invariant_params);
+
+string_set find_all_deriv_outputs(
+    string_vector deriv_module_names);
+
+string_vector find_zero_derivatives(
+    state_map initial_state,
+    string_vector deriv_module_names);
+
+string_vector find_distributed_derivatives(
+    string_vector deriv_module_names);
 
 void add_indented_line(std::string& message, std::string text_to_add, int num_spaces);
 
 void insert_quantity_name_if_new(
     std::string quantity_name,
-    std::vector<std::string>& target_vector,
-    std::vector<std::string>& duplicate_vector);
+    string_vector& target_vector,
+    string_vector& duplicate_vector);
 
 void insert_module_param_if_undefined(
     std::string param_name,
     std::string module_name,
-    std::vector<std::string> defined_quantity_names,
-    std::vector<std::string>& undefined_module_inputs);
+    string_vector defined_quantity_names,
+    string_vector& undefined_module_inputs);
 
-void insert_quantity_if_undefined(
-    std::string quantity_name,
-    std::vector<std::string> defined_quantity_names,
-    std::vector<std::string>& undefined_quantity_names);
+/**
+ * @brief Function for testing a system input criterion
+ * 
+ * This function first calls criterion_test, which should return some kind
+ * of string container, e.g. std::vector<std::string> or std::set<std::string>.
+ * 
+ * The output of criterion_test is then passed to form_message, which should
+ * create a user feedback message based on the result of the criterion test.
+ * 
+ * The output of form_message is added to the message input (passed by reference).
+ * 
+ * Finally, the number of elements in the output of criterion_test is returned
+ * 
+ */
+template <typename string_list_type>
+size_t process_criterion(
+    std::string& message,
+    std::function<string_list_type()> criterion_test,
+    std::function<std::string(string_list_type)> form_message)
+{
+    string_list_type test_results = criterion_test();
+    std::string new_message = form_message(test_results);
+    message += new_message;
+    return test_results.size();
+}
 
 /**
  * Forms a user feedback message from a list of quantities, modules, etc
@@ -102,9 +135,9 @@ std::string create_message(std::string message_if_empty, std::string message_at_
  * Inserts all the keys from map into name_vector
  */
 template <typename map_type>
-void insert_key_names(std::vector<std::string>& name_vector, map_type map)
+void insert_key_names(string_vector& name_vector, const map_type map)
 {
-    std::vector<std::string> map_key_names = keys(map);
+    string_vector map_key_names = keys(map);
     name_vector.insert(name_vector.begin(), map_key_names.begin(), map_key_names.end());
 }
 
@@ -116,7 +149,7 @@ template <typename list_type>
 void insert_quantity_if_undefined(
     std::string quantity_name,
     list_type defined_quantity_names,
-    std::vector<std::string>& undefined_quantity_names)
+    string_vector& undefined_quantity_names)
 {
     if (std::find(defined_quantity_names.begin(), defined_quantity_names.end(), quantity_name) == defined_quantity_names.end()) {
         undefined_quantity_names.push_back(quantity_name);

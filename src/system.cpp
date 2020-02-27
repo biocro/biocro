@@ -22,7 +22,9 @@ System::System(
     }
 
     // Make the central list of quantities and the module output map
-    quantities = define_quantity_map(init_state, invariant_params, varying_params, ss_module_names);
+    quantities = define_quantity_map(
+                    std::vector<state_map> {init_state, invariant_params, at(varying_params,0)},
+                    std::vector<string_vector> {ss_module_names});
     module_output_map = quantities;
 
     // Get lists of subsets of quantity names
