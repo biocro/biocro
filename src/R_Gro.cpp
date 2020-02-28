@@ -9,6 +9,7 @@
 #include "R_helper_functions.h"
 #include "standalone_ss.h"
 #include "solver_library/SystemSolverFactory.hpp"
+#include "validate_system.h"
 
 using std::string;
 using std::unique_ptr;
@@ -92,7 +93,7 @@ SEXP R_Gro_deriv(
         double t = REAL(time)[0];
 
         // Create a system
-        System sys(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
+        System sys(s, ip, vp, ss_names, deriv_names);
 
         // Get the state in the correct format
         std::vector<double> x;
@@ -180,7 +181,7 @@ SEXP R_Gro_ode(
         bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Make the system
-        System sys(s, ip, vp, ss_names, deriv_names, verb, Rprintf);
+        System sys(s, ip, vp, ss_names, deriv_names);
 
         // Get the current state in the correct format
         std::vector<double> x;
@@ -420,7 +421,7 @@ SEXP R_test_system(
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
-        System sys(s, ip, vp, ss_names, deriv_names, TRUE);
+        System sys(s, ip, vp, ss_names, deriv_names);
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_test_system: ") + e.what()).c_str());
     } catch (...) {
@@ -431,6 +432,50 @@ SEXP R_test_system(
     vector<string> result;
     result.push_back("System test completed");
     return r_string_vector_from_vector(result);
+}
+
+SEXP R_validate_system_inputs(
+    SEXP initial_state,
+    SEXP parameters,
+    SEXP varying_parameters,
+    SEXP steady_state_module_names,
+    SEXP derivative_module_names,
+    SEXP silent)
+{
+    // Convert inputs from R formats
+    state_map s = map_from_list(initial_state);
+    state_map ip = map_from_list(parameters);
+    state_vector_map vp = map_vector_from_list(varying_parameters);
+    std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+    std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+    bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
+
+    // Check the validity
+    std::string msg;
+    bool valid = validate_system_inputs(msg, s, ip, vp, ss_names, deriv_names);
+    
+    // Print feedback and additional information if required
+    if (!be_quiet) {
+        Rprintf("\nChecking the validity of the system inputs:\n");
+        
+        Rprintf(msg.c_str());
+        
+        if (valid) {
+            Rprintf("\nSystem inputs are valid\n");
+        } else {
+            Rprintf("\nSystem inputs are not valid\n");
+        }
+        
+        Rprintf("\nPrinting additional information about the system inputs:\n");
+        
+        msg = analyze_system_inputs(s, ip, vp, ss_names, deriv_names);
+        Rprintf(msg.c_str());
+        
+        // Print a space to improve readability
+        Rprintf("\n");
+    }
+    
+    return r_logical_from_boolean(valid);
 }
 
 SEXP R_get_all_modules()

@@ -1,5 +1,6 @@
 #include "system_helper_functions.h"
 #include "state_map.h"
+#include "validate_system.h"
 
 
 void get_variables_from_ss_modules(
@@ -177,6 +178,3 @@ void report_errors(
         throw std::logic_error(total_error_string);
     }
 }
-
-
-

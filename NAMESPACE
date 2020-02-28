@@ -11,6 +11,7 @@ useDynLib(BioCro,
 		  R_test_module,
 		  R_test_standalone_ss,
 		  R_test_system,
+		  R_validate_system_inputs,
 		  R_get_all_modules,
 		  R_get_all_solvers,
           R_sunML,
@@ -37,6 +38,10 @@ export(test_module)
 export(test_standalone_ss)
 
 export(test_system)
+
+export(validate_system_inputs)
+
+export(add_time_to_weather_data)
 
 export(get_all_modules)
 
