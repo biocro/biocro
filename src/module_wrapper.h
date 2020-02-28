@@ -41,7 +41,7 @@ class module_wrapper : public module_wrapper_base {
             return std::unique_ptr<Module>(new T(input, output));
         }
 
-    std::string get_description() { return std::string(""); }
+    std::string get_description() { return std::string("Descriptions no longer supported :("); }
 };
 
 #endif

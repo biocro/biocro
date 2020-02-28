@@ -100,7 +100,7 @@ System::System(
 
     // Get the number of time points
     auto vp = varying_params.begin();
-    ntimes = (vp->first).size();
+    ntimes = (vp->second).size();
 
     // Create a vector of the names of variables that change throughout a simulation
     for (auto const& names : std::vector<std::vector<std::string>>{istate_names, vp_names, steady_state_output_names}) {

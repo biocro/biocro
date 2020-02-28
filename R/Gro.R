@@ -511,7 +511,7 @@ get_all_modules <- function()
 	return(result)
 }
 
-get_module_info <- function(module_name)
+get_module_info <- function(module_name, verbose = TRUE)
 {	
 	# Example: getting information about the big_leaf_multilayer_canopy module
 	#
@@ -520,12 +520,18 @@ get_module_info <- function(module_name)
 	# The function returns a dataframe with all the inputs required by the module
 	# It also prints the module's type (derivative or steady state), its inputs, and its outputs to the R console
 	
+	# Make sure the module name is a string
 	if (!is.character(module_name) & length(module_name) != 1) {
 		stop('"module_name" must be a string')
 	}
 	
-	result = .Call(R_get_module_info, module_name)
+	# Make sure verbose is a logical variable
+	verbose = lapply(verbose, as.logical)
+	
+	result = .Call(R_get_module_info, module_name, verbose)
+	
 	result = result[order(names(result))]
+	
 	return(result)
 }
 

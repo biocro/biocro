@@ -214,12 +214,15 @@ SEXP R_Gro_ode(
     return r_string_vector_from_vector(result);
 }
 
-SEXP R_get_module_info(SEXP module_name_input)
+SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
 {
     try {
         // module_name_input should be a string vector with one element
         std::vector<std::string> module_name_vector = make_vector(module_name_input);
         std::string module_name = module_name_vector[0];
+        
+        // Convert verbose to a boolean
+        bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Make a module factory
         std::unordered_map<std::string, double> parameters;
@@ -247,37 +250,48 @@ SEXP R_get_module_info(SEXP module_name_input)
 
         // Check to see if the module is a derivative module
         bool is_deriv = module_ptr->is_deriv();
+        
+        // Check to see if the module is compatible with adaptive step size solvers
+        bool is_adaptive_compatible = module_ptr->is_adaptive_compatible();
 
-        // Send some messages to the user
+        // Send some messages to the user if required
+        
+        if (loquacious) {
+            // Module name
+            Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
 
-        // Module name
-        Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
+            // Module type
+            if (is_deriv)
+                Rprintf("Module type (derivative or steady state):\n  derivative\n\n");
+            else
+                Rprintf("Module type (derivative or steady state):\n  steady state\n\n");
+                
+            // Adaptive compatibility
+            if (is_adaptive_compatible)
+                Rprintf("Compatible with adaptive step size solvers:\n  yes\n\n");
+            else
+                Rprintf("Compatible with adaptive step size solvers:\n  no\n\n");
 
-        // Module type
-        if (is_deriv)
-            Rprintf("Module type (derivative or steady state):\n  derivative\n\n");
-        else
-            Rprintf("Module type (derivative or steady state):\n  steady state\n\n");
+            // Module description
+            Rprintf("Module description:\n%s\n\n", description.c_str());
 
-        // Module description
-        Rprintf("Module description:\n%s\n\n", description.c_str());
+            // Module inputs
+            Rprintf("Module input parameters:");
+            if (module_inputs.size() == 0)
+                Rprintf(" none\n\n");
+            else {
+                for (std::string param : module_inputs) Rprintf("\n  %s", param.c_str());
+                Rprintf("\n\n");
+            }
 
-        // Module inputs
-        Rprintf("Module input parameters:");
-        if (module_inputs.size() == 0)
-            Rprintf(" none\n\n");
-        else {
-            for (std::string param : module_inputs) Rprintf("\n  %s", param.c_str());
-            Rprintf("\n\n");
-        }
-
-        // Module outputs
-        Rprintf("Module output parameters:");
-        if (module_outputs.size() == 0)
-            Rprintf(" none\n\n");
-        else {
-            for (std::string param : module_outputs) Rprintf("\n  %s", param.c_str());
-            Rprintf("\n\n");
+            // Module outputs
+            Rprintf("Module output parameters:");
+            if (module_outputs.size() == 0)
+                Rprintf(" none\n\n");
+            else {
+                for (std::string param : module_outputs) Rprintf("\n  %s", param.c_str());
+                Rprintf("\n\n");
+            }
         }
 
         // Return a map containing the module's input parameters
