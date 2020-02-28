@@ -3,6 +3,7 @@
 #include "validate_system.h"
 #include "state_map.h"
 #include "module_wrapper_factory.h"
+#include "modules.h"
 
 /**
   * @brief Checks over a group of quantities and modules to ensure they can be used to create a valid system
@@ -142,6 +143,36 @@ std::string analyze_system_inputs(
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("No derivative is determined by more than one module"),
                                                            std::string("Derivatives for the following quantities are each determined by more than one module:"),
+                                                           std::string(""),
+                                                           string_list); });
+
+    // List any modules that are not compatible with adaptive step size methods
+    process_criterion<string_vector>(
+        message,
+        [=]() -> string_vector { return find_adaptive_incompatibility(std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [](string_vector string_list) -> std::string { return create_message(
+                                                           std::string("All modules are compatible with adaptive step size solvers"),
+                                                           std::string("The following modules are not compatible with adaptive step size solvers:"),
+                                                           std::string(""),
+                                                           string_list); });
+
+    // List any mischaracterized steady state modules
+    process_criterion<string_vector>(
+        message,
+        [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{ss_module_names}, false); },
+        [](string_vector string_list) -> std::string { return create_message(
+                                                           std::string("All modules in the steady state module list are steady state modules"),
+                                                           std::string("The following modules were in the list of steady state modules but are actually derivative modules:"),
+                                                           std::string(""),
+                                                           string_list); });
+
+    // List any mischaracterized derivative modules
+    process_criterion<string_vector>(
+        message,
+        [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{deriv_module_names}, true); },
+        [](string_vector string_list) -> std::string { return create_message(
+                                                           std::string("All modules in the derivative module list are derivative modules"),
+                                                           std::string("The following modules were in the list of derivative modules but are actually steady state modules:"),
                                                            std::string(""),
                                                            string_list); });
     return message;
@@ -371,6 +402,70 @@ string_vector find_static_output_parameters(
     std::sort(unused_params.begin(), unused_params.end());
 
     return unused_params;
+}
+
+/**
+ * Returns modules that are not compatible with adaptive step size algorithms
+ */
+string_vector find_adaptive_incompatibility(std::vector<string_vector> module_name_vectors)
+{
+    // Get all the module inputs and outputs
+    string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
+    string_set all_module_outputs = find_unique_module_outputs(module_name_vectors);
+
+    // Make an appropriate state_map that contains them all
+    state_map quantities;
+    for (string_set const& names : std::vector<string_set>{all_module_inputs, all_module_outputs}) {
+        for (std::string const& n : names) {
+            quantities[n] = 0;
+        }
+    }
+
+    // Instantiate each module and check its compatibility with adaptive step size methods
+    string_vector incompatible_modules;
+    for (string_vector const& module_names : module_name_vectors) {
+        for (std::string name : module_names) {
+            auto w = module_wrapper_factory::create(name);
+            std::unique_ptr<Module> module = w->createModule(&quantities, &quantities);
+            if (!module->is_adaptive_compatible()) {
+                incompatible_modules.push_back(name);
+            }
+        }
+    }
+
+    return incompatible_modules;
+}
+
+/**
+ * Returns mischaracterized modules, i.e., steady state modules in the derivative module list or vice-versa
+ */
+string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_deriv)
+{
+    // Get all the module inputs and outputs
+    string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
+    string_set all_module_outputs = find_unique_module_outputs(module_name_vectors);
+
+    // Make an appropriate state_map that contains them all
+    state_map quantities;
+    for (string_set const& names : std::vector<string_set>{all_module_inputs, all_module_outputs}) {
+        for (std::string const& n : names) {
+            quantities[n] = 0;
+        }
+    }
+
+    // Instantiate each module and check its characterization
+    string_vector mischaracterized_modules;
+    for (string_vector const& module_names : module_name_vectors) {
+        for (std::string name : module_names) {
+            auto w = module_wrapper_factory::create(name);
+            std::unique_ptr<Module> module = w->createModule(&quantities, &quantities);
+            if (module->is_deriv() != is_deriv) {
+                mischaracterized_modules.push_back(name);
+            }
+        }
+    }
+
+    return mischaracterized_modules;
 }
 
 /**
