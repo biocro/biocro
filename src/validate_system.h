@@ -2,12 +2,14 @@
 #define VALIDATE_SYSTEM_H
 
 #include <string>
-#include <functional>
+#include <functional>  // For std::function
+#include <memory>      // For std::unique_ptr and std::shared_ptr
 #include "state_map.h"
 #include "modules.h"
 
 using string_vector = std::vector<std::string>;
 using string_set = std::set<std::string>;
+using module_vector = std::vector<std::unique_ptr<Module>>;
 
 bool validate_system_inputs(
     std::string& message,
@@ -61,6 +63,11 @@ string_vector find_static_output_parameters(
 string_vector find_adaptive_incompatibility(std::vector<string_vector> module_name_vectors);
 
 string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_deriv);
+
+module_vector get_module_vector(
+    std::vector<string_vector> module_name_vectors,
+    const state_map* input_parameters,
+    state_map* output_parameters);
 
 void add_indented_line(std::string& message, std::string text_to_add, int num_spaces);
 

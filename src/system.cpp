@@ -14,7 +14,7 @@ System::System(
                                                           derivative_module_names(deriv_module_names)
 {
     startup_message = std::string("");
-    
+
     // Make sure the inputs can form a valid system
     bool valid = validate_system_inputs(startup_message, init_state, invariant_params, varying_params, ss_module_names, deriv_module_names);
     if (!valid) {
@@ -23,9 +23,26 @@ System::System(
 
     // Make the central list of quantities and the module output map
     quantities = define_quantity_map(
-                    std::vector<state_map> {init_state, invariant_params, at(varying_params,0)},
-                    std::vector<string_vector> {ss_module_names});
+        std::vector<state_map>{init_state, invariant_params, at(varying_params, 0)},
+        std::vector<string_vector>{ss_module_names});
     module_output_map = quantities;
+
+    // Instantiate the modules
+    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
+    derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
+
+    // Check for adaptive compatibility
+    adaptive_compatible = true;
+    for (std::unique_ptr<Module>& m : steady_state_modules) {
+        if (!m->is_adaptive_compatible()) {
+            adaptive_compatible = false;
+        }
+    }
+    for (std::unique_ptr<Module>& m : derivative_modules) {
+        if (!m->is_adaptive_compatible()) {
+            adaptive_compatible = false;
+        }
+    }
 
     // Get lists of subsets of quantity names
     std::vector<std::string> steady_state_output_names;
@@ -38,20 +55,6 @@ System::System(
     auto istate_names = keys(init_state);
     auto ip_names = keys(invariant_params);
     auto vp_names = keys(varying_params);
-
-    // Instantiate the modules and check for adaptive compatibility
-    adaptive_compatible = true;
-    for (auto const& m : ss_module_names) {
-        auto w = module_wrapper_factory::create(m);
-        steady_state_modules.push_back(w->createModule(&quantities, &module_output_map));
-        if (!steady_state_modules.back()->is_adaptive_compatible()) this->adaptive_compatible = false;
-    }
-
-    for (auto const& m : deriv_module_names) {
-        auto w = module_wrapper_factory::create(m);
-        derivative_modules.push_back(w->createModule(&quantities, &module_output_map));
-        if (!derivative_modules.back()->is_adaptive_compatible()) this->adaptive_compatible = false;
-    }
 
     // Get a pointer to the timestep
     timestep_ptr = &quantities.at("timestep");

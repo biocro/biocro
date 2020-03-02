@@ -421,15 +421,12 @@ string_vector find_adaptive_incompatibility(std::vector<string_vector> module_na
         }
     }
 
-    // Instantiate each module and check its compatibility with adaptive step size methods
+    // Instantiate each module and check its characterization
     string_vector incompatible_modules;
-    for (string_vector const& module_names : module_name_vectors) {
-        for (std::string name : module_names) {
-            auto w = module_wrapper_factory::create(name);
-            std::unique_ptr<Module> module = w->createModule(&quantities, &quantities);
-            if (!module->is_adaptive_compatible()) {
-                incompatible_modules.push_back(name);
-            }
+    module_vector modules = get_module_vector(module_name_vectors, &quantities, &quantities);
+    for (std::unique_ptr<Module>& m : modules) {
+        if (!m->is_adaptive_compatible()) {
+            incompatible_modules.push_back(m->get_name());
         }
     }
 
@@ -455,17 +452,33 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
 
     // Instantiate each module and check its characterization
     string_vector mischaracterized_modules;
-    for (string_vector const& module_names : module_name_vectors) {
-        for (std::string name : module_names) {
-            auto w = module_wrapper_factory::create(name);
-            std::unique_ptr<Module> module = w->createModule(&quantities, &quantities);
-            if (module->is_deriv() != is_deriv) {
-                mischaracterized_modules.push_back(name);
-            }
+    module_vector modules = get_module_vector(module_name_vectors, &quantities, &quantities);
+    for (std::unique_ptr<Module>& m : modules) {
+        if (m->is_deriv() != is_deriv) {
+            mischaracterized_modules.push_back(m->get_name());
         }
     }
 
     return mischaracterized_modules;
+}
+
+/**
+ * Returns a vector of unique_ptrs to module objects
+ */
+module_vector get_module_vector(
+    std::vector<string_vector> module_name_vectors,
+    const state_map* input_parameters,
+    state_map* output_parameters)
+{
+    module_vector modules;
+    for (string_vector const& module_names : module_name_vectors) {
+        for (std::string name : module_names) {
+            auto w = module_wrapper_factory::create(name);
+            modules.push_back(w->createModule(input_parameters, output_parameters));
+        }
+    }
+
+    return modules;
 }
 
 /**
