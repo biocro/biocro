@@ -333,11 +333,11 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
 
 SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 {
+    // module_name_input should be a string vector with one element
+    std::vector<std::string> module_name_vector = make_vector(module_name_input);
+    std::string module_name = module_name_vector[0];
+    
     try {
-        // module_name_input should be a string vector with one element
-        std::vector<std::string> module_name_vector = make_vector(module_name_input);
-        std::string module_name = module_name_vector[0];
-
         // input_parameters should be a state map
         // use it to initialize the parameter list
         state_map parameters = map_from_list(input_parameters);
@@ -358,8 +358,12 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
         module_ptr->run();
 
         return list_from_map(module_output_map);
+    } catch (quantity_access_error const& qae) {
+        std::string error_msg = std::string("Caught quantity access error in R_test_module (module name = '") + module_name + std::string("'): ") + qae.what();
+        Rf_error(error_msg.c_str());
     } catch (std::exception const& e) {
-        Rf_error(string(string("Caught exception in R_test_module: ") + e.what()).c_str());
+        std::string error_msg = std::string("Caught exception in R_test_module (module name = '") + module_name + std::string("'): ") + e.what();
+        Rf_error(error_msg.c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_test_module.");
     }
