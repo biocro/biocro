@@ -1,6 +1,7 @@
 #ifndef VALIDATE_SYSTEM_H
 #define VALIDATE_SYSTEM_H
 
+#include <set>
 #include <string>
 #include <set>
 #include <functional>  // For std::function
@@ -13,6 +14,9 @@
 using string_vector = std::vector<std::string>;
 using string_set = std::set<std::string>;
 using module_vector = std::vector<std::unique_ptr<Module>>;
+
+const std::string success_mark { u8"\u2713 " }; // checkmark
+const std::string failure_mark { u8"\u2717 " }; // exmark
 
 bool validate_system_inputs(
     std::string& message,
@@ -164,14 +168,14 @@ std::string create_message(std::string message_if_empty,
     std::string message;
 
     if (string_list.size() == 0) {
-        message = std::string("\n") + message_if_empty + std::string("\n");
+        message = std::string{"\n"} + success_mark + message_if_empty + "\n";
     } else {
-        message = std::string("\n") + message_at_beginning + std::string("\n");
+        message = std::string{"\n"} + failure_mark + message_at_beginning + "\n";
         for (std::string text_item : string_list) {
             message = add_indented_line(message, text_item, 1);
         }
         if (message_at_end.size() > 0) {
-            message += message_at_end + std::string("\n");
+            message += message_at_end + "\n";
         }
     }
 

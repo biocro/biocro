@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <set>
 #include "validate_system.h"
 #include "state_map.h"
 #include "module_wrapper_factory.h"
@@ -16,21 +15,25 @@
   * 1. Each quantity is specified only once.
   * 2. All module inputs are specified.
   * 3. Derivatives are calculated only for quantities in the initial state.
-  * 4. All steady-state module inputs are calculated before they are accessed.
+  * 4. Steady-state modules can be ordered in such a way that inputs
+  *    are calculated before they are accessed.  This is checked
+  *    elsewhere, not in this function.
   *
   * We consider a quantity to have been "specified" (or "defined") if it is a
   * key in one of the maps `initial_state`, `invariant_params`, or
   * `varying_params`, or, if it is an output variable of one of the steady-state
   * modules listed in `ss_module_names`.
   *
-  * Criterion 2 and criterion 4 are related: Criterion 2 requires merely that
-  * each input to a steady-state or deriv module is either a variable in the
-  * initial state, is one of the parameters, or is an output of some
-  * steady-state module.  Criterion 4 goes further for the case of a
-  * steady-state module where an input quantity is provided by the output of
-  * some other steady-state module: It requires that the vector specifying the
-  * steady-state module names must be such that this input quantity is provided
-  * by the output of a module earlier in the list.
+  * Criterion 2 and criterion 4 are related: Criterion 2 requires
+  * merely that each input to a steady-state or deriv module is either
+  * a variable in the initial state, is one of the parameters, or is
+  * an output of some steady-state module.  Criterion 4 goes further
+  * for the case of a steady-state module where an input quantity is
+  * provided by the output of some other steady-state module: It
+  * requires that the steady-state modules can be ordered in such a
+  * way that each of a module's input quantities that is neither a
+  * parameter or a quantity in the initial state be provided by the
+  * output of a module earlier in the list.
   *
   * Notably absent from these criteria is a requirement that a derivative be
   * calculated for every value given in the initial state.  Values in the
@@ -95,25 +98,6 @@ bool validate_system_inputs(
             return create_message(
                 std::string("All derivative module outputs were included in the initial state"),
                 std::string("The following derivative module outputs were not part of the initial state:"),
-                std::string(""),
-                string_list
-            );
-        }
-    );
-
-    // Criterion 4
-    num_problems += process_criterion<string_vector>(
-        message,
-        [=]() -> string_vector {
-            return find_misordered_modules(
-                std::vector<state_map>{initial_state, invariant_params, at(varying_params, 0)},
-                std::vector<string_vector>{ss_module_names}
-            );
-        },
-        [](string_vector string_list) -> std::string {
-            return create_message(
-                std::string("All steady-state modules are ordered in a consistent way"),
-                std::string("The following steady-state modules are out of order, i.e., they require input variables whose values have not yet been calculated:"),
                 std::string(""),
                 string_list
             );
