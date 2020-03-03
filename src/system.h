@@ -2,20 +2,22 @@
 #define SYSTEM_H
 
 #include <vector>
+#include <string>
 #include <set>
 #include <unordered_map>
-#include <memory>  // For unique_ptr and shared_ptr
-#include <cmath>   // For fmod
-#include <time.h>  // For timing during performance testing
+#include <memory>       // For unique_ptr and shared_ptr
+#include <cmath>        // For fmod
+#include "constants.h"  // For eps_deriv
 #include "modules.h"
 #include "module_wrapper_factory.h"
+#include "validate_system.h"
 #include "system_helper_functions.h"
 #include "state_map.h"
 
 /**
  * @class System
  * 
- * Defines a system of differential equations
+ * Defines a system of differential equations. Intended to be passed to a system_solver object.
  */
 class System
 {
@@ -24,21 +26,17 @@ class System
         state_map const& init_state,
         state_map const& invariant_params,
         state_vector_map const& varying_params,
-        std::vector<std::string> const& ss_module_names,
-        std::vector<std::string> const& deriv_module_names);
+        string_vector const& ss_module_names,
+        string_vector const& deriv_module_names);
 
-    // Possibly helpful functions
-    double get_timestep() const { return *timestep_ptr; }
-    size_t get_ntimes() const { return ntimes; }
+    // For integrating via a system_solver
     bool is_adaptive_compatible() const { return adaptive_compatible; }
+    size_t get_ntimes() const { return ntimes; }
 
-    // For fitting via nlopt
-    void reset();
-
-    // For integrating
     template <typename state_type>
     void get_state(state_type& x) const;
 
+    // For calculating derivatives
     template <typename state_type, typename time_type>
     void operator()(const state_type& x, state_type& dxdt, const time_type& t);
 
@@ -46,16 +44,17 @@ class System
     void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt);
 
     // For returning the results of a calculation
-    template <typename state_type, typename time_type>
-    std::unordered_map<std::string, std::vector<double>> get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times);
-
-    std::vector<std::string> get_output_param_names() const { return output_param_vector; }
+    string_vector get_state_parameter_names() const { return keys(initial_state); }
+    string_vector get_output_param_names() const { return output_param_vector; }
     std::vector<const double*> get_output_ptrs() const { return output_ptr_vector; }
-    std::vector<std::string> get_state_parameter_names() const { return keys(initial_state); }
+
+    template <typename state_type, typename time_type>
+    state_vector_map get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times);
 
     // For generating reports to the user
     int get_ncalls() const { return ncalls; }
     void reset_ncalls() { ncalls = 0; }
+    std::string generate_startup_report() const { return startup_message; }
 
     std::string generate_usage_report() const
     {
@@ -63,39 +62,36 @@ class System
                std::string(" derivatives were calculated");
     }
 
-    std::string generate_startup_report() const
-    {
-        return startup_message;
-    }
-
-    // For performance testing
-    template <class vector_type, class time_type>
-    int speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t);
+    // For fitting via nlopt
+    void reset();
 
    private:
-    // Members for storing the original inputs
+    // For storing the constructor inputs
     const state_map initial_state;
     const state_map invariant_parameters;
     state_vector_map varying_parameters;
-    const std::vector<std::string> steady_state_module_names;
-    const std::vector<std::string> derivative_module_names;
+    const string_vector steady_state_module_names;
+    const string_vector derivative_module_names;
 
-    // For generating reports to the user
-    std::string startup_message;
+    // Quantity maps defined during construction
+    state_map quantities;
+    state_map module_output_map;
 
-    // Map for storing the central quantities list
-    std::unordered_map<std::string, double> quantities;
+    // Module lists defined during construction
+    module_vector steady_state_modules;
+    module_vector derivative_modules;
 
-    // Map for storing module outputs
-    std::unordered_map<std::string, double> module_output_map;
-
-    // Pointers for accessing various inputs and outputs
+    // Pointers to quantity values defined during construction
     double* timestep_ptr;
     std::vector<std::pair<double*, double*>> state_ptrs;
     std::vector<std::pair<double*, double*>> steady_state_ptrs;
     std::vector<std::pair<double*, std::vector<double>*>> varying_ptrs;
 
-    // Functions for updating the central parameter list
+    // For integrating via a system_solver
+    bool adaptive_compatible;
+    size_t ntimes;
+
+    // For calculating derivatives
     void update_varying_params(int time_indx);     // For integer time
     void update_varying_params(size_t time_indx);  // For size_t time
     void update_varying_params(double time_indx);  // For double time
@@ -103,28 +99,26 @@ class System
     template <class vector_type>
     void update_state_params(const vector_type& new_state);
 
-    // Lists of modules
-    std::vector<std::unique_ptr<Module>> steady_state_modules;
-    std::vector<std::unique_ptr<Module>> derivative_modules;
-
-    // For integrating via odeint or other methods
-    size_t ntimes;
-    std::vector<std::string> output_param_vector;
-    std::vector<const double*> output_ptr_vector;
-    bool adaptive_compatible;
-
-    // For running the modules
     void run_steady_state_modules();
+
     template <class vector_type>
     void run_derivative_modules(vector_type& derivs);
 
-    // For performance testing
-    int ncalls;
+    // For returning the results of a calculation
+    string_vector output_param_vector;
+    std::vector<const double*> output_ptr_vector;
 
-    // For numerically calculating derivatives
-    const double eps_deriv = 1e-11;
+    // For generating reports to the user
+    int ncalls;
+    std::string startup_message;
 };
 
+/**
+ * Returns the current values of all the state parameters.
+ * 
+ * @param[out] x An object capable of containing the state,
+ * typically either std::vector<double> or boost::numeric::ublas::vector<double>.
+ */
 template <typename state_type>
 void System::get_state(state_type& x) const
 {
@@ -132,6 +126,13 @@ void System::get_state(state_type& x) const
     for (size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
 }
 
+/**
+ * Calculates a derivative given an input state and time. Function signature is set by the boost::odeint library.
+ * 
+ * @param[in] x values of the state parameters
+ * @param[in] t time value
+ * @param[out] dxdt derivatives of the state parameters calculated using x and t
+ */
 template <typename state_type, typename time_type>
 void System::operator()(const state_type& x, state_type& dxdt, const time_type& t)
 {
@@ -143,7 +144,12 @@ void System::operator()(const state_type& x, state_type& dxdt, const time_type& 
 }
 
 /**
- * @brief Numerically compute the Jacobian matrix
+ * @brief Numerically compute the Jacobian matrix. Function signature is set by the boost::odeint library.
+ * 
+ * @param[in] x values of the state parameters
+ * @param[in] t time value
+ * @param[out] jacobi jacobian matrix
+ * @param[out] dfdt time dependence of derivatives (which is not included in the jacobian)
  * 
  * The odeint Rosenbrock stepper requires the use of UBLAS vectors and matrices and the Jacobian is only required when using this
  *  stepper, so we can restrict the state vector type to be UBLAS
@@ -188,7 +194,7 @@ void System::operator()(const state_type& x, jacobi_type& jacobi, const time_typ
     for (size_t i = 0; i < n; i++) {
         // Ensure that the step size h is close to eps_deriv but is exactly representable
         //  (see Numerical Recipes in C, 2nd ed., Section 5.7)
-        h = eps_deriv;
+        h = calculation_constants::eps_deriv;
         double temp = x[i] + h;
         h = temp - x[i];
 
@@ -205,7 +211,7 @@ void System::operator()(const state_type& x, jacobi_type& jacobi, const time_typ
 
     // Perturb the time and find the corresponding change in dxdt
     // Use a forward step whenever possible
-    h = eps_deriv;
+    h = calculation_constants::eps_deriv;
     double temp = t + h;
     h = temp - t;
     if (t + h <= (double)ntimes - 1.0) {
@@ -217,6 +223,9 @@ void System::operator()(const state_type& x, jacobi_type& jacobi, const time_typ
     }
 }
 
+/**
+ * Calculates all output parameters for a list of state parameter values and their associated times
+ */
 template <typename state_type, typename time_type>
 std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times)
 {
@@ -244,6 +253,9 @@ std::unordered_map<std::string, std::vector<double>> System::get_results(const s
     return results;
 }
 
+/**
+ * Updates the system's internally stored state parameter values to the new ones in new_state
+ */
 template <class vector_type>
 void System::update_state_params(const vector_type& new_state)
 {
@@ -252,6 +264,11 @@ void System::update_state_params(const vector_type& new_state)
     }
 }
 
+/**
+ * Calculates a derivative from the internally stored quantity map by running all the derivative modules
+ * 
+ * @param[out] dxdt a vector for storing the derivative (passed by reference for speed)
+ */
 template <class vector_type>
 void System::run_derivative_modules(vector_type& dxdt)
 {
@@ -267,21 +284,11 @@ void System::run_derivative_modules(vector_type& dxdt)
     }
 }
 
-template <class vector_type, class time_type>
-int System::speed_test(int n, const vector_type& x, vector_type& dxdt, const time_type& t)
-{
-    // Run the system operator n times
-    clock_t ct = clock();
-    for (int i = 0; i < n; i++) operator()(x, dxdt, t);
-    ct = clock() - ct;
-    return (int)ct;
-}
-
-/////////////////////////
-// FOR USE WITH ODEINT //
-/////////////////////////
-
-// This is a simple class that prevents odeint from making zillions of copies of an input system
+/**
+ * @class SystemPointerWrapper
+ * 
+ * This is a simple wrapper class that prevents odeint from making zillions of copies of an input system.
+ */
 class SystemPointerWrapper
 {
    public:
@@ -305,8 +312,12 @@ class SystemPointerWrapper
     std::shared_ptr<System> sys;
 };
 
-// This is a simple class that allows the same object to be used as inputs to integrate_const with
-//  explicit and rosenbrock steppers
+/**
+ * @class SystemCaller
+ * 
+ * This is a simple class that allows the same object to be used as inputs to integrate_const with
+ * explicit and implicit steppers
+ */
 class SystemCaller : public SystemPointerWrapper
 {
    public:
@@ -321,8 +332,11 @@ class SystemCaller : public SystemPointerWrapper
     second_type second;
 };
 
-// Observer used to store values
-
+/**
+ * @class push_back_state_and_time
+ * 
+ * An observer class used to store state and time values during an odeint simulation
+ */
 template <typename state_type>
 struct push_back_state_and_time {
     std::vector<state_type>& m_states;

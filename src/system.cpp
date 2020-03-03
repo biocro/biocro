@@ -47,7 +47,6 @@ System::System(
     // Get lists of subsets of quantity names
     string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
     string_vector istate_names = keys(init_state);
-    string_vector ip_names = keys(invariant_params);
     string_vector vp_names = keys(varying_params);
 
     // Get pairs of pointers to important subsets of the variables
@@ -78,28 +77,36 @@ System::System(
     ncalls = 0;
 }
 
+/**
+ * Resets all quantities back to their original values
+ */
 void System::reset()
 {
-    // Put all parameters back to their original values
     int t = 0;
     update_varying_params(t);
     for (auto const& x : initial_state) quantities[x.first] = x.second;
     run_steady_state_modules();
 }
 
-// For integer time
+/**
+ * Gets values from the varying parameters at the input time (int)
+ */
 void System::update_varying_params(int time_indx)
 {
     for (auto const& x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];
 }
 
-// For size_t time
+/**
+ * Gets values from the varying parameters at the input time (size_t)
+ */
 void System::update_varying_params(size_t time_indx)
 {
     for (auto x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];
 }
 
-// For double time
+/**
+ * Gets values from the varying parameters at the input time (double)
+ */
 void System::update_varying_params(double time_indx)
 {
     // Find the two closest integers
@@ -111,6 +118,9 @@ void System::update_varying_params(double time_indx)
     }
 }
 
+/**
+ * Runs all the steady state modules
+ */
 void System::run_steady_state_modules()
 {
     for (auto const& x : steady_state_ptrs) {
