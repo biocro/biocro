@@ -2,6 +2,20 @@
 #include "state_map.h"
 #include "validate_system.h"
 
+/**
+ * Checks whether the collection of modules is compatible with adaptive step size solvers
+ */
+bool check_adaptive_compatible(const module_vector* ptr_to_module_vector)
+{
+    bool adaptive_compatible = true;
+    const module_vector& module_vector_reference = *ptr_to_module_vector;
+    for (size_t i = 0; i < module_vector_reference.size(); i++) {
+        if (!module_vector_reference[i]->is_adaptive_compatible()) {
+            adaptive_compatible = false;
+        }
+    }
+    return adaptive_compatible;
+}
 
 void get_variables_from_ss_modules(
     std::vector<std::string> const& steady_state_module_names,

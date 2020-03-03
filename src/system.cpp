@@ -1,4 +1,3 @@
-#include <algorithm>
 #include "system.h"
 #include "validate_system.h"
 
@@ -27,34 +26,28 @@ System::System(
         std::vector<string_vector>{ss_module_names});
     module_output_map = quantities;
 
-    // Instantiate the modules
+    // Instantiate the modules and check them for adaptive compatibility
     steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
     derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
-
-    // Check them for adaptive compatibility
-    adaptive_compatible = true;
-    for (std::unique_ptr<Module>& m : steady_state_modules) {
-        if (!m->is_adaptive_compatible()) {
-            adaptive_compatible = false;
-        }
-    }
-    for (std::unique_ptr<Module>& m : derivative_modules) {
-        if (!m->is_adaptive_compatible()) {
-            adaptive_compatible = false;
-        }
-    }
+    adaptive_compatible = check_adaptive_compatible(&steady_state_modules) * check_adaptive_compatible(&derivative_modules);
 
     // Get lists of subsets of quantity names
     string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
     string_vector istate_names = keys(init_state);
     string_vector vp_names = keys(varying_params);
 
-    // Get pairs of pointers to important subsets of the variables
+    // Get vectors of pointers to important subsets of the quantities
+    // These pointers allow us to efficiently reset portions of the
+    //  module output map before running the modules
+    state_ptrs = get_pointers(istate_names, module_output_map);
+    steady_state_ptrs = get_pointers(steady_state_output_names, module_output_map);
+
+    // Get pairs of pointers to important subsets of the quantities
     // These pairs allow us to efficiently retrieve the output of each
-    //  module and store it in the main variable map when running the system,
+    //  module and store it in the main quantity map when running the system,
     //  to update the varying parameters at new time points, etc
-    steady_state_ptrs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
-    state_ptrs = get_pointer_pairs(istate_names, quantities, module_output_map);
+    state_ptr_pairs = get_pointer_pairs(istate_names, quantities, module_output_map);
+    steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
     varying_ptrs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
     // Get the number of time points
@@ -123,12 +116,12 @@ void System::update_varying_params(double time_indx)
  */
 void System::run_steady_state_modules()
 {
-    for (auto const& x : steady_state_ptrs) {
-        *x.second = 0.0;  // Clear the module output map
+    for (double* const& x : steady_state_ptrs) {
+        *x = 0.0;  // Clear the module output map
     }
     for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
         (*it)->run();  // Run the module
-        for (auto const& x : steady_state_ptrs) {
+        for (auto const& x : steady_state_ptr_pairs) {
             *x.first = *x.second;  // Store its output in the main parameter map
         }
     }

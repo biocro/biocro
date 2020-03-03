@@ -69,7 +69,7 @@ class System
     // For storing the constructor inputs
     const state_map initial_state;
     const state_map invariant_parameters;
-    state_vector_map varying_parameters;
+    const state_vector_map varying_parameters;
     const string_vector steady_state_module_names;
     const string_vector derivative_module_names;
 
@@ -83,9 +83,11 @@ class System
 
     // Pointers to quantity values defined during construction
     double* timestep_ptr;
-    std::vector<std::pair<double*, double*>> state_ptrs;
-    std::vector<std::pair<double*, double*>> steady_state_ptrs;
-    std::vector<std::pair<double*, std::vector<double>*>> varying_ptrs;
+    std::vector<double*> state_ptrs;
+    std::vector<double*> steady_state_ptrs;
+    std::vector<std::pair<double*, const double*>> state_ptr_pairs;
+    std::vector<std::pair<double*, const double*>> steady_state_ptr_pairs;
+    std::vector<std::pair<double*, const std::vector<double>*>> varying_ptrs;
 
     // For integrating via a system_solver
     bool adaptive_compatible;
@@ -122,8 +124,8 @@ class System
 template <typename state_type>
 void System::get_state(state_type& x) const
 {
-    x.resize(state_ptrs.size());
-    for (size_t i = 0; i < x.size(); i++) x[i] = *(state_ptrs[i].first);
+    x.resize(state_ptr_pairs.size());
+    for (size_t i = 0; i < x.size(); i++) x[i] = *(state_ptr_pairs[i].first);
 }
 
 /**
@@ -260,7 +262,7 @@ template <class vector_type>
 void System::update_state_params(const vector_type& new_state)
 {
     for (size_t i = 0; i < new_state.size(); i++) {
-        *(state_ptrs[i].first) = new_state[i];
+        *(state_ptr_pairs[i].first) = new_state[i];
     }
 }
 
@@ -272,15 +274,15 @@ void System::update_state_params(const vector_type& new_state)
 template <class vector_type>
 void System::run_derivative_modules(vector_type& dxdt)
 {
-    for (auto const& x : state_ptrs) {
-        *x.second = 0.0;  // Reset the module output map
+    for (double* const& x : state_ptrs) {
+        *x = 0.0;  // Clear the module output map
     }
     std::fill(dxdt.begin(), dxdt.end(), 0);  // Reset the derivative vector
     for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
         (*it)->run();  // Run the modules
     }
     for (size_t i = 0; i < dxdt.size(); i++) {
-        dxdt[i] += *(state_ptrs[i].second) * (*timestep_ptr);  // Store the output in the derivative vector
+        dxdt[i] += *(state_ptr_pairs[i].second) * (*timestep_ptr);  // Store the output in the derivative vector
     }
 }
 
