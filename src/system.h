@@ -118,11 +118,6 @@ class System
     template <class vector_type>
     void run_derivative_modules(vector_type& derivs);
 
-    // For testing the modules
-    void test_steady_state_modules();
-    template <class vector_type>
-    void test_derivative_modules(vector_type& derivs);
-
     // For performance testing
     int ncalls;
 
@@ -270,22 +265,6 @@ void System::run_derivative_modules(vector_type& dxdt)
     for (size_t i = 0; i < dxdt.size(); i++) {
         dxdt[i] += *(state_ptrs[i].second) * (*timestep_ptr);  // Store the output in the derivative vector
     }
-}
-
-template <class vector_type>
-void System::test_derivative_modules(vector_type& dxdt)
-{
-    // Identical to run_derivative_modules except for a try-catch block
-    for (auto const& x : state_ptrs) *x.second = 0.0;
-    std::fill(dxdt.begin(), dxdt.end(), 0);
-    for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        try {
-            (*it)->run();
-        } catch (const std::exception& e) {
-            throw std::logic_error(std::string("Derivative module '") + (*it)->get_name() + std::string("' generated an exception while calculating time derivatives: ") + e.what() + std::string("\n"));
-        }
-    }
-    for (size_t i = 0; i < dxdt.size(); i++) dxdt[i] += *(state_ptrs[i].second) * (*timestep_ptr);
 }
 
 template <class vector_type, class time_type>

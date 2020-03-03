@@ -50,9 +50,6 @@ System::System(
     string_vector ip_names = keys(invariant_params);
     string_vector vp_names = keys(varying_params);
 
-    // Get a pointer to the timestep
-    timestep_ptr = &quantities.at("timestep");
-
     // Get pairs of pointers to important subsets of the variables
     // These pairs allow us to efficiently retrieve the output of each
     //  module and store it in the main variable map when running the system,
@@ -61,28 +58,12 @@ System::System(
     state_ptrs = get_pointer_pairs(istate_names, quantities, module_output_map);
     varying_ptrs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
-    // Fill in the initial values and test the modules
-    startup_message += std::string("\nTrying to run all the modules... ");
-
-    try {
-        test_steady_state_modules();
-    } catch (const std::exception& e) {
-        startup_message += e.what();
-    }
-
-    // Test the derivative modules
-    std::vector<double> temp_vec(state_ptrs.size());
-    try {
-        test_derivative_modules(temp_vec);
-    } catch (const std::exception& e) {
-        startup_message += e.what();
-    }
-
-    startup_message += std::string("done!");
-
     // Get the number of time points
     auto vp = varying_params.begin();
     ntimes = (vp->second).size();
+
+    // Get a pointer to the timestep
+    timestep_ptr = &quantities.at("timestep");
 
     // Create a vector of the names of variables that change throughout a simulation
     for (auto const& names : std::vector<std::vector<std::string>>{istate_names, vp_names, steady_state_output_names}) {
@@ -140,19 +121,5 @@ void System::run_steady_state_modules()
         for (auto const& x : steady_state_ptrs) {
             *x.first = *x.second;  // Store its output in the main parameter map
         }
-    }
-}
-
-void System::test_steady_state_modules()
-{
-    // Identical to run_steady_state_modules except for a try-catch block
-    for (auto const& x : steady_state_ptrs) *x.second = 0.0;
-    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-        try {
-            (*it)->run();
-        } catch (const std::exception& e) {
-            throw std::logic_error(std::string("Steady state module '") + (*it)->get_name() + std::string("' generated an exception while calculating steady state parameters: ") + e.what() + std::string("\n"));
-        }
-        for (auto const& x : steady_state_ptrs) *x.first = *x.second;
     }
 }
