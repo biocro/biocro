@@ -77,6 +77,7 @@
 #include "grimm_soybean_flowering_calculator.h"
 #include "development_index.h"
 #include "soybean_development_rate_calculator.h"
+#include "thermaltime_development_rate_calculator.h"
 
 
 ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
@@ -162,7 +163,8 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"grimm_soybean_flowering",                         createModule<grimm_soybean_flowering>},
 		{"grimm_soybean_flowering_calculator",              createModule<grimm_soybean_flowering_calculator>},
         {"development_index",                               createModule<development_index>},
-        {"soybean_development_rate_calculator",             createModule<soybean_development_rate_calculator>}
+        {"soybean_development_rate_calculator",             createModule<soybean_development_rate_calculator>},
+        {"thermaltime_development_rate_calculator",         createModule<thermaltime_development_rate_calculator>}
 	};
 	input_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_inputs()},
@@ -243,7 +245,8 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"grimm_soybean_flowering",                         grimm_soybean_flowering::get_inputs()},
 		{"grimm_soybean_flowering_calculator",              grimm_soybean_flowering_calculator::get_inputs()},
         {"development_index",                               development_index::get_inputs()},
-        {"soybean_development_rate_calculator",             soybean_development_rate_calculator::get_inputs()}
+        {"soybean_development_rate_calculator",             soybean_development_rate_calculator::get_inputs()},
+        {"thermaltime_development_rate_calculator",         thermaltime_development_rate_calculator::get_inputs()}
 	};
 	output_parameter_names = {
 		{"harmonic_oscillator",								harmonic_oscillator::get_outputs()},
@@ -324,7 +327,8 @@ ModuleFactory::ModuleFactory(const std::unordered_map<std::string, double>* inpu
 		{"grimm_soybean_flowering",                         grimm_soybean_flowering::get_outputs()},
 		{"grimm_soybean_flowering_calculator",              grimm_soybean_flowering_calculator::get_outputs()},
         {"development_index",                               development_index::get_outputs()},
-        {"soybean_development_rate_calculator",             soybean_development_rate_calculator::get_outputs()}
+        {"soybean_development_rate_calculator",             soybean_development_rate_calculator::get_outputs()},
+        {"thermaltime_development_rate_calculator",         thermaltime_development_rate_calculator::get_outputs()}
 	};
 	module_descriptions = {
 		{"solar_zenith_angle",								solar_zenith_angle::get_description()},
