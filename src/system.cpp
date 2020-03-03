@@ -31,7 +31,7 @@ System::System(
     steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
     derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
 
-    // Check for adaptive compatibility
+    // Check them for adaptive compatibility
     adaptive_compatible = true;
     for (std::unique_ptr<Module>& m : steady_state_modules) {
         if (!m->is_adaptive_compatible()) {
@@ -45,16 +45,10 @@ System::System(
     }
 
     // Get lists of subsets of quantity names
-    std::vector<std::string> steady_state_output_names;
-    for (auto const& m : ss_module_names) {
-        auto w = module_wrapper_factory::create(m);
-        auto names = w->get_outputs();
-        steady_state_output_names.insert(steady_state_output_names.begin(), names.begin(), names.end());
-    }
-
-    auto istate_names = keys(init_state);
-    auto ip_names = keys(invariant_params);
-    auto vp_names = keys(varying_params);
+    string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
+    string_vector istate_names = keys(init_state);
+    string_vector ip_names = keys(invariant_params);
+    string_vector vp_names = keys(varying_params);
 
     // Get a pointer to the timestep
     timestep_ptr = &quantities.at("timestep");
@@ -63,24 +57,9 @@ System::System(
     // These pairs allow us to efficiently retrieve the output of each
     //  module and store it in the main variable map when running the system,
     //  to update the varying parameters at new time points, etc
-
-    // Get pointers to the state variables in the parameter and module output maps
-    for (auto const& x : init_state) {
-        std::pair<double*, double*> temp(&quantities.at(x.first), &module_output_map.at(x.first));
-        state_ptrs.push_back(temp);
-    }
-
-    // Get pointers to the steady state parameters in the parameter and module output maps
-    for (std::string const& p : steady_state_output_names) {
-        std::pair<double*, double*> temp(&quantities.at(p), &module_output_map.at(p));
-        steady_state_ptrs.push_back(temp);
-    }
-
-    // Get pointers to the varying parameters in the parameter and varying parameter maps
-    for (auto const& x : varying_parameters) {
-        std::pair<double*, std::vector<double>*> temp(&quantities.at(x.first), &varying_parameters.at(x.first));
-        varying_ptrs.push_back(temp);
-    }
+    steady_state_ptrs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
+    state_ptrs = get_pointer_pairs(istate_names, quantities, module_output_map);
+    varying_ptrs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
     // Fill in the initial values and test the modules
     startup_message += std::string("\nTrying to run all the modules... ");

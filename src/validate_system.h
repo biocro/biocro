@@ -81,6 +81,8 @@ void insert_module_param_if_undefined(
     std::string module_name,
     string_vector defined_quantity_names,
     string_vector& undefined_module_names);
+    
+string_vector string_set_to_string_vector(string_set ss);
 
 /**
  * @brief Function for testing a system input criterion

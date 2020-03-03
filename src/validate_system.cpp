@@ -523,3 +523,15 @@ void insert_module_param_if_undefined(
         undefined_module_names.push_back(param_name + std::string(" from the '") + module_name + std::string("' module"));
     }
 }
+
+/**
+ * Converts a string_set to a string_vector
+ */
+string_vector string_set_to_string_vector(string_set ss)
+{
+    string_vector sv;
+    for (std::string const& s : ss) {
+        sv.push_back(s);
+    }
+    return sv;
+}
