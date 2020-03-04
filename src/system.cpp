@@ -5,12 +5,12 @@ System::System(
     state_map const& init_state,
     state_map const& invariant_params,
     state_vector_map const& varying_params,
-    std::vector<std::string> const& ss_module_names,
-    std::vector<std::string> const& deriv_module_names) : initial_state(init_state),
-                                                          invariant_parameters(invariant_params),
-                                                          varying_parameters(varying_params),
-                                                          steady_state_module_names(ss_module_names),
-                                                          derivative_module_names(deriv_module_names)
+    string_vector const& ss_module_names,
+    string_vector const& deriv_module_names) : initial_state(init_state),
+                                               invariant_parameters(invariant_params),
+                                               varying_parameters(varying_params),
+                                               steady_state_module_names(ss_module_names),
+                                               derivative_module_names(deriv_module_names)
 {
     startup_message = std::string("");
 
