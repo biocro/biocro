@@ -755,7 +755,7 @@ get_all_quantities <- function()
 	#  library(plyr)
 	#  all_quantities <- get_all_quantities()
 	#  all_quantities_subset <- all_quantities[c("quantity_name", "module_name")]	# remove information about whether each quantity is an input or output
-	#  all_quantities_subset <- unique(all_quantities_subset)							# remove any duplicated names where a quantity is both an input and an output for the same module
+	#  all_quantities_subset <- unique(all_quantities_subset)						# remove any duplicated names where a quantity is both an input and an output for the same module
 	#  quantities_usage <- count(all_quantities_subset, "quantity_name")
 	#  View(quantities_usage)
 	
