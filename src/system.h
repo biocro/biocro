@@ -17,7 +17,7 @@
 /**
  * @class System
  * 
- * Defines a system of differential equations. Intended to be passed to a system_solver object.
+ * @brief Defines a system of differential equations. Intended to be passed to a system_solver object.
  */
 class System
 {
@@ -30,7 +30,11 @@ class System
         string_vector const& deriv_module_names);
 
     // For integrating via a system_solver
-    size_t get_ntimes() const { return ntimes; }
+    size_t get_ntimes() const
+    {
+        auto vp = varying_parameters.begin();
+        return (vp->second).size();
+    }
 
     bool is_adaptive_compatible() const
     {
@@ -93,9 +97,6 @@ class System
     std::vector<std::pair<double*, const double*>> steady_state_ptr_pairs;
     std::vector<std::pair<double*, const std::vector<double>*>> varying_ptr_pairs;
 
-    // For integrating via a system_solver
-    size_t ntimes;
-
     // For calculating derivatives
     void update_varying_params(double time_indx);
 
@@ -111,12 +112,12 @@ class System
     void run_derivative_modules(vector_type& derivs);
 
     // For generating reports to the user
-    int ncalls;
+    int ncalls = 0;
     std::string startup_message;
 };
 
 /**
- * Returns the current values of all the state parameters.
+ * @brief Returns the current values of all the state parameters.
  * 
  * @param[out] x An object capable of containing the state,
  * typically either std::vector<double> or boost::numeric::ublas::vector<double>.
@@ -129,7 +130,7 @@ void System::get_state(state_type& x) const
 }
 
 /**
- * Updates all quantities (including ones calculated by steady state modules) based on the input state and time
+ * @brief Updates all quantities (including ones calculated by steady state modules) based on the input state and time
  * 
  * @param[in] x the state
  * @param[in] t the time
@@ -143,7 +144,7 @@ void System::update(state_type const& x, time_type const& t)
 }
 
 /**
- * Calculates a derivative given an input state and time. Function signature is set by the boost::odeint library.
+ * @brief Calculates a derivative given an input state and time. Function signature is set by the boost::odeint library.
  * 
  * @param[in] x values of the state parameters
  * @param[out] dxdt derivatives of the state parameters calculated using x and t
@@ -165,28 +166,33 @@ void System::operator()(state_type const& x, state_type& dxdt, time_type const& 
  * @param[in] t time value
  * @param[out] dfdt derivatives of each derivative with respect to time (not included in the jacobian)
  * 
- * Discussion of step size from http://www.iue.tuwien.ac.at/phd/khalil/node14.html:
- *  "It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
- *  Decreasing the step size will reduce the truncation error.
- *  Unfortunately a smaller step has the opposite effect on the cancellation error.
- *  Selecting the optimal step size for a certain problem is computationally expensive and the benefits achieved are not justifiable
- *   as the effect of small errors in the values of the elements of the Jacobian matrix is minor.
- *  For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient."
- * In BioCro, we fix a step size and only evaluate the forward perturbation to reduce calculation costs
+ * Discussion of step size from <a href="http://www.iue.tuwien.ac.at/phd/khalil/node14.html">Nadim Khalil's thesis</a>:
+ * <BLOCKQUOTE>
+ * It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
+ * Decreasing the step size will reduce the truncation error.
+ * Unfortunately a smaller step has the opposite effect on the cancellation error.
+ * Selecting the optimal step size for a certain problem is computationally expensive and the benefits achieved are not justifiable
+ *  as the effect of small errors in the values of the elements of the Jacobian matrix is minor.
+ * For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient.
+ * </BLOCKQUOTE>
+ * 
+ * In BioCro, we fix a step size and only evaluate the forward perturbation to reduce calculation costs.
  *  In other words:
- *   (1) We calculate dxdt using the input (x,t) (called dxdt_c for current)
- *   (2) We make a forward perturbation by adding h to one state variable and calculating the time derivatives (called dxdt_p for perturbation)
- *   (3) We calculate the rate of change for each state variable according to (dxdt_p[i] - dxdt_c[i])/h
- *   (4) We repeat steps (2) and (3) for each state variable
+ *   - (1) We calculate dxdt using the input (x,t) (called dxdt_c for current)
+ *   - (2) We make a forward perturbation by adding h to one state variable and calculating the time derivatives (called dxdt_p for perturbation)
+ *   - (3) We calculate the rate of change for each state variable according to (dxdt_p[i] - dxdt_c[i])/h
+ *   - (4) We repeat steps (2) and (3) for each state variable
+ * 
  *  The alternative method would be:
- *   (1) We make a backward perturbation by substracting h from one state variable and calculating the time derivatives (called dxdt_b for backward)
- *   (2) We make a forward perturbation by adding h to the same state variable and calculating the time derivatives (called dxdt_f for forward)
- *   (3) We calculate the rate of change for each state variable according to (dxdt_f[i] - dxdt_b[i])/(2*h)
- *   (4) We repeat steps (1) through (3) for each state variable
- *  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of state variables
- *  In the other scheme, we make 2N derivative evaluations
- *  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro derivatives are expensive
- *  Likewise, higher-order numerical derivative calculations are also not worthwhile
+ *   - (1) We make a backward perturbation by substracting h from one state variable and calculating the time derivatives (called dxdt_b for backward)
+ *   - (2) We make a forward perturbation by adding h to the same state variable and calculating the time derivatives (called dxdt_f for forward)
+ *   - (3) We calculate the rate of change for each state variable according to (dxdt_f[i] - dxdt_b[i])/(2*h)
+ *   - (4) We repeat steps (1) through (3) for each state variable
+ * 
+ *  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of state variables.
+ *  In the other scheme, we make 2N derivative evaluations.
+ *  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro derivatives are expensive.
+ *  Likewise, higher-order numerical derivative calculations are also not worthwhile.
  */
 template <typename state_type, typename jacobi_type, typename time_type>
 void System::operator()(state_type const& x, jacobi_type& jacobi, time_type const& t, state_type& dfdt)
@@ -226,7 +232,7 @@ void System::operator()(state_type const& x, jacobi_type& jacobi, time_type cons
     h = calculation_constants::eps_deriv;
     double temp = t + h;
     h = temp - t;
-    if (t + h <= (double)ntimes - 1.0) {
+    if (t + h <= (double)this->get_ntimes() - 1.0) {
         operator()(x, dxdt_p, t + h);
         for (size_t j = 0; j < n; j++) dfdt[j] = (dxdt_p[j] - dxdt_c[j]) / h;
     } else {
@@ -236,7 +242,7 @@ void System::operator()(state_type const& x, jacobi_type& jacobi, time_type cons
 }
 
 /**
- * Gets values of the varying parameters using a discrete time index (e.g. int or size_t)
+ * @brief Gets values of the varying parameters using a discrete time index (e.g. int or size_t)
  */
 template <typename time_type>
 void System::update_varying_params(time_type time_indx)
@@ -245,7 +251,7 @@ void System::update_varying_params(time_type time_indx)
 }
 
 /**
- * Updates the system's internally stored state parameter values to the new ones in new_state
+ * @brief Updates the system's internally stored state parameter values to the new ones in new_state
  */
 template <class vector_type>
 void System::update_state_params(vector_type const& new_state)
@@ -256,7 +262,7 @@ void System::update_state_params(vector_type const& new_state)
 }
 
 /**
- * Calculates a derivative from the internally stored quantity map by running all the derivative modules
+ * @brief Calculates a derivative from the internally stored quantity map by running all the derivative modules
  * 
  * @param[out] dxdt a vector for storing the derivative (passed by reference for speed)
  */
@@ -285,7 +291,7 @@ void System::run_derivative_modules(vector_type& dxdt)
 /**
  * @class SystemPointerWrapper
  * 
- * This is a simple wrapper class that prevents odeint from making zillions of copies of an input system.
+ * @brief This is a simple wrapper class that prevents odeint from making zillions of copies of an input system.
  */
 class SystemPointerWrapper
 {
@@ -313,7 +319,7 @@ class SystemPointerWrapper
 /**
  * @class SystemCaller
  * 
- * This is a simple class that allows the same object to be used as inputs to integrate_const with
+ * @brief This is a simple class that allows the same object to be used as inputs to integrate_const with
  * explicit and implicit steppers
  */
 class SystemCaller : public SystemPointerWrapper
@@ -333,7 +339,7 @@ class SystemCaller : public SystemPointerWrapper
 /**
  * @class push_back_state_and_time
  * 
- * An observer class used to store state and time values during an odeint simulation.
+ * @brief An observer class used to store state and time values during an odeint simulation.
  * 
  * @param[in,out] states new entries will be added to this vector
  * @param[in,out] times new entries will be added to this vector
@@ -382,7 +388,7 @@ struct push_back_state_and_time {
 };
 
 /**
- * Calculates all output parameters for a list of state parameter values and their associated times using the system object's public functions
+ * @brief Calculates all output parameters for a list of state parameter values and their associated times using the system object's public functions
  */
 template <typename state_type, typename time_type>
 state_vector_map get_results_from_system(std::shared_ptr<System> sys, std::vector<state_type> const& x_vec, std::vector<time_type> const& times)

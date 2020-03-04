@@ -30,7 +30,7 @@ System::System(
     steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
     derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
 
-    // Get lists of subsets of quantity names
+    // Make lists of subsets of quantity names
     string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
     string_vector istate_names = keys(init_state);
     string_vector vp_names = keys(varying_params);
@@ -49,19 +49,12 @@ System::System(
     steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
     varying_ptr_pairs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
-    // Get the number of time points
-    auto vp = varying_params.begin();
-    ntimes = (vp->second).size();
-
     // Get a pointer to the timestep
     timestep_ptr = &quantities.at("timestep");
-
-    // Reset the derivative evaluation counter
-    ncalls = 0;
 }
 
 /**
- * Resets all quantities back to their original values
+ * @brief Resets all quantities back to their original values
  */
 void System::reset()
 {
@@ -71,7 +64,7 @@ void System::reset()
 }
 
 /**
- * Gets values from the varying parameters at the input time (double)
+ * @brief Gets values from the varying parameters at the input time (double)
  */
 void System::update_varying_params(double time_indx)
 {
@@ -85,7 +78,7 @@ void System::update_varying_params(double time_indx)
 }
 
 /**
- * Runs all the steady state modules
+ * @brief Runs all the steady state modules
  */
 void System::run_steady_state_modules()
 {
@@ -104,7 +97,7 @@ void System::run_steady_state_modules()
 }
 
 /**
- * Returns pointers that can be used to access quantity values from the system's central
+ * @brief Returns pointers that can be used to access quantity values from the system's central
  * map of quantities
  */
 std::vector<const double*> System::get_quantity_access_ptrs(string_vector quantity_names) const
@@ -117,7 +110,7 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
 }
 
 /**
- * Returns a vector of the names of all quantities that change throughout a simulation
+ * @brief Returns a vector of the names of all quantities that change throughout a simulation
  */
 string_vector System::get_output_param_names() const
 {
