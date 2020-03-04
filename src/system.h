@@ -42,16 +42,16 @@ class System
 
     // For calculating derivatives
     template <typename state_type, typename time_type>
-    void update(const state_type& x, const time_type& t);
+    void update(state_type const& x, time_type const& t);
 
     template <typename state_type, typename time_type>
-    void operator()(const state_type& x, state_type& dxdt, const time_type& t);
+    void operator()(state_type const& x, state_type& dxdt, time_type const& t);
 
     template <typename state_type, typename jacobi_type, typename time_type>
-    void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt);
+    void operator()(state_type const& x, jacobi_type& jacobi, time_type const& t, state_type& dfdt);
 
     // For returning the results of a calculation
-    std::vector<const double*> get_quantity_access_ptrs(string_vector quantity_names);
+    std::vector<const double*> get_quantity_access_ptrs(string_vector quantity_names) const;
     string_vector get_state_parameter_names() const { return keys(initial_state); }
     string_vector get_output_param_names() const;
 
@@ -103,7 +103,7 @@ class System
     void update_varying_params(time_type time_indx);
 
     template <class vector_type>
-    void update_state_params(const vector_type& new_state);
+    void update_state_params(vector_type const& new_state);
 
     void run_steady_state_modules();
 
@@ -135,7 +135,7 @@ void System::get_state(state_type& x) const
  * @param[in] t the time
  */
 template <typename state_type, typename time_type>
-void System::update(const state_type& x, const time_type& t)
+void System::update(state_type const& x, time_type const& t)
 {
     update_varying_params(t);
     update_state_params(x);
@@ -146,11 +146,11 @@ void System::update(const state_type& x, const time_type& t)
  * Calculates a derivative given an input state and time. Function signature is set by the boost::odeint library.
  * 
  * @param[in] x values of the state parameters
- * @param[in] t time value
  * @param[out] dxdt derivatives of the state parameters calculated using x and t
+ * @param[in] t time value
  */
 template <typename state_type, typename time_type>
-void System::operator()(const state_type& x, state_type& dxdt, const time_type& t)
+void System::operator()(state_type const& x, state_type& dxdt, time_type const& t)
 {
     ++ncalls;
     update(x, t);
@@ -161,12 +161,10 @@ void System::operator()(const state_type& x, state_type& dxdt, const time_type& 
  * @brief Numerically compute the Jacobian matrix. Function signature is set by the boost::odeint library.
  * 
  * @param[in] x values of the state parameters
+ * @param[out] jacobi jacobian matrix (i.e., derivatives of each derivative with respect to each state variable)
  * @param[in] t time value
- * @param[out] jacobi jacobian matrix
- * @param[out] dfdt time dependence of derivatives (which is not included in the jacobian)
+ * @param[out] dfdt derivatives of each derivative with respect to time (not included in the jacobian)
  * 
- * The odeint Rosenbrock stepper requires the use of UBLAS vectors and matrices and the Jacobian is only required when using this
- *  stepper, so we can restrict the state vector type to be UBLAS
  * Discussion of step size from http://www.iue.tuwien.ac.at/phd/khalil/node14.html:
  *  "It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
  *  Decreasing the step size will reduce the truncation error.
@@ -191,7 +189,7 @@ void System::operator()(const state_type& x, state_type& dxdt, const time_type& 
  *  Likewise, higher-order numerical derivative calculations are also not worthwhile
  */
 template <typename state_type, typename jacobi_type, typename time_type>
-void System::operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt)
+void System::operator()(state_type const& x, jacobi_type& jacobi, time_type const& t, state_type& dfdt)
 {
     size_t n = x.size();
 
@@ -250,7 +248,7 @@ void System::update_varying_params(time_type time_indx)
  * Updates the system's internally stored state parameter values to the new ones in new_state
  */
 template <class vector_type>
-void System::update_state_params(const vector_type& new_state)
+void System::update_state_params(vector_type const& new_state)
 {
     for (size_t i = 0; i < new_state.size(); i++) {
         *(state_ptr_pairs[i].first) = new_state[i];
@@ -265,15 +263,22 @@ void System::update_state_params(const vector_type& new_state)
 template <class vector_type>
 void System::run_derivative_modules(vector_type& dxdt)
 {
+    // Clear the module output map
     for (double* const& x : state_ptrs) {
-        *x = 0.0;  // Clear the module output map
+        *x = 0.0;
     }
-    std::fill(dxdt.begin(), dxdt.end(), 0);  // Reset the derivative vector
-    for (auto it = derivative_modules.begin(); it != derivative_modules.end(); ++it) {
-        (*it)->run();  // Run the modules
+
+    // Reset the derivative vector
+    std::fill(dxdt.begin(), dxdt.end(), 0);
+
+    // Run the modules
+    for (std::unique_ptr<Module> const& m : derivative_modules) {
+        m->run();
     }
+
+    // Store the output in the derivative vector
     for (size_t i = 0; i < dxdt.size(); i++) {
-        dxdt[i] += *(state_ptr_pairs[i].second) * (*timestep_ptr);  // Store the output in the derivative vector
+        dxdt[i] += *(state_ptr_pairs[i].second) * (*timestep_ptr);
     }
 }
 
@@ -288,13 +293,13 @@ class SystemPointerWrapper
     SystemPointerWrapper(std::shared_ptr<System> sys) : sys(sys) {}
 
     template <typename state_type, typename time_type>
-    void operator()(const state_type& x, state_type& dxdt, const time_type& t)
+    void operator()(state_type const& x, state_type& dxdt, time_type const& t)
     {
         sys->operator()(x, dxdt, t);
     }
 
     template <typename state_type, typename jacobi_type, typename time_type>
-    void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt)
+    void operator()(state_type const& x, jacobi_type& jacobi, time_type const& t, state_type& dfdt)
     {
         sys->operator()(x, jacobi, t, dfdt);
     }
@@ -369,7 +374,7 @@ struct push_back_state_and_time {
  * Calculates all output parameters for a list of state parameter values and their associated times using the system object's public functions
  */
 template <typename state_type, typename time_type>
-state_vector_map get_results_from_system(std::shared_ptr<System> sys, const std::vector<state_type>& x_vec, const std::vector<time_type>& times)
+state_vector_map get_results_from_system(std::shared_ptr<System> sys, std::vector<state_type> const& x_vec, std::vector<time_type> const& times)
 {
     std::unordered_map<std::string, std::vector<double>> results;
 

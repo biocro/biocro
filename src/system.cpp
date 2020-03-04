@@ -65,7 +65,7 @@ System::System(
  */
 void System::reset()
 {
-    update_varying_params(size_t(0));   // t = 0
+    update_varying_params(size_t(0));  // t = 0
     for (auto const& x : initial_state) quantities[x.first] = x.second;
     run_steady_state_modules();
 }
@@ -89,13 +89,16 @@ void System::update_varying_params(double time_indx)
  */
 void System::run_steady_state_modules()
 {
+    // Clear the module output map
     for (double* const& x : steady_state_ptrs) {
-        *x = 0.0;  // Clear the module output map
+        *x = 0.0;
     }
-    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-        (*it)->run();  // Run the module
+
+    // Run each module and store its output in the main quantity map
+    for (std::unique_ptr<Module> const& m : steady_state_modules) {
+        m->run();
         for (auto const& x : steady_state_ptr_pairs) {
-            *x.first = *x.second;  // Store its output in the main parameter map
+            *x.first = *x.second;
         }
     }
 }
@@ -104,7 +107,7 @@ void System::run_steady_state_modules()
  * Returns pointers that can be used to access quantity values from the system's central
  * map of quantities
  */
-std::vector<const double*> System::get_quantity_access_ptrs(string_vector quantity_names)
+std::vector<const double*> System::get_quantity_access_ptrs(string_vector quantity_names) const
 {
     std::vector<const double*> access_ptrs;
     for (std::string const& n : quantity_names) {
