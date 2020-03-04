@@ -35,9 +35,9 @@ class biocro_simulation
     std::string generate_report() const
     {
         return std::string("\nSystem startup information:\n") + sys->generate_startup_report() +
-               std::string("\n\nSolver description:\n") + solver->generate_info_report() +
+               std::string("\nSolver description:\n") + solver->generate_info_report() +
                std::string("\n\nThe solver reports the following:\n") + solver->generate_solve_report() +
-               std::string("\n\nThe system reports the following:\n") + sys->generate_usage_report() + std::string("\n\n");
+               std::string("\nThe system reports the following:\n") + sys->generate_usage_report() + std::string("\n\n");
     }
 
    private:

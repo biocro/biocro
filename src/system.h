@@ -333,38 +333,49 @@ class SystemCaller : public SystemPointerWrapper
 /**
  * @class push_back_state_and_time
  * 
- * An observer class used to store state and time values during an odeint simulation
+ * An observer class used to store state and time values during an odeint simulation.
+ * 
+ * @param[in,out] states new entries will be added to this vector
+ * @param[in,out] times new entries will be added to this vector
+ * @param[in,out] message additional text will be appended to this string
+ * 
  */
 template <typename state_type>
 struct push_back_state_and_time {
+    // Data members
     std::vector<state_type>& m_states;
     std::vector<double>& m_times;
-    double _max_time;
+    double max_time;
     double threshold = 0;
-    bool _verbose;
-    void (*print_msg)(char const* format, ...);  // A pointer to a function that takes a pointer to a null-terminated string followed by additional optional arguments, and has no return value
+    double threshold_increment = 0.02;
+    std::string& msg;
 
+    // Constructor
     push_back_state_and_time(
         std::vector<state_type>& states,
         std::vector<double>& times,
-        double max_time,
-        bool verbose,
-        void (*print_fcn_ptr)(char const* format, ...) = void_printf) : m_states(states),
-                                                                        m_times(times),
-                                                                        _max_time(max_time),
-                                                                        _verbose(verbose),
-                                                                        print_msg(print_fcn_ptr) {}
+        double maximum_time,
+        std::string& message) : m_states(states),
+                                m_times(times),
+                                max_time(maximum_time),
+                                msg(message) {}
 
-    void operator()(const state_type& x, double t)
+    // Operation
+    void operator()(state_type const& x, double t)
     {
-        if (_verbose) {
-            if (t >= _max_time)
-                print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t / _max_time * 100.0, (unsigned int)clock());
-            else if (t / _max_time >= threshold) {
-                print_msg("Timestep = %f (%f%% done) at clock = %u microseconds\n", t, t / _max_time * 100.0, (unsigned int)clock());
-                threshold += 0.02;
-            }
+        // Add to the message, if required
+        if (t >= max_time || t / max_time >= threshold) {
+            msg += std::string("Time index = ") +
+                   std::to_string(t) +
+                   std::string(" (") +
+                   std::to_string(100.0 * t / max_time) +
+                   std::string("%% done) at clock = ") +
+                   std::to_string(clock()) +
+                   std::string(" microseconds\n");
+            threshold += threshold_increment;
         }
+
+        // Store the new values
         m_states.push_back(x);
         m_times.push_back(t);
     }

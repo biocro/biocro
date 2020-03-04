@@ -28,6 +28,7 @@ class boost_system_solver : public system_solver
     state_type state;
     std::vector<state_type> state_vec;
     std::vector<double> time_vec;
+    std::string observer_message;
     std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
     virtual void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) = 0;
 
@@ -46,7 +47,8 @@ class boost_system_solver : public system_solver
         if (boost_error_string.empty()) {
             return std::string("boost::numeric::odeint::integrate_const required ") +
                    std::to_string(nsteps) +
-                   std::string(" steps to solve the system");
+                   std::string(" steps to solve the system\n\nThe observer reports the following:\n") +
+                   observer_message;
         } else {
             return std::string("boost::numeric::odeint::integrate_const ") +
                    std::string("encountered an error and has returned ") +
@@ -63,9 +65,10 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
     sys->get_state(state);
     state_vec.clear();
     time_vec.clear();
+    observer_message = std::string("");
 
     // Make an observer
-    push_back_state_and_time<state_type> observer(state_vec, time_vec, sys->get_ntimes() - 1.0, false);
+    push_back_state_and_time<state_type> observer(state_vec, time_vec, sys->get_ntimes() - 1.0, observer_message);
 
     // Make a system caller
     SystemCaller syscall(sys);
