@@ -220,7 +220,7 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
         // module_name_input should be a string vector with one element
         std::vector<std::string> module_name_vector = make_vector(module_name_input);
         std::string module_name = module_name_vector[0];
-        
+
         // Convert verbose to a boolean
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
@@ -250,12 +250,12 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
 
         // Check to see if the module is a derivative module
         bool is_deriv = module_ptr->is_deriv();
-        
+
         // Check to see if the module is compatible with adaptive step size solvers
         bool is_adaptive_compatible = module_ptr->is_adaptive_compatible();
 
         // Send some messages to the user if required
-        
+
         if (loquacious) {
             // Module name
             Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
@@ -265,7 +265,7 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
                 Rprintf("Module type (derivative or steady state):\n  derivative\n\n");
             else
                 Rprintf("Module type (derivative or steady state):\n  steady state\n\n");
-                
+
             // Adaptive compatibility
             if (is_adaptive_compatible)
                 Rprintf("Compatible with adaptive step size solvers:\n  yes\n\n");
@@ -336,7 +336,7 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
     // module_name_input should be a string vector with one element
     std::vector<std::string> module_name_vector = make_vector(module_name_input);
     std::string module_name = module_name_vector[0];
-    
+
     try {
         // input_parameters should be a state map
         // use it to initialize the parameter list
@@ -471,28 +471,28 @@ SEXP R_validate_system_inputs(
     // Check the validity
     std::string msg;
     bool valid = validate_system_inputs(msg, s, ip, vp, ss_names, deriv_names);
-    
+
     // Print feedback and additional information if required
     if (!be_quiet) {
         Rprintf("\nChecking the validity of the system inputs:\n");
-        
+
         Rprintf(msg.c_str());
-        
+
         if (valid) {
             Rprintf("\nSystem inputs are valid\n");
         } else {
             Rprintf("\nSystem inputs are not valid\n");
         }
-        
+
         Rprintf("\nPrinting additional information about the system inputs:\n");
-        
+
         msg = analyze_system_inputs(s, ip, vp, ss_names, deriv_names);
         Rprintf(msg.c_str());
-        
+
         // Print a space to improve readability
         Rprintf("\n");
     }
-    
+
     return r_logical_from_boolean(valid);
 }
 
@@ -508,6 +508,18 @@ SEXP R_get_all_modules()
         Rf_error(string(string("Caught exception in R_get_all_modules: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_get_all_modules.");
+    }
+}
+
+SEXP R_get_all_quantities()
+{
+    try {
+        std::unordered_map<std::string, std::vector<std::string>> all_quantities = module_wrapper_factory::get_all_quantities();
+        return list_from_map(all_quantities);
+    } catch (std::exception const& e) {
+        Rf_error(string(string("Caught exception in R_get_all_param: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_get_all_param.");
     }
 }
 

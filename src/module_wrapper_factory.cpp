@@ -5,8 +5,8 @@
 #include "module_wrapper_factory.h"
 
 // Include all the header files that define the modules.
-#include "module_library/harmonic_oscillator.hpp"    // Contains harmonic_oscillator and harmonic_energy
-#include "module_library/size_testing.hpp"            // Contains P1, P10, P100, and P1000
+#include "module_library/harmonic_oscillator.hpp"  // Contains harmonic_oscillator and harmonic_energy
+#include "module_library/size_testing.hpp"         // Contains P1, P10, P100, and P1000
 #include "module_library/reaction.hpp"
 #include "module_library/nr_ex.hpp"
 #include "module_library/one_layer_soil_profile.hpp"
@@ -53,7 +53,7 @@
 #include "module_library/test_derivs.hpp"
 #include "module_library/bucket_soil_drainage.hpp"
 #include "module_library/linear_vmax_from_leaf_n.hpp"
-#include "module_library/module_graph_test.hpp"        // Includes Module_1, Module_2, and Module_3
+#include "module_library/module_graph_test.hpp"  // Includes Module_1, Module_2, and Module_3
 #include "module_library/collatz_leaf.hpp"
 #include "module_library/canac_with_collatz.hpp"
 #include "module_library/big_leaf_multilayer_canopy.hpp"
@@ -69,23 +69,23 @@
 #include "module_library/magic_clock.hpp"
 #include "module_library/phase_clock.hpp"
 
-template<typename T>
+template <typename T>
 std::unique_ptr<module_wrapper_base> create_wrapper()
 {
     return std::unique_ptr<module_wrapper_base>(new module_wrapper<T>);
 }
 
-std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string const &module_name) {
+std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string const& module_name)
+{
     try {
         return modules.at(module_name)();
-    } catch (std::out_of_range const &oor) {
+    } catch (std::out_of_range const& oor) {
         throw std::out_of_range(std::string("\"") + module_name + std::string("\"") + std::string(" was given as a module name, but no module with that name could be found.\n"));
     }
 }
 
-
 const std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrapper_factory::modules =
-    {
+{
      {"harmonic_oscillator",                             &create_wrapper<harmonic_oscillator>},
      {"harmonic_energy",                                 &create_wrapper<harmonic_energy>},
      //{"P1000",                                         &create_wrapper<P1000>},        // These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
@@ -155,31 +155,63 @@ const std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrap
      {"oscillator_clock_calculator",                     &create_wrapper<oscillator_clock_calculator>},
      {"night_and_day_trackers",                          &create_wrapper<night_and_day_trackers>},
      {"light_from_solar",                                &create_wrapper<light_from_solar>}
-    };
+};
 
-std::vector<std::string> module_wrapper_factory::get_modules() {
+std::vector<std::string> module_wrapper_factory::get_modules()
+{
     std::vector<std::string> module_name_vector;
     for (auto const& x : modules) {
         module_name_vector.push_back(x.first);
     }
 
-    class Case_Insensitive_Compare {
-    public:
-        bool operator()(std::string const &a, std::string const &b) {
-            // Make a lowercase copy of a
-            std::string al = a;
-            std::transform(al.begin(), al.end(), al.begin(), [](unsigned char c){return std::tolower(c);});
-    
-            // Make a lowercase copy of b
-            std::string bl = b;
-            std::transform(bl.begin(), bl.end(), bl.begin(), [](unsigned char c){return std::tolower(c);});
-    
-            int compare = al.compare(bl);
-            return (compare > 0) ? false : true;
-        }
+    auto case_insensitive_compare = [](std::string const& a, std::string const& b) {
+        // Make a lowercase copy of a
+        std::string al = a;
+        std::transform(al.begin(), al.end(), al.begin(), [](unsigned char c) { return std::tolower(c); });
+
+        // Make a lowercase copy of b
+        std::string bl = b;
+        std::transform(bl.begin(), bl.end(), bl.begin(), [](unsigned char c) { return std::tolower(c); });
+
+        int compare = al.compare(bl);
+        return (compare > 0) ? false : true;
     };
 
-    std::sort(module_name_vector.begin(), module_name_vector.end());//, Case_Insensitive_Compare {});
+    std::sort(module_name_vector.begin(), module_name_vector.end(), case_insensitive_compare);
 
     return module_name_vector;
+}
+
+std::unordered_map<std::string, std::vector<std::string>> module_wrapper_factory::get_all_quantities()
+{
+    // Make the output map
+    std::unordered_map<std::string, std::vector<std::string>> quantity_map = {
+        {"module_name",     std::vector<std::string>{}},
+        {"quantity_type",   std::vector<std::string>{}},
+        {"quantity_name",   std::vector<std::string>{}}
+    };
+
+    // Make a lambda function for adding entries to the map
+    auto add_quantity_map_entry = [&quantity_map](std::string module_name, std::string quantity_type, std::string quantity_name) {
+        quantity_map["module_name"].push_back(module_name);
+        quantity_map["quantity_type"].push_back(quantity_type);
+        quantity_map["quantity_name"].push_back(quantity_name);
+    };
+
+    // Fill the output map with all the quantities
+    for (std::string const& module_name : module_wrapper_factory::get_modules()) {
+        auto w = module_wrapper_factory::create(module_name);
+
+        // Add the module's inputs to the parameter map
+        for (std::string const& input_name : w->get_inputs()) {
+            add_quantity_map_entry(module_name, "input", input_name);
+        }
+
+        // Add the module's outputs to the parameter map
+        for (std::string const& output_name : w->get_outputs()) {
+            add_quantity_map_entry(module_name, "output", output_name);
+        }
+    }
+    
+    return quantity_map;
 }

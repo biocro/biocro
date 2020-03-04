@@ -730,36 +730,36 @@ validate_system_inputs <- function(initial_state, parameters, varying_parameters
 #                                                                     #
 #######################################################################
 
-get_all_param <- function()
+get_all_quantities <- function()
 {
-	# Example 1: getting a list of all unique parameters (which can be useful when writing a new module
+	# Example 1: getting a list of all unique quantities (which can be useful when writing a new module
 	# that is intended to work along with pre-existing modules)
 	#
-	#  all_param <- get_all_param()
-	#  all_param_names <- all_param$parameter_name
-	#  all_unique_param <- unique(all_param_names)
-	#  all_unique_param <- sort(all_unique_param)
-	#  View(all_unique_param)
+	#  all_quantities <- get_all_quantities()
+	#  all_quantities_names <- all_quantities$quantities_name
+	#  all_unique_quantities <- unique(all_quantity_names)
+	#  all_unique_quantities <- sort(all_unique_quantities)
+	#  View(all_unique_quantities)
 	#
 	#
-	# Example 2: getting a list of all modules that have "ci" or "Ci" as an input or output parameter
+	# Example 2: getting a list of all modules that have "ci" or "Ci" as an input or output
 	#
-	#  all_param <- get_all_param()
-	#  ci_modules <- subset(all_param, parameter_name=="ci" | parameter_name=="Ci")
+	#  all_quantities <- get_all_quantities()
+	#  ci_modules <- subset(all_quantities, quantity_name=="ci" | quantity_name=="Ci")
 	#  View(ci_modules)
 	#
 	#
-	# Example 3: counting the number of modules that use each parameter as an input or output
+	# Example 3: counting the number of modules that use each quantity as an input or output
 	#
 	#  install.packages("plyr")	# required for the count function
 	#  library(plyr)
-	#  all_param <- get_all_param()
-	#  all_param_subset <- all_param[c("parameter_name", "module_name")]	# remove information about whether each parameter is an input or output
-	#  all_param_subset <- unique(all_param_subset)							# remove any duplicated names where a parameter is both an input and an output for the same module
-	#  param_usage <- count(all_param_subset, "parameter_name")
-	#  View(param_usage)
+	#  all_quantities <- get_all_quantities()
+	#  all_quantities_subset <- all_quantities[c("quantity_name", "module_name")]	# remove information about whether each quantity is an input or output
+	#  all_quantities_subset <- unique(all_quantities_subset)							# remove any duplicated names where a quantity is both an input and an output for the same module
+	#  quantities_usage <- count(all_quantities_subset, "quantity_name")
+	#  View(quantities_usage)
 	
-	result = as.data.frame(.Call(R_get_all_param))
+	result = as.data.frame(.Call(R_get_all_quantities))
 	return(result)
 }
 
