@@ -26,10 +26,9 @@ System::System(
         std::vector<string_vector>{ss_module_names});
     module_output_map = quantities;
 
-    // Instantiate the modules and check them for adaptive compatibility
+    // Instantiate the modules
     steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
     derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
-    adaptive_compatible = check_adaptive_compatible(&steady_state_modules) * check_adaptive_compatible(&derivative_modules);
 
     // Get lists of subsets of quantity names
     string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
@@ -48,7 +47,7 @@ System::System(
     //  to update the varying parameters at new time points, etc
     state_ptr_pairs = get_pointer_pairs(istate_names, quantities, module_output_map);
     steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
-    varying_ptrs = get_pointer_pairs(vp_names, quantities, varying_parameters);
+    varying_ptr_pairs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
     // Get the number of time points
     auto vp = varying_params.begin();
@@ -56,15 +55,6 @@ System::System(
 
     // Get a pointer to the timestep
     timestep_ptr = &quantities.at("timestep");
-
-    // Create a vector of the names of variables that change throughout a simulation
-    for (auto const& names : std::vector<std::vector<std::string>>{istate_names, vp_names, steady_state_output_names}) {
-        output_param_vector.insert(output_param_vector.begin(), names.begin(), names.end());
-    }
-
-    // Create a vector of pointers to the variables that change throughout a simulation
-    output_ptr_vector.resize(output_param_vector.size());
-    for (size_t i = 0; i < output_param_vector.size(); i++) output_ptr_vector[i] = &quantities.at(output_param_vector[i]);
 
     // Reset the derivative evaluation counter
     ncalls = 0;
@@ -75,26 +65,9 @@ System::System(
  */
 void System::reset()
 {
-    int t = 0;
-    update_varying_params(t);
+    update_varying_params(size_t(0));   // t = 0
     for (auto const& x : initial_state) quantities[x.first] = x.second;
     run_steady_state_modules();
-}
-
-/**
- * Gets values from the varying parameters at the input time (int)
- */
-void System::update_varying_params(int time_indx)
-{
-    for (auto const& x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];
-}
-
-/**
- * Gets values from the varying parameters at the input time (size_t)
- */
-void System::update_varying_params(size_t time_indx)
-{
-    for (auto x : varying_ptrs) *(x.first) = (*(x.second))[time_indx];
 }
 
 /**
@@ -106,7 +79,7 @@ void System::update_varying_params(double time_indx)
     int t1 = (int)(time_indx + 0.5);
     int t2 = (t1 > time_indx) ? (t1 - 1) : (t1 + 1);
     // Make a linear interpolation
-    for (auto const& x : varying_ptrs) {
+    for (auto const& x : varying_ptr_pairs) {
         *(x.first) = (*(x.second))[t1] + (time_indx - t1) * ((*(x.second))[t2] - (*(x.second))[t1]) / (t2 - t1);
     }
 }
@@ -125,4 +98,27 @@ void System::run_steady_state_modules()
             *x.first = *x.second;  // Store its output in the main parameter map
         }
     }
+}
+
+/**
+ * Returns pointers that can be used to access quantity values from the system's central
+ * map of quantities
+ */
+std::vector<const double*> System::get_quantity_access_ptrs(string_vector quantity_names)
+{
+    std::vector<const double*> access_ptrs;
+    for (std::string const& n : quantity_names) {
+        access_ptrs.push_back(&quantities.at(n));
+    }
+    return access_ptrs;
+}
+
+/**
+ * Returns a vector of the names of all quantities that change throughout a simulation
+ */
+string_vector System::get_output_param_names() const
+{
+    return define_quantity_names(
+        std::vector<state_map>{initial_state, at(varying_parameters, 0)},
+        std::vector<string_vector>{steady_state_module_names});
 }

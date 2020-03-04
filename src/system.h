@@ -30,13 +30,20 @@ class System
         string_vector const& deriv_module_names);
 
     // For integrating via a system_solver
-    bool is_adaptive_compatible() const { return adaptive_compatible; }
     size_t get_ntimes() const { return ntimes; }
+
+    bool is_adaptive_compatible() const
+    {
+        return check_adaptive_compatible(&steady_state_modules) * check_adaptive_compatible(&derivative_modules);
+    }
 
     template <typename state_type>
     void get_state(state_type& x) const;
 
     // For calculating derivatives
+    template <typename state_type, typename time_type>
+    void update(const state_type& x, const time_type& t);
+
     template <typename state_type, typename time_type>
     void operator()(const state_type& x, state_type& dxdt, const time_type& t);
 
@@ -44,12 +51,9 @@ class System
     void operator()(const state_type& x, jacobi_type& jacobi, const time_type& t, state_type& dfdt);
 
     // For returning the results of a calculation
+    std::vector<const double*> get_quantity_access_ptrs(string_vector quantity_names);
     string_vector get_state_parameter_names() const { return keys(initial_state); }
-    string_vector get_output_param_names() const { return output_param_vector; }
-    std::vector<const double*> get_output_ptrs() const { return output_ptr_vector; }
-
-    template <typename state_type, typename time_type>
-    state_vector_map get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times);
+    string_vector get_output_param_names() const;
 
     // For generating reports to the user
     int get_ncalls() const { return ncalls; }
@@ -87,16 +91,16 @@ class System
     std::vector<double*> steady_state_ptrs;
     std::vector<std::pair<double*, const double*>> state_ptr_pairs;
     std::vector<std::pair<double*, const double*>> steady_state_ptr_pairs;
-    std::vector<std::pair<double*, const std::vector<double>*>> varying_ptrs;
+    std::vector<std::pair<double*, const std::vector<double>*>> varying_ptr_pairs;
 
     // For integrating via a system_solver
-    bool adaptive_compatible;
     size_t ntimes;
 
     // For calculating derivatives
-    void update_varying_params(int time_indx);     // For integer time
-    void update_varying_params(size_t time_indx);  // For size_t time
-    void update_varying_params(double time_indx);  // For double time
+    void update_varying_params(double time_indx);
+
+    template <typename time_type>
+    void update_varying_params(time_type time_indx);
 
     template <class vector_type>
     void update_state_params(const vector_type& new_state);
@@ -105,10 +109,6 @@ class System
 
     template <class vector_type>
     void run_derivative_modules(vector_type& derivs);
-
-    // For returning the results of a calculation
-    string_vector output_param_vector;
-    std::vector<const double*> output_ptr_vector;
 
     // For generating reports to the user
     int ncalls;
@@ -129,6 +129,20 @@ void System::get_state(state_type& x) const
 }
 
 /**
+ * Updates all quantities (including ones calculated by steady state modules) based on the input state and time
+ * 
+ * @param[in] x the state
+ * @param[in] t the time
+ */
+template <typename state_type, typename time_type>
+void System::update(const state_type& x, const time_type& t)
+{
+    update_varying_params(t);
+    update_state_params(x);
+    run_steady_state_modules();
+}
+
+/**
  * Calculates a derivative given an input state and time. Function signature is set by the boost::odeint library.
  * 
  * @param[in] x values of the state parameters
@@ -139,9 +153,7 @@ template <typename state_type, typename time_type>
 void System::operator()(const state_type& x, state_type& dxdt, const time_type& t)
 {
     ++ncalls;
-    update_varying_params(t);
-    update_state_params(x);
-    run_steady_state_modules();
+    update(x, t);
     run_derivative_modules(dxdt);
 }
 
@@ -226,33 +238,12 @@ void System::operator()(const state_type& x, jacobi_type& jacobi, const time_typ
 }
 
 /**
- * Calculates all output parameters for a list of state parameter values and their associated times
+ * Gets values of the varying parameters using a discrete time index (e.g. int or size_t)
  */
-template <typename state_type, typename time_type>
-std::unordered_map<std::string, std::vector<double>> System::get_results(const std::vector<state_type>& x_vec, const std::vector<time_type>& times)
+template <typename time_type>
+void System::update_varying_params(time_type time_indx)
 {
-    std::unordered_map<std::string, std::vector<double>> results;
-
-    // Initialize the parameter names
-    std::vector<double> temp(x_vec.size());
-    for (std::string const& p : output_param_vector) results[p] = temp;
-
-    std::fill(temp.begin(), temp.end(), ncalls);
-    results["ncalls"] = temp;
-
-    // Store the data
-    for (size_t i = 0; i < x_vec.size(); ++i) {
-        state_type current_state = x_vec[i];
-        time_type current_time = times[i];
-        // Get the corresponding parameter list
-        update_varying_params(current_time);
-        update_state_params(current_state);
-        run_steady_state_modules();
-        // Add the list to the results map
-        for (size_t j = 0; j < output_param_vector.size(); ++j) (results[output_param_vector[j]])[i] = quantities[output_param_vector[j]];
-    }
-
-    return results;
+    for (auto x : varying_ptr_pairs) *(x.first) = (*(x.second))[time_indx];
 }
 
 /**
@@ -373,5 +364,36 @@ struct push_back_state_and_time {
         m_times.push_back(t);
     }
 };
+
+/**
+ * Calculates all output parameters for a list of state parameter values and their associated times using the system object's public functions
+ */
+template <typename state_type, typename time_type>
+state_vector_map get_results_from_system(std::shared_ptr<System> sys, const std::vector<state_type>& x_vec, const std::vector<time_type>& times)
+{
+    std::unordered_map<std::string, std::vector<double>> results;
+
+    // Initialize the quantity names and their associated time series
+    std::vector<double> temporary(x_vec.size());
+    string_vector output_param_names = sys->get_output_param_names();
+    for (std::string const& p : output_param_names) results[p] = temporary;
+
+    // Add an entry for ncalls (hopefully there will be a better way to do this someday)
+    std::fill(temporary.begin(), temporary.end(), sys->get_ncalls());
+    results["ncalls"] = temporary;
+
+    // Get pointers to the output quantities
+    std::vector<const double*> output_param_ptrs = sys->get_quantity_access_ptrs(output_param_names);
+
+    // Store the data
+    for (size_t i = 0; i < x_vec.size(); ++i) {
+        sys->update(x_vec[i], times[i]);
+        for (size_t j = 0; j < output_param_names.size(); ++j) {
+            (results[output_param_names[j]])[i] = *(output_param_ptrs[j]);
+        }
+    }
+
+    return results;
+}
 
 #endif

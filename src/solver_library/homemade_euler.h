@@ -35,7 +35,7 @@ std::unordered_map<std::string, std::vector<double>> homemade_euler_solver<state
 {
     // Get the names of the output parameters and pointers to them
     std::vector<std::string> output_param_vector = sys->get_output_param_names();
-    std::vector<const double*> output_ptr_vector = sys->get_output_ptrs();
+    std::vector<const double*> output_ptr_vector = sys->get_quantity_access_ptrs(output_param_vector);
 
     // Make the results map
     std::unordered_map<std::string, std::vector<double>> results;

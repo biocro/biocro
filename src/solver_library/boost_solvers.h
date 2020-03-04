@@ -74,7 +74,7 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
     do_boost_solve(syscall, observer);
 
     // Return the results
-    return sys->get_results(state_vec, time_vec);
+    return get_results_from_system(sys, state_vec, time_vec);
 }
 
 // Run integrate_const using stored information and the supplied stepper
