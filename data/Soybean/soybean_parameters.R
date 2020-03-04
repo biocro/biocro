@@ -39,19 +39,19 @@ soybean_parameters = with(list(), {
      Tmin_R1R7 0.0 # degrees C; Setiyono et al., 2007, Table 2
      Topt_R1R7 21.5 # degrees C; Setiyono et al., 2007, Table 2
      Tmax_R1R7 38.7 # degrees C; Setiyono et al., 2007, Table 2
-     alphaRoot  25.04 
-     betaRoot   -20.35
-     alphaStem  24.44 
-     betaStem   -19.16 
-     alphaLeaf  21.38 
-     betaLeaf   -15.88 
+     alphaRoot  50.00 
+     betaRoot   -40.48
+     alphaStem  48.58 
+     betaStem   -37.60
+     alphaLeaf  45.18 
+     betaLeaf   -33.97 
      kRhizome_emr 0
-     alphaSeneLeaf  46.97 
-     alphaSeneStem  21.67 
-     betaSeneLeaf   -24.81 
-     betaSeneStem   -10.33 
-     rateSeneLeaf   0.01244 
-     rateSeneStem   0.001592 
+     alphaSeneLeaf  38.30 
+     alphaSeneStem  28.31 
+     betaSeneLeaf   -19.90 
+     betaSeneStem   -12.59 
+     rateSeneLeaf   0.01248 
+     rateSeneStem   0.004986 
      remobilization_fraction    0
      tbase     10     
      phi1       0.01     
