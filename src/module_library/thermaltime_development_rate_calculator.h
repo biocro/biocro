@@ -23,7 +23,7 @@ public: thermaltime_development_rate_calculator( const std::unordered_map<std::s
     // Get pointers to input parameters
     DVI_ip(get_ip(input_parameters,"DVI")),
     temp_ip(get_ip(input_parameters,"temp")),
-    Tbase_ip(get_ip(input_parameters,"Tbase")),
+    tbase_ip(get_ip(input_parameters,"tbase")),
     TTemr_ip(get_ip(input_parameters,"TTemr")),
     TTveg_ip(get_ip(input_parameters, "TTveg")),
     TTrep_ip(get_ip(input_parameters, "TTrep")),
@@ -40,7 +40,7 @@ public: thermaltime_development_rate_calculator( const std::unordered_map<std::s
     // Pointers to input parameters
     const double* DVI_ip;
     const double* temp_ip;
-    const double* Tbase_ip;
+    const double* tbase_ip;
     const double* TTemr_ip;
     const double* TTveg_ip;
     const double* TTrep_ip;
@@ -58,7 +58,7 @@ std::vector<std::string> thermaltime_development_rate_calculator::get_inputs()
     return {
         "DVI",
         "temp",
-        "Tbase",
+        "tbase",
         "TTemr",
         "TTveg",
         "TTrep"
@@ -77,14 +77,14 @@ void thermaltime_development_rate_calculator::do_operation() const
     // Gather parameters not specific to growth stages
     const double DVI = *DVI_ip; // dimensionless; development index, see Osborne et al., 2015, and notes above.
     const double temp = *temp_ip; // degrees C
-    const double Tbase = *Tbase_ip; // degrees C
+    const double tbase = *tbase_ip; // degrees C
     const double TTemr = *TTemr_ip; // degrees C * days; thermal time from sowing to emergence
     const double TTveg = *TTveg_ip; // degrees C * days; thermal time from emergence to end of vegetative stages (or beginning of reproductive)
     const double TTrep = *TTrep_ip; // degrees C * days; thermal time of reproductive stages
     
     // Calculate the development_rate
     double development_rate; // day^-1
-    double temp_diff = temp - Tbase; // degrees C
+    double temp_diff = temp - tbase; // degrees C
     
     if (DVI >= -1 && DVI < 0) {
         // 1. Sowing to emergence
