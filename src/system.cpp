@@ -114,7 +114,7 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
  */
 string_vector System::get_output_param_names() const
 {
-    return define_quantity_names(
+    return get_defined_quantity_names(
         std::vector<state_map>{initial_state, at(varying_parameters, 0)},
         std::vector<string_vector>{steady_state_module_names});
 }

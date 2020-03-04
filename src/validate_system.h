@@ -26,7 +26,7 @@ std::string analyze_system_inputs(
     string_vector ss_module_names,
     string_vector deriv_module_names);
 
-string_vector define_quantity_names(
+string_vector get_defined_quantity_names(
     std::vector<state_map> state_maps,
     std::vector<string_vector> module_name_vectors);
 
@@ -34,7 +34,7 @@ state_map define_quantity_map(
     std::vector<state_map> state_maps,
     std::vector<string_vector> module_name_vectors);
 
-string_vector find_multiple_quantity_definitions(string_vector quantity_names);
+string_vector find_duplicate_quantity_definitions(string_vector quantity_names);
 
 string_vector find_undefined_module_inputs(
     string_vector quantity_names,
@@ -69,7 +69,7 @@ module_vector get_module_vector(
     const state_map* input_parameters,
     state_map* output_parameters);
 
-void add_indented_line(std::string& message, std::string text_to_add, int num_spaces);
+std::string add_indented_line(std::string message, std::string text_to_add, int num_spaces);
 
 void insert_quantity_name_if_new(
     std::string quantity_name,
@@ -85,17 +85,36 @@ void insert_module_param_if_undefined(
 string_vector string_set_to_string_vector(string_set ss);
 
 /**
- * @brief Function for testing a system input criterion
- * 
- * This function first calls criterion_test, which should return some kind
- * of string container, e.g. std::vector<std::string> or std::set<std::string>.
+ * @brief Template function for testing a system input criterion
+ *
+ * This function first calls criterion_test, which should return some kind of
+ * container of strings, e.g. std::vector<std::string> or std::set<std::string>.
+ * A non-empty result generally corresponds to failure to meet the criterion.
  * 
  * The output of criterion_test is then passed to form_message, which should
  * create a user feedback message based on the result of the criterion test.
  * 
  * The output of form_message is added to the message input (passed by reference).
  * 
- * Finally, the number of elements in the output of criterion_test is returned
+ * Finally, the number of elements in the output of criterion_test is returned.
+ * Again, a non-zero value generally corresponds to a failure to meet the
+ * criterion specified by criterion_test.
+ *
+ * @param[in,out] message A string, to which this function will append the
+ *                        result of the criterion test.
+ *
+ * @param[in] criterion_test A function object having no input parameters and
+ *                           returning a string_list_type container.
+ *
+ * @param[in] form_message A function object having on parameter of type
+ *                         string_list_type and returning a string.  This will
+ *                         generally be a function that cobbles together a
+ *                         readable message from the collection of strings given
+ *                         as input.
+ *
+ * @returns The number of elements in the container returned by criterion_test.
+ *          Generally, a non-zero value corresponds to a failure to meet the
+ *          criterion tested by criterion_test.
  * 
  */
 template <typename string_list_type>
@@ -111,10 +130,29 @@ size_t process_criterion(
 }
 
 /**
- * Forms a user feedback message from a list of quantities, modules, etc
+ * Forms a user feedback message from a list of quantities, modules, etc.
+ *
+ * @param[in] message_if_empty This is the string that will be returned
+ *                             (surrounded by new-line characters) if
+ *                             string_list is empty.
+ *
+ * @param[in] message_at_beginning This string is prepended (after being
+ *                                 surrounded by new-line characters) to the
+ *                                 body of the message if string_list is _not_
+ *                                 empty.
+ *
+ * @param[in] message_at_end This string is appended to the body of the message
+ *                           (along with a new-line character) if string_list is
+ *                           not empty.
+ *
+ * @param[in] string_list A list of strings that will form the body of the
+ *                        message.
  */
 template <typename string_list_type>
-std::string create_message(std::string message_if_empty, std::string message_at_beginning, std::string message_at_end, string_list_type string_list)
+std::string create_message(std::string message_if_empty,
+                           std::string message_at_beginning,
+                           std::string message_at_end,
+                           string_list_type string_list)
 {
     std::string message;
 
@@ -123,7 +161,7 @@ std::string create_message(std::string message_if_empty, std::string message_at_
     } else {
         message = std::string("\n") + message_at_beginning + std::string("\n");
         for (std::string text_item : string_list) {
-            add_indented_line(message, text_item, 1);
+            message = add_indented_line(message, text_item, 1);
         }
         if (message_at_end.size() > 0) {
             message += message_at_end + std::string("\n");
