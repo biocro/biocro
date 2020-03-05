@@ -39,12 +39,12 @@ class Standalone_SS
         return check_adaptive_compatible(&steady_state_modules);
     }
     
-    string_set get_inputs() const {
-        return find_unique_module_inputs(std::vector<string_vector>{steady_state_module_names});
+    string_vector get_inputs() const {
+        return find_strictly_required_inputs(std::vector<string_vector>{steady_state_module_names});
     }
     
-    string_set get_outputs() const {
-        return find_unique_module_outputs(std::vector<string_vector>{steady_state_module_names});
+    string_vector get_outputs() const {
+        return string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{steady_state_module_names}));
     }
     
     // For generating reports to the user

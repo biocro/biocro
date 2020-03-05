@@ -309,20 +309,20 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
     std::vector<std::string> module_name_vector = make_vector(module_name_input);
 
     try {
-        std::string message = std::string("Finding all quantities required as inputs or produced as outputs by the modules:\n\n");
+        std::string message = std::string("\nFinding all quantities required as inputs or produced as outputs by the modules:\n");
 
         // Get the required inputs
-        string_set module_inputs = find_unique_module_inputs(std::vector<string_vector>{module_name_vector});
-        process_criterion<string_set>(
+        string_vector module_inputs = find_strictly_required_inputs(std::vector<string_vector>{module_name_vector});
+        process_criterion<string_vector>(
             message,
-            [=]() -> string_set { return module_inputs; },
-            [](string_set string_list) -> std::string { return create_message(
-                                                            std::string("No quantities were required by any of the modules"),
-                                                            std::string("The following quantities were each required by at least one module:"),
+            [=]() -> string_vector { return module_inputs; },
+            [](string_vector string_list) -> std::string { return create_message(
+                                                            std::string("No quantities were required by the set of modules"),
+                                                            std::string("The following quantities were required by the set of modules:"),
                                                             std::string(""),
                                                             string_list); });
 
-        // Get the required outputs
+        // Get the outputs
         string_set module_outputs = find_unique_module_outputs(std::vector<string_vector>{module_name_vector});
         process_criterion<string_set>(
             message,
@@ -347,11 +347,12 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
         }
 
         // Use the bogus pointers to check the validity of the set of modules
-        message += std::string("\n\nChecking the ability to create a Standalone_SS from these modules, assuming all inputs and outputs are properly supplied:\n\n");
+        message += std::string("\nChecking the ability to create a Standalone_SS from these modules, assuming all inputs and outputs are properly supplied:\n");
         bool valid = validate_standalone_ss_inputs(message, module_name_vector, bogus_input_ptrs, bogus_output_ptrs);
         if (valid) {
-            message += std::string("\n\nThe set of modules is valid and can be used to specify a Standalone_SS object.\n\n");
+            message += std::string("\nConclusion: The set of modules is valid and can be used to specify a Standalone_SS object.\n\n");
         } else {
+            message += std::string("\n");
             Rprintf(message.c_str());
             throw std::logic_error(std::string("The set of modules is not valid and cannot be used to specify a Standalone_SS object."));
         }
@@ -417,7 +418,7 @@ SEXP R_test_standalone_ss(SEXP module_name_input, SEXP input_parameters, SEXP ve
         state_map i_parameters = map_from_list(input_parameters);
 
         // Get the verbosity
-        bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+        bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         module_wrapper_factory module_factory;
 
@@ -440,8 +441,13 @@ SEXP R_test_standalone_ss(SEXP module_name_input, SEXP input_parameters, SEXP ve
             *output_param_ptrs[x.first] = x.second;
         }
 
-        // Make a standalone_ss object with verbose = TRUE
+        // Make a standalone_ss object
         Standalone_SS module_combo(module_name_vector, input_param_ptrs, output_param_ptrs);
+        
+        if (loquacious) {
+            std::string message = module_combo.generate_startup_report() + std::string("\n");
+            Rprintf(message.c_str());
+        }
 
         // Run the standalone_ss
         module_combo.run();

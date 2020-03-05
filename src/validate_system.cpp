@@ -443,6 +443,23 @@ string_set find_unique_module_outputs(std::vector<string_vector> module_name_vec
 }
 
 /**
+ * @brief Returns a set containing all inputs to the set of modules that are not also outputs
+ */
+string_vector find_strictly_required_inputs(std::vector<string_vector> module_name_vectors)
+{
+    string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
+    string_set all_module_outputs = find_unique_module_outputs(module_name_vectors);
+    
+    string_vector required_module_inputs;
+    
+    for (std::string const& name : all_module_inputs) {
+        insert_quantity_if_undefined(name, all_module_outputs, required_module_inputs);
+    }
+    
+    return required_module_inputs;
+}
+
+/**
  * Returns parameters in the state maps that are not used as inputs to the modules
  */
 string_vector find_unused_input_parameters(

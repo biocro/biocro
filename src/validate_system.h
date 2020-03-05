@@ -52,6 +52,8 @@ string_set find_unique_module_inputs(std::vector<string_vector> module_name_vect
 
 string_set find_unique_module_outputs(std::vector<string_vector> module_name_vectors);
 
+string_vector find_strictly_required_inputs(std::vector<string_vector> module_name_vectors);
+
 string_vector find_unused_input_parameters(
     std::vector<state_map> state_maps,
     std::vector<string_vector> module_name_vectors);
