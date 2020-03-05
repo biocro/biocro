@@ -305,30 +305,68 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
 
 SEXP R_get_standalone_ss_info(SEXP module_name_input)
 {
-    try {
-        // module_name_input should be a string vector with one or more elements
-        std::vector<std::string> module_name_vector = make_vector(module_name_input);
+    // module_name_input should be a string vector with one or more elements
+    std::vector<std::string> module_name_vector = make_vector(module_name_input);
 
-        // Make a standalone_ss object with verbose = TRUE
-        // Supply empty in/output_param_ptrs since we don't
-        // know which are required. This will cause
-        // a std::length_error to be generated.
-        std::unordered_map<std::string, const double*> input_param_ptrs;
-        std::unordered_map<std::string, double*> output_param_ptrs;
-        Standalone_SS module_combo(module_name_vector, input_param_ptrs, output_param_ptrs, true, Rprintf);
-    } catch (std::length_error const& e) {
-        // This is to be expected, so
-        // don't do anything special
+    try {
+        std::string message = std::string("Finding all quantities required as inputs or produced as outputs by the modules:\n\n");
+
+        // Get the required inputs
+        string_set module_inputs = find_unique_module_inputs(std::vector<string_vector>{module_name_vector});
+        process_criterion<string_set>(
+            message,
+            [=]() -> string_set { return module_inputs; },
+            [](string_set string_list) -> std::string { return create_message(
+                                                            std::string("No quantities were required by any of the modules"),
+                                                            std::string("The following quantities were each required by at least one module:"),
+                                                            std::string(""),
+                                                            string_list); });
+
+        // Get the required outputs
+        string_set module_outputs = find_unique_module_outputs(std::vector<string_vector>{module_name_vector});
+        process_criterion<string_set>(
+            message,
+            [=]() -> string_set { return module_outputs; },
+            [](string_set string_list) -> std::string { return create_message(
+                                                            std::string("No quantities were produced by any of the modules"),
+                                                            std::string("The following quantities were each produced by at least one modules:"),
+                                                            std::string(""),
+                                                            string_list); });
+
+        // Make a bogus input/output pointer vectors
+        double bogus_value;
+
+        std::unordered_map<std::string, const double*> bogus_input_ptrs;
+        for (std::string const& name : module_inputs) {
+            bogus_input_ptrs[name] = &bogus_value;
+        }
+
+        std::unordered_map<std::string, double*> bogus_output_ptrs;
+        for (std::string const& name : module_outputs) {
+            bogus_output_ptrs[name] = &bogus_value;
+        }
+
+        // Use the bogus pointers to check the validity of the set of modules
+        message += std::string("\n\nChecking the ability to create a Standalone_SS from these modules, assuming all inputs and outputs are properly supplied:\n\n");
+        bool valid = validate_standalone_ss_inputs(message, module_name_vector, bogus_input_ptrs, bogus_output_ptrs);
+        if (valid) {
+            message += std::string("\n\nThe set of modules is valid and can be used to specify a Standalone_SS object.\n\n");
+        } else {
+            Rprintf(message.c_str());
+            throw std::logic_error(std::string("The set of modules is not valid and cannot be used to specify a Standalone_SS object."));
+        }
+        
+        // Print the message
+        Rprintf(message.c_str());
+        
+        // Return a map containing the module's input parameters
+        return list_from_map(state_map_from_names(module_inputs));
+        
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_get_standalone_ss_info: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_get_standalone_ss_info.");
     }
-
-    // Return an indication of success
-    vector<string> result;
-    result.push_back("Standalone_ss test completed");
-    return r_string_vector_from_vector(result);
 }
 
 SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
@@ -403,7 +441,7 @@ SEXP R_test_standalone_ss(SEXP module_name_input, SEXP input_parameters, SEXP ve
         }
 
         // Make a standalone_ss object with verbose = TRUE
-        Standalone_SS module_combo(module_name_vector, input_param_ptrs, output_param_ptrs, verb, Rprintf);
+        Standalone_SS module_combo(module_name_vector, input_param_ptrs, output_param_ptrs);
 
         // Run the standalone_ss
         module_combo.run();

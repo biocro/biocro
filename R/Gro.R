@@ -541,15 +541,18 @@ get_standalone_ss_info <- function(module_names)
 	# of the water_vapor_properties_from_air_temperature, collatz_leaf, and
 	# penman_monteith_transpiration modules
 	#
-	#  get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))
+	#  inputs <- get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))
 	#
 	# Note that this function can also be helpful for verifying that the modules
 	# have been combined in the correct order. For example, the command
 	#
-	#  get_standalone_ss_info(c("collatz_leaf", "water_vapor_properties_from_air_temperature", "penman_monteith_transpiration"))
+	#  inputs <- get_standalone_ss_info(c("collatz_leaf", "water_vapor_properties_from_air_temperature", "penman_monteith_transpiration"))
 	#
 	# produces an error because some of the outputs from "water_vapor_properties_from_air_temperature" were already required as
 	# inputs to "collatz_leaf"
+	#
+	# The function returns a dataframe with all the inputs required by the collection of modules
+	# It also prints the module's inputs and outputs to the R console
 	
 	if (!is.character(module_names)) {
 		stop('"module_names" must be a list of strings')
@@ -604,7 +607,7 @@ test_standalone_ss <- function(module_names, input_parameters, verbose = FALSE)
 	# of the water_vapor_properties_from_air_temperature, collatz_leaf, and
 	# penman_monteith_transpiration modules
 	#
-	#  get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))	# get info about required parameters
+	#  input <- get_standalone_ss_info(c("water_vapor_properties_from_air_temperature", "collatz_leaf", "penman_monteith_transpiration"))	# get info about required parameters
 	#  input = list(
 	#  	Catm = 400, 
 	#  	Rd = 0.8, 

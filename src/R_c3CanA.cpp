@@ -171,7 +171,7 @@ extern "C" {
 		};
 		
 		// Now that the inputs are defined, make the standalone module and store a smart pointer to it
-		std::shared_ptr<Standalone_SS> c3_module = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs, false));
+		std::shared_ptr<Standalone_SS> c3_module = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs));
 		
 		// Run the module
 		c3_module->run();
