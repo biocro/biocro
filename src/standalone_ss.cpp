@@ -1,25 +1,36 @@
 #include "standalone_ss.h"
 #include "validate_system.h"
+#include "system_helper_functions.h"
 #include "state_map.h"
 
 /**
-  * While constructing a Standalone_SS object, the following criteria determine the validity of the inputs:
-  * 1. Each quantity is specified only once.
-  * 2. All module inputs are specified.
-  * 3. All of the quantities in the output pointers are module outputs.
-  * 4. All steady-state module inputs are calculated before they are accessed.
+  * @brief Checks over a group of quantities and modules to ensure they can be
+  *        used to create a valid system.
+  *
+  * @param[in,out] message Validation feedback is added to this string.
+  * @return true if the inputs are valid, false otherwise.
+  * 
+  * While constructing a Standalone_SS object, the following criteria determine the
+  * validity of the inputs:
+  * - 1. Each quantity is specified only once.
+  * - 2. All module inputs are specified.
+  * - 3. All of the quantities in the output pointers are module outputs.
+  * - 4. All module inputs are calculated before they are accessed.
   * 
   * We consider a quantity to have been "specified" (or "defined") if it is a
   * key in `input_ptrs` or if it is an output variable of one of the steady-state
   * modules listed in `ss_module_names`.
-  */
-Standalone_SS::Standalone_SS(
+  * 
+  * We consider a quantity to have been "calculated" if its value is tied to an external
+  * object via a pointer in `input_ptrs` or if it has been produced as the output of a
+  * steady-state module.
+ */
+bool validate_standalone_ss_inputs(
+    std::string& message,
     string_vector const& ss_module_names,
     std::unordered_map<std::string, const double*> const& input_ptrs,
-    std::unordered_map<std::string, double*> const& output_ptrs) : steady_state_module_names(ss_module_names)
+    std::unordered_map<std::string, double*> const& output_ptrs)
 {
-    std::string message = std::string("");
-
     size_t num_problems = 0;
 
     // Note: the awkward state_map_from_names(keys(input_ptrs)) can be removed in the future
@@ -88,19 +99,46 @@ Standalone_SS::Standalone_SS(
                 string_list);
         });
 
-    // Check to see if problems have occurred
-    if (num_problems > 0) {
-        throw std::logic_error("Thrown by Standalone_SS::Standalone_SS: the supplied inputs cannot form a valid Standalone_SS.\n\n" + message);
+    return num_problems == 0;
+}
+
+Standalone_SS::Standalone_SS(
+    string_vector const& ss_module_names,
+    std::unordered_map<std::string, const double*> const& input_ptrs,
+    std::unordered_map<std::string, double*> const& output_ptrs) : steady_state_module_names(ss_module_names)
+{
+    startup_message = std::string("");
+
+    // Make sure the inputs can form a valid Standalone_SS
+    bool valid = validate_standalone_ss_inputs(startup_message, ss_module_names, input_ptrs, output_ptrs);
+    if (!valid) {
+        throw std::logic_error("Thrown by Standalone_SS::Standalone_SS: the supplied inputs cannot form a valid Standalone_SS.\n\n" + startup_message);
     }
 
     // Make the central list of quantities and the module output map
-    variables = define_quantity_map(
+    quantities = define_quantity_map(
         std::vector<state_map>{state_map_from_names(keys(input_ptrs))},
         std::vector<string_vector>{ss_module_names});
-    module_output_map = variables;
-    
+    module_output_map = quantities;
+
     // Instantiate the modules
-    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &variables, &module_output_map);
+    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
+
+    // Make lists of subsets of quantity names
+    string_set module_outputs = find_unique_module_outputs(std::vector<string_vector>{ss_module_names});
+    
+    // Get vectors of pointers to important subsets of the quantities
+    // These pointers allow us to efficiently reset portions of the
+    //  module output map before running the modules
+    module_output_ptrs = get_pointers(module_outputs, quantities);
+    
+    // Get pairs of pointers to important subsets of the quantities
+    // These pairs allow us to efficiently retrieve the output of each
+    //  module and store it in the main quantity map when running the system,
+    //  report the results of a calculation using the output_ptrs, etc
+    module_output_ptr_pairs = get_pointer_pairs(module_outputs, quantities, module_output_map);
+    input_ptr_pairs = get_input_pointer_pairs(quantities, input_ptrs);
+    output_ptr_pairs = get_output_pointer_pairs(quantities, output_ptrs);
 }
 
 Standalone_SS::Standalone_SS(
@@ -127,7 +165,7 @@ Standalone_SS::Standalone_SS(
 
     // Get pairs of pointers that are required for the standalone_ss to access inputs
     //  and report ouputs
-    get_pointer_pairs(input_var_ptrs, output_var_ptrs);
+    get_pointer_pairs_member_function(input_var_ptrs, output_var_ptrs);
 
     // Now we are done!
     if (verbose) print_msg("Done applying checks and building the standalone steady state module combination!\n\n");
@@ -173,7 +211,7 @@ void Standalone_SS::process_module_inputs()
     report_errors(error_string, verbose);
 
     // Now that we have a complete list of variables, we can use the module factory to create the modules
-    create_modules(module_factory, incorrect_modules, &variables, &module_output_map);
+    create_modules(module_factory, incorrect_modules, &quantities, &module_output_map);
 
     // Collect information about any errors that may have occurred while creating the modules
     process_errors(incorrect_modules, std::string("Some modules were mischaracterized in the input lists"), error_string, verbose, print_msg);
@@ -213,9 +251,9 @@ void Standalone_SS::get_variables_from_modules(
     }
 
     // Build the main lists of variables
-    for (std::string p : unique_module_inputs) variables[p] = 0.0;
-    for (std::string p : unique_module_outputs) variables[p] = 0.0;
-    module_output_map = variables;
+    for (std::string p : unique_module_inputs) quantities[p] = 0.0;
+    for (std::string p : unique_module_outputs) quantities[p] = 0.0;
+    module_output_map = quantities;
 }
 
 void Standalone_SS::report_variable_usage()
@@ -269,7 +307,7 @@ void Standalone_SS::create_modules(module_wrapper_factory& module_factory,
     }
 }
 
-void Standalone_SS::get_pointer_pairs(
+void Standalone_SS::get_pointer_pairs_member_function(
     std::unordered_map<std::string, const double*> const& input_var_ptrs,
     std::unordered_map<std::string, double*> const& output_var_ptrs)
 {
@@ -283,9 +321,10 @@ void Standalone_SS::get_pointer_pairs(
 
     // Get pointers to the output variables in the main maps
     for (std::string p : unique_module_outputs) {
-        std::pair<double*, double*> temp(&variables.at(p), &module_output_map.at(p));
-        module_output_ptrs.push_back(temp);
+        std::pair<double*, const double*> temp(&quantities.at(p), &module_output_map.at(p));
+        module_output_ptr_pairs.push_back(temp);
     }
+    module_output_ptrs = get_pointers(unique_module_outputs, quantities);
 
     // Create the input pointer map, which contains pairs of pointers
     // In each pair, the first points to an entry in the main variables map,
@@ -298,8 +337,8 @@ void Standalone_SS::get_pointer_pairs(
             if (unique_module_inputs.find(x.first) == unique_module_inputs.end())
                 extra_input_names.push_back(x.first);  // This input parameter isn't actually required
             else {
-                std::pair<double*, const double*> temp(&variables.at(x.first), x.second);
-                input_ptrs.push_back(temp);
+                std::pair<double*, const double*> temp(&quantities.at(x.first), x.second);
+                input_ptr_pairs.push_back(temp);
             }
         }
         // Check to see if any required inputs are missing
@@ -326,8 +365,8 @@ void Standalone_SS::get_pointer_pairs(
             if (unique_module_outputs.find(x.first) == unique_module_inputs.end())
                 bad_output_names.push_back(x.first);
             else {
-                std::pair<double*, double*> temp(&module_output_map.at(x.first), x.second);
-                output_ptrs.push_back(temp);
+                std::pair<const double*, double*> temp(&module_output_map.at(x.first), x.second);
+                output_ptr_pairs.push_back(temp);
             }
         }
     } else
@@ -342,20 +381,33 @@ void Standalone_SS::get_pointer_pairs(
     report_errors(error_string, verbose);
 }
 
+/**
+ * @brief Gets values from the objects pointed to by the `input_ptrs`,
+ * runs each module, and exports the results to the objects pointed to by
+ * the `output_ptrs`.
+ */
 void Standalone_SS::run() const
 {
-    // First get the input parameter values
-    for (auto x : input_ptrs) *(x.first) = *(x.second);
-
-    // Then clear the module output map
-    for (auto x : module_output_ptrs) *x.second = 0.0;
-
-    // Now go through the modules
-    for (auto it = steady_state_modules.begin(); it != steady_state_modules.end(); ++it) {
-        (*it)->run();                                                // Run the module
-        for (auto x : module_output_ptrs) *(x.first) = *(x.second);  // Store its output in the main parameter map
+    // Get the input parameter values
+    for (auto const& x : input_ptr_pairs) {
+        *x.first = *x.second;
     }
 
-    // Finally, export the output parameter values
-    for (auto x : output_ptrs) *(x.second) = *(x.first);
+    // Clear the module output map
+    for (double* const& x : module_output_ptrs) {
+        *x = 0.0;
+    }
+
+    // Run each module and store its output in the main quantity map
+    for (std::unique_ptr<Module> const& m : steady_state_modules) {
+        m->run();
+        for (auto const& x : module_output_ptr_pairs) {
+            *x.first = *x.second;
+        }
+    }
+
+    // Export the parameter values
+    for (auto const& x : output_ptr_pairs) {
+        *x.second = *x.first;
+    }
 }

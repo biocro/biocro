@@ -10,10 +10,23 @@
 #include "system_helper_functions.h"
 #include "validate_system.h"
 
+bool validate_standalone_ss_inputs(
+    std::string& message,
+    string_vector const& ss_module_names,
+    std::unordered_map<std::string, const double*> const& input_ptrs,
+    std::unordered_map<std::string, double*> const& output_ptrs);
+
+/**
+ * @class Standalone_SS
+ * 
+ * @brief This class defines a standalone steady state module, i.e.,
+ * a module that can easily be used without creating a system.
+ * It may be formed from one or more steady state modules.
+ * Its main intended use is to allow modules to call other modules as
+ * part of their operation.
+ */
 class Standalone_SS
 {
-    // This class defines a standalone steady state module, i.e., a module that can easily be used without creating a system
-    // It may be formed from one or more basic steady state modules
    public:
     Standalone_SS(
         string_vector const& ss_module_names,
@@ -52,20 +65,24 @@ class Standalone_SS
         std::vector<std::string>& incorrect_modules,
         std::unordered_map<std::string, double>* quantities,
         std::unordered_map<std::string, double>* module_output_map);
-    void get_pointer_pairs(
+    void get_pointer_pairs_member_function(
         std::unordered_map<std::string, const double*> const& input_var_ptrs,
         std::unordered_map<std::string, double*> const& output_var_ptrs);
+        
+    std::string startup_message;
+    
     // A list of modules
     std::vector<std::unique_ptr<Module>> steady_state_modules;
     // Map for storing the central variable list (used as an input to the modules)
-    std::unordered_map<std::string, double> variables;
+    std::unordered_map<std::string, double> quantities;
     // Map for storing the module outputs
     std::unordered_map<std::string, double> module_output_map;
     // Objects for passing the standalone_ss inputs to the module inputs,
     //  and the module outputs to the standalone_ss outputs
-    std::vector<std::pair<double*, double*>> module_output_ptrs;
-    std::vector<std::pair<double*, const double*>> input_ptrs;
-    std::vector<std::pair<double*, double*>> output_ptrs;
+    std::vector<double*> module_output_ptrs;
+    std::vector<std::pair<double*, const double*>> module_output_ptr_pairs;
+    std::vector<std::pair<double*, const double*>> input_ptr_pairs;
+    std::vector<std::pair<const double*, double*>> output_ptr_pairs;
     // Lists of input and output variable names
     std::set<std::string> unique_module_inputs;
     std::set<std::string> unique_module_outputs;
