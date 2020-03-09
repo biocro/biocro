@@ -5,6 +5,7 @@
 #include <functional>  // For std::function
 #include <memory>      // For std::unique_ptr and std::shared_ptr
 #include "state_map.h"
+#include "module_wrapper_factory.h"
 #include "modules.h"
 
 using string_vector = std::vector<std::string>;
@@ -25,10 +26,6 @@ std::string analyze_system_inputs(
     state_vector_map varying_params,
     string_vector ss_module_names,
     string_vector deriv_module_names);
-
-string_vector get_defined_quantity_names(
-    std::vector<state_map> state_maps,
-    std::vector<string_vector> module_name_vectors);
 
 state_map define_quantity_map(
     std::vector<state_map> state_maps,
@@ -181,6 +178,54 @@ void insert_key_names(string_vector& name_vector, const map_type map)
 {
     string_vector map_key_names = keys(map);
     name_vector.insert(name_vector.begin(), map_key_names.begin(), map_key_names.end());
+}
+
+/**
+ * Assembles the names of all quantities defined by a group of state_maps and
+ * module outputs, including any duplicates.
+ *
+ * @param[in] state_maps A collection of sets of named quantities presented as a
+ *                       vector of map_with_string_keys objects.  Generally, this
+ *                       will either be empty or will consist of the initial state
+ *                       of the system, the set of invariant parameters, and the
+ *                       initial values of the varying parameters.
+ * @param[in] module_name_vectors A collection of sets of module names presented
+ *                                as a vector of vectors.  Usually, this
+ *                                collection will either be empty or will
+ *                                contain only a single item---a set of
+ *                                steady-state module names or a set of
+ *                                derivative module names.
+ * @return A vector consisting of the names of all quantities defined in either
+ *         of the function arguments.  **If a quantity is defined more than
+ *         once, it will appear in the output vector more than once.** A
+ *         quantity is considered to be "defined" by the state_maps argument
+ *         value if it is a key in one of the given maps.  It is considered
+ *         "defined" by the module_name_vectors argument value if it is a name
+ *         of an output variable of some module named in any set in the
+ *         collection.
+ */
+template <typename map_with_string_keys>
+string_vector get_defined_quantity_names(
+    std::vector<map_with_string_keys> state_maps,
+    std::vector<string_vector> module_name_vectors)
+{
+    std::vector<std::string> defined_quantity_names;
+
+    // Get quantity names from the state maps
+    for (map_with_string_keys const& m : state_maps) {
+        insert_key_names(defined_quantity_names, m);
+    }
+
+    // Get quantity names from the modules
+    for (string_vector const& names : module_name_vectors) {
+        for (std::string const& module_name : names) {
+            auto w = module_wrapper_factory::create(module_name);
+            string_vector output_names = w->get_outputs();
+            defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
+        }
+    }
+
+    return defined_quantity_names;
 }
 
 /**

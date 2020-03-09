@@ -33,10 +33,8 @@ bool validate_standalone_ss_inputs(
 {
     size_t num_problems = 0;
 
-    // Note: the awkward state_map_from_names(keys(input_ptrs)) can be removed in the future
-    // by making get_defined_quantity_names a template function rather than being tied to state_maps.
     string_vector quantity_names = get_defined_quantity_names(
-        std::vector<state_map>{state_map_from_names(keys(input_ptrs))},
+        std::vector<std::unordered_map<std::string, const double*>>{input_ptrs},
         std::vector<string_vector>{ss_module_names});
 
     // Criterion 1
