@@ -305,10 +305,10 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
 
 SEXP R_get_standalone_ss_info(SEXP module_name_input)
 {
-    // module_name_input should be a string vector with one or more elements
-    std::vector<std::string> module_name_vector = make_vector(module_name_input);
-
     try {
+        // module_name_input should be a string vector with one or more elements
+        std::vector<std::string> module_name_vector = make_vector(module_name_input);
+
         std::string message = std::string("\nFinding all quantities required as inputs or produced as outputs by the modules:\n");
 
         // Get the required inputs
@@ -317,10 +317,10 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
             message,
             [=]() -> string_vector { return module_inputs; },
             [](string_vector string_list) -> std::string { return create_message(
-                                                            std::string("No quantities were required by the set of modules"),
-                                                            std::string("The following quantities were required by the set of modules:"),
-                                                            std::string(""),
-                                                            string_list); });
+                                                               std::string("No quantities were required by the set of modules"),
+                                                               std::string("The following quantities were required by the set of modules:"),
+                                                               std::string(""),
+                                                               string_list); });
 
         // Get the outputs
         string_set module_outputs = find_unique_module_outputs(std::vector<string_vector>{module_name_vector});
@@ -356,13 +356,13 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
             Rprintf(message.c_str());
             throw std::logic_error(std::string("The set of modules is not valid and cannot be used to specify a Standalone_SS object."));
         }
-        
+
         // Print the message
         Rprintf(message.c_str());
-        
+
         // Return a map containing the module's input parameters
         return list_from_map(state_map_from_names(module_inputs));
-        
+
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_get_standalone_ss_info: ") + e.what()).c_str());
     } catch (...) {
@@ -372,11 +372,11 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
 
 SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 {
-    // module_name_input should be a string vector with one element
-    std::vector<std::string> module_name_vector = make_vector(module_name_input);
-    std::string module_name = module_name_vector[0];
-
     try {
+        // module_name_input should be a string vector with one element
+        std::vector<std::string> module_name_vector = make_vector(module_name_input);
+        std::string module_name = module_name_vector[0];
+
         // input_parameters should be a state map
         // use it to initialize the parameter list
         state_map parameters = map_from_list(input_parameters);
@@ -398,10 +398,10 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 
         return list_from_map(module_output_map);
     } catch (quantity_access_error const& qae) {
-        std::string error_msg = std::string("Caught quantity access error in R_test_module (module name = '") + module_name + std::string("'): ") + qae.what();
+        std::string error_msg = std::string("Caught quantity access error in R_test_module: ") + qae.what();
         Rf_error(error_msg.c_str());
     } catch (std::exception const& e) {
-        std::string error_msg = std::string("Caught exception in R_test_module (module name = '") + module_name + std::string("'): ") + e.what();
+        std::string error_msg = std::string("Caught exception in R_test_module: ") + e.what();
         Rf_error(error_msg.c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_test_module.");
@@ -443,7 +443,7 @@ SEXP R_test_standalone_ss(SEXP module_name_input, SEXP input_parameters, SEXP ve
 
         // Make a standalone_ss object
         Standalone_SS module_combo(module_name_vector, input_param_ptrs, output_param_ptrs);
-        
+
         if (loquacious) {
             std::string message = module_combo.generate_startup_report() + std::string("\n");
             Rprintf(message.c_str());
@@ -504,40 +504,46 @@ SEXP R_validate_system_inputs(
     SEXP derivative_module_names,
     SEXP silent)
 {
-    // Convert inputs from R formats
-    state_map s = map_from_list(initial_state);
-    state_map ip = map_from_list(parameters);
-    state_vector_map vp = map_vector_from_list(varying_parameters);
-    std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-    std::vector<std::string> deriv_names = make_vector(derivative_module_names);
-    bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
+    try {
+        // Convert inputs from R formats
+        state_map s = map_from_list(initial_state);
+        state_map ip = map_from_list(parameters);
+        state_vector_map vp = map_vector_from_list(varying_parameters);
+        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+        bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
 
-    // Check the validity
-    std::string msg;
-    bool valid = validate_system_inputs(msg, s, ip, vp, ss_names, deriv_names);
+        // Check the validity
+        std::string msg;
+        bool valid = validate_system_inputs(msg, s, ip, vp, ss_names, deriv_names);
 
-    // Print feedback and additional information if required
-    if (!be_quiet) {
-        Rprintf("\nChecking the validity of the system inputs:\n");
+        // Print feedback and additional information if required
+        if (!be_quiet) {
+            Rprintf("\nChecking the validity of the system inputs:\n");
 
-        Rprintf(msg.c_str());
+            Rprintf(msg.c_str());
 
-        if (valid) {
-            Rprintf("\nSystem inputs are valid\n");
-        } else {
-            Rprintf("\nSystem inputs are not valid\n");
+            if (valid) {
+                Rprintf("\nSystem inputs are valid\n");
+            } else {
+                Rprintf("\nSystem inputs are not valid\n");
+            }
+
+            Rprintf("\nPrinting additional information about the system inputs:\n");
+
+            msg = analyze_system_inputs(s, ip, vp, ss_names, deriv_names);
+            Rprintf(msg.c_str());
+
+            // Print a space to improve readability
+            Rprintf("\n");
         }
 
-        Rprintf("\nPrinting additional information about the system inputs:\n");
-
-        msg = analyze_system_inputs(s, ip, vp, ss_names, deriv_names);
-        Rprintf(msg.c_str());
-
-        // Print a space to improve readability
-        Rprintf("\n");
+        return r_logical_from_boolean(valid);
+    } catch (std::exception const& e) {
+        Rf_error(string(string("Caught exception in R_validate_system_inputs: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_validate_system_inputs.");
     }
-
-    return r_logical_from_boolean(valid);
 }
 
 SEXP R_get_all_modules()
