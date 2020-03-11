@@ -22,6 +22,8 @@ SEXP vector_from_map(state_map const &m);
 
 SEXP r_string_vector_from_vector(std::vector<std::string> const &v);
 
+SEXP r_logical_from_boolean(bool b);
+
 void output_map(state_map const &m);
 
 void output_list(SEXP const &list);

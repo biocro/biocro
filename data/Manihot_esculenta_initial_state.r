@@ -24,7 +24,7 @@ manihot_esculenta_initial_state = with(list(), {
     substrate_pool_root 0
     substrate_pool_rhizome 0"
     
-    data_frame = read.table(textConnection(datalines), header=TRUE)
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
     names(values) = data_frame$symbol
     values

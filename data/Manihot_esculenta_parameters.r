@@ -96,7 +96,7 @@ manihot_esculenta_parameters = with(list(), {
      electrons_per_carboxylation    4.5
      electrons_per_oxygenation 5.25"
     
-    data_frame = read.table(textConnection(datalines), header=TRUE)
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
     names(values) = data_frame$symbol
     values

@@ -101,7 +101,7 @@ big_leaf_multilayer_canopy::big_leaf_multilayer_canopy(const std::unordered_map<
 	};
 	
 	// Now that the inputs are defined, make the standalone modules and store a smart pointer to them
-	canopy_modules = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs, false));
+	canopy_modules = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs));
 }
 
 // Destructor
