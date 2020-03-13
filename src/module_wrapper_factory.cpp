@@ -68,6 +68,11 @@
 #include "module_library/poincare_clock.hpp"
 #include "module_library/magic_clock.hpp"
 #include "module_library/phase_clock.hpp"
+#include "module_library/ed_ball_berry.h"
+#include "module_library/ed_collatz_c4_assimilation.h"
+#include "module_library/ed_gas_concentrations.h"
+#include "module_library/ed_long_wave_energy_loss.h"
+#include "module_library/ed_penman_monteith_leaf_temperature.h"
 
 template <typename T>
 std::unique_ptr<module_wrapper_base> create_wrapper()
@@ -154,7 +159,12 @@ const std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrap
      {"phase_clock",                                     &create_wrapper<phase_clock>},
      {"oscillator_clock_calculator",                     &create_wrapper<oscillator_clock_calculator>},
      {"night_and_day_trackers",                          &create_wrapper<night_and_day_trackers>},
-     {"light_from_solar",                                &create_wrapper<light_from_solar>}
+     {"light_from_solar",                                &create_wrapper<light_from_solar>},
+     {"ed_ball_berry",                                   &create_wrapper<ed_ball_berry>},
+     {"ed_collatz_c4_assimilation",                      &create_wrapper<ed_collatz_c4_assimilation>},
+     {"ed_gas_concentrations",                           &create_wrapper<ed_gas_concentrations>},
+     {"ed_long_wave_energy_loss",                        &create_wrapper<ed_long_wave_energy_loss>},
+     {"ed_penman_monteith_leaf_temperature",             &create_wrapper<ed_penman_monteith_leaf_temperature>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()

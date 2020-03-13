@@ -296,6 +296,9 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
 
         // Return a map containing the module's input parameters
         return list_from_map(input_map);
+    } catch (quantity_access_error const& qae) {
+        std::string error_msg = std::string("Caught quantity access error in R_test_module: ") + qae.what();
+        Rf_error(error_msg.c_str());
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_get_module_info: ") + e.what()).c_str());
     } catch (...) {
