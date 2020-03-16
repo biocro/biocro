@@ -39,7 +39,7 @@ class Standalone_SS
         return check_adaptive_compatible(&steady_state_modules);
     }
     
-    string_vector get_inputs() const {
+    string_set get_inputs() const {
         return find_strictly_required_inputs(std::vector<string_vector>{steady_state_module_names});
     }
     

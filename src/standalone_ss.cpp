@@ -43,8 +43,8 @@ bool validate_standalone_ss_inputs(
         [=]() -> string_vector { return find_duplicate_quantity_definitions(quantity_names); },
         [](string_vector string_list) -> std::string {
             return create_message(
-                std::string("No quantities were defined multiple times in the inputs"),
-                std::string("The following quantities were defined more than once in the inputs:"),
+                std::string("No quantities were defined multiple times"),
+                std::string("The following quantities were defined more than once:"),
                 std::string(""),
                 string_list);
         });

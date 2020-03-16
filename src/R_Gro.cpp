@@ -10,6 +10,7 @@
 #include "standalone_ss.h"
 #include "solver_library/SystemSolverFactory.hpp"
 #include "validate_system.h"
+#include "simultaneous_equations.h"
 
 using std::string;
 using std::unique_ptr;
@@ -315,11 +316,11 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
         std::string message = std::string("\nFinding all quantities required as inputs or produced as outputs by the modules:\n");
 
         // Get the required inputs
-        string_vector module_inputs = find_strictly_required_inputs(std::vector<string_vector>{module_name_vector});
-        process_criterion<string_vector>(
+        string_set module_inputs = find_strictly_required_inputs(std::vector<string_vector>{module_name_vector});
+        process_criterion<string_set>(
             message,
-            [=]() -> string_vector { return module_inputs; },
-            [](string_vector string_list) -> std::string { return create_message(
+            [=]() -> string_set { return module_inputs; },
+            [](string_set string_list) -> std::string { return create_message(
                                                                std::string("No quantities were required by the set of modules"),
                                                                std::string("The following quantities were required by the set of modules:"),
                                                                std::string(""),
@@ -332,7 +333,7 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
             [=]() -> string_set { return module_outputs; },
             [](string_set string_list) -> std::string { return create_message(
                                                             std::string("No quantities were produced by any of the modules"),
-                                                            std::string("The following quantities were each produced by at least one modules:"),
+                                                            std::string("The following quantities were each produced by at least one module:"),
                                                             std::string(""),
                                                             string_list); });
 
@@ -370,6 +371,53 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
         Rf_error(string(string("Caught exception in R_get_standalone_ss_info: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_get_standalone_ss_info.");
+    }
+}
+
+SEXP R_validate_simultaneous_equations(
+    SEXP known_quantities,
+    SEXP unknown_quantities,
+    SEXP independent_quantities,
+    SEXP steady_state_module_names,
+    SEXP silent)
+{
+    try {
+        // Convert format
+        state_map kq = map_from_list(known_quantities);
+        std::vector<std::string> uq = make_vector(unknown_quantities);
+        std::vector<std::string> iq = make_vector(independent_quantities);
+        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
+        
+        std::string msg;
+        bool valid = validate_simultanous_equations_inputs(msg, kq, uq, iq, ss_names);
+        
+        if (!be_quiet) {
+            Rprintf("\nChecking the validity of the simultaneous_equations inputs:\n");
+
+            Rprintf(msg.c_str());
+
+            if (valid) {
+                Rprintf("\nSimultaneous_equations inputs are valid\n");
+            } else {
+                Rprintf("\nSimultaneous_equations inputs are not valid\n");
+            }
+
+            Rprintf("\nPrinting additional information about the simultaneous_equations inputs:\n");
+
+            msg = analyze_simultanous_equations_inputs(kq, uq, iq, ss_names);
+            Rprintf(msg.c_str());
+
+            // Print a space to improve readability
+            Rprintf("\n");
+        }
+
+        return r_logical_from_boolean(valid);
+
+    } catch (std::exception const& e) {
+        Rf_error(string(string("Caught exception in R_validate_simultaneous_equations: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_validate_simultaneous_equations.");
     }
 }
 

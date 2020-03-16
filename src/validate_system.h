@@ -2,8 +2,10 @@
 #define VALIDATE_SYSTEM_H
 
 #include <string>
+#include <set>
 #include <functional>  // For std::function
 #include <memory>      // For std::unique_ptr and std::shared_ptr
+#include <algorithm>   // For std::find
 #include "state_map.h"
 #include "module_wrapper_factory.h"
 #include "modules.h"
@@ -49,7 +51,7 @@ string_set find_unique_module_inputs(std::vector<string_vector> module_name_vect
 
 string_set find_unique_module_outputs(std::vector<string_vector> module_name_vectors);
 
-string_vector find_strictly_required_inputs(std::vector<string_vector> module_name_vectors);
+string_set find_strictly_required_inputs(std::vector<string_vector> module_name_vectors);
 
 string_vector find_unused_input_parameters(
     std::vector<state_map> state_maps,
@@ -82,6 +84,12 @@ void insert_module_param_if_undefined(
     string_vector& undefined_module_names);
     
 string_vector string_set_to_string_vector(string_set ss);
+    
+string_set string_vector_to_string_set(string_vector sv);
+
+string_vector string_vector_difference(
+    string_vector find_elements_of_this_vector,
+    string_vector that_are_not_in_this_one);
 
 /**
  * @brief Template function for testing a system input criterion

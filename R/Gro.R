@@ -726,6 +726,19 @@ validate_system_inputs <- function(initial_state, parameters, varying_parameters
 	return(result)
 }
 
+validate_simultaneous_equations <- function(known_quantities, unknown_quantities, independent_quantities, steady_state_module_names, silent = FALSE)
+{	
+	# C++ requires that all the variables have type `double`
+	known_quantities = lapply(known_quantities, as.numeric)
+	
+	# Make sure silent is a logical variable
+	silent = lapply(silent, as.logical)
+	
+	# Run the C++ code
+	result = .Call(R_validate_simultaneous_equations, known_quantities, unknown_quantities, independent_quantities, steady_state_module_names, silent)
+	return(result)
+}
+
 #######################################################################
 #                                                                     #
 #  Additional functions that may be helpful when writing new modules  #

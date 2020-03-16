@@ -396,20 +396,26 @@ string_set find_unique_module_outputs(std::vector<string_vector> module_name_vec
 }
 
 /**
- * @brief Returns a set containing all inputs to the set of modules that are not also outputs
+ * @brief Returns a vector containing all inputs to the set of modules that are not outputs
+ * produced by previous modules. Note that the order of modules is important here.
  */
-string_vector find_strictly_required_inputs(std::vector<string_vector> module_name_vectors)
+string_set find_strictly_required_inputs(std::vector<string_vector> module_name_vectors)
 {
-    string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
-    string_set all_module_outputs = find_unique_module_outputs(module_name_vectors);
-    
     string_vector required_module_inputs;
-    
-    for (std::string const& name : all_module_inputs) {
-        insert_quantity_if_undefined(name, all_module_outputs, required_module_inputs);
+    string_set outputs_from_previous_modules;
+
+    for (string_vector const& names : module_name_vectors) {
+        for (std::string const& module_name : names) {
+            auto w = module_wrapper_factory::create(module_name);
+            for (std::string const& input_name : w->get_inputs()) {
+                insert_quantity_if_undefined(input_name, outputs_from_previous_modules, required_module_inputs);
+            }
+            string_vector output_names = w->get_outputs();
+            outputs_from_previous_modules.insert(output_names.begin(), output_names.end());
+        }
     }
     
-    return required_module_inputs;
+    return string_vector_to_string_set(required_module_inputs);
 }
 
 /**
@@ -610,4 +616,28 @@ string_vector string_set_to_string_vector(string_set ss)
         sv.push_back(s);
     }
     return sv;
+}
+
+/**
+ * @brief Creates a string_set from all the elements of a
+ * string_vector.
+ */
+string_set string_vector_to_string_set(string_vector sv)
+{
+    string_set ss;
+    for (std::string const& s : sv) {
+        ss.insert(s);
+    }
+    return ss;
+}
+
+string_vector string_vector_difference(
+    string_vector find_elements_of_this_vector,
+    string_vector that_are_not_in_this_one)
+{
+    string_vector difference;
+    for (std::string const& s : find_elements_of_this_vector) {
+        insert_quantity_if_undefined(s, that_are_not_in_this_one, difference);
+    }
+    return difference;
 }
