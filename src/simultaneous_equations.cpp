@@ -109,9 +109,7 @@ bool validate_simultanous_equations_inputs(
  * 2. A list of all quantities produced by the modules as outputs
  * 3. A list of all unknown quantities specified by the modules
  */
-std::string analyze_simultanous_equations_inputs(
-    state_map const& known_quantities,
-    string_vector const& ss_module_names)
+std::string analyze_simultanous_equations_inputs(string_vector const& ss_module_names)
 {
     std::string message;
 

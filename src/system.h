@@ -159,86 +159,22 @@ void System::operator()(state_type const& x, state_type& dxdt, time_type const& 
 }
 
 /**
- * @brief Numerically compute the Jacobian matrix. Function signature is set by the boost::odeint library.
+ * @brief Numerically compute the Jacobian matrix and time derivative of f, the vector-valued function that
+ * calculates the state variable derivatives. This function's signature is set by the boost::odeint library.
  * 
  * @param[in] x values of the state parameters
- * @param[out] jacobi jacobian matrix (i.e., derivatives of each derivative with respect to each state variable)
+ * 
+ * @param[out] jacobi jacobian matrix (i.e., derivatives of each function f_i with respect to each state variable x_j)
+ * 
  * @param[in] t time value
- * @param[out] dfdt derivatives of each derivative with respect to time (not included in the jacobian)
  * 
- * Discussion of step size from <a href="http://www.iue.tuwien.ac.at/phd/khalil/node14.html">Nadim Khalil's thesis</a>:
- * <BLOCKQUOTE>
- * It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
- * Decreasing the step size will reduce the truncation error.
- * Unfortunately a smaller step has the opposite effect on the cancellation error.
- * Selecting the optimal step size for a certain problem is computationally expensive and the benefits achieved are not justifiable
- *  as the effect of small errors in the values of the elements of the Jacobian matrix is minor.
- * For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient.
- * </BLOCKQUOTE>
+ * @param[out] dfdt derivatives of each function f_i with respect to time (not included in the jacobian)
  * 
- * In BioCro, we fix a step size and only evaluate the forward perturbation to reduce calculation costs.
- *  In other words:
- *   - (1) We calculate dxdt using the input (x,t) (called dxdt_c for current)
- *   - (2) We make a forward perturbation by adding h to one state variable and calculating the time derivatives (called dxdt_p for perturbation)
- *   - (3) We calculate the rate of change for each state variable according to (dxdt_p[i] - dxdt_c[i])/h
- *   - (4) We repeat steps (2) and (3) for each state variable
- * 
- *  The alternative method would be:
- *   - (1) We make a backward perturbation by substracting h from one state variable and calculating the time derivatives (called dxdt_b for backward)
- *   - (2) We make a forward perturbation by adding h to the same state variable and calculating the time derivatives (called dxdt_f for forward)
- *   - (3) We calculate the rate of change for each state variable according to (dxdt_f[i] - dxdt_b[i])/(2*h)
- *   - (4) We repeat steps (1) through (3) for each state variable
- * 
- *  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of state variables.
- *  In the other scheme, we make 2N derivative evaluations.
- *  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro derivatives are expensive.
- *  Likewise, higher-order numerical derivative calculations are also not worthwhile.
  */
 template <typename state_type, typename jacobi_type, typename time_type>
 void System::operator()(state_type const& x, jacobi_type& jacobi, time_type const& t, state_type& dfdt)
 {
-    size_t n = x.size();
-
-    // Make vectors to store the current and perturbed dxdt
-    state_type dxdt_c(n);
-    state_type dxdt_p(n);
-
-    // Get the current dxdt
-    operator()(x, dxdt_c, t);
-
-    // Perturb each state variable and find the corresponding change in the derivative
-    double h;
-    state_type xperturb = x;
-    for (size_t i = 0; i < n; i++) {
-        // Ensure that the step size h is close to eps_deriv but is exactly representable
-        //  (see Numerical Recipes in C, 2nd ed., Section 5.7)
-        h = calculation_constants::eps_deriv;
-        double temp = x[i] + h;
-        h = temp - x[i];
-
-        // Calculate the new derivatives
-        xperturb[i] = x[i] + h;           // Add h to the ith state variable
-        operator()(xperturb, dxdt_p, t);  // Calculate dxdt_p
-
-        // Store the results in the Jacobian matrix
-        for (size_t j = 0; j < n; j++) jacobi(j, i) = (dxdt_p[j] - dxdt_c[j]) / h;
-
-        // Reset the ith state variable
-        xperturb[i] = x[i];  // Reset the ith state variable
-    }
-
-    // Perturb the time and find the corresponding change in dxdt
-    // Use a forward step whenever possible
-    h = calculation_constants::eps_deriv;
-    double temp = t + h;
-    h = temp - t;
-    if (t + h <= (double)this->get_ntimes() - 1.0) {
-        operator()(x, dxdt_p, t + h);
-        for (size_t j = 0; j < n; j++) dfdt[j] = (dxdt_p[j] - dxdt_c[j]) / h;
-    } else {
-        operator()(x, dxdt_p, t - h);
-        for (size_t j = 0; j < n; j++) dfdt[j] = (dxdt_c[j] - dxdt_p[j]) / h;
-    }
+    calculate_jacobian_and_time_derivative(this, get_ntimes() - 1.0, x, t, jacobi, dfdt);
 }
 
 /**

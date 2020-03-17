@@ -403,7 +403,7 @@ SEXP R_validate_simultaneous_equations(
 
             Rprintf("\nPrinting additional information about the simultaneous_equations inputs:\n");
 
-            msg = analyze_simultanous_equations_inputs(kq, ss_names);
+            msg = analyze_simultanous_equations_inputs(ss_names);
             Rprintf(msg.c_str());
 
             // Print a space to improve readability

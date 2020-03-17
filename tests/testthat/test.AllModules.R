@@ -39,6 +39,10 @@ run_module_trial <- function(module_name, description, error_message_testing_fun
 	# To avoid this, we make case-by-case modifications
 	if (module_name == "ball_berry_module") {
 		input_parameters$atmospheric_co2_concentration = 2.0
+	} else if (module_name == "ed_gas_concentrations") {
+		input_parameters$assimilation_net = 0.5
+		input_parameters$ball_berry_intercept = 0.01
+		input_parameters$ball_berry_slope = 0.1
 	}
 	
 	# Initialize the error message
