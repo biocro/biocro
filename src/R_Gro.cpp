@@ -478,11 +478,25 @@ SEXP R_test_simultaneous_equations(
         // Make the simultaneous equation object
         simultaneous_equations se = simultaneous_equations(kq, uq_names, ss_names);
         
-        // Run it
+        // Calculate a difference vector
         std::vector<double> output_vector(uq.size());
-        se(uq_values, output_vector);
+        se(uq_values, output_vector, 0);
         
-        // Return the output in a nice format
+        // Calculate a Jacobian matrix
+        boost::numeric::ublas::matrix<double> jacobian(uq.size(), uq.size());
+        se(uq_values, jacobian);
+        
+        std::string msg = std::string("\n\n\n");
+        for (size_t i = 0; i < jacobian.size1(); ++i) {
+            msg += std::string("\n");
+            for (size_t j = 0; j < jacobian.size2(); ++j) {
+                msg += std::to_string(jacobian(i,j)) + std::string(" ");
+            }
+        }
+        msg += std::string("\n\n\n");
+        Rprintf(msg.c_str());
+        
+        // Return the difference vector in a nice format
         state_map result;
         for (size_t i = 0; i < uq.size(); i++) {
             result[uq_names[i]] = output_vector[i];

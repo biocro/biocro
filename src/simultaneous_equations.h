@@ -27,7 +27,13 @@ class simultaneous_equations
 
     // For solving via an equation_solver
     template <typename vector_type>
-    void operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector);
+    void operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector, double const& t);
+
+    template <typename vector_type, typename matrix_type>
+    void operator()(vector_type const& unknown_quantity_vector, matrix_type& jacobian)
+    {
+        calculate_jacobian(this, unknown_quantity_vector, 0, jacobian);
+    }
 
     // For generating reports to the user
     int get_ncalls() const { return ncalls; }
@@ -61,25 +67,30 @@ class simultaneous_equations
 };
 
 /**
- * @brief Calculates the change in value of the unknown quantities given initial values.
+ * @brief Calculates the change in value of the unknown quantities given a vector of
+ * initial values. The function signature is chosen to be the same as System::operator(),
+ * which is a requirement for calculate_jacobian.
  * 
- * To solve the set of equations, we seek a set of initial values that returns a vector of
+ * To solve the set of equations, we seek a set of initial values that produces a vector of
  * zeroes when used as an input to this function.
  * 
  * @param[in] unknown_quantity_vector a vector of initial values for the unknown quantities
+ * 
  * @param[out] difference_vector a vector of (final - initial) values for the unknown quantities
+ * 
+ * @param t required to yield the correct function signature, but not actually used
  */
 template <typename vector_type>
-void simultaneous_equations::operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector)
+void simultaneous_equations::operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector, double const& /*t*/)
 {
     // Increment the counter
     ++ncalls;
-    
+
     // Clear all the steady state outputs in the module output map
     for (double* const& x : steady_state_ptrs) {
         *x = 0.0;
     }
-    
+
     // Set the input values of the unknown quantities in the main quantity map
     for (size_t i = 0; i < unknown_ptrs.size(); i++) {
         *(unknown_ptrs[i]) = unknown_quantity_vector[i];
@@ -92,12 +103,11 @@ void simultaneous_equations::operator()(vector_type const& unknown_quantity_vect
             *x.first = *x.second;
         }
     }
-    
+
     // Get the calculated values of the unknown quantities from the module output map
     for (size_t i = 0; i < unknown_ptrs.size(); i++) {
         difference_vector[i] = *(unknown_ptrs[i]) - unknown_quantity_vector[i];
     }
-    
 }
 
 string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector);
