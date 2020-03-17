@@ -405,7 +405,7 @@ SEXP R_validate_simultaneous_equations(
 
             Rprintf("\nPrinting additional information about the simultaneous_equations inputs:\n");
 
-            msg = analyze_simultanous_equations_inputs(kq, uq, iq, ss_names);
+            msg = analyze_simultanous_equations_inputs(kq, ss_names);
             Rprintf(msg.c_str());
 
             // Print a space to improve readability
@@ -456,6 +456,48 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
         Rf_error(error_msg.c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_test_module.");
+    }
+}
+
+SEXP R_test_simultaneous_equations(
+    SEXP known_quantities,
+    SEXP unknown_quantities,
+    SEXP independent_quantities,
+    SEXP steady_state_module_names)
+{
+    try {
+        // Convert format
+        state_map kq = map_from_list(known_quantities);
+        state_map uq = map_from_list(unknown_quantities);
+        std::vector<std::string> iq = make_vector(independent_quantities);
+        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        
+        // Split uq into two vectors
+        string_vector uq_names = keys(uq);
+        std::vector<double> uq_values(uq_names.size());
+        for (size_t i = 0; i < uq_names.size(); i++) {
+            uq_values[i] = uq[uq_names[i]];
+        }
+        
+        // Make the simultaneous equation object
+        simultaneous_equations se = simultaneous_equations(kq, uq_names, iq, ss_names);
+        
+        // Run it
+        std::vector<double> output_vector(iq.size());
+        se(uq_values, output_vector);
+        
+        // Return the output in a nice format
+        state_map result;
+        for (size_t i = 0; i < iq.size(); i++) {
+            result[iq[i]] = output_vector[i];
+        }
+        
+        return list_from_map(result);
+        
+    } catch (std::exception const& e) {
+        Rf_error(string(string("Caught exception in R_test_simultaneous_equations: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_test_simultaneous_equations.");
     }
 }
 

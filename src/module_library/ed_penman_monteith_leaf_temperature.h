@@ -84,11 +84,21 @@ void ed_penman_monteith_leaf_temperature::do_operation() const
     // Convert conductances to [m / s]
     const double gc = *conductance_stomatal_h2o_ip * volume_of_one_mole_of_air;  // m / s
     const double ga = *conductance_boundary_h2o_ip * volume_of_one_mole_of_air;  // m / s
-
-    const double delta_t = (total_available_energy * (1 / ga + 1 / gc) - *latent_heat_vaporization_of_water_ip * *vapor_density_deficit_ip) /
-                           (*latent_heat_vaporization_of_water_ip * (*slope_water_vapor_ip + *psychrometric_parameter_ip * (1 + ga / gc)));  // K. It is also degrees C because it's a change in temperature.
-
+    
+    const double delta_t_numerator = total_available_energy * (1 / ga + 1 / gc) - *latent_heat_vaporization_of_water_ip * *vapor_density_deficit_ip;
+    const double delta_t_denomenator = *latent_heat_vaporization_of_water_ip * (*slope_water_vapor_ip + *psychrometric_parameter_ip * (1 + ga / gc));
+    const double delta_t = delta_t_numerator / delta_t_denomenator;
+    
     const double temperature_leaf = *temperature_air_ip + delta_t;
+    
+    // Check for error conditions
+    std::map<std::string, bool> errors_to_check = {
+        {"ga cannot be zero",                                       ga == 0},                               // divide by zero
+        {"gc cannot be zero",                                       gc == 0},                               // divide by zero
+        {"delta_t_denomenator cannot be zero",                      delta_t_denomenator == 0}               // divide by zero
+    };
+    
+    check_error_conditions(errors_to_check, get_name());
 
     update(temperature_leaf_op, temperature_leaf);
 }

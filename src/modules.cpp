@@ -53,3 +53,17 @@ const std::vector<const double*> MultilayerModule::get_multilayer_ip(const std::
     }
     return multilayer_ip;
 }
+
+void check_error_condition(bool error_occurred, std::string module_name, std::string error_message)
+{
+    if (error_occurred) {
+        throw std::out_of_range(std::string("Thrown by the '") + module_name + std::string("' module: ") + error_message);
+    }
+}
+
+void check_error_conditions(std::map<std::string, bool> errors_to_check, std::string module_name)
+{
+    for (auto const& x : errors_to_check) {
+        check_error_condition(x.second, module_name, x.first);
+    }
+}

@@ -135,6 +135,19 @@ void ed_gas_concentrations::do_operation() const
     const double c = *ball_berry_intercept_ip + *conductance_boundary_h2o_ip * *relative_humidity_atmosphere_ip;
     const double root_term = b * b - 4 * a * c;
     const double relative_humidity_leaf_surface = (-b + sqrt(root_term)) / (2 * a);
+    
+    // Check for error conditions
+    std::map<std::string, bool> errors_to_check = {
+        {"diffusivity_ratio_boundary cannot be zero",               *diffusivity_ratio_boundary_ip == 0},   // divide by zero
+        {"diffusivity_ratio_stomata cannot be zero",                *diffusivity_ratio_stomata_ip == 0},    // divide by zero
+        {"conductance_boundary_co2 cannot be zero",                 conductance_boundary_co2 == 0},         // divide by zero
+        {"conductance_stomatal_co2 cannot be zero",                 conductance_stomatal_co2 == 0},         // divide by zero
+        {"co2_mole_fraction_leaf_surface cannot be zero",           co2_mole_fraction_leaf_surface == 0},   // divide by zero
+        {"the quadratic 'a' coefficient cannot be zero",            a == 0},                                // divide by zero
+        {"the quadratic root_term cannot be negative",              root_term < 0}                          // imaginary sqrt
+    };
+    
+    check_error_conditions(errors_to_check, get_name());
 
     // Update the output parameter list
     update(conductance_boundary_co2_op, conductance_boundary_co2);

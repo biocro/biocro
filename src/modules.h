@@ -2,6 +2,7 @@
 #define MODULES_H
 
 #include <unordered_map>
+#include <map>
 #include <vector>                       // Include this here so all modules will have access to std::vector
 #include "state_map.h"                  // Include this here so all modules will have access to state_map
 #include "module_library/BioCro.h"      // Include this here so all modules will have access to the auxilliary functions
@@ -86,5 +87,9 @@ class MultilayerModule {
 
 // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header
 inline MultilayerModule::~MultilayerModule() {}
+
+void check_error_condition(bool error_occurred, std::string module_name, std::string error_message);
+
+void check_error_conditions(std::map<std::string, bool> errors_to_check, std::string module_name);
 
 #endif

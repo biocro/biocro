@@ -1,4 +1,5 @@
 #include "simultaneous_equations.h"
+#include "system_helper_functions.h"
 
 /**
   * @brief Checks over a group of quantities and modules to ensure they can be
@@ -151,8 +152,6 @@ bool validate_simultanous_equations_inputs(
  */
 std::string analyze_simultanous_equations_inputs(
     state_map const& known_quantities,
-    string_vector const& unknown_quantities,
-    string_vector const& independent_quantities,
     string_vector const& ss_module_names)
 {
     std::string message;
@@ -182,22 +181,63 @@ std::string analyze_simultanous_equations_inputs(
         message,
         [=]() -> string_vector { return get_unknown_quantities(std::vector<string_vector>{ss_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                        std::string("The modules did not specify any unknown quantities"),
-                                                        std::string("The modules specified the following unknown quantities:"),
-                                                        std::string(""),
-                                                        string_list); });
+                                                           std::string("The modules did not specify any unknown quantities"),
+                                                           std::string("The modules specified the following unknown quantities:"),
+                                                           std::string(""),
+                                                           string_list); });
 
     // List the independent quantities
     process_criterion<string_vector>(
         message,
         [=]() -> string_vector { return get_independent_quantities(std::vector<string_vector>{ss_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                        std::string("The modules did not specify any independent quantities"),
-                                                        std::string("The modules specified the following independent quantities:"),
-                                                        std::string(""),
-                                                        string_list); });
+                                                           std::string("The modules did not specify any independent quantities"),
+                                                           std::string("The modules specified the following independent quantities:"),
+                                                           std::string(""),
+                                                           string_list); });
 
     return message;
+}
+
+simultaneous_equations::simultaneous_equations(
+    state_map const& known_quantities,
+    string_vector const& unknown_quantities,
+    string_vector const& independent_quantities,
+    string_vector const& ss_module_names)
+{
+    startup_message = std::string("");
+
+    // Make sure the inputs can form a valid set of simultaneous equations
+    bool valid = validate_simultanous_equations_inputs(startup_message, known_quantities, unknown_quantities, independent_quantities, ss_module_names);
+    if (!valid) {
+        throw std::logic_error("Thrown by simultaneous_equations::simultaneous_equations: the supplied inputs cannot form a valid set of simultaneous equations.\n\n" + startup_message);
+    }
+    
+    // Make the central list of quantities and the module output map
+    quantities = define_quantity_map(
+        std::vector<state_map>{known_quantities},
+        std::vector<string_vector>{ss_module_names});
+    module_output_map = quantities;
+
+    // Instantiate the modules
+    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
+    
+    // Make lists of subsets of quantity names
+    string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
+
+    // Get vectors of pointers to important subsets of the quantities
+    // These pointers allow us to efficiently alter portions of the
+    //  quantity maps before running the modules
+    unknown_ptrs = get_pointers(unknown_quantities, quantities);
+    independent_ptrs = get_pointers(independent_quantities, module_output_map);
+    steady_state_ptrs = get_pointers(steady_state_output_names, module_output_map);
+
+    // Get pairs of pointers to important subsets of the quantities
+    // These pairs allow us to efficiently retrieve the output of each
+    //  module and store it in the main quantity map
+    unknown_ptr_pairs = get_pointer_pairs(unknown_quantities, quantities, module_output_map);
+    independent_ptr_pairs = get_pointer_pairs(independent_quantities, quantities, module_output_map);
+    steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
 }
 
 string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector)

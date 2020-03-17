@@ -154,6 +154,16 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Calculate net assimilation rate
     const double assimilation_net = A - respiration;
+    
+    // Check for error conditions
+    std::map<std::string, bool> errors_to_check = {
+        {"the quadratic 'M_a' coefficient cannot be zero",          M_a == 0},                              // divide by zero
+        {"the quadratic M_root_term cannot be negative",            M_root_term < 0},                       // imaginary sqrt
+        {"the quadratic 'A_a' coefficient cannot be zero",          A_a == 0},                              // divide by zero
+        {"the quadratic A_root_term cannot be negative",            A_root_term < 0},                       // imaginary sqrt
+    };
+    
+    check_error_conditions(errors_to_check, get_name());
 
     // Update outputs
     update(collatz_KT_op, co2_rate_constant);

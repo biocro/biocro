@@ -66,6 +66,13 @@ void ed_ball_berry::do_operation() const
     const double conductance_stomatal_h2o =
         *ball_berry_slope_ip * *assimilation_net_ip * *relative_humidity_leaf_surface_ip / *co2_mole_fraction_leaf_surface_ip +
         *ball_berry_intercept_ip;
+        
+    // Check for error conditions
+    std::map<std::string, bool> errors_to_check = {
+        {"co2_mole_fraction_leaf_surface cannot be zero",           *co2_mole_fraction_leaf_surface_ip == 0},   // divide by zero
+    };
+    
+    check_error_conditions(errors_to_check, get_name());
 
     // Update the output parameter list
     update(conductance_stomatal_h2o_op, conductance_stomatal_h2o);
