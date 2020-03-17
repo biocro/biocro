@@ -8,7 +8,6 @@ bool validate_simultanous_equations_inputs(
     std::string& message,
     state_map const& known_quantities,
     string_vector const& unknown_quantities,
-    string_vector const& independent_quantities,
     string_vector const& ss_module_names);
 
 std::string analyze_simultanous_equations_inputs(
@@ -26,12 +25,11 @@ class simultaneous_equations
     simultaneous_equations(
         state_map const& known_quantities,
         string_vector const& unknown_quantities,
-        string_vector const& independent_quantities,
         string_vector const& ss_module_names);
 
     // For solving via an equation_solver
     template <typename vector_type>
-    void operator()(vector_type const& unknown_inputs, vector_type& independent_outputs);
+    void operator()(vector_type const& unknown_inputs, vector_type& unknown_outputs);
 
     // For generating reports to the user
     int get_ncalls() const { return ncalls; }
@@ -55,10 +53,8 @@ class simultaneous_equations
 
     // Pointers to quantity values defined during construction
     std::vector<double*> unknown_ptrs;
-    std::vector<double*> independent_ptrs;
     std::vector<double*> steady_state_ptrs;
     std::vector<std::pair<double*, const double*>> unknown_ptr_pairs;
-    std::vector<std::pair<double*, const double*>> independent_ptr_pairs;
     std::vector<std::pair<double*, const double*>> steady_state_ptr_pairs;
 
     // For generating reports to the user
@@ -70,11 +66,12 @@ class simultaneous_equations
  * @brief Calculates values of the independent quantities given input values for the unknown quantities.
  * 
  * @param[in] unknown_inputs input values of the unknown quantities
- * @param[out] independent_outputs calculated values of the independent quantities
+ * @param[out] unknown_outputs calculated values of the unknown quantities
  */
 template <typename vector_type>
-void simultaneous_equations::operator()(vector_type const& unknown_inputs, vector_type& independent_outputs)
+void simultaneous_equations::operator()(vector_type const& unknown_inputs, vector_type& unknown_outputs)
 {
+    // Increment the counter
     ++ncalls;
     
     // Clear all the steady state outputs in the module output map
@@ -82,7 +79,7 @@ void simultaneous_equations::operator()(vector_type const& unknown_inputs, vecto
         *x = 0.0;
     }
     
-    // Set the values of the unknown quantities in the main quantity map
+    // Set the input values of the unknown quantities in the main quantity map
     for (size_t i = 0; i < unknown_ptrs.size(); i++) {
         *(unknown_ptrs[i]) = unknown_inputs[i];
     }
@@ -95,15 +92,13 @@ void simultaneous_equations::operator()(vector_type const& unknown_inputs, vecto
         }
     }
     
-    // Get the values of the independent quantities from the module output map
-    for (size_t i = 0; i < independent_ptrs.size(); i++) {
-        independent_outputs[i] = *(independent_ptrs[i]);
+    // Get the calculated values of the unknown quantities from the module output map
+    for (size_t i = 0; i < unknown_ptrs.size(); i++) {
+        unknown_outputs[i] = *(unknown_ptrs[i]);
     }
     
 }
 
 string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector);
-
-string_vector get_independent_quantities(std::vector<string_vector> module_name_vector);
 
 #endif

@@ -377,7 +377,6 @@ SEXP R_get_standalone_ss_info(SEXP module_name_input)
 SEXP R_validate_simultaneous_equations(
     SEXP known_quantities,
     SEXP unknown_quantities,
-    SEXP independent_quantities,
     SEXP steady_state_module_names,
     SEXP silent)
 {
@@ -385,12 +384,11 @@ SEXP R_validate_simultaneous_equations(
         // Convert format
         state_map kq = map_from_list(known_quantities);
         std::vector<std::string> uq = make_vector(unknown_quantities);
-        std::vector<std::string> iq = make_vector(independent_quantities);
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
         
         std::string msg;
-        bool valid = validate_simultanous_equations_inputs(msg, kq, uq, iq, ss_names);
+        bool valid = validate_simultanous_equations_inputs(msg, kq, uq, ss_names);
         
         if (!be_quiet) {
             Rprintf("\nChecking the validity of the simultaneous_equations inputs:\n");
@@ -462,14 +460,12 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 SEXP R_test_simultaneous_equations(
     SEXP known_quantities,
     SEXP unknown_quantities,
-    SEXP independent_quantities,
     SEXP steady_state_module_names)
 {
     try {
         // Convert format
         state_map kq = map_from_list(known_quantities);
         state_map uq = map_from_list(unknown_quantities);
-        std::vector<std::string> iq = make_vector(independent_quantities);
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         
         // Split uq into two vectors
@@ -480,16 +476,16 @@ SEXP R_test_simultaneous_equations(
         }
         
         // Make the simultaneous equation object
-        simultaneous_equations se = simultaneous_equations(kq, uq_names, iq, ss_names);
+        simultaneous_equations se = simultaneous_equations(kq, uq_names, ss_names);
         
         // Run it
-        std::vector<double> output_vector(iq.size());
+        std::vector<double> output_vector(uq.size());
         se(uq_values, output_vector);
         
         // Return the output in a nice format
         state_map result;
-        for (size_t i = 0; i < iq.size(); i++) {
-            result[iq[i]] = output_vector[i];
+        for (size_t i = 0; i < uq.size(); i++) {
+            result[uq_names[i]] = output_vector[i];
         }
         
         return list_from_map(result);
