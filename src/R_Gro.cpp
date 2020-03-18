@@ -389,7 +389,7 @@ SEXP R_validate_simultaneous_equations(
         bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
         
         std::string msg;
-        bool valid = validate_simultanous_equations_inputs(msg, kq, uq, ss_names);
+        bool valid = validate_simultaneous_equations_inputs(msg, kq, uq, ss_names);
         
         if (!be_quiet) {
             Rprintf("\nChecking the validity of the simultaneous_equations inputs:\n");
@@ -404,7 +404,7 @@ SEXP R_validate_simultaneous_equations(
 
             Rprintf("\nPrinting additional information about the simultaneous_equations inputs:\n");
 
-            msg = analyze_simultanous_equations_inputs(ss_names);
+            msg = analyze_simultaneous_equations_inputs(ss_names);
             Rprintf(msg.c_str());
 
             // Print a space to improve readability

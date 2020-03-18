@@ -4,13 +4,13 @@
 #include "state_map.h"        // For state_map, state_vector_map, etc
 #include "validate_system.h"  // For string_vector, string_set, module_vector, etc
 
-bool validate_simultanous_equations_inputs(
+bool validate_simultaneous_equations_inputs(
     std::string& message,
     state_map const& known_quantities,
     string_vector const& unknown_quantities,
     string_vector const& ss_module_names);
 
-std::string analyze_simultanous_equations_inputs(string_vector const& ss_module_names);
+std::string analyze_simultaneous_equations_inputs(string_vector const& ss_module_names);
 
 /**
  * @class simultaneous_equations

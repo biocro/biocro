@@ -31,7 +31,7 @@
   * - 3. Each quantity name in `unknown_quantities` is an unknown quantity.
   * - 4. Each unknown quantity is included in `unknown_quantities`.
  */
-bool validate_simultanous_equations_inputs(
+bool validate_simultaneous_equations_inputs(
     std::string& message,
     state_map const& known_quantities,
     string_vector const& unknown_quantities,
@@ -109,7 +109,7 @@ bool validate_simultanous_equations_inputs(
  * 2. A list of all quantities produced by the modules as outputs
  * 3. A list of all unknown quantities specified by the modules
  */
-std::string analyze_simultanous_equations_inputs(string_vector const& ss_module_names)
+std::string analyze_simultaneous_equations_inputs(string_vector const& ss_module_names)
 {
     std::string message;
 
@@ -154,7 +154,7 @@ simultaneous_equations::simultaneous_equations(
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid set of simultaneous equations
-    bool valid = validate_simultanous_equations_inputs(startup_message, known_quantities, unknown_quantities, ss_module_names);
+    bool valid = validate_simultaneous_equations_inputs(startup_message, known_quantities, unknown_quantities, ss_module_names);
     if (!valid) {
         throw std::logic_error("Thrown by simultaneous_equations::simultaneous_equations: the supplied inputs cannot form a valid set of simultaneous equations.\n\n" + startup_message);
     }
