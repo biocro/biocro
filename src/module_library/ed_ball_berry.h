@@ -6,7 +6,8 @@
 /**
  * @class ed_ball_berry
  * 
- * @brief Uses the Ball-Berry equation to calculate stomatal conductance to water vapor
+ * @brief Uses the Ball-Berry equation to calculate stomatal conductance to water vapor.
+ * Currently only intended for use by Ed.
  */
 class ed_ball_berry : public SteadyModule
 {

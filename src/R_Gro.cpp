@@ -488,7 +488,7 @@ SEXP R_test_simultaneous_equations(
         calculate_jacobian(se, uq_values, jacobian);
         
         // Print its values to the R console
-        std::string msg = std::string("\n\n\n");
+        std::string msg = std::string("\n\n\nJacobian matrix:\n\n\n");
         for (size_t i = 0; i < jacobian.size1(); ++i) {
             msg += std::string("\n");
             for (size_t j = 0; j < jacobian.size2(); ++j) {

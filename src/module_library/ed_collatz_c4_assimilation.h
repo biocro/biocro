@@ -7,7 +7,8 @@
 /**
  * @class ed_collatz_assimilation
  * 
- * @brief Uses the equations from Collatz et. al (1992) to calculate the CO2 assimilation rate
+ * @brief Uses the equations from Collatz et. al (1992) to calculate the CO2 assimilation rate.
+ * Currently only intended for use by Ed.
  * 
  * First, reaction rates are modified from their values at 25 deg. C according to the leaf temperature.
  * 

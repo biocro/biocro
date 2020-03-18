@@ -6,7 +6,8 @@
 /**
  * @class ed_gas_concentrations
  * 
- * @brief Determines CO2 mole fraction and relative humidity at several important locations
+ * @brief Determines CO2 mole fraction and relative humidity at several important locations.
+ * Currently only intended for use by Ed.
  * 
  * First, CO2 conductances for transport through the boundary layer and stomata are
  * calculated from the corresponding water vapor conductances using proportionality factors.

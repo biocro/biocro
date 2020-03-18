@@ -7,7 +7,8 @@
 /**
  * @class ed_penman_monteith_leaf_temperature
  * 
- * @brief Uses the Penman-Monteith equation to determine leaf temperature (see eq. 14.11e from Thornley (1990), p. 418)
+ * @brief Uses the Penman-Monteith equation to determine leaf temperature (see eq. 14.11e from Thornley (1990), p. 418).
+ * Currently only intended for use by Ed.
  */
 class ed_penman_monteith_leaf_temperature : public SteadyModule
 {
