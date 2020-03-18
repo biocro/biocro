@@ -3,16 +3,11 @@
 
 #include <vector>
 #include <string>
-#include <set>
-#include <unordered_map>
-#include <memory>       // For unique_ptr and shared_ptr
-#include <cmath>        // For fmod
-#include "constants.h"  // For eps_deriv
+#include <memory>             // For unique_ptr and shared_ptr
+#include "validate_system.h"  // For string_vector, string_set, module_vector, etc
+#include "state_map.h"        // For state_map, state_vector_map, etc
 #include "modules.h"
-#include "module_wrapper_factory.h"
-#include "validate_system.h"
 #include "system_helper_functions.h"
-#include "state_map.h"
 
 /**
  * @class System
@@ -50,9 +45,6 @@ class System
 
     template <typename state_type, typename time_type>
     void operator()(state_type const& x, state_type& dxdt, time_type const& t);
-
-    template <typename state_type, typename jacobi_type, typename time_type>
-    void operator()(state_type const& x, jacobi_type& jacobi, time_type const& t, state_type& dfdt);
 
     // For returning the results of a calculation
     std::vector<const double*> get_quantity_access_ptrs(string_vector quantity_names) const;
@@ -159,25 +151,6 @@ void System::operator()(state_type const& x, state_type& dxdt, time_type const& 
 }
 
 /**
- * @brief Numerically compute the Jacobian matrix and time derivative of f, the vector-valued function that
- * calculates the state variable derivatives. This function's signature is set by the boost::odeint library.
- * 
- * @param[in] x values of the state parameters
- * 
- * @param[out] jacobi jacobian matrix (i.e., derivatives of each function f_i with respect to each state variable x_j)
- * 
- * @param[in] t time value
- * 
- * @param[out] dfdt derivatives of each function f_i with respect to time (not included in the jacobian)
- * 
- */
-template <typename state_type, typename jacobi_type, typename time_type>
-void System::operator()(state_type const& x, jacobi_type& jacobi, time_type const& t, state_type& dfdt)
-{
-    calculate_jacobian_and_time_derivative(this, get_ntimes() - 1.0, x, t, jacobi, dfdt);
-}
-
-/**
  * @brief Gets values of the varying parameters using a discrete time index (e.g. int or size_t)
  */
 template <typename time_type>
@@ -223,54 +196,6 @@ void System::run_derivative_modules(vector_type& dxdt)
         dxdt[i] += *(state_ptr_pairs[i].second) * (*timestep_ptr);
     }
 }
-
-/**
- * @class SystemPointerWrapper
- * 
- * @brief This is a simple wrapper class that prevents odeint from making zillions of copies of an input system.
- */
-class SystemPointerWrapper
-{
-   public:
-    SystemPointerWrapper(std::shared_ptr<System> sys) : sys(sys) {}
-
-    template <typename state_type, typename time_type>
-    void operator()(state_type const& x, state_type& dxdt, time_type const& t)
-    {
-        sys->operator()(x, dxdt, t);
-    }
-
-    template <typename state_type, typename jacobi_type, typename time_type>
-    void operator()(state_type const& x, jacobi_type& jacobi, time_type const& t, state_type& dfdt)
-    {
-        sys->operator()(x, jacobi, t, dfdt);
-    }
-
-    size_t get_ntimes() const { return sys->get_ntimes(); }
-
-   private:
-    std::shared_ptr<System> sys;
-};
-
-/**
- * @class SystemCaller
- * 
- * @brief This is a simple class that allows the same object to be used as inputs to integrate_const with
- * explicit and implicit steppers
- */
-class SystemCaller : public SystemPointerWrapper
-{
-   public:
-    SystemCaller(std::shared_ptr<System> sys) : SystemPointerWrapper(sys),
-                                                first(SystemPointerWrapper(sys)),
-                                                second(SystemPointerWrapper(sys)) {}
-
-    // Provide the member types and variables that a std::pair would have
-    typedef SystemPointerWrapper first_type;
-    typedef first_type second_type;
-    first_type first;
-    second_type second;
-};
 
 /**
  * @class push_back_state_and_time
@@ -329,7 +254,7 @@ struct push_back_state_and_time {
 template <typename state_type, typename time_type>
 state_vector_map get_results_from_system(std::shared_ptr<System> sys, std::vector<state_type> const& x_vec, std::vector<time_type> const& times)
 {
-    std::unordered_map<std::string, std::vector<double>> results;
+    state_vector_map results;
 
     // Initialize the quantity names and their associated time series
     std::vector<double> temporary(x_vec.size());

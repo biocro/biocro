@@ -1,8 +1,9 @@
 #ifndef BOOST_SOLVERS_H
 #define BOOST_SOLVERS_H
 
-#include "../system_solver.h"
 #include <boost/numeric/ublas/vector.hpp>
+#include "../system_solver.h"
+#include "../system_caller.h"
 
 // A class representing a generic boost system solver
 template <class state_type>

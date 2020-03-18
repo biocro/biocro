@@ -1,8 +1,8 @@
 #ifndef SIMULTANEOUS_EQUATIONS_H
 #define SIMULTANEOUS_EQUATIONS_H
 
-#include "state_map.h"
-#include "validate_system.h"
+#include "state_map.h"        // For state_map, state_vector_map, etc
+#include "validate_system.h"  // For string_vector, string_set, module_vector, etc
 
 bool validate_simultanous_equations_inputs(
     std::string& message,
@@ -27,13 +27,7 @@ class simultaneous_equations
 
     // For solving via an equation_solver
     template <typename vector_type>
-    void operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector, double const& t);
-
-    template <typename vector_type, typename matrix_type>
-    void operator()(vector_type const& unknown_quantity_vector, matrix_type& jacobian)
-    {
-        calculate_jacobian(this, unknown_quantity_vector, 0, jacobian);
-    }
+    void operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector);
 
     // For generating reports to the user
     int get_ncalls() const { return ncalls; }
@@ -68,8 +62,7 @@ class simultaneous_equations
 
 /**
  * @brief Calculates the change in value of the unknown quantities given a vector of
- * initial values. The function signature is chosen to be the same as System::operator(),
- * which is a requirement for calculate_jacobian.
+ * initial values.
  * 
  * To solve the set of equations, we seek a set of initial values that produces a vector of
  * zeroes when used as an input to this function.
@@ -77,11 +70,9 @@ class simultaneous_equations
  * @param[in] unknown_quantity_vector a vector of initial values for the unknown quantities
  * 
  * @param[out] difference_vector a vector of (final - initial) values for the unknown quantities
- * 
- * @param t required to yield the correct function signature, but not actually used
  */
 template <typename vector_type>
-void simultaneous_equations::operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector, double const& /*t*/)
+void simultaneous_equations::operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector)
 {
     // Increment the counter
     ++ncalls;
