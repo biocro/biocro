@@ -9,7 +9,7 @@
  * @class ed_long_wave_energy_loss
  * 
  * @brief Uses the Stefan-Boltzmann law to calculate long-wave energy losses
- * from the leaf to the air
+ * from the leaf to the air. Currently only intended for use by Ed.
  */
 class ed_long_wave_energy_loss : public SteadyModule
 {
