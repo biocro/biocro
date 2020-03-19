@@ -8,39 +8,6 @@
 
 extern "C" {
 
-SEXP R_test_system(
-    SEXP initial_state,
-    SEXP parameters,
-    SEXP varying_parameters,
-    SEXP steady_state_module_names,
-    SEXP derivative_module_names)
-{
-    try {
-        state_map s = map_from_list(initial_state);
-        state_map ip = map_from_list(parameters);
-        state_vector_map vp = map_vector_from_list(varying_parameters);
-
-        if (vp.begin()->second.size() == 0) {
-            return R_NilValue;
-        }
-
-        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
-
-        System sys(s, ip, vp, ss_names, deriv_names);
-
-        // Return an indication of success
-        std::vector<std::string> result;
-        result.push_back("System test completed");
-        return r_string_vector_from_vector(result);
-
-    } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_test_system: ") + e.what()).c_str());
-    } catch (...) {
-        Rf_error("Caught unhandled exception in R_test_system.");
-    }
-}
-
 SEXP R_validate_system_inputs(
     SEXP initial_state,
     SEXP parameters,

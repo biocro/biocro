@@ -10,7 +10,6 @@ useDynLib(BioCro,
 		  R_get_standalone_ss_info,
 		  R_test_module,
 		  R_test_standalone_ss,
-		  R_test_system,
 		  R_validate_system_inputs,
 		  R_validate_simultaneous_equations,
 		  R_test_simultaneous_equations,
@@ -39,8 +38,6 @@ export(get_standalone_ss_info)
 export(test_module)
 
 export(test_standalone_ss)
-
-export(test_system)
 
 export(validate_system_inputs)
 

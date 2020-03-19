@@ -75,8 +75,7 @@ SEXP R_Gro_deriv(
     SEXP parameters,
     SEXP varying_parameters,
     SEXP steady_state_module_names,
-    SEXP derivative_module_names,
-    SEXP verbose)
+    SEXP derivative_module_names)
 {
     try {
         // Convert the inputs into the proper format
@@ -91,7 +90,6 @@ SEXP R_Gro_deriv(
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
-        bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
         double t = REAL(time)[0];
 
         // Create a system
@@ -116,6 +114,7 @@ SEXP R_Gro_deriv(
 
         // Return the resulting derivatives
         return list_from_map(result);
+        
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_Gro_deriv: ") + e.what()).c_str());
     } catch (...) {
@@ -126,8 +125,7 @@ SEXP R_Gro_deriv(
 SEXP R_Gro_ode(
     SEXP state,
     SEXP steady_state_module_names,
-    SEXP derivative_module_names,
-    SEXP verbose)
+    SEXP derivative_module_names)
 {
     try {
         // Get the input state
@@ -179,9 +177,6 @@ SEXP R_Gro_ode(
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
-        // Get the verbosity
-        bool verb = LOGICAL(VECTOR_ELT(verbose, 0))[0];
-
         // Make the system
         System sys(s, ip, vp, ss_names, deriv_names);
 
@@ -204,16 +199,12 @@ SEXP R_Gro_ode(
 
         // Return the resulting derivatives
         return list_from_map(result);
+        
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
     } catch (...) {
         Rf_error("Caught unhandled exception in R_Gro_ode.");
     }
-
-    // Return an indication of success
-    vector<string> result;
-    result.push_back("System test completed");
-    return r_string_vector_from_vector(result);
 }
 
 }  // extern "C"

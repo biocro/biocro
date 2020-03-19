@@ -306,7 +306,7 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
 	}
 }
 
-Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose=FALSE)
+Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names)
 {
 	# Gro_deriv is used to create a function that can be called by a solver such as LSODES
 	#
@@ -392,9 +392,6 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
 	
-	# Make sure verbose is a logical variable
-	verbose = lapply(verbose, as.logical)
-	
 	# Define some items for the function
 	state_names = character(0)
 	result_names = character(0)
@@ -418,7 +415,7 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 		}
 		
 		# Call the C++ code that calculates a derivative
-		derivs <- .Call(R_Gro_deriv, temp_state, t, parameters, varying_parameters, steady_state_module_names, derivative_module_names, verbose)
+		derivs <- .Call(R_Gro_deriv, temp_state, t, parameters, varying_parameters, steady_state_module_names, derivative_module_names)
 		
 		# Return the result
 		result <- list(derivs)
@@ -426,7 +423,7 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 	}
 }
 
-Gro_ode <- function(state, steady_state_module_names, derivative_module_names, verbose = FALSE)
+Gro_ode <- function(state, steady_state_module_names, derivative_module_names)
 {
 	# Important note: this function is clunky and not recommended for solving a system, and should only be
 	#  used to check the output values of a single derivative calculation. Even for this application, Gro_deriv
@@ -445,10 +442,6 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names, v
 	#  oscillator_state <- data.frame("mass"=0.5, "spring_constant"=0.3, "position"=2, "velocity"=1)
 	#  oscillator_deriv <- Gro_ode(oscillator_state, oscillator_ss_modules, oscillator_deriv_modules)
 	#  View(oscillator_deriv)
-	#
-	# To understand the output better, it may be helpful to run the Gro_ode command as:
-	#
-	#  oscillator_deriv <- Gro_ode(oscillator_state, oscillator_ss_modules, oscillator_deriv_modules, TRUE)
 	#
 	# There are several things to notice:
 	#  (1) Even though doy_dbl and timestep were not supplied as parameters, they show up in the lists
@@ -480,10 +473,7 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names, v
 	# C++ requires that all the variables have type `double`
 	state = lapply(state, as.numeric)
 	
-	# Make sure verbose is a logical variable
-	verbose = lapply(verbose, as.logical)
-	
 	# Run the C++ code
-	result = as.data.frame(.Call(R_Gro_ode, state, steady_state_module_names, derivative_module_names, verbose))
+	result = as.data.frame(.Call(R_Gro_ode, state, steady_state_module_names, derivative_module_names))
 	return(result)
 }
