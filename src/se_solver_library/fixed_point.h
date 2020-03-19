@@ -16,7 +16,7 @@ class fixed_point : public se_solver
     fixed_point(
         double rel_error_tol,
         double abs_error_tol,
-        int max_it) : se_solver(std::string("fixed_point"), rel_error_tol, abs_error_tol) {}
+        int max_it) : se_solver(std::string("fixed_point"), rel_error_tol, abs_error_tol, max_it) {}
 
    private:
     std::vector<double> get_next_guess(
@@ -31,7 +31,7 @@ std::vector<double> fixed_point::get_next_guess(
     std::vector<double> output_guess(input_guess.size());
 
     // Get the difference vector
-    se(input_guess, output_guess);
+    se->operator()(input_guess, output_guess);
 
     // Add the original input values to the difference vector to get the final values
     std::transform(output_guess.begin(), output_guess.end(), input_guess.begin(),
