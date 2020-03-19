@@ -173,7 +173,7 @@ for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
 }
 
 ## test each solver method using a really weak spring (so the Euler methods still work)
-all_solver_types <- get_all_solvers()
+all_solver_types <- get_all_system_solvers()
 for (solver_type in all_solver_types) {
 	solver <- default_solver
 	solver$type <- solver_type
