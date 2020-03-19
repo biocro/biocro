@@ -16,9 +16,11 @@ class se_solver
 {
    public:
     se_solver(
+        std::string solver_name,
         double rel_error_tol,
         double abs_error_tol,
-        int max_it) : rel_error_tolerance(rel_error_tol),
+        int max_it) : solver_name(solver_name),
+                      rel_error_tolerance(rel_error_tol),
                       abs_error_tolerance(abs_error_tol),
                       max_iterations(max_it) {}
 
@@ -62,7 +64,5 @@ class se_solver
 inline se_solver::~se_solver()
 {
 }
-
-
 
 #endif
