@@ -8,7 +8,7 @@
 #include "module_wrapper_factory.h"
 #include "R_helper_functions.h"
 #include "standalone_ss.h"
-#include "solver_library/SystemSolverFactory.hpp"
+#include "system_solver_library/SystemSolverFactory.hpp"
 #include "validate_system.h"
 #include "simultaneous_equations.h"
 #include "numerical_jacobian.h"
