@@ -5,7 +5,7 @@
 
 class gamma_oscillator : public DerivModule {
 	public:
-		gamma_oscillator(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		gamma_oscillator(const std::unordered_map<std::string, double>* /*input_parameters*/, std::unordered_map<std::string, double>* output_parameters) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("gamma_oscillator"),
 			// Get pointers to input parameters

@@ -5,7 +5,7 @@
 
 class empty_senescence : public DerivModule {
 	public:
-		empty_senescence(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		empty_senescence(const std::unordered_map<std::string, double>* /*input_parameters*/, std::unordered_map<std::string, double>* /*output_parameters*/) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("empty_senescence")
 		{}
