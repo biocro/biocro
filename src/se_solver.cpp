@@ -77,8 +77,11 @@ bool se_solver::solve(
                 check_convergence(x.first, x.second);
             }
         }
+        
+        previous_guess = next_guess;
+        
     } while (num_iterations < max_iterations && !converged_abs && !converged_rel);
-    
+
     final_value_for_root = next_guess;
 
     return converged_abs || converged_rel;

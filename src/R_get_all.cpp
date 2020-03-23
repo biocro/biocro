@@ -4,6 +4,7 @@
 #include "R_helper_functions.h"
 #include "module_wrapper_factory.h"
 #include "system_solver_library/SystemSolverFactory.hpp"
+#include "se_solver_library/se_solver_factory.h"
 
 extern "C" {
 
@@ -34,12 +35,24 @@ SEXP R_get_all_quantities()
 SEXP R_get_all_system_solvers()
 {
     try {
-        std::vector<std::string> result = system_solver_factory.get_solvers();
+        std::vector<std::string> result = SystemSolverFactory::get_solvers();
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_get_all_solvers: ") + e.what()).c_str());
+        Rf_error((std::string("Caught exception in R_get_all_system_solvers: ") + e.what()).c_str());
     } catch (...) {
-        Rf_error("Caught unhandled exception in R_get_all_solvers.");
+        Rf_error("Caught unhandled exception in R_get_all_system_solvers.");
+    }
+}
+
+SEXP R_get_all_se_solvers()
+{
+    try {
+        std::vector<std::string> result = se_solver_factory::get_solvers();
+        return r_string_vector_from_vector(result);
+    } catch (std::exception const& e) {
+        Rf_error((std::string("Caught exception in R_get_all_se_solvers: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_get_all_se_solvers.");
     }
 }
 

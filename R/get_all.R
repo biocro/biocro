@@ -51,3 +51,13 @@ get_all_system_solvers <- function()
 	result = .Call(R_get_all_system_solvers)
 	return(result)
 }
+
+get_all_se_solvers <- function()
+{
+	# Intended usage:
+	#
+	#  View(get_all_se_solvers())
+	
+	result = .Call(R_get_all_se_solvers)
+	return(result)
+}

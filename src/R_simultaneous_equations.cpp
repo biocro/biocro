@@ -6,8 +6,93 @@
 #include "state_map.h"
 #include "simultaneous_equations.h"
 #include "numerical_jacobian.h"
+#include "se_solver.h"
+#include "se_solver_library/se_solver_factory.h"
 
 extern "C" {
+
+SEXP R_solve_simultaneous_equations(
+    SEXP known_quantities,
+    SEXP unknown_quantities,
+    SEXP lower_bounds,
+    SEXP upper_bounds,
+    SEXP steady_state_module_names,
+    SEXP solver_type,
+    SEXP rel_error_tol,
+    SEXP abs_error_tol,
+    SEXP max_it,
+    SEXP silent)
+{
+    try {
+        // Convert format
+        const state_map kq = map_from_list(known_quantities);
+        const state_map uq = map_from_list(unknown_quantities);
+        const state_map lb = map_from_list(lower_bounds);
+        const state_map ub = map_from_list(upper_bounds);
+        const std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        const std::string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
+        const double rel_error_tolerance = REAL(rel_error_tol)[0];
+        const double abs_error_tolerance = REAL(abs_error_tol)[0];
+        const int max_iterations = REAL(max_it)[0];
+        const bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
+
+        // Split uq into two vectors
+        const std::vector<std::string> uq_names = keys(uq);
+        std::vector<double> uq_values(uq_names.size());
+        for (size_t i = 0; i < uq_names.size(); i++) {
+            uq_values[i] = uq.at(uq_names[i]);
+        }
+
+        // Get the upper and lower bounds
+        std::vector<double> lb_vector;
+        std::vector<double> ub_vector;
+        for (std::string const& name : uq_names) {
+            lb_vector.push_back(lb.at(name));
+            ub_vector.push_back(ub.at(name));
+        }
+
+        // Solve
+        std::shared_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, ss_names));
+        auto solver = se_solver_factory::create(solver_type_string, rel_error_tolerance, abs_error_tolerance, max_iterations);
+        std::vector<double> uq_final = uq_values;
+        bool success = solver->solve(se, uq_values, lb_vector, ub_vector, uq_final);
+
+        // Print info if desired
+        if (!be_quiet) {
+            std::string message = std::string("\n\nThe simultaneous_equations object reports the following upon construction:\n");
+            message += se->generate_startup_report();
+            
+            message += std::string("\nThe se_solver reports the following upon construction:\n");
+            message += solver->generate_info_report();
+            
+            message += std::string("\n\nThe se_solver reports the following after solving:\n");
+            message += solver->generate_solve_report();
+            
+            message += std::string("\n\nThe simultaneous_equations object reports the following after solving:\n");
+            message += se->generate_usage_report();
+            
+            message += std::string("\n\n");
+            
+            Rprintf(message.c_str());
+        }
+
+        // Rerturn an indication of success or failure
+        if (!success) {
+            Rf_error(std::string("A solution was not successfully found!").c_str());
+        }
+
+        state_map result;
+        for (size_t i = 0; i < uq_names.size(); ++i) {
+            result[uq_names[i]] = uq_final[i];
+        }
+        return list_from_map(result);
+
+    } catch (std::exception const& e) {
+        Rf_error((std::string("Caught exception in R_solve_simultaneous_equations: ") + e.what()).c_str());
+    } catch (...) {
+        Rf_error("Caught unhandled exception in R_solve_simultaneous_equations.");
+    }
+}
 
 SEXP R_validate_simultaneous_equations(
     SEXP known_quantities,
