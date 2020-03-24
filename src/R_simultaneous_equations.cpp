@@ -90,9 +90,9 @@ SEXP R_solve_simultaneous_equations(
             Rprintf(message.c_str());
         }
 
-        // Report an error if the method was not successful
+        // Report a warning if the method was not successful
         if (!success) {
-            Rf_error(std::string("A solution was not successfully found!").c_str());
+            Rf_warning(std::string("A solution was not successfully found!").c_str());
         }
 
         return list_from_map(format_se_solver_results(uq_names, guess_vector, adjustment_vector));
