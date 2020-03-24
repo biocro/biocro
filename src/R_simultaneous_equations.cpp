@@ -42,6 +42,7 @@ SEXP R_solve_simultaneous_equations(
         for (size_t i = 0; i < uq_names.size(); i++) {
             uq_values[i] = uq.at(uq_names[i]);
         }
+        std::vector<double> uq_final = uq_values;
 
         // Get the upper and lower bounds
         std::vector<double> lb_vector;
@@ -51,41 +52,50 @@ SEXP R_solve_simultaneous_equations(
             ub_vector.push_back(ub.at(name));
         }
 
+        // Make vectors to store the sequence of guesses
+        std::vector<std::vector<double>> guess_vector;
+        std::vector<bool> adjustment_vector;
+
         // Solve
-        std::shared_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, ss_names));
-        auto solver = se_solver_factory::create(solver_type_string, rel_error_tolerance, abs_error_tolerance, max_iterations);
-        std::vector<double> uq_final = uq_values;
-        bool success = solver->solve(se, uq_values, lb_vector, ub_vector, uq_final);
+        std::shared_ptr<simultaneous_equations> se(new simultaneous_equations(kq,
+                                                                              uq_names,
+                                                                              ss_names));
+        auto solver = se_solver_factory::create(solver_type_string,
+                                                rel_error_tolerance,
+                                                abs_error_tolerance,
+                                                max_iterations);
+        bool success = solver->solve(se,
+                                     uq_values,
+                                     lb_vector,
+                                     ub_vector,
+                                     uq_final,
+                                     se_observer_push_back(guess_vector, adjustment_vector));
 
         // Print info if desired
         if (!be_quiet) {
             std::string message = std::string("\n\nThe simultaneous_equations object reports the following upon construction:\n");
             message += se->generate_startup_report();
-            
+
             message += std::string("\nThe se_solver reports the following upon construction:\n");
             message += solver->generate_info_report();
-            
+
             message += std::string("\n\nThe se_solver reports the following after solving:\n");
             message += solver->generate_solve_report();
-            
+
             message += std::string("\n\nThe simultaneous_equations object reports the following after solving:\n");
             message += se->generate_usage_report();
-            
+
             message += std::string("\n\n");
-            
+
             Rprintf(message.c_str());
         }
 
-        // Rerturn an indication of success or failure
+        // Report an error if the method was not successful
         if (!success) {
             Rf_error(std::string("A solution was not successfully found!").c_str());
         }
 
-        state_map result;
-        for (size_t i = 0; i < uq_names.size(); ++i) {
-            result[uq_names[i]] = uq_final[i];
-        }
-        return list_from_map(result);
+        return list_from_map(format_se_solver_results(uq_names, guess_vector, adjustment_vector));
 
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_solve_simultaneous_equations: ") + e.what()).c_str());

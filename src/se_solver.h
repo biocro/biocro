@@ -3,8 +3,10 @@
 
 #include <memory>  // for std::shared_ptr
 #include <vector>
+#include <string>
 #include "se_solver_helper_functions.h"
 #include "simultaneous_equations.h"
+#include "state_map.h"
 
 /**
  * @class se_observer_null
@@ -37,7 +39,7 @@ class se_solver
 
     // Make the destructor a pure virtual function to indicate that this class should be abstract
     virtual ~se_solver() = 0;
-    
+
     template <typename observer_type>
     bool solve(
         std::shared_ptr<simultaneous_equations> const& se,
@@ -46,16 +48,16 @@ class se_solver
         std::vector<double> const& upper_bounds,
         std::vector<double>& final_value_for_root,
         observer_type observer);
-    
+
     bool solve(
         std::shared_ptr<simultaneous_equations> const& se,
         std::vector<double> const& initial_guess_for_root,
         std::vector<double> const& lower_bounds,
         std::vector<double> const& upper_bounds,
         std::vector<double>& final_value_for_root)
-        {
-            return solve(se, initial_guess_for_root, lower_bounds, upper_bounds, final_value_for_root, se_observer_null());
-        }
+    {
+        return solve(se, initial_guess_for_root, lower_bounds, upper_bounds, final_value_for_root, se_observer_null());
+    }
 
     std::string generate_info_report() const;
     std::string generate_solve_report() const;
@@ -129,7 +131,7 @@ bool se_solver::solve(
     converged_rel = false;
     num_iterations = 0;
     num_adjustments = 0;
-    
+
     // Pass the first guess to the observer
     observer(initial_guess_for_root, false);
 
@@ -151,32 +153,29 @@ bool se_solver::solve(
         }
     };
 
-    // Run the loop
+    // Run the loop until convergence is achieved or the max number of iterations is exceeded
     do {
         ++num_iterations;
 
         next_guess = get_next_guess(se, previous_guess);
 
-        // Check to see if the new guess is acceptable.
-        // If it is, check to see if we have reached convergence.
         need_to_make_adjustment = errors_occurred(is_outside_bounds(next_guess, lower_bounds, upper_bounds));
-        
+
         if (need_to_make_adjustment) {
             ++num_adjustments;
             next_guess = adjust_bad_guess(next_guess, lower_bounds, upper_bounds);
         } else {
             std::map<std::vector<bool>, bool*> convergence_checks = {
-                {has_not_converged_abs(previous_guess, next_guess, abs_error_tolerance),    &converged_abs},
-                {has_not_converged_rel(previous_guess, next_guess, rel_error_tolerance),    &converged_rel}
-            };
+                {has_not_converged_abs(previous_guess, next_guess, abs_error_tolerance), &converged_abs},
+                {has_not_converged_rel(previous_guess, next_guess, rel_error_tolerance), &converged_rel}};
 
             for (auto const& x : convergence_checks) {
                 check_convergence(x.first, x.second);
             }
         }
-        
+
         observer(next_guess, need_to_make_adjustment);
-        
+
         previous_guess = next_guess;
 
     } while (num_iterations < max_iterations && !converged_abs && !converged_rel);
@@ -185,5 +184,40 @@ bool se_solver::solve(
 
     return converged_abs || converged_rel;
 }
+
+/**
+ * @class se_observer_push_back
+ * 
+ * @brief An observer to be passed to an se_solver via its `solve` method.
+ * Its purpose is to store the sequence of guesses for the values of the
+ * unknown quantities, along with additional information, e.g., whether
+ * each new guess was made using the `get_next_guess` (adjustment_made == false)
+ * or `adjust_bad_guess` (adjustment_made == true) methods.
+ */
+struct se_observer_push_back {
+    // Data members
+    std::vector<std::vector<double>>& uq_vec;
+    std::vector<bool>& adjustment_made_vec;
+
+    // Constructor
+    se_observer_push_back(
+        std::vector<std::vector<double>>& uq_vec,
+        std::vector<bool>& adjustment_made_vec) : uq_vec(uq_vec),
+                                                  adjustment_made_vec(adjustment_made_vec) {}
+
+    // Operation
+    void operator()(
+        std::vector<double> const& uq,
+        bool adjustment_made)
+    {
+        uq_vec.push_back(uq);
+        adjustment_made_vec.push_back(adjustment_made);
+    }
+};
+
+state_vector_map format_se_solver_results(
+    std::vector<std::string> quantity_names,
+    std::vector<std::vector<double>> uq_vector,
+    std::vector<bool> adjustment_made_vector);
 
 #endif

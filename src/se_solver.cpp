@@ -53,3 +53,31 @@ std::string se_solver::generate_solve_report() const
                std::string("\n Number of adjustments: ") + std::to_string(num_adjustments);
     }
 }
+
+state_vector_map format_se_solver_results(
+    std::vector<std::string> quantity_names,
+    std::vector<std::vector<double>> uq_vector,
+    std::vector<bool> adjustment_made_vector)
+{
+    // Set up the output
+    state_vector_map result;
+    std::vector<double> temp(uq_vector.size());
+    for (std::string const& n : quantity_names) {
+        result[n] = temp;
+    }
+    result["adjustment_made"] = temp;
+    result["iteration"] = temp;
+    
+    // Fill in the results
+    std::vector<double> uq;
+    for (size_t i = 0; i < uq_vector.size(); ++i) {
+        uq = uq_vector[i];
+        for (size_t j = 0; j < quantity_names.size(); ++j) {
+            result[quantity_names[j]][i] = uq[j];
+        }
+        result["adjustment_made"][i] = adjustment_made_vector[i];
+        result["iteration"][i] = i;
+    }
+    
+    return result;
+}
