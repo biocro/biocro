@@ -1,5 +1,5 @@
-#ifndef GOLDEN_RATIO_HYPERBOLA_H
-#define GOLDEN_RATIO_HYPERBOLA_H
+#ifndef HYPERBOLAS_H
+#define HYPERBOLAS_H
 
 #include <cmath>  // For pow
 #include "../modules.h"
@@ -57,21 +57,19 @@ void golden_ratio_hyperbola::do_operation() const
 }
 
 /**
- * @class golden_ratio_hyperbola_2d
+ * @class hyperbola_2d
  * 
  * @brief Represents two 2D hyperbolas defined by f(x,y) = 1 + 1 / (x + y) and g(x,y) = 1 + 1 / (2x - y).
- * Intended to be used as a simple test case for simultaneous equation solvers. The solution to f(x,y) = x
- * is a line: x + y = gamma (where gamma is the golden ratio). Likewise, the solution to g(x,y) = y is another
- * line: 2x - y = gamma. These lines intersect at x = (2/3) * gamma, y = (1/3) * gamma, the overall solution
- * to the set of equations.
+ * Intended to be used as a simple test case for simultaneous equation solvers. One solution to f(x,y) = x,
+ * g(x,y) = y exists at x = -1.126529, y = 0.656279 (determined numerically).
  */
-class golden_ratio_hyperbola_2d : public SteadyModule
+class hyperbola_2d : public SteadyModule
 {
    public:
-    golden_ratio_hyperbola_2d(
+    hyperbola_2d(
         const std::unordered_map<std::string, double>* input_parameters,
         std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("golden_ratio_hyperbola_2d"),
+                                                                      SteadyModule("hyperbola_2d"),
                                                                       // Get pointers to input parameters
                                                                       x_ip(get_ip(input_parameters, "x")),
                                                                       y_ip(get_ip(input_parameters, "y")),
@@ -95,7 +93,7 @@ class golden_ratio_hyperbola_2d : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> golden_ratio_hyperbola_2d::get_inputs()
+std::vector<std::string> hyperbola_2d::get_inputs()
 {
     return {
         "x",  // unitless
@@ -103,7 +101,7 @@ std::vector<std::string> golden_ratio_hyperbola_2d::get_inputs()
     };
 }
 
-std::vector<std::string> golden_ratio_hyperbola_2d::get_outputs()
+std::vector<std::string> hyperbola_2d::get_outputs()
 {
     return {
         "x",  // unitless
@@ -111,7 +109,7 @@ std::vector<std::string> golden_ratio_hyperbola_2d::get_outputs()
     };
 }
 
-void golden_ratio_hyperbola_2d::do_operation() const
+void hyperbola_2d::do_operation() const
 {
     update(x_op, 1 + 1 / (*x_ip + *y_ip));
     update(y_op, 1 + 1 / (2 * *x_ip - *y_ip));
