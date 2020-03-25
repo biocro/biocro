@@ -1,8 +1,10 @@
 #include "se_solver_factory.h"
 #include "fixed_point.h"
+#include "newton_raphson_boost.h"
 
 se_solver_factory::se_solver_creator_map se_solver_factory::se_solver_creators = {
-    { "fixed_point",        create_se_solver<fixed_point> }
+    { "fixed_point",            create_se_solver<fixed_point> },
+    { "newton_raphson_boost",   create_se_solver<newton_raphson_boost> }
 };
 
 std::unique_ptr<se_solver> se_solver_factory::create(
