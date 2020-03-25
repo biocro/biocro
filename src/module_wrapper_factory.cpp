@@ -166,7 +166,8 @@ const std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrap
      {"ed_gas_concentrations",                           &create_wrapper<ed_gas_concentrations>},
      {"ed_long_wave_energy_loss",                        &create_wrapper<ed_long_wave_energy_loss>},
      {"ed_penman_monteith_leaf_temperature",             &create_wrapper<ed_penman_monteith_leaf_temperature>},
-     {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>}
+     {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
+     {"golden_ratio_hyperbola_2d",                       &create_wrapper<golden_ratio_hyperbola_2d>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()

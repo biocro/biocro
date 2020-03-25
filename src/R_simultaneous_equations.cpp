@@ -169,20 +169,6 @@ SEXP R_test_simultaneous_equations(
 
         std::shared_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, ss_names));
 
-        // Calculate a Jacobian matrix and print its values to the R console
-        boost::numeric::ublas::matrix<double> jacobian(uq.size(), uq.size());
-        calculate_jacobian(se, uq_values, jacobian);
-
-        std::string msg = std::string("\n\n\nJacobian matrix:\n\n\n");
-        for (size_t i = 0; i < jacobian.size1(); ++i) {
-            msg += std::string("\n");
-            for (size_t j = 0; j < jacobian.size2(); ++j) {
-                msg += std::to_string(jacobian(i, j)) + std::string(" ");
-            }
-        }
-        msg += std::string("\n\n\n");
-        Rprintf(msg.c_str());
-
         // Calculate a difference vector
         std::vector<double> output_vector(uq.size());
         se->operator()(uq_values, output_vector);
