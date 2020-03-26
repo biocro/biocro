@@ -73,6 +73,17 @@
 #include "module_library/ed_gas_concentrations.h"
 #include "module_library/ed_long_wave_energy_loss.h"
 #include "module_library/ed_penman_monteith_leaf_temperature.h"
+#include "module_library/partitioning_coefficient_logistic.h"
+#include "module_library/partitioning_coefficient_logistic_seed.hpp"
+#include "module_library/partitioning_growth_seed.hpp"
+#include "module_library/senescence_coefficient_logistic.h"
+#include "module_library/thermal_time_senescence_logistic.h"
+#include "module_library/thermal_time_senescence_logistic_seed.hpp"
+#include "module_library/grimm_soybean_flowering.h"
+#include "module_library/grimm_soybean_flowering_calculator.h"
+#include "module_library/development_index.h"
+#include "module_library/soybean_development_rate_calculator.h"
+#include "module_library/thermaltime_development_rate_calculator.h"
 
 template <typename T>
 std::unique_ptr<module_wrapper_base> create_wrapper()
@@ -164,7 +175,18 @@ const std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrap
      {"ed_collatz_c4_assimilation",                      &create_wrapper<ed_collatz_c4_assimilation>},
      {"ed_gas_concentrations",                           &create_wrapper<ed_gas_concentrations>},
      {"ed_long_wave_energy_loss",                        &create_wrapper<ed_long_wave_energy_loss>},
-     {"ed_penman_monteith_leaf_temperature",             &create_wrapper<ed_penman_monteith_leaf_temperature>}
+     {"ed_penman_monteith_leaf_temperature",             &create_wrapper<ed_penman_monteith_leaf_temperature>},
+     {"partitioning_coefficient_logistic.h",             &create_wrapper<partitioning_coefficient_logistic>},
+     {"partitioning_coefficient_logistic_seed.h"},       &create_wrapper<partitioning_coefficient_logistic_seed>},
+     {"partitioning_growth_seed.h",                      &create_wrapper<partitioning_growth_seed>},
+     {"senescence_coefficient_logistic.h",               &create_wrapper<senescence_coefficient_logistic>},
+     {"thermal_time_senescence_logistic.h",              &create_wrapper<thermal_time_senescence_logistic>},
+     {"thermal_time_senescence_logistic_seed.h",         &create_wrapper<thermal_time_senescence_logistic_seed>},
+     {"grimm_soybean_flowering.h",                       &create_wrapper<grimm_soybean_flowering>},
+     {"grimm_soybean_flowering_calculator.h",            &create_wrapper<grimm_soybean_flowering_calculator>},
+     {"development_index.h",                             &create_wrapper<development_index>},
+     {"soybean_development_rate_calculator.h",           &create_wrapper<soybean_development_rate_calculator>},
+     {"thermaltime_development_rate_calculator.h",       &create_wrapper<thermaltime_development_rate_calculator>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()
