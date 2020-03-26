@@ -29,6 +29,8 @@ export(Gro_solver)
 
 export(partial_gro)
 
+export(partial_gro_solver)
+
 export(Gro_deriv)
 
 export(Gro_ode)
