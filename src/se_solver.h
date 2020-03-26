@@ -1,7 +1,8 @@
 #ifndef SE_SOLVER_H
 #define SE_SOLVER_H
 
-#include <memory>  // for std::shared_ptr
+#include <memory>   // for std::shared_ptr
+#include <numeric>  // for std::accumulate
 #include <vector>
 #include <string>
 #include "se_solver_helper_functions.h"
