@@ -26,13 +26,13 @@ class position_oscillator : public DerivModule {
 
 std::vector<std::string> position_oscillator::get_inputs() {
 	return {
-		"position"
+		"velocity"
 	};
 }
 
 std::vector<std::string> position_oscillator::get_outputs() {
 	return {
-		"velocity"
+		"position"
 	};
 }
 

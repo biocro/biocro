@@ -83,7 +83,7 @@ class multilayer_canopy_properties : public SteadyModule, public MultilayerModul
 		void run() const;
 };
 
-std::vector<std::string> multilayer_canopy_properties::generate_inputs(int nlayers) {
+std::vector<std::string> multilayer_canopy_properties::generate_inputs(int /*nlayers*/) {
 	// The inputs don't actually depend on the number of layers, so just return
 	//  a list of parameter names
 	return {

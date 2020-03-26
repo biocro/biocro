@@ -198,8 +198,7 @@ void thermal_time_and_frost_senescence::do_operation() const {
 	// Calculate stem senescence
 	if(TTc >= seneStem) {
 		// Look back in time to find out how much the tissue grew in the past.
-		// Note: the module will run once during system initialization, so the first "real" history entry has index 1.
-		double change = newStem_vec[stem_senescence_index + 1];
+		double change = newStem_vec[stem_senescence_index];
 		
 		// Subtract the new growth from the tissue derivative
 		dStem -= change;
@@ -214,8 +213,7 @@ void thermal_time_and_frost_senescence::do_operation() const {
 	// Calculate root senescence
 	if(TTc >= seneRoot) {
 		// Look back in time to find out how much the tissue grew in the past.
-		// Note: the module will run once during system initialization, so the first "real" history entry has index 1.
-		double change = newRoot_vec[root_senescence_index + 1];
+		double change = newRoot_vec[root_senescence_index];
 		
 		// Subtract the new growth from the tissue derivative
 		dRoot -= change;
@@ -230,8 +228,7 @@ void thermal_time_and_frost_senescence::do_operation() const {
 	// Calculate rhizome senescence
 	if(TTc >= seneRhizome) {
 		// Look back in time to find out how much the tissue grew in the past.
-		// Note: the module will run once during system initialization, so the first "real" history entry has index 1.
-		double change = newRhizome_vec[rhizome_senescence_index + 1];
+		double change = newRhizome_vec[rhizome_senescence_index];
 		
 		// Subtract the new growth from the tissue derivative
 		dRhizome -= change;

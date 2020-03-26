@@ -111,7 +111,7 @@ struct Can_Str newCanAC(
 	};
 	
 	// Now that the inputs are defined, make the standalone modules and store a smart pointer to them
-	std::shared_ptr<Standalone_SS> canopy_modules = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs, false));
+	std::shared_ptr<Standalone_SS> canopy_modules = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs));
 	
 	// Calculate the light and humidity properties at each layer of the canopy
 	struct Light_model light_model = lightME(lat, DOY, hr);

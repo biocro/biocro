@@ -71,11 +71,27 @@ state_vector_map allocate_state(state_map const &m, size_t n);
 
 void append_state_to_vector(state_map const &state, state_vector_map &state_vector);
 
-std::vector<std::string> keys(state_map const &state);
-
-std::vector<std::string> keys(state_vector_map const &state);
+template <typename map_with_string_key_type>
+std::vector<std::string> keys(map_with_string_key_type const& map)
+{
+    std::vector<std::string> result;
+    for (auto const& it : map) {
+        result.push_back(it.first);
+    }
+    return result;
+}
 
 state_map at(state_vector_map const &vector_map, std::vector<double>::size_type const n);
+
+template <typename name_list_type>
+state_map state_map_from_names(name_list_type names)
+{
+    state_map m;
+    for (std::string const& n : names) {
+        m[n] = 0;
+    }
+    return m;
+}
 
 
 

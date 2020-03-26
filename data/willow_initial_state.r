@@ -20,7 +20,7 @@ willow_initial_state = with(list(), {
     rhizome_senescence_index 0
     leafdeathrate 5"
     
-    data_frame = read.table(textConnection(datalines), header=TRUE)
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
     names(values) = data_frame$symbol
     values

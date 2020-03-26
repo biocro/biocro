@@ -5,7 +5,7 @@
 
 class Module_1 : public SteadyModule {
 	public:
-		Module_1(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		Module_1(const std::unordered_map<std::string, double>* /*input_parameters*/, std::unordered_map<std::string, double>* output_parameters) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_1"),
 			// Get pointers to input parameters

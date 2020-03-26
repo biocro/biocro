@@ -29,7 +29,7 @@ glycine_max_initial_state = with(list(), {
     FT 0
     dawn 100"
     
-    data_frame = read.table(textConnection(datalines), header=TRUE)
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
     names(values) = data_frame$symbol
     values
