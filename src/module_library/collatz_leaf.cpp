@@ -75,7 +75,7 @@ collatz_leaf::collatz_leaf(const std::unordered_map<std::string, double>* input_
 	};
 	
 	// Now that the inputs are defined, make the standalone modules and store a smart pointer to them
-	leaf_temperature_module = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs, false));
+	leaf_temperature_module = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs));
 }
 
 // Destructor

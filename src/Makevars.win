@@ -10,7 +10,7 @@
 
 PKG_CPPFLAGS+=-I../boost_1_71_0 -DR_NO_REMAP
 
-SOURCES = $(wildcard *.cpp module_library/*.cpp)
+SOURCES = $(wildcard *.cpp module_library/*.cpp solver_library/*.cpp utils/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 
@@ -43,7 +43,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 all:
 
 DEPDIR := .deps
-DEPSUBDIR = $(DEPDIR)/module_library
+DEPSUBDIRS = $(DEPDIR)/module_library $(DEPDIR)/solver_library $(DEPDIR)/utils
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 
@@ -51,7 +51,7 @@ OUTPUT_OPTION = -o $@
 COMPILE.cpp = $(CXX) $(DEPFLAGS) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c
 
 $(OBJECTS) : %.o : %.cpp $(DEPDIR)/%.d
-	@mkdir -p $(DEPSUBDIR)
+	@mkdir -p $(DEPSUBDIRS)
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
 DEPFILES := $(SOURCES:%.cpp=$(DEPDIR)/%.d)

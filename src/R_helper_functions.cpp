@@ -158,6 +158,14 @@ SEXP vector_from_map(state_map const &m)
     return vector;
 }
 
+SEXP r_logical_from_boolean(bool b)
+{
+    SEXP logical_output = PROTECT(Rf_allocVector(LGLSXP, 1));
+    LOGICAL(logical_output)[0] = b;
+    UNPROTECT(1);
+    return logical_output;
+}
+
 void output_map(state_map const &m) {
     if (!m.empty()) {
         size_t i = 0;
