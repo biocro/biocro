@@ -1,21 +1,33 @@
 #include "system.h"
 #include "validate_system.h"
+#include "utils/module_dependency_utilities.h" // for get_evaluation_order
 
 System::System(
     state_map const& init_state,
     state_map const& invariant_params,
     state_vector_map const& varying_params,
     string_vector const& ss_module_names,
-    string_vector const& deriv_module_names) : initial_state(init_state),
-                                               invariant_parameters(invariant_params),
-                                               varying_parameters(varying_params),
-                                               steady_state_module_names(ss_module_names),
-                                               derivative_module_names(deriv_module_names)
+    string_vector const& deriv_module_names)
+    : initial_state{init_state},
+      invariant_parameters{invariant_params},
+      varying_parameters{varying_params},
+      steady_state_module_names{}, // put modules in suitable order before filling
+      derivative_module_names{deriv_module_names}
 {
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid system
     bool valid = validate_system_inputs(startup_message, init_state, invariant_params, varying_params, ss_module_names, deriv_module_names);
+
+    try {
+        steady_state_module_names = get_evaluation_order(ss_module_names);
+        startup_message += "\n" + success_mark + "The steady-state modules have no cyclic dependencies.\n";
+    } catch(boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
+        startup_message += "\n" + failure_mark + "The steady-state modules have a cyclic dependency.\n";
+        steady_state_module_names = ss_module_names; // needed for addition error reporting
+        valid = false;
+    }
+
     if (!valid) {
         throw std::logic_error("Thrown by System::System: the supplied inputs cannot form a valid system.\n\n" + startup_message);
     }
@@ -23,15 +35,15 @@ System::System(
     // Make the central list of quantities and the module output map
     quantities = define_quantity_map(
         std::vector<state_map>{init_state, invariant_params, at(varying_params, 0)},
-        std::vector<string_vector>{ss_module_names});
+        std::vector<string_vector>{steady_state_module_names});
     module_output_map = quantities;
 
     // Instantiate the modules
-    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
+    steady_state_modules = get_module_vector(std::vector<string_vector>{steady_state_module_names}, &quantities, &module_output_map);
     derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
 
     // Make lists of subsets of quantity names
-    string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
+    string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{steady_state_module_names}));
     string_vector istate_names = keys(init_state);
     string_vector vp_names = keys(varying_params);
 
