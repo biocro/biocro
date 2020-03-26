@@ -26,8 +26,8 @@ class simultaneous_equations
         string_vector const& ss_module_names);
 
     // For solving via an equation_solver
-    template <typename vector_type>
-    void operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector);
+    template <typename in_vector_type, typename out_vector_type>
+    void operator()(in_vector_type const& unknown_quantity_vector, out_vector_type& difference_vector);
 
     // For generating reports to the user
     int get_ncalls() const { return ncalls; }
@@ -71,8 +71,8 @@ class simultaneous_equations
  * 
  * @param[out] difference_vector a vector of (final - initial) values for the unknown quantities
  */
-template <typename vector_type>
-void simultaneous_equations::operator()(vector_type const& unknown_quantity_vector, vector_type& difference_vector)
+template <typename in_vector_type, typename out_vector_type>
+void simultaneous_equations::operator()(in_vector_type const& unknown_quantity_vector, out_vector_type& difference_vector)
 {
     // Increment the counter
     ++ncalls;

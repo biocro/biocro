@@ -10,13 +10,14 @@ useDynLib(BioCro,
 		  R_get_standalone_ss_info,
 		  R_test_module,
 		  R_test_standalone_ss,
-		  R_test_system,
 		  R_validate_system_inputs,
 		  R_validate_simultaneous_equations,
+		  R_solve_simultaneous_equations,
 		  R_test_simultaneous_equations,
 		  R_get_all_modules,
 		  R_get_all_quantities,
-		  R_get_all_solvers,
+		  R_get_all_system_solvers,
+		  R_get_all_se_solvers,
           R_sunML,
           collatz_photoC)
 
@@ -40,11 +41,11 @@ export(test_module)
 
 export(test_standalone_ss)
 
-export(test_system)
-
 export(validate_system_inputs)
 
 export(validate_simultaneous_equations)
+
+export(solve_simultaneous_equations)
 
 export(test_simultaneous_equations)
 
@@ -54,7 +55,9 @@ export(get_all_modules)
 
 export(get_all_quantities)
 
-export(get_all_solvers)
+export(get_all_system_solvers)
+
+export(get_all_se_solvers)
 
 exportPattern("Parms$")
 
