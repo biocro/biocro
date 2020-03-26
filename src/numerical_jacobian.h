@@ -20,7 +20,7 @@
  *               the time derivative of each state variable.
  */
 template <typename vector_type, typename time_type>
-void evaluate_equations(std::shared_ptr<System> const& sys, vector_type const& x, time_type const& t, vector_type& y)
+void evaluate_equations(std::shared_ptr<System> const& sys, vector_type const& x, time_type t, vector_type& y)
 {
     sys->operator()(x, y, t);
 }
@@ -39,8 +39,12 @@ void evaluate_equations(std::shared_ptr<System> const& sys, vector_type const& x
  * @param[out] y the vector output. Since we are evaluating simultaneous equations, y contains the change
  *               in the value of each unknown variable produced by running the modules.
  */
-template <typename vector_type, typename time_type>
-void evaluate_equations(std::shared_ptr<simultaneous_equations> const& se, vector_type const& x, time_type const& /*t*/, vector_type& y)
+template <typename in_vector_type, typename time_type, typename out_vector_type>
+void evaluate_equations(
+    std::shared_ptr<simultaneous_equations> const& se,
+    in_vector_type const& x,
+    time_type /*t*/,
+    out_vector_type& y)
 {
     se->operator()(x, y);
 }
@@ -56,6 +60,8 @@ void evaluate_equations(std::shared_ptr<simultaneous_equations> const& se, vecto
  * @param[in] x an input vector to be passed to the vector valued function.
  * 
  * @param[in] t an input time to be passed to the vector valued function.
+ * 
+ * @param[in] f_current the output of the vector valued function evaluated at x, t
  * 
  * @param[out] jacobi the calculated Jacobian matrix (containing df_i/dx_j evaluated at x, t)
  * 
@@ -87,25 +93,23 @@ void evaluate_equations(std::shared_ptr<simultaneous_equations> const& se, vecto
  *  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro evaluations are expensive.
  *  Likewise, higher-order numerical derivative calculations are also not worthwhile.
  */
-template <typename equation_type, typename vector_type, typename time_type, typename matrix_type>
+template <typename equation_type, typename x_vector_type, typename time_type, typename f_vector_type, typename matrix_type>
 void calculate_jacobian(
     std::shared_ptr<equation_type> const& equation_ptr,
-    vector_type const& x,
-    time_type const& t,
+    x_vector_type const& x,
+    time_type t,
+    f_vector_type const& f_current,
     matrix_type& jacobi)
 {
     size_t n = x.size();
 
-    // Make vectors to store the current and perturbed f(x,t)
-    vector_type f_current(n);
-    vector_type f_perturbed(n);
+    // Make a vector to store the perturbed f(x,t)
+    f_vector_type f_perturbed(n);
 
-    // Get the current f(x,t)
-    evaluate_equations(equation_ptr, x, t, f_current);
-
-    // Perturb each element x_j of the input vector to find df_i(x,t)/dx_j
+    // Perturb each element x_i of the input vector to find df_j(x,t)/dx_i,
+    // which is stored at jacobi(j,i)
     double h;
-    vector_type x_perturbed = x;
+    x_vector_type x_perturbed = x;
 
     for (size_t i = 0; i < n; i++) {
         // Ensure that the step size h is close to eps_deriv but is exactly representable
@@ -129,10 +133,40 @@ void calculate_jacobian(
 }
 
 /**
- * @brief A wrapper for jacobian::calculate_jacobian(equation_ptr, x, t, jacobi) for equations that
+ * @brief A wrapper for calculate_jacobian(equation_ptr, x, t, f_current, jacobi) that
+ * automatically evaluates f_current.
+ */
+template <typename equation_type, typename vector_type, typename time_type, typename matrix_type>
+void calculate_jacobian(
+    std::shared_ptr<equation_type> const& equation_ptr,
+    vector_type const& x,
+    time_type t,
+    matrix_type& jacobi)
+{
+    vector_type f_current(x.size());
+    evaluate_equations(equation_ptr, x, t, f_current);
+    calculate_jacobian(equation_ptr, x, t, f_current, jacobi);
+}
+
+/**
+ * @brief A wrapper for calculate_jacobian(equation_ptr, x, t, f_current, jacobi) for equations that
  * have no time dependence.
  */
-template <typename equation_type, typename vector_type, typename matrix_type>
+template <typename equation_type, typename x_vector_type, typename f_vector_type, typename matrix_type>
+void calculate_jacobian_nt(
+    std::shared_ptr<equation_type> const& equation_ptr,
+    x_vector_type const& x,
+    f_vector_type const& f_current,
+    matrix_type& jacobi)
+{
+    calculate_jacobian(equation_ptr, x, 0, f_current, jacobi);
+}
+
+/**
+ * @brief A wrapper for calculate_jacobian(equation_ptr, x, t, f_current, jacobi) that
+ * automatically evaluates f_current for equations that have no time dependence.
+ */
+template <typename equation_type, typename vector_type, typename time_type, typename matrix_type>
 void calculate_jacobian(
     std::shared_ptr<equation_type> const& equation_ptr,
     vector_type const& x,
@@ -155,27 +189,26 @@ void calculate_jacobian(
  * 
  * @param[in] t an input time to be passed to the vector valued function.
  * 
+ * @param[in] f_current the output of the vector valued function evaluated at x, t
+ * 
  * @param[out] dfdt the calculated time derivative, i.e., df_i/dt evaluated at (x, t)
  * 
  * For discussion of numerical derivative calculation, see description of
  * jacobian::calculate_jacobian(equation_ptr, x, t, jacobi).
  */
-template <typename equation_type, typename time_type, typename vector_type>
+template <typename equation_type, typename time_type, typename x_vector_type, typename f_vector_type>
 void calculate_time_derivative(
     std::shared_ptr<equation_type> const& equation_ptr,
-    time_type const& max_time,
-    vector_type const& x,
-    time_type const& t,
-    vector_type& dfdt)
+    time_type max_time,
+    x_vector_type const& x,
+    time_type t,
+    f_vector_type const& f_current,
+    f_vector_type& dfdt)
 {
     size_t n = x.size();
 
-    // Make vectors to store the current and perturbed f(x,t)
-    vector_type f_current(n);
-    vector_type f_perturbed(n);
-
-    // Get the current f(x,t)
-    evaluate_equations(equation_ptr, x, t, f_current);
+    // Make a vector to store the perturbed f(x,t)
+    f_vector_type f_perturbed(n);
 
     // Perturb the time to find df(x,t)/dt
     // Use a forward step whenever possible
@@ -200,6 +233,23 @@ void calculate_time_derivative(
 }
 
 /**
+ * @brief A wrapper for calculate_time_derivative(equation_ptr, max_time, x, t, f_current, dfdt)
+ * that automatically calculates f_current
+ */
+template <typename equation_type, typename time_type, typename x_vector_type, typename f_vector_type>
+void calculate_time_derivative(
+    std::shared_ptr<equation_type> const& equation_ptr,
+    time_type max_time,
+    x_vector_type const& x,
+    time_type t,
+    f_vector_type& dfdt)
+{
+    f_vector_type f_current(x.size());
+    evaluate_equations(equation_ptr, x, t, f_current);
+    calculate_time_derivative(equation_ptr, max_time, x, t, f_current, dfdt);
+}
+
+/**
  * @brief Numerically compute the Jacobian matrix and time derivatives of a vector valued function.
  * 
  * @param[in] equation_ptr a pointer to an object that can be used to represent a vector valued function f.
@@ -220,9 +270,9 @@ void calculate_time_derivative(
 template <typename equation_type, typename time_type, typename vector_type, typename matrix_type>
 void calculate_jacobian_and_time_derivative(
     std::shared_ptr<equation_type> const& equation_ptr,
-    time_type const& max_time,
+    time_type max_time,
     vector_type const& x,
-    time_type const& t,
+    time_type t,
     matrix_type& jacobi,
     vector_type& dfdt)
 {

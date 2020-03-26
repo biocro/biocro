@@ -118,7 +118,7 @@ test_that("Derivative modules only supply derivatives for quantities in the init
 	
 })
 
-test_that("Steady state modules must be supplied in the correct order", {
+test_that("Steady state modules are not required to be supplied in the correct order", {
 	# Set up some bad inputs
 	
 	initial_state <- list(
@@ -141,10 +141,10 @@ test_that("Steady state modules must be supplied in the correct order", {
 	
 	expect_true(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
-	# If we change the module order, it shouldn't be valid
+	# If we change the module order, it should still be valid
 	
 	steady_state_module_names <- c("Module_2", "Module_1")
 	
-	expect_false(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_true(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })

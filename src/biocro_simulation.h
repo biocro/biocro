@@ -5,7 +5,7 @@
 #include "state_map.h"
 #include "system.h"
 #include "system_solver.h"
-#include "solver_library/SystemSolverFactory.hpp"
+#include "system_solver_library/SystemSolverFactory.hpp"
 
 // Class that represents a BioCro simulation
 class biocro_simulation
