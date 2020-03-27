@@ -17,7 +17,7 @@ class module_wrapper_factory {
     private:
         // Map that links module names to wrapper constructors.
         typedef std::unique_ptr<module_wrapper_base>(*f_ptr)();
-        const static std::unordered_map<std::string, f_ptr> modules;
+        static std::unordered_map<std::string, f_ptr> modules;
 };
 
 #endif

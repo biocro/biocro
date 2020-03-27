@@ -90,7 +90,7 @@ std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string 
     }
 }
 
-const std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrapper_factory::modules =
+std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrapper_factory::modules =
 {
      {"harmonic_oscillator",                             &create_wrapper<harmonic_oscillator>},
      {"harmonic_energy",                                 &create_wrapper<harmonic_energy>},
