@@ -1,80 +1,81 @@
-#include <string>
-#include <vector>
-#include <algorithm>
-#include "module_wrapper.h"
+#include <algorithm> // for std::transform
+#include <cctype>   // for std::tolower
 #include "module_wrapper_factory.h"
 
 // Include all the header files that define the modules.
-#include "module_library/harmonic_oscillator.hpp"  // Contains harmonic_oscillator and harmonic_energy
-#include "module_library/size_testing.hpp"         // Contains P1, P10, P100, and P1000
-#include "module_library/reaction.hpp"
-#include "module_library/nr_ex.hpp"
-#include "module_library/one_layer_soil_profile.hpp"
-#include "module_library/one_layer_soil_profile_derivatives.hpp"
-#include "module_library/two_layer_soil_profile.hpp"
-#include "module_library/soil_type_selector.hpp"
-#include "module_library/soil_evaporation.hpp"
-#include "module_library/parameter_calculator.hpp"
-#include "module_library/c3_canopy.hpp"
-#include "module_library/c4_canopy.hpp"
-#include "module_library/stomata_water_stress_linear.hpp"
-#include "module_library/stomata_water_stress_exponential.hpp"
-#include "module_library/stomata_water_stress_linear_aba_response.hpp"
-#include "module_library/stomata_water_stress_sigmoid.hpp"
-#include "module_library/thermal_time_accumulator.hpp"
-#include "module_library/utilization_growth.hpp"
-#include "module_library/utilization_growth_calculator.hpp"
-#include "module_library/utilization_senescence.hpp"
-#include "module_library/utilization_senescence_calculator.hpp"
-#include "module_library/leaf_water_stress_exponential.hpp"
-#include "module_library/biomass_leaf_n_limitation.hpp"
-#include "module_library/pokhilko_circadian_clock.hpp"
-#include "module_library/song_flowering.hpp"
-#include "module_library/fake_solar.hpp"
-#include "module_library/partitioning_coefficient_selector.hpp"
-#include "module_library/partitioning_growth.hpp"
-#include "module_library/partitioning_growth_calculator.hpp"
-#include "module_library/no_leaf_resp_partitioning_growth_calculator.hpp"
-#include "module_library/thermal_time_senescence.hpp"
-#include "module_library/thermal_time_and_frost_senescence.hpp"
-#include "module_library/empty_senescence.hpp"
-#include "module_library/aba_decay.hpp"
-#include "module_library/ball_berry_module.hpp"
-#include "module_library/water_vapor_properties_from_air_temperature.hpp"
-#include "module_library/penman_monteith_transpiration.hpp"
-#include "module_library/penman_monteith_leaf_temperature.hpp"
-#include "module_library/priestley_transpiration.hpp"
-#include "module_library/FvCB.hpp"
-#include "module_library/gamma_oscillator.hpp"
-#include "module_library/position_oscillator.hpp"
-#include "module_library/velocity_oscillator.hpp"
-#include "module_library/test_module.hpp"
-#include "module_library/test_calc_state.hpp"
-#include "module_library/test_derivs.hpp"
-#include "module_library/bucket_soil_drainage.hpp"
-#include "module_library/linear_vmax_from_leaf_n.hpp"
-#include "module_library/module_graph_test.hpp"  // Includes Module_1, Module_2, and Module_3
-#include "module_library/collatz_leaf.hpp"
-#include "module_library/canac_with_collatz.hpp"
-#include "module_library/big_leaf_multilayer_canopy.hpp"
-#include "module_library/flowering.hpp"
-#include "module_library/flowering_calculator.hpp"
-#include "module_library/solar_zenith_angle.hpp"
-#include "module_library/light_macro_environment.hpp"
-#include "module_library/multilayer_canopy_properties.hpp"
-#include "module_library/light_from_solar.hpp"
-#include "module_library/night_and_day_trackers.hpp"
-#include "module_library/oscillator_clock_calculator.hpp"
-#include "module_library/poincare_clock.hpp"
-#include "module_library/magic_clock.hpp"
-#include "module_library/phase_clock.hpp"
-#include "module_library/ed_ball_berry.h"
-#include "module_library/ed_collatz_c4_assimilation.h"
-#include "module_library/ed_gas_concentrations.h"
-#include "module_library/ed_long_wave_energy_loss.h"
-#include "module_library/ed_penman_monteith_leaf_temperature.h"
-#include "module_library/hyperbolas.h"
+#include "harmonic_oscillator.hpp"  // Contains harmonic_oscillator and harmonic_energy
+#include "size_testing.hpp"         // Contains P1, P10, P100, and P1000
+#include "reaction.hpp"
+#include "nr_ex.hpp"
+#include "one_layer_soil_profile.hpp"
+#include "one_layer_soil_profile_derivatives.hpp"
+#include "two_layer_soil_profile.hpp"
+#include "soil_type_selector.hpp"
+#include "soil_evaporation.hpp"
+#include "parameter_calculator.hpp"
+#include "c3_canopy.hpp"
+#include "c4_canopy.hpp"
+#include "stomata_water_stress_linear.hpp"
+#include "stomata_water_stress_exponential.hpp"
+#include "stomata_water_stress_linear_aba_response.hpp"
+#include "stomata_water_stress_sigmoid.hpp"
+#include "thermal_time_accumulator.hpp"
+#include "utilization_growth.hpp"
+#include "utilization_growth_calculator.hpp"
+#include "utilization_senescence.hpp"
+#include "utilization_senescence_calculator.hpp"
+#include "leaf_water_stress_exponential.hpp"
+#include "biomass_leaf_n_limitation.hpp"
+#include "pokhilko_circadian_clock.hpp"
+#include "song_flowering.hpp"
+#include "fake_solar.hpp"
+#include "partitioning_coefficient_selector.hpp"
+#include "partitioning_growth.hpp"
+#include "partitioning_growth_calculator.hpp"
+#include "no_leaf_resp_partitioning_growth_calculator.hpp"
+#include "thermal_time_senescence.hpp"
+#include "thermal_time_and_frost_senescence.hpp"
+#include "empty_senescence.hpp"
+#include "aba_decay.hpp"
+#include "ball_berry_module.hpp"
+#include "water_vapor_properties_from_air_temperature.hpp"
+#include "penman_monteith_transpiration.hpp"
+#include "penman_monteith_leaf_temperature.hpp"
+#include "priestley_transpiration.hpp"
+#include "FvCB.hpp"
+#include "gamma_oscillator.hpp"
+#include "position_oscillator.hpp"
+#include "velocity_oscillator.hpp"
+#include "test_module.hpp"
+#include "test_calc_state.hpp"
+#include "test_derivs.hpp"
+#include "bucket_soil_drainage.hpp"
+#include "linear_vmax_from_leaf_n.hpp"
+#include "module_graph_test.hpp"  // Includes Module_1, Module_2, and Module_3
+#include "collatz_leaf.hpp"
+#include "canac_with_collatz.hpp"
+#include "big_leaf_multilayer_canopy.hpp"
+#include "flowering.hpp"
+#include "flowering_calculator.hpp"
+#include "solar_zenith_angle.hpp"
+#include "light_macro_environment.hpp"
+#include "multilayer_canopy_properties.hpp"
+#include "light_from_solar.hpp"
+#include "night_and_day_trackers.hpp"
+#include "oscillator_clock_calculator.hpp"
+#include "poincare_clock.hpp"
+#include "magic_clock.hpp"
+#include "phase_clock.hpp"
+#include "ed_ball_berry.h"
+#include "ed_collatz_c4_assimilation.h"
+#include "ed_gas_concentrations.h"
+#include "ed_long_wave_energy_loss.h"
+#include "ed_penman_monteith_leaf_temperature.h"
+#include "hyperbolas.h"
 
+/**
+ * @brief A function that returns a unique_ptr to a module_wrapper_base object.
+ */
 template <typename T>
 std::unique_ptr<module_wrapper_base> create_wrapper()
 {
@@ -84,13 +85,18 @@ std::unique_ptr<module_wrapper_base> create_wrapper()
 std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string const& module_name)
 {
     try {
-        return modules.at(module_name)();
-    } catch (std::out_of_range const& oor) {
-        throw std::out_of_range(std::string("\"") + module_name + std::string("\"") + std::string(" was given as a module name, but no module with that name could be found.\n"));
+        return module_wrapper_factory::module_wrapper_creators.at(module_name)();
+    } catch (std::out_of_range) {
+        std::string message = std::string("\"") + module_name +
+                       std::string("\"") +
+                       std::string(" was given as a module name, ") +
+                       std::string("but no module with that name could be found.\n.");
+
+        throw std::out_of_range(message);
     }
 }
 
-std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrapper_factory::modules =
+module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::module_wrapper_creators =
 {
      {"harmonic_oscillator",                             &create_wrapper<harmonic_oscillator>},
      {"harmonic_energy",                                 &create_wrapper<harmonic_energy>},
@@ -173,7 +179,7 @@ std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrapper_fa
 std::vector<std::string> module_wrapper_factory::get_modules()
 {
     std::vector<std::string> module_name_vector;
-    for (auto const& x : modules) {
+    for (auto const& x : module_wrapper_creators) {
         module_name_vector.push_back(x.first);
     }
 

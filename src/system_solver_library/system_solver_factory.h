@@ -2,30 +2,20 @@
 #define SYSTEM_SOLVER_FACTORY_HPP
 
 #include <memory>
+#include <string>
+#include <vector>
+#include <map>
 #include "../system_solver.h"
 
-// Define a function that returns a pointer to a system solver
-template <class solver_type>
-std::unique_ptr<system_solver> createSystemSolver(
-    double step_size,
-    double rel_error_tolerance,
-    double abs_error_tolerance,
-    int max_steps)
-{
-    return std::unique_ptr<system_solver>(new solver_type(step_size, rel_error_tolerance, abs_error_tolerance, max_steps));
-}
-
-// We are passing names from R as strings, so we need a way to create objects from strings.
-// This is a factory that makes system solvers from strings.
-class SystemSolverFactory
+class system_solver_factory
 {
    public:
-    std::unique_ptr<system_solver> operator()(
+    static std::unique_ptr<system_solver> create(
         std::string const& system_solver_name,
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) const;
+        int max_steps);
 
     static std::vector<std::string> get_solvers();
 
@@ -35,7 +25,5 @@ class SystemSolverFactory
     using preferred_state_type = std::vector<double>;                                               // A default value for state type
     static system_solver_creator_map system_solver_creators;
 };
-
-extern SystemSolverFactory system_solver_factory;
 
 #endif
