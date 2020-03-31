@@ -77,15 +77,18 @@ void simultaneous_equations::operator()(in_vector_type const& unknown_quantity_v
     // Increment the counter
     ++ncalls;
 
-    // Clear all the steady state outputs in the module output map
-    for (double* const& x : steady_state_ptrs) {
-        *x = 0.0;
+    // Clear all the steady state outputs in the main quantity map
+    for (auto const& x : steady_state_ptr_pairs) {
+        *x.first = 0.0;
     }
 
     // Set the input values of the unknown quantities in the main quantity map
     for (size_t i = 0; i < unknown_ptrs.size(); i++) {
         *(unknown_ptrs[i]) = unknown_quantity_vector[i];
     }
+
+    // Initialize the module output map so it has the same values as the main map
+    module_output_map = quantities;
 
     // Run each module and store its output in the main quantity map
     for (std::unique_ptr<Module> const& m : steady_state_modules) {
