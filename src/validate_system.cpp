@@ -3,21 +3,21 @@
 #include "state_map.h"
 #include "module_library/module_wrapper_factory.h"
 #include "modules.h"
+#include "utils/module_dependency_utilities.h" // for has_cyclic_dependency
 
 /**
   * @brief Checks over a group of quantities and modules to ensure they can be
   *        used to create a valid system.
   *
   * @param[in,out] message Validation feedback is added to this string.
-  * @return true if the inputs are valid, false otherwise.
+  * @return `true` if the inputs are valid, `false` otherwise.
   * 
   * The following criteria are used to determine validity:
   * 1. Each quantity is specified only once.
   * 2. All module inputs are specified.
   * 3. Derivatives are calculated only for quantities in the initial state.
   * 4. Steady-state modules can be ordered in such a way that inputs
-  *    are calculated before they are accessed.  This is checked
-  *    elsewhere, not in this function.
+  *    are calculated before they are accessed.
   *
   * We consider a quantity to have been "specified" (or "defined") if it is a
   * key in one of the maps `initial_state`, `invariant_params`, or
@@ -98,6 +98,29 @@ bool validate_system_inputs(
             return create_message(
                 std::string("All derivative module outputs were included in the initial state"),
                 std::string("The following derivative module outputs were not part of the initial state:"),
+                std::string(""),
+                string_list
+            );
+        }
+    );
+
+    // Criterion 4
+    num_problems += process_criterion<string_vector>(
+        message,
+        [=]() -> string_vector {
+            string_vector result {};
+            if (has_cyclic_dependency(ss_module_names)) {
+                // For now, we just want a non-zero vector size.  It
+                // may, however, prove useful to display a set of
+                // modules that comprise a cyclic dependency.
+                result.push_back("");
+            }
+            return  result;
+        },
+        [](string_vector string_list) -> std::string {
+            return create_message(
+                std::string("There are no cyclic dependencies among the steady-state modules."),
+                std::string("The steady-state modules have a cyclic dependency."),
                 std::string(""),
                 string_list
             );

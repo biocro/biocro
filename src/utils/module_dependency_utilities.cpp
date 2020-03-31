@@ -189,6 +189,59 @@ Graph get_dependency_graph(string_vector module_names) {
 }
 
 /**
+ *  A class suitable to use as a visitor for detecting a cycle in a directed
+ *  graph.  The code here was copied and adapted from the example at
+ *  https://www.boost.org/doc/libs/1_72_0/libs/graph/example/file_dependencies.cpp.
+ */
+class cycle_detector : public boost::dfs_visitor<>
+{
+   public:
+    cycle_detector(bool& has_cycle)
+        : has_cycle(has_cycle) {}
+
+    template <typename Edge, typename Graph>
+    void back_edge(Edge, Graph&) const { has_cycle = true; }
+
+   private:
+    bool& has_cycle;
+};
+
+/**
+ *  Given a directed graph g, return true if g has a cycle, false otherwise.
+ *
+ *  @param g A graph object of type Graph.
+ *
+ *  @returns true if directed graph g has a cycle, false if it is
+ *           acyclic.
+ */
+bool has_cycle(Graph g) {
+    bool has_cycle = false;
+
+    cycle_detector vis(has_cycle);
+    depth_first_search(g, visitor(vis));
+
+    return has_cycle;
+}
+
+/**
+ *  Given a list of steady-state module names (presented as a vector
+ *  of strings), determine if the list can be put in a suitable order
+ *  for evaluating the modules.
+ *
+ *  @param module_names A list (presented as a vector of strings) of
+ *                      names of steady-state modules.
+ *
+ *  @returns `true` if there is a cyclic dependency among the given
+ *           modules so that they cannot be suitably ordered; `false`
+ *           otherwise.
+ *
+ */
+bool has_cyclic_dependency(string_vector module_names) {
+    Graph g = get_dependency_graph(module_names);
+    return has_cycle(g);
+}
+
+/**
  *  Given a directed acyclic graph g, return a ordered list of the
  *  vertices (presented as a vertex_list object) such that for each
  *  edge of the graph, the source vertex of the edge occurs in the
@@ -222,24 +275,24 @@ vertex_list get_topological_ordering(const Graph& g) {
 
 /**
  *  Given a list of steady-state module names (presented as a vector
- *  of strings), return the same list in a suitable order for the
+ *  of strings), return the same list in a suitable order for
  *  evaluating the modules.
  *
  *  If no such ordering exists (due to a cyclic dependency), the
  *  function throws an exception of type
  *  boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>>.
  *
- *  @param g A Graph object modeling the dependency structure of a set
- *           of steady-state modules.
+ *  @param module_names A list (presented as a vector of strings) of
+ *                      names of steady-state modules.
  *
- *  @return A list of the vertices of g (presented as a list of Vertex
- *          objects) ordered so that the module associated with each
- *          vertex in the list depends only on modules associated with
- *          vertices occuring earlier in the list.
+ *  @return The same list given in `module_names`, but ordered so that
+ *          each module in the list depends only on modules occuring
+ *          earlier in the list.
  *
  *  @throws boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>>
- *              Thrown if there is a cyclic dependency in the set of
- *              modules specified by module_names.
+ *              Thrown if there is no suitable evaluation order due to
+ *              a cyclic dependency in the set of modules specified by
+ *              `module_names`.
  */
 string_vector get_evaluation_order(string_vector module_names) {
     Graph g = get_dependency_graph(module_names);
@@ -258,43 +311,4 @@ string_vector get_evaluation_order(string_vector module_names) {
     }
 
     return ordered_module_list;
-}
-
-
-
-/////////// Currently-unused functions and classes ////////////////
-
-/**
- *  A class suitable to use as a visitor for detecting a cycle in a directed
- *  graph.  The code here was copied and adapted from the example at
- *  https://www.boost.org/doc/libs/1_72_0/libs/graph/example/file_dependencies.cpp.
- */
-class cycle_detector : public boost::dfs_visitor<>
-{
-   public:
-    cycle_detector(bool& has_cycle)
-        : has_cycle(has_cycle) {}
-
-    template <typename Edge, typename Graph>
-    void back_edge(Edge, Graph&) const { has_cycle = true; }
-
-   private:
-    bool& has_cycle;
-};
-
-/**
- *  Given a directed graph g, return true if g has a cycle, false otherwise.
- *
- *  @param g A graph object of type Graph.
- *
- *  @returns true if directed graph g has a cycle, false if it is
- *           acyclic.
- */
-bool has_cycle(Graph g) {
-    bool has_cycle = false;
-
-    cycle_detector vis(has_cycle);
-    depth_first_search(g, visitor(vis));
-
-    return has_cycle;
 }
