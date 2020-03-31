@@ -38,6 +38,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
                                                                       co2_mole_fraction_intercellular_ip(get_ip(input_parameters, "co2_mole_fraction_intercellular")),
                                                                       collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
                                                                       collatz_beta_ip(get_ip(input_parameters, "collatz_beta")),
+                                                                      assimilation_adjustment_factor_WS_ip(get_ip(input_parameters, "assimilation_adjustment_factor_WS")),
                                                                       // Get pointers to output parameters
                                                                       collatz_KT_op(get_op(output_parameters, "collatz_KT")),
                                                                       collatz_RT_op(get_op(output_parameters, "collatz_RT")),
@@ -46,6 +47,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
                                                                       assimilation_rubisco_limited_op(get_op(output_parameters, "assimilation_rubisco_limited")),
                                                                       assimilation_light_limited_op(get_op(output_parameters, "assimilation_light_limited")),
                                                                       assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
+                                                                      respiration_op(get_op(output_parameters, "respiration")),
                                                                       assimilation_net_op(get_op(output_parameters, "assimilation_net"))
 
     {
@@ -67,6 +69,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     const double* co2_mole_fraction_intercellular_ip;
     const double* collatz_theta_ip;
     const double* collatz_beta_ip;
+    const double* assimilation_adjustment_factor_WS_ip;
     // Pointers to output parameters
     double* collatz_KT_op;
     double* collatz_RT_op;
@@ -75,6 +78,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     double* assimilation_rubisco_limited_op;
     double* assimilation_light_limited_op;
     double* assimilation_gross_op;
+    double* respiration_op;
     double* assimilation_net_op;
     // Main operation
     void do_operation() const override;
@@ -94,7 +98,8 @@ std::vector<std::string> ed_collatz_c4_assimilation::get_inputs()
         "collatz_PAR_flux",                   // mol / m^2 / s
         "co2_mole_fraction_intercellular",    // mol / mol
         "collatz_theta",                      // dimensionless
-        "collatz_beta"                        // dimensionless
+        "collatz_beta",                       // dimensionless
+        "assimilation_adjustment_factor_WS"   // dimensionless
     };
 }
 
@@ -108,6 +113,7 @@ std::vector<std::string> ed_collatz_c4_assimilation::get_outputs()
         "assimilation_rubisco_limited",  // mol / m^2 / s
         "assimilation_light_limited",    // mol / m^2 / s
         "assimilation_gross",            // mol / m^2 / s
+        "respiration",                   // mol / m^2 / s
         "assimilation_net"               // mol / m^2 / s
     };
 }
@@ -155,15 +161,18 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Calculate net assimilation rate
     const double assimilation_net = A - respiration;
-    
+
+    // Apply a possible reduction accounting for the effect of water stress on the stomata
+    const double adjusted_assimilation_net = assimilation_net * *assimilation_adjustment_factor_WS_ip;
+
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"the quadratic 'M_a' coefficient cannot be zero",          M_a == 0},                              // divide by zero
-        {"the quadratic M_root_term cannot be negative",            M_root_term < 0},                       // imaginary sqrt
-        {"the quadratic 'A_a' coefficient cannot be zero",          A_a == 0},                              // divide by zero
-        {"the quadratic A_root_term cannot be negative",            A_root_term < 0},                       // imaginary sqrt
+        {"the quadratic 'M_a' coefficient cannot be zero", M_a == 0},       // divide by zero
+        {"the quadratic M_root_term cannot be negative", M_root_term < 0},  // imaginary sqrt
+        {"the quadratic 'A_a' coefficient cannot be zero", A_a == 0},       // divide by zero
+        {"the quadratic A_root_term cannot be negative", A_root_term < 0},  // imaginary sqrt
     };
-    
+
     check_error_conditions(errors_to_check, get_name());
 
     // Update outputs
@@ -174,7 +183,8 @@ void ed_collatz_c4_assimilation::do_operation() const
     update(assimilation_rubisco_limited_op, assimilation_rubisco_limited);
     update(assimilation_light_limited_op, assimilation_light_limited);
     update(assimilation_gross_op, A);
-    update(assimilation_net_op, assimilation_net);
+    update(respiration_op, respiration);
+    update(assimilation_net_op, adjusted_assimilation_net);
 }
 
 #endif
