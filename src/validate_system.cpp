@@ -59,7 +59,7 @@ bool validate_system_inputs(
         message,
         [=]() -> string_vector { return find_duplicate_quantity_definitions(quantity_names); },
         [](string_vector string_list) -> std::string {
-            return create_message(
+            return create_marked_message(
                 std::string("No quantities were defined multiple times in the inputs"),
                 std::string("The following quantities were defined more than once in the inputs:"),
                 std::string(""),
@@ -77,7 +77,7 @@ bool validate_system_inputs(
             );
         },
         [](string_vector string_list) -> std::string {
-            return create_message(
+            return create_marked_message(
                 std::string("All module inputs were properly defined"),
                 std::string("The following module inputs were not defined:"),
                 std::string(""),
@@ -95,7 +95,7 @@ bool validate_system_inputs(
             );
         },
         [](string_vector string_list) -> std::string {
-            return create_message(
+            return create_marked_message(
                 std::string("All derivative module outputs were included in the initial state"),
                 std::string("The following derivative module outputs were not part of the initial state:"),
                 std::string(""),
@@ -118,7 +118,7 @@ bool validate_system_inputs(
             return  result;
         },
         [](string_vector string_list) -> std::string {
-            return create_message(
+            return create_marked_message(
                 std::string("There are no cyclic dependencies among the steady-state modules."),
                 std::string("The steady-state modules have a cyclic dependency."),
                 std::string(""),

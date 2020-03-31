@@ -163,14 +163,16 @@ template <typename string_list_type>
 std::string create_message(std::string message_if_empty,
                            std::string message_at_beginning,
                            std::string message_at_end,
-                           string_list_type string_list)
+                           string_list_type string_list,
+                           std::string success_indicator = "",
+                           std::string failure_indicator = "")
 {
     std::string message;
 
     if (string_list.size() == 0) {
-        message = std::string{"\n"} + success_mark + message_if_empty + "\n";
+        message = std::string{"\n"} + success_indicator + message_if_empty + "\n";
     } else {
-        message = std::string{"\n"} + failure_mark + message_at_beginning + "\n";
+        message = std::string{"\n"} + failure_indicator + message_at_beginning + "\n";
         for (std::string text_item : string_list) {
             message = add_indented_line(message, text_item, 1);
         }
@@ -180,6 +182,47 @@ std::string create_message(std::string message_if_empty,
     }
 
     return message;
+}
+
+/**
+ * Forms a user feedback message from a list of quantities, modules,
+ * etc.  This function should be used in preference to
+ * `create_message` for the case where a non-empty `string_list`
+ * corresponds to some failure condition and an empty `string_list`
+ * corresponds to success, and we want to prepend success/failure
+ * indicators to the message.
+ *
+ * @param[in] message_if_empty This is the string that will be
+ *                             returned (surrounded by new-line
+ *                             characters and an initial "success"
+ *                             indicator) if string_list is empty.
+ *
+ * @param[in] message_at_beginning This string is prepended (after
+ *                                 being surrounded by new-line
+ *                                 characters and an initial "failure"
+ *                                 indicator) to the body of the
+ *                                 message if string_list is _not_
+ *                                 empty.
+ *
+ * @param[in] message_at_end This string is appended to the body of the message
+ *                           (along with a new-line character) if string_list is
+ *                           not empty.
+ *
+ * @param[in] string_list A list of strings that will form the body of the
+ *                        message.
+ */
+template <typename string_list_type>
+std::string create_marked_message(std::string message_if_empty,
+                                  std::string message_at_beginning,
+                                  std::string message_at_end,
+                                  string_list_type string_list)
+{
+    return create_message(message_if_empty,
+                          message_at_beginning,
+                          message_at_end,
+                          string_list,
+                          success_mark,
+                          failure_mark);
 }
 
 /**
