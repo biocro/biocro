@@ -200,7 +200,9 @@ class cycle_detector : public boost::dfs_visitor<>
         : has_cycle(has_cycle) {}
 
     template <typename Edge, typename Graph>
-    void back_edge(Edge, Graph&) const { has_cycle = true; }
+    void back_edge(Edge, Graph&) const {
+        has_cycle = true;
+    }
 
    private:
     bool& has_cycle;
@@ -240,6 +242,30 @@ bool has_cyclic_dependency(string_vector module_names) {
     Graph g = get_dependency_graph(module_names);
     return has_cycle(g);
 }
+
+/**
+ *  Determines whether the steady-state modules in `module_names`
+ *  need to be reordered before evaluation.
+ *
+ *  @param module_names A list (presented as a vector of strings) of
+ *                      names of steady-state modules.
+ *
+ *  @returns `true` if the list of modules as given in `module_names`
+ *           is a suitable evaluation order, `false` otherwise.
+ *
+ */
+bool order_ok(string_vector module_names) {
+    for (int i = 0; i < module_names.size(); ++i) {
+        for (int j = i; j < module_names.size(); ++j) {
+            if (depends_on(module_names[i], module_names[j])) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 
 /**
  *  Given a directed acyclic graph g, return a ordered list of the
@@ -288,6 +314,10 @@ vertex_list get_topological_ordering(const Graph& g) {
  *  @return The same list given in `module_names`, but ordered so that
  *          each module in the list depends only on modules occuring
  *          earlier in the list.
+ *
+ *  @note Even if the input list `module_names` is already in a
+ *        suitable evaluation order, the output list may nevertheless
+ *        give the modules in a different order.
  *
  *  @throws boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>>
  *              Thrown if there is no suitable evaluation order due to

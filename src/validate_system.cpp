@@ -152,6 +152,33 @@ std::string analyze_system_inputs(
 
     string_set all_module_inputs = find_unique_module_inputs(std::vector<string_vector>{ss_module_names, deriv_module_names});
 
+    // List a suitable ordering for evaluation of the steady-state
+    // modules if the given order isn't suitable.
+    if (!has_cyclic_dependency(ss_module_names)) {
+        process_criterion<string_vector>(
+            message,
+            [=]() -> string_vector {
+                string_vector result {};
+                if (!order_ok(ss_module_names)) {
+                    return get_evaluation_order(ss_module_names);
+                }
+                else {
+                    return {};
+                }
+            },
+            [](string_vector string_list) -> std::string {
+                return create_message(
+                    std::string("The steady-state modules are in a suitable order for evaluation."),
+                    std::string("The steady-state modules need to be re-ordered before evaluation.\n") +
+                                "(This will be done automatically by during System construction.)\n" +
+                                "Here is a suitable ordering:",
+                    std::string(""),
+                    string_list
+                );
+            }
+        );
+    }
+
     // List the quantities used as inputs to the modules
     process_criterion<string_set>(
         message,

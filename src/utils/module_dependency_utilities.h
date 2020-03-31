@@ -10,4 +10,6 @@ string_vector get_evaluation_order(string_vector module_names);
 
 bool has_cyclic_dependency(string_vector module_names);
 
+bool order_ok(string_vector module_names);
+
 #endif
