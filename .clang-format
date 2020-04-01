@@ -9,5 +9,6 @@ BreakBeforeBraces: Linux
 BinPackParameters: false
 DerivePointerAlignment: false
 SortIncludes: false
+ConstructorInitializerIndentWidth: 4
 ...
 
