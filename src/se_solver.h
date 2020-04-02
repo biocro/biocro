@@ -114,8 +114,8 @@ inline se_solver::~se_solver()
  * found, it is first checked to see if it lies within the acceptable bounds. If it lies outside the bounds,
  * it is adjusted with the `adjust_bad_guess` method, which has a default behavior but can be overridden by
  * derived classes. If the new guess doesn't need an adjustment, it is compared to the previous guess to
- * check for convergence using either an absolute or relative threshold. The process ends when convergence
- * occurs or when the number of iterations exceeds a threshold value.
+ * check for convergence using either an absolute or relative threshold. The process ends when all convergence
+ * criteria (relative and absolute) have been met or when the number of iterations exceeds a threshold value.
  */
 template <typename observer_type>
 bool se_solver::solve(
@@ -179,7 +179,7 @@ bool se_solver::solve(
 
         previous_guess = next_guess;
 
-    } while (num_iterations < max_iterations && !converged_abs && !converged_rel);
+    } while (num_iterations < max_iterations && !(converged_abs && converged_rel));
 
     final_value_for_root = next_guess;
 
