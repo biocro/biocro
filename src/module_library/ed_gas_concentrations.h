@@ -95,8 +95,8 @@ std::vector<std::string> ed_gas_concentrations::get_inputs()
         "conductance_stomatal_h2o",      // mol / m^2 / s
         "diffusivity_ratio_boundary",    // dimensionless
         "diffusivity_ratio_stomata",     // dimensionless
-        "co2_mole_fraction_atmosphere",  // mol / mol
-        "rh",                            // Pa / Pa
+        "co2_mole_fraction_atmosphere",  // dimensionless from mol / mol
+        "rh",                            // dimensionless from Pa / Pa
         "ball_berry_slope",              // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
         "ball_berry_intercept",          // mol / m^2 / s
         "assimilation_net"               // mol / m^2 / s
@@ -133,10 +133,16 @@ void ed_gas_concentrations::do_operation() const
     // Calculate the relative humidity at the leaf surface
     const double a = *ball_berry_slope_ip * *assimilation_net_ip / co2_mole_fraction_leaf_surface;
     const double b = *ball_berry_intercept_ip + *conductance_boundary_h2o_ip - a;
-    const double c = *ball_berry_intercept_ip + *conductance_boundary_h2o_ip * *relative_humidity_atmosphere_ip;
+    const double c = -*ball_berry_intercept_ip - *conductance_boundary_h2o_ip * *relative_humidity_atmosphere_ip;
     const double root_term = b * b - 4 * a * c;
-    const double relative_humidity_leaf_surface = (-b + sqrt(root_term)) / (2 * a);
     
+    double relative_humidity_leaf_surface;
+    if (a == 0) {
+        relative_humidity_leaf_surface = -c / b;
+    } else {
+        relative_humidity_leaf_surface = (-b + sqrt(root_term)) / (2 * a);
+    }
+
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
         {"diffusivity_ratio_boundary cannot be zero",               *diffusivity_ratio_boundary_ip == 0},   // divide by zero
@@ -144,10 +150,10 @@ void ed_gas_concentrations::do_operation() const
         {"conductance_boundary_co2 cannot be zero",                 conductance_boundary_co2 == 0},         // divide by zero
         {"conductance_stomatal_co2 cannot be zero",                 conductance_stomatal_co2 == 0},         // divide by zero
         {"co2_mole_fraction_leaf_surface cannot be zero",           co2_mole_fraction_leaf_surface == 0},   // divide by zero
-        {"the quadratic 'a' coefficient cannot be zero",            a == 0},                                // divide by zero
-        {"the quadratic root_term cannot be negative",              root_term < 0}                          // imaginary sqrt
+        {"the quadratic a and b terms cannot both be zero",         a == 0 && b == 0},                      // divide by zero
+        {"the quadratic root_term cannot be negative for a != 0",   a != 0 && root_term < 0}                // imaginary sqrt
     };
-    
+
     check_error_conditions(errors_to_check, get_name());
 
     // Update the output parameter list

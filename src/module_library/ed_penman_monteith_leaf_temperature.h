@@ -77,7 +77,7 @@ std::vector<std::string> ed_penman_monteith_leaf_temperature::get_outputs()
 void ed_penman_monteith_leaf_temperature::do_operation() const
 {
     // Determine the total energy available to the leaf
-    const double total_available_energy = *solar_energy_absorbed_leaf_ip - *long_wave_energy_loss_leaf_ip;
+    const double total_available_energy = *solar_energy_absorbed_leaf_ip - *long_wave_energy_loss_leaf_ip;  // W / m^2
 
     // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
     double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
@@ -85,20 +85,20 @@ void ed_penman_monteith_leaf_temperature::do_operation() const
     // Convert conductances to [m / s]
     const double gc = *conductance_stomatal_h2o_ip * volume_of_one_mole_of_air;  // m / s
     const double ga = *conductance_boundary_h2o_ip * volume_of_one_mole_of_air;  // m / s
-    
+
     const double delta_t_numerator = total_available_energy * (1 / ga + 1 / gc) - *latent_heat_vaporization_of_water_ip * *vapor_density_deficit_ip;
     const double delta_t_denomenator = *latent_heat_vaporization_of_water_ip * (*slope_water_vapor_ip + *psychrometric_parameter_ip * (1 + ga / gc));
     const double delta_t = delta_t_numerator / delta_t_denomenator;
-    
+
     const double temperature_leaf = *temperature_air_ip + delta_t;
-    
+
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"ga cannot be zero",                                       ga == 0},                               // divide by zero
-        {"gc cannot be zero",                                       gc == 0},                               // divide by zero
-        {"delta_t_denomenator cannot be zero",                      delta_t_denomenator == 0}               // divide by zero
+        {"ga cannot be zero",                   ga == 0},                   // divide by zero
+        {"gc cannot be zero",                   gc == 0},                   // divide by zero
+        {"delta_t_denomenator cannot be zero",  delta_t_denomenator == 0}   // divide by zero
     };
-    
+
     check_error_conditions(errors_to_check, get_name());
 
     update(temperature_leaf_op, temperature_leaf);

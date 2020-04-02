@@ -33,7 +33,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
                                                                       collatz_vmax_ip(get_ip(input_parameters, "collatz_vmax")),
                                                                       collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
                                                                       collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
-                                                                      collatz_quantum_efficiency_ip(get_ip(input_parameters, "collatz_quantum_efficiency")),
+                                                                      collatz_alpha_ip(get_ip(input_parameters, "collatz_alpha")),
                                                                       collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
                                                                       co2_mole_fraction_intercellular_ip(get_ip(input_parameters, "co2_mole_fraction_intercellular")),
                                                                       collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
@@ -64,7 +64,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     const double* collatz_vmax_ip;
     const double* collatz_rubisco_temperature_lower_ip;
     const double* collatz_rubisco_temperature_upper_ip;
-    const double* collatz_quantum_efficiency_ip;
+    const double* collatz_alpha_ip;
     const double* collatz_PAR_flux_ip;
     const double* co2_mole_fraction_intercellular_ip;
     const double* collatz_theta_ip;
@@ -94,7 +94,7 @@ std::vector<std::string> ed_collatz_c4_assimilation::get_inputs()
         "collatz_vmax",                       // mol / m^2 / s
         "collatz_rubisco_temperature_lower",  // deg. C
         "collatz_rubisco_temperature_upper",  // deg. C
-        "collatz_quantum_efficiency",         // dimensionless
+        "collatz_alpha",                      // dimensionless
         "collatz_PAR_flux",                   // mol / m^2 / s
         "co2_mole_fraction_intercellular",    // mol / mol
         "collatz_theta",                      // dimensionless
@@ -134,25 +134,37 @@ void ed_collatz_c4_assimilation::do_operation() const
     const double assimilation_rubisco_limited = rubisco_capacity_base / (rubisco_low_temp_inhibition * rubisco_high_temp_inhibition);
 
     // Calculate the light-limited assimilation rate
-    const double assimilation_light_limited = *collatz_quantum_efficiency_ip * *collatz_PAR_flux_ip;
+    const double assimilation_light_limited = *collatz_alpha_ip * *collatz_PAR_flux_ip;
 
     // Use the mixing parameter theta to determine the gross assimilation rate limited by rubisco and light
     const double M_a = *collatz_theta_ip;
     const double M_b = assimilation_rubisco_limited + assimilation_light_limited;
     const double M_c = assimilation_rubisco_limited * assimilation_light_limited;
     const double M_root_term = M_b * M_b - 4 * M_a * M_c;
-    const double M_plus = (-M_b + sqrt(M_root_term)) / (2 * M_a);
-    const double M_minus = (-M_b - sqrt(M_root_term)) / (2 * M_a);
-    const double M = std::min(M_plus, M_minus);
+    
+    double M;
+    if (M_a == 0) {
+        M = -M_c / M_b;
+    } else {
+        const double M_plus = (-M_b + sqrt(M_root_term)) / (2 * M_a);
+        const double M_minus = (-M_b - sqrt(M_root_term)) / (2 * M_a);
+        M = std::min(M_plus, M_minus);
+    }
 
     // Use the mixing parameter beta to determine the gross assimilation rate limited by carbon, rubisco, and light
     const double A_a = *collatz_beta_ip;
     const double A_b = M + assimilation_carbon_limited;
     const double A_c = M * assimilation_carbon_limited;
     const double A_root_term = A_b * A_b - 4 * A_a * A_c;
-    const double A_plus = (-A_b + sqrt(A_root_term)) / (2 * A_a);
-    const double A_minus = (-A_b - sqrt(A_root_term)) / (2 * A_a);
-    const double A = std::min(A_plus, A_minus);
+    
+    double A;
+    if (A_a == 0) {
+        A = -A_c / A_b;
+    } else {
+        const double A_plus = (-A_b + sqrt(A_root_term)) / (2 * A_a);
+        const double A_minus = (-A_b - sqrt(A_root_term)) / (2 * A_a);
+        A = std::min(A_plus, A_minus);
+    }
 
     // Calculate the temperature-dependent leaf respiration
     const double respiration_base = *collatz_rd_ip * temperature_factor;
@@ -167,10 +179,10 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"the quadratic 'M_a' coefficient cannot be zero", M_a == 0},       // divide by zero
-        {"the quadratic M_root_term cannot be negative", M_root_term < 0},  // imaginary sqrt
-        {"the quadratic 'A_a' coefficient cannot be zero", A_a == 0},       // divide by zero
-        {"the quadratic A_root_term cannot be negative", A_root_term < 0},  // imaginary sqrt
+        {"the quadratic M_a and M_b terms cannot both be zero",         M_a == 0 && M_b == 0},                      // divide by zero
+        {"the quadratic M_root_term cannot be negative for M_a != 0",   M_a != 0 && M_root_term < 0},               // imaginary sqrt
+        {"the quadratic A_a and A_b terms cannot both be zero",         A_a == 0 && A_b == 0},                      // divide by zero
+        {"the quadratic A_root_term cannot be negative for A_a != 0",   A_a != 0 && A_root_term < 0}                // imaginary sqrt
     };
 
     check_error_conditions(errors_to_check, get_name());

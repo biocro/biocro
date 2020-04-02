@@ -51,8 +51,8 @@ std::vector<std::string> ed_ball_berry::get_inputs()
         "ball_berry_slope",                 // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
         "ball_berry_intercept",             // mol / m^2 / s
         "assimilation_net",                 // mol / m^2 / s
-        "relative_humidity_leaf_surface",   // Pa / Pa
-        "co2_mole_fraction_leaf_surface",   // mol / mol
+        "relative_humidity_leaf_surface",   // dimensionless from Pa / Pa
+        "co2_mole_fraction_leaf_surface",   // dimensionless from mol / mol
         "conductance_adjustment_factor_WS"  // dimensionless
     };
 }
