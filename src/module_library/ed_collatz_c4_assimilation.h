@@ -139,7 +139,7 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Use the mixing parameter theta to determine the gross assimilation rate limited by rubisco and light
     const double M_a = *collatz_theta_ip;
-    const double M_b = assimilation_rubisco_limited + assimilation_light_limited;
+    const double M_b = -1.0 * (assimilation_rubisco_limited + assimilation_light_limited);
     const double M_c = assimilation_rubisco_limited * assimilation_light_limited;
     const double M_root_term = M_b * M_b - 4 * M_a * M_c;
 
@@ -154,7 +154,7 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Use the mixing parameter beta to determine the gross assimilation rate limited by carbon, rubisco, and light
     const double A_a = *collatz_beta_ip;
-    const double A_b = M + assimilation_carbon_limited;
+    const double A_b = -1.0 * (M + assimilation_carbon_limited);
     const double A_c = M * assimilation_carbon_limited;
     const double A_root_term = A_b * A_b - 4 * A_a * A_c;
 
