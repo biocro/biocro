@@ -15,7 +15,8 @@ class ed_penman_monteith_leaf_temperature : public SteadyModule
    public:
     ed_penman_monteith_leaf_temperature(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
+        std::unordered_map<std::string, double>* output_parameters) 
+        :  // Define basic module properties by passing its name to its parent class
                                                                       SteadyModule("ed_penman_monteith_leaf_temperature"),
                                                                       // Get pointers to input parameters
                                                                       long_wave_energy_loss_leaf_ip(get_ip(input_parameters, "long_wave_energy_loss_leaf")),

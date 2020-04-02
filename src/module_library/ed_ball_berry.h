@@ -14,17 +14,18 @@ class ed_ball_berry : public SteadyModule
    public:
     ed_ball_berry(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("ed_ball_berry"),
-                                                                      // Get pointers to input parameters
-                                                                      ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
-                                                                      ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
-                                                                      assimilation_net_ip(get_ip(input_parameters, "assimilation_net")),
-                                                                      relative_humidity_leaf_surface_ip(get_ip(input_parameters, "relative_humidity_leaf_surface")),
-                                                                      co2_mole_fraction_leaf_surface_ip(get_ip(input_parameters, "co2_mole_fraction_leaf_surface")),
-                                                                      conductance_adjustment_factor_WS_ip(get_ip(input_parameters, "conductance_adjustment_factor_WS")),
-                                                                      // Get pointers to output parameters
-                                                                      conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o"))
+        std::unordered_map<std::string, double>* output_parameters)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule("ed_ball_berry"),
+          // Get pointers to input parameters
+          ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
+          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
+          assimilation_net_ip(get_ip(input_parameters, "assimilation_net")),
+          relative_humidity_leaf_surface_ip(get_ip(input_parameters, "relative_humidity_leaf_surface")),
+          co2_mole_fraction_leaf_surface_ip(get_ip(input_parameters, "co2_mole_fraction_leaf_surface")),
+          conductance_adjustment_factor_WS_ip(get_ip(input_parameters, "conductance_adjustment_factor_WS")),
+          // Get pointers to output parameters
+          conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o"))
 
     {
     }

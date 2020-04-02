@@ -43,24 +43,25 @@ class ed_gas_concentrations : public SteadyModule
    public:
     ed_gas_concentrations(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("ed_gas_concentrations"),
-                                                                      // Get pointers to input parameters
-                                                                      conductance_boundary_h2o_ip(get_ip(input_parameters, "conductance_boundary_h2o")),
-                                                                      conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
-                                                                      diffusivity_ratio_boundary_ip(get_ip(input_parameters, "diffusivity_ratio_boundary")),
-                                                                      diffusivity_ratio_stomata_ip(get_ip(input_parameters, "diffusivity_ratio_stomata")),
-                                                                      co2_mole_fraction_atmosphere_ip(get_ip(input_parameters, "co2_mole_fraction_atmosphere")),
-                                                                      relative_humidity_atmosphere_ip(get_ip(input_parameters, "rh")),
-                                                                      ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
-                                                                      ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
-                                                                      assimilation_net_ip(get_ip(input_parameters, "assimilation_net")),
-                                                                      // Get pointers to output parameters
-                                                                      conductance_boundary_co2_op(get_op(output_parameters, "conductance_boundary_co2")),
-                                                                      conductance_stomatal_co2_op(get_op(output_parameters, "conductance_stomatal_co2")),
-                                                                      co2_mole_fraction_leaf_surface_op(get_op(output_parameters, "co2_mole_fraction_leaf_surface")),
-                                                                      co2_mole_fraction_intercellular_op(get_op(output_parameters, "co2_mole_fraction_intercellular")),
-                                                                      relative_humidity_leaf_surface_op(get_op(output_parameters, "relative_humidity_leaf_surface"))
+        std::unordered_map<std::string, double>* output_parameters)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule("ed_gas_concentrations"),
+          // Get pointers to input parameters
+          conductance_boundary_h2o_ip(get_ip(input_parameters, "conductance_boundary_h2o")),
+          conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
+          diffusivity_ratio_boundary_ip(get_ip(input_parameters, "diffusivity_ratio_boundary")),
+          diffusivity_ratio_stomata_ip(get_ip(input_parameters, "diffusivity_ratio_stomata")),
+          co2_mole_fraction_atmosphere_ip(get_ip(input_parameters, "co2_mole_fraction_atmosphere")),
+          relative_humidity_atmosphere_ip(get_ip(input_parameters, "rh")),
+          ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
+          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
+          assimilation_net_ip(get_ip(input_parameters, "assimilation_net")),
+          // Get pointers to output parameters
+          conductance_boundary_co2_op(get_op(output_parameters, "conductance_boundary_co2")),
+          conductance_stomatal_co2_op(get_op(output_parameters, "conductance_stomatal_co2")),
+          co2_mole_fraction_leaf_surface_op(get_op(output_parameters, "co2_mole_fraction_leaf_surface")),
+          co2_mole_fraction_intercellular_op(get_op(output_parameters, "co2_mole_fraction_intercellular")),
+          relative_humidity_leaf_surface_op(get_op(output_parameters, "relative_humidity_leaf_surface"))
 
     {
     }
@@ -135,7 +136,7 @@ void ed_gas_concentrations::do_operation() const
     const double b = *ball_berry_intercept_ip + *conductance_boundary_h2o_ip - a;
     const double c = -*ball_berry_intercept_ip - *conductance_boundary_h2o_ip * *relative_humidity_atmosphere_ip;
     const double root_term = b * b - 4 * a * c;
-    
+
     double relative_humidity_leaf_surface;
     if (a == 0) {
         relative_humidity_leaf_surface = -c / b;

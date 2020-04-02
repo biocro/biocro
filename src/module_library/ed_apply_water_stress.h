@@ -14,13 +14,14 @@ class ed_apply_stomatal_water_stress_via_conductance : public SteadyModule
    public:
     ed_apply_stomatal_water_stress_via_conductance(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("ed_apply_stomatal_water_stress_via_conductance"),
-                                                                      // Get pointers to input parameters
-                                                                      StomataWS_ip(get_ip(input_parameters, "StomataWS")),
-                                                                      // Get pointers to output parameters
-                                                                      conductance_adjustment_factor_WS_op(get_op(output_parameters, "conductance_adjustment_factor_WS")),
-                                                                      assimilation_adjustment_factor_WS_op(get_op(output_parameters, "assimilation_adjustment_factor_WS"))
+        std::unordered_map<std::string, double>* output_parameters)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule("ed_apply_stomatal_water_stress_via_conductance"),
+          // Get pointers to input parameters
+          StomataWS_ip(get_ip(input_parameters, "StomataWS")),
+          // Get pointers to output parameters
+          conductance_adjustment_factor_WS_op(get_op(output_parameters, "conductance_adjustment_factor_WS")),
+          assimilation_adjustment_factor_WS_op(get_op(output_parameters, "assimilation_adjustment_factor_WS"))
 
     {
     }
@@ -70,13 +71,14 @@ class ed_apply_stomatal_water_stress_via_assimilation : public SteadyModule
    public:
     ed_apply_stomatal_water_stress_via_assimilation(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("ed_apply_stomatal_water_stress_via_assimilation"),
-                                                                      // Get pointers to input parameters
-                                                                      StomataWS_ip(get_ip(input_parameters, "StomataWS")),
-                                                                      // Get pointers to output parameters
-                                                                      conductance_adjustment_factor_WS_op(get_op(output_parameters, "conductance_adjustment_factor_WS")),
-                                                                      assimilation_adjustment_factor_WS_op(get_op(output_parameters, "assimilation_adjustment_factor_WS"))
+        std::unordered_map<std::string, double>* output_parameters)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule("ed_apply_stomatal_water_stress_via_assimilation"),
+          // Get pointers to input parameters
+          StomataWS_ip(get_ip(input_parameters, "StomataWS")),
+          // Get pointers to output parameters
+          conductance_adjustment_factor_WS_op(get_op(output_parameters, "conductance_adjustment_factor_WS")),
+          assimilation_adjustment_factor_WS_op(get_op(output_parameters, "assimilation_adjustment_factor_WS"))
 
     {
     }

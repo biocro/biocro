@@ -16,14 +16,15 @@ class ed_long_wave_energy_loss : public SteadyModule
    public:
     ed_long_wave_energy_loss(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("ed_long_wave_energy_loss"),
-                                                                      // Get pointers to input parameters
-                                                                      temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-                                                                      temperature_air_ip(get_ip(input_parameters, "temp")),
-                                                                      emissivity_leaf_ip(get_ip(input_parameters, "emissivity_leaf")),
-                                                                      // Get pointers to output parameters
-                                                                      long_wave_energy_loss_leaf_op(get_op(output_parameters, "long_wave_energy_loss_leaf"))
+        std::unordered_map<std::string, double>* output_parameters)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule("ed_long_wave_energy_loss"),
+          // Get pointers to input parameters
+          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
+          temperature_air_ip(get_ip(input_parameters, "temp")),
+          emissivity_leaf_ip(get_ip(input_parameters, "emissivity_leaf")),
+          // Get pointers to output parameters
+          long_wave_energy_loss_leaf_op(get_op(output_parameters, "long_wave_energy_loss_leaf"))
 
     {
     }

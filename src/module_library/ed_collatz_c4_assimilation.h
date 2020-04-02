@@ -23,32 +23,33 @@ class ed_collatz_c4_assimilation : public SteadyModule
    public:
     ed_collatz_c4_assimilation(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("ed_collatz_c4_assimilation"),
-                                                                      // Get pointers to input parameters
-                                                                      collatz_q10_ip(get_ip(input_parameters, "collatz_q10")),
-                                                                      temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-                                                                      collatz_k_ip(get_ip(input_parameters, "collatz_k")),
-                                                                      collatz_rd_ip(get_ip(input_parameters, "collatz_rd")),
-                                                                      collatz_vmax_ip(get_ip(input_parameters, "collatz_vmax")),
-                                                                      collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
-                                                                      collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
-                                                                      collatz_alpha_ip(get_ip(input_parameters, "collatz_alpha")),
-                                                                      collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
-                                                                      co2_mole_fraction_intercellular_ip(get_ip(input_parameters, "co2_mole_fraction_intercellular")),
-                                                                      collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
-                                                                      collatz_beta_ip(get_ip(input_parameters, "collatz_beta")),
-                                                                      assimilation_adjustment_factor_WS_ip(get_ip(input_parameters, "assimilation_adjustment_factor_WS")),
-                                                                      // Get pointers to output parameters
-                                                                      collatz_KT_op(get_op(output_parameters, "collatz_KT")),
-                                                                      collatz_RT_op(get_op(output_parameters, "collatz_RT")),
-                                                                      collatz_VT_op(get_op(output_parameters, "collatz_VT")),
-                                                                      assimilation_carbon_limited_op(get_op(output_parameters, "assimilation_carbon_limited")),
-                                                                      assimilation_rubisco_limited_op(get_op(output_parameters, "assimilation_rubisco_limited")),
-                                                                      assimilation_light_limited_op(get_op(output_parameters, "assimilation_light_limited")),
-                                                                      assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
-                                                                      respiration_op(get_op(output_parameters, "respiration")),
-                                                                      assimilation_net_op(get_op(output_parameters, "assimilation_net"))
+        std::unordered_map<std::string, double>* output_parameters)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule("ed_collatz_c4_assimilation"),
+          // Get pointers to input parameters
+          collatz_q10_ip(get_ip(input_parameters, "collatz_q10")),
+          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
+          collatz_k_ip(get_ip(input_parameters, "collatz_k")),
+          collatz_rd_ip(get_ip(input_parameters, "collatz_rd")),
+          collatz_vmax_ip(get_ip(input_parameters, "collatz_vmax")),
+          collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
+          collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
+          collatz_alpha_ip(get_ip(input_parameters, "collatz_alpha")),
+          collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
+          co2_mole_fraction_intercellular_ip(get_ip(input_parameters, "co2_mole_fraction_intercellular")),
+          collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
+          collatz_beta_ip(get_ip(input_parameters, "collatz_beta")),
+          assimilation_adjustment_factor_WS_ip(get_ip(input_parameters, "assimilation_adjustment_factor_WS")),
+          // Get pointers to output parameters
+          collatz_KT_op(get_op(output_parameters, "collatz_KT")),
+          collatz_RT_op(get_op(output_parameters, "collatz_RT")),
+          collatz_VT_op(get_op(output_parameters, "collatz_VT")),
+          assimilation_carbon_limited_op(get_op(output_parameters, "assimilation_carbon_limited")),
+          assimilation_rubisco_limited_op(get_op(output_parameters, "assimilation_rubisco_limited")),
+          assimilation_light_limited_op(get_op(output_parameters, "assimilation_light_limited")),
+          assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
+          respiration_op(get_op(output_parameters, "respiration")),
+          assimilation_net_op(get_op(output_parameters, "assimilation_net"))
 
     {
     }
@@ -141,7 +142,7 @@ void ed_collatz_c4_assimilation::do_operation() const
     const double M_b = assimilation_rubisco_limited + assimilation_light_limited;
     const double M_c = assimilation_rubisco_limited * assimilation_light_limited;
     const double M_root_term = M_b * M_b - 4 * M_a * M_c;
-    
+
     double M;
     if (M_a == 0) {
         M = -M_c / M_b;
@@ -156,7 +157,7 @@ void ed_collatz_c4_assimilation::do_operation() const
     const double A_b = M + assimilation_carbon_limited;
     const double A_c = M * assimilation_carbon_limited;
     const double A_root_term = A_b * A_b - 4 * A_a * A_c;
-    
+
     double A;
     if (A_a == 0) {
         A = -A_c / A_b;

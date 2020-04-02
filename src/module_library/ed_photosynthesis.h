@@ -9,15 +9,14 @@ namespace ed_leaf_photosynthesis_stuff
 {
 // Define a list of "typical" module names
 string_vector typical_module_names =
-{
+    {
         "ed_apply_stomatal_water_stress_via_conductance",
         "ed_gas_concentrations",
         "ed_ball_berry",
         "ed_collatz_c4_assimilation",
         "ed_long_wave_energy_loss",
         "water_vapor_properties_from_air_temperature",
-        "ed_penman_monteith_leaf_temperature"
-};
+        "ed_penman_monteith_leaf_temperature"};
 
 // Return all inputs required by the typical modules, excluding any unknowns
 string_vector get_typical_inputs()
@@ -85,8 +84,9 @@ class ed_leaf_photosynthesis : public SteadyModule
         std::string water_vapor_properties_module,
         std::string leaf_temperature_module,
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule(module_name)
+        std::unordered_map<std::string, double>* output_parameters)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule(module_name)
     // Get pointers to input parameters
     // Get pointers to output parameters
     {
@@ -124,16 +124,17 @@ class ed_c4_leaf_photosynthesis : public ed_leaf_photosynthesis
    public:
     ed_c4_leaf_photosynthesis(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) : ed_leaf_photosynthesis("ed_c4_leaf_photosynthesis",
-                                                                                             "ed_apply_stomatal_water_stress_via_conductance",
-                                                                                             "ed_gas_concentrations",
-                                                                                             "ed_ball_berry",
-                                                                                             "ed_collatz_c4_assimilation",
-                                                                                             "ed_long_wave_energy_loss",
-                                                                                             "water_vapor_properties_from_air_temperature",
-                                                                                             "ed_penman_monteith_leaf_temperature",
-                                                                                             input_parameters,
-                                                                                             output_parameters) {}
+        std::unordered_map<std::string, double>* output_parameters)
+        : ed_leaf_photosynthesis("ed_c4_leaf_photosynthesis",
+                                 "ed_apply_stomatal_water_stress_via_conductance",
+                                 "ed_gas_concentrations",
+                                 "ed_ball_berry",
+                                 "ed_collatz_c4_assimilation",
+                                 "ed_long_wave_energy_loss",
+                                 "water_vapor_properties_from_air_temperature",
+                                 "ed_penman_monteith_leaf_temperature",
+                                 input_parameters,
+                                 output_parameters) {}
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 };
