@@ -1,7 +1,7 @@
 #ifndef SE_SOLVER_H
 #define SE_SOLVER_H
 
-#include <memory>   // for std::shared_ptr
+#include <memory>   // for std::unique_ptr
 #include <numeric>  // for std::accumulate
 #include <vector>
 #include <string>
@@ -43,7 +43,7 @@ class se_solver
 
     template <typename observer_type>
     bool solve(
-        std::shared_ptr<simultaneous_equations> const& se,
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& initial_guess_for_root,
         std::vector<double> const& lower_bounds,
         std::vector<double> const& upper_bounds,
@@ -51,7 +51,7 @@ class se_solver
         observer_type observer);
 
     bool solve(
-        std::shared_ptr<simultaneous_equations> const& se,
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& initial_guess_for_root,
         std::vector<double> const& lower_bounds,
         std::vector<double> const& upper_bounds,
@@ -77,7 +77,7 @@ class se_solver
     int num_adjustments;
 
     virtual std::vector<double> get_next_guess(
-        std::shared_ptr<simultaneous_equations> const& se,
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& input_guess) = 0;
 
     virtual std::vector<double> adjust_bad_guess(
@@ -119,7 +119,7 @@ inline se_solver::~se_solver()
  */
 template <typename observer_type>
 bool se_solver::solve(
-    std::shared_ptr<simultaneous_equations> const& se,
+    std::unique_ptr<simultaneous_equations> const& se,
     std::vector<double> const& initial_guess_for_root,
     std::vector<double> const& lower_bounds,
     std::vector<double> const& upper_bounds,
