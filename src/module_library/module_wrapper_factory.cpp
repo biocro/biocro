@@ -72,7 +72,7 @@
 #include "ed_long_wave_energy_loss.h"
 #include "ed_penman_monteith_leaf_temperature.h"
 #include "ed_apply_water_stress.h"
-#include "ed_photosynthesis.h"
+#include "ed_c4_leaf_photosynthesis.h"
 #include "ed_c4photo.h"
 #include "hyperbolas.h"
 
