@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <algorithm>  // for std::sort
 
 typedef std::unordered_map<std::string, std::vector<double>> state_vector_map;
 typedef std::unordered_map<std::string, double> state_map;
@@ -56,21 +57,24 @@ private:
 };
 */
 
-state_map combine_state(state_map state_a, state_map const &state_b);
+state_map combine_state(state_map state_a, state_map const& state_b);
 
-void output_map(state_map const &m);
+void output_map(state_map const& m);
 
-state_map replace_state(state_map const &state, state_map const &newstate);
+state_map replace_state(state_map const& state, state_map const& newstate);
 
-state_map replace_or_insert_state(state_map const &state, state_map const &new_state);
+state_map replace_or_insert_state(state_map const& state, state_map const& new_state);
 
 //state_map update_state(state_map const &state, state_map const &change_in_state);
-void update_state(state_map &state, state_map const &change_in_state);
+void update_state(state_map& state, state_map const& change_in_state);
 
-state_vector_map allocate_state(state_map const &m, size_t n);
+state_vector_map allocate_state(state_map const& m, size_t n);
 
-void append_state_to_vector(state_map const &state, state_vector_map &state_vector);
+void append_state_to_vector(state_map const& state, state_vector_map& state_vector);
 
+/**
+ * @brief Returns a sorted vector of the string keys defined by the map.
+ */
 template <typename map_with_string_key_type>
 std::vector<std::string> keys(map_with_string_key_type const& map)
 {
@@ -78,10 +82,11 @@ std::vector<std::string> keys(map_with_string_key_type const& map)
     for (auto const& it : map) {
         result.push_back(it.first);
     }
+    std::sort(result.begin(), result.end());
     return result;
 }
 
-state_map at(state_vector_map const &vector_map, std::vector<double>::size_type const n);
+state_map at(state_vector_map const& vector_map, std::vector<double>::size_type const n);
 
 template <typename name_list_type>
 state_map state_map_from_names(name_list_type names)
@@ -93,17 +98,15 @@ state_map state_map_from_names(name_list_type names)
     return m;
 }
 
+state_map& operator+=(state_map& lhs, state_map const& rhs);
 
-
-state_map& operator+=(state_map &lhs, state_map const &rhs);
-
-inline state_map operator+(state_map lhs, state_map const &rhs)
+inline state_map operator+(state_map lhs, state_map const& rhs)
 {
     lhs += rhs;
     return lhs;
 }
 
-state_map& operator+=(state_map &x, double const a);
+state_map& operator+=(state_map& x, double const a);
 
 inline state_map operator+(state_map x, double const a)
 {
@@ -117,7 +120,7 @@ inline state_map operator+(double const a, state_map x)
     return x;
 }
 
-state_map& operator*=(state_map &x, double const a);
+state_map& operator*=(state_map& x, double const a);
 
 inline state_map operator*(state_map x, double const a)
 {
@@ -137,35 +140,36 @@ state_map& operator/=(state_map& lhs, double const a);
 
 state_map abs(state_map x);
 
+class safe_state_map
+{
+   private:
+    state_map s;
 
-class safe_state_map {
-private:
-        state_map s;
-public:
-        safe_state_map(state_map s_) : s(s_)
-        {};
+   public:
+    safe_state_map(state_map s_) : s(s_){};
 
-        double at(std::string const& str) {
-            try {
-                return s.at(str);
-            } catch (std::out_of_range const& e) {
-                throw std::out_of_range(std::string(e.what()) + " " + str);
-            }
-        };
+    double at(std::string const& str)
+    {
+        try {
+            return s.at(str);
+        } catch (std::out_of_range const& e) {
+            throw std::out_of_range(std::string(e.what()) + " " + str);
+        }
+    };
 };
 
-class check_state : public state_map {
-    public:
-    check_state(state_map s) : state_map(s) {};
+class check_state : public state_map
+{
+   public:
+    check_state(state_map s) : state_map(s){};
     double at(std::string key)
     {
         try {
             return state_map::at(key);
-        } catch (std::exception &e) {
+        } catch (std::exception& e) {
             throw std::out_of_range(key);
         }
     }
 };
 
 #endif
-

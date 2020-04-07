@@ -177,13 +177,8 @@ simultaneous_equations::simultaneous_equations(
     //  quantities and to retrieve the values of all module outputs.
     // Here it is important to sort the names. They will have a definite
     //  order that the user can safely assume.
-    string_vector sorted_kq_names = keys(known_quantities);
-    std::sort(sorted_kq_names.begin(), sorted_kq_names.end());
-    known_ptrs = get_pointers(sorted_kq_names, quantities);
-
-    string_vector sorted_output_names = steady_state_output_names;
-    std::sort(sorted_output_names.begin(), sorted_output_names.end());
-    output_ptrs = get_const_pointers(sorted_output_names, quantities);
+    known_ptrs = get_pointers(keys(known_quantities), quantities);            // the `keys` function returns sorted keys
+    output_ptrs = get_const_pointers(steady_state_output_names, quantities);  // steady_state_output_names is sorted via `string_set_to_string_vector`
 
     // Get vectors of pointers to important subsets of the quantities.
     // These pointers allow us to efficiently alter portions of the
@@ -200,8 +195,7 @@ simultaneous_equations::simultaneous_equations(
 
 /**
  * @brief Updates the values of the known quantities using the values pointed to by the elements
- * of ptrs_to_values. It is assumed that the elements of `ptr_to_values` follow the same order as
- * the `known_quantities` used as an input to the constructor.
+ * of ptrs_to_values. The elements of `ptr_to_values` must be sorted according to quantity name.
  */
 void simultaneous_equations::update_known_quantities(std::vector<const double*> const& ptrs_to_values)
 {
@@ -216,9 +210,8 @@ void simultaneous_equations::update_known_quantities(std::vector<const double*> 
 
 /**
  * @brief Updates the values of `vector_to_update` using the values pointed to by the elements
- * of the private member `output_ptrs.` These elements all point to elements of the main quantity
- * map member `quantities`. It is assumed that the elements of `vector_to_update` follow the same
- * order as the `steady_state_output_names` vector created in the constructor.
+ * of the private member `output_ptrs.` The elements of `vector_to_update` must be sorted
+ * according to quantity name.
  */
 void simultaneous_equations::get_all_outputs(std::vector<double>& vector_to_update)
 {
@@ -231,6 +224,11 @@ void simultaneous_equations::get_all_outputs(std::vector<double>& vector_to_upda
     }
 }
 
+/**
+ * @brief Finds the unknown quantities defined by the set of modules.
+ * 
+ * @return A sorted list of quantity names
+ */
 string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector)
 {
     string_set required_inputs = find_strictly_required_inputs(module_name_vector);

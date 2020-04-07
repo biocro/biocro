@@ -1,7 +1,6 @@
 #ifndef ED_LEAF_PHOTOSYNTHESIS_H
 #define ED_LEAF_PHOTOSYNTHESIS_H
 
-#include <algorithm>                    // for std:sort
 #include "../validate_system.h"         // for find_strictly_required_inputs and all_are_in_list
 #include "../simultaneous_equations.h"  // for get_unknown_quantities
 #include "../modules.h"
