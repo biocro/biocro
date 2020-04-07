@@ -11,7 +11,7 @@
 namespace ed_leaf_photosynthesis
 {
 /** Define a list of reference module names */
-constexpr string_vector reference_module_names = {
+const string_vector reference_module_names = {
     "ed_apply_stomatal_water_stress_via_conductance",
     "ed_gas_concentrations",
     "ed_ball_berry",
@@ -19,37 +19,6 @@ constexpr string_vector reference_module_names = {
     "ed_long_wave_energy_loss",
     "water_vapor_properties_from_air_temperature",
     "ed_penman_monteith_leaf_temperature"};
-
-/**
- * Define a list of the unknown quantities.
- * Although these quantities can be automatically determined
- * from the modules using 'get_unknown_quantities', here we
- * write them explicitly for clarity and so the order is known.
- */
-constexpr string_vector unknown_quantities = {
-    "assimilation_net",
-    "conductance_stomatal_h2o",
-    "temperature_leaf"};
-
-/** Set the lower bounds for solving the equations */
-constexpr std::vector<double> lower_bounds = {
-    -1.0,   // assimilation_net: this limit would correspond to absurdly high respiration
-    1e-10,  // conductance_stomatal_h2o: conductance must be positive
-    -110    // temperature_leaf: significantly colder than the coldest air temperature ever recorded on the Earth's surface
-};
-
-/** Set the upper bounds for solving the equations */
-constexpr std::vector<double> upper_bounds = {
-    1.0,  // assimilation_net: this limit would correspond to absurdly high assimilation
-    10,   // conductance_stomatal_h2o: this limit would correspond to absurdly high conductance
-    80    // temperature_leaf: significantly higher than the hottest air temperature ever recorded on the Earth's surface
-};
-
-/** Set some basic se_solver properties */
-constexpr std::string se_solver_name = std::string("newton_raphson_boost");
-constexpr double rel_error_tol = 1e-3;
-constexpr double abs_error_tol = 1e-6;
-constexpr int max_iterations = 10;
 
 /**
  * @brief A function that finds all inputs required by the reference modules, excluding any unknowns.
@@ -117,35 +86,21 @@ void check_module_io_equivalence(std::string reference_module, std::string modul
  * The modules are valid if and only if each module has the same inputs and outputs as the
  * corresponding reference module. This function throws an error if there is a problem.
  */
-void validate_modules(string_vector input_module_names)
+bool validate_modules(string_vector input_module_names)
 {
+    if (input_module_names.size() != reference_module_names.size()) {
+        throw std::logic_error("Thrown by ed_leaf_photosynthesis::validate_modules: wrong number of input modules.");
+    }
+
     for (size_t i = 0; i < input_module_names.size(); ++i) {
         try {
             check_module_io_equivalence(reference_module_names[i], input_module_names[i]);
         } catch (std::exception const& e) {
-            throw std::logic_error(std::string("Thrown by ed_leaf_photosynthesis: ") + e.what());
+            throw std::logic_error(std::string("Thrown by ed_leaf_photosynthesis::validate_modules: ") + e.what());
         }
     }
-}
 
-/**
- * @brief Make a simultaneous_equations object if the modules are valid
- */
-std::unique_ptr<simultaneous_equations> make_se(string_vector input_module_names)
-{
-    validate_modules(input_module_names);
-
-    state_map known_quantities;
-
-    string_vector known_reference_inputs = get_reference_inputs();
-
-    for (std::string const& kq : known_reference_inputs) {
-        known_quantities[kq] = 0.0;  // Initialize a state_map for the known quantities with all values set to zero
-    }
-
-    return std::unique_ptr<simultaneous_equations>(new simultaneous_equations(known_quantities,
-                                                                              unknown_quantities,
-                                                                              input_module_names));
+    return true;
 }
 
 /**
@@ -155,7 +110,8 @@ std::unique_ptr<simultaneous_equations> make_se(string_vector input_module_names
  * Note that this module cannot be created by the module_wrapper_factory
  * since its constructor has a different signature than a typical module.
  * Instead, it must have concrete derived classes. This class has been
- * made abstract to indicate this.
+ * made abstract to indicate this. Note also that this module does not
+ * have a do_operation method defined.
  * 
  * @param[in] stomatal_water_stress_application_module
  *            the name of a module with the same input and output quantities
@@ -188,88 +144,30 @@ std::unique_ptr<simultaneous_equations> make_se(string_vector input_module_names
 class module_base : public SteadyModule
 {
    public:
-    module_base(
-        std::string module_name,
-        std::string stomatal_water_stress_application_module,
-        std::string gas_concentration_module,
-        std::string stomatal_conductance_module,
-        std::string assimilation_module,
-        std::string long_wave_energy_loss_module,
-        std::string water_vapor_properties_module,
-        std::string leaf_temperature_module,
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+    module_base(std::string module_name,
+                string_vector input_module_names,
+                const state_map* input_parameters,
+                state_map* output_parameters)
         : SteadyModule(module_name),
-          solver(se_solver_factory::create(se_solver_name, rel_error_tol, abs_error_tol, max_iterations)),
-          se(make_se(string_vector{stomatal_water_stress_application_module,
-                                   gas_concentration_module,
-                                   stomatal_conductance_module,
-                                   assimilation_module,
-                                   long_wave_energy_loss_module,
-                                   water_vapor_properties_module,
-                                   leaf_temperature_module})),
-          // Get pointers to input parameters
+          validated(validate_modules(input_module_names)),
           input_ptrs(get_ip(input_parameters, get_reference_inputs())),
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
-          // Get pointers to output parameters
           output_ptrs(get_op(output_parameters, get_reference_outputs()))
-
     {
-        // Initialize vectors to the correct size
-        initial_guess.resize(unknown_quantities.size());
-        best_guess.resize(unknown_quantities.size());
-        outputs_from_modules.resize(get_reference_outputs().size());
     }
     virtual ~module_base() = 0;
 
    private:
-    // Stuff for solving the simultaneous equations
-    std::unique_ptr<se_solver> solver;
-    std::unique_ptr<simultaneous_equations> se;
-    std::vector<double> mutable initial_guess;
-    std::vector<double> mutable best_guess;
-    std::vector<double> mutable outputs_from_modules;
+    bool validated;
+
+   protected:
     // Pointers to input parameters
     std::vector<const double*> input_ptrs;
-    const double* temperature_air_ip;
-    const double* ball_berry_intercept_ip;
     // Pointers to output parameters
     std::vector<double*> output_ptrs;
-    // Main operation
-    void do_operation() const override;
 };
 
 /** A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header */
 inline module_base::~module_base() {}
-
-/**
- * @brief Uses an se_solver to solve the simultaneous equations for the unknown parameters,
- * and then reports the values of all outputs calculated using the best guess for the
- * unknowns. For the initial guess, we assume zero net assimilation (which corresponds to
- * stomatal conductance = ball_berry_intercept in the Ball-Berry model) and a leaf at
- * thermal equilibrium with the air.
- */
-void module_base::do_operation() const
-{
-    initial_guess[0] = 0.0;                       // assimilation_net
-    initial_guess[1] = *ball_berry_intercept_ip;  // conductance_stomatal_h2o
-    initial_guess[2] = *temperature_air_ip;       // temperature_leaf
-
-    se->update_known_quantities(input_ptrs);
-
-    bool success = solver->solve(se, initial_guess, lower_bounds, upper_bounds, best_guess);
-
-    if (!success) {
-        throw std::runtime_error("Thrown by ed_leaf_photosynthesis::module_base::do_operation: the solver was unable to find a solution.");
-    }
-
-    se->get_all_outputs(outputs_from_modules);
-
-    for (size_t i = 0; i < output_ptrs.size(); ++i) {
-        update(output_ptrs[i], outputs_from_modules[i]);
-    }
-}
 
 }  // namespace ed_leaf_photosynthesis
 
