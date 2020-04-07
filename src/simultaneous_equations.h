@@ -25,6 +25,10 @@ class simultaneous_equations
         string_vector const& unknown_quantities,
         string_vector const& ss_module_names);
 
+    // For using as part of a module
+    void update_known_quantities(std::vector<const double*> const& ptrs_to_values);
+    void get_all_outputs(std::vector<double>& vector_to_update);
+
     // For solving via an equation_solver
     template <typename in_vector_type, typename out_vector_type>
     void operator()(in_vector_type const& unknown_quantity_vector, out_vector_type& difference_vector);
@@ -50,8 +54,10 @@ class simultaneous_equations
     module_vector steady_state_modules;
 
     // Pointers to quantity values defined during construction
+    std::vector<double*> known_ptrs;
     std::vector<double*> unknown_ptrs;
     std::vector<double*> steady_state_ptrs;
+    std::vector<const double*> output_ptrs;
     std::vector<std::pair<double*, const double*>> unknown_ptr_pairs;
     std::vector<std::pair<double*, const double*>> steady_state_ptr_pairs;
 

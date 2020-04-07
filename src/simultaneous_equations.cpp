@@ -1,3 +1,4 @@
+#include <algorithm>  // for std:sort
 #include "simultaneous_equations.h"
 #include "system_helper_functions.h"
 
@@ -158,7 +159,7 @@ simultaneous_equations::simultaneous_equations(
     if (!valid) {
         throw std::logic_error("Thrown by simultaneous_equations::simultaneous_equations: the supplied inputs cannot form a valid set of simultaneous equations.\n\n" + startup_message);
     }
-    
+
     // Make the central list of quantities and the module output map
     quantities = define_quantity_map(
         std::vector<state_map>{known_quantities},
@@ -167,21 +168,67 @@ simultaneous_equations::simultaneous_equations(
 
     // Instantiate the modules
     steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
-    
+
     // Make lists of subsets of quantity names
     string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
 
-    // Get vectors of pointers to important subsets of the quantities
+    // Get vectors of pointers to important subsets of the quantities.
+    // These pointers allow the user to update the values of the known
+    //  quantities and to retrieve the values of all module outputs.
+    // Here it is important to sort the names. They will have a definite
+    //  order that the user can safely assume.
+    string_vector sorted_kq_names = keys(known_quantities);
+    std::sort(sorted_kq_names.begin(), sorted_kq_names.end());
+    known_ptrs = get_pointers(sorted_kq_names, quantities);
+
+    string_vector sorted_output_names = steady_state_output_names;
+    std::sort(sorted_output_names.begin(), sorted_output_names.end());
+    output_ptrs = get_const_pointers(sorted_output_names, quantities);
+
+    // Get vectors of pointers to important subsets of the quantities.
     // These pointers allow us to efficiently alter portions of the
-    //  quantity maps before running the modules
+    //  quantity maps before running the modules.
     unknown_ptrs = get_pointers(unknown_quantities, quantities);
     steady_state_ptrs = get_pointers(steady_state_output_names, module_output_map);
 
-    // Get pairs of pointers to important subsets of the quantities
+    // Get pairs of pointers to important subsets of the quantities.
     // These pairs allow us to efficiently retrieve the output of each
     //  module and store it in the main quantity map
     unknown_ptr_pairs = get_pointer_pairs(unknown_quantities, quantities, module_output_map);
     steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
+}
+
+/**
+ * @brief Updates the values of the known quantities using the values pointed to by the elements
+ * of ptrs_to_values. It is assumed that the elements of `ptr_to_values` follow the same order as
+ * the `known_quantities` used as an input to the constructor.
+ */
+void simultaneous_equations::update_known_quantities(std::vector<const double*> const& ptrs_to_values)
+{
+    if (ptrs_to_values.size() != known_ptrs.size()) {
+        throw std::logic_error("Thrown by simultaneous_equations::update_known_quantities: ptrs_to_values has the wrong size.");
+    }
+
+    for (size_t i = 0; i < known_ptrs.size(); ++i) {
+        *known_ptrs[i] = *ptrs_to_values[i];
+    }
+}
+
+/**
+ * @brief Updates the values of `vector_to_update` using the values pointed to by the elements
+ * of the private member `output_ptrs.` These elements all point to elements of the main quantity
+ * map member `quantities`. It is assumed that the elements of `vector_to_update` follow the same
+ * order as the `steady_state_output_names` vector created in the constructor.
+ */
+void simultaneous_equations::get_all_outputs(std::vector<double>& vector_to_update)
+{
+    if (vector_to_update.size() != output_ptrs.size()) {
+        throw std::logic_error("Thrown by simultaneous_equations::update_known_quantities: vector_to_update has the wrong size.");
+    }
+
+    for (size_t i = 0; i < output_ptrs.size(); ++i) {
+        vector_to_update[i] = *output_ptrs[i];
+    }
 }
 
 string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector)
