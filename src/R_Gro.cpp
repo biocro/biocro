@@ -1,182 +1,210 @@
 #include <stdexcept>
 #include <sstream>
 #include <Rinternals.h>
+#include <cmath>  // For isnan
 #include "module_library/BioCro.h"
 #include "modules.h"
-#include "Gro.h"
-#include "module_library/ModuleFactory.h"
+#include "biocro_simulation.h"
+#include "module_library/module_wrapper_factory.h"
 #include "R_helper_functions.h"
+#include "standalone_ss.h"
+#include "system_solver_library/system_solver_factory.h"
+#include "validate_system.h"
+#include "simultaneous_equations.h"
+#include "numerical_jacobian.h"
 
 using std::string;
-using std::vector;
 using std::unique_ptr;
+using std::vector;
 
 extern "C" {
 
-SEXP R_Gro(SEXP initial_state,
-        SEXP invariate_parameters,
-        SEXP varying_parameters,
-        SEXP canopy_photosynthesis_module,
-        SEXP soil_water_module,
-        SEXP growth_module,
-        SEXP senescence_module,
-        SEXP stomata_water_stress_module,
-        SEXP leaf_water_stress_module)
+SEXP R_Gro_solver(
+    SEXP initial_state,
+    SEXP parameters,
+    SEXP varying_parameters,
+    SEXP steady_state_module_names,
+    SEXP derivative_module_names,
+    SEXP solver_type,
+    SEXP solver_output_step_size,
+    SEXP solver_adaptive_rel_error_tol,
+    SEXP solver_adaptive_abs_error_tol,
+    SEXP solver_adaptive_max_steps,
+    SEXP verbose)
 {
     try {
-
         state_map s = map_from_list(initial_state);
-        state_map ip = map_from_list(invariate_parameters);
+        state_map ip = map_from_list(parameters);
         state_vector_map vp = map_vector_from_list(varying_parameters);
 
         if (vp.begin()->second.size() == 0) {
             return R_NilValue;
         }
 
-        vector<unique_ptr<IModule>> steady_state_modules;
-        vector<unique_ptr<IModule>> derivative_modules;
+        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
-        steady_state_modules.push_back(module_factory("soil_type_selector"));
-        steady_state_modules.push_back(module_factory(CHAR(STRING_ELT(stomata_water_stress_module, 0))));
-        steady_state_modules.push_back(module_factory(CHAR(STRING_ELT(leaf_water_stress_module, 0))));
-        steady_state_modules.push_back(module_factory("parameter_calculator"));
-        steady_state_modules.push_back(module_factory("partitioning_coefficient_selector"));
-        steady_state_modules.push_back(module_factory("soil_evaporation"));
-        steady_state_modules.push_back(module_factory(CHAR(STRING_ELT(canopy_photosynthesis_module, 0))));
+        bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
+        string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
+        double output_step_size = REAL(solver_output_step_size)[0];
+        double adaptive_rel_error_tol = REAL(solver_adaptive_rel_error_tol)[0];
+        double adaptive_abs_error_tol = REAL(solver_adaptive_abs_error_tol)[0];
+        int adaptive_max_steps = (int)REAL(solver_adaptive_max_steps)[0];
 
-        derivative_modules.push_back(module_factory(CHAR(STRING_ELT(senescence_module, 0))));
-        derivative_modules.push_back(module_factory(CHAR(STRING_ELT(growth_module, 0))));
-        derivative_modules.push_back(module_factory("thermal_time_accumulator"));
-        derivative_modules.push_back(module_factory(CHAR(STRING_ELT(soil_water_module, 0))));
+        biocro_simulation gro(s, ip, vp, ss_names, deriv_names,
+                              solver_type_string, output_step_size,
+                              adaptive_rel_error_tol, adaptive_abs_error_tol,
+                              adaptive_max_steps);
+        state_vector_map result = gro.run_simulation();
 
-        vector<string> required_state = {"iSp", "doy", "Leaf",
-            "LeafN_0", "vmax_n_intercept", "vmax1", "alphab1",
-            "alpha1", "TTc", "temp", "tbase", "timestep",
-            "mrc1", "seneLeaf", "Stem", "seneStem",
-            "mrc2", "Root", "seneRoot", "Rhizome", "seneRhizome", "kln", "growth_respiration_fraction"};
-
-        state_map all_state = combine_state(combine_state(ip, at(vp, 0)), s);
-
-        vector<string> missing_state;
-        for (auto it = required_state.begin(); it != required_state.end(); ++it) {
-            if (all_state.find(*it) == all_state.end()) {
-                missing_state.push_back(*it);
-            }
+        if (loquacious) {
+            Rprintf(gro.generate_report().c_str());
         }
 
-        if (!missing_state.empty()) {
-            std::ostringstream message;
-            message << "The following state variables are required but are missing: ";
-            for(vector<string>::iterator it = missing_state.begin(); it != missing_state.end() - 1; ++it) {
-                message << *it << ", ";
-            }
-            message << missing_state.back() << ".";
-            error(message.str().c_str());
-        }
-
-        state_vector_map result = Gro(s, ip, vp, steady_state_modules, derivative_modules);
-        return (list_from_map(result));
-
-    } catch (std::exception const &e) {
-        error(string(string("Caught exception in R_Gro: ") + e.what()).c_str());
-    } catch (...) {
-        error("Caught unhandled exception in R_Gro.");
-    }
-}
-
-SEXP R_Gro_ode(SEXP state,
-        SEXP steady_state_modules_list,
-        SEXP derivative_modules_list)
-{
-    try {
-        state_map s = map_from_list(state);
-
-        if (s.size() == 0) {
-            return R_NilValue;
-        }
-
-        //ModuleFactory module_factory;
-
-        vector<string> steady_state_names_vector = make_vector(steady_state_modules_list);
-        vector<unique_ptr<IModule>> steady_state_modules;
-        steady_state_names_vector.reserve(steady_state_names_vector.size());
-        for (auto it = steady_state_names_vector.begin(); it != steady_state_names_vector.end(); ++it) {
-            steady_state_modules.push_back(module_factory(*it));
-        }
-
-        vector<string> derivative_names_vector = make_vector(derivative_modules_list);
-        vector<unique_ptr<IModule>> derivative_modules;
-        derivative_modules.reserve(derivative_names_vector.size());
-        for (auto it = derivative_names_vector.begin(); it != derivative_names_vector.end(); ++it) {
-            derivative_modules.push_back(module_factory(*it));
-        }
-
-        state_map result = Gro(s, steady_state_modules, derivative_modules);
         return list_from_map(result);
-
-    } catch (std::exception const &e) {
-        error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
+    } catch (std::exception const& e) {
+        Rf_error(string(string("Caught exception in R_Gro_solver: ") + e.what()).c_str());
     } catch (...) {
-        error("Caught unhandled exception in R_Gro_ode.");
+        Rf_error("Caught unhandled exception in R_Gro_solver.");
     }
 }
 
-SEXP R_run_modules(SEXP state,
-        SEXP modules_list)
+SEXP R_Gro_deriv(
+    SEXP state,
+    SEXP time,
+    SEXP parameters,
+    SEXP varying_parameters,
+    SEXP steady_state_module_names,
+    SEXP derivative_module_names)
 {
     try {
+        // Convert the inputs into the proper format
         state_map s = map_from_list(state);
+        state_map ip = map_from_list(parameters);
+        state_vector_map vp = map_vector_from_list(varying_parameters);
 
-        if (s.size() == 0) {
+        if (vp.begin()->second.size() == 0) {
             return R_NilValue;
         }
 
-        //ModuleFactory module_factory;
+        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
-        vector<string> names_vector = make_vector(modules_list);
-        vector<unique_ptr<IModule>> modules;
-        names_vector.reserve(names_vector.size());
-        for (auto it = names_vector.begin(); it != names_vector.end(); ++it) {
-            modules.push_back(module_factory(*it));
-        }
+        double t = REAL(time)[0];
 
-        for (auto it = modules.begin(); it != modules.end(); ++it) {
-            state_map temp = (*it)->run(s);
-            s.insert(temp.begin(), temp.end());
-        }
+        // Create a system
+        System sys(s, ip, vp, ss_names, deriv_names);
 
-        return list_from_map(s);
+        // Get the state in the correct format
+        std::vector<double> x;
+        sys.get_state(x);
 
-    } catch (std::exception const &e) {
-        error(string(string("Caught exception in R_run_module: ") + e.what()).c_str());
+        // Get the state parameter names in the correct order
+        std::vector<std::string> state_param_names = sys.get_state_parameter_names();
+
+        // Make a vector to store the derivative
+        std::vector<double> dxdt = x;
+
+        // Run the system once
+        sys(x, dxdt, t);
+
+        // Make the output map
+        state_map result;
+        for (size_t i = 0; i < state_param_names.size(); i++) result[state_param_names[i]] = dxdt[i];
+
+        // Return the resulting derivatives
+        return list_from_map(result);
+        
+    } catch (std::exception const& e) {
+        Rf_error(string(string("Caught exception in R_Gro_deriv: ") + e.what()).c_str());
     } catch (...) {
-        error("Caught unhandled exception in R_run_module.");
+        Rf_error("Caught unhandled exception in R_Gro_deriv.");
     }
 }
 
-SEXP R_get_module_requirements(SEXP modules_list)
+SEXP R_Gro_ode(
+    SEXP state,
+    SEXP steady_state_module_names,
+    SEXP derivative_module_names)
 {
     try {
-        vector<string> names_vector = make_vector(modules_list);
-        vector<unique_ptr<IModule>> modules;
-        for (auto it = names_vector.begin(); it != names_vector.end(); ++it) {
-            modules.push_back(module_factory(*it));
+        // Get the input state
+        state_map s = map_from_list(state);
+
+        // There are a few special parameters that a system requires at startup,
+        //  so make sure they are properly defined
+
+        // Form the list of invariant parameters, making sure it includes the timestep
+        state_map ip;
+        if (s.find("timestep") == s.end()) {
+            // The timestep is not defined in the input state, so assume it is 1
+            ip["timestep"] = 1.0;
+        } else {
+            // The timestep is defined in the input state, so copy its value into the invariant parameters
+            //  and remove it from the state
+            ip["timestep"] = s["timestep"];
+            s.erase("timestep");
         }
 
-        vector<string> parameters;
-        for (auto it = modules.begin(); it != modules.end(); ++it) {
-            std::vector<string> temp = (*it)->list_required_state();
-            parameters.insert(parameters.end(), temp.begin(), temp.end());
+        // Form the list of varying parameters, making sure it includes doy and hour
+        state_vector_map vp;
+        if (s.find("doy") == s.end()) {
+            // The doy is not defined in the input state, so assume it is 0
+            std::vector<double> temp_vec;
+            temp_vec.push_back(0.0);
+            vp["doy"] = temp_vec;
+        } else {
+            // The doy is defined in the input state, so copy its value into the varying parameters
+            std::vector<double> temp_vec;
+            temp_vec.push_back(s["doy"]);
+            vp["doy"] = temp_vec;
+            s.erase("doy");
+        }
+        if (s.find("hour") == s.end()) {
+            // The hour is not defined in the input state, so assume it is 0
+            std::vector<double> temp_vec;
+            temp_vec.push_back(0.0);
+            vp["hour"] = temp_vec;
+        } else {
+            // The hour is defined in the input state, so copy its value into the varying parameters
+            std::vector<double> temp_vec;
+            temp_vec.push_back(s["hour"]);
+            vp["hour"] = temp_vec;
+            s.erase("hour");
         }
 
-        return r_string_vector_from_vector(parameters);
+        // Get the module names
+        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
-    } catch (std::exception const &e) {
-        error(string(string("Caught exception in R_run_module: ") + e.what()).c_str());
+        // Make the system
+        System sys(s, ip, vp, ss_names, deriv_names);
+
+        // Get the current state in the correct format
+        std::vector<double> x;
+        sys.get_state(x);
+
+        // Get the state parameter names in the correct order
+        std::vector<std::string> state_param_names = sys.get_state_parameter_names();
+
+        // Make a vector to store the derivative
+        std::vector<double> dxdt = x;
+
+        // Run the system once
+        sys(x, dxdt, 0);
+
+        // Make the output map
+        state_map result;
+        for (size_t i = 0; i < state_param_names.size(); i++) result[state_param_names[i]] = dxdt[i];
+
+        // Return the resulting derivatives
+        return list_from_map(result);
+        
+    } catch (std::exception const& e) {
+        Rf_error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
     } catch (...) {
-        error("Caught unhandled exception in R_run_module.");
+        Rf_error("Caught unhandled exception in R_Gro_ode.");
     }
 }
 
-} // extern "C"
-
+}  // extern "C"

@@ -68,22 +68,6 @@ void append_state_to_vector(state_map const &state, state_vector_map &state_vect
     }
 }
 
-vector<string> keys(state_map const &state) {
-    vector<string> result;
-    for (auto const& it : state) {
-        result.push_back(it.first);
-    }
-    return result;
-}
-
-vector<string> keys(state_vector_map const &state) {
-    vector<string> result;
-    for (auto const& it : state) {
-        result.push_back(it.first);
-    }
-    return result;
-}
-
 state_map& operator+=(state_map &lhs, state_map const &rhs)
 {
     for(auto it = rhs.begin(); it != rhs.end(); ++it) {

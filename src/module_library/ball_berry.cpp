@@ -6,7 +6,7 @@
  * 
  */
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include "ball_berry.hpp"
 

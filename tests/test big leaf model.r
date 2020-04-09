@@ -9,10 +9,11 @@ canopy_parms = within(canopy_parms, {
            lai = 1
            k_Q10 = 2
            StomataWS = 0.1
+           doy_dbl = doy + hour / 24.0
 })
 
 cresult = CanA(lai=1, doy=canopy_parms$doy, hr=canopy_parms$hour, StomataWS=canopy_parms$StomataWS, solar=canopy_parms$solar, temp=canopy_parms$temp, rh=canopy_parms$rh, windspeed=canopy_parms$windspeed, nlayers=10)
-result = run_modules(canopy_parms, c('big_leaf_multilayer_canopy'))
+result = test_module('big_leaf_multilayer_canopy', canopy_parms)
 cresult[c('canopy_conductance', 'CanopyAssim', 'CanopyTrans')]
 result[c('canopy_conductance', 'canopy_assimilation_rate', 'canopy_transpiration_rate')]
 

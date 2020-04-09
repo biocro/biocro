@@ -74,23 +74,23 @@ glycine_max_parameters = with(list(), {
      kRhizome6 0.0  
      kGrain6   1
      rate_constant_root_enzyme_inactivation 0.09
-     rate_constant_leaf 1.0
-     rate_constant_stem 2.6
-     rate_constant_root 2
+     rate_constant_leaf 0.5
+     rate_constant_stem 1.2
+     rate_constant_root 0.8
      rate_constant_rhizome  0
-     rate_constant_grain 6.1
-     KmLeaf     2.5
-     KmStem     6
-     KmRoot     5
-     KmRhizome  5
-     KmGrain    7
+     rate_constant_grain 3
+     KmLeaf     0.632455532
+     KmStem     0.707106781
+     KmRoot     0.774596669
+     KmRhizome  0.774596669
+     KmGrain    0.836660027
      resistance_leaf_to_stem 0.16
-     resistance_stem_to_grain 0.1
+     resistance_stem_to_grain 8
      resistance_stem_to_root 0.16
      resistance_stem_to_rhizome 1
-     rate_constant_leaf_senescence 2.5
-     rate_constant_stem_senescence 3.9
-     rate_constant_root_senescence 1.8
+     rate_constant_leaf_senescence 0.0025
+     rate_constant_stem_senescence 0.004
+     rate_constant_root_senescence 0.0018
      rate_constant_rhizome_senescence  0
      KmLeaf_senescence     3.9
      KmStem_senescence     6.5
@@ -139,9 +139,8 @@ glycine_max_parameters = with(list(), {
      FKF1_timing 1
      CDF_timing 1"
     
-    data_frame = read.table(textConnection(datalines), header=TRUE)
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
     names(values) = data_frame$symbol
     values
 })
-

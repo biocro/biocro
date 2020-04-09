@@ -1,3 +1,6 @@
+// EBL is commenting out this entire file because the module class has changed significantly (2019-08-22)
+
+/*
 #include <iostream>                  // for std::cout
 #include <utility>                   // for std::pair
 #include <algorithm>                 // for std::for_each
@@ -48,5 +51,4 @@ vector<pair<string,string>> get_edges(std::vector<IModule*> modules) //first mod
     }
     return result;
 }
-
-
+*/

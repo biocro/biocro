@@ -3,7 +3,7 @@
 
 struct Can_Str c3CanAC(double LAI,
 		int DOY,
-		int hr,
+		double hr,
 		double solarR,
 		double air_temperature,  // degrees C
 		double RH,  // Pa / Pa
@@ -32,13 +32,15 @@ struct Can_Str c3CanAC(double LAI,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation)
 {
-    struct Light_model light_model = lightME(lat, DOY, hr);
-
+	struct Light_model light_model = lightME(lat, DOY, hr);
+	
     double Idir = light_model.direct_irradiance_fraction * solarR;
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
     struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
+    
+    if(LAI < 0) throw std::range_error("Thrown in c3CanAC: LAI is negative.");
 
     double LAIc = LAI / nlayers;
 

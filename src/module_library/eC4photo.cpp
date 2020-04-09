@@ -3,7 +3,7 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include "eC4photo.h"
 
 double eC4photoC(double QP, double TEMP, double RH, double CA,

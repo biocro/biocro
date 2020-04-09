@@ -9,7 +9,7 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include "c3photo.hpp"
 #include "AuxBioCro.h"
@@ -92,6 +92,8 @@ struct ET_Str c3EvapoTrans(
 
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;  // degrees C
+    //std::cout << "Evapotrans inputs: " << Itot << ", " << air_temperature << ", " << RH << ", " << WindSpeed << ", " << CanopyHeight << ", " << stomatal_conductance << "\n";
+    //std::cout << "Delta t in c3EvapoTrans, initial: " << Deltat << "\n";
     double PhiN;
     {
         double ChangeInLeafTemp = 10;  // degrees C
@@ -110,6 +112,7 @@ struct ET_Str c3EvapoTrans(
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin. It is also degrees C, because it is a temperature difference.
         }
     }
+    //std::cout << "Delta t in c3EvapoTrans, final: " << Deltat << "\n";
 
     if (PhiN < 0)
         PhiN = 0;
