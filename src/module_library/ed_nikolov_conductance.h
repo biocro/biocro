@@ -80,7 +80,6 @@ class ed_nikolov_conductance : public SteadyModule
           windspeed_ip(get_ip(input_parameters, "windspeed")),
           leafwidth_ip(get_ip(input_parameters, "leafwidth")),
           mole_fraction_h2o_atmosphere_ip(get_ip(input_parameters, "mole_fraction_h2o_atmosphere")),
-          mole_fraction_h2o_intercellular_ip(get_ip(input_parameters, "mole_fraction_h2o_intercellular")),
           conductance_boundary_h2o_free_ip(get_ip(input_parameters, "conductance_boundary_h2o_free")),
           conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
           // Get pointers to output parameters
@@ -100,7 +99,6 @@ class ed_nikolov_conductance : public SteadyModule
     const double* windspeed_ip;
     const double* leafwidth_ip;
     const double* mole_fraction_h2o_atmosphere_ip;
-    const double* mole_fraction_h2o_intercellular_ip;
     const double* conductance_boundary_h2o_free_ip;
     const double* conductance_stomatal_h2o_ip;
     // Pointers to output parameters
@@ -120,7 +118,6 @@ std::vector<std::string> ed_nikolov_conductance::get_inputs()
         "windspeed",                        // m / s
         "leafwidth",                        // m
         "mole_fraction_h2o_atmosphere",     // dimensionless from mol / mol
-        "mole_fraction_h2o_intercellular",  // dimensionless from mol / mol
         "conductance_boundary_h2o_free",    // mol / m^2 / s
         "conductance_stomatal_h2o"          // mol / m^2 / s
     };
@@ -166,8 +163,9 @@ void ed_nikolov_conductance::do_operation() const
     // requiring equal energy fluxes in the boundary layer and across the stomata. Here
     // we use molecular fluxes instead. Also note that our concentration at the leaf
     // surface is equivalent to Nikolov's concentration in the boundary layer.
+    const double mole_fraction_h2o_intercellular = saturation_vapor_pressure(*temperature_leaf_ip) / *atmospheric_pressure_ip;  // dimensionless
     const double h2o_mfs_numer = *conductance_boundary_h2o_free_ip * *mole_fraction_h2o_atmosphere_ip +
-                                 *conductance_stomatal_h2o_ip * *mole_fraction_h2o_intercellular_ip;
+                                 *conductance_stomatal_h2o_ip * mole_fraction_h2o_intercellular;
     const double h2o_mfs_denom = *conductance_boundary_h2o_free_ip + *conductance_stomatal_h2o_ip;
     const double mole_fraction_h2o_leaf_surface = h2o_mfs_numer / h2o_mfs_denom;  // dimensionless
 

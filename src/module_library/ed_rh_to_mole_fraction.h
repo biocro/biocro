@@ -28,7 +28,7 @@ class ed_rh_to_mole_fraction : public SteadyModule
           temperature_air_ip(get_ip(input_parameters, "temp")),
           relative_humidity_atmosphere_ip(get_ip(input_parameters, "rh")),
           // Get pointers to output parameters
-          h20_mole_fraction_atmosphere_op(get_op(output_parameters, "h20_mole_fraction_atmosphere"))
+          mole_fraction_h2o_atmosphere_op(get_op(output_parameters, "mole_fraction_h2o_atmosphere"))
 
     {
     }
@@ -41,7 +41,7 @@ class ed_rh_to_mole_fraction : public SteadyModule
     const double* temperature_air_ip;
     const double* relative_humidity_atmosphere_ip;
     // Pointers to output parameters
-    double* h20_mole_fraction_atmosphere_op;
+    double* mole_fraction_h2o_atmosphere_op;
     // Main operation
     void do_operation() const override;
 };
@@ -58,7 +58,7 @@ std::vector<std::string> ed_rh_to_mole_fraction::get_inputs()
 std::vector<std::string> ed_rh_to_mole_fraction::get_outputs()
 {
     return {
-        "h20_mole_fraction_atmosphere"  // dimensionless from mol / mol
+        "mole_fraction_h2o_atmosphere"  // dimensionless from mol / mol
     };
 }
 
@@ -71,7 +71,7 @@ void ed_rh_to_mole_fraction::do_operation() const
 
     check_error_conditions(errors_to_check, get_name());
 
-    update(h20_mole_fraction_atmosphere_op, *relative_humidity_atmosphere_ip * saturation_vapor_pressure(*temperature_air_ip) / *atmospheric_pressure_ip);
+    update(mole_fraction_h2o_atmosphere_op, *relative_humidity_atmosphere_ip * saturation_vapor_pressure(*temperature_air_ip) / *atmospheric_pressure_ip);
 }
 
 #endif

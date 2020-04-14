@@ -36,7 +36,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
           collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
           collatz_alpha_ip(get_ip(input_parameters, "collatz_alpha")),
           collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
-          co2_mole_fraction_intercellular_ip(get_ip(input_parameters, "co2_mole_fraction_intercellular")),
+          mole_fraction_co2_intercellular_ip(get_ip(input_parameters, "mole_fraction_co2_intercellular")),
           collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
           collatz_beta_ip(get_ip(input_parameters, "collatz_beta")),
           assimilation_adjustment_factor_WS_ip(get_ip(input_parameters, "assimilation_adjustment_factor_WS")),
@@ -67,7 +67,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     const double* collatz_rubisco_temperature_upper_ip;
     const double* collatz_alpha_ip;
     const double* collatz_PAR_flux_ip;
-    const double* co2_mole_fraction_intercellular_ip;
+    const double* mole_fraction_co2_intercellular_ip;
     const double* collatz_theta_ip;
     const double* collatz_beta_ip;
     const double* assimilation_adjustment_factor_WS_ip;
@@ -97,7 +97,7 @@ std::vector<std::string> ed_collatz_c4_assimilation::get_inputs()
         "collatz_rubisco_temperature_upper",  // deg. C
         "collatz_alpha",                      // dimensionless
         "collatz_PAR_flux",                   // mol / m^2 / s
-        "co2_mole_fraction_intercellular",    // mol / mol
+        "mole_fraction_co2_intercellular",    // mol / mol
         "collatz_theta",                      // dimensionless
         "collatz_beta",                       // dimensionless
         "assimilation_adjustment_factor_WS"   // dimensionless
@@ -126,7 +126,7 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Calculate the carbon-limited assimilation rate
     const double co2_rate_constant = *collatz_k_ip * temperature_factor;
-    const double assimilation_carbon_limited = co2_rate_constant * *co2_mole_fraction_intercellular_ip;
+    const double assimilation_carbon_limited = co2_rate_constant * *mole_fraction_co2_intercellular_ip;
 
     // Calculate the rubisco-limited assimilation rate
     const double rubisco_capacity_base = *collatz_vmax_ip * temperature_factor;

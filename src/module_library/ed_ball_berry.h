@@ -50,7 +50,7 @@ class ed_ball_berry : public SteadyModule
           atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
           temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
           mole_fraction_h2o_leaf_surface_ip(get_ip(input_parameters, "mole_fraction_h2o_leaf_surface")),
-          co2_mole_fraction_leaf_surface_ip(get_ip(input_parameters, "co2_mole_fraction_leaf_surface")),
+          mole_fraction_co2_leaf_surface_ip(get_ip(input_parameters, "mole_fraction_co2_leaf_surface")),
           conductance_adjustment_factor_WS_ip(get_ip(input_parameters, "conductance_adjustment_factor_WS")),
           // Get pointers to output parameters
           conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o"))
@@ -68,7 +68,7 @@ class ed_ball_berry : public SteadyModule
     const double* atmospheric_pressure_ip;
     const double* temperature_leaf_ip;
     const double* mole_fraction_h2o_leaf_surface_ip;
-    const double* co2_mole_fraction_leaf_surface_ip;
+    const double* mole_fraction_co2_leaf_surface_ip;
     const double* conductance_adjustment_factor_WS_ip;
     // Pointers to output parameters
     double* conductance_stomatal_h2o_op;
@@ -85,7 +85,7 @@ std::vector<std::string> ed_ball_berry::get_inputs()
         "atmospheric_pressure",             // Pa
         "temperature_leaf",                 // deg. C
         "mole_fraction_h2o_leaf_surface",   // dimensionless from Pa / Pa
-        "co2_mole_fraction_leaf_surface",   // dimensionless from mol / mol
+        "mole_fraction_co2_leaf_surface",   // dimensionless from mol / mol
         "conductance_adjustment_factor_WS"  // dimensionless
     };
 }
@@ -101,7 +101,7 @@ void ed_ball_berry::do_operation() const
 {
     // Calculate values for the output quantities
     const double ball_berry_index = *assimilation_net_ip * *mole_fraction_h2o_leaf_surface_ip * *atmospheric_pressure_ip /
-                                    (*co2_mole_fraction_leaf_surface_ip * saturation_vapor_pressure(*temperature_leaf_ip));
+                                    (*mole_fraction_co2_leaf_surface_ip * saturation_vapor_pressure(*temperature_leaf_ip));
 
     const double ball_berry_conductance = *ball_berry_slope_ip * ball_berry_index + *ball_berry_intercept_ip;
 
@@ -109,7 +109,7 @@ void ed_ball_berry::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"co2_mole_fraction_leaf_surface cannot be zero", *co2_mole_fraction_leaf_surface_ip == 0}  // divide by zero
+        {"mole_fraction_co2_leaf_surface cannot be zero", *mole_fraction_co2_leaf_surface_ip == 0}  // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());

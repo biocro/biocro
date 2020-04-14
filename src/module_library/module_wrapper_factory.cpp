@@ -66,6 +66,7 @@
 #include "poincare_clock.hpp"
 #include "magic_clock.hpp"
 #include "phase_clock.hpp"
+#include "ed_water_vapor_properties.h"
 #include "ed_rh_to_mole_fraction.h"
 #include "ed_nikolov_conductance.h"
 #include "ed_ball_berry.h"
@@ -172,6 +173,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"oscillator_clock_calculator",                     &create_wrapper<oscillator_clock_calculator>},
      {"night_and_day_trackers",                          &create_wrapper<night_and_day_trackers>},
      {"light_from_solar",                                &create_wrapper<light_from_solar>},
+     {"ed_water_vapor_properties",                       &create_wrapper<ed_water_vapor_properties>},
      {"ed_rh_to_mole_fraction",                          &create_wrapper<ed_rh_to_mole_fraction>},
      {"ed_nikolov_conductance",                          &create_wrapper<ed_nikolov_conductance>},
      {"ed_ball_berry",                                   &create_wrapper<ed_ball_berry>},
