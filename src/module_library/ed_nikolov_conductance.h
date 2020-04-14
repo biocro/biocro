@@ -6,14 +6,23 @@
 #include "../modules.h"
 #include "AuxBioCro.h"
 
+namespace nikolov
+{
+/** Define some constants used in the Nikolov model */
+constexpr double cf = 4.322e-3;   // Note: original code had 1.6361e-3 rather than the value in Nikolov et al.
+constexpr double ce = 1.6361e-3;  // Note: original code had ce = cf (which was actually the correct value for ce)
+constexpr double temperature_exponent = 0.56;
+constexpr double temperature_offset = 120.0;
+constexpr double Tvdiff_factor = 0.378;
+
+}  // namespace nikolov
+
 /**
- * @class ed_nikolov_conductance
+ * @class ed_nikolov_conductance_forced
  * 
- * @brief Calculates boundary layer conductance for water according to the model in
- * Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
- * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
- * be used by a simultanous_equations object but not a System object. Currently only
- * intended for use by Ed.
+ * @brief Calculates forced boundary layer conductance for water according to the model
+ * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Currently only intended
+ * for use by Ed.
  * 
  * Discussion of conductance units and assumptions about temperature:
  * 
@@ -65,27 +74,116 @@
  * convert between molecular_conductance and energy_conductance using volume_per_mol
  * determined at air temperature.
  */
-class ed_nikolov_conductance : public SteadyModule
+class ed_nikolov_conductance_forced : public SteadyModule
 {
    public:
-    ed_nikolov_conductance(
+    ed_nikolov_conductance_forced(
         const std::unordered_map<std::string, double>* input_parameters,
         std::unordered_map<std::string, double>* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_nikolov_conductance"),
+          SteadyModule("ed_nikolov_conductance_forced"),
+          // Get pointers to input parameters
+          temperature_air_ip(get_ip(input_parameters, "temp")),
+          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
+          windspeed_ip(get_ip(input_parameters, "windspeed")),
+          leafwidth_ip(get_ip(input_parameters, "leafwidth")),
+          // Get pointers to output parameters
+          conductance_boundary_h2o_forced_op(get_op(output_parameters, "conductance_boundary_h2o_forced"))
+    {
+    }
+    static std::vector<std::string> get_inputs();
+    static std::vector<std::string> get_outputs();
+
+   private:
+    // Pointers to input parameters
+    const double* temperature_air_ip;
+    const double* atmospheric_pressure_ip;
+    const double* windspeed_ip;
+    const double* leafwidth_ip;
+    // Pointers to output parameters
+    double* conductance_boundary_h2o_forced_op;
+    // Main operation
+    void do_operation() const override;
+};
+
+std::vector<std::string> ed_nikolov_conductance_forced::get_inputs()
+{
+    return {
+        "temp",                  // deg. C
+        "atmospheric_pressure",  // Pa
+        "windspeed",             // m / s
+        "leafwidth"              // m
+    };
+}
+
+std::vector<std::string> ed_nikolov_conductance_forced::get_outputs()
+{
+    return {
+        "conductance_boundary_h2o_forced"  // mol / m^2 / s
+    };
+}
+
+void ed_nikolov_conductance_forced::do_operation() const
+{
+    // Convert temperatures to Kelvin
+    const double Tak = *temperature_air_ip + physical_constants::celsius_to_kelvin;  // Kelvin
+
+    // Calculate the volume of one mole of a gas at air temperature and pressure
+    // using the ideal gas law
+    const double volume_per_mol = physical_constants::ideal_gas_constant * Tak / *atmospheric_pressure_ip;  // m^3 / mol
+
+    // Calculate the forced boundary layer conductance for water vapor
+    // using Equation 29 in Nikolov et al. Note that we have used
+    // volume_per_mol to convert from m / s to mol / m^2 / s (see
+    // class description above for more details).
+    const double gbv_forced = nikolov::cf *
+                              pow(Tak, nikolov::temperature_exponent) *
+                              pow((Tak + nikolov::temperature_offset) * *windspeed_ip / (*leafwidth_ip * *atmospheric_pressure_ip), 0.5) /
+                              volume_per_mol;  // mol / m^2 / s
+
+    // Check for error conditions
+    std::map<std::string, bool> errors_to_check = {
+        {"atmospheric_pressure cannot be zero",                 *atmospheric_pressure_ip == 0},     // divide by zero
+        {"volume_per_mol cannot be zero",                       volume_per_mol == 0},               // divide by zero
+        {"leaf_width cannot be zero",                           *leafwidth_ip == 0}                 // divide by zero
+    };
+
+    check_error_conditions(errors_to_check, get_name());
+
+    // Update the output parameter list
+    update(conductance_boundary_h2o_forced_op, gbv_forced);
+}
+
+/**
+ * @class ed_nikolov_conductance_free
+ * 
+ * @brief Calculates free boundary layer conductance for water according to the model
+ * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
+ * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
+ * be used by a simultanous_equations object but not a System object. Currently only
+ * intended for use by Ed.
+ * 
+ * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units
+ * and assumptions about temperature.
+ */
+class ed_nikolov_conductance_free : public SteadyModule
+{
+   public:
+    ed_nikolov_conductance_free(
+        const std::unordered_map<std::string, double>* input_parameters,
+        std::unordered_map<std::string, double>* output_parameters)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule("ed_nikolov_conductance_free"),
           // Get pointers to input parameters
           temperature_air_ip(get_ip(input_parameters, "temp")),
           temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
           atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          windspeed_ip(get_ip(input_parameters, "windspeed")),
           leafwidth_ip(get_ip(input_parameters, "leafwidth")),
           mole_fraction_h2o_atmosphere_ip(get_ip(input_parameters, "mole_fraction_h2o_atmosphere")),
           conductance_boundary_h2o_free_ip(get_ip(input_parameters, "conductance_boundary_h2o_free")),
           conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
           // Get pointers to output parameters
-          conductance_boundary_h2o_forced_op(get_op(output_parameters, "conductance_boundary_h2o_forced")),
-          conductance_boundary_h2o_free_op(get_op(output_parameters, "conductance_boundary_h2o_free")),
-          conductance_boundary_h2o_op(get_op(output_parameters, "conductance_boundary_h2o"))
+          conductance_boundary_h2o_free_op(get_op(output_parameters, "conductance_boundary_h2o_free"))
     {
     }
     static std::vector<std::string> get_inputs();
@@ -96,50 +194,38 @@ class ed_nikolov_conductance : public SteadyModule
     const double* temperature_air_ip;
     const double* temperature_leaf_ip;
     const double* atmospheric_pressure_ip;
-    const double* windspeed_ip;
     const double* leafwidth_ip;
     const double* mole_fraction_h2o_atmosphere_ip;
     const double* conductance_boundary_h2o_free_ip;
     const double* conductance_stomatal_h2o_ip;
     // Pointers to output parameters
-    double* conductance_boundary_h2o_forced_op;
     double* conductance_boundary_h2o_free_op;
-    double* conductance_boundary_h2o_op;
     // Main operation
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_nikolov_conductance::get_inputs()
+std::vector<std::string> ed_nikolov_conductance_free::get_inputs()
 {
     return {
-        "temp",                             // deg. C
-        "temperature_leaf",                 // deg. C
-        "atmospheric_pressure",             // Pa
-        "windspeed",                        // m / s
-        "leafwidth",                        // m
-        "mole_fraction_h2o_atmosphere",     // dimensionless from mol / mol
-        "conductance_boundary_h2o_free",    // mol / m^2 / s
-        "conductance_stomatal_h2o"          // mol / m^2 / s
+        "temp",                           // deg. C
+        "temperature_leaf",               // deg. C
+        "atmospheric_pressure",           // Pa
+        "leafwidth",                      // m
+        "mole_fraction_h2o_atmosphere",   // dimensionless from mol / mol
+        "conductance_boundary_h2o_free",  // mol / m^2 / s
+        "conductance_stomatal_h2o"        // mol / m^2 / s
     };
 }
 
-std::vector<std::string> ed_nikolov_conductance::get_outputs()
+std::vector<std::string> ed_nikolov_conductance_free::get_outputs()
 {
     return {
-        "conductance_boundary_h2o_forced",  // mol / m^2 / s
-        "conductance_boundary_h2o_free",    // mol / m^2 / s
-        "conductance_boundary_h2o"          // mol / m^2 / s
+        "conductance_boundary_h2o_free"  // mol / m^2 / s
     };
 }
 
-void ed_nikolov_conductance::do_operation() const
+void ed_nikolov_conductance_free::do_operation() const
 {
-    // Define some constants used in the Nikolov model
-    constexpr double cf = 4.322e-3;   // Note: original code had 1.6361e-3 rather than the value in Nikolov et al.
-    constexpr double ce = 1.6361e-3;  // Note: original code had ce = cf (which was actually the correct value for ce)
-    constexpr double temperature_exponent = 0.56;
-    constexpr double temperature_offset = 120.0;
-
     // Convert temperatures to Kelvin
     const double Tak = *temperature_air_ip + physical_constants::celsius_to_kelvin;   // Kelvin
     const double Tlk = *temperature_leaf_ip + physical_constants::celsius_to_kelvin;  // Kelvin
@@ -147,15 +233,6 @@ void ed_nikolov_conductance::do_operation() const
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law
     const double volume_per_mol = physical_constants::ideal_gas_constant * Tak / *atmospheric_pressure_ip;  // m^3 / mol
-
-    // Calculate the forced boundary layer conductance for water vapor
-    // using Equation 29 in Nikolov et al. Note that we have used
-    // volume_per_mol to convert from m / s to mol / m^2 / s (see
-    // class description above for more details).
-    const double gbv_forced = cf *
-                              pow(Tak, temperature_exponent) *
-                              pow((Tak + temperature_offset) * *windspeed_ip / (*leafwidth_ip * *atmospheric_pressure_ip), 0.5) /
-                              volume_per_mol;  // mol / m^2 / s
 
     // Calculate the water vapor mole fraction at the leaf surface that would occur
     // if boundary_layer_conductance = free_boundary_layer_conductance. This calculation
@@ -172,25 +249,17 @@ void ed_nikolov_conductance::do_operation() const
     // Calculate the virtual temperature difference using Equation 34 of Nikolov et al.
     // Note that the original equation contains terms of partial_pressure/atmospheric_pressure;
     // We have replaced those terms with equivalent mole fractions.
-    constexpr double Tvdiff_factor = 0.378;
-    const double Tvdiff = Tlk / (1.0 - Tvdiff_factor * mole_fraction_h2o_leaf_surface) -
-                          Tak / (1.0 - Tvdiff_factor * *mole_fraction_h2o_atmosphere_ip);  // deg. C or K
+    const double Tvdiff = Tlk / (1.0 - nikolov::Tvdiff_factor * mole_fraction_h2o_leaf_surface) -
+                          Tak / (1.0 - nikolov::Tvdiff_factor * *mole_fraction_h2o_atmosphere_ip);  // deg. C or K
 
     // Calculate the free boundary layer conductance using Equation 33 from Nikolov et al.
     // Note that we have used volume_per_mol to convert from m / s to mol / m^2 / s (see
     // class description above for more details).
-    const double gbv_free = ce *
-                            pow(Tlk, temperature_exponent) *
-                            pow((Tlk + temperature_offset) / *atmospheric_pressure_ip, 0.5) *
+    const double gbv_free = nikolov::ce *
+                            pow(Tlk, nikolov::temperature_exponent) *
+                            pow((Tlk + nikolov::temperature_offset) / *atmospheric_pressure_ip, 0.5) *
                             pow(fabs(Tvdiff) / *leafwidth_ip, 0.25) /
                             volume_per_mol;  // mol / m^2 / s
-
-    // Determine the overall boundary layer conductance. Nikolov et al. suggest using the
-    // larger of the forced and free conductances. Here we add them in quadrature to
-    // produce a smoothly varying output. If either the free or forced conductance is much
-    // larger than the other, overall conductance determined this way will be approximately
-    // equal to the larger conductance as in Nikolov.
-    const double overall_conductance = sqrt(gbv_free * gbv_free + gbv_forced * gbv_forced);
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
@@ -203,9 +272,7 @@ void ed_nikolov_conductance::do_operation() const
     check_error_conditions(errors_to_check, get_name());
 
     // Update the output parameter list
-    update(conductance_boundary_h2o_forced_op, gbv_forced);
     update(conductance_boundary_h2o_free_op, gbv_free);
-    update(conductance_boundary_h2o_op, overall_conductance);
 }
 
 #endif
