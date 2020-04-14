@@ -12,13 +12,18 @@ namespace ed_leaf_photosynthesis
 {
 /** Define a list of reference module names */
 const string_vector reference_module_names = {
-    "ed_apply_stomatal_water_stress_via_conductance",
-    "ed_gas_concentrations",
-    "ed_ball_berry",
-    "ed_collatz_c4_assimilation",
-    "ed_long_wave_energy_loss",
-    "water_vapor_properties_from_air_temperature",
-    "ed_penman_monteith_leaf_temperature"};
+    "ed_rh_to_mole_fraction",                          // Should convert relative humidity to H2O mole fraction
+    "ed_nikolov_conductance_forced",                   // Should calculate `forced` boundary layer conductance
+    "ed_nikolov_conductance_free",                     // Should calculate `free` boundary layer conductance
+    "ed_boundary_conductance_max",                     // Should determine overall boundary layer conductance from `forced` and `free` values
+    "ed_gas_concentrations",                           // Should calculate CO2 and H20 mole fractions at various locations
+    "ed_apply_stomatal_water_stress_via_conductance",  // Should determine how to account for water stress
+    "ed_ball_berry",                                   // Should calculate stomatal conductance
+    "ed_collatz_c4_assimilation",                      // Should calculate net assimilation
+    "ed_long_wave_energy_loss",                        // Should calculate long-wave energy loss from a leaf to its environment
+    "ed_water_vapor_properties",                       // Should calculate properties of water vapor from the air temperature and H20 mole fraction
+    "ed_penman_monteith_leaf_temperature"              // Should calculate leaf temperature
+};
 
 /**
  * @brief A function that finds all inputs required by the reference modules, excluding any unknowns.
@@ -113,33 +118,10 @@ bool validate_modules(string_vector input_module_names)
  * made abstract to indicate this. Note also that this module does not
  * have a do_operation method defined.
  * 
- * @param[in] stomatal_water_stress_application_module
- *            the name of a module with the same input and output quantities
- *            as `ed_apply_stomatal_water_stress_via_conductance`
- * 
- * @param[in] gas_concentration_module
- *            the name of a module with the same input and output quantities
- *            as `ed_gas_concentrations`
- * 
- * @param[in] stomatal_conductance_module
- *            the name of a module with the same input and output quantities
- *            as `ed_ball_berry`
- * 
- * @param[in] assimilation_module
- *            the name of a module with the same input and output quantities
- *            as `ed_collatz_c4_assimilation`
- * 
- * @param[in] long_wave_energy_loss_module
- *            the name of a module with the same input and output quantities
- *            as `ed_long_wave_energy_loss`
- * 
- * @param[in] water_vapor_properties_module
- *            the name of a module with the same input and output quantities
- *            as `water_vapor_properties_from_air_temperature`
- * 
- * @param[in] leaf_temperature_module
- *            the name of a module with the same input and output quantities
- *            as `ed_penman_monteith_leaf_temperature`
+ * @param[in] input_module_names a vector of module names where the ith module
+ *            has the same input and output quantities as the ith module in the
+ *            reference module list, which is defined in the ed_leaf_photosynthesis
+ *            namespace
  */
 class module_base : public SteadyModule
 {

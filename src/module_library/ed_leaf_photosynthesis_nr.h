@@ -13,12 +13,14 @@ namespace ed_leaf_photosynthesis_nr
  */
 const string_vector unknown_quantities = {
     "assimilation_net",
+    "conductance_boundary_h2o_free",
     "conductance_stomatal_h2o",
     "temperature_leaf"};
 
 /** Set the lower bounds for solving the equations */
 const std::vector<double> lower_bounds = {
     -1.0,   // assimilation_net: this limit would correspond to absurdly high respiration
+    1e-10,  // conductance_boundary_h2o_free: chosen to be the same as conductance_stomatal_h2o limits
     1e-10,  // conductance_stomatal_h2o: conductance must be positive
     -110    // temperature_leaf: significantly colder than the coldest air temperature ever recorded on the Earth's surface
 };
@@ -26,14 +28,15 @@ const std::vector<double> lower_bounds = {
 /** Set the upper bounds for solving the equations */
 const std::vector<double> upper_bounds = {
     1.0,  // assimilation_net: this limit would correspond to absurdly high assimilation
+    10,   // conductance_boundary_h2o_free: chosen to be the same as conductance_stomatal_h2o limits
     10,   // conductance_stomatal_h2o: this limit would correspond to absurdly high conductance
     80    // temperature_leaf: significantly higher than the hottest air temperature ever recorded on the Earth's surface
 };
 
 /** Set some basic properties for the Newton-Raphson solver */
-constexpr double rel_error_tol = 1e-3;
+constexpr double rel_error_tol = 5e-3;
 constexpr double abs_error_tol = 1e-6;
-constexpr int max_iterations = 10;
+constexpr int max_iterations = 50;
 
 /**
  * @brief Make a simultaneous_equations object from the modules
@@ -112,8 +115,9 @@ inline module_base::~module_base() {}
 void module_base::do_operation() const
 {
     initial_guess[0] = 0.0;                       // assimilation_net
-    initial_guess[1] = *ball_berry_intercept_ip;  // conductance_stomatal_h2o
-    initial_guess[2] = *temperature_air_ip;       // temperature_leaf
+    initial_guess[1] = 0.0;                       // conductance_boundary_h20_free
+    initial_guess[2] = *ball_berry_intercept_ip;  // conductance_stomatal_h2o
+    initial_guess[3] = *temperature_air_ip;       // temperature_leaf
 
     se->update_known_quantities(input_ptrs);
 

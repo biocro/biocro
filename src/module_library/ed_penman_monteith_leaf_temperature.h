@@ -1,8 +1,8 @@
 #ifndef ED_PENMAN_MONTEITH_LEAF_TEMPERATURE_H
 #define ED_PENMAN_MONTEITH_LEAF_TEMPERATURE_H
 
-#include <cmath>        // For pow
-#include "constants.h"  // for ideal_gas_constant and celsius_to_kelvin
+#include <cmath>           // For pow
+#include "../constants.h"  // for ideal_gas_constant and celsius_to_kelvin
 #include "../modules.h"
 
 /**
@@ -13,7 +13,7 @@
  * 
  * See the "ed_nikolov_conductance_forced" module for a discussion about converting molar conductances (with units
  * of mol / m^2 / s) to energy conductances (with units of m / s). In short, we replace all conductances g in the
- * Thornley formula with g * volume_per_mol.
+ * Thornley formula with g * volume_per_mol_of_an_ideal_gas.
  */
 class ed_penman_monteith_leaf_temperature : public SteadyModule
 {
