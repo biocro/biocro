@@ -31,7 +31,7 @@ class ed_c4photo : public SteadyModule
           ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
           ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
           StomataWS_ip(get_ip(input_parameters, "StomataWS")),
-          co2_mole_fraction_atmosphere_ip(get_ip(input_parameters, "co2_mole_fraction_atmosphere")),
+          mole_fraction_co2_atmosphere_ip(get_ip(input_parameters, "mole_fraction_co2_atmosphere")),
           collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
           collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
           // Get pointers to output parameters
@@ -59,7 +59,7 @@ class ed_c4photo : public SteadyModule
     const double* ball_berry_intercept_ip;
     const double* ball_berry_slope_ip;
     const double* StomataWS_ip;
-    const double* co2_mole_fraction_atmosphere_ip;
+    const double* mole_fraction_co2_atmosphere_ip;
     const double* collatz_rubisco_temperature_upper_ip;
     const double* collatz_rubisco_temperature_lower_ip;
     // Pointers to output parameters
@@ -86,7 +86,7 @@ std::vector<std::string> ed_c4photo::get_inputs()
         "ball_berry_intercept",               // mol / m^2 / s
         "ball_berry_slope",                   // dimensionless
         "StomataWS",                          // dimensionless
-        "co2_mole_fraction_atmosphere",       // dimensionless from mol / mol
+        "mole_fraction_co2_atmosphere",       // dimensionless from mol / mol
         "collatz_rubisco_temperature_upper",  // deg. C
         "collatz_rubisco_temperature_lower"   // deg. C
     };
@@ -117,7 +117,7 @@ void ed_c4photo::do_operation() const
     double bb0 = *ball_berry_intercept_ip;                  // mol / m^2 / s
     double bb1 = *ball_berry_slope_ip;                      // dimensionless
     double StomaWS = *StomataWS_ip;                         // dimensionless
-    double Ca = *co2_mole_fraction_atmosphere_ip * 1e6;     // micromole / mol
+    double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;     // micromole / mol
     double upperT = *collatz_rubisco_temperature_upper_ip;  // deg. C
     double lowerT = *collatz_rubisco_temperature_lower_ip;  // deg. C
     int water_stress_approach = 1;
