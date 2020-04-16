@@ -21,6 +21,13 @@ class senescence_coefficient_logistic : public SteadyModule {
             betaSeneLeaf_ip(get_ip(input_parameters, "betaSeneLeaf")),
             rateSeneLeaf_ip(get_ip(input_parameters, "rateSeneLeaf")),
             rateSeneStem_ip(get_ip(input_parameters, "rateSeneStem")),
+            
+            alphaSeneRoot_ip(get_ip(input_parameters, "alphaSeneRoot")),
+            alphaSeneRhizome_ip(get_ip(input_parameters, "alphaSeneRhizome")),
+            betaSeneRoot_ip(get_ip(input_parameters, "betaSeneRoot")),
+            betaSeneRhizome_ip(get_ip(input_parameters, "betaSeneRhizome")),
+            rateSeneRoot_ip(get_ip(input_parameters, "rateSeneRoot")),
+            rateSeneRhizome_ip(get_ip(input_parameters, "rateSeneRhizome")),
                 
 			// Get pointers to output parameters
 			kSeneStem_op(get_op(output_parameters, "kSeneStem")),
@@ -39,6 +46,12 @@ class senescence_coefficient_logistic : public SteadyModule {
 		const double* betaSeneLeaf_ip;
         const double* rateSeneLeaf_ip;
         const double* rateSeneStem_ip;
+        const double* alphaSeneRoot_ip;
+        const double* alphaSeneRhizome_ip;
+        const double* betaSeneRoot_ip;
+        const double* betaSeneRhizome_ip;
+        const double* rateSeneRoot_ip;
+        const double* rateSeneRhizome_ip;
 		
 		// Pointers to output parameters
 		double* kSeneStem_op;
@@ -52,7 +65,9 @@ class senescence_coefficient_logistic : public SteadyModule {
 std::vector<std::string> senescence_coefficient_logistic::get_inputs() {
 	return {
 		"DVI", "alphaSeneStem", "alphaSeneLeaf",
-        "betaSeneStem", "betaSeneLeaf", "rateSeneLeaf", "rateSeneStem"
+        "betaSeneStem", "betaSeneLeaf", "rateSeneLeaf", "rateSeneStem",
+        "alphaSeneRoot", "alphaSeneRhizome",
+        "betaSeneRoot", "betaSeneRhizome", "rateSeneRoot", "rateSeneRhizome"
 	};
 }
 
@@ -66,6 +81,9 @@ void senescence_coefficient_logistic::do_operation() const {
     double const DVI = *DVI_ip; // dimensionless; development index
     double rateSeneLeaf = *rateSeneLeaf_ip; // maximum percentage of leaf senesced at a given timestep, dimensionless
     double rateSeneStem = *rateSeneStem_ip; // maximum percentage of stem senesced at a give time step, dimensionless
+    double rateSeneRoot = *rateSeneRoot_ip; // maximum percentage of root senesced at a given timestep, dimensionless
+    double rateSeneRhizome = *rateSeneRhizome_ip; // maximum percentage of rhizome senesced at a give time step, dimensionless
+
     
 	double kSeneStem, kSeneLeaf, kSeneRoot, kSeneRhizome;
     
@@ -73,8 +91,9 @@ void senescence_coefficient_logistic::do_operation() const {
     
     kSeneStem = rateSeneStem / (1.0 + exp((*alphaSeneStem_ip + *betaSeneStem_ip * DVI))); // dimensionless; fraction of stem senecsed at current time step
     kSeneLeaf = rateSeneLeaf / (1.0 + exp((*alphaSeneLeaf_ip + *betaSeneLeaf_ip * DVI))); // dimensionless; fraction of leaf senesced at current time step
-    kSeneRoot = 0.0; // dimensionless; fraction of root senesced at current time step, not currently including root senescence
-    kSeneRhizome = 0.0; // dimensionless; fraction of rhizome senesced at current time step, not currently including rhizome senescence
+    kSeneRoot = rateSeneRoot / (1.0 + exp((*alphaSeneRoot_ip + *betaSeneRoot_ip * DVI))); // dimensionless; fraction of Root senecsed at current time step
+    kSeneRhizome = rateSeneRhizome / (1.0 + exp((*alphaSeneRhizome_ip + *betaSeneRhizome_ip * DVI))); // dimensionless; fraction of Rhizome senecsed at current time step
+  
     
 	// Update the output parameters
 	update(kSeneStem_op, kSeneStem); // dimensionless
