@@ -9,8 +9,6 @@
 namespace nikolov
 {
 /** Define some constants used in the Nikolov model */
-constexpr double cf = 4.322e-3;   // Note: original code had 1.6361e-3 rather than the value in Nikolov et al.
-constexpr double ce = 1.6361e-3;  // Note: original code had ce = cf (which was actually the correct value for ce)
 constexpr double temperature_exponent = 0.56;
 constexpr double temperature_offset = 120.0;
 constexpr double Tvdiff_factor = 0.378;
@@ -87,6 +85,7 @@ class ed_nikolov_conductance_forced : public SteadyModule
           atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
           windspeed_ip(get_ip(input_parameters, "windspeed")),
           leafwidth_ip(get_ip(input_parameters, "leafwidth")),
+          nikolov_cf_ip(get_ip(input_parameters, "nikolov_cf")),
           // Get pointers to output parameters
           conductance_boundary_h2o_forced_op(get_op(output_parameters, "conductance_boundary_h2o_forced"))
     {
@@ -100,6 +99,7 @@ class ed_nikolov_conductance_forced : public SteadyModule
     const double* atmospheric_pressure_ip;
     const double* windspeed_ip;
     const double* leafwidth_ip;
+    const double* nikolov_cf_ip;
     // Pointers to output parameters
     double* conductance_boundary_h2o_forced_op;
     // Main operation
@@ -112,7 +112,8 @@ std::vector<std::string> ed_nikolov_conductance_forced::get_inputs()
         "temp",                  // deg. C
         "atmospheric_pressure",  // Pa
         "windspeed",             // m / s
-        "leafwidth"              // m
+        "leafwidth",             // m
+        "nikolov_cf"             // dimensionless, usually 4.322e-3
     };
 }
 
@@ -136,7 +137,7 @@ void ed_nikolov_conductance_forced::do_operation() const
     // using Equation 29 in Nikolov et al. Note that we have used
     // volume_per_mol to convert from m / s to mol / m^2 / s (see
     // class description above for more details).
-    const double gbv_forced = nikolov::cf *
+    const double gbv_forced = *nikolov_cf_ip *
                               pow(Tak, nikolov::temperature_exponent) *
                               pow((Tak + nikolov::temperature_offset) * *windspeed_ip / (*leafwidth_ip * *atmospheric_pressure_ip), 0.5) /
                               volume_per_mol;  // mol / m^2 / s
@@ -182,6 +183,7 @@ class ed_nikolov_conductance_free : public SteadyModule
           mole_fraction_h2o_atmosphere_ip(get_ip(input_parameters, "mole_fraction_h2o_atmosphere")),
           conductance_boundary_h2o_free_ip(get_ip(input_parameters, "conductance_boundary_h2o_free")),
           conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
+          nikolov_ce_ip(get_ip(input_parameters, "nikolov_ce")),
           // Get pointers to output parameters
           conductance_boundary_h2o_free_op(get_op(output_parameters, "conductance_boundary_h2o_free"))
     {
@@ -198,6 +200,7 @@ class ed_nikolov_conductance_free : public SteadyModule
     const double* mole_fraction_h2o_atmosphere_ip;
     const double* conductance_boundary_h2o_free_ip;
     const double* conductance_stomatal_h2o_ip;
+    const double* nikolov_ce_ip;
     // Pointers to output parameters
     double* conductance_boundary_h2o_free_op;
     // Main operation
@@ -213,7 +216,8 @@ std::vector<std::string> ed_nikolov_conductance_free::get_inputs()
         "leafwidth",                      // m
         "mole_fraction_h2o_atmosphere",   // dimensionless from mol / mol
         "conductance_boundary_h2o_free",  // mol / m^2 / s
-        "conductance_stomatal_h2o"        // mol / m^2 / s
+        "conductance_stomatal_h2o",       // mol / m^2 / s
+        "nikolov_ce"                      // dimensionless, usually 1.6361e-3
     };
 }
 
@@ -255,7 +259,7 @@ void ed_nikolov_conductance_free::do_operation() const
     // Calculate the free boundary layer conductance using Equation 33 from Nikolov et al.
     // Note that we have used volume_per_mol to convert from m / s to mol / m^2 / s (see
     // class description above for more details).
-    const double gbv_free = nikolov::ce *
+    const double gbv_free = *nikolov_ce_ip *
                             pow(Tlk, nikolov::temperature_exponent) *
                             pow((Tlk + nikolov::temperature_offset) / *atmospheric_pressure_ip, 0.5) *
                             pow(fabs(Tvdiff) / *leafwidth_ip, 0.25) /
