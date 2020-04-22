@@ -34,8 +34,8 @@ const std::vector<double> upper_bounds = {
 };
 
 /** Set some basic properties for the Newton-Raphson solver */
-constexpr double rel_error_tol = 5e-3;
-constexpr double abs_error_tol = 1e-6;
+constexpr double rel_error_tol = 1e-2;
+constexpr double abs_error_tol = 10;
 constexpr int max_iterations = 50;
 
 /**
