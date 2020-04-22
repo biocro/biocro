@@ -104,7 +104,7 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const {
         newStemcol = nonleaf_carbon_flux * kStem;
         newStemcol = resp(newStemcol, mrc1, temp);
     }
-    else throw std::range_error("Thrown in no_leaf_resp_partitioning_growth_calculator: kStem should be positive");
+//    else throw std::range_error("Thrown in no_leaf_resp_partitioning_growth_calculator: kStem should be positive"); MLM removed this error message 04/22/2020; can cause issues with integration
     
     // Calculate the amount of new root produced
     if(kRoot > 0) {
