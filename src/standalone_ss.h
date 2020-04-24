@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <set>
 #include "modules.h"
-#include "module_wrapper_factory.h"
+#include "module_library/module_wrapper_factory.h"
 #include "system_helper_functions.h"
 #include "validate_system.h"
 

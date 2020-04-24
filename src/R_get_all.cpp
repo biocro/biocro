@@ -2,8 +2,8 @@
 #include <vector>
 #include <string>
 #include "R_helper_functions.h"
-#include "module_wrapper_factory.h"
-#include "system_solver_library/SystemSolverFactory.hpp"
+#include "module_library/module_wrapper_factory.h"
+#include "system_solver_library/system_solver_factory.h"
 #include "se_solver_library/se_solver_factory.h"
 
 extern "C" {
@@ -35,7 +35,7 @@ SEXP R_get_all_quantities()
 SEXP R_get_all_system_solvers()
 {
     try {
-        std::vector<std::string> result = SystemSolverFactory::get_solvers();
+        std::vector<std::string> result = system_solver_factory::get_solvers();
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_get_all_system_solvers: ") + e.what()).c_str());

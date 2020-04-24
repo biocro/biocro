@@ -4,7 +4,7 @@
 #include <boost/graph/adjacency_list.hpp> // for adjacency_list
 #include <boost/graph/topological_sort.hpp> // for dfs_visitor and not_a_dag
 
-#include "../module_wrapper_factory.h" // for module_wrapper_factory
+#include "../module_library/module_wrapper_factory.h" // for module_wrapper_factory
 #include "../state_map.h" // for state_map
 #include "../validate_system.h" // for string_set, string_vector,
                                 // find_unique_module_inputs,

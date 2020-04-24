@@ -8,7 +8,7 @@
 #include <memory>      // For std::unique_ptr and std::shared_ptr
 #include <algorithm>   // For std::find
 #include "state_map.h"
-#include "module_wrapper_factory.h"
+#include "module_library/module_wrapper_factory.h"
 #include "modules.h"
 
 using string_vector = std::vector<std::string>;
