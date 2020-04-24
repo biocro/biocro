@@ -85,6 +85,7 @@
 #include "module_library/soybean_development_rate_calculator.h"
 #include "module_library/thermaltime_development_rate_calculator.h"
 #include "module_library/hyperbolas.h"
+#include "module_library/miscanthus_partitioning_coefficient_logistic.h"
 
 template <typename T>
 std::unique_ptr<module_wrapper_base> create_wrapper()
@@ -189,7 +190,8 @@ const std::unordered_map<std::string, module_wrapper_factory::f_ptr> module_wrap
      {"soybean_development_rate_calculator",           &create_wrapper<soybean_development_rate_calculator>},
      {"thermaltime_development_rate_calculator",       &create_wrapper<thermaltime_development_rate_calculator>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
-     {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>}
+     {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>},
+     {"miscanthus_partitioning_coefficient_logistic",    &create_wrapper<miscanthus_partitioning_coefficient_logistic>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()

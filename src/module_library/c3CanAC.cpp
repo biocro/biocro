@@ -40,7 +40,7 @@ struct Can_Str c3CanAC(double LAI,
 
     struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
     
-    if(LAI < 0) throw std::range_error("Thrown in c3CanAC: LAI is negative.");
+//    if(LAI < 0) throw std::range_error("Thrown in c3CanAC: LAI is negative."); MLM removed this error message 04/22/2020; can cause issues with integration
 
     double LAIc = LAI / nlayers;
 

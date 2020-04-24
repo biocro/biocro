@@ -100,7 +100,7 @@ void thermaltime_development_rate_calculator::do_operation() const
         
     } else {
         // error, DVI out of bounds
-        throw std::out_of_range(std::string("DVI not in range, thrown by thermaltime_development_rate_calculator.\n"));
+//        throw std::out_of_range(std::string("DVI not in range, thrown by thermaltime_development_rate_calculator.\n"));
     }
     
     double development_rate_per_hour = development_rate / 24.0; // hr^-1
