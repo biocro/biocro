@@ -46,12 +46,18 @@ soybean_parameters = with(list(), {
      alphaLeaf  45.18 
      betaLeaf   -33.97 
      kRhizome_emr 0
-     alphaSeneLeaf  38.30 
-     alphaSeneStem  28.31 
-     betaSeneLeaf   -19.90 
-     betaSeneStem   -12.59 
-     rateSeneLeaf   0.01248 
-     rateSeneStem   0.004986 
+     alphaSeneLeaf  46.97 
+     alphaSeneStem  21.67 
+     alphaSeneRoot 10
+     alphaSeneRhizome 10
+     betaSeneLeaf   -24.81 
+     betaSeneStem   -10.33 
+     betaSeneRoot -10
+     betaSeneRhizome -10
+     rateSeneLeaf   0.01244 
+     rateSeneStem   0.001592 
+     rateSeneRoot   0
+     rateSeneRhizome 0
      remobilization_fraction    0
      tbase     10     
      phi1       0.01     
