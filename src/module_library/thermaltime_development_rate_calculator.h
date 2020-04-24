@@ -99,6 +99,8 @@ void thermaltime_development_rate_calculator::do_operation() const
         development_rate = temp_diff / TTrep; // day^-1
         
     } else {
+        // this should never occur, but prevents warning messages when compiling biocro
+        development_rate = 0;
         // error, DVI out of bounds
 //        throw std::out_of_range(std::string("DVI not in range, thrown by thermaltime_development_rate_calculator.\n"));
     }
