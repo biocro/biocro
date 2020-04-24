@@ -2,6 +2,9 @@
 #define SE_SOLVER_FACTORY_H
 
 #include <memory>
+#include <string>
+#include <vector>
+#include <map>
 #include "../se_solver.h"
 
 class se_solver_factory
@@ -20,17 +23,5 @@ class se_solver_factory
     using se_solver_creator_map = std::map<std::string, se_solver_creator>;         // A map of strings to system_solver_creators
     static se_solver_creator_map se_solver_creators;
 };
-
-/**
- * @brief A function that returns a unique_ptr to an se_solver object.
- */
-template <class solver_type>
-std::unique_ptr<se_solver> create_se_solver(
-    double rel_error_tol,
-    double abs_error_tol,
-    int max_it)
-{
-    return std::unique_ptr<se_solver>(new solver_type(rel_error_tol, abs_error_tol, max_it));
-}
 
 #endif

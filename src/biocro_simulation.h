@@ -5,7 +5,7 @@
 #include "state_map.h"
 #include "system.h"
 #include "system_solver.h"
-#include "system_solver_library/SystemSolverFactory.hpp"
+#include "system_solver_library/system_solver_factory.h"
 
 // Class that represents a BioCro simulation
 class biocro_simulation
@@ -27,7 +27,7 @@ class biocro_simulation
         sys = std::shared_ptr<System>(new System(initial_state, invariant_parameters, varying_parameters, steady_state_module_names, derivative_module_names));
 
         // Create the solver
-        solver = system_solver_factory(solver_name, output_step_size, adaptive_rel_error_tol, adaptive_abs_error_tol, adaptive_max_steps);
+        solver = system_solver_factory::create(solver_name, output_step_size, adaptive_rel_error_tol, adaptive_abs_error_tol, adaptive_max_steps);
     }
 
     std::unordered_map<std::string, std::vector<double>> run_simulation() { return solver->solve(sys); }

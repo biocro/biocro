@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "validate_system.h"
 #include "state_map.h"
-#include "module_wrapper_factory.h"
+#include "module_library/module_wrapper_factory.h"
 #include "modules.h"
 
 /**
