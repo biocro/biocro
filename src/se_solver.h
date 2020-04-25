@@ -166,12 +166,12 @@ bool se_solver::solve(
             ++num_adjustments;
             next_guess = adjust_bad_guess(next_guess, lower_bounds, upper_bounds);
         } else {
-            std::map<std::vector<bool>, bool*> convergence_checks = {
-                {has_not_converged_abs(previous_guess, next_guess, abs_error_tolerance), &converged_abs},
-                {has_not_converged_rel(previous_guess, next_guess, rel_error_tolerance), &converged_rel}};
+            std::map<bool*, std::vector<bool>> convergence_checks = {
+                {&converged_abs, has_not_converged_abs(previous_guess, next_guess, abs_error_tolerance)},
+                {&converged_rel, has_not_converged_rel(previous_guess, next_guess, rel_error_tolerance)}};
 
             for (auto const& x : convergence_checks) {
-                check_convergence(x.first, x.second);
+                check_convergence(x.second, x.first);
             }
         }
 
@@ -183,7 +183,7 @@ bool se_solver::solve(
 
     final_value_for_root = next_guess;
 
-    return converged_abs || converged_rel;
+    return converged_abs && converged_rel;
 }
 
 /**

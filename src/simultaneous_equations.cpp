@@ -209,22 +209,6 @@ void simultaneous_equations::update_known_quantities(std::vector<const double*> 
 }
 
 /**
- * @brief Updates the values of `vector_to_update` using the values pointed to by the elements
- * of the private member `output_ptrs.` The elements of `vector_to_update` must be sorted
- * according to quantity name.
- */
-void simultaneous_equations::get_all_outputs(std::vector<double>& vector_to_update)
-{
-    if (vector_to_update.size() != output_ptrs.size()) {
-        throw std::logic_error("Thrown by simultaneous_equations::update_known_quantities: vector_to_update has the wrong size.");
-    }
-
-    for (size_t i = 0; i < output_ptrs.size(); ++i) {
-        vector_to_update[i] = *output_ptrs[i];
-    }
-}
-
-/**
  * @brief Finds the unknown quantities defined by the set of modules.
  * 
  * @return A sorted list of quantity names

@@ -34,7 +34,7 @@ const std::vector<double> upper_bounds = {
 };
 
 /** Set some basic properties for the Newton-Raphson solver */
-constexpr double rel_error_tol = 1e-2;
+constexpr double rel_error_tol = 1e-3;
 constexpr double abs_error_tol = 10;
 constexpr int max_iterations = 50;
 
@@ -127,8 +127,8 @@ void module_base::do_operation() const
         throw std::runtime_error("Thrown by ed_leaf_photosynthesis::module_base::do_operation: the solver was unable to find a solution.");
     }
 
-    se->get_all_outputs(outputs_from_modules);
-
+    se->get_all_outputs(outputs_from_modules, best_guess);
+    
     for (size_t i = 0; i < output_ptrs.size(); ++i) {
         update(output_ptrs[i], outputs_from_modules[i]);
     }
