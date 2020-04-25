@@ -35,7 +35,7 @@ class ed_c4photo : public SteadyModule
           collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
           collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
           // Get pointers to output parameters
-          co2_mole_fraction_intercellular_op(get_op(output_parameters, "co2_mole_fraction_intercellular")),
+          mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
           conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o")),
           assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
           assimilation_net_op(get_op(output_parameters, "assimilation_net"))
@@ -63,7 +63,7 @@ class ed_c4photo : public SteadyModule
     const double* collatz_rubisco_temperature_upper_ip;
     const double* collatz_rubisco_temperature_lower_ip;
     // Pointers to output parameters
-    double* co2_mole_fraction_intercellular_op;
+    double* mole_fraction_co2_intercellular_op;
     double* conductance_stomatal_h2o_op;
     double* assimilation_gross_op;
     double* assimilation_net_op;
@@ -95,7 +95,7 @@ std::vector<std::string> ed_c4photo::get_inputs()
 std::vector<std::string> ed_c4photo::get_outputs()
 {
     return {
-        "co2_mole_fraction_intercellular",  // dimensionless from mol / mol
+        "mole_fraction_co2_intercellular",  // dimensionless from mol / mol
         "conductance_stomatal_h2o",         // mol / m^2 / s
         "assimilation_gross",               // mol / m^2 / s
         "assimilation_net"                  // mol / m^2 / s
@@ -142,7 +142,7 @@ void ed_c4photo::do_operation() const
         lowerT);
 
     // Convert and return the results
-    update(co2_mole_fraction_intercellular_op, c4_results.Ci * 1e-6);  // mol / m^2 / s
+    update(mole_fraction_co2_intercellular_op, c4_results.Ci * 1e-6);  // mol / m^2 / s
     update(conductance_stomatal_h2o_op, c4_results.Gs * 1e-3);         // mol / m^2 / s
     update(assimilation_gross_op, c4_results.GrossAssim * 1e-6);       // mol / m^2 / s
     update(assimilation_net_op, c4_results.Assim * 1e-6);              // mol / m^2 / s

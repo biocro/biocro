@@ -38,7 +38,7 @@ class ed_canac_leaf : public SteadyModule
           leafwidth_ip(get_ip(input_parameters, "leafwidth")),
           solar_energy_absorbed_leaf_ip(get_ip(input_parameters, "solar_energy_absorbed_leaf")),
           // Get pointers to output parameters
-          co2_mole_fraction_intercellular_op(get_op(output_parameters, "co2_mole_fraction_intercellular")),
+          mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
           conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o")),
           assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
           assimilation_net_op(get_op(output_parameters, "assimilation_net")),
@@ -73,7 +73,7 @@ class ed_canac_leaf : public SteadyModule
     const double* leafwidth_ip;
     const double* solar_energy_absorbed_leaf_ip;
     // Pointers to output parameters
-    double* co2_mole_fraction_intercellular_op;
+    double* mole_fraction_co2_intercellular_op;
     double* conductance_stomatal_h2o_op;
     double* assimilation_gross_op;
     double* assimilation_net_op;
@@ -112,7 +112,7 @@ std::vector<std::string> ed_canac_leaf::get_inputs()
 std::vector<std::string> ed_canac_leaf::get_outputs()
 {
     return {
-        "co2_mole_fraction_intercellular",     // dimensionless from mol / mol
+        "mole_fraction_co2_intercellular",     // dimensionless from mol / mol
         "conductance_stomatal_h2o",            // mol / m^2 / s
         "assimilation_gross",                  // mol / m^2 / s
         "assimilation_net",                    // mol / m^2 / s
@@ -148,7 +148,7 @@ void ed_canac_leaf::do_operation() const
     const double CanopyHeight = 0.0;                              // meters (not actually used by EvapoTrans2)
     const double leaf_width = *leafwidth_ip;                      // meter
     const int eteq = 0;                                           // Report Penman-Monteith transpiration
-    
+
     // For ed_penman_monteith_leaf_temperature, the light input is called `solar_energy_absorbed_leaf`
     // and is in units of W / m^2 / s. This quantity is equivalent to `Ja2` in Evapotrans2. `Iave` is
     // related to `Ja2` by:
@@ -185,7 +185,7 @@ void ed_canac_leaf::do_operation() const
                                                           upperT, lowerT);
 
     // Convert and return the results
-    update(co2_mole_fraction_intercellular_op, second_c4photoC_output.Ci * 1e-6);    // mol / m^2 / s
+    update(mole_fraction_co2_intercellular_op, second_c4photoC_output.Ci * 1e-6);    // mol / m^2 / s
     update(conductance_stomatal_h2o_op, second_c4photoC_output.Gs * 1e-3);           // mol / m^2 / s
     update(assimilation_gross_op, second_c4photoC_output.GrossAssim * 1e-6);         // mol / m^2 / s
     update(assimilation_net_op, second_c4photoC_output.Assim * 1e-6);                // mol / m^2 / s
