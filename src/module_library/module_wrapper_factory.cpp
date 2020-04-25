@@ -79,6 +79,7 @@
 #include "ed_c4_leaf_photosynthesis.h"
 #include "ed_c4photo.h"
 #include "ed_evapotrans2.h"
+#include "ed_canac_leaf.h"
 #include "hyperbolas.h"
 
 /**
@@ -191,6 +192,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_c4_leaf_photosynthesis",                       &create_wrapper<ed_c4_leaf_photosynthesis>},
      {"ed_c4photo",                                      &create_wrapper<ed_c4photo>},
      {"ed_evapotrans2",                                  &create_wrapper<ed_evapotrans2>},
+     {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>}
 };
