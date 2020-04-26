@@ -26,6 +26,7 @@ class ed_stomata_water_stress_linear : public SteadyModule
           soil_field_capacity_ip(get_ip(input_parameters, "soil_field_capacity")),
           soil_wilting_point_ip(get_ip(input_parameters, "soil_wilting_point")),
           soil_water_content_ip(get_ip(input_parameters, "soil_water_content")),
+          StomataWS_min_ip(get_ip(input_parameters, "StomataWS_min")),
           // Get pointers to output parameters
           StomataWS_op(get_op(output_parameters, "StomataWS"))
     {
