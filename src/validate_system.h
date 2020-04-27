@@ -15,8 +15,8 @@ using string_vector = std::vector<std::string>;
 using string_set = std::set<std::string>;
 using module_vector = std::vector<std::unique_ptr<Module>>;
 
-const std::string success_mark { u8"\u2713 " }; // checkmark
-const std::string failure_mark { u8"\u2717 " }; // exmark
+const std::string success_mark { "[pass] " };
+const std::string failure_mark { "[fail] " };
 
 bool validate_system_inputs(
     std::string& message,
