@@ -201,9 +201,7 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	}
 	
 	# If the varying parameter input doesn't have a doy_dbl column, add one
-	if (!"doy_dbl" %in% colnames(varying_parameters)) {
-		varying_parameters <- add_time_to_weather_data(varying_parameters)
-	}
+    varying_parameters <- add_time_to_weather_data(varying_parameters)
 	
 	# Check to make sure the solver properties are properly defined
 	if(!is.list(solver)) {
@@ -306,7 +304,7 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
 	}
 }
 
-partial_gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, solver=list(type='Gro', output_step_size=1.0, adaptive_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
+partial_gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose=FALSE)
 {
 	arg_list = list(initial_state=initial_state, parameters=parameters, varying_parameters=varying_parameters, steady_state_module_names=steady_state_module_names, derivative_module_names=derivative_module_names, solver=solver, verbose=verbose)
 

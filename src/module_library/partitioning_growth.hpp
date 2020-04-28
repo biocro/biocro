@@ -125,7 +125,7 @@ void partitioning_growth::do_operation() const {
     
     // Add any new Stem growth
     if(kStem >= 0.0) dStem += newStemcol;
-    else throw std::range_error("Thrown in partitioning_growth: kStem should be positive");
+//    else throw std::range_error("Thrown in partitioning_growth: kStem should be positive"); MLM removed this error message 04/22/2020; can cause issues with integration
     
     // Determine whether Root is growing or decaying
     if(kRoot > 0.0) dRoot += newRootcol;
