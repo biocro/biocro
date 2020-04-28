@@ -19,17 +19,14 @@ System::System(
     // Make sure the inputs can form a valid system
     bool valid = validate_system_inputs(startup_message, init_state, invariant_params, varying_params, ss_module_names, deriv_module_names);
 
-    try {
-        steady_state_module_names = get_evaluation_order(ss_module_names);
-        startup_message += "\n" + success_mark + "The steady-state modules have no cyclic dependencies.\n";
-    } catch(boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
-        startup_message += "\n" + failure_mark + "The steady-state modules have a cyclic dependency.\n";
-        steady_state_module_names = ss_module_names; // needed for addition error reporting
-        valid = false;
-    }
-
     if (!valid) {
         throw std::logic_error("Thrown by System::System: the supplied inputs cannot form a valid system.\n\n" + startup_message);
+    }
+
+    try {
+        steady_state_module_names = get_evaluation_order(ss_module_names);
+    } catch(boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
+        throw std::logic_error("Cyclic dependencies should be caught in the validation routine.  We shouldn't ever get here.");
     }
 
     // Make the central list of quantities and the module output map
