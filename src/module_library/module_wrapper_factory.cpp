@@ -90,7 +90,7 @@ std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string 
         std::string message = std::string("\"") + module_name +
                        std::string("\"") +
                        std::string(" was given as a module name, ") +
-                       std::string("but no module with that name could be found.\n.");
+                       std::string("but no module with that name could be found.\n");
 
         throw std::out_of_range(message);
     }

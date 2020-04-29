@@ -3,108 +3,86 @@
 using std::vector;
 using std::string;
 
-state_vector_map allocate_state(state_map const &m, size_t n)
-{
-    state_vector_map result;
-    for (auto it = m.begin(); it != m.end(); ++it) {
-        vector<double> temp;
-        temp.reserve(n);
-        result.insert({it->first, temp});
-    }
-    return (result);
-}
+// Forward declare; defined below.
+vector<double>::size_type  valid(const state_vector_map& vector_map);
 
-state_map combine_state(state_map state_a, state_map const &state_b)
+/**
+ * @brief Given a sequence of states (presented as a state_vector_map)
+ *        and an index n, return the n'th state in the sequence
+ *        (counting from 0) in the form of a state_map.
+ *
+ * @param vector_map A valid sequence of states represented as a
+ *                   state_vector_map.
+ *
+ * @param n An index into the sequence of state given by vector_map.
+ *
+ * @returns The n'th state (counting from 0) of the sequence of states
+ *          represented by vector_map.
+ *
+ * @throws invalid_state_vector_map if vector_map is invalid.
+ *
+ * @throws bad_state_vector_map_index if n is not a valid index for
+ *                                    the vector values of the map.
+ *
+ */
+state_map at(const state_vector_map& vector_map,
+             std::vector<double>::size_type n)
 {
-    state_a.insert(state_b.begin(), state_b.end());
-    return state_a;
-}
+    const auto length = valid(vector_map);
 
-state_map at(state_vector_map const &vector_map, vector<double>::size_type const n)
-{
     state_map result;
     result.reserve(vector_map.size());
 
+    if (! (n >= 0 && n < length)) {
+        throw bad_state_vector_map_index(std::string{"Index "} +
+                                         std::to_string(n) +
+                                         " is out of range for vector_map.");
+    }
+
+    for (auto pair : vector_map) {
+        result.emplace(pair.first, pair.second[n]);
+    }
+    return result;
+}
+
+/**
+ * Check that vector_map is a valid state_vector_map, and if it is,
+ * return the length of the vectors.
+ *
+ * In order for vector_map to be valid, it must have at least one key
+ * (i.e., not be empty), and the values corresponding to the keys must
+ * be of uniform length.
+ *
+ * @param vector_map The state_vector_map whose size is being
+ *                   assessed.
+ *
+ * @returns The length of the vectors comprising the values of the
+ *          map.
+ *
+ * @throws invalid_state_vector_map if vector_map is invalid.
+ *
+ * @note A state_vector_map is used to represent sequences of
+ *       states. In theory, we might wish to consider and represent a
+ *       sequence of states having no attributes, but a
+ *       state_vector_map can't do this, for there is no way to
+ *       represent the length of such a sequence if there isn't at
+ *       least one attribute.  (Had we used std::vector<state_map> to
+ *       represent sequences of states instead, this problem wouldn't
+ *       arise.)
+ */
+vector<double>::size_type valid(const state_vector_map& vector_map) {
+    if (vector_map.size() == 0) {
+        throw invalid_state_vector_map(std::string("state_vector_map has no keys"));
+    }
     auto it = vector_map.begin();
-    it->second.at(n);  // Try to access the value in the vector using vector.at(). If n is out of range, an exception is thrown. If it works here, then the faster operator[ is safe later.
-    for (; it != vector_map.end(); ++it) {
-        result.emplace(it->first, it->second[n]);
-    }
-    return result;
-}
 
-state_map replace_state(state_map const &state, state_map const &new_state)
-{
-    state_map result = state;
-    for (auto it = result.begin(); it != result.end(); ++it) {
-        it->second = new_state.at(it->first);
-    }
-    return result;
-}
+    auto size = it->second.size();
 
-state_map replace_or_insert_state(state_map const &state, state_map const &new_state)
-{
-    state_map result = state;
-    for (auto it = new_state.begin(); it != new_state.end(); ++it) {
-        result[it->first] = it->second;
-    }
-    return result;
-}
-
-void update_state(state_map &state, state_map const &change_in_state)
-{
-    for (auto &it : state) {
-        auto it_change = change_in_state.find(it.first);
-        if ( it_change != change_in_state.end()) {
-            it.second += it_change->second;
+    for (++it; it != vector_map.end(); ++it) {
+        if (it->second.size() != size) {
+            throw invalid_state_vector_map(std::string("state_vector_map has vectors of unequal lengths"));
         }
     }
-}
 
-void append_state_to_vector(state_map const &state, state_vector_map &state_vector)
-{
-    for (auto const& it : state) {
-        state_vector[it.first].emplace_back(it.second);
-    }
+    return size;
 }
-
-state_map& operator+=(state_map &lhs, state_map const &rhs)
-{
-    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
-        lhs[it->first] += it->second;
-    }
-    return lhs;
-}
-
-state_map& operator+=(state_map &x, double const a)
-{
-    for(auto it = x.begin(); it != x.end(); ++it) {
-        it->second += a;
-    }
-    return x;
-}
-
-state_map& operator*=(state_map &x, double const a)
-{
-    for(auto it = x.begin(); it != x.end(); ++it) {
-        it->second *= a;
-    }
-    return x;
-}
-
-state_map operator/(state_map lhs, state_map const& rhs)
-{
-    for(auto it = rhs.begin(); it != rhs.end(); ++it) {
-        lhs[it->first] /= it->second;
-    }
-    return lhs;
-}
-
-state_map& operator/=(state_map &x, double const a)
-{
-    for(auto it = x.begin(); it != x.end(); ++it) {
-        it->second /= a;
-    }
-    return x;
-}
-
