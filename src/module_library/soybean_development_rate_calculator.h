@@ -172,8 +172,8 @@ void soybean_development_rate_calculator::do_operation() const
         soybean_development_rate = Rmax_R1R7 * tempFunc(temp, Tmin_R1R7, Topt_R1R7, Tmax_R1R7) * photoFunc(day_length, Popt_R1R7, Pcrit_R1R7); // day^-1
         
     } else {
-        // error, DVI out of bounds
-        throw std::out_of_range(std::string("DVI not in range, thrown by soybean_development_rate_calculator.\n"));
+        // error, DVI out of bounds, this should never occur, but prevents warning messages when compiling biocro
+        soybean_development_rate = 0; //
     }
     
     double development_rate_per_hour = soybean_development_rate / 24.0; // hr^-1
