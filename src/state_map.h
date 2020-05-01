@@ -16,15 +16,6 @@
 using state_vector_map = std::unordered_map<std::string, std::vector<double>>;
 
 /**
- * Exception thrown when a state_vector_map is invalid, either because
- * it is empty or because the vectors comprising the mapped-to values
- * are not of uniform length.
- */
-struct invalid_state_vector_map : std::logic_error {
-    invalid_state_vector_map(std::string msg) :logic_error{msg} { }
-};
-
-/**
  * Exception thrown when the `at` function tries access the state in a
  * state_vector_map using an out-of-range index.
  */
