@@ -50,7 +50,7 @@ html: ../src/*
 
 all: complete
 
-complete: ../src/* ../src/module_library/* ../src/solver_library/* ../src/utils/*
+complete: ../src/* ../src/module_library/* ../src/system_solver_library/* ../src/utils/*
 	# Override some of the settings in Doxyfile:
 	( cat Doxyfile overrides/developer ) | doxygen -
 	# Generate the PDF file from the LaTeX output:
@@ -58,13 +58,13 @@ complete: ../src/* ../src/module_library/* ../src/solver_library/* ../src/utils/
 
 all-html: complete/html
 
-complete/html: ../src/* ../src/module_library/* ../src/solver_library/* ../src/utils/*
+complete/html: ../src/* ../src/module_library/* ../src/system_solver_library/* ../src/utils/*
 	# Override some of the settings in Doxyfile:
 	( cat Doxyfile overrides/developer ; echo "GENERATE_LATEX = NO" ) | doxygen -
 
 all-pdf: complete/latex
 
-complete/latex: ../src/* ../src/module_library/* ../src/solver_library/* ../src/utils/*
+complete/latex: ../src/* ../src/module_library/* ../src/system_solver_library/* ../src/utils/*
 	# Override some of the settings in Doxyfile:
 	( cat Doxyfile overrides/developer ; echo "GENERATE_HTML = NO" ) | doxygen -
 	# Generate the PDF file from the LaTeX output:
@@ -86,7 +86,7 @@ view-pdf: all-pdf
 	open complete/latex/refman.pdf
 
 # Make sure we don't try to compile any of the source code:
-../src/* ../src/module_library/* ../src/solver_library/* ../src/utils/*:
+../src/* ../src/module_library/* ../src/system_solver_library/* ../src/utils/*:
 	#
 
 help:
