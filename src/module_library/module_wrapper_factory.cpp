@@ -63,7 +63,7 @@
 #include "leaf_shape_factor.h"
 #include "c4_leaf_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
-#include "multilayer_canopy_photosynthesis.h"
+#include "multilayer_c4_canopy.h"
 #include "multilayer_canopy_integrator.h"
 #include "light_from_solar.hpp"
 #include "night_and_day_trackers.hpp"

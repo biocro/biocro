@@ -10,6 +10,20 @@
  * found in AuxBioCro (for the most part). Also includes multiple
  * leaf classes (sunlit & shaded). Leaf class is added to output
  * parameters as a prefix, while layer number is added as a suffix.
+ * Note that this module has a non-standard constructor, so it cannot
+ * be created using the module_wrapper_factory.
+ * 
+ * For compatibility with the multilayer canopy photosynthesis module,
+ * the outputs of this module must be split into the following categories:
+ *  - multiclass_multilayer outputs: these outputs are different for each
+ *    leaf class and canopy layer
+ *  - pure_multilayer outputs: these outputs are different for each canopy
+ *    layer but not for each leaf class
+ *  - other outputs: these outputs do not depend on the leaf class or
+ *    canopy layer (there are currently no outputs of this type)
+ * The base names for the multiclass_multilayer and pure_multilayer outputs
+ * will be used by the multilayer canopy photosynthesis module to pass them
+ * to a leaf photosynthesis module.
  */
 class multilayer_canopy_properties : public SteadyModule
 {
@@ -101,18 +115,13 @@ class multilayer_canopy_properties : public SteadyModule
     const std::vector<double*> vmax_ops;
     const std::vector<double*> alpha_ops;
     const std::vector<double*> Rd_ops;
-    // Main operation
-    virtual void do_operation() const;
 
    protected:
     void run() const;
-
-   public:
     static std::vector<std::string> get_inputs(int nlayers);
-    static std::vector<std::string> define_leaf_classes();                   // required by the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> define_multiclass_multilayer_outputs();  // required by the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> define_pure_multilayer_outputs();        // required by the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> define_other_outputs();                  // required by the multilayer_canopy_photosynthesis module
+    static std::vector<std::string> define_leaf_classes();
+    static std::vector<std::string> define_multiclass_multilayer_outputs();
+    static std::vector<std::string> define_pure_multilayer_outputs();
     static std::vector<std::string> get_outputs(int nlayers);
 };
 
@@ -185,13 +194,6 @@ std::vector<std::string> multilayer_canopy_properties::define_pure_multilayer_ou
         "Rd"                       // micromole / m^2 / s
     };
 }
-/**
- * @brief Define all outputs that do not change for each layer
- */
-std::vector<std::string> multilayer_canopy_properties::define_other_outputs()
-{
-    return {};
-}
 
 /**
  * @brief Define all output names by appending leaf class prefixes and layer number suffixes.
@@ -204,24 +206,14 @@ std::vector<std::string> multilayer_canopy_properties::get_outputs(int nlayers)
         multilayer_canopy_properties::define_leaf_classes(),
         multilayer_canopy_properties::define_multiclass_multilayer_outputs());
 
-    // Add layer number suffixes to all multilayer outputs
+    // Add other multilayer outputs
     for (std::string const& name : multilayer_canopy_properties::define_pure_multilayer_outputs()) {
         multilayer_outputs.push_back(name);
     }
 
-    std::vector<std::string> outputs = generate_multilayer_quantity_names(nlayers, multilayer_outputs);
-
-    // Include any other outputs that don't depend on leaf class or layer number
-    for (std::string const& name : multilayer_canopy_properties::define_other_outputs()) {
-        outputs.push_back(name);
-    }
-
-    return outputs;
-}
-
-void multilayer_canopy_properties::do_operation() const
-{
-    multilayer_canopy_properties::run();
+    // Add layer number suffixes to all multilayer outputs
+    // We can return the result immediately since there are no other outputs
+    return generate_multilayer_quantity_names(nlayers, multilayer_outputs);
 }
 
 void multilayer_canopy_properties::run() const
@@ -314,9 +306,9 @@ class ten_layer_canopy_properties : public multilayer_canopy_properties
     {
     }
     static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_leaf_classes();
-    static std::vector<std::string> get_multiclass_multilayer_outputs();
-    static std::vector<std::string> get_pure_multilayer_outputs();
+    static std::vector<std::string> define_leaf_classes();
+    static std::vector<std::string> define_multiclass_multilayer_outputs();
+    static std::vector<std::string> define_pure_multilayer_outputs();
     static std::vector<std::string> get_outputs();
 
    private:
@@ -333,18 +325,18 @@ std::vector<std::string> ten_layer_canopy_properties::get_inputs()
     return multilayer_canopy_properties::get_inputs(ten_layer_canopy_properties::nlayers);
 }
 
-std::vector<std::string> ten_layer_canopy_properties::get_leaf_classes()
+std::vector<std::string> ten_layer_canopy_properties::define_leaf_classes()
 {
     return multilayer_canopy_properties::define_leaf_classes();
 }
 
-std::vector<std::string> ten_layer_canopy_properties::get_multiclass_multilayer_outputs()
+std::vector<std::string> ten_layer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     // Just call the parent class's multilayer output function
     return multilayer_canopy_properties::define_multiclass_multilayer_outputs();
 }
 
-std::vector<std::string> ten_layer_canopy_properties::get_pure_multilayer_outputs()
+std::vector<std::string> ten_layer_canopy_properties::define_pure_multilayer_outputs()
 {
     // Just call the parent class's multilayer output function
     return multilayer_canopy_properties::define_pure_multilayer_outputs();

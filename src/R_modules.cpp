@@ -39,31 +39,27 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
 
         // Try to create an instance of the module
         module_output_map = parameters;
-        std::unique_ptr<Module> module_ptr = w->createModule(&parameters, &module_output_map);
+        bool create_success = true;
+        bool is_deriv = false;
+        bool is_adaptive_compatible = false;
+        std::string error_message;
+        try {
+            std::unique_ptr<Module> module_ptr = w->createModule(&parameters, &module_output_map);
 
-        // Check to see if the module is a derivative module
-        bool is_deriv = module_ptr->is_deriv();
+            // Check to see if the module is a derivative module
+            is_deriv = module_ptr->is_deriv();
 
-        // Check to see if the module is compatible with adaptive step size solvers
-        bool is_adaptive_compatible = module_ptr->is_adaptive_compatible();
+            // Check to see if the module is compatible with adaptive step size solvers
+            is_adaptive_compatible = module_ptr->is_adaptive_compatible();
+        } catch (std::exception const& e) {
+            create_success = false;
+            error_message = e.what();
+        }
 
         // Send some messages to the user if required
-
         if (loquacious) {
             // Module name
             Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
-
-            // Module type
-            if (is_deriv)
-                Rprintf("Module type (derivative or steady state):\n  derivative\n\n");
-            else
-                Rprintf("Module type (derivative or steady state):\n  steady state\n\n");
-
-            // Adaptive compatibility
-            if (is_adaptive_compatible)
-                Rprintf("Compatible with adaptive step size solvers:\n  yes\n\n");
-            else
-                Rprintf("Compatible with adaptive step size solvers:\n  no\n\n");
 
             // Module description
             Rprintf("Module description:\n%s\n\n", description.c_str());
@@ -83,6 +79,25 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
                 Rprintf(" none\n\n");
             else {
                 for (std::string param : module_outputs) Rprintf("\n  %s", param.c_str());
+                Rprintf("\n\n");
+            }
+
+            if (create_success) {
+                // Module type
+                if (is_deriv)
+                    Rprintf("Module type (derivative or steady state):\n  derivative\n\n");
+                else
+                    Rprintf("Module type (derivative or steady state):\n  steady state\n\n");
+
+                // Adaptive compatibility
+                if (is_adaptive_compatible)
+                    Rprintf("Compatible with adaptive step size solvers:\n  yes\n\n");
+                else
+                    Rprintf("Compatible with adaptive step size solvers:\n  no\n\n");
+            } else {
+                Rprintf("Error: could not create the module\n");
+                Rprintf("Additional details:\n");
+                Rprintf(error_message.c_str());
                 Rprintf("\n\n");
             }
         }
