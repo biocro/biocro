@@ -8,7 +8,7 @@
 /**
  * @class c4_leaf_photosynthesis
  * 
- * @brief Uses the method from CanAC to calculate leaf photosynthesis parameters
+ * @brief Uses the method from CanAC to calculate leaf photosynthesis parameters for C4 plants
  */
 class c4_leaf_photosynthesis : public SteadyModule
 {

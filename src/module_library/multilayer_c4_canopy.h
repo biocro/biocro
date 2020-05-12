@@ -9,10 +9,9 @@
  * @class ten_layer_c4_canopy
  * 
  * @brief A child class of multilayer_canopy_photosynthesis where:
- *  - The canopy module is set to the `multilayer_canopy_properties` module
- * 
- * the canopy properties module,
- * leaf photosynthesis module, and number of layers have been defined.
+ *  - The canopy module is set to the `ten_layer_canopy_properties` module
+ *  - The leaf module is set to the `c4_leaf_photosynthesis` module
+ *  - The number of layers is set to 10
  * Instances of this class can be created using the module factory.
  */
 class ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c4_leaf_photosynthesis>

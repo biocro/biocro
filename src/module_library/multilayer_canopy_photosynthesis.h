@@ -76,21 +76,18 @@ std::vector<std::string> get_other_leaf_inputs()
  * @class multilayer_canopy_photosynthesis
  * 
  * @brief Applies a leaf photosynthesis module to each layer and leaf class of a multilayer canopy.
+ * Note that this module cannot be created via the module_wrapper_factory since it is a template
+ * class with a different constructor than a usual module. Rather, it is expected that directly-usable
+ * classes will be derived from this class.
  * 
  * Two modules must be specified as template arguments:
  *  - canopy_properties_module: a module that calculates properties for each canopy layer
  *  - leaf_photosynthesis_module: a module that determines assimilation values (among other values)
  * 
- * The canopy properties module must require a name and the number of layers as inputs to its
- * constructor. 
- * 
  * The canopy properties module must have the following public static methods:
- *  - get_inputs(int nlayers)
- *  - get_outputs(int nlayers)
  *  - define_leaf_classes()
  *  - define_multiclass_multilayer_outputs()
  *  - define_pure_multilayer_outputs()
- *  - define_other_outputs()
  */
 template <typename canopy_module_type, typename leaf_module_type>
 class multilayer_canopy_photosynthesis : public SteadyModule

@@ -119,9 +119,9 @@ class multilayer_canopy_properties : public SteadyModule
    protected:
     void run() const;
     static std::vector<std::string> get_inputs(int nlayers);
-    static std::vector<std::string> define_leaf_classes();
-    static std::vector<std::string> define_multiclass_multilayer_outputs();
-    static std::vector<std::string> define_pure_multilayer_outputs();
+    static std::vector<std::string> define_leaf_classes();                   // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
+    static std::vector<std::string> define_multiclass_multilayer_outputs();  // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
+    static std::vector<std::string> define_pure_multilayer_outputs();        // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
     static std::vector<std::string> get_outputs(int nlayers);
 };
 
