@@ -8,9 +8,6 @@
 #include "module_library/BioCro.h"      // Include this here so all modules will have access to the auxilliary functions
 #include "module_library/AuxBioCro.h"   // Include this here so all modules will have access to the auxilliary functions
 #include "module_helper_functions.h"    // Include this here so all modules will have access to these functions
-#include <cmath>                        // For log10
-#include <sstream>                      // For replicating old sprintf functionality with strings
-#include <iomanip>                      // For replicating old sprintf functionality with strings
 
 class Module {
     // This class represents a component of a larger system of differential equations
@@ -71,23 +68,5 @@ class DerivModule : public Module {
     protected:
         void update(double* output_ptr, const double& value) const {*output_ptr += value;}    // The output parameters of a derivative module are not necessarily unique, so we should add a new one to the previously stored value
 };
-
-class MultilayerModule {
-    // The purpose of this class is to give a module some new functions
-    //  used with multilayer parameter lists
-    // It is an abstract class with several private static member functions
-    public:
-        MultilayerModule() {}
-        virtual ~MultilayerModule() = 0;
-    protected:
-        static std::vector<std::string> get_multilayer_param_names(int nlayers, std::vector<std::string> param_names);      // Should be protected so only child classes can access it
-        const std::vector<double*> get_multilayer_op(std::unordered_map<std::string, double>* output_parameters, int nlayers, const std::string& name) const;
-        const std::vector<const double*> get_multilayer_ip(const std::unordered_map<std::string, double>* input_parameters, int nlayers, const std::string& name) const;
-};
-
-// A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header
-inline MultilayerModule::~MultilayerModule() {}
-
-void check_error_conditions(std::map<std::string, bool> errors_to_check, std::string module_name);
 
 #endif
