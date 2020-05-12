@@ -19,8 +19,9 @@ class c4_leaf_photosynthesis : public SteadyModule
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c4_leaf_photosynthesis"),
           // Get references to input parameters
+          par_energy_content(get_input(input_parameters, "par_energy_content")),
           incident_par(get_input(input_parameters, "incident_par")),
-          temperature(get_input(input_parameters, "temperature")),
+          temp(get_input(input_parameters, "temp")),
           rh(get_input(input_parameters, "rh")),
           vmax(get_input(input_parameters, "vmax")),
           alpha(get_input(input_parameters, "alpha")),
@@ -57,8 +58,9 @@ class c4_leaf_photosynthesis : public SteadyModule
 
    private:
     // Pointers to input parameters
+    double const& par_energy_content;
     double const& incident_par;
-    double const& temperature;
+    double const& temp;
     double const& rh;
     double const& vmax;
     double const& alpha;
@@ -94,8 +96,9 @@ class c4_leaf_photosynthesis : public SteadyModule
 std::vector<std::string> c4_leaf_photosynthesis::get_inputs()
 {
     return {
-        "incident_par",           // micromole / m^2 / s
-        "temperature",            // deg. C
+        "par_energy_content",     // J / micromol
+        "incident_par",           // J / (m^2 leaf) / s
+        "temp",            // deg. C
         "rh",                     // dimensionless
         "vmax",                   // micromole / m^2 / s
         "alpha",                  // mol / mol
@@ -110,7 +113,7 @@ std::vector<std::string> c4_leaf_photosynthesis::get_inputs()
         "water_stress_approach",  // a dimensionless switch
         "upperT",                 // deg. C
         "lowerT",                 // deg. C
-        "incident_average_par",   // micromol / m^2 / s
+        "incident_average_par",   // J / (m^2 leaf) / s
         "windspeed",              // m / s
         "height",                 // m
         "leafwidth",              // m
@@ -134,23 +137,27 @@ std::vector<std::string> c4_leaf_photosynthesis::get_outputs()
 
 void c4_leaf_photosynthesis::do_operation() const
 {
+    // Convert light inputs from energy to molecular flux densities
+    const double incident_par_micromol = incident_par / par_energy_content;                  // micromol / m^2 / s
+    const double incident_average_par_micromol = incident_average_par / par_energy_content;  // micromol / m^2 / s
+
     // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
     const double initial_stomatal_conductance = c4photoC(
-                                                    incident_par, temperature, rh, vmax, alpha,
+                                                    incident_par_micromol, temp, rh, vmax, alpha,
                                                     kparm, theta, beta, Rd, b0, b1, StomataWS, Catm,
                                                     water_stress_approach, upperT, lowerT)
                                                     .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature
     double constexpr LAI = 0.0;  // EvapoTrans2 does not actually use LAI for anything
-    const struct ET_Str et = EvapoTrans2(incident_par, incident_average_par, temperature, rh, windspeed,
+    const struct ET_Str et = EvapoTrans2(incident_par_micromol, incident_average_par_micromol, temp, rh, windspeed,
                                          LAI, height, initial_stomatal_conductance, leafwidth, et_equation);
 
-    const double leaf_temperature = temperature + et.Deltat;  // deg. C
+    const double leaf_temperature = temp + et.Deltat;  // deg. C
 
     // Calculate final values for assimilation, stomatal conductance, and Ci using the new leaf temperature
     const struct c4_str photo = c4photoC(
-        incident_par, leaf_temperature, rh, vmax, alpha,
+        incident_par_micromol, leaf_temperature, rh, vmax, alpha,
         kparm, theta, beta, Rd, b0, b1, StomataWS, Catm,
         water_stress_approach, upperT, lowerT);
 
