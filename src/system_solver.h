@@ -27,7 +27,7 @@ class system_solver
 
     virtual ~system_solver() {}
 
-    std::unordered_map<std::string, std::vector<double>> solve(std::shared_ptr<System> sys);
+    state_vector_map solve(std::shared_ptr<System> sys);
 
     std::string generate_info_report() const { return std::string("Name: ") + solver_name + get_param_info(); }
 
@@ -57,14 +57,14 @@ class system_solver
 
     bool solve_method_has_been_called = false;
 
-    virtual std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) = 0;
-    virtual std::unordered_map<std::string, std::vector<double>> handle_adaptive_incompatibility(std::shared_ptr<System> sys);
+    virtual state_vector_map do_solve(std::shared_ptr<System> sys) = 0;
+    virtual state_vector_map handle_adaptive_incompatibility(std::shared_ptr<System> sys);
     virtual std::string get_param_info() const = 0;
     virtual std::string get_solution_info() const = 0;
 };
 
 // Define the standard response to a problem with adaptive compatibility
-inline std::unordered_map<std::string, std::vector<double>>
+inline state_vector_map
     system_solver::handle_adaptive_incompatibility(std::shared_ptr<System> /*sys*/)
 {
     throw std::logic_error(
