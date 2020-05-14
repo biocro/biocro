@@ -37,6 +37,7 @@ class multilayer_canopy_integrator : public SteadyModule
           shaded_TransR_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_TransR")),
           // Get references to input parameters
           lai(get_input(input_parameters, "lai")),
+          growth_respiration_fraction(get_input(input_parameters, "growth_respiration_fraction")),
           // Get pointers to output parameters
           canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
           canopy_transpiration_rate_op(get_op(output_parameters, "canopy_transpiration_rate")),
@@ -61,6 +62,7 @@ class multilayer_canopy_integrator : public SteadyModule
     const std::vector<const double*> shaded_TransR_ips;
     // References to input parameters
     const double& lai;
+    const double& growth_respiration_fraction;
     // Pointers to output parameters
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
@@ -100,7 +102,8 @@ std::vector<std::string> multilayer_canopy_integrator::get_inputs(int nlayers)
     std::vector<std::string> all_inputs = generate_multilayer_quantity_names(nlayers, multilayer_inputs);
 
     // Add any other inputs
-    all_inputs.push_back("lai");  // dimensionless from m^2 / m^2
+    all_inputs.push_back("lai");                          // dimensionless from m^2 / m^2
+    all_inputs.push_back("growth_respiration_fraction");  // dimensionless
 
     return all_inputs;
 }
@@ -141,6 +144,12 @@ void multilayer_canopy_integrator::run() const
         canopy_conductance += *sunlit_Gs_ips[i] * sunlit_lai + *shaded_Gs_ips[i] * shaded_lai;
         GrossAssim += *sunlit_GrossAssim_ips[i] * sunlit_lai + *shaded_GrossAssim_ips[i] * shaded_lai;
     }
+    
+    // Modify net assimilation to account for respiration
+    // Note: this was originally only done for the C3 canopy
+    // Note: it seems like this should not be necessary since the assimilation model includes
+    //       respiration
+    canopy_assimilation_rate *= (1.0 - growth_respiration_fraction);
 
     // Convert assimilation values from micromol / m^2 / s to Mg / ha / hr using the following
     // conversion factors:
