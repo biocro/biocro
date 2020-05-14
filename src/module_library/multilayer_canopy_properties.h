@@ -40,8 +40,6 @@ class multilayer_canopy_properties : public SteadyModule
           // Get references to input parameters
           par_incident_direct(get_input(input_parameters, "par_incident_direct")),
           par_incident_diffuse(get_input(input_parameters, "par_incident_diffuse")),
-          nir_incident_direct(get_input(input_parameters, "nir_incident_direct")),
-          nir_incident_diffuse(get_input(input_parameters, "nir_incident_diffuse")),
           lai(get_input(input_parameters, "lai")),
           cosine_zenith_angle(get_input(input_parameters, "cosine_zenith_angle")),
           kd(get_input(input_parameters, "kd")),
@@ -52,27 +50,17 @@ class multilayer_canopy_properties : public SteadyModule
           LeafN(get_input(input_parameters, "LeafN")),
           kpLN(get_input(input_parameters, "kpLN")),
           lnfun(get_input(input_parameters, "lnfun")),
-          vmax1(get_input(input_parameters, "vmax1")),
-          alpha1(get_input(input_parameters, "alpha1")),
-          Rd(get_input(input_parameters, "Rd")),
           // Get pointers to output parameters
           sunlit_incident_par_ops(get_multilayer_op(output_parameters, nlayers, "sunlit_incident_par")),
-          sunlit_incident_nir_ops(get_multilayer_op(output_parameters, nlayers, "sunlit_incident_nir")),
           sunlit_fraction_ops(get_multilayer_op(output_parameters, nlayers, "sunlit_fraction")),
           shaded_incident_par_ops(get_multilayer_op(output_parameters, nlayers, "shaded_incident_par")),
-          shaded_incident_nir_ops(get_multilayer_op(output_parameters, nlayers, "shaded_incident_nir")),
           shaded_fraction_ops(get_multilayer_op(output_parameters, nlayers, "shaded_fraction")),
           incident_scattered_par_ops(get_multilayer_op(output_parameters, nlayers, "incident_scattered_par")),
           incident_average_par_ops(get_multilayer_op(output_parameters, nlayers, "incident_average_par")),
-          incident_scattered_nir_ops(get_multilayer_op(output_parameters, nlayers, "incident_scattered_nir")),
-          incident_average_nir_ops(get_multilayer_op(output_parameters, nlayers, "incident_average_nir")),
           height_ops(get_multilayer_op(output_parameters, nlayers, "height")),
           rh_ops(get_multilayer_op(output_parameters, nlayers, "rh")),
           windspeed_ops(get_multilayer_op(output_parameters, nlayers, "windspeed")),
-          LeafN_ops(get_multilayer_op(output_parameters, nlayers, "LeafN")),
-          vmax_ops(get_multilayer_op(output_parameters, nlayers, "vmax")),
-          alpha_ops(get_multilayer_op(output_parameters, nlayers, "alpha")),
-          Rd_ops(get_multilayer_op(output_parameters, nlayers, "Rd"))
+          LeafN_ops(get_multilayer_op(output_parameters, nlayers, "LeafN"))
     {
     }
 
@@ -82,8 +70,6 @@ class multilayer_canopy_properties : public SteadyModule
     // References to input parameters
     const double& par_incident_direct;
     const double& par_incident_diffuse;
-    const double& nir_incident_direct;
-    const double& nir_incident_diffuse;
     const double& lai;
     const double& cosine_zenith_angle;
     const double& kd;
@@ -94,27 +80,17 @@ class multilayer_canopy_properties : public SteadyModule
     const double& LeafN;
     const double& kpLN;
     const double& lnfun;
-    const double& vmax1;
-    const double& alpha1;
-    const double& Rd;
     // Pointers to output parameters
     const std::vector<double*> sunlit_incident_par_ops;
-    const std::vector<double*> sunlit_incident_nir_ops;
     const std::vector<double*> sunlit_fraction_ops;
     const std::vector<double*> shaded_incident_par_ops;
-    const std::vector<double*> shaded_incident_nir_ops;
     const std::vector<double*> shaded_fraction_ops;
     const std::vector<double*> incident_scattered_par_ops;
     const std::vector<double*> incident_average_par_ops;
-    const std::vector<double*> incident_scattered_nir_ops;
-    const std::vector<double*> incident_average_nir_ops;
     const std::vector<double*> height_ops;
     const std::vector<double*> rh_ops;
     const std::vector<double*> windspeed_ops;
     const std::vector<double*> LeafN_ops;
-    const std::vector<double*> vmax_ops;
-    const std::vector<double*> alpha_ops;
-    const std::vector<double*> Rd_ops;
 
    protected:
     void run() const;
@@ -133,8 +109,6 @@ std::vector<std::string> multilayer_canopy_properties::get_inputs(int /*nlayers*
     return {
         "par_incident_direct",   // J / (m^2 beam) / s [area perpendicular to beam]
         "par_incident_diffuse",  // J / m^2 / s        [through any plane]
-        "nir_incident_direct",   // J / (m^2 beam) / s [area perpendicular to beam]
-        "nir_incident_diffuse",  // J / m^2 / s        [through any plane]
         "lai",                   // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
         "cosine_zenith_angle",   // dimensionless
         "kd",                    // (m^2 ground) / (m^2 leaf)
@@ -145,9 +119,6 @@ std::vector<std::string> multilayer_canopy_properties::get_inputs(int /*nlayers*
         "LeafN",                 // mmol / m^2 (?)
         "kpLN",                  // dimensionless
         "lnfun",                 // a dimensionless switch
-        "vmax1",                 // micromole / m^2 / s
-        "alpha1",                // mol / mol
-        "Rd"                     // micromole / m^2 / s
     };
 }
 
@@ -169,7 +140,6 @@ std::vector<std::string> multilayer_canopy_properties::define_multiclass_multila
 {
     return {
         "incident_par",  // J / (m^2 leaf) / s
-        "incident_nir",  // J / (m^2 leaf) / s
         "fraction"       // dimensionless
     };
 }
@@ -183,15 +153,10 @@ std::vector<std::string> multilayer_canopy_properties::define_pure_multilayer_ou
     return {
         "incident_scattered_par",  // J / (m^2 leaf) / s
         "incident_average_par",    // J / (m^2 leaf) / s
-        "incident_scattered_nir",  // J / (m^2 leaf) / s
-        "incident_average_nir",    // J / (m^2 leaf) / s
         "height",                  // m
         "rh",                      // dimensionless from Pa / Pa
         "windspeed",               // m / s
         "LeafN",                   // mmol / m^2 (?)
-        "vmax",                    // micromole / m^2 / s
-        "alpha",                   // mol / mol
-        "Rd"                       // micromole / m^2 / s
     };
 }
 
@@ -226,14 +191,6 @@ void multilayer_canopy_properties::run() const
     struct Light_profile par_profile = sunML(par_incident_direct, par_incident_diffuse,
                                              lai, nlayers, cosine_zenith_angle, kd, chil, heightf);
 
-    // Calculate NIR levels throughout the canopy. See note above for comments about
-    // flux density units. In a more accurate model, NIR light would have different
-    // scattering, absorption, and reflection coefficients than PAR light. However,
-    // here they are treated exactly the same. This assumption is implicit in the
-    // EvapoTrans functions, where the fraction of PAR in sunlight is always 0.5.
-    struct Light_profile nir_profile = sunML(nir_incident_direct, nir_incident_diffuse,
-                                             lai, nlayers, cosine_zenith_angle, kd, chil, heightf);
-
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];
     RHprof(rh, nlayers, relative_humidity_profile);  // Modifies relative_humidity_profile.
@@ -246,19 +203,9 @@ void multilayer_canopy_properties::run() const
     double leafN_profile[nlayers];
     LNprof(LeafN, lai, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile.
 
-    // Calculate vmax, alpha, and Rd based on the leaf nitrogen profile
-    double vmax_profile[nlayers];
-    double alpha_profile[nlayers];
-    double Rd_profile[nlayers];
-    for (int i = 0; i < nlayers; ++i) {
-        if (lnfun == 0) {
-            // In this case, these parameters are constant across all layers
-            vmax_profile[i] = vmax1;
-            alpha_profile[i] = alpha1;
-            Rd_profile[i] = Rd;
-        } else {
-            throw std::logic_error("Thrown by the multilayer_canopy_properties module: lnfun != 0 is not yet supported.");
-        }
+    // Don't calculate anything based on the nitrogen profile
+    if (lnfun != 0) {
+        throw std::logic_error("Thrown by the multilayer_canopy_properties module: lnfun != 0 is not yet supported.");
     }
 
     // Update layer-dependent outputs
@@ -270,16 +217,9 @@ void multilayer_canopy_properties::run() const
         update(incident_scattered_par_ops[i], par_profile.scattered_irradiance[i]);
         update(shaded_incident_par_ops[i], par_profile.diffuse_irradiance[i]);
         update(incident_average_par_ops[i], par_profile.total_irradiance[i]);
-        update(sunlit_incident_nir_ops[i], nir_profile.direct_irradiance[i]);
-        update(incident_scattered_nir_ops[i], nir_profile.scattered_irradiance[i]);
-        update(shaded_incident_nir_ops[i], nir_profile.diffuse_irradiance[i]);
-        update(incident_average_nir_ops[i], nir_profile.total_irradiance[i]);
         update(rh_ops[i], relative_humidity_profile[i]);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);
-        update(vmax_ops[i], vmax_profile[i]);
-        update(alpha_ops[i], alpha_profile[i]);
-        update(Rd_ops[i], Rd_profile[i]);
     }
 }
 

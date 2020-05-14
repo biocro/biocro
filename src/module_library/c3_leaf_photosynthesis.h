@@ -23,7 +23,7 @@ class c3_leaf_photosynthesis : public SteadyModule
           incident_par(get_input(input_parameters, "incident_par")),
           temp(get_input(input_parameters, "temp")),
           rh(get_input(input_parameters, "rh")),
-          vmax(get_input(input_parameters, "vmax")),
+          vmax1(get_input(input_parameters, "vmax1")),
           jmax(get_input(input_parameters, "jmax")),
           Rd(get_input(input_parameters, "Rd")),
           b0(get_input(input_parameters, "b0")),
@@ -59,7 +59,7 @@ class c3_leaf_photosynthesis : public SteadyModule
     double const& incident_par;
     double const& temp;
     double const& rh;
-    double const& vmax;
+    double const& vmax1;
     double const& jmax;
     double const& Rd;
     double const& b0;
@@ -94,7 +94,7 @@ std::vector<std::string> c3_leaf_photosynthesis::get_inputs()
         "incident_par",                 // J / (m^2 leaf) / s
         "temp",                         // deg. C
         "rh",                           // dimensionless
-        "vmax",                         // micromole / m^2 / s
+        "vmax1",                        // micromole / m^2 / s
         "jmax",                         // micromole / m^2 / s
         "Rd",                           // micromole / m^2 / s
         "b0",                           // mol / m^2 / s
@@ -134,7 +134,7 @@ void c3_leaf_photosynthesis::do_operation() const
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
     const double initial_stomatal_conductance = c3photoC(
-                                                    incident_par_micromol, temp, rh, vmax, jmax,
+                                                    incident_par_micromol, temp, rh, vmax1, jmax,
                                                     Rd, b0, b1, Catm, O2, theta, StomataWS, water_stress_approach,
                                                     electrons_per_carboxylation, electrons_per_oxygenation)
                                                     .Gs;  // mmol / m^2 / s
@@ -148,7 +148,7 @@ void c3_leaf_photosynthesis::do_operation() const
 
     // Calculate final values for assimilation, stomatal conductance, and Ci using the new leaf temperature
     const struct c3_str photo = c3photoC(
-        incident_par_micromol, leaf_temperature, rh, vmax, jmax,
+        incident_par_micromol, leaf_temperature, rh, vmax1, jmax,
         Rd, b0, b1, Catm, O2, theta, StomataWS, water_stress_approach,
         electrons_per_carboxylation, electrons_per_oxygenation);
 
