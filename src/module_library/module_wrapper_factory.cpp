@@ -73,11 +73,21 @@
 #include "poincare_clock.hpp"
 #include "magic_clock.hpp"
 #include "phase_clock.hpp"
+#include "ed_water_vapor_properties.h"
+#include "ed_rh_to_mole_fraction.h"
+#include "ed_nikolov_conductance.h"
+#include "ed_boundary_conductance.h"
 #include "ed_ball_berry.h"
 #include "ed_collatz_c4_assimilation.h"
 #include "ed_gas_concentrations.h"
 #include "ed_long_wave_energy_loss.h"
 #include "ed_penman_monteith_leaf_temperature.h"
+#include "ed_stomata_water_stress_linear.h"
+#include "ed_apply_water_stress.h"
+#include "ed_c4_leaf_photosynthesis.h"
+#include "ed_c4photo.h"
+#include "ed_evapotrans2.h"
+#include "ed_canac_leaf.h"
 #include "hyperbolas.h"
 
 /**
@@ -181,11 +191,24 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"oscillator_clock_calculator",                     &create_wrapper<oscillator_clock_calculator>},
      {"night_and_day_trackers",                          &create_wrapper<night_and_day_trackers>},
      {"light_from_solar",                                &create_wrapper<light_from_solar>},
+     {"ed_water_vapor_properties",                       &create_wrapper<ed_water_vapor_properties>},
+     {"ed_rh_to_mole_fraction",                          &create_wrapper<ed_rh_to_mole_fraction>},
+     {"ed_nikolov_conductance_forced",                   &create_wrapper<ed_nikolov_conductance_forced>},
+     {"ed_nikolov_conductance_free",                     &create_wrapper<ed_nikolov_conductance_free>},
+     {"ed_boundary_conductance_max",                     &create_wrapper<ed_boundary_conductance_max>},
+     {"ed_boundary_conductance_quadrature",              &create_wrapper<ed_boundary_conductance_quadrature>},
      {"ed_ball_berry",                                   &create_wrapper<ed_ball_berry>},
      {"ed_collatz_c4_assimilation",                      &create_wrapper<ed_collatz_c4_assimilation>},
      {"ed_gas_concentrations",                           &create_wrapper<ed_gas_concentrations>},
      {"ed_long_wave_energy_loss",                        &create_wrapper<ed_long_wave_energy_loss>},
      {"ed_penman_monteith_leaf_temperature",             &create_wrapper<ed_penman_monteith_leaf_temperature>},
+     {"ed_stomata_water_stress_linear",                  &create_wrapper<ed_stomata_water_stress_linear>},
+     {"ed_apply_stomatal_water_stress_via_conductance",  &create_wrapper<ed_apply_stomatal_water_stress_via_conductance>},
+     {"ed_apply_stomatal_water_stress_via_assimilation", &create_wrapper<ed_apply_stomatal_water_stress_via_assimilation>},
+     {"ed_c4_leaf_photosynthesis",                       &create_wrapper<ed_c4_leaf_photosynthesis>},
+     {"ed_c4photo",                                      &create_wrapper<ed_c4photo>},
+     {"ed_evapotrans2",                                  &create_wrapper<ed_evapotrans2>},
+     {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>}
 };

@@ -15,9 +15,13 @@ class quantity_access_error : virtual public std::runtime_error
     virtual ~quantity_access_error() {}  // Virtual to allow subclassing
 };
 
-double* get_op(state_map* output_parameters, const std::string& name);
+double* get_op(state_map* output_parameters, std::string const& name);
 
-const double* get_ip(const state_map* input_parameters, const std::string& name);
+std::vector<double*> get_op(state_map* output_parameters, std::vector<std::string> const& names);
+
+const double* get_ip(const state_map* input_parameters, std::string const& name);
+
+std::vector<const double*> get_ip(const state_map* input_parameters, std::vector<std::string> const& names);
 
 double const& get_input(const state_map* input_parameters, const std::string& name);
 

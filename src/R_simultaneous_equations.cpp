@@ -57,7 +57,7 @@ SEXP R_solve_simultaneous_equations(
         std::vector<bool> adjustment_vector;
 
         // Solve
-        std::shared_ptr<simultaneous_equations> se(new simultaneous_equations(kq,
+        std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq,
                                                                               uq_names,
                                                                               ss_names));
         auto solver = se_solver_factory::create(solver_type_string,
@@ -167,7 +167,7 @@ SEXP R_test_simultaneous_equations(
             uq_values[i] = uq[uq_names[i]];
         }
 
-        std::shared_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, ss_names));
+        std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, ss_names));
 
         // Calculate a difference vector
         std::vector<double> output_vector(uq.size());
