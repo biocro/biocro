@@ -52,7 +52,7 @@ void stomata_water_stress_linear::do_operation() const {
     double intercept = 1.0 - soil_field_capacity * slope;
 	
 	// Update the output parameter list
-	update(StomataWS_op, std::min(std::max(slope * soil_water_content + intercept, 1e-5), 1.0));
+	update(StomataWS_op, std::min(std::max(slope * soil_water_content + intercept, 1e-10), 1.0));
 }
 
 #endif

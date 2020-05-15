@@ -16,6 +16,18 @@ double* get_op(state_map* output_parameters, const std::string& name)
 }
 
 /**
+ * @brief Returns a vector of pointers to elements of a module output map, i.e., a vector of output pointers (op)
+ */
+std::vector<double*> get_op(state_map* output_parameters, std::vector<std::string> const& names)
+{
+    std::vector<double*> ops;
+    for (std::string const& n : names) {
+        ops.push_back(get_op(output_parameters, n));
+    }
+    return ops;
+}
+
+/**
  * @brief Returns a pointer to an element of a module input map, i.e., an input pointer (ip)
  */
 const double* get_ip(const state_map* input_parameters, const std::string& name)
@@ -25,6 +37,18 @@ const double* get_ip(const state_map* input_parameters, const std::string& name)
     }
 
     return &((*input_parameters).at(name));
+}
+
+/**
+ * @brief Returns a vector of pointers to elements of a module input map, i.e., a vector of input pointers (ip)
+ */
+std::vector<const double*> get_ip(const state_map* input_parameters, std::vector<std::string> const& names)
+{
+    std::vector<const double*> ips;
+    for (std::string const& n : names) {
+        ips.push_back(get_ip(input_parameters, n));
+    }
+    return ips;
 }
 
 /**
