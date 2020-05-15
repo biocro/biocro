@@ -13,8 +13,9 @@ namespace calculation_constants {
 }
 
 namespace physical_constants {
-    const double stefan_boltzmann = 5.67e-8;    // W / m^2 / K^4
-    const double celsius_to_kelvin = 273.15;    // deg. C or deg. K
+    const double stefan_boltzmann = 5.67e-8;        // W / m^2 / K^4
+    const double celsius_to_kelvin = 273.15;        // deg. C or deg. K
+    const double pressure_at_sea_level = 101325;    // Pa
 }
 
 #endif

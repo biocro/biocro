@@ -57,9 +57,16 @@
 #include "big_leaf_multilayer_canopy.hpp"
 #include "flowering.hpp"
 #include "flowering_calculator.hpp"
-#include "solar_zenith_angle.hpp"
-#include "light_macro_environment.hpp"
-#include "multilayer_canopy_properties.hpp"
+#include "solar_zenith_angle.h"
+#include "shortwave_atmospheric_scattering.h"
+#include "incident_shortwave_from_ground_par.h"
+#include "leaf_shape_factor.h"
+#include "c3_leaf_photosynthesis.h"
+#include "c4_leaf_photosynthesis.h"
+#include "multilayer_canopy_properties.h"
+#include "multilayer_c3_canopy.h"
+#include "multilayer_c4_canopy.h"
+#include "multilayer_canopy_integrator.h"
 #include "light_from_solar.hpp"
 #include "night_and_day_trackers.hpp"
 #include "oscillator_clock_calculator.hpp"
@@ -159,8 +166,15 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"flowering",                                       &create_wrapper<flowering>},
      {"flowering_calculator",                            &create_wrapper<flowering_calculator>},
      {"solar_zenith_angle",                              &create_wrapper<solar_zenith_angle>},
-     {"light_macro_environment",                         &create_wrapper<light_macro_environment>},
+     {"shortwave_atmospheric_scattering",                &create_wrapper<shortwave_atmospheric_scattering>},
+     {"incident_shortwave_from_ground_par",              &create_wrapper<incident_shortwave_from_ground_par>},
+     {"leaf_shape_factor",                               &create_wrapper<leaf_shape_factor>},
+     {"c3_leaf_photosynthesis",                          &create_wrapper<c3_leaf_photosynthesis>},
+     {"c4_leaf_photosynthesis",                          &create_wrapper<c4_leaf_photosynthesis>},
      {"ten_layer_canopy_properties",                     &create_wrapper<ten_layer_canopy_properties>},
+     {"ten_layer_c3_canopy",                             &create_wrapper<ten_layer_c3_canopy>},
+     {"ten_layer_c4_canopy",                             &create_wrapper<ten_layer_c4_canopy>},
+     {"ten_layer_canopy_integrator",                     &create_wrapper<ten_layer_canopy_integrator>},
      {"magic_clock",                                     &create_wrapper<magic_clock>},
      {"poincare_clock",                                  &create_wrapper<poincare_clock>},
      {"phase_clock",                                     &create_wrapper<phase_clock>},
