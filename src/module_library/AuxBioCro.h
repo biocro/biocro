@@ -27,6 +27,7 @@
 
 struct Light_profile {
 	double direct_irradiance[MAXLAY];
+    double scattered_irradiance[MAXLAY];
 	double diffuse_irradiance[MAXLAY];
 	double total_irradiance[MAXLAY];
 	double sunlit_fraction[MAXLAY];

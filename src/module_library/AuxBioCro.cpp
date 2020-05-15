@@ -208,6 +208,7 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
         }
 
         light_profile.direct_irradiance[i] = Isolar + Idiffuse;  // micromole / m^2 / s
+        light_profile.scattered_irradiance[i] = Iscat;  // micromole / m^2 / s
         light_profile.diffuse_irradiance[i]= Idiffuse;  // micromole / m^2 / s
         light_profile.total_irradiance[i] = Iaverage;  // micromole / m^2 / s
         light_profile.sunlit_fraction[i] = Fsun;  // dimensionless from m^2 / m^2

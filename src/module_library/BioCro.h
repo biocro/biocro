@@ -3,6 +3,9 @@
 
 #include "AuxBioCro.h"
 
+double cos_zenith_angle(const double latitude, const int day_of_year,
+                        const double hour_of_day);
+
 struct Light_model {
 	double direct_irradiance_fraction;
 	double diffuse_irradiance_fraction;
