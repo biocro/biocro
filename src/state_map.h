@@ -4,76 +4,42 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <algorithm>  // for std::sort
-
-typedef std::unordered_map<std::string, std::vector<double>> state_vector_map;
-typedef std::unordered_map<std::string, double> state_map;
-
-/*
-class state_map
-{
-    typedef std::unordered_map<std::string, double> sm;
-
-public:
-    typedef sm::iterator iterator;
-    typedef sm::const_iterator const_iterator;
-
-public:
-    state_map()
-        : map_()
-    {
-    }
-
-// ... [ implement container interface ]
-//]
-    double& operator[]( std::string const& key )
-    { return map_[key]; }
-
-    double& at(std::string const& key)
-    { return map_.at(key); }
-
-    const double& at(std::string const& key) const
-    { return map_.at(key); }
-
-    iterator begin()
-    { return map_.begin(); }
-
-    const_iterator begin() const
-    { return map_.begin(); }
-
-    iterator end()
-    { return map_.end(); }
-    
-    const_iterator end() const
-    { return map_.end(); }
-
-    size_t size() const 
-    { return map_.size(); }
-
-
-private:
-    std::unordered_map<std::string, double> map_;
-
-};
-*/
-
-state_map combine_state(state_map state_a, state_map const& state_b);
-
-void output_map(state_map const& m);
-
-state_map replace_state(state_map const& state, state_map const& newstate);
-
-state_map replace_or_insert_state(state_map const& state, state_map const& new_state);
-
-//state_map update_state(state_map const &state, state_map const &change_in_state);
-void update_state(state_map& state, state_map const& change_in_state);
-
-state_vector_map allocate_state(state_map const& m, size_t n);
-
-void append_state_to_vector(state_map const& state, state_vector_map& state_vector);
 
 /**
- * @brief Returns a sorted vector of the string keys defined by the map.
+ * A `state_vector_map` represents a chronilogically-ordered sequence
+ * of states of a system over some period of time.  The keys of the
+ * map are attributes of the system; each value is a vector
+ * representing the sequence of values of one of those attributes as
+ * it changes over time.  To be a valid representation, each of the
+ * mapped-to vectors should be of the same length.
+ */
+using state_vector_map = std::unordered_map<std::string, std::vector<double>>;
+
+/**
+ * Exception thrown when the `at` function tries access the state in a
+ * state_vector_map using an out-of-range index.
+ */
+struct bad_state_vector_map_index : std::out_of_range {
+    bad_state_vector_map_index(std::string msg) :out_of_range{msg} { }
+};
+
+/**
+ * A `state_map` represents the _state_ of a system.  It maps names of
+ * system attributes to the values they have at some particular time.
+ */
+using state_map = std::unordered_map<std::string, double>;
+
+/**
+ * Given a map, return a list of its keys.
+ *
+ * @param map A map having keys of type `std::string`.
+ *
+ * @returns A vector containing all of the keys of the map.
+ *
+ * @note The minimal requirement on the "map" argument is that it be a
+ * "range" or "sequence" of objects that have a "first" member
+ * function yielding a string, what we are considering to be the "key"
+ * of the object.
  */
 template <typename map_with_string_key_type>
 std::vector<std::string> keys(map_with_string_key_type const& map)
@@ -82,12 +48,16 @@ std::vector<std::string> keys(map_with_string_key_type const& map)
     for (auto const& it : map) {
         result.push_back(it.first);
     }
-    std::sort(result.begin(), result.end());
     return result;
 }
 
-state_map at(state_vector_map const& vector_map, std::vector<double>::size_type const n);
+state_map at(const state_vector_map& vector_map,
+             std::vector<double>::size_type n);
 
+/**
+ * Given a list of names, create a `state_map` object whose keys are
+ * precisely those names and whose values are all zero.
+ */
 template <typename name_list_type>
 state_map state_map_from_names(name_list_type names)
 {
@@ -98,78 +68,7 @@ state_map state_map_from_names(name_list_type names)
     return m;
 }
 
-state_map& operator+=(state_map& lhs, state_map const& rhs);
-
-inline state_map operator+(state_map lhs, state_map const& rhs)
-{
-    lhs += rhs;
-    return lhs;
-}
-
-state_map& operator+=(state_map& x, double const a);
-
-inline state_map operator+(state_map x, double const a)
-{
-    x += a;
-    return x;
-}
-
-inline state_map operator+(double const a, state_map x)
-{
-    x += a;
-    return x;
-}
-
-state_map& operator*=(state_map& x, double const a);
-
-inline state_map operator*(state_map x, double const a)
-{
-    x *= a;
-    return x;
-}
-
-inline state_map operator*(double const a, state_map x)
-{
-    x *= a;
-    return x;
-}
-
-state_map operator/(state_map lhs, state_map const& rhs);
-
-state_map& operator/=(state_map& lhs, double const a);
-
 state_map abs(state_map x);
 
-class safe_state_map
-{
-   private:
-    state_map s;
-
-   public:
-    safe_state_map(state_map s_) : s(s_){};
-
-    double at(std::string const& str)
-    {
-        try {
-            return s.at(str);
-        } catch (std::out_of_range const& e) {
-            throw std::out_of_range(std::string(e.what()) + " " + str);
-        }
-    };
-};
-
-class check_state : public state_map
-{
-   public:
-    check_state(state_map s) : state_map(s){};
-    double at(std::string key)
-    {
-        try {
-            return state_map::at(key);
-        } catch (std::exception& e) {
-            throw std::out_of_range(key);
-        }
-    }
-};
-
 #endif
+
