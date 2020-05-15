@@ -116,6 +116,24 @@ std::vector<value_type*> get_pointers(
     return pointers;
 }
 
+/**
+ * Returns a vector of pointers that point to elements of map whose targets are specified by quantity_names.
+ * Here it is essential that the map is passed by reference; otherwise the pointers will be useless
+ */
+template <typename name_list_type, typename value_type>
+std::vector<const value_type*> get_const_pointers(
+    name_list_type quantity_names,
+    std::unordered_map<std::string, value_type> const& map)
+{
+    std::vector<const value_type*> pointers;
+
+    for (std::string const& name : quantity_names) {
+        pointers.push_back(&map.at(name));
+    }
+
+    return pointers;
+}
+
 bool check_adaptive_compatible(const module_vector* ptr_to_module_vector);
 
 #endif
