@@ -27,6 +27,11 @@ const double ideal_gas_constant = 8.31446261815324;  // J / K / mol
 const double molar_mass_of_water = 18.01528e-3;      // kg / mol
 
 /**
+ * These constants are very constant, but only on Earth.
+ */
+const double pressure_at_sea_level = 101325;  // Pa
+
+/**
  * These water properties vary with temperature
  * and pressure, but the changes are not significant
  * across the range of conditions that a plant
