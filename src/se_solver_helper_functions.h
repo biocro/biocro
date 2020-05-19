@@ -2,7 +2,8 @@
 #define SE_SOLVER_HELPER_FUNCTIONS_H
 
 #include <vector>
-#include <cmath>  // for fabs
+#include <cmath>        // for fabs
+#include "constants.h"  // for calculation_constants::eps_zero
 
 /**
  * @brief Checks whether the elements of vec_to_test lie outside the bounds
@@ -33,11 +34,9 @@ std::vector<bool> is_outside_bounds(
 }
 
 /**
- * @brief Checks whether the guesses have converged using an absolute threshold
+ * @brief Checks whether the difference vector elements are close to zero using an absolute threshold
  * 
- * @param[in] old_guess
- * 
- * @param[in] new_guess
+ * @param[in] difference_vector
  * 
  * @param[in] tolerance
  * 
@@ -46,25 +45,24 @@ std::vector<bool> is_outside_bounds(
  */
 template <typename vector_type>
 std::vector<bool> has_not_converged_abs(
-    vector_type const& old_guess,
-    vector_type const& new_guess,
+    vector_type const& difference_vector,
     double const& tolerance)
 {
-    std::vector<bool> result(new_guess.size());
+    std::vector<bool> result(difference_vector.size());
 
-    for (size_t i = 0; i < new_guess.size(); ++i) {
-        result[i] = fabs(new_guess[i] - old_guess[i]) > tolerance;
+    for (size_t i = 0; i < difference_vector.size(); ++i) {
+        result[i] = fabs(difference_vector[i]) > tolerance;
     }
 
     return result;
 }
 
 /**
- * @brief Checks whether the guesses have converged using a relative threshold
+ * @brief Checks whether the difference vector elements are close to zero using a relative threshold.
  * 
- * @param[in] old_guess
+ * @param[in] difference_vector
  * 
- * @param[in] new_guess
+ * @param[in] guess
  * 
  * @param[in] tolerance
  * 
@@ -73,14 +71,20 @@ std::vector<bool> has_not_converged_abs(
  */
 template <typename vector_type>
 std::vector<bool> has_not_converged_rel(
-    vector_type const& old_guess,
-    vector_type const& new_guess,
+    vector_type const& difference_vector,
+    vector_type const& guess,
     double const& tolerance)
 {
-    std::vector<bool> result(new_guess.size());
+    std::vector<bool> result(difference_vector.size());
 
-    for (size_t i = 0; i < new_guess.size(); ++i) {
-        result[i] = fabs((new_guess[i] - old_guess[i]) / old_guess[i]) > tolerance;
+    for (size_t i = 0; i < difference_vector.size(); ++i) {
+        double threshold = fabs(guess[i]) * tolerance;
+        if (threshold < calculation_constants::eps_zero) {
+            // If guess[i] is zero, a relative comparison doesn't make sense.
+            // Treat `tolerance` as an absolute threshold in this case.
+            threshold = tolerance;
+        }
+        result[i] = fabs(difference_vector[i]) > threshold;
     }
 
     return result;

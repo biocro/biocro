@@ -11,7 +11,8 @@ using boost::math::double_constants::pi;
 
 namespace calculation_constants
 {
-const double eps_deriv = 1e-11;
+const double eps_deriv = 1e-11;  // for numerically calculating derivatives
+const double eps_zero = 1e-11;   // for checking whether a double is zero
 }  // namespace calculation_constants
 
 namespace physical_constants

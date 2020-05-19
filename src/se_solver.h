@@ -109,13 +109,17 @@ inline se_solver::~se_solver()
  * 
  * @return indicates whether or not the procedure was successful in finding a root.
  * 
- * The solver proceeds by steps, in which a new guess for the root is determined from the previous guess
- * using the `get_next_guess` method, which must be implemented by derived classes. When a new guess is
- * found, it is first checked to see if it lies within the acceptable bounds. If it lies outside the bounds,
- * it is adjusted with the `adjust_bad_guess` method, which has a default behavior but can be overridden by
- * derived classes. If the new guess doesn't need an adjustment, it is compared to the previous guess to
- * check for convergence using either an absolute or relative threshold. The process ends when all convergence
- * criteria (relative and absolute) have been met or when the number of iterations exceeds a threshold value.
+ * The solver proceeds by steps, in which the current guess is checked to determine whether it is a root.
+ * If the guess is not sufficiently close to a root, a new guess is determined using the `get_next_guess`
+ * method, which must be implemented by derived classes. When a new guess is found, it is first checked
+ * to see if it lies within the acceptable bounds. If it lies outside the bounds, it is adjusted with the
+ * `adjust_bad_guess` method, which has a default behavior but can be overridden by derived classes.
+ * 
+ * Each guess is checked according to absolute and relative criteria, and a root is found when both tests
+ * are passed.
+ * 
+ * If the number of iterations exceeds a threshold value without finding a root, the loop ends and a failure
+ * is indicated.
  */
 template <typename observer_type>
 bool se_solver::solve(
@@ -133,57 +137,61 @@ bool se_solver::solve(
     num_iterations = 0;
     num_adjustments = 0;
 
-    // Pass the first guess to the observer
-    observer(initial_guess_for_root, false);
-
-    // Initialize temporary variables for the loop
-    std::vector<double> previous_guess = initial_guess_for_root;
-    std::vector<double> next_guess = initial_guess_for_root;
-    bool need_to_make_adjustment;
-
-    // Define a lambda to simplify error checking
-    auto errors_occurred = [](std::vector<bool> error_vector) -> bool {
-        int num_errors = std::accumulate(error_vector.begin(), error_vector.end(), 0);
-        return num_errors > 0;
-    };
-
-    // Define a lambda to simplify convergence checking
-    auto check_convergence = [&errors_occurred](std::vector<bool> convergence_error_vector, bool* convergence_achieved) -> void {
-        if (!errors_occurred(convergence_error_vector)) {
-            *convergence_achieved = true;
+    // Define a lambda to simplify error checking. If all entries in `convergence_error_vector`
+    // are `false`, `convergence_achieved` is set to true.
+    auto no_errors_occurred = [](std::vector<bool> convergence_error_vector) -> bool {
+        int num_errors = std::accumulate(convergence_error_vector.begin(), convergence_error_vector.end(), 0);
+        if (num_errors < 1) {
+            return true;
+        } else {
+            return false;
         }
     };
+
+    // Initialize local variables for the loop
+    std::vector<double> guess = initial_guess_for_root;
+    std::vector<double> difference_vector(initial_guess_for_root.size(), 0.0);
+    bool need_to_make_adjustment = false;
+    bool zero_found = false;
 
     // Run the loop until convergence is achieved or the max number of iterations is exceeded
     do {
-        ++num_iterations;
-
-        next_guess = get_next_guess(se, previous_guess);
-
-        need_to_make_adjustment = errors_occurred(is_outside_bounds(next_guess, lower_bounds, upper_bounds));
-
-        if (need_to_make_adjustment) {
-            ++num_adjustments;
-            next_guess = adjust_bad_guess(next_guess, lower_bounds, upper_bounds);
+        // Pass the previous guess to the observer
+        observer(guess, need_to_make_adjustment);  
+    
+        // Evaluate the simultaneous equations at the previous guess to get the
+        // corresponding difference vector
+        (*se)(guess, difference_vector);  // modifies difference_vector
+        
+        // Check to see if the previous guess is a zero
+        converged_abs = no_errors_occurred(has_not_converged_abs(difference_vector, abs_error_tolerance));
+        converged_rel = no_errors_occurred(has_not_converged_rel(difference_vector, guess, rel_error_tolerance));
+        zero_found = converged_abs && converged_rel;
+        
+        // Break out of the loop if a zero was found.
+        // Otherwise, get a new guess and try again.
+        if (zero_found) {
+            break;
         } else {
-            std::map<bool*, std::vector<bool>> convergence_checks = {
-                {&converged_abs, has_not_converged_abs(previous_guess, next_guess, abs_error_tolerance)},
-                {&converged_rel, has_not_converged_rel(previous_guess, next_guess, rel_error_tolerance)}};
-
-            for (auto const& x : convergence_checks) {
-                check_convergence(x.second, x.first);
+            // Get the next guess
+            guess = get_next_guess(se, guess);
+            
+            // Adjust the guess if it lies outside the acceptable bounds
+            need_to_make_adjustment = !no_errors_occurred(is_outside_bounds(guess, lower_bounds, upper_bounds));
+            if (need_to_make_adjustment) {
+                ++num_adjustments;
+                guess = adjust_bad_guess(guess, lower_bounds, upper_bounds);
             }
+            
+            // Increment the iteration counter
+            ++num_iterations;
         }
 
-        observer(next_guess, need_to_make_adjustment);
+    } while (num_iterations < max_iterations);
 
-        previous_guess = next_guess;
+    final_value_for_root = guess;
 
-    } while (num_iterations < max_iterations && !(converged_abs && converged_rel));
-
-    final_value_for_root = next_guess;
-
-    return converged_abs && converged_rel;
+    return zero_found;
 }
 
 /**
