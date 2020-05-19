@@ -21,20 +21,19 @@ class fixed_point : public se_solver
    private:
     std::vector<double> get_next_guess(
         std::unique_ptr<simultaneous_equations> const& se,
-        std::vector<double> const& input_guess) override;
+        std::vector<double> const& input_guess,
+        std::vector<double> const& difference_vector_at_input_guess) override;
 };
 
 std::vector<double> fixed_point::get_next_guess(
     std::unique_ptr<simultaneous_equations> const& se,
-    std::vector<double> const& input_guess)
+    std::vector<double> const& input_guess,
+    std::vector<double> const& difference_vector_at_input_guess)
 {
     std::vector<double> output_guess(input_guess.size());
 
-    // Get the difference vector
-    se->operator()(input_guess, output_guess);
-
     // Add the original input values to the difference vector to get the final values
-    std::transform(output_guess.begin(), output_guess.end(), input_guess.begin(),
+    std::transform(difference_vector_at_input_guess.begin(), difference_vector_at_input_guess.end(), input_guess.begin(),
                    output_guess.begin(), std::plus<double>());
 
     return output_guess;

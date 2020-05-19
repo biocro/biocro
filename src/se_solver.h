@@ -78,7 +78,8 @@ class se_solver
 
     virtual std::vector<double> get_next_guess(
         std::unique_ptr<simultaneous_equations> const& se,
-        std::vector<double> const& input_guess) = 0;
+        std::vector<double> const& input_guess,
+        std::vector<double> const& difference_vector_at_input_guess) = 0;
 
     virtual std::vector<double> adjust_bad_guess(
         std::vector<double> const& bad_guess,
@@ -174,7 +175,7 @@ bool se_solver::solve(
             break;
         } else {
             // Get the next guess
-            guess = get_next_guess(se, guess);
+            guess = get_next_guess(se, guess, difference_vector);
             
             // Adjust the guess if it lies outside the acceptable bounds
             need_to_make_adjustment = !no_errors_occurred(is_outside_bounds(guess, lower_bounds, upper_bounds));

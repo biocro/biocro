@@ -28,16 +28,21 @@ class newton_raphson_boost : public se_solver
    private:
     std::vector<double> get_next_guess(
         std::unique_ptr<simultaneous_equations> const& se,
-        std::vector<double> const& input_guess) override;
+        std::vector<double> const& input_guess,
+        std::vector<double> const& difference_vector_at_input_guess) override;
 };
 
 std::vector<double> newton_raphson_boost::get_next_guess(
     std::unique_ptr<simultaneous_equations> const& se,
-    std::vector<double> const& input_guess)
+    std::vector<double> const& input_guess,
+    std::vector<double> const& difference_vector_at_input_guess)
 {
-    // Evaluate the function at input_guess: F(x_0)
-    boost::numeric::ublas::vector<double> difference_vector(input_guess.size());
-    se->operator()(input_guess, difference_vector);
+    // Convert the difference vector at the input guess (i.e., F(x_0)) to a boost
+    // vector (required for boost::numeric::ublas::prod)
+    boost::numeric::ublas::vector<double> difference_vector(difference_vector_at_input_guess.size());
+    for (size_t i = 0; i < difference_vector_at_input_guess.size(); ++i) {
+        difference_vector[i] = difference_vector_at_input_guess[i];
+    }
 
     // Evaluate the Jacobian matrix of the function at input_guess: J(x_0)
     boost::numeric::ublas::matrix<double> jacobian(input_guess.size(), input_guess.size());
