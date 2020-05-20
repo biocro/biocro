@@ -26,7 +26,7 @@ class fixed_point : public se_solver
 };
 
 std::vector<double> fixed_point::get_next_guess(
-    std::unique_ptr<simultaneous_equations> const& se,
+    std::unique_ptr<simultaneous_equations> const& /*se*/,
     std::vector<double> const& input_guess,
     std::vector<double> const& difference_vector_at_input_guess)
 {

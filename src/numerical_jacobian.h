@@ -112,9 +112,13 @@ void calculate_jacobian(
     x_vector_type x_perturbed = x;
 
     for (size_t i = 0; i < n; i++) {
-        // Ensure that the step size h is close to eps_deriv but is exactly representable
+        // Detemine the step size h by taking a fraction of x[i]: h = x[i] * eps_deriv.
+        // Ensure that the step size h is close to this value but is exactly representable
         //  (see Numerical Recipes in C, 2nd ed., Section 5.7)
-        h = calculation_constants::eps_deriv;
+        h = x[i] * calculation_constants::eps_deriv;
+        if (h == 0.0) {
+            h = calculation_constants::eps_deriv * calculation_constants::eps_deriv;
+        }
         double temp = x[i] + h;
         h = temp - x[i];
 
@@ -212,9 +216,13 @@ void calculate_time_derivative(
 
     // Perturb the time to find df(x,t)/dt
     // Use a forward step whenever possible
-    // Ensure that the step size h is close to eps_deriv but is exactly representable
+    // Detemine the step size h by taking a fraction of t: h = t * eps_deriv.
+    // Ensure that the step size h is close to this value but is exactly representable
     //  (see Numerical Recipes in C, 2nd ed., Section 5.7)
-    double h = calculation_constants::eps_deriv;
+    double h = t * calculation_constants::eps_deriv;
+    if (h == 0.0) {
+        h = calculation_constants::eps_deriv * calculation_constants::eps_deriv;
+    }
     if (t + h <= max_time) {
         double temp = t + h;
         h = temp - t;
