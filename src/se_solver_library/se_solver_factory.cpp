@@ -9,12 +9,9 @@
  * @brief A function that returns a unique_ptr to an se_solver object.
  */
 template <class solver_type>
-std::unique_ptr<se_solver> create_se_solver(
-    double rel_error_tol,
-    double abs_error_tol,
-    int max_it)
+std::unique_ptr<se_solver> create_se_solver(int max_it)
 {
-    return std::unique_ptr<se_solver>(new solver_type(rel_error_tol, abs_error_tol, max_it));
+    return std::unique_ptr<se_solver>(new solver_type(max_it));
 }
 
 se_solver_factory::se_solver_creator_map se_solver_factory::se_solver_creators =
@@ -26,12 +23,10 @@ se_solver_factory::se_solver_creator_map se_solver_factory::se_solver_creators =
 
 std::unique_ptr<se_solver> se_solver_factory::create(
     std::string const& se_solver_name,
-    double rel_error_tol,
-    double abs_error_tol,
     int max_it)
 {
     try {
-        return se_solver_factory::se_solver_creators.at(se_solver_name)(rel_error_tol, abs_error_tol, max_it);
+        return se_solver_factory::se_solver_creators.at(se_solver_name)(max_it);
     } catch (std::out_of_range) {
         std::string message = std::string("\"") + se_solver_name +
                        std::string("\"") +

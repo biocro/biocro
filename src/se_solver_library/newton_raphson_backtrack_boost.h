@@ -269,10 +269,7 @@ bool newton_raphson_line_search_boost(double max_step_size,
 class newton_raphson_backtrack_boost : public se_solver
 {
    public:
-    newton_raphson_backtrack_boost(
-        double rel_error_tol,
-        double abs_error_tol,
-        int max_it) : se_solver(std::string("newton_raphson_backtrack_boost"), rel_error_tol, abs_error_tol, max_it) {}
+    newton_raphson_backtrack_boost(int max_it) : se_solver(std::string("newton_raphson_backtrack_boost"), max_it) {}
 
    private:
     double const max_step_size_factor = 100.0;  // value taken from Numerical Recipes in C (STPMX)

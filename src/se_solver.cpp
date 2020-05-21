@@ -70,8 +70,6 @@ std::vector<double> se_solver::adjust_bad_guess(
 std::string se_solver::generate_info_report() const
 {
     return std::string("Name: ") + solver_name +
-           std::string("\nRelative error tolerance: ") + std::to_string(rel_error_tolerance) +
-           std::string("\nAbsolute error tolerance: ") + std::to_string(abs_error_tolerance) + 
            std::string("\nMaximum number of iterations: ") + std::to_string(max_iterations);
 }
 

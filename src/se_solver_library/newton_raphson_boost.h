@@ -41,10 +41,7 @@ boost::numeric::ublas::vector<double> get_newton_raphson_step_boost(
 class newton_raphson_boost : public se_solver
 {
    public:
-    newton_raphson_boost(
-        double rel_error_tol,
-        double abs_error_tol,
-        int max_it) : se_solver(std::string("newton_raphson_boost"), rel_error_tol, abs_error_tol, max_it) {}
+    newton_raphson_boost(int max_it) : se_solver(std::string("newton_raphson_boost"), max_it) {}
 
    private:
     std::vector<double> get_next_guess(

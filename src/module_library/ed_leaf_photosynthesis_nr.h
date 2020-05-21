@@ -33,9 +33,25 @@ const std::vector<double> upper_bounds = {
     80    // temperature_leaf: significantly higher than the hottest air temperature ever recorded on the Earth's surface
 };
 
-/** Set some basic properties for the Newton-Raphson solver */
+/** Set the absolute tolerances for solving the equations */
+constexpr double abs_error_tol = 0.1;
+const std::vector<double> absolute_error_tolerances = {
+    abs_error_tol,  // assimilation_net: use standard value
+    abs_error_tol,  // conductance_boundary_h2o_free: use standard value
+    abs_error_tol,  // conductance_stomatal_h2o: use standard value
+    abs_error_tol   // temperature_leaf: use standard value
+};
+
+/** Set the relative tolerances for solving the equations */
 constexpr double rel_error_tol = 1e-3;
-constexpr double abs_error_tol = 10;
+const std::vector<double> relative_error_tolerances = {
+    rel_error_tol,       // assimilation_net: use standard value
+    10 * rel_error_tol,  // conductance_boundary_h2o_free: use a larger value
+    rel_error_tol,       // conductance_stomatal_h2o: use standard value
+    rel_error_tol        // temperature_leaf: use standard value
+};
+
+/** Set the maximum number of iterations for the solver */
 constexpr int max_iterations = 50;
 
 /**
@@ -77,7 +93,7 @@ class module_base : public ed_leaf_photosynthesis::module_base
                 state_map* output_parameters)
         : ed_leaf_photosynthesis::module_base(module_name, input_module_names, input_parameters, output_parameters),
           se(make_se(input_module_names)),
-          solver(se_solver_factory::create("newton_raphson_boost", rel_error_tol, abs_error_tol, max_iterations)),
+          solver(se_solver_factory::create("newton_raphson_boost", max_iterations)),
           temperature_air_ip(get_ip(input_parameters, "temp")),
           ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept"))
     {
@@ -121,14 +137,17 @@ void module_base::do_operation() const
 
     se->update_known_quantities(input_ptrs);
 
-    bool success = solver->solve(se, initial_guess, lower_bounds, upper_bounds, best_guess);
+    bool success = solver->solve(se, initial_guess,
+                                 lower_bounds, upper_bounds,
+                                 absolute_error_tolerances, relative_error_tolerances,
+                                 best_guess);
 
     if (!success) {
         throw std::runtime_error("Thrown by ed_leaf_photosynthesis::module_base::do_operation: the solver was unable to find a solution.");
     }
 
     se->get_all_outputs(outputs_from_modules, best_guess);
-    
+
     for (size_t i = 0; i < output_ptrs.size(); ++i) {
         update(output_ptrs[i], outputs_from_modules[i]);
     }

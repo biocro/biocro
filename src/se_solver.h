@@ -31,11 +31,7 @@ class se_solver
    public:
     se_solver(
         std::string solver_name,
-        double rel_error_tol,
-        double abs_error_tol,
         int max_it) : solver_name(solver_name),
-                      rel_error_tolerance(rel_error_tol),
-                      abs_error_tolerance(abs_error_tol),
                       max_iterations(max_it) {}
 
     // Make the destructor a pure virtual function to indicate that this class should be abstract
@@ -47,6 +43,8 @@ class se_solver
         std::vector<double> const& initial_guess_for_root,
         std::vector<double> const& lower_bounds,
         std::vector<double> const& upper_bounds,
+        std::vector<double> const& absolute_error_tolerances,
+        std::vector<double> const& relative_error_tolerances,
         std::vector<double>& final_value_for_root,
         observer_type observer);
 
@@ -55,9 +53,14 @@ class se_solver
         std::vector<double> const& initial_guess_for_root,
         std::vector<double> const& lower_bounds,
         std::vector<double> const& upper_bounds,
+        std::vector<double> const& absolute_error_tolerances,
+        std::vector<double> const& relative_error_tolerances,
         std::vector<double>& final_value_for_root)
     {
-        return solve(se, initial_guess_for_root, lower_bounds, upper_bounds, final_value_for_root, se_observer_null());
+        return solve(se, initial_guess_for_root,
+                     lower_bounds, upper_bounds,
+                     absolute_error_tolerances, relative_error_tolerances,
+                     final_value_for_root, se_observer_null());
     }
 
     std::string generate_info_report() const;
@@ -66,8 +69,6 @@ class se_solver
    private:
     const std::string solver_name;
 
-    const double rel_error_tolerance;
-    const double abs_error_tolerance;
     const int max_iterations;
 
     bool solve_method_has_been_called = false;
@@ -103,6 +104,10 @@ inline se_solver::~se_solver()
  * 
  * @param[in] upper_bounds
  * 
+ * @param[in] absolute_error_tolerances
+ * 
+ * @param[in] relative_error_tolerances
+ * 
  * @param[out] final_value_for_root
  * 
  * @param[in] observer an object with an operator()(std::vector<double> const& uq, bool adjustment_made)
@@ -128,6 +133,8 @@ bool se_solver::solve(
     std::vector<double> const& initial_guess_for_root,
     std::vector<double> const& lower_bounds,
     std::vector<double> const& upper_bounds,
+    std::vector<double> const& absolute_error_tolerances,
+    std::vector<double> const& relative_error_tolerances,
     std::vector<double>& final_value_for_root,
     observer_type observer)
 {
@@ -158,17 +165,17 @@ bool se_solver::solve(
     // Run the loop until convergence is achieved or the max number of iterations is exceeded
     do {
         // Pass the previous guess to the observer
-        observer(guess, need_to_make_adjustment);  
-    
+        observer(guess, need_to_make_adjustment);
+
         // Evaluate the simultaneous equations at the previous guess to get the
         // corresponding difference vector
         (*se)(guess, difference_vector);  // modifies difference_vector
-        
+
         // Check to see if the previous guess is a zero
-        converged_abs = no_errors_occurred(has_not_converged_abs(difference_vector, abs_error_tolerance));
-        converged_rel = no_errors_occurred(has_not_converged_rel(difference_vector, guess, rel_error_tolerance));
+        converged_abs = no_errors_occurred(has_not_converged_abs(difference_vector, absolute_error_tolerances));
+        converged_rel = no_errors_occurred(has_not_converged_rel(difference_vector, guess, relative_error_tolerances));
         zero_found = converged_abs && converged_rel;
-        
+
         // Break out of the loop if a zero was found.
         // Otherwise, get a new guess and try again.
         if (zero_found) {
@@ -176,14 +183,14 @@ bool se_solver::solve(
         } else {
             // Get the next guess
             guess = get_next_guess(se, guess, difference_vector);
-            
+
             // Adjust the guess if it lies outside the acceptable bounds
             need_to_make_adjustment = !no_errors_occurred(is_outside_bounds(guess, lower_bounds, upper_bounds));
             if (need_to_make_adjustment) {
                 ++num_adjustments;
                 guess = adjust_bad_guess(guess, lower_bounds, upper_bounds);
             }
-            
+
             // Increment the iteration counter
             ++num_iterations;
         }

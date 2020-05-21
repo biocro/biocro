@@ -13,10 +13,7 @@
 class fixed_point : public se_solver
 {
    public:
-    fixed_point(
-        double rel_error_tol,
-        double abs_error_tol,
-        int max_it) : se_solver(std::string("fixed_point"), rel_error_tol, abs_error_tol, max_it) {}
+    fixed_point(int max_it) : se_solver(std::string("fixed_point"), max_it) {}
 
    private:
     std::vector<double> get_next_guess(
