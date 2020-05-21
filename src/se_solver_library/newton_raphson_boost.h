@@ -11,11 +11,32 @@
 #include "../numerical_jacobian.h"
 
 /**
+ * @brief Determines the Newton-Raphson step using the boost library
+ */
+boost::numeric::ublas::vector<double> get_newton_raphson_step_boost(
+    boost::numeric::ublas::vector<double> F_x_0,
+    boost::numeric::ublas::matrix<double> jacobian)
+{
+    // Determine the inverse of the Jacobian matrix: J^(-1)
+    // See e.g. http://www.crystalclearsoftware.com/cgi-bin/boost_wiki/wiki.pl?LU_Matrix_Inversion
+    boost::numeric::ublas::permutation_matrix<std::size_t> pm(jacobian.size1());  // create a permutation matrix for the LU-factorization
+    int res = boost::numeric::ublas::lu_factorize(jacobian, pm);                  // perform the LU-factorization
+    if (res != 0) {
+        throw std::runtime_error(std::string("Thrown by newton_raphson_boost: LU factorization of Jacobian matrix failed!"));
+    }
+    boost::numeric::ublas::matrix<double> jacobian_inverse =
+        boost::numeric::ublas::identity_matrix<double>(jacobian.size1());  // initialize the inverse to be an identity matrix
+    boost::numeric::ublas::lu_substitute(jacobian, pm, jacobian_inverse);  // find the inverse by back-substitution
+
+    // Calculate the change in x according to the Newton-Raphson formula: dx = -J^(-1) * F
+    return -1.0 * boost::numeric::ublas::prod(jacobian_inverse, F_x_0);
+}
+
+/**
  * @class newton_raphson_boost
  * 
- * @brief This class implements the fixed-point method for solving simultaneous equations,
- * where y = f(x) is the new guess for an input vector x. The simultaneous_equations class
- * actually returns the difference delta = f(x) - x, so we determine y by y = x + delta.
+ * @brief This class implements the Newton-Raphson method for solving simultaneous equations.
+ * Matrix operations are accomplished using the boost ublas library.
  */
 class newton_raphson_boost : public se_solver
 {
@@ -37,35 +58,23 @@ std::vector<double> newton_raphson_boost::get_next_guess(
     std::vector<double> const& input_guess,
     std::vector<double> const& difference_vector_at_input_guess)
 {
-    // Convert the difference vector at the input guess (i.e., F(x_0)) to a boost
-    // vector (required for boost::numeric::ublas::prod)
-    boost::numeric::ublas::vector<double> difference_vector(difference_vector_at_input_guess.size());
-    for (size_t i = 0; i < difference_vector_at_input_guess.size(); ++i) {
-        difference_vector[i] = difference_vector_at_input_guess[i];
-    }
-
-    // Evaluate the Jacobian matrix of the function at input_guess: J(x_0)
+    // Evaluate the Jacobian matrix of the function at input_guess
     boost::numeric::ublas::matrix<double> jacobian(input_guess.size(), input_guess.size());
-    calculate_jacobian_nt(se, input_guess, difference_vector, jacobian);
+    calculate_jacobian_nt(se, input_guess, difference_vector_at_input_guess, jacobian);  // modifies Jacobian
 
-    // Determine the inverse of the Jacobian matrix: J^(-1)
-    // See e.g. http://www.crystalclearsoftware.com/cgi-bin/boost_wiki/wiki.pl?LU_Matrix_Inversion
-    boost::numeric::ublas::permutation_matrix<std::size_t> pm(jacobian.size1());  // create a permutation matrix for the LU-factorization
-    int res = boost::numeric::ublas::lu_factorize(jacobian, pm);                  // perform the LU-factorization
-    if (res != 0) {
-        throw std::runtime_error(std::string("Thrown by newton_raphson_boost: LU factorization of Jacobian matrix failed!"));
+    // Convert difference_vector_at_input_guess to a boost vector
+    boost::numeric::ublas::vector<double> function_value(difference_vector_at_input_guess.size());
+    for (size_t i = 0; i < difference_vector_at_input_guess.size(); ++i) {
+        function_value[i] = difference_vector_at_input_guess[i];
     }
-    boost::numeric::ublas::matrix<double> jacobian_inverse =
-        boost::numeric::ublas::identity_matrix<double>(jacobian.size1());  // initialize the inverse to be an identity matrix
-    boost::numeric::ublas::lu_substitute(jacobian, pm, jacobian_inverse);  // find the inverse by back-substitution
 
-    // Calculate the change in x according to the Newton-Raphson formula: dx = J^(-1) * F
-    boost::numeric::ublas::vector<double> dx = boost::numeric::ublas::prod(jacobian_inverse, difference_vector);
+    // Determine the Newton-Raphson step
+    boost::numeric::ublas::vector<double> dx = get_newton_raphson_step_boost(function_value, jacobian);
 
-    // Determine the new guess according to x_new = x_0 - dx
+    // Determine the new guess by taking the full step, i.e., calculating x_new = x_0 + dx
     std::vector<double> output_guess = input_guess;
     std::transform(output_guess.begin(), output_guess.end(), dx.begin(),
-                   output_guess.begin(), std::minus<double>());
+                   output_guess.begin(), std::plus<double>());
 
     return output_guess;
 }

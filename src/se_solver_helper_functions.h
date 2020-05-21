@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>        // for fabs
 #include "constants.h"  // for calculation_constants::eps_zero
+#include <Rinternals.h> // for debugging
 
 /**
  * @brief Checks whether the elements of vec_to_test lie outside the bounds
@@ -49,10 +50,20 @@ std::vector<bool> has_not_converged_abs(
     double const& tolerance)
 {
     std::vector<bool> result(difference_vector.size());
+    
+    std::string message = "Checking absolute convergence:\n";
+    char buff[128];
+    sprintf(buff, " tolerance = %e\n", tolerance);
+    message += std::string(buff);
 
     for (size_t i = 0; i < difference_vector.size(); ++i) {
         result[i] = fabs(difference_vector[i]) > tolerance;
+        sprintf(buff, " difference = %e, result = %i\n", difference_vector[i], (int) result[i]);
+        message += std::string(buff);
     }
+    
+    message += "\n";
+    Rprintf(message.c_str());
 
     return result;
 }
@@ -76,6 +87,11 @@ std::vector<bool> has_not_converged_rel(
     double const& tolerance)
 {
     std::vector<bool> result(difference_vector.size());
+    
+    std::string message = "Checking relative convergence:\n";
+    char buff[128];
+    sprintf(buff, " tolerance = %e\n", tolerance);
+    message += std::string(buff);
 
     for (size_t i = 0; i < difference_vector.size(); ++i) {
         double threshold = fabs(guess[i]) * tolerance;
@@ -85,7 +101,12 @@ std::vector<bool> has_not_converged_rel(
             threshold = tolerance;
         }
         result[i] = fabs(difference_vector[i]) > threshold;
+        sprintf(buff, " difference = %e, guess = %e, threshold = %e, result = %i\n", difference_vector[i], guess[i], threshold, (int) result[i]);
+        message += std::string(buff);
     }
+    
+    message += "\n";
+    Rprintf(message.c_str());
 
     return result;
 }

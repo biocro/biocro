@@ -151,7 +151,7 @@ bool se_solver::solve(
 
     // Initialize local variables for the loop
     std::vector<double> guess = initial_guess_for_root;
-    std::vector<double> difference_vector(initial_guess_for_root.size(), 0.0);
+    std::vector<double> difference_vector(initial_guess_for_root.size());
     bool need_to_make_adjustment = false;
     bool zero_found = false;
 
