@@ -77,10 +77,11 @@ class se_solver
     int num_iterations;
     int num_adjustments;
 
-    virtual std::vector<double> get_next_guess(
+    virtual bool get_next_guess(
         std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& input_guess,
-        std::vector<double> const& difference_vector_at_input_guess) = 0;
+        std::vector<double> const& difference_vector_at_input_guess,
+        std::vector<double>& output_guess) = 0;
 
     virtual std::vector<double> adjust_bad_guess(
         std::vector<double> const& bad_guess,
@@ -157,47 +158,52 @@ bool se_solver::solve(
     };
 
     // Initialize local variables for the loop
-    std::vector<double> guess = initial_guess_for_root;
+    std::vector<double> prev_guess = initial_guess_for_root;
+    std::vector<double> next_guess = prev_guess;
     std::vector<double> difference_vector(initial_guess_for_root.size());
+    bool problem_occurred_while_getting_guess = false;
     bool need_to_make_adjustment = false;
     bool zero_found = false;
 
     // Run the loop until convergence is achieved or the max number of iterations is exceeded
     do {
         // Pass the previous guess to the observer
-        observer(guess, need_to_make_adjustment);
+        observer(prev_guess, need_to_make_adjustment);
 
         // Evaluate the simultaneous equations at the previous guess to get the
         // corresponding difference vector
-        (*se)(guess, difference_vector);  // modifies difference_vector
+        (*se)(prev_guess, difference_vector);  // modifies difference_vector
 
         // Check to see if the previous guess is a zero
         converged_abs = no_errors_occurred(has_not_converged_abs(difference_vector, absolute_error_tolerances));
-        converged_rel = no_errors_occurred(has_not_converged_rel(difference_vector, guess, relative_error_tolerances));
+        converged_rel = no_errors_occurred(has_not_converged_rel(difference_vector, prev_guess, relative_error_tolerances));
         zero_found = converged_abs && converged_rel;
 
-        // Break out of the loop if a zero was found.
+        // If a zero was found or a problem occurred while getting the guess, break out of the loop
         // Otherwise, get a new guess and try again.
-        if (zero_found) {
+        if (zero_found || problem_occurred_while_getting_guess) {
             break;
         } else {
             // Get the next guess
-            guess = get_next_guess(se, guess, difference_vector);
+            problem_occurred_while_getting_guess = get_next_guess(se, prev_guess, difference_vector, next_guess);
 
             // Adjust the guess if it lies outside the acceptable bounds
-            need_to_make_adjustment = !no_errors_occurred(is_outside_bounds(guess, lower_bounds, upper_bounds));
+            need_to_make_adjustment = !no_errors_occurred(is_outside_bounds(next_guess, lower_bounds, upper_bounds));
             if (need_to_make_adjustment) {
                 ++num_adjustments;
-                guess = adjust_bad_guess(guess, lower_bounds, upper_bounds);
+                next_guess = adjust_bad_guess(next_guess, lower_bounds, upper_bounds);
             }
 
             // Increment the iteration counter
             ++num_iterations;
+
+            // Update the guess
+            prev_guess = next_guess;
         }
 
     } while (num_iterations < max_iterations);
 
-    final_value_for_root = guess;
+    final_value_for_root = prev_guess;
 
     return zero_found;
 }

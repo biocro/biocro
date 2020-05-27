@@ -149,7 +149,7 @@ bool newton_raphson_line_search_boost(double max_step_size,
     double lambda_2 = 0.0;    // will be initialized at the end of the first loop, but not required during the first iteration
     double f_scalar_2 = 0.0;  // will be initialized at the end of the first loop, but not required during the first iteration
     bool found_acceptable_step = false;
-    bool found_possible_zero = false;
+    bool found_possible_local_min = false;
 
     message += " Beginning the loop:\n";
 
@@ -189,7 +189,7 @@ bool newton_raphson_line_search_boost(double max_step_size,
             // The step is very small, so we may have found a root.
             // In this case, the calling routine should verify whether a
             // real root has been found.
-            found_possible_zero = true;
+            found_possible_local_min = true;
             message += "  lambda < lambda_min\n";
         } else if (f_scalar_new <= f_scalar_old + f_decrease_factor * lambda * slope) {
             // f_scalar has decreased by a sufficient amount, so we can accept x_new
@@ -250,12 +250,12 @@ bool newton_raphson_line_search_boost(double max_step_size,
             // Ensure that the new lambda value is larger than 10% of the previous value
             lambda = std::max(temporary_lambda, 0.1 * lambda);
         }
-    } while (found_acceptable_step == false && found_possible_zero == false);
+    } while (found_acceptable_step == false && found_possible_local_min == false);
 
     message += "\n";
     Rprintf(message.c_str());
 
-    return found_possible_zero;
+    return found_possible_local_min;
 }
 
 /**
@@ -275,16 +275,18 @@ class newton_raphson_backtrack_boost : public se_solver
     double const max_step_size_factor = 100.0;  // value taken from Numerical Recipes in C (STPMX)
     double const min_step_factor = 1.0e-7;      // value taken from Numerical Recipes in C (TOLX)
     double const f_decrease_factor = 1.0e-4;    // value taken from Numerical Recipes in C (ALF)
-    std::vector<double> get_next_guess(
+    bool get_next_guess(
         std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& input_guess,
-        std::vector<double> const& difference_vector_at_input_guess) override;
+        std::vector<double> const& difference_vector_at_input_guess,
+        std::vector<double>& output_guess) override;
 };
 
-std::vector<double> newton_raphson_backtrack_boost::get_next_guess(
+bool newton_raphson_backtrack_boost::get_next_guess(
     std::unique_ptr<simultaneous_equations> const& se,
     std::vector<double> const& input_guess,
-    std::vector<double> const& difference_vector_at_input_guess)
+    std::vector<double> const& difference_vector_at_input_guess,
+    std::vector<double>& output_guess)
 {
     // Evaluate the Jacobian matrix of the function at input_guess
     boost::numeric::ublas::matrix<double> jacobian(input_guess.size(), input_guess.size());
@@ -305,23 +307,26 @@ std::vector<double> newton_raphson_backtrack_boost::get_next_guess(
     double max_step_size = max_step_size_factor * std::max(input_guess_norm, (double)input_guess.size());
 
     // Use the backtracking line search algorithm to determine the next guess,
-    // rather than automatically taking the full Newton-Raphson step
-    std::vector<double> output_guess = input_guess;
+    // rather than automatically taking the full Newton-Raphson step.
+    // The line search will return a value of "true" if the final step is too small.
+    // In this case, we will assume that the search has gotten stuck in a local min
+    // and indicate that a problem occurred.
+    output_guess = input_guess;
     std::vector<double> difference_vector_at_output_guess = difference_vector_at_input_guess;
     double f_scalar_at_output_guess;
-    bool possible_zero_found = newton_raphson_line_search_boost(max_step_size,
-                                                                min_step_factor,
-                                                                f_decrease_factor,
-                                                                dx,
-                                                                function_value,
-                                                                jacobian,
-                                                                se,
-                                                                input_guess,
-                                                                output_guess,
-                                                                difference_vector_at_output_guess,
-                                                                f_scalar_at_output_guess);
 
-    return output_guess;
+    return newton_raphson_line_search_boost(
+        max_step_size,
+        min_step_factor,
+        f_decrease_factor,
+        dx,
+        function_value,
+        jacobian,
+        se,
+        input_guess,
+        output_guess,
+        difference_vector_at_output_guess,
+        f_scalar_at_output_guess);
 }
 
 #endif
