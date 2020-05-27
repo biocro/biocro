@@ -44,24 +44,25 @@ double rand_01()
  * As far as I know, there is no guarantee that this method will help find a good solution. [EBL]
  * 
  */
-std::vector<double> se_solver::adjust_bad_guess(
-    std::vector<double> const& bad_guess,
+void se_solver::adjust_bad_guess(
+    std::unique_ptr<simultaneous_equations> const& se,
     std::vector<double> const& lower_bounds,
-    std::vector<double> const& upper_bounds)
+    std::vector<double> const& upper_bounds,
+    std::vector<double>& bad_guess,
+    std::vector<double>& difference_vector_at_bad_guess)
 {
-    std::vector<double> new_guess = bad_guess;
-
     // Determine which elements lie outside the bounds
     std::vector<bool> oob = is_outside_bounds(bad_guess, lower_bounds, upper_bounds);
 
     // Adjust the problematic elements
     for (size_t i = 0; i < bad_guess.size(); ++i) {
         if (oob[i]) {
-            new_guess[i] = lower_bounds[i] + se_solver_rand::rand_01() * (upper_bounds[i] - lower_bounds[i]);
+            bad_guess[i] = lower_bounds[i] + se_solver_rand::rand_01() * (upper_bounds[i] - lower_bounds[i]);
         }
     }
 
-    return new_guess;
+    // Evaluate the difference vector at the new guess
+    (*se)(bad_guess, difference_vector_at_bad_guess);  // modifies difference_vector_at_bad_guess
 }
 
 /**

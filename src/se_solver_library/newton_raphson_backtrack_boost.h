@@ -30,8 +30,7 @@ bool newton_raphson_line_search_boost(double max_step_size,
                                       equation_ptr_type const& F_vec,
                                       vector_type const& x_old,
                                       vector_type& x_new,
-                                      vector_type& F_vec_new,
-                                      double& f_scalar_new)
+                                      vector_type& F_vec_new)
 {
     std::string message = "Running the backtracking line search:\n";
     char buff[128];
@@ -145,9 +144,10 @@ bool newton_raphson_line_search_boost(double max_step_size,
     message += std::string(buff);
 
     // Initialize local variables for the loop
-    double lambda = 1.0;      // always try the full step first
-    double lambda_2 = 0.0;    // will be initialized at the end of the first loop, but not required during the first iteration
-    double f_scalar_2 = 0.0;  // will be initialized at the end of the first loop, but not required during the first iteration
+    double lambda = 1.0;        // always try the full step first
+    double f_scalar_new = 0.0;  // will be recalculated at each step
+    double lambda_2 = 0.0;      // will be initialized at the end of the first loop, but not required during the first iteration
+    double f_scalar_2 = 0.0;    // will be initialized at the end of the first loop, but not required during the first iteration
     bool found_acceptable_step = false;
     bool found_possible_local_min = false;
 
@@ -279,14 +279,16 @@ class newton_raphson_backtrack_boost : public se_solver
         std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& input_guess,
         std::vector<double> const& difference_vector_at_input_guess,
-        std::vector<double>& output_guess) override;
+        std::vector<double>& output_guess,
+        std::vector<double>& difference_vector_at_output_guess) override;
 };
 
 bool newton_raphson_backtrack_boost::get_next_guess(
     std::unique_ptr<simultaneous_equations> const& se,
     std::vector<double> const& input_guess,
     std::vector<double> const& difference_vector_at_input_guess,
-    std::vector<double>& output_guess)
+    std::vector<double>& output_guess,
+    std::vector<double>& difference_vector_at_output_guess)
 {
     // Evaluate the Jacobian matrix of the function at input_guess
     boost::numeric::ublas::matrix<double> jacobian(input_guess.size(), input_guess.size());
@@ -311,10 +313,8 @@ bool newton_raphson_backtrack_boost::get_next_guess(
     // The line search will return a value of "true" if the final step is too small.
     // In this case, we will assume that the search has gotten stuck in a local min
     // and indicate that a problem occurred.
-    output_guess = input_guess;
-    std::vector<double> difference_vector_at_output_guess = difference_vector_at_input_guess;
-    double f_scalar_at_output_guess;
-
+    output_guess = input_guess;                                            // make sure output_guess is the right size
+    difference_vector_at_output_guess = difference_vector_at_input_guess;  // make sure difference_vector_at_output_guess is the right size
     return newton_raphson_line_search_boost(
         max_step_size,
         min_step_factor,
@@ -325,8 +325,7 @@ bool newton_raphson_backtrack_boost::get_next_guess(
         se,
         input_guess,
         output_guess,
-        difference_vector_at_output_guess,
-        f_scalar_at_output_guess);
+        difference_vector_at_output_guess);  // modifies output_guess and difference_vector_at_output_guess
 }
 
 #endif

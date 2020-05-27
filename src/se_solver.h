@@ -81,12 +81,15 @@ class se_solver
         std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& input_guess,
         std::vector<double> const& difference_vector_at_input_guess,
-        std::vector<double>& output_guess) = 0;
+        std::vector<double>& output_guess,
+        std::vector<double>& difference_vector_at_output_guess) = 0;
 
-    virtual std::vector<double> adjust_bad_guess(
-        std::vector<double> const& bad_guess,
+    virtual void adjust_bad_guess(
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& lower_bounds,
-        std::vector<double> const& upper_bounds);
+        std::vector<double> const& upper_bounds,
+        std::vector<double>& bad_guess,
+        std::vector<double>& difference_vector_at_bad_guess);
 };
 
 // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header
@@ -160,23 +163,24 @@ bool se_solver::solve(
     // Initialize local variables for the loop
     std::vector<double> prev_guess = initial_guess_for_root;
     std::vector<double> next_guess = prev_guess;
-    std::vector<double> difference_vector(initial_guess_for_root.size());
+    std::vector<double> prev_difference_vector(initial_guess_for_root.size());
+    std::vector<double> next_difference_vector(initial_guess_for_root.size());
     bool problem_occurred_while_getting_guess = false;
     bool need_to_make_adjustment = false;
     bool zero_found = false;
+
+    // Evaluate the simultaneous equations at the first guess to get the
+    // corresponding difference vector
+    (*se)(prev_guess, prev_difference_vector);  // modifies prev_difference_vector
 
     // Run the loop until convergence is achieved or the max number of iterations is exceeded
     do {
         // Pass the previous guess to the observer
         observer(prev_guess, need_to_make_adjustment);
 
-        // Evaluate the simultaneous equations at the previous guess to get the
-        // corresponding difference vector
-        (*se)(prev_guess, difference_vector);  // modifies difference_vector
-
         // Check to see if the previous guess is a zero
-        converged_abs = no_errors_occurred(has_not_converged_abs(difference_vector, absolute_error_tolerances));
-        converged_rel = no_errors_occurred(has_not_converged_rel(difference_vector, prev_guess, relative_error_tolerances));
+        converged_abs = no_errors_occurred(has_not_converged_abs(prev_difference_vector, absolute_error_tolerances));
+        converged_rel = no_errors_occurred(has_not_converged_rel(prev_difference_vector, prev_guess, relative_error_tolerances));
         zero_found = converged_abs && converged_rel;
 
         // If a zero was found or a problem occurred while getting the guess, break out of the loop
@@ -185,20 +189,23 @@ bool se_solver::solve(
             break;
         } else {
             // Get the next guess
-            problem_occurred_while_getting_guess = get_next_guess(se, prev_guess, difference_vector, next_guess);
+            problem_occurred_while_getting_guess = get_next_guess(
+                se, prev_guess, prev_difference_vector,
+                next_guess, next_difference_vector);  // modifies next_guess and next_difference_vector
 
             // Adjust the guess if it lies outside the acceptable bounds
             need_to_make_adjustment = !no_errors_occurred(is_outside_bounds(next_guess, lower_bounds, upper_bounds));
             if (need_to_make_adjustment) {
                 ++num_adjustments;
-                next_guess = adjust_bad_guess(next_guess, lower_bounds, upper_bounds);
+                adjust_bad_guess(se, lower_bounds, upper_bounds, next_guess, next_difference_vector);  // modifies next_guess and next_difference_vector
             }
 
             // Increment the iteration counter
             ++num_iterations;
 
-            // Update the guess
+            // Update the guess and difference vector
             prev_guess = next_guess;
+            prev_difference_vector = next_difference_vector;
         }
 
     } while (num_iterations < max_iterations);
