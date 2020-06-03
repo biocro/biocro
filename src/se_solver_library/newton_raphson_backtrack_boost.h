@@ -10,7 +10,7 @@
 #include <numeric>                 // for std::inner_product
 #include <algorithm>               // for std::transform
 #include <Rinternals.h>            // for debugging
-const bool nrb_print = false;       // for debugging
+const bool nrb_print = false;      // for debugging
 
 /**
  * @brief Searches along a line for a point that sufficiently decreases the non-negative
@@ -311,13 +311,6 @@ class newton_raphson_backtrack_boost : public se_solver
         std::vector<double> const& difference_vector_at_input_guess,
         std::vector<double>& output_guess,
         std::vector<double>& difference_vector_at_output_guess) override;
-
-    void adjust_bad_guess(
-        std::unique_ptr<simultaneous_equations> const& se,
-        std::vector<double> const& lower_bounds,
-        std::vector<double> const& upper_bounds,
-        std::vector<double>& bad_guess,
-        std::vector<double>& difference_vector_at_bad_guess) override;
 };
 
 bool newton_raphson_backtrack_boost::get_next_guess(
@@ -363,43 +356,6 @@ bool newton_raphson_backtrack_boost::get_next_guess(
         input_guess,
         output_guess,
         difference_vector_at_output_guess);  // modifies output_guess and difference_vector_at_output_guess
-}
-
-/**
- * @brief Overrides the default behavior for determining a new guess from a bad one
- * 
- * @param[in] bad_guess a vector that produces a bad output when used as an input to get_next_guess,
- *                      i.e., the next guess based on this one lies outside the acceptable bounds
- * 
- * @param[in] lower_bounds a vector indicating the lower bound for each unknown quantity
- * 
- * @param[in] upper_bounds a vector indicating the upper bound for each unknown quantity
- * 
- * @return a new guess
- * 
- * The new guess is determined by modifying all elements of bad_guess that lie outside the bounds.
- * 
- * Any value below its lower bound will be replaced by the lower bound, and any value above its
- * upper bound will be replaced by the upper bound.
- * 
- * As far as I know, there is no guarantee that this method will help find a good solution. [EBL]
- * 
- */
-void newton_raphson_backtrack_boost::adjust_bad_guess(
-    std::unique_ptr<simultaneous_equations> const& se,
-    std::vector<double> const& lower_bounds,
-    std::vector<double> const& upper_bounds,
-    std::vector<double>& bad_guess,
-    std::vector<double>& difference_vector_at_bad_guess)
-{
-    // Adjust the problematic elements
-    for (size_t i = 0; i < bad_guess.size(); ++i) {
-        bad_guess[i] = std::max(bad_guess[i], lower_bounds[i]);
-        bad_guess[i] = std::min(bad_guess[i], upper_bounds[i]);
-    }
-
-    // Evaluate the difference vector at the new guess
-    (*se)(bad_guess, difference_vector_at_bad_guess);  // modifies difference_vector_at_bad_guess
 }
 
 #endif

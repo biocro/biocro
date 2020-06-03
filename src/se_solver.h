@@ -250,4 +250,18 @@ state_vector_map format_se_solver_results(
     std::vector<std::vector<double>> uq_vector,
     std::vector<bool> adjustment_made_vector);
 
+void adjust_bad_guess_random(
+    std::unique_ptr<simultaneous_equations> const& se,
+    std::vector<double> const& lower_bounds,
+    std::vector<double> const& upper_bounds,
+    std::vector<double>& bad_guess,
+    std::vector<double>& difference_vector_at_bad_guess);
+
+void adjust_bad_guess_limits(
+    std::unique_ptr<simultaneous_equations> const& se,
+    std::vector<double> const& lower_bounds,
+    std::vector<double> const& upper_bounds,
+    std::vector<double>& bad_guess,
+    std::vector<double>& difference_vector_at_bad_guess);
+
 #endif

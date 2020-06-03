@@ -6,6 +6,7 @@
 #include "se_solver.h"
 #include "se_solver_helper_functions.h"
 
+// Helping functions for adjust_bad_guess_random
 namespace se_solver_rand
 {
 // A random_device to be used to obtain a seed for the random number engine
@@ -26,7 +27,7 @@ double rand_01()
 }  // namespace se_solver_rand
 
 /**
- * @brief Sets the default behavior for determining a new guess from a bad one
+ * @brief Determines a new guess from a bad one by randomly replacing bad elements
  * 
  * @param[in] bad_guess a vector that produces a bad output when used as an input to get_next_guess,
  *                      i.e., the next guess based on this one lies outside the acceptable bounds
@@ -44,7 +45,7 @@ double rand_01()
  * As far as I know, there is no guarantee that this method will help find a good solution. [EBL]
  * 
  */
-void se_solver::adjust_bad_guess(
+void adjust_bad_guess_random(
     std::unique_ptr<simultaneous_equations> const& se,
     std::vector<double> const& lower_bounds,
     std::vector<double> const& upper_bounds,
@@ -63,6 +64,68 @@ void se_solver::adjust_bad_guess(
 
     // Evaluate the difference vector at the new guess
     (*se)(bad_guess, difference_vector_at_bad_guess);  // modifies difference_vector_at_bad_guess
+}
+
+/**
+ * @brief Determines a new guess from a bad one by replacing bad elements with the nearest bound.
+ * 
+ * @param[in] bad_guess a vector that produces a bad output when used as an input to get_next_guess,
+ *                      i.e., the next guess based on this one lies outside the acceptable bounds
+ * 
+ * @param[in] lower_bounds a vector indicating the lower bound for each unknown quantity
+ * 
+ * @param[in] upper_bounds a vector indicating the upper bound for each unknown quantity
+ * 
+ * @return a new guess
+ * 
+ * The new guess is determined by modifying all elements of bad_guess that lie outside the bounds.
+ * 
+ * Any value below its lower bound will be replaced by the lower bound, and any value above its
+ * upper bound will be replaced by the upper bound.
+ * 
+ * As far as I know, there is no guarantee that this method will help find a good solution. [EBL]
+ * 
+ */
+void adjust_bad_guess_limits(
+    std::unique_ptr<simultaneous_equations> const& se,
+    std::vector<double> const& lower_bounds,
+    std::vector<double> const& upper_bounds,
+    std::vector<double>& bad_guess,
+    std::vector<double>& difference_vector_at_bad_guess)
+{
+    // Adjust the problematic elements
+    for (size_t i = 0; i < bad_guess.size(); ++i) {
+        bad_guess[i] = std::max(bad_guess[i], lower_bounds[i]);
+        bad_guess[i] = std::min(bad_guess[i], upper_bounds[i]);
+    }
+
+    // Evaluate the difference vector at the new guess
+    (*se)(bad_guess, difference_vector_at_bad_guess);  // modifies difference_vector_at_bad_guess
+}
+
+/**
+ * @brief Sets the default behavior for determining a new guess from a bad one.
+ * Inidividual solvers can override this behavior.
+ * 
+ * @param[in] bad_guess a vector that produces a bad output when used as an input to get_next_guess,
+ *                      i.e., the next guess based on this one lies outside the acceptable bounds
+ * 
+ * @param[in] lower_bounds a vector indicating the lower bound for each unknown quantity
+ * 
+ * @param[in] upper_bounds a vector indicating the upper bound for each unknown quantity
+ * 
+ * @return a new guess
+ * 
+ */
+void se_solver::adjust_bad_guess(
+    std::unique_ptr<simultaneous_equations> const& se,
+    std::vector<double> const& lower_bounds,
+    std::vector<double> const& upper_bounds,
+    std::vector<double>& bad_guess,
+    std::vector<double>& difference_vector_at_bad_guess)
+{
+    // Just replace any problematic elements by the closest bound
+    adjust_bad_guess_limits(se, lower_bounds, upper_bounds, bad_guess, difference_vector_at_bad_guess);
 }
 
 /**
