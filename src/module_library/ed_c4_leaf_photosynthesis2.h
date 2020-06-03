@@ -1,9 +1,6 @@
 #ifndef ED_C4_LEAF_PHOTOSYNTHESIS2_H
 #define ED_C4_LEAF_PHOTOSYNTHESIS2_H
 
-#include "ed_leaf_photosynthesis.h"
-#include "ed_leaf_photosynthesis_nr.h"  // for get_reference_inputs and get_reference_outputs
-
 namespace ed_c4_leaf_photosynthesis2_stuff
 {
 string_vector const sub_module_names = {
@@ -58,14 +55,9 @@ std::vector<double> const relative_error_tolerances = {
 /**
  * @class ed_c4_leaf_photosynthesis2
  * 
- * @brief Calculates free boundary layer conductance for water according to the model
- * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
- * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
- * be used by a simultanous_equations object but not a System object. Currently only
- * intended for use by Ed.
- * 
- * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units
- * and assumptions about temperature.
+ * @brief Solves a set of modules for the unknown quantities assimilation_net,
+ * conductance_stomatal_h2o, and temperature_leaf. Also returns other quantities
+ * derived from these. Represents photosynthesis at the leaf level for a c4 plant.
  */
 class ed_c4_leaf_photosynthesis2 : public se_module::base
 {
