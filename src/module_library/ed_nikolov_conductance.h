@@ -4,6 +4,7 @@
 #include <cmath>           // for fabs and sqrt
 #include "../constants.h"  // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
 #include "../modules.h"
+#include "se_module.h"
 #include "AuxBioCro.h"
 
 namespace nikolov
@@ -144,9 +145,9 @@ void ed_nikolov_conductance_forced::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"atmospheric_pressure cannot be zero",                 *atmospheric_pressure_ip == 0},     // divide by zero
-        {"volume_per_mol cannot be zero",                       volume_per_mol == 0},               // divide by zero
-        {"leaf_width cannot be zero",                           *leafwidth_ip == 0}                 // divide by zero
+        {"atmospheric_pressure cannot be zero",     fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},  // divide by zero
+        {"volume_per_mol cannot be zero",           fabs(volume_per_mol) < calculation_constants::eps_zero},            // divide by zero
+        {"leaf_width cannot be zero",               fabs(*leafwidth_ip) < calculation_constants::eps_zero}              // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());
@@ -267,16 +268,94 @@ void ed_nikolov_conductance_free::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"atmospheric_pressure cannot be zero",                 *atmospheric_pressure_ip == 0},     // divide by zero
-        {"volume_per_mol cannot be zero",                       volume_per_mol == 0},               // divide by zero
-        {"leaf_width cannot be zero",                           *leafwidth_ip == 0},                // divide by zero
-        {"the sum of water vapor conductances cannot be zero",  h2o_mfs_denom == 0}                 // divide by zero
+        {"atmospheric_pressure cannot be zero",                 fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},      // divide by zero
+        {"volume_per_mol cannot be zero",                       fabs(volume_per_mol) < calculation_constants::eps_zero},                // divide by zero
+        {"leaf_width cannot be zero",                           fabs(*leafwidth_ip) < calculation_constants::eps_zero},                 // divide by zero
+        {"the sum of water vapor conductances cannot be zero",  fabs(h2o_mfs_denom) < calculation_constants::eps_zero},                 // divide by zero
+        {"leaf temperature cannot be below absolute zero",      Tlk < calculation_constants::eps_zero}                                  // pow would have imaginary output
     };
 
     check_error_conditions(errors_to_check, get_name());
 
     // Update the output parameter list
     update(conductance_boundary_h2o_free_op, gbv_free);
+}
+
+namespace ed_nikolov_conductance_free_solve_stuff
+{
+string_vector const sub_module_names {"ed_nikolov_conductance_free"};
+
+std::string const solver_type = "newton_raphson_boost";
+
+int const max_iterations = 50;
+
+std::vector<double> const lower_bounds = {1e-10};
+
+std::vector<double> const upper_bounds = {10};
+
+std::vector<double> const absolute_error_tolerances = {0.1};
+
+std::vector<double> const relative_error_tolerances = {1e-3};
+}  // namespace ed_nikolov_conductance_free_solve_stuff
+
+/**
+ * @class ed_nikolov_conductance_free_solve
+ * 
+ * @brief Calculates free boundary layer conductance for water according to the model
+ * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
+ * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
+ * be used by a simultanous_equations object but not a System object. Currently only
+ * intended for use by Ed.
+ * 
+ * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units
+ * and assumptions about temperature.
+ */
+class ed_nikolov_conductance_free_solve : public se_module::base
+{
+   public:
+    ed_nikolov_conductance_free_solve(
+        const std::unordered_map<std::string, double>* input_parameters,
+        std::unordered_map<std::string, double>* output_parameters)
+        : se_module::base("ed_nikolov_conductance_free_solve",
+                          ed_nikolov_conductance_free_solve_stuff::sub_module_names,
+                          ed_nikolov_conductance_free_solve_stuff::solver_type,
+                          ed_nikolov_conductance_free_solve_stuff::max_iterations,
+                          ed_nikolov_conductance_free_solve_stuff::lower_bounds,
+                          ed_nikolov_conductance_free_solve_stuff::upper_bounds,
+                          ed_nikolov_conductance_free_solve_stuff::absolute_error_tolerances,
+                          ed_nikolov_conductance_free_solve_stuff::relative_error_tolerances,
+                          input_parameters,
+                          output_parameters),
+          // Get pointers to input parameters
+          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept"))
+    {
+    }
+    static std::vector<std::string> get_inputs();
+    static std::vector<std::string> get_outputs();
+
+   private:
+    // Pointers to input parameters
+    const double* ball_berry_intercept_ip;
+    // Main operation
+    std::vector<double> get_initial_guess() const override;
+};
+
+std::vector<std::string> ed_nikolov_conductance_free_solve::get_inputs()
+{
+    std::vector<std::string> inputs = se_module::get_se_inputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+    inputs.push_back("ball_berry_intercept");
+    return inputs;
+}
+
+std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
+{
+    return se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+}
+
+std::vector<double> ed_nikolov_conductance_free_solve::get_initial_guess() const
+{
+    // Just use the Ball-Berry intercept as an initial guess
+    return std::vector<double>{*ball_berry_intercept_ip};
 }
 
 #endif

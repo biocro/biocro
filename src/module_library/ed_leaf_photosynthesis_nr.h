@@ -45,10 +45,10 @@ const std::vector<double> absolute_error_tolerances = {
 /** Set the relative tolerances for solving the equations */
 constexpr double rel_error_tol = 1e-3;
 const std::vector<double> relative_error_tolerances = {
-    rel_error_tol,       // assimilation_net: use standard value
-    10 * rel_error_tol,  // conductance_boundary_h2o_free: use a larger value
-    rel_error_tol,       // conductance_stomatal_h2o: use standard value
-    rel_error_tol        // temperature_leaf: use standard value
+    rel_error_tol,  // assimilation_net: use standard value
+    rel_error_tol,  // conductance_boundary_h2o_free: use standard value
+    rel_error_tol,  // conductance_stomatal_h2o: use standard value
+    rel_error_tol   // temperature_leaf: use standard value
 };
 
 /** Set the maximum number of iterations for the solver */
@@ -93,7 +93,7 @@ class module_base : public ed_leaf_photosynthesis::module_base
                 state_map* output_parameters)
         : ed_leaf_photosynthesis::module_base(module_name, input_module_names, input_parameters, output_parameters),
           se(make_se(input_module_names)),
-          solver(se_solver_factory::create("newton_raphson_boost", max_iterations)),
+          solver(se_solver_factory::create("newton_raphson_backtrack_boost", max_iterations)),
           temperature_air_ip(get_ip(input_parameters, "temp")),
           ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept"))
     {

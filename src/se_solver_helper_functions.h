@@ -2,9 +2,10 @@
 #define SE_SOLVER_HELPER_FUNCTIONS_H
 
 #include <vector>
-#include <cmath>         // for fabs
-#include "constants.h"   // for calculation_constants::eps_zero
-#include <Rinternals.h>  // for debugging
+#include <cmath>                 // for fabs
+#include "constants.h"           // for calculation_constants::eps_zero
+#include <Rinternals.h>          // for debugging
+const bool seshf_print = false;  // for debugging
 
 /**
  * @brief Checks whether the elements of vec_to_test lie outside the bounds
@@ -61,7 +62,10 @@ std::vector<bool> has_not_converged_abs(
     }
 
     message += "\n";
-    Rprintf(message.c_str());
+
+    if (seshf_print) {
+        Rprintf(message.c_str());  // print the message now in case an error is thrown
+    }
 
     return result;
 }
@@ -102,7 +106,10 @@ std::vector<bool> has_not_converged_rel(
     }
 
     message += "\n";
-    Rprintf(message.c_str());
+
+    if (seshf_print) {
+        Rprintf(message.c_str());  // print the message now in case an error is thrown
+    }
 
     return result;
 }

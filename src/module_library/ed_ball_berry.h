@@ -2,7 +2,9 @@
 #define ED_BALL_BERRY_H
 
 #include "../modules.h"
-#include "AuxBioCro.h"  // for saturation_vapor_pressure
+#include <cmath>           // for fabs
+#include "../constants.h"  // for eps_zero
+#include "AuxBioCro.h"     // for saturation_vapor_pressure
 
 /**
  * @class ed_ball_berry
@@ -109,7 +111,8 @@ void ed_ball_berry::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"mole_fraction_co2_leaf_surface cannot be zero", *mole_fraction_co2_leaf_surface_ip == 0}  // divide by zero
+        {"mole_fraction_co2_leaf_surface cannot be zero",       fabs(*mole_fraction_co2_leaf_surface_ip) < calculation_constants::eps_zero},               // divide by zero
+        {"saturation_vapor_pressure in leaf cannot be zero",    fabs(saturation_vapor_pressure(*temperature_leaf_ip)) < calculation_constants::eps_zero}   // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());

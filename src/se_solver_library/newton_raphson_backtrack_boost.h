@@ -10,6 +10,7 @@
 #include <numeric>                 // for std::inner_product
 #include <algorithm>               // for std::transform
 #include <Rinternals.h>            // for debugging
+const bool nrb_print = false;       // for debugging
 
 /**
  * @brief Searches along a line for a point that sufficiently decreases the non-negative
@@ -37,6 +38,13 @@ bool newton_raphson_line_search_boost(double max_step_size,
 
     message += " direction:";
     for (double const& v : direction) {
+        sprintf(buff, " %e", v);
+        message += std::string(buff);
+    }
+    message += "\n";
+
+    message += " F_vec_old:";
+    for (double const& v : F_vec_old) {
         sprintf(buff, " %e", v);
         message += std::string(buff);
     }
@@ -75,8 +83,9 @@ bool newton_raphson_line_search_boost(double max_step_size,
     }
 
     // Compute the gradient of f_scalar = 0.5 * |F_vec|^2 at x_old using the
-    // Jacobian and F_vec calculated at x_old
-    boost::numeric::ublas::vector<double> grad_f_scalar_old = boost::numeric::ublas::prod(jacobian, F_vec_old);
+    // Jacobian and F_vec calculated at x_old. As in Equation 9.7.5,
+    // grad_f_scalar = F_vec * jacobian
+    boost::numeric::ublas::vector<double> grad_f_scalar_old = boost::numeric::ublas::prod(F_vec_old, jacobian);
 
     message += " grad_f_scalar_old:";
     for (double const& v : grad_f_scalar_old) {
@@ -94,6 +103,10 @@ bool newton_raphson_line_search_boost(double max_step_size,
 
     sprintf(buff, " slope = %e\n", slope);
     message += std::string(buff);
+
+    if (nrb_print) {
+        Rprintf(message.c_str());  // print the message now in case an error is thrown
+    }
 
     if (slope >= 0.0) {
         throw std::runtime_error("Thrown by newton_raphson_line_search: roundoff problem occurred.");
@@ -124,7 +137,7 @@ bool newton_raphson_line_search_boost(double max_step_size,
     std::transform(direction.begin(), direction.end(), x_old.begin(), lambda_mins.begin(),
                    [&min_step_factor](double d_i, double x_i) -> double { return min_step_factor * std::max(fabs(x_i), 1.0) / fabs(d_i); });
 
-    message += " lambda_mins:";
+    message = " lambda_mins:";  // reset the message since we just printed it
     for (double const& v : lambda_mins) {
         sprintf(buff, " %e", v);
         message += std::string(buff);
@@ -153,10 +166,14 @@ bool newton_raphson_line_search_boost(double max_step_size,
 
     message += " Beginning the loop:\n";
 
+    if (nrb_print) {
+        Rprintf(message.c_str());  // print the message now in case an error is thrown
+    }
+
     // Search for a new value for x
     do {
         sprintf(buff, " lambda = %e\n", lambda);
-        message += std::string(buff);
+        message = std::string(buff);
 
         // Get the x_new value corresponding to lambda: x_new = x_old + lambda * direction
         std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
@@ -191,10 +208,16 @@ bool newton_raphson_line_search_boost(double max_step_size,
             // real root has been found.
             found_possible_local_min = true;
             message += "  lambda < lambda_min\n";
+            if (nrb_print) {
+                Rprintf(message.c_str());  // print the message now in case an error is thrown
+            }
         } else if (f_scalar_new <= f_scalar_old + f_decrease_factor * lambda * slope) {
             // f_scalar has decreased by a sufficient amount, so we can accept x_new
             found_acceptable_step = true;
             message += "  f_scalar_new <= f_scalar_old + f_decrease_factor * lambda * slope\n";
+            if (nrb_print) {
+                Rprintf(message.c_str());  // print the message now in case an error is thrown
+            }
         } else {
             // We need to choose a new value of lambda to try
             double temporary_lambda;
@@ -249,11 +272,18 @@ bool newton_raphson_line_search_boost(double max_step_size,
 
             // Ensure that the new lambda value is larger than 10% of the previous value
             lambda = std::max(temporary_lambda, 0.1 * lambda);
+
+            if (nrb_print) {
+                Rprintf(message.c_str());  // print the message now in case an error is thrown
+            }
         }
     } while (found_acceptable_step == false && found_possible_local_min == false);
 
-    message += "\n";
-    Rprintf(message.c_str());
+    message = "\n";
+
+    if (nrb_print) {
+        Rprintf(message.c_str());
+    }
 
     return found_possible_local_min;
 }
@@ -281,6 +311,13 @@ class newton_raphson_backtrack_boost : public se_solver
         std::vector<double> const& difference_vector_at_input_guess,
         std::vector<double>& output_guess,
         std::vector<double>& difference_vector_at_output_guess) override;
+
+    void adjust_bad_guess(
+        std::unique_ptr<simultaneous_equations> const& se,
+        std::vector<double> const& lower_bounds,
+        std::vector<double> const& upper_bounds,
+        std::vector<double>& bad_guess,
+        std::vector<double>& difference_vector_at_bad_guess) override;
 };
 
 bool newton_raphson_backtrack_boost::get_next_guess(
@@ -326,6 +363,43 @@ bool newton_raphson_backtrack_boost::get_next_guess(
         input_guess,
         output_guess,
         difference_vector_at_output_guess);  // modifies output_guess and difference_vector_at_output_guess
+}
+
+/**
+ * @brief Overrides the default behavior for determining a new guess from a bad one
+ * 
+ * @param[in] bad_guess a vector that produces a bad output when used as an input to get_next_guess,
+ *                      i.e., the next guess based on this one lies outside the acceptable bounds
+ * 
+ * @param[in] lower_bounds a vector indicating the lower bound for each unknown quantity
+ * 
+ * @param[in] upper_bounds a vector indicating the upper bound for each unknown quantity
+ * 
+ * @return a new guess
+ * 
+ * The new guess is determined by modifying all elements of bad_guess that lie outside the bounds.
+ * 
+ * Any value below its lower bound will be replaced by the lower bound, and any value above its
+ * upper bound will be replaced by the upper bound.
+ * 
+ * As far as I know, there is no guarantee that this method will help find a good solution. [EBL]
+ * 
+ */
+void newton_raphson_backtrack_boost::adjust_bad_guess(
+    std::unique_ptr<simultaneous_equations> const& se,
+    std::vector<double> const& lower_bounds,
+    std::vector<double> const& upper_bounds,
+    std::vector<double>& bad_guess,
+    std::vector<double>& difference_vector_at_bad_guess)
+{
+    // Adjust the problematic elements
+    for (size_t i = 0; i < bad_guess.size(); ++i) {
+        bad_guess[i] = std::max(bad_guess[i], lower_bounds[i]);
+        bad_guess[i] = std::min(bad_guess[i], upper_bounds[i]);
+    }
+
+    // Evaluate the difference vector at the new guess
+    (*se)(bad_guess, difference_vector_at_bad_guess);  // modifies difference_vector_at_bad_guess
 }
 
 #endif

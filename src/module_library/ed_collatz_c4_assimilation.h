@@ -2,6 +2,7 @@
 #define ED_COLLATZ_C4_ASSIMILATION_H
 
 #include <cmath>  // For pow, exp
+#include "../constants.h"  // for eps_zero
 #include "../modules.h"
 
 /**
@@ -180,10 +181,10 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"the quadratic M_a and M_b terms cannot both be zero",         M_a == 0 && M_b == 0},                      // divide by zero
-        {"the quadratic M_root_term cannot be negative for M_a != 0",   M_a != 0 && M_root_term < 0},               // imaginary sqrt
-        {"the quadratic A_a and A_b terms cannot both be zero",         A_a == 0 && A_b == 0},                      // divide by zero
-        {"the quadratic A_root_term cannot be negative for A_a != 0",   A_a != 0 && A_root_term < 0}                // imaginary sqrt
+        {"the quadratic M_a and M_b terms cannot both be zero",         fabs(M_a) < calculation_constants::eps_zero && fabs(M_b) < calculation_constants::eps_zero},    // divide by zero
+        {"the quadratic M_root_term cannot be negative for M_a != 0",   fabs(M_a) > calculation_constants::eps_zero && M_root_term < 0},                                // imaginary sqrt
+        {"the quadratic A_a and A_b terms cannot both be zero",         fabs(A_a) < calculation_constants::eps_zero && fabs(A_b) < calculation_constants::eps_zero},    // divide by zero
+        {"the quadratic A_root_term cannot be negative for A_a != 0",   fabs(A_a) > calculation_constants::eps_zero && A_root_term < 0}                                 // imaginary sqrt
     };
 
     check_error_conditions(errors_to_check, get_name());

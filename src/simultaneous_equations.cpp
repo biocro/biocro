@@ -1,6 +1,8 @@
 #include <algorithm>  // for std:sort
 #include "simultaneous_equations.h"
 #include "system_helper_functions.h"
+#include <Rinternals.h>             // for debugging
+const bool se_update_print = false;  // for debugging
 
 /**
   * @brief Checks over a group of quantities and modules to ensure they can be
@@ -179,7 +181,7 @@ simultaneous_equations::simultaneous_equations(
     // Get vectors of pointers to important subsets of the quantities.
     // These pointers allow the user to update the values of the known
     //  quantities and to retrieve the values of all module outputs.
-    // Here it is important to use sorted vectors of names so the 
+    // Here it is important to use sorted vectors of names so the
     //  quantities will have a definite order that the user can safely
     //  assume.
     known_ptrs = get_pointers(known_quantity_names, quantities);
@@ -208,8 +210,18 @@ void simultaneous_equations::update_known_quantities(std::vector<const double*> 
         throw std::logic_error("Thrown by simultaneous_equations::update_known_quantities: ptrs_to_values has the wrong size.");
     }
 
+    std::string message = "\nInput values:\n";
+    char buff[128];
+
     for (size_t i = 0; i < known_ptrs.size(); ++i) {
         *known_ptrs[i] = *ptrs_to_values[i];
+        sprintf(buff, " %e\n", *known_ptrs[i]);
+        message += std::string(buff);
+    }
+
+    if (se_update_print) {
+        message += "\n\n";
+        Rprintf(message.c_str());
     }
 }
 

@@ -107,9 +107,9 @@ void ed_penman_monteith_leaf_temperature::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"ga cannot be zero",                   ga == 0},                   // divide by zero
-        {"gc cannot be zero",                   gc == 0},                   // divide by zero
-        {"delta_t_denomenator cannot be zero",  delta_t_denomenator == 0}   // divide by zero
+        {"ga cannot be zero",                   fabs(ga) < calculation_constants::eps_zero},                   // divide by zero
+        {"gc cannot be zero",                   fabs(gc) < calculation_constants::eps_zero},                   // divide by zero
+        {"delta_t_denomenator cannot be zero",  fabs(delta_t_denomenator) < calculation_constants::eps_zero}   // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());

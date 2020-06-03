@@ -85,6 +85,7 @@
 #include "ed_stomata_water_stress_linear.h"
 #include "ed_apply_water_stress.h"
 #include "ed_c4_leaf_photosynthesis.h"
+#include "ed_c4_leaf_photosynthesis2.h"
 #include "ed_c4photo.h"
 #include "ed_evapotrans2.h"
 #include "ed_canac_leaf.h"
@@ -195,6 +196,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_rh_to_mole_fraction",                          &create_wrapper<ed_rh_to_mole_fraction>},
      {"ed_nikolov_conductance_forced",                   &create_wrapper<ed_nikolov_conductance_forced>},
      {"ed_nikolov_conductance_free",                     &create_wrapper<ed_nikolov_conductance_free>},
+     {"ed_nikolov_conductance_free_solve",               &create_wrapper<ed_nikolov_conductance_free_solve>},
      {"ed_boundary_conductance_max",                     &create_wrapper<ed_boundary_conductance_max>},
      {"ed_boundary_conductance_quadrature",              &create_wrapper<ed_boundary_conductance_quadrature>},
      {"ed_ball_berry",                                   &create_wrapper<ed_ball_berry>},
@@ -206,6 +208,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_apply_stomatal_water_stress_via_conductance",  &create_wrapper<ed_apply_stomatal_water_stress_via_conductance>},
      {"ed_apply_stomatal_water_stress_via_assimilation", &create_wrapper<ed_apply_stomatal_water_stress_via_assimilation>},
      {"ed_c4_leaf_photosynthesis",                       &create_wrapper<ed_c4_leaf_photosynthesis>},
+     {"ed_c4_leaf_photosynthesis2",                      &create_wrapper<ed_c4_leaf_photosynthesis2>},
      {"ed_c4photo",                                      &create_wrapper<ed_c4photo>},
      {"ed_evapotrans2",                                  &create_wrapper<ed_evapotrans2>},
      {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},

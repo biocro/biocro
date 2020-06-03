@@ -12,7 +12,7 @@ using boost::math::double_constants::pi;
 namespace calculation_constants
 {
 const double eps_deriv = 1e-5;  // a relative step size for numerically calculating derivatives
-const double eps_zero = 1e-11;  // a small number for checking whether a double is zero
+const double eps_zero = 1e-13;  // a small number for checking whether a double is zero
 }  // namespace calculation_constants
 
 namespace physical_constants
