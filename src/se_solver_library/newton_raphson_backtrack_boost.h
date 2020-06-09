@@ -4,6 +4,7 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include "../se_solver.h"
+#include "../se_solver_helper_functions.h"
 #include "../numerical_jacobian.h"
 #include "newton_raphson_boost.h"  // for get_newton_raphson_step_boost
 #include <cmath>                   // for sqrt
@@ -22,16 +23,18 @@ const bool nrb_print = false;      // for debugging
  * by a sufficient amount. See section 9.7 of Numerical Recipes in C.
  */
 template <typename equation_ptr_type, typename vector_type>
-bool newton_raphson_line_search_boost(double max_step_size,
-                                      double min_step_factor,
-                                      double f_decrease_factor,
-                                      boost::numeric::ublas::vector<double> direction,
-                                      boost::numeric::ublas::vector<double> const& F_vec_old,
-                                      boost::numeric::ublas::matrix<double> const& jacobian,
-                                      equation_ptr_type const& F_vec,
-                                      vector_type const& x_old,
-                                      vector_type& x_new,
-                                      vector_type& F_vec_new)
+bool newton_raphson_line_search_boost(
+    vector_type const& lower_bounds,
+    vector_type const& upper_bounds,
+    double min_step_factor,
+    double f_decrease_factor,
+    boost::numeric::ublas::vector<double> direction,
+    boost::numeric::ublas::vector<double> const& F_vec_old,
+    boost::numeric::ublas::matrix<double> const& jacobian,
+    equation_ptr_type const& F_vec,
+    vector_type const& x_old,
+    vector_type& x_new,
+    vector_type& F_vec_new)
 {
     std::string message = "Running the backtracking line search:\n";
     char buff[128];
@@ -61,25 +64,19 @@ bool newton_raphson_line_search_boost(double max_step_size,
     }
 
     // Our first guess for delta_x would be determined by lambda = 1.0, i.e.,
-    // delta_x = 1.0 * direction. Check to see if that step would be too
-    // big by computing |direction| and comparing to the maximum step
-    // size. If the step is too big, rescale it.
-    const double full_step_size = sqrt(std::inner_product(direction.begin(), direction.end(),
-                                                          direction.begin(), 0.0));
+    // x_new = x_old + direction. Check to see if the resulting x_new lies within
+    // the bounds. If not, adjust the guess and skip the rest of the line search.
+    std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
+                   [](double x_old_i, double d_i) -> double { return x_old_i + d_i; });
 
-    sprintf(buff, " full_step_size = %e, max_step_size = %e\n", full_step_size, max_step_size);
-    message += std::string(buff);
+    bool guess_out_of_bounds = adjust_bad_guess_limits(F_vec, lower_bounds, upper_bounds, x_new, F_vec_new);
 
-    if (full_step_size > max_step_size) {
-        std::transform(direction.begin(), direction.end(), direction.begin(),
-                       [&max_step_size, &full_step_size](double v) -> double { return v * max_step_size / full_step_size; });
-
-        message += " rescaled direction:";
-        for (double const& v : direction) {
-            sprintf(buff, " %e", v);
-            message += std::string(buff);
+    if (guess_out_of_bounds) {
+        message += "  x_new corresponding to lambda = 1 was out of bounds. Adjusting and trying line search again.\n";
+        if (nrb_print) {
+            Rprintf(message.c_str());  // print the message now
         }
-        message += "\n";
+        return false;
     }
 
     // Compute the gradient of f_scalar = 0.5 * |F_vec|^2 at x_old using the
@@ -176,8 +173,12 @@ bool newton_raphson_line_search_boost(double max_step_size,
         message = std::string(buff);
 
         // Get the x_new value corresponding to lambda: x_new = x_old + lambda * direction
-        std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
-                       [&lambda](double x_old_i, double d_i) -> double { return x_old_i + lambda * d_i; });
+        // If lambda is 1, this is the first step and we have already calculated x_new while
+        // checking the bounds
+        if (lambda < 1.0) {
+            std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
+                           [&lambda](double x_old_i, double d_i) -> double { return x_old_i + lambda * d_i; });
+        }
 
         message += "  x_new:";
         for (double const& v : x_new) {
@@ -302,11 +303,12 @@ class newton_raphson_backtrack_boost : public se_solver
     newton_raphson_backtrack_boost(int max_it) : se_solver(std::string("newton_raphson_backtrack_boost"), max_it) {}
 
    private:
-    double const max_step_size_factor = 100.0;  // value taken from Numerical Recipes in C (STPMX)
-    double const min_step_factor = 1.0e-7;      // value taken from Numerical Recipes in C (TOLX)
-    double const f_decrease_factor = 1.0e-4;    // value taken from Numerical Recipes in C (ALF)
+    double const min_step_factor = 1.0e-7;    // value taken from Numerical Recipes in C (TOLX)
+    double const f_decrease_factor = 1.0e-4;  // value taken from Numerical Recipes in C (ALF)
     bool get_next_guess(
         std::unique_ptr<simultaneous_equations> const& se,
+        std::vector<double> const& lower_bounds,
+        std::vector<double> const& upper_bounds,
         std::vector<double> const& input_guess,
         std::vector<double> const& difference_vector_at_input_guess,
         std::vector<double>& output_guess,
@@ -315,6 +317,8 @@ class newton_raphson_backtrack_boost : public se_solver
 
 bool newton_raphson_backtrack_boost::get_next_guess(
     std::unique_ptr<simultaneous_equations> const& se,
+    std::vector<double> const& lower_bounds,
+    std::vector<double> const& upper_bounds,
     std::vector<double> const& input_guess,
     std::vector<double> const& difference_vector_at_input_guess,
     std::vector<double>& output_guess,
@@ -334,10 +338,6 @@ bool newton_raphson_backtrack_boost::get_next_guess(
     // Determine the Newton-Raphson step
     boost::numeric::ublas::vector<double> dx = get_newton_raphson_step_boost(function_value, jacobian);
 
-    // Determine the maximum step size to allow during the backtracking line search
-    double input_guess_norm = sqrt(std::inner_product(input_guess.begin(), input_guess.end(), input_guess.begin(), 0.0));
-    double max_step_size = max_step_size_factor * std::max(input_guess_norm, (double)input_guess.size());
-
     // Use the backtracking line search algorithm to determine the next guess,
     // rather than automatically taking the full Newton-Raphson step.
     // The line search will return a value of "true" if the final step is too small.
@@ -346,7 +346,8 @@ bool newton_raphson_backtrack_boost::get_next_guess(
     output_guess = input_guess;                                            // make sure output_guess is the right size
     difference_vector_at_output_guess = difference_vector_at_input_guess;  // make sure difference_vector_at_output_guess is the right size
     return newton_raphson_line_search_boost(
-        max_step_size,
+        lower_bounds,
+        upper_bounds,
         min_step_factor,
         f_decrease_factor,
         dx,

@@ -57,9 +57,8 @@ SEXP R_solve_simultaneous_equations(
             rel_t_vector.push_back(rel_t.at(name));
         }
 
-        // Make vectors to store the sequence of guesses
+        // Make a vector to store the sequence of guesses
         std::vector<std::vector<double>> guess_vector;
-        std::vector<bool> adjustment_vector;
 
         // Solve
         std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq,
@@ -72,7 +71,7 @@ SEXP R_solve_simultaneous_equations(
                                      lb_vector, ub_vector,
                                      abs_t_vector, rel_t_vector,
                                      uq_final,
-                                     se_observer_push_back(guess_vector, adjustment_vector));
+                                     se_observer_push_back(guess_vector));
 
         // Print info if desired
         if (!be_quiet) {
@@ -98,7 +97,7 @@ SEXP R_solve_simultaneous_equations(
             Rf_warning(std::string("A solution was not successfully found!").c_str());
         }
 
-        return list_from_map(format_se_solver_results(uq_names, guess_vector, adjustment_vector));
+        return list_from_map(format_se_solver_results(uq_names, guess_vector));
 
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_solve_simultaneous_equations: ") + e.what()).c_str());

@@ -1,132 +1,7 @@
 #include <map>
-#include <random>  // for random number generation
-#include <limits>  // for std::numeric_limits<double>::max()
-#include <cmath>   // for std::nextafter
 #include <Rinternals.h>
 #include "se_solver.h"
 #include "se_solver_helper_functions.h"
-
-// Helping functions for adjust_bad_guess_random
-namespace se_solver_rand
-{
-// A random_device to be used to obtain a seed for the random number engine
-std::random_device rd;
-
-// A standard mersenne_twister_engine seeded with rd()
-std::mt19937 eng(rd());
-
-// A uniform real distribution on the closed interval [0,1]
-std::uniform_real_distribution<double> dist(0, std::nextafter(1, std::numeric_limits<double>::max()));
-
-// A function that uses these objects to return a real number between 0 and 1
-double rand_01()
-{
-    return dist(eng);
-}
-
-}  // namespace se_solver_rand
-
-/**
- * @brief Determines a new guess from a bad one by randomly replacing bad elements
- * 
- * @param[in] bad_guess a vector that produces a bad output when used as an input to get_next_guess,
- *                      i.e., the next guess based on this one lies outside the acceptable bounds
- * 
- * @param[in] lower_bounds a vector indicating the lower bound for each unknown quantity
- * 
- * @param[in] upper_bounds a vector indicating the upper bound for each unknown quantity
- * 
- * @return a new guess
- * 
- * The new guess is determined by modifying all elements of bad_guess that lie outside the bounds.
- * 
- * For each such "bad element," a new value is chosen randomly from the range of acceptable values.
- * 
- * As far as I know, there is no guarantee that this method will help find a good solution. [EBL]
- * 
- */
-void adjust_bad_guess_random(
-    std::unique_ptr<simultaneous_equations> const& se,
-    std::vector<double> const& lower_bounds,
-    std::vector<double> const& upper_bounds,
-    std::vector<double>& bad_guess,
-    std::vector<double>& difference_vector_at_bad_guess)
-{
-    // Determine which elements lie outside the bounds
-    std::vector<bool> oob = is_outside_bounds(bad_guess, lower_bounds, upper_bounds);
-
-    // Adjust the problematic elements
-    for (size_t i = 0; i < bad_guess.size(); ++i) {
-        if (oob[i]) {
-            bad_guess[i] = lower_bounds[i] + se_solver_rand::rand_01() * (upper_bounds[i] - lower_bounds[i]);
-        }
-    }
-
-    // Evaluate the difference vector at the new guess
-    (*se)(bad_guess, difference_vector_at_bad_guess);  // modifies difference_vector_at_bad_guess
-}
-
-/**
- * @brief Determines a new guess from a bad one by replacing bad elements with the nearest bound.
- * 
- * @param[in] bad_guess a vector that produces a bad output when used as an input to get_next_guess,
- *                      i.e., the next guess based on this one lies outside the acceptable bounds
- * 
- * @param[in] lower_bounds a vector indicating the lower bound for each unknown quantity
- * 
- * @param[in] upper_bounds a vector indicating the upper bound for each unknown quantity
- * 
- * @return a new guess
- * 
- * The new guess is determined by modifying all elements of bad_guess that lie outside the bounds.
- * 
- * Any value below its lower bound will be replaced by the lower bound, and any value above its
- * upper bound will be replaced by the upper bound.
- * 
- * As far as I know, there is no guarantee that this method will help find a good solution. [EBL]
- * 
- */
-void adjust_bad_guess_limits(
-    std::unique_ptr<simultaneous_equations> const& se,
-    std::vector<double> const& lower_bounds,
-    std::vector<double> const& upper_bounds,
-    std::vector<double>& bad_guess,
-    std::vector<double>& difference_vector_at_bad_guess)
-{
-    // Adjust the problematic elements
-    for (size_t i = 0; i < bad_guess.size(); ++i) {
-        bad_guess[i] = std::max(bad_guess[i], lower_bounds[i]);
-        bad_guess[i] = std::min(bad_guess[i], upper_bounds[i]);
-    }
-
-    // Evaluate the difference vector at the new guess
-    (*se)(bad_guess, difference_vector_at_bad_guess);  // modifies difference_vector_at_bad_guess
-}
-
-/**
- * @brief Sets the default behavior for determining a new guess from a bad one.
- * Inidividual solvers can override this behavior.
- * 
- * @param[in] bad_guess a vector that produces a bad output when used as an input to get_next_guess,
- *                      i.e., the next guess based on this one lies outside the acceptable bounds
- * 
- * @param[in] lower_bounds a vector indicating the lower bound for each unknown quantity
- * 
- * @param[in] upper_bounds a vector indicating the upper bound for each unknown quantity
- * 
- * @return a new guess
- * 
- */
-void se_solver::adjust_bad_guess(
-    std::unique_ptr<simultaneous_equations> const& se,
-    std::vector<double> const& lower_bounds,
-    std::vector<double> const& upper_bounds,
-    std::vector<double>& bad_guess,
-    std::vector<double>& difference_vector_at_bad_guess)
-{
-    // Just replace any problematic elements by the closest bound
-    adjust_bad_guess_limits(se, lower_bounds, upper_bounds, bad_guess, difference_vector_at_bad_guess);
-}
 
 /**
  * @brief Returns a string describing the se_solver's basic properties.
@@ -153,8 +28,7 @@ std::string se_solver::generate_solve_report() const
         return std::string("Details about the most recent calculation:") +
                std::string("\n Converged according to absolute threshold: ") + bool_to_string(converged_abs) +
                std::string("\n Converged according to relative threshold: ") + bool_to_string(converged_rel) +
-               std::string("\n Number of iterations: ") + std::to_string(num_iterations) +
-               std::string("\n Number of adjustments: ") + std::to_string(num_adjustments);
+               std::string("\n Number of iterations: ") + std::to_string(num_iterations);
     }
 }
 
@@ -163,8 +37,7 @@ std::string se_solver::generate_solve_report() const
  */
 state_vector_map format_se_solver_results(
     std::vector<std::string> quantity_names,
-    std::vector<std::vector<double>> uq_vector,
-    std::vector<bool> adjustment_made_vector)
+    std::vector<std::vector<double>> uq_vector)
 {
     // Set up the output
     state_vector_map result;
@@ -172,7 +45,6 @@ state_vector_map format_se_solver_results(
     for (std::string const& n : quantity_names) {
         result[n] = temp;
     }
-    result["adjustment_made"] = temp;
     result["iteration"] = temp;
 
     // Fill in the results
@@ -182,7 +54,6 @@ state_vector_map format_se_solver_results(
         for (size_t j = 0; j < quantity_names.size(); ++j) {
             result[quantity_names[j]][i] = uq[j];
         }
-        result["adjustment_made"][i] = adjustment_made_vector[i];
         result["iteration"][i] = i;
     }
 

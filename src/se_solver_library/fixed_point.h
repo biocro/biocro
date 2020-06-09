@@ -2,6 +2,7 @@
 #define FIXED_POINT_H
 
 #include "../se_solver.h"
+#include "../se_solver_helper_functions.h"
 
 /**
  * @class fixed_point
@@ -18,6 +19,8 @@ class fixed_point : public se_solver
    private:
     bool get_next_guess(
         std::unique_ptr<simultaneous_equations> const& se,
+        std::vector<double> const& lower_bounds,
+        std::vector<double> const& upper_bounds,
         std::vector<double> const& input_guess,
         std::vector<double> const& difference_vector_at_input_guess,
         std::vector<double>& output_guess,
@@ -26,6 +29,8 @@ class fixed_point : public se_solver
 
 bool fixed_point::get_next_guess(
     std::unique_ptr<simultaneous_equations> const& se,
+    std::vector<double> const& lower_bounds,
+    std::vector<double> const& upper_bounds,
     std::vector<double> const& input_guess,
     std::vector<double> const& difference_vector_at_input_guess,
     std::vector<double>& output_guess,
@@ -37,6 +42,11 @@ bool fixed_point::get_next_guess(
 
     // Evaluate the difference vector at the new guess
     (*se)(output_guess, difference_vector_at_output_guess);  // modifies difference_vector_at_output_guess
+
+    // Adjust the new guess if it lies outside the bounds
+    // adjust_bad_guess_limits modifies output_guess and difference_vector_at_output_guess if output_guess
+    // lies outside the bounds
+    adjust_bad_guess_limits(se, lower_bounds, upper_bounds, output_guess, difference_vector_at_output_guess);
 
     // This algorithm doesn't need to check for any additional problems,
     // so just return false

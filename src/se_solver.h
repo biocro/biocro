@@ -16,7 +16,7 @@
  */
 struct se_observer_null {
     se_observer_null() {}
-    void operator()(std::vector<double> const& /*uq*/, bool /*adjustment_made*/) {}
+    void operator()(std::vector<double> const& /*uq*/) {}
 };
 
 /**
@@ -75,21 +75,15 @@ class se_solver
     bool converged_abs;
     bool converged_rel;
     int num_iterations;
-    int num_adjustments;
 
     virtual bool get_next_guess(
         std::unique_ptr<simultaneous_equations> const& se,
+        std::vector<double> const& lower_bounds,
+        std::vector<double> const& upper_bounds,
         std::vector<double> const& input_guess,
         std::vector<double> const& difference_vector_at_input_guess,
         std::vector<double>& output_guess,
         std::vector<double>& difference_vector_at_output_guess) = 0;
-
-    virtual void adjust_bad_guess(
-        std::unique_ptr<simultaneous_equations> const& se,
-        std::vector<double> const& lower_bounds,
-        std::vector<double> const& upper_bounds,
-        std::vector<double>& bad_guess,
-        std::vector<double>& difference_vector_at_bad_guess);
 };
 
 // A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header
@@ -147,7 +141,6 @@ bool se_solver::solve(
     converged_abs = false;
     converged_rel = false;
     num_iterations = 0;
-    num_adjustments = 0;
 
     // Define a lambda to simplify error checking. If all entries in `convergence_error_vector`
     // are `false`, `convergence_achieved` is set to true.
@@ -166,7 +159,6 @@ bool se_solver::solve(
     std::vector<double> prev_difference_vector(initial_guess_for_root.size());
     std::vector<double> next_difference_vector(initial_guess_for_root.size());
     bool problem_occurred_while_getting_guess = false;
-    bool need_to_make_adjustment = false;
     bool zero_found = false;
 
     // Evaluate the simultaneous equations at the first guess to get the
@@ -176,7 +168,7 @@ bool se_solver::solve(
     // Run the loop until convergence is achieved or the max number of iterations is exceeded
     do {
         // Pass the previous guess to the observer
-        observer(prev_guess, need_to_make_adjustment);
+        observer(prev_guess);
 
         // Check to see if the previous guess is a zero
         converged_abs = no_errors_occurred(has_not_converged_abs(prev_difference_vector, absolute_error_tolerances));
@@ -190,15 +182,9 @@ bool se_solver::solve(
         } else {
             // Get the next guess
             problem_occurred_while_getting_guess = get_next_guess(
-                se, prev_guess, prev_difference_vector,
+                se, lower_bounds, upper_bounds,
+                prev_guess, prev_difference_vector,
                 next_guess, next_difference_vector);  // modifies next_guess and next_difference_vector
-
-            // Adjust the guess if it lies outside the acceptable bounds
-            need_to_make_adjustment = !no_errors_occurred(is_outside_bounds(next_guess, lower_bounds, upper_bounds));
-            if (need_to_make_adjustment) {
-                ++num_adjustments;
-                adjust_bad_guess(se, lower_bounds, upper_bounds, next_guess, next_difference_vector);  // modifies next_guess and next_difference_vector
-            }
 
             // Increment the iteration counter
             ++num_iterations;
@@ -227,41 +213,19 @@ bool se_solver::solve(
 struct se_observer_push_back {
     // Data members
     std::vector<std::vector<double>>& uq_vec;
-    std::vector<bool>& adjustment_made_vec;
 
     // Constructor
-    se_observer_push_back(
-        std::vector<std::vector<double>>& uq_vec,
-        std::vector<bool>& adjustment_made_vec) : uq_vec(uq_vec),
-                                                  adjustment_made_vec(adjustment_made_vec) {}
+    se_observer_push_back(std::vector<std::vector<double>>& uq_vec) : uq_vec(uq_vec) {}
 
     // Operation
-    void operator()(
-        std::vector<double> const& uq,
-        bool adjustment_made)
+    void operator()(std::vector<double> const& uq)
     {
         uq_vec.push_back(uq);
-        adjustment_made_vec.push_back(adjustment_made);
     }
 };
 
 state_vector_map format_se_solver_results(
     std::vector<std::string> quantity_names,
-    std::vector<std::vector<double>> uq_vector,
-    std::vector<bool> adjustment_made_vector);
-
-void adjust_bad_guess_random(
-    std::unique_ptr<simultaneous_equations> const& se,
-    std::vector<double> const& lower_bounds,
-    std::vector<double> const& upper_bounds,
-    std::vector<double>& bad_guess,
-    std::vector<double>& difference_vector_at_bad_guess);
-
-void adjust_bad_guess_limits(
-    std::unique_ptr<simultaneous_equations> const& se,
-    std::vector<double> const& lower_bounds,
-    std::vector<double> const& upper_bounds,
-    std::vector<double>& bad_guess,
-    std::vector<double>& difference_vector_at_bad_guess);
+    std::vector<std::vector<double>> uq_vector);
 
 #endif
