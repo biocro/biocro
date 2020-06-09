@@ -266,7 +266,28 @@ std::string analyze_system_inputs(
 }
 
 /**
- * Assembles a map of all unique quantities defined by a group of state_maps and module outputs
+ * Assembles a "master" state_map from a group of state_maps and a
+ * list of modules.
+ *
+ * The resulting state_map will essentially be the union of all the
+ * maps in parameter `state_maps` and an additional map formed by
+ * taking as keys all of the output variables from modules in
+ * `module_name_vectors` and setting the corresponding values to zero.
+ * The set of keys in the maps in `state_maps` should not overlap with
+ * one another and should be distinct from the module output variable
+ * names.
+ *
+ * @param state_maps A list (presented as a `std::vector`) of
+ *                   state_maps.
+ *
+ * @param module_name_vectors A list of lists (present as a
+ *                            `std::vector` of `strint_vector`s) of
+ *                            module names.
+ *
+ * @returns a `state_map` which is the union of all maps in
+ *          `state_maps` together a map whose keys are all the output
+ *          parameters of modules in `module_name_vectors` and whose
+ *          values are all zero.
  */
 state_map define_quantity_map(
     std::vector<state_map> state_maps,

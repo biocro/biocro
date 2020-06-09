@@ -5,7 +5,9 @@
 #include "../system_solver.h"
 #include "../system_caller.h"
 
-// A class representing a generic boost system solver
+/**
+ *  A class representing a generic boost system solver.
+ */
 template <class state_type>
 class boost_system_solver : public system_solver
 {
@@ -16,11 +18,22 @@ class boost_system_solver : public system_solver
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : system_solver(solver_name, check_adaptive_compatible, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
+        int max_steps
+    )
+    : system_solver{
+          solver_name,
+          check_adaptive_compatible,
+          step_size,
+          rel_error_tolerance,
+          abs_error_tolerance,
+          max_steps
+      }
+    {}
 
    protected:
     template <class stepper_type>
-    void run_integrate_const(stepper_type stepper, SystemCaller syscall, push_back_state_and_time<state_type> observer);
+    void run_integrate_const(stepper_type stepper, SystemCaller syscall,
+                             push_back_state_and_time<state_type> observer);
 
    private:
     std::string boost_error_string;
@@ -72,7 +85,7 @@ std::unordered_map<std::string, std::vector<double>> boost_system_solver<state_t
     push_back_state_and_time<state_type> observer(state_vec, time_vec, sys->get_ntimes() - 1.0, observer_message);
 
     // Make a system caller
-    SystemCaller syscall(sys);
+    SystemCaller syscall{sys};
 
     // Solve the system (modifies state_vec and time_vec via the observer)
     do_boost_solve(syscall, observer);

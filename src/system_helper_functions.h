@@ -18,12 +18,13 @@ template <typename name_list_type, typename value_type_1, typename value_type_2>
 std::vector<std::pair<value_type_1*, const value_type_2*>> get_pointer_pairs(
     name_list_type quantity_names,
     std::unordered_map<std::string, value_type_1>& map_1,
-    std::unordered_map<std::string, value_type_2> const& map_2)
+    const std::unordered_map<std::string, value_type_2>& map_2)
 {
     std::vector<std::pair<value_type_1*, const value_type_2*>> pointer_pairs;
 
-    for (std::string const& name : quantity_names) {
-        std::pair<value_type_1*, const value_type_2*> temporary(&map_1.at(name), &map_2.at(name));
+    for (const std::string& name : quantity_names) {
+        std::pair<value_type_1*, const value_type_2*>
+            temporary{&(map_1.at(name)), &(map_2.at(name))};
         pointer_pairs.push_back(temporary);
     }
 
