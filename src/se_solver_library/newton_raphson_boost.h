@@ -27,12 +27,12 @@ class newton_raphson_boost : public se_solver
 
    private:
     std::vector<double> get_next_guess(
-        std::shared_ptr<simultaneous_equations> const& se,
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& input_guess) override;
 };
 
 std::vector<double> newton_raphson_boost::get_next_guess(
-    std::shared_ptr<simultaneous_equations> const& se,
+    std::unique_ptr<simultaneous_equations> const& se,
     std::vector<double> const& input_guess)
 {
     // Evaluate the function at input_guess: F(x_0)
