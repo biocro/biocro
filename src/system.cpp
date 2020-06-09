@@ -40,7 +40,10 @@ System::System(
     derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
 
     // Make lists of subsets of quantity names
-    string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{steady_state_module_names}));
+    string_vector steady_state_output_names =
+        string_set_to_string_vector(
+            find_unique_module_outputs({steady_state_module_names})
+        );
     string_vector istate_names = keys(init_state);
     string_vector vp_names = keys(varying_params);
 
@@ -52,14 +55,15 @@ System::System(
 
     // Get pairs of pointers to important subsets of the quantities
     // These pairs allow us to efficiently retrieve the output of each
-    //  module and store it in the main quantity map when running the system,
-    //  to update the varying parameters at new time points, etc
+    // module and store it in the main quantity map when running the
+    // system, to update the varying parameters at new time points,
+    // etc.
     state_ptr_pairs = get_pointer_pairs(istate_names, quantities, module_output_map);
     steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
     varying_ptr_pairs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
     // Get a pointer to the timestep
-    timestep_ptr = &quantities.at("timestep");
+    timestep_ptr = &(quantities.at("timestep"));
 }
 
 /**
@@ -77,12 +81,17 @@ void System::reset()
  */
 void System::update_varying_params(double time_indx)
 {
-    // Find the two closest integers
-    int t1 = (int)(time_indx + 0.5);
-    int t2 = (t1 > time_indx) ? (t1 - 1) : (t1 + 1);
-    // Make a linear interpolation
-    for (auto const& x : varying_ptr_pairs) {
-        *(x.first) = (*(x.second))[t1] + (time_indx - t1) * ((*(x.second))[t2] - (*(x.second))[t1]) / (t2 - t1);
+    // Find two closest surrounding integers:
+    int t1 = std::floor(time_indx);
+    int t2 = t1 + 1; // note t2 - t1 = 1
+    for (const auto& x : varying_ptr_pairs) {
+        // Use linear interpolation to find value at time_indx:
+        auto value_at_t1 = (*(x.second))[t1];
+        auto value_at_t2 = (*(x.second))[t2];
+        auto value_at_time_indx = value_at_t1 +
+            (time_indx - t1) * (value_at_t2 - value_at_t1);
+
+        *(x.first) = value_at_time_indx;
     }
 }
 
@@ -112,14 +121,29 @@ void System::run_steady_state_modules()
 std::vector<const double*> System::get_quantity_access_ptrs(string_vector quantity_names) const
 {
     std::vector<const double*> access_ptrs;
-    for (std::string const& n : quantity_names) {
-        access_ptrs.push_back(&quantities.at(n));
+    for (const std::string& name : quantity_names) {
+        access_ptrs.push_back(&quantities.at(name));
     }
     return access_ptrs;
 }
 
 /**
- * @brief Returns a vector of the names of all quantities that change throughout a simulation
+ * @brief Returns a vector of the names of all quantities that change
+ *        throughout a simulation.
+ *
+ * The quantities that change are (1) the quantites that are
+ * calculated using differential equations; these should coincide with
+ * all quantities in the initial state; (2) the varying known
+ * parameters; (3) the _secondary_ variables, that is, the variables
+ * that are outputs of steady-state modules.
+ *
+ * @note Even though each variable in the initial state should
+ * correspond to a derivative calculated by some derivative module, it
+ * is possible and permissible to have some variable \f$v\f$ in the
+ * initial state that doesn't correspond to any such derivative.  In
+ * that case, a differential equation \f$dv/dt = 0\f$ is assumed.  So
+ * such variables in fact _do not_ change during the course of the
+ * simulation.
  */
 string_vector System::get_output_param_names() const
 {

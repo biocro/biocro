@@ -1,5 +1,5 @@
 #include "modules.h"
-#include <cmath>
+#include <cmath>  // for fabs
 
 // A small number to use when checking to see if a double is different
 // than 0, positive, equal to another number, etc.

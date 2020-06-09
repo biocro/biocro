@@ -54,7 +54,7 @@ std::unordered_map<std::string, std::vector<double>> homemade_euler_solver<state
     // Run through all the times
     for (size_t t = 0; t < sys->get_ntimes(); t++) {
         // Update all the parameters and calculate the derivative based on the current time and state
-        sys->operator()(state, dstatedt, t);
+        (*sys)(state, dstatedt, t);
 
         // Store the current parameter values
         for (size_t i = 0; i < result_vec.size(); i++) (result_vec[i])[t] = *output_ptr_vector[i];
