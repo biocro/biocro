@@ -69,6 +69,8 @@ bool newton_raphson_line_search_boost(
     std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
                    [](double x_old_i, double d_i) -> double { return x_old_i + d_i; });
 
+    (*F_vec)(x_new, F_vec_new);  // modifies F_vec_new
+
     bool guess_out_of_bounds = adjust_bad_guess_limits(F_vec, lower_bounds, upper_bounds, x_new, F_vec_new);
 
     if (guess_out_of_bounds) {
@@ -78,6 +80,11 @@ bool newton_raphson_line_search_boost(
         }
         return false;
     }
+
+    // Store x and F_vec corresponding to lambda = 1 in case the line search fails,
+    // since in that case we will just try the full Newton step
+    vector_type x_lambda_1 = x_new;
+    vector_type F_vec_lambda_1 = F_vec_new;
 
     // Compute the gradient of f_scalar = 0.5 * |F_vec|^2 at x_old using the
     // Jacobian and F_vec calculated at x_old. As in Equation 9.7.5,
@@ -172,12 +179,15 @@ bool newton_raphson_line_search_boost(
         sprintf(buff, " lambda = %e\n", lambda);
         message = std::string(buff);
 
-        // Get the x_new value corresponding to lambda: x_new = x_old + lambda * direction
-        // If lambda is 1, this is the first step and we have already calculated x_new while
+        // Get the x_new value corresponding to lambda: x_new = x_old + lambda * direction.
+        // Also evaluate F_vec here.
+        // If lambda is 1, this is the first step and we have already calculated these values while
         // checking the bounds
         if (lambda < 1.0) {
             std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
                            [&lambda](double x_old_i, double d_i) -> double { return x_old_i + lambda * d_i; });
+
+            (*F_vec)(x_new, F_vec_new);  // modifies F_vec_new
         }
 
         message += "  x_new:";
@@ -187,8 +197,7 @@ bool newton_raphson_line_search_boost(
         }
         message += "\n";
 
-        // Evaluate F_vec and f_scalar at the new guess
-        (*F_vec)(x_new, F_vec_new);  // modifies F_vec_new
+        // Evaluate f_scalar at the new guess
         f_scalar_new = 0.5 * std::inner_product(F_vec_new.begin(), F_vec_new.end(), F_vec_new.begin(), 0.0);
 
         message += "  F_vec_new:";
@@ -204,11 +213,12 @@ bool newton_raphson_line_search_boost(
         // Check to see if we have found a possible zero or an acceptable step.
         // If not, determine a new value of lambda to try.
         if (lambda < lambda_min) {
-            // The step is very small, so we may have found a root.
-            // In this case, the calling routine should verify whether a
-            // real root has been found.
+            // The step is very small, so we are probably stuck near a local min.
+            // In this case, just use the full Newton-Raphson step.
+            x_new = x_lambda_1;          // use stored value
+            F_vec_new = F_vec_lambda_1;  // use stored value
             found_possible_local_min = true;
-            message += "  lambda < lambda_min\n";
+            message += "  lambda < lambda_min, so we are using the full Newton-Raphson step\n";
             if (nrb_print) {
                 Rprintf(message.c_str());  // print the message now in case an error is thrown
             }
@@ -341,11 +351,11 @@ bool newton_raphson_backtrack_boost::get_next_guess(
     // Use the backtracking line search algorithm to determine the next guess,
     // rather than automatically taking the full Newton-Raphson step.
     // The line search will return a value of "true" if the final step is too small.
-    // In this case, we will assume that the search has gotten stuck in a local min
-    // and indicate that a problem occurred.
+    // In this case, it will assume that the search has gotten stuck in a local min
+    // and just take the full Newton-Raphson step.
     output_guess = input_guess;                                            // make sure output_guess is the right size
     difference_vector_at_output_guess = difference_vector_at_input_guess;  // make sure difference_vector_at_output_guess is the right size
-    return newton_raphson_line_search_boost(
+    newton_raphson_line_search_boost(
         lower_bounds,
         upper_bounds,
         min_step_factor,
@@ -357,6 +367,10 @@ bool newton_raphson_backtrack_boost::get_next_guess(
         input_guess,
         output_guess,
         difference_vector_at_output_guess);  // modifies output_guess and difference_vector_at_output_guess
+
+    // This algorithm doesn't need to check for any additional problems,
+    // so just return false
+    return false;
 }
 
 #endif
