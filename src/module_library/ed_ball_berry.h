@@ -98,7 +98,7 @@ std::vector<std::string> ed_ball_berry::get_inputs()
         "temperature_leaf",                 // deg. C
         "mole_fraction_h2o_leaf_surface",   // dimensionless from Pa / Pa
         "mole_fraction_co2_leaf_surface",   // dimensionless from mol / mol
-        "conductance_adjustment_factor_WS"  // dimensionless
+        "conductance_adjustment_factor_WS", // dimensionless
         "conductance_stomatal_h2o_min"      // mol / m^2 / s
     };
 }
