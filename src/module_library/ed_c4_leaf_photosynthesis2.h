@@ -88,7 +88,7 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
     const double* temperature_air_ip;
     const double* ball_berry_intercept_ip;
     // Main operation
-    std::vector<double> get_initial_guess() const override;
+    std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
 std::vector<std::string> ed_c4_leaf_photosynthesis2::get_inputs()
@@ -104,13 +104,15 @@ std::vector<std::string> ed_c4_leaf_photosynthesis2::get_outputs()
     return se_module::get_se_outputs(ed_c4_leaf_photosynthesis2_stuff::sub_module_names);
 }
 
-std::vector<double> ed_c4_leaf_photosynthesis2::get_initial_guess() const
+std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses() const
 {
     // Note: order must agree with std::sort applied to quantity name
-    return std::vector<double>{
-        0.0,                       // assimilation_net
-        *ball_berry_intercept_ip,  // conductance_stomatal_h2o
-        *temperature_air_ip        // temperature_leaf
+    return std::vector<std::vector<double>>{
+        {
+            0.0,                       // assimilation_net
+            *ball_berry_intercept_ip,  // conductance_stomatal_h2o
+            *temperature_air_ip        // temperature_leaf
+        }                              // first choice for a guess
     };
 }
 

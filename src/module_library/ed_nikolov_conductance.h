@@ -145,9 +145,9 @@ void ed_nikolov_conductance_forced::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"atmospheric_pressure cannot be zero",     fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},  // divide by zero
-        {"volume_per_mol cannot be zero",           fabs(volume_per_mol) < calculation_constants::eps_zero},            // divide by zero
-        {"leaf_width cannot be zero",               fabs(*leafwidth_ip) < calculation_constants::eps_zero}              // divide by zero
+        {"atmospheric_pressure cannot be zero", fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},  // divide by zero
+        {"volume_per_mol cannot be zero", fabs(volume_per_mol) < calculation_constants::eps_zero},                  // divide by zero
+        {"leaf_width cannot be zero", fabs(*leafwidth_ip) < calculation_constants::eps_zero}                        // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());
@@ -268,11 +268,11 @@ void ed_nikolov_conductance_free::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"atmospheric_pressure cannot be zero",                 fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},      // divide by zero
-        {"volume_per_mol cannot be zero",                       fabs(volume_per_mol) < calculation_constants::eps_zero},                // divide by zero
-        {"leaf_width cannot be zero",                           fabs(*leafwidth_ip) < calculation_constants::eps_zero},                 // divide by zero
-        {"the sum of water vapor conductances cannot be zero",  fabs(h2o_mfs_denom) < calculation_constants::eps_zero},                 // divide by zero
-        {"leaf temperature cannot be below absolute zero",      Tlk < calculation_constants::eps_zero}                                  // pow would have imaginary output
+        {"atmospheric_pressure cannot be zero", fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},      // divide by zero
+        {"volume_per_mol cannot be zero", fabs(volume_per_mol) < calculation_constants::eps_zero},                      // divide by zero
+        {"leaf_width cannot be zero", fabs(*leafwidth_ip) < calculation_constants::eps_zero},                           // divide by zero
+        {"the sum of water vapor conductances cannot be zero", fabs(h2o_mfs_denom) < calculation_constants::eps_zero},  // divide by zero
+        {"leaf temperature cannot be below absolute zero", Tlk < calculation_constants::eps_zero}                       // pow would have imaginary output
     };
 
     check_error_conditions(errors_to_check, get_name());
@@ -283,7 +283,7 @@ void ed_nikolov_conductance_free::do_operation() const
 
 namespace ed_nikolov_conductance_free_solve_stuff
 {
-string_vector const sub_module_names {"ed_nikolov_conductance_free"};
+string_vector const sub_module_names{"ed_nikolov_conductance_free"};
 
 std::string const solver_type = "newton_raphson_boost";
 
@@ -337,7 +337,7 @@ class ed_nikolov_conductance_free_solve : public se_module::base
     // Pointers to input parameters
     const double* ball_berry_intercept_ip;
     // Main operation
-    std::vector<double> get_initial_guess() const override;
+    std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
 std::vector<std::string> ed_nikolov_conductance_free_solve::get_inputs()
@@ -352,10 +352,10 @@ std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
     return se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
 }
 
-std::vector<double> ed_nikolov_conductance_free_solve::get_initial_guess() const
+std::vector<std::vector<double>> ed_nikolov_conductance_free_solve::get_initial_guesses() const
 {
     // Just use the Ball-Berry intercept as an initial guess
-    return std::vector<double>{*ball_berry_intercept_ip};
+    return std::vector<std::vector<double>>{{*ball_berry_intercept_ip}};
 }
 
 #endif

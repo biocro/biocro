@@ -99,12 +99,11 @@ class base : public SteadyModule
     std::vector<double> const upper_bounds;
     std::vector<double> const absolute_error_tolerances;
     std::vector<double> const relative_error_tolerances;
-    std::vector<double> mutable initial_guess;
     std::vector<double> mutable best_guess;
     std::vector<double> mutable outputs_from_modules;
     // Main operation
     void do_operation() const override;
-    virtual std::vector<double> get_initial_guess() const = 0;
+    virtual std::vector<std::vector<double>> get_initial_guesses() const = 0;
 
    protected:
     // Pointers to input parameters
@@ -123,14 +122,26 @@ inline base::~base() {}
  */
 void base::do_operation() const
 {
-    initial_guess = get_initial_guess();  // must be implemented by derived class
+    std::vector<std::vector<double>> initial_guesses = get_initial_guesses();  // must be implemented by derived class
 
     se->update_known_quantities(input_ptrs);
 
-    bool success = solver->solve(se, initial_guess,
-                                 lower_bounds, upper_bounds,
-                                 absolute_error_tolerances, relative_error_tolerances,
-                                 best_guess);  // modifies best_guess
+    bool success = false;
+    std::vector<double> initial_guess;
+
+    for (size_t i = 0; i < initial_guesses.size(); ++i) {
+        initial_guess = initial_guesses[i];
+
+        success = solver->solve(
+            se, initial_guess,
+            lower_bounds, upper_bounds,
+            absolute_error_tolerances, relative_error_tolerances,
+            best_guess);  // modifies best_guess
+
+        if (success) {
+            break;
+        }
+    }
 
     if (!success) {
         throw std::runtime_error(std::string("Thrown by ") + get_name() + std::string(": the solver was unable to find a solution."));
