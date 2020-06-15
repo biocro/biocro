@@ -70,6 +70,8 @@ manihot_esculenta_parameters = with(list(), {
      resistance_stem_to_root 1
      resistance_stem_to_rhizome 1
      tbase     0     
+	 topt      1e5
+	 tmax      1e6
      phi1       0.01     
      phi2       10       
      soilDepth  1        

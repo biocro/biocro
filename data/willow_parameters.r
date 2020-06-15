@@ -71,6 +71,8 @@ willow_parameters = with(list(), {
      kRhizome6 0.15  
      kGrain6   0     
      tbase     0     
+	 topt      1e5
+	 tmax      1e6
      phi1       0.01     
      phi2       10       
      soil_depth  1        
