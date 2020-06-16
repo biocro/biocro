@@ -124,7 +124,7 @@ void partitioning_growth_calculator::do_operation() const
         newStemcol = canopy_assimilation_rate * kStem;
         newStemcol = resp(newStemcol, mrc1, temp);
     } else {
-        throw std::range_error("Thrown in partitioning_growth_calculator: kStem should be positive");
+        newStemcol = 0.0;
     }
 
     // Calculate the amount of new root produced

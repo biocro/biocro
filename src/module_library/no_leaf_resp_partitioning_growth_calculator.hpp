@@ -128,7 +128,7 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const
         newStemcol = nonleaf_carbon_flux * kStem;
         newStemcol = resp(newStemcol, mrc1, temp);
     } else {
-        throw std::range_error("Thrown in no_leaf_resp_partitioning_growth_calculator: kStem should be positive");
+        newStemcol = 0.0;
     }
 
     // Calculate the amount of new root produced

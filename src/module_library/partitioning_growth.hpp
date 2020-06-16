@@ -30,6 +30,7 @@ class partitioning_growth : public DerivModule
           newRootcol_ip(get_ip(input_parameters, "newRootcol")),
           newRhizomecol_ip(get_ip(input_parameters, "newRhizomecol")),
           Leaf_ip(get_ip(input_parameters, "Leaf")),
+          Stem_ip(get_ip(input_parameters, "Stem")),
           Root_ip(get_ip(input_parameters, "Root")),
           Rhizome_ip(get_ip(input_parameters, "Rhizome")),
           // Get pointers to output parameters
@@ -57,6 +58,7 @@ class partitioning_growth : public DerivModule
     const double* newRootcol_ip;
     const double* newRhizomecol_ip;
     const double* Leaf_ip;
+    const double* Stem_ip;
     const double* Root_ip;
     const double* Rhizome_ip;
     // Pointers to output parameters
@@ -84,6 +86,7 @@ std::vector<std::string> partitioning_growth::get_inputs()
         "newRootcol",
         "newRhizomecol",
         "Leaf",
+        "Stem",
         "Root",
         "Rhizome"};
 }
@@ -116,6 +119,7 @@ void partitioning_growth::do_operation() const
     double newRhizomecol = *newRhizomecol_ip;
 
     double Leaf = *Leaf_ip;
+    double Stem = *Stem_ip;
     double Root = *Root_ip;
     double Rhizome = *Rhizome_ip;
 
@@ -138,7 +142,11 @@ void partitioning_growth::do_operation() const
     if (kStem >= 0.0) {
         dStem += newStemcol;
     } else {
-        throw std::range_error("Thrown in partitioning_growth: kStem should be positive");
+        dStem += Stem * kStem;
+        dRhizome += kRhizome * (-dStem) * retrans;
+        dLeaf += kLeaf * (-dStem) * retrans;
+        dRoot += kRoot * (-dStem) * retrans;
+        dGrain += kGrain * (-dStem) * retrans;
     }
 
     // Determine whether Root is growing or decaying
