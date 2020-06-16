@@ -146,7 +146,7 @@ void partitioning_growth::do_operation() const {
     }
     else {
         dRhizome += Rhizome * kRhizome;
-        if(dRhizome > Rhizome) dRhizome = Rhizome;	// Check whether this would make the rhizome mass negative. (Note: I think this comparison is wrong (EBL))
+        if(dRhizome + Rhizome < 0) dRhizome = -0.9 * Rhizome;	// Don't allow Rhizome mass to become negative (only works for Euler method with 1 hour timestep)
         dRoot += kRoot * (-dRhizome);				// Rhizome retranslocation efficiency is 1?
         dStem += kStem * (-dRhizome);
         dLeaf += kLeaf * (-dRhizome);
