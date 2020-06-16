@@ -3,9 +3,6 @@
 
 #include "../modules.h"
 
-// This is the same as partitioning_growth_module except that leaf respiration is treated differently.
-// CanopyA already includes losses from leaf respiration, so it should only be removed from leaf mass.
-
 /**
  * @class no_leaf_resp_partitioning_growth_calculator
  * 
