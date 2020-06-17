@@ -283,6 +283,8 @@ void ed_nikolov_conductance_free::do_operation() const
 
 namespace ed_nikolov_conductance_free_solve_stuff
 {
+std::string const module_name = "ed_nikolov_conductance_free_solve";
+
 string_vector const sub_module_names{"ed_nikolov_conductance_free"};
 
 std::string const solver_type = "newton_raphson_boost";
@@ -316,7 +318,7 @@ class ed_nikolov_conductance_free_solve : public se_module::base
     ed_nikolov_conductance_free_solve(
         const std::unordered_map<std::string, double>* input_parameters,
         std::unordered_map<std::string, double>* output_parameters)
-        : se_module::base("ed_nikolov_conductance_free_solve",
+        : se_module::base(ed_nikolov_conductance_free_solve_stuff::module_name,
                           ed_nikolov_conductance_free_solve_stuff::sub_module_names,
                           ed_nikolov_conductance_free_solve_stuff::solver_type,
                           ed_nikolov_conductance_free_solve_stuff::max_iterations,
@@ -349,7 +351,10 @@ std::vector<std::string> ed_nikolov_conductance_free_solve::get_inputs()
 
 std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
 {
-    return se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+    std::vector<std::string> outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+    outputs.push_back(se_module::get_ncalls_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
+    outputs.push_back(se_module::get_nsteps_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
+    return outputs;
 }
 
 std::vector<std::vector<double>> ed_nikolov_conductance_free_solve::get_initial_guesses() const

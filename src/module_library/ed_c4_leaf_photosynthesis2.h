@@ -3,6 +3,8 @@
 
 namespace ed_c4_leaf_photosynthesis2_stuff
 {
+std::string const module_name = "ed_c4_leaf_photosynthesis2";
+
 string_vector const sub_module_names = {
     "ed_rh_to_mole_fraction",                          // Convert relative humidity to H2O mole fraction
     "ed_nikolov_conductance_forced",                   // Calculate `forced` boundary layer conductance
@@ -65,7 +67,7 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
     ed_c4_leaf_photosynthesis2(
         const std::unordered_map<std::string, double>* input_parameters,
         std::unordered_map<std::string, double>* output_parameters)
-        : se_module::base("ed_c4_leaf_photosynthesis2",
+        : se_module::base(ed_c4_leaf_photosynthesis2_stuff::module_name,
                           ed_c4_leaf_photosynthesis2_stuff::sub_module_names,
                           ed_c4_leaf_photosynthesis2_stuff::solver_type,
                           ed_c4_leaf_photosynthesis2_stuff::max_iterations,
@@ -101,7 +103,10 @@ std::vector<std::string> ed_c4_leaf_photosynthesis2::get_inputs()
 
 std::vector<std::string> ed_c4_leaf_photosynthesis2::get_outputs()
 {
-    return se_module::get_se_outputs(ed_c4_leaf_photosynthesis2_stuff::sub_module_names);
+    std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis2_stuff::sub_module_names);
+    outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis2_stuff::module_name));
+    outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis2_stuff::module_name));
+    return outputs;
 }
 
 std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses() const

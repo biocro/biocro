@@ -10,6 +10,24 @@
 namespace se_module
 {
 /**
+ * @brief Returns the name of an output quantity that describes the number of times
+ * the simultaneous equations were evaluated while solving for the unknowns.
+ */
+std::string get_ncalls_output_name(std::string const& module_name)
+{
+    return module_name + std::string("_ncalls");
+}
+
+/**
+ * @brief Returns the name of an output quantity that describes the number of steps
+ * the solver took.
+ */
+std::string get_nsteps_output_name(std::string const& module_name)
+{
+    return module_name + std::string("_nsteps");
+}
+    
+/**
  * @brief Returns a sorted list of inputs required by the modules, excluding any unknown quantities
  */
 string_vector get_se_inputs(string_vector module_names)
@@ -84,7 +102,9 @@ class base : public SteadyModule
           absolute_error_tolerances(absolute_error_tolerances),
           relative_error_tolerances(relative_error_tolerances),
           input_ptrs(get_ip(input_parameters, get_se_inputs(sub_module_names))),
-          output_ptrs(get_op(output_parameters, get_se_outputs(sub_module_names)))
+          output_ptrs(get_op(output_parameters, get_se_outputs(sub_module_names))),
+          ncalls_op(get_op(output_parameters, get_ncalls_output_name(module_name))),
+          nsteps_op(get_op(output_parameters, get_nsteps_output_name(module_name)))
     {
         // Initialize vectors to the correct size
         outputs_from_modules.resize(output_ptrs.size());
@@ -101,15 +121,15 @@ class base : public SteadyModule
     std::vector<double> const relative_error_tolerances;
     std::vector<double> mutable best_guess;
     std::vector<double> mutable outputs_from_modules;
-    // Main operation
-    void do_operation() const override;
-    virtual std::vector<std::vector<double>> get_initial_guesses() const = 0;
-
-   protected:
     // Pointers to input parameters
     std::vector<const double*> input_ptrs;
     // Pointers to output parameters
     std::vector<double*> output_ptrs;
+    double* ncalls_op;
+    double* nsteps_op;
+    // Main operation
+    void do_operation() const override;
+    virtual std::vector<std::vector<double>> get_initial_guesses() const = 0;
 };
 
 /** A destructor must be defined, and since the default is overwritten when defining it as pure virtual, add an inline one in the header */
@@ -126,8 +146,11 @@ void base::do_operation() const
 
     se->update_known_quantities(input_ptrs);
 
+    se->reset_ncalls();
+
     bool success = false;
     std::vector<double> initial_guess;
+    int nsteps = 0;
 
     for (size_t i = 0; i < initial_guesses.size(); ++i) {
         initial_guess = initial_guesses[i];
@@ -137,6 +160,8 @@ void base::do_operation() const
             lower_bounds, upper_bounds,
             absolute_error_tolerances, relative_error_tolerances,
             best_guess);  // modifies best_guess
+        
+        nsteps += solver->get_nsteps();
 
         if (success) {
             break;
@@ -152,6 +177,9 @@ void base::do_operation() const
     for (size_t i = 0; i < output_ptrs.size(); ++i) {
         update(output_ptrs[i], outputs_from_modules[i]);
     }
+    
+    update(ncalls_op, se->get_ncalls());
+    update(nsteps_op, nsteps);
 }
 }  // namespace se_module
 

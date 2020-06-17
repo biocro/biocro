@@ -3,6 +3,8 @@
 
 namespace ed_c4_leaf_photosynthesis_stuff
 {
+std::string const module_name = "ed_c4_leaf_photosynthesis";
+
 string_vector const sub_module_names = {
     "ed_rh_to_mole_fraction",                          // Convert relative humidity to H2O mole fraction
     "ed_nikolov_conductance_forced",                   // Calculate `forced` boundary layer conductance
@@ -70,7 +72,7 @@ class ed_c4_leaf_photosynthesis : public se_module::base
     ed_c4_leaf_photosynthesis(
         const std::unordered_map<std::string, double>* input_parameters,
         std::unordered_map<std::string, double>* output_parameters)
-        : se_module::base("ed_c4_leaf_photosynthesis",
+        : se_module::base(ed_c4_leaf_photosynthesis_stuff::module_name,
                           ed_c4_leaf_photosynthesis_stuff::sub_module_names,
                           ed_c4_leaf_photosynthesis_stuff::solver_type,
                           ed_c4_leaf_photosynthesis_stuff::max_iterations,
@@ -81,51 +83,92 @@ class ed_c4_leaf_photosynthesis : public se_module::base
                           input_parameters,
                           output_parameters),
           // Get pointers to input parameters
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept"))
+          collatz_k(get_input(input_parameters, "collatz_k")),
+          collatz_vmax(get_input(input_parameters, "collatz_vmax")),
+          collatz_alpha(get_input(input_parameters, "collatz_alpha")),
+          collatz_PAR_flux(get_input(input_parameters, "collatz_PAR_flux")),
+          collatz_rd(get_input(input_parameters, "collatz_rd")),
+          ball_berry_intercept(get_input(input_parameters, "ball_berry_intercept")),
+          ball_berry_slope(get_input(input_parameters, "ball_berry_slope")),
+          mole_fraction_co2_atmosphere(get_input(input_parameters, "mole_fraction_co2_atmosphere")),
+          relative_humidity_atmosphere(get_input(input_parameters, "rh")),
+          temperature_air(get_input(input_parameters, "temp"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
-    const double* temperature_air_ip;
-    const double* ball_berry_intercept_ip;
+    // References to specific input parameters
+    double const& collatz_k;
+    double const& collatz_vmax;
+    double const& collatz_alpha;
+    double const& collatz_PAR_flux;
+    double const& collatz_rd;
+    double const& ball_berry_intercept;
+    double const& ball_berry_slope;
+    double const& mole_fraction_co2_atmosphere;
+    double const& relative_humidity_atmosphere;
+    double const& temperature_air;
     // Main operation
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
 std::vector<std::string> ed_c4_leaf_photosynthesis::get_inputs()
 {
-    std::vector<std::string> inputs = se_module::get_se_inputs(ed_c4_leaf_photosynthesis_stuff::sub_module_names);
-    inputs.push_back("temp");
-    inputs.push_back("ball_berry_intercept");
-    return inputs;
+    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis_stuff::sub_module_names);
 }
 
 std::vector<std::string> ed_c4_leaf_photosynthesis::get_outputs()
 {
-    return se_module::get_se_outputs(ed_c4_leaf_photosynthesis_stuff::sub_module_names);
+    std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis_stuff::sub_module_names);
+    outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis_stuff::module_name));
+    outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis_stuff::module_name));
+    return outputs;
 }
 
 std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses() const
 {
+    // Get a crappy estimate for an assimilation rate using
+    // a simplified version of the collatz model.
+    //
+    // Here we make the following assumptions, which are
+    // unlikely to be true but may nevertheless help choose
+    // a good starting guess:
+    //  (1) the leaf is at 25 C
+    //      (i.e., we don't apply any temperature factors)
+    //  (2) the CO2 concentration inside the leaf is equal to the atmospheric value
+    //      (i.e., Ci = Ca)
+    //  (3) gross assimilation is simply the smallest of the CO2, rubisco, and light limited rates
+    //      (i.e., no quadratic mixing)
+    const double assimilation_carbon_limited = collatz_k * mole_fraction_co2_atmosphere;
+    const double assimilation_rubisco_limited = collatz_vmax;
+    const double assimilation_light_limited = collatz_alpha * collatz_PAR_flux;
+    const double assimilation_gross = std::min(assimilation_carbon_limited, std::min(assimilation_rubisco_limited, assimilation_light_limited));
+    const double assimilation_net_estimate = assimilation_gross - collatz_rd;
+
+    // Get a crappy estimation for stomatal conductance using the
+    // Ball-Berry model.
+    //
+    // Here we make the following assumptions, which are
+    // unlikely to be true but may nevertheless help choose
+    // a good starting guess:
+    //  (1) the CO2 concentration at the leaf surface is equal to the atmospheric value
+    //      (i.e., Cs = Ca)
+    //  (2) the relative humidity at the leaf surface is equal to the atmospheric value
+    //      (i.e., RHs = RHa)
+    //  (3) net assimilation is given by the estimate calculated above
+    const double ball_berry_index = std::max(0.0, assimilation_net_estimate) * relative_humidity_atmosphere / mole_fraction_co2_atmosphere;
+    const double conductance_stomatal_h2o_estimate = ball_berry_intercept + ball_berry_slope * ball_berry_index;
+
     // Note: order must agree with std::sort applied to quantity name
-    double const conductance_factor = 15.0;
     return std::vector<std::vector<double>>{
         {
-            0.0,                       // assimilation_net
-            *ball_berry_intercept_ip,  // conductance_boundary_h2o_free
-            *ball_berry_intercept_ip,  // conductance_stomatal_h2o
-            *temperature_air_ip        // temperature_leaf
-        },                             // first choice for a guess
-        {
-            0.0,                                            // assimilation_net
-            *ball_berry_intercept_ip * conductance_factor,  // conductance_boundary_h2o_free
-            *ball_berry_intercept_ip * conductance_factor,  // conductance_stomatal_h2o
-            *temperature_air_ip                             // temperature_leaf
-        }                                                   // second choice for a guess
+            assimilation_net_estimate,          // assimilation_net
+            conductance_stomatal_h2o_estimate,  // conductance_boundary_h2o_free (just use the stomatal conductance estimate)
+            conductance_stomatal_h2o_estimate,  // conductance_stomatal_h2o
+            temperature_air                     // temperature_leaf (assume leaf is at air temperature)
+        }                                       // first choice for a guess
     };
 }
 

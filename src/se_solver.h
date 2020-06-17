@@ -65,6 +65,7 @@ class se_solver
 
     std::string generate_info_report() const;
     std::string generate_solve_report() const;
+    int get_nsteps() const { return num_iterations; }
 
    private:
     const std::string solver_name;
