@@ -19,7 +19,7 @@ string_vector const sub_module_names = {
     "ed_penman_monteith_leaf_temperature"              // Calculate leaf temperature
 };
 
-std::string const solver_type = "newton_raphson_backtrack_boost";
+std::string const solver_type = "newton_raphson_boost";
 
 int const max_iterations = 50;
 
