@@ -90,6 +90,8 @@ class ed_c4_leaf_photosynthesis : public se_module::base
           collatz_rd(get_input(input_parameters, "collatz_rd")),
           ball_berry_intercept(get_input(input_parameters, "ball_berry_intercept")),
           ball_berry_slope(get_input(input_parameters, "ball_berry_slope")),
+          StomataWS(get_input(input_parameters, "StomataWS")),
+          conductance_stomatal_h2o_min(get_input(input_parameters, "conductance_stomatal_h2o_min")),
           mole_fraction_co2_atmosphere(get_input(input_parameters, "mole_fraction_co2_atmosphere")),
           relative_humidity_atmosphere(get_input(input_parameters, "rh")),
           temperature_air(get_input(input_parameters, "temp"))
@@ -107,6 +109,8 @@ class ed_c4_leaf_photosynthesis : public se_module::base
     double const& collatz_rd;
     double const& ball_berry_intercept;
     double const& ball_berry_slope;
+    double const& StomataWS;
+    double const& conductance_stomatal_h2o_min;
     double const& mole_fraction_co2_atmosphere;
     double const& relative_humidity_atmosphere;
     double const& temperature_air;
@@ -159,7 +163,8 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses(
     //      (i.e., RHs = RHa)
     //  (3) net assimilation is given by the estimate calculated above
     const double ball_berry_index = std::max(0.0, assimilation_net_estimate) * relative_humidity_atmosphere / mole_fraction_co2_atmosphere;
-    const double conductance_stomatal_h2o_estimate = ball_berry_intercept + ball_berry_slope * ball_berry_index;
+    const double ball_berry_conductance = ball_berry_intercept + ball_berry_slope * ball_berry_index;
+    const double conductance_stomatal_h2o_estimate = conductance_stomatal_h2o_min + StomataWS * (ball_berry_conductance - conductance_stomatal_h2o_min);
 
     // Note: order must agree with std::sort applied to quantity name
     return std::vector<std::vector<double>>{
