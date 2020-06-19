@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <map>
 #include <vector>                      // Include this here so all modules will have access to std::vector
+#include <cmath>
 #include "state_map.h"                 // Include this here so all modules will have access to state_map
 #include "module_library/BioCro.h"     // Include this here so all modules will have access to the auxilliary functions
 #include "module_library/AuxBioCro.h"  // Include this here so all modules will have access to the auxilliary functions
