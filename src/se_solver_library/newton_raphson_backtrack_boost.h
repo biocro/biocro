@@ -63,21 +63,50 @@ bool newton_raphson_line_search_boost(
         message += "\n";
     }
 
-    // Our first guess for delta_x would be determined by lambda = 1.0, i.e.,
-    // x_new = x_old + direction. Check to see if the resulting x_new lies within
-    // the bounds. If not, adjust the guess and skip the rest of the line search.
-    std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
-                   [](double x_old_i, double d_i) -> double { return x_old_i + d_i; });
-
-    bool guess_out_of_bounds = adjust_bad_guess_limits(F_vec, lower_bounds, upper_bounds, x_new, F_vec_new);
-
-    if (guess_out_of_bounds) {
-        message += "  x_new corresponding to lambda = 1 was out of bounds. Adjusting and trying line search again.\n";
-        if (nrb_print) {
-            Rprintf(message.c_str());  // print the message now
+    // If the full step (lambda = 1) would produce a guess that lies outside the
+    // bounds, rescale it. Here we assume that x_old lies within the bounds. We
+    // check each element in the following manner:
+    //
+    // If an element lies above the upper bound, find an appropriate rescaling
+    // factor r such that x_old[i] + direction[i] * r = upper_bounds[i],
+    // i.e., r = (upper_bounds[i] - x_old[i]) / direction[i].
+    //
+    // If an element lies below the lower bound, find an appropriate rescaling
+    // factor r such that x_old[i] + direction[i] * r = lower_bounds[i],
+    // i.e., r = (lower_bounds[i] - x_old[i]) / direction[i].
+    //
+    // Then we use the smallest rescale factor as the overall factor and rescale
+    // the direction. This should ensure that x_new lies within the bounds.
+    double rescale_factor = 1.0;
+    for (size_t i = 0; i < x_old.size(); ++i) {
+        if (x_old[i] + direction[i] > upper_bounds[i]) {
+            rescale_factor = std::min(rescale_factor, (upper_bounds[i] - x_old[i]) / direction[i]);
+        } else if (x_old[i] + direction[i] < lower_bounds[i]) {
+            rescale_factor = std::min(rescale_factor, (lower_bounds[i] - x_old[i]) / direction[i]);
         }
-        return false;
     }
+
+    sprintf(buff, " recale_factor = %e\n", rescale_factor);
+    message += std::string(buff);
+    if (nrb_print) {
+        Rprintf(message.c_str());  // print the message now in case an error is thrown
+    }
+
+    if (rescale_factor > 1.0 || rescale_factor < 0) {
+        // This shouldn't happen
+        throw std::runtime_error("Thrown by newton_raphson_line_search_boost: Rescale factor negative or greater than one.");
+    } else if (rescale_factor != 1.0) {
+        // Rescale the direction vector
+        std::transform(direction.begin(), direction.end(), direction.begin(),
+                       [&rescale_factor](double v) -> double { return v * rescale_factor; });
+    }
+
+    message = " rescaled direction:";
+    for (double const& v : direction) {
+        sprintf(buff, " %e", v);
+        message += std::string(buff);
+    }
+    message += "\n";
 
     // Compute the gradient of f_scalar = 0.5 * |F_vec|^2 at x_old using the
     // Jacobian and F_vec calculated at x_old. As in Equation 9.7.5,
@@ -173,12 +202,8 @@ bool newton_raphson_line_search_boost(
         message = std::string(buff);
 
         // Get the x_new value corresponding to lambda: x_new = x_old + lambda * direction
-        // If lambda is 1, this is the first step and we have already calculated x_new while
-        // checking the bounds
-        if (lambda < 1.0) {
-            std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
-                           [&lambda](double x_old_i, double d_i) -> double { return x_old_i + lambda * d_i; });
-        }
+        std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(),
+                       [&lambda](double x_old_i, double d_i) -> double { return x_old_i + lambda * d_i; });
 
         message += "  x_new:";
         for (double const& v : x_new) {
