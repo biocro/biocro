@@ -89,7 +89,7 @@ void ed_water_vapor_properties::do_operation() const
     const double rh = water_vapor_pressure / saturation_water_vapor_pressure;        // dimensionless from Pa / Pa
     const double vapor_density_deficit = saturation_water_vapor_content * (1 - rh);  // Pa
 
-    const double density_of_dry_air = TempToDdryA(*temperature_air_ip);
+    const double density_of_dry_air = TempToDdryA(*temperature_air_ip);  // kg / m^3
     const double psychrometric_parameter = density_of_dry_air *
                                            physical_constants::specific_heat_of_water /
                                            latent_heat_vaporization_of_water;  // kg / m^3 / K

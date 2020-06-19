@@ -1,6 +1,15 @@
 #ifndef ED_C4_LEAF_PHOTOSYNTHESIS_H
 #define ED_C4_LEAF_PHOTOSYNTHESIS_H
 
+#include "se_module.h"
+#include <cmath>                     // for fabs and sqrt
+#include <algorithm>                 // for std::min and std::max
+#include "../constants.h"            // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
+#include "ed_nikolov_conductance.h"  // for nikolov namespace
+#include "AuxBioCro.h"               // for TempToLHV and other similar functions
+#include <Rinternals.h>              // for debugging
+const bool eclp_print = false;        // for debugging
+
 namespace ed_c4_leaf_photosynthesis_stuff
 {
 std::string const module_name = "ed_c4_leaf_photosynthesis";
@@ -90,11 +99,15 @@ class ed_c4_leaf_photosynthesis : public se_module::base
           collatz_rd(get_input(input_parameters, "collatz_rd")),
           ball_berry_intercept(get_input(input_parameters, "ball_berry_intercept")),
           ball_berry_slope(get_input(input_parameters, "ball_berry_slope")),
+          nikolov_ce(get_input(input_parameters, "nikolov_ce")),
+          leafwidth(get_input(input_parameters, "leafwidth")),
           StomataWS(get_input(input_parameters, "StomataWS")),
           conductance_stomatal_h2o_min(get_input(input_parameters, "conductance_stomatal_h2o_min")),
           mole_fraction_co2_atmosphere(get_input(input_parameters, "mole_fraction_co2_atmosphere")),
           relative_humidity_atmosphere(get_input(input_parameters, "rh")),
-          temperature_air(get_input(input_parameters, "temp"))
+          temperature_air(get_input(input_parameters, "temp")),
+          solar_energy_absorbed_leaf(get_input(input_parameters, "solar_energy_absorbed_leaf")),
+          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure"))
     {
     }
     static std::vector<std::string> get_inputs();
@@ -109,11 +122,15 @@ class ed_c4_leaf_photosynthesis : public se_module::base
     double const& collatz_rd;
     double const& ball_berry_intercept;
     double const& ball_berry_slope;
+    double const& nikolov_ce;
+    double const& leafwidth;
     double const& StomataWS;
     double const& conductance_stomatal_h2o_min;
     double const& mole_fraction_co2_atmosphere;
     double const& relative_humidity_atmosphere;
     double const& temperature_air;
+    double const& solar_energy_absorbed_leaf;
+    double const& atmospheric_pressure;
     // Main operation
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
@@ -133,6 +150,8 @@ std::vector<std::string> ed_c4_leaf_photosynthesis::get_outputs()
 
 std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses() const
 {
+    // TODO: find a way to reduce duplicated code here. Maybe using Standalone_SS objects?
+
     // Get a crappy estimate for an assimilation rate using
     // a simplified version of the collatz model.
     //
@@ -145,11 +164,11 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses(
     //      (i.e., Ci = Ca)
     //  (3) gross assimilation is simply the smallest of the CO2, rubisco, and light limited rates
     //      (i.e., no quadratic mixing)
-    const double assimilation_carbon_limited = collatz_k * mole_fraction_co2_atmosphere;
-    const double assimilation_rubisco_limited = collatz_vmax;
-    const double assimilation_light_limited = collatz_alpha * collatz_PAR_flux;
-    const double assimilation_gross = std::min(assimilation_carbon_limited, std::min(assimilation_rubisco_limited, assimilation_light_limited));
-    const double assimilation_net_estimate = assimilation_gross - collatz_rd;
+    const double assimilation_carbon_limited = collatz_k * mole_fraction_co2_atmosphere;                                                          // mol / m^2 / s
+    const double assimilation_rubisco_limited = collatz_vmax;                                                                                     // mol / m^2 / s
+    const double assimilation_light_limited = collatz_alpha * collatz_PAR_flux;                                                                   // mol / m^2 / s
+    const double assimilation_gross = std::min(assimilation_carbon_limited, std::min(assimilation_rubisco_limited, assimilation_light_limited));  // mol / m^2 / s
+    const double assimilation_net_estimate = assimilation_gross - collatz_rd;                                                                     // mol / m^2 / s
 
     // Get a crappy estimation for stomatal conductance using the
     // Ball-Berry model.
@@ -162,17 +181,102 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses(
     //  (2) the relative humidity at the leaf surface is equal to the atmospheric value
     //      (i.e., RHs = RHa)
     //  (3) net assimilation is given by the estimate calculated above
-    const double ball_berry_index = std::max(0.0, assimilation_net_estimate) * relative_humidity_atmosphere / mole_fraction_co2_atmosphere;
-    const double ball_berry_conductance = ball_berry_intercept + ball_berry_slope * ball_berry_index;
-    const double conductance_stomatal_h2o_estimate = conductance_stomatal_h2o_min + StomataWS * (ball_berry_conductance - conductance_stomatal_h2o_min);
+    const double ball_berry_index = std::max(0.0, assimilation_net_estimate) * relative_humidity_atmosphere / mole_fraction_co2_atmosphere;               // mol / m^2 / s
+    const double ball_berry_conductance = ball_berry_intercept + ball_berry_slope * ball_berry_index;                                                     // mol / m^2 / s
+    const double conductance_stomatal_h2o_estimate = conductance_stomatal_h2o_min + StomataWS * (ball_berry_conductance - conductance_stomatal_h2o_min);  // mol / m^2 / s
+
+    // Get a crappy estimate for leaf temperature using the Penman-Monteith model.
+    //
+    // Here we make the following assumptions, which are
+    // unlikely to be true but may nevertheless help choose
+    // a good starting guess:
+    //  (1) long wave energy loss from the leaf to its environment is zero
+    //  (2) boundary layer conductance is 1.2 mol / m^2 / s, an arbitrary value that
+    //      used to be hard-coded into the Ball-Berry model
+    const double latent_heat_vaporization_of_water = TempToLHV(temperature_air);                // J / kg
+    const double slope_water_vapor = TempToSFS(temperature_air);                                // kg / m^3 / K
+    const double saturation_water_vapor_pressure = saturation_vapor_pressure(temperature_air);  // Pa
+    const double density_of_dry_air = TempToDdryA(temperature_air);                             // kg / m^3
+    const double saturation_water_vapor_content = saturation_water_vapor_pressure /
+                                                  physical_constants::ideal_gas_constant /
+                                                  (temperature_air + physical_constants::celsius_to_kelvin) *
+                                                  physical_constants::molar_mass_of_water;                     // kg / m^3
+    const double vapor_density_deficit = saturation_water_vapor_content * (1 - relative_humidity_atmosphere);  // Pa
+    const double psychrometric_parameter = density_of_dry_air *
+                                           physical_constants::specific_heat_of_water /
+                                           latent_heat_vaporization_of_water;                           // kg / m^3 / K
+    const double Tak = temperature_air + physical_constants::celsius_to_kelvin;                         // Kelvin
+    const double volume_per_mol = physical_constants::ideal_gas_constant * Tak / atmospheric_pressure;  // m^3 / mol
+
+    const double total_available_energy = solar_energy_absorbed_leaf;      // J / m^2 / s
+    const double gc = conductance_stomatal_h2o_estimate * volume_per_mol;  // m / s
+    const double ga = 1.2 * volume_per_mol;                                // m / s
+    const double delta_t_numerator = total_available_energy * (1 / ga + 1 / gc) - latent_heat_vaporization_of_water * vapor_density_deficit;
+    const double delta_t_denomenator = latent_heat_vaporization_of_water * (slope_water_vapor + psychrometric_parameter * (1 + ga / gc));
+    const double delta_t = delta_t_numerator / delta_t_denomenator;      // deg. C
+    const double temperature_leaf_estimate = temperature_air + delta_t;  // deg. C
+
+    // Get a crappy estimate for free boundary layer conductance using the Nikolov model.
+    //
+    // Here we make the following assumptions, which are
+    // unlikely to be true but may nevertheless help choose
+    // a good starting guess:
+    //  (1) the leaf temperature is the value estimated above
+    //  (2) the relative humidity at the leaf surface is equal to the atmospheric value
+    const double Tlk = temperature_leaf_estimate + physical_constants::celsius_to_kelvin;                                               // Kelvin
+    const double mole_fraction_h2o_atmosphere = relative_humidity_atmosphere * saturation_water_vapor_pressure / atmospheric_pressure;  // dimensionless
+    const double mole_fraction_h2o_leaf_surface = mole_fraction_h2o_atmosphere;
+    const double Tvdiff = Tlk / (1.0 - nikolov::Tvdiff_factor * mole_fraction_h2o_leaf_surface) -
+                          Tak / (1.0 - nikolov::Tvdiff_factor * mole_fraction_h2o_atmosphere);  // deg. C or K
+    const double gbv_free_estimate = nikolov_ce *
+                                     pow(Tlk, nikolov::temperature_exponent) *
+                                     pow((Tlk + nikolov::temperature_offset) / atmospheric_pressure, 0.5) *
+                                     pow(fabs(Tvdiff) / leafwidth, 0.25) /
+                                     volume_per_mol;  // mol / m^2 / s
+
+    std::string message = "Initial guess calculated by ed_c4_leaf_photosynthesis:\n";
+    char buff[128];
+    sprintf(buff, " assimilation_net_estimate = %e\n", assimilation_net_estimate);
+    message += std::string(buff);
+    sprintf(buff, " gbv_free_estimate = %e\n", gbv_free_estimate);
+    message += std::string(buff);
+    sprintf(buff, " conductance_stomatal_h2o_estimate = %e\n", conductance_stomatal_h2o_estimate);
+    message += std::string(buff);
+    sprintf(buff, " temperature_leaf_estimate = %e\n", temperature_leaf_estimate);
+    message += std::string(buff);
+
+    std::vector<std::string> names = {
+        "assimilation_net",
+        "conductance_boundary_h2o_free",
+        "conductance_stomatal_h2o",
+        "temperature_leaf"};
+
+    message += std::string("\nOrder of unknown variable names as supplied:\n");
+    message += std::string(" ") + names[0] + std::string("\n");
+    message += std::string(" ") + names[1] + std::string("\n");
+    message += std::string(" ") + names[2] + std::string("\n");
+    message += std::string(" ") + names[3] + std::string("\n");
+
+    std::sort(names.begin(), names.end());
+
+    message += std::string("\nOrder of unknown variable names after applying std::sort:\n");
+    message += std::string(" ") + names[0] + std::string("\n");
+    message += std::string(" ") + names[1] + std::string("\n");
+    message += std::string(" ") + names[2] + std::string("\n");
+    message += std::string(" ") + names[3] + std::string("\n");
+
+    message += "\n";
+    if (eclp_print) {
+        Rprintf(message.c_str());
+    }
 
     // Note: order must agree with std::sort applied to quantity name
     return std::vector<std::vector<double>>{
         {
             assimilation_net_estimate,          // assimilation_net
-            conductance_stomatal_h2o_estimate,  // conductance_boundary_h2o_free (just use the stomatal conductance estimate)
+            gbv_free_estimate,                  // conductance_boundary_h2o_free
             conductance_stomatal_h2o_estimate,  // conductance_stomatal_h2o
-            temperature_air                     // temperature_leaf (assume leaf is at air temperature)
+            temperature_leaf_estimate           // temperature_leaf
         }                                       // first choice for a guess
     };
 }
