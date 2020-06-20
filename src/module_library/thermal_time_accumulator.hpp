@@ -22,7 +22,8 @@ class thermal_time_accumulator : public DerivModule
           // Get pointers to input parameters
           temp_ip(get_ip(input_parameters, "temp")),
           tbase_ip(get_ip(input_parameters, "tbase")),
-          topt_ip(get_ip(input_parameters, "topt")),
+          topt_lower_ip(get_ip(input_parameters, "topt_lower")),
+          topt_upper_ip(get_ip(input_parameters, "topt_upper")),
           tmax_ip(get_ip(input_parameters, "tmax")),
           // Get pointers to output parameters
           TTc_op(get_op(output_parameters, "TTc"))
@@ -35,7 +36,8 @@ class thermal_time_accumulator : public DerivModule
     // Pointers to input parameters
     const double* temp_ip;
     const double* tbase_ip;
-    const double* topt_ip;
+    const double* topt_lower_ip;
+    const double* topt_upper_ip;
     const double* tmax_ip;
     // Pointers to output parameters
     double* TTc_op;
@@ -48,7 +50,8 @@ std::vector<std::string> thermal_time_accumulator::get_inputs()
     return {
         "temp",   // deg. C
         "tbase",  // deg. C
-        "topt",   // deg. C
+        "topt_lower",   // deg. C
+        "topt_upper",   // deg. C
         "tmax"    // deg. C
     };
 }
@@ -65,17 +68,20 @@ void thermal_time_accumulator::do_operation() const
     // Collect inputs
     const double temp = *temp_ip;
     const double tbase = *tbase_ip;
-    const double topt = *topt_ip;
+    const double topt_lower = *topt_lower_ip;
+    const double topt_upper = *topt_upper_ip;
     const double tmax = *tmax_ip;
 
     // Find the rate of change of the growing degree days
     double gdd_rate;
     if (temp <= tbase) {
         gdd_rate = 0.0;
-    } else if (temp <= topt) {
+    } else if (temp <= topt_lower) {
         gdd_rate = temp - tbase;
-    } else if (temp <= tmax) {
-        gdd_rate = (tmax - temp) * (topt - tbase) / (tmax - topt);
+    } else if (temp > topt_lower && temp < topt_upper)  {
+        gdd_rate = topt_lower-tbase;
+    } else if(temp >= topt_upper && temp < tmax)  {
+        gdd_rate = (tmax - temp) * (topt_lower - tbase) / (tmax - topt_upper);
     } else {
         gdd_rate = 0.0;
     }
