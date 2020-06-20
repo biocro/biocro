@@ -23,8 +23,9 @@ sorghum_parameters = with(list(), {
     seneRoot 4000
     seneRhizome 4000
     tbase 0
-	topt  1e5
-	tmax  1e6
+  topt_lower     1e4
+   topt_upper    1e5
+	 tmax      1e6
     vmax1 39
     alpha1 0.04
     kparm 0.7
