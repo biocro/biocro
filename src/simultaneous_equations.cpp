@@ -1,3 +1,4 @@
+#include <algorithm>  // for std:sort
 #include "simultaneous_equations.h"
 #include "system_helper_functions.h"
 
@@ -158,7 +159,7 @@ simultaneous_equations::simultaneous_equations(
     if (!valid) {
         throw std::logic_error("Thrown by simultaneous_equations::simultaneous_equations: the supplied inputs cannot form a valid set of simultaneous equations.\n\n" + startup_message);
     }
-    
+
     // Make the central list of quantities and the module output map
     quantities = define_quantity_map(
         std::vector<state_map>{known_quantities},
@@ -167,23 +168,56 @@ simultaneous_equations::simultaneous_equations(
 
     // Instantiate the modules
     steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
-    
-    // Make lists of subsets of quantity names
-    string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
 
-    // Get vectors of pointers to important subsets of the quantities
+    // Make sorted lists of subsets of quantity names
+    // Note that the output of string_set_to_string_vector is automatically
+    //  sorted, because a string_set is always sorted by definition.
+    string_vector steady_state_output_names = string_set_to_string_vector(find_unique_module_outputs(std::vector<string_vector>{ss_module_names}));
+    string_vector known_quantity_names = keys(known_quantities);
+    std::sort(known_quantity_names.begin(), known_quantity_names.end());
+
+    // Get vectors of pointers to important subsets of the quantities.
+    // These pointers allow the user to update the values of the known
+    //  quantities and to retrieve the values of all module outputs.
+    // Here it is important to use sorted vectors of names so the 
+    //  quantities will have a definite order that the user can safely
+    //  assume.
+    known_ptrs = get_pointers(known_quantity_names, quantities);
+    output_ptrs = get_const_pointers(steady_state_output_names, quantities);
+
+    // Get vectors of pointers to important subsets of the quantities.
     // These pointers allow us to efficiently alter portions of the
-    //  quantity maps before running the modules
+    //  quantity maps before running the modules.
     unknown_ptrs = get_pointers(unknown_quantities, quantities);
     steady_state_ptrs = get_pointers(steady_state_output_names, module_output_map);
 
-    // Get pairs of pointers to important subsets of the quantities
+    // Get pairs of pointers to important subsets of the quantities.
     // These pairs allow us to efficiently retrieve the output of each
     //  module and store it in the main quantity map
     unknown_ptr_pairs = get_pointer_pairs(unknown_quantities, quantities, module_output_map);
     steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
 }
 
+/**
+ * @brief Updates the values of the known quantities using the values pointed to by the elements
+ * of ptrs_to_values. The elements of `ptr_to_values` must be sorted according to quantity name.
+ */
+void simultaneous_equations::update_known_quantities(std::vector<const double*> const& ptrs_to_values)
+{
+    if (ptrs_to_values.size() != known_ptrs.size()) {
+        throw std::logic_error("Thrown by simultaneous_equations::update_known_quantities: ptrs_to_values has the wrong size.");
+    }
+
+    for (size_t i = 0; i < known_ptrs.size(); ++i) {
+        *known_ptrs[i] = *ptrs_to_values[i];
+    }
+}
+
+/**
+ * @brief Finds the unknown quantities defined by the set of modules.
+ * 
+ * @return A sorted list of quantity names
+ */
 string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector)
 {
     string_set required_inputs = find_strictly_required_inputs(module_name_vector);

@@ -20,12 +20,12 @@ class fixed_point : public se_solver
 
    private:
     std::vector<double> get_next_guess(
-        std::shared_ptr<simultaneous_equations> const& se,
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& input_guess) override;
 };
 
 std::vector<double> fixed_point::get_next_guess(
-    std::shared_ptr<simultaneous_equations> const& se,
+    std::unique_ptr<simultaneous_equations> const& se,
     std::vector<double> const& input_guess)
 {
     std::vector<double> output_guess(input_guess.size());

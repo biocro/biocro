@@ -57,20 +57,37 @@
 #include "big_leaf_multilayer_canopy.hpp"
 #include "flowering.hpp"
 #include "flowering_calculator.hpp"
-#include "solar_zenith_angle.hpp"
-#include "light_macro_environment.hpp"
-#include "multilayer_canopy_properties.hpp"
+#include "solar_zenith_angle.h"
+#include "shortwave_atmospheric_scattering.h"
+#include "incident_shortwave_from_ground_par.h"
+#include "leaf_shape_factor.h"
+#include "c3_leaf_photosynthesis.h"
+#include "c4_leaf_photosynthesis.h"
+#include "multilayer_canopy_properties.h"
+#include "multilayer_c3_canopy.h"
+#include "multilayer_c4_canopy.h"
+#include "multilayer_canopy_integrator.h"
 #include "light_from_solar.hpp"
 #include "night_and_day_trackers.hpp"
 #include "oscillator_clock_calculator.hpp"
 #include "poincare_clock.hpp"
 #include "magic_clock.hpp"
 #include "phase_clock.hpp"
+#include "ed_water_vapor_properties.h"
+#include "ed_rh_to_mole_fraction.h"
+#include "ed_nikolov_conductance.h"
+#include "ed_boundary_conductance.h"
 #include "ed_ball_berry.h"
 #include "ed_collatz_c4_assimilation.h"
 #include "ed_gas_concentrations.h"
 #include "ed_long_wave_energy_loss.h"
 #include "ed_penman_monteith_leaf_temperature.h"
+#include "ed_stomata_water_stress_linear.h"
+#include "ed_apply_water_stress.h"
+#include "ed_c4_leaf_photosynthesis.h"
+#include "ed_c4photo.h"
+#include "ed_evapotrans2.h"
+#include "ed_canac_leaf.h"
 #include "hyperbolas.h"
 #include "partitioning_coefficient_logistic.h"
 #include "partitioning_coefficient_logistic_seed.hpp"
@@ -102,7 +119,7 @@ std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string 
         std::string message = std::string("\"") + module_name +
                        std::string("\"") +
                        std::string(" was given as a module name, ") +
-                       std::string("but no module with that name could be found.\n.");
+                       std::string("but no module with that name could be found.\n");
 
         throw std::out_of_range(message);
     }
@@ -171,14 +188,27 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"flowering",                                       &create_wrapper<flowering>},
      {"flowering_calculator",                            &create_wrapper<flowering_calculator>},
      {"solar_zenith_angle",                              &create_wrapper<solar_zenith_angle>},
-     {"light_macro_environment",                         &create_wrapper<light_macro_environment>},
+     {"shortwave_atmospheric_scattering",                &create_wrapper<shortwave_atmospheric_scattering>},
+     {"incident_shortwave_from_ground_par",              &create_wrapper<incident_shortwave_from_ground_par>},
+     {"leaf_shape_factor",                               &create_wrapper<leaf_shape_factor>},
+     {"c3_leaf_photosynthesis",                          &create_wrapper<c3_leaf_photosynthesis>},
+     {"c4_leaf_photosynthesis",                          &create_wrapper<c4_leaf_photosynthesis>},
      {"ten_layer_canopy_properties",                     &create_wrapper<ten_layer_canopy_properties>},
+     {"ten_layer_c3_canopy",                             &create_wrapper<ten_layer_c3_canopy>},
+     {"ten_layer_c4_canopy",                             &create_wrapper<ten_layer_c4_canopy>},
+     {"ten_layer_canopy_integrator",                     &create_wrapper<ten_layer_canopy_integrator>},
      {"magic_clock",                                     &create_wrapper<magic_clock>},
      {"poincare_clock",                                  &create_wrapper<poincare_clock>},
      {"phase_clock",                                     &create_wrapper<phase_clock>},
      {"oscillator_clock_calculator",                     &create_wrapper<oscillator_clock_calculator>},
      {"night_and_day_trackers",                          &create_wrapper<night_and_day_trackers>},
      {"light_from_solar",                                &create_wrapper<light_from_solar>},
+     {"ed_water_vapor_properties",                       &create_wrapper<ed_water_vapor_properties>},
+     {"ed_rh_to_mole_fraction",                          &create_wrapper<ed_rh_to_mole_fraction>},
+     {"ed_nikolov_conductance_forced",                   &create_wrapper<ed_nikolov_conductance_forced>},
+     {"ed_nikolov_conductance_free",                     &create_wrapper<ed_nikolov_conductance_free>},
+     {"ed_boundary_conductance_max",                     &create_wrapper<ed_boundary_conductance_max>},
+     {"ed_boundary_conductance_quadrature",              &create_wrapper<ed_boundary_conductance_quadrature>},
      {"ed_ball_berry",                                   &create_wrapper<ed_ball_berry>},
      {"ed_collatz_c4_assimilation",                      &create_wrapper<ed_collatz_c4_assimilation>},
      {"ed_gas_concentrations",                           &create_wrapper<ed_gas_concentrations>},
@@ -195,6 +225,13 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"development_index",                             &create_wrapper<development_index>},
      {"soybean_development_rate_calculator",           &create_wrapper<soybean_development_rate_calculator>},
      {"thermaltime_development_rate_calculator",       &create_wrapper<thermaltime_development_rate_calculator>},
+     {"ed_stomata_water_stress_linear",                  &create_wrapper<ed_stomata_water_stress_linear>},
+     {"ed_apply_stomatal_water_stress_via_conductance",  &create_wrapper<ed_apply_stomatal_water_stress_via_conductance>},
+     {"ed_apply_stomatal_water_stress_via_assimilation", &create_wrapper<ed_apply_stomatal_water_stress_via_assimilation>},
+     {"ed_c4_leaf_photosynthesis",                       &create_wrapper<ed_c4_leaf_photosynthesis>},
+     {"ed_c4photo",                                      &create_wrapper<ed_c4photo>},
+     {"ed_evapotrans2",                                  &create_wrapper<ed_evapotrans2>},
+     {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>},
      {"miscanthus_partitioning_coefficient_logistic",    &create_wrapper<miscanthus_partitioning_coefficient_logistic>}

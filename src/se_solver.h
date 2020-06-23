@@ -1,7 +1,7 @@
 #ifndef SE_SOLVER_H
 #define SE_SOLVER_H
 
-#include <memory>   // for std::shared_ptr
+#include <memory>   // for std::unique_ptr
 #include <numeric>  // for std::accumulate
 #include <vector>
 #include <string>
@@ -43,7 +43,7 @@ class se_solver
 
     template <typename observer_type>
     bool solve(
-        std::shared_ptr<simultaneous_equations> const& se,
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& initial_guess_for_root,
         std::vector<double> const& lower_bounds,
         std::vector<double> const& upper_bounds,
@@ -51,7 +51,7 @@ class se_solver
         observer_type observer);
 
     bool solve(
-        std::shared_ptr<simultaneous_equations> const& se,
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& initial_guess_for_root,
         std::vector<double> const& lower_bounds,
         std::vector<double> const& upper_bounds,
@@ -77,7 +77,7 @@ class se_solver
     int num_adjustments;
 
     virtual std::vector<double> get_next_guess(
-        std::shared_ptr<simultaneous_equations> const& se,
+        std::unique_ptr<simultaneous_equations> const& se,
         std::vector<double> const& input_guess) = 0;
 
     virtual std::vector<double> adjust_bad_guess(
@@ -114,12 +114,12 @@ inline se_solver::~se_solver()
  * found, it is first checked to see if it lies within the acceptable bounds. If it lies outside the bounds,
  * it is adjusted with the `adjust_bad_guess` method, which has a default behavior but can be overridden by
  * derived classes. If the new guess doesn't need an adjustment, it is compared to the previous guess to
- * check for convergence using either an absolute or relative threshold. The process ends when convergence
- * occurs or when the number of iterations exceeds a threshold value.
+ * check for convergence using either an absolute or relative threshold. The process ends when all convergence
+ * criteria (relative and absolute) have been met or when the number of iterations exceeds a threshold value.
  */
 template <typename observer_type>
 bool se_solver::solve(
-    std::shared_ptr<simultaneous_equations> const& se,
+    std::unique_ptr<simultaneous_equations> const& se,
     std::vector<double> const& initial_guess_for_root,
     std::vector<double> const& lower_bounds,
     std::vector<double> const& upper_bounds,
@@ -166,12 +166,12 @@ bool se_solver::solve(
             ++num_adjustments;
             next_guess = adjust_bad_guess(next_guess, lower_bounds, upper_bounds);
         } else {
-            std::map<std::vector<bool>, bool*> convergence_checks = {
-                {has_not_converged_abs(previous_guess, next_guess, abs_error_tolerance), &converged_abs},
-                {has_not_converged_rel(previous_guess, next_guess, rel_error_tolerance), &converged_rel}};
+            std::map<bool*, std::vector<bool>> convergence_checks = {
+                {&converged_abs, has_not_converged_abs(previous_guess, next_guess, abs_error_tolerance)},
+                {&converged_rel, has_not_converged_rel(previous_guess, next_guess, rel_error_tolerance)}};
 
             for (auto const& x : convergence_checks) {
-                check_convergence(x.first, x.second);
+                check_convergence(x.second, x.first);
             }
         }
 
@@ -179,11 +179,11 @@ bool se_solver::solve(
 
         previous_guess = next_guess;
 
-    } while (num_iterations < max_iterations && !converged_abs && !converged_rel);
+    } while (num_iterations < max_iterations && !(converged_abs && converged_rel));
 
     final_value_for_root = next_guess;
 
-    return converged_abs || converged_rel;
+    return converged_abs && converged_rel;
 }
 
 /**
