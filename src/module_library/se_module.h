@@ -1,11 +1,16 @@
 #ifndef SE_MODULE_H
 #define SE_MODULE_H
 
-#include "../modules.h"
-#include "../validate_system.h"         // for string_vector, find_strictly_required_inputs, and all_are_in_list
-#include "../simultaneous_equations.h"  // for get_unknown_quantities
-#include "../state_map.h"
-#include "../se_solver_library/se_solver_factory.h"
+#include "../modules.h"                              // for SteadyModule, update
+#include "../module_helper_functions.h"              // for get_ip, get_op
+#include "../validate_system.h"                      // for string_vector, find_strictly_required_inputs, all_are_in_list
+#include "../simultaneous_equations.h"               // for get_unknown_quantities
+#include "../state_map.h"                            // for state_map
+#include "../se_solver_helper_functions.h"           // for f_scalar_from_f_vec
+#include "../se_solver_library/se_solver_factory.h"  // for se_solver_factory::create
+#include <map>                                       // for map
+#include <Rinternals.h>                              // for debugging
+const bool se_module_print = false;                  // for debugging
 
 namespace se_module
 {
@@ -26,7 +31,7 @@ std::string get_nsteps_output_name(std::string const& module_name)
 {
     return module_name + std::string("_nsteps");
 }
-    
+
 /**
  * @brief Returns a sorted list of inputs required by the modules, excluding any unknown quantities
  */
@@ -70,6 +75,50 @@ std::unique_ptr<simultaneous_equations> make_se(string_vector module_names)
     return std::unique_ptr<simultaneous_equations>(new simultaneous_equations(known_quantities,
                                                                               unknown_quantities,
                                                                               module_names));
+}
+
+/**
+ * @brief Reorders the initial guesses according to their corresponding
+ * f_scalar_norm values.
+ */
+std::vector<std::vector<double>> reorder_initial_guesses(
+    std::vector<std::vector<double>> const& initial_guesses,
+    std::unique_ptr<simultaneous_equations> const& se)
+{
+    // Make a map that will automatically order the guesses according to their f_scalar_norm values
+    std::map<double, std::vector<double>> guess_map;
+
+    // Calculate f_scalar_norm for each guess and store the result in the map
+    std::vector<double> F_vec(initial_guesses[0].size());
+    double f_scalar_norm;
+    for (std::vector<double> const& guess : initial_guesses) {
+        (*se)(guess, F_vec);  // evaluates F_vec
+        f_scalar_norm = f_scalar_norm_from_f_vec(F_vec, guess);
+        guess_map[f_scalar_norm] = guess;
+    }
+
+    if (se_module_print) {
+        std::string message = "Reordering the set of possible initial guesses:\n";
+        char buff[1024];
+        for (auto const& x : guess_map) {
+            sprintf(buff, " %e, %e, %e, %e, %e\n",
+                    x.second[0],
+                    x.second[1],
+                    x.second[2],
+                    x.second[3],
+                    x.first);
+            message += std::string(buff);
+        }
+        message += "\n";
+        Rprintf(message.c_str());
+    }
+
+    // Return the result
+    std::vector<std::vector<double>> reordered_guesses;
+    for (auto const& x : guess_map) {
+        reordered_guesses.push_back(x.second);
+    }
+    return reordered_guesses;
 }
 
 /**
@@ -138,29 +187,28 @@ inline base::~base() {}
 /**
  * @brief Uses the solver to solve the simultaneous equations for the unknown parameters,
  * and then reports the values of all outputs calculated using the best guess for the
- * unknowns. Derived classes need to implement a way to get an initial guess.
+ * unknowns. Derived classes need to implement a way to provide a set of possible initial guesses.
  */
 void base::do_operation() const
 {
-    std::vector<std::vector<double>> initial_guesses = get_initial_guesses();  // must be implemented by derived class
-
     se->update_known_quantities(input_ptrs);
 
     se->reset_ncalls();
 
+    std::vector<std::vector<double>> initial_guesses = get_initial_guesses();  // must be implemented by derived class
+
+    std::vector<std::vector<double>> reordered_initial_guesses = reorder_initial_guesses(initial_guesses, se);
+
     bool success = false;
-    std::vector<double> initial_guess;
     int nsteps = 0;
 
-    for (size_t i = 0; i < initial_guesses.size(); ++i) {
-        initial_guess = initial_guesses[i];
-
+    for (std::vector<double> const& initial_guess : reordered_initial_guesses) {
         success = solver->solve(
             se, initial_guess,
             lower_bounds, upper_bounds,
             absolute_error_tolerances, relative_error_tolerances,
             best_guess);  // modifies best_guess
-        
+
         nsteps += solver->get_nsteps();
 
         if (success) {
@@ -177,7 +225,7 @@ void base::do_operation() const
     for (size_t i = 0; i < output_ptrs.size(); ++i) {
         update(output_ptrs[i], outputs_from_modules[i]);
     }
-    
+
     update(ncalls_op, se->get_ncalls());
     update(nsteps_op, nsteps);
 }

@@ -4,14 +4,14 @@
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include "../se_solver.h"
-#include "../se_solver_helper_functions.h"
 #include "../numerical_jacobian.h"
-#include "newton_raphson_boost.h"  // for get_newton_raphson_step_boost
-#include <cmath>                   // for sqrt
-#include <numeric>                 // for std::inner_product
-#include <algorithm>               // for std::transform
-#include <Rinternals.h>            // for debugging
-const bool nrb_print = false;      // for debugging
+#include "../se_solver_helper_functions.h"  // for f_scalar_from_F_vec
+#include "newton_raphson_boost.h"           // for get_newton_raphson_step_boost
+#include <cmath>                            // for sqrt
+#include <numeric>                          // for std::inner_product
+#include <algorithm>                        // for std::transform
+#include <Rinternals.h>                     // for debugging
+const bool nrb_print = false;               // for debugging
 
 /**
  * @brief Searches along a line for a point that sufficiently decreases the non-negative
@@ -175,9 +175,8 @@ bool newton_raphson_line_search_boost(
     sprintf(buff, " lambda_min = %e\n", lambda_min);
     message += std::string(buff);
 
-    // Determine the value of f_scalar = 0.5 * |F_vec|^2 at x_old
-    double f_scalar_old = 0.5 * std::inner_product(F_vec_old.begin(), F_vec_old.end(),
-                                                   F_vec_old.begin(), 0.0);
+    // Determine the value of f_scalar at x_old
+    double const f_scalar_old = f_scalar_from_f_vec(F_vec_old);
 
     sprintf(buff, " f_scalar_old = %e\n", f_scalar_old);
     message += std::string(buff);
@@ -214,7 +213,7 @@ bool newton_raphson_line_search_boost(
 
         // Evaluate F_vec and f_scalar at the new guess
         (*F_vec)(x_new, F_vec_new);  // modifies F_vec_new
-        f_scalar_new = 0.5 * std::inner_product(F_vec_new.begin(), F_vec_new.end(), F_vec_new.begin(), 0.0);
+        f_scalar_new = f_scalar_from_f_vec(F_vec_new);
 
         message += "  F_vec_new:";
         for (double const& v : F_vec_new) {

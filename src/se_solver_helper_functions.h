@@ -7,10 +7,12 @@
 #include <Rinternals.h>          // for debugging
 const bool seshf_print = false;  // for debugging
 
-// Helping functions for adjust_bad_guess_random
+// Helping functions for adjust_bad_guess_random and generate_guess_list
 namespace se_solver_rand
 {
 double rand_01();
+double normal_rand();
+std::vector<double> random_vector_on_n_dimensional_sphere(size_t n);
 }  // namespace se_solver_rand
 
 /**
@@ -214,5 +216,40 @@ std::vector<bool> has_not_converged_rel(
 
     return result;
 }
+
+/**
+ * @brief Calculates f_scalar = 0.5 * |F_vec|^2 from
+ * a vector F_vec.
+ */
+template <typename vector_type>
+double f_scalar_from_f_vec(vector_type F_vec)
+{
+    return 0.5 * std::inner_product(F_vec.begin(), F_vec.end(), F_vec.begin(), 0.0);
+}
+
+/**
+ * @brief Calculates f_scalar_norm = |F_vec/F_norm|^2 from
+ * a vector F_vec and a normalization vector F_norm.
+ */
+template <typename vector_type>
+double f_scalar_norm_from_f_vec(vector_type F_vec, vector_type F_vec_norm)
+{
+    double f_scalar_norm = 0.0;
+    for (size_t i = 0; i < F_vec.size(); ++i) {
+        if (F_vec_norm[i] < calculation_constants::eps_zero) {
+            f_scalar_norm += F_vec[i] * F_vec[i];
+        } else {
+            f_scalar_norm += F_vec[i] * F_vec[i] / (F_vec_norm[i] * F_vec_norm[i]);
+        }
+    }
+    return f_scalar_norm;
+}
+
+std::vector<std::vector<double>> generate_guess_list(
+    std::vector<double> const& central_guess,
+    std::vector<double> const& lower_bounds,
+    std::vector<double> const& upper_bounds,
+    std::vector<double> const& scale_factors,
+    int num_guesses);
 
 #endif
