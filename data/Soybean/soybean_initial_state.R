@@ -23,7 +23,7 @@ soybean_initial_state = with(list(), {
     ## needed for two layer soil profile
     cws1    0.32 # equal to initial soil_water_content, from Justins sorghum parameters (see 10/3/19 email -mlm)
     cws2    0.32 # equal to initial soil_water_content, from Justins sorghum parameters (see 10/3/19 email -mlm)
-    soil_evaporation_rate   0
+    # soil_evaporation_rate   0
     DVI -1
     "
     
