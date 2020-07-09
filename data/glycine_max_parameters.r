@@ -98,9 +98,6 @@ glycine_max_parameters = with(list(), {
      KmRhizome_senescence  4
      remobilization_fraction 0.6
      tbase     10     
-	topt_lower     1e4
-   topt_upper    1e5
-	 tmax      1e6
      phi1       0.01     
      phi2       10       
      soil_depth  1        

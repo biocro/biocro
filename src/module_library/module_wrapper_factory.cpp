@@ -19,7 +19,6 @@
 #include "stomata_water_stress_exponential.hpp"
 #include "stomata_water_stress_linear_aba_response.hpp"
 #include "stomata_water_stress_sigmoid.hpp"
-#include "thermal_time_accumulator.hpp"
 #include "thermal_time_linear.h"
 #include "thermal_time_linear_extended.h"
 #include "thermal_time_bilinear.h"
@@ -139,7 +138,6 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"stomata_water_stress_exponential",                &create_wrapper<stomata_water_stress_exponential>},
      {"stomata_water_stress_linear_and_aba_response",    &create_wrapper<stomata_water_stress_linear_and_aba_response>},
      {"stomata_water_stress_sigmoid",                    &create_wrapper<stomata_water_stress_sigmoid>},
-     {"thermal_time_accumulator",                        &create_wrapper<thermal_time_accumulator>},
      {"thermal_time_linear",                             &create_wrapper<thermal_time_linear>},
      {"thermal_time_linear_extended",                    &create_wrapper<thermal_time_linear_extended>},
      {"thermal_time_bilinear",                           &create_wrapper<thermal_time_bilinear>},

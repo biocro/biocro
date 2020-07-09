@@ -106,11 +106,11 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	#   the appropriate methods to calculate LeafWS and StomataWS.
 	if(modules$soil_module_name == "one_layer_soil_profile") {
 		steady_state_module_names <- c("soil_type_selector", modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name, "parameter_calculator", "soil_evaporation", modules$canopy_module_name, growth_module_support, senescence_module_support)
-		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
+		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_linear", modules$soil_module_name)
 	}
 	else if(modules$soil_module_name == "two_layer_soil_profile") {
 		steady_state_module_names <- c("soil_type_selector", modules$stomata_water_stress_module_name, modules$leaf_water_stress_module_name, "parameter_calculator", modules$canopy_module_name, growth_module_support, senescence_module_support)
-		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_accumulator", modules$soil_module_name)
+		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_linear", modules$soil_module_name)
 	}
 	else stop("The soil profile module you chose is not supported by Gro. Use one of the supported modules (one_layer_soil_profile or two_layer_soil_profile) or use a different Gro variant such as Gro_auto.")
 	
@@ -151,7 +151,7 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	# Example: running a sorghum simulation using weather data from 2005
 	#
 	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
-	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_linear", "one_layer_soil_profile")
 	#  result <- Gro_solver(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, "Gro", TRUE)
 	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
 	#
@@ -166,7 +166,7 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	# Example 2: running a soybean simulation using weather data from 2005
 	# 
 	#  glycine_max_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "soil_evaporation", "c3_canopy", "utilization_growth_calculator", "utilization_senescence_calculator")
-	#  glycine_max_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  glycine_max_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_linear", "one_layer_soil_profile")
 	#  result <- Gro_solver(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_ss_modules, glycine_max_deriv_modules, "Gro", TRUE)
 	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
 	#
@@ -260,7 +260,7 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
 	# Example: varying the TTc values at which senescence starts for a sorghum simulation
 	# 
 	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
-	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_linear", "one_layer_soil_profile")
 	#  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), TRUE)
 	#  result = senescence_gro(c(2000, 2000, 2000, 2000))
 	# 
@@ -376,7 +376,7 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 	# Example 2: solving 1000 hours of a soybean simulation
 	#
 	#  soybean_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "soil_evaporation", "c3_canopy", "utilization_growth_calculator", "utilization_senescence_calculator")
-	#  soybean_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_accumulator", "one_layer_soil_profile")
+	#  soybean_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_linear", "one_layer_soil_profile")
 	#  soybean_system <- Gro_deriv(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), soybean_ss_modules, soybean_deriv_modules, FALSE)
 	#  is <- as.numeric(glycine_max_initial_state)		# We need to convert the initial state to a different format
 	#  names(is) <- names(glycine_max_initial_state)	# We need to convert the initial state to a different format
