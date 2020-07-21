@@ -113,18 +113,11 @@ std::vector<std::string> thermal_time_trilinear::get_outputs()
 void thermal_time_trilinear::do_operation() const
 {
     // Find the rate of change on a daily basis
-    double rate_per_day;  // degrees C
-    if (temp <= tbase) {
-        rate_per_day = 0.0;
-    } else if (temp <= topt_lower) {
-        rate_per_day = temp - tbase;
-    } else if (temp <= topt_upper) {
-        rate_per_day = topt_lower - tbase;
-    } else if (temp <= tmax) {
-        rate_per_day = (tmax - temp) * (topt_lower - tbase) / (tmax - topt_upper);
-    } else {
-        rate_per_day = 0.0;
-    }
+    double const rate_per_day = temp <= tbase      ? 0.0
+                              : temp <= topt_lower ? temp - tbase
+                              : temp <= topt_upper ? topt_lower - tbase
+                              : temp <= tmax       ? (tmax - temp) * (topt_lower - tbase) / (tmax - topt_upper)
+                              :                      0.0;  // degrees C
 
     // Convert to an hourly rate
     double const rate_per_hour = rate_per_day / 24.0;  // degrees C * day / hr

@@ -92,12 +92,7 @@ std::vector<std::string> thermal_time_linear::get_outputs()
 void thermal_time_linear::do_operation() const
 {
     // Find the rate of change on a daily basis
-    double rate_per_day;  // degrees C
-    if (temp <= tbase) {
-        rate_per_day = 0.0;
-    } else {
-        rate_per_day = temp - tbase;
-    }
+    double const rate_per_day = temp <= tbase ? 0.0 : temp - tbase;  // degrees C
 
     // Convert to an hourly rate
     double const rate_per_hour = rate_per_day / 24.0;  // degrees C * day / hr
