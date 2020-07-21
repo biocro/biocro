@@ -8,26 +8,25 @@
  * 
  * @brief Calculates the rate of thermal time accumulation using a linear model.
  * 
- * See Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
+ * For an overview of the different methods that can be used for calculating thermal
+ * time, see Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
  * of Plants using only the Cardinal Temperatures" Ann Bot 84, 607–614 (1999) and
  * McMaster, G. S. & Moragues, M. "Crop Development Related to Temperature and
- * Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018)
- * for an overview of the different methods that can be used for calculating
- * thermal time.
+ * Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018).
  * 
  * This module implements the most basic model, which is discussed in many places,
  * e.g. section 2.7 of Campbell & Norman's textbook "An Introduction to Environmental
  * Biophysics" (1998). In this model, the rate of change of the thermal time TTc is
  * given by:
  * 
- *  rate = 0                     :  air_temp <= base_temp
+ *  rate = 0             : when temp is below tbase
  * 
- *  rate = air_temp - base_temp  :  otherwise
+ *  rate = temp - tbase  : when temp is above tbase
  * 
- * As written, TTc has units of degree C * day (sometimes written °Cd) and the rate
- * has units °Cd / day = °C. This is a common formulation, reflecting the fact that
- * average daily temperatures are often used to calculate the increase in thermal time
- * during an entire day. However, time derivatives in BioCro are specified on a per
+ * As written, TTc has units of degrees C * day and the rate has units of
+ * degrees C * day / day = degrees C. This is a common formulation, reflecting the fact
+ * that average daily temperatures are often used to calculate the increase in thermal
+ * time during an entire day. However, time derivatives in BioCro are specified on a per
  * hour basis.
  * 
  * This model is based on the observation that once the air temperature exceeds a

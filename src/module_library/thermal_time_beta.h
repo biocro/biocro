@@ -10,67 +10,65 @@
  * @brief Calculates the rate of thermal time accumulation using a beta distribution
  * function.
  * 
- * See Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
+ * For an overview of the different methods that can be used for calculating thermal
+ * time, see Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
  * of Plants using only the Cardinal Temperatures" Ann Bot 84, 607–614 (1999) and
  * McMaster, G. S. & Moragues, M. "Crop Development Related to Temperature and
- * Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018)
- * for an overview of the different methods that can be used for calculating
- * thermal time.
+ * Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018).
  * 
  * This module is based off Yin et al. "A nonlinear model for crop development as
  * a function of temperature." Agricultural and Forest Meteorology 77, 1–16 (1995).
  * 
- * In that paper, the development rate is given by:
+ * In this model, the development rate is given by:
  * 
- *  rate = 0                            :  temp < temp_b || temp > temp_c
+ *  rate = 0                        :  when temp is below tbase
  * 
- *  rate = exp(mu) *
- *         (temp - temp_b)^alpha *
- *         (temp_c - temp)^beta         :  otherwise
+ *  rate = ttc_scale *
+ *         (temp - tbase)^talpha *
+ *         (tmax - temp)^tbeta      :  when temp is between tbase and tmax
  * 
- * where temp_b and temp_c are the lower and upper limits of the development range,
- * and mu, alpha, and beta determine the scaling and shape of the curve. The authors
- * also show that the maximum development rate occurs at an optimal temperature
+ *  rate = 0                        :  when temp is above tmax
  * 
- *  optimum_temp = (alpha * temp_c + beta * temp_b) / (alpha + beta)
+ * where ttc_scale, talpha, and tbeta determine the scaling and shape of the curve.
+ * Yin et al. also show that the maximum development rate occurs at an optimal
+ * temperature
+ * 
+ *  topt = (talpha * tmax + tbeta * tbase) / (talpha + tbeta)
  * 
  * and is given by
  * 
- *  max_rate = exp(mu) * alpha^alpha * beta^beta * 
- *             [(temp_c - temp_b) / (alpha + beta)]^(alpha + beta).
- * 
- * To make this model more consistent with other BioCro thermal time models, we
- * replace the exp(mu) factor by a thermal time scaling factor ttc_scale having
- * units of deg. C * day / hour. We also think of temp_b as a base_temp and temp_c
- * as a max_temp.
+ *  max_rate = ttc_scale * talpha^talpha * tbeta^tbeta * 
+ *             [(tmax - tbase) / (talpha + tbeta)]^(talpha + tbeta).
  * 
  * This model can be characterized as a nonlinear model having 3 cardinal temperatures.
- * (Note that although only two temperatures -- a base and maximum --  are directly
+ * Note that although only two temperatures -- a base and maximum --  are directly
  * specified, an optimal temperature nevertheless exists and is determined by the
- * values of alpha and beta.) In this sense it is most directly comparable to the
+ * values of talpha and tbeta. In this sense it is most directly comparable to the
  * thermal_time_bilinear model. However, there is a range of temperatures where
  * the development rate is close to its maximum value and there are actually 4 parameters
  * that define the shape of the curve, so this model also has some similarity to the
  * thermal_time_trilinear model.
  * 
- * Suggestion for choosing a ttc_scale value: taking inspiration from the
- * thermal_time_bilinear and thermal_time_trilinear models, one can require that the
- * maximum development rate should be given by
+ * Suggestion for choosing a ttc_scale value:
  * 
- *  max_rate = optimum_temp - base_temp,
+ * Taking inspiration from the thermal_time_bilinear and thermal_time_trilinear models,
+ * one can require that the maximum development rate should be given by
  * 
- * where this rate is given in units of °Cd / day = °C. (Note that BioCro derivatives
- * are specified on a per hour basis.)
+ *  max_rate = topt - tbase,
+ * 
+ * where this rate is given in units of degrees C * day / day = degrees C. (Note that
+ * BioCro derivatives are specified on a per hour basis, so it will be necessary to
+ * include a conversion when calculating ttc_scale.)
  * 
  * In this case, one should set
  * 
- *  ttc_scale = (optimum_temp - base_temp) / 
- *              (alpha^alpha * beta^beta * [(max_temp - base_temp) / (alpha + beta)]^(alpha + beta)) / 
+ *  ttc_scale = (topt - tbase) / 
+ *              (talpha^talpha * tbeta^tbeta * [(tmax - tbase) / (talpha + tbeta)]^(talpha + tbeta)) / 
  *              24.0.
  * 
- * where optimum_temp is defined, as above, by
+ * where topt is defined, as above, by
  * 
- *  optimum_temp = (alpha * max_temp + beta * base_temp) / (alpha + beta).
+ *  topt = (talpha * tmax + tbeta * tbase) / (talpha + tbeta).
  */
 class thermal_time_beta : public DerivModule
 {

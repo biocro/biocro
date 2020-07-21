@@ -9,31 +9,30 @@
  * @brief Calculates the rate of thermal time accumulation using an extended linear
  * model.
  * 
- * See Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
+ * For an overview of the different methods that can be used for calculating thermal
+ * time, see Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
  * of Plants using only the Cardinal Temperatures" Ann Bot 84, 607–614 (1999) and
  * McMaster, G. S. & Moragues, M. "Crop Development Related to Temperature and
- * Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018)
- * for an overview of the different methods that can be used for calculating
- * thermal time.
+ * Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018).
  * 
  * This module implements a basic model which is sometimes called either an "extended
  * linear" model or a "plateau" model. In this model, the rate of change of the thermal
  * time TTc is given by:
  * 
- *  rate = 0                     :  air_temp <= base_temp
+ *  rate = 0             :  when temp is below tbase
  * 
- *  rate = air_temp - base_temp  :  air_temp > base_temp && air_temp <= max_temp
+ *  rate = temp - tbase  :  when temp is between tbase and topt
  * 
- *  rate = max_temp - base_temp  :  otherwise
+ *  rate = topt - tbase  :  when temp is above topt
  * 
- * As written, TTc has units of degree C * day (sometimes written °Cd) and the rate
- * has units °Cd / day = °C. This is a common formulation, reflecting the fact that
- * average daily temperatures are often used to calculate the increase in thermal time
- * during an entire day. However, time derivatives in BioCro are specified on a per
+ * As written, TTc has units of degrees C * day and the rate has units of
+ * degrees C * day / day = degrees C. This is a common formulation, reflecting the fact
+ * that average daily temperatures are often used to calculate the increase in thermal
+ * time during an entire day. However, time derivatives in BioCro are specified on a per
  * hour basis.
  * 
  * This model is based on the observation that although development proceeds linearly
- * after exceeding a threshold, it eventually reaches a maximum rate at some higher
+ * after exceeding a threshold, it eventually reaches a maximum rate at some optimal
  * temperature. Although this model is more realistic than the pure linear model which
  * increases indefinitely, it still fails to account for the reduction in development
  * rate that often occurs at higher temperatures.
@@ -41,7 +40,7 @@
  * This model can be characterized as a piecewise linear model having 2 cardinal
  * temperatures. For more accurate piecewise linear models, see the
  * thermal_time_bilinear model (3 cardinal temperatures) or the
- * thermal_time_trilinear model (4 cardinal temperatures). If a maximum temperature
+ * thermal_time_trilinear model (4 cardinal temperatures). If an optimal temperature
  * is unavailable, the thermal_time_linear model may be a more appropriate piecewise
  * linear model.
  */
@@ -56,7 +55,7 @@ class thermal_time_linear_extended : public DerivModule
           // Get pointers to input parameters
           temp(get_input(input_parameters, "temp")),
           tbase(get_input(input_parameters, "tbase")),
-          tmax(get_input(input_parameters, "tmax")),
+          topt(get_input(input_parameters, "topt")),
           // Get pointers to output parameters
           TTc_op(get_op(output_parameters, "TTc"))
     {
@@ -68,7 +67,7 @@ class thermal_time_linear_extended : public DerivModule
     // References to input parameters
     double const& temp;
     double const& tbase;
-    double const& tmax;
+    double const& topt;
 
     // Pointers to output parameters
     double* TTc_op;
@@ -82,7 +81,7 @@ std::vector<std::string> thermal_time_linear_extended::get_inputs()
     return {
         "temp",   // deg. C
         "tbase",  // deg. C
-        "tmax"    // deg. C
+        "topt"    // deg. C
     };
 }
 
@@ -99,10 +98,10 @@ void thermal_time_linear_extended::do_operation() const
     double rate_per_day;  // deg. C
     if (temp <= tbase) {
         rate_per_day = 0.0;
-    } else if (temp <= tmax) {
+    } else if (temp <= topt) {
         rate_per_day = temp - tbase;
     } else {
-        rate_per_day = tmax - tbase;
+        rate_per_day = topt - tbase;
     }
 
     // Convert to an hourly rate
