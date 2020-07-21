@@ -2,6 +2,8 @@
 #define THERMAL_TIME_LINEAR_H
 
 #include "../modules.h"
+#include "../module_helper_functions.h"
+#include "../state_map.h"
 
 /**
  * @class thermal_time_linear
@@ -44,13 +46,15 @@ class thermal_time_linear : public DerivModule
 {
    public:
     thermal_time_linear(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const* input_parameters,
+        state_map* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           DerivModule("thermal_time_linear"),
+
           // Get pointers to input parameters
           temp(get_input(input_parameters, "temp")),
           tbase(get_input(input_parameters, "tbase")),
+
           // Get pointers to output parameters
           TTc_op(get_op(output_parameters, "TTc"))
     {
@@ -73,22 +77,22 @@ class thermal_time_linear : public DerivModule
 std::vector<std::string> thermal_time_linear::get_inputs()
 {
     return {
-        "temp",  // deg. C
-        "tbase"  // deg. C
+        "temp",  // degrees C
+        "tbase"  // degrees C
     };
 }
 
 std::vector<std::string> thermal_time_linear::get_outputs()
 {
     return {
-        "TTc"  // deg. C * day / hr
+        "TTc"  // degrees C * day / hr
     };
 }
 
 void thermal_time_linear::do_operation() const
 {
     // Find the rate of change on a daily basis
-    double rate_per_day;  // deg. C
+    double rate_per_day;  // degrees C
     if (temp <= tbase) {
         rate_per_day = 0.0;
     } else {
@@ -96,7 +100,7 @@ void thermal_time_linear::do_operation() const
     }
 
     // Convert to an hourly rate
-    const double rate_per_hour = rate_per_day / 24.0;  // deg. C * day / hr
+    double const rate_per_hour = rate_per_day / 24.0;  // degrees C * day / hr
 
     // Update the output parameter list
     update(TTc_op, rate_per_hour);

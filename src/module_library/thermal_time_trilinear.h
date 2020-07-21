@@ -2,6 +2,8 @@
 #define THERMAL_TIME_TRILINEAR_H
 
 #include "../modules.h"
+#include "../module_helper_functions.h"
+#include "../state_map.h"
 
 /**
  * @class thermal_time_trilinear
@@ -56,16 +58,18 @@ class thermal_time_trilinear : public DerivModule
 {
    public:
     thermal_time_trilinear(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const* input_parameters,
+        state_map* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           DerivModule("thermal_time_trilinear"),
+
           // Get pointers to input parameters
           temp(get_input(input_parameters, "temp")),
           tbase(get_input(input_parameters, "tbase")),
           topt_lower(get_input(input_parameters, "topt_lower")),
           topt_upper(get_input(input_parameters, "topt_upper")),
           tmax(get_input(input_parameters, "tmax")),
+
           // Get pointers to output parameters
           TTc_op(get_op(output_parameters, "TTc"))
     {
@@ -91,25 +95,25 @@ class thermal_time_trilinear : public DerivModule
 std::vector<std::string> thermal_time_trilinear::get_inputs()
 {
     return {
-        "temp",        // deg. C
-        "tbase",       // deg. C
-        "topt_lower",  // deg. C
-        "topt_upper",  // deg. C
-        "tmax"         // deg. C
+        "temp",        // degrees C
+        "tbase",       // degrees C
+        "topt_lower",  // degrees C
+        "topt_upper",  // degrees C
+        "tmax"         // degrees C
     };
 }
 
 std::vector<std::string> thermal_time_trilinear::get_outputs()
 {
     return {
-        "TTc"  // deg. C * day / hr
+        "TTc"  // degrees C * day / hr
     };
 }
 
 void thermal_time_trilinear::do_operation() const
 {
     // Find the rate of change on a daily basis
-    double rate_per_day;  // deg. C
+    double rate_per_day;  // degrees C
     if (temp <= tbase) {
         rate_per_day = 0.0;
     } else if (temp <= topt_lower) {
@@ -123,7 +127,7 @@ void thermal_time_trilinear::do_operation() const
     }
 
     // Convert to an hourly rate
-    const double rate_per_hour = rate_per_day / 24.0;  // deg. C * day / hr
+    double const rate_per_hour = rate_per_day / 24.0;  // degrees C * day / hr
 
     // Update the output parameter list
     update(TTc_op, rate_per_hour);

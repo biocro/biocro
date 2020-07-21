@@ -3,6 +3,8 @@
 
 #include <cmath>  // for pow
 #include "../modules.h"
+#include "../module_helper_functions.h"
+#include "../state_map.h"
 
 /**
  * @class thermal_time_beta
@@ -74,10 +76,11 @@ class thermal_time_beta : public DerivModule
 {
    public:
     thermal_time_beta(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const* input_parameters,
+        state_map* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           DerivModule("thermal_time_beta"),
+
           // Get pointers to input parameters
           temp(get_input(input_parameters, "temp")),
           tbase(get_input(input_parameters, "tbase")),
@@ -85,6 +88,7 @@ class thermal_time_beta : public DerivModule
           talpha(get_input(input_parameters, "talpha")),
           tbeta(get_input(input_parameters, "tbeta")),
           ttc_scale(get_input(input_parameters, "ttc_scale")),
+
           // Get pointers to output parameters
           TTc_op(get_op(output_parameters, "TTc"))
     {
@@ -111,26 +115,26 @@ class thermal_time_beta : public DerivModule
 std::vector<std::string> thermal_time_beta::get_inputs()
 {
     return {
-        "temp",      // deg. C
-        "tbase",     // deg. C
-        "tmax",      // deg. C
+        "temp",      // degrees C
+        "tbase",     // degrees C
+        "tmax",      // degrees C
         "talpha",    // dimensionless
         "tbeta",     // dimensionless
-        "ttc_scale"  // deg. C * day / hr
+        "ttc_scale"  // degrees C * day / hr
     };
 }
 
 std::vector<std::string> thermal_time_beta::get_outputs()
 {
     return {
-        "TTc"  // deg. C * day / hr
+        "TTc"  // degrees C * day / hr
     };
 }
 
 void thermal_time_beta::do_operation() const
 {
     // Find the rate of change
-    double rate;  // deg. C * day / hr
+    double rate;  // degrees C * day / hr
     if (temp <= tbase) {
         rate = 0.0;
     } else if (temp <= tmax) {
