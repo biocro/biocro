@@ -158,6 +158,21 @@ Consider naming parts of a complicated expression in order to break it down into
     ```
     Note that in C++, unlike in R, return statements do not require parentheses around the returned expression.
 
+* Restrict the line length of paragraph-like comments to 80 characters, excepting a compeling reason to do otherwise. This will mostly pertain to the documentation comment above each function and class. Sections that are not paragraph-like can be longer if it aids formatting. The section below benefits from a slightly longer line to maintain one line per interval.
+
+    ```c++
+    /*
+    *  However, this definition is flexible. For example, for our soybean model
+    *  (soybean_development_rate_calculator.h) we define the intervals as follows:
+    *  -1 <= DVI < 0 : Sowing to Emergence
+    *   0 <= DVI < 1  :  Emergence to R1 (Flowering) is broken into three stages.
+    *       0 <= DVI < 0.333        : Emergence to V0 (Cotyledon stage)
+    *       0.333 <= DVI < 0.667    : V0 (Cotyledon stage) to R0 (End of Floral Induction)
+    *       0.667 <= DVI < 1        : R0 (End of Floral Induction) to R1 (Flowering)
+    *  1 <= DVI < 2 : R1 (Flowering) to R7 (Maturity)
+    */
+    ```
+
 ## Running Unit Tests
 
 The **BioCro** package contains a collection of R-based unit tests to help
