@@ -74,7 +74,9 @@
 * Use cmath, not math.h, for common mathematical functions.
 * Be careful with **using**-directives (e.g. `using namespace std`) in a global scope; do not use them in global scope in a header file.  Try to make **using**-declarations (e.g. `using std::string`) as local as possible.  Type aliases (e.g. `using string_vector = std::vector<std::string>`) are perfectly acceptable in the global scope of a header file. 
 * Strongly prefer the [coherent](https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29) set of SI units. Doing so reduces code complexity remarkably as no conversions are necessary. Yes, no one publishes values with these units, but do the conversion in one place, the manuscript, instead of dozens of times in the code, constantly having to look up units for variables, and then spending hours debugging silly, difficult-to-find errors.
- * The coherent set of SI units consists of all the units without prefixes, except that kg is the coherent unit of mass, not g.
+
+    The coherent set of SI units consists of all the units without prefixes, except that kg is the coherent unit of mass, not g.
+
 * Do not copy and paste code, changing only smalls parts. Choose a design that eliminates the duplication. Duplication is often the result of not separating control flow from data. Consider the following R code.
 
     ```r
@@ -158,7 +160,7 @@ Consider naming parts of a complicated expression in order to break it down into
     ```
     Note that in C++, unlike in R, return statements do not require parentheses around the returned expression.
 
-* Restrict the line length of paragraph-like comments to 80 characters, excepting a compeling reason to do otherwise. This will mostly pertain to the documentation comment above each function and class. Sections that are not paragraph-like can be longer if it aids formatting. The section below benefits from a slightly longer line to maintain one line per interval.
+* Restrict the line length of paragraph-like comments to 80 characters, excepting a compeling reason to do otherwise. Sections that are not paragraph-like could be longer if it aids formatting. The section below benefits from a slightly longer line to maintain one line per interval.
 
     ```c++
     /*
