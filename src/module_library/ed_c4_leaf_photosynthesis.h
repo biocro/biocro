@@ -29,11 +29,12 @@ string_vector const sub_module_names = {
     "ed_penman_monteith_leaf_temperature"              // Calculate leaf temperature
 };
 
-std::string const solver_type = "newton_raphson_backtrack_boost";
+std::string const solver_type = "newton_raphson_boost";
 
 int const max_iterations = 30;
 
-int const num_guesses_to_try = 30;
+int const num_guesses_to_try_educated = 100;
+int const num_guesses_to_try_other = 100;
 
 // Note: order must agree with std::sort applied to quantity name
 std::vector<double> const lower_bounds = {
@@ -273,46 +274,57 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses(
         Rprintf(message.c_str());
     }
 
-    // Get the central guess
-    std::vector<double> central_guess = {
+    // Get some guesses distributed around the educated guess
+    std::vector<double> educated_central_guess = {
         assimilation_net_estimate,          // assimilation_net
         gbv_free_estimate,                  // conductance_boundary_h2o_free
         conductance_stomatal_h2o_estimate,  // conductance_stomatal_h2o
         temperature_leaf_estimate           // temperature_leaf
     };
 
-    // Form the scale factors that will determine the range of values
-    // covered by the set of random guesses
-    std::vector<double> scale_factors = {
-        2.0 * fabs(assimilation_net_estimate),    // assimilation_net: allow it to vary within [-a_estimate, 3 * a_estimate]
-        fabs(gbv_free_estimate),                  // conductance_boundary_h2o_free: allow it to vary within [0, 2 * g_estimate]
-        fabs(conductance_stomatal_h2o_estimate),  // conductance_stomatal_h2o: allow it to vary within [0, 2 * g_estimate]
-        5.0                                       // temperature_leaf: allow it to vary by +/- 5 deg. C
+    double const just_less_than_one = 0.999;
+    std::vector<double> educated_scale_factors = {
+        2.0 * fabs(assimilation_net_estimate),                         // assimilation_net: allow it to vary within [-a_estimate, 3 * a_estimate]
+        just_less_than_one * fabs(gbv_free_estimate),                  // conductance_boundary_h2o_free: allow it to vary within (0, 2 * g_estimate)
+        just_less_than_one * fabs(conductance_stomatal_h2o_estimate),  // conductance_stomatal_h2o: allow it to vary within (0, 2 * g_estimate)
+        5.0                                                            // temperature_leaf: allow it to vary by +/- 5 deg. C
     };
 
-    // Try a shittier guess
-    double const conductance_factor = 5.0;
-    central_guess = {
+    std::vector<std::vector<double>> full_guess_list = generate_guess_list(
+        educated_central_guess,
+        ed_c4_leaf_photosynthesis_stuff::lower_bounds,
+        ed_c4_leaf_photosynthesis_stuff::upper_bounds,
+        educated_scale_factors,
+        ed_c4_leaf_photosynthesis_stuff::num_guesses_to_try_educated);
+
+    // Get some other guesses from a wider region of parameter space
+    double const conductance_factor = 10.0;
+    std::vector<double> other_central_guess = {
         0.0,                                        // assimilation_net
         conductance_factor * ball_berry_intercept,  // conductance_boundary_h2o_free
         conductance_factor * ball_berry_intercept,  // conductance_stomatal_h2o
         temperature_air                             // temperature_leaf
     };
 
-    double const just_less_than_one = 0.999;
-    scale_factors = {
+    std::vector<double> other_scale_factors = {
         5e-4,                                                            // assimilation_net
         just_less_than_one * conductance_factor * ball_berry_intercept,  // conductance_boundary_h2o_free: ensure we can't reach zero
         just_less_than_one * conductance_factor * ball_berry_intercept,  // conductance_stomatal_h2o: ensure we can't reach zero
-        30.0                                                             // temperature_leaf
+        40.0                                                             // temperature_leaf
     };
 
-    return generate_guess_list(
-        central_guess,
+    std::vector<std::vector<double>> temp_guess_list = generate_guess_list(
+        other_central_guess,
         ed_c4_leaf_photosynthesis_stuff::lower_bounds,
         ed_c4_leaf_photosynthesis_stuff::upper_bounds,
-        scale_factors,
-        ed_c4_leaf_photosynthesis_stuff::num_guesses_to_try);
+        other_scale_factors,
+        ed_c4_leaf_photosynthesis_stuff::num_guesses_to_try_other);
+
+    // Combine the lists
+    for (std::vector<double> const& guess : temp_guess_list) {
+        full_guess_list.push_back(guess);
+    }
+    return full_guess_list;
 }
 
 #endif

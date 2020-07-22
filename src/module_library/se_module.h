@@ -217,6 +217,9 @@ void base::do_operation() const
     }
 
     if (!success) {
+        if (se_module_print) {
+            Rprintf("The solver was unable to find a solution.\n");
+        }
         throw std::runtime_error(std::string("Thrown by ") + get_name() + std::string(": the solver was unable to find a solution."));
     }
 

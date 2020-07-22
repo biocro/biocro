@@ -26,6 +26,7 @@ template <typename equation_ptr_type, typename vector_type>
 bool newton_raphson_line_search_boost(
     vector_type const& lower_bounds,
     vector_type const& upper_bounds,
+    double min_rescale_factor,
     double min_step_factor,
     double f_decrease_factor,
     boost::numeric::ublas::vector<double> direction,
@@ -38,6 +39,13 @@ bool newton_raphson_line_search_boost(
 {
     std::string message = "Running the backtracking line search:\n";
     char buff[128];
+
+    message += " x_old:";
+    for (double const& v : x_old) {
+        sprintf(buff, " %e", v);
+        message += std::string(buff);
+    }
+    message += "\n";
 
     message += " direction:";
     for (double const& v : direction) {
@@ -92,7 +100,21 @@ bool newton_raphson_line_search_boost(
         Rprintf(message.c_str());  // print the message now in case an error is thrown
     }
 
-    if (rescale_factor > 1.0 || rescale_factor < 0) {
+    // If the guess is right at the edge of the bounds, the rescale factor will be
+    // very small. In this case we just take the full N-R step and then fix any
+    // problematic elements.
+    if (rescale_factor < min_rescale_factor) {
+        if (nrb_print) {
+            Rprintf("rescale_factor too small, taking full N-R step and readjusting to keep it within the bounds\n");
+        }
+        std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(), std::plus<double>());  // modifies x_new
+        adjust_bad_guess_limits(F_vec, lower_bounds, upper_bounds, x_new, F_vec_new);                       // modifies x_new and F_vec_new
+        return false;
+    }
+
+    // The rescale factor should never be greater than 1, so throw an error if this
+    // somehow manages to occur. If it's not 1, rescale the direction.
+    if (rescale_factor > 1.0) {
         // This shouldn't happen
         throw std::runtime_error("Thrown by newton_raphson_line_search_boost: Rescale factor negative or greater than one.");
     } else if (rescale_factor != 1.0) {
@@ -182,10 +204,12 @@ bool newton_raphson_line_search_boost(
     message += std::string(buff);
 
     // Initialize local variables for the loop
-    double lambda = 1.0;        // always try the full step first
-    double f_scalar_new = 0.0;  // will be recalculated at each step
-    double lambda_2 = 0.0;      // will be initialized at the end of the first loop, but not required during the first iteration
-    double f_scalar_2 = 0.0;    // will be initialized at the end of the first loop, but not required during the first iteration
+    double lambda = 1.0;         // always try the full step first
+    double f_scalar_new = 0.0;   // will be recalculated at each step
+    double lambda_2 = 0.0;       // will be initialized at the end of the first loop, but not required during the first iteration
+    double f_scalar_2 = 0.0;     // will be initialized at the end of the first loop, but not required during the first iteration
+    vector_type x_lambda_1;      // will be initialized at the start of the first loop, but not required during the first iteration
+    vector_type F_vec_lambda_1;  // will be initialized at the start of the first loop, but not required during the first iteration
     bool found_acceptable_step = false;
     bool found_possible_local_min = false;
 
@@ -225,14 +249,23 @@ bool newton_raphson_line_search_boost(
         sprintf(buff, "  f_scalar_new = %e\n", f_scalar_new);
         message += std::string(buff);
 
+        // If lambda is 1, this is the first step.
+        // Store x and F_vec corresponding to lambda = 1 in case the line search fails,
+        // since in that case we will just try the full Newton step
+        if (lambda == 1.0) {
+            x_lambda_1 = x_new;
+            F_vec_lambda_1 = F_vec_new;
+        }
+
         // Check to see if we have found a possible zero or an acceptable step.
         // If not, determine a new value of lambda to try.
         if (lambda < lambda_min) {
-            // The step is very small, so we may have found a root.
-            // In this case, the calling routine should verify whether a
-            // real root has been found.
+            // The step is very small, so we are probably stuck near a local min.
+            // In this case, just use the full Newton-Raphson step.
+            x_new = x_lambda_1;          // use stored value
+            F_vec_new = F_vec_lambda_1;  // use stored value
             found_possible_local_min = true;
-            message += "  lambda < lambda_min\n";
+            message += "  lambda < lambda_min, so we are using the full Newton-Raphson step\n";
             if (nrb_print) {
                 Rprintf(message.c_str());  // print the message now in case an error is thrown
             }
@@ -327,6 +360,7 @@ class newton_raphson_backtrack_boost : public se_solver
     newton_raphson_backtrack_boost(int max_it) : se_solver(std::string("newton_raphson_backtrack_boost"), max_it) {}
 
    private:
+    double const min_rescale_factor = 1.0e-7;
     double const min_step_factor = 1.0e-7;    // value taken from Numerical Recipes in C (TOLX)
     double const f_decrease_factor = 1.0e-4;  // value taken from Numerical Recipes in C (ALF)
     bool get_next_guess(
@@ -365,13 +399,14 @@ bool newton_raphson_backtrack_boost::get_next_guess(
     // Use the backtracking line search algorithm to determine the next guess,
     // rather than automatically taking the full Newton-Raphson step.
     // The line search will return a value of "true" if the final step is too small.
-    // In this case, we will assume that the search has gotten stuck in a local min
-    // and indicate that a problem occurred.
+    // In this case, the line searcher will assume that the search has gotten stuck in a
+    // local min and just take the full Newton-Raphson step.
     output_guess = input_guess;                                            // make sure output_guess is the right size
     difference_vector_at_output_guess = difference_vector_at_input_guess;  // make sure difference_vector_at_output_guess is the right size
-    return newton_raphson_line_search_boost(
+    newton_raphson_line_search_boost(
         lower_bounds,
         upper_bounds,
+        min_rescale_factor,
         min_step_factor,
         f_decrease_factor,
         dx,
@@ -381,6 +416,10 @@ bool newton_raphson_backtrack_boost::get_next_guess(
         input_guess,
         output_guess,
         difference_vector_at_output_guess);  // modifies output_guess and difference_vector_at_output_guess
+
+    // This algorithm doesn't need to check for any additional problems,
+    // so just return false
+    return false;
 }
 
 #endif
