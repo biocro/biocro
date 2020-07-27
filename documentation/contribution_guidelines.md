@@ -72,10 +72,26 @@
 ### General coding considerations
 * Do not use C-style arrays. Use an appropriate data type from the standard library instead.
 * Use cmath, not math.h, for common mathematical functions.
-* Be careful with **using**-directives (e.g. `using namespace std`) in a global scope; do not use them in global scope in a header file.  Try to make **using**-declarations (e.g. `using std::string`) as local as possible.  Type aliases (e.g. `using string_vector = std::vector<std::string>`) are perfectly acceptable in the global scope of a header file. 
-* Strongly prefer the [coherent](https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29) set of SI units. Doing so reduces code complexity remarkably as no conversions are necessary. Yes, no one publishes values with these units, but do the conversion in one place, the manuscript, instead of dozens of times in the code, constantly having to look up units for variables, and then spending hours debugging silly, difficult-to-find errors.
- * The coherent set of SI units consists of all the units without prefixes, except that kg is the coherent unit of mass, not g.
-* Do not copy and paste code, changing only smalls parts. Choose a design that eliminates the duplication. Duplication is often the result of not separating control flow from data. Consider the following R code.
+
+* Be careful with **using**-directives (e.g. `using namespace std`) in
+  a global scope; do not use them in global scope in a header file.
+  Try to make **using**-declarations (e.g. `using std::string`) as
+  local as possible.  Type aliases (e.g. `using string_vector =
+  std::vector<std::string>`) are perfectly acceptable in the global
+  scope of a header file.
+
+* Strongly prefer the
+  [coherent](https://en.wikipedia.org/wiki/Coherence_%28units_of_measurement%29)
+  set of SI units. Doing so reduces code complexity remarkably as no
+  conversions are necessary. Yes, no one publishes values with these
+  units, but do the conversion in one place, the manuscript, instead
+  of dozens of times in the code, constantly having to look up units
+  for variables, and then spending hours debugging silly,
+  difficult-to-find errors.  The coherent set of SI units consists of
+  all the units without prefixes, except that kg is the coherent unit
+  of mass, not g.
+
+* Do not copy and paste code, changing only small parts. Choose a design that eliminates the duplication. Duplication is often the result of not separating control flow from data. Consider the following R code.
 
     ```r
     if (!("lattice" %in% installed.packages()[,"Package"])) {
@@ -158,6 +174,38 @@ Consider naming parts of a complicated expression in order to break it down into
     ```
     Note that in C++, unlike in R, return statements do not require parentheses around the returned expression.
 
+* Restrict the line length of paragraph-like comments to 80
+  characters, excepting a compelling reason to do otherwise. Lines in
+  sections that are not paragraph-like could be somewhat longer if it
+  facilitates presenting material in a more readable format.  In the
+  following snippet from the module library documentation, for
+  example, we have allowed slighly-longer lines in order to be able to
+  maintain one line per interval:
+
+    ```c++
+    /*
+    *  However, this definition is flexible. For example, for our soybean model
+    *  (soybean_development_rate_calculator.h) we define the intervals as follows:
+    *  -1 <= DVI < 0 : Sowing to Emergence
+    *   0 <= DVI < 1  :  Emergence to R1 (Flowering) is broken into three stages.
+    *       0 <= DVI < 0.333        : Emergence to V0 (Cotyledon stage)
+    *       0.333 <= DVI < 0.667    : V0 (Cotyledon stage) to R0 (End of Floral Induction)
+    *       0.667 <= DVI < 1        : R0 (End of Floral Induction) to R1 (Flowering)
+    *  1 <= DVI < 2 : R1 (Flowering) to R7 (Maturity)
+    */
+    ```
+
+  As for the code lines themselves, we point to the following advice
+  from the Linux kernel project:<sup id="a1">[1](#f1)</sup>
+
+  > The preferred limit on the length of a single line is 80 columns.
+
+  > Statements longer than 80 columns should be broken into sensible
+    chunks, unless exceeding 80 columns significantly increases
+    readability and does not hide information.
+
+
+
 ## Running Unit Tests
 
 The **BioCro** package contains a collection of R-based unit tests to help
@@ -210,3 +258,18 @@ While writing a file a tests, it is often useful to run only the tests in that o
 
     (`test_file` can also take an absolute path.)
 
+
+---
+
+<b id="f1">1</b> The Linux kernel project recently changed the default
+length for code lines from 80 to 100 characters with the following
+commit comment:
+
+> Yes, staying withing 80 columns is certainly still _preferred_.  But
+it's not the hard limit that the checkpatch warnings imply, and other
+concerns can most certainly dominate.
+
+> Increase the default limit to 100 characters.  Not because 100
+characters is some hard limit either, but that's certainly a "what are
+you doing" kind of value and less likely to be about the occasional
+slightly longer lines. [↩](#a1)
