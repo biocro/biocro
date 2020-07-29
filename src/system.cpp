@@ -63,6 +63,9 @@ System::System(
     varying_ptr_pairs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
     // Get a pointer to the timestep
+    if (invariant_params.find("timestep") == invariant_params.end()) {
+        throw std::runtime_error("The quantity 'timestep' was not defined in the invariant_parameters state_map.");
+    }
     timestep_ptr = &(quantities.at("timestep"));
 }
 
