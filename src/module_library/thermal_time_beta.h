@@ -12,65 +12,95 @@
  * @brief Calculates the rate of thermal time accumulation using a beta distribution
  * function.
  * 
- * For an overview of the different methods that can be used for calculating thermal
- * time, see Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
- * of Plants using only the Cardinal Temperatures" Ann Bot 84, 607–614 (1999) and
- * McMaster, G. S. & Moragues, M. "Crop Development Related to Temperature and
- * Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018).
+ * ### Model overview
  * 
- * This module is based off Yin et al. "A nonlinear model for crop development as
- * a function of temperature." Agricultural and Forest Meteorology 77, 1–16 (1995).
+ * The thermal time `t_th` represents the accumulated exposure of a plant to temperatures
+ * within some acceptable range that allows the plant to develop. The time rate of change
+ * of `t_th` is often referred to as the development rate `DR`. For an overview of the
+ * different methods that can be used for calculating thermal time and its development rate,
+ * see the following references:
  * 
- * In this model, the development rate is given by:
+ * - [Campbell, G. S. & Norman, J. M. "Chapter 2: Temperature" in "An Introduction to
+ *   Environmental Biophysics" (1998)]
+ *   (http://dx.doi.org/10.1007/978-1-4612-1626-1_2)
  * 
- *  rate = 0                        :  when temp is below tbase
+ * - [Yan, W. & Hunt, L. A. "An Equation for Modelling the Temperature Response
+ *   of Plants using only the Cardinal Temperatures" Ann Bot 84, 607–614 (1999)]
+ *   (http://dx.doi.org/10.1006/anbo.1999.0955)
  * 
- *  rate = ttc_scale *
- *         (temp - tbase)^talpha *
- *         (tmax - temp)^tbeta      :  when temp is between tbase and tmax
+ * - [McMaster, G. S. & Moragues, M. "Crop Development Related to Temperature and
+ *   Photoperiod" in "Encyclopedia of Sustainability Science and Technology" (2018)]
+ *   (http://dx.doi.org/10.1007/978-1-4939-2493-6_384-3)
  * 
- *  rate = 0                        :  when temp is above tmax
+ * This particular module is based off [Yin et al. "A nonlinear model for crop development as
+ * a function of temperature." Agricultural and Forest Meteorology 77, 1–16 (1995)]
+ * (http://dx.doi.org/10.1016/0168-1923(95)02236-Q). In that paper, `DR` is determined from
+ * the air temperature `T` according to:
  * 
- * where ttc_scale, talpha, and tbeta determine the scaling and shape of the curve.
- * Yin et al. also show that the maximum development rate occurs at an optimal
- * temperature
+ * | DR                                           | T range          |
+ * | :------------------------------------------: | :--------------: |
+ * | `0`                                          | `T <= T_b`       |
+ * | `exp(mu) * (T - T_b)^alpha * (T_c - T)^beta` | `T_b < T <= T_c` |
+ * | `0`                                          | `T_c < T`        |
  * 
- *  topt = (talpha * tmax + tbeta * tbase) / (talpha + tbeta)
+ * Here `mu` sets the overall scaling while `alpha` and `beta` determine the shape
+ * of the curve. Yin et al. also show that the maximum development rate occurs at
+ * an optimal temperature `T_o` defined by
  * 
- * and is given by
+ *     T_o = (alpha * T_c + beta * T_b) / (alpha + beta).
  * 
- *  max_rate = ttc_scale * talpha^talpha * tbeta^tbeta * 
- *             [(tmax - tbase) / (talpha + tbeta)]^(talpha + tbeta).
+ * The maximum development rate `R_o` that occurs at this temperature is given by 
  * 
- * This model can be characterized as a nonlinear model having 3 cardinal temperatures.
- * Note that although only two temperatures -- a base and maximum --  are directly
- * specified, an optimal temperature nevertheless exists and is determined by the
- * values of talpha and tbeta. In this sense it is most directly comparable to the
- * thermal_time_bilinear model. However, there is a range of temperatures where
- * the development rate is close to its maximum value and there are actually 4 parameters
- * that define the shape of the curve, so this model also has some similarity to the
- * thermal_time_trilinear model.
+ *     R_o = exp(mu) *
+ *           alpha^alpha *
+ *           beta^beta *
+ *           [(T_c - T_b) / (alpha + beta)]^(alpha + beta).
  * 
- * Suggestion for choosing a ttc_scale value:
+ * This model can be characterized as a nonlinear model having three cardinal temperatures.
+ * Note that although only two temperatures are directly specified (`T_b` and `T_c`), an
+ * optimal temperature nevertheless exists and is determined by the values of `alpha` and
+ * `beta`. In this sense it is most directly comparable to the thermal_time_bilinear model.
+ * However, there is a range of temperatures where the development rate is close to its
+ * maximum value and there are actually four parameters that define the shape of the curve,
+ * so this model also has some similarity to the thermal_time_trilinear model.
+ * 
+ * ### Suggestion for choosing a value for the scaling factor
  * 
  * Taking inspiration from the thermal_time_bilinear and thermal_time_trilinear models,
- * one can require that the maximum development rate should be given by
+ * we can require that the maximum development rate in units of `degrees C` should be given
+ * by the difference between the optimal temperature and the temperature below which
+ * development cannot occur. Using Yin et al.'s notation, we have:
  * 
- *  max_rate = topt - tbase,
+ *     R_o = (T_o - T_b) / 24.0,
  * 
- * where this rate is given in units of degrees C * day / day = degrees C. (Note that
- * BioCro derivatives are specified on a per hour basis, so it will be necessary to
- * include a conversion when calculating ttc_scale.)
+ * where this rate is given in units of `degrees C * day / hr`. In this case,
+ * we can use the formula for `R_o` shown above to solve for `exp(mu)`:
  * 
- * In this case, one should set
+ *     exp(mu) = (T_o - T_b) /
+ *               alpha^alpha /
+ *               beta^beta /
+ *               [(T_c - T_b) / (alpha + beta)]^(alpha + beta)) /
+ *               24.0,
  * 
- *  ttc_scale = (topt - tbase) / 
- *              (talpha^talpha * tbeta^tbeta * [(tmax - tbase) / (talpha + tbeta)]^(talpha + tbeta)) / 
- *              24.0.
+ * where `exp(mu)` has units of `degrees C * day / hr` and `T_o` is defined as above.
  * 
- * where topt is defined, as above, by
+ * ### BioCro module implementation
  * 
- *  topt = (talpha * tmax + tbeta * tbase) / (talpha + tbeta).
+ * In their paper, Yin et al. report the development rate in units of `day^-1`. However,
+ * due to the scaling factor in the formula for development rate, the choice of units is
+ * rather arbitrary. For simplicity and for consistency with other thermal time modules
+ * available in BioCro, we replace `exp(mu)` with a scaling factor ``'ttc_scale'`` having
+ * units of `degrees C * day / hr` and treat the other two factors in the formula for `DR`
+ * as being dimensionless. Thus, the overall development rate has the correct units of
+ * `degrees C * day / hr`.
+ * 
+ * Additionally, we use the following names for the remaining parameters in this model:
+ * - ``'TTc'`` for the thermal time `t_th`
+ * - ``'temp'`` for the air temperature `T`
+ * - ``'tbase'`` for the lower temperature `T_b`
+ * - ``'tmax'`` for the upper temperature `T_c`
+ * - ``'talpha'`` for the shape factor `alpha`
+ * - ``'tbeta'`` for the shape factor `beta`
  */
 class thermal_time_beta : public DerivModule
 {
