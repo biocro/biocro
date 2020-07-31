@@ -33,9 +33,9 @@
  * This module implements a piecewise linear model that includes optimal and maximum
  * temperatures. Due to its shape, this model is sometimes called "triangular."
  * This model is discussed in many places, see e.g. section 2.9 of Campbell & Norman (1998)
- * or the paper that may have been the first to introduce it: [Garcia-Huidobro, J., Monteith,
- * J. L. & Squire, G. R. "Time, Temperature and Germination of Pearl Millet (Pennisetum
- * typhoides S. & H.) I. CONSTANT TEMPERATURE." J Exp Bot 33, 288–296 (1982)]
+ * or the paper that may have been the first to introduce it:
+ * [Garcia-Huidobro, J., Monteith, J. L. & Squire, G. R. "Time, Temperature and Germination of
+ * Pearl Millet (Pennisetum typhoides S. & H.) I. CONSTANT TEMPERATURE." J Exp Bot 33, 288–296 (1982)]
  * (http://dx.doi.org/10.1093/jxb/33.2.288).
  * 
  * In this model, `DR` is determined from the air temperature `T` according to:
