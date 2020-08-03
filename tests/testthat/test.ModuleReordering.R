@@ -28,7 +28,7 @@ sorghum_ss_modules <- c(
 sorghum_deriv_modules <- c(
     "thermal_time_senescence",
     "partitioning_growth",
-    "thermal_time_accumulator",
+    "thermal_time_linear",
     "one_layer_soil_profile"
 )
 
