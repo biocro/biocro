@@ -19,6 +19,8 @@
 #include "../constants.h" // for pi and e
 #include "c4photo.h"
 #include "BioCro.h"
+#include <Rinternals.h>                // for debugging
+const bool et2_print = false;           // for debugging
 
 double poisson_density(int x, double lambda)
 {
@@ -412,10 +414,21 @@ struct ET_Str EvapoTrans2(
     double Deltat = 0.01;  // degrees C
     double ga;
     double rlc; /* Long wave radiation for iterative calculation */
+    
+    char buffer[1024];
+    if (et2_print) {
+        Rprintf("loop_iteration,value_type,Ga,LeafTemp\n");
+    }
+    
     {
         double ChangeInLeafTemp = 10.0;  // degrees C
         double Counter = 0;
         do {
+            sprintf(buffer, "%u,starting_values,%e,%e\n", Counter, ga, airTemp + Deltat);
+            if (et2_print) {
+                Rprintf(buffer);
+            }
+            
             ga = leaf_boundary_layer_conductance(WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);  // m / s
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */
@@ -435,10 +448,21 @@ struct ET_Str EvapoTrans2(
             /* This equation is from Thornley and Johnson pg. 418 */
             const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * vapor_density_deficit;  // J / m^3
             const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^3 / K
+            
+            sprintf(buffer, "%u,new_values,%e,%e\n", Counter, ga, airTemp + TopValue / BottomValue);
+            if (et2_print) {
+                Rprintf(buffer);
+            }
+            
             Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // kelvin. Confine Deltat to the interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin
         } while ( (++Counter <= 10) && (ChangeInLeafTemp > 0.5) );
+        
+        sprintf(buffer, "%u,values_at_loop_end,%e,%e\n\n", Counter, ga, airTemp + Deltat);
+        if (et2_print) {
+            Rprintf(buffer);
+        }
     }
 
     /* Net radiation */
