@@ -1,5 +1,16 @@
 ## This tests that re-running a previously-run simulation yields the same result
 ## as before.
+## 
+## If any of the sorhgum defaults for the initial state, parameters, modules, or
+## weather data change in a significant way, the stored data for this test will
+## need to be updated. To do this, create a new R session and set the working
+## directory to "biocro-dev\tests\test_data". Then type the following commands:
+## 
+## library(BioCro)
+## Gro_result <- Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules)
+## save(Gro_result, file="sorghum_simulation.rda")
+##
+## Finally, run this test to make sure it is passed.
 
 context("Test a biological system with a known result to ensure that the result doesn't change.")
 
