@@ -1,69 +1,45 @@
-# Doxyfile 1.8.10
+# Doxyfile 1.8.20
+
+## Note: DON'T USE DOUBLE-HASHES (## ...) FOR END-LINE COMMENTS!
+## Doxygen will treat the following line as part of the option
+## setting!
 
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = BioCro
-PROJECT_NUMBER         = 0.92
-TAB_SIZE               = 8
-OPTIMIZE_OUTPUT_FOR_C  = YES
+PROJECT_NAME           = "The BioCro C++ Library"
+PROJECT_NUMBER         = # This could be set automatically to the version
+                         # tag.
+OUTPUT_DIRECTORY       = doxygen_docs_complete
+JAVADOC_AUTOBRIEF      = YES
+TAB_SIZE               = 8 # Consider changing this to 4.  Or just get rid
+                           # of all tabs.
 #---------------------------------------------------------------------------
 # Build related configuration options
 #---------------------------------------------------------------------------
 EXTRACT_ALL            = YES
-CASE_SENSE_NAMES       = NO ## default for Mac?
-HIDE_SCOPE_NAMES       = YES
+CASE_SENSE_NAMES       = NO # default for Mac?
+EXTRACT_PRIVATE        = YES # Override to exclude private members!
+HIDE_SCOPE_NAMES       = YES # not sure what difference this makes
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = ../src
-FILE_PATTERNS          = *.c \
-                         *.cc \
-                         *.cxx \
-                         *.cpp \
-                         *.c++ \
-                         *.d \
-                         *.java \
-                         *.ii \
-                         *.ixx \
-                         *.ipp \
-                         *.i++ \
-                         *.inl \
+INPUT                  = ../src ../src/se_solver_library \
+                         ../src/system_solver_library ../src/utils \
+                         ../src/module_library
+FILE_PATTERNS          = *.cpp \
                          *.h \
-                         *.hh \
-                         *.hxx \
                          *.hpp \
-                         *.h++ \
-                         *.idl \
-                         *.odl \
-                         *.cs \
-                         *.php \
-                         *.php3 \
-                         *.inc \
-                         *.m \
-                         *.mm \
                          *.dox \
-                         *.py \
-                         *.f90 \
-                         *.f \
-                         *.for \
-                         *.vhd \
-                         *.vhdl
-                         ## *.php3 is not part of the version 1.8.10
-                         ## default.
-                         ##
-                         ## *.ddl, *.php4, *.php5, *.phtml, *.markdown,
-                         ## *.md, *.pyw, *.f95, *.f03, *.f08, *.tcl, *.ucf,
-                         ## *.qsf, and *.ice are part of the version 1.8.10
-                         ## defaults.
+                         *.markdown \
+                         *.md
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
 #---------------------------------------------------------------------------
 SOURCE_BROWSER         = YES
-INLINE_SOURCES         = YES
 REFERENCED_BY_RELATION = YES
 REFERENCES_RELATION    = YES
 #---------------------------------------------------------------------------
@@ -75,16 +51,14 @@ REFERENCES_RELATION    = YES
 HTML_COLORSTYLE_HUE    = 143
 HTML_COLORSTYLE_SAT    = 41
 HTML_COLORSTYLE_GAMMA  = 201
+HTML_TIMESTAMP         = YES
 HTML_DYNAMIC_SECTIONS  = YES
 GENERATE_TREEVIEW      = YES
-MATHJAX_RELPATH        = http://www.mathjax.org/mathjax ## This may have
-                   ## been the default value before, but it is now
-                   ## https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/.
-                   ## This value is immaterial unless MathJax is enabled.
+USE_MATHJAX            = YES
 #---------------------------------------------------------------------------
 # Configuration options related to the LaTeX output
 #---------------------------------------------------------------------------
-GENERATE_LATEX         = NO
+GENERATE_LATEX         = NO # Override to generate LaTeX documentation!
 COMPACT_LATEX          = YES
 #---------------------------------------------------------------------------
 # Configuration options related to the RTF output
@@ -113,7 +87,9 @@ COMPACT_LATEX          = YES
 #---------------------------------------------------------------------------
 # Configuration options related to the dot tool
 #---------------------------------------------------------------------------
-CLASS_DIAGRAMS         = NO
+CLASS_DIAGRAMS         = NO  # Not sure what effect this has except that
+                             # formulas disappear if both USE_MATHJAX and
+                             # this are set to NO.
 HAVE_DOT               = YES
 CALL_GRAPH             = YES
 CALLER_GRAPH           = YES

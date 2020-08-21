@@ -1,0 +1,32 @@
+name: 'Doxygen Action'
+description: 'Generate documentation on a commented project using Doxygen'
+inputs:
+  working-directory:
+    description: 'Relative path to working directory (location of the Make file)'
+    required: true
+  color:
+    description: 'Setting for HTML_COLORSTYLE_HUE (0—360)'
+    required: false
+    default: 143
+  document-private:
+    description: 'Whether or not to document private class members (YES or NO)'
+    required: false
+    default: YES
+  extra-settings:
+    description: 'Extra variable settings to pass to Make'
+    required: false
+    default: ''
+  makefile-target:
+    description: 'The target of the make command'
+    required: false
+    default: ''
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.working-directory }}
+    - ${{ inputs.color }}
+    - ${{ inputs.document-private }}
+    - ${{ inputs.extra-settings }}
+    - ${{ inputs.makefile-target }}

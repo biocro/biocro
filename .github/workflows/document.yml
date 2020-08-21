@@ -1,0 +1,100 @@
+# This workflow is triggered by a push to the master branch and that
+# can also be manually triggered.
+
+name: Update Documentation
+
+on:
+  push:
+    branches: [ master, doxygen-revisions-with-automatic-deployment ]
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+
+env:
+  publish-to: "ebimodeling/biocro-documentation"
+  version_directories: "doxygen_docs_complete doxygen_docs_modules doxygen_docs_modules_public_members_only doxygen_docs_framework"
+  
+jobs:
+  # This workflow contains a single job called "build".
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Check out master
+      uses: actions/checkout@v2
+      with:
+        path: source
+        
+    # This is where the documentation will be built to and then
+    # checked in:
+    - name: Check out master of biocro-documentation
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ env.publish-to }}
+        ref: master
+        path: target
+        token: ${{ secrets.API_TOKEN_GITHUB }}
+
+    # The following three steps use the doxygen action defined in the
+    # actions directory.
+
+    - name: Doxygen Action for default
+      uses: ./source/.github/actions/doxygen-action
+      with:
+        # Working directory
+        working-directory: "source/documentation"
+        # Makefile target
+        makefile-target: "all-html"
+
+    - name: Doxygen Action for modules only
+      uses: ./source/.github/actions/doxygen-action
+      with:
+        # Working directory
+        working-directory: "source/documentation"
+        # Color
+        color: 53
+        # Makefile target
+        makefile-target: "module-docs-html"
+
+    - name: Doxygen Action for public members of modules only
+      uses: ./source/.github/actions/doxygen-action
+      with:
+        # Working directory
+        working-directory: "source/documentation"
+        # Color
+        color: 323
+        # Document private members
+        document-private: "NO"
+        # Extra setting: override default output directory
+        extra-settings: "module_docs_directory=doxygen_docs_modules_public_members_only"
+        # Makefile target
+        makefile-target: "module-docs-html"
+
+    - name: Doxygen Action for framework
+      uses: ./source/.github/actions/doxygen-action
+      with:
+        # Working directory
+        working-directory: "source/documentation"
+        # Color
+        color: 233
+        # Makefile target
+        makefile-target: "framework-docs-html"
+
+    - name: Copy files
+      run: |
+        pushd target
+        for dir in ${{ env.version_directories }}; do
+            git rm -r --ignore-unmatch $dir
+            mkdir $dir
+            cp -R ../source/documentation/$dir/html/. $dir
+        done
+        popd
+
+    - name: Commit
+      run: |
+        cd target
+        git config user.name biocro-service-account
+        git config user.email srohde@igb.illinois.edu
+        git add .
+        git commit -m "generated"
+        git push

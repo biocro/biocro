@@ -1,0 +1,35 @@
+This workflow, Update Documentation, runs Doxygen in various
+configurations on the BioCro C++ Library source code and copies and
+commits the result to the repository given as the value of the
+"publish-to" environemnt variable, currently
+"ebimodeling/biocro-documentation".  That repository is, in turn, set
+up to publish to GitHub pages at the corresponding canonical location
+(currently, https://ebimodeling.github.io/biocro-documentation/).
+
+In order for this to all work correctly, a number of set-up steps were
+required.
+
+1. A new user, "biocro-service-account", was created.
+
+2. A Personal Access Token with repository permissions was created for
+this new user.
+
+3. The "ebimodeling/biocro-documentation" repository was created.
+
+4. A README.md file was created in this new repository with (relative)
+links pointing to the various version of the Doxygen documentation.
+
+5. GitHub pages was enabled for the "ebimodeling/biocro-documentation"
+repository.
+
+6. The new user was invited to be an external collaborator on the
+ebimodeling/biocro-documentation repository and given read and write
+access to the repository.
+
+7. The new user accepted the invitation.
+
+8. The new user's Personal Access Token was stored as a secret in
+*this* repository (ebimodeling/biocro-dev) under the key
+API_TOKEN_GITHUB.
+
+
