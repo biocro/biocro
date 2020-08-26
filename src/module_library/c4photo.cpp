@@ -11,8 +11,6 @@
 #include <cmath>
 #include "ball_berry.hpp"
 #include "c4photo.h"
-#include <Rinternals.h>                    // for debugging
-const bool c4photo_print = false;           // for debugging
 
 struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
                        double leaf_temperature,  // degrees C
@@ -59,11 +57,6 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
     double M2 = (b1 - sqrt(b1 * b1 - 4 * b0 * b2)) / 2 / b2;
 
     double M = M1 < M2 ? M1 : M2; // Use the smallest root.
-    
-    char buffer[1024];
-    if (c4photo_print) {
-        Rprintf("loop_iteration,value_type,Assim,Gs,InterCellularCO2\n");
-    }
 
     double Assim, Gs;
     {
@@ -71,11 +64,6 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
         unsigned int iterCounter = 0;
         unsigned int constexpr max_iterations = 50;
         do {
-            sprintf(buffer, "%u,starting_values,%e,%e,%e\n", iterCounter, Assim, Gs, InterCellularCO2);
-            if (c4photo_print) {
-                Rprintf(buffer);
-            }
-            
             // Collatz 1992. Appendix B. Equation 3B.
             double kT_IC_P = kT * InterCellularCO2 / AP * 1e6;  // micromole / m^2 / s
             double a = M * kT_IC_P;
@@ -90,19 +78,12 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
 
             Gs = ball_berry(Assim * 1e-6, Ca * 1e-6, relative_humidity, bb0, bb1);  // mmol / m^2 / s
             if (water_stress_approach == 1) Gs *= StomaWS;
-            
-            double original_Gs = Gs;
 
             if (iterCounter > max_iterations - 10)
                 Gs = bb1 * 1e3;  // mmol / m^2 / s. If it has gone through this many iterations, the convergence is not stable. This convergence is inapproriate for high water stress conditions, so use the minimum gs to try to get a stable system.
 
             //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / AP * 1e6, Assim, Gs, leaf_temperature);
             InterCellularCO2 = Csurface - Assim * 1e-6 * 1.6 * AP / (Gs * 0.001);  // Pa
-            
-            sprintf(buffer, "%u,new_values,%e,%e,%e\n", iterCounter, Assim, original_Gs, InterCellularCO2);
-            if (c4photo_print) {
-                Rprintf(buffer);
-            }
 
             if (InterCellularCO2 < 0)
                 InterCellularCO2 = 1e-5;
@@ -115,20 +96,11 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
         } while (diff >= Tol && ++iterCounter < max_iterations);
         //if (iterCounter > 49)
             //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / AP * 1e6, Assim, Gs, leaf_temperature);
-        sprintf(buffer, "%u,values_at_loop_end,%e,%e,%e\n", iterCounter, Assim, Gs, InterCellularCO2);
-        if (c4photo_print) {
-            Rprintf(buffer);
-        }
     }
 
     double Ci = InterCellularCO2 / AP * 1e6;  // micromole / mol
 
     if (Gs > 600) Gs = 600;
-    
-    sprintf(buffer, "%u,final_values,%e,%e,%e\n\n", 51, Assim, Gs, InterCellularCO2);
-    if (c4photo_print) {
-        Rprintf(buffer);
-    }
 
     struct c4_str result {
             .Assim = Assim,           // micromole / m^2 /s
