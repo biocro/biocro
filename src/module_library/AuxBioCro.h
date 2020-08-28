@@ -40,6 +40,7 @@ struct ET_Str {
   double EPenman;
   double EPriestly;
   double Deltat;
+  double boundary_layer_conductance;
 };
 
 struct Can_Str {

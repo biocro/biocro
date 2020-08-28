@@ -45,7 +45,8 @@ class ed_canac_leaf : public SteadyModule
           evapotranspiration_penman_monteith_op(get_op(output_parameters, "evapotranspiration_penman_monteith")),
           evapotranspiration_penman_op(get_op(output_parameters, "evapotranspiration_penman")),
           evapotranspiration_priestly_op(get_op(output_parameters, "evapotranspiration_priestly")),
-          temperature_leaf_op(get_op(output_parameters, "temperature_leaf"))
+          temperature_leaf_op(get_op(output_parameters, "temperature_leaf")),
+          conductance_boundary_h2o_op(get_op(output_parameters, "conductance_boundary_h2o"))
 
     {
     }
@@ -81,6 +82,7 @@ class ed_canac_leaf : public SteadyModule
     double* evapotranspiration_penman_op;
     double* evapotranspiration_priestly_op;
     double* temperature_leaf_op;
+    double* conductance_boundary_h2o_op;
     // Main operation
     void do_operation() const override;
 };
@@ -119,7 +121,8 @@ std::vector<std::string> ed_canac_leaf::get_outputs()
         "evapotranspiration_penman_monteith",  // mol / m^2 / s
         "evapotranspiration_penman",           // mol / m^2 / s
         "evapotranspiration_priestly",         // mol / m^2 / s
-        "temperature_leaf"                     // mol / m^2 / s
+        "temperature_leaf",                    // mol / m^2 / s
+        "conductance_boundary_h2o"             // mol / m^2 / s
     };
 }
 
@@ -142,7 +145,6 @@ void ed_canac_leaf::do_operation() const
     const double upperT = *collatz_rubisco_temperature_upper_ip;  // deg. C
     const double lowerT = *collatz_rubisco_temperature_lower_ip;  // deg. C
     const int water_stress_approach = 1;                          // Apply water stress via stomatal conductance
-    const double Rad = 0.0;                                       // micromoles / m^2 / s (only used for evapotranspiration)
     const double WindSpeed = *windspeed_ip;                       // m / s
     const double LeafAreaIndex = 0.0;                             // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
     const double CanopyHeight = 0.0;                              // meters (not actually used by EvapoTrans2)
@@ -163,6 +165,16 @@ void ed_canac_leaf::do_operation() const
     //                 = Iave * 0.3525
     // So we can find Iave according to Iave = Ja2 / 0.3525
     const double Iave = *solar_energy_absorbed_leaf_ip / 0.3525;  // micromoles / m^2 / s
+
+    // In CanAC, the same quantity (either IDir or Idiff) is passed as the first argument to both
+    // c4photoC and EvapoTrans2. In c4photoC, it is called `Qp`, while in EvapoTrans2, it is called
+    // `Rad`. We have already found `Qp`, so just copy it to `Rad`.
+    // const double Rad = Qp;
+
+    // Alternatively, one can argue that doing this doesn't make any sense, and in fact both the
+    // `Iave` and `Rad` arguments in EvapoTrans2 should have the same value. In this case, we should
+    // just copy `Iave` to `Rad`.
+    const double Rad = Iave;
 
     // Run c4photoC once assuming the leaf is at air temperature to get an initial guess for gs
     const struct c4_str first_c4photoC_output = c4photoC(Qp, temperature_air, RH,
@@ -185,14 +197,15 @@ void ed_canac_leaf::do_operation() const
                                                           upperT, lowerT);
 
     // Convert and return the results
-    update(mole_fraction_co2_intercellular_op, second_c4photoC_output.Ci * 1e-6);    // mol / m^2 / s
-    update(conductance_stomatal_h2o_op, second_c4photoC_output.Gs * 1e-3);           // mol / m^2 / s
-    update(assimilation_gross_op, second_c4photoC_output.GrossAssim * 1e-6);         // mol / m^2 / s
-    update(assimilation_net_op, second_c4photoC_output.Assim * 1e-6);                // mol / m^2 / s
-    update(evapotranspiration_penman_monteith_op, evapotrans_output.TransR * 1e-3);  // mol / m^2 / s
-    update(evapotranspiration_penman_op, evapotrans_output.EPenman * 1e-3);          // mol / m^2 / s
-    update(evapotranspiration_priestly_op, evapotrans_output.EPriestly * 1e-3);      // mol / m^2 / s
-    update(temperature_leaf_op, leaf_temperature);                                   // deg. C
+    update(mole_fraction_co2_intercellular_op, second_c4photoC_output.Ci * 1e-6);       // mol / m^2 / s
+    update(conductance_stomatal_h2o_op, second_c4photoC_output.Gs * 1e-3);              // mol / m^2 / s
+    update(assimilation_gross_op, second_c4photoC_output.GrossAssim * 1e-6);            // mol / m^2 / s
+    update(assimilation_net_op, second_c4photoC_output.Assim * 1e-6);                   // mol / m^2 / s
+    update(evapotranspiration_penman_monteith_op, evapotrans_output.TransR * 1e-3);     // mol / m^2 / s
+    update(evapotranspiration_penman_op, evapotrans_output.EPenman * 1e-3);             // mol / m^2 / s
+    update(evapotranspiration_priestly_op, evapotrans_output.EPriestly * 1e-3);         // mol / m^2 / s
+    update(temperature_leaf_op, leaf_temperature);                                      // deg. C
+    update(conductance_boundary_h2o_op, evapotrans_output.boundary_layer_conductance);  // mol / m^2 / s
 }
 
 #endif

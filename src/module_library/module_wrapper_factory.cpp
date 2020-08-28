@@ -82,6 +82,7 @@
 #include "ed_gas_concentrations.h"
 #include "ed_long_wave_energy_loss.h"
 #include "ed_penman_monteith_leaf_temperature.h"
+#include "ed_penman_monteith_transpiration.h"
 #include "ed_stomata_water_stress_linear.h"
 #include "ed_apply_water_stress.h"
 #include "ed_c4_leaf_photosynthesis.h"
@@ -204,6 +205,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_gas_concentrations",                           &create_wrapper<ed_gas_concentrations>},
      {"ed_long_wave_energy_loss",                        &create_wrapper<ed_long_wave_energy_loss>},
      {"ed_penman_monteith_leaf_temperature",             &create_wrapper<ed_penman_monteith_leaf_temperature>},
+     {"ed_penman_monteith_transpiration",                &create_wrapper<ed_penman_monteith_transpiration>},
      {"ed_stomata_water_stress_linear",                  &create_wrapper<ed_stomata_water_stress_linear>},
      {"ed_apply_stomatal_water_stress_via_conductance",  &create_wrapper<ed_apply_stomatal_water_stress_via_conductance>},
      {"ed_apply_stomatal_water_stress_via_assimilation", &create_wrapper<ed_apply_stomatal_water_stress_via_assimilation>},

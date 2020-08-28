@@ -26,7 +26,8 @@ string_vector const sub_module_names = {
     "ed_collatz_c4_assimilation",                      // Calculate net assimilation
     "ed_long_wave_energy_loss",                        // Calculate long-wave energy loss from a leaf to its environment
     "ed_water_vapor_properties",                       // Calculate properties of water vapor from the air temperature and H20 mole fraction
-    "ed_penman_monteith_leaf_temperature"              // Calculate leaf temperature
+    "ed_penman_monteith_leaf_temperature",             // Calculate leaf temperature
+    "ed_penman_monteith_transpiration"                 // Calculate evapotranspiration
 };
 
 std::string const solver_type = "newton_raphson_boost";
