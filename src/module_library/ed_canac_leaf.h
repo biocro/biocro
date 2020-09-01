@@ -169,12 +169,12 @@ void ed_canac_leaf::do_operation() const
     // In CanAC, the same quantity (either IDir or Idiff) is passed as the first argument to both
     // c4photoC and EvapoTrans2. In c4photoC, it is called `Qp`, while in EvapoTrans2, it is called
     // `Rad`. We have already found `Qp`, so just copy it to `Rad`.
-    // const double Rad = Qp;
+    const double Rad = Qp;
 
     // Alternatively, one can argue that doing this doesn't make any sense, and in fact both the
     // `Iave` and `Rad` arguments in EvapoTrans2 should have the same value. In this case, we should
     // just copy `Iave` to `Rad`.
-    const double Rad = Iave;
+    // const double Rad = Iave;
 
     // Run c4photoC once assuming the leaf is at air temperature to get an initial guess for gs
     const struct c4_str first_c4photoC_output = c4photoC(Qp, temperature_air, RH,
