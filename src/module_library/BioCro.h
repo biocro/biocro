@@ -21,7 +21,7 @@ struct Can_Str CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
          
 struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax,
-                       double Jmax, double Rd, double Catm, double o2, double b0,
+                       double Jmax, double tpu_rate_max, double Rd, double Catm, double o2, double b0,
                        double b1, double theta, double kd, double heightf, double leafN,
                        double kpLN, double lnb0, double lnb1, int lnfun, double chil,
                        double StomataWS, double growth_respiration_fraction, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
