@@ -186,7 +186,8 @@ class ed_nikolov_conductance_free : public SteadyModule
           conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
           nikolov_ce_ip(get_ip(input_parameters, "nikolov_ce")),
           // Get pointers to output parameters
-          conductance_boundary_h2o_free_op(get_op(output_parameters, "conductance_boundary_h2o_free"))
+          conductance_boundary_h2o_free_op(get_op(output_parameters, "conductance_boundary_h2o_free")),
+          nikolov_virtual_temperature_difference_op(get_op(output_parameters, "nikolov_virtual_temperature_difference"))
     {
     }
     static std::vector<std::string> get_inputs();
@@ -204,6 +205,7 @@ class ed_nikolov_conductance_free : public SteadyModule
     const double* nikolov_ce_ip;
     // Pointers to output parameters
     double* conductance_boundary_h2o_free_op;
+    double* nikolov_virtual_temperature_difference_op;
     // Main operation
     void do_operation() const override;
 };
@@ -225,7 +227,8 @@ std::vector<std::string> ed_nikolov_conductance_free::get_inputs()
 std::vector<std::string> ed_nikolov_conductance_free::get_outputs()
 {
     return {
-        "conductance_boundary_h2o_free"  // mol / m^2 / s
+        "conductance_boundary_h2o_free",          // mol / m^2 / s
+        "nikolov_virtual_temperature_difference"  // degrees C
     };
 }
 
@@ -279,6 +282,7 @@ void ed_nikolov_conductance_free::do_operation() const
 
     // Update the output parameter list
     update(conductance_boundary_h2o_free_op, gbv_free);
+    update(nikolov_virtual_temperature_difference_op, Tvdiff);
 }
 
 namespace ed_nikolov_conductance_free_solve_stuff
@@ -287,9 +291,11 @@ std::string const module_name = "ed_nikolov_conductance_free_solve";
 
 string_vector const sub_module_names{"ed_nikolov_conductance_free"};
 
-std::string const solver_type = "newton_raphson_boost";
+std::string const solver_type = "newton_raphson_backtrack_boost";
 
 int const max_iterations = 50;
+
+bool const should_reorder_guesses = false;
 
 std::vector<double> const lower_bounds = {1e-10};
 
@@ -326,27 +332,22 @@ class ed_nikolov_conductance_free_solve : public se_module::base
                           ed_nikolov_conductance_free_solve_stuff::upper_bounds,
                           ed_nikolov_conductance_free_solve_stuff::absolute_error_tolerances,
                           ed_nikolov_conductance_free_solve_stuff::relative_error_tolerances,
+                          ed_nikolov_conductance_free_solve_stuff::should_reorder_guesses,
                           input_parameters,
-                          output_parameters),
-          // Get pointers to input parameters
-          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept"))
+                          output_parameters)
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
-    const double* ball_berry_intercept_ip;
     // Main operation
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
 std::vector<std::string> ed_nikolov_conductance_free_solve::get_inputs()
 {
-    std::vector<std::string> inputs = se_module::get_se_inputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
-    inputs.push_back("ball_berry_intercept");
-    return inputs;
+    return se_module::get_se_inputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
 }
 
 std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
@@ -359,8 +360,12 @@ std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
 
 std::vector<std::vector<double>> ed_nikolov_conductance_free_solve::get_initial_guesses() const
 {
-    // Just use the Ball-Berry intercept as an initial guess
-    return std::vector<std::vector<double>>{{*ball_berry_intercept_ip}};
+    double const really_large_guess = 10.0;    // mol / m^2 / s
+    double const really_small_guess = 1.0e-5;  // mol / m^2 / s
+    return std::vector<std::vector<double>>{
+        {really_large_guess},  // This should return the largest root unless stomatal conductance is too large
+        {really_small_guess}   // This should return the only root when when stomatal conductance is too large
+    };
 }
 
 #endif

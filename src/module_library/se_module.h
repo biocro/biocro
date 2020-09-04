@@ -82,7 +82,7 @@ std::unique_ptr<simultaneous_equations> make_se(string_vector module_names)
  * f_scalar_norm values.
  */
 std::vector<std::vector<double>> reorder_initial_guesses(
-    std::vector<std::vector<double>> const& initial_guesses,
+    std::vector<std::vector<double>> initial_guesses,
     std::unique_ptr<simultaneous_equations> const& se)
 {
     // Make a map that will automatically order the guesses according to their f_scalar_norm values
@@ -141,6 +141,7 @@ class base : public SteadyModule
          std::vector<double> upper_bounds,
          std::vector<double> absolute_error_tolerances,
          std::vector<double> relative_error_tolerances,
+         bool should_reorder_guesses,
          const state_map* input_parameters,
          state_map* output_parameters)
         : SteadyModule(module_name),
@@ -150,6 +151,7 @@ class base : public SteadyModule
           upper_bounds(upper_bounds),
           absolute_error_tolerances(absolute_error_tolerances),
           relative_error_tolerances(relative_error_tolerances),
+          should_reorder_guesses(should_reorder_guesses),
           input_ptrs(get_ip(input_parameters, get_se_inputs(sub_module_names))),
           output_ptrs(get_op(output_parameters, get_se_outputs(sub_module_names))),
           ncalls_op(get_op(output_parameters, get_ncalls_output_name(module_name))),
@@ -168,6 +170,7 @@ class base : public SteadyModule
     std::vector<double> const upper_bounds;
     std::vector<double> const absolute_error_tolerances;
     std::vector<double> const relative_error_tolerances;
+    bool const should_reorder_guesses;
     std::vector<double> mutable best_guess;
     std::vector<double> mutable outputs_from_modules;
     // Pointers to input parameters
@@ -196,13 +199,15 @@ void base::do_operation() const
     se->reset_ncalls();
 
     std::vector<std::vector<double>> initial_guesses = get_initial_guesses();  // must be implemented by derived class
-
-    std::vector<std::vector<double>> reordered_initial_guesses = reorder_initial_guesses(initial_guesses, se);
+    
+    if (should_reorder_guesses) {
+        initial_guesses = reorder_initial_guesses(initial_guesses, se);
+    }
 
     bool success = false;
     int nsteps = 0;
 
-    for (std::vector<double> const& initial_guess : reordered_initial_guesses) {
+    for (std::vector<double> const& initial_guess : initial_guesses) {
         success = solver->solve(
             se, initial_guess,
             lower_bounds, upper_bounds,

@@ -19,9 +19,11 @@ string_vector const sub_module_names = {
     "ed_penman_monteith_leaf_temperature"              // Calculate leaf temperature
 };
 
-std::string const solver_type = "newton_raphson_boost";
+std::string const solver_type = "newton_raphson_backtrack_boost";
 
 int const max_iterations = 50;
+
+bool const should_reorder_guesses = true;
 
 // Note: order must agree with std::sort applied to quantity name
 std::vector<double> const lower_bounds = {
@@ -75,6 +77,7 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
                           ed_c4_leaf_photosynthesis2_stuff::upper_bounds,
                           ed_c4_leaf_photosynthesis2_stuff::absolute_error_tolerances,
                           ed_c4_leaf_photosynthesis2_stuff::relative_error_tolerances,
+                          ed_c4_leaf_photosynthesis2_stuff::should_reorder_guesses,
                           input_parameters,
                           output_parameters),
           // Get pointers to input parameters
