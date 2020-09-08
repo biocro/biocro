@@ -117,4 +117,99 @@ void ed_penman_monteith_leaf_temperature::do_operation() const
     update(temperature_leaf_op, temperature_leaf);
 }
 
+namespace ed_p_m_temperature_solve_stuff
+{
+std::string const module_name = "ed_p_m_temperature_solve";
+
+string_vector const sub_module_names{
+    "ed_nikolov_conductance_forced",       // calculate `forced` boundary layer conductance from windspeed
+    "ed_nikolov_conductance_free_solve",   // calculate `free` boundary layer conductance from leaf temperature
+    "ed_boundary_conductance_max",         // calculate overall boundary layer conductance
+    "ed_long_wave_energy_loss",            // calculate energy loss from leaf to air due to temperature difference
+    "ed_water_vapor_properties",           // get water vapor properties
+    "ed_penman_monteith_leaf_temperature"  // determine leaf temperature from boundary layer conductance
+};
+
+std::string const solver_type = "newton_raphson_backtrack_boost";
+
+int const max_iterations = 50;
+
+bool const should_reorder_guesses = false;
+
+std::vector<double> const lower_bounds = {-100};
+
+std::vector<double> const upper_bounds = {100};
+
+std::vector<double> const absolute_error_tolerances = {0.001};
+
+std::vector<double> const relative_error_tolerances = {1e-3};
+}  // namespace ed_p_m_temperature_solve_stuff
+
+/**
+ * @class ed_p_m_temperature_solve
+ * 
+ * @brief Calculates leaf temperature using the Penman-Monteith equation, where boundary
+ * layer conductance is determined using the model from Nikolov et al. Currently only
+ * intended for use by Ed.
+ */
+class ed_p_m_temperature_solve : public se_module::base
+{
+   public:
+    ed_p_m_temperature_solve(
+        const std::unordered_map<std::string, double>* input_parameters,
+        std::unordered_map<std::string, double>* output_parameters)
+        : se_module::base(ed_p_m_temperature_solve_stuff::module_name,
+                          ed_p_m_temperature_solve_stuff::sub_module_names,
+                          ed_p_m_temperature_solve_stuff::solver_type,
+                          ed_p_m_temperature_solve_stuff::max_iterations,
+                          ed_p_m_temperature_solve_stuff::lower_bounds,
+                          ed_p_m_temperature_solve_stuff::upper_bounds,
+                          ed_p_m_temperature_solve_stuff::absolute_error_tolerances,
+                          ed_p_m_temperature_solve_stuff::relative_error_tolerances,
+                          ed_p_m_temperature_solve_stuff::should_reorder_guesses,
+                          input_parameters,
+                          output_parameters),
+
+          // Get references to input parameters
+          temperature_air(get_input(input_parameters, "temp"))
+    {
+    }
+    static std::vector<std::string> get_inputs();
+    static std::vector<std::string> get_outputs();
+
+   private:
+    // References to input parameters
+    double const& temperature_air;
+
+    // Main operation
+    std::vector<std::vector<double>> get_initial_guesses() const override;
+};
+
+std::vector<std::string> ed_p_m_temperature_solve::get_inputs()
+{
+    std::vector<std::string> inputs = se_module::get_se_inputs(ed_p_m_temperature_solve_stuff::sub_module_names);
+    inputs.push_back("temp");  // degrees C
+    return inputs;
+}
+
+std::vector<std::string> ed_p_m_temperature_solve::get_outputs()
+{
+    std::vector<std::string> outputs = se_module::get_se_outputs(ed_p_m_temperature_solve_stuff::sub_module_names);
+    outputs.push_back(se_module::get_ncalls_output_name(ed_p_m_temperature_solve_stuff::module_name));
+    outputs.push_back(se_module::get_nsteps_output_name(ed_p_m_temperature_solve_stuff::module_name));
+    return outputs;
+}
+
+std::vector<std::vector<double>> ed_p_m_temperature_solve::get_initial_guesses() const
+{
+    // We want to avoid a spurious high temperature root that may be present when
+    // windspeed is low, so we try a low temperature first. If that fails, it is
+    // likely because the cusp is lurking at low temperatures. In that case, a
+    // higher starting temperature should work.
+    double const temperature_offset = 10.0;  // degrees C
+    return std::vector<std::vector<double>>{
+        {temperature_air - temperature_offset},
+        {temperature_air + temperature_offset}};
+}
+
 #endif
