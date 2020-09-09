@@ -151,7 +151,7 @@ void c3_leaf_photosynthesis::do_operation() const
 
     // Calculate final values for assimilation, stomatal conductance, and Ci using the new leaf temperature
     const struct c3_str photo = c3photoC(
-        incident_par_micromol, leaf_temperature, rh, vmax1, jmax,tpu_rate_max,
+        incident_par_micromol, leaf_temperature, rh, vmax1, jmax, tpu_rate_max,
         Rd, b0, b1, Catm, O2, theta, StomataWS, water_stress_approach,
         electrons_per_carboxylation, electrons_per_oxygenation);
 
