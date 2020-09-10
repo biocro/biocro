@@ -11,6 +11,7 @@ SEXP R_sunML(
         SEXP COSTHETA,
         SEXP KD,
         SEXP CHIL,
+        SEXP ABSORPTIVITY,
         SEXP HEIGHTF)
 {
     double const i_dir = REAL(IDIR)[0];
@@ -20,6 +21,7 @@ SEXP R_sunML(
     double const cos_theta = REAL(COSTHETA)[0];
     double const kd = REAL(KD)[0];
     double const chi_l = REAL(CHIL)[0];
+    double const absorptivity = REAL(ABSORPTIVITY)[0];
     double const height_f = REAL(HEIGHTF)[0];
 
     SEXP list;
@@ -40,7 +42,7 @@ SEXP R_sunML(
     PROTECT(shaded_fraction = Rf_allocVector(REALSXP, nlayers));
     PROTECT(height = Rf_allocVector(REALSXP, nlayers));
 
-    Light_profile result = sunML(i_dir, i_diff, lai, nlayers, cos_theta, kd, chi_l, height_f);
+    Light_profile result = sunML(i_dir, i_diff, lai, nlayers, cos_theta, kd, chi_l, absorptivity, height_f);
 
     for (int i = 0; i < nlayers; ++i) {
         REAL(direct_irradiance)[i] = result.direct_irradiance[i];
