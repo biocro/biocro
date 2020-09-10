@@ -175,10 +175,6 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
         throw std::out_of_range("heightf must greater than zero.");
     }
 
-//    constexpr double alphascatter = 0.8;
-//    constexpr double absorptivity_PAR = 0.8; // Pg. 255 Campbell and Norman Environmental Biophysics. second edition
-//    constexpr double absorptivity_NIR = 0.2;
-
     double theta = acos(cosTheta);
     double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
     double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
