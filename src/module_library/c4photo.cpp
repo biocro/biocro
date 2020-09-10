@@ -80,7 +80,7 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
             if (water_stress_approach == 1) Gs *= StomaWS;
 
             if (iterCounter > max_iterations - 10)
-                Gs = bb1 * 1e3;  // mmol / m^2 / s. If it has gone through this many iterations, the convergence is not stable. This convergence is inapproriate for high water stress conditions, so use the minimum gs to try to get a stable system.
+                Gs = bb0 * 1e3;  // mmol / m^2 / s. If it has gone through this many iterations, the convergence is not stable. This convergence is inapproriate for high water stress conditions, so use the minimum gs to try to get a stable system.
 
             //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / AP * 1e6, Assim, Gs, leaf_temperature);
             InterCellularCO2 = Csurface - Assim * 1e-6 * 1.6 * AP / (Gs * 0.001);  // Pa

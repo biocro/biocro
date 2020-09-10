@@ -31,9 +31,12 @@ class System
         return (vp->second).size();
     }
 
+    /// Check that the system is adaptive compatible based on the
+    /// modules that it uses.
     bool is_adaptive_compatible() const
     {
-        return check_adaptive_compatible(&steady_state_modules) * check_adaptive_compatible(&derivative_modules);
+        return check_adaptive_compatible(&steady_state_modules) &&
+               check_adaptive_compatible(&derivative_modules);
     }
 
     template <typename state_type>
@@ -41,10 +44,10 @@ class System
 
     // For calculating derivatives
     template <typename state_type, typename time_type>
-    void update(state_type const& x, time_type const& t);
+    void update(const state_type& x, const time_type& t);
 
     template <typename state_type, typename time_type>
-    void operator()(state_type const& x, state_type& dxdt, time_type const& t);
+    void operator()(const state_type& x, state_type& dxdt, const time_type& t);
 
     // For returning the results of a calculation
     std::vector<const double*> get_quantity_access_ptrs(string_vector quantity_names) const;
@@ -109,7 +112,8 @@ class System
 };
 
 /**
- * @brief Returns the current values of all the state parameters.
+ * @brief Updates the state parameter x with the current values of all
+ * the state parameters.
  * 
  * @param[out] x An object capable of containing the state,
  * typically either std::vector<double> or boost::numeric::ublas::vector<double>.
@@ -128,7 +132,7 @@ void System::get_state(state_type& x) const
  * @param[in] t the time
  */
 template <typename state_type, typename time_type>
-void System::update(state_type const& x, time_type const& t)
+void System::update(const state_type& x, const time_type& t)
 {
     update_varying_params(t);
     update_state_params(x);
@@ -143,7 +147,7 @@ void System::update(state_type const& x, time_type const& t)
  * @param[in] t time value
  */
 template <typename state_type, typename time_type>
-void System::operator()(state_type const& x, state_type& dxdt, time_type const& t)
+void System::operator()(const state_type& x, state_type& dxdt, const time_type& t)
 {
     ++ncalls;
     update(x, t);
@@ -156,7 +160,9 @@ void System::operator()(state_type const& x, state_type& dxdt, time_type const& 
 template <typename time_type>
 void System::update_varying_params(time_type time_indx)
 {
-    for (auto x : varying_ptr_pairs) *(x.first) = (*(x.second))[time_indx];
+    for (auto x : varying_ptr_pairs) {
+        *(x.first) = (*(x.second))[time_indx];
+    }
 }
 
 /**
@@ -209,21 +215,23 @@ void System::run_derivative_modules(vector_type& dxdt)
  */
 template <typename state_type>
 struct push_back_state_and_time {
+   private:
     // Data members
-    std::vector<state_type>& m_states;
-    std::vector<double>& m_times;
+    std::vector<state_type>& states;
+    std::vector<double>& times;
     double max_time;
     double threshold = 0;
     double threshold_increment = 0.02;
     std::string& msg;
 
+   public:
     // Constructor
     push_back_state_and_time(
         std::vector<state_type>& states,
         std::vector<double>& times,
         double maximum_time,
-        std::string& message) : m_states(states),
-                                m_times(times),
+        std::string& message) : states(states),
+                                times(times),
                                 max_time(maximum_time),
                                 msg(message) {}
 
@@ -243,30 +251,41 @@ struct push_back_state_and_time {
         }
 
         // Store the new values
-        m_states.push_back(x);
-        m_times.push_back(t);
+        states.push_back(x);
+        times.push_back(t);
     }
 };
 
 /**
- * @brief Calculates all output parameters for a list of state parameter values and their associated times using the system object's public functions
+ * @brief Calculates all output parameters for a list of state
+ * parameter values and their associated times using the system
+ * object's public functions
  */
 template <typename state_type, typename time_type>
-state_vector_map get_results_from_system(std::shared_ptr<System> sys, std::vector<state_type> const& x_vec, std::vector<time_type> const& times)
+state_vector_map get_results_from_system(std::shared_ptr<System> sys,
+                                         const std::vector<state_type>& x_vec,
+                                         const std::vector<time_type>& times)
 {
     state_vector_map results;
 
-    // Initialize the quantity names and their associated time series
-    std::vector<double> temporary(x_vec.size());
+    // The keys needed for results:
     string_vector output_param_names = sys->get_output_param_names();
-    for (std::string const& p : output_param_names) results[p] = temporary;
 
-    // Add an entry for ncalls (hopefully there will be a better way to do this someday)
+    // Initialize all result values to all-zero vectors of the correct
+    // length:
+    std::vector<double> temporary(x_vec.size());
+    for (const std::string& p : output_param_names) {
+        results[p] = temporary;
+    }
+    
+    // Add an entry for ncalls (hopefully there will be a better way
+    // to do this someday):
     std::fill(temporary.begin(), temporary.end(), sys->get_ncalls());
     results["ncalls"] = temporary;
 
-    // Get pointers to the output quantities
-    std::vector<const double*> output_param_ptrs = sys->get_quantity_access_ptrs(output_param_names);
+    // Get pointers to the output quantities:
+    std::vector<const double*> output_param_ptrs =
+        sys->get_quantity_access_ptrs(output_param_names);
 
     // Store the data
     for (size_t i = 0; i < x_vec.size(); ++i) {
