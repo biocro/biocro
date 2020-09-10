@@ -24,7 +24,7 @@ quantity<dimensionless> arrhenius_exponent(quantity<dimensionless> c, quantity<e
     return exp(c - activation_energy / (R * temperature));
 }
 
-struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, 
+struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max, 
                double _Rd0, double bb0, double bb1, double Ca, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
@@ -39,7 +39,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
     const quantity<pressure> atmospheric_pressure = 101325 * pascal;
     const quantity<dimensionless> leaf_reflectance = 0.2;
-    const quantity<flux> maximum_tpu_rate = 23 * 1e-6 * mole / square_meter / second;
+    const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
     /* From Bernacchi 2001. Improved temperature response functions. */
     /* Note: Values in Dubois and Bernacchi are incorrect. */    
@@ -149,7 +149,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     return result;
 }
 
-struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, 
+struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max, 
                double _Rd0, double bb0, double bb1, double Ca, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
@@ -184,7 +184,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
 
     const quantity<pressure> atmospheric_pressure = 101325 * pascal;
     const quantity<dimensionless> leaf_reflectance = 0.2;
-    const quantity<flux> maximum_tpu_rate = 23 * 1e-6 * mole / square_meter / second;
+    const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
     /* From Bernacchi 2001. Improved temperature response functions. */
     /* Note: Values in Dubois and Bernacchi are incorrect. */    

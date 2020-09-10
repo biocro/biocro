@@ -24,7 +24,8 @@ extern "C" {
 			SEXP GROWTH_RESPIRATION_FRACTION,
 			SEXP WATER_STRESS_APPROACH,
 			SEXP ELECTRONS_PER_CARBOXYLATION,
-			SEXP ELECTRONS_PER_OXYGENATION)
+			SEXP ELECTRONS_PER_OXYGENATION,
+			SEXP TPU_RATE_MAX)
 	{
 		// Collect the inputs
 		double lai = REAL(Lai)[0];
@@ -56,6 +57,7 @@ extern "C" {
 		double water_stress_approach = REAL(WATER_STRESS_APPROACH)[0];
 		double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
 		double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
+		double tpu_rate_max = REAL(TPU_RATE_MAX)[0];
 		
 		// Make objects to pass back to R
 		SEXP lists;
@@ -94,6 +96,7 @@ extern "C" {
 		double* electrons_per_carboxylation_ptr = &electrons_per_carboxylation;
 		double* electrons_per_oxygenation_ptr = &electrons_per_oxygenation;
 		double* growth_respiration_fraction_ptr = &growth_respiration_fraction;
+		double* tpu_rate_max_ptr = &tpu_rate_max;
 		double* heightf_ptr = &heightf;
 		double* jmax_ptr = &jmax;
 		double* kd_ptr = &kd;
@@ -157,7 +160,8 @@ extern "C" {
 			{"theta", theta_ptr},
 			{"vmax", vmax_ptr},
 			{"water_stress_approach", water_stress_approach_ptr},
-			{"windspeed", windspeed_ptr}
+			{"windspeed", windspeed_ptr},
+			{"tpu_rate_max", tpu_rate_max_ptr}
 		};
 		
 		// Set up the output parameter list to pass to the module
