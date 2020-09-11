@@ -24,7 +24,10 @@ struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Tem
                        double Jmax, double Rd, double Catm, double o2, double b0,
                        double b1, double theta, double kd, double heightf, double leafN,
                        double kpLN, double lnb0, double lnb1, int lnfun, double chil,
-                       double StomataWS, double growth_respiration_fraction, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
+                       double StomataWS, double growth_respiration_fraction,
+                       int water_stress_approach, double electrons_per_carboxylation,
+                       double electrons_per_oxygenation, double absorptivity_par,
+                       double absorptivity_nir);
                         
 
 double resp(double comp, double mrc, double temp);
