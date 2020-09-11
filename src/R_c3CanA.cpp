@@ -24,7 +24,9 @@ extern "C" {
 			SEXP GROWTH_RESPIRATION_FRACTION,
 			SEXP WATER_STRESS_APPROACH,
 			SEXP ELECTRONS_PER_CARBOXYLATION,
-			SEXP ELECTRONS_PER_OXYGENATION)
+			SEXP ELECTRONS_PER_OXYGENATION,
+            SEXP ABSORPTIVITY_PAR,
+            SEXP ABSORPTIVITY_NIR)
 	{
 		// Collect the inputs
 		double lai = REAL(Lai)[0];
@@ -56,6 +58,8 @@ extern "C" {
 		double water_stress_approach = REAL(WATER_STRESS_APPROACH)[0];
 		double electrons_per_carboxylation = REAL(ELECTRONS_PER_CARBOXYLATION)[0];
 		double electrons_per_oxygenation = REAL(ELECTRONS_PER_OXYGENATION)[0];
+        double absorptivity_par = REAL(ABSORPTIVITY_PAR)[0];
+        double absorptivity_nir = REAL(ABSORPTIVITY_NIR)[0];
 		
 		// Make objects to pass back to R
 		SEXP lists;
@@ -111,6 +115,8 @@ extern "C" {
 		double* vmax_ptr = &vmax;
 		double* water_stress_approach_ptr = &water_stress_approach;
 		double* windspeed_ptr = &windspeed;
+        double* absorptivity_par_ptr = &absorptivity_par;
+        double* absorptivity_nir_ptr = &absorptivity_nir;
 		
 		// Make variables and pointers for the output parameters
 		// Note: the list of required outputs was quickly determined by using the following R command
@@ -157,7 +163,9 @@ extern "C" {
 			{"theta", theta_ptr},
 			{"vmax", vmax_ptr},
 			{"water_stress_approach", water_stress_approach_ptr},
-			{"windspeed", windspeed_ptr}
+			{"windspeed", windspeed_ptr},
+            {"absorptivity_par", absorptivity_par_ptr},
+            {"absorptivity_nir", absorptivity_nir_ptr}
 		};
 		
 		// Set up the output parameter list to pass to the module
