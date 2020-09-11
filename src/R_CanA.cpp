@@ -43,7 +43,9 @@ SEXP CanA(
 		SEXP UPPERTEMP,
 		SEXP LOWERTEMP,
 		SEXP NNITROP,
-		SEXP LEAFWIDTH)
+		SEXP LEAFWIDTH,
+        SEXP ABSORPTIVITY_PAR,
+        SEXP ABSORPTIVITY_NIR)
 {
   double LAI = REAL(Lai)[0];
   int DOY = INTEGER(Doy)[0];
@@ -77,6 +79,8 @@ SEXP CanA(
   double leafwidth = REAL(LEAFWIDTH)[0];
   double eteq = 0.0;
   double stomataws = REAL(STOMATAWS)[0];
+  double absorptivity_par = REAL(ABSORPTIVITY_PAR)[0];
+  double absorptivity_nir = REAL(ABSORPTIVITY_NIR)[0];
 
   SEXP lists;
   SEXP names;
@@ -125,7 +129,7 @@ SEXP CanA(
 		  b0, b1, theta, kd, chil,
 		  heightf, leafN, kpLN, lnb0, lnb1,
 		  lnfun, upperT, lowerT, nitroP, leafwidth,
-		  eteq, stomataws, water_stress_approach);
+		  eteq, stomataws, water_stress_approach, absorptivity_par, absorptivity_nir);
 
     if(ISNAN(ans.Assim)) {
         Rf_error("Something is NA \n");

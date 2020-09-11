@@ -17,14 +17,19 @@ struct Can_Str CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
 		     double Kparm, double beta, double Rd, double Catm, double b0, 
 		     double b1, double theta, double kd, double chil, double heightf,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
-		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq, double StomataWS, int water_stress_approach);
+		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq,
+             double StomataWS, int water_stress_approach, double absorptivity_par,
+             double absorptivity_nir);
          
 struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax,
                        double Jmax, double tpu_rate_max, double Rd, double Catm, double o2, double b0,
                        double b1, double theta, double kd, double heightf, double leafN,
                        double kpLN, double lnb0, double lnb1, int lnfun, double chil,
-                       double StomataWS, double growth_respiration_fraction, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
+                       double StomataWS, double growth_respiration_fraction,
+                       int water_stress_approach, double electrons_per_carboxylation,
+                       double electrons_per_oxygenation, double absorptivity_par,
+                       double absorptivity_nir);
                         
 
 double resp(double comp, double mrc, double temp);
@@ -48,7 +53,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
-struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil, double heightf);
+struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil, double absorptivity, double heightf);
 struct Light_model lightME(double lat, int DOY, double td);
 
 struct FL_str FmLcFun(double Lig, double Nit);
