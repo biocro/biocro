@@ -122,12 +122,12 @@ namespace ed_p_m_temperature_solve_stuff
 std::string const module_name = "ed_p_m_temperature_solve";
 
 string_vector const sub_module_names{
-    "ed_nikolov_conductance_forced",       // calculate `forced` boundary layer conductance from windspeed
-    "ed_nikolov_conductance_free_solve",   // calculate `free` boundary layer conductance from leaf temperature
-    "ed_boundary_conductance_max",         // calculate overall boundary layer conductance
-    "ed_long_wave_energy_loss",            // calculate energy loss from leaf to air due to temperature difference
-    "ed_water_vapor_properties",           // get water vapor properties
-    "ed_penman_monteith_leaf_temperature"  // determine leaf temperature from boundary layer conductance
+    "ed_nikolov_conductance_forced",       // Calculate `forced` boundary layer conductance from windspeed
+    "ed_nikolov_conductance_free_solve",   // Iteratively solve for `free` boundary layer conductance
+    "ed_boundary_conductance_max",         // Calculate overall boundary layer conductance
+    "ed_long_wave_energy_loss",            // Calculate energy loss from leaf to air due to temperature difference
+    "ed_water_vapor_properties",           // Get water vapor properties
+    "ed_penman_monteith_leaf_temperature"  // Determine leaf temperature from boundary layer conductance
 };
 
 std::string const solver_type = "newton_raphson_backtrack_boost";

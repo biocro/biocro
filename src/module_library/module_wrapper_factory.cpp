@@ -87,6 +87,7 @@
 #include "ed_apply_water_stress.h"
 #include "ed_c4_leaf_photosynthesis.h"
 #include "ed_c4_leaf_photosynthesis2.h"
+#include "ed_c4_leaf_photosynthesis3.h"
 #include "ed_c4photo.h"
 #include "ed_evapotrans2.h"
 #include "ed_canac_leaf.h"
@@ -213,6 +214,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_apply_stomatal_water_stress_via_assimilation", &create_wrapper<ed_apply_stomatal_water_stress_via_assimilation>},
      {"ed_c4_leaf_photosynthesis",                       &create_wrapper<ed_c4_leaf_photosynthesis>},
      {"ed_c4_leaf_photosynthesis2",                      &create_wrapper<ed_c4_leaf_photosynthesis2>},
+     {"ed_c4_leaf_photosynthesis3",                      &create_wrapper<ed_c4_leaf_photosynthesis3>},
      {"ed_c4photo",                                      &create_wrapper<ed_c4photo>},
      {"ed_evapotrans2",                                  &create_wrapper<ed_evapotrans2>},
      {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},
