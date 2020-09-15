@@ -100,16 +100,15 @@ bool newton_raphson_line_search_boost(
         Rprintf(message.c_str());  // print the message now in case an error is thrown
     }
 
-    // If the guess is right at the edge of the bounds, the rescale factor will be
-    // very small. In this case we just take the full N-R step and then fix any
-    // problematic elements.
+    // If the guess is right at the edge of the bounds and the Newton-Raphson direction is
+    // pushing it out of bounds, the rescale factor will be very small. In this case, additional
+    // steps will probably not lead to a solution, so we report that a problem has occurred by
+    // returning a value of `true`.
     if (rescale_factor < min_rescale_factor) {
         if (nrb_print) {
-            Rprintf("rescale_factor too small, taking full N-R step and readjusting to keep it within the bounds\n");
+            Rprintf("rescale_factor is too small, so we are abandoning the line search\n");
         }
-        std::transform(x_old.begin(), x_old.end(), direction.begin(), x_new.begin(), std::plus<double>());  // modifies x_new
-        adjust_bad_guess_limits(F_vec, lower_bounds, upper_bounds, x_new, F_vec_new);                       // modifies x_new and F_vec_new
-        return false;
+        return true;
     }
 
     // The rescale factor should never be greater than 1, so throw an error if this
@@ -179,11 +178,15 @@ bool newton_raphson_line_search_boost(
     //
     // A problem may arise if any x_old_i are zero or very small, since in that
     // case lambda_min will be zero or very small, defeating the purpose of
-    // choosing a minimum. To prevent this, we replace abs(x_old_i) by 1 if it
-    // is smaller than 1. This seems somewhat arbitrary but apparently works.
+    // choosing a minimum. To prevent this, we set a minimum value for abs(x_old_i).
+    // In the original Numerical Recipes version, this minimum was 1. However, this
+    // can lead to some weird results if a root occurs near a very small value of x_i,
+    // since in this case lambda_min might be greater than 1. To avoid this issue,
+    // we use a smaller value.
+    double const min_x_old_i = 1e-10;
     vector_type lambda_mins = x_old;  // std::transform cannot easily write to an empty vector
     std::transform(direction.begin(), direction.end(), x_old.begin(), lambda_mins.begin(),
-                   [&min_step_factor](double d_i, double x_i) -> double { return min_step_factor * std::max(fabs(x_i), 1.0) / fabs(d_i); });
+                   [&min_step_factor, &min_x_old_i](double d_i, double x_i) -> double { return min_step_factor * std::max(fabs(x_i), min_x_old_i) / fabs(d_i); });
 
     message = " lambda_mins:";  // reset the message since we just printed it
     for (double const& v : lambda_mins) {
@@ -208,8 +211,6 @@ bool newton_raphson_line_search_boost(
     double f_scalar_new = 0.0;   // will be recalculated at each step
     double lambda_2 = 0.0;       // will be initialized at the end of the first loop, but not required during the first iteration
     double f_scalar_2 = 0.0;     // will be initialized at the end of the first loop, but not required during the first iteration
-    vector_type x_lambda_1;      // will be initialized at the start of the first loop, but not required during the first iteration
-    vector_type F_vec_lambda_1;  // will be initialized at the start of the first loop, but not required during the first iteration
     bool found_acceptable_step = false;
     bool found_possible_local_min = false;
 
@@ -249,23 +250,13 @@ bool newton_raphson_line_search_boost(
         sprintf(buff, "  f_scalar_new = %e\n", f_scalar_new);
         message += std::string(buff);
 
-        // If lambda is 1, this is the first step.
-        // Store x and F_vec corresponding to lambda = 1 in case the line search fails,
-        // since in that case we will just try the full Newton step
-        if (lambda == 1.0) {
-            x_lambda_1 = x_new;
-            F_vec_lambda_1 = F_vec_new;
-        }
-
         // Check to see if we have found a possible zero or an acceptable step.
         // If not, determine a new value of lambda to try.
         if (lambda < lambda_min) {
             // The step is very small, so we are probably stuck near a local min.
-            // In this case, just use the full Newton-Raphson step.
-            x_new = x_lambda_1;          // use stored value
-            F_vec_new = F_vec_lambda_1;  // use stored value
+            // In this case, indicate that a problem has occurred.
             found_possible_local_min = true;
-            message += "  lambda < lambda_min, so we are using the full Newton-Raphson step\n";
+            message += "  lambda < lambda_min, so we are abandoning the line search\n";
             if (nrb_print) {
                 Rprintf(message.c_str());  // print the message now in case an error is thrown
             }
@@ -398,12 +389,13 @@ bool newton_raphson_backtrack_boost::get_next_guess(
 
     // Use the backtracking line search algorithm to determine the next guess,
     // rather than automatically taking the full Newton-Raphson step.
-    // The line search will return a value of "true" if the final step is too small.
-    // In this case, the line searcher will assume that the search has gotten stuck in a
-    // local min and just take the full Newton-Raphson step.
+    // The line search will return a value of "true" if a problem occurred
+    // (either the search is heading out of bounds or has gotten stuck near
+    // a local min). We should pass this as the return value to indicate that
+    // a problem occurred.
     output_guess = input_guess;                                            // make sure output_guess is the right size
     difference_vector_at_output_guess = difference_vector_at_input_guess;  // make sure difference_vector_at_output_guess is the right size
-    newton_raphson_line_search_boost(
+    return newton_raphson_line_search_boost(
         lower_bounds,
         upper_bounds,
         min_rescale_factor,
@@ -416,10 +408,6 @@ bool newton_raphson_backtrack_boost::get_next_guess(
         input_guess,
         output_guess,
         difference_vector_at_output_guess);  // modifies output_guess and difference_vector_at_output_guess
-
-    // This algorithm doesn't need to check for any additional problems,
-    // so just return false
-    return false;
 }
 
 #endif

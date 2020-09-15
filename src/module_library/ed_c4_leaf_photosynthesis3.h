@@ -22,7 +22,7 @@ string_vector const sub_module_names = {
     "ed_penman_monteith_transpiration"                 // Calculate evapotranspiration
 };
 
-std::string const solver_type = "newton_raphson_boost";
+std::string const solver_type = "newton_raphson_backtrack_boost";
 
 int const max_iterations = 50;
 
