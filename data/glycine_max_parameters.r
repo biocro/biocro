@@ -36,6 +36,7 @@ glycine_max_parameters = with(list(), {
      O2     210 
      b0     0.048
      b1     5   
+     Gs_min     1e-3
      theta  0.7 
      water_stress_approach     1   
      tp1       400   

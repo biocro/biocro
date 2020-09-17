@@ -25,6 +25,7 @@ class c3_canopy : public SteadyModule {
 			O2_ip(get_ip(input_parameters, "O2")),
 			b0_ip(get_ip(input_parameters, "b0")),
 			b1_ip(get_ip(input_parameters, "b1")),
+			Gs_min_ip(get_ip(input_parameters, "Gs_min")),
 			theta_ip(get_ip(input_parameters, "theta")),
 			kd_ip(get_ip(input_parameters, "kd")),
 			heightf_ip(get_ip(input_parameters, "heightf")),
@@ -64,6 +65,7 @@ class c3_canopy : public SteadyModule {
 		const double* O2_ip;
 		const double* b0_ip;
 		const double* b1_ip;
+		const double* Gs_min_ip;
 		const double* theta_ip;
 		const double* kd_ip;
 		const double* heightf_ip;
