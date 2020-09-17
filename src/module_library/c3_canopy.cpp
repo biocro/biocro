@@ -12,7 +12,7 @@ std::vector<std::string> c3_canopy::get_inputs() {
 		"nlayers",
 		"vmax",
 		"jmax",
-		"tpu_rate_max"
+		"tpu_rate_max",
 		"Rd",
 		"Catm",
 		"O2",
