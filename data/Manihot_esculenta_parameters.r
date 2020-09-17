@@ -22,6 +22,7 @@ manihot_esculenta_parameters = with(list(), {
      vmax1   133 
      alpha1  0
      jmax   226 
+     tpu_rate_max   23 
      Rd     3 
      Catm   400 
      O2     210 

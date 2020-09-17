@@ -27,6 +27,7 @@ willow_parameters = with(list(), {
      vmax1   100 
      alpha1  0
      jmax   180 
+     tpu_rate_max   23 
      Rd     1.1 
      Catm   400 
      O2     210 
