@@ -31,6 +31,7 @@ class c4_leaf_photosynthesis : public SteadyModule
           Rd(get_input(input_parameters, "Rd")),
           b0(get_input(input_parameters, "b0")),
           b1(get_input(input_parameters, "b1")),
+          Gs_min(get_input(input_parameters, "Gs_min")),
           StomataWS(get_input(input_parameters, "StomataWS")),
           Catm(get_input(input_parameters, "Catm")),
           water_stress_approach(get_input(input_parameters, "water_stress_approach")),
@@ -70,6 +71,7 @@ class c4_leaf_photosynthesis : public SteadyModule
     double const& Rd;
     double const& b0;
     double const& b1;
+    double const& Gs_min;
     double const& StomataWS;
     double const& Catm;
     double const& water_stress_approach;
@@ -108,6 +110,7 @@ std::vector<std::string> c4_leaf_photosynthesis::get_inputs()
         "Rd",                     // micromole / m^2 / s
         "b0",                     // mol / m^2 / s
         "b1",                     // dimensionless
+        "Gs_min",                 // mol / m^2 / s
         "StomataWS",              // dimensionless
         "Catm",                   // micromole / mol
         "water_stress_approach",  // a dimensionless switch
@@ -144,7 +147,7 @@ void c4_leaf_photosynthesis::do_operation() const
     // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
     const double initial_stomatal_conductance = c4photoC(
                                                     incident_par_micromol, temp, rh, vmax1, alpha1,
-                                                    kparm, theta, beta, Rd, b0, b1, StomataWS, Catm,
+                                                    kparm, theta, beta, Rd, b0, b1, Gs_min * 1e-3, StomataWS, Catm,
                                                     water_stress_approach, upperT, lowerT)
                                                     .Gs;  // mmol / m^2 / s
 
@@ -158,7 +161,7 @@ void c4_leaf_photosynthesis::do_operation() const
     // Calculate final values for assimilation, stomatal conductance, and Ci using the new leaf temperature
     const struct c4_str photo = c4photoC(
         incident_par_micromol, leaf_temperature, rh, vmax1, alpha1,
-        kparm, theta, beta, Rd, b0, b1, StomataWS, Catm,
+        kparm, theta, beta, Rd, b0, b1, Gs_min * 1e-3, StomataWS, Catm,
         water_stress_approach, upperT, lowerT);
 
     // Update the outputs

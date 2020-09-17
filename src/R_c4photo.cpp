@@ -3,11 +3,11 @@
 
 extern "C" {
 SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
-	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP STOMWS, SEXP WATER_STRESS_APPROACH,SEXP UPPERTEMP, SEXP LOWERTEMP)
+	     SEXP KPAR, SEXP THETA, SEXP BETA, SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP GS_MIN, SEXP STOMWS, SEXP WATER_STRESS_APPROACH,SEXP UPPERTEMP, SEXP LOWERTEMP)
 {
 	struct c4_str tmp;
 
-	double Bet0,Bet1;
+	double Bet0,Bet1,Gsw_min;
 
 	double vmax, alpha, K, Rd, StomWS;/*\ref{parm:Vmax}\ref{parm:Rd}*/
 	double theta, beta;
@@ -20,6 +20,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 	K = REAL(KPAR)[0];
 	Bet0 = REAL(B0)[0];
 	Bet1 = REAL(B1)[0];
+    Gsw_min = REAL(GS_MIN)[0];
 	Rd = REAL(RD)[0];/*\ref{eqn:Rd}*/
 	StomWS = REAL(STOMWS)[0];
         upperT=REAL(UPPERTEMP)[0];
@@ -60,7 +61,7 @@ SEXP c4photo(SEXP Qp, SEXP Tl, SEXP RH, SEXP VMAX, SEXP ALPHA,
 
 		tmp = c4photoC(*(pt_Qp+i), *(pt_Tl+i), *(pt_RH+i),
 			       vmax, alpha, K,theta, beta, Rd, /*\ref{parm:Vmax}\ref{parm:Rd}*/
-			       Bet0, Bet1, StomWS, 
+			       Bet0, Bet1, Gsw_min, StomWS, 
 			       *(pt_CA+i), water_stress_approach,upperT,lowerT);
 
 		*(pt_GSV + i) = tmp.Gs;

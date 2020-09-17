@@ -30,6 +30,7 @@ SEXP CanA(
 		SEXP RD,
 		SEXP B0,
 		SEXP B1,
+		SEXP GS_MIN,
 		SEXP CATM,
 		SEXP KD,
 		SEXP HEIGHTF,
@@ -62,6 +63,7 @@ SEXP CanA(
   double Rd = REAL(RD)[0];
   double b0 = REAL(B0)[0];
   double b1 = REAL(B1)[0];
+  double Gsw_min = REAL(GS_MIN)[0];
   double Catm = REAL(CATM)[0];
   double kd = REAL(KD)[0];
   double heightf = REAL(HEIGHTF)[0];
@@ -122,7 +124,7 @@ SEXP CanA(
   struct Can_Str ans = CanAC(LAI, DOY, hr, solarR, temp,
 		  RH, WindSpeed, lat, nlayers, Vmax,
 		  alpha, kparm, beta, Rd, Catm,
-		  b0, b1, theta, kd, chil,
+		  b0, b1, Gsw_min, theta, kd, chil,
 		  heightf, leafN, kpLN, lnb0, lnb1,
 		  lnfun, upperT, lowerT, nitroP, leafwidth,
 		  eteq, stomataws, water_stress_approach);

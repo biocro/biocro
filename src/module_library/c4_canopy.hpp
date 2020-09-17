@@ -36,6 +36,7 @@ class c4_canopy : public SteadyModule {
 			Catm_ip(get_ip(input_parameters, "Catm")),
 	        b0_ip(get_ip(input_parameters, "b0")),
 			b1_ip(get_ip(input_parameters, "b1")),
+			Gs_min_ip(get_ip(input_parameters, "Gs_min")),
 			theta_ip(get_ip(input_parameters, "theta")),
 			kd_ip(get_ip(input_parameters, "kd")),
 			chil_ip(get_ip(input_parameters, "chil")),
@@ -88,6 +89,7 @@ class c4_canopy : public SteadyModule {
 		const double* Catm_ip;
         const double* b0_ip;
 		const double* b1_ip;
+		const double* Gs_min_ip;
 		const double* theta_ip;
 		const double* kd_ip;
 		const double* chil_ip;
@@ -141,6 +143,7 @@ std::vector<std::string> c4_canopy::get_inputs() {
 		"Catm",
         "b0",
 		"b1",
+		"Gs_min",  // mol / m^2 / s
 		"theta",
 		"kd",
 		"chil",
@@ -190,7 +193,7 @@ void c4_canopy::do_operation() const {
     struct Can_Str can_result = CanAC(*lai_ip, doy, hour, *solar_ip, *temp_ip,
             *rh_ip, *windspeed_ip, *lat_ip, (int)(*nlayers_ip), *vmax1_ip,
             *alpha1_ip, *kparm_ip, *beta_ip, *Rd_ip, *Catm_ip,
-            *b0_ip, *b1_ip, *theta_ip, *kd_ip, *chil_ip,
+            *b0_ip, *b1_ip, *Gs_min_ip * 1e-3, *theta_ip, *kd_ip, *chil_ip,
             *heightf_ip, *LeafN_ip, *kpLN_ip, *lnb0_ip, *lnb1_ip,
             (int)(*lnfun_ip), *upperT_ip, *lowerT_ip, nitroP, *leafwidth_ip,
             (int)(*et_equation_ip), *StomataWS_ip, (int)(*water_stress_approach_ip));
