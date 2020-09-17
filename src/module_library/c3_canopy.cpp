@@ -12,6 +12,7 @@ std::vector<std::string> c3_canopy::get_inputs() {
 		"nlayers",
 		"vmax",
 		"jmax",
+		"tpu_rate_max",
 		"Rd",
 		"Catm",
 		"O2",
@@ -50,7 +51,7 @@ void c3_canopy::do_operation() const {
 	// c3CanAC is located in c3CanAc.cpp
 	struct Can_Str can_result = c3CanAC(*lai_ip, doy, hour, *solar_ip, *temp_ip,
             *rh_ip, *windspeed_ip, *lat_ip, (int)(*nlayers_ip), *vmax_ip,
-            *jmax_ip, *Rd_ip, *Catm_ip, *O2_ip, *b0_ip,
+            *jmax_ip, *tpu_rate_max_ip, *Rd_ip, *Catm_ip, *O2_ip, *b0_ip,
             *b1_ip, *theta_ip, *kd_ip, *heightf_ip, *LeafN_ip,
             *kpLN_ip, *lnb0_ip, *lnb1_ip, (int)(*lnfun_ip), *chil_ip,
             *StomataWS_ip, *growth_respiration_fraction_ip, (int)(*water_stress_approach_ip), *electrons_per_carboxylation_ip, *electrons_per_oxygenation_ip);

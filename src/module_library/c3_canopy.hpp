@@ -19,6 +19,7 @@ class c3_canopy : public SteadyModule {
 			nlayers_ip(get_ip(input_parameters, "nlayers")),
 			vmax_ip(get_ip(input_parameters, "vmax")),
 			jmax_ip(get_ip(input_parameters, "jmax")),
+			tpu_rate_max_ip(get_ip(input_parameters, "tpu_rate_max")),
 			Rd_ip(get_ip(input_parameters, "Rd")),
 			Catm_ip(get_ip(input_parameters, "Catm")),
 			O2_ip(get_ip(input_parameters, "O2")),
@@ -57,6 +58,7 @@ class c3_canopy : public SteadyModule {
 		const double* nlayers_ip;
 		const double* vmax_ip;
 		const double* jmax_ip;
+		const double* tpu_rate_max_ip;
 		const double* Rd_ip;
 		const double* Catm_ip;
 		const double* O2_ip;
