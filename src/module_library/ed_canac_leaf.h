@@ -129,29 +129,29 @@ std::vector<std::string> ed_canac_leaf::get_outputs()
 void ed_canac_leaf::do_operation() const
 {
     // Get the inputs and convert units as necessary
-    const double Qp = *collatz_PAR_flux_ip * 1e6;                   // micromole / m^2 / s
-    const double temperature_air = *temperature_air_ip;             // deg. C
-    const double RH = *rh_ip;                                       // dimensionless
-    const double vmax = *collatz_vmax_ip * 1e6;                     // micromole / m^2 / s
-    const double alpha = *collatz_alpha_ip;                         // dimensionless
-    const double kparm = *collatz_k_ip;                             // mol / m^2 / s
-    const double theta = *collatz_theta_ip;                         // dimensionless
-    const double beta = *collatz_beta_ip;                           // dimensionless
-    const double Rd = *collatz_rd_ip * 1e6;                         // micromole / m^2 / s
-    const double bb0 = *ball_berry_intercept_ip;                    // mol / m^2 / s
-    const double bb1 = *ball_berry_slope_ip;                        // dimensionless
-    const double Gs_min = *conductance_stomatal_h2o_min_ip * 1e-3;  // mmol / m^2 / s
-    const double StomaWS = *StomataWS_ip;                           // dimensionless
-    const double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;       // micromole / mol
-    const double upperT = *collatz_rubisco_temperature_upper_ip;    // deg. C
-    const double lowerT = *collatz_rubisco_temperature_lower_ip;    // deg. C
-    const int water_stress_approach = 1;                            // Apply water stress via stomatal conductance
-    const double Rad = 0.0;                                         // micromoles / m^2 / s (only used for evapotranspiration)
-    const double WindSpeed = *windspeed_ip;                         // m / s
-    const double LeafAreaIndex = 0.0;                               // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
-    const double CanopyHeight = 0.0;                                // meters (not actually used by EvapoTrans2)
-    const double leaf_width = *leafwidth_ip;                        // meter
-    const int eteq = 0;                                             // Report Penman-Monteith transpiration
+    const double Qp = *collatz_PAR_flux_ip * 1e6;                  // micromole / m^2 / s
+    const double temperature_air = *temperature_air_ip;            // deg. C
+    const double RH = *rh_ip;                                      // dimensionless
+    const double vmax = *collatz_vmax_ip * 1e6;                    // micromole / m^2 / s
+    const double alpha = *collatz_alpha_ip;                        // dimensionless
+    const double kparm = *collatz_k_ip;                            // mol / m^2 / s
+    const double theta = *collatz_theta_ip;                        // dimensionless
+    const double beta = *collatz_beta_ip;                          // dimensionless
+    const double Rd = *collatz_rd_ip * 1e6;                        // micromole / m^2 / s
+    const double bb0 = *ball_berry_intercept_ip;                   // mol / m^2 / s
+    const double bb1 = *ball_berry_slope_ip;                       // dimensionless
+    const double Gs_min = *conductance_stomatal_h2o_min_ip * 1e3;  // mmol / m^2 / s
+    const double StomaWS = *StomataWS_ip;                          // dimensionless
+    const double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;      // micromole / mol
+    const double upperT = *collatz_rubisco_temperature_upper_ip;   // deg. C
+    const double lowerT = *collatz_rubisco_temperature_lower_ip;   // deg. C
+    const int water_stress_approach = 1;                           // Apply water stress via stomatal conductance
+    const double Rad = 0.0;                                        // micromoles / m^2 / s (only used for evapotranspiration)
+    const double WindSpeed = *windspeed_ip;                        // m / s
+    const double LeafAreaIndex = 0.0;                              // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
+    const double CanopyHeight = 0.0;                               // meters (not actually used by EvapoTrans2)
+    const double leaf_width = *leafwidth_ip;                       // meter
+    const int eteq = 0;                                            // Report Penman-Monteith transpiration
 
     // For ed_penman_monteith_leaf_temperature, the light input is called `solar_energy_absorbed_leaf`
     // and is in units of W / m^2 / s. This quantity is equivalent to `Ja2` in Evapotrans2. `Iave` is

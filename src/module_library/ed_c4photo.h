@@ -108,22 +108,22 @@ std::vector<std::string> ed_c4photo::get_outputs()
 void ed_c4photo::do_operation() const
 {
     // Get the inputs to c4photo and convert units as necessary
-    double Qp = *collatz_PAR_flux_ip * 1e6;                   // micromole / m^2 / s
-    double Tl = *temperature_leaf_ip;                         // deg. C
-    double RH = *rh_ip;                                       // dimensionless
-    double vmax = *collatz_vmax_ip * 1e6;                     // micromole / m^2 / s
-    double alpha = *collatz_alpha_ip;                         // dimensionless
-    double kparm = *collatz_k_ip;                             // mol / m^2 / s
-    double theta = *collatz_theta_ip;                         // dimensionless
-    double beta = *collatz_beta_ip;                           // dimensionless
-    double Rd = *collatz_rd_ip * 1e6;                         // micromole / m^2 / s
-    double bb0 = *ball_berry_intercept_ip;                    // mol / m^2 / s
-    double bb1 = *ball_berry_slope_ip;                        // dimensionless
-    double Gs_min = *conductance_stomatal_h2o_min_ip / 1000;  // mmol / m^2 / s
-    double StomaWS = *StomataWS_ip;                           // dimensionless
-    double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;       // micromole / mol
-    double upperT = *collatz_rubisco_temperature_upper_ip;    // deg. C
-    double lowerT = *collatz_rubisco_temperature_lower_ip;    // deg. C
+    double Qp = *collatz_PAR_flux_ip * 1e6;                  // micromole / m^2 / s
+    double Tl = *temperature_leaf_ip;                        // deg. C
+    double RH = *rh_ip;                                      // dimensionless
+    double vmax = *collatz_vmax_ip * 1e6;                    // micromole / m^2 / s
+    double alpha = *collatz_alpha_ip;                        // dimensionless
+    double kparm = *collatz_k_ip;                            // mol / m^2 / s
+    double theta = *collatz_theta_ip;                        // dimensionless
+    double beta = *collatz_beta_ip;                          // dimensionless
+    double Rd = *collatz_rd_ip * 1e6;                        // micromole / m^2 / s
+    double bb0 = *ball_berry_intercept_ip;                   // mol / m^2 / s
+    double bb1 = *ball_berry_slope_ip;                       // dimensionless
+    double Gs_min = *conductance_stomatal_h2o_min_ip * 1e3;  // mmol / m^2 / s
+    double StomaWS = *StomataWS_ip;                          // dimensionless
+    double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;      // micromole / mol
+    double upperT = *collatz_rubisco_temperature_upper_ip;   // deg. C
+    double lowerT = *collatz_rubisco_temperature_lower_ip;   // deg. C
     int water_stress_approach = 1;
 
     // Call c4photoC

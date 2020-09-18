@@ -193,7 +193,7 @@ void c4_canopy::do_operation() const {
     struct Can_Str can_result = CanAC(*lai_ip, doy, hour, *solar_ip, *temp_ip,
             *rh_ip, *windspeed_ip, *lat_ip, (int)(*nlayers_ip), *vmax1_ip,
             *alpha1_ip, *kparm_ip, *beta_ip, *Rd_ip, *Catm_ip,
-            *b0_ip, *b1_ip, *Gs_min_ip * 1e-3, *theta_ip, *kd_ip, *chil_ip,
+            *b0_ip, *b1_ip, *Gs_min_ip * 1e3, *theta_ip, *kd_ip, *chil_ip,
             *heightf_ip, *LeafN_ip, *kpLN_ip, *lnb0_ip, *lnb1_ip,
             (int)(*lnfun_ip), *upperT_ip, *lowerT_ip, nitroP, *leafwidth_ip,
             (int)(*et_equation_ip), *StomataWS_ip, (int)(*water_stress_approach_ip));
