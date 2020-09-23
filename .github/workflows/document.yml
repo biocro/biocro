@@ -33,7 +33,7 @@ jobs:
         repository: ${{ env.publish-to }}
         ref: master
         path: target
-        token: ${{ secrets.API_TOKEN_GITHUB }}
+        ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
 
     # The following three steps use the doxygen action defined in the
     # actions directory.
@@ -93,8 +93,7 @@ jobs:
     - name: Commit
       run: |
         cd target
-        git config user.name biocro-service-account
-        git config user.email srohde@igb.illinois.edu
+        git config user.name biocro-dev-action
         git add .
         git commit -m "generated"
         git push
