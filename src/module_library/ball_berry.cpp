@@ -68,17 +68,3 @@ double ball_berry(double assimilation,  // mol / m^2 / s
 
     return gswmol * 1000; // mmol / m^2 / s
 }
-
-/*! Calculate saturation vapor pressure of water from air temperature.
- *
- * This is the Arden Buck equation.  http://en.wikipedia.org/wiki/Arden_Buck_equation
- * temperature has units of kelvin.
- */
-double water_saturation_vapor_pressure(double temperature) {
-
-    double temperature_celsius = temperature - 273.15;
-    double u = (18.678 - temperature_celsius / 234.5) * temperature_celsius;
-    double v = 257.14 + temperature_celsius;
-
-    return (6.1121 * exp(u/v) / 10);  // kilopascal.
-}
