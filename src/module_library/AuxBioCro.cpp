@@ -322,12 +322,27 @@ double TempToSFS(
     return (0.338376068 + 0.011435897 * air_temperature + 0.001111111 * pow(air_temperature, 2)) * 1e-3;  //  kg / m^3 / degree C
 }
 
+/**
+ * @brief Determine saturation water vapor pressure (Pa) from air temperature
+ * (degrees C) using the Arden Buck equation.
+ * 
+ * Equations of this form were used by Arden Buck to model saturation water
+ * vapor pressure in 1981: [A. L. Buck, J. Appl. Meteor. 20, 1527–1532 (1981)]
+ * (https://doi.org/10.1175/1520-0450(1981)020%3C1527:NEFCVP%3E2.0.CO;2)
+ * 
+ * In 1996, some of the fitting coefficients were updated. Here we use these values,
+ * found in [a Buck hygrometer manual]
+ * (http://www.hygrometers.com/wp-content/uploads/CR-1A-users-manual-2009-12.pdf),
+ * and also displayed on the [Wikipedia page for the Arden Buck equation]
+ * (https://en.wikipedia.org/wiki/Arden_Buck_equation).
+ * 
+ * We use the values for vapor over water (rather than ice) and disregard the
+ * "enhancement factor" since we are only concerned with the pressure at
+ * saturation.
+ */
 double saturation_vapor_pressure(double air_temperature)
 {
-    // Determine saturation vapor pressure of water given air temperature.
-    // This is based on the Arden-Buck equation.
-    // air_temperature - degrees Celsius/
-    double a = 18.678 * air_temperature - 1 / 234.5; // In the source, this is given as `a = (18.678 - air_temperature / 234.5) * air_temperature`. The code here is equivalent with fewer calculations.
+    double a = (18.678 - air_temperature / 234.5) * air_temperature;
     double b = 257.14 + air_temperature;
     return 611.21 * exp(a / b);  // Pa
 }
