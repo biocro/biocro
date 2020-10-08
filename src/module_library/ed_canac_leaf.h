@@ -30,6 +30,7 @@ class ed_canac_leaf : public SteadyModule
           collatz_rd_ip(get_ip(input_parameters, "collatz_rd")),
           ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
           ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
+          conductance_stomatal_h2o_min_ip(get_ip(input_parameters, "conductance_stomatal_h2o_min")),
           StomataWS_ip(get_ip(input_parameters, "StomataWS")),
           mole_fraction_co2_atmosphere_ip(get_ip(input_parameters, "mole_fraction_co2_atmosphere")),
           collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
@@ -65,6 +66,7 @@ class ed_canac_leaf : public SteadyModule
     const double* collatz_rd_ip;
     const double* ball_berry_intercept_ip;
     const double* ball_berry_slope_ip;
+    const double* conductance_stomatal_h2o_min_ip;
     const double* StomataWS_ip;
     const double* mole_fraction_co2_atmosphere_ip;
     const double* collatz_rubisco_temperature_upper_ip;
@@ -99,6 +101,7 @@ std::vector<std::string> ed_canac_leaf::get_inputs()
         "collatz_rd",                         // mol / m^2 / s
         "ball_berry_intercept",               // mol / m^2 / s
         "ball_berry_slope",                   // dimensionless
+        "conductance_stomatal_h2o_min",       // mol / m^2 / s
         "StomataWS",                          // dimensionless
         "mole_fraction_co2_atmosphere",       // dimensionless from mol / mol
         "collatz_rubisco_temperature_upper",  // deg. C
@@ -126,28 +129,29 @@ std::vector<std::string> ed_canac_leaf::get_outputs()
 void ed_canac_leaf::do_operation() const
 {
     // Get the inputs and convert units as necessary
-    const double Qp = *collatz_PAR_flux_ip * 1e6;                 // micromole / m^2 / s
-    const double temperature_air = *temperature_air_ip;           // deg. C
-    const double RH = *rh_ip;                                     // dimensionless
-    const double vmax = *collatz_vmax_ip * 1e6;                   // micromole / m^2 / s
-    const double alpha = *collatz_alpha_ip;                       // dimensionless
-    const double kparm = *collatz_k_ip;                           // mol / m^2 / s
-    const double theta = *collatz_theta_ip;                       // dimensionless
-    const double beta = *collatz_beta_ip;                         // dimensionless
-    const double Rd = *collatz_rd_ip * 1e6;                       // micromole / m^2 / s
-    const double bb0 = *ball_berry_intercept_ip;                  // mol / m^2 / s
-    const double bb1 = *ball_berry_slope_ip;                      // dimensionless
-    const double StomaWS = *StomataWS_ip;                         // dimensionless
-    const double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;     // micromole / mol
-    const double upperT = *collatz_rubisco_temperature_upper_ip;  // deg. C
-    const double lowerT = *collatz_rubisco_temperature_lower_ip;  // deg. C
-    const int water_stress_approach = 1;                          // Apply water stress via stomatal conductance
-    const double Rad = 0.0;                                       // micromoles / m^2 / s (only used for evapotranspiration)
-    const double WindSpeed = *windspeed_ip;                       // m / s
-    const double LeafAreaIndex = 0.0;                             // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
-    const double CanopyHeight = 0.0;                              // meters (not actually used by EvapoTrans2)
-    const double leaf_width = *leafwidth_ip;                      // meter
-    const int eteq = 0;                                           // Report Penman-Monteith transpiration
+    const double Qp = *collatz_PAR_flux_ip * 1e6;                  // micromole / m^2 / s
+    const double temperature_air = *temperature_air_ip;            // deg. C
+    const double RH = *rh_ip;                                      // dimensionless
+    const double vmax = *collatz_vmax_ip * 1e6;                    // micromole / m^2 / s
+    const double alpha = *collatz_alpha_ip;                        // dimensionless
+    const double kparm = *collatz_k_ip;                            // mol / m^2 / s
+    const double theta = *collatz_theta_ip;                        // dimensionless
+    const double beta = *collatz_beta_ip;                          // dimensionless
+    const double Rd = *collatz_rd_ip * 1e6;                        // micromole / m^2 / s
+    const double bb0 = *ball_berry_intercept_ip;                   // mol / m^2 / s
+    const double bb1 = *ball_berry_slope_ip;                       // dimensionless
+    const double Gs_min = *conductance_stomatal_h2o_min_ip * 1e3;  // mmol / m^2 / s
+    const double StomaWS = *StomataWS_ip;                          // dimensionless
+    const double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;      // micromole / mol
+    const double upperT = *collatz_rubisco_temperature_upper_ip;   // deg. C
+    const double lowerT = *collatz_rubisco_temperature_lower_ip;   // deg. C
+    const int water_stress_approach = 1;                           // Apply water stress via stomatal conductance
+    const double Rad = 0.0;                                        // micromoles / m^2 / s (only used for evapotranspiration)
+    const double WindSpeed = *windspeed_ip;                        // m / s
+    const double LeafAreaIndex = 0.0;                              // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
+    const double CanopyHeight = 0.0;                               // meters (not actually used by EvapoTrans2)
+    const double leaf_width = *leafwidth_ip;                       // meter
+    const int eteq = 0;                                            // Report Penman-Monteith transpiration
 
     // For ed_penman_monteith_leaf_temperature, the light input is called `solar_energy_absorbed_leaf`
     // and is in units of W / m^2 / s. This quantity is equivalent to `Ja2` in Evapotrans2. `Iave` is
@@ -167,7 +171,7 @@ void ed_canac_leaf::do_operation() const
     // Run c4photoC once assuming the leaf is at air temperature to get an initial guess for gs
     const struct c4_str first_c4photoC_output = c4photoC(Qp, temperature_air, RH,
                                                          vmax, alpha, kparm, theta, beta, Rd,
-                                                         bb0, bb1, StomaWS, Ca, water_stress_approach,
+                                                         bb0, bb1, Gs_min, StomaWS, Ca, water_stress_approach,
                                                          upperT, lowerT);
 
     const double stomatal_conductance = first_c4photoC_output.Gs;  // mmol / m^2 / s
@@ -181,7 +185,7 @@ void ed_canac_leaf::do_operation() const
     // Run c4photoC a second time to get final values for assimilation and conductance
     const struct c4_str second_c4photoC_output = c4photoC(Qp, leaf_temperature, RH,
                                                           vmax, alpha, kparm, theta, beta, Rd,
-                                                          bb0, bb1, StomaWS, Ca, water_stress_approach,
+                                                          bb0, bb1, Gs_min, StomaWS, Ca, water_stress_approach,
                                                           upperT, lowerT);
 
     // Convert and return the results

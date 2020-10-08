@@ -4,7 +4,7 @@
 extern "C" {
 
 SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX, SEXP TPU_RATE_MAX,
-	     SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP OX2, SEXP THETA,SEXP STOMWS, SEXP WATER_STRESS_APPROACH, SEXP ELECTRONS_PER_CARBOXYLATION, SEXP ELECTRONS_PER_OXYGENATION)
+	     SEXP RD, SEXP CA, SEXP B0, SEXP B1, SEXP GS_MIN, SEXP OX2, SEXP THETA,SEXP STOMWS, SEXP WATER_STRESS_APPROACH, SEXP ELECTRONS_PER_CARBOXYLATION, SEXP ELECTRONS_PER_OXYGENATION)
 {
 	struct c3_str tmp = {0,0,0,0};
 
@@ -12,6 +12,7 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX, SEXP TPU_RATE_
 	double jmax = REAL(JMAX)[0];
 	double Bet0 = REAL(B0)[0];
 	double Bet1 = REAL(B1)[0];
+	double Gsw_min = REAL(GS_MIN)[0];
 	double Rd = REAL(RD)[0];
 	double O2 = REAL(OX2)[0];
 	double theta = REAL(THETA)[0];
@@ -41,7 +42,7 @@ SEXP c3photo(SEXP Qp1, SEXP Tl1, SEXP RH1, SEXP VCMAX, SEXP JMAX, SEXP TPU_RATE_
 		double RH = REAL(RH1)[i];
 		double Catm = REAL(CA)[i];
 
-		tmp = c3photoC(Qp, Tl, RH, vcmax, jmax, tpu_rate_max, Rd, Bet0, Bet1, Catm, O2, theta,StomWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
+		tmp = c3photoC(Qp, Tl, RH, vcmax, jmax, tpu_rate_max, Rd, Bet0, Bet1, Gsw_min, Catm, O2, theta,StomWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
 
 		REAL(GsV)[i] = tmp.Gs;
 		REAL(ASSV)[i] = tmp.Assim;    
