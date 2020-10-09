@@ -105,6 +105,8 @@
 #include "soybean_development_rate_calculator.h"
 #include "thermaltime_development_rate_calculator.h"
 #include "miscanthus_partitioning_coefficient_logistic.h"
+#include "no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned.h"
+#include "partitioning_growth_negative_assimilation_partitioned.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -242,7 +244,9 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>},
-     {"miscanthus_partitioning_coefficient_logistic",    &create_wrapper<miscanthus_partitioning_coefficient_logistic>}
+     {"miscanthus_partitioning_coefficient_logistic",    &create_wrapper<miscanthus_partitioning_coefficient_logistic>},
+     {"no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned", &create_wrapper<no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned>},
+    {"partitioning_growth_negative_assimilation_partitioned", &create_wrapper<partitioning_growth_negative_assimilation_partitioned>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()
