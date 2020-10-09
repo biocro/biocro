@@ -1,6 +1,6 @@
 c4photo <- function(Qp, Tl, RH, vmax=39, alpha=0.04, kparm=0.7, theta=0.83, 
                     beta=0.93, Rd=0.8, uppertemp=37.5, lowertemp=3.0, 
-                    Catm=380, b0=0.08, b1=3, 
+                    Catm=380, b0=0.08, b1=3, Gs_min=1e-3,
                     StomWS=1, ws=c("gs", "vmax"))
 {
     if ((max(RH) > 1) || (min(RH) < 0))
@@ -32,6 +32,7 @@ c4photo <- function(Qp, Tl, RH, vmax=39, alpha=0.04, kparm=0.7, theta=0.83,
                  as.double(Catm),
                  as.double(b0),
                  as.double(b1),
+                 as.double(Gs_min),
                  as.double(StomWS),
                  as.integer(ws),
                  as.double(uppertemp),

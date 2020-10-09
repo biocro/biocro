@@ -23,6 +23,7 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
                        double Rd,
                        double bb0,
                        double bb1,
+                       double Gs_min,  // mmol / m^2 / s
                        double StomaWS,
                        double Ca,  // micromole / mol
                        int water_stress_approach,
@@ -77,7 +78,7 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
             if (water_stress_approach == 0) Assim *= StomaWS;
 
             Gs = ball_berry(Assim * 1e-6, Ca * 1e-6, relative_humidity, bb0, bb1);  // mmol / m^2 / s
-            if (water_stress_approach == 1) Gs *= StomaWS;
+            if (water_stress_approach == 1) Gs = Gs_min + StomaWS * (Gs - Gs_min);
 
             if (iterCounter > max_iterations - 10)
                 Gs = bb0 * 1e3;  // mmol / m^2 / s. If it has gone through this many iterations, the convergence is not stable. This convergence is inapproriate for high water stress conditions, so use the minimum gs to try to get a stable system.

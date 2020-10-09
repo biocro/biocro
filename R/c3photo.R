@@ -1,4 +1,4 @@
-c3photo <- function(Qp, Tl, RH, vcmax=100, jmax=180, tpu_rate_max = 23, Rd=1.1, Catm=380, O2=210, b0=0.08, b1=5, theta=0.7, StomWS=1.0,
+c3photo <- function(Qp, Tl, RH, vcmax=100, jmax=180, tpu_rate_max=23, Rd=1.1, Catm=380, O2=210, b0=0.08, b1=5, Gs_min=1e-3, theta=0.7, StomWS=1.0,
                     ws=c("gs", "vmax"), electrons_per_carboxylation=4.5, electrons_per_oxygenation=5.25)
 { 
   ws <- match.arg(ws)
@@ -27,7 +27,7 @@ c3photo <- function(Qp, Tl, RH, vcmax=100, jmax=180, tpu_rate_max = 23, Rd=1.1, 
                  as.double(vcmax),as.double(jmax),
                  as.double(tpu_rate_max),
                  as.double(Rd),as.double(Catm),
-                 as.double(b0),as.double(b1),
+                 as.double(b0),as.double(b1),as.double(Gs_min),
                  as.double(O2),as.double(theta),
                  as.double(StomWS),as.integer(ws),
                  as.double(electrons_per_carboxylation), as.double(electrons_per_oxygenation))
