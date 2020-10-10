@@ -1,4 +1,4 @@
-name: 'Doxygen Action'
+name: 'Doxygen Action using Makefile'
 description: 'Generate documentation on a commented project using Doxygen'
 inputs:
   working-directory:
@@ -10,6 +10,13 @@ inputs:
     default: 143
   document-private:
     description: 'Whether or not to document private class members (YES or NO)'
+    required: false
+    default: YES
+  generate-treeview:
+    description: 'Whether or not to generate a tree-like index
+                  structure.  Since this takes up page width, setting
+                  this to NO facilitates easier browsing of source
+                  code.'
     required: false
     default: YES
   extra-settings:
@@ -28,5 +35,6 @@ runs:
     - ${{ inputs.working-directory }}
     - ${{ inputs.color }}
     - ${{ inputs.document-private }}
+    - ${{ inputs.generate-treeview }}
     - ${{ inputs.extra-settings }}
     - ${{ inputs.makefile-target }}

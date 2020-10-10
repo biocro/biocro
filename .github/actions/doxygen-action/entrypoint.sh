@@ -12,5 +12,5 @@ fi
 cd "$1"
 
 
-make color=$2 extract_private=$3 $4 $5
+make color=$2 extract_private=$3 generate_treeview=$4 $5 $6
 

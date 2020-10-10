@@ -14,11 +14,9 @@
 
 # Test for the presence of the "grouped-target" feature:
 ifneq ($(findstring grouped-target,$(.FEATURES)),grouped-target)
-    ifdef runanyway
-        $(warning "This makefile expects the grouped-target feature and may not run properly without it.")
-    else
-        $(warning "This makefile relies on the grouped-target feature introduced in GNU make version 4.3.")
-        $(error "To attempt to run it anyway, set the variable runanyway=t on the command line.")
+    ifndef runanyway
+        $(warning "This makefile uses the grouped-target feature introduced in GNU make version 4.3 and may not work as expected without it.")
+        $(warning "To get rid of this warning when using earlier versions, set the variable runanyway=t on the command line.")
     endif
 endif
 
@@ -100,6 +98,7 @@ export HELPTEXT
 
 #### Defaults that can be overridden on the command line:
 
+generate_treeview = YES
 color = 143
 extract_private = YES
 
@@ -148,6 +147,7 @@ target_directories = $(addprefix $(1)/,$(2))
 define build-recipe
 ( cat Doxyfile; \
   echo "GENERATE_HTML = $(generate_html)"; \
+  echo "GENERATE_TREEVIEW = $(generate_treeview)"; \
   echo "GENERATE_LATEX = $(generate_latex)"; \
   echo "INPUT = $(source)"; \
   echo "OUTPUT_DIRECTORY = $(output_directory)"; \

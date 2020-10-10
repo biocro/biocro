@@ -5,12 +5,34 @@ name: Update Documentation
 
 on:
   push:
-    branches: [ master, doxygen-revisions-with-automatic-deployment ]
+    branches: [ master ]
+    paths:
+    # Include all possible Doxygen source files ...
+    - 'src/**.cpp'
+    - 'src/**.hpp'
+    - 'src/**.h'
+    - 'src/**.dox'
+    - 'src/**.md'
+    - 'src/**.markdown'
+    # ... plus files administering the workflow ...
+    - '.github/**'
+    - 'documentation/Makefile'
+    - 'documentation/Doxyfile'
   workflow_dispatch:
-    # Inputs the workflow accepts.
+    # [no inputs]
 
 env:
   publish-to: "ebimodeling/biocro-documentation"
+
+  # The version directory names are hard-coded into the Make file and
+  # are determined by the Make target.  An exception to this is
+  # "doxygen_docs_modules_public_members_only", which is explicitly
+  # set as the output directory in step 3c below, overriding the
+  # default output directory for the Make file target
+  # "module-docs-html".  (The default output directory was already
+  # used as the output directory for the documentation version created
+  # in step 3b, and we don't want to overwrite it.)
+
   version_directories: "doxygen_docs_complete doxygen_docs_modules doxygen_docs_modules_public_members_only doxygen_docs_framework"
   
 jobs:
@@ -19,34 +41,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - name: Check out master
+
+    # Checks out this repository under $GITHUB_WORKSPACE/source:
+
+    - name: 1. Check out master
       uses: actions/checkout@v2
       with:
         path: source
-        
-    # This is where the documentation will be built to and then
-    # checked in:
-    - name: Check out master of biocro-documentation
+
+
+    # The "publish-to" repository is where the documentation will be
+    # copied to and then checked in (to the default branch).
+    # Providing ssh-key to this checkout action gives us permission to
+    # check in our changes later, in the Push step:
+
+    - name: 2. Check out master of the "publish-to" repository
       uses: actions/checkout@v2
       with:
         repository: ${{ env.publish-to }}
-        ref: master
         path: target
         ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
 
-    # The following three steps use the doxygen action defined in the
-    # actions directory.
 
-    - name: Doxygen Action for default
+    # The following four steps use the doxygen action defined in the
+    # actions directory to build four different versions of the
+    # Doxygen documentation:
+
+    - name: 3a. Doxygen Action for default
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
         working-directory: "source/documentation"
+        # Not generating the tree-view index makes source code browsing easier.
+        generate-treeview: NO
         # Makefile target
         makefile-target: "all-html"
 
-    - name: Doxygen Action for modules only
+    - name: 3b. Doxygen Action for modules only
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
@@ -56,7 +87,7 @@ jobs:
         # Makefile target
         makefile-target: "module-docs-html"
 
-    - name: Doxygen Action for public members of modules only
+    - name: 3c. Doxygen Action for public members of modules only
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
@@ -70,29 +101,40 @@ jobs:
         # Makefile target
         makefile-target: "module-docs-html"
 
-    - name: Doxygen Action for framework
+    - name: 3d. Doxygen Action for framework
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
         working-directory: "source/documentation"
         # Color
         color: 233
+        # Not generating the tree-view index makes source code browsing easier.
+        generate-treeview: NO
         # Makefile target
         makefile-target: "framework-docs-html"
 
-    - name: Copy files
-      run: |
-        pushd target
-        for dir in ${{ env.version_directories }}; do
-            git rm -r --ignore-unmatch $dir
-            mkdir $dir
-            cp -R ../source/documentation/$dir/html/. $dir
-        done
-        popd
 
-    - name: Commit
+    - name: 4. Copy files into working copy of the target repository
       run: |
         cd target
+        for dir in ${{ env.version_directories }}; do
+
+            # Remove directory $dir if it exists; we are going to replace it:
+            git rm -r --ignore-unmatch $dir
+
+            # Recreate directory $dir:
+            mkdir $dir
+
+            # Copy the documentation into it:
+            cp -R ../source/documentation/$dir/html/. $dir
+
+        done
+
+    - name: 5. Commit updates and push to target (documentation) repository
+      run: |
+        cd target
+
+        # user.name is somewhat arbitrary but must be provided:
         git config user.name biocro-dev-action
         git add .
         git commit -m "generated"

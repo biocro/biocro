@@ -1,4 +1,4 @@
-# Doxygen Docker Action with Makefile
+# The _Doxygen Docker Action using Makefile_ Action
 
 This action is a customization of the code found at
 https://github.com/mattnotmitt/doxygen-action.  Instead of calling
@@ -21,13 +21,20 @@ directory that invokes Doxygen to build the documentation.
 
 ### 'document-private'
 
-YES to document private class members, NO to document only the public
-and protected ones.  Default: YES
+**Optional** YES to document private class members, NO to document
+only the public and protected ones.  Default: YES
+
+### 'generate-treeview'
+
+**Optional** YES to generate the Tree View index, NO to omit it.
+Since the Tree View index takes up screen width, omitting it may
+facilitate easier browsing of source code.  Default: YES
 
 ### 'extra-settings'
 
-A space-separated set of settings of the form *key=value*.  Only keys
-recognized by the make file will have any effect.  Example:
+**Optional** A space-separated set of settings of the form
+*key=value*.  Only keys recognized by the make file will have any
+effect.  Example:
 `module_docs_directory=doxygen_docs_modules_public_members_only` will
 change the output directory for module-docs-* targets from
 `doxygen_docs_modules` to
