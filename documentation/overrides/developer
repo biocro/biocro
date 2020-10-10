@@ -1,7 +1,0 @@
-OUTPUT_DIRECTORY = complete
-GENERATE_LATEX = YES
-INPUT += ../src/module_library ../src/system_solver_library ../src/utils
-JAVADOC_AUTOBRIEF      = YES
-EXTRACT_PRIVATE        = YES
-EXTRACT_STATIC         = YES
-INLINE_SOURCES         = NO
