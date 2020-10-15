@@ -93,6 +93,7 @@
 #include "ed_evapotrans2.h"
 #include "ed_canac_leaf.h"
 #include "hyperbolas.h"
+#include "multilayer_c3_canopy_parallel.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -218,7 +219,8 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_evapotrans2",                                  &create_wrapper<ed_evapotrans2>},
      {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
-     {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>}
+     {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>},
+     {"ten_layer_c3_canopy_parallel",                    &create_wrapper<ten_layer_c3_canopy_parallel>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()
