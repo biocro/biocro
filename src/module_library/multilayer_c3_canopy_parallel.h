@@ -1,7 +1,7 @@
 #ifndef MULTILAYER_C3_CANOPY_PARALLEL_H
 #define MULTILAYER_C3_CANOPY_PARALLEL_H
 
-#include "multilayer_canopy_photosynthesis.h"
+#include "multilayer_canopy_photosynthesis_parallel.h"
 #include "multilayer_canopy_properties.h"
 #include "c3_leaf_photosynthesis.h"
 
