@@ -40,13 +40,13 @@ class multilayer_canopy_photosynthesis_parallel : public SteadyModule
     // Number of layers
     const int nlayers;
     // Leaf photosynthesis module
-    std::vector<state_map> leaf_module_quantities(nlayers);
-    std::vector<state_map> leaf_module_output_map(nlayers);
-    std::vector<std::unique_ptr<Module>> leaf_modules(nlayers);
+    std::vector<state_map> leaf_module_quantities;
+    std::vector<state_map> leaf_module_output_map;
+    std::vector<std::unique_ptr<Module>> leaf_modules;
     // Pointers to input parameters
-    std::vector<std::vector<std::vector<std::pair<double*, const double*>>>> leaf_input_ptr_pairs(nlayers);
+    std::vector<std::vector<std::vector<std::pair<double*, const double*>>>> leaf_input_ptr_pairs;
     // Pointers to output parameters
-    std::vector<std::vector<std::vector<std::pair<double*, const double*>>>> leaf_output_ptr_pairs(nlayers);
+    std::vector<std::vector<std::vector<std::pair<double*, const double*>>>> leaf_output_ptr_pairs;
 
    protected:
     static std::vector<std::string> generate_inputs(int nlayers);
@@ -79,13 +79,13 @@ multilayer_canopy_photosynthesis_parallel<canopy_module_type, leaf_module_type>:
     };
     
     // For each canopy layer create a copy of the leaf-level module
-    for (int i=0; i<nlayers; ++i){
+    for (int i = 0; i < nlayers; ++i){
         // Form a quantity state_map to pass to leaf photosynthesis module
-        leaf_module_quantities[i] = make_quantity_map(leaf_module_type::get_inputs(), leaf_module_type::get_outputs());
-        leaf_module_output_map[i] = leaf_module_quantities[i];
+        leaf_module_quantities.push_back(make_quantity_map(leaf_module_type::get_inputs(), leaf_module_type::get_outputs()));
+        leaf_module_output_map.push_back(leaf_module_quantities.at(i));
         
         // Create the leaf photosynthesis module
-        leaf_modules[i] = std::unique_ptr<Module>(new leaf_module_type(&leaf_module_quantities[i], &leaf_module_output_map[i]));
+        leaf_modules.push_back(std::unique_ptr<Module>(new leaf_module_type(&leaf_module_quantities.at(i), &leaf_module_output_map.at(i))));
     }
 
     // Find subsets of the leaf model's inputs
@@ -101,18 +101,18 @@ multilayer_canopy_photosynthesis_parallel<canopy_module_type, leaf_module_type>:
 
             for (std::string const& name : multiclass_multilayer_leaf_inputs) {
                 std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_parameters->at(specific_name));
+                std::pair<double*, const double*> temporary(&leaf_module_quantities[i].at(name), &input_parameters->at(specific_name));
                 input_ptr_pairs.push_back(temporary);
             }
 
             for (std::string const& name : multilayer_leaf_inputs) {
                 std::string specific_name = add_layer_suffix_to_quantity_name(nlayers, i, name);
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_parameters->at(specific_name));
+                std::pair<double*, const double*> temporary(&leaf_module_quantities[i].at(name), &input_parameters->at(specific_name));
                 input_ptr_pairs.push_back(temporary);
             }
 
             for (std::string const& name : other_leaf_inputs) {
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_parameters->at(name));
+                std::pair<double*, const double*> temporary(&leaf_module_quantities[i].at(name), &input_parameters->at(name));
                 input_ptr_pairs.push_back(temporary);
             }
 
@@ -123,7 +123,7 @@ multilayer_canopy_photosynthesis_parallel<canopy_module_type, leaf_module_type>:
 
             for (std::string const& name : leaf_module_type::get_outputs()) {
                 std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(&output_parameters->at(specific_name), &leaf_module_output_map.at(name));
+                std::pair<double*, const double*> temporary(&output_parameters->at(specific_name), &leaf_module_output_map[i].at(name));
                 output_ptr_pairs.push_back(temporary);
             }
 
@@ -178,20 +178,22 @@ void multilayer_canopy_photosynthesis_parallel<canopy_module_type, leaf_module_t
     #pragma omp parallel for default(none), shared(leaf_input_ptr_pairs, leaf_output_ptr_pairs)//, shared(num_calls)
     // For each combination of leaf class and layer number:
 //    for (size_t i = 0; i < leaf_input_ptr_pairs.size(); ++i) {
-    for (size_t i = 0; i < leaf_input_ptr_pairs.size(); ++i) {
+    for (int i = 0; i < nlayers; ++i){
+    for (size_t j = 0; j < leaf_input_ptr_pairs[i].size(); ++j) {
         // Update the inputs to the leaf module
-        for (auto const& x : leaf_input_ptr_pairs[i]) {
+        for (auto const& x : leaf_input_ptr_pairs[i][j]) {
             *x.first = *x.second;
         }
 
         // Run the leaf module
-        leaf_module->run();
+        leaf_modules[i]->run();
 
         // Update the outputs from the leaf module
-        for (auto const& x : leaf_output_ptr_pairs[i]) {
+        for (auto const& x : leaf_output_ptr_pairs[i][j]) {
             *x.first = *x.second;
         }
     }
+}
 }
 
 #endif
