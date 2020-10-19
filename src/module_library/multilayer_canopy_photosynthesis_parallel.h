@@ -94,6 +94,8 @@ multilayer_canopy_photosynthesis_parallel<canopy_module_type, leaf_module_type>:
     std::vector<std::string> other_leaf_inputs = MLCP::get_other_leaf_inputs<canopy_module_type, leaf_module_type>();
 
     // Create vectors of pointer pairs which will be used for passing inputs to and getting outputs from the leaf module
+    leaf_input_ptr_pairs.resize(nlayers);
+    leaf_output_ptr_pairs.resize(nlayers);
     for (std::string const& class_name : canopy_module_type::define_leaf_classes()) {
         for (int i = 0; i < nlayers; ++i) {
             // Get pointer pairs for the leaf module inputs and store them
