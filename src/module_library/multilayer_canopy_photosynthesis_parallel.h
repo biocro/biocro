@@ -6,13 +6,19 @@
 #include "../system_helper_functions.h"  // for get_pointer_pairs
 #include "../modules.h"
 #include "../state_map.h"
-//#include "multilayer_canopy_photosynthesis.h" // for MLCP namespace?
-
 
 /**
  * @class multilayer_canopy_photosynthesis_parallel
  *
  * @brief Applies a leaf photosynthesis module to each layer and leaf class of a multilayer canopy.
+ * Each layer is called in parallel using OpenMP (https://www.openmp.org/) [NOTE: may need to change
+ * this in the future, default clang compiler on mac does not come with the necessary openmp libraries.
+ * Easy fix (https://mac.r-project.org/openmp/, or using a conda environment), but may be
+ * better to change to something that works out of the box - @leighmatth, 10/20/2020]
+ * This was created for use with yggdrasil framework to call the ephotosynthesis module in parallel.
+ * For standard BioCro runs this does not seem to improve runtime over the multilayer_canopy_photosynthesis
+ * version.
+ *
  * Note that this module cannot be created via the module_wrapper_factory since it is a template
  * class with a different constructor than a usual module. Rather, it is expected that directly-usable
  * classes will be derived from this class.
@@ -82,10 +88,10 @@ multilayer_canopy_photosynthesis_parallel<canopy_module_type, leaf_module_type>:
     for (int i = 0; i < nlayers; ++i){
         // Form a quantity state_map to pass to leaf photosynthesis module
         leaf_module_quantities.push_back(make_quantity_map(leaf_module_type::get_inputs(), leaf_module_type::get_outputs()));
-        leaf_module_output_map.push_back(leaf_module_quantities.at(i));
+        leaf_module_output_map.push_back(leaf_module_quantities[i]);
         
         // Create the leaf photosynthesis module
-        leaf_modules.push_back(std::unique_ptr<Module>(new leaf_module_type(&leaf_module_quantities.at(i), &leaf_module_output_map.at(i))));
+        leaf_modules.push_back(std::unique_ptr<Module>(new leaf_module_type(&leaf_module_quantities[i], &leaf_module_output_map[i])));
     }
 
     // Find subsets of the leaf model's inputs

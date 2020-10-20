@@ -8,7 +8,7 @@
 /**
  * @class ten_layer_c4_canopy_parallel
  *
- * @brief A child class of multilayer_canopy_photosynthesis where:
+ * @brief A child class of multilayer_canopy_photosynthesis_parallel where:
  *  - The canopy module is set to the `ten_layer_canopy_properties` module
  *  - The leaf module is set to the `c4_leaf_photosynthesis` module
  *  - The number of layers is set to 10
