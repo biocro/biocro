@@ -180,29 +180,32 @@ std::vector<std::string> multilayer_canopy_photosynthesis_parallel<canopy_module
 template <typename canopy_module_type, typename leaf_module_type>
 void multilayer_canopy_photosynthesis_parallel<canopy_module_type, leaf_module_type>::run() const
 {
-
-    omp_set_num_threads(leaf_input_ptr_pairs.size());
-//    int num_calls = (int) leaf_input_ptr_pairs.size();
-    #pragma omp parallel for default(none), shared(leaf_input_ptr_pairs, leaf_output_ptr_pairs)//, shared(num_calls)
-    // For each combination of leaf class and layer number:
-//    for (size_t i = 0; i < leaf_input_ptr_pairs.size(); ++i) {
+    // Use OpenMP to call the leaf photosynthesis modules for each canopy layer
+    // in a seperate thread
+    omp_set_num_threads(nlayers); // set number of threads to number of layers
+    
+    // OpenMP call to parallelize a for loop. The variables leaf_input_ptr_pairs
+    // and leaf_output_ptr_pairs are shared between threads. Each thread should
+    // update only one element of these vectors corresponding to the canopy layer
+    #pragma omp parallel for default(none), shared(leaf_input_ptr_pairs, leaf_output_ptr_pairs)
+    
     for (int i = 0; i < nlayers; ++i){
-    for (size_t j = 0; j < leaf_input_ptr_pairs[i].size(); ++j) {
-        // Update the inputs to the leaf module
-        for (auto const& x : leaf_input_ptr_pairs[i][j]) {
-            *x.first = *x.second;
-        }
+        // For each combination of leaf class and layer number:
+        for (size_t j = 0; j < leaf_input_ptr_pairs[i].size(); ++j) {
+            // Update the inputs to the leaf module
+            for (auto const& x : leaf_input_ptr_pairs[i][j]) {
+                *x.first = *x.second;
+            }
 
-        // Run the leaf module
-        leaf_modules[i]->run();
+            // Run the leaf module
+            leaf_modules[i]->run();
 
-        // Update the outputs from the leaf module
-        for (auto const& x : leaf_output_ptr_pairs[i][j]) {
-            *x.first = *x.second;
+            // Update the outputs from the leaf module
+            for (auto const& x : leaf_output_ptr_pairs[i][j]) {
+                *x.first = *x.second;
+            }
         }
     }
 }
-}
 
 #endif
-
