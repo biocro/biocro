@@ -69,13 +69,9 @@ export(c4photo)
 
 export(CanA)
 
-export(idbp)
-
 export(sunML)
 
 export(SoilType, showSoilType)
-
-export(valid_dbp)
 
 export(get_growing_season_climate)
 
