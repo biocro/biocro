@@ -1,6 +1,5 @@
 \name{CanA}
 \alias{CanA}
-\alias{lnParms}
 \title{Simulates canopy assimilation}
 \usage{
 CanA(lai, doy, hr, solar, temp, rh, windspeed, lat = 40, nlayers = 8,

@@ -61,8 +61,6 @@ export(get_all_system_solvers)
 
 export(get_all_se_solvers)
 
-exportPattern("Parms$")
-
 export(c3photo)
 
 export(c4photo)
