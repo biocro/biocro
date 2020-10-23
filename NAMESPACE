@@ -77,8 +77,6 @@ export(SoilType, showSoilType)
 
 export(valid_dbp)
 
-export(read_parameters)
-
 export(get_growing_season_climate)
 
 export(collatz_photo)
