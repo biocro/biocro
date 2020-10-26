@@ -65,6 +65,7 @@
 #include "shortwave_atmospheric_scattering.h"
 #include "incident_shortwave_from_ground_par.h"
 #include "leaf_shape_factor.h"
+#include "c3_assimilation.h"
 #include "c3_leaf_photosynthesis.h"
 #include "c4_leaf_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
@@ -187,6 +188,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"shortwave_atmospheric_scattering",                &create_wrapper<shortwave_atmospheric_scattering>},
      {"incident_shortwave_from_ground_par",              &create_wrapper<incident_shortwave_from_ground_par>},
      {"leaf_shape_factor",                               &create_wrapper<leaf_shape_factor>},
+     {"c3_assimilation",                                 &create_wrapper<c3_assimilation>},
      {"c3_leaf_photosynthesis",                          &create_wrapper<c3_leaf_photosynthesis>},
      {"c4_leaf_photosynthesis",                          &create_wrapper<c4_leaf_photosynthesis>},
      {"ten_layer_canopy_properties",                     &create_wrapper<ten_layer_canopy_properties>},

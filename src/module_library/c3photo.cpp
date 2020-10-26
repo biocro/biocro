@@ -145,7 +145,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     struct c3_str result;
     result.Assim = co2_assimilation_rate.value() * 1e6;  // micromole / m^2 / s.
     result.Gs = Gs.value() * 1e3;  // mmol / m^2 / s.
-    result.Ci = Ci.value() * 1e6;  // micromole / m^2 / s.
+    result.Ci = Ci.value() * 1e6;  // micromole / mol.
     result.GrossAssim = (co2_assimilation_rate.value() + Rd.value()) * 1e6;  // micromole / m^2 / s.
     return result;
 }
@@ -281,7 +281,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
     struct c3_str result;
     result.Assim = co2_assimilation_rate.value() * 1e6;  // micromole / m^2 / s.
     result.Gs = Gs.value() * 1e3;  // mmol / m^2 / s.
-    result.Ci = Ci.value() * 1e6;  // micromole / m^2 / s.
+    result.Ci = Ci.value() * 1e6;  // micromole / mol.
     result.GrossAssim = (co2_assimilation_rate.value() + Rd.value()) * 1e6;  // micromole / m^2 / s.
     
 	myfile << "The final returned value was " << co2_assimilation_rate.value() * 1e6 << "\n";
