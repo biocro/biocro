@@ -1,6 +1,4 @@
 useDynLib(BioCro,
-          CanA_sym = CanA,
-          c3CanA_sym = c3CanA,
 		  R_Gro_solver,
 		  R_Gro_deriv,
 		  R_Gro_ode,
@@ -58,8 +56,6 @@ export(get_all_quantities)
 export(get_all_system_solvers)
 
 export(get_all_se_solvers)
-
-export(CanA)
 
 export(sunML)
 
