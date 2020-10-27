@@ -1,5 +1,4 @@
 useDynLib(BioCro,
-          c4photo_sym = c4photo,
           CanA_sym = CanA,
           c3CanA_sym = c3CanA,
 		  R_Gro_solver,
@@ -59,8 +58,6 @@ export(get_all_quantities)
 export(get_all_system_solvers)
 
 export(get_all_se_solvers)
-
-export(c4photo)
 
 export(CanA)
 
