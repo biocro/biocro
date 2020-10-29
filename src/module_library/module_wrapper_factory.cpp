@@ -82,12 +82,14 @@
 #include "ed_gas_concentrations.h"
 #include "ed_long_wave_energy_loss.h"
 #include "ed_penman_monteith_leaf_temperature.h"
+#include "ed_leaf_temperature.h"
 #include "ed_penman_monteith_transpiration.h"
 #include "ed_stomata_water_stress_linear.h"
 #include "ed_apply_water_stress.h"
 #include "ed_c4_leaf_photosynthesis.h"
 #include "ed_c4_leaf_photosynthesis2.h"
 #include "ed_c4_leaf_photosynthesis3.h"
+#include "ed_c4_leaf_photosynthesis4.h"
 #include "ed_c4photo.h"
 #include "ed_evapotrans2.h"
 #include "ed_canac_leaf.h"
@@ -208,6 +210,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_long_wave_energy_loss",                        &create_wrapper<ed_long_wave_energy_loss>},
      {"ed_penman_monteith_leaf_temperature",             &create_wrapper<ed_penman_monteith_leaf_temperature>},
      {"ed_p_m_temperature_solve",                        &create_wrapper<ed_p_m_temperature_solve>},
+     {"ed_leaf_temperature",                             &create_wrapper<ed_leaf_temperature>},
      {"ed_penman_monteith_transpiration",                &create_wrapper<ed_penman_monteith_transpiration>},
      {"ed_stomata_water_stress_linear",                  &create_wrapper<ed_stomata_water_stress_linear>},
      {"ed_apply_stomatal_water_stress_via_conductance",  &create_wrapper<ed_apply_stomatal_water_stress_via_conductance>},
@@ -215,6 +218,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_c4_leaf_photosynthesis",                       &create_wrapper<ed_c4_leaf_photosynthesis>},
      {"ed_c4_leaf_photosynthesis2",                      &create_wrapper<ed_c4_leaf_photosynthesis2>},
      {"ed_c4_leaf_photosynthesis3",                      &create_wrapper<ed_c4_leaf_photosynthesis3>},
+     {"ed_c4_leaf_photosynthesis4",                      &create_wrapper<ed_c4_leaf_photosynthesis4>},
      {"ed_c4photo",                                      &create_wrapper<ed_c4photo>},
      {"ed_evapotrans2",                                  &create_wrapper<ed_evapotrans2>},
      {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},

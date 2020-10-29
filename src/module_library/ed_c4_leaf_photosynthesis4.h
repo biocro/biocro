@@ -1,5 +1,5 @@
-#ifndef ED_C4_LEAF_PHOTOSYNTHESIS2_H
-#define ED_C4_LEAF_PHOTOSYNTHESIS2_H
+#ifndef ED_C4_LEAF_PHOTOSYNTHESIS4_H
+#define ED_C4_LEAF_PHOTOSYNTHESIS4_H
 
 #include "se_module.h"
 #include <cmath>                            // for fabs and sqrt
@@ -9,11 +9,11 @@
 #include "AuxBioCro.h"                      // for TempToLHV and other similar functions
 #include "../se_solver_helper_functions.h"  // for generate_guess_list
 #include <Rinternals.h>                     // for debugging
-const bool eclp2_print = false;             // for debugging
+const bool eclp4_print = false;             // for debugging
 
-namespace ed_c4_leaf_photosynthesis2_stuff
+namespace ed_c4_leaf_photosynthesis4_stuff
 {
-std::string const module_name = "ed_c4_leaf_photosynthesis2";
+std::string const module_name = "ed_c4_leaf_photosynthesis4";
 
 string_vector const sub_module_names = {
     "ed_rh_to_mole_fraction",                          // Convert relative humidity to H2O mole fraction
@@ -26,8 +26,7 @@ string_vector const sub_module_names = {
     "ed_collatz_c4_assimilation",                      // Calculate net assimilation
     "ed_long_wave_energy_loss",                        // Calculate long-wave energy loss from a leaf to its environment
     "ed_water_vapor_properties",                       // Calculate properties of water vapor from the air temperature and H20 mole fraction
-    "ed_penman_monteith_leaf_temperature",             // Calculate leaf temperature
-    "ed_penman_monteith_transpiration"                 // Calculate evapotranspiration
+    "ed_leaf_temperature"                              // Calculate leaf temperature and transpiration
 };
 
 std::string const solver_type = "newton_raphson_backtrack_boost";
@@ -64,30 +63,30 @@ std::vector<double> const relative_error_tolerances = {
     rel_error_tol,  // conductance_stomatal_h2o: use standard value
     rel_error_tol   // temperature_leaf: use standard value
 };
-}  // namespace ed_c4_leaf_photosynthesis2_stuff
+}  // namespace ed_c4_leaf_photosynthesis4_stuff
 
 /**
- * @class ed_c4_leaf_photosynthesis2
+ * @class ed_c4_leaf_photosynthesis4
  * 
  * @brief Solves a set of modules for the unknown quantities assimilation_net,
  * conductance_stomatal_h2o, and temperature_leaf. Also returns other quantities
  * derived from these. Represents photosynthesis at the leaf level for a c4 plant.
  */
-class ed_c4_leaf_photosynthesis2 : public se_module::base
+class ed_c4_leaf_photosynthesis4 : public se_module::base
 {
    public:
-    ed_c4_leaf_photosynthesis2(
+    ed_c4_leaf_photosynthesis4(
         const std::unordered_map<std::string, double>* input_parameters,
         std::unordered_map<std::string, double>* output_parameters)
-        : se_module::base(ed_c4_leaf_photosynthesis2_stuff::module_name,
-                          ed_c4_leaf_photosynthesis2_stuff::sub_module_names,
-                          ed_c4_leaf_photosynthesis2_stuff::solver_type,
-                          ed_c4_leaf_photosynthesis2_stuff::max_iterations,
-                          ed_c4_leaf_photosynthesis2_stuff::lower_bounds,
-                          ed_c4_leaf_photosynthesis2_stuff::upper_bounds,
-                          ed_c4_leaf_photosynthesis2_stuff::absolute_error_tolerances,
-                          ed_c4_leaf_photosynthesis2_stuff::relative_error_tolerances,
-                          ed_c4_leaf_photosynthesis2_stuff::should_reorder_guesses,
+        : se_module::base(ed_c4_leaf_photosynthesis4_stuff::module_name,
+                          ed_c4_leaf_photosynthesis4_stuff::sub_module_names,
+                          ed_c4_leaf_photosynthesis4_stuff::solver_type,
+                          ed_c4_leaf_photosynthesis4_stuff::max_iterations,
+                          ed_c4_leaf_photosynthesis4_stuff::lower_bounds,
+                          ed_c4_leaf_photosynthesis4_stuff::upper_bounds,
+                          ed_c4_leaf_photosynthesis4_stuff::absolute_error_tolerances,
+                          ed_c4_leaf_photosynthesis4_stuff::relative_error_tolerances,
+                          ed_c4_leaf_photosynthesis4_stuff::should_reorder_guesses,
                           input_parameters,
                           output_parameters),
           // Get pointers to input parameters
@@ -130,20 +129,20 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
-std::vector<std::string> ed_c4_leaf_photosynthesis2::get_inputs()
+std::vector<std::string> ed_c4_leaf_photosynthesis4::get_inputs()
 {
-    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis2_stuff::sub_module_names);
+    return se_module::get_se_inputs(ed_c4_leaf_photosynthesis4_stuff::sub_module_names);
 }
 
-std::vector<std::string> ed_c4_leaf_photosynthesis2::get_outputs()
+std::vector<std::string> ed_c4_leaf_photosynthesis4::get_outputs()
 {
-    std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis2_stuff::sub_module_names);
-    outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis2_stuff::module_name));
-    outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis2_stuff::module_name));
+    std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis4_stuff::sub_module_names);
+    outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis4_stuff::module_name));
+    outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis4_stuff::module_name));
     return outputs;
 }
 
-std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses() const
+std::vector<std::vector<double>> ed_c4_leaf_photosynthesis4::get_initial_guesses() const
 {
     // Here we try to guess a good starting point based on the availability
     // of light and water.
@@ -198,7 +197,7 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses
     // The guess for leaf temperature is less critical. Just set it equal to ambient temperature.
     double const temperature_leaf_guess = temperature_air;
 
-    std::string message = "Initial guess calculated by ed_c4_leaf_photosynthesis2:\n";
+    std::string message = "Initial guess calculated by ed_c4_leaf_photosynthesis4:\n";
     char buff[128];
     sprintf(buff, " assimilation_net_guess = %e\n", assimilation_net_guess);
     message += std::string(buff);
@@ -242,7 +241,7 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses
 
     std::vector<std::vector<double>> input_guesses;
 
-    message += "\nGuesses from `ed_c4_leaf_photosynthesis2`:\n";
+    message += "\nGuesses from `ed_c4_leaf_photosynthesis4`:\n";
 
     for (int i = -num_pts; i <= num_pts; ++i) {
         double an_value = assimilation_net_guess + an_perturbation * i;
@@ -258,7 +257,7 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses
     }
 
     message += "\n";
-    if (eclp2_print) {
+    if (eclp4_print) {
         Rprintf(message.c_str());
     }
 
