@@ -33,6 +33,15 @@ std::string get_nsteps_output_name(std::string const& module_name)
 }
 
 /**
+ * @brief Returns the name of an output quantity that indicates whether the solver
+ * was successful in finding a solution.
+ */
+std::string get_success_output_name(std::string const& module_name)
+{
+    return module_name + std::string("_success");
+}
+
+/**
  * @brief Returns a sorted list of inputs required by the modules, excluding any unknown quantities
  */
 string_vector get_se_inputs(string_vector module_names)
@@ -142,6 +151,7 @@ class base : public SteadyModule
          std::vector<double> absolute_error_tolerances,
          std::vector<double> relative_error_tolerances,
          bool should_reorder_guesses,
+         bool return_default_on_failure,
          const state_map* input_parameters,
          state_map* output_parameters)
         : SteadyModule(module_name),
@@ -152,10 +162,12 @@ class base : public SteadyModule
           absolute_error_tolerances(absolute_error_tolerances),
           relative_error_tolerances(relative_error_tolerances),
           should_reorder_guesses(should_reorder_guesses),
+          return_default_on_failure(return_default_on_failure),
           input_ptrs(get_ip(input_parameters, get_se_inputs(sub_module_names))),
           output_ptrs(get_op(output_parameters, get_se_outputs(sub_module_names))),
           ncalls_op(get_op(output_parameters, get_ncalls_output_name(module_name))),
-          nsteps_op(get_op(output_parameters, get_nsteps_output_name(module_name)))
+          nsteps_op(get_op(output_parameters, get_nsteps_output_name(module_name))),
+          success_op(get_op(output_parameters, get_success_output_name(module_name)))
     {
         // Initialize vectors to the correct size
         outputs_from_modules.resize(output_ptrs.size());
@@ -173,12 +185,15 @@ class base : public SteadyModule
     bool const should_reorder_guesses;
     std::vector<double> mutable best_guess;
     std::vector<double> mutable outputs_from_modules;
+    bool const return_default_on_failure;
+    virtual void get_default(std::vector<double>& /*guess_vec*/) const {}
     // Pointers to input parameters
     std::vector<const double*> input_ptrs;
     // Pointers to output parameters
     std::vector<double*> output_ptrs;
     double* ncalls_op;
     double* nsteps_op;
+    double* success_op;
     // Main operation
     void do_operation() const override;
     virtual std::vector<std::vector<double>> get_initial_guesses() const = 0;
@@ -199,7 +214,7 @@ void base::do_operation() const
     se->reset_ncalls();
 
     std::vector<std::vector<double>> initial_guesses = get_initial_guesses();  // must be implemented by derived class
-    
+
     if (should_reorder_guesses) {
         initial_guesses = reorder_initial_guesses(initial_guesses, se);
     }
@@ -221,11 +236,16 @@ void base::do_operation() const
         }
     }
 
-    if (!success) {
+    if (!success && !return_default_on_failure) {
         if (se_module_print) {
             Rprintf("The solver was unable to find a solution.\n");
         }
         throw std::runtime_error(std::string("Thrown by ") + get_name() + std::string(": the solver was unable to find a solution."));
+    } else if (!success) {
+        if (se_module_print) {
+            Rprintf("The solver was unable to find a solution. Returning the default guess.\n");
+        }
+        get_default(best_guess);  // modifies best_guess
     }
 
     se->get_all_outputs(outputs_from_modules, best_guess);  // modifies outputs_from_modules
@@ -236,6 +256,7 @@ void base::do_operation() const
 
     update(ncalls_op, se->get_ncalls());
     update(nsteps_op, nsteps);
+    update(success_op, success);
 }
 }  // namespace se_module
 

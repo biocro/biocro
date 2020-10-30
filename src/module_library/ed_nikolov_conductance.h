@@ -297,6 +297,8 @@ int const max_iterations = 50;
 
 bool const should_reorder_guesses = false;
 
+bool const return_default_on_failure = true;
+
 std::vector<double> const lower_bounds = {1e-10};
 
 std::vector<double> const upper_bounds = {10};
@@ -333,6 +335,7 @@ class ed_nikolov_conductance_free_solve : public se_module::base
                           ed_nikolov_conductance_free_solve_stuff::absolute_error_tolerances,
                           ed_nikolov_conductance_free_solve_stuff::relative_error_tolerances,
                           ed_nikolov_conductance_free_solve_stuff::should_reorder_guesses,
+                          ed_nikolov_conductance_free_solve_stuff::return_default_on_failure,
                           input_parameters,
                           output_parameters)
     {
@@ -342,6 +345,7 @@ class ed_nikolov_conductance_free_solve : public se_module::base
 
    private:
     // Main operation
+    void get_default(std::vector<double>& guess_vec) const override;
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
@@ -355,7 +359,15 @@ std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
     std::vector<std::string> outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
+    outputs.push_back(se_module::get_success_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
     return outputs;
+}
+
+void ed_nikolov_conductance_free_solve::get_default(std::vector<double>& guess_vec) const
+{
+    // Just return a small conductance (so the overall conductance will be set by the
+    // free value)
+    guess_vec[0] = 1.0e-5;  // mol / m^2 / s
 }
 
 std::vector<std::vector<double>> ed_nikolov_conductance_free_solve::get_initial_guesses() const

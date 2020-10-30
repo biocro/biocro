@@ -36,6 +36,8 @@ int const max_iterations = 50;
 
 bool const should_reorder_guesses = true;
 
+bool const return_default_on_failure = true;
+
 // Note: order must agree with std::sort applied to quantity name
 std::vector<double> const lower_bounds = {
     -1.0,   // assimilation_net: this limit would correspond to absurdly high respiration
@@ -88,6 +90,7 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
                           ed_c4_leaf_photosynthesis2_stuff::absolute_error_tolerances,
                           ed_c4_leaf_photosynthesis2_stuff::relative_error_tolerances,
                           ed_c4_leaf_photosynthesis2_stuff::should_reorder_guesses,
+                          ed_c4_leaf_photosynthesis2_stuff::return_default_on_failure,
                           input_parameters,
                           output_parameters),
           // Get pointers to input parameters
@@ -127,6 +130,7 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
     double const& ball_berry_slope;
     double const& ball_berry_intercept;
     // Main operation
+    void get_default(std::vector<double>& guess_vec) const override;
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
@@ -140,10 +144,11 @@ std::vector<std::string> ed_c4_leaf_photosynthesis2::get_outputs()
     std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis2_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis2_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis2_stuff::module_name));
+    outputs.push_back(se_module::get_success_output_name(ed_c4_leaf_photosynthesis2_stuff::module_name));
     return outputs;
 }
 
-std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses() const
+void ed_c4_leaf_photosynthesis2::get_default(std::vector<double>& guess_vec) const
 {
     // Here we try to guess a good starting point based on the availability
     // of light and water.
@@ -197,6 +202,23 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses
 
     // The guess for leaf temperature is less critical. Just set it equal to ambient temperature.
     double const temperature_leaf_guess = temperature_air;
+    
+    // Now update the guess vector
+    guess_vec[0] = assimilation_net_guess;
+    guess_vec[1] = conductance_stomatal_h2o_guess;
+    guess_vec[2] = temperature_leaf_guess;
+}
+
+std::vector<std::vector<double>> ed_c4_leaf_photosynthesis2::get_initial_guesses() const
+{
+    // Get the default guess to use as a starting point
+    std::vector<double> default_guess(3);
+    get_default(default_guess);
+    
+    // Extract the values
+    double const assimilation_net_guess = default_guess[0];
+    double const conductance_stomatal_h2o_guess = default_guess[1];
+    double const temperature_leaf_guess = default_guess[2];
 
     std::string message = "Initial guess calculated by ed_c4_leaf_photosynthesis2:\n";
     char buff[128];

@@ -136,6 +136,8 @@ int const max_iterations = 50;
 
 bool const should_reorder_guesses = false;
 
+bool const return_default_on_failure = false;
+
 std::vector<double> const lower_bounds = {-100};
 
 std::vector<double> const upper_bounds = {100};
@@ -167,6 +169,7 @@ class ed_p_m_temperature_solve : public se_module::base
                           ed_p_m_temperature_solve_stuff::absolute_error_tolerances,
                           ed_p_m_temperature_solve_stuff::relative_error_tolerances,
                           ed_p_m_temperature_solve_stuff::should_reorder_guesses,
+                          ed_p_m_temperature_solve_stuff::return_default_on_failure,
                           input_parameters,
                           output_parameters),
 
@@ -197,6 +200,7 @@ std::vector<std::string> ed_p_m_temperature_solve::get_outputs()
     std::vector<std::string> outputs = se_module::get_se_outputs(ed_p_m_temperature_solve_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_p_m_temperature_solve_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_p_m_temperature_solve_stuff::module_name));
+    outputs.push_back(se_module::get_success_output_name(ed_p_m_temperature_solve_stuff::module_name));
     return outputs;
 }
 

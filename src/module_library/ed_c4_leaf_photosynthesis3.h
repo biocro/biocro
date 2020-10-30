@@ -28,6 +28,8 @@ int const max_iterations = 50;
 
 bool const should_reorder_guesses = true;
 
+bool const return_default_on_failure = false;
+
 // Note: order must agree with std::sort applied to quantity name
 std::vector<double> const lower_bounds = {
     -1.0,   // assimilation_net: this limit would correspond to absurdly high respiration
@@ -77,6 +79,7 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
                           ed_c4_leaf_photosynthesis3_stuff::absolute_error_tolerances,
                           ed_c4_leaf_photosynthesis3_stuff::relative_error_tolerances,
                           ed_c4_leaf_photosynthesis3_stuff::should_reorder_guesses,
+                          ed_c4_leaf_photosynthesis3_stuff::return_default_on_failure,
                           input_parameters,
                           output_parameters),
           // Get references to input quantities
@@ -129,6 +132,7 @@ std::vector<std::string> ed_c4_leaf_photosynthesis3::get_outputs()
     std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis3_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
+    outputs.push_back(se_module::get_success_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
     return outputs;
 }
 

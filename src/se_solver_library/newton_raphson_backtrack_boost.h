@@ -385,7 +385,13 @@ bool newton_raphson_backtrack_boost::get_next_guess(
     }
 
     // Determine the Newton-Raphson step
-    boost::numeric::ublas::vector<double> dx = get_newton_raphson_step_boost(function_value, jacobian);
+    boost::numeric::ublas::vector<double> dx;
+    try {
+        dx = get_newton_raphson_step_boost(function_value, jacobian);
+    } catch (std::runtime_error const& e) {
+        // The LU decomposition has failed, so indicate that an error occurred
+        return true;
+    }
 
     // Use the backtracking line search algorithm to determine the next guess,
     // rather than automatically taking the full Newton-Raphson step.

@@ -76,7 +76,13 @@ bool newton_raphson_boost::get_next_guess(
     }
 
     // Determine the Newton-Raphson step
-    boost::numeric::ublas::vector<double> dx = get_newton_raphson_step_boost(function_value, jacobian);
+    boost::numeric::ublas::vector<double> dx;
+    try {
+        dx = get_newton_raphson_step_boost(function_value, jacobian);
+    } catch (std::runtime_error const& e) {
+        // The LU decomposition has failed, so indicate that an error occurred
+        return true;
+    }
 
     // Determine the new guess by taking the full step, i.e., calculating x_new = x_0 + dx
     output_guess = input_guess;

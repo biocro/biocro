@@ -35,9 +35,12 @@ std::string const solver_type = "newton_raphson_backtrack_boost";
 int const max_iterations = 30;
 
 int const num_guesses_to_try_educated = 100;
+
 int const num_guesses_to_try_other = 100;
 
 bool const should_reorder_guesses = true;
+
+bool const return_default_on_failure = false;
 
 // Note: order must agree with std::sort applied to quantity name
 std::vector<double> const lower_bounds = {
@@ -97,6 +100,7 @@ class ed_c4_leaf_photosynthesis : public se_module::base
                           ed_c4_leaf_photosynthesis_stuff::absolute_error_tolerances,
                           ed_c4_leaf_photosynthesis_stuff::relative_error_tolerances,
                           ed_c4_leaf_photosynthesis_stuff::should_reorder_guesses,
+                          ed_c4_leaf_photosynthesis_stuff::return_default_on_failure,
                           input_parameters,
                           output_parameters),
           // Get pointers to input parameters
@@ -153,6 +157,7 @@ std::vector<std::string> ed_c4_leaf_photosynthesis::get_outputs()
     std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis_stuff::module_name));
+    outputs.push_back(se_module::get_success_output_name(ed_c4_leaf_photosynthesis_stuff::module_name));
     return outputs;
 }
 
