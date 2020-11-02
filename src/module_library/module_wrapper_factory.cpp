@@ -94,6 +94,9 @@
 #include "ed_evapotrans2.h"
 #include "ed_canac_leaf.h"
 #include "ed_abc_blc.h"
+#include "ed_multilayer_canopy_properties.h"
+#include "ed_multilayer_c4_canopy.h"
+#include "ed_multilayer_canopy_integrator.h"
 #include "hyperbolas.h"
 
 /**
@@ -223,6 +226,9 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_evapotrans2",                                  &create_wrapper<ed_evapotrans2>},
      {"ed_canac_leaf",                                   &create_wrapper<ed_canac_leaf>},
      {"ed_abc_blc",                                      &create_wrapper<ed_abc_blc>},
+     {"ed_ten_layer_canopy_properties",                  &create_wrapper<ed_ten_layer_canopy_properties>},
+     {"ed_ten_layer_c4_canopy",                          &create_wrapper<ed_ten_layer_c4_canopy>},
+     {"ed_ten_layer_canopy_integrator",                  &create_wrapper<ed_ten_layer_canopy_integrator>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>}
 };
