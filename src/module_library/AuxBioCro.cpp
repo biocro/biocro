@@ -252,9 +252,9 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * @param[in] nlayers number of layers in the canopy `(1 <= nlayers <= MAXLAY)`
  * 
  * @param[out] relative_humidity_profile array of relative humidity values
- * expressed as fractions between 0 and 1, where value `i` represents
- * relative humidity at the bottom of canopy layer `i` and `i = 0` corresponds
- * to the top canopy layer. 
+ * expressed as fractions between 0 and 1, where the value at index `i`
+ * represents relative humidity at the bottom of canopy layer `i` and `i = 0`
+ * corresponds to the top canopy layer. 
  * 
  * In Chapter 2 of his thesis, Stephen Humphries writes:
  * > The erratic turbulent structure of air movement within plant canopies and
