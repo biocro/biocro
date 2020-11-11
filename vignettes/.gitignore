@@ -1,0 +1,4 @@
+*.html
+*.R
+# Build products don't get added to subdirectories, so don't ignore anything in them:
+!*/*
