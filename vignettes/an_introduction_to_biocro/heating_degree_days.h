@@ -22,7 +22,6 @@ class heating_degree_days : public DerivModule {
 
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    static std::string get_description();
 
   private:
     // Pointers to input parameters:

@@ -951,7 +951,6 @@ angle itself.  The steps are as follows.
   \begin{example}[4]
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    static std::string get_description();
   \end{example}
 
 \item Add the following declaration to the private section to override
@@ -985,8 +984,6 @@ angle itself.  The steps are as follows.
         };
     }
   \end{example}
-
-\item Implement the \code{get_description()} function.
 
 \item Implement the \code{do_operation()} function.  This is the heart
   of the module---it's where the real work gets done.  Generally, the
@@ -1158,7 +1155,6 @@ steady-state module, but with some significant differences.
   \begin{example}[4]
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    static std::string get_description();
   \end{example}
 
 \item Add the following declaration to the private section to override
@@ -1193,8 +1189,6 @@ steady-state module, but with some significant differences.
         };
     }
   \end{example}
-
-\item Implement the \code{get_description()} function.
 
 \item Implement the \code{do_operation()} function.  This is the heart
   of the module---it's where the real work gets done.  Generally, the

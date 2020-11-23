@@ -28,7 +28,6 @@ class solar_zenith_angle_in_degrees : public SteadyModule {
         
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    static std::string get_description();
    
  private:
     // Pointers to input parameters:
@@ -53,14 +52,6 @@ std::vector<std::string> solar_zenith_angle_in_degrees::get_outputs() {
     return {
         "zenith_angle_in_degrees"
     };
-}
-
-std::string get_description() {
-    return std::string{"Calculates the solar zenith angle in degrees "} +
-        "(placing it into the variable \"zenith_angle_in_degrees\") given " +
-        "the value of the variable \"cosine_zenith_angle\", which " +
-        "represents the cosine of the solar zenith angle.\nThe returned " +
-        "value will always be between 0 and 180.";
 }
 
 void solar_zenith_angle_in_degrees::do_operation() const {
