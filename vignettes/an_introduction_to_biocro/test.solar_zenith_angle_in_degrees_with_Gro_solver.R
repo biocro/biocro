@@ -1,12 +1,22 @@
 context('Test basic functioning of the steady-state module "solar_zenith_angle_in_degrees".')
 
+steady_state_modules <- c("solar_zenith_angle_in_degrees")
+derivative_modules <- c()
+
+initial_state <- list()
+invariant_parameters <- list(timestep = 1)
+
+
 # Run the system using a cza as the the value of the cosine of the
 # zenith angle and return the value of zenith_angle_in_degrees from
 # the result.
 angle_from_cosine <- function(cza) {
-    input_parameters <- list(cosine_zenith_angle = cza)
+    # For these tests, the value of doy_dbl is immaterial, but either
+    # doy_dbl or both doy and hour must be in the list of keys for
+    # varying parameters.
+    varying_parameters <- list(doy_dbl = 1, cosine_zenith_angle = cza)
 
-    result <- test_module("solar_zenith_angle_in_degrees", input_parameters)
+    result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
 
     result$zenith_angle_in_degrees
 }
