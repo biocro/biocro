@@ -13,6 +13,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{url}
+\usepackage[title]{appendix}
 
 \colorlet{stringcolor}{purple}
 
@@ -135,7 +136,7 @@
 \author{Justin McGrath}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+
 \maketitle
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}
@@ -1254,6 +1255,7 @@ a few modifications to
 
 
 \subsection{Writing tests for new models}
+\label{sec:writing_tests}
 
 Once a new module has been written, a set of unit tests should be
 written to ensure that it works as expected.  For more about unit
@@ -1265,15 +1267,15 @@ non-language-specific discussions of unit testing, see
 
 Here are step-by-step instructions for writing unit tests of modules,
 using as examples the modules we have just written.\footnote{These
-  instructions are for testing in R.  It would be much more direct to
-  use a C++ testing framework to test C++ code; presumably such tests
-  could test the module functions independently of the rest of the
-  BioCro code, with a minimum of set-up and tear-down code.  But
-  writing tests in R is simpler.  Note, though, that this way of
-  testing modules depends on the correct functioning of the R
-  framework for running BioCro simulations.  If the framework is
-  buggy, then the module tests may fail for reasons not having
-  anything to do with the module itself.}
+instructions are for testing in R.  It would be much more direct to
+use a C++ testing framework to test C++ code; presumably such tests
+could test the module functions independently of the rest of the
+BioCro code, with a minimum of set-up and tear-down code.  But writing
+tests in R is simpler.  Note, though, that this way of testing modules
+depends on the correct functioning of the R interface to the BioCro
+C++ library.  If the R front end is buggy, then the module tests may
+fail for reasons not having anything to do with the underlying C++
+module.}
 
 \subsubsection{Writing a unit test for a steady-state module}
 
@@ -1511,23 +1513,33 @@ the whole R session.\footnote{If you don't have the devtools package
   the \Rcode{tests} directory.}
 
 
-\appendix
+
+\pagebreak
+
+
+
+\begin{appendices}
 
 \section{Writing unit tests using Gro\_solver}
 
-Here are step-by-step instructions for writing unit tests of modules,
-using as examples the modules we have just written.\footnote{These
-  instructions are for testing in R.  It would be much more direct to
-  use a C++ testing framework to test C++ code; presumably such tests
-  could test the module functions independently of the rest of the
-  BioCro code, with a minimum of set-up and tear-down code.  But
-  writing tests in R is simpler.  Note, though, that this way of
-  testing modules depends on the correct functioning of the R
-  framework for running BioCro simulations.  If the framework is
-  buggy, then the module tests may fail for reasons not having
-  anything to do with the module itself.}
+The section on writing unit tests was originally written in such a way
+that the tests called the \Rcode{Gro_solver} function.  This entails
+testing a module by setting up a complete system and running a full
+simulation.
 
-\subsubsection{Writing a unit test for a steady-state module}
+Using the \Rcode{test_module} function instead is a much more
+convenient way to write tests: It can be used to test the basic
+functioning of a module while avoiding all of the many steps needed to
+set up a full system for running a simulation.
+
+There may be cases, however, where we may still want the flexibility
+offered by being able to specify and run a full simulation.
+Therefore, it was felt useful to present the steps required in this
+appendix.  Thus, we re-present the material from section
+\ref{sec:writing_tests}, showing how to write tests using
+\Rcode{Gro_solver} instead of \Rcode{test_module}.
+
+\subsection{Writing a unit test for a steady-state module}
 
 For testing a steady-state module, it will suffice to set up a
 bare-bones system: the sequence of states can be a sequence of length
@@ -1794,7 +1806,7 @@ module being tested plus certain time-related variables.
 \end{enumerate}
 
 
-\subsubsection{Writing a unit test for a derivative module}
+\subsection{Writing a unit test for a derivative module}
 
 Again, it will suffice to set up a bare-bones system.  But this time,
 we will set up a time sequence of length two or more since we want to
@@ -1896,12 +1908,14 @@ Here, we show how to test the heating degree days module.
 
 \lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.heating_degree_days.R}
 
-\subsection{Full listing of the unit-test file for solar-zenith-angle-in-degrees---Gro_solver version} \label{szags test file}
+\subsection{Full listing of the unit-test file for solar-zenith-angle-in-degrees---Gro\_solver version} \label{szags test file}
 
 \lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.solar_zenith_angle_in_degrees_with_Gro_solver.R}
 
-\subsection{Full listing of the unit-test file for heating-degree-days---Gro_solver version} \label{hddgs test file}
+\subsection{Full listing of the unit-test file for heating-degree-days---Gro\_solver version} \label{hddgs test file}
 
 \lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.heating_degree_days_with_Gro_solver.R}
+
+\end{appendices}
 
 \end{document}
