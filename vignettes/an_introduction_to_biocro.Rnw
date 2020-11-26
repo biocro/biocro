@@ -932,7 +932,7 @@ angle itself.  The steps are as follows.
   name}\code{(const state_map* input_parameters, state_map*
   output_parameters)}.  The constructor needs to initialize the base
   class \code{SteadyModule} with the name for the module, and each
-  parameter pointer needs to be initialized with an initializer of the
+  parameter variable needs to be initialized with an initializer of the
   form
   \begin{C++listing}[4]
     |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
@@ -1120,19 +1120,18 @@ steady-state module, but with some significant differences.
     }
   \end{example}
 
-\item Declare private data members for pointers to each input
-  parameter and each output parameter.  Just as with steady-state
-  modules, input parameter pointers should be of type \code{const
-    double*} and by convention should have names of the form
-  \placeholder{parameter name}\code{_ip}, where \placeholder{parameter
-    name}{} is the name of the corresponding parameter.  Output
-  parameter pointers should be of type \code{double*} and should have
-  names of the form \placeholder{parameter name}\code{_op}.
+\item Declare private data members corresponding to the input and
+  output parameters.  Just as with steady-state modules, input
+  parameter references should be of type \code{const double&} and by
+  convention should have identifiers matching the parameter name.
+  Output parameter pointers should be of type \code{double*} and
+  should have names of the form \placeholder{parameter
+  name}\code{_op}.
   \begin{example}[4]
     private:
        // Pointers to input parameters:
-       const double* temp_ip;
-       const double* base_temperature_ip;
+       const double& temp;
+       const double& base_temperature;
 
        // Pointers to output parameters:
        double* heating_degree_days_op;
@@ -1142,10 +1141,10 @@ steady-state module, but with some significant differences.
   name}\code{(const state_map* input_parameters, state_map*
   output_parameters)}.  The constructor needs to initialize the base
   class \code{DerivModule} with the name for the module, and each
-  parameter pointer needs to be initialized with an initializer of the
+  parameter variable needs to be initialized with an initializer of the
   form
   \begin{C++listing}[4]
-    |\placeholder{parameter name}|_ip{get_ip(input_parameters, |\stringplaceholder{parameter name}|)}
+    |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
   (for input parameters), or
   \begin{C++listing}[4]
@@ -1162,8 +1161,8 @@ steady-state module, but with some significant differences.
                output_parameters
        )
        : DerivModule{"heating_degree_days"},
-         temp_ip{get_ip(input_parameters, "temp")},
-         base_temperature_ip{get_ip(input_parameters, "base_temperature")},
+         temp{get_input(input_parameters, "temp")},
+         base_temperature{get_input(input_parameters, "base_temperature")},
          heating_degree_days_op{get_op(output_parameters, "heating_degree_days")}
        {}
   \end{example}
@@ -1229,10 +1228,8 @@ steady-state module, but with some significant differences.
   In our example, the function definition looks like this:
   \begin{example}[4]
     void heating_degree_days::do_operation() const {
-        double temperature_deficit {
-          *base_temperature_ip > *temp_ip ?
-          (*base_temperature_ip - *temp_ip) : 0
-        };
+        double temperature_deficit { base_temperature > temp_ip ?
+                                     (base_temperature - temp_ip) : 0};
 
         update(heating_degree_days_op, temperature_deficit / 24.0);|\footnotemark|
     }

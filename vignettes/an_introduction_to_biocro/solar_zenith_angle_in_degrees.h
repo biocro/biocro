@@ -22,7 +22,7 @@ class solar_zenith_angle_in_degrees : public SteadyModule {
  public:
     solar_zenith_angle_in_degrees(const state_map* input_parameters, state_map* output_parameters)
         : SteadyModule{"solar_zenith_angle_in_degrees"},
-          cosine_zenith_angle_ip{get_ip(input_parameters, "cosine_zenith_angle")},
+          cosine_zenith_angle{get_input(input_parameters, "cosine_zenith_angle")},
           zenith_angle_in_degrees_op{get_op(output_parameters, "zenith_angle_in_degrees")}
         {}
         
@@ -30,8 +30,8 @@ class solar_zenith_angle_in_degrees : public SteadyModule {
     static std::vector<std::string> get_outputs();
    
  private:
-    // Pointers to input parameters:
-    const double* cosine_zenith_angle_ip;
+    // References to input parameters:
+    const double& cosine_zenith_angle;
 
     // Pointers to output parameters:
     double* zenith_angle_in_degrees_op;
@@ -55,7 +55,7 @@ std::vector<std::string> solar_zenith_angle_in_degrees::get_outputs() {
 }
 
 void solar_zenith_angle_in_degrees::do_operation() const {
-    double zenith_angle { acos(*cosine_zenith_angle_ip)
+    double zenith_angle { acos(cosine_zenith_angle)
                             * 180 / math_constants::pi };
     update(zenith_angle_in_degrees_op, zenith_angle);
 }
