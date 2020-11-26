@@ -885,12 +885,16 @@ angle itself.  The steps are as follows.
   \end{example}
 
 \item Inside the body of the class declaration, declare private data
-  members for pointers to each input parameter and each output
-  parameter.  Input parameter pointers should be of type \code{const
-    double*}; by convention, they should have names of the form
-  \placeholder{parameter name}\code{_ip},
-  where \placeholder{parameter name} is the name of
-  the corresponding parameter.%
+  members corresponding to the input and output parameters: Each
+  member corresponding to an input parameter should be a reference of
+  type \code{const double&};
+  by convention, the identifier used for the reference should be
+  called \placeholder{parameter name}, that is, it should match the
+  name of the corresponding parameter.%
+  \footnote{Most existing modules use pointers rather than references
+  for the input parameter values.  But there is no reason not to use a
+  reference, and it saves one from having to dereference the pointer
+  when the value is used.}%
   \footnote{There has been some discussion of relaxing this
     convention: As with module names, the (quoted) parameter name is
     the ``public-facing'' name known to users of the BioCro R
@@ -917,8 +921,8 @@ angle itself.  The steps are as follows.
       you will have to add it.}}
   \begin{example}[4]
     private:
-       // Pointers to input parameters:
-       const double* cosine_zenith_angle_ip;
+       // References to input parameters:
+       const double& cosine_zenith_angle;
 
        // Pointers to output parameters:
        double* zenith_angle_in_degrees_op;
@@ -931,13 +935,22 @@ angle itself.  The steps are as follows.
   parameter pointer needs to be initialized with an initializer of the
   form
   \begin{C++listing}[4]
-    |\placeholder{parameter name}|_ip{get_ip(input_parameters, |\stringplaceholder{parameter name}|)}
+    |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
   (for input parameters), or
   \begin{C++listing}[4]
     |\placeholder{parameter name}|_op{get_op(output_parameters, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
-  (for output parameters).
+  (for output parameters).%
+  % This footnote was a real pain to typeset:
+  \footnote{In existing modules, where pointers rather than references
+      are used for input parameters, the initialization code will use
+      the \code{get_ip} function instead of the \code{get_input}
+      function:
+      \placeholder{parameter name}\code{_ip}\{%
+      \lstinline!get_ip(input_parameters,%
+      !\ \stringplaceholder{parameter name})\}
+  }
 
   \begin{example}[4]
     public:
@@ -946,7 +959,7 @@ angle itself.  The steps are as follows.
            state_map* output_parameters
        )
            : SteadyModule{"solar_zenith_angle_in_degrees"},
-           cosine_zenith_angle_ip{get_ip(input_parameters, "cosine_zenith_angle")},
+           cosine_zenith_angle{get_input(input_parameters, "cosine_zenith_angle")},
            zenith_angle_in_degrees_op{get_op(output_parameters, "zenith_angle_in_degrees")}
            {}
   \end{example}
@@ -1012,8 +1025,8 @@ angle itself.  The steps are as follows.
     ...
     ...
     void solar_zenith_angle_in_degrees::do_operation() const {
-        double zenith_angle { acos(*cosine_zenith_angle_ip)
-                              * 180 / math_constants::pi };
+        double zenith_angle { acos(cosine_zenith_angle)
+                                * 180 / math_constants::pi };
         update(zenith_angle_in_degrees_op, zenith_angle);
     }
   \end{example}
