@@ -16,6 +16,19 @@
  *  positions of the sun below the horizon.  If out-of-range values
  *  for the cosine are given, the output variable is set to NaN
  *  ("not-a-number").
+ *
+ *  Denoting the zenith angle by \f$\theta_s\f$ and its cosine by
+ *  \f$x\f$, the formula used to compute \f$\theta_s\f$ (in degrees)
+ *  from \f$x\f$ is
+ *  \f[
+ *      \theta_s =
+        \begin{cases} \arccos(x) \cdot 180/\pi,  & \text{if }-1 \le x \le 1; \\
+                      \text{undefined,}          & \text{otherwise.}
+        \end{cases}
+ *  \f]
+ *  where the usual range \f$ 0 \le x \le \pi \f$ for the \f$\arccos\f$
+ *  function is used and undefined values are represented by NaN.
+ *
  */
 class solar_zenith_angle_in_degrees : public SteadyModule {
 

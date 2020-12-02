@@ -41,6 +41,11 @@
   stringstyle=\color{stringcolor},
 }
 
+\lstdefinestyle{sh_style}{
+  style=baseStyle,
+  language=sh
+}
+
 \lstdefinestyle{C++style}{
   style=baseStyle,
   language=C++
@@ -60,6 +65,13 @@
 
 \newcommand{\code}[1]{\lstinline[style=C++style]{#1}}
 \newcommand{\Rcode}[1]{\lstinline[style=Rstyle]{#1}}
+
+\lstnewenvironment{sh_listing}[1][2]
+{\lstset{
+    style=sh_style,
+    gobble=#1
+}}
+{}
 
 \lstnewenvironment{C++listing}[1][2]
 {\lstset{
@@ -771,7 +783,7 @@ modules.
 
 \subsubsection{Example: Steps for creating a steady-state module.}
 
-Supose we want to write a module which builds upon the
+Suppose we want to write a module which builds upon the
 \code{solar_zenith_angle} module.  That module, when given the
 latitude (``lat'') and hour of the day (``hour'') as inputs, computes
 the cosine of the solar zenith angle (``cosine\_zenith\_angle'').  We
@@ -864,6 +876,11 @@ angle itself.  The steps are as follows.
       so it is more appropriate to put ``public'' information here.
       Documentation of \code{do_operation}, if any, should mostly be
       about programming details.}
+
+    See section \ref{sec:doxygen} for how to quickly generate and view
+    the documentation Doxygen produces from the documentation markup
+    that you write.
+
   \begin{example}[4]
     /**
      *  Given a value for the BioCro variable "cosine_zenith_angle",
@@ -1063,7 +1080,7 @@ steps:
 
 \subsubsection{Example: Steps for creating a derivative module.}
 
-Supose that we have weather data giving the ambient temperature over
+Suppose that we have weather data giving the ambient temperature over
 some period of time and we wish write a module to help us calculate
 the (cumulative) number of heating degree days over that same period.
 This is essentially the integral of the amount the ambient temperature
@@ -1267,6 +1284,49 @@ a few modifications to
 
 \end{enumerate}
 
+\subsubsection{Generating the Doxygen documentation}
+\label{sec:doxygen}
+
+If you go to the BioCro \code{documentation} directory and type
+\code{make help} at the command line, you see information about
+multiple options for generating and displaying the Doxygen
+documentation in various configurations.  While in the process of
+\emph{writing} documentation, however, it is convenient to be able to
+quickly genererate the HTML- or PDF-style documents for the portion of
+the documentation you are working on.  One way to do this is as
+follows.
+
+Suppose we are working on the documentation in the module file
+\newline\code{src/module_library/solar_zenith_angle_in_degrees.h}.
+Then we can quickly generate the HTML documentation for that file and
+view it by issuing the command
+\begin{sh_listing}
+  make source=../src/module_library/solar_zenith_angle_in_degrees.h \
+       output_directory=minimal view
+\end{sh_listing}
+
+What we have done here is we have re-purposed the \code{make view}
+command, which generates \emph{all} of the HTML documentation for the
+C++ source code, and overridden the default set of source files and
+the default documentation output directory for Make target \emph{view}
+so that we only spend time documenting the file of interest and so
+that the documentation is output to a different place so that it won't
+corrupt any existing, complete documentation.\footnote{The name
+\emph{minimal} for the output directory is arbitrary except that it is
+best to choose a name that doesn't name an existing directory.
+Overriding \emph{output} isn't strictly necessary, but if we don't,
+the output will be written to
+\code{documentation/doxygen_docs_complete}, a somewhat misleading name
+for the minimal documentation we are generating.  Moreover, any
+existing documentation in that location would be corrupted by the new
+minimal documentation we generate.}
+
+If we want to generate and view the PDF documentation, we could use
+this command instead:
+\begin{sh_listing}
+  make source=../src/module_library/solar_zenith_angle_in_degrees.h \
+       output_directory=minimal view-pdf
+\end{sh_listing}
 
 \subsection{Writing tests for new models}
 \label{sec:writing_tests}
@@ -1928,6 +1988,12 @@ Here, we show how to test the heating degree days module.
 \section{Code listings}
 
 \subsection{Full listing of solar-zenith-angle-in-degrees module} \label{sza module listing}
+
+(In this listing, we have expanded the class's Doxygen comment to
+demonstrate how LaTeX-style equations could be included, if desired.
+See section \ref{sec:doxygen} for instructions on how to quickly and
+easily generate and display the resulting HTML and PDF forms of the
+Doxygen documentation.)
 
 \lstinputlisting[style=C++style]{an_introduction_to_biocro/solar_zenith_angle_in_degrees.h}
 
