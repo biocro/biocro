@@ -6,7 +6,14 @@
 #include <string>
 
 /**
- * A `state_vector_map` represents a chronilogically-ordered sequence
+ * `string_vector` serves as an alias for a widely-used typ use to
+ * hold lists of module names or lists of module parameters.
+ * Formally, it is simply a `std::vector` of `std::string`s.
+ */
+using string_vector = std::vector<std::string>;
+
+/**
+ * A `state_vector_map` represents a chronologically-ordered sequence
  * of states of a system over some period of time.  The keys of the
  * map are attributes of the system; each value is a vector
  * representing the sequence of values of one of those attributes as
@@ -42,9 +49,9 @@ using state_map = std::unordered_map<std::string, double>;
  * of the object.
  */
 template <typename map_with_string_key_type>
-std::vector<std::string> keys(map_with_string_key_type const& map)
+string_vector keys(map_with_string_key_type const& map)
 {
-    std::vector<std::string> result;
+    string_vector result;
     for (auto const& it : map) {
         result.push_back(it.first);
     }

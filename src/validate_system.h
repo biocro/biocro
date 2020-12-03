@@ -11,7 +11,6 @@
 #include "module_library/module_wrapper_factory.h"
 #include "modules.h"
 
-using string_vector = std::vector<std::string>;
 using string_set = std::set<std::string>;
 using module_vector = std::vector<std::unique_ptr<Module>>;
 
