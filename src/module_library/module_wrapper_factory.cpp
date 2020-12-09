@@ -4,8 +4,6 @@
 
 // Include all the header files that define the modules.
 #include "harmonic_oscillator.hpp"  // Contains harmonic_oscillator and harmonic_energy
-#include "size_testing.hpp"         // Contains P1, P10, P100, and P1000
-#include "reaction.hpp"
 #include "nr_ex.hpp"
 #include "one_layer_soil_profile.hpp"
 #include "one_layer_soil_profile_derivatives.hpp"
@@ -47,25 +45,19 @@
 #include "penman_monteith_leaf_temperature.hpp"
 #include "priestley_transpiration.hpp"
 #include "FvCB.hpp"
-#include "gamma_oscillator.hpp"
-#include "position_oscillator.hpp"
-#include "velocity_oscillator.hpp"
-#include "test_module.hpp"
-#include "test_calc_state.hpp"
-#include "test_derivs.hpp"
 #include "bucket_soil_drainage.hpp"
 #include "linear_vmax_from_leaf_n.hpp"
 #include "module_graph_test.hpp"  // Includes Module_1, Module_2, and Module_3
 #include "collatz_leaf.hpp"
 #include "canac_with_collatz.hpp"
 #include "big_leaf_multilayer_canopy.hpp"
-#include "flowering.hpp"
-#include "flowering_calculator.hpp"
 #include "solar_zenith_angle.h"
 #include "shortwave_atmospheric_scattering.h"
 #include "incident_shortwave_from_ground_par.h"
 #include "leaf_shape_factor.h"
+#include "c3_assimilation.h"
 #include "c3_leaf_photosynthesis.h"
+#include "c4_assimilation.h"
 #include "c4_leaf_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
 #include "multilayer_c3_canopy.h"
@@ -121,11 +113,6 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
 {
      {"harmonic_oscillator",                             &create_wrapper<harmonic_oscillator>},
      {"harmonic_energy",                                 &create_wrapper<harmonic_energy>},
-     //{"P1000",                                         &create_wrapper<P1000>},        // These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
-     //{"P100",                                          &create_wrapper<P100>},        // These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
-     //{"P10",                                           &create_wrapper<P10>},            // These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
-     //{"P1",                                            &create_wrapper<P1>},            // These modules introduce tons of pointless parameters and rarely are used, so just comment them out for now (P1, P10, P100, P1000)
-     {"reaction",                                        &create_wrapper<reaction>},
      {"nr_ex",                                           &create_wrapper<nr_ex>},
      {"one_layer_soil_profile",                          &create_wrapper<one_layer_soil_profile>},
      {"one_layer_soil_profile_derivatives",              &create_wrapper<one_layer_soil_profile_derivatives>},
@@ -167,12 +154,6 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"penman_monteith_leaf_temperature",                &create_wrapper<penman_monteith_leaf_temperature>},
      {"priestley_transpiration",                         &create_wrapper<priestley_transpiration>},
      {"FvCB",                                            &create_wrapper<FvCB>},
-     {"gamma_oscillator",                                &create_wrapper<gamma_oscillator>},
-     {"position_oscillator",                             &create_wrapper<position_oscillator>},
-     {"velocity_oscillator",                             &create_wrapper<velocity_oscillator>},
-     {"test_module",                                     &create_wrapper<test_module>},
-     {"test_calc_state",                                 &create_wrapper<test_calc_state>},
-     {"test_derivs",                                     &create_wrapper<test_derivs>},
      {"bucket_soil_drainage",                            &create_wrapper<bucket_soil_drainage>},
      {"linear_vmax_from_leaf_n",                         &create_wrapper<linear_vmax_from_leaf_n>},
      {"Module_1",                                        &create_wrapper<Module_1>},
@@ -181,13 +162,13 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"collatz_leaf",                                    &create_wrapper<collatz_leaf>},
      {"canac_with_collatz",                              &create_wrapper<canac_with_collatz>},
      {"big_leaf_multilayer_canopy",                      &create_wrapper<big_leaf_multilayer_canopy>},
-     {"flowering",                                       &create_wrapper<flowering>},
-     {"flowering_calculator",                            &create_wrapper<flowering_calculator>},
      {"solar_zenith_angle",                              &create_wrapper<solar_zenith_angle>},
      {"shortwave_atmospheric_scattering",                &create_wrapper<shortwave_atmospheric_scattering>},
      {"incident_shortwave_from_ground_par",              &create_wrapper<incident_shortwave_from_ground_par>},
      {"leaf_shape_factor",                               &create_wrapper<leaf_shape_factor>},
+     {"c3_assimilation",                                 &create_wrapper<c3_assimilation>},
      {"c3_leaf_photosynthesis",                          &create_wrapper<c3_leaf_photosynthesis>},
+     {"c4_assimilation",                                 &create_wrapper<c4_assimilation>},
      {"c4_leaf_photosynthesis",                          &create_wrapper<c4_leaf_photosynthesis>},
      {"ten_layer_canopy_properties",                     &create_wrapper<ten_layer_canopy_properties>},
      {"ten_layer_c3_canopy",                             &create_wrapper<ten_layer_c3_canopy>},
