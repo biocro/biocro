@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cmath>                 // for fabs
+#include <numeric>               // for inner_product
 #include "constants.h"           // for calculation_constants::eps_zero
 #include <Rinternals.h>          // for debugging
 const bool seshf_print = false;  // for debugging
