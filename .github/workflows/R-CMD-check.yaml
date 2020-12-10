@@ -1,0 +1,93 @@
+# For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
+# https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
+on:
+  push:
+  workflow_dispatch:
+    # When running manually, allow users to customize the run:
+    inputs:
+      check-manual:
+        description: 'check the manual'
+        required: false
+        default: 'false'
+      check-vignettes:
+        description: 'check the vignettes'
+        required: false
+        default: 'false'
+      run-tests:
+        description: 'run the tests'
+        required: false
+        default: 'false'
+      check-examples:
+        description: 'check the examples'
+        required: false
+        default: 'false'
+  pull_request:
+    branches:
+      - master
+
+name: R-CMD-check
+
+jobs:
+  R-CMD-check:
+    runs-on: macOS-latest # For now, only test on macOS
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v1 # Default to release version for now.
+
+      - name: Install Pandoc
+        uses: r-lib/actions/setup-pandoc@v1
+
+      - name: Maybe install TinyTex
+        if: ${{github.event_name == 'workflow_dispatch' &&
+               github.event.inputs.check-vignettes == 'true'}}
+        run: |
+          install.packages('tinytex')
+          tinytex::install_tinytex()
+          # Install a few LaTeX packages needed by the vignette not included
+          # in tinytex:
+          tinytex::tlmgr_install(c('siunitx', 'babel-english'))
+        shell: Rscript {0}
+
+      - name: Install R package dependencies and some utilities
+        run: |
+          install.packages(c("remotes", "rcmdcheck"))
+          remotes::install_deps(dependencies = TRUE)
+        shell: Rscript {0}
+
+      - name: Check package
+        run: |
+          if ('${{ github.event_name }}' == 'workflow_dispatch') {
+            build_args_value <- c()
+            args_value <- c('--as-cran')
+            if (as.logical('${{ github.event.inputs.check-manual }}') == FALSE) {
+              build_args_value <- append(build_args_value, '--no-manual')
+              args_value <- append(args_value, '--no-manual')
+            }
+            if (as.logical('${{ github.event.inputs.check-vignettes }}') == FALSE) {
+              build_args_value <- append(build_args_value, '--no-build-vignettes')
+              args_value <- append(args_value, '--ignore-vignettes')
+            }
+            if (as.logical('${{ github.event.inputs.run-tests }}') == FALSE) {
+              args_value <- append(args_value, '--no-tests')
+            }
+            if (as.logical('${{ github.event.inputs.check-examples }}') == FALSE) {
+              args_value <- append(args_value, '--no-examples')
+            }
+          } else {
+            build_args_value <- c('--no-manual', '--no-build-vignettes')
+            args_value <- c('--as-cran', '--no-manual', '--ignore-vignettes',
+                            '--no-tests', '--no-examples')
+          }           
+          cat("Running rcmdcheck with",
+                "\n  args =", args_value,
+                "\n  build_args =", build_args_value,
+                "\n  error_on = 'error', and",
+                "\n  check_dir = 'check'\n")
+          rcmdcheck::rcmdcheck(args = args_value,
+                               build_args = build_args_value,
+                               error_on = "error",
+                               check_dir = "check")
+        shell: Rscript {0}
