@@ -8,7 +8,8 @@
 %% Useful packages
 \usepackage{helvet}
 \renewcommand{\familydefault}{\sfdefault}
-\usepackage{hyperref}
+\usepackage[colorlinks,linkcolor=cyan]{hyperref} % use colored links instead of boxes around links
+\usepackage{footnotebackref} % add a "return" link from footnotes
 \usepackage{amsmath}
 \usepackage{siunitx}
 \usepackage[margin=1 in]{geometry}
@@ -850,7 +851,7 @@ angle itself.  The steps are as follows.
   \code{state_map.h}.
   \begin{example}[4]
     #include "../modules.h"
-    #include "../state_map.h''
+    #include "../state_map.h"
   \end{example}
 
 \item Begin a declaration of a class for the module, deriving it from
@@ -893,7 +894,6 @@ angle itself.  The steps are as follows.
      *  for the cosine are given, the output variable is set to NaN
      *  ("not-a-number").
      */
-
     class solar_zenith_angle_in_degrees : public SteadyModule {
       ...
       ...
@@ -1029,11 +1029,11 @@ angle itself.  The steps are as follows.
   for each output parameter.  Here, \placeholder{some value} is some
   numerical value calculated in the body of the function prior to the
   update statement, and it will generally be calculated from the
-  dereferenced values of the input parameter pointers.  Computations
-  often may entail the use of additional include directives, for
-  example \code{\#include <cmath>} or \code{\#include
-    "../constants.h"}.  In our example, the function definition (along
-  with the required extra include directives) looks like this:
+  values of the input parameters.  Computations often may entail the
+  use of additional include directives, for example \code{\#include
+  <cmath>} or \code{\#include "../constants.h"}.  In our example, the
+  function definition (along with the required extra include
+  directives) looks like this:
   \begin{example}[4]
     ...
     ...
@@ -1081,7 +1081,7 @@ steps:
 \subsubsection{Example: Steps for creating a derivative module.}
 
 Suppose that we have weather data giving the ambient temperature over
-some period of time and we wish write a module to help us calculate
+some period of time and we wish to write a module to help us calculate
 the (cumulative) number of heating degree days over that same period.
 This is essentially the integral of the amount the ambient temperature
 falls short of some ``threshold'' or ``base'' temperature, but
@@ -1123,7 +1123,7 @@ steady-state module, but with some significant differences.
   \code{state_map.h}.
   \begin{example}[4]
     #include "../modules.h"
-    #include "../state_map.h''
+    #include "../state_map.h"
   \end{example}
 
 \item Begin a declaration of a class for the module, deriving it from
@@ -1230,12 +1230,12 @@ steady-state module, but with some significant differences.
   \begin{C++listing}[4]
     update(|\placeholder{output parameter}|_op,|\placeholder{some value}|);
   \end{C++listing}
-  for each output parameter.  Here, \placeholder{some value} is some
+    for each output parameter.  Here, \placeholder{some value} is some
   numerical value calculated in the body of the function prior to the
   update statement, and it will generally be calculated from the
-  dereferenced values of the input parameter pointers.  Since this is
-  a \emph{derivative} module, it represents the \emph{rate of change
-    \textbf{per hour}} of the output parameter.
+  values of the input parameters.  Since this is a \emph{derivative}
+  module, it represents the \emph{rate of change \textbf{per hour}} of
+  the output parameter.
 
   Computations
   often may entail the use of additional include directives, for
@@ -1245,8 +1245,8 @@ steady-state module, but with some significant differences.
   In our example, the function definition looks like this:
   \begin{example}[4]
     void heating_degree_days::do_operation() const {
-        double temperature_deficit { base_temperature > temp_ip ?
-                                     (base_temperature - temp_ip) : 0};
+        double temperature_deficit { base_temperature > temp ?
+                                     (base_temperature - temp) : 0};
 
         update(heating_degree_days_op, temperature_deficit / 24.0);|\footnotemark|
     }
@@ -1290,11 +1290,11 @@ a few modifications to
 If you go to the BioCro \code{documentation} directory and type
 \code{make help} at the command line, you see information about
 multiple options for generating and displaying the Doxygen
-documentation in various configurations.  While in the process of
-\emph{writing} documentation, however, it is convenient to be able to
-quickly genererate the HTML- or PDF-style documents for the portion of
-the documentation you are working on.  One way to do this is as
-follows.
+documentation in various configurations.  When you are in the process
+of \emph{writing} documentation, however, it is convenient to be able
+to quickly genererate the HTML- or PDF-style documents for just the
+portion of the documentation you are working on.  One way to do this
+is as follows.
 
 Suppose we are working on the documentation in the module file
 \newline\code{src/module_library/solar_zenith_angle_in_degrees.h}.
@@ -1306,12 +1306,15 @@ view it by issuing the command
 \end{sh_listing}
 
 What we have done here is we have re-purposed the \code{make view}
-command, which generates \emph{all} of the HTML documentation for the
-C++ source code, and overridden the default set of source files and
-the default documentation output directory for Make target \emph{view}
-so that we only spend time documenting the file of interest and so
-that the documentation is output to a different place so that it won't
-corrupt any existing, complete documentation.\footnote{The name
+command, which normally generates \emph{all} of the HTML documentation
+for the C++ source code, and overridden the default set of documented
+source files and the default documentation output directory so that we
+only spend time generating the documentation for the file of interest
+and so that the documentation is output to a different place (so that
+it won't corrupt any existing, complete documentation).  Thus, we set
+\code{source} to the relative path to the file we are working on, and
+we set \code{output} to the relative path to the directory under which
+we want the documentation files to appear.\footnote{The name
 \emph{minimal} for the output directory is arbitrary except that it is
 best to choose a name that doesn't name an existing directory.
 Overriding \emph{output} isn't strictly necessary, but if we don't,
@@ -1351,7 +1354,7 @@ C++ library.  If the R front end is buggy, then the module tests may
 fail for reasons not having anything to do with the underlying C++
 module.}
 
-\subsubsection{Writing a unit test for a steady-state module}
+\subsubsection{Writing unit tests for a steady-state module}
 
   In writing our tests, we will make use of the R \Rcode{test_module}
   function.  This function takes as input the name of a module (as a
@@ -1409,8 +1412,10 @@ module.}
   \Rcode{tolerance =} \placeholder{some small number}); and
   \Rcode{expect_true(}\placeholder{some boolean condition}\Rcode{)},
   which tests that some condition holds.  More about \Rcode{expect_}
-  functions can be found in section 10.2.1 of
-  \url{https://r-pkgs.org/tests.html}, and the full complement of
+  functions can be found in the
+  \href{https://r-pkgs.org/tests.html#expectations}{section on expect
+  functions} in the book \href{https://r-pkgs.org/}{R Packages} by
+  Hadley Wickham and Jenny Bryan; the full complement of
   \Rcode{expect_} functions is listed and documented at
   \url{https://cran.r-project.org/web/packages/testthat/testthat.pdf}.
 
@@ -1423,13 +1428,15 @@ module.}
     From elementary trignometry, we know, for example, that the angle
     between $0^\circ$ and $180^\circ$ having a cosine of $0.5$ is
     $60^\circ$.  We can test that this is the actual result obtained
-    from our module with a simple test.  We can write our test as follows:\footnotemark
+    from our module with a simple test.  We can write our test as
+    follows:
 
     \begin{Rexample}[6]
       test_that("When the cosine is 1/2, the angle is 60 degrees.", {
         input_parameters <- list(cosine_zenith_angle = 0.5)
         result = test_module("solar_zenith_angle_in_degrees", input_parameters)
         expect_equal(result$zenith_angle_in_degrees, 60)
+      })
     \end{Rexample}
 
     Since we will likely call \Rcode{test_module} in each test, and
@@ -1440,7 +1447,7 @@ module.}
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
         input_parameters <- list(cosine_zenith_angle = cza)
-        result = test_module("solar_zenith_angle_in_degrees", input_parameters)
+        result <- test_module("solar_zenith_angle_in_degrees", input_parameters)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
@@ -1449,7 +1456,8 @@ module.}
 
     \begin{Rexample}[6]
       test_that("When the cosine is 1/2, the angle is 60 degrees.", {
-        expect_equal(angle_from_cosine(0.5), 60)
+        angle <- angle_from_cosine(0.5)
+        expect_equal(angle, 60)
       })
     \end{Rexample}
 
@@ -1506,7 +1514,7 @@ module.}
 \end{enumerate}
 
 
-\subsubsection{Writing a unit test for a derivative module}
+\subsubsection{Writing unit tests for a derivative module}
 
   Again, in writing our tests, we will make use of the R
   \Rcode{test_module} function. Keep in mind that in the case of a
@@ -1576,7 +1584,7 @@ have been loaded, simply do this:
 \begin{Rlisting}[2]
   test()
 \end{Rlisting}
-If you use RStudio, one needn't even type: choosing ``Test Package''
+If you use RStudio, you needn't even type: choosing ``Test Package''
 from the Build menu, or simply using the keyboard-shortcut ``Ctrl/Cmd
 + Shift + T'' will suffice.  This method of running the tests has the
 added advantage that a test producing a segmentation fault won't crash
