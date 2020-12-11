@@ -2,7 +2,9 @@
 #define ED_GAS_CONCENTRATIONS_H
 
 #include "../modules.h"
-#include "AuxBioCro.h"  // for saturation_vapor_pressure
+#include <cmath>           // for fabs
+#include "../constants.h"  // for eps_zero
+#include "AuxBioCro.h"     // for saturation_vapor_pressure
 
 /**
  * @class ed_gas_concentrations
@@ -131,12 +133,12 @@ void ed_gas_concentrations::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"conductance_ratio_boundary cannot be zero",               *conductance_ratio_boundary_ip == 0},   // divide by zero
-        {"conductance_ratio_stomata cannot be zero",                *conductance_ratio_stomata_ip == 0},    // divide by zero
-        {"conductance_boundary_co2 cannot be zero",                 conductance_boundary_co2 == 0},         // divide by zero
-        {"conductance_stomatal_co2 cannot be zero",                 conductance_stomatal_co2 == 0},         // divide by zero
-        {"atmospheric_pressure cannot be zero",                     *atmospheric_pressure_ip == 0},         // divide by zero
-        {"the sum of water vapor conductances cannot be zero",      h2o_mfs_denom == 0}                     // divide by zero
+        {"conductance_ratio_boundary cannot be zero",               fabs(*conductance_ratio_boundary_ip) < calculation_constants::eps_zero},   // divide by zero
+        {"conductance_ratio_stomata cannot be zero",                fabs(*conductance_ratio_stomata_ip) < calculation_constants::eps_zero},    // divide by zero
+        {"conductance_boundary_co2 cannot be zero",                 fabs(conductance_boundary_co2) < calculation_constants::eps_zero},         // divide by zero
+        {"conductance_stomatal_co2 cannot be zero",                 fabs(conductance_stomatal_co2) < calculation_constants::eps_zero},         // divide by zero
+        {"atmospheric_pressure cannot be zero",                     fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},         // divide by zero
+        {"the sum of water vapor conductances cannot be zero",      fabs(h2o_mfs_denom) < calculation_constants::eps_zero}                     // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());

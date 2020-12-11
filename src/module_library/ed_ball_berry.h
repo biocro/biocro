@@ -2,7 +2,10 @@
 #define ED_BALL_BERRY_H
 
 #include "../modules.h"
-#include "AuxBioCro.h"  // for saturation_vapor_pressure
+#include <cmath>           // for fabs
+#include <algorithm>       // for std::max
+#include "../constants.h"  // for eps_zero
+#include "AuxBioCro.h"     // for saturation_vapor_pressure
 
 /**
  * @class ed_ball_berry
@@ -32,8 +35,15 @@
  * The saturation water vapor pressure depends on temperature. Here the leaf temperature is more
  * appropriate than atmospheric air temperature.
  * 
+ * It is also important to note that when A_n < 0, the Ball-Berry model just predicts its minimum
+ * conductance value: the intercept.
+ * 
  * In BioCro we also may want to include the effects of water stress as a modification to the
- * stomatal conductance via a multiplicative factor.
+ * stomatal conductance. To do this, we treat the Ball-Berry conductance as a maximum value
+ * corresponding to ideal water availability. We use a conductance_adjustment_factor to linearly
+ * switch between a minimum conductance value and the maximum one from the Ball-Berry model. I.e.,
+ * when conductance_adjustment_factor is zero, conductance is the minimum value. When it is one,
+ * conductance is the maximum (Ball-Berry) value.
  */
 class ed_ball_berry : public SteadyModule
 {
@@ -52,6 +62,7 @@ class ed_ball_berry : public SteadyModule
           mole_fraction_h2o_leaf_surface_ip(get_ip(input_parameters, "mole_fraction_h2o_leaf_surface")),
           mole_fraction_co2_leaf_surface_ip(get_ip(input_parameters, "mole_fraction_co2_leaf_surface")),
           conductance_adjustment_factor_WS_ip(get_ip(input_parameters, "conductance_adjustment_factor_WS")),
+          conductance_stomatal_h2o_min_ip(get_ip(input_parameters, "conductance_stomatal_h2o_min")),
           // Get pointers to output parameters
           conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o"))
 
@@ -70,6 +81,7 @@ class ed_ball_berry : public SteadyModule
     const double* mole_fraction_h2o_leaf_surface_ip;
     const double* mole_fraction_co2_leaf_surface_ip;
     const double* conductance_adjustment_factor_WS_ip;
+    const double* conductance_stomatal_h2o_min_ip;
     // Pointers to output parameters
     double* conductance_stomatal_h2o_op;
     // Main operation
@@ -86,7 +98,8 @@ std::vector<std::string> ed_ball_berry::get_inputs()
         "temperature_leaf",                 // deg. C
         "mole_fraction_h2o_leaf_surface",   // dimensionless from Pa / Pa
         "mole_fraction_co2_leaf_surface",   // dimensionless from mol / mol
-        "conductance_adjustment_factor_WS"  // dimensionless
+        "conductance_adjustment_factor_WS", // dimensionless
+        "conductance_stomatal_h2o_min"      // mol / m^2 / s
     };
 }
 
@@ -100,16 +113,18 @@ std::vector<std::string> ed_ball_berry::get_outputs()
 void ed_ball_berry::do_operation() const
 {
     // Calculate values for the output quantities
-    const double ball_berry_index = *assimilation_net_ip * *mole_fraction_h2o_leaf_surface_ip * *atmospheric_pressure_ip /
+    const double ball_berry_index = std::max(0.0, *assimilation_net_ip) * *mole_fraction_h2o_leaf_surface_ip * *atmospheric_pressure_ip /
                                     (*mole_fraction_co2_leaf_surface_ip * saturation_vapor_pressure(*temperature_leaf_ip));
 
     const double ball_berry_conductance = *ball_berry_slope_ip * ball_berry_index + *ball_berry_intercept_ip;
 
-    const double adjusted_conductance = ball_berry_conductance * *conductance_adjustment_factor_WS_ip;
+    const double adjusted_conductance = *conductance_stomatal_h2o_min_ip +
+                                        *conductance_adjustment_factor_WS_ip * (ball_berry_conductance - *conductance_stomatal_h2o_min_ip);
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"mole_fraction_co2_leaf_surface cannot be zero", *mole_fraction_co2_leaf_surface_ip == 0}  // divide by zero
+        {"mole_fraction_co2_leaf_surface cannot be zero",       fabs(*mole_fraction_co2_leaf_surface_ip) < calculation_constants::eps_zero},               // divide by zero
+        {"saturation_vapor_pressure in leaf cannot be zero",    fabs(saturation_vapor_pressure(*temperature_leaf_ip)) < calculation_constants::eps_zero}   // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());

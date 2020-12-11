@@ -2,7 +2,9 @@
 #define ED_RH_TO_MOLE_FRACTION_H
 
 #include "../modules.h"
-#include "AuxBioCro.h"  // for saturation_vapor_pressure
+#include <cmath>           // for fabs
+#include "../constants.h"  // for eps_zero
+#include "AuxBioCro.h"     // for saturation_vapor_pressure
 
 /**
  * @class ed_rh_to_mole_fraction
@@ -66,7 +68,7 @@ void ed_rh_to_mole_fraction::do_operation() const
 {
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"atmospheric_pressure cannot be zero", *atmospheric_pressure_ip == 0},  // divide by zero
+        {"atmospheric_pressure cannot be zero", fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},  // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());

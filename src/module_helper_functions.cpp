@@ -57,7 +57,7 @@ std::vector<const double*> get_ip(const state_map* input_parameters, std::vector
 double const& get_input(const state_map* input_parameters, const std::string& name)
 {
     if (input_parameters->find(name) == input_parameters->end()) {
-        throw quantity_access_error(std::string("Thrown by get_ip: the quantity '") + name + std::string("' was not defined in the input_parameter state_map."));
+        throw quantity_access_error(std::string("Thrown by get_input: the quantity '") + name + std::string("' was not defined in the input_parameter state_map."));
     }
 
     return (*input_parameters).at(name);

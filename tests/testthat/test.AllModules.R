@@ -43,7 +43,11 @@ run_module_trial <- function(module_name, description, error_message_testing_fun
 		input_parameters$assimilation_net = 0.5
 		input_parameters$ball_berry_intercept = 0.01
 		input_parameters$ball_berry_slope = 0.1
-	}
+	} else if (module_name == "ed_canac_leaf") {
+		input_parameters$collatz_PAR_flux = 10e-6
+    } else if (module_name == "ten_layer_canopy_properties") {
+        input_parameters$lnfun = 0
+    }
 	
 	# Initialize the error message
 	error_msg <- ""

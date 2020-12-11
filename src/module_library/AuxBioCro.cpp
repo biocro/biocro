@@ -493,6 +493,7 @@ struct ET_Str EvapoTrans2(
     et_results.EPenman = EPen * 1e3 * 1e3 / 18;     // mmol / m^2 / s
     et_results.EPriestly = EPries * 1e3 * 1e3 / 18; // mmol / m^2 / s
     et_results.Deltat = Deltat;                     // degrees C
+    et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air; // mol / m^2 / s
 
     return et_results;
 }
