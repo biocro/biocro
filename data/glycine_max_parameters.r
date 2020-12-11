@@ -30,11 +30,13 @@ glycine_max_parameters = with(list(), {
      vmax1   111.2 
      alpha1  32.5
      jmax   213.2 
+     tpu_rate_max   23 
      Rd     1.1 
      Catm   370
      O2     210 
      b0     0.048
      b1     5   
+     Gs_min     1e-3
      theta  0.7 
      water_stress_approach     1   
      tp1       400   

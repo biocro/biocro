@@ -24,8 +24,8 @@ quantity<dimensionless> arrhenius_exponent(quantity<dimensionless> c, quantity<e
     return exp(c - activation_energy / (R * temperature));
 }
 
-struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, 
-               double _Rd0, double bb0, double bb1, double Ca, double _O2,
+struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max, 
+               double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
     // Assign units to the input parameters. The parameters can be renamed and this section can be removed when call functions
@@ -36,10 +36,11 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<flux> Jmax = _Jmax * 1e-6 * mole / square_meter / second;
     const quantity<temperature> leaf_temperature = (_Tleaf + 273.15) * kelvin;
     const quantity<flux> Qp = _Qp * 1e-6 * mole / square_meter / second;
+    const quantity<flux> Gsw_min = Gs_min * mole / square_meter / second;
 
     const quantity<pressure> atmospheric_pressure = 101325 * pascal;
     const quantity<dimensionless> leaf_reflectance = 0.2;
-    const quantity<flux> maximum_tpu_rate = 23 * 1e-6 * mole / square_meter / second;
+    const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
     /* From Bernacchi 2001. Improved temperature response functions. */
     /* Note: Values in Dubois and Bernacchi are incorrect. */    
@@ -110,7 +111,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
         if (water_stress_approach == 1)
             //Gs *= quantity<dimensionless>(StomWS); 
-            Gs *= StomWS; 
+            Gs = Gsw_min + StomWS * (Gs - Gsw_min); 
 
         if (Gs <= 0 * mole / square_meter / second)
             Gs = 1e-5 * 1e-3 * mole / square_meter / second;
@@ -144,13 +145,13 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     struct c3_str result;
     result.Assim = co2_assimilation_rate.value() * 1e6;  // micromole / m^2 / s.
     result.Gs = Gs.value() * 1e3;  // mmol / m^2 / s.
-    result.Ci = Ci.value() * 1e6;  // micromole / m^2 / s.
+    result.Ci = Ci.value() * 1e6;  // micromole / mol.
     result.GrossAssim = (co2_assimilation_rate.value() + Rd.value()) * 1e6;  // micromole / m^2 / s.
     return result;
 }
 
-struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, 
-               double _Rd0, double bb0, double bb1, double Ca, double _O2,
+struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max, 
+               double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
     // Get ready for outputs
@@ -181,10 +182,11 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
     const quantity<flux> Jmax = _Jmax * 1e-6 * mole / square_meter / second;
     const quantity<temperature> leaf_temperature = (_Tleaf + 273.15) * kelvin;
     const quantity<flux> Qp = _Qp * 1e-6 * mole / square_meter / second;
+    const quantity<flux> Gsw_min = Gs_min * mole / square_meter / second;
 
     const quantity<pressure> atmospheric_pressure = 101325 * pascal;
     const quantity<dimensionless> leaf_reflectance = 0.2;
-    const quantity<flux> maximum_tpu_rate = 23 * 1e-6 * mole / square_meter / second;
+    const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
     /* From Bernacchi 2001. Improved temperature response functions. */
     /* Note: Values in Dubois and Bernacchi are incorrect. */    
@@ -257,7 +259,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
 
         if (water_stress_approach == 1)
             //Gs *= quantity<dimensionless>(StomWS); 
-            Gs *= StomWS; 
+            Gs = Gsw_min + StomWS * (Gs - Gsw_min); 
 
         if (Gs <= 0 * mole / square_meter / second)
             Gs = 1e-5 * 1e-3 * mole / square_meter / second;
@@ -279,7 +281,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
     struct c3_str result;
     result.Assim = co2_assimilation_rate.value() * 1e6;  // micromole / m^2 / s.
     result.Gs = Gs.value() * 1e3;  // mmol / m^2 / s.
-    result.Ci = Ci.value() * 1e6;  // micromole / m^2 / s.
+    result.Ci = Ci.value() * 1e6;  // micromole / mol.
     result.GrossAssim = (co2_assimilation_rate.value() + Rd.value()) * 1e6;  // micromole / m^2 / s.
     
 	myfile << "The final returned value was " << co2_assimilation_rate.value() * 1e6 << "\n";
