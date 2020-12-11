@@ -228,12 +228,13 @@ that is, $\mathrm{mass}_\text{\,10\,\textsc{am}} =
   to estimate how the state changes are more complex, but all involve
   the equations giving the \emph{rate of change} of the variables in
   the state at a given time $t$ based on the \emph{value} of the
-  variables in the state at time $t$.}\footnote{We have used time units of
-  hours here, but it is a goal to eventually use only SI units within
-  BioCro.  The SI base unit of time is the second, not the hour.} The
-variables we calculate from rates of change we'll denote as
-$\boldX_\cd$ ($\cd$ for \underline{c}alculated from
-\underline{d}ifferential equations).
+  variables in the state at time $t$.
+
+  We have used time units of hours here, but it is a goal to
+  eventually use only SI units within BioCro.  The SI base unit of
+  time is the second, not the hour.} The variables we calculate from
+  rates of change we'll denote as $\boldX_\cd$ ($\cd$ for
+  \underline{c}alculated from \underline{d}ifferential equations).
 
 
 Analogously to writing $\boldX_{t_i}$ to denote the state of the
@@ -370,6 +371,7 @@ The inputs to the model are the following:\footnote{Strictly speaking,
 
 \subsubsection{Model equations}
 \label{sec:model_equations}
+
 Whereas in the real world the state function $\boldX$ is a continuous
 function of time on some time interval of interest $[t_0, t_n]$, in
 practice we consider only the value of $\boldX$ for some finite
@@ -378,11 +380,11 @@ $t_2$, \dots, $t_n$ within that interval.  This is both because the
 so-called ``known'' variables are known only at some finite set of
 instants in that interval and because it is a requirement of the
 numerical methods used to solve the differential equations. The model
-can be solved using Euler's method\footnote{Other generally better
-  methods for solving systems are available in BioCro, but in the
-  discussion here, we shall stick to Euler's method so as not to
-  overly complicate the presentation.}  by iterating through the
-following process for each $t=t_i$ starting at $t = t_0$:
+can be solved using Euler's method by iterating through the following
+process for each $t=t_i$ starting at $t = t_0$:\,\footnote{Other
+generally better methods for solving systems are available in BioCro,
+but in the discussion here, we shall stick to Euler's method so as not
+to overly complicate the presentation.}
 
 \begin{align}
   \label{eq:solver_loop}
@@ -671,16 +673,16 @@ SEXP my_function(SEXP x) {
 \end{lstlisting}
 \end{center}
 
-To compile this,\footnote{If this were to be compiled as a C++ program
-  (as the BioCro source code is), one would have to wrap the
-  \code{my\_function} definition with \code{extern "C" \{ ... \}}.}
-one may then run
+To compile this, one may then run
 \begin{center}
 \begin{lstlisting}
 R CMD SHLIB squarer.c
 \end{lstlisting}
 \end{center}
-This will produce the library file \code{squarer.so}.
+This will produce the library file \code{squarer.so}.\footnote{If this
+  were to be compiled as a C++ program (as the BioCro source code is),
+  one would have to wrap the \code{my\_function} definition with
+  \code{extern "C" \{ ... \}}.}
 
 Then to use this from R, open an R session and type the following commands:
 \begin{center}
@@ -697,11 +699,12 @@ instance, numeric or character). The author of the C function must
 know what data type is intended to be passed to the function. In this
 example, the \code{REAL} macro is used to convert \code{x} to an array
 of \code{double}s, and since there is only one element in the array,
-the first index (\code{0})\footnote{Note that in R arrays begin with
-  index 1 whereas C arrays begin with index 0.} is
-accessed. \code{PROTECT()}, \code{UNPROTECT()}, and
-\code{Rf\_allocVector()} are also required and are provided by the
-R-to-C libraries, but understanding them is not necessary here.
+the first index (\code{0}) is
+accessed.\footnote{Note that in R arrays begin with
+  index 1 whereas C arrays begin with index 0.}
+\code{PROTECT()}, \code{UNPROTECT()}, and \code{Rf\_allocVector()} are
+also required and are provided by the R-to-C libraries, but
+understanding them is not necessary here.
 
 Using the R-to-C libraries is tedious and error prone, and it is
 extremely easy to write code that will run but produce hard-to-spot
@@ -759,21 +762,19 @@ checking and call C/C++ functions. That is, R and R-to-C functions
 should only provide a way to access the models written in C/C++, and
 no modeling should be done in R or R-to-C code.
 
-\subsection[Adding new models]{Adding new models\footnotemark}
-
-
-\footnotetext{Up until now, we have used the term \emph{model} to
-  refer to the system as a whole, and the dynamics of how it changes
-  over time.  Here we are using it in a more specialized sense: we
-  \emph{model} the relationship between attributes of a state---how
-  the values of some select group of attributes of the state determine
-  the values or the rate of change of the values of other attributes
-  of the state.  A model of the dynamics of soil evaporation, for
-  instance, is a component of the model of the system as a whole.
-  When we are being careful, we will use the term \emph{module} to
-  refer to the code (or the C++ class) that implements a \emph{model}
-  (in this more restricted sense), but at times, we may use the two
-  terms interchangably.}
+\subsection[Adding new models]{Adding new models\footnote{Up until
+  now, we have used the term \emph{model} to refer to the system as a
+  whole, and the dynamics of how it changes over time.  Here we are
+  using it in a more specialized sense: we \emph{model} the
+  relationship between attributes of a state---how the values of some
+  select group of attributes of the state determine the values or the
+  rate of change of the values of other attributes of the state.  A
+  model of the dynamics of soil evaporation, for instance, is a
+  component of the model of the system as a whole.  When we are being
+  careful, we will use the term \emph{module} to refer to the code (or
+  the C++ class) that implements a \emph{model} (in this more
+  restricted sense), but at times, we may use the two terms
+  interchangably.}}
 
 What follows are step-by-step instructions for writing modules and
 integrating them into the BioCro library.  We show instructions both
@@ -802,14 +803,14 @@ angle itself.  The steps are as follows.
   could be anything (ideally, something giving a concise description
   of the module), since we would like to follow the convention that
   the module name doubles as the name of the class that implements the
-  module, the name (without quotes%
-  \footnote{The quoted name is the ``public'' name: when you specify
+  module, the name (without quotes) should be a valid C++ identifier.%
+  \footnote{
+    The quoted name is the ``public'' name: when you specify
     the module in a BioCro R function, or if you use the BioCro C++
     library in your own C++ code, it is the string name---the quoted
-    name---that you use.}%
-  ) should be a valid C++
-  identifier.%
-  \footnote{A valid C++ identifier must consist only of letters,
+    name---that you use.
+
+    A valid C++ identifier must consist only of letters,
     digits and underscores; it can not begin with a digit nor match
     one of the C++ keywords.  Additionally, to avoid conflicting with
     names reserved by the implementation, it should not begin with an
@@ -859,27 +860,24 @@ angle itself.  The steps are as follows.
 
 \item Begin a declaration of a class for the module, deriving it from
   SteadyModule.  The identifier used for the class name should match
-  the module name you decided upon in step 1.\footnotemark
-    \footnotetext{Here again, matching the class name to the module name
-    is a convention.  It won't break anything if you don't except
-    perhaps the expectations of readers of your code.}
-    Include a Doxygen-style comment (that is, starting with
-    \code{/**}) describing the module and its purpose immediately
-    above the class declaration.  The first sentence should be a brief
-    summary of the module.  This is followed by additional details or
-    a fuller description.  This is an appropriate place to include
-    citations to sources for equations used by the module in
-    calculations, the reasoning and justification for the model, and
-    information to help the user determine when use of the model is
-    appropriate.\footnotemark%
-
-    \footnotetext{The code that actually \emph{uses} the said
-      equations will most likely be in the body of the
-      \code{do_operation} function (or in some subsidiary function
-      called by it).  But \code{do_operation} is a private function,
-      so it is more appropriate to put ``public'' information here.
-      Documentation of \code{do_operation}, if any, should mostly be
-      about programming details.}
+  the module name you decided upon in step 1.\footnote{Here again,
+  matching the class name to the module name is a convention.  It
+  won't break anything if you don't except perhaps the expectations of
+  readers of your code.}  Include a Doxygen-style comment (that is,
+  starting with \code{/**}) describing the module and its purpose
+  immediately above the class declaration.  The first sentence should
+  be a brief summary of the module.  This is followed by additional
+  details or a fuller description.  This is an appropriate place to
+  include citations to sources for equations used by the module in
+  calculations, the reasoning and justification for the model, and
+  information to help the user determine when use of the model is
+  appropriate.\footnote{The code that actually \emph{uses} the said
+  equations will most likely be in the body of the \code{do_operation}
+  function (or in some subsidiary function called by it).  But
+  \code{do_operation} is a private function, so it is more appropriate
+  to put ``public'' information here.  Documentation of
+  \code{do_operation}, if any, should mostly be about programming
+  details.}
 
     See section \ref{sec:doxygen} for how to quickly generate and view
     the documentation Doxygen produces from the documentation markup
@@ -914,7 +912,7 @@ angle itself.  The steps are as follows.
   \footnote{Most existing modules use pointers rather than references
   for the input parameter values.  But there is no reason not to use a
   reference, and it saves one from having to dereference the pointer
-  when the value is used.}%
+  when the value is used.}\textsuperscript{,}%
   \footnote{There has been some discussion of relaxing this
     convention: As with module names, the (quoted) parameter name is
     the ``public-facing'' name known to users of the BioCro R
@@ -1251,12 +1249,15 @@ steady-state module, but with some significant differences.
         double temperature_deficit { base_temperature > temp ?
                                      (base_temperature - temp) : 0};
 
-        update(heating_degree_days_op, temperature_deficit / 24.0);|\footnotemark|
+        update(heating_degree_days_op, temperature_deficit / 24.0);|\footnote{We must divide by 24 here because we want the rate of change of heating degree days \emph{per hour}.}%
+        % Unfortunately, to get the footnote to work properly in this
+        % context, it seems we must put it all on the same line.  (We
+        % could use a \footnotemark / \footnotetext pair except
+        % reverse links for footnotes doesn't currently seem to work
+        % if one does that.
+      |        
     }
   \end{example}
-
-  \footnotetext{We must divide by 24 here because we want the rate of
-    change of heating degree days \emph{per hour}.}
 
 \end{enumerate}
 
@@ -1697,11 +1698,10 @@ module being tested plus certain time-related variables.
   and \Rcode{FALSE}, respectively.  Since it doesn't matter what
   solver we use for testing a steady state module, and since in
   general tests shouldn't produce their own output, these are suitable
-  values and may be omitted.\footnotemark)
-
-  \footnotetext{There may be cases where we may want to temporarily
-    set \Rcode{verbose} to \Rcode{TRUE} in order to debug a test we
-    are writing.  In this case, values for both \Rcode{solver} and
+  values and may be omitted.)\footnote{
+    There may be cases where we may want to temporarily set
+    \Rcode{verbose} to \Rcode{TRUE} in order to debug a test we are
+    writing.  In this case, values for both \Rcode{solver} and
     \Rcode{verbose} will need to be specified explicitely.}
 
   What values should be used to fill in the blanks?  For the module
@@ -1823,9 +1823,8 @@ module being tested plus certain time-related variables.
       invariant_parameters <- list(timestep = 1)
     \end{Rexample}
 
-    we can write our test as follows:\footnotemark
-
-    \footnotetext{We make no attempt here to coordinate the input
+    we can write our test as follows:\footnote{
+      We make no attempt here to coordinate the input
       values for \Rcode{cosine_zenith_angle} and for
       \Rcode{doy_dbl}. While in general we prefer to use input
       values that might be associated with a realistic system, for
@@ -1920,17 +1919,16 @@ see how the derivative affects how the state changes over time.  For
 the most basic tests of module functionality, we need only use a
 sequence of two states.  Again, the state variables need only include
 the input variables for the module being tested and the time-related
-variables.\footnotemark
-
-\footnotetext{In the case of a deriv module where some of the inputs
-  correspond to outputs of steady-state modules, we have two choices
-  with regard to testing: (1) include, as part of the test,
-  steady-state modules that produce these required inputs; (2)
-  artificially include values for these inputs as part of the varying
-  parameters.  The latter option is the simplest and has the advantage
-  of narrowing the scope of the test to the module we are most
-  interested in testing.  But there may be cases where we want to test
-  how two or more modules work in conjunction with one another.}
+variables.\footnote{
+  In the case of a deriv module where some of the inputs correspond to
+  outputs of steady-state modules, we have two choices with regard to
+  testing: (1) include, as part of the test, steady-state modules that
+  produce these required inputs; (2) artificially include values for
+  these inputs as part of the varying parameters.  The latter option
+  is the simplest and has the advantage of narrowing the scope of the
+  test to the module we are most interested in testing.  But there may
+  be cases where we want to test how two or more modules work in
+  conjunction with one another.}
 
 Here, we show how to test the heating degree days module.
 
