@@ -242,7 +242,7 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
         wind_speed_profile[i] = WindSpeed * exp(-k * (CumLAI - LI));
     }
 }
- 
+
 /**
  * @brief Calculates a relative humidity profile throughout a multilayer
  * canopy using an "empirical" formula.
@@ -254,94 +254,81 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * @param[out] relative_humidity_profile array of relative humidity values
  * expressed as fractions between 0 and 1, where the value at index `i`
  * represents relative humidity at the bottom of canopy layer `i` and `i = 0`
- * corresponds to the top canopy layer. 
+ * corresponds to the top canopy layer.
  * 
- * In Chapter 2 of his thesis, Stephen Humphries writes:
- * > The erratic turbulent structure of air movement within plant canopies and
- * > the complexities introduced by the distribution of sources and sinks for
- * > heat, mass and momentum make the application of physically correct
- * > diffusion gradient analogues difficult for many canopy properties (Jones,
- * > 1992). However, a simplified model for simulating the relative humidity of
- * > a canopy layer (`hs_layer`) has been included here. This approach assumes
- * > an exponential increase of `hs_layer` from an experimentally determined
- * > constant (`hs`) at the top of the canopy up to a maximum value of 100%
- * > at some point lower in the canopy. The rate of this increase is determined
- * > by an empirically determined coefficient (`kr`) and the depth of the layer
- * > in the canopy expressed as `j / n` where `n` is the number of layers in
- * > the canopy model and `j` is the layer number (equation 83, table 2.11).
+ * One can derive an empirical expression for the relative humidity (`h`)
+ * throughout a plant canopy by making the following assumptions:
+ * - `h` at the top of the canopy is the same as the ambient value (`h = h0`)
+ * - `h` at the bottom of the canopy is one hundred percent (`h = 1`)
+ * - `h` follows an exponential profile throughout the canopy
  * 
- * (The reference to Jones (1992) seems to refer to "Plants and Microclimate:
- * A Quantitative Approach to Environmental Plant Physiology," a textbook by
- * Hamlyn G. Jones. Newer editions of this textbook are available.)
+ * To enforce the exponential profile, we can write:
  * 
- * Equation 83 from the thesis reads:
+ * `h(x) = A * exp(B * x)` (1)
  * 
- * `hs_layer = 100 * exp(-kr * (1.0 - j / n))` (1)
+ * where `x` is a normalized expression of depth within the canopy (`x = 0` at
+ * the canopy top and `x = 1` at the bottom) and the values of `A` and `B` are
+ * yet to be determined.
  * 
- * where it is clear that relative humidity values are being expressed as
- * percentages. In BioCro, we express relative humidity as a fraction ranging
- * from 0 to 1. In this case, the equation becomes
+ * To enforce the `h` value at the canopy top, we require `h0 = h(0) = A`,
+ * i.e., `A = h0`. To enforce the `h` value at the canopy bottom, we require
+ * `1 = h(1) = h0 * exp(B)`, i.e., `B = -log(h0)`, where `log` is the natural
+ * logarithm. Putting it all together, we see that under these assumptions, `h`
+ * throughout the canopy is given by
  * 
- * `hs_layer = exp(-kr * (1.0 - j / n))`. (2)
+ * `h(x) = h0 * exp(-log(h0) * x)` (2)
  * 
- * Rewriting the exponential as a product of two exponential factors, we can
- * also express it as
+ * If we additionally assume that `h0` is close to 1, we can simplify
+ * `B = -log(h0)` by taking just the linear part of the Taylor series for
+ * `-log(h0)` centered at `h0 = 1`, which is `B = -(h0 - 1)`. With this
+ * modification, we have:
  * 
- * `hs_layer = exp(-kr) * exp(kr * j / n)`. (3)
+ * `h(x) = h0 * exp(-(h0 - 1) * x)` (3)
  * 
- * To understand this equation, it is useful to think of `j` as a dimensionless
- * index that indicates position within the canopy. At the top of the canopy,
- * `j = 0`. As we move downward to the bottom of the first layer, `j = 1`. At
- * the very bottom of the canopy, `j = n` since here we have reached the end of
- * layer `n`.
+ * When `h0 = 1`, Equations (2) and (3) are in perfect agreement, reducing to
+ * `h(x) = 1`. However, as `h0` deviates further from `h0 = 1`, the
+ * linearization for `B` becomes less accurate and the two versions diverge,
+ * especially deeper in the canopy. For example, when `h0 = 0.7`, Equation (2)
+ * becomes `h(x) = 0.7 * exp(0.357 * x)` while Equation (3) becomes
+ * `h(x) = 0.7 * exp(0.300 * x)`. Both versions agree at the top of the canopy
+ * where `x = 0` and `h(x) = 1`, but are different at the bottom: 1.00 vs 0.94.
+ * For lower `h0` values, the difference at the canopy bottom becomes even more
+ * severe, significantly violating one of the original assumptions. However,
+ * there isn't a strong scientific justification for assuming humidity is 1 at
+ * the bottom of *every* canopy, so the error due to the linearization is deemed
+ * to be acceptable.
  * 
- * When `j = n`, Equation (3) yields `hs_layer = 1`. Thus, we can see that this
- * equation results in 100% relative humidity deep within the canopy, as
- * suggested by the explanation in the thesis.
+ * ---
  * 
- * When `j = 0`, Equation (3) yields `hs_layer = exp(-kr)`. Recalling the
- * explanation from the thesis, `hs_layer` at the canopy top is equal to `hs`.
- * This requirement sets a value for the first factor in Equation (3):
+ * In BioCro, we divide the canopy into `n` equally spaced layers and wish to
+ * find the `h` value at the bottom of each layer. So, we use Equation (3)
+ * with `x = j/n`, where `j` runs from `1` to `n` (i.e., from the top layer to
+ * the bottom layer).
  * 
- * `hs = exp(-kr)`. (4)
+ * In the code below, the `RH` input argument is equivalent to `h0`, the
+ * exponential growth constant `kh` is equivalent to `B`, and `nlayers` is
+ * equivalent to `n`.
  * 
- * Equivalently, it sets a value for the growth constant. Solving for `kr`, we
- * have
+ * ---
  * 
- * `kr = log(1 / hs)`, (5)
+ * Note 1: the explanation for this code was "reverse engineered" by EBL from
+ * some crytpic documentation found in earlier versions of this function and
+ * from Stephen Humphries's thesis, which is not available online:
  * 
- * where `log` is the natural logarithm. However, it is also possible to
- * "simplify" this equation a little bit by assuming that `hs` will always
- * be close to `1`. In this case, we can find the Taylor series expansion for
- * `log(1 / hs)` centered at `hs = 1` and retain just the constant and linear
- * terms. The result of this process is
+ * Humphries, S. "Will mechanistically rich models provide us with new insights
+ * into the response of plant production to climate change? : development and
+ * experiments with WIMOVAC : (Windows Intuitive Model of Vegetation response
+ * to Atmosphere & Climate Change)" (University of Essex, 2002).
  * 
- * `kr = 1 - hs`. (6)
+ * ---
  * 
- * Putting it all together, we can use Equation (4) to replace the first factor
- * in Equation (3) and then use Equation (6) to replace `kr` in the second
- * factor in Equation (3). The end result is
+ * Note 2: Equation (2) can be rewritten by noting that `h0 = exp(log(h0))`. With
+ * this replacement, the equation becomes
  * 
- * `hs_layer = hs * exp((1 - hs) * (j / n))`. (7)
+ * `h(x) = exp(log(h0) - log(h0) * x) = exp(-B * (1 - x))`
  * 
- * This is the form of the equation as used in the `RHprof` function.
+ * The equation takes this form in Humphries's thesis.
  * 
- * It is important to note that in BioCro, we use humidity values corresponding
- * to the bottom of each layer. So for layer `i` (where `i` ranges from `0` to
- * `n - 1`), the value in the humidity profile should be determined using
- * `j = i + 1`.
- * 
- * When `hs = 1`, Equations (5) and (6) are in perfect agreement, as expected.
- * However, as humidity moves further away from `hs = 1`, the linearized form
- * becomes less accurate. As an example, for `hs = 0.5`, Equation (5) yields
- * `kr = log(2) = 0.69...` while Equation (6) yields `kr = 0.5`. In this case,
- * the growth constants are different enough that humidity does not reach 100%
- * at the bottom layer using the linearized value. In fact, for `j = n` and
- * `hs = 0.5`, Equation (7) yields `0.5 * exp(0.5) = 0.82...`. This is a pretty
- * significant error since the true value from Equation (3) would be 1.0.
- * However, there isn't a strong scientific justification for assuming humidity
- * is 100% at the bottom of *every* canopy, so the error due to the
- * linearization is deemed to be acceptable.
  */
 void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 {
