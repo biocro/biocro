@@ -155,6 +155,9 @@
 \begin{document}
 
 \maketitle
+
+\tableofcontents
+
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}
 
@@ -1230,7 +1233,7 @@ steady-state module, but with some significant differences.
   \begin{C++listing}[4]
     update(|\placeholder{output parameter}|_op,|\placeholder{some value}|);
   \end{C++listing}
-    for each output parameter.  Here, \placeholder{some value} is some
+  for each output parameter.  Here, \placeholder{some value} is some
   numerical value calculated in the body of the function prior to the
   update statement, and it will generally be calculated from the
   values of the input parameters.  Since this is a \emph{derivative}
