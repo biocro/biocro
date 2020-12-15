@@ -262,7 +262,7 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * - `h` at the bottom of the canopy is one hundred percent (`h = 1`)
  * - `h` follows an exponential profile throughout the canopy
  * 
- * To enforce the exponential profile, we can write:
+ * To enforce the exponential profile, we can write
  * 
  * `h(x) = A * exp(B * x)` (1)
  * 
@@ -281,7 +281,7 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * If we additionally assume that `h0` is close to 1, we can simplify
  * `B = -log(h0)` by taking just the linear part of the Taylor series for
  * `-log(h0)` centered at `h0 = 1`, which is `B = -(h0 - 1)`. With this
- * modification, we have:
+ * modification, we have
  * 
  * `h(x) = h0 * exp(-(h0 - 1) * x)` (3)
  * 
