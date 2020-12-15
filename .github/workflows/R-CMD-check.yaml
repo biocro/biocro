@@ -50,7 +50,7 @@ jobs:
           # in tinytex:
           tinytex::tlmgr_install(c('siunitx', 'babel-english',
                                    'footnotebackref',
-                                   'listings'))
+                                   'listings', 'appendix'))
         shell: Rscript {0}
 
       - name: Install R package dependencies and some utilities
