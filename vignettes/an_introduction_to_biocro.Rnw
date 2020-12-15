@@ -1,6 +1,6 @@
 %\VignetteIndexEntry{Explanation of the BioCro framework and how to write new models}
 %\VignettePackage{BioCro}
-
+%\VignetteEngine{knitr::knitr}
 
 \documentclass{article}
 \usepackage[utf8]{inputenc}
@@ -111,12 +111,6 @@
 \setlength{\parskip}{0.5 em}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows, decorations.pathreplacing}
-
-%%%%%%%%% This is for editing only. %%%%%%%%%%%%%
-\usepackage[todonotes={textwidth=1.5in},commentmarkup=footnote]{changes} % I use footnotes for comments be cause the default margin comments are often trucated if they occur too close to the bottom of the page.
-\setaddedmarkup{\textcolor{teal}{#1}}
-\setdeletedmarkup{\textcolor{red}{#1}}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newenvironment{descriptions}
   {\par\vspace{\abovedisplayskip}\begin{tabular}{>{$}r<{$} @{$:{}$} p{40em}}}
