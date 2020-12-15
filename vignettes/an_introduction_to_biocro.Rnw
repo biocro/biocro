@@ -6,7 +6,9 @@
 \usepackage[utf8]{inputenc}
 
 %% Useful packages
-\usepackage{helvet}
+%\usepackage{helvet} % Commenting this out for now: I don't see any
+                     % discernable difference in the font quality when
+                     % this is included.
 \renewcommand{\familydefault}{\sfdefault}
 \usepackage[colorlinks,linkcolor=cyan]{hyperref} % use colored links instead of boxes around links
 \usepackage{footnotebackref} % add a "return" link from footnotes
