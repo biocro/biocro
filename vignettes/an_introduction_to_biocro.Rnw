@@ -763,13 +763,13 @@ should only provide a way to access the models written in C/C++, and
 no modeling should be done in R or R-to-C code.
 
 \subsection[Adding new models]{Adding new models\footnote{Up until
-  now, we have used the term \emph{model} to refer to the system as a
-  whole, and the dynamics of how it changes over time.  Here we are
-  using it in a more specialized sense: we \emph{model} the
-  relationship between attributes of a state---how the values of some
-  select group of attributes of the state determine the values or the
-  rate of change of the values of other attributes of the state.  A
-  model of the dynamics of soil evaporation, for instance, is a
+  now, we have (mostly) used the term \emph{model} to refer to the
+  system as a whole, and the dynamics of how it changes over time.
+  Here we are using it in a more specialized sense: we \emph{model}
+  the relationship between attributes of a state---how the values of
+  some select group of attributes of the state determine the values or
+  the rate of change of the values of other attributes of the state.
+  A model of the dynamics of soil evaporation, for instance, is a
   component of the model of the system as a whole.  When we are being
   careful, we will use the term \emph{module} to refer to the code (or
   the C++ class) that implements a \emph{model} (in this more
@@ -790,12 +790,12 @@ modules.
 
 Suppose we want to write a module which builds upon the
 \code{solar_zenith_angle} module.  That module, when given the
-latitude (``lat'') and hour of the day (``hour'') as inputs, computes
-the cosine of the solar zenith angle (``cosine\_zenith\_angle'').  We
-would like to use the cosine of the solar zenith angle to calculate
-the actual zenith angle in degrees.  So we shall write a module taking
-one input---``cosine\_zenith\_angle''---to compute the value of the
-angle itself.  The steps are as follows.
+latitude, day of the year, and hour of the day as inputs, computes the
+cosine of the solar zenith angle.  We would like to use the cosine of
+the solar zenith angle to calculate the actual zenith angle in
+degrees.  So we shall write a module taking one input,
+``cosine\_zenith\_angle'', and computes the value of the angle itself.
+The steps are as follows.
 
 \begin{enumerate}
 
@@ -810,16 +810,16 @@ angle itself.  The steps are as follows.
     library in your own C++ code, it is the string name---the quoted
     name---that you use.
 
-    A valid C++ identifier must consist only of letters,
-    digits and underscores; it can not begin with a digit nor match
-    one of the C++ keywords.  Additionally, to avoid conflicting with
-    names reserved by the implementation, it should not begin with an
-    underscore, and it should not contain a sequence of two or more
-    underscores or an underscore followed by a capital letter; in
-    fact, for the sake of uniformity, it is preferable to avoid
-    capital letters in module names altogether.  Although non-latin
-    letters are allowed, it is best to avoid them so encoding of
-    source files does not become an issue.}
+    A valid C++ identifier must consist only of letters, digits and
+    underscores; it cannot begin with a digit or match one of the C++
+    keywords.  Additionally, to avoid conflicting with names reserved
+    by the implementation, it should not begin with an underscore, and
+    it should not contain a sequence of two or more underscores or an
+    underscore followed by a capital letter; in fact, for the sake of
+    uniformity, it is preferable to avoid capital letters in module
+    names altogether.  Although non-latin letters are allowed, it is
+    best to avoid them so encoding of source files does not become an
+    issue.}
 
   \begin{example}[4]
     "solar_zenith_angle_in_degrees"
@@ -832,11 +832,9 @@ angle itself.  The steps are as follows.
     names of files or variables.  So, for example, if we have chosen
     ``solar\_zenith\_angle\_in\_degrees'' as the module name, then
     \placeholder{module name}\code{.h} designates
-    \code{solar_zenith_angle_in_degrees.h}, the name we get by
-    substituting \code{solar_zenith_angle_in_degrees} for
-    \placeholder{module name}.  Again, using the module name to form
-    the file name is by convention, but a useful one if one is trying
-    to find the code that implements a model.}
+    \code{solar_zenith_angle_in_degrees.h}.  Again, using the module
+    name to form the file name is by convention, but a useful one if
+    one is trying to find the code that implements a model.}
 
   \begin{example}[4]
     solar_zenith_angle_in_degrees.h
@@ -850,7 +848,7 @@ angle itself.  The steps are as follows.
     #endif
   \end{example}
 
-\item Add include directives to include the module base class
+\item Add \emph{include} directives to include the module base class
   declarations from \code{modules.h} and the type aliases from
   \code{state_map.h}.
   \begin{example}[4]
@@ -863,25 +861,27 @@ angle itself.  The steps are as follows.
   the module name you decided upon in step 1.\footnote{Here again,
   matching the class name to the module name is a convention.  It
   won't break anything if you don't except perhaps the expectations of
-  readers of your code.}  Include a Doxygen-style comment (that is,
-  starting with \code{/**}) describing the module and its purpose
-  immediately above the class declaration.  The first sentence should
-  be a brief summary of the module.  This is followed by additional
-  details or a fuller description.  This is an appropriate place to
-  include citations to sources for equations used by the module in
-  calculations, the reasoning and justification for the model, and
-  information to help the user determine when use of the model is
-  appropriate.\footnote{The code that actually \emph{uses} the said
-  equations will most likely be in the body of the \code{do_operation}
-  function (or in some subsidiary function called by it).  But
+  readers of your code.}
+
+  Include a Doxygen-style comment (that is, starting with \code{/**})
+  describing the module and its purpose immediately above the class
+  declaration.  The first sentence should be a brief summary of the
+  module.  This is followed by additional details or a fuller
+  description.  This is an appropriate place to include citations to
+  sources for equations used by the module in calculations, the
+  reasoning and justification for the model, and information to help
+  the user determine when use of the model is
+  appropriate.\footnote{The function that actually \emph{uses} the
+  said equations will most likely be the \code{do_operation} function
+  (or in some subsidiary function called by it).  But
   \code{do_operation} is a private function, so it is more appropriate
   to put ``public'' information here.  Documentation of
   \code{do_operation}, if any, should mostly be about programming
   details.}
 
-    See section \ref{sec:doxygen} for how to quickly generate and view
-    the documentation Doxygen produces from the documentation markup
-    that you write.
+  See section \ref{sec:doxygen} for how to quickly generate and view
+  the documentation Doxygen produces from the documentation markup
+  that you write.
 
   \begin{example}[4]
     /**
@@ -905,14 +905,13 @@ angle itself.  The steps are as follows.
 \item Inside the body of the class declaration, declare private data
   members corresponding to the input and output parameters: Each
   member corresponding to an input parameter should be a reference of
-  type \code{const double&};
-  by convention, the identifier used for the reference should be
-  called \placeholder{parameter name}, that is, it should match the
-  name of the corresponding parameter.%
-  \footnote{Most existing modules use pointers rather than references
-  for the input parameter values.  But there is no reason not to use a
-  reference, and it saves one from having to dereference the pointer
-  when the value is used.}\textsuperscript{,}%
+  type \code{const double&}.\footnote{Most existing modules use
+  pointers rather than references for the input parameter values.  But
+  there is no reason not to use a reference, and it saves one from
+  having to dereference the pointer when the value is used.}  By
+  convention, the identifier used for the reference should be called
+  \placeholder{parameter name}, that is, it should match the name of
+  the corresponding parameter.%
   \footnote{There has been some discussion of relaxing this
     convention: As with module names, the (quoted) parameter name is
     the ``public-facing'' name known to users of the BioCro R
@@ -928,15 +927,19 @@ angle itself.  The steps are as follows.
     that you aren't talking about blood types and temporary workers!)
     There may, however, be other better ways of addressing this
     issue.}
-  Output parameter pointers should be of type \code{double*} and
-  should have names of the form \placeholder{parameter
-    name}\code{_op}.\footnote{Be sure to consult the master parameter
-    list to ensure you are using the input and output parameters
-    correctly---that you are not assigning new meanings to existing
-    parameters, and that the units you are expecting as input and that
-    you wish to see in output match the units designated in that list.
-    \emph{If you are using a parameter whose name is not in that list,
-      you will have to add it.}}
+  Members corresponding to output parameters should be of type
+  \code{double*} and should have names of the form
+  \placeholder{parameter name}\code{_op}.\footnote{Be sure to consult
+  the master parameter list to ensure you are using the input and
+  output parameters correctly---that you are not assigning new
+  meanings to existing parameters, and that the units you are
+  expecting as input and that you wish to see in output match the
+  units designated in that list.  \emph{If you are using a parameter
+  whose name is not in that list, you will have to add it.}  [The
+  afore-mentioned \emph{master parameter list} is, unfortunately, as
+  of this writing, only slightly less fictional than Borges'
+  \emph{Library of Babel}.]}
+  
   \begin{example}[4]
     private:
        // References to input parameters:
@@ -946,12 +949,13 @@ angle itself.  The steps are as follows.
        double* zenith_angle_in_degrees_op;
   \end{example}
 
-\item Declare a public constructor with signature \placeholder{class
-  name}\code{(const state_map* input_parameters, state_map*
-  output_parameters)}.  The constructor needs to initialize the base
-  class \code{SteadyModule} with the name for the module, and each
-  parameter variable needs to be initialized with an initializer of the
-  form
+\item Declare a public constructor with signature
+  \begin{C++listing}[4]
+    |\placeholder{class name}|(const state_map* input_parameters, state_map* output_parameters)
+  \end{C++listing}
+  The constructor needs to initialize the base class
+  \code{SteadyModule} with the name for the module, and each parameter
+  variable needs to be initialized with an initializer of the form
   \begin{C++listing}[4]
     |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
@@ -1147,7 +1151,7 @@ steady-state module, but with some significant differences.
   name}\code{_op}.
   \begin{example}[4]
     private:
-       // Pointers to input parameters:
+       // References to input parameters:
        const double& temp;
        const double& base_temperature;
 
@@ -1155,12 +1159,13 @@ steady-state module, but with some significant differences.
        double* heating_degree_days_op;
   \end{example}
 
-\item Declare a public constructor with signature \placeholder{class
-  name}\code{(const state_map* input_parameters, state_map*
-  output_parameters)}.  The constructor needs to initialize the base
-  class \code{DerivModule} with the name for the module, and each
-  parameter variable needs to be initialized with an initializer of the
-  form
+\item Declare a public constructor with signature
+  \begin{C++listing}[4]
+    |\placeholder{class name}|(const state_map* input_parameters, state_map* output_parameters)
+  \end{C++listing}
+  The constructor needs to initialize the base class
+  \code{DerivModule} with the name for the module, and each parameter
+  variable needs to be initialized with an initializer of the form
   \begin{C++listing}[4]
     |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
@@ -1301,7 +1306,9 @@ portion of the documentation you are working on.  One way to do this
 is as follows.
 
 Suppose we are working on the documentation in the module file
-\newline\code{src/module_library/solar_zenith_angle_in_degrees.h}.
+\begin{sh_listing}
+  src/module_library/solar_zenith_angle_in_degrees.h
+\end{sh_listing}
 Then we can quickly generate the HTML documentation for that file and
 view it by issuing the command
 \begin{sh_listing}
@@ -1315,7 +1322,7 @@ for the C++ source code, and overridden the default set of documented
 source files and the default documentation output directory so that we
 only spend time generating the documentation for the file of interest
 and so that the documentation is output to a different place (so that
-it won't corrupt any existing, complete documentation).  Thus, we set
+it won't corrupt any existing documentation).  Thus, we set
 \code{source} to the relative path to the file we are working on, and
 we set \code{output} to the relative path to the directory under which
 we want the documentation files to appear.\footnote{The name
@@ -1638,7 +1645,7 @@ solvers
 \end{itemize}
 
 Thus, it may be useful to present the steps required to write a test
-that sets up an runs a complete system; and so here, by way of some
+that sets up and runs a complete system; and so here, by way of some
 simple examples, we re-present the material from section
 \ref{sec:writing_tests}, this time showing how to write tests using
 \Rcode{Gro_solver} instead of \Rcode{test_module}.  As an added
