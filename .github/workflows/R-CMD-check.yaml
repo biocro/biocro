@@ -48,7 +48,9 @@ jobs:
           tinytex::install_tinytex()
           # Install a few LaTeX packages needed by the vignette not included
           # in tinytex:
-          tinytex::tlmgr_install(c('siunitx', 'babel-english', 'footnotebackref'))
+          tinytex::tlmgr_install(c('siunitx', 'babel-english',
+                                   'footnotebackref',
+                                   'listings'))
         shell: Rscript {0}
 
       - name: Install R package dependencies and some utilities
