@@ -304,8 +304,7 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * `0 <= x <= 1` is divided into `n` segments of length `1 / n` by `n + 1`
  * boundaries occurring at `x = 0`, `x = 1 / n`, `x = 2 / n`, ..., `x = 1`. Here
  * we wish to find the `h` value at the bottom of each layer, so we use Equation
- * (3) with `x = j / n`, where `j` runs from `1` to `n` (i.e., from the top
- * layer to the bottom layer).
+ * (3) with `x = j / n`, where `j` runs from `1` to `n`.
  * 
  * In the code below, the `RH` input argument corresponds to `h0`, the
  * exponential growth constant `kh` corresponds to `B`, and `nlayers` 
