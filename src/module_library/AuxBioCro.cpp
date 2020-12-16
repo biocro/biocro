@@ -22,7 +22,7 @@
 
 double poisson_density(int x, double lambda)
 {
-    // The probability density for the Poisson distribution is 
+    // The probability density for the Poisson distribution is
     // e^-lambda * lambda^x / x!
     // The factorial term produces numbers too large to hold, so perform the calculation in the log domain.
     // n! can be estimated by the approximation sqrt(2 * pi * x) * (x / e)^x.
@@ -177,7 +177,7 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
     double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
     double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
     double k = k0 / k1;  // Canopy extinction coefficient for an ellipsoidal leaf angle distribution. Page 251, Campbell and Norman. Environmental Biophysics. second edition.
-    
+
     double LAIi = LAI / nlayers;
 
     Light_profile light_profile;
@@ -245,46 +245,46 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
 
 /**
  * @brief Calculates a relative humidity profile throughout a multilayer
- * canopy using an "empirical" formula.
- * 
+ * canopy.
+ *
  * @param[in] RH relative humidity just above the canopy `(0 <= RH <= 1)`
- * 
+ *
  * @param[in] nlayers number of layers in the canopy `(1 <= nlayers <= MAXLAY)`
- * 
+ *
  * @param[out] relative_humidity_profile array of relative humidity values
  * expressed as fractions between 0 and 1, where the value at index `i`
  * represents relative humidity at the bottom of canopy layer `i` and `i = 0`
  * corresponds to the top canopy layer.
- * 
- * One can derive an empirical expression for the relative humidity (`h`)
- * throughout a plant canopy by making the following assumptions:
+ *
+ * One can derive an expression for the relative humidity (`h`) throughout a
+ * plant canopy by making the following assumptions:
  * - `h` at the top of the canopy is the same as the ambient value (`h = h0`)
  * - `h` at the bottom of the canopy is one hundred percent (`h = 1`)
  * - `h` follows an exponential profile throughout the canopy
- * 
+ *
  * To enforce the exponential profile, we can write
- * 
- * `h(x) = A * exp(B * x)` (1)
- * 
+ *
+ * `h(x) = A * exp(B * x)`              [Equation (1)]
+ *
  * where `x` is a normalized expression of depth within the canopy (`x = 0` at
  * the canopy top and `x = 1` at the bottom) and the values of `A` and `B` are
  * yet to be determined.
- * 
+ *
  * To enforce the `h` value at the canopy top, we require `h0 = h(0) = A`; in
  * other words, `A = h0`. To enforce the `h` value at the canopy bottom, we
  * require `1 = h(1) = h0 * exp(B)`; in other words, `B = -ln(h0)`. Putting it
  * all together, we see that under these assumptions, `h` throughout the canopy
  * is given by
- * 
- * `h(x) = h0 * exp(-ln(h0) * x)` (2)
- * 
+ *
+ * `h(x) = h0 * exp(-ln(h0) * x)`       [Equation (2)]
+ *
  * If we additionally assume that `h0` is close to 1, we can simplify
  * `B = -ln(h0)` by taking just the linear part of the Taylor series for
  * `-ln(h0)` centered at `h0 = 1`, which is `B = -(h0 - 1)`. With this
  * modification, we have
- * 
- * `h(x) = h0 * exp(-(h0 - 1) * x)` (3)
- * 
+ *
+ * `h(x) = h0 * exp(-(h0 - 1) * x)`     [Equation (3)]
+ *
  * When `h0 = 1`, Equations (2) and (3) are in perfect agreement, reducing to
  * `h(x) = 1`. However, as `h0` deviates further from `h0 = 1`, the
  * linearization for `B` becomes less accurate and the two versions diverge,
@@ -297,39 +297,39 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * there isn't a strong scientific justification for assuming humidity is 1 at
  * the bottom of *every* canopy, so the error due to the approximation for `B`
  * is deemed to be acceptable.
- * 
+ *
  * ---
- * 
+ *
  * In BioCro, we divide the canopy into equally sized layers; i.e., the interval
  * `0 <= x <= 1` is divided into `n` segments of length `1 / n` by `n + 1`
  * boundaries occurring at `x = 0`, `x = 1 / n`, `x = 2 / n`, ..., `x = 1`. Here
  * we wish to find the `h` value at the bottom of each layer, so we use Equation
- * (3) with `x = j / n`, where `j` runs from `1` to `n`.
- * 
+ * (3) with `x = 1 / n`, `x = 2 / n`, ..., `x = 1`.
+ *
  * In the code below, the `RH` input argument corresponds to `h0`, the
- * exponential growth constant `kh` corresponds to `B`, and `nlayers` 
+ * exponential growth constant `kh` corresponds to `B`, and `nlayers`
  * corresponds to `n`.
- * 
+ *
  * ---
- * 
+ *
  * Note 1: the explanation for this code was "reverse engineered" by EBL from
  * some crytpic documentation found in earlier versions of this function and
  * from Stephen Humphries's thesis, which is not available online:
- * 
+ *
  * Humphries, S. "Will mechanistically rich models provide us with new insights
  * into the response of plant production to climate change? : development and
  * experiments with WIMOVAC : (Windows Intuitive Model of Vegetation response
  * to Atmosphere & Climate Change)" (University of Essex, 2002).
- * 
+ *
  * ---
- * 
+ *
  * Note 2: Equation (2) can be rewritten by noting that `h0 = exp(ln(h0))`. With
  * this replacement, the equation becomes
- * 
+ *
  * `h(x) = exp(ln(h0) - ln(h0) * x) = exp(-B * (1 - x))`
- * 
+ *
  * The equation takes this form in Humphries's thesis.
- * 
+ *
  */
 void RHprof(double RH, int nlayers, double* relative_humidity_profile)
 {
@@ -404,17 +404,17 @@ double TempToSFS(
 /**
  * @brief Determine saturation water vapor pressure (Pa) from air temperature
  * (degrees C) using the Arden Buck equation.
- * 
+ *
  * Equations of this form were used by Arden Buck to model saturation water
  * vapor pressure in 1981: [A. L. Buck, J. Appl. Meteor. 20, 1527–1532 (1981)]
  * (https://doi.org/10.1175/1520-0450(1981)020%3C1527:NEFCVP%3E2.0.CO;2)
- * 
+ *
  * In 1996, some of the fitting coefficients were updated. Here we use these values,
  * found in [a Buck hygrometer manual]
  * (http://www.hygrometers.com/wp-content/uploads/CR-1A-users-manual-2009-12.pdf),
  * and also displayed on the [Wikipedia page for the Arden Buck equation]
  * (https://en.wikipedia.org/wiki/Arden_Buck_equation).
- * 
+ *
  * We use the values for vapor over water (rather than ice) and disregard the
  * "enhancement factor" since we are only concerned with the pressure at
  * saturation.
