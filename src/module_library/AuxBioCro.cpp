@@ -270,17 +270,17 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * the canopy top and `x = 1` at the bottom) and the values of `A` and `B` are
  * yet to be determined.
  * 
- * To enforce the `h` value at the canopy top, we require `h0 = h(0) = A`,
- * i.e., `A = h0`. To enforce the `h` value at the canopy bottom, we require
- * `1 = h(1) = h0 * exp(B)`, i.e., `B = -log(h0)`, where `log` is the natural
- * logarithm. Putting it all together, we see that under these assumptions, `h`
- * throughout the canopy is given by
+ * To enforce the `h` value at the canopy top, we require `h0 = h(0) = A`; in
+ * other words, `A = h0`. To enforce the `h` value at the canopy bottom, we
+ * require `1 = h(1) = h0 * exp(B)`; in other words, `B = -ln(h0)`. Putting it
+ * all together, we see that under these assumptions, `h` throughout the canopy
+ * is given by
  * 
- * `h(x) = h0 * exp(-log(h0) * x)` (2)
+ * `h(x) = h0 * exp(-ln(h0) * x)` (2)
  * 
  * If we additionally assume that `h0` is close to 1, we can simplify
- * `B = -log(h0)` by taking just the linear part of the Taylor series for
- * `-log(h0)` centered at `h0 = 1`, which is `B = -(h0 - 1)`. With this
+ * `B = -ln(h0)` by taking just the linear part of the Taylor series for
+ * `-ln(h0)` centered at `h0 = 1`, which is `B = -(h0 - 1)`. With this
  * modification, we have
  * 
  * `h(x) = h0 * exp(-(h0 - 1) * x)` (3)
@@ -291,23 +291,25 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * especially deeper in the canopy. For example, when `h0 = 0.7`, Equation (2)
  * becomes `h(x) = 0.7 * exp(0.357 * x)` while Equation (3) becomes
  * `h(x) = 0.7 * exp(0.300 * x)`. Both versions agree at the top of the canopy
- * where `x = 0` and `h(x) = 1`, but are different at the bottom: 1.00 vs 0.94.
+ * where `x = 0` and `h(x) = 1`, but are different at the bottom: 1.00 vs. 0.94.
  * For lower `h0` values, the difference at the canopy bottom becomes even more
- * severe, significantly violating one of the original assumptions. However,
+ * pronounced, significantly violating one of the original assumptions. However,
  * there isn't a strong scientific justification for assuming humidity is 1 at
- * the bottom of *every* canopy, so the error due to the linearization is deemed
- * to be acceptable.
+ * the bottom of *every* canopy, so the error due to the approximation for `B`
+ * is deemed to be acceptable.
  * 
  * ---
  * 
- * In BioCro, we divide the canopy into `n` equally spaced layers and wish to
- * find the `h` value at the bottom of each layer. So, we use Equation (3)
- * with `x = j/n`, where `j` runs from `1` to `n` (i.e., from the top layer to
- * the bottom layer).
+ * In BioCro, we divide the canopy into equally sized layers; i.e., the interval
+ * `0 <= x <= 1` is divided into `n` segments of length `1 / n` by `n + 1`
+ * boundaries occurring at `x = 0`, `x = 1 / n`, `x = 2 / n`, ..., `x = 1`. Here
+ * we wish to find the `h` value at the bottom of each layer, so we use Equation
+ * (3) with `x = j / n`, where `j` runs from `1` to `n` (i.e., from the top
+ * layer to the bottom layer).
  * 
- * In the code below, the `RH` input argument is equivalent to `h0`, the
- * exponential growth constant `kh` is equivalent to `B`, and `nlayers` is
- * equivalent to `n`.
+ * In the code below, the `RH` input argument corresponds to `h0`, the
+ * exponential growth constant `kh` corresponds to `B`, and `nlayers` 
+ * corresponds to `n`.
  * 
  * ---
  * 
@@ -322,10 +324,10 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * 
  * ---
  * 
- * Note 2: Equation (2) can be rewritten by noting that `h0 = exp(log(h0))`. With
+ * Note 2: Equation (2) can be rewritten by noting that `h0 = exp(ln(h0))`. With
  * this replacement, the equation becomes
  * 
- * `h(x) = exp(log(h0) - log(h0) * x) = exp(-B * (1 - x))`
+ * `h(x) = exp(ln(h0) - ln(h0) * x) = exp(-B * (1 - x))`
  * 
  * The equation takes this form in Humphries's thesis.
  * 
