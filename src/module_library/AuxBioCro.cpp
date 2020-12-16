@@ -283,7 +283,7 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * `-ln(h0)` centered at `h0 = 1`, which is `B = -(h0 - 1)`. With this
  * modification, we have
  *
- * `h(x) = h0 * exp(-(h0 - 1) * x)`     [Equation (3)]
+ * `h(x) = h0 * exp((1 - h0) * x)`      [Equation (3)]
  *
  * When `h0 = 1`, Equations (2) and (3) are in perfect agreement, reducing to
  * `h(x) = 1`. However, as `h0` deviates further from `h0 = 1`, the
