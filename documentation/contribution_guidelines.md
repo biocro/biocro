@@ -214,7 +214,7 @@ Consider naming parts of a complicated expression in order to break it down into
         If your editor has the ability to display differences between the original and revised versions of the file, it is a good idea to step through and inspect the proposed changes to ensure they are desirable.
     * On Windows, MacOS, or Linux, the CodeLite IDE includes clang-format and provides an easy way to use it. First go to Plugins -> Source Code Formatter -> Options. In the C++ tab, select `use .clang-format file`. Now press `Ctrl-I` or click Plugins -> Source Code Formatter -> Format Current Source to format a file.
 
-* A few other preferences can be applied using the [editorconfig] (https://editorconfig.org/) specification and the [.editorconfig](../.editorconfig) file provided in the base directory of BioCro. Editorconfig provides a method for standardizing settings across different text editors. While some editors have native support, others require a plugin. See the editorconfig website for more details.
+* A few other preferences can be applied using the [editorconfig](https://editorconfig.org/) specification and the [.editorconfig](../.editorconfig) file provided in the base directory of BioCro. Editorconfig provides a method for standardizing settings across different text editors. While some editors have native support, others require a plugin. See the editorconfig website for more details.
 
 ## Running Unit Tests
 
