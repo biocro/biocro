@@ -191,11 +191,11 @@ Consider naming parts of a complicated expression in order to break it down into
     chunks, unless exceeding 80 columns significantly increases
     readability and does not hide information.
 
-* Do not include trailing whitespace, i.e., whitespace characters preceding newline characters
+* Do not include trailing whitespace, i.e., whitespace characters preceding newline characters.
 
-* Each file should end with a newline character (i.e. a terminal endline)
+* Each file should end with a newline character (i.e. a terminal endline).
 
-* Use spaces rather than tab characters
+* Use spaces rather than tab characters.
 
 * In general, formatting preferences should follow something similar to the [Google C++ style guide](https://google.github.io/styleguide/cppguide.html#Formatting), except in cases where the code has been formatted in a more readable way, such as when aligning parts in a table.
 
