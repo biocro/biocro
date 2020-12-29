@@ -4,7 +4,7 @@
 \title{Weather data}
 \format{Data frame of dimensions 730 by 11.}
 \source{
-    \url{http://www.sws.uiuc.edu/warm/}
+    \url{https://www.isws.illinois.edu/warm/weather/}
 }
 \description{
     Selected weather data corresponding to the Champaign weather station (IL,
