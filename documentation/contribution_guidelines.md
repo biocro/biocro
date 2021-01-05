@@ -142,19 +142,6 @@
 
 The most important aspect of formatting is that the code is easy to understand. Below are unenforced preferences.
 
-* Regarding formatting (but not aspects of design), something similar to the [Google C++ style guide](https://google.github.io/styleguide/cppguide.html#Formatting) is preferred (with some differences; see [.clang-format](../.clang-format) for differences), except in cases where the code has been formatted in a more readable way, such as when aligning parts in a table. The program [clang-format](https://clang.llvm.org/docs/ClangFormat.html), using the [.clang-format](../.clang-format) file provided in the base directory of BioCro, produces code with the preferred formatting. **Do not apply clang-format to all files indiscriminately**, as that will ruin manually-aligned tables.
-* One can install clang-format on Ubunutu using `sudo apt install clang-format` and on MacOS through Homebrew.
-* Files can be formatted using
-    ```
-    clang-format file_name > new_file
-    ```
-    or edited in place using
-    ```
-    clang-format -i file_name
-    ```
-    If your editor has the ability to display differences between the original and revised versions of the file, it is a good idea to step through and inspect the proposed changes to ensure they are desirable.
-* On Windows, MacOS, or Linux, the CodeLite IDE includes clang-format and provides an easy way to use it. First go to Plugins -> Source Code Formatter -> Options. In the C++ tab, select `use .clang-format file`. Now press `Ctrl-I` or click Plugins -> Source Code Formatter -> Format Current Source to format a file.
-* The C++ guidelines offer some advice about [formatting conventions](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming) that are informative, particularly regarding the use of code comments, but that are not enforced here.
 * Prefer `underscores_in_identifiers` not `CamelCaseInIdentifiers` and, in R, not `dots.in.identifiers`.  Prefer lowercase-only identifiers.  An exception may be made for commonly-recognized names used in a small scope, for example,
     ```c++
     I = V / R;
@@ -204,7 +191,30 @@ Consider naming parts of a complicated expression in order to break it down into
     chunks, unless exceeding 80 columns significantly increases
     readability and does not hide information.
 
+* Do not include trailing whitespace, i.e., whitespace characters preceding newline characters.
 
+* Each file should end with a newline character (i.e. a terminal endline).
+
+* Use spaces rather than tab characters.
+
+* In general, formatting preferences should follow something similar to the [Google C++ style guide](https://google.github.io/styleguide/cppguide.html#Formatting), except in cases where the code has been formatted in a more readable way, such as when aligning parts in a table.
+
+* The C++ guidelines offer some advice about [formatting conventions](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming) that are informative, particularly regarding the use of code comments, but that are not enforced here.
+
+* Many of these preferences can be applied automatically using the program [clang-format](https://clang.llvm.org/docs/ClangFormat.html) with the [.clang-format](../.clang-format) file provided in the base directory of BioCro. **Do not apply clang-format to all files indiscriminately**, as that will ruin manually-aligned tables.
+    * One can install clang-format on Ubunutu using `sudo apt install clang-format` and on MacOS through Homebrew.
+    * Files can be formatted using
+        ```
+        clang-format file_name > new_file
+        ```
+        or edited in place using
+        ```
+        clang-format -i file_name
+        ```
+        If your editor has the ability to display differences between the original and revised versions of the file, it is a good idea to step through and inspect the proposed changes to ensure they are desirable.
+    * On Windows, MacOS, or Linux, the CodeLite IDE includes clang-format and provides an easy way to use it. First go to Plugins -> Source Code Formatter -> Options. In the C++ tab, select `use .clang-format file`. Now press `Ctrl-I` or click Plugins -> Source Code Formatter -> Format Current Source to format a file.
+
+* A few other preferences can be applied using the [editorconfig](https://editorconfig.org/) specification and the [.editorconfig](../.editorconfig) file provided in the base directory of BioCro. Editorconfig provides a method for standardizing settings across different text editors. While some editors have native support, others require a plugin. See the editorconfig website for more details.
 
 ## Running Unit Tests
 
