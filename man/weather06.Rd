@@ -1,17 +1,19 @@
 \docType{data}
 \name{weather06}
 \alias{weather06}
-\title{Weather data}
+\title{Weather data from 2006}
 \format{A data frame with 8760 observations on the following 8 variables.
-    \describe{
-        \item{list('year')}{A numeric vector.}
-        \item{list('doy')}{A numeric vector.}
-        \item{list('hour')}{A numeric vector.} 
-        \item{list('SolarR')}{A numeric vector.}
-        \item{list('Temp')}{A numeric vector.}
-        \item{list('RH')}{A numeric vector.}
-        \item{list('WS')}{A numeric vector.}
-        \item{list('precip')}{A numeric vector.} }}
+  \tabular{rll}{
+    [,1] \tab year      \tab numeric \cr
+    [,2] \tab doy       \tab numeric \cr
+    [,3] \tab hour      \tab numeric \cr
+    [,4] \tab solar     \tab numeric \cr
+    [,5] \tab temp      \tab numeric \cr
+    [,6] \tab rh        \tab numeric \cr
+    [,7] \tab windspeed \tab numeric \cr
+    [,8] \tab precip    \tab numeric
+  }
+}
 \source{
 }
 \description{

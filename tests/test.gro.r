@@ -1,3 +1,10 @@
+# Disabling this test for now until we decide what to do with it.
+
+if (FALSE) {
+
+
+
+
 library(BioCro)
 
 get_errors = function(expr) {
@@ -66,3 +73,6 @@ for (crop in crop_list) {
     }
 }
 
+
+
+} # if (FALSE)
