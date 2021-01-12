@@ -8,19 +8,19 @@ on:
       check-manual:
         description: 'check the manual'
         required: false
-        default: 'false'
+        default: 'true'
       check-vignettes:
         description: 'check the vignettes'
         required: false
-        default: 'false'
+        default: 'true'
       run-tests:
         description: 'run the tests'
         required: false
-        default: 'false'
+        default: 'true'
       check-examples:
         description: 'check the examples'
         required: false
-        default: 'false'
+        default: 'true'
   pull_request:
     branches:
       - master
@@ -78,9 +78,8 @@ jobs:
               args_value <- append(args_value, '--no-examples')
             }
           } else {
-            build_args_value <- c('--no-manual', '--no-build-vignettes')
-            args_value <- c('--as-cran', '--no-manual', '--ignore-vignettes',
-                            '--no-tests', '--no-examples')
+            build_args_value <- c('--no-build-vignettes')
+            args_value <- c('--as-cran', '--ignore-vignettes')
           }           
           cat("Running rcmdcheck with",
                 "\n  args =", args_value,
