@@ -41,9 +41,9 @@ jobs:
         uses: r-lib/actions/setup-pandoc@v1
 
       - name: Maybe install TinyTex
-        if: ${{github.event_name == 'workflow_dispatch' &&
-               (github.event.inputs.check-vignettes == 'true' ||
-                github.event.inputs.check-manual == 'true')}}
+        if: ${{github.event_name != 'workflow_dispatch' ||
+               github.event.inputs.check-vignettes == 'true' ||
+               github.event.inputs.check-manual == 'true'}}
         run: |
           install.packages('tinytex')
           tinytex::install_tinytex()
