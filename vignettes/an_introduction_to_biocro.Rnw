@@ -1704,8 +1704,11 @@ module being tested plus certain time-related variables.
   values and may be omitted.)\footnote{
     There may be cases where we may want to temporarily set
     \Rcode{verbose} to \Rcode{TRUE} in order to debug a test we are
-    writing.  In this case, values for both \Rcode{solver} and
-    \Rcode{verbose} will need to be specified explicitely.}
+    writing.  In this case, if we want to default the value of
+    \Rcode{solver}, we must use a named argument to set the
+    \Rcode{verbose} argument and write `\Rcode{verbose=TRUE}' instead
+    of just `\Rcode{TRUE}' so that \Rcode{TRUE} is not taken to be the
+    value for \Rcode{solver}.}
 
   What values should be used to fill in the blanks?  For the module
   lists, which are just vectors of names, the answer is clear:
