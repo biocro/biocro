@@ -119,13 +119,13 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
     derivative_module_names = unique(derivative_module_names)
 
     # Use Gro_solver to get the result
-    result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose)
+    result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose)
 
     # Return the result
     return(result)
 }
 
-Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose=FALSE)
+Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
 {
     # This function runs a full crop growth simulation with a user-specified solver
     #
@@ -304,7 +304,7 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
     }
 }
 
-partial_gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose=FALSE)
+partial_gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
 {
     arg_list = list(initial_state=initial_state, parameters=parameters, varying_parameters=varying_parameters, steady_state_module_names=steady_state_module_names, derivative_module_names=derivative_module_names, solver=solver, verbose=verbose)
 
