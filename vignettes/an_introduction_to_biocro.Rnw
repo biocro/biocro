@@ -69,21 +69,21 @@
 \newcommand{\code}[1]{\lstinline[style=C++style]{#1}}
 \newcommand{\Rcode}[1]{\lstinline[style=Rstyle]{#1}}
 
-\lstnewenvironment{sh_listing}[1][2]
+\lstnewenvironment{sh_listing}[1][0]
 {\lstset{
     style=sh_style,
     gobble=#1
 }}
 {}
 
-\lstnewenvironment{C++listing}[1][2]
+\lstnewenvironment{C++listing}[1][0]
 {\lstset{
     style=C++style,
     gobble=#1
 }}
 {}
 
-\lstnewenvironment{Rlisting}[1][2]
+\lstnewenvironment{Rlisting}[1][0]
 {\lstset{
     style=Rstyle,
     gobble=#1
@@ -91,7 +91,7 @@
 {}
 
 % Shadow-box listings that are part of examples:
-\lstnewenvironment{example}[1][2]
+\lstnewenvironment{example}[1][0]
 {\lstset{
     style=C++style,
     gobble=#1,
@@ -99,7 +99,7 @@
 }}
 {}
 
-\lstnewenvironment{Rexample}[1][2]
+\lstnewenvironment{Rexample}[1][0]
 {\lstset{
     style=Rstyle,
     gobble=#1,
@@ -452,7 +452,7 @@ use the following:
 }
 
 \begin{center}
-  \begin{lstlisting}
+  \begin{Rlisting}
     
 # The list() function takes any number of key=value pairs, separated
 # by commas.
@@ -475,7 +475,7 @@ example_initial_values$Leaf
 > key_variable <- "Leaf"
 > example_initial_values[[key_variable]]
 [1] 5
-\end{lstlisting}
+\end{Rlisting}
 \end{center}
 
 
@@ -498,7 +498,7 @@ and willow and are named using names of the form
   footnote.} for example, \code{willow\_initial\_state}:
 
 \begin{center}
-\begin{lstlisting}
+\begin{Rlisting}
 > str(head(willow_initial_state)) # head truncates the list to six items
 List of 6
  $ Rhizome  : num 0.99
@@ -507,7 +507,7 @@ List of 6
  $ Root     : num 1
  $ Grain    : num 0
  $ waterCont: num 0.32
-\end{lstlisting}
+\end{Rlisting}
 \end{center}
 
 \code{varying\_parameters}, since it is made up of variables whose
@@ -551,7 +551,7 @@ In the following example, the time is specified using vectors labelled
 \emph{year}, \emph{doy} (``day-of-year''), and \emph{hour}.
 
 \begin{center}
-\begin{lstlisting}
+\begin{Rlisting}
 > example_varying_parameters = data.frame(
             year = c(2005, 2005),
             doy = c(1, 1),
@@ -563,7 +563,7 @@ In the following example, the time is specified using vectors labelled
   year doy hour solar temp
 1 2005   1    0     0 4.04
 2 2005   1    1     0 3.03
-\end{lstlisting}
+\end{Rlisting}
 \end{center}
 
 Data frames of weather data are provided to pass to
@@ -577,7 +577,7 @@ provided as one means of subsetting climate data.\footnote{The
 2005 showing the first few rows of the growing season:
 
 \begin{center}
-\begin{lstlisting}
+\begin{Rlisting}
 > head(get_growing_season_climate(weather05))
      year doy hour solar    temp     rh windspeed precip
 2953 2005 124    0     0  3.5972 0.3235    0.7603      0
@@ -586,7 +586,7 @@ provided as one means of subsetting climate data.\footnote{The
 2956 2005 124    3     0 -1.3597 0.1572    0.7603      0
 2957 2005 124    4     0 -1.7222 0.1450    0.7603      0
 2958 2005 124    5     0 -1.3597 0.1572    0.7603      0
-\end{lstlisting}
+\end{Rlisting}
 \end{center}
 
 \subsubsection{Function output}
@@ -600,7 +600,7 @@ which there is input data.
 
 \begin{table}[!htbp]
 \begin{center}
-\begin{lstlisting}
+\begin{Rlisting}
      year doy hour    Stem   Root    Leaf
    1 2005   1    0   0.990   1.00   0.020
    2 2005   1    1   0.990   1.00   0.020
@@ -609,7 +609,7 @@ which there is input data.
 ...
 8759 2005 365   22  10.016   2.14   9e-08
 8760 2005 365   23  10.016   2.14   9e-08
-\end{lstlisting}
+\end{Rlisting}
 \caption{\label{tab:example_output} A truncated listing of the output used to produce Figure \ref{fig:example}}
 \end{center}
 \end{table}
@@ -619,14 +619,14 @@ In R, you can use the \code{Gro()} function to simulate the
 development of a crop as follows:
 
 \begin{center}
-\begin{lstlisting}
+\begin{Rlisting}
 library(BioCro)
 library(lattice)  # This is a package that creates figures.
 
 result = Gro(sorghum_initial_state, sorghum_parameters,
              get_growing_season_climate(weather05), sorghum_modules)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.
-\end{lstlisting}
+\end{Rlisting}
 \end{center}
 
 \section{Modifying the BioCro code}
@@ -671,9 +671,9 @@ SEXP my_function(SEXP x) {
 
 To compile this, one may then run
 \begin{center}
-\begin{lstlisting}
+\begin{sh_listing}
 R CMD SHLIB squarer.c
-\end{lstlisting}
+\end{sh_listing}
 \end{center}
 This will produce the library file \code{squarer.so}.\footnote{If this
   were to be compiled as a C++ program (as the BioCro source code is),
@@ -682,11 +682,11 @@ This will produce the library file \code{squarer.so}.\footnote{If this
 
 Then to use this from R, open an R session and type the following commands:
 \begin{center}
-\begin{lstlisting}
+\begin{Rlisting}
 > dyn.load("squarer.so") # make the C function available to R
 > .Call("my_function", pi) # call my_function from R with argument pi
 [1] 9.869604
-\end{lstlisting}
+\end{Rlisting}
 \end{center}
 
 The \code{SEXP} data type is provided by the R-to-C libraries and can
@@ -1302,12 +1302,12 @@ portion of the documentation you are working on.  One way to do this
 is as follows.
 
 Suppose we are working on the documentation in the module file
-\begin{sh_listing}
+\begin{sh_listing}[2]
   src/module_library/solar_zenith_angle_in_degrees.h
 \end{sh_listing}
 Then we can quickly generate the HTML documentation for that file and
 view it by issuing the command
-\begin{sh_listing}
+\begin{sh_listing}[2]
   make source=../src/module_library/solar_zenith_angle_in_degrees.h \
        output_directory=minimal view
 \end{sh_listing}
@@ -1333,7 +1333,7 @@ minimal documentation we generate.}
 
 If we want to generate and view the PDF documentation, we could use
 this command instead:
-\begin{sh_listing}
+\begin{sh_listing}[2]
   make source=../src/module_library/solar_zenith_angle_in_degrees.h \
        output_directory=minimal view-pdf
 \end{sh_listing}
