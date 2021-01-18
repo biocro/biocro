@@ -6,7 +6,7 @@
 #include <string>
 
 /**
- * `string_vector` serves as an alias for a widely-used typ use to
+ * `string_vector` serves as an alias for a type widely used to
  * hold lists of module names or lists of module parameters.
  * Formally, it is simply a `std::vector` of `std::string`s.
  */
