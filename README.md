@@ -47,8 +47,8 @@ install.packages('biocro', repos=NULL, type='SOURCE')
 Please see the [contribution guidelines](documentation/contribution_guidelines.md) before submitting changes.
 
 ### Software Documentation
-- [R package](http://ebimodeling.github.io/biocro/documentation/r/)
-- [C library](http://ebimodeling.github.io/biocro/documentation/doxygen/)
+- [C++ library](https://ebimodeling.github.io/biocro-documentation/)
+- R package (coming soon!)
 
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.
