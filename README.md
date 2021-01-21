@@ -3,7 +3,7 @@ BioCro is a model that predicts plant growth over time given crop-specific param
 
 It uses models of key physiological and biophysical processes underlying plant growth ([Humphries and Long, 1995]), and has previously been used for predicting biomass yield and leaf area index of switchgrass and miscanthus ([Miguez et al., 2009]).
 
-BioCro has also been integrated into a suite of tools that link the model directly to crop trait and yield data ([LeBauer et al., 2014]). The Predictive Ecosystem Analyzer ([PEcAn](https://github.com/PecanProject/pecan)) couples BioCro to the [Biofuel Ecophysiological Traits and Yields database](https://www.betydb.org). 
+BioCro has also been integrated into a suite of tools that link the model directly to crop trait and yield data ([LeBauer et al., 2014]). The Predictive Ecosystem Analyzer ([PEcAn](https://github.com/PecanProject/pecan)) couples BioCro to the [Biofuel Ecophysiological Traits and Yields database](https://www.betydb.org).
 
 ### An example
 The Gro() function accepts initial values, parameters, climate variables, and a set of modules to run. It returns the results in a data frame.
@@ -27,7 +27,7 @@ There are parameters and modules for miscanthus (_Miscanthus_ x _giganteus_), so
 - On MacOS, Xcode.
 
 #### Installation steps
-Download the BioCro source code from GitHub, unzip the file, and install from the either the command line or from within R using one of the following sets of commands. 
+Download the BioCro source code from GitHub, unzip the file, and install from the either the command line or from within R using one of the following sets of commands.
 
 Do one of the sets of instruction below. These assume that the source files are in a directory named "biocro".
 
@@ -47,13 +47,13 @@ install.packages('biocro', repos=NULL, type='SOURCE')
 Please see the [contribution guidelines](documentation/contribution_guidelines.md) before submitting changes.
 
 ### Software Documentation
-- [R package](http://ebimodeling.github.io/biocro/documentation/r/)
-- [C library](http://ebimodeling.github.io/biocro/documentation/doxygen/)
+- [C++ library](https://ebimodeling.github.io/biocro-documentation/)
+- R package (coming soon!)
 
-## References 
+## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.
 - [Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP][Miguez et al., 2009] (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296.
-- [LeBauer D, Wang D, Richter K, Davidson C, Dietze M][LeBauer et al., 2014] (2014) Facilitating feedbacks between field measurements and ecosystem models. Ecological Monographs 83(2): 133-154. 
+- [LeBauer D, Wang D, Richter K, Davidson C, Dietze M][LeBauer et al., 2014] (2014) Facilitating feedbacks between field measurements and ecosystem models. Ecological Monographs 83(2): 133-154.
 - [Wang D, Jaiswal D, Lebauer DS, Wertin TM, Bollero GA, Leakey ADB, Long SP][Wang et al., 2015] (2015) A physiological and biophysical model of coppice willow (Salix spp.) production yields for the contiguous USA in current and future climate scenarios. Plant, Cell & Environment 38(9), 1850-1865.
 
 [Humphries and Long, 1995]:https://academic.oup.com/bioinformatics/article-abstract/11/4/361/214034/WIMOVAC-a-software-package-for-modelling-the
