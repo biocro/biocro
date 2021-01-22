@@ -216,6 +216,12 @@ Consider naming parts of a complicated expression in order to break it down into
 
 * A few other preferences can be applied using the [editorconfig](https://editorconfig.org/) specification and the [.editorconfig](../.editorconfig) file provided in the base directory of BioCro. Editorconfig provides a method for standardizing settings across different text editors. While some editors have native support, others require a plugin. See the editorconfig website for more details.
 
+### R-specific coding advice
+
+* Prefer to use the double-bracket operator (`list[['element']]`) rather than the dollar-sign operator (`list$element`) when accessing the elements of a list. The `$` operator uses partial matching, whereas `[[`, by default, does not. (However, it can be specified: `list[['element', exact = FALSE]]`.) This is one of the bizarre design choices in R. Avoiding partial matching by using `[[` gives us more confidence that errors won't occur.
+
+* When writing `for` loops, allocate memory first or use an apply-type function (`apply`, `lapply`, `sapply`, etc) instead to increase performance. See [this comment](https://github.com/ebimodeling/biocro-dev/issues/251#issuecomment-764297018) for more information.
+
 ## Running Unit Tests
 
 The **BioCro** package contains a collection of R-based unit tests to help
