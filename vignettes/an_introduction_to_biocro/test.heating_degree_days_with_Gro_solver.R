@@ -1,4 +1,4 @@
-context('Test basic function of the deriv module "heating_degree_days".')
+context('Test basic function of the derivative module "heating_degree_days".')
 
 steady_state_modules <- c()
 derivative_modules <- c("heating_degree_days")

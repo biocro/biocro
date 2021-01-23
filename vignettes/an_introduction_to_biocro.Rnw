@@ -747,8 +747,8 @@ no modeling should be done in R or R-to-C code.
 
 What follows are step-by-step instructions for writing modules and
 integrating them into the BioCro library.  We show instructions both
-for writing steady-state modules and for writing deriv modules.  In
-each case, we include a running example; the actual code changes
+for writing steady-state modules and for writing derivative modules.
+In each case, we include a running example; the actual code changes
 needed are shown in shadowboxes at the end of each step.  (Full
 listings of the finished code are given in the appendix.)
 
@@ -1513,7 +1513,7 @@ module.}
 \item Add a context statement.
 
   \begin{Rexample}[4]
-    context('Test basic functioning of the deriv module "heading_degree_days".')
+    context('Test basic functioning of the derivative module "heating_degree_days".')
   \end{Rexample}
 
 \item Write tests.
@@ -1899,15 +1899,15 @@ the most basic tests of module functionality, we need only use a
 sequence of two states.  Again, the state variables need only include
 the input variables for the module being tested and the time-related
 variables.\footnote{
-  In the case of a deriv module where some of the inputs correspond to
-  outputs of steady-state modules, we have two choices with regard to
-  testing: (1) include, as part of the test, steady-state modules that
-  produce these required inputs; (2) artificially include values for
-  these inputs as part of the varying parameters.  The latter option
-  is the simplest and has the advantage of narrowing the scope of the
-  test to the module we are most interested in testing.  But there may
-  be cases where we want to test how two or more modules work in
-  conjunction with one another.}
+  In the case of a derivative module where some of the inputs
+  correspond to outputs of steady-state modules, we have two choices
+  with regard to testing: (1) include, as part of the test,
+  steady-state modules that produce these required inputs; (2)
+  artificially include values for these inputs as part of the varying
+  parameters.  The latter option is the simplest and has the advantage
+  of narrowing the scope of the test to the module we are most
+  interested in testing.  But there may be cases where we want to test
+  how two or more modules work in conjunction with one another.}
 
 Here, we show how to test the heating degree days module.
 
@@ -1922,7 +1922,7 @@ Here, we show how to test the heating degree days module.
 \item Add a context statement.
 
   \begin{Rexample}[4]
-    context('Test basic functioning of the deriv module "heading_degree_days".')
+    context('Test basic functioning of the derivative module "heating_degree_days".')
   \end{Rexample}
 
 \item Define parameters for the \Rcode{Gro_solver} function.  Again,
