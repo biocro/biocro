@@ -154,6 +154,13 @@
 
 \tableofcontents
 
+% Set things up for R evaluation:
+<<preliminaries,echo=FALSE>>=
+knitr::opts_chunk$set(error=FALSE) # stop on errors instead of
+                                   # displaying them in results
+library(BioCro, quietly=TRUE)
+@
+
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}
 
@@ -451,33 +458,24 @@ use the following:
   xleftmargin=0.05\textwidth, xrightmargin=0.2\textwidth
 }
 
-\begin{center}
-  \begin{Rlisting}
-    
+<<list_function>>=
 # The list() function takes any number of key=value pairs, separated
 # by commas.
-> example_initial_values = list(Stem = 3, Leaf = 5)
+example_initial_values = list(Stem = 3, Leaf = 5)
 
 # The str() function prints useful information about any object.
-> str(example_initial_values)
-List of 2
- $ Stem: num 3
- $ Leaf: num 5
- 
+str(example_initial_values)
+
 # You can get a value using the key and the '$' operator ...
 example_initial_values$Leaf
-[1] 5
 
 # ... or with the double-bracket operator '[[' operator and the
 # string value of the key.
-> example_initial_values[["Leaf"]]
-[1] 5
-> key_variable <- "Leaf"
-> example_initial_values[[key_variable]]
-[1] 5
-\end{Rlisting}
-\end{center}
+example_initial_values[["Leaf"]]
 
+key_variable <- "Leaf"
+example_initial_values[[key_variable]]
+@
 
 Lists are also used to specify values for the \code{parameters}
 argument.\footnote{The \code{Gro} function also uses an R \code{list}
@@ -497,18 +495,9 @@ and willow and are named using names of the form
   intended to be used with the \code{Gro} function; see the previous
   footnote.} for example, \code{willow\_initial\_state}:
 
-\begin{center}
-\begin{Rlisting}
-> str(head(willow_initial_state)) # head truncates the list to six items
-List of 6
- $ Rhizome  : num 0.99
- $ Leaf     : num 0.02
- $ Stem     : num 0.99
- $ Root     : num 1
- $ Grain    : num 0
- $ waterCont: num 0.32
-\end{Rlisting}
-\end{center}
+<<willow_initial_state>>=
+str(head(willow_initial_state)) # head truncates the list to six items
+@
 
 \code{varying\_parameters}, since it is made up of variables whose
 value changes over the course of time, must be specified somewhat
@@ -550,21 +539,15 @@ the time values should be in ``chronological order'').\footnote{As of
 In the following example, the time is specified using vectors labelled
 \emph{year}, \emph{doy} (``day-of-year''), and \emph{hour}.
 
-\begin{center}
-\begin{Rlisting}
-> example_varying_parameters = data.frame(
+<<varying_parameters_example>>=
+example_varying_parameters = data.frame(
             year = c(2005, 2005),
             doy = c(1, 1),
-            hour = c(0, 1), 
+            hour = c(0, 1),
             solar = c(0, 0),
             temp = c(4.04, 3.03))
-> print(example_varying_parameters)
-
-  year doy hour solar temp
-1 2005   1    0     0 4.04
-2 2005   1    1     0 3.03
-\end{Rlisting}
-\end{center}
+print(example_varying_parameters)
+@
 
 Data frames of weather data are provided to pass to
 \code{varying\_parameters}. These are typically for one year (January
@@ -576,18 +559,9 @@ provided as one means of subsetting climate data.\footnote{The
   (temperature) component.}  Here is a display of weather data for
 2005 showing the first few rows of the growing season:
 
-\begin{center}
-\begin{Rlisting}
-> head(get_growing_season_climate(weather05))
-     year doy hour solar    temp     rh windspeed precip
-2953 2005 124    0     0  3.5972 0.3235    0.7603      0
-2954 2005 124    1     0  1.3938 0.2496    0.7603      0
-2955 2005 124    2     0 -0.2969 0.1928    0.7603      0
-2956 2005 124    3     0 -1.3597 0.1572    0.7603      0
-2957 2005 124    4     0 -1.7222 0.1450    0.7603      0
-2958 2005 124    5     0 -1.3597 0.1572    0.7603      0
-\end{Rlisting}
-\end{center}
+<<weather05>>=
+head(get_growing_season_climate(weather05))
+@
 
 \subsubsection{Function output}
 The output of \code{Gro\_solver} (and of \code{Gro}) is a data.frame,
@@ -618,16 +592,15 @@ which there is input data.
 In R, you can use the \code{Gro()} function to simulate the
 development of a crop as follows:
 
-\begin{center}
-\begin{Rlisting}
+% Run the code to validate it, but don't show the figure.
+<<Gro_example, fig.show='hide'>>=
 library(BioCro)
 library(lattice)  # This is a package that creates figures.
 
 result = Gro(sorghum_initial_state, sorghum_parameters,
              get_growing_season_climate(weather05), sorghum_modules)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.
-\end{Rlisting}
-\end{center}
+@
 
 \section{Modifying the BioCro code}
 \subsection{Organization of the source files}
