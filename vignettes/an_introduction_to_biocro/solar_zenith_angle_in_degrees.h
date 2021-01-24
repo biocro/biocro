@@ -39,8 +39,8 @@ class solar_zenith_angle_in_degrees : public SteadyModule {
           zenith_angle_in_degrees_op{get_op(output_parameters, "zenith_angle_in_degrees")}
         {}
         
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
    
  private:
     // References to input parameters:
@@ -54,14 +54,14 @@ class solar_zenith_angle_in_degrees : public SteadyModule {
 };
 
 
-std::vector<std::string> solar_zenith_angle_in_degrees::get_inputs() {
+string_vector solar_zenith_angle_in_degrees::get_inputs() {
     return {
         "cosine_zenith_angle"
     };
 }
 
 
-std::vector<std::string> solar_zenith_angle_in_degrees::get_outputs() {
+string_vector solar_zenith_angle_in_degrees::get_outputs() {
     return {
         "zenith_angle_in_degrees"
     };

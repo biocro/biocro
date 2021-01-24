@@ -20,8 +20,8 @@ class heating_degree_days : public DerivModule {
       heating_degree_days_op{get_op(output_parameters, "heating_degree_days")}
     {}
 
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
   private:
     // References to input parameters:
@@ -35,14 +35,14 @@ class heating_degree_days : public DerivModule {
     void do_operation() const override final;
 };
 
-std::vector<std::string> heating_degree_days::get_inputs() {
+string_vector heating_degree_days::get_inputs() {
     return {
         "temp",
         "base_temperature"
       };
 }
 
-std::vector<std::string> heating_degree_days::get_outputs() {
+string_vector heating_degree_days::get_outputs() {
     return {
         "heating_degree_days"
     };

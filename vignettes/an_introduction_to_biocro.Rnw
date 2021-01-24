@@ -958,8 +958,8 @@ The steps are as follows.
 \item Add the following static function declarations to the public
   section of the class body.
   \begin{example}[4]
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
   \end{example}
 
 \item Add the following declaration to the private section to override
@@ -977,7 +977,7 @@ The steps are as follows.
   braces.
 
   \begin{example}[4]
-    std::vector<std::string> solar_zenith_angle_in_degrees::get_inputs() {
+    string_vector solar_zenith_angle_in_degrees::get_inputs() {
         return {
             "cosine_zenith_angle"
         };
@@ -987,7 +987,7 @@ The steps are as follows.
 \item Implement \code{get_outputs()} similarly, returning a list of
   the names of all output parameters.
   \begin{example}[4]
-    std::vector<std::string> solar_zenith_angle_in_degrees::get_outputs() {
+    string_vector solar_zenith_angle_in_degrees::get_outputs() {
         return {
             "zenith_angle_in_degrees"
         };
@@ -1162,8 +1162,8 @@ steady-state module, but with some significant differences.
 \item Add the following static function declarations to the public
   section of the class body.
   \begin{example}[4]
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
   \end{example}
 
 \item Add the following declaration to the private section to override
@@ -1181,7 +1181,7 @@ steady-state module, but with some significant differences.
   braces.
 
   \begin{example}[4]
-    std::vector<std::string> heating_degree_days::get_inputs() {
+    string_vector heating_degree_days::get_inputs() {
         return {
             "temp",
             "base_temperature"
@@ -1192,7 +1192,7 @@ steady-state module, but with some significant differences.
 \item Implement \code{get_outputs()} similarly, returning a list of
   the names of all output parameters.
   \begin{example}[4]
-    std::vector<std::string> heating_degree_days::get_outputs() {
+    string_vector heating_degree_days::get_outputs() {
         return {
             "heating_degree_days"
         };
