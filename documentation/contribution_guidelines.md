@@ -218,9 +218,22 @@ Consider naming parts of a complicated expression in order to break it down into
 
 ### R-specific coding advice
 
-* Prefer to use the double-bracket operator (`list[['element']]`) rather than the dollar-sign operator (`list$element`) when accessing the elements of a list. The `$` operator uses partial matching, whereas `[[`, by default, does not. (However, it can be specified: `list[['element', exact = FALSE]]`.) This is one of the bizarre design choices in R. Avoiding partial matching by using `[[` gives us more confidence that errors won't occur.
+* Prefer to use the double-bracket operator (`list[['element']]`) rather than
+  the dollar-sign operator (`list$element`) when accessing the elements of a
+  list. The `$` operator uses partial matching, whereas `[[`, by default, does
+  not. (However, it can be specified: `list[['element', exact = FALSE]]`.) This
+  is one of the bizarre design choices in R. Avoiding partial matching by using
+  `[[` gives us more confidence that errors won't occur.
 
-* When writing `for` loops, allocate memory first or use an apply-type function (`apply`, `lapply`, `sapply`, etc) instead to increase performance. See [this comment](https://github.com/ebimodeling/biocro-dev/issues/251#issuecomment-764297018) for more information.
+* While there is no inherent performance difference between a `for` loop and an
+  apply-type function such as `apply` or `lapply` (the apply functions actually
+  use `for` loops in their source code), it is nevertheless possible to write a
+  "bad" `for` loop that runs slow. Common culprits include a failure to
+  pre-allocate memory or a poor choice in assignment method. If a `for` loop
+  seems to run slow, consider replacing it with an apply-type function or
+  tweaking the assignment method (e.g. replacing `append` with `[`). See
+  [this issue](https://github.com/ebimodeling/biocro-dev/issues/251)
+  for more information.
 
 ## Running Unit Tests
 
