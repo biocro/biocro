@@ -4,6 +4,7 @@
 
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 
 %% Useful packages
 %\usepackage{helvet} % Commenting this out for now: I don't see any
