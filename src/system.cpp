@@ -80,7 +80,7 @@ void System::reset()
 {
     update_varying_params(size_t(0));  // t = 0
     for (auto const& x : initial_state) quantities[x.first] = x.second;
-    run_steady_state_modules();
+    run_module_list(steady_state_modules);
 }
 
 /**
@@ -99,17 +99,6 @@ void System::update_varying_params(double time_indx)
             (time_indx - t1) * (value_at_t2 - value_at_t1);
 
         *(x.first) = value_at_time_indx;
-    }
-}
-
-/**
- * @brief Runs all the steady state modules
- */
-void System::run_steady_state_modules()
-{
-    // Run each module
-    for (std::unique_ptr<Module> const& m : steady_state_modules) {
-        m->run();
     }
 }
 

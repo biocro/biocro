@@ -99,8 +99,6 @@ class System
     template <class vector_type>
     void update_state_params(vector_type const& new_state);
 
-    void run_steady_state_modules();
-
     template <class vector_type>
     void run_derivative_modules(vector_type& derivs);
 
@@ -134,7 +132,7 @@ void System::update(const state_type& x, const time_type& t)
 {
     update_varying_params(t);
     update_state_params(x);
-    run_steady_state_modules();
+    run_module_list(steady_state_modules);
 }
 
 /**
@@ -182,7 +180,7 @@ void System::update_state_params(vector_type const& new_state)
 template <class vector_type>
 void System::run_derivative_modules(vector_type& dxdt)
 {
-    // Clear the module output map
+    // Reset the derivative module outputs
     for (double* const& x : state_ptrs) {
         *x = 0.0;
     }
@@ -191,9 +189,7 @@ void System::run_derivative_modules(vector_type& dxdt)
     std::fill(dxdt.begin(), dxdt.end(), 0);
 
     // Run the modules
-    for (std::unique_ptr<Module> const& m : derivative_modules) {
-        m->run();
-    }
+    run_module_list(derivative_modules);
 
     // Store the output in the derivative vector
     for (size_t i = 0; i < dxdt.size(); i++) {
