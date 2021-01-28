@@ -35,8 +35,11 @@ System::System(
         std::vector<string_vector>{steady_state_module_names});
     module_output_map = quantities;
 
-    // Instantiate the modules
-    steady_state_modules = get_module_vector(std::vector<string_vector>{steady_state_module_names}, &quantities, &module_output_map);
+    // Instantiate the modules. Derivative modules should not modify the main
+    // quantity map since their output represents derivatives of quantity values
+    // rather than actual quantity values, but steady state modules should
+    // directly modify the main output map.
+    steady_state_modules = get_module_vector(std::vector<string_vector>{steady_state_module_names}, &quantities, &quantities);
     derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
 
     // Make lists of subsets of quantity names
@@ -51,7 +54,6 @@ System::System(
     // These pointers allow us to efficiently reset portions of the
     //  module output map before running the modules
     state_ptrs = get_pointers(istate_names, module_output_map);
-    steady_state_ptrs = get_pointers(steady_state_output_names, module_output_map);
 
     // Get pairs of pointers to important subsets of the quantities
     // These pairs allow us to efficiently retrieve the output of each
@@ -59,7 +61,6 @@ System::System(
     // system, to update the varying parameters at new time points,
     // etc.
     state_ptr_pairs = get_pointer_pairs(istate_names, quantities, module_output_map);
-    steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
     varying_ptr_pairs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
     // Get a pointer to the timestep
@@ -103,17 +104,9 @@ void System::update_varying_params(double time_indx)
  */
 void System::run_steady_state_modules()
 {
-    // Clear the module output map
-    for (double* const& x : steady_state_ptrs) {
-        *x = 0.0;
-    }
-
-    // Run each module and store its output in the main quantity map
+    // Run each module
     for (std::unique_ptr<Module> const& m : steady_state_modules) {
         m->run();
-        for (auto const& x : steady_state_ptr_pairs) {
-            *x.first = *x.second;
-        }
     }
 }
 
