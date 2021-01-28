@@ -2,6 +2,7 @@
 #define STOMATA_WATER_STRESS_LINEAR_AND_ABA_RESPONSE_H
 
 #include "../modules.h"
+#include <cmath>  // for exp
 
 class stomata_water_stress_linear_and_aba_response : public SteadyModule {
 	public:
@@ -54,7 +55,7 @@ std::vector<std::string> stomata_water_stress_linear_and_aba_response::get_outpu
 	};
 }
 
-void stomata_water_stress_linear_and_aba_response::do_operation() const {	
+void stomata_water_stress_linear_and_aba_response::do_operation() const {
 	// Collect inputs and make calculations
 	double soil_wilting_point = *soil_wilting_point_ip;
 	double soil_field_capacity = *soil_field_capacity_ip;
@@ -62,11 +63,11 @@ void stomata_water_stress_linear_and_aba_response::do_operation() const {
 	double soil_aba_concentration = *soil_aba_concentration_ip;
 	double aba_influence_coefficient = *aba_influence_coefficient_ip;
 	double max_b1 = *max_b1_ip;
-	
+
 	double const slope = 1.0 / (soil_field_capacity - soil_wilting_point);
 	double const intercept = 1.0 - soil_field_capacity * slope;
 	double const aba_effect = exp(soil_aba_concentration / aba_influence_coefficient);  // dimensionless. A value in the interval (0, 1] that will reduce the slope of the Ball-Berry model.
-	
+
 	// Update the output parameter list
 	update(StomataWS_op, std::min(std::max(slope *soil_water_content + intercept, 1e-10), 1.0));
 	update(b1_op, max_b1 * aba_effect);

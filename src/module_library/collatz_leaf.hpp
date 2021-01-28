@@ -3,8 +3,6 @@
 
 #include "../modules.h"
 #include "../standalone_ss.h"
-#include "collatz_photo.hpp"
-#include "ball_berry.hpp"
 
 class collatz_leaf : public SteadyModule {
 	public:

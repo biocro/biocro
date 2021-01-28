@@ -1,4 +1,7 @@
 #include "c3_canopy.hpp"
+#include "AuxBioCro.h"  // For Can_Str
+#include "BioCro.h"     // For c3CanAC
+#include <cmath>        // For floor
 
 std::vector<std::string> c3_canopy::get_inputs() {
     return {

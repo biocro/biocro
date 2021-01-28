@@ -1,15 +1,9 @@
 #ifndef MODULES_H
 #define MODULES_H
 
-#include <unordered_map>
-#include <map>
-#include <vector>  // Include this here so all modules will have access to std::vector
-#include <memory>
-#include <cmath>
-#include "state_map.h"                 // Include this here so all modules will have access to state_map
-#include "module_library/BioCro.h"     // Include this here so all modules will have access to the auxilliary functions
-#include "module_library/AuxBioCro.h"  // Include this here so all modules will have access to the auxilliary functions
-#include "module_helper_functions.h"   // Include this here so all modules will have access to these functions
+#include <vector>
+#include <memory>                     // For std::unique_ptr
+#include "module_helper_functions.h"  // Essential for all modules
 
 /**
  *  This class represents a component of a larger system of
