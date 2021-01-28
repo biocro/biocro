@@ -6,18 +6,18 @@
 
 /**
  * @class incident_shortwave_from_ground_par
- * 
+ *
  * @brief Uses a value for total PAR flux density measured at the Earth's surface to calculate
  * the total light flux density in the direct beam and as diffuse radiation in both the PAR and
  * NIR bands.
- * 
+ *
  * Here the input quantity `solar` represents the total flux density of PAR photons as measured by a
  * pyranometer or other similar instrument. It should be a `global` flux density that includes
  * direct and diffuse light, and it should represent flux through a plane perpendicular to
  * the beam direction. For consistency with typical BioCro units, this flux density should be reported
  * in units of micromol / m^2 / s. However, the output parameters will be converted into the
  * SI standard energy flux density units of J / m^2 / s or equivalently W / m^2.
- * 
+ *
  * The `par_energy_fraction_of_sunlight` quantity should represent the fraction of solar energy
  * that lies in the PAR band. This value is often near 0.5.
  */
@@ -44,7 +44,6 @@ class incident_shortwave_from_ground_par : public SteadyModule
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    static std::string get_description();
 
    private:
     // References to input parameters
