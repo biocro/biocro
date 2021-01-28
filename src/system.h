@@ -78,7 +78,7 @@ class System
 
     // Quantity maps defined during construction
     state_map quantities;
-    state_map module_output_map;
+    state_map derivative_module_outputs;
 
     // Module lists defined during construction
     module_vector steady_state_modules;
