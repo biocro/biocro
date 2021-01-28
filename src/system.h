@@ -73,7 +73,7 @@ class System
     const state_map initial_state;
     const state_map invariant_parameters;
     const state_vector_map varying_parameters;
-    string_vector steady_state_module_names; // These may be re-ordered in the constructor.
+    string_vector steady_state_module_names;  // These may be re-ordered in the constructor.
     const string_vector derivative_module_names;
 
     // Quantity maps defined during construction

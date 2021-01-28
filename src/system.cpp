@@ -1,6 +1,6 @@
 #include "system.h"
 #include "validate_system.h"
-#include "utils/module_dependency_utilities.h" // for get_evaluation_order
+#include "utils/module_dependency_utilities.h"  // for get_evaluation_order
 
 System::System(
     state_map const& init_state,
@@ -11,7 +11,7 @@ System::System(
     : initial_state{init_state},
       invariant_parameters{invariant_params},
       varying_parameters{varying_params},
-      steady_state_module_names{}, // put modules in suitable order before filling
+      steady_state_module_names{},  // put modules in suitable order before filling
       derivative_module_names{deriv_module_names}
 {
     startup_message = std::string("");
@@ -25,7 +25,7 @@ System::System(
 
     try {
         steady_state_module_names = get_evaluation_order(ss_module_names);
-    } catch(boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
+    } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
         throw std::logic_error("Cyclic dependencies should be caught in the validation routine.  We shouldn't ever get here.");
     }
 
@@ -48,8 +48,7 @@ System::System(
     // Make lists of subsets of quantity names
     string_vector steady_state_output_names =
         string_set_to_string_vector(
-            find_unique_module_outputs({steady_state_module_names})
-        );
+            find_unique_module_outputs({steady_state_module_names}));
     string_vector istate_names = keys(init_state);
     string_vector vp_names = keys(varying_params);
 
@@ -90,13 +89,13 @@ void System::update_varying_params(double time_indx)
 {
     // Find two closest surrounding integers:
     int t1 = std::floor(time_indx);
-    int t2 = t1 + 1; // note t2 - t1 = 1
+    int t2 = t1 + 1;  // note t2 - t1 = 1
     for (const auto& x : varying_ptr_pairs) {
         // Use linear interpolation to find value at time_indx:
         auto value_at_t1 = (*(x.second))[t1];
         auto value_at_t2 = (*(x.second))[t2];
         auto value_at_time_indx = value_at_t1 +
-            (time_indx - t1) * (value_at_t2 - value_at_t1);
+                                  (time_indx - t1) * (value_at_t2 - value_at_t1);
 
         *(x.first) = value_at_time_indx;
     }

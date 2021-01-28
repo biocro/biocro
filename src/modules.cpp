@@ -9,7 +9,8 @@ const double Module::eps = 1e-10;
 // pointer, throwing an error if NaN occurs.  This should only be used
 // for debugging purposes since it will slow down the module
 // execution.
-double Module::get_val_debug(const double* ptr, const std::string name) const {
+double Module::get_val_debug(const double* ptr, const std::string name) const
+{
     double val = *ptr;
     //if(std::isnan(val)) throw std::logic_error(std::string("Found NaN when accessing parameter '") + name + ("'.\n"));    // What is wrong with this line??
     if (fabs(val) > 10000) {
@@ -18,8 +19,7 @@ double Module::get_val_debug(const double* ptr, const std::string name) const {
             name +
             "' has a huge value: " +
             std::to_string(val) +
-            "\n"
-        );
+            "\n");
     }
     return val;
 }
