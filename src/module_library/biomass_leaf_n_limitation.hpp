@@ -2,6 +2,7 @@
 #define BIOMASS_LEAF_N_LIMITATION_H
 
 #include "../modules.h"
+#include "../constants.h"   // For calculation_constants::eps_zero
 
 class biomass_leaf_n_limitation : public SteadyModule {
 	public:
@@ -48,9 +49,9 @@ std::vector<std::string> biomass_leaf_n_limitation::get_outputs() {
 void biomass_leaf_n_limitation::do_operation() const {
 	// Collect inputs and make calculations
 	double leaf_n;
-	if(fabs((*Leaf_ip) + (*Stem_ip)) < eps) leaf_n = *LeafN_0_ip;
+	if(fabs((*Leaf_ip) + (*Stem_ip)) < calculation_constants::eps_zero) leaf_n = *LeafN_0_ip;
 	else leaf_n = (*LeafN_0_ip) * pow((*Leaf_ip) + (*Stem_ip), -1.0*(*kln_ip));
-	
+
 	// Update the output parameter list
     update(LeafN_op, std::min(*LeafN_0_ip, leaf_n));
 }

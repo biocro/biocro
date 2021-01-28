@@ -2,6 +2,7 @@
 #define LEAF_WATER_STRESS_EXPONENTIAL_H
 
 #include "../modules.h"
+#include "../constants.h"   // For calculation_constants::eps_zero
 
 class leaf_water_stress_exponential : public SteadyModule {
 	public:
@@ -42,9 +43,9 @@ std::vector<std::string> leaf_water_stress_exponential::get_outputs() {
 	};
 }
 
-void leaf_water_stress_exponential::do_operation() const {	
+void leaf_water_stress_exponential::do_operation() const {
 	// Update the output parameter list
-	update(LeafWS_op, std::min(std::max(pow((*soil_water_content_ip)/(*soil_field_capacity_ip), *phi2_ip), eps), 1.0));
+	update(LeafWS_op, std::min(std::max(pow((*soil_water_content_ip)/(*soil_field_capacity_ip), *phi2_ip), calculation_constants::eps_zero), 1.0));
 }
 
 #endif
