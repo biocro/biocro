@@ -39,9 +39,16 @@ If you use ctags, the flag "--c++-kinds=+p" will cause ctags to create tages for
     ```
 
 ## Building vignettes written in R
+
 ### Required software
 - texinfo texlive texlive-latex-extra texlive-science
-- On Windows, MiKTeX (<https://miktex.org/>) can be used to automatically download and install any required LaTeX packages
+- Alternatively, MiKTeX (<https://miktex.org/>) can be used to automatically download and install any required LaTeX packages on Windows, MacOS, and Linux.
 
-###
-Build the package using `R CMD build biocro`. This includings building the vignettes. Then install using `R CMD INSTALL BioCro_xxx.tar.gz`, where xxx is the version number.
+### Build procedure
+- Build the package using `R CMD build biocro-dev`. This includings building the vignettes.
+- Then install using `R CMD INSTALL BioCro_xxx.tar.gz`, where `xxx` is the version number.
+- The vignettes should now be available as PDFs located in `[RLib]\BioCro\doc`, where `[RLib]` is the path to your R library directory.
+
+### Alternate options
+- From an R session running in `biocro-dev/vignettes`, type: `tools::buildVignette(XXX)`, where `XXX` is the name of the particular vignette you wish to build. The resulting PDF file will appear in `biocro-dev/vignettes`.
+- From an R session running in the parent directory of `biocro-dev`, type: `devtools::build_vignettes(pkg="biocro-dev")`. This method will modify `.Rbuildignore` and `.gitignore`, which is annoying. The resulting PDF file will appear in `biocro-dev/doc`.
