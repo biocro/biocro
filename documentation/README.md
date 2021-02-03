@@ -37,3 +37,10 @@ If you use ctags, the flag "--c++-kinds=+p" will cause ctags to create tages for
     ```
     ctags --c++-kinds=+p
     ```
+
+## Building vignettes written in R
+### Required software
+- texinfo texlive texlive-latex-extra texlive-science
+
+###
+Build the vignettes using `R CMD build biocro`, and then install with `R CMD INSTALL BioCro_xxx.tar.gz`, where xxx is the version number.
