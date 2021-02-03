@@ -44,11 +44,13 @@ If you use ctags, the flag "--c++-kinds=+p" will cause ctags to create tages for
 - texinfo texlive texlive-latex-extra texlive-science
 - Alternatively, MiKTeX (<https://miktex.org/>) can be used to automatically download and install any required LaTeX packages on Windows, MacOS, and Linux.
 
+The following instructions assume that the source files are in a directory named `biocro`.
+
 ### Build procedure
-- Build the package using `R CMD build biocro-dev`. This includings building the vignettes.
+- Build the package by running `R CMD build biocro` from the command line in the directory containing `biocro`. This includes building the vignettes.
 - Then install using `R CMD INSTALL BioCro_xxx.tar.gz`, where `xxx` is the version number.
-- The vignettes should now be available as PDFs located in `[RLib]\BioCro\doc`, where `[RLib]` is the path to your R library directory.
+- The vignettes should now be available as PDFs located in `path_to_rlib\BioCro\doc`, where `path_to_rlib` is the path to your R library directory.
 
 ### Alternate options
-- From an R session running in `biocro-dev/vignettes`, type: `tools::buildVignette(XXX)`, where `XXX` is the name of the particular vignette you wish to build. The resulting PDF file will appear in `biocro-dev/vignettes`.
-- From an R session running in the parent directory of `biocro-dev`, type: `devtools::build_vignettes(pkg="biocro-dev")`. This method will modify `.Rbuildignore` and `.gitignore`, which is annoying. The resulting PDF file will appear in `biocro-dev/doc`.
+- From an R session running in `biocro/vignettes`, type: `tools::buildVignette(XXX)`, where `XXX` is the name of the particular vignette you wish to build. The resulting PDF file will appear in `biocro/vignettes`.
+- From an R session running in the parent directory of `biocro`, type: `devtools::build_vignettes(pkg="biocro")`. This method will modify `.Rbuildignore` and `.gitignore`, which is annoying. The resulting PDF file will appear in `biocro/doc`.
