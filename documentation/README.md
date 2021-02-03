@@ -43,4 +43,4 @@ If you use ctags, the flag "--c++-kinds=+p" will cause ctags to create tages for
 - texinfo texlive texlive-latex-extra texlive-science
 
 ###
-Build the vignettes using `R CMD build biocro`, and then install with `R CMD INSTALL BioCro_xxx.tar.gz`, where xxx is the version number.
+Build the package using `R CMD build biocro`. This includings building the vignettes. Then install using `R CMD INSTALL BioCro_xxx.tar.gz`, where xxx is the version number.
