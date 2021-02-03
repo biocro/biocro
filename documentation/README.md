@@ -41,6 +41,7 @@ If you use ctags, the flag "--c++-kinds=+p" will cause ctags to create tages for
 ## Building vignettes written in R
 ### Required software
 - texinfo texlive texlive-latex-extra texlive-science
+- On Windows, MiKTeX (<https://miktex.org/>) can be used to automatically download and install any required LaTeX packages
 
 ###
 Build the package using `R CMD build biocro`. This includings building the vignettes. Then install using `R CMD INSTALL BioCro_xxx.tar.gz`, where xxx is the version number.
