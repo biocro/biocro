@@ -27,12 +27,18 @@ SAMPLE_SIZE <- 5       # number of time points to test in each simulation result
 test_plant_model <- function(test_info) {
 
     # Run the simulation
-    result <- Gro(
-        test_info[['initial_state']],
-        test_info[['parameters']],
-        get_growing_season_climate(weather05),
-        test_info[['modules']]
-    )
+    result <- 0
+    description <- paste("The ", test_info[['plant_name']], " simulation runs without producing any errors", sep="")
+    test_that(description, {
+        expect_silent(
+            result <<- Gro(
+                test_info[['initial_state']],
+                test_info[['parameters']],
+                get_growing_season_climate(weather05),
+                test_info[['modules']]
+            )
+        )
+    })
 
     # Make sure some important variables are included in the output
     column_names <- names(result)
