@@ -2,6 +2,9 @@
 # https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
 on:
   push:
+  pull_request:
+    branches:
+      - master
   workflow_dispatch:
     # When running manually, allow users to customize the run:
     inputs:
@@ -21,29 +24,124 @@ on:
         description: 'check the examples'
         required: false
         default: 'true'
-  pull_request:
-    branches:
-      - master
+      check-windows:
+        description: 'Test build on Windows'
+        required: false
+        default: 'false'
+      check-mac:
+        description: 'Test build on MacOS'
+        required: false
+        default: 'false'
+      check-r-release-version-on-ubuntu:
+        description: 'Check on Ubuntu using the release version of R'
+        required: false
+        default: 'false'
+      check-r-devel-version-on-ubuntu:
+        description: 'Check on Ubuntu using the development version of R'
+        required: false
+        default: 'false'
 
 name: R-CMD-check
 
 jobs:
+  matrix_prep:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: set-matrix
+        name: Conditional Build Matrix
+        uses: JoshuaTheMiller/conditional-build-matrix@0.0.1
+        with:
+          inputFile: '.github/workflows/matrix_includes_for_R-CMD-check.json'
+          filter:
+            '[?contains(runOnEvent, `${{ github.event_name }}`)
+               || (contains(os, `"windows"`) && `${{ github.event.inputs.check-windows }}` == `true`)
+               || (contains(os, `"macOS"`) && `${{ github.event.inputs.check-mac }}` == `true`)
+               || (contains(os, `"ubuntu"`)
+                   && ((contains(r, `"release"`) && `${{ github.event.inputs.check-r-release-version-on-ubuntu }}` == `true`)
+                       || (contains(r, `"devel"`) && `${{ github.event.inputs.check-r-devel-version-on-ubuntu }}` == `true`)))]'
+
+  # For debugging:
+  display_matrix:
+    needs: matrix_prep
+    runs-on: ubuntu-latest
+    steps:
+    - name: Report Configuration
+      env:
+        MATRIX_CONTEXT: ${{ needs.matrix_prep.outputs.matrix }}
+      run: |
+        echo "os: " ${{ matrix.os }}
+        echo "matrix: $MATRIX_CONTEXT"
+
   R-CMD-check:
-    runs-on: macOS-latest # For now, only test on macOS
+    name: ${{ matrix.os }} (${{ matrix.r }})
+    needs: matrix_prep
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix: ${{fromJson(needs.matrix_prep.outputs.matrix)}}
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true # affects behavior of the "remotes" package's install commands
+      RSPM: ${{ matrix.rspm }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
 
       - name: Set up R
-        uses: r-lib/actions/setup-r@v1 # Default to release version for now.
+        uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: ${{ matrix.r }}
 
       - name: Install Pandoc
         uses: r-lib/actions/setup-pandoc@v1
 
+      - name: Query dependencies
+        run: |
+          install.packages('remotes')
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
+          writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
+        shell: Rscript {0}
+
+      - name: Cache R packages
+        if: runner.os != 'Windows'
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04"))')
+
+      - name: Install dependencies
+        run: |
+          remotes::install_deps(dependencies = TRUE)
+          remotes::install_cran("rcmdcheck")
+        shell: Rscript {0}
+
       - name: Maybe install TinyTex
+
+        # TinyTex must be installed iff we are checking either the
+        # manual or the vignettes.  We always build and check the
+        # manual if the workflow is triggered automatically (that is,
+        # if the triggering event ISN'T workflow_dispatch).
+        # Otherwise, if the workflow is dispatched manually, we need
+        # to install TinyTex only if user specified either the "check
+        # the manual" or "check the vignettes".
+
         if: ${{github.event_name != 'workflow_dispatch' ||
                github.event.inputs.check-vignettes == 'true' ||
                github.event.inputs.check-manual == 'true'}}
+
         run: |
           install.packages('tinytex')
           tinytex::install_tinytex()
@@ -52,13 +150,10 @@ jobs:
           tinytex::tlmgr_install(c('siunitx', 'babel-english'))
         shell: Rscript {0}
 
-      - name: Install R package dependencies and some utilities
-        run: |
-          install.packages(c("remotes", "rcmdcheck"))
-          remotes::install_deps(dependencies = TRUE)
-        shell: Rscript {0}
-
       - name: Check package
+        env:
+          # Not sure why or even if this is necessary:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: false
         run: |
           if ('${{ github.event_name }}' == 'workflow_dispatch') {
             build_args_value <- c()
@@ -80,7 +175,7 @@ jobs:
           } else {
             build_args_value <- c('--no-build-vignettes')
             args_value <- c('--as-cran', '--ignore-vignettes')
-          }           
+          }
           cat("Running rcmdcheck with",
                 "\n  args =", args_value,
                 "\n  build_args =", build_args_value,
@@ -91,3 +186,10 @@ jobs:
                                error_on = "error",
                                check_dir = "check")
         shell: Rscript {0}
+
+      - name: Upload check results
+        if: failure()
+        uses: actions/upload-artifact@main
+        with:
+          name: ${{ runner.os }}-r${{ matrix.r }}-results
+          path: check
