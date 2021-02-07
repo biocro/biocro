@@ -127,6 +127,32 @@ jobs:
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 
+        # Under macOS, we were able to just do this one-step process
+        # for installing LaTeX and the extra needed packages, but
+        # trying this under Ubuntu yields the following error:
+        #
+        #    Warning: LaTeX errors when creating PDF version.
+        #    This typically indicates Rd problems.
+        #    * checking PDF version of manual without hyperrefs or index ... ERROR
+        #    Error: Re-running with no redirection of stdout/stderr.
+        #    Hmm ... looks like a package
+        #    Error in texi2dvi(file = file, pdf = TRUE, clean = clean, quiet = quiet,  : 
+        #      pdflatex is not available
+        #    Error in texi2dvi(file = file, pdf = TRUE, clean = clean, quiet = quiet,  : 
+        #      pdflatex is not available
+        #    Error in running tools::texi2pdf()
+        #
+        # Using the setup-tinytex action followed by a separate step
+        # using tlmgr on the command line to install the extra
+        # packages seems to work.
+        ## run: |
+        ##   install.packages('tinytex')
+        ##   tinytex::install_tinytex()
+        ##   # Install a few LaTeX packages needed by the vignette not included
+        ##   # in tinytex:
+        ##   tinytex::tlmgr_install(c('siunitx', 'babel-english'))
+        ## shell: Rscript {0}
+
       - name: Maybe install TinyTex
 
         # TinyTex must be installed iff we are checking either the
@@ -140,14 +166,15 @@ jobs:
         if: ${{github.event_name != 'workflow_dispatch' ||
                github.event.inputs.check-vignettes == 'true' ||
                github.event.inputs.check-manual == 'true'}}
+        uses: r-lib/actions/setup-tinytex@v1               
 
+      - if: ${{github.event_name != 'workflow_dispatch' ||
+               github.event.inputs.check-vignettes == 'true' ||
+               github.event.inputs.check-manual == 'true'}}
         run: |
-          install.packages('tinytex')
-          tinytex::install_tinytex()
           # Install a few LaTeX packages needed by the vignette not included
           # in tinytex:
-          tinytex::tlmgr_install(c('siunitx', 'babel-english'))
-        shell: Rscript {0}
+          tlmgr install siunitx babel-english
 
       - name: Check package
         env:
