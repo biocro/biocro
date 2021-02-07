@@ -72,7 +72,6 @@ jobs:
       env:
         MATRIX_CONTEXT: ${{ needs.matrix_prep.outputs.matrix }}
       run: |
-        echo "os: " ${{ matrix.os }}
         echo "matrix: $MATRIX_CONTEXT"
 
   R-CMD-check:
