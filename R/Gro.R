@@ -1,4 +1,4 @@
-Gro <- function(initial_values, parameters, varying_parameters, modules, verbose = FALSE)
+Gro <- function(initial_values, parameters, varying_parameters, modules, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose = FALSE)
 {
 	# This function runs a full crop growth simulation, automatically choosing the Rosenbrock integration method when possible
 	#
@@ -27,16 +27,16 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 	#
 	# In the sorghum example, the simulation is performed using the fixed-step size Euler method for numerical integration. One of its modules (thermal_time_senescence)
 	# requires a history of all parameters, making it incompatible with any other integration method.
-	# 
+	#
 	# Example 2: running a soybean simulation using weather data from 2005
-	# 
+	#
 	#  result = Gro(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_modules, TRUE)
 	#  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
 	#
 	# In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
 	# ODEINT's implementation of an implicit Rosenbrock solver to run the simulation.
-	
-	
+
+
 	# Check to make sure the modules are properly defined
 	module_names = paste(c('canopy', 'soil', 'growth', 'senescence', 'stomata_water_stress', 'leaf_water_stress'), '_module_name', sep='')
 	if (any(unused_modules_ind <- !names(modules) %in% module_names)) {
@@ -44,13 +44,13 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 		unused_modules = paste(names(modules)[unused_modules_ind], collaspe=', ')
 		stop(paste(message, unused_modules, ',', sep=''))
 	}
-	
+
 	if (any(null_ind <- unlist(lapply(modules[module_names], is.null)))) {
 		message = 'The following modules names are NULL, but they must be defined: '
 		missing_modules = paste(module_names[null_ind], collapse=', ')
 		stop(paste(message, missing_modules, '.', sep=''))
 	}
-	
+
 	# Get info about the growth module
 	if(modules$growth_module_name == "partitioning_growth") {
 		# The partitioning growth model implementation requires several modules:
@@ -74,7 +74,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 		growth_module_support <- "utilization_growth_calculator"
 	}
 	else stop("The growth module you chose is not supported by Gro. Use one of the supported modules (partitioning_growth, no_leaf_resp_partitioning_growth, or utilization_growth) or use a different Gro variant such as Gro_auto.")
-	
+
 	# Get info about the senescence module
 	if(modules$senescence_module_name == "thermal_time_senescence") {
 		# The thermal time senescence model implementation requires several modules:
@@ -99,7 +99,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 		senescence_module_support <- "utilization_senescence_calculator"
 	}
 	else stop("The senescence module you chose is not supported by Gro. Use one of the supported modules (thermal_time_senescence, thermal_time_and_frost_senescence, or utilization_senescence) or use a different Gro variant such as Gro_auto.")
-	
+
 	# Build the module lists
 	# Note that the included modules depend on the choice of soil module, since one_layer_soil_profile requires a few supporting modules while two_layer_soil_profile does not
 	#  In fact, the leaf and stomata water stress module choices will be disregarded when two_layer_soil_profile is chosen. This module relies on a parameter (wsFun) to indicate
@@ -113,14 +113,14 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
 		derivative_module_names <- c(senescence_module, growth_module, "thermal_time_linear", modules$soil_module_name)
 	}
 	else stop("The soil profile module you chose is not supported by Gro. Use one of the supported modules (one_layer_soil_profile or two_layer_soil_profile) or use a different Gro variant such as Gro_auto.")
-	
+
 	# Remove any duplicates in the lists
 	steady_state_module_names = unique(steady_state_module_names)
 	derivative_module_names = unique(derivative_module_names)
-	
+
 	# Use Gro_solver to get the result
-    result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose)
-	
+    result = Gro_solver(initial_values, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver, verbose)
+
 	# Return the result
 	return(result)
 }
@@ -162,9 +162,9 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	#
 	# In the sorghum example, the simulation is performed using the fixed-step size Euler method for numerical integration. One of its modules (thermal_time_senescence)
 	# requires a history of all parameters, making it incompatible with any other integration method.
-	# 
+	#
 	# Example 2: running a soybean simulation using weather data from 2005
-	# 
+	#
 	#  glycine_max_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "soil_evaporation", "c3_canopy", "utilization_growth_calculator", "utilization_senescence_calculator")
 	#  glycine_max_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_linear", "one_layer_soil_profile")
 	#  result <- Gro_solver(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_ss_modules, glycine_max_deriv_modules, "Gro", TRUE)
@@ -172,37 +172,37 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	#
 	# In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
 	# ODEINT's implementation of an implicit Rosenbrock solver to run the simulation.
-	
+
 	# Check to make sure the initial_state is properly defined
 	if(!is.list(initial_state)) {
 		stop('"initial_state" must be a list')
 	}
-	
+
 	if(length(initial_state) != length(unlist(initial_state))) {
 		item_lengths = unlist(lapply(initial_state, length))
 		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
 		stop(error_message)
 	}
-	
+
 	# Check to make sure the parameters are properly defined
 	if(!is.list(parameters)) {
 		stop('"parameters" must be a list')
 	}
-	
+
 	if(length(parameters) != length(unlist(parameters))) {
 		item_lengths = unlist(lapply(parameters, length))
 		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
 		stop(error_message)
 	}
-	
+
 	# Check to make sure the varying_parameters are properly defined
 	if(!is.list(varying_parameters)) {
 		stop('"varying_parameters" must be a list')
 	}
-	
+
 	# If the varying parameter input doesn't have a doy_dbl column, add one
     varying_parameters <- add_time_to_weather_data(varying_parameters)
-	
+
 	# Check to make sure the solver properties are properly defined
 	if(!is.list(solver)) {
 		stop("'solver' must be a list")
@@ -215,7 +215,7 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	solver_adaptive_rel_error_tol <- solver$adaptive_rel_error_tol
 	solver_adaptive_abs_error_tol <- solver$adaptive_abs_error_tol
 	solver_adaptive_max_steps <- solver$adaptive_max_steps
-	
+
 	# C++ requires that all the variables have type `double`
 	initial_state = lapply(initial_state, as.numeric)
 	parameters = lapply(parameters, as.numeric)
@@ -224,17 +224,17 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
 	solver_adaptive_rel_error_tol = as.numeric(solver_adaptive_rel_error_tol)
 	solver_adaptive_abs_error_tol = as.numeric(solver_adaptive_abs_error_tol)
 	solver_adaptive_max_steps = as.numeric(solver_adaptive_max_steps)
-	
+
 	# Make sure verbose is a logical variable
 	verbose = lapply(verbose, as.logical)
-	
+
 	# Run the C++ code
 	result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver_type, solver_output_step_size, solver_adaptive_rel_error_tol, solver_adaptive_abs_error_tol, solver_adaptive_max_steps, verbose))
-	
+
 	# Make sure doy and hour are properly defined
 	result$doy = floor(result$doy_dbl)
 	result$hour = 24.0*(result$doy_dbl - result$doy)
-	
+
 	# Return the result
 	return(result)
 }
@@ -245,7 +245,7 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
 	# Returns a function that runs Gro() with all of the parameters, except 'arg_names
 	# set as default. The only parameter in the new function is the value of 'arg_names'.
 	# This technique is called partial application, hence the name partial_gro.
-	# 
+	#
 	# initial_values: same as Gro()
 	# parameters: same as Gro()
 	# varying_parameters: same as Gro()
@@ -254,27 +254,27 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
 	# verbose: same as Gro()
 	# arg_names: vector of character variables. The names of the arguments that the new function accepts.
 	#  Note: 'arg_names' must contain the names of parameters in 'initial_values', 'parameters', or 'varying_parameters'.
-	# 
+	#
 	# returns f(arg).
-	# 
+	#
 	# Example: varying the TTc values at which senescence starts for a sorghum simulation
-	# 
+	#
 	#  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
 	#  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_linear", "one_layer_soil_profile")
 	#  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), TRUE)
 	#  result = senescence_gro(c(2000, 2000, 2000, 2000))
-	# 
+	#
 	# Note that in this example, typing 'sorghum_parameters$seneStem' returns the original default value for seneStem: 3500.
 	# However, after running senescence_gro, the system startup messages (in verbose mode) indicate a value of 2000 for seneStem, as desired.
 	# To remove system startup messages, change verbose to FALSE in the partial_gro command or omit it altogether to use the default value of FALSE, i.e.
-	# 
+	#
 	#  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), FALSE)
 	#  OR
 	#  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
-	
+
 	# Form the argument list to pass to Gro
 	arg_list = list(initial_values=initial_values, parameters=parameters, varying_parameters=varying_parameters, modules=modules, verbose=verbose)
-	
+
 	# Make a data frame containing the names of all parameters in the initial_values, parameters, and varying_parameters inputs
 	df = data.frame(control=character(), arg_name=character(), stringsAsFactors=FALSE)
 	for (i in seq_along(arg_list)) {
@@ -282,14 +282,14 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
 			df = rbind(df, data.frame(control = names(arg_list)[i], arg_name=names(arg_list[[i]]), stringsAsFactors=FALSE))
 		}
 	}
-	
+
 	# Find the locations of the parameters specified in arg_names and check for errors
 	controls = df[match(arg_names, df$arg_name), ]
 	if (any(is.na(controls))) {
 		missing = arg_names[which(is.na(controls$control))]
 		stop(paste('The following arguments in "arg_names" are not in any of the paramter lists:', paste(missing, collapse=', ')))
 	}
-	
+
 	# Make a function that calls Gro with new values for the parameters specified in arg_names
 	function(x)
 	{
@@ -314,14 +314,14 @@ partial_gro_solver <- function(initial_state, parameters, varying_parameters, st
 			df = rbind(df, data.frame(control = names(arg_list)[i], arg_name=names(arg_list[[i]]), stringsAsFactors=FALSE))
 		}
 	}
-	
+
 	# Find the locations of the parameters specified in arg_names and check for errors
 	controls = df[match(arg_names, df$arg_name), ]
 	if (any(is.na(controls))) {
 		missing = arg_names[which(is.na(controls$control))]
 		stop(paste('The following arguments in "arg_names" are not in any of the paramter lists:', paste(missing, collapse=', ')))
 	}
-	
+
 	# Make a function that calls Gro with new values for the parameters specified in arg_names
 	function(x)
 	{
@@ -389,53 +389,53 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 	#
 	#  derivs <- soybean_system(0, is, NULL)
 	#  View(derivs)
-	
+
 	# Check to make sure the initial_state is properly defined
 	if(!is.list(initial_state)) {
 		stop('"initial_state" must be a list')
 	}
-	
+
 	if(length(initial_state) != length(unlist(initial_state))) {
 		item_lengths = unlist(lapply(initial_state, length))
 		error_message = sprintf("The following initial_state members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
 		stop(error_message)
 	}
-	
+
 	# Check to make sure the parameters are properly defined
 	if(!is.list(parameters)) {
 		stop('"parameters" must be a list')
 	}
-	
+
 	if(length(parameters) != length(unlist(parameters))) {
 		item_lengths = unlist(lapply(parameters, length))
 		error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
 		stop(error_message)
 	}
-	
+
 	# Check to make sure the varying_parameters are properly defined
 	if(!is.list(varying_parameters)) {
 		stop('"varying_parameters" must be a list')
 	}
-	
+
 	# C++ requires that all the variables have type `double`
 	initial_state = lapply(initial_state, as.numeric)
 	parameters = lapply(parameters, as.numeric)
 	varying_parameters = lapply(varying_parameters, as.numeric)
-	
+
 	# Define some items for the function
 	state_names = character(0)
 	result_names = character(0)
 	result_name_length = 0
 	state_diff = character(0)
 	result_diff = character(0)
-	
+
 	# Create a function that returns a derivative
 	function(t, state, parms)
 	{
 		# Note: parms is required by LSODES but we aren't using it here
-		
+
 		# We don't need to do any format checking here because LSODES will have already done it
-		
+
 		# Convert the state into the proper format
 		temp_state <- initial_state;
 		for(i in seq_along(state)) {
@@ -443,10 +443,10 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
 			param_value = as.numeric(state[i])
 			temp_state[param_name] = param_value
 		}
-		
+
 		# Call the C++ code that calculates a derivative
 		derivs <- .Call(R_Gro_deriv, temp_state, t, parameters, varying_parameters, steady_state_module_names, derivative_module_names)
-		
+
 		# Return the result
 		result <- list(derivs)
 		return(result)
@@ -480,18 +480,18 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names)
 	#  (2) No derivatives were supplied for spring_constant or mass, yet they are included in the oscillator_deriv
 	#      output. Note that their "derivative" values in the output are just zero, the default value for a parameter
 	#      that does not change with time.
-	
+
 	# Check to make sure the state is properly defined
 	if(!is.list(state)) {
 		stop('"state" must be a list')
 	}
-	
+
 	if(length(state) != length(unlist(state))) {
 		item_lengths = unlist(lapply(state, length))
 		error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
 		stop(error_message)
 	}
-	
+
 	# Check to make sure the module names are properly defined
 	if (!is.character(steady_state_module_names)) {
 		stop('"steady_state_module_names" must be a list of strings')
@@ -499,10 +499,10 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names)
 	if (!is.character(derivative_module_names)) {
 		stop('"derivative_module_names" must be a list of strings')
 	}
-	
+
 	# C++ requires that all the variables have type `double`
 	state = lapply(state, as.numeric)
-	
+
 	# Run the C++ code
 	result = as.data.frame(.Call(R_Gro_ode, state, steady_state_module_names, derivative_module_names))
 	return(result)
