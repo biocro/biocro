@@ -61,12 +61,12 @@ test_plant_model <- function(test_info) {
 
     # Define a function that compares the new result to the old one at a single index
     compare_simulation_trial <- function(index) {
-        description <- paste("The ", test_info[['plant_name']], " simulation result agrees with the stored result at index ", index, sep="")
-        test_that(description, {
-            for (variable in column_names) {
+        for (variable in column_names) {
+            description <- paste("The ", test_info[['plant_name']], " simulation result agrees with the stored result at index ", index, " for the '", variable, sep="")
+            test_that(description, {
                 expect_equal(result[[variable]][index], Gro_result[[variable]][index])
-            }
-        })
+            })
+        }
     }
 
     # Randomly choose a number of indices and test them
