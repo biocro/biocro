@@ -40,6 +40,16 @@ test_plant_model <- function(test_info) {
         )
     })
 
+    # Remove the 'ncalls' column from consideration since its value may depend
+    # on operating system or other factors. Eventually, 'ncalls' might not be
+    # part of the simulation output. If it disppears, remind the developers to
+    # update this test.
+    if ('ncalls' %in% names(result)) {
+        result[['ncalls']] <- NULL
+    } else {
+        stop("The regression test reports that 'ncalls' is no longer included in the simulation result. Consider updating this test.")
+    }
+
     # Make sure some important variables are included in the output
     column_names <- names(result)
     for (name in c("hour", "TTc", "Leaf", "Stem", "Root")) {
