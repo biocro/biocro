@@ -1,5 +1,80 @@
-# For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
-# https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
+# Synopsis
+
+# This workflow, which runs "R CMD check" to make sure the BioCro R
+# package is valid, can be triggered in one of three ways:
+# automatically after any push to any branch ("push" in the YAML
+# file), automatically after any pull request to the "master" branch
+# ("{ pull_request: { branches: [ master ] } }" in the YAML file), or
+# manually on any branch at any time ("workflow_dispatch" in the YAML
+# file).
+
+# The workflow can be run manually from
+# https://github.com/ebimodeling/biocro-dev/actions?query=workflow%3AR-CMD-check.
+# For a manual run, the user can specify different eight yes/no (or
+# y/n) options.  (Note that these input values are case insensitive.)
+
+# The first four of these options determine what checks are done,
+# allowing for checking the manual, checking the vignettes, running
+# the tests, and checking the examples.  Even if none of these checks
+# is selected, the workflow will still check the overall structure of
+# the package and ensure that the C++ code compiles.
+
+# The other four options determine what platforms are checked.  The
+# choices are Linux (specifically Ubuntu version 20.04) and the latest
+# versions of Windows and MacOS.  For Linux, the user may opt to check
+# using a development version of R rather than or in addition to
+# checking using the release version.  For the other platforms, the
+# release version is always used.
+
+# When the workflow is automatically triggered, the vignettes are not
+# checked, but the package manual, the tests, and the examples are.
+# Pull requests to the master branch trigger checks in all four
+# platform configurations, but an ordinary "push" event triggers a
+# check only on Linux using the release version of R.
+
+
+# Code Details
+
+# This code is an elaboration of the code given at
+# https://github.com/r-lib/actions/blob/master/examples/check-standard.yaml.
+
+# Since checking an R package in four different platform
+# configurations each time the workflow is triggered is "expensive",
+# we have modified the workflow to allow the strategy matrix for the
+# workflow to be "filtered" so that checks can be limited according to
+# the triggering event, or, in the case of manual dispatch, by choices
+# selected by the user.
+
+# Implementing filtering of the strategy matrix is not as easy as it
+# would seem it should be.  This problem is discussed in a Stack
+# Overflow post at
+# https://stackoverflow.com/questions/65384420/how-to-make-a-github-action-matrix-element-conditional.
+# That discussion prompted the creation of a GitHub action,
+# "JoshuaTheMiller/conditional-build-matrix@0.0.1", that makes
+# modifying the strategy matrix based on the triggering event type or
+# on user input relatively painless.  ("Relatively" is the operative
+# word here.)  Note that the baseline strategy matrix is stored in a
+# separate file in JSON format (the file
+# "matrix_includes_for_R-CMD-check.json" in this case).  The filter
+# expression is written in a JSON query language called JMESPath (see
+# https://jmespath.org/ for details).
+
+# It seems possible that using a much more elaborate baseline strategy
+# matrix that encompasses not only the platform configuration but also
+# the selection of R CMD check options might ultimately allow a vast
+# simplification of much of the code that follows.  Unfortunately,
+# this occurred to me far too late, after all of the code here had
+# been written.  But if in the future, the behavior of this workflow
+# is to be revised in any significant way, it is worth considering
+# this when going about making revisions to the implementation.
+
+# A final note: Using "yes" and "no" (or "y" and "n") for user input
+# instead of "true" and "false" was motivated by what seemed to me
+# more natural semantics (besides being shorter to type).  Validating
+# these input values and then converting them to "true" or "false"
+# (which aren't even (syntactically) booleans but are still strings!)
+# probably resulted in more code and more complicated code than was
+# really necessary.
 
 name: R-CMD-check
 
