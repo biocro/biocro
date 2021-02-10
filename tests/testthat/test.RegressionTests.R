@@ -75,11 +75,17 @@ test_plant_model <- function(test_info) {
     })
 
     # Define a function that compares the new result to the old one at a single index
+    relative_error_tolerance <- 1e-2
     compare_simulation_trial <- function(index) {
         for (variable in column_names) {
-            description <- paste("The ", test_info[['plant_name']], " simulation result agrees with the stored result at index ", index, " for the '", variable, sep="")
+            tol <- max(relative_error_tolerance * abs(Gro_result[[variable]][index]), testthat_tolerance())
+            description <- paste("The ", test_info[['plant_name']], " simulation result agrees with the stored result at index ", index, " for the '", variable, "' quantity with tolerance = ", tol, sep="")
             test_that(description, {
-                expect_equal(result[[variable]][index], Gro_result[[variable]][index])
+                expect_equal(
+                    result[[variable]][index],
+                    Gro_result[[variable]][index],
+                    tolerance=tol
+                )
             })
         }
     }
