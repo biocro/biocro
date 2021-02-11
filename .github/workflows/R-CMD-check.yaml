@@ -211,7 +211,7 @@ jobs:
         # alternative ways of getting a boolean value from the outputs
         # (which are strings):
         run: |
-          echo "::set-output name=need-tinytex=${{
+          echo "::set-output name=need-tinytex::${{
             github.event_name != 'workflow_dispatch'
             || steps.set_outputs.outputs.check-vignettes == 'true'
             || fromJSON(steps.set_outputs.outputs.check-manual)
