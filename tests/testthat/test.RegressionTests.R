@@ -5,14 +5,15 @@
 ## modules or weather data changes, or if the behavior of any of these modules
 ## changes, the stored data for this test will likely need to be updated. To do
 ## this, create a new R session and set the working directory to
-## "biocro-dev\tests\test_data". Then load BioCro, run a default simulation
-## (storing the output as `Gro_result`), and save it as `PLANT_simulation.rda`,
-## where PLANT is the name of the plant species. E.g., for sorghum, the commands
-## would be as follows:
+## "biocro-dev\tests\test_data". Then load BioCro, run a new simulation with
+## same parameters used in the test below (storing the output as `Gro_result`),
+## and save it as `PLANT_simulation.rda`, where PLANT is the name of the plant
+## species. E.g., for soybean, the commands would be as follows:
 ##
 ## library(BioCro)
-## Gro_result <- Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules)
-## save(Gro_result, file="sorghum_simulation.rda")
+## solver <- list(type = 'Gro', output_step_size = 1.0, adaptive_rel_error_tol = 1e-5, adaptive_abs_error_tole = 1e-5, adaptive_max_steps = 200)
+## Gro_result <- Gro(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_modules, solver)
+## save(Gro_result, file="glycine_max_simulation.rda")
 ##
 ## Finally, after updating the stored data for any of the plants whose output
 ## has changed, run this test to make sure it is passed.
@@ -20,6 +21,22 @@
 context("Test several biological systems with known results to ensure that the output doesn't change.")
 
 SAMPLE_SIZE <- 5       # number of time points to test in each simulation result
+
+# Use a 2% tolerance when comparing values between simulations. Lower tolerances
+# have caused problems when comparing results calculated on different operating
+# systems.
+relative_error_tolerance <- 2e-2
+
+# When calculating a simulation result using an adaptive step size solver, we
+# need to use a lower error tolerance than the default values (1e-4) to minimize
+# differences due to operating system or other factors.
+solver <- list(
+    type = 'Gro',
+    output_step_size = 1.0,
+    adaptive_rel_error_tol = 1e-5,
+    adaptive_abs_error_tole = 1e-5,
+    adaptive_max_steps = 200
+)
 
 # Define a function that checks the result of a new simulation against the
 # stored data for one plant. For this test, we always use the the stored
@@ -35,7 +52,8 @@ test_plant_model <- function(test_info) {
                 test_info[['initial_state']],
                 test_info[['parameters']],
                 get_growing_season_climate(weather05),
-                test_info[['modules']]
+                test_info[['modules']],
+                solver
             )
         )
     })
@@ -55,27 +73,36 @@ test_plant_model <- function(test_info) {
         }
     }
 
-    # Make sure some important variables are included in the output
+    # Read the stored result ("Gro_result") from the data file:
+    load(test_info[['stored_result_file']])
+
+    # Make sure the stored result has the same number of time points
+    index_of_last_row <- length(result[[1]])
+    description <- paste("The ", test_info[['plant_name']], " simulation result has the correct number of data points", sep="")
+    test_that(description, {
+        expect_equal(index_of_last_row, length(Gro_result[[1]]))
+    })
+
+    # Make sure the stored result contains all the non-ignored quantities in the
+    # new result
     column_names <- names(result)
-    for (name in c("hour", "TTc", "Leaf", "Stem", "Root")) {
-        description <- paste("The ", test_info[['plant_name']], " simulation result includes the ", name, " column", sep="")
+    for (name in column_names) {
+        description <- paste("The stored ", test_info[['plant_name']], " simulation result includes the ", name, " column", sep="")
         test_that(description, {
             expect_true(name %in% column_names)
         })
     }
 
-    # Read the stored result ("Gro_result") from the data file:
-    load(test_info[['stored_result_file']])
+    # Make sure some important variables are included in the new result
+    for (name in c("hour", "TTc", "Leaf", "Stem", "Root")) {
+        description <- paste("The new ", test_info[['plant_name']], " simulation result includes the ", name, " column", sep="")
+        test_that(description, {
+            expect_true(name %in% column_names)
+        })
+    }
 
-    # Make sure the stored result has the same number of time points
-    index_of_last_row <- length(result$hour)
-    description <- paste("The ", test_info[['plant_name']], " simulation result has the correct number of data points", sep="")
-    test_that(description, {
-        expect_equal(index_of_last_row, length(Gro_result$hour))
-    })
-
-    # Define a function that compares the new result to the old one at a single index
-    relative_error_tolerance <- 1e-2
+    # Define a function that compares the new result to the old one at a single
+    # index
     compare_simulation_trial <- function(index) {
         for (variable in column_names) {
             tol <- max(relative_error_tolerance * abs(Gro_result[[variable]][index]), testthat_tolerance())
@@ -110,19 +137,42 @@ specify <- function(plant_name, initial_state, parameters, modules, stored_resul
     )
 }
 
-# Define lists of species-specific variables to ignore
+# Define lists of species-specific variables to ignore. Soybean and cassava
+# both use the utilization growth modules and are solved with the Rosenbrock
+# solver by default. Even with the decreased error tolerances specified above,
+# small differences in the output have been found between operating systems, so
+# we ignore the problematic quantities. The other species use the partitioning
+# growth modules and are solved with the homemade Euler solver by default. No
+# problematic quantities have been identified for these species, so there is no
+# need to ignore any quantities.
 glycine_max_ignore <- c(
     "ncalls",
-    "transport_leaf_to_stem", "transport_stem_to_root", "transport_stem_to_grain", "transport_stem_to_rhizome",
-    "utilization_leaf", "utilization_stem", "utilization_root", "utilization_rhizome", "utilization_grain",
-    "mass_fraction_leaf", "mass_fraction_stem", "mass_fraction_root", "mass_fraction_rhizome", "mass_fraction_grain",
-    "kGrain_scale"
+    "transport_leaf_to_stem",
+    "transport_stem_to_root",
+    "transport_stem_to_grain",
+    "transport_stem_to_rhizome",
+    "utilization_leaf",
+    "utilization_stem",
+    "utilization_root",
+    "utilization_rhizome",
+    "utilization_grain",
+    "mass_fraction_leaf",
+    "mass_fraction_stem",
+    "mass_fraction_root",
+    "mass_fraction_rhizome",
+    "mass_fraction_grain",
+    "kGrain_scale",
+    "LeafWS"
 )
+
 manihot_esculenta_ignore <- glycine_max_ignore
 
-miscanthus_x_giganteus_ignore <- c("ncalls")
+miscanthus_x_giganteus_ignore <- c()
+
 sorghum_ignore <- miscanthus_x_giganteus_ignore
+
 willow_ignore <- miscanthus_x_giganteus_ignore
+
 zea_mays_ignore <- miscanthus_x_giganteus_ignore
 
 # Define the plants to test
