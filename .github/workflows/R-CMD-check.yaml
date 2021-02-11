@@ -144,6 +144,9 @@ jobs:
       check-mac: ${{ steps.set_outputs.outputs.check-mac }}    
       check-r-release-version-on-ubuntu: ${{ steps.set_outputs.outputs.check-r-release-version-on-ubuntu }}    
       check-r-devel-version-on-ubuntu: ${{ steps.set_outputs.outputs.check-r-devel-version-on-ubuntu }}
+
+      # This is computed in the "check-if-tinytex-needed" step.
+      need-tinytex: ${{ steps.check-if-tinytex-needed.outputs.need-tinytex }}
     steps:
       - name: Validate Input
         run: |
@@ -192,6 +195,27 @@ jobs:
           echo "::set-output name=check-r-devel-version-on-ubuntu::${{
                     contains(fromJSON(env.yes-values),
                              github.event.inputs.check-r-devel-version-on-ubuntu) }}"
+
+      - name: Check need for TinyTex
+        id: check-if-tinytex-needed
+
+        # TinyTex must be installed iff we are checking either the
+        # manual or the vignettes.  We always build and check the
+        # manual if the workflow is triggered automatically (that is,
+        # if the triggering event ISN'T workflow_dispatch).
+        # Otherwise, if the workflow is dispatched manually, we need
+        # to install TinyTex only if user specified either the "check
+        # the manual" or "check the vignettes".
+
+        # Note: The second and third disjuncts in this "if" value are
+        # alternative ways of getting a boolean value from the outputs
+        # (which are strings):
+        run: |
+          echo "::set-output name=need-tinytex=${{
+            github.event_name != 'workflow_dispatch'
+            || steps.set_outputs.outputs.check-vignettes == 'true'
+            || fromJSON(steps.set_outputs.outputs.check-manual)
+          }}"
 
   ## debug:
   ##   name: Debug
@@ -323,42 +347,12 @@ jobs:
         ##   tinytex::tlmgr_install(c('siunitx', 'babel-english'))
         ## shell: Rscript {0}
 
-      ## - name: Debug TinyTex test
-      ##   run: |
-      ##     echo "${{ github.event_name }}"
-      ##     echo "${{ github.event_name != 'workflow_dispatch' }}"
-      ##     echo "${{ needs.get_configuration.outputs.check-vignettes }}"
-      ##     echo "${{ needs.get_configuration.outputs.check-manual }}"
-      ##     echo "${{ github.event_name != 'workflow_dispatch' ||
-      ##           needs.get_configuration.outputs.check-vignettes == 'true' ||
-      ##           needs.get_configuration.outputs.check-manual == 'true' }}"
-
-      - name: Check need for TinyTex
-
-        # TinyTex must be installed iff we are checking either the
-        # manual or the vignettes.  We always build and check the
-        # manual if the workflow is triggered automatically (that is,
-        # if the triggering event ISN'T workflow_dispatch).
-        # Otherwise, if the workflow is dispatched manually, we need
-        # to install TinyTex only if user specified either the "check
-        # the manual" or "check the vignettes".
-
-        # Note: The second and third disjuncts in this "if" value are
-        # alternative ways of getting a boolean value from the outputs
-        # (which are strings):
-        run: |
-          echo "NEED_TINYTEX=${{
-            github.event_name != 'workflow_dispatch'
-            || needs.get_configuration.outputs.check-vignettes == 'true'
-            || fromJSON(needs.get_configuration.outputs.check-manual)
-          }}" >> $GITHUB_ENV  
-
       - name: Install TinyTex
-        if: env.NEED_TINYTEX == 'true'
+        if: needs.get_configuration.outputs.need-tinytex == 'true'
         uses: r-lib/actions/setup-tinytex@v1               
 
       - name: Install extra LaTeX packages
-        if: env.NEED_TINYTEX == 'true' 
+        if: needs.get_configuration.outputs.need-tinytex == 'true' 
         run: |
           # Install a few LaTeX packages needed by the vignette not included
           # in tinytex:
