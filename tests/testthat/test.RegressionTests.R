@@ -2,7 +2,7 @@
 ## as before.
 ##
 ## If any of the plant-specific defaults for the initial state, parameters,
-## modules or weather data changes, or if the behavior of any of these modules
+## modules or weather data change, or if the behavior of any of these modules
 ## changes, the stored data for this test will likely need to be updated. To do
 ## this, create a new R session and set the working directory to
 ## "biocro-dev\tests\test_data". Then load BioCro, run a new simulation with
