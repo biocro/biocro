@@ -160,12 +160,14 @@ jobs:
             contains(fromJSON(env.valid-input-values), github.event.inputs.check-r-release-version-on-ubuntu) &&
             contains(fromJSON(env.valid-input-values), github.event.inputs.check-r-devel-version-on-ubuntu)
           }}" >> $GITHUB_ENV
-      ## - name: Debug validity check
-      ##   run: |
-      ##     echo "${{ github.event_name }}"
-      ##     echo "${{ github.event_name == 'workflow_dispatch' }}"
-      ##     echo "${{  env.ALL_INPUTS_VALID }}"
-      ##     echo "${{  env.ALL_INPUTS_VALID == 'false' }}"
+
+   ## - name: Debug validity check
+   ##   run: |
+   ##     echo "${{ github.event_name }}"
+   ##     echo "${{ github.event_name == 'workflow_dispatch' }}"
+   ##     echo "${{  env.ALL_INPUTS_VALID }}"
+   ##     echo "${{  env.ALL_INPUTS_VALID == 'false' }}"
+
       - name: Abort if invalid
         if: github.event_name == 'workflow_dispatch' && env.ALL_INPUTS_VALID == 'false'
         run: |
@@ -217,16 +219,16 @@ jobs:
             || fromJSON(steps.set_outputs.outputs.check-manual)
           }}"
 
-  ## debug:
-  ##   name: Debug
-  ##   needs: get_configuration
-  ##   runs-on: ubuntu-latest
-  ##   steps:
-  ##     - run: |
-  ##         echo "${{ needs.get_configuration.outputs.check-windows }}"
-  ##         echo "${{ needs.get_configuration.outputs.check-mac }}"
-  ##         echo "${{ needs.get_configuration.outputs.check-r-release-version-on-ubuntu }}"
-  ##         echo "${{ needs.get_configuration.outputs.check-r-devel-version-on-ubuntu }}"
+# debug:
+#   name: Debug
+#   needs: get_configuration
+#   runs-on: ubuntu-latest
+#   steps:
+#     - run: |
+#         echo "${{ needs.get_configuration.outputs.check-windows }}"
+#         echo "${{ needs.get_configuration.outputs.check-mac }}"
+#         echo "${{ needs.get_configuration.outputs.check-r-release-version-on-ubuntu }}"
+#         echo "${{ needs.get_configuration.outputs.check-r-devel-version-on-ubuntu }}"
 
   matrix_prep:
     name: Prepare strategy matrix
@@ -256,17 +258,17 @@ jobs:
                        || (contains(r, `"devel"`)
                            && `${{ needs.get_configuration.outputs.check-r-devel-version-on-ubuntu }}`)))]'
 
-  ## # For debugging:
-  ## display_matrix:
-  ##   name: Display strategy matrix
-  ##   needs: matrix_prep # Supplies matrix output.
-  ##   runs-on: ubuntu-latest
-  ##   steps:
-  ##   - name: Report Configuration
-  ##     env:
-  ##       MATRIX_CONTEXT: ${{ needs.matrix_prep.outputs.matrix }}
-  ##     run: |
-  ##       echo "matrix: $MATRIX_CONTEXT"
+# # For debugging:
+# display_matrix:
+#   name: Display strategy matrix
+#   needs: matrix_prep # Supplies matrix output.
+#   runs-on: ubuntu-latest
+#   steps:
+#   - name: Report Configuration
+#     env:
+#       MATRIX_CONTEXT: ${{ needs.matrix_prep.outputs.matrix }}
+#     run: |
+#       echo "matrix: $MATRIX_CONTEXT"
 
   R-CMD-check:
     name: Check R package on platform ${{ matrix.os }} using the ${{ matrix.r }} version of R
@@ -321,9 +323,10 @@ jobs:
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 
-        # Under macOS, we were able to just do this one-step process
-        # for installing LaTeX and the extra needed packages, but
-        # trying this under Ubuntu yields the following error:
+        # Under macOS, we were able to just use the one-step process
+        # commented out below for installing LaTeX and the extra
+        # needed packages, but trying this under Ubuntu yields the
+        # following error:
         #
         #    Warning: LaTeX errors when creating PDF version.
         #    This typically indicates Rd problems.
@@ -336,9 +339,6 @@ jobs:
         #      pdflatex is not available
         #    Error in running tools::texi2pdf()
         #
-        # Using the setup-tinytex action followed by a separate step
-        # using tlmgr on the command line to install the extra
-        # packages seems to work.
         ## run: |
         ##   install.packages('tinytex')
         ##   tinytex::install_tinytex()
@@ -346,6 +346,10 @@ jobs:
         ##   # in tinytex:
         ##   tinytex::tlmgr_install(c('siunitx', 'babel-english'))
         ## shell: Rscript {0}
+        #
+        # Using the setup-tinytex action followed by a separate step
+        # using tlmgr on the command line to install the extra
+        # packages seems to work:
 
       - name: Install TinyTex
         if: needs.get_configuration.outputs.need-tinytex == 'true'
