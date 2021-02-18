@@ -1,4 +1,4 @@
-Gro <- function(initial_values, parameters, varying_parameters, modules, verbose = FALSE)
+Gro <- function(initial_values, parameters, varying_parameters, modules, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose = FALSE)
 {
     # This function runs a full crop growth simulation, automatically choosing the Rosenbrock integration method when possible
     #
@@ -118,13 +118,14 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, verbose
     steady_state_module_names = unique(steady_state_module_names)
     derivative_module_names = unique(derivative_module_names)
 
-    # Use Gro_solver with default solver parameters to get the result
+    # Use Gro_solver to get the result
     result = Gro_solver(
         initial_state = initial_values,
         parameters = parameters,
         varying_parameters = varying_parameters,
         steady_state_module_names = steady_state_module_names,
         derivative_module_names = derivative_module_names,
+        solver = solver,
         verbose = verbose
     )
 
