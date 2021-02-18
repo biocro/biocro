@@ -26,7 +26,7 @@ struct ET_Str c3EvapoTrans(
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s^1 / K^4
     constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
     constexpr double LeafReflectance = 0.2;              // dimensionless
-    constexpr double SpecificHeat = 1010;                // J / kg / K
+    constexpr double specific_heat_of_air = 1010;        // J / kg / K
     constexpr double kappa = 0.41;                       // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;                // meters
     constexpr double dCoef = 0.77;                       // dimensionless
@@ -66,7 +66,7 @@ struct ET_Str c3EvapoTrans(
     if (SWVC < 0)
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");
 
-    const double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
+    const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 

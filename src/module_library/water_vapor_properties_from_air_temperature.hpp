@@ -60,7 +60,7 @@ void water_vapor_properties_from_air_temperature::do_operation() const {
 	double air_temperature = *temp_ip;														// Degrees C
 	double rh = *rh_ip;
 	
-	double specific_heat_of_water = 1010;													// J / kg / K
+	double specific_heat_of_air = 1010;													// J / kg / K
 	double molar_mass_of_water = 18.01528e-3;												// kg / mol
 	double R = 8.314472;																	// joule / kelvin / mole
 	
@@ -76,7 +76,7 @@ void water_vapor_properties_from_air_temperature::do_operation() const {
 	update(saturation_water_vapor_pressure_op, saturation_water_vapor_pressure);		// Pa
 	update(water_vapor_pressure_op, saturation_water_vapor_pressure * rh);				// Pa
 	update(vapor_density_deficit_op, vapor_density_deficit);							// kg / m^3
-	update(psychrometric_parameter_op, density_of_dry_air * specific_heat_of_water / latent_heat_vaporization_of_water);	// kg / m^3 / K
+	update(psychrometric_parameter_op, density_of_dry_air * specific_heat_of_air / latent_heat_vaporization_of_water);	// kg / m^3 / K
 }
 
 #endif

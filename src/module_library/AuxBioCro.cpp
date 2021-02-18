@@ -441,7 +441,7 @@ struct ET_Str EvapoTrans2(
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
     constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
     constexpr double LeafReflectance = 0.2;              // dimensionless.
-    constexpr double SpecificHeat = 1010;                // J / kg / K
+    constexpr double specific_heat_of_air = 1010;        // J / kg / K
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
     //constexpr double atmospheric_pressure = 101325;      // Pa
@@ -476,7 +476,7 @@ struct ET_Str EvapoTrans2(
     if (SWVC < 0)
         throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0.");
 
-    const double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
+    const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
     const double vapor_density_deficit = SWVC * (1 - RH);  // kg / m^3
 
@@ -630,7 +630,7 @@ double leaf_boundary_layer_conductance(
 
 double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, double soil_water_content,
         double fieldc, double wiltp, double winds, double RelH, double rsec,
-        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman )
+        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat_of_air, double stefan_boltzman )
 {
     int method = 1;
     /* A simple way of calculating the proportion of the soil that is hit by direct radiation. */
@@ -665,7 +665,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     double SlopeFS = TempToSFS(air_temperature);
     double SWVC = saturation_vapor_pressure(air_temperature) * 1e-5;
 
-    double PsycParam = (DdryA * specific_heat) / LHV;
+    double PsycParam = (DdryA * specific_heat_of_air) / LHV;
     double vapor_density_deficit = SWVC * (1 - RelH / 100);
 
     double BoundaryLayerThickness = 4e-3 * sqrt(soil_clod_size / winds);
@@ -810,7 +810,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         int layers, double rootDB, double LAI, double k, double AirTemp,
         double IRad, double winds, double RelH, int hydrDist, double rfl,
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
-        double specific_heat, double stefan_boltzman )
+        double specific_heat_of_air, double stefan_boltzman )
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
 
@@ -907,7 +907,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
             Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, soil_field_capacity, soil_wilting_point, winds, RelH, rsec,
-                soil_clod_size, soil_reflectance, soil_transmission, specific_heat, stefan_boltzman ) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
+                soil_clod_size, soil_reflectance, soil_transmission, specific_heat_of_air, stefan_boltzman ) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
                to the amount of root in each respective layer.*/

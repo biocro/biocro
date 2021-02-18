@@ -13,19 +13,19 @@ struct Light_model {
 };
 
 struct Can_Str CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
-		     double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Alpha, 
-		     double Kparm, double beta, double Rd, double Catm, double b0, 
+		     double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Alpha,
+		     double Kparm, double beta, double Rd, double Catm, double b0,
 		     double b1, double Gs_min, double theta, double kd, double chil, double heightf,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
 		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq, double StomataWS, int water_stress_approach);
-         
+
 struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax,
                        double Jmax, double tpu_rate_max, double Rd, double Catm, double o2, double b0,
                        double b1, double Gs_min, double theta, double kd, double heightf, double leafN,
                        double kpLN, double lnb0, double lnb1, int lnfun, double chil,
                        double StomataWS, double growth_respiration_fraction, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
-                        
+
 
 double resp(double comp, double mrc, double temp);
 
@@ -36,7 +36,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
 
 double SoilEvapo(double LAI, double k, double AirTemp, double DirectRad,
         double awc, double fieldc, double wiltp, double winds, double RelH, double rsec,
-        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat, double stefan_boltzman);
+        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat_of_air, double stefan_boltzman);
 
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
         double soil_field_capacity, double soil_wilting_point, double soil_saturation_capacity, double soil_air_entry, double soil_saturated_conductivity,
@@ -44,7 +44,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         int layers, double rootDB, double LAI, double k, double AirTemp,
         double IRad, double winds, double RelH, int hydrDist, double rfl,
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
-        double specific_heat, double stefan_boltzman);
+        double specific_heat_of_air, double stefan_boltzman);
 
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);

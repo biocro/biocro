@@ -70,7 +70,7 @@ willow_parameters = with(list(), {
     soil_reflectance               0.2
     soil_transmission              0.01
     soil_type_indicator            6
-    specific_heat                  1010
+    specific_heat_of_air           1010
     Sp_thermal_time_decay          0
     stefan_boltzman                5.67e-8
     tbase                          0
