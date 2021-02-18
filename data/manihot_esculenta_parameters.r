@@ -9,21 +9,12 @@ manihot_esculenta_parameters = with(list(), {
     soil_transmission                      0.01
     specific_heat                          1010
     stefan_boltzman                        5.67e-8
-    seneLeaf                               1600
-    seneStem                               5500
-    seneRoot                               5500
-    seneRhizome                            5500
     grain_TTc                              950
-    Tfrosthigh                             5
-    Tfrostlow                              0
-    leafdeathrate                          5
     iSp                                    2.27
     chil                                   0.8
     Sp_thermal_time_decay                  0
     nlayers                                10
     kd                                     0.37
-    mrc1                                   0.02
-    mrc2                                   0.03
     heightf                                3
     growth_respiration_fraction            0
     vmax1                                  133
@@ -38,42 +29,6 @@ manihot_esculenta_parameters = with(list(), {
     Gs_min                                 1e-3
     theta                                  0.7
     water_stress_approach                  1
-    tp1                                    250
-    tp2                                    350
-    tp3                                    900
-    tp4                                    1200
-    tp5                                    3939
-    tp6                                    7000
-    kStem1                                 0.01
-    kLeaf1                                 0.98
-    kRoot1                                 0.01
-    kRhizome1                              -8e-04
-    kGrain1                                0
-    kStem2                                 0.01
-    kLeaf2                                 0.98
-    kRoot2                                 0.003
-    kRhizome2                              0.007
-    kGrain2                                0.01
-    kStem3                                 0.7
-    kLeaf3                                 0.15
-    kRoot3                                 0.045
-    kRhizome3                              0.105
-    kGrain3                                0.15
-    kStem4                                 0.7
-    kLeaf4                                 0.15
-    kRoot4                                 0.045
-    kRhizome4                              0.105
-    kGrain4                                0.23
-    kStem5                                 0.7
-    kLeaf5                                 1e-05
-    kRoot5                                 0.15
-    kGrain5                                0.33
-    kRhizome5                              0.15
-    kStem6                                 0.7
-    kLeaf6                                 1e-06
-    kRoot6                                 0.15
-    kRhizome6                              0.15
-    kGrain6                                0
     rate_constant_leaf                     0.5
     rate_constant_stem                     1.2
     rate_constant_root                     0.8
@@ -98,19 +53,9 @@ manihot_esculenta_parameters = with(list(), {
     phi2                                   10
     soil_depth                             1
     soil_type_indicator                    6
-    soilLayers                             1
-    soilDepths1                            0
-    soilDepths2                            1
-    wsFun                                  0
-    scsf                                   1
-    transpRes                              5e+06
-    leafPotTh                              -800
-    hydrDist                               0
-    rfl                                    0.2
     rsec                                   0.2
-    rsdf                                   0.44
     LeafN_0                                2
-    kln                                    0.5
+    LeafN                                  2
     vmax_n_intercept                       0
     alphab1                                0
     kpLN                                   0.2

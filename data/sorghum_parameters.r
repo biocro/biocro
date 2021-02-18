@@ -2,7 +2,6 @@
 sorghum_parameters = with(list(), {
     datalines =
     "symbol                     value
-    acceleration_from_gravity   9.8
     lat                         40
     soil_clod_size              0.04
     soil_reflectance            0.2
@@ -15,7 +14,6 @@ sorghum_parameters = with(list(), {
     kd                          0.1
     chil                        1.43    # An estimate for sorghum. Table 15.1, page 253 of Campbell and Norman. An introduction to environmental biophysics. 2nd edition.
     heightf                     3
-    growth_respiration_fraction 0
     leafwidth                   0.04
     et_equation                 0
     seneLeaf                    3000
@@ -40,39 +38,12 @@ sorghum_parameters = with(list(), {
     phi2                        10
     soil_depth                  1
     soil_type_indicator         6
-    soilLayers                  1
-    wsFun                       0
-    scsf                        1
-    transpRes                   5000000
-    leafPotTh                   -800
-    hydrDist                    0
-    rfl                         0.2
     rsec                        0.2
-    rsdf                        0.44
-    SC1                         1
-    SC2                         1
-    SC3                         1
-    SC4                         1
-    SC5                         1
-    SC6                         1
-    SC7                         1
-    SC8                         1
-    SC9                         1
-    LeafL.Ln                    0.17
-    StemL.Ln                    0.17
-    RootL.Ln                    0.17
-    RhizL.Ln                    0.17
-    LeafL.N                     0.004
-    StemL.N                     0.004
-    RootL.N                     0.004
-    RhizL.N                     0.004
-    iMinN                       0
     tp1                         562
     tp2                         1312
     tp3                         2063
     tp4                         2676
     tp5                         3211
-    tp6                         7000
     kStem1                      0.1
     kLeaf1                      0.8
     kRoot1                      0.1
@@ -104,7 +75,7 @@ sorghum_parameters = with(list(), {
     kRhizome6                   0
     kGrain6                     0
     LeafN_0                     2
-    kln                         0.5
+    LeafN                       2
     vmax_n_intercept            0
     alphab1                     0
     kpLN                        0.2
@@ -123,12 +94,8 @@ sorghum_parameters = with(list(), {
     nlnb0                       -5
     nlnb1                       18
     timestep                    1
-    centTimestep                1
-    doyNfert                    0
     mrc1                        0.02
-    mrc2                        0.03
-    leaf_reflectance            0.2
-    leaf_transmittance          0.2"
+    mrc2                        0.03"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)

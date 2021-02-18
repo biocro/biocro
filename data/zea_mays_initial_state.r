@@ -8,7 +8,6 @@ zea_mays_initial_state = with(list(), {
     Root                     0.00001
     Grain                    0
     soil_water_content       0.32
-    LeafN                    2
     TTc                      0
     LeafLitter               0
     RootLitter               0

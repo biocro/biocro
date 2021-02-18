@@ -41,7 +41,6 @@ willow_parameters = with(list(), {
     tp3                            900
     tp4                            1200
     tp5                            3939
-    tp6                            7000
     kStem1                         0.01
     kLeaf1                         0.98
     kRoot1                         0.01
@@ -77,19 +76,9 @@ willow_parameters = with(list(), {
     phi2                           10
     soil_depth                     1
     soil_type_indicator            6
-    soilLayers                     1
-    soil_depths1                   0
-    soil_depths2                   1
-    wsFun                          0
-    scsf                           1
-    transpRes                      5e+06
-    leafPotTh                      -800
-    hydrDist                       0
-    rfl                            0.2
     rsec                           0.2
-    rsdf                           0.44
     LeafN_0                        2
-    kln                            0.5
+    LeafN                          2
     vmax_n_intercept               0
     alphab1                        0
     kpLN                           0.2

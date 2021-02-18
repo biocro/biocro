@@ -8,15 +8,10 @@ manihot_esculenta_initial_state = with(list(), {
     Root                     1
     Grain                    0.0001
     soil_water_content       0.32
-    LeafN                    2
     LeafLitter               0
     RootLitter               0
     RhizomeLitter            0
     StemLitter               0
-    leaf_senescence_index    0
-    stem_senescence_index    0
-    root_senescence_index    0
-    rhizome_senescence_index 0
     substrate_pool_leaf      0.03       # No substrate pool can be zero with the utilization growth module
     substrate_pool_grain     0.00005    # No substrate pool can be zero with the utilization growth module
     substrate_pool_stem      0.005      # No substrate pool can be zero with the utilization growth module
