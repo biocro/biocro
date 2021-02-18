@@ -2,21 +2,21 @@
 willow_initial_state = with(list(), {
     datalines =
     "symbol                  value
-    Rhizome                  0.99
-    Leaf                     0.02
-    Stem                     0.99
-    Root                     1
     Grain                    0
-    soil_water_content       0.32
-    TTc                      0
+    Leaf                     0.02
+    leafdeathrate            5
     LeafLitter               0
-    RootLitter               0
+    Rhizome                  0.99
     RhizomeLitter            0
+    rhizome_senescence_index 0
+    Root                     1
+    RootLitter               0
+    root_senescence_index    0
+    soil_water_content       0.32
+    Stem                     0.99
     StemLitter               0
     stem_senescence_index    0
-    root_senescence_index    0
-    rhizome_senescence_index 0
-    leafdeathrate            5"
+    TTc                      0"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)

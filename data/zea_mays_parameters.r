@@ -2,100 +2,100 @@
 zea_mays_parameters = with(list(), {
     datalines =
     "symbol                     value
-    lat                         40
-    soil_clod_size              0.04
-    soil_reflectance            0.2
-    soil_transmission           0.01
-    specific_heat               1010
-    stefan_boltzman             5.67e-8
-    iSp                         1.7
-    Sp_thermal_time_decay       0
-    nlayers                     10
-    kd                          0.1
-    chil                        1.43    # An estimate for sorghum. Table 15.1, page 253 of Campbell and Norman. An introduction to environmental biophysics. 2nd edition.
-    heightf                     3
-    leafwidth                   0.04
-    et_equation                 0
-    seneLeaf                    3000
-    seneStem                    3500
-    seneRoot                    4000
-    seneRhizome                 4000
-    tbase                       0
-    vmax1                       39
     alpha1                      0.04
-    kparm                       0.7
-    theta                       0.83
-    beta                        0.93
-    Rd                          0.8
-    Catm                        400
+    alphab1                     0
     b0                          0.08
     b1                          3
+    beta                        0.93
+    Catm                        400
+    chil                        1.43    # An estimate for sorghum. Table 15.1, page 253 of Campbell and Norman. An introduction to environmental biophysics. 2nd edition.
+    et_equation                 0
     Gs_min                      1e-3
-    water_stress_approach       1
-    upperT                      37.5
+    heightf                     3
+    iSp                         1.7
+    kd                          0.1
+    kGrain1                     0
+    kGrain2                     0
+    kGrain3                     0
+    kGrain4                     1
+    kGrain5                     1
+    kGrain6                     1
+    kLeaf1                      0.45
+    kLeaf2                      0.3
+    kLeaf3                      0.25
+    kLeaf4                      0
+    kLeaf5                      0
+    kLeaf6                      0
+    kparm                       0.7
+    kpLN                        0.2
+    kRhizome1                   -0.0008
+    kRhizome2                   0
+    kRhizome3                   0
+    kRhizome4                   0
+    kRhizome5                   0
+    kRhizome6                   0
+    kRoot1                      0.1
+    kRoot2                      0.1
+    kRoot3                      0.05
+    kRoot4                      01
+    kRoot5                      01
+    kRoot6                      01
+    kStem1                      0.45
+    kStem2                      0.6
+    kStem3                      0.7
+    kStem4                      0
+    kStem5                      0
+    kStem6                      0
+    lat                         40
+    LeafN                       2
+    LeafN_0                     2
+    leafwidth                   0.04
+    lnb0                        -5
+    lnb1                        18
+    lnfun                       0
     lowerT                      3
+    mrc1                        0.02
+    mrc2                        0.03
+    nalphab0                    0.02367
+    nalphab1                    0.000488
+    nileafn                     85
+    nkln                        0.5
+    nkpLN                       0.17
+    nlayers                     10
+    nlnb0                       -5
+    nlnb1                       18
+    nRdb0                       -4.5917
+    nRdb1                       0.1247
+    nvmaxb0                     -16.25
+    nvmaxb1                     0.6938
     phi1                        0.01
     phi2                        10
-    soil_depth                  1
-    soil_type_indicator         6
+    Rd                          0.8
     rsec                        0.2
+    seneLeaf                    3000
+    seneRhizome                 4000
+    seneRoot                    4000
+    seneStem                    3500
+    soil_clod_size              0.04
+    soil_depth                  1
+    soil_reflectance            0.2
+    soil_transmission           0.01
+    soil_type_indicator         6
+    specific_heat               1010
+    Sp_thermal_time_decay       0
+    stefan_boltzman             5.67e-8
+    tbase                       0
+    theta                       0.83
+    timestep                    1
     tp1                         562
     tp2                         1312
     tp3                         2063
     tp4                         2676
     tp5                         3211
-    kStem1                      0.45
-    kLeaf1                      0.45
-    kRoot1                      0.1
-    kRhizome1                   -0.0008
-    kGrain1                     0
-    kStem2                      0.6
-    kLeaf2                      0.3
-    kRoot2                      0.1
-    kRhizome2                   0
-    kGrain2                     0
-    kStem3                      0.7
-    kLeaf3                      0.25
-    kRoot3                      0.05
-    kRhizome3                   0
-    kGrain3                     0
-    kStem4                      0
-    kLeaf4                      0
-    kRoot4                      01
-    kRhizome4                   0
-    kGrain4                     1
-    kStem5                      0
-    kLeaf5                      0
-    kRoot5                      01
-    kRhizome5                   0
-    kGrain5                     1
-    kStem6                      0
-    kLeaf6                      0
-    kRoot6                      01
-    kRhizome6                   0
-    kGrain6                     1
-    LeafN_0                     2
-    LeafN                       2
+    upperT                      37.5
+    vmax1                       39
     vmax_n_intercept            0
-    alphab1                     0
-    kpLN                        0.2
-    lnb0                        -5
-    lnb1                        18
-    lnfun                       0
-    nileafn                     85
-    nkln                        0.5
-    nvmaxb1                     0.6938
-    nvmaxb0                     -16.25
-    nalphab1                    0.000488
-    nalphab0                    0.02367
-    nRdb1                       0.1247
-    nRdb0                       -4.5917
-    nkpLN                       0.17
-    nlnb0                       -5
-    nlnb1                       18
-    timestep                    1
-    mrc1                        0.02
-    mrc2                        0.03"
+    water_stress_approach       1"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)

@@ -2,21 +2,21 @@
 glycine_max_initial_state = with(list(), {
     datalines =
     "symbol                  value
-    Rhizome                  0.0001 # No tissue mass can be zero with the utilization growth module, so just leave Rhizome very small
-    Leaf                     0.06   # The total of Leaf, Stem and Root masses is 0.08, which comes from http://www.montana.edu/cpa/news/wwwpb-archives/ag/baudr182.html and https://www.extension.purdue.edu/extmedia/ay/ay-217-w.pdf.
-    Stem                     0.01
-    Root                     0.01
     Grain                    0.0001
-    soil_water_content       0.32
+    Leaf                     0.06   # The total of Leaf, Stem and Root masses is 0.08, which comes from http://www.montana.edu/cpa/news/wwwpb-archives/ag/baudr182.html and https://www.extension.purdue.edu/extmedia/ay/ay-217-w.pdf.
     LeafLitter               0
-    RootLitter               0
+    Rhizome                  0.0001 # No tissue mass can be zero with the utilization growth module, so just leave Rhizome very small
     RhizomeLitter            0
+    Root                     0.01
+    RootLitter               0
+    soil_water_content       0.32
+    Stem                     0.01
     StemLitter               0
-    substrate_pool_leaf      0.03       # No substrate pool can be zero with the utilization growth module
     substrate_pool_grain     0.00005    # No substrate pool can be zero with the utilization growth module
-    substrate_pool_stem      0.005      # No substrate pool can be zero with the utilization growth module
-    substrate_pool_root      0.005      # No substrate pool can be zero with the utilization growth module
+    substrate_pool_leaf      0.03       # No substrate pool can be zero with the utilization growth module
     substrate_pool_rhizome   0.00005    # No substrate pool can be zero with the utilization growth module
+    substrate_pool_root      0.005      # No substrate pool can be zero with the utilization growth module
+    substrate_pool_stem      0.005      # No substrate pool can be zero with the utilization growth module
     TTc                      0"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)

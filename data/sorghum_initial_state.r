@@ -2,21 +2,21 @@
 sorghum_initial_state = with(list(), {
     datalines =
     "symbol                  value
-    Rhizome                  0.008886   # Page 130 of March 2014 lab book
-    Leaf                     0.00001
-    Stem                     0.00001
-    Root                     0.00001
     Grain                    0
-    soil_water_content       0.32
-    TTc                      0
+    Leaf                     0.00001
     LeafLitter               0
-    RootLitter               0
-    RhizomeLitter            0
-    StemLitter               0
     leaf_senescence_index    0
-    stem_senescence_index    0
+    Rhizome                  0.008886   # Page 130 of March 2014 lab book
+    RhizomeLitter            0
+    rhizome_senescence_index 0
+    Root                     0.00001
+    RootLitter               0
     root_senescence_index    0
-    rhizome_senescence_index 0"
+    soil_water_content       0.32
+    Stem                     0.00001
+    StemLitter               0
+    stem_senescence_index    0
+    TTc                      0"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
