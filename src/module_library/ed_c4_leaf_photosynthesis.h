@@ -4,7 +4,7 @@
 #include "se_module.h"
 #include <cmath>                            // for fabs and sqrt
 #include <algorithm>                        // for std::min and std::max
-#include "../constants.h"                   // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
+#include "../constants.h"                   // for conversion_factors::celsius_to_kelvin and physical_constants::ideal_gas_constant
 #include "ed_nikolov_conductance.h"         // for nikolov namespace
 #include "AuxBioCro.h"                      // for TempToLHV and other similar functions
 #include "../se_solver_helper_functions.h"  // for generate_guess_list
@@ -214,13 +214,13 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses(
     const double density_of_dry_air = TempToDdryA(temperature_air);                             // kg / m^3
     const double saturation_water_vapor_content = saturation_water_vapor_pressure /
                                                   physical_constants::ideal_gas_constant /
-                                                  (temperature_air + physical_constants::celsius_to_kelvin) *
+                                                  (temperature_air + conversion_factors::celsius_to_kelvin) *
                                                   physical_constants::molar_mass_of_water;                     // kg / m^3
     const double vapor_density_deficit = saturation_water_vapor_content * (1 - relative_humidity_atmosphere);  // Pa
     const double psychrometric_parameter = density_of_dry_air *
                                            specific_heat_of_air /
                                            latent_heat_vaporization_of_water;                           // kg / m^3 / K
-    const double Tak = temperature_air + physical_constants::celsius_to_kelvin;                         // Kelvin
+    const double Tak = temperature_air + conversion_factors::celsius_to_kelvin;                         // Kelvin
     const double volume_per_mol = physical_constants::ideal_gas_constant * Tak / atmospheric_pressure;  // m^3 / mol
 
     const double total_available_energy = solar_energy_absorbed_leaf;      // J / m^2 / s
@@ -238,7 +238,7 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses(
     // a good starting guess:
     //  (1) the leaf temperature is the value estimated above
     //  (2) the relative humidity at the leaf surface is equal to the atmospheric value
-    const double Tlk = temperature_leaf_estimate + physical_constants::celsius_to_kelvin;                                               // Kelvin
+    const double Tlk = temperature_leaf_estimate + conversion_factors::celsius_to_kelvin;                                               // Kelvin
     const double mole_fraction_h2o_atmosphere = relative_humidity_atmosphere * saturation_water_vapor_pressure / atmospheric_pressure;  // dimensionless
     const double mole_fraction_h2o_leaf_surface = mole_fraction_h2o_atmosphere;
     const double Tvdiff = Tlk / (1.0 - nikolov::Tvdiff_factor * mole_fraction_h2o_leaf_surface) -

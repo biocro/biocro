@@ -2,7 +2,7 @@
 #define ED_NIKOLOV_CONDUCTANCE_H
 
 #include <cmath>           // for fabs and sqrt
-#include "../constants.h"  // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
+#include "../constants.h"  // for conversion_factors::celsius_to_kelvin and physical_constants::ideal_gas_constant
 #include "../modules.h"
 #include "se_module.h"
 #include "AuxBioCro.h"
@@ -18,57 +18,57 @@ constexpr double Tvdiff_factor = 0.378;
 
 /**
  * @class ed_nikolov_conductance_forced
- * 
+ *
  * @brief Calculates forced boundary layer conductance for water according to the model
  * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Currently only intended
  * for use by Ed.
- * 
+ *
  * Discussion of conductance units and assumptions about temperature:
- * 
+ *
  * In the Nikolov paper, conductances are expressed in units of m / s. This is appropriate
  * when calculating an energy flux (units: J / m^2 / s) driven by a gas pressure gradient
  * (units: Pa = N / m^2 = J / m^3). However, in BioCro we think of molecular fluxes being
  * driven by a gradient in the mole fraction of a gas.
- * 
+ *
  * To shift between these two conventions, note that the internal energy of a gas is
  * proportional to its temperature and the number of molecules according to E = n * R * T,
  * where R is the ideal gas constant, n is the number of moles, and T is the temperature.
  * So if molecular conductance is defined according to
- * 
+ *
  *   molecular_flux = molecular_conductance * mole_fraction_difference, (eq. 1)
- * 
+ *
  * then we can multiply both sides by R * T to see that
- * 
+ *
  *   energy_flux = R * T * molecular_conductance * mole_fraction_difference, (eq. 2)
- * 
+ *
  * where we have noted that
- * 
+ *
  *   molecular_flux * R * T = n / area / time * R * T
  *                          = energy / area / time
  *                          = energy_flux
- * 
+ *
  * For an ideal gas, P * V = n * R * T, so we can solve for R * T = P * V / n and substitute
  * into eq. 2 to see that
- * 
+ *
  *   energy_flux = (molecular_conductance * V / n) * (mole_fraction_difference * P)
  *               = energy_conductance * pressure_difference
- * 
+ *
  * where it is now clear that energy_conductance = molecular_conductance * V / n. So to
  * convert the Nikolov conductances to BioCro units, we must include the volume per mole
  * of an ideal gas: molecular_conductance = energy_conductance / volume_per_mole.
- * 
+ *
  * Strictly speaking, the analysis above only holds when the gas temperature remains constant
  * during its transport. This is apparent in two places. First, energy_flux = molecular_flux *
  * R * T only makes sense if there is a single temperature during the gas transport. Second,
  * using the ideal gas law, we can write pressure_difference = P_2 - P_1 = (R * T_1 * (n / V)_1
  * - R * T_2 * (n / V)_2). It is only possible to factor out R * T if T_1 = T_2 = T.
- * 
+ *
  * However, it is important to note that in both cases temperature only appears via the
  * multiplicative factor R * T and that temperature is expressed in absolute units (i.e.,
  * in Kelvin rather than Celsius). In this case the errors introduced by assuming a constant
  * temperature are small. For example, if leaf_temperature = 34 deg. C and air_temperature = 30
  * deg. C, the difference in R * T between gas at leaf temperature vs air temperature is
- * (4 K) / (293.15 K) = 0.013, just over 1%. Compared to other sources of error in 
+ * (4 K) / (293.15 K) = 0.013, just over 1%. Compared to other sources of error in
  * determining the boundary layer conductance, this is small, and so it is acceptable to
  * convert between molecular_conductance and energy_conductance using volume_per_mol
  * determined at air temperature.
@@ -128,7 +128,7 @@ std::vector<std::string> ed_nikolov_conductance_forced::get_outputs()
 void ed_nikolov_conductance_forced::do_operation() const
 {
     // Convert temperatures to Kelvin
-    const double Tak = *temperature_air_ip + physical_constants::celsius_to_kelvin;  // Kelvin
+    const double Tak = *temperature_air_ip + conversion_factors::celsius_to_kelvin;  // Kelvin
 
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law
@@ -158,13 +158,13 @@ void ed_nikolov_conductance_forced::do_operation() const
 
 /**
  * @class ed_nikolov_conductance_free
- * 
+ *
  * @brief Calculates free boundary layer conductance for water according to the model
  * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
  * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
  * be used by a simultanous_equations object but not a System object. Currently only
  * intended for use by Ed.
- * 
+ *
  * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units
  * and assumptions about temperature.
  */
@@ -235,8 +235,8 @@ std::vector<std::string> ed_nikolov_conductance_free::get_outputs()
 void ed_nikolov_conductance_free::do_operation() const
 {
     // Convert temperatures to Kelvin
-    const double Tak = *temperature_air_ip + physical_constants::celsius_to_kelvin;   // Kelvin
-    const double Tlk = *temperature_leaf_ip + physical_constants::celsius_to_kelvin;  // Kelvin
+    const double Tak = *temperature_air_ip + conversion_factors::celsius_to_kelvin;   // Kelvin
+    const double Tlk = *temperature_leaf_ip + conversion_factors::celsius_to_kelvin;  // Kelvin
 
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law
@@ -310,13 +310,13 @@ std::vector<double> const relative_error_tolerances = {1e-3};
 
 /**
  * @class ed_nikolov_conductance_free_solve
- * 
+ *
  * @brief Calculates free boundary layer conductance for water according to the model
  * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
  * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
  * be used by a simultanous_equations object but not a System object. Currently only
  * intended for use by Ed.
- * 
+ *
  * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units
  * and assumptions about temperature.
  */
