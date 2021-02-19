@@ -32,13 +32,6 @@ const double molar_mass_of_water = 18.01528e-3;      // kg / mol
  */
 const double pressure_at_sea_level = 101325;  // Pa
 
-/**
- * These properties vary with temperature
- * and pressure, but the changes are not significant
- * across the range of conditions that a plant
- * might encounter.
- */
-const double specific_heat_of_air = 1010;  // J / kg / K
 }  // namespace physical_constants
 
 #endif

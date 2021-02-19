@@ -119,7 +119,8 @@ class ed_c4_leaf_photosynthesis : public se_module::base
           relative_humidity_atmosphere(get_input(input_parameters, "rh")),
           temperature_air(get_input(input_parameters, "temp")),
           solar_energy_absorbed_leaf(get_input(input_parameters, "solar_energy_absorbed_leaf")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure"))
+          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
+          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air"))
     {
     }
     static std::vector<std::string> get_inputs();
@@ -143,6 +144,7 @@ class ed_c4_leaf_photosynthesis : public se_module::base
     double const& temperature_air;
     double const& solar_energy_absorbed_leaf;
     double const& atmospheric_pressure;
+    double const& specific_heat_of_air;
     // Main operation
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
@@ -216,7 +218,7 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses(
                                                   physical_constants::molar_mass_of_water;                     // kg / m^3
     const double vapor_density_deficit = saturation_water_vapor_content * (1 - relative_humidity_atmosphere);  // Pa
     const double psychrometric_parameter = density_of_dry_air *
-                                           physical_constants::specific_heat_of_air /
+                                           specific_heat_of_air /
                                            latent_heat_vaporization_of_water;                           // kg / m^3 / K
     const double Tak = temperature_air + physical_constants::celsius_to_kelvin;                         // Kelvin
     const double volume_per_mol = physical_constants::ideal_gas_constant * Tak / atmospheric_pressure;  // m^3 / mol

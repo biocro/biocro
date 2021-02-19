@@ -74,6 +74,7 @@ class ed_leaf_temperature : public SteadyModule
           long_wave_energy_loss_leaf(get_input(input_parameters, "long_wave_energy_loss_leaf")),
           solar_energy_absorbed_leaf(get_input(input_parameters, "solar_energy_absorbed_leaf")),
           latent_heat_vaporization_of_water(get_input(input_parameters, "latent_heat_vaporization_of_water")),
+          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air")),
           conductance_boundary_h2o(get_input(input_parameters, "conductance_boundary_h2o")),
           conductance_stomatal_h2o(get_input(input_parameters, "conductance_stomatal_h2o")),
           mole_fraction_h2o_leaf_surface(get_input(input_parameters, "mole_fraction_h2o_leaf_surface")),
@@ -90,10 +91,11 @@ class ed_leaf_temperature : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // References to input parameters
     double const& long_wave_energy_loss_leaf;
     double const& solar_energy_absorbed_leaf;
     double const& latent_heat_vaporization_of_water;
+    double const& specific_heat_of_air;
     double const& conductance_boundary_h2o;
     double const& conductance_stomatal_h2o;
     double const& mole_fraction_h2o_leaf_surface;
@@ -116,6 +118,7 @@ std::vector<std::string> ed_leaf_temperature::get_inputs()
         "long_wave_energy_loss_leaf",         // J / m^2 / s
         "solar_energy_absorbed_leaf",         // J / m^2 / s
         "latent_heat_vaporization_of_water",  // J / kg
+        "specific_heat_of_air",               // J / kg / K
         "conductance_boundary_h2o",           // mol / m^2 / s
         "conductance_stomatal_h2o",           // mol / m^2 / s
         "mole_fraction_h2o_leaf_surface",     // dimensionless from mol / mol
@@ -148,7 +151,7 @@ void ed_leaf_temperature::do_operation() const
     // Use the sensible heat loss to calculate the leaf temperature
     double const molar_mass_air = 28.97e-3;  // kg / mol
     double const delta_t = sensible_heat_loss /
-                           physical_constants::specific_heat_of_air /
+                           specific_heat_of_air /
                            molar_mass_air /
                            conductance_boundary_h2o;            // degrees C
     double const temperature_leaf = temperature_air + delta_t;  // degrees C
