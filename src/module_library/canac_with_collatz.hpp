@@ -39,6 +39,7 @@ struct Can_Str newCanAC(
         double lowerT,
         const struct nitroParms &nitroP,
         double leafwidth,    // meter
+        double specific_heat_of_air,  // J / kg / K
         int eteq,
         double StomataWS,
         int water_stress_approach,
@@ -46,7 +47,7 @@ struct Can_Str newCanAC(
 		double leaf_reflectance)
 {
 	// Set up a few standalone modules that we will be using
-	
+
 	// Make the steady state module list
 	// The order is important, since the outputs from the first module
 	//  are used as inputs for the next two, and the outputs from the
@@ -56,7 +57,7 @@ struct Can_Str newCanAC(
 		"collatz_leaf",									// leaf_assim_module
 		"penman_monteith_transpiration"					// leaf_evapo_module
 	};
-	
+
 	// Set up the input parameters
 	// Note: the list of required inputs was quickly determined by using the following R command
 	//  with the BioCro library loaded:
@@ -89,13 +90,14 @@ struct Can_Str newCanAC(
 		{"lowerT", 					&lowerT},
 		{"rh", 						&relative_humidity},
 		{"stefan_boltzman", 		&stefan_boltzman},
+        {"specific_heat_of_air",    &specific_heat_of_air},
 		{"temp", 					&temperature},
 		{"theta", 					&theta},
 		{"upperT", 					&upperT},
 		{"vmax", 					&vmax1},
 		{"water_stress_approach", 	&wsa}
 	};
-	
+
 	// Set up the output parameters
 	// Note: the list of all possible outputs can be quickly determined by using
 	//  the following R command with the BioCro library loaded:
@@ -109,33 +111,33 @@ struct Can_Str newCanAC(
 		{"leaf_transpiration_rate", 			&leaf_trans},
 		{"leaf_stomatal_conductance",			&leaf_cond}
 	};
-	
+
 	// Now that the inputs are defined, make the standalone modules and store a smart pointer to them
 	std::shared_ptr<Standalone_SS> canopy_modules = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs));
-	
+
 	// Calculate the light and humidity properties at each layer of the canopy
 	struct Light_model light_model = lightME(lat, DOY, hr);
-	
+
 	double Idir = light_model.direct_irradiance_fraction * solarR;  // micromole / m^2 / s. Flux through a plane perpendicular to the rays of the sun.
 	double Idiff = light_model.diffuse_irradiance_fraction * solarR;
 	double cosTh = light_model.cosine_zenith_angle;
-	
+
 	struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
-	
+
 	double LAIc = LAI / nlayers;
-	
+
 	double relative_humidity_profile[nlayers];
 	RHprof(RH, nlayers, relative_humidity_profile);  // Modifies relative_humidity_profile.
-	
+
 	double wind_speed_profile[nlayers];
 	WINDprof(WindSpeed, LAI, nlayers, wind_speed_profile);  // Modifies wind_speed_profile.
-	
+
 	double leafN_profile[nlayers];
 	LNprof(leafN, LAI, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile.
-	
+
 	double CanopyA = 0.0,  CanopyT = 0.0;
 	double canopy_conductance = 0.0;
-	
+
 	// Initialize some rates
 	double sunlit_leaf_assimilation_rate;
 	double sunlit_leaf_transpiration_rate;
@@ -143,14 +145,14 @@ struct Can_Str newCanAC(
 	double shaded_leaf_assimilation_rate;
 	double shaded_leaf_transpiration_rate;
 	double shaded_leaf_conductance;
-	
+
 	// Go through the layers
 	for (int i = 0; i < nlayers; ++i)
 	{
 		// Get new values for system inputs that vary by layer
 		int current_layer = nlayers - 1 - i;
 		double leafN_lay = leafN_profile[current_layer];
-		
+
 		if (lnfun == 0) {
 			vmax1 = Vmax;
 		} else {
@@ -160,11 +162,11 @@ struct Can_Str newCanAC(
 			Alpha = nitroP.alphab1 * leafN_lay + nitroP.alphab0;
 			Rd = nitroP.Rdb1 * leafN_lay + nitroP.Rdb0;
 		}
-		
+
 		relative_humidity = relative_humidity_profile[current_layer];
 		layer_wind_speed = wind_speed_profile[current_layer];
 		Itot = light_profile.total_irradiance[current_layer];  // micromole / m^2 / s
-		
+
 		// Get assimilation, transpiration, and conductance rates for sunlit leaves
 		Ipar = light_profile.direct_irradiance[current_layer];  // micromole / m^2 / s
 		double pLeafsun = light_profile.sunlit_fraction[current_layer];  // dimensionless. Fraction of LAI that is sunlit.
@@ -173,7 +175,7 @@ struct Can_Str newCanAC(
 		sunlit_leaf_assimilation_rate = leaf_ass;
 		sunlit_leaf_transpiration_rate = leaf_trans;
 		sunlit_leaf_conductance = leaf_cond;
-		
+
 		// Get assimilation, transpiration, and conductance rates for shaded leaves
 		Ipar = light_profile.diffuse_irradiance[current_layer];  // micromole / m^2 / s
 		double pLeafshade = light_profile.shaded_fraction[current_layer];  // dimensionless. Fraction of LAI that is shaded.
@@ -182,13 +184,13 @@ struct Can_Str newCanAC(
 		shaded_leaf_assimilation_rate = leaf_ass;
 		shaded_leaf_transpiration_rate = leaf_trans;
 		shaded_leaf_conductance = leaf_cond;
-		
+
 		// Add rates to the total canopy assimilation, transpiration, and conductance
 		CanopyA += Leafsun * sunlit_leaf_assimilation_rate + Leafshade * shaded_leaf_assimilation_rate;
 		CanopyT += Leafsun * sunlit_leaf_transpiration_rate + Leafshade * shaded_leaf_transpiration_rate;
 		canopy_conductance += Leafsun * sunlit_leaf_conductance + Leafshade * shaded_leaf_conductance;
 	}
-	
+
 	struct Can_Str ans;
 	/* For Assimilation */
 	/* 3600 - seconds per hour */
@@ -197,7 +199,7 @@ struct Can_Str newCanAC(
 	/* 1e-6 - megagrams per gram */
 	/* 10000 - meters squared per hectare*/
 	ans.Assim = CanopyA * 3600 * 1e-6 * 30 * 1e-6 * 10000;  // Mg / ha / hr.
-	
+
 	/* For Transpiration */
 	/* 3600 - seconds per hour */
 	/* 1e-3 - millimoles per mole */
@@ -206,7 +208,7 @@ struct Can_Str newCanAC(
 	/* 10000 - meters squared per hectare */
 	ans.Trans = CanopyT * 3600 * 1e-3 * 18 * 1e-6 * 10000;  // Mg / ha / hr.
 	ans.canopy_conductance = canopy_conductance;
-	
+
 	return ans;
 }
 
@@ -255,6 +257,7 @@ class canac_with_collatz : public SteadyModule {
 			upperT_ip(get_ip(input_parameters, "upperT")),
 			lowerT_ip(get_ip(input_parameters, "lowerT")),
 			leafwidth_ip(get_ip(input_parameters, "leafwidth")),
+            specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
 			et_equation_ip(get_ip(input_parameters, "et_equation")),
 			StomataWS_ip(get_ip(input_parameters, "StomataWS")),
 			water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
@@ -308,6 +311,7 @@ class canac_with_collatz : public SteadyModule {
 		const double* upperT_ip;
 		const double* lowerT_ip;
 		const double* leafwidth_ip;
+        const double* specific_heat_of_air_ip;
 		const double* et_equation_ip;
 		const double* StomataWS_ip;
 		const double* water_stress_approach_ip;
@@ -362,6 +366,7 @@ std::vector<std::string> canac_with_collatz::get_inputs() {
 		"upperT",
 		"lowerT",
 		"leafwidth",
+        "specific_heat_of_air",  // J / kg / K
 		"et_equation",
 		"StomataWS",
 		"water_stress_approach",
@@ -378,7 +383,7 @@ std::vector<std::string> canac_with_collatz::get_outputs() {
 	};
 }
 
-void canac_with_collatz::do_operation() const {	
+void canac_with_collatz::do_operation() const {
 	// Collect inputs and make calculations
 	double nileafn = *nileafn_ip;
 	double nkln = *nkln_ip;
@@ -419,16 +424,17 @@ void canac_with_collatz::do_operation() const {
 	double upperT = *upperT_ip;
 	double lowerT = *lowerT_ip;
 	double leafwidth = *leafwidth_ip;
+    double specific_heat_of_air = *specific_heat_of_air_ip;
 	double et_equation = *et_equation_ip;
 	double StomataWS = *StomataWS_ip;
 	double water_stress_approach = *water_stress_approach_ip;
 	double leaf_transmittance = *leaf_transmittance_ip;
 	double leaf_reflectance = *leaf_reflectance_ip;
-	
+
 	// Convert doy_dbl into doy and hour
 	int doy = floor(doy_dbl);
 	double hour = 24.0 * (doy_dbl - doy);
-	
+
 	// Define the nitrogen parameters
 	struct nitroParms nitroP;
 	nitroP.ileafN = nileafn;
@@ -442,17 +448,17 @@ void canac_with_collatz::do_operation() const {
 	nitroP.kpLN = nkpLN;
 	nitroP.lnb0 = nlnb0;
 	nitroP.lnb1 = nlnb1;
-	
+
 	// Make the CanAC calculation
 	struct Can_Str can_result = newCanAC(lai, doy, hour, solar, temp,
 			rh, windspeed, lat, (int)nlayers, vmax1,
 			alpha1, kparm, beta, Rd, Catm,
 			b0, b1, theta, kd, chil,
 			heightf, LeafN, kpLN, lnb0, lnb1,
-			(int)lnfun, upperT, lowerT, nitroP, leafwidth,
+			(int)lnfun, upperT, lowerT, nitroP, leafwidth, specific_heat_of_air,
 			(int)et_equation, StomataWS, (int)water_stress_approach,
 			leaf_transmittance, leaf_reflectance);
-	
+
 	// Update the output parameter list
 	update(canopy_assimilation_rate_op, can_result.Assim);		// Mg / ha / hr.
 	update(canopy_transpiration_rate_op, can_result.Trans);		// Mg / ha / hr.

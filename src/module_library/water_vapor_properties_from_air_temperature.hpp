@@ -11,6 +11,7 @@ class water_vapor_properties_from_air_temperature : public SteadyModule {
 			// Get pointers to input parameters
 			temp_ip(get_ip(input_parameters, "temp")),
 			rh_ip(get_ip(input_parameters, "rh")),
+            specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
 			// Get pointers to output parameters
 			latent_heat_vaporization_of_water_op(get_op(output_parameters, "latent_heat_vaporization_of_water")),
 			slope_water_vapor_op(get_op(output_parameters, "slope_water_vapor")),
@@ -25,6 +26,7 @@ class water_vapor_properties_from_air_temperature : public SteadyModule {
 		// Pointers to input parameters
 		const double* temp_ip;
 		const double* rh_ip;
+        const double* specific_heat_of_air_ip;
 		// Pointers to output parameters
 		double* latent_heat_vaporization_of_water_op;
 		double* slope_water_vapor_op;
@@ -39,7 +41,8 @@ class water_vapor_properties_from_air_temperature : public SteadyModule {
 std::vector<std::string> water_vapor_properties_from_air_temperature::get_inputs() {
 	return {
 		"temp",
-		"rh"
+		"rh",
+        "specific_heat_of_air"  // J / kg / K
 	};
 }
 
@@ -56,27 +59,26 @@ std::vector<std::string> water_vapor_properties_from_air_temperature::get_output
 
 void water_vapor_properties_from_air_temperature::do_operation() const {
 	// Collect input parameters and make calculations
-	
+
 	double air_temperature = *temp_ip;														// Degrees C
 	double rh = *rh_ip;
-	
-	double specific_heat_of_air = 1010;													// J / kg / K
+
 	double molar_mass_of_water = 18.01528e-3;												// kg / mol
 	double R = 8.314472;																	// joule / kelvin / mole
-	
+
 	double density_of_dry_air = TempToDdryA(air_temperature);								// kg / m^3
 	double latent_heat_vaporization_of_water = TempToLHV(air_temperature);					// J / kg
 	double saturation_water_vapor_pressure = saturation_vapor_pressure(air_temperature);	// Pa
 	double saturation_water_vapor_content = saturation_water_vapor_pressure / R / (air_temperature + 273.15) * molar_mass_of_water;	// kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 	double vapor_density_deficit = saturation_water_vapor_content * (1 - rh);
-	
+
 	// Update the output parameter list
 	update(latent_heat_vaporization_of_water_op, latent_heat_vaporization_of_water);	// J / kg
 	update(slope_water_vapor_op, TempToSFS(air_temperature));							// kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
 	update(saturation_water_vapor_pressure_op, saturation_water_vapor_pressure);		// Pa
 	update(water_vapor_pressure_op, saturation_water_vapor_pressure * rh);				// Pa
 	update(vapor_density_deficit_op, vapor_density_deficit);							// kg / m^3
-	update(psychrometric_parameter_op, density_of_dry_air * specific_heat_of_air / latent_heat_vaporization_of_water);	// kg / m^3 / K
+	update(psychrometric_parameter_op, density_of_dry_air * *specific_heat_of_air_ip / latent_heat_vaporization_of_water);	// kg / m^3 / K
 }
 
 #endif
