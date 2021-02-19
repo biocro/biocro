@@ -7,7 +7,7 @@
 
 /**
  * @class c4_leaf_photosynthesis
- * 
+ *
  * @brief Uses the method from CanAC to calculate leaf photosynthesis parameters for C4 plants
  */
 class c4_leaf_photosynthesis : public SteadyModule
@@ -41,6 +41,7 @@ class c4_leaf_photosynthesis : public SteadyModule
           windspeed(get_input(input_parameters, "windspeed")),
           height(get_input(input_parameters, "height")),
           leafwidth(get_input(input_parameters, "leafwidth")),
+          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air")),
           et_equation(get_input(input_parameters, "et_equation")),
           // Get pointers to output parameters
           Assim_op(get_op(output_parameters, "Assim")),
@@ -81,6 +82,7 @@ class c4_leaf_photosynthesis : public SteadyModule
     double const& windspeed;
     double const& height;
     double const& leafwidth;
+    double const& specific_heat_of_air;
     double const& et_equation;
     // Pointers to output parameters
     double* Assim_op;
@@ -120,6 +122,7 @@ std::vector<std::string> c4_leaf_photosynthesis::get_inputs()
         "windspeed",              // m / s
         "height",                 // m
         "leafwidth",              // m
+        "specific_heat_of_air",   // J / kg / K
         "et_equation"             // a dimensionless switch
     };
 }
@@ -154,7 +157,7 @@ void c4_leaf_photosynthesis::do_operation() const
     // Calculate a new value for leaf temperature
     double constexpr LAI = 0.0;  // EvapoTrans2 does not actually use LAI for anything
     const struct ET_Str et = EvapoTrans2(incident_par_micromol, incident_average_par_micromol, temp, rh, windspeed,
-                                         LAI, height, initial_stomatal_conductance, leafwidth, et_equation);
+                                         LAI, height, initial_stomatal_conductance, leafwidth, specific_heat_of_air, et_equation);
 
     const double leaf_temperature = temp + et.Deltat;  // deg. C
 

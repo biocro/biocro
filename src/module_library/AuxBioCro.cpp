@@ -436,12 +436,12 @@ struct ET_Str EvapoTrans2(
         double CanopyHeight,                             // meters
         const double stomatal_conductance,               // mmol / m^2 / s
         const double leaf_width,                         // meter
+        const double specific_heat_of_air,               // J / kg / K
         const int eteq)                                  // unitless parameter
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
     constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
     constexpr double LeafReflectance = 0.2;              // dimensionless.
-    constexpr double specific_heat_of_air = 1010;        // J / kg / K
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
     //constexpr double atmospheric_pressure = 101325;      // Pa

@@ -6,7 +6,7 @@
 
 /**
  * @class ed_canac_leaf
- * 
+ *
  * @brief Uses the Stefan-Boltzmann law to calculate long-wave energy losses
  * from the leaf to the air. Currently only intended for use by Ed.
  */
@@ -37,6 +37,7 @@ class ed_canac_leaf : public SteadyModule
           collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
           windspeed_ip(get_ip(input_parameters, "windspeed")),
           leafwidth_ip(get_ip(input_parameters, "leafwidth")),
+          specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
           solar_energy_absorbed_leaf_ip(get_ip(input_parameters, "solar_energy_absorbed_leaf")),
           // Get pointers to output parameters
           mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
@@ -74,6 +75,7 @@ class ed_canac_leaf : public SteadyModule
     const double* collatz_rubisco_temperature_lower_ip;
     const double* windspeed_ip;
     const double* leafwidth_ip;
+    const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
     // Pointers to output parameters
     double* mole_fraction_co2_intercellular_op;
@@ -110,6 +112,7 @@ std::vector<std::string> ed_canac_leaf::get_inputs()
         "collatz_rubisco_temperature_lower",  // deg. C
         "windspeed",                          // m / s
         "leafwidth",                          // m
+        "specific_heat_of_air",               // J / kg / K
         "solar_energy_absorbed_leaf"          // J / m^2 / s
     };
 }
@@ -153,6 +156,7 @@ void ed_canac_leaf::do_operation() const
     const double LeafAreaIndex = 0.0;                              // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
     const double CanopyHeight = 0.0;                               // meters (not actually used by EvapoTrans2)
     const double leaf_width = *leafwidth_ip;                       // meter
+    const double specific_heat_of_air = *specific_heat_of_air_ip;  // J / kg / K
     const int eteq = 0;                                            // Report Penman-Monteith transpiration
 
     // For ed_penman_monteith_leaf_temperature, the light input is called `solar_energy_absorbed_leaf`
@@ -190,7 +194,8 @@ void ed_canac_leaf::do_operation() const
 
     // Run EvapoTrans2 to get the leaf temperature
     const struct ET_Str evapotrans_output = EvapoTrans2(Rad, Iave, temperature_air, RH, WindSpeed,
-                                                        LeafAreaIndex, CanopyHeight, stomatal_conductance, leaf_width, eteq);
+                                                        LeafAreaIndex, CanopyHeight, stomatal_conductance,
+                                                        leaf_width, specific_heat_of_air, eteq);
 
     const double leaf_temperature = temperature_air + evapotrans_output.Deltat;
 

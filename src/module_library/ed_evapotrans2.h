@@ -6,7 +6,7 @@
 
 /**
  * @class ed_evapotrans2
- * 
+ *
  * @brief Just a module wrapper for the EvapoTrans2 function.
  * Currently only intended for use by Ed.
  */
@@ -24,6 +24,7 @@ class ed_evapotrans2 : public SteadyModule
           windspeed_ip(get_ip(input_parameters, "windspeed")),
           conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
           leafwidth_ip(get_ip(input_parameters, "leafwidth")),
+          specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
           solar_energy_absorbed_leaf_ip(get_ip(input_parameters, "solar_energy_absorbed_leaf")),
           // Get pointers to output parameters
           evapotranspiration_penman_monteith_op(get_op(output_parameters, "evapotranspiration_penman_monteith")),
@@ -43,6 +44,7 @@ class ed_evapotrans2 : public SteadyModule
     const double* windspeed_ip;
     const double* conductance_stomatal_h2o_ip;
     const double* leafwidth_ip;
+    const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
     // Pointers to output parameters
     double* evapotranspiration_penman_monteith_op;
@@ -61,6 +63,7 @@ std::vector<std::string> ed_evapotrans2::get_inputs()
         "windspeed",                  // m / s
         "conductance_stomatal_h2o",   // mol / m^2 / s
         "leafwidth",                  // m
+        "specific_heat_of_air",       // J / kg / K
         "solar_energy_absorbed_leaf"  // J / m^2 / s
     };
 }
@@ -86,6 +89,7 @@ void ed_evapotrans2::do_operation() const
     const double CanopyHeight = 0.0;                                         // meters (not actually used by EvapoTrans2)
     const double stomatal_conductance = *conductance_stomatal_h2o_ip * 1e3;  // mmol / m^2 / s
     const double leaf_width = *leafwidth_ip;                                 // meter
+    const double specific_heat_of_air = *specific_heat_of_air_ip;            // J / kg / K
     const int eteq = 0;                                                      // Report Penman-Monteith transpiration
 
     // For ed_penman_monteith_leaf_temperature, the light input is called `solar_energy_absorbed_leaf`
@@ -114,6 +118,7 @@ void ed_evapotrans2::do_operation() const
         CanopyHeight,
         stomatal_conductance,
         leaf_width,
+        specific_heat_of_air,
         eteq);
 
     // Convert and return the results

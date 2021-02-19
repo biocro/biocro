@@ -51,6 +51,7 @@ class c4_canopy : public SteadyModule {
 			leafwidth_ip(get_ip(input_parameters, "leafwidth")),
 	        et_equation_ip(get_ip(input_parameters, "et_equation")),
 			StomataWS_ip(get_ip(input_parameters, "StomataWS")),
+            specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
 			water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
 			// Get pointers to output parameters
 	        canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
@@ -104,6 +105,7 @@ class c4_canopy : public SteadyModule {
 		const double* leafwidth_ip;
         const double* et_equation_ip;
 		const double* StomataWS_ip;
+        const double* specific_heat_of_air_ip;
 		const double* water_stress_approach_ip;
 		// Pointers to output parameters
         double* canopy_assimilation_rate_op;
@@ -158,6 +160,7 @@ std::vector<std::string> c4_canopy::get_inputs() {
 		"leafwidth",
         "et_equation",
 		"StomataWS",
+        "specific_heat_of_air",  // J / kg / K
 		"water_stress_approach"
 	};
 }
@@ -175,7 +178,7 @@ void c4_canopy::do_operation() const {
 	// Collect inputs and make calculations
 	int doy = int(*doy_dbl_ip);					// Round doy_dbl down to get the day of year
 	double hour = 24.0 * ((*doy_dbl_ip) - doy);	// Get the fractional part as the hour
-	
+
 	struct nitroParms nitroP;
     nitroP.ileafN = *nileafn_ip;
     nitroP.kln = *nkln_ip;
@@ -188,7 +191,7 @@ void c4_canopy::do_operation() const {
     nitroP.kpLN = *nkpLN_ip;
     nitroP.lnb0 = *nlnb0_ip;
     nitroP.lnb1 = *nlnb1_ip;
-    
+
     // CanAC is located in CanAC.cpp
     struct Can_Str can_result = CanAC(*lai_ip, doy, hour, *solar_ip, *temp_ip,
             *rh_ip, *windspeed_ip, *lat_ip, (int)(*nlayers_ip), *vmax1_ip,
@@ -196,8 +199,9 @@ void c4_canopy::do_operation() const {
             *b0_ip, *b1_ip, *Gs_min_ip * 1e3, *theta_ip, *kd_ip, *chil_ip,
             *heightf_ip, *LeafN_ip, *kpLN_ip, *lnb0_ip, *lnb1_ip,
             (int)(*lnfun_ip), *upperT_ip, *lowerT_ip, nitroP, *leafwidth_ip,
-            (int)(*et_equation_ip), *StomataWS_ip, (int)(*water_stress_approach_ip));
-    
+            (int)(*et_equation_ip), *StomataWS_ip, *specific_heat_of_air_ip,
+            (int)(*water_stress_approach_ip));
+
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);	// Mg / ha / hr.
 	update(canopy_transpiration_rate_op, can_result.Trans);	// Mg / ha / hr.

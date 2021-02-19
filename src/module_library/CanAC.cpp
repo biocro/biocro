@@ -35,6 +35,7 @@ struct Can_Str CanAC(
         double leafwidth,    // meter
         int eteq,
         double StomataWS,
+        double specific_heat_of_air,  // J / kg / K
         int water_stress_approach)
 {
     struct Light_model light_model = lightME(lat, DOY, hr);
@@ -86,7 +87,7 @@ struct Can_Str CanAC(
         double Leafsun = LAIc * pLeafsun;
 
         double direct_stomatal_conductance = c4photoC(IDir, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, water_stress_approach, upperT, lowerT).Gs; // mmol / m^2 / s
-        struct ET_Str et_direct = EvapoTrans2(IDir, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, direct_stomatal_conductance, leafwidth, eteq);
+        struct ET_Str et_direct = EvapoTrans2(IDir, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, direct_stomatal_conductance, leafwidth, specific_heat_of_air, eteq);
         double leaf_temperature_Idir = temperature + et_direct.Deltat;
         struct c4_str direct_photo = c4photoC(IDir, leaf_temperature_Idir, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, water_stress_approach, upperT, lowerT);
 
@@ -98,7 +99,7 @@ struct Can_Str CanAC(
         //Rprintf("%i,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n", current_layer, LAIc * (current_layer + 0.5), leafN_lay, relative_humidity, layer_wind_speed, CanHeight, Itot, IDir, pLeafsun, IDiff, pLeafshade);
 
         double diffuse_stomatal_conductance = c4photoC(IDiff, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, water_stress_approach, upperT, lowerT).Gs;
-        struct ET_Str et_diffuse = EvapoTrans2(IDiff, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, diffuse_stomatal_conductance, leafwidth, eteq);
+        struct ET_Str et_diffuse = EvapoTrans2(IDiff, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, diffuse_stomatal_conductance, leafwidth, specific_heat_of_air, eteq);
         double leaf_temp_Idiffuse = temperature + et_diffuse.Deltat;
         struct c4_str diffuse_photo = c4photoC(IDiff, leaf_temp_Idiffuse, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, water_stress_approach, upperT, lowerT);
 
