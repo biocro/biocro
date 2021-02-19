@@ -7,7 +7,7 @@
 
 /**
  * @class c3_leaf_photosynthesis
- * 
+ *
  * @brief Uses the method from c3CanAC to calculate leaf photosynthesis parameters for C3 plants
  */
 class c3_leaf_photosynthesis : public SteadyModule
@@ -40,6 +40,7 @@ class c3_leaf_photosynthesis : public SteadyModule
           incident_average_par(get_input(input_parameters, "incident_average_par")),
           windspeed(get_input(input_parameters, "windspeed")),
           height(get_input(input_parameters, "height")),
+          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air")),
           // Get pointers to output parameters
           Assim_op(get_op(output_parameters, "Assim")),
           GrossAssim_op(get_op(output_parameters, "GrossAssim")),
@@ -78,6 +79,7 @@ class c3_leaf_photosynthesis : public SteadyModule
     double const& incident_average_par;
     double const& windspeed;
     double const& height;
+    double const& specific_heat_of_air;
     // Pointers to output parameters
     double* Assim_op;
     double* GrossAssim_op;
@@ -114,7 +116,8 @@ std::vector<std::string> c3_leaf_photosynthesis::get_inputs()
         "electrons_per_oxygenation",    // electron / oxygenation
         "incident_average_par",         // J / (m^2 leaf) / s
         "windspeed",                    // m / s
-        "height"                        // m
+        "height",                       // m
+        "specific_heat_of_air"          // J / kg / K
     };
 }
 
@@ -148,7 +151,7 @@ void c3_leaf_photosynthesis::do_operation() const
     // Calculate a new value for leaf temperature
     //
     const struct ET_Str et = c3EvapoTrans(incident_average_par_micromol, temp, rh, windspeed, height,
-                                          initial_stomatal_conductance);
+                                          specific_heat_of_air, initial_stomatal_conductance);
 
     const double leaf_temperature = temp + et.Deltat;  // deg. C
 

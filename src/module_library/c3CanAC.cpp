@@ -29,19 +29,20 @@ struct Can_Str c3CanAC(double LAI,
 		int lnfun,
         double chil,
 		double StomataWS,
+        double specific_heat_of_air,  // J / kg / K
         double growth_respiration_fraction,
 		int water_stress_approach,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation)
 {
 	struct Light_model light_model = lightME(lat, DOY, hr);
-	
+
     double Idir = light_model.direct_irradiance_fraction * solarR;
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
     struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
-    
+
 //    if(LAI < 0) throw std::range_error("Thrown in c3CanAC: LAI is negative."); MLM removed this error message 04/22/2020; can cause issues with integration
 
     double LAIc = LAI / nlayers;
@@ -80,7 +81,7 @@ struct Can_Str c3CanAC(double LAI,
         double Leafsun = LAIc * pLeafsun;
 
         double stomatal_conductance_direct = c3photoC(IDir, air_temperature, relative_humidity, vmax1, Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation).Gs;  // mmol / m^2 / s. Estimate stomatal_conductance by assuming the leaf has the same temperature as the air.
-        struct ET_Str et_direct = c3EvapoTrans(Itot, air_temperature, relative_humidity, layer_wind_speed, CanHeight, stomatal_conductance_direct);
+        struct ET_Str et_direct = c3EvapoTrans(Itot, air_temperature, relative_humidity, layer_wind_speed, CanHeight, specific_heat_of_air, stomatal_conductance_direct);
 
         double leaf_temperature_Idir = air_temperature + et_direct.Deltat;
         struct c3_str temp_photo_results = c3photoC(IDir, leaf_temperature_Idir, relative_humidity, vmax1, Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
@@ -92,7 +93,7 @@ struct Can_Str c3CanAC(double LAI,
         double Leafshade = LAIc * pLeafshade;
 
         double stomatal_conductance_diffuse = c3photoC(IDiff, air_temperature, relative_humidity, vmax1, Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation).Gs;  // mmol / m^2 / s. Estimate stomatal_conductance by assuming the leaf has the same temperature as the air.
-        struct ET_Str et_diffuse = c3EvapoTrans(Itot, air_temperature, relative_humidity, layer_wind_speed, CanHeight, stomatal_conductance_diffuse);
+        struct ET_Str et_diffuse = c3EvapoTrans(Itot, air_temperature, relative_humidity, layer_wind_speed, CanHeight, specific_heat_of_air, stomatal_conductance_diffuse);
         double leaf_temperature_Idiffuse = air_temperature + et_diffuse.Deltat;
 
         temp_photo_results = c3photoC(IDiff, leaf_temperature_Idiffuse, relative_humidity, vmax1, Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
@@ -120,7 +121,7 @@ struct Can_Str c3CanAC(double LAI,
     * 10^-6 Mg / g
     * 10000 m^2 / ha
     */
-    const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000; 
+    const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000;
 
     struct Can_Str ans;
     ans.Assim = cf * CanopyA * (1.0 - growth_respiration_fraction);  // Mg / ha / hr.

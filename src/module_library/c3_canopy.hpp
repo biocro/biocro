@@ -36,6 +36,7 @@ class c3_canopy : public SteadyModule {
 			lnfun_ip(get_ip(input_parameters, "lnfun")),
 			chil_ip(get_ip(input_parameters, "chil")),
 			StomataWS_ip(get_ip(input_parameters, "StomataWS")),
+            specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
 			growth_respiration_fraction_ip(get_ip(input_parameters, "growth_respiration_fraction")),
 			water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
 			electrons_per_carboxylation_ip(get_ip(input_parameters, "electrons_per_carboxylation")),
@@ -76,6 +77,7 @@ class c3_canopy : public SteadyModule {
 		const double* lnfun_ip;
 		const double* chil_ip;
 		const double* StomataWS_ip;
+        const double* specific_heat_of_air_ip;
 		const double* growth_respiration_fraction_ip;
 		const double* water_stress_approach_ip;
 		const double* electrons_per_carboxylation_ip;

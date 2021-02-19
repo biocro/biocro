@@ -25,7 +25,9 @@ struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Tem
                        double Jmax, double tpu_rate_max, double Rd, double Catm, double o2, double b0,
                        double b1, double Gs_min, double theta, double kd, double heightf, double leafN,
                        double kpLN, double lnb0, double lnb1, int lnfun, double chil,
-                       double StomataWS, double growth_respiration_fraction, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation);
+                       double StomataWS, double specific_heat_of_air,
+                       double growth_respiration_fraction, int water_stress_approach,
+                       double electrons_per_carboxylation, double electrons_per_oxygenation);
 
 
 double resp(double comp, double mrc, double temp);
@@ -61,7 +63,7 @@ struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double
         double LeafAreaIndex, double CanopyHeight, double stomatacond, double leafw, double specific_heat_of_air, int eteq);
 
 struct ET_Str c3EvapoTrans(double Itot, double Airtemperature, double RH, double WindSpeed, double CanopyHeight,
-        double stomtal_conductance);
+        double specific_heat_of_air, double stomtal_conductance);
 
 #endif
 
