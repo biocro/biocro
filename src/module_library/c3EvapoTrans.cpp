@@ -37,7 +37,6 @@ struct ET_Str c3EvapoTrans(
     const double d = dCoef * CanopyHeight;               // meters
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
-    //constexpr double atmospheric_pressure = 101325;      // Pa
     constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
     if (CanopyHeight < 0.1)

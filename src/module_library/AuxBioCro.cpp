@@ -443,7 +443,6 @@ struct ET_Str EvapoTrans2(
     constexpr double LeafReflectance = 0.2;              // dimensionless.
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
-    //constexpr double atmospheric_pressure = 101325;      // Pa
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
