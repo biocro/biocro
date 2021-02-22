@@ -24,8 +24,8 @@ quantity<dimensionless> arrhenius_exponent(quantity<dimensionless> c, quantity<e
     return exp(c - activation_energy / (R * temperature));
 }
 
-struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max, 
-               double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double _O2,
+struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max,
+               double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double AP, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
     // Assign units to the input parameters. The parameters can be renamed and this section can be removed when call functions
@@ -38,12 +38,12 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<flux> Qp = _Qp * 1e-6 * mole / square_meter / second;
     const quantity<flux> Gsw_min = Gs_min * mole / square_meter / second;
 
-    const quantity<pressure> atmospheric_pressure = 101325 * pascal;
+    const quantity<pressure> atmospheric_pressure = AP * pascal;
     const quantity<dimensionless> leaf_reflectance = 0.2;
     const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
     /* From Bernacchi 2001. Improved temperature response functions. */
-    /* Note: Values in Dubois and Bernacchi are incorrect. */    
+    /* Note: Values in Dubois and Bernacchi are incorrect. */
     const quantity<mole_fraction> Kc = 1e-6 * arrhenius_exponent(38.05, 79.43e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Ko = 1e-3 * arrhenius_exponent(20.30, 36.38e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Gstar = 1e-6 * arrhenius_exponent(19.02, 37.83e3 * joule / mole, leaf_temperature);
@@ -83,7 +83,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
         double Ac2 = Ci + Kc * (1 + Oi / Ko);
         quantity<flux> Ac = Ac1 / Ac2;
 
-        /* Light lmited portion */ 
+        /* Light lmited portion */
         quantity<flux> Aj1 = J * (Ci - Gstar);
         double Aj2 = electrons_per_carboxylation * Ci + 2.0 * electrons_per_oxygenation * Gstar;
         quantity<flux> Aj = Aj1 / Aj2;
@@ -105,13 +105,13 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
         co2_assimilation_rate = Vc - Rd;
 
-        if (water_stress_approach == 0) co2_assimilation_rate *= quantity<dimensionless>(StomWS); 
+        if (water_stress_approach == 0) co2_assimilation_rate *= quantity<dimensionless>(StomWS);
         /* milimole per meter square per second*/
         Gs = ball_berry(co2_assimilation_rate.value(), Ca * 1e-6, RH, bb0, bb1) * 1e-3 * mole / square_meter / second;
 
         if (water_stress_approach == 1)
-            //Gs *= quantity<dimensionless>(StomWS); 
-            Gs = Gsw_min + StomWS * (Gs - Gsw_min); 
+            //Gs *= quantity<dimensionless>(StomWS);
+            Gs = Gsw_min + StomWS * (Gs - Gsw_min);
 
         if (Gs <= 0 * mole / square_meter / second)
             Gs = 1e-5 * 1e-3 * mole / square_meter / second;
@@ -134,12 +134,12 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 		/*
     	// The rate failed to converge! Rerun in debug mode, then throw an error
 		c3_str result;
-		result = c3photoCdb(_Qp, _Tleaf, RH, _Vcmax0, _Jmax, 
+		result = c3photoCdb(_Qp, _Tleaf, RH, _Vcmax0, _Jmax,
                _Rd0, bb0, bb1, Ca, _O2,
                thet, StomWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
 		throw std::range_error("Thrown in c3photo: co2_assimilation_rate did not converge");
 		*/
-		
+
 		//std::cout << "co2_assimilation_rate did not converge\n";
     }
     struct c3_str result;
@@ -150,8 +150,8 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     return result;
 }
 
-struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max, 
-               double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double _O2,
+struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max,
+               double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double AP, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
     // Get ready for outputs
@@ -162,7 +162,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
 	myfile << _Tleaf << "\n";
 	myfile << RH << "\n";
 	myfile << _Vcmax0 << "\n";
-	myfile << _Jmax << "\n"; 
+	myfile << _Jmax << "\n";
 	myfile << _Rd0 << "\n";
 	myfile << bb0 << "\n";
 	myfile << bb1 << "\n";
@@ -173,7 +173,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
 	myfile << water_stress_approach << "\n";
 	myfile << electrons_per_carboxylation << "\n";
 	myfile << electrons_per_oxygenation << "\n";
-	
+
 	// Assign units to the input parameters. The parameters can be renamed and this section can be removed when call functions
     // that call c3photoC() are also using units.
     const quantity<flux> Rd0 = _Rd0 * 1e-6 * mole / square_meter / second;
@@ -184,12 +184,12 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
     const quantity<flux> Qp = _Qp * 1e-6 * mole / square_meter / second;
     const quantity<flux> Gsw_min = Gs_min * mole / square_meter / second;
 
-    const quantity<pressure> atmospheric_pressure = 101325 * pascal;
+    const quantity<pressure> atmospheric_pressure = AP * pascal;
     const quantity<dimensionless> leaf_reflectance = 0.2;
     const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
     /* From Bernacchi 2001. Improved temperature response functions. */
-    /* Note: Values in Dubois and Bernacchi are incorrect. */    
+    /* Note: Values in Dubois and Bernacchi are incorrect. */
     const quantity<mole_fraction> Kc = 1e-6 * arrhenius_exponent(38.05, 79.43e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Ko = 1e-3 * arrhenius_exponent(20.30, 36.38e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Gstar = 1e-6 * arrhenius_exponent(19.02, 37.83e3 * joule / mole, leaf_temperature);
@@ -231,7 +231,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
         double Ac2 = Ci + Kc * (1 + Oi / Ko);
         quantity<flux> Ac = Ac1 / Ac2;
 
-        /* Light lmited portion */ 
+        /* Light lmited portion */
         quantity<flux> Aj1 = J * (Ci - Gstar);
         double Aj2 = electrons_per_carboxylation * Ci + 2.0 * electrons_per_oxygenation * Gstar;
         quantity<flux> Aj = Aj1 / Aj2;
@@ -253,13 +253,13 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
 
         co2_assimilation_rate = Vc - Rd;
 
-        if (water_stress_approach == 0) co2_assimilation_rate *= quantity<dimensionless>(StomWS); 
+        if (water_stress_approach == 0) co2_assimilation_rate *= quantity<dimensionless>(StomWS);
         /* milimole per meter square per second*/
         Gs = ball_berry(co2_assimilation_rate.value(), Ca * 1e-6, RH, bb0, bb1) * 1e-3 * mole / square_meter / second;
 
         if (water_stress_approach == 1)
-            //Gs *= quantity<dimensionless>(StomWS); 
-            Gs = Gsw_min + StomWS * (Gs - Gsw_min); 
+            //Gs *= quantity<dimensionless>(StomWS);
+            Gs = Gsw_min + StomWS * (Gs - Gsw_min);
 
         if (Gs <= 0 * mole / square_meter / second)
             Gs = 1e-5 * 1e-3 * mole / square_meter / second;
@@ -283,10 +283,10 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
     result.Gs = Gs.value() * 1e3;  // mmol / m^2 / s.
     result.Ci = Ci.value() * 1e6;  // micromole / mol.
     result.GrossAssim = (co2_assimilation_rate.value() + Rd.value()) * 1e6;  // micromole / m^2 / s.
-    
+
 	myfile << "The final returned value was " << co2_assimilation_rate.value() * 1e6 << "\n";
 	myfile.close();
-	
+
     return result;
 }
 
