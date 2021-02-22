@@ -1,12 +1,12 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-glycine_max_parameters = with(list(), {
+manihot_esculenta_parameters = with(list(), {
     datalines =
     "symbol                                value
-    alpha1                                 32.5
+    alpha1                                 0
     alphab1                                0
-    b0                                     0.048
+    b0                                     0.08
     b1                                     5
-    Catm                                   370
+    Catm                                   400
     chil                                   0.8
     electrons_per_carboxylation            4.5
     electrons_per_oxygenation              5.25
@@ -14,9 +14,9 @@ glycine_max_parameters = with(list(), {
     growth_respiration_fraction            0
     Gs_min                                 1e-3
     heightf                                3
-    iSp                                    2.5
-    jmax                                   213.2
-    kd                                     0.1
+    iSp                                    2.27
+    jmax                                   226
+    kd                                     0.37
     KmGrain                                0.836660027
     KmLeaf                                 0.632455532
     KmRhizome                              0.774596669
@@ -42,7 +42,7 @@ glycine_max_parameters = with(list(), {
     rate_constant_root_senescence          0.0018
     rate_constant_stem                     1.2
     rate_constant_stem_senescence          0.004
-    Rd                                     1.1
+    Rd                                     3
     remobilization_fraction                0.6
     resistance_leaf_to_stem                0.16
     resistance_stem_to_grain               8
@@ -57,11 +57,11 @@ glycine_max_parameters = with(list(), {
     specific_heat                          1010
     Sp_thermal_time_decay                  0
     stefan_boltzman                        5.67e-8
-    tbase                                  10
+    tbase                                  0
     theta                                  0.7
     timestep                               1
     tpu_rate_max                           23
-    vmax1                                  111.2
+    vmax1                                  133
     vmax_n_intercept                       0
     water_stress_approach                  1"
 

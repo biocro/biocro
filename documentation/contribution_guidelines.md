@@ -216,6 +216,26 @@ Consider naming parts of a complicated expression in order to break it down into
 
 * A few other preferences can be applied using the [editorconfig](https://editorconfig.org/) specification and the [.editorconfig](../.editorconfig) file provided in the base directory of BioCro. Editorconfig provides a method for standardizing settings across different text editors. While some editors have native support, others require a plugin. See the editorconfig website for more details.
 
+### R-specific coding advice
+
+* Prefer to use the double-bracket operator (`list[['element']]`) rather than
+  the dollar-sign operator (`list$element`) when accessing the elements of a
+  list. The `$` operator uses partial matching, whereas `[[`, by default, does
+  not. (However, it can be specified: `list[['element', exact = FALSE]]`.)
+  Avoiding partial matching by using `[[` gives us more confidence that errors
+  won't occur.
+
+* While there is no inherent performance difference between a `for` loop and an
+  apply-type function such as `apply` or `lapply` (the apply functions actually
+  use `for` loops in their source code), it is nevertheless possible to write a
+  "bad" `for` loop that runs slowly. Common culprits include a failure to
+  pre-allocate memory or a poor choice in assignment method. If a `for` loop
+  seems to run slowly, consider replacing it with an apply-type function or
+  tweaking the assignment method (e.g. replacing `append` with `[`). Many guides
+  for optimizing loop performance are available online, such as [Strategies to
+  Speedup R Code](https://datascienceplus.com/strategies-to-speedup-r-code/) and
+  [Why loops are slow in R](https://privefl.github.io/blog/why-loops-are-slow-in-r/).
+
 ## Running Unit Tests
 
 The **BioCro** package contains a collection of R-based unit tests to help
