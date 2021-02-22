@@ -30,6 +30,7 @@ std::vector<std::string> c3_canopy::get_inputs() {
 		"chil",
 		"StomataWS",
         "specific_heat_of_air",  // J / kg / K
+        "atmospheric_pressure",  // Pa
 		"growth_respiration_fraction",
 		"water_stress_approach",
 		"electrons_per_carboxylation",
@@ -56,7 +57,7 @@ void c3_canopy::do_operation() const {
             *jmax_ip, *tpu_rate_max_ip, *Rd_ip, *Catm_ip, *O2_ip, *b0_ip,
             *b1_ip, *Gs_min_ip, *theta_ip, *kd_ip, *heightf_ip, *LeafN_ip,
             *kpLN_ip, *lnb0_ip, *lnb1_ip, (int)(*lnfun_ip), *chil_ip,
-            *StomataWS_ip, *specific_heat_of_air_ip,
+            *StomataWS_ip, *specific_heat_of_air_ip, *atmospheric_pressure_ip,
             *growth_respiration_fraction_ip, (int)(*water_stress_approach_ip),
             *electrons_per_carboxylation_ip, *electrons_per_oxygenation_ip);
 

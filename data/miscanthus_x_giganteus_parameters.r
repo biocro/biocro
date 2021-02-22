@@ -4,6 +4,7 @@ miscanthus_x_giganteus_parameters = with(list(), {
     "symbol                     value
     alpha1                      0.04
     alphab1                     0
+    atmospheric_pressure        101325
     b0                          0.08
     b1                          3
     beta                        0.93

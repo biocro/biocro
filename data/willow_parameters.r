@@ -4,6 +4,7 @@ willow_parameters = with(list(), {
     "symbol                        value
     alpha1                         0
     alphab1                        0
+    atmospheric_pressure           101325
     b0                             0.08
     b1                             5
     Catm                           400

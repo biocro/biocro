@@ -31,6 +31,8 @@ big_leaf_multilayer_canopy::big_leaf_multilayer_canopy(const std::unordered_map<
 	StomataWS_ip(get_ip(input_parameters, "StomataWS")),
 	Rd_ip(get_ip(input_parameters, "Rd")),
 	stefan_boltzman_ip(get_ip(input_parameters, "stefan_boltzman")),
+	specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
+    atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
 	k_Q10_ip(get_ip(input_parameters, "k_Q10")),
 	// Get pointers to output parameters
 	canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
@@ -130,6 +132,7 @@ std::vector<std::string> big_leaf_multilayer_canopy::get_inputs() {
 		"chil",
 		"stefan_boltzman",			// For a standalone module
         "specific_heat_of_air",     // For a standalone module
+        "atmospheric_pressure",
 		"k_Q10",					// For a standalone module
 		"vmax1",					// For a standalone module
 		"alpha1",					// For a standalone module
@@ -184,7 +187,7 @@ void big_leaf_multilayer_canopy::do_operation() const {
 	constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
 	// Get light properties
-	Light_model irradiance_fractions = lightME(lat, doy, hour);
+	Light_model irradiance_fractions = lightME(lat, doy, hour, *atmospheric_pressure_ip);
 
 	// TODO: The light at the top of the canopy should not be part of this function. They should be calculated before this is called.
 	// If cos(theta) is less than zero, the Sun is below the horizon, and lightME sets direct fraction to 0.

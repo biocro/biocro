@@ -52,6 +52,7 @@ class c4_canopy : public SteadyModule {
 	        et_equation_ip(get_ip(input_parameters, "et_equation")),
 			StomataWS_ip(get_ip(input_parameters, "StomataWS")),
             specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
+            atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
 			water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
 			// Get pointers to output parameters
 	        canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
@@ -106,6 +107,7 @@ class c4_canopy : public SteadyModule {
         const double* et_equation_ip;
 		const double* StomataWS_ip;
         const double* specific_heat_of_air_ip;
+        const double* atmospheric_pressure_ip;
 		const double* water_stress_approach_ip;
 		// Pointers to output parameters
         double* canopy_assimilation_rate_op;
@@ -161,6 +163,7 @@ std::vector<std::string> c4_canopy::get_inputs() {
         "et_equation",
 		"StomataWS",
         "specific_heat_of_air",  // J / kg / K
+        "atmospheric_pressure",  // Pa
 		"water_stress_approach"
 	};
 }
@@ -200,7 +203,7 @@ void c4_canopy::do_operation() const {
             *heightf_ip, *LeafN_ip, *kpLN_ip, *lnb0_ip, *lnb1_ip,
             (int)(*lnfun_ip), *upperT_ip, *lowerT_ip, nitroP, *leafwidth_ip,
             (int)(*et_equation_ip), *StomataWS_ip, *specific_heat_of_air_ip,
-            (int)(*water_stress_approach_ip));
+            *atmospheric_pressure_ip, (int)(*water_stress_approach_ip));
 
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);	// Mg / ha / hr.

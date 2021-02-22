@@ -52,6 +52,7 @@ class big_leaf_multilayer_canopy : public SteadyModule {
 		const double* Rd_ip;
 		const double* stefan_boltzman_ip;
         const double* specific_heat_of_air_ip;
+        const double* atmospheric_pressure_ip;
 		const double* k_Q10_ip;
 		// Pointers to output parameters
 		double* canopy_assimilation_rate_op;

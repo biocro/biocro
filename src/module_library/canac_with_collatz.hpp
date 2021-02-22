@@ -40,6 +40,7 @@ struct Can_Str newCanAC(
         const struct nitroParms &nitroP,
         double leafwidth,    // meter
         double specific_heat_of_air,  // J / kg / K
+        double atmospheric_pressure,  // Pa
         int eteq,
         double StomataWS,
         int water_stress_approach,
@@ -116,7 +117,7 @@ struct Can_Str newCanAC(
 	std::shared_ptr<Standalone_SS> canopy_modules = std::shared_ptr<Standalone_SS>(new Standalone_SS(steady_state_modules, input_param_ptrs, output_param_ptrs));
 
 	// Calculate the light and humidity properties at each layer of the canopy
-	struct Light_model light_model = lightME(lat, DOY, hr);
+	struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
 
 	double Idir = light_model.direct_irradiance_fraction * solarR;  // micromole / m^2 / s. Flux through a plane perpendicular to the rays of the sun.
 	double Idiff = light_model.diffuse_irradiance_fraction * solarR;
@@ -258,6 +259,7 @@ class canac_with_collatz : public SteadyModule {
 			lowerT_ip(get_ip(input_parameters, "lowerT")),
 			leafwidth_ip(get_ip(input_parameters, "leafwidth")),
             specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
+            atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
 			et_equation_ip(get_ip(input_parameters, "et_equation")),
 			StomataWS_ip(get_ip(input_parameters, "StomataWS")),
 			water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
@@ -312,6 +314,7 @@ class canac_with_collatz : public SteadyModule {
 		const double* lowerT_ip;
 		const double* leafwidth_ip;
         const double* specific_heat_of_air_ip;
+        const double* atmospheric_pressure_ip;
 		const double* et_equation_ip;
 		const double* StomataWS_ip;
 		const double* water_stress_approach_ip;
@@ -367,6 +370,7 @@ std::vector<std::string> canac_with_collatz::get_inputs() {
 		"lowerT",
 		"leafwidth",
         "specific_heat_of_air",  // J / kg / K
+        "atmospheric_pressure",  // Pa
 		"et_equation",
 		"StomataWS",
 		"water_stress_approach",
@@ -425,6 +429,7 @@ void canac_with_collatz::do_operation() const {
 	double lowerT = *lowerT_ip;
 	double leafwidth = *leafwidth_ip;
     double specific_heat_of_air = *specific_heat_of_air_ip;
+    double atmospheric_pressure = *atmospheric_pressure_ip;
 	double et_equation = *et_equation_ip;
 	double StomataWS = *StomataWS_ip;
 	double water_stress_approach = *water_stress_approach_ip;
@@ -456,8 +461,8 @@ void canac_with_collatz::do_operation() const {
 			b0, b1, theta, kd, chil,
 			heightf, LeafN, kpLN, lnb0, lnb1,
 			(int)lnfun, upperT, lowerT, nitroP, leafwidth, specific_heat_of_air,
-			(int)et_equation, StomataWS, (int)water_stress_approach,
-			leaf_transmittance, leaf_reflectance);
+            atmospheric_pressure, (int)et_equation, StomataWS,
+            (int)water_stress_approach, leaf_transmittance, leaf_reflectance);
 
 	// Update the output parameter list
 	update(canopy_assimilation_rate_op, can_result.Assim);		// Mg / ha / hr.

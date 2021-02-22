@@ -36,9 +36,10 @@ struct Can_Str CanAC(
         int eteq,
         double StomataWS,
         double specific_heat_of_air,  // J / kg / K
+        double atmospheric_pressure,  // Pa
         int water_stress_approach)
 {
-    struct Light_model light_model = lightME(lat, DOY, hr);
+    struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
 
     double Idir = light_model.direct_irradiance_fraction * solarR;  // micromole / m^2 / s. Flux through a plane perpendicular to the rays of the sun.
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;

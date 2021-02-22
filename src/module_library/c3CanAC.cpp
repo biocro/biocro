@@ -30,12 +30,13 @@ struct Can_Str c3CanAC(double LAI,
         double chil,
 		double StomataWS,
         double specific_heat_of_air,  // J / kg / K
+        double atmospheric_pressure,  // Pa
         double growth_respiration_fraction,
 		int water_stress_approach,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation)
 {
-	struct Light_model light_model = lightME(lat, DOY, hr);
+	struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
 
     double Idir = light_model.direct_irradiance_fraction * solarR;
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
