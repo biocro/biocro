@@ -1,4 +1,4 @@
-#include "rasmussen_cp.h"
+#include "rasmussen_specific_heat.h"
 #include "../constants.h"  // For conversion_factors
 
 using conversion_factors::celsius_to_kelvin;
@@ -46,7 +46,7 @@ double rasmussen_specific_heat_of_air(
            b_2 * pow(mole_fraction_h2o, 2);  // J / kg / K
 }
 
-std::vector<std::string> rasmussen_cp::get_inputs()
+std::vector<std::string> rasmussen_specific_heat::get_inputs()
 {
     return {
         "temp",                         // degrees C
@@ -54,14 +54,14 @@ std::vector<std::string> rasmussen_cp::get_inputs()
     };
 }
 
-std::vector<std::string> rasmussen_cp::get_outputs()
+std::vector<std::string> rasmussen_specific_heat::get_outputs()
 {
     return {
         "specific_heat_of_air"  // J / kg / K
     };
 }
 
-void rasmussen_cp::do_operation() const
+void rasmussen_specific_heat::do_operation() const
 {
     // Convert temperature to Kelvin. (Note: this step will be unnecessary once
     // inputs have been standardized to coherent SI units and air temperature is

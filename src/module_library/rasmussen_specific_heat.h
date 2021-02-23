@@ -1,5 +1,5 @@
-#ifndef RASMUSSEN_CP_H
-#define RASMUSSEN_CP_H
+#ifndef RASMUSSEN_SPECIFIC_HEAT_H
+#define RASMUSSEN_SPECIFIC_HEAT_H
 
 #include "../modules.h"
 #include "../state_map.h"
@@ -32,19 +32,19 @@ double rasmussen_specific_heat_of_air(
 );
 
 /**
- * @class rasmussen_cp
+ * @class rasmussen_specific_heat
  *
  * @brief Determines the specific heat capacity of atmospheric air at constant
  * pressure using the `rasmussen_specific_heat_of_air()` function.
  */
-class rasmussen_cp : public SteadyModule
+class rasmussen_specific_heat : public SteadyModule
 {
    public:
-    rasmussen_cp(
+    rasmussen_specific_heat(
         state_map const* input_parameters,
         state_map* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("rasmussen_cp"),
+          SteadyModule("rasmussen_specific_heat"),
 
           // Get references to input parameters
           temp{get_input(input_parameters, "temp")},

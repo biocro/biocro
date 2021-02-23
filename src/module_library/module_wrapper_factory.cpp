@@ -94,7 +94,7 @@
 #include "ed_multilayer_c4_canopy.h"
 #include "ed_multilayer_canopy_integrator.h"
 #include "hyperbolas.h"
-#include "rasmussen_cp.h"
+#include "rasmussen_specific_heat.h"
 #include "buck_swvp.h"
 #include "rh_to_mole_fraction.h"
 
@@ -223,7 +223,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_ten_layer_canopy_integrator",                  &create_wrapper<ed_ten_layer_canopy_integrator>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>},
-     {"rasmussen_cp",                                    &create_wrapper<rasmussen_cp>},
+     {"rasmussen_specific_heat",                         &create_wrapper<rasmussen_specific_heat>},
      {"buck_swvp",                                       &create_wrapper<buck_swvp>},
      {"rh_to_mole_fraction",                             &create_wrapper<rh_to_mole_fraction>}
 };
