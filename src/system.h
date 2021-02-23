@@ -11,7 +11,7 @@
 
 /**
  * @class System
- * 
+ *
  * @brief Defines a system of differential equations. Intended to be passed to a system_solver object.
  */
 class System
@@ -78,7 +78,7 @@ class System
 
     // Quantity maps defined during construction
     state_map quantities;
-    state_map module_output_map;
+    state_map derivative_module_outputs;
 
     // Module lists defined during construction
     module_vector steady_state_modules;
@@ -87,9 +87,7 @@ class System
     // Pointers to quantity values defined during construction
     double* timestep_ptr;
     std::vector<double*> state_ptrs;
-    std::vector<double*> steady_state_ptrs;
     std::vector<std::pair<double*, const double*>> state_ptr_pairs;
-    std::vector<std::pair<double*, const double*>> steady_state_ptr_pairs;
     std::vector<std::pair<double*, const std::vector<double>*>> varying_ptr_pairs;
 
     // For calculating derivatives
@@ -114,7 +112,7 @@ class System
 /**
  * @brief Updates the state parameter x with the current values of all
  * the state parameters.
- * 
+ *
  * @param[out] x An object capable of containing the state,
  * typically either std::vector<double> or boost::numeric::ublas::vector<double>.
  */
@@ -127,7 +125,7 @@ void System::get_state(state_type& x) const
 
 /**
  * @brief Updates all quantities (including ones calculated by steady state modules) based on the input state and time
- * 
+ *
  * @param[in] x the state
  * @param[in] t the time
  */
@@ -141,7 +139,7 @@ void System::update(const state_type& x, const time_type& t)
 
 /**
  * @brief Calculates a derivative given an input state and time. Function signature is set by the boost::odeint library.
- * 
+ *
  * @param[in] x values of the state parameters
  * @param[out] dxdt derivatives of the state parameters calculated using x and t
  * @param[in] t time value
@@ -178,7 +176,7 @@ void System::update_state_params(vector_type const& new_state)
 
 /**
  * @brief Calculates a derivative from the internally stored quantity map by running all the derivative modules
- * 
+ *
  * @param[out] dxdt a vector for storing the derivative (passed by reference for speed)
  */
 template <class vector_type>
@@ -205,13 +203,13 @@ void System::run_derivative_modules(vector_type& dxdt)
 
 /**
  * @class push_back_state_and_time
- * 
+ *
  * @brief An observer class used to store state and time values during an odeint simulation.
- * 
+ *
  * @param[in,out] states new entries will be added to this vector
  * @param[in,out] times new entries will be added to this vector
  * @param[in,out] message additional text will be appended to this string
- * 
+ *
  */
 template <typename state_type>
 struct push_back_state_and_time {
@@ -277,7 +275,7 @@ state_vector_map get_results_from_system(std::shared_ptr<System> sys,
     for (const std::string& p : output_param_names) {
         results[p] = temporary;
     }
-    
+
     // Add an entry for ncalls (hopefully there will be a better way
     // to do this someday):
     std::fill(temporary.begin(), temporary.end(), sys->get_ncalls());
