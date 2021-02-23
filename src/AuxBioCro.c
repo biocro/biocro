@@ -496,8 +496,6 @@ struct ET_Str EvapoTrans2(double Rad,
     totalradiation = Rad * 0.235; /* This is essentially Watts m^-2 */
     /* On a clear sky it may exceed 1000 in some parts of the world 
        Thornley and Johnson pg 400 */
-    /* This values can not possibly be higher than 650 */
-    if(totalradiation > 650) error("total radiation too high");
 
     /* Ja = (2 * totalradiation * ((1 - LeafReflectance - tau) / (1 - tau))) * LeafAreaIndex; */
     /* It seems that it is not correct to multiply by the leaf area index. The previous
