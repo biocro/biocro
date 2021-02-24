@@ -33,11 +33,16 @@ On Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) version 3.3
 ##### Easy method:
 
 ```r
-library(devtools)
-install_github('ebimodeling/biocro')
+devtools::install_github('ebimodeling/biocro')
 ```
 
-Alternatives methods:
+To install a specific [previously released version](https://github.com/ebimodeling/biocro/releases) (e.g. v0.951)
+
+```r
+devtools::install_github("ebimodeling/biocro@0.951") 
+```
+
+##### Alternatives methods:
 
 Clone the BioCro source code from GitHub with `git clone https://github.com/ebimodeling/biocro`. Or, [download the source](https://github.com/ebimodeling/biocro/archive/master.zip), unzip the file, and install from the either the command line or from within R using one of the following sets of commands. 
 
@@ -56,6 +61,7 @@ install.packages('biocro', repos=NULL, type='SOURCE')
 ```
 
 ### Inputs
+
 * Species-specific plant physiological traits
     * Photosynthetic parameters
     * Phenological stages
@@ -76,6 +82,7 @@ install.packages('biocro', repos=NULL, type='SOURCE')
     * Humidity
 
 ### Outputs
+
 * Yield
 * Net primary production
 * Biomass (leaf, root, storage)
@@ -84,10 +91,12 @@ install.packages('biocro', repos=NULL, type='SOURCE')
 * many more
 
 ### Software Documentation
+
 * [R package](http://ebimodeling.github.io/biocro/documentation/r/)
 * [C library](http://ebimodeling.github.io/biocro/documentation/doxygen/)
 
 ## References 
+
 * [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.
 
 * [Miguez FE, Zhu XG, Humphries S, Bollero GA, Long SP][Miguez et al., 2009] (2009) A semimechanistic model predicting the growth and production of the bioenergy crop Miscanthus × giganteus: description, parameterization and validation.  Global Change Biology Bioenergy 1: 282-296.
