@@ -29,15 +29,21 @@ System::System(
         throw std::logic_error("Cyclic dependencies should be caught in the validation routine.  We shouldn't ever get here.");
     }
 
-    // Make the central list of quantities and the module output map
+    // Make the central list of quantities
     quantities = define_quantity_map(
         std::vector<state_map>{init_state, invariant_params, at(varying_params, 0)},
         std::vector<string_vector>{steady_state_module_names});
-    module_output_map = quantities;
 
-    // Instantiate the modules
-    steady_state_modules = get_module_vector(std::vector<string_vector>{steady_state_module_names}, &quantities, &module_output_map);
-    derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &module_output_map);
+    // Make a map to store the output of derivative modules, which can only
+    // include quantities in the initial state
+    derivative_module_outputs = init_state;
+
+    // Instantiate the modules. Derivative modules should not modify the main
+    // quantity map since their output represents derivatives of quantity values
+    // rather than actual quantity values, but steady state modules should
+    // directly modify the main output map.
+    steady_state_modules = get_module_vector(std::vector<string_vector>{steady_state_module_names}, &quantities, &quantities);
+    derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, &quantities, &derivative_module_outputs);
 
     // Make lists of subsets of quantity names
     string_vector steady_state_output_names =
@@ -50,16 +56,14 @@ System::System(
     // Get vectors of pointers to important subsets of the quantities
     // These pointers allow us to efficiently reset portions of the
     //  module output map before running the modules
-    state_ptrs = get_pointers(istate_names, module_output_map);
-    steady_state_ptrs = get_pointers(steady_state_output_names, module_output_map);
+    state_ptrs = get_pointers(istate_names, derivative_module_outputs);
 
     // Get pairs of pointers to important subsets of the quantities
     // These pairs allow us to efficiently retrieve the output of each
     // module and store it in the main quantity map when running the
     // system, to update the varying parameters at new time points,
     // etc.
-    state_ptr_pairs = get_pointer_pairs(istate_names, quantities, module_output_map);
-    steady_state_ptr_pairs = get_pointer_pairs(steady_state_output_names, quantities, module_output_map);
+    state_ptr_pairs = get_pointer_pairs(istate_names, quantities, derivative_module_outputs);
     varying_ptr_pairs = get_pointer_pairs(vp_names, quantities, varying_parameters);
 
     // Get a pointer to the timestep
@@ -103,17 +107,9 @@ void System::update_varying_params(double time_indx)
  */
 void System::run_steady_state_modules()
 {
-    // Clear the module output map
-    for (double* const& x : steady_state_ptrs) {
-        *x = 0.0;
-    }
-
-    // Run each module and store its output in the main quantity map
+    // Run each module
     for (std::unique_ptr<Module> const& m : steady_state_modules) {
         m->run();
-        for (auto const& x : steady_state_ptr_pairs) {
-            *x.first = *x.second;
-        }
     }
 }
 
