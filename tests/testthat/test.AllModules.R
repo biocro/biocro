@@ -87,7 +87,10 @@ for (module_name in all_modules) {
     if (module_name %in% c(
         'ed_c4_leaf_photosynthesis',
         'ed_c4_leaf_photosynthesis2',
+        'ed_c4_leaf_photosynthesis3',
         'ed_c4_leaf_photosynthesis4',
+        'ed_nikolov_conductance_free_solve',
+        'ed_p_m_temperature_solve',
         'ed_ten_layer_c4_canopy',
         ''))
     {
