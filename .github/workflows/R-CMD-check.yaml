@@ -405,3 +405,4 @@ jobs:
         with:
           name: ${{ runner.os }}-r${{ matrix.r }}-results
           path: check
+          retention-days: 3
