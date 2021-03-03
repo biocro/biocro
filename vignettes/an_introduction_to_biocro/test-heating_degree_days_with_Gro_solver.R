@@ -1,4 +1,4 @@
-context('Test basic function of the derivative module "heating_degree_days".')
+context('Test basic functioning of the derivative module "heating_degree_days".')
 
 steady_state_modules <- c()
 derivative_modules <- c("heating_degree_days")
@@ -21,16 +21,16 @@ calculate_heating_degree_days <- function(initial_value, time_vector, temperatur
 }
 
 euler_solvers <- list(
-    list(type='Gro_euler', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200),
-    list(type='Gro_euler_odeint', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200)
+    list(type='Gro_euler', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200),
+    list(type='Gro_euler_odeint', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 )
 
 other_solvers <- list(
-    list(type='Gro_rk4', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200),
-    list(type='Gro_rkck54', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200)
+    list(type='Gro_rk4', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200),
+    list(type='Gro_rkck54', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 )
 
-non_euler_solvers <- c(other_solvers, list(list(type='Gro_rsnbrk', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200)))
+non_euler_solvers <- c(other_solvers, list(list(type='Gro_rsnbrk', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)))
 
 well_behaved_solvers <- c(euler_solvers, other_solvers) # Rosenbrook solver doesn't work with time sequences of length less than 3.
 

@@ -1,4 +1,4 @@
-context('Test basic function of the derivative module "heating_degree_days".')
+context('Test basic functioning of the derivative module "heating_degree_days".')
 
 ## Given the (average) ambient temperature over an hour-long interval
 ## and given a threshold temperature, return the number of heating

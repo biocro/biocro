@@ -410,7 +410,7 @@ t$ is of fixed size.
 \subsubsection{Function inputs}
 \label{sec:solver_inputs}
 
-The R function \code{Gro\_solver()} accepts five parameters that
+The R function \Rcode{Gro\_solver()} accepts five parameters that
 correspond to the model inputs given in
 Table~\ref{tab:model_inputs}. For convenience, $\boldX_\kn$ is
 separated into variables that do or do not vary over the simulation
@@ -1336,6 +1336,7 @@ fail for reasons not having anything to do with the underlying C++
 module.}
 
 \subsubsection{Writing unit tests for a steady-state module}
+\label{sec:write_ss_unit_test}
 
   In writing our tests, we will make use of the R \Rcode{test_module}
   function.  This function takes as input the name of a module (as a
@@ -1346,12 +1347,12 @@ module.}
 \begin{enumerate}
 
 \item Create a file for the module tests in the directory
-  \code{tests/testthat}.  The file name should begin with ``test'' and
+  \code{tests/testthat}.  The file name should begin with ``test-'' and
   end with ``.R''.  A good name for the file would be something of the
-  form \code{test.}\placeholder{module name}\code{.R}.
+  form \code{test-}\placeholder{module name}\code{.R}.
 
   \begin{example}[4]
-    test.solar_zenith_angle_in_degrees.R
+    test-solar_zenith_angle_in_degrees.R
   \end{example}
 
 \item At the top of the new file, add a \emph{context} statement
@@ -1496,6 +1497,7 @@ module.}
 
 
 \subsubsection{Writing unit tests for a derivative module}
+\label{sec:write_deriv_unit_test}
 
   Again, in writing our tests, we will make use of the R
   \Rcode{test_module} function. Keep in mind that in the case of a
@@ -1508,7 +1510,7 @@ module.}
 \item Make a file for the test.
 
   \begin{Rexample}[4]
-    test.heating_degree_days.R
+    test-heating_degree_days.R
   \end{Rexample}
 
 \item Add a context statement.
@@ -1527,54 +1529,36 @@ module.}
 
 \subsubsection{Running the tests}
 
-To run the tests you have just written, start an R session and make
-sure both the \Rcode{BioCro} and the \Rcode{testthat} libraries are
-loaded:
+Perhaps the easiest way to run all of the \emph{testthat} tests is to
+use the \emph{devtools} package: assuming you have an R session open
+in a directory inside the BioCro source tree and \emph{devtools} has
+been loaded, simply do this:
 
-\begin{Rlisting}[2]
-  library(BioCro)
-  library(testthat)
-\end{Rlisting}
-
-Then, use the \Rcode{testthat::test_file} function, specifying the
-path to the test file as argument.  (If you want to use a relative
-path from the current directory, and you want to check which directory
-\emph{is} the current directory, use the command \Rcode{getwd()}.)
-
-For example, if we are in the package root directory, we can run the
-two test files we have written with
-\begin{Rexample}[2]
-  test_file('tests/testthat/test.solar_zenith_angle_in_degrees.R')
-\end{Rexample}
-and
-\begin{Rexample}[2]
-  test_file('tests/testthat/test.heating_degree_days.R')
-\end{Rexample}
-
-If you wish to run \emph{all} of the \Rcode{testthat} tests, one way
-to do this is to use the \Rcode{test_dir} function, giving the path to
-the \Rcode{testthat} directory as argument.  Again, if we are in the
-package root directory, we would do this:
-\begin{Rlisting}[2]
-  test_dir('tests/testthat')
-\end{Rlisting}
-
-If you have the \Rcode{devtools} package installed, running all tests
-is even simpler.  Assuming both \Rcode{BioCro} and \Rcode{devtools}
-have been loaded, simply do this:
 \begin{Rlisting}[2]
   test()
 \end{Rlisting}
+
 If you use RStudio, you needn't even type: choosing ``Test Package''
 from the Build menu, or simply using the keyboard-shortcut ``Ctrl/Cmd
 + Shift + T'' will suffice.  This method of running the tests has the
 added advantage that a test producing a segmentation fault won't crash
 the whole R session.\footnote{If you don't have the devtools package
-  installed, the RStudio ``Test Package'' command will still work, but
-  it won't do quite the same thing.  Instead of running all of the
-  \Rcode{testthat} tests, it will run all of the \Rcode{.R} files in
-  the \Rcode{tests} directory.}
+installed or haven't checked the "Use devtools package functions if
+available" checkbox in the build configuration pane, the RStudio
+``Test Package'' command will still work (assuming the \emph{testthat}
+package itself has been installed), but it won't do quite the same
+thing.  Instead of simply running all of the \Rcode{testthat} tests,
+it will run all of the \Rcode{.R} files in the \Rcode{tests}
+directory.  Since one of these files, \code{testthat.R}, runs all of
+the \emph{testthat} tests, this will essentially amount to the same
+thing unless there are other \Rcode{.R} files in the \code{tests}
+directory.}
 
+\Rcode{test()} will run all tests against the version of BioCro
+represented by the source code.  To learn how to run the tests against
+an \emph{installed} version, run the tests in only some of the files,
+or avoid installing \emph{devtools}, consult the \emph{readme} file
+\code{tests/README.md}.
 
 
 \pagebreak
@@ -1592,7 +1576,7 @@ full simulation, albeit perhaps one with a very limited time span.
 
 A much more convenient way to write tests is to use the
 \Rcode{test_module} function. This is the method we demonstrate in
-section \ref{sec:writing_tests}.  By using \Rcode{test_module}, we can
+section~\ref{sec:writing_tests}.  By using \Rcode{test_module}, we can
 test the basic functioning of a module while avoiding all of the many
 steps needed to set up a full system for running a simulation.
 
@@ -1631,25 +1615,18 @@ one since we aren't interested in how the state changes over time.
 And the state variables need only include the input variables for the
 module being tested plus certain time-related variables.
 
+\begin{itemize}
+
+\item[1 \& 2.] Steps 1 and 2 are exactly as in section~\ref{sec:write_ss_unit_test}.
+
+\end{itemize}
+
+The third step is ``new'', as it involves setting up parameters for
+the \Rcode{Gro_solver} function, something we don't need to do when
+using \Rcode{test_module}:
+
 \begin{enumerate}
-
-\item Create a file for the module tests in the directory
-  \code{tests/testthat}.  The file name should begin with ``test'' and
-  end with ``.R''.  A good name for the file would be something of the
-  form \code{test.}\placeholder{module name}\code{.R}.
-
-  \begin{example}[4]
-    test.solar_zenith_angle_in_degrees.R
-  \end{example}
-
-\item At the top of the new file, add a \emph{context} statement
-  providing a general description of the tests in the file.  This
-  will be a statement of the form
-  \Rcode{context(}\stringplaceholder{some descriptive text}\Rcode{)}.
-
-  \begin{Rexample}[4]
-    context('Test basic functioning of the steady-state module "solar_zenith_angle_in_degrees".')
-  \end{Rexample}
+\setcounter{enumi}{2}
 
 \item Define parameters for the \Rcode{Gro_solver} function.  Assuming
   we call \Rcode{Gro_solver} as
@@ -1670,7 +1647,7 @@ module being tested plus certain time-related variables.
 
   (The last two have default values of
   \begin{Rlisting}[4]
-    list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200)
+    list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
   \end{Rlisting}
   and \Rcode{FALSE}, respectively.  Since it doesn't matter what
   solver we use for testing a steady state module, and since in
@@ -1733,7 +1710,7 @@ module being tested plus certain time-related variables.
 
   As for which list should include the module input variable values,
   this too is largely immaterial for the purposes of running the test.
-  But again, to minimuze confusion, it is best to include the setting
+  But again, to minimize confusion, it is best to include the setting
   in the list that would make sense in a real system.  So, for
   example, if it is a parameter that normally varies over the course
   of time, then it doesn't make sense to assign it in the
@@ -1752,49 +1729,28 @@ module being tested plus certain time-related variables.
 
 \item Write one or more tests.
 
-  Each test will be a statement of the form
-  \begin{Rlisting}[4]
+  As in section~\ref{sec:write_ss_unit_test}, each test will be a
+  statement of the form
+    \begin{Rlisting}[4]
     test_that(|\stringplaceholder{overall test description}|, {
       |\placeholder{one or more statements, including statements of the form \texttt{expect\_*(...)}}|
     })
   \end{Rlisting}
-  More specifically, each test will generally set the parameter values
-  that have not already been set globally and then call
-  \Rcode{Gro_solver}:
+  However, instead of getting results to test by calling
+  \Rcode{test_module}, we call \Rcode{Gro_solver} instead:
   \begin{Rlisting}[4]
     result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
   \end{Rlisting}
-  The subsequent statements may then test various aspects of \Rcode{result}.
 
-  The heart of a \Rcode{testthat} test are the \emph{expectations}.
-  These are assertions of some condition that should hold or some
-  result that should be obtained from running the module code.  They
-  take the form of a function call to any one of a number of functions
-  whose names begin with the string \Rcode{expect_}.  We will be
-  primarily concerned with two such functions:
-  \Rcode{expect_equal(}\placeholder{actual value}\Rcode{,}
-  \placeholder{expected value}\Rcode{)}, which tests that its two
-  arguments are equal (give or take some small amount, which can be
-  specfied explicitely by supplying a third argument of the form
-  \Rcode{tolerance =} \placeholder{some small number}); and
-  \Rcode{expect_true(}\placeholder{some boolean condition}\Rcode{)},
-  which tests that some condition holds.  More about \Rcode{expect_}
-  functions can be found in section 10.2.1 of
-  \url{https://r-pkgs.org/tests.html}, and the full complement of
-  \Rcode{expect_} functions is listed and documented at
-  \url{https://cran.r-project.org/web/packages/testthat/testthat.pdf}.
+As before, the various \Rcode{expect_} functions are used to test
+\Rcode{result}.  In fact, once we make some global parameter settings
+and re-define our helper function \Rcode{angle_from_cosine} to utilize
+\Rcode{Gro_solver} instead of \Rcode{test_module}, the tests
+themselves can remain exactly as in section~\ref{sec:write_ss_unit_test}.
 
-  What should be tested?  Here are some possibilities:
-
-  \begin{enumerate}
-
-  \item Sample values that produce recognizable results.
-
-    From elementary trignometry, we know, for example, that the angle
-    between $0^\circ$ and $180^\circ$ having a cosine of $0.5$ is
-    $60^\circ$.  We can test that this is the actual result obtained
-    from our module with a simple test.  Assuming we have set the
-    modules, invariant parameters, and initial state globally with
+Here are the precise settings we will use for the modules, invariant
+parameters, and initial state:
+    
     \begin{Rexample}[6]
       steady_state_modules <- c("solar_zenith_angle_in_degrees")
       derivative_modules <- c()
@@ -1803,24 +1759,13 @@ module being tested plus certain time-related variables.
       invariant_parameters <- list(timestep = 1)
     \end{Rexample}
 
-    we can write our test as follows:\footnote{
+The helper function \Rcode{angle_from_cosine} becomes:\footnote{
       We make no attempt here to coordinate the input
       values for \Rcode{cosine_zenith_angle} and for
       \Rcode{doy_dbl}. While in general we prefer to use input
       values that might be associated with a realistic system, for
       the purposes of writing tests of a module, it may sometimes be
       more convenient not to do so.}
-
-    \begin{Rexample}[6]
-      test_that("When the cosine is 1/2, the angle is 60 degrees.", {
-        varying_parameters <- list(doy_dbl = 1, cosine_zenith_angle = 0.5)
-        result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
-        expect_equal(result$zenith_angle_in_degrees, 60)
-    \end{Rexample}
-
-    Since we will likely call \Rcode{Gro_solver} in each test, we
-    can write a helper function to factor the repetitious code out
-    of our tests; for example,
 
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
@@ -1830,68 +1775,13 @@ module being tested plus certain time-related variables.
       }
     \end{Rexample}
 
-    Then our test becomes simply
-
-    \begin{Rexample}[6]
-      test_that("When the cosine is 1/2, the angle is 60 degrees.", {
-        expect_equal(angle_from_cosine(0.5), 60)
-      })
-    \end{Rexample}
-
-
-  \item Edge cases.
-
-    It often makes sense to test module operation at the very
-    limit of allowable values.  For the cosine of an angle, these
-    limits are plus and minus one.\footnote{Note that zenith
-      angles greater than $90^\circ$ correspond to the sun being
-      below the horizon.}
-
-    \begin{Rexample}[6]
-      test_that("When the cosine is 1, the angle is 0 degrees", {
-        angle <- angle_from_cosine(1)
-        expect_equal(angle, 0)
-      })
-
-      test_that("When the cosine is -1, the angle is 180 degrees", {
-        angle <- angle_from_cosine(-1)
-        expect_equal(angle, 180)
-      })
-    \end{Rexample}
-
-  \item It's a good idea to test how the module behaves when given
-    input that is out of bounds.
-
-    What should the module in our example do when given a value for
-    the cosine that is greater than one or less than minus one?
-    We'll assume it should return NaN (``not-a-number'').
-
-    \begin{Rexample}[6]
-      test_that("When the cosine is more than 1, the angle is not a number", {
-        angle <- angle_from_cosine(1.000000001)
-        expect_true(is.nan(angle))
-      })
-
-      test_that("When the cosine is less than -1, the angle is not a number", {
-        angle <- angle_from_cosine(-1.000000001)
-        expect_true(is.nan(angle))
-      })
-    \end{Rexample}
-
-  \item Lastly, if you discover a bug in your module, it's a good
-    idea to write a test that demonstrates the bug---a test that
-    will pass once the bug is fixed and ensures it stays fixed if
-    later changes are made.
-
-  \end{enumerate}
-
-  A listing of the complete test file is shown in appendix \ref{szags
+  A listing of the complete test file is shown in appendix~\ref{szags
     test file}.
 
 \end{enumerate}
 
 
-\subsection{Writing a unit test for a derivative module using Gro\_solver}
+\subsection{Writing unit tests for a derivative module using Gro\_solver}
 
 Again, it will suffice to set up a bare-bones system.  But this time,
 we will set up a time sequence of length two or more since we want to
@@ -1910,21 +1800,19 @@ variables.\footnote{
   interested in testing.  But there may be cases where we want to test
   how two or more modules work in conjunction with one another.}
 
-Here, we show how to test the heating degree days module.
+Here, we show how to test the heating degree days module using \Rcode{Gro_solver}.
+
+\begin{itemize}
+
+\item[1 \& 2.] Steps 1 and 2 are exactly the same as in
+        section~\ref{sec:write_deriv_unit_test}.
+
+\end{itemize}
+
+Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
 
 \begin{enumerate}
-
-\item Make a file for the test.
-
-  \begin{Rexample}[4]
-    test.heating_degree_days.R
-  \end{Rexample}
-
-\item Add a context statement.
-
-  \begin{Rexample}[4]
-    context('Test basic functioning of the derivative module "heating_degree_days".')
-  \end{Rexample}
+\setcounter{enumi}{2}
 
 \item Define parameters for the \Rcode{Gro_solver} function.  Again,
   we will be assuming we call \Rcode{Gro_solver} with
@@ -1948,7 +1836,8 @@ Here, we show how to test the heating degree days module.
 
   As for \Rcode{initial_state}, \Rcode{invariant_parameters}, and
   \Rcode{varying_parameters}, we may want to vary each of these from
-  test to test.  We may also want to run tests using various solvers.
+  test to test.  We may also want to run tests using various solvers
+  and vary the timestep.
 
   For our example, we'll write a global helper function that makes this easy.
   
@@ -1992,19 +1881,19 @@ Doxygen documentation.)
 
 \subsection{Full listing of the unit-test file for solar-zenith-angle-in-degrees} \label{sza test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.solar_zenith_angle_in_degrees.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-solar_zenith_angle_in_degrees.R}
 
 \subsection{Full listing of the unit-test file for heating-degree-days} \label{hdd test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.heating_degree_days.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-heating_degree_days.R}
 
 \subsection{Full listing of the unit-test file for solar-zenith-angle-in-degrees---Gro\_solver version} \label{szags test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.solar_zenith_angle_in_degrees_with_Gro_solver.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-solar_zenith_angle_in_degrees_with_Gro_solver.R}
 
 \subsection{Full listing of the unit-test file for heating-degree-days---Gro\_solver version} \label{hddgs test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.heating_degree_days_with_Gro_solver.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-heating_degree_days_with_Gro_solver.R}
 
 \end{appendices}
 
