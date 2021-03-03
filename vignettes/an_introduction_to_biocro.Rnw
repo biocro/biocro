@@ -317,7 +317,7 @@ each time point\ $t_i$ starting with time $t_0$:
     variables in $\cd$ are assumed to be known at time $t_0$.  For
     $i>0$, the values of the variables in $\cd$ at time $t_i$ are
     calculated in step 4 of the previous iteration.}
-  
+
 \item We now have full knowledge of the three components---the known
   variables, the secondary variables, and the variables that depend on
   differential equations---that comprise the full state $\boldX_{t_i}$
@@ -410,7 +410,7 @@ t$ is of fixed size.
 \subsubsection{Function inputs}
 \label{sec:solver_inputs}
 
-The R function \Rcode{Gro\_solver()} accepts five parameters that
+The R function \Rcode{Gro_solver()} accepts five parameters that
 correspond to the model inputs given in
 Table~\ref{tab:model_inputs}. For convenience, $\boldX_\kn$ is
 separated into variables that do or do not vary over the simulation
@@ -428,12 +428,12 @@ period.\footnote{The ``unvarying'' parameters are probably more
 \begin{center}
 \begin{tabular}{| r | l |}
 	\hline
-    \textbf{Gro\_solver() input} & \textbf{model equivalent} \\ 
+    \textbf{Gro\_solver() input} & \textbf{model equivalent} \\
     \hline
-    \code{initial\_values} & $\boldX_{t_0,\cd}$ \\ 
-    \code{parameters} & $\boldX_\kn$ that do not vary with time. \\ 
-    \code{varying\_parameters} & $\boldX_\kn$ that do vary with time. \\ 
-    \code{steady\_state\_module\_names} & $\g$ \\ 
+    \code{initial\_values} & $\boldX_{t_0,\cd}$ \\
+    \code{parameters} & $\boldX_\kn$ that do not vary with time. \\
+    \code{varying\_parameters} & $\boldX_\kn$ that do vary with time. \\
+    \code{steady\_state\_module\_names} & $\g$ \\
     \code{derivative\_module\_names} & $\h$ \\
     \hline
 \end{tabular}
@@ -721,7 +721,7 @@ stand-alone C++ application, for instance.
 
 \draw [decoration={brace, raise=10 pt, amplitude=12 pt}, decorate, line width=1 pt] (R.north west) -- node[above=23 pt] {Part of the R environment} (R.north -| RC.east);
 \draw [decoration={brace, raise=10 pt, amplitude=12 pt, mirror}, decorate, line width=1 pt] (R.south -| RC.west) -- node[below=23 pt] {Compiled code} (RC.south -| C.east);
-  
+
 \end{tikzpicture}
 \end{center}
 \end{figure}
@@ -909,7 +909,7 @@ The steps are as follows.
   afore-mentioned \emph{master parameter list} is, unfortunately, as
   of this writing, only slightly less fictional than Borges'
   \emph{Library of Babel}.]}
-  
+
   \begin{example}[4]
     private:
        // References to input parameters:
@@ -1230,7 +1230,7 @@ steady-state module, but with some significant differences.
         % could use a \footnotemark / \footnotetext pair except
         % reverse links for footnotes doesn't currently seem to work
         % if one does that.
-      |        
+      |
     }
   \end{example}
 
@@ -1750,7 +1750,7 @@ themselves can remain exactly as in section~\ref{sec:write_ss_unit_test}.
 
 Here are the precise settings we will use for the modules, invariant
 parameters, and initial state:
-    
+
     \begin{Rexample}[6]
       steady_state_modules <- c("solar_zenith_angle_in_degrees")
       derivative_modules <- c()
@@ -1840,7 +1840,7 @@ Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
   and vary the timestep.
 
   For our example, we'll write a global helper function that makes this easy.
-  
+
   \begin{Rexample}[4]
     calculate_heating_degree_days <- function(initial_value, time_vector, temperature_vector, threshold_temperature, timestep, solver) {
       initial_state <- list(heating_degree_days = initial_value)
