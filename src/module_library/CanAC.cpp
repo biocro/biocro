@@ -35,7 +35,8 @@ struct Can_Str CanAC(
         double leafwidth,    // meter
         int eteq,
         double StomataWS,
-        int water_stress_approach)
+        int water_stress_approach,
+        double absorptivity_par) // dimensionless
 {
     struct Light_model light_model = lightME(lat, DOY, hr);
 
@@ -43,7 +44,7 @@ struct Can_Str CanAC(
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
-    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
+    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, absorptivity_par, heightf);
 
     double LAIc = LAI / nlayers;
 

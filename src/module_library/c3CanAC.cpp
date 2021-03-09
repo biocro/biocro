@@ -32,7 +32,8 @@ struct Can_Str c3CanAC(double LAI,
         double growth_respiration_fraction,
 		int water_stress_approach,
         double electrons_per_carboxylation,
-        double electrons_per_oxygenation)
+        double electrons_per_oxygenation,
+        double absorptivity_par) //dimensionless
 {
 	struct Light_model light_model = lightME(lat, DOY, hr);
 	
@@ -40,7 +41,7 @@ struct Can_Str c3CanAC(double LAI,
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
-    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
+    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, absorptivity_par, heightf);
     
 //    if(LAI < 0) throw std::range_error("Thrown in c3CanAC: LAI is negative."); MLM removed this error message 04/22/2020; can cause issues with integration
 

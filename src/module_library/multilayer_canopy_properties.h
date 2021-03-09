@@ -40,6 +40,7 @@ class multilayer_canopy_properties : public SteadyModule
           // Get references to input parameters
           par_incident_direct(get_input(input_parameters, "par_incident_direct")),
           par_incident_diffuse(get_input(input_parameters, "par_incident_diffuse")),
+          absortivity_par(get_input(input_parameters, "absorptivity_par")),
           lai(get_input(input_parameters, "lai")),
           cosine_zenith_angle(get_input(input_parameters, "cosine_zenith_angle")),
           kd(get_input(input_parameters, "kd")),
@@ -70,6 +71,7 @@ class multilayer_canopy_properties : public SteadyModule
     // References to input parameters
     const double& par_incident_direct;
     const double& par_incident_diffuse;
+    const double& absorptivity_par;
     const double& lai;
     const double& cosine_zenith_angle;
     const double& kd;
@@ -109,6 +111,7 @@ std::vector<std::string> multilayer_canopy_properties::get_inputs(int /*nlayers*
     return {
         "par_incident_direct",   // J / (m^2 beam) / s [area perpendicular to beam]
         "par_incident_diffuse",  // J / m^2 / s        [through any plane]
+        "absorptivity_par",      // dimensionless
         "lai",                   // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
         "cosine_zenith_angle",   // dimensionless
         "kd",                    // (m^2 ground) / (m^2 leaf)
@@ -189,7 +192,7 @@ void multilayer_canopy_properties::run() const
     // because the two units are simply related by a multiplicative conversion factor
     // and the output of sunML is linear with respect to `Idir` and `Idiff`.
     struct Light_profile par_profile = sunML(par_incident_direct, par_incident_diffuse,
-                                             lai, nlayers, cosine_zenith_angle, kd, chil, heightf);
+                                             lai, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par, heightf);
 
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];
