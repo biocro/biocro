@@ -24,7 +24,7 @@ quantity<dimensionless> arrhenius_exponent(quantity<dimensionless> c, quantity<e
     return exp(c - activation_energy / (R * temperature));
 }
 
-struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max, 
+struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax0, double _TPU_rate_max,
                double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
@@ -33,7 +33,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<flux> Rd0 = _Rd0 * 1e-6 * mole / square_meter / second;
     const quantity<flux> Vcmax0 = _Vcmax0 * 1e-6 * mole / square_meter / second;
     const quantity<mole_fraction> atmospheric_oxygen_mole_fraction = _O2 * 1e-3 * mole / mole;
-    const quantity<flux> Jmax = _Jmax * 1e-6 * mole / square_meter / second;
+    const quantity<flux> Jmax0 = _Jmax0 * 1e-6 * mole / square_meter / second;
     const quantity<temperature> leaf_temperature = (_Tleaf + 273.15) * kelvin;
     const quantity<flux> Qp = _Qp * 1e-6 * mole / square_meter / second;
     const quantity<flux> Gsw_min = Gs_min * mole / square_meter / second;
@@ -42,12 +42,14 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<dimensionless> leaf_reflectance = 0.2;
     const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
-    /* From Bernacchi 2001. Improved temperature response functions. */
+    /* From Bernacchi 2003Bernacchi et al. 2003 Plant, Cell and Environment 26, 14191430 doi: 10.1046/j.0016- 8025.2003.01050.x */
     /* Note: Values in Dubois and Bernacchi are incorrect. */    
     const quantity<mole_fraction> Kc = 1e-6 * arrhenius_exponent(38.05, 79.43e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Ko = 1e-3 * arrhenius_exponent(20.30, 36.38e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Gstar = 1e-6 * arrhenius_exponent(19.02, 37.83e3 * joule / mole, leaf_temperature);
     const quantity<flux> Vcmax = Vcmax0 * arrhenius_exponent(26.35, 65.33e3 * joule / mole, leaf_temperature);
+    const quantity<flux> Jmax = Jmax0 * arrhenius_exponent(17.57, 43.54e3 * joule / mole,
+        leaf_temperature);
     const quantity<flux> Rd = Rd0 * arrhenius_exponent(18.72, 46.39e3 * joule / mole, leaf_temperature);
 
     const double leaf_temperature_celsius = leaf_temperature.value() - 273.15;
@@ -134,7 +136,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 		/*
     	// The rate failed to converge! Rerun in debug mode, then throw an error
 		c3_str result;
-		result = c3photoCdb(_Qp, _Tleaf, RH, _Vcmax0, _Jmax, 
+		result = c3photoCdb(_Qp, _Tleaf, RH, _Vcmax0, _Jmax0,
                _Rd0, bb0, bb1, Ca, _O2,
                thet, StomWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
 		throw std::range_error("Thrown in c3photo: co2_assimilation_rate did not converge");
@@ -150,7 +152,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     return result;
 }
 
-struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax, double _TPU_rate_max, 
+struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax0, double _TPU_rate_max,
                double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
@@ -162,7 +164,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
 	myfile << _Tleaf << "\n";
 	myfile << RH << "\n";
 	myfile << _Vcmax0 << "\n";
-	myfile << _Jmax << "\n"; 
+	myfile << _Jmax0 << "\n";
 	myfile << _Rd0 << "\n";
 	myfile << bb0 << "\n";
 	myfile << bb1 << "\n";
@@ -179,7 +181,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
     const quantity<flux> Rd0 = _Rd0 * 1e-6 * mole / square_meter / second;
     const quantity<flux> Vcmax0 = _Vcmax0 * 1e-6 * mole / square_meter / second;
     const quantity<mole_fraction> atmospheric_oxygen_mole_fraction = _O2 * 1e-3 * mole / mole;
-    const quantity<flux> Jmax = _Jmax * 1e-6 * mole / square_meter / second;
+    const quantity<flux> Jmax0 = _Jmax0 * 1e-6 * mole / square_meter / second;
     const quantity<temperature> leaf_temperature = (_Tleaf + 273.15) * kelvin;
     const quantity<flux> Qp = _Qp * 1e-6 * mole / square_meter / second;
     const quantity<flux> Gsw_min = Gs_min * mole / square_meter / second;
@@ -194,6 +196,8 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
     const quantity<mole_fraction> Ko = 1e-3 * arrhenius_exponent(20.30, 36.38e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Gstar = 1e-6 * arrhenius_exponent(19.02, 37.83e3 * joule / mole, leaf_temperature);
     const quantity<flux> Vcmax = Vcmax0 * arrhenius_exponent(26.35, 65.33e3 * joule / mole, leaf_temperature);
+    const quantity<flux> Jmax = Jmax0 * arrhenius_exponent(17.57, 43.54e3 * joule / mole,
+        leaf_temperature);
     const quantity<flux> Rd = Rd0 * arrhenius_exponent(18.72, 46.39e3 * joule / mole, leaf_temperature);
 
     const double leaf_temperature_celsius = leaf_temperature.value() - 273.15;
