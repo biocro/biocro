@@ -18,7 +18,7 @@ constexpr double eps_zero = 1e-13;  // a small number for checking whether a dou
 namespace conversion_constants
 {
 /**
- *  These conversion factors are collected here for convenience and clarity
+ *  These conversion constants are collected here for convenience and clarity
  */
 constexpr double celsius_to_kelvin = 273.15;  // deg. C or deg. K
 constexpr double joules_per_calorie = 4.184;  // J / cal
