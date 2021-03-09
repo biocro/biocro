@@ -16,7 +16,7 @@
 #include <stdexcept>
 #include <string>
 #include <cmath>
-#include "../constants.h" // for pi, e, and pressure_at_sea_level
+#include "../constants.h" // for pi, e, and atmospheric_pressure_at_sea_level
 #include "c4photo.h"
 #include "BioCro.h"
 
@@ -126,7 +126,7 @@ Light_model lightME(const double latitude, const int day_of_year,
         diffuse_irradiance_transmittance = 1;
     } else { // If the Sun is above the horizon, calculate diffuse and direct irradiance from the Sun's angle to the ground and the path through the atmosphere.
         constexpr double atmospheric_transmittance = 0.85; // dimensionless.
-        const double pressure_ratio = atmospheric_pressure / physical_constants::pressure_at_sea_level; // dimensionless.
+        const double pressure_ratio = atmospheric_pressure / physical_constants::atmospheric_pressure_at_sea_level; // dimensionless.
         constexpr double proportion_of_irradiance_scattered = 0.3; // dimensionless.
 
         direct_irradiance_transmittance = pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle)); // Modified from equation 11.11 of Norman and Campbell.

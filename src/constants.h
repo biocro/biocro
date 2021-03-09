@@ -38,7 +38,7 @@ constexpr double molar_mass_of_water = 18.01528e-3;      // kg / mol
 /**
  * These constants are very constant, but only on Earth.
  */
-constexpr double pressure_at_sea_level = 101325;  // Pa
+constexpr double atmospheric_pressure_at_sea_level = 101325;  // Pa
 }  // namespace physical_constants
 
 #endif
