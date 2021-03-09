@@ -153,6 +153,7 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
         double cosTheta,                  // dimensionless
         double kd,                        //
         double chil,                      // dimensionless from m^2 / m^2.
+        double absorptivity,              // dimensionless
         double heightf)                   // m^-1 from m^2 / m^2 / m.  Leaf area density; LAI per height of canopy.
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
@@ -167,11 +168,13 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
     if (chil < 0) {
         throw std::out_of_range("chil must be non-negative.");
     }
+    if (absorptivity > 1 || absorptivity <0) {
+        throw std::out_of_range("absorptivity must be between 0 and 1.");
+    }
     if (heightf <= 0) {
         throw std::out_of_range("heightf must greater than zero.");
     }
 
-    constexpr double alphascatter = 0.8;
 
     double theta = acos(cosTheta);
     double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
@@ -186,7 +189,7 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
     for (int i = 0; i < nlayers; ++i) {
         const double CumLAI = LAIi * (i + 0.5);
 
-        const double Iscat = Ibeam * (exp(-k * sqrt(alphascatter) * CumLAI) - exp(-k * CumLAI));
+        const double Iscat = Ibeam * (exp(-k * sqrt(absorptivity) * CumLAI) - exp(-k * CumLAI));
 
         double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.
         const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
