@@ -165,13 +165,19 @@ Light_model lightME(const double latitude, const int day_of_year,
  *                 the canopy, including several photon flux densities and the
  *                 relative fractions of shaded and sunlit leaves
  *
- *  Note: although the input and output light parameters (e.g. `Idir` and
+ *  Note 1: although the input and output light parameters (e.g. `Idir` and
  *  `light_profile.direct_irradiance`) are specified as being photon flux
  *  densities measured in micromol / m^2 / s, all the calculations within this
  *  function are linear in these light parameters. So if the inputs acutally
  *  represent something else, e.g. irradiance expressed in units of J / m^2 / s,
  *  this function can still be used and the outputs will have the same units as
  *  the inputs (J / m^2 / s in this example).
+ *
+ *  Note 2: nothing in this function is specialized for a specific band of
+ *  light, so `sunML` can be used for photosynthetically active photon flux
+ *  density (PPFD), photosynthetically active radiation (PAR), near-infrared
+ *  radiation (NIR), etc, as long as the extinction coefficients and
+ *  absorptivities are appropriately chosen.
  */
 Light_profile sunML(double Idir,
         double Idiff,
