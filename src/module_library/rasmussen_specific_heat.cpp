@@ -1,8 +1,8 @@
 #include "rasmussen_specific_heat.h"
-#include "../constants.h"  // For conversion_factors
+#include "../constants.h"  // For conversion_constants
 
-using conversion_factors::celsius_to_kelvin;
-using conversion_factors::joules_per_calorie;
+using conversion_constants::celsius_to_kelvin;
+using conversion_constants::joules_per_calorie;
 
 double rasmussen_specific_heat_of_air(
     double air_temperature,   // K

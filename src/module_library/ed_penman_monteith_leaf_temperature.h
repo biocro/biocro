@@ -89,7 +89,7 @@ void ed_penman_monteith_leaf_temperature::do_operation() const
     const double total_available_energy = *solar_energy_absorbed_leaf_ip - *long_wave_energy_loss_leaf_ip;  // W / m^2
 
     // Convert temperatures to Kelvin
-    const double Tak = *temperature_air_ip + conversion_factors::celsius_to_kelvin;  // Kelvin
+    const double Tak = *temperature_air_ip + conversion_constants::celsius_to_kelvin;  // Kelvin
 
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law

@@ -94,7 +94,7 @@ void ed_penman_monteith_transpiration::do_operation() const
     const double total_available_energy = solar_energy_absorbed_leaf - long_wave_energy_loss_leaf;  // W / m^2
 
     // Convert temperatures to Kelvin
-    const double Tak = temperature_air + conversion_factors::celsius_to_kelvin;  // Kelvin
+    const double Tak = temperature_air + conversion_constants::celsius_to_kelvin;  // Kelvin
 
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law

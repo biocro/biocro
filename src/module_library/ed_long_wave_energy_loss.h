@@ -60,7 +60,7 @@ std::vector<std::string> ed_long_wave_energy_loss::get_outputs()
 
 void ed_long_wave_energy_loss::do_operation() const
 {
-    using conversion_factors::celsius_to_kelvin;
+    using conversion_constants::celsius_to_kelvin;
     using physical_constants::stefan_boltzmann;
 
     update(long_wave_energy_loss_leaf_op,

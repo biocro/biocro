@@ -2,7 +2,7 @@
 #define ED_NIKOLOV_CONDUCTANCE_H
 
 #include <cmath>           // for fabs and sqrt
-#include "../constants.h"  // for conversion_factors::celsius_to_kelvin and physical_constants::ideal_gas_constant
+#include "../constants.h"  // for conversion_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
 #include "../modules.h"
 #include "se_module.h"
 #include "AuxBioCro.h"
@@ -128,7 +128,7 @@ std::vector<std::string> ed_nikolov_conductance_forced::get_outputs()
 void ed_nikolov_conductance_forced::do_operation() const
 {
     // Convert temperatures to Kelvin
-    const double Tak = *temperature_air_ip + conversion_factors::celsius_to_kelvin;  // Kelvin
+    const double Tak = *temperature_air_ip + conversion_constants::celsius_to_kelvin;  // Kelvin
 
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law
@@ -235,8 +235,8 @@ std::vector<std::string> ed_nikolov_conductance_free::get_outputs()
 void ed_nikolov_conductance_free::do_operation() const
 {
     // Convert temperatures to Kelvin
-    const double Tak = *temperature_air_ip + conversion_factors::celsius_to_kelvin;   // Kelvin
-    const double Tlk = *temperature_leaf_ip + conversion_factors::celsius_to_kelvin;  // Kelvin
+    const double Tak = *temperature_air_ip + conversion_constants::celsius_to_kelvin;   // Kelvin
+    const double Tlk = *temperature_leaf_ip + conversion_constants::celsius_to_kelvin;  // Kelvin
 
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law

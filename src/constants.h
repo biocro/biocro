@@ -15,14 +15,14 @@ constexpr double eps_deriv = 1e-5;  // a relative step size for numerically calc
 constexpr double eps_zero = 1e-13;  // a small number for checking whether a double is zero
 }  // namespace calculation_constants
 
-namespace conversion_factors
+namespace conversion_constants
 {
 /**
  *  These conversion factors are collected here for convenience and clarity
  */
 constexpr double celsius_to_kelvin = 273.15;  // deg. C or deg. K
 constexpr double joules_per_calorie = 4.184;  // J / cal
-}  // namespace conversion_factors
+}  // namespace conversion_constants
 
 namespace physical_constants
 {
