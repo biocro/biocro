@@ -83,7 +83,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
         double Ac2 = Ci + Kc * (1 + Oi / Ko);
         quantity<flux> Ac = Ac1 / Ac2;
 
-        /* Light lmited portion */
+        /* Light limited portion */
         quantity<flux> Aj1 = J * (Ci - Gstar);
         double Aj2 = electrons_per_carboxylation * Ci + 2.0 * electrons_per_oxygenation * Gstar;
         quantity<flux> Aj = Aj1 / Aj2;
@@ -231,7 +231,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
         double Ac2 = Ci + Kc * (1 + Oi / Ko);
         quantity<flux> Ac = Ac1 / Ac2;
 
-        /* Light lmited portion */
+        /* Light limited portion */
         quantity<flux> Aj1 = J * (Ci - Gstar);
         double Aj2 = electrons_per_carboxylation * Ci + 2.0 * electrons_per_oxygenation * Gstar;
         quantity<flux> Aj = Aj1 / Aj2;
