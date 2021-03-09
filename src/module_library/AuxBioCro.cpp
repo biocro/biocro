@@ -90,21 +90,33 @@ double cos_zenith_angle(const double latitude, const int day_of_year,
 }
 
 /**
- * Light Macro Environment
+ *  @brief Calculates some properties of the "light macro environment," i.e.,
+ *  the light just above the top of the canopy.
+ *
+ *  @param [in] latitude Latitude of a position on Earth (in degrees)
+ *
+ *  @param [in] day_of_year Local day of the year (1-366)
+ *
+ *  @param [in] hour_of_day Local hour of the day expressed on a 24-hour basis
+ *
+ *  @param [in] atmospheric_pressure Local atmospheric pressure (in Pa)
+ *
+ *  The return value from this function is a customized structure
+ *  (`light_model`) with the following members:
+ *  - `light_model.direct_irradiance_fraction`: The fraction of irradiance that
+ *    is direct radiation (dimensionless)
+ *  - `light_model.diffuse_irradiance_fraction`: The fraction of irradiance
+ *    that is diffuse radiation (dimensionless)
+ *  - `light_model.cosine_zenith_angle`: The cosine of the zenith angle of the
+ *    Sun. When the Sun is directly overhead, the angle is 0 and cos(angle) is 1
+ *    (dimensionless)
+ *
+ *  The basis for this function is given in chapter 11 of Norman and Campbell.
+ *  An Introduction to Environmental Biophysics. 2nd edition.
  */
 Light_model lightME(const double latitude, const int day_of_year,
                     const double hour_of_day, const double atmospheric_pressure)
 {
-    // day_of_year and hour_of_day are given as local time for the specified latitude.
-    // atmospheric_pressure is in units of Pa
-    //
-    // Return values.
-    //  light_model.direct_irradiance_fraction: The fraction of irradiance that is direct radiation. dimensionless.
-    //  light_model.diffuse_irradiance_fraction: The fraction of irradiance that is diffuse radiation. dimensionless.
-    //  light_model.cosine_zenith_angle: The cosine of the zenith angle of the Sun. When the Sun is directly overhead, the angle is 0 and cos(angle) is 1. dimensionless.
-    //
-    // The basis for this function is given in chapter 11 of Norman and Campbell. An Introduction to Environmental Biophysics. 2nd edition.
-
     const double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);  // dimensionless.
     double direct_irradiance_transmittance;
     double diffuse_irradiance_transmittance;
