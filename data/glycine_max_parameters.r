@@ -4,6 +4,7 @@ glycine_max_parameters = with(list(), {
     "symbol                                value
     alpha1                                 32.5
     alphab1                                0
+    absorptivity_par                       0.8
     b0                                     0.048
     b1                                     5
     Catm                                   370

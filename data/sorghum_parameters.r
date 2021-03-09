@@ -4,6 +4,7 @@ sorghum_parameters = with(list(), {
     "symbol                     value
     alpha1                      0.04
     alphab1                     0
+    absorptivity_par            0.8
     b0                          0.08
     b1                          3
     beta                        0.93

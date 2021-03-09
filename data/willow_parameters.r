@@ -4,6 +4,7 @@ willow_parameters = with(list(), {
     "symbol                        value
     alpha1                         0
     alphab1                        0
+    absorptivity_par               0.8
     b0                             0.08
     b1                             5
     Catm                           400
