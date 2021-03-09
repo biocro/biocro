@@ -111,8 +111,8 @@ double cos_zenith_angle(const double latitude, const int day_of_year,
  *    Sun. When the Sun is directly overhead, the angle is 0 and cos(angle) is 1
  *    (dimensionless)
  *
- *  The basis for this function is given in chapter 11 of Norman and Campbell.
- *  An Introduction to Environmental Biophysics. 2nd edition.
+ *  The basis for this function is given in chapter 11 of Norman and Campbell,
+ *  _An Introduction to Environmental Biophysics_, 2nd edition.
  */
 Light_model lightME(const double latitude, const int day_of_year,
                     const double hour_of_day, const double atmospheric_pressure)
