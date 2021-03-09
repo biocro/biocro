@@ -40,7 +40,7 @@ class multilayer_canopy_properties : public SteadyModule
           // Get references to input parameters
           par_incident_direct(get_input(input_parameters, "par_incident_direct")),
           par_incident_diffuse(get_input(input_parameters, "par_incident_diffuse")),
-          absortivity_par(get_input(input_parameters, "absorptivity_par")),
+          absorptivity_par(get_input(input_parameters, "absorptivity_par")),
           lai(get_input(input_parameters, "lai")),
           cosine_zenith_angle(get_input(input_parameters, "cosine_zenith_angle")),
           kd(get_input(input_parameters, "kd")),
