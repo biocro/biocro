@@ -4,6 +4,7 @@
 #include <cmath>           // for fabs and sqrt
 #include "../constants.h"  // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
 #include "../modules.h"
+#include "se_module.h"
 #include "AuxBioCro.h"
 
 namespace nikolov
@@ -144,9 +145,9 @@ void ed_nikolov_conductance_forced::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"atmospheric_pressure cannot be zero",                 *atmospheric_pressure_ip == 0},     // divide by zero
-        {"volume_per_mol cannot be zero",                       volume_per_mol == 0},               // divide by zero
-        {"leaf_width cannot be zero",                           *leafwidth_ip == 0}                 // divide by zero
+        {"atmospheric_pressure cannot be zero", fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},  // divide by zero
+        {"volume_per_mol cannot be zero", fabs(volume_per_mol) < calculation_constants::eps_zero},                  // divide by zero
+        {"leaf_width cannot be zero", fabs(*leafwidth_ip) < calculation_constants::eps_zero}                        // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());
@@ -185,7 +186,8 @@ class ed_nikolov_conductance_free : public SteadyModule
           conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
           nikolov_ce_ip(get_ip(input_parameters, "nikolov_ce")),
           // Get pointers to output parameters
-          conductance_boundary_h2o_free_op(get_op(output_parameters, "conductance_boundary_h2o_free"))
+          conductance_boundary_h2o_free_op(get_op(output_parameters, "conductance_boundary_h2o_free")),
+          nikolov_virtual_temperature_difference_op(get_op(output_parameters, "nikolov_virtual_temperature_difference"))
     {
     }
     static std::vector<std::string> get_inputs();
@@ -203,6 +205,7 @@ class ed_nikolov_conductance_free : public SteadyModule
     const double* nikolov_ce_ip;
     // Pointers to output parameters
     double* conductance_boundary_h2o_free_op;
+    double* nikolov_virtual_temperature_difference_op;
     // Main operation
     void do_operation() const override;
 };
@@ -224,7 +227,8 @@ std::vector<std::string> ed_nikolov_conductance_free::get_inputs()
 std::vector<std::string> ed_nikolov_conductance_free::get_outputs()
 {
     return {
-        "conductance_boundary_h2o_free"  // mol / m^2 / s
+        "conductance_boundary_h2o_free",          // mol / m^2 / s
+        "nikolov_virtual_temperature_difference"  // degrees C
     };
 }
 
@@ -267,16 +271,113 @@ void ed_nikolov_conductance_free::do_operation() const
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"atmospheric_pressure cannot be zero",                 *atmospheric_pressure_ip == 0},     // divide by zero
-        {"volume_per_mol cannot be zero",                       volume_per_mol == 0},               // divide by zero
-        {"leaf_width cannot be zero",                           *leafwidth_ip == 0},                // divide by zero
-        {"the sum of water vapor conductances cannot be zero",  h2o_mfs_denom == 0}                 // divide by zero
+        {"atmospheric_pressure cannot be zero", fabs(*atmospheric_pressure_ip) < calculation_constants::eps_zero},      // divide by zero
+        {"volume_per_mol cannot be zero", fabs(volume_per_mol) < calculation_constants::eps_zero},                      // divide by zero
+        {"leaf_width cannot be zero", fabs(*leafwidth_ip) < calculation_constants::eps_zero},                           // divide by zero
+        {"the sum of water vapor conductances cannot be zero", fabs(h2o_mfs_denom) < calculation_constants::eps_zero},  // divide by zero
+        {"leaf temperature cannot be below absolute zero", Tlk < calculation_constants::eps_zero}                       // pow would have imaginary output
     };
 
     check_error_conditions(errors_to_check, get_name());
 
     // Update the output parameter list
     update(conductance_boundary_h2o_free_op, gbv_free);
+    update(nikolov_virtual_temperature_difference_op, Tvdiff);
+}
+
+namespace ed_nikolov_conductance_free_solve_stuff
+{
+std::string const module_name = "ed_nikolov_conductance_free_solve";
+
+string_vector const sub_module_names{"ed_nikolov_conductance_free"};
+
+std::string const solver_type = "newton_raphson_backtrack_boost";
+
+int const max_iterations = 50;
+
+bool const should_reorder_guesses = false;
+
+bool const return_default_on_failure = true;
+
+std::vector<double> const lower_bounds = {1e-10};
+
+std::vector<double> const upper_bounds = {10};
+
+std::vector<double> const absolute_error_tolerances = {0.1};
+
+std::vector<double> const relative_error_tolerances = {1e-3};
+}  // namespace ed_nikolov_conductance_free_solve_stuff
+
+/**
+ * @class ed_nikolov_conductance_free_solve
+ * 
+ * @brief Calculates free boundary layer conductance for water according to the model
+ * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
+ * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
+ * be used by a simultanous_equations object but not a System object. Currently only
+ * intended for use by Ed.
+ * 
+ * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units
+ * and assumptions about temperature.
+ */
+class ed_nikolov_conductance_free_solve : public se_module::base
+{
+   public:
+    ed_nikolov_conductance_free_solve(
+        const std::unordered_map<std::string, double>* input_parameters,
+        std::unordered_map<std::string, double>* output_parameters)
+        : se_module::base(ed_nikolov_conductance_free_solve_stuff::module_name,
+                          ed_nikolov_conductance_free_solve_stuff::sub_module_names,
+                          ed_nikolov_conductance_free_solve_stuff::solver_type,
+                          ed_nikolov_conductance_free_solve_stuff::max_iterations,
+                          ed_nikolov_conductance_free_solve_stuff::lower_bounds,
+                          ed_nikolov_conductance_free_solve_stuff::upper_bounds,
+                          ed_nikolov_conductance_free_solve_stuff::absolute_error_tolerances,
+                          ed_nikolov_conductance_free_solve_stuff::relative_error_tolerances,
+                          ed_nikolov_conductance_free_solve_stuff::should_reorder_guesses,
+                          ed_nikolov_conductance_free_solve_stuff::return_default_on_failure,
+                          input_parameters,
+                          output_parameters)
+    {
+    }
+    static std::vector<std::string> get_inputs();
+    static std::vector<std::string> get_outputs();
+
+   private:
+    // Main operation
+    void get_default(std::vector<double>& guess_vec) const override;
+    std::vector<std::vector<double>> get_initial_guesses() const override;
+};
+
+std::vector<std::string> ed_nikolov_conductance_free_solve::get_inputs()
+{
+    return se_module::get_se_inputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+}
+
+std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
+{
+    std::vector<std::string> outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+    outputs.push_back(se_module::get_ncalls_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
+    outputs.push_back(se_module::get_nsteps_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
+    outputs.push_back(se_module::get_success_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
+    return outputs;
+}
+
+void ed_nikolov_conductance_free_solve::get_default(std::vector<double>& guess_vec) const
+{
+    // Just return a small conductance (so the overall conductance will be set by the
+    // free value)
+    guess_vec[0] = 1.0e-5;  // mol / m^2 / s
+}
+
+std::vector<std::vector<double>> ed_nikolov_conductance_free_solve::get_initial_guesses() const
+{
+    double const really_large_guess = 10.0;    // mol / m^2 / s
+    double const really_small_guess = 1.0e-5;  // mol / m^2 / s
+    return std::vector<std::vector<double>>{
+        {really_large_guess},  // This should return the largest root unless stomatal conductance is too large
+        {really_small_guess}   // This should return the only root when when stomatal conductance is too large
+    };
 }
 
 #endif

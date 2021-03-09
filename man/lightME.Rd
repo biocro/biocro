@@ -45,7 +45,8 @@ res <- lightME(t.d=0:23)
 
 lattice::xyplot(I.dir + I.diff ~ 0:23 , data = res, type='o',xlab='hour',ylab='Irradiance')
 
-lattice::xyplot(propIdir + propIdiff ~ 0:23 , data = res, type='o',xlab='hour',ylab='Irradiance proportion')
+lattice::xyplot(propIdir + propIdiff ~ 0:23, data = res, type='o',
+                xlab='hour', ylab='Irradiance proportion')
 
 plot(acos(lightME(lat = 42, t.d = 0:23)$cos.th) * (1/dtr))
 }

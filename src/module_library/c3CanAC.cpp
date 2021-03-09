@@ -33,8 +33,7 @@ struct Can_Str c3CanAC(double LAI,
 		int water_stress_approach,
         double electrons_per_carboxylation,
         double electrons_per_oxygenation,
-        double absorptivity_par, // dimensionless
-        double absorptivity_nir) // dimensionless
+        double absorptivity_par) //dimensionless
 {
 	struct Light_model light_model = lightME(lat, DOY, hr);
 	
@@ -42,9 +41,7 @@ struct Can_Str c3CanAC(double LAI,
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
-    struct Light_profile par_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, absorptivity_par, heightf);
-    struct Light_profile nir_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, absorptivity_nir, heightf); // Curently unused in this module, but included
-                                    //in case needed in the future
+    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, absorptivity_par, heightf);
     
 //    if(LAI < 0) throw std::range_error("Thrown in c3CanAC: LAI is negative."); MLM removed this error message 04/22/2020; can cause issues with integration
 
@@ -76,10 +73,10 @@ struct Can_Str c3CanAC(double LAI,
         double relative_humidity = relative_humidity_profile[current_layer];
         double layer_wind_speed = wind_speed_profile[current_layer];
 
-        double IDir = par_profile.direct_irradiance[current_layer];  // micromole / m^2 / s
-        double Itot = par_profile.total_irradiance[current_layer];  // micromole / m^2 / s
-        double pLeafsun = par_profile.sunlit_fraction[current_layer];  // dimensionless
-        double CanHeight = par_profile.height[current_layer];  // meters
+        double IDir = light_profile.direct_irradiance[current_layer];  // micromole / m^2 / s
+        double Itot = light_profile.total_irradiance[current_layer];  // micromole / m^2 / s
+        double pLeafsun = light_profile.sunlit_fraction[current_layer];  // dimensionless
+        double CanHeight = light_profile.height[current_layer];  // meters
 
         double Leafsun = LAIc * pLeafsun;
 
@@ -91,8 +88,8 @@ struct Can_Str c3CanAC(double LAI,
         double AssIdir = temp_photo_results.Assim;
         double GAssIdir = temp_photo_results.GrossAssim;
 
-        double IDiff = par_profile.diffuse_irradiance[current_layer];  // micromole / m^2 /s
-        double pLeafshade = par_profile.shaded_fraction[current_layer];  // dimensionless
+        double IDiff = light_profile.diffuse_irradiance[current_layer];  // micromole / m^2 /s
+        double pLeafshade = light_profile.shaded_fraction[current_layer];  // dimensionless
         double Leafshade = LAIc * pLeafshade;
 
         double stomatal_conductance_diffuse = c3photoC(IDiff, air_temperature, relative_humidity, vmax1, Jmax, tpu_rate_max, Rd, b0, b1, Gs_min, Catm, o2, theta, StomataWS, water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation).Gs;  // mmol / m^2 / s. Estimate stomatal_conductance by assuming the leaf has the same temperature as the air.

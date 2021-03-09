@@ -2,7 +2,7 @@
 \alias{Gro}
 \title{Model crop growth.}
 \usage{
-    Gro(initial_values, parameters, varying_parameters, modules)
+    Gro(initial_values, parameters, varying_parameters, modules, verbose = FALSE)
 }
 \arguments{
     \item{initial_values}{Parameter values that are known only at the start of the simulation period. These are recorded in the result. (a list of named numeric values)}
@@ -12,6 +12,8 @@
     \item{varying_parameters}{Times at which a solution is desired and parameter values that are known \emph{a priori} for the entire simulation period. These are not recorded in the result. (a data frame with at least the columns \code{year}, \code{doy}, and \code{hour} and optionally columns for parameters that are known \emph{a priori}.)}
 
     \item{modules}{The model modules that should be run. Required modules are given in the details. (a list of named character values)}
+
+    \item{verbose}{A logical variable indicating whether or not to print system startup information}
 }
 \value{
     A data frame with the columns \code{year}, \code{doy}, and \code{hour}; and a column for each parameter in \code{initial_values}; and a row for each row in \code{varying_parameters}:
@@ -74,15 +76,22 @@
 }
 \examples{
 ## Simulate sorghum growth
-result = Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules)
-lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l', auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)), xlab=expression('Thermal time'~(degree*C~day)))
+result = Gro(sorghum_initial_state, sorghum_parameters,
+             get_growing_season_climate(weather05), sorghum_modules)
+lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
+                auto=list(points=FALSE, lines=TRUE),
+                ylab=expression('Biomass'~(Mg/ha)),
+                xlab=expression('Thermal time'~(degree*C~day)))
 
 ### The results can be combined with the data that were used to drive the model.
 result = cbind(result, get_growing_season_climate(weather05))
 
 ## Change a subset of the parameters.
 canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
-architechture_result = Gro(sorghum_initial_state, canopy_architecture, get_growing_season_climate(weather05), sorghum_modules)
-lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l', auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)), xlab=expression('Thermal time'~(degree*C~day)))
+architechture_result = Gro(sorghum_initial_state, canopy_architecture,
+                           get_growing_season_climate(weather05), sorghum_modules)
+lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l',
+                auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)),
+                xlab=expression('Thermal time'~(degree*C~day)))
 
 }

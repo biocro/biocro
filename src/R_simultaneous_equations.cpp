@@ -16,10 +16,10 @@ SEXP R_solve_simultaneous_equations(
     SEXP unknown_quantities,
     SEXP lower_bounds,
     SEXP upper_bounds,
+    SEXP abs_error_tols,
+    SEXP rel_error_tols,
     SEXP steady_state_module_names,
     SEXP solver_type,
-    SEXP rel_error_tol,
-    SEXP abs_error_tol,
     SEXP max_it,
     SEXP silent)
 {
@@ -29,10 +29,10 @@ SEXP R_solve_simultaneous_equations(
         const state_map uq = map_from_list(unknown_quantities);
         const state_map lb = map_from_list(lower_bounds);
         const state_map ub = map_from_list(upper_bounds);
+        const state_map abs_t = map_from_list(abs_error_tols);
+        const state_map rel_t = map_from_list(rel_error_tols);
         const std::vector<std::string> ss_names = make_vector(steady_state_module_names);
         const std::string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
-        const double rel_error_tolerance = REAL(rel_error_tol)[0];
-        const double abs_error_tolerance = REAL(abs_error_tol)[0];
         const int max_iterations = REAL(max_it)[0];
         const bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
 
@@ -44,32 +44,34 @@ SEXP R_solve_simultaneous_equations(
         }
         std::vector<double> uq_final = uq_values;
 
-        // Get the upper and lower bounds
+        // Get the upper and lower bounds, along with
+        // the error tolerances
         std::vector<double> lb_vector;
         std::vector<double> ub_vector;
+        std::vector<double> abs_t_vector;
+        std::vector<double> rel_t_vector;
         for (std::string const& name : uq_names) {
             lb_vector.push_back(lb.at(name));
             ub_vector.push_back(ub.at(name));
+            abs_t_vector.push_back(abs_t.at(name));
+            rel_t_vector.push_back(rel_t.at(name));
         }
 
-        // Make vectors to store the sequence of guesses
+        // Make a vector to store the sequence of guesses
         std::vector<std::vector<double>> guess_vector;
-        std::vector<bool> adjustment_vector;
 
         // Solve
         std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq,
                                                                               uq_names,
                                                                               ss_names));
-        auto solver = se_solver_factory::create(solver_type_string,
-                                                rel_error_tolerance,
-                                                abs_error_tolerance,
-                                                max_iterations);
-        bool success = solver->solve(se,
-                                     uq_values,
-                                     lb_vector,
-                                     ub_vector,
+                                                                              
+        auto solver = se_solver_factory::create(solver_type_string, max_iterations);
+        
+        bool success = solver->solve(se, uq_values,
+                                     lb_vector, ub_vector,
+                                     abs_t_vector, rel_t_vector,
                                      uq_final,
-                                     se_observer_push_back(guess_vector, adjustment_vector));
+                                     se_observer_push_back(guess_vector));
 
         // Print info if desired
         if (!be_quiet) {
@@ -95,7 +97,7 @@ SEXP R_solve_simultaneous_equations(
             Rf_warning(std::string("A solution was not successfully found!").c_str());
         }
 
-        return list_from_map(format_se_solver_results(uq_names, guess_vector, adjustment_vector));
+        return list_from_map(format_se_solver_results(uq_names, guess_vector));
 
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_solve_simultaneous_equations: ") + e.what()).c_str());

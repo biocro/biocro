@@ -2,16 +2,19 @@
 \name{EngWea94i}
 \alias{EngWea94i}
 \title{Weather data corresponding to a paper by Clive Beale (see source).}
-\format{A data frame with 8760 observations on the following 8 variables.
-    \describe{
-        \item{list('year')}{A numeric vector.}
-        \item{list('doy')}{A numeric vector.}
-        \item{list('hour')}{A numeric vector.}
-        \item{list('solarR')}{A numeric vector.}
-        \item{list('DailyTemp.C')}{A numeric vector.}
-        \item{list('RH')}{A numeric vector.}
-        \item{list('WindSpeed')}{A numeric vector.}
-        \item{list('precip')}{A numeric vector.} }}
+\format{
+  A data frame with 8760 observations on the following 8 variables.
+  \describe{
+    \item{\code{year}}{A numeric vector.}
+    \item{\code{doy}}{A numeric vector.}
+    \item{\code{hour}}{A numeric vector.}
+    \item{\code{solar}}{A numeric vector.}
+    \item{\code{temp}}{A numeric vector.}
+    \item{\code{RH}}{A numeric vector.}
+    \item{\code{WindSpeed}}{A numeric vector.}
+    \item{\code{precip}}{A numeric vector.}
+  }
+}
 \source{
 }
 

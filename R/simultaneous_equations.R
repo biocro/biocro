@@ -4,22 +4,19 @@ solve_simultaneous_equations <- function(
     unknown_quantities,
     lower_bounds,
     upper_bounds,
-    solver = list(type="fixed_point", rel_error_tol=1e-4, abs_error_tol=1e-4, max_it=50),
+	abs_error_tols,
+	rel_error_tols,
+	max_it = 50,
+    solver_type = "newton_raphson_backtrack_boost",
     silent = FALSE)
-{
-	# Unpack the solver's details
-	solver_type = solver$type
-	rel_error_tol = solver$rel_error_tol
-	abs_error_tol = solver$abs_error_tol
-	max_it = solver$max_it
-	
+{	
 	# C++ requires that all the variables have type `double`
 	known_quantities = lapply(known_quantities, as.numeric)
 	unknown_quantities = lapply(unknown_quantities, as.numeric)
 	lower_bounds = lapply(lower_bounds, as.numeric)
 	upper_bounds = lapply(upper_bounds, as.numeric)
-	rel_error_tol = as.numeric(rel_error_tol)
-	abs_error_tol = as.numeric(abs_error_tol)
+	abs_error_tols = lapply(abs_error_tols, as.numeric)
+	rel_error_tols = lapply(rel_error_tols, as.numeric)
 	max_it = as.numeric(max_it)
 	
 	# Make sure silent is a logical variable
@@ -32,10 +29,10 @@ solve_simultaneous_equations <- function(
 		unknown_quantities,
 		lower_bounds,
 		upper_bounds,
+		abs_error_tols,
+		rel_error_tols,
 		steady_state_module_names,
 		solver_type,
-		rel_error_tol,
-		abs_error_tol,
 		max_it,
 		silent)
 	return(result)

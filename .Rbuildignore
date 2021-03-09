@@ -1,12 +1,64 @@
 ^.*\.Rproj$
+# Designates the directory as an RStudio Project
+
 ^\.Rproj\.user$
+# Used by RStudio for temporary files
+
 ^.*\.gz$
+# If these files occur only as by-products of building vignettes, this
+# could be made more specific: ^vignettes/.*\.gz
+
 ^ChangeLog$
+# The latest entry in this file is from 2012.  This change log should
+# probably be trashed and a new change log started per these
+# guidelines: https://keepachangelog.com/en/1.0.0/.  Entries should
+# correspond to package version releases.  And if the name
+# ChangeLog.md is used, Markdown can be used for easy readability on
+# GitHub.  See the PEcAn and BETYdb change logs for examples.
+
 ^TODO$
+# Consider removing this file.  It's a remnant of BioCro 1 and is 8 years old.
+
 ^build\.sh$
+# Consider removing this file or improving it.  It's a remnant of
+# BioCro 1 and doesn't work properly on MacOS and maybe not at all on
+# Windows.
+
 ^calibration\.RData$
+# Not sure what this is.
+
 ^documentation$
+# This is mostly for the Doxygen machinery but also includes some
+# internal documentation for developers and contributers and
+# documentation of some of the equations used in BioCro, together with
+# publications containing these equations.  Documentation useful to
+# users of the package should be moved to the vignettes directory.
+# Publications that are readily available on-line should perhaps be
+# removed from the package and referred to by their DOI.
+
 ^.*\.log$
-^\.git/.*$
-^\.travis\.yml$
+# If these files occur only as by-products of building vignettes, this
+# could be made more specific: ^vignettes/.*\.log
+
 ^tags$
+# Not sure what produces these files.
+
+^\.github$
+# GitHub actions and workflows.
+
+^src/.*\.o
+^src/BioCro.so
+# C++ build by-products.
+
+^vignettes/.*\.aux
+^vignettes/.*\.out
+^vignettes/.*\.tex
+^vignettes/.*\.toc
+# Other vignette-build by-products.
+
+## Other files related to package development:
+
+^.clang-format
+
+^src/Makefile.project$
+# This file can possibly be eliminated.

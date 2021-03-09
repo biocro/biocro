@@ -4,15 +4,15 @@
 \title{Randomly picked dataset from the Illinois area from 1979.}
 \format{A data frame with 365 observations of the following 9 variables.
     \describe{
-        \item{list('year')}{Year.}
-        \item{list('month')}{Month (not really needed).}
-        \item{list('day')}{Day of the month (not really needed).} 
-        \item{list('JD')}{Day of the year ([1, 365]).}
-        \item{list('maxTemp')}{Maximum temperature (degrees Celsius).}
-        \item{list('minTemp')}{Minimum temperature (degrees Celsius).}
-        \item{list('SolarR')}{Solar radiation (MJ / m^-2).}
-        \item{list('PotEv')}{Potential evaporation (kg / m^-2). Approx. mm.}
-        \item{list('precip')}{Precipitation (kg / m^-2). Approx. mm.}
+        \item{\code{year}}{Year (numeric; always 1979)}
+        \item{\code{month}}{Month (not available; can be computed from JD)}
+        \item{\code{day}}{Day of the month  (not available; can be computed from year and JD)}
+        \item{\code{JD}}{Day of the year ([1, 365]; numeric)}
+        \item{\code{maxTemp}}{Maximum temperature (degrees Celsius; numeric).}
+        \item{\code{minTemp}}{Minimum temperature (degrees Celsius; numeric).}
+        \item{\code{SolarR}}{Solar radiation (MJ / m^2; numeric).}
+        \item{\code{PotEv}}{Potential evaporation (kg / m^2 ~ mm; numeric)}
+        \item{\code{precip}}{Precipitation (kg / m^2 ~ mm; numeric)}
     }
 }
 \source{

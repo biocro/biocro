@@ -53,7 +53,6 @@ class c4_canopy : public SteadyModule {
 			StomataWS_ip(get_ip(input_parameters, "StomataWS")),
 			water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
             absorptivity_par_ip(get_ip(input_parameters, "absorptivity_par")),
-            absorptivity_nir_ip(get_ip(input_parameters, "absorptivity_nir")),
 			// Get pointers to output parameters
 	        canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
 	        canopy_transpiration_rate_op(get_op(output_parameters, "canopy_transpiration_rate")),
@@ -108,7 +107,6 @@ class c4_canopy : public SteadyModule {
 		const double* StomataWS_ip;
 		const double* water_stress_approach_ip;
         const double* absorptivity_par_ip;
-        const double* absorptivity_nir_ip;
 		// Pointers to output parameters
         double* canopy_assimilation_rate_op;
         double* canopy_transpiration_rate_op;
@@ -163,8 +161,7 @@ std::vector<std::string> c4_canopy::get_inputs() {
         "et_equation",
 		"StomataWS",
 		"water_stress_approach",
-        "absorptivity_par",
-        "absorptivity_nir"
+        "absorptivity_par"
 	};
 }
 
@@ -203,7 +200,7 @@ void c4_canopy::do_operation() const {
             *heightf_ip, *LeafN_ip, *kpLN_ip, *lnb0_ip, *lnb1_ip,
             (int)(*lnfun_ip), *upperT_ip, *lowerT_ip, nitroP, *leafwidth_ip,
             (int)(*et_equation_ip), *StomataWS_ip, (int)(*water_stress_approach_ip),
-            *absorptivity_par_ip, *absorptivity_nir_ip);
+            *absorptivity_par_ip);
     
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);	// Mg / ha / hr.

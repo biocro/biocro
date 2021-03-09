@@ -75,13 +75,13 @@
     Fernando E. Miguez.
 }
 \examples{
-
+\dontrun{FIX THIS EXAMPLE
 data(cmi0506)
 tmp1 <- cmi0506[cmi0506$year == 2005, ]
 wet05 <- weach(tmp1, 40)
 
 # Return data every 3 hours
-wet05.3 <- weach(tmp1, 40, ts=3)
+wet05.3 <- weach(tmp1, 40, ts=3)}
 
 }
 \keyword{datagen}

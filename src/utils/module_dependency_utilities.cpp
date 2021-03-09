@@ -162,7 +162,7 @@ Graph get_dependency_graph(string_vector module_names) {
 
     vertex_iterator vi;
     vertex_iterator vi_end;
-    int i = 0;
+    string_vector::size_type i = 0;
     for (tie(vi, vi_end) = vertices(g); vi != vi_end; ++vi, ++i) {
         name_map[*vi] = module_names[i];
 
@@ -255,8 +255,8 @@ bool has_cyclic_dependency(string_vector module_names) {
  *
  */
 bool order_ok(string_vector module_names) {
-    for (int i = 0; i < module_names.size(); ++i) {
-        for (int j = i; j < module_names.size(); ++j) {
+    for (string_vector::size_type i = 0; i < module_names.size(); ++i) {
+        for (string_vector::size_type j = i; j < module_names.size(); ++j) {
             if (depends_on(module_names[i], module_names[j])) {
                 return false;
             }
