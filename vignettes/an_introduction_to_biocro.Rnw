@@ -719,8 +719,8 @@ stand-alone C++ application, for instance.
 \draw [latex-latex, line width=1.1 pt] (R) -- (RC);
 \draw [latex-latex, line width=1.1 pt] (RC) -- (C);
 
-\draw [decoration={brace, raise=10 pt, amplitude=12 pt}, decorate, line width=1 pt] (R.north west) -- node[above=23 pt] {Part of the R environment} (R.north -| RC.east);
-\draw [decoration={brace, raise=10 pt, amplitude=12 pt, mirror}, decorate, line width=1 pt] (R.south -| RC.west) -- node[below=23 pt] {Compiled code} (RC.south -| C.east);
+\draw [decoration={brace, raise=10 pt, amplitude=12 pt}, decorate, line width=1 pt] (R.north west |- RC.north) -- node[above=23 pt] {Part of the R environment} (RC.east |- RC.north);
+\draw [decoration={brace, raise=10 pt, amplitude=12 pt, mirror}, decorate, line width=1 pt] (RC.south west |- RC.south) -- node[below=23 pt] {Compiled code} (C.east |- RC.south);
 
 \end{tikzpicture}
 \end{center}
