@@ -20,7 +20,8 @@
 <<include=FALSE>>=
 library(knitr)
 opts_chunk$set(
-concordance=TRUE
+concordance=TRUE,
+eval=FALSE
 )
 @
 
@@ -38,6 +39,13 @@ engine='R',dev='pdf'
 \newcommand{\code}[1]{\texttt{\small{#1}}}
 \newcommand{\package}[1]{\textsf{\small{#1}}}
 \maketitle
+
+\noindent\emph{\textbf{Note:} This is an outdated version of the
+BioCro manual.  It refers to R functions in the BioCro package that no
+longer exist.  For this reason, all evaluation of R code has been
+turned off by setting ``eval=FALSE" globally.  To see a PDF of the
+original form of this vignette, visit
+\url{http://biocro.r-forge.r-project.org/BioCro-Manual.pdf}.}
 
 \begin{abstract}
   Simulation and parameter estimation of photosynthesis and crop

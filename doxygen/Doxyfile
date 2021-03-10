@@ -60,6 +60,7 @@ USE_MATHJAX            = YES
 #---------------------------------------------------------------------------
 GENERATE_LATEX         = NO # Override to generate LaTeX documentation!
 COMPACT_LATEX          = YES
+EXTRA_PACKAGES         = {amsmath}
 #---------------------------------------------------------------------------
 # Configuration options related to the RTF output
 #---------------------------------------------------------------------------
