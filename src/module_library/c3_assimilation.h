@@ -8,12 +8,12 @@
 
 /**
  * @class c3_assimilation
- * 
+ *
  * @brief Calculates net assimilation, stomatal conductance, and
- * intercellular CO2 concentration for a C3 leaf using `c3photoC`.
- * 
+ * intercellular CO2 concentration for a C3 leaf using `c3photoC()`.
+ *
  * ### Model overview
- * 
+ *
  * The Ball-Berry stomatal conductance model and the Farquar-von-Cammerer-Berry
  * model for C3 photosynthesis, along with simple 1D gas diffusion, define a set
  * of coupled equations with three unknowns: net assimilation, intercellular CO2
@@ -21,13 +21,13 @@
  * determine these unknowns using a fixed-point iteration method. Beware: the
  * code often fails to find the true solution, and some parts of the models are
  * implemented incorrectly.
- * 
+ *
  * See the original WIMOVAC paper for a description of the assimilation model
  * and additional citations: [Humphries, S. W. & Long, S. P. Bioinformatics
  * 11, 361–371 (1995)](http://dx.doi.org/10.1093/bioinformatics/11.4.361)
- * 
+ *
  * ### BioCro module implementation
- * 
+ *
  * In BioCro, we use the following names for this model's input parameters:
  * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
@@ -40,13 +40,14 @@
  * - ``'bb1'`` for the Ball-Berry slope
  * - ``'Gs_min'`` for the minimum stomatal conductance (only used when applying water stress via stomatal conductance)
  * - ``'Catm'`` for the atmospheric CO2 concentration
+ * - ``'atmospheric_pressure'`` for the local atmospheric_pressure
  * - ``'O2'`` for the atmospheric O2 concentration
  * - ``'theta'`` for the ???
  * - ``'StomataWS'`` for the water stress factor
  * - ``'water_stress_approach'`` indicates whether to apply water stress via assimilation (0) or stomatal conductance (1)
  * - ``'electrons_per_carboxylation'`` for the number of electrons per carboxylation event
  * - ``'electrons_per_oxygenation'`` for the number of electrons per oxygenation event
- * 
+ *
  * We use the following names for the model's output parameters:
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
@@ -74,6 +75,7 @@ class c3_assimilation : public DerivModule
           bb1(get_input(input_parameters, "bb1")),
           Gs_min(get_input(input_parameters, "Gs_min")),
           Catm(get_input(input_parameters, "Catm")),
+          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
           O2(get_input(input_parameters, "O2")),
           theta(get_input(input_parameters, "theta")),
           StomataWS(get_input(input_parameters, "StomataWS")),
@@ -104,6 +106,7 @@ class c3_assimilation : public DerivModule
     double const& bb1;
     double const& Gs_min;
     double const& Catm;
+    double const& atmospheric_pressure;
     double const& O2;
     double const& theta;
     double const& StomataWS;
@@ -135,6 +138,7 @@ std::vector<std::string> c3_assimilation::get_inputs()
         "bb1",                          // dimensionless
         "Gs_min",                       // mol / m^2 / s
         "Catm",                         // micromol / mol
+        "atmospheric_pressure",         // Pa
         "O2",                           // millimol / mol
         "theta",                        // dimensionless
         "StomataWS",                    // dimensionless
@@ -168,6 +172,7 @@ void c3_assimilation::do_operation() const
         bb1,
         Gs_min,
         Catm,
+        atmospheric_pressure,
         O2,
         theta,
         StomataWS,

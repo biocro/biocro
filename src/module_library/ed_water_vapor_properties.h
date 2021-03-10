@@ -3,11 +3,11 @@
 
 #include "../modules.h"
 #include "AuxBioCro.h"     // for TempToDdryA, TempToLHV, saturation_vapor_pressure, TempToSFS
-#include "../constants.h"  // for ideal gas constant
+#include "../constants.h"  // for ideal gas constant and celsius_to_kelvin
 
 /**
  * @class ed_water_vapor_properties
- * 
+ *
  * @brief Determines water vapor properties from the air temperature
  * and atmospheric H2O mole fraction. Currently only intended for use by Ed.
  */
@@ -23,6 +23,7 @@ class ed_water_vapor_properties : public SteadyModule
           temperature_air_ip(get_ip(input_parameters, "temp")),
           atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
           mole_fraction_h2o_atmosphere_ip(get_ip(input_parameters, "mole_fraction_h2o_atmosphere")),
+          specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
           // Get pointers to output parameters
           latent_heat_vaporization_of_water_op(get_op(output_parameters, "latent_heat_vaporization_of_water")),
           slope_water_vapor_op(get_op(output_parameters, "slope_water_vapor")),
@@ -40,6 +41,7 @@ class ed_water_vapor_properties : public SteadyModule
     const double* temperature_air_ip;
     const double* atmospheric_pressure_ip;
     const double* mole_fraction_h2o_atmosphere_ip;
+    const double* specific_heat_of_air_ip;
     // Pointers to output parameters
     double* latent_heat_vaporization_of_water_op;
     double* slope_water_vapor_op;
@@ -54,9 +56,10 @@ class ed_water_vapor_properties : public SteadyModule
 std::vector<std::string> ed_water_vapor_properties::get_inputs()
 {
     return {
-        "temp",                         // deg. C
-        "atmospheric_pressure",         // Pa
-        "mole_fraction_h2o_atmosphere"  // dimensionless from mol / mol
+        "temp",                          // deg. C
+        "atmospheric_pressure",          // Pa
+        "mole_fraction_h2o_atmosphere",  // dimensionless from mol / mol
+        "specific_heat_of_air"           // J / kg / K
     };
 }
 
@@ -83,7 +86,7 @@ void ed_water_vapor_properties::do_operation() const
     // This is approximately right for temperatures what won't kill plants.
     const double saturation_water_vapor_content = saturation_water_vapor_pressure /
                                                   physical_constants::ideal_gas_constant /
-                                                  (*temperature_air_ip + physical_constants::celsius_to_kelvin) *
+                                                  (*temperature_air_ip + conversion_constants::celsius_to_kelvin) *
                                                   physical_constants::molar_mass_of_water;  // kg / m^3
 
     const double rh = water_vapor_pressure / saturation_water_vapor_pressure;        // dimensionless from Pa / Pa
@@ -91,7 +94,7 @@ void ed_water_vapor_properties::do_operation() const
 
     const double density_of_dry_air = TempToDdryA(*temperature_air_ip);  // kg / m^3
     const double psychrometric_parameter = density_of_dry_air *
-                                           physical_constants::specific_heat_of_water /
+                                           *specific_heat_of_air_ip /
                                            latent_heat_vaporization_of_water;  // kg / m^3 / K
 
     // Update the output parameter list

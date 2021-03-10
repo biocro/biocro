@@ -6,9 +6,8 @@
 
 /**
  * @class ed_canac_leaf
- * 
- * @brief Uses the Stefan-Boltzmann law to calculate long-wave energy losses
- * from the leaf to the air. Currently only intended for use by Ed.
+ *
+ * @brief Currently only intended for use by Ed.
  */
 class ed_canac_leaf : public SteadyModule
 {
@@ -18,6 +17,7 @@ class ed_canac_leaf : public SteadyModule
         std::unordered_map<std::string, double>* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_canac_leaf"),
+
           // Get pointers to input parameters
           collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
           temperature_air_ip(get_ip(input_parameters, "temp")),
@@ -33,11 +33,14 @@ class ed_canac_leaf : public SteadyModule
           conductance_stomatal_h2o_min_ip(get_ip(input_parameters, "conductance_stomatal_h2o_min")),
           StomataWS_ip(get_ip(input_parameters, "StomataWS")),
           mole_fraction_co2_atmosphere_ip(get_ip(input_parameters, "mole_fraction_co2_atmosphere")),
+          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
           collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
           collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
           windspeed_ip(get_ip(input_parameters, "windspeed")),
           leafwidth_ip(get_ip(input_parameters, "leafwidth")),
+          specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
           solar_energy_absorbed_leaf_ip(get_ip(input_parameters, "solar_energy_absorbed_leaf")),
+
           // Get pointers to output parameters
           mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
           conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o")),
@@ -70,11 +73,14 @@ class ed_canac_leaf : public SteadyModule
     const double* conductance_stomatal_h2o_min_ip;
     const double* StomataWS_ip;
     const double* mole_fraction_co2_atmosphere_ip;
+    const double* atmospheric_pressure_ip;
     const double* collatz_rubisco_temperature_upper_ip;
     const double* collatz_rubisco_temperature_lower_ip;
     const double* windspeed_ip;
     const double* leafwidth_ip;
+    const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
+
     // Pointers to output parameters
     double* mole_fraction_co2_intercellular_op;
     double* conductance_stomatal_h2o_op;
@@ -85,6 +91,7 @@ class ed_canac_leaf : public SteadyModule
     double* evapotranspiration_priestly_op;
     double* temperature_leaf_op;
     double* conductance_boundary_h2o_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -106,10 +113,12 @@ std::vector<std::string> ed_canac_leaf::get_inputs()
         "conductance_stomatal_h2o_min",       // mol / m^2 / s
         "StomataWS",                          // dimensionless
         "mole_fraction_co2_atmosphere",       // dimensionless from mol / mol
+        "atmospheric_pressure",               // Pa
         "collatz_rubisco_temperature_upper",  // deg. C
         "collatz_rubisco_temperature_lower",  // deg. C
         "windspeed",                          // m / s
         "leafwidth",                          // m
+        "specific_heat_of_air",               // J / kg / K
         "solar_energy_absorbed_leaf"          // J / m^2 / s
     };
 }
@@ -146,6 +155,7 @@ void ed_canac_leaf::do_operation() const
     const double Gs_min = *conductance_stomatal_h2o_min_ip * 1e3;  // mmol / m^2 / s
     const double StomaWS = *StomataWS_ip;                          // dimensionless
     const double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;      // micromole / mol
+    const double atmospheric_pressure = *atmospheric_pressure_ip;  // Pa
     const double upperT = *collatz_rubisco_temperature_upper_ip;   // deg. C
     const double lowerT = *collatz_rubisco_temperature_lower_ip;   // deg. C
     const int water_stress_approach = 1;                           // Apply water stress via stomatal conductance
@@ -153,6 +163,7 @@ void ed_canac_leaf::do_operation() const
     const double LeafAreaIndex = 0.0;                              // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
     const double CanopyHeight = 0.0;                               // meters (not actually used by EvapoTrans2)
     const double leaf_width = *leafwidth_ip;                       // meter
+    const double specific_heat_of_air = *specific_heat_of_air_ip;  // J / kg / K
     const int eteq = 0;                                            // Report Penman-Monteith transpiration
 
     // For ed_penman_monteith_leaf_temperature, the light input is called `solar_energy_absorbed_leaf`
@@ -183,22 +194,23 @@ void ed_canac_leaf::do_operation() const
     // Run c4photoC once assuming the leaf is at air temperature to get an initial guess for gs
     const struct c4_str first_c4photoC_output = c4photoC(Qp, temperature_air, RH,
                                                          vmax, alpha, kparm, theta, beta, Rd,
-                                                         bb0, bb1, Gs_min, StomaWS, Ca, water_stress_approach,
-                                                         upperT, lowerT);
+                                                         bb0, bb1, Gs_min, StomaWS, Ca, atmospheric_pressure,
+                                                         water_stress_approach, upperT, lowerT);
 
     const double stomatal_conductance = first_c4photoC_output.Gs;  // mmol / m^2 / s
 
     // Run EvapoTrans2 to get the leaf temperature
     const struct ET_Str evapotrans_output = EvapoTrans2(Rad, Iave, temperature_air, RH, WindSpeed,
-                                                        LeafAreaIndex, CanopyHeight, stomatal_conductance, leaf_width, eteq);
+                                                        LeafAreaIndex, CanopyHeight, stomatal_conductance,
+                                                        leaf_width, specific_heat_of_air, eteq);
 
     const double leaf_temperature = temperature_air + evapotrans_output.Deltat;
 
     // Run c4photoC a second time to get final values for assimilation and conductance
     const struct c4_str second_c4photoC_output = c4photoC(Qp, leaf_temperature, RH,
                                                           vmax, alpha, kparm, theta, beta, Rd,
-                                                          bb0, bb1, Gs_min, StomaWS, Ca, water_stress_approach,
-                                                          upperT, lowerT);
+                                                          bb0, bb1, Gs_min, StomaWS, Ca, atmospheric_pressure,
+                                                          water_stress_approach, upperT, lowerT);
 
     // Convert and return the results
     update(mole_fraction_co2_intercellular_op, second_c4photoC_output.Ci * 1e-6);       // mol / m^2 / s

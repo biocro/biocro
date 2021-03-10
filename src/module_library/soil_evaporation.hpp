@@ -8,7 +8,7 @@ class soil_evaporation : public SteadyModule {
 		soil_evaporation(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("soil_evaporation"),
-			// Get pointers to input parameters			
+			// Get pointers to input parameters
 			lai_ip(get_ip(input_parameters, "lai")),
 			temp_ip(get_ip(input_parameters, "temp")),
 			solar_ip(get_ip(input_parameters, "solar")),
@@ -21,7 +21,7 @@ class soil_evaporation : public SteadyModule {
 			soil_clod_size_ip(get_ip(input_parameters, "soil_clod_size")),
 			soil_reflectance_ip(get_ip(input_parameters, "soil_reflectance")),
 			soil_transmission_ip(get_ip(input_parameters, "soil_transmission")),
-			specific_heat_ip(get_ip(input_parameters, "specific_heat")),
+			specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
 			stefan_boltzman_ip(get_ip(input_parameters, "stefan_boltzman")),
 			// Get pointers to output parameters
 			soil_evaporation_rate_op(get_op(output_parameters, "soil_evaporation_rate"))
@@ -42,10 +42,10 @@ class soil_evaporation : public SteadyModule {
 		const double* soil_clod_size_ip;
 		const double* soil_reflectance_ip;
 		const double* soil_transmission_ip;
-		const double* specific_heat_ip;
-		const double* stefan_boltzman_ip;		
+		const double* specific_heat_of_air_ip;
+		const double* stefan_boltzman_ip;
 		// Pointers to output parameters
-		double* soil_evaporation_rate_op;		
+		double* soil_evaporation_rate_op;
 		// Main operation
 		void do_operation() const;
 };
@@ -64,7 +64,7 @@ std::vector<std::string> soil_evaporation::get_inputs() {
 		"soil_clod_size",
 		"soil_reflectance",
 		"soil_transmission",
-		"specific_heat",
+		"specific_heat_of_air",
 		"stefan_boltzman"
 	};
 }
@@ -80,10 +80,10 @@ void soil_evaporation::do_operation() const {
 	// SoilEvapo(...) is located in AuxBioCro.cpp
 	double soilEvap = SoilEvapo(*lai_ip, 0.68, *temp_ip, *solar_ip, *soil_water_content_ip,
 		*soil_field_capacity_ip, *soil_wilting_point_ip, *windspeed_ip, *rh_ip, *rsec_ip,
-		*soil_clod_size_ip, *soil_reflectance_ip, *soil_transmission_ip, *specific_heat_ip, *stefan_boltzman_ip);	// kg / m^2 / s
-	
+		*soil_clod_size_ip, *soil_reflectance_ip, *soil_transmission_ip, *specific_heat_of_air_ip, *stefan_boltzman_ip);	// kg / m^2 / s
+
 	soilEvap *= 3600 * 1e-3 * 10000;	// Convert to Mg / ha / hr for consistency with canopy_transpiration_rate and two_layer_soil_profile's output
-	
+
 	// Update the output parameter list
 	update(soil_evaporation_rate_op, soilEvap);
 }

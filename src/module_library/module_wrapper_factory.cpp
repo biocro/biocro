@@ -94,6 +94,9 @@
 #include "ed_multilayer_c4_canopy.h"
 #include "ed_multilayer_canopy_integrator.h"
 #include "hyperbolas.h"
+#include "rasmussen_specific_heat.h"
+#include "buck_swvp.h"
+#include "rh_to_mole_fraction.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -219,7 +222,10 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_ten_layer_c4_canopy",                          &create_wrapper<ed_ten_layer_c4_canopy>},
      {"ed_ten_layer_canopy_integrator",                  &create_wrapper<ed_ten_layer_canopy_integrator>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
-     {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>}
+     {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>},
+     {"rasmussen_specific_heat",                         &create_wrapper<rasmussen_specific_heat>},
+     {"buck_swvp",                                       &create_wrapper<buck_swvp>},
+     {"rh_to_mole_fraction",                             &create_wrapper<rh_to_mole_fraction>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()
@@ -277,6 +283,6 @@ std::unordered_map<std::string, std::vector<std::string>> module_wrapper_factory
             add_quantity_map_entry(module_name, "output", output_name);
         }
     }
-    
+
     return quantity_map;
 }

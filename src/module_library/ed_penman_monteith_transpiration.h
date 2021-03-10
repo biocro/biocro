@@ -9,10 +9,10 @@
 
 /**
  * @class ed_penman_monteith_transpiration
- * 
+ *
  * @brief Uses the Penman-Monteith equation to determine leaf transpiration (see eq. 14.4k from Thornley (1990), p. 408).
  * Currently only intended for use by Ed.
- * 
+ *
  * See the "ed_nikolov_conductance_forced" module for a discussion about converting molar conductances (with units
  * of mol / m^2 / s) to energy conductances (with units of m / s). In short, we replace all conductances g in the
  * Thornley formula with g * volume_per_mol_of_an_ideal_gas.
@@ -94,7 +94,7 @@ void ed_penman_monteith_transpiration::do_operation() const
     const double total_available_energy = solar_energy_absorbed_leaf - long_wave_energy_loss_leaf;  // W / m^2
 
     // Convert temperatures to Kelvin
-    const double Tak = temperature_air + physical_constants::celsius_to_kelvin;  // Kelvin
+    const double Tak = temperature_air + conversion_constants::celsius_to_kelvin;  // Kelvin
 
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law

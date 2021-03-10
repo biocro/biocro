@@ -35,9 +35,11 @@ struct Can_Str CanAC(
         double leafwidth,    // meter
         int eteq,
         double StomataWS,
+        double specific_heat_of_air,  // J / kg / K
+        double atmospheric_pressure,  // Pa
         int water_stress_approach)
 {
-    struct Light_model light_model = lightME(lat, DOY, hr);
+    struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
 
     double Idir = light_model.direct_irradiance_fraction * solarR;  // micromole / m^2 / s. Flux through a plane perpendicular to the rays of the sun.
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
@@ -85,10 +87,10 @@ struct Can_Str CanAC(
         double pLeafsun = light_profile.sunlit_fraction[current_layer];  // dimensionless. Fraction of LAI that is sunlit.
         double Leafsun = LAIc * pLeafsun;
 
-        double direct_stomatal_conductance = c4photoC(IDir, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, water_stress_approach, upperT, lowerT).Gs; // mmol / m^2 / s
-        struct ET_Str et_direct = EvapoTrans2(IDir, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, direct_stomatal_conductance, leafwidth, eteq);
+        double direct_stomatal_conductance = c4photoC(IDir, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure, water_stress_approach, upperT, lowerT).Gs; // mmol / m^2 / s
+        struct ET_Str et_direct = EvapoTrans2(IDir, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, direct_stomatal_conductance, leafwidth, specific_heat_of_air, eteq);
         double leaf_temperature_Idir = temperature + et_direct.Deltat;
-        struct c4_str direct_photo = c4photoC(IDir, leaf_temperature_Idir, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, water_stress_approach, upperT, lowerT);
+        struct c4_str direct_photo = c4photoC(IDir, leaf_temperature_Idir, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure, water_stress_approach, upperT, lowerT);
 
         double IDiff = light_profile.diffuse_irradiance[current_layer];  // micromole / m^2 / s
         double pLeafshade = light_profile.shaded_fraction[current_layer];  // dimensionless. Fraction of LAI that is shaded.
@@ -97,10 +99,10 @@ struct Can_Str CanAC(
         //Rprintf("current_layer,CumLAI,leafN_lay,relative_humidity,layer_wind_speed,CanHeight,Itot,IDir,pLeafSun,IDiff,pLeafShade\n");
         //Rprintf("%i,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f\n", current_layer, LAIc * (current_layer + 0.5), leafN_lay, relative_humidity, layer_wind_speed, CanHeight, Itot, IDir, pLeafsun, IDiff, pLeafshade);
 
-        double diffuse_stomatal_conductance = c4photoC(IDiff, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, water_stress_approach, upperT, lowerT).Gs;
-        struct ET_Str et_diffuse = EvapoTrans2(IDiff, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, diffuse_stomatal_conductance, leafwidth, eteq);
+        double diffuse_stomatal_conductance = c4photoC(IDiff, temperature, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure, water_stress_approach, upperT, lowerT).Gs;
+        struct ET_Str et_diffuse = EvapoTrans2(IDiff, Itot, temperature, relative_humidity, layer_wind_speed, LAIc, CanHeight, diffuse_stomatal_conductance, leafwidth, specific_heat_of_air, eteq);
         double leaf_temp_Idiffuse = temperature + et_diffuse.Deltat;
-        struct c4_str diffuse_photo = c4photoC(IDiff, leaf_temp_Idiffuse, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, water_stress_approach, upperT, lowerT);
+        struct c4_str diffuse_photo = c4photoC(IDiff, leaf_temp_Idiffuse, relative_humidity, vmax1, Alpha, Kparm, theta, beta, Rd, b0, b1, Gs_min, StomataWS, Catm, atmospheric_pressure, water_stress_approach, upperT, lowerT);
 
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;
         CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;
