@@ -7,10 +7,10 @@
 
 /**
  * @class ed_penman_monteith_leaf_temperature
- * 
+ *
  * @brief Uses the Penman-Monteith equation to determine leaf temperature (see eq. 14.11e from Thornley (1990), p. 418).
  * Currently only intended for use by Ed.
- * 
+ *
  * See the "ed_nikolov_conductance_forced" module for a discussion about converting molar conductances (with units
  * of mol / m^2 / s) to energy conductances (with units of m / s). In short, we replace all conductances g in the
  * Thornley formula with g * volume_per_mol_of_an_ideal_gas.
@@ -89,7 +89,7 @@ void ed_penman_monteith_leaf_temperature::do_operation() const
     const double total_available_energy = *solar_energy_absorbed_leaf_ip - *long_wave_energy_loss_leaf_ip;  // W / m^2
 
     // Convert temperatures to Kelvin
-    const double Tak = *temperature_air_ip + physical_constants::celsius_to_kelvin;  // Kelvin
+    const double Tak = *temperature_air_ip + conversion_constants::celsius_to_kelvin;  // Kelvin
 
     // Calculate the volume of one mole of a gas at air temperature and pressure
     // using the ideal gas law
@@ -149,7 +149,7 @@ std::vector<double> const relative_error_tolerances = {1e-3};
 
 /**
  * @class ed_p_m_temperature_solve
- * 
+ *
  * @brief Calculates leaf temperature using the Penman-Monteith equation, where boundary
  * layer conductance is determined using the model from Nikolov et al. Currently only
  * intended for use by Ed.

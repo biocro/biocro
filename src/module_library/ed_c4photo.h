@@ -6,8 +6,8 @@
 
 /**
  * @class ed_c4photo
- * 
- * @brief Just a module wrapper for the c4photo function.
+ *
+ * @brief Just a module wrapper for the `c4photo()` function.
  * Currently only intended for use by Ed.
  */
 class ed_c4photo : public SteadyModule
@@ -18,6 +18,7 @@ class ed_c4photo : public SteadyModule
         std::unordered_map<std::string, double>* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_c4photo"),
+
           // Get pointers to input parameters
           collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
           temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
@@ -33,8 +34,10 @@ class ed_c4photo : public SteadyModule
           conductance_stomatal_h2o_min_ip(get_ip(input_parameters, "conductance_stomatal_h2o_min")),
           StomataWS_ip(get_ip(input_parameters, "StomataWS")),
           mole_fraction_co2_atmosphere_ip(get_ip(input_parameters, "mole_fraction_co2_atmosphere")),
+          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
           collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
           collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
+
           // Get pointers to output parameters
           mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
           conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o")),
@@ -62,13 +65,16 @@ class ed_c4photo : public SteadyModule
     const double* conductance_stomatal_h2o_min_ip;
     const double* StomataWS_ip;
     const double* mole_fraction_co2_atmosphere_ip;
+    const double* atmospheric_pressure_ip;
     const double* collatz_rubisco_temperature_upper_ip;
     const double* collatz_rubisco_temperature_lower_ip;
+
     // Pointers to output parameters
     double* mole_fraction_co2_intercellular_op;
     double* conductance_stomatal_h2o_op;
     double* assimilation_gross_op;
     double* assimilation_net_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -90,6 +96,7 @@ std::vector<std::string> ed_c4photo::get_inputs()
         "conductance_stomatal_h2o_min",       // mol / m^2 / s
         "StomataWS",                          // dimensionless
         "mole_fraction_co2_atmosphere",       // dimensionless from mol / mol
+        "atmospheric_pressure",               // Pa
         "collatz_rubisco_temperature_upper",  // deg. C
         "collatz_rubisco_temperature_lower"   // deg. C
     };
@@ -122,6 +129,7 @@ void ed_c4photo::do_operation() const
     double Gs_min = *conductance_stomatal_h2o_min_ip * 1e3;  // mmol / m^2 / s
     double StomaWS = *StomataWS_ip;                          // dimensionless
     double Ca = *mole_fraction_co2_atmosphere_ip * 1e6;      // micromole / mol
+    double atmospheric_pressure = *atmospheric_pressure_ip;  // Pa
     double upperT = *collatz_rubisco_temperature_upper_ip;   // deg. C
     double lowerT = *collatz_rubisco_temperature_lower_ip;   // deg. C
     int water_stress_approach = 1;
@@ -142,6 +150,7 @@ void ed_c4photo::do_operation() const
         Gs_min,
         StomaWS,
         Ca,
+        atmospheric_pressure,
         water_stress_approach,
         upperT,
         lowerT);

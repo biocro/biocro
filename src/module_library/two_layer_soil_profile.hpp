@@ -39,7 +39,7 @@ class two_layer_soil_profile : public DerivModule {
 			soil_clod_size_ip(get_ip(input_parameters, "soil_clod_size")),
 			soil_reflectance_ip(get_ip(input_parameters, "soil_reflectance")),
 			soil_transmission_ip(get_ip(input_parameters, "soil_transmission")),
-			specific_heat_ip(get_ip(input_parameters, "specific_heat")),
+			specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
 			stefan_boltzman_ip(get_ip(input_parameters, "stefan_boltzman")),
 			soil_water_content_ip(get_ip(input_parameters, "soil_water_content")),
 			// Get pointers to output parameters
@@ -81,7 +81,7 @@ class two_layer_soil_profile : public DerivModule {
 		const double* soil_clod_size_ip;
 		const double* soil_reflectance_ip;
 		const double* soil_transmission_ip;
-		const double* specific_heat_ip;
+		const double* specific_heat_of_air_ip;
 		const double* stefan_boltzman_ip;
 		const double* soil_water_content_ip;
 		// Pointers to output parameters
@@ -124,7 +124,7 @@ std::vector<std::string> two_layer_soil_profile::get_inputs() {
 		"soil_clod_size",
 		"soil_reflectance",
 		"soil_transmission",
-		"specific_heat",
+		"specific_heat_of_air",
 		"stefan_boltzman",
 		"soil_water_content"
 	};
@@ -138,7 +138,7 @@ std::vector<std::string> two_layer_soil_profile::get_outputs() {
 	};
 }
 
-void two_layer_soil_profile::do_operation() const {	
+void two_layer_soil_profile::do_operation() const {
 	// Collect inputs and make calculations
 	double cws1 = *cws1_ip;
 	double cws2 = *cws2_ip;
@@ -146,22 +146,22 @@ void two_layer_soil_profile::do_operation() const {
 	double soil_depth2 = *soil_depth2_ip;
 	double soil_depth3 = *soil_depth3_ip;
 	double soil_water_content = *soil_water_content_ip;
-	
+
 	double cws[] = {cws1, cws2};
 	double soil_depths[] = {soil_depth1, soil_depth2, soil_depth3};
-	
+
 	struct soilML_str soilMLS = soilML(*precip_ip, *canopy_transpiration_rate_ip, cws, soil_depth3, soil_depths,
 			*soil_field_capacity_ip, *soil_wilting_point_ip, *soil_saturation_capacity_ip, *soil_air_entry_ip, *soil_saturated_conductivity_ip,
 			*soil_b_coefficient_ip, *soil_sand_content_ip, *phi1_ip, *phi2_ip, *wsFun_ip,
 			2 /* Always uses 2 layers. */, *Root_ip, *lai_ip, 0.68, *temp_ip,
 			*solar_ip, *windspeed_ip, *rh_ip, *hydrDist_ip, *rfl_ip,
 			*rsec_ip, *rsdf_ip, *soil_clod_size_ip, *soil_reflectance_ip, *soil_transmission_ip,
-			*specific_heat_ip, *stefan_boltzman_ip);
-			
+			*specific_heat_of_air_ip, *stefan_boltzman_ip);
+
 	double layer_one_depth = soil_depth2 - soil_depth1;
 	double layer_two_depth = soil_depth3 - soil_depth2;
 	double cws_mean = (soilMLS.cws[0] * layer_one_depth + soilMLS.cws[1] * layer_two_depth) / (layer_one_depth + layer_two_depth);
-	
+
 	// Update the output parameter list
 	update(cws1_op, soilMLS.cws[0] - cws1);
 	update(cws2_op, soilMLS.cws[1] - cws2);
