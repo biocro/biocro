@@ -155,8 +155,8 @@ Light_model lightME(const double latitude, const int day_of_year,
  *                   for a horizontal leaf distribution, `chil` approaches
  *                   infinity (dimensionless from m^2 / m^2)
  *
- *  @param [in] absorptivity The absorptivity of leaves for light radiation
- *                           (dimensionless)
+ *  @param [in] absorptivity The leaf absorptivity on a quantum basis
+ *                           (dimensionless from mol / mol)
  *
  *  @param [in] heightf Leaf area density, i.e., LAI per height of canopy (m^-1
  *                      from m^2 leaf / m^2 ground / m height)
