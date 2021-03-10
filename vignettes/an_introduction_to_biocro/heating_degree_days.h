@@ -15,19 +15,18 @@ class heating_degree_days : public DerivModule {
             output_parameters
     )
     : DerivModule{"heating_degree_days"},
-      temp_ip{get_ip(input_parameters, "temp")},
-      base_temperature_ip{get_ip(input_parameters, "base_temperature")},
+      temp{get_input(input_parameters, "temp")},
+      base_temperature{get_input(input_parameters, "base_temperature")},
       heating_degree_days_op{get_op(output_parameters, "heating_degree_days")}
     {}
 
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
-    static std::string get_description();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
   private:
-    // Pointers to input parameters:
-    const double* temp_ip;
-    const double* base_temperature_ip;
+    // References to input parameters:
+    const double& temp;
+    const double& base_temperature;
 
     // Pointers to output parameters:
     double* heating_degree_days_op;
@@ -36,22 +35,22 @@ class heating_degree_days : public DerivModule {
     void do_operation() const override final;
 };
 
-std::vector<std::string> heating_degree_days::get_inputs() {
+string_vector heating_degree_days::get_inputs() {
     return {
         "temp",
         "base_temperature"
       };
 }
 
-std::vector<std::string> heating_degree_days::get_outputs() {
+string_vector heating_degree_days::get_outputs() {
     return {
         "heating_degree_days"
     };
 }
 
 void heating_degree_days::do_operation() const {
-    double temperature_deficit { *base_temperature_ip > *temp_ip ?
-            (*base_temperature_ip - *temp_ip) : 0 };
+    double temperature_deficit { base_temperature > temp ?
+                                 (base_temperature - temp) : 0 };
     update(heating_degree_days_op, temperature_deficit / 24.0);
 }
 

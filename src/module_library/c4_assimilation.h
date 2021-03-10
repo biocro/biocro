@@ -8,12 +8,12 @@
 
 /**
  * @class c4_assimilation
- * 
+ *
  * @brief Calculates net assimilation, stomatal conductance, and
- * intercellular CO2 concentration for a C4 leaf using `c4photoC`.
- * 
+ * intercellular CO2 concentration for a C4 leaf using `c4photoC()`.
+ *
  * ### Model overview
- * 
+ *
  * The Ball-Berry stomatal conductance model and the Collatz et al. model for C4
  * photosynthesis, along with simple 1D gas diffusion, define a set of coupled
  * equations with three unknowns: net assimilation, intercellular CO2
@@ -21,13 +21,13 @@
  * determine these unknowns using a fixed-point iteration method. Beware: the
  * code often fails to find the true solution, and some parts of the models are
  * implemented incorrectly.
- * 
+ *
  * See the original WIMOVAC paper for a description of the assimilation model
  * and additional citations: [Humphries, S. W. & Long, S. P. Bioinformatics
  * 11, 361–371 (1995)](http://dx.doi.org/10.1093/bioinformatics/11.4.361)
- * 
+ *
  * ### BioCro module implementation
- * 
+ *
  * In BioCro, we use the following names for this model's input parameters:
  * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
@@ -43,10 +43,11 @@
  * - ``'Gs_min'`` for the minimum stomatal conductance (only used when applying water stress via stomatal conductance)
  * - ``'StomataWS'`` for the water stress factor
  * - ``'Catm'`` for the atmospheric CO2 concentration
+ * - ``'atmospheric_pressure'`` for the local atmospheric pressure
  * - ``'water_stress_approach'`` indicates whether to apply water stress via assimilation (0) or stomatal conductance (1)
  * - ``'upperT'`` for the high temperature cutoff for rubisco activity
  * - ``'lowerT'`` for the low temperature cutoff for rubisco activity
- * 
+ *
  * We use the following names for the model's output parameters:
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
@@ -77,6 +78,7 @@ class c4_assimilation : public DerivModule
           Gs_min(get_input(input_parameters, "Gs_min")),
           StomataWS(get_input(input_parameters, "StomataWS")),
           Catm(get_input(input_parameters, "Catm")),
+          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
           water_stress_approach(get_input(input_parameters, "water_stress_approach")),
           upperT(get_input(input_parameters, "upperT")),
           lowerT(get_input(input_parameters, "lowerT")),
@@ -107,6 +109,7 @@ class c4_assimilation : public DerivModule
     double const& Gs_min;
     double const& StomataWS;
     double const& Catm;
+    double const& atmospheric_pressure;
     double const& water_stress_approach;
     double const& upperT;
     double const& lowerT;
@@ -138,6 +141,7 @@ std::vector<std::string> c4_assimilation::get_inputs()
         "Gs_min",                 // mol / m^2 / s
         "StomataWS",              // dimensionless
         "Catm",                   // micromol / mol
+        "atmospheric_pressure",   // Pa
         "water_stress_approach",  // dimensionless
         "upperT",                 // degrees C
         "lowerT"                  // degrees C
@@ -171,6 +175,7 @@ void c4_assimilation::do_operation() const
         Gs_min,
         StomataWS,
         Catm,
+        atmospheric_pressure,
         water_stress_approach,
         upperT,
         lowerT);

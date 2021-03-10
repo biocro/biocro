@@ -7,8 +7,8 @@
 
 /**
  * @class c3_leaf_photosynthesis
- * 
- * @brief Uses the method from c3CanAC to calculate leaf photosynthesis parameters for C3 plants
+ *
+ * @brief Uses the method from `c3CanAC()` to calculate leaf photosynthesis parameters for C3 plants
  */
 class c3_leaf_photosynthesis : public SteadyModule
 {
@@ -18,6 +18,7 @@ class c3_leaf_photosynthesis : public SteadyModule
         std::unordered_map<std::string, double>* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c3_leaf_photosynthesis"),
+
           // Get references to input parameters
           par_energy_content(get_input(input_parameters, "par_energy_content")),
           incident_par(get_input(input_parameters, "incident_par")),
@@ -31,6 +32,7 @@ class c3_leaf_photosynthesis : public SteadyModule
           b1(get_input(input_parameters, "b1")),
           Gs_min(get_input(input_parameters, "Gs_min")),
           Catm(get_input(input_parameters, "Catm")),
+          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
           O2(get_input(input_parameters, "O2")),
           theta(get_input(input_parameters, "theta")),
           StomataWS(get_input(input_parameters, "StomataWS")),
@@ -40,6 +42,8 @@ class c3_leaf_photosynthesis : public SteadyModule
           incident_average_par(get_input(input_parameters, "incident_average_par")),
           windspeed(get_input(input_parameters, "windspeed")),
           height(get_input(input_parameters, "height")),
+          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air")),
+
           // Get pointers to output parameters
           Assim_op(get_op(output_parameters, "Assim")),
           GrossAssim_op(get_op(output_parameters, "GrossAssim")),
@@ -56,7 +60,7 @@ class c3_leaf_photosynthesis : public SteadyModule
     static std::string get_description();
 
    private:
-    // Pointers to input parameters
+    // References to input parameters
     double const& par_energy_content;
     double const& incident_par;
     double const& temp;
@@ -69,6 +73,7 @@ class c3_leaf_photosynthesis : public SteadyModule
     double const& b1;
     double const& Gs_min;
     double const& Catm;
+    double const& atmospheric_pressure;
     double const& O2;
     double const& theta;
     double const& StomataWS;
@@ -78,6 +83,8 @@ class c3_leaf_photosynthesis : public SteadyModule
     double const& incident_average_par;
     double const& windspeed;
     double const& height;
+    double const& specific_heat_of_air;
+
     // Pointers to output parameters
     double* Assim_op;
     double* GrossAssim_op;
@@ -87,6 +94,7 @@ class c3_leaf_photosynthesis : public SteadyModule
     double* EPenman_op;
     double* EPriestly_op;
     double* leaf_temperature_op;
+
     // Main operation
     void do_operation() const;
 };
@@ -106,6 +114,7 @@ std::vector<std::string> c3_leaf_photosynthesis::get_inputs()
         "b1",                           // dimensionless
         "Gs_min",                       // mol / m^2 / s
         "Catm",                         // micromole / mol
+        "atmospheric_pressure",         // Pa
         "O2",                           // mmol / mol
         "theta",                        // dimensionless
         "StomataWS",                    // dimensionless
@@ -114,7 +123,8 @@ std::vector<std::string> c3_leaf_photosynthesis::get_inputs()
         "electrons_per_oxygenation",    // electron / oxygenation
         "incident_average_par",         // J / (m^2 leaf) / s
         "windspeed",                    // m / s
-        "height"                        // m
+        "height",                       // m
+        "specific_heat_of_air"          // J / kg / K
     };
 }
 
@@ -141,22 +151,23 @@ void c3_leaf_photosynthesis::do_operation() const
     // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
     const double initial_stomatal_conductance = c3photoC(
                                                     incident_par_micromol, temp, rh, vmax1, jmax, tpu_rate_max,
-                                                    Rd, b0, b1, Gs_min, Catm, O2, theta, StomataWS, water_stress_approach,
+                                                    Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2, theta,
+                                                    StomataWS, water_stress_approach,
                                                     electrons_per_carboxylation, electrons_per_oxygenation)
                                                     .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature
     //
     const struct ET_Str et = c3EvapoTrans(incident_average_par_micromol, temp, rh, windspeed, height,
-                                          initial_stomatal_conductance);
+                                          specific_heat_of_air, initial_stomatal_conductance);
 
     const double leaf_temperature = temp + et.Deltat;  // deg. C
 
     // Calculate final values for assimilation, stomatal conductance, and Ci using the new leaf temperature
     const struct c3_str photo = c3photoC(
         incident_par_micromol, leaf_temperature, rh, vmax1, jmax, tpu_rate_max,
-        Rd, b0, b1, Gs_min, Catm, O2, theta, StomataWS, water_stress_approach,
-        electrons_per_carboxylation, electrons_per_oxygenation);
+        Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
+        water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
 
     // Update the outputs
     update(Assim_op, photo.Assim);

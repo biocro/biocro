@@ -360,7 +360,7 @@ jobs:
         run: |
           # Install a few LaTeX packages needed by the vignette not included
           # in tinytex:
-          tlmgr install siunitx babel-english
+          tlmgr install siunitx babel-english footnotebackref listings appendix pgf
 
       - name: Check package
         env:
