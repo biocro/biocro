@@ -57,7 +57,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<dimensionless> theta = thet + 0.018 * leaf_temperature_celsius - 3.7e-4 * pow(leaf_temperature_celsius, 2);
 
     /* Light limited */
-    const quantity<dimensionless> dark_adapted_phi_PSII = 0.352 + 0.022 * leaf_temperature_celsius - 3.4 * pow(leaf_temperature_celsius, 2) / 10000;  // Bernacchi et al. 2003 Plant, Cell and Environment 26, 14191430 doi: 10.1046/j.0016- 8025.2003.01050.x
+    const quantity<dimensionless> dark_adapted_phi_PSII = 0.352 + 0.022 * leaf_temperature_celsius - 3.4 * pow(leaf_temperature_celsius, 2) / 10000;  // Bernacchi et al. (2003).  See reference above.
     const quantity<flux> I2 = Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) / 2.0;
 
     const quantity<flux> J = (Jmax + I2 - root<2>(pow<2>(Jmax + I2) - 4.0 * theta * I2 * Jmax )) / (2.0 * theta);
@@ -206,7 +206,7 @@ struct c3_str c3photoCdb(double _Qp, double _Tleaf, double RH, double _Vcmax0, d
     const quantity<dimensionless> theta = thet + 0.018 * leaf_temperature_celsius - 3.7e-4 * pow(leaf_temperature_celsius, 2);
 
     /* Light limited */
-    const quantity<dimensionless> dark_adapted_phi_PSII = 0.352 + 0.022 * leaf_temperature_celsius - 3.4 * pow(leaf_temperature_celsius, 2) / 10000;  // Bernacchi et al. 2003 Plant, Cell and Environment 26, 14191430 doi: 10.1046/j.0016- 8025.2003.01050.x
+    const quantity<dimensionless> dark_adapted_phi_PSII = 0.352 + 0.022 * leaf_temperature_celsius - 3.4 * pow(leaf_temperature_celsius, 2) / 10000;  // Bernacchi et al. (2003).  See reference above.
     const quantity<flux> I2 = Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) / 2.0;
 
     const quantity<flux> J = (Jmax + I2 - root<2>(pow<2>(Jmax + I2) - 4.0 * theta * I2 * Jmax )) / (2.0 * theta);
