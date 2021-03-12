@@ -41,7 +41,9 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
 
-    /* From Bernacchi et al. (2003) Plant, Cell and Environment, 26, 1419-1430. doi:10.1046/j.0016-8025.2003.01050.x */
+    /* From:
+     Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430. https://doi.org/10.1046/j.0016-8025.2003.01050.x
+     Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259. https://doi.org/10.1111/j.1365-3040.2001.00668.x */
     /* Note: Values in Dubois and Bernacchi are incorrect. */
     const quantity<mole_fraction> Kc = 1e-6 * arrhenius_exponent(38.05, 79.43e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Ko = 1e-3 * arrhenius_exponent(20.30, 36.38e3 * joule / mole, leaf_temperature);
