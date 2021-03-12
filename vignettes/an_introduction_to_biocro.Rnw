@@ -1,10 +1,18 @@
+%\VignetteIndexEntry{Explanation of the BioCro framework and how to write new models}
+%\VignettePackage{BioCro}
+%\VignetteEngine{knitr::knitr}
+
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 
 %% Useful packages
-\usepackage{helvet}
+%\usepackage{helvet} % Commenting this out for now: I don't see any
+                     % discernable difference in the font quality when
+                     % this is included.
 \renewcommand{\familydefault}{\sfdefault}
-\usepackage{hyperref}
+\usepackage[colorlinks,linkcolor=cyan]{hyperref} % use colored links instead of boxes around links
+\usepackage{footnotebackref} % add a "return" link from footnotes
 \usepackage{amsmath}
 \usepackage{siunitx}
 \usepackage[margin=1 in]{geometry}
@@ -13,6 +21,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{url}
+\usepackage[title]{appendix}
 
 \colorlet{stringcolor}{purple}
 
@@ -36,6 +45,11 @@
   stringstyle=\color{stringcolor},
 }
 
+\lstdefinestyle{sh_style}{
+  style=baseStyle,
+  language=sh
+}
+
 \lstdefinestyle{C++style}{
   style=baseStyle,
   language=C++
@@ -56,14 +70,21 @@
 \newcommand{\code}[1]{\lstinline[style=C++style]{#1}}
 \newcommand{\Rcode}[1]{\lstinline[style=Rstyle]{#1}}
 
-\lstnewenvironment{C++listing}[1][2]
+\lstnewenvironment{sh_listing}[1][0]
+{\lstset{
+    style=sh_style,
+    gobble=#1
+}}
+{}
+
+\lstnewenvironment{C++listing}[1][0]
 {\lstset{
     style=C++style,
     gobble=#1
 }}
 {}
 
-\lstnewenvironment{Rlisting}[1][2]
+\lstnewenvironment{Rlisting}[1][0]
 {\lstset{
     style=Rstyle,
     gobble=#1
@@ -71,7 +92,7 @@
 {}
 
 % Shadow-box listings that are part of examples:
-\lstnewenvironment{example}[1][2]
+\lstnewenvironment{example}[1][0]
 {\lstset{
     style=C++style,
     gobble=#1,
@@ -79,7 +100,7 @@
 }}
 {}
 
-\lstnewenvironment{Rexample}[1][2]
+\lstnewenvironment{Rexample}[1][0]
 {\lstset{
     style=Rstyle,
     gobble=#1,
@@ -91,12 +112,6 @@
 \setlength{\parskip}{0.5 em}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows, decorations.pathreplacing}
-
-%%%%%%%%% This is for editing only. %%%%%%%%%%%%%
-\usepackage[todonotes={textwidth=1.5in},commentmarkup=footnote]{changes} % I use footnotes for comments be cause the default margin comments are often trucated if they occur too close to the bottom of the page.
-\setaddedmarkup{\textcolor{teal}{#1}}
-\setdeletedmarkup{\textcolor{red}{#1}}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \newenvironment{descriptions}
   {\par\vspace{\abovedisplayskip}\begin{tabular}{>{$}r<{$} @{$:{}$} p{40em}}}
@@ -135,8 +150,18 @@
 \author{Justin McGrath}
 
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+
 \maketitle
+
+\tableofcontents
+
+% Set things up for R evaluation:
+<<preliminaries,echo=FALSE>>=
+knitr::opts_chunk$set(error=FALSE) # stop on errors instead of
+                                   # displaying them in results
+library(BioCro, quietly=TRUE)
+@
+
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}
 
@@ -207,12 +232,13 @@ that is, $\mathrm{mass}_\text{\,10\,\textsc{am}} =
   to estimate how the state changes are more complex, but all involve
   the equations giving the \emph{rate of change} of the variables in
   the state at a given time $t$ based on the \emph{value} of the
-  variables in the state at time $t$.}\footnote{We have used time units of
-  hours here, but it is a goal to eventually use only SI units within
-  BioCro.  The SI base unit of time is the second, not the hour.} The
-variables we calculate from rates of change we'll denote as
-$\boldX_\cd$ ($\cd$ for \underline{c}alculated from
-\underline{d}ifferential equations).
+  variables in the state at time $t$.
+
+  We have used time units of hours here, but it is a goal to
+  eventually use only SI units within BioCro.  The SI base unit of
+  time is the second, not the hour.} The variables we calculate from
+  rates of change we'll denote as $\boldX_\cd$ ($\cd$ for
+  \underline{c}alculated from \underline{d}ifferential equations).
 
 
 Analogously to writing $\boldX_{t_i}$ to denote the state of the
@@ -291,7 +317,7 @@ each time point\ $t_i$ starting with time $t_0$:
     variables in $\cd$ are assumed to be known at time $t_0$.  For
     $i>0$, the values of the variables in $\cd$ at time $t_i$ are
     calculated in step 4 of the previous iteration.}
-  
+
 \item We now have full knowledge of the three components---the known
   variables, the secondary variables, and the variables that depend on
   differential equations---that comprise the full state $\boldX_{t_i}$
@@ -349,6 +375,7 @@ The inputs to the model are the following:\footnote{Strictly speaking,
 
 \subsubsection{Model equations}
 \label{sec:model_equations}
+
 Whereas in the real world the state function $\boldX$ is a continuous
 function of time on some time interval of interest $[t_0, t_n]$, in
 practice we consider only the value of $\boldX$ for some finite
@@ -357,11 +384,11 @@ $t_2$, \dots, $t_n$ within that interval.  This is both because the
 so-called ``known'' variables are known only at some finite set of
 instants in that interval and because it is a requirement of the
 numerical methods used to solve the differential equations. The model
-can be solved using Euler's method\footnote{Other generally better
-  methods for solving systems are available in BioCro, but in the
-  discussion here, we shall stick to Euler's method so as not to
-  overly complicate the presentation.}  by iterating through the
-following process for each $t=t_i$ starting at $t = t_0$:
+can be solved using Euler's method by iterating through the following
+process for each $t=t_i$ starting at $t = t_0$:\,\footnote{Other
+generally better methods for solving systems are available in BioCro,
+but in the discussion here, we shall stick to Euler's method so as not
+to overly complicate the presentation.}
 
 \begin{align}
   \label{eq:solver_loop}
@@ -383,7 +410,7 @@ t$ is of fixed size.
 \subsubsection{Function inputs}
 \label{sec:solver_inputs}
 
-The R function \code{Gro\_solver()} accepts five parameters that
+The R function \Rcode{Gro_solver()} accepts five parameters that
 correspond to the model inputs given in
 Table~\ref{tab:model_inputs}. For convenience, $\boldX_\kn$ is
 separated into variables that do or do not vary over the simulation
@@ -401,12 +428,12 @@ period.\footnote{The ``unvarying'' parameters are probably more
 \begin{center}
 \begin{tabular}{| r | l |}
 	\hline
-    \textbf{Gro\_solver() input} & \textbf{model equivalent} \\ 
+    \textbf{Gro\_solver() input} & \textbf{model equivalent} \\
     \hline
-    \code{initial\_values} & $\boldX_{t_0,\cd}$ \\ 
-    \code{parameters} & $\boldX_\kn$ that do not vary with time. \\ 
-    \code{varying\_parameters} & $\boldX_\kn$ that do vary with time. \\ 
-    \code{steady\_state\_module\_names} & $\g$ \\ 
+    \code{initial\_values} & $\boldX_{t_0,\cd}$ \\
+    \code{parameters} & $\boldX_\kn$ that do not vary with time. \\
+    \code{varying\_parameters} & $\boldX_\kn$ that do vary with time. \\
+    \code{steady\_state\_module\_names} & $\g$ \\
     \code{derivative\_module\_names} & $\h$ \\
     \hline
 \end{tabular}
@@ -432,33 +459,24 @@ use the following:
   xleftmargin=0.05\textwidth, xrightmargin=0.2\textwidth
 }
 
-\begin{center}
-  \begin{lstlisting}
-    
+<<list_function>>=
 # The list() function takes any number of key=value pairs, separated
 # by commas.
-> example_initial_values = list(Stem = 3, Leaf = 5)
+example_initial_values = list(Stem = 3, Leaf = 5)
 
 # The str() function prints useful information about any object.
-> str(example_initial_values)
-List of 2
- $ Stem: num 3
- $ Leaf: num 5
- 
+str(example_initial_values)
+
 # You can get a value using the key and the '$' operator ...
 example_initial_values$Leaf
-[1] 5
 
 # ... or with the double-bracket operator '[[' operator and the
 # string value of the key.
-> example_initial_values[["Leaf"]]
-[1] 5
-> key_variable <- "Leaf"
-> example_initial_values[[key_variable]]
-[1] 5
-\end{lstlisting}
-\end{center}
+example_initial_values[["Leaf"]]
 
+key_variable <- "Leaf"
+example_initial_values[[key_variable]]
+@
 
 Lists are also used to specify values for the \code{parameters}
 argument.\footnote{The \code{Gro} function also uses an R \code{list}
@@ -478,18 +496,9 @@ and willow and are named using names of the form
   intended to be used with the \code{Gro} function; see the previous
   footnote.} for example, \code{willow\_initial\_state}:
 
-\begin{center}
-\begin{lstlisting}
-> str(head(willow_initial_state)) # head truncates the list to six items
-List of 6
- $ Rhizome  : num 0.99
- $ Leaf     : num 0.02
- $ Stem     : num 0.99
- $ Root     : num 1
- $ Grain    : num 0
- $ waterCont: num 0.32
-\end{lstlisting}
-\end{center}
+<<willow_initial_state>>=
+str(head(willow_initial_state)) # head truncates the list to six items
+@
 
 \code{varying\_parameters}, since it is made up of variables whose
 value changes over the course of time, must be specified somewhat
@@ -531,21 +540,15 @@ the time values should be in ``chronological order'').\footnote{As of
 In the following example, the time is specified using vectors labelled
 \emph{year}, \emph{doy} (``day-of-year''), and \emph{hour}.
 
-\begin{center}
-\begin{lstlisting}
-> example_varying_parameters = data.frame(
+<<varying_parameters_example>>=
+example_varying_parameters = data.frame(
             year = c(2005, 2005),
             doy = c(1, 1),
-            hour = c(0, 1), 
+            hour = c(0, 1),
             solar = c(0, 0),
             temp = c(4.04, 3.03))
-> print(example_varying_parameters)
-
-  year doy hour solar temp
-1 2005   1    0     0 4.04
-2 2005   1    1     0 3.03
-\end{lstlisting}
-\end{center}
+print(example_varying_parameters)
+@
 
 Data frames of weather data are provided to pass to
 \code{varying\_parameters}. These are typically for one year (January
@@ -557,18 +560,9 @@ provided as one means of subsetting climate data.\footnote{The
   (temperature) component.}  Here is a display of weather data for
 2005 showing the first few rows of the growing season:
 
-\begin{center}
-\begin{lstlisting}
-> head(get_growing_season_climate(weather05))
-     year doy hour solar    temp     rh windspeed precip
-2953 2005 124    0     0  3.5972 0.3235    0.7603      0
-2954 2005 124    1     0  1.3938 0.2496    0.7603      0
-2955 2005 124    2     0 -0.2969 0.1928    0.7603      0
-2956 2005 124    3     0 -1.3597 0.1572    0.7603      0
-2957 2005 124    4     0 -1.7222 0.1450    0.7603      0
-2958 2005 124    5     0 -1.3597 0.1572    0.7603      0
-\end{lstlisting}
-\end{center}
+<<weather05>>=
+head(get_growing_season_climate(weather05))
+@
 
 \subsubsection{Function output}
 The output of \code{Gro\_solver} (and of \code{Gro}) is a data.frame,
@@ -581,7 +575,7 @@ which there is input data.
 
 \begin{table}[!htbp]
 \begin{center}
-\begin{lstlisting}
+\begin{Rlisting}
      year doy hour    Stem   Root    Leaf
    1 2005   1    0   0.990   1.00   0.020
    2 2005   1    1   0.990   1.00   0.020
@@ -590,7 +584,7 @@ which there is input data.
 ...
 8759 2005 365   22  10.016   2.14   9e-08
 8760 2005 365   23  10.016   2.14   9e-08
-\end{lstlisting}
+\end{Rlisting}
 \caption{\label{tab:example_output} A truncated listing of the output used to produce Figure \ref{fig:example}}
 \end{center}
 \end{table}
@@ -599,16 +593,15 @@ which there is input data.
 In R, you can use the \code{Gro()} function to simulate the
 development of a crop as follows:
 
-\begin{center}
-\begin{lstlisting}
+% Run the code to validate it, but don't show the figure.
+<<Gro_example, fig.show='hide'>>=
 library(BioCro)
 library(lattice)  # This is a package that creates figures.
 
 result = Gro(sorghum_initial_state, sorghum_parameters,
              get_growing_season_climate(weather05), sorghum_modules)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.
-\end{lstlisting}
-\end{center}
+@
 
 \section{Modifying the BioCro code}
 \subsection{Organization of the source files}
@@ -650,24 +643,24 @@ SEXP my_function(SEXP x) {
 \end{lstlisting}
 \end{center}
 
-To compile this,\footnote{If this were to be compiled as a C++ program
-  (as the BioCro source code is), one would have to wrap the
-  \code{my\_function} definition with \code{extern "C" \{ ... \}}.}
-one may then run
+To compile this, one may then run
 \begin{center}
-\begin{lstlisting}
+\begin{sh_listing}
 R CMD SHLIB squarer.c
-\end{lstlisting}
+\end{sh_listing}
 \end{center}
-This will produce the library file \code{squarer.so}.
+This will produce the library file \code{squarer.so}.\footnote{If this
+  were to be compiled as a C++ program (as the BioCro source code is),
+  one would have to wrap the \code{my\_function} definition with
+  \code{extern "C" \{ ... \}}.}
 
 Then to use this from R, open an R session and type the following commands:
 \begin{center}
-\begin{lstlisting}
+\begin{Rlisting}
 > dyn.load("squarer.so") # make the C function available to R
 > .Call("my_function", pi) # call my_function from R with argument pi
 [1] 9.869604
-\end{lstlisting}
+\end{Rlisting}
 \end{center}
 
 The \code{SEXP} data type is provided by the R-to-C libraries and can
@@ -676,11 +669,12 @@ instance, numeric or character). The author of the C function must
 know what data type is intended to be passed to the function. In this
 example, the \code{REAL} macro is used to convert \code{x} to an array
 of \code{double}s, and since there is only one element in the array,
-the first index (\code{0})\footnote{Note that in R arrays begin with
-  index 1 whereas C arrays begin with index 0.} is
-accessed. \code{PROTECT()}, \code{UNPROTECT()}, and
-\code{Rf\_allocVector()} are also required and are provided by the
-R-to-C libraries, but understanding them is not necessary here.
+the first index (\code{0}) is
+accessed.\footnote{Note that in R arrays begin with
+  index 1 whereas C arrays begin with index 0.}
+\code{PROTECT()}, \code{UNPROTECT()}, and \code{Rf\_allocVector()} are
+also required and are provided by the R-to-C libraries, but
+understanding them is not necessary here.
 
 Using the R-to-C libraries is tedious and error prone, and it is
 extremely easy to write code that will run but produce hard-to-spot
@@ -725,9 +719,9 @@ stand-alone C++ application, for instance.
 \draw [latex-latex, line width=1.1 pt] (R) -- (RC);
 \draw [latex-latex, line width=1.1 pt] (RC) -- (C);
 
-\draw [decoration={brace, raise=10 pt, amplitude=12 pt}, decorate, line width=1 pt] (R.north west) -- node[above=23 pt] {Part of the R environment} (R.north -| RC.east);
-\draw [decoration={brace, raise=10 pt, amplitude=12 pt, mirror}, decorate, line width=1 pt] (R.south -| RC.west) -- node[below=23 pt] {Compiled code} (RC.south -| C.east);
-  
+\draw [decoration={brace, raise=10 pt, amplitude=12 pt}, decorate, line width=1 pt] (R.north west |- RC.north) -- node[above=23 pt] {Part of the R environment} (RC.east |- RC.north);
+\draw [decoration={brace, raise=10 pt, amplitude=12 pt, mirror}, decorate, line width=1 pt] (RC.south west |- RC.south) -- node[below=23 pt] {Compiled code} (C.east |- RC.south);
+
 \end{tikzpicture}
 \end{center}
 \end{figure}
@@ -738,26 +732,24 @@ checking and call C/C++ functions. That is, R and R-to-C functions
 should only provide a way to access the models written in C/C++, and
 no modeling should be done in R or R-to-C code.
 
-\subsection[Adding new models]{Adding new models\footnotemark}
-
-
-\footnotetext{Up until now, we have used the term \emph{model} to
-  refer to the system as a whole, and the dynamics of how it changes
-  over time.  Here we are using it in a more specialized sense: we
-  \emph{model} the relationship between attributes of a state---how
-  the values of some select group of attributes of the state determine
-  the values or the rate of change of the values of other attributes
-  of the state.  A model of the dynamics of soil evaporation, for
-  instance, is a component of the model of the system as a whole.
-  When we are being careful, we will use the term \emph{module} to
-  refer to the code (or the C++ class) that implements a \emph{model}
-  (in this more restricted sense), but at times, we may use the two
-  terms interchangably.}
+\subsection[Adding new models]{Adding new models\footnote{Up until
+  now, we have (mostly) used the term \emph{model} to refer to the
+  system as a whole, and the dynamics of how it changes over time.
+  Here we are using it in a more specialized sense: we \emph{model}
+  the relationship between attributes of a state---how the values of
+  some select group of attributes of the state determine the values or
+  the rate of change of the values of other attributes of the state.
+  A model of the dynamics of soil evaporation, for instance, is a
+  component of the model of the system as a whole.  When we are being
+  careful, we will use the term \emph{module} to refer to the code (or
+  the C++ class) that implements a \emph{model} (in this more
+  restricted sense), but at times, we may use the two terms
+  interchangably.}}
 
 What follows are step-by-step instructions for writing modules and
 integrating them into the BioCro library.  We show instructions both
-for writing steady-state modules and for writing deriv modules.  In
-each case, we include a running example; the actual code changes
+for writing steady-state modules and for writing derivative modules.
+In each case, we include a running example; the actual code changes
 needed are shown in shadowboxes at the end of each step.  (Full
 listings of the finished code are given in the appendix.)
 
@@ -766,14 +758,14 @@ modules.
 
 \subsubsection{Example: Steps for creating a steady-state module.}
 
-Supose we want to write a module which builds upon the
+Suppose we want to write a module which builds upon the
 \code{solar_zenith_angle} module.  That module, when given the
-latitude (``lat'') and hour of the day (``hour'') as inputs, computes
-the cosine of the solar zenith angle (``cosine\_zenith\_angle'').  We
-would like to use the cosine of the solar zenith angle to calculate
-the actual zenith angle in degrees.  So we shall write a module taking
-one input---``cosine\_zenith\_angle''---to compute the value of the
-angle itself.  The steps are as follows.
+latitude, day of the year, and hour of the day as inputs, computes the
+cosine of the solar zenith angle.  We would like to use the cosine of
+the solar zenith angle to calculate the actual zenith angle in
+degrees.  So we shall write a module taking one input,
+``cosine\_zenith\_angle'', and computes the value of the angle itself.
+The steps are as follows.
 
 \begin{enumerate}
 
@@ -781,23 +773,23 @@ angle itself.  The steps are as follows.
   could be anything (ideally, something giving a concise description
   of the module), since we would like to follow the convention that
   the module name doubles as the name of the class that implements the
-  module, the name (without quotes%
-  \footnote{The quoted name is the ``public'' name: when you specify
+  module, the name (without quotes) should be a valid C++ identifier.%
+  \footnote{
+    The quoted name is the ``public'' name: when you specify
     the module in a BioCro R function, or if you use the BioCro C++
     library in your own C++ code, it is the string name---the quoted
-    name---that you use.}%
-  ) should be a valid C++
-  identifier.%
-  \footnote{A valid C++ identifier must consist only of letters,
-    digits and underscores; it can not begin with a digit nor match
-    one of the C++ keywords.  Additionally, to avoid conflicting with
-    names reserved by the implementation, it should not begin with an
-    underscore, and it should not contain a sequence of two or more
-    underscores or an underscore followed by a capital letter; in
-    fact, for the sake of uniformity, it is preferable to avoid
-    capital letters in module names altogether.  Although non-latin
-    letters are allowed, it is best to avoid them so encoding of
-    source files does not become an issue.}
+    name---that you use.
+
+    A valid C++ identifier must consist only of letters, digits and
+    underscores; it cannot begin with a digit or match one of the C++
+    keywords.  Additionally, to avoid conflicting with names reserved
+    by the implementation, it should not begin with an underscore, and
+    it should not contain a sequence of two or more underscores or an
+    underscore followed by a capital letter; in fact, for the sake of
+    uniformity, it is preferable to avoid capital letters in module
+    names altogether.  Although non-latin letters are allowed, it is
+    best to avoid them so encoding of source files does not become an
+    issue.}
 
   \begin{example}[4]
     "solar_zenith_angle_in_degrees"
@@ -810,11 +802,9 @@ angle itself.  The steps are as follows.
     names of files or variables.  So, for example, if we have chosen
     ``solar\_zenith\_angle\_in\_degrees'' as the module name, then
     \placeholder{module name}\code{.h} designates
-    \code{solar_zenith_angle_in_degrees.h}, the name we get by
-    substituting \code{solar_zenith_angle_in_degrees} for
-    \placeholder{module name}.  Again, using the module name to form
-    the file name is by convention, but a useful one if one is trying
-    to find the code that implements a model.}
+    \code{solar_zenith_angle_in_degrees.h}.  Again, using the module
+    name to form the file name is by convention, but a useful one if
+    one is trying to find the code that implements a model.}
 
   \begin{example}[4]
     solar_zenith_angle_in_degrees.h
@@ -828,37 +818,41 @@ angle itself.  The steps are as follows.
     #endif
   \end{example}
 
-\item Add include directives to include the module base class
+\item Add \emph{include} directives to include the module base class
   declarations from \code{modules.h} and the type aliases from
   \code{state_map.h}.
   \begin{example}[4]
     #include "../modules.h"
-    #include "../state_map.h''
+    #include "../state_map.h"
   \end{example}
 
 \item Begin a declaration of a class for the module, deriving it from
   SteadyModule.  The identifier used for the class name should match
-  the module name you decided upon in step 1.\footnotemark
-    \footnotetext{Here again, matching the class name to the module name
-    is a convention.  It won't break anything if you don't except
-    perhaps the expectations of readers of your code.}
-    Include a Doxygen-style comment (that is, starting with
-    \code{/**}) describing the module and its purpose immediately
-    above the class declaration.  The first sentence should be a brief
-    summary of the module.  This is followed by additional details or
-    a fuller description.  This is an appropriate place to include
-    citations to sources for equations used by the module in
-    calculations, the reasoning and justification for the model, and
-    information to help the user determine when use of the model is
-    appropriate.\footnotemark%
+  the module name you decided upon in step 1.\footnote{Here again,
+  matching the class name to the module name is a convention.  It
+  won't break anything if you don't except perhaps the expectations of
+  readers of your code.}
 
-    \footnotetext{The code that actually \emph{uses} the said
-      equations will most likely be in the body of the
-      \code{do_operation} function (or in some subsidiary function
-      called by it).  But \code{do_operation} is a private function,
-      so it is more appropriate to put ``public'' information here.
-      Documentation of \code{do_operation}, if any, should mostly be
-      about programming details.}
+  Include a Doxygen-style comment (that is, starting with \code{/**})
+  describing the module and its purpose immediately above the class
+  declaration.  The first sentence should be a brief summary of the
+  module.  This is followed by additional details or a fuller
+  description.  This is an appropriate place to include citations to
+  sources for equations used by the module in calculations, the
+  reasoning and justification for the model, and information to help
+  the user determine when use of the model is
+  appropriate.\footnote{The function that actually \emph{uses} the
+  said equations will most likely be the \code{do_operation} function
+  (or in some subsidiary function called by it).  But
+  \code{do_operation} is a private function, so it is more appropriate
+  to put ``public'' information here.  Documentation of
+  \code{do_operation}, if any, should mostly be about programming
+  details.}
+
+  See section \ref{sec:doxygen} for how to quickly generate and view
+  the documentation Doxygen produces from the documentation markup
+  that you write.
+
   \begin{example}[4]
     /**
      *  Given a value for the BioCro variable "cosine_zenith_angle",
@@ -871,7 +865,6 @@ angle itself.  The steps are as follows.
      *  for the cosine are given, the output variable is set to NaN
      *  ("not-a-number").
      */
-
     class solar_zenith_angle_in_degrees : public SteadyModule {
       ...
       ...
@@ -880,11 +873,14 @@ angle itself.  The steps are as follows.
   \end{example}
 
 \item Inside the body of the class declaration, declare private data
-  members for pointers to each input parameter and each output
-  parameter.  Input parameter pointers should be of type \code{const
-    double*}; by convention, they should have names of the form
-  \placeholder{parameter name}\code{_ip},
-  where \placeholder{parameter name} is the name of
+  members corresponding to the input and output parameters: Each
+  member corresponding to an input parameter should be a reference of
+  type \code{const double&}.\footnote{Most existing modules use
+  pointers rather than references for the input parameter values.  But
+  there is no reason not to use a reference, and it saves one from
+  having to dereference the pointer when the value is used.}  By
+  convention, the identifier used for the reference should be called
+  \placeholder{parameter name}, that is, it should match the name of
   the corresponding parameter.%
   \footnote{There has been some discussion of relaxing this
     convention: As with module names, the (quoted) parameter name is
@@ -901,38 +897,52 @@ angle itself.  The steps are as follows.
     that you aren't talking about blood types and temporary workers!)
     There may, however, be other better ways of addressing this
     issue.}
-  Output parameter pointers should be of type \code{double*} and
-  should have names of the form \placeholder{parameter
-    name}\code{_op}.\footnote{Be sure to consult the master parameter
-    list to ensure you are using the input and output parameters
-    correctly---that you are not assigning new meanings to existing
-    parameters, and that the units you are expecting as input and that
-    you wish to see in output match the units designated in that list.
-    \emph{If you are using a parameter whose name is not in that list,
-      you will have to add it.}}
+  Members corresponding to output parameters should be of type
+  \code{double*} and should have names of the form
+  \placeholder{parameter name}\code{_op}.\footnote{Be sure to consult
+  the master parameter list to ensure you are using the input and
+  output parameters correctly---that you are not assigning new
+  meanings to existing parameters, and that the units you are
+  expecting as input and that you wish to see in output match the
+  units designated in that list.  \emph{If you are using a parameter
+  whose name is not in that list, you will have to add it.}  [The
+  afore-mentioned \emph{master parameter list} is, unfortunately, as
+  of this writing, only slightly less fictional than Borges'
+  \emph{Library of Babel}.]}
+
   \begin{example}[4]
     private:
-       // Pointers to input parameters:
-       const double* cosine_zenith_angle_ip;
+       // References to input parameters:
+       const double& cosine_zenith_angle;
 
        // Pointers to output parameters:
        double* zenith_angle_in_degrees_op;
   \end{example}
 
-\item Declare a public constructor with signature \placeholder{class
-  name}\code{(const state_map* input_parameters, state_map*
-  output_parameters)}.  The constructor needs to initialize the base
-  class \code{SteadyModule} with the name for the module, and each
-  parameter pointer needs to be initialized with an initializer of the
-  form
+\item Declare a public constructor with signature
   \begin{C++listing}[4]
-    |\placeholder{parameter name}|_ip{get_ip(input_parameters, |\stringplaceholder{parameter name}|)}
+    |\placeholder{class name}|(const state_map* input_parameters, state_map* output_parameters)
+  \end{C++listing}
+  The constructor needs to initialize the base class
+  \code{SteadyModule} with the name for the module, and each parameter
+  variable needs to be initialized with an initializer of the form
+  \begin{C++listing}[4]
+    |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
   (for input parameters), or
   \begin{C++listing}[4]
     |\placeholder{parameter name}|_op{get_op(output_parameters, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
-  (for output parameters).
+  (for output parameters).%
+  % This footnote was a real pain to typeset:
+  \footnote{In existing modules, where pointers rather than references
+      are used for input parameters, the initialization code will use
+      the \code{get_ip} function instead of the \code{get_input}
+      function:
+      \placeholder{parameter name}\code{_ip}\{%
+      \lstinline!get_ip(input_parameters,%
+      !\ \stringplaceholder{parameter name})\}
+  }
 
   \begin{example}[4]
     public:
@@ -941,7 +951,7 @@ angle itself.  The steps are as follows.
            state_map* output_parameters
        )
            : SteadyModule{"solar_zenith_angle_in_degrees"},
-           cosine_zenith_angle_ip{get_ip(input_parameters, "cosine_zenith_angle")},
+           cosine_zenith_angle{get_input(input_parameters, "cosine_zenith_angle")},
            zenith_angle_in_degrees_op{get_op(output_parameters, "zenith_angle_in_degrees")}
            {}
   \end{example}
@@ -949,9 +959,8 @@ angle itself.  The steps are as follows.
 \item Add the following static function declarations to the public
   section of the class body.
   \begin{example}[4]
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
-    static std::string get_description();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
   \end{example}
 
 \item Add the following declaration to the private section to override
@@ -969,7 +978,7 @@ angle itself.  The steps are as follows.
   braces.
 
   \begin{example}[4]
-    std::vector<std::string> solar_zenith_angle_in_degrees::get_inputs() {
+    string_vector solar_zenith_angle_in_degrees::get_inputs() {
         return {
             "cosine_zenith_angle"
         };
@@ -979,14 +988,12 @@ angle itself.  The steps are as follows.
 \item Implement \code{get_outputs()} similarly, returning a list of
   the names of all output parameters.
   \begin{example}[4]
-    std::vector<std::string> solar_zenith_angle_in_degrees::get_outputs() {
+    string_vector solar_zenith_angle_in_degrees::get_outputs() {
         return {
             "zenith_angle_in_degrees"
         };
     }
   \end{example}
-
-\item Implement the \code{get_description()} function.
 
 \item Implement the \code{do_operation()} function.  This is the heart
   of the module---it's where the real work gets done.  Generally, the
@@ -997,11 +1004,11 @@ angle itself.  The steps are as follows.
   for each output parameter.  Here, \placeholder{some value} is some
   numerical value calculated in the body of the function prior to the
   update statement, and it will generally be calculated from the
-  dereferenced values of the input parameter pointers.  Computations
-  often may entail the use of additional include directives, for
-  example \code{\#include <cmath>} or \code{\#include
-    "../constants.h"}.  In our example, the function definition (along
-  with the required extra include directives) looks like this:
+  values of the input parameters.  Computations often may entail the
+  use of additional include directives, for example \code{\#include
+  <cmath>} or \code{\#include "../constants.h"}.  In our example, the
+  function definition (along with the required extra include
+  directives) looks like this:
   \begin{example}[4]
     ...
     ...
@@ -1010,8 +1017,8 @@ angle itself.  The steps are as follows.
     ...
     ...
     void solar_zenith_angle_in_degrees::do_operation() const {
-        double zenith_angle { acos(*cosine_zenith_angle_ip)
-                              * 180 / math_constants::pi };
+        double zenith_angle { acos(cosine_zenith_angle)
+                                * 180 / math_constants::pi };
         update(zenith_angle_in_degrees_op, zenith_angle);
     }
   \end{example}
@@ -1048,8 +1055,8 @@ steps:
 
 \subsubsection{Example: Steps for creating a derivative module.}
 
-Supose that we have weather data giving the ambient temperature over
-some period of time and we wish write a module to help us calculate
+Suppose that we have weather data giving the ambient temperature over
+some period of time and we wish to write a module to help us calculate
 the (cumulative) number of heating degree days over that same period.
 This is essentially the integral of the amount the ambient temperature
 falls short of some ``threshold'' or ``base'' temperature, but
@@ -1091,7 +1098,7 @@ steady-state module, but with some significant differences.
   \code{state_map.h}.
   \begin{example}[4]
     #include "../modules.h"
-    #include "../state_map.h''
+    #include "../state_map.h"
   \end{example}
 
 \item Begin a declaration of a class for the module, deriving it from
@@ -1105,32 +1112,32 @@ steady-state module, but with some significant differences.
     }
   \end{example}
 
-\item Declare private data members for pointers to each input
-  parameter and each output parameter.  Just as with steady-state
-  modules, input parameter pointers should be of type \code{const
-    double*} and by convention should have names of the form
-  \placeholder{parameter name}\code{_ip}, where \placeholder{parameter
-    name}{} is the name of the corresponding parameter.  Output
-  parameter pointers should be of type \code{double*} and should have
-  names of the form \placeholder{parameter name}\code{_op}.
+\item Declare private data members corresponding to the input and
+  output parameters.  Just as with steady-state modules, input
+  parameter references should be of type \code{const double&} and by
+  convention should have identifiers matching the parameter name.
+  Output parameter pointers should be of type \code{double*} and
+  should have names of the form \placeholder{parameter
+  name}\code{_op}.
   \begin{example}[4]
     private:
-       // Pointers to input parameters:
-       const double* temp_ip;
-       const double* base_temperature_ip;
+       // References to input parameters:
+       const double& temp;
+       const double& base_temperature;
 
        // Pointers to output parameters:
        double* heating_degree_days_op;
   \end{example}
 
-\item Declare a public constructor with signature \placeholder{class
-  name}\code{(const state_map* input_parameters, state_map*
-  output_parameters)}.  The constructor needs to initialize the base
-  class \code{DerivModule} with the name for the module, and each
-  parameter pointer needs to be initialized with an initializer of the
-  form
+\item Declare a public constructor with signature
   \begin{C++listing}[4]
-    |\placeholder{parameter name}|_ip{get_ip(input_parameters, |\stringplaceholder{parameter name}|)}
+    |\placeholder{class name}|(const state_map* input_parameters, state_map* output_parameters)
+  \end{C++listing}
+  The constructor needs to initialize the base class
+  \code{DerivModule} with the name for the module, and each parameter
+  variable needs to be initialized with an initializer of the form
+  \begin{C++listing}[4]
+    |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
   (for input parameters), or
   \begin{C++listing}[4]
@@ -1147,8 +1154,8 @@ steady-state module, but with some significant differences.
                output_parameters
        )
        : DerivModule{"heating_degree_days"},
-         temp_ip{get_ip(input_parameters, "temp")},
-         base_temperature_ip{get_ip(input_parameters, "base_temperature")},
+         temp{get_input(input_parameters, "temp")},
+         base_temperature{get_input(input_parameters, "base_temperature")},
          heating_degree_days_op{get_op(output_parameters, "heating_degree_days")}
        {}
   \end{example}
@@ -1156,9 +1163,8 @@ steady-state module, but with some significant differences.
 \item Add the following static function declarations to the public
   section of the class body.
   \begin{example}[4]
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
-    static std::string get_description();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
   \end{example}
 
 \item Add the following declaration to the private section to override
@@ -1176,7 +1182,7 @@ steady-state module, but with some significant differences.
   braces.
 
   \begin{example}[4]
-    std::vector<std::string> heating_degree_days::get_inputs() {
+    string_vector heating_degree_days::get_inputs() {
         return {
             "temp",
             "base_temperature"
@@ -1187,14 +1193,12 @@ steady-state module, but with some significant differences.
 \item Implement \code{get_outputs()} similarly, returning a list of
   the names of all output parameters.
   \begin{example}[4]
-    std::vector<std::string> heating_degree_days::get_outputs() {
+    string_vector heating_degree_days::get_outputs() {
         return {
             "heating_degree_days"
         };
     }
   \end{example}
-
-\item Implement the \code{get_description()} function.
 
 \item Implement the \code{do_operation()} function.  This is the heart
   of the module---it's where the real work gets done.  Generally, the
@@ -1205,9 +1209,9 @@ steady-state module, but with some significant differences.
   for each output parameter.  Here, \placeholder{some value} is some
   numerical value calculated in the body of the function prior to the
   update statement, and it will generally be calculated from the
-  dereferenced values of the input parameter pointers.  Since this is
-  a \emph{derivative} module, it represents the \emph{rate of change
-    \textbf{per hour}} of the output parameter.
+  values of the input parameters.  Since this is a \emph{derivative}
+  module, it represents the \emph{rate of change \textbf{per hour}} of
+  the output parameter.
 
   Computations
   often may entail the use of additional include directives, for
@@ -1217,17 +1221,18 @@ steady-state module, but with some significant differences.
   In our example, the function definition looks like this:
   \begin{example}[4]
     void heating_degree_days::do_operation() const {
-        double temperature_deficit {
-          *base_temperature_ip > *temp_ip ?
-          (*base_temperature_ip - *temp_ip) : 0
-        };
+        double temperature_deficit { base_temperature > temp ?
+                                     (base_temperature - temp) : 0};
 
-        update(heating_degree_days_op, temperature_deficit / 24.0);|\footnotemark|
+        update(heating_degree_days_op, temperature_deficit / 24.0);|\footnote{We must divide by 24 here because we want the rate of change of heating degree days \emph{per hour}.}%
+        % Unfortunately, to get the footnote to work properly in this
+        % context, it seems we must put it all on the same line.  (We
+        % could use a \footnotemark / \footnotetext pair except
+        % reverse links for footnotes doesn't currently seem to work
+        % if one does that.
+      |
     }
   \end{example}
-
-  \footnotetext{We must divide by 24 here because we want the rate of
-    change of heating degree days \emph{per hour}.}
 
 \end{enumerate}
 
@@ -1258,8 +1263,57 @@ a few modifications to
 
 \end{enumerate}
 
+\subsubsection{Generating the Doxygen documentation}
+\label{sec:doxygen}
+
+If you go to the BioCro \code{documentation} directory and type
+\code{make help} at the command line, you see information about
+multiple options for generating and displaying the Doxygen
+documentation in various configurations.  When you are in the process
+of \emph{writing} documentation, however, it is convenient to be able
+to quickly genererate the HTML- or PDF-style documents for just the
+portion of the documentation you are working on.  One way to do this
+is as follows.
+
+Suppose we are working on the documentation in the module file
+\begin{sh_listing}[2]
+  src/module_library/solar_zenith_angle_in_degrees.h
+\end{sh_listing}
+Then we can quickly generate the HTML documentation for that file and
+view it by issuing the command
+\begin{sh_listing}[2]
+  make source=../src/module_library/solar_zenith_angle_in_degrees.h \
+       output_directory=minimal view
+\end{sh_listing}
+
+What we have done here is we have re-purposed the \code{make view}
+command, which normally generates \emph{all} of the HTML documentation
+for the C++ source code, and overridden the default set of documented
+source files and the default documentation output directory so that we
+only spend time generating the documentation for the file of interest
+and so that the documentation is output to a different place (so that
+it won't corrupt any existing documentation).  Thus, we set
+\code{source} to the relative path to the file we are working on, and
+we set \code{output} to the relative path to the directory under which
+we want the documentation files to appear.\footnote{The name
+\emph{minimal} for the output directory is arbitrary except that it is
+best to choose a name that doesn't name an existing directory.
+Overriding \emph{output} isn't strictly necessary, but if we don't,
+the output will be written to
+\code{documentation/doxygen_docs_complete}, a somewhat misleading name
+for the minimal documentation we are generating.  Moreover, any
+existing documentation in that location would be corrupted by the new
+minimal documentation we generate.}
+
+If we want to generate and view the PDF documentation, we could use
+this command instead:
+\begin{sh_listing}[2]
+  make source=../src/module_library/solar_zenith_angle_in_degrees.h \
+       output_directory=minimal view-pdf
+\end{sh_listing}
 
 \subsection{Writing tests for new models}
+\label{sec:writing_tests}
 
 Once a new module has been written, a set of unit tests should be
 written to ensure that it works as expected.  For more about unit
@@ -1271,33 +1325,34 @@ non-language-specific discussions of unit testing, see
 
 Here are step-by-step instructions for writing unit tests of modules,
 using as examples the modules we have just written.\footnote{These
-  instructions are for testing in R.  It would be much more direct to
-  use a C++ testing framework to test C++ code; presumably such tests
-  could test the module functions independently of the rest of the
-  BioCro code, with a minimum of set-up and tear-down code.  But
-  writing tests in R is simpler.  Note, though, that this way of
-  testing modules depends on the correct functioning of the R
-  framework for running BioCro simulations.  If the framework is
-  buggy, then the module tests may fail for reasons not having
-  anything to do with the module itself.}
+instructions are for testing in R.  It would be much more direct to
+use a C++ testing framework to test C++ code; presumably such tests
+could test the module functions independently of the rest of the
+BioCro code, with a minimum of set-up and tear-down code.  But writing
+tests in R is simpler.  Note, though, that this way of testing modules
+depends on the correct functioning of the R interface to the BioCro
+C++ library.  If the R front end is buggy, then the module tests may
+fail for reasons not having anything to do with the underlying C++
+module.}
 
-\subsubsection{Writing a unit test for a steady-state module}
+\subsubsection{Writing unit tests for a steady-state module}
+\label{sec:write_ss_unit_test}
 
-For testing a steady-state module, it will suffice to set up a
-bare-bones system: the sequence of states can be a sequence of length
-one since we aren't interested in how the state changes over time.
-And the state variables need only include the input variables for the
-module being tested plus certain time-related variables.
+  In writing our tests, we will make use of the R \Rcode{test_module}
+  function.  This function takes as input the name of a module (as a
+  string), and a list specifying values for all of the input
+  parameters of the module.  It returns a list of values for the
+  module's output parameters.
 
 \begin{enumerate}
 
 \item Create a file for the module tests in the directory
-  \code{tests/testthat}.  The file name should begin with ``test'' and
+  \code{tests/testthat}.  The file name should begin with ``test-'' and
   end with ``.R''.  A good name for the file would be something of the
-  form \code{test.}\placeholder{module name}\code{.R}.
+  form \code{test-}\placeholder{module name}\code{.R}.
 
   \begin{example}[4]
-    test.solar_zenith_angle_in_degrees.R
+    test-solar_zenith_angle_in_degrees.R
   \end{example}
 
 \item At the top of the new file, add a \emph{context} statement
@@ -1309,103 +1364,6 @@ module being tested plus certain time-related variables.
     context('Test basic functioning of the steady-state module "solar_zenith_angle_in_degrees".')
   \end{Rexample}
 
-\item Define parameters for the \Rcode{Gro_solver} function.  Assuming
-  we call \Rcode{Gro_solver} as
-  \begin{Rlisting}[4]
-    Gro_solver(initial_state, invariant_parameters, varying_parameters,
-               steady_state_modules, derivative_modules, solver, verbose)
-  \end{Rlisting}
-  we have seven variables we need to define:
-  \begin{Rlisting}[4]
-    initial_state <- ...
-    invariant_parameters <- ...
-    varying_parameters <- ...
-    steady_state_modules <- ...
-    derivative_modules <- ...
-    solver <- ...
-    verbose <- ...
-  \end{Rlisting}
-
-  (The last two have default values of
-  \begin{Rlisting}[4]
-    list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200)
-  \end{Rlisting}
-  and \Rcode{FALSE}, respectively.  Since it doesn't matter what
-  solver we use for testing a steady state module, and since in
-  general tests shouldn't produce their own output, these are suitable
-  values and may be omitted.\footnotemark)
-
-  \footnotetext{There may be cases where we may want to temporarily
-    set \Rcode{verbose} to \Rcode{TRUE} in order to debug a test we
-    are writing.  In this case, values for both \Rcode{solver} and
-    \Rcode{verbose} will need to be specified explicitely.}
-
-  What values should be used to fill in the blanks?  For the module
-  lists, which are just vectors of names, the answer is clear:
-  \begin{Rlisting}[4]
-    steady_state_modules <- c(|\stringplaceholder{name of module being tested}|)
-    derivative_modules <- c()
-  \end{Rlisting}
-
-  These may be defined globally, outside of any test.  The name of the
-  module should exactly match the name as specified in the key of the
-  entry for the module in \code{module_wrapper_creators}.
-
-  In our example, we use
-
-  \begin{Rexample}[4]
-    steady_state_modules <- c("solar_zenith_angle_in_degrees")
-    derivative_modules <- c()
-  \end{Rexample}
-
-
-  On the other hand, values for the module input parameters and for
-  the initial state may potentially vary with each test.  The keys,
-  however, will in most cases be uniform across tests.  For example,
-  if the module inputs consist of invariant parameters $\ip_1$,
-  $\ip_2$, \dots, $\ip_k$, varying parameters $\vp_1$, $\vp_2$, \dots,
-  $\vp_m$, and initial state variables $\isv_1$, $\isv_2$, \dots,
-  $\isv_n$, then we will be setting the corresponding function
-  parameters to values of the following forms:
-  \begin{Rlisting}[4]
-    invariant_parameters <- list(ip_1 = ___, ip_2 = ___, ..., ip_k = ___)
-    varying_parameters <- list(vp_1 = ___, vp_2 = ___, ..., vp_m = ___)
-    initial_state <- list(isv_1 = ___, isv_2 = ___, ..., isv_n = ___)
-  \end{Rlisting}
-
-  As mentioned above, since we are setting up the most stripped-down
-  of systems, these lists will be very short: we need to include a
-  setting for each input parameter of the module being tested, and we
-  need to include certain time-related settings.  In particular, the
-  invariant parameter list must include a setting for
-  \Rcode{timestep}, and the varying parameters must include either a
-  setting for \Rcode{doy_dbl} or for both \Rcode{doy} and
-  \Rcode{hour}.  The values assigned to the time-related variables is
-  immaterial for the purposes of the test except in the case that one
-  of them is also an input to the module being tested.  (The
-  \code{solar_zenith_angle} module, for example, takes \Rcode{doy_dbl}
-  as an input.)  It is best, however, to assign values that might make
-  sense in the simulation of a ``real'' system.
-
-  As for which list should include the module input variable values,
-  this too is largely immaterial for the purposes of running the test.
-  But again, to minimuze confusion, it is best to include the setting
-  in the list that would make sense in a real system.  So, for
-  example, if it is a parameter that normally varies over the course
-  of time, then it doesn't make sense to assign it in the
-  \Rcode{invariant_parameters} list, and if it varies over time but
-  not in a way that can be predicted from rates of change, then it
-  shouldn't be assigned within the \Rcode{initial_state}.
-
-  For our example, we use settings as follows.
-
-  \begin{Rexample}[4]
-    invariant_parameters <- list(timestep = 1)
-    varying_parameters <- list(doy_dbl = 1,
-                               cosine_zenith_angle = |\placeholder{some value that will vary from test to test}|)
-    initial_state <- list()
-  \end{Rexample}
-
 \item Write one or more tests.
 
   Each test will be a statement of the form
@@ -1414,11 +1372,12 @@ module being tested plus certain time-related variables.
       |\placeholder{one or more statements, including statements of the form \texttt{expect\_*(...)}}|
     })
   \end{Rlisting}
-  More specifically, each test will generally set the parameter values
-  that have not already been set globally and then call
-  \Rcode{Gro_solver}:
+
+  More specifically, each test will generally set input parameter
+  values for the module and then call
+  \Rcode{test_module}:
   \begin{Rlisting}[4]
-    result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+    result <- test_module(|\stringplaceholder{module name}|, |\placeholder{input parameter list}|)
   \end{Rlisting}
   The subsequent statements may then test various aspects of \Rcode{result}.
 
@@ -1435,8 +1394,10 @@ module being tested plus certain time-related variables.
   \Rcode{tolerance =} \placeholder{some small number}); and
   \Rcode{expect_true(}\placeholder{some boolean condition}\Rcode{)},
   which tests that some condition holds.  More about \Rcode{expect_}
-  functions can be found in section 10.2.1 of
-  \url{https://r-pkgs.org/tests.html}, and the full complement of
+  functions can be found in the
+  \href{https://r-pkgs.org/tests.html#expectations}{section on expect
+  functions} in the book \href{https://r-pkgs.org/}{R Packages} by
+  Hadley Wickham and Jenny Bryan; the full complement of
   \Rcode{expect_} functions is listed and documented at
   \url{https://cran.r-project.org/web/packages/testthat/testthat.pdf}.
 
@@ -1449,40 +1410,26 @@ module being tested plus certain time-related variables.
     From elementary trignometry, we know, for example, that the angle
     between $0^\circ$ and $180^\circ$ having a cosine of $0.5$ is
     $60^\circ$.  We can test that this is the actual result obtained
-    from our module with a simple test.  Assuming we have set the
-    modules, invariant parameters, and initial state globally with
-    \begin{Rexample}[6]
-      steady_state_modules <- c("solar_zenith_angle_in_degrees")
-      derivative_modules <- c()
-
-      initial_state <- list()
-      invariant_parameters <- list(timestep = 1)
-    \end{Rexample}
-
-    we can write our test as follows:\footnotemark
-
-    \footnotetext{We make no attempt here to coordinate the input
-      values for \Rcode{cosine_zenith_angle} and for
-      \Rcode{doy_dbl}. While in general we prefer to use input
-      values that might be associated with a realistic system, for
-      the purposes of writing tests of a module, it may sometimes be
-      more convenient not to do so.}
+    from our module with a simple test.  We can write our test as
+    follows:
 
     \begin{Rexample}[6]
       test_that("When the cosine is 1/2, the angle is 60 degrees.", {
-        varying_parameters <- list(doy_dbl = 1, cosine_zenith_angle = 0.5)
-        result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+        input_parameters <- list(cosine_zenith_angle = 0.5)
+        result = test_module("solar_zenith_angle_in_degrees", input_parameters)
         expect_equal(result$zenith_angle_in_degrees, 60)
+      })
     \end{Rexample}
 
-    Since we will likely call \Rcode{Gro_solver} in each test, we
-    can write a helper function to factor the repetitious code out
-    of our tests; for example,
+    Since we will likely call \Rcode{test_module} in each test, and
+    with the same value for the module name each time, we can write a
+    helper function to factor the repetitious code out of our tests;
+    for example,
 
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
-        varying_parameters <- list(doy_dbl = 1, cosine_zenith_angle = cza)
-        result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+        input_parameters <- list(cosine_zenith_angle = cza)
+        result <- test_module("solar_zenith_angle_in_degrees", input_parameters)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
@@ -1491,7 +1438,8 @@ module being tested plus certain time-related variables.
 
     \begin{Rexample}[6]
       test_that("When the cosine is 1/2, the angle is 60 degrees.", {
-        expect_equal(angle_from_cosine(0.5), 60)
+        angle <- angle_from_cosine(0.5)
+        expect_equal(angle, 60)
       })
     \end{Rexample}
 
@@ -1548,7 +1496,292 @@ module being tested plus certain time-related variables.
 \end{enumerate}
 
 
-\subsubsection{Writing a unit test for a derivative module}
+\subsubsection{Writing unit tests for a derivative module}
+\label{sec:write_deriv_unit_test}
+
+  Again, in writing our tests, we will make use of the R
+  \Rcode{test_module} function. Keep in mind that in the case of a
+  derivative module, the output values represent the rate of change of
+  the output parameters \emph{per hour}. Here, we show how to test the
+  heating degree days module.
+
+\begin{enumerate}
+
+\item Make a file for the test.
+
+  \begin{Rexample}[4]
+    test-heating_degree_days.R
+  \end{Rexample}
+
+\item Add a context statement.
+
+  \begin{Rexample}[4]
+    context('Test basic functioning of the derivative module "heating_degree_days".')
+  \end{Rexample}
+
+\item Write tests.
+
+  A sample test file, with comments, for the
+  \Rcode{heating_degree_days} module is shown in appendix \ref{hdd
+    test file}.
+
+\end{enumerate}
+
+\subsubsection{Running the tests}
+
+Perhaps the easiest way to run all of the \emph{testthat} tests is to
+use the \emph{devtools} package: assuming you have an R session open
+in a directory inside the BioCro source tree and \emph{devtools} has
+been loaded, simply do this:
+
+\begin{Rlisting}[2]
+  test()
+\end{Rlisting}
+
+If you use RStudio, you needn't even type: choosing ``Test Package''
+from the Build menu, or simply using the keyboard-shortcut ``Ctrl/Cmd
++ Shift + T'' will suffice.  This method of running the tests has the
+added advantage that a test producing a segmentation fault won't crash
+the whole R session.\footnote{If you don't have the devtools package
+installed or haven't checked the "Use devtools package functions if
+available" checkbox in the build configuration pane, the RStudio
+``Test Package'' command will still work (assuming the \emph{testthat}
+package itself has been installed), but it won't do quite the same
+thing.  Instead of simply running all of the \Rcode{testthat} tests,
+it will run all of the \Rcode{.R} files in the \Rcode{tests}
+directory.  Since one of these files, \code{testthat.R}, runs all of
+the \emph{testthat} tests, this will essentially amount to the same
+thing unless there are other \Rcode{.R} files in the \code{tests}
+directory.}
+
+\Rcode{test()} will run all tests against the version of BioCro
+represented by the source code.  To learn how to run the tests against
+an \emph{installed} version, run the tests in only some of the files,
+or avoid installing \emph{devtools}, consult the \emph{readme} file
+\code{tests/README.md}.
+
+
+\pagebreak
+
+
+
+\begin{appendices}
+
+\section{Writing unit tests using Gro\_solver}
+
+The section on writing unit tests was originally written in such a way
+that the tests called the \Rcode{Gro_solver} function.  This method of
+testing a module entails setting up a complete system and running a
+full simulation, albeit perhaps one with a very limited time span.
+
+A much more convenient way to write tests is to use the
+\Rcode{test_module} function. This is the method we demonstrate in
+section~\ref{sec:writing_tests}.  By using \Rcode{test_module}, we can
+test the basic functioning of a module while avoiding all of the many
+steps needed to set up a full system for running a simulation.
+
+There may be cases, however, where we may still want the flexibility
+offered by being able to specify and run a full simulation.  Some of
+the things we can do with a full-fledged system that we can't do just
+by calling \Rcode{test_module} include
+
+\begin{itemize}
+
+\item testing how multiple modules work in conjunction with one
+another
+
+\item testing how the module chosen affects the evolution of a system
+over time
+
+\item testing how a module functions in the context of different
+solvers
+
+\end{itemize}
+
+Thus, it may be useful to present the steps required to write a test
+that sets up and runs a complete system; and so here, by way of some
+simple examples, we re-present the material from section
+\ref{sec:writing_tests}, this time showing how to write tests using
+\Rcode{Gro_solver} instead of \Rcode{test_module}.  As an added
+benefit, writing such tests will instruct a user in the rudiments of
+setting up and running a simulation in BioCro.
+
+\subsection{Writing a unit test for a steady-state module using
+Gro\_solver}
+
+For testing a steady-state module, it will suffice to set up a
+bare-bones system: the sequence of states can be a sequence of length
+one since we aren't interested in how the state changes over time.
+And the state variables need only include the input variables for the
+module being tested plus certain time-related variables.
+
+\begin{itemize}
+
+\item[1 \& 2.] Steps 1 and 2 are exactly as in section~\ref{sec:write_ss_unit_test}.
+
+\end{itemize}
+
+The third step is ``new'', as it involves setting up parameters for
+the \Rcode{Gro_solver} function, something we don't need to do when
+using \Rcode{test_module}:
+
+\begin{enumerate}
+\setcounter{enumi}{2}
+
+\item Define parameters for the \Rcode{Gro_solver} function.  Assuming
+  we call \Rcode{Gro_solver} as
+  \begin{Rlisting}[4]
+    Gro_solver(initial_state, invariant_parameters, varying_parameters,
+               steady_state_modules, derivative_modules, solver, verbose)
+  \end{Rlisting}
+  we have seven variables we need to define:
+  \begin{Rlisting}[4]
+    initial_state <- ...
+    invariant_parameters <- ...
+    varying_parameters <- ...
+    steady_state_modules <- ...
+    derivative_modules <- ...
+    solver <- ...
+    verbose <- ...
+  \end{Rlisting}
+
+  (The last two have default values of
+  \begin{Rlisting}[4]
+    list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
+  \end{Rlisting}
+  and \Rcode{FALSE}, respectively.  Since it doesn't matter what
+  solver we use for testing a steady state module, and since in
+  general tests shouldn't produce their own output, these are suitable
+  values and may be omitted.)\footnote{
+    There may be cases where we may want to temporarily set
+    \Rcode{verbose} to \Rcode{TRUE} in order to debug a test we are
+    writing.  In this case, if we want to default the value of
+    \Rcode{solver}, we must use a named argument to set the
+    \Rcode{verbose} argument and write `\Rcode{verbose=TRUE}' instead
+    of just `\Rcode{TRUE}' so that \Rcode{TRUE} is not taken to be the
+    value for \Rcode{solver}.}
+
+  What values should be used to fill in the blanks?  For the module
+  lists, which are just vectors of names, the answer is clear:
+  \begin{Rlisting}[4]
+    steady_state_modules <- c(|\stringplaceholder{name of module being tested}|)
+    derivative_modules <- c()
+  \end{Rlisting}
+
+  These may be defined globally, outside of any test.  The name of the
+  module should exactly match the name as specified in the key of the
+  entry for the module in \code{module_wrapper_creators}.
+
+  In our example, we use
+
+  \begin{Rexample}[4]
+    steady_state_modules <- c("solar_zenith_angle_in_degrees")
+    derivative_modules <- c()
+  \end{Rexample}
+
+
+  On the other hand, values for the module input parameters and for
+  the initial state may potentially vary with each test.  The keys,
+  however, will in most cases be uniform across tests.  For example,
+  if the module inputs consist of invariant parameters $\ip_1$,
+  $\ip_2$, \dots, $\ip_k$, varying parameters $\vp_1$, $\vp_2$, \dots,
+  $\vp_m$, and initial state variables $\isv_1$, $\isv_2$, \dots,
+  $\isv_n$, then we will be setting the corresponding function
+  parameters to values of the following forms:
+  \begin{Rlisting}[4]
+    invariant_parameters <- list(ip_1 = ___, ip_2 = ___, ..., ip_k = ___)
+    varying_parameters <- list(vp_1 = ___, vp_2 = ___, ..., vp_m = ___)
+    initial_state <- list(isv_1 = ___, isv_2 = ___, ..., isv_n = ___)
+  \end{Rlisting}
+
+  As mentioned above, since we are setting up the most stripped-down
+  of systems, these lists will be very short: we need to include a
+  setting for each input parameter of the module being tested, and we
+  need to include certain time-related settings.  In particular, the
+  invariant parameter list must include a setting for
+  \Rcode{timestep}, and the varying parameters must include either a
+  setting for \Rcode{doy_dbl} or for both \Rcode{doy} and
+  \Rcode{hour}.  The values assigned to the time-related variables is
+  immaterial for the purposes of the test except in the case that one
+  of them is also an input to the module being tested.  (The
+  \code{solar_zenith_angle} module, for example, takes \Rcode{doy_dbl}
+  as an input.)  It is best, however, to assign values that might make
+  sense in the simulation of a ``real'' system.
+
+  As for which list should include the module input variable values,
+  this too is largely immaterial for the purposes of running the test.
+  But again, to minimize confusion, it is best to include the setting
+  in the list that would make sense in a real system.  So, for
+  example, if it is a parameter that normally varies over the course
+  of time, then it doesn't make sense to assign it in the
+  \Rcode{invariant_parameters} list, and if it varies over time but
+  not in a way that can be predicted from rates of change, then it
+  shouldn't be assigned within the \Rcode{initial_state}.
+
+  For our example, we use settings as follows.
+
+  \begin{Rexample}[4]
+    invariant_parameters <- list(timestep = 1)
+    varying_parameters <- list(doy_dbl = 1,
+                               cosine_zenith_angle = |\placeholder{some value that will vary from test to test}|)
+    initial_state <- list()
+  \end{Rexample}
+
+\item Write one or more tests.
+
+  As in section~\ref{sec:write_ss_unit_test}, each test will be a
+  statement of the form
+    \begin{Rlisting}[4]
+    test_that(|\stringplaceholder{overall test description}|, {
+      |\placeholder{one or more statements, including statements of the form \texttt{expect\_*(...)}}|
+    })
+  \end{Rlisting}
+  However, instead of getting results to test by calling
+  \Rcode{test_module}, we call \Rcode{Gro_solver} instead:
+  \begin{Rlisting}[4]
+    result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+  \end{Rlisting}
+
+As before, the various \Rcode{expect_} functions are used to test
+\Rcode{result}.  In fact, once we make some global parameter settings
+and re-define our helper function \Rcode{angle_from_cosine} to utilize
+\Rcode{Gro_solver} instead of \Rcode{test_module}, the tests
+themselves can remain exactly as in section~\ref{sec:write_ss_unit_test}.
+
+Here are the precise settings we will use for the modules, invariant
+parameters, and initial state:
+
+    \begin{Rexample}[6]
+      steady_state_modules <- c("solar_zenith_angle_in_degrees")
+      derivative_modules <- c()
+
+      initial_state <- list()
+      invariant_parameters <- list(timestep = 1)
+    \end{Rexample}
+
+The helper function \Rcode{angle_from_cosine} becomes:\footnote{
+      We make no attempt here to coordinate the input
+      values for \Rcode{cosine_zenith_angle} and for
+      \Rcode{doy_dbl}. While in general we prefer to use input
+      values that might be associated with a realistic system, for
+      the purposes of writing tests of a module, it may sometimes be
+      more convenient not to do so.}
+
+    \begin{Rexample}[6]
+      angle_from_cosine <- function(cza) {
+        varying_parameters <- list(doy_dbl = 1, cosine_zenith_angle = cza)
+        result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+        result$zenith_angle_in_degrees
+      }
+    \end{Rexample}
+
+  A listing of the complete test file is shown in appendix~\ref{szags
+    test file}.
+
+\end{enumerate}
+
+
+\subsection{Writing unit tests for a derivative module using Gro\_solver}
 
 Again, it will suffice to set up a bare-bones system.  But this time,
 we will set up a time sequence of length two or more since we want to
@@ -1556,9 +1789,8 @@ see how the derivative affects how the state changes over time.  For
 the most basic tests of module functionality, we need only use a
 sequence of two states.  Again, the state variables need only include
 the input variables for the module being tested and the time-related
-variables.\footnotemark
-
-\footnotetext{In the case of a deriv module where some of the inputs
+variables.\footnote{
+  In the case of a derivative module where some of the inputs
   correspond to outputs of steady-state modules, we have two choices
   with regard to testing: (1) include, as part of the test,
   steady-state modules that produce these required inputs; (2)
@@ -1568,21 +1800,19 @@ variables.\footnotemark
   interested in testing.  But there may be cases where we want to test
   how two or more modules work in conjunction with one another.}
 
-Here, we show how to test the heating degree days module.
+Here, we show how to test the heating degree days module using \Rcode{Gro_solver}.
+
+\begin{itemize}
+
+\item[1 \& 2.] Steps 1 and 2 are exactly the same as in
+        section~\ref{sec:write_deriv_unit_test}.
+
+\end{itemize}
+
+Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
 
 \begin{enumerate}
-
-\item Make a file for the test.
-
-  \begin{Rexample}[4]
-    test.heating_degree_days.R
-  \end{Rexample}
-
-\item Add a context statement.
-
-  \begin{Rexample}[4]
-    context('Test basic functioning of the deriv module "heading_degree_days".')
-  \end{Rexample}
+\setcounter{enumi}{2}
 
 \item Define parameters for the \Rcode{Gro_solver} function.  Again,
   we will be assuming we call \Rcode{Gro_solver} with
@@ -1606,10 +1836,11 @@ Here, we show how to test the heating degree days module.
 
   As for \Rcode{initial_state}, \Rcode{invariant_parameters}, and
   \Rcode{varying_parameters}, we may want to vary each of these from
-  test to test.  We may also want to run tests using various solvers.
+  test to test.  We may also want to run tests using various solvers
+  and vary the timestep.
 
   For our example, we'll write a global helper function that makes this easy.
-  
+
   \begin{Rexample}[4]
     calculate_heating_degree_days <- function(initial_value, time_vector, temperature_vector, threshold_temperature, timestep, solver) {
       initial_state <- list(heating_degree_days = initial_value)
@@ -1626,67 +1857,21 @@ Here, we show how to test the heating degree days module.
 \item Write tests.
 
   A sample test file, with comments, for the
-  \Rcode{heating_degree_days} module is shown in appendix \ref{hdd
-    test file}.
+  \Rcode{heating_degree_days} module is shown in appendix \ref{hddgs
+  test file}.
 
 \end{enumerate}
 
-\subsubsection{Running the tests}
-
-To run the tests you have just written, start an R session and make
-sure both the \Rcode{BioCro} and the \Rcode{testthat} libraries are
-loaded:
-
-\begin{Rlisting}[2]
-  library(BioCro)
-  library(testthat)
-\end{Rlisting}
-
-Then, use the \Rcode{testthat::test_file} function, specifying the
-path to the test file as argument.  (If you want to use a relative
-path from the current directory, and you want to check which directory
-\emph{is} the current directory, use the command \Rcode{getwd()}.)
-
-For example, if we are in the package root directory, we can run the
-two test files we have written with
-\begin{Rexample}[2]
-  test_file('tests/testthat/test.solar_zenith_angle_in_degrees.R')
-\end{Rexample}
-and
-\begin{Rexample}[2]
-  test_file('tests/testthat/test.heating_degree_days.R')
-\end{Rexample}
-
-If you wish to run \emph{all} of the \Rcode{testthat} tests, one way
-to do this is to use the \Rcode{test_dir} function, giving the path to
-the \Rcode{testthat} directory as argument.  Again, if we are in the
-package root directory, we would do this:
-\begin{Rlisting}[2]
-  test_dir('tests/testthat')
-\end{Rlisting}
-
-If you have the \Rcode{devtools} package installed, running all tests
-is even simpler.  Assuming both \Rcode{BioCro} and \Rcode{devtools}
-have been loaded, simply do this:
-\begin{Rlisting}[2]
-  test()
-\end{Rlisting}
-If you use RStudio, one needn't even type: choosing ``Test Package''
-from the Build menu, or simply using the keyboard-shortcut ``Ctrl/Cmd
-+ Shift + T'' will suffice.  This method of running the tests has the
-added advantage that a test producing a segmentation fault won't crash
-the whole R session.\footnote{If you don't have the devtools package
-  installed, the RStudio ``Test Package'' command will still work, but
-  it won't do quite the same thing.  Instead of running all of the
-  \Rcode{testthat} tests, it will run all of the \Rcode{.R} files in
-  the \Rcode{tests} directory.}
-
-
-\appendix
 
 \section{Code listings}
 
 \subsection{Full listing of solar-zenith-angle-in-degrees module} \label{sza module listing}
+
+(In this listing, we have expanded the class's Doxygen comment to
+demonstrate how LaTeX-style equations could be included, if desired.
+See section \ref{sec:doxygen} for instructions on how to quickly and
+easily generate and display the resulting HTML and PDF forms of the
+Doxygen documentation.)
 
 \lstinputlisting[style=C++style]{an_introduction_to_biocro/solar_zenith_angle_in_degrees.h}
 
@@ -1696,10 +1881,20 @@ the whole R session.\footnote{If you don't have the devtools package
 
 \subsection{Full listing of the unit-test file for solar-zenith-angle-in-degrees} \label{sza test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.solar_zenith_angle_in_degrees.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-solar_zenith_angle_in_degrees.R}
 
 \subsection{Full listing of the unit-test file for heating-degree-days} \label{hdd test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test.heating_degree_days.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-heating_degree_days.R}
+
+\subsection{Full listing of the unit-test file for solar-zenith-angle-in-degrees---Gro\_solver version} \label{szags test file}
+
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-solar_zenith_angle_in_degrees_with_Gro_solver.R}
+
+\subsection{Full listing of the unit-test file for heating-degree-days---Gro\_solver version} \label{hddgs test file}
+
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-heating_degree_days_with_Gro_solver.R}
+
+\end{appendices}
 
 \end{document}

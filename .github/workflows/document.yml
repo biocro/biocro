@@ -16,8 +16,8 @@ on:
     - 'src/**.markdown'
     # ... plus files administering the workflow ...
     - '.github/**'
-    - 'documentation/Makefile'
-    - 'documentation/Doxyfile'
+    - 'doxygen/Makefile'
+    - 'doxygen/Doxyfile'
   workflow_dispatch:
     # [no inputs]
 
@@ -71,7 +71,7 @@ jobs:
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
-        working-directory: "source/documentation"
+        working-directory: "source/doxygen"
         # Not generating the tree-view index makes source code browsing easier.
         generate-treeview: NO
         # Makefile target
@@ -81,7 +81,7 @@ jobs:
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
-        working-directory: "source/documentation"
+        working-directory: "source/doxygen"
         # Color
         color: 53
         # Makefile target
@@ -91,7 +91,7 @@ jobs:
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
-        working-directory: "source/documentation"
+        working-directory: "source/doxygen"
         # Color
         color: 323
         # Document private members
@@ -105,7 +105,7 @@ jobs:
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
-        working-directory: "source/documentation"
+        working-directory: "source/doxygen"
         # Color
         color: 233
         # Not generating the tree-view index makes source code browsing easier.
@@ -126,7 +126,7 @@ jobs:
             mkdir $dir
 
             # Copy the documentation into it:
-            cp -R ../source/documentation/$dir/html/. $dir
+            cp -R ../source/doxygen/$dir/html/. $dir
 
         done
 
