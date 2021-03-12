@@ -21,12 +21,12 @@ struct ET_Str c3EvapoTrans(
         double RH,                                       // Pa / Pa
         double WindSpeed,                                // m / s
         double CanopyHeight,                             // meters
+        double specific_heat_of_air,                     // J / kg / K
         double stomatal_conductance)                     // mmol / m^2 / s
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s^1 / K^4
     constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
     constexpr double LeafReflectance = 0.2;              // dimensionless
-    constexpr double SpecificHeat = 1010;                // J / kg / K
     constexpr double kappa = 0.41;                       // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;                // meters
     constexpr double dCoef = 0.77;                       // dimensionless
@@ -37,7 +37,6 @@ struct ET_Str c3EvapoTrans(
     const double d = dCoef * CanopyHeight;               // meters
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
-    //constexpr double atmospheric_pressure = 101325;      // Pa
     constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
     if (CanopyHeight < 0.1)
@@ -66,7 +65,7 @@ struct ET_Str c3EvapoTrans(
     if (SWVC < 0)
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");
 
-    const double PsycParam = DdryA * SpecificHeat / LHV;  // kg / m^3 / K
+    const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 

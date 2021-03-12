@@ -105,6 +105,9 @@
 #include "partitioning_growth_negative_assimilation_partitioned.h"
 #include "multilayer_c3_canopy_parallel.h"
 #include "multilayer_c4_canopy_parallel.h"
+#include "rasmussen_specific_heat.h"
+#include "buck_swvp.h"
+#include "rh_to_mole_fraction.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -241,7 +244,10 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned", &create_wrapper<no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned>},
     {"partitioning_growth_negative_assimilation_partitioned", &create_wrapper<partitioning_growth_negative_assimilation_partitioned>},
      {"ten_layer_c3_canopy_parallel",                    &create_wrapper<ten_layer_c3_canopy_parallel>},
-     {"ten_layer_c4_canopy_parallel",                    &create_wrapper<ten_layer_c4_canopy_parallel>}
+     {"ten_layer_c4_canopy_parallel",                    &create_wrapper<ten_layer_c4_canopy_parallel>},
+     {"rasmussen_specific_heat",                         &create_wrapper<rasmussen_specific_heat>},
+     {"buck_swvp",                                       &create_wrapper<buck_swvp>},
+     {"rh_to_mole_fraction",                             &create_wrapper<rh_to_mole_fraction>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()
@@ -299,6 +305,6 @@ std::unordered_map<std::string, std::vector<std::string>> module_wrapper_factory
             add_quantity_map_entry(module_name, "output", output_name);
         }
     }
-    
+
     return quantity_map;
 }

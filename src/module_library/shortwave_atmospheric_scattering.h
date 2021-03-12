@@ -6,7 +6,7 @@
 
 /**
  * @class shortwave_atmospheric_scattering
- * 
+ *
  * @brief Calculates the amount of sunlight scattered out of the direct beam by the atmosphere.
  * The result is expressed in two ways: as atmospheric transmittances (which would be appropriate
  * for calculating the intensity of direct and diffuse light at the surface given a value for the
@@ -87,7 +87,7 @@ void shortwave_atmospheric_scattering::do_operation() const
         //  irradiance_direct_transmittance = S_p / S_p0
         // The indirect (AKA diffuse) transmission is calculated using Equation 11.13 from Campbell & Norman (1998), solving for
         //  irradiance_diffuse_transmittance = S_d / S_p0
-        const double pressure_ratio = atmospheric_pressure / physical_constants::pressure_at_sea_level;                             // dimensionless.
+        const double pressure_ratio = atmospheric_pressure / physical_constants::atmospheric_pressure_at_sea_level;                 // dimensionless.
         irradiance_direct_transmittance = pow(atmospheric_transmittance, (pressure_ratio / cosine_zenith_angle));                   // Modified from equation 11.11 of Norman and Campbell.
         irradiance_diffuse_transmittance = atmospheric_scattering * (1.0 - irradiance_direct_transmittance) * cosine_zenith_angle;  // Modified from equation 11.13 of Norman and Campbell.
     }

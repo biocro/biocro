@@ -1,8 +1,8 @@
 # Container image that runs your code
 
-# alpine 3.12 Contains Doxygen version 1.8.18 instead of buggy 1.8.19.
+# Alpine Linux version 3.13 contains Doxygen version 1.9.1 instead of the buggy version 1.8.19.
 # See https://github.com/doxygen/doxygen/issues/7975.
-FROM alpine:3.12
+FROM alpine:3.13
 
 # Copies your code file from your action repository to the filesystem path `/` of the container
 COPY entrypoint.sh /entrypoint.sh

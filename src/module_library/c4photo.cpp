@@ -26,15 +26,15 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
                        double Gs_min,  // mmol / m^2 / s
                        double StomaWS,
                        double Ca,  // micromole / mol
+                       double atmospheric_pressure,  // Pa
                        int water_stress_approach,
                        double upperT,
                        double lowerT)
 {
 
-    constexpr double AP = 101325; // Pa
     constexpr double k_Q10 = 2;  // dimensionless. Increase in a reaction rate per temperature increase of 10 degrees Celsius.
 
-    double Csurface = Ca * 1e-6 * AP;  // Pa
+    double Csurface = Ca * 1e-6 * atmospheric_pressure;  // Pa
     double InterCellularCO2 = Csurface * 0.4;  // Pa. Use an initial guess.
     double kT = kparm * pow(k_Q10, (leaf_temperature - 25.0) / 10.0);  // dimensionless
 
@@ -66,7 +66,7 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
         unsigned int constexpr max_iterations = 50;
         do {
             // Collatz 1992. Appendix B. Equation 3B.
-            double kT_IC_P = kT * InterCellularCO2 / AP * 1e6;  // micromole / m^2 / s
+            double kT_IC_P = kT * InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / m^2 / s
             double a = M * kT_IC_P;
             double b = M + kT_IC_P;
             double c = beta;
@@ -83,8 +83,8 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
             if (iterCounter > max_iterations - 10)
                 Gs = bb0 * 1e3;  // mmol / m^2 / s. If it has gone through this many iterations, the convergence is not stable. This convergence is inapproriate for high water stress conditions, so use the minimum gs to try to get a stable system.
 
-            //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / AP * 1e6, Assim, Gs, leaf_temperature);
-            InterCellularCO2 = Csurface - Assim * 1e-6 * 1.6 * AP / (Gs * 0.001);  // Pa
+            //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / atmospheric_pressure * 1e6, Assim, Gs, leaf_temperature);
+            InterCellularCO2 = Csurface - Assim * 1e-6 * 1.6 * atmospheric_pressure / (Gs * 0.001);  // Pa
 
             if (InterCellularCO2 < 0)
                 InterCellularCO2 = 1e-5;
@@ -96,10 +96,10 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
 
         } while (diff >= Tol && ++iterCounter < max_iterations);
         //if (iterCounter > 49)
-            //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / AP * 1e6, Assim, Gs, leaf_temperature);
+            //Rprintf("Counter %i; Ci %f; Assim %f; Gs %f; leaf_temperature %f\n", iterCounter, InterCellularCO2 / atmospheric_pressure * 1e6, Assim, Gs, leaf_temperature);
     }
 
-    double Ci = InterCellularCO2 / AP * 1e6;  // micromole / mol
+    double Ci = InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / mol
 
     if (Gs > 600) Gs = 600;
 
