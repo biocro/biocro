@@ -1,0 +1,9 @@
+rmd_files: [
+    "index.Rmd",
+    "contribution_guidelines.md",
+    "generating_documentation.md",
+     "../tests/README.md",
+    "adding_the_boost_libraries.md",
+    "../.github/workflows/README.md",
+    "../.github/actions/doxygen-action/README.md"
+]
