@@ -4,7 +4,7 @@ To generate documentation for the C/C++ code, we use Doxygen.
 ## Installing and Running Doxygen and Related Tools
 
 ### Required software
-- Doxygen
+- Doxygen (version 1.8.20 or later)
 - GraphViz
 - GhostSctipt version 9.27. A bug in Doxygen prevents it from working with GhostScript 9.50.
 
