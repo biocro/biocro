@@ -2,11 +2,10 @@
 #define MULTILAYER_CANOPY_INTEGRATOR_H
 
 #include "../modules.h"
-//#include "../module_helper_functions.h"
 
 /**
  * @class multilayer_canopy_integrator
- * 
+ *
  * @brief Calculates properties of each canopy layer using functions
  * found in AuxBioCro (for the most part). Also includes multiple
  * leaf classes (sunlit & shaded). Leaf class is added to output
@@ -144,7 +143,7 @@ void multilayer_canopy_integrator::run() const
         canopy_conductance += *sunlit_Gs_ips[i] * sunlit_lai + *shaded_Gs_ips[i] * shaded_lai;
         GrossAssim += *sunlit_GrossAssim_ips[i] * sunlit_lai + *shaded_GrossAssim_ips[i] * shaded_lai;
     }
-    
+
     // Modify net assimilation to account for respiration
     // Note: this was originally only done for the C3 canopy
     // Note: it seems like this should not be necessary since the assimilation model includes
@@ -179,7 +178,7 @@ void multilayer_canopy_integrator::run() const
 
 /**
  * @class ten_layer_canopy_integrator
- * 
+ *
  * @brief A child class of multilayer_canopy_integrator where the number of layers has been defined.
  * Instances of this class can be created using the module factory.
  */

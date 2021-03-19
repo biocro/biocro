@@ -2,7 +2,6 @@
 #define SE_MODULE_H
 
 #include "../modules.h"                              // for SteadyModule, update
-#include "../module_helper_functions.h"              // for get_ip, get_op
 #include "../validate_system.h"                      // for string_vector, find_strictly_required_inputs, all_are_in_list
 #include "../simultaneous_equations.h"               // for get_unknown_quantities
 #include "../state_map.h"                            // for state_map
@@ -132,7 +131,7 @@ std::vector<std::vector<double>> reorder_initial_guesses(
 
 /**
  * @class base
- * 
+ *
  * @brief A general module that solves a set of simultaneous equations.
  * Note that this module cannot be created by the module_wrapper_factory
  * since its constructor has a different signature than a typical module.

@@ -2,13 +2,12 @@
 #define ED_ABC_BLC_H
 
 #include "../modules.h"
-#include "../module_helper_functions.h"
 #include "../state_map.h"
 #include "AuxBioCro.h"  // for leaf_boundary_layer_conductance
 
 /**
  * @class ed_abc_blc
- * 
+ *
  * @brief This module is a wrapper for the `leaf_boundary_layer_conductance` (BLC)
  * function in `AuxBioCro` (ABC). Currently only intended for use by Ed.
  */
