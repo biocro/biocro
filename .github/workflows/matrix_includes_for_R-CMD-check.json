@@ -7,7 +7,7 @@
     {
         "os":"macOS-latest",
         "r":"release",
-        "runOnEvent":["pull_request"]
+        "runOnEvent":[]
     },
     {
         "os":"ubuntu-20.04",
