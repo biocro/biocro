@@ -11,8 +11,7 @@ Maintainer: Deepak Jaiswal <djaiswal@illinois.edu>,
     Fernando Miguez <femiguez@iastate.edu>
 Imports:
     lattice,
-    stats,
-    bookdown
+    stats
 Suggests:
     testthat,
     knitr,
