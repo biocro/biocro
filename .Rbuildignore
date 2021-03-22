@@ -56,10 +56,9 @@
 ^vignettes/.*\.toc$
 # Other vignette-build by-products.
 
-## Other files related to package development:
-
 ^.clang-format$
 ^.editorconfig$
+# Other files related to package development.
 
 ^src/Makefile.project$
 # This file can possibly be eliminated.
