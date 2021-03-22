@@ -142,29 +142,63 @@ Light_model lightME(const double latitude, const int day_of_year,
 }
 
 /**
- * Computation of an n-layered light profile from the direct light `Idir`,
- * diffuse light `Idiff`, leaf area index `LAI`, the cosine of the zenith angle
- * `cosTheta` and other parameters.
+ *  @brief Computes an n-layered light profile from the direct light, diffuse
+ *  light, leaf area index, solar zenith angle, and other parameters.
  *
- * Preconditions:
- *    `Idir` and `Idiff` are positive.
- *    `LAI` is non-negative.
- *    `nlayers` is at least 1 and not more than MAXLAY, the compile-time
- *        constant defining the maximum array size for arrays used to store
- *        profile data (enforced).
- *    `cosTheta` is greater than 0 and at most 1 (enforced).
- *    `kd` is between 0 and 1.
- *    `chil` is non-negative.
- *    `heightf` is positive.
+ *  @param [in] Idir Photon flux density for direct light at the top of the
+ *                   canopy (micromol / m^2 / s)
+ *
+ *  @param [in] Idiff Photon flux density for diffuse light at the top of the
+ *                    canopy (micromol / m^2 / s)
+ *
+ *  @param [in] LAI Leaf area index (LAI) of the entire canopy (dimensionless
+ *                  from m^2 leaf / m^2 ground)
+ *
+ *  @param [in] nlayers Integer number of layers in the canopy
+ *
+ *  @param [in] cosTheta Cosine of the solar zenith angle (dimensionless)
+ *
+ *  @param [in] kd Extinction coefficient for diffuse light (dimensionless)
+ *
+ *  @param [in] chil Ratio of average projected areas of canopy elements on
+ *                   horizontal surfaces; for a spherical leaf distribution,
+ *                   `chil = 0`; for a vertical leaf distribution, `chil = 1`;
+ *                   for a horizontal leaf distribution, `chil` approaches
+ *                   infinity (dimensionless from m^2 / m^2)
+ *
+ *  @param [in] absorptivity The leaf absorptivity on a quantum basis
+ *                           (dimensionless from mol / mol)
+ *
+ *  @param [in] heightf Leaf area density, i.e., LAI per height of canopy (m^-1
+ *                      from m^2 leaf / m^2 ground / m height)
+ *
+ *  @return An n-layered light profile representing quantities within
+ *          the canopy, including several photon flux densities and
+ *          the relative fractions of shaded and sunlit leaves
+ *
+ *  Note 1: Although the input and output light parameters (e.g. `Idir` and
+ *  `light_profile.direct_irradiance`) are specified as being photon flux
+ *  densities measured in micromol / m^2 / s, all the calculations within this
+ *  function are linear in these light parameters. So if the inputs actually
+ *  represent something else, e.g. irradiance expressed in units of J / m^2 / s,
+ *  this function can still be used and the outputs will have the same units as
+ *  the inputs (J / m^2 / s in this example).
+ *
+ *  Note 2: Nothing in this function is specialized for a specific band of
+ *  light, so `sunML` can be used for photosynthetically active photon flux
+ *  density (PPFD), photosynthetically active radiation (PAR), near-infrared
+ *  radiation (NIR), etc., as long as the extinction coefficients and
+ *  absorptivities are appropriately chosen.
  */
-Light_profile sunML(double Idir,          // micromole / m^2 / s
-        double Idiff,                     // micromole / m^2 / s
-        double LAI,                       // dimensionless from m^2 / m^2
+Light_profile sunML(double Idir,
+        double Idiff,
+        double LAI,
         int nlayers,
-        double cosTheta,                  // dimensionless
-        double kd,                        //
-        double chil,                      // dimensionless from m^2 / m^2.
-        double heightf)                   // m^-1 from m^2 / m^2 / m.  Leaf area density; LAI per height of canopy.
+        double cosTheta,
+        double kd,
+        double chil,
+        double absorptivity,
+        double heightf)
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
         throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
@@ -178,11 +212,13 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
     if (chil < 0) {
         throw std::out_of_range("chil must be non-negative.");
     }
+    if (absorptivity > 1 || absorptivity < 0) {
+        throw std::out_of_range("absorptivity must be between 0 and 1.");
+    }
     if (heightf <= 0) {
         throw std::out_of_range("heightf must greater than zero.");
     }
 
-    constexpr double alphascatter = 0.8;
 
     double theta = acos(cosTheta);
     double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
@@ -197,7 +233,7 @@ Light_profile sunML(double Idir,          // micromole / m^2 / s
     for (int i = 0; i < nlayers; ++i) {
         const double CumLAI = LAIi * (i + 0.5);
 
-        const double Iscat = Ibeam * (exp(-k * sqrt(alphascatter) * CumLAI) - exp(-k * CumLAI));
+        const double Iscat = Ibeam * (exp(-k * sqrt(absorptivity) * CumLAI) - exp(-k * CumLAI));
 
         double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.
         const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;

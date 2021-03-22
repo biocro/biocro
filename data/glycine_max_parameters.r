@@ -2,6 +2,7 @@
 glycine_max_parameters = with(list(), {
     datalines =
     "symbol                                value
+    absorptivity_par                       0.8
     alpha1                                 32.5
     alphab1                                0
     atmospheric_pressure                   101325

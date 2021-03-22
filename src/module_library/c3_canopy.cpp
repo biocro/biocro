@@ -34,7 +34,8 @@ std::vector<std::string> c3_canopy::get_inputs() {
         "growth_respiration_fraction",
         "water_stress_approach",
         "electrons_per_carboxylation",
-        "electrons_per_oxygenation"
+        "electrons_per_oxygenation",
+        "absorptivity_par" // dimensionless
     };
 }
 
@@ -59,7 +60,8 @@ void c3_canopy::do_operation() const {
             *kpLN_ip, *lnb0_ip, *lnb1_ip, *lnfun_ip, *chil_ip,
             *StomataWS_ip, *specific_heat_of_air_ip, *atmospheric_pressure_ip,
             *growth_respiration_fraction_ip, *water_stress_approach_ip,
-            *electrons_per_carboxylation_ip, *electrons_per_oxygenation_ip);
+            *electrons_per_carboxylation_ip, *electrons_per_oxygenation_ip,
+            *absorptivity_par_ip);
 
     // Update the output parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);  // Mg / ha / hr.

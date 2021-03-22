@@ -45,7 +45,9 @@ struct Can_Str newCanAC(
     double StomataWS,
     int water_stress_approach,
     double leaf_transmittance,
-    double leaf_reflectance)
+    double leaf_reflectance,
+    double absorptivity_par  // dimensionless
+)
 {
     // Set up a few standalone modules that we will be using
 
@@ -96,7 +98,8 @@ struct Can_Str newCanAC(
         {"theta",                   &theta},
         {"upperT",                  &upperT},
         {"vmax",                    &vmax1},
-        {"water_stress_approach",   &wsa}
+        {"water_stress_approach",   &wsa},
+        {"absorptivity_par",        &absorptivity_par}
     };
 
     // Set up the output parameters
@@ -123,7 +126,7 @@ struct Can_Str newCanAC(
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
-    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
+    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, absorptivity_par, heightf);
 
     double LAIc = LAI / nlayers;
 
@@ -268,6 +271,7 @@ class canac_with_collatz : public SteadyModule
           water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
           leaf_transmittance_ip(get_ip(input_parameters, "leaf_transmittance")),
           leaf_reflectance_ip(get_ip(input_parameters, "leaf_reflectance")),
+          absorptivity_par_ip(get_ip(input_parameters, "absorptivity_par")),
 
           // Get pointers to output parameters
           canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
@@ -326,6 +330,7 @@ class canac_with_collatz : public SteadyModule
     const double* water_stress_approach_ip;
     const double* leaf_transmittance_ip;
     const double* leaf_reflectance_ip;
+    const double* absorptivity_par_ip;
 
     // Pointers to output parameters
     double* canopy_assimilation_rate_op;
@@ -384,7 +389,9 @@ std::vector<std::string> canac_with_collatz::get_inputs()
         "StomataWS",
         "water_stress_approach",
         "leaf_transmittance",
-        "leaf_reflectance"};
+        "leaf_reflectance",
+        "absorptivity_par"  // dimensionless
+    };
 }
 
 std::vector<std::string> canac_with_collatz::get_outputs()
@@ -444,6 +451,7 @@ void canac_with_collatz::do_operation() const
     double water_stress_approach = *water_stress_approach_ip;
     double leaf_transmittance = *leaf_transmittance_ip;
     double leaf_reflectance = *leaf_reflectance_ip;
+    double absorptivity_par = *absorptivity_par_ip;
 
     // Convert doy_dbl into doy and hour
     int doy = floor(doy_dbl);
@@ -472,7 +480,8 @@ void canac_with_collatz::do_operation() const
         heightf, LeafN, kpLN, lnb0, lnb1,
         (int)lnfun, upperT, lowerT, nitroP, leafwidth, specific_heat_of_air,
         atmospheric_pressure, (int)et_equation, StomataWS,
-        (int)water_stress_approach, leaf_transmittance, leaf_reflectance);
+        (int)water_stress_approach, leaf_transmittance, leaf_reflectance,
+        absorptivity_par);
 
     // Update the output parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.

@@ -12,6 +12,7 @@ mResp		canopyControl	0.02, 0.03		0
 heightFactor		canopyControl	3		1
 leafwidth		canopyControl	0.04		1
 eteq		canopyControl	0		0
+absorptivity_par  canopyControl 0.8 1
 senLeaf		seneControl	3000		1
 senStem		seneControl	3500		1
 senRoot		seneControl	4000		1
