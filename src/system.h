@@ -185,15 +185,12 @@ void System::run_derivative_modules(vector_type& dxdt)
         *x = 0.0;
     }
 
-    // Reset the derivative vector
-    std::fill(dxdt.begin(), dxdt.end(), 0);
-
     // Run the modules
     run_module_list(derivative_modules);
 
     // Store the output in the derivative vector
     for (size_t i = 0; i < dxdt.size(); i++) {
-        dxdt[i] += *(state_ptr_pairs[i].second) * (*timestep_ptr);
+        dxdt[i] = *(state_ptr_pairs[i].second) * (*timestep_ptr);
     }
 }
 
