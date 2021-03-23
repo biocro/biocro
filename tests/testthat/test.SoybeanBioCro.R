@@ -12,8 +12,8 @@
 ##
 ## library(BioCro)
 ## solver <- list(type = 'Gro', output_step_size = 1.0, adaptive_rel_error_tol = 1e-5, adaptive_abs_error_tol = 1e-5, adaptive_max_steps = 200)
-## Gro_result <- Gro(glycine_max_initial_state, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_modules, solver)
-## save(Gro_result, file="glycine_max_simulation.rda")
+## Gro_result <- Gro_solver(soybean_initial_state, soybean_parameters, get_growing_season_climate(weather05), soybean_steadystate_modules, soybean_derivative_modules, solver)
+## save(Gro_result, file="soybean_simulation.rda")
 ##
 ## Finally, after updating the stored data for any of the plants whose output
 ## has changed, run this test to make sure it is passed.
@@ -51,7 +51,7 @@ test_plant_model <- function(test_info) {
       result <<- Gro_solver(
         test_info[['initial_state']],
         test_info[['parameters']],
-        get_growing_season_climate(weather05),
+        test_info[['weather']],
         test_info[['steadystate_modules']],
         test_info[['derivative_modules']],
         SOLVER
@@ -126,12 +126,13 @@ test_plant_model <- function(test_info) {
 }
 
 # Make a helping function for specifying plant information
-specify <- function(plant_name, initial_state, parameters, steadystate_modules, derivative_modules,
+specify <- function(plant_name, initial_state, parameters, weather, steadystate_modules, derivative_modules,
                     stored_result_file, ignored_variables) {
   list(
     plant_name = plant_name,
     initial_state = initial_state,
     parameters = parameters,
+    weather = weather,
     steadystate_modules = steadystate_modules,
     derivative_modules = derivative_modules,
     stored_result_file = stored_result_file,
@@ -151,11 +152,18 @@ specify <- function(plant_name, initial_state, parameters, steadystate_modules, 
 soybean_ignore <- character(0)
 
 # Define the plants to test
+# RELOCATE THESE FILES AND REMOVE HARDCODED FILEPATHS BEFORE MERGING TO MASTER #
+source('~/Research/Paper_Drafts/2021_SoybeanBioCro/Code/ParameterFiles/soybean_initial_state.R')
+source('~/Research/Paper_Drafts/2021_SoybeanBioCro/Code/ParameterFiles/soybean_parameters.R')
+source('~/Research/Paper_Drafts/2021_SoybeanBioCro/Code/ParameterFiles/soybean_modules.R')
+soybean_weather <- read.csv('~/Research/Paper_Drafts/2021_SoybeanBioCro/Code/ParameterFiles/soybean_weather2002.csv')
+# 
 plant_testing_info <- list(
-  specify("soybean",            soybean_initial_state,            soybean_parameters,            soybean_steadystate_modules,            soybean_derivative_modules,            "../test_data/soybean_simulation.rda",            soybean_ignore)
+  specify("soybean",            soybean_initial_state,            soybean_parameters,            soybean_weather,            soybean_steadystate_modules,            soybean_derivative_modules,            "../test_data/soybean_simulation.rda",            soybean_ignore)
 )
 
 # Run all the tests
 for(i in 1:length(plant_testing_info)) {
+  
   test_plant_model(plant_testing_info[[i]])
 }
