@@ -153,10 +153,10 @@ soybean_ignore <- c("ncalls")
 
 # Define the plants to test
 # RELOCATE THESE FILES AND REMOVE HARDCODED FILEPATHS BEFORE MERGING TO MASTER #
-source('~/Research/Paper_Drafts/2021_SoybeanBioCro/Code/ParameterFiles/soybean_initial_state.R')
-source('~/Research/Paper_Drafts/2021_SoybeanBioCro/Code/ParameterFiles/soybean_parameters.R')
-source('~/Research/Paper_Drafts/2021_SoybeanBioCro/Code/ParameterFiles/soybean_modules.R')
-soybean_weather <- read.csv('~/Research/Paper_Drafts/2021_SoybeanBioCro/Code/ParameterFiles/soybean_weather2002.csv')
+source('mlm_soybean_paramfiles/soybean_initial_state.R')
+source('mlm_soybean_paramfiles/soybean_parameters.R')
+source('mlm_soybean_paramfiles/soybean_modules.R')
+soybean_weather <- read.csv('mlm_soybean_paramfiles/soybean_weather2002.csv')
 # 
 plant_testing_info <- list(
   specify("soybean",            soybean_initial_state,            soybean_parameters,            soybean_weather,            soybean_steadystate_modules,            soybean_derivative_modules,            "../test_data/soybean_simulation.rda",            soybean_ignore)
