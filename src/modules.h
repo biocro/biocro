@@ -62,7 +62,7 @@ class Module
 };
 
 /**
- *  @brief A destructor must be defined, and since the default is overwritten
+ *  @brief A destructor must be defined, and since the default is overridden
  *  when defining it as pure virtual, add an inline one in the header
  */
 inline Module::~Module() {}
@@ -91,7 +91,7 @@ class SteadyModule : public Module
 };
 
 /**
- *  @brief A destructor must be defined, and since the default is overwritten
+ *  @brief A destructor must be defined, and since the default is overridden
  *  when defining it as pure virtual, add an inline one in the header
  */
 inline SteadyModule::~SteadyModule() {}
@@ -128,7 +128,7 @@ class DerivModule : public Module
 };
 
 /**
- *  @brief A destructor must be defined, and since the default is overwritten
+ *  @brief A destructor must be defined, and since the default is overridden
  *  when defining it as pure virtual, add an inline one in the header
  */
 inline DerivModule::~DerivModule() {}
