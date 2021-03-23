@@ -103,8 +103,6 @@
 #include "thermaltime_development_rate_calculator.h"
 #include "no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned.h"
 #include "partitioning_growth_negative_assimilation_partitioned.h"
-#include "multilayer_c3_canopy_parallel.h"
-#include "multilayer_c4_canopy_parallel.h"
 #include "rasmussen_specific_heat.h"
 #include "buck_swvp.h"
 #include "rh_to_mole_fraction.h"
@@ -242,9 +240,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>},
      {"no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned", &create_wrapper<no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned>},
-    {"partitioning_growth_negative_assimilation_partitioned", &create_wrapper<partitioning_growth_negative_assimilation_partitioned>},
-     {"ten_layer_c3_canopy_parallel",                    &create_wrapper<ten_layer_c3_canopy_parallel>},
-     {"ten_layer_c4_canopy_parallel",                    &create_wrapper<ten_layer_c4_canopy_parallel>},
+     {"partitioning_growth_negative_assimilation_partitioned", &create_wrapper<partitioning_growth_negative_assimilation_partitioned>},
      {"rasmussen_specific_heat",                         &create_wrapper<rasmussen_specific_heat>},
      {"buck_swvp",                                       &create_wrapper<buck_swvp>},
      {"rh_to_mole_fraction",                             &create_wrapper<rh_to_mole_fraction>}
