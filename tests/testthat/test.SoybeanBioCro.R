@@ -149,7 +149,7 @@ specify <- function(plant_name, initial_state, parameters, weather, steadystate_
 # problematic quantities have been identified for these species, so there is no
 # need to ignore any quantities.
 
-soybean_ignore <- character(0)
+soybean_ignore <- c("ncalls")
 
 # Define the plants to test
 # RELOCATE THESE FILES AND REMOVE HARDCODED FILEPATHS BEFORE MERGING TO MASTER #
