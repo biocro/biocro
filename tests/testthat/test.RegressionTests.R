@@ -23,7 +23,7 @@ context(paste(
 ))
 
 # Choose the number of time points to test for each simulation result
-SAMPLE_SIZE <- 5
+MAX_SAMPLE_SIZE <- 5
 
 # Use a 0.5% tolerance when comparing values between simulations. Lower
 # tolerances have caused problems when comparing results calculated on different
@@ -208,7 +208,7 @@ test_plant_model <- function(test_info) {
     )
 
     test_that(description, {
-        expect_gte(index_of_last_row, SAMPLE_SIZE)
+        expect_gt(index_of_last_row, 1.0)
     })
 
     # Make sure the stored result contains all the non-ignored quantities in the
@@ -255,9 +255,23 @@ test_plant_model <- function(test_info) {
         }
     }
 
-    # Run the test for the final time point and some randomly chosen indices
-    points_to_test <- sample(1:(index_of_last_row-1), SAMPLE_SIZE-1)
-    points_to_test <- c(index_of_last_row, points_to_test)
+    # Run the test for some equally spaced indices including the first and last
+    # points of the simulation. Note that no problems occur if `points_to_test`
+    # includes non-integer elements, since R automatically truncates them to
+    # integer values when they are used as indices to access elements of a
+    # vector.
+    points_to_test = seq(
+        from = 1,
+        to = index_of_last_row,
+        length.out = max(
+            min(
+                index_of_last_row,
+                MAX_SAMPLE_SIZE
+            ),
+            2.0
+        )
+    )
+
     for (index in points_to_test) {
         compare_simulation_trial(index)
     }
