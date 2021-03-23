@@ -11,8 +11,7 @@
  *  calculates utilization and transport rates for different plant tissue types.
  *
  *  It is intended to be run along with the utilization_growth module. See
- *  utilization_growth.hpp and utilization_growth_calculator.hpp for more
- *  information.
+ *  utilization_growth.hpp for more information.
  */
 class utilization_growth_calculator : public SteadyModule {
 	public:

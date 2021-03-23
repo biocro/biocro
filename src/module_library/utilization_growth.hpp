@@ -11,8 +11,7 @@
  *  returns derivatives for the plant tissue mass state variables.
  *
  *  It is intended to be run along with the utilization_growth_calculator
- *  module. See utilization_growth.hpp and utilization_growth_calculator.hpp
- *  for more information.
+ *  module. See utilization_growth_calculator.hpp for more information.
  */
 class utilization_growth : public DerivModule {
 	public:
