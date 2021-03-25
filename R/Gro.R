@@ -243,6 +243,9 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
     result$doy = floor(result$doy_dbl)
     result$hour = 24.0*(result$doy_dbl - result$doy)
 
+    # Sort the columns by name
+    result <- result[,sort(names(result))]
+
     # Return the result
     return(result)
 }
