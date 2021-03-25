@@ -187,6 +187,9 @@ test_plant_model <- function(test_info) {
     # Read the stored result from the data file
     Gro_result <- read.csv(test_info[['stored_result_file']])
 
+    # Make sure all columns contain numeric data
+    Gro_result <- as.data.frame(sapply(Gro_result, as.numeric))
+
     # Make sure the stored result has the same number of time points
     index_of_last_row <- length(result[[1]])
 
