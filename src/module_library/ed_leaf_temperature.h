@@ -4,7 +4,6 @@
 #include <cmath>           // for fabs
 #include "../constants.h"  // for specific heat
 #include "../modules.h"
-#include "../module_helper_functions.h"
 #include "../state_map.h"
 
 /**

@@ -7,7 +7,7 @@
 
 /**
  * @class ten_layer_c3_canopy
- * 
+ *
  * @brief A child class of multilayer_canopy_photosynthesis where:
  *  - The canopy module is set to the `ten_layer_canopy_properties` module
  *  - The leaf module is set to the `c3_leaf_photosynthesis` module
@@ -29,7 +29,6 @@ class ten_layer_c3_canopy : public multilayer_canopy_photosynthesis<ten_layer_ca
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    static std::string get_description();
 
    private:
     // Number of layers

@@ -2,6 +2,8 @@
 #define WATER_VAPOR_PROPERTIES_FROM_AIR_TEMPERATURE_H
 
 #include "../modules.h"
+#include "AuxBioCro.h"  // For saturation_vapor_pressure, TempToSFS, TempToLHV,
+                        // and TempToDdryA
 
 class water_vapor_properties_from_air_temperature : public SteadyModule
 {

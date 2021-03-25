@@ -7,6 +7,8 @@
 #include "water_vapor_properties_from_air_temperature.hpp"
 #include "penman_monteith_transpiration.hpp"
 #include "collatz_leaf.hpp"
+#include "AuxBioCro.h"  // For nitroParms
+#include "BioCro.h"     // For Can_Str
 
 struct Can_Str newCanAC(
     double LAI,

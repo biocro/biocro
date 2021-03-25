@@ -2,11 +2,11 @@
 #define SOLAR_ZENITH_ANGLE_H
 
 #include "../modules.h"
-#include "AuxBioCro.h"
+#include "BioCro.h"  // For cos_zenith_angle
 
 /**
  * @class solar_zenith_angle
- * 
+ *
  * @brief Calculates the solar zenith angle using a simple model. A major
  * shortcoming of this model is that solar noon always occurs at 12:00 PM.
  */
@@ -27,7 +27,6 @@ class solar_zenith_angle : public SteadyModule
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    static std::string get_description();
 
    private:
     // References to input parameters
@@ -59,7 +58,7 @@ void solar_zenith_angle::do_operation() const
     // Unpack the doy and hour
     const double doy = floor(doy_dbl);
     const double hour = 24.0 * (doy_dbl - doy);
-    
+
     // Update the output pointers
     update(cosine_zenith_angle_op, cos_zenith_angle(lat, doy, hour));
 }

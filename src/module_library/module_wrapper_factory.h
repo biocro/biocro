@@ -12,7 +12,6 @@ class module_wrapper_factory
 {
    public:
     static std::unique_ptr<module_wrapper_base> create(std::string const& module_name);
-    static std::string get_description(std::string const& module_name);
     static std::vector<std::string> get_modules();
     static std::unordered_map<std::string, std::vector<std::string>> get_all_quantities();
 

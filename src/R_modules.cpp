@@ -22,9 +22,8 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
         state_map parameters;
         state_map module_output_map;
 
-        // Get the module's description
+        // Get the module wrapper
         auto w = module_wrapper_factory::create(module_name);
-        std::string description = w->get_description();
 
         // Get the module's inputs and add them to the parameter list with default
         //  values
@@ -60,9 +59,6 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
         if (loquacious) {
             // Module name
             Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
-
-            // Module description
-            Rprintf("Module description:\n%s\n\n", description.c_str());
 
             // Module inputs
             Rprintf("Module input parameters:");

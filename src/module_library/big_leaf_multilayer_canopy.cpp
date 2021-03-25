@@ -1,4 +1,5 @@
 #include "big_leaf_multilayer_canopy.hpp"
+#include "BioCro.h"  // For Light_model and lightME
 
 // Constructor
 big_leaf_multilayer_canopy::big_leaf_multilayer_canopy(

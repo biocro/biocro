@@ -16,7 +16,6 @@ class module_wrapper_base {
     virtual std::vector<std::string> get_inputs() = 0;
     virtual std::vector<std::string> get_outputs() = 0;
     virtual std::unique_ptr<Module> createModule(const std::unordered_map<std::string, double>* input, std::unordered_map<std::string, double>* output) = 0;
-    virtual std::string get_description() = 0;
     virtual ~module_wrapper_base() = 0;
 };
 
@@ -40,8 +39,6 @@ class module_wrapper : public module_wrapper_base {
         {
             return std::unique_ptr<Module>(new T(input, output));
         }
-
-    std::string get_description() { return std::string("Descriptions no longer supported :("); }
 };
 
 #endif
