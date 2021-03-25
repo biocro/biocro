@@ -11,10 +11,10 @@ invariant_parameters <- list(timestep = 1)
 # zenith angle and return the value of zenith_angle_in_degrees from
 # the result.
 angle_from_cosine <- function(cza) {
-    # For these tests, the value of doy_dbl is immaterial, but either
-    # doy_dbl or both doy and hour must be in the list of keys for
+    # For these tests, the value of time is immaterial, but either
+    # time or both doy and hour must be in the list of keys for
     # varying parameters.
-    varying_parameters <- list(doy_dbl = 1, cosine_zenith_angle = cza)
+    varying_parameters <- list(time = 1, cosine_zenith_angle = cza)
 
     result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
 

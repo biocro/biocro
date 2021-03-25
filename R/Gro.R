@@ -208,7 +208,7 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
         stop('"varying_parameters" must be a list')
     }
 
-    # If the varying parameter input doesn't have a doy_dbl column, add one
+    # If the varying parameter input doesn't have a time column, add one
     varying_parameters <- add_time_to_weather_data(varying_parameters)
 
     # Check to make sure the solver properties are properly defined
@@ -240,8 +240,8 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
     result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver_type, solver_output_step_size, solver_adaptive_rel_error_tol, solver_adaptive_abs_error_tol, solver_adaptive_max_steps, verbose))
 
     # Make sure doy and hour are properly defined
-    result$doy = floor(result$doy_dbl)
-    result$hour = 24.0*(result$doy_dbl - result$doy)
+    result$doy = floor(result$time)
+    result$hour = 24.0*(result$time - result$doy)
 
     # Sort the columns by name
     result <- result[,sort(names(result))]
@@ -485,7 +485,7 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names)
     #  View(oscillator_deriv)
     #
     # There are several things to notice:
-    #  (1) Even though doy_dbl and timestep were not supplied as parameters, they show up in the lists
+    #  (1) Even though time and timestep were not supplied as parameters, they show up in the lists
     #      of invariant and varying parameters. The system requires these parameters, so Gro_ode supplies
     #      default values if none are specified, as in the case of this example
     #  (2) No derivatives were supplied for spring_constant or mass, yet they are included in the oscillator_deriv

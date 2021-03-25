@@ -11,7 +11,7 @@ class oscillator_clock_calculator : public SteadyModule {
             // Define basic module properties by passing its name to its parent class
             SteadyModule("oscillator_clock_calculator"),
             // Get pointers to input parameters
-            doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+            time_ip(get_ip(input_parameters, "time")),
             kick_strength_ip(get_ip(input_parameters, "kick_strength")),
             night_tracker_ip(get_ip(input_parameters, "night_tracker")),
             day_tracker_ip(get_ip(input_parameters, "day_tracker")),
@@ -40,7 +40,7 @@ class oscillator_clock_calculator : public SteadyModule {
         static std::vector<std::string> get_outputs();
     private:
         // Pointers to input parameters
-        const double* doy_dbl_ip;
+        const double* time_ip;
         const double* kick_strength_ip;
         const double* night_tracker_ip;
         const double* day_tracker_ip;
@@ -70,7 +70,7 @@ class oscillator_clock_calculator : public SteadyModule {
 
 std::vector<std::string> oscillator_clock_calculator::get_inputs() {
     return {
-        "doy_dbl",
+        "time",
         "kick_strength",
         "night_tracker",
         "day_tracker",
@@ -120,8 +120,8 @@ void oscillator_clock_calculator::do_operation() const {
     using math_constants::pi;
     
     // Get the current time value
-    const double doy_dbl = *doy_dbl_ip;
-    const double hour = 24.0 * (doy_dbl - floor(doy_dbl));
+    const double time = *time_ip;
+    const double hour = 24.0 * (time - floor(time));
     
     // Get the current light value
     const double light = *light_ip;
