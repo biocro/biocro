@@ -100,7 +100,7 @@
 #include "thermal_time_senescence_logistic_seed.hpp"
 #include "development_index.h"
 #include "soybean_development_rate_calculator.h"
-#include "thermaltime_development_rate_calculator.h"
+#include "thermal_time_development_rate_calculator.h"
 #include "no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned.h"
 #include "partitioning_growth_negative_assimilation_partitioned.h"
 #include "rasmussen_specific_heat.h"
@@ -213,13 +213,13 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_gas_concentrations",                           &create_wrapper<ed_gas_concentrations>},
      {"ed_long_wave_energy_loss",                        &create_wrapper<ed_long_wave_energy_loss>},
      {"ed_penman_monteith_leaf_temperature",             &create_wrapper<ed_penman_monteith_leaf_temperature>},
-     {"partitioning_coefficient_logistic",             &create_wrapper<partitioning_coefficient_logistic>},
-     {"senescence_coefficient_logistic",               &create_wrapper<senescence_coefficient_logistic>},
-     {"thermal_time_senescence_logistic",              &create_wrapper<thermal_time_senescence_logistic>},
-     {"thermal_time_senescence_logistic_seed",         &create_wrapper<thermal_time_senescence_logistic_seed>},
-     {"development_index",                             &create_wrapper<development_index>},
-     {"soybean_development_rate_calculator",           &create_wrapper<soybean_development_rate_calculator>},
-     {"thermaltime_development_rate_calculator",       &create_wrapper<thermaltime_development_rate_calculator>},
+     {"partitioning_coefficient_logistic",               &create_wrapper<partitioning_coefficient_logistic>},
+     {"senescence_coefficient_logistic",                 &create_wrapper<senescence_coefficient_logistic>},
+     {"thermal_time_senescence_logistic",                &create_wrapper<thermal_time_senescence_logistic>},
+     {"thermal_time_senescence_logistic_seed",           &create_wrapper<thermal_time_senescence_logistic_seed>},
+     {"development_index",                               &create_wrapper<development_index>},
+     {"soybean_development_rate_calculator",             &create_wrapper<soybean_development_rate_calculator>},
+     {"thermal_time_development_rate_calculator",        &create_wrapper<thermal_time_development_rate_calculator>},
      {"ed_p_m_temperature_solve",                        &create_wrapper<ed_p_m_temperature_solve>},
      {"ed_leaf_temperature",                             &create_wrapper<ed_leaf_temperature>},
      {"ed_penman_monteith_transpiration",                &create_wrapper<ed_penman_monteith_transpiration>},

@@ -1,5 +1,5 @@
-#ifndef THERMALTIME_DEVELOPMENT_RATE_CALCULATOR_h
-#define THERMALTIME_DEVELOPMENT_RATE_CALCULATOR_h
+#ifndef THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_h
+#define THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_h
 
 #include "../modules.h"
 #include <cmath>
@@ -13,12 +13,12 @@
  *  Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55. https://doi.org/10.5194/gmd-8-1139-2015
  */
 
-class thermaltime_development_rate_calculator : public SteadyModule
+class thermal_time_development_rate_calculator : public SteadyModule
 {
-public: thermaltime_development_rate_calculator( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+public: thermal_time_development_rate_calculator( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
     
     // Define basic module properties by passing its name to its parent class
-    SteadyModule("thermaltime_development_rate_calculator"),
+    SteadyModule("thermal_time_development_rate_calculator"),
     
     // Get pointers to input parameters
     DVI_ip(get_ip(input_parameters,"DVI")),
@@ -53,7 +53,7 @@ public: thermaltime_development_rate_calculator( const std::unordered_map<std::s
     
 };
 
-std::vector<std::string> thermaltime_development_rate_calculator::get_inputs()
+std::vector<std::string> thermal_time_development_rate_calculator::get_inputs()
 {
     return {
         "DVI",
@@ -65,14 +65,14 @@ std::vector<std::string> thermaltime_development_rate_calculator::get_inputs()
     };
 }
 
-std::vector<std::string> thermaltime_development_rate_calculator::get_outputs()
+std::vector<std::string> thermal_time_development_rate_calculator::get_outputs()
 {
     return {
         "development_rate_per_hour"
     };
 }
 
-void thermaltime_development_rate_calculator::do_operation() const
+void thermal_time_development_rate_calculator::do_operation() const
 {
     // Gather parameters not specific to growth stages
     const double DVI = *DVI_ip; // dimensionless; development index, see Osborne et al., 2015, and notes above.
@@ -102,7 +102,7 @@ void thermaltime_development_rate_calculator::do_operation() const
         // this should never occur, but prevents warning messages when compiling biocro
         development_rate = 0;
         // error, DVI out of bounds
-//        throw std::out_of_range(std::string("DVI not in range, thrown by thermaltime_development_rate_calculator.\n"));
+//        throw std::out_of_range(std::string("DVI not in range, thrown by thermal_time_development_rate_calculator.\n"));
     }
     
     double development_rate_per_hour = development_rate / 24.0; // hr^-1
