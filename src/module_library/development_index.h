@@ -61,9 +61,11 @@ public: development_index(
     
     // Get pointers to output parameters
     DVI_op{get_op(output_parameters, "DVI")}
+    
     {}
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    
+    string_vector get_inputs();
+    string_vector get_outputs();
     
 private:
     // References to input parameters
