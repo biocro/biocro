@@ -13,7 +13,7 @@
  * index using the logistic based functions from Osborne et al. 2015.
  *
  * Intended to be used with any of the following modules:
- * - no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned
+ * - no_leaf_resp_neg_assim_partitioning_growth_calculator
  * - no_leaf_resp_partitioning_growth_calculator
  * - partitioning_growth_calculator
  *

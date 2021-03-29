@@ -1,10 +1,10 @@
-#ifndef NO_LEAF_RESP_PARTITIONING_GROWTH_CALCULATOR_NEGATIVE_ASSIMILATION_PARTITIONED_H
-#define NO_LEAF_RESP_PARTITIONING_GROWTH_CALCULATOR_NEGATIVE_ASSIMILATION_PARTITIONED_H
+#ifndef NO_LEAF_RESP_NEG_ASSIM_PARTITIONING_GROWTH_CALCULATOR_H
+#define NO_LEAF_RESP_NEG_ASSIM_PARTITIONING_GROWTH_CALCULATOR_H
 
 #include "../modules.h"
 
 /**
- * @class no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned
+ * @class no_leaf_resp_neg_assim_partitioning_growth_calculator
  *
  * @brief Records new tissue derived from assimilation. This module is mostly the same as the
  * partitioning_growth_module except that leaf respiration is treated differently. CanopyA already
@@ -17,13 +17,13 @@
  * at the end of the season for all of the tissue to senesce.
  * This doesn't seem like a good approach.
  */
-class no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned : public SteadyModule
+class no_leaf_resp_neg_assim_partitioning_growth_calculator : public SteadyModule
 {
    public:
-    no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned(const std::unordered_map<std::string, double>* input_parameters,
+    no_leaf_resp_neg_assim_partitioning_growth_calculator(const std::unordered_map<std::string, double>* input_parameters,
                                                 std::unordered_map<std::string, double>* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned"),
+          SteadyModule("no_leaf_resp_neg_assim_partitioning_growth_calculator"),
           // Get pointers to input parameters
           kLeaf_ip(get_ip(input_parameters, "kLeaf")),
           kStem_ip(get_ip(input_parameters, "kStem")),
@@ -66,7 +66,7 @@ class no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitio
     void do_operation() const;
 };
 
-std::vector<std::string> no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned::get_inputs()
+std::vector<std::string> no_leaf_resp_neg_assim_partitioning_growth_calculator::get_inputs()
 {
     return {
         "kLeaf",
@@ -80,7 +80,7 @@ std::vector<std::string> no_leaf_resp_partitioning_growth_calculator_negative_as
         "temp"};
 }
 
-std::vector<std::string> no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned::get_outputs()
+std::vector<std::string> no_leaf_resp_neg_assim_partitioning_growth_calculator::get_outputs()
 {
     return {
         "newLeafcol",
@@ -90,7 +90,7 @@ std::vector<std::string> no_leaf_resp_partitioning_growth_calculator_negative_as
         "newGraincol"};
 }
 
-void no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned::do_operation() const
+void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
 {
     // Collect inputs and make calculations
 

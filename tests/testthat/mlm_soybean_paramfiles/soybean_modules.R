@@ -4,7 +4,7 @@ soybean_steadystate_modules <- c("soil_type_selector", "stomata_water_stress_lin
                             "soil_evaporation", "solar_zenith_angle", "shortwave_atmospheric_scattering",
                             "incident_shortwave_from_ground_par", "ten_layer_canopy_properties",
                             "ten_layer_c3_canopy", "ten_layer_canopy_integrator",
-                            "no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned",
+                            "no_leaf_resp_neg_assim_partitioning_growth_calculator",
                             "senescence_coefficient_logistic")
 
 soybean_derivative_modules <- c("thermal_time_senescence_logistic", "partitioning_growth_negative_assimilation_partitioned",

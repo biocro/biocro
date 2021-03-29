@@ -101,7 +101,7 @@
 #include "development_index.h"
 #include "soybean_development_rate_calculator.h"
 #include "thermal_time_development_rate_calculator.h"
-#include "no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned.h"
+#include "no_leaf_resp_neg_assim_partitioning_growth_calculator.h"
 #include "partitioning_growth_negative_assimilation_partitioned.h"
 #include "rasmussen_specific_heat.h"
 #include "buck_swvp.h"
@@ -239,7 +239,7 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"ed_ten_layer_canopy_integrator",                  &create_wrapper<ed_ten_layer_canopy_integrator>},
      {"golden_ratio_hyperbola",                          &create_wrapper<golden_ratio_hyperbola>},
      {"hyperbola_2d",                                    &create_wrapper<hyperbola_2d>},
-     {"no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned", &create_wrapper<no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned>},
+     {"no_leaf_resp_neg_assim_partitioning_growth_calculator", &create_wrapper<no_leaf_resp_neg_assim_partitioning_growth_calculator>},
      {"partitioning_growth_negative_assimilation_partitioned", &create_wrapper<partitioning_growth_negative_assimilation_partitioned>},
      {"rasmussen_specific_heat",                         &create_wrapper<rasmussen_specific_heat>},
      {"buck_swvp",                                       &create_wrapper<buck_swvp>},
