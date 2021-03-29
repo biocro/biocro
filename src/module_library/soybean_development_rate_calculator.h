@@ -54,7 +54,7 @@ public:
     // Define basic module properties by passing its name to its parent class
     : SteadyModule{"soybean_development_rate_calculator"},
     
-    // Get pointers to input parameters
+    // Get references to input parameters
     maturity_group{get_input(input_parameters, "maturity_group")},
     DVI{get_input(input_parameters, "DVI")},
     day_length{get_input(input_parameters, "day_length")},
@@ -100,7 +100,7 @@ public:
     // Pointers to output parameters
     double* development_rate_per_hour_op;
     
-    // Main operation
+    // Implement the pure virtual function do_operation():
     void do_operation() const override final;
     
 };

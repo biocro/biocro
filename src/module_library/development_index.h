@@ -39,7 +39,7 @@ public: development_index(
         )
     : DerivModule("development_index"),
     
-    // Get pointers to input parameters
+    // Get references to input parameters
     development_rate_per_hour(get_input(input_parameters, "development_rate_per_hour")),
     
     // Get pointers to output parameters
@@ -55,7 +55,7 @@ private:
     // Pointers to output parameters
     double* DVI_op;
     
-    // Main operation
+    // Implement the pure virtual function do_operation():
     void do_operation() const override final;
 };
 
