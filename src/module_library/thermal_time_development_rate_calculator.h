@@ -1,7 +1,8 @@
-#ifndef THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_h
-#define THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_h
+#ifndef THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_H
+#define THERMAL_TIME_DEVELOPMENT_RATE_CALCULATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include <cmath>
 
 /**
@@ -15,72 +16,66 @@
 
 class thermal_time_development_rate_calculator : public SteadyModule
 {
-public: thermal_time_development_rate_calculator( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
-    
-    // Define basic module properties by passing its name to its parent class
-    SteadyModule("thermal_time_development_rate_calculator"),
+public:
+    thermal_time_development_rate_calculator(
+        const state_map* input_parameters,
+        state_map* output_parameters
+    )
+    : SteadyModule{"thermal_time_development_rate_calculator"},
     
     // Get pointers to input parameters
-    DVI_ip(get_ip(input_parameters,"DVI")),
-    temp_ip(get_ip(input_parameters,"temp")),
-    tbase_ip(get_ip(input_parameters,"tbase")),
-    TTemr_ip(get_ip(input_parameters,"TTemr")),
-    TTveg_ip(get_ip(input_parameters, "TTveg")),
-    TTrep_ip(get_ip(input_parameters, "TTrep")),
+    DVI{get_input(input_parameters,"DVI")},
+    temp{get_input(input_parameters,"temp")},
+    tbase{get_input(input_parameters,"tbase")},
+    TTemr{get_input(input_parameters,"TTemr")},
+    TTveg{get_input(input_parameters, "TTveg")},
+    TTrep{get_input(input_parameters, "TTrep")},
     
     // Get pointers to output parameters
-  development_rate_per_hour_op(get_op(output_parameters,"development_rate_per_hour"))
+    development_rate_per_hour_op{get_op(output_parameters,"development_rate_per_hour")}
     
-    {
-    }
+    {}
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
     
     private:
     // Pointers to input parameters
-    const double* DVI_ip;
-    const double* temp_ip;
-    const double* tbase_ip;
-    const double* TTemr_ip;
-    const double* TTveg_ip;
-    const double* TTrep_ip;
+    const double& DVI;
+    const double& temp;
+    const double& tbase;
+    const double& TTemr;
+    const double& TTveg;
+    const double& TTrep;
     
     // Pointers to output parameters
     double* development_rate_per_hour_op;
     
-    // Main operation
-    void do_operation() const;
+    // Implement the pure virtual function do_operation():
+    void do_operation() const override final;
     
 };
 
-std::vector<std::string> thermal_time_development_rate_calculator::get_inputs()
+string_vector thermal_time_development_rate_calculator::get_inputs()
 {
     return {
-        "DVI",
-        "temp",
-        "tbase",
-        "TTemr",
-        "TTveg",
-        "TTrep"
+        "DVI",    // dimensionless, development index
+        "temp",   // degrees C
+        "tbase",  // degrees C, base temperature
+        "TTemr",  // degrees C * days, thermal time from sowing to emergence
+        "TTveg",  // degrees C * days, thermal time of vegetative states
+        "TTrep"   // degrees C * days, thermal time of reproductive states
     };
 }
 
-std::vector<std::string> thermal_time_development_rate_calculator::get_outputs()
+string_vector thermal_time_development_rate_calculator::get_outputs()
 {
     return {
-        "development_rate_per_hour"
+        "development_rate_per_hour" // hour^-1
     };
 }
 
-void thermal_time_development_rate_calculator::do_operation() const
-{
-    // Gather parameters not specific to growth stages
-    const double DVI = *DVI_ip; // dimensionless; development index, see Osborne et al., 2015, and notes above.
-    const double temp = *temp_ip; // degrees C
-    const double tbase = *tbase_ip; // degrees C
-    const double TTemr = *TTemr_ip; // degrees C * days; thermal time from sowing to emergence
-    const double TTveg = *TTveg_ip; // degrees C * days; thermal time from emergence to end of vegetative stages (or beginning of reproductive)
-    const double TTrep = *TTrep_ip; // degrees C * days; thermal time of reproductive stages
+
+void thermal_time_development_rate_calculator::do_operation() const {
     
     // Calculate the development_rate
     double development_rate; // day^-1
@@ -102,11 +97,9 @@ void thermal_time_development_rate_calculator::do_operation() const
     } else {
         // this should never occur, but prevents warning messages when compiling biocro
         development_rate = 0;
-        // error, DVI out of bounds
-//        throw std::out_of_range(std::string("DVI not in range, thrown by thermal_time_development_rate_calculator.\n"));
     }
     
-    double development_rate_per_hour = development_rate / 24.0; // hr^-1
+    double development_rate_per_hour = development_rate / 24.0; // hour^-1
     
     // Update the output parameter list
     update(development_rate_per_hour_op, development_rate_per_hour);
