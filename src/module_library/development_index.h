@@ -5,29 +5,46 @@
 #include "../state_map.h"
 
 /**
- * \brief This module calculates the development index (DVI) corresponding to plant growth (Osborne et al., 2015) given the development_rate_per_hour as an input.
+ * @class development_index
+ *
+ * @brief Calculates the development index (DVI) corresponding to plant growth rate.
  *
  * Osborne et al., (2015) define DVI to be:
- *  -1 <= DVI < 0   : Sowing to Emergence
- *  0 <= DVI < 1    : Vegetative Growth Stages
- *  1 <= DVI < 2    : Reproductive Growth Stages
  *
- *  However, this definition is flexible. For example, for our soybean model (soybean_development_rate_calculator.h) we define the stages as:
- *  -1 <= DVI < 0 : Sowing to Emergence
- *  0 <= DVI < 1  :  Emergence to R1 (Flowering)
- *          0 <= DVI < 0.333        : Emergence to V0 (Cotyledon stage)
- *          0.333 <= DVI < 0.667 : V0 (Cotyledon stage) to R0 (End of Floral Induction)
- *          0.667 <= DVI < 1        : R0 (End of Floral Induction) to R1 (Flowering)
- *  1 <= DVI < 2 : R1 (Flowering) to R7 (Maturity)
+ * | Development index (DVI)              | Growth stages                         |
+ * | :------------------------------------: | :---------------------------------: |
+ * | \f$-1\le\f$ DVI \f$ <0\f$       | sowing to emergence              |
+ * | \f$0\le\f$ DVI \f$ <1\f$        |  Vegetative growth stages        |
+ * | \f$ 1\le\f$ DVI \f$ <2\f$       | Reproductive growth stages    |
  *
- * The DVI will continue accumulating above 2 if the crop is simulated to reach maturity before the final given timepoint.
  *
- * The DVI value can be used in any modules that are dependent on the plants growth stage, such as carbon partitioning or senescence. The modules partioning_coefficient_logistic and senescence_coefficient_logistic are two modules that use the DVI.
+ *  However, this definition is flexible. For example in the module soybean_development_rate_calculator
+ *  we define the stages as:
  *
- * This module takes the development_rate_per_hour variable as an input. For soybean, this rate is calculated in the module soybean_development_rate_calculator.
+ * | Development index (DVI)                                    | Growth stages                                             |
+ * | :----------------------------------------------------: | :-----------------------------------------------: |
+ * | \f$-1\le\f$ DVI \f$ <0\f$                             | sowing \f$ \to\f$ VE (emergence)           |
+ * | \f$0\le\f$ DVI \f$ <\frac{1}{3}\f$                | VE \f$ \to\f$ V0 (cotyledon)                     |
+ * | \f$ \frac{1}{3}\le\f$ DVI \f$ <\frac{2}{3}\f$ | V0 \f$ \to\f$ R0 (end of floral indcution)  |
+ * | \f$ \frac{2}{3}\le\f$ DVI \f$ <1\f$               | R0 \f$ \to\f$ R1 (flowering)                      |
+ * | \f$1\le\f$ DVI                                                 | R1 \f$ \to\f$ R7 (maturity)                        |
+ *
+ * The DVI will continue accumulating above 2 if the crop is simulated to reach maturity before the final given
+ * timepoint.
+ *
+ * The DVI value can be used in any modules that are dependent on the plants growth stage, such as carbon
+ * partitioning or senescence. The modules partitioning_coefficient_logistic and senescence_coefficient_logistic
+ * are two modules that use the DVI.
+ *
+ * This module takes the development_rate_per_hour variable as an input. For soybean, this rate is calculated
+ * in the module soybean_development_rate_calculator.  The thermal_time_development_rate_calculator
+ * module calculates development_rate_per_hour using the thermal time functions from Osborne et al. 2015.
  *
  * References:
- * Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55. https://doi.org/10.5194/gmd-8-1139-2015
+ *
+ * [Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment
+ * Simulator.” Geoscientific Model Development 8(4): 1139–55.]
+ * (https://doi.org/10.5194/gmd-8-1139-2015)
  *
  */
 
