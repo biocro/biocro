@@ -64,8 +64,8 @@ public: development_index(
     
     {}
     
-    string_vector get_inputs();
-    string_vector get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
     
 private:
     // References to input parameters
