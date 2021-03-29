@@ -1,13 +1,13 @@
-#ifndef THERMAL_TIME_SENESCENCE_LOGISTIC_H
-#define THERMAL_TIME_SENESCENCE_LOGISTIC_H
+#ifndef SENESCENCE_LOGISTIC_H
+#define SENESCENCE_LOGISTIC_H
 
 #include "../modules.h"
 
-class thermal_time_senescence_logistic : public DerivModule {
+class senescence_logistic : public DerivModule {
 	public:
-		thermal_time_senescence_logistic(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		senescence_logistic(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
 			// Define basic module properties by passing its name to its parent class
-            DerivModule("thermal_time_senescence_logistic"),
+            DerivModule("senescence_logistic"),
 			// Get pointers to input parameters
             Leaf_ip(get_ip(input_parameters, "Leaf")),
             Stem_ip(get_ip(input_parameters, "Stem")),
@@ -66,7 +66,7 @@ class thermal_time_senescence_logistic : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> thermal_time_senescence_logistic::get_inputs() {
+std::vector<std::string> senescence_logistic::get_inputs() {
 	return {
 		"Leaf", "Stem", "Root", "Rhizome",
         "kSeneLeaf", "kSeneStem", "kSeneRoot", "kSeneRhizome",
@@ -75,14 +75,14 @@ std::vector<std::string> thermal_time_senescence_logistic::get_inputs() {
 	};
 }
 
-std::vector<std::string> thermal_time_senescence_logistic::get_outputs() {
+std::vector<std::string> senescence_logistic::get_outputs() {
 	return {
 		"Leaf", "LeafLitter","Stem", "StemLitter",
 		"Root", "RootLitter", "Rhizome", "RhizomeLitter", "Grain"
 	};
 }
 
-void thermal_time_senescence_logistic::do_operation() const {
+void senescence_logistic::do_operation() const {
     // This module calculates the change in plant component biomasses due to senescence.  The amount that each plant component is senesced is determined as a percentage (kSeneLeaf, kSeneStem, kSeneRoot, kSeneRhizome) of its current biomass. Remobilization of senesced leaf tissue is also included based on the partioning growth parameters. A seperate module (e.g., senescence_coefficient_logistic) is needed to solve for the senescence parameters (i.e., kSeneLeaf, etc.) or these parameters need to be passed in the inital BioCro call.
 	
 	// Collect inputs and make calculations

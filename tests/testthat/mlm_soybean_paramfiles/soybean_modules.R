@@ -7,7 +7,7 @@ soybean_steadystate_modules <- c("soil_type_selector", "stomata_water_stress_lin
                             "no_leaf_resp_neg_assim_partitioning_growth_calculator",
                             "senescence_coefficient_logistic")
 
-soybean_derivative_modules <- c("thermal_time_senescence_logistic", "partitioning_growth_neg_assim_partitioned",
+soybean_derivative_modules <- c("senescence_logistic", "partitioning_growth_neg_assim_partitioned",
                             "two_layer_soil_profile", "development_index", "thermal_time_linear")
 
 
