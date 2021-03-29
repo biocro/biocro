@@ -4,7 +4,6 @@
 #include <cmath>           // For pow
 #include "../constants.h"  // for ideal_gas_constant and celsius_to_kelvin
 #include "../modules.h"
-#include "../module_helper_functions.h"
 #include "../state_map.h"
 
 /**

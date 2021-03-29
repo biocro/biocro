@@ -2,6 +2,8 @@
 #define TWO_LAYER_SOIL_PROFILE_H
 
 #include "../modules.h"
+#include "AuxBioCro.h"  // For soilML_str
+#include "BioCro.h"     // For soilML
 
 class two_layer_soil_profile : public DerivModule {
 	public:

@@ -2,6 +2,7 @@
 #define ONE_LAYER_SOIL_PROFILE_DERIVATIVES_H
 
 #include "../modules.h"
+#include <cmath>  // for log
 
 class one_layer_soil_profile_derivatives : public DerivModule {
 	public:
@@ -72,7 +73,7 @@ std::vector<std::string> one_layer_soil_profile_derivatives::get_outputs() {
 	};
 }
 
-void one_layer_soil_profile_derivatives::do_operation() const {	
+void one_layer_soil_profile_derivatives::do_operation() const {
 	// Collect inputs and make calculations
 	double soil_water_content = *soil_water_content_ip;	// m^3 m^-3.
 	double soil_depth = *soil_depth_ip;
@@ -86,12 +87,12 @@ void one_layer_soil_profile_derivatives::do_operation() const {
 	double soil_saturation_capacity = *soil_saturation_capacity_ip;
 	double soil_sand_content = *soil_sand_content_ip;
 	double evapotranspiration = *evapotranspiration_ip;
-	
+
 	double soil_water_potential = -exp(log(0.033) + ((log(soil_field_capacity) - log(soil_water_content)) / (log(soil_field_capacity) - log(soil_wilting_point)) * (log(1.5) - log(0.033)))) * 1e3;	// kPa.
-	
+
 	double hydraulic_conductivity = soil_saturated_conductivity * pow(soil_air_entry / soil_water_potential, 2 + 3 / soil_b_coefficient);	// Kg s m^-3.
 	double J_w = -hydraulic_conductivity * (-soil_water_potential / (soil_depth * 0.5)) - acceleration_from_gravity * hydraulic_conductivity;	// kg m^-2 s^-1. Campbell, pg 129. I multiply soil depth by 0.5 to calculate the average depth.
-	
+
 	double density_of_water_at_20_celcius = 998.2;	// kg m^-3
 
 	double drainage = J_w / density_of_water_at_20_celcius;	// m s^-1.
@@ -102,7 +103,7 @@ void one_layer_soil_profile_derivatives::do_operation() const {
 	double n_leach = runoff / 18 * (0.2 + 0.7 * soil_sand_content) / second_per_hour;	// Base the rate on an hour for the same reason as was used with `runoff`.
 
 	double evapotranspiration_volume = evapotranspiration / density_of_water_at_20_celcius / 1e4 / second_per_hour;	// m^3 m^-2 s^-1
-	
+
 	// Update the output parameter list
 	update(soil_water_content_op, (drainage + precipitation_m_s - runoff - evapotranspiration_volume) / soil_depth);
 	update(soil_n_content_op, -n_leach);

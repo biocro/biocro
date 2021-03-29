@@ -2,6 +2,8 @@
 #define C4_CANOPY_H
 
 #include "../modules.h"
+#include "AuxBioCro.h"  // For nitroParms and Can_Str
+#include "BioCro.h"     // For CanAC
 
 class c4_canopy : public SteadyModule
 {

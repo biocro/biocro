@@ -2,6 +2,7 @@
 #define SOIL_EVAPORATION_H
 
 #include "../modules.h"
+#include "BioCro.h" // For SoilEvapo
 
 class soil_evaporation : public SteadyModule {
 	public:

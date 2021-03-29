@@ -2,12 +2,13 @@
 #define PARTITIONING_GROWTH_CALCULATOR_H
 
 #include "../modules.h"
+#include "BioCro.h" // For resp
 
 /**
  * @class partitioning_growth_calculator
- * 
+ *
  * @brief Records new tissue derived from assimilation.
- * 
+ *
  * NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
  * record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
  * Since it's not recorded, that part will never senesce.
