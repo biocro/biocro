@@ -6,12 +6,33 @@
 #include <cmath>
 
 /**
- * \brief This module uses photothermal functions to determine the hourly development rate based on Thermal Time ranges from Osborne et al., 2015
+ * @class thermal_time_development_rate_calculator
+ *
+ * @brief Calculates hourly plant development rate based on thermal time ranges of emergence, vegetative,
+ * and reproductive growth stages
+ *
+ * This module is designed to be used with the development_index module.
+ *
+ * Based on growth rate functions from Osborne et al. and uses the following DVI ranges:
+ *
+ * | Development index (DVI)              | Growth stages                         |
+ * | :------------------------------------: | :---------------------------------: |
+ * | \f$-1\le\f$ DVI \f$ <0\f$       | sowing to emergence              |
+ * | \f$0\le\f$ DVI \f$ <1\f$        |  Vegetative growth stages        |
+ * | \f$ 1\le\f$ DVI \f$ <2\f$       | Reproductive growth stages    |
+ *
+ * \f$ r = \frac{t-t_{base}}{TT_{stage}} \f$
+ *
+ * Where \f$ r \f$ is the plant growth rate, \f$ t \f$ is the
+ * temperature, \f$ t_{base} \f$ is the base temperature, and \f$ TT_{stage} \f$ is the accumulated
+ * thermal time for each of the above three growth stages.
+ *
  *
  * References:
  *
- *
- *  Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55. https://doi.org/10.5194/gmd-8-1139-2015
+ *  [Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment
+ *  Simulator.” Geoscientific Model Development 8(4): 1139–55.]
+ *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
 
 class thermal_time_development_rate_calculator : public SteadyModule
