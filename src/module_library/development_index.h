@@ -54,13 +54,13 @@ public: development_index(
             const state_map* input_parameters,
             state_map* output_parameters
         )
-    : DerivModule("development_index"),
+    : DerivModule{"development_index"},
     
     // Get references to input parameters
-    development_rate_per_hour(get_input(input_parameters, "development_rate_per_hour")),
+    development_rate_per_hour{get_input(input_parameters, "development_rate_per_hour")},
     
     // Get pointers to output parameters
-    DVI_op(get_op(output_parameters, "DVI"))
+    DVI_op{get_op(output_parameters, "DVI")}
     {}
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
