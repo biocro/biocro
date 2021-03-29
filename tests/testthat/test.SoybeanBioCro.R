@@ -1,26 +1,25 @@
 ## This tests that re-running a previously-run simulation yields the same result
 ## as before.
 ##
-## If any of the plant-specific defaults for the initial state, parameters,
+## If any of the crop-specific defaults for the initial state, parameters,
 ## modules or weather data change, or if the behavior of any of these modules
-## changes, the stored data for this test will likely need to be updated. To do
-## this, create a new R session and set the working directory to
-## "tests/test_data". Then load BioCro, run a new simulation with the same
-## parameters used in the test below (storing the output as `Gro_result`), and
-## save it as `PLANT_simulation.rda`, where PLANT is the name of the plant
-## species. E.g., for soybean, the commands would be as follows:
+## changes, the stored data for one or more crops will likely need to be
+## updated. To do this, open a fresh R session in this directory, load the
+## `BioCro` and `testthat` libraries, source this file, and type the following
+## command:
 ##
-## library(BioCro)
-## solver <- list(type = 'Gro', output_step_size = 1.0, adaptive_rel_error_tol = 1e-5, adaptive_abs_error_tol = 1e-5, adaptive_max_steps = 200)
-## Gro_result <- Gro_solver(soybean_initial_state, soybean_parameters, get_growing_season_climate(weather05), soybean_steadystate_modules, soybean_derivative_modules, solver)
-## save(Gro_result, file="soybean_simulation.rda")
+## update_stored_results(PLANT_TESTING_INFO[[INDEX]])
 ##
-## Finally, after updating the stored data for any of the plants whose output
-## has changed, run this test to make sure it is passed.
+## where the value of `INDEX` corresponds to the desired crop as defined in the
+## `PLANT_TESTING_INFO` list below. For example, INDEX = 1 corresponds to
+## soybean. Afterwards, check the git diff for the stored data files to make
+## sure the changes are reasonable (to the extent that this is possible).
+## Finally, rerun this file using the `testthat` package to make sure the tests
+## all pass.
 
 context("Test Soybean-BioCro with known results to ensure that the output doesn't change.")
 
-SAMPLE_SIZE <- 5       # number of time points to test in each simulation result
+MAX_SAMPLE_SIZE <- 5       # number of time points to test in each simulation result
 
 # Use a 0.5% tolerance when comparing values between simulations. Lower
 # tolerances have caused problems when comparing results calculated on different
@@ -43,9 +42,15 @@ SOLVER <- list(
 # environmental data `get_growing_season_climate(weather05)`
 test_plant_model <- function(test_info) {
   
+  description <- paste(
+    "The", 
+    test_info[['plant_name']], 
+    "simulation runs without producing any errors"
+    )
+  
   # Run the simulation
   result <- 0
-  description <- paste("The", test_info[['plant_name']], "simulation runs without producing any errors")
+  
   test_that(description, {
     expect_silent(
       result <<- Gro_solver(
@@ -69,43 +74,81 @@ test_plant_model <- function(test_info) {
     if (variable %in% names(result)) {
       result[[variable]] <- NULL
     } else {
-      msg <- paste0("The regression test reports that '", variable, "' is no longer included in the ", test_info[['plant_name']], " simulation result. Did a default module change?")
+      msg <- paste0(
+        "The regression test reports that '", 
+        variable, 
+        "' is no longer included in the ", 
+        test_info[['plant_name']], 
+        " simulation result. Did a default module change?"
+        )
       warning(msg)
     }
   }
   
-  # Read the stored result ("Gro_result") from the data file:
-  load(test_info[['stored_result_file']])
+  # Read the stored result from the data file
+  Gro_result <- read.csv(test_info[['stored_result_file']])
+  
+  # Make sure all columns contain numeric data
+  Gro_result <- as.data.frame(sapply(Gro_result, as.numeric))
   
   # Make sure the stored result has the same number of time points
   index_of_last_row <- length(result[[1]])
-  description <- paste("The", test_info[['plant_name']], "simulation result has the correct number of data points")
+  
+  description <- paste(
+    "The",
+    test_info[['plant_name']],
+    "simulation result has the correct number of data points"
+  )
+  
   test_that(description, {
     expect_equal(index_of_last_row, length(Gro_result[[1]]))
   })
   
   # Make sure the results have a sufficient number of time points
-  description <- paste("The", test_info[['plant_name']], "simulation result has enough data points")
+  description <- paste(
+    "The",
+    test_info[['plant_name']],
+    "simulation result has enough data points"
+  )
+  
   test_that(description, {
-    expect_gte(index_of_last_row, SAMPLE_SIZE)
+    expect_gt(index_of_last_row, 1.0)
   })
   
   # Make sure the stored result contains all the non-ignored quantities in the
   # new result
   column_names <- names(result)
+  
   stored_column_names <- names(Gro_result)
+  
   for (name in column_names) {
-    description <- paste("The stored", test_info[['plant_name']], "simulation result includes the", name, "column")
+    description <- paste(
+      "The stored",
+      test_info[['plant_name']],
+      "simulation result includes the",
+      name,
+      "column"
+    )
+    
     test_that(description, {
       expect_true(name %in% stored_column_names)
     })
   }
   
-  # Define a function that compares the new result to the old one at a single
-  # index
+  # Make a helping function that compares the new result to the old one at a
+  # single index
   compare_simulation_trial <- function(index) {
     for (variable in column_names) {
-      description <- paste0("The ", test_info[['plant_name']], " simulation result agrees with the stored result at index ", index, " for the '", variable, "' quantity")
+      description <- paste0(
+        "The ",
+        test_info[['plant_name']],
+        " simulation result agrees with the stored result at index ",
+        index,
+        " for the '",
+        variable,
+        "' quantity"
+      )
+      
       test_that(description, {
         expect_equal(
           result[[variable]][index],
@@ -116,9 +159,23 @@ test_plant_model <- function(test_info) {
     }
   }
   
-  # Run the test for the final time point and some randomly chosen indices
-  points_to_test <- sample(1:(index_of_last_row-1), SAMPLE_SIZE-1)
-  points_to_test <- c(index_of_last_row, points_to_test)
+  # Run the test for some equally spaced indices including the first and last
+  # points of the simulation. Note that no problems occur if `points_to_test`
+  # includes non-integer elements, since R automatically truncates them to
+  # integer values when they are used as indices to access elements of a
+  # vector.
+  points_to_test = seq(
+    from = 1,
+    to = index_of_last_row,
+    length.out = max(
+      min(
+        index_of_last_row,
+        MAX_SAMPLE_SIZE
+      ),
+      2.0
+    )
+  )
+  
   for (index in points_to_test) {
     compare_simulation_trial(index)
   }
@@ -126,8 +183,15 @@ test_plant_model <- function(test_info) {
 }
 
 # Make a helping function for specifying plant information
-specify <- function(plant_name, initial_state, parameters, weather, steadystate_modules, derivative_modules,
-                    stored_result_file, ignored_variables) {
+specify_crop <- function(
+  plant_name, 
+  initial_state, 
+  parameters, 
+  weather, 
+  steadystate_modules, 
+  derivative_modules,
+  ignored_variables) 
+  {
   list(
     plant_name = plant_name,
     initial_state = initial_state,
@@ -135,8 +199,36 @@ specify <- function(plant_name, initial_state, parameters, weather, steadystate_
     weather = weather,
     steadystate_modules = steadystate_modules,
     derivative_modules = derivative_modules,
-    stored_result_file = stored_result_file,
+    stored_result_file = paste0(
+      "../test_data/",
+      plant_name,
+      "_simulation.csv"
+    ),
     ignored_variables = ignored_variables
+  )
+}
+
+# Make a helping function that updates the stored data for one crop
+update_stored_results <- function(test_info) {
+  
+  # Calculate the result
+  plant_result <- Gro_solver(
+    test_info[['initial_state']],
+    test_info[['parameters']],
+    test_info[['weather']],
+    test_info[['steadystate_modules']],
+    test_info[['derivative_modules']],
+    SOLVER
+  )
+  
+  # Save it as a csv file
+  write.csv(
+    plant_result,
+    file=test_info[['stored_result_file']],
+    quote=FALSE,
+    eol="\n",
+    na="",
+    row.names=FALSE
   )
 }
 
@@ -149,7 +241,7 @@ specify <- function(plant_name, initial_state, parameters, weather, steadystate_
 # problematic quantities have been identified for these species, so there is no
 # need to ignore any quantities.
 
-soybean_ignore <- c("ncalls")
+SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
 # RELOCATE THESE FILES AND REMOVE HARDCODED FILEPATHS BEFORE MERGING TO MASTER #
@@ -159,7 +251,7 @@ source('mlm_soybean_paramfiles/soybean_modules.R')
 soybean_weather <- read.csv('mlm_soybean_paramfiles/soybean_weather2002.csv')
 # 
 plant_testing_info <- list(
-  specify("soybean",            soybean_initial_state,            soybean_parameters,            soybean_weather,            soybean_steadystate_modules,            soybean_derivative_modules,            "../test_data/soybean_simulation.rda",            soybean_ignore)
+  specify_crop("soybean",  soybean_initial_state,  soybean_parameters,  soybean_weather,  soybean_steadystate_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
 )
 
 # Run all the tests
