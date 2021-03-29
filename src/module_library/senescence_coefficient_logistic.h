@@ -6,7 +6,26 @@
 #include <cmath>
 
 /**
- * \brief
+ * @class senescence_coefficient_logistic
+ *
+ * @brief Calculates coefficients representing fraction of biomass senesced for each organ. Coefficents
+ * are represented as a logistic functions depending on development index.
+ *
+ * Intended to be used with any of the following modules:
+ * - senescence_logistic
+ *
+ * \f$ s_i = \frac{r_i}{1+\exp{(\alpha_i + \beta_i x)}} \f$
+ *
+ * Where \f$ s_i\f$ is the fraction of organ \f$ i = {Leaf, Stem, Root, Rhizome} \f$ that is senesced at
+ * a givent time, and \f$ x \f$ is the development index.
+ *
+ * See Matthews et al. for more description of how this module was used in Soybean-BioCro and for details
+ * on the parameter fitting to identify the \f$ \alpha \text{ and } \beta \f$ parameters.
+ *
+ * References
+ *
+ * Matthews, M.L. et al. in preparation. "Soybean-BioCro: A semi-mechanistic model of soybean growth"
+ *
  */
 
 double ksene(double rate, double alpha, double beta, double DVI);
@@ -97,9 +116,6 @@ string_vector senescence_coefficient_logistic::get_outputs() {
 }
 
 void senescence_coefficient_logistic::do_operation() const {
-    // Calculate coefficients representing fraction of biomass senesced for
-    // each organ. Coefficents are represented as a logistic function depending
-    // DVI
     
     double kSeneStem = ksene(rateSeneStem, alphaSeneStem, betaSeneStem, DVI);
     double kSeneLeaf = ksene(rateSeneLeaf, alphaSeneLeaf, betaSeneLeaf, DVI);
