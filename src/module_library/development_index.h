@@ -1,7 +1,8 @@
-#ifndef DEVELOPMENT_INDEX_h
-#define DEVELOPMENT_INDEX_h
+#ifndef DEVELOPMENT_INDEX_H
+#define DEVELOPMENT_INDEX_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * \brief This module calculates the development index (DVI) corresponding to plant growth (Osborne et al., 2015) given the development_rate_per_hour as an input.
@@ -32,51 +33,45 @@
 
 class development_index : public DerivModule
 {
-public: development_index( const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
-    
-    // Define basic module properties by passing its name to its parent class
-    DerivModule("development_index"),
+public: development_index(
+            const state_map* input_parameters,
+            state_map* output_parameters
+        )
+    : DerivModule("development_index"),
     
     // Get pointers to input parameters
-    development_rate_per_hour_ip(get_ip(input_parameters,"development_rate_per_hour")),
+    development_rate_per_hour(get_input(input_parameters, "development_rate_per_hour")),
     
     // Get pointers to output parameters
-    DVI_op(get_op(output_parameters,"DVI"))
-    {
-    }
+    DVI_op(get_op(output_parameters, "DVI"))
+    {}
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
     
 private:
-    // Pointers to input parameters
-    const double* development_rate_per_hour_ip;
+    // References to input parameters
+    const double& development_rate_per_hour;
     
     // Pointers to output parameters
     double* DVI_op;
     
     // Main operation
-    void do_operation() const;
+    void do_operation() const override final;
 };
 
-std::vector<std::string> development_index::get_inputs()
-{
+string_vector development_index::get_inputs() {
     return {
-        "development_rate_per_hour"
+        "development_rate_per_hour" // hour^-1
     };
 }
 
-std::vector<std::string> development_index::get_outputs()
-{
+string_vector development_index::get_outputs() {
     return {
-        "DVI"
+        "DVI" // dimensionless
     };
 }
 
-void development_index::do_operation() const
-{
-    // Collect inputs
-    const double development_rate_per_hour = *development_rate_per_hour_ip; // hr^-1; development rate per hour
-    
+void development_index::do_operation() const {
     // Update the output parameter list
     update(DVI_op, development_rate_per_hour); // dimensionless
 }
