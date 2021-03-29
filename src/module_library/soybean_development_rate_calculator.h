@@ -6,17 +6,39 @@
 #include <cmath>
 
 /**
- * \brief This module uses photothermal functions to determine the hourly development rate for soybean
- * growth.
+ * @class soybean_development_rate_calculator
+ *
+ * @brief Determines hourly soybean developments rate  using photothermal functions.
+ *
+ * This module is designed to be used with the development_index module
+ *
+ * This module calculates soybean growth rate using photothermal functions across 5 different stages.
+ *
+ * | Development index (DVI)                                    | Growth stages                                             |
+ * | :----------------------------------------------------: | :-----------------------------------------------: |
+ * | \f$-1\le\f$ DVI \f$ <0\f$                             | sowing \f$ \to\f$ VE (emergence)           |
+ * | \f$0\le\f$ DVI \f$ <\frac{1}{3}\f$                | VE \f$ \to\f$ V0 (cotyledon)                     |
+ * | \f$ \frac{1}{3}\le\f$ DVI \f$ <\frac{2}{3}\f$ | V0 \f$ \to\f$ R0 (end of floral indcution)  |
+ * | \f$ \frac{2}{3}\le\f$ DVI \f$ <1\f$               | R0 \f$ \to\f$ R1 (flowering)                      |
+ * | \f$1\le\f$ DVI                                                 | R1 \f$ \to\f$ R7 (maturity)                        |
+ *
+ * The growth rate (\f$ r \f$) is calculated using accumulated thermal time for the first stage from from
+ * sowing to VE. For the remaining stages after VE, \f$ r \f$ is calculated using a subset of the photothermal
+ * functions from the SOYDEV model: \f$r=R_{max}f_Tf_P\f$ (Setiyono et al. 2007).
+ *
+ * See Matthews et al. for a more detailed description of the functions used in this module.
  *
  * References:
- *  Setiyono, T.D. et al. 2007. “Understanding and Modeling the Effect of Temperature and Daylength on
- *  Soybean Phenology under High-Yield Conditions.” Field Crops Research 100(2–3): 257–71.
- *  https://doi.org/10.1016/j.fcr.2006.07.011
  *
- *  Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment
- *  Simulator.” Geoscientific Model Development 8(4): 1139–55.
- *  https://doi.org/10.5194/gmd-8-1139-2015
+ *  Matthews, M.L. et al. 2021. in preparation. "Soybean-BioCro: A semi-mechanistic model of soybean growth"
+ *
+ *  [Setiyono, T.D. et al. 2007. “Understanding and Modeling the Effect of Temperature and Daylength on
+ *  Soybean Phenology under High-Yield Conditions.” Field Crops Research 100(2–3): 257–71.]
+ *  (https://doi.org/10.1016/j.fcr.2006.07.011)
+ *
+ *  [Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment
+ *  Simulator.” Geoscientific Model Development 8(4): 1139–55.]
+ *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
 
 double photoFunc(double P, double Popt, double Pcrit);
