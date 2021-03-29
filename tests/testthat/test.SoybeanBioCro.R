@@ -244,10 +244,8 @@ update_stored_results <- function(test_info) {
 SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
-soybean_weather <- read.csv('../../data/soybean_weather2002.csv')
-
 plant_testing_info <- list(
-  specify_crop("soybean",  soybean_initial_state,  soybean_parameters,  soybean_weather,  soybean_steadystate_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
+  specify_crop("soybean",  soybean_initial_state,  soybean_parameters,  soybean_weather2002,  soybean_steadystate_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
 )
 
 # Run all the tests
