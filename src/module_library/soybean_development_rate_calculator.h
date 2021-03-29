@@ -79,7 +79,7 @@ public:
     static string_vector get_outputs();
     
     private:
-    // Pointers to input parameters
+    // References to input parameters
     const double& maturity_group;
     const double& DVI;
     const double& day_length;
