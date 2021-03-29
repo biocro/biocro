@@ -2,6 +2,7 @@
 #define PARTITIONING_GROWTH_NEG_ASSIM_PARTITIONED_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * @class partitioning_growth_neg_assim_partitioned
@@ -14,55 +15,56 @@
 class partitioning_growth_neg_assim_partitioned : public DerivModule
 {
    public:
-    partitioning_growth_neg_assim_partitioned(const std::unordered_map<std::string, double>* input_parameters,
-                        std::unordered_map<std::string, double>* output_parameters)
-        :  // Define basic module properties by passing its name to its parent class
-          DerivModule("partitioning_growth_neg_assim_partitioned"),
-          // Get pointers to input parameters
-          kLeaf_ip(get_ip(input_parameters, "kLeaf")),
-          kStem_ip(get_ip(input_parameters, "kStem")),
-          kRoot_ip(get_ip(input_parameters, "kRoot")),
-          kRhizome_ip(get_ip(input_parameters, "kRhizome")),
-          kGrain_ip(get_ip(input_parameters, "kGrain")),
-          canopy_assimilation_rate_ip(get_ip(input_parameters, "canopy_assimilation_rate")),
-          newLeafcol_ip(get_ip(input_parameters, "newLeafcol")),
-          newStemcol_ip(get_ip(input_parameters, "newStemcol")),
-          newRootcol_ip(get_ip(input_parameters, "newRootcol")),
-          newRhizomecol_ip(get_ip(input_parameters, "newRhizomecol")),
-          newGraincol_ip(get_ip(input_parameters, "newGraincol")),
-          Leaf_ip(get_ip(input_parameters, "Leaf")),
-          Stem_ip(get_ip(input_parameters, "Stem")),
-          Root_ip(get_ip(input_parameters, "Root")),
-          Rhizome_ip(get_ip(input_parameters, "Rhizome")),
-          // Get pointers to output parameters
-          Leaf_op(get_op(output_parameters, "Leaf")),
-          Stem_op(get_op(output_parameters, "Stem")),
-          Root_op(get_op(output_parameters, "Root")),
-          Rhizome_op(get_op(output_parameters, "Rhizome")),
-          Grain_op(get_op(output_parameters, "Grain")),
-          rhizome_senescence_index_op(get_op(output_parameters, "rhizome_senescence_index"))
+    partitioning_growth_neg_assim_partitioned(
+        const state_map* input_parameters,
+        state_map* output_parameters
+    )
+        :  DerivModule{"partitioning_growth_neg_assim_partitioned"},
+        // Get references to input parameters
+        kLeaf{get_input(input_parameters, "kLeaf")},
+        kStem{get_input(input_parameters, "kStem")},
+        kRoot{get_input(input_parameters, "kRoot")},
+        kRhizome{get_input(input_parameters, "kRhizome")},
+        kGrain{get_input(input_parameters, "kGrain")},
+        newLeafcol{get_input(input_parameters, "newLeafcol")},
+        newStemcol{get_input(input_parameters, "newStemcol")},
+        newRootcol{get_input(input_parameters, "newRootcol")},
+        newRhizomecol{get_input(input_parameters, "newRhizomecol")},
+        newGraincol{get_input(input_parameters, "newGraincol")},
+        Leaf{get_input(input_parameters, "Leaf")},
+        Stem{get_input(input_parameters, "Stem")},
+        Root{get_input(input_parameters, "Root")},
+        Rhizome{get_input(input_parameters, "Rhizome")},
+          
+        // Get pointers to output parameters
+        Leaf_op{get_op(output_parameters, "Leaf")},
+        Stem_op{get_op(output_parameters, "Stem")},
+        Root_op{get_op(output_parameters, "Root")},
+        Rhizome_op{get_op(output_parameters, "Rhizome")},
+        Grain_op{get_op(output_parameters, "Grain")},
+        rhizome_senescence_index_op{get_op(output_parameters, "rhizome_senescence_index")}
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
-    const double* kLeaf_ip;
-    const double* kStem_ip;
-    const double* kRoot_ip;
-    const double* kRhizome_ip;
-    const double* kGrain_ip;
-    const double* canopy_assimilation_rate_ip;
-    const double* newLeafcol_ip;
-    const double* newStemcol_ip;
-    const double* newRootcol_ip;
-    const double* newRhizomecol_ip;
-    const double* newGraincol_ip;
-    const double* Leaf_ip;
-    const double* Stem_ip;
-    const double* Root_ip;
-    const double* Rhizome_ip;
+    // References to input parameters
+    const double& kLeaf;
+    const double& kStem;
+    const double& kRoot;
+    const double& kRhizome;
+    const double& kGrain;
+    const double& newLeafcol;
+    const double& newStemcol;
+    const double& newRootcol;
+    const double& newRhizomecol;
+    const double& newGraincol;
+    const double& Leaf;
+    const double& Stem;
+    const double& Root;
+    const double& Rhizome;
+    
     // Pointers to output parameters
     double* Leaf_op;
     double* Stem_op;
@@ -70,62 +72,46 @@ class partitioning_growth_neg_assim_partitioned : public DerivModule
     double* Rhizome_op;
     double* Grain_op;
     double* rhizome_senescence_index_op;
-    // Main operation
-    void do_operation() const;
+    
+    // Implement the pure virtual function do_operation():
+    void do_operation() const override final;
 };
 
-std::vector<std::string> partitioning_growth_neg_assim_partitioned::get_inputs()
+string_vector partitioning_growth_neg_assim_partitioned::get_inputs()
 {
     return {
-        "kLeaf",
-        "kStem",
-        "kRoot",
-        "kRhizome",
-        "kGrain",
-        "canopy_assimilation_rate",
-        "newLeafcol",
-        "newStemcol",
-        "newRootcol",
-        "newRhizomecol",
-        "newGraincol",
-        "Leaf",
-        "Stem",
-        "Root",
-        "Rhizome"};
+        "kLeaf",           // dimensionless
+        "kStem",           // dimensionless
+        "kRoot",           // dimensionless
+        "kRhizome",        // dimensionless
+        "kGrain",          // dimensionless
+        "newLeafcol",      // Mg / ha / hour
+        "newStemcol",      // Mg / ha / hour
+        "newRootcol",      // Mg / ha / hour
+        "newRhizomecol",   // Mg / ha / hour
+        "newGraincol",     // Mg / ha / hour
+        "Leaf",            // Mg / ha
+        "Stem",            // Mg / ha
+        "Root",            // Mg / ha
+        "Rhizome"          // Mg / ha
+    };
 }
 
-std::vector<std::string> partitioning_growth_neg_assim_partitioned::get_outputs()
+string_vector partitioning_growth_neg_assim_partitioned::get_outputs()
 {
     return {
-        "Leaf",
-        "Stem",
-        "Root",
-        "Rhizome",
-        "Grain",
-        "rhizome_senescence_index"};
+        "Leaf",                    // Mg / ha
+        "Stem",                    // Mg / ha
+        "Root",                    // Mg / ha
+        "Rhizome",                 // Mg / ha
+        "Grain",                   // Mg / ha
+        "rhizome_senescence_index"
+    };
 }
 
 void partitioning_growth_neg_assim_partitioned::do_operation() const
 {
     // Collect inputs and make calculations
-
-    double kLeaf = *kLeaf_ip;
-    double kStem = *kStem_ip;
-    double kRoot = *kRoot_ip;
-    double kRhizome = *kRhizome_ip;
-    double kGrain = *kGrain_ip;
-    double canopy_assimilation_rate = *canopy_assimilation_rate_ip;
-
-    double newLeafcol = *newLeafcol_ip;
-    double newStemcol = *newStemcol_ip;
-    double newRootcol = *newRootcol_ip;
-    double newRhizomecol = *newRhizomecol_ip;
-    double newGraincol = *newGraincol_ip;
-
-    double Leaf = *Leaf_ip;
-    double Stem = *Stem_ip;
-    double Root = *Root_ip;
-    double Rhizome = *Rhizome_ip;
 
     double dLeaf = 0.0, dStem = 0.0, dRoot = 0.0, dRhizome = 0.0, dGrain = 0.0, drhizome_senescence_index = 0.0;
 
