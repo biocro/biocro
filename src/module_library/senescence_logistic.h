@@ -2,57 +2,79 @@
 #define SENESCENCE_LOGISTIC_H
 
 #include "../modules.h"
+#include "../state_map.h"
+
+/**
+ * @class senescence_logistic
+ *
+ * @brief Calculates the change in plant organ biomasses due to senescence.
+ *
+ * Intended to be used with any of the following modules:
+ * - senescence_coefficient_logistic
+ *
+ * The amount that each plant component is senesced is determined as a percentage (kSeneLeaf, kSeneStem,
+ * kSeneRoot, kSeneRhizome) of its current biomass. Remobilization of senesced leaf tissue is also included
+ * based on the partioning growth parameters.
+ *
+ */
+
 
 class senescence_logistic : public DerivModule {
 	public:
-		senescence_logistic(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
-			// Define basic module properties by passing its name to its parent class
-            DerivModule("senescence_logistic"),
-			// Get pointers to input parameters
-            Leaf_ip(get_ip(input_parameters, "Leaf")),
-            Stem_ip(get_ip(input_parameters, "Stem")),
-            Root_ip(get_ip(input_parameters, "Root")),
-            Rhizome_ip(get_ip(input_parameters, "Rhizome")),
-			kSeneLeaf_ip(get_ip(input_parameters, "kSeneLeaf")),
-			kSeneStem_ip(get_ip(input_parameters, "kSeneStem")),
-			kSeneRoot_ip(get_ip(input_parameters, "kSeneRoot")),
-			kSeneRhizome_ip(get_ip(input_parameters, "kSeneRhizome")),
-            kLeaf_ip(get_ip(input_parameters, "kLeaf")),
-			kStem_ip(get_ip(input_parameters, "kStem")),
-			kRoot_ip(get_ip(input_parameters, "kRoot")),
-			kRhizome_ip(get_ip(input_parameters, "kRhizome")),
-			kGrain_ip(get_ip(input_parameters, "kGrain")),
-            remobilization_fraction_ip(get_ip(input_parameters, "remobilization_fraction")),
-			// Get pointers to output parameters
-			Leaf_op(get_op(output_parameters, "Leaf")),
-			LeafLitter_op(get_op(output_parameters, "LeafLitter")),
-			Stem_op(get_op(output_parameters, "Stem")),
-			StemLitter_op(get_op(output_parameters, "StemLitter")),
-			Root_op(get_op(output_parameters, "Root")),
-			RootLitter_op(get_op(output_parameters, "RootLitter")),
-			Rhizome_op(get_op(output_parameters, "Rhizome")),
-			RhizomeLitter_op(get_op(output_parameters, "RhizomeLitter")),
-			Grain_op(get_op(output_parameters, "Grain"))
+		senescence_logistic(
+            const state_map* input_parameters,
+            state_map* output_parameters
+        )
+            : DerivModule{"senescence_logistic"},
+			
+            // Get references to input parameters
+            Leaf{get_input(input_parameters, "Leaf")},
+            Stem{get_input(input_parameters, "Stem")},
+            Root{get_input(input_parameters, "Root")},
+            Rhizome{get_input(input_parameters, "Rhizome")},
+			kSeneLeaf{get_input(input_parameters, "kSeneLeaf")},
+			kSeneStem{get_input(input_parameters, "kSeneStem")},
+			kSeneRoot{get_input(input_parameters, "kSeneRoot")},
+			kSeneRhizome{get_input(input_parameters, "kSeneRhizome")},
+            kLeaf{get_input(input_parameters, "kLeaf")},
+			kStem{get_input(input_parameters, "kStem")},
+			kRoot{get_input(input_parameters, "kRoot")},
+			kRhizome{get_input(input_parameters, "kRhizome")},
+			kGrain{get_input(input_parameters, "kGrain")},
+            remobilization_fraction{get_input(input_parameters, "remobilization_fraction")},
+			
+            // Get pointers to output parameters
+			Leaf_op{get_op(output_parameters, "Leaf")},
+			LeafLitter_op{get_op(output_parameters, "LeafLitter")},
+			Stem_op{get_op(output_parameters, "Stem")},
+			StemLitter_op{get_op(output_parameters, "StemLitter")},
+			Root_op{get_op(output_parameters, "Root")},
+			RootLitter_op{get_op(output_parameters, "RootLitter")},
+			Rhizome_op{get_op(output_parameters, "Rhizome")},
+			RhizomeLitter_op{get_op(output_parameters, "RhizomeLitter")},
+			Grain_op{get_op(output_parameters, "Grain")}
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
+    
 	private:
-		// Pointers to input parameters
-        const double* Leaf_ip;
-        const double* Stem_ip;
-        const double* Root_ip;
-        const double* Rhizome_ip;
-		const double* kSeneLeaf_ip;
-		const double* kSeneStem_ip;
-		const double* kSeneRoot_ip;
-		const double* kSeneRhizome_ip;
-        const double* kLeaf_ip;
-		const double* kStem_ip;
-		const double* kRoot_ip;
-		const double* kRhizome_ip;
-		const double* kGrain_ip;
-        const double* remobilization_fraction_ip;
-		// Pointers to output parameters
+		// References to input parameters
+        const double& Leaf;
+        const double& Stem;
+        const double& Root;
+        const double& Rhizome;
+		const double& kSeneLeaf;
+		const double& kSeneStem;
+		const double& kSeneRoot;
+		const double& kSeneRhizome;
+        const double& kLeaf;
+		const double& kStem;
+		const double& kRoot;
+		const double& kRhizome;
+		const double& kGrain;
+        const double& remobilization_fraction;
+		
+        // Pointers to output parameters
 		double* Leaf_op;
 		double* LeafLitter_op;
 		double* Stem_op;
@@ -62,80 +84,99 @@ class senescence_logistic : public DerivModule {
 		double* Rhizome_op;
 		double* RhizomeLitter_op;
 		double* Grain_op;
-		// Main operation
-		void do_operation() const;
+		
+        // Implement the pure virtual function do_operation():
+		void do_operation() const override final;
 };
 
-std::vector<std::string> senescence_logistic::get_inputs() {
+string_vector senescence_logistic::get_inputs() {
 	return {
-		"Leaf", "Stem", "Root", "Rhizome",
-        "kSeneLeaf", "kSeneStem", "kSeneRoot", "kSeneRhizome",
-		"kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-        "remobilization_fraction"
+		"Leaf",                    // Mg / ha
+        "Stem",                    // Mg / ha
+        "Root",                    // Mg / ha
+        "Rhizome",                 // Mg / ha
+        "kSeneLeaf",               // dimensionless, fraction of Leaf senesced
+        "kSeneStem",               // dimensionless, fraction of Stem senesced
+        "kSeneRoot",               // dimensionless, fraction of Root senesced
+        "kSeneRhizome",            // dimensionless, fraction of Rhizome senesced
+		"kLeaf",                   // dimensionless, fraction carbon allocated to
+                                   // Leaf
+        "kStem",                   // dimensionless, fraction carbon allocated to
+                                   // Stem
+        "kRoot",                   // dimensionless, fraction carbon allocated to
+                                   // Root
+        "kRhizome",                // dimensionless, fraction carbon allocated to
+                                   // Rhizome
+        "kGrain",                  // dimensionless, fraction carbon allocated to
+                                   // Grain
+        "remobilization_fraction"  // dimensionless, fraction of senesced leaf
+                                   // tissue remobilized to other plant organs
 	};
 }
 
-std::vector<std::string> senescence_logistic::get_outputs() {
+string_vector senescence_logistic::get_outputs() {
 	return {
-		"Leaf", "LeafLitter","Stem", "StemLitter",
-		"Root", "RootLitter", "Rhizome", "RhizomeLitter", "Grain"
+		"Leaf",           // Mg / ha
+        "LeafLitter",     // Mg / ha
+        "Stem",           // Mg / ha
+        "StemLitter",     // Mg / ha
+		"Root",           // Mg / ha
+        "RootLitter",     // Mg / ha
+        "Rhizome",        // Mg / ha
+        "RhizomeLitter",  // Mg / ha
+        "Grain"           // Mg / ha
 	};
 }
 
 void senescence_logistic::do_operation() const {
-    // This module calculates the change in plant component biomasses due to senescence.  The amount that each plant component is senesced is determined as a percentage (kSeneLeaf, kSeneStem, kSeneRoot, kSeneRhizome) of its current biomass. Remobilization of senesced leaf tissue is also included based on the partioning growth parameters. A seperate module (e.g., senescence_coefficient_logistic) is needed to solve for the senescence parameters (i.e., kSeneLeaf, etc.) or these parameters need to be passed in the inital BioCro call.
-	
-	// Collect inputs and make calculations
-    
-    double Leaf = *Leaf_ip; //Current leaf biomass, Mg/ha
-    double Stem = *Stem_ip; // current stem biomass, Mg/ha
-    double Root = *Root_ip; // current root biomass, Mg/ha
-    double Rhizome = *Rhizome_ip; // current rhizome biomass, Mg/ha
-	
-	double kSeneLeaf = *kSeneLeaf_ip; // percentage of biomass senesced, dimensionless
-	double kSeneStem = *kSeneStem_ip; // percentage of biomass senesced, dimensionless
-	double kSeneRoot = *kSeneRoot_ip; // percentage of biomass senesced, dimensionless
-	double kSeneRhizome = *kSeneRhizome_ip; // percentage of biomass senesced, dimensionless
-	
-    double kLeaf = *kLeaf_ip; // partitioning growth coefficient, dimensionless
-    double kStem = *kStem_ip; // partitioning growth coefficient, dimensionless
-	double kRoot = *kRoot_ip; // partitioning growth coefficient, dimensionless
-	double kRhizome = *kRhizome_ip; // partitioning growth coefficient, dimensionless
-	double kGrain = *kGrain_ip; // partitioning growth coefficient, dimensionless
-    
-    double remobilization_fraction = *remobilization_fraction_ip; // fraction of lost leaf tissue that is remobilized to other parts of the plant. Remainder goes to the litter
-	
-    
-    double senescence_leaf = kSeneLeaf * Leaf; // Amount of leaf senesced, Mg/ha
-    double senescence_stem = kSeneStem * Stem; // Amount of stem senesced, Mg/ha
-    double senescence_root = kSeneRoot * Root; // Amount of root senesced, Mg/ha
-    double senescence_rhizome = kSeneRhizome * Rhizome; // Amount of rhizome senesced, Mg/ha
-    
-    double dLeaf = -senescence_leaf + kLeaf * senescence_leaf * remobilization_fraction; //change in leaf biomass = minus amount senesced + new leaf tissue from remobilized amount (Allows for leaves to start senescing while new leaves are still being produced), Mg/ha
-    double dLeafLitter = senescence_leaf * (1 - remobilization_fraction); // Change in amount of biomass in leaf litter, Mg/ha
-    
-    double dStem = -senescence_stem + kStem * senescence_leaf * remobilization_fraction; // change in stem biomass = minus amount senesced + new stem tissue from remobilized leaf fraction, Mg/ha
-    double dStemLitter = senescence_stem; // Amount of stem senesced in this time step, Mg/ha
-    
-    double dRoot = -senescence_root + kRoot * senescence_leaf * remobilization_fraction; //change in root biomass = minus amount senesced + new root tissue from remobilized leaf fraction, Mg/ha
-    double dRootLitter = senescence_root; // Amount of root senesced in this time step, Mg/ha
-    
-    double dRhizome = -senescence_rhizome + kRhizome * senescence_leaf * remobilization_fraction; // change in rhizome biomass = minus amount senesced + new rhizome from remobilized leaf fraction, Mg/ha
-    double dRhizomeLitter = senescence_rhizome; // amount of rhizome tissue senesced in this time step, Mg/ha
 
-    double dGrain = kGrain * senescence_leaf * remobilization_fraction; // change in grain biomass = new grain from remobilized leaf fraction, Mg/ha. Currently do not include grain senescence.
+    double senescence_leaf = kSeneLeaf * Leaf; // Mg / ha, amount of leaf senesced
+    double senescence_stem = kSeneStem * Stem; // Mg / ha, amount of stem senesced
+    double senescence_root = kSeneRoot * Root; // Mg / ha, amount of root senesced
+    double senescence_rhizome = kSeneRhizome * Rhizome; // Mg / ha, amount of
+                                                        // rhizome senesced
     
-    update(Leaf_op, dLeaf); // Mg/ha
-    update(Stem_op, dStem); // Mg/ha
-    update(Root_op, dRoot); // Mg/ha
-    update(Rhizome_op, dRhizome); // Mg/ha
-    update(Grain_op, dGrain); // Mg/ha
+    double dLeaf = -senescence_leaf + kLeaf * senescence_leaf * remobilization_fraction; // Mg / ha, change in leaf biomass = minus amount
+                                 // senesced + new leaf tissue from remobilized
+                                 // amount (Allows for leaves to start senescing
+                                 // while new leaves are still being produced)
+    double dLeafLitter = senescence_leaf * (1 - remobilization_fraction); // Mg / ha, change in amount of biomass in leaf litter
     
-    update(LeafLitter_op, dLeafLitter); // Mg/ha
-    update(StemLitter_op, dStemLitter); // Mg/ha
-    update(RootLitter_op, dRootLitter); // Mg/ha
-    update(RhizomeLitter_op, dRhizomeLitter); // Mg/ha
+    double dStem = -senescence_stem + kStem * senescence_leaf * remobilization_fraction; // Mg / ha, change in stem biomass = minus amount
+                                 // senesced + new stem tissue from remobilized
+                                 // leaf fraction
+    double dStemLitter = senescence_stem; // Mg / ha, amount of stem senesced in
+                                          // this time step
+    
+    double dRoot = -senescence_root + kRoot * senescence_leaf * remobilization_fraction; // Mg / ha, change in root biomass = minus amount
+                                 // senesced + new root tissue from remobilized
+                                 // leaf fraction
+    double dRootLitter = senescence_root; // Mg / ha, amount of root senesced in
+                                          // this time step, Mg/ha
+    
+    double dRhizome = -senescence_rhizome + kRhizome * senescence_leaf * remobilization_fraction; // Mg / ha, change in rhizome biomass = minus
+                                 // amount senesced + new rhizome from remobilized
+                                 // leaf fraction
+    double dRhizomeLitter = senescence_rhizome; // Mg / ha, amount of rhizome
+                                                // tissue senesced in this time
+                                                // step
+
+    double dGrain = kGrain * senescence_leaf *
+        remobilization_fraction; // Mg / ha, change in grain biomass = new grain
+                                 // from remobilized leaf fraction. Currently do
+                                 // not include grain senescence.
+    
+    update(Leaf_op, dLeaf); // Mg / ha
+    update(Stem_op, dStem); // Mg / ha
+    update(Root_op, dRoot); // Mg / ha
+    update(Rhizome_op, dRhizome); // Mg / ha
+    update(Grain_op, dGrain); // Mg / ha
+    update(LeafLitter_op, dLeafLitter); // Mg / ha
+    update(StemLitter_op, dStemLitter); // Mg / ha
+    update(RootLitter_op, dRootLitter); // Mg / ha
+    update(RhizomeLitter_op, dRhizomeLitter); // Mg / ha
     
 }
 
 #endif
+
