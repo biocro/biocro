@@ -1,23 +1,23 @@
-#ifndef PARTITIONING_GROWTH_NEGATIVE_ASSIMILATION_PARTITIONED_H
-#define PARTITIONING_GROWTH_NEGATIVE_ASSIMILATION_PARTITIONED_H
+#ifndef PARTITIONING_GROWTH_NEG_ASSIM_PARTITIONED_H
+#define PARTITIONING_GROWTH_NEG_ASSIM_PARTITIONED_H
 
 #include "../modules.h"
 
 /**
- * @class partitioning_growth_negative_assimilation_partitioned
+ * @class partitioning_growth_neg_assim_partitioned
  *
  * @brief This module determines tissue mass derivatives based on the output of
- * either 'partitioning_growth_negative_assimilation_partitioned_calculator' or 'no_leaf_resp_partitioning_growth_negative_assimilation_partitioned_calculator'.
+ * either 'partitioning_growth_neg_assim_partitioned_calculator' or 'no_leaf_resp_neg_assim_partitioning_growth_calculator'.
  * While this module will function using an adaptive step size integrator, some aspects of
  * it may not work as intended (e.g. the check for negative rhizome mass).
  */
-class partitioning_growth_negative_assimilation_partitioned : public DerivModule
+class partitioning_growth_neg_assim_partitioned : public DerivModule
 {
    public:
-    partitioning_growth_negative_assimilation_partitioned(const std::unordered_map<std::string, double>* input_parameters,
+    partitioning_growth_neg_assim_partitioned(const std::unordered_map<std::string, double>* input_parameters,
                         std::unordered_map<std::string, double>* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
-          DerivModule("partitioning_growth_negative_assimilation_partitioned"),
+          DerivModule("partitioning_growth_neg_assim_partitioned"),
           // Get pointers to input parameters
           kLeaf_ip(get_ip(input_parameters, "kLeaf")),
           kStem_ip(get_ip(input_parameters, "kStem")),
@@ -74,7 +74,7 @@ class partitioning_growth_negative_assimilation_partitioned : public DerivModule
     void do_operation() const;
 };
 
-std::vector<std::string> partitioning_growth_negative_assimilation_partitioned::get_inputs()
+std::vector<std::string> partitioning_growth_neg_assim_partitioned::get_inputs()
 {
     return {
         "kLeaf",
@@ -94,7 +94,7 @@ std::vector<std::string> partitioning_growth_negative_assimilation_partitioned::
         "Rhizome"};
 }
 
-std::vector<std::string> partitioning_growth_negative_assimilation_partitioned::get_outputs()
+std::vector<std::string> partitioning_growth_neg_assim_partitioned::get_outputs()
 {
     return {
         "Leaf",
@@ -105,7 +105,7 @@ std::vector<std::string> partitioning_growth_negative_assimilation_partitioned::
         "rhizome_senescence_index"};
 }
 
-void partitioning_growth_negative_assimilation_partitioned::do_operation() const
+void partitioning_growth_neg_assim_partitioned::do_operation() const
 {
     // Collect inputs and make calculations
 
