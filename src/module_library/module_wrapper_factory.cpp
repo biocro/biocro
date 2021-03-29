@@ -97,7 +97,6 @@
 #include "partitioning_coefficient_logistic.h"
 #include "senescence_coefficient_logistic.h"
 #include "senescence_logistic.h"
-#include "thermal_time_senescence_logistic_seed.hpp"
 #include "development_index.h"
 #include "soybean_development_rate_calculator.h"
 #include "thermal_time_development_rate_calculator.h"
@@ -216,7 +215,6 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"partitioning_coefficient_logistic",               &create_wrapper<partitioning_coefficient_logistic>},
      {"senescence_coefficient_logistic",                 &create_wrapper<senescence_coefficient_logistic>},
      {"senescence_logistic",                             &create_wrapper<senescence_logistic>},
-     {"thermal_time_senescence_logistic_seed",           &create_wrapper<thermal_time_senescence_logistic_seed>},
      {"development_index",                               &create_wrapper<development_index>},
      {"soybean_development_rate_calculator",             &create_wrapper<soybean_development_rate_calculator>},
      {"thermal_time_development_rate_calculator",        &create_wrapper<thermal_time_development_rate_calculator>},
