@@ -7,9 +7,38 @@
 #include <cmath>
 
 /**
- * \brief
+ * @class partitioning_coefficient_logistic
+ *
+ * @brief Calculates carbon partitioning coefficients based on logistic based functions and development
+ * index using the logistic based functions from Osborne et al. 2015.
+ *
+ * Intended to be used with any of the following modules:
+ * - no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned
+ * - no_leaf_resp_partitioning_growth_calculator
+ * - partitioning_growth_calculator
+ *
+ * Using the following function, calculates the percentage of carbon allocated to the root, stem, leaf, and grain
+ * at a given development index.
+ *
+ * \f$ k_i = \frac{\exp{(\alpha_i+\beta_i x)}}  {\exp{(\alpha_R+\beta_R x)} + \exp{(\alpha_L+\beta_L x)}
+ *  + \exp{(\alpha_S+\beta_S x)} + 1} \f$
+ *
+ * where \f$ i = {R, L, S} \f$ for root, leaf, and stem respectively, and \f$ x \f$ is the development index.
+ *   For the grain,
+ *
+ * \f$ k_G = \frac{1}{\exp{(\alpha_R+\beta_R x)} + \exp{(\alpha_L+\beta_L x)}
+ * + \exp{(\alpha_S+\beta_S x)} + 1} \f$
+ *
+ * See Matthews et al. for more description of how this module was used in Soybean-BioCro and for details
+ * on the parameter fitting to identify the \f$ \alpha \text{ and } \beta \f$ parameters.
+ *
  * References:
- * Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55. https://doi.org/10.5194/gmd-8-1139-2015
+ *
+ * Matthews, M.L. et al. 2021. in preparation. "Soybean-BioCro: A semi-mechanistic model of soybean growth"
+ *
+ * [Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment
+ * Simulator.” Geoscientific Model Development 8(4): 1139–55.]
+ * (https://doi.org/10.5194/gmd-8-1139-2015)
  */
 
 double kcoeff(double alpha, double beta, double DVI, double denom);
