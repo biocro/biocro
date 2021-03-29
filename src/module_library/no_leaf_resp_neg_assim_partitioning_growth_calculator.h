@@ -9,14 +9,11 @@
  *
  * @brief Records new tissue derived from assimilation. This module is mostly the same as the
  * partitioning_growth_module except that leaf respiration is treated differently. CanopyA already
- * includes losses from leaf respiration, so it should only be removed from leaf mass.
+ * includes losses from leaf respiration.
  *
- * NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
- * record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
- * Since it's not recorded, that part will never senesce.
- * Also, the partitioning coefficiencts (kLeaf, kRoot, etc.) must be set to 0 for a long enough time
- * at the end of the season for all of the tissue to senesce.
- * This doesn't seem like a good approach.
+ * NOTE: This approach records new tissue derived from assimilation in the new*col arrays, but these variables
+ * don't include new tissue derived from reallocation from other tissues.
+ *
  */
 class no_leaf_resp_neg_assim_partitioning_growth_calculator : public SteadyModule
 {
@@ -75,25 +72,27 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public SteadyModul
 string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_inputs()
 {
     return {
-        "kLeaf",
-        "kStem",
-        "kRoot",
-        "kRhizome",
-        "kGrain",
-        "canopy_assimilation_rate",
-        "mrc1",
-        "mrc2",
-        "temp"};
+        "kLeaf",                    // dimensionless
+        "kStem",                    // dimensionless
+        "kRoot",                    // dimensionless
+        "kRhizome",                 // dimensionless
+        "kGrain",                   // dimensionless
+        "canopy_assimilation_rate", // Mg / ha / hour
+        "mrc1",                     // hour^-1
+        "mrc2",                     // hour^-1
+        "temp"                      // degrees C
+    };
 }
 
 string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_outputs()
 {
     return {
-        "newLeafcol",
-        "newStemcol",
-        "newRootcol",
-        "newRhizomecol",
-        "newGraincol"};
+        "newLeafcol",     // Mg / ha / hour
+        "newStemcol",     // Mg / ha / hour
+        "newRootcol",     // Mg / ha / hour
+        "newRhizomecol",  // Mg / ha / hour
+        "newGraincol"     // Mg / ha / hour
+    };
 }
 
 void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
