@@ -39,7 +39,7 @@ SOLVER <- list(
 
 # Define a function that checks the result of a new simulation against the
 # stored data for one plant. For this test, we always use the the stored
-# environmental data `get_growing_season_climate(weather05)`
+# environmental data 'data/soybean_weather2002.csv'
 test_plant_model <- function(test_info) {
   
   description <- paste(
@@ -244,12 +244,8 @@ update_stored_results <- function(test_info) {
 SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
-# RELOCATE THESE FILES AND REMOVE HARDCODED FILEPATHS BEFORE MERGING TO MASTER #
-source('mlm_soybean_paramfiles/soybean_initial_state.R')
-source('mlm_soybean_paramfiles/soybean_parameters.R')
-source('mlm_soybean_paramfiles/soybean_modules.R')
-soybean_weather <- read.csv('mlm_soybean_paramfiles/soybean_weather2002.csv')
-# 
+soybean_weather <- read.csv('../../data/soybean_weather2002.csv')
+
 plant_testing_info <- list(
   specify_crop("soybean",  soybean_initial_state,  soybean_parameters,  soybean_weather,  soybean_steadystate_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
 )
