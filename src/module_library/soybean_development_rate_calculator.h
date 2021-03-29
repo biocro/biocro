@@ -192,8 +192,7 @@ void soybean_development_rate_calculator::do_operation() const {
     double development_rate_per_hour = soybean_development_rate / 24.0; // hr^-1
     
     // Update the output parameter list
-    update(development_rate_per_hour_op, (development_rate_per_hour > eps) ?
-           development_rate_per_hour : 0);
+    update(development_rate_per_hour_op, development_rate_per_hour);
 }
 
 double tempFunc(double T, double Tmin, double Topt, double Tmax) {

@@ -85,6 +85,7 @@ void thermal_time_development_rate_calculator::do_operation() const
     // Calculate the development_rate
     double development_rate; // day^-1
     double temp_diff = temp - tbase; // degrees C
+    temp_diff = (temp_diff > 0) ? temp_diff : 0; // if temp < tbase, temp_diff = 0
     
     if (DVI >= -1 && DVI < 0) {
         // 1. Sowing to emergence
@@ -108,7 +109,7 @@ void thermal_time_development_rate_calculator::do_operation() const
     double development_rate_per_hour = development_rate / 24.0; // hr^-1
     
     // Update the output parameter list
-    update(development_rate_per_hour_op, (development_rate_per_hour > eps) ? development_rate_per_hour : 0);
+    update(development_rate_per_hour_op, development_rate_per_hour);
 }
 
 #endif
