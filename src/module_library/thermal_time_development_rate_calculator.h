@@ -34,7 +34,6 @@
  *  Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
-
 class thermal_time_development_rate_calculator : public SteadyModule
 {
 public:
@@ -43,7 +42,7 @@ public:
         state_map* output_parameters
     )
     : SteadyModule{"thermal_time_development_rate_calculator"},
-    
+
     // Get pointers to input parameters
     DVI{get_input(input_parameters,"DVI")},
     temp{get_input(input_parameters,"temp")},
@@ -51,14 +50,14 @@ public:
     TTemr{get_input(input_parameters,"TTemr")},
     TTveg{get_input(input_parameters, "TTveg")},
     TTrep{get_input(input_parameters, "TTrep")},
-    
+
     // Get pointers to output parameters
     development_rate_per_hour_op{get_op(output_parameters,"development_rate_per_hour")}
-    
+
     {}
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    
+
     private:
     // Pointers to input parameters
     const double& DVI;
@@ -67,13 +66,13 @@ public:
     const double& TTemr;
     const double& TTveg;
     const double& TTrep;
-    
+
     // Pointers to output parameters
     double* development_rate_per_hour_op;
-    
+
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
-    
+
 };
 
 string_vector thermal_time_development_rate_calculator::get_inputs()
@@ -97,35 +96,33 @@ string_vector thermal_time_development_rate_calculator::get_outputs()
 
 
 void thermal_time_development_rate_calculator::do_operation() const {
-    
+
     // Calculate the development_rate
     double development_rate; // day^-1
     double temp_diff = temp - tbase; // degrees C
     temp_diff = (temp_diff > 0) ? temp_diff : 0; // if temp < tbase, temp_diff = 0
-    
+
     if (DVI >= -1 && DVI < 0) {
         // 1. Sowing to emergence
         development_rate = temp_diff / TTemr; // day^-1
-        
+
     } else if (DVI >= 0 && DVI < 1) {
         // 2. Vegetative stages
         development_rate = temp_diff / TTveg; // day^-1
-        
+
     } else if (DVI >= 1) {
         // 3. Reproductive Stages
         development_rate = temp_diff / TTrep; // day^-1
-        
+
     } else {
         // this should never occur, but prevents warning messages when compiling biocro
         development_rate = 0;
     }
-    
+
     double development_rate_per_hour = development_rate / 24.0; // hour^-1
-    
+
     // Update the output parameter list
     update(development_rate_per_hour_op, development_rate_per_hour);
 }
 
 #endif
-
-

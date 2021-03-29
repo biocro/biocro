@@ -5,6 +5,9 @@
 #include "../state_map.h"
 #include <cmath>
 
+double photoFunc(double P, double Popt, double Pcrit);
+double tempFunc(double T, double Tmin, double Topt, double Tmax);
+
 /**
  * @class soybean_development_rate_calculator
  *
@@ -40,45 +43,41 @@
  *  Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
-
-double photoFunc(double P, double Popt, double Pcrit);
-double tempFunc(double T, double Tmin, double Topt, double Tmax);
-
 class soybean_development_rate_calculator : public SteadyModule
 {
-public:
+   public:
     soybean_development_rate_calculator(
         const state_map* input_parameters,
-        state_map* output_parameters
-    )
-    // Define basic module properties by passing its name to its parent class
-    : SteadyModule{"soybean_development_rate_calculator"},
-    
-    // Get references to input parameters
-    maturity_group{get_input(input_parameters, "maturity_group")},
-    DVI{get_input(input_parameters, "DVI")},
-    day_length{get_input(input_parameters, "day_length")},
-    temp{get_input(input_parameters, "temp")},
-    Tbase_emr{get_input(input_parameters, "Tbase_emr")},
-    TTemr_threshold{get_input(input_parameters, "TTemr_threshold")},
-    Rmax_emrV0{get_input(input_parameters, "Rmax_emrV0")},
-    Tmin_emrV0{get_input(input_parameters, "Tmin_emrV0")},
-    Topt_emrV0{get_input(input_parameters, "Topt_emrV0")},
-    Tmax_emrV0{get_input(input_parameters, "Tmax_emrV0")},
-    Tmin_R0R1{get_input(input_parameters, "Tmin_R0R1")},
-    Topt_R0R1{get_input(input_parameters, "Topt_R0R1")},
-    Tmax_R0R1{get_input(input_parameters, "Tmax_R0R1")},
-    Tmin_R1R7{get_input(input_parameters, "Tmin_R1R7")},
-    Topt_R1R7{get_input(input_parameters, "Topt_R1R7")},
-    Tmax_R1R7{get_input(input_parameters, "Tmax_R1R7")},
-    
-    // Get pointers to output parameters
-    development_rate_per_hour_op{get_op(output_parameters, "development_rate_per_hour")}
-    {}
+        state_map* output_parameters)
+        // Define basic module properties by passing its name to its parent class
+        : SteadyModule{"soybean_development_rate_calculator"},
+
+          // Get references to input parameters
+          maturity_group{get_input(input_parameters, "maturity_group")},
+          DVI{get_input(input_parameters, "DVI")},
+          day_length{get_input(input_parameters, "day_length")},
+          temp{get_input(input_parameters, "temp")},
+          Tbase_emr{get_input(input_parameters, "Tbase_emr")},
+          TTemr_threshold{get_input(input_parameters, "TTemr_threshold")},
+          Rmax_emrV0{get_input(input_parameters, "Rmax_emrV0")},
+          Tmin_emrV0{get_input(input_parameters, "Tmin_emrV0")},
+          Topt_emrV0{get_input(input_parameters, "Topt_emrV0")},
+          Tmax_emrV0{get_input(input_parameters, "Tmax_emrV0")},
+          Tmin_R0R1{get_input(input_parameters, "Tmin_R0R1")},
+          Topt_R0R1{get_input(input_parameters, "Topt_R0R1")},
+          Tmax_R0R1{get_input(input_parameters, "Tmax_R0R1")},
+          Tmin_R1R7{get_input(input_parameters, "Tmin_R1R7")},
+          Topt_R1R7{get_input(input_parameters, "Topt_R1R7")},
+          Tmax_R1R7{get_input(input_parameters, "Tmax_R1R7")},
+
+          // Get pointers to output parameters
+          development_rate_per_hour_op{get_op(output_parameters, "development_rate_per_hour")}
+    {
+    }
     static string_vector get_inputs();
     static string_vector get_outputs();
-    
-    private:
+
+   private:
     // References to input parameters
     const double& maturity_group;
     const double& DVI;
@@ -96,58 +95,60 @@ public:
     const double& Tmin_R1R7;
     const double& Topt_R1R7;
     const double& Tmax_R1R7;
-    
+
     // Pointers to output parameters
     double* development_rate_per_hour_op;
-    
+
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
-    
 };
 
-string_vector soybean_development_rate_calculator::get_inputs() {
+string_vector soybean_development_rate_calculator::get_inputs()
+{
     return {
-        "maturity_group",  // dimensionless; maturity group of soybean cultivar
-        "DVI",             // dimensionless; development index, see Osborne et al. 2015
-        "day_length",      // hours
-        "temp",            // degrees C
-        "Tbase_emr",       // degrees C; base temp for thermal time from sowing to emergence
-        "TTemr_threshold", // degrees C * days; accumulated thermal time for emergence
-        "Rmax_emrV0",      // day^-1
-        "Tmin_emrV0",      // degrees C
-        "Topt_emrV0",      // degrees C
-        "Tmax_emrV0",      // degrees C
-        "Tmin_R0R1",       // degrees C
-        "Topt_R0R1",       // degrees C
-        "Tmax_R0R1",       // degrees C
-        "Tmin_R1R7",       // degrees C
-        "Topt_R1R7",       // degrees C
-        "Tmax_R1R7",       // degrees C
+        "maturity_group",   // dimensionless; maturity group of soybean cultivar
+        "DVI",              // dimensionless; development index, see Osborne et al. 2015
+        "day_length",       // hours
+        "temp",             // degrees C
+        "Tbase_emr",        // degrees C; base temp for thermal time from sowing to emergence
+        "TTemr_threshold",  // degrees C * days; accumulated thermal time for emergence
+        "Rmax_emrV0",       // day^-1
+        "Tmin_emrV0",       // degrees C
+        "Topt_emrV0",       // degrees C
+        "Tmax_emrV0",       // degrees C
+        "Tmin_R0R1",        // degrees C
+        "Topt_R0R1",        // degrees C
+        "Tmax_R0R1",        // degrees C
+        "Tmin_R1R7",        // degrees C
+        "Topt_R1R7",        // degrees C
+        "Tmax_R1R7",        // degrees C
     };
 }
 
-string_vector soybean_development_rate_calculator::get_outputs() {
+string_vector soybean_development_rate_calculator::get_outputs()
+{
     return {
-        "development_rate_per_hour" // hour^-1
+        "development_rate_per_hour"  // hour^-1
     };
 }
 
-void soybean_development_rate_calculator::do_operation() const {
+void soybean_development_rate_calculator::do_operation() const
+{
     double soybean_development_rate; // day^-1
-    
+
     if (DVI >= -1 && DVI < 0) { // 1. Sowing to emergence
-        
+
         double temp_diff = temp - Tbase_emr; // degrees C
         soybean_development_rate = temp_diff / TTemr_threshold; // day^-1
-        
+
     } else if (DVI >= 0 && DVI < 1) {
         // 2. Vegetative stages: Emergence to R1 (flowering)
-        
+
         if (DVI < 0.333) {
             // 2a. Emergence - V0 (cotyledon stage); r = Rmax * f(T)
             soybean_development_rate = Rmax_emrV0 * tempFunc(temp,
                 Tmin_emrV0, Topt_emrV0, Tmax_emrV0) / 3.0; // day^-1
-            
+
         } else if (DVI >= 0.333 && DVI < 0.667) {
             // 2b. V0 (cotyledon) - R0 (end of floral induction); r = Rmax * f(P)
             const double Rmax_V0R0 = 0.0294 + 0.1561 / maturity_group; // day^-1;
@@ -178,63 +179,61 @@ void soybean_development_rate_calculator::do_operation() const {
             // Setiyono et al., 2007, Fig 12c
         const double Pcrit_R1R7 = 16.1257 + 4.3143 / maturity_group; // hrs;
             // Setiyono et al., 2007, Fig 12c
-        
+
         soybean_development_rate = Rmax_R1R7 *
             tempFunc(temp, Tmin_R1R7, Topt_R1R7, Tmax_R1R7) *
             photoFunc(day_length, Popt_R1R7, Pcrit_R1R7); // day^-1
-        
+
     } else {
         // error, DVI out of bounds, this should never occur,
         // but prevents warning messages when compiling biocro
         soybean_development_rate = 0; // day^-1
     }
-    
+
     double development_rate_per_hour = soybean_development_rate / 24.0; // hr^-1
-    
+
     // Update the output parameter list
     update(development_rate_per_hour_op, development_rate_per_hour);
 }
 
-double tempFunc(double T, double Tmin, double Topt, double Tmax) {
-    double fT; // dimensionless
-    
+double tempFunc(double T, double Tmin, double Topt, double Tmax)
+{
+    double fT;  // dimensionless
+
     if (T > Tmin && T < Tmax) {
-        double alpha = log(2.0) / log((Tmax - Tmin) / (Topt - Tmin)); // dimensionless
-        double fT_num_pt1 = 2.0 * pow(T - Tmin, alpha) * pow(Topt - Tmin, alpha); // dimensionless
-        double fT_num_pt2 = pow(T - Tmin, 2.0 * alpha); // dimensionless
-        double fT_denom = pow(Topt - Tmin, 2.0 * alpha); // dimensionless
-        
-        fT = (fT_num_pt1 - fT_num_pt2) / fT_denom; // dimensionless
+        double alpha = log(2.0) / log((Tmax - Tmin) / (Topt - Tmin));              // dimensionless
+        double fT_num_pt1 = 2.0 * pow(T - Tmin, alpha) * pow(Topt - Tmin, alpha);  // dimensionless
+        double fT_num_pt2 = pow(T - Tmin, 2.0 * alpha);                            // dimensionless
+        double fT_denom = pow(Topt - Tmin, 2.0 * alpha);                           // dimensionless
+
+        fT = (fT_num_pt1 - fT_num_pt2) / fT_denom;  // dimensionless
     } else {
-        fT = 0.0; // dimensionless
+        fT = 0.0;  // dimensionless
     }
-    
-    return fT; // dimensionless
-    
+
+    return fT;  // dimensionless
 }
 
-double photoFunc(double P, double Popt, double Pcrit) {
-    double m = 3.0; // hrs; Setiyono et al., 2007 Equation 4, value in text below equation
-    double fP; // dimensionless
-    
+double photoFunc(double P, double Popt, double Pcrit)
+{
+    double m = 3.0;  // hrs; Setiyono et al., 2007 Equation 4, value in text below equation
+    double fP;       // dimensionless
+
     if (P >= Popt && P <= Pcrit) {
-        double alpha = log(2.0) / log(1.0 + (Pcrit - Popt) / m); // dimensionless
-        double fP_pt1 = 1.0 + (P - Popt) / m; // dimensionless
-        double fP_pt2 = (Pcrit - P) / (Pcrit - Popt); // dimensionless
-        double fP_pt3 = (Pcrit - Popt) / m; // dimensionless
-        
-        fP = pow(fP_pt1 * pow(fP_pt2, fP_pt3), alpha); // dimensionless
-        
+        double alpha = log(2.0) / log(1.0 + (Pcrit - Popt) / m);  // dimensionless
+        double fP_pt1 = 1.0 + (P - Popt) / m;                     // dimensionless
+        double fP_pt2 = (Pcrit - P) / (Pcrit - Popt);             // dimensionless
+        double fP_pt3 = (Pcrit - Popt) / m;                       // dimensionless
+
+        fP = pow(fP_pt1 * pow(fP_pt2, fP_pt3), alpha);  // dimensionless
+
     } else if (P < Popt) {
-        fP = 1.0; // dimensionless
+        fP = 1.0;  // dimensionless
     } else {
-        fP = 0.0; // dimensionless
+        fP = 0.0;  // dimensionless
     }
-    
-    return fP; // dimensionless
-    
+
+    return fP;  // dimensionless
 }
 
 #endif
-
-

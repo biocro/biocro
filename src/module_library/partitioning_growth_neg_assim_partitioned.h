@@ -17,32 +17,32 @@ class partitioning_growth_neg_assim_partitioned : public DerivModule
    public:
     partitioning_growth_neg_assim_partitioned(
         const state_map* input_parameters,
-        state_map* output_parameters
-    )
-        :  DerivModule{"partitioning_growth_neg_assim_partitioned"},
-        // Get references to input parameters
-        kLeaf{get_input(input_parameters, "kLeaf")},
-        kStem{get_input(input_parameters, "kStem")},
-        kRoot{get_input(input_parameters, "kRoot")},
-        kRhizome{get_input(input_parameters, "kRhizome")},
-        kGrain{get_input(input_parameters, "kGrain")},
-        newLeafcol{get_input(input_parameters, "newLeafcol")},
-        newStemcol{get_input(input_parameters, "newStemcol")},
-        newRootcol{get_input(input_parameters, "newRootcol")},
-        newRhizomecol{get_input(input_parameters, "newRhizomecol")},
-        newGraincol{get_input(input_parameters, "newGraincol")},
-        Leaf{get_input(input_parameters, "Leaf")},
-        Stem{get_input(input_parameters, "Stem")},
-        Root{get_input(input_parameters, "Root")},
-        Rhizome{get_input(input_parameters, "Rhizome")},
-          
-        // Get pointers to output parameters
-        Leaf_op{get_op(output_parameters, "Leaf")},
-        Stem_op{get_op(output_parameters, "Stem")},
-        Root_op{get_op(output_parameters, "Root")},
-        Rhizome_op{get_op(output_parameters, "Rhizome")},
-        Grain_op{get_op(output_parameters, "Grain")},
-        rhizome_senescence_index_op{get_op(output_parameters, "rhizome_senescence_index")}
+        state_map* output_parameters)
+        : DerivModule{"partitioning_growth_neg_assim_partitioned"},
+
+          // Get references to input parameters
+          kLeaf{get_input(input_parameters, "kLeaf")},
+          kStem{get_input(input_parameters, "kStem")},
+          kRoot{get_input(input_parameters, "kRoot")},
+          kRhizome{get_input(input_parameters, "kRhizome")},
+          kGrain{get_input(input_parameters, "kGrain")},
+          newLeafcol{get_input(input_parameters, "newLeafcol")},
+          newStemcol{get_input(input_parameters, "newStemcol")},
+          newRootcol{get_input(input_parameters, "newRootcol")},
+          newRhizomecol{get_input(input_parameters, "newRhizomecol")},
+          newGraincol{get_input(input_parameters, "newGraincol")},
+          Leaf{get_input(input_parameters, "Leaf")},
+          Stem{get_input(input_parameters, "Stem")},
+          Root{get_input(input_parameters, "Root")},
+          Rhizome{get_input(input_parameters, "Rhizome")},
+
+          // Get pointers to output parameters
+          Leaf_op{get_op(output_parameters, "Leaf")},
+          Stem_op{get_op(output_parameters, "Stem")},
+          Root_op{get_op(output_parameters, "Root")},
+          Rhizome_op{get_op(output_parameters, "Rhizome")},
+          Grain_op{get_op(output_parameters, "Grain")},
+          rhizome_senescence_index_op{get_op(output_parameters, "rhizome_senescence_index")}
     {
     }
     static string_vector get_inputs();
@@ -64,7 +64,7 @@ class partitioning_growth_neg_assim_partitioned : public DerivModule
     const double& Stem;
     const double& Root;
     const double& Rhizome;
-    
+
     // Pointers to output parameters
     double* Leaf_op;
     double* Stem_op;
@@ -72,7 +72,7 @@ class partitioning_growth_neg_assim_partitioned : public DerivModule
     double* Rhizome_op;
     double* Grain_op;
     double* rhizome_senescence_index_op;
-    
+
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
 };
@@ -80,32 +80,32 @@ class partitioning_growth_neg_assim_partitioned : public DerivModule
 string_vector partitioning_growth_neg_assim_partitioned::get_inputs()
 {
     return {
-        "kLeaf",           // dimensionless
-        "kStem",           // dimensionless
-        "kRoot",           // dimensionless
-        "kRhizome",        // dimensionless
-        "kGrain",          // dimensionless
-        "newLeafcol",      // Mg / ha / hour
-        "newStemcol",      // Mg / ha / hour
-        "newRootcol",      // Mg / ha / hour
-        "newRhizomecol",   // Mg / ha / hour
-        "newGraincol",     // Mg / ha / hour
-        "Leaf",            // Mg / ha
-        "Stem",            // Mg / ha
-        "Root",            // Mg / ha
-        "Rhizome"          // Mg / ha
+        "kLeaf",          // dimensionless
+        "kStem",          // dimensionless
+        "kRoot",          // dimensionless
+        "kRhizome",       // dimensionless
+        "kGrain",         // dimensionless
+        "newLeafcol",     // Mg / ha / hour
+        "newStemcol",     // Mg / ha / hour
+        "newRootcol",     // Mg / ha / hour
+        "newRhizomecol",  // Mg / ha / hour
+        "newGraincol",    // Mg / ha / hour
+        "Leaf",           // Mg / ha
+        "Stem",           // Mg / ha
+        "Root",           // Mg / ha
+        "Rhizome"         // Mg / ha
     };
 }
 
 string_vector partitioning_growth_neg_assim_partitioned::get_outputs()
 {
     return {
-        "Leaf",                    // Mg / ha
-        "Stem",                    // Mg / ha
-        "Root",                    // Mg / ha
-        "Rhizome",                 // Mg / ha
-        "Grain",                   // Mg / ha
-        "rhizome_senescence_index"
+        "Leaf",                     // Mg / ha
+        "Stem",                     // Mg / ha
+        "Root",                     // Mg / ha
+        "Rhizome",                  // Mg / ha
+        "Grain",                    // Mg / ha
+        "rhizome_senescence_index"  // dimensionless
     };
 }
 

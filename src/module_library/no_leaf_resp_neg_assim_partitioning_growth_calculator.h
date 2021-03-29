@@ -20,27 +20,26 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public SteadyModul
    public:
     no_leaf_resp_neg_assim_partitioning_growth_calculator(
         const state_map* input_parameters,
-        state_map* output_parameters
-    )
+        state_map* output_parameters)
         : SteadyModule{"no_leaf_resp_neg_assim_partitioning_growth_calculator"},
-          
-        // Get references to input parameters
-        kLeaf{get_input(input_parameters, "kLeaf")},
-        kStem{get_input(input_parameters, "kStem")},
-        kRoot{get_input(input_parameters, "kRoot")},
-        kRhizome{get_input(input_parameters, "kRhizome")},
-        kGrain{get_input(input_parameters, "kGrain")},
-        canopy_assimilation_rate{get_input(input_parameters, "canopy_assimilation_rate")},
-        mrc1{get_input(input_parameters, "mrc1")},
-        mrc2{get_input(input_parameters, "mrc2")},
-        temp{get_input(input_parameters, "temp")},
-          
-        // Get pointers to output parameters
-        newLeafcol_op{get_op(output_parameters, "newLeafcol")},
-        newStemcol_op{get_op(output_parameters, "newStemcol")},
-        newRootcol_op{get_op(output_parameters, "newRootcol")},
-        newRhizomecol_op{get_op(output_parameters, "newRhizomecol")},
-        newGraincol_op{get_op(output_parameters, "newGraincol")}
+
+          // Get references to input parameters
+          kLeaf{get_input(input_parameters, "kLeaf")},
+          kStem{get_input(input_parameters, "kStem")},
+          kRoot{get_input(input_parameters, "kRoot")},
+          kRhizome{get_input(input_parameters, "kRhizome")},
+          kGrain{get_input(input_parameters, "kGrain")},
+          canopy_assimilation_rate{get_input(input_parameters, "canopy_assimilation_rate")},
+          mrc1{get_input(input_parameters, "mrc1")},
+          mrc2{get_input(input_parameters, "mrc2")},
+          temp{get_input(input_parameters, "temp")},
+
+          // Get pointers to output parameters
+          newLeafcol_op{get_op(output_parameters, "newLeafcol")},
+          newStemcol_op{get_op(output_parameters, "newStemcol")},
+          newRootcol_op{get_op(output_parameters, "newRootcol")},
+          newRhizomecol_op{get_op(output_parameters, "newRhizomecol")},
+          newGraincol_op{get_op(output_parameters, "newGraincol")}
     {
     }
     static string_vector get_inputs();
@@ -57,14 +56,14 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public SteadyModul
     const double& mrc1;
     const double& mrc2;
     const double& temp;
-    
+
     // Pointers to output parameters
     double* newLeafcol_op;
     double* newStemcol_op;
     double* newRootcol_op;
     double* newRhizomecol_op;
     double* newGraincol_op;
-    
+
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
 };
@@ -72,15 +71,15 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public SteadyModul
 string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_inputs()
 {
     return {
-        "kLeaf",                    // dimensionless
-        "kStem",                    // dimensionless
-        "kRoot",                    // dimensionless
-        "kRhizome",                 // dimensionless
-        "kGrain",                   // dimensionless
-        "canopy_assimilation_rate", // Mg / ha / hour
-        "mrc1",                     // hour^-1
-        "mrc2",                     // hour^-1
-        "temp"                      // degrees C
+        "kLeaf",                     // dimensionless
+        "kStem",                     // dimensionless
+        "kRoot",                     // dimensionless
+        "kRhizome",                  // dimensionless
+        "kGrain",                    // dimensionless
+        "canopy_assimilation_rate",  // Mg / ha / hour
+        "mrc1",                      // hour^-1
+        "mrc2",                      // hour^-1
+        "temp"                       // degrees C
     };
 }
 
@@ -97,7 +96,6 @@ string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_outputs
 
 void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
 {
-
     double newLeafcol, newStemcol, newRootcol, newRhizomecol, newGraincol;
 
     // Calculate the amount of new leaf produced

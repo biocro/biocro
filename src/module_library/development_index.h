@@ -50,49 +50,53 @@
 
 class development_index : public DerivModule
 {
-public: development_index(
-            const state_map* input_parameters,
-            state_map* output_parameters
-        )
-    : DerivModule{"development_index"},
-    
-    // Get references to input parameters
-    development_rate_per_hour{get_input(input_parameters, "development_rate_per_hour")},
-    
-    // Get pointers to output parameters
-    DVI_op{get_op(output_parameters, "DVI")}
-    
-    {}
-    
+   public:
+    development_index(
+        const state_map* input_parameters,
+        state_map* output_parameters)
+        : DerivModule{"development_index"},
+
+          // Get references to input parameters
+          development_rate_per_hour{get_input(input_parameters, "development_rate_per_hour")},
+
+          // Get pointers to output parameters
+          DVI_op{get_op(output_parameters, "DVI")}
+
+    {
+    }
+
     static string_vector get_inputs();
     static string_vector get_outputs();
-    
-private:
+
+   private:
     // References to input parameters
     const double& development_rate_per_hour;
-    
+
     // Pointers to output parameters
     double* DVI_op;
-    
+
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
 };
 
-string_vector development_index::get_inputs() {
+string_vector development_index::get_inputs()
+{
     return {
-        "development_rate_per_hour" // hour^-1
+        "development_rate_per_hour"  // hour^-1
     };
 }
 
-string_vector development_index::get_outputs() {
+string_vector development_index::get_outputs()
+{
     return {
-        "DVI" // dimensionless
+        "DVI"  // dimensionless
     };
 }
 
-void development_index::do_operation() const {
+void development_index::do_operation() const
+{
     // Update the output parameter list
-    update(DVI_op, development_rate_per_hour); // dimensionless
+    update(DVI_op, development_rate_per_hour);  // dimensionless
 }
 
 #endif
