@@ -6,7 +6,7 @@ soybean_parameters = with(list(), {
     soil_type_indicator                     6
     
     # leaf_water_stress_exponential module
-    phi2                                    1.5         #jaiswal 2017 #10
+    phi2                                    1.5         # Jaiswal 2017 #10
     
     # parameter_calculator module
     iSp                                     3.5         # 2002 approx. avg (lai /leaf biomass)     #2.7
@@ -20,7 +20,7 @@ soybean_parameters = with(list(), {
     # soybean_development_rate_calculator module
     maturity_group                          3           # dimensionless; soybean cultivar maturity group 
     Tbase_emr                               10          # degrees C
-    TTemr_threshold                         60          # degree C * days
+    TTemr_threshold                         60          # degrees C * days
     Rmax_emrV0                              0.1990      # day^-1; Setiyono et al., 2007, Table 2
     Tmin_emrV0                              5.0         # degrees C; Setiyono et al., 2007, Table 2
     Topt_emrV0                              31.5        # degrees C; Setiyono et al., 2007, Table 2
@@ -87,8 +87,8 @@ soybean_parameters = with(list(), {
     growth_respiration_fraction             0
     
     # no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned module
-    mrc1                                    0.0008333   # 0.02/24, Bunce 1995, https://pdfs.semanticscholar.org/712d/93eed86a6e4df6254a3f944442fd052def70.pdf
-    mrc2                                    0.000025    #.03*mrc1
+    mrc1                                    0.0008333   # 0.02 / 24, Bunce 1995, https://pdfs.semanticscholar.org/712d/93eed86a6e4df6254a3f944442fd052def70.pdf
+    mrc2                                    0.000025    # 0.03 * mrc1
     
     # senescence_coefficient_logistic module
     rateSeneLeaf                            0.01213 
@@ -111,10 +111,10 @@ soybean_parameters = with(list(), {
     soil_depth1                             0.0         # from Justins sorghum parameters (see 10/3/19 email -mlm)
     soil_depth2                             2.5         # from Justins sorghum parameters (see 10/3/19 email -mlm)
     soil_depth3                             10.0        # from Justins sorghum parameters (see 10/3/19 email -mlm)
-    wsFun                                   2           #not actually used, but must be defined
-    hydrDist                                0           #copied from sorghum parameter file
-    rfl                                     0.2         #copied from sorghum parameter file
-    rsdf                                    0.44        #copied from sorghum parameter file
+    wsFun                                   2           # not actually used, but must be defined
+    hydrDist                                0           # copied from sorghum parameter file
+    rfl                                     0.2         # copied from sorghum parameter file
+    rsdf                                    0.44        # copied from sorghum parameter file
     phi1                                    0.01  
      
     # thermal_time_linear module
