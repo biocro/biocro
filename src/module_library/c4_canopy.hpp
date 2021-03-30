@@ -27,7 +27,7 @@ class c4_canopy : public SteadyModule
           nlnb0_ip(get_ip(input_parameters, "nlnb0")),
           nlnb1_ip(get_ip(input_parameters, "nlnb1")),
           lai_ip(get_ip(input_parameters, "lai")),
-          doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+          time_ip(get_ip(input_parameters, "time")),
           solar_ip(get_ip(input_parameters, "solar")),
           temp_ip(get_ip(input_parameters, "temp")),
           rh_ip(get_ip(input_parameters, "rh")),
@@ -86,7 +86,7 @@ class c4_canopy : public SteadyModule
     const double* nlnb0_ip;
     const double* nlnb1_ip;
     const double* lai_ip;
-    const double* doy_dbl_ip;
+    const double* time_ip;
     const double* solar_ip;
     const double* temp_ip;
     const double* rh_ip;
@@ -146,7 +146,7 @@ std::vector<std::string> c4_canopy::get_inputs()
         "nlnb0",
         "nlnb1",
         "lai",
-        "doy_dbl",
+        "time",
         "solar",
         "temp",
         "rh",
@@ -196,8 +196,8 @@ std::vector<std::string> c4_canopy::get_outputs()
 void c4_canopy::do_operation() const
 {
     // Collect inputs and make calculations
-    int doy = floor(*doy_dbl_ip);                // Round doy_dbl down to get the day of year
-    double hour = 24.0 * ((*doy_dbl_ip) - doy);  // Get the fractional part as the hour
+    int doy = floor(*time_ip);                // Round time down to get the day of year
+    double hour = 24.0 * ((*time_ip) - doy);  // Get the fractional part as the hour
 
     struct nitroParms nitroP;
     nitroP.ileafN = *nileafn_ip;

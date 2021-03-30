@@ -17,7 +17,7 @@ class thermal_time_and_frost_senescence : public DerivModule {
 			Leaf_ip(get_ip(input_parameters, "Leaf")),
 			leafdeathrate_ip(get_ip(input_parameters, "leafdeathrate")),
 			lat_ip(get_ip(input_parameters, "lat")),
-			doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+			time_ip(get_ip(input_parameters, "time")),
 			temp_ip(get_ip(input_parameters, "temp")),
 			Tfrostlow_ip(get_ip(input_parameters, "Tfrostlow")),
 			Tfrosthigh_ip(get_ip(input_parameters, "Tfrosthigh")),
@@ -68,7 +68,7 @@ class thermal_time_and_frost_senescence : public DerivModule {
 		const double* Leaf_ip;
 		const double* leafdeathrate_ip;
 		const double* lat_ip;
-		const double* doy_dbl_ip;
+		const double* time_ip;
 		const double* temp_ip;
 		const double* Tfrostlow_ip;
 		const double* Tfrosthigh_ip;
@@ -106,7 +106,7 @@ std::vector<std::string> thermal_time_and_frost_senescence::get_inputs() {
 	return {
 		"TTc",
 		"seneLeaf", "seneStem", "seneRoot", "seneRhizome",
-		"Leaf", "leafdeathrate", "lat", "doy_dbl", "temp", "Tfrostlow", "Tfrosthigh",
+		"Leaf", "leafdeathrate", "lat", "time", "temp", "Tfrostlow", "Tfrosthigh",
 		"stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
 		"kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
 		"newLeafcol", "newStemcol", "newRootcol", "newRhizomecol"
@@ -141,7 +141,7 @@ void thermal_time_and_frost_senescence::do_operation() const {
 	double Leaf = *Leaf_ip;
 	double leafdeathrate = *leafdeathrate_ip;
 	double lat = *lat_ip;
-	double doy_dbl = *doy_dbl_ip;
+	double time = *time_ip;
 	double temp = *temp_ip;
 	double Tfrostlow = *Tfrostlow_ip;
 	double Tfrosthigh = *Tfrosthigh_ip;
@@ -165,7 +165,7 @@ void thermal_time_and_frost_senescence::do_operation() const {
 	double frost_leaf_death_rate = 0.0;
 	if(TTc >= seneLeaf) {	// Leaf senescence has started
 		bool A = lat >= 0.0;		// In Northern hemisphere
-		bool B = doy_dbl >= 180.0;	// In second half of the year
+		bool B = time >= 180.0;	// In second half of the year
 		if((A && B) || ((!A) && (!B))) {	// Winter in either hemisphere
 			// frost_leaf_death_rate changes linearly from 100 to 0 as temp changes from Tfrostlow to Tfrosthigh and is limited to [0,100]
 			std::max(0.0, std::min(100.0, 100.0 * (Tfrosthigh - temp) / (Tfrosthigh - Tfrostlow)));

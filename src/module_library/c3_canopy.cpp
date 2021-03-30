@@ -6,7 +6,7 @@
 std::vector<std::string> c3_canopy::get_inputs() {
     return {
         "lai",
-        "doy_dbl",
+        "time",
         "solar",
         "temp",
         "rh",
@@ -52,8 +52,8 @@ std::vector<std::string> c3_canopy::get_outputs() {
 
 void c3_canopy::do_operation() const {
     // Collect inputs and make calculations
-    double doy = floor(*doy_dbl_ip);            // Round doy_dbl down to get the day of year
-    double hour = 24.0 * ((*doy_dbl_ip) - doy); // Get the fractional part as the hour
+    double doy = floor(*time_ip);            // Round time down to get the day of year
+    double hour = 24.0 * ((*time_ip) - doy); // Get the fractional part as the hour
 
     // c3CanAC is located in c3CanAc.cpp
     struct Can_Str can_result = c3CanAC(*lai_ip, doy, hour, *solar_ip, *temp_ip,

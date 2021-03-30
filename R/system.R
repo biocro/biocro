@@ -1,6 +1,6 @@
 validate_system_inputs <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent = FALSE)
 {
-    # If the varying parameter input doesn't have a doy_dbl column, add one
+    # If the varying parameter input doesn't have a time column, add one
     varying_parameters <- add_time_to_weather_data(varying_parameters)
 
     # C++ requires that all the variables have type `double`

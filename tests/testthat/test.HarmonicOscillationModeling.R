@@ -115,7 +115,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     result <- Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules, solver)
 
     ## add useful columns to the resulting data frame:    
-    result$time <- result$doy_dbl * 24 # time is in hours
+    result$time <- result$time * 24 # time is in hours
     result$expected_position <- position(result$time, amplitude, angular_frequency, phase)
     result$expected_velocity <- velocity(result$time, amplitude, angular_frequency, phase)
 
