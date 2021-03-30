@@ -239,7 +239,7 @@ class canac_with_collatz : public SteadyModule
           nlnb0_ip(get_ip(input_parameters, "nlnb0")),
           nlnb1_ip(get_ip(input_parameters, "nlnb1")),
           lai_ip(get_ip(input_parameters, "lai")),
-          doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+          time_ip(get_ip(input_parameters, "time")),
           solar_ip(get_ip(input_parameters, "solar")),
           temp_ip(get_ip(input_parameters, "temp")),
           rh_ip(get_ip(input_parameters, "rh")),
@@ -298,7 +298,7 @@ class canac_with_collatz : public SteadyModule
     const double* nlnb0_ip;
     const double* nlnb1_ip;
     const double* lai_ip;
-    const double* doy_dbl_ip;
+    const double* time_ip;
     const double* solar_ip;
     const double* temp_ip;
     const double* rh_ip;
@@ -358,7 +358,7 @@ std::vector<std::string> canac_with_collatz::get_inputs()
         "nlnb0",
         "nlnb1",
         "lai",
-        "doy_dbl",
+        "time",
         "solar",
         "temp",
         "rh",
@@ -419,7 +419,7 @@ void canac_with_collatz::do_operation() const
     double nlnb0 = *nlnb0_ip;
     double nlnb1 = *nlnb1_ip;
     double lai = *lai_ip;
-    double doy_dbl = *doy_dbl_ip;
+    double time = *time_ip;
     double solar = *solar_ip;
     double temp = *temp_ip;
     double rh = *rh_ip;
@@ -455,9 +455,9 @@ void canac_with_collatz::do_operation() const
     double leaf_reflectance = *leaf_reflectance_ip;
     double absorptivity_par = *absorptivity_par_ip;
 
-    // Convert doy_dbl into doy and hour
-    int doy = floor(doy_dbl);
-    double hour = 24.0 * (doy_dbl - doy);
+    // Convert time into doy and hour
+    int doy = floor(time);
+    double hour = 24.0 * (time - doy);
 
     // Define the nitrogen parameters
     struct nitroParms nitroP;

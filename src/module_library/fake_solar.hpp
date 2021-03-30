@@ -9,12 +9,13 @@ class fake_solar : public SteadyModule
    public:
     fake_solar(
         const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) : SteadyModule("fake_solar"),
-                                                                      // Get pointers to input parameters
-                                                                      doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
-                                                                      target_doy_dbl_ip(get_ip(input_parameters, "target_doy_dbl")),
-                                                                      // Get pointers to output parameters
-                                                                      solar_op(get_op(output_parameters, "solar"))
+        std::unordered_map<std::string, double>* output_parameters)
+        : SteadyModule("fake_solar"),
+          // Get pointers to input parameters
+          time_ip(get_ip(input_parameters, "time")),
+          target_time_ip(get_ip(input_parameters, "target_time")),
+          // Get pointers to output parameters
+          solar_op(get_op(output_parameters, "solar"))
     {
     }
     static std::vector<std::string> get_inputs();
@@ -22,8 +23,8 @@ class fake_solar : public SteadyModule
 
    private:
     // Pointers to input parameters
-    const double* doy_dbl_ip;
-    const double* target_doy_dbl_ip;
+    const double* time_ip;
+    const double* target_time_ip;
     // Pointers to output parameters
     double* solar_op;
     // Main operation
@@ -33,14 +34,16 @@ class fake_solar : public SteadyModule
 std::vector<std::string> fake_solar::get_inputs()
 {
     return {
-        "doy_dbl",
-        "target_doy_dbl"};
+        "time",
+        "target_time"
+    };
 }
 
 std::vector<std::string> fake_solar::get_outputs()
 {
     return {
-        "solar"};
+        "solar"
+    };
 }
 
 void fake_solar::do_operation() const
@@ -49,14 +52,14 @@ void fake_solar::do_operation() const
     // Collect inputs and make calculations //
     //////////////////////////////////////////
 
-    // Get the current doy_dbl
-    double doy_dbl = *doy_dbl_ip;
+    // Get the current time
+    double time = *time_ip;
 
     // Calculate the radiation in a way that's good for testing different day lengths, and the switch to dark conditions
 
     // Extract out the DOY and hour
-    int doy = (int)doy_dbl;
-    double hour = 24.0 * (doy_dbl - doy);
+    int doy = (int)time;
+    double hour = 24.0 * (time - doy);
 
     // Define the parameters for calculating the solar radiation
     int min_doy = 91;           // The first day to shine light (min in dataset is 91) (mean is 196)
@@ -89,16 +92,16 @@ void fake_solar::do_operation() const
 
     /*
 	// Calculate the radiation in a way that's good for calculating a phase response curve
-	
+
 	// Get the target doy to apply the sun
-	double target_doy_dbl = *target_doy_dbl_ip;
-	
+	double target_time = *target_time_ip;
+
 	// Calculate the radiation
 	double max_solar = 1000.0;
 	double day_length = 12.0;			// In hours
 	double sigma = day_length / 4.0;	// In hours
 	sigma /= 24.0;						// In days
-	double solar = max_solar * exp(-(doy_dbl - target_doy_dbl) * (doy_dbl - target_doy_dbl) / (sigma * sigma));
+	double solar = max_solar * exp(-(time - target_time) * (time - target_time) / (sigma * sigma));
 	*/
 
     //////////////////////////////////////
