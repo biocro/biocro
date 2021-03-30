@@ -1,17 +1,12 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
+
 soybean_initial_state = with(list(), {
     datalines =
     "symbol                  value
-    ### Number of seeds per meter * weight per seed (in grams) / row spacing (in meters) (gives g/m^2, divide by 100 for Mg/ha)
-    ### Number of seeds per meter = 20 (Morgan et al., 2004, https://doi.org/10.1104/pp.104.043968)
-    ### weight per seed (in grams) = 0.15 grams (https://www.feedipedia.org/node/42, average of .12 to .18 grams)
-    ### row spacing (in meters) = 0.38 meters (Morgan et al., 2004, https://doi.org/10.1104/pp.104.043968)
-    ### 20 * 0.15 / 0.38 = 7.89 g/m2 = 0.0789 Mg/ha
-    
-    Leaf                     0.06312       # Mg / ha, 80% of total seed mass per land area
+    Leaf                     0.06312       # Mg / ha, 80% of total seed mass per land area (see comment at end of file)
     Stem                     0.00789       # Mg / ha, 10% of total seed mass per land area
     Root                     0.00789       # Mg / ha, 10% of total seed mass per land area
-    Grain                    0.00001       # Mg / ha, treating this as Pod for Soybean-BioCro
+    Grain                    0.00001       # Mg / ha, treating this as the soybean pod (referred to as Pod)
     LeafLitter               0             # Mg / ha
     RootLitter               0             # Mg / ha
     StemLitter               0             # Mg / ha
@@ -33,3 +28,13 @@ soybean_initial_state = with(list(), {
     names(values) = data_frame$symbol
     values
 })
+
+# For the initial total seed mass per land area, we use the following equation:
+# Number of seeds per meter * weight per seed * 1 / row spacing
+#
+# Number of seeds per meter = 20 (Morgan et al., 2004, https://doi.org/10.1104/pp.104.043968)
+# weight per seed = 0.15 grams / seed (https://www.feedipedia.org/node/42, average of .12 to .18 grams)
+# row spacing = 0.38 meters (Morgan et al., 2004)
+# 
+# (20 seeds / meter) * (0.15 grams / seed) * (1 / 0.38 meter) = 7.89 g / m^2 = 0.0789 Mg / ha
+# This value is used to determine the initial Leaf, Stem, and Root biomasses
