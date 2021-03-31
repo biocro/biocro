@@ -11,3 +11,13 @@ soybean_derivative_modules <- c("senescence_logistic", "partitioning_growth_neg_
                             "two_layer_soil_profile", "development_index", "thermal_time_linear")
 
 
+soybean_solver_params <- list(
+  type = 'Gro_rkck54',
+  output_step_size = 1.0,
+  adaptive_rel_error_tol = 1e-4,
+  adaptive_abs_error_tol = 1e-4,
+  adaptive_max_steps = 200)
+# Note: 'Gro_rsnbrk' and 'Gro' (which defaults to Gro_rsnbrk) should not be used as the solver
+# type as the model will not simulate soybean growth unless the tolerances are stringent
+# (e.g., output_step_size = 0.01, adaptive_rel_error_tol = 1e-9, adaptive_abs_error_tol = 1e-9)
+
