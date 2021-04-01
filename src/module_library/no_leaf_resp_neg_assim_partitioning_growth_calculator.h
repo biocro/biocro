@@ -3,17 +3,56 @@
 
 #include "../modules.h"
 #include "../state_map.h"
+#include "BioCro.h"  // for resp
 
 /**
- * @class no_leaf_resp_neg_assim_partitioning_growth_calculator
+ *  @class no_leaf_resp_neg_assim_partitioning_growth_calculator
  *
- * @brief Records new tissue derived from assimilation. This module is mostly the same as the
- * partitioning_growth_module except that leaf respiration is treated differently. CanopyA already
- * includes losses from leaf respiration.
+ *  @brief Uses a set of partitioning coefficients to determine mass
+ *  assimilation rates for several plant organs.
  *
- * NOTE: This approach records new tissue derived from assimilation in the new*col arrays, but these variables
- * don't include new tissue derived from reallocation from other tissues.
+ *  ### Partitioning overview
  *
+ *  BioCro includes several partitioning growth calculators that determine these
+ *  rates using slightly different methods. The different modules can be
+ *  distinguished by the sets of tissues they use, the ways they apply
+ *  respiration and water stress, and their responses to negative canopy
+ *  assimilation rates. (A negative canopy assimilation rate indicates that the
+ *  leaves are respiring more than they are photosynthesizing.)
+ *
+ *  In all partitioning growth calculators, the base growth rate for an organ is
+ *  determined from the net canopy assimilation rate and a coefficient that
+ *  determines the fraction of the net assimilation that is "partitioned" to
+ *  that organ. Then, further modifications may take place to account for water
+ *  stress, maintenance respiration, or other processes that affect the amount
+ *  of carbon available to the organ for growth. Note that losses due to
+ *  senescence and gains due to remobilized carbon from other organs are handled
+ *  elsewhere and are not included here.
+ *
+ *  Respiration is included via the `resp()` function, which implements an
+ *  empirical rule for determining the fraction of energy spent on respiration
+ *  at a particular temperature. See the following paper for a general
+ *  discussion of the importance of respiration in understanding plant growth:
+ *  [Amthor, J. S. "The role of maintenance respiration in plant growth" Plant,
+ *  Cell & Environment 7, 561–569 (1984)]
+ *  (https://doi.org/10.1111/1365-3040.ep11591833).
+ *
+ *  ### Specifics of this module
+ *
+ *  In this module, no distinction is made between positive and negative canopy
+ *  assimilation rates. Thus, respiratory losses in the leaf that result in a
+ *  negative canopy assimilation rate are spread out to the other organs.
+ *
+ *  This module does not attempt to explicitly include any effect due to water
+ *  stress.
+ *
+ *  This module includes four organs:
+ *  - `Leaf`: The leaf growth rate is *not* modified by respiration because the
+ *     net canopy assimilation rate already includes it.
+ *  - `Stem`: The stem growth rate is modified by respiration.
+ *  - `Root`: The root growth rate is modified by respiration.
+ *  - `Rhizome`: The rhizome growth rate is modified by respiration.
+ *  - `Grain`: The grain growth rate is *not* modified by respiration.
  */
 class no_leaf_resp_neg_assim_partitioning_growth_calculator : public SteadyModule
 {
@@ -77,8 +116,8 @@ string_vector no_leaf_resp_neg_assim_partitioning_growth_calculator::get_inputs(
         "kRhizome",                  // dimensionless
         "kGrain",                    // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
-        "mrc1",                      // hour^-1
-        "mrc2",                      // hour^-1
+        "mrc1",                      // dimensionless
+        "mrc2",                      // dimensionless
         "temp"                       // degrees C
     };
 }
@@ -98,14 +137,14 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
 {
     double newLeafcol, newStemcol, newRootcol, newRhizomecol, newGraincol;
 
-    // Calculate the amount of new leaf produced
+    // Calculate the rate of new leaf production
     if (kLeaf > 0) {
         newLeafcol = canopy_assimilation_rate * kLeaf;
     } else {
         newLeafcol = 0.0;
     }
 
-    // Calculate the amount of new stem produced
+    // Calculate the rate of new stem production
     if (kStem > 0) {
         newStemcol = canopy_assimilation_rate * kStem;
         newStemcol = resp(newStemcol, mrc1, temp);
@@ -113,7 +152,7 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
         newStemcol = 0.0;
     }
 
-    // Calculate the amount of new root produced
+    // Calculate the rate of new root production
     if (kRoot > 0) {
         newRootcol = canopy_assimilation_rate * kRoot;
         newRootcol = resp(newRootcol, mrc2, temp);
@@ -121,7 +160,7 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
         newRootcol = 0.0;
     }
 
-    // Calculate the amount of new rhizome produced
+    // Calculate the rate of new rhizome production
     if (kRhizome > 0) {
         newRhizomecol = canopy_assimilation_rate * kRhizome;
         newRhizomecol = resp(newRhizomecol, mrc2, temp);
@@ -129,7 +168,7 @@ void no_leaf_resp_neg_assim_partitioning_growth_calculator::do_operation() const
         newRhizomecol = 0.0;
     }
 
-    // Calculate the amount of new grain produced
+    // Calculate the rate of new grain production
     if (kGrain > 0) {
         newGraincol = canopy_assimilation_rate * kGrain;
     } else {

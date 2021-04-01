@@ -2,27 +2,70 @@
 #define PARTITIONING_GROWTH_CALCULATOR_H
 
 #include "../modules.h"
-#include "BioCro.h" // For resp
+#include "../state_map.h"
+#include "BioCro.h"  // for resp
 
 /**
- * @class partitioning_growth_calculator
+ *  @class partitioning_growth_calculator
  *
- * @brief Records new tissue derived from assimilation.
+ *  @brief Uses a set of partitioning coefficients to determine mass
+ *  assimilation rates for several plant organs.
  *
- * NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
- * record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
- * Since it's not recorded, that part will never senesce.
- * Also, the partitioning coefficiencts (kLeaf, kRoot, etc.) must be set to 0 for a long enough time
- * at the end of the season for all of the tissue to senesce.
- * This doesn't seem like a good approach.
+ *  ### Partitioning overview
+ *
+ *  BioCro includes several partitioning growth calculators that determine these
+ *  rates using slightly different methods. The different modules can be
+ *  distinguished by the sets of tissues they use, the ways they apply
+ *  respiration and water stress, and their responses to negative canopy
+ *  assimilation rates. (A negative canopy assimilation rate indicates that the
+ *  leaves are respiring more than they are photosynthesizing.)
+ *
+ *  In all partitioning growth calculators, the base growth rate for an organ is
+ *  determined from the net canopy assimilation rate and a coefficient that
+ *  determines the fraction of the net assimilation that is "partitioned" to
+ *  that organ. Then, further modifications may take place to account for water
+ *  stress, maintenance respiration, or other processes that affect the amount
+ *  of carbon available to the organ for growth. Note that losses due to
+ *  senescence and gains due to remobilized carbon from other organs are handled
+ *  elsewhere and are not included here.
+ *
+ *  Respiration is included via the `resp()` function, which implements an
+ *  empirical rule for determining the fraction of energy spent on respiration
+ *  at a particular temperature. See the following paper for a general
+ *  discussion of the importance of respiration in understanding plant growth:
+ *  [Amthor, J. S. "The role of maintenance respiration in plant growth" Plant,
+ *  Cell & Environment 7, 561–569 (1984)]
+ *  (https://doi.org/10.1111/1365-3040.ep11591833).
+ *
+ *  ### Specifics of this module
+ *
+ *  In this module, no distinction is made between positive and negative canopy
+ *  assimilation rates. Thus, respiratory losses in the leaf that result in a
+ *  negative canopy assimilation rate are spread out to the other organs.
+ *
+ *  This module includes four organs:
+ *  - `Leaf`: The leaf growth rate is modified by water stress and then
+ *     respiration. Note that this effectively double-counts leaf respiration
+ *     because the net canopy assimilation rate already includes it.
+ *  - `Stem`: The stem growth rate is modified by respiration.
+ *  - `Root`: The root growth rate is modified by respiration.
+ *  - `Rhizome`: The rhizome growth rate is modified by respiration.
+ *
+ *  Here it is assumed that the major effect of water stress on mass
+ *  accumulation is a reduction in the leaf growth rate, following
+ *  [Boyer, J. S. "Leaf Enlargement and Metabolic Rates in Corn, Soybean, and
+ *  Sunflower at Various Leaf Water Potentials" Plant Physiology 46, 233–235 (1970)]
+ *  (https://doi.org/10.1104/pp.46.2.233).
  */
 class partitioning_growth_calculator : public SteadyModule
 {
    public:
-    partitioning_growth_calculator(const std::unordered_map<std::string, double>* input_parameters,
-                                   std::unordered_map<std::string, double>* output_parameters)
+    partitioning_growth_calculator(
+        const state_map* input_parameters,
+        state_map* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("partitioning_growth_calculator"),
+
           // Get pointers to input parameters
           kLeaf_ip(get_ip(input_parameters, "kLeaf")),
           kStem_ip(get_ip(input_parameters, "kStem")),
@@ -33,6 +76,7 @@ class partitioning_growth_calculator : public SteadyModule
           mrc1_ip(get_ip(input_parameters, "mrc1")),
           mrc2_ip(get_ip(input_parameters, "mrc2")),
           temp_ip(get_ip(input_parameters, "temp")),
+
           // Get pointers to output parameters
           newLeafcol_op(get_op(output_parameters, "newLeafcol")),
           newStemcol_op(get_op(output_parameters, "newStemcol")),
@@ -40,8 +84,8 @@ class partitioning_growth_calculator : public SteadyModule
           newRhizomecol_op(get_op(output_parameters, "newRhizomecol"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input parameters
@@ -54,36 +98,40 @@ class partitioning_growth_calculator : public SteadyModule
     const double* mrc1_ip;
     const double* mrc2_ip;
     const double* temp_ip;
+
     // Pointers to output parameters
     double* newLeafcol_op;
     double* newStemcol_op;
     double* newRootcol_op;
     double* newRhizomecol_op;
+
     // Main operation
     void do_operation() const;
 };
 
-std::vector<std::string> partitioning_growth_calculator::get_inputs()
+string_vector partitioning_growth_calculator::get_inputs()
 {
     return {
-        "kLeaf",
-        "kStem",
-        "kRoot",
-        "kRhizome",
-        "canopy_assimilation_rate",
-        "LeafWS",
-        "mrc1",
-        "mrc2",
-        "temp"};
+        "kLeaf",                     // dimensionless
+        "kStem",                     // dimensionless
+        "kRoot",                     // dimensionless
+        "kRhizome",                  // dimensionless
+        "canopy_assimilation_rate",  // Mg / ha / hour
+        "LeafWS",                    // dimensionless
+        "mrc1",                      // dimensionless
+        "mrc2",                      // dimensionless
+        "temp"                       // degrees C
+    };
 }
 
-std::vector<std::string> partitioning_growth_calculator::get_outputs()
+string_vector partitioning_growth_calculator::get_outputs()
 {
     return {
-        "newLeafcol",
-        "newStemcol",
-        "newRootcol",
-        "newRhizomecol"};
+        "newLeafcol",    // Mg / ha / hour
+        "newStemcol",    // Mg / ha / hour
+        "newRootcol",    // Mg / ha / hour
+        "newRhizomecol"  // Mg / ha / hour
+    };
 }
 
 void partitioning_growth_calculator::do_operation() const
@@ -102,25 +150,15 @@ void partitioning_growth_calculator::do_operation() const
 
     double newLeafcol, newStemcol, newRootcol, newRhizomecol;
 
-    // Calculate the amount of new leaf produced
+    // Calculate the rate of new leaf production
     if (kLeaf > 0) {
-        // The major effect of water stress is on leaf expansion rate. See Boyer (1970)
-        //  Plant. Phys. 46, 233-235. For this the water stress coefficient is different
-        //  for leaf and vmax.
         newLeafcol = canopy_assimilation_rate * kLeaf * LeafWS;
-
-        // Tissue respiration. See Amthor (1984) PCE 7, 561-
         newLeafcol = resp(newLeafcol, mrc1, temp);
-
-        // It makes sense to use i because when kLeaf
-        //  is negative no new leaf is being accumulated
-        //  and thus would not be subjected to senescence.
-        // Note: what is 'i'??? (EBL)
     } else {
         newLeafcol = 0.0;
     }
 
-    // Calculate the amount of new stem produced
+    // Calculate the rate of new stem production
     if (kStem >= 0) {
         newStemcol = canopy_assimilation_rate * kStem;
         newStemcol = resp(newStemcol, mrc1, temp);
@@ -128,7 +166,7 @@ void partitioning_growth_calculator::do_operation() const
         newStemcol = 0.0;
     }
 
-    // Calculate the amount of new root produced
+    // Calculate the rate of new root production
     if (kRoot > 0) {
         newRootcol = canopy_assimilation_rate * kRoot;
         newRootcol = resp(newRootcol, mrc2, temp);
@@ -136,16 +174,13 @@ void partitioning_growth_calculator::do_operation() const
         newRootcol = 0.0;
     }
 
-    // Calculate the amount of new rhizome produced
+    // Calculate the rate of new rhizome production
     if (kRhizome > 0) {
         newRhizomecol = canopy_assimilation_rate * kRhizome;
         newRhizomecol = resp(newRhizomecol, mrc2, temp);
     } else {
         newRhizomecol = 0.0;
     }
-
-    // Grain has no respiration or senescence at the moment, so we don't need to calculate
-    //  the amount of new grain here
 
     // Update the output parameter list
     update(newLeafcol_op, newLeafcol);
