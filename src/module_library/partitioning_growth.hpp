@@ -5,12 +5,67 @@
 #include "../state_map.h"
 
 /**
- * @class partitioning_growth
+ *  @class partitioning_growth
  *
- * @brief This module determines tissue mass derivatives based on the output of
- * one of the partitioning growth calculator modules.
- * While this module will function using an adaptive step size integrator, some aspects of
- * it may not work as intended (e.g. the check for negative rhizome mass).
+ *  @brief This module determines the growth rate for several plant organs from
+ *  the net rate of carbon assimilation due to photosynthesis (determined by a
+ *  "partitioning growth calculator" module) and any additional carbon that may
+ *  come from retranslocation.
+ *
+ *  If the partitioning coefficient for an organ is negative, this indicates
+ *  that the organ is donating some of its mass to the other organs. In this
+ *  case, there is a negative term in the rate of change of that organ's mass,
+ *  and smaller positive terms in the rates for the other organs.
+ *
+ *  If the partitioning coefficient for an organ is positive, it is growing. Its
+ *  derivative will have a positive term representing the contribution from
+ *  photosynthesis, and possibly other terms representing retranslocated carbon
+ *  from other organs.
+ *
+ *  This module also keeps track of the time point at which the rhizome changes
+ *  from a carbon source to a sink. This is accomplished via the
+ *  `rhizome_senescence_index`, which increases at a rate of 1 per hour while
+ *  the rhizome is a sink. This quantity is required by the
+ *  `thermal_time_senescence` and `thermal_time_and_frost_senescence` modules,
+ *  which need to look backward in time to the point where each organ begins to
+ *  grow. Ultimately, this is not a good approach to senescence. If / when these
+ *  senescence modules are replaced, the rhizome senescence index can safely be
+ *  removed from this module.
+ *
+ *  Conceptually, there are some problems with this type of carbon allocation
+ *  model.
+ *
+ *  One issue is that the final rates depend on the order in which the organs
+ *  are addressed when mass is being remobilized. In practice this is rarely an
+ *  issue since it is uncommon for multiple organs to act as carbon sources at
+ *  the same time.
+ *
+ *  Another issue is that an organ's mass may become negative when it is being
+ *  retranslocated if the system is being solved using the Euler method with a
+ *  large step size. The rhizome is especially prone to suffer from this issue,
+ *  so a clunky check has been included here to try to prevent it from
+ *  occurring. Note that this check introduces a weird discontinuity and is only
+ *  relevant when using the Euler solver with a step size of one hour. Strange
+ *  behavior may occur when using other solvers for a plant with a remobilizing
+ *  rhizome.
+ *
+ *  The model represented by this module is not officially described anywhere,
+ *  although it has been used for carbon allocation in several published BioCro
+ *  papers, such as the following:
+ *
+ *  - Miguez, F. E., Zhu, X., Humphries, S., Bollero, G. A. & Long, S. P. "A
+ *    semimechanistic model predicting the growth and production of the
+ *    bioenergy crop Miscanthus×giganteus: description, parameterization and
+ *    validation. [GCB Bioenergy 1, 282–296 (2009)]
+ *    (https://doi.org/10.1111/j.1757-1707.2009.01019.x)
+ *
+ *  - Jaiswal, D. et al. Brazilian sugarcane ethanol as an expandable green
+ *    alternative to crude oil use. [Nature Climate Change 7, 788–792 (2017)]
+ *    (https://doi.org/10.1038/nclimate3410)
+ *
+ *  Some discussion of similar models can also be found at several points in
+ *  [Penning de Vries, F. W. T. & Laar, H. H. van. "Simulation of plant growth
+ *  and crop production" (Pudoc, 1982)](http://edepot.wur.nl/167315)
  */
 class partitioning_growth : public DerivModule
 {
@@ -111,7 +166,7 @@ string_vector partitioning_growth::get_outputs()
         "Root",                     // Mg / ha / hour
         "Rhizome",                  // Mg / ha / hour
         "Grain",                    // Mg / ha / hour
-        "rhizome_senescence_index"  // dimensionless
+        "rhizome_senescence_index"  // hour^-1
     };
 }
 
@@ -125,7 +180,7 @@ void partitioning_growth::do_operation() const
     double dGrain {0.0};
     double drhizome_senescence_index {0.0};
 
-    // Determine whether leaf is growing or decaying
+    // Determine whether Leaf is growing or decaying
     if (kLeaf > 0.0) {
         dLeaf += newLeafcol;
     } else {
@@ -136,7 +191,7 @@ void partitioning_growth::do_operation() const
         dGrain += kGrain * (-dLeaf) * retrans;
     }
 
-    // Add any new Stem growth
+    // Determine whether Stem is growing or decaying
     if (kStem >= 0.0) {
         dStem += newStemcol;
     } else {
@@ -158,17 +213,14 @@ void partitioning_growth::do_operation() const
         dGrain += kGrain * (-dRoot) * retrans;
     }
 
-    // Determine whether the rhizome is growing or decaying
+    // Determine whether Rhizome is growing or decaying
     if (kRhizome > 0.0) {
         dRhizome += newRhizomecol;
-        // Here i will not work because the rhizome goes from being a source
-        //  to a sink. I need its own index. Let's call it rhizome's i or ri
-        drhizome_senescence_index += 1.0;
+        drhizome_senescence_index = 1.0;
     } else {
         dRhizome += Rhizome * kRhizome;
         if (dRhizome + Rhizome < 0) {
-            // Don't allow Rhizome mass to become negative
-            // (only guaranteed to work for Euler method with 1 hour timestep)
+            // Try to prevent Rhizome mass from becoming negative
             dRhizome = -0.9 * Rhizome;
         }
         dRoot += kRoot * (-dRhizome) * retrans_rhizome;
@@ -177,7 +229,7 @@ void partitioning_growth::do_operation() const
         dGrain += kGrain * (-dRhizome) * retrans_rhizome;
     }
 
-    // Determine whether the grain is growing
+    // Determine whether Grain is growing
     if (kGrain > 0.0) {
         dGrain += newGraincol;
     }
