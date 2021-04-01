@@ -63,20 +63,20 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
           SteadyModule("no_leaf_resp_partitioning_growth_calculator"),
 
           // Get pointers to input parameters
-          kLeaf_ip(get_ip(input_parameters, "kLeaf")),
-          kStem_ip(get_ip(input_parameters, "kStem")),
-          kRoot_ip(get_ip(input_parameters, "kRoot")),
-          kRhizome_ip(get_ip(input_parameters, "kRhizome")),
-          canopy_assimilation_rate_ip(get_ip(input_parameters, "canopy_assimilation_rate")),
-          mrc1_ip(get_ip(input_parameters, "mrc1")),
-          mrc2_ip(get_ip(input_parameters, "mrc2")),
-          temp_ip(get_ip(input_parameters, "temp")),
+          kLeaf{get_input(input_parameters, "kLeaf")},
+          kStem{get_input(input_parameters, "kStem")},
+          kRoot{get_input(input_parameters, "kRoot")},
+          kRhizome{get_input(input_parameters, "kRhizome")},
+          canopy_assimilation_rate{get_input(input_parameters, "canopy_assimilation_rate")},
+          mrc1{get_input(input_parameters, "mrc1")},
+          mrc2{get_input(input_parameters, "mrc2")},
+          temp{get_input(input_parameters, "temp")},
 
           // Get pointers to output parameters
-          newLeafcol_op(get_op(output_parameters, "newLeafcol")),
-          newStemcol_op(get_op(output_parameters, "newStemcol")),
-          newRootcol_op(get_op(output_parameters, "newRootcol")),
-          newRhizomecol_op(get_op(output_parameters, "newRhizomecol"))
+          newLeafcol_op{get_op(output_parameters, "newLeafcol")},
+          newStemcol_op{get_op(output_parameters, "newStemcol")},
+          newRootcol_op{get_op(output_parameters, "newRootcol")},
+          newRhizomecol_op{get_op(output_parameters, "newRhizomecol")}
     {
     }
     static string_vector get_inputs();
@@ -84,14 +84,14 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
 
    private:
     // Pointers to input parameters
-    const double* kLeaf_ip;
-    const double* kStem_ip;
-    const double* kRoot_ip;
-    const double* kRhizome_ip;
-    const double* canopy_assimilation_rate_ip;
-    const double* mrc1_ip;
-    const double* mrc2_ip;
-    const double* temp_ip;
+    const double& kLeaf;
+    const double& kStem;
+    const double& kRoot;
+    const double& kRhizome;
+    const double& canopy_assimilation_rate;
+    const double& mrc1;
+    const double& mrc2;
+    const double& temp;
 
     // Pointers to output parameters
     double* newLeafcol_op;
@@ -129,17 +129,6 @@ string_vector no_leaf_resp_partitioning_growth_calculator::get_outputs()
 
 void no_leaf_resp_partitioning_growth_calculator::do_operation() const
 {
-    // Collect inputs and make calculations
-
-    double kLeaf = *kLeaf_ip;
-    double kStem = *kStem_ip;
-    double kRoot = *kRoot_ip;
-    double kRhizome = *kRhizome_ip;
-    double canopy_assimilation_rate = *canopy_assimilation_rate_ip;
-    double mrc1 = *mrc1_ip;
-    double mrc2 = *mrc2_ip;
-    double temp = *temp_ip;
-
     double newLeafcol, newStemcol, newRootcol, newRhizomecol;
 
     // Determine the carbon flux to use for the non-leaf organs
