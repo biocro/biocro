@@ -117,9 +117,13 @@ string_vector partitioning_growth::get_outputs()
 
 void partitioning_growth::do_operation() const
 {
-    // Collect inputs and make calculations
-
-    double dLeaf = 0.0, dStem = 0.0, dRoot = 0.0, dRhizome = 0.0, dGrain = 0.0, drhizome_senescence_index = 0.0;
+    // Initialize variables
+    double dLeaf {0.0};
+    double dStem {0.0};
+    double dRoot {0.0};
+    double dRhizome {0.0};
+    double dGrain {0.0};
+    double drhizome_senescence_index {0.0};
 
     // Determine whether leaf is growing or decaying
     if (kLeaf > 0.0) {
