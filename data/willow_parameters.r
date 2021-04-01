@@ -62,6 +62,8 @@ willow_parameters = with(list(), {
     phi1                           0.01
     phi2                           10
     Rd                             1.1
+    retrans                        0.9
+    retrans_rhizome                1.0
     rsec                           0.2
     seneLeaf                       1600
     seneRhizome                    5500

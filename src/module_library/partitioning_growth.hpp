@@ -21,6 +21,8 @@ class partitioning_growth : public DerivModule
         : DerivModule{"partitioning_growth"},
 
           // Get references to input parameters
+          retrans{get_input(input_parameters, "retrans")},
+          retrans_rhizome{get_input(input_parameters, "retrans_rhizome")},
           kLeaf{get_input(input_parameters, "kLeaf")},
           kStem{get_input(input_parameters, "kStem")},
           kRoot{get_input(input_parameters, "kRoot")},
@@ -50,6 +52,8 @@ class partitioning_growth : public DerivModule
 
    private:
     // References to input parameters
+    const double& retrans;
+    const double& retrans_rhizome;
     const double& kLeaf;
     const double& kStem;
     const double& kRoot;
@@ -80,20 +84,22 @@ class partitioning_growth : public DerivModule
 string_vector partitioning_growth::get_inputs()
 {
     return {
-        "kLeaf",          // dimensionless
-        "kStem",          // dimensionless
-        "kRoot",          // dimensionless
-        "kRhizome",       // dimensionless
-        "kGrain",         // dimensionless
-        "newLeafcol",     // Mg / ha / hour
-        "newStemcol",     // Mg / ha / hour
-        "newRootcol",     // Mg / ha / hour
-        "newRhizomecol",  // Mg / ha / hour
-        "newGraincol",    // Mg / ha / hour
-        "Leaf",           // Mg / ha
-        "Stem",           // Mg / ha
-        "Root",           // Mg / ha
-        "Rhizome"         // Mg / ha
+        "retrans",          // dimensionless
+        "retrans_rhizome",  // dimensionless
+        "kLeaf",            // dimensionless
+        "kStem",            // dimensionless
+        "kRoot",            // dimensionless
+        "kRhizome",         // dimensionless
+        "kGrain",           // dimensionless
+        "newLeafcol",       // Mg / ha / hour
+        "newStemcol",       // Mg / ha / hour
+        "newRootcol",       // Mg / ha / hour
+        "newRhizomecol",    // Mg / ha / hour
+        "newGraincol",      // Mg / ha / hour
+        "Leaf",             // Mg / ha
+        "Stem",             // Mg / ha
+        "Root",             // Mg / ha
+        "Rhizome"           // Mg / ha
     };
 }
 
@@ -114,8 +120,6 @@ void partitioning_growth::do_operation() const
     // Collect inputs and make calculations
 
     double dLeaf = 0.0, dStem = 0.0, dRoot = 0.0, dRhizome = 0.0, dGrain = 0.0, drhizome_senescence_index = 0.0;
-
-    double retrans = 0.9;  // 0.9 is the efficiency of retranslocation (EBL: should this really be hard-coded into the model?)
 
     // Determine whether leaf is growing or decaying
     if (kLeaf > 0.0) {
@@ -163,10 +167,10 @@ void partitioning_growth::do_operation() const
             // (only guaranteed to work for Euler method with 1 hour timestep)
             dRhizome = -0.9 * Rhizome;
         }
-        dRoot += kRoot * (-dRhizome);  // Rhizome retranslocation efficiency is 1?
-        dStem += kStem * (-dRhizome);
-        dLeaf += kLeaf * (-dRhizome);
-        dGrain += kGrain * (-dRhizome);
+        dRoot += kRoot * (-dRhizome) * retrans_rhizome;
+        dStem += kStem * (-dRhizome) * retrans_rhizome;
+        dLeaf += kLeaf * (-dRhizome) * retrans_rhizome;
+        dGrain += kGrain * (-dRhizome) * retrans_rhizome;
     }
 
     // Determine whether the grain is growing
