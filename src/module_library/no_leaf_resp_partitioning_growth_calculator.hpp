@@ -46,12 +46,13 @@
  *  This module does not attempt to explicitly include any effect due to water
  *  stress.
  *
- *  This module includes four organs:
+ *  This module includes five organs:
  *  - `Leaf`: The leaf growth rate is *not* modified by respiration because the
  *     net canopy assimilation rate already includes it.
  *  - `Stem`: The stem growth rate is modified by respiration.
  *  - `Root`: The root growth rate is modified by respiration.
  *  - `Rhizome`: The rhizome growth rate is modified by respiration.
+ *  - `Grain`: The grain growth rate is *not* modified by respiration.
  */
 class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
 {
@@ -67,6 +68,7 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
           kStem{get_input(input_parameters, "kStem")},
           kRoot{get_input(input_parameters, "kRoot")},
           kRhizome{get_input(input_parameters, "kRhizome")},
+          kGrain{get_input(input_parameters, "kGrain")},
           canopy_assimilation_rate{get_input(input_parameters, "canopy_assimilation_rate")},
           mrc1{get_input(input_parameters, "mrc1")},
           mrc2{get_input(input_parameters, "mrc2")},
@@ -76,7 +78,8 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
           newLeafcol_op{get_op(output_parameters, "newLeafcol")},
           newStemcol_op{get_op(output_parameters, "newStemcol")},
           newRootcol_op{get_op(output_parameters, "newRootcol")},
-          newRhizomecol_op{get_op(output_parameters, "newRhizomecol")}
+          newRhizomecol_op{get_op(output_parameters, "newRhizomecol")},
+          newGraincol_op{get_op(output_parameters, "newGraincol")}
     {
     }
     static string_vector get_inputs();
@@ -88,6 +91,7 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
     const double& kStem;
     const double& kRoot;
     const double& kRhizome;
+    const double& kGrain;
     const double& canopy_assimilation_rate;
     const double& mrc1;
     const double& mrc2;
@@ -98,6 +102,7 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
     double* newStemcol_op;
     double* newRootcol_op;
     double* newRhizomecol_op;
+    double* newGraincol_op;
 
     // Main operation
     void do_operation() const;
@@ -110,6 +115,7 @@ string_vector no_leaf_resp_partitioning_growth_calculator::get_inputs()
         "kStem",                     // dimensionless
         "kRoot",                     // dimensionless
         "kRhizome",                  // dimensionless
+        "kGrain",                    // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
         "mrc1",                      // dimensionless
         "mrc2",                      // dimensionless
@@ -120,23 +126,23 @@ string_vector no_leaf_resp_partitioning_growth_calculator::get_inputs()
 string_vector no_leaf_resp_partitioning_growth_calculator::get_outputs()
 {
     return {
-        "newLeafcol",    // Mg / ha / hour
-        "newStemcol",    // Mg / ha / hour
-        "newRootcol",    // Mg / ha / hour
-        "newRhizomecol"  // Mg / ha / hour
+        "newLeafcol",     // Mg / ha / hour
+        "newStemcol",     // Mg / ha / hour
+        "newRootcol",     // Mg / ha / hour
+        "newRhizomecol",  // Mg / ha / hour
+        "newGraincol"     // Mg / ha / hour
     };
 }
 
 void no_leaf_resp_partitioning_growth_calculator::do_operation() const
 {
-    double newLeafcol, newStemcol, newRootcol, newRhizomecol;
+    double newLeafcol, newStemcol, newRootcol, newRhizomecol, newGraincol;
 
     // Determine the carbon flux to use for the non-leaf organs
     double nonleaf_carbon_flux;
     if (canopy_assimilation_rate < 0) {
         nonleaf_carbon_flux = 0.0;
-    }
-    else {
+    } else {
         nonleaf_carbon_flux = canopy_assimilation_rate;
     }
 
@@ -176,11 +182,19 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const
         newRhizomecol = 0.0;
     }
 
+    // Calculate the rate of grain production
+    if (kGrain > 0) {
+        newGraincol = nonleaf_carbon_flux * kGrain;
+    } else {
+        newGraincol = 0.0;
+    }
+
     // Update the output parameter list
     update(newLeafcol_op, newLeafcol);
     update(newStemcol_op, newStemcol);
     update(newRootcol_op, newRootcol);
     update(newRhizomecol_op, newRhizomecol);
+    update(newGraincol_op, newGraincol);
 }
 
 #endif

@@ -5,7 +5,7 @@
 
 /**
  * @class partitioning_growth
- * 
+ *
  * @brief This module determines tissue mass derivatives based on the output of
  * either 'partitioning_growth_calculator' or 'no_leaf_resp_partitioning_growth_calculator'.
  * While this module will function using an adaptive step size integrator, some aspects of
@@ -29,6 +29,7 @@ class partitioning_growth : public DerivModule
           newStemcol_ip(get_ip(input_parameters, "newStemcol")),
           newRootcol_ip(get_ip(input_parameters, "newRootcol")),
           newRhizomecol_ip(get_ip(input_parameters, "newRhizomecol")),
+          newGraincol_ip(get_ip(input_parameters, "newGraincol")),
           Leaf_ip(get_ip(input_parameters, "Leaf")),
           Stem_ip(get_ip(input_parameters, "Stem")),
           Root_ip(get_ip(input_parameters, "Root")),
@@ -57,6 +58,7 @@ class partitioning_growth : public DerivModule
     const double* newStemcol_ip;
     const double* newRootcol_ip;
     const double* newRhizomecol_ip;
+    const double* newGraincol_ip;
     const double* Leaf_ip;
     const double* Stem_ip;
     const double* Root_ip;
@@ -85,6 +87,7 @@ std::vector<std::string> partitioning_growth::get_inputs()
         "newStemcol",
         "newRootcol",
         "newRhizomecol",
+        "newGraincol",
         "Leaf",
         "Stem",
         "Root",
@@ -117,6 +120,7 @@ void partitioning_growth::do_operation() const
     double newStemcol = *newStemcol_ip;
     double newRootcol = *newRootcol_ip;
     double newRhizomecol = *newRhizomecol_ip;
+    double newGraincol = *newGraincol_ip;
 
     double Leaf = *Leaf_ip;
     double Stem = *Stem_ip;
@@ -180,8 +184,8 @@ void partitioning_growth::do_operation() const
     }
 
     // Determine whether the grain is growing
-    if (kGrain > 0.0 && canopy_assimilation_rate > 0.0) {
-        dGrain += canopy_assimilation_rate * kGrain;
+    if (kGrain > 0.0) {
+        dGrain += newGraincol;
     }
 
     // Update the output parameter list

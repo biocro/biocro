@@ -43,13 +43,16 @@
  *  assimilation rates. Thus, respiratory losses in the leaf that result in a
  *  negative canopy assimilation rate are spread out to the other organs.
  *
- *  This module includes four organs:
+ *  This module includes five organs:
  *  - `Leaf`: The leaf growth rate is modified by water stress and then
  *     respiration. Note that this effectively double-counts leaf respiration
  *     because the net canopy assimilation rate already includes it.
  *  - `Stem`: The stem growth rate is modified by respiration.
  *  - `Root`: The root growth rate is modified by respiration.
  *  - `Rhizome`: The rhizome growth rate is modified by respiration.
+ *  - `Grain`: The grain growth rate is *not* modified by respiration and is not
+ *     allowed to become negative, even when the canopy assimilation rate is
+ *     negative.
  *
  *  Here it is assumed that the major effect of water stress on mass
  *  accumulation is a reduction in the leaf growth rate, following
@@ -71,6 +74,7 @@ class partitioning_growth_calculator : public SteadyModule
           kStem{get_input(input_parameters, "kStem")},
           kRoot{get_input(input_parameters, "kRoot")},
           kRhizome{get_input(input_parameters, "kRhizome")},
+          kGrain{get_input(input_parameters, "kGrain")},
           canopy_assimilation_rate{get_input(input_parameters, "canopy_assimilation_rate")},
           LeafWS{get_input(input_parameters, "LeafWS")},
           mrc1{get_input(input_parameters, "mrc1")},
@@ -81,7 +85,8 @@ class partitioning_growth_calculator : public SteadyModule
           newLeafcol_op{get_op(output_parameters, "newLeafcol")},
           newStemcol_op{get_op(output_parameters, "newStemcol")},
           newRootcol_op{get_op(output_parameters, "newRootcol")},
-          newRhizomecol_op{get_op(output_parameters, "newRhizomecol")}
+          newRhizomecol_op{get_op(output_parameters, "newRhizomecol")},
+          newGraincol_op{get_op(output_parameters, "newGraincol")}
     {
     }
     static string_vector get_inputs();
@@ -93,6 +98,7 @@ class partitioning_growth_calculator : public SteadyModule
     const double& kStem;
     const double& kRoot;
     const double& kRhizome;
+    const double& kGrain;
     const double& canopy_assimilation_rate;
     const double& LeafWS;
     const double& mrc1;
@@ -104,6 +110,7 @@ class partitioning_growth_calculator : public SteadyModule
     double* newStemcol_op;
     double* newRootcol_op;
     double* newRhizomecol_op;
+    double* newGraincol_op;
 
     // Main operation
     void do_operation() const;
@@ -116,6 +123,7 @@ string_vector partitioning_growth_calculator::get_inputs()
         "kStem",                     // dimensionless
         "kRoot",                     // dimensionless
         "kRhizome",                  // dimensionless
+        "kGrain",                    // dimensionless
         "canopy_assimilation_rate",  // Mg / ha / hour
         "LeafWS",                    // dimensionless
         "mrc1",                      // dimensionless
@@ -127,16 +135,17 @@ string_vector partitioning_growth_calculator::get_inputs()
 string_vector partitioning_growth_calculator::get_outputs()
 {
     return {
-        "newLeafcol",    // Mg / ha / hour
-        "newStemcol",    // Mg / ha / hour
-        "newRootcol",    // Mg / ha / hour
-        "newRhizomecol"  // Mg / ha / hour
+        "newLeafcol",     // Mg / ha / hour
+        "newStemcol",     // Mg / ha / hour
+        "newRootcol",     // Mg / ha / hour
+        "newRhizomecol",  // Mg / ha / hour
+        "newGraincol"     // Mg / ha / hour
     };
 }
 
 void partitioning_growth_calculator::do_operation() const
 {
-    double newLeafcol, newStemcol, newRootcol, newRhizomecol;
+    double newLeafcol, newStemcol, newRootcol, newRhizomecol, newGraincol;
 
     // Calculate the rate of new leaf production
     if (kLeaf > 0) {
@@ -170,11 +179,19 @@ void partitioning_growth_calculator::do_operation() const
         newRhizomecol = 0.0;
     }
 
+    // Calculate the rate of grain production
+    if (kGrain > 0 && canopy_assimilation_rate > 0) {
+        newGraincol = canopy_assimilation_rate * kGrain;
+    } else {
+        newGraincol = 0.0;
+    }
+
     // Update the output parameter list
     update(newLeafcol_op, newLeafcol);
     update(newStemcol_op, newStemcol);
     update(newRootcol_op, newRootcol);
     update(newRhizomecol_op, newRhizomecol);
+    update(newGraincol_op, newGraincol);
 }
 
 #endif

@@ -46,7 +46,7 @@
  *  This module does not attempt to explicitly include any effect due to water
  *  stress.
  *
- *  This module includes four organs:
+ *  This module includes five organs:
  *  - `Leaf`: The leaf growth rate is *not* modified by respiration because the
  *     net canopy assimilation rate already includes it.
  *  - `Stem`: The stem growth rate is modified by respiration.
