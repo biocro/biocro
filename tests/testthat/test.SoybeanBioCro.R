@@ -30,7 +30,7 @@ RELATIVE_ERROR_TOLERANCE <- 5e-3
 # need to use a lower error tolerance than the default values (1e-4) to minimize
 # differences due to operating system or other factors.
 SOLVER <- list(
-  type = 'Gro',
+  type = 'Gro_rkck54',
   output_step_size = 1.0,
   adaptive_rel_error_tol = 1e-5,
   adaptive_abs_error_tol = 1e-5,
@@ -244,12 +244,12 @@ update_stored_results <- function(test_info) {
 SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
-plant_testing_info <- list(
+PLANT_TESTING_INFO <- list(
   specify_crop("soybean",  soybean_initial_state,  soybean_parameters,  soybean_weather2002,  soybean_steadystate_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
 )
 
 # Run all the tests
-for(i in 1:length(plant_testing_info)) {
+for(i in 1:length(PLANT_TESTING_INFO)) {
   
-  test_plant_model(plant_testing_info[[i]])
+  test_plant_model(PLANT_TESTING_INFO[[i]])
 }
