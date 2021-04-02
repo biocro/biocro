@@ -8,8 +8,8 @@
 /**
  *  @class no_leaf_resp_neg_assim_partitioning_growth_calculator
  *
- *  @brief Uses a set of partitioning coefficients to determine mass
- *  assimilation rates for several plant organs.
+ *  @brief Uses a set of partitioning coefficients to determine net assimilation
+ *  rates due to photosynthesis and respiration for several plant organs.
  *
  *  ### Partitioning overview
  *
