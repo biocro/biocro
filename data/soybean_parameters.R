@@ -6,11 +6,11 @@ soybean_parameters = with(list(), {
     soil_type_indicator                     6
 
     # leaf_water_stress_exponential module
-    phi2                                    1.5         # from sugarcane-biocro, Jaiswal et al. 2017 (https://doi.org/10.1038/nclimate3410)
+    phi2                                    1.5         # from Sugarcane-BioCro, Jaiswal et al. 2017 (https://doi.org/10.1038/nclimate3410)
 
     # parameter_calculator module
     iSp                                     3.5         # 2002 average lai / leaf biomass, Dermody et al. 2006 (https://doi.org/10.1111/j.1469-8137.2005.01565.x), Morgan et al. 2005 (https://doi.org/10.1111/j.1365-2486.2005.001017.x)
-    Sp_thermal_time_decay                   0           # not used in Soybean-BioCro, but must be defined
+    Sp_thermal_time_decay                   0           # not used in Soybean-BioCro (see Note 1 at end of file), but must be defined
     LeafN_0                                 2           # not used in Soybean-BioCro, but must be defined
     vmax_n_intercept                        0           # not used in Soybean-BioCro, but must be defined
     vmax1                                   110         # Bernacchi et. al. 2005 (https://doi.org/10.1007/s00425-004-1320-8), 2002 Seasonal average
@@ -66,7 +66,7 @@ soybean_parameters = with(list(), {
     chil                                    0.81        # Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Table 15.1, pg 253
     kd                                      0.7         # Estimated from Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Figure 15.4, pg 254
     heightf                                 3           # m^-1
-    kpLN                                    0           # not used in Soybean-BioCro
+    kpLN                                    0           # not used in Soybean-BioCro (see Note 1 at end of file)
     lnfun                                   0           # not used in Soybean-BioCro
 
     # ten_layer_c3_canopy module
@@ -97,15 +97,15 @@ soybean_parameters = with(list(), {
     # senescence_coefficient_logistic module
     rateSeneLeaf                            0.01213
     rateSeneStem                            0.0005760
-    rateSeneRoot                            0           # senescence of root not simulated in soybean-biocro
+    rateSeneRoot                            0           # senescence of root not simulated in Soybean-Biocro (see Note 1 at end of file)
     rateSeneRhizome                         0           # no rhizome simulated in soybean-biocro
     alphaSeneLeaf                           30.05
     alphaSeneStem                           22.54
-    alphaSeneRoot                           10          # senescence of root not simulated in soybean-biocro (rateSeneRoot=0)
+    alphaSeneRoot                           10          # senescence of root not simulated in Soybean-Biocro (rateSeneRoot=0)
     alphaSeneRhizome                        10          # no rhizome in soybean-biocro (rateSeneRhizome=0)
     betaSeneLeaf                            -17.83
     betaSeneStem                            -15.61
-    betaSeneRoot                            -10         # senescence of root not simulated in soybean-biocro (rateSeneRoot=0)
+    betaSeneRoot                            -10         # senescence of root not simulated in Soybean-Biocro (rateSeneRoot=0)
     betaSeneRhizome                         -10         # no rhizome in soybean-biocro (rateSeneRhizome=0)
 
     # thermal_time_senescence_logistic module
@@ -133,4 +133,8 @@ soybean_parameters = with(list(), {
     names(values) = data_frame$symbol
     values
 })
+
+# Note 1: Soybean-BioCro refers to the simulation scenarios defined by the the soybean
+#         data files (soybean_inintial_state, soybean_parameters, soybean_modules). See 
+#         Matthews et al. (doi: TBA) for more on the current version of Soybean-BioCro. 
 
