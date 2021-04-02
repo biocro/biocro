@@ -4,6 +4,88 @@
 #include "../modules.h"
 #include "../state_map.h"
 
+/**
+ *  @class thermal_time_senescence
+ *
+ *  @brief Determines senescence rates for several plant organs based on thermal
+ *  time thresholds and magical time travel; only compatible with a fixed-step
+ *  Euler solver.
+ *
+ *  ### Model overview
+ *
+ *  This module calculates senescence for the following organs:
+ *  - `Leaf`
+ *  - `Stem`
+ *  - `Root`
+ *  - `Rhizome`
+ *
+ *  For a particular organ, senescence begins to occur after the total thermal
+ *  time passes a threshold value. When this happens for the leaf, some of its
+ *  mass is lost, with a fraction being remobilized to other organs and the
+ *  remainder contributing to the litter. The other organs contribute to litter
+ *  but their tissue is not remobilized.
+ *
+ *  It is possible for the grain to gain mass that was remobilized from the
+ *  leaf, although grain senescence is not considered here.
+ *
+ *  To decide how much mass is being lost, this model looks back in time. For
+ *  the first timestep after senescence starts, this model assumes that the
+ *  amount of mass lost is equal to the amount of mass that organ gained during
+ *  its first timestep of growth. Then, for the second timestep after senescence
+ *  starts, the organ loses the amount of mass it gained during its second hour
+ *  of growth. This process is repeated indefinitely.
+ *
+ *  For some reason, this model does not consider any mass gained due to carbon
+ *  remoblization or retranslocation; it only considers the net amount of carbon
+ *  gained through photosynthesis.
+ *
+ *  There are some problems with this type of senescence model:
+ *  - In reality, a plant does not "remember" how much it grew at a particular
+ *    time in the past.
+ *  - This method only works with a fixed-step Euler solver.
+ *  - If the model runs long enough, it will become oscillatory.
+ *
+ *  ### Details of implementation
+ *
+ *  In general, this model will be solved for a set of N time points `t_0`,
+ *  `t_1`, ..., `t_{N-1}`. We can think of them as being labeled by an integer
+ *  "index" i = 0, 1, ..., N-1. So, at each time point, this module stores the
+ *  net rate of carbon assimilation due to photosynthesis in its
+ *  `assim_rate_XXX_vec` members. When senescence begins for an organ, the
+ *  senescence rate is determined from the 0th element of its associated
+ *  `assim_rate_XXX_vec` vector. For the next timestep, element 1 is used. So on
+ *  and so forth. This module uses the "senescence index" quantities to keep
+ *  track of the index to use for senescence calculations.
+ *
+ *  Special care must be taken for the rhizome, since it may begin the
+ *  simulation as a carbon source rather than a carbon sink. In this case, the
+ *  0th element of the `assim_rate_rhizome_vec` vector would not correspond to
+ *  the rhizome's first timestep of growth. To account for this, the
+ *  `rhizome_senescence_index` must be incremented while it is a carbon source.
+ *  Then, when senescence kicks in later, the rhizome senescence index will
+ *  refer to the first time point when the rhizome began to grow, rather than
+ *  the first time point of the simulation.
+ *
+ *  Obviously this system is very fragile and requires some assumption about the
+ *  behavior of the rhizome. Also, if any other organs ever act as carbon
+ *  sources, they may not be handled properly.
+ *
+ *  ### Source
+ *
+ *  The model represented by this module is not officially described anywhere,
+ *  although it has been used for senescence in several published BioCro papers,
+ *  such as the following:
+ *
+ *  - Miguez, F. E., Zhu, X., Humphries, S., Bollero, G. A. & Long, S. P. "A
+ *    semimechanistic model predicting the growth and production of the
+ *    bioenergy crop Miscanthus×giganteus: description, parameterization and
+ *    validation. [GCB Bioenergy 1, 282–296 (2009)]
+ *    (https://doi.org/10.1111/j.1757-1707.2009.01019.x)
+ *
+ *  - Jaiswal, D. et al. Brazilian sugarcane ethanol as an expandable green
+ *    alternative to crude oil use. [Nature Climate Change 7, 788–792 (2017)]
+ *    (https://doi.org/10.1038/nclimate3410)
+ */
 class thermal_time_senescence : public DerivModule
 {
    public:
@@ -171,16 +253,14 @@ void thermal_time_senescence::do_operation() const
     double drhizome_senescence_index{0.0};
 
     if (TTc >= seneLeaf) {
-        // Look back in time to find out how much the tissue grew in the past.
+        // Look back in time to find out how much the tissue grew in the past
         double change = assim_rate_leaf_vec[leaf_senescence_index];
 
-        // Subtract the new growth from the tissue derivative
-        // This means that the new value of leaf is the previous value
-        //  plus the newLeaf(Senescence might start when there is still leaf being produced)
-        //  minus the leaf produced at the corresponding k
+        // Subtract the rate of new growth that occurred in the past from the
+        // derivative
         dLeaf -= change;
 
-        // Remobilize some of the lost leaf tissue and send the rest to the litter
+        // Remobilize some of the lost tissue and send the rest to the litter
         dLeafLitter += change * (1.0 - remobilization_fraction);
         dRhizome += kRhizome * change * remobilization_fraction;
         dStem += kStem * change * remobilization_fraction;
@@ -192,10 +272,11 @@ void thermal_time_senescence::do_operation() const
     }
 
     if (TTc >= seneStem) {
-        // Look back in time to find out how much the tissue grew in the past.
+        // Look back in time to find out how much the tissue grew in the past
         double change = assim_rate_stem_vec[stem_senescence_index];
 
-        // Subtract the new growth from the tissue derivative
+        // Subtract the rate of new growth that occurred in the past from the
+        // derivative
         dStem -= change;
 
         // Send the lost tissue to the litter
@@ -206,10 +287,11 @@ void thermal_time_senescence::do_operation() const
     }
 
     if (TTc >= seneRoot) {
-        // Look back in time to find out how much the tissue grew in the past.
+        // Look back in time to find out how much the tissue grew in the past
         double change = assim_rate_root_vec[root_senescence_index];
 
-        // Subtract the new growth from the tissue derivative
+        // Subtract the rate of new growth that occurred in the past from the
+        // derivative
         dRoot -= change;
 
         // Send the lost tissue to the litter
@@ -219,16 +301,17 @@ void thermal_time_senescence::do_operation() const
         droot_senescence_index++;
     }
 
-    if (kRhizome > 0) {
-        // Increment the rhizome senescence index if it is acting as a sink
+    if (kRhizome < 0) {
+        // Increment the rhizome senescence index if it is acting as a source
         drhizome_senescence_index++;
     }
 
     if (TTc >= seneRhizome) {
-        // Look back in time to find out how much the tissue grew in the past.
+        // Look back in time to find out how much the tissue grew in the past
         double change = assim_rate_rhizome_vec[rhizome_senescence_index];
 
-        // Subtract the new growth from the tissue derivative
+        // Subtract the rate of new growth that occurred in the past from the
+        // derivative
         dRhizome -= change;
 
         // Send the lost tissue to the litter

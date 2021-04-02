@@ -4,6 +4,87 @@
 #include "../modules.h"
 #include "../state_map.h"
 
+/**
+ *  @class thermal_time_and_frost_senescence
+ *
+ *  @brief Determines senescence rates for several plant organs based on thermal
+ *  time thresholds, the occurrence of frost, and magical time travel; only
+ *  compatible with a fixed-step Euler solver.
+ *
+ *  ### Model overview
+ *
+ *  This module calculates senescence for the following organs:
+ *  - `Leaf`
+ *  - `Stem`
+ *  - `Root`
+ *  - `Rhizome`
+ *
+ *  For a particular organ, senescence begins to occur after the total thermal
+ *  time passes a threshold value. When this happens for the leaf, some of its
+ *  mass is lost, with a fraction being remobilized to other organs and the
+ *  remainder contributing to the litter. The other organs contribute to litter
+ *  but their tissue is not remobilized.
+ *
+ *  It is possible for the grain to gain mass that was remobilized from the
+ *  leaf, although grain senescence is not considered here.
+ *
+ *  To decide how much mass is being lost from stem, root, and rhizome, this
+ *  model looks back in time. For the first timestep after senescence starts,
+ *  this model assumes that the amount of mass lost is equal to the amount of
+ *  mass that organ gained during its first timestep of growth. Then, for the
+ *  second timestep after senescence starts, the organ loses the amount of mass
+ *  it gained during its second hour of growth. This process is repeated
+ *  indefinitely.
+ *
+ *  For some reason, this model does not consider any mass gained due to carbon
+ *  remoblization or retranslocation; it only considers the net amount of carbon
+ *  gained through photosynthesis.
+ *
+ *  The leaf is treated differently and only begins to senescence when a
+ *  temperature threshold is crossed in addition to the thermal time threshold.
+ *  Its senescence rate is based on frost alone, rather than magical time
+ *  travel.
+ *
+ *  There are some problems with this type of senescence model:
+ *  - In reality, a plant does not "remember" how much it grew at a particular
+ *    time in the past.
+ *  - This method only works with a fixed-step Euler solver.
+ *  - If the model runs long enough, it will become oscillatory.
+ *
+ *  ### Details of implementation
+ *
+ *  In general, this model will be solved for a set of N time points `t_0`,
+ *  `t_1`, ..., `t_{N-1}`. We can think of them as being labeled by an integer
+ *  "index" i = 0, 1, ..., N-1. So, at each time point, this module stores the
+ *  net rate of carbon assimilation due to photosynthesis in its
+ *  `assim_rate_XXX_vec` members. When senescence begins for an organ, the
+ *  senescence rate is determined from the 0th element of its associated
+ *  `assim_rate_XXX_vec` vector. For the next timestep, element 1 is used. So on
+ *  and so forth. This module uses the "senescence index" quantities to keep
+ *  track of the index to use for senescence calculations.
+ *
+ *  Special care must be taken for the rhizome, since it may begin the
+ *  simulation as a carbon source rather than a carbon sink. In this case, the
+ *  0th element of the `assim_rate_rhizome_vec` vector would not correspond to
+ *  the rhizome's first timestep of growth. To account for this, the
+ *  `rhizome_senescence_index` must be incremented while it is a carbon source.
+ *  Then, when senescence kicks in later, the rhizome senescence index will
+ *  refer to the first time point when the rhizome began to grow, rather than
+ *  the first time point of the simulation.
+ *
+ *  Obviously this system is very fragile and requires some assumption about the
+ *  behavior of the rhizome. Also, if any other organs ever act as carbon
+ *  sources, they may not be handled properly.
+ *
+ *  ### Source
+ *
+ *  The model represented by this module was used in one published BioCro paper:
+ *
+ *  - Wang, D. et al. "A physiological and biophysical model of coppice willow
+ *    (Salix spp.) production yields for the contiguous USA in current and
+ *    future climate scenarios" [Plant, Cell & Environment 38, 1850–1865 (2015)]
+ *    (https://doi.org/10.1111/pce.12556)
+ */
 class thermal_time_and_frost_senescence : public DerivModule
 {
    public:
@@ -195,16 +276,20 @@ void thermal_time_and_frost_senescence::do_operation() const
         bool A = lat >= 0.0;               // In Northern hemisphere
         bool B = time >= 180.0;            // In second half of the year
         if ((A && B) || ((!A) && (!B))) {  // Winter in either hemisphere
-            // frost_leaf_death_rate changes linearly from 100 to 0 as temp changes from Tfrostlow to Tfrosthigh and is limited to [0,100]
-            std::max(0.0, std::min(100.0, 100.0 * (Tfrosthigh - temp) / (Tfrosthigh - Tfrostlow)));
+            // frost_leaf_death_rate changes linearly from 100 to 0 as temp
+            // changes from Tfrostlow to Tfrosthigh and is limited to [0,100]
+            std::max(0.0, std::min(100.0, 100.0 * (Tfrosthigh - temp) /
+                                              (Tfrosthigh - Tfrostlow)));
         }
     }
 
-    // The current leaf death rate is the larger of the previously stored leaf death rate and the new frost death rate
-    // I.e., the leaf death rate sometimes increases but never decreases
-    double current_leaf_death_rate = std::max(leafdeathrate, frost_leaf_death_rate);
+    // The current leaf death rate is the larger of the previously stored leaf
+    // death rate and the new frost death rate. I.e., the leaf death rate
+    // sometimes increases but never decreases
+    double current_leaf_death_rate = std::max(leafdeathrate,
+                                              frost_leaf_death_rate);
 
-    // Report the change in leaf death rate as the derivative of leafdeathrate
+    // Report the change in leaf death rate as the derivative of leafdeathrate.
     // Note: this will probably only work well with the Euler method
     dLeafdeathrate = current_leaf_death_rate - leafdeathrate;
 
@@ -213,8 +298,9 @@ void thermal_time_and_frost_senescence::do_operation() const
         // Use the leaf death rate to determine the change in leaf mass
         double change = Leaf * current_leaf_death_rate * (0.01 / 24);
 
-        // Remobilize some of the lost leaf tissue and send the rest to the litter
-        dLeaf += -change + kLeaf * change * remobilization_fraction;  // Why does the leaf remobilize its own tissue? (EBL)
+        // Remobilize some of the lost leaf tissue and send the rest to the
+        // litter. EBL wonders: why does the leaf remobilize its own tissue?
+        dLeaf += -change + kLeaf * change * remobilization_fraction;
         dLeafLitter += change * (1.0 - remobilization_fraction);
         dRhizome += kRhizome * change * remobilization_fraction;
         dStem += kStem * change * remobilization_fraction;
@@ -252,8 +338,8 @@ void thermal_time_and_frost_senescence::do_operation() const
         droot_senescence_index++;
     }
 
-    if (kRhizome > 0) {
-        // Increment the rhizome senescence index if it is acting as a sink
+    if (kRhizome < 0) {
+        // Increment the rhizome senescence index if it is acting as a source
         drhizome_senescence_index++;
     }
 
@@ -271,8 +357,6 @@ void thermal_time_and_frost_senescence::do_operation() const
         // Increment the tissue senescence index
         drhizome_senescence_index++;
     }
-
-    // No grain senescence, although grain might gain some remobilized leaf tissue
 
     // Update the output parameter list
     update(leafdeathrate_op, dLeafdeathrate);
