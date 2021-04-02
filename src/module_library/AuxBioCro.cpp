@@ -364,8 +364,8 @@ void WINDprof(double WindSpeed, double LAI, int nlayers,
  * from Stephen Humphries's thesis, which is not available online:
  *
  * Humphries, S. "Will mechanistically rich models provide us with new insights
- * into the response of plant production to climate change? : development and
- * experiments with WIMOVAC : (Windows Intuitive Model of Vegetation response
+ * into the response of plant production to climate change?: development and
+ * experiments with WIMOVAC: (Windows Intuitive Model of Vegetation response
  * to Atmosphere & Climate Change)" (University of Essex, 2002).
  *
  * ---
@@ -1040,8 +1040,8 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
  *  @brief Subtracts respiratory losses from a carbon production rate
  *
  *  @param [in] base_rate The base rate of carbon production that does not
- *                        respiratory losses. Any units are acceptable, e.g.
- *                        mol / m^2 / s or Mg / ha / hour.
+ *                        include respiratory losses. Any units are acceptable,
+ *                        e.g. mol / m^2 / s or Mg / ha / hour.
  *
  *  @param [in] mrc Maintenance respiration coefficient (dimensionless)
  *
@@ -1050,43 +1050,74 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
  *  @return A modified rate having the same units as `base_rate` where
  *          respiratory losses have been subtracted
  *
+ *  ### Model overview
+ *
  *  The idea here is that the net carbon assimilation rate (`A_n`) is given by
  *
- *  `A_n = A_g - R` (1)
+ *  > `A_n = A_g - R` (1)
  *
  *  where `A_g` is the gross assimilation rate or the production rate and `R` is
  *  the respiration rate. A further assumption is that respiration is
  *  proportional to production, i.e.
  *
- *  `R = R_c * A_g` (2)
+ *  > `R = R_c * A_g` (2)
  *
  *  where `R_c` is a dimensionless coefficient that lies on the interval [0,1].
  *  Combining equations (1) and (2), we can express the net assimilation rate
  *  as a function of the gross assimilation rate and the respiration
  *  coefficient:
  *
- *  `A_n = A_g - R_c * A_g =  A_g * (1 - R_c)` (3)
+ *  > `A_n = A_g - R_c * A_g =  A_g * (1 - R_c)` (3)
  *
  *  In this function, the temperature dependence of the respiration coefficient
- *  is modeled using a simple "Q10" method where `Q10 = 2`, i.e.,
+ *  is modeled using a simple "Q10" method where `Q10 = 2` and the base
+ *  temperature is 0 degrees C, i.e.,
  *
- *  `R_c = R_c_0 * 2^(T / 10)` (4)
+ *  > `R_c = R_c_0 * 2^(T / 10)` (4)
  *
- *  where `T` is the temperature. Combining equations (3) and (4), we finally
- *  arrive at a relationship between net assimilation, gross assimilation, and
- *  temperature:
+ *  where `T` is the temperature in Celsius. Combining equations (3) and (4), we
+ *  finally arrive at a relationship between net assimilation, gross
+ *  assimilation, and temperature:
  *
- *  `A_n = A_g * (1 - R_c_0 * 2^(T / 10))` (5)
+ *  > `A_n = A_g * (1 - R_c_0 * 2^(T / 10))` (5)
  *
  *  In the code below, `base_rate` represents the gross assimilation rate `A_g`,
  *  `mrc` represents the maintenance respiration coefficient `R_c_0`, and `temp`
  *  represents the temperature `T`.
  *
- *  An older version of this documentation cites "McCree (1970) and Penning de
- *  Vries (1972)" for this formula. However, I couldn't figure out exactly which
- *  papers this citation referred to, and I haven't been able to track down
- *  another source for Equation (5). For some general discussions about
- *  respiration, see the following two sources:
+ *  ### Sources
+ *
+ *  In Stephen Humphries's thesis, he describes the respiration model in the
+ *  following way: "The respiration model of McCree (1970) modified according to
+ *  Penning de Vries (1972) and Thornley (1970) is used here to predict plant
+ *  respiration... The respiration associated with each plant structure is
+ *  modified according to the temperature of the structure using a Q10
+ *  approximation with a value of 2 as described by Spain and Keen (1992)."
+ *
+ *  I (EBL) believe these references to be to the following documents:
+ *
+ *  - [de Vries, F. P. "Respiration and growth" in "Crop processes in controlled
+ *    environments" 327–347 (Academic Press, 1972)]
+ *    (https://library.wur.nl/WebQuery/wurpubs/fulltext/218533)
+ *
+ *  - [Thornley, J. H. M. "Respiration, Growth and Maintenance in Plants" Nature
+ *    227, 304–305 (1970)](https://doi.org/10.1038/227304b0)
+ *
+ *  - McCree, K. "An equation for the rate of respiration of whiteclover plants
+ *    grown under controlled conditions" in: "Prediction and measurement
+ *    of photosynthetic productivity" Wageningen: Centre for Agricultural
+ *    Publishing and Documentation, 221-229 (1970)
+ *
+ *  - Keen, R. E. & Spain, J. D. "Computer simulation in biology. A BASIC
+ *    introduction" (1992)
+ *
+ *  I believe the McCree, Thornley, and de Vries papers describe the
+ *  relationship between gross assimilation and respiration, while the Keen &
+ *  Spain book describes the temperature dependence. Unfortunately, I can't find
+ *  an online version of that book so I can't be sure.
+ *
+ *  For some general discussions about respiration, see the following two
+ *  sources:
  *
  *  - [Amthor, J. S. "The McCree–de Wit–Penning de Vries–Thornley Respiration
  *    Paradigms: 30 Years Later" Ann Bot 86, 1–20 (2000)]
@@ -1095,6 +1126,13 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
  *  - [Amthor, J. S. "The role of maintenance respiration in plant growth."
  *    Plant, Cell & Environment 7, 561–569 (1984)]
  *    (https://doi.org/10.1111/1365-3040.ep11591833)
+ *
+ *  The Humphries thesis is also unfortunately not available online:
+ *
+ *  Humphries, S. "Will mechanistically rich models provide us with new insights
+ *  into the response of plant production to climate change?: development and
+ *  experiments with WIMOVAC: (Windows Intuitive Model of Vegetation response
+ *  to Atmosphere & Climate Change)" (University of Essex, 2002)
  */
 double resp(double base_rate, double mrc, double temp) {
     double ans = base_rate *  (1 - (mrc * pow(2, (temp / 10.0))));

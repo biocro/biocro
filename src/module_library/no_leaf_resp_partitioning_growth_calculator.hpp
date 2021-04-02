@@ -8,8 +8,8 @@
 /**
  *  @class no_leaf_resp_partitioning_growth_calculator
  *
- *  @brief Uses a set of partitioning coefficients to determine mass
- *  assimilation rates for several plant organs.
+ *  @brief Uses a set of partitioning coefficients to determine net assimilation
+ *  rates due to photosynthesis and respiration for several plant organs.
  *
  *  ### Partitioning overview
  *
@@ -40,7 +40,7 @@
  *  ### Specifics of this module
  *
  *  When the canopy assimilation rate is negative, this module ensures that all
- *  losses come from the leaf and the growth rates for the other organs are set
+ *  losses come from the leaf, and the growth rates for the other organs are set
  *  to zero since no carbon is flowing out of the leaf.
  *
  *  This module does not attempt to explicitly include any effect due to water
@@ -75,11 +75,11 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
           temp{get_input(input_parameters, "temp")},
 
           // Get pointers to output parameters
-          newLeafcol_op{get_op(output_parameters, "newLeafcol")},
-          newStemcol_op{get_op(output_parameters, "newStemcol")},
-          newRootcol_op{get_op(output_parameters, "newRootcol")},
-          newRhizomecol_op{get_op(output_parameters, "newRhizomecol")},
-          newGraincol_op{get_op(output_parameters, "newGraincol")}
+          net_assimilation_rate_leaf_op{get_op(output_parameters, "net_assimilation_rate_leaf")},
+          net_assimilation_rate_stem_op{get_op(output_parameters, "net_assimilation_rate_stem")},
+          net_assimilation_rate_root_op{get_op(output_parameters, "net_assimilation_rate_root")},
+          net_assimilation_rate_rhizome_op{get_op(output_parameters, "net_assimilation_rate_rhizome")},
+          net_assimilation_rate_grain_op{get_op(output_parameters, "net_assimilation_rate_grain")}
     {
     }
     static string_vector get_inputs();
@@ -98,11 +98,11 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
     const double& temp;
 
     // Pointers to output parameters
-    double* newLeafcol_op;
-    double* newStemcol_op;
-    double* newRootcol_op;
-    double* newRhizomecol_op;
-    double* newGraincol_op;
+    double* net_assimilation_rate_leaf_op;
+    double* net_assimilation_rate_stem_op;
+    double* net_assimilation_rate_root_op;
+    double* net_assimilation_rate_rhizome_op;
+    double* net_assimilation_rate_grain_op;
 
     // Main operation
     void do_operation() const;
@@ -126,17 +126,21 @@ string_vector no_leaf_resp_partitioning_growth_calculator::get_inputs()
 string_vector no_leaf_resp_partitioning_growth_calculator::get_outputs()
 {
     return {
-        "newLeafcol",     // Mg / ha / hour
-        "newStemcol",     // Mg / ha / hour
-        "newRootcol",     // Mg / ha / hour
-        "newRhizomecol",  // Mg / ha / hour
-        "newGraincol"     // Mg / ha / hour
+        "net_assimilation_rate_leaf",     // Mg / ha / hour
+        "net_assimilation_rate_stem",     // Mg / ha / hour
+        "net_assimilation_rate_root",     // Mg / ha / hour
+        "net_assimilation_rate_rhizome",  // Mg / ha / hour
+        "net_assimilation_rate_grain"     // Mg / ha / hour
     };
 }
 
 void no_leaf_resp_partitioning_growth_calculator::do_operation() const
 {
-    double newLeafcol, newStemcol, newRootcol, newRhizomecol, newGraincol;
+    double net_assimilation_rate_leaf{0.0};
+    double net_assimilation_rate_stem{0.0};
+    double net_assimilation_rate_root{0.0};
+    double net_assimilation_rate_rhizome{0.0};
+    double net_assimilation_rate_grain{0.0};
 
     // Determine the carbon flux to use for the non-leaf organs
     double nonleaf_carbon_flux;
@@ -150,51 +154,51 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const
     if (kLeaf > 0) {
         if (canopy_assimilation_rate < 0) {
             // Assimilation is negative here, so this removes leaf mass
-            newLeafcol = canopy_assimilation_rate;
+            net_assimilation_rate_leaf = canopy_assimilation_rate;
         } else {
-            newLeafcol = canopy_assimilation_rate * kLeaf;
+            net_assimilation_rate_leaf = canopy_assimilation_rate * kLeaf;
         }
     } else {
-        newLeafcol = 0.0;
+        net_assimilation_rate_leaf = 0.0;
     }
 
     // Calculate the rate of new stem production
     if (kStem >= 0) {
-        newStemcol = nonleaf_carbon_flux * kStem;
-        newStemcol = resp(newStemcol, mrc1, temp);
+        net_assimilation_rate_stem = nonleaf_carbon_flux * kStem;
+        net_assimilation_rate_stem = resp(net_assimilation_rate_stem, mrc1, temp);
     } else {
-        newStemcol = 0.0;
+        net_assimilation_rate_stem = 0.0;
     }
 
     // Calculate the rate of new root production
     if (kRoot > 0) {
-        newRootcol = nonleaf_carbon_flux * kRoot;
-        newRootcol = resp(newRootcol, mrc2, temp);
+        net_assimilation_rate_root = nonleaf_carbon_flux * kRoot;
+        net_assimilation_rate_root = resp(net_assimilation_rate_root, mrc2, temp);
     } else {
-        newRootcol = 0.0;
+        net_assimilation_rate_root = 0.0;
     }
 
     // Calculate the rate of new rhizome production
     if (kRhizome > 0) {
-        newRhizomecol = nonleaf_carbon_flux * kRhizome;
-        newRhizomecol = resp(newRhizomecol, mrc2, temp);
+        net_assimilation_rate_rhizome = nonleaf_carbon_flux * kRhizome;
+        net_assimilation_rate_rhizome = resp(net_assimilation_rate_rhizome, mrc2, temp);
     } else {
-        newRhizomecol = 0.0;
+        net_assimilation_rate_rhizome = 0.0;
     }
 
     // Calculate the rate of grain production
     if (kGrain > 0) {
-        newGraincol = nonleaf_carbon_flux * kGrain;
+        net_assimilation_rate_grain = nonleaf_carbon_flux * kGrain;
     } else {
-        newGraincol = 0.0;
+        net_assimilation_rate_grain = 0.0;
     }
 
     // Update the output parameter list
-    update(newLeafcol_op, newLeafcol);
-    update(newStemcol_op, newStemcol);
-    update(newRootcol_op, newRootcol);
-    update(newRhizomecol_op, newRhizomecol);
-    update(newGraincol_op, newGraincol);
+    update(net_assimilation_rate_leaf_op, net_assimilation_rate_leaf);
+    update(net_assimilation_rate_stem_op, net_assimilation_rate_stem);
+    update(net_assimilation_rate_root_op, net_assimilation_rate_root);
+    update(net_assimilation_rate_rhizome_op, net_assimilation_rate_rhizome);
+    update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
 }
 
 #endif
