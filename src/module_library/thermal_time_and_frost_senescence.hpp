@@ -29,10 +29,10 @@ class thermal_time_and_frost_senescence : public DerivModule {
 			kRoot_ip(get_ip(input_parameters, "kRoot")),
 			kRhizome_ip(get_ip(input_parameters, "kRhizome")),
 			kGrain_ip(get_ip(input_parameters, "kGrain")),
-			newLeafcol_ip(get_ip(input_parameters, "newLeafcol")),
-			newStemcol_ip(get_ip(input_parameters, "newStemcol")),
-			newRootcol_ip(get_ip(input_parameters, "newRootcol")),
-			newRhizomecol_ip(get_ip(input_parameters, "newRhizomecol")),
+			net_assimilation_rate_leaf_ip(get_ip(input_parameters, "net_assimilation_rate_leaf")),
+			net_assimilation_rate_stem_ip(get_ip(input_parameters, "net_assimilation_rate_stem")),
+			net_assimilation_rate_root_ip(get_ip(input_parameters, "net_assimilation_rate_root")),
+			net_assimilation_rate_rhizome_ip(get_ip(input_parameters, "net_assimilation_rate_rhizome")),
 			// Get pointers to output parameters
 			leafdeathrate_op(get_op(output_parameters, "leafdeathrate")),
 			Leaf_op(get_op(output_parameters, "Leaf")),
@@ -80,10 +80,10 @@ class thermal_time_and_frost_senescence : public DerivModule {
 		const double* kRoot_ip;
 		const double* kRhizome_ip;
 		const double* kGrain_ip;
-		const double* newLeafcol_ip;
-		const double* newStemcol_ip;
-		const double* newRootcol_ip;
-		const double* newRhizomecol_ip;
+		const double* net_assimilation_rate_leaf_ip;
+		const double* net_assimilation_rate_stem_ip;
+		const double* net_assimilation_rate_root_ip;
+		const double* net_assimilation_rate_rhizome_ip;
 		// Pointers to output parameters
 		double* leafdeathrate_op;
 		double* Leaf_op;
@@ -109,7 +109,7 @@ std::vector<std::string> thermal_time_and_frost_senescence::get_inputs() {
 		"Leaf", "leafdeathrate", "lat", "time", "temp", "Tfrostlow", "Tfrosthigh",
 		"stem_senescence_index", "root_senescence_index", "rhizome_senescence_index",
 		"kLeaf", "kStem", "kRoot", "kRhizome", "kGrain",
-		"newLeafcol", "newStemcol", "newRootcol", "newRhizomecol"
+		"net_assimilation_rate_leaf", "net_assimilation_rate_stem", "net_assimilation_rate_root", "net_assimilation_rate_rhizome"
 	};
 }
 
@@ -126,9 +126,9 @@ std::vector<std::string> thermal_time_and_frost_senescence::get_outputs() {
 
 void thermal_time_and_frost_senescence::do_operation() const {
 	// Add the new tissue growth to the history vectors
-	newStem_vec.push_back(*newStemcol_ip);
-	newRoot_vec.push_back(*newRootcol_ip);
-	newRhizome_vec.push_back(*newRhizomecol_ip);
+	newStem_vec.push_back(*net_assimilation_rate_stem_ip);
+	newRoot_vec.push_back(*net_assimilation_rate_root_ip);
+	newRhizome_vec.push_back(*net_assimilation_rate_rhizome_ip);
 	
 	// Collect inputs and make calculations
 	double TTc = *TTc_ip;

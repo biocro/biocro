@@ -83,11 +83,11 @@ class partitioning_growth : public DerivModule
           kRoot{get_input(input_parameters, "kRoot")},
           kRhizome{get_input(input_parameters, "kRhizome")},
           kGrain{get_input(input_parameters, "kGrain")},
-          newLeafcol{get_input(input_parameters, "newLeafcol")},
-          newStemcol{get_input(input_parameters, "newStemcol")},
-          newRootcol{get_input(input_parameters, "newRootcol")},
-          newRhizomecol{get_input(input_parameters, "newRhizomecol")},
-          newGraincol{get_input(input_parameters, "newGraincol")},
+          net_assimilation_rate_leaf{get_input(input_parameters, "net_assimilation_rate_leaf")},
+          net_assimilation_rate_stem{get_input(input_parameters, "net_assimilation_rate_stem")},
+          net_assimilation_rate_root{get_input(input_parameters, "net_assimilation_rate_root")},
+          net_assimilation_rate_rhizome{get_input(input_parameters, "net_assimilation_rate_rhizome")},
+          net_assimilation_rate_grain{get_input(input_parameters, "net_assimilation_rate_grain")},
           Leaf{get_input(input_parameters, "Leaf")},
           Stem{get_input(input_parameters, "Stem")},
           Root{get_input(input_parameters, "Root")},
@@ -114,11 +114,11 @@ class partitioning_growth : public DerivModule
     const double& kRoot;
     const double& kRhizome;
     const double& kGrain;
-    const double& newLeafcol;
-    const double& newStemcol;
-    const double& newRootcol;
-    const double& newRhizomecol;
-    const double& newGraincol;
+    const double& net_assimilation_rate_leaf;
+    const double& net_assimilation_rate_stem;
+    const double& net_assimilation_rate_root;
+    const double& net_assimilation_rate_rhizome;
+    const double& net_assimilation_rate_grain;
     const double& Leaf;
     const double& Stem;
     const double& Root;
@@ -146,11 +146,11 @@ string_vector partitioning_growth::get_inputs()
         "kRoot",            // dimensionless
         "kRhizome",         // dimensionless
         "kGrain",           // dimensionless
-        "newLeafcol",       // Mg / ha / hour
-        "newStemcol",       // Mg / ha / hour
-        "newRootcol",       // Mg / ha / hour
-        "newRhizomecol",    // Mg / ha / hour
-        "newGraincol",      // Mg / ha / hour
+        "net_assimilation_rate_leaf",       // Mg / ha / hour
+        "net_assimilation_rate_stem",       // Mg / ha / hour
+        "net_assimilation_rate_root",       // Mg / ha / hour
+        "net_assimilation_rate_rhizome",    // Mg / ha / hour
+        "net_assimilation_rate_grain",      // Mg / ha / hour
         "Leaf",             // Mg / ha
         "Stem",             // Mg / ha
         "Root",             // Mg / ha
@@ -182,7 +182,7 @@ void partitioning_growth::do_operation() const
 
     // Determine whether Leaf is growing or decaying
     if (kLeaf > 0.0) {
-        dLeaf += newLeafcol;
+        dLeaf += net_assimilation_rate_leaf;
     } else {
         dLeaf += Leaf * kLeaf;
         dRhizome += kRhizome * (-dLeaf) * retrans;
@@ -193,7 +193,7 @@ void partitioning_growth::do_operation() const
 
     // Determine whether Stem is growing or decaying
     if (kStem >= 0.0) {
-        dStem += newStemcol;
+        dStem += net_assimilation_rate_stem;
     } else {
         dStem += Stem * kStem;
         dRhizome += kRhizome * (-dStem) * retrans;
@@ -204,7 +204,7 @@ void partitioning_growth::do_operation() const
 
     // Determine whether Root is growing or decaying
     if (kRoot > 0.0) {
-        dRoot += newRootcol;
+        dRoot += net_assimilation_rate_root;
     } else {
         dRoot += Root * kRoot;
         dRhizome += kRhizome * (-dRoot) * retrans;
@@ -215,7 +215,7 @@ void partitioning_growth::do_operation() const
 
     // Determine whether Rhizome is growing or decaying
     if (kRhizome > 0.0) {
-        dRhizome += newRhizomecol;
+        dRhizome += net_assimilation_rate_rhizome;
         drhizome_senescence_index = 1.0;
     } else {
         dRhizome += Rhizome * kRhizome;
@@ -231,7 +231,7 @@ void partitioning_growth::do_operation() const
 
     // Determine whether Grain is growing
     if (kGrain > 0.0) {
-        dGrain += newGraincol;
+        dGrain += net_assimilation_rate_grain;
     }
 
     // Update the output parameter list
