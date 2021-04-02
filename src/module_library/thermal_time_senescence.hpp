@@ -29,6 +29,7 @@ class thermal_time_senescence : public DerivModule
           kRoot{get_input(input_parameters, "kRoot")},
           kRhizome{get_input(input_parameters, "kRhizome")},
           kGrain{get_input(input_parameters, "kGrain")},
+          remobilization_fraction{get_input(input_parameters, "remobilization_fraction")},
           net_assimilation_rate_leaf{get_input(input_parameters, "net_assimilation_rate_leaf")},
           net_assimilation_rate_stem{get_input(input_parameters, "net_assimilation_rate_stem")},
           net_assimilation_rate_root{get_input(input_parameters, "net_assimilation_rate_root")},
@@ -78,6 +79,7 @@ class thermal_time_senescence : public DerivModule
     double const& kRoot;
     double const& kRhizome;
     double const& kGrain;
+    const double& remobilization_fraction;
     double const& net_assimilation_rate_leaf;
     double const& net_assimilation_rate_stem;
     double const& net_assimilation_rate_root;
@@ -118,6 +120,7 @@ string_vector thermal_time_senescence::get_inputs()
         "kRoot",                         // dimensionless
         "kRhizome",                      // dimensionless
         "kGrain",                        // dimensionless
+        "remobilization_fraction",       // dimensionless
         "net_assimilation_rate_leaf",    // Mg / ha / hour
         "net_assimilation_rate_stem",    // Mg / ha / hour
         "net_assimilation_rate_root",    // Mg / ha / hour
@@ -178,12 +181,11 @@ void thermal_time_senescence::do_operation() const
         dLeaf -= change;
 
         // Remobilize some of the lost leaf tissue and send the rest to the litter
-        double remob = 0.6;
-        dLeafLitter += change * (1.0 - remob);
-        dRhizome += kRhizome * change * remob;
-        dStem += kStem * change * remob;
-        dRoot += kRoot * change * remob;
-        dGrain += kGrain * change * remob;
+        dLeafLitter += change * (1.0 - remobilization_fraction);
+        dRhizome += kRhizome * change * remobilization_fraction;
+        dStem += kStem * change * remobilization_fraction;
+        dRoot += kRoot * change * remobilization_fraction;
+        dGrain += kGrain * change * remobilization_fraction;
 
         // Increment the tissue senescence index
         dleaf_senescence_index++;
