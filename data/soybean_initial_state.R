@@ -6,7 +6,7 @@ soybean_initial_state = with(list(), {
     Leaf                     0.06312       # Mg / ha, 80% of total seed mass per land area (see comment at end of file)
     Stem                     0.00789       # Mg / ha, 10% of total seed mass per land area
     Root                     0.00789       # Mg / ha, 10% of total seed mass per land area
-    Grain                    0.00001       # Mg / ha, treating this as the soybean pod (referred to as Pod)
+    Grain                    0.00001       # Mg / ha, We treat this as the soybean pod and refer to this variable as Pod in Matthews et al.
     LeafLitter               0             # Mg / ha
     RootLitter               0             # Mg / ha
     StemLitter               0             # Mg / ha
@@ -17,8 +17,8 @@ soybean_initial_state = with(list(), {
     DVI                      -1            # Sowing date: DVI=-1 
     TTc                      0             # degrees C, accumulated thermal time
     
-    # Rhizome and its associated variables are un-used in Soybean-BioCro, but must be defined
-    Rhizome                  0.0000001     # Mg / ha, unused in Soybean-BioCro but must be defined
+    # Soybean does not have a rhizome, so these variables will not be used but must be defined
+    Rhizome                  0.0000001     # Mg / ha
     RhizomeLitter            0             # Mg / ha
     rhizome_senescence_index 0
     "
@@ -38,3 +38,4 @@ soybean_initial_state = with(list(), {
 # 
 # (20 seeds / meter) * (0.15 grams / seed) * (1 / 0.38 meter) = 7.89 g / m^2 = 0.0789 Mg / ha
 # This value is used to determine the initial Leaf, Stem, and Root biomasses
+
