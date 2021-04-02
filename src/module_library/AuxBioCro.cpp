@@ -1036,13 +1036,68 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
     return return_value;
 }
 
-/* Respiration. It is assumed that some of the energy produced by the
-   plant has to be used in basic tissue maintenance. This is handled
-   quite empirically by some relationships developed by McCree (1970)
-   and Penning de Vries (1972) */
-
-double resp(double comp, double mrc, double temp) {
-    double ans = comp *  (1 - (mrc * pow(2, (temp / 10.0))));
+/**
+ *  @brief Subtracts respiratory losses from a carbon production rate
+ *
+ *  @param [in] base_rate The base rate of carbon production that does not
+ *                        respiratory losses. Any units are acceptable, e.g.
+ *                        mol / m^2 / s or Mg / ha / hour.
+ *
+ *  @param [in] mrc Maintenance respiration coefficient (dimensionless)
+ *
+ *  @param [in] temp Temperature (degrees C)
+ *
+ *  @return A modified rate having the same units as `base_rate` where
+ *          respiratory losses have been subtracted
+ *
+ *  The idea here is that the net carbon assimilation rate (`A_n`) is given by
+ *
+ *  `A_n = A_g - R` (1)
+ *
+ *  where `A_g` is the gross assimilation rate or the production rate and `R` is
+ *  the respiration rate. A further assumption is that respiration is
+ *  proportional to production, i.e.
+ *
+ *  `R = R_c * A_g` (2)
+ *
+ *  where `R_c` is a dimensionless coefficient that lies on the interval [0,1].
+ *  Combining equations (1) and (2), we can express the net assimilation rate
+ *  as a function of the gross assimilation rate and the respiration
+ *  coefficient:
+ *
+ *  `A_n = A_g - R_c * A_g =  A_g * (1 - R_c)` (3)
+ *
+ *  In this function, the temperature dependence of the respiration coefficient
+ *  is modeled using a simple "Q10" method where `Q10 = 2`, i.e.,
+ *
+ *  `R_c = R_c_0 * 2^(T / 10)` (4)
+ *
+ *  where `T` is the temperature. Combining equations (3) and (4), we finally
+ *  arrive at a relationship between net assimilation, gross assimilation, and
+ *  temperature:
+ *
+ *  `A_n = A_g * (1 - R_c_0 * 2^(T / 10))` (5)
+ *
+ *  In the code below, `base_rate` represents the gross assimilation rate `A_g`,
+ *  `mrc` represents the maintenance respiration coefficient `R_c_0`, and `temp`
+ *  represents the temperature `T`.
+ *
+ *  An older version of this documentation cites "McCree (1970) and Penning de
+ *  Vries (1972)" for this formula. However, I couldn't figure out exactly which
+ *  papers this citation referred to, and I haven't been able to track down
+ *  another source for Equation (5). For some general discussions about
+ *  respiration, see the following two sources:
+ *
+ *  - [Amthor, J. S. "The McCree–de Wit–Penning de Vries–Thornley Respiration
+ *    Paradigms: 30 Years Later" Ann Bot 86, 1–20 (2000)]
+ *    (https://doi.org/10.1006/anbo.2000.1175)
+ *
+ *  - [Amthor, J. S. "The role of maintenance respiration in plant growth."
+ *    Plant, Cell & Environment 7, 561–569 (1984)]
+ *    (https://doi.org/10.1111/1365-3040.ep11591833)
+ */
+double resp(double base_rate, double mrc, double temp) {
+    double ans = base_rate *  (1 - (mrc * pow(2, (temp / 10.0))));
 
     if (ans <0) ans = 0;
 
