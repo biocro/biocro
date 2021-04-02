@@ -219,6 +219,11 @@ void thermal_time_senescence::do_operation() const
         droot_senescence_index++;
     }
 
+    if (kRhizome > 0) {
+        // Increment the rhizome senescence index if it is acting as a sink
+        drhizome_senescence_index++;
+    }
+
     if (TTc >= seneRhizome) {
         // Look back in time to find out how much the tissue grew in the past.
         double change = assim_rate_rhizome_vec[rhizome_senescence_index];

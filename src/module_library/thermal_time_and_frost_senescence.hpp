@@ -252,6 +252,11 @@ void thermal_time_and_frost_senescence::do_operation() const
         droot_senescence_index++;
     }
 
+    if (kRhizome > 0) {
+        // Increment the rhizome senescence index if it is acting as a sink
+        drhizome_senescence_index++;
+    }
+
     // Calculate rhizome senescence
     if (TTc >= seneRhizome) {
         // Look back in time to find out how much the tissue grew in the past.

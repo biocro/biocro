@@ -22,16 +22,6 @@
  *  photosynthesis, and possibly other terms representing retranslocated carbon
  *  from other organs.
  *
- *  This module also keeps track of the time point at which the rhizome changes
- *  from a carbon source to a sink. This is accomplished via the
- *  `rhizome_senescence_index`, which increases at a rate of 1 per hour while
- *  the rhizome is a sink. This quantity is required by the
- *  `thermal_time_senescence` and `thermal_time_and_frost_senescence` modules,
- *  which need to look backward in time to the point where each organ begins to
- *  grow. Ultimately, this is not a good approach to senescence. If / when these
- *  senescence modules are replaced, the rhizome senescence index can safely be
- *  removed from this module.
- *
  *  Conceptually, there are some problems with this type of carbon allocation
  *  model.
  *
@@ -98,8 +88,7 @@ class partitioning_growth : public DerivModule
           Stem_op{get_op(output_parameters, "Stem")},
           Root_op{get_op(output_parameters, "Root")},
           Rhizome_op{get_op(output_parameters, "Rhizome")},
-          Grain_op{get_op(output_parameters, "Grain")},
-          rhizome_senescence_index_op{get_op(output_parameters, "rhizome_senescence_index")}
+          Grain_op{get_op(output_parameters, "Grain")}
     {
     }
     static string_vector get_inputs();
@@ -130,7 +119,6 @@ class partitioning_growth : public DerivModule
     double* Root_op;
     double* Rhizome_op;
     double* Grain_op;
-    double* rhizome_senescence_index_op;
 
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
@@ -139,46 +127,44 @@ class partitioning_growth : public DerivModule
 string_vector partitioning_growth::get_inputs()
 {
     return {
-        "retrans",          // dimensionless
-        "retrans_rhizome",  // dimensionless
-        "kLeaf",            // dimensionless
-        "kStem",            // dimensionless
-        "kRoot",            // dimensionless
-        "kRhizome",         // dimensionless
-        "kGrain",           // dimensionless
-        "net_assimilation_rate_leaf",       // Mg / ha / hour
-        "net_assimilation_rate_stem",       // Mg / ha / hour
-        "net_assimilation_rate_root",       // Mg / ha / hour
-        "net_assimilation_rate_rhizome",    // Mg / ha / hour
-        "net_assimilation_rate_grain",      // Mg / ha / hour
-        "Leaf",             // Mg / ha
-        "Stem",             // Mg / ha
-        "Root",             // Mg / ha
-        "Rhizome"           // Mg / ha
+        "retrans",                        // dimensionless
+        "retrans_rhizome",                // dimensionless
+        "kLeaf",                          // dimensionless
+        "kStem",                          // dimensionless
+        "kRoot",                          // dimensionless
+        "kRhizome",                       // dimensionless
+        "kGrain",                         // dimensionless
+        "net_assimilation_rate_leaf",     // Mg / ha / hour
+        "net_assimilation_rate_stem",     // Mg / ha / hour
+        "net_assimilation_rate_root",     // Mg / ha / hour
+        "net_assimilation_rate_rhizome",  // Mg / ha / hour
+        "net_assimilation_rate_grain",    // Mg / ha / hour
+        "Leaf",                           // Mg / ha
+        "Stem",                           // Mg / ha
+        "Root",                           // Mg / ha
+        "Rhizome"                         // Mg / ha
     };
 }
 
 string_vector partitioning_growth::get_outputs()
 {
     return {
-        "Leaf",                     // Mg / ha / hour
-        "Stem",                     // Mg / ha / hour
-        "Root",                     // Mg / ha / hour
-        "Rhizome",                  // Mg / ha / hour
-        "Grain",                    // Mg / ha / hour
-        "rhizome_senescence_index"  // hour^-1
+        "Leaf",     // Mg / ha / hour
+        "Stem",     // Mg / ha / hour
+        "Root",     // Mg / ha / hour
+        "Rhizome",  // Mg / ha / hour
+        "Grain"     // Mg / ha / hour
     };
 }
 
 void partitioning_growth::do_operation() const
 {
     // Initialize variables
-    double dLeaf {0.0};
-    double dStem {0.0};
-    double dRoot {0.0};
-    double dRhizome {0.0};
-    double dGrain {0.0};
-    double drhizome_senescence_index {0.0};
+    double dLeaf{0.0};
+    double dStem{0.0};
+    double dRoot{0.0};
+    double dRhizome{0.0};
+    double dGrain{0.0};
 
     // Determine whether Leaf is growing or decaying
     if (kLeaf > 0.0) {
@@ -216,7 +202,6 @@ void partitioning_growth::do_operation() const
     // Determine whether Rhizome is growing or decaying
     if (kRhizome > 0.0) {
         dRhizome += net_assimilation_rate_rhizome;
-        drhizome_senescence_index = 1.0;
     } else {
         dRhizome += Rhizome * kRhizome;
         if (dRhizome + Rhizome < 0) {
@@ -240,7 +225,6 @@ void partitioning_growth::do_operation() const
     update(Root_op, dRoot);
     update(Rhizome_op, dRhizome);
     update(Grain_op, dGrain);
-    update(rhizome_senescence_index_op, drhizome_senescence_index);
 }
 
 #endif
