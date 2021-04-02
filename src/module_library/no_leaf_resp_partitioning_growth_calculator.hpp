@@ -40,7 +40,7 @@
  *  ### Specifics of this module
  *
  *  When the canopy assimilation rate is negative, this module ensures that all
- *  losses come from the leaf and the growth rates for the other organs are set
+ *  losses come from the leaf, and the growth rates for the other organs are set
  *  to zero since no carbon is flowing out of the leaf.
  *
  *  This module does not attempt to explicitly include any effect due to water
