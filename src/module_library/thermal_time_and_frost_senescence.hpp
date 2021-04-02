@@ -66,9 +66,9 @@ class thermal_time_and_frost_senescence : public DerivModule
     //   and should be avoided in general since it
     //   precludes the use of any integration method
     //   except fixed-step Euler
-    std::vector<double> mutable newStem_vec;
-    std::vector<double> mutable newRoot_vec;
-    std::vector<double> mutable newRhizome_vec;
+    std::vector<double> mutable assim_rate_stem_vec;
+    std::vector<double> mutable assim_rate_root_vec;
+    std::vector<double> mutable assim_rate_rhizome_vec;
 
     // Pointers to input parameters
     double const& TTc;
@@ -167,9 +167,9 @@ string_vector thermal_time_and_frost_senescence::get_outputs()
 void thermal_time_and_frost_senescence::do_operation() const
 {
     // Add the new tissue growth to the history vectors
-    newStem_vec.push_back(net_assimilation_rate_stem);
-    newRoot_vec.push_back(net_assimilation_rate_root);
-    newRhizome_vec.push_back(net_assimilation_rate_rhizome);
+    assim_rate_stem_vec.push_back(net_assimilation_rate_stem);
+    assim_rate_root_vec.push_back(net_assimilation_rate_root);
+    assim_rate_rhizome_vec.push_back(net_assimilation_rate_rhizome);
 
     // Initialize variables
     double dLeafdeathrate{0.0};
@@ -223,7 +223,7 @@ void thermal_time_and_frost_senescence::do_operation() const
     // Calculate stem senescence
     if (TTc >= seneStem) {
         // Look back in time to find out how much the tissue grew in the past.
-        double change = newStem_vec[stem_senescence_index];
+        double change = assim_rate_stem_vec[stem_senescence_index];
 
         // Subtract the new growth from the tissue derivative
         dStem -= change;
@@ -238,7 +238,7 @@ void thermal_time_and_frost_senescence::do_operation() const
     // Calculate root senescence
     if (TTc >= seneRoot) {
         // Look back in time to find out how much the tissue grew in the past.
-        double change = newRoot_vec[root_senescence_index];
+        double change = assim_rate_root_vec[root_senescence_index];
 
         // Subtract the new growth from the tissue derivative
         dRoot -= change;
@@ -253,7 +253,7 @@ void thermal_time_and_frost_senescence::do_operation() const
     // Calculate rhizome senescence
     if (TTc >= seneRhizome) {
         // Look back in time to find out how much the tissue grew in the past.
-        double change = newRhizome_vec[rhizome_senescence_index];
+        double change = assim_rate_rhizome_vec[rhizome_senescence_index];
 
         // Subtract the new growth from the tissue derivative
         dRhizome -= change;
