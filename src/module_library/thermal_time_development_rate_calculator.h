@@ -3,29 +3,33 @@
 
 #include "../modules.h"
 #include "../state_map.h"
-#include <cmath>
 
 /**
  * @class thermal_time_development_rate_calculator
  *
- * @brief Calculates hourly plant development rate based on thermal time ranges of emergence, vegetative,
- * and reproductive growth stages
+ * @brief Calculates hourly plant development rate based on thermal time ranges
+ * of emergence, vegetative, and reproductive growth stages.
  *
- * This module is designed to be used with the development_index module.
+ * This module is designed to be used with the `development_index module`.
  *
- * Based on growth rate functions from Osborne et al. and uses the following DVI ranges:
+ * Based on growth rate functions from Osborne et al. and uses the following
+ * `DVI` ranges:
  *
- * | Development index (DVI)              | Growth stages                         |
- * | :------------------------------------: | :---------------------------------: |
- * | \f$-1\le\f$ DVI \f$ <0\f$       | sowing to emergence              |
- * | \f$0\le\f$ DVI \f$ <1\f$        |  Vegetative growth stages        |
- * | \f$ 1\le\f$ DVI \f$ <2\f$       | Reproductive growth stages    |
+ * | Development index (DVI)         | Growth stages               |
+ * | :-----------------------------: | :-------------------------: |
+ * | \f$ -1 \le \text{DVI} < 0 \f$   | sowing to emergence         |
+ * | \f$  0 \le \text{DVI} < 1 \f$   | vegetative growth stages    |
+ * | \f$  1 \le \text{DVI} < 2 \f$   | reproductive growth stages  |
  *
- * \f$ r = \frac{t-t_{base}}{TT_{stage}} \f$
  *
- * Where \f$ r \f$ is the plant growth rate, \f$ t \f$ is the
- * temperature, \f$ t_{base} \f$ is the base temperature, and \f$ TT_{stage} \f$ is the accumulated
- * thermal time for each of the above three growth stages.
+ * The `development_rate`, \f$ r \f$ is defined as:
+ *
+ * \f[ r = \frac{t-t_\text{base}}{TT_\text{stage}}, \f]
+ *
+ * where \f$ t \f$ is the temperature (`temp`), \f$ t_\text{base} \f$ is the
+ * base temperature (`tbase`), and \f$ TT_\text{stage} \f$ is the accumulated
+ * thermal time for each of the above three growth stages (`TTemr`, `TTveg`,
+ * and `TTrep`).
  *
  *
  * References:
@@ -102,21 +106,22 @@ void thermal_time_development_rate_calculator::do_operation() const {
     double temp_diff = temp - tbase; // degrees C
     temp_diff = (temp_diff > 0) ? temp_diff : 0; // if temp < tbase, temp_diff = 0
 
-    if (DVI >= -1 && DVI < 0) {
+    if (DVI < -1) {
+        // error, DVI out of bounds, this should never occur unless initial DVI
+        // state is less than -1.
+        development_rate = 0;
+    } else if (DVI < 0) {
         // 1. Sowing to emergence
         development_rate = temp_diff / TTemr; // day^-1
 
-    } else if (DVI >= 0 && DVI < 1) {
+    } else if (DVI < 1) {
         // 2. Vegetative stages
         development_rate = temp_diff / TTveg; // day^-1
 
-    } else if (DVI >= 1) {
+    } else {
         // 3. Reproductive Stages
         development_rate = temp_diff / TTrep; // day^-1
 
-    } else {
-        // this should never occur, but prevents warning messages when compiling biocro
-        development_rate = 0;
     }
 
     double development_rate_per_hour = development_rate / 24.0; // hour^-1
