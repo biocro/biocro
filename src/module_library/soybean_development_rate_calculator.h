@@ -11,9 +11,9 @@ double tempFunc(double T, double Tmin, double Topt, double Tmax);
 /**
  * @class soybean_development_rate_calculator
  *
- * @brief Determines hourly soybean developments rate  using photothermal functions.
+ * @brief Determines hourly soybean developments rate using photothermal functions.
  *
- * This module is designed to be used with the `development_index` module
+ * This module is designed to be used with the `development_index` module.
  *
  * This module calculates soybean growth rate using photothermal functions
  * across 5 different stages.
