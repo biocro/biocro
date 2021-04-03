@@ -3,30 +3,47 @@
 
 #include "../modules.h"
 #include "../state_map.h"
-#include <cmath>
+#include <cmath> // for exp
 
 double ksene(double rate, double alpha, double beta, double DVI);
 
 /**
  * @class senescence_coefficient_logistic
  *
- * @brief Calculates coefficients representing fraction of biomass senesced for each organ. Coefficents
- * are represented as a logistic functions depending on development index.
+ * @brief Calculates coefficients representing fraction of biomass senesced for
+ * each organ. Coefficents are represented as a logistic functions depending on
+ * development index.
  *
- * Intended to be used with any of the following modules:
- * - senescence_logistic
+ * Intended to be used with the `senescence_logistic` module.
  *
- * \f$ s_i = \frac{r_i}{1+\exp{(\alpha_i + \beta_i x)}} \f$
+ * The senescence fraction \f$ s_i \f$ is computed according to this
+ * formula:
  *
- * Where \f$ s_i\f$ is the fraction of organ \f$ i = {Leaf, Stem, Root, Rhizome} \f$ that is senesced at
- * a givent time, and \f$ x \f$ is the development index.
+ * \f[ s_i = \frac{r_i}{1+\exp{(\alpha_i + \beta_i x)}}. \f]
  *
- * See Matthews et al. for more description of how this module was used in Soybean-BioCro and for details
- * on the parameter fitting to identify the \f$ \alpha \text{ and } \beta \f$ parameters.
+ * Where the subscript \f$ i \f$ indicates the plant tissue (leaf, stem, root,
+ * rhizome), \f$ r_i \f$ is the maximum rate of senescence for that tissue, and
+ * \f$ \alpha_i \f$ and \f$ \beta_i \f$ define the shape of the logistic curve.
+ *
+ * These parameters are represented in the code by the following input and output
+ * parameters:
+ *
+ * \f$ s_i \f$ : `kSene<plant organ>`
+ * \f$ r_i \f$ : `rateSene<plant organ>`
+ * \f$ \alpha_i \f$ : `alphaSene<plant organ>`
+ * \f$ \beta_i \f$ : `betaSene<plant organ>`
+ * \f$ x \f$ : `DVI`
+ *
+ * Where <plant organ> is one of {Leaf, Stem, Root, Rhizome}.
+ *
+ * See Matthews et al. for more description of how this module was used in
+ * Soybean-BioCro and for details on the parameter fitting to identify the
+ * \f$ \alpha \text{ and } \beta \f$ parameters.
  *
  * References
  *
- * Matthews, M.L. et al. in preparation. "Soybean-BioCro: A semi-mechanistic model of soybean growth"
+ * Matthews, M.L. et al. in preparation. "Soybean-BioCro: A semi-mechanistic
+ * model of soybean growth"
  *
  */
 class senescence_coefficient_logistic : public SteadyModule
