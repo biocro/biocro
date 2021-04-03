@@ -3,7 +3,7 @@
 
 #include "../modules.h"
 #include "../state_map.h"
-#include <cmath> // for pow
+#include <cmath> // for log, pow
 
 double photoFunc(double P, double Popt, double Pcrit);
 double tempFunc(double T, double Tmin, double Topt, double Tmax);
@@ -232,7 +232,11 @@ double photoFunc(double P, double Popt, double Pcrit)
     double m = 3.0;  // hrs; Setiyono et al., 2007 Equation 4, value in text below equation
     double fP;       // dimensionless
 
-    if (P >= Popt && P <= Pcrit) {
+    if (P <= Popt) {
+        fP = 1.0; // dimensionless
+
+    } else if (P < Pcrit) {
+
         double alpha = log(2.0) / log(1.0 + (Pcrit - Popt) / m);  // dimensionless
         double fP_pt1 = 1.0 + (P - Popt) / m;                     // dimensionless
         double fP_pt2 = (Pcrit - P) / (Pcrit - Popt);             // dimensionless
@@ -240,8 +244,6 @@ double photoFunc(double P, double Popt, double Pcrit)
 
         fP = pow(fP_pt1 * pow(fP_pt2, fP_pt3), alpha);  // dimensionless
 
-    } else if (P < Popt) {
-        fP = 1.0;  // dimensionless
     } else {
         fP = 0.0;  // dimensionless
     }
