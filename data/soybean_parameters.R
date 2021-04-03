@@ -88,7 +88,7 @@ soybean_parameters = with(list(), {
 
     # no_leaf_resp_partitioning_growth_calculator_negative_assimilation_partitioned module
     mrc1                                    0.0008333   # hour^-1, Bunce and Ziska 1996 (https://doi.org/10.1006/anbo.1996.0061)
-    mrc2                                    0.000025    # 0.03 * mrc1, ratio used in previous biocro crops
+    mrc2                                    0.000025    # 0.03 * mrc1, ratio used in previous BioCro crops
 
     # partitioning_growth module
     retrans                                 0.9         # previously hard-coded in the partitioning_growth module
@@ -97,16 +97,16 @@ soybean_parameters = with(list(), {
     # senescence_coefficient_logistic module
     rateSeneLeaf                            0.01213
     rateSeneStem                            0.0005760
-    rateSeneRoot                            0           # senescence of root not simulated in Soybean-Biocro (see Note 1 at end of file)
-    rateSeneRhizome                         0           # no rhizome simulated in soybean-biocro
+    rateSeneRoot                            0           # senescence of root not simulated in Soybean-BioCro (see Note 1 at end of file)
+    rateSeneRhizome                         0           # no rhizome simulated in Soybean-BioCro
     alphaSeneLeaf                           30.05
     alphaSeneStem                           22.54
-    alphaSeneRoot                           10          # senescence of root not simulated in Soybean-Biocro (rateSeneRoot=0)
-    alphaSeneRhizome                        10          # no rhizome in soybean-biocro (rateSeneRhizome=0)
+    alphaSeneRoot                           10          # senescence of root not simulated in Soybean-BioCro (rateSeneRoot=0)
+    alphaSeneRhizome                        10          # no rhizome in Soybean-BioCro (rateSeneRhizome=0)
     betaSeneLeaf                            -17.83
     betaSeneStem                            -15.61
-    betaSeneRoot                            -10         # senescence of root not simulated in Soybean-Biocro (rateSeneRoot=0)
-    betaSeneRhizome                         -10         # no rhizome in soybean-biocro (rateSeneRhizome=0)
+    betaSeneRoot                            -10         # senescence of root not simulated in Soybean-BioCro (rateSeneRoot=0)
+    betaSeneRhizome                         -10         # no rhizome in Soybean-BioCro (rateSeneRhizome=0)
 
     # thermal_time_senescence_logistic module
     remobilization_fraction                 0.6
@@ -135,6 +135,6 @@ soybean_parameters = with(list(), {
 })
 
 # Note 1: Soybean-BioCro refers to the simulation scenarios defined by the the soybean
-#         data files (soybean_inintial_state, soybean_parameters, soybean_modules). See 
+#         data files (soybean_initial_state, soybean_parameters, soybean_modules). See 
 #         Matthews et al. (doi: TBA) for more on the current version of Soybean-BioCro. 
 
