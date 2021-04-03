@@ -9,12 +9,12 @@
  *
  * @brief Calculates the change in plant organ biomasses due to senescence.
  *
- * Intended to be used with any of the following modules:
- * - senescence_coefficient_logistic
+ * Intended to be used with any of the `senescence_coefficient_logistic` module
  *
- * The amount that each plant component is senesced is determined as a percentage (kSeneLeaf, kSeneStem,
- * kSeneRoot, kSeneRhizome) of its current biomass. Remobilization of senesced leaf tissue is also included
- * based on the partioning growth parameters.
+ * The amount that each plant component is senesced is determined as a percentage
+ * (`kSeneLeaf`, `kSeneStem`, `kSeneRoot`, `kSeneRhizome`) of its current biomass.
+ * Remobilization of senesced leaf tissue is also included based on the
+ * partitioning growth parameters.
  *
  */
 class senescence_logistic : public DerivModule
@@ -137,35 +137,34 @@ void senescence_logistic::do_operation() const
     double senescence_rhizome = kSeneRhizome * Rhizome;  // Mg / ha, amount of
                                                          // rhizome senesced
 
-    double dLeaf = -senescence_leaf + kLeaf * senescence_leaf * remobilization_fraction;  // Mg / ha, change in leaf biomass = minus amount
-                                                                                          // senesced + new leaf tissue from remobilized
-                                                                                          // amount (Allows for leaves to start senescing
-                                                                                          // while new leaves are still being produced)
-    double dLeafLitter = senescence_leaf * (1 - remobilization_fraction);                 // Mg / ha, change in amount of biomass in leaf litter
+    // change in leaf biomass = minus amount senesced + new leaf tissue from
+    // remobilized amount (Allows for leaves to start senescing while new leaves
+    // are still being produced).
+    double dLeaf = -senescence_leaf + kLeaf * senescence_leaf * remobilization_fraction;  // Mg / ha
 
-    double dStem = -senescence_stem + kStem * senescence_leaf * remobilization_fraction;  // Mg / ha, change in stem biomass = minus amount
-                                                                                          // senesced + new stem tissue from remobilized
-                                                                                          // leaf fraction
-    double dStemLitter = senescence_stem;                                                 // Mg / ha, amount of stem senesced in
-                                                                                          // this time step
+    // change in amount of leaf litter
+    double dLeafLitter = senescence_leaf * (1 - remobilization_fraction); // Mg / ha
 
-    double dRoot = -senescence_root + kRoot * senescence_leaf * remobilization_fraction;  // Mg / ha, change in root biomass = minus amount
-                                                                                          // senesced + new root tissue from remobilized
-                                                                                          // leaf fraction
-    double dRootLitter = senescence_root;                                                 // Mg / ha, amount of root senesced in
-                                                                                          // this time step, Mg/ha
+    // change in stem biomass = minus amount senesced + new stem tissue from
+    // remobilized leaf fraction
+    double dStem = -senescence_stem + kStem * senescence_leaf * remobilization_fraction;  // Mg / ha
 
-    double dRhizome = -senescence_rhizome + kRhizome * senescence_leaf * remobilization_fraction;  // Mg / ha, change in rhizome biomass = minus
-                                                                                                   // amount senesced + new rhizome from remobilized
-                                                                                                   // leaf fraction
-    double dRhizomeLitter = senescence_rhizome;                                                    // Mg / ha, amount of rhizome
-                                                                                                   // tissue senesced in this time
-                                                                                                   // step
+    double dStemLitter = senescence_stem; // Mg / ha, change in amount of stem litter
 
-    double dGrain = kGrain * senescence_leaf *
-                    remobilization_fraction;  // Mg / ha, change in grain biomass = new grain
-                                              // from remobilized leaf fraction. Currently do
-                                              // not include grain senescence.
+    // change in root biomass = minus amount senesced + new root tissue from remobilized
+    // leaf fraction
+    double dRoot = -senescence_root + kRoot * senescence_leaf * remobilization_fraction; // Mg / ha
+
+    double dRootLitter = senescence_root; // Mg / ha, change in amount of root litter
+
+    // change in rhizome biomass = minus amount senesced + new rhizome from remobilized
+    // leaf fraction
+    double dRhizome = -senescence_rhizome + kRhizome * senescence_leaf * remobilization_fraction; // Mg / ha
+    double dRhizomeLitter = senescence_rhizome; // Mg / ha, change in rhizome litter
+
+    // change in grain biomass = new grain from remobilized leaf fraction.
+    // currently do not include grain senescence.
+    double dGrain = kGrain * senescence_leaf * remobilization_fraction;  // Mg / ha
 
     update(Leaf_op, dLeaf);                    // Mg / ha
     update(Stem_op, dStem);                    // Mg / ha
