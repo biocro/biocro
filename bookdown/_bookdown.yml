@@ -1,7 +1,8 @@
 rmd_files: [
     "index.Rmd",
     "../developer_documentation/contribution_guidelines.md",
-    "../documentation/generating_documentation.md",
+    "../developer_documentation/formatting_tools.md",
+    "generating_documentation.md",
     "../doxygen/generating_the_c++_documentation.md",
     "../vignettes/building_the_vignettes.md",
      "../tests/README.md",
