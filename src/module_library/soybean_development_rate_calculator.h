@@ -34,7 +34,7 @@ double tempFunc(double T, double Tmin, double Topt, double Tmax);
  * See Matthews et al. for a more detailed description of the functions used in
  * this module.
  *
- * References:
+ * ### References:
  *
  *  Matthews, M.L. et al. 2021. in preparation. "Soybean-BioCro: A
  *  semi-mechanistic model of soybean growth"

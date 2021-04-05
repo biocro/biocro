@@ -12,7 +12,7 @@ double kcoeff(double alpha, double beta, double DVI, double denom);
  *
  * @brief Calculates carbon partitioning coefficients based on logistic-based
  * functions and development index using the logistic-based functions from
- * Osborne et al. 2015.
+ * Osborne et al 2015.
  *
  * Intended to be used with any of the following modules:
  * - `no_leaf_resp_neg_assim_partitioning_growth_calculator`
@@ -35,7 +35,7 @@ double kcoeff(double alpha, double beta, double DVI, double denom);
  * Soybean-BioCro and for details on the parameter fitting to identify the
  * \f$ \alpha \text{ and } \beta \f$ parameters.
  *
- * References:
+ * ### References:
  *
  * Matthews, M.L. et al. 2021. in preparation. "Soybean-BioCro: A
  * semi-mechanistic model of soybean growth"

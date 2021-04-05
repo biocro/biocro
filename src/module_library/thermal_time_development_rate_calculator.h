@@ -32,7 +32,7 @@
  * and `TTrep`).
  *
  *
- * References:
+ * ### References:
  *
  *  [Osborne, T. et al. 2015. “JULES-Crop: A Parametrisation of Crops in the Joint UK Land Environment
  *  Simulator.” Geoscientific Model Development 8(4): 1139–55.]

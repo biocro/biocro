@@ -11,7 +11,7 @@ double ksene(double rate, double alpha, double beta, double DVI);
  * @class senescence_coefficient_logistic
  *
  * @brief Calculates coefficients representing fraction of biomass senesced for
- * each organ. Coefficents are represented as a logistic functions depending on
+ * each organ; coefficents are represented as a logistic functions depending on
  * development index.
  *
  * Intended to be used with the `senescence_logistic` module.
@@ -28,19 +28,19 @@ double ksene(double rate, double alpha, double beta, double DVI);
  * These parameters are represented in the code by the following input and output
  * parameters:
  *
- * \f$ s_i \f$ : `kSene<plant organ>`
- * \f$ r_i \f$ : `rateSene<plant organ>`
- * \f$ \alpha_i \f$ : `alphaSene<plant organ>`
- * \f$ \beta_i \f$ : `betaSene<plant organ>`
- * \f$ x \f$ : `DVI`
+ * - \f$ s_i \f$ : `kSene<plant organ>`
+ * - \f$ r_i \f$ : `rateSene<plant organ>`
+ * - \f$ \alpha_i \f$ : `alphaSene<plant organ>`
+ * - \f$ \beta_i \f$ : `betaSene<plant organ>`
+ * - \f$ x \f$ : `DVI`
  *
- * Where <plant organ> is one of {Leaf, Stem, Root, Rhizome}.
+ * where <plant organ> is one of {Leaf, Stem, Root, Rhizome}.
  *
  * See Matthews et al. for more description of how this module was used in
  * Soybean-BioCro and for details on the parameter fitting to identify the
  * \f$ \alpha \text{ and } \beta \f$ parameters.
  *
- * References
+ * ### References
  *
  * Matthews, M.L. et al. in preparation. "Soybean-BioCro: A semi-mechanistic
  * model of soybean growth"

@@ -9,7 +9,7 @@
  *
  * @brief Calculates the change in plant organ biomasses due to senescence.
  *
- * Intended to be used with any of the `senescence_coefficient_logistic` module
+ * Intended to be used with the `senescence_coefficient_logistic` module
  *
  * The amount that each plant component is senesced is determined as a percentage
  * (`kSeneLeaf`, `kSeneStem`, `kSeneRoot`, `kSeneRhizome`) of its current biomass.
