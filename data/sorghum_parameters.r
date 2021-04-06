@@ -73,6 +73,9 @@ sorghum_parameters = with(list(), {
     phi1                        0.01
     phi2                        10
     Rd                          0.8
+    remobilization_fraction     0.6
+    retrans                     0.9
+    retrans_rhizome             1.0
     rsec                        0.2
     seneLeaf                    3000
     seneRhizome                 4000

@@ -2,156 +2,203 @@
 #define NO_LEAF_RESP_PARTITIONING_GROWTH_CALCULATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
+#include "BioCro.h"  // for resp
 
 /**
- * @class no_leaf_resp_partitioning_growth_calculator
- * 
- * @brief Records new tissue derived from assimilation. This module is mostly the same as the
- * partitioning_growth_module except that leaf respiration is treated differently. CanopyA already
- * includes losses from leaf respiration, so it should only be removed from leaf mass.
- * 
- * NOTE: This approach record new tissue derived from assimilation in the new*col arrays, but it doesn't
- * record any new tissue derived from reallocation from other tissues, e.g., from rhizomes to the rest of the plant.
- * Since it's not recorded, that part will never senesce.
- * Also, the partitioning coefficiencts (kLeaf, kRoot, etc.) must be set to 0 for a long enough time
- * at the end of the season for all of the tissue to senesce.
- * This doesn't seem like a good approach.
+ *  @class no_leaf_resp_partitioning_growth_calculator
+ *
+ *  @brief Uses a set of partitioning coefficients to determine net assimilation
+ *  rates due to photosynthesis and respiration for several plant organs.
+ *
+ *  ### Partitioning overview
+ *
+ *  BioCro includes several partitioning growth calculators that determine these
+ *  rates using slightly different methods. The different modules can be
+ *  distinguished by the sets of tissues they use, the ways they apply
+ *  respiration and water stress, and their responses to negative canopy
+ *  assimilation rates. (A negative canopy assimilation rate indicates that the
+ *  leaves are respiring more than they are photosynthesizing.)
+ *
+ *  In all partitioning growth calculators, the base growth rate for an organ is
+ *  determined from the net canopy assimilation rate and a coefficient that
+ *  determines the fraction of the net assimilation that is "partitioned" to
+ *  that organ. Then, further modifications may take place to account for water
+ *  stress, maintenance respiration, or other processes that affect the amount
+ *  of carbon available to the organ for growth. Note that losses due to
+ *  senescence and gains due to remobilized carbon from other organs are handled
+ *  elsewhere and are not included here.
+ *
+ *  Respiration is included via the `resp()` function, which implements an
+ *  empirical rule for determining the fraction of energy spent on respiration
+ *  at a particular temperature. See the following paper for a general
+ *  discussion of the importance of respiration in understanding plant growth:
+ *  [Amthor, J. S. "The role of maintenance respiration in plant growth" Plant,
+ *  Cell & Environment 7, 561–569 (1984)]
+ *  (https://doi.org/10.1111/1365-3040.ep11591833).
+ *
+ *  ### Specifics of this module
+ *
+ *  When the canopy assimilation rate is negative, this module ensures that all
+ *  losses come from the leaf, and the growth rates for the other organs are set
+ *  to zero since no carbon is flowing out of the leaf.
+ *
+ *  This module does not attempt to explicitly include any effect due to water
+ *  stress.
+ *
+ *  This module includes five organs:
+ *  - `Leaf`: The leaf growth rate is *not* modified by respiration because the
+ *     net canopy assimilation rate already includes it.
+ *  - `Stem`: The stem growth rate is modified by respiration.
+ *  - `Root`: The root growth rate is modified by respiration.
+ *  - `Rhizome`: The rhizome growth rate is modified by respiration.
+ *  - `Grain`: The grain growth rate is *not* modified by respiration.
  */
 class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
 {
    public:
-    no_leaf_resp_partitioning_growth_calculator(const std::unordered_map<std::string, double>* input_parameters,
-                                                std::unordered_map<std::string, double>* output_parameters)
+    no_leaf_resp_partitioning_growth_calculator(
+        const state_map* input_parameters,
+        state_map* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("no_leaf_resp_partitioning_growth_calculator"),
+
           // Get pointers to input parameters
-          kLeaf_ip(get_ip(input_parameters, "kLeaf")),
-          kStem_ip(get_ip(input_parameters, "kStem")),
-          kRoot_ip(get_ip(input_parameters, "kRoot")),
-          kRhizome_ip(get_ip(input_parameters, "kRhizome")),
-          canopy_assimilation_rate_ip(get_ip(input_parameters, "canopy_assimilation_rate")),
-          mrc1_ip(get_ip(input_parameters, "mrc1")),
-          mrc2_ip(get_ip(input_parameters, "mrc2")),
-          temp_ip(get_ip(input_parameters, "temp")),
+          kLeaf{get_input(input_parameters, "kLeaf")},
+          kStem{get_input(input_parameters, "kStem")},
+          kRoot{get_input(input_parameters, "kRoot")},
+          kRhizome{get_input(input_parameters, "kRhizome")},
+          kGrain{get_input(input_parameters, "kGrain")},
+          canopy_assimilation_rate{get_input(input_parameters, "canopy_assimilation_rate")},
+          mrc1{get_input(input_parameters, "mrc1")},
+          mrc2{get_input(input_parameters, "mrc2")},
+          temp{get_input(input_parameters, "temp")},
+
           // Get pointers to output parameters
-          newLeafcol_op(get_op(output_parameters, "newLeafcol")),
-          newStemcol_op(get_op(output_parameters, "newStemcol")),
-          newRootcol_op(get_op(output_parameters, "newRootcol")),
-          newRhizomecol_op(get_op(output_parameters, "newRhizomecol"))
+          net_assimilation_rate_leaf_op{get_op(output_parameters, "net_assimilation_rate_leaf")},
+          net_assimilation_rate_stem_op{get_op(output_parameters, "net_assimilation_rate_stem")},
+          net_assimilation_rate_root_op{get_op(output_parameters, "net_assimilation_rate_root")},
+          net_assimilation_rate_rhizome_op{get_op(output_parameters, "net_assimilation_rate_rhizome")},
+          net_assimilation_rate_grain_op{get_op(output_parameters, "net_assimilation_rate_grain")}
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input parameters
-    const double* kLeaf_ip;
-    const double* kStem_ip;
-    const double* kRoot_ip;
-    const double* kRhizome_ip;
-    const double* canopy_assimilation_rate_ip;
-    const double* mrc1_ip;
-    const double* mrc2_ip;
-    const double* temp_ip;
+    const double& kLeaf;
+    const double& kStem;
+    const double& kRoot;
+    const double& kRhizome;
+    const double& kGrain;
+    const double& canopy_assimilation_rate;
+    const double& mrc1;
+    const double& mrc2;
+    const double& temp;
+
     // Pointers to output parameters
-    double* newLeafcol_op;
-    double* newStemcol_op;
-    double* newRootcol_op;
-    double* newRhizomecol_op;
+    double* net_assimilation_rate_leaf_op;
+    double* net_assimilation_rate_stem_op;
+    double* net_assimilation_rate_root_op;
+    double* net_assimilation_rate_rhizome_op;
+    double* net_assimilation_rate_grain_op;
+
     // Main operation
     void do_operation() const;
 };
 
-std::vector<std::string> no_leaf_resp_partitioning_growth_calculator::get_inputs()
+string_vector no_leaf_resp_partitioning_growth_calculator::get_inputs()
 {
     return {
-        "kLeaf",
-        "kStem",
-        "kRoot",
-        "kRhizome",
-        "canopy_assimilation_rate",
-        "mrc1",
-        "mrc2",
-        "temp"};
+        "kLeaf",                     // dimensionless
+        "kStem",                     // dimensionless
+        "kRoot",                     // dimensionless
+        "kRhizome",                  // dimensionless
+        "kGrain",                    // dimensionless
+        "canopy_assimilation_rate",  // Mg / ha / hour
+        "mrc1",                      // dimensionless
+        "mrc2",                      // dimensionless
+        "temp"                       // degrees C
+    };
 }
 
-std::vector<std::string> no_leaf_resp_partitioning_growth_calculator::get_outputs()
+string_vector no_leaf_resp_partitioning_growth_calculator::get_outputs()
 {
     return {
-        "newLeafcol",
-        "newStemcol",
-        "newRootcol",
-        "newRhizomecol"};
+        "net_assimilation_rate_leaf",     // Mg / ha / hour
+        "net_assimilation_rate_stem",     // Mg / ha / hour
+        "net_assimilation_rate_root",     // Mg / ha / hour
+        "net_assimilation_rate_rhizome",  // Mg / ha / hour
+        "net_assimilation_rate_grain"     // Mg / ha / hour
+    };
 }
 
 void no_leaf_resp_partitioning_growth_calculator::do_operation() const
 {
-    // Collect inputs and make calculations
+    double net_assimilation_rate_leaf{0.0};
+    double net_assimilation_rate_stem{0.0};
+    double net_assimilation_rate_root{0.0};
+    double net_assimilation_rate_rhizome{0.0};
+    double net_assimilation_rate_grain{0.0};
 
-    double kLeaf = *kLeaf_ip;
-    double kStem = *kStem_ip;
-    double kRoot = *kRoot_ip;
-    double kRhizome = *kRhizome_ip;
-    double canopy_assimilation_rate = *canopy_assimilation_rate_ip;
-    double mrc1 = *mrc1_ip;
-    double mrc2 = *mrc2_ip;
-    double temp = *temp_ip;
-
-    double newLeafcol, newStemcol, newRootcol, newRhizomecol;
-
+    // Determine the carbon flux to use for the non-leaf organs
     double nonleaf_carbon_flux;
     if (canopy_assimilation_rate < 0) {
         nonleaf_carbon_flux = 0.0;
-    }
-
-    else {
+    } else {
         nonleaf_carbon_flux = canopy_assimilation_rate;
     }
 
-    // Calculate the amount of new leaf produced
+    // Calculate the rate of new leaf production
     if (kLeaf > 0) {
-        // If assimilation is negative then leaves are respiring more than photosynthesizing.
         if (canopy_assimilation_rate < 0) {
-            newLeafcol = canopy_assimilation_rate;  // assimilation is negative here, so this removes leaf mass
+            // Assimilation is negative here, so this removes leaf mass
+            net_assimilation_rate_leaf = canopy_assimilation_rate;
         } else {
-            newLeafcol = canopy_assimilation_rate * kLeaf;
+            net_assimilation_rate_leaf = canopy_assimilation_rate * kLeaf;
         }
     } else {
-        newLeafcol = 0.0;
+        net_assimilation_rate_leaf = 0.0;
     }
 
-    // Calculate the amount of new stem produced
+    // Calculate the rate of new stem production
     if (kStem >= 0) {
-        newStemcol = nonleaf_carbon_flux * kStem;
-        newStemcol = resp(newStemcol, mrc1, temp);
+        net_assimilation_rate_stem = nonleaf_carbon_flux * kStem;
+        net_assimilation_rate_stem = resp(net_assimilation_rate_stem, mrc1, temp);
     } else {
-        newStemcol = 0.0;
+        net_assimilation_rate_stem = 0.0;
     }
 
-    // Calculate the amount of new root produced
+    // Calculate the rate of new root production
     if (kRoot > 0) {
-        newRootcol = nonleaf_carbon_flux * kRoot;
-        newRootcol = resp(newRootcol, mrc2, temp);
+        net_assimilation_rate_root = nonleaf_carbon_flux * kRoot;
+        net_assimilation_rate_root = resp(net_assimilation_rate_root, mrc2, temp);
     } else {
-        newRootcol = 0.0;
+        net_assimilation_rate_root = 0.0;
     }
 
-    // Calculate the amount of new rhizome produced
+    // Calculate the rate of new rhizome production
     if (kRhizome > 0) {
-        newRhizomecol = nonleaf_carbon_flux * kRhizome;
-        newRhizomecol = resp(newRhizomecol, mrc2, temp);
+        net_assimilation_rate_rhizome = nonleaf_carbon_flux * kRhizome;
+        net_assimilation_rate_rhizome = resp(net_assimilation_rate_rhizome, mrc2, temp);
     } else {
-        newRhizomecol = 0.0;
+        net_assimilation_rate_rhizome = 0.0;
     }
 
-    // Grain has no respiration or senescence at the moment, so we don't need to calculate
-    //  the amount of new grain here
+    // Calculate the rate of grain production
+    if (kGrain > 0) {
+        net_assimilation_rate_grain = nonleaf_carbon_flux * kGrain;
+    } else {
+        net_assimilation_rate_grain = 0.0;
+    }
 
     // Update the output parameter list
-    update(newLeafcol_op, newLeafcol);
-    update(newStemcol_op, newStemcol);
-    update(newRootcol_op, newRootcol);
-    update(newRhizomecol_op, newRhizomecol);
+    update(net_assimilation_rate_leaf_op, net_assimilation_rate_leaf);
+    update(net_assimilation_rate_stem_op, net_assimilation_rate_stem);
+    update(net_assimilation_rate_root_op, net_assimilation_rate_root);
+    update(net_assimilation_rate_rhizome_op, net_assimilation_rate_rhizome);
+    update(net_assimilation_rate_grain_op, net_assimilation_rate_grain);
 }
 
 #endif
