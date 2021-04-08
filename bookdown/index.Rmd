@@ -8,8 +8,9 @@ link-citations: yes
 ---
 # Introduction {-}
 
-The documentation in this short book is aimed at developer—those who
-will be writing new modules, modifying existing ones, and especially
-those adding fixing bugs in or adding new features to the BioCro
-simulation framework.
+The documentation in this short book is aimed at developers—at those
+who will be writing new modules or modifying existing ones; and most
+especially at those fixing bugs in or adding new features to the
+BioCro simulation framework, and those involved with the overall
+maintenance of the BioCro package.
 

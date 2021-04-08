@@ -4,6 +4,18 @@
 ^\.Rproj\.user$
 # Used by RStudio for temporary files
 
+/\.RData
+# Only a root level .RData file is ignored by default.
+
+^vignettes/.*\.aux$
+^vignettes/.*\.out$
+^vignettes/.*\.pdf$
+^vignettes/.*\.tex$
+^vignettes/.*\.toc$
+^vignettes/figure$
+^vignettes/.*\.log$
+# Vignette-build by-products.
+
 ^.*\.gz$
 # If these files occur only as by-products of building vignettes, this
 # could be made more specific: ^vignettes/.*\.gz
@@ -24,22 +36,6 @@
 # BioCro 1 and doesn't work properly on MacOS and maybe not at all on
 # Windows.
 
-^calibration\.RData$
-# Not sure what this is.
-
-^documentation$
-# This is mostly for the Doxygen machinery but also includes some
-# internal documentation for developers and contributers and
-# documentation of some of the equations used in BioCro, together with
-# publications containing these equations.  Documentation useful to
-# users of the package should be moved to the vignettes directory.
-# Publications that are readily available on-line should perhaps be
-# removed from the package and referred to by their DOI.
-
-^.*\.log$
-# If these files occur only as by-products of building vignettes, this
-# could be made more specific: ^vignettes/.*\.log
-
 ^tags$
 # Not sure what produces these files.
 
@@ -50,15 +46,18 @@
 ^src/BioCro.so
 # C++ build by-products.
 
-^vignettes/.*\.aux
-^vignettes/.*\.out
-^vignettes/.*\.tex
-^vignettes/.*\.toc
-# Other vignette-build by-products.
-
 ## Other files related to package development:
 
-^.clang-format
+^\.clang-format$
+^\.editorconfig$
+
 
 ^src/Makefile.project$
 # This file can possibly be eliminated.
+
+## Developer documentation directories:
+
+^bookdown$
+^developer_documentation$
+^documentation$
+^doxygen$
