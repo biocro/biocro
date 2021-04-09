@@ -1,0 +1,7 @@
+# Files automatically generated doxygen
+latex/
+html/
+complete/
+doxygen_docs_complete/
+doxygen_docs_modules/
+doxygen_docs_framework/
