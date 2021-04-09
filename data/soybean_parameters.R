@@ -5,12 +5,10 @@ soybean_parameters = with(list(), {
     # soil_type_selector module
     soil_type_indicator                     6
 
-    # leaf_water_stress_exponential module
-    phi2                                    1.5         # from Sugarcane-BioCro, Jaiswal et al. 2017 (https://doi.org/10.1038/nclimate3410)
-
     # parameter_calculator module
     iSp                                     3.5         # 2002 average lai / leaf biomass, Dermody et al. 2006 (https://doi.org/10.1111/j.1469-8137.2005.01565.x), Morgan et al. 2005 (https://doi.org/10.1111/j.1365-2486.2005.001017.x)
     Sp_thermal_time_decay                   0           # not used in Soybean-BioCro (see Note 1 at end of file), but must be defined
+    LeafN                                   2           # not used in Soybean-BioCro, but must be defined
     LeafN_0                                 2           # not used in Soybean-BioCro, but must be defined
     vmax_n_intercept                        0           # not used in Soybean-BioCro, but must be defined
     vmax1                                   110         # Bernacchi et. al. 2005 (https://doi.org/10.1007/s00425-004-1320-8), 2002 Seasonal average
@@ -120,6 +118,7 @@ soybean_parameters = with(list(), {
     rfl                                     0.2         # same as in sorghum parameter file
     rsdf                                    0.44        # same as in sorghum parameter file
     phi1                                    0.01
+    phi2                                    1.5         # from Sugarcane-BioCro, Jaiswal et al. 2017 (https://doi.org/10.1038/nclimate3410)
 
     # thermal_time_linear module
     tbase                                   10          # degrees C
@@ -135,6 +134,6 @@ soybean_parameters = with(list(), {
 })
 
 # Note 1: Soybean-BioCro refers to the simulation scenarios defined by the the soybean
-#         data files (soybean_initial_state, soybean_parameters, soybean_modules). See 
-#         Matthews et al. (doi: TBA) for more on the current version of Soybean-BioCro. 
+#         data files (soybean_initial_state, soybean_parameters, soybean_modules). See
+#         Matthews et al. (doi: TBA) for more on the current version of Soybean-BioCro.
 

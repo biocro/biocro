@@ -13,10 +13,9 @@ soybean_initial_state = with(list(), {
     soil_water_content       0.32          # dimensionless (m^3 / m^3), volume of water per volume of bulk soil
     cws1                     0.32          # dimensionless, current water status, soil layer 1
     cws2                     0.32          # dimensionless, current water status, soil layer 2
-    LeafN                    2             # mmol / m^2, specific leaf nitrogen
     DVI                      -1            # Sowing date: DVI=-1
     TTc                      0             # degrees C * day, accumulated thermal time
-    
+
     # Soybean does not have a rhizome, so these variables will not be used but must be defined
     Rhizome                  0.0000001     # Mg / ha
     RhizomeLitter            0             # Mg / ha
