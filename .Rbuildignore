@@ -42,8 +42,8 @@
 ^\.github$
 # GitHub actions and workflows.
 
-^src/.*\.o
-^src/BioCro.so
+^src/.*\.o$
+^src/BioCro.so$
 # C++ build by-products.
 
 ## Other files related to package development:

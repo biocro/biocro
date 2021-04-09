@@ -35,7 +35,6 @@ class shortwave_atmospheric_scattering : public SteadyModule
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
-    static std::string get_description();
 
    private:
     // References to input parameters

@@ -7,6 +7,8 @@
 #include "water_vapor_properties_from_air_temperature.hpp"
 #include "penman_monteith_transpiration.hpp"
 #include "collatz_leaf.hpp"
+#include "AuxBioCro.h"  // For nitroParms
+#include "BioCro.h"     // For Can_Str
 
 struct Can_Str newCanAC(
     double LAI,
@@ -45,7 +47,9 @@ struct Can_Str newCanAC(
     double StomataWS,
     int water_stress_approach,
     double leaf_transmittance,
-    double leaf_reflectance)
+    double leaf_reflectance,
+    double absorptivity_par  // dimensionless
+)
 {
     // Set up a few standalone modules that we will be using
 
@@ -96,7 +100,8 @@ struct Can_Str newCanAC(
         {"theta",                   &theta},
         {"upperT",                  &upperT},
         {"vmax",                    &vmax1},
-        {"water_stress_approach",   &wsa}
+        {"water_stress_approach",   &wsa},
+        {"absorptivity_par",        &absorptivity_par}
     };
 
     // Set up the output parameters
@@ -123,7 +128,7 @@ struct Can_Str newCanAC(
     double Idiff = light_model.diffuse_irradiance_fraction * solarR;
     double cosTh = light_model.cosine_zenith_angle;
 
-    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, heightf);
+    struct Light_profile light_profile = sunML(Idir, Idiff, LAI, nlayers, cosTh, kd, chil, absorptivity_par, heightf);
 
     double LAIc = LAI / nlayers;
 
@@ -234,7 +239,7 @@ class canac_with_collatz : public SteadyModule
           nlnb0_ip(get_ip(input_parameters, "nlnb0")),
           nlnb1_ip(get_ip(input_parameters, "nlnb1")),
           lai_ip(get_ip(input_parameters, "lai")),
-          doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+          time_ip(get_ip(input_parameters, "time")),
           solar_ip(get_ip(input_parameters, "solar")),
           temp_ip(get_ip(input_parameters, "temp")),
           rh_ip(get_ip(input_parameters, "rh")),
@@ -268,6 +273,7 @@ class canac_with_collatz : public SteadyModule
           water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
           leaf_transmittance_ip(get_ip(input_parameters, "leaf_transmittance")),
           leaf_reflectance_ip(get_ip(input_parameters, "leaf_reflectance")),
+          absorptivity_par_ip(get_ip(input_parameters, "absorptivity_par")),
 
           // Get pointers to output parameters
           canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
@@ -292,7 +298,7 @@ class canac_with_collatz : public SteadyModule
     const double* nlnb0_ip;
     const double* nlnb1_ip;
     const double* lai_ip;
-    const double* doy_dbl_ip;
+    const double* time_ip;
     const double* solar_ip;
     const double* temp_ip;
     const double* rh_ip;
@@ -326,6 +332,7 @@ class canac_with_collatz : public SteadyModule
     const double* water_stress_approach_ip;
     const double* leaf_transmittance_ip;
     const double* leaf_reflectance_ip;
+    const double* absorptivity_par_ip;
 
     // Pointers to output parameters
     double* canopy_assimilation_rate_op;
@@ -351,7 +358,7 @@ std::vector<std::string> canac_with_collatz::get_inputs()
         "nlnb0",
         "nlnb1",
         "lai",
-        "doy_dbl",
+        "time",
         "solar",
         "temp",
         "rh",
@@ -384,7 +391,9 @@ std::vector<std::string> canac_with_collatz::get_inputs()
         "StomataWS",
         "water_stress_approach",
         "leaf_transmittance",
-        "leaf_reflectance"};
+        "leaf_reflectance",
+        "absorptivity_par"  // dimensionless
+    };
 }
 
 std::vector<std::string> canac_with_collatz::get_outputs()
@@ -410,7 +419,7 @@ void canac_with_collatz::do_operation() const
     double nlnb0 = *nlnb0_ip;
     double nlnb1 = *nlnb1_ip;
     double lai = *lai_ip;
-    double doy_dbl = *doy_dbl_ip;
+    double time = *time_ip;
     double solar = *solar_ip;
     double temp = *temp_ip;
     double rh = *rh_ip;
@@ -444,10 +453,11 @@ void canac_with_collatz::do_operation() const
     double water_stress_approach = *water_stress_approach_ip;
     double leaf_transmittance = *leaf_transmittance_ip;
     double leaf_reflectance = *leaf_reflectance_ip;
+    double absorptivity_par = *absorptivity_par_ip;
 
-    // Convert doy_dbl into doy and hour
-    int doy = floor(doy_dbl);
-    double hour = 24.0 * (doy_dbl - doy);
+    // Convert time into doy and hour
+    int doy = floor(time);
+    double hour = 24.0 * (time - doy);
 
     // Define the nitrogen parameters
     struct nitroParms nitroP;
@@ -472,7 +482,8 @@ void canac_with_collatz::do_operation() const
         heightf, LeafN, kpLN, lnb0, lnb1,
         (int)lnfun, upperT, lowerT, nitroP, leafwidth, specific_heat_of_air,
         atmospheric_pressure, (int)et_equation, StomataWS,
-        (int)water_stress_approach, leaf_transmittance, leaf_reflectance);
+        (int)water_stress_approach, leaf_transmittance, leaf_reflectance,
+        absorptivity_par);
 
     // Update the output parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.

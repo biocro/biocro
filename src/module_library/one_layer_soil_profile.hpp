@@ -2,6 +2,8 @@
 #define ONE_LAYER_SOIL_PROFILE_H
 
 #include "../modules.h"
+#include "AuxBioCro.h"  // For ws_str
+#include "BioCro.h"     // For watstr
 
 class one_layer_soil_profile : public DerivModule {
 	public:
@@ -75,16 +77,16 @@ std::vector<std::string> one_layer_soil_profile::get_outputs() {
 	};
 }
 
-void one_layer_soil_profile::do_operation() const {	
+void one_layer_soil_profile::do_operation() const {
 	// Collect inputs and make calculations
 	double soilEvap = (*soil_evaporation_rate_ip);	// Mg / ha / hr
 	double TotEvap = soilEvap + (*canopy_transpiration_rate_ip);
-	
+
 	// watstr(...) is located in AuxBioCro.cpp
 	struct ws_str WaterS = watstr(*precip_ip, TotEvap, *soil_water_content_ip, *soil_depth_ip, *soil_field_capacity_ip,
 					*soil_wilting_point_ip, *phi1_ip, *phi2_ip, *soil_saturation_capacity_ip, *soil_sand_content_ip,
 					*soil_saturated_conductivity_ip, *soil_air_entry_ip, *soil_b_coefficient_ip);
-	
+
 	// Update the output parameter list
 	update(soil_water_content_op, WaterS.awc - (*soil_water_content_ip));
 }

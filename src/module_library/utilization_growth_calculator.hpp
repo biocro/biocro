@@ -3,6 +3,16 @@
 
 #include "../modules.h"
 
+/**
+ *  @class utilization_growth_calculator
+ *
+ *  @brief The utilization growth model is based on several papers published by
+ *  Thornley and is implemented in BioCro via two separate modules; this module
+ *  calculates utilization and transport rates for different plant tissue types.
+ *
+ *  It is intended to be run along with the utilization_growth module. See
+ *  utilization_growth.hpp for more information.
+ */
 class utilization_growth_calculator : public SteadyModule {
 	public:
 		utilization_growth_calculator(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
@@ -55,7 +65,6 @@ class utilization_growth_calculator : public SteadyModule {
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
-		static std::string get_description();
 	private:
 		// Pointers to input parameters
 		//const double* dawn_phase_ip;
@@ -157,34 +166,26 @@ std::vector<std::string> utilization_growth_calculator::get_outputs() {
 	};
 }
 
-std::string utilization_growth_calculator::get_description() {
-	std::string description = std::string("  The utilization growth model is based on several papers published by Thornley and is implemented in BioCro via two separate modules.\n");
-	description += std::string("  This module calculates utilization and transport rates for different plant tissue types.\n");
-	description += std::string("  It is intended to be run along with the utilization_growth module.\n");
-	description += std::string("  See utilization_growth.hpp and utilization_growth_calculator.hpp for more information.");
-	return description;
-}
-
 inline double utilization_hill(double KM, double n, double concentration) {
 	return pow(concentration, n) / (pow(KM, n) + pow(concentration, n));
 }
 
-void utilization_growth_calculator::do_operation() const {	
-	// Collect inputs and make calculations	
-	
+void utilization_growth_calculator::do_operation() const {
+	// Collect inputs and make calculations
+
 	//double dawn_phase = *dawn_phase_ip;
 	//if(dawn_phase > 3.14159265358979323846) dawn_phase -= 2*3.14159265358979323846;
 	//double rate_factor = exp(-(dawn_phase + 1) * (dawn_phase + 1));
-	
+
 	double grain_TTc = *grain_TTc_ip;
     double TTc = *TTc_ip;
-	
+
     double kLeaf = *rate_constant_leaf_ip;
     double kStem = *rate_constant_stem_ip;
     double kRoot = *rate_constant_root_ip;
     double kRhizome = *rate_constant_rhizome_ip;
     double kGrain = *rate_constant_grain_ip;
-    
+
 	/*
     double kLeaf = *rate_constant_leaf_ip * rate_factor;
     double kStem = *rate_constant_stem_ip * rate_factor;
@@ -215,7 +216,7 @@ void utilization_growth_calculator::do_operation() const {
     double substrate_pool_root = *substrate_pool_root_ip;
     double substrate_pool_rhizome = *substrate_pool_rhizome_ip;
     double substrate_pool_grain = *substrate_pool_grain_ip;
-    
+
     // Create a logistic scaling coefficient to smoothly ramp up the grain growth rate
 	//  The midpoint is a TTc value defined in the input parameters
 	//  The maximum value is 1
@@ -224,15 +225,15 @@ void utilization_growth_calculator::do_operation() const {
 	//    k = ln(0.95/(1-0.95))/8 = 0.368
 	//  This roughly corresponds to grain growth "turning on" over the course of
 	//    2*8 = 16 thermal days
-	
+
 	double kGrain_scale = 1/(1 + exp(-0.368*(TTc - grain_TTc)));
-	
+
 	// Create an exponential scaling coefficient to smoothly ramp down the rhizome
 	//  "retranslocation" rate
-	
+
 	//double kRhizome_retrans = 0.01 * kRhizome * exp(-TTc/300.0);
 	double kRhizome_retrans = 0.0;
-    
+
     // Calculate the substrate utilization rates
     //  mass_fraction_leaf = substrate_pool_leaf / Leaf is a measure of the substrate concentration in the leaf,
     //    made under the assumption that leaf volume is proportional to its structural carbon component, i.e., Leaf
@@ -246,25 +247,25 @@ void utilization_growth_calculator::do_operation() const {
     // Alternatively, we could use a Hill equation to model utilization. This may be especially helpful for the leaf, since utilization
     //  can be made to fall off faster at small substrate concentrations. Note that the M-M equation is a special case of the Hill
     //  equation when n = 1.
-    
+
     double n = 2.0;		// Set to 1.0 for Michaelis-Morley kinetics. Use larger values to get a steeper utilization cutoff at small substrate concentrations.
-    
+
     double mass_fraction_leaf = substrate_pool_leaf / Leaf;
     double utilization_leaf = kLeaf * Leaf * utilization_hill(KmLeaf, n, mass_fraction_leaf);
-	
+
     double mass_fraction_stem = substrate_pool_stem / Stem;
     double utilization_stem = kStem * Stem * utilization_hill(KmStem, n, mass_fraction_stem);
-	
+
     double mass_fraction_root = substrate_pool_root / Root;
     double utilization_root = kRoot * Root * utilization_hill(KmRoot, n, mass_fraction_root);
-	
+
     double mass_fraction_rhizome = substrate_pool_rhizome / Rhizome;
     double utilization_rhizome = kRhizome * Rhizome * utilization_hill(KmRhizome, n, mass_fraction_rhizome);
     utilization_rhizome -= kRhizome_retrans * Rhizome;	// Add an additional term that allows the rhizome to redistribute some of its mass in the early stages of growth, i.e., when TTc is small
-	
+
     double mass_fraction_grain = substrate_pool_grain / Grain;
     double utilization_grain = kGrain * kGrain_scale * Grain * utilization_hill(KmGrain, n, mass_fraction_grain);
-    
+
     // Calculate the transport rates
     //  We make the simple assumption that substrate transport is proportional to a concentration gradient between tissues
     //   and inversely proportional to a resistance, analogous to current in an electrical circuit
@@ -272,14 +273,14 @@ void utilization_growth_calculator::do_operation() const {
     //   the roots now require twice as much carbon substrate to continue growth at the same rate, so the resistance between
     //   the stem and root should be halved (or transport should double). We accomplish this scaling with the beta factor.
     //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419430 (1972)
-    
+
     double beta = Leaf + Grain + Stem + Root + Rhizome;
-    
+
     double transport_leaf_to_stem = beta * (mass_fraction_leaf - mass_fraction_stem) / resistance_leaf_to_stem;
     double transport_stem_to_grain = beta * (mass_fraction_stem - mass_fraction_grain) / resistance_stem_to_grain;
     double transport_stem_to_root = beta * (mass_fraction_stem - mass_fraction_root) / resistance_stem_to_root;
     double transport_stem_to_rhizome = beta * (mass_fraction_stem - mass_fraction_rhizome) / resistance_stem_to_rhizome;
-	
+
 	// Update the output parameter list
     update(utilization_leaf_op, utilization_leaf);
     update(utilization_stem_op, utilization_stem);
@@ -291,13 +292,13 @@ void utilization_growth_calculator::do_operation() const {
     update(transport_stem_to_grain_op, transport_stem_to_grain);
     update(transport_stem_to_root_op, transport_stem_to_root);
     update(transport_stem_to_rhizome_op, transport_stem_to_rhizome);
-    
+
     update(mass_fraction_leaf_op, mass_fraction_leaf);
     update(mass_fraction_stem_op, mass_fraction_stem);
     update(mass_fraction_root_op, mass_fraction_root);
     update(mass_fraction_rhizome_op, mass_fraction_rhizome);
     update(mass_fraction_grain_op, mass_fraction_grain);
-    
+
     update(kGrain_scale_op, kGrain_scale);
 }
 

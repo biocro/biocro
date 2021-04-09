@@ -36,7 +36,7 @@ class big_leaf_multilayer_canopy : public SteadyModule
     const double* windspeed_ip;
     const double* kd_ip;
     const double* lat_ip;
-    const double* doy_dbl_ip;
+    const double* time_ip;
     const double* solar_ip;
     const double* chil_ip;
     const double* vmax1_ip;

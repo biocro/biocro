@@ -2,19 +2,18 @@
 #define ED_MULTILAYER_CANOPY_PROPERTIES_H
 
 #include "../modules.h"
-#include "../module_helper_functions.h"
 #include "../state_map.h"
 
 /**
  * @class ed_multilayer_canopy_properties
- * 
+ *
  * @brief Calculates properties of each canopy layer using functions
  * found in AuxBioCro (for the most part). Also includes multiple
  * leaf classes (sunlit & shaded). Leaf class is added to output
  * parameters as a prefix, while layer number is added as a suffix.
  * Note that this module has a non-standard constructor, so it cannot
  * be created using the module_wrapper_factory.
- * 
+ *
  * For compatibility with the multilayer canopy photosynthesis module,
  * the outputs of this module must be split into the following categories:
  *  - multiclass_multilayer outputs: these outputs are different for each
@@ -46,6 +45,7 @@ class ed_multilayer_canopy_properties : public SteadyModule
           par_energy_content(get_input(input_parameters, "par_energy_content")),
           par_incident_direct(get_input(input_parameters, "par_incident_direct")),
           par_incident_diffuse(get_input(input_parameters, "par_incident_diffuse")),
+          absorptivity_par(get_input(input_parameters, "absorptivity_par")),
           lai(get_input(input_parameters, "lai")),
           cosine_zenith_angle(get_input(input_parameters, "cosine_zenith_angle")),
           kd(get_input(input_parameters, "kd")),
@@ -82,6 +82,7 @@ class ed_multilayer_canopy_properties : public SteadyModule
     double const& par_energy_content;
     double const& par_incident_direct;
     double const& par_incident_diffuse;
+    double const& absorptivity_par;
     double const& lai;
     double const& cosine_zenith_angle;
     double const& kd;
@@ -126,6 +127,7 @@ std::vector<std::string> ed_multilayer_canopy_properties::get_inputs(int /*nlaye
         "par_energy_content",               // J / micromol
         "par_incident_direct",              // J / (m^2 beam) / s [area perpendicular to beam]
         "par_incident_diffuse",             // J / m^2 / s        [through any plane]
+        "absorptivity_par",                 // dimensionless
         "lai",                              // dimensionless from (m^2 leaf) / (m^2 ground). LAI of entire canopy.
         "cosine_zenith_angle",              // dimensionless
         "kd",                               // (m^2 ground) / (m^2 leaf)
@@ -207,7 +209,8 @@ void ed_multilayer_canopy_properties::run() const
     // because the two units are simply related by a multiplicative conversion factor
     // and the output of sunML is linear with respect to `Idir` and `Idiff`.
     struct Light_profile par_profile = sunML(par_incident_direct, par_incident_diffuse,
-                                             lai, nlayers, cosine_zenith_angle, kd, chil, heightf);
+                                             lai, nlayers, cosine_zenith_angle, kd, chil,
+                                             absorptivity_par, heightf);
 
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];
@@ -260,7 +263,7 @@ void ed_multilayer_canopy_properties::run() const
 
 /**
  * @class ed_ten_layer_canopy_properties
- * 
+ *
  * @brief A child class of ed_multilayer_canopy_properties where the number of layers has been defined.
  * Instances of this class can be created using the module factory.
  */

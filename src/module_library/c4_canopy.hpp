@@ -2,6 +2,8 @@
 #define C4_CANOPY_H
 
 #include "../modules.h"
+#include "AuxBioCro.h"  // For nitroParms and Can_Str
+#include "BioCro.h"     // For CanAC
 
 class c4_canopy : public SteadyModule
 {
@@ -25,7 +27,7 @@ class c4_canopy : public SteadyModule
           nlnb0_ip(get_ip(input_parameters, "nlnb0")),
           nlnb1_ip(get_ip(input_parameters, "nlnb1")),
           lai_ip(get_ip(input_parameters, "lai")),
-          doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+          time_ip(get_ip(input_parameters, "time")),
           solar_ip(get_ip(input_parameters, "solar")),
           temp_ip(get_ip(input_parameters, "temp")),
           rh_ip(get_ip(input_parameters, "rh")),
@@ -58,6 +60,7 @@ class c4_canopy : public SteadyModule
           specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
           atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
           water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
+          absorptivity_par_ip(get_ip(input_parameters, "absorptivity_par")),
 
           // Get pointers to output parameters
           canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
@@ -83,7 +86,7 @@ class c4_canopy : public SteadyModule
     const double* nlnb0_ip;
     const double* nlnb1_ip;
     const double* lai_ip;
-    const double* doy_dbl_ip;
+    const double* time_ip;
     const double* solar_ip;
     const double* temp_ip;
     const double* rh_ip;
@@ -116,6 +119,7 @@ class c4_canopy : public SteadyModule
     const double* specific_heat_of_air_ip;
     const double* atmospheric_pressure_ip;
     const double* water_stress_approach_ip;
+    const double* absorptivity_par_ip;
 
     // Pointers to output parameters
     double* canopy_assimilation_rate_op;
@@ -142,7 +146,7 @@ std::vector<std::string> c4_canopy::get_inputs()
         "nlnb0",
         "nlnb1",
         "lai",
-        "doy_dbl",
+        "time",
         "solar",
         "temp",
         "rh",
@@ -172,9 +176,10 @@ std::vector<std::string> c4_canopy::get_inputs()
         "leafwidth",
         "et_equation",
         "StomataWS",
-        "specific_heat_of_air",  // J / kg / K
-        "atmospheric_pressure",  // Pa
-        "water_stress_approach"  // dimensionless switch
+        "specific_heat_of_air",   // J / kg / K
+        "atmospheric_pressure",   // Pa
+        "water_stress_approach",  // dimensionless switch
+        "absorptivity_par"        // dimensionless
     };
 }
 
@@ -191,8 +196,8 @@ std::vector<std::string> c4_canopy::get_outputs()
 void c4_canopy::do_operation() const
 {
     // Collect inputs and make calculations
-    int doy = int(*doy_dbl_ip);                  // Round doy_dbl down to get the day of year
-    double hour = 24.0 * ((*doy_dbl_ip) - doy);  // Get the fractional part as the hour
+    int doy = floor(*time_ip);                // Round time down to get the day of year
+    double hour = 24.0 * ((*time_ip) - doy);  // Get the fractional part as the hour
 
     struct nitroParms nitroP;
     nitroP.ileafN = *nileafn_ip;
@@ -210,13 +215,14 @@ void c4_canopy::do_operation() const
     // CanAC is located in CanAC.cpp
     struct Can_Str can_result = CanAC(
         *lai_ip, doy, hour, *solar_ip, *temp_ip,
-        *rh_ip, *windspeed_ip, *lat_ip, (int)(*nlayers_ip), *vmax1_ip,
+        *rh_ip, *windspeed_ip, *lat_ip, *nlayers_ip, *vmax1_ip,
         *alpha1_ip, *kparm_ip, *beta_ip, *Rd_ip, *Catm_ip,
         *b0_ip, *b1_ip, *Gs_min_ip * 1e3, *theta_ip, *kd_ip, *chil_ip,
         *heightf_ip, *LeafN_ip, *kpLN_ip, *lnb0_ip, *lnb1_ip,
-        (int)(*lnfun_ip), *upperT_ip, *lowerT_ip, nitroP, *leafwidth_ip,
-        (int)(*et_equation_ip), *StomataWS_ip, *specific_heat_of_air_ip,
-        *atmospheric_pressure_ip, (int)(*water_stress_approach_ip));
+        *lnfun_ip, *upperT_ip, *lowerT_ip, nitroP, *leafwidth_ip,
+        *et_equation_ip, *StomataWS_ip, *specific_heat_of_air_ip,
+        *atmospheric_pressure_ip, *water_stress_approach_ip,
+        *absorptivity_par_ip);
 
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.

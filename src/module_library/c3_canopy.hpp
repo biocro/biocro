@@ -14,7 +14,7 @@ class c3_canopy : public SteadyModule
 
           // Get pointers to input parameters
           lai_ip(get_ip(input_parameters, "lai")),
-          doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+          time_ip(get_ip(input_parameters, "time")),
           solar_ip(get_ip(input_parameters, "solar")),
           temp_ip(get_ip(input_parameters, "temp")),
           rh_ip(get_ip(input_parameters, "rh")),
@@ -46,6 +46,7 @@ class c3_canopy : public SteadyModule
           water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
           electrons_per_carboxylation_ip(get_ip(input_parameters, "electrons_per_carboxylation")),
           electrons_per_oxygenation_ip(get_ip(input_parameters, "electrons_per_oxygenation")),
+          absorptivity_par_ip(get_ip(input_parameters, "absorptivity_par")),
 
           // Get pointers to output parameters
           canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
@@ -59,7 +60,7 @@ class c3_canopy : public SteadyModule
    private:
     // Pointers to input parameters
     const double* lai_ip;
-    const double* doy_dbl_ip;
+    const double* time_ip;
     const double* solar_ip;
     const double* temp_ip;
     const double* rh_ip;
@@ -91,6 +92,7 @@ class c3_canopy : public SteadyModule
     const double* water_stress_approach_ip;
     const double* electrons_per_carboxylation_ip;
     const double* electrons_per_oxygenation_ip;
+    const double* absorptivity_par_ip;
 
     // Pointers to output parameters
     double* canopy_assimilation_rate_op;

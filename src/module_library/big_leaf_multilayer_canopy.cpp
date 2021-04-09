@@ -1,4 +1,5 @@
 #include "big_leaf_multilayer_canopy.hpp"
+#include "BioCro.h"  // For Light_model and lightME
 
 // Constructor
 big_leaf_multilayer_canopy::big_leaf_multilayer_canopy(
@@ -14,7 +15,7 @@ big_leaf_multilayer_canopy::big_leaf_multilayer_canopy(
       windspeed_ip(get_ip(input_parameters, "windspeed")),
       kd_ip(get_ip(input_parameters, "kd")),
       lat_ip(get_ip(input_parameters, "lat")),
-      doy_dbl_ip(get_ip(input_parameters, "doy_dbl")),
+      time_ip(get_ip(input_parameters, "time")),
       solar_ip(get_ip(input_parameters, "solar")),
       chil_ip(get_ip(input_parameters, "chil")),
       vmax1_ip(get_ip(input_parameters, "vmax1")),
@@ -133,7 +134,7 @@ std::vector<std::string> big_leaf_multilayer_canopy::get_inputs()
         "windspeed",
         "kd",
         "lat",
-        "doy_dbl",
+        "time",
         "solar",
         "chil",
         "stefan_boltzman",       // For a standalone module
@@ -177,16 +178,16 @@ void big_leaf_multilayer_canopy::do_operation() const
     double windspeed = *windspeed_ip;
     double kd = *kd_ip;
     double lat = *lat_ip;
-    double doy_dbl = *doy_dbl_ip;
+    double time = *time_ip;
     double solar = *solar_ip;
     double chil = *chil_ip;
 
     const double kh = 1.0 - rh;
     const double layer_lai = lai / n_layers;
 
-    // Convert doy_dbl into doy and hour
-    int doy = floor(doy_dbl);
-    double hour = 24.0 * (doy_dbl - doy);
+    // Convert time into doy and hour
+    int doy = floor(time);
+    double hour = 24.0 * (time - doy);
 
     // Define constants
     constexpr double wind_speed_extinction = 0.7;

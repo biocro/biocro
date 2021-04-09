@@ -2,6 +2,7 @@
 miscanthus_x_giganteus_parameters = with(list(), {
     datalines =
     "symbol                     value
+    absorptivity_par            0.8
     alpha1                      0.04
     alphab1                     0
     atmospheric_pressure        101325
