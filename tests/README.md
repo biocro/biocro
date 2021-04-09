@@ -31,6 +31,7 @@ in the`tests` directory of the source tree, and call
 `source('testthat.R')`.
 
 Read on for further information about various topics, including
+
 * running the tests on source code without installing _devtools_
 * better test reporting options
 * running individual test files

@@ -32,10 +32,9 @@ Format Current Source to format a file.
 
 ### EditorConfig
 
-Another tool to help with formatting is EditorConfig. specification
-and . EditorConfig, when used in conjunction with the
-[.editorconfig](../.editorconfig) file provided in the base directory
-of BioCro, provides a method for standardizing settings across
-different text editors. While some editors have native support, others
-require a plugin. See the [EditorConfig
-website](https://editorconfig.org/) for more details.
+Another tool to help with formatting is EditorConfig.  EditorConfig,
+when used in conjunction with the [.editorconfig](../.editorconfig)
+file provided in the base directory of BioCro, provides a method for
+standardizing settings across different text editors. While some
+editors have native support, others require a plugin. See the
+[EditorConfig website](https://editorconfig.org/) for more details.
