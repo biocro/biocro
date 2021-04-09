@@ -1,0 +1,25 @@
+This directory contains configuration files for generating a
+*bookdown* compilation of the BioCro documentation files meant for
+developers as well as including a portion of the *.md files comprising
+that documentation.
+
+To generate a *bookdown* book of this documentation, do as follows:
+
+1. Start an R session.
+
+2. Install the R "bookdown" package, if it hasn't been installed
+already.
+
+3. Call "rmarkdown::render_site(<path>)", where "<path>" denotes the
+path from the current directory to the documentaiton directory (i.e.,
+*this* directory).
+
+Note: Because some sections of the book are contained in their own
+files rather than being in a larger file comprising a complete
+chapter, you will get a warning such as the following, which may be
+safely ignored:
+
+"In split_chapters(output, gitbook_page, number_sections, split_by,  :
+  You have 11 Rmd input file(s) but only 7 first-level heading(s). Did you forget first-level headings in certain Rmd files?"
+
+4. In a Web browser, open documentation/_book/index.html.

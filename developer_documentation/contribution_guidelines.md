@@ -201,20 +201,8 @@ Consider naming parts of a complicated expression in order to break it down into
 
 * The C++ guidelines offer some advice about [formatting conventions](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#S-naming) that are informative, particularly regarding the use of code comments, but that are not enforced here.
 
-* Many of these preferences can be applied automatically using the program [clang-format](https://clang.llvm.org/docs/ClangFormat.html) with the [.clang-format](../.clang-format) file provided in the base directory of BioCro. **Do not apply clang-format to all files indiscriminately**, as that will ruin manually-aligned tables.
-    * One can install clang-format on Ubunutu using `sudo apt install clang-format` and on MacOS through Homebrew.
-    * Files can be formatted using
-        ```
-        clang-format file_name > new_file
-        ```
-        or edited in place using
-        ```
-        clang-format -i file_name
-        ```
-        If your editor has the ability to display differences between the original and revised versions of the file, it is a good idea to step through and inspect the proposed changes to ensure they are desirable.
-    * On Windows, MacOS, or Linux, the CodeLite IDE includes clang-format and provides an easy way to use it. First go to Plugins -> Source Code Formatter -> Options. In the C++ tab, select `use .clang-format file`. Now press `Ctrl-I` or click Plugins -> Source Code Formatter -> Format Current Source to format a file.
-
-* A few other preferences can be applied using the [editorconfig](https://editorconfig.org/) specification and the [.editorconfig](../.editorconfig) file provided in the base directory of BioCro. Editorconfig provides a method for standardizing settings across different text editors. While some editors have native support, others require a plugin. See the editorconfig website for more details.
+For tools to help with formatting code, see the section
+\@ref(formatting-tools).
 
 ### R-specific coding advice
 
@@ -235,59 +223,6 @@ Consider naming parts of a complicated expression in order to break it down into
   for optimizing loop performance are available online, such as [Strategies to
   Speedup R Code](https://datascienceplus.com/strategies-to-speedup-r-code/) and
   [Why loops are slow in R](https://privefl.github.io/blog/why-loops-are-slow-in-r/).
-
-## Running Unit Tests
-
-The **BioCro** package contains a collection of R-based unit tests to help
-maintain package integrity.  These tests should be run periodically,
-and especially before committing changes to the C++ or R code.
-
-There are a number of ways to run these tests:
-
-1. In an R session using the **testthat** library functions.
-
-    a. Ensure the **BioCro** library and the **testthat** library are both loaded.
-
-    b. Determine the relative path to the <_BioCro package root_>`/tests/testthat` directory from the current working directory. (The current working directory may be discovered by calling `getwd()`).
-
-    c. Call `test_dir('`<_path to testthat directory_>`')`.
-
-    (`test_dir` can also take an absolute path.)
-
-2. In an R session using the **devtools** package.
-
-    If you have the **devtools** package installed, running all package tests is even simpler.
-
-    a. Start an R session from any directory inside the BioCro
-    package; or in an existing R session, use the `setwd()` function
-    to switch to a directory inside the package if you aren't already
-    inside such a directory.
-
-    b. Load the **devtools** package: `library(devtools)`.
-
-    c. Call `test()`.
-
-3. In RStudio.
-
-   This method assumes the **devtools** package is installed.  (It needn't be explicitly loaded.)
-
-    a. Open the BioCro project in RStudio.
-
-    b. From the **Build** menu, choose **Test Package**.  Or use the keyboard shortcut Ctrl + Shirt + T (Cmd + Shift + T on Mac).
-
-
-While writing a file a tests, it is often useful to run only the tests in that one file.  This is done similarly to method 1 above, but using `test_file` instead of `test_dir`:
-
-4. Running one file of tests in an R session.
-
-    a. Ensure the **BioCro** library and the **testthat** library are both loaded.
-
-    b. Determine the relative path from the current working directory to the test file.
-
-    c. Call `test_file('`<_path to test file_>`')`.
-
-    (`test_file` can also take an absolute path.)
-
 
 ---
 

@@ -1,0 +1,13 @@
+ # location of the generated files for the book:
+
+_book
+
+
+## Files referenced from source Markdown files get copied to the
+## directory in such a way the the relative path from this directory
+## to the copy is the same as the relative path from the BioCro root
+## directory to the original:
+
+.clang-format
+.editorconfig
+src
