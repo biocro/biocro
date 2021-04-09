@@ -1,7 +1,6 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
 soybean_steadystate_modules <- c("soil_type_selector",
                                  "stomata_water_stress_linear",
-                                 "leaf_water_stress_exponential",
                                  "parameter_calculator",
                                  "soybean_development_rate_calculator",
                                  "partitioning_coefficient_logistic",
