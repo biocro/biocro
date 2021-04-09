@@ -14,4 +14,12 @@ already.
 path from the current directory to the documentaiton directory (i.e.,
 *this* directory).
 
+Note: Because some sections of the book are contained in their own
+files rather than being in a larger file comprising a complete
+chapter, you will get a warning such as the following, which may be
+safely ignored:
+
+"In split_chapters(output, gitbook_page, number_sections, split_by,  :
+  You have 11 Rmd input file(s) but only 7 first-level heading(s). Did you forget first-level headings in certain Rmd files?"
+
 4. In a Web browser, open documentation/_book/index.html.
