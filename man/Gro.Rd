@@ -75,9 +75,9 @@
     }
 }
 \examples{
-## Simulate sorghum growth
-result = Gro(sorghum_initial_state, sorghum_parameters,
-             get_growing_season_climate(weather05), sorghum_modules)
+## Simulate miscanthus growth
+result = Gro(miscanthus_x_giganteus_initial_state, miscanthus_x_giganteus_parameters,
+             get_growing_season_climate(weather05), miscanthus_x_giganteus_modules)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
                 auto=list(points=FALSE, lines=TRUE),
                 ylab=expression('Biomass'~(Mg/ha)),
@@ -87,9 +87,9 @@ lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
 result = cbind(result, get_growing_season_climate(weather05))
 
 ## Change a subset of the parameters.
-canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
-architechture_result = Gro(sorghum_initial_state, canopy_architecture,
-                           get_growing_season_climate(weather05), sorghum_modules)
+canopy_architecture = within(miscanthus_x_giganteus_parameters, {chil = 1.2; leafwidth = 0.05})
+architechture_result = Gro(miscanthus_x_giganteus_initial_state, canopy_architecture,
+                           get_growing_season_climate(weather05), miscanthus_x_giganteus_modules)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l',
                 auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)),
                 xlab=expression('Thermal time'~(degree*C~day)))
