@@ -1,0 +1,52 @@
+PKG_CPPFLAGS+=-I../boost_1_71_0 -DR_NO_REMAP
+
+SOURCES = $(wildcard *.cpp module_library/*.cpp system_solver_library/*.cpp se_solver_library/*.cpp utils/*.cpp)
+OBJECTS = $(SOURCES:.cpp=.o)
+
+
+
+
+
+# The code below is a slightly modified version of the method for generating and
+# using dependency files presented at
+# http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/#combine
+#
+# Modifications include:
+#
+# 1. Ensuring "all" is the default target.
+# 2. Setting a value for OUTPUT_OPTION (presumably needed, but not discussed in
+#    the paper).
+# 3. Replacing ".c" extensions with ".cpp".
+# 4. Defining COMPILE.cpp to use compiler and flag variables more closely
+#    matching what is given in the suffix rule for .cpp.o contained in the
+#    Makeconf file.
+# 5. Since this file is read in before Makeconf, we can't cancel the suffix rule
+#    listed there for making %.o files from %.cpp files by using the recipe-less
+#    rule "%.o : %.cpp", so we make our new rule for this into a static pattern
+#    rule, which automatically gives it higher priority.
+# 6. Modifying the recipe for making the directories that contain the dependency
+#    files so that the subdirectory module_library is also made.
+# 7. Changing the variable name SRCS to SOURCES to match what the
+#    previously-existing version of this file used.
+
+
+all:
+
+DEPDIR := .deps
+DEPSUBDIRS = $(DEPDIR)/module_library $(DEPDIR)/system_solver_library $(DEPDIR)/se_solver_library $(DEPDIR)/utils
+
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
+
+OUTPUT_OPTION = -o $@
+COMPILE.cpp = $(CXX) $(DEPFLAGS) $(ALL_CPPFLAGS) $(ALL_CXXFLAGS) -c
+
+$(OBJECTS) : %.o : %.cpp $(DEPDIR)/%.d | $(DEPSUBDIRS)
+	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
+
+$(DEPSUBDIRS):
+	@mkdir -p $@
+
+DEPFILES := $(SOURCES:%.cpp=$(DEPDIR)/%.d)
+$(DEPFILES):
+
+include $(wildcard $(DEPFILES))
