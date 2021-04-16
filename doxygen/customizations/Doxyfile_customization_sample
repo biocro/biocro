@@ -1,0 +1,54 @@
+## This file gives some ideas of some settings you might want to
+## customize.  To customize the default Doxygen settings specified in
+## doxygen/Doxyfile, copy this file to a file named Doxyfile (in this
+## directory), and then modify it as needed.  (Or simply create
+## doxygen/customizations/Doxyfile from scratch!)
+
+################################################################################
+
+## Possible settings
+
+
+## If you are working on Doxygen comments in one particular file, you
+## may want to be able to generate the resulting documentation
+## quickly.  One way to do this is to override the INPUT configuration
+## variable to point to the one file you are working on.  So as not to
+## overwrite previously-generated "complete" documentation, you may
+## want to set OUTPUT_DIRECTORY as well.  (Note: the Make-file recipes
+## currently ignore these overrides, so you must use doxygen or
+## doxywizard directly for them to take effect.)
+
+INPUT            = "../src/module_library/thermal_time_senescence.hpp"
+OUTPUT_DIRECTORY = "customized_docs"
+
+
+## To create the inheritance and dependency graphs in the Doxygen
+## documentation, Doxygen must know how to find the dot tool.  This
+## can be done either by ensuring the directory containing it is on
+## the executable search path or by setting the Doxygen configuration
+## variable DOT_PATH.  Here is a possible setting for DOT_PATH that
+## might be used by a Windows user:
+
+DOT_PATH               = "C:\Program Files (x86)\Graphviz2.38\bin"
+
+
+## If you want to speed up Doxygen compilation by not bothering to
+## generate call graphs, inheritance graphs, and inclusion graphs (or
+## if you really don't have the dot tool!), use this setting:
+HAVE_DOT = NO
+
+
+## If you wanted to generate the PDF documentation and not generate
+## the HTML documentation, you could use these settings:
+GENERATE_LATEX = YES
+GENERATE_HTML  = NO
+
+
+## If you want colors that will keep you awake:
+HTML_COLORSTYLE_HUE    = 5
+HTML_COLORSTYLE_SAT    = 255
+HTML_COLORSTYLE_GAMMA  = 240
+
+
+## If you don't want to document private class members:
+EXTRACT_PRIVATE        = NO
