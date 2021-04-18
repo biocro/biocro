@@ -1,18 +1,34 @@
 This directory contains configuration files for generating a
-*bookdown* compilation of the BioCro documentation files meant for
-developers as well as including a portion of the *.md files comprising
-that documentation.
+*bookdown* compilation of the developer-oriented BioCro documentation
+files.  In addition, it contains a few of the Markdown files
+comprising that documentation.
+
+INSTRUCTIONS FOR COMPILING THE BOOKDOWN BOOK
 
 To generate a *bookdown* book of this documentation, do as follows:
 
-1. Start an R session.
+1. Install Pandoc, if it is not already on your system.  See
+https://pandoc.org/installing.html for instructions.  (Note to RStudio
+users: As mentioned in the R Markdown Cookbook
+(https://bookdown.org/yihui/rmarkdown-cookbook/install-pandoc.html),
+RStudio comes with its own copy of Pandoc, so you may be able to get
+by without installing it separately.)
 
-2. Install the R "bookdown" package, if it hasn't been installed
+2. Start an R session.
+
+3. Install the R "bookdown" package, if it hasn't been installed
 already.
 
-3. Call "rmarkdown::render_site(<path>)", where "<path>" denotes the
-path from the current directory to the documentaiton directory (i.e.,
-*this* directory).
+4. Run the R function to compile the Bookdown book.
+
+Method A: Call "rmarkdown::render_site('<path>')", where "<path>"
+denotes the path from the current directory to the bookdown directory
+(i.e., *this* directory).
+
+Method B: Call "xfun::in_dir('<path>', bookdown::render_book('.'))",
+where "<path>" denotes the path from the current directory to the
+bookdown directory (*this* directory).  If you are *in* the bookdown
+directory, you may simply call "bookdown::render_book('.')".
 
 Note: Because some sections of the book are contained in their own
 files rather than being in a larger file comprising a complete
@@ -22,4 +38,4 @@ safely ignored:
 "In split_chapters(output, gitbook_page, number_sections, split_by,  :
   You have 11 Rmd input file(s) but only 7 first-level heading(s). Did you forget first-level headings in certain Rmd files?"
 
-4. In a Web browser, open documentation/_book/index.html.
+4. In a Web browser, open bookdown/_book/index.html.
