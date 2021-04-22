@@ -30,14 +30,14 @@ struct rue_str {
 // Respiration and stomatal conductance are otherwise calculated using the same
 // methods as `c3photoC()`.
 struct rue_str rue_photo(
-    double Qp,     // mol / m^2 / s
-    double RUE,    // dimensionless
-    double Tleaf,  // degrees C
-    double RH,     // dimensionless from Pa / Pa
-    double Rd0,    // mol / m^2 / s
-    double bb0,    // mol / m^2 / s
-    double bb1,    // dimensionless
-    double Ca      // dimensionless from mol / mol
+    double Qp,         // mol / m^2 / s
+    double alpha_rue,  // dimensionless
+    double Tleaf,      // degrees C
+    double RH,         // dimensionless from Pa / Pa
+    double Rd0,        // mol / m^2 / s
+    double bb0,        // mol / m^2 / s
+    double bb1,        // dimensionless
+    double Ca          // dimensionless from mol / mol
 )
 {
     using conversion_constants::celsius_to_kelvin;  // deg. C or K
@@ -47,7 +47,7 @@ struct rue_str rue_photo(
 
     // Calculate gross assimilation based on incident light and radiation use
     // efficiency
-    double const ag = Qp * RUE;  // mol / m^2 / s
+    double const ag = Qp * alpha_rue;  // mol / m^2 / s
 
     // Determine respiration from the leaf temperature using Arrhenius exponents
     // from Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259.
@@ -81,7 +81,7 @@ string_vector rue_leaf_photosynthesis::get_inputs()
     return {
         "par_energy_content",    // J / micromol
         "incident_par",          // J / (m^2 leaf) / s
-        "RUE",                   // dimensionless
+        "alpha_rue",             // dimensionless
         "temp",                  // deg. C
         "rh",                    // dimensionless
         "Rd",                    // micromole / m^2 / s
@@ -123,7 +123,7 @@ void rue_leaf_photosynthesis::do_operation() const
     const double initial_stomatal_conductance =
         rue_photo(
             incident_par_micromol * 1e-6,  // mol / m^2 / s
-            RUE,                           // dimensionless
+            alpha_rue,                     // dimensionless
             temp,                          // degrees C
             rh,                            // dimensionless from Pa / Pa
             Rd * 1e-6,                     // mol / m^2 / s
@@ -150,7 +150,7 @@ void rue_leaf_photosynthesis::do_operation() const
     const struct rue_str photo =
         rue_photo(
             incident_par_micromol * 1e-6,  // mol / m^2 / s
-            RUE,                           // dimensionless
+            alpha_rue,                     // dimensionless
             leaf_temperature,              // degrees C
             rh,                            // dimensionless from Pa / Pa
             Rd * 1e-6,                     // mol / m^2 / s
