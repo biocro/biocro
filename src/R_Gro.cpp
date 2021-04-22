@@ -7,7 +7,6 @@
 #include "biocro_simulation.h"
 #include "module_library/module_wrapper_factory.h"
 #include "R_helper_functions.h"
-#include "standalone_ss.h"
 #include "system_solver_library/system_solver_factory.h"
 #include "validate_system.h"
 #include "simultaneous_equations.h"
@@ -114,7 +113,7 @@ SEXP R_Gro_deriv(
 
         // Return the resulting derivatives
         return list_from_map(result);
-        
+
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_Gro_deriv: ") + e.what()).c_str());
     } catch (...) {
@@ -199,7 +198,7 @@ SEXP R_Gro_ode(
 
         // Return the resulting derivatives
         return list_from_map(result);
-        
+
     } catch (std::exception const& e) {
         Rf_error(string(string("Caught exception in R_Gro_ode: ") + e.what()).c_str());
     } catch (...) {
