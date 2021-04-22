@@ -106,6 +106,7 @@
 #include "rasmussen_specific_heat.h"
 #include "buck_swvp.h"
 #include "rh_to_mole_fraction.h"
+#include "total_biomass.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -243,7 +244,8 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"no_leaf_resp_neg_assim_partitioning_growth_calculator", &create_wrapper<no_leaf_resp_neg_assim_partitioning_growth_calculator>},
      {"rasmussen_specific_heat",                               &create_wrapper<rasmussen_specific_heat>},
      {"buck_swvp",                                             &create_wrapper<buck_swvp>},
-     {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>}
+     {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>},
+     {"total_biomass",                                         &create_wrapper<total_biomass>}
 };
 
 std::vector<std::string> module_wrapper_factory::get_modules()
