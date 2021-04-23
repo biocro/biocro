@@ -71,7 +71,7 @@ install doxygen graphviz ghostscript`.)
 
 [^note_ghostscript]: _Ghostscript_ is used to convert the PostScript
 files that are generated for formulas in the documentation into
-bitmaps.  But MathJax provides an alternative method of rendering
+bitmaps.  But _MathJax_ provides an alternative method of rendering
 formulas in the HTML documentation, and so Ghostscript is unneeded as
 long as the Doxygen configuration variable `USE_MATHJAX` is set to
 `YES`.
@@ -136,8 +136,30 @@ file named `Doxyfile_customization_sample` containing some suggestions
 for customizing your own Doxygen builds.  To use this as a template,
 copy it to a file named `Doxyfile` (in the same directory) and modify
 it as you see fit.  The settings you set here will override the
-settings specified in `doxygen/Doxyfile`.  See the sample file for
-suggestions of possible modifications.
+settings specified in `doxygen/Doxyfile`.  Here are some variables
+whose settings you might want to consider overriding:
+
+* INPUT
+
+    If you are, for example, working on the Doxygen comment for one
+    particular file, you might want to override the value of the INPUT
+    variable so that only the documentation for that one partiuclar
+    file will be generated.  This will minimize the generation time
+    and thereby expedite your tweaking the documentation so that
+    appears just as you want it to appear.
+
+* OUTPUT_DIRECTORY
+
+    If you are generating your own version of the documentation, you
+    will likely want to override this setting so that existing
+    (complete) documentation is not overwritten.
+
+* GENERATE_LATEX
+
+    If you're interested in the PDF version of the documentation, you
+    may want to set this to YES.
+
+See the sample file for a few other ideas for custom settings.
 
 Note: Although this method of customization works with any of `make`,
 `doxygen`, or `doxywizard`, certain customizations will be ignored
