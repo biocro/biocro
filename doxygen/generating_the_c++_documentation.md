@@ -1,7 +1,7 @@
 ## Documentation for the C/C++ code.
 
 To generate documentation for the C/C++ code, we use
-[_Doxygen_](https://www.doxygen.nl/index.html){target="_blank"}.
+[_Doxygen_](https://www.doxygen.nl/index.html).
 
 ### Required software
 
@@ -14,27 +14,47 @@ To generate documentation for the C/C++ code, we use
 - To generate the PDF version of the documentation, a TeX distribution
   is required.
 
-- Gnu Make (version 4.3 or higher[^make_version]) if you want to take
+- Gnu Make (version 4.3 or higher[^note_make_version]) if you want to take
   advantage of the Makefile recipes
+
+[^note_make_version]: Although versions earlier than 4.3 will probably
+mostly work, you will get a warning when you use them.
 
 **Note: _None of this is required_** if you don't need documentation
 corresponding to your latest code revisions, and if you are content
 with one of the four HTML versions of the documentation provided by
 default.  Simply visit
-[https://ebimodeling.github.io/biocro-documentation/](https://ebimodeling.github.io/biocro-documentation/){target="_blank"}
+[https://ebimodeling.github.io/biocro-documentation/](https://ebimodeling.github.io/biocro-documentation/)
 to get documentation of the latest version of the code on the GitHub
 _master_ branch.
 
 ### Installation
 
 Binary distributions of Doxygen for Linux x86-64, Windows (Vista and
-later), and for macOS 10.14 and later[^macos_version_note] are
+later), and for macOS 10.14 and later[^note_macos_version_note] are
 available on the [Doxygen Downloads
-page](https://www.doxygen.nl/download.html){target="_blank"}.  This
-page also contains information about obtaining a source distribution
-of Doxygen; a set of instructions for building and installing Doxygen
-from a source distribution is on the [Doxygen Manual's _Installation_
-page](https://www.doxygen.nl/manual/install.html){target="_blank"}.
+page](https://www.doxygen.nl/download.html).  This page also contains
+information about obtaining a source distribution of Doxygen; a set of
+instructions for building and installing Doxygen from a source
+distribution is on the [Doxygen Manual's _Installation_
+page](https://www.doxygen.nl/manual/install.html).
+
+[^note_macos_version_note]: To launch Doxygen's GUI front-end on a Mac
+by clicking on its _Application_ icon, you will need to be using a Mac
+running macOS version _10.15_ or later unless you downgrade your
+Doxygen installation to version 1.18.20.  (Version 10.14 of macOS
+_does_ support Doxygen 1.9's `doxygen` command-line command, however,
+and it even supports the GUI front-end if it is started from the
+command-line using the command `doxywizard`.  See [Doxygen issue
+#8334](https://github.com/doxygen/doxygen/issues/8334).)
+
+    Note that if you downgrade, certain reference relations may not be
+shown in the generated Doxygen documentation (see [Doxygen issue
+#8102](https://github.com/doxygen/doxygen/issues/8102)).  Note also
+that a [bug in version
+1.18.19](https://github.com/doxygen/doxygen/issues/7975) may render
+most of the recipes in the provided Make-file (`doxygen/Makefile`)
+unusable.
 
 If you use a package manager—*APT* on Ubuntu or *Homebrew* on macOS,
 for example—this is a relatively easy alternative to installing a
@@ -44,10 +64,24 @@ binary distribution.  For example, running
 sudo apt-get install doxygen graphviz ghostscript
 ```
 
-on Ubuntu will get you not only Doxygen, but Ghostscript[^ghostscript]
-and the Graph visualization toolkit as well.  (To do something similar
-on a Mac with Homebrew, run `brew install doxygen graphviz
-ghostscript`.)
+on Ubuntu will get you not only Doxygen, but
+Ghostscript[^note_ghostscript] and the Graph visualization toolkit as
+well.  (To do something similar on a Mac with Homebrew, run `brew
+install doxygen graphviz ghostscript`.)
+
+[^note_ghostscript]: _Ghostscript_ is used to convert the PostScript
+files that are generated for formulas in the documentation into
+bitmaps.  But MathJax provides an alternative method of rendering
+formulas in the HTML documentation, and so Ghostscript is unneeded as
+long as the Doxygen configuration variable `USE_MATHJAX` is set to
+`YES`.
+
+    If Ghostscript _is_ used, there may be some compatibility issues
+between Ghostscript and Doxygen.  If you encounter problems, see
+[Doxygen issue #7290](https://github.com/doxygen/doxygen/issues/7290)
+and [Doxygen issue
+#8107](https://github.com/doxygen/doxygen/issues/8107) for further
+information.
 
 ### Generating the Documentation
 
@@ -79,12 +113,16 @@ by issuing the command `doxywizard` (in any directory).  You can
 specify a configuration file by passing the file name as the
 (optional) argument.  For example, if you are in BioCro's `doxygen`
 directory, you can do `doxywizard Doxyfile` to use the default
-configuration settings for BioCro.[^no_doxywizard_default] If you
+configuration settings for BioCro.[^note_no_doxywizard_default] If you
 didn't provide an argument when starting the GUI, or if you started it
 by clicking its icon, you can select the configuration file from
 within the GUI program by choosing _File/Open..._ from the application
 menu (shortcut _Ctrl-O_, or _Cmd-O_ on Mac) and selecting the desired
 configuration file in the pop-up file browser.
+
+[^note_no_doxywizard_default]: The `doxywizard` command doesn't treat
+`Doxyfile` as a default configuration file the way the `doxygen`
+command does.
 
 #### Using your own customizations of the provided Doxyfile
 
@@ -133,55 +171,16 @@ Doxygen generates.)
 #### A note on using the Doxygen documentation to browse source code {-}
 
 The HTML version of the Doxygen documentation provides an alternative
-to
-[Ctags](https://en.wikipedia.org/wiki/Ctags){target="_blank"}[^ctags]
-as a convenient way to browse C++ source code: sections documenting
-classes and functions provide links to the source code where the class
-or function is defined.  Within the source code, names of functions or
+to [Ctags](https://en.wikipedia.org/wiki/Ctags)[^note_ctags] as a
+convenient way to browse C++ source code: sections documenting classes
+and functions provide links to the source code where the class or
+function is defined.  Within the source code, names of functions or
 classes are usually hyper-linked to the file and line where they are
 defined.
 
-[^make_version]: Although versions earlier than 4.3 will probably
-mostly work, you will get a warning when you use them.
-
-[^macos_version_note]: To launch Doxygen's GUI front-end on a Mac by
-clicking on its _Application_ icon, you will need to be using a Mac
-running macOS version _10.15_ or later unless you downgrade your
-Doxygen installation to version 1.18.20.  (Version 10.14 of macOS
-_does_ support Doxygen 1.9's `doxygen` command-line command, however,
-and it even supports the GUI front-end if it is started from the
-command-line using the command `doxywizard`.  See [Doxygen issue
-#8334](https://github.com/doxygen/doxygen/issues/8334){target="_blank"}.)
-
-    Note that if you downgrade, certain reference relations may not be
-shown in the generated Doxygen documentation (see [Doxygen issue
-#8102](https://github.com/doxygen/doxygen/issues/8102){target="_blank"}).
-Note also that a [bug in version
-1.18.19](https://github.com/doxygen/doxygen/issues/7975){target="_blank"}
-may render most of the recipes in the provided Make-file
-(`doxygen/Makefile`) unusable.
-
-[^ghostscript]: _Ghostscript_ is used to convert the PostScript files
-that are generated for formulas in the documentation into bitmaps.
-But MathJax provides an alternative method of rendering formulas in
-the HTML documentation, and so Ghostscript is unneeded as long as the
-Doxygen configuration variable `USE_MATHJAX` is set to `YES`.
-
-    If Ghostscript _is_ used, there may be some compatibility issues
-between Ghostscript and Doxygen.  If you encounter problems, see
-[Doxygen issue
-#7290](https://github.com/doxygen/doxygen/issues/7290){target="_blank"}
-and [Doxygen issue
-#8107](https://github.com/doxygen/doxygen/issues/8107){target="_blank"}
-for further information.
-
-[^no_doxywizard_default]: The `doxywizard` command doesn't treat
-`Doxyfile` as a default configuration file the way the `doxygen`
-command does.
-
-[^ctags]: One major advantage of using Ctags over Doxygen for browsing
-source code is that you can actually make edits to the source code as
-you are browsing it.
+[^note_ctags]: One major advantage of using Ctags over Doxygen for
+browsing source code is that you can actually make edits to the source
+code as you are browsing it.
 
     If you _do_ use Ctags, a useful option is the flag
 "--c++-kinds=+p", which will cause Ctags to create tags for symbols in
