@@ -1,7 +1,8 @@
 ## Documentation for the C/C++ code.
 
 To generate documentation for the C/C++ code, we use
-[_Doxygen_](https://www.doxygen.nl/index.html).
+[_Doxygen_](https://www.doxygen.nl/index.html){target="_blank"
+rel="noopener"}.
 
 ### Required software
 
@@ -24,20 +25,22 @@ mostly work, you will get a warning when you use them.
 corresponding to your latest code revisions, and if you are content
 with one of the four HTML versions of the documentation provided by
 default.  Simply visit
-[https://ebimodeling.github.io/biocro-documentation/](https://ebimodeling.github.io/biocro-documentation/)
-to get documentation of the latest version of the code on the GitHub
-_master_ branch.
+[https://ebimodeling.github.io/biocro-documentation/](https://ebimodeling.github.io/biocro-documentation/){target="_blank"
+rel="noopener"} to get documentation of the latest version of the code
+on the GitHub _master_ branch.
 
 ### Installation
 
 Binary distributions of Doxygen for Linux x86-64, Windows (Vista and
 later), and for macOS 10.14 and later[^note_macos_version_note] are
 available on the [Doxygen Downloads
-page](https://www.doxygen.nl/download.html).  This page also contains
-information about obtaining a source distribution of Doxygen; a set of
-instructions for building and installing Doxygen from a source
-distribution is on the [Doxygen Manual's _Installation_
-page](https://www.doxygen.nl/manual/install.html).
+page](https://www.doxygen.nl/download.html){target="_blank"
+rel="noopener"}.  This page also contains information about obtaining
+a source distribution of Doxygen; a set of instructions for building
+and installing Doxygen from a source distribution is on the [Doxygen
+Manual's _Installation_
+page](https://www.doxygen.nl/manual/install.html){target="_blank"
+rel="noopener"}.
 
 [^note_macos_version_note]: To launch Doxygen's GUI front-end on a Mac
 by clicking on its _Application_ icon, you will need to be using a Mac
@@ -46,15 +49,16 @@ Doxygen installation to version 1.18.20.  (Version 10.14 of macOS
 _does_ support Doxygen 1.9's `doxygen` command-line command, however,
 and it even supports the GUI front-end if it is started from the
 command-line using the command `doxywizard`.  See [Doxygen issue
-#8334](https://github.com/doxygen/doxygen/issues/8334).)
+#8334](https://github.com/doxygen/doxygen/issues/8334){target="_blank"
+rel="noopener"}.)
 
     Note that if you downgrade, certain reference relations may not be
 shown in the generated Doxygen documentation (see [Doxygen issue
-#8102](https://github.com/doxygen/doxygen/issues/8102)).  Note also
-that a [bug in version
-1.18.19](https://github.com/doxygen/doxygen/issues/7975) may render
-most of the recipes in the provided Make-file (`doxygen/Makefile`)
-unusable.
+#8102](https://github.com/doxygen/doxygen/issues/8102){target="_blank"
+rel="noopener"}).  Note also that a [bug in version
+1.18.19](https://github.com/doxygen/doxygen/issues/7975){target="_blank"
+rel="noopener"} may render most of the recipes in the provided
+Make-file (`doxygen/Makefile`) unusable.
 
 If you use a package manager—*APT* on Ubuntu or *Homebrew* on macOS,
 for example—this is a relatively easy alternative to installing a
@@ -78,10 +82,11 @@ long as the Doxygen configuration variable `USE_MATHJAX` is set to
 
     If Ghostscript _is_ used, there may be some compatibility issues
 between Ghostscript and Doxygen.  If you encounter problems, see
-[Doxygen issue #7290](https://github.com/doxygen/doxygen/issues/7290)
-and [Doxygen issue
-#8107](https://github.com/doxygen/doxygen/issues/8107) for further
-information.
+[Doxygen issue
+#7290](https://github.com/doxygen/doxygen/issues/7290){target="_blank"
+rel="noopener"} and [Doxygen issue
+#8107](https://github.com/doxygen/doxygen/issues/8107){target="_blank"
+rel="noopener"} for further information.
 
 ### Generating the Documentation
 
@@ -193,12 +198,12 @@ Doxygen generates.)
 #### A note on using the Doxygen documentation to browse source code {-}
 
 The HTML version of the Doxygen documentation provides an alternative
-to [Ctags](https://en.wikipedia.org/wiki/Ctags)[^note_ctags] as a
-convenient way to browse C++ source code: sections documenting classes
-and functions provide links to the source code where the class or
-function is defined.  Within the source code, names of functions or
-classes are usually hyper-linked to the file and line where they are
-defined.
+to [Ctags](https://en.wikipedia.org/wiki/Ctags){target="_blank"
+rel="noopener"}[^note_ctags] as a convenient way to browse C++ source
+code: sections documenting classes and functions provide links to the
+source code where the class or function is defined.  Within the source
+code, names of functions or classes are usually hyper-linked to the
+file and line where they are defined.
 
 [^note_ctags]: One major advantage of using Ctags over Doxygen for
 browsing source code is that you can actually make edits to the source
