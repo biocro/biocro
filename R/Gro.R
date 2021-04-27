@@ -211,6 +211,17 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
     # If the varying parameter input doesn't have a time column, add one
     varying_parameters <- add_time_to_weather_data(varying_parameters)
 
+    # Check to make sure the module names are vectors or lists of strings
+    steady_state_module_names <- unlist(steady_state_module_names)
+    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
+        stop('"steady_state_module_names" must be a vector or list of strings')
+    }
+
+    derivative_module_names <- unlist(derivative_module_names)
+    if(length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
+        stop('"derivative_module_names" must be a vector or list of strings')
+    }
+
     # Check to make sure the solver properties are properly defined
     if(!is.list(solver)) {
         stop("'solver' must be a list")
