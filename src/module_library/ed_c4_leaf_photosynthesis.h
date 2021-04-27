@@ -165,7 +165,7 @@ std::vector<std::string> ed_c4_leaf_photosynthesis::get_outputs()
 
 std::vector<std::vector<double>> ed_c4_leaf_photosynthesis::get_initial_guesses() const
 {
-    // TODO: find a way to reduce duplicated code here. Maybe using Standalone_SS objects?
+    // TODO: find a way to reduce duplicated code here. Maybe using module set objects?
 
     // Get a crappy estimate for an assimilation rate using
     // a simplified version of the collatz model.
