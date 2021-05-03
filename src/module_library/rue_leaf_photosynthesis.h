@@ -113,8 +113,8 @@
  *    [Agricultural and Forest Meteorology 68, 221–227 (1994)]
  *    (https://doi.org/10.1016/0168-1923(94)90038-8)
  *
- *  - Demetriades-Shah, T. H., Fuchs, M., Kanemasu, E. T. & Flitcroft, I. "A
- *    note of caution concerning the relationship between cumulated intercepted
+ *  - Demetriades-Shah, T. H., Fuchs, M., Kanemasu, E. T. & Flitcroft, I.
+ *    "A note of caution concerning the relationship between cumulated intercepted
  *    solar radiation and crop growth" [Agricultural and Forest Meteorology 58,
  *    193–207 (1992)](https://doi.org/10.1016/0168-1923(92)90061-8)
  *
