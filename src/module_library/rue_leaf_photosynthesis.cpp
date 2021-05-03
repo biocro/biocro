@@ -2,19 +2,8 @@
 #include "../constants.h"  // for ideal_gas_constant and celsius_to_kelvin
 #include "ball_berry.hpp"  // for ball_berry
 #include "BioCro.h"        // for c3EvapoTrans
+#include "AuxBioCro.h"     // for arrhenius_exponent
 #include <cmath>           // for exp
-
-// Calculate the exponential term of the Arrhenius function. Based on the
-// function of the same name in `c3photo.cpp`.
-double arrhenius_exponent(
-    double c,                  // dimensionless
-    double activation_energy,  // J / mol
-    double temperature         // Kelvin
-)
-{
-    using physical_constants::ideal_gas_constant;  // J / k / mol
-    return exp(c - activation_energy / (ideal_gas_constant * temperature));
-}
 
 // Define a structure for storing the output of `rue_photo()`
 struct rue_str {
