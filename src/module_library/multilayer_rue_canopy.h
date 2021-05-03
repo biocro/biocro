@@ -12,7 +12,8 @@
  *  - The canopy module is set to the `ten_layer_canopy_properties` module
  *  - The leaf module is set to the `rue_leaf_photosynthesis` module
  *  - The number of layers is set to 10
- * Instances of this class can be created using the module factory.
+ * Instances of this class can be created using the module factory, unlike
+ * the parent class `multilayer_canopy_photosynthesis`.
  */
 class ten_layer_rue_canopy : public multilayer_canopy_photosynthesis<ten_layer_canopy_properties, rue_leaf_photosynthesis>
 {
