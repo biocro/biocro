@@ -4,7 +4,7 @@
 #include "../modules.h"
 
 // This module is based on the photoperiodic flowering model described in
-//  Song, Y. H., Smith, R. W., To, B. J., Millar, A. J. & Imaizumi, T. FKF1 Conveys Timing Information for CONSTANS Stabilization in Photoperiodic Flowering. Science 336, 1045–1049 (2012).
+//  Song, Y. H., Smith, R. W., To, B. J., Millar, A. J. & Imaizumi, T. FKF1 Conveys Timing Information for CONSTANS Stabilization in Photoperiodic Flowering. Science 336, 1045Â–1049 (2012).
 // The Song model is not the most up-to-date photoperiod model, but is considerably simpler than the newer one described in
 //  Seaton, D. D. et al. Linked circadian outputs control elongation growth and flowering in response to photoperiod and temperature. Molecular Systems Biology 11, 776 (2015).
 // The Song model also has the advantage of not requiring a "phase advanced" component
@@ -13,7 +13,7 @@
 // The Locke model is included here in this module
 // The models were implented in C++ by translating from the following files:
 //  "Structured data 1" in the supplement to Locke (2005) as viewed with an online SBML viewer (http://sv.insysbio.com/online/)
-//  
+//
 
 class song_flowering : public DerivModule {
 	public:
@@ -127,10 +127,10 @@ void song_flowering::do_operation() const {
 	//////////////////////////////////////////
 	// Collect inputs and make calculations //
 	//////////////////////////////////////////
-	
+
 	// Unpack the solar radiantion
 	double solar = *solar_ip;
-	
+
 	// Unpack the circadian clock components
 	double cLm = *cLm_ip;
 	double cLc = *cLc_ip;
@@ -145,7 +145,7 @@ void song_flowering::do_operation() const {
 	double cYc = *cYc_ip;
 	double cYn = *cYn_ip;
 	double cPn = *cPn_ip;
-	
+
 	// Define the circadian clock parameters
 	double a = 3.3064;
 	double b = 1.0258;
@@ -208,7 +208,7 @@ void song_flowering::do_operation() const {
 	double r6 = 3.3017;
 	double r7 = 2.2123;
 	double r8 = 0.2002;
-	
+
 	// Check whether the plant is illuminated
 	// Rather than basing L(t) on specified values for dusk and dawn
 	//  as in the original Locke (2005) model, we use a logistic function
@@ -216,15 +216,15 @@ void song_flowering::do_operation() const {
 	// This function is 0 for no sunlight and saturates to 1 when
 	//  solar reaches ~150, which is well below the max on a typical day
 	double L = 1.0 / (1.0 + exp(-0.058*(solar - 100.0)));
-	
+
 	//////////////////////////////////////
 	// Update the output parameter list //
 	//////////////////////////////////////
-	
+
 	// Define some helpful lambdas
 	auto hill = [](double s, double km, double n) {return pow(s, n) / (pow (km, n) + pow(s, n));};
 	auto mm = [](double s, double km) {return s / (km + s);};
-	
+
 	// Return the clock component derivatives
 	update(cLm_op, L * q1 * cPn + n1 * hill(cXn, g1, a) - m1 * mm(cLm, k1));
 	update(cLc_op, p1 * cLm - r1 * cLc + r2 * cLn - m2 * mm(cLc, k2));
