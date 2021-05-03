@@ -8,8 +8,9 @@
 namespace MLCP  // helping functions for the MultiLayer Canopy Photosynthesis module
 {
 /**
- * @brief A helping function for the multilayer canopy photosynthesis module that
- * returns inputs to the leaf module that are also in the vector of reference names.
+ * @brief A helping function for the multilayer canopy photosynthesis module
+ * that returns inputs to the leaf module that are also in the vector of
+ * reference names.
  */
 template <typename leaf_module_type>
 std::vector<std::string> get_leaf_input_subset(std::vector<std::string> reference_names)
@@ -26,7 +27,8 @@ std::vector<std::string> get_leaf_input_subset(std::vector<std::string> referenc
 
 /**
  * @brief A helping function for the multlayer canopy photosynthesis module that
- * returns inputs to the leaf module that will change with leaf class and canopy layer.
+ * returns inputs to the leaf module that will change with leaf class and canopy
+ * layer.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 std::vector<std::string> get_multiclass_multilayer_leaf_inputs()
@@ -36,7 +38,8 @@ std::vector<std::string> get_multiclass_multilayer_leaf_inputs()
 
 /**
  * @brief A helping function for the multlayer canopy photosynthesis module that
- * returns inputs to the leaf module that will change with canopy layer but not leaf class.
+ * returns inputs to the leaf module that will change with canopy layer but not
+ * leaf class.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 std::vector<std::string> get_pure_multilayer_leaf_inputs()
@@ -46,7 +49,8 @@ std::vector<std::string> get_pure_multilayer_leaf_inputs()
 
 /**
  * @brief A helping function for the multlayer canopy photosynthesis module that
- * returns inputs to the leaf module that do not change with leaf class or canopy layer.
+ * returns inputs to the leaf module that do not change with leaf class or
+ * canopy layer.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 std::vector<std::string> get_other_leaf_inputs()
@@ -74,14 +78,19 @@ std::vector<std::string> get_other_leaf_inputs()
 /**
  * @class multilayer_canopy_photosynthesis
  *
- * @brief Applies a leaf photosynthesis module to each layer and leaf class of a multilayer canopy.
- * Note that this module cannot be created via the module_wrapper_factory since it is a template
- * class with a different constructor than a usual module. Rather, it is expected that directly-usable
+ * @brief Applies a leaf photosynthesis module to each layer and leaf class of a
+ * multilayer canopy. Note that this module cannot be created via the
+ * module_wrapper_factory since it is a template class with a different
+ * constructor than a usual module. Rather, it is expected that directly-usable
  * classes will be derived from this class.
  *
  * Two modules must be specified as template arguments:
- *  - canopy_properties_module: a module that calculates properties for each canopy layer
- *  - leaf_photosynthesis_module: a module that determines assimilation values (among other values)
+ *
+ *  - canopy_properties_module: a module that calculates properties for each
+ *    canopy layer
+ *
+ *  - leaf_photosynthesis_module: a module that determines assimilation values
+ *    (among other values)
  *
  * The canopy properties module must have the following public static methods:
  *  - define_leaf_classes()
@@ -95,18 +104,21 @@ class multilayer_canopy_photosynthesis : public SteadyModule
     multilayer_canopy_photosynthesis(
         const std::string& module_name,
         const int& nlayers,
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters);
+        state_map const* input_parameters,
+        state_map* output_parameters);
 
    private:
     // Number of layers
     const int nlayers;
+
     // Leaf photosynthesis module
     state_map leaf_module_quantities;
     state_map leaf_module_output_map;
     std::unique_ptr<Module> leaf_module;
+
     // Pointers to input parameters
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_input_ptr_pairs;
+
     // Pointers to output parameters
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_output_ptr_pairs;
 
@@ -117,19 +129,21 @@ class multilayer_canopy_photosynthesis : public SteadyModule
 };
 
 /**
- * @brief Constructor for a multilayer canopy photosynthesis module, which initializes the
- * leaf module and prepares to pass inputs to it from the canopy module.
+ * @brief Constructor for a multilayer canopy photosynthesis module, which
+ * initializes the leaf module and prepares to pass inputs to it from the canopy
+ * module.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilayer_canopy_photosynthesis(
     const std::string& module_name,
     const int& nlayers,
-    const std::unordered_map<std::string, double>* input_parameters,
-    std::unordered_map<std::string, double>* output_parameters)
+    state_map const* input_parameters,
+    state_map* output_parameters)
     : SteadyModule(module_name),
       nlayers(nlayers)
 {
-    // Define a lambda for making quantity maps from vectors of inputs and outputs
+    // Define a lambda for making quantity maps from vectors of inputs and
+    // outputs
     auto make_quantity_map = [](std::vector<std::string> input_names, std::vector<std::string> output_names) -> state_map {
         state_map result;
         for (std::vector<std::string> const& sv : {input_names, output_names}) {

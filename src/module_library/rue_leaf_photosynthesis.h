@@ -18,7 +18,7 @@
  *  of plant growth is often found to be directly proportional to a measure of
  *  light exposure. There are three distinct factors involved in a RUE model:
  *
- *  - The measure of growth, which can be the net CO2 uptake by the aboveground
+ *  - The measure of growth, which can be the net CO2 uptake by the above-ground
  *    portions of the canopy, total above-ground dry matter, total plant dry
  *    matter including roots, etc.
  *
@@ -56,7 +56,7 @@
  *    in atmospheric [CO2] (Humphries and Long (1995)).
  *
  *  This model is included in BioCro primarily to highlight the importance of
- *  using mechanistic photosynthesis modules and should be avoided in
+ *  using mechanistic photosynthesis models and should be avoided in
  *  non-pedagogical situations.
  *
  *  ### This particular RUE model

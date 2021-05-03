@@ -1,29 +1,33 @@
 #ifndef MULTILAYER_CANOPY_PROPERTIES_H
 #define MULTILAYER_CANOPY_PROPERTIES_H
 
+#include "../state_map.h"
 #include "../modules.h"
 
 /**
  * @class multilayer_canopy_properties
  *
- * @brief Calculates properties of each canopy layer using functions
- * found in AuxBioCro (for the most part). Also includes multiple
- * leaf classes (sunlit & shaded). Leaf class is added to output
- * parameters as a prefix, while layer number is added as a suffix.
- * Note that this module has a non-standard constructor, so it cannot
- * be created using the module_wrapper_factory.
+ * @brief Calculates properties of each canopy layer using functions found in
+ * AuxBioCro (for the most part). Also includes multiple leaf classes (sunlit &
+ * shaded). Leaf class is added to output parameters as a prefix, while layer
+ * number is added as a suffix. Note that this module has a non-standard
+ * constructor, so it cannot be created using the module_wrapper_factory.
  *
- * For compatibility with the multilayer canopy photosynthesis module,
- * the outputs of this module must be split into the following categories:
- *  - multiclass_multilayer outputs: these outputs are different for each
- *    leaf class and canopy layer
- *  - pure_multilayer outputs: these outputs are different for each canopy
- *    layer but not for each leaf class
- *  - other outputs: these outputs do not depend on the leaf class or
- *    canopy layer (there are currently no outputs of this type)
- * The base names for the multiclass_multilayer and pure_multilayer outputs
- * will be used by the multilayer canopy photosynthesis module to pass them
- * to a leaf photosynthesis module.
+ * For compatibility with the multilayer canopy photosynthesis module, the
+ * outputs of this module must be split into the following categories:
+ *
+ *  - multiclass_multilayer outputs: these outputs are different for each leaf
+ *    class and canopy layer
+ *
+ *  - pure_multilayer outputs: these outputs are different for each canopy layer
+ *    but not for each leaf class
+ *
+ *  - other outputs: these outputs do not depend on the leaf class or canopy
+ *    layer (there are currently no outputs of this type)
+ *
+ * The base names for the multiclass_multilayer and pure_multilayer outputs will
+ * be used by the multilayer canopy photosynthesis module to pass them to a leaf
+ * photosynthesis module.
  */
 class multilayer_canopy_properties : public SteadyModule
 {
@@ -31,12 +35,14 @@ class multilayer_canopy_properties : public SteadyModule
     multilayer_canopy_properties(
         const std::string& module_name,
         const int& nlayers,
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const* input_parameters,
+        state_map* output_parameters)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule(module_name),
+
           // Store the number of layers
           nlayers(nlayers),
+
           // Get references to input parameters
           par_incident_direct(get_input(input_parameters, "par_incident_direct")),
           par_incident_diffuse(get_input(input_parameters, "par_incident_diffuse")),
@@ -51,6 +57,7 @@ class multilayer_canopy_properties : public SteadyModule
           LeafN(get_input(input_parameters, "LeafN")),
           kpLN(get_input(input_parameters, "kpLN")),
           lnfun(get_input(input_parameters, "lnfun")),
+
           // Get pointers to output parameters
           sunlit_incident_par_ops(get_multilayer_op(output_parameters, nlayers, "sunlit_incident_par")),
           sunlit_fraction_ops(get_multilayer_op(output_parameters, nlayers, "sunlit_fraction")),
@@ -68,45 +75,47 @@ class multilayer_canopy_properties : public SteadyModule
    private:
     // Number of layers
     const int nlayers;
+
     // References to input parameters
-    const double& par_incident_direct;
-    const double& par_incident_diffuse;
-    const double& absorptivity_par;
-    const double& lai;
-    const double& cosine_zenith_angle;
-    const double& kd;
-    const double& chil;
-    const double& heightf;
-    const double& rh;
-    const double& windspeed;
-    const double& LeafN;
-    const double& kpLN;
-    const double& lnfun;
+    double const& par_incident_direct;
+    double const& par_incident_diffuse;
+    double const& absorptivity_par;
+    double const& lai;
+    double const& cosine_zenith_angle;
+    double const& kd;
+    double const& chil;
+    double const& heightf;
+    double const& rh;
+    double const& windspeed;
+    double const& LeafN;
+    double const& kpLN;
+    double const& lnfun;
+
     // Pointers to output parameters
-    const std::vector<double*> sunlit_incident_par_ops;
-    const std::vector<double*> sunlit_fraction_ops;
-    const std::vector<double*> shaded_incident_par_ops;
-    const std::vector<double*> shaded_fraction_ops;
-    const std::vector<double*> incident_scattered_par_ops;
-    const std::vector<double*> incident_average_par_ops;
-    const std::vector<double*> height_ops;
-    const std::vector<double*> rh_ops;
-    const std::vector<double*> windspeed_ops;
-    const std::vector<double*> LeafN_ops;
+    std::vector<double*> const sunlit_incident_par_ops;
+    std::vector<double*> const sunlit_fraction_ops;
+    std::vector<double*> const shaded_incident_par_ops;
+    std::vector<double*> const shaded_fraction_ops;
+    std::vector<double*> const incident_scattered_par_ops;
+    std::vector<double*> const incident_average_par_ops;
+    std::vector<double*> const height_ops;
+    std::vector<double*> const rh_ops;
+    std::vector<double*> const windspeed_ops;
+    std::vector<double*> const LeafN_ops;
 
    protected:
     void run() const;
-    static std::vector<std::string> get_inputs(int nlayers);
-    static std::vector<std::string> define_leaf_classes();                   // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> define_multiclass_multilayer_outputs();  // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> define_pure_multilayer_outputs();        // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> get_outputs(int nlayers);
+    static string_vector get_inputs(int nlayers);
+    static string_vector define_leaf_classes();                   // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
+    static string_vector define_multiclass_multilayer_outputs();  // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
+    static string_vector define_pure_multilayer_outputs();        // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
+    static string_vector get_outputs(int nlayers);
 };
 
 /**
  * @brief Define all inputs required by the module
  */
-std::vector<std::string> multilayer_canopy_properties::get_inputs(int /*nlayers*/)
+string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
 {
     return {
         "par_incident_direct",   // J / (m^2 beam) / s [area perpendicular to beam]
@@ -128,7 +137,7 @@ std::vector<std::string> multilayer_canopy_properties::get_inputs(int /*nlayers*
 /**
  * @brief Define the different leaf classes included by the module
  */
-std::vector<std::string> multilayer_canopy_properties::define_leaf_classes()
+string_vector multilayer_canopy_properties::define_leaf_classes()
 {
     return {
         "sunlit",  // these leaves receive diffuse, scattered, and direct solar radiation
@@ -137,9 +146,10 @@ std::vector<std::string> multilayer_canopy_properties::define_leaf_classes()
 }
 
 /**
- * @brief Define all outputs that have different values for each leaf class and layer
+ * @brief Define all outputs that have different values for each leaf class and
+ * layer
  */
-std::vector<std::string> multilayer_canopy_properties::define_multiclass_multilayer_outputs()
+string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     return {
         "incident_par",  // J / (m^2 leaf) / s
@@ -148,10 +158,10 @@ std::vector<std::string> multilayer_canopy_properties::define_multiclass_multila
 }
 
 /**
- * @brief Define all outputs that have different values for each layer, not including
- * outputs that also depend on leaf class
+ * @brief Define all outputs that have different values for each layer, not
+ * including outputs that also depend on leaf class
  */
-std::vector<std::string> multilayer_canopy_properties::define_pure_multilayer_outputs()
+string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
         "incident_scattered_par",  // J / (m^2 leaf) / s
@@ -164,13 +174,14 @@ std::vector<std::string> multilayer_canopy_properties::define_pure_multilayer_ou
 }
 
 /**
- * @brief Define all output names by appending leaf class prefixes and layer number suffixes.
- * Here we should make use of the `define_XXX` functions to reduce code duplication.
+ * @brief Define all output names by appending leaf class prefixes and layer
+ * number suffixes. Here we should make use of the `define_XXX` functions to
+ * reduce code duplication.
  */
-std::vector<std::string> multilayer_canopy_properties::get_outputs(int nlayers)
+string_vector multilayer_canopy_properties::get_outputs(int nlayers)
 {
     // Add leaf_class prefixes to the multiclass_multilayer outputs
-    std::vector<std::string> multilayer_outputs = generate_multiclass_quantity_names(
+    string_vector multilayer_outputs = generate_multiclass_quantity_names(
         multilayer_canopy_properties::define_leaf_classes(),
         multilayer_canopy_properties::define_multiclass_multilayer_outputs());
 
@@ -186,13 +197,22 @@ std::vector<std::string> multilayer_canopy_properties::get_outputs(int nlayers)
 
 void multilayer_canopy_properties::run() const
 {
-    // Calculate PAR levels throughout the canopy. Note that sunML specifies that its
-    // `Idir` and `Idiff` arguments should have [micromol / m^2 / s] units. However,
-    // we can leave these quantities as energy flux densities with [J / m^2 / s] units
-    // because the two units are simply related by a multiplicative conversion factor
-    // and the output of sunML is linear with respect to `Idir` and `Idiff`.
-    struct Light_profile par_profile = sunML(par_incident_direct, par_incident_diffuse,
-                                             lai, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par, heightf);
+    // Calculate PAR levels throughout the canopy. Note that sunML specifies
+    // that its `Idir` and `Idiff` arguments should have [micromol / m^2 / s]
+    // units. However, we can leave these quantities as energy flux densities
+    // with [J / m^2 / s] units because the two units are simply related by a
+    // multiplicative conversion factor and the output of sunML is linear with
+    // respect to `Idir` and `Idiff`.
+    struct Light_profile par_profile = sunML(
+        par_incident_direct,
+        par_incident_diffuse,
+        lai,
+        nlayers,
+        cosine_zenith_angle,
+        kd,
+        chil,
+        absorptivity_par,
+        heightf);
 
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];
@@ -241,52 +261,54 @@ class ten_layer_canopy_properties : public multilayer_canopy_properties
 {
    public:
     ten_layer_canopy_properties(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
-        : multilayer_canopy_properties("ten_layer_canopy_properties",
-                                       ten_layer_canopy_properties::nlayers,
-                                       input_parameters,
-                                       output_parameters)  // Create the base class with the appropriate number of layers
+        state_map const* input_parameters,
+        state_map* output_parameters)
+        : multilayer_canopy_properties(
+              "ten_layer_canopy_properties",
+              ten_layer_canopy_properties::nlayers,
+              input_parameters,
+              output_parameters)
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> define_leaf_classes();
-    static std::vector<std::string> define_multiclass_multilayer_outputs();
-    static std::vector<std::string> define_pure_multilayer_outputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector define_leaf_classes();
+    static string_vector define_multiclass_multilayer_outputs();
+    static string_vector define_pure_multilayer_outputs();
+    static string_vector get_outputs();
 
    private:
     // Number of layers
-    static const int nlayers;
+    int static const nlayers;
+
     // Main operation
     void do_operation() const;
 };
 
-const int ten_layer_canopy_properties::nlayers = 10;  // Set the number of layers
+int const ten_layer_canopy_properties::nlayers = 10;
 
-std::vector<std::string> ten_layer_canopy_properties::get_inputs()
+string_vector ten_layer_canopy_properties::get_inputs()
 {
     return multilayer_canopy_properties::get_inputs(ten_layer_canopy_properties::nlayers);
 }
 
-std::vector<std::string> ten_layer_canopy_properties::define_leaf_classes()
+string_vector ten_layer_canopy_properties::define_leaf_classes()
 {
     return multilayer_canopy_properties::define_leaf_classes();
 }
 
-std::vector<std::string> ten_layer_canopy_properties::define_multiclass_multilayer_outputs()
+string_vector ten_layer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     // Just call the parent class's multilayer output function
     return multilayer_canopy_properties::define_multiclass_multilayer_outputs();
 }
 
-std::vector<std::string> ten_layer_canopy_properties::define_pure_multilayer_outputs()
+string_vector ten_layer_canopy_properties::define_pure_multilayer_outputs()
 {
     // Just call the parent class's multilayer output function
     return multilayer_canopy_properties::define_pure_multilayer_outputs();
 }
 
-std::vector<std::string> ten_layer_canopy_properties::get_outputs()
+string_vector ten_layer_canopy_properties::get_outputs()
 {
     return multilayer_canopy_properties::get_outputs(ten_layer_canopy_properties::nlayers);
 }
