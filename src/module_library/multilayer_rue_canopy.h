@@ -35,28 +35,9 @@ class ten_layer_rue_canopy : public multilayer_canopy_photosynthesis<ten_layer_c
    private:
     // Number of layers
     int static const nlayers;
+
     // Main operation
     void do_operation() const;
 };
-
-int const ten_layer_rue_canopy::nlayers = 10;  // Set the number of layers
-
-string_vector ten_layer_rue_canopy::get_inputs()
-{
-    // Just call the parent class's input function with the appropriate number of layers
-    return multilayer_canopy_photosynthesis<ten_layer_canopy_properties, rue_leaf_photosynthesis>::generate_inputs(ten_layer_rue_canopy::nlayers);
-}
-
-string_vector ten_layer_rue_canopy::get_outputs()
-{
-    // Just call the parent class's output function with the appropriate number of layers
-    return multilayer_canopy_photosynthesis<ten_layer_canopy_properties, rue_leaf_photosynthesis>::generate_outputs(ten_layer_rue_canopy::nlayers);
-}
-
-void ten_layer_rue_canopy::do_operation() const
-{
-    // Just call the parent class's run operation
-    multilayer_canopy_photosynthesis<ten_layer_canopy_properties, rue_leaf_photosynthesis>::run();
-}
 
 #endif

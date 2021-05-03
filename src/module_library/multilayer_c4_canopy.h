@@ -13,8 +13,8 @@
  *  - The canopy module is set to the `ten_layer_canopy_properties` module
  *  - The leaf module is set to the `c4_leaf_photosynthesis` module
  *  - The number of layers is set to 10
- * Instances of this class can be created using the module factory, unlike
- * the parent class `multilayer_canopy_photosynthesis`.
+ * Instances of this class can be created using the module factory, unlike the
+ * parent class `multilayer_canopy_photosynthesis`.
  */
 class ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c4_leaf_photosynthesis>
 {
@@ -26,7 +26,7 @@ class ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ten_layer_ca
               "ten_layer_c4_canopy",
               ten_layer_c4_canopy::nlayers,
               input_parameters,
-              output_parameters)  // Create the base class with the appropriate number of layers
+              output_parameters)
     {
     }
     static string_vector get_inputs();
@@ -35,28 +35,9 @@ class ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ten_layer_ca
    private:
     // Number of layers
     int static const nlayers;
+
     // Main operation
     void do_operation() const;
 };
-
-int const ten_layer_c4_canopy::nlayers = 10;  // Set the number of layers
-
-string_vector ten_layer_c4_canopy::get_inputs()
-{
-    // Just call the parent class's input function with the appropriate number of layers
-    return multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c4_leaf_photosynthesis>::generate_inputs(ten_layer_c4_canopy::nlayers);
-}
-
-string_vector ten_layer_c4_canopy::get_outputs()
-{
-    // Just call the parent class's output function with the appropriate number of layers
-    return multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c4_leaf_photosynthesis>::generate_outputs(ten_layer_c4_canopy::nlayers);
-}
-
-void ten_layer_c4_canopy::do_operation() const
-{
-    // Just call the parent class's run operation
-    multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c4_leaf_photosynthesis>::run();
-}
 
 #endif
