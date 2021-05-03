@@ -9,10 +9,19 @@
 /**
  * @class ten_layer_c3_canopy
  *
- * @brief A child class of multilayer_canopy_photosynthesis where:
+ * @brief represents a ten layer canopy where leaf-level photosynthesis is
+ * calculated using the Farquhar-von-Cammerer-Berry model for C3 photosynthesis;
+ * see the `c3_leaf_photosynthesis` class for more information about this model.
+ *
+ * More specifically, this is a child class of
+ * `multilayer_canopy_photosynthesis` where:
+
  *  - The canopy module is set to the `ten_layer_canopy_properties` module
+ *
  *  - The leaf module is set to the `c3_leaf_photosynthesis` module
+ *
  *  - The number of layers is set to 10
+ *
  * Instances of this class can be created using the module factory, unlike the
  * parent class `multilayer_canopy_photosynthesis`.
  */
