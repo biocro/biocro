@@ -243,7 +243,7 @@ void utilization_growth_calculator::do_operation() const {
     //  The total substrate utilization is this rate multiplied by the leaf volume, i.e.
     //    kLeaf * Leaf * mass_fraction_leaf / (KmLeaf + mass_fraction_leaf) = kLeaf * substrate_pool_leaf / (KmLeaf + mass_fraction_leaf)
     //    where kLeaf includes the various proportionality constants mentioned previously
-    //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419430 (1972)
+    //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419–430 (1972)
     // Alternatively, we could use a Hill equation to model utilization. This may be especially helpful for the leaf, since utilization
     //  can be made to fall off faster at small substrate concentrations. Note that the M-M equation is a special case of the Hill
     //  equation when n = 1.
@@ -272,7 +272,7 @@ void utilization_growth_calculator::do_operation() const {
     //  It is important to scale the transport as the plant grows. For example, if the plant uniformly doubles in volume,
     //   the roots now require twice as much carbon substrate to continue growth at the same rate, so the resistance between
     //   the stem and root should be halved (or transport should double). We accomplish this scaling with the beta factor.
-    //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419430 (1972)
+    //  See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419–430 (1972)
 
     double beta = Leaf + Grain + Stem + Root + Rhizome;
 
