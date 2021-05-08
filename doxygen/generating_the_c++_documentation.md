@@ -159,6 +159,23 @@ whose settings you might want to consider overriding:
     will likely want to override this setting so that existing
     (complete) documentation is not overwritten.
 
+* HAVE_DOT
+
+    Setting this to NO will reduce compilation time vastly, especially
+    if you are compiling from scratch, from something on the order of
+    five or ten minutes to closer to five or ten seconds.  So if you
+    don't care about seeing various diagrams, consider setting
+    HAVE_DOT to NO.
+
+    Diagrams of various types may be enable or disabled selectively by
+    leaving HAVE_DOT set to YES and using other, more specific
+    settings.  For example, you could generate class inheritance
+    diagrams but disable generation of call/caller graphs.  See the
+    Doxygen documentation for details, specifically, the section
+    [Configuration options related to the dot
+    tool](https://www.doxygen.nl/manual/config.html#config_dot){target="_blank"
+    rel="noopener"}.
+
 * GENERATE_LATEX
 
     If you're interested in the PDF version of the documentation, you
