@@ -86,15 +86,18 @@ std::vector<std::string> get_other_leaf_inputs()
  *
  * Two modules must be specified as template arguments:
  *
- *  - canopy_properties_module: a module that calculates properties for each
+ *  - canopy properties module: a module that calculates properties for each
  *    canopy layer
  *
- *  - leaf_photosynthesis_module: a module that determines assimilation values
+ *  - leaf photosynthesis module: a module that determines assimilation values
  *    (among other values)
  *
  * The canopy properties module must have the following public static methods:
+ *
  *  - define_leaf_classes()
+ *
  *  - define_multiclass_multilayer_outputs()
+ *
  *  - define_pure_multilayer_outputs()
  */
 template <typename canopy_module_type, typename leaf_module_type>

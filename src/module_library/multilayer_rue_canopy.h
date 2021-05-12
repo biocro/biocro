@@ -9,7 +9,7 @@
 /**
  * @class ten_layer_rue_canopy
  *
- * @brief represents a ten layer canopy where leaf-level photosynthesis is
+ * @brief Represents a ten layer canopy where leaf-level photosynthesis is
  * calculated using a simple radiation use efficiency (RUE) model; see the
  * `rue_leaf_photosynthesis` class for more information about this model.
  *

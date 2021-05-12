@@ -9,8 +9,8 @@
 /**
  * @class ten_layer_c4_canopy
  *
- * @brief represents a ten layer canopy where leaf-level photosynthesis is
- * calculated using the Collatz et. al model for C4 photosynthesis; see the
+ * @brief Represents a ten layer canopy where leaf-level photosynthesis is
+ * calculated using the Collatz et al. model for C4 photosynthesis; see the
  * `c4_leaf_photosynthesis` class for more information about this model.
  *
  * More specifically, this is a child class of

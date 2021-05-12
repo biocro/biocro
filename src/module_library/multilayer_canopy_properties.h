@@ -7,11 +7,11 @@
 /**
  * @class multilayer_canopy_properties
  *
- * @brief Calculates properties of each canopy layer using functions found in
- * AuxBioCro (for the most part). Also includes multiple leaf classes (sunlit &
- * shaded). Leaf class is added to output parameters as a prefix, while layer
- * number is added as a suffix. Note that this module has a non-standard
- * constructor, so it cannot be created using the module_wrapper_factory.
+ * @brief Calculates properties of each canopy layer mostly using functions
+ * found in AuxBioCro. Also includes multiple leaf classes (sunlit & shaded).
+ * Leaf class is added to output parameters as a prefix, while layer number is
+ * added as a suffix. Note that this module has a non-standard constructor, so
+ * it cannot be created using the module_wrapper_factory.
  *
  * For compatibility with the multilayer canopy photosynthesis module, the
  * outputs of this module must be split into the following categories:

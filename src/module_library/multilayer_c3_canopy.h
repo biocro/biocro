@@ -9,7 +9,7 @@
 /**
  * @class ten_layer_c3_canopy
  *
- * @brief represents a ten layer canopy where leaf-level photosynthesis is
+ * @brief Represents a ten layer canopy where leaf-level photosynthesis is
  * calculated using the Farquhar-von-Cammerer-Berry model for C3 photosynthesis;
  * see the `c3_leaf_photosynthesis` class for more information about this model.
  *
