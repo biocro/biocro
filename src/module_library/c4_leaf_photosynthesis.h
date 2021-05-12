@@ -3,8 +3,6 @@
 
 #include "../state_map.h"
 #include "../modules.h"
-#include "c4photo.h"    // for c4photoC
-#include "AuxBioCro.h"  // for EvapoTrans2
 
 /**
  * @class c4_leaf_photosynthesis
