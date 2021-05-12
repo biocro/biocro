@@ -7,11 +7,14 @@
 /**
  * @class multilayer_canopy_integrator
  *
- * @brief Calculates properties of each canopy layer using functions found in
- * AuxBioCro (for the most part). Also includes multiple leaf classes (sunlit &
- * shaded). Leaf class is added to output parameters as a prefix, while layer
- * number is added as a suffix. Note that this module has a non-standard
- * constructor, so it cannot be created using the module_wrapper_factory.
+ * @brief Calculates canopy-level values for assimilation and other quantities
+ * by adding the individual values from the sunlit and shaded leaves in each
+ * canopy layer, weighted by the relative fractions of sunlit and shaded leaves
+ * in each layer.
+ *
+ * For more information about how multilayer modules work in BioCro, see the
+ * documentation for the `multilayer_canopy_properties` and
+ * `multilayer_canopy_photosynthesis` modules.
  */
 class multilayer_canopy_integrator : public SteadyModule
 {

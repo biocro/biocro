@@ -7,27 +7,47 @@
 /**
  * @class multilayer_canopy_properties
  *
- * @brief Calculates properties of each canopy layer mostly using functions
- * found in AuxBioCro. Also includes multiple leaf classes (sunlit & shaded).
- * Leaf class is added to output parameters as a prefix, while layer number is
- * added as a suffix. Note that this module has a non-standard constructor, so
- * it cannot be created using the module_wrapper_factory.
+ * @brief Calculates environmental properties for sunlit and shaded leaves in
+ * each layer of a multilayer canopy, mostly using functions found in
+ * `AuxBioCro.cpp`.
  *
- * For compatibility with the multilayer canopy photosynthesis module, the
- * outputs of this module must be split into the following categories:
+ * In general, a canopy can be divided into different layers and leaf classes,
+ * which could be based on factors such as angle or age. Here we only consider
+ * sunlit and shaded leaves as separate classes. These leaf classes must be
+ * specified by the `define_leaf_classes()` member function.
+ *
+ * Throughout the canopy, some calculated properties only vary across the layers
+ * (such as air temperature), while others also depend on the leaf class (such
+ * as incident photosynthetically active photon flux density). The names of
+ * these output quantities are formed from a base name (e.g. `incident_par`), a
+ * prefix that indicates the leaf class (e.g. `sunlit_`), and a suffix that
+ * indicates the layer number (e.g. `_layer_0`).
+ *
+ * For compatibility with the `multilayer_canopy_photosynthesis` module, the
+ * outputs of this module must be split into categories according to their
+ * dependence on canopy layer and/or leaf class, and the base names for the
+ * quantities of each type must be specified:
  *
  *  - multiclass_multilayer outputs: these outputs are different for each leaf
- *    class and canopy layer
+ *    class and canopy layer and should be specified by the
+ *    `define_multiclass_multilayer_outputs()` function.
  *
  *  - pure_multilayer outputs: these outputs are different for each canopy layer
- *    but not for each leaf class
+ *    but not for each leaf class and should be specified by the
+ *    `define_pure_multilayer_outputs()` function.
  *
  *  - other outputs: these outputs do not depend on the leaf class or canopy
- *    layer (there are currently no outputs of this type)
+ *    layer and do not need to be specified in a special way (there are
+ *    currently no outputs of this type)
  *
  * The base names for the multiclass_multilayer and pure_multilayer outputs will
- * be used by the multilayer canopy photosynthesis module to pass them to a leaf
- * photosynthesis module.
+ * be used by the `multilayer_canopy_photosynthesis` module to correctly pass
+ * these quantities to a leaf photosynthesis module that represents one leaf
+ * type (e.g. sunlit leaves in layer 1).
+ *
+ * Note that this module has a non-standard constructor, so it cannot be created
+ * using the module_wrapper_factory. Rather, it is expected that directly-usable
+ * classes will be derived from this class.
  */
 class multilayer_canopy_properties : public SteadyModule
 {
