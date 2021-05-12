@@ -1,0 +1,7 @@
+# "doxygen/customizations/Doxyfile", if used, should be provided by
+# the individual user or developer.  It should never be checked in to
+# the Git repository.  The leading "/" prevents the "dummy" version of
+# this file, "doxygen/customizations/dummy_fallback_file/Doxyfile",
+# which *is* part of the Git repository, from being ignored as well.
+
+/Doxyfile
