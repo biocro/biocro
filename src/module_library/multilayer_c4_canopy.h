@@ -6,6 +6,11 @@
 #include "multilayer_canopy_properties.h"
 #include "c4_leaf_photosynthesis.h"
 
+using ten_layer_c4_canopy_parent =
+    multilayer_canopy_photosynthesis<
+        ten_layer_canopy_properties,
+        c4_leaf_photosynthesis>;
+
 /**
  * @class ten_layer_c4_canopy
  *
@@ -25,13 +30,13 @@
  * Instances of this class can be created using the module factory, unlike the
  * parent class `multilayer_canopy_photosynthesis`.
  */
-class ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c4_leaf_photosynthesis>
+class ten_layer_c4_canopy : public ten_layer_c4_canopy_parent
 {
    public:
     ten_layer_c4_canopy(
         state_map const* input_parameters,
         state_map* output_parameters)
-        : multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c4_leaf_photosynthesis>(
+        : ten_layer_c4_canopy_parent(
               "ten_layer_c4_canopy",
               ten_layer_c4_canopy::nlayers,
               input_parameters,

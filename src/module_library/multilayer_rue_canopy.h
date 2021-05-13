@@ -6,6 +6,11 @@
 #include "multilayer_canopy_properties.h"
 #include "rue_leaf_photosynthesis.h"
 
+using ten_layer_rue_canopy_parent =
+    multilayer_canopy_photosynthesis<
+        ten_layer_canopy_properties,
+        rue_leaf_photosynthesis>;
+
 /**
  * @class ten_layer_rue_canopy
  *
@@ -25,13 +30,13 @@
  * Instances of this class can be created using the module factory, unlike
  * the parent class `multilayer_canopy_photosynthesis`.
  */
-class ten_layer_rue_canopy : public multilayer_canopy_photosynthesis<ten_layer_canopy_properties, rue_leaf_photosynthesis>
+class ten_layer_rue_canopy : public ten_layer_rue_canopy_parent
 {
    public:
     ten_layer_rue_canopy(
         state_map const* input_parameters,
         state_map* output_parameters)
-        : multilayer_canopy_photosynthesis<ten_layer_canopy_properties, rue_leaf_photosynthesis>(
+        : ten_layer_rue_canopy_parent(
               "ten_layer_rue_canopy",
               ten_layer_rue_canopy::nlayers,
               input_parameters,
