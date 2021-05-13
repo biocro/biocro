@@ -24,6 +24,6 @@ system('R CMD Sweave --pdf biocro-manual-knitr.Rnw') # this vignette doesn't nee
 <iframe src="biocro-manual-knitr.pdf"/>
 -->
 
-[An Introduction to BioCro for Those Who Want to Add Models](an_introduction_to_biocro.pdf){target="_blank"}
+[An Introduction to BioCro for Those Who Want to Add Models](an_introduction_to_biocro.pdf)
 
-[Simulation and Parameter Estimation for Biomass Crops](biocro-manual-knitr.pdf){target="_blank"}
+[Simulation and Parameter Estimation for Biomass Crops](biocro-manual-knitr.pdf)
