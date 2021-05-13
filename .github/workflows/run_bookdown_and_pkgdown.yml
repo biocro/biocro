@@ -1,0 +1,109 @@
+# This workflow is triggered can only be run manually for now, as it
+# uses macOS as a runner, which is expensive.
+
+name: Generate pkgdown and bookdown documentation
+
+on:
+  workflow_dispatch:
+    # [no inputs]
+
+env:
+  publish-to: "ebimodeling/biocro-documentation"
+
+jobs:
+  build:
+    name: Generate pkgdown and bookdown documentation
+
+    runs-on: macOS-latest
+
+    steps:
+
+    # Checks out this repository under $GITHUB_WORKSPACE/source:
+
+    - name: 1. Check out master
+      uses: actions/checkout@v2
+      with:
+        path: source
+
+
+    # The "publish-to" repository is where the documentation will be
+    # copied to and then checked in (to the default branch).
+    # Providing ssh-key to this checkout action gives us permission to
+    # check in our changes later, in the Push step:
+
+    - name: 2. Check out master of the "publish-to" repository
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ env.publish-to }}
+        path: target
+        ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
+
+    - name: 3. Set up R
+      uses: r-lib/actions/setup-r@v1
+
+    - name: 4. Install dependencies
+      run: |
+        install.packages(c("remotes"))
+        setwd('source')
+        remotes::install_deps(dependencies = TRUE)
+      shell: Rscript {0}
+
+    - name: 5. Install Pandoc
+      uses: r-lib/actions/setup-pandoc@v1
+
+    - name: 6 Install pkgdown
+      run: |
+        install.packages(c("pkgdown"), type = "binary")
+      shell: Rscript {0}
+
+    - name: 7. Install TinyTex
+      run: |
+        install.packages('tinytex')
+        tinytex::install_tinytex()
+        # Install a few LaTeX packages needed by the vignette not included
+        # in tinytex:
+        tinytex::tlmgr_install(c('siunitx', 'babel-english', 'footnotebackref', 'listings', 'appendix', 'pgf'))
+      shell: Rscript {0}
+
+    - name: 8. Run pkgdown
+      run: |
+        setwd('source')
+        pkgdown::build_site()
+      shell: Rscript {0}
+
+    - name: 9. Install bookdown
+      run: |
+        install.packages(c("bookdown"))
+      shell: Rscript {0}
+
+    - name: 10. Run bookdown
+      run: |
+        setwd('source')
+        bookdown::render_book('bookdown')
+      shell: Rscript {0}
+
+    - name: 11. Copy files into working copy of the target repository
+      run: |
+        cd target
+
+        # Remove docs and bookdown_book directories if they exist; we
+        # are going to replace them:
+        git rm -r --ignore-unmatch docs
+        git rm -r --ignore-unmatch bookdown_book
+
+        # Recreate docs and bookdown_book directories:
+        mkdir bookdown_book docs
+
+        # Copy the respective documentation into them:
+        cp -R ../source/docs/. docs
+        cp -R ../source/bookdown/_book/. bookdown_book
+
+    - name: 12. Commit updates and push to target (documentation) repository
+      run: |
+        cd target
+
+        # user.name is somewhat arbitrary but must be provided:
+        git config user.name biocro-dev-action
+        git add .
+        git commit -m "generated pgkdown and bookdown documentation"
+        git push

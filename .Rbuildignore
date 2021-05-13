@@ -16,6 +16,9 @@
 ^vignettes/.*\.log$
 # Vignette-build by-products.
 
+^vignettes/pdf_vignette_index.Rmd$
+# Vignette only for pkgdown.
+
 ^.*\.gz$
 # If these files occur only as by-products of building vignettes, this
 # could be made more specific: ^vignettes/.*\.gz
