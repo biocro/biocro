@@ -32,7 +32,7 @@ check_for_other_errors <- function(module_error) {
 run_module_trial <- function(module_name, description, error_message_testing_function)
 {
 	# Get the input parameters required by the module
-	input_parameters <- get_module_info(module_name, verbose=FALSE)
+	input_parameters <- describe_module(module_name, verbose=FALSE)
 
 	# All input parameters are set to 1.0 by default.
 	# For certain modules, this produces error conditions.

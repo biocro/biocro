@@ -1,8 +1,8 @@
-get_module_info <- function(module_name, verbose = TRUE)
+describe_module <- function(module_name, verbose = TRUE)
 {	
 	# Example: getting information about the big_leaf_multilayer_canopy module
 	#
-	#  big_leaf_multilayer_canopy_inputs <- get_module_info("big_leaf_multilayer_canopy")
+	#  big_leaf_multilayer_canopy_inputs <- describe_module("big_leaf_multilayer_canopy")
 	#
 	# The function returns a dataframe with all the inputs required by the module
 	# It also prints the module's type (derivative or steady state), its inputs, and its outputs to the R console
@@ -15,7 +15,7 @@ get_module_info <- function(module_name, verbose = TRUE)
 	# Make sure verbose is a logical variable
 	verbose = lapply(verbose, as.logical)
 	
-	result = .Call(R_get_module_info, module_name, verbose)
+	result = .Call(R_describe_module, module_name, verbose)
 	result = result[order(names(result))]
 	return(result)
 }
@@ -24,7 +24,7 @@ evaluate_module <- function(module_name, input_parameters)
 {
 	# Example: testing the output of the big_leaf_multilayer_canopy module
 	#
-	#  big_leaf_multilayer_canopy_inputs <- get_module_info("big_leaf_multilayer_canopy")
+	#  big_leaf_multilayer_canopy_inputs <- describe_module("big_leaf_multilayer_canopy")
 	#  <<modify individual input parameters to desired values>>
 	#  big_leaf_multilayer_canopy_param <- evaluate_module("big_leaf_multilayer_canopy", big_leaf_multilayer_canopy_inputs, TRUE)
 	#  <<check the values of the output parameters to confirm they are correct>>
