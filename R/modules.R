@@ -20,13 +20,13 @@ get_module_info <- function(module_name, verbose = TRUE)
 	return(result)
 }
 
-test_module <- function(module_name, input_parameters)
+evaluate_module <- function(module_name, input_parameters)
 {
 	# Example: testing the output of the big_leaf_multilayer_canopy module
 	#
 	#  big_leaf_multilayer_canopy_inputs <- get_module_info("big_leaf_multilayer_canopy")
 	#  <<modify individual input parameters to desired values>>
-	#  big_leaf_multilayer_canopy_param <- test_module("big_leaf_multilayer_canopy", big_leaf_multilayer_canopy_inputs, TRUE)
+	#  big_leaf_multilayer_canopy_param <- evaluate_module("big_leaf_multilayer_canopy", big_leaf_multilayer_canopy_inputs, TRUE)
 	#  <<check the values of the output parameters to confirm they are correct>>
 	#
 	# Important note: during the testing process, the output parameters are initialized to -1000000.0.
@@ -48,7 +48,7 @@ test_module <- function(module_name, input_parameters)
 	
 	input_parameters = lapply(input_parameters, as.numeric)
 	
-	result = .Call(R_test_module, module_name, input_parameters)
+	result = .Call(R_evaluate_module, module_name, input_parameters)
 	result = result[order(names(result))]
 	return(result)
 }

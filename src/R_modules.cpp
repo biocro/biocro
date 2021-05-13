@@ -101,7 +101,7 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
         // Return a map containing the module's input parameters
         return list_from_map(input_map);
     } catch (quantity_access_error const& qae) {
-        Rf_error((std::string("Caught quantity access error in R_test_module: ") + qae.what()).c_str());
+        Rf_error((std::string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_get_module_info: ") + e.what()).c_str());
     } catch (...) {
@@ -109,7 +109,7 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
     }
 }
 
-SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
+SEXP R_evaluate_module(SEXP module_name_input, SEXP input_parameters)
 {
     try {
         // module_name_input should be a string vector with one element
@@ -135,11 +135,11 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 
         return list_from_map(module_output_map);
     } catch (quantity_access_error const& qae) {
-        Rf_error((std::string("Caught quantity access error in R_test_module: ") + qae.what()).c_str());
+        Rf_error((std::string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_test_module: ") + e.what()).c_str());
+        Rf_error((std::string("Caught exception in R_evaluate_module: ") + e.what()).c_str());
     } catch (...) {
-        Rf_error("Caught unhandled exception in R_test_module.");
+        Rf_error("Caught unhandled exception in R_evaluate_module.");
     }
 }
 

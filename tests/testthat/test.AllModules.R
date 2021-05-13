@@ -56,7 +56,7 @@ run_module_trial <- function(module_name, description, error_message_testing_fun
 	tryCatch(
 		{
 			# Code to be executed initially
-			output_parameters <- test_module(module_name, input_parameters)
+			output_parameters <- evaluate_module(module_name, input_parameters)
 		},
 		error=function(cond) {
 			# Code for handling errors
