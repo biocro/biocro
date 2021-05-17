@@ -34,7 +34,13 @@ module_info <- function(module_name, verbose = TRUE)
     # Make sure verbose is a logical variable
     verbose = lapply(verbose, as.logical)
 
+    # Get the info list
     result = .Call(R_module_info, module_name, verbose)
+
+    # Make sure the parameters are properly ordered
+    result <- within(result, inputs <- inputs[order(names(inputs))])
+    result <- within(result, outputs <- outputs[order(names(outputs))])
+
     return(result)
 }
 
