@@ -14,6 +14,8 @@
 #     list of named numeric elements corresponding to the expected values of the
 #     module's output quantities
 #
+# output: none
+#
 test_module <- function(
     module_name,
     case_list
@@ -42,9 +44,64 @@ test_module <- function(
 #   produced from the module_inputs, i.e., a list of named numeric elements
 #   corresponding to the expected values of the module's output quantities
 #
+# output: a list with two named elements (`inputs` and `expected_outputs`)
+# formed from the input arguments
+#
 case <- function(module_inputs, expected_module_outputs) {
     list(
         inputs = module_inputs,
         expected_outputs = expected_module_outputs
     )
+}
+
+# case_function: a function to help define test cases for module testing
+#
+# inputs:
+#
+# - module_name: the name of a module
+#
+# output: a function that accepts a numeric vector `x` as its input and creates
+# a "test case" list from it, i.e., a list with two named elements (`inputs` and
+# `expected_outputs`) that represent the `expected_outputs` that the module
+# should produce from the quantities in the `inputs` list. The elements of `x`
+# should be the module's inputs followed by its outputs, where the order should
+# be the same as the input and output parameter lists determined by a call to
+# the `describe_module` function. E.g., if str(describe_module(module_name))
+# produces the following:
+#
+#   $ inputs                :List of 2
+#    ..$ tbase: num 1
+#    ..$ temp : num 1
+#   $ outputs               :List of 1
+#    ..$ TTc: num 1
+#
+# then case_function(module_name) will return a function expecting an input
+# vector `x` with three elements representing tbase, temp, and TTc (in that
+# order).
+#
+case_function <- function(module_name) {
+    info <- describe_module(module_name, verbose = FALSE)
+
+    inputs <- info[['inputs']]
+    outputs <- info[['outputs']]
+
+    input_names <- names(inputs)
+    output_names <- names(outputs)
+
+    function(x) {
+        if (length(x) != (length(inputs) + length(outputs))) {
+            stop("Wrong number of input arguments!")
+        }
+
+        for (i in 1:length(inputs)) {
+            inputs[[input_names[i]]] <- x[i]
+        }
+
+        for (i in (length(inputs)+1):(length(x))) {
+            j = i - length(inputs)
+            outputs[[output_names[j]]] <- x[i]
+        }
+
+        return(case(inputs, outputs))
+    }
 }
