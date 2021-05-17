@@ -7,8 +7,8 @@ test_cases <- list(
     # air temperature below base temperature
     list(
         inputs = list(
-            tbase = 20, # degrees C
-            temp = 10   # degrees C
+            temp = 10,  # degrees C
+            tbase = 20  # degrees C
         ),
         expected_outputs = list(
             TTc = 0     # degrees C * day / hr
@@ -17,8 +17,8 @@ test_cases <- list(
     # air temperature equal to base temperature
     list(
         inputs = list(
-            tbase = 20, # degrees C
-            temp = 20   # degrees C
+            temp = 20,  # degrees C
+            tbase = 20  # degrees C
         ),
         expected_outputs = list(
             TTc = 0     # degrees C * day / hr
@@ -27,8 +27,8 @@ test_cases <- list(
     # air temperature above base temperature
     list(
         inputs = list(
-            tbase = 20, # degrees C
-            temp = 44   # degrees C
+            temp = 44,  # degrees C
+            tbase = 20  # degrees C
         ),
         expected_outputs = list(
             TTc =  1    # degrees C * day / hr
