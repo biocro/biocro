@@ -66,8 +66,8 @@ case <- function(module_inputs, expected_module_outputs) {
 # should produce from the quantities in the `inputs` list. The elements of `x`
 # should be the module's inputs followed by its outputs, where the order should
 # be the same as the input and output parameter lists determined by a call to
-# the `describe_module` function. E.g., if str(describe_module(module_name))
-# produces the following:
+# the `module_info` function. E.g., if str(module_info(module_name)) produces
+# the following:
 #
 #   $ inputs                :List of 2
 #    ..$ tbase: num 1
@@ -80,7 +80,7 @@ case <- function(module_inputs, expected_module_outputs) {
 # order).
 #
 case_function <- function(module_name) {
-    info <- describe_module(module_name, verbose = FALSE)
+    info <- module_info(module_name, verbose = FALSE)
 
     inputs <- info[['inputs']]
     outputs <- info[['outputs']]

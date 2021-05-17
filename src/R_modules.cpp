@@ -8,7 +8,7 @@
 
 extern "C" {
 
-SEXP R_describe_module(SEXP module_name_input, SEXP verbose)
+SEXP R_module_info(SEXP module_name_input, SEXP verbose)
 {
     try {
         // module_name_input should be a string vector with one element
@@ -121,9 +121,9 @@ SEXP R_describe_module(SEXP module_name_input, SEXP verbose)
     } catch (quantity_access_error const& qae) {
         Rf_error((std::string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_describe_module: ") + e.what()).c_str());
+        Rf_error((std::string("Caught exception in R_module_info: ") + e.what()).c_str());
     } catch (...) {
-        Rf_error("Caught unhandled exception in R_describe_module.");
+        Rf_error("Caught unhandled exception in R_module_info.");
     }
 }
 

@@ -2,7 +2,7 @@ useDynLib(BioCro,
           R_Gro_solver,
           R_Gro_deriv,
           R_Gro_ode,
-          R_describe_module,
+          R_module_info,
           R_evaluate_module,
           R_validate_system_inputs,
           R_validate_simultaneous_equations,
@@ -27,7 +27,7 @@ export(Gro_deriv)
 
 export(Gro_ode)
 
-export(describe_module)
+export(module_info)
 
 export(evaluate_module)
 

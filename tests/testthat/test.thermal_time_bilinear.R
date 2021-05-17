@@ -4,8 +4,8 @@ source("module_testing_helper_functions.R") # for test_module and case_function
 
 # Make a function for specifying a test case from a set of input and output
 # values. The order of the inputs to `tc` is set by the output of a call to
-# `describe_module` and can be determined by calling
-# str(describe_module('thermal_time_bilinear')) from an R terminal.
+# `module_info` and can be determined by calling
+# str(module_info('thermal_time_bilinear')) from an R terminal.
 tc <- case_function('thermal_time_bilinear')
 
 # Define the inputs and expected outputs for the test cases. The quantities have

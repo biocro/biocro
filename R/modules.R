@@ -1,8 +1,8 @@
-describe_module <- function(module_name, verbose = TRUE)
+module_info <- function(module_name, verbose = TRUE)
 {
 	# Example: getting information about the thermal_time_linear module
 	#
-	#  info <- describe_module("thermal_time_linear")
+	#  info <- module_info("thermal_time_linear")
     #  inputs <- info[['inputs']]
     #
     # The function returns a list with several named elements containing information
@@ -34,7 +34,7 @@ describe_module <- function(module_name, verbose = TRUE)
 	# Make sure verbose is a logical variable
 	verbose = lapply(verbose, as.logical)
 
-	result = .Call(R_describe_module, module_name, verbose)
+	result = .Call(R_module_info, module_name, verbose)
 	return(result)
 }
 
@@ -42,7 +42,7 @@ evaluate_module <- function(module_name, input_parameters)
 {
 	# Example: testing the output of the thermal_time_linear module
 	#
-	#  info <- describe_module("thermal_time_linear")
+	#  info <- module_info("thermal_time_linear")
     #  inputs <- info[['inputs']]
 	#  <<modify individual input parameters to desired values>>
 	#  outputs <- evaluate_module("big_leaf_multilayer_canopy", inputs, TRUE)
