@@ -18,6 +18,14 @@ SEXP list_from_map(state_vector_map const& m);
 
 SEXP list_from_map(std::unordered_map<std::string, string_vector> const& m);
 
+SEXP list_from_module_info(
+    std::string const& module_name,
+    state_map const& module_inputs,
+    state_map const& module_outputs,
+    bool const& is_deriv,
+    bool const& is_adaptive_compatible,
+    std::string const& creation_error_message);
+
 SEXP vector_from_map(state_map const& m);
 
 SEXP r_string_vector_from_vector(string_vector const& v);

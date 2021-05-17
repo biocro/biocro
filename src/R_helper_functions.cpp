@@ -160,6 +160,68 @@ SEXP list_from_map(std::unordered_map<string, vector<string>> const& m)
     return list;
 }
 
+SEXP list_from_module_info(
+    std::string const& module_name,
+    state_map const& module_inputs,
+    state_map const& module_outputs,
+    bool const& is_deriv,
+    bool const& is_adaptive_compatible,
+    std::string const& creation_error_message)
+{
+    // Module inputs and outputs (these do not require an UNPROTECT here)
+    SEXP input_list = list_from_map(module_inputs);
+    SEXP output_list = list_from_map(module_outputs);
+
+    // Module name
+    SEXP name = PROTECT(Rf_allocVector(STRSXP, 1));
+    SET_STRING_ELT(name, 0, Rf_mkChar(module_name.c_str()));
+
+    // Module type
+    SEXP type = PROTECT(Rf_allocVector(STRSXP, 1));
+    if (is_deriv) {
+        SET_STRING_ELT(type, 0, Rf_mkChar("derivative"));
+    } else {
+        SET_STRING_ELT(type, 0, Rf_mkChar("steady state"));
+    }
+
+    // Euler requirement
+    SEXP requires_euler = PROTECT(Rf_allocVector(STRSXP, 1));
+    string euler_msg;
+    if (is_adaptive_compatible) {
+        euler_msg = "does not require a fixed-step Euler integrator";
+    } else {
+        euler_msg = "requires a fixed-step Euler integrator";
+    }
+    SET_STRING_ELT(requires_euler, 0, Rf_mkChar(euler_msg.c_str()));
+
+    // Error message from module creation
+    SEXP error_message = PROTECT(Rf_allocVector(STRSXP, 1));
+    SET_STRING_ELT(error_message, 0, Rf_mkChar(creation_error_message.c_str()));
+
+    // The module info list
+    SEXP info_names = PROTECT(Rf_allocVector(STRSXP, 6));
+    SET_STRING_ELT(info_names, 0, Rf_mkChar("module_name"));
+    SET_STRING_ELT(info_names, 1, Rf_mkChar("inputs"));
+    SET_STRING_ELT(info_names, 2, Rf_mkChar("outputs"));
+    SET_STRING_ELT(info_names, 3, Rf_mkChar("type"));
+    SET_STRING_ELT(info_names, 4, Rf_mkChar("euler_requirement"));
+    SET_STRING_ELT(info_names, 5, Rf_mkChar("creation_error_message"));
+
+    SEXP info_list = PROTECT(Rf_allocVector(VECSXP, 6));
+    SET_VECTOR_ELT(info_list, 0, name);
+    SET_VECTOR_ELT(info_list, 1, input_list);
+    SET_VECTOR_ELT(info_list, 2, output_list);
+    SET_VECTOR_ELT(info_list, 3, type);
+    SET_VECTOR_ELT(info_list, 4, requires_euler);
+    SET_VECTOR_ELT(info_list, 5, error_message);
+
+    Rf_setAttrib(info_list, R_NamesSymbol, info_names);
+
+    UNPROTECT(6);
+
+    return info_list;
+}
+
 SEXP vector_from_map(state_map const& m)
 {
     auto n = m.size();
