@@ -169,8 +169,8 @@ SEXP list_from_module_info(
     std::string const& creation_error_message)
 {
     // Module inputs and outputs (these do not require an UNPROTECT here)
-    SEXP input_list = list_from_map(module_inputs);
-    SEXP output_list = list_from_map(module_outputs);
+    SEXP input_list = PROTECT(list_from_map(module_inputs));
+    SEXP output_list = PROTECT(list_from_map(module_outputs));
 
     // Module name
     SEXP name = PROTECT(Rf_allocVector(STRSXP, 1));
@@ -217,7 +217,7 @@ SEXP list_from_module_info(
 
     Rf_setAttrib(info_list, R_NamesSymbol, info_names);
 
-    UNPROTECT(6);
+    UNPROTECT(8);
 
     return info_list;
 }
