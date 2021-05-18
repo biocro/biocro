@@ -93,11 +93,11 @@ case_function <- function(module_name) {
             stop("Wrong number of input arguments!")
         }
 
-        for (i in 1:length(inputs)) {
+        for (i in seq_along(inputs)) {
             inputs[[input_names[i]]] <- x[i]
         }
 
-        for (i in (length(inputs)+1):(length(x))) {
+        for (i in seq(length(inputs) + 1,  length(x))) {
             j = i - length(inputs)
             outputs[[output_names[j]]] <- x[i]
         }
