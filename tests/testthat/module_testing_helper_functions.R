@@ -1,6 +1,6 @@
 # test_module: a function to help simplify module testing
 #
-# inputs:
+# Inputs:
 #
 # - module_name: a string specifying the name of the module to be tested
 #
@@ -14,7 +14,18 @@
 #     list of named numeric elements corresponding to the expected values of the
 #     module's output quantities
 #
-# output: none
+# Output: none
+#
+# Examples demonstrating how to use this function:
+#
+# - test.thermal_time_linear.R (defines case_list using explicit calls to the
+#   `list` function)
+#
+# - test.thermal_time_linear_extended.R (defines case_list using the `case`
+#   helper function)
+#
+# - test.thermal_time_bilinear.R (defines case_list using the `case_function`
+#   method)
 #
 test_module <- function(
     module_name,
@@ -35,7 +46,7 @@ test_module <- function(
 
 # case: a function to help define test cases for module testing
 #
-# inputs:
+# Inputs:
 #
 # - module_inputs: a list of module inputs, i.e., a list of named numeric
 #   elements corresponding to the module's input quantities
@@ -44,8 +55,14 @@ test_module <- function(
 #   produced from the module_inputs, i.e., a list of named numeric elements
 #   corresponding to the expected values of the module's output quantities
 #
-# output: a list with two named elements (`inputs` and `expected_outputs`)
+# Output: a list with two named elements (`inputs` and `expected_outputs`)
 # formed from the input arguments
+#
+# Examples demonstrating how to use this function:
+#
+# - test.thermal_time_linear_extended.R
+#
+# - the `case_function` function below
 #
 case <- function(module_inputs, expected_module_outputs) {
     list(
@@ -56,11 +73,11 @@ case <- function(module_inputs, expected_module_outputs) {
 
 # case_function: a function to help define test cases for module testing
 #
-# inputs:
+# Inputs:
 #
 # - module_name: the name of a module
 #
-# output: a function that accepts a numeric vector `x` as its input and creates
+# Output: a function that accepts a numeric vector `x` as its input and creates
 # a "test case" list from it, i.e., a list with two named elements (`inputs` and
 # `expected_outputs`) that represent the `expected_outputs` that the module
 # should produce from the quantities in the `inputs` list. The elements of `x`
@@ -78,6 +95,10 @@ case <- function(module_inputs, expected_module_outputs) {
 # then case_function(module_name) will return a function expecting an input
 # vector `x` with three elements representing tbase, temp, and TTc (in that
 # order).
+#
+# Example demonstrating how to use this function:
+#
+# - test.thermal_time_bilinear.R
 #
 case_function <- function(module_name) {
     info <- module_info(module_name, verbose = FALSE)
@@ -97,9 +118,9 @@ case_function <- function(module_name) {
             inputs[[input_names[i]]] <- x[i]
         }
 
-        for (i in seq(length(inputs) + 1,  length(x))) {
-            j = i - length(inputs)
-            outputs[[output_names[j]]] <- x[i]
+        for (i in seq_along(outputs)) {
+            j = i + length(inputs)
+            outputs[[output_names[i]]] <- x[j]
         }
 
         return(case(inputs, outputs))
