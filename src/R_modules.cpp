@@ -3,28 +3,27 @@
 #include <string>
 #include "R_helper_functions.h"
 #include "state_map.h"
-#include "module_library/module_wrapper_factory.h"
+#include "module_wrapper.h"
 #include "modules.h"
 
 extern "C" {
 
-SEXP R_module_info(SEXP module_name_input, SEXP verbose)
+SEXP R_module_info(SEXP mw_ptr, SEXP verbose)
 {
     try {
-        // module_name_input should be a string vector with one element
-        std::vector<std::string> module_name_vector =
-            make_vector(module_name_input);
-        std::string module_name = module_name_vector[0];
+        // Convert mw_ptr to a module_wrapper_base pointer
+        module_wrapper_base* w =
+            static_cast<module_wrapper_base*>(R_ExternalPtrAddr(mw_ptr));
 
         // Convert verbose to a boolean
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
+        // Get the module's name
+        std::string module_name = "temporarily unavailable";
+
         // Make maps for the module's inputs and outputs
         state_map module_inputs;
         state_map module_outputs;
-
-        // Get the module wrapper
-        auto w = module_wrapper_factory::create(module_name);
 
         // Get the module's inputs and give them default values
         double const default_value = 1.0;
@@ -127,12 +126,12 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
     }
 }
 
-SEXP R_evaluate_module(SEXP module_name_input, SEXP input_parameters)
+SEXP R_evaluate_module(SEXP mw_ptr, SEXP input_parameters)
 {
     try {
-        // module_name_input should be a string vector with one element
-        std::vector<std::string> module_name_vector = make_vector(module_name_input);
-        std::string module_name = module_name_vector[0];
+        // Convert mw_ptr to a module_wrapper_base pointer
+        module_wrapper_base* w =
+            static_cast<module_wrapper_base*>(R_ExternalPtrAddr(mw_ptr));
 
         // input_parameters should be a state map
         // use it to initialize the parameter list
@@ -140,18 +139,22 @@ SEXP R_evaluate_module(SEXP module_name_input, SEXP input_parameters)
         state_map module_output_map;
 
         // Get the module's outputs and add them to the output list with default
-        //  values of 0.0
-        // Note: since derivative modules add their output to the module_output_map,
-        //  the result only makes sense if each parameter is initialized to 0
-        auto w = module_wrapper_factory::create(module_name);
-        std::vector<std::string> module_outputs = w->get_outputs();
-        for (std::string param : module_outputs) module_output_map[param] = 0.0;
+        // values of 0.0. Since derivative modules add their output values to
+        // the values in module_output_map, the result only makes sense if each
+        // parameter is initialized to 0.
+        double const default_value = 0.0;
+        string_vector module_outputs = w->get_outputs();
+        for (std::string param : module_outputs) {
+            module_output_map[param] = default_value;
+        }
 
-        std::unique_ptr<Module> module_ptr = w->createModule(&parameters, &module_output_map);
+        std::unique_ptr<Module> module_ptr =
+            w->createModule(&parameters, &module_output_map);
 
         module_ptr->run();
 
         return list_from_map(module_output_map);
+
     } catch (quantity_access_error const& qae) {
         Rf_error((std::string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
     } catch (std::exception const& e) {

@@ -35,9 +35,9 @@ module_info <- function(module_name, verbose = TRUE)
     verbose = lapply(verbose, as.logical)
 
     # Get the info list
-    result = .Call(R_module_info, module_name, verbose)
+    result = .Call(R_module_info, module_wrapper_pointer(module_name), verbose)
 
-    # Make sure the parameters are properly ordered
+    # Make sure the input and output quantities are reproducibly ordered
     result <- within(result, inputs <- inputs[order(names(inputs))])
     result <- within(result, outputs <- outputs[order(names(outputs))])
 
@@ -51,26 +51,38 @@ evaluate_module <- function(module_name, input_parameters)
     #  info <- module_info("thermal_time_linear")
     #  inputs <- info[['inputs']]
     #  <<modify individual input parameters to desired values>>
-    #  outputs <- evaluate_module("big_leaf_multilayer_canopy", inputs, TRUE)
+    #  outputs <- evaluate_module("thermal_time_linear", inputs)
     #  <<check the values of the output parameters to confirm they are correct>>
 
+    # Make sure the module name is a string
     if (!is.character(module_name) & length(module_name) != 1) {
         stop('"module_name" must be a string')
     }
 
+    # Make sure the input parameters are passed as a list
     if(!is.list(input_parameters)) {
         stop('"input_parameters" must be a list')
     }
 
+    # Make sure the entries in the input parameters each have one element
     if(length(input_parameters) != length(unlist(input_parameters))) {
         item_lengths = unlist(lapply(input_parameters, length))
         error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
         stop(error_message)
     }
 
+    # Make sure the input parameters are treated as numeric variables
     input_parameters = lapply(input_parameters, as.numeric)
 
-    result = .Call(R_evaluate_module, module_name, input_parameters)
+    # Run the module
+    result = .Call(
+        R_evaluate_module,
+        module_wrapper_pointer(module_name),
+        input_parameters
+    )
+
+    # Make sure the output quantities are reproducibly ordered
     result = result[order(names(result))]
+
     return(result)
 }
