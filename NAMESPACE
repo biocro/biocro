@@ -4,6 +4,7 @@ useDynLib(BioCro,
           R_Gro_ode,
           R_module_info,
           R_evaluate_module,
+          R_module_wrapper_pointer,
           R_validate_system_inputs,
           R_validate_simultaneous_equations,
           R_solve_simultaneous_equations,
@@ -30,6 +31,8 @@ export(Gro_ode)
 export(module_info)
 
 export(evaluate_module)
+
+export(module_wrapper_pointer)
 
 export(validate_system_inputs)
 
