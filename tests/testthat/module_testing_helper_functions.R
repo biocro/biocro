@@ -35,8 +35,8 @@ test_module <- function(
     # Define a helping function that tests one case
     test_one_case <- function(one_case) {
         expect_equal(
-            one_case[['expected_outputs']],
-            evaluate_module(module_name, one_case[['inputs']])
+            evaluate_module(!!module_name, !!one_case[['inputs']]),
+            !!one_case[['expected_outputs']]
         )
     }
 
