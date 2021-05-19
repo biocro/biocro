@@ -5,12 +5,15 @@
 #include <vector>
 #include <string>
 #include "state_map.h"
+#include "module_wrapper.h"
 
 state_map map_from_list(SEXP const& list);
 
 state_vector_map map_vector_from_list(SEXP const& list);
 
 string_vector make_vector(SEXP const& r_string_vector);
+
+std::vector<module_wrapper_base*> mw_vector_from_list(SEXP const& list);
 
 SEXP list_from_map(state_map const& m);
 

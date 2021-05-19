@@ -1,6 +1,7 @@
 #include <string>
 #include <Rinternals.h>          // for Rprintf
 #include <memory>                // for std::unique_ptr
+#include "state_map.h"           // for string_vector
 #include "R_helper_functions.h"  // for make_vector
 #include "module_library/module_wrapper_factory.h"
 #include "module_wrapper.h"
@@ -25,7 +26,7 @@ void finalize_module_wrapper_pointer(SEXP mw_ptr)
 extern "C" {
 
 /**
- *  @brief Creates an "R external pointer" object that points to a
+ *  @brief Creates a vector of "R external pointer" objects that each point to a
  *  module_wrapper_base object.
  *
  *  See http://www.hep.by/gnu/r-patched/r-exts/R-exts_122.html for more details
@@ -50,30 +51,41 @@ extern "C" {
  *  `std::unique_ptr::release()` rather than `std::unique_ptr::get()`. Memory
  *  access problems will occur otherwise, causing R to suddenly crash.
  *
- *  @param [in] module_name_input The name of the module for which a
- *                                module_wrapper_base object should be created
+ *  The output from this function can be converted into a std::vector of
+ *  module_wrapper_base pointers for use in C/C++ code using the
+ *  `mw_vector_from_list()` function.
  *
- *  @return An "R external pointer" object
+ *  @param [in] module_names The names of the modules for which
+ *                           module_wrapper_base objects should be created
+ *
+ *  @return A vector of "R external pointer" objects
  */
-SEXP R_module_wrapper_pointer(SEXP module_name_input)
+SEXP R_module_wrapper_pointer(SEXP module_names)
 {
     try {
-        std::string module_name = make_vector(module_name_input)[0];
+        string_vector names = make_vector(module_names);
+        size_t n = names.size();
+        SEXP mw_ptr_vec = PROTECT(Rf_allocVector(VECSXP, n));
 
-        std::unique_ptr<module_wrapper_base> mw =
-            module_wrapper_factory::create(module_name);
+        for (size_t i = 0; i < n; ++i) {
+            std::unique_ptr<module_wrapper_base> w =
+                module_wrapper_factory::create(names[i]);
 
-        SEXP mw_ptr =
-            PROTECT(R_MakeExternalPtr(mw.release(), R_NilValue, R_NilValue));
+            SEXP mw_ptr =
+                PROTECT(R_MakeExternalPtr(w.release(), R_NilValue, R_NilValue));
 
-        R_RegisterCFinalizerEx(
-            mw_ptr,
-            (R_CFinalizer_t)finalize_module_wrapper_pointer,
-            TRUE);
+            R_RegisterCFinalizerEx(
+                mw_ptr,
+                (R_CFinalizer_t)finalize_module_wrapper_pointer,
+                TRUE);
 
-        UNPROTECT(1);
+            SET_VECTOR_ELT(mw_ptr_vec, i, mw_ptr);
+            UNPROTECT(1);  // UNPROTECT mw_ptr
+        }
 
-        return mw_ptr;
+        UNPROTECT(1);  // UNPROTECT mw_ptr_vec
+        return mw_ptr_vec;
+
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_module_wrapper_pointer: ") + e.what()).c_str());
     } catch (...) {

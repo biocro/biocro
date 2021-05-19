@@ -8,12 +8,26 @@
 
 extern "C" {
 
-SEXP R_module_info(SEXP mw_ptr, SEXP verbose)
+/**
+ *  @brief Determines vital information about a single module
+ *
+ *  @param [in] mw_ptr_vec A single-element vector containing one R external
+ *                         pointer pointing to a module_wrapper_base object,
+ *                         typically produced by the
+ *                         `R_module_wrapper_pointer()` function. If the vector
+ *                         has more than one element, only the first will be
+ *                         used.
+ *
+ *  @param [in] verbose When verbose is TRUE, print information to the R console
+ *
+ *  @return An R list containing several named elements that describe the
+ *          module. See `list_from_module_info()` for more details.
+ */
+SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
 {
     try {
-        // Convert mw_ptr to a module_wrapper_base pointer
-        module_wrapper_base* w =
-            static_cast<module_wrapper_base*>(R_ExternalPtrAddr(mw_ptr));
+        // Get the module_wrapper_base pointer
+        module_wrapper_base* w = mw_vector_from_list(mw_ptr_vec)[0];
 
         // Convert verbose to a boolean
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
@@ -126,12 +140,31 @@ SEXP R_module_info(SEXP mw_ptr, SEXP verbose)
     }
 }
 
-SEXP R_evaluate_module(SEXP mw_ptr, SEXP input_parameters)
+/**
+ *  @brief Determines the values of a module's output quantities from the
+ *         supplied values of its input quantities
+ *
+ *  @param [in] mw_ptr_vec A single-element vector containing one R external
+ *                         pointer pointing to a module_wrapper_base object,
+ *                         typically produced by the
+ *                         `R_module_wrapper_pointer()` function. If the vector
+ *                         has more than one element, only the first will be
+ *                         used.
+ *
+ *  @param [in] input_parameters A list of named numeric elements where the name
+ *                               of each element corresponds to one of the
+ *                               module's input quantities. Any element whose
+ *                               name does not correspond to one of the module's
+ *                               input quantities will be ignored by the module.
+ *
+ *  @return A list of named numeric elements where the name of each element
+ *          corresponds to the one of the module's output quantities
+ */
+SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_parameters)
 {
     try {
-        // Convert mw_ptr to a module_wrapper_base pointer
-        module_wrapper_base* w =
-            static_cast<module_wrapper_base*>(R_ExternalPtrAddr(mw_ptr));
+        // Get the module_wrapper_base pointer
+        module_wrapper_base* w = mw_vector_from_list(mw_ptr_vec)[0];
 
         // input_parameters should be a state map
         // use it to initialize the parameter list

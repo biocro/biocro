@@ -1,7 +1,4 @@
-#include <memory>
-#include <stdexcept>
 #include <Rinternals.h>
-#include "modules.h"
 #include "R_helper_functions.h"
 
 using std::string;
@@ -83,6 +80,26 @@ vector<string> make_vector(SEXP const& r_string_vector)
     v.reserve(n);
     for (size_t i = 0; i < n; ++i) {
         v.emplace_back(CHAR(STRING_ELT(r_string_vector, i)));
+    }
+    return v;
+}
+
+/**
+ *  @brief Creates a std::vector of pointers to module_wrapper_base objects from
+ *  an R vector of R external pointer objects
+ *
+ *  @param [in] list An R vector of R external pointer objects, typically
+ *                   created by a call to `R_module_wrapper_pointer()`
+ *
+ *  @return A std::vector of pointers to module_wrapper_base objects
+ */
+vector<module_wrapper_base*> mw_vector_from_list(SEXP const& list)
+{
+    size_t n = Rf_length(list);
+    vector<module_wrapper_base*> v(n);
+    for (size_t i = 0; i < n; ++i) {
+        v[i] = static_cast<module_wrapper_base*>(
+            R_ExternalPtrAddr(VECTOR_ELT(list, i)));
     }
     return v;
 }
