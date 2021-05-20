@@ -40,30 +40,30 @@ class rh_to_mole_fraction : public SteadyModule
 {
    public:
     rh_to_mole_fraction(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("rh_to_mole_fraction"),
 
-          // Get references to input parameters
-          rh{get_input(input_parameters, "rh")},
-          atmospheric_pressure{get_input(input_parameters, "atmospheric_pressure")},
-          saturation_water_vapor_pressure_atmosphere{get_input(input_parameters, "saturation_water_vapor_pressure_atmosphere")},
+          // Get references to input quantities
+          rh{get_input(input_quantities, "rh")},
+          atmospheric_pressure{get_input(input_quantities, "atmospheric_pressure")},
+          saturation_water_vapor_pressure_atmosphere{get_input(input_quantities, "saturation_water_vapor_pressure_atmosphere")},
 
-          // Get pointers to output parameters
-          mole_fraction_h2o_atmosphere_op{get_op(output_parameters, "mole_fraction_h2o_atmosphere")}
+          // Get pointers to output quantities
+          mole_fraction_h2o_atmosphere_op{get_op(output_quantities, "mole_fraction_h2o_atmosphere")}
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& rh;
     double const& atmospheric_pressure;
     double const& saturation_water_vapor_pressure_atmosphere;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* mole_fraction_h2o_atmosphere_op;
 
     // Main operation

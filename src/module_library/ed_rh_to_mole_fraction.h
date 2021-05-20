@@ -21,16 +21,16 @@ class ed_rh_to_mole_fraction : public SteadyModule
 {
    public:
     ed_rh_to_mole_fraction(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_rh_to_mole_fraction"),
-          // Get pointers to input parameters
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          relative_humidity_atmosphere_ip(get_ip(input_parameters, "rh")),
-          // Get pointers to output parameters
-          mole_fraction_h2o_atmosphere_op(get_op(output_parameters, "mole_fraction_h2o_atmosphere"))
+          // Get pointers to input quantities
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          temperature_air_ip(get_ip(input_quantities, "temp")),
+          relative_humidity_atmosphere_ip(get_ip(input_quantities, "rh")),
+          // Get pointers to output quantities
+          mole_fraction_h2o_atmosphere_op(get_op(output_quantities, "mole_fraction_h2o_atmosphere"))
 
     {
     }
@@ -38,11 +38,11 @@ class ed_rh_to_mole_fraction : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* atmospheric_pressure_ip;
     const double* temperature_air_ip;
     const double* relative_humidity_atmosphere_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* mole_fraction_h2o_atmosphere_op;
     // Main operation
     void do_operation() const override;

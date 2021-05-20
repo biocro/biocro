@@ -7,33 +7,33 @@
 
 class magic_clock : public DerivModule {
     public:
-        magic_clock(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+        magic_clock(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             DerivModule("magic_clock"),
-            // Get pointers to input parameters
-            dawn_kick_ip(get_ip(input_parameters, "dawn_kick")),
-            dusk_kick_ip(get_ip(input_parameters, "dusk_kick")),
-            dawn_b_ip(get_ip(input_parameters, "dawn_b")),
-            dawn_a_ip(get_ip(input_parameters, "dawn_a")),
-            dusk_b_ip(get_ip(input_parameters, "dusk_b")),
-            dusk_a_ip(get_ip(input_parameters, "dusk_a")),
-            ref_b_ip(get_ip(input_parameters, "ref_b")),
-            ref_a_ip(get_ip(input_parameters, "ref_a")),
-            clock_gamma_ip(get_ip(input_parameters, "clock_gamma")),
-            clock_r0_ip(get_ip(input_parameters, "clock_r0")),
-            clock_period_ip(get_ip(input_parameters, "clock_period")),
-            // Get pointers to output parameters
-            dawn_b_op(get_op(output_parameters, "dawn_b")),
-            dawn_a_op(get_op(output_parameters, "dawn_a")),
-            dusk_b_op(get_op(output_parameters, "dusk_b")),
-            dusk_a_op(get_op(output_parameters, "dusk_a")),
-            ref_b_op(get_op(output_parameters, "ref_b")),
-            ref_a_op(get_op(output_parameters, "ref_a"))
+            // Get pointers to input quantities
+            dawn_kick_ip(get_ip(input_quantities, "dawn_kick")),
+            dusk_kick_ip(get_ip(input_quantities, "dusk_kick")),
+            dawn_b_ip(get_ip(input_quantities, "dawn_b")),
+            dawn_a_ip(get_ip(input_quantities, "dawn_a")),
+            dusk_b_ip(get_ip(input_quantities, "dusk_b")),
+            dusk_a_ip(get_ip(input_quantities, "dusk_a")),
+            ref_b_ip(get_ip(input_quantities, "ref_b")),
+            ref_a_ip(get_ip(input_quantities, "ref_a")),
+            clock_gamma_ip(get_ip(input_quantities, "clock_gamma")),
+            clock_r0_ip(get_ip(input_quantities, "clock_r0")),
+            clock_period_ip(get_ip(input_quantities, "clock_period")),
+            // Get pointers to output quantities
+            dawn_b_op(get_op(output_quantities, "dawn_b")),
+            dawn_a_op(get_op(output_quantities, "dawn_a")),
+            dusk_b_op(get_op(output_quantities, "dusk_b")),
+            dusk_a_op(get_op(output_quantities, "dusk_a")),
+            ref_b_op(get_op(output_quantities, "ref_b")),
+            ref_a_op(get_op(output_quantities, "ref_a"))
         {}
         static std::vector<std::string> get_inputs();
         static std::vector<std::string> get_outputs();
     private:
-        // Pointers to input parameters
+        // Pointers to input quantities
         const double* dawn_kick_ip;
         const double* dusk_kick_ip;
         const double* dawn_b_ip;
@@ -45,7 +45,7 @@ class magic_clock : public DerivModule {
         const double* clock_gamma_ip;
         const double* clock_r0_ip;
         const double* clock_period_ip;
-        // Pointers to output parameters
+        // Pointers to output quantities
         double* dawn_b_op;
         double* dawn_a_op;
         double* dusk_b_op;
@@ -118,7 +118,7 @@ void magic_clock::do_operation() const {
     const double  ref_friction = gamma * (r_0 - sqrt( ref_a *  ref_a +  ref_b *  ref_b));
     
     //////////////////////////////////////
-    // Update the output parameter list //
+    // Update the output quantity list //
     //////////////////////////////////////
     
     // The dawn tracking oscillator is driven by a small kick at dawn

@@ -8,24 +8,24 @@ class fake_solar : public SteadyModule
 {
    public:
     fake_solar(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         : SteadyModule("fake_solar"),
-          // Get pointers to input parameters
-          time_ip(get_ip(input_parameters, "time")),
-          target_time_ip(get_ip(input_parameters, "target_time")),
-          // Get pointers to output parameters
-          solar_op(get_op(output_parameters, "solar"))
+          // Get pointers to input quantities
+          time_ip(get_ip(input_quantities, "time")),
+          target_time_ip(get_ip(input_quantities, "target_time")),
+          // Get pointers to output quantities
+          solar_op(get_op(output_quantities, "solar"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* time_ip;
     const double* target_time_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* solar_op;
     // Main operation
     void do_operation() const;
@@ -105,7 +105,7 @@ void fake_solar::do_operation() const
 	*/
 
     //////////////////////////////////////
-    // Update the output parameter list //
+    // Update the output quantity list //
     //////////////////////////////////////
 
     update(solar_op, solar);

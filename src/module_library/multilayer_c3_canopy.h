@@ -18,13 +18,13 @@ class ten_layer_c3_canopy : public multilayer_canopy_photosynthesis<ten_layer_ca
 {
    public:
     ten_layer_c3_canopy(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         : multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c3_leaf_photosynthesis>(
               "ten_layer_c3_canopy",
               ten_layer_c3_canopy::nlayers,
-              input_parameters,
-              output_parameters)  // Create the base class with the appropriate number of layers
+              input_quantities,
+              output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
     static std::vector<std::string> get_inputs();

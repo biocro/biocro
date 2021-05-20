@@ -13,44 +13,44 @@ class ed_canac_leaf : public SteadyModule
 {
    public:
     ed_canac_leaf(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_canac_leaf"),
 
-          // Get pointers to input parameters
-          collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          rh_ip(get_ip(input_parameters, "rh")),
-          collatz_vmax_ip(get_ip(input_parameters, "collatz_vmax")),
-          collatz_alpha_ip(get_ip(input_parameters, "collatz_alpha")),
-          collatz_k_ip(get_ip(input_parameters, "collatz_k")),
-          collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
-          collatz_beta_ip(get_ip(input_parameters, "collatz_beta")),
-          collatz_rd_ip(get_ip(input_parameters, "collatz_rd")),
-          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
-          ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
-          conductance_stomatal_h2o_min_ip(get_ip(input_parameters, "conductance_stomatal_h2o_min")),
-          StomataWS_ip(get_ip(input_parameters, "StomataWS")),
-          mole_fraction_co2_atmosphere_ip(get_ip(input_parameters, "mole_fraction_co2_atmosphere")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
-          collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
-          windspeed_ip(get_ip(input_parameters, "windspeed")),
-          leafwidth_ip(get_ip(input_parameters, "leafwidth")),
-          specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
-          solar_energy_absorbed_leaf_ip(get_ip(input_parameters, "solar_energy_absorbed_leaf")),
+          // Get pointers to input quantities
+          collatz_PAR_flux_ip(get_ip(input_quantities, "collatz_PAR_flux")),
+          temperature_air_ip(get_ip(input_quantities, "temp")),
+          rh_ip(get_ip(input_quantities, "rh")),
+          collatz_vmax_ip(get_ip(input_quantities, "collatz_vmax")),
+          collatz_alpha_ip(get_ip(input_quantities, "collatz_alpha")),
+          collatz_k_ip(get_ip(input_quantities, "collatz_k")),
+          collatz_theta_ip(get_ip(input_quantities, "collatz_theta")),
+          collatz_beta_ip(get_ip(input_quantities, "collatz_beta")),
+          collatz_rd_ip(get_ip(input_quantities, "collatz_rd")),
+          ball_berry_intercept_ip(get_ip(input_quantities, "ball_berry_intercept")),
+          ball_berry_slope_ip(get_ip(input_quantities, "ball_berry_slope")),
+          conductance_stomatal_h2o_min_ip(get_ip(input_quantities, "conductance_stomatal_h2o_min")),
+          StomataWS_ip(get_ip(input_quantities, "StomataWS")),
+          mole_fraction_co2_atmosphere_ip(get_ip(input_quantities, "mole_fraction_co2_atmosphere")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          collatz_rubisco_temperature_upper_ip(get_ip(input_quantities, "collatz_rubisco_temperature_upper")),
+          collatz_rubisco_temperature_lower_ip(get_ip(input_quantities, "collatz_rubisco_temperature_lower")),
+          windspeed_ip(get_ip(input_quantities, "windspeed")),
+          leafwidth_ip(get_ip(input_quantities, "leafwidth")),
+          specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
+          solar_energy_absorbed_leaf_ip(get_ip(input_quantities, "solar_energy_absorbed_leaf")),
 
-          // Get pointers to output parameters
-          mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
-          conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o")),
-          assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
-          assimilation_net_op(get_op(output_parameters, "assimilation_net")),
-          evapotranspiration_penman_monteith_op(get_op(output_parameters, "evapotranspiration_penman_monteith")),
-          evapotranspiration_penman_op(get_op(output_parameters, "evapotranspiration_penman")),
-          evapotranspiration_priestly_op(get_op(output_parameters, "evapotranspiration_priestly")),
-          temperature_leaf_op(get_op(output_parameters, "temperature_leaf")),
-          conductance_boundary_h2o_op(get_op(output_parameters, "conductance_boundary_h2o"))
+          // Get pointers to output quantities
+          mole_fraction_co2_intercellular_op(get_op(output_quantities, "mole_fraction_co2_intercellular")),
+          conductance_stomatal_h2o_op(get_op(output_quantities, "conductance_stomatal_h2o")),
+          assimilation_gross_op(get_op(output_quantities, "assimilation_gross")),
+          assimilation_net_op(get_op(output_quantities, "assimilation_net")),
+          evapotranspiration_penman_monteith_op(get_op(output_quantities, "evapotranspiration_penman_monteith")),
+          evapotranspiration_penman_op(get_op(output_quantities, "evapotranspiration_penman")),
+          evapotranspiration_priestly_op(get_op(output_quantities, "evapotranspiration_priestly")),
+          temperature_leaf_op(get_op(output_quantities, "temperature_leaf")),
+          conductance_boundary_h2o_op(get_op(output_quantities, "conductance_boundary_h2o"))
 
     {
     }
@@ -58,7 +58,7 @@ class ed_canac_leaf : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* collatz_PAR_flux_ip;
     const double* temperature_air_ip;
     const double* rh_ip;
@@ -81,7 +81,7 @@ class ed_canac_leaf : public SteadyModule
     const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* mole_fraction_co2_intercellular_op;
     double* conductance_stomatal_h2o_op;
     double* assimilation_gross_op;

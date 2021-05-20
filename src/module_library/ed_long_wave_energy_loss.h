@@ -15,16 +15,16 @@ class ed_long_wave_energy_loss : public SteadyModule
 {
    public:
     ed_long_wave_energy_loss(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_long_wave_energy_loss"),
-          // Get pointers to input parameters
-          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          emissivity_leaf_ip(get_ip(input_parameters, "emissivity_leaf")),
-          // Get pointers to output parameters
-          long_wave_energy_loss_leaf_op(get_op(output_parameters, "long_wave_energy_loss_leaf"))
+          // Get pointers to input quantities
+          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
+          temperature_air_ip(get_ip(input_quantities, "temp")),
+          emissivity_leaf_ip(get_ip(input_quantities, "emissivity_leaf")),
+          // Get pointers to output quantities
+          long_wave_energy_loss_leaf_op(get_op(output_quantities, "long_wave_energy_loss_leaf"))
 
     {
     }
@@ -32,11 +32,11 @@ class ed_long_wave_energy_loss : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* temperature_leaf_ip;
     const double* temperature_air_ip;
     const double* emissivity_leaf_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* long_wave_energy_loss_leaf_op;
     // Main operation
     void do_operation() const override;

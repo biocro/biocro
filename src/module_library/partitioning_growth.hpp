@@ -61,41 +61,41 @@ class partitioning_growth : public DerivModule
 {
    public:
     partitioning_growth(
-        const state_map* input_parameters,
-        state_map* output_parameters)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : DerivModule{"partitioning_growth"},
 
-          // Get references to input parameters
-          retrans{get_input(input_parameters, "retrans")},
-          retrans_rhizome{get_input(input_parameters, "retrans_rhizome")},
-          kLeaf{get_input(input_parameters, "kLeaf")},
-          kStem{get_input(input_parameters, "kStem")},
-          kRoot{get_input(input_parameters, "kRoot")},
-          kRhizome{get_input(input_parameters, "kRhizome")},
-          kGrain{get_input(input_parameters, "kGrain")},
-          net_assimilation_rate_leaf{get_input(input_parameters, "net_assimilation_rate_leaf")},
-          net_assimilation_rate_stem{get_input(input_parameters, "net_assimilation_rate_stem")},
-          net_assimilation_rate_root{get_input(input_parameters, "net_assimilation_rate_root")},
-          net_assimilation_rate_rhizome{get_input(input_parameters, "net_assimilation_rate_rhizome")},
-          net_assimilation_rate_grain{get_input(input_parameters, "net_assimilation_rate_grain")},
-          Leaf{get_input(input_parameters, "Leaf")},
-          Stem{get_input(input_parameters, "Stem")},
-          Root{get_input(input_parameters, "Root")},
-          Rhizome{get_input(input_parameters, "Rhizome")},
+          // Get references to input quantities
+          retrans{get_input(input_quantities, "retrans")},
+          retrans_rhizome{get_input(input_quantities, "retrans_rhizome")},
+          kLeaf{get_input(input_quantities, "kLeaf")},
+          kStem{get_input(input_quantities, "kStem")},
+          kRoot{get_input(input_quantities, "kRoot")},
+          kRhizome{get_input(input_quantities, "kRhizome")},
+          kGrain{get_input(input_quantities, "kGrain")},
+          net_assimilation_rate_leaf{get_input(input_quantities, "net_assimilation_rate_leaf")},
+          net_assimilation_rate_stem{get_input(input_quantities, "net_assimilation_rate_stem")},
+          net_assimilation_rate_root{get_input(input_quantities, "net_assimilation_rate_root")},
+          net_assimilation_rate_rhizome{get_input(input_quantities, "net_assimilation_rate_rhizome")},
+          net_assimilation_rate_grain{get_input(input_quantities, "net_assimilation_rate_grain")},
+          Leaf{get_input(input_quantities, "Leaf")},
+          Stem{get_input(input_quantities, "Stem")},
+          Root{get_input(input_quantities, "Root")},
+          Rhizome{get_input(input_quantities, "Rhizome")},
 
-          // Get pointers to output parameters
-          Leaf_op{get_op(output_parameters, "Leaf")},
-          Stem_op{get_op(output_parameters, "Stem")},
-          Root_op{get_op(output_parameters, "Root")},
-          Rhizome_op{get_op(output_parameters, "Rhizome")},
-          Grain_op{get_op(output_parameters, "Grain")}
+          // Get pointers to output quantities
+          Leaf_op{get_op(output_quantities, "Leaf")},
+          Stem_op{get_op(output_quantities, "Stem")},
+          Root_op{get_op(output_quantities, "Root")},
+          Rhizome_op{get_op(output_quantities, "Rhizome")},
+          Grain_op{get_op(output_quantities, "Grain")}
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     const double& retrans;
     const double& retrans_rhizome;
     const double& kLeaf;
@@ -113,7 +113,7 @@ class partitioning_growth : public DerivModule
     const double& Root;
     const double& Rhizome;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* Leaf_op;
     double* Stem_op;
     double* Root_op;
@@ -219,7 +219,7 @@ void partitioning_growth::do_operation() const
         dGrain += net_assimilation_rate_grain;
     }
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(Leaf_op, dLeaf);
     update(Stem_op, dStem);
     update(Root_op, dRoot);

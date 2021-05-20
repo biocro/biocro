@@ -5,21 +5,21 @@
 
 class Module_1 : public SteadyModule {
 	public:
-		Module_1(const std::unordered_map<std::string, double>* /*input_parameters*/, std::unordered_map<std::string, double>* output_parameters) :
+		Module_1(const std::unordered_map<std::string, double>* /*input_quantities*/, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_1"),
-			// Get pointers to input parameters
+			// Get pointers to input quantities
 			// None
-			// Get pointers to output parameters
-			A_op(get_op(output_parameters, "A")),
-			B_op(get_op(output_parameters, "B"))
+			// Get pointers to output quantities
+			A_op(get_op(output_quantities, "A")),
+			B_op(get_op(output_quantities, "B"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		// Nothing here
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* A_op;
 		double* B_op;
 		// Main operation
@@ -43,28 +43,28 @@ void Module_1::do_operation() const {
 	// Collect inputs and make calculations
 	// Nothing here
 	
-	// Update the output parameter list
+	// Update the output quantity list
 	update(A_op, 0.0);
 	update(B_op, 0.0);
 }
 
 class Module_2 : public SteadyModule {
 	public:
-		Module_2(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		Module_2(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_2"),
-			// Get pointers to input parameters
-			B_ip(get_ip(input_parameters, "B")),
-			// Get pointers to output parameters
-			C_op(get_op(output_parameters, "C")),
-			D_op(get_op(output_parameters, "D"))
+			// Get pointers to input quantities
+			B_ip(get_ip(input_quantities, "B")),
+			// Get pointers to output quantities
+			C_op(get_op(output_quantities, "C")),
+			D_op(get_op(output_quantities, "D"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* B_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* C_op;
 		double* D_op;
 		// Main operation
@@ -88,29 +88,29 @@ void Module_2::do_operation() const {
 	// Collect inputs and make calculations
 	// Nothing here
 	
-	// Update the output parameter list
+	// Update the output quantity list
 	update(C_op, 0.0);
 	update(D_op, 0.0);
 }
 
 class Module_3 : public SteadyModule {
 	public:
-		Module_3(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		Module_3(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_3"),
-			// Get pointers to input parameters
-			A_ip(get_ip(input_parameters, "A")),
-			C_ip(get_ip(input_parameters, "C")),
-			// Get pointers to output parameters
-			E_op(get_op(output_parameters, "E"))
+			// Get pointers to input quantities
+			A_ip(get_ip(input_quantities, "A")),
+			C_ip(get_ip(input_quantities, "C")),
+			// Get pointers to output quantities
+			E_op(get_op(output_quantities, "E"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* A_ip;
 		const double* C_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* E_op;
 		// Main operation
 		void do_operation() const;
@@ -133,7 +133,7 @@ void Module_3::do_operation() const {
 	// Collect inputs and make calculations
 	// Nothing here
 	
-	// Update the output parameter list
+	// Update the output quantity list
 	update(E_op, 0.0);
 }
 

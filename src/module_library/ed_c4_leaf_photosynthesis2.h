@@ -79,8 +79,8 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
 {
    public:
     ed_c4_leaf_photosynthesis2(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         : se_module::base(ed_c4_leaf_photosynthesis2_stuff::module_name,
                           ed_c4_leaf_photosynthesis2_stuff::sub_module_names,
                           ed_c4_leaf_photosynthesis2_stuff::solver_type,
@@ -91,30 +91,30 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
                           ed_c4_leaf_photosynthesis2_stuff::relative_error_tolerances,
                           ed_c4_leaf_photosynthesis2_stuff::should_reorder_guesses,
                           ed_c4_leaf_photosynthesis2_stuff::return_default_on_failure,
-                          input_parameters,
-                          output_parameters),
-          // Get pointers to input parameters
-          collatz_PAR_flux(get_input(input_parameters, "collatz_PAR_flux")),
-          StomataWS(get_input(input_parameters, "StomataWS")),
-          collatz_q10(get_input(input_parameters, "collatz_q10")),
-          temperature_air(get_input(input_parameters, "temp")),
-          collatz_rd(get_input(input_parameters, "collatz_rd")),
-          collatz_k(get_input(input_parameters, "collatz_k")),
-          collatz_vmax(get_input(input_parameters, "collatz_vmax")),
-          collatz_rubisco_temperature_lower(get_input(input_parameters, "collatz_rubisco_temperature_lower")),
-          collatz_rubisco_temperature_upper(get_input(input_parameters, "collatz_rubisco_temperature_upper")),
-          mole_fraction_co2_atmosphere(get_input(input_parameters, "mole_fraction_co2_atmosphere")),
-          relative_humidity_atmosphere(get_input(input_parameters, "rh")),
-          conductance_stomatal_h2o_min(get_input(input_parameters, "conductance_stomatal_h2o_min")),
-          ball_berry_slope(get_input(input_parameters, "ball_berry_slope")),
-          ball_berry_intercept(get_input(input_parameters, "ball_berry_intercept"))
+                          input_quantities,
+                          output_quantities),
+          // Get pointers to input quantities
+          collatz_PAR_flux(get_input(input_quantities, "collatz_PAR_flux")),
+          StomataWS(get_input(input_quantities, "StomataWS")),
+          collatz_q10(get_input(input_quantities, "collatz_q10")),
+          temperature_air(get_input(input_quantities, "temp")),
+          collatz_rd(get_input(input_quantities, "collatz_rd")),
+          collatz_k(get_input(input_quantities, "collatz_k")),
+          collatz_vmax(get_input(input_quantities, "collatz_vmax")),
+          collatz_rubisco_temperature_lower(get_input(input_quantities, "collatz_rubisco_temperature_lower")),
+          collatz_rubisco_temperature_upper(get_input(input_quantities, "collatz_rubisco_temperature_upper")),
+          mole_fraction_co2_atmosphere(get_input(input_quantities, "mole_fraction_co2_atmosphere")),
+          relative_humidity_atmosphere(get_input(input_quantities, "rh")),
+          conductance_stomatal_h2o_min(get_input(input_quantities, "conductance_stomatal_h2o_min")),
+          ball_berry_slope(get_input(input_quantities, "ball_berry_slope")),
+          ball_berry_intercept(get_input(input_quantities, "ball_berry_intercept"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // References to specific input parameters
+    // References to specific input quantities
     double const& collatz_PAR_flux;
     double const& StomataWS;
     double const& collatz_q10;

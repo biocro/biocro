@@ -7,24 +7,24 @@
 
 class phase_clock : public DerivModule {
     public:
-        phase_clock(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+        phase_clock(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             DerivModule("phase_clock"),
-            // Get pointers to input parameters
-            phi_ip(get_ip(input_parameters, "phi")),
-            light_ip(get_ip(input_parameters, "light")),
-            clock_dead_width_ip(get_ip(input_parameters, "clock_dead_width")),
-            clock_width_asymm_ip(get_ip(input_parameters, "clock_width_asymm")),
-            clock_area_asymm_ip(get_ip(input_parameters, "clock_area_asymm")),
-            clock_r_scale_ip(get_ip(input_parameters, "clock_r_scale")),
-            clock_period_ip(get_ip(input_parameters, "clock_period")),
-            // Get pointers to output parameters
-            phi_op(get_op(output_parameters, "phi"))
+            // Get pointers to input quantities
+            phi_ip(get_ip(input_quantities, "phi")),
+            light_ip(get_ip(input_quantities, "light")),
+            clock_dead_width_ip(get_ip(input_quantities, "clock_dead_width")),
+            clock_width_asymm_ip(get_ip(input_quantities, "clock_width_asymm")),
+            clock_area_asymm_ip(get_ip(input_quantities, "clock_area_asymm")),
+            clock_r_scale_ip(get_ip(input_quantities, "clock_r_scale")),
+            clock_period_ip(get_ip(input_quantities, "clock_period")),
+            // Get pointers to output quantities
+            phi_op(get_op(output_quantities, "phi"))
         {}
         static std::vector<std::string> get_inputs();
         static std::vector<std::string> get_outputs();
     private:
-        // Pointers to input parameters
+        // Pointers to input quantities
         const double* phi_ip;
         const double* light_ip;
         const double* clock_dead_width_ip;
@@ -32,7 +32,7 @@ class phase_clock : public DerivModule {
         const double* clock_area_asymm_ip;
         const double* clock_r_scale_ip;
         const double* clock_period_ip;
-        // Pointers to output parameters
+        // Pointers to output quantities
         double* phi_op;
         // Main operation
         void do_operation() const;
@@ -100,7 +100,7 @@ void phase_clock::do_operation() const {
     const double natural_freq = 2.0 * pi / natural_period;    // Corresponding angular frequency in radians per hour
     
     //////////////////////////////////////
-    // Update the output parameter list //
+    // Update the output quantity list //
     //////////////////////////////////////
     
     update(phi_op, natural_freq * (1 + R * light));

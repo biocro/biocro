@@ -5,39 +5,39 @@
 
 class utilization_senescence : public DerivModule {
 	public:
-		utilization_senescence(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		utilization_senescence(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("utilization_senescence"),
-			// Get pointers to input parameters
-		    remobilization_fraction_ip(get_ip(input_parameters, "remobilization_fraction")),
-	        senescence_leaf_ip(get_ip(input_parameters, "senescence_leaf")),
-	        senescence_stem_ip(get_ip(input_parameters, "senescence_stem")),
-	        senescence_root_ip(get_ip(input_parameters, "senescence_root")),
-	        senescence_rhizome_ip(get_ip(input_parameters, "senescence_rhizome")),
-			// Get pointers to output parameters
-			Leaf_op(get_op(output_parameters, "Leaf")),
-	        substrate_pool_leaf_op(get_op(output_parameters, "substrate_pool_leaf")),
-	        LeafLitter_op(get_op(output_parameters, "LeafLitter")),
-	        Stem_op(get_op(output_parameters, "Stem")),
-	        substrate_pool_stem_op(get_op(output_parameters, "substrate_pool_stem")),
-	        StemLitter_op(get_op(output_parameters, "StemLitter")),
-	        Root_op(get_op(output_parameters, "Root")),
-	        substrate_pool_root_op(get_op(output_parameters, "substrate_pool_root")),
-	        RootLitter_op(get_op(output_parameters, "RootLitter")),
-	        Rhizome_op(get_op(output_parameters, "Rhizome")),
-	        substrate_pool_rhizome_op(get_op(output_parameters, "substrate_pool_rhizome")),
-	        RhizomeLitter_op(get_op(output_parameters, "RhizomeLitter"))
+			// Get pointers to input quantities
+		    remobilization_fraction_ip(get_ip(input_quantities, "remobilization_fraction")),
+	        senescence_leaf_ip(get_ip(input_quantities, "senescence_leaf")),
+	        senescence_stem_ip(get_ip(input_quantities, "senescence_stem")),
+	        senescence_root_ip(get_ip(input_quantities, "senescence_root")),
+	        senescence_rhizome_ip(get_ip(input_quantities, "senescence_rhizome")),
+			// Get pointers to output quantities
+			Leaf_op(get_op(output_quantities, "Leaf")),
+	        substrate_pool_leaf_op(get_op(output_quantities, "substrate_pool_leaf")),
+	        LeafLitter_op(get_op(output_quantities, "LeafLitter")),
+	        Stem_op(get_op(output_quantities, "Stem")),
+	        substrate_pool_stem_op(get_op(output_quantities, "substrate_pool_stem")),
+	        StemLitter_op(get_op(output_quantities, "StemLitter")),
+	        Root_op(get_op(output_quantities, "Root")),
+	        substrate_pool_root_op(get_op(output_quantities, "substrate_pool_root")),
+	        RootLitter_op(get_op(output_quantities, "RootLitter")),
+	        Rhizome_op(get_op(output_quantities, "Rhizome")),
+	        substrate_pool_rhizome_op(get_op(output_quantities, "substrate_pool_rhizome")),
+	        RhizomeLitter_op(get_op(output_quantities, "RhizomeLitter"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 	    const double* remobilization_fraction_ip;
         const double* senescence_leaf_ip;
         const double* senescence_stem_ip;
         const double* senescence_root_ip;
         const double* senescence_rhizome_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* Leaf_op;
         double* substrate_pool_leaf_op;
         double* LeafLitter_op;
@@ -90,7 +90,7 @@ void utilization_senescence::do_operation() const {
     double senescence_root = *senescence_root_ip;
     double senescence_rhizome = *senescence_rhizome_ip;
 	
-	// Update the output parameter list
+	// Update the output quantity list
 	update(Leaf_op, -senescence_leaf);
     update(substrate_pool_leaf_op, senescence_leaf * remobilization_fraction);
     update(LeafLitter_op, senescence_leaf * (1 - remobilization_fraction));

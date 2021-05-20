@@ -6,30 +6,30 @@
 
 class one_layer_soil_profile_derivatives : public DerivModule {
 	public:
-		one_layer_soil_profile_derivatives(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		one_layer_soil_profile_derivatives(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("one_layer_soil_profile_derivatives"),
-			// Get pointers to input parameters
-			soil_water_content_ip(get_ip(input_parameters, "soil_water_content")),
-			soil_depth_ip(get_ip(input_parameters, "soil_depth")),
-			soil_field_capacity_ip(get_ip(input_parameters, "soil_field_capacity")),
-			soil_wilting_point_ip(get_ip(input_parameters, "soil_wilting_point")),
-			soil_saturated_conductivity_ip(get_ip(input_parameters, "soil_saturated_conductivity")),
-			soil_air_entry_ip(get_ip(input_parameters, "soil_air_entry")),
-			soil_b_coefficient_ip(get_ip(input_parameters, "soil_b_coefficient")),
-			acceleration_from_gravity_ip(get_ip(input_parameters, "acceleration_from_gravity")),
-			precipitation_rate_ip(get_ip(input_parameters, "precipitation_rate")),
-			soil_saturation_capacity_ip(get_ip(input_parameters, "soil_saturation_capacity")),
-			soil_sand_content_ip(get_ip(input_parameters, "soil_sand_content")),
-			evapotranspiration_ip(get_ip(input_parameters, "evapotranspiration")),
-			// Get pointers to output parameters
-			soil_water_content_op(get_op(output_parameters, "soil_water_content")),
-			soil_n_content_op(get_op(output_parameters, "soil_n_content"))
+			// Get pointers to input quantities
+			soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
+			soil_depth_ip(get_ip(input_quantities, "soil_depth")),
+			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
+			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
+			soil_saturated_conductivity_ip(get_ip(input_quantities, "soil_saturated_conductivity")),
+			soil_air_entry_ip(get_ip(input_quantities, "soil_air_entry")),
+			soil_b_coefficient_ip(get_ip(input_quantities, "soil_b_coefficient")),
+			acceleration_from_gravity_ip(get_ip(input_quantities, "acceleration_from_gravity")),
+			precipitation_rate_ip(get_ip(input_quantities, "precipitation_rate")),
+			soil_saturation_capacity_ip(get_ip(input_quantities, "soil_saturation_capacity")),
+			soil_sand_content_ip(get_ip(input_quantities, "soil_sand_content")),
+			evapotranspiration_ip(get_ip(input_quantities, "evapotranspiration")),
+			// Get pointers to output quantities
+			soil_water_content_op(get_op(output_quantities, "soil_water_content")),
+			soil_n_content_op(get_op(output_quantities, "soil_n_content"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* soil_water_content_ip;
 		const double* soil_depth_ip;
 		const double* soil_field_capacity_ip;
@@ -42,7 +42,7 @@ class one_layer_soil_profile_derivatives : public DerivModule {
 		const double* soil_saturation_capacity_ip;
 		const double* soil_sand_content_ip;
 		const double* evapotranspiration_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* soil_water_content_op;
 		double* soil_n_content_op;
 		// Main operation
@@ -104,7 +104,7 @@ void one_layer_soil_profile_derivatives::do_operation() const {
 
 	double evapotranspiration_volume = evapotranspiration / density_of_water_at_20_celcius / 1e4 / second_per_hour;	// m^3 m^-2 s^-1
 
-	// Update the output parameter list
+	// Update the output quantity list
 	update(soil_water_content_op, (drainage + precipitation_m_s - runoff - evapotranspiration_volume) / soil_depth);
 	update(soil_n_content_op, -n_leach);
 }

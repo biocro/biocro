@@ -6,31 +6,31 @@
 
 class soil_evaporation : public SteadyModule {
 	public:
-		soil_evaporation(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		soil_evaporation(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("soil_evaporation"),
-			// Get pointers to input parameters
-			lai_ip(get_ip(input_parameters, "lai")),
-			temp_ip(get_ip(input_parameters, "temp")),
-			solar_ip(get_ip(input_parameters, "solar")),
-			soil_water_content_ip(get_ip(input_parameters, "soil_water_content")),
-			soil_field_capacity_ip(get_ip(input_parameters, "soil_field_capacity")),
-			soil_wilting_point_ip(get_ip(input_parameters, "soil_wilting_point")),
-			windspeed_ip(get_ip(input_parameters, "windspeed")),
-			rh_ip(get_ip(input_parameters, "rh")),
-			rsec_ip(get_ip(input_parameters, "rsec")),
-			soil_clod_size_ip(get_ip(input_parameters, "soil_clod_size")),
-			soil_reflectance_ip(get_ip(input_parameters, "soil_reflectance")),
-			soil_transmission_ip(get_ip(input_parameters, "soil_transmission")),
-			specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
-			stefan_boltzman_ip(get_ip(input_parameters, "stefan_boltzman")),
-			// Get pointers to output parameters
-			soil_evaporation_rate_op(get_op(output_parameters, "soil_evaporation_rate"))
+			// Get pointers to input quantities
+			lai_ip(get_ip(input_quantities, "lai")),
+			temp_ip(get_ip(input_quantities, "temp")),
+			solar_ip(get_ip(input_quantities, "solar")),
+			soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
+			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
+			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
+			windspeed_ip(get_ip(input_quantities, "windspeed")),
+			rh_ip(get_ip(input_quantities, "rh")),
+			rsec_ip(get_ip(input_quantities, "rsec")),
+			soil_clod_size_ip(get_ip(input_quantities, "soil_clod_size")),
+			soil_reflectance_ip(get_ip(input_quantities, "soil_reflectance")),
+			soil_transmission_ip(get_ip(input_quantities, "soil_transmission")),
+			specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
+			stefan_boltzman_ip(get_ip(input_quantities, "stefan_boltzman")),
+			// Get pointers to output quantities
+			soil_evaporation_rate_op(get_op(output_quantities, "soil_evaporation_rate"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* lai_ip;
 		const double* temp_ip;
 		const double* solar_ip;
@@ -45,7 +45,7 @@ class soil_evaporation : public SteadyModule {
 		const double* soil_transmission_ip;
 		const double* specific_heat_of_air_ip;
 		const double* stefan_boltzman_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* soil_evaporation_rate_op;
 		// Main operation
 		void do_operation() const;
@@ -85,7 +85,7 @@ void soil_evaporation::do_operation() const {
 
 	soilEvap *= 3600 * 1e-3 * 10000;	// Convert to Mg / ha / hr for consistency with canopy_transpiration_rate and two_layer_soil_profile's output
 
-	// Update the output parameter list
+	// Update the output quantity list
 	update(soil_evaporation_rate_op, soilEvap);
 }
 

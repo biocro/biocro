@@ -5,28 +5,28 @@
 
 class utilization_senescence_calculator : public SteadyModule {
 	public:
-		utilization_senescence_calculator(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		utilization_senescence_calculator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("utilization_senescence_calculator"),
-			// Get pointers to input parameters
-		    rate_constant_leaf_senescence_ip(get_ip(input_parameters, "rate_constant_leaf_senescence")),
-		    rate_constant_stem_senescence_ip(get_ip(input_parameters, "rate_constant_stem_senescence")),
-		    rate_constant_root_senescence_ip(get_ip(input_parameters, "rate_constant_root_senescence")),
-		    rate_constant_rhizome_senescence_ip(get_ip(input_parameters, "rate_constant_rhizome_senescence")),
-		    Leaf_ip(get_ip(input_parameters, "Leaf")),
-		    Stem_ip(get_ip(input_parameters, "Stem")),
-		    Root_ip(get_ip(input_parameters, "Root")),
-		    Rhizome_ip(get_ip(input_parameters, "Rhizome")),
-			// Get pointers to output parameters
-	        senescence_leaf_op(get_op(output_parameters, "senescence_leaf")),
-	        senescence_stem_op(get_op(output_parameters, "senescence_stem")),
-	        senescence_root_op(get_op(output_parameters, "senescence_root")),
-	        senescence_rhizome_op(get_op(output_parameters, "senescence_rhizome"))
+			// Get pointers to input quantities
+		    rate_constant_leaf_senescence_ip(get_ip(input_quantities, "rate_constant_leaf_senescence")),
+		    rate_constant_stem_senescence_ip(get_ip(input_quantities, "rate_constant_stem_senescence")),
+		    rate_constant_root_senescence_ip(get_ip(input_quantities, "rate_constant_root_senescence")),
+		    rate_constant_rhizome_senescence_ip(get_ip(input_quantities, "rate_constant_rhizome_senescence")),
+		    Leaf_ip(get_ip(input_quantities, "Leaf")),
+		    Stem_ip(get_ip(input_quantities, "Stem")),
+		    Root_ip(get_ip(input_quantities, "Root")),
+		    Rhizome_ip(get_ip(input_quantities, "Rhizome")),
+			// Get pointers to output quantities
+	        senescence_leaf_op(get_op(output_quantities, "senescence_leaf")),
+	        senescence_stem_op(get_op(output_quantities, "senescence_stem")),
+	        senescence_root_op(get_op(output_quantities, "senescence_root")),
+	        senescence_rhizome_op(get_op(output_quantities, "senescence_rhizome"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 	    const double* rate_constant_leaf_senescence_ip;
 	    const double* rate_constant_stem_senescence_ip;
 	    const double* rate_constant_root_senescence_ip;
@@ -35,7 +35,7 @@ class utilization_senescence_calculator : public SteadyModule {
 	    const double* Stem_ip;
 	    const double* Root_ip;
 	    const double* Rhizome_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
         double* senescence_leaf_op;
         double* senescence_stem_op;
         double* senescence_root_op;
@@ -101,7 +101,7 @@ void utilization_senescence_calculator::do_operation() const {
     double senescence_root = kRoot * Root;
     double senescence_rhizome = kRhizome * Rhizome;
     
-	// Update the output parameter list
+	// Update the output quantity list
     update(senescence_leaf_op, senescence_leaf);
     update(senescence_stem_op, senescence_stem);
     update(senescence_root_op, senescence_root);

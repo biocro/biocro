@@ -68,7 +68,7 @@ void rasmussen_specific_heat::do_operation() const
     // always given in Kelvin)
     double const air_temperature_kelvin = temp + celsius_to_kelvin;  // K
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(specific_heat_of_air_op,
            rasmussen_specific_heat_of_air(
                air_temperature_kelvin,

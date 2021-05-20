@@ -42,28 +42,28 @@ class thermal_time_development_rate_calculator : public SteadyModule
 {
 public:
     thermal_time_development_rate_calculator(
-        const state_map* input_parameters,
-        state_map* output_parameters
+        const state_map* input_quantities,
+        state_map* output_quantities
     )
     : SteadyModule{"thermal_time_development_rate_calculator"},
 
-    // Get pointers to input parameters
-    DVI{get_input(input_parameters,"DVI")},
-    temp{get_input(input_parameters,"temp")},
-    tbase{get_input(input_parameters,"tbase")},
-    TTemr{get_input(input_parameters,"TTemr")},
-    TTveg{get_input(input_parameters, "TTveg")},
-    TTrep{get_input(input_parameters, "TTrep")},
+    // Get pointers to input quantities
+    DVI{get_input(input_quantities,"DVI")},
+    temp{get_input(input_quantities,"temp")},
+    tbase{get_input(input_quantities,"tbase")},
+    TTemr{get_input(input_quantities,"TTemr")},
+    TTveg{get_input(input_quantities, "TTveg")},
+    TTrep{get_input(input_quantities, "TTrep")},
 
-    // Get pointers to output parameters
-    development_rate_per_hour_op{get_op(output_parameters,"development_rate_per_hour")}
+    // Get pointers to output quantities
+    development_rate_per_hour_op{get_op(output_quantities,"development_rate_per_hour")}
 
     {}
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
     private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double& DVI;
     const double& temp;
     const double& tbase;
@@ -71,7 +71,7 @@ public:
     const double& TTveg;
     const double& TTrep;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* development_rate_per_hour_op;
 
     // Implement the pure virtual function do_operation():
@@ -126,7 +126,7 @@ void thermal_time_development_rate_calculator::do_operation() const {
 
     double development_rate_per_hour = development_rate / 24.0; // hour^-1
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(development_rate_per_hour_op, development_rate_per_hour);
 }
 

@@ -20,7 +20,7 @@ std::vector<std::string> penman_monteith_leaf_temperature::get_outputs() {
 }
 
 void penman_monteith_leaf_temperature::do_operation() const {
-	// Collect input parameters and make calculations
+	// Collect input quantities and make calculations
 	double slope_water_vapor = *slope_water_vapor_ip;		// kg / m^3 / K
 	double psychr_parameter = *psychrometric_parameter_ip;	// kg / m^3 / K
 	double LHV = *latent_heat_vaporization_of_water_ip;		// J / kg
@@ -41,6 +41,6 @@ void penman_monteith_leaf_temperature::do_operation() const {
 	
 	double leaf_temperature = air_temperature + delta_t;
 	
-	// Update the output parameter list
+	// Update the output quantity list
 	update(leaf_temperature_op, leaf_temperature);
 }

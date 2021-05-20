@@ -17,38 +17,38 @@ class multilayer_canopy_integrator : public SteadyModule
     multilayer_canopy_integrator(
         const std::string& module_name,
         const int& nlayers,
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule(module_name),
           // Store the number of layers
           nlayers(nlayers),
-          // Get pointers to input parameters
-          sunlit_fraction_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_fraction")),
-          sunlit_Assim_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_Assim")),
-          sunlit_GrossAssim_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_GrossAssim")),
-          sunlit_Gs_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_Gs")),
-          sunlit_TransR_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_TransR")),
-          shaded_fraction_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_fraction")),
-          shaded_Assim_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_Assim")),
-          shaded_GrossAssim_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_GrossAssim")),
-          shaded_Gs_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_Gs")),
-          shaded_TransR_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_TransR")),
-          // Get references to input parameters
-          lai(get_input(input_parameters, "lai")),
-          growth_respiration_fraction(get_input(input_parameters, "growth_respiration_fraction")),
-          // Get pointers to output parameters
-          canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
-          canopy_transpiration_rate_op(get_op(output_parameters, "canopy_transpiration_rate")),
-          canopy_conductance_op(get_op(output_parameters, "canopy_conductance")),
-          GrossAssim_op(get_op(output_parameters, "GrossAssim"))
+          // Get pointers to input quantities
+          sunlit_fraction_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_fraction")),
+          sunlit_Assim_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_Assim")),
+          sunlit_GrossAssim_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_GrossAssim")),
+          sunlit_Gs_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_Gs")),
+          sunlit_TransR_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_TransR")),
+          shaded_fraction_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_fraction")),
+          shaded_Assim_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_Assim")),
+          shaded_GrossAssim_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_GrossAssim")),
+          shaded_Gs_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_Gs")),
+          shaded_TransR_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_TransR")),
+          // Get references to input quantities
+          lai(get_input(input_quantities, "lai")),
+          growth_respiration_fraction(get_input(input_quantities, "growth_respiration_fraction")),
+          // Get pointers to output quantities
+          canopy_assimilation_rate_op(get_op(output_quantities, "canopy_assimilation_rate")),
+          canopy_transpiration_rate_op(get_op(output_quantities, "canopy_transpiration_rate")),
+          canopy_conductance_op(get_op(output_quantities, "canopy_conductance")),
+          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
     {
     }
 
    private:
     // Number of layers
     const int nlayers;
-    // Pointers to input parameters
+    // Pointers to input quantities
     const std::vector<const double*> sunlit_fraction_ips;
     const std::vector<const double*> sunlit_Assim_ips;
     const std::vector<const double*> sunlit_GrossAssim_ips;
@@ -59,10 +59,10 @@ class multilayer_canopy_integrator : public SteadyModule
     const std::vector<const double*> shaded_GrossAssim_ips;
     const std::vector<const double*> shaded_Gs_ips;
     const std::vector<const double*> shaded_TransR_ips;
-    // References to input parameters
+    // References to input quantities
     const double& lai;
     const double& growth_respiration_fraction;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
@@ -186,12 +186,12 @@ class ten_layer_canopy_integrator : public multilayer_canopy_integrator
 {
    public:
     ten_layer_canopy_integrator(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         : multilayer_canopy_integrator("ten_layer_canopy_integrator",
                                        ten_layer_canopy_integrator::nlayers,
-                                       input_parameters,
-                                       output_parameters)  // Create the base class with the appropriate number of layers
+                                       input_quantities,
+                                       output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
     static std::vector<std::string> get_inputs();

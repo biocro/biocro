@@ -5,24 +5,24 @@
 
 class light_from_solar : public SteadyModule {
     public:
-        light_from_solar(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+        light_from_solar(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             SteadyModule("light_from_solar"),
-            // Get pointers to input parameters
-            solar_ip(get_ip(input_parameters, "solar")),
-            light_threshold_ip(get_ip(input_parameters, "light_threshold")),
-            light_exp_at_zero_ip(get_ip(input_parameters, "light_exp_at_zero")),
-            // Get pointers to output parameters
-            light_op(get_op(output_parameters, "light"))
+            // Get pointers to input quantities
+            solar_ip(get_ip(input_quantities, "solar")),
+            light_threshold_ip(get_ip(input_quantities, "light_threshold")),
+            light_exp_at_zero_ip(get_ip(input_quantities, "light_exp_at_zero")),
+            // Get pointers to output quantities
+            light_op(get_op(output_quantities, "light"))
         {}
         static std::vector<std::string> get_inputs();
         static std::vector<std::string> get_outputs();
     private:
-        // Pointers to input parameters
+        // Pointers to input quantities
         const double* solar_ip;
         const double* light_threshold_ip;
         const double* light_exp_at_zero_ip;
-        // Pointers to output parameters
+        // Pointers to output quantities
         double* light_op;
         // Main operation
         void do_operation() const;
@@ -67,7 +67,7 @@ void light_from_solar::do_operation() const {
     double light = 1.0 / (1.0 + exp(-2.0 * light_exp_at_zero * (solar - 0.5 * light_threshold) / light_threshold));
     
     //////////////////////////////////////
-    // Update the output parameter list //
+    // Update the output quantity list //
     //////////////////////////////////////
     
     update(light_op, light);

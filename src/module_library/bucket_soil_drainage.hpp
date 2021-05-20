@@ -5,28 +5,28 @@
 
 class bucket_soil_drainage : public DerivModule {
 	public:
-		bucket_soil_drainage(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		bucket_soil_drainage(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("bucket_soil_drainage"),
-			// Get pointers to input parameters
-			soil_field_capacity_ip(get_ip(input_parameters, "soil_field_capacity")),
-			soil_wilting_point_ip(get_ip(input_parameters, "soil_wilting_point")),
-			soil_water_content_ip(get_ip(input_parameters, "soil_water_content")),
-			soil_saturation_capacity_ip(get_ip(input_parameters, "soil_saturation_capacity")),
-			soil_depth_ip(get_ip(input_parameters, "soil_depth")),
-			precipitation_rate_ip(get_ip(input_parameters, "precipitation_rate")),
-			soil_saturated_conductivity_ip(get_ip(input_parameters, "soil_saturated_conductivity")),
-			soil_air_entry_ip(get_ip(input_parameters, "soil_air_entry")),
-			soil_b_coefficient_ip(get_ip(input_parameters, "soil_b_coefficient")),
-			canopy_transpiration_rate_ip(get_ip(input_parameters, "canopy_transpiration_rate")),
-			soil_evaporation_rate_ip(get_ip(input_parameters, "soil_evaporation_rate")),
-			// Get pointers to output parameters
-			soil_water_content_op(get_op(output_parameters, "soil_water_content"))
+			// Get pointers to input quantities
+			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
+			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
+			soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
+			soil_saturation_capacity_ip(get_ip(input_quantities, "soil_saturation_capacity")),
+			soil_depth_ip(get_ip(input_quantities, "soil_depth")),
+			precipitation_rate_ip(get_ip(input_quantities, "precipitation_rate")),
+			soil_saturated_conductivity_ip(get_ip(input_quantities, "soil_saturated_conductivity")),
+			soil_air_entry_ip(get_ip(input_quantities, "soil_air_entry")),
+			soil_b_coefficient_ip(get_ip(input_quantities, "soil_b_coefficient")),
+			canopy_transpiration_rate_ip(get_ip(input_quantities, "canopy_transpiration_rate")),
+			soil_evaporation_rate_ip(get_ip(input_quantities, "soil_evaporation_rate")),
+			// Get pointers to output quantities
+			soil_water_content_op(get_op(output_quantities, "soil_water_content"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* soil_field_capacity_ip;
 		const double* soil_wilting_point_ip;
 		const double* soil_water_content_ip;
@@ -38,7 +38,7 @@ class bucket_soil_drainage : public DerivModule {
 		const double* soil_b_coefficient_ip;
 		const double* canopy_transpiration_rate_ip;
 		const double* soil_evaporation_rate_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* soil_water_content_op;
 		// Main operation
 		void do_operation() const;
@@ -95,7 +95,7 @@ void bucket_soil_drainage::do_operation() const {
 	double transpiration_rate = canopy_transpiration_rate / density_of_water_at_20_celcius * 1000 / 10000 / 3600;  // m / s.
 	double evaporation_rate = soil_evaporation_rate / density_of_water_at_20_celcius;  // m / s.
 	
-	// Update the output parameter list
+	// Update the output quantity list
 	update(soil_water_content_op, (precipitation_rate - transpiration_rate - evaporation_rate - runoff - drainage) / soil_depth * 3600);	// m^3 / m^3 / hr;
 }
 

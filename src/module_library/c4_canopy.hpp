@@ -9,71 +9,71 @@ class c4_canopy : public SteadyModule
 {
    public:
     c4_canopy(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c4_canopy"),
 
-          // Get pointers to input parameters
-          nileafn_ip(get_ip(input_parameters, "nileafn")),
-          nkln_ip(get_ip(input_parameters, "nkln")),
-          nvmaxb1_ip(get_ip(input_parameters, "nvmaxb1")),
-          nvmaxb0_ip(get_ip(input_parameters, "nvmaxb0")),
-          nalphab1_ip(get_ip(input_parameters, "nalphab1")),
-          nalphab0_ip(get_ip(input_parameters, "nalphab0")),
-          nRdb1_ip(get_ip(input_parameters, "nRdb1")),
-          nRdb0_ip(get_ip(input_parameters, "nRdb0")),
-          nkpLN_ip(get_ip(input_parameters, "nkpLN")),
-          nlnb0_ip(get_ip(input_parameters, "nlnb0")),
-          nlnb1_ip(get_ip(input_parameters, "nlnb1")),
-          lai_ip(get_ip(input_parameters, "lai")),
-          time_ip(get_ip(input_parameters, "time")),
-          solar_ip(get_ip(input_parameters, "solar")),
-          temp_ip(get_ip(input_parameters, "temp")),
-          rh_ip(get_ip(input_parameters, "rh")),
-          windspeed_ip(get_ip(input_parameters, "windspeed")),
-          lat_ip(get_ip(input_parameters, "lat")),
-          nlayers_ip(get_ip(input_parameters, "nlayers")),
-          vmax1_ip(get_ip(input_parameters, "vmax1")),
-          alpha1_ip(get_ip(input_parameters, "alpha1")),
-          kparm_ip(get_ip(input_parameters, "kparm")),
-          beta_ip(get_ip(input_parameters, "beta")),
-          Rd_ip(get_ip(input_parameters, "Rd")),
-          Catm_ip(get_ip(input_parameters, "Catm")),
-          b0_ip(get_ip(input_parameters, "b0")),
-          b1_ip(get_ip(input_parameters, "b1")),
-          Gs_min_ip(get_ip(input_parameters, "Gs_min")),
-          theta_ip(get_ip(input_parameters, "theta")),
-          kd_ip(get_ip(input_parameters, "kd")),
-          chil_ip(get_ip(input_parameters, "chil")),
-          heightf_ip(get_ip(input_parameters, "heightf")),
-          LeafN_ip(get_ip(input_parameters, "LeafN")),
-          kpLN_ip(get_ip(input_parameters, "kpLN")),
-          lnb0_ip(get_ip(input_parameters, "lnb0")),
-          lnb1_ip(get_ip(input_parameters, "lnb1")),
-          lnfun_ip(get_ip(input_parameters, "lnfun")),
-          upperT_ip(get_ip(input_parameters, "upperT")),
-          lowerT_ip(get_ip(input_parameters, "lowerT")),
-          leafwidth_ip(get_ip(input_parameters, "leafwidth")),
-          et_equation_ip(get_ip(input_parameters, "et_equation")),
-          StomataWS_ip(get_ip(input_parameters, "StomataWS")),
-          specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          water_stress_approach_ip(get_ip(input_parameters, "water_stress_approach")),
-          absorptivity_par_ip(get_ip(input_parameters, "absorptivity_par")),
+          // Get pointers to input quantities
+          nileafn_ip(get_ip(input_quantities, "nileafn")),
+          nkln_ip(get_ip(input_quantities, "nkln")),
+          nvmaxb1_ip(get_ip(input_quantities, "nvmaxb1")),
+          nvmaxb0_ip(get_ip(input_quantities, "nvmaxb0")),
+          nalphab1_ip(get_ip(input_quantities, "nalphab1")),
+          nalphab0_ip(get_ip(input_quantities, "nalphab0")),
+          nRdb1_ip(get_ip(input_quantities, "nRdb1")),
+          nRdb0_ip(get_ip(input_quantities, "nRdb0")),
+          nkpLN_ip(get_ip(input_quantities, "nkpLN")),
+          nlnb0_ip(get_ip(input_quantities, "nlnb0")),
+          nlnb1_ip(get_ip(input_quantities, "nlnb1")),
+          lai_ip(get_ip(input_quantities, "lai")),
+          time_ip(get_ip(input_quantities, "time")),
+          solar_ip(get_ip(input_quantities, "solar")),
+          temp_ip(get_ip(input_quantities, "temp")),
+          rh_ip(get_ip(input_quantities, "rh")),
+          windspeed_ip(get_ip(input_quantities, "windspeed")),
+          lat_ip(get_ip(input_quantities, "lat")),
+          nlayers_ip(get_ip(input_quantities, "nlayers")),
+          vmax1_ip(get_ip(input_quantities, "vmax1")),
+          alpha1_ip(get_ip(input_quantities, "alpha1")),
+          kparm_ip(get_ip(input_quantities, "kparm")),
+          beta_ip(get_ip(input_quantities, "beta")),
+          Rd_ip(get_ip(input_quantities, "Rd")),
+          Catm_ip(get_ip(input_quantities, "Catm")),
+          b0_ip(get_ip(input_quantities, "b0")),
+          b1_ip(get_ip(input_quantities, "b1")),
+          Gs_min_ip(get_ip(input_quantities, "Gs_min")),
+          theta_ip(get_ip(input_quantities, "theta")),
+          kd_ip(get_ip(input_quantities, "kd")),
+          chil_ip(get_ip(input_quantities, "chil")),
+          heightf_ip(get_ip(input_quantities, "heightf")),
+          LeafN_ip(get_ip(input_quantities, "LeafN")),
+          kpLN_ip(get_ip(input_quantities, "kpLN")),
+          lnb0_ip(get_ip(input_quantities, "lnb0")),
+          lnb1_ip(get_ip(input_quantities, "lnb1")),
+          lnfun_ip(get_ip(input_quantities, "lnfun")),
+          upperT_ip(get_ip(input_quantities, "upperT")),
+          lowerT_ip(get_ip(input_quantities, "lowerT")),
+          leafwidth_ip(get_ip(input_quantities, "leafwidth")),
+          et_equation_ip(get_ip(input_quantities, "et_equation")),
+          StomataWS_ip(get_ip(input_quantities, "StomataWS")),
+          specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          water_stress_approach_ip(get_ip(input_quantities, "water_stress_approach")),
+          absorptivity_par_ip(get_ip(input_quantities, "absorptivity_par")),
 
-          // Get pointers to output parameters
-          canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
-          canopy_transpiration_rate_op(get_op(output_parameters, "canopy_transpiration_rate")),
-          canopy_conductance_op(get_op(output_parameters, "canopy_conductance")),
-          GrossAssim_op(get_op(output_parameters, "GrossAssim"))
+          // Get pointers to output quantities
+          canopy_assimilation_rate_op(get_op(output_quantities, "canopy_assimilation_rate")),
+          canopy_transpiration_rate_op(get_op(output_quantities, "canopy_transpiration_rate")),
+          canopy_conductance_op(get_op(output_quantities, "canopy_conductance")),
+          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* nileafn_ip;
     const double* nkln_ip;
     const double* nvmaxb1_ip;
@@ -121,7 +121,7 @@ class c4_canopy : public SteadyModule
     const double* water_stress_approach_ip;
     const double* absorptivity_par_ip;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;

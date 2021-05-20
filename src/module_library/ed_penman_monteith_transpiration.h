@@ -20,32 +20,32 @@ class ed_penman_monteith_transpiration : public SteadyModule
 {
    public:
     ed_penman_monteith_transpiration(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_penman_monteith_transpiration"),
 
-          // Get pointers to input parameters
-          long_wave_energy_loss_leaf(get_input(input_parameters, "long_wave_energy_loss_leaf")),
-          solar_energy_absorbed_leaf(get_input(input_parameters, "solar_energy_absorbed_leaf")),
-          slope_water_vapor(get_input(input_parameters, "slope_water_vapor")),
-          psychrometric_parameter(get_input(input_parameters, "psychrometric_parameter")),
-          latent_heat_vaporization_of_water(get_input(input_parameters, "latent_heat_vaporization_of_water")),
-          vapor_density_deficit(get_input(input_parameters, "vapor_density_deficit")),
-          conductance_boundary_h2o(get_input(input_parameters, "conductance_boundary_h2o")),
-          conductance_stomatal_h2o(get_input(input_parameters, "conductance_stomatal_h2o")),
-          temperature_air(get_input(input_parameters, "temp")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
+          // Get pointers to input quantities
+          long_wave_energy_loss_leaf(get_input(input_quantities, "long_wave_energy_loss_leaf")),
+          solar_energy_absorbed_leaf(get_input(input_quantities, "solar_energy_absorbed_leaf")),
+          slope_water_vapor(get_input(input_quantities, "slope_water_vapor")),
+          psychrometric_parameter(get_input(input_quantities, "psychrometric_parameter")),
+          latent_heat_vaporization_of_water(get_input(input_quantities, "latent_heat_vaporization_of_water")),
+          vapor_density_deficit(get_input(input_quantities, "vapor_density_deficit")),
+          conductance_boundary_h2o(get_input(input_quantities, "conductance_boundary_h2o")),
+          conductance_stomatal_h2o(get_input(input_quantities, "conductance_stomatal_h2o")),
+          temperature_air(get_input(input_quantities, "temp")),
+          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
 
-          // Get pointers to output parameters
-          transpiration_rate_op(get_op(output_parameters, "transpiration_rate"))
+          // Get pointers to output quantities
+          transpiration_rate_op(get_op(output_quantities, "transpiration_rate"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& long_wave_energy_loss_leaf;
     double const& solar_energy_absorbed_leaf;
     double const& slope_water_vapor;
@@ -57,7 +57,7 @@ class ed_penman_monteith_transpiration : public SteadyModule
     double const& temperature_air;
     double const& atmospheric_pressure;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* transpiration_rate_op;
 
     // Main operation

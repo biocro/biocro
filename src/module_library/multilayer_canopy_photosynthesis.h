@@ -96,8 +96,8 @@ class multilayer_canopy_photosynthesis : public SteadyModule
     multilayer_canopy_photosynthesis(
         const std::string& module_name,
         const int& nlayers,
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters);
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities);
 
    private:
     // Number of layers
@@ -106,9 +106,9 @@ class multilayer_canopy_photosynthesis : public SteadyModule
     state_map leaf_module_quantities;
     state_map leaf_module_output_map;
     std::unique_ptr<Module> leaf_module;
-    // Pointers to input parameters
+    // Pointers to input quantities
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_input_ptr_pairs;
-    // Pointers to output parameters
+    // Pointers to output quantities
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_output_ptr_pairs;
 
    protected:
@@ -125,8 +125,8 @@ template <typename canopy_module_type, typename leaf_module_type>
 multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilayer_canopy_photosynthesis(
     const std::string& module_name,
     const int& nlayers,
-    const std::unordered_map<std::string, double>* input_parameters,
-    std::unordered_map<std::string, double>* output_parameters)
+    const std::unordered_map<std::string, double>* input_quantities,
+    std::unordered_map<std::string, double>* output_quantities)
     : SteadyModule(module_name),
       nlayers(nlayers)
 {
@@ -161,18 +161,18 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
 
             for (std::string const& name : multiclass_multilayer_leaf_inputs) {
                 std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_parameters->at(specific_name));
+                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_quantities->at(specific_name));
                 input_ptr_pairs.push_back(temporary);
             }
 
             for (std::string const& name : multilayer_leaf_inputs) {
                 std::string specific_name = add_layer_suffix_to_quantity_name(nlayers, i, name);
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_parameters->at(specific_name));
+                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_quantities->at(specific_name));
                 input_ptr_pairs.push_back(temporary);
             }
 
             for (std::string const& name : other_leaf_inputs) {
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_parameters->at(name));
+                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_quantities->at(name));
                 input_ptr_pairs.push_back(temporary);
             }
             
@@ -183,7 +183,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
             
             for (std::string const& name : leaf_module_type::get_outputs()) {
                 std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(&output_parameters->at(specific_name), &leaf_module_output_map.at(name));
+                std::pair<double*, const double*> temporary(&output_quantities->at(specific_name), &leaf_module_output_map.at(name));
                 output_ptr_pairs.push_back(temporary);
             }
             

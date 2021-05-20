@@ -14,23 +14,23 @@ class ed_evapotrans2 : public SteadyModule
 {
    public:
     ed_evapotrans2(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_evapotrans2"),
-          // Get pointers to input parameters
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          rh_ip(get_ip(input_parameters, "rh")),
-          windspeed_ip(get_ip(input_parameters, "windspeed")),
-          conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
-          leafwidth_ip(get_ip(input_parameters, "leafwidth")),
-          specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
-          solar_energy_absorbed_leaf_ip(get_ip(input_parameters, "solar_energy_absorbed_leaf")),
-          // Get pointers to output parameters
-          evapotranspiration_penman_monteith_op(get_op(output_parameters, "evapotranspiration_penman_monteith")),
-          evapotranspiration_penman_op(get_op(output_parameters, "evapotranspiration_penman")),
-          evapotranspiration_priestly_op(get_op(output_parameters, "evapotranspiration_priestly")),
-          temperature_leaf_op(get_op(output_parameters, "temperature_leaf"))
+          // Get pointers to input quantities
+          temperature_air_ip(get_ip(input_quantities, "temp")),
+          rh_ip(get_ip(input_quantities, "rh")),
+          windspeed_ip(get_ip(input_quantities, "windspeed")),
+          conductance_stomatal_h2o_ip(get_ip(input_quantities, "conductance_stomatal_h2o")),
+          leafwidth_ip(get_ip(input_quantities, "leafwidth")),
+          specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
+          solar_energy_absorbed_leaf_ip(get_ip(input_quantities, "solar_energy_absorbed_leaf")),
+          // Get pointers to output quantities
+          evapotranspiration_penman_monteith_op(get_op(output_quantities, "evapotranspiration_penman_monteith")),
+          evapotranspiration_penman_op(get_op(output_quantities, "evapotranspiration_penman")),
+          evapotranspiration_priestly_op(get_op(output_quantities, "evapotranspiration_priestly")),
+          temperature_leaf_op(get_op(output_quantities, "temperature_leaf"))
 
     {
     }
@@ -38,7 +38,7 @@ class ed_evapotrans2 : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* temperature_air_ip;
     const double* rh_ip;
     const double* windspeed_ip;
@@ -46,7 +46,7 @@ class ed_evapotrans2 : public SteadyModule
     const double* leafwidth_ip;
     const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* evapotranspiration_penman_monteith_op;
     double* evapotranspiration_penman_op;
     double* evapotranspiration_priestly_op;

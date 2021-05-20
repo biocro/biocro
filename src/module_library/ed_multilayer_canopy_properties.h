@@ -32,44 +32,44 @@ class ed_multilayer_canopy_properties : public SteadyModule
     ed_multilayer_canopy_properties(
         std::string const& module_name,
         int const& nlayers,
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule(module_name),
 
           // Store the number of layers
           nlayers(nlayers),
 
-          // Get references to input parameters
-          par_energy_fraction_of_sunlight(get_input(input_parameters, "par_energy_fraction_of_sunlight")),
-          par_energy_content(get_input(input_parameters, "par_energy_content")),
-          par_incident_direct(get_input(input_parameters, "par_incident_direct")),
-          par_incident_diffuse(get_input(input_parameters, "par_incident_diffuse")),
-          absorptivity_par(get_input(input_parameters, "absorptivity_par")),
-          lai(get_input(input_parameters, "lai")),
-          cosine_zenith_angle(get_input(input_parameters, "cosine_zenith_angle")),
-          kd(get_input(input_parameters, "kd")),
-          chil(get_input(input_parameters, "chil")),
-          heightf(get_input(input_parameters, "heightf")),
-          rh(get_input(input_parameters, "rh")),
-          windspeed(get_input(input_parameters, "windspeed")),
-          LeafN(get_input(input_parameters, "LeafN")),
-          kpLN(get_input(input_parameters, "kpLN")),
+          // Get references to input quantities
+          par_energy_fraction_of_sunlight(get_input(input_quantities, "par_energy_fraction_of_sunlight")),
+          par_energy_content(get_input(input_quantities, "par_energy_content")),
+          par_incident_direct(get_input(input_quantities, "par_incident_direct")),
+          par_incident_diffuse(get_input(input_quantities, "par_incident_diffuse")),
+          absorptivity_par(get_input(input_quantities, "absorptivity_par")),
+          lai(get_input(input_quantities, "lai")),
+          cosine_zenith_angle(get_input(input_quantities, "cosine_zenith_angle")),
+          kd(get_input(input_quantities, "kd")),
+          chil(get_input(input_quantities, "chil")),
+          heightf(get_input(input_quantities, "heightf")),
+          rh(get_input(input_quantities, "rh")),
+          windspeed(get_input(input_quantities, "windspeed")),
+          LeafN(get_input(input_quantities, "LeafN")),
+          kpLN(get_input(input_quantities, "kpLN")),
 
-          // Get pointers to output parameters
-          sunlit_incident_par_ops(get_multilayer_op(output_parameters, nlayers, "sunlit_incident_par")),
-          sunlit_collatz_PAR_flux_ops(get_multilayer_op(output_parameters, nlayers, "sunlit_collatz_PAR_flux")),
-          sunlit_fraction_ops(get_multilayer_op(output_parameters, nlayers, "sunlit_fraction")),
-          shaded_incident_par_ops(get_multilayer_op(output_parameters, nlayers, "shaded_incident_par")),
-          shaded_collatz_PAR_flux_ops(get_multilayer_op(output_parameters, nlayers, "shaded_collatz_PAR_flux")),
-          shaded_fraction_ops(get_multilayer_op(output_parameters, nlayers, "shaded_fraction")),
-          incident_scattered_par_ops(get_multilayer_op(output_parameters, nlayers, "incident_scattered_par")),
-          incident_average_par_ops(get_multilayer_op(output_parameters, nlayers, "incident_average_par")),
-          solar_energy_absorbed_leaf_ops(get_multilayer_op(output_parameters, nlayers, "solar_energy_absorbed_leaf")),
-          height_ops(get_multilayer_op(output_parameters, nlayers, "height")),
-          rh_ops(get_multilayer_op(output_parameters, nlayers, "rh")),
-          windspeed_ops(get_multilayer_op(output_parameters, nlayers, "windspeed")),
-          LeafN_ops(get_multilayer_op(output_parameters, nlayers, "LeafN"))
+          // Get pointers to output quantities
+          sunlit_incident_par_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_par")),
+          sunlit_collatz_PAR_flux_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_collatz_PAR_flux")),
+          sunlit_fraction_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_fraction")),
+          shaded_incident_par_ops(get_multilayer_op(output_quantities, nlayers, "shaded_incident_par")),
+          shaded_collatz_PAR_flux_ops(get_multilayer_op(output_quantities, nlayers, "shaded_collatz_PAR_flux")),
+          shaded_fraction_ops(get_multilayer_op(output_quantities, nlayers, "shaded_fraction")),
+          incident_scattered_par_ops(get_multilayer_op(output_quantities, nlayers, "incident_scattered_par")),
+          incident_average_par_ops(get_multilayer_op(output_quantities, nlayers, "incident_average_par")),
+          solar_energy_absorbed_leaf_ops(get_multilayer_op(output_quantities, nlayers, "solar_energy_absorbed_leaf")),
+          height_ops(get_multilayer_op(output_quantities, nlayers, "height")),
+          rh_ops(get_multilayer_op(output_quantities, nlayers, "rh")),
+          windspeed_ops(get_multilayer_op(output_quantities, nlayers, "windspeed")),
+          LeafN_ops(get_multilayer_op(output_quantities, nlayers, "LeafN"))
     {
     }
 
@@ -77,7 +77,7 @@ class ed_multilayer_canopy_properties : public SteadyModule
     // Number of layers
     int const nlayers;
 
-    // References to input parameters
+    // References to input quantities
     double const& par_energy_fraction_of_sunlight;
     double const& par_energy_content;
     double const& par_incident_direct;
@@ -93,7 +93,7 @@ class ed_multilayer_canopy_properties : public SteadyModule
     double const& LeafN;
     double const& kpLN;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     std::vector<double*> const sunlit_incident_par_ops;
     std::vector<double*> const sunlit_collatz_PAR_flux_ops;
     std::vector<double*> const sunlit_fraction_ops;
@@ -271,12 +271,12 @@ class ed_ten_layer_canopy_properties : public ed_multilayer_canopy_properties
 {
    public:
     ed_ten_layer_canopy_properties(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         : ed_multilayer_canopy_properties("ed_ten_layer_canopy_properties",
                                           ed_ten_layer_canopy_properties::nlayers,
-                                          input_parameters,
-                                          output_parameters)  // Create the base class with the appropriate number of layers
+                                          input_quantities,
+                                          output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
     static std::vector<std::string> get_inputs();

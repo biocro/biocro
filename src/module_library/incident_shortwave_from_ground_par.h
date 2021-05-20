@@ -15,7 +15,7 @@
  * pyranometer or other similar instrument. It should be a `global` flux density that includes
  * direct and diffuse light, and it should represent flux through a plane perpendicular to
  * the beam direction. For consistency with typical BioCro units, this flux density should be reported
- * in units of micromol / m^2 / s. However, the output parameters will be converted into the
+ * in units of micromol / m^2 / s. However, the output quantities will be converted into the
  * SI standard energy flux density units of J / m^2 / s or equivalently W / m^2.
  *
  * The `par_energy_fraction_of_sunlight` quantity should represent the fraction of solar energy
@@ -25,34 +25,34 @@ class incident_shortwave_from_ground_par : public SteadyModule
 {
    public:
     incident_shortwave_from_ground_par(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("incident_shortwave_from_ground_par"),
-          // Get pointers to input parameters
-          solar(get_input(input_parameters, "solar")),
-          irradiance_direct_fraction(get_input(input_parameters, "irradiance_direct_fraction")),
-          irradiance_diffuse_fraction(get_input(input_parameters, "irradiance_diffuse_fraction")),
-          par_energy_fraction_of_sunlight(get_input(input_parameters, "par_energy_fraction_of_sunlight")),
-          par_energy_content(get_input(input_parameters, "par_energy_content")),
-          // Get pointers to output parameters
-          par_incident_direct_op(get_op(output_parameters, "par_incident_direct")),
-          par_incident_diffuse_op(get_op(output_parameters, "par_incident_diffuse")),
-          nir_incident_direct_op(get_op(output_parameters, "nir_incident_direct")),
-          nir_incident_diffuse_op(get_op(output_parameters, "nir_incident_diffuse"))
+          // Get pointers to input quantities
+          solar(get_input(input_quantities, "solar")),
+          irradiance_direct_fraction(get_input(input_quantities, "irradiance_direct_fraction")),
+          irradiance_diffuse_fraction(get_input(input_quantities, "irradiance_diffuse_fraction")),
+          par_energy_fraction_of_sunlight(get_input(input_quantities, "par_energy_fraction_of_sunlight")),
+          par_energy_content(get_input(input_quantities, "par_energy_content")),
+          // Get pointers to output quantities
+          par_incident_direct_op(get_op(output_quantities, "par_incident_direct")),
+          par_incident_diffuse_op(get_op(output_quantities, "par_incident_diffuse")),
+          nir_incident_direct_op(get_op(output_quantities, "nir_incident_direct")),
+          nir_incident_diffuse_op(get_op(output_quantities, "nir_incident_diffuse"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& solar;
     double const& irradiance_direct_fraction;
     double const& irradiance_diffuse_fraction;
     double const& par_energy_fraction_of_sunlight;
     double const& par_energy_content;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* par_incident_direct_op;
     double* par_incident_diffuse_op;
     double* nir_incident_direct_op;

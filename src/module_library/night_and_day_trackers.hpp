@@ -5,27 +5,27 @@
 
 class night_and_day_trackers : public DerivModule {
     public:
-        night_and_day_trackers(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+        night_and_day_trackers(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             DerivModule("night_and_day_trackers"),
-            // Get pointers to input parameters
-            tracker_rate_ip(get_ip(input_parameters, "tracker_rate")),
-            light_ip(get_ip(input_parameters, "light")),
-            night_tracker_ip(get_ip(input_parameters, "night_tracker")),
-            day_tracker_ip(get_ip(input_parameters, "day_tracker")),
-            // Get pointers to output parameters
-            night_tracker_op(get_op(output_parameters, "night_tracker")),
-            day_tracker_op(get_op(output_parameters, "day_tracker"))
+            // Get pointers to input quantities
+            tracker_rate_ip(get_ip(input_quantities, "tracker_rate")),
+            light_ip(get_ip(input_quantities, "light")),
+            night_tracker_ip(get_ip(input_quantities, "night_tracker")),
+            day_tracker_ip(get_ip(input_quantities, "day_tracker")),
+            // Get pointers to output quantities
+            night_tracker_op(get_op(output_quantities, "night_tracker")),
+            day_tracker_op(get_op(output_quantities, "day_tracker"))
         {}
         static std::vector<std::string> get_inputs();
         static std::vector<std::string> get_outputs();
     private:
-        // Pointers to input parameters
+        // Pointers to input quantities
         const double* tracker_rate_ip;
         const double* light_ip;
         const double* night_tracker_ip;
         const double* day_tracker_ip;
-        // Pointers to output parameters
+        // Pointers to output quantities
         double* night_tracker_op;
         double* day_tracker_op;
         // Main operation
@@ -64,7 +64,7 @@ void night_and_day_trackers::do_operation() const {
     double day_tracker = *day_tracker_ip;
     
     //////////////////////////////////////
-    // Update the output parameter list //
+    // Update the output quantity list //
     //////////////////////////////////////
     
     // The day and night trackers are produced at a light-dependent rate and decay exponentially independent

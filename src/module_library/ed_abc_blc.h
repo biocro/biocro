@@ -15,29 +15,29 @@ class ed_abc_blc : public SteadyModule
 {
    public:
     ed_abc_blc(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_abc_blc"),
 
-          // Get pointers to input parameters
-          windspeed(get_input(input_parameters, "windspeed")),
-          leafwidth(get_input(input_parameters, "leafwidth")),
-          temperature_air(get_input(input_parameters, "temp")),
-          temperature_leaf(get_input(input_parameters, "temperature_leaf")),
-          conductance_stomatal_h2o(get_input(input_parameters, "conductance_stomatal_h2o")),
-          mole_fraction_h2o_atmosphere(get_input(input_parameters, "mole_fraction_h2o_atmosphere")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
+          // Get pointers to input quantities
+          windspeed(get_input(input_quantities, "windspeed")),
+          leafwidth(get_input(input_quantities, "leafwidth")),
+          temperature_air(get_input(input_quantities, "temp")),
+          temperature_leaf(get_input(input_quantities, "temperature_leaf")),
+          conductance_stomatal_h2o(get_input(input_quantities, "conductance_stomatal_h2o")),
+          mole_fraction_h2o_atmosphere(get_input(input_quantities, "mole_fraction_h2o_atmosphere")),
+          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
 
-          // Get pointers to output parameters
-          conductance_boundary_h2o_op(get_op(output_parameters, "conductance_boundary_h2o"))
+          // Get pointers to output quantities
+          conductance_boundary_h2o_op(get_op(output_quantities, "conductance_boundary_h2o"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& windspeed;
     double const& leafwidth;
     double const& temperature_air;
@@ -46,7 +46,7 @@ class ed_abc_blc : public SteadyModule
     double const& mole_fraction_h2o_atmosphere;
     double const& atmospheric_pressure;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* conductance_boundary_h2o_op;
 
     // Main operation
@@ -90,7 +90,7 @@ void ed_abc_blc::do_operation() const
 
     double const blc_mol = blc / volume_of_one_mole_of_air;  // mol / m^2 / s
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(conductance_boundary_h2o_op, blc_mol);
 }
 

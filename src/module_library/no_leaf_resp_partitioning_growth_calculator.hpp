@@ -58,35 +58,35 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
 {
    public:
     no_leaf_resp_partitioning_growth_calculator(
-        const state_map* input_parameters,
-        state_map* output_parameters)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("no_leaf_resp_partitioning_growth_calculator"),
 
-          // Get pointers to input parameters
-          kLeaf{get_input(input_parameters, "kLeaf")},
-          kStem{get_input(input_parameters, "kStem")},
-          kRoot{get_input(input_parameters, "kRoot")},
-          kRhizome{get_input(input_parameters, "kRhizome")},
-          kGrain{get_input(input_parameters, "kGrain")},
-          canopy_assimilation_rate{get_input(input_parameters, "canopy_assimilation_rate")},
-          mrc1{get_input(input_parameters, "mrc1")},
-          mrc2{get_input(input_parameters, "mrc2")},
-          temp{get_input(input_parameters, "temp")},
+          // Get pointers to input quantities
+          kLeaf{get_input(input_quantities, "kLeaf")},
+          kStem{get_input(input_quantities, "kStem")},
+          kRoot{get_input(input_quantities, "kRoot")},
+          kRhizome{get_input(input_quantities, "kRhizome")},
+          kGrain{get_input(input_quantities, "kGrain")},
+          canopy_assimilation_rate{get_input(input_quantities, "canopy_assimilation_rate")},
+          mrc1{get_input(input_quantities, "mrc1")},
+          mrc2{get_input(input_quantities, "mrc2")},
+          temp{get_input(input_quantities, "temp")},
 
-          // Get pointers to output parameters
-          net_assimilation_rate_leaf_op{get_op(output_parameters, "net_assimilation_rate_leaf")},
-          net_assimilation_rate_stem_op{get_op(output_parameters, "net_assimilation_rate_stem")},
-          net_assimilation_rate_root_op{get_op(output_parameters, "net_assimilation_rate_root")},
-          net_assimilation_rate_rhizome_op{get_op(output_parameters, "net_assimilation_rate_rhizome")},
-          net_assimilation_rate_grain_op{get_op(output_parameters, "net_assimilation_rate_grain")}
+          // Get pointers to output quantities
+          net_assimilation_rate_leaf_op{get_op(output_quantities, "net_assimilation_rate_leaf")},
+          net_assimilation_rate_stem_op{get_op(output_quantities, "net_assimilation_rate_stem")},
+          net_assimilation_rate_root_op{get_op(output_quantities, "net_assimilation_rate_root")},
+          net_assimilation_rate_rhizome_op{get_op(output_quantities, "net_assimilation_rate_rhizome")},
+          net_assimilation_rate_grain_op{get_op(output_quantities, "net_assimilation_rate_grain")}
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double& kLeaf;
     const double& kStem;
     const double& kRoot;
@@ -97,7 +97,7 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
     const double& mrc2;
     const double& temp;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* net_assimilation_rate_leaf_op;
     double* net_assimilation_rate_stem_op;
     double* net_assimilation_rate_root_op;
@@ -193,7 +193,7 @@ void no_leaf_resp_partitioning_growth_calculator::do_operation() const
         net_assimilation_rate_grain = 0.0;
     }
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(net_assimilation_rate_leaf_op, net_assimilation_rate_leaf);
     update(net_assimilation_rate_stem_op, net_assimilation_rate_stem);
     update(net_assimilation_rate_root_op, net_assimilation_rate_root);

@@ -50,37 +50,37 @@ class senescence_coefficient_logistic : public SteadyModule
 {
    public:
     senescence_coefficient_logistic(
-        const state_map* input_parameters,
-        state_map* output_parameters)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : SteadyModule{"senescence_coefficient_logistic"},
 
-          // Get references to input parameters
-          DVI{get_input(input_parameters, "DVI")},
-          alphaSeneStem{get_input(input_parameters, "alphaSeneStem")},
-          alphaSeneLeaf{get_input(input_parameters, "alphaSeneLeaf")},
-          betaSeneStem{get_input(input_parameters, "betaSeneStem")},
-          betaSeneLeaf{get_input(input_parameters, "betaSeneLeaf")},
-          rateSeneLeaf{get_input(input_parameters, "rateSeneLeaf")},
-          rateSeneStem{get_input(input_parameters, "rateSeneStem")},
-          alphaSeneRoot{get_input(input_parameters, "alphaSeneRoot")},
-          alphaSeneRhizome{get_input(input_parameters, "alphaSeneRhizome")},
-          betaSeneRoot{get_input(input_parameters, "betaSeneRoot")},
-          betaSeneRhizome{get_input(input_parameters, "betaSeneRhizome")},
-          rateSeneRoot{get_input(input_parameters, "rateSeneRoot")},
-          rateSeneRhizome{get_input(input_parameters, "rateSeneRhizome")},
+          // Get references to input quantities
+          DVI{get_input(input_quantities, "DVI")},
+          alphaSeneStem{get_input(input_quantities, "alphaSeneStem")},
+          alphaSeneLeaf{get_input(input_quantities, "alphaSeneLeaf")},
+          betaSeneStem{get_input(input_quantities, "betaSeneStem")},
+          betaSeneLeaf{get_input(input_quantities, "betaSeneLeaf")},
+          rateSeneLeaf{get_input(input_quantities, "rateSeneLeaf")},
+          rateSeneStem{get_input(input_quantities, "rateSeneStem")},
+          alphaSeneRoot{get_input(input_quantities, "alphaSeneRoot")},
+          alphaSeneRhizome{get_input(input_quantities, "alphaSeneRhizome")},
+          betaSeneRoot{get_input(input_quantities, "betaSeneRoot")},
+          betaSeneRhizome{get_input(input_quantities, "betaSeneRhizome")},
+          rateSeneRoot{get_input(input_quantities, "rateSeneRoot")},
+          rateSeneRhizome{get_input(input_quantities, "rateSeneRhizome")},
 
-          // Get pointers to output parameters
-          kSeneStem_op{get_op(output_parameters, "kSeneStem")},
-          kSeneLeaf_op{get_op(output_parameters, "kSeneLeaf")},
-          kSeneRoot_op{get_op(output_parameters, "kSeneRoot")},
-          kSeneRhizome_op{get_op(output_parameters, "kSeneRhizome")}
+          // Get pointers to output quantities
+          kSeneStem_op{get_op(output_quantities, "kSeneStem")},
+          kSeneLeaf_op{get_op(output_quantities, "kSeneLeaf")},
+          kSeneRoot_op{get_op(output_quantities, "kSeneRoot")},
+          kSeneRhizome_op{get_op(output_quantities, "kSeneRhizome")}
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
 
    private:
-    // Refernces to input parameters
+    // Refernces to input quantities
     const double& DVI;
     const double& alphaSeneStem;
     const double& alphaSeneLeaf;
@@ -95,7 +95,7 @@ class senescence_coefficient_logistic : public SteadyModule
     const double& rateSeneRoot;
     const double& rateSeneRhizome;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* kSeneStem_op;
     double* kSeneLeaf_op;
     double* kSeneRoot_op;
@@ -141,7 +141,7 @@ void senescence_coefficient_logistic::do_operation() const
     double kSeneRoot = ksene(rateSeneRoot, alphaSeneRoot, betaSeneRoot, DVI);
     double kSeneRhizome = ksene(rateSeneRhizome, alphaSeneRhizome, betaSeneRhizome, DVI);
 
-    // Update the output parameters
+    // Update the output quantities
     update(kSeneStem_op, kSeneStem);        // dimensionless
     update(kSeneLeaf_op, kSeneLeaf);        // dimensionless
     update(kSeneRoot_op, kSeneRoot);        // dimensionless

@@ -5,30 +5,30 @@
 
 class parameter_calculator : public SteadyModule {
 	public:
-		parameter_calculator(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		parameter_calculator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("parameter_calculator"),
-			// Get pointers to input parameters
-			iSp_ip(get_ip(input_parameters, "iSp")),
-			TTc_ip(get_ip(input_parameters, "TTc")),
-			Sp_thermal_time_decay_ip(get_ip(input_parameters, "Sp_thermal_time_decay")),
-			Leaf_ip(get_ip(input_parameters, "Leaf")),
-			LeafN_0_ip(get_ip(input_parameters, "LeafN_0")),
-			LeafN_ip(get_ip(input_parameters, "LeafN")),
-			vmax_n_intercept_ip(get_ip(input_parameters, "vmax_n_intercept")),
-			vmax1_ip(get_ip(input_parameters, "vmax1")),
-			alphab1_ip(get_ip(input_parameters, "alphab1")),
-			alpha1_ip(get_ip(input_parameters, "alpha1")),
-			// Get pointers to output parameters
-	        Sp_op(get_op(output_parameters, "Sp")),
-	        lai_op(get_op(output_parameters, "lai")),
-	        vmax_op(get_op(output_parameters, "vmax")),
-	        alpha_op(get_op(output_parameters, "alpha"))
+			// Get pointers to input quantities
+			iSp_ip(get_ip(input_quantities, "iSp")),
+			TTc_ip(get_ip(input_quantities, "TTc")),
+			Sp_thermal_time_decay_ip(get_ip(input_quantities, "Sp_thermal_time_decay")),
+			Leaf_ip(get_ip(input_quantities, "Leaf")),
+			LeafN_0_ip(get_ip(input_quantities, "LeafN_0")),
+			LeafN_ip(get_ip(input_quantities, "LeafN")),
+			vmax_n_intercept_ip(get_ip(input_quantities, "vmax_n_intercept")),
+			vmax1_ip(get_ip(input_quantities, "vmax1")),
+			alphab1_ip(get_ip(input_quantities, "alphab1")),
+			alpha1_ip(get_ip(input_quantities, "alpha1")),
+			// Get pointers to output quantities
+	        Sp_op(get_op(output_quantities, "Sp")),
+	        lai_op(get_op(output_quantities, "lai")),
+	        vmax_op(get_op(output_quantities, "vmax")),
+	        alpha_op(get_op(output_quantities, "alpha"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* iSp_ip;
 		const double* TTc_ip;
 		const double* Sp_thermal_time_decay_ip;
@@ -39,7 +39,7 @@ class parameter_calculator : public SteadyModule {
 		const double* vmax1_ip;
 		const double* alphab1_ip;
 		const double* alpha1_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
         double* Sp_op;
         double* lai_op;
         double* vmax_op;
@@ -76,7 +76,7 @@ void parameter_calculator::do_operation() const {
 	// Collect inputs and make calculations
 	double Sp = (*iSp_ip) - (*TTc_ip) * (*Sp_thermal_time_decay_ip);
 	
-	// Update the output parameter list
+	// Update the output quantity list
 	update(Sp_op, Sp);
 	update(lai_op, (*Leaf_ip) * Sp);
 	update(vmax_op, ((*LeafN_0_ip) - (*LeafN_ip)) * (*vmax_n_intercept_ip) + (*vmax1_ip));

@@ -14,25 +14,25 @@ class solar_zenith_angle : public SteadyModule
 {
    public:
     solar_zenith_angle(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("solar_zenith_angle"),
-          // Get references to input parameters
-          lat(get_input(input_parameters, "lat")),
-          time(get_input(input_parameters, "time")),
-          // Get pointers to output parameters
-          cosine_zenith_angle_op(get_op(output_parameters, "cosine_zenith_angle"))
+          // Get references to input quantities
+          lat(get_input(input_quantities, "lat")),
+          time(get_input(input_quantities, "time")),
+          // Get pointers to output quantities
+          cosine_zenith_angle_op(get_op(output_quantities, "cosine_zenith_angle"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& lat;
     double const& time;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* cosine_zenith_angle_op;
     // Main operation
     void do_operation() const;

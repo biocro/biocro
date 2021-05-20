@@ -14,52 +14,52 @@ class c3_leaf_photosynthesis : public SteadyModule
 {
    public:
     c3_leaf_photosynthesis(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c3_leaf_photosynthesis"),
 
-          // Get references to input parameters
-          par_energy_content(get_input(input_parameters, "par_energy_content")),
-          incident_par(get_input(input_parameters, "incident_par")),
-          temp(get_input(input_parameters, "temp")),
-          rh(get_input(input_parameters, "rh")),
-          vmax1(get_input(input_parameters, "vmax1")),
-          jmax(get_input(input_parameters, "jmax")),
-          tpu_rate_max(get_input(input_parameters, "tpu_rate_max")),
-          Rd(get_input(input_parameters, "Rd")),
-          b0(get_input(input_parameters, "b0")),
-          b1(get_input(input_parameters, "b1")),
-          Gs_min(get_input(input_parameters, "Gs_min")),
-          Catm(get_input(input_parameters, "Catm")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
-          O2(get_input(input_parameters, "O2")),
-          theta(get_input(input_parameters, "theta")),
-          StomataWS(get_input(input_parameters, "StomataWS")),
-          water_stress_approach(get_input(input_parameters, "water_stress_approach")),
-          electrons_per_carboxylation(get_input(input_parameters, "electrons_per_carboxylation")),
-          electrons_per_oxygenation(get_input(input_parameters, "electrons_per_oxygenation")),
-          incident_average_par(get_input(input_parameters, "incident_average_par")),
-          windspeed(get_input(input_parameters, "windspeed")),
-          height(get_input(input_parameters, "height")),
-          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air")),
+          // Get references to input quantities
+          par_energy_content(get_input(input_quantities, "par_energy_content")),
+          incident_par(get_input(input_quantities, "incident_par")),
+          temp(get_input(input_quantities, "temp")),
+          rh(get_input(input_quantities, "rh")),
+          vmax1(get_input(input_quantities, "vmax1")),
+          jmax(get_input(input_quantities, "jmax")),
+          tpu_rate_max(get_input(input_quantities, "tpu_rate_max")),
+          Rd(get_input(input_quantities, "Rd")),
+          b0(get_input(input_quantities, "b0")),
+          b1(get_input(input_quantities, "b1")),
+          Gs_min(get_input(input_quantities, "Gs_min")),
+          Catm(get_input(input_quantities, "Catm")),
+          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
+          O2(get_input(input_quantities, "O2")),
+          theta(get_input(input_quantities, "theta")),
+          StomataWS(get_input(input_quantities, "StomataWS")),
+          water_stress_approach(get_input(input_quantities, "water_stress_approach")),
+          electrons_per_carboxylation(get_input(input_quantities, "electrons_per_carboxylation")),
+          electrons_per_oxygenation(get_input(input_quantities, "electrons_per_oxygenation")),
+          incident_average_par(get_input(input_quantities, "incident_average_par")),
+          windspeed(get_input(input_quantities, "windspeed")),
+          height(get_input(input_quantities, "height")),
+          specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
 
-          // Get pointers to output parameters
-          Assim_op(get_op(output_parameters, "Assim")),
-          GrossAssim_op(get_op(output_parameters, "GrossAssim")),
-          Ci_op(get_op(output_parameters, "Ci")),
-          Gs_op(get_op(output_parameters, "Gs")),
-          TransR_op(get_op(output_parameters, "TransR")),
-          EPenman_op(get_op(output_parameters, "EPenman")),
-          EPriestly_op(get_op(output_parameters, "EPriestly")),
-          leaf_temperature_op(get_op(output_parameters, "leaf_temperature"))
+          // Get pointers to output quantities
+          Assim_op(get_op(output_quantities, "Assim")),
+          GrossAssim_op(get_op(output_quantities, "GrossAssim")),
+          Ci_op(get_op(output_quantities, "Ci")),
+          Gs_op(get_op(output_quantities, "Gs")),
+          TransR_op(get_op(output_quantities, "TransR")),
+          EPenman_op(get_op(output_quantities, "EPenman")),
+          EPriestly_op(get_op(output_quantities, "EPriestly")),
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& par_energy_content;
     double const& incident_par;
     double const& temp;
@@ -84,7 +84,7 @@ class c3_leaf_photosynthesis : public SteadyModule
     double const& height;
     double const& specific_heat_of_air;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* Assim_op;
     double* GrossAssim_op;
     double* Ci_op;

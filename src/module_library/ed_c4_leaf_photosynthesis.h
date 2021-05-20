@@ -89,8 +89,8 @@ class ed_c4_leaf_photosynthesis : public se_module::base
 {
    public:
     ed_c4_leaf_photosynthesis(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         : se_module::base(ed_c4_leaf_photosynthesis_stuff::module_name,
                           ed_c4_leaf_photosynthesis_stuff::sub_module_names,
                           ed_c4_leaf_photosynthesis_stuff::solver_type,
@@ -101,33 +101,33 @@ class ed_c4_leaf_photosynthesis : public se_module::base
                           ed_c4_leaf_photosynthesis_stuff::relative_error_tolerances,
                           ed_c4_leaf_photosynthesis_stuff::should_reorder_guesses,
                           ed_c4_leaf_photosynthesis_stuff::return_default_on_failure,
-                          input_parameters,
-                          output_parameters),
-          // Get pointers to input parameters
-          collatz_k(get_input(input_parameters, "collatz_k")),
-          collatz_vmax(get_input(input_parameters, "collatz_vmax")),
-          collatz_alpha(get_input(input_parameters, "collatz_alpha")),
-          collatz_PAR_flux(get_input(input_parameters, "collatz_PAR_flux")),
-          collatz_rd(get_input(input_parameters, "collatz_rd")),
-          ball_berry_intercept(get_input(input_parameters, "ball_berry_intercept")),
-          ball_berry_slope(get_input(input_parameters, "ball_berry_slope")),
-          nikolov_ce(get_input(input_parameters, "nikolov_ce")),
-          leafwidth(get_input(input_parameters, "leafwidth")),
-          StomataWS(get_input(input_parameters, "StomataWS")),
-          conductance_stomatal_h2o_min(get_input(input_parameters, "conductance_stomatal_h2o_min")),
-          mole_fraction_co2_atmosphere(get_input(input_parameters, "mole_fraction_co2_atmosphere")),
-          relative_humidity_atmosphere(get_input(input_parameters, "rh")),
-          temperature_air(get_input(input_parameters, "temp")),
-          solar_energy_absorbed_leaf(get_input(input_parameters, "solar_energy_absorbed_leaf")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
-          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air"))
+                          input_quantities,
+                          output_quantities),
+          // Get pointers to input quantities
+          collatz_k(get_input(input_quantities, "collatz_k")),
+          collatz_vmax(get_input(input_quantities, "collatz_vmax")),
+          collatz_alpha(get_input(input_quantities, "collatz_alpha")),
+          collatz_PAR_flux(get_input(input_quantities, "collatz_PAR_flux")),
+          collatz_rd(get_input(input_quantities, "collatz_rd")),
+          ball_berry_intercept(get_input(input_quantities, "ball_berry_intercept")),
+          ball_berry_slope(get_input(input_quantities, "ball_berry_slope")),
+          nikolov_ce(get_input(input_quantities, "nikolov_ce")),
+          leafwidth(get_input(input_quantities, "leafwidth")),
+          StomataWS(get_input(input_quantities, "StomataWS")),
+          conductance_stomatal_h2o_min(get_input(input_quantities, "conductance_stomatal_h2o_min")),
+          mole_fraction_co2_atmosphere(get_input(input_quantities, "mole_fraction_co2_atmosphere")),
+          relative_humidity_atmosphere(get_input(input_quantities, "rh")),
+          temperature_air(get_input(input_quantities, "temp")),
+          solar_energy_absorbed_leaf(get_input(input_quantities, "solar_energy_absorbed_leaf")),
+          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
+          specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // References to specific input parameters
+    // References to specific input quantities
     double const& collatz_k;
     double const& collatz_vmax;
     double const& collatz_alpha;

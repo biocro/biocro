@@ -15,13 +15,13 @@ class golden_ratio_hyperbola : public SteadyModule
 {
    public:
     golden_ratio_hyperbola(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities) :  // Define basic module properties by passing its name to its parent class
                                                                       SteadyModule("golden_ratio_hyperbola"),
-                                                                      // Get pointers to input parameters
-                                                                      x_ip(get_ip(input_parameters, "x")),
-                                                                      // Get pointers to output parameters
-                                                                      x_op(get_op(output_parameters, "x"))
+                                                                      // Get pointers to input quantities
+                                                                      x_ip(get_ip(input_quantities, "x")),
+                                                                      // Get pointers to output quantities
+                                                                      x_op(get_op(output_quantities, "x"))
 
     {
     }
@@ -29,9 +29,9 @@ class golden_ratio_hyperbola : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* x_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* x_op;
     // Main operation
     void do_operation() const override;
@@ -67,15 +67,15 @@ class hyperbola_2d : public SteadyModule
 {
    public:
     hyperbola_2d(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters) :  // Define basic module properties by passing its name to its parent class
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities) :  // Define basic module properties by passing its name to its parent class
                                                                       SteadyModule("hyperbola_2d"),
-                                                                      // Get pointers to input parameters
-                                                                      x_ip(get_ip(input_parameters, "x")),
-                                                                      y_ip(get_ip(input_parameters, "y")),
-                                                                      // Get pointers to output parameters
-                                                                      x_op(get_op(output_parameters, "x")),
-                                                                      y_op(get_op(output_parameters, "y"))
+                                                                      // Get pointers to input quantities
+                                                                      x_ip(get_ip(input_quantities, "x")),
+                                                                      y_ip(get_ip(input_quantities, "y")),
+                                                                      // Get pointers to output quantities
+                                                                      x_op(get_op(output_quantities, "x")),
+                                                                      y_op(get_op(output_quantities, "y"))
 
     {
     }
@@ -83,10 +83,10 @@ class hyperbola_2d : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* x_ip;
     const double* y_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* x_op;
     double* y_op;
     // Main operation

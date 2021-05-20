@@ -7,39 +7,39 @@
 
 class oscillator_clock_calculator : public SteadyModule {
     public:
-        oscillator_clock_calculator(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+        oscillator_clock_calculator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             SteadyModule("oscillator_clock_calculator"),
-            // Get pointers to input parameters
-            time_ip(get_ip(input_parameters, "time")),
-            kick_strength_ip(get_ip(input_parameters, "kick_strength")),
-            night_tracker_ip(get_ip(input_parameters, "night_tracker")),
-            day_tracker_ip(get_ip(input_parameters, "day_tracker")),
-            light_ip(get_ip(input_parameters, "light")),
-            dawn_b_ip(get_ip(input_parameters, "dawn_b")),
-            dawn_a_ip(get_ip(input_parameters, "dawn_a")),
-            dusk_b_ip(get_ip(input_parameters, "dusk_b")),
-            dusk_a_ip(get_ip(input_parameters, "dusk_a")),
-            ref_b_ip(get_ip(input_parameters, "ref_b")),
-            ref_a_ip(get_ip(input_parameters, "ref_a")),
-            // Get pointers to output parameters
-            dawn_kick_op(get_op(output_parameters, "dawn_kick")),
-            dusk_kick_op(get_op(output_parameters, "dusk_kick")),
-            dawn_phase_op(get_op(output_parameters, "dawn_phase")),
-            dusk_phase_op(get_op(output_parameters, "dusk_phase")),
-            ref_phase_op(get_op(output_parameters, "ref_phase")),
-            dawn_radius_op(get_op(output_parameters, "dawn_radius")),
-            dusk_radius_op(get_op(output_parameters, "dusk_radius")),
-            ref_radius_op(get_op(output_parameters, "ref_radius")),
-            day_length_op(get_op(output_parameters, "day_length")),
-            night_length_op(get_op(output_parameters, "night_length")),
-            sunrise_op(get_op(output_parameters, "sunrise")),
-            sunset_op(get_op(output_parameters, "sunset"))
+            // Get pointers to input quantities
+            time_ip(get_ip(input_quantities, "time")),
+            kick_strength_ip(get_ip(input_quantities, "kick_strength")),
+            night_tracker_ip(get_ip(input_quantities, "night_tracker")),
+            day_tracker_ip(get_ip(input_quantities, "day_tracker")),
+            light_ip(get_ip(input_quantities, "light")),
+            dawn_b_ip(get_ip(input_quantities, "dawn_b")),
+            dawn_a_ip(get_ip(input_quantities, "dawn_a")),
+            dusk_b_ip(get_ip(input_quantities, "dusk_b")),
+            dusk_a_ip(get_ip(input_quantities, "dusk_a")),
+            ref_b_ip(get_ip(input_quantities, "ref_b")),
+            ref_a_ip(get_ip(input_quantities, "ref_a")),
+            // Get pointers to output quantities
+            dawn_kick_op(get_op(output_quantities, "dawn_kick")),
+            dusk_kick_op(get_op(output_quantities, "dusk_kick")),
+            dawn_phase_op(get_op(output_quantities, "dawn_phase")),
+            dusk_phase_op(get_op(output_quantities, "dusk_phase")),
+            ref_phase_op(get_op(output_quantities, "ref_phase")),
+            dawn_radius_op(get_op(output_quantities, "dawn_radius")),
+            dusk_radius_op(get_op(output_quantities, "dusk_radius")),
+            ref_radius_op(get_op(output_quantities, "ref_radius")),
+            day_length_op(get_op(output_quantities, "day_length")),
+            night_length_op(get_op(output_quantities, "night_length")),
+            sunrise_op(get_op(output_quantities, "sunrise")),
+            sunset_op(get_op(output_quantities, "sunset"))
         {}
         static std::vector<std::string> get_inputs();
         static std::vector<std::string> get_outputs();
     private:
-        // Pointers to input parameters
+        // Pointers to input quantities
         const double* time_ip;
         const double* kick_strength_ip;
         const double* night_tracker_ip;
@@ -51,7 +51,7 @@ class oscillator_clock_calculator : public SteadyModule {
         const double* dusk_a_ip;
         const double* ref_b_ip;
         const double* ref_a_ip;
-        // Pointers to output parameters
+        // Pointers to output quantities
         double* dawn_kick_op;
         double* dusk_kick_op;
         double* dawn_phase_op;
@@ -173,7 +173,7 @@ void oscillator_clock_calculator::do_operation() const {
                          :                               (hour - dusk_phase * 12 / pi + 24.0);
     
     //////////////////////////////////////
-    // Update the output parameter list //
+    // Update the output quantity list //
     //////////////////////////////////////
     
     update(dawn_kick_op, dawn_kick);

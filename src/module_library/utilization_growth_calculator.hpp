@@ -15,58 +15,58 @@
  */
 class utilization_growth_calculator : public SteadyModule {
 	public:
-		utilization_growth_calculator(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		utilization_growth_calculator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("utilization_growth_calculator"),
-			// Get pointers to input parameters
-			//dawn_phase_ip(get_ip(input_parameters, "dawn_phase")),
-			grain_TTc_ip(get_ip(input_parameters, "grain_TTc")),
-			TTc_ip(get_ip(input_parameters, "TTc")),
-			rate_constant_leaf_ip(get_ip(input_parameters, "rate_constant_leaf")),
-			rate_constant_stem_ip(get_ip(input_parameters, "rate_constant_stem")),
-			rate_constant_root_ip(get_ip(input_parameters, "rate_constant_root")),
-			rate_constant_rhizome_ip(get_ip(input_parameters, "rate_constant_rhizome")),
-			rate_constant_grain_ip(get_ip(input_parameters, "rate_constant_grain")),
-			KmLeaf_ip(get_ip(input_parameters, "KmLeaf")),
-			KmStem_ip(get_ip(input_parameters, "KmStem")),
-			KmRoot_ip(get_ip(input_parameters, "KmRoot")),
-			KmRhizome_ip(get_ip(input_parameters, "KmRhizome")),
-			KmGrain_ip(get_ip(input_parameters, "KmGrain")),
-			resistance_leaf_to_stem_ip(get_ip(input_parameters, "resistance_leaf_to_stem")),
-			resistance_stem_to_grain_ip(get_ip(input_parameters, "resistance_stem_to_grain")),
-			resistance_stem_to_root_ip(get_ip(input_parameters, "resistance_stem_to_root")),
-			resistance_stem_to_rhizome_ip(get_ip(input_parameters, "resistance_stem_to_rhizome")),
-			Leaf_ip(get_ip(input_parameters, "Leaf")),
-			Stem_ip(get_ip(input_parameters, "Stem")),
-			Root_ip(get_ip(input_parameters, "Root")),
-			Grain_ip(get_ip(input_parameters, "Grain")),
-			Rhizome_ip(get_ip(input_parameters, "Rhizome")),
-			substrate_pool_leaf_ip(get_ip(input_parameters, "substrate_pool_leaf")),
-			substrate_pool_stem_ip(get_ip(input_parameters, "substrate_pool_stem")),
-			substrate_pool_root_ip(get_ip(input_parameters, "substrate_pool_root")),
-			substrate_pool_rhizome_ip(get_ip(input_parameters, "substrate_pool_rhizome")),
-			substrate_pool_grain_ip(get_ip(input_parameters, "substrate_pool_grain")),
-			// Get pointers to output parameters
-			kGrain_scale_op(get_op(output_parameters, "kGrain_scale")),
-			utilization_leaf_op(get_op(output_parameters, "utilization_leaf")),
-			utilization_stem_op(get_op(output_parameters, "utilization_stem")),
-			utilization_root_op(get_op(output_parameters, "utilization_root")),
-			utilization_rhizome_op(get_op(output_parameters, "utilization_rhizome")),
-			utilization_grain_op(get_op(output_parameters, "utilization_grain")),
-			transport_leaf_to_stem_op(get_op(output_parameters, "transport_leaf_to_stem")),
-			transport_stem_to_grain_op(get_op(output_parameters, "transport_stem_to_grain")),
-			transport_stem_to_root_op(get_op(output_parameters, "transport_stem_to_root")),
-			transport_stem_to_rhizome_op(get_op(output_parameters, "transport_stem_to_rhizome")),
-			mass_fraction_leaf_op(get_op(output_parameters, "mass_fraction_leaf")),
-			mass_fraction_stem_op(get_op(output_parameters, "mass_fraction_stem")),
-			mass_fraction_root_op(get_op(output_parameters, "mass_fraction_root")),
-			mass_fraction_rhizome_op(get_op(output_parameters, "mass_fraction_rhizome")),
-			mass_fraction_grain_op(get_op(output_parameters, "mass_fraction_grain"))
+			// Get pointers to input quantities
+			//dawn_phase_ip(get_ip(input_quantities, "dawn_phase")),
+			grain_TTc_ip(get_ip(input_quantities, "grain_TTc")),
+			TTc_ip(get_ip(input_quantities, "TTc")),
+			rate_constant_leaf_ip(get_ip(input_quantities, "rate_constant_leaf")),
+			rate_constant_stem_ip(get_ip(input_quantities, "rate_constant_stem")),
+			rate_constant_root_ip(get_ip(input_quantities, "rate_constant_root")),
+			rate_constant_rhizome_ip(get_ip(input_quantities, "rate_constant_rhizome")),
+			rate_constant_grain_ip(get_ip(input_quantities, "rate_constant_grain")),
+			KmLeaf_ip(get_ip(input_quantities, "KmLeaf")),
+			KmStem_ip(get_ip(input_quantities, "KmStem")),
+			KmRoot_ip(get_ip(input_quantities, "KmRoot")),
+			KmRhizome_ip(get_ip(input_quantities, "KmRhizome")),
+			KmGrain_ip(get_ip(input_quantities, "KmGrain")),
+			resistance_leaf_to_stem_ip(get_ip(input_quantities, "resistance_leaf_to_stem")),
+			resistance_stem_to_grain_ip(get_ip(input_quantities, "resistance_stem_to_grain")),
+			resistance_stem_to_root_ip(get_ip(input_quantities, "resistance_stem_to_root")),
+			resistance_stem_to_rhizome_ip(get_ip(input_quantities, "resistance_stem_to_rhizome")),
+			Leaf_ip(get_ip(input_quantities, "Leaf")),
+			Stem_ip(get_ip(input_quantities, "Stem")),
+			Root_ip(get_ip(input_quantities, "Root")),
+			Grain_ip(get_ip(input_quantities, "Grain")),
+			Rhizome_ip(get_ip(input_quantities, "Rhizome")),
+			substrate_pool_leaf_ip(get_ip(input_quantities, "substrate_pool_leaf")),
+			substrate_pool_stem_ip(get_ip(input_quantities, "substrate_pool_stem")),
+			substrate_pool_root_ip(get_ip(input_quantities, "substrate_pool_root")),
+			substrate_pool_rhizome_ip(get_ip(input_quantities, "substrate_pool_rhizome")),
+			substrate_pool_grain_ip(get_ip(input_quantities, "substrate_pool_grain")),
+			// Get pointers to output quantities
+			kGrain_scale_op(get_op(output_quantities, "kGrain_scale")),
+			utilization_leaf_op(get_op(output_quantities, "utilization_leaf")),
+			utilization_stem_op(get_op(output_quantities, "utilization_stem")),
+			utilization_root_op(get_op(output_quantities, "utilization_root")),
+			utilization_rhizome_op(get_op(output_quantities, "utilization_rhizome")),
+			utilization_grain_op(get_op(output_quantities, "utilization_grain")),
+			transport_leaf_to_stem_op(get_op(output_quantities, "transport_leaf_to_stem")),
+			transport_stem_to_grain_op(get_op(output_quantities, "transport_stem_to_grain")),
+			transport_stem_to_root_op(get_op(output_quantities, "transport_stem_to_root")),
+			transport_stem_to_rhizome_op(get_op(output_quantities, "transport_stem_to_rhizome")),
+			mass_fraction_leaf_op(get_op(output_quantities, "mass_fraction_leaf")),
+			mass_fraction_stem_op(get_op(output_quantities, "mass_fraction_stem")),
+			mass_fraction_root_op(get_op(output_quantities, "mass_fraction_root")),
+			mass_fraction_rhizome_op(get_op(output_quantities, "mass_fraction_rhizome")),
+			mass_fraction_grain_op(get_op(output_quantities, "mass_fraction_grain"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		//const double* dawn_phase_ip;
 		const double* grain_TTc_ip;
 		const double* TTc_ip;
@@ -94,7 +94,7 @@ class utilization_growth_calculator : public SteadyModule {
 		const double* substrate_pool_root_ip;
 		const double* substrate_pool_rhizome_ip;
 		const double* substrate_pool_grain_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* kGrain_scale_op;
 		double* utilization_leaf_op;
 		double* utilization_stem_op;
@@ -218,7 +218,7 @@ void utilization_growth_calculator::do_operation() const {
     double substrate_pool_grain = *substrate_pool_grain_ip;
 
     // Create a logistic scaling coefficient to smoothly ramp up the grain growth rate
-	//  The midpoint is a TTc value defined in the input parameters
+	//  The midpoint is a TTc value defined in the input quantities
 	//  The maximum value is 1
 	//  The steepness is chosen so the coefficient reaches 95% of its maximum
 	//    value when TTc passes the midpoint by 8 thermal days:
@@ -281,7 +281,7 @@ void utilization_growth_calculator::do_operation() const {
     double transport_stem_to_root = beta * (mass_fraction_stem - mass_fraction_root) / resistance_stem_to_root;
     double transport_stem_to_rhizome = beta * (mass_fraction_stem - mass_fraction_rhizome) / resistance_stem_to_rhizome;
 
-	// Update the output parameter list
+	// Update the output quantity list
     update(utilization_leaf_op, utilization_leaf);
     update(utilization_stem_op, utilization_stem);
     update(utilization_root_op, utilization_root);

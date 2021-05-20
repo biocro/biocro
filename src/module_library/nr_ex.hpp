@@ -11,14 +11,14 @@
 
 class nr_ex : public DerivModule {
 	public:
-		nr_ex(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) : 
+		nr_ex(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) : 
 			DerivModule("nr_ex"),
 			// Get input pointers
-			u_ip(get_ip(input_parameters, "u")),
-			v_ip(get_ip(input_parameters, "v")),
+			u_ip(get_ip(input_quantities, "u")),
+			v_ip(get_ip(input_quantities, "v")),
 			// Get output pointers for time derivatives
-			u_op(get_op(output_parameters, "u")),
-			v_op(get_op(output_parameters, "v"))
+			u_op(get_op(output_quantities, "u")),
+			v_op(get_op(output_quantities, "v"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();

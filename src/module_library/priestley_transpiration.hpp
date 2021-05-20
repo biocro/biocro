@@ -5,26 +5,26 @@
 
 class priestley_transpiration : public SteadyModule {
 	public:
-		priestley_transpiration(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		priestley_transpiration(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("priestley_transpiration"),
-			// Get pointers to input parameters
-			slope_water_vapor_ip(get_ip(input_parameters, "slope_water_vapor")),
-			psychrometric_parameter_ip(get_ip(input_parameters, "psychrometric_parameter")),
-			latent_heat_vaporization_of_water_ip(get_ip(input_parameters, "latent_heat_vaporization_of_water")),
-			PhiN_ip(get_ip(input_parameters, "PhiN")),
-			// Get pointers to output parameters
-			transpiration_rate_op(get_op(output_parameters, "transpiration_rate"))
+			// Get pointers to input quantities
+			slope_water_vapor_ip(get_ip(input_quantities, "slope_water_vapor")),
+			psychrometric_parameter_ip(get_ip(input_quantities, "psychrometric_parameter")),
+			latent_heat_vaporization_of_water_ip(get_ip(input_quantities, "latent_heat_vaporization_of_water")),
+			PhiN_ip(get_ip(input_quantities, "PhiN")),
+			// Get pointers to output quantities
+			transpiration_rate_op(get_op(output_quantities, "transpiration_rate"))
 		{}
 		static std::vector<std::string> get_inputs();
 		static std::vector<std::string> get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* slope_water_vapor_ip;
 		const double* psychrometric_parameter_ip;
 		const double* latent_heat_vaporization_of_water_ip;
 		const double* PhiN_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* transpiration_rate_op;
 		// Main operation
 		void do_operation() const;
@@ -46,7 +46,7 @@ std::vector<std::string> priestley_transpiration::get_outputs() {
 }
 
 void priestley_transpiration::do_operation() const {
-	// Collect input parameters and make calculations
+	// Collect input quantities and make calculations
 	
 	double slope_water_vapor = *slope_water_vapor_ip;		// kg / m^3 / K
 	double psychr_parameter = *psychrometric_parameter_ip;	// kg / m^3 / K
@@ -55,7 +55,7 @@ void priestley_transpiration::do_operation() const {
 	
 	double evapotranspiration = 1.26 * slope_water_vapor * PhiN / (LHV * (slope_water_vapor + psychr_parameter));
 	
-	// Update the output parameter list
+	// Update the output quantity list
 	update(transpiration_rate_op, evapotranspiration);		// kg / m^2 / s. Leaf area basis.
 }
 

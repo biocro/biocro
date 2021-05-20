@@ -49,22 +49,22 @@ class ed_ball_berry : public SteadyModule
 {
    public:
     ed_ball_berry(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_ball_berry"),
-          // Get pointers to input parameters
-          ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
-          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
-          assimilation_net_ip(get_ip(input_parameters, "assimilation_net")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-          mole_fraction_h2o_leaf_surface_ip(get_ip(input_parameters, "mole_fraction_h2o_leaf_surface")),
-          mole_fraction_co2_leaf_surface_ip(get_ip(input_parameters, "mole_fraction_co2_leaf_surface")),
-          conductance_adjustment_factor_WS_ip(get_ip(input_parameters, "conductance_adjustment_factor_WS")),
-          conductance_stomatal_h2o_min_ip(get_ip(input_parameters, "conductance_stomatal_h2o_min")),
-          // Get pointers to output parameters
-          conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o"))
+          // Get pointers to input quantities
+          ball_berry_slope_ip(get_ip(input_quantities, "ball_berry_slope")),
+          ball_berry_intercept_ip(get_ip(input_quantities, "ball_berry_intercept")),
+          assimilation_net_ip(get_ip(input_quantities, "assimilation_net")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
+          mole_fraction_h2o_leaf_surface_ip(get_ip(input_quantities, "mole_fraction_h2o_leaf_surface")),
+          mole_fraction_co2_leaf_surface_ip(get_ip(input_quantities, "mole_fraction_co2_leaf_surface")),
+          conductance_adjustment_factor_WS_ip(get_ip(input_quantities, "conductance_adjustment_factor_WS")),
+          conductance_stomatal_h2o_min_ip(get_ip(input_quantities, "conductance_stomatal_h2o_min")),
+          // Get pointers to output quantities
+          conductance_stomatal_h2o_op(get_op(output_quantities, "conductance_stomatal_h2o"))
 
     {
     }
@@ -72,7 +72,7 @@ class ed_ball_berry : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* ball_berry_slope_ip;
     const double* ball_berry_intercept_ip;
     const double* assimilation_net_ip;
@@ -82,7 +82,7 @@ class ed_ball_berry : public SteadyModule
     const double* mole_fraction_co2_leaf_surface_ip;
     const double* conductance_adjustment_factor_WS_ip;
     const double* conductance_stomatal_h2o_min_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* conductance_stomatal_h2o_op;
     // Main operation
     void do_operation() const override;
@@ -129,7 +129,7 @@ void ed_ball_berry::do_operation() const
 
     check_error_conditions(errors_to_check, get_name());
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(conductance_stomatal_h2o_op, adjusted_conductance);
 }
 

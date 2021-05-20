@@ -15,34 +15,34 @@ class ed_water_vapor_properties : public SteadyModule
 {
    public:
     ed_water_vapor_properties(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_water_vapor_properties"),
-          // Get pointers to input parameters
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          mole_fraction_h2o_atmosphere_ip(get_ip(input_parameters, "mole_fraction_h2o_atmosphere")),
-          specific_heat_of_air_ip(get_ip(input_parameters, "specific_heat_of_air")),
-          // Get pointers to output parameters
-          latent_heat_vaporization_of_water_op(get_op(output_parameters, "latent_heat_vaporization_of_water")),
-          slope_water_vapor_op(get_op(output_parameters, "slope_water_vapor")),
-          saturation_water_vapor_pressure_op(get_op(output_parameters, "saturation_water_vapor_pressure")),
-          water_vapor_pressure_op(get_op(output_parameters, "water_vapor_pressure")),
-          vapor_density_deficit_op(get_op(output_parameters, "vapor_density_deficit")),
-          psychrometric_parameter_op(get_op(output_parameters, "psychrometric_parameter"))
+          // Get pointers to input quantities
+          temperature_air_ip(get_ip(input_quantities, "temp")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          mole_fraction_h2o_atmosphere_ip(get_ip(input_quantities, "mole_fraction_h2o_atmosphere")),
+          specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
+          // Get pointers to output quantities
+          latent_heat_vaporization_of_water_op(get_op(output_quantities, "latent_heat_vaporization_of_water")),
+          slope_water_vapor_op(get_op(output_quantities, "slope_water_vapor")),
+          saturation_water_vapor_pressure_op(get_op(output_quantities, "saturation_water_vapor_pressure")),
+          water_vapor_pressure_op(get_op(output_quantities, "water_vapor_pressure")),
+          vapor_density_deficit_op(get_op(output_quantities, "vapor_density_deficit")),
+          psychrometric_parameter_op(get_op(output_quantities, "psychrometric_parameter"))
     {
     }
     static std::vector<std::string> get_inputs();
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* temperature_air_ip;
     const double* atmospheric_pressure_ip;
     const double* mole_fraction_h2o_atmosphere_ip;
     const double* specific_heat_of_air_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* latent_heat_vaporization_of_water_op;
     double* slope_water_vapor_op;
     double* saturation_water_vapor_pressure_op;
@@ -97,7 +97,7 @@ void ed_water_vapor_properties::do_operation() const
                                            *specific_heat_of_air_ip /
                                            latent_heat_vaporization_of_water;  // kg / m^3 / K
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(latent_heat_vaporization_of_water_op, latent_heat_vaporization_of_water);
     update(slope_water_vapor_op, slope_water_vapor);
     update(saturation_water_vapor_pressure_op, saturation_water_vapor_pressure);

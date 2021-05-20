@@ -35,27 +35,27 @@ class ed_gas_concentrations : public SteadyModule
 {
    public:
     ed_gas_concentrations(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_gas_concentrations"),
-          // Get pointers to input parameters
-          conductance_boundary_h2o_ip(get_ip(input_parameters, "conductance_boundary_h2o")),
-          conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
-          conductance_ratio_boundary_ip(get_ip(input_parameters, "conductance_ratio_boundary")),
-          conductance_ratio_stomata_ip(get_ip(input_parameters, "conductance_ratio_stomata")),
-          assimilation_net_ip(get_ip(input_parameters, "assimilation_net")),
-          mole_fraction_co2_atmosphere_ip(get_ip(input_parameters, "mole_fraction_co2_atmosphere")),
-          mole_fraction_h2o_atmosphere_ip(get_ip(input_parameters, "mole_fraction_h2o_atmosphere")),
-          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          // Get pointers to output parameters
-          conductance_boundary_co2_op(get_op(output_parameters, "conductance_boundary_co2")),
-          conductance_stomatal_co2_op(get_op(output_parameters, "conductance_stomatal_co2")),
-          mole_fraction_co2_leaf_surface_op(get_op(output_parameters, "mole_fraction_co2_leaf_surface")),
-          mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
-          mole_fraction_h2o_leaf_surface_op(get_op(output_parameters, "mole_fraction_h2o_leaf_surface")),
-          mole_fraction_h2o_intercellular_op(get_op(output_parameters, "mole_fraction_h2o_intercellular"))
+          // Get pointers to input quantities
+          conductance_boundary_h2o_ip(get_ip(input_quantities, "conductance_boundary_h2o")),
+          conductance_stomatal_h2o_ip(get_ip(input_quantities, "conductance_stomatal_h2o")),
+          conductance_ratio_boundary_ip(get_ip(input_quantities, "conductance_ratio_boundary")),
+          conductance_ratio_stomata_ip(get_ip(input_quantities, "conductance_ratio_stomata")),
+          assimilation_net_ip(get_ip(input_quantities, "assimilation_net")),
+          mole_fraction_co2_atmosphere_ip(get_ip(input_quantities, "mole_fraction_co2_atmosphere")),
+          mole_fraction_h2o_atmosphere_ip(get_ip(input_quantities, "mole_fraction_h2o_atmosphere")),
+          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          // Get pointers to output quantities
+          conductance_boundary_co2_op(get_op(output_quantities, "conductance_boundary_co2")),
+          conductance_stomatal_co2_op(get_op(output_quantities, "conductance_stomatal_co2")),
+          mole_fraction_co2_leaf_surface_op(get_op(output_quantities, "mole_fraction_co2_leaf_surface")),
+          mole_fraction_co2_intercellular_op(get_op(output_quantities, "mole_fraction_co2_intercellular")),
+          mole_fraction_h2o_leaf_surface_op(get_op(output_quantities, "mole_fraction_h2o_leaf_surface")),
+          mole_fraction_h2o_intercellular_op(get_op(output_quantities, "mole_fraction_h2o_intercellular"))
 
     {
     }
@@ -63,7 +63,7 @@ class ed_gas_concentrations : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* conductance_boundary_h2o_ip;
     const double* conductance_stomatal_h2o_ip;
     const double* conductance_ratio_boundary_ip;
@@ -73,7 +73,7 @@ class ed_gas_concentrations : public SteadyModule
     const double* mole_fraction_h2o_atmosphere_ip;
     const double* temperature_leaf_ip;
     const double* atmospheric_pressure_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* conductance_boundary_co2_op;
     double* conductance_stomatal_co2_op;
     double* mole_fraction_co2_leaf_surface_op;
@@ -143,7 +143,7 @@ void ed_gas_concentrations::do_operation() const
 
     check_error_conditions(errors_to_check, get_name());
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(conductance_boundary_co2_op, conductance_boundary_co2);
     update(conductance_stomatal_co2_op, conductance_stomatal_co2);
     update(mole_fraction_co2_leaf_surface_op, mole_fraction_co2_leaf_surface);

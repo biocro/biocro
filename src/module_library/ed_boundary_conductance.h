@@ -23,15 +23,15 @@ class ed_boundary_conductance_quadrature : public SteadyModule
 {
    public:
     ed_boundary_conductance_quadrature(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_boundary_conductance_quadrature"),
-          // Get pointers to input parameters
-          conductance_boundary_h2o_forced_ip(get_ip(input_parameters, "conductance_boundary_h2o_forced")),
-          conductance_boundary_h2o_free_ip(get_ip(input_parameters, "conductance_boundary_h2o_free")),
-          // Get pointers to output parameters
-          conductance_boundary_h2o_op(get_op(output_parameters, "conductance_boundary_h2o"))
+          // Get pointers to input quantities
+          conductance_boundary_h2o_forced_ip(get_ip(input_quantities, "conductance_boundary_h2o_forced")),
+          conductance_boundary_h2o_free_ip(get_ip(input_quantities, "conductance_boundary_h2o_free")),
+          // Get pointers to output quantities
+          conductance_boundary_h2o_op(get_op(output_quantities, "conductance_boundary_h2o"))
 
     {
     }
@@ -39,10 +39,10 @@ class ed_boundary_conductance_quadrature : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* conductance_boundary_h2o_forced_ip;
     const double* conductance_boundary_h2o_free_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* conductance_boundary_h2o_op;
     // Main operation
     void do_operation() const override;
@@ -85,15 +85,15 @@ class ed_boundary_conductance_max : public SteadyModule
 {
    public:
     ed_boundary_conductance_max(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_boundary_conductance_max"),
-          // Get pointers to input parameters
-          conductance_boundary_h2o_forced_ip(get_ip(input_parameters, "conductance_boundary_h2o_forced")),
-          conductance_boundary_h2o_free_ip(get_ip(input_parameters, "conductance_boundary_h2o_free")),
-          // Get pointers to output parameters
-          conductance_boundary_h2o_op(get_op(output_parameters, "conductance_boundary_h2o"))
+          // Get pointers to input quantities
+          conductance_boundary_h2o_forced_ip(get_ip(input_quantities, "conductance_boundary_h2o_forced")),
+          conductance_boundary_h2o_free_ip(get_ip(input_quantities, "conductance_boundary_h2o_free")),
+          // Get pointers to output quantities
+          conductance_boundary_h2o_op(get_op(output_quantities, "conductance_boundary_h2o"))
 
     {
     }
@@ -101,10 +101,10 @@ class ed_boundary_conductance_max : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* conductance_boundary_h2o_forced_ip;
     const double* conductance_boundary_h2o_free_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* conductance_boundary_h2o_op;
     // Main operation
     void do_operation() const override;

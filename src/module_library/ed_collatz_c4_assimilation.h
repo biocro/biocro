@@ -26,34 +26,34 @@ class ed_collatz_c4_assimilation : public SteadyModule
 {
    public:
     ed_collatz_c4_assimilation(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        const std::unordered_map<std::string, double>* input_quantities,
+        std::unordered_map<std::string, double>* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_collatz_c4_assimilation"),
-          // Get pointers to input parameters
-          collatz_q10_ip(get_ip(input_parameters, "collatz_q10")),
-          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-          collatz_k_ip(get_ip(input_parameters, "collatz_k")),
-          collatz_rd_ip(get_ip(input_parameters, "collatz_rd")),
-          collatz_vmax_ip(get_ip(input_parameters, "collatz_vmax")),
-          collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
-          collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
-          collatz_alpha_ip(get_ip(input_parameters, "collatz_alpha")),
-          collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
-          mole_fraction_co2_intercellular_ip(get_ip(input_parameters, "mole_fraction_co2_intercellular")),
-          collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
-          collatz_beta_ip(get_ip(input_parameters, "collatz_beta")),
-          assimilation_adjustment_factor_WS_ip(get_ip(input_parameters, "assimilation_adjustment_factor_WS")),
-          // Get pointers to output parameters
-          collatz_KT_op(get_op(output_parameters, "collatz_KT")),
-          collatz_RT_op(get_op(output_parameters, "collatz_RT")),
-          collatz_VT_op(get_op(output_parameters, "collatz_VT")),
-          assimilation_carbon_limited_op(get_op(output_parameters, "assimilation_carbon_limited")),
-          assimilation_rubisco_limited_op(get_op(output_parameters, "assimilation_rubisco_limited")),
-          assimilation_light_limited_op(get_op(output_parameters, "assimilation_light_limited")),
-          assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
-          respiration_op(get_op(output_parameters, "respiration")),
-          assimilation_net_op(get_op(output_parameters, "assimilation_net"))
+          // Get pointers to input quantities
+          collatz_q10_ip(get_ip(input_quantities, "collatz_q10")),
+          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
+          collatz_k_ip(get_ip(input_quantities, "collatz_k")),
+          collatz_rd_ip(get_ip(input_quantities, "collatz_rd")),
+          collatz_vmax_ip(get_ip(input_quantities, "collatz_vmax")),
+          collatz_rubisco_temperature_lower_ip(get_ip(input_quantities, "collatz_rubisco_temperature_lower")),
+          collatz_rubisco_temperature_upper_ip(get_ip(input_quantities, "collatz_rubisco_temperature_upper")),
+          collatz_alpha_ip(get_ip(input_quantities, "collatz_alpha")),
+          collatz_PAR_flux_ip(get_ip(input_quantities, "collatz_PAR_flux")),
+          mole_fraction_co2_intercellular_ip(get_ip(input_quantities, "mole_fraction_co2_intercellular")),
+          collatz_theta_ip(get_ip(input_quantities, "collatz_theta")),
+          collatz_beta_ip(get_ip(input_quantities, "collatz_beta")),
+          assimilation_adjustment_factor_WS_ip(get_ip(input_quantities, "assimilation_adjustment_factor_WS")),
+          // Get pointers to output quantities
+          collatz_KT_op(get_op(output_quantities, "collatz_KT")),
+          collatz_RT_op(get_op(output_quantities, "collatz_RT")),
+          collatz_VT_op(get_op(output_quantities, "collatz_VT")),
+          assimilation_carbon_limited_op(get_op(output_quantities, "assimilation_carbon_limited")),
+          assimilation_rubisco_limited_op(get_op(output_quantities, "assimilation_rubisco_limited")),
+          assimilation_light_limited_op(get_op(output_quantities, "assimilation_light_limited")),
+          assimilation_gross_op(get_op(output_quantities, "assimilation_gross")),
+          respiration_op(get_op(output_quantities, "respiration")),
+          assimilation_net_op(get_op(output_quantities, "assimilation_net"))
 
     {
     }
@@ -61,7 +61,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     static std::vector<std::string> get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* collatz_q10_ip;
     const double* temperature_leaf_ip;
     const double* collatz_k_ip;
@@ -75,7 +75,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     const double* collatz_theta_ip;
     const double* collatz_beta_ip;
     const double* assimilation_adjustment_factor_WS_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* collatz_KT_op;
     double* collatz_RT_op;
     double* collatz_VT_op;
