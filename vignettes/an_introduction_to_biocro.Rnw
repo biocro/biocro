@@ -143,7 +143,7 @@
 
 \newcommand{\iv}{\text{iv}}
 \newcommand{\p}{\text{p}}
-\newcommand{\d}{\text{d}}
+\newcommand{\dr}{\text{d}}
 
 
 \title{An Introduction to BioCro for Those Who Want to Add Models}
@@ -1684,12 +1684,12 @@ using \Rcode{test_module}:
   the initial values may potentially vary with each test.  The keys,
   however, will in most cases be uniform across tests.  For example,
   if the module inputs consist of parameters $\p_1$,
-  $\p_2$, \dots, $\p_k$, drivers $\d_1$, $\d_2$, \dots,
-  $\d_m$, and initial values variables $\iv_1$, $\iv_2$, \dots,
+  $\p_2$, \dots, $\p_k$, drivers $\dr_1$, $\dr_2$, \dots,
+  $\dr_m$, and initial values $\iv_1$, $\iv_2$, \dots,
   $\iv_n$, then we will be setting the corresponding function
   parameters to values of the following forms:
   \begin{Rlisting}[4]
-    invariant_parameters <- list(ip_1 = ___, ip_2 = ___, ..., ip_k = ___)
+    parameters <- list(p_1 = ___, p_2 = ___, ..., p_k = ___)
     drivers <- list(d_1 = ___, d_2 = ___, ..., d_m = ___)
     initial_values <- list(iv_1 = ___, iv_2 = ___, ..., iv_n = ___)
   \end{Rlisting}
