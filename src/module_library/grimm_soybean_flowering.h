@@ -2,6 +2,7 @@
 #define GRIMM_SOYBEAN_FLOWERING_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * \brief Model for soybean development and flowering based on Grimm et al. (1993). See grimm_soybean_flowering_calculator for details.
@@ -10,8 +11,8 @@ class grimm_soybean_flowering : public DerivModule
 {
    public:
     grimm_soybean_flowering(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities) :  // Define basic module properties by passing its name to its parent class
+        const state_map* input_quantities,
+        state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
                                                                       DerivModule("grimm_soybean_flowering"),
                                                                       // Get pointers to input quantities
                                                                       grimm_rate_ip(get_ip(input_quantities, "grimm_rate")),
@@ -19,8 +20,8 @@ class grimm_soybean_flowering : public DerivModule
                                                                       grimm_physiological_age_op(get_op(output_quantities, "grimm_physiological_age"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -31,13 +32,13 @@ class grimm_soybean_flowering : public DerivModule
     void do_operation() const;
 };
 
-std::vector<std::string> grimm_soybean_flowering::get_inputs()
+string_vector grimm_soybean_flowering::get_inputs()
 {
     return {
         "grimm_rate"};
 }
 
-std::vector<std::string> grimm_soybean_flowering::get_outputs()
+string_vector grimm_soybean_flowering::get_outputs()
 {
     return {
         "grimm_physiological_age"};

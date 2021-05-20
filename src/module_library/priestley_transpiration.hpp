@@ -2,10 +2,11 @@
 #define PRIESTLEY_TRANSPIRATION_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class priestley_transpiration : public SteadyModule {
 	public:
-		priestley_transpiration(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		priestley_transpiration(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("priestley_transpiration"),
 			// Get pointers to input quantities
@@ -16,8 +17,8 @@ class priestley_transpiration : public SteadyModule {
 			// Get pointers to output quantities
 			transpiration_rate_op(get_op(output_quantities, "transpiration_rate"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* slope_water_vapor_ip;
@@ -30,7 +31,7 @@ class priestley_transpiration : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> priestley_transpiration::get_inputs() {
+string_vector priestley_transpiration::get_inputs() {
 	return {
 		"slope_water_vapor",
 		"psychrometric_parameter",
@@ -39,7 +40,7 @@ std::vector<std::string> priestley_transpiration::get_inputs() {
 	};
 }
 
-std::vector<std::string> priestley_transpiration::get_outputs() {
+string_vector priestley_transpiration::get_outputs() {
 	return {
 		"transpiration_rate"
 	};
@@ -47,14 +48,14 @@ std::vector<std::string> priestley_transpiration::get_outputs() {
 
 void priestley_transpiration::do_operation() const {
 	// Collect input quantities and make calculations
-	
+
 	double slope_water_vapor = *slope_water_vapor_ip;		// kg / m^3 / K
 	double psychr_parameter = *psychrometric_parameter_ip;	// kg / m^3 / K
 	double LHV = *latent_heat_vaporization_of_water_ip;		// J / kg
 	double PhiN = *PhiN_ip;		// In penman_monteith_transpiration, PhiN is retrieved from "leaf_net_irradiance" (EBL)
-	
+
 	double evapotranspiration = 1.26 * slope_water_vapor * PhiN / (LHV * (slope_water_vapor + psychr_parameter));
-	
+
 	// Update the output quantity list
 	update(transpiration_rate_op, evapotranspiration);		// kg / m^2 / s. Leaf area basis.
 }

@@ -2,10 +2,11 @@
 #define PENMAN_MONTEITH_LEAF_TEMPERATURE_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class penman_monteith_leaf_temperature : public SteadyModule {
 	public:
-		penman_monteith_leaf_temperature(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		penman_monteith_leaf_temperature(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("penman_monteith_leaf_temperature"),
 			// Get pointers to input quantities
@@ -20,8 +21,8 @@ class penman_monteith_leaf_temperature : public SteadyModule {
 			// Get pointers to output quantities
 			leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* slope_water_vapor_ip;

@@ -2,12 +2,13 @@
 #define TWO_LAYER_SOIL_PROFILE_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "AuxBioCro.h"  // For soilML_str
 #include "BioCro.h"     // For soilML
 
 class two_layer_soil_profile : public DerivModule {
 	public:
-		two_layer_soil_profile(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		two_layer_soil_profile(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("two_layer_soil_profile"),
 			// Get pointers to input quantities
@@ -49,8 +50,8 @@ class two_layer_soil_profile : public DerivModule {
 			cws2_op(get_op(output_quantities, "cws2")),
 			soil_water_content_op(get_op(output_quantities, "soil_water_content"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* cws1_ip;
@@ -94,7 +95,7 @@ class two_layer_soil_profile : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> two_layer_soil_profile::get_inputs() {
+string_vector two_layer_soil_profile::get_inputs() {
 	return {
 		"cws1",
 		"cws2",
@@ -132,7 +133,7 @@ std::vector<std::string> two_layer_soil_profile::get_inputs() {
 	};
 }
 
-std::vector<std::string> two_layer_soil_profile::get_outputs() {
+string_vector two_layer_soil_profile::get_outputs() {
 	return {
 		"cws1",
 		"cws2",

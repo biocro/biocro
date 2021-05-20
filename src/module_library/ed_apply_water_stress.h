@@ -2,10 +2,11 @@
 #define ED_APPLY_WATER_STRESS_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * @class ed_apply_stomatal_water_stress_via_conductance
- * 
+ *
  * @brief Sets the water stress adjustment factors to apply the stomatal water
  * stress only to the stomatal conductance. Currently only intended for use by Ed.
  */
@@ -13,8 +14,8 @@ class ed_apply_stomatal_water_stress_via_conductance : public SteadyModule
 {
    public:
     ed_apply_stomatal_water_stress_via_conductance(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_apply_stomatal_water_stress_via_conductance"),
           // Get pointers to input quantities
@@ -25,8 +26,8 @@ class ed_apply_stomatal_water_stress_via_conductance : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -38,14 +39,14 @@ class ed_apply_stomatal_water_stress_via_conductance : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_apply_stomatal_water_stress_via_conductance::get_inputs()
+string_vector ed_apply_stomatal_water_stress_via_conductance::get_inputs()
 {
     return {
         "StomataWS"  // dimensionless
     };
 }
 
-std::vector<std::string> ed_apply_stomatal_water_stress_via_conductance::get_outputs()
+string_vector ed_apply_stomatal_water_stress_via_conductance::get_outputs()
 {
     return {
         "conductance_adjustment_factor_WS",  // dimensionless
@@ -62,7 +63,7 @@ void ed_apply_stomatal_water_stress_via_conductance::do_operation() const
 
 /**
  * @class ed_apply_stomatal_water_stress_via_assimilation
- * 
+ *
  * @brief Sets the water stress adjustment factors to apply the stomatal water
  * stress only to the stomatal conductance.
  */
@@ -70,8 +71,8 @@ class ed_apply_stomatal_water_stress_via_assimilation : public SteadyModule
 {
    public:
     ed_apply_stomatal_water_stress_via_assimilation(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_apply_stomatal_water_stress_via_assimilation"),
           // Get pointers to input quantities
@@ -82,8 +83,8 @@ class ed_apply_stomatal_water_stress_via_assimilation : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -95,14 +96,14 @@ class ed_apply_stomatal_water_stress_via_assimilation : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_apply_stomatal_water_stress_via_assimilation::get_inputs()
+string_vector ed_apply_stomatal_water_stress_via_assimilation::get_inputs()
 {
     return {
         "StomataWS"  // dimensionless
     };
 }
 
-std::vector<std::string> ed_apply_stomatal_water_stress_via_assimilation::get_outputs()
+string_vector ed_apply_stomatal_water_stress_via_assimilation::get_outputs()
 {
     return {
         "conductance_adjustment_factor_WS",  // dimensionless

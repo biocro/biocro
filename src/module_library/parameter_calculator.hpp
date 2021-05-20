@@ -2,10 +2,11 @@
 #define PARAMETER_CALCULATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class parameter_calculator : public SteadyModule {
 	public:
-		parameter_calculator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		parameter_calculator(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("parameter_calculator"),
 			// Get pointers to input quantities
@@ -25,8 +26,8 @@ class parameter_calculator : public SteadyModule {
 	        vmax_op(get_op(output_quantities, "vmax")),
 	        alpha_op(get_op(output_quantities, "alpha"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* iSp_ip;
@@ -48,7 +49,7 @@ class parameter_calculator : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> parameter_calculator::get_inputs() {
+string_vector parameter_calculator::get_inputs() {
 	return {
 		"iSp",
 		"TTc",
@@ -63,7 +64,7 @@ std::vector<std::string> parameter_calculator::get_inputs() {
 	};
 }
 
-std::vector<std::string> parameter_calculator::get_outputs() {
+string_vector parameter_calculator::get_outputs() {
 	return {
         "Sp",
         "lai",
@@ -75,7 +76,7 @@ std::vector<std::string> parameter_calculator::get_outputs() {
 void parameter_calculator::do_operation() const {
 	// Collect inputs and make calculations
 	double Sp = (*iSp_ip) - (*TTc_ip) * (*Sp_thermal_time_decay_ip);
-	
+
 	// Update the output quantity list
 	update(Sp_op, Sp);
 	update(lai_op, (*Leaf_ip) * Sp);

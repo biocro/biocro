@@ -54,8 +54,8 @@ class rasmussen_specific_heat : public SteadyModule
           specific_heat_of_air_op{get_op(output_quantities, "specific_heat_of_air")}
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities

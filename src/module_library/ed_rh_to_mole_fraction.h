@@ -2,18 +2,19 @@
 #define ED_RH_TO_MOLE_FRACTION_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include <cmath>           // for fabs
 #include "../constants.h"  // for eps_zero
 #include "AuxBioCro.h"     // for saturation_vapor_pressure
 
 /**
  * @class ed_rh_to_mole_fraction
- * 
- * @brief Just converts relative humidity values from weather data into atmospheric 
+ *
+ * @brief Just converts relative humidity values from weather data into atmospheric
  * mole fractions of water vapor. Currently only intended for use by Ed.
- * 
+ *
  * Here we just use the definitions of mole fraction and relative humidity:
- * 
+ *
  * mole_fraction = partial_pressure / atmospheric_pressure
  *               = saturation_water_vapor_pressure * relative_humidity / atmospheric_pressure
  */
@@ -21,8 +22,8 @@ class ed_rh_to_mole_fraction : public SteadyModule
 {
    public:
     ed_rh_to_mole_fraction(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_rh_to_mole_fraction"),
           // Get pointers to input quantities
@@ -34,8 +35,8 @@ class ed_rh_to_mole_fraction : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -48,7 +49,7 @@ class ed_rh_to_mole_fraction : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_rh_to_mole_fraction::get_inputs()
+string_vector ed_rh_to_mole_fraction::get_inputs()
 {
     return {
         "atmospheric_pressure",  // Pa
@@ -57,7 +58,7 @@ std::vector<std::string> ed_rh_to_mole_fraction::get_inputs()
     };
 }
 
-std::vector<std::string> ed_rh_to_mole_fraction::get_outputs()
+string_vector ed_rh_to_mole_fraction::get_outputs()
 {
     return {
         "mole_fraction_h2o_atmosphere"  // dimensionless from mol / mol

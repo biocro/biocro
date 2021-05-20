@@ -89,8 +89,8 @@ class c3_assimilation : public DerivModule
           GrossAssim_op(get_op(output_quantities, "GrossAssim"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -123,7 +123,7 @@ class c3_assimilation : public DerivModule
     void do_operation() const;
 };
 
-std::vector<std::string> c3_assimilation::get_inputs()
+string_vector c3_assimilation::get_inputs()
 {
     return {
         "Qp",                           // micromol / m^2 / s
@@ -147,7 +147,7 @@ std::vector<std::string> c3_assimilation::get_inputs()
     };
 }
 
-std::vector<std::string> c3_assimilation::get_outputs()
+string_vector c3_assimilation::get_outputs()
 {
     return {
         "Assim",      // micromol / m^2 / s

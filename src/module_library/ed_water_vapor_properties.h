@@ -2,6 +2,7 @@
 #define ED_WATER_VAPOR_PROPERTIES_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "AuxBioCro.h"     // for TempToDdryA, TempToLHV, saturation_vapor_pressure, TempToSFS
 #include "../constants.h"  // for ideal gas constant and celsius_to_kelvin
 
@@ -15,8 +16,8 @@ class ed_water_vapor_properties : public SteadyModule
 {
    public:
     ed_water_vapor_properties(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_water_vapor_properties"),
           // Get pointers to input quantities
@@ -33,8 +34,8 @@ class ed_water_vapor_properties : public SteadyModule
           psychrometric_parameter_op(get_op(output_quantities, "psychrometric_parameter"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -53,7 +54,7 @@ class ed_water_vapor_properties : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> ed_water_vapor_properties::get_inputs()
+string_vector ed_water_vapor_properties::get_inputs()
 {
     return {
         "temp",                          // deg. C
@@ -63,7 +64,7 @@ std::vector<std::string> ed_water_vapor_properties::get_inputs()
     };
 }
 
-std::vector<std::string> ed_water_vapor_properties::get_outputs()
+string_vector ed_water_vapor_properties::get_outputs()
 {
     return {
         "latent_heat_vaporization_of_water",  // J / kg

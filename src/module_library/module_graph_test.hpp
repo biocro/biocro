@@ -2,10 +2,11 @@
 #define MODULE_GRAPH_TEST_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class Module_1 : public SteadyModule {
 	public:
-		Module_1(const std::unordered_map<std::string, double>* /*input_quantities*/, std::unordered_map<std::string, double>* output_quantities) :
+		Module_1(const state_map* /*input_quantities*/, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_1"),
 			// Get pointers to input quantities
@@ -14,8 +15,8 @@ class Module_1 : public SteadyModule {
 			A_op(get_op(output_quantities, "A")),
 			B_op(get_op(output_quantities, "B"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		// Nothing here
@@ -26,13 +27,13 @@ class Module_1 : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> Module_1::get_inputs() {
+string_vector Module_1::get_inputs() {
 	return {
 		// None
 	};
 }
 
-std::vector<std::string> Module_1::get_outputs() {
+string_vector Module_1::get_outputs() {
 	return {
 		"A",
 		"B"
@@ -42,7 +43,7 @@ std::vector<std::string> Module_1::get_outputs() {
 void Module_1::do_operation() const {
 	// Collect inputs and make calculations
 	// Nothing here
-	
+
 	// Update the output quantity list
 	update(A_op, 0.0);
 	update(B_op, 0.0);
@@ -50,7 +51,7 @@ void Module_1::do_operation() const {
 
 class Module_2 : public SteadyModule {
 	public:
-		Module_2(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		Module_2(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_2"),
 			// Get pointers to input quantities
@@ -59,8 +60,8 @@ class Module_2 : public SteadyModule {
 			C_op(get_op(output_quantities, "C")),
 			D_op(get_op(output_quantities, "D"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* B_ip;
@@ -71,13 +72,13 @@ class Module_2 : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> Module_2::get_inputs() {
+string_vector Module_2::get_inputs() {
 	return {
 		"B"
 	};
 }
 
-std::vector<std::string> Module_2::get_outputs() {
+string_vector Module_2::get_outputs() {
 	return {
 		"C",
 		"D"
@@ -87,7 +88,7 @@ std::vector<std::string> Module_2::get_outputs() {
 void Module_2::do_operation() const {
 	// Collect inputs and make calculations
 	// Nothing here
-	
+
 	// Update the output quantity list
 	update(C_op, 0.0);
 	update(D_op, 0.0);
@@ -95,7 +96,7 @@ void Module_2::do_operation() const {
 
 class Module_3 : public SteadyModule {
 	public:
-		Module_3(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		Module_3(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_3"),
 			// Get pointers to input quantities
@@ -104,8 +105,8 @@ class Module_3 : public SteadyModule {
 			// Get pointers to output quantities
 			E_op(get_op(output_quantities, "E"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* A_ip;
@@ -116,14 +117,14 @@ class Module_3 : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> Module_3::get_inputs() {
+string_vector Module_3::get_inputs() {
 	return {
 		"A",
 		"C"
 	};
 }
 
-std::vector<std::string> Module_3::get_outputs() {
+string_vector Module_3::get_outputs() {
 	return {
 		"E"
 	};
@@ -132,7 +133,7 @@ std::vector<std::string> Module_3::get_outputs() {
 void Module_3::do_operation() const {
 	// Collect inputs and make calculations
 	// Nothing here
-	
+
 	// Update the output quantity list
 	update(E_op, 0.0);
 }

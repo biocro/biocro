@@ -2,10 +2,11 @@
 #define ABA_DECAY_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class aba_decay : public DerivModule {
 	public:
-		aba_decay(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		aba_decay(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("aba_decay"),
 			// Get pointers to input quantities
@@ -14,8 +15,8 @@ class aba_decay : public DerivModule {
 			// Get pointers to output quantities
 			soil_aba_concentration_op(get_op(output_quantities, "soil_aba_concentration"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* soil_aba_concentration_ip;
@@ -26,14 +27,14 @@ class aba_decay : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> aba_decay::get_inputs() {
+string_vector aba_decay::get_inputs() {
 	return {
 		"aba_decay_constant",
 		"soil_aba_concentration"
 	};
 }
 
-std::vector<std::string> aba_decay::get_outputs() {
+string_vector aba_decay::get_outputs() {
 	return {
 		"soil_aba_concentration"
 	};

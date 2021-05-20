@@ -2,6 +2,7 @@
 #define MULTILAYER_CANOPY_INTEGRATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * @class multilayer_canopy_integrator
@@ -17,8 +18,8 @@ class multilayer_canopy_integrator : public SteadyModule
     multilayer_canopy_integrator(
         const std::string& module_name,
         const int& nlayers,
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule(module_name),
           // Store the number of layers
@@ -74,17 +75,17 @@ class multilayer_canopy_integrator : public SteadyModule
     void run() const;
 
    public:
-    static std::vector<std::string> get_inputs(int nlayers);
-    static std::vector<std::string> get_outputs(int nlayers);
+    static string_vector get_inputs(int nlayers);
+    static string_vector get_outputs(int nlayers);
 };
 
 /**
  * @brief Define all inputs required by the module, adding layer suffixes as required
  */
-std::vector<std::string> multilayer_canopy_integrator::get_inputs(int nlayers)
+string_vector multilayer_canopy_integrator::get_inputs(int nlayers)
 {
     // Define the multilayer inputs
-    std::vector<std::string> multilayer_inputs = {
+    string_vector multilayer_inputs = {
         "sunlit_fraction",    // dimensionless
         "sunlit_Assim",       // micromole / m^2 /s
         "sunlit_GrossAssim",  // micromole / m^2 /s
@@ -98,7 +99,7 @@ std::vector<std::string> multilayer_canopy_integrator::get_inputs(int nlayers)
     };
 
     // Get the full list by appending layer numbers
-    std::vector<std::string> all_inputs = generate_multilayer_quantity_names(nlayers, multilayer_inputs);
+    string_vector all_inputs = generate_multilayer_quantity_names(nlayers, multilayer_inputs);
 
     // Add any other inputs
     all_inputs.push_back("lai");                          // dimensionless from m^2 / m^2
@@ -110,7 +111,7 @@ std::vector<std::string> multilayer_canopy_integrator::get_inputs(int nlayers)
 /**
  * @brief Define all outputs produced by the module
  */
-std::vector<std::string> multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
+string_vector multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
 {
     return {
         "canopy_assimilation_rate",   // Mg / ha / hr
@@ -186,19 +187,19 @@ class ten_layer_canopy_integrator : public multilayer_canopy_integrator
 {
    public:
     ten_layer_canopy_integrator(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : multilayer_canopy_integrator("ten_layer_canopy_integrator",
                                        ten_layer_canopy_integrator::nlayers,
                                        input_quantities,
                                        output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_leaf_classes();
-    static std::vector<std::string> get_multiclass_multilayer_outputs();
-    static std::vector<std::string> get_pure_multilayer_outputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_leaf_classes();
+    static string_vector get_multiclass_multilayer_outputs();
+    static string_vector get_pure_multilayer_outputs();
+    static string_vector get_outputs();
 
    private:
     // Number of layers
@@ -209,12 +210,12 @@ class ten_layer_canopy_integrator : public multilayer_canopy_integrator
 
 const int ten_layer_canopy_integrator::nlayers = 10;  // Set the number of layers
 
-std::vector<std::string> ten_layer_canopy_integrator::get_inputs()
+string_vector ten_layer_canopy_integrator::get_inputs()
 {
     return multilayer_canopy_integrator::get_inputs(ten_layer_canopy_integrator::nlayers);
 }
 
-std::vector<std::string> ten_layer_canopy_integrator::get_outputs()
+string_vector ten_layer_canopy_integrator::get_outputs()
 {
     return multilayer_canopy_integrator::get_outputs(ten_layer_canopy_integrator::nlayers);
 }

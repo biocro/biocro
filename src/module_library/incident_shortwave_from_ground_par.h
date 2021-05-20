@@ -2,6 +2,7 @@
 #define INCIDENT_SHORTWAVE_FROM_GROUND_PAR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "../constants.h"
 
 /**
@@ -25,8 +26,8 @@ class incident_shortwave_from_ground_par : public SteadyModule
 {
    public:
     incident_shortwave_from_ground_par(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("incident_shortwave_from_ground_par"),
           // Get pointers to input quantities
@@ -42,8 +43,8 @@ class incident_shortwave_from_ground_par : public SteadyModule
           nir_incident_diffuse_op(get_op(output_quantities, "nir_incident_diffuse"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -61,7 +62,7 @@ class incident_shortwave_from_ground_par : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> incident_shortwave_from_ground_par::get_inputs()
+string_vector incident_shortwave_from_ground_par::get_inputs()
 {
     return {
         "solar",                            // micromol / (m^2 beam) / s [area perpendicular to beam]
@@ -72,7 +73,7 @@ std::vector<std::string> incident_shortwave_from_ground_par::get_inputs()
     };
 }
 
-std::vector<std::string> incident_shortwave_from_ground_par::get_outputs()
+string_vector incident_shortwave_from_ground_par::get_outputs()
 {
     return {
         "par_incident_direct",   // J / (m^2 beam) / s [area perpendicular to beam]

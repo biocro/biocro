@@ -3,7 +3,7 @@
 #include "BioCro.h"     // For c3CanAC
 #include <cmath>        // For floor
 
-std::vector<std::string> c3_canopy::get_inputs() {
+string_vector c3_canopy::get_inputs() {
     return {
         "lai",
         "time",
@@ -42,7 +42,7 @@ std::vector<std::string> c3_canopy::get_inputs() {
     };
 }
 
-std::vector<std::string> c3_canopy::get_outputs() {
+string_vector c3_canopy::get_outputs() {
     return {
         "canopy_assimilation_rate",
         "canopy_transpiration_rate",

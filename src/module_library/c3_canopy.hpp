@@ -2,13 +2,14 @@
 #define C3_CANOPY_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class c3_canopy : public SteadyModule
 {
    public:
     c3_canopy(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c3_canopy"),
 
@@ -54,8 +55,8 @@ class c3_canopy : public SteadyModule
           GrossAssim_op(get_op(output_quantities, "GrossAssim"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities

@@ -2,6 +2,7 @@
 #define C4_LEAF_PHOTOSYNTHESIS_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "c4photo.h"    // for c4photoC
 #include "AuxBioCro.h"  // for EvapoTrans2
 
@@ -14,8 +15,8 @@ class c4_leaf_photosynthesis : public SteadyModule
 {
    public:
     c4_leaf_photosynthesis(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c4_leaf_photosynthesis"),
 
@@ -57,8 +58,8 @@ class c4_leaf_photosynthesis : public SteadyModule
           leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -102,7 +103,7 @@ class c4_leaf_photosynthesis : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> c4_leaf_photosynthesis::get_inputs()
+string_vector c4_leaf_photosynthesis::get_inputs()
 {
     return {
         "par_energy_content",     // J / micromol
@@ -133,7 +134,7 @@ std::vector<std::string> c4_leaf_photosynthesis::get_inputs()
     };
 }
 
-std::vector<std::string> c4_leaf_photosynthesis::get_outputs()
+string_vector c4_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",            // micromole / m^2 /s

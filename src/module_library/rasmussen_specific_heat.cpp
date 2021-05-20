@@ -46,7 +46,7 @@ double rasmussen_specific_heat_of_air(
            b_2 * pow(mole_fraction_h2o, 2);  // J / kg / K
 }
 
-std::vector<std::string> rasmussen_specific_heat::get_inputs()
+string_vector rasmussen_specific_heat::get_inputs()
 {
     return {
         "temp",                         // degrees C
@@ -54,7 +54,7 @@ std::vector<std::string> rasmussen_specific_heat::get_inputs()
     };
 }
 
-std::vector<std::string> rasmussen_specific_heat::get_outputs()
+string_vector rasmussen_specific_heat::get_outputs()
 {
     return {
         "specific_heat_of_air"  // J / kg / K

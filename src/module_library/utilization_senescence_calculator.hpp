@@ -2,10 +2,11 @@
 #define UTILIZATION_SENESCENCE_CALCULATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class utilization_senescence_calculator : public SteadyModule {
 	public:
-		utilization_senescence_calculator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		utilization_senescence_calculator(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("utilization_senescence_calculator"),
 			// Get pointers to input quantities
@@ -23,8 +24,8 @@ class utilization_senescence_calculator : public SteadyModule {
 	        senescence_root_op(get_op(output_quantities, "senescence_root")),
 	        senescence_rhizome_op(get_op(output_quantities, "senescence_rhizome"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 	    const double* rate_constant_leaf_senescence_ip;
@@ -44,7 +45,7 @@ class utilization_senescence_calculator : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> utilization_senescence_calculator::get_inputs() {
+string_vector utilization_senescence_calculator::get_inputs() {
 	return {
 	    "rate_constant_leaf_senescence",
 	    "rate_constant_stem_senescence",
@@ -57,7 +58,7 @@ std::vector<std::string> utilization_senescence_calculator::get_inputs() {
 	};
 }
 
-std::vector<std::string> utilization_senescence_calculator::get_outputs() {
+string_vector utilization_senescence_calculator::get_outputs() {
 	return {
         "senescence_leaf",
         "senescence_stem",
@@ -66,8 +67,8 @@ std::vector<std::string> utilization_senescence_calculator::get_outputs() {
 	};
 }
 
-void utilization_senescence_calculator::do_operation() const {	
-	// Collect inputs and make calculations	
+void utilization_senescence_calculator::do_operation() const {
+	// Collect inputs and make calculations
 
     double kLeaf = *rate_constant_leaf_senescence_ip;
     double kStem = *rate_constant_stem_senescence_ip;
@@ -78,7 +79,7 @@ void utilization_senescence_calculator::do_operation() const {
     double Stem = *Stem_ip;
     double Root = *Root_ip;
     double Rhizome = *Rhizome_ip;
-    
+
     // In the Thornley senescence model, sensescence is proportional to structural mass
     //  e.g. senescence_leaf = kLeaf * Leaf, for 0 < kLeaf < 1
     // This is quite general. To see why, imagine using Michaelis-Menton kinetics here.
@@ -95,12 +96,12 @@ void utilization_senescence_calculator::do_operation() const {
     //   senescence_leaf = kLeaf * Leaf again
     //  So ultimately this is the same as the simpler assumption
     // Here we do not allow the grain to senesce
-    
+
     double senescence_leaf = kLeaf * Leaf;
     double senescence_stem = kStem * Stem;
     double senescence_root = kRoot * Root;
     double senescence_rhizome = kRhizome * Rhizome;
-    
+
 	// Update the output quantity list
     update(senescence_leaf_op, senescence_leaf);
     update(senescence_stem_op, senescence_stem);

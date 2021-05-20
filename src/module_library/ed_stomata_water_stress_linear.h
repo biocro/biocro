@@ -2,10 +2,11 @@
 #define ED_STOMATA_WATER_STRESS_LINEAR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * @class ed_stomata_water_stress_linear
- * 
+ *
  * @brief Determine the stomata water stress factor.
  * If the soil water content is below the wilting point,
  * the stress factor takes its minimum value. If the water
@@ -18,8 +19,8 @@ class ed_stomata_water_stress_linear : public SteadyModule
 {
    public:
     ed_stomata_water_stress_linear(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_stomata_water_stress_linear"),
           // Get pointers to input quantities
@@ -31,8 +32,8 @@ class ed_stomata_water_stress_linear : public SteadyModule
           StomataWS_op(get_op(output_quantities, "StomataWS"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -46,7 +47,7 @@ class ed_stomata_water_stress_linear : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> ed_stomata_water_stress_linear::get_inputs()
+string_vector ed_stomata_water_stress_linear::get_inputs()
 {
     return {
         "soil_field_capacity",
@@ -55,7 +56,7 @@ std::vector<std::string> ed_stomata_water_stress_linear::get_inputs()
         "StomataWS_min"};
 }
 
-std::vector<std::string> ed_stomata_water_stress_linear::get_outputs()
+string_vector ed_stomata_water_stress_linear::get_outputs()
 {
     return {
         "StomataWS"};

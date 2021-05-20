@@ -4,6 +4,7 @@
 #include <cmath>           // For pow
 #include "../constants.h"  // for ideal_gas_constant and celsius_to_kelvin
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * @class ed_penman_monteith_leaf_temperature
@@ -19,8 +20,8 @@ class ed_penman_monteith_leaf_temperature : public SteadyModule
 {
    public:
     ed_penman_monteith_leaf_temperature(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_penman_monteith_leaf_temperature"),
           // Get pointers to input quantities
@@ -39,8 +40,8 @@ class ed_penman_monteith_leaf_temperature : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -60,7 +61,7 @@ class ed_penman_monteith_leaf_temperature : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_penman_monteith_leaf_temperature::get_inputs()
+string_vector ed_penman_monteith_leaf_temperature::get_inputs()
 {
     return {
         "long_wave_energy_loss_leaf",         // W / m^2
@@ -76,7 +77,7 @@ std::vector<std::string> ed_penman_monteith_leaf_temperature::get_inputs()
     };
 }
 
-std::vector<std::string> ed_penman_monteith_leaf_temperature::get_outputs()
+string_vector ed_penman_monteith_leaf_temperature::get_outputs()
 {
     return {
         "temperature_leaf"  // deg. C
@@ -158,8 +159,8 @@ class ed_p_m_temperature_solve : public se_module::base
 {
    public:
     ed_p_m_temperature_solve(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : se_module::base(ed_p_m_temperature_solve_stuff::module_name,
                           ed_p_m_temperature_solve_stuff::sub_module_names,
                           ed_p_m_temperature_solve_stuff::solver_type,
@@ -177,8 +178,8 @@ class ed_p_m_temperature_solve : public se_module::base
           temperature_air(get_input(input_quantities, "temp"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -188,16 +189,16 @@ class ed_p_m_temperature_solve : public se_module::base
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
-std::vector<std::string> ed_p_m_temperature_solve::get_inputs()
+string_vector ed_p_m_temperature_solve::get_inputs()
 {
-    std::vector<std::string> inputs = se_module::get_se_inputs(ed_p_m_temperature_solve_stuff::sub_module_names);
+    string_vector inputs = se_module::get_se_inputs(ed_p_m_temperature_solve_stuff::sub_module_names);
     inputs.push_back("temp");  // degrees C
     return inputs;
 }
 
-std::vector<std::string> ed_p_m_temperature_solve::get_outputs()
+string_vector ed_p_m_temperature_solve::get_outputs()
 {
-    std::vector<std::string> outputs = se_module::get_se_outputs(ed_p_m_temperature_solve_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_p_m_temperature_solve_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_p_m_temperature_solve_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_p_m_temperature_solve_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_p_m_temperature_solve_stuff::module_name));

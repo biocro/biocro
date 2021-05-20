@@ -2,6 +2,7 @@
 #define UTILIZATION_GROWTH_CALCULATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  *  @class utilization_growth_calculator
@@ -15,7 +16,7 @@
  */
 class utilization_growth_calculator : public SteadyModule {
 	public:
-		utilization_growth_calculator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		utilization_growth_calculator(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("utilization_growth_calculator"),
 			// Get pointers to input quantities
@@ -63,8 +64,8 @@ class utilization_growth_calculator : public SteadyModule {
 			mass_fraction_rhizome_op(get_op(output_quantities, "mass_fraction_rhizome")),
 			mass_fraction_grain_op(get_op(output_quantities, "mass_fraction_grain"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		//const double* dawn_phase_ip;
@@ -114,7 +115,7 @@ class utilization_growth_calculator : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> utilization_growth_calculator::get_inputs() {
+string_vector utilization_growth_calculator::get_inputs() {
 	return {
 		//"dawn_phase",
 		"grain_TTc",
@@ -146,7 +147,7 @@ std::vector<std::string> utilization_growth_calculator::get_inputs() {
 	};
 }
 
-std::vector<std::string> utilization_growth_calculator::get_outputs() {
+string_vector utilization_growth_calculator::get_outputs() {
 	return {
 		"kGrain_scale",
 		"utilization_leaf",

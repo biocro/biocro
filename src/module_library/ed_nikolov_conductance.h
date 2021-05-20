@@ -4,6 +4,7 @@
 #include <cmath>           // for fabs and sqrt
 #include "../constants.h"  // for conversion_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
 #include "../modules.h"
+#include "../state_map.h"
 #include "se_module.h"
 #include "AuxBioCro.h"
 
@@ -77,8 +78,8 @@ class ed_nikolov_conductance_forced : public SteadyModule
 {
    public:
     ed_nikolov_conductance_forced(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_nikolov_conductance_forced"),
           // Get pointers to input quantities
@@ -91,8 +92,8 @@ class ed_nikolov_conductance_forced : public SteadyModule
           conductance_boundary_h2o_forced_op(get_op(output_quantities, "conductance_boundary_h2o_forced"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -107,7 +108,7 @@ class ed_nikolov_conductance_forced : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_nikolov_conductance_forced::get_inputs()
+string_vector ed_nikolov_conductance_forced::get_inputs()
 {
     return {
         "temp",                  // deg. C
@@ -118,7 +119,7 @@ std::vector<std::string> ed_nikolov_conductance_forced::get_inputs()
     };
 }
 
-std::vector<std::string> ed_nikolov_conductance_forced::get_outputs()
+string_vector ed_nikolov_conductance_forced::get_outputs()
 {
     return {
         "conductance_boundary_h2o_forced"  // mol / m^2 / s
@@ -172,8 +173,8 @@ class ed_nikolov_conductance_free : public SteadyModule
 {
    public:
     ed_nikolov_conductance_free(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_nikolov_conductance_free"),
           // Get pointers to input quantities
@@ -190,8 +191,8 @@ class ed_nikolov_conductance_free : public SteadyModule
           nikolov_virtual_temperature_difference_op(get_op(output_quantities, "nikolov_virtual_temperature_difference"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -210,7 +211,7 @@ class ed_nikolov_conductance_free : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_nikolov_conductance_free::get_inputs()
+string_vector ed_nikolov_conductance_free::get_inputs()
 {
     return {
         "temp",                           // deg. C
@@ -224,7 +225,7 @@ std::vector<std::string> ed_nikolov_conductance_free::get_inputs()
     };
 }
 
-std::vector<std::string> ed_nikolov_conductance_free::get_outputs()
+string_vector ed_nikolov_conductance_free::get_outputs()
 {
     return {
         "conductance_boundary_h2o_free",          // mol / m^2 / s
@@ -324,8 +325,8 @@ class ed_nikolov_conductance_free_solve : public se_module::base
 {
    public:
     ed_nikolov_conductance_free_solve(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : se_module::base(ed_nikolov_conductance_free_solve_stuff::module_name,
                           ed_nikolov_conductance_free_solve_stuff::sub_module_names,
                           ed_nikolov_conductance_free_solve_stuff::solver_type,
@@ -340,8 +341,8 @@ class ed_nikolov_conductance_free_solve : public se_module::base
                           output_quantities)
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Main operation
@@ -349,14 +350,14 @@ class ed_nikolov_conductance_free_solve : public se_module::base
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
-std::vector<std::string> ed_nikolov_conductance_free_solve::get_inputs()
+string_vector ed_nikolov_conductance_free_solve::get_inputs()
 {
     return se_module::get_se_inputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
 }
 
-std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
+string_vector ed_nikolov_conductance_free_solve::get_outputs()
 {
-    std::vector<std::string> outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));

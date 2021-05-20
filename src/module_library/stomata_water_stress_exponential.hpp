@@ -2,11 +2,12 @@
 #define STOMATA_WATER_STRESS_EXPONENTIAL_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include <cmath>  // for exp
 
 class stomata_water_stress_exponential : public SteadyModule {
 	public:
-		stomata_water_stress_exponential(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		stomata_water_stress_exponential(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("stomata_water_stress_exponential"),
 			// Get pointers to input quantities
@@ -16,8 +17,8 @@ class stomata_water_stress_exponential : public SteadyModule {
 			// Get pointers to output quantities
 			StomataWS_op(get_op(output_quantities, "StomataWS"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* soil_field_capacity_ip;
@@ -29,7 +30,7 @@ class stomata_water_stress_exponential : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> stomata_water_stress_exponential::get_inputs() {
+string_vector stomata_water_stress_exponential::get_inputs() {
 	return {
 		"soil_field_capacity",
 		"soil_wilting_point",
@@ -37,7 +38,7 @@ std::vector<std::string> stomata_water_stress_exponential::get_inputs() {
 	};
 }
 
-std::vector<std::string> stomata_water_stress_exponential::get_outputs() {
+string_vector stomata_water_stress_exponential::get_outputs() {
 	return {
 		"StomataWS"
 	};

@@ -2,6 +2,7 @@
 #define UTILIZATION_GROWTH_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  *  @class utilization_growth
@@ -15,7 +16,7 @@
  */
 class utilization_growth : public DerivModule {
 	public:
-		utilization_growth(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		utilization_growth(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("utilization_growth"),
 			// Get pointers to input quantities
@@ -41,8 +42,8 @@ class utilization_growth : public DerivModule {
 			Rhizome_op(get_op(output_quantities, "Rhizome")),
 			substrate_pool_rhizome_op(get_op(output_quantities, "substrate_pool_rhizome"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* canopy_assimilation_rate_ip;
@@ -70,7 +71,7 @@ class utilization_growth : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> utilization_growth::get_inputs() {
+string_vector utilization_growth::get_inputs() {
 	return {
 		"canopy_assimilation_rate",
 	    "utilization_leaf",
@@ -85,7 +86,7 @@ std::vector<std::string> utilization_growth::get_inputs() {
 	};
 }
 
-std::vector<std::string> utilization_growth::get_outputs() {
+string_vector utilization_growth::get_outputs() {
 	return {
 		"Leaf",
 		"substrate_pool_leaf",

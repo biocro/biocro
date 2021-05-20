@@ -2,14 +2,15 @@
 #define LEAF_WATER_STRESS_EXPONENTIAL_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "../constants.h"  // For calculation_constants::eps_zero
 
 class leaf_water_stress_exponential : public SteadyModule
 {
    public:
     leaf_water_stress_exponential(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("leaf_water_stress_exponential"),
 
@@ -22,8 +23,8 @@ class leaf_water_stress_exponential : public SteadyModule
           LeafWS_op(get_op(output_quantities, "LeafWS"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -38,7 +39,7 @@ class leaf_water_stress_exponential : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> leaf_water_stress_exponential::get_inputs()
+string_vector leaf_water_stress_exponential::get_inputs()
 {
     return {
         "soil_field_capacity",  // dimensionless (from m^3 / m^3)
@@ -47,7 +48,7 @@ std::vector<std::string> leaf_water_stress_exponential::get_inputs()
     };
 }
 
-std::vector<std::string> leaf_water_stress_exponential::get_outputs()
+string_vector leaf_water_stress_exponential::get_outputs()
 {
     return {
         "LeafWS"  // dimensionless

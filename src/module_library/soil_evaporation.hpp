@@ -2,11 +2,12 @@
 #define SOIL_EVAPORATION_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "BioCro.h" // For SoilEvapo
 
 class soil_evaporation : public SteadyModule {
 	public:
-		soil_evaporation(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		soil_evaporation(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("soil_evaporation"),
 			// Get pointers to input quantities
@@ -27,8 +28,8 @@ class soil_evaporation : public SteadyModule {
 			// Get pointers to output quantities
 			soil_evaporation_rate_op(get_op(output_quantities, "soil_evaporation_rate"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* lai_ip;
@@ -51,7 +52,7 @@ class soil_evaporation : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> soil_evaporation::get_inputs() {
+string_vector soil_evaporation::get_inputs() {
 	return {
 		"lai",
 		"temp",
@@ -70,7 +71,7 @@ std::vector<std::string> soil_evaporation::get_inputs() {
 	};
 }
 
-std::vector<std::string> soil_evaporation::get_outputs() {
+string_vector soil_evaporation::get_outputs() {
 	return {
         "soil_evaporation_rate"
 	};

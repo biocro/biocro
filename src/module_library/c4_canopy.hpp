@@ -2,6 +2,7 @@
 #define C4_CANOPY_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "AuxBioCro.h"  // For nitroParms and Can_Str
 #include "BioCro.h"     // For CanAC
 
@@ -9,8 +10,8 @@ class c4_canopy : public SteadyModule
 {
    public:
     c4_canopy(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c4_canopy"),
 
@@ -69,8 +70,8 @@ class c4_canopy : public SteadyModule
           GrossAssim_op(get_op(output_quantities, "GrossAssim"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -131,7 +132,7 @@ class c4_canopy : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> c4_canopy::get_inputs()
+string_vector c4_canopy::get_inputs()
 {
     return {
         "nileafn",
@@ -183,7 +184,7 @@ std::vector<std::string> c4_canopy::get_inputs()
     };
 }
 
-std::vector<std::string> c4_canopy::get_outputs()
+string_vector c4_canopy::get_outputs()
 {
     return {
         "canopy_assimilation_rate",   // Mg / ha / hr

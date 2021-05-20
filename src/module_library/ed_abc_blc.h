@@ -15,8 +15,8 @@ class ed_abc_blc : public SteadyModule
 {
    public:
     ed_abc_blc(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_abc_blc"),
 
@@ -33,8 +33,8 @@ class ed_abc_blc : public SteadyModule
           conductance_boundary_h2o_op(get_op(output_quantities, "conductance_boundary_h2o"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -53,7 +53,7 @@ class ed_abc_blc : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_abc_blc::get_inputs()
+string_vector ed_abc_blc::get_inputs()
 {
     return {
         "windspeed",                     // m / s
@@ -66,7 +66,7 @@ std::vector<std::string> ed_abc_blc::get_inputs()
     };
 }
 
-std::vector<std::string> ed_abc_blc::get_outputs()
+string_vector ed_abc_blc::get_outputs()
 {
     return {
         "conductance_boundary_h2o"  // mol / m^2 / s

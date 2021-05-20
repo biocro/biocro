@@ -2,6 +2,7 @@
 #define ED_C4PHOTO_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "c4photo.h"
 
 /**
@@ -14,8 +15,8 @@ class ed_c4photo : public SteadyModule
 {
    public:
     ed_c4photo(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_c4photo"),
 
@@ -46,8 +47,8 @@ class ed_c4photo : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -79,7 +80,7 @@ class ed_c4photo : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_c4photo::get_inputs()
+string_vector ed_c4photo::get_inputs()
 {
     return {
         "collatz_PAR_flux",                   // mol / m^2 / s
@@ -102,7 +103,7 @@ std::vector<std::string> ed_c4photo::get_inputs()
     };
 }
 
-std::vector<std::string> ed_c4photo::get_outputs()
+string_vector ed_c4photo::get_outputs()
 {
     return {
         "mole_fraction_co2_intercellular",  // dimensionless from mol / mol

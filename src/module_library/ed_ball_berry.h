@@ -2,6 +2,7 @@
 #define ED_BALL_BERRY_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include <cmath>           // for fabs
 #include <algorithm>       // for std::max
 #include "../constants.h"  // for eps_zero
@@ -9,35 +10,35 @@
 
 /**
  * @class ed_ball_berry
- * 
+ *
  * @brief Uses the Ball-Berry equation to calculate stomatal conductance to water vapor.
  * Currently only intended for use by Ed.
- * 
+ *
  * The Ball-Berry model was originally written as:
- * 
+ *
  * g = slope * A_n * rh_s / C_s + intercept
- * 
+ *
  * where g is the stomatal conductance to water vapor, A_n is net leaf assimilation,
  * rh_s is relative humidity at the leaf surface, C_s is CO2 mole fraction at the
  * leaf surface, and the slope & intercept are determined by fits to experimental
  * data.
- * 
+ *
  * However, in BioCro we express water vapor concentration as a mole fraction rather
  * than relative humidity. The two quantities are related by:
- * 
+ *
  * rh = water_vapor_pressure / saturation_water_vapor_pressure
  *    = mole_fraction_h2o * atmospheric_pressure / saturation_water_vapor_pressure
- * 
+ *
  * So in this case the Ball-Berry formula becomes:
- * 
+ *
  * g = slope * A_n * mole_fraction_h2o * atmospheric_pressure / (C_s * saturation_water_vapor_pressure) + intercept
- * 
+ *
  * The saturation water vapor pressure depends on temperature. Here the leaf temperature is more
  * appropriate than atmospheric air temperature.
- * 
+ *
  * It is also important to note that when A_n < 0, the Ball-Berry model just predicts its minimum
  * conductance value: the intercept.
- * 
+ *
  * In BioCro we also may want to include the effects of water stress as a modification to the
  * stomatal conductance. To do this, we treat the Ball-Berry conductance as a maximum value
  * corresponding to ideal water availability. We use a conductance_adjustment_factor to linearly
@@ -49,8 +50,8 @@ class ed_ball_berry : public SteadyModule
 {
    public:
     ed_ball_berry(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_ball_berry"),
           // Get pointers to input quantities
@@ -68,8 +69,8 @@ class ed_ball_berry : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -88,7 +89,7 @@ class ed_ball_berry : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_ball_berry::get_inputs()
+string_vector ed_ball_berry::get_inputs()
 {
     return {
         "ball_berry_slope",                 // dimensionless from [mol / m^2 / s] / [mol / m^2 / s]
@@ -103,7 +104,7 @@ std::vector<std::string> ed_ball_berry::get_inputs()
     };
 }
 
-std::vector<std::string> ed_ball_berry::get_outputs()
+string_vector ed_ball_berry::get_outputs()
 {
     return {
         "conductance_stomatal_h2o"  // mol / m^2 / s

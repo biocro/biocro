@@ -4,10 +4,11 @@
 #include <cmath>
 #include "../constants.h"
 #include "../modules.h"
+#include "../state_map.h"
 
 class phase_clock : public DerivModule {
     public:
-        phase_clock(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+        phase_clock(const state_map* input_quantities, state_map* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             DerivModule("phase_clock"),
             // Get pointers to input quantities
@@ -21,8 +22,8 @@ class phase_clock : public DerivModule {
             // Get pointers to output quantities
             phi_op(get_op(output_quantities, "phi"))
         {}
-        static std::vector<std::string> get_inputs();
-        static std::vector<std::string> get_outputs();
+        static string_vector get_inputs();
+        static string_vector get_outputs();
     private:
         // Pointers to input quantities
         const double* phi_ip;
@@ -38,7 +39,7 @@ class phase_clock : public DerivModule {
         void do_operation() const;
 };
 
-std::vector<std::string> phase_clock::get_inputs() {
+string_vector phase_clock::get_inputs() {
     return {
         "phi",
         "light",
@@ -50,7 +51,7 @@ std::vector<std::string> phase_clock::get_inputs() {
     };
 }
 
-std::vector<std::string> phase_clock::get_outputs() {
+string_vector phase_clock::get_outputs() {
     return {
         "phi"
     };
@@ -62,28 +63,28 @@ void phase_clock::do_operation() const {
     //////////////////////////////////////////
 
     using math_constants::pi;
-    
+
     // Get the current phase value
     const double phi = *phi_ip;
-    
+
     // Bring phi back to the [0, 2*pi) range
     const double phi_mod = phi - 2.0 * pi * floor(phi / (2.0 * pi));
-    
+
     // Get the current light value
     const double light = *light_ip;
-    
+
     // Get the response function parameters
     const double d = *clock_dead_width_ip;
     const double delta = *clock_width_asymm_ip;
     const double epsilon = *clock_area_asymm_ip;
     const double s = *clock_r_scale_ip;
-    
+
     // Determine a, b, alpha, and beta for the response function
     const double a = pi * (1.0 - d + delta);
     const double b = pi * (1.0 - d - delta);;
     const double alpha = s * (1.0 + 0.5 * epsilon);
     const double beta = s * (1.0 - 0.5 * epsilon);
-    
+
     // Calculate the response
     const double R =
         (0.0 <= phi_mod && phi_mod < a) ? -6.0 * alpha * phi_mod * (phi_mod - a)
@@ -94,15 +95,15 @@ void phase_clock::do_operation() const {
                                                / (b * b * b)
       :
         throw std::logic_error(std::string("Thrown by phase_clock: something is wrong with phi_mod!\n"));
-    
+
     // Get the intrinsic clock period
     const double natural_period = *clock_period_ip;           // Natural period in hours
     const double natural_freq = 2.0 * pi / natural_period;    // Corresponding angular frequency in radians per hour
-    
+
     //////////////////////////////////////
     // Update the output quantity list //
     //////////////////////////////////////
-    
+
     update(phi_op, natural_freq * (1 + R * light));
 }
 

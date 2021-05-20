@@ -4,10 +4,11 @@
 #include <cmath>
 #include "../constants.h"
 #include "../modules.h"
+#include "../state_map.h"
 
 class oscillator_clock_calculator : public SteadyModule {
     public:
-        oscillator_clock_calculator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+        oscillator_clock_calculator(const state_map* input_quantities, state_map* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             SteadyModule("oscillator_clock_calculator"),
             // Get pointers to input quantities
@@ -36,8 +37,8 @@ class oscillator_clock_calculator : public SteadyModule {
             sunrise_op(get_op(output_quantities, "sunrise")),
             sunset_op(get_op(output_quantities, "sunset"))
         {}
-        static std::vector<std::string> get_inputs();
-        static std::vector<std::string> get_outputs();
+        static string_vector get_inputs();
+        static string_vector get_outputs();
     private:
         // Pointers to input quantities
         const double* time_ip;
@@ -68,7 +69,7 @@ class oscillator_clock_calculator : public SteadyModule {
         void do_operation() const;
 };
 
-std::vector<std::string> oscillator_clock_calculator::get_inputs() {
+string_vector oscillator_clock_calculator::get_inputs() {
     return {
         "time",
         "kick_strength",
@@ -84,7 +85,7 @@ std::vector<std::string> oscillator_clock_calculator::get_inputs() {
     };
 }
 
-std::vector<std::string> oscillator_clock_calculator::get_outputs() {
+string_vector oscillator_clock_calculator::get_outputs() {
     return {
         "dawn_kick",
         "dusk_kick",
@@ -118,21 +119,21 @@ void oscillator_clock_calculator::do_operation() const {
     //////////////////////////////////////////
 
     using math_constants::pi;
-    
+
     // Get the current time value
     const double time = *time_ip;
     const double hour = 24.0 * (time - floor(time));
-    
+
     // Get the current light value
     const double light = *light_ip;
-    
+
     // Get the current state of the night and day trackers
     const double night_tracker = *night_tracker_ip;
     const double day_tracker = *day_tracker_ip;
-    
+
     // Get the kick strength
     const double kick_strength = *kick_strength_ip;
-    
+
     // Calculate the kicks
     // The dawn kick is created by taking the night tracker value during
     //  the day, which is just a short decay portion
@@ -140,7 +141,7 @@ void oscillator_clock_calculator::do_operation() const {
     //  the night, which is just a short decay portion
     const double dawn_kick = light * kick_strength * night_tracker;
     const double dusk_kick = (1.0 - light) * kick_strength * day_tracker;
-    
+
     // Get the current state of the dawn and dusk tracking oscillators
     const double dawn_b = *dawn_b_ip;
     const double dawn_a = *dawn_a_ip;
@@ -148,7 +149,7 @@ void oscillator_clock_calculator::do_operation() const {
     const double dusk_a = *dusk_a_ip;
     const double ref_b = *ref_b_ip;
     const double ref_a = *ref_a_ip;
-    
+
     // Calculate the dawn phase angle, which is zero around dawn and increases
     // throughout the day.
     const double dawn_phase = range_adjusted_atan2(dawn_b, dawn_a);
@@ -156,26 +157,26 @@ void oscillator_clock_calculator::do_operation() const {
     // Calculate the dusk phase angle, which is zero around dusk and increases
     // throughout the night.
     const double dusk_phase = range_adjusted_atan2(dusk_b, dusk_a);
-    
+
     // Calculate the reference phase angle, which is not coupled to the light.
     const double ref_phase = range_adjusted_atan2(ref_b, ref_a);
-    
+
     // Calculate the day and night length indicators (in hours):
     const double day_length   = dusk_phase > dawn_phase ? (dawn_phase - dusk_phase + 2 * pi) * 12.0 / pi
                               :                           (dawn_phase - dusk_phase)          * 12.0 / pi;
     const double night_length = dawn_phase > dusk_phase ? (dusk_phase - dawn_phase + 2 * pi) * 12.0 / pi
                               :                           (dusk_phase - dawn_phase)          * 12.0 / pi;
-                              
+
     // Calculate the sunrise and sunset times
     const double sunrise = dawn_phase * 12 / pi < hour ? (hour - dawn_phase * 12 / pi)
                          :                               (hour - dawn_phase * 12 / pi + 24.0);
     const double sunset  = dusk_phase * 12 / pi < hour ? (hour - dusk_phase * 12 / pi)
                          :                               (hour - dusk_phase * 12 / pi + 24.0);
-    
+
     //////////////////////////////////////
     // Update the output quantity list //
     //////////////////////////////////////
-    
+
     update(dawn_kick_op, dawn_kick);
     update(dusk_kick_op, dusk_kick);
     update(dawn_phase_op, dawn_phase);

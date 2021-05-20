@@ -2,11 +2,12 @@
 #define BALL_BERRY_MODULE_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "ball_berry.hpp"
 
 class ball_berry_module : public SteadyModule {
 	public:
-		ball_berry_module(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		ball_berry_module(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("ball_berry_module"),
 			// Get pointers to input quantities
@@ -18,8 +19,8 @@ class ball_berry_module : public SteadyModule {
 			// Get pointers to output quantities
 			leaf_stomatal_conductance_op(get_op(output_quantities, "leaf_stomatal_conductance"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* net_assimilation_rate_ip;
@@ -33,7 +34,7 @@ class ball_berry_module : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> ball_berry_module::get_inputs() {
+string_vector ball_berry_module::get_inputs() {
 	return {
 		"net_assimilation_rate",
 		"atmospheric_co2_concentration",
@@ -43,7 +44,7 @@ std::vector<std::string> ball_berry_module::get_inputs() {
 	};
 }
 
-std::vector<std::string> ball_berry_module::get_outputs() {
+string_vector ball_berry_module::get_outputs() {
 	return {
 		"leaf_stomatal_conductance"
 	};
@@ -56,9 +57,9 @@ void ball_berry_module::do_operation() const {
 	double rh = *rh_ip;
 	double b0 = *b0_ip;
 	double b1 = *b1_ip;
-	
+
 	double stomatal_conductance = ball_berry(net_assimilation_rate, atmospheric_co2_concentration, rh, b0, b1);
-	
+
 	// Update the output quantity list
 	update(leaf_stomatal_conductance_op, stomatal_conductance);
 }

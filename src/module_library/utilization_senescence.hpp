@@ -2,10 +2,11 @@
 #define UTILIZATION_SENESCENCE_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class utilization_senescence : public DerivModule {
 	public:
-		utilization_senescence(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		utilization_senescence(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("utilization_senescence"),
 			// Get pointers to input quantities
@@ -28,8 +29,8 @@ class utilization_senescence : public DerivModule {
 	        substrate_pool_rhizome_op(get_op(output_quantities, "substrate_pool_rhizome")),
 	        RhizomeLitter_op(get_op(output_quantities, "RhizomeLitter"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 	    const double* remobilization_fraction_ip;
@@ -54,7 +55,7 @@ class utilization_senescence : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> utilization_senescence::get_inputs() {
+string_vector utilization_senescence::get_inputs() {
 	return {
 	    "remobilization_fraction",
 	    "senescence_leaf",
@@ -64,7 +65,7 @@ std::vector<std::string> utilization_senescence::get_inputs() {
 	};
 }
 
-std::vector<std::string> utilization_senescence::get_outputs() {
+string_vector utilization_senescence::get_outputs() {
 	return {
 		"Leaf",
         "substrate_pool_leaf",
@@ -81,15 +82,15 @@ std::vector<std::string> utilization_senescence::get_outputs() {
 	};
 }
 
-void utilization_senescence::do_operation() const {	
-	// Collect inputs and make calculations	
+void utilization_senescence::do_operation() const {
+	// Collect inputs and make calculations
     double remobilization_fraction = *remobilization_fraction_ip;
-    
+
     double senescence_leaf = *senescence_leaf_ip;
     double senescence_stem = *senescence_stem_ip;
     double senescence_root = *senescence_root_ip;
     double senescence_rhizome = *senescence_rhizome_ip;
-	
+
 	// Update the output quantity list
 	update(Leaf_op, -senescence_leaf);
     update(substrate_pool_leaf_op, senescence_leaf * remobilization_fraction);

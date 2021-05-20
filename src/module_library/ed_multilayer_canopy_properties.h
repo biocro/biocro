@@ -110,17 +110,17 @@ class ed_multilayer_canopy_properties : public SteadyModule
 
    protected:
     void run() const;
-    static std::vector<std::string> get_inputs(int nlayers);
-    static std::vector<std::string> define_leaf_classes();                   // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> define_multiclass_multilayer_outputs();  // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> define_pure_multilayer_outputs();        // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
-    static std::vector<std::string> get_outputs(int nlayers);
+    static string_vector get_inputs(int nlayers);
+    static string_vector define_leaf_classes();                   // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
+    static string_vector define_multiclass_multilayer_outputs();  // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
+    static string_vector define_pure_multilayer_outputs();        // required by derived modules for compatibility with the multilayer_canopy_photosynthesis module
+    static string_vector get_outputs(int nlayers);
 };
 
 /**
  * @brief Define all inputs required by the module
  */
-std::vector<std::string> ed_multilayer_canopy_properties::get_inputs(int /*nlayers*/)
+string_vector ed_multilayer_canopy_properties::get_inputs(int /*nlayers*/)
 {
     return {
         "par_energy_fraction_of_sunlight",  // dimensionless
@@ -143,7 +143,7 @@ std::vector<std::string> ed_multilayer_canopy_properties::get_inputs(int /*nlaye
 /**
  * @brief Define the different leaf classes included by the module
  */
-std::vector<std::string> ed_multilayer_canopy_properties::define_leaf_classes()
+string_vector ed_multilayer_canopy_properties::define_leaf_classes()
 {
     return {
         "sunlit",  // these leaves receive diffuse, scattered, and direct solar radiation
@@ -154,7 +154,7 @@ std::vector<std::string> ed_multilayer_canopy_properties::define_leaf_classes()
 /**
  * @brief Define all outputs that have different values for each leaf class and layer
  */
-std::vector<std::string> ed_multilayer_canopy_properties::define_multiclass_multilayer_outputs()
+string_vector ed_multilayer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     return {
         "incident_par",      // J / (m^2 leaf) / s
@@ -167,7 +167,7 @@ std::vector<std::string> ed_multilayer_canopy_properties::define_multiclass_mult
  * @brief Define all outputs that have different values for each layer, not including
  * outputs that also depend on leaf class
  */
-std::vector<std::string> ed_multilayer_canopy_properties::define_pure_multilayer_outputs()
+string_vector ed_multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
         "incident_scattered_par",      // J / (m^2 leaf) / s
@@ -184,10 +184,10 @@ std::vector<std::string> ed_multilayer_canopy_properties::define_pure_multilayer
  * @brief Define all output names by appending leaf class prefixes and layer number suffixes.
  * Here we should make use of the `define_XXX` functions to reduce code duplication.
  */
-std::vector<std::string> ed_multilayer_canopy_properties::get_outputs(int nlayers)
+string_vector ed_multilayer_canopy_properties::get_outputs(int nlayers)
 {
     // Add leaf_class prefixes to the multiclass_multilayer outputs
-    std::vector<std::string> multilayer_outputs = generate_multiclass_quantity_names(
+    string_vector multilayer_outputs = generate_multiclass_quantity_names(
         ed_multilayer_canopy_properties::define_leaf_classes(),
         ed_multilayer_canopy_properties::define_multiclass_multilayer_outputs());
 
@@ -271,19 +271,19 @@ class ed_ten_layer_canopy_properties : public ed_multilayer_canopy_properties
 {
    public:
     ed_ten_layer_canopy_properties(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : ed_multilayer_canopy_properties("ed_ten_layer_canopy_properties",
                                           ed_ten_layer_canopy_properties::nlayers,
                                           input_quantities,
                                           output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> define_leaf_classes();
-    static std::vector<std::string> define_multiclass_multilayer_outputs();
-    static std::vector<std::string> define_pure_multilayer_outputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector define_leaf_classes();
+    static string_vector define_multiclass_multilayer_outputs();
+    static string_vector define_pure_multilayer_outputs();
+    static string_vector get_outputs();
 
    private:
     // Number of layers
@@ -294,29 +294,29 @@ class ed_ten_layer_canopy_properties : public ed_multilayer_canopy_properties
 
 const int ed_ten_layer_canopy_properties::nlayers = 10;  // Set the number of layers
 
-std::vector<std::string> ed_ten_layer_canopy_properties::get_inputs()
+string_vector ed_ten_layer_canopy_properties::get_inputs()
 {
     return ed_multilayer_canopy_properties::get_inputs(ed_ten_layer_canopy_properties::nlayers);
 }
 
-std::vector<std::string> ed_ten_layer_canopy_properties::define_leaf_classes()
+string_vector ed_ten_layer_canopy_properties::define_leaf_classes()
 {
     return ed_multilayer_canopy_properties::define_leaf_classes();
 }
 
-std::vector<std::string> ed_ten_layer_canopy_properties::define_multiclass_multilayer_outputs()
+string_vector ed_ten_layer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     // Just call the parent class's multilayer output function
     return ed_multilayer_canopy_properties::define_multiclass_multilayer_outputs();
 }
 
-std::vector<std::string> ed_ten_layer_canopy_properties::define_pure_multilayer_outputs()
+string_vector ed_ten_layer_canopy_properties::define_pure_multilayer_outputs()
 {
     // Just call the parent class's multilayer output function
     return ed_multilayer_canopy_properties::define_pure_multilayer_outputs();
 }
 
-std::vector<std::string> ed_ten_layer_canopy_properties::get_outputs()
+string_vector ed_ten_layer_canopy_properties::get_outputs()
 {
     return ed_multilayer_canopy_properties::get_outputs(ed_ten_layer_canopy_properties::nlayers);
 }

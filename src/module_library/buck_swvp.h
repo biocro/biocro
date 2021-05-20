@@ -28,8 +28,8 @@ class buck_swvp : public SteadyModule
           saturation_water_vapor_pressure_atmosphere_op{get_op(output_quantities, "saturation_water_vapor_pressure_atmosphere")}
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -42,14 +42,14 @@ class buck_swvp : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> buck_swvp::get_inputs()
+string_vector buck_swvp::get_inputs()
 {
     return {
         "temp"  // degrees C
     };
 }
 
-std::vector<std::string> buck_swvp::get_outputs()
+string_vector buck_swvp::get_outputs()
 {
     return {
         "saturation_water_vapor_pressure_atmosphere"  // Pa

@@ -2,14 +2,15 @@
 #define FAKE_SOLAR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /** Class created by EBL for testing and experimentation ... not meant for real simulations! */
 class fake_solar : public SteadyModule
 {
    public:
     fake_solar(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : SteadyModule("fake_solar"),
           // Get pointers to input quantities
           time_ip(get_ip(input_quantities, "time")),
@@ -18,8 +19,8 @@ class fake_solar : public SteadyModule
           solar_op(get_op(output_quantities, "solar"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -31,7 +32,7 @@ class fake_solar : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> fake_solar::get_inputs()
+string_vector fake_solar::get_inputs()
 {
     return {
         "time",
@@ -39,7 +40,7 @@ std::vector<std::string> fake_solar::get_inputs()
     };
 }
 
-std::vector<std::string> fake_solar::get_outputs()
+string_vector fake_solar::get_outputs()
 {
     return {
         "solar"

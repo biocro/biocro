@@ -2,10 +2,11 @@
 #define OSCILLATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class harmonic_oscillator : public DerivModule {
 	public:
-		harmonic_oscillator(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		harmonic_oscillator(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("harmonic_oscillator"),
 			// Get pointers to input quantities
@@ -17,8 +18,8 @@ class harmonic_oscillator : public DerivModule {
 			pos_op(get_op(output_quantities, "position")),
 			vel_op(get_op(output_quantities, "velocity"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* mass_ip;
@@ -31,11 +32,11 @@ class harmonic_oscillator : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> harmonic_oscillator::get_inputs() {
+string_vector harmonic_oscillator::get_inputs() {
 	return {"mass", "spring_constant", "position", "velocity"};
 }
 
-std::vector<std::string> harmonic_oscillator::get_outputs() {
+string_vector harmonic_oscillator::get_outputs() {
 	return {"position", "velocity"};
 }
 
@@ -46,7 +47,7 @@ void harmonic_oscillator::do_operation() const {
 
 class harmonic_energy : public SteadyModule {
 	public:
-		harmonic_energy(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		harmonic_energy(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("harmonic_energy"),
 			// Get pointers to input quantities
@@ -59,8 +60,8 @@ class harmonic_energy : public SteadyModule {
 			se_op(&((*output_quantities).at("spring_energy"))),
 			te_op(&((*output_quantities).at("total_energy")))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* mass_ip;
@@ -74,11 +75,11 @@ class harmonic_energy : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> harmonic_energy::get_inputs() {
+string_vector harmonic_energy::get_inputs() {
 	return {"mass", "spring_constant", "position", "velocity"};
 }
 
-std::vector<std::string> harmonic_energy::get_outputs() {
+string_vector harmonic_energy::get_outputs() {
 	return {"kinetic_energy", "spring_energy", "total_energy"};
 }
 

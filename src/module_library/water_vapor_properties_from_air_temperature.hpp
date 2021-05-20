@@ -2,6 +2,7 @@
 #define WATER_VAPOR_PROPERTIES_FROM_AIR_TEMPERATURE_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "AuxBioCro.h"  // For saturation_vapor_pressure, TempToSFS, TempToLHV,
                         // and TempToDdryA
 
@@ -9,8 +10,8 @@ class water_vapor_properties_from_air_temperature : public SteadyModule
 {
    public:
     water_vapor_properties_from_air_temperature(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("water_vapor_properties_from_air_temperature"),
 
@@ -28,8 +29,8 @@ class water_vapor_properties_from_air_temperature : public SteadyModule
           psychrometric_parameter_op(get_op(output_quantities, "psychrometric_parameter"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -49,7 +50,7 @@ class water_vapor_properties_from_air_temperature : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> water_vapor_properties_from_air_temperature::get_inputs()
+string_vector water_vapor_properties_from_air_temperature::get_inputs()
 {
     return {
         "temp",
@@ -58,7 +59,7 @@ std::vector<std::string> water_vapor_properties_from_air_temperature::get_inputs
     };
 }
 
-std::vector<std::string> water_vapor_properties_from_air_temperature::get_outputs()
+string_vector water_vapor_properties_from_air_temperature::get_outputs()
 {
     return {
         "latent_heat_vaporization_of_water",

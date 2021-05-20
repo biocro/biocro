@@ -2,11 +2,12 @@
 #define BIOMASS_LEAF_N_LIMITATION_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "../constants.h"   // For calculation_constants::eps_zero
 
 class biomass_leaf_n_limitation : public SteadyModule {
 	public:
-		biomass_leaf_n_limitation(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		biomass_leaf_n_limitation(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("biomass_leaf_n_limitation"),
 			// Get pointers to input quantities
@@ -17,8 +18,8 @@ class biomass_leaf_n_limitation : public SteadyModule {
 			// Get pointers to output quantities
 			LeafN_op(get_op(output_quantities, "LeafN"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* LeafN_0_ip;
@@ -31,7 +32,7 @@ class biomass_leaf_n_limitation : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> biomass_leaf_n_limitation::get_inputs() {
+string_vector biomass_leaf_n_limitation::get_inputs() {
 	return {
 		"LeafN_0",
 		"Leaf",
@@ -40,7 +41,7 @@ std::vector<std::string> biomass_leaf_n_limitation::get_inputs() {
 	};
 }
 
-std::vector<std::string> biomass_leaf_n_limitation::get_outputs() {
+string_vector biomass_leaf_n_limitation::get_outputs() {
 	return {
 		"LeafN"
 	};

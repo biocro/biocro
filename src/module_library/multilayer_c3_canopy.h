@@ -4,6 +4,7 @@
 #include "multilayer_canopy_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
 #include "c3_leaf_photosynthesis.h"
+#include "../state_map.h"
 
 /**
  * @class ten_layer_c3_canopy
@@ -18,8 +19,8 @@ class ten_layer_c3_canopy : public multilayer_canopy_photosynthesis<ten_layer_ca
 {
    public:
     ten_layer_c3_canopy(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c3_leaf_photosynthesis>(
               "ten_layer_c3_canopy",
               ten_layer_c3_canopy::nlayers,
@@ -27,8 +28,8 @@ class ten_layer_c3_canopy : public multilayer_canopy_photosynthesis<ten_layer_ca
               output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Number of layers
@@ -39,13 +40,13 @@ class ten_layer_c3_canopy : public multilayer_canopy_photosynthesis<ten_layer_ca
 
 const int ten_layer_c3_canopy::nlayers = 10;  // Set the number of layers
 
-std::vector<std::string> ten_layer_c3_canopy::get_inputs()
+string_vector ten_layer_c3_canopy::get_inputs()
 {
     // Just call the parent class's input function with the appropriate number of layers
     return multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c3_leaf_photosynthesis>::generate_inputs(ten_layer_c3_canopy::nlayers);
 }
 
-std::vector<std::string> ten_layer_c3_canopy::get_outputs()
+string_vector ten_layer_c3_canopy::get_outputs()
 {
     // Just call the parent class's output function with the appropriate number of layers
     return multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c3_leaf_photosynthesis>::generate_outputs(ten_layer_c3_canopy::nlayers);

@@ -4,21 +4,22 @@
 #include <cmath>  // For pow, exp
 #include "../constants.h"  // for eps_zero
 #include "../modules.h"
+#include "../state_map.h"
 #include <Rinternals.h>          // for debugging
 const bool collatz_print = false;  // for debugging
 
 
 /**
  * @class ed_collatz_assimilation
- * 
+ *
  * @brief Uses the equations from Collatz et. al (1992) to calculate the CO2 assimilation rate.
  * Currently only intended for use by Ed.
- * 
+ *
  * First, reaction rates are modified from their values at 25 deg. C according to the leaf temperature.
- * 
+ *
  * Then, three different CO2 assimilation rates are calculated, corresponding to conditions limited by
  * rubisco, light, and CO2.
- * 
+ *
  * Finally, an overall gross assimilation rate is calculated based on these three limits, and net assimilation
  * is found by subtracting leaf respiration.
  */
@@ -26,8 +27,8 @@ class ed_collatz_c4_assimilation : public SteadyModule
 {
    public:
     ed_collatz_c4_assimilation(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_collatz_c4_assimilation"),
           // Get pointers to input quantities
@@ -57,8 +58,8 @@ class ed_collatz_c4_assimilation : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -89,7 +90,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_collatz_c4_assimilation::get_inputs()
+string_vector ed_collatz_c4_assimilation::get_inputs()
 {
     return {
         "collatz_q10",                        // dimensionless
@@ -108,7 +109,7 @@ std::vector<std::string> ed_collatz_c4_assimilation::get_inputs()
     };
 }
 
-std::vector<std::string> ed_collatz_c4_assimilation::get_outputs()
+string_vector ed_collatz_c4_assimilation::get_outputs()
 {
     return {
         "collatz_KT",                    // mol / m^2 / s
@@ -181,40 +182,40 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Apply a possible reduction accounting for the effect of water stress on the stomata
     const double adjusted_assimilation_net = assimilation_net * *assimilation_adjustment_factor_WS_ip;
-    
+
     std::string message = "collatz parameters:\n";
     char buff[128];
-    
+
     sprintf(buff, " temperature_factor = %e\n", temperature_factor);
     message += std::string(buff);
-    
+
     sprintf(buff, " co2_rate_constant = %e\n", co2_rate_constant);
     message += std::string(buff);
-    
+
     sprintf(buff, " assimilation_carbon_limited = %e\n", assimilation_carbon_limited);
     message += std::string(buff);
-    
+
     sprintf(buff, " rubisco_low_temp_inhibition = %e\n", rubisco_low_temp_inhibition);
     message += std::string(buff);
-    
+
     sprintf(buff, " rubisco_high_temp_inhibition = %e\n", rubisco_high_temp_inhibition);
     message += std::string(buff);
-    
+
     sprintf(buff, " assimilation_rubisco_limited = %e\n", assimilation_rubisco_limited);
     message += std::string(buff);
-    
+
     sprintf(buff, " respiration_base = %e\n", respiration_base);
     message += std::string(buff);
-    
+
     sprintf(buff, " respiration_high_temp_inhibition = %e\n", respiration_high_temp_inhibition);
     message += std::string(buff);
-    
+
     sprintf(buff, " assimilation_net = %e\n", assimilation_net);
     message += std::string(buff);
-    
+
     sprintf(buff, " adjusted_assimilation_net = %e\n", adjusted_assimilation_net);
     message += std::string(buff);
-    
+
     message += std::string("\n");
     if (collatz_print) {
         Rprintf(message.c_str());

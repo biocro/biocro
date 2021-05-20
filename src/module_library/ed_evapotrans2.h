@@ -2,6 +2,7 @@
 #define ED_EVAPOTRANS2_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "c4photo.h"
 
 /**
@@ -14,8 +15,8 @@ class ed_evapotrans2 : public SteadyModule
 {
    public:
     ed_evapotrans2(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_evapotrans2"),
           // Get pointers to input quantities
@@ -34,8 +35,8 @@ class ed_evapotrans2 : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -55,7 +56,7 @@ class ed_evapotrans2 : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_evapotrans2::get_inputs()
+string_vector ed_evapotrans2::get_inputs()
 {
     return {
         "temp",                       // deg. C
@@ -68,7 +69,7 @@ std::vector<std::string> ed_evapotrans2::get_inputs()
     };
 }
 
-std::vector<std::string> ed_evapotrans2::get_outputs()
+string_vector ed_evapotrans2::get_outputs()
 {
     return {
         "evapotranspiration_penman_monteith",  // mol / m^2 / s

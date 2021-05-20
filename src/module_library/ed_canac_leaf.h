@@ -2,6 +2,7 @@
 #define ED_CANAC_LEAF_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "c4photo.h"
 
 /**
@@ -13,8 +14,8 @@ class ed_canac_leaf : public SteadyModule
 {
    public:
     ed_canac_leaf(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_canac_leaf"),
 
@@ -54,8 +55,8 @@ class ed_canac_leaf : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -96,7 +97,7 @@ class ed_canac_leaf : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_canac_leaf::get_inputs()
+string_vector ed_canac_leaf::get_inputs()
 {
     return {
         "collatz_PAR_flux",                   // mol / m^2 / s
@@ -123,7 +124,7 @@ std::vector<std::string> ed_canac_leaf::get_inputs()
     };
 }
 
-std::vector<std::string> ed_canac_leaf::get_outputs()
+string_vector ed_canac_leaf::get_outputs()
 {
     return {
         "mole_fraction_co2_intercellular",     // dimensionless from mol / mol

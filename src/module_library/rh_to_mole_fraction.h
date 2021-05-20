@@ -54,8 +54,8 @@ class rh_to_mole_fraction : public SteadyModule
           mole_fraction_h2o_atmosphere_op{get_op(output_quantities, "mole_fraction_h2o_atmosphere")}
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -70,7 +70,7 @@ class rh_to_mole_fraction : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> rh_to_mole_fraction::get_inputs()
+string_vector rh_to_mole_fraction::get_inputs()
 {
     return {
         "rh",                                          // dimensionless
@@ -79,7 +79,7 @@ std::vector<std::string> rh_to_mole_fraction::get_inputs()
     };
 }
 
-std::vector<std::string> rh_to_mole_fraction::get_outputs()
+string_vector rh_to_mole_fraction::get_outputs()
 {
     return {
         "mole_fraction_h2o_atmosphere"  // dimensionless

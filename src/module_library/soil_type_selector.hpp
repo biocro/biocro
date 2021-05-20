@@ -2,11 +2,12 @@
 #define SOIL_TYPE_SELECTOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "AuxBioCro.h"  // For soilText_str and get_soil_properties
 
 class soil_type_selector : public SteadyModule {
 	public:
-		soil_type_selector(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		soil_type_selector(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("soil_type_selector"),
 			// Get pointers to input quantities
@@ -23,8 +24,8 @@ class soil_type_selector : public SteadyModule {
 			soil_wilting_point_op(get_op(output_quantities, "soil_wilting_point")),
 			soil_bulk_density_op(get_op(output_quantities, "soil_bulk_density"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* soil_type_indicator_ip;
@@ -43,13 +44,13 @@ class soil_type_selector : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> soil_type_selector::get_inputs() {
+string_vector soil_type_selector::get_inputs() {
 	return {
 		"soil_type_indicator"
 	};
 }
 
-std::vector<std::string> soil_type_selector::get_outputs() {
+string_vector soil_type_selector::get_outputs() {
 	return {
         "soil_silt_content",
         "soil_clay_content",

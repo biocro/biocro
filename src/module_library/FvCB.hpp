@@ -2,10 +2,11 @@
 #define FVCB_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class FvCB : public SteadyModule {
 	public:
-		FvCB(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		FvCB(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("FvCB"),
 			// Get pointers to input quantities
@@ -28,8 +29,8 @@ class FvCB : public SteadyModule {
 			net_assimilation_rate_op(get_op(output_quantities, "net_assimilation_rate")),
 			Ci_op(get_op(output_quantities, "Ci"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* Ci_ip;
@@ -54,7 +55,7 @@ class FvCB : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> FvCB::get_inputs() {
+string_vector FvCB::get_inputs() {
 	return {
 		"Ci",
 		"Gstar",
@@ -73,7 +74,7 @@ std::vector<std::string> FvCB::get_inputs() {
 	};
 }
 
-std::vector<std::string> FvCB::get_outputs() {
+string_vector FvCB::get_outputs() {
 	return {
 		"carboxylation_rate",
 		"net_assimilation_rate",
@@ -83,7 +84,7 @@ std::vector<std::string> FvCB::get_outputs() {
 
 void FvCB::do_operation() const {
 	// Collect input quantities and make calculations
-	
+
 	double Ci = *Ci_ip;
 	double Gstar = *Gstar_ip;
 	double Vcmax = *Vcmax_ip;
@@ -98,24 +99,24 @@ void FvCB::do_operation() const {
 	double Ca = *Ca_ip;
 	double atmospheric_pressure = *atmospheric_pressure_ip;
 	double leaf_stomatal_conductance = *leaf_stomatal_conductance_ip;
-	
+
 	double rubisco_limited = Vcmax * (Ci - Gstar) / (Ci + Kc * (1.0 + O2 / Ko));
-	
+
 	double rubp_limited = J * (Ci - Gstar) / (electrons_per_carboxylation * Ci + 2.0 * electrons_per_oxygenation * Gstar);
 	rubp_limited = std::max(rubp_limited, 0.0);		// This rate can't be negative.
-	
+
 	double tpu_limited = 3.0 * maximum_tpu_rate / (1.0 - Gstar / Ci);
-	
+
 	double carboxylation_rate = std::min(rubisco_limited, std::min(rubp_limited, tpu_limited));		// The overall carboxylation rate is the rate of the slowest process.
 	double net_assimilation_rate = carboxylation_rate - Rd;
-	
+
 	Ci = Ca - net_assimilation_rate * 1.6 * atmospheric_pressure / leaf_stomatal_conductance;
-	
+
 	// Update the output quantity list
 	update(carboxylation_rate_op, carboxylation_rate);
 	update(net_assimilation_rate_op, net_assimilation_rate);
 	update(Ci_op, Ci);
-	
+
 }
 
 #endif

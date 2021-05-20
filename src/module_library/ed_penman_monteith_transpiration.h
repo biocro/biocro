@@ -41,8 +41,8 @@ class ed_penman_monteith_transpiration : public SteadyModule
           transpiration_rate_op(get_op(output_quantities, "transpiration_rate"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -64,7 +64,7 @@ class ed_penman_monteith_transpiration : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_penman_monteith_transpiration::get_inputs()
+string_vector ed_penman_monteith_transpiration::get_inputs()
 {
     return {
         "long_wave_energy_loss_leaf",         // W / m^2
@@ -80,7 +80,7 @@ std::vector<std::string> ed_penman_monteith_transpiration::get_inputs()
     };
 }
 
-std::vector<std::string> ed_penman_monteith_transpiration::get_outputs()
+string_vector ed_penman_monteith_transpiration::get_outputs()
 {
     return {
         "transpiration_rate"  // mol / m^2 / s

@@ -65,8 +65,8 @@ class ed_leaf_temperature : public SteadyModule
 {
    public:
     ed_leaf_temperature(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_leaf_temperature"),
           // Get pointers to input quantities
@@ -86,8 +86,8 @@ class ed_leaf_temperature : public SteadyModule
           sensible_heat_loss_op(get_op(output_quantities, "sensible_heat_loss"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -111,7 +111,7 @@ class ed_leaf_temperature : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_leaf_temperature::get_inputs()
+string_vector ed_leaf_temperature::get_inputs()
 {
     return {
         "long_wave_energy_loss_leaf",         // J / m^2 / s
@@ -126,7 +126,7 @@ std::vector<std::string> ed_leaf_temperature::get_inputs()
     };
 }
 
-std::vector<std::string> ed_leaf_temperature::get_outputs()
+string_vector ed_leaf_temperature::get_outputs()
 {
     return {
         "temperature_leaf",      // deg. C

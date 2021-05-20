@@ -122,8 +122,8 @@ class thermal_time_beta : public DerivModule
           TTc_op(get_op(output_quantities, "TTc"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -141,7 +141,7 @@ class thermal_time_beta : public DerivModule
     void do_operation() const;
 };
 
-std::vector<std::string> thermal_time_beta::get_inputs()
+string_vector thermal_time_beta::get_inputs()
 {
     return {
         "temp",      // degrees C
@@ -153,7 +153,7 @@ std::vector<std::string> thermal_time_beta::get_inputs()
     };
 }
 
-std::vector<std::string> thermal_time_beta::get_outputs()
+string_vector thermal_time_beta::get_outputs()
 {
     return {
         "TTc"  // degrees C * day / hr

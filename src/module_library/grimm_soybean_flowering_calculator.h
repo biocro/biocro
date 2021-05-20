@@ -2,6 +2,7 @@
 #define GRIMM_SOYBEAN_FLOWERING_CALCULATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * \brief Model for soybean development and flowering based on Grimm et al. (1993)
@@ -44,8 +45,8 @@ class grimm_soybean_flowering_calculator : public SteadyModule
 {
    public:
     grimm_soybean_flowering_calculator(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("grimm_soybean_flowering_calculator"),
           // Get pointers to input quantities
@@ -71,8 +72,8 @@ class grimm_soybean_flowering_calculator : public SteadyModule
           grimm_flowering_op(get_op(output_quantities, "grimm_flowering"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -100,7 +101,7 @@ class grimm_soybean_flowering_calculator : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> grimm_soybean_flowering_calculator::get_inputs()
+string_vector grimm_soybean_flowering_calculator::get_inputs()
 {
     return {
         "grimm_sowing_doy",
@@ -121,7 +122,7 @@ std::vector<std::string> grimm_soybean_flowering_calculator::get_inputs()
     };
 }
 
-std::vector<std::string> grimm_soybean_flowering_calculator::get_outputs()
+string_vector grimm_soybean_flowering_calculator::get_outputs()
 {
     return {
         "grimm_rate",

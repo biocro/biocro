@@ -2,12 +2,13 @@
 #define ONE_LAYER_SOIL_PROFILE_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "AuxBioCro.h"  // For ws_str
 #include "BioCro.h"     // For watstr
 
 class one_layer_soil_profile : public DerivModule {
 	public:
-		one_layer_soil_profile(const std::unordered_map<std::string, double>* input_quantities, std::unordered_map<std::string, double>* output_quantities) :
+		one_layer_soil_profile(const state_map* input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("one_layer_soil_profile"),
 			// Get pointers to input quantities
@@ -28,8 +29,8 @@ class one_layer_soil_profile : public DerivModule {
 			// Get pointers to output quantities
 			soil_water_content_op(get_op(output_quantities, "soil_water_content"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
 		// Pointers to input quantities
 		const double* soil_evaporation_rate_ip;
@@ -52,7 +53,7 @@ class one_layer_soil_profile : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> one_layer_soil_profile::get_inputs() {
+string_vector one_layer_soil_profile::get_inputs() {
 	return {
 		"soil_evaporation_rate",
 		"canopy_transpiration_rate",
@@ -71,7 +72,7 @@ std::vector<std::string> one_layer_soil_profile::get_inputs() {
 	};
 }
 
-std::vector<std::string> one_layer_soil_profile::get_outputs() {
+string_vector one_layer_soil_profile::get_outputs() {
 	return {
 		"soil_water_content"
 	};

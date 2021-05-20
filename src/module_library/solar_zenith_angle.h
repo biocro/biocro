@@ -2,6 +2,7 @@
 #define SOLAR_ZENITH_ANGLE_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "BioCro.h"  // For cos_zenith_angle
 
 /**
@@ -14,8 +15,8 @@ class solar_zenith_angle : public SteadyModule
 {
    public:
     solar_zenith_angle(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("solar_zenith_angle"),
           // Get references to input quantities
@@ -25,8 +26,8 @@ class solar_zenith_angle : public SteadyModule
           cosine_zenith_angle_op(get_op(output_quantities, "cosine_zenith_angle"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -38,7 +39,7 @@ class solar_zenith_angle : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> solar_zenith_angle::get_inputs()
+string_vector solar_zenith_angle::get_inputs()
 {
     return {
         "lat",   // degrees (North is positive)
@@ -46,7 +47,7 @@ std::vector<std::string> solar_zenith_angle::get_inputs()
     };
 }
 
-std::vector<std::string> solar_zenith_angle::get_outputs()
+string_vector solar_zenith_angle::get_outputs()
 {
     return {
         "cosine_zenith_angle"  // dimensionless

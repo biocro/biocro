@@ -3,6 +3,7 @@
 
 #include <cmath>  // For pow
 #include "../modules.h"
+#include "../state_map.h"
 #include "../constants.h"
 
 /**
@@ -15,8 +16,8 @@ class ed_long_wave_energy_loss : public SteadyModule
 {
    public:
     ed_long_wave_energy_loss(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_long_wave_energy_loss"),
           // Get pointers to input quantities
@@ -28,8 +29,8 @@ class ed_long_wave_energy_loss : public SteadyModule
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Pointers to input quantities
@@ -42,7 +43,7 @@ class ed_long_wave_energy_loss : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_long_wave_energy_loss::get_inputs()
+string_vector ed_long_wave_energy_loss::get_inputs()
 {
     return {
         "temperature_leaf",  // deg. C
@@ -51,7 +52,7 @@ std::vector<std::string> ed_long_wave_energy_loss::get_inputs()
     };
 }
 
-std::vector<std::string> ed_long_wave_energy_loss::get_outputs()
+string_vector ed_long_wave_energy_loss::get_outputs()
 {
     return {
         "long_wave_energy_loss_leaf"  // W / m^2

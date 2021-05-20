@@ -59,8 +59,8 @@ public:
     development_rate_per_hour_op{get_op(output_quantities,"development_rate_per_hour")}
 
     {}
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
     private:
     // Pointers to input quantities

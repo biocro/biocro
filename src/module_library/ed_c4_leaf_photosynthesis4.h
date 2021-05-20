@@ -2,6 +2,7 @@
 #define ED_C4_LEAF_PHOTOSYNTHESIS4_H
 
 #include "se_module.h"
+#include "../state_map.h"
 #include <cmath>                            // for fabs and sqrt
 #include <algorithm>                        // for std::min and std::max
 #include "../constants.h"                   // for physical_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
@@ -69,7 +70,7 @@ std::vector<double> const relative_error_tolerances = {
 
 /**
  * @class ed_c4_leaf_photosynthesis4
- * 
+ *
  * @brief Solves a set of modules for the unknown quantities assimilation_net,
  * conductance_stomatal_h2o, and temperature_leaf. Also returns other quantities
  * derived from these. Represents photosynthesis at the leaf level for a c4 plant.
@@ -78,8 +79,8 @@ class ed_c4_leaf_photosynthesis4 : public se_module::base
 {
    public:
     ed_c4_leaf_photosynthesis4(
-        const std::unordered_map<std::string, double>* input_quantities,
-        std::unordered_map<std::string, double>* output_quantities)
+        const state_map* input_quantities,
+        state_map* output_quantities)
         : se_module::base(ed_c4_leaf_photosynthesis4_stuff::module_name,
                           ed_c4_leaf_photosynthesis4_stuff::sub_module_names,
                           ed_c4_leaf_photosynthesis4_stuff::solver_type,
@@ -109,8 +110,8 @@ class ed_c4_leaf_photosynthesis4 : public se_module::base
           ball_berry_intercept(get_input(input_quantities, "ball_berry_intercept"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to specific input quantities
@@ -133,14 +134,14 @@ class ed_c4_leaf_photosynthesis4 : public se_module::base
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
-std::vector<std::string> ed_c4_leaf_photosynthesis4::get_inputs()
+string_vector ed_c4_leaf_photosynthesis4::get_inputs()
 {
     return se_module::get_se_inputs(ed_c4_leaf_photosynthesis4_stuff::sub_module_names);
 }
 
-std::vector<std::string> ed_c4_leaf_photosynthesis4::get_outputs()
+string_vector ed_c4_leaf_photosynthesis4::get_outputs()
 {
-    std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis4_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis4_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis4_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis4_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_c4_leaf_photosynthesis4_stuff::module_name));
@@ -201,7 +202,7 @@ void ed_c4_leaf_photosynthesis4::get_default(std::vector<double>& guess_vec) con
 
     // The guess for leaf temperature is less critical. Just set it equal to ambient temperature.
     double const temperature_leaf_guess = temperature_air;
-    
+
     // Now update the guess vector
     guess_vec[0] = assimilation_net_guess;
     guess_vec[1] = conductance_stomatal_h2o_guess;
@@ -213,7 +214,7 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis4::get_initial_guesses
     // Get the default guess to use as a starting point
     std::vector<double> default_guess(3);
     get_default(default_guess);
-    
+
     // Extract the values
     double const assimilation_net_guess = default_guess[0];
     double const conductance_stomatal_h2o_guess = default_guess[1];
@@ -228,7 +229,7 @@ std::vector<std::vector<double>> ed_c4_leaf_photosynthesis4::get_initial_guesses
     sprintf(buff, " temperature_leaf_guess = %e\n", temperature_leaf_guess);
     message += std::string(buff);
 
-    std::vector<std::string> names = {
+    string_vector names = {
         "assimilation_net",
         "conductance_stomatal_h2o",
         "temperature_leaf"};
