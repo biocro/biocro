@@ -78,7 +78,7 @@ debug_view <- function(ob) {
 
 derivative_modules <- c("harmonic_oscillator")
 steady_state_modules <- c("harmonic_energy")
-varying_parameters <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
+drivers <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
 default_solver <- list(type='Gro', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
@@ -112,7 +112,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
     
     ## try out the solver
-    result <- Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules, solver)
+    result <- Gro_solver(initial_state, invariant_parameters, drivers, steady_state_modules, derivative_modules, solver)
 
     ## add useful columns to the resulting data frame:    
     result$time <- result$time * 24 # time is in hours

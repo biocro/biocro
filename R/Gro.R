@@ -1,12 +1,12 @@
-Gro <- function(initial_values, parameters, varying_parameters, modules, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose = FALSE)
+Gro <- function(initial_values, parameters, drivers, modules, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tole=1e-4, adaptive_max_steps=200), verbose = FALSE)
 {
     # This function runs a full crop growth simulation, automatically choosing the Rosenbrock integration method when possible
     #
     # initial_values: a list of named parameters representing state variables
     # parameters: a list of named parameters that don't change with time
-    # varying_parameters: a dataframe of parameters defined at equally spaced time intervals
+    # drivers: a dataframe of parameters defined at equally spaced time intervals
     #  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
-    #  Note: the varying parameters must include "doy" and "hour"
+    #  Note: the drivers must include "doy" and "hour"
     # modules: a list of named strings specifying which modules to use for the simulation which must include:
     #  'canopy'
     #  'soil'
@@ -122,7 +122,7 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, solver=
     result = Gro_solver(
         initial_state = initial_values,
         parameters = parameters,
-        varying_parameters = varying_parameters,
+        drivers = drivers,
         steady_state_module_names = steady_state_module_names,
         derivative_module_names = derivative_module_names,
         solver = solver,
@@ -133,15 +133,15 @@ Gro <- function(initial_values, parameters, varying_parameters, modules, solver=
     return(result)
 }
 
-Gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
+Gro_solver <- function(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
 {
     # This function runs a full crop growth simulation with a user-specified solver
     #
     # initial_state: a list of named parameters representing state variables
     # parameters: a list of named parameters that don't change with time
-    # varying_parameters: a dataframe of parameters defined at equally spaced time intervals
+    # drivers: a dataframe of parameters defined at equally spaced time intervals
     #  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
-    #  Note: the varying parameters must include "doy" and "hour"
+    #  Note: the drivers must include "doy" and "hour"
     # steady_state_module_names: a character vector of steady state module names
     # steady_state_module_names: a character vector of derivative module names
     # solver: a list specifying details about the solver. Elements are:
@@ -203,13 +203,13 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
         stop(error_message)
     }
 
-    # Check to make sure the varying_parameters are properly defined
-    if(!is.list(varying_parameters)) {
-        stop('"varying_parameters" must be a list')
+    # Check to make sure the drivers are properly defined
+    if(!is.list(drivers)) {
+        stop('"drivers" must be a list')
     }
 
-    # If the varying parameter input doesn't have a time column, add one
-    varying_parameters <- add_time_to_weather_data(varying_parameters)
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
 
     # Check to make sure the module names are vectors or lists of strings
     steady_state_module_names <- unlist(steady_state_module_names)
@@ -238,7 +238,7 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
     # C++ requires that all the variables have type `double`
     initial_state = lapply(initial_state, as.numeric)
     parameters = lapply(parameters, as.numeric)
-    varying_parameters = lapply(varying_parameters, as.numeric)
+    drivers = lapply(drivers, as.numeric)
     solver_output_step_size = as.numeric(solver_output_step_size)
     solver_adaptive_rel_error_tol = as.numeric(solver_adaptive_rel_error_tol)
     solver_adaptive_abs_error_tol = as.numeric(solver_adaptive_abs_error_tol)
@@ -248,7 +248,7 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
     verbose = lapply(verbose, as.logical)
 
     # Run the C++ code
-    result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, solver_type, solver_output_step_size, solver_adaptive_rel_error_tol, solver_adaptive_abs_error_tol, solver_adaptive_max_steps, verbose))
+    result = as.data.frame(.Call(R_Gro_solver, initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, solver_type, solver_output_step_size, solver_adaptive_rel_error_tol, solver_adaptive_abs_error_tol, solver_adaptive_max_steps, verbose))
 
     # Make sure doy and hour are properly defined
     result$doy = floor(result$time)
@@ -261,7 +261,7 @@ Gro_solver <- function(initial_state, parameters, varying_parameters, steady_sta
     return(result)
 }
 
-partial_gro <- function(initial_values, parameters, varying_parameters, modules, arg_names, verbose = FALSE)
+partial_gro <- function(initial_values, parameters, drivers, modules, arg_names, verbose = FALSE)
 {
     # Accepts the same parameters as Gro() with an additional 'arg_names' parameter, which is a vector of character variables.
     # Returns a function that runs Gro() with all of the parameters, except 'arg_names
@@ -270,12 +270,12 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
     #
     # initial_values: same as Gro()
     # parameters: same as Gro()
-    # varying_parameters: same as Gro()
+    # drivers: same as Gro()
     # steady_state_module_names: same as Gro()
     # derivative_module_names: same as Gro()
     # verbose: same as Gro()
     # arg_names: vector of character variables. The names of the arguments that the new function accepts.
-    #  Note: 'arg_names' must contain the names of parameters in 'initial_values', 'parameters', or 'varying_parameters'.
+    #  Note: 'arg_names' must contain the names of parameters in 'initial_values', 'parameters', or 'drivers'.
     #
     # returns f(arg).
     #
@@ -295,9 +295,9 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
     #  senescence_gro <- partial_gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
 
     # Form the argument list to pass to Gro
-    arg_list = list(initial_values=initial_values, parameters=parameters, varying_parameters=varying_parameters, modules=modules, verbose=verbose)
+    arg_list = list(initial_values=initial_values, parameters=parameters, drivers=drivers, modules=modules, verbose=verbose)
 
-    # Make a data frame containing the names of all parameters in the initial_values, parameters, and varying_parameters inputs
+    # Make a data frame containing the names of all parameters in the initial_values, parameters, and drivers inputs
     df = data.frame(control=character(), arg_name=character(), stringsAsFactors=FALSE)
     for (i in seq_along(arg_list)) {
         if (length(names(arg_list[[i]])) > 0) {
@@ -326,9 +326,9 @@ partial_gro <- function(initial_values, parameters, varying_parameters, modules,
     }
 }
 
-partial_gro_solver <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, arg_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
+partial_gro_solver <- function(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, arg_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
 {
-    arg_list = list(initial_state=initial_state, parameters=parameters, varying_parameters=varying_parameters, steady_state_module_names=steady_state_module_names, derivative_module_names=derivative_module_names, solver=solver, verbose=verbose)
+    arg_list = list(initial_state=initial_state, parameters=parameters, drivers=drivers, steady_state_module_names=steady_state_module_names, derivative_module_names=derivative_module_names, solver=solver, verbose=verbose)
 
     df = data.frame(control=character(), arg_name=character(), stringsAsFactors=FALSE)
     for (i in seq_along(arg_list)) {
@@ -358,7 +358,7 @@ partial_gro_solver <- function(initial_state, parameters, varying_parameters, st
     }
 }
 
-Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names)
+Gro_deriv <- function(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names)
 {
     # Gro_deriv is used to create a function that can be called by a solver such as LSODES
     #
@@ -368,9 +368,9 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
     # initial_state: a list of named parameters representing state variables
     #  Note: the values of these parameters are not important and won't be used in this function, but their names are critical
     # parameters: a list of named parameters that don't change with time
-    # varying_parameters: a dataframe of parameters defined at equally spaced time intervals
+    # drivers: a dataframe of parameters defined at equally spaced time intervals
     #  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
-    #  Note: the varying parameters must include "doy" and "hour"
+    #  Note: the drivers must include "doy" and "hour"
     # steady_state_module_names: a character vector of steady state module names
     # steady_state_module_names: a character vector of derivative module names
     # verbose: a logical variable indicating whether or not to print system startup information
@@ -434,15 +434,15 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
         stop(error_message)
     }
 
-    # Check to make sure the varying_parameters are properly defined
-    if(!is.list(varying_parameters)) {
-        stop('"varying_parameters" must be a list')
+    # Check to make sure the drivers are properly defined
+    if(!is.list(drivers)) {
+        stop('"drivers" must be a list')
     }
 
     # C++ requires that all the variables have type `double`
     initial_state = lapply(initial_state, as.numeric)
     parameters = lapply(parameters, as.numeric)
-    varying_parameters = lapply(varying_parameters, as.numeric)
+    drivers = lapply(drivers, as.numeric)
 
     # Define some items for the function
     state_names = character(0)
@@ -467,7 +467,7 @@ Gro_deriv <- function(initial_state, parameters, varying_parameters, steady_stat
         }
 
         # Call the C++ code that calculates a derivative
-        derivs <- .Call(R_Gro_deriv, temp_state, t, parameters, varying_parameters, steady_state_module_names, derivative_module_names)
+        derivs <- .Call(R_Gro_deriv, temp_state, t, parameters, drivers, steady_state_module_names, derivative_module_names)
 
         # Return the result
         result <- list(derivs)
@@ -497,7 +497,7 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names)
     #
     # There are several things to notice:
     #  (1) Even though time and timestep were not supplied as parameters, they show up in the lists
-    #      of invariant and varying parameters. The system requires these parameters, so Gro_ode supplies
+    #      of invariant and drivers. The system requires these parameters, so Gro_ode supplies
     #      default values if none are specified, as in the case of this example
     #  (2) No derivatives were supplied for spring_constant or mass, yet they are included in the oscillator_deriv
     #      output. Note that their "derivative" values in the output are just zero, the default value for a parameter

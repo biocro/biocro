@@ -5,19 +5,19 @@
 System::System(
     state_map const& init_state,
     state_map const& invariant_params,
-    state_vector_map const& varying_params,
+    state_vector_map const& drivers,
     string_vector const& ss_module_names,
     string_vector const& deriv_module_names)
     : initial_state{init_state},
       invariant_parameters{invariant_params},
-      varying_parameters{varying_params},
+      drivers{drivers},
       steady_state_module_names{},  // put modules in suitable order before filling
       derivative_module_names{deriv_module_names}
 {
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid system
-    bool valid = validate_system_inputs(startup_message, init_state, invariant_params, varying_params, ss_module_names, deriv_module_names);
+    bool valid = validate_system_inputs(startup_message, init_state, invariant_params, drivers, ss_module_names, deriv_module_names);
 
     if (!valid) {
         throw std::logic_error("Thrown by System::System: the supplied inputs cannot form a valid system.\n\n" + startup_message);
@@ -31,7 +31,7 @@ System::System(
 
     // Make the central list of quantities
     quantities = define_quantity_map(
-        std::vector<state_map>{init_state, invariant_params, at(varying_params, 0)},
+        std::vector<state_map>{init_state, invariant_params, at(drivers, 0)},
         std::vector<string_vector>{steady_state_module_names});
 
     // Make a map to store the output of derivative modules, which can only
@@ -50,7 +50,7 @@ System::System(
         string_set_to_string_vector(
             find_unique_module_outputs({steady_state_module_names}));
     string_vector istate_names = keys(init_state);
-    string_vector vp_names = keys(varying_params);
+    string_vector driver_names = keys(drivers);
 
     // Get vectors of pointers to important subsets of the quantities
     // These pointers allow us to efficiently reset portions of the
@@ -60,10 +60,10 @@ System::System(
     // Get pairs of pointers to important subsets of the quantities
     // These pairs allow us to efficiently retrieve the output of each
     // module and store it in the main quantity map when running the
-    // system, to update the varying parameters at new time points,
+    // system, to update the drivers at new time points,
     // etc.
     state_ptr_pairs = get_pointer_pairs(istate_names, quantities, derivative_module_outputs);
-    varying_ptr_pairs = get_pointer_pairs(vp_names, quantities, varying_parameters);
+    driver_ptr_pairs = get_pointer_pairs(driver_names, quantities, drivers);
 
     // Get a pointer to the timestep
     if (invariant_params.find("timestep") == invariant_params.end()) {
@@ -77,20 +77,20 @@ System::System(
  */
 void System::reset()
 {
-    update_varying_params(size_t(0));  // t = 0
+    update_drivers(size_t(0));  // t = 0
     for (auto const& x : initial_state) quantities[x.first] = x.second;
     run_module_list(steady_state_modules);
 }
 
 /**
- * @brief Gets values from the varying parameters at the input time (double)
+ * @brief Gets values from the drivers at the input time (double)
  */
-void System::update_varying_params(double time_indx)
+void System::update_drivers(double time_indx)
 {
     // Find two closest surrounding integers:
     int t1 = std::floor(time_indx);
     int t2 = t1 + 1;  // note t2 - t1 = 1
-    for (const auto& x : varying_ptr_pairs) {
+    for (const auto& x : driver_ptr_pairs) {
         // Use linear interpolation to find value at time_indx:
         auto value_at_t1 = (*(x.second))[t1];
         auto value_at_t2 = (*(x.second))[t2];
@@ -120,9 +120,9 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
  *
  * The quantities that change are (1) the quantites that are
  * calculated using differential equations; these should coincide with
- * all quantities in the initial state; (2) the varying known
- * parameters; (3) the _secondary_ variables, that is, the variables
- * that are outputs of steady-state modules.
+ * all quantities in the initial state; (2) the drivers; (3) the
+ * _secondary_ variables, that is, the variables that are outputs of
+ * steady-state modules.
  *
  * @note Even though each variable in the initial state should
  * correspond to a derivative calculated by some derivative module, it
@@ -135,6 +135,6 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
 string_vector System::get_output_param_names() const
 {
     return get_defined_quantity_names(
-        std::vector<state_map>{initial_state, at(varying_parameters, 0)},
+        std::vector<state_map>{initial_state, at(drivers, 0)},
         std::vector<string_vector>{steady_state_module_names});
 }

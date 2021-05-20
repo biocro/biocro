@@ -11,7 +11,7 @@
   *
   * @param[in,out] message Validation feedback is added to this string.
   * @return `true` if the inputs are valid, `false` otherwise.
-  * 
+  *
   * The following criteria are used to determine validity:
   * 1. Each quantity is specified only once.
   * 2. All module inputs are specified.
@@ -21,7 +21,7 @@
   *
   * We consider a quantity to have been "specified" (or "defined") if it is a
   * key in one of the maps `initial_state`, `invariant_params`, or
-  * `varying_params`, or, if it is an output variable of one of the steady-state
+  * `drivers`, or, if it is an output variable of one of the steady-state
   * modules listed in `ss_module_names`.
   *
   * Criterion 2 and criterion 4 are related: Criterion 2 requires
@@ -44,14 +44,14 @@ bool validate_system_inputs(
     std::string& message,
     state_map initial_state,
     state_map invariant_params,
-    state_vector_map varying_params,
+    state_vector_map drivers,
     string_vector ss_module_names,
     string_vector deriv_module_names)
 {
     size_t num_problems = 0;
 
     string_vector quantity_names = get_defined_quantity_names(
-        std::vector<state_map>{initial_state, invariant_params, at(varying_params, 0)},
+        std::vector<state_map>{initial_state, invariant_params, at(drivers, 0)},
         std::vector<string_vector>{ss_module_names});
 
     // Criterion 1
@@ -133,18 +133,18 @@ bool validate_system_inputs(
 /**
  * @brief Provides information about a set of system inputs that is not strictly
  *        required to check validity.
- * 
+ *
  * The following information is reported:
  * 1. A list of all quantities required by the modules as inputs
  * 2. A list of unused quantities in the invariant parameter list
- * 3. A list of unused quantities in the varying parameter list
+ * 3. A list of unused quantities in the drivers list
  * 4. A list of quantities in the initial state that lack derivatives
  * 5. A list of quantities whose derivatives have terms calculated by multiple modules
  */
 std::string analyze_system_inputs(
     state_map initial_state,
     state_map invariant_params,
-    state_vector_map varying_params,
+    state_vector_map drivers,
     string_vector ss_module_names,
     string_vector deriv_module_names)
 {
@@ -199,13 +199,13 @@ std::string analyze_system_inputs(
                                                            std::string("You may want to consider removing them for clarity"),
                                                            string_list); });
 
-    // List any unused quantities in the varying parameters
+    // List any unused quantities in the drivers
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(varying_params, 0)}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(drivers, 0)}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("Each varying parameter was used as an input to one or more modules"),
-                                                           std::string("The following varying parameters were not used as inputs to any module:"),
+                                                           std::string("Each driver was used as an input to one or more modules"),
+                                                           std::string("The following drivers were not used as inputs to any module:"),
                                                            std::string("You may want to consider removing them for clarity"),
                                                            string_list); });
 
@@ -469,7 +469,7 @@ string_set find_strictly_required_inputs(std::vector<string_vector> module_name_
             outputs_from_previous_modules.insert(output_names.begin(), output_names.end());
         }
     }
-    
+
     return string_vector_to_string_set(required_module_inputs);
 }
 

@@ -143,7 +143,7 @@
 
 \newcommand{\isv}{\text{isv}}
 \newcommand{\ip}{\text{ip}}
-\newcommand{\vp}{\text{vp}}
+\newcommand{\d}{\text{d}}
 
 
 \title{An Introduction to BioCro for Those Who Want to Add Models}
@@ -540,14 +540,14 @@ the time values should be in ``chronological order'').\footnote{As of
 In the following example, the time is specified using vectors labelled
 \emph{year}, \emph{doy} (``day-of-year''), and \emph{hour}.
 
-<<varying_parameters_example>>=
-example_varying_parameters = data.frame(
+<<drivers_example>>=
+example_drivers = data.frame(
             year = c(2005, 2005),
             doy = c(1, 1),
             hour = c(0, 1),
             solar = c(0, 0),
             temp = c(4.04, 3.03))
-print(example_varying_parameters)
+print(example_drivers)
 @
 
 Data frames of weather data are provided to pass to
@@ -1631,14 +1631,14 @@ using \Rcode{test_module}:
 \item Define parameters for the \Rcode{Gro_solver} function.  Assuming
   we call \Rcode{Gro_solver} as
   \begin{Rlisting}[4]
-    Gro_solver(initial_state, invariant_parameters, varying_parameters,
+    Gro_solver(initial_state, invariant_parameters, drivers,
                steady_state_modules, derivative_modules, solver, verbose)
   \end{Rlisting}
   we have seven variables we need to define:
   \begin{Rlisting}[4]
     initial_state <- ...
     invariant_parameters <- ...
-    varying_parameters <- ...
+    drivers <- ...
     steady_state_modules <- ...
     derivative_modules <- ...
     solver <- ...
@@ -1684,14 +1684,14 @@ using \Rcode{test_module}:
   the initial state may potentially vary with each test.  The keys,
   however, will in most cases be uniform across tests.  For example,
   if the module inputs consist of invariant parameters $\ip_1$,
-  $\ip_2$, \dots, $\ip_k$, varying parameters $\vp_1$, $\vp_2$, \dots,
-  $\vp_m$, and initial state variables $\isv_1$, $\isv_2$, \dots,
+  $\ip_2$, \dots, $\ip_k$, drivers $\d_1$, $\d_2$, \dots,
+  $\d_m$, and initial values variables $\isv_1$, $\isv_2$, \dots,
   $\isv_n$, then we will be setting the corresponding function
   parameters to values of the following forms:
   \begin{Rlisting}[4]
     invariant_parameters <- list(ip_1 = ___, ip_2 = ___, ..., ip_k = ___)
-    varying_parameters <- list(vp_1 = ___, vp_2 = ___, ..., vp_m = ___)
-    initial_state <- list(isv_1 = ___, isv_2 = ___, ..., isv_n = ___)
+    drivers <- list(d_1 = ___, d_2 = ___, ..., d_m = ___)
+    initial_values <- list(isv_1 = ___, isv_2 = ___, ..., isv_n = ___)
   \end{Rlisting}
 
   As mentioned above, since we are setting up the most stripped-down
@@ -1699,7 +1699,7 @@ using \Rcode{test_module}:
   setting for each input parameter of the module being tested, and we
   need to include certain time-related settings.  In particular, the
   invariant parameter list must include a setting for
-  \Rcode{timestep}, and the varying parameters must include either a
+  \Rcode{timestep}, and the drivers must include either a
   setting for \Rcode{time} or for both \Rcode{doy} and
   \Rcode{hour}.  The values assigned to the time-related variables is
   immaterial for the purposes of the test except in the case that one
@@ -1722,7 +1722,7 @@ using \Rcode{test_module}:
 
   \begin{Rexample}[4]
     invariant_parameters <- list(timestep = 1)
-    varying_parameters <- list(time = 1,
+    drivers <- list(time = 1,
                                cosine_zenith_angle = |\placeholder{some value that will vary from test to test}|)
     initial_state <- list()
   \end{Rexample}
@@ -1739,7 +1739,7 @@ using \Rcode{test_module}:
   However, instead of getting results to test by calling
   \Rcode{test_module}, we call \Rcode{Gro_solver} instead:
   \begin{Rlisting}[4]
-    result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+    result = Gro_solver(initial_state, invariant_parameters, drivers, steady_state_modules, derivative_modules)
   \end{Rlisting}
 
 As before, the various \Rcode{expect_} functions are used to test
@@ -1769,8 +1769,8 @@ The helper function \Rcode{angle_from_cosine} becomes:\footnote{
 
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
-        varying_parameters <- list(time = 1, cosine_zenith_angle = cza)
-        result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+        drivers <- list(time = 1, cosine_zenith_angle = cza)
+        result = Gro_solver(initial_state, invariant_parameters, drivers, steady_state_modules, derivative_modules)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
@@ -1817,7 +1817,7 @@ Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
 \item Define parameters for the \Rcode{Gro_solver} function.  Again,
   we will be assuming we call \Rcode{Gro_solver} with
   \begin{Rlisting}[4]
-    Gro_solver(initial_state, invariant_parameters, varying_parameters,
+    Gro_solver(initial_state, invariant_parameters, drivers,
                steady_state_modules, derivative_modules, solver, verbose)
   \end{Rlisting}
 
@@ -1835,7 +1835,7 @@ Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
   \end{Rexample}
 
   As for \Rcode{initial_state}, \Rcode{invariant_parameters}, and
-  \Rcode{varying_parameters}, we may want to vary each of these from
+  \Rcode{drivers}, we may want to vary each of these from
   test to test.  We may also want to run tests using various solvers
   and vary the timestep.
 
@@ -1845,9 +1845,9 @@ Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
     calculate_heating_degree_days <- function(initial_value, time_vector, temperature_vector, threshold_temperature, timestep, solver) {
       initial_state <- list(heating_degree_days = initial_value)
       invariant_parameters <- list(base_temperature = threshold_temperature, timestep = timestep)
-      varying_parameters <- list(time = time_vector, temp = temperature_vector)
+      drivers <- list(time = time_vector, temp = temperature_vector)
 
-      result <- Gro_solver(initial_state, invariant_parameters, varying_parameters,
+      result <- Gro_solver(initial_state, invariant_parameters, drivers,
                            steady_state_modules, derivative_modules, solver)
 
       result$heating_degree_days[length(time_vector)]

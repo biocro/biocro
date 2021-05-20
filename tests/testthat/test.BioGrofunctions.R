@@ -1,8 +1,8 @@
 context("Basic tests of *Gro functions")
 data(weather05, package = "BioCro")
 
-name_parameters = function(initial_values, parameters, varying_parameters, modules) {
-    list(initial_values=initial_values, parameters=parameters, varying_parameters=varying_parameters, modules=modules)
+name_parameters = function(initial_values, parameters, drivers, modules) {
+    list(initial_values=initial_values, parameters=parameters, drivers=drivers, modules=modules)
 }
 
 parameter_lists = list(

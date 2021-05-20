@@ -21,7 +21,7 @@ extern "C" {
 SEXP R_Gro_solver(
     SEXP initial_state,
     SEXP parameters,
-    SEXP varying_parameters,
+    SEXP drivers,
     SEXP steady_state_module_names,
     SEXP derivative_module_names,
     SEXP solver_type,
@@ -34,9 +34,9 @@ SEXP R_Gro_solver(
     try {
         state_map s = map_from_list(initial_state);
         state_map ip = map_from_list(parameters);
-        state_vector_map vp = map_vector_from_list(varying_parameters);
+        state_vector_map d = map_vector_from_list(drivers);
 
-        if (vp.begin()->second.size() == 0) {
+        if (d.begin()->second.size() == 0) {
             return R_NilValue;
         }
 
@@ -50,7 +50,7 @@ SEXP R_Gro_solver(
         double adaptive_abs_error_tol = REAL(solver_adaptive_abs_error_tol)[0];
         int adaptive_max_steps = (int)REAL(solver_adaptive_max_steps)[0];
 
-        biocro_simulation gro(s, ip, vp, ss_names, deriv_names,
+        biocro_simulation gro(s, ip, d, ss_names, deriv_names,
                               solver_type_string, output_step_size,
                               adaptive_rel_error_tol, adaptive_abs_error_tol,
                               adaptive_max_steps);
@@ -72,7 +72,7 @@ SEXP R_Gro_deriv(
     SEXP state,
     SEXP time,
     SEXP parameters,
-    SEXP varying_parameters,
+    SEXP drivers,
     SEXP steady_state_module_names,
     SEXP derivative_module_names)
 {
@@ -80,9 +80,9 @@ SEXP R_Gro_deriv(
         // Convert the inputs into the proper format
         state_map s = map_from_list(state);
         state_map ip = map_from_list(parameters);
-        state_vector_map vp = map_vector_from_list(varying_parameters);
+        state_vector_map d = map_vector_from_list(drivers);
 
-        if (vp.begin()->second.size() == 0) {
+        if (d.begin()->second.size() == 0) {
             return R_NilValue;
         }
 
@@ -92,7 +92,7 @@ SEXP R_Gro_deriv(
         double t = REAL(time)[0];
 
         // Create a system
-        System sys(s, ip, vp, ss_names, deriv_names);
+        System sys(s, ip, d, ss_names, deriv_names);
 
         // Get the state in the correct format
         std::vector<double> x;
@@ -145,30 +145,30 @@ SEXP R_Gro_ode(
             s.erase("timestep");
         }
 
-        // Form the list of varying parameters, making sure it includes doy and hour
-        state_vector_map vp;
+        // Form the list of drivers, making sure it includes doy and hour
+        state_vector_map d;
         if (s.find("doy") == s.end()) {
             // The doy is not defined in the input state, so assume it is 0
             std::vector<double> temp_vec;
             temp_vec.push_back(0.0);
-            vp["doy"] = temp_vec;
+            d["doy"] = temp_vec;
         } else {
-            // The doy is defined in the input state, so copy its value into the varying parameters
+            // The doy is defined in the input state, so copy its value into the drivers
             std::vector<double> temp_vec;
             temp_vec.push_back(s["doy"]);
-            vp["doy"] = temp_vec;
+            d["doy"] = temp_vec;
             s.erase("doy");
         }
         if (s.find("hour") == s.end()) {
             // The hour is not defined in the input state, so assume it is 0
             std::vector<double> temp_vec;
             temp_vec.push_back(0.0);
-            vp["hour"] = temp_vec;
+            d["hour"] = temp_vec;
         } else {
-            // The hour is defined in the input state, so copy its value into the varying parameters
+            // The hour is defined in the input state, so copy its value into the drivers
             std::vector<double> temp_vec;
             temp_vec.push_back(s["hour"]);
-            vp["hour"] = temp_vec;
+            d["hour"] = temp_vec;
             s.erase("hour");
         }
 
@@ -177,7 +177,7 @@ SEXP R_Gro_ode(
         std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
         // Make the system
-        System sys(s, ip, vp, ss_names, deriv_names);
+        System sys(s, ip, d, ss_names, deriv_names);
 
         // Get the current state in the correct format
         std::vector<double> x;

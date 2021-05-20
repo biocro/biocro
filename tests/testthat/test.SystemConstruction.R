@@ -16,7 +16,7 @@ test_that("All modules must exist", {
 		unused_parameter = 0
 	)
 	
-	varying_parameters <- list(
+	drivers <- list(
 		unused_varying_parameter=rep(0, MAX_INDEX)
 	)
 	
@@ -26,7 +26,7 @@ test_that("All modules must exist", {
 	
 	# This should throw an error
 	
-	expect_error(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_error(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })
 
@@ -45,7 +45,7 @@ test_that("Duplicated quantities produce an error during validation", {
 		position = 1	# defined for the second time
 	)
 	
-	varying_parameters <- list(
+	drivers <- list(
 		doy=rep(0, MAX_INDEX),
 		hour=seq(from=0, by=1, length=MAX_INDEX)
 	)
@@ -56,7 +56,7 @@ test_that("Duplicated quantities produce an error during validation", {
 	
 	# Validation should return FALSE
 	
-	expect_false(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_false(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })
 
@@ -74,7 +74,7 @@ test_that("Missing inputs produce an error during validation", {
 		timestep = 1
 	)
 	
-	varying_parameters <- list(
+	drivers <- list(
 		doy=rep(0, MAX_INDEX),
 		hour=seq(from=0, by=1, length=MAX_INDEX)
 	)
@@ -85,7 +85,7 @@ test_that("Missing inputs produce an error during validation", {
 	
 	# Validation should return FALSE
 	
-	expect_false(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_false(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })
 
@@ -103,7 +103,7 @@ test_that("Derivative modules only supply derivatives for quantities in the init
 		velocity = 0	# should be in the initial state instead
 	)
 	
-	varying_parameters <- list(
+	drivers <- list(
 		doy=rep(0, MAX_INDEX),
 		hour=seq(from=0, by=1, length=MAX_INDEX)
 	)
@@ -114,7 +114,7 @@ test_that("Derivative modules only supply derivatives for quantities in the init
 	
 	# Validation should return FALSE
 	
-	expect_false(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_false(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })
 
@@ -129,7 +129,7 @@ test_that("Steady state modules are not required to be supplied in the correct o
 		unused_parameter = 0
 	)
 	
-	varying_parameters <- list(
+	drivers <- list(
 		unused_varying_parameter=rep(0, MAX_INDEX)
 	)
 	
@@ -139,12 +139,12 @@ test_that("Steady state modules are not required to be supplied in the correct o
 	
 	# This should be valid
 	
-	expect_true(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_true(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 	# If we change the module order, it should still be valid
 	
 	steady_state_module_names <- c("Module_2", "Module_1")
 	
-	expect_true(validate_system_inputs(initial_state, parameters, varying_parameters, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_true(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })

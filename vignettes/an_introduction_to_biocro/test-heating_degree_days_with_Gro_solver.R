@@ -12,9 +12,9 @@ derivative_modules <- c("heating_degree_days")
 calculate_heating_degree_days <- function(initial_value, time_vector, temperature_vector, threshold_temperature, timestep, solver) {
     initial_state <- list(heating_degree_days = initial_value)
     invariant_parameters <- list(base_temperature = threshold_temperature, timestep = timestep)
-    varying_parameters <- list(time = time_vector, temp = temperature_vector)
+    drivers <- list(time = time_vector, temp = temperature_vector)
 
-    result <- Gro_solver(initial_state, invariant_parameters, varying_parameters,
+    result <- Gro_solver(initial_state, invariant_parameters, drivers,
                          steady_state_modules, derivative_modules, solver)
 
     result$heating_degree_days[length(time_vector)]

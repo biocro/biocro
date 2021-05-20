@@ -21,14 +21,14 @@ bool validate_system_inputs(
     std::string& message,
     state_map initial_state,
     state_map invariant_params,
-    state_vector_map varying_params,
+    state_vector_map drivers,
     string_vector ss_module_names,
     string_vector deriv_module_names);
 
 std::string analyze_system_inputs(
     state_map initial_state,
     state_map invariant_params,
-    state_vector_map varying_params,
+    state_vector_map drivers,
     string_vector ss_module_names,
     string_vector deriv_module_names);
 
@@ -242,7 +242,7 @@ void insert_key_names(string_vector& name_vector, const map_type map)
  *                       vector of map_with_string_keys objects.  Generally, this
  *                       will either be empty or will consist of the initial state
  *                       of the system, the set of invariant parameters, and the
- *                       initial values of the varying parameters.
+ *                       initial values of the drivers.
  * @param[in] module_name_vectors A collection of sets of module names presented
  *                                as a vector of vectors.  Usually, this
  *                                collection will either be empty or will

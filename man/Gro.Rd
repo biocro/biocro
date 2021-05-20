@@ -2,21 +2,21 @@
 \alias{Gro}
 \title{Model crop growth.}
 \usage{
-    Gro(initial_values, parameters, varying_parameters, modules, verbose = FALSE)
+    Gro(initial_values, parameters, drivers, modules, verbose = FALSE)
 }
 \arguments{
     \item{initial_values}{Parameter values that are known only at the start of the simulation period. These are recorded in the result. (a list of named numeric values)}
 
     \item{parameters}{Parameter values that are constant for the entire simulation period. These are not recorded in the result. (a list of named numeric values)}
 
-    \item{varying_parameters}{Times at which a solution is desired and parameter values that are known \emph{a priori} for the entire simulation period. These are not recorded in the result. (a data frame with at least the columns \code{year}, \code{doy}, and \code{hour} and optionally columns for parameters that are known \emph{a priori}.)}
+    \item{drivers}{Times at which a solution is desired and parameter values that are known \emph{a priori} for the entire simulation period. These are not recorded in the result. (a data frame with at least the columns \code{year}, \code{doy}, and \code{hour} and optionally columns for parameters that are known \emph{a priori}.)}
 
     \item{modules}{The model modules that should be run. Required modules are given in the details. (a list of named character values)}
 
     \item{verbose}{A logical variable indicating whether or not to print system startup information}
 }
 \value{
-    A data frame with the columns \code{year}, \code{doy}, and \code{hour}; and a column for each parameter in \code{initial_values}; and a row for each row in \code{varying_parameters}:
+    A data frame with the columns \code{year}, \code{doy}, and \code{hour}; and a column for each parameter in \code{initial_values}; and a row for each row in \code{drivers}:
 }
 \description{
     \code{Gro()} models crop growth over time given species-specific parameters and climate data. It can be used to predict yield, determine regions that are suitable for growing a crop, and identify traits that have the most influence on yield.
@@ -29,11 +29,11 @@
     }
 
     \subsection{Model implementation using Gro()}{
-        In Gro(), the sets of equations are passed via the modules argument, and the state is passed via the \code{initial_values}, \code{parameters}, and \code{varying_parameters} arguments.
+        In Gro(), the sets of equations are passed via the modules argument, and the state is passed via the \code{initial_values}, \code{parameters}, and \code{drivers} arguments.
 
         The set of modules determines the parameters that must be defined in the state arguments. Each module has parameters it requires, which must be defined in exactly one of the state arguments
 
-        The state argument in which a parameter is defined determines whether a parameter is considered calculated state or \emph{a priori} state. Parameters defined in \code{initial_values} are considered calculated state, whereas parameters defined in either \code{parameters} or \code{varying_parameters} are considered \emph{a priori} state. The difference between \code{parameters} and \code{varying_parameters} is that values in \code{parameters} are considered constant for the simulation period, whereas values in \code{varying_parameters} may be different for each time point. Only calculated state variables are recorded in the output. A priori state variable values will overwrite any calculations of those values performed internally by the model.
+        The state argument in which a parameter is defined determines whether a parameter is considered calculated state or \emph{a priori} state. Parameters defined in \code{initial_values} are considered calculated state, whereas parameters defined in either \code{parameters} or \code{drivers} are considered \emph{a priori} state. The difference between \code{parameters} and \code{drivers} is that values in \code{parameters} are considered constant for the simulation period, whereas values in \code{drivers} may be different for each time point. Only calculated state variables are recorded in the output. A priori state variable values will overwrite any calculations of those values performed internally by the model.
     }
 
 
@@ -42,9 +42,9 @@
 
         \code{parameters}: Parameter values that are known and constant for the entire simulation period. Values are not recorded in the output. If the model calculates the parameter value, the calculated value will be overwritten by the value in \code{parameters}.
 
-        \code{varying_parameters}: Parameter values that are known \emph{a priori} at every time step in the entire simulation period. Values are not recorded in the output. If the model calculates the parameter value, the calculated value will be overwritten by the value in \code{varying_parameters}.
+        \code{drivers}: Parameter values that are known \emph{a priori} at every time step in the entire simulation period. Values are not recorded in the output. If the model calculates the parameter value, the calculated value will be overwritten by the value in \code{drivers}.
 
-        The data frame \code{varying_parameters} must contain at least the columns \code{year}, \code{doy}, and \code{hour}, specifying the times at which a solution is required. Times must be evenly spaced, and the difference in times must be given in the \code{timestep} parameter (units are hours).
+        The data frame \code{drivers} must contain at least the columns \code{year}, \code{doy}, and \code{hour}, specifying the times at which a solution is required. Times must be evenly spaced, and the difference in times must be given in the \code{timestep} parameter (units are hours).
     }
 
     \subsection{Required module names and available modules}{
