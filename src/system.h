@@ -18,7 +18,7 @@ class System
 {
    public:
     System(
-        state_map const& init_state,
+        state_map const& init_values,
         state_map const& invariant_params,
         state_vector_map const& drivers,
         string_vector const& ss_module_names,
@@ -51,7 +51,7 @@ class System
 
     // For returning the results of a calculation
     std::vector<const double*> get_quantity_access_ptrs(string_vector quantity_names) const;
-    string_vector get_state_parameter_names() const { return keys(initial_state); }
+    string_vector get_state_parameter_names() const { return keys(initial_values); }
     string_vector get_output_param_names() const;
 
     // For generating reports to the user
@@ -70,7 +70,7 @@ class System
 
    private:
     // For storing the constructor inputs
-    const state_map initial_state;
+    const state_map initial_values;
     const state_map invariant_parameters;
     const state_vector_map drivers;
     string_vector steady_state_module_names;  // These may be re-ordered in the constructor.

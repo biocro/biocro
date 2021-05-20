@@ -69,14 +69,14 @@
     }
 
     \subsection{Precompiled module and parameter sets}{
-        Sets of parameters and modules are provided for sorghum, miscanthus, and willow, and are named [crop]_initial_state, [crop]_parameters, and [crop]_modules, e.g., sorghum_initial_state.
+        Sets of parameters and modules are provided for sorghum, miscanthus, and willow, and are named [crop]_initial_values, [crop]_parameters, and [crop]_modules, e.g., sorghum_initial_values.
 
         Weather data are provided. These are typically for one year (January 1 to December 31) and should be subsetted to include only the period of growth. The function \code{get_growing_season_climate()} is provided as one means of subsetting climate data.
     }
 }
 \examples{
 ## Simulate sorghum growth
-result = Gro(sorghum_initial_state, sorghum_parameters,
+result = Gro(sorghum_initial_values, sorghum_parameters,
              get_growing_season_climate(weather05), sorghum_modules)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
                 auto=list(points=FALSE, lines=TRUE),
@@ -88,7 +88,7 @@ result = cbind(result, get_growing_season_climate(weather05))
 
 ## Change a subset of the parameters.
 canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
-architechture_result = Gro(sorghum_initial_state, canopy_architecture,
+architechture_result = Gro(sorghum_initial_values, canopy_architecture,
                            get_growing_season_climate(weather05), sorghum_modules)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l',
                 auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)),

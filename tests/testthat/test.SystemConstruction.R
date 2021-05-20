@@ -8,7 +8,7 @@ SILENT <- TRUE
 test_that("All modules must exist", {
 	# Set up some bad inputs
 	
-	initial_state <- list(
+	initial_values <- list(
 		unused_state_variable = 0
 	)
 	
@@ -26,14 +26,14 @@ test_that("All modules must exist", {
 	
 	# This should throw an error
 	
-	expect_error(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_error(validate_system_inputs(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })
 
 test_that("Duplicated quantities produce an error during validation", {
 	# Set up some bad inputs for a harmonic oscillator
 	
-	initial_state <- list(
+	initial_values <- list(
 		position = 1,	# defined for the first time
 		velocity = 0
 	)
@@ -56,14 +56,14 @@ test_that("Duplicated quantities produce an error during validation", {
 	
 	# Validation should return FALSE
 	
-	expect_false(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_false(validate_system_inputs(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })
 
 test_that("Missing inputs produce an error during validation", {
 	# Set up some bad inputs for a harmonic oscillator
 	
-	initial_state <- list(
+	initial_values <- list(
 		position = 1,
 		velocity = 0
 	)
@@ -85,14 +85,14 @@ test_that("Missing inputs produce an error during validation", {
 	
 	# Validation should return FALSE
 	
-	expect_false(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_false(validate_system_inputs(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })
 
-test_that("Derivative modules only supply derivatives for quantities in the initial state", {
+test_that("Derivative modules only supply derivatives for quantities in the initial values", {
 	# Set up some bad inputs for a harmonic oscillator
 	
-	initial_state <- list(
+	initial_values <- list(
 		position = 1
 	)
 	
@@ -100,7 +100,7 @@ test_that("Derivative modules only supply derivatives for quantities in the init
 		mass = 1,
 		spring_constant = 1,
 		timestep = 1,
-		velocity = 0	# should be in the initial state instead
+		velocity = 0	# should be in the initial values instead
 	)
 	
 	drivers <- list(
@@ -114,14 +114,14 @@ test_that("Derivative modules only supply derivatives for quantities in the init
 	
 	# Validation should return FALSE
 	
-	expect_false(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_false(validate_system_inputs(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })
 
 test_that("Steady state modules are not required to be supplied in the correct order", {
 	# Set up some bad inputs
 	
-	initial_state <- list(
+	initial_values <- list(
 		unused_state_variable = 0
 	)
 	
@@ -139,12 +139,12 @@ test_that("Steady state modules are not required to be supplied in the correct o
 	
 	# This should be valid
 	
-	expect_true(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_true(validate_system_inputs(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 	# If we change the module order, it should still be valid
 	
 	steady_state_module_names <- c("Module_2", "Module_1")
 	
-	expect_true(validate_system_inputs(initial_state, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
+	expect_true(validate_system_inputs(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names, silent=SILENT))
 	
 })

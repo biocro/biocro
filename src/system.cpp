@@ -3,12 +3,12 @@
 #include "utils/module_dependency_utilities.h"  // for get_evaluation_order
 
 System::System(
-    state_map const& init_state,
+    state_map const& init_values,
     state_map const& invariant_params,
     state_vector_map const& drivers,
     string_vector const& ss_module_names,
     string_vector const& deriv_module_names)
-    : initial_state{init_state},
+    : initial_values{init_values},
       invariant_parameters{invariant_params},
       drivers{drivers},
       steady_state_module_names{},  // put modules in suitable order before filling
@@ -17,7 +17,7 @@ System::System(
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid system
-    bool valid = validate_system_inputs(startup_message, init_state, invariant_params, drivers, ss_module_names, deriv_module_names);
+    bool valid = validate_system_inputs(startup_message, init_values, invariant_params, drivers, ss_module_names, deriv_module_names);
 
     if (!valid) {
         throw std::logic_error("Thrown by System::System: the supplied inputs cannot form a valid system.\n\n" + startup_message);
@@ -31,12 +31,12 @@ System::System(
 
     // Make the central list of quantities
     quantities = define_quantity_map(
-        std::vector<state_map>{init_state, invariant_params, at(drivers, 0)},
+        std::vector<state_map>{init_values, invariant_params, at(drivers, 0)},
         std::vector<string_vector>{steady_state_module_names});
 
     // Make a map to store the output of derivative modules, which can only
-    // include quantities in the initial state
-    derivative_module_outputs = init_state;
+    // include quantities in the initial values
+    derivative_module_outputs = init_values;
 
     // Instantiate the modules. Derivative modules should not modify the main
     // quantity map since their output represents derivatives of quantity values
@@ -49,7 +49,7 @@ System::System(
     string_vector steady_state_output_names =
         string_set_to_string_vector(
             find_unique_module_outputs({steady_state_module_names}));
-    string_vector istate_names = keys(init_state);
+    string_vector istate_names = keys(init_values);
     string_vector driver_names = keys(drivers);
 
     // Get vectors of pointers to important subsets of the quantities
@@ -78,7 +78,7 @@ System::System(
 void System::reset()
 {
     update_drivers(size_t(0));  // t = 0
-    for (auto const& x : initial_state) quantities[x.first] = x.second;
+    for (auto const& x : initial_values) quantities[x.first] = x.second;
     run_module_list(steady_state_modules);
 }
 
@@ -120,14 +120,14 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
  *
  * The quantities that change are (1) the quantites that are
  * calculated using differential equations; these should coincide with
- * all quantities in the initial state; (2) the drivers; (3) the
+ * all quantities in the initial values; (2) the drivers; (3) the
  * _secondary_ variables, that is, the variables that are outputs of
  * steady-state modules.
  *
- * @note Even though each variable in the initial state should
+ * @note Even though each variable in the initial values should
  * correspond to a derivative calculated by some derivative module, it
  * is possible and permissible to have some variable \f$v\f$ in the
- * initial state that doesn't correspond to any such derivative.  In
+ * initial values that doesn't correspond to any such derivative.  In
  * that case, a differential equation \f$dv/dt = 0\f$ is assumed.  So
  * such variables in fact _do not_ change during the course of the
  * simulation.
@@ -135,6 +135,6 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
 string_vector System::get_output_param_names() const
 {
     return get_defined_quantity_names(
-        std::vector<state_map>{initial_state, at(drivers, 0)},
+        std::vector<state_map>{initial_values, at(drivers, 0)},
         std::vector<string_vector>{steady_state_module_names});
 }

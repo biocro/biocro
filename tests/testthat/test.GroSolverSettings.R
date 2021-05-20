@@ -13,7 +13,7 @@ DEBUG_PRINT_EXTRA <- FALSE
 final_position <- function(solver)
 {
     result <- Gro_solver(
-        initial_state = list(
+        initial_values = list(
             position = 0.0,
             velocity = 1.0
         ),

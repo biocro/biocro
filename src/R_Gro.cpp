@@ -19,7 +19,7 @@ using std::vector;
 extern "C" {
 
 SEXP R_Gro_solver(
-    SEXP initial_state,
+    SEXP initial_values,
     SEXP parameters,
     SEXP drivers,
     SEXP steady_state_module_names,
@@ -32,7 +32,7 @@ SEXP R_Gro_solver(
     SEXP verbose)
 {
     try {
-        state_map s = map_from_list(initial_state);
+        state_map iv = map_from_list(initial_values);
         state_map ip = map_from_list(parameters);
         state_vector_map d = map_vector_from_list(drivers);
 
@@ -50,7 +50,7 @@ SEXP R_Gro_solver(
         double adaptive_abs_error_tol = REAL(solver_adaptive_abs_error_tol)[0];
         int adaptive_max_steps = (int)REAL(solver_adaptive_max_steps)[0];
 
-        biocro_simulation gro(s, ip, d, ss_names, deriv_names,
+        biocro_simulation gro(iv, ip, d, ss_names, deriv_names,
                               solver_type_string, output_step_size,
                               adaptive_rel_error_tol, adaptive_abs_error_tol,
                               adaptive_max_steps);

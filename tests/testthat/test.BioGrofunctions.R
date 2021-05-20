@@ -6,13 +6,13 @@ name_parameters = function(initial_values, parameters, drivers, modules) {
 }
 
 parameter_lists = list(
-    willow = name_parameters(willow_initial_state, willow_parameters, weather05, willow_modules),
-    miscanthus = name_parameters(miscanthus_x_giganteus_initial_state, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_modules),
-    sorghum = name_parameters(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules)
+    willow = name_parameters(willow_initial_values, willow_parameters, weather05, willow_modules),
+    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_modules),
+    sorghum = name_parameters(sorghum_initial_values, sorghum_parameters, weather05, sorghum_modules)
 )
 
 test_that("WillowGro function produces reasonable results", {
-    results <- Gro(willow_initial_state, willow_parameters, weather05, willow_modules)
+    results <- Gro(willow_initial_values, willow_parameters, weather05, willow_modules)
 
     results_means <- unlist(lapply(results, mean))
     for (output in c("lai", "Leaf", "Root", "Stem")){

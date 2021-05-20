@@ -9,7 +9,7 @@
 extern "C" {
 
 SEXP R_validate_system_inputs(
-    SEXP initial_state,
+    SEXP initial_values,
     SEXP parameters,
     SEXP drivers,
     SEXP steady_state_module_names,
@@ -18,7 +18,7 @@ SEXP R_validate_system_inputs(
 {
     try {
         // Convert inputs from R formats
-        state_map s = map_from_list(initial_state);
+        state_map s = map_from_list(initial_values);
         state_map ip = map_from_list(parameters);
         state_vector_map vp = map_vector_from_list(drivers);
         std::vector<std::string> ss_names = make_vector(steady_state_module_names);

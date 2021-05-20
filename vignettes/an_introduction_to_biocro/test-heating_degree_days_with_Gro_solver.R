@@ -10,11 +10,11 @@ derivative_modules <- c("heating_degree_days")
 ## solver, run the system and return the final heating-degree-days
 ## value.
 calculate_heating_degree_days <- function(initial_value, time_vector, temperature_vector, threshold_temperature, timestep, solver) {
-    initial_state <- list(heating_degree_days = initial_value)
+    initial_values <- list(heating_degree_days = initial_value)
     invariant_parameters <- list(base_temperature = threshold_temperature, timestep = timestep)
     drivers <- list(time = time_vector, temp = temperature_vector)
 
-    result <- Gro_solver(initial_state, invariant_parameters, drivers,
+    result <- Gro_solver(initial_values, invariant_parameters, drivers,
                          steady_state_modules, derivative_modules, solver)
 
     result$heating_degree_days[length(time_vector)]

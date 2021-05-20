@@ -15,34 +15,34 @@
   * The following criteria are used to determine validity:
   * 1. Each quantity is specified only once.
   * 2. All module inputs are specified.
-  * 3. Derivatives are calculated only for quantities in the initial state.
+  * 3. Derivatives are calculated only for quantities in the initial values.
   * 4. Steady-state modules can be ordered in such a way that inputs
   *    are calculated before they are accessed.
   *
   * We consider a quantity to have been "specified" (or "defined") if it is a
-  * key in one of the maps `initial_state`, `invariant_params`, or
+  * key in one of the maps `initial_values`, `invariant_params`, or
   * `drivers`, or, if it is an output variable of one of the steady-state
   * modules listed in `ss_module_names`.
   *
   * Criterion 2 and criterion 4 are related: Criterion 2 requires
   * merely that each input to a steady-state or deriv module is either
-  * a variable in the initial state, is one of the parameters, or is
+  * a variable in the initial values, is one of the parameters, or is
   * an output of some steady-state module.  Criterion 4 goes further
   * for the case of a steady-state module where an input quantity is
   * provided by the output of some other steady-state module: It
   * requires that the steady-state modules can be ordered in such a
   * way that each of a module's input quantities that is neither a
-  * parameter or a quantity in the initial state be provided by the
+  * parameter or a quantity in the initial values be provided by the
   * output of a module earlier in the list.
   *
   * Notably absent from these criteria is a requirement that a derivative be
-  * calculated for every value given in the initial state.  Values in the
-  * initial state that are not outputs of any deriv module are assumed to have a
+  * calculated for every value given in the initial values.  Values in the
+  * initial values that are not outputs of any deriv module are assumed to have a
   * derivative of zero, that is, they are assumed to be constant.
   */
 bool validate_system_inputs(
     std::string& message,
-    state_map initial_state,
+    state_map initial_values,
     state_map invariant_params,
     state_vector_map drivers,
     string_vector ss_module_names,
@@ -51,7 +51,7 @@ bool validate_system_inputs(
     size_t num_problems = 0;
 
     string_vector quantity_names = get_defined_quantity_names(
-        std::vector<state_map>{initial_state, invariant_params, at(drivers, 0)},
+        std::vector<state_map>{initial_values, invariant_params, at(drivers, 0)},
         std::vector<string_vector>{ss_module_names});
 
     // Criterion 1
@@ -90,14 +90,14 @@ bool validate_system_inputs(
         message,
         [=]() -> string_vector {
             return find_undefined_module_outputs(
-                keys(initial_state),
+                keys(initial_values),
                 std::vector<string_vector>{deriv_module_names}
             );
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
-                std::string("All derivative module outputs were included in the initial state"),
-                std::string("The following derivative module outputs were not part of the initial state:"),
+                std::string("All derivative module outputs were included in the initial values"),
+                std::string("The following derivative module outputs were not part of the initial values:"),
                 std::string(""),
                 string_list
             );
@@ -138,11 +138,11 @@ bool validate_system_inputs(
  * 1. A list of all quantities required by the modules as inputs
  * 2. A list of unused quantities in the invariant parameter list
  * 3. A list of unused quantities in the drivers list
- * 4. A list of quantities in the initial state that lack derivatives
+ * 4. A list of quantities in the initial values that lack derivatives
  * 5. A list of quantities whose derivatives have terms calculated by multiple modules
  */
 std::string analyze_system_inputs(
-    state_map initial_state,
+    state_map initial_values,
     state_map invariant_params,
     state_vector_map drivers,
     string_vector ss_module_names,
@@ -209,13 +209,13 @@ std::string analyze_system_inputs(
                                                            std::string("You may want to consider removing them for clarity"),
                                                            string_list); });
 
-    // List any quantities in the initial state that lack derivatives
+    // List any quantities in the initial values that lack derivatives
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_static_output_parameters(std::vector<state_map>{initial_state}, std::vector<string_vector>{deriv_module_names}); },
+        [=]() -> string_vector { return find_static_output_parameters(std::vector<state_map>{initial_values}, std::vector<string_vector>{deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("All quantities in the initial state have associated derivatives"),
-                                                           std::string("The following quantities in the initial state lack associated derivatives:"),
+                                                           std::string("All quantities in the initial values have associated derivatives"),
+                                                           std::string("The following quantities in the initial values lack associated derivatives:"),
                                                            std::string("These quantities will not change with time, so you may want to consider moving them to the invariant parameters for clarity"),
                                                            string_list); });
 

@@ -85,11 +85,11 @@ default_solver <- list(type='Gro', output_step_size=1, adaptive_rel_error_tol=1e
 ## motion and test that the values from the simulation match those predicted
 ## from harmonic motion equations.
 run_trial <- function(initial_position, initial_velocity, mass, spring_constant, solver, trial_description) {
-    initial_state <- list(position=initial_position, velocity=initial_velocity)
+    initial_values <- list(position=initial_position, velocity=initial_velocity)
     invariant_parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
 
     
-    debug_print(initial_state)
+    debug_print(initial_values)
     debug_print(invariant_parameters)
 
     
@@ -112,7 +112,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
     
     ## try out the solver
-    result <- Gro_solver(initial_state, invariant_parameters, drivers, steady_state_modules, derivative_modules, solver)
+    result <- Gro_solver(initial_values, invariant_parameters, drivers, steady_state_modules, derivative_modules, solver)
 
     ## add useful columns to the resulting data frame:    
     result$time <- result$time * 24 # time is in hours
@@ -125,7 +125,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     debug_view(result)
 
     if (DEBUG_TEST) {
-        ## something is seriously wrong if the initial state doesn't conform to the equations of motion:
+        ## something is seriously wrong if the initial values doesn't conform to the equations of motion:
         if (abs(result$position[1] - result$expected_position[1]) > .01) break
         if (abs(result$velocity[1] - result$expected_velocity[1]) > .01) break
     }
@@ -163,13 +163,13 @@ run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_const
 ## run a number of randomly-chosen cases
 for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
 
-    ## randomly select parameter values and initial state:
+    ## randomly select parameter values and initial values:
     initial_position <- runif(1, -100, 100)[1]
     initial_velocity <- runif(1, -100, 100)[1]
     mass <- runif(1, 0, 100)[1]
     spring_constant <- runif(1, 0, 100)[1]
 
-    run_trial(initial_position, initial_velocity, mass, spring_constant, default_solver, "random parameters and initial state")
+    run_trial(initial_position, initial_velocity, mass, spring_constant, default_solver, "random parameters and initial values")
 }
 
 ## test each solver method using a really weak spring (so the Euler methods still work)
