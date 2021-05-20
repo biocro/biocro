@@ -4,12 +4,12 @@
 
 System::System(
     state_map const& init_values,
-    state_map const& invariant_params,
+    state_map const& params,
     state_vector_map const& drivers,
     string_vector const& ss_module_names,
     string_vector const& deriv_module_names)
     : initial_values{init_values},
-      invariant_parameters{invariant_params},
+      parameters{params},
       drivers{drivers},
       steady_state_module_names{},  // put modules in suitable order before filling
       derivative_module_names{deriv_module_names}
@@ -17,7 +17,7 @@ System::System(
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid system
-    bool valid = validate_system_inputs(startup_message, init_values, invariant_params, drivers, ss_module_names, deriv_module_names);
+    bool valid = validate_system_inputs(startup_message, init_values, params, drivers, ss_module_names, deriv_module_names);
 
     if (!valid) {
         throw std::logic_error("Thrown by System::System: the supplied inputs cannot form a valid system.\n\n" + startup_message);
@@ -31,7 +31,7 @@ System::System(
 
     // Make the central list of quantities
     quantities = define_quantity_map(
-        std::vector<state_map>{init_values, invariant_params, at(drivers, 0)},
+        std::vector<state_map>{init_values, params, at(drivers, 0)},
         std::vector<string_vector>{steady_state_module_names});
 
     // Make a map to store the output of derivative modules, which can only
@@ -66,8 +66,8 @@ System::System(
     driver_ptr_pairs = get_pointer_pairs(driver_names, quantities, drivers);
 
     // Get a pointer to the timestep
-    if (invariant_params.find("timestep") == invariant_params.end()) {
-        throw std::runtime_error("The quantity 'timestep' was not defined in the invariant_parameters state_map.");
+    if (params.find("timestep") == params.end()) {
+        throw std::runtime_error("The quantity 'timestep' was not defined in the parameters state_map.");
     }
     timestep_ptr = &(quantities.at("timestep"));
 }

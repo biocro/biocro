@@ -496,11 +496,11 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names)
     #  View(oscillator_deriv)
     #
     # There are several things to notice:
-    #  (1) Even though time and timestep were not supplied as parameters, they show up in the lists
-    #      of invariant and drivers. The system requires these parameters, so Gro_ode supplies
+    #  (1) Even though time and timestep were not supplied, they show up in the lists
+    #      of parameters and drivers. The system requires these quantities, so Gro_ode supplies
     #      default values if none are specified, as in the case of this example
     #  (2) No derivatives were supplied for spring_constant or mass, yet they are included in the oscillator_deriv
-    #      output. Note that their "derivative" values in the output are just zero, the default value for a parameter
+    #      output. Note that their "derivative" values in the output are just zero, the default value for a quantity
     #      that does not change with time.
 
     # Check to make sure the state is properly defined

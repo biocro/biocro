@@ -33,7 +33,7 @@ SEXP R_Gro_solver(
 {
     try {
         state_map iv = map_from_list(initial_values);
-        state_map ip = map_from_list(parameters);
+        state_map p = map_from_list(parameters);
         state_vector_map d = map_vector_from_list(drivers);
 
         if (d.begin()->second.size() == 0) {
@@ -50,7 +50,7 @@ SEXP R_Gro_solver(
         double adaptive_abs_error_tol = REAL(solver_adaptive_abs_error_tol)[0];
         int adaptive_max_steps = (int)REAL(solver_adaptive_max_steps)[0];
 
-        biocro_simulation gro(iv, ip, d, ss_names, deriv_names,
+        biocro_simulation gro(iv, p, d, ss_names, deriv_names,
                               solver_type_string, output_step_size,
                               adaptive_rel_error_tol, adaptive_abs_error_tol,
                               adaptive_max_steps);
@@ -79,7 +79,7 @@ SEXP R_Gro_deriv(
     try {
         // Convert the inputs into the proper format
         state_map s = map_from_list(state);
-        state_map ip = map_from_list(parameters);
+        state_map p = map_from_list(parameters);
         state_vector_map d = map_vector_from_list(drivers);
 
         if (d.begin()->second.size() == 0) {
@@ -92,7 +92,7 @@ SEXP R_Gro_deriv(
         double t = REAL(time)[0];
 
         // Create a system
-        System sys(s, ip, d, ss_names, deriv_names);
+        System sys(s, p, d, ss_names, deriv_names);
 
         // Get the state in the correct format
         std::vector<double> x;
@@ -133,15 +133,15 @@ SEXP R_Gro_ode(
         // There are a few special parameters that a system requires at startup,
         //  so make sure they are properly defined
 
-        // Form the list of invariant parameters, making sure it includes the timestep
-        state_map ip;
+        // Form the list of parameters, making sure it includes the timestep
+        state_map p;
         if (s.find("timestep") == s.end()) {
             // The timestep is not defined in the input state, so assume it is 1
-            ip["timestep"] = 1.0;
+            p["timestep"] = 1.0;
         } else {
-            // The timestep is defined in the input state, so copy its value into the invariant parameters
+            // The timestep is defined in the input state, so copy its value into the parameters
             //  and remove it from the state
-            ip["timestep"] = s["timestep"];
+            p["timestep"] = s["timestep"];
             s.erase("timestep");
         }
 
@@ -177,7 +177,7 @@ SEXP R_Gro_ode(
         std::vector<std::string> deriv_names = make_vector(derivative_module_names);
 
         // Make the system
-        System sys(s, ip, d, ss_names, deriv_names);
+        System sys(s, p, d, ss_names, deriv_names);
 
         // Get the current state in the correct format
         std::vector<double> x;

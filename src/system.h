@@ -19,7 +19,7 @@ class System
    public:
     System(
         state_map const& init_values,
-        state_map const& invariant_params,
+        state_map const& params,
         state_vector_map const& drivers,
         string_vector const& ss_module_names,
         string_vector const& deriv_module_names);
@@ -71,7 +71,7 @@ class System
    private:
     // For storing the constructor inputs
     const state_map initial_values;
-    const state_map invariant_parameters;
+    const state_map parameters;
     const state_vector_map drivers;
     string_vector steady_state_module_names;  // These may be re-ordered in the constructor.
     const string_vector derivative_module_names;

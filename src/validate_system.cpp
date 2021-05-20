@@ -20,7 +20,7 @@
   *    are calculated before they are accessed.
   *
   * We consider a quantity to have been "specified" (or "defined") if it is a
-  * key in one of the maps `initial_values`, `invariant_params`, or
+  * key in one of the maps `initial_values`, `params`, or
   * `drivers`, or, if it is an output variable of one of the steady-state
   * modules listed in `ss_module_names`.
   *
@@ -43,7 +43,7 @@
 bool validate_system_inputs(
     std::string& message,
     state_map initial_values,
-    state_map invariant_params,
+    state_map params,
     state_vector_map drivers,
     string_vector ss_module_names,
     string_vector deriv_module_names)
@@ -51,7 +51,7 @@ bool validate_system_inputs(
     size_t num_problems = 0;
 
     string_vector quantity_names = get_defined_quantity_names(
-        std::vector<state_map>{initial_values, invariant_params, at(drivers, 0)},
+        std::vector<state_map>{initial_values, params, at(drivers, 0)},
         std::vector<string_vector>{ss_module_names});
 
     // Criterion 1
@@ -143,7 +143,7 @@ bool validate_system_inputs(
  */
 std::string analyze_system_inputs(
     state_map initial_values,
-    state_map invariant_params,
+    state_map params,
     state_vector_map drivers,
     string_vector ss_module_names,
     string_vector deriv_module_names)
@@ -189,13 +189,13 @@ std::string analyze_system_inputs(
                                                         std::string(""),
                                                         string_list); });
 
-    // List any unused quantities in the invariant parameters
+    // List any unused quantities in the parameters
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{invariant_params}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each invariant parameter was used as an input to one or more modules"),
-                                                           std::string("The following invariant parameters were not used as inputs to any module:"),
+                                                           std::string("The following parameters were not used as inputs to any module:"),
                                                            std::string("You may want to consider removing them for clarity"),
                                                            string_list); });
 
@@ -216,7 +216,7 @@ std::string analyze_system_inputs(
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All quantities in the initial values have associated derivatives"),
                                                            std::string("The following quantities in the initial values lack associated derivatives:"),
-                                                           std::string("These quantities will not change with time, so you may want to consider moving them to the invariant parameters for clarity"),
+                                                           std::string("These quantities will not change with time, so you may want to consider moving them to the parameters for clarity"),
                                                            string_list); });
 
     string_vector derivative_module_outputs = get_defined_quantity_names(

@@ -86,11 +86,11 @@ default_solver <- list(type='Gro', output_step_size=1, adaptive_rel_error_tol=1e
 ## from harmonic motion equations.
 run_trial <- function(initial_position, initial_velocity, mass, spring_constant, solver, trial_description) {
     initial_values <- list(position=initial_position, velocity=initial_velocity)
-    invariant_parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
+    parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
 
     
     debug_print(initial_values)
-    debug_print(invariant_parameters)
+    debug_print(parameters)
 
     
     ## compute equation of motion parameters:
@@ -112,7 +112,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
     
     ## try out the solver
-    result <- Gro_solver(initial_values, invariant_parameters, drivers, steady_state_modules, derivative_modules, solver)
+    result <- Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules, solver)
 
     ## add useful columns to the resulting data frame:    
     result$time <- result$time * 24 # time is in hours

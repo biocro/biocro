@@ -4,7 +4,7 @@ steady_state_modules <- c("solar_zenith_angle_in_degrees")
 derivative_modules <- c()
 
 initial_values <- list()
-invariant_parameters <- list(timestep = 1)
+parameters <- list(timestep = 1)
 
 
 # Run the system using a cza as the the value of the cosine of the
@@ -16,7 +16,7 @@ angle_from_cosine <- function(cza) {
     # drivers.
     drivers <- list(time = 1, cosine_zenith_angle = cza)
 
-    result = Gro_solver(initial_values, invariant_parameters, drivers, steady_state_modules, derivative_modules)
+    result = Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
 
     result$zenith_angle_in_degrees
 }
