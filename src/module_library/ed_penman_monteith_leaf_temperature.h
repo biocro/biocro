@@ -21,7 +21,7 @@ class ed_penman_monteith_leaf_temperature : public SteadyModule
    public:
     ed_penman_monteith_leaf_temperature(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_penman_monteith_leaf_temperature"),
           // Get pointers to input quantities
@@ -160,7 +160,7 @@ class ed_p_m_temperature_solve : public se_module::base
    public:
     ed_p_m_temperature_solve(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : se_module::base(ed_p_m_temperature_solve_stuff::module_name,
                           ed_p_m_temperature_solve_stuff::sub_module_names,
                           ed_p_m_temperature_solve_stuff::solver_type,

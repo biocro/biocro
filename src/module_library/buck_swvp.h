@@ -17,7 +17,7 @@ class buck_swvp : public SteadyModule
    public:
     buck_swvp(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("buck_swvp"),
 

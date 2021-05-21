@@ -152,7 +152,7 @@ class base : public SteadyModule
          bool should_reorder_guesses,
          bool return_default_on_failure,
          state_map const& input_quantities,
-         state_map& output_quantities)
+         state_map* output_quantities)
         : SteadyModule(module_name),
           se(make_se(sub_module_names)),
           solver(se_solver_factory::create(solver_name, max_iterations)),

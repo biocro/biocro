@@ -20,7 +20,7 @@ class ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ten_layer_ca
    public:
     ten_layer_c4_canopy(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : multilayer_canopy_photosynthesis<ten_layer_canopy_properties, c4_leaf_photosynthesis>(
               "ten_layer_c4_canopy",
               ten_layer_c4_canopy::nlayers,

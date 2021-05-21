@@ -6,7 +6,7 @@
 
 class FvCB : public SteadyModule {
 	public:
-		FvCB(state_map const& input_quantities, state_map& output_quantities) :
+		FvCB(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("FvCB"),
 			// Get pointers to input quantities

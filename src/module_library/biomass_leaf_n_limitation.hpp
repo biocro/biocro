@@ -7,7 +7,7 @@
 
 class biomass_leaf_n_limitation : public SteadyModule {
 	public:
-		biomass_leaf_n_limitation(state_map const& input_quantities, state_map& output_quantities) :
+		biomass_leaf_n_limitation(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("biomass_leaf_n_limitation"),
 			// Get pointers to input quantities

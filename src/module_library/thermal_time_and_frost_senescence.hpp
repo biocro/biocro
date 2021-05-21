@@ -90,7 +90,7 @@ class thermal_time_and_frost_senescence : public DerivModule
    public:
     thermal_time_and_frost_senescence(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent
            // class and indicate that this module is not compatible with
            // adaptive step size integrators

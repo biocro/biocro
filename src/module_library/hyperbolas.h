@@ -17,7 +17,7 @@ class golden_ratio_hyperbola : public SteadyModule
    public:
     golden_ratio_hyperbola(
         state_map const& input_quantities,
-        state_map& output_quantities) :  // Define basic module properties by passing its name to its parent class
+        state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
                                                                       SteadyModule("golden_ratio_hyperbola"),
                                                                       // Get pointers to input quantities
                                                                       x_ip(get_ip(input_quantities, "x")),
@@ -69,7 +69,7 @@ class hyperbola_2d : public SteadyModule
    public:
     hyperbola_2d(
         state_map const& input_quantities,
-        state_map& output_quantities) :  // Define basic module properties by passing its name to its parent class
+        state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
                                                                       SteadyModule("hyperbola_2d"),
                                                                       // Get pointers to input quantities
                                                                       x_ip(get_ip(input_quantities, "x")),

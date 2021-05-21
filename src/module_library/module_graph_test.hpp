@@ -6,7 +6,7 @@
 
 class Module_1 : public SteadyModule {
 	public:
-		Module_1(state_map const& /*input_quantities*/, state_map& output_quantities) :
+		Module_1(state_map const& /*input_quantities*/, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_1"),
 			// Get pointers to input quantities
@@ -51,7 +51,7 @@ void Module_1::do_operation() const {
 
 class Module_2 : public SteadyModule {
 	public:
-		Module_2(state_map const& input_quantities, state_map& output_quantities) :
+		Module_2(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_2"),
 			// Get pointers to input quantities
@@ -96,7 +96,7 @@ void Module_2::do_operation() const {
 
 class Module_3 : public SteadyModule {
 	public:
-		Module_3(state_map const& input_quantities, state_map& output_quantities) :
+		Module_3(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("Module_3"),
 			// Get pointers to input quantities

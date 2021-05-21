@@ -33,7 +33,7 @@ class multilayer_canopy_properties : public SteadyModule
         const std::string& module_name,
         const int& nlayers,
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule(module_name),
           // Store the number of layers
@@ -242,7 +242,7 @@ class ten_layer_canopy_properties : public multilayer_canopy_properties
    public:
     ten_layer_canopy_properties(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : multilayer_canopy_properties("ten_layer_canopy_properties",
                                        ten_layer_canopy_properties::nlayers,
                                        input_quantities,

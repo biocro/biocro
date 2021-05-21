@@ -11,7 +11,7 @@ class c4_canopy : public SteadyModule
    public:
     c4_canopy(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c4_canopy"),
 

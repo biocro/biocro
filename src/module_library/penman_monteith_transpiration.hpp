@@ -6,7 +6,7 @@
 
 class penman_monteith_transpiration : public SteadyModule {
 	public:
-		penman_monteith_transpiration(state_map const& input_quantities, state_map& output_quantities) :
+		penman_monteith_transpiration(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("penman_monteith_transpiration"),
 			// Get pointers to input quantities

@@ -65,7 +65,7 @@ class partitioning_growth_calculator : public SteadyModule
    public:
     partitioning_growth_calculator(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("partitioning_growth_calculator"),
 

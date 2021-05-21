@@ -81,7 +81,7 @@ class ed_c4_leaf_photosynthesis2 : public se_module::base
    public:
     ed_c4_leaf_photosynthesis2(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : se_module::base(ed_c4_leaf_photosynthesis2_stuff::module_name,
                           ed_c4_leaf_photosynthesis2_stuff::sub_module_names,
                           ed_c4_leaf_photosynthesis2_stuff::solver_type,

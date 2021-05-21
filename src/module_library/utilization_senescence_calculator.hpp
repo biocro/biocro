@@ -6,7 +6,7 @@
 
 class utilization_senescence_calculator : public SteadyModule {
 	public:
-		utilization_senescence_calculator(state_map const& input_quantities, state_map& output_quantities) :
+		utilization_senescence_calculator(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("utilization_senescence_calculator"),
 			// Get pointers to input quantities

@@ -16,9 +16,9 @@ class quantity_access_error : virtual public std::runtime_error
     virtual ~quantity_access_error() {}  // Virtual to allow subclassing
 };
 
-double* get_op(state_map& output_quantities, std::string const& name);
+double* get_op(state_map* output_quantities, std::string const& name);
 
-std::vector<double*> get_op(state_map& output_quantities, string_vector const& names);
+std::vector<double*> get_op(state_map* output_quantities, string_vector const& names);
 
 const double* get_ip(state_map const& input_quantities, std::string const& name);
 
@@ -34,7 +34,7 @@ std::string add_layer_suffix_to_quantity_name(int nlayers, int current_layer, st
 
 string_vector generate_multilayer_quantity_names(int nlayers, string_vector quantity_names);
 
-std::vector<double*> get_multilayer_op(state_map& output_quantities, int nlayers, std::string const& name);
+std::vector<double*> get_multilayer_op(state_map* output_quantities, int nlayers, std::string const& name);
 
 std::vector<const double*> get_multilayer_ip(state_map const& input_quantities, int nlayers, std::string const& name);
 

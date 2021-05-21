@@ -13,7 +13,7 @@
 
 class pokhilko_circadian_clock : public DerivModule {
 	public:
-		pokhilko_circadian_clock(state_map const& input_quantities, state_map& output_quantities) :
+		pokhilko_circadian_clock(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("pokhilko_circadian_clock"),
 			// Get pointers to input quantities

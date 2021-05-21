@@ -7,14 +7,14 @@
  * @brief Returns a pointer to an element of a module output map, i.e., an
  * output pointer (op)
  */
-double* get_op(state_map& output_quantities, const std::string& name)
+double* get_op(state_map* output_quantities, const std::string& name)
 {
-    if (output_quantities.find(name) == output_quantities.end()) {
+    if (output_quantities->find(name) == output_quantities->end()) {
         throw quantity_access_error(
             std::string("Thrown by get_op: the quantity '") + name +
             std::string("' was not defined in the state_map."));
     }
-    return &(output_quantities.at(name));
+    return &(output_quantities->at(name));
 }
 
 /**
@@ -22,7 +22,7 @@ double* get_op(state_map& output_quantities, const std::string& name)
  * a vector of output pointers (op)
  */
 std::vector<double*> get_op(
-    state_map& output_quantities, string_vector const& names)
+    state_map* output_quantities, string_vector const& names)
 {
     std::vector<double*> ops;
     for (std::string const& n : names) {
@@ -147,7 +147,7 @@ string_vector generate_multilayer_quantity_names(
  * required for a multilayer module
  */
 std::vector<double*> get_multilayer_op(
-    state_map& output_quantities, int nlayers, std::string const& name)
+    state_map* output_quantities, int nlayers, std::string const& name)
 {
     string_vector quantity_base_name_vector = {name};
 

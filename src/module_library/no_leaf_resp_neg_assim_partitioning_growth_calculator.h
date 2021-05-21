@@ -59,7 +59,7 @@ class no_leaf_resp_neg_assim_partitioning_growth_calculator : public SteadyModul
    public:
     no_leaf_resp_neg_assim_partitioning_growth_calculator(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : SteadyModule{"no_leaf_resp_neg_assim_partitioning_growth_calculator"},
 
           // Get references to input quantities

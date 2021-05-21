@@ -59,7 +59,7 @@ class no_leaf_resp_partitioning_growth_calculator : public SteadyModule
    public:
     no_leaf_resp_partitioning_growth_calculator(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("no_leaf_resp_partitioning_growth_calculator"),
 

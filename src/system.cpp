@@ -42,8 +42,8 @@ System::System(
     // quantity map since their output represents derivatives of quantity values
     // rather than actual quantity values, but steady state modules should
     // directly modify the main output map.
-    steady_state_modules = get_module_vector(std::vector<string_vector>{steady_state_module_names}, quantities, quantities);
-    derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, quantities, derivative_module_outputs);
+    steady_state_modules = get_module_vector(std::vector<string_vector>{steady_state_module_names}, quantities, &quantities);
+    derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, quantities, &derivative_module_outputs);
 
     // Make lists of subsets of quantity names
     string_vector steady_state_output_names =

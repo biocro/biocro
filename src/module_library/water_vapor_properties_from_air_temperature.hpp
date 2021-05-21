@@ -11,7 +11,7 @@ class water_vapor_properties_from_air_temperature : public SteadyModule
    public:
     water_vapor_properties_from_air_temperature(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("water_vapor_properties_from_air_temperature"),
 

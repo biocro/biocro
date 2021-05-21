@@ -19,7 +19,7 @@ class shortwave_atmospheric_scattering : public SteadyModule
    public:
     shortwave_atmospheric_scattering(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("shortwave_atmospheric_scattering"),
           // Get references to input quantities

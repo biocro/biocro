@@ -79,7 +79,7 @@ class ed_nikolov_conductance_forced : public SteadyModule
    public:
     ed_nikolov_conductance_forced(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_nikolov_conductance_forced"),
           // Get pointers to input quantities
@@ -174,7 +174,7 @@ class ed_nikolov_conductance_free : public SteadyModule
    public:
     ed_nikolov_conductance_free(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_nikolov_conductance_free"),
           // Get pointers to input quantities
@@ -326,7 +326,7 @@ class ed_nikolov_conductance_free_solve : public se_module::base
    public:
     ed_nikolov_conductance_free_solve(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : se_module::base(ed_nikolov_conductance_free_solve_stuff::module_name,
                           ed_nikolov_conductance_free_solve_stuff::sub_module_names,
                           ed_nikolov_conductance_free_solve_stuff::solver_type,

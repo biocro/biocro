@@ -7,7 +7,7 @@
 
 class stomata_water_stress_linear_and_aba_response : public SteadyModule {
 	public:
-		stomata_water_stress_linear_and_aba_response(state_map const& input_quantities, state_map& output_quantities) :
+		stomata_water_stress_linear_and_aba_response(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("stomata_water_stress_linear_and_aba_response"),
 			// Get pointers to input quantities

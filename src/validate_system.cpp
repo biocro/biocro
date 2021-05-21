@@ -538,7 +538,7 @@ string_vector find_adaptive_incompatibility(std::vector<string_vector> module_na
 
     // Instantiate each module and check its characterization
     string_vector incompatible_modules;
-    module_vector modules = get_module_vector(module_name_vectors, quantities, quantities);
+    module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
     for (std::unique_ptr<Module>& m : modules) {
         if (!m->is_adaptive_compatible()) {
             incompatible_modules.push_back(m->get_name());
@@ -567,7 +567,7 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
 
     // Instantiate each module and check its characterization
     string_vector mischaracterized_modules;
-    module_vector modules = get_module_vector(module_name_vectors, quantities, quantities);
+    module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
     for (std::unique_ptr<Module>& m : modules) {
         if (m->is_deriv() != is_deriv) {
             mischaracterized_modules.push_back(m->get_name());
@@ -583,7 +583,7 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
 module_vector get_module_vector(
     std::vector<string_vector> module_name_vectors,
     state_map const& input_quantities,
-    state_map& output_quantities)
+    state_map* output_quantities)
 {
     module_vector modules;
     for (string_vector const& module_names : module_name_vectors) {

@@ -6,7 +6,7 @@
 
 class priestley_transpiration : public SteadyModule {
 	public:
-		priestley_transpiration(state_map const& input_quantities, state_map& output_quantities) :
+		priestley_transpiration(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("priestley_transpiration"),
 			// Get pointers to input quantities

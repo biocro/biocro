@@ -169,7 +169,7 @@ simultaneous_equations::simultaneous_equations(
     module_output_map = quantities;
 
     // Instantiate the modules
-    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, quantities, module_output_map);
+    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, quantities, &module_output_map);
 
     // Make sorted lists of subsets of quantity names
     // Note that the output of string_set_to_string_vector is automatically

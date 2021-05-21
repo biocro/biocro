@@ -62,7 +62,7 @@ class partitioning_growth : public DerivModule
    public:
     partitioning_growth(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : DerivModule{"partitioning_growth"},
 
           // Get references to input quantities

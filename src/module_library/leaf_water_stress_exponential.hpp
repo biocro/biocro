@@ -10,7 +10,7 @@ class leaf_water_stress_exponential : public SteadyModule
    public:
     leaf_water_stress_exponential(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("leaf_water_stress_exponential"),
 

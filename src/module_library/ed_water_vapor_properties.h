@@ -17,7 +17,7 @@ class ed_water_vapor_properties : public SteadyModule
    public:
     ed_water_vapor_properties(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_water_vapor_properties"),
           // Get pointers to input quantities

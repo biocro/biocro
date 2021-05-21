@@ -51,7 +51,7 @@ class senescence_coefficient_logistic : public SteadyModule
    public:
     senescence_coefficient_logistic(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : SteadyModule{"senescence_coefficient_logistic"},
 
           // Get references to input quantities

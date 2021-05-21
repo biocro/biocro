@@ -20,7 +20,7 @@ class ed_stomata_water_stress_linear : public SteadyModule
    public:
     ed_stomata_water_stress_linear(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_stomata_water_stress_linear"),
           // Get pointers to input quantities

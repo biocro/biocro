@@ -71,7 +71,7 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
 module_vector get_module_vector(
     std::vector<string_vector> module_name_vectors,
     state_map const& input_quantities,
-    state_map& output_quantities);
+    state_map* output_quantities);
 
 std::string add_indented_line(std::string message, std::string text_to_add, int num_spaces);
 

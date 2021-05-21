@@ -18,7 +18,7 @@
 
 class song_flowering : public DerivModule {
 	public:
-		song_flowering(state_map const& input_quantities, state_map& output_quantities) :
+		song_flowering(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("song_flowering"),
 			// Get pointers to input quantities

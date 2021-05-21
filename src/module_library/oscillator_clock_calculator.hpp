@@ -8,7 +8,7 @@
 
 class oscillator_clock_calculator : public SteadyModule {
     public:
-        oscillator_clock_calculator(state_map const& input_quantities, state_map& output_quantities) :
+        oscillator_clock_calculator(state_map const& input_quantities, state_map* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             SteadyModule("oscillator_clock_calculator"),
             // Get pointers to input quantities

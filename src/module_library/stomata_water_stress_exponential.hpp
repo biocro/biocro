@@ -7,7 +7,7 @@
 
 class stomata_water_stress_exponential : public SteadyModule {
 	public:
-		stomata_water_stress_exponential(state_map const& input_quantities, state_map& output_quantities) :
+		stomata_water_stress_exponential(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("stomata_water_stress_exponential"),
 			// Get pointers to input quantities

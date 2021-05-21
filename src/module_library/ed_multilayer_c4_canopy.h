@@ -20,7 +20,7 @@ class ed_ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ed_ten_la
    public:
     ed_ten_layer_c4_canopy(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>(
               "ed_ten_layer_c4_canopy",
               ed_ten_layer_c4_canopy::nlayers,

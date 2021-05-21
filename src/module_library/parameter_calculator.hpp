@@ -6,7 +6,7 @@
 
 class parameter_calculator : public SteadyModule {
 	public:
-		parameter_calculator(state_map const& input_quantities, state_map& output_quantities) :
+		parameter_calculator(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("parameter_calculator"),
 			// Get pointers to input quantities

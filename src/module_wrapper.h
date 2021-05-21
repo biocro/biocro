@@ -20,7 +20,7 @@ class module_wrapper_base
     virtual string_vector get_outputs() = 0;
 
     virtual std::unique_ptr<Module> createModule(
-        state_map const& input_quantities, state_map& output_quantities) = 0;
+        state_map const& input_quantities, state_map* output_quantities) = 0;
 
     virtual ~module_wrapper_base() = 0;
 };
@@ -45,7 +45,7 @@ class module_wrapper : public module_wrapper_base
     }
 
     std::unique_ptr<Module> createModule(
-        state_map const& input_quantities, state_map& output_quantities)
+        state_map const& input_quantities, state_map* output_quantities)
     {
         return std::unique_ptr<Module>(new T(
             input_quantities, output_quantities));

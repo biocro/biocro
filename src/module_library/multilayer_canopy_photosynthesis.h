@@ -97,7 +97,7 @@ class multilayer_canopy_photosynthesis : public SteadyModule
         const std::string& module_name,
         const int& nlayers,
         state_map const& input_quantities,
-        state_map& output_quantities);
+        state_map* output_quantities);
 
    private:
     // Number of layers
@@ -126,7 +126,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
     const std::string& module_name,
     const int& nlayers,
     state_map const& input_quantities,
-    state_map& output_quantities)
+    state_map* output_quantities)
     : SteadyModule(module_name),
       nlayers(nlayers)
 {
@@ -146,7 +146,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
     leaf_module_output_map = leaf_module_quantities;
 
     // Create the leaf photosynthesis module
-    leaf_module = std::unique_ptr<Module>(new leaf_module_type(leaf_module_quantities, leaf_module_output_map));
+    leaf_module = std::unique_ptr<Module>(new leaf_module_type(leaf_module_quantities, &leaf_module_output_map));
 
     // Find subsets of the leaf model's inputs
     string_vector multiclass_multilayer_leaf_inputs = MLCP::get_multiclass_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
@@ -183,7 +183,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
 
             for (std::string const& name : leaf_module_type::get_outputs()) {
                 std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(&output_quantities.at(specific_name), &leaf_module_output_map.at(name));
+                std::pair<double*, const double*> temporary(&output_quantities->at(specific_name), &leaf_module_output_map.at(name));
                 output_ptr_pairs.push_back(temporary);
             }
 

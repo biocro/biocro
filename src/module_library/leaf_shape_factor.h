@@ -34,7 +34,7 @@ class leaf_shape_factor : public SteadyModule
    public:
     leaf_shape_factor(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("leaf_shape_factor"),
           // Get references to input quantities

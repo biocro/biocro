@@ -10,7 +10,7 @@ class fake_solar : public SteadyModule
    public:
     fake_solar(
         state_map const& input_quantities,
-        state_map& output_quantities)
+        state_map* output_quantities)
         : SteadyModule("fake_solar"),
           // Get pointers to input quantities
           time_ip(get_ip(input_quantities, "time")),
