@@ -45,8 +45,8 @@ class grimm_soybean_flowering_calculator : public SteadyModule
 {
    public:
     grimm_soybean_flowering_calculator(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("grimm_soybean_flowering_calculator"),
           // Get pointers to input quantities

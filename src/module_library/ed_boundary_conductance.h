@@ -24,8 +24,8 @@ class ed_boundary_conductance_quadrature : public SteadyModule
 {
    public:
     ed_boundary_conductance_quadrature(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_boundary_conductance_quadrature"),
           // Get pointers to input quantities
@@ -86,8 +86,8 @@ class ed_boundary_conductance_max : public SteadyModule
 {
    public:
     ed_boundary_conductance_max(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_boundary_conductance_max"),
           // Get pointers to input quantities

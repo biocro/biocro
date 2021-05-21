@@ -6,7 +6,7 @@
 
 class night_and_day_trackers : public DerivModule {
     public:
-        night_and_day_trackers(const state_map* input_quantities, state_map* output_quantities) :
+        night_and_day_trackers(state_map const& input_quantities, state_map& output_quantities) :
             // Define basic module properties by passing its name to its parent class
             DerivModule("night_and_day_trackers"),
             // Get pointers to input quantities

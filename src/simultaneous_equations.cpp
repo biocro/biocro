@@ -10,23 +10,23 @@ const bool se_update_print = false;  // for debugging
   *
   * @param[in,out] message Validation feedback is added to this string.
   * @return true if the inputs are valid, false otherwise.
-  * 
+  *
   * When discussing a simultaneous_equations object, it is helpful to define several terms
   * as follows:
-  * 
+  *
   * We consider a quantity to have been "specified" (or "defined") if it is a
   * key in `known_quantities` or if it is an output variable of one of the steady-state
   * modules listed in `ss_module_names`.
-  * 
+  *
   * We consider a quantity to be strictly required as a module input if (i) a module
   * requires it as an input and (ii) it has not been produced as the output of a previous
   * module. Thus the set of strictly required inputs depends on the order of the modules.
-  * 
+  *
   * If a quantity is (i) strictly required as an input and (ii) is produced as the output
   * of a module, it is said to be an "unknown quantity" since its value will be determined
   * by the set of simultaneous equations that this class represents. Thus the set of unknown
   * quantities also depends on the order of the modules.
-  * 
+  *
   * While constructing a simultaneous_equations object, the following criteria determine the
   * validity of the inputs:
   * - 1. Each quantity is specified only once.
@@ -106,7 +106,7 @@ bool validate_simultaneous_equations_inputs(
 /**
  * @brief Provides information about a set of simultaneous_equations inputs that is not
  *        strictly required to check validity.
- * 
+ *
  * The following information is reported:
  * 1. A list of all quantities required by the modules as inputs
  * 2. A list of all quantities produced by the modules as outputs
@@ -169,7 +169,7 @@ simultaneous_equations::simultaneous_equations(
     module_output_map = quantities;
 
     // Instantiate the modules
-    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, &quantities, &module_output_map);
+    steady_state_modules = get_module_vector(std::vector<string_vector>{ss_module_names}, quantities, module_output_map);
 
     // Make sorted lists of subsets of quantity names
     // Note that the output of string_set_to_string_vector is automatically
@@ -227,7 +227,7 @@ void simultaneous_equations::update_known_quantities(std::vector<const double*> 
 
 /**
  * @brief Finds the unknown quantities defined by the set of modules.
- * 
+ *
  * @return A sorted list of quantity names
  */
 string_vector get_unknown_quantities(std::vector<string_vector> module_name_vector)

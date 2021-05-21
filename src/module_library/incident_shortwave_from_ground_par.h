@@ -26,8 +26,8 @@ class incident_shortwave_from_ground_par : public SteadyModule
 {
    public:
     incident_shortwave_from_ground_par(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("incident_shortwave_from_ground_par"),
           // Get pointers to input quantities

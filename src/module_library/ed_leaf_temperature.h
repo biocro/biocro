@@ -65,8 +65,8 @@ class ed_leaf_temperature : public SteadyModule
 {
    public:
     ed_leaf_temperature(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_leaf_temperature"),
           // Get pointers to input quantities

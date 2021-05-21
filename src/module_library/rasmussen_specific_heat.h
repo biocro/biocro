@@ -41,8 +41,8 @@ class rasmussen_specific_heat : public SteadyModule
 {
    public:
     rasmussen_specific_heat(
-        state_map const* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("rasmussen_specific_heat"),
 

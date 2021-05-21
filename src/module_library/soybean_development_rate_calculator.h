@@ -52,8 +52,8 @@ class soybean_development_rate_calculator : public SteadyModule
 {
    public:
     soybean_development_rate_calculator(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         // Define basic module properties by passing its name to its parent class
         : SteadyModule{"soybean_development_rate_calculator"},
 

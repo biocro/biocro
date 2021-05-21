@@ -21,8 +21,8 @@ class senescence_logistic : public DerivModule
 {
    public:
     senescence_logistic(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         : DerivModule{"senescence_logistic"},
 
           // Get references to input quantities

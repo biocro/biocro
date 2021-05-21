@@ -12,7 +12,7 @@
 
 class nr_ex : public DerivModule {
 	public:
-		nr_ex(const state_map* input_quantities, state_map* output_quantities) :
+		nr_ex(state_map const& input_quantities, state_map& output_quantities) :
 			DerivModule("nr_ex"),
 			// Get input pointers
 			u_ip(get_ip(input_quantities, "u")),

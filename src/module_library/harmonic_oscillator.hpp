@@ -1,92 +1,139 @@
 #ifndef OSCILLATOR_H
 #define OSCILLATOR_H
 
+#include <cmath>  // for pow
 #include "../modules.h"
 #include "../state_map.h"
 
-class harmonic_oscillator : public DerivModule {
-	public:
-		harmonic_oscillator(const state_map* input_quantities, state_map* output_quantities) :
-			// Define basic module properties by passing its name to its parent class
-			DerivModule("harmonic_oscillator"),
-			// Get pointers to input quantities
-			mass_ip(get_ip(input_quantities, "mass")),
-			sc_ip(get_ip(input_quantities, "spring_constant")),
-			pos_ip(get_ip(input_quantities, "position")),
-			vel_ip(get_ip(input_quantities, "velocity")),
-			// Get pointers to output quantities
-			pos_op(get_op(output_quantities, "position")),
-			vel_op(get_op(output_quantities, "velocity"))
-		{}
-		static string_vector get_inputs();
-		static string_vector get_outputs();
-	private:
-		// Pointers to input quantities
-		const double* mass_ip;
-		const double* sc_ip;
-		const double* pos_ip;
-		const double* vel_ip;
-		// Pointers to output quantities
-		double* pos_op;
-		double* vel_op;
-		void do_operation() const;
+class harmonic_oscillator : public DerivModule
+{
+   public:
+    harmonic_oscillator(
+        state_map const& input_quantities,
+        state_map& output_quantities)
+        :  // Define basic module properties by passing its name to its parent class
+          DerivModule("harmonic_oscillator"),
+
+          // Get references to input quantities
+          mass(get_input(input_quantities, "mass")),
+          spring_constant(get_input(input_quantities, "spring_constant")),
+          position(get_input(input_quantities, "position")),
+          velocity(get_input(input_quantities, "velocity")),
+
+          // Get pointers to output quantities
+          position_op(get_op(output_quantities, "position")),
+          velocity_op(get_op(output_quantities, "velocity"))
+    {
+    }
+    static string_vector get_inputs();
+    static string_vector get_outputs();
+
+   private:
+    // References to input quantities
+    double const& mass;
+    double const& spring_constant;
+    double const& position;
+    double const& velocity;
+
+    // Pointers to output quantities
+    double* position_op;
+    double* velocity_op;
+
+    // Main operation
+    void do_operation() const;
 };
 
-string_vector harmonic_oscillator::get_inputs() {
-	return {"mass", "spring_constant", "position", "velocity"};
+string_vector harmonic_oscillator::get_inputs()
+{
+    return {
+        "mass",             // kg
+        "spring_constant",  // N / m
+        "position",         // m
+        "velocity"          // m / s
+    };
 }
 
-string_vector harmonic_oscillator::get_outputs() {
-	return {"position", "velocity"};
+string_vector harmonic_oscillator::get_outputs()
+{
+    return {
+        "position",  // m / s
+        "velocity"   // m / s^2
+    };
 }
 
-void harmonic_oscillator::do_operation() const {
-	update(pos_op, *vel_ip);
-	update(vel_op, -1.0 * (*sc_ip) * (*pos_ip) / (*mass_ip));
+void harmonic_oscillator::do_operation() const
+{
+    update(position_op, velocity);
+    update(velocity_op, -1.0 * spring_constant * position / mass);
 }
 
-class harmonic_energy : public SteadyModule {
-	public:
-		harmonic_energy(const state_map* input_quantities, state_map* output_quantities) :
-			// Define basic module properties by passing its name to its parent class
-			SteadyModule("harmonic_energy"),
-			// Get pointers to input quantities
-			mass_ip(&((*input_quantities).at("mass"))),
-			sc_ip(&((*input_quantities).at("spring_constant"))),
-			pos_ip(&((*input_quantities).at("position"))),
-			vel_ip(&((*input_quantities).at("velocity"))),
-			// Get pointers to output quantities
-			ke_op(&((*output_quantities).at("kinetic_energy"))),
-			se_op(&((*output_quantities).at("spring_energy"))),
-			te_op(&((*output_quantities).at("total_energy")))
-		{}
-		static string_vector get_inputs();
-		static string_vector get_outputs();
-	private:
-		// Pointers to input quantities
-		const double* mass_ip;
-		const double* sc_ip;
-		const double* pos_ip;
-		const double* vel_ip;
-		// Pointers to output quantities
-		double* ke_op;
-		double* se_op;
-		double* te_op;
-		void do_operation() const;
+class harmonic_energy : public SteadyModule
+{
+   public:
+    harmonic_energy(
+        state_map const& input_quantities,
+        state_map& output_quantities)
+        :  // Define basic module properties by passing its name to its parent class
+          SteadyModule("harmonic_energy"),
+
+          // Get pointers to input quantities
+          mass(get_input(input_quantities, "mass")),
+          spring_constant(get_input(input_quantities, "spring_constant")),
+          position(get_input(input_quantities, "position")),
+          velocity(get_input(input_quantities, "velocity")),
+
+          // Get pointers to output quantities
+          kinetic_energy_op(get_op(output_quantities, "kinetic_energy")),
+          spring_energy_op(get_op(output_quantities, "spring_energy")),
+          total_energy_op(get_op(output_quantities, "total_energy"))
+    {
+    }
+    static string_vector get_inputs();
+    static string_vector get_outputs();
+
+   private:
+    // Pointers to input quantities
+    double const& mass;
+    double const& spring_constant;
+    double const& position;
+    double const& velocity;
+
+    // Pointers to output quantities
+    double* kinetic_energy_op;
+    double* spring_energy_op;
+    double* total_energy_op;
+
+    // Main operation
+    void do_operation() const;
 };
 
-string_vector harmonic_energy::get_inputs() {
-	return {"mass", "spring_constant", "position", "velocity"};
+string_vector harmonic_energy::get_inputs()
+{
+    return {
+        "mass",             // kg
+        "spring_constant",  // N / m
+        "position",         // m
+        "velocity"          // m / s
+    };
 }
 
-string_vector harmonic_energy::get_outputs() {
-	return {"kinetic_energy", "spring_energy", "total_energy"};
+string_vector harmonic_energy::get_outputs()
+{
+    return {
+        "kinetic_energy",  // J
+        "spring_energy",   // J
+        "total_energy"     // J
+    };
 }
 
-void harmonic_energy::do_operation() const {
-	update(ke_op, 0.5 * (*mass_ip) * (*vel_ip) * (*vel_ip));
-	update(se_op, 0.5 * (*sc_ip) * (*pos_ip) * (*pos_ip));
-	update(te_op, *ke_op + *se_op);
+void harmonic_energy::do_operation() const
+{
+    double const kinetic_energy = 0.5 * mass * pow(velocity, 2);
+    double const spring_energy = 0.5 * spring_constant * pow(position, 2);
+
+    update(kinetic_energy_op, kinetic_energy);
+    update(spring_energy_op, spring_energy);
+    update(total_energy_op, kinetic_energy + spring_energy);
 }
 
 #endif

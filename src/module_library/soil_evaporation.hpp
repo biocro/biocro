@@ -7,7 +7,7 @@
 
 class soil_evaporation : public SteadyModule {
 	public:
-		soil_evaporation(const state_map* input_quantities, state_map* output_quantities) :
+		soil_evaporation(state_map const& input_quantities, state_map& output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("soil_evaporation"),
 			// Get pointers to input quantities

@@ -14,8 +14,8 @@ class ed_apply_stomatal_water_stress_via_conductance : public SteadyModule
 {
    public:
     ed_apply_stomatal_water_stress_via_conductance(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_apply_stomatal_water_stress_via_conductance"),
           // Get pointers to input quantities
@@ -71,8 +71,8 @@ class ed_apply_stomatal_water_stress_via_assimilation : public SteadyModule
 {
    public:
     ed_apply_stomatal_water_stress_via_assimilation(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_apply_stomatal_water_stress_via_assimilation"),
           // Get pointers to input quantities

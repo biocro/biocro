@@ -18,8 +18,8 @@ class ed_multilayer_canopy_integrator : public SteadyModule
     ed_multilayer_canopy_integrator(
         const std::string& module_name,
         const int& nlayers,
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule(module_name),
           // Store the number of layers
@@ -187,8 +187,8 @@ class ed_ten_layer_canopy_integrator : public ed_multilayer_canopy_integrator
 {
    public:
     ed_ten_layer_canopy_integrator(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         : ed_multilayer_canopy_integrator("ed_ten_layer_canopy_integrator",
                                           ed_ten_layer_canopy_integrator::nlayers,
                                           input_quantities,

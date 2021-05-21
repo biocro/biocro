@@ -57,8 +57,8 @@ class c3_assimilation : public DerivModule
 {
    public:
     c3_assimilation(
-        state_map const* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           DerivModule("c3_assimilation"),
 

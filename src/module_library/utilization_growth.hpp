@@ -16,7 +16,7 @@
  */
 class utilization_growth : public DerivModule {
 	public:
-		utilization_growth(const state_map* input_quantities, state_map* output_quantities) :
+		utilization_growth(state_map const& input_quantities, state_map& output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("utilization_growth"),
 			// Get pointers to input quantities

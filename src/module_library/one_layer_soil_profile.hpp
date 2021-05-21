@@ -8,7 +8,7 @@
 
 class one_layer_soil_profile : public DerivModule {
 	public:
-		one_layer_soil_profile(const state_map* input_quantities, state_map* output_quantities) :
+		one_layer_soil_profile(state_map const& input_quantities, state_map& output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("one_layer_soil_profile"),
 			// Get pointers to input quantities

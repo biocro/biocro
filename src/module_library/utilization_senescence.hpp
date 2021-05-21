@@ -6,7 +6,7 @@
 
 class utilization_senescence : public DerivModule {
 	public:
-		utilization_senescence(const state_map* input_quantities, state_map* output_quantities) :
+		utilization_senescence(state_map const& input_quantities, state_map& output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("utilization_senescence"),
 			// Get pointers to input quantities

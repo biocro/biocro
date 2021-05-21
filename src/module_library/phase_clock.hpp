@@ -8,7 +8,7 @@
 
 class phase_clock : public DerivModule {
     public:
-        phase_clock(const state_map* input_quantities, state_map* output_quantities) :
+        phase_clock(state_map const& input_quantities, state_map& output_quantities) :
             // Define basic module properties by passing its name to its parent class
             DerivModule("phase_clock"),
             // Get pointers to input quantities

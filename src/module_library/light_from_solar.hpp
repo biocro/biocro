@@ -6,7 +6,7 @@
 
 class light_from_solar : public SteadyModule {
     public:
-        light_from_solar(const state_map* input_quantities, state_map* output_quantities) :
+        light_from_solar(state_map const& input_quantities, state_map& output_quantities) :
             // Define basic module properties by passing its name to its parent class
             SteadyModule("light_from_solar"),
             // Get pointers to input quantities

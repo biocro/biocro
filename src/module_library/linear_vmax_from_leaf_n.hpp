@@ -6,7 +6,7 @@
 
 class linear_vmax_from_leaf_n : public SteadyModule {
 	public:
-		linear_vmax_from_leaf_n(const state_map* input_quantities, state_map* output_quantities) :
+		linear_vmax_from_leaf_n(state_map const& input_quantities, state_map& output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("linear_vmax_from_leaf_n"),
 			// Get pointers to input quantities

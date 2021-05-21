@@ -7,7 +7,7 @@
 
 class ball_berry_module : public SteadyModule {
 	public:
-		ball_berry_module(const state_map* input_quantities, state_map* output_quantities) :
+		ball_berry_module(state_map const& input_quantities, state_map& output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("ball_berry_module"),
 			// Get pointers to input quantities

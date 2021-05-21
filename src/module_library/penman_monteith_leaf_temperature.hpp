@@ -6,7 +6,7 @@
 
 class penman_monteith_leaf_temperature : public SteadyModule {
 	public:
-		penman_monteith_leaf_temperature(const state_map* input_quantities, state_map* output_quantities) :
+		penman_monteith_leaf_temperature(state_map const& input_quantities, state_map& output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("penman_monteith_leaf_temperature"),
 			// Get pointers to input quantities

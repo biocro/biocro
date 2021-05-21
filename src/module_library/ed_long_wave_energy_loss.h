@@ -16,8 +16,8 @@ class ed_long_wave_energy_loss : public SteadyModule
 {
    public:
     ed_long_wave_energy_loss(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_long_wave_energy_loss"),
           // Get pointers to input quantities

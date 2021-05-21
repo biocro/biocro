@@ -15,8 +15,8 @@ class c3_leaf_photosynthesis : public SteadyModule
 {
    public:
     c3_leaf_photosynthesis(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c3_leaf_photosynthesis"),
 

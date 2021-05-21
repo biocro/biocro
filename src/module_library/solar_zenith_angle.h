@@ -15,8 +15,8 @@ class solar_zenith_angle : public SteadyModule
 {
    public:
     solar_zenith_angle(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("solar_zenith_angle"),
           // Get references to input quantities

@@ -42,8 +42,8 @@ class thermal_time_development_rate_calculator : public SteadyModule
 {
 public:
     thermal_time_development_rate_calculator(
-        const state_map* input_quantities,
-        state_map* output_quantities
+        state_map const& input_quantities,
+        state_map& output_quantities
     )
     : SteadyModule{"thermal_time_development_rate_calculator"},
 

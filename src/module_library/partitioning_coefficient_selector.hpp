@@ -6,7 +6,7 @@
 
 class partitioning_coefficient_selector : public SteadyModule {
 	public:
-		partitioning_coefficient_selector(const state_map* input_quantities, state_map* output_quantities) :
+		partitioning_coefficient_selector(state_map const& input_quantities, state_map& output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("partitioning_coefficient_selector"),
 			// Get pointers to input quantities

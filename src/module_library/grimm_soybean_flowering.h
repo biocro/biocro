@@ -11,8 +11,8 @@ class grimm_soybean_flowering : public DerivModule
 {
    public:
     grimm_soybean_flowering(
-        const state_map* input_quantities,
-        state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
+        state_map const& input_quantities,
+        state_map& output_quantities) :  // Define basic module properties by passing its name to its parent class
                                                                       DerivModule("grimm_soybean_flowering"),
                                                                       // Get pointers to input quantities
                                                                       grimm_rate_ip(get_ip(input_quantities, "grimm_rate")),

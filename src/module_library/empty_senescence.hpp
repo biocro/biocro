@@ -6,7 +6,7 @@
 
 class empty_senescence : public DerivModule {
 	public:
-		empty_senescence(const state_map* /*input_quantities*/, state_map* /*output_quantities*/) :
+		empty_senescence(state_map const& /*input_quantities*/, state_map& /*output_quantities*/) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("empty_senescence")
 		{}

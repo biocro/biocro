@@ -32,8 +32,8 @@ class ed_multilayer_canopy_properties : public SteadyModule
     ed_multilayer_canopy_properties(
         std::string const& module_name,
         int const& nlayers,
-        state_map const* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule(module_name),
 
@@ -271,8 +271,8 @@ class ed_ten_layer_canopy_properties : public ed_multilayer_canopy_properties
 {
    public:
     ed_ten_layer_canopy_properties(
-        const state_map* input_quantities,
-        state_map* output_quantities)
+        state_map const& input_quantities,
+        state_map& output_quantities)
         : ed_multilayer_canopy_properties("ed_ten_layer_canopy_properties",
                                           ed_ten_layer_canopy_properties::nlayers,
                                           input_quantities,

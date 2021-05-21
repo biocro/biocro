@@ -70,8 +70,8 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
 
 module_vector get_module_vector(
     std::vector<string_vector> module_name_vectors,
-    const state_map* input_parameters,
-    state_map* output_parameters);
+    state_map const& input_quantities,
+    state_map& output_quantities);
 
 std::string add_indented_line(std::string message, std::string text_to_add, int num_spaces);
 
@@ -85,9 +85,9 @@ void insert_module_param_if_undefined(
     std::string module_name,
     string_vector defined_quantity_names,
     string_vector& undefined_module_names);
-    
+
 string_vector string_set_to_string_vector(string_set ss);
-    
+
 string_set string_vector_to_string_set(string_vector sv);
 
 string_vector string_vector_difference(
@@ -100,12 +100,12 @@ string_vector string_vector_difference(
  * This function first calls criterion_test, which should return some kind of
  * container of strings, e.g. std::vector<std::string> or std::set<std::string>.
  * A non-empty result generally corresponds to failure to meet the criterion.
- * 
+ *
  * The output of criterion_test is then passed to form_message, which should
  * create a user feedback message based on the result of the criterion test.
- * 
+ *
  * The output of form_message is added to the message input (passed by reference).
- * 
+ *
  * Finally, the number of elements in the output of criterion_test is returned.
  * Again, a non-zero value generally corresponds to a failure to meet the
  * criterion specified by criterion_test.
@@ -125,7 +125,7 @@ string_vector string_vector_difference(
  * @returns The number of elements in the container returned by criterion_test.
  *          Generally, a non-zero value corresponds to a failure to meet the
  *          criterion tested by criterion_test.
- * 
+ *
  */
 template <typename string_list_type>
 size_t process_criterion(
