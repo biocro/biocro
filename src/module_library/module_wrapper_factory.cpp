@@ -1,5 +1,5 @@
-#include <algorithm> // for std::transform
-#include <cctype>   // for std::tolower
+#include <algorithm>  // for std::transform
+#include <cctype>     // for std::tolower
 #include "module_wrapper_factory.h"
 
 // Include all the header files that define the modules.

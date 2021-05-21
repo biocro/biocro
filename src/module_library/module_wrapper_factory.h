@@ -1,9 +1,8 @@
 #ifndef MODULE_WRAPPER_FACTORY_H
 #define MODULE_WRAPPER_FACTORY_H
 
-#include <memory>
+#include <memory>  // for unique_ptr
 #include <string>
-#include <vector>
 #include <map>
 #include <unordered_map>
 #include "../module_wrapper.h"
