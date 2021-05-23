@@ -71,7 +71,7 @@ soybean_parameters = with(list(), {
     jmax                                    195         # Bernacchi et al. 2005 (https://doi.org/10.1007/s00425-004-1320-8), 2002 Seasonal average
     electrons_per_carboxylation             4.5         # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
     electrons_per_oxygenation               5.25        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
-    tpu_rate_max                            23
+    tpu_rate_max                            13
     Rd                                      1.28        # Davey et al. 2004 (https://doi.org/10.1104/pp.103.030569), Table 3, cv Pana, co2 368 ppm
     Catm                                    372         # micromol / mol, CO2 level in 2002
     O2                                      210         # millimol / mol

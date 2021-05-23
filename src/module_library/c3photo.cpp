@@ -75,6 +75,13 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     quantity<flux> Gs;
     quantity<flux> co2_assimilation_rate = 0 * mole / square_meter / second;
     quantity<mole_fraction> Ci;
+    //TPU temperature limit. (Fig.7. DOI: 10.1007/s00425-015-2436-8)
+    double TPU_c = 25.5,Ha = 62.99, S = 0.588, Hd = 182.14,TPU_rate_scaler25 = 306.7509,R=8.314472E-3; 
+    double LeafTemperatureKelvin = leaf_temperature.value(); 
+    double top = LeafTemperatureKelvin *exp(TPU_c-Ha/(R*LeafTemperatureKelvin));
+    double bot = 1.0+ exp((S*LeafTemperatureKelvin - Hd)/(R*LeafTemperatureKelvin));
+    double TPU_rate_scaler = top /bot / TPU_rate_scaler25; //normalize to 25 C
+    //
     int iterCounter = 0;
     int max_iter = 1000;
     while (iterCounter < max_iter) {
@@ -94,7 +101,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
             Aj = 0.0 * mole / square_meter / second;
 
         /* Limited by tri phos utilization */
-        quantity<flux> Ap = 3.0 * maximum_tpu_rate / (1 - Gstar / Ci);
+        quantity<flux> Ap = 3.0 * maximum_tpu_rate * TPU_rate_scaler;
 
         if(Ac < Aj && Ac < Ap){
             Vc = Ac;
