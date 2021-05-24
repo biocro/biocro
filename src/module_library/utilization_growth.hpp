@@ -120,7 +120,7 @@ void utilization_growth::do_operation() const {
     //  The leaf gets carbon from canopy photosynthesis (a conceptual rather than physical distinction), uses some for growth, and transfers some to the stem
     //  The stem gets carbon from the leaf, uses some for growth, and transfers some to the root, rhizome, and grain
     //  The root, rhizome, and grain each get carbon from the stem and use some for growth
-    // See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419430 (1972)
+    // See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419–430 (1972)
 
     double d_substrate_leaf = canopy_assimilation_rate - transport_leaf_to_stem - utilization_leaf;
     double d_substrate_stem = transport_leaf_to_stem - transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem;
@@ -132,7 +132,7 @@ void utilization_growth::do_operation() const {
     //  (1) A fraction YG is used for growth (0 < YG < 1)
     //  (2) The remaining fraction (1 - YG) is lost to respiration
     // In BioCro, the canopy assimilation rate (used here as the carbon input) already includes a negative
-	//  respiratory contribution based on Bernacchi et al., Plant, Cell & Environment 24, 253259 (2001)
+	//  respiratory contribution based on Bernacchi et al., Plant, Cell & Environment 24, 253–259 (2001)
 	// So we simply set YG = 1 when allocating the substrate for growth, i.e.,
 	//  the rate of change of Leaf is utilization_leaf, etc
 

@@ -5,7 +5,7 @@
 #include "../state_map.h"
 
 // This module is based on the photoperiodic flowering model described in
-//  Song, Y. H., Smith, R. W., To, B. J., Millar, A. J. & Imaizumi, T. FKF1 Conveys Timing Information for CONSTANS Stabilization in Photoperiodic Flowering. Science 336, 1045–1049 (2012).
+//  Song, Y. H., Smith, R. W., To, B. J., Millar, A. J. & Imaizumi, T. FKF1 Conveys Timing Information for CONSTANS Stabilization in Photoperiodic Flowering. Science 336, 1045â€“1049 (2012).
 // The Song model is not the most up-to-date photoperiod model, but is considerably simpler than the newer one described in
 //  Seaton, D. D. et al. Linked circadian outputs control elongation growth and flowering in response to photoperiod and temperature. Molecular Systems Biology 11, 776 (2015).
 // The Song model also has the advantage of not requiring a "phase advanced" component

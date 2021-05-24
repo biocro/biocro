@@ -2,15 +2,15 @@
 #define MULTILAYER_CANOPY_PHOTOSYNTHESIS_H
 
 #include <algorithm>                     // for std::find
-#include "../system_helper_functions.h"  // for get_pointer_pairs
 #include "../modules.h"
 #include "../state_map.h"
 
 namespace MLCP  // helping functions for the MultiLayer Canopy Photosynthesis module
 {
 /**
- * @brief A helping function for the multilayer canopy photosynthesis module that
- * returns inputs to the leaf module that are also in the vector of reference names.
+ * @brief A helping function for the multilayer canopy photosynthesis module
+ * that returns inputs to the leaf module that are also in the vector of
+ * reference names.
  */
 template <typename leaf_module_type>
 string_vector get_leaf_input_subset(string_vector reference_names)
@@ -27,7 +27,8 @@ string_vector get_leaf_input_subset(string_vector reference_names)
 
 /**
  * @brief A helping function for the multlayer canopy photosynthesis module that
- * returns inputs to the leaf module that will change with leaf class and canopy layer.
+ * returns inputs to the leaf module that will change with leaf class and canopy
+ * layer.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 string_vector get_multiclass_multilayer_leaf_inputs()
@@ -37,7 +38,8 @@ string_vector get_multiclass_multilayer_leaf_inputs()
 
 /**
  * @brief A helping function for the multlayer canopy photosynthesis module that
- * returns inputs to the leaf module that will change with canopy layer but not leaf class.
+ * returns inputs to the leaf module that will change with canopy layer but not
+ * leaf class.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 string_vector get_pure_multilayer_leaf_inputs()
@@ -47,7 +49,8 @@ string_vector get_pure_multilayer_leaf_inputs()
 
 /**
  * @brief A helping function for the multlayer canopy photosynthesis module that
- * returns inputs to the leaf module that do not change with leaf class or canopy layer.
+ * returns inputs to the leaf module that do not change with leaf class or
+ * canopy layer.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 string_vector get_other_leaf_inputs()
@@ -75,19 +78,58 @@ string_vector get_other_leaf_inputs()
 /**
  * @class multilayer_canopy_photosynthesis
  *
- * @brief Applies a leaf photosynthesis module to each layer and leaf class of a multilayer canopy.
- * Note that this module cannot be created via the module_wrapper_factory since it is a template
- * class with a different constructor than a usual module. Rather, it is expected that directly-usable
- * classes will be derived from this class.
+ * @brief Applies a leaf photosynthesis module to each layer and leaf class of a
+ * multilayer canopy.
+ *
+ * ### Basic overview
  *
  * Two modules must be specified as template arguments:
- *  - canopy_properties_module: a module that calculates properties for each canopy layer
- *  - leaf_photosynthesis_module: a module that determines assimilation values (among other values)
+ *
+ *  - canopy properties module: a module that calculates properties for each
+ *    canopy layer and leaf class
+ *
+ *  - leaf photosynthesis module: a module that determines assimilation values
+ *    (among other values)
  *
  * The canopy properties module must have the following public static methods:
+ *
  *  - define_leaf_classes()
+ *
  *  - define_multiclass_multilayer_outputs()
+ *
  *  - define_pure_multilayer_outputs()
+ *
+ *  ### More operational details
+ *
+ * In general, a canopy can be divided into different layers and leaf classes,
+ * which could be based on factors such as angle or age. The canopy properties
+ * module should determine the values of any properties (e.g. air temperature
+ * or incident light intensity) that may vary between layers and/or leaf
+ * classes.
+ *
+ * The values of these quantities must be subsequently passed to a leaf-level
+ * photosynthesis module in order to determine assimilation rates for each type
+ * of leaf in the canopy. In order to correctly pair a photosynthesis input
+ * quantity (such as `incident_par`) with a corresponding value for a layer and
+ * leaf class (such as `sunlit_incident_par_layer_0`), this module needs to know
+ * which quantities depend on canopy layer and leaf class. For that reason, the
+ * canopy properties module must have the following methods defined:
+ *
+ * - `define_leaf_classes()`: specifies each leaf class
+ *
+ * - `define_multiclass_multilayer_outputs()`: specifies the base names for
+ *   quantities that change with canopy layer and leaf class
+ *
+ * - `define_pure_multilayer_outputs()`: specifies the base names for quantities
+ *   that change with canopy layer but not leaf class
+ *
+ * The layer- and class-dependent names of these quantities are formed from a
+ * base name (e.g. `incident_par`), a prefix that indicates the leaf class (e.g.
+ * `sunlit_`), and a suffix that indicates the layer number (e.g. `_layer_0`).
+ *
+ * Note that this module has a non-standard constructor, so it cannot be created
+ * using the module_wrapper_factory. Rather, it is expected that directly-usable
+ * classes will be derived from this class.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 class multilayer_canopy_photosynthesis : public SteadyModule
@@ -102,13 +144,16 @@ class multilayer_canopy_photosynthesis : public SteadyModule
    private:
     // Number of layers
     const int nlayers;
+
     // Leaf photosynthesis module
     state_map leaf_module_quantities;
     state_map leaf_module_output_map;
     std::unique_ptr<Module> leaf_module;
-    // Pointers to input quantities
+
+    // Pointers to input parameters
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_input_ptr_pairs;
-    // Pointers to output quantities
+
+    // Pointers to output parameters
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_output_ptr_pairs;
 
    protected:
@@ -118,8 +163,9 @@ class multilayer_canopy_photosynthesis : public SteadyModule
 };
 
 /**
- * @brief Constructor for a multilayer canopy photosynthesis module, which initializes the
- * leaf module and prepares to pass inputs to it from the canopy module.
+ * @brief Constructor for a multilayer canopy photosynthesis module, which
+ * initializes the leaf module and prepares to pass inputs to it from the canopy
+ * module.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilayer_canopy_photosynthesis(

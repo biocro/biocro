@@ -52,11 +52,13 @@
 #include "shortwave_atmospheric_scattering.h"
 #include "incident_shortwave_from_ground_par.h"
 #include "leaf_shape_factor.h"
+#include "rue_leaf_photosynthesis.h"
 #include "c3_assimilation.h"
 #include "c3_leaf_photosynthesis.h"
 #include "c4_assimilation.h"
 #include "c4_leaf_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
+#include "multilayer_rue_canopy.h"
 #include "multilayer_c3_canopy.h"
 #include "multilayer_c4_canopy.h"
 #include "multilayer_canopy_integrator.h"
@@ -101,6 +103,7 @@
 #include "rasmussen_specific_heat.h"
 #include "buck_swvp.h"
 #include "rh_to_mole_fraction.h"
+#include "total_biomass.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -179,11 +182,13 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"shortwave_atmospheric_scattering",                      &create_wrapper<shortwave_atmospheric_scattering>},
      {"incident_shortwave_from_ground_par",                    &create_wrapper<incident_shortwave_from_ground_par>},
      {"leaf_shape_factor",                                     &create_wrapper<leaf_shape_factor>},
+     {"rue_leaf_photosynthesis",                               &create_wrapper<rue_leaf_photosynthesis>},
      {"c3_assimilation",                                       &create_wrapper<c3_assimilation>},
      {"c3_leaf_photosynthesis",                                &create_wrapper<c3_leaf_photosynthesis>},
      {"c4_assimilation",                                       &create_wrapper<c4_assimilation>},
      {"c4_leaf_photosynthesis",                                &create_wrapper<c4_leaf_photosynthesis>},
      {"ten_layer_canopy_properties",                           &create_wrapper<ten_layer_canopy_properties>},
+     {"ten_layer_rue_canopy",                                  &create_wrapper<ten_layer_rue_canopy>},
      {"ten_layer_c3_canopy",                                   &create_wrapper<ten_layer_c3_canopy>},
      {"ten_layer_c4_canopy",                                   &create_wrapper<ten_layer_c4_canopy>},
      {"ten_layer_canopy_integrator",                           &create_wrapper<ten_layer_canopy_integrator>},
@@ -233,7 +238,8 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"no_leaf_resp_neg_assim_partitioning_growth_calculator", &create_wrapper<no_leaf_resp_neg_assim_partitioning_growth_calculator>},
      {"rasmussen_specific_heat",                               &create_wrapper<rasmussen_specific_heat>},
      {"buck_swvp",                                             &create_wrapper<buck_swvp>},
-     {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>}
+     {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>},
+     {"total_biomass",                                         &create_wrapper<total_biomass>}
 };
 
 string_vector module_wrapper_factory::get_modules()
