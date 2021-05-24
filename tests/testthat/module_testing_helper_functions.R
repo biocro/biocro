@@ -161,9 +161,8 @@ cases_from_csv <- function(module_name)
     column_types <- file_contents[2,]
     column_types <- trimws(column_types)
 
-    # Get the quantity values, making sure they are treated as numeric variables
+    # Get the quantity values
     test_data <- file_contents[3:length(file_contents[,1]),]
-    test_data <- as.data.frame(lapply(test_data, as.numeric))
 
     # Get the indices of the input and output columns
     input_columns <- c()
@@ -171,7 +170,7 @@ cases_from_csv <- function(module_name)
     for (i in seq_along(column_types)) {
         if (column_types[[i]] == "input") {
             input_columns <- append(input_columns, i)
-        } else {
+        } else if (column_types[[i]] == "output") {
             output_columns <- append(output_columns, i)
         }
     }
@@ -180,12 +179,13 @@ cases_from_csv <- function(module_name)
     input_names <- column_names[input_columns]
     output_names <- column_names[output_columns]
 
-    # Make a helping function that defines a case from a row in the data
+    # Make a helping function that defines a case from a row in the data, making
+    # sure the quantity values are treated as numeric
     case_helper <- function(row_indx) {
-        row_inputs <- as.list(test_data[row_indx, input_columns])
+        row_inputs <- as.list(as.numeric(test_data[row_indx, input_columns]))
         names(row_inputs) <- input_names
 
-        row_outputs <- as.list(test_data[row_indx, output_columns])
+        row_outputs <- as.list(as.numeric(test_data[row_indx, output_columns]))
         names(row_outputs) <- output_names
 
         return(case(row_inputs, row_outputs))

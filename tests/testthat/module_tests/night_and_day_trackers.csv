@@ -1,4 +1,4 @@
-tracker_rate, light, night_tracker, day_tracker, night_tracker, day_tracker
-input,        input, input,         input,       output,        output
-2,            0.8,   0.2,           0.8,          0.0,          0.0
-2,            0.8,   0.8,           0.2,         -1.2,          1.2
+tracker_rate, light, night_tracker, day_tracker, night_tracker, day_tracker, description
+input,        input, input,         input,       output,        output,      NA
+2,            0.8,   0.2,           0.8,          0.0,          0.0,         "light = day tracker = 1 - night_tracker"
+2,            0.8,   0.8,           0.2,         -1.2,          1.2,         "just a typical set of values"
