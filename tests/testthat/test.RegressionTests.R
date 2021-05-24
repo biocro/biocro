@@ -1,7 +1,7 @@
 ## This tests that re-running a previously-run simulation yields the same result
 ## as before.
 ##
-## If any of the crop-specific defaults for the initial state, parameters,
+## If any of the crop-specific defaults for the initial values, parameters,
 ## modules or weather data change, or if the behavior of any of these modules
 ## changes, the stored data for one or more crops will likely need to be
 ## updated. To do this, open a fresh R session in this directory, load the
@@ -47,7 +47,7 @@ WEATHER <- get_growing_season_climate(weather05)
 # Make a helping function for specifying crop information
 specify_crop <- function(
     plant_name,
-    initial_state,
+    initial_values,
     parameters,
     modules,
     ignored_variables
@@ -55,7 +55,7 @@ specify_crop <- function(
 {
     list(
         plant_name = plant_name,
-        initial_state = initial_state,
+        initial_values = initial_values,
         parameters = parameters,
         modules = modules,
         stored_result_file = paste0(
@@ -107,12 +107,12 @@ ZEA_MAYS_IGNORE <- character(0)
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-    specify_crop("glycine_max",            glycine_max_initial_state,            glycine_max_parameters,            glycine_max_modules,            GLYCINE_MAX_IGNORE),            # INDEX = 1
-    specify_crop("manihot_esculenta",      manihot_esculenta_initial_state,      manihot_esculenta_parameters,      manihot_esculenta_modules,      MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
-    specify_crop("miscanthus_x_giganteus", miscanthus_x_giganteus_initial_state, miscanthus_x_giganteus_parameters, miscanthus_x_giganteus_modules, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
-    specify_crop("sorghum",                sorghum_initial_state,                sorghum_parameters,                sorghum_modules,                SORGHUM_IGNORE),                # INDEX = 4
-    specify_crop("willow",                 willow_initial_state,                 willow_parameters,                 willow_modules,                 WILLOW_IGNORE),                 # INDEX = 5
-    specify_crop("zea_mays",               zea_mays_initial_state,               zea_mays_parameters,               zea_mays_modules,               ZEA_MAYS_IGNORE)                # INDEX = 6
+    specify_crop("glycine_max",            glycine_max_initial_values,            glycine_max_parameters,            glycine_max_modules,            GLYCINE_MAX_IGNORE),            # INDEX = 1
+    specify_crop("manihot_esculenta",      manihot_esculenta_initial_values,      manihot_esculenta_parameters,      manihot_esculenta_modules,      MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
+    specify_crop("miscanthus_x_giganteus", miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, miscanthus_x_giganteus_modules, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
+    specify_crop("sorghum",                sorghum_initial_values,                sorghum_parameters,                sorghum_modules,                SORGHUM_IGNORE),                # INDEX = 4
+    specify_crop("willow",                 willow_initial_values,                 willow_parameters,                 willow_modules,                 WILLOW_IGNORE),                 # INDEX = 5
+    specify_crop("zea_mays",               zea_mays_initial_values,               zea_mays_parameters,               zea_mays_modules,               ZEA_MAYS_IGNORE)                # INDEX = 6
 )
 
 # Make a helping function that updates the stored data for one crop
@@ -120,7 +120,7 @@ update_stored_results <- function(test_info) {
 
     # Calculate the result
     plant_result <- Gro(
-        test_info[['initial_state']],
+        test_info[['initial_values']],
         test_info[['parameters']],
         WEATHER,
         test_info[['modules']],
@@ -154,7 +154,7 @@ test_plant_model <- function(test_info) {
     test_that(description, {
         expect_silent(
             result <<- Gro(
-                test_info[['initial_state']],
+                test_info[['initial_values']],
                 test_info[['parameters']],
                 WEATHER,
                 test_info[['modules']],

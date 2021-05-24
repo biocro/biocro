@@ -3,7 +3,7 @@
 #include "BioCro.h"     // For c3CanAC
 #include <cmath>        // For floor
 
-std::vector<std::string> c3_canopy::get_inputs() {
+string_vector c3_canopy::get_inputs() {
     return {
         "lai",
         "time",
@@ -42,7 +42,7 @@ std::vector<std::string> c3_canopy::get_inputs() {
     };
 }
 
-std::vector<std::string> c3_canopy::get_outputs() {
+string_vector c3_canopy::get_outputs() {
     return {
         "canopy_assimilation_rate",
         "canopy_transpiration_rate",
@@ -66,7 +66,7 @@ void c3_canopy::do_operation() const {
             *electrons_per_carboxylation_ip, *electrons_per_oxygenation_ip,
             *absorptivity_par_ip);
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(canopy_assimilation_rate_op, can_result.Assim);  // Mg / ha / hr.
     update(canopy_transpiration_rate_op, can_result.Trans); // Mg / ha / hr.
     update(GrossAssim_op, can_result.GrossAssim);

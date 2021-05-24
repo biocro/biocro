@@ -2,6 +2,7 @@
 #define ED_C4PHOTO_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "c4photo.h"
 
 /**
@@ -14,43 +15,43 @@ class ed_c4photo : public SteadyModule
 {
    public:
     ed_c4photo(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_c4photo"),
 
-          // Get pointers to input parameters
-          collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
-          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-          rh_ip(get_ip(input_parameters, "rh")),
-          collatz_vmax_ip(get_ip(input_parameters, "collatz_vmax")),
-          collatz_alpha_ip(get_ip(input_parameters, "collatz_alpha")),
-          collatz_k_ip(get_ip(input_parameters, "collatz_k")),
-          collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
-          collatz_beta_ip(get_ip(input_parameters, "collatz_beta")),
-          collatz_rd_ip(get_ip(input_parameters, "collatz_rd")),
-          ball_berry_intercept_ip(get_ip(input_parameters, "ball_berry_intercept")),
-          ball_berry_slope_ip(get_ip(input_parameters, "ball_berry_slope")),
-          conductance_stomatal_h2o_min_ip(get_ip(input_parameters, "conductance_stomatal_h2o_min")),
-          StomataWS_ip(get_ip(input_parameters, "StomataWS")),
-          mole_fraction_co2_atmosphere_ip(get_ip(input_parameters, "mole_fraction_co2_atmosphere")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
-          collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
+          // Get pointers to input quantities
+          collatz_PAR_flux_ip(get_ip(input_quantities, "collatz_PAR_flux")),
+          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
+          rh_ip(get_ip(input_quantities, "rh")),
+          collatz_vmax_ip(get_ip(input_quantities, "collatz_vmax")),
+          collatz_alpha_ip(get_ip(input_quantities, "collatz_alpha")),
+          collatz_k_ip(get_ip(input_quantities, "collatz_k")),
+          collatz_theta_ip(get_ip(input_quantities, "collatz_theta")),
+          collatz_beta_ip(get_ip(input_quantities, "collatz_beta")),
+          collatz_rd_ip(get_ip(input_quantities, "collatz_rd")),
+          ball_berry_intercept_ip(get_ip(input_quantities, "ball_berry_intercept")),
+          ball_berry_slope_ip(get_ip(input_quantities, "ball_berry_slope")),
+          conductance_stomatal_h2o_min_ip(get_ip(input_quantities, "conductance_stomatal_h2o_min")),
+          StomataWS_ip(get_ip(input_quantities, "StomataWS")),
+          mole_fraction_co2_atmosphere_ip(get_ip(input_quantities, "mole_fraction_co2_atmosphere")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          collatz_rubisco_temperature_upper_ip(get_ip(input_quantities, "collatz_rubisco_temperature_upper")),
+          collatz_rubisco_temperature_lower_ip(get_ip(input_quantities, "collatz_rubisco_temperature_lower")),
 
-          // Get pointers to output parameters
-          mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
-          conductance_stomatal_h2o_op(get_op(output_parameters, "conductance_stomatal_h2o")),
-          assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
-          assimilation_net_op(get_op(output_parameters, "assimilation_net"))
+          // Get pointers to output quantities
+          mole_fraction_co2_intercellular_op(get_op(output_quantities, "mole_fraction_co2_intercellular")),
+          conductance_stomatal_h2o_op(get_op(output_quantities, "conductance_stomatal_h2o")),
+          assimilation_gross_op(get_op(output_quantities, "assimilation_gross")),
+          assimilation_net_op(get_op(output_quantities, "assimilation_net"))
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* collatz_PAR_flux_ip;
     const double* temperature_leaf_ip;
     const double* rh_ip;
@@ -69,7 +70,7 @@ class ed_c4photo : public SteadyModule
     const double* collatz_rubisco_temperature_upper_ip;
     const double* collatz_rubisco_temperature_lower_ip;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* mole_fraction_co2_intercellular_op;
     double* conductance_stomatal_h2o_op;
     double* assimilation_gross_op;
@@ -79,7 +80,7 @@ class ed_c4photo : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_c4photo::get_inputs()
+string_vector ed_c4photo::get_inputs()
 {
     return {
         "collatz_PAR_flux",                   // mol / m^2 / s
@@ -102,7 +103,7 @@ std::vector<std::string> ed_c4photo::get_inputs()
     };
 }
 
-std::vector<std::string> ed_c4photo::get_outputs()
+string_vector ed_c4photo::get_outputs()
 {
     return {
         "mole_fraction_co2_intercellular",  // dimensionless from mol / mol

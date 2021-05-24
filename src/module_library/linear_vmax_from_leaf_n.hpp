@@ -2,35 +2,36 @@
 #define LINEAR_VMAX_FROM_LEAF_N_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class linear_vmax_from_leaf_n : public SteadyModule {
 	public:
-		linear_vmax_from_leaf_n(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		linear_vmax_from_leaf_n(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("linear_vmax_from_leaf_n"),
-			// Get pointers to input parameters
-			LeafN_0_ip(get_ip(input_parameters, "LeafN_0")),
-			LeafN_ip(get_ip(input_parameters, "LeafN")),
-			vmax_n_intercept_ip(get_ip(input_parameters, "vmax_n_intercept")),
-			vmax1_ip(get_ip(input_parameters, "vmax1")),
-			// Get pointers to output parameters
-			vmax_op(get_op(output_parameters, "vmax"))
+			// Get pointers to input quantities
+			LeafN_0_ip(get_ip(input_quantities, "LeafN_0")),
+			LeafN_ip(get_ip(input_quantities, "LeafN")),
+			vmax_n_intercept_ip(get_ip(input_quantities, "vmax_n_intercept")),
+			vmax1_ip(get_ip(input_quantities, "vmax1")),
+			// Get pointers to output quantities
+			vmax_op(get_op(output_quantities, "vmax"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* LeafN_0_ip;
 		const double* LeafN_ip;
 		const double* vmax_n_intercept_ip;
 		const double* vmax1_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* vmax_op;
 		// Main operation
 		void do_operation() const;
 };
 
-std::vector<std::string> linear_vmax_from_leaf_n::get_inputs() {
+string_vector linear_vmax_from_leaf_n::get_inputs() {
 	return {
 		"LeafN_0",
 		"LeafN",
@@ -39,7 +40,7 @@ std::vector<std::string> linear_vmax_from_leaf_n::get_inputs() {
 	};
 }
 
-std::vector<std::string> linear_vmax_from_leaf_n::get_outputs() {
+string_vector linear_vmax_from_leaf_n::get_outputs() {
 	return {
 		"vmax"
 	};
@@ -51,8 +52,8 @@ void linear_vmax_from_leaf_n::do_operation() const {
 	double LeafN = *LeafN_ip;
 	double vmax_n_intercept = *vmax_n_intercept_ip;
 	double vmax1 = *vmax1_ip;
-	
-	// Update the output parameter list
+
+	// Update the output quantity list
 	update(vmax_op, (LeafN_0 - LeafN) * vmax_n_intercept + vmax1);
 }
 

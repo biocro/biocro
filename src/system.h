@@ -18,17 +18,17 @@ class System
 {
    public:
     System(
-        state_map const& init_state,
-        state_map const& invariant_params,
-        state_vector_map const& varying_params,
+        state_map const& init_values,
+        state_map const& params,
+        state_vector_map const& drivers,
         string_vector const& ss_module_names,
         string_vector const& deriv_module_names);
 
     // For integrating via a system_solver
     size_t get_ntimes() const
     {
-        auto vp = varying_parameters.begin();
-        return (vp->second).size();
+        auto driver = drivers.begin();
+        return (driver->second).size();
     }
 
     /// Check that the system is adaptive compatible based on the
@@ -51,7 +51,7 @@ class System
 
     // For returning the results of a calculation
     std::vector<const double*> get_quantity_access_ptrs(string_vector quantity_names) const;
-    string_vector get_state_parameter_names() const { return keys(initial_state); }
+    string_vector get_state_parameter_names() const { return keys(initial_values); }
     string_vector get_output_param_names() const;
 
     // For generating reports to the user
@@ -70,9 +70,9 @@ class System
 
    private:
     // For storing the constructor inputs
-    const state_map initial_state;
-    const state_map invariant_parameters;
-    const state_vector_map varying_parameters;
+    const state_map initial_values;
+    const state_map parameters;
+    const state_vector_map drivers;
     string_vector steady_state_module_names;  // These may be re-ordered in the constructor.
     const string_vector derivative_module_names;
 
@@ -88,13 +88,13 @@ class System
     double* timestep_ptr;
     std::vector<double*> state_ptrs;
     std::vector<std::pair<double*, const double*>> state_ptr_pairs;
-    std::vector<std::pair<double*, const std::vector<double>*>> varying_ptr_pairs;
+    std::vector<std::pair<double*, const std::vector<double>*>> driver_ptr_pairs;
 
     // For calculating derivatives
-    void update_varying_params(double time_indx);
+    void update_drivers(double time_indx);
 
     template <typename time_type>
-    void update_varying_params(time_type time_indx);
+    void update_drivers(time_type time_indx);
 
     template <class vector_type>
     void update_state_params(vector_type const& new_state);
@@ -130,7 +130,7 @@ void System::get_state(state_type& x) const
 template <typename state_type, typename time_type>
 void System::update(const state_type& x, const time_type& t)
 {
-    update_varying_params(t);
+    update_drivers(t);
     update_state_params(x);
     run_module_list(steady_state_modules);
 }
@@ -151,12 +151,12 @@ void System::operator()(const state_type& x, state_type& dxdt, const time_type& 
 }
 
 /**
- * @brief Gets values of the varying parameters using a discrete time index (e.g. int or size_t)
+ * @brief Gets values of the drivers using a discrete time index (e.g. int or size_t)
  */
 template <typename time_type>
-void System::update_varying_params(time_type time_indx)
+void System::update_drivers(time_type time_indx)
 {
-    for (auto x : varying_ptr_pairs) {
+    for (auto x : driver_ptr_pairs) {
         *(x.first) = (*(x.second))[time_indx];
     }
 }

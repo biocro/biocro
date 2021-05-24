@@ -105,28 +105,28 @@ class thermal_time_beta : public DerivModule
 {
    public:
     thermal_time_beta(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           DerivModule("thermal_time_beta"),
 
-          // Get pointers to input parameters
-          temp(get_input(input_parameters, "temp")),
-          tbase(get_input(input_parameters, "tbase")),
-          tmax(get_input(input_parameters, "tmax")),
-          talpha(get_input(input_parameters, "talpha")),
-          tbeta(get_input(input_parameters, "tbeta")),
-          ttc_scale(get_input(input_parameters, "ttc_scale")),
+          // Get pointers to input quantities
+          temp(get_input(input_quantities, "temp")),
+          tbase(get_input(input_quantities, "tbase")),
+          tmax(get_input(input_quantities, "tmax")),
+          talpha(get_input(input_quantities, "talpha")),
+          tbeta(get_input(input_quantities, "tbeta")),
+          ttc_scale(get_input(input_quantities, "ttc_scale")),
 
-          // Get pointers to output parameters
-          TTc_op(get_op(output_parameters, "TTc"))
+          // Get pointers to output quantities
+          TTc_op(get_op(output_quantities, "TTc"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& temp;
     double const& tbase;
     double const& tmax;
@@ -134,14 +134,14 @@ class thermal_time_beta : public DerivModule
     double const& tbeta;
     double const& ttc_scale;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* TTc_op;
 
     // Main operation
     void do_operation() const;
 };
 
-std::vector<std::string> thermal_time_beta::get_inputs()
+string_vector thermal_time_beta::get_inputs()
 {
     return {
         "temp",      // degrees C
@@ -153,7 +153,7 @@ std::vector<std::string> thermal_time_beta::get_inputs()
     };
 }
 
-std::vector<std::string> thermal_time_beta::get_outputs()
+string_vector thermal_time_beta::get_outputs()
 {
     return {
         "TTc"  // degrees C * day / hr
@@ -167,7 +167,7 @@ void thermal_time_beta::do_operation() const
                       : temp <= tmax  ? ttc_scale * pow(temp - tbase, talpha) * pow(tmax - temp, tbeta)
                       :                 0.0;  // degrees C * day / hr
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(TTc_op, rate);
 }
 
