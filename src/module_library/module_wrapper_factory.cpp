@@ -48,9 +48,6 @@
 #include "bucket_soil_drainage.hpp"
 #include "linear_vmax_from_leaf_n.hpp"
 #include "module_graph_test.hpp"  // Includes Module_1, Module_2, and Module_3
-#include "collatz_leaf.hpp"
-#include "canac_with_collatz.hpp"
-#include "big_leaf_multilayer_canopy.hpp"
 #include "solar_zenith_angle.h"
 #include "shortwave_atmospheric_scattering.h"
 #include "incident_shortwave_from_ground_par.h"
@@ -181,9 +178,6 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"Module_1",                                              &create_wrapper<Module_1>},
      {"Module_2",                                              &create_wrapper<Module_2>},
      {"Module_3",                                              &create_wrapper<Module_3>},
-     {"collatz_leaf",                                          &create_wrapper<collatz_leaf>},
-     {"canac_with_collatz",                                    &create_wrapper<canac_with_collatz>},
-     {"big_leaf_multilayer_canopy",                            &create_wrapper<big_leaf_multilayer_canopy>},
      {"solar_zenith_angle",                                    &create_wrapper<solar_zenith_angle>},
      {"shortwave_atmospheric_scattering",                      &create_wrapper<shortwave_atmospheric_scattering>},
      {"incident_shortwave_from_ground_par",                    &create_wrapper<incident_shortwave_from_ground_par>},
