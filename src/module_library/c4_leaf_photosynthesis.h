@@ -2,6 +2,7 @@
 #define C4_LEAF_PHOTOSYNTHESIS_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include "c4photo.h"    // for c4photoC
 #include "AuxBioCro.h"  // for EvapoTrans2
 
@@ -14,54 +15,54 @@ class c4_leaf_photosynthesis : public SteadyModule
 {
    public:
     c4_leaf_photosynthesis(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("c4_leaf_photosynthesis"),
 
-          // Get references to input parameters
-          par_energy_content(get_input(input_parameters, "par_energy_content")),
-          incident_par(get_input(input_parameters, "incident_par")),
-          temp(get_input(input_parameters, "temp")),
-          rh(get_input(input_parameters, "rh")),
-          vmax1(get_input(input_parameters, "vmax1")),
-          alpha1(get_input(input_parameters, "alpha1")),
-          kparm(get_input(input_parameters, "kparm")),
-          theta(get_input(input_parameters, "theta")),
-          beta(get_input(input_parameters, "beta")),
-          Rd(get_input(input_parameters, "Rd")),
-          b0(get_input(input_parameters, "b0")),
-          b1(get_input(input_parameters, "b1")),
-          Gs_min(get_input(input_parameters, "Gs_min")),
-          StomataWS(get_input(input_parameters, "StomataWS")),
-          Catm(get_input(input_parameters, "Catm")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
-          water_stress_approach(get_input(input_parameters, "water_stress_approach")),
-          upperT(get_input(input_parameters, "upperT")),
-          lowerT(get_input(input_parameters, "lowerT")),
-          incident_average_par(get_input(input_parameters, "incident_average_par")),
-          windspeed(get_input(input_parameters, "windspeed")),
-          height(get_input(input_parameters, "height")),
-          leafwidth(get_input(input_parameters, "leafwidth")),
-          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air")),
-          et_equation(get_input(input_parameters, "et_equation")),
+          // Get references to input quantities
+          par_energy_content(get_input(input_quantities, "par_energy_content")),
+          incident_par(get_input(input_quantities, "incident_par")),
+          temp(get_input(input_quantities, "temp")),
+          rh(get_input(input_quantities, "rh")),
+          vmax1(get_input(input_quantities, "vmax1")),
+          alpha1(get_input(input_quantities, "alpha1")),
+          kparm(get_input(input_quantities, "kparm")),
+          theta(get_input(input_quantities, "theta")),
+          beta(get_input(input_quantities, "beta")),
+          Rd(get_input(input_quantities, "Rd")),
+          b0(get_input(input_quantities, "b0")),
+          b1(get_input(input_quantities, "b1")),
+          Gs_min(get_input(input_quantities, "Gs_min")),
+          StomataWS(get_input(input_quantities, "StomataWS")),
+          Catm(get_input(input_quantities, "Catm")),
+          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
+          water_stress_approach(get_input(input_quantities, "water_stress_approach")),
+          upperT(get_input(input_quantities, "upperT")),
+          lowerT(get_input(input_quantities, "lowerT")),
+          incident_average_par(get_input(input_quantities, "incident_average_par")),
+          windspeed(get_input(input_quantities, "windspeed")),
+          height(get_input(input_quantities, "height")),
+          leafwidth(get_input(input_quantities, "leafwidth")),
+          specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          et_equation(get_input(input_quantities, "et_equation")),
 
-          // Get pointers to output parameters
-          Assim_op(get_op(output_parameters, "Assim")),
-          GrossAssim_op(get_op(output_parameters, "GrossAssim")),
-          Ci_op(get_op(output_parameters, "Ci")),
-          Gs_op(get_op(output_parameters, "Gs")),
-          TransR_op(get_op(output_parameters, "TransR")),
-          EPenman_op(get_op(output_parameters, "EPenman")),
-          EPriestly_op(get_op(output_parameters, "EPriestly")),
-          leaf_temperature_op(get_op(output_parameters, "leaf_temperature"))
+          // Get pointers to output quantities
+          Assim_op(get_op(output_quantities, "Assim")),
+          GrossAssim_op(get_op(output_quantities, "GrossAssim")),
+          Ci_op(get_op(output_quantities, "Ci")),
+          Gs_op(get_op(output_quantities, "Gs")),
+          TransR_op(get_op(output_quantities, "TransR")),
+          EPenman_op(get_op(output_quantities, "EPenman")),
+          EPriestly_op(get_op(output_quantities, "EPriestly")),
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& par_energy_content;
     double const& incident_par;
     double const& temp;
@@ -88,7 +89,7 @@ class c4_leaf_photosynthesis : public SteadyModule
     double const& specific_heat_of_air;
     double const& et_equation;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* Assim_op;
     double* GrossAssim_op;
     double* Ci_op;
@@ -102,7 +103,7 @@ class c4_leaf_photosynthesis : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> c4_leaf_photosynthesis::get_inputs()
+string_vector c4_leaf_photosynthesis::get_inputs()
 {
     return {
         "par_energy_content",     // J / micromol
@@ -133,7 +134,7 @@ std::vector<std::string> c4_leaf_photosynthesis::get_inputs()
     };
 }
 
-std::vector<std::string> c4_leaf_photosynthesis::get_outputs()
+string_vector c4_leaf_photosynthesis::get_outputs()
 {
     return {
         "Assim",            // micromole / m^2 /s

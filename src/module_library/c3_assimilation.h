@@ -27,7 +27,7 @@
  *
  * ### BioCro module implementation
  *
- * In BioCro, we use the following names for this model's input parameters:
+ * In BioCro, we use the following names for this model's input quantities:
  * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
  * - ``'rh'`` for the atmospheric relative humidity
@@ -47,7 +47,7 @@
  * - ``'electrons_per_carboxylation'`` for the number of electrons per carboxylation event
  * - ``'electrons_per_oxygenation'`` for the number of electrons per oxygenation event
  *
- * We use the following names for the model's output parameters:
+ * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
  * - ``'Ci'`` for the intercellular CO2 concentration
@@ -57,43 +57,43 @@ class c3_assimilation : public DerivModule
 {
    public:
     c3_assimilation(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           DerivModule("c3_assimilation"),
 
-          // Get pointers to input parameters
-          Qp(get_input(input_parameters, "Qp")),
-          Tleaf(get_input(input_parameters, "Tleaf")),
-          rh(get_input(input_parameters, "rh")),
-          vmax(get_input(input_parameters, "vmax")),
-          jmax(get_input(input_parameters, "jmax")),
-          tpu_rate_max(get_input(input_parameters, "tpu_rate_max")),
-          Rd(get_input(input_parameters, "Rd")),
-          bb0(get_input(input_parameters, "bb0")),
-          bb1(get_input(input_parameters, "bb1")),
-          Gs_min(get_input(input_parameters, "Gs_min")),
-          Catm(get_input(input_parameters, "Catm")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
-          O2(get_input(input_parameters, "O2")),
-          theta(get_input(input_parameters, "theta")),
-          StomataWS(get_input(input_parameters, "StomataWS")),
-          water_stress_approach(get_input(input_parameters, "water_stress_approach")),
-          electrons_per_carboxylation(get_input(input_parameters, "electrons_per_carboxylation")),
-          electrons_per_oxygenation(get_input(input_parameters, "electrons_per_oxygenation")),
+          // Get pointers to input quantities
+          Qp(get_input(input_quantities, "Qp")),
+          Tleaf(get_input(input_quantities, "Tleaf")),
+          rh(get_input(input_quantities, "rh")),
+          vmax(get_input(input_quantities, "vmax")),
+          jmax(get_input(input_quantities, "jmax")),
+          tpu_rate_max(get_input(input_quantities, "tpu_rate_max")),
+          Rd(get_input(input_quantities, "Rd")),
+          bb0(get_input(input_quantities, "bb0")),
+          bb1(get_input(input_quantities, "bb1")),
+          Gs_min(get_input(input_quantities, "Gs_min")),
+          Catm(get_input(input_quantities, "Catm")),
+          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
+          O2(get_input(input_quantities, "O2")),
+          theta(get_input(input_quantities, "theta")),
+          StomataWS(get_input(input_quantities, "StomataWS")),
+          water_stress_approach(get_input(input_quantities, "water_stress_approach")),
+          electrons_per_carboxylation(get_input(input_quantities, "electrons_per_carboxylation")),
+          electrons_per_oxygenation(get_input(input_quantities, "electrons_per_oxygenation")),
 
-          // Get pointers to output parameters
-          Assim_op(get_op(output_parameters, "Assim")),
-          Gs_op(get_op(output_parameters, "Gs")),
-          Ci_op(get_op(output_parameters, "Ci")),
-          GrossAssim_op(get_op(output_parameters, "GrossAssim"))
+          // Get pointers to output quantities
+          Assim_op(get_op(output_quantities, "Assim")),
+          Gs_op(get_op(output_quantities, "Gs")),
+          Ci_op(get_op(output_quantities, "Ci")),
+          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& Qp;
     double const& Tleaf;
     double const& rh;
@@ -113,7 +113,7 @@ class c3_assimilation : public DerivModule
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* Assim_op;
     double* Gs_op;
     double* Ci_op;
@@ -123,7 +123,7 @@ class c3_assimilation : public DerivModule
     void do_operation() const;
 };
 
-std::vector<std::string> c3_assimilation::get_inputs()
+string_vector c3_assimilation::get_inputs()
 {
     return {
         "Qp",                           // micromol / m^2 / s
@@ -147,7 +147,7 @@ std::vector<std::string> c3_assimilation::get_inputs()
     };
 }
 
-std::vector<std::string> c3_assimilation::get_outputs()
+string_vector c3_assimilation::get_outputs()
 {
     return {
         "Assim",      // micromol / m^2 / s
@@ -179,7 +179,7 @@ void c3_assimilation::do_operation() const
         electrons_per_carboxylation,
         electrons_per_oxygenation);
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(Assim_op, c3_results.Assim);
     update(Gs_op, c3_results.Gs);
     update(Ci_op, c3_results.Ci);

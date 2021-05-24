@@ -4,21 +4,22 @@
 #include <cmath>  // For pow, exp
 #include "../constants.h"  // for eps_zero
 #include "../modules.h"
+#include "../state_map.h"
 #include <Rinternals.h>          // for debugging
 const bool collatz_print = false;  // for debugging
 
 
 /**
  * @class ed_collatz_assimilation
- * 
+ *
  * @brief Uses the equations from Collatz et. al (1992) to calculate the CO2 assimilation rate.
  * Currently only intended for use by Ed.
- * 
+ *
  * First, reaction rates are modified from their values at 25 deg. C according to the leaf temperature.
- * 
+ *
  * Then, three different CO2 assimilation rates are calculated, corresponding to conditions limited by
  * rubisco, light, and CO2.
- * 
+ *
  * Finally, an overall gross assimilation rate is calculated based on these three limits, and net assimilation
  * is found by subtracting leaf respiration.
  */
@@ -26,42 +27,42 @@ class ed_collatz_c4_assimilation : public SteadyModule
 {
    public:
     ed_collatz_c4_assimilation(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_collatz_c4_assimilation"),
-          // Get pointers to input parameters
-          collatz_q10_ip(get_ip(input_parameters, "collatz_q10")),
-          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-          collatz_k_ip(get_ip(input_parameters, "collatz_k")),
-          collatz_rd_ip(get_ip(input_parameters, "collatz_rd")),
-          collatz_vmax_ip(get_ip(input_parameters, "collatz_vmax")),
-          collatz_rubisco_temperature_lower_ip(get_ip(input_parameters, "collatz_rubisco_temperature_lower")),
-          collatz_rubisco_temperature_upper_ip(get_ip(input_parameters, "collatz_rubisco_temperature_upper")),
-          collatz_alpha_ip(get_ip(input_parameters, "collatz_alpha")),
-          collatz_PAR_flux_ip(get_ip(input_parameters, "collatz_PAR_flux")),
-          mole_fraction_co2_intercellular_ip(get_ip(input_parameters, "mole_fraction_co2_intercellular")),
-          collatz_theta_ip(get_ip(input_parameters, "collatz_theta")),
-          collatz_beta_ip(get_ip(input_parameters, "collatz_beta")),
-          assimilation_adjustment_factor_WS_ip(get_ip(input_parameters, "assimilation_adjustment_factor_WS")),
-          // Get pointers to output parameters
-          collatz_KT_op(get_op(output_parameters, "collatz_KT")),
-          collatz_RT_op(get_op(output_parameters, "collatz_RT")),
-          collatz_VT_op(get_op(output_parameters, "collatz_VT")),
-          assimilation_carbon_limited_op(get_op(output_parameters, "assimilation_carbon_limited")),
-          assimilation_rubisco_limited_op(get_op(output_parameters, "assimilation_rubisco_limited")),
-          assimilation_light_limited_op(get_op(output_parameters, "assimilation_light_limited")),
-          assimilation_gross_op(get_op(output_parameters, "assimilation_gross")),
-          respiration_op(get_op(output_parameters, "respiration")),
-          assimilation_net_op(get_op(output_parameters, "assimilation_net"))
+          // Get pointers to input quantities
+          collatz_q10_ip(get_ip(input_quantities, "collatz_q10")),
+          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
+          collatz_k_ip(get_ip(input_quantities, "collatz_k")),
+          collatz_rd_ip(get_ip(input_quantities, "collatz_rd")),
+          collatz_vmax_ip(get_ip(input_quantities, "collatz_vmax")),
+          collatz_rubisco_temperature_lower_ip(get_ip(input_quantities, "collatz_rubisco_temperature_lower")),
+          collatz_rubisco_temperature_upper_ip(get_ip(input_quantities, "collatz_rubisco_temperature_upper")),
+          collatz_alpha_ip(get_ip(input_quantities, "collatz_alpha")),
+          collatz_PAR_flux_ip(get_ip(input_quantities, "collatz_PAR_flux")),
+          mole_fraction_co2_intercellular_ip(get_ip(input_quantities, "mole_fraction_co2_intercellular")),
+          collatz_theta_ip(get_ip(input_quantities, "collatz_theta")),
+          collatz_beta_ip(get_ip(input_quantities, "collatz_beta")),
+          assimilation_adjustment_factor_WS_ip(get_ip(input_quantities, "assimilation_adjustment_factor_WS")),
+          // Get pointers to output quantities
+          collatz_KT_op(get_op(output_quantities, "collatz_KT")),
+          collatz_RT_op(get_op(output_quantities, "collatz_RT")),
+          collatz_VT_op(get_op(output_quantities, "collatz_VT")),
+          assimilation_carbon_limited_op(get_op(output_quantities, "assimilation_carbon_limited")),
+          assimilation_rubisco_limited_op(get_op(output_quantities, "assimilation_rubisco_limited")),
+          assimilation_light_limited_op(get_op(output_quantities, "assimilation_light_limited")),
+          assimilation_gross_op(get_op(output_quantities, "assimilation_gross")),
+          respiration_op(get_op(output_quantities, "respiration")),
+          assimilation_net_op(get_op(output_quantities, "assimilation_net"))
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* collatz_q10_ip;
     const double* temperature_leaf_ip;
     const double* collatz_k_ip;
@@ -75,7 +76,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     const double* collatz_theta_ip;
     const double* collatz_beta_ip;
     const double* assimilation_adjustment_factor_WS_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* collatz_KT_op;
     double* collatz_RT_op;
     double* collatz_VT_op;
@@ -89,7 +90,7 @@ class ed_collatz_c4_assimilation : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_collatz_c4_assimilation::get_inputs()
+string_vector ed_collatz_c4_assimilation::get_inputs()
 {
     return {
         "collatz_q10",                        // dimensionless
@@ -108,7 +109,7 @@ std::vector<std::string> ed_collatz_c4_assimilation::get_inputs()
     };
 }
 
-std::vector<std::string> ed_collatz_c4_assimilation::get_outputs()
+string_vector ed_collatz_c4_assimilation::get_outputs()
 {
     return {
         "collatz_KT",                    // mol / m^2 / s
@@ -181,40 +182,40 @@ void ed_collatz_c4_assimilation::do_operation() const
 
     // Apply a possible reduction accounting for the effect of water stress on the stomata
     const double adjusted_assimilation_net = assimilation_net * *assimilation_adjustment_factor_WS_ip;
-    
+
     std::string message = "collatz parameters:\n";
     char buff[128];
-    
+
     sprintf(buff, " temperature_factor = %e\n", temperature_factor);
     message += std::string(buff);
-    
+
     sprintf(buff, " co2_rate_constant = %e\n", co2_rate_constant);
     message += std::string(buff);
-    
+
     sprintf(buff, " assimilation_carbon_limited = %e\n", assimilation_carbon_limited);
     message += std::string(buff);
-    
+
     sprintf(buff, " rubisco_low_temp_inhibition = %e\n", rubisco_low_temp_inhibition);
     message += std::string(buff);
-    
+
     sprintf(buff, " rubisco_high_temp_inhibition = %e\n", rubisco_high_temp_inhibition);
     message += std::string(buff);
-    
+
     sprintf(buff, " assimilation_rubisco_limited = %e\n", assimilation_rubisco_limited);
     message += std::string(buff);
-    
+
     sprintf(buff, " respiration_base = %e\n", respiration_base);
     message += std::string(buff);
-    
+
     sprintf(buff, " respiration_high_temp_inhibition = %e\n", respiration_high_temp_inhibition);
     message += std::string(buff);
-    
+
     sprintf(buff, " assimilation_net = %e\n", assimilation_net);
     message += std::string(buff);
-    
+
     sprintf(buff, " adjusted_assimilation_net = %e\n", adjusted_assimilation_net);
     message += std::string(buff);
-    
+
     message += std::string("\n");
     if (collatz_print) {
         Rprintf(message.c_str());

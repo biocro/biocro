@@ -2,6 +2,7 @@
 #define SONG_FLOWERING_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 // This module is based on the photoperiodic flowering model described in
 //  Song, Y. H., Smith, R. W., To, B. J., Millar, A. J. & Imaizumi, T. FKF1 Conveys Timing Information for CONSTANS Stabilization in Photoperiodic Flowering. Science 336, 1045–1049 (2012).
@@ -13,47 +14,47 @@
 // The Locke model is included here in this module
 // The models were implented in C++ by translating from the following files:
 //  "Structured data 1" in the supplement to Locke (2005) as viewed with an online SBML viewer (http://sv.insysbio.com/online/)
-//  
+//
 
 class song_flowering : public DerivModule {
 	public:
-		song_flowering(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		song_flowering(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("song_flowering"),
-			// Get pointers to input parameters
-			solar_ip(get_ip(input_parameters, "solar")),
-			cLm_ip(get_ip(input_parameters, "cLm")),
-			cLc_ip(get_ip(input_parameters, "cLc")),
-			cLn_ip(get_ip(input_parameters, "cLn")),
-			cTm_ip(get_ip(input_parameters, "cTm")),
-			cTc_ip(get_ip(input_parameters, "cTc")),
-			cTn_ip(get_ip(input_parameters, "cTn")),
-			cXm_ip(get_ip(input_parameters, "cXm")),
-			cXc_ip(get_ip(input_parameters, "cXc")),
-			cXn_ip(get_ip(input_parameters, "cXn")),
-			cYm_ip(get_ip(input_parameters, "cYm")),
-			cYc_ip(get_ip(input_parameters, "cYc")),
-			cYn_ip(get_ip(input_parameters, "cYn")),
-			cPn_ip(get_ip(input_parameters, "cPn")),
-			// Get pointers to output parameters
-			cLm_op(get_op(output_parameters, "cLm")),
-			cLc_op(get_op(output_parameters, "cLc")),
-			cLn_op(get_op(output_parameters, "cLn")),
-			cTm_op(get_op(output_parameters, "cTm")),
-			cTc_op(get_op(output_parameters, "cTc")),
-			cTn_op(get_op(output_parameters, "cTn")),
-			cXm_op(get_op(output_parameters, "cXm")),
-			cXc_op(get_op(output_parameters, "cXc")),
-			cXn_op(get_op(output_parameters, "cXn")),
-			cYm_op(get_op(output_parameters, "cYm")),
-			cYc_op(get_op(output_parameters, "cYc")),
-			cYn_op(get_op(output_parameters, "cYn")),
-			cPn_op(get_op(output_parameters, "cPn"))
+			// Get pointers to input quantities
+			solar_ip(get_ip(input_quantities, "solar")),
+			cLm_ip(get_ip(input_quantities, "cLm")),
+			cLc_ip(get_ip(input_quantities, "cLc")),
+			cLn_ip(get_ip(input_quantities, "cLn")),
+			cTm_ip(get_ip(input_quantities, "cTm")),
+			cTc_ip(get_ip(input_quantities, "cTc")),
+			cTn_ip(get_ip(input_quantities, "cTn")),
+			cXm_ip(get_ip(input_quantities, "cXm")),
+			cXc_ip(get_ip(input_quantities, "cXc")),
+			cXn_ip(get_ip(input_quantities, "cXn")),
+			cYm_ip(get_ip(input_quantities, "cYm")),
+			cYc_ip(get_ip(input_quantities, "cYc")),
+			cYn_ip(get_ip(input_quantities, "cYn")),
+			cPn_ip(get_ip(input_quantities, "cPn")),
+			// Get pointers to output quantities
+			cLm_op(get_op(output_quantities, "cLm")),
+			cLc_op(get_op(output_quantities, "cLc")),
+			cLn_op(get_op(output_quantities, "cLn")),
+			cTm_op(get_op(output_quantities, "cTm")),
+			cTc_op(get_op(output_quantities, "cTc")),
+			cTn_op(get_op(output_quantities, "cTn")),
+			cXm_op(get_op(output_quantities, "cXm")),
+			cXc_op(get_op(output_quantities, "cXc")),
+			cXn_op(get_op(output_quantities, "cXn")),
+			cYm_op(get_op(output_quantities, "cYm")),
+			cYc_op(get_op(output_quantities, "cYc")),
+			cYn_op(get_op(output_quantities, "cYn")),
+			cPn_op(get_op(output_quantities, "cPn"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* solar_ip;
 		const double* cLm_ip;
 		const double* cLc_ip;
@@ -68,7 +69,7 @@ class song_flowering : public DerivModule {
 		const double* cYc_ip;
 		const double* cYn_ip;
 		const double* cPn_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* cLm_op;
 		double* cLc_op;
 		double* cLn_op;
@@ -86,7 +87,7 @@ class song_flowering : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> song_flowering::get_inputs() {
+string_vector song_flowering::get_inputs() {
 	return {
 		"solar",
 		"cLm",
@@ -105,7 +106,7 @@ std::vector<std::string> song_flowering::get_inputs() {
 	};
 }
 
-std::vector<std::string> song_flowering::get_outputs() {
+string_vector song_flowering::get_outputs() {
 	return {
 		"cLm",
 		"cLc",
@@ -127,10 +128,10 @@ void song_flowering::do_operation() const {
 	//////////////////////////////////////////
 	// Collect inputs and make calculations //
 	//////////////////////////////////////////
-	
+
 	// Unpack the solar radiantion
 	double solar = *solar_ip;
-	
+
 	// Unpack the circadian clock components
 	double cLm = *cLm_ip;
 	double cLc = *cLc_ip;
@@ -145,7 +146,7 @@ void song_flowering::do_operation() const {
 	double cYc = *cYc_ip;
 	double cYn = *cYn_ip;
 	double cPn = *cPn_ip;
-	
+
 	// Define the circadian clock parameters
 	double a = 3.3064;
 	double b = 1.0258;
@@ -208,7 +209,7 @@ void song_flowering::do_operation() const {
 	double r6 = 3.3017;
 	double r7 = 2.2123;
 	double r8 = 0.2002;
-	
+
 	// Check whether the plant is illuminated
 	// Rather than basing L(t) on specified values for dusk and dawn
 	//  as in the original Locke (2005) model, we use a logistic function
@@ -216,15 +217,15 @@ void song_flowering::do_operation() const {
 	// This function is 0 for no sunlight and saturates to 1 when
 	//  solar reaches ~150, which is well below the max on a typical day
 	double L = 1.0 / (1.0 + exp(-0.058*(solar - 100.0)));
-	
+
 	//////////////////////////////////////
-	// Update the output parameter list //
+	// Update the output quantity list //
 	//////////////////////////////////////
-	
+
 	// Define some helpful lambdas
 	auto hill = [](double s, double km, double n) {return pow(s, n) / (pow (km, n) + pow(s, n));};
 	auto mm = [](double s, double km) {return s / (km + s);};
-	
+
 	// Return the clock component derivatives
 	update(cLm_op, L * q1 * cPn + n1 * hill(cXn, g1, a) - m1 * mm(cLm, k1));
 	update(cLc_op, p1 * cLm - r1 * cLc + r2 * cLn - m2 * mm(cLc, k2));

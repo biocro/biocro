@@ -4,6 +4,7 @@
 #include <cmath>      // for pow, abs
 #include <algorithm>  // for std::max
 #include "se_module.h"
+#include "../state_map.h"
 #include "AuxBioCro.h"   // for saturation_water_vapor_pressure
 #include <Rinternals.h>  // temporary for debugging
 bool const eclp3_print = false;
@@ -59,7 +60,7 @@ std::vector<double> const relative_error_tolerances = {
 
 /**
  * @class ed_c4_leaf_photosynthesis3
- * 
+ *
  * @brief Solves a set of modules for the unknown quantities `assimilation_net` and
  * `conductance_boundary_h2o_free`. Also returns other quantities derived from these.
  * Represents photosynthesis at the leaf level for a c4 plant.
@@ -68,8 +69,8 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
 {
    public:
     ed_c4_leaf_photosynthesis3(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : se_module::base(ed_c4_leaf_photosynthesis3_stuff::module_name,
                           ed_c4_leaf_photosynthesis3_stuff::sub_module_names,
                           ed_c4_leaf_photosynthesis3_stuff::solver_type,
@@ -80,27 +81,27 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
                           ed_c4_leaf_photosynthesis3_stuff::relative_error_tolerances,
                           ed_c4_leaf_photosynthesis3_stuff::should_reorder_guesses,
                           ed_c4_leaf_photosynthesis3_stuff::return_default_on_failure,
-                          input_parameters,
-                          output_parameters),
+                          input_quantities,
+                          output_quantities),
           // Get references to input quantities
-          collatz_PAR_flux(get_input(input_parameters, "collatz_PAR_flux")),
-          StomataWS(get_input(input_parameters, "StomataWS")),
-          collatz_q10(get_input(input_parameters, "collatz_q10")),
-          temperature_air(get_input(input_parameters, "temp")),
-          collatz_rd(get_input(input_parameters, "collatz_rd")),
-          collatz_k(get_input(input_parameters, "collatz_k")),
-          collatz_vmax(get_input(input_parameters, "collatz_vmax")),
-          collatz_rubisco_temperature_lower(get_input(input_parameters, "collatz_rubisco_temperature_lower")),
-          collatz_rubisco_temperature_upper(get_input(input_parameters, "collatz_rubisco_temperature_upper")),
-          mole_fraction_co2_atmosphere(get_input(input_parameters, "mole_fraction_co2_atmosphere")),
-          relative_humidity_atmosphere(get_input(input_parameters, "rh")),
-          conductance_stomatal_h2o_min(get_input(input_parameters, "conductance_stomatal_h2o_min")),
-          ball_berry_slope(get_input(input_parameters, "ball_berry_slope")),
-          ball_berry_intercept(get_input(input_parameters, "ball_berry_intercept"))
+          collatz_PAR_flux(get_input(input_quantities, "collatz_PAR_flux")),
+          StomataWS(get_input(input_quantities, "StomataWS")),
+          collatz_q10(get_input(input_quantities, "collatz_q10")),
+          temperature_air(get_input(input_quantities, "temp")),
+          collatz_rd(get_input(input_quantities, "collatz_rd")),
+          collatz_k(get_input(input_quantities, "collatz_k")),
+          collatz_vmax(get_input(input_quantities, "collatz_vmax")),
+          collatz_rubisco_temperature_lower(get_input(input_quantities, "collatz_rubisco_temperature_lower")),
+          collatz_rubisco_temperature_upper(get_input(input_quantities, "collatz_rubisco_temperature_upper")),
+          mole_fraction_co2_atmosphere(get_input(input_quantities, "mole_fraction_co2_atmosphere")),
+          relative_humidity_atmosphere(get_input(input_quantities, "rh")),
+          conductance_stomatal_h2o_min(get_input(input_quantities, "conductance_stomatal_h2o_min")),
+          ball_berry_slope(get_input(input_quantities, "ball_berry_slope")),
+          ball_berry_intercept(get_input(input_quantities, "ball_berry_intercept"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // References to input quantities
@@ -122,14 +123,14 @@ class ed_c4_leaf_photosynthesis3 : public se_module::base
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
-std::vector<std::string> ed_c4_leaf_photosynthesis3::get_inputs()
+string_vector ed_c4_leaf_photosynthesis3::get_inputs()
 {
     return se_module::get_se_inputs(ed_c4_leaf_photosynthesis3_stuff::sub_module_names);
 }
 
-std::vector<std::string> ed_c4_leaf_photosynthesis3::get_outputs()
+string_vector ed_c4_leaf_photosynthesis3::get_outputs()
 {
-    std::vector<std::string> outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis3_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_c4_leaf_photosynthesis3_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_c4_leaf_photosynthesis3_stuff::module_name));

@@ -74,37 +74,37 @@ class thermal_time_linear_extended : public DerivModule
 {
    public:
     thermal_time_linear_extended(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           DerivModule("thermal_time_linear_extended"),
 
-          // Get pointers to input parameters
-          temp(get_input(input_parameters, "temp")),
-          tbase(get_input(input_parameters, "tbase")),
-          tupper(get_input(input_parameters, "tupper")),
+          // Get pointers to input quantities
+          temp(get_input(input_quantities, "temp")),
+          tbase(get_input(input_quantities, "tbase")),
+          tupper(get_input(input_quantities, "tupper")),
 
-          // Get pointers to output parameters
-          TTc_op(get_op(output_parameters, "TTc"))
+          // Get pointers to output quantities
+          TTc_op(get_op(output_quantities, "TTc"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& temp;
     double const& tbase;
     double const& tupper;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* TTc_op;
 
     // Main operation
     void do_operation() const;
 };
 
-std::vector<std::string> thermal_time_linear_extended::get_inputs()
+string_vector thermal_time_linear_extended::get_inputs()
 {
     return {
         "temp",   // degrees C
@@ -113,7 +113,7 @@ std::vector<std::string> thermal_time_linear_extended::get_inputs()
     };
 }
 
-std::vector<std::string> thermal_time_linear_extended::get_outputs()
+string_vector thermal_time_linear_extended::get_outputs()
 {
     return {
         "TTc"  // degrees C * day / hr
@@ -130,7 +130,7 @@ void thermal_time_linear_extended::do_operation() const
     // Convert to an hourly rate
     double const rate_per_hour = rate_per_day / 24.0;  // degrees C * day / hr
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(TTc_op, rate_per_hour);
 }
 

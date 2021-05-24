@@ -1,5 +1,5 @@
-#include <algorithm> // for std::transform
-#include <cctype>   // for std::tolower
+#include <algorithm>  // for std::transform
+#include <cctype>     // for std::tolower
 #include "module_wrapper_factory.h"
 
 // Include all the header files that define the modules.
@@ -236,9 +236,9 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>}
 };
 
-std::vector<std::string> module_wrapper_factory::get_modules()
+string_vector module_wrapper_factory::get_modules()
 {
-    std::vector<std::string> module_name_vector;
+    string_vector module_name_vector;
     for (auto const& x : module_wrapper_creators) {
         module_name_vector.push_back(x.first);
     }
@@ -261,13 +261,13 @@ std::vector<std::string> module_wrapper_factory::get_modules()
     return module_name_vector;
 }
 
-std::unordered_map<std::string, std::vector<std::string>> module_wrapper_factory::get_all_quantities()
+std::unordered_map<std::string, string_vector> module_wrapper_factory::get_all_quantities()
 {
     // Make the output map
-    std::unordered_map<std::string, std::vector<std::string>> quantity_map = {
-        {"module_name",     std::vector<std::string>{}},
-        {"quantity_type",   std::vector<std::string>{}},
-        {"quantity_name",   std::vector<std::string>{}}
+    std::unordered_map<std::string, string_vector> quantity_map = {
+        {"module_name",     string_vector{}},
+        {"quantity_type",   string_vector{}},
+        {"quantity_name",   string_vector{}}
     };
 
     // Make a lambda function for adding entries to the map

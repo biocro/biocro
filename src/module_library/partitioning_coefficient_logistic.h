@@ -48,33 +48,33 @@ class partitioning_coefficient_logistic : public SteadyModule
 {
    public:
     partitioning_coefficient_logistic(
-        const state_map* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : SteadyModule{"partitioning_coefficient_logistic"},
 
-          // Get references to input parameters
-          DVI{get_input(input_parameters, "DVI")},
-          alphaRoot{get_input(input_parameters, "alphaRoot")},
-          alphaStem{get_input(input_parameters, "alphaStem")},
-          alphaLeaf{get_input(input_parameters, "alphaLeaf")},
-          betaRoot{get_input(input_parameters, "betaRoot")},
-          betaStem{get_input(input_parameters, "betaStem")},
-          betaLeaf{get_input(input_parameters, "betaLeaf")},
-          kRhizome_emr{get_input(input_parameters, "kRhizome_emr")},
+          // Get references to input quantities
+          DVI{get_input(input_quantities, "DVI")},
+          alphaRoot{get_input(input_quantities, "alphaRoot")},
+          alphaStem{get_input(input_quantities, "alphaStem")},
+          alphaLeaf{get_input(input_quantities, "alphaLeaf")},
+          betaRoot{get_input(input_quantities, "betaRoot")},
+          betaStem{get_input(input_quantities, "betaStem")},
+          betaLeaf{get_input(input_quantities, "betaLeaf")},
+          kRhizome_emr{get_input(input_quantities, "kRhizome_emr")},
 
-          // Get pointers to output parameters
-          kStem_op{get_op(output_parameters, "kStem")},
-          kLeaf_op{get_op(output_parameters, "kLeaf")},
-          kRoot_op{get_op(output_parameters, "kRoot")},
-          kRhizome_op{get_op(output_parameters, "kRhizome")},
-          kGrain_op{get_op(output_parameters, "kGrain")}
+          // Get pointers to output quantities
+          kStem_op{get_op(output_quantities, "kStem")},
+          kLeaf_op{get_op(output_quantities, "kLeaf")},
+          kRoot_op{get_op(output_quantities, "kRoot")},
+          kRhizome_op{get_op(output_quantities, "kRhizome")},
+          kGrain_op{get_op(output_quantities, "kGrain")}
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double& DVI;
     const double& alphaRoot;
     const double& alphaStem;
@@ -84,7 +84,7 @@ class partitioning_coefficient_logistic : public SteadyModule
     const double& betaLeaf;
     const double& kRhizome_emr;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* kStem_op;
     double* kLeaf_op;
     double* kRoot_op;
@@ -145,7 +145,7 @@ void partitioning_coefficient_logistic::do_operation() const
         kRhizome = 0.0;  // dimensionless
     }
 
-    // Update the output parameters
+    // Update the output quantities
     update(kStem_op, kStem);        //dimensionless
     update(kLeaf_op, kLeaf);        //dimensionless
     update(kRoot_op, kRoot);        //dimensionless
