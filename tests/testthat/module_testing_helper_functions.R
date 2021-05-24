@@ -66,8 +66,8 @@ test_module <- function(
 #
 case <- function(module_inputs, expected_module_outputs) {
     list(
-        inputs = module_inputs,
-        expected_outputs = expected_module_outputs
+        inputs = module_inputs[order(names(module_inputs))],
+        expected_outputs = expected_module_outputs[order(names(expected_module_outputs))]
     )
 }
 

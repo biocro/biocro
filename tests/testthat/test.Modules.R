@@ -6,7 +6,8 @@ source("module_testing_helper_functions.R")  # for cases_from_csv and test_modul
 # `get_all_modules()` when/if all modules have .csv files associated with them
 lapply(
     c(
-        "thermal_time_trilinear"
+        "thermal_time_trilinear",
+        "night_and_day_trackers"
     ),
     function(module) {test_module(module, cases_from_csv(module))}
 )
