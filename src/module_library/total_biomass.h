@@ -14,20 +14,20 @@ class total_biomass : public SteadyModule
 {
    public:
     total_biomass(
-        const state_map* input_parameters,
-        state_map* output_parameters)
+        const state_map& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("total_biomass"),
 
           // Get pointers to input parameters
-          Leaf{get_input(input_parameters, "Leaf")},
-          Stem{get_input(input_parameters, "Stem")},
-          Root{get_input(input_parameters, "Root")},
-          Rhizome{get_input(input_parameters, "Rhizome")},
-          Grain{get_input(input_parameters, "Grain")},
+          Leaf{get_input(input_quantities, "Leaf")},
+          Stem{get_input(input_quantities, "Stem")},
+          Root{get_input(input_quantities, "Root")},
+          Rhizome{get_input(input_quantities, "Rhizome")},
+          Grain{get_input(input_quantities, "Grain")},
 
           // Get pointers to output parameters
-          total_biomass_op{get_op(output_parameters, "total_biomass")}
+          total_biomass_op{get_op(output_quantities, "total_biomass")}
     {
     }
     static string_vector get_inputs();

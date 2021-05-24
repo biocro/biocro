@@ -126,35 +126,35 @@ class rue_leaf_photosynthesis : public SteadyModule
 {
    public:
     rue_leaf_photosynthesis(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("rue_leaf_photosynthesis"),
 
           // Get references to input parameters
-          par_energy_content(get_input(input_parameters, "par_energy_content")),
-          incident_par(get_input(input_parameters, "incident_par")),
-          alpha_rue(get_input(input_parameters, "alpha_rue")),
-          temp(get_input(input_parameters, "temp")),
-          rh(get_input(input_parameters, "rh")),
-          Rd(get_input(input_parameters, "Rd")),
-          b0(get_input(input_parameters, "b0")),
-          b1(get_input(input_parameters, "b1")),
-          Catm(get_input(input_parameters, "Catm")),
-          incident_average_par(get_input(input_parameters, "incident_average_par")),
-          windspeed(get_input(input_parameters, "windspeed")),
-          height(get_input(input_parameters, "height")),
-          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air")),
+          par_energy_content(get_input(input_quantities, "par_energy_content")),
+          incident_par(get_input(input_quantities, "incident_par")),
+          alpha_rue(get_input(input_quantities, "alpha_rue")),
+          temp(get_input(input_quantities, "temp")),
+          rh(get_input(input_quantities, "rh")),
+          Rd(get_input(input_quantities, "Rd")),
+          b0(get_input(input_quantities, "b0")),
+          b1(get_input(input_quantities, "b1")),
+          Catm(get_input(input_quantities, "Catm")),
+          incident_average_par(get_input(input_quantities, "incident_average_par")),
+          windspeed(get_input(input_quantities, "windspeed")),
+          height(get_input(input_quantities, "height")),
+          specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
 
           // Get pointers to output parameters
-          Assim_op(get_op(output_parameters, "Assim")),
-          GrossAssim_op(get_op(output_parameters, "GrossAssim")),
-          Ci_op(get_op(output_parameters, "Ci")),
-          Gs_op(get_op(output_parameters, "Gs")),
-          TransR_op(get_op(output_parameters, "TransR")),
-          EPenman_op(get_op(output_parameters, "EPenman")),
-          EPriestly_op(get_op(output_parameters, "EPriestly")),
-          leaf_temperature_op(get_op(output_parameters, "leaf_temperature"))
+          Assim_op(get_op(output_quantities, "Assim")),
+          GrossAssim_op(get_op(output_quantities, "GrossAssim")),
+          Ci_op(get_op(output_quantities, "Ci")),
+          Gs_op(get_op(output_quantities, "Gs")),
+          TransR_op(get_op(output_quantities, "TransR")),
+          EPenman_op(get_op(output_quantities, "EPenman")),
+          EPriestly_op(get_op(output_quantities, "EPriestly")),
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
     {
     }
     static string_vector get_inputs();

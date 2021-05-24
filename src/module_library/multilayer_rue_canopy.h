@@ -34,13 +34,13 @@ class ten_layer_rue_canopy : public ten_layer_rue_canopy_parent
 {
    public:
     ten_layer_rue_canopy(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : ten_layer_rue_canopy_parent(
               "ten_layer_rue_canopy",
               ten_layer_rue_canopy::nlayers,
-              input_parameters,
-              output_parameters)  // Create the base class with the appropriate number of layers
+              input_quantities,
+              output_quantities)
     {
     }
     static string_vector get_inputs();
