@@ -126,3 +126,73 @@ case_function <- function(module_name) {
         return(case(inputs, outputs))
     }
 }
+
+# cases_from_csv: a function to help define test cases for module testing
+#
+# Inputs:
+#
+# - module_name: the name of a module
+#
+# Output: a list of test cases created by the `case` function above that are
+# suitable for passing to the `test_module` function
+#
+# There must be a corresponding file called `module_name.csv` in the
+# `module_tests` directory. The first row of this file should be the quantity
+# names, the second row should be the quantity types (`input` or `output`), and
+# the remaining rows should each specify input quantity values along with the
+# expected output values they should produce.
+#
+cases_from_csv <- function(module_name)
+{
+    # Generate the filename
+    filename <- paste0("module_tests/", module_name, ".csv")
+
+    # Read the data, making sure to never use factors
+    file_contents <- read.csv(
+        filename,
+        header = FALSE,
+        stringsAsFactors = FALSE
+    )
+
+    # Get the quantity names and types, making sure to trim any whitespace
+    column_names <- file_contents[1,]
+    column_names <- trimws(column_names)
+
+    column_types <- file_contents[2,]
+    column_types <- trimws(column_types)
+
+    # Get the quantity values, making sure they are treated as numeric variables
+    test_data <- file_contents[3:length(file_contents[,1]),]
+    test_data <- as.data.frame(lapply(test_data, as.numeric))
+
+    # Get the indices of the input and output columns
+    input_columns <- c()
+    output_columns <- c()
+    for (i in seq_along(column_types)) {
+        if (column_types[[i]] == "input") {
+            input_columns <- append(input_columns, i)
+        } else {
+            output_columns <- append(output_columns, i)
+        }
+    }
+
+    # Get the names of the input and output columns
+    input_names <- column_names[input_columns]
+    output_names <- column_names[output_columns]
+
+    # Make a helping function that defines a case from a row in the data
+    case_helper <- function(row_indx) {
+        row_inputs <- as.list(test_data[row_indx, input_columns])
+        names(row_inputs) <- input_names
+
+        row_outputs <- as.list(test_data[row_indx, output_columns])
+        names(row_outputs) <- output_names
+
+        return(case(row_inputs, row_outputs))
+    }
+
+    # Convert each row into a test case
+    test_cases <- lapply(seq_len(nrow(test_data)), case_helper)
+
+    return(test_cases)
+}
