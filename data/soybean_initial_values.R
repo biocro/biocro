@@ -1,6 +1,6 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
 
-soybean_initial_state = with(list(), {
+soybean_initial_values = with(list(), {
     datalines =
     "symbol                  value
     Leaf                     0.06312       # Mg / ha, 80% of total seed mass per land area (see comment at end of file)

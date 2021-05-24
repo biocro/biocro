@@ -43,7 +43,7 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
         bool is_adaptive_compatible = false;
         std::string error_message;
         try {
-            std::unique_ptr<Module> module_ptr = w->createModule(&parameters, &module_output_map);
+            std::unique_ptr<Module> module_ptr = w->createModule(parameters, &module_output_map);
 
             // Check to see if the module is a derivative module
             is_deriv = module_ptr->is_deriv();
@@ -129,7 +129,7 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
         std::vector<std::string> module_outputs = w->get_outputs();
         for (std::string param : module_outputs) module_output_map[param] = 0.0;
 
-        std::unique_ptr<Module> module_ptr = w->createModule(&parameters, &module_output_map);
+        std::unique_ptr<Module> module_ptr = w->createModule(parameters, &module_output_map);
 
         module_ptr->run();
 

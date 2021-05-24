@@ -27,7 +27,7 @@
  *
  * ### BioCro module implementation
  *
- * In BioCro, we use the following names for this model's input parameters:
+ * In BioCro, we use the following names for this model's input quantities:
  * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
  * - ``'rh'`` for the atmospheric relative humidity
@@ -47,7 +47,7 @@
  * - ``'upperT'`` for the high temperature cutoff for rubisco activity
  * - ``'lowerT'`` for the low temperature cutoff for rubisco activity
  *
- * We use the following names for the model's output parameters:
+ * We use the following names for the model's output quantities:
  * - ``'Assim'`` for the net CO2 assimilation rate
  * - ``'Gs'`` for the stomatal conductance for H2O
  * - ``'Ci'`` for the intercellular CO2 concentration
@@ -57,43 +57,43 @@ class c4_assimilation : public DerivModule
 {
    public:
     c4_assimilation(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           DerivModule("c4_assimilation"),
 
-          // Get pointers to input parameters
-          Qp(get_input(input_parameters, "Qp")),
-          Tleaf(get_input(input_parameters, "Tleaf")),
-          rh(get_input(input_parameters, "rh")),
-          vmax(get_input(input_parameters, "vmax")),
-          alpha(get_input(input_parameters, "alpha")),
-          kparm(get_input(input_parameters, "kparm")),
-          theta(get_input(input_parameters, "theta")),
-          beta(get_input(input_parameters, "beta")),
-          Rd(get_input(input_parameters, "Rd")),
-          bb0(get_input(input_parameters, "bb0")),
-          bb1(get_input(input_parameters, "bb1")),
-          Gs_min(get_input(input_parameters, "Gs_min")),
-          StomataWS(get_input(input_parameters, "StomataWS")),
-          Catm(get_input(input_parameters, "Catm")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
-          water_stress_approach(get_input(input_parameters, "water_stress_approach")),
-          upperT(get_input(input_parameters, "upperT")),
-          lowerT(get_input(input_parameters, "lowerT")),
+          // Get pointers to input quantities
+          Qp(get_input(input_quantities, "Qp")),
+          Tleaf(get_input(input_quantities, "Tleaf")),
+          rh(get_input(input_quantities, "rh")),
+          vmax(get_input(input_quantities, "vmax")),
+          alpha(get_input(input_quantities, "alpha")),
+          kparm(get_input(input_quantities, "kparm")),
+          theta(get_input(input_quantities, "theta")),
+          beta(get_input(input_quantities, "beta")),
+          Rd(get_input(input_quantities, "Rd")),
+          bb0(get_input(input_quantities, "bb0")),
+          bb1(get_input(input_quantities, "bb1")),
+          Gs_min(get_input(input_quantities, "Gs_min")),
+          StomataWS(get_input(input_quantities, "StomataWS")),
+          Catm(get_input(input_quantities, "Catm")),
+          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
+          water_stress_approach(get_input(input_quantities, "water_stress_approach")),
+          upperT(get_input(input_quantities, "upperT")),
+          lowerT(get_input(input_quantities, "lowerT")),
 
-          // Get pointers to output parameters
-          Assim_op(get_op(output_parameters, "Assim")),
-          Gs_op(get_op(output_parameters, "Gs")),
-          Ci_op(get_op(output_parameters, "Ci")),
-          GrossAssim_op(get_op(output_parameters, "GrossAssim"))
+          // Get pointers to output quantities
+          Assim_op(get_op(output_quantities, "Assim")),
+          Gs_op(get_op(output_quantities, "Gs")),
+          Ci_op(get_op(output_quantities, "Ci")),
+          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& Qp;
     double const& Tleaf;
     double const& rh;
@@ -113,7 +113,7 @@ class c4_assimilation : public DerivModule
     double const& upperT;
     double const& lowerT;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* Assim_op;
     double* Gs_op;
     double* Ci_op;
@@ -123,7 +123,7 @@ class c4_assimilation : public DerivModule
     void do_operation() const;
 };
 
-std::vector<std::string> c4_assimilation::get_inputs()
+string_vector c4_assimilation::get_inputs()
 {
     return {
         "Qp",                     // micromol / m^2 / s
@@ -147,7 +147,7 @@ std::vector<std::string> c4_assimilation::get_inputs()
     };
 }
 
-std::vector<std::string> c4_assimilation::get_outputs()
+string_vector c4_assimilation::get_outputs()
 {
     return {
         "Assim",      // micromol / m^2 / s
@@ -179,7 +179,7 @@ void c4_assimilation::do_operation() const
         upperT,
         lowerT);
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(Assim_op, c4_results.Assim);
     update(Gs_op, c4_results.Gs);
     update(Ci_op, c4_results.Ci);

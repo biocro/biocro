@@ -26,7 +26,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
                double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double AP, double _O2,
                double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
-    // Assign units to the input parameters. The parameters can be renamed and this section can be removed when call functions
+    // Assign units to the input quantities. The parameters can be renamed and this section can be removed when call functions
     // that call c3photoC() are also using units.
     const quantity<flux> Rd0 = _Rd0 * 1e-6 * mole / square_meter / second;
     const quantity<flux> Vcmax0 = _Vcmax0 * 1e-6 * mole / square_meter / second;

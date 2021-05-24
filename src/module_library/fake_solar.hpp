@@ -2,36 +2,37 @@
 #define FAKE_SOLAR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /** Class created by EBL for testing and experimentation ... not meant for real simulations! */
 class fake_solar : public SteadyModule
 {
    public:
     fake_solar(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : SteadyModule("fake_solar"),
-          // Get pointers to input parameters
-          time_ip(get_ip(input_parameters, "time")),
-          target_time_ip(get_ip(input_parameters, "target_time")),
-          // Get pointers to output parameters
-          solar_op(get_op(output_parameters, "solar"))
+          // Get pointers to input quantities
+          time_ip(get_ip(input_quantities, "time")),
+          target_time_ip(get_ip(input_quantities, "target_time")),
+          // Get pointers to output quantities
+          solar_op(get_op(output_quantities, "solar"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* time_ip;
     const double* target_time_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* solar_op;
     // Main operation
     void do_operation() const;
 };
 
-std::vector<std::string> fake_solar::get_inputs()
+string_vector fake_solar::get_inputs()
 {
     return {
         "time",
@@ -39,7 +40,7 @@ std::vector<std::string> fake_solar::get_inputs()
     };
 }
 
-std::vector<std::string> fake_solar::get_outputs()
+string_vector fake_solar::get_outputs()
 {
     return {
         "solar"
@@ -105,7 +106,7 @@ void fake_solar::do_operation() const
 	*/
 
     //////////////////////////////////////
-    // Update the output parameter list //
+    // Update the output quantity list //
     //////////////////////////////////////
 
     update(solar_op, solar);

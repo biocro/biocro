@@ -5,6 +5,7 @@
 #include "multilayer_canopy_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
 #include "c4_leaf_photosynthesis.h"
+#include "../state_map.h"
 
 using ten_layer_c4_canopy_parent =
     multilayer_canopy_photosynthesis<
@@ -34,13 +35,13 @@ class ten_layer_c4_canopy : public ten_layer_c4_canopy_parent
 {
    public:
     ten_layer_c4_canopy(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : ten_layer_c4_canopy_parent(
               "ten_layer_c4_canopy",
               ten_layer_c4_canopy::nlayers,
-              input_parameters,
-              output_parameters)
+              input_quantities,
+              output_quantities)
     {
     }
     static string_vector get_inputs();

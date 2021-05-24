@@ -1,5 +1,5 @@
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-zea_mays_initial_state = with(list(), {
+zea_mays_initial_values = with(list(), {
     datalines =
     "symbol                  value
     Grain                    0

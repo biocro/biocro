@@ -13,7 +13,7 @@ DEBUG_PRINT_EXTRA <- FALSE
 final_position <- function(solver)
 {
     result <- Gro_solver(
-        initial_state = list(
+        initial_values = list(
             position = 0.0,
             velocity = 1.0
         ),
@@ -22,7 +22,7 @@ final_position <- function(solver)
             spring_constant = 1.0,
             timestep = 1.0
         ),
-        varying_parameters = list(
+        drivers = list(
             doy=rep(0, MAX_INDEX),
             hour=seq(from=0, by=1, length=MAX_INDEX)
         ),

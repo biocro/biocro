@@ -3,6 +3,7 @@
 
 #include <limits>
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * @class leaf_shape_factor
@@ -32,31 +33,31 @@ class leaf_shape_factor : public SteadyModule
 {
    public:
     leaf_shape_factor(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("leaf_shape_factor"),
-          // Get references to input parameters
-          cosine_zenith_angle(get_input(input_parameters, "cosine_zenith_angle")),
-          chil(get_input(input_parameters, "chil")),
-          // Get pointers to output parameters
-          leaf_shape_factor_op(get_op(output_parameters, "leaf_shape_factor"))
+          // Get references to input quantities
+          cosine_zenith_angle(get_input(input_quantities, "cosine_zenith_angle")),
+          chil(get_input(input_quantities, "chil")),
+          // Get pointers to output quantities
+          leaf_shape_factor_op(get_op(output_quantities, "leaf_shape_factor"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& cosine_zenith_angle;
     double const& chil;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* leaf_shape_factor_op;
     // Main operation
     void do_operation() const;
 };
 
-std::vector<std::string> leaf_shape_factor::get_inputs()
+string_vector leaf_shape_factor::get_inputs()
 {
     return {
         "cosine_zenith_angle",  // dimensionless
@@ -64,7 +65,7 @@ std::vector<std::string> leaf_shape_factor::get_inputs()
     };
 }
 
-std::vector<std::string> leaf_shape_factor::get_outputs()
+string_vector leaf_shape_factor::get_outputs()
 {
     return {
         "leaf_shape_factor"  // (m^2 ground) / (m^2 leaf)
