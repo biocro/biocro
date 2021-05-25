@@ -1,5 +1,40 @@
+zea_mays_modules = list(
+    canopy_module_name='c4_canopy',
+    soil_module_name='one_layer_soil_profile',
+    growth_module_name='partitioning_growth',
+    senescence_module_name='thermal_time_senescence',
+    leaf_water_stress_module_name='leaf_water_stress_exponential',
+    stomata_water_stress_module_name='stomata_water_stress_linear'
+)
+
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
-miscanthus_x_giganteus_parameters = with(list(), {
+zea_mays_initial_values = with(list(), {
+    datalines =
+    "symbol                  value
+    Grain                    0
+    Leaf                     0.00001
+    LeafLitter               0
+    leaf_senescence_index    0
+    Rhizome                  0.008886 # Page 130 of March 2014 lab book
+    RhizomeLitter            0
+    rhizome_senescence_index 0
+    Root                     0.00001
+    RootLitter               0
+    root_senescence_index    0
+    soil_water_content       0.32
+    Stem                     0.00001
+    StemLitter               0
+    stem_senescence_index    0
+    TTc                      0"
+
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
+    values = as.list(data_frame$value)
+    names(values) = data_frame$symbol
+    values
+})
+
+# Do the calculations inside an empty list so that temporary variables are not created in .Global.
+zea_mays_parameters = with(list(), {
     datalines =
     "symbol                     value
     absorptivity_par            0.8
@@ -10,7 +45,7 @@ miscanthus_x_giganteus_parameters = with(list(), {
     b1                          3
     beta                        0.93
     Catm                        400
-    chil                        1
+    chil                        1.43    # An estimate for sorghum. Table 15.1, page 253 of Campbell and Norman. An introduction to environmental biophysics. 2nd edition.
     et_equation                 0
     Gs_min                      1e-3
     heightf                     3
@@ -19,35 +54,35 @@ miscanthus_x_giganteus_parameters = with(list(), {
     kGrain1                     0
     kGrain2                     0
     kGrain3                     0
-    kGrain4                     0
-    kGrain5                     0
-    kGrain6                     0
-    kLeaf1                      0.33
-    kLeaf2                      0.14
-    kLeaf3                      0.01
-    kLeaf4                      0.01
-    kLeaf5                      0.01
-    kLeaf6                      0.01
+    kGrain4                     1
+    kGrain5                     1
+    kGrain6                     1
+    kLeaf1                      0.45
+    kLeaf2                      0.3
+    kLeaf3                      0.25
+    kLeaf4                      0
+    kLeaf5                      0
+    kLeaf6                      0
     kparm                       0.7
     kpLN                        0.2
-    kRhizome1                   -8e-04
-    kRhizome2                   -5e-04
-    kRhizome3                   0.35
-    kRhizome4                   0.35
-    kRhizome5                   0.35
-    kRhizome6                   0.35
-    kRoot1                      0.3
-    kRoot2                      0.01
-    kRoot3                      0.01
-    kRoot4                      0.01
-    kRoot5                      0.01
-    kRoot6                      0.01
-    kStem1                      0.37
-    kStem2                      0.85
-    kStem3                      0.63
-    kStem4                      0.63
-    kStem5                      0.63
-    kStem6                      0.63
+    kRhizome1                   -0.0008
+    kRhizome2                   0
+    kRhizome3                   0
+    kRhizome4                   0
+    kRhizome5                   0
+    kRhizome6                   0
+    kRoot1                      0.1
+    kRoot2                      0.1
+    kRoot3                      0.05
+    kRoot4                      01
+    kRoot5                      01
+    kRoot6                      01
+    kStem1                      0.45
+    kStem2                      0.6
+    kStem3                      0.7
+    kStem4                      0
+    kStem5                      0
+    kStem6                      0
     lat                         40
     LeafN                       2
     LeafN_0                     2
