@@ -1,6 +1,6 @@
-biocro_simulation <- function(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names, solver=list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
+biocro_simulation <- function(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names, solver=list(type='auto', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200), verbose=FALSE)
 {
-    # This function runs a full crop growth simulation with a user-specified solver
+    # This function runs a full crop autowth simulation with a user-specified solver
     #
     # initial_values: a list of named parameters representing state variables
     # parameters: a list of named parameters that don't change with time
@@ -11,11 +11,12 @@ biocro_simulation <- function(initial_values, parameters, drivers, steady_state_
     # steady_state_module_names: a character vector of derivative module names
     # solver: a list specifying details about the solver. Elements are:
     #  type: s string specifying the solver to use. Options are:
-    #   "Gro": automatically uses Rosenbrock if possible, uses Euler otherwise
-    #   "Gro_euler": fixed-step Euler method
-    #   "Gro_rsnbrk": adaptive step-size Rosenbrock method (implicit method useful for stiff systems)
-    #   "Gro_rk4": fixed-step 4th order Runge-Kutta method
-    #   "Gro_rkck54": adaptive step-size Runge-Kutta-Cash-Karp method (5th order Runge-Kutta with 4th order error estimation)
+    #   "auto": automatically uses the Rosenbrock solver if possible; uses the homemade Euler solver otherwise
+    #   "homemade_euler": our own implementation of the fixed-step Euler method
+    #   "boost_euler": the boost library implementation of the fixed-step Euler method
+    #   "boost_rosenbrock": adaptive step-size Rosenbrock method (implicit method useful for stiff systems)
+    #   "boost_rk4": fixed-step 4th order Runge-Kutta method
+    #   "boost_rkck54": adaptive step-size Runge-Kutta-Cash-Karp method (5th order Runge-Kutta with 4th order error estimation)
     #  output_step_size: the output step size... can be smaller than 1.0, but should equal 1.0 / N for some integer NULL
     #  adaptive_error_tol: used to set the error tolerance for adaptive step size methods like Rosenbrock or RKCK54
     #  adaptive_max_steps: determines how many times an adaptive step size method will attempt to find a new step size before failing
@@ -23,13 +24,11 @@ biocro_simulation <- function(initial_values, parameters, drivers, steady_state_
     #
     # Example: running a sorghum simulation using weather data from 2005
     #
-    #  sorghum_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "partitioning_coefficient_selector", "soil_evaporation", "c4_canopy", "partitioning_growth_calculator")
-    #  sorghum_deriv_modules <- c("thermal_time_senescence", "partitioning_growth", "thermal_time_linear", "one_layer_soil_profile")
-    #  result <- biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_ss_modules, sorghum_deriv_modules, "Gro", TRUE)
+    #  result <- biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_solver, TRUE)
     #  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
     #
     # The result is a data frame showing all time-dependent variables as they change throughout the growing season.
-    # When Gro is run in verbose mode (as in this example, where verbose = TRUE), information about the input and output parameters
+    # When biocro_simulation is run in verbose mode (as in this example, where verbose = TRUE), information about the input and output parameters
     # will be printed to the R console before the simulation runs. This can be very useful when attempting to combine a set of modules
     # for the first time.
     #
@@ -38,12 +37,10 @@ biocro_simulation <- function(initial_values, parameters, drivers, steady_state_
     #
     # Example 2: running a soybean simulation using weather data from 2005
     #
-    #  glycine_max_ss_modules <- c("soil_type_selector", "stomata_water_stress_linear", "leaf_water_stress_exponential", "parameter_calculator", "soil_evaporation", "c3_canopy", "utilization_growth_calculator", "utilization_senescence_calculator")
-    #  glycine_max_deriv_modules <- c("utilization_growth", "utilization_senescence", "thermal_time_linear", "one_layer_soil_profile")
-    #  result <- biocro_simulation(glycine_max_initial_values, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_ss_modules, glycine_max_deriv_modules, "Gro", TRUE)
+    #  result <- biocro_simulation(glycine_max_initial_values, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_steady_state_modules, glycine_max_derivative_modules, glycine_max_solver, TRUE)
     #  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
     #
-    # In the soybean simulation, Gro automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
+    # In the soybean simulation, the 'auto' solver automatically detects that all modules are compatible with adapative step size integration methods. In this case, it uses
     # ODEINT's implementation of an implicit Rosenbrock solver to run the simulation.
 
     # Check to make sure the initial_values is properly defined

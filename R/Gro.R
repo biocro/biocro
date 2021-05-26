@@ -2,7 +2,7 @@ Gro_deriv <- function(initial_values, parameters, drivers, steady_state_module_n
 {
     # Gro_deriv is used to create a function that can be called by a solver such as LSODES
     #
-    # Important note: this strategy is not recommended, since Gro, Gro_auto, and Gro_rsnbrk now implement
+    # Important note: this strategy is not recommended, biocro_simulation now implements
     #  the ODEINT stiff system solver in a more efficient way then LSODES would
     #
     # initial_values: a list of named parameters representing state variables
@@ -12,7 +12,7 @@ Gro_deriv <- function(initial_values, parameters, drivers, steady_state_module_n
     #  Note: the time interval should be specified as a parameter called "timestep" in the list of constant parameters
     #  Note: the drivers must include "doy" and "hour"
     # steady_state_module_names: a character vector of steady state module names
-    # steady_state_module_names: a character vector of derivative module names
+    # derivative_module_names: a character vector of derivative module names
     # verbose: a logical variable indicating whether or not to print system startup information
     #  Note: verbose should usually be FALSE for Gro_deriv, since this function would get called many times during a simulation
     #

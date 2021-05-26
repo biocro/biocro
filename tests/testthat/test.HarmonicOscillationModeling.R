@@ -79,7 +79,7 @@ debug_view <- function(ob) {
 derivative_modules <- c("harmonic_oscillator")
 steady_state_modules <- c("harmonic_energy")
 drivers <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
-default_solver <- list(type='Gro', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
+default_solver <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
@@ -88,11 +88,11 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     initial_values <- list(position=initial_position, velocity=initial_velocity)
     parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
 
-    
+
     debug_print(initial_values)
     debug_print(parameters)
 
-    
+
     ## compute equation of motion parameters:
     amplitude <- sqrt(initial_position^2 + initial_velocity^2 * mass / spring_constant)
     angular_frequency <- sqrt(spring_constant / mass)
@@ -107,14 +107,14 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     ## compute the total energy, which doesn't depend on time:
     total_energy <- 0.5 * spring_constant * amplitude^2
 
-    
+
     debug_print(list(amplitude = amplitude, phase = phase, angular_frequency = angular_frequency))
 
-    
+
     ## try out the solver
     result <- biocro_simulation(initial_values, parameters, drivers, steady_state_modules, derivative_modules, solver)
 
-    ## add useful columns to the resulting data frame:    
+    ## add useful columns to the resulting data frame:
     result$time <- result$time * 24 # time is in hours
     result$expected_position <- position(result$time, amplitude, angular_frequency, phase)
     result$expected_velocity <- velocity(result$time, amplitude, angular_frequency, phase)
@@ -130,9 +130,9 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
         if (abs(result$velocity[1] - result$expected_velocity[1]) > .01) break
     }
 
-    
+
 	overall_description <- paste("Harmonic oscillator position and velocity values match the expected values (", trial_description, ")", sep="")
-	
+
     test_that(overall_description, {
         expect_true(class(result) == "data.frame") # sanity check
 

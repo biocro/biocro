@@ -27,15 +27,15 @@ soybean_derivative_modules <- list(
 )
 
 soybean_solver <- list(
-    type = 'Gro_rkck54',
+    type = 'boost_rkck54',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-4,
     adaptive_abs_error_tol = 1e-4,
     adaptive_max_steps = 200
 )
-# Note: 'Gro_rsnbrk' and 'Gro' (which defaults to Gro_rsnbrk when an adaptive
-# solver can be used, as in this case) should not be used as the solver type as
-# the model will not simulate soybean growth unless the tolerances are stringent
+# Note: the solver type should not be 'boost_rosenbrock' or 'auto' (which
+# defaults to 'boost_rosenbrock' when an adaptive solver can be used, as in this
+# case) since the integration will fail unless the tolerances are stringent
 # (e.g., output_step_size = 0.01, adaptive_rel_error_tol = 1e-9,
 # adaptive_abs_error_tol = 1e-9)
 

@@ -20,12 +20,12 @@ std::unique_ptr<system_solver> create_system_solver(
 
 system_solver_factory::system_solver_creator_map system_solver_factory::system_solver_creators =
 {
-    { "Gro",                create_system_solver<auto_solver<preferred_state_type>> },
-    { "Gro_euler",          create_system_solver<homemade_euler_solver<preferred_state_type>> },
-    { "Gro_euler_odeint",   create_system_solver<boost_euler_system_solver<preferred_state_type>> },
-    { "Gro_rsnbrk",         create_system_solver<boost_rsnbrk_system_solver> },
-    { "Gro_rk4",            create_system_solver<boost_rk4_system_solver<preferred_state_type>> },
-    { "Gro_rkck54",         create_system_solver<boost_rkck54_system_solver<preferred_state_type>> },
+    { "auto",               create_system_solver<auto_solver<preferred_state_type>> },
+    { "homemade_euler",     create_system_solver<homemade_euler_solver<preferred_state_type>> },
+    { "boost_euler",        create_system_solver<boost_euler_system_solver<preferred_state_type>> },
+    { "boost_rosenbrock",   create_system_solver<boost_rsnbrk_system_solver> },
+    { "boost_rk4",          create_system_solver<boost_rk4_system_solver<preferred_state_type>> },
+    { "boost_rkck54",       create_system_solver<boost_rkck54_system_solver<preferred_state_type>> },
 };
 
 std::unique_ptr<system_solver> system_solver_factory::create(

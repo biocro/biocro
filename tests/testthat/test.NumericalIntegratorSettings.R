@@ -73,7 +73,7 @@ bad_adaptive_max_steps <- 1
 
 # Specify settings to use with the homemade Euler solver
 homemade_euler_solver_default <- list(
-    type = 'Gro_euler',
+    type = 'homemade_euler',
     output_step_size = default_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -81,7 +81,7 @@ homemade_euler_solver_default <- list(
 )
 
 homemade_euler_solver_small_step <- list(
-    type = 'Gro_euler',
+    type = 'homemade_euler',
     output_step_size = small_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -90,7 +90,7 @@ homemade_euler_solver_small_step <- list(
 
 # Specify settings to use with the ODEINT Euler solver
 odeint_euler_solver_default <- list(
-    type = 'Gro_euler_odeint',
+    type = 'boost_euler',
     output_step_size = default_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -98,7 +98,7 @@ odeint_euler_solver_default <- list(
 )
 
 odeint_euler_solver_small_step <- list(
-    type = 'Gro_euler_odeint',
+    type = 'boost_euler',
     output_step_size = small_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -107,7 +107,7 @@ odeint_euler_solver_small_step <- list(
 
 # Specify settings to use with the RK4 solver
 rk4_solver_default <- list(
-    type = 'Gro_rk4',
+    type = 'boost_rk4',
     output_step_size = default_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -115,7 +115,7 @@ rk4_solver_default <- list(
 )
 
 rk4_solver_small_step <- list(
-    type = 'Gro_rk4',
+    type = 'boost_rk4',
     output_step_size = small_output_step_size,
     adaptive_rel_error_tol = default_adaptive_rel_error_tol,
     adaptive_abs_error_tol = default_adaptive_abs_error_tol,
@@ -124,7 +124,7 @@ rk4_solver_small_step <- list(
 
 # Specify settings to use with the RKCK54 solver
 rkck54_solver_bad <- list(
-    type = 'Gro_rkck54',
+    type = 'boost_rkck54',
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -132,7 +132,7 @@ rkck54_solver_bad <- list(
 )
 
 rkck54_solver_better_rel <- list(
-    type = 'Gro_rkck54',
+    type = 'boost_rkck54',
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = better_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -140,7 +140,7 @@ rkck54_solver_better_rel <- list(
 )
 
 rkck54_solver_better_abs <- list(
-    type = 'Gro_rkck54',
+    type = 'boost_rkck54',
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = better_default_adaptive_abs_error_tol,
@@ -148,7 +148,7 @@ rkck54_solver_better_abs <- list(
 )
 
 rkck54_solver_error <- list(
-    type = 'Gro_rkck54',
+    type = 'boost_rkck54',
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -157,7 +157,7 @@ rkck54_solver_error <- list(
 
 # Specify settings to use with the RSNBRK solver
 rsnbrk_solver_bad <- list(
-    type = 'Gro_rsnbrk',
+    type = 'boost_rosenbrock',
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -165,7 +165,7 @@ rsnbrk_solver_bad <- list(
 )
 
 rsnbrk_solver_better_rel <- list(
-    type = 'Gro_rsnbrk',
+    type = 'boost_rosenbrock',
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = better_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,
@@ -173,7 +173,7 @@ rsnbrk_solver_better_rel <- list(
 )
 
 rsnbrk_solver_better_abs <- list(
-    type = 'Gro_rsnbrk',
+    type = 'boost_rosenbrock',
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = better_default_adaptive_abs_error_tol,
@@ -181,7 +181,7 @@ rsnbrk_solver_better_abs <- list(
 )
 
 rsnbrk_solver_best <- list(
-    type = 'Gro_rsnbrk',
+    type = 'boost_rosenbrock',
     output_step_size = default_output_step_size,
     adaptive_rel_error_tol = best_adaptive_rel_error_tol,
     adaptive_abs_error_tol = best_adaptive_abs_error_tol,
@@ -189,7 +189,7 @@ rsnbrk_solver_best <- list(
 )
 
 rsnbrk_solver_error <- list(
-    type = 'Gro_rsnbrk',
+    type = 'boost_rosenbrock',
     output_step_size = large_output_step_size,
     adaptive_rel_error_tol = bad_adaptive_rel_error_tol,
     adaptive_abs_error_tol = bad_adaptive_abs_error_tol,

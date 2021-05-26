@@ -21,7 +21,7 @@ manihot_esculenta_derivative_modules <- list(
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
 manihot_esculenta_solver <- list(
-    type = 'Gro',
+    type = 'auto',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-5,
     adaptive_abs_error_tol = 1e-5,
