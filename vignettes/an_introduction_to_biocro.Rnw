@@ -601,7 +601,7 @@ library(lattice)  # This is a package that creates figures.
 result = biocro_simulation(sorghum_initial_values, sorghum_parameters,
              get_growing_season_climate(weather05),
              sorghum_steady_state_modules, sorghum_derivative_modules,
-             sorghum_solver)
+             sorghum_numerical_integrator)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.
 @
 
