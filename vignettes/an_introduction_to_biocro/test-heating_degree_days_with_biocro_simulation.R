@@ -14,7 +14,7 @@ calculate_heating_degree_days <- function(initial_value, time_vector, temperatur
     parameters <- list(base_temperature = threshold_temperature, timestep = timestep)
     drivers <- list(time = time_vector, temp = temperature_vector)
 
-    result <- Gro_solver(initial_values, parameters, drivers,
+    result <- biocro_simulation(initial_values, parameters, drivers,
                          steady_state_modules, derivative_modules, solver)
 
     result$heating_degree_days[length(time_vector)]

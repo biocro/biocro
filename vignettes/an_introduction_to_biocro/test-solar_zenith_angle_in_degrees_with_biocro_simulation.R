@@ -16,7 +16,7 @@ angle_from_cosine <- function(cza) {
     # drivers.
     drivers <- list(time = 1, cosine_zenith_angle = cza)
 
-    result = Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
+    result = biocro_simulation(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
 
     result$zenith_angle_in_degrees
 }

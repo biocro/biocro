@@ -112,7 +112,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
     
     ## try out the solver
-    result <- Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules, solver)
+    result <- biocro_simulation(initial_values, parameters, drivers, steady_state_modules, derivative_modules, solver)
 
     ## add useful columns to the resulting data frame:    
     result$time <- result$time * 24 # time is in hours

@@ -1,4 +1,4 @@
-context("Basic tests of *Gro_solver functions")
+context("Basic tests of biocro simulations")
 data(weather05, package = "BioCro")
 
 name_parameters = function(
@@ -26,8 +26,8 @@ parameter_lists = list(
     sorghum =    name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_steady_state_modules,                sorghum_derivative_modules,                sorghum_solver)
 )
 
-test_that("WillowGro_solver function produces reasonable results", {
-    results <- Gro_solver(
+test_that("Willow simulation produces reasonable results", {
+    results <- biocro_simulation(
         willow_initial_values,
         willow_parameters,
         weather05,
@@ -44,16 +44,16 @@ test_that("WillowGro_solver function produces reasonable results", {
     expect_true(max(results$Leaf) < 25)
 })
 
-# caneGro_solver bug https://github.com/ebimodeling/biocro-dev/issues/45
-# MaizeGro_solver no roots:  https://github.com/ebimodeling/biocro-dev/issues/46
+# caneGro bug https://github.com/ebimodeling/biocro-dev/issues/45
+# MaizeGro no roots:  https://github.com/ebimodeling/biocro-dev/issues/46
 for (i in seq_along(parameter_lists)) {
     parameter_list = parameter_lists[[i]]
     species = names(parameter_lists)[i]
     #print(species)
 
-    base_results <- do.call(Gro_solver, parameter_list)
+    base_results <- do.call(biocro_simulation, parameter_list)
 
-    test_that("*Gro_solver functions produce reasonable results", {
+    test_that("*biocro_simulation functions produce reasonable results", {
         #print("Minimum and maximum values of biomass output.")
         for (output in c("lai", "Leaf", "Root", "Stem")) {
             expect_true(min(base_results[[output]]) >= 0)
@@ -77,7 +77,7 @@ for (i in seq_along(parameter_lists)) {
             initial_values$cws2 = 0.32
         })
 
-        two_soil_layer_results <- do.call(Gro_solver, two_layer_parameters)
+        two_soil_layer_results <- do.call(biocro_simulation, two_layer_parameters)
 
         expect_true(mean(base_results[["Stem"]]) < mean(two_soil_layer_results[["Stem"]]))
 
@@ -101,7 +101,7 @@ for (i in seq_along(parameter_lists)) {
 
     test_that(paste(species, "stem biomass is sensitive to key parameters "), {
         get_max_biomass <- function(parameters) {
-            results = do.call(Gro_solver, parameters)
+            results = do.call(biocro_simulation, parameters)
             results$total_mass = results$Stem + results$Leaf + results$Root
             return(with(results, max(total_mass)))
             #return(with(results, max(Stem, Leaf, Root)))
@@ -117,7 +117,7 @@ for (i in seq_along(parameter_lists)) {
         low_b1 = within(parameter_list, {parameters$b1 = 3})
         high_b1 = within(parameter_list, {parameters$b1 = 10})
 
-        # willowGro_solver insensitive to chi.l, b1
+        # willowbiocro_simulation insensitive to chi.l, b1
         # pending implementation ebimodeling/biocro-dev#5
 
         expect_gt(get_max_biomass(low_kd), get_max_biomass(high_kd))

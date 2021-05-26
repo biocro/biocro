@@ -117,7 +117,7 @@ PLANT_TESTING_INFO <- list(
 update_stored_results <- function(test_info) {
 
     # Calculate the result
-    plant_result <- Gro_solver(
+    plant_result <- biocro_simulation(
         test_info[['initial_values']],
         test_info[['parameters']],
         test_info[['drivers']],
@@ -152,7 +152,7 @@ test_plant_model <- function(test_info) {
     result <- 0
     test_that(description, {
         expect_silent(
-            result <<- Gro_solver(
+            result <<- biocro_simulation(
                 test_info[['initial_values']],
                 test_info[['parameters']],
                 test_info[['drivers']],

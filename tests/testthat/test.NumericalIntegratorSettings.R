@@ -1,4 +1,4 @@
-context("Test Gro_solver's solver settings.")
+context("Test biocro_simulation's solver settings.")
 
 MAX_INDEX <- 100    # changing this value is not recommended
 DEBUG_PRINT <- FALSE
@@ -12,7 +12,7 @@ DEBUG_PRINT_EXTRA <- FALSE
 # if it encounters a problem that requires it to abort the integration.
 final_position <- function(solver)
 {
-    result <- Gro_solver(
+    result <- biocro_simulation(
         initial_values = list(
             position = 0.0,
             velocity = 1.0
