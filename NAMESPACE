@@ -15,11 +15,7 @@ useDynLib(BioCro,
 
 import(stats, lattice)
 
-export(Gro)
-
 export(Gro_solver)
-
-export(partial_gro)
 
 export(partial_gro_solver)
 
