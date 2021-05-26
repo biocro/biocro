@@ -4,8 +4,8 @@
 #include <vector>
 #include "state_map.h"
 #include "system.h"
-#include "system_solver.h"
-#include "system_solver_library/system_solver_factory.h"
+#include "numerical_integrator.h"
+#include "numerical_integrator_library/numerical_integrator_factory.h"
 
 // Class that represents a BioCro simulation
 class biocro_simulation
@@ -18,7 +18,7 @@ class biocro_simulation
         std::unordered_map<std::string, std::vector<double>> const& drivers,
         std::vector<std::string> const& steady_state_module_names,
         std::vector<std::string> const& derivative_module_names,
-        // parameters passed to system_solver_factory::create
+        // parameters passed to numerical_integrator_factory::create
         std::string solver_name,
         double output_step_size,
         double adaptive_rel_error_tol,
@@ -33,7 +33,7 @@ class biocro_simulation
         );
 
         // Create the solver
-        solver = system_solver_factory::create(
+        solver = numerical_integrator_factory::create(
             solver_name, output_step_size, adaptive_rel_error_tol,
             adaptive_abs_error_tol, adaptive_max_steps
         );
@@ -60,7 +60,7 @@ class biocro_simulation
 
    private:
     std::shared_ptr<System> sys;
-    std::unique_ptr<system_solver> solver;
+    std::unique_ptr<numerical_integrator> solver;
 };
 
 #endif

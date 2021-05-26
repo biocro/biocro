@@ -1,6 +1,6 @@
-#include "boost_solvers.h"
+#include "boost_numerical_integrators.h"
 
-void boost_rsnbrk_system_solver::do_boost_solve(
+void boost_rsnbrk_numerical_integrator::do_boost_solve(
     SystemCaller syscall,
     push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer
 )
@@ -15,7 +15,7 @@ void boost_rsnbrk_system_solver::do_boost_solve(
     run_integrate_const(stepper, syscall, observer);
 }
 
-std::string boost_rsnbrk_system_solver::get_boost_param_info() const
+std::string boost_rsnbrk_numerical_integrator::get_boost_param_info() const
 {
     return std::string("\nRelative error tolerance: ") +
         std::to_string(get_adaptive_rel_error_tol()) +

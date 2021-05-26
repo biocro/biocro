@@ -12,7 +12,7 @@
 /**
  * @class System
  *
- * @brief Defines a system of differential equations. Intended to be passed to a system_solver object.
+ * @brief Defines a system of differential equations. Intended to be passed to a numerical_integrator object.
  */
 class System
 {
@@ -24,7 +24,7 @@ class System
         string_vector const& ss_module_names,
         string_vector const& deriv_module_names);
 
-    // For integrating via a system_solver
+    // For integrating via a numerical_integrator
     size_t get_ntimes() const
     {
         auto driver = drivers.begin();

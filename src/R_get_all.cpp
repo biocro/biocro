@@ -3,7 +3,7 @@
 #include <string>
 #include "R_helper_functions.h"
 #include "module_library/module_wrapper_factory.h"
-#include "system_solver_library/system_solver_factory.h"
+#include "numerical_integrator_library/numerical_integrator_factory.h"
 #include "se_solver_library/se_solver_factory.h"
 
 extern "C" {
@@ -35,7 +35,7 @@ SEXP R_get_all_quantities()
 SEXP R_get_all_numerical_integrators()
 {
     try {
-        std::vector<std::string> result = system_solver_factory::get_solvers();
+        std::vector<std::string> result = numerical_integrator_factory::get_numerical_integrators();
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_get_all_numerical_integrators: ") + e.what()).c_str());

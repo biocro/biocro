@@ -1,44 +1,45 @@
-#ifndef HOMEMADE_EULER_H
-#define HOMEMADE_EULER_H
+#ifndef HOMEMADE_EULER_NUMERICAL_INTEGRATOR_H
+#define HOMEMADE_EULER_NUMERICAL_INTEGRATOR_H
 
-#include "../system_solver.h"
+#include "../numerical_integrator.h"
+#include "../state_map.h"
 
-// A class representing our homemade euler solver
+// A class representing our homemade euler numerical_integrator
 template <class state_type>
-class homemade_euler_solver : public system_solver
+class homemade_euler_numerical_integrator : public numerical_integrator
 {
    public:
-    homemade_euler_solver(
+    homemade_euler_numerical_integrator(
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : system_solver("homemade_euler", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
+        int max_steps) : numerical_integrator("homemade_euler", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
-    std::unordered_map<std::string, std::vector<double>> do_solve(std::shared_ptr<System> sys) override;
+    state_vector_map do_solve(std::shared_ptr<System> sys) override;
 
     std::string get_param_info() const override
     {
-        // The homemade Euler solver has no new parameters to report
+        // The homemade Euler numerical_integrator has no new parameters to report
         return std::string("");
     }
 
     std::string get_solution_info() const override
     {
-        // The homemade Euler solver doesn't have much to contribute
+        // The homemade Euler numerical_integrator doesn't have much to contribute
         return std::string("N/A");
     }
 };
 
 template <class state_type>
-std::unordered_map<std::string, std::vector<double>> homemade_euler_solver<state_type>::do_solve(std::shared_ptr<System> sys)
+state_vector_map homemade_euler_numerical_integrator<state_type>::do_solve(std::shared_ptr<System> sys)
 {
     // Get the names of the output parameters and pointers to them
     std::vector<std::string> output_param_vector = sys->get_output_param_names();
     std::vector<const double*> output_ptr_vector = sys->get_quantity_access_ptrs(output_param_vector);
 
     // Make the results map
-    std::unordered_map<std::string, std::vector<double>> results;
+    state_vector_map results;
 
     // Make the result vector
     std::vector<double> temp(sys->get_ntimes());
