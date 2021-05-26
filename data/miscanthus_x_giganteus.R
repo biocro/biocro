@@ -1,10 +1,31 @@
-miscanthus_x_giganteus_modules = list(
-    canopy_module_name='c4_canopy',
-    soil_module_name='one_layer_soil_profile',
-    growth_module_name='partitioning_growth',
-    senescence_module_name='thermal_time_senescence',
-    leaf_water_stress_module_name='leaf_water_stress_exponential',
-    stomata_water_stress_module_name='stomata_water_stress_linear'
+# Some modules are included as named list elements so they can be easily changed
+# on-the-fly to a different value, e.g.,
+# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+miscanthus_x_giganteus_steady_state_modules <- list(
+    "soil_type_selector",
+    stomata_water_stress = "stomata_water_stress_linear",
+    "leaf_water_stress_exponential",
+    "parameter_calculator",
+    "soil_evaporation",
+    canopy_photosynthesis = "c4_canopy",
+    partitioning_coefficients = "partitioning_coefficient_selector",
+    partitioning_growth_calculator = "partitioning_growth_calculator"
+)
+
+miscanthus_x_giganteus_derivative_modules <- list(
+    senescence = "thermal_time_senescence",
+    "partitioning_growth",
+    thermal_time = "thermal_time_linear",
+    soil_profile = "one_layer_soil_profile"
+)
+
+# Error tolerances greater than 1e-5 may cause problems with the regression test
+miscanthus_x_giganteus_solver <- list(
+    type = 'Gro',
+    output_step_size = 1.0,
+    adaptive_rel_error_tol = 1e-5,
+    adaptive_abs_error_tol = 1e-5,
+    adaptive_max_steps = 200
 )
 
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.

@@ -41,16 +41,16 @@ SOLVER <- list(
 # stored data for one plant. For this test, we always use the the stored
 # environmental data 'data/soybean_weather2002.csv'
 test_plant_model <- function(test_info) {
-  
+
   description <- paste(
-    "The", 
-    test_info[['plant_name']], 
+    "The",
+    test_info[['plant_name']],
     "simulation runs without producing any errors"
     )
-  
+
   # Run the simulation
   result <- 0
-  
+
   test_that(description, {
     expect_silent(
       result <<- Gro_solver(
@@ -63,7 +63,7 @@ test_plant_model <- function(test_info) {
       )
     )
   })
-  
+
   # Some variables may need to be ignored, possibly because their values
   # depend on the operating system or other factors that may change between
   # simulation runs. Remove these from the results. If a variable is flagged
@@ -75,52 +75,52 @@ test_plant_model <- function(test_info) {
       result[[variable]] <- NULL
     } else {
       msg <- paste0(
-        "The regression test reports that '", 
-        variable, 
-        "' is no longer included in the ", 
-        test_info[['plant_name']], 
+        "The regression test reports that '",
+        variable,
+        "' is no longer included in the ",
+        test_info[['plant_name']],
         " simulation result. Did a default module change?"
         )
       warning(msg)
     }
   }
-  
+
   # Read the stored result from the data file
   Gro_result <- read.csv(test_info[['stored_result_file']])
-  
+
   # Make sure all columns contain numeric data
   Gro_result <- as.data.frame(sapply(Gro_result, as.numeric))
-  
+
   # Make sure the stored result has the same number of time points
   index_of_last_row <- length(result[[1]])
-  
+
   description <- paste(
     "The",
     test_info[['plant_name']],
     "simulation result has the correct number of data points"
   )
-  
+
   test_that(description, {
     expect_equal(index_of_last_row, length(Gro_result[[1]]))
   })
-  
+
   # Make sure the results have a sufficient number of time points
   description <- paste(
     "The",
     test_info[['plant_name']],
     "simulation result has enough data points"
   )
-  
+
   test_that(description, {
     expect_gt(index_of_last_row, 1.0)
   })
-  
+
   # Make sure the stored result contains all the non-ignored quantities in the
   # new result
   column_names <- names(result)
-  
+
   stored_column_names <- names(Gro_result)
-  
+
   for (name in column_names) {
     description <- paste(
       "The stored",
@@ -129,12 +129,12 @@ test_plant_model <- function(test_info) {
       name,
       "column"
     )
-    
+
     test_that(description, {
       expect_true(name %in% stored_column_names)
     })
   }
-  
+
   # Make a helping function that compares the new result to the old one at a
   # single index
   compare_simulation_trial <- function(index) {
@@ -148,7 +148,7 @@ test_plant_model <- function(test_info) {
         variable,
         "' quantity"
       )
-      
+
       test_that(description, {
         expect_equal(
           result[[variable]][index],
@@ -158,7 +158,7 @@ test_plant_model <- function(test_info) {
       })
     }
   }
-  
+
   # Run the test for some equally spaced indices including the first and last
   # points of the simulation. Note that no problems occur if `points_to_test`
   # includes non-integer elements, since R automatically truncates them to
@@ -175,22 +175,22 @@ test_plant_model <- function(test_info) {
       2.0
     )
   )
-  
+
   for (index in points_to_test) {
     compare_simulation_trial(index)
   }
-  
+
 }
 
 # Make a helping function for specifying plant information
 specify_crop <- function(
-  plant_name, 
-  initial_values, 
-  parameters, 
-  weather, 
-  steadystate_modules, 
+  plant_name,
+  initial_values,
+  parameters,
+  weather,
+  steadystate_modules,
   derivative_modules,
-  ignored_variables) 
+  ignored_variables)
   {
   list(
     plant_name = plant_name,
@@ -210,7 +210,7 @@ specify_crop <- function(
 
 # Make a helping function that updates the stored data for one crop
 update_stored_results <- function(test_info) {
-  
+
   # Calculate the result
   plant_result <- Gro_solver(
     test_info[['initial_values']],
@@ -220,7 +220,7 @@ update_stored_results <- function(test_info) {
     test_info[['derivative_modules']],
     SOLVER
   )
-  
+
   # Save it as a csv file
   write.csv(
     plant_result,
@@ -245,11 +245,11 @@ SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-  specify_crop("soybean",  soybean_initial_values,  soybean_parameters,  soybean_weather2002,  soybean_steadystate_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
+  specify_crop("soybean",  soybean_initial_values,  soybean_parameters,  soybean_weather2002,  soybean_steady_state_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
 )
 
 # Run all the tests
 for(i in 1:length(PLANT_TESTING_INFO)) {
-  
+
   test_plant_model(PLANT_TESTING_INFO[[i]])
 }

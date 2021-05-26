@@ -1,10 +1,31 @@
-manihot_esculenta_modules = list(
-    canopy_module_name='c3_canopy',
-    soil_module_name='one_layer_soil_profile',
-    growth_module_name='utilization_growth',
-    senescence_module_name='utilization_senescence',
-    leaf_water_stress_module_name='leaf_water_stress_exponential',
-    stomata_water_stress_module_name='stomata_water_stress_linear'
+# Some modules are included as named list elements so they can be easily changed
+# on-the-fly to a different value, e.g.,
+# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+manihot_esculenta_steady_state_modules <- list(
+    "soil_type_selector",
+    stomata_water_stress = "stomata_water_stress_linear",
+    "leaf_water_stress_exponential",
+    "parameter_calculator",
+    "soil_evaporation",
+    canopy_photosynthesis = "c3_canopy",
+    "utilization_growth_calculator",
+    "utilization_senescence_calculator"
+)
+
+manihot_esculenta_derivative_modules <- list(
+    "utilization_senescence",
+    "utilization_growth",
+    thermal_time = "thermal_time_linear",
+    soil_profile = "one_layer_soil_profile"
+)
+
+# Error tolerances greater than 1e-5 may cause problems with the regression test
+manihot_esculenta_solver <- list(
+    type = 'Gro',
+    output_step_size = 1.0,
+    adaptive_rel_error_tol = 1e-5,
+    adaptive_abs_error_tol = 1e-5,
+    adaptive_max_steps = 200
 )
 
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
