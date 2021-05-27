@@ -81,7 +81,7 @@
 \examples{
 ## Simulate sorghum growth
 result = biocro_simulation(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather05), sorghum_steady_state_modules
+             get_growing_season_climate(weather05), sorghum_steady_state_modules,
              sorghum_derivative_modules, sorghum_numerical_integrator)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
                 auto=list(points=FALSE, lines=TRUE),
