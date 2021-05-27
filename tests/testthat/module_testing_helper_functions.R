@@ -34,10 +34,17 @@ test_module <- function(
 {
     # Define a helping function that tests one case
     test_one_case <- function(one_case) {
-        expect_equal(
-            evaluate_module(!!module_name, !!one_case[['inputs']]),
-            !!one_case[['expected_outputs']]
-        )
+        # Get the expected and actual outputs
+        actual_outputs <- evaluate_module(module_name, one_case[['inputs']])
+        expected_outputs <- one_case[['expected_outputs']]
+
+        # Make sure they ordered the same way (otherwise `expect_equal` may
+        # indicate an error when there isn't one)
+        actual_outputs <- actual_outputs[order(names(actual_outputs))]
+        expected_outputs <-  expected_outputs[order(names(expected_outputs))]
+
+        # Compare the expected and actual outputs
+        expect_equal(!!actual_outputs, !!expected_outputs)
     }
 
     # Test each case
@@ -66,8 +73,8 @@ test_module <- function(
 #
 case <- function(module_inputs, expected_module_outputs) {
     list(
-        inputs = module_inputs[order(names(module_inputs))],
-        expected_outputs = expected_module_outputs[order(names(expected_module_outputs))]
+        inputs = module_inputs,
+        expected_outputs = expected_module_outputs
     )
 }
 
