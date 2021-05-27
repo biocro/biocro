@@ -78,62 +78,6 @@ case <- function(module_inputs, expected_module_outputs) {
     )
 }
 
-# case_function: a function to help define test cases for module testing
-#
-# Inputs:
-#
-# - module_name: the name of a module
-#
-# Output: a function that accepts a numeric vector `x` as its input and creates
-# a "test case" list from it, i.e., a list with two named elements (`inputs` and
-# `expected_outputs`) that represent the `expected_outputs` that the module
-# should produce from the quantities in the `inputs` list. The elements of `x`
-# should be the module's inputs followed by its outputs, where the order should
-# be the same as the input and output parameter lists determined by a call to
-# the `module_info` function. E.g., if str(module_info(module_name)) produces
-# the following:
-#
-#   $ inputs                :List of 2
-#    ..$ tbase: num 1
-#    ..$ temp : num 1
-#   $ outputs               :List of 1
-#    ..$ TTc: num 1
-#
-# then case_function(module_name) will return a function expecting an input
-# vector `x` with three elements representing tbase, temp, and TTc (in that
-# order).
-#
-# Example demonstrating how to use this function:
-#
-# - test.thermal_time_bilinear.R
-#
-case_function <- function(module_name) {
-    info <- module_info(module_name, verbose = FALSE)
-
-    inputs <- info[['inputs']]
-    outputs <- info[['outputs']]
-
-    input_names <- names(inputs)
-    output_names <- names(outputs)
-
-    function(x) {
-        if (length(x) != (length(inputs) + length(outputs))) {
-            stop("Wrong number of input arguments!")
-        }
-
-        for (i in seq_along(inputs)) {
-            inputs[[input_names[i]]] <- x[i]
-        }
-
-        for (i in seq_along(outputs)) {
-            j = i + length(inputs)
-            outputs[[output_names[i]]] <- x[j]
-        }
-
-        return(case(inputs, outputs))
-    }
-}
-
 # cases_from_csv: a function to help define test cases for module testing
 #
 # Inputs:
