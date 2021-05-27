@@ -21,7 +21,7 @@ biocro_simulation <- function(
     #
     # initial_values: a list of named parameters representing state variables
     # parameters: a list of named parameters that don't change with time
-    # drivers: a dataframe of parameters defined at equally spaced time
+    # drivers: a data frame of parameters defined at equally spaced time
     #          intervals. Note 1: the time interval should be specified as a
     #          parameter called "timestep" in the list of constant parameters.
     #          Note 2: the drivers must include columns for either (1) "time" or
