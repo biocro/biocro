@@ -5,15 +5,15 @@ module_info <- function(module_name, verbose = TRUE)
     #  info <- module_info("thermal_time_linear")
     #  inputs <- info[['inputs']]
     #
-    # The function returns a list with several named elements containing information
+    # The function returns a list of several named elements containing info
     # about the module:
     #
     # - module_name: the module's name
     #
-    # - inputs: a list with named numeric elements representing the module's
+    # - inputs: a list of named numeric elements representing the module's
     #           inputs
     #
-    # - outputs: a list with named numeric elements representing the module's
+    # - outputs: a list of named numeric elements representing the module's
     #            outputs
     #
     # - type: the module's type (either `derivative` or `steady state`)
