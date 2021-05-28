@@ -1,11 +1,45 @@
-# test_module: a function to help simplify module testing
+# This file defines several helper functions related to running module tests:`
+# - `test_module`
+# - `case`
+# - `csv_from_cases`
+# - `cases_from_csv`
+# - `initialize_csv`
+# - `add_csv_row`
+#
+# When specifying test cases for a new module, the `initialize_csv` function can
+# initialize a csv file in the correct format.
+#
+# When adding new test cases for a module with a pre-existing csv file, the
+# `add_csv_row` function can automatically add a row based on a set of supplied
+# inputs and the corresponding description.
+#
+# To check whether a module named MODULE will be able to pass its tests, a user
+# can call `test_module(MODULE, cases_from_csv(MODULE)).
+#
+# A user will not typically need to use the `case` or `csv_from_cases` function
+# directly.
+#
+# Although it is possible, directly editing the case files is not recommended
+# since initialize_csv and add_csv_row are easier to use. The exception is when
+# a case must be deleted, since that would be easier to do by directly editing a
+# case file.
+#
+# Case files can easily be viewed using Excel or other spreadsheet viewers, and
+# are also nicely formatted when viewed on the GitHub website for the repo.
+#
+# ------------------------------------------------------------------------------
+#
+
+# test_module: a function to help simplify module testing by running one or more
+#              test cases, where the module's output is compared to and expected
+#              value
 #
 # Inputs:
 #
 # - module_name: a string specifying the name of the module to be tested
 #
 # - case_list: a list where each element is a test case, which is itself a list
-#   with two named elements:
+#   with three named elements:
 #
 #   - case[['inputs']]: a list of module inputs, i.e., a list of named numeric
 #     elements corresponding to the module's input quantities
@@ -14,18 +48,12 @@
 #     list of named numeric elements corresponding to the expected values of the
 #     module's output quantities
 #
+#   - case[['description']]: a string describing the test case, e.g. "temp
+#     below tbase". If the description contains a comma, it must be wrapped in
+#     quotes. This is not advised.
+#
 # Output: none
 #
-# Examples demonstrating how to use this function:
-#
-# - test.thermal_time_linear.R (defines case_list using explicit calls to the
-#   `list` function)
-#
-# - test.thermal_time_linear_extended.R (defines case_list using the `case`
-#   helper function)
-#
-# - test.thermal_time_bilinear.R (defines case_list using the `case_function`
-#   method)
 #
 test_module <- function(
     module_name,
@@ -34,6 +62,9 @@ test_module <- function(
 {
     # Define a helping function that tests one case
     test_one_case <- function(one_case) {
+        # Write a description
+        description <- paste0(module_name, ": ", one_case[['description']])
+
         # Get the expected and actual outputs
         actual_outputs <- evaluate_module(module_name, one_case[['inputs']])
         expected_outputs <- one_case[['expected_outputs']]
@@ -44,14 +75,18 @@ test_module <- function(
         expected_outputs <-  expected_outputs[order(names(expected_outputs))]
 
         # Compare the expected and actual outputs
-        expect_equal(!!actual_outputs, !!expected_outputs)
+        test_that(description, {
+            expect_equal(!!actual_outputs, !!expected_outputs)
+        })
     }
 
     # Test each case
     lapply(case_list, test_one_case)
 }
 
-# case: a function to help define test cases for module testing
+# case: a function to help define test cases for module testing by combining the
+#       required elements into a list with the correct element names as required
+#       by the `test_module` function.
 #
 # Inputs:
 #
@@ -62,36 +97,131 @@ test_module <- function(
 #   produced from the module_inputs, i.e., a list of named numeric elements
 #   corresponding to the expected values of the module's output quantities
 #
-# Output: a list with two named elements (`inputs` and `expected_outputs`)
-# formed from the input arguments
+# - case_description: a string describing the test case, e.g. "temp below tbase"
+#   If the description contains a comma, it must be wrapped in quotes. This is
+#   not advised.
 #
-# Examples demonstrating how to use this function:
+# Output: a list with three named elements (`inputs`, `expected_outputs`, and
+# `description`) formed from the input arguments
 #
-# - test.thermal_time_linear_extended.R
-#
-# - the `case_function` function below
-#
-case <- function(module_inputs, expected_module_outputs) {
+case <- function(module_inputs, expected_module_outputs, case_description) {
     list(
         inputs = module_inputs,
-        expected_outputs = expected_module_outputs
+        expected_outputs = expected_module_outputs,
+        description = case_description
     )
 }
 
-# cases_from_csv: a function to help define test cases for module testing
+# csv_from_cases: a function to help define test cases for module testing by
+#                 writing a list of test cases to a csv file, whose name will be
+#                 determined from the module's name.
 #
 # Inputs:
 #
 # - module_name: the name of a module
 #
-# Output: a list of test cases created by the `case` function above that are
+# - case_list: a list of cases for that module, as described in the
+#   documentation for the `test_module` function
+#
+# Outputs: none
+#
+# This function will store the cases in a properly formatted csv file in the
+# `tests/testthat/module_tests` directory whose name is determined from the
+# `module_name` input as `module_name.csv`. This csv file can be read by the
+# `cases_from_csv` function. This function is intended to be called from the
+# `tests/testhat` directory.
+#
+csv_from_cases <- function(module_name, case_list)
+{
+    # Generate the filename
+    filename <- paste0("module_tests/", module_name, ".csv")
+
+    # Get info about the module
+    info <- module_info(module_name, FALSE)
+    inputs <- info[['inputs']]
+    outputs <- info[['outputs']]
+
+    # Make a data frame describing the module's inputs, outputs, and all test
+    # cases
+    n_inputs <- length(inputs)
+    n_outputs <- length(outputs)
+    n_cases <- length(case_list)
+    csv_case <- data.frame(
+        matrix(
+            nrow=(2 + n_cases),
+            ncol=(n_inputs + n_outputs + 1)
+        )
+    )
+
+    for (i in seq_along(inputs)) {
+        input_name <- names(inputs)[i]
+
+        csv_case[1,i] <- input_name
+        csv_case[2,i] <- "input"
+
+        for (j in seq_len(n_cases)) {
+            case <- case_list[[j]]
+            case_inputs <- case[['inputs']]
+            csv_case[(2+j),i] <- case_inputs[[input_name]]
+        }
+    }
+
+    for (i in seq_along(outputs)) {
+        output_name <- names(outputs)[i]
+        k <- i + n_inputs
+
+        csv_case[1,k] <- output_name
+        csv_case[2,k] <- "output"
+
+        for (j in seq_len(n_cases)) {
+            case <- case_list[[j]]
+            case_outputs <- case[['expected_outputs']]
+            csv_case[(2+j),k] <- case_outputs[[output_name]]
+        }
+    }
+
+    description_index <- n_inputs + n_outputs + 1
+    csv_case[1,description_index] <- "description"
+    csv_case[2,description_index] <- "NA"
+
+    for (j in seq_len(n_cases)) {
+        case <- case_list[[j]]
+        description <- case[['description']]
+        csv_case[(2+j),description_index] <- description
+    }
+
+    # Write the case to a new .csv file
+    write.table(
+        csv_case,
+        filename,
+        sep = ",",
+        dec = ".",
+        eol = "\n",
+        quote = FALSE,
+        row.names = FALSE,
+        col.names = FALSE,
+        append = FALSE
+    )
+}
+
+# cases_from_csv: a function to help define test cases for module testing by
+#                 creating a list of test cases from a csv file
+#
+# Inputs:
+#
+# - module_name: the name of a module
+#
+# Output: a list of test cases created by the `case` function above that is
 # suitable for passing to the `test_module` function
 #
 # There must be a corresponding file called `module_name.csv` in the
 # `module_tests` directory. The first row of this file should be the quantity
 # names, the second row should be the quantity types (`input` or `output`), and
 # the remaining rows should each specify input quantity values along with the
-# expected output values they should produce.
+# expected output values they should produce. The last column should be about
+# `description` column containing short descriptions of the test cases.
+#
+# This function is intended to be called from the `tests/testhat` directory.
 #
 cases_from_csv <- function(module_name)
 {
@@ -105,7 +235,7 @@ cases_from_csv <- function(module_name)
         stringsAsFactors = FALSE
     )
 
-    # Get the quantity names and types, making sure to trim any whitespace
+    # Get the column names and types, making sure to trim any whitespace
     column_names <- file_contents[1,]
     column_names <- trimws(column_names)
 
@@ -115,11 +245,14 @@ cases_from_csv <- function(module_name)
     # Get the quantity values
     test_data <- file_contents[3:length(file_contents[,1]),]
 
-    # Get the indices of the input and output columns
+    # Get the indices of the input, output, and description columns
     input_columns <- c()
     output_columns <- c()
+    description_column <- c()
     for (i in seq_along(column_types)) {
-        if (column_types[[i]] == "input") {
+        if (is.na(column_types[[i]])) {
+            description_column <- c(i)
+        } else if (column_types[[i]] == "input") {
             input_columns <- append(input_columns, i)
         } else if (column_types[[i]] == "output") {
             output_columns <- append(output_columns, i)
@@ -139,11 +272,120 @@ cases_from_csv <- function(module_name)
         row_outputs <- as.list(as.numeric(test_data[row_indx, output_columns]))
         names(row_outputs) <- output_names
 
-        return(case(row_inputs, row_outputs))
+        row_description <- trimws(test_data[row_indx, description_column])
+
+        return(case(row_inputs, row_outputs, row_description))
     }
 
     # Convert each row into a test case
     test_cases <- lapply(seq_len(nrow(test_data)), case_helper)
 
     return(test_cases)
+}
+
+# initialize_csv: a function to help define test cases for module testing
+#
+# Inputs:
+#
+# - module_name: the name of a module
+#
+# - nonstandard_inputs: an optional list of input quantities to be passed to the
+#   module in order to define the test case
+#
+# - nonstandard_case_description: an optional string describing the case, which
+#   should be succinct and not contain any newline characters, e.g. "temp below
+#   tbase". If the description contains a comma, it must be wrapped in quotes.
+#   This is not advised.
+#
+# Outputs: none
+#
+# This function will evaluate the module for a set of input quantities and store
+# the results as a csv file that specifies a test case and can be read using the
+# `cases_from_csv` function.
+#
+# If the user doesn't supply input values, defaults will be determined using the
+# `module_info` function.
+#
+# If the user doesn't supply a case description, a default description will be
+# used instead.
+#
+# Typically, both of these optional arguments can be omitted. However, some
+# modules produce errors when all inputs are set to 1. In this case, it would be
+# necessary to supply nonstandard inputs and (possibly) an alternate case
+# description.
+#
+initialize_csv <- function(
+    module_name,
+    nonstandard_inputs = list(),
+    nonstandard_case_description = ""
+)
+{
+    # Get info about the module
+    info <- module_info(module_name, FALSE)
+
+    # Decide what to use as the input quantities
+    inputs <- info[['inputs']]
+    if (length(nonstandard_inputs) > 0) {
+        inputs <- nonstandard_inputs
+    }
+
+    # Run the module using the inputs
+    outputs <- evaluate_module(module_name, inputs)
+
+    # Decide what to use for the description
+    description <- "automatically-generated test case"
+    if (nchar(nonstandard_case_description) > 0) {
+        description <- nonstandard_case_description
+    }
+
+    # Make a case list with one element
+    case_list <- list(
+        case(inputs, outputs, description)
+    )
+
+    # Write the case to a new .csv file
+    csv_from_cases(module_name, case_list)
+}
+
+# add_csv_row: a function to help define test cases for module testing
+#
+# Inputs:
+#
+# - module_name: the name of a module
+#
+# - inputs: a list of input quantities to pass to the module
+#
+# - case_description: a string describing the case, which should should be
+# succinct and not contain any newline characters, e.g. "temp below tbase". If
+# the description contains a comma, it must be wrapped in quotes. This is not
+# advised.
+#
+# Outputs: none
+#
+# This function will evaluate the module for a set of input quantities, define a
+# test case from the resulting outputs and the description, and add it to the
+# module's corresponding csv file.
+#
+add_csv_row <- function(module_name, inputs, case_description)
+{
+    # Get any test cases already defined in the module's csv file
+    case_list <- cases_from_csv(module_name)
+
+    # Run the module using the inputs
+    outputs <- evaluate_module(module_name, inputs)
+
+    # Add a new case to the list
+    case_list <- append(
+        case_list,
+        list(
+            case(
+                inputs,
+                outputs,
+                case_description
+            )
+        )
+    )
+
+    # Save the full list to the file
+    csv_from_cases(module_name, case_list)
 }
