@@ -33,9 +33,10 @@
 # ------------------------------------------------------------------------------
 #
 
-# test_module: a function to help simplify module testing by running one or more
-#              test cases, where the module's output is compared to and expected
-#              value
+# test_module: A function to help simplify module testing by running one or more
+#              test cases. For each case, failure occurs if the module produces
+#              an error or warning message when it is evaluated or if its output
+#              does not match the expected value.
 #
 # Inputs:
 #
@@ -65,20 +66,59 @@ test_module <- function(
 {
     # Define a helping function that tests one case
     test_one_case <- function(one_case) {
-        # Write a description
-        description <- paste0(module_name, ": ", one_case[['description']])
+        # Write descriptions for the two types of tests
+        error_test_description <- paste0(
+            module_name,
+            " case '",
+            one_case[['description']],
+            "' produces no errors"
+        )
 
-        # Get the expected and actual outputs
-        actual_outputs <- evaluate_module(module_name, one_case[['inputs']])
+        case_test_description <- paste0(
+            module_name,
+            " case '",
+            one_case[['description']],
+            "' produces the expected output"
+        )
+
+        # Get the expected outputs
         expected_outputs <- one_case[['expected_outputs']]
 
-        # Make sure they ordered the same way (otherwise `expect_equal` may
-        # indicate an error when there isn't one)
+        # Try to get the actual outputs, storing any error messages that may
+        # occur
+        error_msg <- ""
+        actual_outputs <- tryCatch(
+            {
+                evaluate_module(module_name, one_case[['inputs']])
+            },
+            error=function(cond)
+            {
+                error_msg <<- cond
+            },
+            warning=function(cond)
+            {
+                error_msg <<- cond
+            }
+        )
+
+        # If the value of error_msg has changed from its default, an error has
+        # occurred, and there is no reason to compare the actual and expected
+        # output values
+        test_that(error_test_description, {
+            expect_identical(!!error_msg, "")
+        })
+
+        if (length(error_msg) > 1) {
+            return()
+        }
+
+        # Make sure the outputs are ordered the same way (otherwise
+        # `expect_equal` may indicate an error when there isn't one)
         actual_outputs <- actual_outputs[order(names(actual_outputs))]
         expected_outputs <-  expected_outputs[order(names(expected_outputs))]
 
         # Compare the expected and actual outputs
-        test_that(description, {
+        test_that(case_test_description, {
             expect_equal(!!actual_outputs, !!expected_outputs)
         })
     }
@@ -87,7 +127,7 @@ test_module <- function(
     lapply(case_list, test_one_case)
 }
 
-# case: a function to help define test cases for module testing by combining the
+# case: A function to help define test cases for module testing by combining the
 #       required elements into a list with the correct element names as required
 #       by the `test_module` function.
 #
@@ -115,7 +155,7 @@ case <- function(module_inputs, expected_module_outputs, case_description) {
     )
 }
 
-# csv_from_cases: a function to help define test cases for module testing by
+# csv_from_cases: A function to help define test cases for module testing by
 #                 writing a list of test cases to a csv file, whose name will be
 #                 determined from the module's name.
 #
@@ -207,7 +247,7 @@ csv_from_cases <- function(module_name, case_list)
     )
 }
 
-# cases_from_csv: a function to help define test cases for module testing by
+# cases_from_csv: A function to help define test cases for module testing by
 #                 creating a list of test cases from a csv file
 #
 # Inputs:
@@ -293,7 +333,7 @@ cases_from_csv <- function(module_name)
     return(test_cases)
 }
 
-# initialize_csv: a function to help define test cases for module testing
+# initialize_csv: A function to help define test cases for module testing
 #
 # Inputs:
 #
@@ -357,7 +397,7 @@ initialize_csv <- function(
     csv_from_cases(module_name, case_list)
 }
 
-# add_csv_row: a function to help define test cases for module testing
+# add_csv_row: A function to help define test cases for module testing
 #
 # Inputs:
 #
@@ -366,9 +406,9 @@ initialize_csv <- function(
 # - inputs: a list of input quantities to pass to the module
 #
 # - case_description: a string describing the case, which should should be
-# succinct and not contain any newline characters, e.g. "temp below tbase". If
-# the description contains a comma, it must be wrapped in quotes. This is not
-# advised.
+#   succinct and not contain any newline characters, e.g. "temp below tbase". If
+#   the description contains a comma, it must be wrapped in quotes. This is not
+#   advised.
 #
 # Outputs: none
 #
