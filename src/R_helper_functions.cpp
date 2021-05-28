@@ -241,7 +241,7 @@ SEXP vector_from_map(state_map const& m)
 SEXP r_logical_from_boolean(bool b)
 {
     SEXP logical_output = PROTECT(Rf_allocVector(LGLSXP, 1));
-    LOGICAL(logical_output)[0] = b;
+    *LOGICAL(logical_output) = b;
     UNPROTECT(1);
     return logical_output;
 }
