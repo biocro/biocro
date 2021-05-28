@@ -1,13 +1,9 @@
 context("Run test cases for all modules")
 
-source("module_testing_helper_functions.R")  # for cases_from_csv and test_module
+source("module_testing_helper_functions.R") # for cases_from_csv and test_module
 
-# The manually-created list of modules can be replaced by a call to
-# `get_all_modules()` when/if all modules have .csv files associated with them
+# Check test cases for all modules
 lapply(
-    c(
-        "thermal_time_trilinear",
-        "night_and_day_trackers"
-    ),
+    get_all_modules(),
     function(module) {test_module(module, cases_from_csv(module))}
 )

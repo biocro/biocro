@@ -13,6 +13,9 @@
 # `add_csv_row` function can automatically add a row based on a set of supplied
 # inputs and the corresponding description.
 #
+# For an example of a case file that includes multiple test cases with
+# descriptions, see `tests/testthat/module_tests/thermal_time_trilinear.csv`.
+#
 # To check whether a module named MODULE will be able to pass its tests, a user
 # can call `test_module(MODULE, cases_from_csv(MODULE)).
 #
@@ -244,6 +247,13 @@ cases_from_csv <- function(module_name)
 
     # Get the quantity values
     test_data <- file_contents[3:length(file_contents[,1]),]
+
+    # If there is no test data, return an empty list. This may happen if a
+    # module has no inputs or outputs, as is the case with the
+    # `empty_senescence` modules
+    if (is.null(nrow(test_data))) {
+        return(list())
+    }
 
     # Get the indices of the input, output, and description columns
     input_columns <- c()
