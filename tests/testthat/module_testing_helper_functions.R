@@ -1,10 +1,14 @@
-# This file defines several helper functions related to running module tests:`
+# This file defines several helper functions related to running module tests:
 # - `test_module`
 # - `case`
 # - `csv_from_cases`
 # - `cases_from_csv`
 # - `initialize_csv`
 # - `add_csv_row`
+# - `update_csv_cases`
+#
+# Most of these functions use relative file paths for reading and writing test
+# case files and are intended to be called from the `tests/testhat` directory.
 #
 # When specifying test cases for a new module, the `initialize_csv` function can
 # initialize a csv file in the correct format.
@@ -12,6 +16,15 @@
 # When adding new test cases for a module with a pre-existing csv file, the
 # `add_csv_row` function can automatically add a row based on a set of supplied
 # inputs and the corresponding description.
+#
+# If a module's behavior has changed, the `update_csv_cases` function can be
+# used to recalculate the module outputs that are stored in its csv file.
+#
+# The `update_csv_cases` function can also be used to batch-initialize a set of
+# test cases. In this situation, the user could supply inputs and descriptions
+# for one or more test cases by saving them in the module's csv file. Then a
+# call to `update_csv_cases` would calculate and save all the corresponding
+# output values. See the documentation for `update_csv_cases` for an example.
 #
 # For an example of a case file that includes multiple test cases with
 # descriptions, see `tests/testthat/module_tests/thermal_time_trilinear.csv`.
@@ -23,9 +36,13 @@
 # directly.
 #
 # Although it is possible, directly editing the case files is not recommended
-# since initialize_csv and add_csv_row are easier to use. The exception is when
-# a case must be deleted, since that would be easier to do by directly editing a
-# case file.
+# since `initialize_csv`, `add_csv_row`, and `update_csv_cases` are easier to
+# use. There are two exceptions to this suggestion: one is when a case must be
+# deleted, since that would be easier to do by directly editing a case file. The
+# other is during the initialization of a test file, where a user may wish to
+# directly specify the inputs for multiple cases and then use the
+# `update_csv_cases` to automatically fill in the output values, as described
+# above.
 #
 # Case files can easily be viewed using Excel or other spreadsheet viewers, and
 # are also nicely formatted when viewed on the GitHub website for the repo.
@@ -333,7 +350,9 @@ cases_from_csv <- function(module_name)
     return(test_cases)
 }
 
-# initialize_csv: A function to help define test cases for module testing
+# initialize_csv: A function to help define test cases for module testing by
+#                 initializing the csv file for one module based on either a set
+#                 of default input values or user-supplied ones.
 #
 # Inputs:
 #
@@ -363,6 +382,8 @@ cases_from_csv <- function(module_name)
 # modules produce errors when all inputs are set to 1. In this case, it would be
 # necessary to supply nonstandard inputs and (possibly) an alternate case
 # description.
+#
+# This function is intended to be called from the `tests/testhat` directory.
 #
 initialize_csv <- function(
     module_name,
@@ -397,7 +418,9 @@ initialize_csv <- function(
     csv_from_cases(module_name, case_list)
 }
 
-# add_csv_row: A function to help define test cases for module testing
+# add_csv_row: A function to help define test cases for module testing by adding
+#              one test case to a module's csv file based on the user-supplied
+#              input and description.
 #
 # Inputs:
 #
@@ -415,6 +438,8 @@ initialize_csv <- function(
 # This function will evaluate the module for a set of input quantities, define a
 # test case from the resulting outputs and the description, and add it to the
 # module's corresponding csv file.
+#
+# This function is intended to be called from the `tests/testhat` directory.
 #
 add_csv_row <- function(module_name, inputs, case_description)
 {
@@ -438,4 +463,70 @@ add_csv_row <- function(module_name, inputs, case_description)
 
     # Save the full list to the file
     csv_from_cases(module_name, case_list)
+}
+
+# update_csv_cases: A function to help define cases for module testing by
+#                   updating the expected output values for each case stored in
+#                   a module's csv file.
+#
+# Inputs:
+#
+# - module_name: the name of a module
+#
+# Outputs: none
+#
+# This function will evaluate the module for all input values specified in its
+# csv case file and update the stored values of the corresponding outputs.
+#
+# This function is intended to be called from the `tests/testhat` directory.
+#
+# Example showing how `update_csv_cases` can be used to initialize a testing
+# file for the `thermal_time_linear` module: to begin, we need to know which
+# input quantities are required for this module. This information can be
+# determined by calling `info <- module_info("thermal_time_linear")`. In this
+# case, there are two inputs: `temp` (representing the air temperature) and
+# `tbase` (the base temperature for phenological development). As test cases,
+# we would like to check the output for three situations where the air
+# temperature is below, equal to, or above the base temperature. We can specify
+# these cases by creating a `tests/testthat/thermal_time_linear.csv` file with
+# the following contents:
+#
+# tbase,temp,description
+# input,input,NA
+# 20,10,temp below tbase
+# 20,20,temp equal to tbase
+# 20,44,temp above tbase
+#
+# Note that here we only specify the inputs and description for each case. Now
+# the `update_csv_cases` function can be used to fill in the output values by
+# calling `update_csv_cases("thermal_time_linear")` from the `tests/testthat`
+# directory. Afterwards, the case file's contents are updated to the following:
+#
+# tbase,temp,TTc,description
+# input,input,output,NA
+# 20,10,0,temp below tbase
+# 20,20,0,temp equal to tbase
+# 20,44,1,temp above tbase
+#
+# This is now a fully-functional test case file for the module.
+#
+update_csv_cases <- function(module_name)
+{
+    # Get any test cases already defined in the module's csv file
+    case_list <- cases_from_csv(module_name)
+
+    # Define a helping function that updates a test case by running the module
+    # using the inputs and storing the result as the expected outputs
+    update_case <- function(one_case) {
+        one_case[['expected_outputs']] <-
+            evaluate_module(module_name, one_case[['inputs']])
+        return(one_case)
+    }
+
+    # Update all the test cases
+    updated_case_list <- lapply(case_list, update_case)
+
+    # Save the new list to the file
+    csv_from_cases(module_name, updated_case_list)
+
 }
