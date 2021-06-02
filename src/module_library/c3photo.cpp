@@ -78,12 +78,20 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
     /* TPU rate temperature dependence from:
      Fig. 7, Yang et al. (2016) Planta, 243, 687-698 https://doi.org/10.1007/s00425-015-2436-8) */
-    double TPU_c = 25.5,Ha = 62.99, S = 0.588, Hd = 182.14,TPU_rate_scaler25 = 306.7509,R=8.314472E-3;
+    double TPU_c = 25.5;                  // fitting constant
+    double Ha = 62.99;                    // enthalpy of activation
+    double S = 0.588;                     // entropy
+    double Hd = 182.14;                   // enthalpy of deactivation
+    double TPU_rate_scaler25 = 306.7509;  // this is needed since the equation in the paper is NOT rate
+    double R = 8.314472E-3;               // gas constant; kJ/kelvin/mole
     double LeafTemperatureKelvin = leaf_temperature.value();
-    double top = LeafTemperatureKelvin *exp(TPU_c-Ha/(R*LeafTemperatureKelvin));
-    double bot = 1.0+ exp((S*LeafTemperatureKelvin - Hd)/(R*LeafTemperatureKelvin));
+    double top = LeafTemperatureKelvin * exp(TPU_c - Ha / (R * LeafTemperatureKelvin));
+    double bot = 1.0 + exp((S * LeafTemperatureKelvin - Hd) / (R * LeafTemperatureKelvin));
     double TPU_rate_scaler = top /bot / TPU_rate_scaler25; //normalize to 25 C
 
+    /*alpha constant for calculating Ap from: 
+       Eq. 2.26, von Caemmerer, S. Biochemical models of leaf photosynthesis.*/
+    double alpha_TPU = 0.0;  //without more information on this, alpha=0 is often assumed.
     int iterCounter = 0;
     int max_iter = 1000;
     while (iterCounter < max_iter) {
@@ -103,7 +111,8 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
             Aj = 0.0 * mole / square_meter / second;
 
         /* Limited by tri phos utilization */
-        quantity<flux> Ap = 3.0 * maximum_tpu_rate * TPU_rate_scaler;
+        quantity<flux> Ap = 3.0 * maximum_tpu_rate * (Ci - Gstar) / (Ci - (1.0 + 1.5 * alpha_TPU) * Gstar);
+        Ap = Ap * TPU_rate_scaler;  //Temperature restriction
 
         if(Ac < Aj && Ac < Ap){
             Vc = Ac;
