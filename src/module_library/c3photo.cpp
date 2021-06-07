@@ -78,17 +78,17 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
     /* TPU rate temperature dependence from:
      Fig. 7, Yang et al. (2016) Planta, 243, 687-698 https://doi.org/10.1007/s00425-015-2436-8) */
-    double TPU_c = 25.5;                  // fitting constant
-    double Ha = 62.99;                    // enthalpy of activation
-    double S = 0.588;                     // entropy
-    double Hd = 182.14;                   // enthalpy of deactivation
-    double TPU_rate_scaler25 = 306.7509;  // this is needed since the equation in the paper is NOT rate
-    double R = 8.314472E-3;               // gas constant; kJ/kelvin/mole
-    double LeafTemperatureKelvin = leaf_temperature.value();
-    double top = LeafTemperatureKelvin * exp(TPU_c - Ha / (R * LeafTemperatureKelvin));
-    double bot = 1.0 + exp((S * LeafTemperatureKelvin - Hd) / (R * LeafTemperatureKelvin));
-    double TPU_rate_scaler = top /bot / TPU_rate_scaler25; //normalize to 25 C
-
+    const double TPU_c = 25.5;                 // fitted constant
+    const quantity<energy_over_amount> Ha = 62.99e3  * joule / mole;   	                   // enthalpy of activation
+    const quantity<energy_over_temperature_amount> S  = 0.588e3 * joule / kelvin / mole;   // entropy
+    const quantity<energy_over_amount> Hd = 182.14e3 * joule / mole;                        // enthalpy of deactivation
+    const quantity<energy_over_temperature_amount> R = 8.314472 * joule / kelvin / mole;   // gas constant
+    const double TPU_rate_scaler25 = 306.7509;  // this is needed since the equation in the paper is NOT rate
+    const quantity<dimensionless> top = leaf_temperature.value() * arrhenius_exponent(TPU_c,Ha,leaf_temperature);
+    const quantity<dimensionless> bot = 1.0 + arrhenius_exponent(S/R,Hd,leaf_temperature);
+    double TPU_rate_scaler = top.value() / bot.value(); 
+    TPU_rate_scaler /= TPU_rate_scaler25; //normalize to 25 C
+    
     /*alpha constant for calculating Ap from: 
        Eq. 2.26, von Caemmerer, S. Biochemical models of leaf photosynthesis.*/
     double alpha_TPU = 0.0;  //without more information on this, alpha=0 is often assumed.
