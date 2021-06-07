@@ -18,13 +18,11 @@ using namespace biocro_units;
  */
 quantity<dimensionless> arrhenius_exponent(quantity<dimensionless> c, quantity<energy_over_amount> activation_energy, quantity<temperature> temperature)
 {
-    const quantity<energy_over_temperature_amount> R = 8.314472 * joule / kelvin / mole ;
+    const quantity<energy_over_temperature_amount> R = 8.314472 * joule / kelvin / mole;
     return exp(c - activation_energy / (R * temperature));
 }
 
-struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax0, double _TPU_rate_max,
-               double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double AP, double _O2,
-               double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
+struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, double _Jmax0, double _TPU_rate_max, double _Rd0, double bb0, double bb1, double Gs_min, double Ca, double AP, double _O2, double thet, double StomWS, int water_stress_approach, double electrons_per_carboxylation, double electrons_per_oxygenation)
 {
     // Assign units to the input parameters. The parameters can be renamed and this section can be removed when call functions
     // that call c3photoC() are also using units.
@@ -40,7 +38,6 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<dimensionless> leaf_reflectance = 0.2;
     const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
-
     /* From:
      Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430. https://doi.org/10.1046/j.0016-8025.2003.01050.x
      Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259. https://doi.org/10.1111/j.1365-3040.2001.00668.x */
@@ -50,7 +47,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<mole_fraction> Gstar = 1e-6 * arrhenius_exponent(19.02, 37.83e3 * joule / mole, leaf_temperature);
     const quantity<flux> Vcmax = Vcmax0 * arrhenius_exponent(26.35, 65.33e3 * joule / mole, leaf_temperature);
     const quantity<flux> Jmax = Jmax0 * arrhenius_exponent(17.57, 43.54e3 * joule / mole,
-        leaf_temperature);
+                                                           leaf_temperature);
     const quantity<flux> Rd = Rd0 * arrhenius_exponent(18.72, 46.39e3 * joule / mole, leaf_temperature);
 
     const double leaf_temperature_celsius = leaf_temperature.value() - 273.15;
@@ -60,11 +57,11 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     const quantity<dimensionless> dark_adapted_phi_PSII = 0.352 + 0.022 * leaf_temperature_celsius - 3.4 * pow(leaf_temperature_celsius, 2) / 10000;  // Bernacchi et al. (2003).  See reference above.
     const quantity<flux> I2 = Qp * dark_adapted_phi_PSII * (1.0 - leaf_reflectance) / 2.0;
 
-    const quantity<flux> J = (Jmax + I2 - root<2>(pow<2>(Jmax + I2) - 4.0 * theta * I2 * Jmax )) / (2.0 * theta);
+    const quantity<flux> J = (Jmax + I2 - root<2>(pow<2>(Jmax + I2) - 4.0 * theta * I2 * Jmax)) / (2.0 * theta);
 
     const quantity<mole_fraction> Oi = atmospheric_oxygen_mole_fraction * solo(leaf_temperature_celsius);
 
-    if(Ca <= 0)
+    if (Ca <= 0)
         Ca = 1e-4;
 
     const quantity<pressure> Ca_pa = Ca * 1e-6 * atmospheric_pressure;  // Pa.
@@ -78,17 +75,17 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
     /* TPU rate temperature dependence from:
      Fig. 7, Yang et al. (2016) Planta, 243, 687-698 https://doi.org/10.1007/s00425-015-2436-8) */
-    const double TPU_c = 25.5;                 // fitted constant
-    const quantity<energy_over_amount> Ha = 62.99e3  * joule / mole;   	                   // enthalpy of activation
-    const quantity<energy_over_temperature_amount> S  = 0.588e3 * joule / kelvin / mole;   // entropy
-    const quantity<energy_over_amount> Hd = 182.14e3 * joule / mole;                        // enthalpy of deactivation
-    const quantity<energy_over_temperature_amount> R = 8.314472 * joule / kelvin / mole;   // gas constant
-    const double TPU_rate_scaler25 = 306.7509;  // this is needed since the equation in the paper is NOT rate
-    const quantity<dimensionless> top = leaf_temperature.value() * arrhenius_exponent(TPU_c,Ha,leaf_temperature);
-    const quantity<dimensionless> bot = 1.0 + arrhenius_exponent(S/R,Hd,leaf_temperature);
-    double TPU_rate_scaler = top.value() / bot.value(); 
-    TPU_rate_scaler /= TPU_rate_scaler25; //normalize to 25 C
-    
+    const double TPU_c = 25.5;                                                            // fitted constant
+    const quantity<energy_over_amount> Ha = 62.99e3 * joule / mole;                       // enthalpy of activation
+    const quantity<energy_over_temperature_amount> S = 0.588e3 * joule / kelvin / mole;   // entropy
+    const quantity<energy_over_amount> Hd = 182.14e3 * joule / mole;                      // enthalpy of deactivation
+    const quantity<energy_over_temperature_amount> R = 8.314472 * joule / kelvin / mole;  // gas constant
+    const double TPU_rate_scaler25 = 306.7509;                                            // this is needed since the equation in the paper is NOT rate
+    const quantity<dimensionless> top = leaf_temperature.value() * arrhenius_exponent(TPU_c, Ha, leaf_temperature);
+    const quantity<dimensionless> bot = 1.0 + arrhenius_exponent(S / R, Hd, leaf_temperature);
+    double TPU_rate_scaler = top.value() / bot.value();
+    TPU_rate_scaler /= TPU_rate_scaler25;  //normalize to 25 C
+
     /*alpha constant for calculating Ap from: 
        Eq. 2.26, von Caemmerer, S. Biochemical models of leaf photosynthesis.*/
     double alpha_TPU = 0.0;  //without more information on this, alpha=0 is often assumed.
@@ -99,7 +96,7 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
 
         /* Rubisco limited carboxylation */
         Ci = Ci_pa / atmospheric_pressure;
-        quantity<flux> Ac1 =  Vcmax * (Ci - Gstar);
+        quantity<flux> Ac1 = Vcmax * (Ci - Gstar);
         double Ac2 = Ci + Kc * (1 + Oi / Ko);
         quantity<flux> Ac = Ac1 / Ac2;
 
@@ -114,11 +111,11 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
         quantity<flux> Ap = 3.0 * maximum_tpu_rate * (Ci - Gstar) / (Ci - (1.0 + 1.5 * alpha_TPU) * Gstar);
         Ap = Ap * TPU_rate_scaler;  //Temperature restriction
 
-        if(Ac < Aj && Ac < Ap){
+        if (Ac < Aj && Ac < Ap) {
             Vc = Ac;
-        } else if (Aj < Ac && Aj < Ap){
+        } else if (Aj < Ac && Aj < Ap) {
             Vc = Aj;
-        } else if (Ap < Ac && Ap < Aj){
+        } else if (Ap < Ac && Ap < Aj) {
             if (Ap < 0 * mole / square_meter / second)
                 Ap = 0 * mole / square_meter / second;
             Vc = Ap;
@@ -153,36 +150,35 @@ struct c3_str c3photoC(double _Qp, double _Tleaf, double RH, double _Vcmax0, dou
     }
 
     struct c3_str result;
-    result.Assim = co2_assimilation_rate.value() * 1e6;  // micromole / m^2 / s.
-    result.Gs = Gs.value() * 1e3;  // mmol / m^2 / s.
-    result.Ci = Ci.value() * 1e6;  // micromole / mol.
+    result.Assim = co2_assimilation_rate.value() * 1e6;                      // micromole / m^2 / s.
+    result.Gs = Gs.value() * 1e3;                                            // mmol / m^2 / s.
+    result.Ci = Ci.value() * 1e6;                                            // micromole / mol.
     result.GrossAssim = (co2_assimilation_rate.value() + Rd.value()) * 1e6;  // micromole / m^2 / s.
     return result;
 }
 
-double solc(double LeafT){
-
+double solc(double LeafT)
+{
     double tmp;
 
-    if(LeafT > 24 && LeafT < 26){
+    if (LeafT > 24 && LeafT < 26) {
         tmp = 1;
-    }else{
-        tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT,2) - 8.874081e-06 * pow(LeafT,3)) / 0.735465;
+    } else {
+        tmp = (1.673998 - 0.0612936 * LeafT + 0.00116875 * pow(LeafT, 2) - 8.874081e-06 * pow(LeafT, 3)) / 0.735465;
     }
 
-    return(tmp);
+    return (tmp);
 }
 
-double solo(double LeafT){
-
+double solo(double LeafT)
+{
     double tmp;
 
-    if(LeafT > 24 && LeafT < 26){
+    if (LeafT > 24 && LeafT < 26) {
         tmp = 1;
-    }else{
-        tmp = (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT,2) - 2.1441e-07 * pow(LeafT,3)) / 0.026934;
+    } else {
+        tmp = (0.047 - 0.0013087 * LeafT + 2.5603e-05 * pow(LeafT, 2) - 2.1441e-07 * pow(LeafT, 3)) / 0.026934;
     }
 
-    return(tmp);
+    return (tmp);
 }
-
