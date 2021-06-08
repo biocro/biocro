@@ -1,4 +1,5 @@
-# This file defines several helper functions related to running module tests:
+# This file defines several helper functions related to creating and running
+# module tests:
 # - `test_module`
 # - `case`
 # - `csv_from_cases`
