@@ -1,4 +1,4 @@
-default_numerical_integrator <- list(
+default_integrator <- list(
     type='auto',
     output_step_size=1.0,
     adaptive_rel_error_tol=1e-4,
@@ -12,7 +12,7 @@ biocro_simulation <- function(
     drivers,
     steady_state_module_names,
     derivative_module_names,
-    numerical_integrator = default_numerical_integrator,
+    integrator = default_integrator,
     verbose=FALSE
 )
 {
@@ -28,7 +28,7 @@ biocro_simulation <- function(
     #          (2) "doy" and "hour".
     # steady_state_module_names: a character vector of steady state module names
     # derivative_module_names: a character vector of derivative module names
-    # numerical_integrator: a list specifying details about the numerical
+    # integrator: a list specifying details about the numerical
     #                       integrator. Elements are:
     #                       type: string specifying the numerical integrator to
     #                             use. Options are:
@@ -60,7 +60,7 @@ biocro_simulation <- function(
     #
     # Example: running a sorghum simulation using weather data from 2005
     #
-    #  result <- biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_numerical_integrator, TRUE)
+    #  result <- biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator, TRUE)
     #  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
     #
     # The result is a data frame showing all time-dependent variables as they
@@ -77,11 +77,11 @@ biocro_simulation <- function(
     #
     # Example 2: running a soybean simulation using weather data from 2005
     #
-    #  result <- biocro_simulation(glycine_max_initial_values, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_steady_state_modules, glycine_max_derivative_modules, glycine_max_numerical_integrator, TRUE)
+    #  result <- biocro_simulation(glycine_max_initial_values, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_steady_state_modules, glycine_max_derivative_modules, glycine_max_integrator, TRUE)
     #  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
     #
     # In the soybean simulation, the 'auto' integrator (specified by
-    # glycine_max_numerical_integrator) automatically detects that all modules
+    # glycine_max_integrator) automatically detects that all modules
     # are compatible with adapative step size integration methods. In this case,
     # it uses ODEINT's implementation of an implicit Rosenbrock integrator to
     # run the simulation.
@@ -129,26 +129,26 @@ biocro_simulation <- function(
 
     # Check to make sure the numerical integrator properties are properly
     # defined
-    if(!is.list(numerical_integrator)) {
-        stop("'numerical_integrator' must be a list")
+    if(!is.list(integrator)) {
+        stop("'integrator' must be a list")
     }
-    numerical_integrator_type <- numerical_integrator$type
-    if (!is.character(numerical_integrator_type) & length(numerical_integrator_type) != 1) {
-        stop('"numerical_integrator_type" must be a string')
+    integrator_type <- integrator$type
+    if (!is.character(integrator_type) & length(integrator_type) != 1) {
+        stop('"integrator_type" must be a string')
     }
-    numerical_integrator_output_step_size <- numerical_integrator$output_step_size
-    numerical_integrator_adaptive_rel_error_tol <- numerical_integrator$adaptive_rel_error_tol
-    numerical_integrator_adaptive_abs_error_tol <- numerical_integrator$adaptive_abs_error_tol
-    numerical_integrator_adaptive_max_steps <- numerical_integrator$adaptive_max_steps
+    integrator_output_step_size <- integrator$output_step_size
+    integrator_adaptive_rel_error_tol <- integrator$adaptive_rel_error_tol
+    integrator_adaptive_abs_error_tol <- integrator$adaptive_abs_error_tol
+    integrator_adaptive_max_steps <- integrator$adaptive_max_steps
 
     # C++ requires that all the variables have type `double`
     initial_values = lapply(initial_values, as.numeric)
     parameters = lapply(parameters, as.numeric)
     drivers = lapply(drivers, as.numeric)
-    numerical_integrator_output_step_size = as.numeric(numerical_integrator_output_step_size)
-    numerical_integrator_adaptive_rel_error_tol = as.numeric(numerical_integrator_adaptive_rel_error_tol)
-    numerical_integrator_adaptive_abs_error_tol = as.numeric(numerical_integrator_adaptive_abs_error_tol)
-    numerical_integrator_adaptive_max_steps = as.numeric(numerical_integrator_adaptive_max_steps)
+    integrator_output_step_size = as.numeric(integrator_output_step_size)
+    integrator_adaptive_rel_error_tol = as.numeric(integrator_adaptive_rel_error_tol)
+    integrator_adaptive_abs_error_tol = as.numeric(integrator_adaptive_abs_error_tol)
+    integrator_adaptive_max_steps = as.numeric(integrator_adaptive_max_steps)
 
     # Make sure verbose is a logical variable
     verbose = lapply(verbose, as.logical)
@@ -161,11 +161,11 @@ biocro_simulation <- function(
         drivers,
         steady_state_module_names,
         derivative_module_names,
-        numerical_integrator_type,
-        numerical_integrator_output_step_size,
-        numerical_integrator_adaptive_rel_error_tol,
-        numerical_integrator_adaptive_abs_error_tol,
-        numerical_integrator_adaptive_max_steps,
+        integrator_type,
+        integrator_output_step_size,
+        integrator_adaptive_rel_error_tol,
+        integrator_adaptive_abs_error_tol,
+        integrator_adaptive_max_steps,
         verbose
     ))
 
@@ -187,7 +187,7 @@ partial_biocro_simulation <- function(
     steady_state_module_names,
     derivative_module_names,
     arg_names,
-    numerical_integrator = default_numerical_integrator,
+    integrator = default_integrator,
     verbose=FALSE
 )
 {
@@ -209,7 +209,7 @@ partial_biocro_simulation <- function(
     #            the new function accepts. Note: 'arg_names' can only contain
     #            the names of parameters in 'initial_values', 'parameters', or
     #            'drivers'.
-    # numerical_integrator: same as biocro_simulation()
+    # integrator: same as biocro_simulation()
     # verbose: same as biocro_simulation()
     #
     # returns f(arg).
@@ -217,7 +217,7 @@ partial_biocro_simulation <- function(
     # Example: varying the TTc values at which senescence starts for a sorghum
     # simulation
     #
-    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_numerical_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), TRUE)
+    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), TRUE)
     #  result = senescence_gro(c(2000, 2000, 2000, 2000))
     #
     # Note that in this example, typing 'sorghum_parameters$seneStem' returns
@@ -227,11 +227,11 @@ partial_biocro_simulation <- function(
     # startup messages, change verbose to FALSE in the partial_gro command or
     # omit it altogether to use the default value of FALSE, i.e.
     #
-    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_numerical_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), FALSE)
+    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), FALSE)
     #
     #  OR
     #
-    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_numerical_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
+    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
 
     arg_list = list(
         initial_values=initial_values,
@@ -239,7 +239,7 @@ partial_biocro_simulation <- function(
         drivers=drivers,
         steady_state_module_names=steady_state_module_names,
         derivative_module_names=derivative_module_names,
-        numerical_integrator=numerical_integrator,
+        integrator=integrator,
         verbose=verbose
     )
 

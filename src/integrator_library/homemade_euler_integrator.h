@@ -1,38 +1,38 @@
-#ifndef HOMEMADE_EULER_NUMERICAL_INTEGRATOR_H
-#define HOMEMADE_EULER_NUMERICAL_INTEGRATOR_H
+#ifndef HOMEMADE_EULER_INTEGRATOR_H
+#define HOMEMADE_EULER_INTEGRATOR_H
 
-#include "../numerical_integrator.h"
+#include "../integrator.h"
 #include "../state_map.h"
 
-// A class representing our homemade euler numerical_integrator
+// A class representing our homemade Euler integrator
 template <class state_type>
-class homemade_euler_numerical_integrator : public numerical_integrator
+class homemade_euler_integrator : public integrator
 {
    public:
-    homemade_euler_numerical_integrator(
+    homemade_euler_integrator(
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : numerical_integrator("homemade_euler", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
+        int max_steps) : integrator("homemade_euler", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     state_vector_map do_solve(std::shared_ptr<System> sys) override;
 
     std::string get_param_info() const override
     {
-        // The homemade Euler numerical_integrator has no new parameters to report
+        // The homemade Euler integrator has no new parameters to report
         return std::string("");
     }
 
     std::string get_solution_info() const override
     {
-        // The homemade Euler numerical_integrator doesn't have much to contribute
+        // The homemade Euler integrator doesn't have much to contribute
         return std::string("N/A");
     }
 };
 
 template <class state_type>
-state_vector_map homemade_euler_numerical_integrator<state_type>::do_solve(std::shared_ptr<System> sys)
+state_vector_map homemade_euler_integrator<state_type>::do_solve(std::shared_ptr<System> sys)
 {
     // Get the names of the output parameters and pointers to them
     std::vector<std::string> output_param_vector = sys->get_output_param_names();

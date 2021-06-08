@@ -17,8 +17,8 @@ class se_solver_factory
     static std::vector<std::string> get_solvers();
 
    private:
-    using se_solver_creator = std::unique_ptr<se_solver> (*)(int);           // Define a numerical_integrator_creator to be a pointer to a function that has one int argument and returns a std::unique_ptr<numerical_integrator>
-    using se_solver_creator_map = std::map<std::string, se_solver_creator>;  // A map of strings to numerical_integrator_creators
+    using se_solver_creator = std::unique_ptr<se_solver> (*)(int);           // Define a integrator_creator to be a pointer to a function that has one int argument and returns a std::unique_ptr<integrator>
+    using se_solver_creator_map = std::map<std::string, se_solver_creator>;  // A map of strings to integrator_creators
     static se_solver_creator_map se_solver_creators;
 };
 

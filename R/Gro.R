@@ -1,9 +1,9 @@
 Gro_deriv <- function(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names)
 {
-    # Gro_deriv is used to create a function that can be called by a numerical_integrator such as LSODES
+    # Gro_deriv is used to create a function that can be called by a integrator such as LSODES
     #
     # Important note: this strategy is not recommended, biocro_simulation now implements
-    #  the ODEINT stiff system numerical_integrator in a more efficient way then LSODES would
+    #  the ODEINT stiff system integrator in a more efficient way then LSODES would
     #
     # initial_values: a list of named parameters representing state variables
     #  Note: the values of these parameters are not important and won't be used in this function, but their names are critical

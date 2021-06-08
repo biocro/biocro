@@ -42,13 +42,13 @@ get_all_quantities <- function()
 	return(result)
 }
 
-get_all_numerical_integrators <- function()
+get_all_integrators <- function()
 {
 	# Intended usage:
 	#
-	#  View(get_all_numerical_integrators())
+	#  View(get_all_integrators())
 	
-	result = .Call(R_get_all_numerical_integrators)
+	result = .Call(R_get_all_integrators)
 	return(result)
 }
 

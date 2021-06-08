@@ -1,6 +1,6 @@
-#include "numerical_integrator.h"
+#include "integrator.h"
 
-state_vector_map numerical_integrator::solve(std::shared_ptr<System> sys)
+state_vector_map integrator::solve(std::shared_ptr<System> sys)
 {
     solve_method_has_been_called = true;
 

@@ -20,7 +20,7 @@ willow_derivative_modules <- list(
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
-willow_numerical_integrator <- list(
+willow_integrator <- list(
     type = 'auto',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-5,

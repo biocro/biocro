@@ -26,15 +26,15 @@ soybean_derivative_modules <- list(
     thermal_time = "thermal_time_linear"
 )
 
-soybean_numerical_integrator <- list(
+soybean_integrator <- list(
     type = 'boost_rkck54',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-4,
     adaptive_abs_error_tol = 1e-4,
     adaptive_max_steps = 200
 )
-# Note: the numerical_integrator type should not be 'boost_rosenbrock' or 'auto' (which
-# defaults to 'boost_rosenbrock' when an adaptive numerical_integrator can be used, as in this
+# Note: the integrator type should not be 'boost_rosenbrock' or 'auto' (which
+# defaults to 'boost_rosenbrock' when an adaptive integrator can be used, as in this
 # case) since the integration will fail unless the tolerances are stringent
 # (e.g., output_step_size = 0.01, adaptive_rel_error_tol = 1e-9,
 # adaptive_abs_error_tol = 1e-9)

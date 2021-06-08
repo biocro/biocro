@@ -79,12 +79,12 @@ debug_view <- function(ob) {
 derivative_modules <- c("harmonic_oscillator")
 steady_state_modules <- c("harmonic_energy")
 drivers <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
-default_numerical_integrator <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
+default_integrator <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
 ## from harmonic motion equations.
-run_trial <- function(initial_position, initial_velocity, mass, spring_constant, numerical_integrator, trial_description) {
+run_trial <- function(initial_position, initial_velocity, mass, spring_constant, integrator, trial_description) {
     initial_values <- list(position=initial_position, velocity=initial_velocity)
     parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
 
@@ -111,8 +111,8 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     debug_print(list(amplitude = amplitude, phase = phase, angular_frequency = angular_frequency))
 
 
-    ## try out the numerical_integrator
-    result <- biocro_simulation(initial_values, parameters, drivers, steady_state_modules, derivative_modules, numerical_integrator)
+    ## try out the integrator
+    result <- biocro_simulation(initial_values, parameters, drivers, steady_state_modules, derivative_modules, integrator)
 
     ## add useful columns to the resulting data frame:
     result$time <- result$time * 24 # time is in hours
@@ -151,13 +151,13 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
 ## some special cases
 
-run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_numerical_integrator, "initial position 0, amplitude 100, and period 24")
+run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_integrator, "initial position 0, amplitude 100, and period 24")
 
-run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_numerical_integrator, "a mass at rest")
+run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass at rest")
 
-run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_numerical_integrator, "a mass with no initial velocity with initial positive displacement")
+run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass with no initial velocity with initial positive displacement")
 
-run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_numerical_integrator, "a mass with no initial velocity and with initial negative displacement")
+run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass with no initial velocity and with initial negative displacement")
 
 
 ## run a number of randomly-chosen cases
@@ -169,14 +169,14 @@ for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
     mass <- runif(1, 0, 100)[1]
     spring_constant <- runif(1, 0, 100)[1]
 
-    run_trial(initial_position, initial_velocity, mass, spring_constant, default_numerical_integrator, "random parameters and initial values")
+    run_trial(initial_position, initial_velocity, mass, spring_constant, default_integrator, "random parameters and initial values")
 }
 
-## test each numerical_integrator method using a really weak spring (so the Euler methods still work)
-all_numerical_integrator_types <- get_all_numerical_integrators()
-for (numerical_integrator_type in all_numerical_integrator_types) {
-	numerical_integrator <- default_numerical_integrator
-	numerical_integrator$type <- numerical_integrator_type
-	description <- paste("using the ", numerical_integrator_type, " method", sep="")
-	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, numerical_integrator, description)
+## test each integrator method using a really weak spring (so the Euler methods still work)
+all_integrator_types <- get_all_integrators()
+for (integrator_type in all_integrator_types) {
+	integrator <- default_integrator
+	integrator$type <- integrator_type
+	description <- paste("using the ", integrator_type, " method", sep="")
+	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, integrator, description)
 }

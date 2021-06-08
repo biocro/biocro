@@ -7,7 +7,7 @@ name_parameters = function(
     drivers,
     steady_state_module_names,
     derivative_module_names,
-    numerical_integrator
+    integrator
 )
 {
     list(
@@ -16,14 +16,14 @@ name_parameters = function(
         drivers = drivers,
         steady_state_module_names = steady_state_module_names,
         derivative_module_names = derivative_module_names,
-        numerical_integrator = numerical_integrator
+        integrator = integrator
     )
 }
 
 parameter_lists = list(
-    willow =     name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_steady_state_modules,                 willow_derivative_modules,                 willow_numerical_integrator),
-    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_steady_state_modules, miscanthus_x_giganteus_derivative_modules, miscanthus_x_giganteus_numerical_integrator),
-    sorghum =    name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_steady_state_modules,                sorghum_derivative_modules,                sorghum_numerical_integrator)
+    willow =     name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_steady_state_modules,                 willow_derivative_modules,                 willow_integrator),
+    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_steady_state_modules, miscanthus_x_giganteus_derivative_modules, miscanthus_x_giganteus_integrator),
+    sorghum =    name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_steady_state_modules,                sorghum_derivative_modules,                sorghum_integrator)
 )
 
 test_that("Willow simulation produces reasonable results", {
@@ -33,7 +33,7 @@ test_that("Willow simulation produces reasonable results", {
         weather05,
         willow_steady_state_modules,
         willow_derivative_modules,
-        willow_numerical_integrator
+        willow_integrator
     )
 
     results_means <- unlist(lapply(results, mean))

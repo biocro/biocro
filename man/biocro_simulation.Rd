@@ -2,7 +2,7 @@
 \alias{biocro_simulation}
 \title{Model crop growth.}
 \usage{
-    biocro_simulation(initial_values, parameters, drivers, steady_state_modules, derivative_modules, numerical_integrator, verbose = FALSE)
+    biocro_simulation(initial_values, parameters, drivers, steady_state_modules, derivative_modules, integrator, verbose = FALSE)
 }
 \arguments{
     \item{initial_values}{Parameter values that are known only at the start of the simulation period. These are recorded in the result. (a list of named numeric values)}
@@ -15,7 +15,7 @@
 
     \item{derivative_modules}{The derivative modules that should be run. (a list of character values)}
 
-    \item{numerical_integrator}{Information specifying the numerical integration algorithm to use}
+    \item{integrator}{Information specifying the numerical integration algorithm to use}
 
     \item{verbose}{A logical variable indicating whether or not to print system startup information}
 }
@@ -82,7 +82,7 @@
 ## Simulate sorghum growth
 result = biocro_simulation(sorghum_initial_values, sorghum_parameters,
              get_growing_season_climate(weather05), sorghum_steady_state_modules,
-             sorghum_derivative_modules, sorghum_numerical_integrator)
+             sorghum_derivative_modules, sorghum_integrator)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
                 auto=list(points=FALSE, lines=TRUE),
                 ylab=expression('Biomass'~(Mg/ha)),
@@ -96,7 +96,7 @@ canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
 architechture_result = biocro_simulation(sorghum_initial_values, canopy_architecture,
                            get_growing_season_climate(weather05),
                            sorghum_steady_state_modules, sorghum_derivative_modules,
-                           sorghum_numerical_integrator)
+                           sorghum_integrator)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l',
                 auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)),
                 xlab=expression('Thermal time'~(degree*C~day)))
