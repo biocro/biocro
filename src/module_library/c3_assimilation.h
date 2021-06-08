@@ -53,14 +53,14 @@
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
  */
-class c3_assimilation : public DerivModule
+class c3_assimilation : public SteadyModule
 {
    public:
     c3_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          DerivModule("c3_assimilation"),
+          SteadyModule("c3_assimilation"),
 
           // Get pointers to input quantities
           Qp(get_input(input_quantities, "Qp")),
