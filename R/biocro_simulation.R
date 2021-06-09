@@ -1,19 +1,19 @@
 default_integrator <- list(
-    type='auto',
-    output_step_size=1.0,
-    adaptive_rel_error_tol=1e-4,
-    adaptive_abs_error_tol=1e-4,
-    adaptive_max_steps=200
+    type = 'homemade_euler',
+    output_step_size = NA,
+    adaptive_rel_error_tol = NA,
+    adaptive_abs_error_tol = NA,
+    adaptive_max_steps = NA
 )
 
 biocro_simulation <- function(
-    initial_values,
-    parameters,
+    initial_values = list(),
+    parameters = list(),
     drivers,
-    steady_state_module_names,
-    derivative_module_names,
+    steady_state_module_names = list(),
+    derivative_module_names = list(),
     integrator = default_integrator,
-    verbose=FALSE
+    verbose = FALSE
 )
 {
     # This function runs a full crop growth simulation with a user-specified
@@ -181,14 +181,14 @@ biocro_simulation <- function(
 }
 
 partial_biocro_simulation <- function(
-    initial_values,
-    parameters,
+    initial_values = list(),
+    parameters = list(),
     drivers,
-    steady_state_module_names,
-    derivative_module_names,
+    steady_state_module_names = list(),
+    derivative_module_names = list(),
     arg_names,
     integrator = default_integrator,
-    verbose=FALSE
+    verbose = FALSE
 )
 {
     # Accepts the same parameters as biocro_simulation() with an additional

@@ -1,4 +1,10 @@
-Gro_deriv <- function(initial_values, parameters, drivers, steady_state_module_names, derivative_module_names)
+Gro_deriv <- function(
+    initial_values = list(),
+    parameters = list(),
+    drivers,
+    steady_state_module_names = list(),
+    derivative_module_names = list()
+)
 {
     # Gro_deriv is used to create a function that can be called by a integrator such as LSODES
     #
@@ -79,17 +85,21 @@ Gro_deriv <- function(initial_values, parameters, drivers, steady_state_module_n
         stop('"drivers" must be a list')
     }
 
+    # Check to make sure the module names are vectors or lists of strings
+    steady_state_module_names <- unlist(steady_state_module_names)
+    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
+        stop('"steady_state_module_names" must be a vector or list of strings')
+    }
+
+    derivative_module_names <- unlist(derivative_module_names)
+    if(length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
+        stop('"derivative_module_names" must be a vector or list of strings')
+    }
+
     # C++ requires that all the variables have type `double`
     initial_values = lapply(initial_values, as.numeric)
     parameters = lapply(parameters, as.numeric)
     drivers = lapply(drivers, as.numeric)
-
-    # Define some items for the function
-    state_names = character(0)
-    result_names = character(0)
-    result_name_length = 0
-    state_diff = character(0)
-    result_diff = character(0)
 
     # Create a function that returns a derivative
     function(t, state, parms)
@@ -115,7 +125,11 @@ Gro_deriv <- function(initial_values, parameters, drivers, steady_state_module_n
     }
 }
 
-Gro_ode <- function(state, steady_state_module_names, derivative_module_names)
+Gro_ode <- function(
+    state = list(),
+    steady_state_module_names = list(),
+    derivative_module_names = list()
+)
 {
     # Important note: this function is clunky and not recommended for solving a system, and should only be
     #  used to check the output values of a single derivative calculation. Even for this application, Gro_deriv
@@ -160,6 +174,17 @@ Gro_ode <- function(state, steady_state_module_names, derivative_module_names)
     }
     if (!is.character(derivative_module_names)) {
         stop('"derivative_module_names" must be a list of strings')
+    }
+
+    # Check to make sure the module names are vectors or lists of strings
+    steady_state_module_names <- unlist(steady_state_module_names)
+    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
+        stop('"steady_state_module_names" must be a vector or list of strings')
+    }
+
+    derivative_module_names <- unlist(derivative_module_names)
+    if(length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
+        stop('"derivative_module_names" must be a vector or list of strings')
     }
 
     # C++ requires that all the variables have type `double`
