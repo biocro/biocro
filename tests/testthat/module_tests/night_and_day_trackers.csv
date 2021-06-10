@@ -1,0 +1,4 @@
+day_tracker,night_tracker,tracker_rate,light,day_tracker,night_tracker,description
+input,input,input,input,output,output,NA
+0.8,0.2,2,0.8,0,0,light = day_tracker = 1 - night_tracker
+0.2,0.8,2,0.8,1.2,-1.2,just a typical set of values

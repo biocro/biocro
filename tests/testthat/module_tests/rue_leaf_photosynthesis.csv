@@ -1,0 +1,3 @@
+height,windspeed,Catm,b1,b0,specific_heat_of_air,incident_average_par,par_energy_content,incident_par,Rd,alpha_rue,temp,rh,GrossAssim,Assim,EPriestly,TransR,Ci,Gs,leaf_temperature,EPenman,description
+input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.803860496769425,0.00855569381155759,0.00678996026531713,0.907678816532023,13931.5457895664,1.03811658587389,0.00679023318377586,automatically-generated test case

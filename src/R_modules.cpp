@@ -8,51 +8,56 @@
 
 extern "C" {
 
-SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
+SEXP R_module_info(SEXP module_name_input, SEXP verbose)
 {
     try {
         // module_name_input should be a string vector with one element
-        std::vector<std::string> module_name_vector = make_vector(module_name_input);
+        std::vector<std::string> module_name_vector =
+            make_vector(module_name_input);
         std::string module_name = module_name_vector[0];
 
         // Convert verbose to a boolean
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
-        // Make a module factory
-        state_map parameters;
-        state_map module_output_map;
+        // Make maps for the module's inputs and outputs
+        state_map module_inputs;
+        state_map module_outputs;
 
         // Get the module wrapper
         auto w = module_wrapper_factory::create(module_name);
 
-        // Get the module's inputs and add them to the parameter list with default
-        //  values
-        std::vector<std::string> module_inputs = w->get_inputs();
-        for (std::string param : module_inputs) parameters[param] = 1.0;
-        state_map input_map = parameters;
+        // Get the module's inputs and give them default values
+        double const default_value = 1.0;
+        std::vector<std::string> inputs = w->get_inputs();
+        for (std::string param : inputs) {
+            module_inputs[param] = default_value;
+        }
 
-        // Get the module's outputs and add them to the parameter list with default
-        //  values
-        std::vector<std::string> module_outputs = w->get_outputs();
-        for (std::string param : module_outputs) parameters[param] = 1.0;
+        // Get the module's outputs and give them default values
+        std::vector<std::string> outputs = w->get_outputs();
+        for (std::string param : outputs) {
+            module_outputs[param] = default_value;
+        }
 
         // Try to create an instance of the module
-        module_output_map = parameters;
         bool create_success = true;
         bool is_deriv = false;
         bool is_adaptive_compatible = false;
-        std::string error_message;
+        std::string creation_error_message = "none";
         try {
-            std::unique_ptr<Module> module_ptr = w->createModule(parameters, &module_output_map);
+            std::unique_ptr<Module> module_ptr = w->createModule(
+                module_inputs,
+                &module_outputs);
 
             // Check to see if the module is a derivative module
             is_deriv = module_ptr->is_deriv();
 
-            // Check to see if the module is compatible with adaptive step size solvers
+            // Check to see if the module is compatible with adaptive step size
+            // solvers
             is_adaptive_compatible = module_ptr->is_adaptive_compatible();
         } catch (std::exception const& e) {
             create_success = false;
-            error_message = e.what();
+            creation_error_message = e.what();
         }
 
         // Send some messages to the user if required
@@ -62,54 +67,67 @@ SEXP R_get_module_info(SEXP module_name_input, SEXP verbose)
 
             // Module inputs
             Rprintf("Module input parameters:");
-            if (module_inputs.size() == 0)
+            if (inputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
-                for (std::string param : module_inputs) Rprintf("\n  %s", param.c_str());
+                for (std::string param : inputs) {
+                    Rprintf("\n  %s", param.c_str());
+                }
                 Rprintf("\n\n");
             }
 
             // Module outputs
             Rprintf("Module output parameters:");
-            if (module_outputs.size() == 0)
+            if (outputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
-                for (std::string param : module_outputs) Rprintf("\n  %s", param.c_str());
+                for (std::string param : outputs) {
+                    Rprintf("\n  %s", param.c_str());
+                }
                 Rprintf("\n\n");
             }
 
             if (create_success) {
                 // Module type
+                Rprintf("Module type (derivative or steady state):\n  ");
                 if (is_deriv)
-                    Rprintf("Module type (derivative or steady state):\n  derivative\n\n");
+                    Rprintf("derivative\n\n");
                 else
-                    Rprintf("Module type (derivative or steady state):\n  steady state\n\n");
+                    Rprintf("steady state\n\n");
 
                 // Adaptive compatibility
+                Rprintf("Compatible with adaptive step size solvers:\n  ");
                 if (is_adaptive_compatible)
-                    Rprintf("Compatible with adaptive step size solvers:\n  yes\n\n");
+                    Rprintf("yes\n\n");
                 else
-                    Rprintf("Compatible with adaptive step size solvers:\n  no\n\n");
+                    Rprintf("no\n\n");
             } else {
                 Rprintf("Error: could not create the module\n");
                 Rprintf("Additional details:\n");
-                Rprintf(error_message.c_str());
+                Rprintf(creation_error_message.c_str());
                 Rprintf("\n\n");
             }
         }
 
-        // Return a map containing the module's input parameters
-        return list_from_map(input_map);
+        // Return a list containing information about the module
+        return list_from_module_info(
+            module_name,
+            module_inputs,
+            module_outputs,
+            is_deriv,
+            is_adaptive_compatible,
+            creation_error_message);
+
     } catch (quantity_access_error const& qae) {
-        Rf_error((std::string("Caught quantity access error in R_test_module: ") + qae.what()).c_str());
+        Rf_error((std::string("Caught quantity access error in R_module_info: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_get_module_info: ") + e.what()).c_str());
+        Rf_error((std::string("Caught exception in R_module_info: ") + e.what()).c_str());
     } catch (...) {
-        Rf_error("Caught unhandled exception in R_get_module_info.");
+        Rf_error("Caught unhandled exception in R_module_info.");
     }
 }
 
-SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
+SEXP R_evaluate_module(SEXP module_name_input, SEXP input_parameters)
 {
     try {
         // module_name_input should be a string vector with one element
@@ -135,11 +153,11 @@ SEXP R_test_module(SEXP module_name_input, SEXP input_parameters)
 
         return list_from_map(module_output_map);
     } catch (quantity_access_error const& qae) {
-        Rf_error((std::string("Caught quantity access error in R_test_module: ") + qae.what()).c_str());
+        Rf_error((std::string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_test_module: ") + e.what()).c_str());
+        Rf_error((std::string("Caught exception in R_evaluate_module: ") + e.what()).c_str());
     } catch (...) {
-        Rf_error("Caught unhandled exception in R_test_module.");
+        Rf_error("Caught unhandled exception in R_evaluate_module.");
     }
 }
 

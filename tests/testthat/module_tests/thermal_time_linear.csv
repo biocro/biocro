@@ -1,0 +1,5 @@
+tbase,temp,TTc,description
+input,input,output,NA
+20,10,0,temp below tbase
+20,20,0,temp equal to tbase
+20,44,1,temp above tbase
