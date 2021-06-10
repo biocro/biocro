@@ -1,0 +1,3 @@
+rate_constant_stem_senescence,rate_constant_leaf_senescence,rate_constant_root_senescence,Root,rate_constant_rhizome_senescence,Leaf,Rhizome,Stem,senescence_rhizome,senescence_root,senescence_leaf,senescence_stem,description
+input,input,input,input,input,input,input,input,output,output,output,output,NA
+1,1,1,1,1,1,1,1,1,1,1,1,automatically-generated test case

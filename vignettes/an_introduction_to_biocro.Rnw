@@ -1338,7 +1338,7 @@ module.}
 \subsubsection{Writing unit tests for a steady-state module}
 \label{sec:write_ss_unit_test}
 
-  In writing our tests, we will make use of the R \Rcode{test_module}
+  In writing our tests, we will make use of the R \Rcode{evaluate_module}
   function.  This function takes as input the name of a module (as a
   string), and a list specifying values for all of the input
   parameters of the module.  It returns a list of values for the
@@ -1375,9 +1375,9 @@ module.}
 
   More specifically, each test will generally set input parameter
   values for the module and then call
-  \Rcode{test_module}:
+  \Rcode{evaluate_module}:
   \begin{Rlisting}[4]
-    result <- test_module(|\stringplaceholder{module name}|, |\placeholder{input parameter list}|)
+    result <- evaluate_module(|\stringplaceholder{module name}|, |\placeholder{input parameter list}|)
   \end{Rlisting}
   The subsequent statements may then test various aspects of \Rcode{result}.
 
@@ -1416,12 +1416,12 @@ module.}
     \begin{Rexample}[6]
       test_that("When the cosine is 1/2, the angle is 60 degrees.", {
         input_parameters <- list(cosine_zenith_angle = 0.5)
-        result = test_module("solar_zenith_angle_in_degrees", input_parameters)
+        result = evaluate_module("solar_zenith_angle_in_degrees", input_parameters)
         expect_equal(result$zenith_angle_in_degrees, 60)
       })
     \end{Rexample}
 
-    Since we will likely call \Rcode{test_module} in each test, and
+    Since we will likely call \Rcode{evaluate_module} in each test, and
     with the same value for the module name each time, we can write a
     helper function to factor the repetitious code out of our tests;
     for example,
@@ -1429,7 +1429,7 @@ module.}
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
         input_parameters <- list(cosine_zenith_angle = cza)
-        result <- test_module("solar_zenith_angle_in_degrees", input_parameters)
+        result <- evaluate_module("solar_zenith_angle_in_degrees", input_parameters)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
@@ -1500,7 +1500,7 @@ module.}
 \label{sec:write_deriv_unit_test}
 
   Again, in writing our tests, we will make use of the R
-  \Rcode{test_module} function. Keep in mind that in the case of a
+  \Rcode{evaluate_module} function. Keep in mind that in the case of a
   derivative module, the output values represent the rate of change of
   the output parameters \emph{per hour}. Here, we show how to test the
   heating degree days module.
@@ -1575,15 +1575,15 @@ testing a module entails setting up a complete system and running a
 full simulation, albeit perhaps one with a very limited time span.
 
 A much more convenient way to write tests is to use the
-\Rcode{test_module} function. This is the method we demonstrate in
-section~\ref{sec:writing_tests}.  By using \Rcode{test_module}, we can
+\Rcode{evaluate_module} function. This is the method we demonstrate in
+section~\ref{sec:writing_tests}.  By using \Rcode{evaluate_module}, we can
 test the basic functioning of a module while avoiding all of the many
 steps needed to set up a full system for running a simulation.
 
 There may be cases, however, where we may still want the flexibility
 offered by being able to specify and run a full simulation.  Some of
 the things we can do with a full-fledged system that we can't do just
-by calling \Rcode{test_module} include
+by calling \Rcode{evaluate_module} include
 
 \begin{itemize}
 
@@ -1602,7 +1602,7 @@ Thus, it may be useful to present the steps required to write a test
 that sets up and runs a complete system; and so here, by way of some
 simple examples, we re-present the material from section
 \ref{sec:writing_tests}, this time showing how to write tests using
-\Rcode{Gro_solver} instead of \Rcode{test_module}.  As an added
+\Rcode{Gro_solver} instead of \Rcode{evaluate_module}.  As an added
 benefit, writing such tests will instruct a user in the rudiments of
 setting up and running a simulation in BioCro.
 
@@ -1623,7 +1623,7 @@ module being tested plus certain time-related variables.
 
 The third step is ``new'', as it involves setting up parameters for
 the \Rcode{Gro_solver} function, something we don't need to do when
-using \Rcode{test_module}:
+using \Rcode{evaluate_module}:
 
 \begin{enumerate}
 \setcounter{enumi}{2}
@@ -1737,7 +1737,7 @@ using \Rcode{test_module}:
     })
   \end{Rlisting}
   However, instead of getting results to test by calling
-  \Rcode{test_module}, we call \Rcode{Gro_solver} instead:
+  \Rcode{evaluate_module}, we call \Rcode{Gro_solver} instead:
   \begin{Rlisting}[4]
     result = Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
   \end{Rlisting}
@@ -1745,7 +1745,7 @@ using \Rcode{test_module}:
 As before, the various \Rcode{expect_} functions are used to test
 \Rcode{result}.  In fact, once we make some global parameter settings
 and re-define our helper function \Rcode{angle_from_cosine} to utilize
-\Rcode{Gro_solver} instead of \Rcode{test_module}, the tests
+\Rcode{Gro_solver} instead of \Rcode{evaluate_module}, the tests
 themselves can remain exactly as in section~\ref{sec:write_ss_unit_test}.
 
 Here are the precise settings we will use for the modules, invariant

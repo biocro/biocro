@@ -1,0 +1,3 @@
+rateSeneRoot,betaSeneRoot,alphaSeneRoot,rateSeneStem,alphaSeneRhizome,alphaSeneStem,rateSeneRhizome,DVI,alphaSeneLeaf,betaSeneRhizome,betaSeneStem,betaSeneLeaf,rateSeneLeaf,kSeneRoot,kSeneStem,kSeneRhizome,kSeneLeaf,description
+input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,NA
+1,1,1,1,1,1,1,1,1,1,1,1,1,0.119202922022118,0.119202922022118,0.119202922022118,0.119202922022118,automatically-generated test case

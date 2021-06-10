@@ -27,11 +27,11 @@ test_that("c3photo is sensitive to changes in vcmax", {
 
     # Get net assimilation for vmax = 100 micromol / m^2 / s
     inputs$vmax = 100
-    a_100 <- test_module("c3_assimilation", inputs)$Assim
+    a_100 <- evaluate_module("c3_assimilation", inputs)$Assim
 
     # Get net assimilation for vmax = 10 micromol / m^2 / s
     inputs$vmax = 10
-    a_10 <- test_module("c3_assimilation", inputs)$Assim
+    a_10 <- evaluate_module("c3_assimilation", inputs)$Assim
 
     # The two values should be different
     expect_false(a_100 == a_10)

@@ -1,0 +1,3 @@
+atmospheric_pressure,leafwidth,temp,windspeed,conductance_stomatal_h2o,temperature_leaf,mole_fraction_h2o_atmosphere,conductance_boundary_h2o,description
+input,input,input,input,input,input,input,output,NA
+1,1,1,1,1,1,1,0.097016124903082,automatically-generated test case
