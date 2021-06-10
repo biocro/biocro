@@ -32,15 +32,15 @@ class biocro_simulation
                        derivative_module_names)
         );
 
-        // Create the integrator
-        integrator = integrator_factory::create(
+        // Create the integrator that will be used to solve the system
+        system_solver = integrator_factory::create(
             integrator_name, output_step_size, adaptive_rel_error_tol,
             adaptive_abs_error_tol, adaptive_max_steps
         );
     }
 
     std::unordered_map<std::string, std::vector<double>> run_simulation() {
-        return integrator->integrate(sys);
+        return system_solver->integrate(sys);
     }
 
     std::string generate_report() const
@@ -49,9 +49,9 @@ class biocro_simulation
         report += "\nSystem startup information:\n" +
                       sys->generate_startup_report() +
                   "\nIntegrator description:\n" +
-                      integrator->generate_info_report() +
+                      system_solver->generate_info_report() +
                   "\n\nThe integrator reports the following:\n" +
-                      integrator->generate_integrate_report() +
+                      system_solver->generate_integrate_report() +
                   "\nThe system reports the following:\n" +
                       sys->generate_usage_report() +
                   "\n\n";
@@ -60,7 +60,7 @@ class biocro_simulation
 
    private:
     std::shared_ptr<System> sys;
-    std::unique_ptr<integrator> integrator;
+    std::unique_ptr<integrator> system_solver;
 };
 
 #endif
