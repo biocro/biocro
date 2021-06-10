@@ -19,97 +19,139 @@ biocro_simulation <- function(
     # This function runs a full crop growth simulation with a user-specified
     # numerical integrator
     #
-    # initial_values: a list of named parameters representing state variables
-    # parameters: a list of named parameters that don't change with time
-    # drivers: a data frame of parameters defined at equally spaced time
-    #          intervals. Note 1: the time interval should be specified as a
-    #          parameter called "timestep" in the list of constant parameters.
-    #          Note 2: the drivers must include columns for either (1) "time" or
-    #          (2) "doy" and "hour".
-    # steady_state_module_names: a character vector of steady state module names
-    # derivative_module_names: a character vector of derivative module names
-    # integrator: a list specifying details about the numerical
-    #                       integrator. Elements are:
-    #                       type: string specifying the numerical integrator to
-    #                             use. Options are:
-    #                             "auto": automatically uses boost_rosenbrock if
-    #                                     possible; homemade_euler otherwise
-    #                             "homemade_euler": our own implementation of
-    #                                               the fixed-step Euler method
-    #                             "boost_euler": the boost library version of
-    #                                            the fixed-step Euler method
-    #                             "boost_rosenbrock": adaptive step-size
-    #                                                 Rosenbrock method
-    #                                                 (implicit method useful
-    #                                                 for stiff systems)
-    #                             "boost_rk4": fixed-step 4th order Runge-Kutta
-    #                                          method
-    #                             "boost_rkck54": adaptive step-size
-    #                                             Runge-Kutta-Cash-Karp method
-    #                                             (5th order Runge-Kutta with
-    #                                             4th order error estimation)
-    #  output_step_size: the output step size... can be smaller than 1.0, but
-    #                    should equal 1.0 / N for some integer N
-    #  adaptive_error_tol: used to set the error tolerance for adaptive step
-    #                      size methods like Rosenbrock or RKCK54
-    #  adaptive_max_steps: determines how many times an adaptive step size
-    #                      method will attempt to find a new step size before
-    #                      failing
-    # verbose: a logical variable indicating whether or not to print system
-    #          startup information
+    # initial_values: a list of named quantities representing the initial values
+    #                 of quantities that follow a differential evolution rule.
+    #
+    # parameters: a list of named quantities that don't change with time; must
+    #             include a `timestep` parameter (see `drivers` for more info)
+    #
+    # drivers: a data frame of quantities defined at equally spaced time
+    #          intervals. The time interval should be specified as a quantity
+    #          called `timestep` having units of hours. The drivers must include
+    #          columns for either (1) `time` (in units of days) or (2) `doy` and
+    #          `hour`.
+    #
+    # steady_state_module_names: a character vector or list of steady state
+    #                            module names
+    #
+    # derivative_module_names: a character vector or list of derivative module
+    #                          names
+    #
+    # integrator: a list specifying details about the numerical integrator.
+    #             Elements are:
+    #
+    #             type: string specifying the numerical integrator to
+    #                   use. Options are:
+    #
+    #                   "auto": automatically uses `boost_rosenbrock` if
+    #                           possible; uses `homemade_euler` otherwise
+    #
+    #                   "homemade_euler": our own implementation of the fixed
+    #                                     step Euler method
+    #
+    #                   "boost_euler": the boost library version of the fixed
+    #                                  step Euler method
+    #
+    #                   "boost_rosenbrock": adaptive step-size Rosenbrock method
+    #                                       (implicit method useful for stiff
+    #                                       systems)
+    #
+    #                   "boost_rk4": fixed-step 4th order Runge-Kutta method
+    #
+    #                   "boost_rkck54": adaptive step-size Runge-Kutta-Cash-Karp
+    #                                   method (5th order Runge-Kutta with 4th
+    #                                   order Cash-Karp error estimation)
+    #
+    #             output_step_size: the output step size. If smaller than 1, it
+    #                               should equal 1.0 / N for some integer N. If
+    #                               larger than 1, it should be integer.
+    #
+    #             adaptive_error_tol: used to set the error tolerance for
+    #                                 adaptive step size methods like Rosenbrock
+    #                                  or RKCK54
+    #
+    #             adaptive_max_steps: determines how many times an adaptive step
+    #                                 size method will attempt to find a new
+    #                                 step size before indicating failure
+    #
+    # verbose: a logical variable indicating whether or not to print System
+    #          validation information. (More detailed startup information can
+    #          be obtained with the `validate_system_inputs` function.)
+    #
+    # --------------------------------------------------------------------------
     #
     # Example: running a sorghum simulation using weather data from 2005
     #
-    #  result <- biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator, TRUE)
-    #  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
+    #     result <- biocro_simulation(
+    #         sorghum_initial_values,
+    #         sorghum_parameters,
+    #         get_growing_season_climate(weather05),
+    #         sorghum_steady_state_modules,
+    #         sorghum_derivative_modules,
+    #         sorghum_integrator,
+    #         TRUE
+    #     )
     #
-    # The result is a data frame showing all time-dependent variables as they
+    #     lattice::xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
+    #
+    # The result is a data frame showing all time-dependent quantities as they
     # change throughout the growing season. When biocro_simulation is run in
     # verbose mode (as in this example, where verbose = TRUE), information about
-    # the input and output parameters will be printed to the R console before
-    # the simulation runs. This can be very useful when attempting to combine a
-    # set of modules for the first time.
+    # the validity of the input arguments will be printed to the R console. This
+    # can be helpful when attempting to combine a set of modules for the first
+    # time. More detailed information can be obtained using the
+    # `validate_system_inputs` function.
     #
-    # In the sorghum example, the simulation is performed using the fixed-step
+    # In the sorghum example, the simulation is performed using the fixed step
     # size Euler method for numerical integration. One of its modules
-    # (thermal_time_senescence) requires a history of some of its parameters,
-    # making it incompatible with any other integration method.
+    # (`thermal_time_senescence`) requires a history of some of its input
+    # quantities, making it incompatible with any other integration method.
     #
-    # Example 2: running a soybean simulation using weather data from 2005
+    # --------------------------------------------------------------------------
     #
-    #  result <- biocro_simulation(glycine_max_initial_values, glycine_max_parameters, get_growing_season_climate(weather05), glycine_max_steady_state_modules, glycine_max_derivative_modules, glycine_max_integrator, TRUE)
-    #  xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
+    # Example 2: running a Glycine max simulation using weather data from 2005
     #
-    # In the soybean simulation, the 'auto' integrator (specified by
-    # glycine_max_integrator) automatically detects that all modules
+    #     result <- biocro_simulation(
+    #         glycine_max_initial_values,
+    #         glycine_max_parameters,
+    #         get_growing_season_climate(weather05),
+    #         glycine_max_steady_state_modules,
+    #         glycine_max_derivative_modules,
+    #         glycine_max_integrator,
+    #         TRUE
+    #     )
+    #
+    #     lattice::xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
+    #
+    # In this simulation, the `auto` integrator (specified by
+    # `glycine_max_integrator`) automatically detects that all modules
     # are compatible with adapative step size integration methods. In this case,
-    # it uses ODEINT's implementation of an implicit Rosenbrock integrator to
-    # run the simulation.
+    # it uses the `boost_rosenbrock` integrator to run the simulation.
 
-    # Check to make sure the initial_values is properly defined
-    if(!is.list(initial_values)) {
+    # Check to make sure the initial values are properly defined
+    if (!is.list(initial_values)) {
         stop('"initial_values" must be a list')
     }
 
-    if(length(initial_values) != length(unlist(initial_values))) {
+    if (length(initial_values) != length(unlist(initial_values))) {
         item_lengths = unlist(lapply(initial_values, length))
         error_message = sprintf("The following initial_values members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
         stop(error_message)
     }
 
     # Check to make sure the parameters are properly defined
-    if(!is.list(parameters)) {
+    if (!is.list(parameters)) {
         stop('"parameters" must be a list')
     }
 
-    if(length(parameters) != length(unlist(parameters))) {
+    if (length(parameters) != length(unlist(parameters))) {
         item_lengths = unlist(lapply(parameters, length))
         error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
         stop(error_message)
     }
 
     # Check to make sure the drivers are properly defined
-    if(!is.list(drivers)) {
+    if (!is.list(drivers)) {
         stop('"drivers" must be a list')
     }
 
@@ -123,13 +165,13 @@ biocro_simulation <- function(
     }
 
     derivative_module_names <- unlist(derivative_module_names)
-    if(length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
+    if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
         stop('"derivative_module_names" must be a vector or list of strings')
     }
 
     # Check to make sure the numerical integrator properties are properly
     # defined
-    if(!is.list(integrator)) {
+    if (!is.list(integrator)) {
         stop("'integrator' must be a list")
     }
     integrator_type <- integrator$type
@@ -186,8 +228,8 @@ partial_biocro_simulation <- function(
     drivers,
     steady_state_module_names = list(),
     derivative_module_names = list(),
-    arg_names,
     integrator = default_integrator,
+    arg_names,
     verbose = FALSE
 )
 {
@@ -205,33 +247,31 @@ partial_biocro_simulation <- function(
     # drivers: same as biocro_simulation()
     # steady_state_module_names: same as biocro_simulation()
     # derivative_module_names: same as biocro_simulation()
+    # integrator: same as biocro_simulation()
     # arg_names: vector of character variables. The names of the arguments that
     #            the new function accepts. Note: 'arg_names' can only contain
     #            the names of parameters in 'initial_values', 'parameters', or
     #            'drivers'.
-    # integrator: same as biocro_simulation()
     # verbose: same as biocro_simulation()
     #
     # returns f(arg).
     #
     # Example: varying the TTc values at which senescence starts for a sorghum
-    # simulation
+    # simulation; here we set them all to 2000 degrees C * day instead of the
+    # default sorghum values.
     #
-    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), TRUE)
-    #  result = senescence_gro(c(2000, 2000, 2000, 2000))
+    #     senescence_simulation <- partial_biocro_simulation(
+    #         sorghum_initial_values,
+    #         sorghum_parameters,
+    #         get_growing_season_climate(weather05),
+    #         sorghum_steady_state_modules,
+    #         sorghum_derivative_modules,
+    #         sorghum_integrator,
+    #         c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'),
+    #         TRUE
+    #     )
     #
-    # Note that in this example, typing 'sorghum_parameters$seneStem' returns
-    # the original default value for seneStem: 3500. However, after running
-    # senescence_biocro_simulation, the system startup messages (in verbose
-    # mode) indicate a value of 2000 for seneStem, as desired. To remove system
-    # startup messages, change verbose to FALSE in the partial_gro command or
-    # omit it altogether to use the default value of FALSE, i.e.
-    #
-    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'), FALSE)
-    #
-    #  OR
-    #
-    #  senescence_biocro_simulation <- partial_biocro_simulation(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator, c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'))
+    #     result = senescence_simulation(c(2000, 2000, 2000, 2000))
 
     arg_list = list(
         initial_values=initial_values,
@@ -274,7 +314,9 @@ partial_biocro_simulation <- function(
     # parameters specified in arg_names
     function(x)
     {
-        if (length(x) != length(arg_names)) stop("The length of x does not match the length of arguments when this function was defined.")
+        if (length(x) != length(arg_names)) {
+            stop("The length of x does not match the length of arguments when this function was defined.")
+        }
         x = unlist(x)
         temp_arg_list = arg_list
         for (i in seq_along(arg_names)) {

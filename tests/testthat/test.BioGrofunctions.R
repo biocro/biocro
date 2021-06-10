@@ -21,9 +21,9 @@ name_parameters = function(
 }
 
 parameter_lists = list(
-    willow =     name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_steady_state_modules,                 willow_derivative_modules,                 willow_integrator),
+    willow     = name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_steady_state_modules,                 willow_derivative_modules,                 willow_integrator),
     miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_steady_state_modules, miscanthus_x_giganteus_derivative_modules, miscanthus_x_giganteus_integrator),
-    sorghum =    name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_steady_state_modules,                sorghum_derivative_modules,                sorghum_integrator)
+    sorghum    = name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_steady_state_modules,                sorghum_derivative_modules,                sorghum_integrator)
 )
 
 test_that("Willow simulation produces reasonable results", {
@@ -44,8 +44,8 @@ test_that("Willow simulation produces reasonable results", {
     expect_true(max(results$Leaf) < 25)
 })
 
-# caneGro bug https://github.com/ebimodeling/biocro-dev/issues/45
-# MaizeGro no roots:  https://github.com/ebimodeling/biocro-dev/issues/46
+# cane bug https://github.com/ebimodeling/biocro-dev/issues/45
+# Maize no roots:  https://github.com/ebimodeling/biocro-dev/issues/46
 for (i in seq_along(parameter_lists)) {
     parameter_list = parameter_lists[[i]]
     species = names(parameter_lists)[i]
@@ -117,7 +117,7 @@ for (i in seq_along(parameter_lists)) {
         low_b1 = within(parameter_list, {parameters$b1 = 3})
         high_b1 = within(parameter_list, {parameters$b1 = 10})
 
-        # willowbiocro_simulation insensitive to chi.l, b1
+        # willow insensitive to chi.l, b1
         # pending implementation ebimodeling/biocro-dev#5
 
         expect_gt(get_max_biomass(low_kd), get_max_biomass(high_kd))
