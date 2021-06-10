@@ -21,43 +21,43 @@ class senescence_logistic : public DerivModule
 {
    public:
     senescence_logistic(
-        const state_map* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : DerivModule{"senescence_logistic"},
 
-          // Get references to input parameters
-          Leaf{get_input(input_parameters, "Leaf")},
-          Stem{get_input(input_parameters, "Stem")},
-          Root{get_input(input_parameters, "Root")},
-          Rhizome{get_input(input_parameters, "Rhizome")},
-          kSeneLeaf{get_input(input_parameters, "kSeneLeaf")},
-          kSeneStem{get_input(input_parameters, "kSeneStem")},
-          kSeneRoot{get_input(input_parameters, "kSeneRoot")},
-          kSeneRhizome{get_input(input_parameters, "kSeneRhizome")},
-          kLeaf{get_input(input_parameters, "kLeaf")},
-          kStem{get_input(input_parameters, "kStem")},
-          kRoot{get_input(input_parameters, "kRoot")},
-          kRhizome{get_input(input_parameters, "kRhizome")},
-          kGrain{get_input(input_parameters, "kGrain")},
-          remobilization_fraction{get_input(input_parameters, "remobilization_fraction")},
+          // Get references to input quantities
+          Leaf{get_input(input_quantities, "Leaf")},
+          Stem{get_input(input_quantities, "Stem")},
+          Root{get_input(input_quantities, "Root")},
+          Rhizome{get_input(input_quantities, "Rhizome")},
+          kSeneLeaf{get_input(input_quantities, "kSeneLeaf")},
+          kSeneStem{get_input(input_quantities, "kSeneStem")},
+          kSeneRoot{get_input(input_quantities, "kSeneRoot")},
+          kSeneRhizome{get_input(input_quantities, "kSeneRhizome")},
+          kLeaf{get_input(input_quantities, "kLeaf")},
+          kStem{get_input(input_quantities, "kStem")},
+          kRoot{get_input(input_quantities, "kRoot")},
+          kRhizome{get_input(input_quantities, "kRhizome")},
+          kGrain{get_input(input_quantities, "kGrain")},
+          remobilization_fraction{get_input(input_quantities, "remobilization_fraction")},
 
-          // Get pointers to output parameters
-          Leaf_op{get_op(output_parameters, "Leaf")},
-          LeafLitter_op{get_op(output_parameters, "LeafLitter")},
-          Stem_op{get_op(output_parameters, "Stem")},
-          StemLitter_op{get_op(output_parameters, "StemLitter")},
-          Root_op{get_op(output_parameters, "Root")},
-          RootLitter_op{get_op(output_parameters, "RootLitter")},
-          Rhizome_op{get_op(output_parameters, "Rhizome")},
-          RhizomeLitter_op{get_op(output_parameters, "RhizomeLitter")},
-          Grain_op{get_op(output_parameters, "Grain")}
+          // Get pointers to output quantities
+          Leaf_op{get_op(output_quantities, "Leaf")},
+          LeafLitter_op{get_op(output_quantities, "LeafLitter")},
+          Stem_op{get_op(output_quantities, "Stem")},
+          StemLitter_op{get_op(output_quantities, "StemLitter")},
+          Root_op{get_op(output_quantities, "Root")},
+          RootLitter_op{get_op(output_quantities, "RootLitter")},
+          Rhizome_op{get_op(output_quantities, "Rhizome")},
+          RhizomeLitter_op{get_op(output_quantities, "RhizomeLitter")},
+          Grain_op{get_op(output_quantities, "Grain")}
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     const double& Leaf;
     const double& Stem;
     const double& Root;
@@ -73,7 +73,7 @@ class senescence_logistic : public DerivModule
     const double& kGrain;
     const double& remobilization_fraction;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* Leaf_op;
     double* LeafLitter_op;
     double* Stem_op;

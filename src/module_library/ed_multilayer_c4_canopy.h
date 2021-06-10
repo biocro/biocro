@@ -19,17 +19,17 @@ class ed_ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ed_ten_la
 {
    public:
     ed_ten_layer_c4_canopy(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>(
               "ed_ten_layer_c4_canopy",
               ed_ten_layer_c4_canopy::nlayers,
-              input_parameters,
-              output_parameters)  // Create the base class with the appropriate number of layers
+              input_quantities,
+              output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Number of layers
@@ -40,13 +40,13 @@ class ed_ten_layer_c4_canopy : public multilayer_canopy_photosynthesis<ed_ten_la
 
 int const ed_ten_layer_c4_canopy::nlayers = 10;  // Set the number of layers
 
-std::vector<std::string> ed_ten_layer_c4_canopy::get_inputs()
+string_vector ed_ten_layer_c4_canopy::get_inputs()
 {
     // Just call the parent class's input function with the appropriate number of layers
     return multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>::generate_inputs(ed_ten_layer_c4_canopy::nlayers);
 }
 
-std::vector<std::string> ed_ten_layer_c4_canopy::get_outputs()
+string_vector ed_ten_layer_c4_canopy::get_outputs()
 {
     // Just call the parent class's output function with the appropriate number of layers
     return multilayer_canopy_photosynthesis<ed_ten_layer_canopy_properties, ed_c4_leaf_photosynthesis4>::generate_outputs(ed_ten_layer_c4_canopy::nlayers);

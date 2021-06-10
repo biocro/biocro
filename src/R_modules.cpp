@@ -59,7 +59,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
         std::string creation_error_message = "none";
         try {
             std::unique_ptr<Module> module_ptr = w->createModule(
-                &module_inputs,
+                module_inputs,
                 &module_outputs);
 
             // Check to see if the module is a derivative module
@@ -132,7 +132,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
             creation_error_message);
 
     } catch (quantity_access_error const& qae) {
-        Rf_error((std::string("Caught quantity access error in R_evaluate_module: ") + qae.what()).c_str());
+        Rf_error((std::string("Caught quantity access error in R_module_info: ") + qae.what()).c_str());
     } catch (std::exception const& e) {
         Rf_error((std::string("Caught exception in R_module_info: ") + e.what()).c_str());
     } catch (...) {
@@ -182,7 +182,7 @@ SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_parameters)
         }
 
         std::unique_ptr<Module> module_ptr =
-            w->createModule(&parameters, &module_output_map);
+            w->createModule(parameters, &module_output_map);
 
         module_ptr->run();
 

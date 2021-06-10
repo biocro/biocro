@@ -1,0 +1,3 @@
+evapotranspiration,soil_sand_content,soil_saturation_capacity,acceleration_from_gravity,precipitation_rate,soil_b_coefficient,soil_water_content,soil_depth,soil_field_capacity,soil_saturated_conductivity,soil_wilting_point,soil_air_entry,soil_n_content,soil_water_content,description
+input,input,input,input,input,input,input,input,input,input,input,input,output,output,NA
+1,1,1,1,1,1,1,1,1,1,1,1,0,NaN,automatically-generated test case

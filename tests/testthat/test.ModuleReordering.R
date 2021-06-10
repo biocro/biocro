@@ -34,7 +34,7 @@ sorghum_deriv_modules <- c(
 
 
 ## Run the simulation:
-baseline_result  <- Gro_solver(sorghum_initial_state,
+baseline_result  <- Gro_solver(sorghum_initial_values,
                                sorghum_parameters,
                                get_growing_season_climate(weather05),
                                sorghum_ss_modules,
@@ -66,7 +66,7 @@ for (count in 1:NUMBER_OF_PERMUTATIONS) {
 
     permuted_ss_module_list <- sample(sorghum_ss_modules)
 
-    result <- Gro_solver(sorghum_initial_state,
+    result <- Gro_solver(sorghum_initial_values,
                          sorghum_parameters,
                          get_growing_season_climate(weather05),
                          permuted_ss_module_list,

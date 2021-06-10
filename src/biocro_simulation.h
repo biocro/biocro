@@ -13,9 +13,9 @@ class biocro_simulation
    public:
     biocro_simulation(
         // parameters passed to System constructor
-        std::unordered_map<std::string, double> const& initial_state,
-        std::unordered_map<std::string, double> const& invariant_parameters,
-        std::unordered_map<std::string, std::vector<double>> const& varying_parameters,
+        std::unordered_map<std::string, double> const& initial_values,
+        std::unordered_map<std::string, double> const& parameters,
+        std::unordered_map<std::string, std::vector<double>> const& drivers,
         std::vector<std::string> const& steady_state_module_names,
         std::vector<std::string> const& derivative_module_names,
         // parameters passed to system_solver_factory::create
@@ -27,8 +27,8 @@ class biocro_simulation
     {
         // Create the system
         sys = std::shared_ptr<System>(
-            new System(initial_state, invariant_parameters,
-                       varying_parameters, steady_state_module_names,
+            new System(initial_values, parameters,
+                       drivers, steady_state_module_names,
                        derivative_module_names)
         );
 

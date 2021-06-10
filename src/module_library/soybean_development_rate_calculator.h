@@ -52,38 +52,38 @@ class soybean_development_rate_calculator : public SteadyModule
 {
    public:
     soybean_development_rate_calculator(
-        const state_map* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         // Define basic module properties by passing its name to its parent class
         : SteadyModule{"soybean_development_rate_calculator"},
 
-          // Get references to input parameters
-          maturity_group{get_input(input_parameters, "maturity_group")},
-          DVI{get_input(input_parameters, "DVI")},
-          day_length{get_input(input_parameters, "day_length")},
-          temp{get_input(input_parameters, "temp")},
-          Tbase_emr{get_input(input_parameters, "Tbase_emr")},
-          TTemr_threshold{get_input(input_parameters, "TTemr_threshold")},
-          Rmax_emrV0{get_input(input_parameters, "Rmax_emrV0")},
-          Tmin_emrV0{get_input(input_parameters, "Tmin_emrV0")},
-          Topt_emrV0{get_input(input_parameters, "Topt_emrV0")},
-          Tmax_emrV0{get_input(input_parameters, "Tmax_emrV0")},
-          Tmin_R0R1{get_input(input_parameters, "Tmin_R0R1")},
-          Topt_R0R1{get_input(input_parameters, "Topt_R0R1")},
-          Tmax_R0R1{get_input(input_parameters, "Tmax_R0R1")},
-          Tmin_R1R7{get_input(input_parameters, "Tmin_R1R7")},
-          Topt_R1R7{get_input(input_parameters, "Topt_R1R7")},
-          Tmax_R1R7{get_input(input_parameters, "Tmax_R1R7")},
+          // Get references to input quantities
+          maturity_group{get_input(input_quantities, "maturity_group")},
+          DVI{get_input(input_quantities, "DVI")},
+          day_length{get_input(input_quantities, "day_length")},
+          temp{get_input(input_quantities, "temp")},
+          Tbase_emr{get_input(input_quantities, "Tbase_emr")},
+          TTemr_threshold{get_input(input_quantities, "TTemr_threshold")},
+          Rmax_emrV0{get_input(input_quantities, "Rmax_emrV0")},
+          Tmin_emrV0{get_input(input_quantities, "Tmin_emrV0")},
+          Topt_emrV0{get_input(input_quantities, "Topt_emrV0")},
+          Tmax_emrV0{get_input(input_quantities, "Tmax_emrV0")},
+          Tmin_R0R1{get_input(input_quantities, "Tmin_R0R1")},
+          Topt_R0R1{get_input(input_quantities, "Topt_R0R1")},
+          Tmax_R0R1{get_input(input_quantities, "Tmax_R0R1")},
+          Tmin_R1R7{get_input(input_quantities, "Tmin_R1R7")},
+          Topt_R1R7{get_input(input_quantities, "Topt_R1R7")},
+          Tmax_R1R7{get_input(input_quantities, "Tmax_R1R7")},
 
-          // Get pointers to output parameters
-          development_rate_per_hour_op{get_op(output_parameters, "development_rate_per_hour")}
+          // Get pointers to output quantities
+          development_rate_per_hour_op{get_op(output_quantities, "development_rate_per_hour")}
     {
     }
     static string_vector get_inputs();
     static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     const double& maturity_group;
     const double& DVI;
     const double& day_length;
@@ -101,7 +101,7 @@ class soybean_development_rate_calculator : public SteadyModule
     const double& Topt_R1R7;
     const double& Tmax_R1R7;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* development_rate_per_hour_op;
 
     // Implement the pure virtual function do_operation():
@@ -205,7 +205,7 @@ void soybean_development_rate_calculator::do_operation() const
 
     double development_rate_per_hour = soybean_development_rate / 24.0; // hr^-1
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(development_rate_per_hour_op, development_rate_per_hour);
 }
 

@@ -4,6 +4,7 @@
 #include <cmath>           // for fabs and sqrt
 #include "../constants.h"  // for conversion_constants::celsius_to_kelvin and physical_constants::ideal_gas_constant
 #include "../modules.h"
+#include "../state_map.h"
 #include "se_module.h"
 #include "AuxBioCro.h"
 
@@ -77,37 +78,37 @@ class ed_nikolov_conductance_forced : public SteadyModule
 {
    public:
     ed_nikolov_conductance_forced(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_nikolov_conductance_forced"),
-          // Get pointers to input parameters
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          windspeed_ip(get_ip(input_parameters, "windspeed")),
-          leafwidth_ip(get_ip(input_parameters, "leafwidth")),
-          nikolov_cf_ip(get_ip(input_parameters, "nikolov_cf")),
-          // Get pointers to output parameters
-          conductance_boundary_h2o_forced_op(get_op(output_parameters, "conductance_boundary_h2o_forced"))
+          // Get pointers to input quantities
+          temperature_air_ip(get_ip(input_quantities, "temp")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          windspeed_ip(get_ip(input_quantities, "windspeed")),
+          leafwidth_ip(get_ip(input_quantities, "leafwidth")),
+          nikolov_cf_ip(get_ip(input_quantities, "nikolov_cf")),
+          // Get pointers to output quantities
+          conductance_boundary_h2o_forced_op(get_op(output_quantities, "conductance_boundary_h2o_forced"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* temperature_air_ip;
     const double* atmospheric_pressure_ip;
     const double* windspeed_ip;
     const double* leafwidth_ip;
     const double* nikolov_cf_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* conductance_boundary_h2o_forced_op;
     // Main operation
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_nikolov_conductance_forced::get_inputs()
+string_vector ed_nikolov_conductance_forced::get_inputs()
 {
     return {
         "temp",                  // deg. C
@@ -118,7 +119,7 @@ std::vector<std::string> ed_nikolov_conductance_forced::get_inputs()
     };
 }
 
-std::vector<std::string> ed_nikolov_conductance_forced::get_outputs()
+string_vector ed_nikolov_conductance_forced::get_outputs()
 {
     return {
         "conductance_boundary_h2o_forced"  // mol / m^2 / s
@@ -152,7 +153,7 @@ void ed_nikolov_conductance_forced::do_operation() const
 
     check_error_conditions(errors_to_check, get_name());
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(conductance_boundary_h2o_forced_op, gbv_forced);
 }
 
@@ -172,29 +173,29 @@ class ed_nikolov_conductance_free : public SteadyModule
 {
    public:
     ed_nikolov_conductance_free(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_nikolov_conductance_free"),
-          // Get pointers to input parameters
-          temperature_air_ip(get_ip(input_parameters, "temp")),
-          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          leafwidth_ip(get_ip(input_parameters, "leafwidth")),
-          mole_fraction_h2o_atmosphere_ip(get_ip(input_parameters, "mole_fraction_h2o_atmosphere")),
-          conductance_boundary_h2o_free_ip(get_ip(input_parameters, "conductance_boundary_h2o_free")),
-          conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
-          nikolov_ce_ip(get_ip(input_parameters, "nikolov_ce")),
-          // Get pointers to output parameters
-          conductance_boundary_h2o_free_op(get_op(output_parameters, "conductance_boundary_h2o_free")),
-          nikolov_virtual_temperature_difference_op(get_op(output_parameters, "nikolov_virtual_temperature_difference"))
+          // Get pointers to input quantities
+          temperature_air_ip(get_ip(input_quantities, "temp")),
+          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          leafwidth_ip(get_ip(input_quantities, "leafwidth")),
+          mole_fraction_h2o_atmosphere_ip(get_ip(input_quantities, "mole_fraction_h2o_atmosphere")),
+          conductance_boundary_h2o_free_ip(get_ip(input_quantities, "conductance_boundary_h2o_free")),
+          conductance_stomatal_h2o_ip(get_ip(input_quantities, "conductance_stomatal_h2o")),
+          nikolov_ce_ip(get_ip(input_quantities, "nikolov_ce")),
+          // Get pointers to output quantities
+          conductance_boundary_h2o_free_op(get_op(output_quantities, "conductance_boundary_h2o_free")),
+          nikolov_virtual_temperature_difference_op(get_op(output_quantities, "nikolov_virtual_temperature_difference"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* temperature_air_ip;
     const double* temperature_leaf_ip;
     const double* atmospheric_pressure_ip;
@@ -203,14 +204,14 @@ class ed_nikolov_conductance_free : public SteadyModule
     const double* conductance_boundary_h2o_free_ip;
     const double* conductance_stomatal_h2o_ip;
     const double* nikolov_ce_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* conductance_boundary_h2o_free_op;
     double* nikolov_virtual_temperature_difference_op;
     // Main operation
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_nikolov_conductance_free::get_inputs()
+string_vector ed_nikolov_conductance_free::get_inputs()
 {
     return {
         "temp",                           // deg. C
@@ -224,7 +225,7 @@ std::vector<std::string> ed_nikolov_conductance_free::get_inputs()
     };
 }
 
-std::vector<std::string> ed_nikolov_conductance_free::get_outputs()
+string_vector ed_nikolov_conductance_free::get_outputs()
 {
     return {
         "conductance_boundary_h2o_free",          // mol / m^2 / s
@@ -280,7 +281,7 @@ void ed_nikolov_conductance_free::do_operation() const
 
     check_error_conditions(errors_to_check, get_name());
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(conductance_boundary_h2o_free_op, gbv_free);
     update(nikolov_virtual_temperature_difference_op, Tvdiff);
 }
@@ -324,8 +325,8 @@ class ed_nikolov_conductance_free_solve : public se_module::base
 {
    public:
     ed_nikolov_conductance_free_solve(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : se_module::base(ed_nikolov_conductance_free_solve_stuff::module_name,
                           ed_nikolov_conductance_free_solve_stuff::sub_module_names,
                           ed_nikolov_conductance_free_solve_stuff::solver_type,
@@ -336,12 +337,12 @@ class ed_nikolov_conductance_free_solve : public se_module::base
                           ed_nikolov_conductance_free_solve_stuff::relative_error_tolerances,
                           ed_nikolov_conductance_free_solve_stuff::should_reorder_guesses,
                           ed_nikolov_conductance_free_solve_stuff::return_default_on_failure,
-                          input_parameters,
-                          output_parameters)
+                          input_quantities,
+                          output_quantities)
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
     // Main operation
@@ -349,14 +350,14 @@ class ed_nikolov_conductance_free_solve : public se_module::base
     std::vector<std::vector<double>> get_initial_guesses() const override;
 };
 
-std::vector<std::string> ed_nikolov_conductance_free_solve::get_inputs()
+string_vector ed_nikolov_conductance_free_solve::get_inputs()
 {
     return se_module::get_se_inputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
 }
 
-std::vector<std::string> ed_nikolov_conductance_free_solve::get_outputs()
+string_vector ed_nikolov_conductance_free_solve::get_outputs()
 {
-    std::vector<std::string> outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
+    string_vector outputs = se_module::get_se_outputs(ed_nikolov_conductance_free_solve_stuff::sub_module_names);
     outputs.push_back(se_module::get_ncalls_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
     outputs.push_back(se_module::get_nsteps_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));
     outputs.push_back(se_module::get_success_output_name(ed_nikolov_conductance_free_solve_stuff::module_name));

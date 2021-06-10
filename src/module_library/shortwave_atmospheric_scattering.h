@@ -3,6 +3,7 @@
 
 #include "../modules.h"
 #include "../constants.h"
+#include "../state_map.h"
 
 /**
  * @class shortwave_atmospheric_scattering
@@ -17,32 +18,32 @@ class shortwave_atmospheric_scattering : public SteadyModule
 {
    public:
     shortwave_atmospheric_scattering(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("shortwave_atmospheric_scattering"),
-          // Get references to input parameters
-          cosine_zenith_angle(get_input(input_parameters, "cosine_zenith_angle")),
-          atmospheric_pressure(get_input(input_parameters, "atmospheric_pressure")),
-          atmospheric_transmittance(get_input(input_parameters, "atmospheric_transmittance")),
-          atmospheric_scattering(get_input(input_parameters, "atmospheric_scattering")),
-          // Get pointers to output parameters
-          irradiance_direct_transmittance_op(get_op(output_parameters, "irradiance_direct_transmittance")),
-          irradiance_diffuse_transmittance_op(get_op(output_parameters, "irradiance_diffuse_transmittance")),
-          irradiance_direct_fraction_op(get_op(output_parameters, "irradiance_direct_fraction")),
-          irradiance_diffuse_fraction_op(get_op(output_parameters, "irradiance_diffuse_fraction"))
+          // Get references to input quantities
+          cosine_zenith_angle(get_input(input_quantities, "cosine_zenith_angle")),
+          atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
+          atmospheric_transmittance(get_input(input_quantities, "atmospheric_transmittance")),
+          atmospheric_scattering(get_input(input_quantities, "atmospheric_scattering")),
+          // Get pointers to output quantities
+          irradiance_direct_transmittance_op(get_op(output_quantities, "irradiance_direct_transmittance")),
+          irradiance_diffuse_transmittance_op(get_op(output_quantities, "irradiance_diffuse_transmittance")),
+          irradiance_direct_fraction_op(get_op(output_quantities, "irradiance_direct_fraction")),
+          irradiance_diffuse_fraction_op(get_op(output_quantities, "irradiance_diffuse_fraction"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& cosine_zenith_angle;
     double const& atmospheric_pressure;
     double const& atmospheric_transmittance;
     double const& atmospheric_scattering;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* irradiance_direct_transmittance_op;
     double* irradiance_diffuse_transmittance_op;
     double* irradiance_direct_fraction_op;
@@ -51,7 +52,7 @@ class shortwave_atmospheric_scattering : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> shortwave_atmospheric_scattering::get_inputs()
+string_vector shortwave_atmospheric_scattering::get_inputs()
 {
     return {
         "cosine_zenith_angle",        // dimensionless
@@ -61,7 +62,7 @@ std::vector<std::string> shortwave_atmospheric_scattering::get_inputs()
     };
 }
 
-std::vector<std::string> shortwave_atmospheric_scattering::get_outputs()
+string_vector shortwave_atmospheric_scattering::get_outputs()
 {
     return {
         "irradiance_direct_transmittance",   // dimensionless

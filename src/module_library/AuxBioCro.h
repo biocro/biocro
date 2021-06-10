@@ -2,6 +2,7 @@
 #define AUXBIOCRO_H
 
 #include <map>
+#include "../constants.h" // for ideal_gas_constant
 
 /*
  *  /src/AuxBioCro.h by Fernando Ezequiel Miguez  Copyright (C) 2007-2010
@@ -104,14 +105,14 @@ soilText_str get_soil_properties(int soiltype);
 // This map is based on Table 9.1 on page 130 of Campbell and Norman,
 // Introduction to Environmental Biophysics.  Bulk density values are
 // taken from function getsoilprop.c from Melanie (Colorado). The bulk
-// density of sand in getsoilprop.c is 0, which isn't sensible, and 
+// density of sand in getsoilprop.c is 0, which isn't sensible, and
 // here 1.60 Mg / m^-3 is used.
 //
 // The wiltp value of 0.21 (corrected from 0.32) for silty clay loam
 // is based on the list of book corrections published at
 // http://www.public.iastate.edu/~bkh/teaching/505/norman_book_corrections.pdf.
 
-const std::map<SoilType, soilText_str> soil_parameters = 
+const std::map<SoilType, soilText_str> soil_parameters =
 {
   //                             d = dimensionless
   //                             d     d     d     J kg^-1     d     J s m^-3     d     d      d     Mg m^-3
@@ -185,17 +186,49 @@ double leaf_boundary_layer_conductance(double windspeed, double leafwidth, doubl
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla);
 
-/*! Calculate the exponential term of the Arrhenius function.
+/**
+ *  @brief Calculates the exponential term of the Arrhenius equation.
  *
- * The Arrhenius equation is A * e^(c - E_a / R / temperature).
- * The result has the same units as A, which depends on the quantity of interest.
- * In order to make this function reusable, it only calculates the exponential term, which is always dimensionless.
-     c                              dimensionless
-     activation_energy              J / mol
-     thermodynamic_temperature      k
-     return value                   dimensionless 
+ *  The Arrhenius equation gives the dependence of the rate constant of a
+ *  chemical reaction on the absolute temperature and is often written as
+ *
+ *  > `k = A * e^(-E_a / R / T)` (1)
+ *
+ *  where `k` is the rate constant, `E_a` is the activation energy, `R` is the
+ *  ideal gas constant, and `T` is the absolute temperature. As `T` approaches
+ *  infinity, `E_a / R / T` approaches zero and so `k` approaches `A`. Thus,
+ *  `A` represents the rate constant in the limit of infinite temperature. From
+ *  a practical standpoint, `A` is not a particularly useful parameter and for
+ *  this reason it is often written as
+ *
+ *  > `A = k_0 * e^c` (2)
+ *
+ *  where `k_0` is the rate constant measured at a reference temperature (e.g.
+ *  25 degrees C) and `c` is a dimensionless parameter chosen so that `k = k_0`
+ *  at the reference temperature.
+ *
+ *  In order to make this function reusable, it only calculates the exponential
+ *  factor, which is always dimensionless. I.e., it calculates
+ *  `e^(c - E_a / R / T)`.
+ *
+ *  @param [in] c Dimensionless parameter related to the reference temperature
+ *                at which the rate constant was measured
+ *
+ *  @param [in] activation_energy Activation energy of the reaction in J / mol
+ *
+ *  @param [in] temperature Absolute temperature in Kelvin
+ *
+ *  @return Return The Arrhenius exponent `e^(c - E_a / R / T)`
  */
-double arrhenius_exponent(double c, double activation_energy, double thermodynamic_temperature);
+inline double arrhenius_exponent(
+    double c,                  // dimensionless
+    double activation_energy,  // J / mol
+    double temperature         // Kelvin
+)
+{
+    using physical_constants::ideal_gas_constant;  // J / k / mol
+    return exp(c - activation_energy / (ideal_gas_constant * temperature));
+}
 
 double saturation_vapor_pressure(double air_temperature);
 double TempToSFS(double Temp);
