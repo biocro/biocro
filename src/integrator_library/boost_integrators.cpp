@@ -1,6 +1,6 @@
 #include "boost_integrators.h"
 
-void boost_rsnbrk_integrator::do_boost_solve(
+void boost_rsnbrk_integrator::do_boost_integrate(
     SystemCaller syscall,
     push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer
 )

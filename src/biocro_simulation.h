@@ -19,7 +19,7 @@ class biocro_simulation
         std::vector<std::string> const& steady_state_module_names,
         std::vector<std::string> const& derivative_module_names,
         // parameters passed to integrator_factory::create
-        std::string solver_name,
+        std::string integrator_name,
         double output_step_size,
         double adaptive_rel_error_tol,
         double adaptive_abs_error_tol,
@@ -32,15 +32,15 @@ class biocro_simulation
                        derivative_module_names)
         );
 
-        // Create the solver
-        solver = integrator_factory::create(
-            solver_name, output_step_size, adaptive_rel_error_tol,
+        // Create the integrator
+        integrator = integrator_factory::create(
+            integrator_name, output_step_size, adaptive_rel_error_tol,
             adaptive_abs_error_tol, adaptive_max_steps
         );
     }
 
     std::unordered_map<std::string, std::vector<double>> run_simulation() {
-        return solver->solve(sys);
+        return integrator->integrate(sys);
     }
 
     std::string generate_report() const
@@ -48,10 +48,10 @@ class biocro_simulation
         std::string report;
         report += "\nSystem startup information:\n" +
                       sys->generate_startup_report() +
-                  "\nSolver description:\n" +
-                      solver->generate_info_report() +
-                  "\n\nThe solver reports the following:\n" +
-                      solver->generate_solve_report() +
+                  "\nIntegrator description:\n" +
+                      integrator->generate_info_report() +
+                  "\n\nThe integrator reports the following:\n" +
+                      integrator->generate_integrate_report() +
                   "\nThe system reports the following:\n" +
                       sys->generate_usage_report() +
                   "\n\n";
@@ -60,7 +60,7 @@ class biocro_simulation
 
    private:
     std::shared_ptr<System> sys;
-    std::unique_ptr<integrator> solver;
+    std::unique_ptr<integrator> integrator;
 };
 
 #endif

@@ -31,27 +31,27 @@ class auto_integrator : public integrator
     bool adaptive_integrator_most_recent;
 
     state_vector_map
-    do_solve(std::shared_ptr<System> sys) override
+    do_integrate(std::shared_ptr<System> sys) override
     {
         // The system is compatible with adaptive step size methods,
-        // so use the adaptive integrator to solve the system:
+        // so use the adaptive integrator to integrate the system:
         adaptive_integrator_most_recent = true;
-        return adaptive_integrator->solve(sys);
+        return adaptive_integrator->integrate(sys);
     }
 
     state_vector_map
     handle_adaptive_incompatibility(std::shared_ptr<System> sys) override
     {
         // The system is not compatible with adaptive step size methods,
-        // so use the other integrator to solve the system
+        // so use the other integrator to integrate the system
         adaptive_integrator_most_recent = false;
-        return other_integrator->solve(sys);
+        return other_integrator->integrate(sys);
     }
 
     std::string get_param_info() const override
     {
         return std::string("\nThis integrator chooses between two defaults ") +
-               std::string("depending on the type of system it solves") +
+               std::string("depending on the type of system it integrates") +
                std::string("\nintegrator used for adaptive-compatible systems:\n") +
                adaptive_integrator->generate_info_report() +
                std::string("\nintegrator used for non-adaptive-compatible systems:\n") +
@@ -63,11 +63,11 @@ class auto_integrator : public integrator
         if (adaptive_integrator_most_recent) {
             return std::string("The integrator for adaptive-compatible systems was used.\n") +
                    std::string("It reports the following information:\n") +
-                   adaptive_integrator->generate_solve_report();
+                   adaptive_integrator->generate_integrate_report();
         } else {
             return std::string("The integrator for non-adaptive-compatible systems was used.\n") +
                    std::string("It reports the following information:\n") +
-                   other_integrator->generate_solve_report();
+                   other_integrator->generate_integrate_report();
         }
     }
 };

@@ -42,8 +42,8 @@ class boost_integrator : public integrator
     std::vector<state_type> state_vec;
     std::vector<double> time_vec;
     std::string observer_message;
-    state_vector_map do_solve(std::shared_ptr<System> sys) override;
-    virtual void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) = 0;
+    state_vector_map do_integrate(std::shared_ptr<System> sys) override;
+    virtual void do_boost_integrate(SystemCaller syscall, push_back_state_and_time<state_type>& observer) = 0;
 
     std::string get_param_info() const override
     {
@@ -60,7 +60,7 @@ class boost_integrator : public integrator
         if (boost_error_string.empty()) {
             return std::string("boost::numeric::odeint::integrate_const required ") +
                    std::to_string(nsteps) +
-                   std::string(" steps to solve the system\n\nThe observer reports the following:\n") +
+                   std::string(" steps to integrate the system\n\nThe observer reports the following:\n") +
                    observer_message;
         } else {
             return std::string("boost::numeric::odeint::integrate_const ") +
@@ -70,9 +70,9 @@ class boost_integrator : public integrator
     }
 };
 
-// Store some information that will be useful to any type of boost integrator, and then call the private do_boost_solve method
+// Store some information that will be useful to any type of boost integrator, and then call the private do_boost_integrate method
 template <class state_type>
-state_vector_map boost_integrator<state_type>::do_solve(std::shared_ptr<System> sys)
+state_vector_map boost_integrator<state_type>::do_integrate(std::shared_ptr<System> sys)
 {
     // Update and/or reset the stored objects
     sys->get_state(state);
@@ -86,8 +86,8 @@ state_vector_map boost_integrator<state_type>::do_solve(std::shared_ptr<System> 
     // Make a system caller
     SystemCaller syscall{sys};
 
-    // Solve the system (modifies state_vec and time_vec via the observer)
-    do_boost_solve(syscall, observer);
+    // integrate the system (modifies state_vec and time_vec via the observer)
+    do_boost_integrate(syscall, observer);
 
     // Return the results
     return get_results_from_system(sys, state_vec, time_vec);
@@ -128,7 +128,7 @@ class boost_euler_integrator : public boost_integrator<state_type>
         int max_steps) : boost_integrator<state_type>("euler_odeint", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
-    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
+    void do_boost_integrate(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
     {
         // Make an euler stepper
         typedef boost::numeric::odeint::euler<state_type, double, state_type, double> stepper_type;
@@ -156,7 +156,7 @@ class boost_rk4_integrator : public boost_integrator<state_type>
         int max_steps) : boost_integrator<state_type>("rk4", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
-    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
+    void do_boost_integrate(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
     {
         // Make an rk4 stepper
         typedef boost::numeric::odeint::runge_kutta4<state_type, double, state_type, double> stepper_type;
@@ -184,7 +184,7 @@ class boost_rkck54_integrator : public boost_integrator<state_type>
         int max_steps) : boost_integrator<state_type>("rkck54", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
-    void do_boost_solve(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
+    void do_boost_integrate(SystemCaller syscall, push_back_state_and_time<state_type>& observer) override
     {
         // Set up an rkck54 stepper
         double const rel_err = this->get_adaptive_rel_error_tol();
@@ -218,7 +218,7 @@ class boost_rsnbrk_integrator : public boost_integrator<boost::numeric::ublas::v
         int max_steps) : boost_integrator<boost::numeric::ublas::vector<double>>("rsnbrk", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
-    void do_boost_solve(
+    void do_boost_integrate(
         SystemCaller syscall,
         push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer) override;
 
