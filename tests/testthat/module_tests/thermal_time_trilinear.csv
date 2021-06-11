@@ -1,0 +1,11 @@
+tmax,topt_upper,topt_lower,temp,tbase,TTc,description
+input,input,input,input,input,output,NA
+38,32,26,10,20,0,temp below tbase
+38,32,26,20,20,0,temp equal to tbase
+38,32,26,23,20,0.125,temp between tbase and topt_lower
+38,32,26,26,20,0.25,temp equal to topt_lower
+38,32,26,29,20,0.25,temp between topt_lower and topt_upper
+38,32,26,32,20,0.25,temp equal to topt_upper
+38,32,26,35,20,0.125,temp between topt_upper and tmax
+38,32,26,38,20,0,temp equal to tmax
+38,32,26,50,20,0,temp above tmax

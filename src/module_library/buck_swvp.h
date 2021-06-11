@@ -16,40 +16,40 @@ class buck_swvp : public SteadyModule
 {
    public:
     buck_swvp(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("buck_swvp"),
 
-          // Get references to input parameters
-          temp{get_input(input_parameters, "temp")},
+          // Get references to input quantities
+          temp{get_input(input_quantities, "temp")},
 
-          // Get pointers to output parameters
-          saturation_water_vapor_pressure_atmosphere_op{get_op(output_parameters, "saturation_water_vapor_pressure_atmosphere")}
+          // Get pointers to output quantities
+          saturation_water_vapor_pressure_atmosphere_op{get_op(output_quantities, "saturation_water_vapor_pressure_atmosphere")}
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& temp;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* saturation_water_vapor_pressure_atmosphere_op;
 
     // Main operation
     void do_operation() const;
 };
 
-std::vector<std::string> buck_swvp::get_inputs()
+string_vector buck_swvp::get_inputs()
 {
     return {
         "temp"  // degrees C
     };
 }
 
-std::vector<std::string> buck_swvp::get_outputs()
+string_vector buck_swvp::get_outputs()
 {
     return {
         "saturation_water_vapor_pressure_atmosphere"  // Pa
@@ -58,7 +58,7 @@ std::vector<std::string> buck_swvp::get_outputs()
 
 void buck_swvp::do_operation() const
 {
-    // Update the output parameter list
+    // Update the output quantity list
     update(saturation_water_vapor_pressure_atmosphere_op,
            saturation_vapor_pressure(temp));  // Pa
 }

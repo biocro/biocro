@@ -1,18 +1,27 @@
 This directory contains configuration files for generating a
 *bookdown* compilation of the BioCro documentation files meant for
-developers as well as including a portion of the *.md files comprising
-that documentation.
+developers.  It also includes the "index.Rmd" file that specifies the
+list of source files used in generating that documentation.  Markdown
+files for the book that don't logically belong elsewhere can be added
+to the subdirectory "book_source".
 
 To generate a *bookdown* book of this documentation, do as follows:
 
 1. Start an R session.
 
 2. Install the R "bookdown" package, if it hasn't been installed
-already.
+already.  These instructions are written for bookdown version 0.22 or
+greater but may work for other versions.
 
-3. Call "rmarkdown::render_site(<path>)", where "<path>" denotes the
-path from the current directory to the documentaiton directory (i.e.,
-*this* directory).
+3. Call either "bookdown::render_book(<path>)" or
+"rmarkdown::render_site(<path>)", where "<path>" denotes the path from
+the current directory to the "bookdown" directory (i.e., *this*
+directory).  If either command is run *from* this directory
+("bookdown"), the path argument may be omitted.
+
+Note: If using a version of bookdown below version 0.22, either
+compile the book using "rmarkdown::render_site(<path>)" or run
+"bookdown::render_book()" from the "bookdown" directory.
 
 Note: Because some sections of the book are contained in their own
 files rather than being in a larger file comprising a complete
@@ -22,4 +31,4 @@ safely ignored:
 "In split_chapters(output, gitbook_page, number_sections, split_by,  :
   You have 11 Rmd input file(s) but only 7 first-level heading(s). Did you forget first-level headings in certain Rmd files?"
 
-4. In a Web browser, open documentation/_book/index.html.
+4. In a Web browser, open bookdown/_book/index.html.

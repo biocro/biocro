@@ -2,60 +2,61 @@
 #define PARTITIONING_COEFFICIENT_SELECTOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 class partitioning_coefficient_selector : public SteadyModule {
 	public:
-		partitioning_coefficient_selector(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		partitioning_coefficient_selector(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			SteadyModule("partitioning_coefficient_selector"),
-			// Get pointers to input parameters
-			kStem1_ip(get_ip(input_parameters, "kStem1")),
-			kLeaf1_ip(get_ip(input_parameters, "kLeaf1")),
-			kRoot1_ip(get_ip(input_parameters, "kRoot1")),
-			kRhizome1_ip(get_ip(input_parameters, "kRhizome1")),
-			kGrain1_ip(get_ip(input_parameters, "kGrain1")),
-			tp1_ip(get_ip(input_parameters, "tp1")),
-			kStem2_ip(get_ip(input_parameters, "kStem2")),
-			kLeaf2_ip(get_ip(input_parameters, "kLeaf2")),
-			kRoot2_ip(get_ip(input_parameters, "kRoot2")),
-			kRhizome2_ip(get_ip(input_parameters, "kRhizome2")),
-			kGrain2_ip(get_ip(input_parameters, "kGrain2")),
-			tp2_ip(get_ip(input_parameters, "tp2")),
-			kStem3_ip(get_ip(input_parameters, "kStem3")),
-			kLeaf3_ip(get_ip(input_parameters, "kLeaf3")),
-			kRoot3_ip(get_ip(input_parameters, "kRoot3")),
-			kRhizome3_ip(get_ip(input_parameters, "kRhizome3")),
-			kGrain3_ip(get_ip(input_parameters, "kGrain3")),
-			tp3_ip(get_ip(input_parameters, "tp3")),
-			kStem4_ip(get_ip(input_parameters, "kStem4")),
-			kLeaf4_ip(get_ip(input_parameters, "kLeaf4")),
-			kRoot4_ip(get_ip(input_parameters, "kRoot4")),
-			kRhizome4_ip(get_ip(input_parameters, "kRhizome4")),
-			kGrain4_ip(get_ip(input_parameters, "kGrain4")),
-			tp4_ip(get_ip(input_parameters, "tp4")),
-			kStem5_ip(get_ip(input_parameters, "kStem5")),
-			kLeaf5_ip(get_ip(input_parameters, "kLeaf5")),
-			kRoot5_ip(get_ip(input_parameters, "kRoot5")),
-			kRhizome5_ip(get_ip(input_parameters, "kRhizome5")),
-			kGrain5_ip(get_ip(input_parameters, "kGrain5")),
-			tp5_ip(get_ip(input_parameters, "tp5")),
-			kStem6_ip(get_ip(input_parameters, "kStem6")),
-			kLeaf6_ip(get_ip(input_parameters, "kLeaf6")),
-			kRoot6_ip(get_ip(input_parameters, "kRoot6")),
-			kRhizome6_ip(get_ip(input_parameters, "kRhizome6")),
-			kGrain6_ip(get_ip(input_parameters, "kGrain6")),
-			TTc_ip(get_ip(input_parameters, "TTc")),
-			// Get pointers to output parameters
-			kStem_op(get_op(output_parameters, "kStem")),
-			kLeaf_op(get_op(output_parameters, "kLeaf")),
-			kRoot_op(get_op(output_parameters, "kRoot")),
-			kRhizome_op(get_op(output_parameters, "kRhizome")),
-			kGrain_op(get_op(output_parameters, "kGrain"))
+			// Get pointers to input quantities
+			kStem1_ip(get_ip(input_quantities, "kStem1")),
+			kLeaf1_ip(get_ip(input_quantities, "kLeaf1")),
+			kRoot1_ip(get_ip(input_quantities, "kRoot1")),
+			kRhizome1_ip(get_ip(input_quantities, "kRhizome1")),
+			kGrain1_ip(get_ip(input_quantities, "kGrain1")),
+			tp1_ip(get_ip(input_quantities, "tp1")),
+			kStem2_ip(get_ip(input_quantities, "kStem2")),
+			kLeaf2_ip(get_ip(input_quantities, "kLeaf2")),
+			kRoot2_ip(get_ip(input_quantities, "kRoot2")),
+			kRhizome2_ip(get_ip(input_quantities, "kRhizome2")),
+			kGrain2_ip(get_ip(input_quantities, "kGrain2")),
+			tp2_ip(get_ip(input_quantities, "tp2")),
+			kStem3_ip(get_ip(input_quantities, "kStem3")),
+			kLeaf3_ip(get_ip(input_quantities, "kLeaf3")),
+			kRoot3_ip(get_ip(input_quantities, "kRoot3")),
+			kRhizome3_ip(get_ip(input_quantities, "kRhizome3")),
+			kGrain3_ip(get_ip(input_quantities, "kGrain3")),
+			tp3_ip(get_ip(input_quantities, "tp3")),
+			kStem4_ip(get_ip(input_quantities, "kStem4")),
+			kLeaf4_ip(get_ip(input_quantities, "kLeaf4")),
+			kRoot4_ip(get_ip(input_quantities, "kRoot4")),
+			kRhizome4_ip(get_ip(input_quantities, "kRhizome4")),
+			kGrain4_ip(get_ip(input_quantities, "kGrain4")),
+			tp4_ip(get_ip(input_quantities, "tp4")),
+			kStem5_ip(get_ip(input_quantities, "kStem5")),
+			kLeaf5_ip(get_ip(input_quantities, "kLeaf5")),
+			kRoot5_ip(get_ip(input_quantities, "kRoot5")),
+			kRhizome5_ip(get_ip(input_quantities, "kRhizome5")),
+			kGrain5_ip(get_ip(input_quantities, "kGrain5")),
+			tp5_ip(get_ip(input_quantities, "tp5")),
+			kStem6_ip(get_ip(input_quantities, "kStem6")),
+			kLeaf6_ip(get_ip(input_quantities, "kLeaf6")),
+			kRoot6_ip(get_ip(input_quantities, "kRoot6")),
+			kRhizome6_ip(get_ip(input_quantities, "kRhizome6")),
+			kGrain6_ip(get_ip(input_quantities, "kGrain6")),
+			TTc_ip(get_ip(input_quantities, "TTc")),
+			// Get pointers to output quantities
+			kStem_op(get_op(output_quantities, "kStem")),
+			kLeaf_op(get_op(output_quantities, "kLeaf")),
+			kRoot_op(get_op(output_quantities, "kRoot")),
+			kRhizome_op(get_op(output_quantities, "kRhizome")),
+			kGrain_op(get_op(output_quantities, "kGrain"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* kStem1_ip;
 		const double* kLeaf1_ip;
 		const double* kRoot1_ip;
@@ -92,7 +93,7 @@ class partitioning_coefficient_selector : public SteadyModule {
 		const double* kRhizome6_ip;
 		const double* kGrain6_ip;
 		const double* TTc_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* kStem_op;
 		double* kLeaf_op;
 		double* kRoot_op;
@@ -102,7 +103,7 @@ class partitioning_coefficient_selector : public SteadyModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> partitioning_coefficient_selector::get_inputs() {
+string_vector partitioning_coefficient_selector::get_inputs() {
 	return {
 		"kStem1", "kLeaf1", "kRoot1", "kRhizome1", "kGrain1", "tp1",
 		"kStem2", "kLeaf2", "kRoot2", "kRhizome2", "kGrain2", "tp2",
@@ -114,7 +115,7 @@ std::vector<std::string> partitioning_coefficient_selector::get_inputs() {
 	};
 }
 
-std::vector<std::string> partitioning_coefficient_selector::get_outputs() {
+string_vector partitioning_coefficient_selector::get_outputs() {
 	return {
 		"kStem", "kLeaf", "kRoot", "kRhizome", "kGrain"
 	};
@@ -128,7 +129,7 @@ void partitioning_coefficient_selector::do_operation() const {
 	double tp4 = *tp4_ip;
 	double tp5 = *tp5_ip;
 	double kStem, kLeaf, kRoot, kRhizome, kGrain;
-	
+
 	// Determine the coefficients based on the current TTc value
 	if(0.0 <= TTc && TTc < tp1) {
 		// TTc is in interval 1
@@ -178,8 +179,8 @@ void partitioning_coefficient_selector::do_operation() const {
 		kRhizome = *kRhizome6_ip;
 		kGrain = *kGrain6_ip;
 	}
-	
-	// Update the output parameters
+
+	// Update the output quantities
 	update(kStem_op, kStem);
 	update(kLeaf_op, kLeaf);
 	update(kRoot_op, kRoot);

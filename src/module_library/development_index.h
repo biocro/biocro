@@ -55,15 +55,15 @@ class development_index : public DerivModule
 {
    public:
     development_index(
-        const state_map* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : DerivModule{"development_index"},
 
-          // Get references to input parameters
-          development_rate_per_hour{get_input(input_parameters, "development_rate_per_hour")},
+          // Get references to input quantities
+          development_rate_per_hour{get_input(input_quantities, "development_rate_per_hour")},
 
-          // Get pointers to output parameters
-          DVI_op{get_op(output_parameters, "DVI")}
+          // Get pointers to output quantities
+          DVI_op{get_op(output_quantities, "DVI")}
 
     {
     }
@@ -72,10 +72,10 @@ class development_index : public DerivModule
     static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     const double& development_rate_per_hour;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* DVI_op;
 
     // Implement the pure virtual function do_operation():
@@ -98,7 +98,7 @@ string_vector development_index::get_outputs()
 
 void development_index::do_operation() const
 {
-    // Update the output parameter list
+    // Update the output quantity list
     update(DVI_op, development_rate_per_hour);  // dimensionless
 }
 

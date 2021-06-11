@@ -6,7 +6,7 @@ context('Test basic functioning of the steady-state module "solar_zenith_angle_i
 angle_from_cosine <- function(cza) {
     input_parameters <- list(cosine_zenith_angle = cza)
 
-    result <- test_module("solar_zenith_angle_in_degrees", input_parameters)
+    result <- evaluate_module("solar_zenith_angle_in_degrees", input_parameters)
 
     result$zenith_angle_in_degrees
 }

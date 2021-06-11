@@ -20,5 +20,6 @@ There several categories of documentation for BioCro:
 * Finally, there are various `.md` or `.Rmd` files scattered about the
   package that are referenced by the `bookdown/_bookdown.yml`
   configuration file, and that can be compiled into a book (_this_
-  book!) using the `bookdown` package.  This documentation is targeted
-  at BioCro developers and maintainers.
+  book, if you are reading this page in _bookdown_) using the
+  `bookdown` package.  This documentation is targeted at BioCro
+  developers and maintainers.

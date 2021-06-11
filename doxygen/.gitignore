@@ -1,7 +1,9 @@
-# Files automatically generated doxygen
-latex/
-html/
-complete/
-doxygen_docs_complete/
-doxygen_docs_modules/
-doxygen_docs_framework/
+# To give users complete flexibility in specifying output directories
+# for Doxygen, it is easiest to specify what we do *not* want to
+# ignore:
+
+/*
+!/Doxyfile
+!Makefile
+!customizations/
+!*.md

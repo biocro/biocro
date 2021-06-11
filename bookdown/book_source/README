@@ -1,0 +1,3 @@
+Most of the source files for the BioCro bookdown book are scattered
+about in the directories where they are most relevant; the few source
+files that don't logically belong elsewhere can live here.

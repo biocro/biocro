@@ -4,42 +4,43 @@
 #include <cmath>
 #include "../constants.h"
 #include "../modules.h"
+#include "../state_map.h"
 
 class oscillator_clock_calculator : public SteadyModule {
     public:
-        oscillator_clock_calculator(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+        oscillator_clock_calculator(state_map const& input_quantities, state_map* output_quantities) :
             // Define basic module properties by passing its name to its parent class
             SteadyModule("oscillator_clock_calculator"),
-            // Get pointers to input parameters
-            time_ip(get_ip(input_parameters, "time")),
-            kick_strength_ip(get_ip(input_parameters, "kick_strength")),
-            night_tracker_ip(get_ip(input_parameters, "night_tracker")),
-            day_tracker_ip(get_ip(input_parameters, "day_tracker")),
-            light_ip(get_ip(input_parameters, "light")),
-            dawn_b_ip(get_ip(input_parameters, "dawn_b")),
-            dawn_a_ip(get_ip(input_parameters, "dawn_a")),
-            dusk_b_ip(get_ip(input_parameters, "dusk_b")),
-            dusk_a_ip(get_ip(input_parameters, "dusk_a")),
-            ref_b_ip(get_ip(input_parameters, "ref_b")),
-            ref_a_ip(get_ip(input_parameters, "ref_a")),
-            // Get pointers to output parameters
-            dawn_kick_op(get_op(output_parameters, "dawn_kick")),
-            dusk_kick_op(get_op(output_parameters, "dusk_kick")),
-            dawn_phase_op(get_op(output_parameters, "dawn_phase")),
-            dusk_phase_op(get_op(output_parameters, "dusk_phase")),
-            ref_phase_op(get_op(output_parameters, "ref_phase")),
-            dawn_radius_op(get_op(output_parameters, "dawn_radius")),
-            dusk_radius_op(get_op(output_parameters, "dusk_radius")),
-            ref_radius_op(get_op(output_parameters, "ref_radius")),
-            day_length_op(get_op(output_parameters, "day_length")),
-            night_length_op(get_op(output_parameters, "night_length")),
-            sunrise_op(get_op(output_parameters, "sunrise")),
-            sunset_op(get_op(output_parameters, "sunset"))
+            // Get pointers to input quantities
+            time_ip(get_ip(input_quantities, "time")),
+            kick_strength_ip(get_ip(input_quantities, "kick_strength")),
+            night_tracker_ip(get_ip(input_quantities, "night_tracker")),
+            day_tracker_ip(get_ip(input_quantities, "day_tracker")),
+            light_ip(get_ip(input_quantities, "light")),
+            dawn_b_ip(get_ip(input_quantities, "dawn_b")),
+            dawn_a_ip(get_ip(input_quantities, "dawn_a")),
+            dusk_b_ip(get_ip(input_quantities, "dusk_b")),
+            dusk_a_ip(get_ip(input_quantities, "dusk_a")),
+            ref_b_ip(get_ip(input_quantities, "ref_b")),
+            ref_a_ip(get_ip(input_quantities, "ref_a")),
+            // Get pointers to output quantities
+            dawn_kick_op(get_op(output_quantities, "dawn_kick")),
+            dusk_kick_op(get_op(output_quantities, "dusk_kick")),
+            dawn_phase_op(get_op(output_quantities, "dawn_phase")),
+            dusk_phase_op(get_op(output_quantities, "dusk_phase")),
+            ref_phase_op(get_op(output_quantities, "ref_phase")),
+            dawn_radius_op(get_op(output_quantities, "dawn_radius")),
+            dusk_radius_op(get_op(output_quantities, "dusk_radius")),
+            ref_radius_op(get_op(output_quantities, "ref_radius")),
+            day_length_op(get_op(output_quantities, "day_length")),
+            night_length_op(get_op(output_quantities, "night_length")),
+            sunrise_op(get_op(output_quantities, "sunrise")),
+            sunset_op(get_op(output_quantities, "sunset"))
         {}
-        static std::vector<std::string> get_inputs();
-        static std::vector<std::string> get_outputs();
+        static string_vector get_inputs();
+        static string_vector get_outputs();
     private:
-        // Pointers to input parameters
+        // Pointers to input quantities
         const double* time_ip;
         const double* kick_strength_ip;
         const double* night_tracker_ip;
@@ -51,7 +52,7 @@ class oscillator_clock_calculator : public SteadyModule {
         const double* dusk_a_ip;
         const double* ref_b_ip;
         const double* ref_a_ip;
-        // Pointers to output parameters
+        // Pointers to output quantities
         double* dawn_kick_op;
         double* dusk_kick_op;
         double* dawn_phase_op;
@@ -68,7 +69,7 @@ class oscillator_clock_calculator : public SteadyModule {
         void do_operation() const;
 };
 
-std::vector<std::string> oscillator_clock_calculator::get_inputs() {
+string_vector oscillator_clock_calculator::get_inputs() {
     return {
         "time",
         "kick_strength",
@@ -84,7 +85,7 @@ std::vector<std::string> oscillator_clock_calculator::get_inputs() {
     };
 }
 
-std::vector<std::string> oscillator_clock_calculator::get_outputs() {
+string_vector oscillator_clock_calculator::get_outputs() {
     return {
         "dawn_kick",
         "dusk_kick",
@@ -118,21 +119,21 @@ void oscillator_clock_calculator::do_operation() const {
     //////////////////////////////////////////
 
     using math_constants::pi;
-    
+
     // Get the current time value
     const double time = *time_ip;
     const double hour = 24.0 * (time - floor(time));
-    
+
     // Get the current light value
     const double light = *light_ip;
-    
+
     // Get the current state of the night and day trackers
     const double night_tracker = *night_tracker_ip;
     const double day_tracker = *day_tracker_ip;
-    
+
     // Get the kick strength
     const double kick_strength = *kick_strength_ip;
-    
+
     // Calculate the kicks
     // The dawn kick is created by taking the night tracker value during
     //  the day, which is just a short decay portion
@@ -140,7 +141,7 @@ void oscillator_clock_calculator::do_operation() const {
     //  the night, which is just a short decay portion
     const double dawn_kick = light * kick_strength * night_tracker;
     const double dusk_kick = (1.0 - light) * kick_strength * day_tracker;
-    
+
     // Get the current state of the dawn and dusk tracking oscillators
     const double dawn_b = *dawn_b_ip;
     const double dawn_a = *dawn_a_ip;
@@ -148,7 +149,7 @@ void oscillator_clock_calculator::do_operation() const {
     const double dusk_a = *dusk_a_ip;
     const double ref_b = *ref_b_ip;
     const double ref_a = *ref_a_ip;
-    
+
     // Calculate the dawn phase angle, which is zero around dawn and increases
     // throughout the day.
     const double dawn_phase = range_adjusted_atan2(dawn_b, dawn_a);
@@ -156,26 +157,26 @@ void oscillator_clock_calculator::do_operation() const {
     // Calculate the dusk phase angle, which is zero around dusk and increases
     // throughout the night.
     const double dusk_phase = range_adjusted_atan2(dusk_b, dusk_a);
-    
+
     // Calculate the reference phase angle, which is not coupled to the light.
     const double ref_phase = range_adjusted_atan2(ref_b, ref_a);
-    
+
     // Calculate the day and night length indicators (in hours):
     const double day_length   = dusk_phase > dawn_phase ? (dawn_phase - dusk_phase + 2 * pi) * 12.0 / pi
                               :                           (dawn_phase - dusk_phase)          * 12.0 / pi;
     const double night_length = dawn_phase > dusk_phase ? (dusk_phase - dawn_phase + 2 * pi) * 12.0 / pi
                               :                           (dusk_phase - dawn_phase)          * 12.0 / pi;
-                              
+
     // Calculate the sunrise and sunset times
     const double sunrise = dawn_phase * 12 / pi < hour ? (hour - dawn_phase * 12 / pi)
                          :                               (hour - dawn_phase * 12 / pi + 24.0);
     const double sunset  = dusk_phase * 12 / pi < hour ? (hour - dusk_phase * 12 / pi)
                          :                               (hour - dusk_phase * 12 / pi + 24.0);
-    
+
     //////////////////////////////////////
-    // Update the output parameter list //
+    // Update the output quantity list //
     //////////////////////////////////////
-    
+
     update(dawn_kick_op, dawn_kick);
     update(dusk_kick_op, dusk_kick);
     update(dawn_phase_op, dawn_phase);

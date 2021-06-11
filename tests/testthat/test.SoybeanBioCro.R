@@ -1,7 +1,7 @@
 ## This tests that re-running a previously-run simulation yields the same result
 ## as before.
 ##
-## If any of the crop-specific defaults for the initial state, parameters,
+## If any of the crop-specific defaults for the initial values, parameters,
 ## modules or weather data change, or if the behavior of any of these modules
 ## changes, the stored data for one or more crops will likely need to be
 ## updated. To do this, open a fresh R session in this directory, load the
@@ -54,7 +54,7 @@ test_plant_model <- function(test_info) {
   test_that(description, {
     expect_silent(
       result <<- Gro_solver(
-        test_info[['initial_state']],
+        test_info[['initial_values']],
         test_info[['parameters']],
         test_info[['weather']],
         test_info[['steadystate_modules']],
@@ -185,7 +185,7 @@ test_plant_model <- function(test_info) {
 # Make a helping function for specifying plant information
 specify_crop <- function(
   plant_name, 
-  initial_state, 
+  initial_values, 
   parameters, 
   weather, 
   steadystate_modules, 
@@ -194,7 +194,7 @@ specify_crop <- function(
   {
   list(
     plant_name = plant_name,
-    initial_state = initial_state,
+    initial_values = initial_values,
     parameters = parameters,
     weather = weather,
     steadystate_modules = steadystate_modules,
@@ -213,7 +213,7 @@ update_stored_results <- function(test_info) {
   
   # Calculate the result
   plant_result <- Gro_solver(
-    test_info[['initial_state']],
+    test_info[['initial_values']],
     test_info[['parameters']],
     test_info[['weather']],
     test_info[['steadystate_modules']],
@@ -245,7 +245,7 @@ SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-  specify_crop("soybean",  soybean_initial_state,  soybean_parameters,  soybean_weather2002,  soybean_steadystate_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
+  specify_crop("soybean",  soybean_initial_values,  soybean_parameters,  soybean_weather2002,  soybean_steadystate_modules,  soybean_derivative_modules,  SOYBEAN_IGNORE) # INDEX = 1
 )
 
 # Run all the tests

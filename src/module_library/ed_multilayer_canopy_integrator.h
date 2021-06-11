@@ -2,10 +2,11 @@
 #define ED_MULTILAYER_CANOPY_INTEGRATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * @class ed_multilayer_canopy_integrator
- * 
+ *
  * @brief Calculates properties of each canopy layer using functions
  * found in AuxBioCro (for the most part). Also includes multiple
  * leaf classes (sunlit & shaded). Leaf class is added to output
@@ -17,38 +18,38 @@ class ed_multilayer_canopy_integrator : public SteadyModule
     ed_multilayer_canopy_integrator(
         const std::string& module_name,
         const int& nlayers,
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule(module_name),
           // Store the number of layers
           nlayers(nlayers),
-          // Get pointers to input parameters
-          sunlit_fraction_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_fraction")),
-          sunlit_assimilation_net_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_assimilation_net")),
-          sunlit_assimilation_gross_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_assimilation_gross")),
-          sunlit_conductance_stomatal_h2o_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_conductance_stomatal_h2o")),
-          sunlit_transpiration_rate_ips(get_multilayer_ip(input_parameters, nlayers, "sunlit_transpiration_rate")),
-          shaded_fraction_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_fraction")),
-          shaded_assimilation_net_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_assimilation_net")),
-          shaded_assimilation_gross_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_assimilation_gross")),
-          shaded_conductance_stomatal_h2o_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_conductance_stomatal_h2o")),
-          shaded_transpiration_rate_ips(get_multilayer_ip(input_parameters, nlayers, "shaded_transpiration_rate")),
-          // Get references to input parameters
-          lai(get_input(input_parameters, "lai")),
-          growth_respiration_fraction(get_input(input_parameters, "growth_respiration_fraction")),
-          // Get pointers to output parameters
-          canopy_assimilation_rate_op(get_op(output_parameters, "canopy_assimilation_rate")),
-          canopy_transpiration_rate_op(get_op(output_parameters, "canopy_transpiration_rate")),
-          canopy_conductance_op(get_op(output_parameters, "canopy_conductance")),
-          GrossAssim_op(get_op(output_parameters, "GrossAssim"))
+          // Get pointers to input quantities
+          sunlit_fraction_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_fraction")),
+          sunlit_assimilation_net_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_assimilation_net")),
+          sunlit_assimilation_gross_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_assimilation_gross")),
+          sunlit_conductance_stomatal_h2o_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_conductance_stomatal_h2o")),
+          sunlit_transpiration_rate_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_transpiration_rate")),
+          shaded_fraction_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_fraction")),
+          shaded_assimilation_net_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_assimilation_net")),
+          shaded_assimilation_gross_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_assimilation_gross")),
+          shaded_conductance_stomatal_h2o_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_conductance_stomatal_h2o")),
+          shaded_transpiration_rate_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_transpiration_rate")),
+          // Get references to input quantities
+          lai(get_input(input_quantities, "lai")),
+          growth_respiration_fraction(get_input(input_quantities, "growth_respiration_fraction")),
+          // Get pointers to output quantities
+          canopy_assimilation_rate_op(get_op(output_quantities, "canopy_assimilation_rate")),
+          canopy_transpiration_rate_op(get_op(output_quantities, "canopy_transpiration_rate")),
+          canopy_conductance_op(get_op(output_quantities, "canopy_conductance")),
+          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
     {
     }
 
    private:
     // Number of layers
     const int nlayers;
-    // Pointers to input parameters
+    // Pointers to input quantities
     const std::vector<const double*> sunlit_fraction_ips;
     const std::vector<const double*> sunlit_assimilation_net_ips;
     const std::vector<const double*> sunlit_assimilation_gross_ips;
@@ -59,10 +60,10 @@ class ed_multilayer_canopy_integrator : public SteadyModule
     const std::vector<const double*> shaded_assimilation_gross_ips;
     const std::vector<const double*> shaded_conductance_stomatal_h2o_ips;
     const std::vector<const double*> shaded_transpiration_rate_ips;
-    // References to input parameters
+    // References to input quantities
     const double& lai;
     const double& growth_respiration_fraction;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* canopy_assimilation_rate_op;
     double* canopy_transpiration_rate_op;
     double* canopy_conductance_op;
@@ -74,17 +75,17 @@ class ed_multilayer_canopy_integrator : public SteadyModule
     void run() const;
 
    public:
-    static std::vector<std::string> get_inputs(int nlayers);
-    static std::vector<std::string> get_outputs(int nlayers);
+    static string_vector get_inputs(int nlayers);
+    static string_vector get_outputs(int nlayers);
 };
 
 /**
  * @brief Define all inputs required by the module, adding layer suffixes as required
  */
-std::vector<std::string> ed_multilayer_canopy_integrator::get_inputs(int nlayers)
+string_vector ed_multilayer_canopy_integrator::get_inputs(int nlayers)
 {
     // Define the multilayer inputs
-    std::vector<std::string> multilayer_inputs = {
+    string_vector multilayer_inputs = {
         "sunlit_fraction",                  // dimensionless
         "sunlit_assimilation_net",          // mol / m^2 /s
         "sunlit_assimilation_gross",        // mol / m^2 /s
@@ -98,7 +99,7 @@ std::vector<std::string> ed_multilayer_canopy_integrator::get_inputs(int nlayers
     };
 
     // Get the full list by appending layer numbers
-    std::vector<std::string> all_inputs = generate_multilayer_quantity_names(nlayers, multilayer_inputs);
+    string_vector all_inputs = generate_multilayer_quantity_names(nlayers, multilayer_inputs);
 
     // Add any other inputs
     all_inputs.push_back("lai");                          // dimensionless from m^2 / m^2
@@ -110,7 +111,7 @@ std::vector<std::string> ed_multilayer_canopy_integrator::get_inputs(int nlayers
 /**
  * @brief Define all outputs produced by the module
  */
-std::vector<std::string> ed_multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
+string_vector ed_multilayer_canopy_integrator::get_outputs(int /*nlayers*/)
 {
     return {
         "canopy_assimilation_rate",   // Mg / ha / hr
@@ -178,7 +179,7 @@ void ed_multilayer_canopy_integrator::run() const
 
 /**
  * @class ed_ten_layer_canopy_integrator
- * 
+ *
  * @brief A child class of ed_multilayer_canopy_integrator where the number of layers has been defined.
  * Instances of this class can be created using the module factory.
  */
@@ -186,19 +187,19 @@ class ed_ten_layer_canopy_integrator : public ed_multilayer_canopy_integrator
 {
    public:
     ed_ten_layer_canopy_integrator(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         : ed_multilayer_canopy_integrator("ed_ten_layer_canopy_integrator",
                                           ed_ten_layer_canopy_integrator::nlayers,
-                                          input_parameters,
-                                          output_parameters)  // Create the base class with the appropriate number of layers
+                                          input_quantities,
+                                          output_quantities)  // Create the base class with the appropriate number of layers
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_leaf_classes();
-    static std::vector<std::string> get_multiclass_multilayer_outputs();
-    static std::vector<std::string> get_pure_multilayer_outputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_leaf_classes();
+    static string_vector get_multiclass_multilayer_outputs();
+    static string_vector get_pure_multilayer_outputs();
+    static string_vector get_outputs();
 
    private:
     // Number of layers
@@ -209,12 +210,12 @@ class ed_ten_layer_canopy_integrator : public ed_multilayer_canopy_integrator
 
 const int ed_ten_layer_canopy_integrator::nlayers = 10;  // Set the number of layers
 
-std::vector<std::string> ed_ten_layer_canopy_integrator::get_inputs()
+string_vector ed_ten_layer_canopy_integrator::get_inputs()
 {
     return ed_multilayer_canopy_integrator::get_inputs(ed_ten_layer_canopy_integrator::nlayers);
 }
 
-std::vector<std::string> ed_ten_layer_canopy_integrator::get_outputs()
+string_vector ed_ten_layer_canopy_integrator::get_outputs()
 {
     return ed_multilayer_canopy_integrator::get_outputs(ed_ten_layer_canopy_integrator::nlayers);
 }

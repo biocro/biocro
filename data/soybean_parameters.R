@@ -134,6 +134,6 @@ soybean_parameters = with(list(), {
 })
 
 # Note 1: Soybean-BioCro refers to the simulation scenarios defined by the the soybean
-#         data files (soybean_initial_state, soybean_parameters, soybean_modules). See
+#         data files (soybean_initial_values, soybean_parameters, soybean_modules). See
 #         Matthews et al. (doi: TBA) for more on the current version of Soybean-BioCro.
 
