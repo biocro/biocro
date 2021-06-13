@@ -14,7 +14,7 @@ cat(
     sep = '',
     collapse = '\n'
   ),
-  "Branch:",
+  "Branch: ",
   system2('git',
           args = c('branch',
                    '--show-current'),
