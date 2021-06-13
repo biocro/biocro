@@ -1,5 +1,6 @@
 rmd_files: [
     "index.Rmd",
+        "version_info.Rmd",
         "../documentation/README.md",
         "../developer_documentation/contribution_guidelines.md",
         "../developer_documentation/formatting_tools.md",

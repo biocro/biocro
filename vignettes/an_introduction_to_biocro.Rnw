@@ -153,14 +153,39 @@
 
 \maketitle
 
-\tableofcontents
-
 % Set things up for R evaluation:
 <<preliminaries,echo=FALSE,error=TRUE>>=
 knitr::opts_chunk$set(error=TRUE) # don't stop on errors; display them
                                   # in results; this is the default
 library(BioCro, quietly=TRUE)
 @
+
+
+<<version_info,echo=FALSE,comment=''>>=
+# Show the current commit hash and the date of that commit.
+cat(
+  paste0(
+    system2('git',
+            args = c('show',
+                     '-s',
+                     '--format="This document was generated from the version of BioCro specified as follows:%n%nCommit Hash: %h%nDate: %aD"'
+                    ),
+            stdout = TRUE
+    ),
+    sep = '',
+    collapse = '\n'
+  ),
+  "\nBranch:",
+  system2('git',
+          args = c('branch',
+                   '--show-current'),
+          stdout = TRUE
+  ),
+  "\n"
+)
+@
+
+\tableofcontents
 
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}

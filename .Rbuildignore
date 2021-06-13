@@ -64,3 +64,6 @@
 ^developer_documentation$
 ^documentation$
 ^doxygen$
+
+## File created by documentation/script/run_pkgdown.sh:
+^index.md$
