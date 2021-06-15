@@ -38,7 +38,8 @@ string_vector c3_canopy::get_inputs() {
         "water_stress_approach",
         "electrons_per_carboxylation",
         "electrons_per_oxygenation",
-        "absorptivity_par" // dimensionless
+        "absorptivity_par", // dimensionless
+        "par_energy_content"  // J / micromol
     };
 }
 
@@ -64,7 +65,7 @@ void c3_canopy::do_operation() const {
             *StomataWS_ip, *specific_heat_of_air_ip, *atmospheric_pressure_ip,
             *growth_respiration_fraction_ip, *water_stress_approach_ip,
             *electrons_per_carboxylation_ip, *electrons_per_oxygenation_ip,
-            *absorptivity_par_ip);
+            *absorptivity_par_ip, *par_energy_content_ip);
 
     // Update the output quantity list
     update(canopy_assimilation_rate_op, can_result.Assim);  // Mg / ha / hr.

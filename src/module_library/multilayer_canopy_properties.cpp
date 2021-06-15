@@ -21,6 +21,7 @@ string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
         "LeafN",                 // mmol / m^2 (?)
         "kpLN",                  // dimensionless
         "lnfun",                 // a dimensionless switch
+        "par_energy_content"     // J / micromol
     };
 }
 
@@ -102,7 +103,8 @@ void multilayer_canopy_properties::run() const
         kd,
         chil,
         absorptivity_par,
-        heightf);
+        heightf,
+        par_energy_content);
 
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];

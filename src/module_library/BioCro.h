@@ -19,7 +19,7 @@ struct Can_Str CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
 		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq,
              double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
-             int water_stress_approach, double absorptivity_par);
+             int water_stress_approach, double absorptivity_par, double par_energy_content);
 
 struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax,
@@ -29,7 +29,7 @@ struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Tem
                        double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
                        double growth_respiration_fraction, int water_stress_approach,
                        double electrons_per_carboxylation, double electrons_per_oxygenation,
-                       double absorptivity_par);
+                       double absorptivity_par, double par_energy_content);
 
 double resp(double comp, double mrc, double temp);
 
@@ -38,9 +38,12 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
                      double Ks, double air_entry, double b);
 
 
-double SoilEvapo(double LAI, double k, double AirTemp, double DirectRad,
-        double awc, double fieldc, double wiltp, double winds, double RelH, double rsec,
-        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat_of_air, double stefan_boltzman);
+double SoilEvapo(
+    double LAI, double k, double air_temperature, double ppfd,
+    double soil_water_content, double fieldc, double wiltp, double winds,
+    double RelH, double rsec, double soil_clod_size, double soil_reflectance,
+    double soil_transmission, double specific_heat_of_air,
+    double stefan_boltzman, double par_energy_content);
 
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
         double soil_field_capacity, double soil_wilting_point, double soil_saturation_capacity, double soil_air_entry, double soil_saturated_conductivity,
@@ -48,7 +51,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         int layers, double rootDB, double LAI, double k, double AirTemp,
         double IRad, double winds, double RelH, int hydrDist, double rfl,
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
-        double specific_heat_of_air, double stefan_boltzman);
+        double specific_heat_of_air, double stefan_boltzman, double par_energy_content);
 
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
@@ -60,7 +63,10 @@ double absorbed_shortwave_from_incident_ppfd(
     double leaf_reflectance,
     double leaf_transmittance
 );
-struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil, double absorptivity, double heightf);
+struct Light_profile sunML(
+    double Idir, double Idiff, double LAI, int nlayers, double cosTheta,
+    double kd, double chil, double absorptivity, double heightf,
+    double par_energy_content);
 
 struct Light_model lightME(double lat, int DOY, double td, double atmospheric_pressure);
 

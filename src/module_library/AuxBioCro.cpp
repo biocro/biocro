@@ -245,15 +245,18 @@ double absorbed_shortwave_from_incident_ppfd(
  *  radiation (NIR), etc., as long as the extinction coefficients and
  *  absorptivities are appropriately chosen.
  */
-Light_profile sunML(double Idir,
-        double Idiff,
-        double LAI,
-        int nlayers,
-        double cosTheta,
-        double kd,
-        double chil,
-        double absorptivity,
-        double heightf)
+Light_profile sunML(
+    double Idir,               // micromol / m^2 / s
+    double Idiff,              // micromol / m^2 / s
+    double LAI,                // dimensionless from m^2 / m^2
+    int nlayers,               // dimensionless
+    double cosTheta,           // dimensionless
+    double kd,                 // dimensionless
+    double chil,               // dimensionless from m^2 / m^2
+    double absorptivity,       // dimensionless from mol / mol
+    double heightf,            // m^-1 from m^2 leaf / m^2 ground / m height
+    double par_energy_content  // J / micromol
+)
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
         throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
@@ -275,13 +278,12 @@ Light_profile sunML(double Idir,
     }
 
     // Hard-coded parameters to be converted to inputs later
-    double constexpr par_energy_content = 0.235; // J / micromol
     double constexpr par_energy_fraction = 0.5;  // dimensionless
     double constexpr leaf_transmittance = 0.2;   // dimensionless
     double constexpr leaf_reflectance = 0.2;     // dimensionless
 
     double theta = acos(cosTheta);
-    double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
+    double k0 = sqrt(pow(chil, 2) + pow(tan(theta), 2));
     double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
     double k = k0 / k1;  // Canopy extinction coefficient for an ellipsoidal leaf angle distribution. Page 251, Campbell and Norman. Environmental Biophysics. second edition.
 
@@ -316,7 +318,7 @@ Light_profile sunML(double Idir,
 
         light_profile.incident_ppfd_direct[i] = Isolar + Idiffuse;  // micromole / m^2 / s
         light_profile.incident_ppfd_scattered[i] = Iscat;           // micromole / m^2 / s
-        light_profile.incident_ppfd_diffuse[i]= Idiffuse;           // micromole / m^2 / s
+        light_profile.incident_ppfd_diffuse[i] = Idiffuse;          // micromole / m^2 / s
         light_profile.incident_ppfd_average[i] = Iaverage;          // micromole / m^2 / s
         light_profile.sunlit_fraction[i] = Fsun;                    // dimensionless from m^2 / m^2
         light_profile.shaded_fraction[i] = Fshade;                  // dimensionless from m^2 / m^2
@@ -348,6 +350,7 @@ Light_profile sunML(double Idir,
     }
     return light_profile;
 }
+
 
 /* Additional Functions needed for EvapoTrans */
 
@@ -739,9 +742,12 @@ double leaf_boundary_layer_conductance(
 /* awc, wiltp, fieldc = available water content, wilting point and field capacity */
 /* winds = wind speed */
 
-double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, double soil_water_content,
-        double fieldc, double wiltp, double winds, double RelH, double rsec,
-        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat_of_air, double stefan_boltzman )
+double SoilEvapo(
+    double LAI, double k, double air_temperature, double ppfd,
+    double soil_water_content, double fieldc, double wiltp, double winds,
+    double RelH, double rsec, double soil_clod_size, double soil_reflectance,
+    double soil_transmission, double specific_heat_of_air,
+    double stefan_boltzman, double par_energy_content)
 {
     int method = 1;
     /* A simple way of calculating the proportion of the soil that is hit by direct radiation. */
@@ -761,7 +767,6 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     /* This is a useful idea because dry soils evaporate little water when dry*/
 
     /* Total Radiation */
-    /* Convert light assuming 1 micromole PAR photons = 0.235 J/s Watts*/
     /* At the moment soil evaporation is grossly overestimated. In WIMOVAC the light reaching the last layer of leaves is used. Here instead
        of calculating this again, I will for now assume a 10% as a rough estimate. Note that I could maybe get this since layIdir and
        layIDiff in sunML are external variables.  Rprintf("ppfd %.5f",layIdir[0],"\n"); Update: 03-13-2009. I tried printing this
@@ -769,7 +774,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
        */
     ppfd *= rsec; /* Radiation soil evaporation coefficient */
 
-    double TotalRadiation = ppfd * 0.235;
+    double TotalRadiation = ppfd * par_energy_content;
 
     double DdryA = TempToDdryA(air_temperature);
     double LHV = TempToLHV(air_temperature);  // J / kg
@@ -921,7 +926,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         int layers, double rootDB, double LAI, double k, double AirTemp,
         double IRad, double winds, double RelH, int hydrDist, double rfl,
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
-        double specific_heat_of_air, double stefan_boltzman )
+        double specific_heat_of_air, double stefan_boltzman, double par_energy_content)
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
 
@@ -1017,8 +1022,11 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             /* Only the first layer is affected by soil evaporation */
             double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
-            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, soil_field_capacity, soil_wilting_point, winds, RelH, rsec,
-                soil_clod_size, soil_reflectance, soil_transmission, specific_heat_of_air, stefan_boltzman ) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
+            Sevap = SoilEvapo(
+                LAI, k, AirTemp, IRad, awc2, soil_field_capacity,
+                soil_wilting_point, winds, RelH, rsec, soil_clod_size,
+                soil_reflectance, soil_transmission, specific_heat_of_air,
+                stefan_boltzman, par_energy_content) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
                to the amount of root in each respective layer.*/

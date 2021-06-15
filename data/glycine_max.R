@@ -90,6 +90,7 @@ glycine_max_parameters = with(list(), {
     lnfun                                  0
     nlayers                                10
     O2                                     210
+    par_energy_content                     0.235
     phi1                                   0.01
     phi2                                   10
     rate_constant_grain                    3

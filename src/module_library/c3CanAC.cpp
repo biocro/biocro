@@ -36,7 +36,8 @@ struct Can_Str c3CanAC(
     int water_stress_approach,           // dimensionless switch
     double electrons_per_carboxylation,  // self-explanatory units
     double electrons_per_oxygenation,    // self-explanatory units
-    double absorptivity_par              // dimensionless
+    double absorptivity_par,             // dimensionless
+    double par_energy_content            // J / micromol
 )
 {
     struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
@@ -49,7 +50,7 @@ struct Can_Str c3CanAC(
 
     struct Light_profile light_profile =
         sunML(q_dir, q_diff, LAI, nlayers, cosTh, kd, chil, absorptivity_par,
-              heightf);
+              heightf, par_energy_content);
 
     double LAIc = LAI / nlayers;  // dimensionless
 

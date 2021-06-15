@@ -42,6 +42,7 @@ class ed_canac_leaf : public SteadyModule
           leafwidth_ip(get_ip(input_quantities, "leafwidth")),
           specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
           solar_energy_absorbed_leaf_ip(get_ip(input_quantities, "solar_energy_absorbed_leaf")),
+          par_energy_content_ip(get_ip(input_quantities, "par_energy_content")),
 
           // Get pointers to output quantities
           mole_fraction_co2_intercellular_op(get_op(output_quantities, "mole_fraction_co2_intercellular")),
@@ -82,6 +83,7 @@ class ed_canac_leaf : public SteadyModule
     const double* leafwidth_ip;
     const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
+    const double* par_energy_content_ip;
 
     // Pointers to output quantities
     double* mole_fraction_co2_intercellular_op;
@@ -121,7 +123,8 @@ string_vector ed_canac_leaf::get_inputs()
         "windspeed",                          // m / s
         "leafwidth",                          // m
         "specific_heat_of_air",               // J / kg / K
-        "solar_energy_absorbed_leaf"          // J / m^2 / s
+        "solar_energy_absorbed_leaf",         // J / m^2 / s
+        "par_energy_content"                  // J / micromol
     };
 }
 
@@ -168,10 +171,10 @@ void ed_canac_leaf::do_operation() const
     const double specific_heat_of_air = *specific_heat_of_air_ip;                   // J / kg / K
     const int eteq = 0;                                                             // Report Penman-Monteith transpiration
     const double absorbed_shortwave_radiation_lt = *solar_energy_absorbed_leaf_ip;  // J / m^2 / s
+    const double par_energy_content = *par_energy_content_ip;                       // J / micromol
 
     // We need to get the absorbed shortwave radiation as determined from the
     // incident PPFD using hardcoded values (should become inputs later).
-    double constexpr par_energy_content = 0.235;  // J / micromol
     double constexpr par_energy_fraction = 0.5;   // dimensionless
     double constexpr leaf_reflectance = 0.2;      // dimensionless
     double constexpr leaf_transmittance = 0.2;    // dimensionless

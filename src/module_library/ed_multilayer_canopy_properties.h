@@ -210,7 +210,7 @@ void ed_multilayer_canopy_properties::run() const
     // and the output of sunML is linear with respect to `Idir` and `Idiff`.
     struct Light_profile par_profile = sunML(par_incident_direct, par_incident_diffuse,
                                              lai, nlayers, cosine_zenith_angle, kd, chil,
-                                             absorptivity_par, heightf);
+                                             absorptivity_par, heightf, par_energy_content);
 
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];

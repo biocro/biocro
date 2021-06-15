@@ -126,6 +126,7 @@ miscanthus_x_giganteus_parameters = with(list(), {
     nRdb1                       0.1247
     nvmaxb0                     -16.25
     nvmaxb1                     0.6938
+    par_energy_content          0.235
     phi1                        0.01
     phi2                        10
     Rd                          0.8

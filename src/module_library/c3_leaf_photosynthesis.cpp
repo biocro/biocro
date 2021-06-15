@@ -60,7 +60,7 @@ void c3_leaf_photosynthesis::do_operation() const
 
     double const absorbed_shortwave =
         absorbed_shortwave_from_incident_ppfd(
-            incident_average_par_micromol, 0.235,
+            incident_average_par_micromol, par_energy_content,
             par_energy_fraction, leaf_reflectance, leaf_transmittance); // J / m^2 / s
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at

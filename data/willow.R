@@ -115,6 +115,7 @@ willow_parameters = with(list(), {
     mrc2                           0.03
     nlayers                        10
     O2                             210
+    par_energy_content             0.235
     phi1                           0.01
     phi2                           10
     Rd                             1.1

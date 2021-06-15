@@ -62,6 +62,7 @@ class c4_canopy : public SteadyModule
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
           water_stress_approach_ip(get_ip(input_quantities, "water_stress_approach")),
           absorptivity_par_ip(get_ip(input_quantities, "absorptivity_par")),
+          par_energy_content_ip(get_ip(input_quantities, "par_energy_content")),
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op(get_op(output_quantities, "canopy_assimilation_rate")),
@@ -121,6 +122,7 @@ class c4_canopy : public SteadyModule
     const double* atmospheric_pressure_ip;
     const double* water_stress_approach_ip;
     const double* absorptivity_par_ip;
+    const double* par_energy_content_ip;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;
@@ -180,7 +182,8 @@ string_vector c4_canopy::get_inputs()
         "specific_heat_of_air",   // J / kg / K
         "atmospheric_pressure",   // Pa
         "water_stress_approach",  // dimensionless switch
-        "absorptivity_par"        // dimensionless
+        "absorptivity_par",       // dimensionless
+        "par_energy_content"      // J / micromol
     };
 }
 
@@ -223,7 +226,7 @@ void c4_canopy::do_operation() const
         *lnfun_ip, *upperT_ip, *lowerT_ip, nitroP, *leafwidth_ip,
         *et_equation_ip, *StomataWS_ip, *specific_heat_of_air_ip,
         *atmospheric_pressure_ip, *water_stress_approach_ip,
-        *absorptivity_par_ip);
+        *absorptivity_par_ip, *par_energy_content_ip);
 
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.

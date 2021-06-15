@@ -48,6 +48,7 @@ class c3_canopy : public SteadyModule
           electrons_per_carboxylation_ip(get_ip(input_quantities, "electrons_per_carboxylation")),
           electrons_per_oxygenation_ip(get_ip(input_quantities, "electrons_per_oxygenation")),
           absorptivity_par_ip(get_ip(input_quantities, "absorptivity_par")),
+          par_energy_content_ip(get_ip(input_quantities, "par_energy_content")),
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op(get_op(output_quantities, "canopy_assimilation_rate")),
@@ -94,6 +95,7 @@ class c3_canopy : public SteadyModule
     const double* electrons_per_carboxylation_ip;
     const double* electrons_per_oxygenation_ip;
     const double* absorptivity_par_ip;
+    const double* par_energy_content_ip;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;

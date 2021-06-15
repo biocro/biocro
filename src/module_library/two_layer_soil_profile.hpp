@@ -45,6 +45,7 @@ class two_layer_soil_profile : public DerivModule {
 			specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
 			stefan_boltzman_ip(get_ip(input_quantities, "stefan_boltzman")),
 			soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
+			par_energy_content_ip(get_ip(input_quantities, "par_energy_content")),
 			// Get pointers to output quantities
 			cws1_op(get_op(output_quantities, "cws1")),
 			cws2_op(get_op(output_quantities, "cws2")),
@@ -87,6 +88,7 @@ class two_layer_soil_profile : public DerivModule {
 		const double* specific_heat_of_air_ip;
 		const double* stefan_boltzman_ip;
 		const double* soil_water_content_ip;
+        const double* par_energy_content_ip;
 		// Pointers to output quantities
 		double* cws1_op;
 		double* cws2_op;
@@ -129,7 +131,8 @@ string_vector two_layer_soil_profile::get_inputs() {
 		"soil_transmission",
 		"specific_heat_of_air",
 		"stefan_boltzman",
-		"soil_water_content"
+		"soil_water_content",
+        "par_energy_content"
 	};
 }
 
@@ -159,7 +162,7 @@ void two_layer_soil_profile::do_operation() const {
 			2 /* Always uses 2 layers. */, *Root_ip, *lai_ip, 0.68, *temp_ip,
 			*solar_ip, *windspeed_ip, *rh_ip, *hydrDist_ip, *rfl_ip,
 			*rsec_ip, *rsdf_ip, *soil_clod_size_ip, *soil_reflectance_ip, *soil_transmission_ip,
-			*specific_heat_of_air_ip, *stefan_boltzman_ip);
+			*specific_heat_of_air_ip, *stefan_boltzman_ip, *par_energy_content_ip);
 
 	double layer_one_depth = soil_depth2 - soil_depth1;
 	double layer_two_depth = soil_depth3 - soil_depth2;
