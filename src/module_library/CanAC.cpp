@@ -39,7 +39,10 @@ struct Can_Str CanAC(
     double atmospheric_pressure,  // Pa
     int water_stress_approach,    // dimensionless switch
     double absorptivity_par,      // dimensionless
-    double par_energy_content     // J / micromol
+    double par_energy_content,    // J / micromol
+    double par_energy_fraction,   // dimensionless
+    double leaf_transmittance,    // dimensionless
+    double leaf_reflectance       // dimensionless
 )
 {
     struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
@@ -52,7 +55,8 @@ struct Can_Str CanAC(
 
     struct Light_profile light_profile =
         sunML(q_dir, q_diff, LAI, nlayers, cosTh, kd, chil, absorptivity_par,
-              heightf, par_energy_content);
+              heightf, par_energy_content, par_energy_fraction,
+              leaf_transmittance, leaf_reflectance);
 
     double LAIc = LAI / nlayers;  // dimensionless
 

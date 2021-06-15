@@ -134,7 +134,7 @@ soybean_parameters = with(list(), {
     atmospheric_scattering                  0.3
 
     # incident_shortwave_from_ground_par module
-    par_energy_fraction_of_sunlight         0.5
+    par_energy_fraction                     0.5
     par_energy_content                      0.235
 
     # ten_layer_canopy_properties module
@@ -143,6 +143,8 @@ soybean_parameters = with(list(), {
     kd                                      0.7         # Estimated from Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Figure 15.4, pg 254
     heightf                                 3           # m^-1
     kpLN                                    0           # not used in Soybean-BioCro (see Note 1 at end of file)
+    leaf_reflectance                        0.2
+    leaf_transmittance                      0.2
     lnfun                                   0           # not used in Soybean-BioCro
 
     # ten_layer_c3_canopy module

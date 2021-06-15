@@ -29,7 +29,10 @@ string_vector c4_leaf_photosynthesis::get_inputs()
         "height",                 // m
         "leafwidth",              // m
         "specific_heat_of_air",   // J / kg / K
-        "et_equation"             // a dimensionless switch
+        "et_equation",            // a dimensionless switch
+        "par_energy_fraction",    // dimensionless
+        "leaf_transmittance",     // dimensionless
+        "leaf_reflectance"        // dimensionless
     };
 }
 
@@ -55,12 +58,7 @@ void c4_leaf_photosynthesis::do_operation() const
     const double incident_average_par_micromol = incident_average_par / par_energy_content;  // micromol / m^2 / s
 
     // Determine the absorbed shortwave light energy from the "incident average
-    // PAR" and "incident PAR" using hardcoded values (should become inputs
-    // later).
-    double constexpr par_energy_fraction = 0.5;  // dimensionless
-    double constexpr leaf_reflectance = 0.2;     // dimensionless
-    double constexpr leaf_transmittance = 0.2;   // dimensionless
-
+    // PAR" and "incident PAR"
     double const absorbed_shortwave_avg =
         absorbed_shortwave_from_incident_ppfd(
             incident_average_par_micromol, par_energy_content,

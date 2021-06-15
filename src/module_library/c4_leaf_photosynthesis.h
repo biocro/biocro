@@ -45,6 +45,9 @@ class c4_leaf_photosynthesis : public SteadyModule
           leafwidth(get_input(input_quantities, "leafwidth")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
           et_equation(get_input(input_quantities, "et_equation")),
+          par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
+          leaf_transmittance(get_input(input_quantities, "leaf_transmittance")),
+          leaf_reflectance(get_input(input_quantities, "leaf_reflectance")),
 
           // Get pointers to output quantities
           Assim_op(get_op(output_quantities, "Assim")),
@@ -87,6 +90,9 @@ class c4_leaf_photosynthesis : public SteadyModule
     double const& leafwidth;
     double const& specific_heat_of_air;
     double const& et_equation;
+    double const& par_energy_fraction;
+    double const& leaf_transmittance;
+    double const& leaf_reflectance;
 
     // Pointers to output quantities
     double* Assim_op;

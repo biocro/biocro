@@ -19,7 +19,7 @@
  * in units of micromol / m^2 / s. However, the output quantities will be converted into the
  * SI standard energy flux density units of J / m^2 / s or equivalently W / m^2.
  *
- * The `par_energy_fraction_of_sunlight` quantity should represent the fraction of solar energy
+ * The `par_energy_fraction` quantity should represent the fraction of solar energy
  * that lies in the PAR band. This value is often near 0.5.
  */
 class incident_shortwave_from_ground_par : public SteadyModule
@@ -34,7 +34,7 @@ class incident_shortwave_from_ground_par : public SteadyModule
           solar(get_input(input_quantities, "solar")),
           irradiance_direct_fraction(get_input(input_quantities, "irradiance_direct_fraction")),
           irradiance_diffuse_fraction(get_input(input_quantities, "irradiance_diffuse_fraction")),
-          par_energy_fraction_of_sunlight(get_input(input_quantities, "par_energy_fraction_of_sunlight")),
+          par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
           par_energy_content(get_input(input_quantities, "par_energy_content")),
           // Get pointers to output quantities
           par_incident_direct_op(get_op(output_quantities, "par_incident_direct")),
@@ -51,7 +51,7 @@ class incident_shortwave_from_ground_par : public SteadyModule
     double const& solar;
     double const& irradiance_direct_fraction;
     double const& irradiance_diffuse_fraction;
-    double const& par_energy_fraction_of_sunlight;
+    double const& par_energy_fraction;
     double const& par_energy_content;
     // Pointers to output quantities
     double* par_incident_direct_op;
@@ -68,7 +68,7 @@ string_vector incident_shortwave_from_ground_par::get_inputs()
         "solar",                            // micromol / (m^2 beam) / s [area perpendicular to beam]
         "irradiance_direct_fraction",       // dimensionless
         "irradiance_diffuse_fraction",      // dimensionless
-        "par_energy_fraction_of_sunlight",  // dimensionless
+        "par_energy_fraction",              // dimensionless
         "par_energy_content"                // J / micromol
     };
 }
@@ -91,13 +91,13 @@ void incident_shortwave_from_ground_par::do_operation() const
 
     // Calculate the NIR flux density in the direct beam and as diffuse radiation
     // Here we just assume that a constant fraction of solar energy lies in the PAR band,
-    //  with the remainder being in the NIR band.
-    const double nir_incident_direct = par_incident_direct * (1.0 / par_energy_fraction_of_sunlight - 1.0);
-    const double nir_incident_diffuse = par_incident_diffuse * (1.0 / par_energy_fraction_of_sunlight - 1.0);
+    // with the remainder being in the NIR band.
+    const double nir_incident_direct = par_incident_direct * (1.0 / par_energy_fraction - 1.0);
+    const double nir_incident_diffuse = par_incident_diffuse * (1.0 / par_energy_fraction - 1.0);
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {
-        {"par_energy_fraction_of_sunlight cannot be zero", par_energy_fraction_of_sunlight == 0}  // divide by zero
+        {"par_energy_fraction cannot be zero", par_energy_fraction == 0}  // divide by zero
     };
 
     check_error_conditions(errors_to_check, get_name());

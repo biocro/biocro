@@ -19,7 +19,8 @@ struct Can_Str CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
 		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
 		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq,
              double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
-             int water_stress_approach, double absorptivity_par, double par_energy_content);
+             int water_stress_approach, double absorptivity_par, double par_energy_content,
+             double par_energy_fraction, double leaf_transmittance, double leaf_reflectance);
 
 struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
                        double RH, double WindSpeed, double lat, int nlayers, double Vmax,
@@ -29,7 +30,8 @@ struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Tem
                        double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
                        double growth_respiration_fraction, int water_stress_approach,
                        double electrons_per_carboxylation, double electrons_per_oxygenation,
-                       double absorptivity_par, double par_energy_content);
+                       double absorptivity_par, double par_energy_content,
+                       double par_energy_fraction, double leaf_transmittance, double leaf_reflectance);
 
 double resp(double comp, double mrc, double temp);
 
@@ -66,7 +68,8 @@ double absorbed_shortwave_from_incident_ppfd(
 struct Light_profile sunML(
     double Idir, double Idiff, double LAI, int nlayers, double cosTheta,
     double kd, double chil, double absorptivity, double heightf,
-    double par_energy_content);
+    double par_energy_content, double par_energy_fraction,
+    double leaf_transmittance, double leaf_reflectance);
 
 struct Light_model lightME(double lat, int DOY, double td, double atmospheric_pressure);
 

@@ -108,6 +108,8 @@ miscanthus_x_giganteus_parameters = with(list(), {
     LeafN                       2
     LeafN_0                     2
     leafwidth                   0.04
+    leaf_reflectance            0.2
+    leaf_transmittance          0.2
     lnb0                        -5
     lnb1                        18
     lnfun                       0
@@ -127,6 +129,7 @@ miscanthus_x_giganteus_parameters = with(list(), {
     nvmaxb0                     -16.25
     nvmaxb1                     0.6938
     par_energy_content          0.235
+    par_energy_fraction         0.5
     phi1                        0.01
     phi2                        10
     Rd                          0.8

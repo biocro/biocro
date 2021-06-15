@@ -37,7 +37,10 @@ struct Can_Str c3CanAC(
     double electrons_per_carboxylation,  // self-explanatory units
     double electrons_per_oxygenation,    // self-explanatory units
     double absorptivity_par,             // dimensionless
-    double par_energy_content            // J / micromol
+    double par_energy_content,           // J / micromol
+    double par_energy_fraction,          // dimensionless
+    double leaf_transmittance,           // dimensionless
+    double leaf_reflectance              // dimensionless
 )
 {
     struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
@@ -50,7 +53,8 @@ struct Can_Str c3CanAC(
 
     struct Light_profile light_profile =
         sunML(q_dir, q_diff, LAI, nlayers, cosTh, kd, chil, absorptivity_par,
-              heightf, par_energy_content);
+              heightf, par_energy_content, par_energy_fraction,
+              leaf_transmittance, leaf_reflectance);
 
     double LAIc = LAI / nlayers;  // dimensionless
 

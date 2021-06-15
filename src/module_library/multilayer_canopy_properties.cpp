@@ -21,7 +21,10 @@ string_vector multilayer_canopy_properties::get_inputs(int /*nlayers*/)
         "LeafN",                 // mmol / m^2 (?)
         "kpLN",                  // dimensionless
         "lnfun",                 // a dimensionless switch
-        "par_energy_content"     // J / micromol
+        "par_energy_content",    // J / micromol
+        "par_energy_fraction",   // dimensionless
+        "leaf_transmittance",    // dimensionless
+        "leaf_reflectance"       // dimensionless
     };
 }
 
@@ -104,7 +107,10 @@ void multilayer_canopy_properties::run() const
         chil,
         absorptivity_par,
         heightf,
-        par_energy_content);
+        par_energy_content,
+        par_energy_fraction,
+        leaf_transmittance,
+        leaf_reflectance);
 
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];

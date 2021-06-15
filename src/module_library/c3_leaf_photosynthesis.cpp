@@ -27,7 +27,10 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "incident_average_par",         // J / (m^2 leaf) / s
         "windspeed",                    // m / s
         "height",                       // m
-        "specific_heat_of_air"          // J / kg / K
+        "specific_heat_of_air",         // J / kg / K
+        "par_energy_fraction",          // dimensionless
+        "leaf_transmittance",           // dimensionless
+        "leaf_reflectance"              // dimensionless
     };
 }
 
@@ -53,15 +56,11 @@ void c3_leaf_photosynthesis::do_operation() const
     double const incident_average_par_micromol = incident_average_par / par_energy_content;  // micromol / m^2 / s
 
     // Determine the absorbed shortwave light energy from the "incident average
-    // PAR" using hardcoded values (should become inputs later).
-    double constexpr par_energy_fraction = 0.5;  // dimensionless
-    double constexpr leaf_reflectance = 0.2;     // dimensionless
-    double constexpr leaf_transmittance = 0.2;   // dimensionless
-
+    // PAR"
     double const absorbed_shortwave =
         absorbed_shortwave_from_incident_ppfd(
             incident_average_par_micromol, par_energy_content,
-            par_energy_fraction, leaf_reflectance, leaf_transmittance); // J / m^2 / s
+            par_energy_fraction, leaf_reflectance, leaf_transmittance);  // J / m^2 / s
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature

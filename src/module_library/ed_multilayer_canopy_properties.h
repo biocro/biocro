@@ -41,7 +41,7 @@ class ed_multilayer_canopy_properties : public SteadyModule
           nlayers(nlayers),
 
           // Get references to input quantities
-          par_energy_fraction_of_sunlight(get_input(input_quantities, "par_energy_fraction_of_sunlight")),
+          par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
           par_energy_content(get_input(input_quantities, "par_energy_content")),
           par_incident_direct(get_input(input_quantities, "par_incident_direct")),
           par_incident_diffuse(get_input(input_quantities, "par_incident_diffuse")),
@@ -55,6 +55,8 @@ class ed_multilayer_canopy_properties : public SteadyModule
           windspeed(get_input(input_quantities, "windspeed")),
           LeafN(get_input(input_quantities, "LeafN")),
           kpLN(get_input(input_quantities, "kpLN")),
+          leaf_transmittance(get_input(input_quantities, "leaf_transmittance")),
+          leaf_reflectance(get_input(input_quantities, "leaf_reflectance")),
 
           // Get pointers to output quantities
           sunlit_incident_par_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_par")),
@@ -78,7 +80,7 @@ class ed_multilayer_canopy_properties : public SteadyModule
     int const nlayers;
 
     // References to input quantities
-    double const& par_energy_fraction_of_sunlight;
+    double const& par_energy_fraction;
     double const& par_energy_content;
     double const& par_incident_direct;
     double const& par_incident_diffuse;
@@ -92,6 +94,8 @@ class ed_multilayer_canopy_properties : public SteadyModule
     double const& windspeed;
     double const& LeafN;
     double const& kpLN;
+    double const& leaf_transmittance;
+    double const& leaf_reflectance;
 
     // Pointers to output quantities
     std::vector<double*> const sunlit_incident_par_ops;
@@ -123,7 +127,7 @@ class ed_multilayer_canopy_properties : public SteadyModule
 string_vector ed_multilayer_canopy_properties::get_inputs(int /*nlayers*/)
 {
     return {
-        "par_energy_fraction_of_sunlight",  // dimensionless
+        "par_energy_fraction",  // dimensionless
         "par_energy_content",               // J / micromol
         "par_incident_direct",              // J / (m^2 beam) / s [area perpendicular to beam]
         "par_incident_diffuse",             // J / m^2 / s        [through any plane]
@@ -136,7 +140,9 @@ string_vector ed_multilayer_canopy_properties::get_inputs(int /*nlayers*/)
         "rh",                               // dimensionless from Pa / Pa
         "windspeed",                        // m / s
         "LeafN",                            // mmol / m^2 (?)
-        "kpLN"                              // dimensionless
+        "kpLN",                             // dimensionless
+        "leaf_transmittance",               // dimensionless
+        "leaf_reflectance"                  // dimensionless
     };
 }
 
@@ -208,9 +214,11 @@ void ed_multilayer_canopy_properties::run() const
     // we can leave these quantities as energy flux densities with [J / m^2 / s] units
     // because the two units are simply related by a multiplicative conversion factor
     // and the output of sunML is linear with respect to `Idir` and `Idiff`.
-    struct Light_profile par_profile = sunML(par_incident_direct, par_incident_diffuse,
-                                             lai, nlayers, cosine_zenith_angle, kd, chil,
-                                             absorptivity_par, heightf, par_energy_content);
+    struct Light_profile par_profile = sunML(
+        par_incident_direct, par_incident_diffuse, lai, nlayers,
+        cosine_zenith_angle, kd, chil, absorptivity_par, heightf,
+        par_energy_content, par_energy_fraction, leaf_transmittance,
+        leaf_reflectance);
 
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];
@@ -235,11 +243,11 @@ void ed_multilayer_canopy_properties::run() const
     // par_profile.incident_ppfd_average represents some kind of wonky "average" incident
     // PAR flux on the leaves, but the evapotranspiration code expects a value for
     // total absorbed solar energy (including NIR). To convert, we use the method from
-    // the Evapotrans2 code. First we use the `par_energy_fraction_of_sunlight` quantity
+    // the Evapotrans2 code. First we use the `par_energy_fraction` quantity
     // to determine the total amount of solar energy incident on the leaf (including NIR).
     // Then we determine the amount of light absorbed by the leaf using the following factor:
-    // (1 - LeafReflectance - tau) / (1 - tau) for LeafReflectance = tau = 0.2. This factor
-    // evaluates to a numeric value of (1 - 0.2 - 0.2) / (1 - 0.2) = 0.75.
+    // (1 - LeafReflectance - tau) / (1 - tau)
+    double const absorb_factor = (1 - leaf_reflectance - leaf_transmittance) / (1 - leaf_transmittance);
     for (int i = 0; i < nlayers; ++i) {
         update(sunlit_fraction_ops[i], par_profile.sunlit_fraction[i]);
         update(shaded_fraction_ops[i], par_profile.shaded_fraction[i]);
@@ -250,7 +258,7 @@ void ed_multilayer_canopy_properties::run() const
         update(shaded_incident_par_ops[i], par_profile.incident_ppfd_diffuse[i]);
         update(shaded_collatz_PAR_flux_ops[i], par_profile.incident_ppfd_diffuse[i] / par_energy_content * 1e-6);
         update(incident_average_par_ops[i], par_profile.incident_ppfd_average[i]);
-        update(solar_energy_absorbed_leaf_ops[i], par_profile.incident_ppfd_average[i] / par_energy_fraction_of_sunlight * 0.75);
+        update(solar_energy_absorbed_leaf_ops[i], par_profile.incident_ppfd_average[i] / par_energy_fraction * absorb_factor);
         update(rh_ops[i], relative_humidity_profile[i]);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);

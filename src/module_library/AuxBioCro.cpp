@@ -246,16 +246,19 @@ double absorbed_shortwave_from_incident_ppfd(
  *  absorptivities are appropriately chosen.
  */
 Light_profile sunML(
-    double Idir,               // micromol / m^2 / s
-    double Idiff,              // micromol / m^2 / s
-    double LAI,                // dimensionless from m^2 / m^2
-    int nlayers,               // dimensionless
-    double cosTheta,           // dimensionless
-    double kd,                 // dimensionless
-    double chil,               // dimensionless from m^2 / m^2
-    double absorptivity,       // dimensionless from mol / mol
-    double heightf,            // m^-1 from m^2 leaf / m^2 ground / m height
-    double par_energy_content  // J / micromol
+    double Idir,                 // micromol / m^2 / s
+    double Idiff,                // micromol / m^2 / s
+    double LAI,                  // dimensionless from m^2 / m^2
+    int nlayers,                 // dimensionless
+    double cosTheta,             // dimensionless
+    double kd,                   // dimensionless
+    double chil,                 // dimensionless from m^2 / m^2
+    double absorptivity,         // dimensionless from mol / mol
+    double heightf,              // m^-1 from m^2 leaf / m^2 ground / m height
+    double par_energy_content,   // J / micromol
+    double par_energy_fraction,  // dimensionless
+    double leaf_transmittance,   // dimensionless
+    double leaf_reflectance      // dimensionless
 )
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
@@ -276,11 +279,6 @@ Light_profile sunML(
     if (heightf <= 0) {
         throw std::out_of_range("heightf must greater than zero.");
     }
-
-    // Hard-coded parameters to be converted to inputs later
-    double constexpr par_energy_fraction = 0.5;  // dimensionless
-    double constexpr leaf_transmittance = 0.2;   // dimensionless
-    double constexpr leaf_reflectance = 0.2;     // dimensionless
 
     double theta = acos(cosTheta);
     double k0 = sqrt(pow(chil, 2) + pow(tan(theta), 2));

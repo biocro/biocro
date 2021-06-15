@@ -79,6 +79,9 @@ class multilayer_canopy_properties : public SteadyModule
           kpLN(get_input(input_quantities, "kpLN")),
           lnfun(get_input(input_quantities, "lnfun")),
           par_energy_content(get_input(input_quantities, "par_energy_content")),
+          par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
+          leaf_transmittance(get_input(input_quantities, "leaf_transmittance")),
+          leaf_reflectance(get_input(input_quantities, "leaf_reflectance")),
 
           // Get pointers to output quantities
           sunlit_incident_par_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_par")),
@@ -113,6 +116,9 @@ class multilayer_canopy_properties : public SteadyModule
     double const& kpLN;
     double const& lnfun;
     double const& par_energy_content;
+    double const& par_energy_fraction;
+    double const& leaf_transmittance;
+    double const& leaf_reflectance;
 
     // Pointers to output parameters
     std::vector<double*> const sunlit_incident_par_ops;
