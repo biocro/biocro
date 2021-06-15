@@ -100,12 +100,24 @@ string_vector rue_leaf_photosynthesis::get_outputs()
 
 void rue_leaf_photosynthesis::do_operation() const
 {
-    // Convert light inputs from energy to molecular flux densities
+    // Convert light inputs from energy to molecular flux densities (these
+    // inputs should eventually be changed to PPFD)
     const double incident_par_micromol =
         incident_par / par_energy_content;  // micromol / m^2 / s
 
     const double incident_average_par_micromol =
         incident_average_par / par_energy_content;  // micromol / m^2 / s
+
+    // Determine the absorbed shortwave light energy from the "incident average
+    // PAR" using hardcoded values (should become inputs later).
+    double constexpr par_energy_fraction = 0.5;  // dimensionless
+    double constexpr leaf_reflectance = 0.2;     // dimensionless
+    double constexpr leaf_transmittance = 0.2;   // dimensionless
+
+    double const absorbed_shortwave =
+        absorbed_shortwave_from_incident_ppfd(
+            incident_average_par_micromol, 0.235,
+            par_energy_fraction, leaf_reflectance, leaf_transmittance); // J / m^2 / s
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature
@@ -124,7 +136,7 @@ void rue_leaf_photosynthesis::do_operation() const
 
     // Calculate a new value for leaf temperature
     const struct ET_Str et = c3EvapoTrans(
-        incident_average_par_micromol,
+        absorbed_shortwave,
         temp,
         rh,
         windspeed,

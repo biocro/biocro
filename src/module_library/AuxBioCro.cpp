@@ -142,6 +142,61 @@ Light_model lightME(const double latitude, const int day_of_year,
 }
 
 /**
+ *  @brief Computes total absorbed shortwave radiation from the
+ *  photosynthetically active photon flux density (PPFD) incident on a leaf
+ *
+ *  @param [in] incident_ppfd Photosynthetically active photon flux density
+ *              (PPFD) incident on a leaf expressed in micromol / m^2 / s
+ *
+ *  @param [in] par_energy_content The energy content of PPFD expressed in J /
+ *              micromol
+ *
+ *  @param [in] par_energy_fraction The fraction of total shortwave energy
+ *              contained in the PAR band expressed as a real number between 0
+ *              and 1
+ *
+ *  @param [in] leaf_reflectance The fractional amount of shortwave radiation
+ *              reflected by the leaf (weighted across all shortwave radiation)
+ *
+ *  @param [in] leaf_transmittance The fractional amount of shortwave radiation
+ *              transmitted through the leaf (weighted across all shortwave
+ *              radiation)
+ *
+ *  @return The total shortwave radiation absorbed by the leaf expressed in
+ *          J / m^2 / s
+ *
+ *  The total absorbed shortwave radiation is determined using the following
+ *  steps:
+ *  - determine the incident photosynthetically active radiation (PAR) using the
+ *    energy content of PAR
+ *  - determine the incident near-infrared radiation (NIR) from the incident PAR
+ *    using the PAR energy fraction
+ *  - determine the total incident radiation by adding the incident PAR and NIR
+ *  - determine the total absorbed radiation using the leaf's reflection and
+ *    transmission coefficients
+ */
+double absorbed_shortwave_from_incident_ppfd(
+    double incident_ppfd,        // micromol / m^2 / s
+    double par_energy_content,   // J / micromol
+    double par_energy_fraction,  // dimensionless
+    double leaf_reflectance,     // dimensionless
+    double leaf_transmittance    // dimensionless
+)
+{
+    double incident_par = incident_ppfd * par_energy_content;  // J / m^2 / s
+
+    double incident_nir = incident_par *
+                          (1 - par_energy_fraction) /
+                          par_energy_fraction;  // J / m^2 /s
+
+    double incident_shortwave = incident_par + incident_nir;  // J / m^2 / s
+
+    return incident_shortwave *
+           (1 - leaf_reflectance - leaf_transmittance) /
+           (1 - leaf_transmittance);  // J / m^2 / s
+}
+
+/**
  *  @brief Computes an n-layered light profile from the direct light, diffuse
  *  light, leaf area index, solar zenith angle, and other parameters.
  *
@@ -177,7 +232,7 @@ Light_model lightME(const double latitude, const int day_of_year,
  *          the relative fractions of shaded and sunlit leaves
  *
  *  Note 1: Although the input and output light parameters (e.g. `Idir` and
- *  `light_profile.direct_irradiance`) are specified as being photon flux
+ *  `light_profile.incident_ppfd_direct`) are specified as being photon flux
  *  densities measured in micromol / m^2 / s, all the calculations within this
  *  function are linear in these light parameters. So if the inputs actually
  *  represent something else, e.g. irradiance expressed in units of J / m^2 / s,
@@ -219,6 +274,11 @@ Light_profile sunML(double Idir,
         throw std::out_of_range("heightf must greater than zero.");
     }
 
+    // Hard-coded parameters to be converted to inputs later
+    double constexpr par_energy_content = 0.235; // J / micromol
+    double constexpr par_energy_fraction = 0.5;  // dimensionless
+    double constexpr leaf_transmittance = 0.2;   // dimensionless
+    double constexpr leaf_reflectance = 0.2;     // dimensionless
 
     double theta = acos(cosTheta);
     double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
@@ -254,13 +314,37 @@ Light_profile sunML(double Idir,
             Iaverage = 0;
         }
 
-        light_profile.direct_irradiance[i] = Isolar + Idiffuse;  // micromole / m^2 / s
-        light_profile.scattered_irradiance[i] = Iscat;  // micromole / m^2 / s
-        light_profile.diffuse_irradiance[i]= Idiffuse;  // micromole / m^2 / s
-        light_profile.total_irradiance[i] = Iaverage;  // micromole / m^2 / s
-        light_profile.sunlit_fraction[i] = Fsun;  // dimensionless from m^2 / m^2
-        light_profile.shaded_fraction[i] = Fshade;  // dimensionless from m^2 / m^2
-        light_profile.height[i] = (LAI - CumLAI) / heightf;  // meters
+        light_profile.incident_ppfd_direct[i] = Isolar + Idiffuse;  // micromole / m^2 / s
+        light_profile.incident_ppfd_scattered[i] = Iscat;           // micromole / m^2 / s
+        light_profile.incident_ppfd_diffuse[i]= Idiffuse;           // micromole / m^2 / s
+        light_profile.incident_ppfd_average[i] = Iaverage;          // micromole / m^2 / s
+        light_profile.sunlit_fraction[i] = Fsun;                    // dimensionless from m^2 / m^2
+        light_profile.shaded_fraction[i] = Fshade;                  // dimensionless from m^2 / m^2
+        light_profile.height[i] = (LAI - CumLAI) / heightf;         // m
+
+        light_profile.absorbed_shortwave_direct[i] =
+            absorbed_shortwave_from_incident_ppfd(
+                Isolar + Idiffuse,
+                par_energy_content,
+                par_energy_fraction,
+                leaf_reflectance,
+                leaf_transmittance);  // J / m^2 / s
+
+        light_profile.absorbed_shortwave_diffuse[i] =
+            absorbed_shortwave_from_incident_ppfd(
+                Idiffuse,
+                par_energy_content,
+                par_energy_fraction,
+                leaf_reflectance,
+                leaf_transmittance);  // J / m^2 / s
+
+        light_profile.absorbed_shortwave_average[i] =
+            absorbed_shortwave_from_incident_ppfd(
+                Iaverage,
+                par_energy_content,
+                par_energy_fraction,
+                leaf_reflectance,
+                leaf_transmittance);  // J / m^2 / s
     }
     return light_profile;
 }
@@ -474,8 +558,8 @@ double saturation_vapor_pressure(double air_temperature)
 }
 
 struct ET_Str EvapoTrans2(
-        const double Rad,                                // micromoles / m^2 / s
-        const double Iave,                               // micromoles / m^2 / s
+        const double absorbed_shortwave_radiation_et,    // J / m^2 / s (used to calculate evapotranspiration rate)
+        const double absorbed_shortwave_radiation_lt,    // J / m^2 / s (used to calculate leaf temperature)
         const double airTemp,                            // degrees C
         const double RH,                                 // dimensionless from Pa / Pa
         double WindSpeed,                                // m / s
@@ -487,8 +571,6 @@ struct ET_Str EvapoTrans2(
         const int eteq)                                  // unitless parameter
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
-    constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
-    constexpr double LeafReflectance = 0.2;              // dimensionless.
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
 
@@ -528,23 +610,6 @@ struct ET_Str EvapoTrans2(
 
     const double ActualVaporPressure = RH * SWVP;  // Pa
 
-    /* SOLAR RADIATION COMPONENT */
-    // Convert from PPFD to irradiance.
-    double constexpr fraction_of_irradiance_in_PAR = 0.5;  // dimensionless.
-    double constexpr joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
-    double const total_irradiance = Rad * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2.
-    double const total_average_irradiance = Iave * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2
-
-    /* With a clear sky, irradiance may exceed 1000 W / m^2 in some parts of the world. Thornley and Johnson pg 400. */
-    /* This value cannot possibly be higher than 1300 W / m^2. */
-    if (total_irradiance > 1300) {
-        throw std::range_error("Thrown in EvapoTrans2: total irradiance is " + std::to_string(total_irradiance) + ", which is too high.");
-    }
-    const double Ja = total_irradiance * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
-
-    /* The value below is only for leaf temperature */
-    const double Ja2 = total_average_irradiance * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
-
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
 
@@ -570,7 +635,7 @@ struct ET_Str EvapoTrans2(
              * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
              */
 
-            const double PhiN2 = Ja2 - rlc;  // W / m^2
+            const double PhiN2 = absorbed_shortwave_radiation_lt - rlc;  // W / m^2
 
             /* This equation is from Thornley and Johnson pg. 418 */
             const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * vapor_density_deficit;  // J / m^3
@@ -582,7 +647,7 @@ struct ET_Str EvapoTrans2(
     }
 
     /* Net radiation */
-    const double PhiN = fmax(0, Ja - rlc);  // W / m^2
+    const double PhiN = fmax(0, absorbed_shortwave_radiation_et - rlc);  // W / m^2
 
     //Rprintf("SlopeFS %f, PhiN %f, LHV %f, PsycParam %f, ga %f, vapor_density_deficit %f, conductance_in... %f\n", SlopeFS, PhiN, LHV, PsycParam, ga, vapor_density_deficit, conductance_in_m_per_s);
     const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
@@ -692,7 +757,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     double rawc = (soil_water_content - wiltp) / (fieldc - wiltp);  // dimensionless. relative available water content.
 
     /* Campbell and Norman. Environmental Physics, page 142 */
-    double maximum_uptake_rate = 1 - pow((1 + 1.3 * rawc), -5);  // dimenionless
+    double maximum_uptake_rate = 1 - pow((1 + 1.3 * rawc), -5);  // dimensionless
     /* This is a useful idea because dry soils evaporate little water when dry*/
 
     /* Total Radiation */

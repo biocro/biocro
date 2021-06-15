@@ -1,6 +1,6 @@
 #include "c3_leaf_photosynthesis.h"
 #include "c3photo.hpp"  // for c3photoC
-#include "BioCro.h"     // for c3EvapoTrans
+#include "BioCro.h"     // for c3EvapoTrans and absorbed_shortwave_from_incident_ppfd
 
 string_vector c3_leaf_photosynthesis::get_inputs()
 {
@@ -47,30 +47,49 @@ string_vector c3_leaf_photosynthesis::get_outputs()
 
 void c3_leaf_photosynthesis::do_operation() const
 {
-    // Convert light inputs from energy to molecular flux densities
+    // Convert light inputs from energy to molecular flux densities (these
+    // inputs should eventually be changed to PPFD)
     double const incident_par_micromol = incident_par / par_energy_content;                  // micromol / m^2 / s
     double const incident_average_par_micromol = incident_average_par / par_energy_content;  // micromol / m^2 / s
 
-    // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
-    double const initial_stomatal_conductance = c3photoC(
-                                                    incident_par_micromol, temp, rh, vmax1, jmax, tpu_rate_max,
-                                                    Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2, theta,
-                                                    StomataWS, water_stress_approach,
-                                                    electrons_per_carboxylation, electrons_per_oxygenation)
-                                                    .Gs;  // mmol / m^2 / s
+    // Determine the absorbed shortwave light energy from the "incident average
+    // PAR" using hardcoded values (should become inputs later).
+    double constexpr par_energy_fraction = 0.5;  // dimensionless
+    double constexpr leaf_reflectance = 0.2;     // dimensionless
+    double constexpr leaf_transmittance = 0.2;   // dimensionless
 
-    // Calculate a new value for leaf temperature
-    //
-    const struct ET_Str et = c3EvapoTrans(incident_average_par_micromol, temp, rh, windspeed, height,
-                                          specific_heat_of_air, initial_stomatal_conductance);
+    double const absorbed_shortwave =
+        absorbed_shortwave_from_incident_ppfd(
+            incident_average_par_micromol, 0.235,
+            par_energy_fraction, leaf_reflectance, leaf_transmittance); // J / m^2 / s
+
+    // Get an initial estimate of stomatal conductance, assuming the leaf is at
+    // air temperature
+    double const initial_stomatal_conductance =
+        c3photoC(
+            incident_par_micromol, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
+            b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
+            water_stress_approach, electrons_per_carboxylation,
+            electrons_per_oxygenation)
+            .Gs;  // mmol / m^2 / s
+
+    // Calculate a new value for leaf temperature using the estimate for
+    // stomatal conductance
+    const struct ET_Str et =
+        c3EvapoTrans(
+            absorbed_shortwave, temp, rh, windspeed, height,
+            specific_heat_of_air, initial_stomatal_conductance);
 
     double const leaf_temperature = temp + et.Deltat;  // deg. C
 
-    // Calculate final values for assimilation, stomatal conductance, and Ci using the new leaf temperature
-    const struct c3_str photo = c3photoC(
-        incident_par_micromol, leaf_temperature, rh, vmax1, jmax, tpu_rate_max,
-        Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
-        water_stress_approach, electrons_per_carboxylation, electrons_per_oxygenation);
+    // Calculate final values for assimilation, stomatal conductance, and Ci
+    // using the new leaf temperature
+    const struct c3_str photo =
+        c3photoC(
+            incident_par_micromol, leaf_temperature, rh, vmax1, jmax,
+            tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
+            theta, StomataWS, water_stress_approach,
+            electrons_per_carboxylation, electrons_per_oxygenation);
 
     // Update the outputs
     update(Assim_op, photo.Assim);

@@ -52,7 +52,16 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
 
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
+
+double absorbed_shortwave_from_incident_ppfd(
+    double incident_ppfd,
+    double par_energy_content,
+    double par_energy_fraction,
+    double leaf_reflectance,
+    double leaf_transmittance
+);
 struct Light_profile sunML(double Idir, double Idiff, double LAI, int nlayers, double cosTheta, double kd, double chil, double absorptivity, double heightf);
+
 struct Light_model lightME(double lat, int DOY, double td, double atmospheric_pressure);
 
 struct FL_str FmLcFun(double Lig, double Nit);

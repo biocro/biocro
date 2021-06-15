@@ -27,13 +27,16 @@
 
 
 struct Light_profile {
-	double direct_irradiance[MAXLAY];
-    double scattered_irradiance[MAXLAY];
-	double diffuse_irradiance[MAXLAY];
-	double total_irradiance[MAXLAY];
-	double sunlit_fraction[MAXLAY];
-	double shaded_fraction[MAXLAY];
-	double height[MAXLAY];
+    double incident_ppfd_direct[MAXLAY];        // micromol / m^2 / s
+    double incident_ppfd_scattered[MAXLAY];     // micromol / m^2 / s
+    double incident_ppfd_diffuse[MAXLAY];       // micromol / m^2 / s
+    double incident_ppfd_average[MAXLAY];       // micromol / m^2 / s
+    double absorbed_shortwave_direct[MAXLAY];   // J / m^2 / s
+    double absorbed_shortwave_diffuse[MAXLAY];  // J / m^2 / s
+    double absorbed_shortwave_average[MAXLAY];  // J / m^2 / s
+    double sunlit_fraction[MAXLAY];             // dimensionless
+    double shaded_fraction[MAXLAY];             // dimensionless
+    double height[MAXLAY];                      // m
 };
 
 struct ET_Str {

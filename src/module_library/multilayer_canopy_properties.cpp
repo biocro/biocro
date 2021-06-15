@@ -126,10 +126,10 @@ void multilayer_canopy_properties::run() const
         update(sunlit_fraction_ops[i], par_profile.sunlit_fraction[i]);
         update(shaded_fraction_ops[i], par_profile.shaded_fraction[i]);
         update(height_ops[i], par_profile.height[i]);
-        update(sunlit_incident_par_ops[i], par_profile.direct_irradiance[i]);
-        update(incident_scattered_par_ops[i], par_profile.scattered_irradiance[i]);
-        update(shaded_incident_par_ops[i], par_profile.diffuse_irradiance[i]);
-        update(incident_average_par_ops[i], par_profile.total_irradiance[i]);
+        update(sunlit_incident_par_ops[i], par_profile.incident_ppfd_direct[i]);
+        update(incident_scattered_par_ops[i], par_profile.incident_ppfd_scattered[i]);
+        update(shaded_incident_par_ops[i], par_profile.incident_ppfd_diffuse[i]);
+        update(incident_average_par_ops[i], par_profile.incident_ppfd_average[i]);
         update(rh_ops[i], relative_humidity_profile[i]);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);
