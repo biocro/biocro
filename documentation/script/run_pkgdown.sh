@@ -5,23 +5,20 @@ pushd ../..
 
 
 
-# Make a new index.md file for pkgdown's home page.  This will include
-# information about the Git version used to generated the
-# documentation followed by the top-level README page:
-
-git show -s --format="This document was generated from the version of BioCro specified as follows:%n%n- Commit Hash: %h%n- Date: %aD" > index.md
-echo -n "- Branch: " >> index.md
-git branch --show-current >> index.md
-
-if [[ `git diff | wc -c` -ne 0 ]]; then echo; printf "\n%s" "_Some files have been altered from the given commit version._" >> index.md; fi
-
-
-# Add a blank line to end the list:
-echo >> index.md
+# Make an about page that shows information about the Git version used
+# to generated the pkgdown documentation:
+echo "# About this documentation" > about_pkgdown_documentation.md
+git show -s --format="This document was generated from the version of BioCro specified as follows:%n%n- Commit Hash: %h%n- Commit Date: %aD" >> about_pkgdown_documentation.md
+echo -n "- Branch: " >> about_pkgdown_documentation.md
+git branch --show-current >> about_pkgdown_documentation.md
+echo -n "- Generation Date and Time: " >> about_pkgdown_documentation.md
+date >> about_pkgdown_documentation.md
+if [[ `git diff | wc -c` -ne 0 ]]; then echo; printf "\n%s" "_Some files have been altered from the given commit version._" >> about_pkgdown_documentation.md; fi
 
 
-# Copy the top-level README file without the badge image:
-sed 's/ \[!\[Build Status.*//' README.md >> index.md
+# Make a new index.md file for pkgdown's home page that strips the
+# badge image from README.md.
+sed 's/ \[!\[Build Status.*//' README.md > index.md
 
 
 # Now run pkgdown:
