@@ -68,9 +68,8 @@ jobs:
 
     - name: 8. Run pkgdown
       run: |
-        setwd('source')
-        pkgdown::build_site()
-      shell: Rscript {0}
+        cd source/documentation/script
+        ./run_pkgdown.sh
 
     - name: 9. Install bookdown
       run: |
@@ -79,9 +78,8 @@ jobs:
 
     - name: 10. Run bookdown
       run: |
-        setwd('source')
-        bookdown::render_book('bookdown')
-      shell: Rscript {0}
+        cd source/documentation/script
+        ./run_bookdown.sh
 
     - name: 11. Copy files into working copy of the target repository
       run: |
