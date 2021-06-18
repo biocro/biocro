@@ -46,8 +46,9 @@ string_vector multilayer_canopy_properties::define_leaf_classes()
 string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     return {
-        "incident_ppfd",  // J / (m^2 leaf) / s
-        "fraction"       // dimensionless
+        "incident_ppfd",       // J / (m^2 leaf) / s
+        "absorbed_shortwave",  // J / (m^2 leaf) / s
+        "fraction"             // dimensionless
     };
 }
 
@@ -58,12 +59,13 @@ string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs
 string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
-        "incident_ppfd_scattered",  // J / (m^2 leaf) / s
-        "average_incident_ppfd",    // J / (m^2 leaf) / s
-        "height",                  // m
-        "rh",                      // dimensionless from Pa / Pa
-        "windspeed",               // m / s
-        "LeafN",                   // mmol / m^2 (?)
+        "incident_ppfd_scattered",    // J / (m^2 leaf) / s
+        "average_incident_ppfd",      // J / (m^2 leaf) / s
+        "average_absorbed_shortwave",  // J / (m^2 leaf) / s
+        "height",                     // m
+        "rh",                         // dimensionless from Pa / Pa
+        "windspeed",                  // m / s
+        "LeafN",                      // mmol / m^2 (?)
     };
 }
 
@@ -132,12 +134,18 @@ void multilayer_canopy_properties::run() const
     // Update layer-dependent outputs
     for (int i = 0; i < nlayers; ++i) {
         update(sunlit_fraction_ops[i], par_profile.sunlit_fraction[i]);
-        update(shaded_fraction_ops[i], par_profile.shaded_fraction[i]);
-        update(height_ops[i], par_profile.height[i]);
         update(sunlit_incident_ppfd_ops[i], par_profile.sunlit_incident_ppfd[i]);
-        update(incident_ppfd_scattered_ops[i], par_profile.incident_ppfd_scattered[i]);
+        update(sunlit_absorbed_shortwave_ops[i], par_profile.sunlit_absorbed_shortwave[i]);
+
+        update(shaded_fraction_ops[i], par_profile.shaded_fraction[i]);
         update(shaded_incident_ppfd_ops[i], par_profile.shaded_incident_ppfd[i]);
+        update(shaded_absorbed_shortwave_ops[i], par_profile.shaded_absorbed_shortwave[i]);
+
         update(average_incident_ppfd_ops[i], par_profile.average_incident_ppfd[i]);
+        update(average_absorbed_shortwave_ops[i], par_profile.average_absorbed_shortwave[i]);
+
+        update(incident_ppfd_scattered_ops[i], par_profile.incident_ppfd_scattered[i]);
+        update(height_ops[i], par_profile.height[i]);
         update(rh_ops[i], relative_humidity_profile[i]);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);

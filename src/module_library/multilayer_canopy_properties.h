@@ -84,12 +84,15 @@ class multilayer_canopy_properties : public SteadyModule
           leaf_reflectance(get_input(input_quantities, "leaf_reflectance")),
 
           // Get pointers to output quantities
-          sunlit_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_ppfd")),
           sunlit_fraction_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_fraction")),
-          shaded_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "shaded_incident_ppfd")),
+          sunlit_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_ppfd")),
+          sunlit_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_absorbed_shortwave")),
           shaded_fraction_ops(get_multilayer_op(output_quantities, nlayers, "shaded_fraction")),
-          incident_ppfd_scattered_ops(get_multilayer_op(output_quantities, nlayers, "incident_ppfd_scattered")),
+          shaded_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "shaded_incident_ppfd")),
+          shaded_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "shaded_absorbed_shortwave")),
           average_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "average_incident_ppfd")),
+          average_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "average_absorbed_shortwave")),
+          incident_ppfd_scattered_ops(get_multilayer_op(output_quantities, nlayers, "incident_ppfd_scattered")),
           height_ops(get_multilayer_op(output_quantities, nlayers, "height")),
           rh_ops(get_multilayer_op(output_quantities, nlayers, "rh")),
           windspeed_ops(get_multilayer_op(output_quantities, nlayers, "windspeed")),
@@ -121,12 +124,15 @@ class multilayer_canopy_properties : public SteadyModule
     double const& leaf_reflectance;
 
     // Pointers to output parameters
-    std::vector<double*> const sunlit_incident_ppfd_ops;
     std::vector<double*> const sunlit_fraction_ops;
-    std::vector<double*> const shaded_incident_ppfd_ops;
+    std::vector<double*> const sunlit_incident_ppfd_ops;
+    std::vector<double*> const sunlit_absorbed_shortwave_ops;
     std::vector<double*> const shaded_fraction_ops;
-    std::vector<double*> const incident_ppfd_scattered_ops;
+    std::vector<double*> const shaded_incident_ppfd_ops;
+    std::vector<double*> const shaded_absorbed_shortwave_ops;
     std::vector<double*> const average_incident_ppfd_ops;
+    std::vector<double*> const average_absorbed_shortwave_ops;
+    std::vector<double*> const incident_ppfd_scattered_ops;
     std::vector<double*> const height_ops;
     std::vector<double*> const rh_ops;
     std::vector<double*> const windspeed_ops;
