@@ -4,7 +4,6 @@
 #include "../modules.h"
 #include "../state_map.h"
 #include "c4photo.h"
-#include "BioCro.h"  // for absorbed_shortwave_from_incident_ppfd
 
 /**
  * @class ed_canac_leaf
@@ -42,10 +41,6 @@ class ed_canac_leaf : public SteadyModule
           leafwidth_ip(get_ip(input_quantities, "leafwidth")),
           specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
           solar_energy_absorbed_leaf_ip(get_ip(input_quantities, "solar_energy_absorbed_leaf")),
-          par_energy_content_ip(get_ip(input_quantities, "par_energy_content")),
-          par_energy_fraction_ip(get_ip(input_quantities, "par_energy_fraction")),
-          leaf_transmittance_ip(get_ip(input_quantities, "leaf_transmittance")),
-          leaf_reflectance_ip(get_ip(input_quantities, "leaf_reflectance")),
 
           // Get pointers to output quantities
           mole_fraction_co2_intercellular_op(get_op(output_quantities, "mole_fraction_co2_intercellular")),
@@ -86,10 +81,6 @@ class ed_canac_leaf : public SteadyModule
     const double* leafwidth_ip;
     const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
-    const double* par_energy_content_ip;
-    const double* par_energy_fraction_ip;
-    const double* leaf_transmittance_ip;
-    const double* leaf_reflectance_ip;
 
     // Pointers to output quantities
     double* mole_fraction_co2_intercellular_op;
@@ -129,11 +120,7 @@ string_vector ed_canac_leaf::get_inputs()
         "windspeed",                          // m / s
         "leafwidth",                          // m
         "specific_heat_of_air",               // J / kg / K
-        "solar_energy_absorbed_leaf",         // J / m^2 / s
-        "par_energy_content",                 // J / micromol
-        "par_energy_fraction",                // dimensionless
-        "leaf_transmittance",                 // dimensionless
-        "leaf_reflectance"                    // dimensionless
+        "solar_energy_absorbed_leaf"          // J / m^2 / s
     };
 }
 
@@ -180,15 +167,6 @@ void ed_canac_leaf::do_operation() const
     const double specific_heat_of_air = *specific_heat_of_air_ip;                   // J / kg / K
     const int eteq = 0;                                                             // Report Penman-Monteith transpiration
     const double absorbed_shortwave_radiation_lt = *solar_energy_absorbed_leaf_ip;  // J / m^2 / s
-    const double par_energy_content = *par_energy_content_ip;                       // J / micromol
-    const double par_energy_fraction = *par_energy_fraction_ip;                     // dimensionless
-    const double leaf_transmittance = *leaf_transmittance_ip;                       // dimensionless
-    const double leaf_reflectance = *leaf_reflectance_ip;                           // dimensionless
-
-    double const absorbed_shortwave_radiation_et =
-        absorbed_shortwave_from_incident_ppfd(
-            Qp, par_energy_content, par_energy_fraction, leaf_reflectance,
-            leaf_transmittance);  // J / m^2 / s
 
     // Run c4photoC once assuming the leaf is at air temperature to get an initial guess for gs
     const struct c4_str first_c4photoC_output =
@@ -202,7 +180,7 @@ void ed_canac_leaf::do_operation() const
     // Run EvapoTrans2 to get the leaf temperature
     const struct ET_Str evapotrans_output =
         EvapoTrans2(
-            absorbed_shortwave_radiation_et, absorbed_shortwave_radiation_lt,
+            absorbed_shortwave_radiation_lt, absorbed_shortwave_radiation_lt,
             temperature_air, RH, WindSpeed, LeafAreaIndex, CanopyHeight,
             stomatal_conductance, leaf_width, specific_heat_of_air, eteq);
 

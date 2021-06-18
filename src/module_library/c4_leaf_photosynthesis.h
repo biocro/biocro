@@ -20,7 +20,6 @@ class c4_leaf_photosynthesis : public SteadyModule
           SteadyModule("c4_leaf_photosynthesis"),
 
           // Get references to input quantities
-          par_energy_content(get_input(input_quantities, "par_energy_content")),
           incident_ppfd(get_input(input_quantities, "incident_ppfd")),
           temp(get_input(input_quantities, "temp")),
           rh(get_input(input_quantities, "rh")),
@@ -39,15 +38,13 @@ class c4_leaf_photosynthesis : public SteadyModule
           water_stress_approach(get_input(input_quantities, "water_stress_approach")),
           upperT(get_input(input_quantities, "upperT")),
           lowerT(get_input(input_quantities, "lowerT")),
-          average_incident_ppfd(get_input(input_quantities, "average_incident_ppfd")),
+          average_absorbed_shortwave(get_input(input_quantities, "average_absorbed_shortwave")),
+          absorbed_shortwave(get_input(input_quantities, "absorbed_shortwave")),
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           leafwidth(get_input(input_quantities, "leafwidth")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
           et_equation(get_input(input_quantities, "et_equation")),
-          par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
-          leaf_transmittance(get_input(input_quantities, "leaf_transmittance")),
-          leaf_reflectance(get_input(input_quantities, "leaf_reflectance")),
 
           // Get pointers to output quantities
           Assim_op(get_op(output_quantities, "Assim")),
@@ -65,7 +62,6 @@ class c4_leaf_photosynthesis : public SteadyModule
 
    private:
     // References to input quantities
-    double const& par_energy_content;
     double const& incident_ppfd;
     double const& temp;
     double const& rh;
@@ -84,15 +80,13 @@ class c4_leaf_photosynthesis : public SteadyModule
     double const& water_stress_approach;
     double const& upperT;
     double const& lowerT;
-    double const& average_incident_ppfd;
+    double const& average_absorbed_shortwave;
+    double const& absorbed_shortwave;
     double const& windspeed;
     double const& height;
     double const& leafwidth;
     double const& specific_heat_of_air;
     double const& et_equation;
-    double const& par_energy_fraction;
-    double const& leaf_transmittance;
-    double const& leaf_reflectance;
 
     // Pointers to output quantities
     double* Assim_op;

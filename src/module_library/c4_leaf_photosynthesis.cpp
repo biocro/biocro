@@ -1,38 +1,35 @@
 #include "c4_leaf_photosynthesis.h"
 #include "c4photo.h"  // for c4photoC
-#include "BioCro.h"   // for EvapoTrans2 and absorbed_shortwave_from_incident_ppfd
+#include "BioCro.h"   // for EvapoTrans2
 
 string_vector c4_leaf_photosynthesis::get_inputs()
 {
     return {
-        "par_energy_content",     // J / micromol
-        "incident_ppfd",          // micromol / (m^2 leaf) / s
-        "temp",                   // deg. C
-        "rh",                     // dimensionless
-        "vmax1",                  // micromole / m^2 / s
-        "alpha1",                 // mol / mol
-        "kparm",                  // mol / m^2 / s
-        "theta",                  // dimensionless
-        "beta",                   // dimensionless
-        "Rd",                     // micromole / m^2 / s
-        "b0",                     // mol / m^2 / s
-        "b1",                     // dimensionless
-        "Gs_min",                 // mol / m^2 / s
-        "StomataWS",              // dimensionless
-        "Catm",                   // micromole / mol
-        "atmospheric_pressure",   // Pa
-        "water_stress_approach",  // a dimensionless switch
-        "upperT",                 // deg. C
-        "lowerT",                 // deg. C
-        "average_incident_ppfd",  // micromol / (m^2 leaf) / s
-        "windspeed",              // m / s
-        "height",                 // m
-        "leafwidth",              // m
-        "specific_heat_of_air",   // J / kg / K
-        "et_equation",            // a dimensionless switch
-        "par_energy_fraction",    // dimensionless
-        "leaf_transmittance",     // dimensionless
-        "leaf_reflectance"        // dimensionless
+        "incident_ppfd",               // micromol / (m^2 leaf) / s
+        "temp",                        // deg. C
+        "rh",                          // dimensionless
+        "vmax1",                       // micromole / m^2 / s
+        "alpha1",                      // mol / mol
+        "kparm",                       // mol / m^2 / s
+        "theta",                       // dimensionless
+        "beta",                        // dimensionless
+        "Rd",                          // micromole / m^2 / s
+        "b0",                          // mol / m^2 / s
+        "b1",                          // dimensionless
+        "Gs_min",                      // mol / m^2 / s
+        "StomataWS",                   // dimensionless
+        "Catm",                        // micromole / mol
+        "atmospheric_pressure",        // Pa
+        "water_stress_approach",       // a dimensionless switch
+        "upperT",                      // deg. C
+        "lowerT",                      // deg. C
+        "average_absorbed_shortwave",  // J / (m^2 leaf) / s
+        "absorbed_shortwave",          // J / (m^2 leaf) / s
+        "windspeed",                   // m / s
+        "height",                      // m
+        "leafwidth",                   // m
+        "specific_heat_of_air",        // J / kg / K
+        "et_equation"                  // a dimensionless switch
     };
 }
 
@@ -52,18 +49,6 @@ string_vector c4_leaf_photosynthesis::get_outputs()
 
 void c4_leaf_photosynthesis::do_operation() const
 {
-    // Determine the absorbed shortwave light energy from the "incident average
-    // PAR" and "incident PAR"
-    double const absorbed_shortwave_avg =
-        absorbed_shortwave_from_incident_ppfd(
-            average_incident_ppfd, par_energy_content,
-            par_energy_fraction, leaf_reflectance, leaf_transmittance);  // J / m^2 / s
-
-    double const absorbed_shortwave =
-        absorbed_shortwave_from_incident_ppfd(
-            incident_ppfd, par_energy_content,
-            par_energy_fraction, leaf_reflectance, leaf_transmittance);  // J / m^2 / s
-
     // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
     const double initial_stomatal_conductance =
         c4photoC(
@@ -76,7 +61,7 @@ void c4_leaf_photosynthesis::do_operation() const
     double constexpr LAI = 0.0;  // EvapoTrans2 does not actually use LAI for anything
     const struct ET_Str et =
         EvapoTrans2(
-            absorbed_shortwave_avg, absorbed_shortwave, temp, rh, windspeed,
+            average_absorbed_shortwave, absorbed_shortwave, temp, rh, windspeed,
             LAI, height, initial_stomatal_conductance, leafwidth,
             specific_heat_of_air, et_equation);
 

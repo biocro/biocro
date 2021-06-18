@@ -68,22 +68,18 @@ struct rue_str rue_photo(
 string_vector rue_leaf_photosynthesis::get_inputs()
 {
     return {
-        "par_energy_content",     // J / micromol
-        "incident_ppfd",          // micromol / (m^2 leaf) / s
-        "alpha_rue",              // dimensionless
-        "temp",                   // deg. C
-        "rh",                     // dimensionless
-        "Rd",                     // micromole / m^2 / s
-        "b0",                     // mol / m^2 / s
-        "b1",                     // dimensionless
-        "Catm",                   // micromole / mol
-        "average_incident_ppfd",  // micromol / (m^2 leaf) / s
-        "windspeed",              // m / s
-        "height",                 // m
-        "specific_heat_of_air",   // J / kg / K
-        "par_energy_fraction",    // dimensionless
-        "leaf_transmittance",     // dimensionless
-        "leaf_reflectance"        // dimensionless
+        "incident_ppfd",               // micromol / (m^2 leaf) / s
+        "alpha_rue",                   // dimensionless
+        "temp",                        // deg. C
+        "rh",                          // dimensionless
+        "Rd",                          // micromole / m^2 / s
+        "b0",                          // mol / m^2 / s
+        "b1",                          // dimensionless
+        "Catm",                        // micromole / mol
+        "average_absorbed_shortwave",  // J / (m^2 leaf) / s
+        "windspeed",                   // m / s
+        "height",                      // m
+        "specific_heat_of_air"         // J / kg / K
     };
 }
 
@@ -103,31 +99,24 @@ string_vector rue_leaf_photosynthesis::get_outputs()
 
 void rue_leaf_photosynthesis::do_operation() const
 {
-    // Determine the absorbed shortwave light energy from the "incident average
-    // PAR"
-    double const absorbed_shortwave =
-        absorbed_shortwave_from_incident_ppfd(
-            average_incident_ppfd, par_energy_content,
-            par_energy_fraction, leaf_reflectance, leaf_transmittance);  // J / m^2 / s
-
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature
     const double initial_stomatal_conductance =
         rue_photo(
             incident_ppfd * 1e-6,  // mol / m^2 / s
-            alpha_rue,                      // dimensionless
-            temp,                           // degrees C
-            rh,                             // dimensionless from Pa / Pa
-            Rd * 1e-6,                      // mol / m^2 / s
-            b0,                             // mol / m^2 / s
-            b1,                             // dimensionless
-            Catm * 1e-6                     // dimensionless from mol / mol
+            alpha_rue,             // dimensionless
+            temp,                  // degrees C
+            rh,                    // dimensionless from Pa / Pa
+            Rd * 1e-6,             // mol / m^2 / s
+            b0,                    // mol / m^2 / s
+            b1,                    // dimensionless
+            Catm * 1e-6            // dimensionless from mol / mol
             )
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature
     const struct ET_Str et = c3EvapoTrans(
-        absorbed_shortwave,
+        average_absorbed_shortwave,
         temp,
         rh,
         windspeed,
@@ -142,13 +131,13 @@ void rue_leaf_photosynthesis::do_operation() const
     const struct rue_str photo =
         rue_photo(
             incident_ppfd * 1e-6,  // mol / m^2 / s
-            alpha_rue,                      // dimensionless
-            leaf_temperature,               // degrees C
-            rh,                             // dimensionless from Pa / Pa
-            Rd * 1e-6,                      // mol / m^2 / s
-            b0,                             // mol / m^2 / s
-            b1,                             // dimensionless
-            Catm * 1e-6                     // dimensionless from mol / mol
+            alpha_rue,             // dimensionless
+            leaf_temperature,      // degrees C
+            rh,                    // dimensionless from Pa / Pa
+            Rd * 1e-6,             // mol / m^2 / s
+            b0,                    // mol / m^2 / s
+            b1,                    // dimensionless
+            Catm * 1e-6            // dimensionless from mol / mol
         );
 
     // Update the outputs
