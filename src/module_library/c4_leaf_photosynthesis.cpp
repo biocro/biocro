@@ -6,7 +6,7 @@ string_vector c4_leaf_photosynthesis::get_inputs()
 {
     return {
         "par_energy_content",     // J / micromol
-        "incident_ppfd",          // J / (m^2 leaf) / s
+        "incident_ppfd",          // micromol / (m^2 leaf) / s
         "temp",                   // deg. C
         "rh",                     // dimensionless
         "vmax1",                  // micromole / m^2 / s
@@ -24,7 +24,7 @@ string_vector c4_leaf_photosynthesis::get_inputs()
         "water_stress_approach",  // a dimensionless switch
         "upperT",                 // deg. C
         "lowerT",                 // deg. C
-        "average_incident_ppfd",  // J / (m^2 leaf) / s
+        "average_incident_ppfd",  // micromol / (m^2 leaf) / s
         "windspeed",              // m / s
         "height",                 // m
         "leafwidth",              // m
@@ -52,27 +52,22 @@ string_vector c4_leaf_photosynthesis::get_outputs()
 
 void c4_leaf_photosynthesis::do_operation() const
 {
-    // Convert light inputs from energy to molecular flux densities (these
-    // inputs should eventually be changed to PPFD)
-    const double incident_ppfd_micromol = incident_ppfd / par_energy_content;                  // micromol / m^2 / s
-    const double average_incident_ppfd_micromol = average_incident_ppfd / par_energy_content;  // micromol / m^2 / s
-
     // Determine the absorbed shortwave light energy from the "incident average
     // PAR" and "incident PAR"
     double const absorbed_shortwave_avg =
         absorbed_shortwave_from_incident_ppfd(
-            average_incident_ppfd_micromol, par_energy_content,
+            average_incident_ppfd, par_energy_content,
             par_energy_fraction, leaf_reflectance, leaf_transmittance);  // J / m^2 / s
 
     double const absorbed_shortwave =
         absorbed_shortwave_from_incident_ppfd(
-            incident_ppfd_micromol, par_energy_content,
+            incident_ppfd, par_energy_content,
             par_energy_fraction, leaf_reflectance, leaf_transmittance);  // J / m^2 / s
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at air temperature
     const double initial_stomatal_conductance =
         c4photoC(
-            incident_ppfd_micromol, temp, rh, vmax1, alpha1, kparm, theta, beta,
+            incident_ppfd, temp, rh, vmax1, alpha1, kparm, theta, beta,
             Rd, b0, b1, Gs_min * 1e3, StomataWS, Catm, atmospheric_pressure,
             water_stress_approach, upperT, lowerT)
             .Gs;  // mmol / m^2 / s
@@ -90,7 +85,7 @@ void c4_leaf_photosynthesis::do_operation() const
     // Calculate final values for assimilation, stomatal conductance, and Ci using the new leaf temperature
     const struct c4_str photo =
         c4photoC(
-            incident_ppfd_micromol, leaf_temperature, rh, vmax1, alpha1, kparm,
+            incident_ppfd, leaf_temperature, rh, vmax1, alpha1, kparm,
             theta, beta, Rd, b0, b1, Gs_min * 1e3, StomataWS, Catm,
             atmospheric_pressure, water_stress_approach, upperT, lowerT);
 

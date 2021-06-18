@@ -6,7 +6,7 @@ string_vector c3_leaf_photosynthesis::get_inputs()
 {
     return {
         "par_energy_content",           // J / micromol
-        "incident_ppfd",                // J / (m^2 leaf) / s
+        "incident_ppfd",                // micromol / (m^2 leaf) / s
         "temp",                         // deg. C
         "rh",                           // dimensionless
         "vmax1",                        // micromole / m^2 / s
@@ -24,7 +24,7 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "water_stress_approach",        // a dimensionless switch
         "electrons_per_carboxylation",  // electron / carboxylation
         "electrons_per_oxygenation",    // electron / oxygenation
-        "average_incident_ppfd",        // J / (m^2 leaf) / s
+        "average_incident_ppfd",        // micromol / (m^2 leaf) / s
         "windspeed",                    // m / s
         "height",                       // m
         "specific_heat_of_air",         // J / kg / K
@@ -50,23 +50,19 @@ string_vector c3_leaf_photosynthesis::get_outputs()
 
 void c3_leaf_photosynthesis::do_operation() const
 {
-    // Convert light inputs from energy to molecular flux densities (these
-    // inputs should eventually be changed to PPFD)
-    double const incident_ppfd_micromol = incident_ppfd / par_energy_content;                  // micromol / m^2 / s
-    double const average_incident_ppfd_micromol = average_incident_ppfd / par_energy_content;  // micromol / m^2 / s
 
     // Determine the absorbed shortwave light energy from the "incident average
     // PAR"
     double const absorbed_shortwave =
         absorbed_shortwave_from_incident_ppfd(
-            average_incident_ppfd_micromol, par_energy_content,
+            average_incident_ppfd, par_energy_content,
             par_energy_fraction, leaf_reflectance, leaf_transmittance);  // J / m^2 / s
 
     // Get an initial estimate of stomatal conductance, assuming the leaf is at
     // air temperature
     double const initial_stomatal_conductance =
         c3photoC(
-            incident_ppfd_micromol, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
+            incident_ppfd, temp, rh, vmax1, jmax, tpu_rate_max, Rd, b0,
             b1, Gs_min, Catm, atmospheric_pressure, O2, theta, StomataWS,
             water_stress_approach, electrons_per_carboxylation,
             electrons_per_oxygenation)
@@ -85,7 +81,7 @@ void c3_leaf_photosynthesis::do_operation() const
     // using the new leaf temperature
     const struct c3_str photo =
         c3photoC(
-            incident_ppfd_micromol, leaf_temperature, rh, vmax1, jmax,
+            incident_ppfd, leaf_temperature, rh, vmax1, jmax,
             tpu_rate_max, Rd, b0, b1, Gs_min, Catm, atmospheric_pressure, O2,
             theta, StomataWS, water_stress_approach,
             electrons_per_carboxylation, electrons_per_oxygenation);

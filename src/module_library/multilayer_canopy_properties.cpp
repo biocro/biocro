@@ -46,7 +46,7 @@ string_vector multilayer_canopy_properties::define_leaf_classes()
 string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     return {
-        "incident_ppfd",       // J / (m^2 leaf) / s
+        "incident_ppfd",       // micromol / (m^2 leaf) / s
         "absorbed_shortwave",  // J / (m^2 leaf) / s
         "fraction"             // dimensionless
     };
@@ -59,13 +59,13 @@ string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs
 string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
-        "incident_ppfd_scattered",    // J / (m^2 leaf) / s
-        "average_incident_ppfd",      // J / (m^2 leaf) / s
+        "incident_ppfd_scattered",     // micromol / (m^2 leaf) / s
+        "average_incident_ppfd",       // J / (m^2 leaf) / s
         "average_absorbed_shortwave",  // J / (m^2 leaf) / s
-        "height",                     // m
-        "rh",                         // dimensionless from Pa / Pa
-        "windspeed",                  // m / s
-        "LeafN",                      // mmol / m^2 (?)
+        "height",                      // m
+        "rh",                          // dimensionless from Pa / Pa
+        "windspeed",                   // m / s
+        "LeafN",                       // mmol / m^2 (?)
     };
 }
 
@@ -93,15 +93,14 @@ string_vector multilayer_canopy_properties::get_outputs(int nlayers)
 
 void multilayer_canopy_properties::run() const
 {
-    // Calculate PAR levels throughout the canopy. Note that sunML specifies
-    // that its `Idir` and `Idiff` arguments should have [micromol / m^2 / s]
-    // units. However, we can leave these quantities as energy flux densities
-    // with [J / m^2 / s] units because the two units are simply related by a
-    // multiplicative conversion factor and the output of sunML is linear with
-    // respect to `Idir` and `Idiff`.
-    struct Light_profile par_profile = sunML(
-        par_incident_direct,
-        par_incident_diffuse,
+    // Calculate values of incident photosynthetically active photon density
+    // (PPFD) and absorbed shortwave energy throughout the canopy. Note that the
+    // `sunML` function expects input expects PPFD values, so we must convert
+    // photosynthetically active radiation (PAR) to PPFD using the energy
+    // content of light in the PAR band
+    struct Light_profile light_profile = sunML(
+        par_incident_direct / par_energy_content,   // micromol / (m^2 beam) / s
+        par_incident_diffuse / par_energy_content,  // micromol / m^2 / s
         lai,
         nlayers,
         cosine_zenith_angle,
@@ -116,15 +115,15 @@ void multilayer_canopy_properties::run() const
 
     // Calculate relative humidity levels throughout the canopy
     double relative_humidity_profile[nlayers];
-    RHprof(rh, nlayers, relative_humidity_profile);  // Modifies relative_humidity_profile.
+    RHprof(rh, nlayers, relative_humidity_profile);  // Modifies relative_humidity_profile
 
     // Calculate windspeed throughout the canopy
     double wind_speed_profile[nlayers];
-    WINDprof(windspeed, lai, nlayers, wind_speed_profile);  // Modifies wind_speed_profile.
+    WINDprof(windspeed, lai, nlayers, wind_speed_profile);  // Modifies wind_speed_profile
 
     // Calculate leaf nitrogen throughout the canopy
     double leafN_profile[nlayers];
-    LNprof(LeafN, lai, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile.
+    LNprof(LeafN, lai, nlayers, kpLN, leafN_profile);  // Modifies leafN_profile
 
     // Don't calculate anything based on the nitrogen profile
     if (lnfun != 0) {
@@ -133,19 +132,19 @@ void multilayer_canopy_properties::run() const
 
     // Update layer-dependent outputs
     for (int i = 0; i < nlayers; ++i) {
-        update(sunlit_fraction_ops[i], par_profile.sunlit_fraction[i]);
-        update(sunlit_incident_ppfd_ops[i], par_profile.sunlit_incident_ppfd[i]);
-        update(sunlit_absorbed_shortwave_ops[i], par_profile.sunlit_absorbed_shortwave[i]);
+        update(sunlit_fraction_ops[i], light_profile.sunlit_fraction[i]);
+        update(sunlit_incident_ppfd_ops[i], light_profile.sunlit_incident_ppfd[i]);
+        update(sunlit_absorbed_shortwave_ops[i], light_profile.sunlit_absorbed_shortwave[i]);
 
-        update(shaded_fraction_ops[i], par_profile.shaded_fraction[i]);
-        update(shaded_incident_ppfd_ops[i], par_profile.shaded_incident_ppfd[i]);
-        update(shaded_absorbed_shortwave_ops[i], par_profile.shaded_absorbed_shortwave[i]);
+        update(shaded_fraction_ops[i], light_profile.shaded_fraction[i]);
+        update(shaded_incident_ppfd_ops[i], light_profile.shaded_incident_ppfd[i]);
+        update(shaded_absorbed_shortwave_ops[i], light_profile.shaded_absorbed_shortwave[i]);
 
-        update(average_incident_ppfd_ops[i], par_profile.average_incident_ppfd[i]);
-        update(average_absorbed_shortwave_ops[i], par_profile.average_absorbed_shortwave[i]);
+        update(average_incident_ppfd_ops[i], light_profile.average_incident_ppfd[i]);
+        update(average_absorbed_shortwave_ops[i], light_profile.average_absorbed_shortwave[i]);
 
-        update(incident_ppfd_scattered_ops[i], par_profile.incident_ppfd_scattered[i]);
-        update(height_ops[i], par_profile.height[i]);
+        update(incident_ppfd_scattered_ops[i], light_profile.incident_ppfd_scattered[i]);
+        update(height_ops[i], light_profile.height[i]);
         update(rh_ops[i], relative_humidity_profile[i]);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);
