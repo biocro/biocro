@@ -234,13 +234,13 @@ void ed_multilayer_canopy_properties::run() const
 
     // Update layer-dependent outputs
     //
-    // par_profile.incident_ppfd_direct and par_profile.incident_ppfd_diffuse represent
+    // par_profile.sunlit_incident_ppfd and par_profile.shaded_incident_ppfd represent
     // incident PAR energy flux densities in units of J / m^2 / s. However, the
     // Collatz model expects a quantum flux in units of mol / m^2 / s. So we use
     // the `par_energy_content` quantity to convert from J to micromol, and then
     // an additional factor of 1e6 micromol / mol is required.
     //
-    // par_profile.incident_ppfd_average represents some kind of wonky "average" incident
+    // par_profile.average_incident_ppfd represents some kind of wonky "average" incident
     // PAR flux on the leaves, but the evapotranspiration code expects a value for
     // total absorbed solar energy (including NIR). To convert, we use the method from
     // the Evapotrans2 code. First we use the `par_energy_fraction` quantity
@@ -252,13 +252,13 @@ void ed_multilayer_canopy_properties::run() const
         update(sunlit_fraction_ops[i], par_profile.sunlit_fraction[i]);
         update(shaded_fraction_ops[i], par_profile.shaded_fraction[i]);
         update(height_ops[i], par_profile.height[i]);
-        update(sunlit_incident_par_ops[i], par_profile.incident_ppfd_direct[i]);
-        update(sunlit_collatz_PAR_flux_ops[i], par_profile.incident_ppfd_direct[i] / par_energy_content * 1e-6);
+        update(sunlit_incident_par_ops[i], par_profile.sunlit_incident_ppfd[i]);
+        update(sunlit_collatz_PAR_flux_ops[i], par_profile.sunlit_incident_ppfd[i] / par_energy_content * 1e-6);
         update(incident_scattered_par_ops[i], par_profile.incident_ppfd_scattered[i]);
-        update(shaded_incident_par_ops[i], par_profile.incident_ppfd_diffuse[i]);
-        update(shaded_collatz_PAR_flux_ops[i], par_profile.incident_ppfd_diffuse[i] / par_energy_content * 1e-6);
-        update(incident_average_par_ops[i], par_profile.incident_ppfd_average[i]);
-        update(solar_energy_absorbed_leaf_ops[i], par_profile.incident_ppfd_average[i] / par_energy_fraction * absorb_factor);
+        update(shaded_incident_par_ops[i], par_profile.shaded_incident_ppfd[i]);
+        update(shaded_collatz_PAR_flux_ops[i], par_profile.shaded_incident_ppfd[i] / par_energy_content * 1e-6);
+        update(incident_average_par_ops[i], par_profile.average_incident_ppfd[i]);
+        update(solar_energy_absorbed_leaf_ops[i], par_profile.average_incident_ppfd[i] / par_energy_fraction * absorb_factor);
         update(rh_ops[i], relative_humidity_profile[i]);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);

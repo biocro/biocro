@@ -59,17 +59,27 @@ void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);
 
 double absorbed_shortwave_from_incident_ppfd(
-    double incident_ppfd,
-    double par_energy_content,
-    double par_energy_fraction,
-    double leaf_reflectance,
-    double leaf_transmittance
+    double incident_ppfd,        // micromol / m^2 / s
+    double par_energy_content,   // J / micromol
+    double par_energy_fraction,  // dimensionless
+    double leaf_reflectance,     // dimensionless
+    double leaf_transmittance    // dimensionless
 );
 struct Light_profile sunML(
-    double Idir, double Idiff, double LAI, int nlayers, double cosTheta,
-    double kd, double chil, double absorptivity, double heightf,
-    double par_energy_content, double par_energy_fraction,
-    double leaf_transmittance, double leaf_reflectance);
+    double ambient_ppfd_beam,     // micromol / (m^2 beam) / s
+    double ambient_ppfd_diffuse,  // micromol / m^2 / s
+    double lai,                   // dimensionless from m^2 / m^2
+    int nlayers,                  // dimensionless
+    double cosine_zenith_angle,   // dimensionless
+    double kd,                    // dimensionless
+    double chil,                  // dimensionless from m^2 / m^2
+    double absorptivity,          // dimensionless from mol / mol
+    double heightf,               // m^-1 from m^2 leaf / m^2 ground / m height
+    double par_energy_content,    // J / micromol
+    double par_energy_fraction,   // dimensionless
+    double leaf_transmittance,    // dimensionless
+    double leaf_reflectance       // dimensionless
+);
 
 struct Light_model lightME(double lat, int DOY, double td, double atmospheric_pressure);
 

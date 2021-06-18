@@ -133,7 +133,7 @@ class rue_leaf_photosynthesis : public SteadyModule
 
           // Get references to input parameters
           par_energy_content(get_input(input_quantities, "par_energy_content")),
-          incident_par(get_input(input_quantities, "incident_par")),
+          incident_ppfd(get_input(input_quantities, "incident_ppfd")),
           alpha_rue(get_input(input_quantities, "alpha_rue")),
           temp(get_input(input_quantities, "temp")),
           rh(get_input(input_quantities, "rh")),
@@ -141,7 +141,7 @@ class rue_leaf_photosynthesis : public SteadyModule
           b0(get_input(input_quantities, "b0")),
           b1(get_input(input_quantities, "b1")),
           Catm(get_input(input_quantities, "Catm")),
-          incident_average_par(get_input(input_quantities, "incident_average_par")),
+          average_incident_ppfd(get_input(input_quantities, "average_incident_ppfd")),
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
@@ -166,7 +166,7 @@ class rue_leaf_photosynthesis : public SteadyModule
    private:
     // References to input parameters
     double const& par_energy_content;
-    double const& incident_par;
+    double const& incident_ppfd;
     double const& alpha_rue;
     double const& temp;
     double const& rh;
@@ -174,7 +174,7 @@ class rue_leaf_photosynthesis : public SteadyModule
     double const& b0;
     double const& b1;
     double const& Catm;
-    double const& incident_average_par;
+    double const& average_incident_ppfd;
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;

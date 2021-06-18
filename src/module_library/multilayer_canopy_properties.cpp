@@ -46,7 +46,7 @@ string_vector multilayer_canopy_properties::define_leaf_classes()
 string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs()
 {
     return {
-        "incident_par",  // J / (m^2 leaf) / s
+        "incident_ppfd",  // J / (m^2 leaf) / s
         "fraction"       // dimensionless
     };
 }
@@ -58,8 +58,8 @@ string_vector multilayer_canopy_properties::define_multiclass_multilayer_outputs
 string_vector multilayer_canopy_properties::define_pure_multilayer_outputs()
 {
     return {
-        "incident_scattered_par",  // J / (m^2 leaf) / s
-        "incident_average_par",    // J / (m^2 leaf) / s
+        "incident_ppfd_scattered",  // J / (m^2 leaf) / s
+        "average_incident_ppfd",    // J / (m^2 leaf) / s
         "height",                  // m
         "rh",                      // dimensionless from Pa / Pa
         "windspeed",               // m / s
@@ -134,10 +134,10 @@ void multilayer_canopy_properties::run() const
         update(sunlit_fraction_ops[i], par_profile.sunlit_fraction[i]);
         update(shaded_fraction_ops[i], par_profile.shaded_fraction[i]);
         update(height_ops[i], par_profile.height[i]);
-        update(sunlit_incident_par_ops[i], par_profile.incident_ppfd_direct[i]);
-        update(incident_scattered_par_ops[i], par_profile.incident_ppfd_scattered[i]);
-        update(shaded_incident_par_ops[i], par_profile.incident_ppfd_diffuse[i]);
-        update(incident_average_par_ops[i], par_profile.incident_ppfd_average[i]);
+        update(sunlit_incident_ppfd_ops[i], par_profile.sunlit_incident_ppfd[i]);
+        update(incident_ppfd_scattered_ops[i], par_profile.incident_ppfd_scattered[i]);
+        update(shaded_incident_ppfd_ops[i], par_profile.shaded_incident_ppfd[i]);
+        update(average_incident_ppfd_ops[i], par_profile.average_incident_ppfd[i]);
         update(rh_ops[i], relative_humidity_profile[i]);
         update(windspeed_ops[i], wind_speed_profile[i]);
         update(LeafN_ops[i], leafN_profile[i]);

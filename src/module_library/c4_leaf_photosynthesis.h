@@ -21,7 +21,7 @@ class c4_leaf_photosynthesis : public SteadyModule
 
           // Get references to input quantities
           par_energy_content(get_input(input_quantities, "par_energy_content")),
-          incident_par(get_input(input_quantities, "incident_par")),
+          incident_ppfd(get_input(input_quantities, "incident_ppfd")),
           temp(get_input(input_quantities, "temp")),
           rh(get_input(input_quantities, "rh")),
           vmax1(get_input(input_quantities, "vmax1")),
@@ -39,7 +39,7 @@ class c4_leaf_photosynthesis : public SteadyModule
           water_stress_approach(get_input(input_quantities, "water_stress_approach")),
           upperT(get_input(input_quantities, "upperT")),
           lowerT(get_input(input_quantities, "lowerT")),
-          incident_average_par(get_input(input_quantities, "incident_average_par")),
+          average_incident_ppfd(get_input(input_quantities, "average_incident_ppfd")),
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           leafwidth(get_input(input_quantities, "leafwidth")),
@@ -66,7 +66,7 @@ class c4_leaf_photosynthesis : public SteadyModule
    private:
     // References to input quantities
     double const& par_energy_content;
-    double const& incident_par;
+    double const& incident_ppfd;
     double const& temp;
     double const& rh;
     double const& vmax1;
@@ -84,7 +84,7 @@ class c4_leaf_photosynthesis : public SteadyModule
     double const& water_stress_approach;
     double const& upperT;
     double const& lowerT;
-    double const& incident_average_par;
+    double const& average_incident_ppfd;
     double const& windspeed;
     double const& height;
     double const& leafwidth;

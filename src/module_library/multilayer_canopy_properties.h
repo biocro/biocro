@@ -20,7 +20,7 @@
  * Throughout the canopy, some calculated properties only vary across the layers
  * (such as air temperature), while others also depend on the leaf class (such
  * as incident photosynthetically active photon flux density). The names of
- * these output quantities are formed from a base name (e.g. `incident_par`), a
+ * these output quantities are formed from a base name (e.g. `incident_ppfd`), a
  * prefix that indicates the leaf class (e.g. `sunlit_`), and a suffix that
  * indicates the layer number (e.g. `_layer_0`).
  *
@@ -84,12 +84,12 @@ class multilayer_canopy_properties : public SteadyModule
           leaf_reflectance(get_input(input_quantities, "leaf_reflectance")),
 
           // Get pointers to output quantities
-          sunlit_incident_par_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_par")),
+          sunlit_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_ppfd")),
           sunlit_fraction_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_fraction")),
-          shaded_incident_par_ops(get_multilayer_op(output_quantities, nlayers, "shaded_incident_par")),
+          shaded_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "shaded_incident_ppfd")),
           shaded_fraction_ops(get_multilayer_op(output_quantities, nlayers, "shaded_fraction")),
-          incident_scattered_par_ops(get_multilayer_op(output_quantities, nlayers, "incident_scattered_par")),
-          incident_average_par_ops(get_multilayer_op(output_quantities, nlayers, "incident_average_par")),
+          incident_ppfd_scattered_ops(get_multilayer_op(output_quantities, nlayers, "incident_ppfd_scattered")),
+          average_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "average_incident_ppfd")),
           height_ops(get_multilayer_op(output_quantities, nlayers, "height")),
           rh_ops(get_multilayer_op(output_quantities, nlayers, "rh")),
           windspeed_ops(get_multilayer_op(output_quantities, nlayers, "windspeed")),
@@ -121,12 +121,12 @@ class multilayer_canopy_properties : public SteadyModule
     double const& leaf_reflectance;
 
     // Pointers to output parameters
-    std::vector<double*> const sunlit_incident_par_ops;
+    std::vector<double*> const sunlit_incident_ppfd_ops;
     std::vector<double*> const sunlit_fraction_ops;
-    std::vector<double*> const shaded_incident_par_ops;
+    std::vector<double*> const shaded_incident_ppfd_ops;
     std::vector<double*> const shaded_fraction_ops;
-    std::vector<double*> const incident_scattered_par_ops;
-    std::vector<double*> const incident_average_par_ops;
+    std::vector<double*> const incident_ppfd_scattered_ops;
+    std::vector<double*> const average_incident_ppfd_ops;
     std::vector<double*> const height_ops;
     std::vector<double*> const rh_ops;
     std::vector<double*> const windspeed_ops;

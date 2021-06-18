@@ -1,3 +1,3 @@
-par_energy_fraction,height,windspeed,leaf_reflectance,leaf_transmittance,Catm,b1,b0,specific_heat_of_air,incident_average_par,par_energy_content,incident_par,Rd,alpha_rue,temp,rh,GrossAssim,Assim,EPriestly,TransR,Ci,Gs,leaf_temperature,EPenman,description
+par_energy_fraction,height,windspeed,leaf_reflectance,leaf_transmittance,Catm,b0,b1,incident_ppfd,specific_heat_of_air,par_energy_content,Rd,average_incident_ppfd,alpha_rue,temp,rh,GrossAssim,Assim,EPriestly,TransR,Ci,Gs,leaf_temperature,EPenman,description
 input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,NA
-1,1,1,1,1,1,1,1,1,1,1,0.001,1,1,1,1,0.001,-0.133011053401772,0,0,1.21281768544284,1000,-4,0,not realistic but it works
+1,1,1,1,1,1,1,1,1,1,1,1,1,0.001,1,1,0.001,-0.133011053401772,0,0,1.21281768544284,1000,-4,0,not realistic values but they work

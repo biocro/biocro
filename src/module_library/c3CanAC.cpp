@@ -89,14 +89,14 @@ struct Can_Str c3CanAC(
         double relative_humidity = relative_humidity_profile[current_layer];     // dimensionless
         double layer_wind_speed = wind_speed_profile[current_layer];             // m / s
         double CanHeight = light_profile.height[current_layer];                  // m
-        double j_avg = light_profile.absorbed_shortwave_average[current_layer];  // micromole / m^2 / s
+        double j_avg = light_profile.average_absorbed_shortwave[current_layer];  // micromole / m^2 / s
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double i_dir = light_profile.incident_ppfd_direct[current_layer];  // micromole / m^2 / s
+        double i_dir = light_profile.sunlit_incident_ppfd[current_layer];  // micromole / m^2 / s
         double pLeafsun = light_profile.sunlit_fraction[current_layer];    // dimensionless
         double Leafsun = LAIc * pLeafsun;                                  // dimensionless
 
@@ -127,9 +127,9 @@ struct Can_Str c3CanAC(
         // energy balance to get a better temperature estimate using that value
         // of stomatal conductance. Get the final estimate of stomatal
         // conductance using the new value of the leaf temperature.
-        double i_diff = light_profile.incident_ppfd_diffuse[current_layer];  // micromole / m^2 /s
-        double pLeafshade = light_profile.shaded_fraction[current_layer];    // dimensionless
-        double Leafshade = LAIc * pLeafshade;                                // dimensionless
+        double i_diff = light_profile.shaded_incident_ppfd[current_layer];  // micromole / m^2 /s
+        double pLeafshade = light_profile.shaded_fraction[current_layer];   // dimensionless
+        double Leafshade = LAIc * pLeafshade;                               // dimensionless
 
         double diffuse_stomatal_conductance =
             c3photoC(

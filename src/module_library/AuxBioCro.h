@@ -27,13 +27,13 @@
 
 
 struct Light_profile {
-    double incident_ppfd_direct[MAXLAY];        // micromol / m^2 / s
+    double sunlit_incident_ppfd[MAXLAY];        // micromol / (m^2 leaf) / s
     double incident_ppfd_scattered[MAXLAY];     // micromol / m^2 / s
-    double incident_ppfd_diffuse[MAXLAY];       // micromol / m^2 / s
-    double incident_ppfd_average[MAXLAY];       // micromol / m^2 / s
-    double absorbed_shortwave_direct[MAXLAY];   // J / m^2 / s
-    double absorbed_shortwave_diffuse[MAXLAY];  // J / m^2 / s
-    double absorbed_shortwave_average[MAXLAY];  // J / m^2 / s
+    double shaded_incident_ppfd[MAXLAY];        // micromol / (m^2 leaf) / s
+    double average_incident_ppfd[MAXLAY];       // micromol / (m^2 leaf) / s
+    double sunlit_absorbed_shortwave[MAXLAY];   // J / (m^2 leaf) / s
+    double shaded_absorbed_shortwave[MAXLAY];   // J / (m^2 leaf) / s
+    double average_absorbed_shortwave[MAXLAY];  // J / (m^2 leaf) / s
     double sunlit_fraction[MAXLAY];             // dimensionless
     double shaded_fraction[MAXLAY];             // dimensionless
     double height[MAXLAY];                      // m
