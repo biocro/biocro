@@ -1,5 +1,5 @@
 ## This tests that the order in which steady-state modules are
-## specified in the list passed to biocro_simulation does not affect the
+## specified in the list passed to run_biocro does not affect the
 ## simulation result.
 
 context(paste("Check simulation result",
@@ -34,7 +34,7 @@ sorghum_deriv_modules <- c(
 
 
 ## Run the simulation:
-baseline_result  <- biocro_simulation(sorghum_initial_values,
+baseline_result  <- run_biocro(sorghum_initial_values,
                                sorghum_parameters,
                                get_growing_season_climate(weather05),
                                sorghum_ss_modules,
@@ -66,7 +66,7 @@ for (count in 1:NUMBER_OF_PERMUTATIONS) {
 
     permuted_ss_module_list <- sample(sorghum_ss_modules)
 
-    result <- biocro_simulation(sorghum_initial_values,
+    result <- run_biocro(sorghum_initial_values,
                          sorghum_parameters,
                          get_growing_season_climate(weather05),
                          permuted_ss_module_list,

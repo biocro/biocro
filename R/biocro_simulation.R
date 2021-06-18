@@ -6,7 +6,7 @@ default_integrator <- list(
     adaptive_max_steps = NA
 )
 
-biocro_simulation <- function(
+run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
@@ -82,7 +82,7 @@ biocro_simulation <- function(
     #
     # Example: running a sorghum simulation using weather data from 2005
     #
-    #     result <- biocro_simulation(
+    #     result <- run_biocro(
     #         sorghum_initial_values,
     #         sorghum_parameters,
     #         get_growing_season_climate(weather05),
@@ -95,7 +95,7 @@ biocro_simulation <- function(
     #     lattice::xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
     #
     # The result is a data frame showing all time-dependent quantities as they
-    # change throughout the growing season. When biocro_simulation is run in
+    # change throughout the growing season. When run_biocro is run in
     # verbose mode (as in this example, where verbose = TRUE), information about
     # the validity of the input arguments will be printed to the R console. This
     # can be helpful when attempting to combine a set of modules for the first
@@ -111,7 +111,7 @@ biocro_simulation <- function(
     #
     # Example 2: running a Glycine max simulation using weather data from 2005
     #
-    #     result <- biocro_simulation(
+    #     result <- run_biocro(
     #         glycine_max_initial_values,
     #         glycine_max_parameters,
     #         get_growing_season_climate(weather05),
@@ -197,7 +197,7 @@ biocro_simulation <- function(
 
     # Run the C++ code
     result = as.data.frame(.Call(
-        R_biocro_simulation,
+        R_run_biocro,
         initial_values,
         parameters,
         drivers,
@@ -222,7 +222,7 @@ biocro_simulation <- function(
     return(result)
 }
 
-partial_biocro_simulation <- function(
+partial_run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
@@ -233,26 +233,26 @@ partial_biocro_simulation <- function(
     verbose = FALSE
 )
 {
-    # Accepts the same parameters as biocro_simulation() with an additional
+    # Accepts the same parameters as run_biocro() with an additional
     # 'arg_names' parameter, which is a vector of character variables.
     #
-    # Returns a function that runs biocro_simulation() with all of the
+    # Returns a function that runs run_biocro() with all of the
     # parameters (except those in 'arg_names') set as their default values. The
     # only parameter in the new function is a numerical vector specifying the
     # values of the quantities in 'arg_names'. This technique is called "partial
-    # application," hence the name partial_biocro_simulation.
+    # application," hence the name partial_run_biocro.
     #
-    # initial_values: same as biocro_simulation()
-    # parameters: same as biocro_simulation()
-    # drivers: same as biocro_simulation()
-    # steady_state_module_names: same as biocro_simulation()
-    # derivative_module_names: same as biocro_simulation()
-    # integrator: same as biocro_simulation()
+    # initial_values: same as run_biocro()
+    # parameters: same as run_biocro()
+    # drivers: same as run_biocro()
+    # steady_state_module_names: same as run_biocro()
+    # derivative_module_names: same as run_biocro()
+    # integrator: same as run_biocro()
     # arg_names: vector of character variables. The names of the arguments that
     #            the new function accepts. Note: 'arg_names' can only contain
     #            the names of parameters in 'initial_values', 'parameters', or
     #            'drivers'.
-    # verbose: same as biocro_simulation()
+    # verbose: same as run_biocro()
     #
     # returns f(arg).
     #
@@ -260,7 +260,7 @@ partial_biocro_simulation <- function(
     # simulation; here we set them all to 2000 degrees C * day instead of the
     # default sorghum values.
     #
-    #     senescence_simulation <- partial_biocro_simulation(
+    #     senescence_simulation <- partial_run_biocro(
     #         sorghum_initial_values,
     #         sorghum_parameters,
     #         get_growing_season_climate(weather05),
@@ -310,7 +310,7 @@ partial_biocro_simulation <- function(
         stop(paste('The following arguments in "arg_names" are not in any of the paramter lists:', paste(missing, collapse=', ')))
     }
 
-    # Make a function that calls biocro_simulation with new values for the
+    # Make a function that calls run_biocro with new values for the
     # parameters specified in arg_names
     function(x)
     {
@@ -323,6 +323,6 @@ partial_biocro_simulation <- function(
             c_row = controls[i, ]
             temp_arg_list[[c_row$control]][[c_row$arg_name]] = x[i]
         }
-        do.call(biocro_simulation, temp_arg_list)
+        do.call(run_biocro, temp_arg_list)
     }
 }

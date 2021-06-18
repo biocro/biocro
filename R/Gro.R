@@ -9,7 +9,7 @@ Gro_deriv <- function(
     # Gro_deriv is used to create a function that can be called by a integrator
     # such as LSODES.
     #
-    # Important note: this strategy is not recommended since biocro_simulation
+    # Important note: this strategy is not recommended since run_biocro
     # now implements the ODEINT stiff system integrator in a more efficient way
     # than LSODES would.
     #
@@ -81,7 +81,7 @@ Gro_deriv <- function(
     # --------------------------------------------------------------------------
     #
     # Example 2: solving 100 hours of a soybean simulation. This will run very
-    # slow compared to a regular call to biocro_simulation.
+    # slow compared to a regular call to run_biocro.
     #
     #     soybean_system <- Gro_deriv(
     #         soybean_initial_values,

@@ -1,5 +1,5 @@
 useDynLib(BioCro,
-		  R_biocro_simulation,
+		  R_run_biocro,
 		  R_Gro_deriv,
 		  R_Gro_ode,
           R_module_info,
@@ -15,9 +15,9 @@ useDynLib(BioCro,
 
 import(stats, lattice)
 
-export(biocro_simulation)
+export(run_biocro)
 
-export(partial_biocro_simulation)
+export(partial_run_biocro)
 
 export(Gro_deriv)
 

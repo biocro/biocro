@@ -27,7 +27,7 @@ parameter_lists = list(
 )
 
 test_that("Willow simulation produces reasonable results", {
-    results <- biocro_simulation(
+    results <- run_biocro(
         willow_initial_values,
         willow_parameters,
         weather05,
@@ -51,9 +51,9 @@ for (i in seq_along(parameter_lists)) {
     species = names(parameter_lists)[i]
     #print(species)
 
-    base_results <- do.call(biocro_simulation, parameter_list)
+    base_results <- do.call(run_biocro, parameter_list)
 
-    test_that("*biocro_simulation functions produce reasonable results", {
+    test_that("*run_biocro functions produce reasonable results", {
         #print("Minimum and maximum values of biomass output.")
         for (output in c("lai", "Leaf", "Root", "Stem")) {
             expect_true(min(base_results[[output]]) >= 0)
@@ -77,7 +77,7 @@ for (i in seq_along(parameter_lists)) {
             initial_values$cws2 = 0.32
         })
 
-        two_soil_layer_results <- do.call(biocro_simulation, two_layer_parameters)
+        two_soil_layer_results <- do.call(run_biocro, two_layer_parameters)
 
         expect_true(mean(base_results[["Stem"]]) < mean(two_soil_layer_results[["Stem"]]))
 
@@ -101,7 +101,7 @@ for (i in seq_along(parameter_lists)) {
 
     test_that(paste(species, "stem biomass is sensitive to key parameters "), {
         get_max_biomass <- function(parameters) {
-            results = do.call(biocro_simulation, parameters)
+            results = do.call(run_biocro, parameters)
             results$total_mass = results$Stem + results$Leaf + results$Root
             return(with(results, max(total_mass)))
             #return(with(results, max(Stem, Leaf, Root)))
