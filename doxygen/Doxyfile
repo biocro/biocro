@@ -29,7 +29,8 @@ HIDE_SCOPE_NAMES       = YES # not sure what difference this makes
 #---------------------------------------------------------------------------
 INPUT                  = ../src ../src/se_solver_library \
                          ../src/integrator_library ../src/utils \
-                         ../src/module_library
+                         ../src/module_library \
+                         markdown
 FILE_PATTERNS          = *.cpp \
                          *.h \
                          *.hpp \
