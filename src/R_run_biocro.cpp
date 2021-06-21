@@ -9,7 +9,7 @@ using std::string;
 
 extern "C" {
 
-SEXP R_biocro_simulation(
+SEXP R_run_biocro(
     SEXP initial_values,
     SEXP parameters,
     SEXP drivers,
@@ -53,9 +53,9 @@ SEXP R_biocro_simulation(
 
         return list_from_map(result);
     } catch (std::exception const& e) {
-        Rf_error(string(string("Caught exception in R_biocro_simulation: ") + e.what()).c_str());
+        Rf_error(string(string("Caught exception in R_run_biocro: ") + e.what()).c_str());
     } catch (...) {
-        Rf_error("Caught unhandled exception in R_biocro_simulation.");
+        Rf_error("Caught unhandled exception in R_run_biocro.");
     }
 }
 

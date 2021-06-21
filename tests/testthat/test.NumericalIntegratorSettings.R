@@ -1,4 +1,4 @@
-context("Test biocro_simulation's integrator settings.")
+context("Test run_biocro's integrator settings.")
 
 MAX_INDEX <- 100    # changing this value is not recommended
 DEBUG_PRINT <- FALSE
@@ -13,7 +13,7 @@ DEBUG_PRINT_EXTRA <- FALSE
 # requires it to abort the integration.
 final_position <- function(integrator)
 {
-    result <- biocro_simulation(
+    result <- run_biocro(
         initial_values = list(
             position = 0.0,
             velocity = 1.0
