@@ -79,20 +79,20 @@ debug_view <- function(ob) {
 derivative_modules <- c("harmonic_oscillator")
 steady_state_modules <- c("harmonic_energy")
 drivers <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
-default_solver <- list(type='Gro', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
+default_integrator <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
 ## from harmonic motion equations.
-run_trial <- function(initial_position, initial_velocity, mass, spring_constant, solver, trial_description) {
+run_trial <- function(initial_position, initial_velocity, mass, spring_constant, integrator, trial_description) {
     initial_values <- list(position=initial_position, velocity=initial_velocity)
     parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
 
-    
+
     debug_print(initial_values)
     debug_print(parameters)
 
-    
+
     ## compute equation of motion parameters:
     amplitude <- sqrt(initial_position^2 + initial_velocity^2 * mass / spring_constant)
     angular_frequency <- sqrt(spring_constant / mass)
@@ -107,14 +107,14 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     ## compute the total energy, which doesn't depend on time:
     total_energy <- 0.5 * spring_constant * amplitude^2
 
-    
+
     debug_print(list(amplitude = amplitude, phase = phase, angular_frequency = angular_frequency))
 
-    
-    ## try out the solver
-    result <- Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules, solver)
 
-    ## add useful columns to the resulting data frame:    
+    ## try out the integrator
+    result <- run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules, integrator)
+
+    ## add useful columns to the resulting data frame:
     result$time <- result$time * 24 # time is in hours
     result$expected_position <- position(result$time, amplitude, angular_frequency, phase)
     result$expected_velocity <- velocity(result$time, amplitude, angular_frequency, phase)
@@ -130,9 +130,9 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
         if (abs(result$velocity[1] - result$expected_velocity[1]) > .01) break
     }
 
-    
+
 	overall_description <- paste("Harmonic oscillator position and velocity values match the expected values (", trial_description, ")", sep="")
-	
+
     test_that(overall_description, {
         expect_true(class(result) == "data.frame") # sanity check
 
@@ -151,13 +151,13 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
 ## some special cases
 
-run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_solver, "initial position 0, amplitude 100, and period 24")
+run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_integrator, "initial position 0, amplitude 100, and period 24")
 
-run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass at rest")
+run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass at rest")
 
-run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass with no initial velocity with initial positive displacement")
+run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass with no initial velocity with initial positive displacement")
 
-run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass with no initial velocity and with initial negative displacement")
+run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass with no initial velocity and with initial negative displacement")
 
 
 ## run a number of randomly-chosen cases
@@ -169,14 +169,14 @@ for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
     mass <- runif(1, 0, 100)[1]
     spring_constant <- runif(1, 0, 100)[1]
 
-    run_trial(initial_position, initial_velocity, mass, spring_constant, default_solver, "random parameters and initial values")
+    run_trial(initial_position, initial_velocity, mass, spring_constant, default_integrator, "random parameters and initial values")
 }
 
-## test each solver method using a really weak spring (so the Euler methods still work)
-all_solver_types <- get_all_system_solvers()
-for (solver_type in all_solver_types) {
-	solver <- default_solver
-	solver$type <- solver_type
-	description <- paste("using the ", solver_type, " method", sep="")
-	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, solver, description)
+## test each integrator method using a really weak spring (so the Euler methods still work)
+all_integrator_types <- get_all_integrators()
+for (integrator_type in all_integrator_types) {
+	integrator <- default_integrator
+	integrator$type <- integrator_type
+	description <- paste("using the ", integrator_type, " method", sep="")
+	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, integrator, description)
 }

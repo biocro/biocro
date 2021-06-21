@@ -1,3 +1,59 @@
+# Some modules are included as named list elements so they can be easily changed
+# on-the-fly to a different value, e.g.,
+# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+miscanthus_x_giganteus_steady_state_modules <- list(
+    "soil_type_selector",
+    stomata_water_stress = "stomata_water_stress_linear",
+    "leaf_water_stress_exponential",
+    "parameter_calculator",
+    "soil_evaporation",
+    canopy_photosynthesis = "c4_canopy",
+    partitioning_coefficients = "partitioning_coefficient_selector",
+    partitioning_growth_calculator = "partitioning_growth_calculator"
+)
+
+miscanthus_x_giganteus_derivative_modules <- list(
+    senescence = "thermal_time_senescence",
+    "partitioning_growth",
+    thermal_time = "thermal_time_linear",
+    soil_profile = "one_layer_soil_profile"
+)
+
+# Error tolerances greater than 1e-5 may cause problems with the regression test
+miscanthus_x_giganteus_integrator <- list(
+    type = 'auto',
+    output_step_size = 1.0,
+    adaptive_rel_error_tol = 1e-5,
+    adaptive_abs_error_tol = 1e-5,
+    adaptive_max_steps = 200
+)
+
+# Do the calculations inside an empty list so that temporary variables are not created in .Global.
+miscanthus_x_giganteus_initial_values = with(list(), {
+    datalines =
+    "symbol                     value
+    Grain                       0
+    Leaf                        7e-04
+    LeafLitter                  0
+    leaf_senescence_index       0
+    Rhizome                     7
+    RhizomeLitter               0
+    rhizome_senescence_index    0
+    Root                        0.007
+    RootLitter                  0
+    root_senescence_index       0
+    soil_water_content          0.32
+    Stem                        0.007
+    StemLitter                  0
+    stem_senescence_index       0
+    TTc                         0"
+
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
+    values = as.list(data_frame$value)
+    names(values) = data_frame$symbol
+    values
+})
+
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
 miscanthus_x_giganteus_parameters = with(list(), {
     datalines =

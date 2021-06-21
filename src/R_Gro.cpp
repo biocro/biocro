@@ -1,72 +1,15 @@
-#include <stdexcept>
-#include <sstream>
 #include <Rinternals.h>
-#include <cmath>  // For isnan
-#include "module_library/BioCro.h"
-#include "modules.h"
-#include "biocro_simulation.h"
-#include "module_library/module_wrapper_factory.h"
+#include <vector>
+#include <string>
+#include <exception>    // for std::exception
+#include "state_map.h"  // for state_map, state_vector_map, string_vector
+#include "system.h"
 #include "R_helper_functions.h"
-#include "system_solver_library/system_solver_factory.h"
-#include "validate_system.h"
-#include "simultaneous_equations.h"
-#include "numerical_jacobian.h"
 
 using std::string;
-using std::unique_ptr;
 using std::vector;
 
 extern "C" {
-
-SEXP R_Gro_solver(
-    SEXP initial_values,
-    SEXP parameters,
-    SEXP drivers,
-    SEXP steady_state_module_names,
-    SEXP derivative_module_names,
-    SEXP solver_type,
-    SEXP solver_output_step_size,
-    SEXP solver_adaptive_rel_error_tol,
-    SEXP solver_adaptive_abs_error_tol,
-    SEXP solver_adaptive_max_steps,
-    SEXP verbose)
-{
-    try {
-        state_map iv = map_from_list(initial_values);
-        state_map p = map_from_list(parameters);
-        state_vector_map d = map_vector_from_list(drivers);
-
-        if (d.begin()->second.size() == 0) {
-            return R_NilValue;
-        }
-
-        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
-
-        bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
-        string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
-        double output_step_size = REAL(solver_output_step_size)[0];
-        double adaptive_rel_error_tol = REAL(solver_adaptive_rel_error_tol)[0];
-        double adaptive_abs_error_tol = REAL(solver_adaptive_abs_error_tol)[0];
-        int adaptive_max_steps = (int)REAL(solver_adaptive_max_steps)[0];
-
-        biocro_simulation gro(iv, p, d, ss_names, deriv_names,
-                              solver_type_string, output_step_size,
-                              adaptive_rel_error_tol, adaptive_abs_error_tol,
-                              adaptive_max_steps);
-        state_vector_map result = gro.run_simulation();
-
-        if (loquacious) {
-            Rprintf(gro.generate_report().c_str());
-        }
-
-        return list_from_map(result);
-    } catch (std::exception const& e) {
-        Rf_error(string(string("Caught exception in R_Gro_solver: ") + e.what()).c_str());
-    } catch (...) {
-        Rf_error("Caught unhandled exception in R_Gro_solver.");
-    }
-}
 
 SEXP R_Gro_deriv(
     SEXP state,
@@ -86,8 +29,8 @@ SEXP R_Gro_deriv(
             return R_NilValue;
         }
 
-        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+        string_vector ss_names = make_vector(steady_state_module_names);
+        string_vector deriv_names = make_vector(derivative_module_names);
 
         double t = REAL(time)[0];
 
@@ -95,21 +38,23 @@ SEXP R_Gro_deriv(
         System sys(s, p, d, ss_names, deriv_names);
 
         // Get the state in the correct format
-        std::vector<double> x;
+        vector<double> x;
         sys.get_state(x);
 
         // Get the state parameter names in the correct order
-        std::vector<std::string> state_param_names = sys.get_state_parameter_names();
+        string_vector state_param_names = sys.get_state_parameter_names();
 
         // Make a vector to store the derivative
-        std::vector<double> dxdt = x;
+        vector<double> dxdt = x;
 
         // Run the system once
         sys(x, dxdt, t);
 
         // Make the output map
         state_map result;
-        for (size_t i = 0; i < state_param_names.size(); i++) result[state_param_names[i]] = dxdt[i];
+        for (size_t i = 0; i < state_param_names.size(); i++) {
+            result[state_param_names[i]] = dxdt[i];
+        }
 
         // Return the resulting derivatives
         return list_from_map(result);
@@ -149,52 +94,54 @@ SEXP R_Gro_ode(
         state_vector_map d;
         if (s.find("doy") == s.end()) {
             // The doy is not defined in the input state, so assume it is 0
-            std::vector<double> temp_vec;
+            vector<double> temp_vec;
             temp_vec.push_back(0.0);
             d["doy"] = temp_vec;
         } else {
             // The doy is defined in the input state, so copy its value into the drivers
-            std::vector<double> temp_vec;
+            vector<double> temp_vec;
             temp_vec.push_back(s["doy"]);
             d["doy"] = temp_vec;
             s.erase("doy");
         }
         if (s.find("hour") == s.end()) {
             // The hour is not defined in the input state, so assume it is 0
-            std::vector<double> temp_vec;
+            vector<double> temp_vec;
             temp_vec.push_back(0.0);
             d["hour"] = temp_vec;
         } else {
             // The hour is defined in the input state, so copy its value into the drivers
-            std::vector<double> temp_vec;
+            vector<double> temp_vec;
             temp_vec.push_back(s["hour"]);
             d["hour"] = temp_vec;
             s.erase("hour");
         }
 
         // Get the module names
-        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
-        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+        string_vector ss_names = make_vector(steady_state_module_names);
+        string_vector deriv_names = make_vector(derivative_module_names);
 
         // Make the system
         System sys(s, p, d, ss_names, deriv_names);
 
         // Get the current state in the correct format
-        std::vector<double> x;
+        vector<double> x;
         sys.get_state(x);
 
         // Get the state parameter names in the correct order
-        std::vector<std::string> state_param_names = sys.get_state_parameter_names();
+        string_vector state_param_names = sys.get_state_parameter_names();
 
         // Make a vector to store the derivative
-        std::vector<double> dxdt = x;
+        vector<double> dxdt = x;
 
         // Run the system once
         sys(x, dxdt, 0);
 
         // Make the output map
         state_map result;
-        for (size_t i = 0; i < state_param_names.size(); i++) result[state_param_names[i]] = dxdt[i];
+        for (size_t i = 0; i < state_param_names.size(); i++) {
+            result[state_param_names[i]] = dxdt[i];
+        }
 
         // Return the resulting derivatives
         return list_from_map(result);

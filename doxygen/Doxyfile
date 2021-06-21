@@ -28,7 +28,7 @@ HIDE_SCOPE_NAMES       = YES # not sure what difference this makes
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = ../src ../src/se_solver_library \
-                         ../src/system_solver_library ../src/utils \
+                         ../src/integrator_library ../src/utils \
                          ../src/module_library \
                          markdown
 FILE_PATTERNS          = *.cpp \

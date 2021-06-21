@@ -42,13 +42,13 @@ get_all_quantities <- function()
 	return(result)
 }
 
-get_all_system_solvers <- function()
+get_all_integrators <- function()
 {
 	# Intended usage:
 	#
-	#  View(get_all_system_solvers())
+	#  View(get_all_integrators())
 	
-	result = .Call(R_get_all_system_solvers)
+	result = .Call(R_get_all_integrators)
 	return(result)
 }
 

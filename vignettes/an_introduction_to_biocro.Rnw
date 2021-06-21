@@ -435,7 +435,7 @@ t$ is of fixed size.
 \subsubsection{Function inputs}
 \label{sec:solver_inputs}
 
-The R function \Rcode{Gro_solver()} accepts five parameters that
+The R function \Rcode{run_biocro()} accepts five parameters that
 correspond to the model inputs given in
 Table~\ref{tab:model_inputs}. For convenience, $\boldX_\kn$ is
 separated into variables that do or do not vary over the simulation
@@ -623,8 +623,10 @@ development of a crop as follows:
 library(BioCro)
 library(lattice)  # This is a package that creates figures.
 
-result = Gro(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather05), sorghum_modules)
+result = run_biocro(sorghum_initial_values, sorghum_parameters,
+             get_growing_season_climate(weather05),
+             sorghum_steady_state_modules, sorghum_derivative_modules,
+             sorghum_integrator)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.
 @
 
@@ -1595,7 +1597,7 @@ or avoid installing \emph{devtools}, consult the \emph{readme} file
 \section{Writing unit tests using Gro\_solver}
 
 The section on writing unit tests was originally written in such a way
-that the tests called the \Rcode{Gro_solver} function.  This method of
+that the tests called the \Rcode{run_biocro} function.  This method of
 testing a module entails setting up a complete system and running a
 full simulation, albeit perhaps one with a very limited time span.
 
@@ -1627,7 +1629,7 @@ Thus, it may be useful to present the steps required to write a test
 that sets up and runs a complete system; and so here, by way of some
 simple examples, we re-present the material from section
 \ref{sec:writing_tests}, this time showing how to write tests using
-\Rcode{Gro_solver} instead of \Rcode{evaluate_module}.  As an added
+\Rcode{run_biocro} instead of \Rcode{evaluate_module}.  As an added
 benefit, writing such tests will instruct a user in the rudiments of
 setting up and running a simulation in BioCro.
 
@@ -1647,16 +1649,16 @@ module being tested plus certain time-related variables.
 \end{itemize}
 
 The third step is ``new'', as it involves setting up parameters for
-the \Rcode{Gro_solver} function, something we don't need to do when
+the \Rcode{run_biocro} function, something we don't need to do when
 using \Rcode{evaluate_module}:
 
 \begin{enumerate}
 \setcounter{enumi}{2}
 
-\item Define parameters for the \Rcode{Gro_solver} function.  Assuming
-  we call \Rcode{Gro_solver} as
+\item Define parameters for the \Rcode{run_biocro} function.  Assuming
+  we call \Rcode{run_biocro} as
   \begin{Rlisting}[4]
-    Gro_solver(initial_values, parameters, drivers,
+    run_biocro(initial_values, parameters, drivers,
                steady_state_modules, derivative_modules, solver, verbose)
   \end{Rlisting}
   we have seven variables we need to define:
@@ -1762,15 +1764,15 @@ using \Rcode{evaluate_module}:
     })
   \end{Rlisting}
   However, instead of getting results to test by calling
-  \Rcode{evaluate_module}, we call \Rcode{Gro_solver} instead:
+  \Rcode{evaluate_module}, we call \Rcode{run_biocro} instead:
   \begin{Rlisting}[4]
-    result = Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
+    result = run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
   \end{Rlisting}
 
 As before, the various \Rcode{expect_} functions are used to test
 \Rcode{result}.  In fact, once we make some global parameter settings
 and re-define our helper function \Rcode{angle_from_cosine} to utilize
-\Rcode{Gro_solver} instead of \Rcode{evaluate_module}, the tests
+\Rcode{run_biocro} instead of \Rcode{evaluate_module}, the tests
 themselves can remain exactly as in section~\ref{sec:write_ss_unit_test}.
 
 Here are the precise settings we will use for the modules, invariant
@@ -1795,7 +1797,7 @@ The helper function \Rcode{angle_from_cosine} becomes:\footnote{
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
         drivers <- list(time = 1, cosine_zenith_angle = cza)
-        result = Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
+        result = run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
@@ -1825,7 +1827,7 @@ variables.\footnote{
   interested in testing.  But there may be cases where we want to test
   how two or more modules work in conjunction with one another.}
 
-Here, we show how to test the heating degree days module using \Rcode{Gro_solver}.
+Here, we show how to test the heating degree days module using \Rcode{run_biocro}.
 
 \begin{itemize}
 
@@ -1834,15 +1836,15 @@ Here, we show how to test the heating degree days module using \Rcode{Gro_solver
 
 \end{itemize}
 
-Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
+Again, we need an extra step for setting up some \Rcode{run_biocro} parameters:
 
 \begin{enumerate}
 \setcounter{enumi}{2}
 
-\item Define parameters for the \Rcode{Gro_solver} function.  Again,
-  we will be assuming we call \Rcode{Gro_solver} with
+\item Define parameters for the \Rcode{run_biocro} function.  Again,
+  we will be assuming we call \Rcode{run_biocro} with
   \begin{Rlisting}[4]
-    Gro_solver(initial_values, parameters, drivers,
+    run_biocro(initial_values, parameters, drivers,
                steady_state_modules, derivative_modules, solver, verbose)
   \end{Rlisting}
 
@@ -1872,7 +1874,7 @@ Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
       parameters <- list(base_temperature = threshold_temperature, timestep = timestep)
       drivers <- list(time = time_vector, temp = temperature_vector)
 
-      result <- Gro_solver(initial_values, parameters, drivers,
+      result <- run_biocro(initial_values, parameters, drivers,
                            steady_state_modules, derivative_modules, solver)
 
       result$heating_degree_days[length(time_vector)]
@@ -1914,11 +1916,11 @@ Doxygen documentation.)
 
 \subsection{Full listing of the unit-test file for solar-zenith-angle-in-degrees---Gro\_solver version} \label{szags test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-solar_zenith_angle_in_degrees_with_Gro_solver.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-solar_zenith_angle_in_degrees_with_run_biocro.R}
 
 \subsection{Full listing of the unit-test file for heating-degree-days---Gro\_solver version} \label{hddgs test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-heating_degree_days_with_Gro_solver.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-heating_degree_days_with_run_biocro.R}
 
 \end{appendices}
 

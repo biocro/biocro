@@ -1,8 +1,8 @@
-\name{Gro}
-\alias{Gro}
+\name{run_biocro}
+\alias{run_biocro}
 \title{Model crop growth.}
 \usage{
-    Gro(initial_values, parameters, drivers, modules, verbose = FALSE)
+    run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules, integrator, verbose = FALSE)
 }
 \arguments{
     \item{initial_values}{Parameter values that are known only at the start of the simulation period. These are recorded in the result. (a list of named numeric values)}
@@ -11,7 +11,11 @@
 
     \item{drivers}{Times at which a solution is desired and parameter values that are known \emph{a priori} for the entire simulation period. These are not recorded in the result. (a data frame with at least the columns \code{year}, \code{doy}, and \code{hour} and optionally columns for parameters that are known \emph{a priori}.)}
 
-    \item{modules}{The model modules that should be run. Required modules are given in the details. (a list of named character values)}
+    \item{steady_state_modules}{The steady state modules that should be run. (a list of character values)}
+
+    \item{derivative_modules}{The derivative modules that should be run. (a list of character values)}
+
+    \item{integrator}{Information specifying the numerical integration algorithm to use}
 
     \item{verbose}{A logical variable indicating whether or not to print system startup information}
 }
@@ -19,7 +23,7 @@
     A data frame with the columns \code{year}, \code{doy}, and \code{hour}; and a column for each parameter in \code{initial_values}; and a row for each row in \code{drivers}:
 }
 \description{
-    \code{Gro()} models crop growth over time given species-specific parameters and climate data. It can be used to predict yield, determine regions that are suitable for growing a crop, and identify traits that have the most influence on yield.
+    \code{run_biocro()} models crop growth over time given species-specific parameters and climate data. It can be used to predict yield, determine regions that are suitable for growing a crop, and identify traits that have the most influence on yield.
 }
 \details{
     \subsection{An overview of model definitions}{
@@ -28,8 +32,8 @@
         State values can be known, \emph{a priori}, for the entire simulation (\emph{a priori} state), or known only at the start of the simulation period (calculated state).
     }
 
-    \subsection{Model implementation using Gro()}{
-        In Gro(), the sets of equations are passed via the modules argument, and the state is passed via the \code{initial_values}, \code{parameters}, and \code{drivers} arguments.
+    \subsection{Model implementation using run_biocro()}{
+        In run_biocro(), the sets of equations are passed via the modules argument, and the state is passed via the \code{initial_values}, \code{parameters}, and \code{drivers} arguments.
 
         The set of modules determines the parameters that must be defined in the state arguments. Each module has parameters it requires, which must be defined in exactly one of the state arguments
 
@@ -76,8 +80,9 @@
 }
 \examples{
 ## Simulate sorghum growth
-result = Gro(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather05), sorghum_modules)
+result = run_biocro(sorghum_initial_values, sorghum_parameters,
+             get_growing_season_climate(weather05), sorghum_steady_state_modules,
+             sorghum_derivative_modules, sorghum_integrator)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
                 auto=list(points=FALSE, lines=TRUE),
                 ylab=expression('Biomass'~(Mg/ha)),
@@ -88,8 +93,10 @@ result = cbind(result, get_growing_season_climate(weather05))
 
 ## Change a subset of the parameters.
 canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
-architechture_result = Gro(sorghum_initial_values, canopy_architecture,
-                           get_growing_season_climate(weather05), sorghum_modules)
+architechture_result = run_biocro(sorghum_initial_values, canopy_architecture,
+                           get_growing_season_climate(weather05),
+                           sorghum_steady_state_modules, sorghum_derivative_modules,
+                           sorghum_integrator)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l',
                 auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)),
                 xlab=expression('Thermal time'~(degree*C~day)))

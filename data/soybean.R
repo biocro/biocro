@@ -1,3 +1,81 @@
+# Some modules are included as named list elements so they can be easily changed
+# on-the-fly to a different value, e.g.,
+# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+soybean_steady_state_modules <- list(
+    "soil_type_selector",
+    stomata_water_stress = "stomata_water_stress_linear",
+    "parameter_calculator",
+    "soybean_development_rate_calculator",
+    partitioning_coefficients = "partitioning_coefficient_logistic",
+    "soil_evaporation",
+    "solar_zenith_angle",
+    "shortwave_atmospheric_scattering",
+    "incident_shortwave_from_ground_par",
+    "ten_layer_canopy_properties",
+    canopy_photosynthesis = "ten_layer_c3_canopy",
+    "ten_layer_canopy_integrator",
+    partitioning_growth_calculator = "no_leaf_resp_neg_assim_partitioning_growth_calculator",
+    "senescence_coefficient_logistic"
+)
+
+soybean_derivative_modules <- list(
+    senescence = "senescence_logistic",
+    "partitioning_growth",
+    soil_profile = "two_layer_soil_profile",
+    "development_index",
+    thermal_time = "thermal_time_linear"
+)
+
+soybean_integrator <- list(
+    type = 'boost_rkck54',
+    output_step_size = 1.0,
+    adaptive_rel_error_tol = 1e-4,
+    adaptive_abs_error_tol = 1e-4,
+    adaptive_max_steps = 200
+)
+# Note: the integrator type should not be 'boost_rosenbrock' or 'auto' (which
+# defaults to 'boost_rosenbrock' when an adaptive integrator can be used, as in this
+# case) since the integration will fail unless the tolerances are stringent
+# (e.g., output_step_size = 0.01, adaptive_rel_error_tol = 1e-9,
+# adaptive_abs_error_tol = 1e-9)
+
+# Do the calculations inside an empty list so that temporary variables are not created in .Global.
+soybean_initial_values = with(list(), {
+    datalines =
+    "symbol                  value
+    Leaf                     0.06312       # Mg / ha, 80% of total seed mass per land area (see comment at end of file)
+    Stem                     0.00789       # Mg / ha, 10% of total seed mass per land area
+    Root                     0.00789       # Mg / ha, 10% of total seed mass per land area
+    Grain                    0.00001       # Mg / ha, We treat this as the soybean pod and refer to this variable as Pod in Matthews et al.
+    LeafLitter               0             # Mg / ha
+    RootLitter               0             # Mg / ha
+    StemLitter               0             # Mg / ha
+    soil_water_content       0.32          # dimensionless (m^3 / m^3), volume of water per volume of bulk soil
+    cws1                     0.32          # dimensionless, current water status, soil layer 1
+    cws2                     0.32          # dimensionless, current water status, soil layer 2
+    DVI                      -1            # Sowing date: DVI=-1
+    TTc                      0             # degrees C * day, accumulated thermal time
+
+    # Soybean does not have a rhizome, so these variables will not be used but must be defined
+    Rhizome                  0.0000001     # Mg / ha
+    RhizomeLitter            0             # Mg / ha
+    "
+
+    data_frame = utils::read.table(textConnection(datalines), header=TRUE)
+    values = as.list(data_frame$value)
+    names(values) = data_frame$symbol
+    values
+})
+# For the initial total seed mass per land area, we use the following equation:
+# Number of seeds per meter * weight per seed * 1 / row spacing
+#
+# Number of seeds per meter = 20 (Morgan et al., 2004, https://doi.org/10.1104/pp.104.043968)
+# weight per seed = 0.15 grams / seed (https://www.feedipedia.org/node/42, average of .12 to .18 grams)
+# row spacing = 0.38 meters (Morgan et al., 2004)
+#
+# (20 seeds / meter) * (0.15 grams / seed) * (1 / 0.38 meter) = 7.89 g / m^2 = 0.0789 Mg / ha
+# This value is used to determine the initial Leaf, Stem, and Root biomasses
+
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
 soybean_parameters = with(list(), {
     datalines =
@@ -136,4 +214,3 @@ soybean_parameters = with(list(), {
 # Note 1: Soybean-BioCro refers to the simulation scenarios defined by the the soybean
 #         data files (soybean_initial_values, soybean_parameters, soybean_modules). See
 #         Matthews et al. (doi: TBA) for more on the current version of Soybean-BioCro.
-
