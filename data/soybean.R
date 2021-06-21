@@ -107,6 +107,7 @@ soybean_parameters = with(list(), {
     Tmin_R1R7                               0.0         # degrees C; Setiyono et al., 2007, Table 2
     Topt_R1R7                               21.5        # degrees C; Setiyono et al., 2007, Table 2
     Tmax_R1R7                               38.7        # degrees C; Setiyono et al., 2007, Table 2
+    sowing_time                             0           # Soybean-BioCro uses the weather data to set the sowing time
 
     # partitioning_coefficient_logistic module
     alphaRoot                               34.39
