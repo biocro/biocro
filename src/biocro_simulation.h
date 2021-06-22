@@ -4,8 +4,8 @@
 #include <vector>
 #include "state_map.h"
 #include "system.h"
-#include "system_solver.h"
-#include "system_solver_library/system_solver_factory.h"
+#include "integrator.h"
+#include "integrator_library/integrator_factory.h"
 
 // Class that represents a BioCro simulation
 class biocro_simulation
@@ -18,8 +18,8 @@ class biocro_simulation
         std::unordered_map<std::string, std::vector<double>> const& drivers,
         std::vector<std::string> const& steady_state_module_names,
         std::vector<std::string> const& derivative_module_names,
-        // parameters passed to system_solver_factory::create
-        std::string solver_name,
+        // parameters passed to integrator_factory::create
+        std::string integrator_name,
         double output_step_size,
         double adaptive_rel_error_tol,
         double adaptive_abs_error_tol,
@@ -32,15 +32,15 @@ class biocro_simulation
                        derivative_module_names)
         );
 
-        // Create the solver
-        solver = system_solver_factory::create(
-            solver_name, output_step_size, adaptive_rel_error_tol,
+        // Create the integrator that will be used to solve the system
+        system_solver = integrator_factory::create(
+            integrator_name, output_step_size, adaptive_rel_error_tol,
             adaptive_abs_error_tol, adaptive_max_steps
         );
     }
 
     std::unordered_map<std::string, std::vector<double>> run_simulation() {
-        return solver->solve(sys);
+        return system_solver->integrate(sys);
     }
 
     std::string generate_report() const
@@ -48,10 +48,10 @@ class biocro_simulation
         std::string report;
         report += "\nSystem startup information:\n" +
                       sys->generate_startup_report() +
-                  "\nSolver description:\n" +
-                      solver->generate_info_report() +
-                  "\n\nThe solver reports the following:\n" +
-                      solver->generate_solve_report() +
+                  "\nIntegrator description:\n" +
+                      system_solver->generate_info_report() +
+                  "\n\nThe integrator reports the following:\n" +
+                      system_solver->generate_integrate_report() +
                   "\nThe system reports the following:\n" +
                       sys->generate_usage_report() +
                   "\n\n";
@@ -60,7 +60,7 @@ class biocro_simulation
 
    private:
     std::shared_ptr<System> sys;
-    std::unique_ptr<system_solver> solver;
+    std::unique_ptr<integrator> system_solver;
 };
 
 #endif

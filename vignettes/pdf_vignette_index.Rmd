@@ -1,0 +1,29 @@
+---
+title: "PDF Vignettes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{PDF Vignettes}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r, echo = FALSE}
+rpath <- paste(.libPaths(), collapse = ':') # make a path that includes where pkgdown installed BioCro
+system2('R', args = c('CMD', 'Sweave', '--pdf', 'an_introduction_to_biocro.Rnw'),
+             env = c(paste0('R_LIBS=', rpath)) # pass the expanded R
+                                               # path (which includes
+                                               # the location of the
+                                               # just-build BioCro
+                                               # package) in the
+                                               # environment
+       )
+system('R CMD Sweave --pdf biocro-manual-knitr.Rnw') # this vignette doesn't need BioCro
+```
+
+<!--
+<iframe src="an_introduction_to_biocro.pdf"/> 
+<iframe src="biocro-manual-knitr.pdf"/>
+-->
+
+[An Introduction to BioCro for Those Who Want to Add Models](an_introduction_to_biocro.pdf)
+
+[Simulation and Parameter Estimation for Biomass Crops](biocro-manual-knitr.pdf)
