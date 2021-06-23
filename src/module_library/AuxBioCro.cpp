@@ -200,7 +200,7 @@ double absorbed_shortwave_from_incident_ppfd(
  *  @brief Computes an n-layered light profile from the direct light, diffuse
  *  light, leaf area index, solar zenith angle, and other parameters.
  *
- *  @param [in] ambient_ppfd_beam Photosyntheticall active photon flux density
+ *  @param [in] ambient_ppfd_beam Photosynthetically active photon flux density
  *              (PPFD) for beam light passing through a surface perpendicular
  *              to the beam direction at the top of the canopy; this represents
  *              direct sunlight for a plant in a field
