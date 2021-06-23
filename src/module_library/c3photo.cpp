@@ -59,11 +59,11 @@ struct c3_str c3photoC(double _Qp,
     const quantity<dimensionless> leaf_reflectance = 0.2;
     const quantity<flux> maximum_tpu_rate = _TPU_rate_max * 1e-6 * mole / square_meter / second;
 
-    /* From:
+    /* Temperature corrections are from the following sources:
      Bernacchi et al. (2003) Plant, Cell and Environment, 26(9), 1419-1430.
-     https://doi.org/10.1046/j.0016-8025.2003.01050.x Bernacchi et al. (2001)
-     Plant, Cell and Environment, 24(2), 253-259.
-     https://doi.org/10.1111/j.1365-3040.2001.00668.x */
+         https://doi.org/10.1046/j.0016-8025.2003.01050.x
+     Bernacchi et al. (2001) Plant, Cell and Environment, 24(2), 253-259.
+         https://doi.org/10.1111/j.1365-3040.2001.00668.x */
     /* Note: Values in Dubois and Bernacchi are incorrect. */
     const quantity<mole_fraction> Kc = 1e-6 * arrhenius_exponent(38.05, 79.43e3 * joule / mole, leaf_temperature);
     const quantity<mole_fraction> Ko = 1e-3 * arrhenius_exponent(20.30, 36.38e3 * joule / mole, leaf_temperature);
@@ -97,25 +97,26 @@ struct c3_str c3photoC(double _Qp,
     quantity<flux> co2_assimilation_rate = 0 * mole / square_meter / second;
     quantity<mole_fraction> Ci;
 
-    /* TPU rate temperature dependence from:
-     Fig. 7, Yang et al. (2016) Planta, 243, 687-698
-     https://doi.org/10.1007/s00425-015-2436-8) */
-    const double TPU_c = 25.5;                                       // dimensionless;fitted constant
+    /* TPU rate temperature dependence from
+     Fig. 7, Yang et al. (2016) Planta, 243, 687-698. https://doi.org/10.1007/s00425-015-2436-8 */
+    const double TPU_c = 25.5;                                       // dimensionless. fitted constant
     const quantity<energy_over_amount> Ha = 62.99e3 * joule / mole;  // enthalpy of activation
     const quantity<energy_over_temperature_amount> S = 0.588e3 * joule / kelvin / mole;   // entropy
     const quantity<energy_over_amount> Hd = 182.14e3 * joule / mole;                      // enthalpy of deactivation
     const quantity<energy_over_temperature_amount> R = 8.314472 * joule / kelvin / mole;  // gas constant
-    const double TPU_rate_scaler25 = 306.7509;  // dimensionless;this is needed since the equation in
-                                                // the paper is NOT rate
     const quantity<dimensionless> top = leaf_temperature.value() * arrhenius_exponent(TPU_c, Ha, leaf_temperature);
     const quantity<dimensionless> bot = 1.0 + arrhenius_exponent(S / R, Hd, leaf_temperature);
     double TPU_rate_scaler = top.value() / bot.value();  // dimensionless
-    TPU_rate_scaler /= TPU_rate_scaler25;                // normalize to 25 C
+    /* In Yang et al. the equation for `TPU_rate_scaler` is described as producing the TPU rate
+       relative to 25 degrees C. However, it does not do that. Here we calculate the value of that equation
+       at 25 degrees C, then divide `TPU_rate_scaler` by that value to get a rate relative to 25 degrees C. */
+    const double TPU_rate_scaler25 = 306.7509;  // dimensionless. This is `top / bottom` at 25 degrees C.
+    TPU_rate_scaler /= TPU_rate_scaler25; // dimensionless. Normalize to 25 degrees C.
 
-    /*alpha constant for calculating Ap from:
+    /* The alpha constant for calculating Ap is from
        Eq. 2.26, von Caemmerer, S. Biochemical models of leaf photosynthesis.*/
-    double alpha_TPU = 0.0;  // dimensionless; without more information on this,
-                             // alpha=0 is often assumed.
+    double alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
+    
     int iterCounter = 0;
     int max_iter = 1000;
     while (iterCounter < max_iter) {
@@ -133,9 +134,9 @@ struct c3_str c3photoC(double _Qp,
         quantity<flux> Aj = Aj1 / Aj2;
         if (Aj < 0.0 * mole / square_meter / second) Aj = 0.0 * mole / square_meter / second;
 
-        /* Limited by tri phos utilization */
+        /* Triose phosphate utilization limited */
         quantity<flux> Ap = 3.0 * maximum_tpu_rate * (Ci - Gstar) / (Ci - (1.0 + 1.5 * alpha_TPU) * Gstar);
-        Ap = Ap * TPU_rate_scaler;  // Temperature restriction
+        Ap = Ap * TPU_rate_scaler;
 
         if (Ac < Aj && Ac < Ap) {
             Vc = Ac;
@@ -149,7 +150,7 @@ struct c3_str c3photoC(double _Qp,
         co2_assimilation_rate = Vc - Rd;
 
         if (water_stress_approach == 0) co2_assimilation_rate *= quantity<dimensionless>(StomWS);
-        /* milimole per meter square per second*/
+        /* millimole per meter square per second*/
         Gs = ball_berry(co2_assimilation_rate.value(), Ca * 1e-6, RH, bb0, bb1) * 1e-3 * mole / square_meter / second;
 
         if (water_stress_approach == 1)
