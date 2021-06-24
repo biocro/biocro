@@ -80,7 +80,7 @@ void leaf_shape_factor::do_operation() const
         LSF = std::numeric_limits<double>::infinity();
     } else {
         const double k_numer = sqrt(chil * chil + (1.0 - cosine_zenith_angle * cosine_zenith_angle) / (cosine_zenith_angle * cosine_zenith_angle));
-        const double k_denom = chil + 1.744 * pow((chil + 1.183), -0.733);
+        const double k_denom = chil + 1.744 * pow((chil + 1.182), -0.733);
         LSF = k_numer / k_denom;
     }
 

@@ -284,7 +284,7 @@ Light_profile sunML(
     // (m^2 ground) / (m^2 leaf).
     double zenith_angle = acos(cosine_zenith_angle);  // radians
     double k0 = sqrt(pow(chil, 2) + pow(tan(zenith_angle), 2));
-    double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
+    double k1 = chil + 1.744 * pow((chil + 1.182), -0.733);
     double k = k0 / k1;  // dimensionless
 
     double lai_per_layer = lai / nlayers;
