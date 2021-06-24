@@ -5,7 +5,7 @@ context('Test basic functioning of the derivative module "heating_degree_days".'
 ## degree days that accumulate over the interval.
 calculate_heating_degree_days <- function(ambient_temperature, threshold_temperature) {
     input_parameters <- list(temp = ambient_temperature, base_temperature = threshold_temperature)
-    result <- test_module("heating_degree_days", input_parameters)
+    result <- evaluate_module("heating_degree_days", input_parameters)
     result$heating_degree_days
 }
 

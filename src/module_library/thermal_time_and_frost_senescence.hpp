@@ -89,54 +89,54 @@ class thermal_time_and_frost_senescence : public DerivModule
 {
    public:
     thermal_time_and_frost_senescence(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent
            // class and indicate that this module is not compatible with
            // adaptive step size integrators
           DerivModule("thermal_time_and_frost_senescence", false),
 
-          // Get pointers to input parameters
-          TTc{get_input(input_parameters, "TTc")},
-          seneLeaf{get_input(input_parameters, "seneLeaf")},
-          seneStem{get_input(input_parameters, "seneStem")},
-          seneRoot{get_input(input_parameters, "seneRoot")},
-          seneRhizome{get_input(input_parameters, "seneRhizome")},
-          Leaf{get_input(input_parameters, "Leaf")},
-          leafdeathrate{get_input(input_parameters, "leafdeathrate")},
-          lat{get_input(input_parameters, "lat")},
-          time{get_input(input_parameters, "time")},
-          temp{get_input(input_parameters, "temp")},
-          Tfrostlow{get_input(input_parameters, "Tfrostlow")},
-          Tfrosthigh{get_input(input_parameters, "Tfrosthigh")},
-          stem_senescence_index{get_input(input_parameters, "stem_senescence_index")},
-          root_senescence_index{get_input(input_parameters, "root_senescence_index")},
-          rhizome_senescence_index{get_input(input_parameters, "rhizome_senescence_index")},
-          kLeaf{get_input(input_parameters, "kLeaf")},
-          kStem{get_input(input_parameters, "kStem")},
-          kRoot{get_input(input_parameters, "kRoot")},
-          kRhizome{get_input(input_parameters, "kRhizome")},
-          kGrain{get_input(input_parameters, "kGrain")},
-          remobilization_fraction{get_input(input_parameters, "remobilization_fraction")},
-          net_assimilation_rate_leaf{get_input(input_parameters, "net_assimilation_rate_leaf")},
-          net_assimilation_rate_stem{get_input(input_parameters, "net_assimilation_rate_stem")},
-          net_assimilation_rate_root{get_input(input_parameters, "net_assimilation_rate_root")},
-          net_assimilation_rate_rhizome{get_input(input_parameters, "net_assimilation_rate_rhizome")},
+          // Get pointers to input quantities
+          TTc{get_input(input_quantities, "TTc")},
+          seneLeaf{get_input(input_quantities, "seneLeaf")},
+          seneStem{get_input(input_quantities, "seneStem")},
+          seneRoot{get_input(input_quantities, "seneRoot")},
+          seneRhizome{get_input(input_quantities, "seneRhizome")},
+          Leaf{get_input(input_quantities, "Leaf")},
+          leafdeathrate{get_input(input_quantities, "leafdeathrate")},
+          lat{get_input(input_quantities, "lat")},
+          time{get_input(input_quantities, "time")},
+          temp{get_input(input_quantities, "temp")},
+          Tfrostlow{get_input(input_quantities, "Tfrostlow")},
+          Tfrosthigh{get_input(input_quantities, "Tfrosthigh")},
+          stem_senescence_index{get_input(input_quantities, "stem_senescence_index")},
+          root_senescence_index{get_input(input_quantities, "root_senescence_index")},
+          rhizome_senescence_index{get_input(input_quantities, "rhizome_senescence_index")},
+          kLeaf{get_input(input_quantities, "kLeaf")},
+          kStem{get_input(input_quantities, "kStem")},
+          kRoot{get_input(input_quantities, "kRoot")},
+          kRhizome{get_input(input_quantities, "kRhizome")},
+          kGrain{get_input(input_quantities, "kGrain")},
+          remobilization_fraction{get_input(input_quantities, "remobilization_fraction")},
+          net_assimilation_rate_leaf{get_input(input_quantities, "net_assimilation_rate_leaf")},
+          net_assimilation_rate_stem{get_input(input_quantities, "net_assimilation_rate_stem")},
+          net_assimilation_rate_root{get_input(input_quantities, "net_assimilation_rate_root")},
+          net_assimilation_rate_rhizome{get_input(input_quantities, "net_assimilation_rate_rhizome")},
 
-          // Get pointers to output parameters
-          leafdeathrate_op{get_op(output_parameters, "leafdeathrate")},
-          Leaf_op{get_op(output_parameters, "Leaf")},
-          LeafLitter_op{get_op(output_parameters, "LeafLitter")},
-          Stem_op{get_op(output_parameters, "Stem")},
-          StemLitter_op{get_op(output_parameters, "StemLitter")},
-          stem_senescence_index_op{get_op(output_parameters, "stem_senescence_index")},
-          Root_op{get_op(output_parameters, "Root")},
-          RootLitter_op{get_op(output_parameters, "RootLitter")},
-          root_senescence_index_op{get_op(output_parameters, "root_senescence_index")},
-          Rhizome_op{get_op(output_parameters, "Rhizome")},
-          RhizomeLitter_op{get_op(output_parameters, "RhizomeLitter")},
-          rhizome_senescence_index_op{get_op(output_parameters, "rhizome_senescence_index")},
-          Grain_op{get_op(output_parameters, "Grain")}
+          // Get pointers to output quantities
+          leafdeathrate_op{get_op(output_quantities, "leafdeathrate")},
+          Leaf_op{get_op(output_quantities, "Leaf")},
+          LeafLitter_op{get_op(output_quantities, "LeafLitter")},
+          Stem_op{get_op(output_quantities, "Stem")},
+          StemLitter_op{get_op(output_quantities, "StemLitter")},
+          stem_senescence_index_op{get_op(output_quantities, "stem_senescence_index")},
+          Root_op{get_op(output_quantities, "Root")},
+          RootLitter_op{get_op(output_quantities, "RootLitter")},
+          root_senescence_index_op{get_op(output_quantities, "root_senescence_index")},
+          Rhizome_op{get_op(output_quantities, "Rhizome")},
+          RhizomeLitter_op{get_op(output_quantities, "RhizomeLitter")},
+          rhizome_senescence_index_op{get_op(output_quantities, "rhizome_senescence_index")},
+          Grain_op{get_op(output_quantities, "Grain")}
     {
     }
     static string_vector get_inputs();
@@ -152,7 +152,7 @@ class thermal_time_and_frost_senescence : public DerivModule
     std::vector<double> mutable assim_rate_root_vec;
     std::vector<double> mutable assim_rate_rhizome_vec;
 
-    // Pointers to input parameters
+    // Pointers to input quantities
     double const& TTc;
     double const& seneLeaf;
     double const& seneStem;
@@ -179,7 +179,7 @@ class thermal_time_and_frost_senescence : public DerivModule
     double const& net_assimilation_rate_root;
     double const& net_assimilation_rate_rhizome;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* leafdeathrate_op;
     double* Leaf_op;
     double* LeafLitter_op;
@@ -311,7 +311,7 @@ void thermal_time_and_frost_senescence::do_operation() const
     // Calculate stem senescence
     if (TTc >= seneStem) {
         // Look back in time to find out how much the tissue grew in the past.
-        double change = assim_rate_stem_vec[stem_senescence_index];
+        double change = assim_rate_stem_vec.at(stem_senescence_index);
 
         // Subtract the new growth from the tissue derivative
         dStem -= change;
@@ -326,7 +326,7 @@ void thermal_time_and_frost_senescence::do_operation() const
     // Calculate root senescence
     if (TTc >= seneRoot) {
         // Look back in time to find out how much the tissue grew in the past.
-        double change = assim_rate_root_vec[root_senescence_index];
+        double change = assim_rate_root_vec.at(root_senescence_index);
 
         // Subtract the new growth from the tissue derivative
         dRoot -= change;
@@ -346,7 +346,7 @@ void thermal_time_and_frost_senescence::do_operation() const
     // Calculate rhizome senescence
     if (TTc >= seneRhizome) {
         // Look back in time to find out how much the tissue grew in the past.
-        double change = assim_rate_rhizome_vec[rhizome_senescence_index];
+        double change = assim_rate_rhizome_vec.at(rhizome_senescence_index);
 
         // Subtract the new growth from the tissue derivative
         dRhizome -= change;
@@ -358,7 +358,7 @@ void thermal_time_and_frost_senescence::do_operation() const
         drhizome_senescence_index++;
     }
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(leafdeathrate_op, dLeafdeathrate);
 
     update(Leaf_op, dLeaf);

@@ -2,30 +2,31 @@
 #define ED_GAS_CONCENTRATIONS_H
 
 #include "../modules.h"
+#include "../state_map.h"
 #include <cmath>           // for fabs
 #include "../constants.h"  // for eps_zero
 #include "AuxBioCro.h"     // for saturation_vapor_pressure
 
 /**
  * @class ed_gas_concentrations
- * 
+ *
  * @brief Determines mole fractions of CO2 and H2O at several important locations.
  * Currently only intended for use by Ed.
- * 
+ *
  * CO2 conductances for transport through the boundary layer and stomata are
  * calculated from the corresponding water vapor conductances using proportionality factors.
- * These factors depend on the ratio of molecular diffusivity (H20 / CO2) and the primary 
+ * These factors depend on the ratio of molecular diffusivity (H20 / CO2) and the primary
  * transport mechanism the relevant area. See e.g. Table 7.4 on page 106 of Campbell & Norman (1998).
- * 
+ *
  * CO2 mole fractions at the leaf surface and in the intercellular spaces are calculated
  * from the atmospheric value using the relevant conductances and the net carbon assimilation,
  * assuming steady state conditions. Here we just use a simple 1D diffusion equation:
  * assimilation = conductance * mole_fraction_difference (see e.g. Equation 6.7 on page 79 of
  * Campbell & Norman (1998)).
- * 
+ *
  * The H2O mole fraction in the intercellular spaces is calculated by assuming relative humidity
  * in the leaf is 1, i.e., water vapor pressure = saturation water vapor pressure.
- * 
+ *
  * The H2O mole fraction at the leaf surface is calculated by assuming equal flux across the
  * stomata and the boundary layer, i.e. g_s * (h_s - h_i) = F = g_b * (h_a - h_s), where 'h'
  * is the H2O mole fraction, 'g' is water vapor conductance, and the subscripts 's', 'i',
@@ -35,35 +36,35 @@ class ed_gas_concentrations : public SteadyModule
 {
    public:
     ed_gas_concentrations(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_gas_concentrations"),
-          // Get pointers to input parameters
-          conductance_boundary_h2o_ip(get_ip(input_parameters, "conductance_boundary_h2o")),
-          conductance_stomatal_h2o_ip(get_ip(input_parameters, "conductance_stomatal_h2o")),
-          conductance_ratio_boundary_ip(get_ip(input_parameters, "conductance_ratio_boundary")),
-          conductance_ratio_stomata_ip(get_ip(input_parameters, "conductance_ratio_stomata")),
-          assimilation_net_ip(get_ip(input_parameters, "assimilation_net")),
-          mole_fraction_co2_atmosphere_ip(get_ip(input_parameters, "mole_fraction_co2_atmosphere")),
-          mole_fraction_h2o_atmosphere_ip(get_ip(input_parameters, "mole_fraction_h2o_atmosphere")),
-          temperature_leaf_ip(get_ip(input_parameters, "temperature_leaf")),
-          atmospheric_pressure_ip(get_ip(input_parameters, "atmospheric_pressure")),
-          // Get pointers to output parameters
-          conductance_boundary_co2_op(get_op(output_parameters, "conductance_boundary_co2")),
-          conductance_stomatal_co2_op(get_op(output_parameters, "conductance_stomatal_co2")),
-          mole_fraction_co2_leaf_surface_op(get_op(output_parameters, "mole_fraction_co2_leaf_surface")),
-          mole_fraction_co2_intercellular_op(get_op(output_parameters, "mole_fraction_co2_intercellular")),
-          mole_fraction_h2o_leaf_surface_op(get_op(output_parameters, "mole_fraction_h2o_leaf_surface")),
-          mole_fraction_h2o_intercellular_op(get_op(output_parameters, "mole_fraction_h2o_intercellular"))
+          // Get pointers to input quantities
+          conductance_boundary_h2o_ip(get_ip(input_quantities, "conductance_boundary_h2o")),
+          conductance_stomatal_h2o_ip(get_ip(input_quantities, "conductance_stomatal_h2o")),
+          conductance_ratio_boundary_ip(get_ip(input_quantities, "conductance_ratio_boundary")),
+          conductance_ratio_stomata_ip(get_ip(input_quantities, "conductance_ratio_stomata")),
+          assimilation_net_ip(get_ip(input_quantities, "assimilation_net")),
+          mole_fraction_co2_atmosphere_ip(get_ip(input_quantities, "mole_fraction_co2_atmosphere")),
+          mole_fraction_h2o_atmosphere_ip(get_ip(input_quantities, "mole_fraction_h2o_atmosphere")),
+          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
+          atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
+          // Get pointers to output quantities
+          conductance_boundary_co2_op(get_op(output_quantities, "conductance_boundary_co2")),
+          conductance_stomatal_co2_op(get_op(output_quantities, "conductance_stomatal_co2")),
+          mole_fraction_co2_leaf_surface_op(get_op(output_quantities, "mole_fraction_co2_leaf_surface")),
+          mole_fraction_co2_intercellular_op(get_op(output_quantities, "mole_fraction_co2_intercellular")),
+          mole_fraction_h2o_leaf_surface_op(get_op(output_quantities, "mole_fraction_h2o_leaf_surface")),
+          mole_fraction_h2o_intercellular_op(get_op(output_quantities, "mole_fraction_h2o_intercellular"))
 
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* conductance_boundary_h2o_ip;
     const double* conductance_stomatal_h2o_ip;
     const double* conductance_ratio_boundary_ip;
@@ -73,7 +74,7 @@ class ed_gas_concentrations : public SteadyModule
     const double* mole_fraction_h2o_atmosphere_ip;
     const double* temperature_leaf_ip;
     const double* atmospheric_pressure_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* conductance_boundary_co2_op;
     double* conductance_stomatal_co2_op;
     double* mole_fraction_co2_leaf_surface_op;
@@ -84,7 +85,7 @@ class ed_gas_concentrations : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_gas_concentrations::get_inputs()
+string_vector ed_gas_concentrations::get_inputs()
 {
     return {
         "conductance_boundary_h2o",      // mol / m^2 / s
@@ -99,7 +100,7 @@ std::vector<std::string> ed_gas_concentrations::get_inputs()
     };
 }
 
-std::vector<std::string> ed_gas_concentrations::get_outputs()
+string_vector ed_gas_concentrations::get_outputs()
 {
     return {
         "conductance_boundary_co2",         // mol / m^2 / s
@@ -143,7 +144,7 @@ void ed_gas_concentrations::do_operation() const
 
     check_error_conditions(errors_to_check, get_name());
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(conductance_boundary_co2_op, conductance_boundary_co2);
     update(conductance_stomatal_co2_op, conductance_stomatal_co2);
     update(mole_fraction_co2_leaf_surface_op, mole_fraction_co2_leaf_surface);

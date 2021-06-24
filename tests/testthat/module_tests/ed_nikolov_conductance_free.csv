@@ -1,0 +1,3 @@
+nikolov_ce,conductance_stomatal_h2o,temp,leafwidth,temperature_leaf,mole_fraction_h2o_atmosphere,atmospheric_pressure,conductance_boundary_h2o_free,nikolov_virtual_temperature_difference,conductance_boundary_h2o_free,description
+input,input,input,input,input,input,input,input,output,output,NA
+1,1,1,1,1,1,1,1,-442.977733244983,0.926567844472728,automatically-generated test case

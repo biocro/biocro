@@ -1,7 +1,9 @@
 This directory contains configuration files for generating a
-*bookdown* compilation of the developer-oriented BioCro documentation
-files.  In addition, it contains a few of the Markdown files
-comprising that documentation.
+*bookdown* compilation of the BioCro documentation files meant for
+developers.  It also includes the "index.Rmd" file that specifies the
+list of source files used in generating that documentation.  Markdown
+files for the book that don't logically belong elsewhere can be added
+to the subdirectory "book_source".
 
 INSTRUCTIONS FOR COMPILING THE BOOKDOWN BOOK
 
@@ -17,18 +19,28 @@ by without installing it separately.)
 2. Start an R session.
 
 3. Install the R "bookdown" package, if it hasn't been installed
-already.
+already.  These instructions are written for bookdown version 0.22 or
+greater but may work for other versions.
 
-4. Run the R function to compile the Bookdown book.
+4. Call either "bookdown::render_book(<path>)" or
+"rmarkdown::render_site(<path>)", where "<path>" denotes the path from
+the current directory to the "bookdown" directory (i.e., *this*
+directory).  If either command is run *from* this directory
+("bookdown"), the path argument may be omitted.
 
-Method A: Call "rmarkdown::render_site('<path>')", where "<path>"
+Note: The "bookdown::render_book()" function does not accept a <path>
+argument in versions of bookdown below version 0.22.  To compile the
+book with "render_book" in those versions, run
+"bookdown::render_book()" from the "bookdown" directory or take
+advantage of the "xfun::in_dir" function and call
+"xfun::in_dir('<path>', bookdown::render_book('.'))", where "<path>"
 denotes the path from the current directory to the bookdown directory
-(i.e., *this* directory).
+(*this* directory).
 
-Method B: Call "xfun::in_dir('<path>', bookdown::render_book('.'))",
-where "<path>" denotes the path from the current directory to the
-bookdown directory (*this* directory).  If you are *in* the bookdown
-directory, you may simply call "bookdown::render_book('.')".
+Alternatively, if you are using a Linux or macOS machine, you can take
+advantage of the run_bookdown.sh script in the documentation/script
+directory: Simply go to that directory in a terminal program and type
+"./run_bookdown.sh" (without quotes).
 
 Note: Because some sections of the book are contained in their own
 files rather than being in a larger file comprising a complete

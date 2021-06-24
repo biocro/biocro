@@ -16,39 +16,39 @@ get_errors = function(expr) {
 }
 
 wrong_modules = within(sorghum_modules, canopy_module_name<-'NONEXISTANTMODULE')
-result = get_errors({Gro(sorghum_initial_state, sorghum_parameters, weather05, wrong_modules)})
-if (conditionMessage(result) != "Caught exception in R_Gro_solver: 'NONEXISTANTMODULE' was given as a module name, but ModuleFactory::get_inputs could not find a module with that name.\n") {
+result = get_errors({Gro(sorghum_initial_values, sorghum_parameters, weather05, wrong_modules)})
+if (conditionMessage(result) != "Caught exception in R_run_biocro: 'NONEXISTANTMODULE' was given as a module name, but ModuleFactory::get_inputs could not find a module with that name.\n") {
     warning('Nonexistant module names should produce an error.')
 }
 
 missing_modules = within(sorghum_modules, canopy_module_name <- NULL)
-result = get_errors(Gro(sorghum_initial_state, sorghum_parameters, weather05, missing_modules))
+result = get_errors(Gro(sorghum_initial_values, sorghum_parameters, weather05, missing_modules))
 if (conditionMessage(result) != 'The following modules names are NULL, but they must be defined: canopy_module_name.') {
     warning('Missing module names should produce an error.')
 }
 
 gro_missing_parms = within(sorghum_parameters, alpha1 <- NULL)
-result = get_errors(Gro(sorghum_initial_state, gro_missing_parms, weather05, sorghum_modules))
+result = get_errors(Gro(sorghum_initial_values, gro_missing_parms, weather05, sorghum_modules))
 if (is.null(result)) {
     warning('Missing parameters should produce an error.')
 }
 
 module_missing_parms = within(sorghum_parameters, leafwidth <- NULL)
-result = get_errors(Gro(sorghum_initial_state, module_missing_parms, weather05, sorghum_modules))
+result = get_errors(Gro(sorghum_initial_values, module_missing_parms, weather05, sorghum_modules))
 if (is.null(result)) {
     warning('Missing parameters should produce an error.')
 }
 
-bad_state = within(sorghum_initial_state, chil <- 10)
+bad_state = within(sorghum_initial_values, chil <- 10)
 result = get_errors(Gro(bad_state, module_missing_parms, weather05, sorghum_modules))
 if (is.null(result)) {
     warning('A parameter appearing in more than one state list should produce an error.')
 }
 
 crop_list = list(
-    list(sorghum_initial_state, sorghum_parameters, weather05, sorghum_modules, 'stored_sorghum_results.tsv'),
-    list(willow_initial_state, willow_parameters, weather05, willow_modules, 'stored_willow_results.tsv'),
-    list(miscanthus_x_giganteus_initial_state, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_modules, 'stored_miscanthus_x_giganteus_results.tsv')
+    list(sorghum_initial_values, sorghum_parameters, weather05, sorghum_modules, 'stored_sorghum_results.tsv'),
+    list(willow_initial_values, willow_parameters, weather05, willow_modules, 'stored_willow_results.tsv'),
+    list(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_modules, 'stored_miscanthus_x_giganteus_results.tsv')
 )
 
 library(lattice)

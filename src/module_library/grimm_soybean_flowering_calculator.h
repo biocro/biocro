@@ -2,6 +2,7 @@
 #define GRIMM_SOYBEAN_FLOWERING_CALCULATOR_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  * \brief Model for soybean development and flowering based on Grimm et al. (1993)
@@ -44,38 +45,38 @@ class grimm_soybean_flowering_calculator : public SteadyModule
 {
    public:
     grimm_soybean_flowering_calculator(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("grimm_soybean_flowering_calculator"),
-          // Get pointers to input parameters
-          grimm_sowing_doy_ip(get_ip(input_parameters, "grimm_sowing_doy")),
-          grimm_physiological_age_ip(get_ip(input_parameters, "grimm_physiological_age")),
-          grimm_juvenile_T0_ip(get_ip(input_parameters, "grimm_juvenile_T0")),
-          grimm_juvenile_T1_ip(get_ip(input_parameters, "grimm_juvenile_T1")),
-          grimm_juvenile_T2_ip(get_ip(input_parameters, "grimm_juvenile_T2")),
-          grimm_juvenile_T3_ip(get_ip(input_parameters, "grimm_juvenile_T3")),
-          grimm_juvenile_pd_threshold_ip(get_ip(input_parameters, "grimm_juvenile_pd_threshold")),
-          grimm_T_min_ip(get_ip(input_parameters, "grimm_T_min")),
-          grimm_T_opt_ip(get_ip(input_parameters, "grimm_T_opt")),
-          grimm_N_min_ip(get_ip(input_parameters, "grimm_N_min")),
-          grimm_N_opt_ip(get_ip(input_parameters, "grimm_N_opt")),
-          grimm_flowering_threshold_ip(get_ip(input_parameters, "grimm_flowering_threshold")),
-          time_ip(get_ip(input_parameters, "time")),
-          temp_ip(get_ip(input_parameters, "temp")),
-          day_length_ip(get_ip(input_parameters, "day_length")),
-          // Get pointers to output parameters
-          grimm_rate_op(get_op(output_parameters, "grimm_rate")),
-          grimm_rate_temperature_op(get_op(output_parameters, "grimm_rate_temperature")),
-          grimm_rate_photoperiod_op(get_op(output_parameters, "grimm_rate_photoperiod")),
-          grimm_flowering_op(get_op(output_parameters, "grimm_flowering"))
+          // Get pointers to input quantities
+          grimm_sowing_doy_ip(get_ip(input_quantities, "grimm_sowing_doy")),
+          grimm_physiological_age_ip(get_ip(input_quantities, "grimm_physiological_age")),
+          grimm_juvenile_T0_ip(get_ip(input_quantities, "grimm_juvenile_T0")),
+          grimm_juvenile_T1_ip(get_ip(input_quantities, "grimm_juvenile_T1")),
+          grimm_juvenile_T2_ip(get_ip(input_quantities, "grimm_juvenile_T2")),
+          grimm_juvenile_T3_ip(get_ip(input_quantities, "grimm_juvenile_T3")),
+          grimm_juvenile_pd_threshold_ip(get_ip(input_quantities, "grimm_juvenile_pd_threshold")),
+          grimm_T_min_ip(get_ip(input_quantities, "grimm_T_min")),
+          grimm_T_opt_ip(get_ip(input_quantities, "grimm_T_opt")),
+          grimm_N_min_ip(get_ip(input_quantities, "grimm_N_min")),
+          grimm_N_opt_ip(get_ip(input_quantities, "grimm_N_opt")),
+          grimm_flowering_threshold_ip(get_ip(input_quantities, "grimm_flowering_threshold")),
+          time_ip(get_ip(input_quantities, "time")),
+          temp_ip(get_ip(input_quantities, "temp")),
+          day_length_ip(get_ip(input_quantities, "day_length")),
+          // Get pointers to output quantities
+          grimm_rate_op(get_op(output_quantities, "grimm_rate")),
+          grimm_rate_temperature_op(get_op(output_quantities, "grimm_rate_temperature")),
+          grimm_rate_photoperiod_op(get_op(output_quantities, "grimm_rate_photoperiod")),
+          grimm_flowering_op(get_op(output_quantities, "grimm_flowering"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // Pointers to input parameters
+    // Pointers to input quantities
     const double* grimm_sowing_doy_ip;
     const double* grimm_physiological_age_ip;
     const double* grimm_juvenile_T0_ip;
@@ -91,7 +92,7 @@ class grimm_soybean_flowering_calculator : public SteadyModule
     const double* time_ip;
     const double* temp_ip;
     const double* day_length_ip;
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* grimm_rate_op;
     double* grimm_rate_temperature_op;
     double* grimm_rate_photoperiod_op;
@@ -100,7 +101,7 @@ class grimm_soybean_flowering_calculator : public SteadyModule
     void do_operation() const;
 };
 
-std::vector<std::string> grimm_soybean_flowering_calculator::get_inputs()
+string_vector grimm_soybean_flowering_calculator::get_inputs()
 {
     return {
         "grimm_sowing_doy",
@@ -121,7 +122,7 @@ std::vector<std::string> grimm_soybean_flowering_calculator::get_inputs()
     };
 }
 
-std::vector<std::string> grimm_soybean_flowering_calculator::get_outputs()
+string_vector grimm_soybean_flowering_calculator::get_outputs()
 {
     return {
         "grimm_rate",
@@ -212,7 +213,7 @@ void grimm_soybean_flowering_calculator::do_operation() const
     const double temperature_rate_per_hour = temperature_rate_normalized / 24.0;
     const double photoperiod_rate_per_hour = photoperiod_rate_normalized / 24.0;
 
-    // Update the output parameter list
+    // Update the output quantity list
     update(grimm_rate_op, rate_per_hour);
     update(grimm_rate_temperature_op, temperature_rate_per_hour);
     update(grimm_rate_photoperiod_op, photoperiod_rate_per_hour);

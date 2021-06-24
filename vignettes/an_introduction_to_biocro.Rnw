@@ -141,9 +141,9 @@
 \newcommand{\g}{\mathbf{g}}
 \newcommand{\h}{\mathbf{h}}
 
-\newcommand{\isv}{\text{isv}}
-\newcommand{\ip}{\text{ip}}
-\newcommand{\vp}{\text{vp}}
+\newcommand{\iv}{\text{iv}}
+\newcommand{\p}{\text{p}}
+\newcommand{\dr}{\text{d}}
 
 
 \title{An Introduction to BioCro for Those Who Want to Add Models}
@@ -153,14 +153,39 @@
 
 \maketitle
 
-\tableofcontents
-
 % Set things up for R evaluation:
-<<preliminaries,echo=FALSE>>=
-knitr::opts_chunk$set(error=FALSE) # stop on errors instead of
-                                   # displaying them in results
+<<preliminaries,echo=FALSE,error=TRUE>>=
+knitr::opts_chunk$set(error=TRUE) # don't stop on errors; display them
+                                  # in results; this is the default
 library(BioCro, quietly=TRUE)
 @
+
+
+<<version_info,echo=FALSE,comment=''>>=
+# Show the current commit hash and the date of that commit.
+cat(
+  paste0(
+    system2('git',
+            args = c('show',
+                     '-s',
+                     '--format="This document was generated from the version of BioCro specified as follows:%n%nCommit Hash: %h%nDate: %aD"'
+                    ),
+            stdout = TRUE
+    ),
+    sep = '',
+    collapse = '\n'
+  ),
+  "\nBranch:",
+  system2('git',
+          args = c('branch',
+                   '--show-current'),
+          stdout = TRUE
+  ),
+  "\n"
+)
+@
+
+\tableofcontents
 
 \section{Plant growth as a system of differential equations}
 \subsection{Overview}
@@ -410,7 +435,7 @@ t$ is of fixed size.
 \subsubsection{Function inputs}
 \label{sec:solver_inputs}
 
-The R function \Rcode{Gro_solver()} accepts five parameters that
+The R function \Rcode{run_biocro()} accepts five parameters that
 correspond to the model inputs given in
 Table~\ref{tab:model_inputs}. For convenience, $\boldX_\kn$ is
 separated into variables that do or do not vary over the simulation
@@ -449,7 +474,7 @@ R, the data types used to represent collections of such pairs are
 and \code{data.frame}.\footnote{In the underlying C++ code, the
   corresponding structure is called a \emph{map}.  In mathematics,
   both ``map'' and ``function'' are used.  In our case, for example,
-  the initial state $\boldX_{t_0}$ is a mapping from the set of
+  the initial values $\boldX_{t_0}$ is a mapping from the set of
   variable names to their values at time $t_0$.} For example, if $\cd$
 consists of a variable each for \emph{stem} and \emph{leaf} biomass,
 then to specify initial values (that is, $\boldX_{t_0,\cd}$) one could
@@ -496,8 +521,8 @@ and willow and are named using names of the form
   intended to be used with the \code{Gro} function; see the previous
   footnote.} for example, \code{willow\_initial\_state}:
 
-<<willow_initial_state>>=
-str(head(willow_initial_state)) # head truncates the list to six items
+<<willow_initial_values>>=
+str(head(willow_initial_values)) # head truncates the list to six items
 @
 
 \code{varying\_parameters}, since it is made up of variables whose
@@ -540,14 +565,14 @@ the time values should be in ``chronological order'').\footnote{As of
 In the following example, the time is specified using vectors labelled
 \emph{year}, \emph{doy} (``day-of-year''), and \emph{hour}.
 
-<<varying_parameters_example>>=
-example_varying_parameters = data.frame(
+<<drivers_example>>=
+example_drivers = data.frame(
             year = c(2005, 2005),
             doy = c(1, 1),
             hour = c(0, 1),
             solar = c(0, 0),
             temp = c(4.04, 3.03))
-print(example_varying_parameters)
+print(example_drivers)
 @
 
 Data frames of weather data are provided to pass to
@@ -598,8 +623,10 @@ development of a crop as follows:
 library(BioCro)
 library(lattice)  # This is a package that creates figures.
 
-result = Gro(sorghum_initial_state, sorghum_parameters,
-             get_growing_season_climate(weather05), sorghum_modules)
+result = run_biocro(sorghum_initial_values, sorghum_parameters,
+             get_growing_season_climate(weather05),
+             sorghum_steady_state_modules, sorghum_derivative_modules,
+             sorghum_integrator)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.
 @
 
@@ -1338,7 +1365,7 @@ module.}
 \subsubsection{Writing unit tests for a steady-state module}
 \label{sec:write_ss_unit_test}
 
-  In writing our tests, we will make use of the R \Rcode{test_module}
+  In writing our tests, we will make use of the R \Rcode{evaluate_module}
   function.  This function takes as input the name of a module (as a
   string), and a list specifying values for all of the input
   parameters of the module.  It returns a list of values for the
@@ -1375,9 +1402,9 @@ module.}
 
   More specifically, each test will generally set input parameter
   values for the module and then call
-  \Rcode{test_module}:
+  \Rcode{evaluate_module}:
   \begin{Rlisting}[4]
-    result <- test_module(|\stringplaceholder{module name}|, |\placeholder{input parameter list}|)
+    result <- evaluate_module(|\stringplaceholder{module name}|, |\placeholder{input parameter list}|)
   \end{Rlisting}
   The subsequent statements may then test various aspects of \Rcode{result}.
 
@@ -1416,12 +1443,12 @@ module.}
     \begin{Rexample}[6]
       test_that("When the cosine is 1/2, the angle is 60 degrees.", {
         input_parameters <- list(cosine_zenith_angle = 0.5)
-        result = test_module("solar_zenith_angle_in_degrees", input_parameters)
+        result = evaluate_module("solar_zenith_angle_in_degrees", input_parameters)
         expect_equal(result$zenith_angle_in_degrees, 60)
       })
     \end{Rexample}
 
-    Since we will likely call \Rcode{test_module} in each test, and
+    Since we will likely call \Rcode{evaluate_module} in each test, and
     with the same value for the module name each time, we can write a
     helper function to factor the repetitious code out of our tests;
     for example,
@@ -1429,7 +1456,7 @@ module.}
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
         input_parameters <- list(cosine_zenith_angle = cza)
-        result <- test_module("solar_zenith_angle_in_degrees", input_parameters)
+        result <- evaluate_module("solar_zenith_angle_in_degrees", input_parameters)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
@@ -1500,7 +1527,7 @@ module.}
 \label{sec:write_deriv_unit_test}
 
   Again, in writing our tests, we will make use of the R
-  \Rcode{test_module} function. Keep in mind that in the case of a
+  \Rcode{evaluate_module} function. Keep in mind that in the case of a
   derivative module, the output values represent the rate of change of
   the output parameters \emph{per hour}. Here, we show how to test the
   heating degree days module.
@@ -1570,20 +1597,20 @@ or avoid installing \emph{devtools}, consult the \emph{readme} file
 \section{Writing unit tests using Gro\_solver}
 
 The section on writing unit tests was originally written in such a way
-that the tests called the \Rcode{Gro_solver} function.  This method of
+that the tests called the \Rcode{run_biocro} function.  This method of
 testing a module entails setting up a complete system and running a
 full simulation, albeit perhaps one with a very limited time span.
 
 A much more convenient way to write tests is to use the
-\Rcode{test_module} function. This is the method we demonstrate in
-section~\ref{sec:writing_tests}.  By using \Rcode{test_module}, we can
+\Rcode{evaluate_module} function. This is the method we demonstrate in
+section~\ref{sec:writing_tests}.  By using \Rcode{evaluate_module}, we can
 test the basic functioning of a module while avoiding all of the many
 steps needed to set up a full system for running a simulation.
 
 There may be cases, however, where we may still want the flexibility
 offered by being able to specify and run a full simulation.  Some of
 the things we can do with a full-fledged system that we can't do just
-by calling \Rcode{test_module} include
+by calling \Rcode{evaluate_module} include
 
 \begin{itemize}
 
@@ -1602,7 +1629,7 @@ Thus, it may be useful to present the steps required to write a test
 that sets up and runs a complete system; and so here, by way of some
 simple examples, we re-present the material from section
 \ref{sec:writing_tests}, this time showing how to write tests using
-\Rcode{Gro_solver} instead of \Rcode{test_module}.  As an added
+\Rcode{run_biocro} instead of \Rcode{evaluate_module}.  As an added
 benefit, writing such tests will instruct a user in the rudiments of
 setting up and running a simulation in BioCro.
 
@@ -1622,23 +1649,23 @@ module being tested plus certain time-related variables.
 \end{itemize}
 
 The third step is ``new'', as it involves setting up parameters for
-the \Rcode{Gro_solver} function, something we don't need to do when
-using \Rcode{test_module}:
+the \Rcode{run_biocro} function, something we don't need to do when
+using \Rcode{evaluate_module}:
 
 \begin{enumerate}
 \setcounter{enumi}{2}
 
-\item Define parameters for the \Rcode{Gro_solver} function.  Assuming
-  we call \Rcode{Gro_solver} as
+\item Define parameters for the \Rcode{run_biocro} function.  Assuming
+  we call \Rcode{run_biocro} as
   \begin{Rlisting}[4]
-    Gro_solver(initial_state, invariant_parameters, varying_parameters,
+    run_biocro(initial_values, parameters, drivers,
                steady_state_modules, derivative_modules, solver, verbose)
   \end{Rlisting}
   we have seven variables we need to define:
   \begin{Rlisting}[4]
-    initial_state <- ...
-    invariant_parameters <- ...
-    varying_parameters <- ...
+    initial_values <- ...
+    parameters <- ...
+    drivers <- ...
     steady_state_modules <- ...
     derivative_modules <- ...
     solver <- ...
@@ -1681,17 +1708,17 @@ using \Rcode{test_module}:
 
 
   On the other hand, values for the module input parameters and for
-  the initial state may potentially vary with each test.  The keys,
+  the initial values may potentially vary with each test.  The keys,
   however, will in most cases be uniform across tests.  For example,
-  if the module inputs consist of invariant parameters $\ip_1$,
-  $\ip_2$, \dots, $\ip_k$, varying parameters $\vp_1$, $\vp_2$, \dots,
-  $\vp_m$, and initial state variables $\isv_1$, $\isv_2$, \dots,
-  $\isv_n$, then we will be setting the corresponding function
+  if the module inputs consist of parameters $\p_1$,
+  $\p_2$, \dots, $\p_k$, drivers $\dr_1$, $\dr_2$, \dots,
+  $\dr_m$, and initial values $\iv_1$, $\iv_2$, \dots,
+  $\iv_n$, then we will be setting the corresponding function
   parameters to values of the following forms:
   \begin{Rlisting}[4]
-    invariant_parameters <- list(ip_1 = ___, ip_2 = ___, ..., ip_k = ___)
-    varying_parameters <- list(vp_1 = ___, vp_2 = ___, ..., vp_m = ___)
-    initial_state <- list(isv_1 = ___, isv_2 = ___, ..., isv_n = ___)
+    parameters <- list(p_1 = ___, p_2 = ___, ..., p_k = ___)
+    drivers <- list(d_1 = ___, d_2 = ___, ..., d_m = ___)
+    initial_values <- list(iv_1 = ___, iv_2 = ___, ..., iv_n = ___)
   \end{Rlisting}
 
   As mentioned above, since we are setting up the most stripped-down
@@ -1699,7 +1726,7 @@ using \Rcode{test_module}:
   setting for each input parameter of the module being tested, and we
   need to include certain time-related settings.  In particular, the
   invariant parameter list must include a setting for
-  \Rcode{timestep}, and the varying parameters must include either a
+  \Rcode{timestep}, and the drivers must include either a
   setting for \Rcode{time} or for both \Rcode{doy} and
   \Rcode{hour}.  The values assigned to the time-related variables is
   immaterial for the purposes of the test except in the case that one
@@ -1714,17 +1741,17 @@ using \Rcode{test_module}:
   in the list that would make sense in a real system.  So, for
   example, if it is a parameter that normally varies over the course
   of time, then it doesn't make sense to assign it in the
-  \Rcode{invariant_parameters} list, and if it varies over time but
+  \Rcode{parameters} list, and if it varies over time but
   not in a way that can be predicted from rates of change, then it
-  shouldn't be assigned within the \Rcode{initial_state}.
+  shouldn't be assigned within the \Rcode{initial_values}.
 
   For our example, we use settings as follows.
 
   \begin{Rexample}[4]
-    invariant_parameters <- list(timestep = 1)
-    varying_parameters <- list(time = 1,
+    parameters <- list(timestep = 1)
+    drivers <- list(time = 1,
                                cosine_zenith_angle = |\placeholder{some value that will vary from test to test}|)
-    initial_state <- list()
+    initial_values <- list()
   \end{Rexample}
 
 \item Write one or more tests.
@@ -1737,26 +1764,26 @@ using \Rcode{test_module}:
     })
   \end{Rlisting}
   However, instead of getting results to test by calling
-  \Rcode{test_module}, we call \Rcode{Gro_solver} instead:
+  \Rcode{evaluate_module}, we call \Rcode{run_biocro} instead:
   \begin{Rlisting}[4]
-    result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+    result = run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
   \end{Rlisting}
 
 As before, the various \Rcode{expect_} functions are used to test
 \Rcode{result}.  In fact, once we make some global parameter settings
 and re-define our helper function \Rcode{angle_from_cosine} to utilize
-\Rcode{Gro_solver} instead of \Rcode{test_module}, the tests
+\Rcode{run_biocro} instead of \Rcode{evaluate_module}, the tests
 themselves can remain exactly as in section~\ref{sec:write_ss_unit_test}.
 
 Here are the precise settings we will use for the modules, invariant
-parameters, and initial state:
+parameters, and initial values:
 
     \begin{Rexample}[6]
       steady_state_modules <- c("solar_zenith_angle_in_degrees")
       derivative_modules <- c()
 
-      initial_state <- list()
-      invariant_parameters <- list(timestep = 1)
+      initial_values <- list()
+      parameters <- list(timestep = 1)
     \end{Rexample}
 
 The helper function \Rcode{angle_from_cosine} becomes:\footnote{
@@ -1769,8 +1796,8 @@ The helper function \Rcode{angle_from_cosine} becomes:\footnote{
 
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
-        varying_parameters <- list(time = 1, cosine_zenith_angle = cza)
-        result = Gro_solver(initial_state, invariant_parameters, varying_parameters, steady_state_modules, derivative_modules)
+        drivers <- list(time = 1, cosine_zenith_angle = cza)
+        result = run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
@@ -1800,7 +1827,7 @@ variables.\footnote{
   interested in testing.  But there may be cases where we want to test
   how two or more modules work in conjunction with one another.}
 
-Here, we show how to test the heating degree days module using \Rcode{Gro_solver}.
+Here, we show how to test the heating degree days module using \Rcode{run_biocro}.
 
 \begin{itemize}
 
@@ -1809,15 +1836,15 @@ Here, we show how to test the heating degree days module using \Rcode{Gro_solver
 
 \end{itemize}
 
-Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
+Again, we need an extra step for setting up some \Rcode{run_biocro} parameters:
 
 \begin{enumerate}
 \setcounter{enumi}{2}
 
-\item Define parameters for the \Rcode{Gro_solver} function.  Again,
-  we will be assuming we call \Rcode{Gro_solver} with
+\item Define parameters for the \Rcode{run_biocro} function.  Again,
+  we will be assuming we call \Rcode{run_biocro} with
   \begin{Rlisting}[4]
-    Gro_solver(initial_state, invariant_parameters, varying_parameters,
+    run_biocro(initial_values, parameters, drivers,
                steady_state_modules, derivative_modules, solver, verbose)
   \end{Rlisting}
 
@@ -1834,8 +1861,8 @@ Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
     derivative_modules <- c("heating_degree_days")
   \end{Rexample}
 
-  As for \Rcode{initial_state}, \Rcode{invariant_parameters}, and
-  \Rcode{varying_parameters}, we may want to vary each of these from
+  As for \Rcode{initial_values}, \Rcode{parameters}, and
+  \Rcode{drivers}, we may want to vary each of these from
   test to test.  We may also want to run tests using various solvers
   and vary the timestep.
 
@@ -1843,11 +1870,11 @@ Again, we need an extra step for setting up some \Rcode{Gro_solver} parameters:
 
   \begin{Rexample}[4]
     calculate_heating_degree_days <- function(initial_value, time_vector, temperature_vector, threshold_temperature, timestep, solver) {
-      initial_state <- list(heating_degree_days = initial_value)
-      invariant_parameters <- list(base_temperature = threshold_temperature, timestep = timestep)
-      varying_parameters <- list(time = time_vector, temp = temperature_vector)
+      initial_values <- list(heating_degree_days = initial_value)
+      parameters <- list(base_temperature = threshold_temperature, timestep = timestep)
+      drivers <- list(time = time_vector, temp = temperature_vector)
 
-      result <- Gro_solver(initial_state, invariant_parameters, varying_parameters,
+      result <- run_biocro(initial_values, parameters, drivers,
                            steady_state_modules, derivative_modules, solver)
 
       result$heating_degree_days[length(time_vector)]
@@ -1889,11 +1916,11 @@ Doxygen documentation.)
 
 \subsection{Full listing of the unit-test file for solar-zenith-angle-in-degrees---Gro\_solver version} \label{szags test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-solar_zenith_angle_in_degrees_with_Gro_solver.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-solar_zenith_angle_in_degrees_with_run_biocro.R}
 
 \subsection{Full listing of the unit-test file for heating-degree-days---Gro\_solver version} \label{hddgs test file}
 
-\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-heating_degree_days_with_Gro_solver.R}
+\lstinputlisting[style=Rstyle]{an_introduction_to_biocro/test-heating_degree_days_with_run_biocro.R}
 
 \end{appendices}
 

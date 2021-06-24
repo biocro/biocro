@@ -151,8 +151,8 @@ class base : public SteadyModule
          std::vector<double> relative_error_tolerances,
          bool should_reorder_guesses,
          bool return_default_on_failure,
-         const state_map* input_parameters,
-         state_map* output_parameters)
+         state_map const& input_quantities,
+         state_map* output_quantities)
         : SteadyModule(module_name),
           se(make_se(sub_module_names)),
           solver(se_solver_factory::create(solver_name, max_iterations)),
@@ -162,11 +162,11 @@ class base : public SteadyModule
           relative_error_tolerances(relative_error_tolerances),
           should_reorder_guesses(should_reorder_guesses),
           return_default_on_failure(return_default_on_failure),
-          input_ptrs(get_ip(input_parameters, get_se_inputs(sub_module_names))),
-          output_ptrs(get_op(output_parameters, get_se_outputs(sub_module_names))),
-          ncalls_op(get_op(output_parameters, get_ncalls_output_name(module_name))),
-          nsteps_op(get_op(output_parameters, get_nsteps_output_name(module_name))),
-          success_op(get_op(output_parameters, get_success_output_name(module_name)))
+          input_ptrs(get_ip(input_quantities, get_se_inputs(sub_module_names))),
+          output_ptrs(get_op(output_quantities, get_se_outputs(sub_module_names))),
+          ncalls_op(get_op(output_quantities, get_ncalls_output_name(module_name))),
+          nsteps_op(get_op(output_quantities, get_nsteps_output_name(module_name))),
+          success_op(get_op(output_quantities, get_success_output_name(module_name)))
     {
         // Initialize vectors to the correct size
         outputs_from_modules.resize(output_ptrs.size());
@@ -186,9 +186,9 @@ class base : public SteadyModule
     std::vector<double> mutable outputs_from_modules;
     bool const return_default_on_failure;
     virtual void get_default(std::vector<double>& /*guess_vec*/) const {}
-    // Pointers to input parameters
+    // Pointers to input quantities
     std::vector<const double*> input_ptrs;
-    // Pointers to output parameters
+    // Pointers to output quantities
     std::vector<double*> output_ptrs;
     double* ncalls_op;
     double* nsteps_op;

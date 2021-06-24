@@ -12,7 +12,7 @@ The Gro() function accepts initial values, parameters, climate variables, and a 
 library(BioCro)
 library(lattice)
 
-result = Gro(sorghum_initial_state, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules)
+result = run_biocro(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_steady_state_modules, sorghum_derivative_modules, sorghum_integrator)
 xyplot(Stem + Leaf ~ TTc, result, type='l')
 ```
 
@@ -47,8 +47,14 @@ install.packages('biocro', repos=NULL, type='SOURCE')
 Please see the [contribution guidelines](documentation/contribution_guidelines.md) before submitting changes.
 
 ### Software Documentation
-- [C++ library](https://ebimodeling.github.io/biocro-documentation/)
-- R package (coming soon!)
+
+See the [BioCro Documentation Web
+Site](https://ebimodeling.github.io/biocro-documentation/).  There
+will be found not only the standard package documentation, but also
+documentation of the C++ code, including notes on the biological
+models used in BioCro and their implementation.  Also included is
+documentation for BioCro package developers and maintainers.
+
 
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.

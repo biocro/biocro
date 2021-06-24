@@ -41,28 +41,28 @@ class rasmussen_specific_heat : public SteadyModule
 {
    public:
     rasmussen_specific_heat(
-        state_map const* input_parameters,
-        state_map* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("rasmussen_specific_heat"),
 
-          // Get references to input parameters
-          temp{get_input(input_parameters, "temp")},
-          mole_fraction_h2o_atmosphere{get_input(input_parameters, "mole_fraction_h2o_atmosphere")},
+          // Get references to input quantities
+          temp{get_input(input_quantities, "temp")},
+          mole_fraction_h2o_atmosphere{get_input(input_quantities, "mole_fraction_h2o_atmosphere")},
 
-          // Get pointers to output parameters
-          specific_heat_of_air_op{get_op(output_parameters, "specific_heat_of_air")}
+          // Get pointers to output quantities
+          specific_heat_of_air_op{get_op(output_quantities, "specific_heat_of_air")}
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& temp;
     double const& mole_fraction_h2o_atmosphere;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* specific_heat_of_air_op;
 
     // Main operation

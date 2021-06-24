@@ -65,32 +65,32 @@ class ed_leaf_temperature : public SteadyModule
 {
    public:
     ed_leaf_temperature(
-        const std::unordered_map<std::string, double>* input_parameters,
-        std::unordered_map<std::string, double>* output_parameters)
+        state_map const& input_quantities,
+        state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_leaf_temperature"),
-          // Get pointers to input parameters
-          long_wave_energy_loss_leaf(get_input(input_parameters, "long_wave_energy_loss_leaf")),
-          solar_energy_absorbed_leaf(get_input(input_parameters, "solar_energy_absorbed_leaf")),
-          latent_heat_vaporization_of_water(get_input(input_parameters, "latent_heat_vaporization_of_water")),
-          specific_heat_of_air(get_input(input_parameters, "specific_heat_of_air")),
-          conductance_boundary_h2o(get_input(input_parameters, "conductance_boundary_h2o")),
-          conductance_stomatal_h2o(get_input(input_parameters, "conductance_stomatal_h2o")),
-          mole_fraction_h2o_leaf_surface(get_input(input_parameters, "mole_fraction_h2o_leaf_surface")),
-          mole_fraction_h2o_intercellular(get_input(input_parameters, "mole_fraction_h2o_intercellular")),
-          temperature_air(get_input(input_parameters, "temp")),
-          // Get pointers to output parameters
-          temperature_leaf_op(get_op(output_parameters, "temperature_leaf")),
-          transpiration_rate_op(get_op(output_parameters, "transpiration_rate")),
-          transpiration_energy_op(get_op(output_parameters, "transpiration_energy")),
-          sensible_heat_loss_op(get_op(output_parameters, "sensible_heat_loss"))
+          // Get pointers to input quantities
+          long_wave_energy_loss_leaf(get_input(input_quantities, "long_wave_energy_loss_leaf")),
+          solar_energy_absorbed_leaf(get_input(input_quantities, "solar_energy_absorbed_leaf")),
+          latent_heat_vaporization_of_water(get_input(input_quantities, "latent_heat_vaporization_of_water")),
+          specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          conductance_boundary_h2o(get_input(input_quantities, "conductance_boundary_h2o")),
+          conductance_stomatal_h2o(get_input(input_quantities, "conductance_stomatal_h2o")),
+          mole_fraction_h2o_leaf_surface(get_input(input_quantities, "mole_fraction_h2o_leaf_surface")),
+          mole_fraction_h2o_intercellular(get_input(input_quantities, "mole_fraction_h2o_intercellular")),
+          temperature_air(get_input(input_quantities, "temp")),
+          // Get pointers to output quantities
+          temperature_leaf_op(get_op(output_quantities, "temperature_leaf")),
+          transpiration_rate_op(get_op(output_quantities, "transpiration_rate")),
+          transpiration_energy_op(get_op(output_quantities, "transpiration_energy")),
+          sensible_heat_loss_op(get_op(output_quantities, "sensible_heat_loss"))
     {
     }
-    static std::vector<std::string> get_inputs();
-    static std::vector<std::string> get_outputs();
+    static string_vector get_inputs();
+    static string_vector get_outputs();
 
    private:
-    // References to input parameters
+    // References to input quantities
     double const& long_wave_energy_loss_leaf;
     double const& solar_energy_absorbed_leaf;
     double const& latent_heat_vaporization_of_water;
@@ -101,7 +101,7 @@ class ed_leaf_temperature : public SteadyModule
     double const& mole_fraction_h2o_intercellular;
     double const& temperature_air;
 
-    // Pointers to output parameters
+    // Pointers to output quantities
     double* temperature_leaf_op;
     double* transpiration_rate_op;
     double* transpiration_energy_op;
@@ -111,7 +111,7 @@ class ed_leaf_temperature : public SteadyModule
     void do_operation() const override;
 };
 
-std::vector<std::string> ed_leaf_temperature::get_inputs()
+string_vector ed_leaf_temperature::get_inputs()
 {
     return {
         "long_wave_energy_loss_leaf",         // J / m^2 / s
@@ -126,7 +126,7 @@ std::vector<std::string> ed_leaf_temperature::get_inputs()
     };
 }
 
-std::vector<std::string> ed_leaf_temperature::get_outputs()
+string_vector ed_leaf_temperature::get_outputs()
 {
     return {
         "temperature_leaf",      // deg. C

@@ -1,4 +1,4 @@
-# Doxyfile 1.8.20
+# Doxyfile 1.9.0
 
 ## Note: DON'T USE DOUBLE-HASHES (## ...) FOR END-LINE COMMENTS!
 ## Doxygen will treat the following line as part of the option
@@ -28,8 +28,9 @@ HIDE_SCOPE_NAMES       = YES # not sure what difference this makes
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = ../src ../src/se_solver_library \
-                         ../src/system_solver_library ../src/utils \
-                         ../src/module_library
+                         ../src/integrator_library ../src/utils \
+                         ../src/module_library \
+                         markdown
 FILE_PATTERNS          = *.cpp \
                          *.h \
                          *.hpp \
@@ -94,3 +95,16 @@ CLASS_DIAGRAMS         = NO  # Not sure what effect this has except that
 HAVE_DOT               = YES
 CALL_GRAPH             = YES
 CALLER_GRAPH           = YES
+
+
+
+## "customizations/Doxyfile" will be included if it exists.  If it
+## doesn't exist, the empty fallback file
+## "customizations/dummy_fallback_file/Doxyfile", which is part of the
+## repository and so should always exist, is included instead.  The
+## fallback file is used to prevent Doxygen from erroring-out if
+## customization is not being used (i.e., if "customizations/Doxyfile"
+## doesn't exist).
+
+@INCLUDE_PATH = customizations customizations/dummy_fallback_file
+@INCLUDE = Doxyfile

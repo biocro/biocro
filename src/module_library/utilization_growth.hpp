@@ -2,6 +2,7 @@
 #define UTILIZATION_GROWTH_H
 
 #include "../modules.h"
+#include "../state_map.h"
 
 /**
  *  @class utilization_growth
@@ -15,36 +16,36 @@
  */
 class utilization_growth : public DerivModule {
 	public:
-		utilization_growth(const std::unordered_map<std::string, double>* input_parameters, std::unordered_map<std::string, double>* output_parameters) :
+		utilization_growth(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
 			DerivModule("utilization_growth"),
-			// Get pointers to input parameters
-			canopy_assimilation_rate_ip(get_ip(input_parameters, "canopy_assimilation_rate")),
-			utilization_leaf_ip(get_ip(input_parameters, "utilization_leaf")),
-			utilization_stem_ip(get_ip(input_parameters, "utilization_stem")),
-			utilization_root_ip(get_ip(input_parameters, "utilization_root")),
-			utilization_rhizome_ip(get_ip(input_parameters, "utilization_rhizome")),
-			utilization_grain_ip(get_ip(input_parameters, "utilization_grain")),
-			transport_leaf_to_stem_ip(get_ip(input_parameters, "transport_leaf_to_stem")),
-			transport_stem_to_grain_ip(get_ip(input_parameters, "transport_stem_to_grain")),
-			transport_stem_to_root_ip(get_ip(input_parameters, "transport_stem_to_root")),
-			transport_stem_to_rhizome_ip(get_ip(input_parameters, "transport_stem_to_rhizome")),
-			// Get pointers to output parameters
-			Leaf_op(get_op(output_parameters, "Leaf")),
-			substrate_pool_leaf_op(get_op(output_parameters, "substrate_pool_leaf")),
-			Stem_op(get_op(output_parameters, "Stem")),
-			substrate_pool_stem_op(get_op(output_parameters, "substrate_pool_stem")),
-			Grain_op(get_op(output_parameters, "Grain")),
-			substrate_pool_grain_op(get_op(output_parameters, "substrate_pool_grain")),
-			Root_op(get_op(output_parameters, "Root")),
-			substrate_pool_root_op(get_op(output_parameters, "substrate_pool_root")),
-			Rhizome_op(get_op(output_parameters, "Rhizome")),
-			substrate_pool_rhizome_op(get_op(output_parameters, "substrate_pool_rhizome"))
+			// Get pointers to input quantities
+			canopy_assimilation_rate_ip(get_ip(input_quantities, "canopy_assimilation_rate")),
+			utilization_leaf_ip(get_ip(input_quantities, "utilization_leaf")),
+			utilization_stem_ip(get_ip(input_quantities, "utilization_stem")),
+			utilization_root_ip(get_ip(input_quantities, "utilization_root")),
+			utilization_rhizome_ip(get_ip(input_quantities, "utilization_rhizome")),
+			utilization_grain_ip(get_ip(input_quantities, "utilization_grain")),
+			transport_leaf_to_stem_ip(get_ip(input_quantities, "transport_leaf_to_stem")),
+			transport_stem_to_grain_ip(get_ip(input_quantities, "transport_stem_to_grain")),
+			transport_stem_to_root_ip(get_ip(input_quantities, "transport_stem_to_root")),
+			transport_stem_to_rhizome_ip(get_ip(input_quantities, "transport_stem_to_rhizome")),
+			// Get pointers to output quantities
+			Leaf_op(get_op(output_quantities, "Leaf")),
+			substrate_pool_leaf_op(get_op(output_quantities, "substrate_pool_leaf")),
+			Stem_op(get_op(output_quantities, "Stem")),
+			substrate_pool_stem_op(get_op(output_quantities, "substrate_pool_stem")),
+			Grain_op(get_op(output_quantities, "Grain")),
+			substrate_pool_grain_op(get_op(output_quantities, "substrate_pool_grain")),
+			Root_op(get_op(output_quantities, "Root")),
+			substrate_pool_root_op(get_op(output_quantities, "substrate_pool_root")),
+			Rhizome_op(get_op(output_quantities, "Rhizome")),
+			substrate_pool_rhizome_op(get_op(output_quantities, "substrate_pool_rhizome"))
 		{}
-		static std::vector<std::string> get_inputs();
-		static std::vector<std::string> get_outputs();
+		static string_vector get_inputs();
+		static string_vector get_outputs();
 	private:
-		// Pointers to input parameters
+		// Pointers to input quantities
 		const double* canopy_assimilation_rate_ip;
 		const double* utilization_leaf_ip;
 		const double* utilization_stem_ip;
@@ -55,7 +56,7 @@ class utilization_growth : public DerivModule {
 		const double* transport_stem_to_grain_ip;
 		const double* transport_stem_to_root_ip;
 		const double* transport_stem_to_rhizome_ip;
-		// Pointers to output parameters
+		// Pointers to output quantities
 		double* Leaf_op;
 		double* substrate_pool_leaf_op;
 		double* Stem_op;
@@ -70,7 +71,7 @@ class utilization_growth : public DerivModule {
 		void do_operation() const;
 };
 
-std::vector<std::string> utilization_growth::get_inputs() {
+string_vector utilization_growth::get_inputs() {
 	return {
 		"canopy_assimilation_rate",
 	    "utilization_leaf",
@@ -85,7 +86,7 @@ std::vector<std::string> utilization_growth::get_inputs() {
 	};
 }
 
-std::vector<std::string> utilization_growth::get_outputs() {
+string_vector utilization_growth::get_outputs() {
 	return {
 		"Leaf",
 		"substrate_pool_leaf",
@@ -119,7 +120,7 @@ void utilization_growth::do_operation() const {
     //  The leaf gets carbon from canopy photosynthesis (a conceptual rather than physical distinction), uses some for growth, and transfers some to the stem
     //  The stem gets carbon from the leaf, uses some for growth, and transfers some to the root, rhizome, and grain
     //  The root, rhizome, and grain each get carbon from the stem and use some for growth
-    // See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419430 (1972)
+    // See Thornley, J. H. M. A Model to Describe the Partitioning of Photosynthate during Vegetative Plant Growth. Ann Bot 36, 419–430 (1972)
 
     double d_substrate_leaf = canopy_assimilation_rate - transport_leaf_to_stem - utilization_leaf;
     double d_substrate_stem = transport_leaf_to_stem - transport_stem_to_grain - transport_stem_to_root - transport_stem_to_rhizome - utilization_stem;
@@ -131,11 +132,11 @@ void utilization_growth::do_operation() const {
     //  (1) A fraction YG is used for growth (0 < YG < 1)
     //  (2) The remaining fraction (1 - YG) is lost to respiration
     // In BioCro, the canopy assimilation rate (used here as the carbon input) already includes a negative
-	//  respiratory contribution based on Bernacchi et al., Plant, Cell & Environment 24, 253259 (2001)
+	//  respiratory contribution based on Bernacchi et al., Plant, Cell & Environment 24, 253–259 (2001)
 	// So we simply set YG = 1 when allocating the substrate for growth, i.e.,
 	//  the rate of change of Leaf is utilization_leaf, etc
 
-	// Update the output parameter list
+	// Update the output quantity list
     update(Leaf_op, utilization_leaf);
     update(substrate_pool_leaf_op, d_substrate_leaf);
 

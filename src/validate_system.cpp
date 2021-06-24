@@ -11,47 +11,47 @@
   *
   * @param[in,out] message Validation feedback is added to this string.
   * @return `true` if the inputs are valid, `false` otherwise.
-  * 
+  *
   * The following criteria are used to determine validity:
   * 1. Each quantity is specified only once.
   * 2. All module inputs are specified.
-  * 3. Derivatives are calculated only for quantities in the initial state.
+  * 3. Derivatives are calculated only for quantities in the initial values.
   * 4. Steady-state modules can be ordered in such a way that inputs
   *    are calculated before they are accessed.
   *
   * We consider a quantity to have been "specified" (or "defined") if it is a
-  * key in one of the maps `initial_state`, `invariant_params`, or
-  * `varying_params`, or, if it is an output variable of one of the steady-state
+  * key in one of the maps `initial_values`, `params`, or
+  * `drivers`, or, if it is an output variable of one of the steady-state
   * modules listed in `ss_module_names`.
   *
   * Criterion 2 and criterion 4 are related: Criterion 2 requires
   * merely that each input to a steady-state or deriv module is either
-  * a variable in the initial state, is one of the parameters, or is
+  * a variable in the initial values, is one of the parameters, or is
   * an output of some steady-state module.  Criterion 4 goes further
   * for the case of a steady-state module where an input quantity is
   * provided by the output of some other steady-state module: It
   * requires that the steady-state modules can be ordered in such a
   * way that each of a module's input quantities that is neither a
-  * parameter or a quantity in the initial state be provided by the
+  * parameter or a quantity in the initial values be provided by the
   * output of a module earlier in the list.
   *
   * Notably absent from these criteria is a requirement that a derivative be
-  * calculated for every value given in the initial state.  Values in the
-  * initial state that are not outputs of any deriv module are assumed to have a
+  * calculated for every value given in the initial values.  Values in the
+  * initial values that are not outputs of any deriv module are assumed to have a
   * derivative of zero, that is, they are assumed to be constant.
   */
 bool validate_system_inputs(
     std::string& message,
-    state_map initial_state,
-    state_map invariant_params,
-    state_vector_map varying_params,
+    state_map initial_values,
+    state_map params,
+    state_vector_map drivers,
     string_vector ss_module_names,
     string_vector deriv_module_names)
 {
     size_t num_problems = 0;
 
     string_vector quantity_names = get_defined_quantity_names(
-        std::vector<state_map>{initial_state, invariant_params, at(varying_params, 0)},
+        std::vector<state_map>{initial_values, params, at(drivers, 0)},
         std::vector<string_vector>{ss_module_names});
 
     // Criterion 1
@@ -90,14 +90,14 @@ bool validate_system_inputs(
         message,
         [=]() -> string_vector {
             return find_undefined_module_outputs(
-                keys(initial_state),
+                keys(initial_values),
                 std::vector<string_vector>{deriv_module_names}
             );
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
-                std::string("All derivative module outputs were included in the initial state"),
-                std::string("The following derivative module outputs were not part of the initial state:"),
+                std::string("All derivative module outputs were included in the initial values"),
+                std::string("The following derivative module outputs were not part of the initial values:"),
                 std::string(""),
                 string_list
             );
@@ -133,18 +133,18 @@ bool validate_system_inputs(
 /**
  * @brief Provides information about a set of system inputs that is not strictly
  *        required to check validity.
- * 
+ *
  * The following information is reported:
  * 1. A list of all quantities required by the modules as inputs
  * 2. A list of unused quantities in the invariant parameter list
- * 3. A list of unused quantities in the varying parameter list
- * 4. A list of quantities in the initial state that lack derivatives
+ * 3. A list of unused quantities in the drivers list
+ * 4. A list of quantities in the initial values that lack derivatives
  * 5. A list of quantities whose derivatives have terms calculated by multiple modules
  */
 std::string analyze_system_inputs(
-    state_map initial_state,
-    state_map invariant_params,
-    state_vector_map varying_params,
+    state_map initial_values,
+    state_map params,
+    state_vector_map drivers,
     string_vector ss_module_names,
     string_vector deriv_module_names)
 {
@@ -189,34 +189,34 @@ std::string analyze_system_inputs(
                                                         std::string(""),
                                                         string_list); });
 
-    // List any unused quantities in the invariant parameters
+    // List any unused quantities in the parameters
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{invariant_params}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each invariant parameter was used as an input to one or more modules"),
-                                                           std::string("The following invariant parameters were not used as inputs to any module:"),
+                                                           std::string("The following parameters were not used as inputs to any module:"),
                                                            std::string("You may want to consider removing them for clarity"),
                                                            string_list); });
 
-    // List any unused quantities in the varying parameters
+    // List any unused quantities in the drivers
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(varying_params, 0)}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(drivers, 0)}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("Each varying parameter was used as an input to one or more modules"),
-                                                           std::string("The following varying parameters were not used as inputs to any module:"),
+                                                           std::string("Each driver was used as an input to one or more modules"),
+                                                           std::string("The following drivers were not used as inputs to any module:"),
                                                            std::string("You may want to consider removing them for clarity"),
                                                            string_list); });
 
-    // List any quantities in the initial state that lack derivatives
+    // List any quantities in the initial values that lack derivatives
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_static_output_parameters(std::vector<state_map>{initial_state}, std::vector<string_vector>{deriv_module_names}); },
+        [=]() -> string_vector { return find_static_output_parameters(std::vector<state_map>{initial_values}, std::vector<string_vector>{deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("All quantities in the initial state have associated derivatives"),
-                                                           std::string("The following quantities in the initial state lack associated derivatives:"),
-                                                           std::string("These quantities will not change with time, so you may want to consider moving them to the invariant parameters for clarity"),
+                                                           std::string("All quantities in the initial values have associated derivatives"),
+                                                           std::string("The following quantities in the initial values lack associated derivatives:"),
+                                                           std::string("These quantities will not change with time, so you may want to consider moving them to the parameters for clarity"),
                                                            string_list); });
 
     string_vector derivative_module_outputs = get_defined_quantity_names(
@@ -469,7 +469,7 @@ string_set find_strictly_required_inputs(std::vector<string_vector> module_name_
             outputs_from_previous_modules.insert(output_names.begin(), output_names.end());
         }
     }
-    
+
     return string_vector_to_string_set(required_module_inputs);
 }
 
@@ -538,7 +538,7 @@ string_vector find_adaptive_incompatibility(std::vector<string_vector> module_na
 
     // Instantiate each module and check its characterization
     string_vector incompatible_modules;
-    module_vector modules = get_module_vector(module_name_vectors, &quantities, &quantities);
+    module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
     for (std::unique_ptr<Module>& m : modules) {
         if (!m->is_adaptive_compatible()) {
             incompatible_modules.push_back(m->get_name());
@@ -567,7 +567,7 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
 
     // Instantiate each module and check its characterization
     string_vector mischaracterized_modules;
-    module_vector modules = get_module_vector(module_name_vectors, &quantities, &quantities);
+    module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
     for (std::unique_ptr<Module>& m : modules) {
         if (m->is_deriv() != is_deriv) {
             mischaracterized_modules.push_back(m->get_name());
@@ -582,14 +582,14 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
  */
 module_vector get_module_vector(
     std::vector<string_vector> module_name_vectors,
-    const state_map* input_parameters,
-    state_map* output_parameters)
+    state_map const& input_quantities,
+    state_map* output_quantities)
 {
     module_vector modules;
     for (string_vector const& module_names : module_name_vectors) {
         for (std::string name : module_names) {
             auto w = module_wrapper_factory::create(name);
-            modules.push_back(w->createModule(input_parameters, output_parameters));
+            modules.push_back(w->createModule(input_quantities, output_quantities));
         }
     }
 

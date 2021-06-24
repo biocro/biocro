@@ -42,9 +42,9 @@ engine='R',dev='pdf'
 
 \noindent\emph{\textbf{Note:} This is an outdated version of the
 BioCro manual.  It refers to R functions in the BioCro package that no
-longer exist.  For this reason, all evaluation of R code has been
-turned off by setting ``eval=FALSE" globally.  To see a PDF of the
-original form of this vignette, visit
+longer exist.  For this reason, all evaluation of R code (with one
+exception) has been turned off by setting ``eval=FALSE" globally.  To
+see a PDF of the original form of this vignette, visit
 \url{http://biocro.r-forge.r-project.org/BioCro-Manual.pdf}.}
 
 \begin{abstract}
@@ -59,6 +59,30 @@ original form of this vignette, visit
   productivity and carbon, water and nitrogen cycles in
   agro-ecosystems.
 \end{abstract}
+
+<<version_info,echo=FALSE,eval=TRUE,comment=''>>=
+# Show the current commit hash and the date of that commit.
+cat(
+  paste0(
+    system2('git',
+            args = c('show',
+                     '-s',
+                     '--format="This document was generated from the version of BioCro specified%nas follows:%n%nCommit Hash: %h%nDate: %aD"'
+                    ),
+            stdout = TRUE
+    ),
+    sep = '',
+    collapse = '\n'
+  ),
+  "\nBranch:",
+  system2('git',
+          args = c('branch',
+                   '--show-current'),
+          stdout = TRUE
+  ),
+  "\n"
+)
+@
 
 \tableofcontents
 

@@ -1,5 +1,5 @@
-#include <algorithm> // for std::transform
-#include <cctype>   // for std::tolower
+#include <algorithm>  // for std::transform
+#include <cctype>     // for std::tolower
 #include "module_wrapper_factory.h"
 
 // Include all the header files that define the modules.
@@ -48,18 +48,17 @@
 #include "bucket_soil_drainage.hpp"
 #include "linear_vmax_from_leaf_n.hpp"
 #include "module_graph_test.hpp"  // Includes Module_1, Module_2, and Module_3
-#include "collatz_leaf.hpp"
-#include "canac_with_collatz.hpp"
-#include "big_leaf_multilayer_canopy.hpp"
 #include "solar_zenith_angle.h"
 #include "shortwave_atmospheric_scattering.h"
 #include "incident_shortwave_from_ground_par.h"
 #include "leaf_shape_factor.h"
+#include "rue_leaf_photosynthesis.h"
 #include "c3_assimilation.h"
 #include "c3_leaf_photosynthesis.h"
 #include "c4_assimilation.h"
 #include "c4_leaf_photosynthesis.h"
 #include "multilayer_canopy_properties.h"
+#include "multilayer_rue_canopy.h"
 #include "multilayer_c3_canopy.h"
 #include "multilayer_c4_canopy.h"
 #include "multilayer_canopy_integrator.h"
@@ -104,6 +103,7 @@
 #include "rasmussen_specific_heat.h"
 #include "buck_swvp.h"
 #include "rh_to_mole_fraction.h"
+#include "total_biomass.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -178,18 +178,17 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"Module_1",                                              &create_wrapper<Module_1>},
      {"Module_2",                                              &create_wrapper<Module_2>},
      {"Module_3",                                              &create_wrapper<Module_3>},
-     {"collatz_leaf",                                          &create_wrapper<collatz_leaf>},
-     {"canac_with_collatz",                                    &create_wrapper<canac_with_collatz>},
-     {"big_leaf_multilayer_canopy",                            &create_wrapper<big_leaf_multilayer_canopy>},
      {"solar_zenith_angle",                                    &create_wrapper<solar_zenith_angle>},
      {"shortwave_atmospheric_scattering",                      &create_wrapper<shortwave_atmospheric_scattering>},
      {"incident_shortwave_from_ground_par",                    &create_wrapper<incident_shortwave_from_ground_par>},
      {"leaf_shape_factor",                                     &create_wrapper<leaf_shape_factor>},
+     {"rue_leaf_photosynthesis",                               &create_wrapper<rue_leaf_photosynthesis>},
      {"c3_assimilation",                                       &create_wrapper<c3_assimilation>},
      {"c3_leaf_photosynthesis",                                &create_wrapper<c3_leaf_photosynthesis>},
      {"c4_assimilation",                                       &create_wrapper<c4_assimilation>},
      {"c4_leaf_photosynthesis",                                &create_wrapper<c4_leaf_photosynthesis>},
      {"ten_layer_canopy_properties",                           &create_wrapper<ten_layer_canopy_properties>},
+     {"ten_layer_rue_canopy",                                  &create_wrapper<ten_layer_rue_canopy>},
      {"ten_layer_c3_canopy",                                   &create_wrapper<ten_layer_c3_canopy>},
      {"ten_layer_c4_canopy",                                   &create_wrapper<ten_layer_c4_canopy>},
      {"ten_layer_canopy_integrator",                           &create_wrapper<ten_layer_canopy_integrator>},
@@ -239,12 +238,13 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"no_leaf_resp_neg_assim_partitioning_growth_calculator", &create_wrapper<no_leaf_resp_neg_assim_partitioning_growth_calculator>},
      {"rasmussen_specific_heat",                               &create_wrapper<rasmussen_specific_heat>},
      {"buck_swvp",                                             &create_wrapper<buck_swvp>},
-     {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>}
+     {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>},
+     {"total_biomass",                                         &create_wrapper<total_biomass>}
 };
 
-std::vector<std::string> module_wrapper_factory::get_modules()
+string_vector module_wrapper_factory::get_modules()
 {
-    std::vector<std::string> module_name_vector;
+    string_vector module_name_vector;
     for (auto const& x : module_wrapper_creators) {
         module_name_vector.push_back(x.first);
     }
@@ -267,13 +267,13 @@ std::vector<std::string> module_wrapper_factory::get_modules()
     return module_name_vector;
 }
 
-std::unordered_map<std::string, std::vector<std::string>> module_wrapper_factory::get_all_quantities()
+std::unordered_map<std::string, string_vector> module_wrapper_factory::get_all_quantities()
 {
     // Make the output map
-    std::unordered_map<std::string, std::vector<std::string>> quantity_map = {
-        {"module_name",     std::vector<std::string>{}},
-        {"quantity_type",   std::vector<std::string>{}},
-        {"quantity_name",   std::vector<std::string>{}}
+    std::unordered_map<std::string, string_vector> quantity_map = {
+        {"module_name",     string_vector{}},
+        {"quantity_type",   string_vector{}},
+        {"quantity_name",   string_vector{}}
     };
 
     // Make a lambda function for adding entries to the map
