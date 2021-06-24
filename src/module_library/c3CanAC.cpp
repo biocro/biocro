@@ -165,19 +165,19 @@ struct Can_Str c3CanAC(
     }
 
     /* For Assimilation */
-    /* 3600 - seconds per hour */
-    /* 1e-6 - moles per micromole */
-    /* 30 - grams of C6H12O6 (glucose) incorporated into dry biomass per mole of CO2 */
-    /* 1e-6 - megagrams per gram */
-    /* 10000 - meters squared per hectare*/
+    /* 3600 seconds per hour */
+    /* 1e-6 moles per micromole */
+    /* 30 grams of C6H12O6 (glucose) incorporated into dry biomass per mole of CO2 */
+    /* 1e-6 megagrams per gram */
+    /* 10000 meters squared per hectare*/
     const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
 
     /* For Transpiration */
-    /* 3600 - seconds per hour */
-    /* 1e-3 - millimoles per mole */
-    /* 18 - grams per mole for H2O */
-    /* 1e-6 - megagrams per  gram */
-    /* 10000 - meters squared per hectare */
+    /* 3600 seconds per hour */
+    /* 1e-3 millimoles per mole */
+    /* 18 grams per mole for H2O */
+    /* 1e-6 megagrams per  gram */
+    /* 10000 meters squared per hectare */
     const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000;
 
     struct Can_Str ans;
