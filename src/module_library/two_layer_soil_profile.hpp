@@ -6,169 +6,181 @@
 #include "AuxBioCro.h"  // For soilML_str
 #include "BioCro.h"     // For soilML
 
-class two_layer_soil_profile : public DerivModule {
-	public:
-		two_layer_soil_profile(state_map const& input_quantities, state_map* output_quantities) :
-			// Define basic module properties by passing its name to its parent class
-			DerivModule("two_layer_soil_profile"),
-			// Get pointers to input quantities
-			cws1_ip(get_ip(input_quantities, "cws1")),
-			cws2_ip(get_ip(input_quantities, "cws2")),
-			soil_depth1_ip(get_ip(input_quantities, "soil_depth1")),
-			soil_depth2_ip(get_ip(input_quantities, "soil_depth2")),
-			soil_depth3_ip(get_ip(input_quantities, "soil_depth3")),
-			precip_ip(get_ip(input_quantities, "precip")),
-			canopy_transpiration_rate_ip(get_ip(input_quantities, "canopy_transpiration_rate")),
-			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
-			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
-			soil_saturation_capacity_ip(get_ip(input_quantities, "soil_saturation_capacity")),
-			soil_air_entry_ip(get_ip(input_quantities, "soil_air_entry")),
-			soil_saturated_conductivity_ip(get_ip(input_quantities, "soil_saturated_conductivity")),
-			soil_b_coefficient_ip(get_ip(input_quantities, "soil_b_coefficient")),
-			soil_sand_content_ip(get_ip(input_quantities, "soil_sand_content")),
-			phi1_ip(get_ip(input_quantities, "phi1")),
-			phi2_ip(get_ip(input_quantities, "phi2")),
-			wsFun_ip(get_ip(input_quantities, "wsFun")),
-			Root_ip(get_ip(input_quantities, "Root")),
-			lai_ip(get_ip(input_quantities, "lai")),
-			temp_ip(get_ip(input_quantities, "temp")),
-			solar_ip(get_ip(input_quantities, "solar")),
-			windspeed_ip(get_ip(input_quantities, "windspeed")),
-			rh_ip(get_ip(input_quantities, "rh")),
-			hydrDist_ip(get_ip(input_quantities, "hydrDist")),
-			rfl_ip(get_ip(input_quantities, "rfl")),
-			rsec_ip(get_ip(input_quantities, "rsec")),
-			rsdf_ip(get_ip(input_quantities, "rsdf")),
-			soil_clod_size_ip(get_ip(input_quantities, "soil_clod_size")),
-			soil_reflectance_ip(get_ip(input_quantities, "soil_reflectance")),
-			soil_transmission_ip(get_ip(input_quantities, "soil_transmission")),
-			specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
-			stefan_boltzman_ip(get_ip(input_quantities, "stefan_boltzman")),
-			soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),
-			// Get pointers to output quantities
-			cws1_op(get_op(output_quantities, "cws1")),
-			cws2_op(get_op(output_quantities, "cws2")),
-			soil_water_content_op(get_op(output_quantities, "soil_water_content"))
-		{}
-		static string_vector get_inputs();
-		static string_vector get_outputs();
-	private:
-		// Pointers to input quantities
-		const double* cws1_ip;
-		const double* cws2_ip;
-		const double* soil_depth1_ip;
-		const double* soil_depth2_ip;
-		const double* soil_depth3_ip;
-		const double* precip_ip;
-		const double* canopy_transpiration_rate_ip;
-		const double* soil_field_capacity_ip;
-		const double* soil_wilting_point_ip;
-		const double* soil_saturation_capacity_ip;
-		const double* soil_air_entry_ip;
-		const double* soil_saturated_conductivity_ip;
-		const double* soil_b_coefficient_ip;
-		const double* soil_sand_content_ip;
-		const double* phi1_ip;
-		const double* phi2_ip;
-		const double* wsFun_ip;
-		const double* Root_ip;
-		const double* lai_ip;
-		const double* temp_ip;
-		const double* solar_ip;
-		const double* windspeed_ip;
-		const double* rh_ip;
-		const double* hydrDist_ip;
-		const double* rfl_ip;
-		const double* rsec_ip;
-		const double* rsdf_ip;
-		const double* soil_clod_size_ip;
-		const double* soil_reflectance_ip;
-		const double* soil_transmission_ip;
-		const double* specific_heat_of_air_ip;
-		const double* stefan_boltzman_ip;
-		const double* soil_water_content_ip;
-		// Pointers to output quantities
-		double* cws1_op;
-		double* cws2_op;
-		double* soil_water_content_op;
-		// Main operation
-		void do_operation() const;
+class two_layer_soil_profile : public DerivModule
+{
+   public:
+    two_layer_soil_profile(
+        state_map const& input_quantities,
+        state_map* output_quantities)
+        :  // Define basic module properties by passing its name to its parent class
+          DerivModule("two_layer_soil_profile"),
+
+          // Get references to input quantities
+          cws1{get_input(input_quantities, "cws1")},
+          cws2{get_input(input_quantities, "cws2")},
+          soil_depth1{get_input(input_quantities, "soil_depth1")},
+          soil_depth2{get_input(input_quantities, "soil_depth2")},
+          soil_depth3{get_input(input_quantities, "soil_depth3")},
+          precip{get_input(input_quantities, "precip")},
+          canopy_transpiration_rate{get_input(input_quantities, "canopy_transpiration_rate")},
+          soil_field_capacity{get_input(input_quantities, "soil_field_capacity")},
+          soil_wilting_point{get_input(input_quantities, "soil_wilting_point")},
+          soil_saturation_capacity{get_input(input_quantities, "soil_saturation_capacity")},
+          soil_air_entry{get_input(input_quantities, "soil_air_entry")},
+          soil_saturated_conductivity{get_input(input_quantities, "soil_saturated_conductivity")},
+          soil_b_coefficient{get_input(input_quantities, "soil_b_coefficient")},
+          soil_sand_content{get_input(input_quantities, "soil_sand_content")},
+          phi1{get_input(input_quantities, "phi1")},
+          phi2{get_input(input_quantities, "phi2")},
+          wsFun{get_input(input_quantities, "wsFun")},
+          Root{get_input(input_quantities, "Root")},
+          lai{get_input(input_quantities, "lai")},
+          temp{get_input(input_quantities, "temp")},
+          solar{get_input(input_quantities, "solar")},
+          windspeed{get_input(input_quantities, "windspeed")},
+          rh{get_input(input_quantities, "rh")},
+          hydrDist{get_input(input_quantities, "hydrDist")},
+          rfl{get_input(input_quantities, "rfl")},
+          rsec{get_input(input_quantities, "rsec")},
+          rsdf{get_input(input_quantities, "rsdf")},
+          soil_clod_size{get_input(input_quantities, "soil_clod_size")},
+          soil_reflectance{get_input(input_quantities, "soil_reflectance")},
+          soil_transmission{get_input(input_quantities, "soil_transmission")},
+          specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
+          stefan_boltzman{get_input(input_quantities, "stefan_boltzman")},
+          soil_water_content{get_input(input_quantities, "soil_water_content")},
+          par_energy_content{get_input(input_quantities, "par_energy_content")},
+
+          // Get pointers to output quantities
+          cws1_op{get_op(output_quantities, "cws1")},
+          cws2_op{get_op(output_quantities, "cws2")},
+          soil_water_content_op{get_op(output_quantities, "soil_water_content")}
+    {
+    }
+    static string_vector get_inputs();
+    static string_vector get_outputs();
+
+   private:
+    // References to input quantities
+    double const& cws1;
+    double const& cws2;
+    double const& soil_depth1;
+    double const& soil_depth2;
+    double const& soil_depth3;
+    double const& precip;
+    double const& canopy_transpiration_rate;
+    double const& soil_field_capacity;
+    double const& soil_wilting_point;
+    double const& soil_saturation_capacity;
+    double const& soil_air_entry;
+    double const& soil_saturated_conductivity;
+    double const& soil_b_coefficient;
+    double const& soil_sand_content;
+    double const& phi1;
+    double const& phi2;
+    double const& wsFun;
+    double const& Root;
+    double const& lai;
+    double const& temp;
+    double const& solar;
+    double const& windspeed;
+    double const& rh;
+    double const& hydrDist;
+    double const& rfl;
+    double const& rsec;
+    double const& rsdf;
+    double const& soil_clod_size;
+    double const& soil_reflectance;
+    double const& soil_transmission;
+    double const& specific_heat_of_air;
+    double const& stefan_boltzman;
+    double const& soil_water_content;
+    double const& par_energy_content;
+
+    // Pointers to output quantities
+    double* cws1_op;
+    double* cws2_op;
+    double* soil_water_content_op;
+
+    // Main operation
+    void do_operation() const;
 };
 
-string_vector two_layer_soil_profile::get_inputs() {
-	return {
-		"cws1",
-		"cws2",
-		"soil_depth1",
-		"soil_depth2",
-		"soil_depth3",
-		"precip",
-		"canopy_transpiration_rate",
-		"soil_field_capacity",
-		"soil_wilting_point",
-		"soil_saturation_capacity",
-		"soil_air_entry",
-		"soil_saturated_conductivity",
-		"soil_b_coefficient",
-		"soil_sand_content",
-		"phi1",
-		"phi2",
-		"wsFun",
-		"Root",
-		"lai",
-		"temp",
-		"solar",
-		"windspeed",
-		"rh",
-		"hydrDist",
-		"rfl",
-		"rsec",
-		"rsdf",
-		"soil_clod_size",
-		"soil_reflectance",
-		"soil_transmission",
-		"specific_heat_of_air",
-		"stefan_boltzman",
-		"soil_water_content"
-	};
+string_vector two_layer_soil_profile::get_inputs()
+{
+    return {
+        "cws1",
+        "cws2",
+        "soil_depth1",
+        "soil_depth2",
+        "soil_depth3",
+        "precip",
+        "canopy_transpiration_rate",
+        "soil_field_capacity",
+        "soil_wilting_point",
+        "soil_saturation_capacity",
+        "soil_air_entry",
+        "soil_saturated_conductivity",
+        "soil_b_coefficient",
+        "soil_sand_content",
+        "phi1",
+        "phi2",
+        "wsFun",
+        "Root",
+        "lai",        // dimensionless
+        "temp",       // degrees C
+        "solar",      // micromol / m^2 / s
+        "windspeed",  // m / s
+        "rh",         // dimensionless
+        "hydrDist",
+        "rfl",
+        "rsec",
+        "rsdf",
+        "soil_clod_size",
+        "soil_reflectance",
+        "soil_transmission",
+        "specific_heat_of_air",  // J / kg / mol
+        "stefan_boltzman",       // W / m^2 / K^4
+        "soil_water_content",    // dimensionless
+        "par_energy_content"     // J / micromol
+    };
 }
 
-string_vector two_layer_soil_profile::get_outputs() {
-	return {
-		"cws1",
-		"cws2",
-		"soil_water_content"
-	};
+string_vector two_layer_soil_profile::get_outputs()
+{
+    return {
+        "cws1",
+        "cws2",
+        "soil_water_content"  // dimensionless
+    };
 }
 
-void two_layer_soil_profile::do_operation() const {
-	// Collect inputs and make calculations
-	double cws1 = *cws1_ip;
-	double cws2 = *cws2_ip;
-	double soil_depth1 = *soil_depth1_ip;
-	double soil_depth2 = *soil_depth2_ip;
-	double soil_depth3 = *soil_depth3_ip;
-	double soil_water_content = *soil_water_content_ip;
+void two_layer_soil_profile::do_operation() const
+{
+    // Collect inputs and make calculations
+    double cws[] = {cws1, cws2};
+    double soil_depths[] = {soil_depth1, soil_depth2, soil_depth3};
 
-	double cws[] = {cws1, cws2};
-	double soil_depths[] = {soil_depth1, soil_depth2, soil_depth3};
+    struct soilML_str soilMLS = soilML(
+        precip, canopy_transpiration_rate, cws, soil_depth3, soil_depths,
+        soil_field_capacity, soil_wilting_point, soil_saturation_capacity,
+        soil_air_entry, soil_saturated_conductivity, soil_b_coefficient,
+        soil_sand_content, phi1, phi2, wsFun, 2 /* Always uses 2 layers */,
+        Root, lai, 0.68, temp, solar, windspeed, rh, hydrDist, rfl, rsec, rsdf,
+        soil_clod_size, soil_reflectance, soil_transmission,
+        specific_heat_of_air, stefan_boltzman, par_energy_content);
 
-	struct soilML_str soilMLS = soilML(*precip_ip, *canopy_transpiration_rate_ip, cws, soil_depth3, soil_depths,
-			*soil_field_capacity_ip, *soil_wilting_point_ip, *soil_saturation_capacity_ip, *soil_air_entry_ip, *soil_saturated_conductivity_ip,
-			*soil_b_coefficient_ip, *soil_sand_content_ip, *phi1_ip, *phi2_ip, *wsFun_ip,
-			2 /* Always uses 2 layers. */, *Root_ip, *lai_ip, 0.68, *temp_ip,
-			*solar_ip, *windspeed_ip, *rh_ip, *hydrDist_ip, *rfl_ip,
-			*rsec_ip, *rsdf_ip, *soil_clod_size_ip, *soil_reflectance_ip, *soil_transmission_ip,
-			*specific_heat_of_air_ip, *stefan_boltzman_ip);
+    double layer_one_depth = soil_depth2 - soil_depth1;
+    double layer_two_depth = soil_depth3 - soil_depth2;
 
-	double layer_one_depth = soil_depth2 - soil_depth1;
-	double layer_two_depth = soil_depth3 - soil_depth2;
-	double cws_mean = (soilMLS.cws[0] * layer_one_depth + soilMLS.cws[1] * layer_two_depth) / (layer_one_depth + layer_two_depth);
+    double cws_mean =
+        (soilMLS.cws[0] * layer_one_depth + soilMLS.cws[1] * layer_two_depth) /
+        (layer_one_depth + layer_two_depth);
 
-	// Update the output quantity list
-	update(cws1_op, soilMLS.cws[0] - cws1);
-	update(cws2_op, soilMLS.cws[1] - cws2);
-	update(soil_water_content_op, cws_mean - soil_water_content);
+    // Update the output quantity list
+    update(cws1_op, soilMLS.cws[0] - cws1);
+    update(cws2_op, soilMLS.cws[1] - cws2);
+    update(soil_water_content_op, cws_mean - soil_water_content);
 }
 
 #endif

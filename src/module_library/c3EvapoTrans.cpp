@@ -16,7 +16,7 @@
 #include "BioCro.h"
 
 struct ET_Str c3EvapoTrans(
-        double Itot,                                     // micromole / m^2 / s
+        double absorbed_shortwave_radiation,             // J / m^2 / s
         double air_temperature,                          // degrees C
         double RH,                                       // Pa / Pa
         double WindSpeed,                                // m / s
@@ -25,8 +25,6 @@ struct ET_Str c3EvapoTrans(
         double stomatal_conductance)                     // mmol / m^2 / s
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s^1 / K^4
-    constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
-    constexpr double LeafReflectance = 0.2;              // dimensionless
     constexpr double kappa = 0.41;                       // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;                // meters
     constexpr double dCoef = 0.77;                       // dimensionless
@@ -37,7 +35,6 @@ struct ET_Str c3EvapoTrans(
     const double d = dCoef * CanopyHeight;               // meters
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
-    constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
 
     if (CanopyHeight < 0.1)
         CanopyHeight = 0.1;
@@ -58,8 +55,6 @@ struct ET_Str c3EvapoTrans(
 
     /* SOLAR RADIATION COMPONENT*/
 
-    const double totalradiation = Itot * joules_per_micromole_PAR;  // W / m^2.
-
     const double SWVC = SWVP / R / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
     if (SWVC < 0)
@@ -68,8 +63,6 @@ struct ET_Str c3EvapoTrans(
     const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
-
-    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
 
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
@@ -101,7 +94,7 @@ struct ET_Str c3EvapoTrans(
 
             double rlc = 4.0 * StefanBoltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  // W / m^2
 
-            PhiN = Ja - rlc;  // W / m^2
+            PhiN = absorbed_shortwave_radiation - rlc;  // W / m^2
 
             double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;  // J / m^3
             double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^2 / K

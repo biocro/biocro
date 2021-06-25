@@ -4,6 +4,7 @@
 #include "../modules.h"
 #include "../state_map.h"
 #include "c4photo.h"
+#include "BioCro.h"  // for absorbed_shortwave_from_incident_ppfd
 
 /**
  * @class ed_evapotrans2
@@ -82,36 +83,22 @@ string_vector ed_evapotrans2::get_outputs()
 void ed_evapotrans2::do_operation() const
 {
     // Collect inputs to EvapoTrans2 and convert units as necessary
-    const double Rad = 0.0;                                                  // micromoles / m^2 / s (only used for evapotranspiration)
-    const double airTemp = *temperature_air_ip;                              // degrees C
-    const double RH = *rh_ip;                                                // dimensionless from Pa / Pa
-    const double WindSpeed = *windspeed_ip;                                  // m / s
-    const double LeafAreaIndex = 0.0;                                        // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
-    const double CanopyHeight = 0.0;                                         // meters (not actually used by EvapoTrans2)
-    const double stomatal_conductance = *conductance_stomatal_h2o_ip * 1e3;  // mmol / m^2 / s
-    const double leaf_width = *leafwidth_ip;                                 // meter
-    const double specific_heat_of_air = *specific_heat_of_air_ip;            // J / kg / K
-    const int eteq = 0;                                                      // Report Penman-Monteith transpiration
-
-    // For ed_penman_monteith_leaf_temperature, the light input is called `solar_energy_absorbed_leaf`
-    // and is in units of W / m^2 / s. This quantity is equivalent to `Ja2` in Evapotrans2. `Iave` is
-    // related to `Ja2` by:
-    //  Ja2 = total_average_irradiance * (1 - LeafReflectance - tau) / (1 - tau)
-    //      = Iave * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR * (1 - LeafReflectance - tau) / (1 - tau)
-    // where:
-    //  joules_per_micromole_PAR = 0.235
-    //  fraction_of_irradiance_in_PAR = 0.5
-    //  LeafReflectance = 0.2
-    //  tau = 0.2
-    // So overall, Ja2 = Iave * 0.235 / 0.5 * (1 - 0.2 - 0.2) / (1 - 0.2)
-    //                 = Iave * 0.3525
-    // So we can find Iave according to Iave = Ja2 / 0.3525
-    const double Iave = *solar_energy_absorbed_leaf_ip / 0.3525;  // micromoles / m^2 / s
+    const double absorbed_shortwave_radiation_et = 0.0;                             // micromoles / m^2 / s (only used for evapotranspiration)
+    const double airTemp = *temperature_air_ip;                                     // degrees C
+    const double RH = *rh_ip;                                                       // dimensionless from Pa / Pa
+    const double WindSpeed = *windspeed_ip;                                         // m / s
+    const double LeafAreaIndex = 0.0;                                               // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
+    const double CanopyHeight = 0.0;                                                // meters (not actually used by EvapoTrans2)
+    const double stomatal_conductance = *conductance_stomatal_h2o_ip * 1e3;         // mmol / m^2 / s
+    const double leaf_width = *leafwidth_ip;                                        // meter
+    const double specific_heat_of_air = *specific_heat_of_air_ip;                   // J / kg / K
+    const int eteq = 0;                                                             // Report Penman-Monteith transpiration
+    const double absorbed_shortwave_radiation_lt = *solar_energy_absorbed_leaf_ip;  // J / m^2 / s
 
     // Call EvapoTrans2
     struct ET_Str et_results = EvapoTrans2(
-        Rad,
-        Iave,
+        absorbed_shortwave_radiation_et,
+        absorbed_shortwave_radiation_lt,
         airTemp,
         RH,
         WindSpeed,

@@ -142,69 +142,125 @@ Light_model lightME(const double latitude, const int day_of_year,
 }
 
 /**
+ *  @brief Computes total absorbed shortwave radiation from the
+ *  photosynthetically active photon flux density (PPFD) incident on a leaf
+ *
+ *  @param [in] incident_ppfd Photosynthetically active photon flux density
+ *              (PPFD) incident on a leaf expressed in micromol / m^2 / s
+ *
+ *  @param [in] par_energy_content The energy content of PPFD expressed in J /
+ *              micromol
+ *
+ *  @param [in] par_energy_fraction The fraction of total shortwave energy
+ *              contained in the PAR band expressed as a real number between 0
+ *              and 1
+ *
+ *  @param [in] leaf_reflectance The fractional amount of shortwave radiation
+ *              reflected by the leaf (weighted across all shortwave radiation)
+ *
+ *  @param [in] leaf_transmittance The fractional amount of shortwave radiation
+ *              transmitted through the leaf (weighted across all shortwave
+ *              radiation)
+ *
+ *  @return The total shortwave radiation absorbed by the leaf expressed in
+ *          J / m^2 / s
+ *
+ *  The total absorbed shortwave radiation is determined using the following
+ *  steps:
+ *  - determine the incident photosynthetically active radiation (PAR) using the
+ *    energy content of PAR
+ *  - determine the incident near-infrared radiation (NIR) from the incident PAR
+ *    using the PAR energy fraction
+ *  - determine the total incident radiation by adding the incident PAR and NIR
+ *  - determine the total absorbed radiation using the leaf's reflection and
+ *    transmission coefficients
+ */
+double absorbed_shortwave_from_incident_ppfd(
+    double incident_ppfd,        // micromol / m^2 / s
+    double par_energy_content,   // J / micromol
+    double par_energy_fraction,  // dimensionless
+    double leaf_reflectance,     // dimensionless
+    double leaf_transmittance    // dimensionless
+)
+{
+    double incident_par = incident_ppfd * par_energy_content;  // J / m^2 / s
+
+    double incident_nir = incident_par *
+                          (1 - par_energy_fraction) /
+                          par_energy_fraction;  // J / m^2 /s
+
+    double incident_shortwave = incident_par + incident_nir;  // J / m^2 / s
+
+    return incident_shortwave *
+           (1 - leaf_reflectance - leaf_transmittance) /
+           (1 - leaf_transmittance);  // J / m^2 / s
+}
+
+/**
  *  @brief Computes an n-layered light profile from the direct light, diffuse
  *  light, leaf area index, solar zenith angle, and other parameters.
  *
- *  @param [in] Idir Photon flux density for direct light at the top of the
- *                   canopy (micromol / m^2 / s)
+ *  @param [in] ambient_ppfd_beam Photosynthetically active photon flux density
+ *              (PPFD) for beam light passing through a surface perpendicular
+ *              to the beam direction at the top of the canopy; this represents
+ *              direct sunlight for a plant in a field
+ *              (micromol / (m^2 beam) / s)
  *
- *  @param [in] Idiff Photon flux density for diffuse light at the top of the
- *                    canopy (micromol / m^2 / s)
+ *  @param [in] ambient_ppfd_diffuse Photosynthetically active photon flux
+ *              density (PPFD) for diffuse light at the top of the canopy; this
+ *              represents diffuse light scattered out of the solar beam by the
+ *              Earth's atmosphere for a plant in a field; as a diffuse flux
+ *              density, this represents the flux through any surface
+ *              (micromol / m^2 / s)
  *
- *  @param [in] LAI Leaf area index (LAI) of the entire canopy (dimensionless
- *                  from m^2 leaf / m^2 ground)
+ *  @param [in] lai Leaf area index (LAI) of the entire canopy, which represents
+ *              the leaf area per unit of ground area (dimensionless from m^2
+ *              leaf / m^2 ground)
  *
  *  @param [in] nlayers Integer number of layers in the canopy
  *
- *  @param [in] cosTheta Cosine of the solar zenith angle (dimensionless)
+ *  @param [in] cosine_zenith_angle Cosine of the solar zenith angle
+ *              (dimensionless)
  *
  *  @param [in] kd Extinction coefficient for diffuse light (dimensionless)
  *
  *  @param [in] chil Ratio of average projected areas of canopy elements on
- *                   horizontal surfaces; for a spherical leaf distribution,
- *                   `chil = 0`; for a vertical leaf distribution, `chil = 1`;
- *                   for a horizontal leaf distribution, `chil` approaches
- *                   infinity (dimensionless from m^2 / m^2)
+ *              horizontal surfaces; for a spherical leaf distribution,
+ *              `chil = 0`; for a vertical leaf distribution, `chil = 1`; for a
+ *              horizontal leaf distribution, `chil` approaches infinity
+ *              (dimensionless from m^2 / m^2)
  *
  *  @param [in] absorptivity The leaf absorptivity on a quantum basis
- *                           (dimensionless from mol / mol)
+ *              (dimensionless from mol / mol)
  *
  *  @param [in] heightf Leaf area density, i.e., LAI per height of canopy (m^-1
- *                      from m^2 leaf / m^2 ground / m height)
+ *              from m^2 leaf / m^2 ground / m height)
  *
  *  @return An n-layered light profile representing quantities within
  *          the canopy, including several photon flux densities and
  *          the relative fractions of shaded and sunlit leaves
- *
- *  Note 1: Although the input and output light parameters (e.g. `Idir` and
- *  `light_profile.direct_irradiance`) are specified as being photon flux
- *  densities measured in micromol / m^2 / s, all the calculations within this
- *  function are linear in these light parameters. So if the inputs actually
- *  represent something else, e.g. irradiance expressed in units of J / m^2 / s,
- *  this function can still be used and the outputs will have the same units as
- *  the inputs (J / m^2 / s in this example).
- *
- *  Note 2: Nothing in this function is specialized for a specific band of
- *  light, so `sunML` can be used for photosynthetically active photon flux
- *  density (PPFD), photosynthetically active radiation (PAR), near-infrared
- *  radiation (NIR), etc., as long as the extinction coefficients and
- *  absorptivities are appropriately chosen.
  */
-Light_profile sunML(double Idir,
-        double Idiff,
-        double LAI,
-        int nlayers,
-        double cosTheta,
-        double kd,
-        double chil,
-        double absorptivity,
-        double heightf)
+Light_profile sunML(
+    double ambient_ppfd_beam,     // micromol / (m^2 beam) / s
+    double ambient_ppfd_diffuse,  // micromol / m^2 / s
+    double lai,                   // dimensionless from m^2 / m^2
+    int nlayers,                  // dimensionless
+    double cosine_zenith_angle,   // dimensionless
+    double kd,                    // dimensionless
+    double chil,                  // dimensionless from m^2 / m^2
+    double absorptivity,          // dimensionless from mol / mol
+    double heightf,               // m^-1 from m^2 leaf / m^2 ground / m height
+    double par_energy_content,    // J / micromol
+    double par_energy_fraction,   // dimensionless
+    double leaf_transmittance,    // dimensionless
+    double leaf_reflectance       // dimensionless
+)
 {
     if (nlayers < 1 || nlayers > MAXLAY) {
         throw std::out_of_range("nlayers must be at least 1 but no more than MAXLAY.");
     }
-    if (cosTheta > 1 || cosTheta < -1) {
-        throw std::out_of_range("cosTheta must be between -1 and 1.");
+    if (cosine_zenith_angle > 1 || cosine_zenith_angle < -1) {
+        throw std::out_of_range("cosine_zenith_angle must be between -1 and 1.");
     }
     if (kd > 1 || kd < 0) {
         throw std::out_of_range("kd must be between 0 and 1.");
@@ -219,51 +275,110 @@ Light_profile sunML(double Idir,
         throw std::out_of_range("heightf must greater than zero.");
     }
 
+    // Calculate the leaf shape factor for an ellipsoidal leaf angle
+    // distribution using the equation from page 251 of Campbell & Norman
+    // (1998). We will use this value as `k`, the canopy extinction coefficient
+    // for photosynthetically active radiation throughout the canopy. This
+    // quantity represents the ratio of horizontal area to total area for leaves
+    // in the canopy and is therefore dimensionless from
+    // (m^2 ground) / (m^2 leaf).
+    double zenith_angle = acos(cosine_zenith_angle);  // radians
+    double k0 = sqrt(pow(chil, 2) + pow(tan(zenith_angle), 2));
+    double k1 = chil + 1.744 * pow((chil + 1.182), -0.733);
+    double k = k0 / k1;  // dimensionless
 
-    double theta = acos(cosTheta);
-    double k0 = sqrt( pow(chil, 2) + pow(tan(theta), 2) );
-    double k1 = chil + 1.744 * pow((chil + 1.183), -0.733);
-    double k = k0 / k1;  // Canopy extinction coefficient for an ellipsoidal leaf angle distribution. Page 251, Campbell and Norman. Environmental Biophysics. second edition.
+    double lai_per_layer = lai / nlayers;
 
-    double LAIi = LAI / nlayers;
+    // Calculate the ambient direct PPFD through a surface parallel to the ground
+    const double ambient_ppfd_beam_ground = ambient_ppfd_beam * cosine_zenith_angle;  // micromol / (m^2 ground) / s
+
+    // Calculate the ambient direct PPFD through a unit area of leaf surface
+    double ambient_ppfd_beam_leaf = ambient_ppfd_beam_ground * k;  // micromol / (m^2 leaf) / s
 
     Light_profile light_profile;
-    const double Ibeam = Idir * cosTheta;
-    double Isolar = Ibeam * k;
     for (int i = 0; i < nlayers; ++i) {
-        const double CumLAI = LAIi * (i + 0.5);
+        // Get the cumulative LAI for this layer, which represents the total
+        // leaf area above this layer
+        const double cumulative_lai = lai_per_layer * (i + 0.5);
 
-        const double Iscat = Ibeam * (exp(-k * sqrt(absorptivity) * CumLAI) - exp(-k * CumLAI));
+        // Calculate the amount of PPFD scattered out of the direct beam using
+        // Equations 15.6 and 15.1 from Campbell & Norman (1998), following
+        // example 15.2. This is a diffuse flux density representing the flux
+        // through any surface.
+        const double scattered_ppfd =
+            ambient_ppfd_beam_ground * (exp(-k * sqrt(absorptivity) * cumulative_lai) -
+                                        exp(-k * cumulative_lai));  // micromol / m^2 / s
 
-        double Idiffuse = Idiff * exp(-kd * CumLAI) + Iscat;  // The exponential term is equation 15.6, pg 255 of Campbell and Normal. Environmental Biophysics. with alpha=1 and Kbe(phi) = Kd.
-        const double Ls = (1 - exp(-k * LAIi)) * exp(-k * CumLAI) / k;
+        // Calculate the total flux of diffuse photosynthetically active light
+        // in this layer by combining the scattered PPFD with the ambient
+        // diffuse PPFD. Here we use Equation 15.6 with `alpha` = 1 and
+        // `kbe(phi)` = kd.
+        double diffuse_ppfd =
+            ambient_ppfd_diffuse * exp(-kd * cumulative_lai) + scattered_ppfd;  // micromol / m^2 / s
 
-        double Fsun = Ls / LAIi;
-        double Fshade = 1 - Fsun;
+        // Calculate the fraction of sunlit and shaded leaves in this canopy
+        // layer using Equation 15.21.
+        const double Ls = (1 - exp(-k * lai_per_layer)) * exp(-k * cumulative_lai) / k;  // dimensionless
+        double sunlit_fraction = Ls / lai_per_layer;                                     // dimensionless
+        double shaded_fraction = 1 - sunlit_fraction;                                    // dimensionless
 
-        double Iaverage = (Fsun * (Isolar + Idiffuse) + Fshade * Idiffuse) * (1 - exp(-k * LAIi)) / k;
+        // Calculate an "average" incident PPFD for the sunlit and shaded leaves
+        // that doesn't seem to be based on a formula from Campbell & Norman
+        // (1998). It's interpreted as a flux density through a unit of leaf
+        // area, but that may not be correct.
+        double average_ppfd =
+            (sunlit_fraction * (ambient_ppfd_beam_leaf + diffuse_ppfd) + shaded_fraction * diffuse_ppfd) *
+            (1 - exp(-k * lai_per_layer)) / k;  // micromol / (m^2 leaf) / s
 
-        // For values of cosTheta close to or less than 0, in place of the
-        // calculations above, we want to use the limits of the above
-        // expressions as cosTheta approaches 0 from the right:
-        if (cosTheta <= 1E-10) {
-            Isolar = Idir / k1;
-            Idiffuse = Idiff * exp(-kd * CumLAI);
-            Fsun = 0;
-            Fshade = 1;
-            Iaverage = 0;
+        // For values of cosine_zenith_angle close to or less than 0, in place
+        // of the calculations above, we want to use the limits of the above
+        // expressions as cosine_zenith_angle approaches 0 from the right:
+        if (cosine_zenith_angle <= 1E-10) {
+            ambient_ppfd_beam_leaf = ambient_ppfd_beam / k1;
+            diffuse_ppfd = ambient_ppfd_diffuse * exp(-kd * cumulative_lai);
+            sunlit_fraction = 0;
+            shaded_fraction = 1;
+            average_ppfd = 0;
         }
 
-        light_profile.direct_irradiance[i] = Isolar + Idiffuse;  // micromole / m^2 / s
-        light_profile.scattered_irradiance[i] = Iscat;  // micromole / m^2 / s
-        light_profile.diffuse_irradiance[i]= Idiffuse;  // micromole / m^2 / s
-        light_profile.total_irradiance[i] = Iaverage;  // micromole / m^2 / s
-        light_profile.sunlit_fraction[i] = Fsun;  // dimensionless from m^2 / m^2
-        light_profile.shaded_fraction[i] = Fshade;  // dimensionless from m^2 / m^2
-        light_profile.height[i] = (LAI - CumLAI) / heightf;  // meters
+        // Store these values of incident PPFD
+        light_profile.sunlit_incident_ppfd[i] = ambient_ppfd_beam_leaf + diffuse_ppfd;  // micromole / (m^2 leaf) / s
+        light_profile.incident_ppfd_scattered[i] = scattered_ppfd;                      // micromole / m^2 / s
+        light_profile.shaded_incident_ppfd[i] = diffuse_ppfd;                           // micromole / (m^2 leaf) / s
+        light_profile.average_incident_ppfd[i] = average_ppfd;                          // micromole / (m^2 leaf) / s
+        light_profile.sunlit_fraction[i] = sunlit_fraction;                             // dimensionless from m^2 / m^2
+        light_profile.shaded_fraction[i] = shaded_fraction;                             // dimensionless from m^2 / m^2
+        light_profile.height[i] = (lai - cumulative_lai) / heightf;                     // m
+
+        // We also need to determine the total amount of absorbed solar energy
+        // for sunlit and shaded leaves
+        light_profile.sunlit_absorbed_shortwave[i] =
+            absorbed_shortwave_from_incident_ppfd(
+                ambient_ppfd_beam_leaf + diffuse_ppfd,
+                par_energy_content,
+                par_energy_fraction,
+                leaf_reflectance,
+                leaf_transmittance);  // J / (m^2 leaf) / s
+
+        light_profile.shaded_absorbed_shortwave[i] =
+            absorbed_shortwave_from_incident_ppfd(
+                diffuse_ppfd,
+                par_energy_content,
+                par_energy_fraction,
+                leaf_reflectance,
+                leaf_transmittance);  // J / (m^2 leaf) / s
+
+        light_profile.average_absorbed_shortwave[i] =
+            absorbed_shortwave_from_incident_ppfd(
+                average_ppfd,
+                par_energy_content,
+                par_energy_fraction,
+                leaf_reflectance,
+                leaf_transmittance);  // J / (m^2 leaf) / s
     }
     return light_profile;
 }
+
 
 /* Additional Functions needed for EvapoTrans */
 
@@ -474,8 +589,8 @@ double saturation_vapor_pressure(double air_temperature)
 }
 
 struct ET_Str EvapoTrans2(
-        const double Rad,                                // micromoles / m^2 / s
-        const double Iave,                               // micromoles / m^2 / s
+        const double absorbed_shortwave_radiation_et,    // J / m^2 / s (used to calculate evapotranspiration rate)
+        const double absorbed_shortwave_radiation_lt,    // J / m^2 / s (used to calculate leaf temperature)
         const double airTemp,                            // degrees C
         const double RH,                                 // dimensionless from Pa / Pa
         double WindSpeed,                                // m / s
@@ -487,8 +602,6 @@ struct ET_Str EvapoTrans2(
         const int eteq)                                  // unitless parameter
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
-    constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
-    constexpr double LeafReflectance = 0.2;              // dimensionless.
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
     constexpr double R = 8.314472;                       // joule / kelvin / mole.
 
@@ -528,23 +641,6 @@ struct ET_Str EvapoTrans2(
 
     const double ActualVaporPressure = RH * SWVP;  // Pa
 
-    /* SOLAR RADIATION COMPONENT */
-    // Convert from PPFD to irradiance.
-    double constexpr fraction_of_irradiance_in_PAR = 0.5;  // dimensionless.
-    double constexpr joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
-    double const total_irradiance = Rad * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2.
-    double const total_average_irradiance = Iave * joules_per_micromole_PAR / fraction_of_irradiance_in_PAR;  // W / m^2
-
-    /* With a clear sky, irradiance may exceed 1000 W / m^2 in some parts of the world. Thornley and Johnson pg 400. */
-    /* This value cannot possibly be higher than 1300 W / m^2. */
-    if (total_irradiance > 1300) {
-        throw std::range_error("Thrown in EvapoTrans2: total irradiance is " + std::to_string(total_irradiance) + ", which is too high.");
-    }
-    const double Ja = total_irradiance * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
-
-    /* The value below is only for leaf temperature */
-    const double Ja2 = total_average_irradiance * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
-
     /* AERODYNAMIC COMPONENT */
     if (WindSpeed < 0.5) WindSpeed = 0.5;
 
@@ -570,7 +666,7 @@ struct ET_Str EvapoTrans2(
              * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
              */
 
-            const double PhiN2 = Ja2 - rlc;  // W / m^2
+            const double PhiN2 = absorbed_shortwave_radiation_lt - rlc;  // W / m^2
 
             /* This equation is from Thornley and Johnson pg. 418 */
             const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * vapor_density_deficit;  // J / m^3
@@ -582,7 +678,7 @@ struct ET_Str EvapoTrans2(
     }
 
     /* Net radiation */
-    const double PhiN = fmax(0, Ja - rlc);  // W / m^2
+    const double PhiN = fmax(0, absorbed_shortwave_radiation_et - rlc);  // W / m^2
 
     //Rprintf("SlopeFS %f, PhiN %f, LHV %f, PsycParam %f, ga %f, vapor_density_deficit %f, conductance_in... %f\n", SlopeFS, PhiN, LHV, PsycParam, ga, vapor_density_deficit, conductance_in_m_per_s);
     const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
@@ -674,9 +770,12 @@ double leaf_boundary_layer_conductance(
 /* awc, wiltp, fieldc = available water content, wilting point and field capacity */
 /* winds = wind speed */
 
-double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, double soil_water_content,
-        double fieldc, double wiltp, double winds, double RelH, double rsec,
-        double soil_clod_size, double soil_reflectance, double soil_transmission, double specific_heat_of_air, double stefan_boltzman )
+double SoilEvapo(
+    double LAI, double k, double air_temperature, double ppfd,
+    double soil_water_content, double fieldc, double wiltp, double winds,
+    double RelH, double rsec, double soil_clod_size, double soil_reflectance,
+    double soil_transmission, double specific_heat_of_air,
+    double stefan_boltzman, double par_energy_content)
 {
     int method = 1;
     /* A simple way of calculating the proportion of the soil that is hit by direct radiation. */
@@ -692,11 +791,10 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
     double rawc = (soil_water_content - wiltp) / (fieldc - wiltp);  // dimensionless. relative available water content.
 
     /* Campbell and Norman. Environmental Physics, page 142 */
-    double maximum_uptake_rate = 1 - pow((1 + 1.3 * rawc), -5);  // dimenionless
+    double maximum_uptake_rate = 1 - pow((1 + 1.3 * rawc), -5);  // dimensionless
     /* This is a useful idea because dry soils evaporate little water when dry*/
 
     /* Total Radiation */
-    /* Convert light assuming 1 micromole PAR photons = 0.235 J/s Watts*/
     /* At the moment soil evaporation is grossly overestimated. In WIMOVAC the light reaching the last layer of leaves is used. Here instead
        of calculating this again, I will for now assume a 10% as a rough estimate. Note that I could maybe get this since layIdir and
        layIDiff in sunML are external variables.  Rprintf("ppfd %.5f",layIdir[0],"\n"); Update: 03-13-2009. I tried printing this
@@ -704,7 +802,7 @@ double SoilEvapo(double LAI, double k, double air_temperature, double ppfd, doub
        */
     ppfd *= rsec; /* Radiation soil evaporation coefficient */
 
-    double TotalRadiation = ppfd * 0.235;
+    double TotalRadiation = ppfd * par_energy_content;
 
     double DdryA = TempToDdryA(air_temperature);
     double LHV = TempToLHV(air_temperature);  // J / kg
@@ -856,7 +954,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         int layers, double rootDB, double LAI, double k, double AirTemp,
         double IRad, double winds, double RelH, int hydrDist, double rfl,
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
-        double specific_heat_of_air, double stefan_boltzman )
+        double specific_heat_of_air, double stefan_boltzman, double par_energy_content)
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
 
@@ -952,8 +1050,11 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
             /* Only the first layer is affected by soil evaporation */
             double awc2 = aw / layerDepth;
             /* SoilEvapo function needs soil water content  */
-            Sevap = SoilEvapo(LAI, k, AirTemp, IRad, awc2, soil_field_capacity, soil_wilting_point, winds, RelH, rsec,
-                soil_clod_size, soil_reflectance, soil_transmission, specific_heat_of_air, stefan_boltzman ) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
+            Sevap = SoilEvapo(
+                LAI, k, AirTemp, IRad, awc2, soil_field_capacity,
+                soil_wilting_point, winds, RelH, rsec, soil_clod_size,
+                soil_reflectance, soil_transmission, specific_heat_of_air,
+                stefan_boltzman, par_energy_content) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
                to the amount of root in each respective layer.*/
