@@ -30,17 +30,17 @@ directory).  If either command is run *from* this directory
 
 Note: The "bookdown::render_book()" function does not accept a <path>
 argument in versions of bookdown below version 0.22.  To compile the
-book with "render_book" in those versions, run
+book with "render_book" in those versions, either run
 "bookdown::render_book()" from the "bookdown" directory or take
 advantage of the "xfun::in_dir" function and call
-"xfun::in_dir('<path>', bookdown::render_book('.'))", where "<path>"
+"xfun::in_dir('<path>', bookdown::render_book())", where "<path>"
 denotes the path from the current directory to the bookdown directory
 (*this* directory).
 
 Alternatively, if you are using a Linux or macOS machine, you can take
-advantage of the run_bookdown.sh script in the documentation/script
-directory: Simply go to that directory in a terminal program and type
-"./run_bookdown.sh" (without quotes).
+advantage of the "run_bookdown.sh" script in the
+"documentation/script" directory: Simply go to that directory in a
+terminal program and type "./run_bookdown.sh" (without quotes).
 
 Note: Because some sections of the book are contained in their own
 files rather than being in a larger file comprising a complete
