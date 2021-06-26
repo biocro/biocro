@@ -1,4 +1,4 @@
-\page page3 About
+\page about About
 
 **This Doxygen documentation was generated from a particular commit of the BioCro repository:**
 
