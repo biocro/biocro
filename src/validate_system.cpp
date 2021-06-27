@@ -266,8 +266,8 @@ std::string analyze_system_inputs(
 }
 
 /**
- * Assembles a "master" state_map from a group of state_maps and a
- * list of modules.
+ * @brief Assembles a "master" state_map from a group of state_maps
+ * and a list of modules.
  *
  * The resulting state_map will essentially be the union of all the
  * maps in parameter `state_maps` and an additional map formed by
@@ -315,7 +315,8 @@ state_map define_quantity_map(
 }
 
 /**
- * Finds quantities that are defined multiple times in a vector of strings
+ * @brief Finds quantities that are defined multiple times in a vector
+ * of strings
  *
  * @param quantity_names A list (presented as a vector of strings) of names of
  *                       quantities.  Generally these will be names of state
@@ -342,8 +343,9 @@ string_vector find_duplicate_quantity_definitions(string_vector quantity_names)
 }
 
 /**
- * Finds quantities that are required by modules but are not defined by quantity_names.
- * The output includes the module associated with each undefined input.
+ * @brief Finds quantities that are required by modules but are not
+ * defined by quantity_names.  The output includes the module
+ * associated with each undefined input.
  */
 string_vector find_undefined_module_inputs(
     string_vector quantity_names,
@@ -365,8 +367,9 @@ string_vector find_undefined_module_inputs(
 }
 
 /**
- * Finds quantities that are output by modules but are not defined by quantity_names.
- * The output includes the module associated with each undefined output.
+ * @brief Finds quantities that are output by modules but are not
+ * defined by quantity_names.  The output includes the module
+ * associated with each undefined output.
  */
 string_vector find_undefined_module_outputs(
     string_vector quantity_names,
@@ -388,7 +391,8 @@ string_vector find_undefined_module_outputs(
 }
 
 /**
- * Finds modules that access variables before their values have been calculated
+ * @brief Finds modules that access variables before their values have
+ * been calculated
  */
 string_vector find_misordered_modules(
     std::vector<state_map> state_maps,
@@ -415,7 +419,7 @@ string_vector find_misordered_modules(
 }
 
 /**
- * Returns a set containing all unique inputs to the modules
+ * @brief Returns a set containing all unique inputs to the modules
  */
 string_set find_unique_module_inputs(std::vector<string_vector> module_name_vectors)
 {
@@ -433,7 +437,8 @@ string_set find_unique_module_inputs(std::vector<string_vector> module_name_vect
 }
 
 /**
- * Returns a set containing all unique outputs produced by the modules
+ * @brief Returns a set containing all unique outputs produced by the
+ * modules
  */
 string_set find_unique_module_outputs(std::vector<string_vector> module_name_vectors)
 {
@@ -474,7 +479,8 @@ string_set find_strictly_required_inputs(std::vector<string_vector> module_name_
 }
 
 /**
- * Returns parameters in the state maps that are not used as inputs to the modules
+ * @brief Returns parameters in the state maps that are not used as
+ * inputs to the modules
  */
 string_vector find_unused_input_parameters(
     std::vector<state_map> state_maps,
@@ -497,7 +503,8 @@ string_vector find_unused_input_parameters(
 }
 
 /**
- * Returns parameters in the state maps that are not provided as outputs from the modules
+ * @brief Returns parameters in the state maps that are not provided
+ * as outputs from the modules
  */
 string_vector find_static_output_parameters(
     std::vector<state_map> state_maps,
@@ -520,7 +527,8 @@ string_vector find_static_output_parameters(
 }
 
 /**
- * Returns modules that are not compatible with adaptive step size algorithms
+ * @brief Returns modules that are not compatible with adaptive step
+ * size algorithms
  */
 string_vector find_adaptive_incompatibility(std::vector<string_vector> module_name_vectors)
 {
@@ -549,7 +557,8 @@ string_vector find_adaptive_incompatibility(std::vector<string_vector> module_na
 }
 
 /**
- * Returns mischaracterized modules, i.e., steady-state modules in the derivative module list or vice-versa
+ * @brief Returns mischaracterized modules, i.e., steady-state modules
+ * in the derivative module list or vice-versa
  */
 string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_deriv)
 {
@@ -578,7 +587,7 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
 }
 
 /**
- * Returns a vector of unique_ptrs to module objects
+ * @brief Returns a vector of unique_ptrs to module objects
  */
 module_vector get_module_vector(
     std::vector<string_vector> module_name_vectors,
@@ -597,7 +606,7 @@ module_vector get_module_vector(
 }
 
 /**
- * Adds an indented line to a message
+ * @brief Adds an indented line to a message
  *
  * @param[in] message The message being added to.
  *
@@ -621,8 +630,9 @@ std::string add_indented_line(std::string message, std::string text_to_add, int 
 }
 
 /**
- * Inserts quantity_name into target_vector if it is not already there.  In the
- * case of a duplicate, quantity_name is inserted into duplicates.
+ * @brief Inserts quantity_name into target_vector if it is not
+ * already there.  In the case of a duplicate, quantity_name is
+ * inserted into duplicates.
  *
  * @param[in] quantity_name A string (the name of a quantity).
  *
@@ -646,9 +656,9 @@ void insert_quantity_name_if_new(
 }
 
 /**
- * If param_name is not included in defined_quantity_names,
- * a new entry is inserted into undefined_module_names
- * that includes param_name and its associated module_name
+ * @brief If param_name is not included in defined_quantity_names, a
+ * new entry is inserted into undefined_module_names that includes
+ * param_name and its associated module_name
  */
 void insert_module_param_if_undefined(
     std::string param_name,
@@ -662,7 +672,7 @@ void insert_module_param_if_undefined(
 }
 
 /**
- * Converts a string_set to a string_vector
+ * @brief Converts a string_set to a string_vector
  */
 string_vector string_set_to_string_vector(string_set ss)
 {

@@ -10,7 +10,9 @@
 #include "constants.h"
 
 /**
- * Returns pairs of pointers that each point to the same named quantity in each of the two input maps.
+ * @brief Returns pairs of pointers that each point to the same named
+ * quantity in each of the two input maps.
+ *
  * Here it is essential that map_1 and map_2 are passed by reference; otherwise the pointers will be
  * useless.
  */
@@ -32,8 +34,11 @@ std::vector<std::pair<value_type_1*, const value_type_2*>> get_pointer_pairs(
 }
 
 /**
- * Returns a vector of pointers that point to elements of map whose targets are specified by quantity_names.
- * Here it is essential that the map is passed by reference; otherwise the pointers will be useless
+ * @brief Returns a vector of pointers that point to elements of map
+ * whose targets are specified by quantity_names.
+ *
+ * Here it is essential that the map is passed by reference; otherwise
+ * the pointers will be useless
  */
 template <typename name_list_type, typename value_type>
 std::vector<value_type*> get_pointers(
@@ -50,8 +55,11 @@ std::vector<value_type*> get_pointers(
 }
 
 /**
- * Returns a vector of pointers that point to elements of map whose targets are specified by quantity_names.
- * Here it is essential that the map is passed by reference; otherwise the pointers will be useless
+ * @brief Returns a vector of pointers that point to elements of map
+ * whose targets are specified by quantity_names.
+ *
+ * Here it is essential that the map is passed by reference; otherwise
+ * the pointers will be useless
  */
 template <typename name_list_type, typename value_type>
 std::vector<const value_type*> get_const_pointers(

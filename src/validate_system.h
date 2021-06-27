@@ -140,7 +140,8 @@ size_t process_criterion(
 }
 
 /**
- * Forms a user feedback message from a list of quantities, modules, etc.
+ * @brief Forms a user feedback message from a list of quantities,
+ * modules, etc.
  *
  * @param[in] message_if_empty This is the string that will be returned
  *                             (surrounded by new-line characters) if
@@ -184,8 +185,8 @@ std::string create_message(std::string message_if_empty,
 }
 
 /**
- * Forms a user feedback message from a list of quantities, modules,
- * etc.  This function should be used in preference to
+ * @brief Forms a user feedback message from a list of quantities,
+ * modules, etc.  This function should be used in preference to
  * `create_message` for the case where a non-empty `string_list`
  * corresponds to some failure condition and an empty `string_list`
  * corresponds to success, and we want to prepend success/failure
@@ -225,7 +226,7 @@ std::string create_marked_message(std::string message_if_empty,
 }
 
 /**
- * Inserts all the keys from map into name_vector
+ * @brief Inserts all the keys from map into name_vector
  */
 template <typename map_type>
 void insert_key_names(string_vector& name_vector, const map_type map)
@@ -235,8 +236,8 @@ void insert_key_names(string_vector& name_vector, const map_type map)
 }
 
 /**
- * Assembles the names of all quantities defined by a group of state_maps and
- * module outputs, including any duplicates.
+ * @brief Assembles the names of all quantities defined by a group of
+ * state_maps and module outputs, including any duplicates.
  *
  * @param[in] state_maps A collection of sets of named quantities presented as a
  *                       vector of map_with_string_keys objects.  Generally, this
@@ -283,7 +284,7 @@ string_vector get_defined_quantity_names(
 }
 
 /**
- * If quantity_name is not included in defined_quantity_names,
+ * @brief If quantity_name is not included in defined_quantity_names,
  * it is inserted into undefined_quantity_names
  */
 template <typename list_type>
@@ -298,7 +299,8 @@ void insert_quantity_if_undefined(
 }
 
 /**
- * Checks whether all of the elements of list find_these are in the list in_this
+ * @brief Checks whether all of the elements of list find_these are in
+ * the list in_this
  */
 template <typename list_type>
 bool all_are_in_list(list_type find_these, list_type in_this)

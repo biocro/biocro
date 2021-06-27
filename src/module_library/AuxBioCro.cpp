@@ -38,8 +38,9 @@ double poisson_density(int x, double lambda)
 }
 
 /**
- * Computation of the cosine of the zenith angle from latitute (`lat`), day of
- * the year (`DOY`), and time of day (`td`).
+ * @brief
+ * Computation of the cosine of the zenith angle from the latitute,
+ * day of the year, and the time of day.
  *
  * For the values of angles in radians, we'll use the common practice of
  * denoting the latitude by `phi` (\f$\phi\f$), the declination by `delta`
@@ -384,7 +385,7 @@ Light_profile sunML(
 
 
 /**
- * RH and Wind profile function
+ * @brief RH and Wind profile function
  *
  * Preconditions:
  *     `WindSpeed` is non-negative.

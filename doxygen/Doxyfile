@@ -11,7 +11,6 @@ PROJECT_NAME           = "The BioCro C++ Library"
 PROJECT_NUMBER         = # This could be set automatically to the version
                          # tag.
 OUTPUT_DIRECTORY       = doxygen_docs_complete
-JAVADOC_AUTOBRIEF      = YES
 TAB_SIZE               = 8 # Consider changing this to 4.  Or just get rid
                            # of all tabs.
 #---------------------------------------------------------------------------
