@@ -589,50 +589,61 @@ double saturation_vapor_pressure(double air_temperature)
 }
 
 struct ET_Str EvapoTrans2(
-        const double absorbed_shortwave_radiation_et,    // J / m^2 / s (used to calculate evapotranspiration rate)
-        const double absorbed_shortwave_radiation_lt,    // J / m^2 / s (used to calculate leaf temperature)
-        const double airTemp,                            // degrees C
-        const double RH,                                 // dimensionless from Pa / Pa
-        double WindSpeed,                                // m / s
-        const double LeafAreaIndex,                      // dimensionless from m^2 / m^2
-        double CanopyHeight,                             // meters
-        const double stomatal_conductance,               // mmol / m^2 / s
-        const double leaf_width,                         // meter
-        const double specific_heat_of_air,               // J / kg / K
-        const int eteq)                                  // unitless parameter
+    const double absorbed_shortwave_radiation_et,  // J / m^2 / s (used to calculate evapotranspiration rate)
+    const double absorbed_shortwave_radiation_lt,  // J / m^2 / s (used to calculate leaf temperature)
+    const double airTemp,                          // degrees C
+    const double RH,                               // dimensionless from Pa / Pa
+    double WindSpeed,                              // m / s
+    const double LeafAreaIndex,                    // dimensionless from m^2 / m^2
+    double CanopyHeight,                           // meters
+    const double stomatal_conductance,             // mmol / m^2 / s
+    const double leaf_width,                       // meter
+    const double specific_heat_of_air,             // J / kg / K
+    const int eteq)                                // unitless parameter
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
 
-    CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
+    CanopyHeight = fmax(0.1, CanopyHeight);  // ensure CanopyHeight >= 0.1
 
-    double WindSpeedHeight = 2; // This is the height at which the wind speed was measured.
-    // When the height at which wind was measured is lower than the canopy height, there can be problems with the calculations.
-    // This is a very crude way of solving this problem.
+    // Define the height at which the wind speed was measured
+    double WindSpeedHeight = 2;
+
+    // When the height at which wind was measured is lower than the canopy
+    // height, there can be problems with the calculations. This is a very crude
+    // way of solving this problem.
     if (WindSpeedHeight < CanopyHeight + 1) {
         WindSpeedHeight = CanopyHeight + WindSpeedHeight;
     }
 
-    const double DdryA = TempToDdryA(airTemp);  // kg / m^3. Density of dry air.,
-    const double LHV = TempToLHV(airTemp);  // J / kg
-    const double SlopeFS = TempToSFS(airTemp);  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double DdryA = TempToDdryA(airTemp);               // kg / m^3. Density of dry air.,
+    const double LHV = TempToLHV(airTemp);                   // J / kg
+    const double SlopeFS = TempToSFS(airTemp);               // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
     const double SWVP = saturation_vapor_pressure(airTemp);  // Pa.
 
-    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
+    // model state. (1 * R * temperature) / pressure
+    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
+
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (conductance_in_m_per_s <= 0.001) {
         conductance_in_m_per_s = 0.001;
     }
 
-    if (RH > 1)
+    if (RH > 1) {
         throw std::range_error("Thrown in EvapoTrans2: RH (relative humidity) is greater than 1.");
+    }
 
+    // Convert from vapor pressure to vapor density using the ideal gas law.
+    // This is approximately right for temperatures what won't kill plants.
+    const double SWVC =
+        SWVP / physical_constants::ideal_gas_constant /
+        (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3
 
-    const double SWVC = SWVP / physical_constants::ideal_gas_constant / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
-
-    if (SWVC < 0)
+    if (SWVC < 0) {
         throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0.");
+    }
 
     const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
@@ -641,7 +652,9 @@ struct ET_Str EvapoTrans2(
     const double ActualVaporPressure = RH * SWVP;  // Pa
 
     /* AERODYNAMIC COMPONENT */
-    if (WindSpeed < 0.5) WindSpeed = 0.5;
+    if (WindSpeed < 0.5) {
+        WindSpeed = 0.5;
+    }
 
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;  // degrees C
@@ -651,7 +664,10 @@ struct ET_Str EvapoTrans2(
         double ChangeInLeafTemp = 10.0;  // degrees C
         double Counter = 0;
         do {
-            ga = leaf_boundary_layer_conductance(WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);  // m / s
+            ga = leaf_boundary_layer_conductance(
+                WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s,
+                ActualVaporPressure);  // m / s
+
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */
 
@@ -659,47 +675,56 @@ struct ET_Str EvapoTrans2(
 
             rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;  // W / m^2
 
-            /* rlc = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
-             * To make it a linear function of deltaT, do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
-             * rlc = sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) - sigma * Tair^4 = 4 * sigma * Tair^3 * deltaT
-             * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
+            /* rlc = net long wave radiation emittted per second
+             *     = radiation emitted per second - radiation absorbed per second
+             *     = sigma * (Tair + deltaT)^4 - sigma * Tair^4
+             *
+             * To make it a linear function of deltaT, do a Taylor series about
+             * deltaT = 0 and keep only the zero and first order terms.
+             *
+             * rlc = sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) - sigma * Tair^4
+             *     = 4 * sigma * Tair^3 * deltaT
+             *
+             * where 4 * sigma * Tair^3 is the derivative of
+             * sigma * (Tair + deltaT)^4 evaluated at deltaT = 0
              */
 
             const double PhiN2 = absorbed_shortwave_radiation_lt - rlc;  // W / m^2
 
             /* This equation is from Thornley and Johnson pg. 418 */
             const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * vapor_density_deficit;  // J / m^3
-            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^3 / K
-            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // kelvin. Confine Deltat to the interval [-10, 10]:
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));           // J / m^3 / K
+            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10);                                                 // kelvin. Confine Deltat to the interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin
-        } while ( (++Counter <= 10) && (ChangeInLeafTemp > 0.5) );
+        } while ((++Counter <= 10) && (ChangeInLeafTemp > 0.5));
     }
 
     /* Net radiation */
     const double PhiN = fmax(0, absorbed_shortwave_radiation_et - rlc);  // W / m^2
 
-    //Rprintf("SlopeFS %f, PhiN %f, LHV %f, PsycParam %f, ga %f, vapor_density_deficit %f, conductance_in... %f\n", SlopeFS, PhiN, LHV, PsycParam, ga, vapor_density_deficit, conductance_in_m_per_s);
-    const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
-        / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s.  Thornley and Johnson. 1990. Plant and Crop Modeling. Equation 14.4k. Page 408.
+    const double penman_monteith =
+        (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit) /
+        (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s.  Thornley and Johnson. 1990. Plant and Crop Modeling. Equation 14.4k. Page 408.
 
-    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
-        / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
+    const double EPen =
+        (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit) /
+        (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     /* Choose equation to report */
     double TransR;
     switch (eteq) {
-    case 1:
-        TransR = EPen;
-        break;
-    case 2:
-        TransR = EPries;
-        break;
-    default:
-        TransR = penman_monieth;
-        break;
+        case 1:
+            TransR = EPen;
+            break;
+        case 2:
+            TransR = EPries;
+            break;
+        default:
+            TransR = penman_monteith;
+            break;
     }
 
     // TransR has units of kg / m^2 / s.
@@ -709,11 +734,11 @@ struct ET_Str EvapoTrans2(
     /* 1e3 - mmol / mol */
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e3 * 1e3 / 18;    // mmol / m^2 / s
-    et_results.EPenman = EPen * 1e3 * 1e3 / 18;     // mmol / m^2 / s
-    et_results.EPriestly = EPries * 1e3 * 1e3 / 18; // mmol / m^2 / s
-    et_results.Deltat = Deltat;                     // degrees C
-    et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air; // mol / m^2 / s
+    et_results.TransR = TransR * 1e3 * 1e3 / 18;                             // mmol / m^2 / s
+    et_results.EPenman = EPen * 1e3 * 1e3 / 18;                              // mmol / m^2 / s
+    et_results.EPriestly = EPries * 1e3 * 1e3 / 18;                          // mmol / m^2 / s
+    et_results.Deltat = Deltat;                                              // degrees C
+    et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air;  // mol / m^2 / s
 
     return et_results;
 }

@@ -17,13 +17,13 @@
 #include "../constants.h"  // for ideal_gas_constant
 
 struct ET_Str c3EvapoTrans(
-        double absorbed_shortwave_radiation,             // J / m^2 / s
-        double air_temperature,                          // degrees C
-        double RH,                                       // Pa / Pa
-        double WindSpeed,                                // m / s
-        double CanopyHeight,                             // meters
-        double specific_heat_of_air,                     // J / kg / K
-        double stomatal_conductance)                     // mmol / m^2 / s
+    double absorbed_shortwave_radiation,  // J / m^2 / s
+    double air_temperature,               // degrees C
+    double RH,                            // Pa / Pa
+    double WindSpeed,                     // m / s
+    double CanopyHeight,                  // meters
+    double specific_heat_of_air,          // J / kg / K
+    double stomatal_conductance)          // mmol / m^2 / s
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s^1 / K^4
     constexpr double kappa = 0.41;                       // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
@@ -36,46 +36,54 @@ struct ET_Str c3EvapoTrans(
     const double d = dCoef * CanopyHeight;               // meters
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
 
-    if (CanopyHeight < 0.1)
+    if (CanopyHeight < 0.1) {
         CanopyHeight = 0.1;
+    }
 
-    const double DdryA = TempToDdryA(air_temperature);  // kg / m^3
-    const double LHV = TempToLHV(air_temperature);  // J / kg
-    const double SlopeFS = TempToSFS(air_temperature);  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
+    const double LHV = TempToLHV(air_temperature);                   // J / kg
+    const double SlopeFS = TempToSFS(air_temperature);               // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
     const double SWVP = saturation_vapor_pressure(air_temperature);  // Pa
 
-    constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    constexpr double volume_of_one_mole_of_air = 24.39e-3;                                    // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
-    if (conductance_in_m_per_s <= 0) /* Prevent errors due to extremely low Layer conductance. */
+    /* Prevent errors due to extremely low Layer conductance. */
+    if (conductance_in_m_per_s <= 0) {
         conductance_in_m_per_s = 0.01;
+    }
 
-    if (RH > 1)
+    if (RH > 1) {
         throw std::range_error("Thrown in c3EvapoTrans: RH (relative humidity) is greater than 1.");
+    }
 
     /* SOLAR RADIATION COMPONENT*/
 
     const double SWVC = SWVP / physical_constants::ideal_gas_constant / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
-    if (SWVC < 0)
+    if (SWVC < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");
+    }
 
     const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 
     /* AERODYNAMIC COMPONENT */
-    if (WindSpeed < 0.5) WindSpeed = 0.5;
+    if (WindSpeed < 0.5) {
+        WindSpeed = 0.5;
+    }
 
     /* Calculation of ga */
     /* According to thornley and Johnson pg. 416 */
-    const double ga0 = pow(kappa, 2) * WindSpeed;                     // m / s
-    const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);      // dimensionless
-    const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);    // dimensionless
-    const double ga = ga0 / (ga1 * ga2);                              // m / s
+    const double ga0 = pow(kappa, 2) * WindSpeed;                   // m / s
+    const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);    // dimensionless
+    const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);  // dimensionless
+    const double ga = ga0 / (ga1 * ga2);                            // m / s
 
-    if (ga < 0)
+    if (ga < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero.");
+    }
 
     /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
     /* This version is non-iterative and an approximation*/
@@ -84,8 +92,6 @@ struct ET_Str c3EvapoTrans(
 
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;  // degrees C
-    //std::cout << "Evapotrans inputs: " << Itot << ", " << air_temperature << ", " << RH << ", " << WindSpeed << ", " << CanopyHeight << ", " << stomatal_conductance << "\n";
-    //std::cout << "Delta t in c3EvapoTrans, initial: " << Deltat << "\n";
     double PhiN;
     {
         double ChangeInLeafTemp = 10;  // degrees C
@@ -96,24 +102,26 @@ struct ET_Str c3EvapoTrans(
 
             PhiN = absorbed_shortwave_radiation - rlc;  // W / m^2
 
-            double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;  // J / m^3
+            double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;       // J / m^3
             double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^2 / K
-            Deltat = TopValue / BottomValue;  // kelvin. It is also degrees C, because it is a temperature difference.
+            Deltat = TopValue / BottomValue;                                                       // kelvin. It is also degrees C, because it is a temperature difference.
             Deltat = std::min(std::max(Deltat, -5.0), 5.0);
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin. It is also degrees C, because it is a temperature difference.
         }
     }
-    //std::cout << "Delta t in c3EvapoTrans, final: " << Deltat << "\n";
 
-    if (PhiN < 0)
+    if (PhiN < 0) {
         PhiN = 0;
+    }
 
-    const double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
-        / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s
+    const double TransR =
+        (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) /
+        (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s
 
-    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
-        / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
+    const double EPen =
+        (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) /
+        (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     const double EPries = 1.26 * (SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam)));  // kg / m^2 / s
 
@@ -131,4 +139,3 @@ struct ET_Str c3EvapoTrans(
 
     return et_results;
 }
-
