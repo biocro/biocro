@@ -7,6 +7,7 @@
 #include "c3photo.hpp"
 #include "ball_berry.hpp"
 #include "biocro_units.h"
+#include "../constants.h"
 
 using namespace biocro_units;
 
@@ -21,7 +22,7 @@ quantity<dimensionless> arrhenius_exponent(quantity<dimensionless> c,
                                            quantity<energy_over_amount> activation_energy,
                                            quantity<temperature> temperature)
 {
-    const quantity<energy_over_temperature_amount> R = 8.314472 * joule / kelvin / mole;
+    const quantity<energy_over_temperature_amount> R = physical_constants::ideal_gas_constant * joule / kelvin / mole;
     return exp(c - activation_energy / (R * temperature));
 }
 
@@ -103,7 +104,7 @@ struct c3_str c3photoC(double _Qp,
     const quantity<energy_over_amount> Ha = 62.99e3 * joule / mole;  // enthalpy of activation
     const quantity<energy_over_temperature_amount> S = 0.588e3 * joule / kelvin / mole;   // entropy
     const quantity<energy_over_amount> Hd = 182.14e3 * joule / mole;                      // enthalpy of deactivation
-    const quantity<energy_over_temperature_amount> R = 8.314472 * joule / kelvin / mole;  // gas constant
+    const quantity<energy_over_temperature_amount> R = physical_constants::ideal_gas_constant * joule / kelvin / mole;  // gas constant
     const quantity<dimensionless> top = leaf_temperature.value() * arrhenius_exponent(TPU_c, Ha, leaf_temperature);
     const quantity<dimensionless> bot = 1.0 + arrhenius_exponent(S / R, Hd, leaf_temperature);
     double TPU_rate_scaler = top.value() / bot.value();  // dimensionless
@@ -116,7 +117,7 @@ struct c3_str c3photoC(double _Qp,
     /* The alpha constant for calculating Ap is from
        Eq. 2.26, von Caemmerer, S. Biochemical models of leaf photosynthesis.*/
     double alpha_TPU = 0.0;  // dimensionless. Without more information, alpha=0 is often assumed.
-    
+
     int iterCounter = 0;
     int max_iter = 1000;
     while (iterCounter < max_iter) {

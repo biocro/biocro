@@ -3,6 +3,7 @@
 
 #include "../modules.h"
 #include "../state_map.h"
+#include "../constants.h"  // for ideal_gas_constant
 #include "AuxBioCro.h"  // For saturation_vapor_pressure, TempToSFS, TempToLHV,
                         // and TempToDdryA
 
@@ -79,12 +80,11 @@ void water_vapor_properties_from_air_temperature::do_operation() const
     double rh = *rh_ip;
 
     double molar_mass_of_water = 18.01528e-3;  // kg / mol
-    double R = 8.314472;                       // joule / kelvin / mole
 
     double density_of_dry_air = TempToDdryA(air_temperature);                                                                        // kg / m^3
     double latent_heat_vaporization_of_water = TempToLHV(air_temperature);                                                           // J / kg
     double saturation_water_vapor_pressure = saturation_vapor_pressure(air_temperature);                                             // Pa
-    double saturation_water_vapor_content = saturation_water_vapor_pressure / R / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
+    double saturation_water_vapor_content = saturation_water_vapor_pressure / physical_constants::ideal_gas_constant / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
     double vapor_density_deficit = saturation_water_vapor_content * (1 - rh);
 
     // Update the output quantity list

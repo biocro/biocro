@@ -14,6 +14,7 @@
 #include "c3photo.hpp"
 #include "AuxBioCro.h"
 #include "BioCro.h"
+#include "../constants.h"  // for ideal_gas_constant
 
 struct ET_Str c3EvapoTrans(
         double absorbed_shortwave_radiation,             // J / m^2 / s
@@ -34,7 +35,6 @@ struct ET_Str c3EvapoTrans(
     const double Zetam = ZetaMCoef * CanopyHeight;       // meters
     const double d = dCoef * CanopyHeight;               // meters
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
-    constexpr double R = 8.314472;                       // joule / kelvin / mole.
 
     if (CanopyHeight < 0.1)
         CanopyHeight = 0.1;
@@ -55,7 +55,7 @@ struct ET_Str c3EvapoTrans(
 
     /* SOLAR RADIATION COMPONENT*/
 
-    const double SWVC = SWVP / R / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
+    const double SWVC = SWVP / physical_constants::ideal_gas_constant / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
     if (SWVC < 0)
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");

@@ -16,7 +16,7 @@
 #include <stdexcept>
 #include <string>
 #include <cmath>
-#include "../constants.h" // for pi, e, and atmospheric_pressure_at_sea_level
+#include "../constants.h"  // for pi, e, atmospheric_pressure_at_sea_level, ideal_gas_constant
 #include "c4photo.h"
 #include "BioCro.h"
 
@@ -603,7 +603,6 @@ struct ET_Str EvapoTrans2(
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
     constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
-    constexpr double R = 8.314472;                       // joule / kelvin / mole.
 
     CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
 
@@ -630,7 +629,7 @@ struct ET_Str EvapoTrans2(
         throw std::range_error("Thrown in EvapoTrans2: RH (relative humidity) is greater than 1.");
 
 
-    const double SWVC = SWVP / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
+    const double SWVC = SWVP / physical_constants::ideal_gas_constant / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
 
     if (SWVC < 0)
         throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0.");
