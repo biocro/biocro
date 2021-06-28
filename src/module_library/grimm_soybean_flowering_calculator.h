@@ -19,7 +19,7 @@
  * values.
  *
  * Once the plant's physiological age exceeds a threshold value, it enters a
- * photoperiod-sensitive stage where physological days accumulate at a rate
+ * photoperiod-sensitive stage where physiological days accumulate at a rate
  * determined by both temperature and night length. Here the overall rate is the
  * product of two factors:
  *
@@ -29,7 +29,7 @@
  * temperature values and `F(N)` is a linear-plateau function of night length
  * with two critical night length values.
  *
- * When the physological age exceeds a third threshold, the plant begins to
+ * When the physiological age exceeds a third threshold, the plant begins to
  * flower (R1). Here this is represented by the quantity `grimm_flowering,`
  * whose value becomes nonzero when the plant begins to flower.
  *
@@ -63,27 +63,27 @@ class grimm_soybean_flowering_calculator : public SteadyModule
           SteadyModule("grimm_soybean_flowering_calculator"),
 
           // Get references to input quantities
-          sowing_time(get_input(input_quantities, "sowing_time")),
-          grimm_physiological_age(get_input(input_quantities, "grimm_physiological_age")),
-          grimm_juvenile_T0(get_input(input_quantities, "grimm_juvenile_T0")),
-          grimm_juvenile_T1(get_input(input_quantities, "grimm_juvenile_T1")),
-          grimm_juvenile_T2(get_input(input_quantities, "grimm_juvenile_T2")),
-          grimm_juvenile_T3(get_input(input_quantities, "grimm_juvenile_T3")),
-          grimm_juvenile_pd_threshold(get_input(input_quantities, "grimm_juvenile_pd_threshold")),
-          grimm_T_min(get_input(input_quantities, "grimm_T_min")),
-          grimm_T_opt(get_input(input_quantities, "grimm_T_opt")),
-          grimm_N_min(get_input(input_quantities, "grimm_N_min")),
-          grimm_N_opt(get_input(input_quantities, "grimm_N_opt")),
-          grimm_flowering_threshold(get_input(input_quantities, "grimm_flowering_threshold")),
-          time(get_input(input_quantities, "time")),
-          temp(get_input(input_quantities, "temp")),
-          day_length(get_input(input_quantities, "day_length")),
+          sowing_time{get_input(input_quantities, "sowing_time")},
+          grimm_physiological_age{get_input(input_quantities, "grimm_physiological_age")},
+          grimm_juvenile_T0{get_input(input_quantities, "grimm_juvenile_T0")},
+          grimm_juvenile_T1{get_input(input_quantities, "grimm_juvenile_T1")},
+          grimm_juvenile_T2{get_input(input_quantities, "grimm_juvenile_T2")},
+          grimm_juvenile_T3{get_input(input_quantities, "grimm_juvenile_T3")},
+          grimm_juvenile_pd_threshold{get_input(input_quantities, "grimm_juvenile_pd_threshold")},
+          grimm_T_min{get_input(input_quantities, "grimm_T_min")},
+          grimm_T_opt{get_input(input_quantities, "grimm_T_opt")},
+          grimm_N_min{get_input(input_quantities, "grimm_N_min")},
+          grimm_N_opt{get_input(input_quantities, "grimm_N_opt")},
+          grimm_flowering_threshold{get_input(input_quantities, "grimm_flowering_threshold")},
+          time{get_input(input_quantities, "time")},
+          temp{get_input(input_quantities, "temp")},
+          day_length{get_input(input_quantities, "day_length")},
 
           // Get pointers to output quantities
-          grimm_rate_op(get_op(output_quantities, "grimm_rate")),
-          grimm_rate_temperature_op(get_op(output_quantities, "grimm_rate_temperature")),
-          grimm_rate_photoperiod_op(get_op(output_quantities, "grimm_rate_photoperiod")),
-          grimm_flowering_op(get_op(output_quantities, "grimm_flowering"))
+          grimm_rate_op{get_op(output_quantities, "grimm_rate")},
+          grimm_rate_temperature_op{get_op(output_quantities, "grimm_rate_temperature")},
+          grimm_rate_photoperiod_op{get_op(output_quantities, "grimm_rate_photoperiod")},
+          grimm_flowering_op{get_op(output_quantities, "grimm_flowering")}
     {
     }
     static string_vector get_inputs();
