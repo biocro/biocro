@@ -4,6 +4,7 @@
 #include "../modules.h"
 #include "../state_map.h"
 #include <cmath> // for log, pow
+#include <algorithm> // for max
 
 double photoFunc(double P, double Popt, double Pcrit);
 double tempFunc(double T, double Tmin, double Topt, double Tmax);
@@ -151,7 +152,7 @@ void soybean_development_rate_calculator::do_operation() const
         // 1. Sowing to emergence
 
         double temp_diff = temp - Tbase_emr; // degrees C
-        soybean_development_rate = temp_diff / TTemr_threshold; // day^-1
+        soybean_development_rate = std::max(0.0, temp_diff / TTemr_threshold); // day^-1
 
     } else if (DVI < 0.333) {
         // 2a. Emergence - V0 (cotyledon stage); r = Rmax * f(T)
