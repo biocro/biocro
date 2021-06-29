@@ -7,7 +7,7 @@
 #include "c3photo.hpp"
 #include "ball_berry.hpp"
 #include "biocro_units.h"
-#include "../constants.h"
+#include "../constants.h"  // for ideal_gas_constant, celsius_to_kelvin
 
 using namespace biocro_units;
 
@@ -53,7 +53,7 @@ struct c3_str c3photoC(
     const quantity<flux> Vcmax0 = _Vcmax0 * 1e-6 * mole / square_meter / second;
     const quantity<mole_fraction> atmospheric_oxygen_mole_fraction = _O2 * 1e-3 * mole / mole;
     const quantity<flux> Jmax0 = _Jmax0 * 1e-6 * mole / square_meter / second;
-    const quantity<temperature> leaf_temperature = (_Tleaf + 273.15) * kelvin;
+    const quantity<temperature> leaf_temperature = (_Tleaf + conversion_constants::celsius_to_kelvin) * kelvin;
     const quantity<flux> Qp = _Qp * 1e-6 * mole / square_meter / second;
     const quantity<flux> Gsw_min = Gs_min * mole / square_meter / second;
 
@@ -74,7 +74,7 @@ struct c3_str c3photoC(
     const quantity<flux> Jmax = Jmax0 * arrhenius_exponent(17.57, 43.54e3 * joule / mole, leaf_temperature);
     const quantity<flux> Rd = Rd0 * arrhenius_exponent(18.72, 46.39e3 * joule / mole, leaf_temperature);
 
-    const double leaf_temperature_celsius = leaf_temperature.value() - 273.15;
+    const double leaf_temperature_celsius = leaf_temperature.value() - conversion_constants::celsius_to_kelvin;
     const quantity<dimensionless> theta =
         thet + 0.018 * leaf_temperature_celsius - 3.7e-4 * pow(leaf_temperature_celsius, 2);
 

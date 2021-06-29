@@ -15,7 +15,7 @@
 #include "AuxBioCro.h"
 #include "BioCro.h"
 #include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water,
-                           // stefan_boltzmann
+                           // stefan_boltzmann, celsius_to_kelvin
 
 struct ET_Str c3EvapoTrans(
     double absorbed_shortwave_radiation,  // J / m^2 / s
@@ -63,7 +63,8 @@ struct ET_Str c3EvapoTrans(
     // This is approximately right for temperatures what won't kill plants.
     const double SWVC =
         SWVP / physical_constants::ideal_gas_constant /
-        (air_temperature + 273.15) * physical_constants::molar_mass_of_water;  // kg / m^3
+        (air_temperature + conversion_constants::celsius_to_kelvin) *
+        physical_constants::molar_mass_of_water;  // kg / m^3
 
     if (SWVC < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");
@@ -102,7 +103,9 @@ struct ET_Str c3EvapoTrans(
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
             double OldDeltaT = Deltat;
 
-            double rlc = 4.0 * physical_constants::stefan_boltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  // W / m^2
+            double rlc = 4.0 * physical_constants::stefan_boltzmann *
+                         pow(conversion_constants::celsius_to_kelvin + air_temperature, 3.0) *
+                         Deltat;  // W / m^2
 
             PhiN = absorbed_shortwave_radiation - rlc;  // W / m^2
 

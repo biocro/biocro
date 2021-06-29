@@ -1,3 +1,3 @@
 specific_heat_of_air,height,windspeed,average_absorbed_shortwave,Catm,alpha_rue,b1,incident_ppfd,rh,temp,Rd,b0,GrossAssim,Assim,EPriestly,TransR,Ci,Gs,leaf_temperature,EPenman,description
 input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,NA
-1,1,1,1,1,0.001,1,1,1,1,1,1,0.001,-0.19692210307338,0.0266463662122481,0.0211359510798776,1.31507536491741,1000,1.16007812696447,0.0211479096922604,not realistic values but they work
+1,1,1,1,1,0.001,1,1,1,1,1,1,0.001,-0.196921914140735,0.0266442232612929,0.0211342512868854,1.31507506262518,1000,1.16006525318002,0.021146208937534,not realistic values but they work

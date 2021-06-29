@@ -20,7 +20,7 @@
 #include "BioCro.h"
 #include "../constants.h"  // for pi, e, atmospheric_pressure_at_sea_level,
                            // ideal_gas_constant, molar_mass_of_water,
-                           // stefan_boltzmann
+                           // stefan_boltzmann, celsius_to_kelvin
 
 double poisson_density(int x, double lambda)
 {
@@ -638,7 +638,7 @@ struct ET_Str EvapoTrans2(
     // This is approximately right for temperatures what won't kill plants.
     const double SWVC =
         SWVP / physical_constants::ideal_gas_constant /
-        (airTemp + 273.15) * physical_constants::molar_mass_of_water;  // kg / m^3
+        (airTemp + conversion_constants::celsius_to_kelvin) * physical_constants::molar_mass_of_water;  // kg / m^3
 
     if (SWVC < 0) {
         throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0.");
@@ -672,7 +672,7 @@ struct ET_Str EvapoTrans2(
 
             double OldDeltaT = Deltat;
 
-            rlc = 4 * physical_constants::stefan_boltzmann * pow(273 + airTemp, 3) * Deltat;  // W / m^2
+            rlc = 4 * physical_constants::stefan_boltzmann * pow(conversion_constants::celsius_to_kelvin + airTemp, 3) * Deltat;  // W / m^2
 
             /* rlc = net long wave radiation emittted per second
              *     = radiation emitted per second - radiation absorbed per second
@@ -756,8 +756,8 @@ double leaf_boundary_layer_conductance(
 
     double leaftemp = air_temperature + delta_t;  // degrees C
     double gsv = stomcond;  // m / s
-    double Tak = air_temperature + 273.15;  // K
-    double Tlk = leaftemp + 273.15;  // K
+    double Tak = air_temperature + conversion_constants::celsius_to_kelvin;  // K
+    double Tlk = leaftemp + conversion_constants::celsius_to_kelvin;  // K
     double ea = water_vapor_pressure;  // Pa
     double lw = leafwidth;  // m
 
@@ -839,7 +839,7 @@ double SoilEvapo(
 
     double Ja = 2 * TotalRadiation * ((1 - soil_reflectance - soil_transmission) / (1 - soil_transmission));
 
-    double rlc = 4 * physical_constants::stefan_boltzmann * pow((273 + SoilTemp), 3) * 0.005;
+    double rlc = 4 * physical_constants::stefan_boltzmann * pow((conversion_constants::celsius_to_kelvin + SoilTemp), 3) * 0.005;
     /* the last term should be the difference between air temperature and soil. This is not actually calculated at the moment. Since this is
        mostly relevant to the first soil layer where the temperatures are similar. I will leave it like this for now. */
 

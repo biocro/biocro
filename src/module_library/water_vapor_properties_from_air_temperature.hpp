@@ -3,7 +3,8 @@
 
 #include "../modules.h"
 #include "../state_map.h"
-#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water
+#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water,
+                           // celsius_to_kelvin
 #include "AuxBioCro.h"     // For saturation_vapor_pressure, TempToSFS, TempToLHV,
                            // and TempToDdryA
 
@@ -85,7 +86,8 @@ void water_vapor_properties_from_air_temperature::do_operation() const
     // plants.
     double saturation_water_vapor_content =
         saturation_water_vapor_pressure / physical_constants::ideal_gas_constant /
-        (temp + 273.15) * physical_constants::molar_mass_of_water;  // kg / m^3
+        (temp + conversion_constants::celsius_to_kelvin) *
+        physical_constants::molar_mass_of_water;  // kg / m^3
 
     double vapor_density_deficit = saturation_water_vapor_content * (1 - rh);  // kg / m^3
 

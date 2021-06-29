@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include "eC4photo.h"
+#include "../constants.h"  // for celsius_to_kelvin
 
 double eC4photoC(double QP, double TEMP, double RH, double CA,
 		double OA, double VCMAX, double VPMAX, double VPR,
@@ -46,18 +47,18 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     double Idir = QP;
     double AirTemp = TEMP;
 
-    double Q10p = exp(Ep *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
-    double Q10rb = exp(Erb *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
-    double Q10Kc = exp(EKc *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
-    double Q10Ko = exp(EKo *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
+    double Q10p = exp(Ep *(1/(R*298.15)-1/(R*(AirTemp+conversion_constants::celsius_to_kelvin))));
+    double Q10rb = exp(Erb *(1/(R*298.15)-1/(R*(AirTemp+conversion_constants::celsius_to_kelvin))));
+    double Q10Kc = exp(EKc *(1/(R*298.15)-1/(R*(AirTemp+conversion_constants::celsius_to_kelvin))));
+    double Q10Ko = exp(EKo *(1/(R*298.15)-1/(R*(AirTemp+conversion_constants::celsius_to_kelvin))));
 
     Vcmax = Vcmax1 * Q10rb;
     Kc = Kc2 * Q10Kc;
     Ko = Ko2 * Q10Ko;
-    Vpmax = Vpmax1 * Q10p;        
+    Vpmax = Vpmax1 * Q10p;
     double Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
 
-    double Cm = 0.4 * Ca ; 
+    double Cm = 0.4 * Ca ;
     double Om = Oa ;
 
     double Rd = 0.08;
@@ -65,8 +66,8 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
 
     /* Light limited */
     double I2 = (Idir * 0.85)/2;
-    double J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
-    double Aj0 = 0.4 * J - Rm + gs * Cm;        
+    double J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;
+    double Aj0 = 0.4 * J - Rm + gs * Cm;
     double Aj1 = (1-0.4)*J/3-Rd;
 
     if (Aj0 < Aj1){

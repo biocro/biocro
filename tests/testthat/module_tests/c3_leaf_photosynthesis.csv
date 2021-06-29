@@ -1,3 +1,3 @@
 height,windspeed,specific_heat_of_air,average_absorbed_shortwave,electrons_per_oxygenation,electrons_per_carboxylation,jmax,rh,temp,vmax1,incident_ppfd,b1,tpu_rate_max,Rd,b0,Gs_min,Catm,O2,atmospheric_pressure,StomataWS,theta,water_stress_approach,GrossAssim,Assim,EPriestly,TransR,Ci,Gs,leaf_temperature,EPenman,description
 input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,input,output,output,output,output,output,output,output,output,NA
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,-0.036829470226027,-0.234914501105456,0.0266463662122481,0.0211329635397005,1.4857590685711,800,1.1711758307828,0.0211479096922604,automatically-generated test case
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,-0.0368294443094754,-0.23491427300822,0.0266442232612929,0.0211312639869719,1.48575861518077,800,1.17116206450011,0.021146208937534,automatically-generated test case
