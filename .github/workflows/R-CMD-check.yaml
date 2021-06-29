@@ -79,7 +79,6 @@
 name: R-CMD-check
 
 on:
-  push:
   pull_request:
     branches:
       - master
