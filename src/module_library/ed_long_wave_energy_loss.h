@@ -20,12 +20,14 @@ class ed_long_wave_energy_loss : public SteadyModule
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
           SteadyModule("ed_long_wave_energy_loss"),
-          // Get pointers to input quantities
-          temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
-          temperature_air_ip(get_ip(input_quantities, "temp")),
-          emissivity_leaf_ip(get_ip(input_quantities, "emissivity_leaf")),
+
+          // Get references to input quantities
+          temperature_leaf{get_input(input_quantities, "temperature_leaf")},
+          temperature_air{get_input(input_quantities, "temp")},
+          emissivity_leaf{get_input(input_quantities, "emissivity_leaf")},
+
           // Get pointers to output quantities
-          long_wave_energy_loss_leaf_op(get_op(output_quantities, "long_wave_energy_loss_leaf"))
+          long_wave_energy_loss_leaf_op{get_op(output_quantities, "long_wave_energy_loss_leaf")}
 
     {
     }
@@ -33,12 +35,14 @@ class ed_long_wave_energy_loss : public SteadyModule
     static string_vector get_outputs();
 
    private:
-    // Pointers to input quantities
-    const double* temperature_leaf_ip;
-    const double* temperature_air_ip;
-    const double* emissivity_leaf_ip;
+    // References to input quantities
+    double const& temperature_leaf;
+    double const& temperature_air;
+    double const& emissivity_leaf;
+
     // Pointers to output quantities
     double* long_wave_energy_loss_leaf_op;
+
     // Main operation
     void do_operation() const override;
 };
@@ -64,8 +68,17 @@ void ed_long_wave_energy_loss::do_operation() const
     using conversion_constants::celsius_to_kelvin;
     using physical_constants::stefan_boltzmann;
 
-    update(long_wave_energy_loss_leaf_op,
-           *emissivity_leaf_ip * stefan_boltzmann * (pow(*temperature_leaf_ip + celsius_to_kelvin, 4) - pow(*temperature_air_ip + celsius_to_kelvin, 4)));
+    double const leaf_temp_term =
+        pow(temperature_leaf + celsius_to_kelvin, 4);  // K^4
+
+    double const air_temp_term =
+        pow(temperature_leaf + celsius_to_kelvin, 4);  // K^4
+
+    double const net_energy_loss_leaf =
+        emissivity_leaf * stefan_boltzmann *
+        (leaf_temp_term - air_temp_term);  // W / m^2
+
+    update(long_wave_energy_loss_leaf_op, net_energy_loss_leaf);
 }
 
 #endif
