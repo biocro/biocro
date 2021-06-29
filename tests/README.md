@@ -126,12 +126,13 @@ started R there or because you moved there with `setwd()`), you
 needn't even supply the `path` argument; you can just run
 `test_local()` because the path defaults to `'.'`.
 
-Note that this function expects to find an up-to-date copy of
-`BioCro.so` in the `src` directory.  If it doesn't find it (or if it
-is out of date with respect to the C++ source files), it will try to
-re-create it.  This will happen even if none of the tests use any of
-the package code. (_So be patient if the function seems to hang for
-several minutes while it does this!_)
+Note that this function expects to find an up-to-date copy of the
+BioCro C++ library file (`BioCro.so`, or `BioCro.dll` on Windows) in
+the `src` directory.  If it doesn't find it (or if it is out of date
+with respect to the C++ source files), it will try to re-create it.
+This will happen even if none of the tests use any of the package
+code. (_So be patient if the function seems to hang for several
+minutes while it does this!_)
 
 The default reporter for `test_local` is the _Progress_ reporter, but
 if you prefer the _Summary_ reporter, which gives better progress
