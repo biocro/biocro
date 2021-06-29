@@ -2,9 +2,10 @@
 #define ED_PENMAN_MONTEITH_TRANSPIRATION_H
 
 #include <cmath>           // For pow
-#include "../constants.h"  // for ideal_gas_constant and celsius_to_kelvin
 #include "../modules.h"
 #include "../state_map.h"
+#include "../constants.h"  // for ideal_gas_constant, celsius_to_kelvin,
+                           // molar_mass_of_water
 
 /**
  * @class ed_penman_monteith_transpiration
@@ -129,10 +130,8 @@ void ed_penman_monteith_transpiration::do_operation() const
     const double E_denomenator = latent_heat_vaporization_of_water * (slope_water_vapor + psychrometric_parameter * (1 + ga / gc));
     const double E = E_numerator / E_denomenator;  // kg / m^2 / s
 
-    // Convert E from kg / m^2 / s to mol / m^2 / s using:
-    //  1e3 g / kg
-    //  18 g / mol for water
-    const double transpiration_rate = E * 1.0e3 / 18.0;
+    // Convert E from kg / m^2 / s to mol / m^2 / s using the molar mass of water
+    const double transpiration_rate = E / physical_constants::molar_mass_of_water;
 
     // Check for error conditions
     std::map<std::string, bool> errors_to_check = {

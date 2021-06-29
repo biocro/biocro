@@ -2,7 +2,7 @@
 #define ED_LEAF_TEMPERATURE_H
 
 #include <cmath>           // for fabs
-#include "../constants.h"  // for specific heat
+#include "../constants.h"  // for eps_zero, molar_mass_of_water
 #include "../modules.h"
 #include "../state_map.h"
 
@@ -139,10 +139,9 @@ string_vector ed_leaf_temperature::get_outputs()
 void ed_leaf_temperature::do_operation() const
 {
     // Determine the energy used for evaporating water from the leaf's interior surfaces
-    double const molar_mass_water = 18.0e-3;  // kg / mol
     double const evapotranspiration_rate = conductance_stomatal_h2o *
                                            (mole_fraction_h2o_intercellular - mole_fraction_h2o_leaf_surface);  // mol / m^2 / s
-    double const et_energy = evapotranspiration_rate * molar_mass_water * latent_heat_vaporization_of_water;    // J / m^2 / s
+    double const et_energy = evapotranspiration_rate * physical_constants::molar_mass_of_water * latent_heat_vaporization_of_water;    // J / m^2 / s
 
     // Apply energy balance to calculate the sensible heat loss
     double const sensible_heat_loss = solar_energy_absorbed_leaf - long_wave_energy_loss_leaf - et_energy;  // J / m^2 / s

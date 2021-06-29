@@ -4,6 +4,7 @@
 #include "../state_map.h"
 #include "../modules.h"
 #include "../state_map.h"
+#include "../constants.h"  // for molar_mass_of_water
 
 /**
  * @class multilayer_canopy_integrator
@@ -104,12 +105,12 @@ string_vector multilayer_canopy_integrator::get_inputs(int nlayers)
         "sunlit_Assim",       // micromole / m^2 /s
         "sunlit_GrossAssim",  // micromole / m^2 /s
         "sunlit_Gs",          // mmol / m^2 / s
-        "sunlit_TransR",      // mol / m^2 / s
+        "sunlit_TransR",      // mmol / m^2 / s
         "shaded_fraction",    // dimensionless
         "shaded_Assim",       // micromole / m^2 /s
         "shaded_GrossAssim",  // micromole / m^2 /s
         "shaded_Gs",          // mmol / m^2 / s
-        "shaded_TransR",      // mol / m^2 / s
+        "shaded_TransR",      // mmol / m^2 / s
     };
 
     // Get the full list by appending layer numbers
@@ -181,13 +182,12 @@ void multilayer_canopy_integrator::run() const
     // 1e-6 - megagrams per gram
     // 10000 - meters squared per hectare
 
-    // Convert transpiration values from mol / m^2 / s to Mg / ha / hr using the
-    // following conversion factors:
-    // 3600 - seconds per hour
-    // 1e-3 - millimoles per mole
-    // 18 - grams per mole for H2O
-    // 1e-6 - megagrams per  gram
-    // 10000 - meters squared per hectare
+    // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
+    // using the molar mass of water in kg / mol, which can be accomplished by
+    // the following conversion factor:
+    // (3600 s / hr) * (1e-3 mol / mmol) * (1e-3 Mg / kg) * (1e4 m^2 / ha)
+    // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
+    const double cf2 = physical_constants::molar_mass_of_water * 36; // (Mg / ha / hr) / (mmol / m^2 / s)
 
     update(canopy_assimilation_rate_op, canopy_assimilation_rate *
                                             3600 * 1e-6 * 30 * 1e-6 * 10000);
@@ -195,8 +195,7 @@ void multilayer_canopy_integrator::run() const
     update(GrossAssim_op, GrossAssim *
                               3600 * 1e-6 * 30 * 1e-6 * 10000);
 
-    update(canopy_transpiration_rate_op, canopy_transpiration_rate *
-                                             3600 * 1e-3 * 18 * 1e-6 * 10000);
+    update(canopy_transpiration_rate_op, canopy_transpiration_rate * cf2);
 
     update(canopy_conductance_op, canopy_conductance);
 }

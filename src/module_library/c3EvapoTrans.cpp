@@ -14,7 +14,7 @@
 #include "c3photo.hpp"
 #include "AuxBioCro.h"
 #include "BioCro.h"
-#include "../constants.h"  // for ideal_gas_constant
+#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water
 
 struct ET_Str c3EvapoTrans(
     double absorbed_shortwave_radiation,  // J / m^2 / s
@@ -34,7 +34,6 @@ struct ET_Str c3EvapoTrans(
     const double Zeta = ZetaCoef * CanopyHeight;         // meters
     const double Zetam = ZetaMCoef * CanopyHeight;       // meters
     const double d = dCoef * CanopyHeight;               // meters
-    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
 
     if (CanopyHeight < 0.1) {
         CanopyHeight = 0.1;
@@ -59,7 +58,11 @@ struct ET_Str c3EvapoTrans(
 
     /* SOLAR RADIATION COMPONENT*/
 
-    const double SWVC = SWVP / physical_constants::ideal_gas_constant / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
+    // Convert from vapor pressure to vapor density using the ideal gas law.
+    // This is approximately right for temperatures what won't kill plants.
+    const double SWVC =
+        SWVP / physical_constants::ideal_gas_constant /
+        (air_temperature + 273.15) * physical_constants::molar_mass_of_water;  // kg / m^3
 
     if (SWVC < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");
@@ -131,11 +134,15 @@ struct ET_Str c3EvapoTrans(
     /* 18 - g / mol for water */
     /* 1e3 - mmol / mol */
 
+    // TransR has units of kg / m^2 / s. Convert to mmol / m^2 / s using the
+    // molar mass of water (in kg / mol) and noting that 1e3 mmol = 1 mol
+    double cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
+
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e3 * 1e3 / 18;
-    et_results.EPenman = EPen * 1e3 * 1e3 / 18;
-    et_results.EPriestly = EPries * 1e3 * 1e3 / 18;
-    et_results.Deltat = Deltat;
+    et_results.TransR = TransR * cf;     // mmol / m^2 / s
+    et_results.EPenman = EPen * cf;      // mmol / m^2 / s
+    et_results.EPriestly = EPries * cf;  // mmol / m^2 / s
+    et_results.Deltat = Deltat;          // degrees C
 
     return et_results;
 }

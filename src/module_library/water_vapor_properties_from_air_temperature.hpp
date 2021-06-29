@@ -3,7 +3,7 @@
 
 #include "../modules.h"
 #include "../state_map.h"
-#include "../constants.h"  // for ideal_gas_constant
+#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water
 #include "AuxBioCro.h"     // For saturation_vapor_pressure, TempToSFS, TempToLHV,
                            // and TempToDdryA
 
@@ -76,8 +76,6 @@ void water_vapor_properties_from_air_temperature::do_operation() const
 {
     // Collect input quantities and make calculations
 
-    double molar_mass_of_water = 18.01528e-3;  // kg / mol
-
     double density_of_dry_air = TempToDdryA(temp);                             // kg / m^3
     double latent_heat_vaporization_of_water = TempToLHV(temp);                // J / kg
     double saturation_water_vapor_pressure = saturation_vapor_pressure(temp);  // Pa
@@ -87,7 +85,7 @@ void water_vapor_properties_from_air_temperature::do_operation() const
     // plants.
     double saturation_water_vapor_content =
         saturation_water_vapor_pressure / physical_constants::ideal_gas_constant /
-        (temp + 273.15) * molar_mass_of_water;  // kg / m^3
+        (temp + 273.15) * physical_constants::molar_mass_of_water;  // kg / m^3
 
     double vapor_density_deficit = saturation_water_vapor_content * (1 - rh);  // kg / m^3
 

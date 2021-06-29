@@ -3,6 +3,7 @@
 
 #include "../modules.h"
 #include "../state_map.h"
+#include "../constants.h"  // for molar_mass_of_water
 
 /**
  * @class ed_multilayer_canopy_integrator
@@ -158,18 +159,18 @@ void ed_multilayer_canopy_integrator::run() const
     // 1e-6 - megagrams per gram
     // 10000 - meters squared per hectare
 
-    // Convert transpiration values from mol / m^2 / s to Mg / ha / hr using the following
-    // conversion factors:
-    // 3600 - seconds per hour
-    // 18 - grams per mole for H2O
-    // 1e-6 - megagrams per  gram
-    // 10000 - meters squared per hectare
+    // For transpiration, we need to convert mol / m^2 / s into Mg / ha / hr
+    // using the molar mass of water in kg / mol, which can be accomplished by
+    // the following conversion factor:
+    // (3600 s / hr) * (1e-3 Mg / kg) * (1e4 m^2 / ha)
+    // = 36e3 s * Mg * m^2 / (hr * kg * ha)
+    const double cf2 = physical_constants::molar_mass_of_water * 36e3; // (Mg / ha / hr) / (mol / m^2 / s)
 
     // Convert conductance values from mol / m^2 / s to mmol / m^2 / s using 1e3 mmol / mol
 
     update(canopy_assimilation_rate_op, canopy_assimilation_rate * 3600 * 30 * 1e-6 * 10000);
     update(GrossAssim_op, GrossAssim * 3600 * 30 * 1e-6 * 10000);
-    update(canopy_transpiration_rate_op, canopy_transpiration_rate * 3600 * 18 * 1e-6 * 10000);
+    update(canopy_transpiration_rate_op, canopy_transpiration_rate * cf2);
     update(canopy_conductance_op, canopy_conductance * 1e3);
 }
 

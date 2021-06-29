@@ -16,9 +16,10 @@
 #include <stdexcept>
 #include <string>
 #include <cmath>
-#include "../constants.h"  // for pi, e, atmospheric_pressure_at_sea_level, ideal_gas_constant
 #include "c4photo.h"
 #include "BioCro.h"
+#include "../constants.h"  // for pi, e, atmospheric_pressure_at_sea_level,
+                           // ideal_gas_constant, molar_mass_of_water
 
 double poisson_density(int x, double lambda)
 {
@@ -602,7 +603,6 @@ struct ET_Str EvapoTrans2(
     const int eteq)                                // unitless parameter
 {
     constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
-    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
 
     CanopyHeight = fmax(0.1, CanopyHeight);  // ensure CanopyHeight >= 0.1
 
@@ -639,7 +639,7 @@ struct ET_Str EvapoTrans2(
     // This is approximately right for temperatures what won't kill plants.
     const double SWVC =
         SWVP / physical_constants::ideal_gas_constant /
-        (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3
+        (airTemp + 273.15) * physical_constants::molar_mass_of_water;  // kg / m^3
 
     if (SWVC < 0) {
         throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0.");
@@ -727,16 +727,14 @@ struct ET_Str EvapoTrans2(
             break;
     }
 
-    // TransR has units of kg / m^2 / s.
-    // Convert to mm / m^2 / s.
-    /* 1e3 - g / kg  */
-    /* 18 - g / mol for water */
-    /* 1e3 - mmol / mol */
+    // TransR has units of kg / m^2 / s. Convert to mmol / m^2 / s using the
+    // molar mass of water (in kg / mol) and noting that 1e3 mmol = 1 mol
+    double cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e3 * 1e3 / 18;                             // mmol / m^2 / s
-    et_results.EPenman = EPen * 1e3 * 1e3 / 18;                              // mmol / m^2 / s
-    et_results.EPriestly = EPries * 1e3 * 1e3 / 18;                          // mmol / m^2 / s
+    et_results.TransR = TransR * cf;                                         // mmol / m^2 / s
+    et_results.EPenman = EPen * cf;                                          // mmol / m^2 / s
+    et_results.EPriestly = EPries * cf;                                      // mmol / m^2 / s
     et_results.Deltat = Deltat;                                              // degrees C
     et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air;  // mol / m^2 / s
 
@@ -934,7 +932,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
-        Nleach = runoff / 18 * (0.2 + 0.7 * sand);
+        Nleach = runoff / physical_constants::molar_mass_of_water * (0.2 + 0.7 * sand);
         soil_water_fraction = soil_saturation_capacity;
     }
 
@@ -1146,7 +1144,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         drainage = waterIn;
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data comes in mm/hr and it needs to be in cm/month */
-        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (18 * (0.2 + 0.7 * soil_sand_content));
+        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (physical_constants::molar_mass_of_water * (0.2 + 0.7 * soil_sand_content));
     }
     else {
         return_value.Nleach = 0.0;
