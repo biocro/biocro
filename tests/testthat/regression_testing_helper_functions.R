@@ -137,7 +137,28 @@ update_stored_results <- function(test_info) {
 test_plant_model <- function(test_info) {
 
     # Describe the current test
-    description <- paste(
+    description_validity <- paste(
+        "The",
+        test_info[['plant_name']],
+        "simulation has a valid definition"
+    )
+
+    # Check the inputs for validity
+    test_that(description_validity, {
+        expect_true(
+            validate_system_inputs(
+                test_info[['initial_values']],
+                test_info[['parameters']],
+                test_info[['drivers']],
+                test_info[['steady_state_modules']],
+                test_info[['derivative_modules']],
+                silent = TRUE
+            )
+        )
+    })
+
+    # Describe the current test
+    description_run <- paste(
         "The",
         test_info[['plant_name']],
         "simulation runs without producing any errors"
@@ -145,7 +166,7 @@ test_plant_model <- function(test_info) {
 
     # Run the simulation
     result <- 0
-    test_that(description, {
+    test_that(description_run, {
         expect_silent(
             result <<- run_biocro(
                 test_info[['initial_values']],
