@@ -33,26 +33,26 @@ class multilayer_canopy_integrator : public SteadyModule
           nlayers(nlayers),
 
           // Get pointers to input quantities
-          sunlit_fraction_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_fraction")),
-          sunlit_Assim_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_Assim")),
-          sunlit_GrossAssim_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_GrossAssim")),
-          sunlit_Gs_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_Gs")),
-          sunlit_TransR_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_TransR")),
-          shaded_fraction_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_fraction")),
-          shaded_Assim_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_Assim")),
-          shaded_GrossAssim_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_GrossAssim")),
-          shaded_Gs_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_Gs")),
-          shaded_TransR_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_TransR")),
+          sunlit_fraction_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_fraction")},
+          sunlit_Assim_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_Assim")},
+          sunlit_GrossAssim_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_GrossAssim")},
+          sunlit_Gs_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_Gs")},
+          sunlit_TransR_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_TransR")},
+          shaded_fraction_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_fraction")},
+          shaded_Assim_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_Assim")},
+          shaded_GrossAssim_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_GrossAssim")},
+          shaded_Gs_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_Gs")},
+          shaded_TransR_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_TransR")},
 
           // Get references to input quantities
-          lai(get_input(input_quantities, "lai")),
-          growth_respiration_fraction(get_input(input_quantities, "growth_respiration_fraction")),
+          lai{get_input(input_quantities, "lai")},
+          growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
 
           // Get pointers to output quantities
-          canopy_assimilation_rate_op(get_op(output_quantities, "canopy_assimilation_rate")),
-          canopy_transpiration_rate_op(get_op(output_quantities, "canopy_transpiration_rate")),
-          canopy_conductance_op(get_op(output_quantities, "canopy_conductance")),
-          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
+          canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
+          canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
+          canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
     {
     }
 
@@ -187,7 +187,7 @@ void multilayer_canopy_integrator::run() const
     // the following conversion factor:
     // (3600 s / hr) * (1e-3 mol / mmol) * (1e-3 Mg / kg) * (1e4 m^2 / ha)
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
-    const double cf2 = physical_constants::molar_mass_of_water * 36; // (Mg / ha / hr) / (mmol / m^2 / s)
+    const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
     update(canopy_assimilation_rate_op, canopy_assimilation_rate *
                                             3600 * 1e-6 * 30 * 1e-6 * 10000);
