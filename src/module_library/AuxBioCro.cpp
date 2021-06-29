@@ -19,7 +19,8 @@
 #include "c4photo.h"
 #include "BioCro.h"
 #include "../constants.h"  // for pi, e, atmospheric_pressure_at_sea_level,
-                           // ideal_gas_constant, molar_mass_of_water
+                           // ideal_gas_constant, molar_mass_of_water,
+                           // stefan_boltzmann
 
 double poisson_density(int x, double lambda)
 {
@@ -602,8 +603,6 @@ struct ET_Str EvapoTrans2(
     const double specific_heat_of_air,             // J / kg / K
     const int eteq)                                // unitless parameter
 {
-    constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
-
     CanopyHeight = fmax(0.1, CanopyHeight);  // ensure CanopyHeight >= 0.1
 
     // Define the height at which the wind speed was measured
@@ -673,7 +672,7 @@ struct ET_Str EvapoTrans2(
 
             double OldDeltaT = Deltat;
 
-            rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;  // W / m^2
+            rlc = 4 * physical_constants::stefan_boltzmann * pow(273 + airTemp, 3) * Deltat;  // W / m^2
 
             /* rlc = net long wave radiation emittted per second
              *     = radiation emitted per second - radiation absorbed per second
@@ -797,7 +796,7 @@ double SoilEvapo(
     double soil_water_content, double fieldc, double wiltp, double winds,
     double RelH, double rsec, double soil_clod_size, double soil_reflectance,
     double soil_transmission, double specific_heat_of_air,
-    double stefan_boltzman, double par_energy_content)
+    double par_energy_content)
 {
     int method = 1;
     /* A simple way of calculating the proportion of the soil that is hit by direct radiation. */
@@ -840,7 +839,7 @@ double SoilEvapo(
 
     double Ja = 2 * TotalRadiation * ((1 - soil_reflectance - soil_transmission) / (1 - soil_transmission));
 
-    double rlc = 4 * stefan_boltzman * pow((273 + SoilTemp), 3) * 0.005;
+    double rlc = 4 * physical_constants::stefan_boltzmann * pow((273 + SoilTemp), 3) * 0.005;
     /* the last term should be the difference between air temperature and soil. This is not actually calculated at the moment. Since this is
        mostly relevant to the first soil layer where the temperatures are similar. I will leave it like this for now. */
 
@@ -976,7 +975,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         int layers, double rootDB, double LAI, double k, double AirTemp,
         double IRad, double winds, double RelH, int hydrDist, double rfl,
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
-        double specific_heat_of_air, double stefan_boltzman, double par_energy_content)
+        double specific_heat_of_air, double par_energy_content)
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
 
@@ -1076,7 +1075,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
                 LAI, k, AirTemp, IRad, awc2, soil_field_capacity,
                 soil_wilting_point, winds, RelH, rsec, soil_clod_size,
                 soil_reflectance, soil_transmission, specific_heat_of_air,
-                stefan_boltzman, par_energy_content) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
+                par_energy_content) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
                to the amount of root in each respective layer.*/

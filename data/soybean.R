@@ -123,7 +123,6 @@ soybean_parameters = with(list(), {
     soil_reflectance                        0.2
     soil_transmission                       0.01
     specific_heat_of_air                    1010
-    stefan_boltzman                         5.67e-8
 
     # solar_zenith_angle module
     lat                                     40

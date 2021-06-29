@@ -14,7 +14,8 @@
 #include "c3photo.hpp"
 #include "AuxBioCro.h"
 #include "BioCro.h"
-#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water
+#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water,
+                           // stefan_boltzmann
 
 struct ET_Str c3EvapoTrans(
     double absorbed_shortwave_radiation,  // J / m^2 / s
@@ -23,9 +24,9 @@ struct ET_Str c3EvapoTrans(
     double WindSpeed,                     // m / s
     double CanopyHeight,                  // meters
     double specific_heat_of_air,          // J / kg / K
-    double stomatal_conductance)          // mmol / m^2 / s
+    double stomatal_conductance           // mmol / m^2 / s
+)
 {
-    constexpr double StefanBoltzmann = 5.67037e-8;  // J / m^2 / s^1 / K^4
     constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;           // meters
     constexpr double dCoef = 0.77;                  // dimensionless
@@ -90,7 +91,7 @@ struct ET_Str c3EvapoTrans(
 
     /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
     /* This version is non-iterative and an approximation*/
-    /* Stefan-Boltzmann law: B = sigma * T^4. where sigma is the Boltzmann constant: 5.67 * 1e-8 W m^-2 K^-4. */
+    /* Stefan-Boltzmann law: B = sigma * T^4. where sigma is the Boltzmann constant. */
     /* From Table A.3 in Campbell and Norman.*/
 
     /* This is the original from WIMOVAC*/
@@ -101,7 +102,7 @@ struct ET_Str c3EvapoTrans(
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
             double OldDeltaT = Deltat;
 
-            double rlc = 4.0 * StefanBoltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  // W / m^2
+            double rlc = 4.0 * physical_constants::stefan_boltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  // W / m^2
 
             PhiN = absorbed_shortwave_radiation - rlc;  // W / m^2
 

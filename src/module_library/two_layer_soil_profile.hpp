@@ -47,7 +47,6 @@ class two_layer_soil_profile : public DerivModule
           soil_reflectance{get_input(input_quantities, "soil_reflectance")},
           soil_transmission{get_input(input_quantities, "soil_transmission")},
           specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
-          stefan_boltzman{get_input(input_quantities, "stefan_boltzman")},
           soil_water_content{get_input(input_quantities, "soil_water_content")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
 
@@ -93,7 +92,6 @@ class two_layer_soil_profile : public DerivModule
     double const& soil_reflectance;
     double const& soil_transmission;
     double const& specific_heat_of_air;
-    double const& stefan_boltzman;
     double const& soil_water_content;
     double const& par_energy_content;
 
@@ -140,7 +138,6 @@ string_vector two_layer_soil_profile::get_inputs()
         "soil_reflectance",
         "soil_transmission",
         "specific_heat_of_air",  // J / kg / mol
-        "stefan_boltzman",       // W / m^2 / K^4
         "soil_water_content",    // dimensionless
         "par_energy_content"     // J / micromol
     };
@@ -168,7 +165,7 @@ void two_layer_soil_profile::do_operation() const
         soil_sand_content, phi1, phi2, wsFun, 2 /* Always uses 2 layers */,
         Root, lai, 0.68, temp, solar, windspeed, rh, hydrDist, rfl, rsec, rsdf,
         soil_clod_size, soil_reflectance, soil_transmission,
-        specific_heat_of_air, stefan_boltzman, par_energy_content);
+        specific_heat_of_air, par_energy_content);
 
     double layer_one_depth = soil_depth2 - soil_depth1;
     double layer_two_depth = soil_depth3 - soil_depth2;
