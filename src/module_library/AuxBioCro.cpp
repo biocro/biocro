@@ -752,7 +752,7 @@ double leaf_boundary_layer_conductance(
     /* This is the leaf boundary layer computed using the approach in MLcan
        which is based on (Nikolov, Massman, Schoettle),         %
        Ecological Modelling, 80 (1995), 205-235 */
-    constexpr double p = 101325;  // Pa. atmospheric pressure
+    constexpr double p = physical_constants::atmospheric_pressure_at_sea_level;  // Pa. atmospheric pressure
 
     double leaftemp = air_temperature + delta_t;  // degrees C
     double gsv = stomcond;  // m / s
