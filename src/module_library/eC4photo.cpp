@@ -5,7 +5,7 @@
 
 #include <cmath>
 #include "eC4photo.h"
-#include "../constants.h"  // for celsius_to_kelvin
+#include "../constants.h"  // for celsius_to_kelvin, ideal_gas_constant
 
 double eC4photoC(
     double QP,
@@ -27,7 +27,7 @@ double eC4photoC(
     const double alpha = 0.01; /* alpha in the notes*/
     const double Kp = 80;      /*  mu bar */
     const double theta = 0.7;
-    const double R = 0.008314472;  // kJ K^-1 mol^-1
+    const double R = physical_constants::ideal_gas_constant * 1e-3;  // kJ K^-1 mol^-1
 
     /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
     const double Ep = 47.1; /* Activation energy of PEPc kj/mol */
