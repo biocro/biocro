@@ -1,6 +1,6 @@
 #include "BioCro.h"
 #include "c4photo.h"
-#include "../constants.h"  // for molar_mass_of_water
+#include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 struct Can_Str CanAC(
     double LAI,          // dimensionless from m^2 / m^2
@@ -174,13 +174,15 @@ struct Can_Str CanAC(
         canopy_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mmol / m^2 / s
     }
 
-    /* For Assimilation */
-    /* 3600 seconds per hour */
-    /* 1e-6 moles per micromole */
-    /* 30 grams of C6H12O6 (glucose) incorporated into dry biomass per mole of CO2 */
-    /* 1e-6 megagrams per gram */
-    /* 10000 meters squared per hectare*/
-    const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
+    // For assimilation, we need to convert micromol / m^2 / s into
+    // Mg / ha / hr, assuming that all carbon is converted into biomass in the
+    // form of glucose (C6H12O6), i.e., six assimilated CO2 molecules contribute
+    // one glucose molecule. Using the molar mass of glucose in kg / mol, the
+    // conversion can be accomplished with the following factor:
+    // (1 glucose / 6 CO2) * (3600 s / hr) * (1e-6 mol / micromol) *
+    //     (1e-3 Mg / kg) * (1e4 m^2 / ha)
+    // = 6e-3 s * mol * Mg * m^2 / (hr * micromol * kg * ha)
+    const double cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
 
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by

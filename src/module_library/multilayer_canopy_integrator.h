@@ -4,7 +4,7 @@
 #include "../state_map.h"
 #include "../modules.h"
 #include "../state_map.h"
-#include "../constants.h"  // for molar_mass_of_water
+#include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 /**
  * @class multilayer_canopy_integrator
@@ -174,13 +174,15 @@ void multilayer_canopy_integrator::run() const
     //   model includes respiration
     canopy_assimilation_rate *= (1.0 - growth_respiration_fraction);
 
-    // Convert assimilation values from micromol / m^2 / s to Mg / ha / hr using
-    // the following conversion factors:
-    // 3600 - seconds per hour
-    // 1e-6 - moles per micromole
-    // 30 - grams of glucose incorporated into dry biomass per mole of CO2
-    // 1e-6 - megagrams per gram
-    // 10000 - meters squared per hectare
+    // For assimilation, we need to convert micromol / m^2 / s into
+    // Mg / ha / hr, assuming that all carbon is converted into biomass in the
+    // form of glucose (C6H12O6), i.e., six assimilated CO2 molecules contribute
+    // one glucose molecule. Using the molar mass of glucose in kg / mol, the
+    // conversion can be accomplished with the following factor:
+    // (1 glucose / 6 CO2) * (3600 s / hr) * (1e-6 mol / micromol) *
+    //     (1e-3 Mg / kg) * (1e4 m^2 / ha)
+    // = 6e-3 s * mol * Mg * m^2 / (hr * micromol * kg * ha)
+    const double cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
 
     // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
     // using the molar mass of water in kg / mol, which can be accomplished by
@@ -189,11 +191,9 @@ void multilayer_canopy_integrator::run() const
     // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
     const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-    update(canopy_assimilation_rate_op, canopy_assimilation_rate *
-                                            3600 * 1e-6 * 30 * 1e-6 * 10000);
+    update(canopy_assimilation_rate_op, canopy_assimilation_rate * cf);
 
-    update(GrossAssim_op, GrossAssim *
-                              3600 * 1e-6 * 30 * 1e-6 * 10000);
+    update(GrossAssim_op, GrossAssim * cf);
 
     update(canopy_transpiration_rate_op, canopy_transpiration_rate * cf2);
 
