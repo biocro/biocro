@@ -931,7 +931,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
-        Nleach = runoff / physical_constants::molar_mass_of_water * (0.2 + 0.7 * sand);
+        Nleach = runoff / (1e3 * physical_constants::molar_mass_of_water) * (0.2 + 0.7 * sand);
         soil_water_fraction = soil_saturation_capacity;
     }
 
@@ -1143,7 +1143,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         drainage = waterIn;
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data comes in mm/hr and it needs to be in cm/month */
-        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (physical_constants::molar_mass_of_water * (0.2 + 0.7 * soil_sand_content));
+        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (1e3 * physical_constants::molar_mass_of_water * (0.2 + 0.7 * soil_sand_content));
     }
     else {
         return_value.Nleach = 0.0;

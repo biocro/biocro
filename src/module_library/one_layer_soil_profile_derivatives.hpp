@@ -100,7 +100,7 @@ void one_layer_soil_profile_derivatives::do_operation() const
 
     double second_per_hour = 3600;
     double runoff = (soil_water_content - soil_saturation_capacity) * soil_depth / second_per_hour;                         // m s^-1. The previous model drained everything in a single time-step. By default the time step was one hour, so use a rate that drains everything in one hour.
-    double n_leach = runoff / physical_constants::molar_mass_of_water * (0.2 + 0.7 * soil_sand_content) / second_per_hour;  // Base the rate on an hour for the same reason as was used with `runoff`.
+    double n_leach = runoff / (1e3 * physical_constants::molar_mass_of_water) * (0.2 + 0.7 * soil_sand_content) / second_per_hour;  // Base the rate on an hour for the same reason as was used with `runoff`.
 
     double evapotranspiration_volume = evapotranspiration / density_of_water_at_20_celcius / 1e4 / second_per_hour;  // m^3 m^-2 s^-1
 
