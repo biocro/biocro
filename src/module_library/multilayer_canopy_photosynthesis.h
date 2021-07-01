@@ -1,7 +1,7 @@
 #ifndef MULTILAYER_CANOPY_PHOTOSYNTHESIS_H
 #define MULTILAYER_CANOPY_PHOTOSYNTHESIS_H
 
-#include <algorithm>                     // for std::find
+#include <algorithm>  // for std::find
 #include "../modules.h"
 #include "../state_map.h"
 
@@ -18,7 +18,9 @@ string_vector get_leaf_input_subset(string_vector reference_names)
     string_vector leaf_inputs = leaf_module_type::get_inputs();
     string_vector result_vector;
     for (std::string const& name : reference_names) {
-        if (std::find(leaf_inputs.begin(), leaf_inputs.end(), name) != leaf_inputs.end()) {
+        if (std::find(leaf_inputs.begin(),
+                      leaf_inputs.end(),
+                      name) != leaf_inputs.end()) {
             result_vector.push_back(name);
         }
     }
@@ -33,7 +35,8 @@ string_vector get_leaf_input_subset(string_vector reference_names)
 template <typename canopy_module_type, typename leaf_module_type>
 string_vector get_multiclass_multilayer_leaf_inputs()
 {
-    return get_leaf_input_subset<leaf_module_type>(canopy_module_type::define_multiclass_multilayer_outputs());
+    return get_leaf_input_subset<leaf_module_type>(
+        canopy_module_type::define_multiclass_multilayer_outputs());
 }
 
 /**
@@ -44,34 +47,50 @@ string_vector get_multiclass_multilayer_leaf_inputs()
 template <typename canopy_module_type, typename leaf_module_type>
 string_vector get_pure_multilayer_leaf_inputs()
 {
-    return get_leaf_input_subset<leaf_module_type>(canopy_module_type::define_pure_multilayer_outputs());
+    return get_leaf_input_subset<leaf_module_type>(
+        canopy_module_type::define_pure_multilayer_outputs());
 }
 
 /**
  * @brief A helping function for the multlayer canopy photosynthesis module that
  * returns inputs to the leaf module that do not change with leaf class or
  * canopy layer.
+ *
+ * First, the names of all canopy module output quantities that do change with
+ * leaf class or canopy layer are stored in a `string_vector` called
+ * `layered_canopy_outputs`. Then, any leaf module input quantities that are
+ * not contained in `layered_canopy_outputs` are stored in another
+ * `string_vector` called `leaf_inputs_constant_through_canopy`, which is
+ * returned as the output of this function.
  */
 template <typename canopy_module_type, typename leaf_module_type>
 string_vector get_other_leaf_inputs()
 {
     string_vector layered_canopy_outputs;
-    for (string_vector const& sv : {canopy_module_type::define_multiclass_multilayer_outputs(),
-                                               canopy_module_type::define_pure_multilayer_outputs()}) {
+
+    std::vector<string_vector> quantities_that_change =
+        {canopy_module_type::define_multiclass_multilayer_outputs(),
+         canopy_module_type::define_pure_multilayer_outputs()};
+
+    for (string_vector const& sv : quantities_that_change) {
         for (std::string const& name : sv) {
             layered_canopy_outputs.push_back(name);
         }
     }
 
-    string_vector other_leaf_inputs;
-    string_vector leaf_inputs = leaf_module_type::get_inputs();
-    for (std::string const& name : leaf_inputs) {
-        if (std::find(layered_canopy_outputs.begin(), layered_canopy_outputs.end(), name) == layered_canopy_outputs.end()) {
-            other_leaf_inputs.push_back(name);
+    string_vector leaf_inputs_constant_through_canopy;
+
+    string_vector all_leaf_inputs = leaf_module_type::get_inputs();
+
+    for (std::string const& name : all_leaf_inputs) {
+        if (std::find(layered_canopy_outputs.begin(),
+                      layered_canopy_outputs.end(),
+                      name) == layered_canopy_outputs.end()) {
+            leaf_inputs_constant_through_canopy.push_back(name);
         }
     }
 
-    return other_leaf_inputs;
+    return leaf_inputs_constant_through_canopy;
 }
 }  // namespace MLCP
 
@@ -188,37 +207,65 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
     };
 
     // Form a quantity state_map to pass to the leaf photosynthesis module
-    leaf_module_quantities = make_quantity_map(leaf_module_type::get_inputs(), leaf_module_type::get_outputs());
+    leaf_module_quantities =
+        make_quantity_map(
+            leaf_module_type::get_inputs(),
+            leaf_module_type::get_outputs());
+
     leaf_module_output_map = leaf_module_quantities;
 
     // Create the leaf photosynthesis module
-    leaf_module = std::unique_ptr<Module>(new leaf_module_type(leaf_module_quantities, &leaf_module_output_map));
+    leaf_module =
+        std::unique_ptr<Module>(new leaf_module_type(
+            leaf_module_quantities,
+            &leaf_module_output_map));
 
     // Find subsets of the leaf model's inputs
-    string_vector multiclass_multilayer_leaf_inputs = MLCP::get_multiclass_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
-    string_vector multilayer_leaf_inputs = MLCP::get_pure_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
-    string_vector other_leaf_inputs = MLCP::get_other_leaf_inputs<canopy_module_type, leaf_module_type>();
+    string_vector multiclass_multilayer_leaf_inputs =
+        MLCP::get_multiclass_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
 
-    // Create vectors of pointer pairs which will be used for passing inputs to and getting outputs from the leaf module
+    string_vector multilayer_leaf_inputs =
+        MLCP::get_pure_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
+
+    string_vector other_leaf_inputs =
+        MLCP::get_other_leaf_inputs<canopy_module_type, leaf_module_type>();
+
+    // Create vectors of pointer pairs which will be used for passing inputs to
+    // and getting outputs from the leaf module
     for (std::string const& class_name : canopy_module_type::define_leaf_classes()) {
         for (int i = 0; i < nlayers; ++i) {
             // Get pointer pairs for the leaf module inputs and store them
             std::vector<std::pair<double*, const double*>> input_ptr_pairs;
 
             for (std::string const& name : multiclass_multilayer_leaf_inputs) {
-                std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(get_op(&leaf_module_quantities, name), get_ip(input_quantities, specific_name));
+                std::string specific_name =
+                    add_class_prefix_to_quantity_name(
+                        class_name,
+                        add_layer_suffix_to_quantity_name(nlayers, i, name));
+
+                std::pair<double*, const double*> temporary(
+                    get_op(&leaf_module_quantities, name),
+                    get_ip(input_quantities, specific_name));
+
                 input_ptr_pairs.push_back(temporary);
             }
 
             for (std::string const& name : multilayer_leaf_inputs) {
-                std::string specific_name = add_layer_suffix_to_quantity_name(nlayers, i, name);
-                std::pair<double*, const double*> temporary(get_op(&leaf_module_quantities, name), get_ip(input_quantities, specific_name));
+                std::string specific_name =
+                    add_layer_suffix_to_quantity_name(nlayers, i, name);
+
+                std::pair<double*, const double*> temporary(
+                    get_op(&leaf_module_quantities, name),
+                    get_ip(input_quantities, specific_name));
+
                 input_ptr_pairs.push_back(temporary);
             }
 
             for (std::string const& name : other_leaf_inputs) {
-                std::pair<double*, const double*> temporary(get_op(&leaf_module_quantities, name), get_ip(input_quantities, name));
+                std::pair<double*, const double*> temporary(
+                    get_op(&leaf_module_quantities, name),
+                    get_ip(input_quantities, name));
+
                 input_ptr_pairs.push_back(temporary);
             }
 
@@ -228,8 +275,15 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
             std::vector<std::pair<double*, const double*>> output_ptr_pairs;
 
             for (std::string const& name : leaf_module_type::get_outputs()) {
-                std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(get_op(output_quantities, specific_name), get_ip(leaf_module_output_map, name));
+                std::string specific_name =
+                    add_class_prefix_to_quantity_name(
+                        class_name,
+                        add_layer_suffix_to_quantity_name(nlayers, i, name));
+
+                std::pair<double*, const double*> temporary(
+                    get_op(output_quantities, specific_name),
+                    get_ip(leaf_module_output_map, name));
+
                 output_ptr_pairs.push_back(temporary);
             }
 
@@ -242,9 +296,14 @@ template <typename canopy_module_type, typename leaf_module_type>
 string_vector multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::generate_inputs(int nlayers)
 {
     // Find subsets of the leaf model's inputs
-    string_vector multiclass_multilayer_leaf_inputs = MLCP::get_multiclass_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
-    string_vector multilayer_leaf_inputs = MLCP::get_pure_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
-    string_vector other_leaf_inputs = MLCP::get_other_leaf_inputs<canopy_module_type, leaf_module_type>();
+    string_vector multiclass_multilayer_leaf_inputs =
+        MLCP::get_multiclass_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
+
+    string_vector multilayer_leaf_inputs =
+        MLCP::get_pure_multilayer_leaf_inputs<canopy_module_type, leaf_module_type>();
+
+    string_vector other_leaf_inputs =
+        MLCP::get_other_leaf_inputs<canopy_module_type, leaf_module_type>();
 
     // Generate the full list of inputs
     string_vector multilayer_inputs = generate_multiclass_quantity_names(
