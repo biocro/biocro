@@ -207,18 +207,18 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
 
             for (std::string const& name : multiclass_multilayer_leaf_inputs) {
                 std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_quantities.at(specific_name));
+                std::pair<double*, const double*> temporary(get_op(&leaf_module_quantities, name), get_ip(input_quantities, specific_name));
                 input_ptr_pairs.push_back(temporary);
             }
 
             for (std::string const& name : multilayer_leaf_inputs) {
                 std::string specific_name = add_layer_suffix_to_quantity_name(nlayers, i, name);
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_quantities.at(specific_name));
+                std::pair<double*, const double*> temporary(get_op(&leaf_module_quantities, name), get_ip(input_quantities, specific_name));
                 input_ptr_pairs.push_back(temporary);
             }
 
             for (std::string const& name : other_leaf_inputs) {
-                std::pair<double*, const double*> temporary(&leaf_module_quantities.at(name), &input_quantities.at(name));
+                std::pair<double*, const double*> temporary(get_op(&leaf_module_quantities, name), get_ip(input_quantities, name));
                 input_ptr_pairs.push_back(temporary);
             }
 
@@ -229,7 +229,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
 
             for (std::string const& name : leaf_module_type::get_outputs()) {
                 std::string specific_name = add_class_prefix_to_quantity_name(class_name, add_layer_suffix_to_quantity_name(nlayers, i, name));
-                std::pair<double*, const double*> temporary(&output_quantities->at(specific_name), &leaf_module_output_map.at(name));
+                std::pair<double*, const double*> temporary(get_op(output_quantities, specific_name), get_ip(leaf_module_output_map, name));
                 output_ptr_pairs.push_back(temporary);
             }
 
