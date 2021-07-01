@@ -72,7 +72,7 @@ void ed_long_wave_energy_loss::do_operation() const
         pow(temperature_leaf + celsius_to_kelvin, 4);  // K^4
 
     double const air_temp_term =
-        pow(temperature_leaf + celsius_to_kelvin, 4);  // K^4
+        pow(temperature_air + celsius_to_kelvin, 4);  // K^4
 
     double const net_energy_loss_leaf =
         emissivity_leaf * stefan_boltzmann *
