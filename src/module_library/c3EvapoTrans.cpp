@@ -114,10 +114,11 @@ struct ET_Str c3EvapoTrans(
 
             double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;       // J / m^3
             double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^2 / K
-            Deltat = TopValue / BottomValue;                                                       // kelvin. It is also degrees C, because it is a temperature difference.
+
+            Deltat = TopValue / BottomValue;  // Kelvin. It is also degrees C, because it is a temperature difference.
             Deltat = std::min(std::max(Deltat, -5.0), 5.0);
 
-            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin. It is also degrees C, because it is a temperature difference.
+            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // Kelvin. It is also degrees C, because it is a temperature difference.
         }
     }
 
