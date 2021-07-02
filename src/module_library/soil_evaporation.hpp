@@ -28,7 +28,6 @@ class soil_evaporation : public SteadyModule
           soil_reflectance{get_input(input_quantities, "soil_reflectance")},
           soil_transmission{get_input(input_quantities, "soil_transmission")},
           specific_heat_of_air{get_input(input_quantities, "specific_heat_of_air")},
-          stefan_boltzman{get_input(input_quantities, "stefan_boltzman")},
           par_energy_content{get_input(input_quantities, "par_energy_content")},
 
           // Get pointers to output quantities
@@ -53,7 +52,6 @@ class soil_evaporation : public SteadyModule
     double const& soil_reflectance;
     double const& soil_transmission;
     double const& specific_heat_of_air;
-    double const& stefan_boltzman;
     double const& par_energy_content;
 
     // Pointers to output quantities
@@ -79,7 +77,6 @@ string_vector soil_evaporation::get_inputs()
         "soil_reflectance",
         "soil_transmission",
         "specific_heat_of_air",  // J / kg / K
-        "stefan_boltzman",       // W / m^2 / K^4
         "par_energy_content"     // J / micromol
     };
 }
@@ -99,7 +96,7 @@ void soil_evaporation::do_operation() const
         lai, 0.68, temp, solar, soil_water_content, soil_field_capacity,
         soil_wilting_point, windspeed, rh, rsec, soil_clod_size,
         soil_reflectance, soil_transmission, specific_heat_of_air,
-        stefan_boltzman, par_energy_content);  // kg / m^2 / s
+        par_energy_content);  // kg / m^2 / s
 
     // Convert units for consistency with canopy_transpiration_rate and
     // two_layer_soil_profile's output

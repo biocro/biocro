@@ -1,46 +1,48 @@
 #include "penman_monteith_leaf_temperature.hpp"
 
-string_vector penman_monteith_leaf_temperature::get_inputs() {
-	return {
-		"slope_water_vapor",
-		"psychrometric_parameter",
-		"latent_heat_vaporization_of_water",
-		"leaf_boundary_layer_conductance",
-		"leaf_stomatal_conductance",
-		"leaf_net_irradiance",
-		"vapor_density_deficit",
-		"temp"
-	};
+string_vector penman_monteith_leaf_temperature::get_inputs()
+{
+    return {
+        "slope_water_vapor",                  // kg / m^3 / K
+        "psychrometric_parameter",            // kg / m^3 / K
+        "latent_heat_vaporization_of_water",  // J / kg
+        "leaf_boundary_layer_conductance",    // m / s
+        "leaf_stomatal_conductance",          // mmol / m^2 / s
+        "leaf_net_irradiance",                // W / m^2. Leaf area basis
+        "vapor_density_deficit",              // kg / m^3
+        "temp"                                // degrees C
+    };
 }
 
-string_vector penman_monteith_leaf_temperature::get_outputs() {
-	return {
-		"leaf_temperature"
-	};
+string_vector penman_monteith_leaf_temperature::get_outputs()
+{
+    return {
+        "leaf_temperature"  // degrees C
+    };
 }
 
-void penman_monteith_leaf_temperature::do_operation() const {
-	// Collect input quantities and make calculations
-	double slope_water_vapor = *slope_water_vapor_ip;		// kg / m^3 / K
-	double psychr_parameter = *psychrometric_parameter_ip;	// kg / m^3 / K
-	double LHV = *latent_heat_vaporization_of_water_ip;		// J / kg
-	double ga = *leaf_boundary_layer_conductance_ip;		// m / s
-	double air_temperature = *temp_ip;						// C
-	double leaf_stomatal_conductance = *leaf_stomatal_conductance_ip;
-	double leaf_net_irradiance = *leaf_net_irradiance_ip;	// W / m^2. Leaf area basis.
-	double vapor_density_deficit = *vapor_density_deficit_ip;
+void penman_monteith_leaf_temperature::do_operation() const
+{
+    // From Thornley and Johnson 1990. pg 418. equation 14.11e
 
-	// From Thornley and Johnson 1990. pg 418. equation 14.11e.
-	double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
+    // model state. (1 * R * temperature) / pressure
+    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
 
-	double const gc = leaf_stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
+    double const gc = leaf_stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
-	double const delta_t = (leaf_net_irradiance * (1 / ga + 1 / gc) - LHV * vapor_density_deficit)
-		/
-		(LHV * (slope_water_vapor + psychr_parameter * (1 + ga / gc)));  // K. It is also degrees C because it's a change in temperature.
+    double const delta_t_num =
+        leaf_net_irradiance * (1 / leaf_boundary_layer_conductance + 1 / gc) -
+        latent_heat_vaporization_of_water * vapor_density_deficit;
 
-	double leaf_temperature = air_temperature + delta_t;
+    double const delta_t_denom =
+        latent_heat_vaporization_of_water *
+        (slope_water_vapor + psychrometric_parameter * (1 + leaf_boundary_layer_conductance / gc));
 
-	// Update the output quantity list
-	update(leaf_temperature_op, leaf_temperature);
+    double const delta_t = delta_t_num / delta_t_denom;  // K. It is also degrees C because it's a change in temperature.
+
+    double leaf_temperature = temp + delta_t;
+
+    // Update the output quantity list
+    update(leaf_temperature_op, leaf_temperature);
 }

@@ -34,6 +34,7 @@ namespace physical_constants
 constexpr double stefan_boltzmann = 5.670374419e-8;      // W / m^2 / K^4
 constexpr double ideal_gas_constant = 8.31446261815324;  // J / K / mol
 constexpr double molar_mass_of_water = 18.01528e-3;      // kg / mol
+constexpr double molar_mass_of_glucose = 180.156e-3;     // kg / mol
 
 /**
  * These constants are very constant, but only on Earth.
