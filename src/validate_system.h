@@ -46,10 +46,6 @@ string_vector find_undefined_module_outputs(
     string_vector quantity_names,
     std::vector<string_vector> module_name_vectors);
 
-string_vector find_misordered_modules(
-    std::vector<state_map> state_maps,
-    std::vector<string_vector> module_name_vectors);
-
 string_set find_unique_module_inputs(std::vector<string_vector> module_name_vectors);
 
 string_set find_unique_module_outputs(std::vector<string_vector> module_name_vectors);

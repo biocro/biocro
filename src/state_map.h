@@ -17,9 +17,9 @@ using string_vector = std::vector<std::string>;
  * @brief A `state_vector_map` represents a chronologically-ordered
  * sequence of states of a system over some period of time.
  *
- * The keys of the map are attributes of the system; each value is a
+ * The keys of the map are quantities of the system; each value is a
  * vector representing the sequence of values of one of those
- * attributes as it changes over time.  To be a valid representation,
+ * quantities as it changes over time.  To be a valid representation,
  * each of the mapped-to vectors should be of the same length.
  */
 using state_vector_map = std::unordered_map<std::string, std::vector<double>>;
@@ -35,7 +35,7 @@ struct bad_state_vector_map_index : std::out_of_range {
 /**
  * @brief A `state_map` represents the _state_ of a system.
  *
- * It maps names of system attributes to the values they have at some
+ * It maps names of system quantities to the values they have at some
  * particular time.
  */
 using state_map = std::unordered_map<std::string, double>;

@@ -391,34 +391,6 @@ string_vector find_undefined_module_outputs(
 }
 
 /**
- * @brief Finds modules that access variables before their values have
- * been calculated
- */
-string_vector find_misordered_modules(
-    std::vector<state_map> state_maps,
-    std::vector<string_vector> module_name_vectors)
-{
-    // Get quantity names from the input lists
-    string_vector defined_quantity_names = get_defined_quantity_names(state_maps, std::vector<string_vector>{});
-
-    // Check the module order
-    string_vector misordered_modules;
-    for (string_vector const& names : module_name_vectors) {
-        for (std::string const& module_name : names) {
-            auto w = module_wrapper_factory::create(module_name);
-            string_vector input_names = w->get_inputs();
-            if (!all_are_in_list(input_names, defined_quantity_names)) {
-                misordered_modules.push_back(module_name);
-            }
-            string_vector output_names = w->get_outputs();
-            defined_quantity_names.insert(defined_quantity_names.begin(), output_names.begin(), output_names.end());
-        }
-    }
-
-    return misordered_modules;
-}
-
-/**
  * @brief Returns a set containing all unique inputs to the modules
  */
 string_set find_unique_module_inputs(std::vector<string_vector> module_name_vectors)

@@ -34,7 +34,7 @@ std::vector<std::pair<value_type_1*, const value_type_2*>> get_pointer_pairs(
 }
 
 /**
- * @brief Returns a vector of pointers that point to elements of map
+ * @brief Returns a vector of pointers that point to elements of a map
  * whose targets are specified by quantity_names.
  *
  * Here it is essential that the map is passed by reference; otherwise
@@ -55,7 +55,7 @@ std::vector<value_type*> get_pointers(
 }
 
 /**
- * @brief Returns a vector of pointers that point to elements of map
+ * @brief Returns a vector of pointers that point to elements of a map
  * whose targets are specified by quantity_names.
  *
  * Here it is essential that the map is passed by reference; otherwise
