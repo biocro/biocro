@@ -7,13 +7,13 @@
 /**
  * \brief Model for soybean development and flowering based on Grimm et al. (1993). See grimm_soybean_flowering_calculator for details.
  */
-class grimm_soybean_flowering : public DerivModule
+class grimm_soybean_flowering : public differential_module
 {
    public:
     grimm_soybean_flowering(
         state_map const& input_quantities,
         state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
-                                                                      DerivModule("grimm_soybean_flowering"),
+                                                                      differential_module("grimm_soybean_flowering"),
                                                                       // Get pointers to input quantities
                                                                       grimm_rate_ip(get_ip(input_quantities, "grimm_rate")),
                                                                       // Get pointers to output quantities

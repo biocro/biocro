@@ -11,7 +11,7 @@ run_biocro <- function(
     parameters = list(),
     drivers,
     direct_module_names = list(),
-    derivative_module_names = list(),
+    differential_module_names = list(),
     integrator = default_integrator,
     verbose = FALSE
 )
@@ -34,7 +34,7 @@ run_biocro <- function(
     # direct_module_names: a character vector or list specifying the names
     # of direct modules to use in the system
     #
-    # derivative_module_names: a character vector or list of derivative module
+    # differential_module_names: a character vector or list of differential module
     #                          names
     #
     # integrator: a list specifying details about the numerical integrator.
@@ -87,7 +87,7 @@ run_biocro <- function(
     #         sorghum_parameters,
     #         get_growing_season_climate(weather05),
     #         sorghum_direct_modules,
-    #         sorghum_derivative_modules,
+    #         sorghum_differential_modules,
     #         sorghum_integrator,
     #         TRUE
     #     )
@@ -116,7 +116,7 @@ run_biocro <- function(
     #         glycine_max_parameters,
     #         get_growing_season_climate(weather05),
     #         glycine_max_direct_modules,
-    #         glycine_max_derivative_modules,
+    #         glycine_max_differential_modules,
     #         glycine_max_integrator,
     #         TRUE
     #     )
@@ -164,9 +164,9 @@ run_biocro <- function(
         stop('"direct_module_names" must be a vector or list of strings')
     }
 
-    derivative_module_names <- unlist(derivative_module_names)
-    if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
-        stop('"derivative_module_names" must be a vector or list of strings')
+    differential_module_names <- unlist(differential_module_names)
+    if (length(differential_module_names) > 0 & !is.character(differential_module_names)) {
+        stop('"differential_module_names" must be a vector or list of strings')
     }
 
     # Check to make sure the numerical integrator properties are properly
@@ -202,7 +202,7 @@ run_biocro <- function(
         parameters,
         drivers,
         direct_module_names,
-        derivative_module_names,
+        differential_module_names,
         integrator_type,
         integrator_output_step_size,
         integrator_adaptive_rel_error_tol,
@@ -227,7 +227,7 @@ partial_run_biocro <- function(
     parameters = list(),
     drivers,
     direct_module_names = list(),
-    derivative_module_names = list(),
+    differential_module_names = list(),
     integrator = default_integrator,
     arg_names,
     verbose = FALSE
@@ -246,7 +246,7 @@ partial_run_biocro <- function(
     # parameters: same as run_biocro()
     # drivers: same as run_biocro()
     # direct_module_names: same as run_biocro()
-    # derivative_module_names: same as run_biocro()
+    # differential_module_names: same as run_biocro()
     # integrator: same as run_biocro()
     # arg_names: vector of character variables. The names of the arguments that
     #            the new function accepts. Note: 'arg_names' can only contain
@@ -265,7 +265,7 @@ partial_run_biocro <- function(
     #         sorghum_parameters,
     #         get_growing_season_climate(weather05),
     #         sorghum_direct_modules,
-    #         sorghum_derivative_modules,
+    #         sorghum_differential_modules,
     #         sorghum_integrator,
     #         c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'),
     #         TRUE
@@ -278,7 +278,7 @@ partial_run_biocro <- function(
         parameters=parameters,
         drivers=drivers,
         direct_module_names=direct_module_names,
-        derivative_module_names=derivative_module_names,
+        differential_module_names=differential_module_names,
         integrator=integrator,
         verbose=verbose
     )

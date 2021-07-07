@@ -12,7 +12,7 @@ manihot_esculenta_direct_modules <- list(
     "utilization_senescence_calculator"
 )
 
-manihot_esculenta_derivative_modules <- list(
+manihot_esculenta_differential_modules <- list(
     "utilization_senescence",
     "utilization_growth",
     thermal_time = "thermal_time_linear",

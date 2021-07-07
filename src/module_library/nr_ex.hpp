@@ -10,10 +10,10 @@
 //  v = -exp(-x) + exp(-1000x)
 // For u(0) = 1, v(0) = 0
 
-class nr_ex : public DerivModule {
+class nr_ex : public differential_module {
 	public:
 		nr_ex(state_map const& input_quantities, state_map* output_quantities) :
-			DerivModule("nr_ex"),
+			differential_module("nr_ex"),
 			// Get input pointers
 			u_ip(get_ip(input_quantities, "u")),
 			v_ip(get_ip(input_quantities, "v")),

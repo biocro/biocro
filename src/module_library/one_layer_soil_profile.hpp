@@ -6,11 +6,11 @@
 #include "AuxBioCro.h"  // For ws_str
 #include "BioCro.h"     // For watstr
 
-class one_layer_soil_profile : public DerivModule {
+class one_layer_soil_profile : public differential_module {
 	public:
 		one_layer_soil_profile(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			DerivModule("one_layer_soil_profile"),
+			differential_module("one_layer_soil_profile"),
 			// Get pointers to input quantities
 			soil_evaporation_rate_ip(get_ip(input_quantities, "soil_evaporation_rate")),
 			canopy_transpiration_rate_ip(get_ip(input_quantities, "canopy_transpiration_rate")),

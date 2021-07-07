@@ -13,7 +13,7 @@ SEXP R_validate_system_inputs(
     SEXP parameters,
     SEXP drivers,
     SEXP direct_module_names,
-    SEXP derivative_module_names,
+    SEXP differential_module_names,
     SEXP silent)
 {
     try {
@@ -22,12 +22,12 @@ SEXP R_validate_system_inputs(
         state_map ip = map_from_list(parameters);
         state_vector_map vp = map_vector_from_list(drivers);
         std::vector<std::string> direct_names = make_vector(direct_module_names);
-        std::vector<std::string> deriv_names = make_vector(derivative_module_names);
+        std::vector<std::string> differential_names = make_vector(differential_module_names);
         bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
 
         // Check the validity
         std::string msg;
-        bool valid = validate_system_inputs(msg, s, ip, vp, direct_names, deriv_names);
+        bool valid = validate_system_inputs(msg, s, ip, vp, direct_names, differential_names);
 
         // Print feedback and additional information if required
         if (!be_quiet) {
@@ -43,7 +43,7 @@ SEXP R_validate_system_inputs(
 
             Rprintf("\nPrinting additional information about the system inputs:\n");
 
-            msg = analyze_system_inputs(s, ip, vp, direct_names, deriv_names);
+            msg = analyze_system_inputs(s, ip, vp, direct_names, differential_names);
             Rprintf(msg.c_str());
 
             // Print a space to improve readability

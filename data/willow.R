@@ -12,7 +12,7 @@ willow_direct_modules <- list(
     partitioning_growth_calculator = "partitioning_growth_calculator"
 )
 
-willow_derivative_modules <- list(
+willow_differential_modules <- list(
     senescence = "thermal_time_and_frost_senescence",
     "partitioning_growth",
     thermal_time = "thermal_time_linear",

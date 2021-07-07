@@ -6,7 +6,7 @@ name_parameters = function(
     parameters,
     drivers,
     direct_module_names,
-    derivative_module_names,
+    differential_module_names,
     integrator
 )
 {
@@ -15,15 +15,15 @@ name_parameters = function(
         parameters = parameters,
         drivers = drivers,
         direct_module_names = direct_module_names,
-        derivative_module_names = derivative_module_names,
+        differential_module_names = differential_module_names,
         integrator = integrator
     )
 }
 
 parameter_lists = list(
-    willow     = name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_direct_modules,                 willow_derivative_modules,                 willow_integrator),
-    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_derivative_modules, miscanthus_x_giganteus_integrator),
-    sorghum    = name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_direct_modules,                sorghum_derivative_modules,                sorghum_integrator)
+    willow     = name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_direct_modules,                 willow_differential_modules,                 willow_integrator),
+    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_integrator),
+    sorghum    = name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_direct_modules,                sorghum_differential_modules,                sorghum_integrator)
 )
 
 test_that("Willow simulation produces reasonable results", {
@@ -32,7 +32,7 @@ test_that("Willow simulation produces reasonable results", {
         willow_parameters,
         weather05,
         willow_direct_modules,
-        willow_derivative_modules,
+        willow_differential_modules,
         willow_integrator
     )
 
@@ -65,7 +65,7 @@ for (i in seq_along(parameter_lists)) {
 
     test_that("turning on soil layers increases aboveground productivity and reduces root allocation", {
         two_layer_parameters = within(parameter_list, {
-            derivative_module_names$soil_profile = 'two_layer_soil_profile'
+            differential_module_names$soil_profile = 'two_layer_soil_profile'
             parameters$soil_depth1 = 0
             parameters$soil_depth2 = 1
             parameters$soil_depth3 = 2

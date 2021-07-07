@@ -14,11 +14,11 @@
  *  It is intended to be run along with the utilization_growth_calculator
  *  module. See utilization_growth_calculator.hpp for more information.
  */
-class utilization_growth : public DerivModule {
+class utilization_growth : public differential_module {
 	public:
 		utilization_growth(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			DerivModule("utilization_growth"),
+			differential_module("utilization_growth"),
 			// Get pointers to input quantities
 			canopy_assimilation_rate_ip(get_ip(input_quantities, "canopy_assimilation_rate")),
 			utilization_leaf_ip(get_ip(input_quantities, "utilization_leaf")),

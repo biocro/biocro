@@ -1,7 +1,7 @@
-context('Test basic functioning of the derivative module "heating_degree_days".')
+context('Test basic functioning of the differential module "heating_degree_days".')
 
 direct_modules <- c()
-derivative_modules <- c("heating_degree_days")
+differential_modules <- c("heating_degree_days")
 
 ## Given an initial value for the number of heating degree days, a
 ## vector of equally-spaced time values (as fractional day-of-year
@@ -15,7 +15,7 @@ calculate_heating_degree_days <- function(initial_value, time_vector, temperatur
     drivers <- list(time = time_vector, temp = temperature_vector)
 
     result <- run_biocro(initial_values, parameters, drivers,
-                         direct_modules, derivative_modules, solver)
+                         direct_modules, differential_modules, solver)
 
     result$heating_degree_days[length(time_vector)]
 }

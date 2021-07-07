@@ -85,7 +85,7 @@
  *    future climate scenarios" [Plant, Cell & Environment 38, 1850–1865 (2015)]
  *    (https://doi.org/10.1111/pce.12556)
  */
-class thermal_time_and_frost_senescence : public DerivModule
+class thermal_time_and_frost_senescence : public differential_module
 {
    public:
     thermal_time_and_frost_senescence(
@@ -94,7 +94,7 @@ class thermal_time_and_frost_senescence : public DerivModule
         :  // Define basic module properties by passing its name to its parent
            // class and indicate that this module is not compatible with
            // adaptive step size integrators
-          DerivModule("thermal_time_and_frost_senescence", false),
+          differential_module("thermal_time_and_frost_senescence", false),
 
           // Get pointers to input quantities
           TTc{get_input(input_quantities, "TTc")},

@@ -2,7 +2,7 @@
 \alias{run_biocro}
 \title{Model crop growth.}
 \usage{
-    run_biocro(initial_values, parameters, drivers, direct_modules, derivative_modules, integrator, verbose = FALSE)
+    run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, integrator, verbose = FALSE)
 }
 \arguments{
     \item{initial_values}{Parameter values that are known only at the start of the simulation period. These are recorded in the result. (a list of named numeric values)}
@@ -13,7 +13,7 @@
 
     \item{direct_modules}{The direct modules that should be run. (a list of character values)}
 
-    \item{derivative_modules}{The derivative modules that should be run. (a list of character values)}
+    \item{differential_modules}{The differential modules that should be run. (a list of character values)}
 
     \item{integrator}{Information specifying the numerical integration algorithm to use}
 
@@ -82,7 +82,7 @@
 ## Simulate sorghum growth
 result = run_biocro(sorghum_initial_values, sorghum_parameters,
              get_growing_season_climate(weather05), sorghum_direct_modules,
-             sorghum_derivative_modules, sorghum_integrator)
+             sorghum_differential_modules, sorghum_integrator)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
                 auto=list(points=FALSE, lines=TRUE),
                 ylab=expression('Biomass'~(Mg/ha)),
@@ -95,7 +95,7 @@ result = cbind(result, get_growing_season_climate(weather05))
 canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
 architechture_result = run_biocro(sorghum_initial_values, canopy_architecture,
                            get_growing_season_climate(weather05),
-                           sorghum_direct_modules, sorghum_derivative_modules,
+                           sorghum_direct_modules, sorghum_differential_modules,
                            sorghum_integrator)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l',
                 auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)),

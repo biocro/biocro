@@ -16,7 +16,7 @@ validate_system_inputs <- function(
     parameters = list(),
     drivers,
     direct_module_names = list(),
-    derivative_module_names = list(),
+    differential_module_names = list(),
     silent = FALSE
 )
 {
@@ -56,9 +56,9 @@ validate_system_inputs <- function(
         stop('"direct_module_names" must be a vector or list of strings')
     }
 
-    derivative_module_names <- unlist(derivative_module_names)
-    if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
-        stop('"derivative_module_names" must be a vector or list of strings')
+    differential_module_names <- unlist(differential_module_names)
+    if (length(differential_module_names) > 0 & !is.character(differential_module_names)) {
+        stop('"differential_module_names" must be a vector or list of strings')
     }
 
     # C++ requires that all the variables have type `double`
@@ -76,7 +76,7 @@ validate_system_inputs <- function(
         parameters,
         drivers,
         direct_module_names,
-        derivative_module_names,
+        differential_module_names,
         silent
     )
 

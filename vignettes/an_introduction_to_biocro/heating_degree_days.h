@@ -4,7 +4,7 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class heating_degree_days : public DerivModule {
+class heating_degree_days : public differential_module {
 
 
    public:
@@ -14,7 +14,7 @@ class heating_degree_days : public DerivModule {
         state_map*
             output_parameters
     )
-    : DerivModule{"heating_degree_days"},
+    : differential_module{"heating_degree_days"},
       temp{get_input(input_parameters, "temp")},
       base_temperature{get_input(input_parameters, "base_temperature")},
       heating_degree_days_op{get_op(output_parameters, "heating_degree_days")}

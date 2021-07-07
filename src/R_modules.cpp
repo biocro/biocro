@@ -41,7 +41,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
 
         // Try to create an instance of the module
         bool create_success = true;
-        bool is_deriv = false;
+        bool is_differential = false;
         bool is_adaptive_compatible = false;
         std::string creation_error_message = "none";
         try {
@@ -49,8 +49,8 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
                 module_inputs,
                 &module_outputs);
 
-            // Check to see if the module is a derivative module
-            is_deriv = module_ptr->is_deriv();
+            // Check to see if the module is a differential module
+            is_differential = module_ptr->is_differential();
 
             // Check to see if the module is compatible with adaptive step size
             // solvers
@@ -89,9 +89,9 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
 
             if (create_success) {
                 // Module type
-                Rprintf("Module type (derivative or direct):\n  ");
-                if (is_deriv)
-                    Rprintf("derivative\n\n");
+                Rprintf("Module type (differential or direct):\n  ");
+                if (is_differential)
+                    Rprintf("differential\n\n");
                 else
                     Rprintf("direct\n\n");
 
@@ -114,7 +114,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
             module_name,
             module_inputs,
             module_outputs,
-            is_deriv,
+            is_differential,
             is_adaptive_compatible,
             creation_error_message);
 
@@ -141,7 +141,7 @@ SEXP R_evaluate_module(SEXP module_name_input, SEXP input_parameters)
 
         // Get the module's outputs and add them to the output list with default
         //  values of 0.0
-        // Note: since derivative modules add their output to the module_output_map,
+        // Note: since differential modules add their output to the module_output_map,
         //  the result only makes sense if each parameter is initialized to 0
         auto w = module_wrapper_factory::create(module_name);
         std::vector<std::string> module_outputs = w->get_outputs();

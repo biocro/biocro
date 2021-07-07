@@ -16,7 +16,7 @@ module_info <- function(module_name, verbose = TRUE)
     # - outputs: a list of named numeric elements representing the module's
     #            outputs
     #
-    # - type: the module's type (either `derivative` or `direct`)
+    # - type: the module's type (either `differential` or `direct`)
     # - euler_requirement: indicates whether the module requires a fixed-step
     #                      Euler integrator when used in a BioCro simulation
     #

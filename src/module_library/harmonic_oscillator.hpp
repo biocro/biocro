@@ -5,14 +5,14 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class harmonic_oscillator : public DerivModule
+class harmonic_oscillator : public differential_module
 {
    public:
     harmonic_oscillator(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          DerivModule("harmonic_oscillator"),
+          differential_module("harmonic_oscillator"),
 
           // Get references to input quantities
           mass(get_input(input_quantities, "mass")),

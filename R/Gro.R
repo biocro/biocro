@@ -3,7 +3,7 @@ Gro_deriv <- function(
     parameters = list(),
     drivers,
     direct_module_names = list(),
-    derivative_module_names = list()
+    differential_module_names = list()
 )
 {
     # Gro_deriv is used to create a function that can be called by a integrator
@@ -29,7 +29,7 @@ Gro_deriv <- function(
     # direct_module_names: a character vector or list specifying the names
     # of direct modules to use in the system
     #
-    # derivative_module_names: a character vector or list of derivative module
+    # differential_module_names: a character vector or list of differential module
     # names.
     #
     # The return value of Gro_deriv is a function with three inputs (`t`,
@@ -58,14 +58,14 @@ Gro_deriv <- function(
     #
     #     oscillator_direct_modules <- c()
     #
-    #     oscillator_deriv_modules <- c("harmonic_oscillator")
+    #     oscillator_differential_modules <- c("harmonic_oscillator")
     #
     #     oscillator_system <- Gro_deriv(
     #         oscillator_initial_values,
     #         oscillator_parameters,
     #         get_growing_season_climate(weather05),
     #         oscillator_direct_modules,
-    #         oscillator_deriv_modules
+    #         oscillator_differential_modules
     #     )
     #
     #     iv <- as.numeric(oscillator_initial_values)
@@ -88,7 +88,7 @@ Gro_deriv <- function(
     #         soybean_parameters,
     #         soybean_weather2002,
     #         soybean_direct_modules,
-    #         soybean_derivative_modules
+    #         soybean_differential_modules
     #     )
     #
     #     iv <- as.numeric(soybean_initial_values)
@@ -144,9 +144,9 @@ Gro_deriv <- function(
         stop('"direct_module_names" must be a vector or list of strings')
     }
 
-    derivative_module_names <- unlist(derivative_module_names)
-    if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
-        stop('"derivative_module_names" must be a vector or list of strings')
+    differential_module_names <- unlist(differential_module_names)
+    if (length(differential_module_names) > 0 & !is.character(differential_module_names)) {
+        stop('"differential_module_names" must be a vector or list of strings')
     }
 
     # C++ requires that all the variables have type `double`
@@ -177,7 +177,7 @@ Gro_deriv <- function(
             parameters,
             drivers,
             direct_module_names,
-            derivative_module_names
+            differential_module_names
         )
 
         # Return the result
@@ -189,7 +189,7 @@ Gro_deriv <- function(
 Gro_ode <- function(
     state = list(),
     direct_module_names = list(),
-    derivative_module_names = list()
+    differential_module_names = list()
 )
 {
     # Important note: this function is clunky and not recommended for solving a
@@ -198,17 +198,17 @@ Gro_ode <- function(
     # straightforward.
     #
     # This function calculates derivatives using the quantities defined in the
-    # state as inputs to the supplied direct and derivative modules.
+    # state as inputs to the supplied direct and differential modules.
     #
     # The state should contain quantities that follow differential evolution
     # rules along with any other required quantities.
     #
-    # The derivative modules will only provide derivatives for quantities that
+    # The differential modules will only provide derivatives for quantities that
     # follow differential evolution rules.
     #
     # Example: calculating derivatives for a harmonic oscillator
     #
-    #     oscillator_deriv_modules <- c("harmonic_oscillator")
+    #     oscillator_differential_modules <- c("harmonic_oscillator")
     #
     #     oscillator_direct_modules <- c("harmonic_energy")
     #
@@ -222,7 +222,7 @@ Gro_ode <- function(
     #     oscillator_deriv <- Gro_ode(
     #         oscillator_state,
     #         oscillator_direct_modules,
-    #         oscillator_deriv_modules
+    #         oscillator_differential_modules
     #     )
     #
     #     View(oscillator_deriv)
@@ -256,9 +256,9 @@ Gro_ode <- function(
         stop('"direct_module_names" must be a vector or list of strings')
     }
 
-    derivative_module_names <- unlist(derivative_module_names)
-    if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
-        stop('"derivative_module_names" must be a vector or list of strings')
+    differential_module_names <- unlist(differential_module_names)
+    if (length(differential_module_names) > 0 & !is.character(differential_module_names)) {
+        stop('"differential_module_names" must be a vector or list of strings')
     }
 
     # C++ requires that all the variables have type `double`
@@ -269,7 +269,7 @@ Gro_ode <- function(
         R_Gro_ode,
         state,
         direct_module_names,
-        derivative_module_names
+        differential_module_names
     ))
 
     return(result)

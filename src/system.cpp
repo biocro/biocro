@@ -7,17 +7,17 @@ System::System(
     state_map const& params,
     state_vector_map const& drivers,
     string_vector const& dir_module_names,
-    string_vector const& deriv_module_names)
+    string_vector const& differential_module_names)
     : initial_values{init_values},
       parameters{params},
       drivers{drivers},
       direct_module_names{},  // put modules in suitable order before filling
-      derivative_module_names{deriv_module_names}
+      differential_module_names{differential_module_names}
 {
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid system
-    bool valid = validate_system_inputs(startup_message, init_values, params, drivers, dir_module_names, deriv_module_names);
+    bool valid = validate_system_inputs(startup_message, init_values, params, drivers, dir_module_names, differential_module_names);
 
     if (!valid) {
         throw std::logic_error("Thrown by System::System: the supplied inputs cannot form a valid system.\n\n" + startup_message);
@@ -34,16 +34,16 @@ System::System(
         std::vector<state_map>{init_values, params, at(drivers, 0)},
         std::vector<string_vector>{direct_module_names});
 
-    // Make a map to store the output of derivative modules, which can only
+    // Make a map to store the output of differential modules, which can only
     // include quantities in the initial values
-    derivative_module_outputs = init_values;
+    differential_module_outputs = init_values;
 
-    // Instantiate the modules. Derivative modules should not modify the main
+    // Instantiate the modules. Differential modules should not modify the main
     // quantity map since their output represents derivatives of quantity values
     // rather than actual quantity values, but direct modules should
     // directly modify the main output map.
     direct_modules = get_module_vector(std::vector<string_vector>{direct_module_names}, quantities, &quantities);
-    derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, quantities, &derivative_module_outputs);
+    differential_modules = get_module_vector(std::vector<string_vector>{differential_module_names}, quantities, &differential_module_outputs);
 
     // Make lists of subsets of quantity names
     string_vector direct_output_names =
@@ -55,14 +55,14 @@ System::System(
     // Get vectors of pointers to important subsets of the quantities
     // These pointers allow us to efficiently reset portions of the
     //  module output map before running the modules
-    state_ptrs = get_pointers(istate_names, derivative_module_outputs);
+    state_ptrs = get_pointers(istate_names, differential_module_outputs);
 
     // Get pairs of pointers to important subsets of the quantities
     // These pairs allow us to efficiently retrieve the output of each
     // module and store it in the main quantity map when running the
     // system, to update the drivers at new time points,
     // etc.
-    state_ptr_pairs = get_pointer_pairs(istate_names, quantities, derivative_module_outputs);
+    state_ptr_pairs = get_pointer_pairs(istate_names, quantities, differential_module_outputs);
     driver_ptr_pairs = get_pointer_pairs(driver_names, quantities, drivers);
 
     // Get a pointer to the timestep
@@ -125,7 +125,7 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
  * direct modules.
  *
  * @note Even though each variable in the initial values should
- * correspond to a derivative calculated by some derivative module, it
+ * correspond to a derivative calculated by some differential module, it
  * is possible and permissible to have some variable \f$v\f$ in the
  * initial values that doesn't correspond to any such derivative.  In
  * that case, a differential equation \f$dv/dt = 0\f$ is assumed.  So

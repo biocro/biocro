@@ -86,7 +86,7 @@
  *    alternative to crude oil use. [Nature Climate Change 7, 788–792 (2017)]
  *    (https://doi.org/10.1038/nclimate3410)
  */
-class thermal_time_senescence : public DerivModule
+class thermal_time_senescence : public differential_module
 {
    public:
     thermal_time_senescence(
@@ -95,7 +95,7 @@ class thermal_time_senescence : public DerivModule
         :  // Define basic module properties by passing its name to its parent
            // class and indicate that this module is not compatible with
            // adaptive step size integrators
-          DerivModule("thermal_time_senescence", false),
+          differential_module("thermal_time_senescence", false),
 
           // Get pointers to input quantities
           TTc{get_input(input_quantities, "TTc")},

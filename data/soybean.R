@@ -18,7 +18,7 @@ soybean_direct_modules <- list(
     "senescence_coefficient_logistic"
 )
 
-soybean_derivative_modules <- list(
+soybean_differential_modules <- list(
     senescence = "senescence_logistic",
     "partitioning_growth",
     soil_profile = "two_layer_soil_profile",

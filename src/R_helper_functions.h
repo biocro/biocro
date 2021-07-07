@@ -22,7 +22,7 @@ SEXP list_from_module_info(
     std::string const& module_name,
     state_map const& module_inputs,
     state_map const& module_outputs,
-    bool const& is_deriv,
+    bool const& is_differential,
     bool const& is_adaptive_compatible,
     std::string const& creation_error_message);
 

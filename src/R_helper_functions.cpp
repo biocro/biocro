@@ -164,7 +164,7 @@ SEXP list_from_module_info(
     std::string const& module_name,
     state_map const& module_inputs,
     state_map const& module_outputs,
-    bool const& is_deriv,
+    bool const& is_differential,
     bool const& is_adaptive_compatible,
     std::string const& creation_error_message)
 {
@@ -178,8 +178,8 @@ SEXP list_from_module_info(
 
     // Module type
     SEXP type = PROTECT(Rf_allocVector(STRSXP, 1));
-    if (is_deriv) {
-        SET_STRING_ELT(type, 0, Rf_mkChar("derivative"));
+    if (is_differential) {
+        SET_STRING_ELT(type, 0, Rf_mkChar("differential"));
     } else {
         SET_STRING_ELT(type, 0, Rf_mkChar("direct"));
     }

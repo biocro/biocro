@@ -28,7 +28,7 @@ final_position <- function(integrator)
             hour=seq(from=0, by=1, length=MAX_INDEX)
         ),
         direct_module_names = c(),
-        derivative_module_names = c("harmonic_oscillator"),
+        differential_module_names = c("harmonic_oscillator"),
         integrator = integrator,
         verbose = DEBUG_PRINT_EXTRA
     )

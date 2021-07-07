@@ -12,7 +12,7 @@ miscanthus_x_giganteus_direct_modules <- list(
     partitioning_growth_calculator = "partitioning_growth_calculator"
 )
 
-miscanthus_x_giganteus_derivative_modules <- list(
+miscanthus_x_giganteus_differential_modules <- list(
     senescence = "thermal_time_senescence",
     "partitioning_growth",
     thermal_time = "thermal_time_linear",

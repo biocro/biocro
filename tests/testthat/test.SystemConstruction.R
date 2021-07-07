@@ -22,11 +22,11 @@ test_that("All modules must exist", {
 
     direct_module_names <- c("module_that_does_not_exist")
 
-    derivative_module_names <- c()
+    differential_module_names <- c()
 
     # This should throw an error
 
-    expect_error(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, derivative_module_names, silent=SILENT))
+    expect_error(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
 
@@ -52,11 +52,11 @@ test_that("Duplicated quantities produce an error during validation", {
 
     direct_module_names <- c("harmonic_energy")
 
-    derivative_module_names <- c("harmonic_oscillator")
+    differential_module_names <- c("harmonic_oscillator")
 
     # Validation should return FALSE
 
-    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, derivative_module_names, silent=SILENT))
+    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
 
@@ -81,15 +81,15 @@ test_that("Missing inputs produce an error during validation", {
 
     direct_module_names <- c("harmonic_energy")
 
-    derivative_module_names <- c("harmonic_oscillator")
+    differential_module_names <- c("harmonic_oscillator")
 
     # Validation should return FALSE
 
-    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, derivative_module_names, silent=SILENT))
+    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
 
-test_that("Derivative modules only supply derivatives for quantities in the initial values", {
+test_that("Differential modules only supply derivatives for quantities in the initial values", {
     # Set up some bad inputs for a harmonic oscillator
 
     initial_values <- list(
@@ -110,11 +110,11 @@ test_that("Derivative modules only supply derivatives for quantities in the init
 
     direct_module_names <- c("harmonic_energy")
 
-    derivative_module_names <- c("harmonic_oscillator")
+    differential_module_names <- c("harmonic_oscillator")
 
     # Validation should return FALSE
 
-    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, derivative_module_names, silent=SILENT))
+    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
 
@@ -135,16 +135,16 @@ test_that("Direct modules are not required to be supplied in the correct order",
 
     direct_module_names <- c("Module_1", "Module_2")
 
-    derivative_module_names <- c()
+    differential_module_names <- c()
 
     # This should be valid
 
-    expect_true(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, derivative_module_names, silent=SILENT))
+    expect_true(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
     # If we change the module order, it should still be valid
 
     direct_module_names <- c("Module_2", "Module_1")
 
-    expect_true(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, derivative_module_names, silent=SILENT))
+    expect_true(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })

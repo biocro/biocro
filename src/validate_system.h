@@ -23,14 +23,14 @@ bool validate_system_inputs(
     state_map params,
     state_vector_map drivers,
     string_vector direct_module_names,
-    string_vector deriv_module_names);
+    string_vector differential_module_names);
 
 std::string analyze_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
     string_vector direct_module_names,
-    string_vector deriv_module_names);
+    string_vector differential_module_names);
 
 state_map define_quantity_map(
     std::vector<state_map> state_maps,
@@ -62,7 +62,7 @@ string_vector find_static_output_parameters(
 
 string_vector find_adaptive_incompatibility(std::vector<string_vector> module_name_vectors);
 
-string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_deriv);
+string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_differential);
 
 module_vector get_module_vector(
     std::vector<string_vector> module_name_vectors,
@@ -245,7 +245,7 @@ void insert_key_names(string_vector& name_vector, const map_type map)
  *                                collection will either be empty or will
  *                                contain only a single item---a set of
  *                                direct module names or a set of
- *                                derivative module names.
+ *                                differential module names.
  * @return A vector consisting of the names of all quantities defined in either
  *         of the function arguments.  **If a quantity is defined more than
  *         once, it will appear in the output vector more than once.** A

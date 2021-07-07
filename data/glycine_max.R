@@ -12,7 +12,7 @@ glycine_max_direct_modules <- list(
     "utilization_senescence_calculator"
 )
 
-glycine_max_derivative_modules <- list(
+glycine_max_differential_modules <- list(
     "utilization_senescence",
     "utilization_growth",
     thermal_time = "thermal_time_linear",

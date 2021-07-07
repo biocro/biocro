@@ -17,7 +17,7 @@ class biocro_simulation
         std::unordered_map<std::string, double> const& parameters,
         std::unordered_map<std::string, std::vector<double>> const& drivers,
         std::vector<std::string> const& direct_module_names,
-        std::vector<std::string> const& derivative_module_names,
+        std::vector<std::string> const& differential_module_names,
         // parameters passed to integrator_factory::create
         std::string integrator_name,
         double output_step_size,
@@ -29,7 +29,7 @@ class biocro_simulation
         sys = std::shared_ptr<System>(
             new System(initial_values, parameters,
                        drivers, direct_module_names,
-                       derivative_module_names)
+                       differential_module_names)
         );
 
         // Create the integrator that will be used to solve the system

@@ -70,14 +70,14 @@
  * conversion factor of `24 hours per day` is required in the code as compared to the
  * formulas presented above.
  */
-class thermal_time_linear_extended : public DerivModule
+class thermal_time_linear_extended : public differential_module
 {
    public:
     thermal_time_linear_extended(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          DerivModule("thermal_time_linear_extended"),
+          differential_module("thermal_time_linear_extended"),
 
           // Get pointers to input quantities
           temp(get_input(input_quantities, "temp")),

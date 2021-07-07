@@ -17,7 +17,7 @@ SEXP R_Gro_deriv(
     SEXP parameters,
     SEXP drivers,
     SEXP direct_module_names,
-    SEXP derivative_module_names)
+    SEXP differential_module_names)
 {
     try {
         // Convert the inputs into the proper format
@@ -30,12 +30,12 @@ SEXP R_Gro_deriv(
         }
 
         string_vector direct_names = make_vector(direct_module_names);
-        string_vector deriv_names = make_vector(derivative_module_names);
+        string_vector differential_names = make_vector(differential_module_names);
 
         double t = REAL(time)[0];
 
         // Create a system
-        System sys(s, p, d, direct_names, deriv_names);
+        System sys(s, p, d, direct_names, differential_names);
 
         // Get the state in the correct format
         vector<double> x;
@@ -69,7 +69,7 @@ SEXP R_Gro_deriv(
 SEXP R_Gro_ode(
     SEXP state,
     SEXP direct_module_names,
-    SEXP derivative_module_names)
+    SEXP differential_module_names)
 {
     try {
         // Get the input state
@@ -119,10 +119,10 @@ SEXP R_Gro_ode(
 
         // Get the module names
         string_vector direct_names = make_vector(direct_module_names);
-        string_vector deriv_names = make_vector(derivative_module_names);
+        string_vector differential_names = make_vector(differential_module_names);
 
         // Make the system
-        System sys(s, p, d, direct_names, deriv_names);
+        System sys(s, p, d, direct_names, differential_names);
 
         // Get the current state in the correct format
         vector<double> x;

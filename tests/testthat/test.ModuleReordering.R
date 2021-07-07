@@ -25,7 +25,7 @@ sorghum_direct_modules <- c(
     "partitioning_growth_calculator"
 )
 
-sorghum_deriv_modules <- c(
+sorghum_differential_modules <- c(
     "thermal_time_senescence",
     "partitioning_growth",
     "thermal_time_linear",
@@ -38,7 +38,7 @@ baseline_result  <- run_biocro(sorghum_initial_values,
                                sorghum_parameters,
                                get_growing_season_climate(weather05),
                                sorghum_direct_modules,
-                               sorghum_deriv_modules)
+                               sorghum_differential_modules)
 
 
 ## Variables to define the scope of the survey:
@@ -70,7 +70,7 @@ for (count in 1:NUMBER_OF_PERMUTATIONS) {
                          sorghum_parameters,
                          get_growing_season_climate(weather05),
                          permuted_direct_module_list,
-                         sorghum_deriv_modules)
+                         sorghum_differential_modules)
 
     # Randomly choose a number of indices and compare result against
     # baseline at each index:

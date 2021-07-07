@@ -22,7 +22,7 @@ class System
         state_map const& params,
         state_vector_map const& drivers,
         string_vector const& dir_module_names,
-        string_vector const& deriv_module_names);
+        string_vector const& differential_module_names);
 
     // For integrating via a integrator
     size_t get_ntimes() const
@@ -36,7 +36,7 @@ class System
     bool is_adaptive_compatible() const
     {
         return check_adaptive_compatible(&direct_modules) &&
-               check_adaptive_compatible(&derivative_modules);
+               check_adaptive_compatible(&differential_modules);
     }
 
     template <typename state_type>
@@ -74,15 +74,15 @@ class System
     const state_map parameters;
     const state_vector_map drivers;
     string_vector direct_module_names;  // These may be re-ordered in the constructor.
-    const string_vector derivative_module_names;
+    const string_vector differential_module_names;
 
     // Quantity maps defined during construction
     state_map quantities;
-    state_map derivative_module_outputs;
+    state_map differential_module_outputs;
 
     // Module lists defined during construction
     module_vector direct_modules;
-    module_vector derivative_modules;
+    module_vector differential_modules;
 
     // Pointers to quantity values defined during construction
     double* timestep_ptr;
@@ -100,7 +100,7 @@ class System
     void update_state_params(vector_type const& new_state);
 
     template <class vector_type>
-    void run_derivative_modules(vector_type& derivs);
+    void run_differential_modules(vector_type& derivs);
 
     // For generating reports to the user
     int ncalls = 0;
@@ -147,7 +147,7 @@ void System::operator()(const state_type& x, state_type& dxdt, const time_type& 
 {
     ++ncalls;
     update(x, t);
-    run_derivative_modules(dxdt);
+    run_differential_modules(dxdt);
 }
 
 /**
@@ -173,20 +173,20 @@ void System::update_state_params(vector_type const& new_state)
 }
 
 /**
- * @brief Calculates a derivative from the internally stored quantity map by running all the derivative modules
+ * @brief Calculates a derivative from the internally stored quantity map by running all the differential modules
  *
  * @param[out] dxdt a vector for storing the derivative (passed by reference for speed)
  */
 template <class vector_type>
-void System::run_derivative_modules(vector_type& dxdt)
+void System::run_differential_modules(vector_type& dxdt)
 {
-    // Reset the derivative module outputs
+    // Reset the differential module outputs
     for (double* const& x : state_ptrs) {
         *x = 0.0;
     }
 
     // Run the modules
-    run_module_list(derivative_modules);
+    run_module_list(differential_modules);
 
     // Store the output in the derivative vector
     for (size_t i = 0; i < dxdt.size(); i++) {

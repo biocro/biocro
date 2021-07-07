@@ -25,7 +25,7 @@
   * modules listed in `direct_module_names`.
   *
   * Criterion 2 and criterion 4 are related: Criterion 2 requires
-  * merely that each input to a direct or deriv module is either
+  * merely that each input to a direct or differential module is either
   * a variable in the initial values, is one of the parameters, or is
   * an output of some direct module.  Criterion 4 goes further
   * for the case of a direct module where an input quantity is
@@ -37,7 +37,7 @@
   *
   * Notably absent from these criteria is a requirement that a derivative be
   * calculated for every value given in the initial values.  Values in the
-  * initial values that are not outputs of any deriv module are assumed to have a
+  * initial values that are not outputs of any differential module are assumed to have a
   * derivative of zero, that is, they are assumed to be constant.
   */
 bool validate_system_inputs(
@@ -46,7 +46,7 @@ bool validate_system_inputs(
     state_map params,
     state_vector_map drivers,
     string_vector direct_module_names,
-    string_vector deriv_module_names)
+    string_vector differential_module_names)
 {
     size_t num_problems = 0;
 
@@ -73,7 +73,7 @@ bool validate_system_inputs(
         [=]() -> string_vector {
             return find_undefined_module_inputs(
                 quantity_names,
-                std::vector<string_vector>{direct_module_names, deriv_module_names}
+                std::vector<string_vector>{direct_module_names, differential_module_names}
             );
         },
         [](string_vector string_list) -> std::string {
@@ -91,13 +91,13 @@ bool validate_system_inputs(
         [=]() -> string_vector {
             return find_undefined_module_outputs(
                 keys(initial_values),
-                std::vector<string_vector>{deriv_module_names}
+                std::vector<string_vector>{differential_module_names}
             );
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
-                std::string("All derivative module outputs were included in the initial values"),
-                std::string("The following derivative module outputs were not part of the initial values:"),
+                std::string("All differential module outputs were included in the initial values"),
+                std::string("The following differential module outputs were not part of the initial values:"),
                 std::string(""),
                 string_list
             );
@@ -146,11 +146,11 @@ std::string analyze_system_inputs(
     state_map params,
     state_vector_map drivers,
     string_vector direct_module_names,
-    string_vector deriv_module_names)
+    string_vector differential_module_names)
 {
     std::string message;
 
-    string_set all_module_inputs = find_unique_module_inputs(std::vector<string_vector>{direct_module_names, deriv_module_names});
+    string_set all_module_inputs = find_unique_module_inputs(std::vector<string_vector>{direct_module_names, differential_module_names});
 
     // List a suitable ordering for evaluation of the direct
     // modules if the given order isn't suitable.
@@ -192,7 +192,7 @@ std::string analyze_system_inputs(
     // List any unused quantities in the parameters
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<string_vector>{direct_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<string_vector>{direct_module_names, differential_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each invariant parameter was used as an input to one or more modules"),
                                                            std::string("The following parameters were not used as inputs to any module:"),
@@ -202,7 +202,7 @@ std::string analyze_system_inputs(
     // List any unused quantities in the drivers
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(drivers, 0)}, std::vector<string_vector>{direct_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(drivers, 0)}, std::vector<string_vector>{direct_module_names, differential_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each driver was used as an input to one or more modules"),
                                                            std::string("The following drivers were not used as inputs to any module:"),
@@ -212,21 +212,21 @@ std::string analyze_system_inputs(
     // List any quantities in the initial values that lack derivatives
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_static_output_parameters(std::vector<state_map>{initial_values}, std::vector<string_vector>{deriv_module_names}); },
+        [=]() -> string_vector { return find_static_output_parameters(std::vector<state_map>{initial_values}, std::vector<string_vector>{differential_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All quantities in the initial values have associated derivatives"),
                                                            std::string("The following quantities in the initial values lack associated derivatives:"),
                                                            std::string("These quantities will not change with time, so you may want to consider moving them to the parameters for clarity"),
                                                            string_list); });
 
-    string_vector derivative_module_outputs = get_defined_quantity_names(
+    string_vector differential_module_outputs = get_defined_quantity_names(
         std::vector<state_map>{},
-        std::vector<string_vector>{deriv_module_names});
+        std::vector<string_vector>{differential_module_names});
 
     // List any quantities whose derivative is determined by more than one module
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_duplicate_quantity_definitions(derivative_module_outputs); },
+        [=]() -> string_vector { return find_duplicate_quantity_definitions(differential_module_outputs); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("No derivative is determined by more than one module"),
                                                            std::string("Derivatives for the following quantities are each determined by more than one module:"),
@@ -236,7 +236,7 @@ std::string analyze_system_inputs(
     // List any modules that are not compatible with adaptive step size methods
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_adaptive_incompatibility(std::vector<string_vector>{direct_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_adaptive_incompatibility(std::vector<string_vector>{direct_module_names, differential_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All modules are compatible with adaptive step size solvers"),
                                                            std::string("The following modules are not compatible with adaptive step size solvers:"),
@@ -249,17 +249,17 @@ std::string analyze_system_inputs(
         [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{direct_module_names}, false); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All modules in the direct module list are direct modules"),
-                                                           std::string("The following modules were in the list of direct modules but are actually derivative modules:"),
+                                                           std::string("The following modules were in the list of direct modules but are actually differential modules:"),
                                                            std::string(""),
                                                            string_list); });
 
-    // List any mischaracterized derivative modules
+    // List any mischaracterized differential modules
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{deriv_module_names}, true); },
+        [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{differential_module_names}, true); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("All modules in the derivative module list are derivative modules"),
-                                                           std::string("The following modules were in the list of derivative modules but are actually direct modules:"),
+                                                           std::string("All modules in the differential module list are differential modules"),
+                                                           std::string("The following modules were in the list of differential modules but are actually direct modules:"),
                                                            std::string(""),
                                                            string_list); });
     return message;
@@ -530,9 +530,9 @@ string_vector find_adaptive_incompatibility(std::vector<string_vector> module_na
 
 /**
  * @brief Returns mischaracterized modules, i.e., direct modules
- * in the derivative module list or vice-versa
+ * in the differential module list or vice-versa
  */
-string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_deriv)
+string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_differential)
 {
     // Get all the module inputs and outputs
     string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
@@ -550,7 +550,7 @@ string_vector find_mischaracterized_modules(std::vector<string_vector> module_na
     string_vector mischaracterized_modules;
     module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
     for (std::unique_ptr<Module>& m : modules) {
-        if (m->is_deriv() != is_deriv) {
+        if (m->is_differential() != is_differential) {
             mischaracterized_modules.push_back(m->get_name());
         }
     }
