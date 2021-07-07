@@ -137,7 +137,7 @@ void simultaneous_equations::run_modules(vector_type const& unknown_quantity_vec
     module_output_map = quantities;
 
     // Run each module and store its output in the main quantity map
-    for (std::unique_ptr<Module> const& m : direct_modules) {
+    for (std::unique_ptr<module_base> const& m : direct_modules) {
         m->run();
         for (auto const& x : direct_ptr_pairs) {
             *x.first = *x.second;

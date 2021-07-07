@@ -167,7 +167,7 @@ class multilayer_canopy_photosynthesis : public direct_module
     // Leaf photosynthesis module
     state_map leaf_module_quantities;
     state_map leaf_module_output_map;
-    std::unique_ptr<Module> leaf_module;
+    std::unique_ptr<module_base> leaf_module;
 
     // Pointers to input parameters
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_input_ptr_pairs;
@@ -216,7 +216,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
 
     // Create the leaf photosynthesis module
     leaf_module =
-        std::unique_ptr<Module>(new leaf_module_type(
+        std::unique_ptr<module_base>(new leaf_module_type(
             leaf_module_quantities,
             &leaf_module_output_map));
 

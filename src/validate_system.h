@@ -12,7 +12,7 @@
 #include "modules.h"
 
 using string_set = std::set<std::string>;
-using module_vector = std::vector<std::unique_ptr<Module>>;
+using module_vector = std::vector<std::unique_ptr<module_base>>;
 
 const std::string success_mark { "[pass] " };
 const std::string failure_mark { "[fail] " };

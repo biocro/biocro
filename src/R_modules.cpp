@@ -45,7 +45,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
         bool is_adaptive_compatible = false;
         std::string creation_error_message = "none";
         try {
-            std::unique_ptr<Module> module_ptr = w->createModule(
+            std::unique_ptr<module_base> module_ptr = w->createModule(
                 module_inputs,
                 &module_outputs);
 
@@ -147,7 +147,7 @@ SEXP R_evaluate_module(SEXP module_name_input, SEXP input_parameters)
         std::vector<std::string> module_outputs = w->get_outputs();
         for (std::string param : module_outputs) module_output_map[param] = 0.0;
 
-        std::unique_ptr<Module> module_ptr = w->createModule(parameters, &module_output_map);
+        std::unique_ptr<module_base> module_ptr = w->createModule(parameters, &module_output_map);
 
         module_ptr->run();
 

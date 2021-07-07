@@ -6,7 +6,7 @@
 #include "module_helper_functions.h"  // Essential for all modules
 
 /**
- *  @class Module
+ *  @class module_base
  *
  *  @brief Represents one or more equations used to define the evolution rule
  *  for one or more quantities that comprise the state of a dynamical system
@@ -27,10 +27,10 @@
  *  This class has a pure virtual destructor to designate it as being
  *  intentionally abstract.
  */
-class Module
+class module_base
 {
    public:
-    Module(
+    module_base(
         std::string const& module_name,
         bool const& differential,
         bool const& adaptive_compatible)
@@ -40,7 +40,7 @@ class Module
     {
     }
 
-    virtual ~Module() = 0;
+    virtual ~module_base() = 0;
 
     // Functions for returning module information
     std::string get_name() const { return module_name; }
@@ -66,22 +66,22 @@ class Module
  *  @brief A destructor must be defined, and since the default is overridden
  *  when defining it as pure virtual, add an inline one in the header
  */
-inline Module::~Module() {}
+inline module_base::~module_base() {}
 
 /**
  *  @class direct_module
  *
- *  @brief This class represents a direct `Module`.
+ *  @brief This class represents a direct module.
  *
  *  This class has a pure virtual destructor to designate it as being
  *  intentionally abstract.
  */
-class direct_module : public Module
+class direct_module : public module_base
 {
    public:
     direct_module(
         const std::string& module_name, bool adaptive_compatible = true)
-        : Module{module_name, 0, adaptive_compatible}
+        : module_base{module_name, 0, adaptive_compatible}
     {
     }
 
@@ -109,16 +109,16 @@ inline void direct_module::update(double* output_ptr, const double& value) const
 /**
  *  @class differential_module
  *
- *  @brief This class represents a differential `Module`.
+ *  @brief This class represents a differential module.
  *
  *  This class has a pure virtual destructor to designate it as being
  *  intentionally abstract.
  */
-class differential_module : public Module
+class differential_module : public module_base
 {
    public:
     differential_module(const std::string& module_name, bool adaptive_compatible = true)
-        : Module{module_name, 1, adaptive_compatible}
+        : module_base{module_name, 1, adaptive_compatible}
     {
     }
 
@@ -144,6 +144,6 @@ inline void differential_module::update(double* output_ptr, const double& value)
     *output_ptr += value;
 }
 
-void run_module_list(std::vector<std::unique_ptr<Module>> const& modules);
+void run_module_list(std::vector<std::unique_ptr<module_base>> const& modules);
 
 #endif
