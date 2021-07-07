@@ -201,8 +201,11 @@ simultaneous_equations::simultaneous_equations(
 }
 
 /**
- * @brief Updates the values of the known quantities using the values pointed to by the elements
- * of ptrs_to_values. The elements of `ptr_to_values` must be sorted according to quantity name.
+ * @brief Updates the values of the known quantities using the values
+ * pointed to by the elements of ptrs_to_values.
+ *
+ * The elements of `ptr_to_values` must be sorted according to
+ * quantity name.
  */
 void simultaneous_equations::update_known_quantities(std::vector<const double*> const& ptrs_to_values)
 {
