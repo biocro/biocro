@@ -385,7 +385,7 @@ Light_profile sunML(
 
 
 /**
- * @brief RH and Wind profile function
+ * @brief Wind profile function
  *
  * Preconditions:
  *     `WindSpeed` is non-negative.
