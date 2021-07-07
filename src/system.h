@@ -21,7 +21,7 @@ class System
         state_map const& init_values,
         state_map const& params,
         state_vector_map const& drivers,
-        string_vector const& ss_module_names,
+        string_vector const& dir_module_names,
         string_vector const& deriv_module_names);
 
     // For integrating via a integrator
@@ -35,7 +35,7 @@ class System
     /// modules that it uses.
     bool is_adaptive_compatible() const
     {
-        return check_adaptive_compatible(&steady_state_modules) &&
+        return check_adaptive_compatible(&direct_modules) &&
                check_adaptive_compatible(&derivative_modules);
     }
 
@@ -73,7 +73,7 @@ class System
     const state_map initial_values;
     const state_map parameters;
     const state_vector_map drivers;
-    string_vector steady_state_module_names;  // These may be re-ordered in the constructor.
+    string_vector direct_module_names;  // These may be re-ordered in the constructor.
     const string_vector derivative_module_names;
 
     // Quantity maps defined during construction
@@ -81,7 +81,7 @@ class System
     state_map derivative_module_outputs;
 
     // Module lists defined during construction
-    module_vector steady_state_modules;
+    module_vector direct_modules;
     module_vector derivative_modules;
 
     // Pointers to quantity values defined during construction
@@ -122,7 +122,7 @@ void System::get_state(state_type& x) const
 }
 
 /**
- * @brief Updates all quantities (including ones calculated by steady state modules) based on the input state and time
+ * @brief Updates all quantities (including ones calculated by direct modules) based on the input state and time
  *
  * @param[in] x the state
  * @param[in] t the time
@@ -132,7 +132,7 @@ void System::update(const state_type& x, const time_type& t)
 {
     update_drivers(t);
     update_state_params(x);
-    run_module_list(steady_state_modules);
+    run_module_list(direct_modules);
 }
 
 /**

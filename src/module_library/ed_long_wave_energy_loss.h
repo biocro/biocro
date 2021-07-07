@@ -12,14 +12,14 @@
  * @brief Uses the Stefan-Boltzmann law to calculate long-wave energy losses
  * from the leaf to the air. Currently only intended for use by Ed.
  */
-class ed_long_wave_energy_loss : public SteadyModule
+class ed_long_wave_energy_loss : public direct_module
 {
    public:
     ed_long_wave_energy_loss(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_long_wave_energy_loss"),
+          direct_module("ed_long_wave_energy_loss"),
 
           // Get references to input quantities
           temperature_leaf{get_input(input_quantities, "temperature_leaf")},

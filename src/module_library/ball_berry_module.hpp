@@ -5,11 +5,11 @@
 #include "../state_map.h"
 #include "ball_berry.hpp"
 
-class ball_berry_module : public SteadyModule {
+class ball_berry_module : public direct_module {
 	public:
 		ball_berry_module(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("ball_berry_module"),
+			direct_module("ball_berry_module"),
 			// Get pointers to input quantities
 			net_assimilation_rate_ip(get_ip(input_quantities, "net_assimilation_rate")),
 			atmospheric_co2_concentration_ip(get_ip(input_quantities, "atmospheric_co2_concentration")),

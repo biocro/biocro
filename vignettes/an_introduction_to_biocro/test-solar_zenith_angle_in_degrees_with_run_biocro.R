@@ -1,6 +1,6 @@
-context('Test basic functioning of the steady-state module "solar_zenith_angle_in_degrees".')
+context('Test basic functioning of the direct module "solar_zenith_angle_in_degrees".')
 
-steady_state_modules <- c("solar_zenith_angle_in_degrees")
+direct_modules <- c("solar_zenith_angle_in_degrees")
 derivative_modules <- c()
 
 initial_values <- list()
@@ -16,7 +16,7 @@ angle_from_cosine <- function(cza) {
     # drivers.
     drivers <- list(time = 1, cosine_zenith_angle = cza)
 
-    result = run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
+    result = run_biocro(initial_values, parameters, drivers, direct_modules, derivative_modules)
 
     result$zenith_angle_in_degrees
 }

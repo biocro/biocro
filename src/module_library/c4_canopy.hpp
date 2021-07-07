@@ -6,14 +6,14 @@
 #include "AuxBioCro.h"  // For nitroParms and Can_Str
 #include "BioCro.h"     // For CanAC
 
-class c4_canopy : public SteadyModule
+class c4_canopy : public direct_module
 {
    public:
     c4_canopy(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c4_canopy"),
+          direct_module("c4_canopy"),
 
           // Get pointers to input quantities
           nileafn(get_input(input_quantities, "nileafn")),

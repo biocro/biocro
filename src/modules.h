@@ -8,12 +8,13 @@
 /**
  *  @class Module
  *
- *  @brief Represents a component of a larger system of differential equations.
+ *  @brief Represents one or more equations used to define the evolution rule
+ *  for one or more quantities that comprise the state of a dynamical system
  *
  *  A module can be one of the following subtypes:
  *
- *  - `SteadyModule`: a "steady state" module that calculates the value(s) of
- *    one or more quantities
+ *  - `direct_module`: directly calculates the instantaneous value(s) of one or
+ *    more quantities
  *
  *  - `DerivModule`: a "derivative" module that calculates the rate(s) of change
  *    for one or more quantities
@@ -68,23 +69,23 @@ class Module
 inline Module::~Module() {}
 
 /**
- *  @class SteadyModule
+ *  @class direct_module
  *
- *  @brief This class represents a steady state `Module`.
+ *  @brief This class represents a direct `Module`.
  *
  *  This class has a pure virtual destructor to designate it as being
  *  intentionally abstract.
  */
-class SteadyModule : public Module
+class direct_module : public Module
 {
    public:
-    SteadyModule(
+    direct_module(
         const std::string& module_name, bool adaptive_compatible = true)
         : Module{module_name, 0, adaptive_compatible}
     {
     }
 
-    virtual ~SteadyModule() = 0;
+    virtual ~direct_module() = 0;
 
    protected:
     void update(double* output_ptr, const double& value) const;
@@ -94,13 +95,13 @@ class SteadyModule : public Module
  *  @brief A destructor must be defined, and since the default is overridden
  *  when defining it as pure virtual, add an inline one in the header
  */
-inline SteadyModule::~SteadyModule() {}
+inline direct_module::~direct_module() {}
 
 /**
- *  @brief The output parameters of a steady state module are unique, so we can
+ *  @brief The output parameters of a direct module are unique, so we can
  *  just overwrite the previously stored value.
  */
-inline void SteadyModule::update(double* output_ptr, const double& value) const
+inline void direct_module::update(double* output_ptr, const double& value) const
 {
     *output_ptr = value;
 }

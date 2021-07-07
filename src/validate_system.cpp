@@ -16,21 +16,21 @@
   * 1. Each quantity is specified only once.
   * 2. All module inputs are specified.
   * 3. Derivatives are calculated only for quantities in the initial values.
-  * 4. Steady-state modules can be ordered in such a way that inputs
+  * 4. Direct modules can be ordered in such a way that inputs
   *    are calculated before they are accessed.
   *
   * We consider a quantity to have been "specified" (or "defined") if it is a
   * key in one of the maps `initial_values`, `params`, or
-  * `drivers`, or, if it is an output variable of one of the steady-state
-  * modules listed in `ss_module_names`.
+  * `drivers`, or, if it is an output variable of one of the direct
+  * modules listed in `direct_module_names`.
   *
   * Criterion 2 and criterion 4 are related: Criterion 2 requires
-  * merely that each input to a steady-state or deriv module is either
+  * merely that each input to a direct or deriv module is either
   * a variable in the initial values, is one of the parameters, or is
-  * an output of some steady-state module.  Criterion 4 goes further
-  * for the case of a steady-state module where an input quantity is
-  * provided by the output of some other steady-state module: It
-  * requires that the steady-state modules can be ordered in such a
+  * an output of some direct module.  Criterion 4 goes further
+  * for the case of a direct module where an input quantity is
+  * provided by the output of some other direct module: It
+  * requires that the direct modules can be ordered in such a
   * way that each of a module's input quantities that is neither a
   * parameter or a quantity in the initial values be provided by the
   * output of a module earlier in the list.
@@ -45,14 +45,14 @@ bool validate_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    string_vector ss_module_names,
+    string_vector direct_module_names,
     string_vector deriv_module_names)
 {
     size_t num_problems = 0;
 
     string_vector quantity_names = get_defined_quantity_names(
         std::vector<state_map>{initial_values, params, at(drivers, 0)},
-        std::vector<string_vector>{ss_module_names});
+        std::vector<string_vector>{direct_module_names});
 
     // Criterion 1
     num_problems += process_criterion<string_vector>(
@@ -73,7 +73,7 @@ bool validate_system_inputs(
         [=]() -> string_vector {
             return find_undefined_module_inputs(
                 quantity_names,
-                std::vector<string_vector>{ss_module_names, deriv_module_names}
+                std::vector<string_vector>{direct_module_names, deriv_module_names}
             );
         },
         [](string_vector string_list) -> std::string {
@@ -109,7 +109,7 @@ bool validate_system_inputs(
         message,
         [=]() -> string_vector {
             string_vector result {};
-            if (has_cyclic_dependency(ss_module_names)) {
+            if (has_cyclic_dependency(direct_module_names)) {
                 // For now, we just want a non-zero vector size.  It
                 // may, however, prove useful to display a set of
                 // modules that comprise a cyclic dependency.
@@ -119,8 +119,8 @@ bool validate_system_inputs(
         },
         [](string_vector string_list) -> std::string {
             return create_marked_message(
-                std::string("There are no cyclic dependencies among the steady-state modules."),
-                std::string("The steady-state modules have a cyclic dependency."),
+                std::string("There are no cyclic dependencies among the direct modules."),
+                std::string("The direct modules have a cyclic dependency."),
                 std::string(""),
                 string_list
             );
@@ -145,22 +145,22 @@ std::string analyze_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    string_vector ss_module_names,
+    string_vector direct_module_names,
     string_vector deriv_module_names)
 {
     std::string message;
 
-    string_set all_module_inputs = find_unique_module_inputs(std::vector<string_vector>{ss_module_names, deriv_module_names});
+    string_set all_module_inputs = find_unique_module_inputs(std::vector<string_vector>{direct_module_names, deriv_module_names});
 
-    // List a suitable ordering for evaluation of the steady-state
+    // List a suitable ordering for evaluation of the direct
     // modules if the given order isn't suitable.
-    if (!has_cyclic_dependency(ss_module_names)) {
+    if (!has_cyclic_dependency(direct_module_names)) {
         process_criterion<string_vector>(
             message,
             [=]() -> string_vector {
                 string_vector result {};
-                if (!order_ok(ss_module_names)) {
-                    return get_evaluation_order(ss_module_names);
+                if (!order_ok(direct_module_names)) {
+                    return get_evaluation_order(direct_module_names);
                 }
                 else {
                     return {};
@@ -168,8 +168,8 @@ std::string analyze_system_inputs(
             },
             [](string_vector string_list) -> std::string {
                 return create_message(
-                    std::string("The steady-state modules are in a suitable order for evaluation."),
-                    std::string("The steady-state modules need to be re-ordered before evaluation.\n") +
+                    std::string("The direct modules are in a suitable order for evaluation."),
+                    std::string("The direct modules need to be re-ordered before evaluation.\n") +
                                 "(This will be done automatically by during System construction.)\n" +
                                 "Here is a suitable ordering:",
                     std::string(""),
@@ -192,7 +192,7 @@ std::string analyze_system_inputs(
     // List any unused quantities in the parameters
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<string_vector>{direct_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each invariant parameter was used as an input to one or more modules"),
                                                            std::string("The following parameters were not used as inputs to any module:"),
@@ -202,7 +202,7 @@ std::string analyze_system_inputs(
     // List any unused quantities in the drivers
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(drivers, 0)}, std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{at(drivers, 0)}, std::vector<string_vector>{direct_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("Each driver was used as an input to one or more modules"),
                                                            std::string("The following drivers were not used as inputs to any module:"),
@@ -236,20 +236,20 @@ std::string analyze_system_inputs(
     // List any modules that are not compatible with adaptive step size methods
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_adaptive_incompatibility(std::vector<string_vector>{ss_module_names, deriv_module_names}); },
+        [=]() -> string_vector { return find_adaptive_incompatibility(std::vector<string_vector>{direct_module_names, deriv_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All modules are compatible with adaptive step size solvers"),
                                                            std::string("The following modules are not compatible with adaptive step size solvers:"),
                                                            std::string(""),
                                                            string_list); });
 
-    // List any mischaracterized steady-state modules
+    // List any mischaracterized direct modules
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{ss_module_names}, false); },
+        [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{direct_module_names}, false); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("All modules in the steady-state module list are steady-state modules"),
-                                                           std::string("The following modules were in the list of steady-state modules but are actually derivative modules:"),
+                                                           std::string("All modules in the direct module list are direct modules"),
+                                                           std::string("The following modules were in the list of direct modules but are actually derivative modules:"),
                                                            std::string(""),
                                                            string_list); });
 
@@ -259,7 +259,7 @@ std::string analyze_system_inputs(
         [=]() -> string_vector { return find_mischaracterized_modules(std::vector<string_vector>{deriv_module_names}, true); },
         [](string_vector string_list) -> std::string { return create_message(
                                                            std::string("All modules in the derivative module list are derivative modules"),
-                                                           std::string("The following modules were in the list of derivative modules but are actually steady-state modules:"),
+                                                           std::string("The following modules were in the list of derivative modules but are actually direct modules:"),
                                                            std::string(""),
                                                            string_list); });
     return message;
@@ -323,7 +323,7 @@ state_map define_quantity_map(
  *                       variables, environment variables ("varying
  *                       parameters"), system constants ("invariant
  *                       parameters"), or derived quantites (outputs of
- *                       steady-state modules).
+ *                       direct modules).
  *
  * @returns A alphabetized list (presented as a vector of strings) of all
  *          quantities appearing more than once in the input list.
@@ -529,7 +529,7 @@ string_vector find_adaptive_incompatibility(std::vector<string_vector> module_na
 }
 
 /**
- * @brief Returns mischaracterized modules, i.e., steady-state modules
+ * @brief Returns mischaracterized modules, i.e., direct modules
  * in the derivative module list or vice-versa
  */
 string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_deriv)

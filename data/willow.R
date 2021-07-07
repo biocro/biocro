@@ -1,7 +1,7 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-willow_steady_state_modules <- list(
+# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+willow_direct_modules <- list(
     "soil_type_selector",
     stomata_water_stress = "stomata_water_stress_linear",
     "leaf_water_stress_exponential",

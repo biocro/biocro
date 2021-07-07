@@ -10,14 +10,14 @@
  * @brief Uses the method from `CanAC()` to calculate leaf photosynthesis
  * parameters for C4 plants
  */
-class c4_leaf_photosynthesis : public SteadyModule
+class c4_leaf_photosynthesis : public direct_module
 {
    public:
     c4_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c4_leaf_photosynthesis"),
+          direct_module("c4_leaf_photosynthesis"),
 
           // Get references to input quantities
           incident_ppfd(get_input(input_quantities, "incident_ppfd")),

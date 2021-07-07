@@ -4,14 +4,14 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class c3_canopy : public SteadyModule
+class c3_canopy : public direct_module
 {
    public:
     c3_canopy(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c3_canopy"),
+          direct_module("c3_canopy"),
 
           // Get references to input quantities
           lai{get_input(input_quantities, "lai")},

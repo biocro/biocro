@@ -5,14 +5,14 @@
 #include "../state_map.h"
 #include "../constants.h"  // For calculation_constants::eps_zero
 
-class leaf_water_stress_exponential : public SteadyModule
+class leaf_water_stress_exponential : public direct_module
 {
    public:
     leaf_water_stress_exponential(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("leaf_water_stress_exponential"),
+          direct_module("leaf_water_stress_exponential"),
 
           // Get pointers to input quantities
           soil_water_content_ip(get_ip(input_quantities, "soil_water_content")),

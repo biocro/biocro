@@ -40,7 +40,7 @@ using Graph = boost::adjacency_list<
  *  @brief module_name_map_t is the type for the map mapping Graph
  *  vertex descriptors to names.
  *
- *  In our case, these will be steady-state module names.
+ *  In our case, these will be direct module names.
  */
 using module_name_map_t = boost::property_map<Graph, boost::vertex_name_t>::type;
 
@@ -85,7 +85,7 @@ using vertex_iterator = boost::graph_traits<Graph>::vertex_iterator;
  *  @brief Returns a list (presented as a sorted vector of strings) of
  *  all inputs for the module having name module_name.
  *
- *  @param[in] module_name The name of a steady-state module.
+ *  @param[in] module_name The name of a direct module.
  *
  *  @returns A list (presented as a sorted vector of strings) of all inputs for
  *           the module having name module_name.
@@ -100,7 +100,7 @@ string_vector get_module_inputs(string module_name) {
  *  @brief Returns a list (presented as a sorted vector of strings) of
  *  all outputs for the module having name module_name.
  *
- *  @param[in] module_name The name of a steady-state module.
+ *  @param[in] module_name The name of a direct module.
  *
  *  @returns A list (presented as a sorted vector of strings) of all
  *           outputs for the module having name module_name.
@@ -119,8 +119,8 @@ string_vector get_module_outputs(string module_name) {
  *  m1 depends on m2 if and only if some input of m1 corresponds to
  *  some output of m2.
  *
- *  @param[in] m1 A steady-state module name.
- *  @param[in] m2 A steady-state module name.
+ *  @param[in] m1 A direct module name.
+ *  @param[in] m2 A direct module name.
  *
  *  @returns true if the module named by m1 depends upon the module
  *           named by m2, false otherwise.
@@ -144,17 +144,17 @@ bool depends_on(string m1, string m2) {
 
 /**
  *  @brief Creates and returns a graph that models the dependency
- *  structure of the steady-state modules listed in module_names.
+ *  structure of the direct modules listed in module_names.
  *
  *  There is a directed edge from the vertex for module A to the
  *  vertex for module B if A is depended upon by B, that is, if B
  *  depends on A.
  *
  *  @param module_names A list (presented as a vector of strings) of
- *                      names of steady-state modules.
+ *                      names of direct modules.
  *
  *  @returns A Graph object modeling the dependency structure of the
- *           steady-state modules listed in module_names.
+ *           direct modules listed in module_names.
  */
 Graph get_dependency_graph(string_vector module_names) {
 
@@ -236,12 +236,12 @@ bool has_cycle(Graph g) {
 }
 
 /**
- *  @brief Given a list of steady-state module names (presented as a
+ *  @brief Given a list of direct module names (presented as a
  *  vector of strings), determine if the list can be put in a suitable
  *  order for evaluating the modules.
  *
  *  @param module_names A list (presented as a vector of strings) of
- *                      names of steady-state modules.
+ *                      names of direct modules.
  *
  *  @returns `true` if there is a cyclic dependency among the given
  *           modules so that they cannot be suitably ordered; `false`
@@ -254,11 +254,11 @@ bool has_cyclic_dependency(string_vector module_names) {
 }
 
 /**
- *  @brief Determines whether the steady-state modules in
+ *  @brief Determines whether the direct modules in
  *  `module_names` need to be reordered before evaluation.
  *
  *  @param module_names A list (presented as a vector of strings) of
- *                      names of steady-state modules.
+ *                      names of direct modules.
  *
  *  @returns `true` if the list of modules as given in `module_names`
  *           is a suitable evaluation order, `false` otherwise.
@@ -310,7 +310,7 @@ vertex_list get_topological_ordering(const Graph& g) {
 }
 
 /**
- *  @brief Given a list of steady-state module names (presented as a
+ *  @brief Given a list of direct module names (presented as a
  *  vector of strings), return the same list in a suitable order for
  *  evaluating the modules.
  *
@@ -319,7 +319,7 @@ vertex_list get_topological_ordering(const Graph& g) {
  *  boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>>.
  *
  *  @param module_names A list (presented as a vector of strings) of
- *                      names of steady-state modules.
+ *                      names of direct modules.
  *
  *  @return The same list given in `module_names`, but ordered so that
  *          each module in the list depends only on modules occuring

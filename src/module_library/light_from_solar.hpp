@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class light_from_solar : public SteadyModule {
+class light_from_solar : public direct_module {
     public:
         light_from_solar(state_map const& input_quantities, state_map* output_quantities) :
             // Define basic module properties by passing its name to its parent class
-            SteadyModule("light_from_solar"),
+            direct_module("light_from_solar"),
             // Get pointers to input quantities
             solar_ip(get_ip(input_quantities, "solar")),
             light_threshold_ip(get_ip(input_quantities, "light_threshold")),

@@ -22,14 +22,14 @@
  * The `par_energy_fraction` quantity should represent the fraction of solar energy
  * that lies in the PAR band. This value is often near 0.5.
  */
-class incident_shortwave_from_ground_par : public SteadyModule
+class incident_shortwave_from_ground_par : public direct_module
 {
    public:
     incident_shortwave_from_ground_par(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("incident_shortwave_from_ground_par"),
+          direct_module("incident_shortwave_from_ground_par"),
           // Get pointers to input quantities
           solar(get_input(input_quantities, "solar")),
           irradiance_direct_fraction(get_input(input_quantities, "irradiance_direct_fraction")),

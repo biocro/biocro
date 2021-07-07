@@ -12,14 +12,14 @@
  * @brief Just a module wrapper for the EvapoTrans2 function.
  * Currently only intended for use by Ed.
  */
-class ed_evapotrans2 : public SteadyModule
+class ed_evapotrans2 : public direct_module
 {
    public:
     ed_evapotrans2(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_evapotrans2"),
+          direct_module("ed_evapotrans2"),
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           rh_ip(get_ip(input_quantities, "rh")),

@@ -5,11 +5,11 @@
 #include "../state_map.h"
 #include "../constants.h"   // For calculation_constants::eps_zero
 
-class biomass_leaf_n_limitation : public SteadyModule {
+class biomass_leaf_n_limitation : public direct_module {
 	public:
 		biomass_leaf_n_limitation(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("biomass_leaf_n_limitation"),
+			direct_module("biomass_leaf_n_limitation"),
 			// Get pointers to input quantities
 			LeafN_0_ip(get_ip(input_quantities, "LeafN_0")),
 			Leaf_ip(get_ip(input_quantities, "Leaf")),

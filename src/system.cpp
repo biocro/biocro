@@ -6,25 +6,25 @@ System::System(
     state_map const& init_values,
     state_map const& params,
     state_vector_map const& drivers,
-    string_vector const& ss_module_names,
+    string_vector const& dir_module_names,
     string_vector const& deriv_module_names)
     : initial_values{init_values},
       parameters{params},
       drivers{drivers},
-      steady_state_module_names{},  // put modules in suitable order before filling
+      direct_module_names{},  // put modules in suitable order before filling
       derivative_module_names{deriv_module_names}
 {
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid system
-    bool valid = validate_system_inputs(startup_message, init_values, params, drivers, ss_module_names, deriv_module_names);
+    bool valid = validate_system_inputs(startup_message, init_values, params, drivers, dir_module_names, deriv_module_names);
 
     if (!valid) {
         throw std::logic_error("Thrown by System::System: the supplied inputs cannot form a valid system.\n\n" + startup_message);
     }
 
     try {
-        steady_state_module_names = get_evaluation_order(ss_module_names);
+        direct_module_names = get_evaluation_order(dir_module_names);
     } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
         throw std::logic_error("Cyclic dependencies should be caught in the validation routine.  We shouldn't ever get here.");
     }
@@ -32,7 +32,7 @@ System::System(
     // Make the central list of quantities
     quantities = define_quantity_map(
         std::vector<state_map>{init_values, params, at(drivers, 0)},
-        std::vector<string_vector>{steady_state_module_names});
+        std::vector<string_vector>{direct_module_names});
 
     // Make a map to store the output of derivative modules, which can only
     // include quantities in the initial values
@@ -40,15 +40,15 @@ System::System(
 
     // Instantiate the modules. Derivative modules should not modify the main
     // quantity map since their output represents derivatives of quantity values
-    // rather than actual quantity values, but steady state modules should
+    // rather than actual quantity values, but direct modules should
     // directly modify the main output map.
-    steady_state_modules = get_module_vector(std::vector<string_vector>{steady_state_module_names}, quantities, &quantities);
+    direct_modules = get_module_vector(std::vector<string_vector>{direct_module_names}, quantities, &quantities);
     derivative_modules = get_module_vector(std::vector<string_vector>{deriv_module_names}, quantities, &derivative_module_outputs);
 
     // Make lists of subsets of quantity names
-    string_vector steady_state_output_names =
+    string_vector direct_output_names =
         string_set_to_string_vector(
-            find_unique_module_outputs({steady_state_module_names}));
+            find_unique_module_outputs({direct_module_names}));
     string_vector istate_names = keys(init_values);
     string_vector driver_names = keys(drivers);
 
@@ -79,7 +79,7 @@ void System::reset()
 {
     update_drivers(size_t(0));  // t = 0
     for (auto const& x : initial_values) quantities[x.first] = x.second;
-    run_module_list(steady_state_modules);
+    run_module_list(direct_modules);
 }
 
 /**
@@ -121,8 +121,8 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
  * The quantities that change are (1) the quantites that are
  * calculated using differential equations; these should coincide with
  * all quantities in the initial values; (2) the drivers; (3) the
- * _secondary_ variables, that is, the variables that are outputs of
- * steady-state modules.
+ * _direct_ variables, that is, the variables that are outputs of
+ * direct modules.
  *
  * @note Even though each variable in the initial values should
  * correspond to a derivative calculated by some derivative module, it
@@ -136,5 +136,5 @@ string_vector System::get_output_param_names() const
 {
     return get_defined_quantity_names(
         std::vector<state_map>{initial_values, at(drivers, 0)},
-        std::vector<string_vector>{steady_state_module_names});
+        std::vector<string_vector>{direct_module_names});
 }

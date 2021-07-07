@@ -77,7 +77,7 @@ debug_view <- function(ob) {
 
 
 derivative_modules <- c("harmonic_oscillator")
-steady_state_modules <- c("harmonic_energy")
+direct_modules <- c("harmonic_energy")
 drivers <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
 default_integrator <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
@@ -112,7 +112,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
 
     ## try out the integrator
-    result <- run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules, integrator)
+    result <- run_biocro(initial_values, parameters, drivers, direct_modules, derivative_modules, integrator)
 
     ## add useful columns to the resulting data frame:
     result$time <- result$time * 24 # time is in hours

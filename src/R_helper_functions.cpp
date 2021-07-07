@@ -181,7 +181,7 @@ SEXP list_from_module_info(
     if (is_deriv) {
         SET_STRING_ELT(type, 0, Rf_mkChar("derivative"));
     } else {
-        SET_STRING_ELT(type, 0, Rf_mkChar("steady state"));
+        SET_STRING_ELT(type, 0, Rf_mkChar("direct"));
     }
 
     // Euler requirement

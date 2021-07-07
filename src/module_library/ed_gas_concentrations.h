@@ -32,14 +32,14 @@
  * is the H2O mole fraction, 'g' is water vapor conductance, and the subscripts 's', 'i',
  * and 'a' refer to surface, intercellular, and atmospheric concentrations, respectively.
  */
-class ed_gas_concentrations : public SteadyModule
+class ed_gas_concentrations : public direct_module
 {
    public:
     ed_gas_concentrations(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_gas_concentrations"),
+          direct_module("ed_gas_concentrations"),
           // Get pointers to input quantities
           conductance_boundary_h2o_ip(get_ip(input_quantities, "conductance_boundary_h2o")),
           conductance_stomatal_h2o_ip(get_ip(input_quantities, "conductance_stomatal_h2o")),

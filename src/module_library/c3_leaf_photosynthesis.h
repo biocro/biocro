@@ -10,14 +10,14 @@
  * @brief Uses the method from `c3CanAC()` to calculate leaf photosynthesis
  * parameters for C3 plants
  */
-class c3_leaf_photosynthesis : public SteadyModule
+class c3_leaf_photosynthesis : public direct_module
 {
    public:
     c3_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c3_leaf_photosynthesis"),
+          direct_module("c3_leaf_photosynthesis"),
 
           // Get references to input quantities
           incident_ppfd(get_input(input_quantities, "incident_ppfd")),

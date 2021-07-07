@@ -12,14 +12,14 @@
  * using the `saturation_vapor_pressure()` function, which implements the Arden
  * Buck equation.
  */
-class buck_swvp : public SteadyModule
+class buck_swvp : public direct_module
 {
    public:
     buck_swvp(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("buck_swvp"),
+          direct_module("buck_swvp"),
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},

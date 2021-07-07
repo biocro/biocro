@@ -15,7 +15,7 @@ validate_system_inputs <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    steady_state_module_names = list(),
+    direct_module_names = list(),
     derivative_module_names = list(),
     silent = FALSE
 )
@@ -51,9 +51,9 @@ validate_system_inputs <- function(
     drivers <- add_time_to_weather_data(drivers)
 
     # Check to make sure the module names are vectors or lists of strings
-    steady_state_module_names <- unlist(steady_state_module_names)
-    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
-        stop('"steady_state_module_names" must be a vector or list of strings')
+    direct_module_names <- unlist(direct_module_names)
+    if (length(direct_module_names) > 0 & !is.character(direct_module_names)) {
+        stop('"direct_module_names" must be a vector or list of strings')
     }
 
     derivative_module_names <- unlist(derivative_module_names)
@@ -75,7 +75,7 @@ validate_system_inputs <- function(
         initial_values,
         parameters,
         drivers,
-        steady_state_module_names,
+        direct_module_names,
         derivative_module_names,
         silent
     )

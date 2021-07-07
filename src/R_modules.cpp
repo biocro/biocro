@@ -89,11 +89,11 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
 
             if (create_success) {
                 // Module type
-                Rprintf("Module type (derivative or steady state):\n  ");
+                Rprintf("Module type (derivative or direct):\n  ");
                 if (is_deriv)
                     Rprintf("derivative\n\n");
                 else
-                    Rprintf("steady state\n\n");
+                    Rprintf("direct\n\n");
 
                 // Adaptive compatibility
                 Rprintf("Compatible with adaptive step size solvers:\n  ");

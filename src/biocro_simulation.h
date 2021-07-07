@@ -16,7 +16,7 @@ class biocro_simulation
         std::unordered_map<std::string, double> const& initial_values,
         std::unordered_map<std::string, double> const& parameters,
         std::unordered_map<std::string, std::vector<double>> const& drivers,
-        std::vector<std::string> const& steady_state_module_names,
+        std::vector<std::string> const& direct_module_names,
         std::vector<std::string> const& derivative_module_names,
         // parameters passed to integrator_factory::create
         std::string integrator_name,
@@ -28,7 +28,7 @@ class biocro_simulation
         // Create the system
         sys = std::shared_ptr<System>(
             new System(initial_values, parameters,
-                       drivers, steady_state_module_names,
+                       drivers, direct_module_names,
                        derivative_module_names)
         );
 

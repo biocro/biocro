@@ -67,14 +67,14 @@ void harmonic_oscillator::do_operation() const
     update(velocity_op, -1.0 * spring_constant * position / mass);
 }
 
-class harmonic_energy : public SteadyModule
+class harmonic_energy : public direct_module
 {
    public:
     harmonic_energy(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("harmonic_energy"),
+          direct_module("harmonic_energy"),
 
           // Get pointers to input quantities
           mass(get_input(input_quantities, "mass")),

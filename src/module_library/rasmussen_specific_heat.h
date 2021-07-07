@@ -37,14 +37,14 @@ double rasmussen_specific_heat_of_air(
  * @brief Determines the specific heat capacity of atmospheric air at constant
  * pressure using the `rasmussen_specific_heat_of_air()` function.
  */
-class rasmussen_specific_heat : public SteadyModule
+class rasmussen_specific_heat : public direct_module
 {
    public:
     rasmussen_specific_heat(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("rasmussen_specific_heat"),
+          direct_module("rasmussen_specific_heat"),
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},

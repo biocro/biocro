@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class Module_1 : public SteadyModule {
+class Module_1 : public direct_module {
 	public:
 		Module_1(state_map const& /*input_quantities*/, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("Module_1"),
+			direct_module("Module_1"),
 			// Get pointers to input quantities
 			// None
 			// Get pointers to output quantities
@@ -49,11 +49,11 @@ void Module_1::do_operation() const {
 	update(B_op, 0.0);
 }
 
-class Module_2 : public SteadyModule {
+class Module_2 : public direct_module {
 	public:
 		Module_2(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("Module_2"),
+			direct_module("Module_2"),
 			// Get pointers to input quantities
 			B_ip(get_ip(input_quantities, "B")),
 			// Get pointers to output quantities
@@ -94,11 +94,11 @@ void Module_2::do_operation() const {
 	update(D_op, 0.0);
 }
 
-class Module_3 : public SteadyModule {
+class Module_3 : public direct_module {
 	public:
 		Module_3(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("Module_3"),
+			direct_module("Module_3"),
 			// Get pointers to input quantities
 			A_ip(get_ip(input_quantities, "A")),
 			C_ip(get_ip(input_quantities, "C")),

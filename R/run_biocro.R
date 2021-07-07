@@ -10,7 +10,7 @@ run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    steady_state_module_names = list(),
+    direct_module_names = list(),
     derivative_module_names = list(),
     integrator = default_integrator,
     verbose = FALSE
@@ -31,8 +31,8 @@ run_biocro <- function(
     #          columns for either (1) `time` (in units of days) or (2) `doy` and
     #          `hour`.
     #
-    # steady_state_module_names: a character vector or list of steady state
-    #                            module names
+    # direct_module_names: a character vector or list specifying the names
+    # of direct modules to use in the system
     #
     # derivative_module_names: a character vector or list of derivative module
     #                          names
@@ -86,7 +86,7 @@ run_biocro <- function(
     #         sorghum_initial_values,
     #         sorghum_parameters,
     #         get_growing_season_climate(weather05),
-    #         sorghum_steady_state_modules,
+    #         sorghum_direct_modules,
     #         sorghum_derivative_modules,
     #         sorghum_integrator,
     #         TRUE
@@ -115,7 +115,7 @@ run_biocro <- function(
     #         glycine_max_initial_values,
     #         glycine_max_parameters,
     #         get_growing_season_climate(weather05),
-    #         glycine_max_steady_state_modules,
+    #         glycine_max_direct_modules,
     #         glycine_max_derivative_modules,
     #         glycine_max_integrator,
     #         TRUE
@@ -159,9 +159,9 @@ run_biocro <- function(
     drivers <- add_time_to_weather_data(drivers)
 
     # Check to make sure the module names are vectors or lists of strings
-    steady_state_module_names <- unlist(steady_state_module_names)
-    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
-        stop('"steady_state_module_names" must be a vector or list of strings')
+    direct_module_names <- unlist(direct_module_names)
+    if (length(direct_module_names) > 0 & !is.character(direct_module_names)) {
+        stop('"direct_module_names" must be a vector or list of strings')
     }
 
     derivative_module_names <- unlist(derivative_module_names)
@@ -201,7 +201,7 @@ run_biocro <- function(
         initial_values,
         parameters,
         drivers,
-        steady_state_module_names,
+        direct_module_names,
         derivative_module_names,
         integrator_type,
         integrator_output_step_size,
@@ -226,7 +226,7 @@ partial_run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    steady_state_module_names = list(),
+    direct_module_names = list(),
     derivative_module_names = list(),
     integrator = default_integrator,
     arg_names,
@@ -245,7 +245,7 @@ partial_run_biocro <- function(
     # initial_values: same as run_biocro()
     # parameters: same as run_biocro()
     # drivers: same as run_biocro()
-    # steady_state_module_names: same as run_biocro()
+    # direct_module_names: same as run_biocro()
     # derivative_module_names: same as run_biocro()
     # integrator: same as run_biocro()
     # arg_names: vector of character variables. The names of the arguments that
@@ -264,7 +264,7 @@ partial_run_biocro <- function(
     #         sorghum_initial_values,
     #         sorghum_parameters,
     #         get_growing_season_climate(weather05),
-    #         sorghum_steady_state_modules,
+    #         sorghum_direct_modules,
     #         sorghum_derivative_modules,
     #         sorghum_integrator,
     #         c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'),
@@ -277,7 +277,7 @@ partial_run_biocro <- function(
         initial_values=initial_values,
         parameters=parameters,
         drivers=drivers,
-        steady_state_module_names=steady_state_module_names,
+        direct_module_names=direct_module_names,
         derivative_module_names=derivative_module_names,
         integrator=integrator,
         verbose=verbose

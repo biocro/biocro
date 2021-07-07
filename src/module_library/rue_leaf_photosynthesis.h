@@ -122,14 +122,14 @@
  *    the dynamics of plant leaf and canopy photosynthesis" [Bioinformatics 11,
  *    361–371 (1995)](https://doi.org/10.1093/bioinformatics/11.4.361)
  */
-class rue_leaf_photosynthesis : public SteadyModule
+class rue_leaf_photosynthesis : public direct_module
 {
    public:
     rue_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("rue_leaf_photosynthesis"),
+          direct_module("rue_leaf_photosynthesis"),
 
           // Get references to input parameters
           incident_ppfd(get_input(input_quantities, "incident_ppfd")),

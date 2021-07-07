@@ -151,7 +151,7 @@ string_vector get_other_leaf_inputs()
  * classes will be derived from this class.
  */
 template <typename canopy_module_type, typename leaf_module_type>
-class multilayer_canopy_photosynthesis : public SteadyModule
+class multilayer_canopy_photosynthesis : public direct_module
 {
    public:
     multilayer_canopy_photosynthesis(
@@ -192,7 +192,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
     const int& nlayers,
     state_map const& input_quantities,
     state_map* output_quantities)
-    : SteadyModule(module_name),
+    : direct_module(module_name),
       nlayers(nlayers)
 {
     // Define a lambda for making quantity maps from vectors of inputs and outputs

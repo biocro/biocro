@@ -2,7 +2,7 @@ Gro_deriv <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    steady_state_module_names = list(),
+    direct_module_names = list(),
     derivative_module_names = list()
 )
 {
@@ -26,8 +26,8 @@ Gro_deriv <- function(
     # intervals. The drivers should include a "time" column with units of days;
     # if "time" is not included, then "doy" and "hour" must be included.
     #
-    # steady_state_module_names: a character vector or list of steady state
-    # module names.
+    # direct_module_names: a character vector or list specifying the names
+    # of direct modules to use in the system
     #
     # derivative_module_names: a character vector or list of derivative module
     # names.
@@ -56,7 +56,7 @@ Gro_deriv <- function(
     #         spring_constant = 1
     #     )
     #
-    #     oscillator_ss_modules <- c()
+    #     oscillator_direct_modules <- c()
     #
     #     oscillator_deriv_modules <- c("harmonic_oscillator")
     #
@@ -64,7 +64,7 @@ Gro_deriv <- function(
     #         oscillator_initial_values,
     #         oscillator_parameters,
     #         get_growing_season_climate(weather05),
-    #         oscillator_ss_modules,
+    #         oscillator_direct_modules,
     #         oscillator_deriv_modules
     #     )
     #
@@ -87,7 +87,7 @@ Gro_deriv <- function(
     #         soybean_initial_values,
     #         soybean_parameters,
     #         soybean_weather2002,
-    #         soybean_steady_state_modules,
+    #         soybean_direct_modules,
     #         soybean_derivative_modules
     #     )
     #
@@ -139,9 +139,9 @@ Gro_deriv <- function(
     drivers <- add_time_to_weather_data(drivers)
 
     # Check to make sure the module names are vectors or lists of strings
-    steady_state_module_names <- unlist(steady_state_module_names)
-    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
-        stop('"steady_state_module_names" must be a vector or list of strings')
+    direct_module_names <- unlist(direct_module_names)
+    if (length(direct_module_names) > 0 & !is.character(direct_module_names)) {
+        stop('"direct_module_names" must be a vector or list of strings')
     }
 
     derivative_module_names <- unlist(derivative_module_names)
@@ -176,7 +176,7 @@ Gro_deriv <- function(
             t,
             parameters,
             drivers,
-            steady_state_module_names,
+            direct_module_names,
             derivative_module_names
         )
 
@@ -188,7 +188,7 @@ Gro_deriv <- function(
 
 Gro_ode <- function(
     state = list(),
-    steady_state_module_names = list(),
+    direct_module_names = list(),
     derivative_module_names = list()
 )
 {
@@ -198,7 +198,7 @@ Gro_ode <- function(
     # straightforward.
     #
     # This function calculates derivatives using the quantities defined in the
-    # state as inputs to the supplied steady state and derivative modules.
+    # state as inputs to the supplied direct and derivative modules.
     #
     # The state should contain quantities that follow differential evolution
     # rules along with any other required quantities.
@@ -210,7 +210,7 @@ Gro_ode <- function(
     #
     #     oscillator_deriv_modules <- c("harmonic_oscillator")
     #
-    #     oscillator_ss_modules <- c("harmonic_energy")
+    #     oscillator_direct_modules <- c("harmonic_energy")
     #
     #     oscillator_state <- data.frame(
     #         "mass" = 0.5,
@@ -221,7 +221,7 @@ Gro_ode <- function(
     #
     #     oscillator_deriv <- Gro_ode(
     #         oscillator_state,
-    #         oscillator_ss_modules,
+    #         oscillator_direct_modules,
     #         oscillator_deriv_modules
     #     )
     #
@@ -251,9 +251,9 @@ Gro_ode <- function(
     }
 
     # Check to make sure the module names are vectors or lists of strings
-    steady_state_module_names <- unlist(steady_state_module_names)
-    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
-        stop('"steady_state_module_names" must be a vector or list of strings')
+    direct_module_names <- unlist(direct_module_names)
+    if (length(direct_module_names) > 0 & !is.character(direct_module_names)) {
+        stop('"direct_module_names" must be a vector or list of strings')
     }
 
     derivative_module_names <- unlist(derivative_module_names)
@@ -268,7 +268,7 @@ Gro_ode <- function(
     result = as.data.frame(.Call(
         R_Gro_ode,
         state,
-        steady_state_module_names,
+        direct_module_names,
         derivative_module_names
     ))
 

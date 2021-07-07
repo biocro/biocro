@@ -41,14 +41,14 @@
  *  `Piper, E. L., Boote, K. J., Jones, J. W. & Grimm, S. S. Comparison of Two Phenology Models for Predicting Flowering and Maturity Date of Soybean. Crop Science 36, 1606–1614 (1996)`
  *  `Goudriaan, J. & Van Laar, H. Calculation of dairy totals of the gross CO2 assimilation of leaf canopies. Netherlands Journal of Agricultural Science 26, 373–382 (1978)`
  */
-class grimm_soybean_flowering_calculator : public SteadyModule
+class grimm_soybean_flowering_calculator : public direct_module
 {
    public:
     grimm_soybean_flowering_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("grimm_soybean_flowering_calculator"),
+          direct_module("grimm_soybean_flowering_calculator"),
           // Get pointers to input quantities
           grimm_sowing_doy_ip(get_ip(input_quantities, "grimm_sowing_doy")),
           grimm_physiological_age_ip(get_ip(input_quantities, "grimm_physiological_age")),

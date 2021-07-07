@@ -11,14 +11,14 @@
  * @brief This module is a wrapper for the `leaf_boundary_layer_conductance` (BLC)
  * function in `AuxBioCro` (ABC). Currently only intended for use by Ed.
  */
-class ed_abc_blc : public SteadyModule
+class ed_abc_blc : public direct_module
 {
    public:
     ed_abc_blc(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_abc_blc"),
+          direct_module("ed_abc_blc"),
 
           // Get pointers to input quantities
           windspeed(get_input(input_quantities, "windspeed")),

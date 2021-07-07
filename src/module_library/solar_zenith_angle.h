@@ -11,14 +11,14 @@
  * @brief Calculates the solar zenith angle using a simple model. A major
  * shortcoming of this model is that solar noon always occurs at 12:00 PM.
  */
-class solar_zenith_angle : public SteadyModule
+class solar_zenith_angle : public direct_module
 {
    public:
     solar_zenith_angle(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("solar_zenith_angle"),
+          direct_module("solar_zenith_angle"),
           // Get references to input quantities
           lat(get_input(input_quantities, "lat")),
           time(get_input(input_quantities, "time")),

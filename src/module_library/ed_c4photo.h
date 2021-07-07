@@ -11,14 +11,14 @@
  * @brief Just a module wrapper for the `c4photo()` function.
  * Currently only intended for use by Ed.
  */
-class ed_c4photo : public SteadyModule
+class ed_c4photo : public direct_module
 {
    public:
     ed_c4photo(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_c4photo"),
+          direct_module("ed_c4photo"),
 
           // Get pointers to input quantities
           collatz_PAR_flux_ip(get_ip(input_quantities, "collatz_PAR_flux")),

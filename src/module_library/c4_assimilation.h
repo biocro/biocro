@@ -53,14 +53,14 @@
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
  */
-class c4_assimilation : public SteadyModule
+class c4_assimilation : public direct_module
 {
    public:
     c4_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c4_assimilation"),
+          direct_module("c4_assimilation"),
 
           // Get pointers to input quantities
           Qp(get_input(input_quantities, "Qp")),

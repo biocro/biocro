@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class priestley_transpiration : public SteadyModule {
+class priestley_transpiration : public direct_module {
 	public:
 		priestley_transpiration(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("priestley_transpiration"),
+			direct_module("priestley_transpiration"),
 			// Get pointers to input quantities
 			slope_water_vapor_ip(get_ip(input_quantities, "slope_water_vapor")),
 			psychrometric_parameter_ip(get_ip(input_quantities, "psychrometric_parameter")),

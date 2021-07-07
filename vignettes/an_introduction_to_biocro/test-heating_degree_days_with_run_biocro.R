@@ -1,6 +1,6 @@
 context('Test basic functioning of the derivative module "heating_degree_days".')
 
-steady_state_modules <- c()
+direct_modules <- c()
 derivative_modules <- c("heating_degree_days")
 
 ## Given an initial value for the number of heating degree days, a
@@ -15,7 +15,7 @@ calculate_heating_degree_days <- function(initial_value, time_vector, temperatur
     drivers <- list(time = time_vector, temp = temperature_vector)
 
     result <- run_biocro(initial_values, parameters, drivers,
-                         steady_state_modules, derivative_modules, solver)
+                         direct_modules, derivative_modules, solver)
 
     result$heating_degree_days[length(time_vector)]
 }

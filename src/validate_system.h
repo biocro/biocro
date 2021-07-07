@@ -22,14 +22,14 @@ bool validate_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    string_vector ss_module_names,
+    string_vector direct_module_names,
     string_vector deriv_module_names);
 
 std::string analyze_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    string_vector ss_module_names,
+    string_vector direct_module_names,
     string_vector deriv_module_names);
 
 state_map define_quantity_map(
@@ -244,7 +244,7 @@ void insert_key_names(string_vector& name_vector, const map_type map)
  *                                as a vector of vectors.  Usually, this
  *                                collection will either be empty or will
  *                                contain only a single item---a set of
- *                                steady-state module names or a set of
+ *                                direct module names or a set of
  *                                derivative module names.
  * @return A vector consisting of the names of all quantities defined in either
  *         of the function arguments.  **If a quantity is defined more than

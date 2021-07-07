@@ -34,7 +34,7 @@ specify_crop <- function(
     initial_values,
     parameters,
     drivers,
-    steady_state_modules,
+    direct_modules,
     derivative_modules,
     integrator,
     ignored_variables
@@ -45,7 +45,7 @@ specify_crop <- function(
         initial_values = initial_values,
         parameters = parameters,
         drivers = drivers,
-        steady_state_modules = steady_state_modules,
+        direct_modules = direct_modules,
         derivative_modules = derivative_modules,
         integrator = integrator,
         stored_result_file = paste0(
@@ -99,13 +99,13 @@ SOYBEAN_IGNORE <- c("ncalls")
 
 # Define the plants to test
 PLANT_TESTING_INFO <- list(
-    specify_crop("glycine_max",            glycine_max_initial_values,            glycine_max_parameters,            WEATHER,             glycine_max_steady_state_modules,            glycine_max_derivative_modules,            glycine_max_integrator,            GLYCINE_MAX_IGNORE),            # INDEX = 1
-    specify_crop("manihot_esculenta",      manihot_esculenta_initial_values,      manihot_esculenta_parameters,      WEATHER,             manihot_esculenta_steady_state_modules,      manihot_esculenta_derivative_modules,      manihot_esculenta_integrator,      MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
-    specify_crop("miscanthus_x_giganteus", miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, WEATHER,             miscanthus_x_giganteus_steady_state_modules, miscanthus_x_giganteus_derivative_modules, miscanthus_x_giganteus_integrator, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
-    specify_crop("sorghum",                sorghum_initial_values,                sorghum_parameters,                WEATHER,             sorghum_steady_state_modules,                sorghum_derivative_modules,                sorghum_integrator,                SORGHUM_IGNORE),                # INDEX = 4
-    specify_crop("willow",                 willow_initial_values,                 willow_parameters,                 WEATHER,             willow_steady_state_modules,                 willow_derivative_modules,                 willow_integrator,                 WILLOW_IGNORE),                 # INDEX = 5
-    specify_crop("zea_mays",               zea_mays_initial_values,               zea_mays_parameters,               WEATHER,             zea_mays_steady_state_modules,               zea_mays_derivative_modules,               zea_mays_integrator,               ZEA_MAYS_IGNORE),               # INDEX = 6
-    specify_crop("soybean",                soybean_initial_values,                soybean_parameters,                soybean_weather2002, soybean_steady_state_modules,                soybean_derivative_modules,                soybean_integrator,                SOYBEAN_IGNORE)                 # INDEX = 7
+    specify_crop("glycine_max",            glycine_max_initial_values,            glycine_max_parameters,            WEATHER,             glycine_max_direct_modules,            glycine_max_derivative_modules,            glycine_max_integrator,            GLYCINE_MAX_IGNORE),            # INDEX = 1
+    specify_crop("manihot_esculenta",      manihot_esculenta_initial_values,      manihot_esculenta_parameters,      WEATHER,             manihot_esculenta_direct_modules,      manihot_esculenta_derivative_modules,      manihot_esculenta_integrator,      MANIHOT_ESCULENTA_IGNORE),      # INDEX = 2
+    specify_crop("miscanthus_x_giganteus", miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, WEATHER,             miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_derivative_modules, miscanthus_x_giganteus_integrator, MISCANTHUS_X_GIGANTEUS_IGNORE), # INDEX = 3
+    specify_crop("sorghum",                sorghum_initial_values,                sorghum_parameters,                WEATHER,             sorghum_direct_modules,                sorghum_derivative_modules,                sorghum_integrator,                SORGHUM_IGNORE),                # INDEX = 4
+    specify_crop("willow",                 willow_initial_values,                 willow_parameters,                 WEATHER,             willow_direct_modules,                 willow_derivative_modules,                 willow_integrator,                 WILLOW_IGNORE),                 # INDEX = 5
+    specify_crop("zea_mays",               zea_mays_initial_values,               zea_mays_parameters,               WEATHER,             zea_mays_direct_modules,               zea_mays_derivative_modules,               zea_mays_integrator,               ZEA_MAYS_IGNORE),               # INDEX = 6
+    specify_crop("soybean",                soybean_initial_values,                soybean_parameters,                soybean_weather2002, soybean_direct_modules,                soybean_derivative_modules,                soybean_integrator,                SOYBEAN_IGNORE)                 # INDEX = 7
 )
 
 # Make a helping function that updates the stored data for one crop
@@ -116,7 +116,7 @@ update_stored_results <- function(test_info) {
         test_info[['initial_values']],
         test_info[['parameters']],
         test_info[['drivers']],
-        test_info[['steady_state_modules']],
+        test_info[['direct_modules']],
         test_info[['derivative_modules']],
         test_info[['integrator']]
     )
@@ -150,7 +150,7 @@ test_plant_model <- function(test_info) {
                 test_info[['initial_values']],
                 test_info[['parameters']],
                 test_info[['drivers']],
-                test_info[['steady_state_modules']],
+                test_info[['direct_modules']],
                 test_info[['derivative_modules']],
                 silent = TRUE
             )
@@ -172,7 +172,7 @@ test_plant_model <- function(test_info) {
                 test_info[['initial_values']],
                 test_info[['parameters']],
                 test_info[['drivers']],
-                test_info[['steady_state_modules']],
+                test_info[['direct_modules']],
                 test_info[['derivative_modules']],
                 test_info[['integrator']]
             )

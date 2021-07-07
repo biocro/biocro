@@ -74,14 +74,14 @@ constexpr double Tvdiff_factor = 0.378;
  * convert between molecular_conductance and energy_conductance using volume_per_mol
  * determined at air temperature.
  */
-class ed_nikolov_conductance_forced : public SteadyModule
+class ed_nikolov_conductance_forced : public direct_module
 {
    public:
     ed_nikolov_conductance_forced(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_nikolov_conductance_forced"),
+          direct_module("ed_nikolov_conductance_forced"),
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
@@ -169,14 +169,14 @@ void ed_nikolov_conductance_forced::do_operation() const
  * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units
  * and assumptions about temperature.
  */
-class ed_nikolov_conductance_free : public SteadyModule
+class ed_nikolov_conductance_free : public direct_module
 {
    public:
     ed_nikolov_conductance_free(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_nikolov_conductance_free"),
+          direct_module("ed_nikolov_conductance_free"),
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),
