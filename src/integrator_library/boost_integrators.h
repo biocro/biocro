@@ -7,7 +7,7 @@
 #include "../state_map.h"  // for state_vector_map
 
 /**
- *  A class representing a generic boost system integrator.
+ *  @brief A class representing a generic boost system integrator.
  */
 template <class state_type>
 class boost_integrator : public integrator

@@ -2,7 +2,8 @@
 #include "validate_system.h"  // For module_vector
 
 /**
- * Checks whether the collection of modules is compatible with adaptive step size solvers
+ * @brief Checks whether the collection of modules is compatible with
+ * adaptive step size solvers
  */
 bool check_adaptive_compatible(const module_vector* ptr_to_module_vector)
 {

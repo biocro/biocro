@@ -1,11 +1,9 @@
-# This workflow is triggered can only be run manually for now, as it
-# uses macOS as a runner, which is expensive.
+# This workflow can only be run manually for now, as it uses macOS as
+# a runner, which is expensive.
 
 name: Generate pkgdown and bookdown documentation
 
 on:
-  push:
-    branches: [ master ]
   workflow_dispatch:
     # [no inputs]
 

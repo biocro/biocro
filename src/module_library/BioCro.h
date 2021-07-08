@@ -45,7 +45,7 @@ double SoilEvapo(
     double soil_water_content, double fieldc, double wiltp, double winds,
     double RelH, double rsec, double soil_clod_size, double soil_reflectance,
     double soil_transmission, double specific_heat_of_air,
-    double stefan_boltzman, double par_energy_content);
+    double par_energy_content);
 
 struct soilML_str soilML(double precipit, double transp, double *cws, double soildepth, double *depths,
         double soil_field_capacity, double soil_wilting_point, double soil_saturation_capacity, double soil_air_entry, double soil_saturated_conductivity,
@@ -53,7 +53,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         int layers, double rootDB, double LAI, double k, double AirTemp,
         double IRad, double winds, double RelH, int hydrDist, double rfl,
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
-        double specific_heat_of_air, double stefan_boltzman, double par_energy_content);
+        double specific_heat_of_air, double par_energy_content);
 
 void RHprof(double RH, int nlayers, double* relative_humidity_profile);
 void WINDprof(double WindSpeed, double LAI, int nlayers, double* wind_speed_profile);

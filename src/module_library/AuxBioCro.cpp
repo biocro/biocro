@@ -16,9 +16,11 @@
 #include <stdexcept>
 #include <string>
 #include <cmath>
-#include "../constants.h" // for pi, e, and atmospheric_pressure_at_sea_level
 #include "c4photo.h"
 #include "BioCro.h"
+#include "../constants.h"  // for pi, e, atmospheric_pressure_at_sea_level,
+                           // ideal_gas_constant, molar_mass_of_water,
+                           // stefan_boltzmann, celsius_to_kelvin
 
 double poisson_density(int x, double lambda)
 {
@@ -38,8 +40,9 @@ double poisson_density(int x, double lambda)
 }
 
 /**
- * Computation of the cosine of the zenith angle from latitute (`lat`), day of
- * the year (`DOY`), and time of day (`td`).
+ * @brief
+ * Computation of the cosine of the zenith angle from the latitute,
+ * day of the year, and the time of day.
  *
  * For the values of angles in radians, we'll use the common practice of
  * denoting the latitude by `phi` (\f$\phi\f$), the declination by `delta`
@@ -384,7 +387,7 @@ Light_profile sunML(
 
 
 /**
- * RH and Wind profile function
+ * @brief Wind profile function
  *
  * Preconditions:
  *     `WindSpeed` is non-negative.
@@ -589,51 +592,58 @@ double saturation_vapor_pressure(double air_temperature)
 }
 
 struct ET_Str EvapoTrans2(
-        const double absorbed_shortwave_radiation_et,    // J / m^2 / s (used to calculate evapotranspiration rate)
-        const double absorbed_shortwave_radiation_lt,    // J / m^2 / s (used to calculate leaf temperature)
-        const double airTemp,                            // degrees C
-        const double RH,                                 // dimensionless from Pa / Pa
-        double WindSpeed,                                // m / s
-        const double LeafAreaIndex,                      // dimensionless from m^2 / m^2
-        double CanopyHeight,                             // meters
-        const double stomatal_conductance,               // mmol / m^2 / s
-        const double leaf_width,                         // meter
-        const double specific_heat_of_air,               // J / kg / K
-        const int eteq)                                  // unitless parameter
+    const double absorbed_shortwave_radiation_et,  // J / m^2 / s (used to calculate evapotranspiration rate)
+    const double absorbed_shortwave_radiation_lt,  // J / m^2 / s (used to calculate leaf temperature)
+    const double airTemp,                          // degrees C
+    const double RH,                               // dimensionless from Pa / Pa
+    double WindSpeed,                              // m / s
+    const double LeafAreaIndex,                    // dimensionless from m^2 / m^2
+    double CanopyHeight,                           // meters
+    const double stomatal_conductance,             // mmol / m^2 / s
+    const double leaf_width,                       // meter
+    const double specific_heat_of_air,             // J / kg / K
+    const int eteq)                                // unitless parameter
 {
-    constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s / K^4
-    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
-    constexpr double R = 8.314472;                       // joule / kelvin / mole.
+    CanopyHeight = fmax(0.1, CanopyHeight);  // ensure CanopyHeight >= 0.1
 
-    CanopyHeight = fmax(0.1, CanopyHeight); // ensure CanopyHeight >= 0.1
+    // Define the height at which the wind speed was measured
+    double WindSpeedHeight = 2;
 
-    double WindSpeedHeight = 2; // This is the height at which the wind speed was measured.
-    // When the height at which wind was measured is lower than the canopy height, there can be problems with the calculations.
-    // This is a very crude way of solving this problem.
+    // When the height at which wind was measured is lower than the canopy
+    // height, there can be problems with the calculations. This is a very crude
+    // way of solving this problem.
     if (WindSpeedHeight < CanopyHeight + 1) {
         WindSpeedHeight = CanopyHeight + WindSpeedHeight;
     }
 
-    const double DdryA = TempToDdryA(airTemp);  // kg / m^3. Density of dry air.,
-    const double LHV = TempToLHV(airTemp);  // J / kg
-    const double SlopeFS = TempToSFS(airTemp);  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double DdryA = TempToDdryA(airTemp);               // kg / m^3. Density of dry air.,
+    const double LHV = TempToLHV(airTemp);                   // J / kg
+    const double SlopeFS = TempToSFS(airTemp);               // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
     const double SWVP = saturation_vapor_pressure(airTemp);  // Pa.
 
-    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
+    // model state. (1 * R * temperature) / pressure
+    double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
+
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (conductance_in_m_per_s <= 0.001) {
         conductance_in_m_per_s = 0.001;
     }
 
-    if (RH > 1)
+    if (RH > 1) {
         throw std::range_error("Thrown in EvapoTrans2: RH (relative humidity) is greater than 1.");
+    }
 
+    // Convert from vapor pressure to vapor density using the ideal gas law.
+    // This is approximately right for temperatures what won't kill plants.
+    const double SWVC =
+        SWVP / physical_constants::ideal_gas_constant /
+        (airTemp + conversion_constants::celsius_to_kelvin) * physical_constants::molar_mass_of_water;  // kg / m^3
 
-    const double SWVC = SWVP / R / (airTemp + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
-
-    if (SWVC < 0)
+    if (SWVC < 0) {
         throw std::range_error("Thrown in EvapoTrans2: SWVC is less than 0.");
+    }
 
     const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
@@ -642,7 +652,9 @@ struct ET_Str EvapoTrans2(
     const double ActualVaporPressure = RH * SWVP;  // Pa
 
     /* AERODYNAMIC COMPONENT */
-    if (WindSpeed < 0.5) WindSpeed = 0.5;
+    if (WindSpeed < 0.5) {
+        WindSpeed = 0.5;
+    }
 
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;  // degrees C
@@ -652,69 +664,79 @@ struct ET_Str EvapoTrans2(
         double ChangeInLeafTemp = 10.0;  // degrees C
         double Counter = 0;
         do {
-            ga = leaf_boundary_layer_conductance(WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s, ActualVaporPressure);  // m / s
+            ga = leaf_boundary_layer_conductance(
+                WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s,
+                ActualVaporPressure);  // m / s
+
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */
 
             double OldDeltaT = Deltat;
 
-            rlc = 4 * StefanBoltzmann * pow(273 + airTemp, 3) * Deltat;  // W / m^2
+            rlc = 4 * physical_constants::stefan_boltzmann * pow(conversion_constants::celsius_to_kelvin + airTemp, 3) * Deltat;  // W / m^2
 
-            /* rlc = net long wave radiation emittted per second = radiation emitted per second - radiation absorbed per second = sigma * (Tair + deltaT)^4 - sigma * Tair^4
-             * To make it a linear function of deltaT, do a Taylor series about deltaT = 0 and keep only the zero and first order terms.
-             * rlc = sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) - sigma * Tair^4 = 4 * sigma * Tair^3 * deltaT
-             * where 4 * sigma * Tair^3 is the derivative of sigma * (Tair + deltaT)^4 evaluated at deltaT = 0,
+            /* rlc = net long wave radiation emittted per second
+             *     = radiation emitted per second - radiation absorbed per second
+             *     = sigma * (Tair + deltaT)^4 - sigma * Tair^4
+             *
+             * To make it a linear function of deltaT, do a Taylor series about
+             * deltaT = 0 and keep only the zero and first order terms.
+             *
+             * rlc = sigma * Tair^4 + deltaT * (4 * sigma * Tair^3) - sigma * Tair^4
+             *     = 4 * sigma * Tair^3 * deltaT
+             *
+             * where 4 * sigma * Tair^3 is the derivative of
+             * sigma * (Tair + deltaT)^4 evaluated at deltaT = 0
              */
 
             const double PhiN2 = absorbed_shortwave_radiation_lt - rlc;  // W / m^2
 
             /* This equation is from Thornley and Johnson pg. 418 */
             const double TopValue = PhiN2 * (1 / ga + 1 / conductance_in_m_per_s) - LHV * vapor_density_deficit;  // J / m^3
-            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^3 / K
-            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10); // kelvin. Confine Deltat to the interval [-10, 10]:
+            const double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));           // J / m^3 / K
+            Deltat = fmin(fmax(TopValue / BottomValue, -10), 10);                                                 // kelvin. Confine Deltat to the interval [-10, 10]:
 
             ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin
-        } while ( (++Counter <= 10) && (ChangeInLeafTemp > 0.5) );
+        } while ((++Counter <= 10) && (ChangeInLeafTemp > 0.5));
     }
 
     /* Net radiation */
     const double PhiN = fmax(0, absorbed_shortwave_radiation_et - rlc);  // W / m^2
 
-    //Rprintf("SlopeFS %f, PhiN %f, LHV %f, PsycParam %f, ga %f, vapor_density_deficit %f, conductance_in... %f\n", SlopeFS, PhiN, LHV, PsycParam, ga, vapor_density_deficit, conductance_in_m_per_s);
-    const double penman_monieth = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
-        / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s.  Thornley and Johnson. 1990. Plant and Crop Modeling. Equation 14.4k. Page 408.
+    const double penman_monteith =
+        (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit) /
+        (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s.  Thornley and Johnson. 1990. Plant and Crop Modeling. Equation 14.4k. Page 408.
 
-    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit)
-        / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
+    const double EPen =
+        (SlopeFS * PhiN + LHV * PsycParam * ga * vapor_density_deficit) /
+        (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     const double EPries = 1.26 * SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     /* Choose equation to report */
     double TransR;
     switch (eteq) {
-    case 1:
-        TransR = EPen;
-        break;
-    case 2:
-        TransR = EPries;
-        break;
-    default:
-        TransR = penman_monieth;
-        break;
+        case 1:
+            TransR = EPen;
+            break;
+        case 2:
+            TransR = EPries;
+            break;
+        default:
+            TransR = penman_monteith;
+            break;
     }
 
-    // TransR has units of kg / m^2 / s.
-    // Convert to mm / m^2 / s.
-    /* 1e3 - g / kg  */
-    /* 18 - g / mol for water */
-    /* 1e3 - mmol / mol */
+    // TransR has units of kg / m^2 / s. Convert to mmol / m^2 / s using the
+    // molar mass of water (in kg / mol) and noting that 1e3 mmol = 1 mol
+    double cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e3 * 1e3 / 18;    // mmol / m^2 / s
-    et_results.EPenman = EPen * 1e3 * 1e3 / 18;     // mmol / m^2 / s
-    et_results.EPriestly = EPries * 1e3 * 1e3 / 18; // mmol / m^2 / s
-    et_results.Deltat = Deltat;                     // degrees C
-    et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air; // mol / m^2 / s
+    et_results.TransR = TransR * cf;                                         // mmol / m^2 / s
+    et_results.EPenman = EPen * cf;                                          // mmol / m^2 / s
+    et_results.EPriestly = EPries * cf;                                      // mmol / m^2 / s
+    et_results.Deltat = Deltat;                                              // degrees C
+    et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air;  // mol / m^2 / s
 
     return et_results;
 }
@@ -731,12 +753,12 @@ double leaf_boundary_layer_conductance(
     /* This is the leaf boundary layer computed using the approach in MLcan
        which is based on (Nikolov, Massman, Schoettle),         %
        Ecological Modelling, 80 (1995), 205-235 */
-    constexpr double p = 101325;  // Pa. atmospheric pressure
+    constexpr double p = physical_constants::atmospheric_pressure_at_sea_level;  // Pa
 
     double leaftemp = air_temperature + delta_t;  // degrees C
     double gsv = stomcond;  // m / s
-    double Tak = air_temperature + 273.15;  // K
-    double Tlk = leaftemp + 273.15;  // K
+    double Tak = air_temperature + conversion_constants::celsius_to_kelvin;  // K
+    double Tlk = leaftemp + conversion_constants::celsius_to_kelvin;  // K
     double ea = water_vapor_pressure;  // Pa
     double lw = leafwidth;  // m
 
@@ -775,7 +797,7 @@ double SoilEvapo(
     double soil_water_content, double fieldc, double wiltp, double winds,
     double RelH, double rsec, double soil_clod_size, double soil_reflectance,
     double soil_transmission, double specific_heat_of_air,
-    double stefan_boltzman, double par_energy_content)
+    double par_energy_content)
 {
     int method = 1;
     /* A simple way of calculating the proportion of the soil that is hit by direct radiation. */
@@ -818,7 +840,7 @@ double SoilEvapo(
 
     double Ja = 2 * TotalRadiation * ((1 - soil_reflectance - soil_transmission) / (1 - soil_transmission));
 
-    double rlc = 4 * stefan_boltzman * pow((273 + SoilTemp), 3) * 0.005;
+    double rlc = 4 * physical_constants::stefan_boltzmann * pow((conversion_constants::celsius_to_kelvin + SoilTemp), 3) * 0.005;
     /* the last term should be the difference between air temperature and soil. This is not actually calculated at the moment. Since this is
        mostly relevant to the first soil layer where the temperatures are similar. I will leave it like this for now. */
 
@@ -910,7 +932,7 @@ struct ws_str watstr(double precipit, double evapo, double cws, double soildepth
         /* Here runoff is interpreted as water content exceeding saturation level */
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data come in mm/hr and need to be in cm/month */
-        Nleach = runoff / 18 * (0.2 + 0.7 * sand);
+        Nleach = runoff / (1e3 * physical_constants::molar_mass_of_water) * (0.2 + 0.7 * sand);
         soil_water_fraction = soil_saturation_capacity;
     }
 
@@ -954,7 +976,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         int layers, double rootDB, double LAI, double k, double AirTemp,
         double IRad, double winds, double RelH, int hydrDist, double rfl,
         double rsec, double rsdf, double soil_clod_size, double soil_reflectance, double soil_transmission,
-        double specific_heat_of_air, double stefan_boltzman, double par_energy_content)
+        double specific_heat_of_air, double par_energy_content)
 {
     constexpr double g = 9.8; /* m / s-2  ##  http://en.wikipedia.org/wiki/Standard_gravity */
 
@@ -1054,7 +1076,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
                 LAI, k, AirTemp, IRad, awc2, soil_field_capacity,
                 soil_wilting_point, winds, RelH, rsec, soil_clod_size,
                 soil_reflectance, soil_transmission, specific_heat_of_air,
-                stefan_boltzman, par_energy_content) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
+                par_energy_content) * 3600 * 1e-3 * 10000;  // Mg / ha / hr. 3600 s / hr * 1e-3 Mg / kg * 10000 m^2 / ha.
             /* I assume that crop transpiration is distributed simlarly to
                root density.  In other words the crop takes up water proportionally
                to the amount of root in each respective layer.*/
@@ -1122,7 +1144,7 @@ struct soilML_str soilML(double precipit, double transp, double *cws, double soi
         drainage = waterIn;
         /* Need to convert to units used in the Parton et al 1988 paper. */
         /* The data comes in mm/hr and it needs to be in cm/month */
-        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (18 * (0.2 + 0.7 * soil_sand_content));
+        return_value.Nleach = drainage * 0.1 * (1/24 * 30) / (1e3 * physical_constants::molar_mass_of_water * (0.2 + 0.7 * soil_sand_content));
     }
     else {
         return_value.Nleach = 0.0;

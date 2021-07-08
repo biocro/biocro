@@ -4,7 +4,9 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-/** Class created by EBL for testing and experimentation ... not meant for real simulations! */
+/** @brief
+ *  Class created by EBL for testing and experimentation ... not meant for real simulations!
+ */
 class fake_solar : public SteadyModule
 {
    public:

@@ -1,5 +1,6 @@
 #include "BioCro.h"
 #include "c4photo.h"
+#include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 struct Can_Str CanAC(
     double LAI,          // dimensionless from m^2 / m^2
@@ -71,9 +72,9 @@ struct Can_Str CanAC(
 
     double CanopyA = 0.0;             // micromol / m^2 / s
     double GCanopyA = 0.0;            // micromol / m^2 / s
-    double CanopyT = 0.0;             // micromol / m^2 / s
-    double CanopyPe = 0.0;            // micromol / m^2 / s
-    double CanopyPr = 0.0;            // micromol / m^2 / s
+    double CanopyT = 0.0;             // mmol / m^2 / s
+    double CanopyPe = 0.0;            // mmol / m^2 / s
+    double CanopyPr = 0.0;            // mmol / m^2 / s
     double canopy_conductance = 0.0;  // mmol / m^2 / s
 
     for (int i = 0; i < nlayers; ++i) {
@@ -165,37 +166,38 @@ struct Can_Str CanAC(
 
         // Combine sunlit and shaded leaves
         CanopyA += Leafsun * direct_photo.Assim + Leafshade * diffuse_photo.Assim;             // micromol / m^2 / s
-        CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // micromol / m^2 / s
+        CanopyT += Leafsun * et_direct.TransR + Leafshade * et_diffuse.TransR;                 // mmol / m^2 / s
         GCanopyA += Leafsun * direct_photo.GrossAssim + Leafshade * diffuse_photo.GrossAssim;  // micromol / m^2 / s
 
-        CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // micromol / m^2 / s
-        CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;    // micromol / m^2 / s
+        CanopyPe += Leafsun * et_direct.EPenman + Leafshade * et_diffuse.EPenman;        // mmol / m^2 / s
+        CanopyPr += Leafsun * et_direct.EPriestly + Leafshade * et_diffuse.EPriestly;    // mmol / m^2 / s
         canopy_conductance += Leafsun * direct_photo.Gs + Leafshade * diffuse_photo.Gs;  // mmol / m^2 / s
     }
 
-    /* For Assimilation */
-    /* 3600 seconds per hour */
-    /* 1e-6 moles per micromole */
-    /* 30 grams of C6H12O6 (glucose) incorporated into dry biomass per mole of CO2 */
-    /* 1e-6 megagrams per gram */
-    /* 10000 meters squared per hectare*/
-    const double cf = 3600 * 1e-6 * 30 * 1e-6 * 10000;
+    // For assimilation, we need to convert micromol / m^2 / s into
+    // Mg / ha / hr, assuming that all carbon is converted into biomass in the
+    // form of glucose (C6H12O6), i.e., six assimilated CO2 molecules contribute
+    // one glucose molecule. Using the molar mass of glucose in kg / mol, the
+    // conversion can be accomplished with the following factor:
+    // (1 glucose / 6 CO2) * (3600 s / hr) * (1e-6 mol / micromol) *
+    //     (1e-3 Mg / kg) * (1e4 m^2 / ha)
+    // = 6e-3 s * mol * Mg * m^2 / (hr * micromol * kg * ha)
+    const double cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
 
-    /* For Transpiration */
-    /* 3600 seconds per hour */
-    /* 1e-3 millimoles per mole */
-    /* 18 grams per mole for H2O */
-    /* 1e-6 megagrams per  gram */
-    /* 10000 meters squared per hectare */
-    const double cf2 = 3600 * 1e-3 * 18 * 1e-6 * 10000;
+    // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
+    // using the molar mass of water in kg / mol, which can be accomplished by
+    // the following conversion factor:
+    // (3600 s / hr) * (1e-3 mol / mmol) * (1e-3 Mg / kg) * (1e4 m^2 / ha)
+    // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
+    const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
     struct Can_Str ans;
     ans.Assim = CanopyA * cf;                      // Mg / ha / hr
     ans.GrossAssim = GCanopyA * cf;                // Mg / ha / hr
     ans.Trans = CanopyT * cf2;                     // Mg / ha / hr
-    ans.canopy_transpiration_penman = CanopyPe;    // micromol / m^2 / s
-    ans.canopy_transpiration_priestly = CanopyPr;  // micromol / m^2 / s
-    ans.canopy_conductance = canopy_conductance;   // micromol / m^2 / s
+    ans.canopy_transpiration_penman = CanopyPe;    // mmol / m^2 / s
+    ans.canopy_transpiration_priestly = CanopyPr;  // mmol / m^2 / s
+    ans.canopy_conductance = canopy_conductance;   // mmol / m^2 / s
 
     return ans;
 }

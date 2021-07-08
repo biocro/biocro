@@ -119,7 +119,6 @@ glycine_max_parameters = with(list(), {
     soil_type_indicator                    6
     specific_heat_of_air                   1010
     Sp_thermal_time_decay                  0
-    stefan_boltzman                        5.67e-8
     tbase                                  10
     theta                                  0.7
     timestep                               1
