@@ -75,7 +75,7 @@ template <class state_type>
 state_vector_map boost_integrator<state_type>::do_integrate(std::shared_ptr<dynamical_system> sys)
 {
     // Update and/or reset the stored objects
-    sys->get_state(state);
+    sys->get_differential_quantities(state);
     state_vec.clear();
     time_vec.clear();
     observer_message = std::string("");

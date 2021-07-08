@@ -20,7 +20,7 @@ class dynamical_system_pointer_wrapper
     template <typename state_type, typename time_type>
     void operator()(state_type const& x, state_type& dxdt, time_type const& t)
     {
-        sys->operator()(x, dxdt, t);
+        sys->calculate_derivative(x, dxdt, t);
     }
 
     template <typename state_type, typename jacobi_type, typename time_type>

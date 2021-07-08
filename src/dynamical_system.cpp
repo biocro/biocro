@@ -14,7 +14,7 @@ dynamical_system::dynamical_system(
       direct_module_names{},  // put modules in suitable order before filling
       differential_module_names{differential_module_names}
 {
-    startup_message = std::string("");
+    startup_message = string("");
 
     // Make sure the inputs can form a valid system
     bool valid = validate_dynamical_system_inputs(
@@ -27,123 +27,145 @@ dynamical_system::dynamical_system(
 
     if (!valid) {
         throw std::logic_error(
-            std::string("Thrown by dynamical_system::dynamical_system: the ") +
-            std::string("supplied inputs cannot form a valid dynamical ") +
-            std::string("system.\n\n") + startup_message);
+            string("Thrown by dynamical_system::dynamical_system: the ") +
+            string("supplied inputs cannot form a valid dynamical system\n\n") +
+            startup_message);
     }
 
     try {
         direct_module_names = get_evaluation_order(dir_module_names);
     } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
-        throw std::logic_error("Cyclic dependencies should be caught in the validation routine.  We shouldn't ever get here.");
+        throw std::logic_error(
+            string("Cyclic dependencies should be caught in the validation ") +
+            string("routine.  We shouldn't ever get here."));
     }
 
     // Make the central list of quantities
-    quantities = define_quantity_map(
-        std::vector<state_map>{init_values, params, at(drivers, 0)},
-        std::vector<string_vector>{direct_module_names});
+    all_quantities = define_quantity_map(
+        vector<state_map>{init_values, params, at(drivers, 0)},
+        vector<string_vector>{direct_module_names});
 
-    // Make a map to store the output of differential modules, which can only
-    // include quantities in the initial values
-    differential_module_outputs = init_values;
+    // Make a map to store the output of differential modules (i.e., the
+    // differential quantities), which should correspond to the quantities in
+    // the "initial values" input.
+    differential_quantities = init_values;
 
     // Instantiate the modules. Differential modules should not modify the main
     // quantity map since their output represents derivatives of quantity values
     // rather than actual quantity values, but direct modules should
     // directly modify the main output map.
-    direct_modules = get_module_vector(std::vector<string_vector>{direct_module_names}, quantities, &quantities);
-    differential_modules = get_module_vector(std::vector<string_vector>{differential_module_names}, quantities, &differential_module_outputs);
+    direct_modules = get_module_vector(
+        vector<string_vector>{direct_module_names},
+        all_quantities,
+        &all_quantities);
 
-    // Make lists of subsets of quantity names
-    string_vector direct_output_names =
+    differential_modules = get_module_vector(
+        vector<string_vector>{differential_module_names},
+        all_quantities,
+        &differential_quantities);
+
+    // Make lists of subsets of the quantities that comprise the state: the
+    // quantities that follow direct evolution rules, the quantities that follow
+    // differential evolution rules, and the drivers.
+    string_vector direct_quantity_names =
         string_set_to_string_vector(
             find_unique_module_outputs({direct_module_names}));
-    string_vector istate_names = keys(init_values);
-    string_vector driver_names = keys(drivers);
 
-    // Get vectors of pointers to important subsets of the quantities
-    // These pointers allow us to efficiently reset portions of the
-    //  module output map before running the modules
-    state_ptrs = get_pointers(istate_names, differential_module_outputs);
+    string_vector differential_quantity_names = keys(init_values);
+    string_vector driver_quantity_names = keys(drivers);
 
-    // Get pairs of pointers to important subsets of the quantities
-    // These pairs allow us to efficiently retrieve the output of each
-    // module and store it in the main quantity map when running the
-    // system, to update the drivers at new time points,
-    // etc.
-    state_ptr_pairs = get_pointer_pairs(istate_names, quantities, differential_module_outputs);
-    driver_ptr_pairs = get_pointer_pairs(driver_names, quantities, drivers);
+    // Get vectors of "pointer pairs," i.e., a std::pair of pointers that point
+    // to the same quantity in different `state_map` objects. These pairs allow
+    // us to update the central quantity map when the differential modules are
+    // run or when the driver values are updated without needing to search
+    // through the map keys.
+    differential_quantity_ptr_pairs = get_pointer_pairs(
+        differential_quantity_names,
+        all_quantities,
+        differential_quantities);
+
+    driver_quantity_ptr_pairs = get_pointer_pairs(
+        driver_quantity_names,
+        all_quantities,
+        drivers);
 
     // Get a pointer to the timestep
     if (params.find("timestep") == params.end()) {
-        throw std::runtime_error("The quantity 'timestep' was not defined in the parameters state_map.");
+        throw std::runtime_error(
+            string("The quantity 'timestep' was not defined in the ") +
+            string("parameters state_map."));
     }
-    timestep_ptr = &(quantities.at("timestep"));
+    timestep_ptr = &(all_quantities.at("timestep"));
 }
 
 /**
- * @brief Resets all quantities back to their original values
+ *  @brief Resets all internally stored quantities back to their original values
  */
 void dynamical_system::reset()
 {
     update_drivers(size_t(0));  // t = 0
-    for (auto const& x : initial_values) quantities[x.first] = x.second;
+    for (auto const& x : initial_values) all_quantities[x.first] = x.second;
     run_module_list(direct_modules);
 }
 
 /**
- * @brief Gets values from the drivers at the input time (double)
+ *  @brief Gets values from the drivers at the input time (double)
+ *
+ *  @brief Updates values of the drivers in the internally stored quantity map
+ *         based on time expressed as a continuous time index (i.e. double)
  */
 void dynamical_system::update_drivers(double time_indx)
 {
     // Find two closest surrounding integers:
     int t1 = std::floor(time_indx);
     int t2 = t1 + 1;  // note t2 - t1 = 1
-    for (const auto& x : driver_ptr_pairs) {
+    for (const auto& x : driver_quantity_ptr_pairs) {
         // Use linear interpolation to find value at time_indx:
         auto value_at_t1 = (*(x.second))[t1];
         auto value_at_t2 = (*(x.second))[t2];
-        auto value_at_time_indx = value_at_t1 +
-                                  (time_indx - t1) * (value_at_t2 - value_at_t1);
+        auto value_at_time_indx =
+            value_at_t1 + (time_indx - t1) * (value_at_t2 - value_at_t1);
 
         *(x.first) = value_at_time_indx;
     }
 }
 
 /**
- * @brief Returns pointers that can be used to access quantity values from the system's central
- * map of quantities
+ *  @brief Returns pointers that can be used to access quantity values from the
+ *  dynamical_system's central map of quantities
  */
-std::vector<const double*> dynamical_system::get_quantity_access_ptrs(string_vector quantity_names) const
+vector<const double*> dynamical_system::get_quantity_access_ptrs(string_vector quantity_names) const
 {
-    std::vector<const double*> access_ptrs;
-    for (const std::string& name : quantity_names) {
-        access_ptrs.push_back(&quantities.at(name));
+    vector<const double*> access_ptrs;
+    for (const string& name : quantity_names) {
+        access_ptrs.push_back(&all_quantities.at(name));
     }
     return access_ptrs;
 }
 
 /**
- * @brief Returns a vector of the names of all quantities that change
- *        throughout a simulation.
+ *  @brief Returns a vector of the names of all quantities that change
+ *         throughout a simulation
  *
- * The quantities that change are (1) the quantites that are
- * calculated using differential equations; these should coincide with
- * all quantities in the initial values; (2) the drivers; (3) the
- * _direct_ variables, that is, the variables that are outputs of
- * direct modules.
+ *  The quantities that change are:
  *
- * @note Even though each variable in the initial values should
- * correspond to a derivative calculated by some differential module, it
- * is possible and permissible to have some variable \f$v\f$ in the
- * initial values that doesn't correspond to any such derivative.  In
- * that case, a differential equation \f$dv/dt = 0\f$ is assumed.  So
- * such variables in fact _do not_ change during the course of the
- * simulation.
+ *  - quantities that follow differential evolution rules, i.e., the
+ *    differential quantities
+ *
+ *  - quantities that follow direct evolution rules, i.e., the direct quantities
+ *
+ *  - the drivers
+ *
+ *  @note Even though each variable in the initial values should correspond to a
+ *  derivative calculated by some differential module, it is possible and
+ *  permissible to have some quantity \f$v\f$ in the initial values that doesn't
+ *  correspond to any such derivative. In this case, a differential equation
+ *  \f$dv/dt = 0\f$ is assumed. So such variables in fact _do not_ change during
+ *  the course of the simulation.
  */
-string_vector dynamical_system::get_output_param_names() const
+string_vector dynamical_system::get_output_quantity_names() const
 {
     return get_defined_quantity_names(
-        std::vector<state_map>{initial_values, at(drivers, 0)},
-        std::vector<string_vector>{direct_module_names});
+        vector<state_map>{initial_values, at(drivers, 0)},
+        vector<string_vector>{direct_module_names});
 }

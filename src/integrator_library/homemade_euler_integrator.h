@@ -35,7 +35,7 @@ template <class state_type>
 state_vector_map homemade_euler_integrator<state_type>::do_integrate(std::shared_ptr<dynamical_system> sys)
 {
     // Get the names of the output parameters and pointers to them
-    std::vector<std::string> output_param_vector = sys->get_output_param_names();
+    std::vector<std::string> output_param_vector = sys->get_output_quantity_names();
     std::vector<const double*> output_ptr_vector = sys->get_quantity_access_ptrs(output_param_vector);
 
     // Make the results map
@@ -47,7 +47,7 @@ state_vector_map homemade_euler_integrator<state_type>::do_integrate(std::shared
 
     // Get the current state in the correct format
     state_type state;
-    sys->get_state(state);
+    sys->get_differential_quantities(state);
 
     // Make a vector to store the derivative
     state_type dstatedt = state;
@@ -55,7 +55,7 @@ state_vector_map homemade_euler_integrator<state_type>::do_integrate(std::shared
     // Run through all the times
     for (size_t t = 0; t < sys->get_ntimes(); t++) {
         // Update all the parameters and calculate the derivative based on the current time and state
-        (*sys)(state, dstatedt, t);
+        sys->calculate_derivative(state, dstatedt, t);
 
         // Store the current parameter values
         for (size_t i = 0; i < result_vec.size(); i++) (result_vec[i])[t] = *output_ptr_vector[i];

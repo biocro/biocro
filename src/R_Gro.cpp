@@ -39,16 +39,16 @@ SEXP R_Gro_deriv(
 
         // Get the state in the correct format
         vector<double> x;
-        sys.get_state(x);
+        sys.get_differential_quantities(x);
 
         // Get the state parameter names in the correct order
-        string_vector state_param_names = sys.get_state_parameter_names();
+        string_vector state_param_names = sys.get_differential_quantity_names();
 
         // Make a vector to store the derivative
         vector<double> dxdt = x;
 
         // Run the system once
-        sys(x, dxdt, t);
+        sys.calculate_derivative(x, dxdt, t);
 
         // Make the output map
         state_map result;
@@ -126,16 +126,16 @@ SEXP R_Gro_ode(
 
         // Get the current state in the correct format
         vector<double> x;
-        sys.get_state(x);
+        sys.get_differential_quantities(x);
 
         // Get the state parameter names in the correct order
-        string_vector state_param_names = sys.get_state_parameter_names();
+        string_vector state_param_names = sys.get_differential_quantity_names();
 
         // Make a vector to store the derivative
         vector<double> dxdt = x;
 
         // Run the system once
-        sys(x, dxdt, 0);
+        sys.calculate_derivative(x, dxdt, 0);
 
         // Make the output map
         state_map result;
