@@ -146,7 +146,7 @@ test_plant_model <- function(test_info) {
     # Check the inputs for validity
     test_that(description_validity, {
         expect_true(
-            validate_system_inputs(
+            validate_dynamical_system_inputs(
                 test_info[['initial_values']],
                 test_info[['parameters']],
                 test_info[['drivers']],

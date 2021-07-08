@@ -11,7 +11,7 @@
 # that are not used as inputs to any modules.
 #
 # When silent is TRUE, no information will be printed to the R console.
-validate_system_inputs <- function(
+validate_dynamical_system_inputs <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
@@ -71,7 +71,7 @@ validate_system_inputs <- function(
 
     # Run the C++ code
     result = .Call(
-        R_validate_system_inputs,
+        R_validate_dynamical_system_inputs,
         initial_values,
         parameters,
         drivers,

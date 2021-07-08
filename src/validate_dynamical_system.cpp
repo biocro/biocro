@@ -1,5 +1,5 @@
 #include <algorithm>
-#include "validate_system.h"
+#include "validate_dynamical_system.h"
 #include "state_map.h"
 #include "module_library/module_wrapper_factory.h"
 #include "modules.h"
@@ -40,7 +40,7 @@
   * initial values that are not outputs of any differential module are assumed to have a
   * derivative of zero, that is, they are assumed to be constant.
   */
-bool validate_system_inputs(
+bool validate_dynamical_system_inputs(
     std::string& message,
     state_map initial_values,
     state_map params,
@@ -170,7 +170,7 @@ std::string analyze_system_inputs(
                 return create_message(
                     std::string("The direct modules are in a suitable order for evaluation."),
                     std::string("The direct modules need to be re-ordered before evaluation.\n") +
-                                "(This will be done automatically by during System construction.)\n" +
+                                "(This will be done automatically during dynamical_system construction.)\n" +
                                 "Here is a suitable ordering:",
                     std::string(""),
                     string_list

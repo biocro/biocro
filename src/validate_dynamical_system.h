@@ -1,5 +1,5 @@
-#ifndef VALIDATE_SYSTEM_H
-#define VALIDATE_SYSTEM_H
+#ifndef VALIDATE_DYNAMICAL_SYSTEM_H
+#define VALIDATE_DYNAMICAL_SYSTEM_H
 
 #include <set>
 #include <string>
@@ -17,7 +17,7 @@ using module_vector = std::vector<std::unique_ptr<module_base>>;
 const std::string success_mark { "[pass] " };
 const std::string failure_mark { "[fail] " };
 
-bool validate_system_inputs(
+bool validate_dynamical_system_inputs(
     std::string& message,
     state_map initial_values,
     state_map params,

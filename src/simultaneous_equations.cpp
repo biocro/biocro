@@ -1,6 +1,6 @@
 #include <algorithm>  // for std:sort
 #include "simultaneous_equations.h"
-#include "system_helper_functions.h"
+#include "dynamical_system_helper_functions.h"
 #include <Rinternals.h>              // for debugging
 const bool se_update_print = false;  // for debugging
 

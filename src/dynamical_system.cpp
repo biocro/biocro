@@ -1,8 +1,8 @@
-#include "system.h"
-#include "validate_system.h"
+#include "dynamical_system.h"
+#include "validate_dynamical_system.h"
 #include "utils/module_dependency_utilities.h"  // for get_evaluation_order
 
-System::System(
+dynamical_system::dynamical_system(
     state_map const& init_values,
     state_map const& params,
     state_vector_map const& drivers,
@@ -17,10 +17,19 @@ System::System(
     startup_message = std::string("");
 
     // Make sure the inputs can form a valid system
-    bool valid = validate_system_inputs(startup_message, init_values, params, drivers, dir_module_names, differential_module_names);
+    bool valid = validate_dynamical_system_inputs(
+        startup_message,
+        init_values,
+        params,
+        drivers,
+        dir_module_names,
+        differential_module_names);
 
     if (!valid) {
-        throw std::logic_error("Thrown by System::System: the supplied inputs cannot form a valid system.\n\n" + startup_message);
+        throw std::logic_error(
+            std::string("Thrown by dynamical_system::dynamical_system: the ") +
+            std::string("supplied inputs cannot form a valid dynamical ") +
+            std::string("system.\n\n") + startup_message);
     }
 
     try {
@@ -75,7 +84,7 @@ System::System(
 /**
  * @brief Resets all quantities back to their original values
  */
-void System::reset()
+void dynamical_system::reset()
 {
     update_drivers(size_t(0));  // t = 0
     for (auto const& x : initial_values) quantities[x.first] = x.second;
@@ -85,7 +94,7 @@ void System::reset()
 /**
  * @brief Gets values from the drivers at the input time (double)
  */
-void System::update_drivers(double time_indx)
+void dynamical_system::update_drivers(double time_indx)
 {
     // Find two closest surrounding integers:
     int t1 = std::floor(time_indx);
@@ -105,7 +114,7 @@ void System::update_drivers(double time_indx)
  * @brief Returns pointers that can be used to access quantity values from the system's central
  * map of quantities
  */
-std::vector<const double*> System::get_quantity_access_ptrs(string_vector quantity_names) const
+std::vector<const double*> dynamical_system::get_quantity_access_ptrs(string_vector quantity_names) const
 {
     std::vector<const double*> access_ptrs;
     for (const std::string& name : quantity_names) {
@@ -132,7 +141,7 @@ std::vector<const double*> System::get_quantity_access_ptrs(string_vector quanti
  * such variables in fact _do not_ change during the course of the
  * simulation.
  */
-string_vector System::get_output_param_names() const
+string_vector dynamical_system::get_output_param_names() const
 {
     return get_defined_quantity_names(
         std::vector<state_map>{initial_values, at(drivers, 0)},

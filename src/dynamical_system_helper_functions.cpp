@@ -1,5 +1,5 @@
-#include "system_helper_functions.h"
-#include "validate_system.h"  // For module_vector
+#include "dynamical_system_helper_functions.h"
+#include "validate_dynamical_system.h"  // For module_vector
 
 /**
  * @brief Checks whether the collection of modules is compatible with

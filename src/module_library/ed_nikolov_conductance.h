@@ -163,7 +163,7 @@ void ed_nikolov_conductance_forced::do_operation() const
  * @brief Calculates free boundary layer conductance for water according to the model
  * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
  * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
- * be used by a simultanous_equations object but not a System object. Currently only
+ * be used by a simultanous_equations object but not a dynamical_system object. Currently only
  * intended for use by Ed.
  *
  * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units
@@ -315,7 +315,7 @@ std::vector<double> const relative_error_tolerances = {1e-3};
  * @brief Calculates free boundary layer conductance for water according to the model
  * in Nikolov et al. Ecological Modelling 80, 205–235 (1995). Note that this module has
  * `conductance_boundary_h2o_free` as both an input and an output. Therefore, it can
- * be used by a simultanous_equations object but not a System object. Currently only
+ * be used by a simultanous_equations object but not a dynamical_system object. Currently only
  * intended for use by Ed.
  *
  * See the "ed_nikolov_conductance_forced" module for a discussion of conductance units

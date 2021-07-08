@@ -2,7 +2,7 @@
 #define SIMULTANEOUS_EQUATIONS_H
 
 #include "state_map.h"        // For state_map, state_vector_map, etc
-#include "validate_system.h"  // For string_vector, string_set, module_vector, etc
+#include "validate_dynamical_system.h"  // For string_vector, string_set, module_vector, etc
 
 bool validate_simultaneous_equations_inputs(
     std::string& message,

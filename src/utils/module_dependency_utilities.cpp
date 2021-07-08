@@ -6,9 +6,9 @@
 
 #include "../module_library/module_wrapper_factory.h" // for module_wrapper_factory
 #include "../state_map.h" // for state_map
-#include "../validate_system.h" // for string_set, string_vector,
-                                // find_unique_module_inputs,
-                                // find_unique_module_outputs
+#include "../validate_dynamical_system.h" // for string_set, string_vector,
+                                          // find_unique_module_inputs,
+                                          // find_unique_module_outputs
 
 
 // using declarations

@@ -42,7 +42,7 @@ Gro_deriv <- function(
     #
     # Example 1: a simple oscillator with derivatives only. Note that we need to
     # define `timestep`, `doy`, and `hour` parameters as required by the C++
-    # `System` class, even though `doy` and `hour` won't be used for this
+    # `dynamical_system` class, even though `doy` and `hour` won't be used for this
     # example.
     #
     #     oscillator_initial_values <- list(
@@ -230,7 +230,7 @@ Gro_ode <- function(
     # There are several things to notice:
     #
     #  (1) Even though time and timestep were not supplied, they show up in the
-    #      lists of parameters and drivers. The C++ `System` class requires
+    #      lists of parameters and drivers. The C++ `dynamical_system` class requires
     #      these quantities, so Gro_ode supplies default values if none are
     #      specified, as in the case of this example.
     #

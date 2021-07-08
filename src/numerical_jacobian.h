@@ -2,25 +2,25 @@
 #define NUMERICAL_JACOBIAN_H
 
 #include <memory>  // for std::shared_ptr
-#include "system.h"
+#include "dynamical_system.h"
 #include "simultaneous_equations.h"
 #include "constants.h"
 
 /**
- * @brief Define `evaluation` behavior for a set of equations defined by a System object.
+ * @brief Define `evaluation` behavior for a set of equations defined by a dynamical_system object.
  * 
- * @param[in] sys a shared pointer to a System object.
+ * @param[in] sys a shared pointer to a dynamical_system object.
  * 
- * @param[in] x a vector to be passed to the System as an input. Since we are evaluating
- *              a System, x contains values of the System's state variables.
+ * @param[in] x a vector to be passed to the dynamical_system as an input. Since we are evaluating
+ *              a dynamical_system, x contains values of the dynamical_system's state variables.
  * 
- * @param[in] t a time to be passed to the System as an input.
+ * @param[in] t a time to be passed to the dynamical_system as an input.
  * 
- * @param[out] y the vector output. Since we are evaluating a System object, y contains
+ * @param[out] y the vector output. Since we are evaluating a dynamical_system object, y contains
  *               the time derivative of each state variable.
  */
 template <typename vector_type, typename time_type>
-void evaluate_equations(std::shared_ptr<System> const& sys, vector_type const& x, time_type t, vector_type& y)
+void evaluate_equations(std::shared_ptr<dynamical_system> const& sys, vector_type const& x, time_type t, vector_type& y)
 {
     sys->operator()(x, y, t);
 }
@@ -34,7 +34,7 @@ void evaluate_equations(std::shared_ptr<System> const& sys, vector_type const& x
  *              simultaneous equations, x contains values of the unknown variables.
  * 
  * @param[in] t an unused parameter included here to produce the same function signature as when evaluating
- *              a System.
+ *              a dynamical_system.
  * 
  * @param[out] y the vector output. Since we are evaluating simultaneous equations, y contains the change
  *               in the value of each unknown variable produced by running the modules.

@@ -3,12 +3,12 @@
 #include <string>
 #include "R_helper_functions.h"
 #include "state_map.h"
-#include "validate_system.h"
-#include "system.h"
+#include "validate_dynamical_system.h"
+#include "dynamical_system.h"
 
 extern "C" {
 
-SEXP R_validate_system_inputs(
+SEXP R_validate_dynamical_system_inputs(
     SEXP initial_values,
     SEXP parameters,
     SEXP drivers,
@@ -27,7 +27,7 @@ SEXP R_validate_system_inputs(
 
         // Check the validity
         std::string msg;
-        bool valid = validate_system_inputs(msg, s, ip, vp, direct_names, differential_names);
+        bool valid = validate_dynamical_system_inputs(msg, s, ip, vp, direct_names, differential_names);
 
         // Print feedback and additional information if required
         if (!be_quiet) {
@@ -53,9 +53,9 @@ SEXP R_validate_system_inputs(
         return r_logical_from_boolean(valid);
 
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_validate_system_inputs: ") + e.what()).c_str());
+        Rf_error((std::string("Caught exception in R_validate_dynamical_system_inputs: ") + e.what()).c_str());
     } catch (...) {
-        Rf_error("Caught unhandled exception in R_validate_system_inputs.");
+        Rf_error("Caught unhandled exception in R_validate_dynamical_system_inputs.");
     }
 }
 

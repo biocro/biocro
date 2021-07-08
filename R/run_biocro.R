@@ -74,9 +74,9 @@ run_biocro <- function(
     #                                 size method will attempt to find a new
     #                                 step size before indicating failure
     #
-    # verbose: a logical variable indicating whether or not to print System
+    # verbose: a logical variable indicating whether or not to print dynamical_system
     #          validation information. (More detailed startup information can
-    #          be obtained with the `validate_system_inputs` function.)
+    #          be obtained with the `validate_dynamical_system_inputs` function.)
     #
     # --------------------------------------------------------------------------
     #
@@ -100,7 +100,7 @@ run_biocro <- function(
     # the validity of the input arguments will be printed to the R console. This
     # can be helpful when attempting to combine a set of modules for the first
     # time. More detailed information can be obtained using the
-    # `validate_system_inputs` function.
+    # `validate_dynamical_system_inputs` function.
     #
     # In the sorghum example, the simulation is performed using the fixed step
     # size Euler method for numerical integration. One of its modules

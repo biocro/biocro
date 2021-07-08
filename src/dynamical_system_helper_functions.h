@@ -1,12 +1,12 @@
-#ifndef SYSTEM_HELPER_FUNCTIONS_H
-#define SYSTEM_HELPER_FUNCTIONS_H
+#ifndef DYNAMICAL_SYSTEM_HELPER_FUNCTIONS_H
+#define DYNAMICAL_SYSTEM_HELPER_FUNCTIONS_H
 
 #include <vector>
 #include <set>
 #include <unordered_map>
 #include <string>
 #include <memory>  // For unique_ptr
-#include "validate_system.h"
+#include "validate_dynamical_system.h"
 #include "constants.h"
 
 /**

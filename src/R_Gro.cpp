@@ -3,7 +3,7 @@
 #include <string>
 #include <exception>    // for std::exception
 #include "state_map.h"  // for state_map, state_vector_map, string_vector
-#include "system.h"
+#include "dynamical_system.h"
 #include "R_helper_functions.h"
 
 using std::string;
@@ -35,7 +35,7 @@ SEXP R_Gro_deriv(
         double t = REAL(time)[0];
 
         // Create a system
-        System sys(s, p, d, direct_names, differential_names);
+        dynamical_system sys(s, p, d, direct_names, differential_names);
 
         // Get the state in the correct format
         vector<double> x;
@@ -122,7 +122,7 @@ SEXP R_Gro_ode(
         string_vector differential_names = make_vector(differential_module_names);
 
         // Make the system
-        System sys(s, p, d, direct_names, differential_names);
+        dynamical_system sys(s, p, d, direct_names, differential_names);
 
         // Get the current state in the correct format
         vector<double> x;

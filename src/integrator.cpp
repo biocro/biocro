@@ -1,6 +1,6 @@
 #include "integrator.h"
 
-state_vector_map integrator::integrate(std::shared_ptr<System> sys)
+state_vector_map integrator::integrate(std::shared_ptr<dynamical_system> sys)
 {
     integrate_method_has_been_called = true;
 

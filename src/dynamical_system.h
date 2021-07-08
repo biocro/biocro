@@ -1,23 +1,23 @@
-#ifndef SYSTEM_H
-#define SYSTEM_H
+#ifndef DYNAMICAL_SYSTEM_H
+#define DYNAMICAL_SYSTEM_H
 
 #include <vector>
 #include <string>
-#include <memory>             // For unique_ptr and shared_ptr
-#include "validate_system.h"  // For string_vector, string_set, module_vector, etc
-#include "state_map.h"        // For state_map, state_vector_map, etc
+#include <memory>                       // For unique_ptr and shared_ptr
+#include "validate_dynamical_system.h"  // For string_set, module_vector, etc
+#include "state_map.h"                  // For state_map, state_vector_map, string_vector, etc
 #include "modules.h"
-#include "system_helper_functions.h"
+#include "dynamical_system_helper_functions.h"
 
 /**
- * @class System
+ * @class dynamical_system
  *
- * @brief Defines a system of differential equations. Intended to be passed to a integrator object.
+ * @brief Defines a dynamical system which can be solved using an `integrator`.
  */
-class System
+class dynamical_system
 {
    public:
-    System(
+    dynamical_system(
         state_map const& init_values,
         state_map const& params,
         state_vector_map const& drivers,
@@ -115,7 +115,7 @@ class System
  * typically either std::vector<double> or boost::numeric::ublas::vector<double>.
  */
 template <typename state_type>
-void System::get_state(state_type& x) const
+void dynamical_system::get_state(state_type& x) const
 {
     x.resize(state_ptr_pairs.size());
     for (size_t i = 0; i < x.size(); i++) x[i] = *(state_ptr_pairs[i].first);
@@ -128,7 +128,7 @@ void System::get_state(state_type& x) const
  * @param[in] t the time
  */
 template <typename state_type, typename time_type>
-void System::update(const state_type& x, const time_type& t)
+void dynamical_system::update(const state_type& x, const time_type& t)
 {
     update_drivers(t);
     update_state_params(x);
@@ -143,7 +143,7 @@ void System::update(const state_type& x, const time_type& t)
  * @param[in] t time value
  */
 template <typename state_type, typename time_type>
-void System::operator()(const state_type& x, state_type& dxdt, const time_type& t)
+void dynamical_system::operator()(const state_type& x, state_type& dxdt, const time_type& t)
 {
     ++ncalls;
     update(x, t);
@@ -154,7 +154,7 @@ void System::operator()(const state_type& x, state_type& dxdt, const time_type& 
  * @brief Gets values of the drivers using a discrete time index (e.g. int or size_t)
  */
 template <typename time_type>
-void System::update_drivers(time_type time_indx)
+void dynamical_system::update_drivers(time_type time_indx)
 {
     for (auto x : driver_ptr_pairs) {
         *(x.first) = (*(x.second))[time_indx];
@@ -165,7 +165,7 @@ void System::update_drivers(time_type time_indx)
  * @brief Updates the system's internally stored state parameter values to the new ones in new_state
  */
 template <class vector_type>
-void System::update_state_params(vector_type const& new_state)
+void dynamical_system::update_state_params(vector_type const& new_state)
 {
     for (size_t i = 0; i < new_state.size(); i++) {
         *(state_ptr_pairs[i].first) = new_state[i];
@@ -178,7 +178,7 @@ void System::update_state_params(vector_type const& new_state)
  * @param[out] dxdt a vector for storing the derivative (passed by reference for speed)
  */
 template <class vector_type>
-void System::run_differential_modules(vector_type& dxdt)
+void dynamical_system::run_differential_modules(vector_type& dxdt)
 {
     // Reset the differential module outputs
     for (double* const& x : state_ptrs) {
@@ -253,7 +253,7 @@ struct push_back_state_and_time {
  * object's public functions
  */
 template <typename state_type, typename time_type>
-state_vector_map get_results_from_system(std::shared_ptr<System> sys,
+state_vector_map get_results_from_system(std::shared_ptr<dynamical_system> sys,
                                          const std::vector<state_type>& x_vec,
                                          const std::vector<time_type>& times)
 {

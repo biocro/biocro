@@ -4,7 +4,7 @@
 #include <vector>
 #include <boost/numeric/odeint.hpp>  // For use with ODEINT
 #include "state_map.h"
-#include "system.h"
+#include "dynamical_system.h"
 
 // An abstract class for a generic numerical integrator. Its `integrate()`
 // function provides a uniform interface for all derived integrators, and its
@@ -27,7 +27,7 @@ class integrator
 
     virtual ~integrator() {}
 
-    state_vector_map integrate(std::shared_ptr<System> sys);
+    state_vector_map integrate(std::shared_ptr<dynamical_system> sys);
 
     std::string generate_info_report() const
     {
@@ -61,15 +61,15 @@ class integrator
 
     bool integrate_method_has_been_called = false;
 
-    virtual state_vector_map do_integrate(std::shared_ptr<System> sys) = 0;
-    virtual state_vector_map handle_adaptive_incompatibility(std::shared_ptr<System> sys);
+    virtual state_vector_map do_integrate(std::shared_ptr<dynamical_system> sys) = 0;
+    virtual state_vector_map handle_adaptive_incompatibility(std::shared_ptr<dynamical_system> sys);
     virtual std::string get_param_info() const = 0;
     virtual std::string get_solution_info() const = 0;
 };
 
 // Define the standard response to a problem with adaptive compatibility
 inline state_vector_map
-    integrator::handle_adaptive_incompatibility(std::shared_ptr<System> /*sys*/)
+    integrator::handle_adaptive_incompatibility(std::shared_ptr<dynamical_system> /*sys*/)
 {
     throw std::logic_error(
         std::string("integrator '") + integrator_name +

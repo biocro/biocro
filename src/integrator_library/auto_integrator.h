@@ -31,7 +31,7 @@ class auto_integrator : public integrator
     bool adaptive_integrator_most_recent;
 
     state_vector_map
-    do_integrate(std::shared_ptr<System> sys) override
+    do_integrate(std::shared_ptr<dynamical_system> sys) override
     {
         // The system is compatible with adaptive step size methods,
         // so use the adaptive integrator to integrate the system:
@@ -40,7 +40,7 @@ class auto_integrator : public integrator
     }
 
     state_vector_map
-    handle_adaptive_incompatibility(std::shared_ptr<System> sys) override
+    handle_adaptive_incompatibility(std::shared_ptr<dynamical_system> sys) override
     {
         // The system is not compatible with adaptive step size methods,
         // so use the other integrator to integrate the system

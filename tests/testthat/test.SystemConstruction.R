@@ -26,7 +26,7 @@ test_that("All modules must exist", {
 
     # This should throw an error
 
-    expect_error(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
+    expect_error(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
 
@@ -56,7 +56,7 @@ test_that("Duplicated quantities produce an error during validation", {
 
     # Validation should return FALSE
 
-    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
+    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
 
@@ -85,7 +85,7 @@ test_that("Missing inputs produce an error during validation", {
 
     # Validation should return FALSE
 
-    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
+    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
 
@@ -114,7 +114,7 @@ test_that("Differential modules only supply derivatives for quantities in the in
 
     # Validation should return FALSE
 
-    expect_false(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
+    expect_false(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
 
@@ -139,12 +139,12 @@ test_that("Direct modules are not required to be supplied in the correct order",
 
     # This should be valid
 
-    expect_true(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
+    expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
     # If we change the module order, it should still be valid
 
     direct_module_names <- c("Module_2", "Module_1")
 
-    expect_true(validate_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
+    expect_true(validate_dynamical_system_inputs(initial_values, parameters, drivers, direct_module_names, differential_module_names, silent=SILENT))
 
 })
