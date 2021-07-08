@@ -93,9 +93,9 @@ class thermal_time_senescence : public differential_module
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent
-           // class and indicate that this module is not compatible with
-           // adaptive step size integrators
-          differential_module("thermal_time_senescence", false),
+           // class and indicate that this module requires a fixed step size
+           // Euler integrator
+          differential_module("thermal_time_senescence", true),
 
           // Get pointers to input quantities
           TTc{get_input(input_quantities, "TTc")},

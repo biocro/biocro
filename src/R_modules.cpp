@@ -42,7 +42,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
         // Try to create an instance of the module
         bool create_success = true;
         bool is_differential = false;
-        bool is_adaptive_compatible = false;
+        bool requires_euler_integrator = false;
         std::string creation_error_message = "none";
         try {
             std::unique_ptr<module_base> module_ptr = w->createModule(
@@ -52,9 +52,8 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
             // Check to see if the module is a differential module
             is_differential = module_ptr->is_differential();
 
-            // Check to see if the module is compatible with adaptive step size
-            // solvers
-            is_adaptive_compatible = module_ptr->is_adaptive_compatible();
+            // Check to see if the module requires an Euler integrator
+            requires_euler_integrator = module_ptr->requires_euler_integrator();
         } catch (std::exception const& e) {
             create_success = false;
             creation_error_message = e.what();
@@ -95,9 +94,9 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
                 else
                     Rprintf("direct\n\n");
 
-                // Adaptive compatibility
-                Rprintf("Compatible with adaptive step size solvers:\n  ");
-                if (is_adaptive_compatible)
+                // Euler requirement
+                Rprintf("Requires a fixed step size Euler integrator:\n  ");
+                if (requires_euler_integrator)
                     Rprintf("yes\n\n");
                 else
                     Rprintf("no\n\n");
@@ -115,7 +114,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
             module_inputs,
             module_outputs,
             is_differential,
-            is_adaptive_compatible,
+            requires_euler_integrator,
             creation_error_message);
 
     } catch (quantity_access_error const& qae) {

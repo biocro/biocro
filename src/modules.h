@@ -19,10 +19,10 @@
  *  - `differential_module`: a module that calculates the instantaneous rate(s)
  *    of change for one or more quantities
  *
- *  A module must also indicate whether or not it is compatible with adaptive
- *  step size integrators. For most modules, this is the case. However, a few
- *  "legacy" modules require information from previous times and will only work
- *  properly with a fixed step size Euler integrator.
+ *  A module must also indicate whether or not it requires an Euler integrator.
+ *  Most modules do not. However, a few "legacy" modules require information
+ *  from previous times and will only work properly with a fixed step size
+ *  Euler integrator.
  *
  *  This class has a pure virtual destructor to designate it as being
  *  intentionally abstract.
@@ -33,10 +33,10 @@ class module_base
     module_base(
         std::string const& module_name,
         bool const& differential,
-        bool const& adaptive_compatible)
+        bool const& requires_euler)
         : module_name{module_name},
           differential{differential},
-          adaptive_compatible{adaptive_compatible}
+          requires_euler{requires_euler}
     {
     }
 
@@ -45,7 +45,7 @@ class module_base
     // Functions for returning module information
     std::string get_name() const { return module_name; }
     bool is_differential() const { return differential; }
-    bool is_adaptive_compatible() const { return adaptive_compatible; }
+    bool requires_euler_integrator() const { return requires_euler; }
 
     // Functions for running the module
     void run() const { do_operation(); }
@@ -55,7 +55,7 @@ class module_base
 
     std::string const module_name;
     bool const differential;
-    bool const adaptive_compatible;
+    bool const requires_euler;
 
    protected:
     // Updates the values of output quantities
@@ -80,8 +80,8 @@ class direct_module : public module_base
 {
    public:
     direct_module(
-        const std::string& module_name, bool adaptive_compatible = true)
-        : module_base{module_name, 0, adaptive_compatible}
+        const std::string& module_name, bool requires_euler = false)
+        : module_base{module_name, 0, requires_euler}
     {
     }
 
@@ -117,8 +117,8 @@ inline void direct_module::update(double* output_ptr, const double& value) const
 class differential_module : public module_base
 {
    public:
-    differential_module(const std::string& module_name, bool adaptive_compatible = true)
-        : module_base{module_name, 1, adaptive_compatible}
+    differential_module(const std::string& module_name, bool requires_euler = false)
+        : module_base{module_name, 1, requires_euler}
     {
     }
 

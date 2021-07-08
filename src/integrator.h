@@ -14,16 +14,19 @@ class integrator
    public:
     integrator(
         std::string integrator_name,
-        bool check_adaptive_compatible,
+        bool should_check_euler_requirement,
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : integrator_name(integrator_name),
-                         check_adaptive_compatible(check_adaptive_compatible),
-                         output_step_size(step_size),
-                         adaptive_rel_error_tol(rel_error_tolerance),
-                         adaptive_abs_error_tol(abs_error_tolerance),
-                         adaptive_max_steps(max_steps) {}
+        int max_steps)
+        : integrator_name(integrator_name),
+          should_check_euler_requirement(should_check_euler_requirement),
+          output_step_size(step_size),
+          adaptive_rel_error_tol(rel_error_tolerance),
+          adaptive_abs_error_tol(abs_error_tolerance),
+          adaptive_max_steps(max_steps)
+    {
+    }
 
     virtual ~integrator() {}
 
@@ -31,8 +34,7 @@ class integrator
 
     std::string generate_info_report() const
     {
-        return std::string("Name: ") + integrator_name +
-               get_param_info();
+        return std::string("Name: ") + integrator_name + get_param_info();
     }
 
     std::string generate_integrate_report() const
@@ -52,7 +54,7 @@ class integrator
 
    private:
     const std::string integrator_name;
-    const bool check_adaptive_compatible;
+    const bool should_check_euler_requirement;
 
     double output_step_size;
     double adaptive_rel_error_tol;
@@ -62,18 +64,19 @@ class integrator
     bool integrate_method_has_been_called = false;
 
     virtual state_vector_map do_integrate(std::shared_ptr<dynamical_system> sys) = 0;
-    virtual state_vector_map handle_adaptive_incompatibility(std::shared_ptr<dynamical_system> sys);
+    virtual state_vector_map handle_euler_requirement(std::shared_ptr<dynamical_system> sys);
     virtual std::string get_param_info() const = 0;
     virtual std::string get_solution_info() const = 0;
 };
 
-// Define the standard response to a problem with adaptive compatibility
+// Define the standard response to a requirement for an Euler integrator
 inline state_vector_map
-    integrator::handle_adaptive_incompatibility(std::shared_ptr<dynamical_system> /*sys*/)
+    integrator::handle_euler_requirement(std::shared_ptr<dynamical_system> /*sys*/)
 {
     throw std::logic_error(
         std::string("integrator '") + integrator_name +
-        std::string("' is not compatible with the input system.\n"));
+        std::string("' is not compatible with the input system because one ") +
+        std::string("or more of its modules requires an Euler integrator.\n"));
 }
 
 #endif

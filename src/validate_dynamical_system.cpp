@@ -194,7 +194,7 @@ std::string analyze_system_inputs(
         message,
         [=]() -> string_vector { return find_unused_input_parameters(std::vector<state_map>{params}, std::vector<string_vector>{direct_module_names, differential_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("Each invariant parameter was used as an input to one or more modules"),
+                                                           std::string("Each parameter was used as an input to one or more modules"),
                                                            std::string("The following parameters were not used as inputs to any module:"),
                                                            std::string("You may want to consider removing them for clarity"),
                                                            string_list); });
@@ -233,13 +233,13 @@ std::string analyze_system_inputs(
                                                            std::string(""),
                                                            string_list); });
 
-    // List any modules that are not compatible with adaptive step size methods
+    // List any modules that require a fixed step size Euler integrator
     process_criterion<string_vector>(
         message,
-        [=]() -> string_vector { return find_adaptive_incompatibility(std::vector<string_vector>{direct_module_names, differential_module_names}); },
+        [=]() -> string_vector { return find_euler_requirements(std::vector<string_vector>{direct_module_names, differential_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("All modules are compatible with adaptive step size solvers"),
-                                                           std::string("The following modules are not compatible with adaptive step size solvers:"),
+                                                           std::string("No modules require a fixed step size Euler integrator"),
+                                                           std::string("The following modules require a fixed step size Euler integrator:"),
                                                            std::string(""),
                                                            string_list); });
 
@@ -499,10 +499,9 @@ string_vector find_static_output_parameters(
 }
 
 /**
- * @brief Returns modules that are not compatible with adaptive step
- * size algorithms
+ * @brief Returns modules that require a fixed step size Euler integrator
  */
-string_vector find_adaptive_incompatibility(std::vector<string_vector> module_name_vectors)
+string_vector find_euler_requirements(std::vector<string_vector> module_name_vectors)
 {
     // Get all the module inputs and outputs
     string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
@@ -517,15 +516,15 @@ string_vector find_adaptive_incompatibility(std::vector<string_vector> module_na
     }
 
     // Instantiate each module and check its characterization
-    string_vector incompatible_modules;
+    string_vector euler_requirement_modules;
     module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
     for (std::unique_ptr<module_base>& m : modules) {
-        if (!m->is_adaptive_compatible()) {
-            incompatible_modules.push_back(m->get_name());
+        if (m->requires_euler_integrator()) {
+            euler_requirement_modules.push_back(m->get_name());
         }
     }
 
-    return incompatible_modules;
+    return euler_requirement_modules;
 }
 
 /**

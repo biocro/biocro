@@ -31,12 +31,12 @@ class dynamical_system
         return (driver->second).size();
     }
 
-    /// Check that the system is adaptive compatible based on the
-    /// modules that it uses.
-    bool is_adaptive_compatible() const
+    /// Check whether the dynamical_system requires a fixed step Euler
+    /// integrator based on the modules that it uses.
+    bool requires_euler_integrator() const
     {
-        return check_adaptive_compatible(&direct_modules) &&
-               check_adaptive_compatible(&differential_modules);
+        return check_euler_requirement(direct_modules) ||
+               check_euler_requirement(differential_modules);
     }
 
     template <typename state_type>

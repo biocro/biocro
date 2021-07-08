@@ -15,14 +15,14 @@ class boost_integrator : public integrator
    public:
     boost_integrator(
         std::string integrator_name,
-        bool check_adaptive_compatible,
+        bool check_euler_requirement,
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
         int max_steps)
         : integrator{
               integrator_name,
-              check_adaptive_compatible,
+              check_euler_requirement,
               step_size,
               rel_error_tolerance,
               abs_error_tolerance,

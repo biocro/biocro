@@ -60,7 +60,7 @@ string_vector find_static_output_parameters(
     std::vector<state_map> state_maps,
     std::vector<string_vector> module_name_vectors);
 
-string_vector find_adaptive_incompatibility(std::vector<string_vector> module_name_vectors);
+string_vector find_euler_requirements(std::vector<string_vector> module_name_vectors);
 
 string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_differential);
 

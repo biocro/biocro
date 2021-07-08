@@ -1,16 +1,15 @@
 #include "dynamical_system_helper_functions.h"
-#include "validate_dynamical_system.h"  // For module_vector
 
 /**
- * @brief Checks whether the collection of modules is compatible with
- * adaptive step size solvers
+ * @brief Checks whether the collection of modules requires an Euler integrator.
  */
-bool check_adaptive_compatible(const module_vector* ptr_to_module_vector)
+bool check_euler_requirement(module_vector const& modules_to_check)
 {
-    bool adaptive_compatible = true;
-    const module_vector& module_vector_reference = *ptr_to_module_vector;
-    for (size_t i = 0; i < module_vector_reference.size(); i++) {
-        adaptive_compatible *= module_vector_reference[i]->is_adaptive_compatible();
+    int num_requiring_euler{0};
+
+    for (auto const& x : modules_to_check) {
+        num_requiring_euler += x->requires_euler_integrator();
     }
-    return adaptive_compatible;
+
+    return num_requiring_euler > 0;
 }

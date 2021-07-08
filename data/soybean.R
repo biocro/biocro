@@ -34,10 +34,10 @@ soybean_integrator <- list(
     adaptive_max_steps = 200
 )
 # Note: the integrator type should not be 'boost_rosenbrock' or 'auto' (which
-# defaults to 'boost_rosenbrock' when an adaptive integrator can be used, as in this
-# case) since the integration will fail unless the tolerances are stringent
-# (e.g., output_step_size = 0.01, adaptive_rel_error_tol = 1e-9,
-# adaptive_abs_error_tol = 1e-9)
+# defaults to 'boost_rosenbrock' when a fixed step size Euler integrator is not
+# required, as in this case) since the integration will fail unless the
+# tolerances are stringent (e.g., output_step_size = 0.01,
+# adaptive_rel_error_tol = 1e-9, adaptive_abs_error_tol = 1e-9)
 
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
 soybean_initial_values = with(list(), {

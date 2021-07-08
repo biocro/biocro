@@ -75,6 +75,6 @@ std::vector<const value_type*> get_const_pointers(
     return pointers;
 }
 
-bool check_adaptive_compatible(const module_vector* ptr_to_module_vector);
+bool check_euler_requirement(module_vector const& modules_to_check);
 
 #endif
