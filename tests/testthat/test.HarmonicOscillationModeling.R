@@ -110,6 +110,20 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
     debug_print(list(amplitude = amplitude, phase = phase, angular_frequency = angular_frequency))
 
+    ## calculate the derivative corresponding to the initial conditions, and the
+    ## expected components
+    oscillator_system_derivative_fcn <- system_derivatives(
+        initial_values,
+        parameters,
+        drivers,
+        direct_modules,
+        differential_modules
+    )
+    iv <- as.numeric(initial_values)
+    names(iv) <- names(initial_values)
+    initial_derivative <- oscillator_system_derivative_fcn(iv, 0)
+    expected_position_deriv <- initial_velocity
+    expected_velocity_deriv <- -spring_constant * initial_position / mass
 
     ## try out the integrator
     result <- run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, integrator)
@@ -145,6 +159,8 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
             expect_equal(result$position[index], result$expected_position[index], tolerance = amplitude * TOLERANCE_FACTOR)
             expect_equal(result$velocity[index], result$expected_velocity[index], tolerance = angular_frequency * amplitude * TOLERANCE_FACTOR)
             expect_equal(result$total_energy[index], total_energy, tolerance = total_energy * TOLERANCE_FACTOR)
+            expect_equal(initial_derivative[[1]][['position']], expected_position_deriv, tolerance = expected_position_deriv * TOLERANCE_FACTOR)
+            expect_equal(initial_derivative[[1]][['velocity']], expected_velocity_deriv, tolerance = expected_velocity_deriv * TOLERANCE_FACTOR)
         }
     })
 }
