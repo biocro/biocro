@@ -1,4 +1,4 @@
-Gro_deriv <- function(
+system_derivatives <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
@@ -6,12 +6,8 @@ Gro_deriv <- function(
     differential_module_names = list()
 )
 {
-    # Gro_deriv is used to create a function that can be called by a integrator
-    # such as LSODES.
-    #
-    # Important note: this strategy is not recommended since run_biocro
-    # now implements the ODEINT stiff system integrator in a more efficient way
-    # than LSODES would.
+    # system_derivatives is used to create a function that can be called by a
+    # differential equation solver such as LSODES.
     #
     # initial_values: a list of named quantities representing the initial values
     # of quantities that follow differential evolution rules. Note: the values
@@ -29,21 +25,21 @@ Gro_deriv <- function(
     # direct_module_names: a character vector or list specifying the names
     # of direct modules to use in the system
     #
-    # differential_module_names: a character vector or list of differential module
-    # names.
+    # differential_module_names: a character vector or list of differential
+    # module names.
     #
-    # The return value of Gro_deriv is a function with three inputs (`t`,
-    # `state`, and `param`) that returns derivatives for each of the parameters
-    # in the state. These parameters must have the same names as the state
-    # variables defined in initial_values. Here, `state` must be a numeric
-    # vector with names, rather than a list.
+    # The return value of system_derivatives is a function with three inputs
+    # (`t`, `state`, and `param`) that returns derivatives for each of the
+    # differential quantities. These input parameters must have the same names
+    # as the quantities defined by `initial_values`. For the returned function,
+    # `state` must be a numeric vector with names, rather than a list.
     #
     # --------------------------------------------------------------------------
     #
     # Example 1: a simple oscillator with derivatives only. Note that we need to
     # define `timestep`, `doy`, and `hour` parameters as required by the C++
-    # `dynamical_system` class, even though `doy` and `hour` won't be used for this
-    # example.
+    # `dynamical_system` class, even though `doy` and `hour` won't be used for
+    # this example.
     #
     #     oscillator_initial_values <- list(
     #         position = 0,
@@ -60,7 +56,7 @@ Gro_deriv <- function(
     #
     #     oscillator_differential_modules <- c("harmonic_oscillator")
     #
-    #     oscillator_system <- Gro_deriv(
+    #     oscillator_system_derivatives <- system_derivatives(
     #         oscillator_initial_values,
     #         oscillator_parameters,
     #         get_growing_season_climate(weather05),
@@ -74,16 +70,21 @@ Gro_deriv <- function(
     #
     #     library(deSolve)
     #
-    #     result = as.data.frame(lsodes(iv, times, oscillator_system))
+    #     result = as.data.frame(lsodes(iv, times, oscillator_system_derivatives))
     #
-    #     lattice::xyplot(position + velocity ~ time, type='l', auto=TRUE, data=result)
+    #     lattice::xyplot(
+    #         position + velocity ~ time,
+    #         type='l',
+    #         auto=TRUE,
+    #         data=result
+    #     )
     #
     # --------------------------------------------------------------------------
     #
     # Example 2: solving 100 hours of a soybean simulation. This will run very
     # slow compared to a regular call to run_biocro.
     #
-    #     soybean_system <- Gro_deriv(
+    #     soybean_system <- system_derivatives(
     #         soybean_initial_values,
     #         soybean_parameters,
     #         soybean_weather2002,
@@ -171,7 +172,7 @@ Gro_deriv <- function(
 
         # Call the C++ code that calculates a derivative
         derivs <- .Call(
-            R_Gro_deriv,
+            R_system_derivatives,
             temp_state,
             t,
             parameters,

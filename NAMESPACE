@@ -1,6 +1,6 @@
 useDynLib(BioCro,
 		  R_run_biocro,
-		  R_Gro_deriv,
+		  R_system_derivatives,
           R_module_info,
 		  R_evaluate_module,
 		  R_validate_dynamical_system_inputs,
@@ -18,7 +18,7 @@ export(run_biocro)
 
 export(partial_run_biocro)
 
-export(Gro_deriv)
+export(system_derivatives)
 
 export(module_info)
 
