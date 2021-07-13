@@ -119,8 +119,7 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
         direct_modules,
         differential_modules
     )
-    iv <- as.numeric(initial_values)
-    names(iv) <- names(initial_values)
+    iv <- unlist(initial_values)
     initial_derivative <- oscillator_system_derivative_fcn(iv, 0)
     expected_position_deriv <- initial_velocity
     expected_velocity_deriv <- -spring_constant * initial_position / mass
