@@ -45,7 +45,7 @@ std::unique_ptr<integrator> integrator_factory::create(
             rel_error_tolerance,
             abs_error_tolerance,
             max_steps);
-    } catch (std::out_of_range) {
+    } catch (std::out_of_range const&) {
         std::string message = std::string("\"") + integrator_name +
                               std::string("\"") +
                               std::string(" was given as a integrator name, ") +

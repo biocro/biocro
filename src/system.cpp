@@ -25,7 +25,7 @@ System::System(
 
     try {
         steady_state_module_names = get_evaluation_order(ss_module_names);
-    } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
+    } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> const& e) {
         throw std::logic_error("Cyclic dependencies should be caught in the validation routine.  We shouldn't ever get here.");
     }
 
