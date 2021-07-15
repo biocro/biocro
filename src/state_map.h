@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <algorithm>  // for std::sort
 
 /**
  * @brief `string_vector` serves as an alias for a type widely used to
@@ -41,7 +42,7 @@ struct bad_state_vector_map_index : std::out_of_range {
 using state_map = std::unordered_map<std::string, double>;
 
 /**
- * @brief Given a map, return a list of its keys.
+ * @brief Given a map, return a sorted list of its keys.
  *
  * @param map A map having keys of type `std::string`.
  *
@@ -59,6 +60,7 @@ string_vector keys(map_with_string_key_type const& map)
     for (auto const& it : map) {
         result.push_back(it.first);
     }
+    std::sort(result.begin(), result.end());
     return result;
 }
 
