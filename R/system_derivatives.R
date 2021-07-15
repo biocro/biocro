@@ -163,7 +163,7 @@ system_derivatives <- function(
         # already done it.
 
         # Convert the state into the proper format
-        temp_state <- initial_values;
+        temp_state <- list();
         for(i in seq_along(state)) {
             param_name = names(state[i])
             param_value = as.numeric(state[i])

@@ -113,14 +113,14 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     ## calculate the derivative corresponding to the initial conditions and
     ## compare against the expected values
     oscillator_system_derivative_fcn <- system_derivatives(
-        initial_values,
+        list(position=NA, velocity=NA),
         parameters,
         drivers,
         direct_modules,
         differential_modules
     )
     iv <- unlist(initial_values)
-    initial_derivative <- oscillator_system_derivative_fcn(iv, 0)
+    initial_derivative <- oscillator_system_derivative_fcn(0, iv, NULL)
     expected_position_deriv <- initial_velocity
     expected_velocity_deriv <- -spring_constant * initial_position / mass
     expect_equal(initial_derivative[[1]][['position']], expected_position_deriv, tolerance = expected_position_deriv * TOLERANCE_FACTOR)
