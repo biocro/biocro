@@ -23,7 +23,7 @@ system_derivatives <- function(
     # if "time" is not included, then "doy" and "hour" must be included.
     #
     # direct_module_names: a character vector or list specifying the names
-    # of direct modules to use in the system
+    # of direct modules to use in the system.
     #
     # differential_module_names: a character vector or list of differential
     # module names.

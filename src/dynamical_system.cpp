@@ -77,7 +77,7 @@ dynamical_system::dynamical_system(
     // Get vectors of "pointer pairs," i.e., a std::pair of pointers that point
     // to the same quantity in different `state_map` objects. These pairs allow
     // us to update the central quantity map when the differential modules are
-    // run or when the driver values are updated without needing to search
+    // run or when the driver values are updated, without needing to search
     // through the map keys.
     differential_quantity_ptr_pairs = get_pointer_pairs(
         differential_quantity_names,
