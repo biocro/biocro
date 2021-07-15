@@ -124,7 +124,6 @@ soybean_parameters = with(list(), {
     soil_reflectance                        0.2
     soil_transmission                       0.01
     specific_heat_of_air                    1010
-    stefan_boltzman                         5.67e-8
 
     # solar_zenith_angle module
     lat                                     40
@@ -135,7 +134,7 @@ soybean_parameters = with(list(), {
     atmospheric_scattering                  0.3
 
     # incident_shortwave_from_ground_par module
-    par_energy_fraction_of_sunlight         0.5
+    par_energy_fraction                     0.5
     par_energy_content                      0.235
 
     # ten_layer_canopy_properties module
@@ -144,13 +143,15 @@ soybean_parameters = with(list(), {
     kd                                      0.7         # Estimated from Campbell and Norman, An Introduction to Environmental Biophysics, 2nd Edition, Figure 15.4, pg 254
     heightf                                 3           # m^-1
     kpLN                                    0           # not used in Soybean-BioCro (see Note 1 at end of file)
+    leaf_reflectance                        0.2
+    leaf_transmittance                      0.2
     lnfun                                   0           # not used in Soybean-BioCro
 
     # ten_layer_c3_canopy module
     jmax                                    195         # Bernacchi et al. 2005 (https://doi.org/10.1007/s00425-004-1320-8), 2002 Seasonal average
     electrons_per_carboxylation             4.5         # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
     electrons_per_oxygenation               5.25        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
-    tpu_rate_max                            23
+    tpu_rate_max                            13          # Fitted value based on the A-Ci data measured at UIUC in 2019-08 by Delgrado (unpublished data)
     Rd                                      1.28        # Davey et al. 2004 (https://doi.org/10.1104/pp.103.030569), Table 3, cv Pana, co2 368 ppm
     Catm                                    372         # micromol / mol, CO2 level in 2002
     O2                                      210         # millimol / mol

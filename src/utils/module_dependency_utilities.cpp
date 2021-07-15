@@ -24,9 +24,9 @@ using boost::vertex_index;
 // type aliases
 
 /**
- *  Graph is the type of a directed Boost graph without multi-edges
- *  implemented as an adjacency list and having vertex name and vertex
- *  index properties.
+ *  @brief Graph is the type of a directed Boost graph without
+ *  multi-edges implemented as an adjacency list and having vertex
+ *  name and vertex index properties.
  */
 using Graph = boost::adjacency_list<
     boost::setS,      // the EdgeList type: don't allow multiedges
@@ -37,34 +37,38 @@ using Graph = boost::adjacency_list<
     >;
 
 /**
- *  module_name_map_t is the type for the map mapping Graph vertex
- *  descriptors to names.  In our case, these will be steady-state
- *  module names.
+ *  @brief module_name_map_t is the type for the map mapping Graph
+ *  vertex descriptors to names.
+ *
+ *  In our case, these will be steady-state module names.
  */
 using module_name_map_t = boost::property_map<Graph, boost::vertex_name_t>::type;
 
 /**
- *  index_map_t is the type for the map mapping Graph vertex
- *  descriptors to the vertex index.  (We wouldn't need this if we
- *  used vecS instead of listS for the VertexList adjacency_list
- *  template paramater.  But this allows us to use either.)
+ *  @brief index_map_t is the type for the map mapping Graph vertex
+ *  descriptors to the vertex index.
+ *
+ *  (We wouldn't need this if we used vecS instead of listS for the
+ *  VertexList adjacency_list template paramater.  But this allows us
+ *  to use either.)
  */
 using index_map_t = boost::property_map<Graph, boost::vertex_index_t>::type;
 
 /**
- *  Vertex is the type of the vertex used by Graph.
+ *  @brief Vertex is the type of the vertex used by Graph.
  */
 using Vertex = boost::graph_traits<Graph>::vertex_descriptor;
 
 /**
- *  vertex_list is a std::list containing Vertex objects.  Used for
- *  storing the module evaluation order.
+ *  @brief vertex_list is a std::list containing Vertex objects.
+ *
+ *  Used for storing the module evaluation order.
  */
 using vertex_list = std::list<Vertex>;
 
 /**
- * vertex_iterator is the type of an iterator that may be used to
- * iterate through any container of vertices from a graph of type
+ * @brief vertex_iterator is the type of an iterator that may be used
+ * to iterate through any container of vertices from a graph of type
  * Graph.
  */
 using vertex_iterator = boost::graph_traits<Graph>::vertex_iterator;
@@ -78,8 +82,8 @@ using vertex_iterator = boost::graph_traits<Graph>::vertex_iterator;
 // that are not used outside of this file.
 
 /**
- *  Returns a list (presented as a sorted vector of strings) of all inputs for
- *  the module having name module_name.
+ *  @brief Returns a list (presented as a sorted vector of strings) of
+ *  all inputs for the module having name module_name.
  *
  *  @param[in] module_name The name of a steady-state module.
  *
@@ -93,8 +97,8 @@ string_vector get_module_inputs(string module_name) {
 }
 
 /**
- *  Returns a list (presented as a sorted vector of strings) of all outputs for
- *  the module having name module_name.
+ *  @brief Returns a list (presented as a sorted vector of strings) of
+ *  all outputs for the module having name module_name.
  *
  *  @param[in] module_name The name of a steady-state module.
  *
@@ -109,10 +113,11 @@ string_vector get_module_outputs(string module_name) {
 
 
 /**
- *  Determines if the module named by m1 depends on the module named
- *  by m2, returning true if it does and false if not.  m1 depends on
- *  m2 if and only if some input of m1 corresponds to some output of
- *  m2.
+ *  @brief Determines if the module named by m1 depends on the module
+ *  named by m2, returning true if it does and false if not.
+ *
+ *  m1 depends on m2 if and only if some input of m1 corresponds to
+ *  some output of m2.
  *
  *  @param[in] m1 A steady-state module name.
  *  @param[in] m2 A steady-state module name.
@@ -138,10 +143,12 @@ bool depends_on(string m1, string m2) {
 }
 
 /**
- *  Creates and returns a graph that models the dependency structure
- *  of the steady-state modules listed in module_names.  There is a
- *  directed edge from the vertex for module A to the vertex for
- *  module B if A is depended upon by B, that is, if B depends on A.
+ *  @brief Creates and returns a graph that models the dependency
+ *  structure of the steady-state modules listed in module_names.
+ *
+ *  There is a directed edge from the vertex for module A to the
+ *  vertex for module B if A is depended upon by B, that is, if B
+ *  depends on A.
  *
  *  @param module_names A list (presented as a vector of strings) of
  *                      names of steady-state modules.
@@ -189,8 +196,10 @@ Graph get_dependency_graph(string_vector module_names) {
 }
 
 /**
- *  A class suitable to use as a visitor for detecting a cycle in a directed
- *  graph.  The code here was copied and adapted from the example at
+ *  @brief A class suitable to use as a visitor for detecting a cycle
+ *  in a directed graph.
+ *
+ *  The code here was copied and adapted from the example at
  *  https://www.boost.org/doc/libs/1_72_0/libs/graph/example/file_dependencies.cpp.
  */
 class cycle_detector : public boost::dfs_visitor<>
@@ -209,7 +218,8 @@ class cycle_detector : public boost::dfs_visitor<>
 };
 
 /**
- *  Given a directed graph g, return true if g has a cycle, false otherwise.
+ *  @brief Given a directed graph g, return true if g has a cycle,
+ *  false otherwise.
  *
  *  @param g A graph object of type Graph.
  *
@@ -226,9 +236,9 @@ bool has_cycle(Graph g) {
 }
 
 /**
- *  Given a list of steady-state module names (presented as a vector
- *  of strings), determine if the list can be put in a suitable order
- *  for evaluating the modules.
+ *  @brief Given a list of steady-state module names (presented as a
+ *  vector of strings), determine if the list can be put in a suitable
+ *  order for evaluating the modules.
  *
  *  @param module_names A list (presented as a vector of strings) of
  *                      names of steady-state modules.
@@ -244,8 +254,8 @@ bool has_cyclic_dependency(string_vector module_names) {
 }
 
 /**
- *  Determines whether the steady-state modules in `module_names`
- *  need to be reordered before evaluation.
+ *  @brief Determines whether the steady-state modules in
+ *  `module_names` need to be reordered before evaluation.
  *
  *  @param module_names A list (presented as a vector of strings) of
  *                      names of steady-state modules.
@@ -268,10 +278,10 @@ bool order_ok(string_vector module_names) {
 
 
 /**
- *  Given a directed acyclic graph g, return a ordered list of the
- *  vertices (presented as a vertex_list object) such that for each
- *  edge of the graph, the source vertex of the edge occurs in the
- *  list before the target vertex of the edge.
+ *  @brief Given a directed acyclic graph g, return a ordered list of
+ *  the vertices (presented as a vertex_list object) such that for
+ *  each edge of the graph, the source vertex of the edge occurs in
+ *  the list before the target vertex of the edge.
  *
  *  If g is not actually a directed acyclic graph, the function throws
  *  an exception of type
@@ -300,8 +310,8 @@ vertex_list get_topological_ordering(const Graph& g) {
 }
 
 /**
- *  Given a list of steady-state module names (presented as a vector
- *  of strings), return the same list in a suitable order for
+ *  @brief Given a list of steady-state module names (presented as a
+ *  vector of strings), return the same list in a suitable order for
  *  evaluating the modules.
  *
  *  If no such ordering exists (due to a cyclic dependency), the

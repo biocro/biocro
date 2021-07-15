@@ -108,6 +108,8 @@ willow_parameters = with(list(), {
     lat                            40
     LeafN                          2
     LeafN_0                        2
+    leaf_reflectance               0.2
+    leaf_transmittance             0.2
     lnb0                           -5
     lnb1                           18
     lnfun                          0
@@ -115,6 +117,8 @@ willow_parameters = with(list(), {
     mrc2                           0.03
     nlayers                        10
     O2                             210
+    par_energy_content             0.235
+    par_energy_fraction            0.5
     phi1                           0.01
     phi2                           10
     Rd                             1.1
@@ -134,7 +138,6 @@ willow_parameters = with(list(), {
     sowing_time                    0
     specific_heat_of_air           1010
     Sp_thermal_time_decay          0
-    stefan_boltzman                5.67e-8
     tbase                          0
     Tfrosthigh                     5
     Tfrostlow                      0

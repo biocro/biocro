@@ -20,7 +20,7 @@
  * Throughout the canopy, some calculated properties only vary across the layers
  * (such as air temperature), while others also depend on the leaf class (such
  * as incident photosynthetically active photon flux density). The names of
- * these output quantities are formed from a base name (e.g. `incident_par`), a
+ * these output quantities are formed from a base name (e.g. `incident_ppfd`), a
  * prefix that indicates the leaf class (e.g. `sunlit_`), and a suffix that
  * indicates the layer number (e.g. `_layer_0`).
  *
@@ -78,14 +78,21 @@ class multilayer_canopy_properties : public SteadyModule
           LeafN(get_input(input_quantities, "LeafN")),
           kpLN(get_input(input_quantities, "kpLN")),
           lnfun(get_input(input_quantities, "lnfun")),
+          par_energy_content(get_input(input_quantities, "par_energy_content")),
+          par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
+          leaf_transmittance(get_input(input_quantities, "leaf_transmittance")),
+          leaf_reflectance(get_input(input_quantities, "leaf_reflectance")),
 
           // Get pointers to output quantities
-          sunlit_incident_par_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_par")),
           sunlit_fraction_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_fraction")),
-          shaded_incident_par_ops(get_multilayer_op(output_quantities, nlayers, "shaded_incident_par")),
+          sunlit_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_incident_ppfd")),
+          sunlit_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "sunlit_absorbed_shortwave")),
           shaded_fraction_ops(get_multilayer_op(output_quantities, nlayers, "shaded_fraction")),
-          incident_scattered_par_ops(get_multilayer_op(output_quantities, nlayers, "incident_scattered_par")),
-          incident_average_par_ops(get_multilayer_op(output_quantities, nlayers, "incident_average_par")),
+          shaded_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "shaded_incident_ppfd")),
+          shaded_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "shaded_absorbed_shortwave")),
+          average_incident_ppfd_ops(get_multilayer_op(output_quantities, nlayers, "average_incident_ppfd")),
+          average_absorbed_shortwave_ops(get_multilayer_op(output_quantities, nlayers, "average_absorbed_shortwave")),
+          incident_ppfd_scattered_ops(get_multilayer_op(output_quantities, nlayers, "incident_ppfd_scattered")),
           height_ops(get_multilayer_op(output_quantities, nlayers, "height")),
           rh_ops(get_multilayer_op(output_quantities, nlayers, "rh")),
           windspeed_ops(get_multilayer_op(output_quantities, nlayers, "windspeed")),
@@ -111,14 +118,21 @@ class multilayer_canopy_properties : public SteadyModule
     double const& LeafN;
     double const& kpLN;
     double const& lnfun;
+    double const& par_energy_content;
+    double const& par_energy_fraction;
+    double const& leaf_transmittance;
+    double const& leaf_reflectance;
 
     // Pointers to output parameters
-    std::vector<double*> const sunlit_incident_par_ops;
     std::vector<double*> const sunlit_fraction_ops;
-    std::vector<double*> const shaded_incident_par_ops;
+    std::vector<double*> const sunlit_incident_ppfd_ops;
+    std::vector<double*> const sunlit_absorbed_shortwave_ops;
     std::vector<double*> const shaded_fraction_ops;
-    std::vector<double*> const incident_scattered_par_ops;
-    std::vector<double*> const incident_average_par_ops;
+    std::vector<double*> const shaded_incident_ppfd_ops;
+    std::vector<double*> const shaded_absorbed_shortwave_ops;
+    std::vector<double*> const average_incident_ppfd_ops;
+    std::vector<double*> const average_absorbed_shortwave_ops;
+    std::vector<double*> const incident_ppfd_scattered_ops;
     std::vector<double*> const height_ops;
     std::vector<double*> const rh_ops;
     std::vector<double*> const windspeed_ops;

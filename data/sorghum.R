@@ -108,6 +108,8 @@ sorghum_parameters = with(list(), {
     LeafN                       2
     LeafN_0                     2
     leafwidth                   0.04
+    leaf_reflectance            0.2
+    leaf_transmittance          0.2
     lnb0                        -5
     lnb1                        18
     lnfun                       0
@@ -126,6 +128,8 @@ sorghum_parameters = with(list(), {
     nRdb1                       0.1247
     nvmaxb0                     -16.25
     nvmaxb1                     0.6938
+    par_energy_content          0.235
+    par_energy_fraction         0.5
     phi1                        0.01
     phi2                        10
     Rd                          0.8
@@ -145,7 +149,6 @@ sorghum_parameters = with(list(), {
     sowing_time                 0
     specific_heat_of_air        1010
     Sp_thermal_time_decay       0
-    stefan_boltzman             5.67e-8
     tbase                       0
     theta                       0.83
     timestep                    1

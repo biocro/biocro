@@ -85,11 +85,15 @@ glycine_max_parameters = with(list(), {
     lat                                    40
     LeafN                                  2
     LeafN_0                                2
+    leaf_reflectance                       0.2
+    leaf_transmittance                     0.2
     lnb0                                   -5
     lnb1                                   18
     lnfun                                  0
     nlayers                                10
     O2                                     210
+    par_energy_content                     0.235
+    par_energy_fraction                    0.5
     phi1                                   0.01
     phi2                                   10
     rate_constant_grain                    3
@@ -116,7 +120,6 @@ glycine_max_parameters = with(list(), {
     sowing_time                            0
     specific_heat_of_air                   1010
     Sp_thermal_time_decay                  0
-    stefan_boltzman                        5.67e-8
     tbase                                  10
     theta                                  0.7
     timestep                               1
