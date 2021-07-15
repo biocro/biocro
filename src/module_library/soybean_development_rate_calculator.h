@@ -3,8 +3,8 @@
 
 #include "../modules.h"
 #include "../state_map.h"
-#include <cmath> // for log, pow
-#include <algorithm> // for max
+#include <cmath>      // for log, pow
+#include <algorithm>  // for max
 
 double photoFunc(double P, double Popt, double Pcrit);
 double tempFunc(double T, double Tmin, double Topt, double Tmax);
@@ -59,6 +59,8 @@ class soybean_development_rate_calculator : public SteadyModule
         : SteadyModule{"soybean_development_rate_calculator"},
 
           // Get references to input quantities
+          time{get_input(input_quantities, "time")},
+          sowing_time{get_input(input_quantities, "sowing_time")},
           maturity_group{get_input(input_quantities, "maturity_group")},
           DVI{get_input(input_quantities, "DVI")},
           day_length{get_input(input_quantities, "day_length")},
@@ -85,22 +87,24 @@ class soybean_development_rate_calculator : public SteadyModule
 
    private:
     // References to input quantities
-    const double& maturity_group;
-    const double& DVI;
-    const double& day_length;
-    const double& temp;
-    const double& Tbase_emr;
-    const double& TTemr_threshold;
-    const double& Rmax_emrV0;
-    const double& Tmin_emrV0;
-    const double& Topt_emrV0;
-    const double& Tmax_emrV0;
-    const double& Tmin_R0R1;
-    const double& Topt_R0R1;
-    const double& Tmax_R0R1;
-    const double& Tmin_R1R7;
-    const double& Topt_R1R7;
-    const double& Tmax_R1R7;
+    double const& time;
+    double const& sowing_time;
+    double const& maturity_group;
+    double const& DVI;
+    double const& day_length;
+    double const& temp;
+    double const& Tbase_emr;
+    double const& TTemr_threshold;
+    double const& Rmax_emrV0;
+    double const& Tmin_emrV0;
+    double const& Topt_emrV0;
+    double const& Tmax_emrV0;
+    double const& Tmin_R0R1;
+    double const& Topt_R0R1;
+    double const& Tmax_R0R1;
+    double const& Tmin_R1R7;
+    double const& Topt_R1R7;
+    double const& Tmax_R1R7;
 
     // Pointers to output quantities
     double* development_rate_per_hour_op;
@@ -112,6 +116,8 @@ class soybean_development_rate_calculator : public SteadyModule
 string_vector soybean_development_rate_calculator::get_inputs()
 {
     return {
+        "time",             // days
+        "sowing_time",      // days
         "maturity_group",   // dimensionless; maturity group of soybean cultivar
         "DVI",              // dimensionless; development index, see Osborne et al. 2015
         "day_length",       // hours
@@ -140,10 +146,12 @@ string_vector soybean_development_rate_calculator::get_outputs()
 
 void soybean_development_rate_calculator::do_operation() const
 {
-    double soybean_development_rate; // day^-1
+    double soybean_development_rate;  // day^-1
 
-
-    if (DVI < -1) {
+    if (time < sowing_time) {
+        // The seeds haven't been sown yet, so no development should occur
+        soybean_development_rate = 0;  // day^-1
+    } else if (DVI < -1) {
         // error, DVI out of bounds, this should never occur unless initial DVI
         // state is less than -1.
         soybean_development_rate = 0; // day^-1
