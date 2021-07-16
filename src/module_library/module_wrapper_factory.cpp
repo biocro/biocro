@@ -120,7 +120,7 @@ std::unique_ptr<module_wrapper_base> module_wrapper_factory::create(std::string 
 {
     try {
         return module_wrapper_factory::module_wrapper_creators.at(module_name)();
-    } catch (std::out_of_range) {
+    } catch (std::out_of_range const&) {
         std::string message = std::string("\"") + module_name +
                        std::string("\"") +
                        std::string(" was given as a module name, ") +

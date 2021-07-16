@@ -27,7 +27,7 @@ std::unique_ptr<se_solver> se_solver_factory::create(
 {
     try {
         return se_solver_factory::se_solver_creators.at(se_solver_name)(max_it);
-    } catch (std::out_of_range) {
+    } catch (std::out_of_range const&) {
         std::string message = std::string("\"") + se_solver_name +
                        std::string("\"") +
                        std::string(" was given as an se_solver name, ") +

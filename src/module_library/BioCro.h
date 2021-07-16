@@ -16,7 +16,7 @@ struct Can_Str CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
 		     double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Alpha,
 		     double Kparm, double beta, double Rd, double Catm, double b0,
 		     double b1, double Gs_min, double theta, double kd, double chil, double heightf,
-		     double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double upperT,
+		     double leafN, double kpLN, int lnfun, double upperT,
 		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq,
              double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
              int water_stress_approach, double absorptivity_par, double par_energy_content,
@@ -36,7 +36,7 @@ struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Tem
 double resp(double comp, double mrc, double temp);
 
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
-                     double wiltp, double phi1, double phi2, double soil_saturation_capacity, double soil_sand_content,
+                     double wiltp, double soil_saturation_capacity, double soil_sand_content,
                      double Ks, double air_entry, double b);
 
 
@@ -89,7 +89,7 @@ struct flow_str flow(double *SC, double CNratio, double A, double Lc, double Tm,
 double AbiotEff(double smoist, double stemp);
 
 struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH, double WindSpeed,
-        double LeafAreaIndex, double CanopyHeight, double stomatacond, double leafw, double specific_heat_of_air, int eteq);
+        double CanopyHeight, double stomatacond, double leafw, double specific_heat_of_air, int eteq);
 
 struct ET_Str c3EvapoTrans(double Itot, double Airtemperature, double RH, double WindSpeed, double CanopyHeight,
         double specific_heat_of_air, double stomtal_conductance);

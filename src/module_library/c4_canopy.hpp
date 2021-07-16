@@ -50,8 +50,6 @@ class c4_canopy : public SteadyModule
           heightf(get_input(input_quantities, "heightf")),
           LeafN(get_input(input_quantities, "LeafN")),
           kpLN(get_input(input_quantities, "kpLN")),
-          lnb0(get_input(input_quantities, "lnb0")),
-          lnb1(get_input(input_quantities, "lnb1")),
           lnfun(get_input(input_quantities, "lnfun")),
           upperT(get_input(input_quantities, "upperT")),
           lowerT(get_input(input_quantities, "lowerT")),
@@ -113,8 +111,6 @@ class c4_canopy : public SteadyModule
     double const& heightf;
     double const& LeafN;
     double const& kpLN;
-    double const& lnb0;
-    double const& lnb1;
     double const& lnfun;
     double const& upperT;
     double const& lowerT;
@@ -177,8 +173,6 @@ string_vector c4_canopy::get_inputs()
         "heightf",
         "LeafN",
         "kpLN",
-        "lnb0",
-        "lnb1",
         "lnfun",
         "upperT",
         "lowerT",
@@ -229,7 +223,7 @@ void c4_canopy::do_operation() const
     struct Can_Str can_result = CanAC(
         lai, doy, hour, solar, temp, rh, windspeed, lat, nlayers, vmax1, alpha1,
         kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, heightf,
-        LeafN, kpLN, lnb0, lnb1, lnfun, upperT, lowerT, nitroP, leafwidth,
+        LeafN, kpLN, lnfun, upperT, lowerT, nitroP, leafwidth,
         et_equation, StomataWS, specific_heat_of_air, atmospheric_pressure,
         water_stress_approach, absorptivity_par, par_energy_content,
         par_energy_fraction, leaf_transmittance, leaf_reflectance);

@@ -27,8 +27,6 @@ struct Can_Str CanAC(
     double heightf,
     double leafN,
     double kpLN,
-    double lnb0,
-    double lnb1,
     int lnfun,      // dimensionless switch
     double upperT,  // degrees C
     double lowerT,  // degrees C
@@ -122,7 +120,7 @@ struct Can_Str CanAC(
         struct ET_Str et_direct =
             EvapoTrans2(
                 j_dir, j_avg, temperature, relative_humidity, layer_wind_speed,
-                LAIc, CanHeight, direct_stomatal_conductance, leafwidth,
+                CanHeight, direct_stomatal_conductance, leafwidth,
                 specific_heat_of_air, eteq);
 
         double leaf_temperature_dir = temperature + et_direct.Deltat;  // degrees C
@@ -153,7 +151,7 @@ struct Can_Str CanAC(
         struct ET_Str et_diffuse =
             EvapoTrans2(
                 j_diff, j_avg, temperature, relative_humidity, layer_wind_speed,
-                LAIc, CanHeight, diffuse_stomatal_conductance, leafwidth,
+                CanHeight, diffuse_stomatal_conductance, leafwidth,
                 specific_heat_of_air, eteq);
 
         double leaf_temperature_diff = temperature + et_diffuse.Deltat;  // degrees C
