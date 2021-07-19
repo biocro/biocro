@@ -87,7 +87,6 @@ void ed_evapotrans2::do_operation() const
     const double airTemp = *temperature_air_ip;                                     // degrees C
     const double RH = *rh_ip;                                                       // dimensionless from Pa / Pa
     const double WindSpeed = *windspeed_ip;                                         // m / s
-    const double LeafAreaIndex = 0.0;                                               // dimensionless from m^2 / m^2 (not actually used by EvapoTrans2)
     const double CanopyHeight = 0.0;                                                // meters (not actually used by EvapoTrans2)
     const double stomatal_conductance = *conductance_stomatal_h2o_ip * 1e3;         // mmol / m^2 / s
     const double leaf_width = *leafwidth_ip;                                        // meter
@@ -102,7 +101,6 @@ void ed_evapotrans2::do_operation() const
         airTemp,
         RH,
         WindSpeed,
-        LeafAreaIndex,
         CanopyHeight,
         stomatal_conductance,
         leaf_width,

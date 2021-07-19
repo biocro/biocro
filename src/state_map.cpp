@@ -31,7 +31,7 @@ state_map at(const state_vector_map& vector_map,
             result.emplace(pair.first, pair.second.at(n));
         }
     }
-    catch (std::out_of_range) {
+    catch (std::out_of_range const&) {
         throw bad_state_vector_map_index(std::string{"Index "} +
                                          std::to_string(n) +
                                          " is out of range for vector_map.");

@@ -73,6 +73,7 @@ for (i in seq_along(parameter_lists)) {
             parameters$hydrDist = 0
             parameters$rfl = 0.2
             parameters$rsdf = 0.44
+            parameters$phi1 = 0.01
             initial_values$cws1 = 0.32
             initial_values$cws2 = 0.32
         })

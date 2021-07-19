@@ -10,7 +10,6 @@
 double eC4photoC(
     double QP,
     double TEMP,
-    double RH,
     double CA,
     double OA,
     double VCMAX,

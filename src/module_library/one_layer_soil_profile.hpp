@@ -19,8 +19,6 @@ class one_layer_soil_profile : public differential_module {
 			soil_depth_ip(get_ip(input_quantities, "soil_depth")),
 			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
 			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),
-			phi1_ip(get_ip(input_quantities, "phi1")),
-			phi2_ip(get_ip(input_quantities, "phi2")),
 			soil_saturation_capacity_ip(get_ip(input_quantities, "soil_saturation_capacity")),
 			soil_sand_content_ip(get_ip(input_quantities, "soil_sand_content")),
 			soil_saturated_conductivity_ip(get_ip(input_quantities, "soil_saturated_conductivity")),
@@ -40,8 +38,6 @@ class one_layer_soil_profile : public differential_module {
 		const double* soil_depth_ip;
 		const double* soil_field_capacity_ip;
 		const double* soil_wilting_point_ip;
-		const double* phi1_ip;
-		const double* phi2_ip;
 		const double* soil_saturation_capacity_ip;
 		const double* soil_sand_content_ip;
 		const double* soil_saturated_conductivity_ip;
@@ -62,8 +58,6 @@ string_vector one_layer_soil_profile::get_inputs() {
 		"soil_depth",
 		"soil_field_capacity",
 		"soil_wilting_point",
-		"phi1",
-		"phi2",
 		"soil_saturation_capacity",
 		"soil_sand_content",
 		"soil_saturated_conductivity",
@@ -85,7 +79,7 @@ void one_layer_soil_profile::do_operation() const {
 
 	// watstr(...) is located in AuxBioCro.cpp
 	struct ws_str WaterS = watstr(*precip_ip, TotEvap, *soil_water_content_ip, *soil_depth_ip, *soil_field_capacity_ip,
-					*soil_wilting_point_ip, *phi1_ip, *phi2_ip, *soil_saturation_capacity_ip, *soil_sand_content_ip,
+					*soil_wilting_point_ip, *soil_saturation_capacity_ip, *soil_sand_content_ip,
 					*soil_saturated_conductivity_ip, *soil_air_entry_ip, *soil_b_coefficient_ip);
 
 	// Update the output quantity list

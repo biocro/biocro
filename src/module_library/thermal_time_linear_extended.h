@@ -79,7 +79,9 @@ class thermal_time_linear_extended : public differential_module
         :  // Define basic module properties by passing its name to its parent class
           differential_module("thermal_time_linear_extended"),
 
-          // Get pointers to input quantities
+          // Get references to input quantities
+          time{get_input(input_quantities, "time")},
+          sowing_time{get_input(input_quantities, "sowing_time")},
           temp(get_input(input_quantities, "temp")),
           tbase(get_input(input_quantities, "tbase")),
           tupper(get_input(input_quantities, "tupper")),
@@ -93,6 +95,8 @@ class thermal_time_linear_extended : public differential_module
 
    private:
     // References to input quantities
+    double const& time;
+    double const& sowing_time;
     double const& temp;
     double const& tbase;
     double const& tupper;
@@ -107,9 +111,11 @@ class thermal_time_linear_extended : public differential_module
 string_vector thermal_time_linear_extended::get_inputs()
 {
     return {
-        "temp",   // degrees C
-        "tbase",  // degrees C
-        "tupper"    // degrees C
+        "time",         // days
+        "sowing_time",  // days
+        "temp",         // degrees C
+        "tbase",        // degrees C
+        "tupper"        // degrees C
     };
 }
 
@@ -123,9 +129,10 @@ string_vector thermal_time_linear_extended::get_outputs()
 void thermal_time_linear_extended::do_operation() const
 {
     // Find the rate of change on a daily basis
-    double const rate_per_day = temp <= tbase  ? 0.0
-                              : temp <= tupper ? temp - tbase
-                              :                  tupper - tbase;  // degrees C
+    double const rate_per_day = time < sowing_time ? 0.0
+                                : temp <= tbase    ? 0.0
+                                : temp <= tupper   ? temp - tbase
+                                                   : tupper - tbase;  // degrees C
 
     // Convert to an hourly rate
     double const rate_per_hour = rate_per_day / 24.0;  // degrees C * day / hr

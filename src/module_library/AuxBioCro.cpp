@@ -597,7 +597,6 @@ struct ET_Str EvapoTrans2(
     const double airTemp,                          // degrees C
     const double RH,                               // dimensionless from Pa / Pa
     double WindSpeed,                              // m / s
-    const double LeafAreaIndex,                    // dimensionless from m^2 / m^2
     double CanopyHeight,                           // meters
     const double stomatal_conductance,             // mmol / m^2 / s
     const double leaf_width,                       // meter
@@ -916,7 +915,7 @@ double compute_wsPhoto(int wsFun, double fieldc, double wiltp, double phi1, doub
    for now, with a very simple empirical approach. */
 
 struct ws_str watstr(double precipit, double evapo, double cws, double soildepth, double fieldc,
-                     double wiltp, double phi1, double phi2, double soil_saturation_capacity, double sand,
+                     double wiltp, double soil_saturation_capacity, double sand,
                      double Ks, double air_entry, double b)
 {
     constexpr double g = 9.8; // m / s^2  ##  http://en.wikipedia.org/wiki/Standard_gravity

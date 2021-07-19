@@ -58,11 +58,10 @@ void c4_leaf_photosynthesis::do_operation() const
             .Gs;  // mmol / m^2 / s
 
     // Calculate a new value for leaf temperature
-    double constexpr LAI = 0.0;  // EvapoTrans2 does not actually use LAI for anything
     const struct ET_Str et =
         EvapoTrans2(
             average_absorbed_shortwave, absorbed_shortwave, temp, rh, windspeed,
-            LAI, height, initial_stomatal_conductance, leafwidth,
+            height, initial_stomatal_conductance, leafwidth,
             specific_heat_of_air, et_equation);
 
     const double leaf_temperature = temp + et.Deltat;  // deg. C
