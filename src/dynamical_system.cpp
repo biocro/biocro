@@ -34,7 +34,7 @@ dynamical_system::dynamical_system(
 
     try {
         direct_module_names = get_evaluation_order(dir_module_names);
-    } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> e) {
+    } catch (boost::exception_detail::clone_impl<boost::exception_detail::error_info_injector<boost::not_a_dag>> const& e) {
         throw std::logic_error(
             string("Cyclic dependencies should be caught in the validation ") +
             string("routine.  We shouldn't ever get here."));
