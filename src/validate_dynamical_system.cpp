@@ -516,15 +516,15 @@ string_vector find_euler_requirements(std::vector<string_vector> module_name_vec
     }
 
     // Instantiate each module and check its characterization
-    string_vector euler_requirement_modules;
+    string_vector euler_requiring_modules;
     module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
     for (std::unique_ptr<module_base>& m : modules) {
         if (m->requires_euler_integrator()) {
-            euler_requirement_modules.push_back(m->get_name());
+            euler_requiring_modules.push_back(m->get_name());
         }
     }
 
-    return euler_requirement_modules;
+    return euler_requiring_modules;
 }
 
 /**

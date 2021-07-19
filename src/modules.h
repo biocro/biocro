@@ -98,8 +98,11 @@ class direct_module : public module_base
 inline direct_module::~direct_module() {}
 
 /**
- *  @brief The output parameters of a direct module are unique, so we can
- *  just overwrite the previously stored value.
+ *  @brief In a valid `dynamical_system` object, the output quantities of a
+ *         a direct module are all unique, so we can just overwrite the
+ *         previously stored values.
+ *
+ *  See `differential_module::update()` for a contrasting situation.
  */
 inline void direct_module::update(double* output_ptr, const double& value) const
 {
@@ -135,9 +138,13 @@ class differential_module : public module_base
 inline differential_module::~differential_module() {}
 
 /**
- *  @brief Differential modules calculate terms of a derivative and it is possible
- *  for one derivative to be determined by multiple modules; for this reason,
- *  the outputs should be added to the previously stored value.
+ *  @brief The outputs of a differential module represent additive terms in the
+ *         derivatives of its output quantities, and, in a valid
+ *         `dynamical_system` object, it is possible for one derivative to be
+ *         determined by more than one module; for this reason, the output
+ *         values should be added to the previously stored values.
+ *
+ *  See `direct_module::update()` for a contrasting situation.
  */
 inline void differential_module::update(double* output_ptr, const double& value) const
 {

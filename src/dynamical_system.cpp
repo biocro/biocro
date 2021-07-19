@@ -45,10 +45,10 @@ dynamical_system::dynamical_system(
         vector<state_map>{init_values, params, at(drivers, 0)},
         vector<string_vector>{direct_module_names});
 
-    // Make a map to store the output of differential modules (i.e., the
-    // differential quantities), which should correspond to the quantities in
-    // the "initial values" input.
-    differential_quantities = init_values;
+    // Make a map to store the output of differential modules (i.e., derivatives
+    // of the differential quantities), which should correspond to the
+    // quantities in the "initial values" input.
+    differential_quantity_derivatives = init_values;
 
     // Instantiate the modules. Differential modules should not modify the main
     // quantity map since their output represents derivatives of quantity values
@@ -62,7 +62,7 @@ dynamical_system::dynamical_system(
     differential_modules = get_module_vector(
         vector<string_vector>{differential_module_names},
         all_quantities,
-        &differential_quantities);
+        &differential_quantity_derivatives);
 
     // Make lists of subsets of the quantities that comprise the state: the
     // quantities that follow direct evolution rules, the quantities that follow
@@ -82,7 +82,7 @@ dynamical_system::dynamical_system(
     differential_quantity_ptr_pairs = get_pointer_pairs(
         differential_quantity_names,
         all_quantities,
-        differential_quantities);
+        differential_quantity_derivatives);
 
     driver_quantity_ptr_pairs = get_pointer_pairs(
         driver_quantity_names,
@@ -109,10 +109,10 @@ void dynamical_system::reset()
 }
 
 /**
- *  @brief Gets values from the drivers at the input time (double)
- *
  *  @brief Updates values of the drivers in the internally stored quantity map
- *         based on time expressed as a continuous time index (i.e. double)
+ *         to match their values in the internally stored drivers table at time
+ *         `time_index`; values of the drivers at non-integer values of
+ *         `time_index` are determined using linear interpolation.
  */
 void dynamical_system::update_drivers(double time_indx)
 {

@@ -82,7 +82,7 @@ class dynamical_system
 
     // Quantity maps defined during construction
     state_map all_quantities;
-    state_map differential_quantities;
+    state_map differential_quantity_derivatives;
 
     // Module lists defined during construction
     module_vector direct_modules;
@@ -170,7 +170,9 @@ void dynamical_system::calculate_derivative(const vector_type& x, vector_type& d
 
 /**
  *  @brief Updates values of the drivers in the internally stored quantity map
- *         based on time expressed as a discrete time index (e.g. int or size_t)
+ *         to match their values in the internally stored drivers table at time
+ *         `time_index`, which should be a discrete index such as an `int` or
+ *         `size_t`.
  */
 template <typename time_type>
 void dynamical_system::update_drivers(time_type time_indx)
@@ -202,8 +204,8 @@ void dynamical_system::update_differential_quantities(vector_type const& new_val
 template <class vector_type>
 void dynamical_system::run_differential_modules(vector_type& dxdt)
 {
-    // Reset the differential quantities
-    for (auto& x : differential_quantities) {
+    // Reset the derivatives of the differential quantities
+    for (auto& x : differential_quantity_derivatives) {
         x.second = 0.0;
     }
 
