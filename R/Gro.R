@@ -108,11 +108,14 @@ Gro_deriv <- function(
     #     derivs <- soybean_system(0, iv, NULL)
     #     View(derivs)
 
-    # Check to make sure the initial values are properly defined
-    if (!is.list(initial_values)) {
-        stop('"initial_values" must be a list')
+    # Check that quantity definitions are lists.
+    for (i in list(initial_values=initial_values, parameters=parameters, drivers=driver)) {
+        if (!is.list(i)) {
+            stop('"', paste0(name(i), '" must be a list'))
+        }
     }
 
+    # Check to make sure the initial values are properly defined
     if (length(initial_values) != length(unlist(initial_values))) {
         item_lengths = unlist(lapply(initial_values, length))
         error_message = sprintf("The following initial_values members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
@@ -120,19 +123,10 @@ Gro_deriv <- function(
     }
 
     # Check to make sure the parameters are properly defined
-    if (!is.list(parameters)) {
-        stop('"parameters" must be a list')
-    }
-
     if (length(parameters) != length(unlist(parameters))) {
         item_lengths = unlist(lapply(parameters, length))
         error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
         stop(error_message)
-    }
-
-    # Check to make sure the drivers are properly defined
-    if (!is.list(drivers)) {
-        stop('"drivers" must be a list')
     }
 
     # If the drivers input doesn't have a time column, add one
