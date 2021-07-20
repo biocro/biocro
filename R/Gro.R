@@ -108,20 +108,30 @@ Gro_deriv <- function(
     #     derivs <- soybean_system(0, iv, NULL)
     #     View(derivs)
 
+    error_messages = character()
+
     # Check that quantity definitions are lists.
-    for (i in list(initial_values=initial_values, parameters=parameters, drivers=driver)) {
-        if (!is.list(i)) {
-            stop('"', paste0(name(i), '" must be a list'))
+    args_to_check=list(initial_values=initial_values, parameters=parameters, drivers=drivers)
+    for (i in seq_along(args_to_check)) {
+        arg = args_to_check[[i]]
+        if (!is.list(arg)) {
+            error_messages = append(error_message, sprintf('"%s" must be a list.', names(args_to_check)[i]))
         }
     }
 
     # Check to make sure the initial values and parameters are properly defined
-    for (i in list(initial_values=initial_values, parameters=parameters)) {
-        if (length(i) != length(unlist(i))) {
-            item_lengths = unlist(lapply(i, length))
-            error_message = sprintf("The following %s members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", name(i), paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-            stop(error_message)
+    args_to_check=list(initial_values=initial_values, parameters=parameters)
+    for (i in seq_along(args_to_check)) {
+        arg = args_to_check[[i]]
+        if (length(arg) != length(unlist(arg))) {
+            item_lengths = unlist(lapply(arg, length))
+            message = sprintf("The following %s members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", names(args_to_check)[i], paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+            error_messages = append(error_messages, message)
         }
+    }
+
+    if (length(error_messages) > 0) {
+        stop(paste(error_messages, collapse=' '))
     }
 
     # If the drivers input doesn't have a time column, add one

@@ -128,31 +128,30 @@ run_biocro <- function(
     # are compatible with adapative step size integration methods. In this case,
     # it uses the `boost_rosenbrock` integrator to run the simulation.
 
-    # Check to make sure the initial values are properly defined
-    if (!is.list(initial_values)) {
-        stop('"initial_values" must be a list')
+    error_messages = character()
+
+    # Check that quantity definitions are lists.
+    args_to_check=list(initial_values=initial_values, parameters=parameters, drivers=drivers)
+    for (i in seq_along(args_to_check)) {
+        arg = args_to_check[[i]]
+        if (!is.list(arg)) {
+            error_messages = append(error_message, sprintf('"%s" must be a list.', names(args_to_check)[i]))
+        }
     }
 
-    if (length(initial_values) != length(unlist(initial_values))) {
-        item_lengths = unlist(lapply(initial_values, length))
-        error_message = sprintf("The following initial_values members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-        stop(error_message)
+    # Check to make sure the initial values and parameters are properly defined
+    args_to_check=list(initial_values=initial_values, parameters=parameters)
+    for (i in seq_along(args_to_check)) {
+        arg = args_to_check[[i]]
+        if (length(arg) != length(unlist(arg))) {
+            item_lengths = unlist(lapply(arg, length))
+            message = sprintf("The following %s members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", names(args_to_check)[i], paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+            error_messages = append(error_messages, message)
+        }
     }
 
-    # Check to make sure the parameters are properly defined
-    if (!is.list(parameters)) {
-        stop('"parameters" must be a list')
-    }
-
-    if (length(parameters) != length(unlist(parameters))) {
-        item_lengths = unlist(lapply(parameters, length))
-        error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-        stop(error_message)
-    }
-
-    # Check to make sure the drivers are properly defined
-    if (!is.list(drivers)) {
-        stop('"drivers" must be a list')
+    if (length(error_messages) > 0) {
+        stop(paste(error_messages, collapse='  '))
     }
 
     # If the drivers input doesn't have a time column, add one
