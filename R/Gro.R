@@ -115,18 +115,13 @@ Gro_deriv <- function(
         }
     }
 
-    # Check to make sure the initial values are properly defined
-    if (length(initial_values) != length(unlist(initial_values))) {
-        item_lengths = unlist(lapply(initial_values, length))
-        error_message = sprintf("The following initial_values members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-        stop(error_message)
-    }
-
-    # Check to make sure the parameters are properly defined
-    if (length(parameters) != length(unlist(parameters))) {
-        item_lengths = unlist(lapply(parameters, length))
-        error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-        stop(error_message)
+    # Check to make sure the initial values and parameters are properly defined
+    for (i in list(initial_values=initial_values, parameters=parameters)) {
+        if (length(i) != length(unlist(i))) {
+            item_lengths = unlist(lapply(i, length))
+            error_message = sprintf("The following %s members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", name(i), paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
+            stop(error_message)
+        }
     }
 
     # If the drivers input doesn't have a time column, add one
