@@ -130,23 +130,24 @@ Gro_deriv <- function(
         }
     }
 
-    if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse=' '))
-    }
-
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
     # Check to make sure the module names are vectors or lists of strings
     steady_state_module_names <- unlist(steady_state_module_names)
     if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
-        stop('"steady_state_module_names" must be a vector or list of strings')
+        error_messages = append(error_messages, '"steady_state_module_names" must be a vector or list of strings')
     }
 
     derivative_module_names <- unlist(derivative_module_names)
     if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
-        stop('"derivative_module_names" must be a vector or list of strings')
+        error_messages = append(error_messages, '"derivative_module_names" must be a vector or list of strings')
     }
+
+    if (length(error_messages) > 0) {
+        stop(paste(error_messages, collapse=' '))
+    }
+
 
     # C++ requires that all the variables have type `double`
     initial_values = lapply(initial_values, as.numeric)

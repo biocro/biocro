@@ -150,33 +150,35 @@ run_biocro <- function(
         }
     }
 
-    if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse='  '))
-    }
-
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
     # Check to make sure the module names are vectors or lists of strings
     steady_state_module_names <- unlist(steady_state_module_names)
     if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
-        stop('"steady_state_module_names" must be a vector or list of strings')
+        error_messages = append(error_messages, '"steady_state_module_names" must be a vector or list of strings.\n')
     }
 
     derivative_module_names <- unlist(derivative_module_names)
     if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
-        stop('"derivative_module_names" must be a vector or list of strings')
+        error_messages = append(error_messages, '"derivative_module_names" must be a vector or list of strings.\n')
     }
 
     # Check to make sure the numerical integrator properties are properly
     # defined
     if (!is.list(integrator)) {
-        stop("'integrator' must be a list")
+        error_messages = append(error_messages, "'integrator' must be a list.\n")
+    } else {
+        integrator_type <- integrator$type
+        if (!is.character(integrator_type) & length(integrator_type) != 1) {
+            error_messages = append(error_messages, '"integrator_type" must be a string.\n')
+        }
     }
-    integrator_type <- integrator$type
-    if (!is.character(integrator_type) & length(integrator_type) != 1) {
-        stop('"integrator_type" must be a string')
+
+    if (length(error_messages) > 0) {
+        stop(paste(error_messages, collapse='  '))
     }
+
     integrator_output_step_size <- integrator$output_step_size
     integrator_adaptive_rel_error_tol <- integrator$adaptive_rel_error_tol
     integrator_adaptive_abs_error_tol <- integrator$adaptive_abs_error_tol
