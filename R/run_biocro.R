@@ -128,57 +128,28 @@ run_biocro <- function(
     # are compatible with adapative step size integration methods. In this case,
     # it uses the `boost_rosenbrock` integrator to run the simulation.
 
-    error_messages = character()
-
-    # Check that quantity definitions are lists.
-    args_to_check=list(initial_values=initial_values, parameters=parameters, drivers=drivers)
-    for (i in seq_along(args_to_check)) {
-        arg = args_to_check[[i]]
-        if (!is.list(arg)) {
-            error_messages = append(error_message, sprintf('"%s" must be a list.', names(args_to_check)[i]))
-        }
-    }
-
-    # Check to make sure the initial values and parameters are properly defined
-    args_to_check=list(initial_values=initial_values, parameters=parameters)
-    for (i in seq_along(args_to_check)) {
-        arg = args_to_check[[i]]
-        if (length(arg) != length(unlist(arg))) {
-            item_lengths = unlist(lapply(arg, length))
-            message = sprintf("The following %s members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", names(args_to_check)[i], paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-            error_messages = append(error_messages, message)
-        }
-    }
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
-
-    # Check to make sure the module names are vectors or lists of strings
-    steady_state_module_names <- unlist(steady_state_module_names)
-    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
-        error_messages = append(error_messages, '"steady_state_module_names" must be a vector or list of strings.\n')
-    }
-
-    derivative_module_names <- unlist(derivative_module_names)
-    if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
-        error_messages = append(error_messages, '"derivative_module_names" must be a vector or list of strings.\n')
-    }
-
-    # Check to make sure the numerical integrator properties are properly
-    # defined
-    if (!is.list(integrator)) {
-        error_messages = append(error_messages, "'integrator' must be a list.\n")
-    } else {
-        integrator_type <- integrator$type
-        if (!is.character(integrator_type) & length(integrator_type) != 1) {
-            error_messages = append(error_messages, '"integrator_type" must be a string.\n')
-        }
-    }
+    error_messages = check_run_biocro_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        steady_state_module_names,
+        derivative_module_names,
+        integrator
+    )
 
     if (length(error_messages) > 0) {
         stop(paste(error_messages, collapse='  '))
     }
 
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
+    # Make sure the module names are vectors of strings
+    steady_state_module_names <- unlist(steady_state_module_names)
+    derivative_module_names <- unlist(derivative_module_names)
+
+    # Collect the integrator info
+    integrator_type <- integrator$type
     integrator_output_step_size <- integrator$output_step_size
     integrator_adaptive_rel_error_tol <- integrator$adaptive_rel_error_tol
     integrator_adaptive_abs_error_tol <- integrator$adaptive_abs_error_tol
@@ -273,6 +244,19 @@ partial_run_biocro <- function(
     #     )
     #
     #     result = senescence_simulation(c(2000, 2000, 2000, 2000))
+
+    error_messages = check_run_biocro_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        steady_state_module_names,
+        derivative_module_names,
+        integrator
+    )
+
+    if (length(error_messages) > 0) {
+        stop(paste(error_messages, collapse='  '))
+    }
 
     arg_list = list(
         initial_values=initial_values,

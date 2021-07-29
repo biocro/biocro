@@ -108,46 +108,24 @@ Gro_deriv <- function(
     #     derivs <- soybean_system(0, iv, NULL)
     #     View(derivs)
 
-    error_messages = character()
-
-    # Check that quantity definitions are lists.
-    args_to_check=list(initial_values=initial_values, parameters=parameters, drivers=drivers)
-    for (i in seq_along(args_to_check)) {
-        arg = args_to_check[[i]]
-        if (!is.list(arg)) {
-            error_messages = append(error_message, sprintf('"%s" must be a list.', names(args_to_check)[i]))
-        }
-    }
-
-    # Check to make sure the initial values and parameters are properly defined
-    args_to_check=list(initial_values=initial_values, parameters=parameters)
-    for (i in seq_along(args_to_check)) {
-        arg = args_to_check[[i]]
-        if (length(arg) != length(unlist(arg))) {
-            item_lengths = unlist(lapply(arg, length))
-            message = sprintf("The following %s members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", names(args_to_check)[i], paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-            error_messages = append(error_messages, message)
-        }
-    }
-
-    # If the drivers input doesn't have a time column, add one
-    drivers <- add_time_to_weather_data(drivers)
-
-    # Check to make sure the module names are vectors or lists of strings
-    steady_state_module_names <- unlist(steady_state_module_names)
-    if (length(steady_state_module_names) > 0 & !is.character(steady_state_module_names)) {
-        error_messages = append(error_messages, '"steady_state_module_names" must be a vector or list of strings')
-    }
-
-    derivative_module_names <- unlist(derivative_module_names)
-    if (length(derivative_module_names) > 0 & !is.character(derivative_module_names)) {
-        error_messages = append(error_messages, '"derivative_module_names" must be a vector or list of strings')
-    }
+    error_messages = check_Gro_deriv_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        steady_state_module_names,
+        derivative_module_names
+    )
 
     if (length(error_messages) > 0) {
         stop(paste(error_messages, collapse=' '))
     }
 
+    # If the drivers input doesn't have a time column, add one
+    drivers <- add_time_to_weather_data(drivers)
+
+    # Make sure the module names are vectors of strings
+    steady_state_module_names <- unlist(steady_state_module_names)
+    derivative_module_names <- unlist(derivative_module_names)
 
     # C++ requires that all the variables have type `double`
     initial_values = lapply(initial_values, as.numeric)
