@@ -117,7 +117,7 @@ struct c3_str c3photoC(
        that. Here we calculate the value of that equation at 25 degrees C, then
        divide `TPU_rate_scaler` by that value to get a rate relative to 25
        degrees C. */
-    const double TPU_rate_scaler25 = 306.7509;  // dimensionless. This is `top / bottom` at 25 degrees C.
+    const double TPU_rate_scaler25 = 306.742;  // dimensionless. This is `top / bottom` at 25 degrees C.
     TPU_rate_scaler /= TPU_rate_scaler25;       // dimensionless. Normalize to 25 degrees C.
 
     /* The alpha constant for calculating Ap is from
