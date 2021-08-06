@@ -526,6 +526,13 @@ void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafN_pr
 }
 
 double TempToDdryA(
+/**
+ * This function appears to be derived from fitting a linear equation to the
+ * values of `rho` in Table 14.3 on pg. 408 in Thornley and Johnson (1990).
+ *
+ * Thornley, J.H.M. and Johnson, I.R. (1990) Plant and Crop Modelling. A
+ * Mathematical Approach to Plant and Crop Physiology.
+ */
         double air_temperature)  // degrees C
 {
     return 1.295163636 + -0.004258182 * air_temperature;  // kg / m^3
@@ -544,6 +551,12 @@ double dry_air_density(
 
 double TempToLHV(
 /*! Calculate latent heat of vaporization from air temperature.
+ *
+ * This function appears to be derived from fitting a linear equation to the
+ * values of `lambda` in Table 14.3 on pg. 408 in Thornley and Johnson (1990).
+ *
+ * Thornley, J.H.M. and Johnson, I.R. (1990) Plant and Crop Modelling. A
+ * Mathematical Approach to Plant and Crop Physiology.
  */
         double air_temperature)  // degrees C
 {
@@ -552,7 +565,8 @@ double TempToLHV(
 
 double water_latent_heat_of_vaporization_henderson(
 /*! Calculate the latent heat of vaporization of water from temperature.
- * B. Henderson-Sellers. 1984. Quarterly journal of royal meterological society. 110(446): 1186-1190. DOI: 10.1002/qj.49711046626.
+ * B. Henderson-Sellers. 1984. Quarterly journal of royal meterological society.
+ * 110(446): 1186-1190. DOI: 10.1002/qj.49711046626.
  * Equation 8.
  */
         double temperature)  // kelvin
@@ -561,9 +575,18 @@ double water_latent_heat_of_vaporization_henderson(
 }
 
 double TempToSFS(
+/**
+ * This function appears to be derived from fitting a quadratic function to the
+ * values of `s` in Table 14.3 on pg. 408 in Thornley and Johnson (1990)
+ *
+ * Thornley, J.H.M. and Johnson, I.R. (1990) Plant and Crop Modelling. A
+ * Mathematical Approach to Plant and Crop Physiology.
+ *
+ */
         double air_temperature)  // degrees C
 {
-    return (0.338376068 + 0.011435897 * air_temperature + 0.001111111 * pow(air_temperature, 2)) * 1e-3;  //  kg / m^3 / degree C
+    return (0.338376068 + 0.011435897 * air_temperature + 0.001111111 *
+            pow(air_temperature, 2)) * 1e-3;  //  kg / m^3 / degree C
 }
 
 /**
