@@ -586,7 +586,7 @@ double TempToSFS(
         double air_temperature)  // degrees C
 {
     return (0.338376068 + 0.011435897 * air_temperature + 0.001111111 *
-            pow(air_temperature, 2)) * 1e-3;  //  kg / m^3 / degree C
+            pow(air_temperature, 2)) * 1e-3;  //  kg / m^3 / degree K
 }
 
 /**
