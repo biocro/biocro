@@ -46,7 +46,7 @@ struct ET_Str c3EvapoTrans(
 
     const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
     const double LHV = TempToLHV(air_temperature);                   // J / kg
-    const double SlopeFS = TempToSFS(air_temperature);               // kg / m^3 / K. It is also kg / m^3 / degrees K since it's a change in temperature.
+    const double SlopeFS = TempToSFS(air_temperature);               // kg / m^3 / K
     const double SWVP = saturation_vapor_pressure(air_temperature);  // Pa
 
     // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the

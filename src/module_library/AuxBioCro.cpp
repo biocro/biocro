@@ -640,7 +640,7 @@ struct ET_Str EvapoTrans2(
 
     const double DdryA = TempToDdryA(airTemp);               // kg / m^3. Density of dry air.,
     const double LHV = TempToLHV(airTemp);                   // J / kg
-    const double SlopeFS = TempToSFS(airTemp);               // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double SlopeFS = TempToSFS(airTemp);               // kg / m^3 / K
     const double SWVP = saturation_vapor_pressure(airTemp);  // Pa.
 
     // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
