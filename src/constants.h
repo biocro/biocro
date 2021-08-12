@@ -62,6 +62,7 @@ constexpr double stefan_boltzmann = 5.670374419e-8;      // W / m^2 / K^4
 constexpr double ideal_gas_constant = 8.31446261815324;  // J / K / mol
 constexpr double molar_mass_of_water = 18.01528e-3;      // kg / mol
 constexpr double molar_mass_of_glucose = 180.156e-3;     // kg / mol
+constexpr double molar_mass_of_dry_air = 28.9647e-3;     // kg / mol (https://www.engineeringtoolbox.com/molecular-mass-air-d_679.html)
 
 constexpr double atmospheric_pressure_at_sea_level = 101325;  // Pa
 }  // namespace physical_constants

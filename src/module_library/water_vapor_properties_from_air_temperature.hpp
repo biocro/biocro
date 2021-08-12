@@ -97,7 +97,7 @@ void water_vapor_properties_from_air_temperature::do_operation() const
 
     // Update the output quantity list
     update(latent_heat_vaporization_of_water_op, latent_heat_vaporization_of_water);  // J / kg
-    update(slope_water_vapor_op, TempToSFS(temp));                                    // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    update(slope_water_vapor_op, TempToSFS(temp));                                    // kg / m^3 / K
     update(saturation_water_vapor_pressure_op, saturation_water_vapor_pressure);      // Pa
     update(water_vapor_pressure_op, saturation_water_vapor_pressure * rh);            // Pa
     update(vapor_density_deficit_op, vapor_density_deficit);                          // kg / m^3
