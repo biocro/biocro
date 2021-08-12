@@ -33,7 +33,7 @@ struct ET_Str c3EvapoTrans(
 {
     constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;           // meters
-    constexpr double dCoef = 0.77;    ,              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o. In the original text this value is reported as 0.64. In the 2000 reprinting of this text, the authors state that this value should be 0.77 (see Errata to the 2000 printing on the page after the preface of the 2000 Reprinting of the 1990 text).
+    constexpr double dCoef = 0.77;                  // dimensionless, Thornley and Johnson 1990, Eq. 14.9o. In the original text this value is reported as 0.64. In the 2000 reprinting of this text, the authors state that this value should be 0.77 (see Errata to the 2000 printing on the page after the preface of the 2000 Reprinting of the 1990 text).
     constexpr double ZetaCoef = 0.026;              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
     constexpr double ZetaMCoef = 0.13;              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
     const double Zeta = ZetaCoef * CanopyHeight;    // meters
