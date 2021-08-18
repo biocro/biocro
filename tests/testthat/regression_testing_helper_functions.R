@@ -108,11 +108,9 @@ PLANT_TESTING_INFO <- list(
     specify_crop("soybean",                soybean_initial_values,                soybean_parameters,                soybean_weather2002, soybean_steady_state_modules,                soybean_derivative_modules,                soybean_integrator,                SOYBEAN_IGNORE)                 # INDEX = 7
 )
 
-# Make a helping function that updates the stored data for one crop
-update_stored_results <- function(test_info) {
-
-    # Calculate the result
-    plant_result <- run_biocro(
+# Make a helping function that runs a simulation for one crop
+run_crop_simulation <- function(test_info) {
+    run_biocro(
         test_info[['initial_values']],
         test_info[['parameters']],
         test_info[['drivers']],
@@ -120,6 +118,38 @@ update_stored_results <- function(test_info) {
         test_info[['derivative_modules']],
         test_info[['integrator']]
     )
+}
+
+# Combine new and old results into one data frame for plotting purposes (this
+# will be useful when manually assessing the differences between a new and old
+# simulation). If the columns have changed between the new and old outputs, it's
+# possible to specify a vector of column names to include in the output.
+# (Otherwise, the call to rbind will fail).
+#
+# The output from this function is intended to be used in plotting commands like
+#
+# compare_crop_output <- compare_crop(PLANT_TESTING_INFO[[INDEX]])
+# xyplot(Leaf + Stem + Root, group = version, data = compare_crop_output)
+compare_crop <- function(test_info, columns_to_keep = NULL) {
+    new_result <- run_crop_simulation(test_info)
+    stored_result <- read.csv(test_info[['stored_result_file']])
+
+    if (!is.null(columns_to_keep)) {
+        new_result <- new_result[,columns_to_keep]
+        stored_result <- stored_result[,columns_to_keep]
+    }
+
+    new_result[['version']] <- "new"
+    stored_result[['version']] <- "stored"
+
+    return(rbind(new_result, stored_result))
+}
+
+# Make a helping function that updates the stored data for one crop
+update_stored_results <- function(test_info) {
+
+    # Calculate the result
+    plant_result <- run_crop_simulation(test_info)
 
     # Save it as a csv file
     write.csv(
