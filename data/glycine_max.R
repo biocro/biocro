@@ -16,7 +16,7 @@ glycine_max_derivative_modules <- list(
     "utilization_senescence",
     "utilization_growth",
     thermal_time = "thermal_time_linear",
-    soil_profile = "one_layer_soil_profile"
+    soil_profile = "two_layer_soil_profile"
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
@@ -32,6 +32,8 @@ glycine_max_integrator <- list(
 glycine_max_initial_values = with(list(), {
     datalines =
     "symbol                  value
+    cws1                     0.32
+    cws2                     0.32
     Grain                    0.0001
     Leaf                     0.06   # The total of Leaf, Stem and Root masses is 0.08, which comes from http://www.montana.edu/cpa/news/wwwpb-archives/ag/baudr182.html and https://www.extension.purdue.edu/extmedia/ay/ay-217-w.pdf.
     LeafLitter               0
@@ -73,6 +75,7 @@ glycine_max_parameters = with(list(), {
     growth_respiration_fraction            0
     Gs_min                                 1e-3
     heightf                                3
+    hydrDist                               0
     iSp                                    2.5
     jmax                                   213.2
     kd                                     0.1
@@ -94,7 +97,8 @@ glycine_max_parameters = with(list(), {
     O2                                     210
     par_energy_content                     0.235
     par_energy_fraction                    0.5
-    phi2                                   10
+    phi1                                   0.01
+    phi2                                   2
     rate_constant_grain                    3
     rate_constant_leaf                     0.5
     rate_constant_leaf_senescence          0.0025
@@ -110,9 +114,14 @@ glycine_max_parameters = with(list(), {
     resistance_stem_to_grain               8
     resistance_stem_to_rhizome             1
     resistance_stem_to_root                0.16
+    rfl                                    0.2
+    rsdf                                   0.44
     rsec                                   0.2
     soil_clod_size                         0.04
     soil_depth                             1
+    soil_depth1                            0.0
+    soil_depth2                            2.5
+    soil_depth3                            10.0
     soil_reflectance                       0.2
     soil_transmission                      0.01
     soil_type_indicator                    6
@@ -125,7 +134,8 @@ glycine_max_parameters = with(list(), {
     tpu_rate_max                           23
     vmax1                                  111.2
     vmax_n_intercept                       0
-    water_stress_approach                  1"
+    water_stress_approach                  1
+    wsFun                                  2"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)
