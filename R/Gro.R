@@ -117,7 +117,7 @@ Gro_deriv <- function(
     )
 
     if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse=' '))
+        stop(paste(error_messages, collapse='  '))
     }
 
     # If the drivers input doesn't have a time column, add one

@@ -23,7 +23,7 @@ final_position <- function(integrator)
             spring_constant = 1.0,
             timestep = 1.0
         ),
-        drivers = list(
+        drivers = data.frame(
             doy=rep(0, MAX_INDEX),
             hour=seq(from=0, by=1, length=MAX_INDEX)
         ),
