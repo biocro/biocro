@@ -144,15 +144,16 @@ vector<const double*> dynamical_system::get_quantity_access_ptrs(string_vector q
 }
 
 /**
- *  @brief Returns a vector of the names of all quantities that change
+ *  @brief Returns a vector of the names of all quantities that may change
  *         throughout a simulation
  *
  *  The quantities that change are:
  *
- *  - quantities that follow differential evolution rules, i.e., the
- *    differential quantities
+ *  - quantities whose derivatives are calculated by differential_modules, i.e.,
+ *    the differential quantities
  *
- *  - quantities that follow direct evolution rules, i.e., the direct quantities
+ *  - quantities whose instantaneous values are calculated by direct_modules,
+ *    i.e., the direct quantities
  *
  *  - the drivers
  *

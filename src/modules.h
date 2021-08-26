@@ -98,9 +98,10 @@ class direct_module : public module_base
 inline direct_module::~direct_module() {}
 
 /**
- *  @brief In a valid `dynamical_system` object, the output quantities of a
- *         a direct module are all unique, so we can just overwrite the
- *         previously stored values.
+ *  @brief In a valid `dynamical_system` object, a given quantity may defined by
+ *         only one direct module. Thus the value at `output_ptr` will only be
+ *         writable from a single module, and we can overwrite any previously
+ *         stored value.
  *
  *  See `differential_module::update()` for a contrasting situation.
  */

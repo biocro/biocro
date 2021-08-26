@@ -65,19 +65,26 @@ SEXP R_system_derivatives(
         // Create a dynamical system
         dynamical_system sys(iv, p, d, direct_names, differential_names);
 
-        // Get a vector of the values of the differential quantities
+        // Ask the system object for a vector of the current values of the
+        // differential quantities. The system hasn't been modified since its
+        // creation, so these will be the values from the input argument
+        // `differential_quantities`. This step is necessary to ensure they are
+        // arranged in the same order as expected by the system, since it may
+        // reorder them.
         vector<double> x;
         sys.get_differential_quantities(x);
 
-        // Get the differential quantity names in the correct order
+        // Get the differential quantity names in the order used by the system,
+        // which may in general be different than the original order of the
+        // quantities in the `differential_quantities` input.
         string_vector differential_quantity_names =
             sys.get_differential_quantity_names();
 
         // Make a vector to store the values of the derivatives of the
         // differential quantities
-        vector<double> dxdt = x;
+        vector<double> dxdt(x.size());
 
-        // Calculate the derivative
+        // Calculate the derivative (modifies dxdt)
         sys.calculate_derivative(x, dxdt, t);
 
         // Make the output map

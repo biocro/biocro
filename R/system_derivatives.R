@@ -10,9 +10,10 @@ system_derivatives <- function(
     # differential equation solver such as LSODES.
     #
     # initial_values: a list of named quantities representing the initial values
-    # of quantities that follow differential evolution rules. Note: the values
-    # of these parameters are not important and won't be used in this function,
-    # but their names are critical.
+    # of quantities that follow differential evolution rules, i.e., the
+    # differential quantities. Note: the values of these quantities are not
+    # important and won't be used in this function, but their names are
+    # critical.
     #
     # parameters: a list of named quantities that don't change with time. This
     # list should include a `timestep` element that specifies the time spacing
@@ -29,10 +30,13 @@ system_derivatives <- function(
     # module names.
     #
     # The return value of system_derivatives is a function with three inputs
-    # (`t`, `state`, and `param`) that returns derivatives for each of the
-    # differential quantities. These input parameters must have the same names
-    # as the quantities defined by `initial_values`. For the returned function,
-    # `state` must be a numeric vector with names, rather than a list.
+    # (`t`, `differential_quantities`, and `parms`) that returns derivatives for
+    # each of the differential quantities. This function signature and the
+    # requirements for its inputs are set by the LSODES function from the
+    # deSolve library. The `t` input should be a single time value and the
+    # `differential_quantities` input should be a vector with the same names as
+    # `initial_values`, i.e., the names of the differential quantities. `parms`
+    # is required by LSODES, but we don't use it for anything.
     #
     # --------------------------------------------------------------------------
     #
@@ -156,24 +160,24 @@ system_derivatives <- function(
     drivers = lapply(drivers, as.numeric)
 
     # Create a function that returns a derivative
-    function(t, state, parms)
+    function(t, differential_quantities, parms)
     {
         # Note: parms is required by LSODES but we aren't using it here. We
         # don't need to do any format checking here because LSODES will have
         # already done it.
 
-        # Convert the state into the proper format
-        temp_state <- list();
-        for(i in seq_along(state)) {
-            param_name = names(state[i])
-            param_value = as.numeric(state[i])
-            temp_state[param_name] = param_value
+        # Convert the differential_quantities into the proper format
+        temp_differential_quantities <- list();
+        for(i in seq_along(differential_quantities)) {
+            param_name = names(differential_quantities[i])
+            param_value = as.numeric(differential_quantities[i])
+            temp_differential_quantities[param_name] = param_value
         }
 
         # Call the C++ code that calculates a derivative
         derivs <- .Call(
             R_system_derivatives,
-            temp_state,
+            temp_differential_quantities,
             t,
             parameters,
             drivers,
@@ -181,8 +185,16 @@ system_derivatives <- function(
             differential_module_names
         )
 
-        # Return the result
-        result <- list(derivs)
-        return(result)
+        # LSODES requires the output from this function to be a list whose first
+        # element is a named vector of the derivatives in the same order as in
+        # the `differential_quantities` input. Right now `derivs` is a list, so
+        # we need to convert it to a properly ordered vector and wrap that
+        # vector in a list.
+        result <- numeric(length(differential_quantities))
+        for (i in seq_along(result)) {
+            result[i] <- derivs[[names(differential_quantities)[i]]]
+        }
+        names(result) <- names(differential_quantities)
+        return(list(result))
     }
 }

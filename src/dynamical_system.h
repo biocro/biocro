@@ -18,6 +18,124 @@ using std::vector;
  *  @class dynamical_system
  *
  *  @brief Defines a dynamical system which can be solved using an integrator.
+ *
+ *  A true dynamical system requires three elements:
+ *
+ *  - A state, which consists of one or more quantities; here we use the term
+ *    `quantity` to refer to an entity with a name and a numeric value;
+ *    likewise, the value of the state is determined by the values of each of
+ *    its constituent quantities.
+ *
+ *  - An independent quantity upon which the value of the state depends, which
+ *    is typically taken to be the time.
+ *
+ *  - An evolution rule which describes how to determine the value of the state
+ *    at a future time given its value at the current time.
+ *
+ *  This class almost, but not quite, represents a dynamical system. It does
+ *  define the following:
+ *
+ *  - The quantities that comprise the state. These are determined from the
+ *    parameters, drivers, direct modules, and initial state / differential
+ *    modules.
+ *
+ *  - The independent quantity. This is assumed to be `time`.
+ *
+ *  - The equations required to calculate the values of the parameters, drivers,
+ *    and direct quantities (which are all elements of the state), given values
+ *    of the differential quantities (another subset of the state) and the time.
+ *    The equations for the parameters are trivial. The equations for the
+ *    drivers are determined by interpolating the supplied discrete values. The
+ *    equations for the direct quantities are supplied by the direct modules.
+ *
+ *  - The equations required to calculate the derivatives of the differential
+ *    quantities, given the values of the state and the time. These equations
+ *    are supplied by the differential modules.
+ *
+ *  - The initial values of the differential quantities.
+ *
+ *  To fully define the evolution rule, it is also necessary to supply a
+ *  differential equation solver in addition to the equations mentioned above.
+ *  Such solvers are provided as another class: the `integrator`.
+ *
+ *  ----------------------------------------------------------------------------
+ *
+ *  One key property of this class is its private data member `all_quantities`.
+ *  This `state_map` represents the current state of a dynamical system, i.e.,
+ *  it specifies the names and values of all quantities that comprise the state.
+ *  When a `dynamical_system` object's direct modules are run, they read
+ *  quantity values from `all_quantities` and store calculated quantity values
+ *  in it; when a `dynamical_system` object's differential modules are run, they
+ *  also read quantity values from `all_quantities`. In that sense, it is a sort
+ *  of "central clearing house" for quantities. It is sometimes referred to as
+ *  the "internally stored quantity map" or "internally stored map." The
+ *  individual quantities that comprise `all_quantities` are sometimes are
+ *  referred to as "internally stored quantities," and their values may be
+ *  called "internally stored quantity values."
+ *
+ *  In addition to the `all_quantities` `state_map`, there is a separate private
+ *  data member for storing the outputs from the differential modules; this
+ *  `state_map` is called `differential_quantity_derivatives`. This member is
+ *  sometimes also referred to as the "internally stored map," where it should
+ *  be clear from context that derivatives of quantity values, rather than
+ *  quantity values themselves, are being referenced.
+ *
+ *  ----------------------------------------------------------------------------
+ *
+ *  Public methods are provided that allow access to the values or names of
+ *  subsets of `all_quantities` and `differential_quantity_derivatives`:
+ *
+ *  - `get_differential_quantities` returns the values of the differential
+ *    quantities, a subset of `all_quantities`
+ *
+ *  - `get_differential_quantity_names` returns the names of the differential
+ *    quantities, a subset of `all_quantities`
+ *
+ *  - `calculate_derivative` calculates the derivatives of each of the
+ *    differential quantities given values for the time and the differential
+ *    quantities
+ *
+ *  - `get_output_quantity_names` returns the names of all quantities that are
+ *    expected to change throughout a simulation, i.e., the drivers, direct
+ *    quantities, and differential quantities (but not the parameters)
+ *
+ *  - `get_quantity_access_ptrs` returns pointers to elements of all_quantities
+ *    that correspond to quantity names that are supplied as an input
+ *
+ *  - `update_all_quantities` determines the values of all state quantities from
+ *    input values of time and the differential quantities; this function
+ *    modifies `all_quantities` but has no return value
+ *
+ *  - `reset` returns all quantities to their initial values, as if the
+ *    `dynamical_system` object had just been created; this may be helpful if an
+ *    object is to be reused for multiple simulations; this function
+ *    modifies `all_quantities` but has no return value
+ *
+ *  When using a differential equation solver to determine the time evolution of
+ *  a dynamical system's state, it is typically necessary to treat the values of
+ *  the differential quantities as a vector where they take a particular order,
+ *  in contrast to our usual method of storing quantities in `state_map` objects
+ *  where their values are accessed via their names and do not have a defined
+ *  order. In this situation, the `get_differential_quantity_names` and
+ *  `get_differential_quantities` methods are essential, since they return the
+ *  names and values of the differential quantities in a defined order. When the
+ *  `calculate_derivative` method is called, the values of the differential
+ *  quantities are expected to be supplied in the same order defined by
+ *  `get_differential_quantity_names`, and the derivatives are also returned in
+ *  that order.
+ *
+ *  Once a time sequence of differential quantity values has been determined by
+ *  a solver, it is typically necessary to retrieve the values of all state
+ *  quantities that change during a simulation. This can be achieved using
+ *  additional public methods. First, the names of all such quantities can be
+ *  determined using the `get_output_quantity_names` method. Then, pointers to
+ *  the values of these quantities in the central map can be obtained using the
+ *  `get_quantity_access_ptrs` method. Finally, for each value of time and the
+ *  differential quantities, the `update_all_quantities` method can be called to
+ *  update `all_quantities`, and the access pointers can be used to retrieve the
+ *  updated values from `all_quantities`. Rather than explicitly calling these
+ *  methods, this procedure can be performed using the `get_results_from_system`
+ *  free function.
  */
 class dynamical_system
 {
