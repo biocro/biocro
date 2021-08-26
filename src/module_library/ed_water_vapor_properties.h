@@ -68,7 +68,7 @@ string_vector ed_water_vapor_properties::get_outputs()
 {
     return {
         "latent_heat_vaporization_of_water",  // J / kg
-        "slope_water_vapor",                  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+        "slope_water_vapor",                  // kg / m^3 / K
         "saturation_water_vapor_pressure",    // Pa
         "water_vapor_pressure",               // Pa
         "vapor_density_deficit",              // kg / m^3

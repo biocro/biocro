@@ -16,7 +16,7 @@ double tempFunc(double T, double Tmin, double Topt, double Tmax);
  *
  * This module is designed to be used with the `development_index` module.
  *
- * This module calculates soybean growth rate using photothermal functions
+ * This module calculates soybean development rate using photothermal functions
  * across 5 different stages.
  *
  * | Development index (DVI)          | Growth stages                          |
@@ -27,7 +27,7 @@ double tempFunc(double T, double Tmin, double Topt, double Tmax);
  * | \f$ 2/3 \le \text{DVI} < 1   \f$ |     R0 to R1 (flowering)               |
  * | \f$   1 \le \text{DVI}       \f$ |     R1 to R7 (maturity)                |
  *
- * The growth rate (\f$ r \f$) is calculated using accumulated thermal time for
+ * The development rate (\f$ r \f$) is calculated using accumulated thermal time for
  * the first stage from from sowing to VE. For the remaining stages after VE,
  * \f$ r \f$ is calculated using a subset of the photothermal functions from the
  *  SOYDEV model: \f$ r = R_{max} f_T f_P \f$ (Setiyono et al. 2007).

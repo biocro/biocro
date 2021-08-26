@@ -60,7 +60,7 @@ void c4_leaf_photosynthesis::do_operation() const
     // Calculate a new value for leaf temperature
     const struct ET_Str et =
         EvapoTrans2(
-            average_absorbed_shortwave, absorbed_shortwave, temp, rh, windspeed,
+            absorbed_shortwave, average_absorbed_shortwave, temp, rh, windspeed,
             height, initial_stomatal_conductance, leafwidth,
             specific_heat_of_air, et_equation);
 
