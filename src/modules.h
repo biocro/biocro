@@ -8,8 +8,7 @@
 /**
  *  @class module_base
  *
- *  @brief Represents one or more equations used to define the evolution rule
- *  for one or more quantities that comprise the state of a dynamical system
+ *  @brief Represents one or more equations
  *
  *  A module can be one of the following subtypes:
  *

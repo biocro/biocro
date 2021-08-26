@@ -20,63 +20,62 @@ run_biocro <- function(
     # numerical integrator
     #
     # initial_values: a list of named quantities representing the initial values
-    #                 of quantities that follow a differential evolution rule.
+    #     of the differential quantities, i.e., the quantities whose derivatives
+    #     are calculated by differential modules
     #
     # parameters: a list of named quantities that don't change with time; must
-    #             include a `timestep` parameter (see `drivers` for more info)
+    #     include a `timestep` parameter (see `drivers` for more info)
     #
     # drivers: a data frame of quantities defined at equally spaced time
-    #          intervals. The time interval should be specified as a quantity
-    #          called `timestep` having units of hours. The drivers must include
-    #          columns for either (1) `time` (in units of days) or (2) `doy` and
-    #          `hour`.
+    #     intervals. The time interval should be specified as a quantity called
+    #     `timestep` having units of hours. The drivers must include columns
+    #     for either (1) `time` (in units of days) or (2) `doy` and `hour`.
     #
     # direct_module_names: a character vector or list specifying the names
-    # of direct modules to use in the system
+    #     of direct modules to use in the system
     #
-    # differential_module_names: a character vector or list of differential module
-    #                          names
+    # differential_module_names: a character vector or list of differential
+    #     module names
     #
     # integrator: a list specifying details about the numerical integrator.
-    #             Elements are:
+    #     The required elements are:
     #
-    #             type: string specifying the numerical integrator to
-    #                   use. Options are:
+    #         type: string specifying the numerical integrator to use. Can be
+    #             one of the following:
     #
-    #                   "auto": automatically uses `boost_rosenbrock` if
-    #                           possible; uses `homemade_euler` otherwise
+    #                 "auto": automatically uses `boost_rosenbrock` if possible;
+    #                     uses `homemade_euler` otherwise
     #
-    #                   "homemade_euler": our own implementation of the fixed
-    #                                     step Euler method
+    #                 "homemade_euler": our own implementation of the fixed step
+    #                     Euler method
     #
-    #                   "boost_euler": the boost library version of the fixed
-    #                                  step Euler method
+    #                 "boost_euler": the boost library version of the fixed step
+    #                     Euler method
     #
-    #                   "boost_rosenbrock": adaptive step-size Rosenbrock method
-    #                                       (implicit method useful for stiff
-    #                                       systems)
+    #                 "boost_rosenbrock": adaptive step-size Rosenbrock method
+    #                     (implicit method useful for stiff systems)
     #
-    #                   "boost_rk4": fixed-step 4th order Runge-Kutta method
+    #                 "boost_rk4": fixed-step 4th order Runge-Kutta method
     #
-    #                   "boost_rkck54": adaptive step-size Runge-Kutta-Cash-Karp
-    #                                   method (5th order Runge-Kutta with 4th
-    #                                   order Cash-Karp error estimation)
+    #                 "boost_rkck54": adaptive step-size Runge-Kutta-Cash-Karp
+    #                     method (5th order Runge-Kutta with 4th order Cash-Karp
+    #                     error estimation)
     #
-    #             output_step_size: the output step size. If smaller than 1, it
-    #                               should equal 1.0 / N for some integer N. If
-    #                               larger than 1, it should be integer.
+    #         output_step_size: the output step size. If smaller than 1, it
+    #             should equal 1.0 / N for some integer N. If larger than 1, it
+    #             should be an integer.
     #
-    #             adaptive_error_tol: used to set the error tolerance for
-    #                                 adaptive step size methods like Rosenbrock
-    #                                  or RKCK54
+    #         adaptive_error_tol: used to set the error tolerance for adaptive
+    #             step size methods like Rosenbrock or RKCK54
     #
-    #             adaptive_max_steps: determines how many times an adaptive step
-    #                                 size method will attempt to find a new
-    #                                 step size before indicating failure
+    #         adaptive_max_steps: determines how many times an adaptive step
+    #             size method will attempt to find a new step size before
+    #             indicating failure
     #
-    # verbose: a logical variable indicating whether or not to print dynamical_system
-    #          validation information. (More detailed startup information can
-    #          be obtained with the `validate_dynamical_system_inputs` function.)
+    # verbose: a logical variable indicating whether or not to print
+    #     dynamical_system validation information. (More detailed startup
+    #     information can be obtained with the
+    #     `validate_dynamical_system_inputs` function.)
     #
     # --------------------------------------------------------------------------
     #

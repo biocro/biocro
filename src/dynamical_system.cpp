@@ -64,9 +64,12 @@ dynamical_system::dynamical_system(
         all_quantities,
         &differential_quantity_derivatives);
 
-    // Make lists of subsets of the quantities that comprise the state: the
-    // quantities that follow direct evolution rules, the quantities that follow
-    // differential evolution rules, and the drivers.
+    // Make lists of subsets of the quantities that comprise the state:
+    // - the direct quantities, i.e., the quantities whose instantaneous values
+    //   are calculated by direct modules
+    // - the differential quantities, i.e., the quantities whose derivatives are
+    //   calculated by differential modules
+    // - the drivers
     string_vector direct_quantity_names =
         string_set_to_string_vector(
             find_unique_module_outputs({direct_module_names}));
