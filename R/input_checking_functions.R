@@ -6,6 +6,13 @@ check_names <- function(args_to_check) {
     }
 }
 
+# Sends the error messages to the user in the proper format
+send_error_messages <- function(error_messages) {
+    if (length(error_messages) > 0) {
+        stop(paste(error_messages, collapse='  '))
+    }
+}
+
 # Checks whether the elements of the `args_to_check` list are lists. If all
 # elements meet this criterion, this functions returns an empty string.
 # Otherwise, it returns an informative error message.

@@ -137,9 +137,7 @@ run_biocro <- function(
         integrator
     )
 
-    if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse='  '))
-    }
+    send_error_messages(error_messages)
 
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
@@ -254,9 +252,7 @@ partial_run_biocro <- function(
         integrator
     )
 
-    if (length(error_messages) > 0) {
-        stop(paste(error_messages, collapse='  '))
-    }
+    send_error_messages(error_messages)
 
     arg_list = list(
         initial_values=initial_values,
