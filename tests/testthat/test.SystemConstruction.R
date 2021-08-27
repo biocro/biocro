@@ -110,7 +110,7 @@ test_that("All modules must exist", {
 		unused_parameter = 0
 	)
 
-	drivers <- list(
+	drivers <- data.frame(
 		unused_varying_parameter=rep(0, MAX_INDEX)
 	)
 
@@ -142,7 +142,7 @@ test_that("Duplicated quantities produce an error during validation", {
 		position = 1	# defined for the second time
 	)
 
-	drivers <- list(
+	drivers <- data.frame(
 		doy=rep(0, MAX_INDEX),
 		hour=seq(from=0, by=1, length=MAX_INDEX)
 	)
@@ -171,7 +171,7 @@ test_that("Missing inputs produce an error during validation", {
 		timestep = 1
 	)
 
-	drivers <- list(
+	drivers <- data.frame(
 		doy=rep(0, MAX_INDEX),
 		hour=seq(from=0, by=1, length=MAX_INDEX)
 	)
@@ -200,7 +200,7 @@ test_that("Derivative modules only supply derivatives for quantities in the init
 		velocity = 0	# should be in the initial values instead
 	)
 
-	drivers <- list(
+	drivers <- data.frame(
 		doy=rep(0, MAX_INDEX),
 		hour=seq(from=0, by=1, length=MAX_INDEX)
 	)
@@ -226,7 +226,7 @@ test_that("Steady state modules are not required to be supplied in the correct o
 		unused_parameter = 0
 	)
 
-	drivers <- list(
+	drivers <- data.frame(
 		unused_varying_parameter=rep(0, MAX_INDEX)
 	)
 
