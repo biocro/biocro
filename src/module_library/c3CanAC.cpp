@@ -90,7 +90,7 @@ struct Can_Str c3CanAC(
         double relative_humidity = relative_humidity_profile[current_layer];     // dimensionless
         double layer_wind_speed = wind_speed_profile[current_layer];             // m / s
         double CanHeight = light_profile.height[current_layer];                  // m
-        double j_avg = light_profile.average_absorbed_shortwave[current_layer];  // micromole / m^2 / s
+        double j_avg = light_profile.average_absorbed_shortwave[current_layer];  // J / m^2 / s
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
         // by assuming the leaf has the same temperature as the air. Then, use

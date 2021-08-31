@@ -1,4 +1,4 @@
-/*
+/**
  *  /src/c3EvapoTrans.c by Fernando Ezequiel Miguez  Copyright (C) 2010
  *
  *  Part of the code here (sunML, EvapoTrans, SoilEvapo, TempTo and
@@ -7,6 +7,10 @@
  *  Documentation for WIMOVAC can be found at
  *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
  *
+ * Many of these functions come from Chapter 14 of Thornley and Johnson (1990).
+ *
+ * Thornley, J.H.M. and Johnson, I.R. (1990) Plant and Crop Modelling. A
+ * Mathematical Approach to Plant and Crop Physiology.
  */
 
 #include <cmath>
@@ -29,9 +33,9 @@ struct ET_Str c3EvapoTrans(
 {
     constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;           // meters
-    constexpr double dCoef = 0.77;                  // dimensionless
-    constexpr double ZetaCoef = 0.026;              // dimensionless
-    constexpr double ZetaMCoef = 0.13;              // dimensionless
+    constexpr double dCoef = 0.77;                  // dimensionless, Thornley and Johnson 1990, Eq. 14.9o. In the original text this value is reported as 0.64. In the 2000 reprinting of this text, the authors state that this value should be 0.77 (see Errata to the 2000 printing on the page after the preface of the 2000 Reprinting of the 1990 text).
+    constexpr double ZetaCoef = 0.026;              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
+    constexpr double ZetaMCoef = 0.13;              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
     const double Zeta = ZetaCoef * CanopyHeight;    // meters
     const double Zetam = ZetaMCoef * CanopyHeight;  // meters
     const double d = dCoef * CanopyHeight;          // meters
@@ -42,7 +46,7 @@ struct ET_Str c3EvapoTrans(
 
     const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
     const double LHV = TempToLHV(air_temperature);                   // J / kg
-    const double SlopeFS = TempToSFS(air_temperature);               // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double SlopeFS = TempToSFS(air_temperature);               // kg / m^3 / K
     const double SWVP = saturation_vapor_pressure(air_temperature);  // Pa
 
     // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
@@ -73,8 +77,10 @@ struct ET_Str c3EvapoTrans(
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");
     }
 
+    // Eq. 14.4g from Thornley and Johnson (1990).
     const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
+    // Eq. 14.4d from Thornley and Johnson (1990).
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 
     /* AERODYNAMIC COMPONENT */
@@ -83,7 +89,7 @@ struct ET_Str c3EvapoTrans(
     }
 
     /* Calculation of ga */
-    /* According to thornley and Johnson pg. 416 */
+    /* According to thornley and Johnson Eq. 14.9n, pg. 416 */
     const double ga0 = pow(kappa, 2) * WindSpeed;                   // m / s
     const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);    // dimensionless
     const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);  // dimensionless
@@ -93,7 +99,7 @@ struct ET_Str c3EvapoTrans(
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero.");
     }
 
-    /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
+    /* Temperature of the leaf according to Campbell and Norman (1998) Chp 14.*/
     /* This version is non-iterative and an approximation*/
     /* Stefan-Boltzmann law: B = sigma * T^4. where sigma is the Boltzmann constant. */
     /* From Table A.3 in Campbell and Norman.*/
@@ -112,6 +118,7 @@ struct ET_Str c3EvapoTrans(
 
             PhiN = absorbed_shortwave_radiation - rlc;  // W / m^2
 
+            // DeltaT equation from Thornley and Johnson 1990, Eq. 14.11e
             double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;       // J / m^3
             double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^2 / K
 
@@ -126,6 +133,15 @@ struct ET_Str c3EvapoTrans(
         PhiN = 0;
     }
 
+    /* TransR is the Penman-Monteith equation that describe transpiration rate
+    * as a function of the energy `PhiN` available for evaporation, the vapour
+    * density deficit `DeltaPVa`, the canopy and boundary layer conductances, gc
+    * and ga respectively, and the physical parameters `SlopeFS`, `PsycParam`,
+    * and `LHV`.
+    *
+    * Thornley, J.H.M. and Johnson, I.R. (1990) Plant and Crop Modelling. A
+    * Mathematical Approach to Plant and Crop Physiology
+    */
     const double TransR =
         (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) /
         (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s

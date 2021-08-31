@@ -12,33 +12,12 @@ SAMPLE_SIZE <- 5     # Number of time points to test in each simulation result.
 NUMBER_OF_PERMUTATIONS <- 4
 
 
-## Modules to use in the simulations:
-
-sorghum_ss_modules <- c(
-    "soil_type_selector",
-    "stomata_water_stress_linear",
-    "leaf_water_stress_exponential",
-    "parameter_calculator",
-    "soil_evaporation",
-    "c4_canopy",
-    "partitioning_coefficient_selector",
-    "partitioning_growth_calculator"
-)
-
-sorghum_deriv_modules <- c(
-    "thermal_time_senescence",
-    "partitioning_growth",
-    "thermal_time_linear",
-    "one_layer_soil_profile"
-)
-
-
 ## Run the simulation:
 baseline_result  <- run_biocro(sorghum_initial_values,
                                sorghum_parameters,
                                get_growing_season_climate(weather05),
-                               sorghum_ss_modules,
-                               sorghum_deriv_modules)
+                               sorghum_steady_state_modules,
+                               sorghum_derivative_modules)
 
 
 ## Variables to define the scope of the survey:
@@ -54,7 +33,7 @@ compare_simulation_trial <- function(result, index) {
                           "the simulation result agrees with ",
                           "the baseline simulation result at row ",
                           index)
-                         
+
 	test_that(description, {
 		for (variable in column_names) {
 			expect_equal(baseline_result[[variable]][index], result[[variable]][index])
@@ -64,13 +43,13 @@ compare_simulation_trial <- function(result, index) {
 
 for (count in 1:NUMBER_OF_PERMUTATIONS) {
 
-    permuted_ss_module_list <- sample(sorghum_ss_modules)
+    permuted_steady_state_module_list <- sample(sorghum_steady_state_modules)
 
     result <- run_biocro(sorghum_initial_values,
                          sorghum_parameters,
                          get_growing_season_climate(weather05),
-                         permuted_ss_module_list,
-                         sorghum_deriv_modules)
+                         permuted_steady_state_module_list,
+                         sorghum_derivative_modules)
 
     # Randomly choose a number of indices and compare result against
     # baseline at each index:
