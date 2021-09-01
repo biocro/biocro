@@ -16,7 +16,7 @@ willow_differential_modules <- list(
     senescence = "thermal_time_and_frost_senescence",
     "partitioning_growth",
     thermal_time = "thermal_time_linear",
-    soil_profile = "one_layer_soil_profile"
+    soil_profile = "two_layer_soil_profile"
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
@@ -32,6 +32,8 @@ willow_integrator <- list(
 willow_initial_values = with(list(), {
     datalines =
     "symbol                  value
+    cws1                     0.32
+    cws2                     0.32
     Grain                    0
     Leaf                     0.02
     leafdeathrate            5
@@ -71,6 +73,7 @@ willow_parameters = with(list(), {
     growth_respiration_fraction    0.3
     Gs_min                         1e-3
     heightf                        3
+    hydrDist                       0
     iSp                            1.1
     jmax                           180
     kd                             0.37
@@ -119,18 +122,23 @@ willow_parameters = with(list(), {
     O2                             210
     par_energy_content             0.235
     par_energy_fraction            0.5
-    phi2                           10
+    phi1                           0.01
+    phi2                           2
     Rd                             1.1
     remobilization_fraction        0.6
     retrans                        0.9
     retrans_rhizome                1.0
+    rfl                            0.2
+    rsdf                           0.44
     rsec                           0.2
     seneLeaf                       1600
     seneRhizome                    5500
     seneRoot                       5500
     seneStem                       5500
     soil_clod_size                 0.04
-    soil_depth                     1
+    soil_depth1                    0.0
+    soil_depth2                    2.5
+    soil_depth3                    10.0
     soil_reflectance               0.2
     soil_transmission              0.01
     soil_type_indicator            6
@@ -150,7 +158,8 @@ willow_parameters = with(list(), {
     tpu_rate_max                   23
     vmax1                          100
     vmax_n_intercept               0
-    water_stress_approach          0"
+    water_stress_approach          0
+    wsFun                          2"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)

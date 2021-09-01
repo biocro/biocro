@@ -12,27 +12,6 @@ SAMPLE_SIZE <- 5     # Number of time points to test in each simulation result.
 NUMBER_OF_PERMUTATIONS <- 4
 
 
-## Modules to use in the simulations:
-
-sorghum_direct_modules <- c(
-    "soil_type_selector",
-    "stomata_water_stress_linear",
-    "leaf_water_stress_exponential",
-    "parameter_calculator",
-    "soil_evaporation",
-    "c4_canopy",
-    "partitioning_coefficient_selector",
-    "partitioning_growth_calculator"
-)
-
-sorghum_differential_modules <- c(
-    "thermal_time_senescence",
-    "partitioning_growth",
-    "thermal_time_linear",
-    "one_layer_soil_profile"
-)
-
-
 ## Run the simulation:
 baseline_result  <- run_biocro(sorghum_initial_values,
                                sorghum_parameters,
@@ -54,7 +33,7 @@ compare_simulation_trial <- function(result, index) {
                           "the simulation result agrees with ",
                           "the baseline simulation result at row ",
                           index)
-                         
+
 	test_that(description, {
 		for (variable in column_names) {
 			expect_equal(baseline_result[[variable]][index], result[[variable]][index])

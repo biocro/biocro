@@ -20,46 +20,23 @@ validate_dynamical_system_inputs <- function(
     silent = FALSE
 )
 {
-    # Check to make sure the initial values are properly defined
-    if (!is.list(initial_values)) {
-        stop('"initial_values" must be a list')
-    }
+    # The inputs have the same requirements as Gro_deriv
+    error_messages = check_Gro_deriv_inputs(
+        initial_values,
+        parameters,
+        drivers,
+        direct_module_names,
+        differential_module_names
+    )
 
-    if (length(initial_values) != length(unlist(initial_values))) {
-        item_lengths = unlist(lapply(initial_values, length))
-        error_message = sprintf("The following initial_values members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-        stop(error_message)
-    }
-
-    # Check to make sure the parameters are properly defined
-    if (!is.list(parameters)) {
-        stop('"parameters" must be a list')
-    }
-
-    if (length(parameters) != length(unlist(parameters))) {
-        item_lengths = unlist(lapply(parameters, length))
-        error_message = sprintf("The following parameters members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-        stop(error_message)
-    }
-
-    # Check to make sure the drivers are properly defined
-    if (!is.list(drivers)) {
-        stop('"drivers" must be a list')
-    }
+    send_error_messages(error_messages)
 
     # If the drivers input doesn't have a time column, add one
     drivers <- add_time_to_weather_data(drivers)
 
-    # Check to make sure the module names are vectors or lists of strings
+    # Make sure the module names are vectors of strings
     direct_module_names <- unlist(direct_module_names)
-    if (length(direct_module_names) > 0 & !is.character(direct_module_names)) {
-        stop('"direct_module_names" must be a vector or list of strings')
-    }
-
     differential_module_names <- unlist(differential_module_names)
-    if (length(differential_module_names) > 0 & !is.character(differential_module_names)) {
-        stop('"differential_module_names" must be a vector or list of strings')
-    }
 
     # C++ requires that all the variables have type `double`
     initial_values = lapply(initial_values, as.numeric)
