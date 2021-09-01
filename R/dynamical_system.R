@@ -20,8 +20,8 @@ validate_dynamical_system_inputs <- function(
     silent = FALSE
 )
 {
-    # The inputs have the same requirements as Gro_deriv
-    error_messages = check_Gro_deriv_inputs(
+    # The inputs have the same requirements as `system_derivatives`
+    error_messages <- check_system_derivatives_inputs(
         initial_values,
         parameters,
         drivers,

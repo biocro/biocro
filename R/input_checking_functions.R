@@ -146,15 +146,15 @@ check_integrator <- function(integrator) {
     return(error_message)
 }
 
-# Checks whether a set of inputs to the `Gro_deriv` function are properly
-# defined. If the inputs are properly defined, this function returns an empty
-# string. Otherwise, it returns an informative error message.
-check_Gro_deriv_inputs <- function(
+# Checks whether a set of inputs to the `system_derivatives` function are
+# properly defined. If the inputs are properly defined, this function returns an
+# empty string. Otherwise, it returns an informative error message.
+check_system_derivatives_inputs <- function(
     initial_values,
     parameters,
     drivers,
-    steady_state_module_names,
-    derivative_module_names
+    direct_module_names,
+    differential_module_names
 )
 {
     error_message <- character()
@@ -176,16 +176,16 @@ check_Gro_deriv_inputs <- function(
         check_data_frame(list(drivers=drivers))
     )
 
-    # The elements of initial_values, parameters, steady_state_module_names, and
-    # derivative_module_names should all have length 1
+    # The elements of initial_values, parameters, direct_module_names, and
+    # differential_module_names should all have length 1
     error_message <- append(
         error_message,
         check_element_length(
             list(
                 initial_values=initial_values,
                 parameters=parameters,
-                steady_state_module_names=steady_state_module_names,
-                derivative_module_names=derivative_module_names
+                direct_module_names=direct_module_names,
+                differential_module_names=differential_module_names
             )
         )
     )
@@ -202,14 +202,14 @@ check_Gro_deriv_inputs <- function(
         )
     )
 
-    # The steady_state_module_names and derivative_module_names should all be
+    # The direct_module_names and differential_module_names should all be
     # vectors or lists of strings
     error_message <- append(
         error_message,
         check_strings(
             list(
-                steady_state_module_names=steady_state_module_names,
-                derivative_module_names=derivative_module_names
+                direct_module_names=direct_module_names,
+                differential_module_names=differential_module_names
             )
         )
     )
@@ -224,22 +224,22 @@ check_run_biocro_inputs <- function(
     initial_values,
     parameters,
     drivers,
-    steady_state_module_names,
-    derivative_module_names,
+    direct_module_names,
+    differential_module_names,
     integrator
 )
 {
     error_message <- character()
 
-    # Most of the inputs have the same requirements as Gro_deriv
+    # Most of the inputs have the same requirements as `system_derivatives`
     error_message <- append(
         error_message,
-        check_Gro_deriv_inputs(
+        check_system_derivatives_inputs(
             initial_values,
             parameters,
             drivers,
-            steady_state_module_names,
-            derivative_module_names
+            direct_module_names,
+            differential_module_names
         )
     )
 

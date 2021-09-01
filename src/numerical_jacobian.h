@@ -12,12 +12,12 @@
  * @param[in] sys a shared pointer to a dynamical_system object.
  *
  * @param[in] x a vector to be passed to the dynamical_system as an input. Since we are evaluating
- *              a dynamical_system, x contains values of the dynamical_system's state variables.
+ *              a dynamical_system, x contains values of the dynamical_system's differential quantities.
  *
  * @param[in] t a time to be passed to the dynamical_system as an input.
  *
  * @param[out] y the vector output. Since we are evaluating a dynamical_system object, y contains
- *               the time derivative of each state variable.
+ *               the time derivative of each differential quantity.
  */
 template <typename vector_type, typename time_type>
 void evaluate_equations(std::shared_ptr<dynamical_system> const& sys, vector_type const& x, time_type t, vector_type& y)
@@ -80,15 +80,15 @@ void evaluate_equations(
  *   - (1) We calculate f(x,t) using the input (x,t) (called f_current)
  *   - (2) We make a forward perturbation by adding h to one vector element and calculating the time derivatives (called f_perturbation)
  *   - (3) We calculate the rate of change for each vector element according to (f_perturbed[i] - f_current[i])/h
- *   - (4) We repeat steps (2) and (3) for each state variable
+ *   - (4) We repeat steps (2) and (3) for each differential quantity
  *
  *  The alternative method would be:
- *   - (1) We make a backward perturbation by substracting h from one state variable and calculating the time derivatives (called f_backward)
- *   - (2) We make a forward perturbation by adding h to the same state variable and calculating the time derivatives (called f_forward)
- *   - (3) We calculate the rate of change for each state variable according to (f_forward[i] - f_backward[i])/(2*h)
- *   - (4) We repeat steps (1) through (3) for each state variable
+ *   - (1) We make a backward perturbation by substracting h from one differential quantity and calculating the time derivatives (called f_backward)
+ *   - (2) We make a forward perturbation by adding h to the same differential quantity and calculating the time derivatives (called f_forward)
+ *   - (3) We calculate the rate of change for each differential quantity according to (f_forward[i] - f_backward[i])/(2*h)
+ *   - (4) We repeat steps (1) through (3) for each differential quantity
  *
- *  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of state variables.
+ *  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of differential quantities.
  *  In the other scheme, we make 2N derivative evaluations.
  *  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro evaluations are expensive.
  *  Likewise, higher-order numerical derivative calculations are also not worthwhile.
@@ -123,7 +123,7 @@ void calculate_jacobian(
         h = temp - x[i];
 
         // Calculate the new function value
-        x_perturbed[i] = x[i] + h;                                      // Add h to the ith state variable
+        x_perturbed[i] = x[i] + h;                                      // Add h to the ith differential quantity
         evaluate_equations(equation_ptr, x_perturbed, t, f_perturbed);  // Calculate f_perturbed
 
         // Store the results in the Jacobian matrix
@@ -131,7 +131,7 @@ void calculate_jacobian(
             jacobi(j, i) = (f_perturbed[j] - f_current[j]) / h;
         }
 
-        // Reset the ith state variable
+        // Reset the ith differential quantity
         x_perturbed[i] = x[i];
     }
 }

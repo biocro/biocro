@@ -30,15 +30,15 @@ test_that("certain run_biocro inputs must not have empty elements", {
             within(sorghum_initial_values, {bad_initial_value = numeric(0)}),
             within(sorghum_parameters, {bad_parameter = numeric(0)}),
             get_growing_season_climate(weather05),
-            within(sorghum_direct_modules, {bad_steady_state_module = character(0)}),
-            within(sorghum_differential_modules, {bad_derivative_module = character(0)}),
+            within(sorghum_direct_modules, {bad_direct_module = character(0)}),
+            within(sorghum_differential_modules, {bad_differential_module = character(0)}),
             within(sorghum_integrator, {bad_integrator_setting = numeric(0)})
         ),
         regexp = paste0(
             "The following `initial_values` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_initial_value.\n",
             "  The following `parameters` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_parameter.\n",
-            "  The following `steady_state_module_names` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_steady_state_module.\n",
-            "  The following `derivative_module_names` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_derivative_module.\n",
+            "  The following `direct_module_names` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_direct_module.\n",
+            "  The following `differential_module_names` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_differential_module.\n",
             "  The following `integrator` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_integrator_setting.\n"
         )
     )
@@ -73,8 +73,8 @@ test_that("certain run_biocro inputs must be strings", {
             within(sorghum_integrator, {type = 7.89})
         ),
         regexp = paste0(
-            "The following `steady_state_module_names` members are not strings, but all members must be strings: 1.23.\n",
-            "  The following `derivative_module_names` members are not strings, but all members must be strings: 4.56.\n",
+            "The following `direct_module_names` members are not strings, but all members must be strings: 1.23.\n",
+            "  The following `differential_module_names` members are not strings, but all members must be strings: 4.56.\n",
             "  The following `integrator_type` members are not strings, but all members must be strings: 7.89.\n"
         )
     )
@@ -103,7 +103,7 @@ test_that("All modules must exist", {
     # Set up some bad inputs
 
     initial_values <- list(
-        unused_state_variable = 0
+        unused_initial_value = 0
     )
 
     parameters <- list(
@@ -216,7 +216,7 @@ test_that("Direct modules are not required to be supplied in the correct order",
     # Set up some bad inputs
 
     initial_values <- list(
-        unused_state_variable = 0
+        unused_initial_value = 0
     )
 
     parameters <- list(
