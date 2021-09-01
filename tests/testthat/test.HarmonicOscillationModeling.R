@@ -76,8 +76,8 @@ debug_view <- function(ob) {
 
 
 
-derivative_modules <- c("harmonic_oscillator")
-steady_state_modules <- c("harmonic_energy")
+differential_modules <- c("harmonic_oscillator")
+direct_modules <- c("harmonic_energy")
 drivers <- data.frame(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
 default_integrator <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
@@ -110,9 +110,23 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
     debug_print(list(amplitude = amplitude, phase = phase, angular_frequency = angular_frequency))
 
+    ## calculate the derivative corresponding to the initial conditions and
+    ## compare against the expected values
+    oscillator_system_derivative_fcn <- system_derivatives(
+        parameters,
+        drivers,
+        direct_modules,
+        differential_modules
+    )
+    iv <- unlist(initial_values)
+    initial_derivative <- oscillator_system_derivative_fcn(0, iv, NULL)
+    expected_position_deriv <- initial_velocity
+    expected_velocity_deriv <- -spring_constant * initial_position / mass
+    expect_equal(initial_derivative[[1]][['position']], expected_position_deriv, tolerance = expected_position_deriv * TOLERANCE_FACTOR)
+    expect_equal(initial_derivative[[1]][['velocity']], expected_velocity_deriv, tolerance = expected_velocity_deriv * TOLERANCE_FACTOR)
 
     ## try out the integrator
-    result <- run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules, integrator)
+    result <- run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, integrator)
 
     ## add useful columns to the resulting data frame:
     result$time <- result$time * 24 # time is in hours

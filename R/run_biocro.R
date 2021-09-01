@@ -10,8 +10,8 @@ run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    steady_state_module_names = list(),
-    derivative_module_names = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     integrator = default_integrator,
     verbose = FALSE
 )
@@ -20,63 +20,63 @@ run_biocro <- function(
     # numerical integrator
     #
     # initial_values: a list of named quantities representing the initial values
-    #                 of quantities that follow a differential evolution rule.
+    #     of the differential quantities, i.e., the quantities whose derivatives
+    #     are calculated by differential modules
     #
     # parameters: a list of named quantities that don't change with time; must
-    #             include a `timestep` parameter (see `drivers` for more info)
+    #     include a `timestep` parameter (see `drivers` for more info)
     #
     # drivers: a data frame of quantities defined at equally spaced time
-    #          intervals. The time interval should be specified as a quantity
-    #          called `timestep` having units of hours. The drivers must include
-    #          columns for either (1) `time` (in units of days) or (2) `doy` and
-    #          `hour`.
+    #     intervals. The time interval should be specified in the `parameters`
+    #     as a quantity called `timestep` having units of hours. The drivers
+    #     must include columns for either (1) `time` (in units of days) or
+    #     (2) `doy` and `hour`.
     #
-    # steady_state_module_names: a character vector or list of steady state
-    #                            module names
+    # direct_module_names: a character vector or list specifying the names
+    #     of direct modules to use in the system
     #
-    # derivative_module_names: a character vector or list of derivative module
-    #                          names
+    # differential_module_names: a character vector or list of differential
+    #     module names
     #
     # integrator: a list specifying details about the numerical integrator.
-    #             Elements are:
+    #     The required elements are:
     #
-    #             type: string specifying the numerical integrator to
-    #                   use. Options are:
+    #         type: string specifying the numerical integrator to use. Can be
+    #             one of the following:
     #
-    #                   "auto": automatically uses `boost_rosenbrock` if
-    #                           possible; uses `homemade_euler` otherwise
+    #                 "auto": use `boost_rosenbrock` if possible; use
+    #                     `homemade_euler` otherwise
     #
-    #                   "homemade_euler": our own implementation of the fixed
-    #                                     step Euler method
+    #                 "homemade_euler": our own implementation of the fixed step
+    #                     Euler method
     #
-    #                   "boost_euler": the boost library version of the fixed
-    #                                  step Euler method
+    #                 "boost_euler": the boost library version of the fixed step
+    #                     Euler method
     #
-    #                   "boost_rosenbrock": adaptive step-size Rosenbrock method
-    #                                       (implicit method useful for stiff
-    #                                       systems)
+    #                 "boost_rosenbrock": adaptive step-size Rosenbrock method
+    #                     (implicit method useful for stiff systems)
     #
-    #                   "boost_rk4": fixed-step 4th order Runge-Kutta method
+    #                 "boost_rk4": fixed-step 4th order Runge-Kutta method
     #
-    #                   "boost_rkck54": adaptive step-size Runge-Kutta-Cash-Karp
-    #                                   method (5th order Runge-Kutta with 4th
-    #                                   order Cash-Karp error estimation)
+    #                 "boost_rkck54": adaptive step-size Runge-Kutta-Cash-Karp
+    #                     method (5th order Runge-Kutta with 4th order Cash-Karp
+    #                     error estimation)
     #
-    #             output_step_size: the output step size. If smaller than 1, it
-    #                               should equal 1.0 / N for some integer N. If
-    #                               larger than 1, it should be integer.
+    #         output_step_size: the output step size. If smaller than 1, it
+    #             should equal 1.0 / N for some integer N. If larger than 1, it
+    #             should be an integer.
     #
-    #             adaptive_error_tol: used to set the error tolerance for
-    #                                 adaptive step size methods like Rosenbrock
-    #                                  or RKCK54
+    #         adaptive_error_tol: used to set the error tolerance for adaptive
+    #             step size methods like Rosenbrock or RKCK54
     #
-    #             adaptive_max_steps: determines how many times an adaptive step
-    #                                 size method will attempt to find a new
-    #                                 step size before indicating failure
+    #         adaptive_max_steps: determines how many times an adaptive step
+    #             size method will attempt to find a new step size before
+    #             indicating failure
     #
-    # verbose: a logical variable indicating whether or not to print System
-    #          validation information. (More detailed startup information can
-    #          be obtained with the `validate_system_inputs` function.)
+    # verbose: a logical variable indicating whether or not to print
+    #     dynamical_system validation information. (More detailed startup
+    #     information can be obtained with the
+    #     `validate_dynamical_system_inputs` function.)
     #
     # --------------------------------------------------------------------------
     #
@@ -86,8 +86,8 @@ run_biocro <- function(
     #         sorghum_initial_values,
     #         sorghum_parameters,
     #         get_growing_season_climate(weather05),
-    #         sorghum_steady_state_modules,
-    #         sorghum_derivative_modules,
+    #         sorghum_direct_modules,
+    #         sorghum_differential_modules,
     #         sorghum_integrator,
     #         TRUE
     #     )
@@ -100,7 +100,7 @@ run_biocro <- function(
     # the validity of the input arguments will be printed to the R console. This
     # can be helpful when attempting to combine a set of modules for the first
     # time. More detailed information can be obtained using the
-    # `validate_system_inputs` function.
+    # `validate_dynamical_system_inputs` function.
     #
     # In the sorghum example, the simulation is performed using the fixed step
     # size Euler method for numerical integration. One of its modules
@@ -115,8 +115,8 @@ run_biocro <- function(
     #         glycine_max_initial_values,
     #         glycine_max_parameters,
     #         get_growing_season_climate(weather05),
-    #         glycine_max_steady_state_modules,
-    #         glycine_max_derivative_modules,
+    #         glycine_max_direct_modules,
+    #         glycine_max_differential_modules,
     #         glycine_max_integrator,
     #         TRUE
     #     )
@@ -128,12 +128,12 @@ run_biocro <- function(
     # are compatible with adapative step size integration methods. In this case,
     # it uses the `boost_rosenbrock` integrator to run the simulation.
 
-    error_messages = check_run_biocro_inputs(
+    error_messages <- check_run_biocro_inputs(
         initial_values,
         parameters,
         drivers,
-        steady_state_module_names,
-        derivative_module_names,
+        direct_module_names,
+        differential_module_names,
         integrator
     )
 
@@ -143,8 +143,8 @@ run_biocro <- function(
     drivers <- add_time_to_weather_data(drivers)
 
     # Make sure the module names are vectors of strings
-    steady_state_module_names <- unlist(steady_state_module_names)
-    derivative_module_names <- unlist(derivative_module_names)
+    direct_module_names <- unlist(direct_module_names)
+    differential_module_names <- unlist(differential_module_names)
 
     # Collect the integrator info
     integrator_type <- integrator$type
@@ -154,25 +154,25 @@ run_biocro <- function(
     integrator_adaptive_max_steps <- integrator$adaptive_max_steps
 
     # C++ requires that all the variables have type `double`
-    initial_values = lapply(initial_values, as.numeric)
-    parameters = lapply(parameters, as.numeric)
-    drivers = lapply(drivers, as.numeric)
-    integrator_output_step_size = as.numeric(integrator_output_step_size)
-    integrator_adaptive_rel_error_tol = as.numeric(integrator_adaptive_rel_error_tol)
-    integrator_adaptive_abs_error_tol = as.numeric(integrator_adaptive_abs_error_tol)
-    integrator_adaptive_max_steps = as.numeric(integrator_adaptive_max_steps)
+    initial_values <- lapply(initial_values, as.numeric)
+    parameters <- lapply(parameters, as.numeric)
+    drivers <- lapply(drivers, as.numeric)
+    integrator_output_step_size <- as.numeric(integrator_output_step_size)
+    integrator_adaptive_rel_error_tol <- as.numeric(integrator_adaptive_rel_error_tol)
+    integrator_adaptive_abs_error_tol <- as.numeric(integrator_adaptive_abs_error_tol)
+    integrator_adaptive_max_steps <- as.numeric(integrator_adaptive_max_steps)
 
     # Make sure verbose is a logical variable
-    verbose = lapply(verbose, as.logical)
+    verbose <- lapply(verbose, as.logical)
 
     # Run the C++ code
-    result = as.data.frame(.Call(
+    result <- as.data.frame(.Call(
         R_run_biocro,
         initial_values,
         parameters,
         drivers,
-        steady_state_module_names,
-        derivative_module_names,
+        direct_module_names,
+        differential_module_names,
         integrator_type,
         integrator_output_step_size,
         integrator_adaptive_rel_error_tol,
@@ -196,8 +196,8 @@ partial_run_biocro <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    steady_state_module_names = list(),
-    derivative_module_names = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     integrator = default_integrator,
     arg_names,
     verbose = FALSE
@@ -215,8 +215,8 @@ partial_run_biocro <- function(
     # initial_values: same as run_biocro()
     # parameters: same as run_biocro()
     # drivers: same as run_biocro()
-    # steady_state_module_names: same as run_biocro()
-    # derivative_module_names: same as run_biocro()
+    # direct_module_names: same as run_biocro()
+    # differential_module_names: same as run_biocro()
     # integrator: same as run_biocro()
     # arg_names: vector of character variables. The names of the arguments that
     #            the new function accepts. Note: 'arg_names' can only contain
@@ -234,8 +234,8 @@ partial_run_biocro <- function(
     #         sorghum_initial_values,
     #         sorghum_parameters,
     #         get_growing_season_climate(weather05),
-    #         sorghum_steady_state_modules,
-    #         sorghum_derivative_modules,
+    #         sorghum_direct_modules,
+    #         sorghum_differential_modules,
     #         sorghum_integrator,
     #         c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'),
     #         TRUE
@@ -243,12 +243,12 @@ partial_run_biocro <- function(
     #
     #     result = senescence_simulation(c(2000, 2000, 2000, 2000))
 
-    error_messages = check_run_biocro_inputs(
+    error_messages <- check_run_biocro_inputs(
         initial_values,
         parameters,
         drivers,
-        steady_state_module_names,
-        derivative_module_names,
+        direct_module_names,
+        differential_module_names,
         integrator
     )
 
@@ -258,8 +258,8 @@ partial_run_biocro <- function(
         initial_values=initial_values,
         parameters=parameters,
         drivers=drivers,
-        steady_state_module_names=steady_state_module_names,
-        derivative_module_names=derivative_module_names,
+        direct_module_names=direct_module_names,
+        differential_module_names=differential_module_names,
         integrator=integrator,
         verbose=verbose
     )

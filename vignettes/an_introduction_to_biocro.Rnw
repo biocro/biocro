@@ -279,7 +279,7 @@ model.\footnote{$\boldX_{t_0} = \boldX_{t_0, \kn} \cup \boldX_{t_0,
   \boldX_{t_0, \cd}$, the only remaining missing piece is
   $\boldX_{t_0, \cd}$.}
 
-We'll denote the function that describes how to calculate secondary
+We'll denote the function that describes how to calculate direct
 variables ($\boldX_{t,\s}$) from the other variables as $\g$. Thus, at
 any particular time $t_i$, $\boldX_{t_i,\s} = \g(\boldX_{t_i,\kn} \cup
 \boldX_{t_i,\cd})$.\footnote{Denoting the set of known variables by
@@ -295,7 +295,7 @@ any particular time $t_i$, $\boldX_{t_i,\s} = \g(\boldX_{t_i,\kn} \cup
   functions $\{g_v\,:\,v\in \s\}$ where each $g_v$ maps a collection
   of values for the variables in $\kn$ and $\cd$ to a value for the
   variable $v$.  These functions $g_v$ \emph{almost} correspond to
-  what we currently call \emph{steady-state} modules in the BioCro
+  what we currently call \emph{direct} modules in the BioCro
   software.  There are two ways in which they might differ, however.
   First, these modules may compute values for two or more variables
   rather than just one.  A module which calculates the values of
@@ -304,7 +304,7 @@ any particular time $t_i$, $\boldX_{t_i,\s} = \g(\boldX_{t_i,\kn} \cup
   $\mathbf{x}\mapsto(g_u(\mathbf{x}), g_v(\mathbf{x}))$.  The second
   way in which a module may differ from a function $g_v$ is that it
   may, for convenience, take as input previously-computed values of
-  other variables in $\s$.  While in theory, each steady-state module
+  other variables in $\s$.  While in theory, each direct module
   could be restricted to use only variables in $\kn \cup \cd$ as
   input, in practice this would sometimes involve repetitious
   calculation.}  Note that, as this equation shows, $\boldX_{t_i,\s}$,
@@ -336,7 +336,7 @@ each time point\ $t_i$ starting with time $t_0$:
 
 \begin{enumerate}
 
-\item Use the function $\g$ to calculate the value of the secondary
+\item Use the function $\g$ to calculate the value of the direct
   variables at time $t_i$ from the values at time $t_i$ of the
   variables in $\kn$ and $\cd$.\footnote{Recall that values of the
     variables in $\cd$ are assumed to be known at time $t_0$.  For
@@ -344,7 +344,7 @@ each time point\ $t_i$ starting with time $t_0$:
     calculated in step 4 of the previous iteration.}
 
 \item We now have full knowledge of the three components---the known
-  variables, the secondary variables, and the variables that depend on
+  variables, the direct variables, and the variables that depend on
   differential equations---that comprise the full state $\boldX_{t_i}$
   at time $t_i$.
 
@@ -459,7 +459,7 @@ period.\footnote{The ``unvarying'' parameters are probably more
     \code{parameters} & $\boldX_\kn$ that do not vary with time. \\
     \code{varying\_parameters} & $\boldX_\kn$ that do vary with time. \\
     \code{steady\_state\_module\_names} & $\g$ \\
-    \code{derivative\_module\_names} & $\h$ \\
+    \code{differential\_module\_names} & $\h$ \\
     \hline
 \end{tabular}
 \caption{\code{Gro\_solver}'s inputs}
@@ -510,7 +510,7 @@ argument.\footnote{The \code{Gro} function also uses an R \code{list}
   an appropriate choice of module for the type specified.  The
   \code{Gro} function parses out the module names into two R
   \emph{character} vectors, one containing the names of
-  ``steady-state'' modules, the other names of ``derivative'' modules.
+  ``direct'' modules, the other names of ``differential'' modules.
   These are then passed to \code{Gro\_solver}.}
 
 Lists of parameters and modules are provided for sorghum, miscanthus,
@@ -625,7 +625,7 @@ library(lattice)  # This is a package that creates figures.
 
 result = run_biocro(sorghum_initial_values, sorghum_parameters,
              get_growing_season_climate(weather05),
-             sorghum_steady_state_modules, sorghum_derivative_modules,
+             sorghum_direct_modules, sorghum_differential_modules,
              sorghum_integrator)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.
 @
@@ -775,7 +775,7 @@ no modeling should be done in R or R-to-C code.
 
 What follows are step-by-step instructions for writing modules and
 integrating them into the BioCro library.  We show instructions both
-for writing steady-state modules and for writing derivative modules.
+for writing direct modules and for writing differential modules.
 In each case, we include a running example; the actual code changes
 needed are shown in shadowboxes at the end of each step.  (Full
 listings of the finished code are given in the appendix.)
@@ -783,7 +783,7 @@ listings of the finished code are given in the appendix.)
 Following this, we show instructions for writing tests of the new
 modules.
 
-\subsubsection{Example: Steps for creating a steady-state module.}
+\subsubsection{Example: Steps for creating a direct module.}
 
 Suppose we want to write a module which builds upon the
 \code{solar_zenith_angle} module.  That module, when given the
@@ -854,7 +854,7 @@ The steps are as follows.
   \end{example}
 
 \item Begin a declaration of a class for the module, deriving it from
-  SteadyModule.  The identifier used for the class name should match
+  direct_module.  The identifier used for the class name should match
   the module name you decided upon in step 1.\footnote{Here again,
   matching the class name to the module name is a convention.  It
   won't break anything if you don't except perhaps the expectations of
@@ -892,7 +892,7 @@ The steps are as follows.
      *  for the cosine are given, the output variable is set to NaN
      *  ("not-a-number").
      */
-    class solar_zenith_angle_in_degrees : public SteadyModule {
+    class solar_zenith_angle_in_degrees : public direct_module {
       ...
       ...
       ...
@@ -951,7 +951,7 @@ The steps are as follows.
     |\placeholder{class name}|(const state_map* input_parameters, state_map* output_parameters)
   \end{C++listing}
   The constructor needs to initialize the base class
-  \code{SteadyModule} with the name for the module, and each parameter
+  \code{direct_module} with the name for the module, and each parameter
   variable needs to be initialized with an initializer of the form
   \begin{C++listing}[4]
     |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
@@ -977,7 +977,7 @@ The steps are as follows.
            const state_map* input_parameters,
            state_map* output_parameters
        )
-           : SteadyModule{"solar_zenith_angle_in_degrees"},
+           : direct_module{"solar_zenith_angle_in_degrees"},
            cosine_zenith_angle{get_input(input_parameters, "cosine_zenith_angle")},
            zenith_angle_in_degrees_op{get_op(output_parameters, "zenith_angle_in_degrees")}
            {}
@@ -1080,7 +1080,7 @@ steps:
 
 \end{enumerate}
 
-\subsubsection{Example: Steps for creating a derivative module.}
+\subsubsection{Example: Steps for creating a differential module.}
 
 Suppose that we have weather data giving the ambient temperature over
 some period of time and we wish to write a module to help us calculate
@@ -1093,7 +1093,7 @@ and the base temperature variable is named ``base\_temperature''.
 These will be varying and unvarying known variables, respectively.
 
 The steps for writing such a module are similar to those for writing a
-steady-state module, but with some significant differences.
+direct module, but with some significant differences.
 
 \begin{enumerate}
 
@@ -1129,10 +1129,10 @@ steady-state module, but with some significant differences.
   \end{example}
 
 \item Begin a declaration of a class for the module, deriving it from
-  DerivModule.  The identifier used for the class name should match
+  differential_module.  The identifier used for the class name should match
   the module name you decided upon in step 1.
   \begin{example}[4]
-    class heating_degree_days : public DerivModule {
+    class heating_degree_days : public differential_module {
       ...
       ...
       ...
@@ -1140,7 +1140,7 @@ steady-state module, but with some significant differences.
   \end{example}
 
 \item Declare private data members corresponding to the input and
-  output parameters.  Just as with steady-state modules, input
+  output parameters.  Just as with direct modules, input
   parameter references should be of type \code{const double&} and by
   convention should have identifiers matching the parameter name.
   Output parameter pointers should be of type \code{double*} and
@@ -1161,7 +1161,7 @@ steady-state module, but with some significant differences.
     |\placeholder{class name}|(const state_map* input_parameters, state_map* output_parameters)
   \end{C++listing}
   The constructor needs to initialize the base class
-  \code{DerivModule} with the name for the module, and each parameter
+  \code{differential_module} with the name for the module, and each parameter
   variable needs to be initialized with an initializer of the form
   \begin{C++listing}[4]
     |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
@@ -1180,7 +1180,7 @@ steady-state module, but with some significant differences.
            state_map*
                output_parameters
        )
-       : DerivModule{"heating_degree_days"},
+       : differential_module{"heating_degree_days"},
          temp{get_input(input_parameters, "temp")},
          base_temperature{get_input(input_parameters, "base_temperature")},
          heating_degree_days_op{get_op(output_parameters, "heating_degree_days")}
@@ -1236,7 +1236,7 @@ steady-state module, but with some significant differences.
   for each output parameter.  Here, \placeholder{some value} is some
   numerical value calculated in the body of the function prior to the
   update statement, and it will generally be calculated from the
-  values of the input parameters.  Since this is a \emph{derivative}
+  values of the input parameters.  Since this is a \emph{differential}
   module, it represents the \emph{rate of change \textbf{per hour}} of
   the output parameter.
 
@@ -1267,7 +1267,7 @@ A listing of the completed module code is shown in appendix \ref{hdd
   module listing}.
 
 The steps for integrating the module into the rest of the BioCro code
-are exactly the same as for steady state modules, again only requiring
+are exactly the same as for direct modules, again only requiring
 a few modifications to
 \code{module_library/module_wrapper_factory.cpp}:
 
@@ -1362,7 +1362,7 @@ C++ library.  If the R front end is buggy, then the module tests may
 fail for reasons not having anything to do with the underlying C++
 module.}
 
-\subsubsection{Writing unit tests for a steady-state module}
+\subsubsection{Writing unit tests for a direct module}
 \label{sec:write_ss_unit_test}
 
   In writing our tests, we will make use of the R \Rcode{evaluate_module}
@@ -1388,7 +1388,7 @@ module.}
   \Rcode{context(}\stringplaceholder{some descriptive text}\Rcode{)}.
 
   \begin{Rexample}[4]
-    context('Test basic functioning of the steady-state module "solar_zenith_angle_in_degrees".')
+    context('Test basic functioning of the direct module "solar_zenith_angle_in_degrees".')
   \end{Rexample}
 
 \item Write one or more tests.
@@ -1523,12 +1523,12 @@ module.}
 \end{enumerate}
 
 
-\subsubsection{Writing unit tests for a derivative module}
+\subsubsection{Writing unit tests for a differential module}
 \label{sec:write_deriv_unit_test}
 
   Again, in writing our tests, we will make use of the R
   \Rcode{evaluate_module} function. Keep in mind that in the case of a
-  derivative module, the output values represent the rate of change of
+  differential module, the output values represent the rate of change of
   the output parameters \emph{per hour}. Here, we show how to test the
   heating degree days module.
 
@@ -1543,7 +1543,7 @@ module.}
 \item Add a context statement.
 
   \begin{Rexample}[4]
-    context('Test basic functioning of the derivative module "heating_degree_days".')
+    context('Test basic functioning of the differential module "heating_degree_days".')
   \end{Rexample}
 
 \item Write tests.
@@ -1633,10 +1633,10 @@ simple examples, we re-present the material from section
 benefit, writing such tests will instruct a user in the rudiments of
 setting up and running a simulation in BioCro.
 
-\subsection{Writing a unit test for a steady-state module using
+\subsection{Writing a unit test for a direct module using
 Gro\_solver}
 
-For testing a steady-state module, it will suffice to set up a
+For testing a direct module, it will suffice to set up a
 bare-bones system: the sequence of states can be a sequence of length
 one since we aren't interested in how the state changes over time.
 And the state variables need only include the input variables for the
@@ -1659,15 +1659,15 @@ using \Rcode{evaluate_module}:
   we call \Rcode{run_biocro} as
   \begin{Rlisting}[4]
     run_biocro(initial_values, parameters, drivers,
-               steady_state_modules, derivative_modules, solver, verbose)
+               direct_modules, differential_modules, solver, verbose)
   \end{Rlisting}
   we have seven variables we need to define:
   \begin{Rlisting}[4]
     initial_values <- ...
     parameters <- ...
     drivers <- ...
-    steady_state_modules <- ...
-    derivative_modules <- ...
+    direct_modules <- ...
+    differential_modules <- ...
     solver <- ...
     verbose <- ...
   \end{Rlisting}
@@ -1677,7 +1677,7 @@ using \Rcode{evaluate_module}:
     list(type='Gro', output_step_size=1.0, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
   \end{Rlisting}
   and \Rcode{FALSE}, respectively.  Since it doesn't matter what
-  solver we use for testing a steady state module, and since in
+  solver we use for testing a direct module, and since in
   general tests shouldn't produce their own output, these are suitable
   values and may be omitted.)\footnote{
     There may be cases where we may want to temporarily set
@@ -1691,8 +1691,8 @@ using \Rcode{evaluate_module}:
   What values should be used to fill in the blanks?  For the module
   lists, which are just vectors of names, the answer is clear:
   \begin{Rlisting}[4]
-    steady_state_modules <- c(|\stringplaceholder{name of module being tested}|)
-    derivative_modules <- c()
+    direct_modules <- c(|\stringplaceholder{name of module being tested}|)
+    differential_modules <- c()
   \end{Rlisting}
 
   These may be defined globally, outside of any test.  The name of the
@@ -1702,8 +1702,8 @@ using \Rcode{evaluate_module}:
   In our example, we use
 
   \begin{Rexample}[4]
-    steady_state_modules <- c("solar_zenith_angle_in_degrees")
-    derivative_modules <- c()
+    direct_modules <- c("solar_zenith_angle_in_degrees")
+    differential_modules <- c()
   \end{Rexample}
 
 
@@ -1766,7 +1766,7 @@ using \Rcode{evaluate_module}:
   However, instead of getting results to test by calling
   \Rcode{evaluate_module}, we call \Rcode{run_biocro} instead:
   \begin{Rlisting}[4]
-    result = run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
+    result = run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules)
   \end{Rlisting}
 
 As before, the various \Rcode{expect_} functions are used to test
@@ -1779,8 +1779,8 @@ Here are the precise settings we will use for the modules, invariant
 parameters, and initial values:
 
     \begin{Rexample}[6]
-      steady_state_modules <- c("solar_zenith_angle_in_degrees")
-      derivative_modules <- c()
+      direct_modules <- c("solar_zenith_angle_in_degrees")
+      differential_modules <- c()
 
       initial_values <- list()
       parameters <- list(timestep = 1)
@@ -1797,7 +1797,7 @@ The helper function \Rcode{angle_from_cosine} becomes:\footnote{
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
         drivers <- list(time = 1, cosine_zenith_angle = cza)
-        result = run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules)
+        result = run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
@@ -1808,7 +1808,7 @@ The helper function \Rcode{angle_from_cosine} becomes:\footnote{
 \end{enumerate}
 
 
-\subsection{Writing unit tests for a derivative module using Gro\_solver}
+\subsection{Writing unit tests for a differential module using Gro\_solver}
 
 Again, it will suffice to set up a bare-bones system.  But this time,
 we will set up a time sequence of length two or more since we want to
@@ -1817,10 +1817,10 @@ the most basic tests of module functionality, we need only use a
 sequence of two states.  Again, the state variables need only include
 the input variables for the module being tested and the time-related
 variables.\footnote{
-  In the case of a derivative module where some of the inputs
-  correspond to outputs of steady-state modules, we have two choices
+  In the case of a differential module where some of the inputs
+  correspond to outputs of direct modules, we have two choices
   with regard to testing: (1) include, as part of the test,
-  steady-state modules that produce these required inputs; (2)
+  direct modules that produce these required inputs; (2)
   artificially include values for these inputs as part of the varying
   parameters.  The latter option is the simplest and has the advantage
   of narrowing the scope of the test to the module we are most
@@ -1845,20 +1845,20 @@ Again, we need an extra step for setting up some \Rcode{run_biocro} parameters:
   we will be assuming we call \Rcode{run_biocro} with
   \begin{Rlisting}[4]
     run_biocro(initial_values, parameters, drivers,
-               steady_state_modules, derivative_modules, solver, verbose)
+               direct_modules, differential_modules, solver, verbose)
   \end{Rlisting}
 
   The assignments for the two module vectors are more or less the
-  reverse of what they were for the steady-state module test:
+  reverse of what they were for the direct module test:
   \begin{Rlisting}[4]
-    steady_state_modules <- c()
-    derivative_modules <- c(|\stringplaceholder{name of module being tested}|)
+    direct_modules <- c()
+    differential_modules <- c(|\stringplaceholder{name of module being tested}|)
   \end{Rlisting}
 
   For our example, this becomes
   \begin{Rexample}[4]
-    steady_state_modules <- c()
-    derivative_modules <- c("heating_degree_days")
+    direct_modules <- c()
+    differential_modules <- c("heating_degree_days")
   \end{Rexample}
 
   As for \Rcode{initial_values}, \Rcode{parameters}, and
@@ -1875,7 +1875,7 @@ Again, we need an extra step for setting up some \Rcode{run_biocro} parameters:
       drivers <- list(time = time_vector, temp = temperature_vector)
 
       result <- run_biocro(initial_values, parameters, drivers,
-                           steady_state_modules, derivative_modules, solver)
+                           direct_modules, differential_modules, solver)
 
       result$heating_degree_days[length(time_vector)]
     }

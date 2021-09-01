@@ -62,14 +62,14 @@
  * that a self-consistent value for the leaf temperature will be found using an
  * se_solver.
  */
-class ed_leaf_temperature : public SteadyModule
+class ed_leaf_temperature : public direct_module
 {
    public:
     ed_leaf_temperature(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_leaf_temperature"),
+          direct_module("ed_leaf_temperature"),
 
           // Get references to input quantities
           long_wave_energy_loss_leaf{get_input(input_quantities, "long_wave_energy_loss_leaf")},

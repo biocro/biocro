@@ -1,5 +1,5 @@
-#ifndef VALIDATE_SYSTEM_H
-#define VALIDATE_SYSTEM_H
+#ifndef VALIDATE_DYNAMICAL_SYSTEM_H
+#define VALIDATE_DYNAMICAL_SYSTEM_H
 
 #include <set>
 #include <string>
@@ -12,25 +12,25 @@
 #include "modules.h"
 
 using string_set = std::set<std::string>;
-using module_vector = std::vector<std::unique_ptr<Module>>;
+using module_vector = std::vector<std::unique_ptr<module_base>>;
 
 const std::string success_mark { "[pass] " };
 const std::string failure_mark { "[fail] " };
 
-bool validate_system_inputs(
+bool validate_dynamical_system_inputs(
     std::string& message,
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    string_vector ss_module_names,
-    string_vector deriv_module_names);
+    string_vector direct_module_names,
+    string_vector differential_module_names);
 
 std::string analyze_system_inputs(
     state_map initial_values,
     state_map params,
     state_vector_map drivers,
-    string_vector ss_module_names,
-    string_vector deriv_module_names);
+    string_vector direct_module_names,
+    string_vector differential_module_names);
 
 state_map define_quantity_map(
     std::vector<state_map> state_maps,
@@ -60,9 +60,9 @@ string_vector find_static_output_parameters(
     std::vector<state_map> state_maps,
     std::vector<string_vector> module_name_vectors);
 
-string_vector find_adaptive_incompatibility(std::vector<string_vector> module_name_vectors);
+string_vector find_euler_requirements(std::vector<string_vector> module_name_vectors);
 
-string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_deriv);
+string_vector find_mischaracterized_modules(std::vector<string_vector> module_name_vectors, bool is_differential);
 
 module_vector get_module_vector(
     std::vector<string_vector> module_name_vectors,
@@ -244,8 +244,8 @@ void insert_key_names(string_vector& name_vector, const map_type map)
  *                                as a vector of vectors.  Usually, this
  *                                collection will either be empty or will
  *                                contain only a single item---a set of
- *                                steady-state module names or a set of
- *                                derivative module names.
+ *                                direct module names or a set of
+ *                                differential module names.
  * @return A vector consisting of the names of all quantities defined in either
  *         of the function arguments.  **If a quantity is defined more than
  *         once, it will appear in the output vector more than once.** A

@@ -19,14 +19,14 @@
  * conductances (with units of m / s). In short, we replace all conductances g
  * in the Thornley formula with g * volume_per_mol_of_an_ideal_gas.
  */
-class ed_penman_monteith_transpiration : public SteadyModule
+class ed_penman_monteith_transpiration : public direct_module
 {
    public:
     ed_penman_monteith_transpiration(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_penman_monteith_transpiration"),
+          direct_module("ed_penman_monteith_transpiration"),
 
           // Get references to input quantities
           long_wave_energy_loss_leaf{get_input(input_quantities, "long_wave_energy_loss_leaf")},

@@ -6,14 +6,14 @@
 #include "../constants.h"  // for molar_mass_of_water
 #include <cmath>           // for log
 
-class one_layer_soil_profile_derivatives : public DerivModule
+class one_layer_soil_profile_derivatives : public differential_module
 {
    public:
     one_layer_soil_profile_derivatives(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          DerivModule("one_layer_soil_profile_derivatives"),
+          differential_module("one_layer_soil_profile_derivatives"),
 
           // Get references to input quantities
           soil_water_content{get_input(input_quantities, "soil_water_content")},

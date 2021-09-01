@@ -4,11 +4,11 @@
 #include "../state_map.h"
 #include "../modules.h"
 
-class empty_senescence : public DerivModule {
+class empty_senescence : public differential_module {
 	public:
 		empty_senescence(state_map const& /*input_quantities*/, state_map* /*output_quantities*/) :
 			// Define basic module properties by passing its name to its parent class
-			DerivModule("empty_senescence")
+			differential_module("empty_senescence")
 		{}
 		static string_vector get_inputs();
 		static string_vector get_outputs();

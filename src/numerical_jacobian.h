@@ -2,40 +2,40 @@
 #define NUMERICAL_JACOBIAN_H
 
 #include <memory>  // for std::shared_ptr
-#include "system.h"
+#include "dynamical_system.h"
 #include "simultaneous_equations.h"
 #include "constants.h"
 
 /**
- * @brief Define `evaluation` behavior for a set of equations defined by a System object.
- * 
- * @param[in] sys a shared pointer to a System object.
- * 
- * @param[in] x a vector to be passed to the System as an input. Since we are evaluating
- *              a System, x contains values of the System's state variables.
- * 
- * @param[in] t a time to be passed to the System as an input.
- * 
- * @param[out] y the vector output. Since we are evaluating a System object, y contains
- *               the time derivative of each state variable.
+ * @brief Define `evaluation` behavior for a set of equations defined by a dynamical_system object.
+ *
+ * @param[in] sys a shared pointer to a dynamical_system object.
+ *
+ * @param[in] x a vector to be passed to the dynamical_system as an input. Since we are evaluating
+ *              a dynamical_system, x contains values of the dynamical_system's differential quantities.
+ *
+ * @param[in] t a time to be passed to the dynamical_system as an input.
+ *
+ * @param[out] y the vector output. Since we are evaluating a dynamical_system object, y contains
+ *               the time derivative of each differential quantity.
  */
 template <typename vector_type, typename time_type>
-void evaluate_equations(std::shared_ptr<System> const& sys, vector_type const& x, time_type t, vector_type& y)
+void evaluate_equations(std::shared_ptr<dynamical_system> const& sys, vector_type const& x, time_type t, vector_type& y)
 {
-    sys->operator()(x, y, t);
+    sys->calculate_derivative(x, y, t);
 }
 
 /**
  * @brief Define `evaluation` behavior for a set of equations defined by a simultaneous_equations object.
- * 
+ *
  * @param[in] sys a shared pointer to a simultaneous_equations object
- * 
+ *
  * @param[in] x a vector to be passed to the simultaneous_equations as an input. Since we are evaluating
  *              simultaneous equations, x contains values of the unknown variables.
- * 
+ *
  * @param[in] t an unused parameter included here to produce the same function signature as when evaluating
- *              a System.
- * 
+ *              a dynamical_system.
+ *
  * @param[out] y the vector output. Since we are evaluating simultaneous equations, y contains the change
  *               in the value of each unknown variable produced by running the modules.
  */
@@ -51,20 +51,20 @@ void evaluate_equations(
 
 /**
  * @brief Numerically compute the Jacobian matrix of a vector valued function.
- * 
+ *
  * @param[in] equation_ptr a pointer to an object that can be used to represent a vector valued function f.
  *                         There must be an associated `evaluate_equations(*equation_ptr_type, x, t, y)` function
  *                         defined for equation_ptr_type. It is assumed that the output vector produced by the
  *                         equations has the same length as the input vector.
- * 
+ *
  * @param[in] x an input vector to be passed to the vector valued function.
- * 
+ *
  * @param[in] t an input time to be passed to the vector valued function.
- * 
+ *
  * @param[in] f_current the output of the vector valued function evaluated at x, t
- * 
+ *
  * @param[out] jacobi the calculated Jacobian matrix (containing df_i/dx_j evaluated at x, t)
- * 
+ *
  * * Discussion of step size from <a href="http://www.iue.tuwien.ac.at/phd/khalil/node14.html">Nadim Khalil's thesis</a>:
  * <BLOCKQUOTE>
  * It is known that numerical differentiation is an unstable procedure prone to truncation and subtractive cancellation errors.
@@ -74,21 +74,21 @@ void evaluate_equations(
  *  as the effect of small errors in the values of the elements of the Jacobian matrix is minor.
  * For this reason, the sizing of the finite difference step is not attempted and a constant increment size is used in evaluating the gradient.
  * </BLOCKQUOTE>
- * 
+ *
  * In BioCro, we fix a step size and only evaluate the forward perturbation to reduce calculation costs.
  *  In other words:
  *   - (1) We calculate f(x,t) using the input (x,t) (called f_current)
  *   - (2) We make a forward perturbation by adding h to one vector element and calculating the time derivatives (called f_perturbation)
  *   - (3) We calculate the rate of change for each vector element according to (f_perturbed[i] - f_current[i])/h
- *   - (4) We repeat steps (2) and (3) for each state variable
- * 
+ *   - (4) We repeat steps (2) and (3) for each differential quantity
+ *
  *  The alternative method would be:
- *   - (1) We make a backward perturbation by substracting h from one state variable and calculating the time derivatives (called f_backward)
- *   - (2) We make a forward perturbation by adding h to the same state variable and calculating the time derivatives (called f_forward)
- *   - (3) We calculate the rate of change for each state variable according to (f_forward[i] - f_backward[i])/(2*h)
- *   - (4) We repeat steps (1) through (3) for each state variable
- * 
- *  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of state variables.
+ *   - (1) We make a backward perturbation by substracting h from one differential quantity and calculating the time derivatives (called f_backward)
+ *   - (2) We make a forward perturbation by adding h to the same differential quantity and calculating the time derivatives (called f_forward)
+ *   - (3) We calculate the rate of change for each differential quantity according to (f_forward[i] - f_backward[i])/(2*h)
+ *   - (4) We repeat steps (1) through (3) for each differential quantity
+ *
+ *  In the simpler scheme, we make N + 1 derivative evaluations, where N is the number of differential quantities.
  *  In the other scheme, we make 2N derivative evaluations.
  *  The improvement in accuracy does not seem to outweigh the cost of additional calculations, since BioCro evaluations are expensive.
  *  Likewise, higher-order numerical derivative calculations are also not worthwhile.
@@ -123,7 +123,7 @@ void calculate_jacobian(
         h = temp - x[i];
 
         // Calculate the new function value
-        x_perturbed[i] = x[i] + h;                                      // Add h to the ith state variable
+        x_perturbed[i] = x[i] + h;                                      // Add h to the ith differential quantity
         evaluate_equations(equation_ptr, x_perturbed, t, f_perturbed);  // Calculate f_perturbed
 
         // Store the results in the Jacobian matrix
@@ -131,7 +131,7 @@ void calculate_jacobian(
             jacobi(j, i) = (f_perturbed[j] - f_current[j]) / h;
         }
 
-        // Reset the ith state variable
+        // Reset the ith differential quantity
         x_perturbed[i] = x[i];
     }
 }
@@ -181,22 +181,22 @@ void calculate_jacobian(
 
 /**
  * @brief Numerically compute the explicit time derivatives of a vector valued function.
- * 
+ *
  * @param[in] equation_ptr a pointer to an object that can be used to represent a vector valued function f.
  *                         There must be an associated `evaluate_equations(*equation_ptr_type, x, t, y)` function
  *                         defined for equation_ptr_type. It is assumed that the output vector produced by the
  *                         equations has the same length as the input vector.
- * 
+ *
  * @param[in] max_time the largest time value that can be passed to the vector valued function.
- * 
+ *
  * @param[in] x an input vector to be passed to the vector valued function.
- * 
+ *
  * @param[in] t an input time to be passed to the vector valued function.
- * 
+ *
  * @param[in] f_current the output of the vector valued function evaluated at x, t
- * 
+ *
  * @param[out] dfdt the calculated time derivative, i.e., df_i/dt evaluated at (x, t)
- * 
+ *
  * For discussion of numerical derivative calculation, see description of
  * jacobian::calculate_jacobian(equation_ptr, x, t, jacobi).
  */
@@ -259,20 +259,20 @@ void calculate_time_derivative(
 
 /**
  * @brief Numerically compute the Jacobian matrix and time derivatives of a vector valued function.
- * 
+ *
  * @param[in] equation_ptr a pointer to an object that can be used to represent a vector valued function f.
  *                         There must be an associated `evaluate_equations(*equation_ptr_type, x, t, y)` function
  *                         defined for equation_ptr_type. It is assumed that the output vector produced by the
  *                         equations has the same length as the input vector.
- * 
+ *
  * @param[in] max_time the largest time value that can be passed to the vector valued function.
- * 
+ *
  * @param[in] x an input vector to be passed to the vector valued function.
- * 
+ *
  * @param[in] t an input time to be passed to the vector valued function.
- * 
+ *
  * @param[out] jacobi the calculated Jacobian matrix (containing df_i/dx_j evaluated at x, t)
- * 
+ *
  * @param[out] dfdt the calculated explicit time dependence (i.e., df_i/dt evaluated at x, t)
  */
 template <typename equation_ptr_type, typename time_type, typename vector_type, typename matrix_type>

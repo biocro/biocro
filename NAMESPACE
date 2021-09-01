@@ -1,10 +1,9 @@
 useDynLib(BioCro,
 		  R_run_biocro,
-		  R_Gro_deriv,
-		  R_Gro_ode,
+		  R_system_derivatives,
           R_module_info,
 		  R_evaluate_module,
-		  R_validate_system_inputs,
+		  R_validate_dynamical_system_inputs,
 		  R_validate_simultaneous_equations,
 		  R_solve_simultaneous_equations,
 		  R_test_simultaneous_equations,
@@ -19,15 +18,13 @@ export(run_biocro)
 
 export(partial_run_biocro)
 
-export(Gro_deriv)
-
-export(Gro_ode)
+export(system_derivatives)
 
 export(module_info)
 
 export(evaluate_module)
 
-export(validate_system_inputs)
+export(validate_dynamical_system_inputs)
 
 export(validate_simultaneous_equations)
 

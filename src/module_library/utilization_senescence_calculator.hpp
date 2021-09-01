@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class utilization_senescence_calculator : public SteadyModule {
+class utilization_senescence_calculator : public direct_module {
 	public:
 		utilization_senescence_calculator(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("utilization_senescence_calculator"),
+			direct_module("utilization_senescence_calculator"),
 			// Get pointers to input quantities
 		    rate_constant_leaf_senescence_ip(get_ip(input_quantities, "rate_constant_leaf_senescence")),
 		    rate_constant_stem_senescence_ip(get_ip(input_quantities, "rate_constant_stem_senescence")),

@@ -1,7 +1,7 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-willow_steady_state_modules <- list(
+# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+willow_direct_modules <- list(
     "soil_type_selector",
     stomata_water_stress = "stomata_water_stress_linear",
     "leaf_water_stress_exponential",
@@ -12,7 +12,7 @@ willow_steady_state_modules <- list(
     partitioning_growth_calculator = "partitioning_growth_calculator"
 )
 
-willow_derivative_modules <- list(
+willow_differential_modules <- list(
     senescence = "thermal_time_and_frost_senescence",
     "partitioning_growth",
     thermal_time = "thermal_time_linear",

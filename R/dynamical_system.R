@@ -11,22 +11,22 @@
 # that are not used as inputs to any modules.
 #
 # When silent is TRUE, no information will be printed to the R console.
-validate_system_inputs <- function(
+validate_dynamical_system_inputs <- function(
     initial_values = list(),
     parameters = list(),
     drivers,
-    steady_state_module_names = list(),
-    derivative_module_names = list(),
+    direct_module_names = list(),
+    differential_module_names = list(),
     silent = FALSE
 )
 {
-    # The inputs have the same requirements as Gro_deriv
-    error_messages = check_Gro_deriv_inputs(
+    # The inputs have the same requirements as `system_derivatives`
+    error_messages <- check_system_derivatives_inputs(
         initial_values,
         parameters,
         drivers,
-        steady_state_module_names,
-        derivative_module_names
+        direct_module_names,
+        differential_module_names
     )
 
     send_error_messages(error_messages)
@@ -35,25 +35,25 @@ validate_system_inputs <- function(
     drivers <- add_time_to_weather_data(drivers)
 
     # Make sure the module names are vectors of strings
-    steady_state_module_names <- unlist(steady_state_module_names)
-    derivative_module_names <- unlist(derivative_module_names)
+    direct_module_names <- unlist(direct_module_names)
+    differential_module_names <- unlist(differential_module_names)
 
     # C++ requires that all the variables have type `double`
-    initial_values = lapply(initial_values, as.numeric)
-    parameters = lapply(parameters, as.numeric)
-    drivers = lapply(drivers, as.numeric)
+    initial_values <- lapply(initial_values, as.numeric)
+    parameters <- lapply(parameters, as.numeric)
+    drivers <- lapply(drivers, as.numeric)
 
     # Make sure silent is a logical variable
-    silent = lapply(silent, as.logical)
+    silent <- lapply(silent, as.logical)
 
     # Run the C++ code
-    result = .Call(
-        R_validate_system_inputs,
+    result <- .Call(
+        R_validate_dynamical_system_inputs,
         initial_values,
         parameters,
         drivers,
-        steady_state_module_names,
-        derivative_module_names,
+        direct_module_names,
+        differential_module_names,
         silent
     )
 

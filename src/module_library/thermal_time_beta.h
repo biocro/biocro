@@ -101,14 +101,14 @@
  * - ``'talpha'`` for the shape factor `alpha`
  * - ``'tbeta'`` for the shape factor `beta`
  */
-class thermal_time_beta : public DerivModule
+class thermal_time_beta : public differential_module
 {
    public:
     thermal_time_beta(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          DerivModule("thermal_time_beta"),
+          differential_module("thermal_time_beta"),
 
           // Get references to input quantities
           time{get_input(input_quantities, "time")},

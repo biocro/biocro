@@ -18,14 +18,14 @@
  * mole_fraction = partial_pressure / atmospheric_pressure
  *               = saturation_water_vapor_pressure * relative_humidity / atmospheric_pressure
  */
-class ed_rh_to_mole_fraction : public SteadyModule
+class ed_rh_to_mole_fraction : public direct_module
 {
    public:
     ed_rh_to_mole_fraction(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_rh_to_mole_fraction"),
+          direct_module("ed_rh_to_mole_fraction"),
           // Get pointers to input quantities
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
           temperature_air_ip(get_ip(input_quantities, "temp")),

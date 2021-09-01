@@ -164,8 +164,8 @@ SEXP list_from_module_info(
     std::string const& module_name,
     state_map const& module_inputs,
     state_map const& module_outputs,
-    bool const& is_deriv,
-    bool const& is_adaptive_compatible,
+    bool const& is_differential,
+    bool const& requires_euler_integrator,
     std::string const& creation_error_message)
 {
     // Module inputs and outputs (these do not require an UNPROTECT here)
@@ -178,19 +178,19 @@ SEXP list_from_module_info(
 
     // Module type
     SEXP type = PROTECT(Rf_allocVector(STRSXP, 1));
-    if (is_deriv) {
-        SET_STRING_ELT(type, 0, Rf_mkChar("derivative"));
+    if (is_differential) {
+        SET_STRING_ELT(type, 0, Rf_mkChar("differential"));
     } else {
-        SET_STRING_ELT(type, 0, Rf_mkChar("steady state"));
+        SET_STRING_ELT(type, 0, Rf_mkChar("direct"));
     }
 
     // Euler requirement
     SEXP requires_euler = PROTECT(Rf_allocVector(STRSXP, 1));
     string euler_msg;
-    if (is_adaptive_compatible) {
-        euler_msg = "does not require a fixed-step Euler integrator";
-    } else {
+    if (requires_euler_integrator) {
         euler_msg = "requires a fixed-step Euler integrator";
+    } else {
+        euler_msg = "does not require a fixed-step Euler integrator";
     }
     SET_STRING_ELT(requires_euler, 0, Rf_mkChar(euler_msg.c_str()));
 

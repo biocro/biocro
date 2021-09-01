@@ -13,7 +13,7 @@ The packages BioCro uses are as follows:
 | `boost/typeof/incr_registration_group.hpp`   | This is needed for `boost/units` but it is not exported properly and must be explicitly specificed as of Boost version 1.71 |
 | `boost/algorithm`                            | Used in `parameters.h`                                                                                                      |
 | `boost/graph`                                | Used in `dependency_graph.cpp`                                                                                              |
-| `boost/numeric/ublas`                        | Used in `system.h`, among others                                                                                            |
+| `boost/numeric/ublas`                        | Used in `dynamical_system.h`, among others                                                                                  |
 | `boost/numeric/odeint.hpp`                   | Used in `Gro.cpp`                                                                                                           |
 
 1. Run the following command:

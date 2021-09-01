@@ -44,13 +44,13 @@ double kcoeff(double alpha, double beta, double DVI, double denom);
  * UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  * (https://doi.org/10.5194/gmd-8-1139-2015)
  */
-class partitioning_coefficient_logistic : public SteadyModule
+class partitioning_coefficient_logistic : public direct_module
 {
    public:
     partitioning_coefficient_logistic(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : SteadyModule{"partitioning_coefficient_logistic"},
+        : direct_module{"partitioning_coefficient_logistic"},
 
           // Get references to input quantities
           DVI{get_input(input_quantities, "DVI")},

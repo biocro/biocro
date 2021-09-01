@@ -46,14 +46,14 @@
  * when conductance_adjustment_factor is zero, conductance is the minimum value. When it is one,
  * conductance is the maximum (Ball-Berry) value.
  */
-class ed_ball_berry : public SteadyModule
+class ed_ball_berry : public direct_module
 {
    public:
     ed_ball_berry(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_ball_berry"),
+          direct_module("ed_ball_berry"),
           // Get pointers to input quantities
           ball_berry_slope_ip(get_ip(input_quantities, "ball_berry_slope")),
           ball_berry_intercept_ip(get_ip(input_quantities, "ball_berry_intercept")),

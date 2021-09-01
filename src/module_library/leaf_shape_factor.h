@@ -31,14 +31,14 @@
  * becomes infinite and so does the leaf shape factor k. This is the expected
  * behavior and isn't an actual error.
  */
-class leaf_shape_factor : public SteadyModule
+class leaf_shape_factor : public direct_module
 {
    public:
     leaf_shape_factor(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("leaf_shape_factor"),
+          direct_module("leaf_shape_factor"),
 
           // Get references to input quantities
           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},

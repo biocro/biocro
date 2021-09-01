@@ -8,14 +8,14 @@
 #include "AuxBioCro.h"     // For saturation_vapor_pressure, TempToSFS, TempToLHV,
                            // and TempToDdryA
 
-class water_vapor_properties_from_air_temperature : public SteadyModule
+class water_vapor_properties_from_air_temperature : public direct_module
 {
    public:
     water_vapor_properties_from_air_temperature(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("water_vapor_properties_from_air_temperature"),
+          direct_module("water_vapor_properties_from_air_temperature"),
 
           // Get references to input quantities
           temp{get_input(input_quantities, "temp")},

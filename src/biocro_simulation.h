@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "state_map.h"
-#include "system.h"
+#include "dynamical_system.h"
 #include "integrator.h"
 #include "integrator_library/integrator_factory.h"
 
@@ -12,12 +12,12 @@ class biocro_simulation
 {
    public:
     biocro_simulation(
-        // parameters passed to System constructor
+        // parameters passed to dynamical_system constructor
         std::unordered_map<std::string, double> const& initial_values,
         std::unordered_map<std::string, double> const& parameters,
         std::unordered_map<std::string, std::vector<double>> const& drivers,
-        std::vector<std::string> const& steady_state_module_names,
-        std::vector<std::string> const& derivative_module_names,
+        std::vector<std::string> const& direct_module_names,
+        std::vector<std::string> const& differential_module_names,
         // parameters passed to integrator_factory::create
         std::string integrator_name,
         double output_step_size,
@@ -26,10 +26,10 @@ class biocro_simulation
         int adaptive_max_steps)
     {
         // Create the system
-        sys = std::shared_ptr<System>(
-            new System(initial_values, parameters,
-                       drivers, steady_state_module_names,
-                       derivative_module_names)
+        sys = std::shared_ptr<dynamical_system>(
+            new dynamical_system(initial_values, parameters,
+                       drivers, direct_module_names,
+                       differential_module_names)
         );
 
         // Create the integrator that will be used to solve the system
@@ -59,7 +59,7 @@ class biocro_simulation
     }
 
    private:
-    std::shared_ptr<System> sys;
+    std::shared_ptr<dynamical_system> sys;
     std::unique_ptr<integrator> system_solver;
 };
 

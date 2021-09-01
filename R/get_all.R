@@ -4,9 +4,8 @@ get_all_modules <- function()
 	#
 	#  all_modules <- get_all_modules()
 	#  View(all_modules)
-	
-	result = .Call(R_get_all_modules)
-	return(result)
+
+	.Call(R_get_all_modules)
 }
 
 get_all_quantities <- function()
@@ -37,9 +36,8 @@ get_all_quantities <- function()
 	#  all_quantities_subset <- unique(all_quantities_subset)						# remove any duplicated names where a quantity is both an input and an output for the same module
 	#  quantities_usage <- count(all_quantities_subset, "quantity_name")
 	#  View(quantities_usage)
-	
-	result = as.data.frame(.Call(R_get_all_quantities))
-	return(result)
+
+	as.data.frame(.Call(R_get_all_quantities))
 }
 
 get_all_integrators <- function()
@@ -47,9 +45,8 @@ get_all_integrators <- function()
 	# Intended usage:
 	#
 	#  View(get_all_integrators())
-	
-	result = .Call(R_get_all_integrators)
-	return(result)
+
+	.Call(R_get_all_integrators)
 }
 
 get_all_se_solvers <- function()
@@ -57,7 +54,6 @@ get_all_se_solvers <- function()
 	# Intended usage:
 	#
 	#  View(get_all_se_solvers())
-	
-	result = .Call(R_get_all_se_solvers)
-	return(result)
+
+	.Call(R_get_all_se_solvers)
 }

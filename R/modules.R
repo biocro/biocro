@@ -16,7 +16,7 @@ module_info <- function(module_name, verbose = TRUE)
     # - outputs: a list of named numeric elements representing the module's
     #            outputs
     #
-    # - type: the module's type (either `derivative` or `steady state`)
+    # - type: the module's type (either `differential` or `direct`)
     # - euler_requirement: indicates whether the module requires a fixed-step
     #                      Euler integrator when used in a BioCro simulation
     #
@@ -26,21 +26,29 @@ module_info <- function(module_name, verbose = TRUE)
     # If the `verbose` input argument is TRUE, this information will also be
     # printed to the R console
 
-    # Make sure the module name is a string
-    if (!is.character(module_name) & length(module_name) != 1) {
-        stop('"module_name" must be a string')
+    error_messages <- check_element_length(list(module_name = module_name))
+
+    error_messages <- append(
+        error_messages,
+        check_strings(list(module_name = module_name))
+    )
+
+    if (length(module_name) != 1) {
+        error_messages <- append(error_messages, "`module_name` must have length 1")
     }
 
+    send_error_messages(error_messages)
+
     # Make sure verbose is a logical variable
-    verbose = lapply(verbose, as.logical)
+    verbose <- lapply(verbose, as.logical)
 
     # Get the info list
-    result = .Call(R_module_info, module_name, verbose)
+    result <- .Call(R_module_info, module_name, verbose)
 
     return(result)
 }
 
-evaluate_module <- function(module_name, input_parameters)
+evaluate_module <- function(module_name, input_quantities)
 {
     # Example: testing the output of the thermal_time_linear module
     #
@@ -50,23 +58,36 @@ evaluate_module <- function(module_name, input_parameters)
     #  outputs <- evaluate_module("big_leaf_multilayer_canopy", inputs, TRUE)
     #  <<check the values of the output parameters to confirm they are correct>>
 
-    if (!is.character(module_name) & length(module_name) != 1) {
-        stop('"module_name" must be a string')
+    error_messages <- check_list(list(input_quantities = input_quantities))
+
+    error_messages <- append(
+        error_messages,
+        check_element_length(list(
+            module_name = module_name,
+            input_quantities = input_quantities
+        ))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_strings(list(module_name = module_name))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_numeric(list(input_quantities = input_quantities))
+    )
+
+    if (length(module_name) != 1) {
+        error_messages <- append(error_messages, "`module_name` must have length 1")
     }
 
-    if(!is.list(input_parameters)) {
-        stop('"input_parameters" must be a list')
-    }
+    send_error_messages(error_messages)
 
-    if(length(input_parameters) != length(unlist(input_parameters))) {
-        item_lengths = unlist(lapply(input_parameters, length))
-        error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-        stop(error_message)
-    }
+    # C++ requires that all the variables have type `double`
+    input_quantities <- lapply(input_quantities, as.numeric)
 
-    input_parameters = lapply(input_parameters, as.numeric)
-
-    result = .Call(R_evaluate_module, module_name, input_parameters)
-    result = result[order(names(result))]
+    result <- .Call(R_evaluate_module, module_name, input_quantities)
+    result <- result[order(names(result))]
     return(result)
 }

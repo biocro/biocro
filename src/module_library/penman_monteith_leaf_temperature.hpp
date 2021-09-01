@@ -4,14 +4,14 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class penman_monteith_leaf_temperature : public SteadyModule
+class penman_monteith_leaf_temperature : public direct_module
 {
    public:
     penman_monteith_leaf_temperature(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("penman_monteith_leaf_temperature"),
+          direct_module("penman_monteith_leaf_temperature"),
 
           // Get references to input quantities
           slope_water_vapor{get_input(input_quantities, "slope_water_vapor")},

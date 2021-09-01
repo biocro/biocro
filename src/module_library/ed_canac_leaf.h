@@ -10,14 +10,14 @@
  *
  * @brief Currently only intended for use by Ed.
  */
-class ed_canac_leaf : public SteadyModule
+class ed_canac_leaf : public direct_module
 {
    public:
     ed_canac_leaf(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_canac_leaf"),
+          direct_module("ed_canac_leaf"),
 
           // Get pointers to input quantities
           collatz_PAR_flux_ip(get_ip(input_quantities, "collatz_PAR_flux")),

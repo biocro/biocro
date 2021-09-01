@@ -151,7 +151,7 @@ string_vector get_other_leaf_inputs()
  * classes will be derived from this class.
  */
 template <typename canopy_module_type, typename leaf_module_type>
-class multilayer_canopy_photosynthesis : public SteadyModule
+class multilayer_canopy_photosynthesis : public direct_module
 {
    public:
     multilayer_canopy_photosynthesis(
@@ -167,7 +167,7 @@ class multilayer_canopy_photosynthesis : public SteadyModule
     // Leaf photosynthesis module
     state_map leaf_module_quantities;
     state_map leaf_module_output_map;
-    std::unique_ptr<Module> leaf_module;
+    std::unique_ptr<module_base> leaf_module;
 
     // Pointers to input parameters
     std::vector<std::vector<std::pair<double*, const double*>>> leaf_input_ptr_pairs;
@@ -192,7 +192,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
     const int& nlayers,
     state_map const& input_quantities,
     state_map* output_quantities)
-    : SteadyModule(module_name),
+    : direct_module(module_name),
       nlayers(nlayers)
 {
     // Define a lambda for making quantity maps from vectors of inputs and outputs
@@ -216,7 +216,7 @@ multilayer_canopy_photosynthesis<canopy_module_type, leaf_module_type>::multilay
 
     // Create the leaf photosynthesis module
     leaf_module =
-        std::unique_ptr<Module>(new leaf_module_type(
+        std::unique_ptr<module_base>(new leaf_module_type(
             leaf_module_quantities,
             &leaf_module_output_map));
 

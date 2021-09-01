@@ -26,7 +26,7 @@
  * will be used by the multilayer canopy photosynthesis module to pass them
  * to a leaf photosynthesis module.
  */
-class ed_multilayer_canopy_properties : public SteadyModule
+class ed_multilayer_canopy_properties : public direct_module
 {
    public:
     ed_multilayer_canopy_properties(
@@ -35,7 +35,7 @@ class ed_multilayer_canopy_properties : public SteadyModule
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule(module_name),
+          direct_module(module_name),
 
           // Store the number of layers
           nlayers(nlayers),

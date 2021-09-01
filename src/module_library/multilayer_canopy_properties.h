@@ -50,7 +50,7 @@
  * using the module_wrapper_factory. Rather, it is expected that directly-usable
  * classes will be derived from this class.
  */
-class multilayer_canopy_properties : public SteadyModule
+class multilayer_canopy_properties : public direct_module
 {
    public:
     multilayer_canopy_properties(
@@ -59,7 +59,7 @@ class multilayer_canopy_properties : public SteadyModule
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule(module_name),
+          direct_module(module_name),
 
           // Store the number of layers
           nlayers(nlayers),

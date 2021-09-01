@@ -81,14 +81,14 @@
  * conversion factor of `24 hours per day` is required in the code as compared to the
  * formulas presented above.
  */
-class thermal_time_trilinear : public DerivModule
+class thermal_time_trilinear : public differential_module
 {
    public:
     thermal_time_trilinear(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          DerivModule("thermal_time_trilinear"),
+          differential_module("thermal_time_trilinear"),
 
           // Get references to input quantities
           time{get_input(input_quantities, "time")},
