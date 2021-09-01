@@ -19,12 +19,7 @@ using std::vector;
  *
  *  @brief Defines a dynamical system which can be solved using an integrator.
  *
- *  A true dynamical system requires three elements:
- *
- *  - A state, which consists of one or more quantities; here we use the term
- *    `quantity` to refer to an entity with a name and a numeric value;
- *    likewise, the value of the state is determined by the values of each of
- *    its constituent quantities.
+ *  A dynamical system requires three elements:
  *
  *  - A state space, which may generally be thought of as consisting of one or
  *    more quantities; here we use the term _quantity_ to refer to a named
