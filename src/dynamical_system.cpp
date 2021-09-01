@@ -152,10 +152,10 @@ vector<const double*> dynamical_system::get_quantity_access_ptrs(string_vector q
  *
  *  The quantities that change are:
  *
- *  - quantities whose derivatives are calculated by differential_modules, i.e.,
+ *  - quantities whose derivatives are calculated by differential modules, i.e.,
  *    the differential quantities
  *
- *  - quantities whose instantaneous values are calculated by direct_modules,
+ *  - quantities whose instantaneous values are calculated by direct modules,
  *    i.e., the direct quantities
  *
  *  - the drivers

@@ -13,7 +13,7 @@ system_derivatives <- function(
     # of quantities that follow differential evolution rules, i.e., the
     # differential quantities. Note: the values of these quantities are not
     # important and won't be used in this function, but their names are
-    # critical.
+    # crucial.
     #
     # parameters: a list of named quantities that don't change with time. This
     # list should include a `timestep` element that specifies the time spacing
@@ -40,10 +40,7 @@ system_derivatives <- function(
     #
     # --------------------------------------------------------------------------
     #
-    # Example 1: a simple oscillator with derivatives only. Note that we need to
-    # define `timestep`, `doy`, and `hour` parameters as required by the C++
-    # `dynamical_system` class, even though `doy` and `hour` won't be used for
-    # this example.
+    # Example 1: a simple oscillator with derivatives only.
     #
     #     oscillator_initial_values <- list(
     #         position = 0,
@@ -98,7 +95,7 @@ system_derivatives <- function(
     #
     #     iv <- as.numeric(soybean_initial_values)
     #     names(iv) <- names(soybean_initial_values)
-    #     times = seq(from=0, to=10, by=1)
+    #     times = seq(from=0, to=100, by=1)
     #
     #     library(deSolve)
     #
@@ -111,7 +108,7 @@ system_derivatives <- function(
     # `soybean_system` created in example 2):
     #
     #     derivs <- soybean_system(0, iv, NULL)
-    #     View(derivs)
+    #     print(derivs)
 
     # Check to make sure the initial values are properly defined
     if (!is.list(initial_values)) {
@@ -166,18 +163,10 @@ system_derivatives <- function(
         # don't need to do any format checking here because LSODES will have
         # already done it.
 
-        # Convert the differential_quantities into the proper format
-        temp_differential_quantities <- list();
-        for(i in seq_along(differential_quantities)) {
-            param_name = names(differential_quantities[i])
-            param_value = as.numeric(differential_quantities[i])
-            temp_differential_quantities[param_name] = param_value
-        }
-
         # Call the C++ code that calculates a derivative
         derivs <- .Call(
             R_system_derivatives,
-            temp_differential_quantities,
+            as.list(differential_quantities),
             t,
             parameters,
             drivers,

@@ -84,7 +84,7 @@ SEXP R_system_derivatives(
         // differential quantities
         vector<double> dxdt(x.size());
 
-        // Calculate the derivative (modifies dxdt)
+        // Calculate the derivative (sets dxdt)
         sys.calculate_derivative(x, dxdt, t);
 
         // Make the output map

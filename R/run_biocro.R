@@ -27,9 +27,10 @@ run_biocro <- function(
     #     include a `timestep` parameter (see `drivers` for more info)
     #
     # drivers: a data frame of quantities defined at equally spaced time
-    #     intervals. The time interval should be specified as a quantity called
-    #     `timestep` having units of hours. The drivers must include columns
-    #     for either (1) `time` (in units of days) or (2) `doy` and `hour`.
+    #     intervals. The time interval should be specified in the `parameters`
+    #     as a quantity called `timestep` having units of hours. The drivers
+    #     must include columns for either (1) `time` (in units of days) or
+    #     (2) `doy` and `hour`.
     #
     # direct_module_names: a character vector or list specifying the names
     #     of direct modules to use in the system
@@ -43,8 +44,8 @@ run_biocro <- function(
     #         type: string specifying the numerical integrator to use. Can be
     #             one of the following:
     #
-    #                 "auto": automatically uses `boost_rosenbrock` if possible;
-    #                     uses `homemade_euler` otherwise
+    #                 "auto": use `boost_rosenbrock` if possible; use
+    #                     `homemade_euler` otherwise
     #
     #                 "homemade_euler": our own implementation of the fixed step
     #                     Euler method
