@@ -1,27 +1,27 @@
-#ifndef BOOST_INTEGRATORS_H
-#define BOOST_INTEGRATORS_H
+#ifndef BOOST_ODE_SOLVERS_H
+#define BOOST_ODE_SOLVERS_H
 
 #include <boost/numeric/ublas/vector.hpp>
-#include "../integrator.h"
+#include "../ode_solver.h"
 #include "../dynamical_system_caller.h"
 #include "../state_map.h"  // for state_vector_map
 
 /**
- *  @brief A class representing a generic boost system integrator.
+ *  @brief A class representing a generic boost system ode_solver.
  */
 template <class state_type>
-class boost_integrator : public integrator
+class boost_ode_solver : public ode_solver
 {
    public:
-    boost_integrator(
-        std::string integrator_name,
+    boost_ode_solver(
+        std::string ode_solver_name,
         bool check_euler_requirement,
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
         int max_steps)
-        : integrator{
-              integrator_name,
+        : ode_solver{
+              ode_solver_name,
               check_euler_requirement,
               step_size,
               rel_error_tolerance,
@@ -47,7 +47,7 @@ class boost_integrator : public integrator
 
     std::string get_param_info() const override
     {
-        // All boost integrators use the output_step_size
+        // All boost ode_solvers use the output_step_size
         return std::string("\nOutput step size: ") +
                std::to_string(get_output_step_size()) +
                get_boost_param_info();
@@ -70,9 +70,9 @@ class boost_integrator : public integrator
     }
 };
 
-// Store some information that will be useful to any type of boost integrator, and then call the private do_boost_integrate method
+// Store some information that will be useful to any type of boost ode_solver, and then call the private do_boost_integrate method
 template <class state_type>
-state_vector_map boost_integrator<state_type>::do_integrate(std::shared_ptr<dynamical_system> sys)
+state_vector_map boost_ode_solver<state_type>::do_integrate(std::shared_ptr<dynamical_system> sys)
 {
     // Update and/or reset the stored objects
     sys->get_differential_quantities(state);
@@ -96,7 +96,7 @@ state_vector_map boost_integrator<state_type>::do_integrate(std::shared_ptr<dyna
 // Run integrate_const using stored information and the supplied stepper
 template <class state_type>
 template <class stepper_type>
-void boost_integrator<state_type>::run_integrate_const(stepper_type stepper, dynamical_system_caller syscall, push_back_state_and_time<state_type> observer)
+void boost_ode_solver<state_type>::run_integrate_const(stepper_type stepper, dynamical_system_caller syscall, push_back_state_and_time<state_type> observer)
 {
     try {
         nsteps = boost::numeric::odeint::integrate_const(
@@ -110,22 +110,22 @@ void boost_integrator<state_type>::run_integrate_const(stepper_type stepper, dyn
             boost::numeric::odeint::max_step_checker(get_adaptive_max_steps()));
         boost_error_string.clear();
     } catch (std::exception& e) {
-        // Store the error message and let the integrator return the partial results
+        // Store the error message and let the ode_solver return the partial results
         nsteps = 0;
         boost_error_string = std::string(e.what());
     }
 }
 
-// A class representing the boost Euler integrator
+// A class representing the boost Euler ode_solver
 template <class state_type>
-class boost_euler_integrator : public boost_integrator<state_type>
+class boost_euler_ode_solver : public boost_ode_solver<state_type>
 {
    public:
-    boost_euler_integrator(
+    boost_euler_ode_solver(
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : boost_integrator<state_type>("euler_odeint", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
+        int max_steps) : boost_ode_solver<state_type>("euler_odeint", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     void do_boost_integrate(dynamical_system_caller syscall, push_back_state_and_time<state_type>& observer) override
@@ -139,21 +139,21 @@ class boost_euler_integrator : public boost_integrator<state_type>
     }
     std::string get_boost_param_info() const override
     {
-        // The boost Euler integrator has no new parameters to report
+        // The boost Euler ode_solver has no new parameters to report
         return std::string("");
     }
 };
 
-// A class representing the boost RK4 integrator
+// A class representing the boost RK4 ode_solver
 template <class state_type>
-class boost_rk4_integrator : public boost_integrator<state_type>
+class boost_rk4_ode_solver : public boost_ode_solver<state_type>
 {
    public:
-    boost_rk4_integrator(
+    boost_rk4_ode_solver(
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : boost_integrator<state_type>("rk4", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
+        int max_steps) : boost_ode_solver<state_type>("rk4", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     void do_boost_integrate(dynamical_system_caller syscall, push_back_state_and_time<state_type>& observer) override
@@ -167,21 +167,21 @@ class boost_rk4_integrator : public boost_integrator<state_type>
     }
     std::string get_boost_param_info() const override
     {
-        // The boost RK4 integrator has no new parameters to report
+        // The boost RK4 ode_solver has no new parameters to report
         return std::string("");
     }
 };
 
-// A class representing the boost RKCK54 integrator
+// A class representing the boost RKCK54 ode_solver
 template <class state_type>
-class boost_rkck54_integrator : public boost_integrator<state_type>
+class boost_rkck54_ode_solver : public boost_ode_solver<state_type>
 {
    public:
-    boost_rkck54_integrator(
+    boost_rkck54_ode_solver(
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : boost_integrator<state_type>("rkck54", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
+        int max_steps) : boost_ode_solver<state_type>("rkck54", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     void do_boost_integrate(dynamical_system_caller syscall, push_back_state_and_time<state_type>& observer) override
@@ -206,16 +206,16 @@ class boost_rkck54_integrator : public boost_integrator<state_type>
     }
 };
 
-// A class representing the boost rosenbrock integrator
-// Note that this integrator is only compatible with boost::numeric::ublas::vector<double> state vectors
-class boost_rsnbrk_integrator : public boost_integrator<boost::numeric::ublas::vector<double>>
+// A class representing the boost rosenbrock ode_solver
+// Note that this ode_solver is only compatible with boost::numeric::ublas::vector<double> state vectors
+class boost_rsnbrk_ode_solver : public boost_ode_solver<boost::numeric::ublas::vector<double>>
 {
    public:
-    boost_rsnbrk_integrator(
+    boost_rsnbrk_ode_solver(
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : boost_integrator<boost::numeric::ublas::vector<double>>("rsnbrk", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
+        int max_steps) : boost_ode_solver<boost::numeric::ublas::vector<double>>("rsnbrk", true, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     void do_boost_integrate(

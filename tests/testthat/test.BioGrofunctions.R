@@ -7,7 +7,7 @@ name_parameters = function(
     drivers,
     direct_module_names,
     differential_module_names,
-    integrator
+    ode_solver
 )
 {
     list(
@@ -16,14 +16,14 @@ name_parameters = function(
         drivers = drivers,
         direct_module_names = direct_module_names,
         differential_module_names = differential_module_names,
-        integrator = integrator
+        ode_solver = ode_solver
     )
 }
 
 parameter_lists = list(
-    willow     = name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_direct_modules,                 willow_differential_modules,                 willow_integrator),
-    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_integrator),
-    sorghum    = name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_direct_modules,                sorghum_differential_modules,                sorghum_integrator)
+    willow     = name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_direct_modules,                 willow_differential_modules,                 willow_ode_solver),
+    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_ode_solver),
+    sorghum    = name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_direct_modules,                sorghum_differential_modules,                sorghum_ode_solver)
 )
 
 test_that("Willow simulation produces reasonable results", {
@@ -33,7 +33,7 @@ test_that("Willow simulation produces reasonable results", {
         weather05,
         willow_direct_modules,
         willow_differential_modules,
-        willow_integrator
+        willow_ode_solver
     )
 
     results_means <- unlist(lapply(results, mean))

@@ -113,34 +113,34 @@ check_strings <- function(args_to_check) {
     return(error_message)
 }
 
-# Checks whether an `integrator` list is properly defined. If it is, this
+# Checks whether an `ode_solver` list is properly defined. If it is, this
 # function returns an empty string. Otherwise, it returns an informative error
 # message.
-check_integrator <- function(integrator) {
+check_ode_solver <- function(ode_solver) {
     error_message <- character()
 
     # Should be a list
     error_message <- append(
         error_message,
-        check_list(list(integrator=integrator))
+        check_list(list(ode_solver=ode_solver))
     )
 
     # All elements should have length of 1
     error_message <- append(
         error_message,
-        check_element_length(list(integrator=integrator))
+        check_element_length(list(ode_solver=ode_solver))
     )
 
     # The type must be a string
     error_message <- append(
         error_message,
-        check_strings(list(integrator_type=integrator['type']))
+        check_strings(list(ode_solver_type=ode_solver['type']))
     )
 
     # All other elements must be numeric
     error_message <- append(
         error_message,
-        check_numeric(list(integrator_other_than_type=integrator[!(names(integrator) == 'type')]))
+        check_numeric(list(ode_solver_other_than_type=ode_solver[!(names(ode_solver) == 'type')]))
     )
 
     return(error_message)
@@ -226,7 +226,7 @@ check_run_biocro_inputs <- function(
     drivers,
     direct_module_names,
     differential_module_names,
-    integrator
+    ode_solver
 )
 {
     error_message <- character()
@@ -243,10 +243,10 @@ check_run_biocro_inputs <- function(
         )
     )
 
-    # Check the integrator
+    # Check the ode_solver
     error_message <- append(
         error_message,
-        check_integrator(integrator)
+        check_ode_solver(ode_solver)
     )
 
     return(error_message)

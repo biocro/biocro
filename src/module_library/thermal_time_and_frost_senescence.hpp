@@ -93,7 +93,7 @@ class thermal_time_and_frost_senescence : public differential_module
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent
            // class and indicate that this module requires a fixed step size
-           // Euler integrator
+           // Euler ODE solver
           differential_module("thermal_time_and_frost_senescence", true),
 
           // Get pointers to input quantities

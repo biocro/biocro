@@ -1,4 +1,4 @@
-default_integrator <- list(
+default_ode_solver <- list(
     type = 'homemade_euler',
     output_step_size = NA,
     adaptive_rel_error_tol = NA,
@@ -12,12 +12,12 @@ run_biocro <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    integrator = default_integrator,
+    ode_solver = default_ode_solver,
     verbose = FALSE
 )
 {
     # This function runs a full crop growth simulation with a user-specified
-    # numerical integrator
+    # numerical ode_solver
     #
     # initial_values: a list of named quantities representing the initial values
     #     of the differential quantities, i.e., the quantities whose derivatives
@@ -38,10 +38,10 @@ run_biocro <- function(
     # differential_module_names: a character vector or list of differential
     #     module names
     #
-    # integrator: a list specifying details about the numerical integrator.
+    # ode_solver: a list specifying details about the numerical ODE solver.
     #     The required elements are:
     #
-    #         type: string specifying the numerical integrator to use. Can be
+    #         type: string specifying the numerical ODE solver to use. Can be
     #             one of the following:
     #
     #                 "auto": use `boost_rosenbrock` if possible; use
@@ -88,7 +88,7 @@ run_biocro <- function(
     #         get_growing_season_climate(weather05),
     #         sorghum_direct_modules,
     #         sorghum_differential_modules,
-    #         sorghum_integrator,
+    #         sorghum_ode_solver,
     #         TRUE
     #     )
     #
@@ -117,16 +117,16 @@ run_biocro <- function(
     #         get_growing_season_climate(weather05),
     #         glycine_max_direct_modules,
     #         glycine_max_differential_modules,
-    #         glycine_max_integrator,
+    #         glycine_max_ode_solver,
     #         TRUE
     #     )
     #
     #     lattice::xyplot(Leaf + Stem + Root + Grain ~ TTc, data=result, type='l', auto=TRUE)
     #
-    # In this simulation, the `auto` integrator (specified by
-    # `glycine_max_integrator`) automatically detects that all modules
+    # In this simulation, the `auto` ODE solver (specified by
+    # `glycine_max_ode_solver`) automatically detects that all modules
     # are compatible with adapative step size integration methods. In this case,
-    # it uses the `boost_rosenbrock` integrator to run the simulation.
+    # it uses the `boost_rosenbrock` ODE solver to run the simulation.
 
     error_messages <- check_run_biocro_inputs(
         initial_values,
@@ -134,7 +134,7 @@ run_biocro <- function(
         drivers,
         direct_module_names,
         differential_module_names,
-        integrator
+        ode_solver
     )
 
     send_error_messages(error_messages)
@@ -146,21 +146,21 @@ run_biocro <- function(
     direct_module_names <- unlist(direct_module_names)
     differential_module_names <- unlist(differential_module_names)
 
-    # Collect the integrator info
-    integrator_type <- integrator$type
-    integrator_output_step_size <- integrator$output_step_size
-    integrator_adaptive_rel_error_tol <- integrator$adaptive_rel_error_tol
-    integrator_adaptive_abs_error_tol <- integrator$adaptive_abs_error_tol
-    integrator_adaptive_max_steps <- integrator$adaptive_max_steps
+    # Collect the ode_solver info
+    ode_solver_type <- ode_solver$type
+    ode_solver_output_step_size <- ode_solver$output_step_size
+    ode_solver_adaptive_rel_error_tol <- ode_solver$adaptive_rel_error_tol
+    ode_solver_adaptive_abs_error_tol <- ode_solver$adaptive_abs_error_tol
+    ode_solver_adaptive_max_steps <- ode_solver$adaptive_max_steps
 
     # C++ requires that all the variables have type `double`
     initial_values <- lapply(initial_values, as.numeric)
     parameters <- lapply(parameters, as.numeric)
     drivers <- lapply(drivers, as.numeric)
-    integrator_output_step_size <- as.numeric(integrator_output_step_size)
-    integrator_adaptive_rel_error_tol <- as.numeric(integrator_adaptive_rel_error_tol)
-    integrator_adaptive_abs_error_tol <- as.numeric(integrator_adaptive_abs_error_tol)
-    integrator_adaptive_max_steps <- as.numeric(integrator_adaptive_max_steps)
+    ode_solver_output_step_size <- as.numeric(ode_solver_output_step_size)
+    ode_solver_adaptive_rel_error_tol <- as.numeric(ode_solver_adaptive_rel_error_tol)
+    ode_solver_adaptive_abs_error_tol <- as.numeric(ode_solver_adaptive_abs_error_tol)
+    ode_solver_adaptive_max_steps <- as.numeric(ode_solver_adaptive_max_steps)
 
     # Make sure verbose is a logical variable
     verbose <- lapply(verbose, as.logical)
@@ -173,11 +173,11 @@ run_biocro <- function(
         drivers,
         direct_module_names,
         differential_module_names,
-        integrator_type,
-        integrator_output_step_size,
-        integrator_adaptive_rel_error_tol,
-        integrator_adaptive_abs_error_tol,
-        integrator_adaptive_max_steps,
+        ode_solver_type,
+        ode_solver_output_step_size,
+        ode_solver_adaptive_rel_error_tol,
+        ode_solver_adaptive_abs_error_tol,
+        ode_solver_adaptive_max_steps,
         verbose
     ))
 
@@ -198,7 +198,7 @@ partial_run_biocro <- function(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    integrator = default_integrator,
+    ode_solver = default_ode_solver,
     arg_names,
     verbose = FALSE
 )
@@ -217,7 +217,7 @@ partial_run_biocro <- function(
     # drivers: same as run_biocro()
     # direct_module_names: same as run_biocro()
     # differential_module_names: same as run_biocro()
-    # integrator: same as run_biocro()
+    # ode_solver: same as run_biocro()
     # arg_names: vector of character variables. The names of the arguments that
     #            the new function accepts. Note: 'arg_names' can only contain
     #            the names of parameters in 'initial_values', 'parameters', or
@@ -236,7 +236,7 @@ partial_run_biocro <- function(
     #         get_growing_season_climate(weather05),
     #         sorghum_direct_modules,
     #         sorghum_differential_modules,
-    #         sorghum_integrator,
+    #         sorghum_ode_solver,
     #         c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome'),
     #         TRUE
     #     )
@@ -249,7 +249,7 @@ partial_run_biocro <- function(
         drivers,
         direct_module_names,
         differential_module_names,
-        integrator
+        ode_solver
     )
 
     send_error_messages(error_messages)
@@ -260,7 +260,7 @@ partial_run_biocro <- function(
         drivers=drivers,
         direct_module_names=direct_module_names,
         differential_module_names=differential_module_names,
-        integrator=integrator,
+        ode_solver=ode_solver,
         verbose=verbose
     )
 

@@ -18,10 +18,10 @@
  *  - `differential_module`: a module that calculates the instantaneous rate(s)
  *    of change for one or more quantities
  *
- *  A module must also indicate whether or not it requires an Euler integrator.
+ *  A module must also indicate whether or not it requires an Euler ODE solver.
  *  Most modules do not. However, a few "legacy" modules require information
  *  from previous times and will only work properly with a fixed step size
- *  Euler integrator.
+ *  Euler ODE solver.
  *
  *  This class has a pure virtual destructor to designate it as being
  *  intentionally abstract.
@@ -44,7 +44,7 @@ class module_base
     // Functions for returning module information
     std::string get_name() const { return module_name; }
     bool is_differential() const { return differential; }
-    bool requires_euler_integrator() const { return requires_euler; }
+    bool requires_euler_ode_solver() const { return requires_euler; }
 
     // Functions for running the module
     void run() const { do_operation(); }

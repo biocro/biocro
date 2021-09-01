@@ -1,38 +1,38 @@
-#ifndef HOMEMADE_EULER_INTEGRATOR_H
-#define HOMEMADE_EULER_INTEGRATOR_H
+#ifndef HOMEMADE_EULER_ODE_SOLVER_H
+#define HOMEMADE_EULER_ODE_SOLVER_H
 
-#include "../integrator.h"
+#include "../ode_solver.h"
 #include "../state_map.h"
 
-// A class representing our homemade Euler integrator
+// A class representing our homemade Euler ode_solver
 template <class state_type>
-class homemade_euler_integrator : public integrator
+class homemade_euler_ode_solver : public ode_solver
 {
    public:
-    homemade_euler_integrator(
+    homemade_euler_ode_solver(
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
-        int max_steps) : integrator("homemade_euler", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
+        int max_steps) : ode_solver("homemade_euler", false, step_size, rel_error_tolerance, abs_error_tolerance, max_steps) {}
 
    private:
     state_vector_map do_integrate(std::shared_ptr<dynamical_system> sys) override;
 
     std::string get_param_info() const override
     {
-        // The homemade Euler integrator has no new parameters to report
+        // The homemade Euler ode_solver has no new parameters to report
         return std::string("");
     }
 
     std::string get_solution_info() const override
     {
-        // The homemade Euler integrator doesn't have much to contribute
+        // The homemade Euler ode_solver doesn't have much to contribute
         return std::string("N/A");
     }
 };
 
 template <class state_type>
-state_vector_map homemade_euler_integrator<state_type>::do_integrate(std::shared_ptr<dynamical_system> sys)
+state_vector_map homemade_euler_ode_solver<state_type>::do_integrate(std::shared_ptr<dynamical_system> sys)
 {
     // Get the names of the output parameters and pointers to them
     std::vector<std::string> output_param_vector = sys->get_output_quantity_names();

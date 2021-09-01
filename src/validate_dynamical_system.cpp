@@ -233,13 +233,13 @@ std::string analyze_system_inputs(
                                                            std::string(""),
                                                            string_list); });
 
-    // List any modules that require a fixed step size Euler integrator
+    // List any modules that require a fixed step size Euler ode_solver
     process_criterion<string_vector>(
         message,
         [=]() -> string_vector { return find_euler_requirements(std::vector<string_vector>{direct_module_names, differential_module_names}); },
         [](string_vector string_list) -> std::string { return create_message(
-                                                           std::string("No modules require a fixed step size Euler integrator"),
-                                                           std::string("The following modules require a fixed step size Euler integrator:"),
+                                                           std::string("No modules require a fixed step size Euler ode_solver"),
+                                                           std::string("The following modules require a fixed step size Euler ode_solver:"),
                                                            std::string(""),
                                                            string_list); });
 
@@ -499,7 +499,7 @@ string_vector find_static_output_parameters(
 }
 
 /**
- * @brief Returns modules that require a fixed step size Euler integrator
+ * @brief Returns modules that require a fixed step size Euler ode_solver
  */
 string_vector find_euler_requirements(std::vector<string_vector> module_name_vectors)
 {
@@ -519,7 +519,7 @@ string_vector find_euler_requirements(std::vector<string_vector> module_name_vec
     string_vector euler_requiring_modules;
     module_vector modules = get_module_vector(module_name_vectors, quantities, &quantities);
     for (std::unique_ptr<module_base>& m : modules) {
-        if (m->requires_euler_integrator()) {
+        if (m->requires_euler_ode_solver()) {
             euler_requiring_modules.push_back(m->get_name());
         }
     }

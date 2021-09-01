@@ -17,7 +17,7 @@ using std::vector;
 /**
  *  @class dynamical_system
  *
- *  @brief Defines a dynamical system which can be solved using an integrator.
+ *  @brief Defines a dynamical system which can be solved using an ode_solver.
  *
  *  A true dynamical system requires three elements:
  *
@@ -60,7 +60,7 @@ using std::vector;
  *
  *  To fully define the evolution rule, it is also necessary to supply a
  *  differential equation solver in addition to the equations mentioned above.
- *  Such solvers are provided as another class: the `integrator`.
+ *  Such solvers are provided as another class: the `ode_solver`.
  *
  *  ----------------------------------------------------------------------------
  *
@@ -151,7 +151,7 @@ class dynamical_system
         string_vector const& dir_module_names,
         string_vector const& differential_module_names);
 
-    // For integrating via an integrator
+    // For integrating via an ode_solver
     size_t get_ntimes() const
     {
         auto driver = drivers.begin();
@@ -159,8 +159,8 @@ class dynamical_system
     }
 
     /// Check whether the dynamical_system requires a fixed step Euler
-    /// integrator based on the modules that it uses.
-    bool requires_euler_integrator() const
+    /// ODE solver based on the modules that it uses.
+    bool requires_euler_ode_solver() const
     {
         return check_euler_requirement(direct_modules) ||
                check_euler_requirement(differential_modules);

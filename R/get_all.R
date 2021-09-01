@@ -40,13 +40,13 @@ get_all_quantities <- function()
 	as.data.frame(.Call(R_get_all_quantities))
 }
 
-get_all_integrators <- function()
+get_all_ode_solvers <- function()
 {
 	# Intended usage:
 	#
-	#  View(get_all_integrators())
+	#  View(get_all_ode_solvers())
 
-	.Call(R_get_all_integrators)
+	.Call(R_get_all_ode_solvers)
 }
 
 get_all_se_solvers <- function()

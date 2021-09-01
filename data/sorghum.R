@@ -20,7 +20,7 @@ sorghum_differential_modules <- list(
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
-sorghum_integrator <- list(
+sorghum_ode_solver <- list(
     type = 'auto',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-5,

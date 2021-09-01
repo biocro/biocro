@@ -13,13 +13,13 @@ test_that("certain run_biocro inputs must have the correct type", {
             unlist(get_growing_season_climate(weather05)),
             sorghum_direct_modules,
             sorghum_differential_modules,
-            unlist(sorghum_integrator['type'])
+            unlist(sorghum_ode_solver['type'])
         ),
         regexp = paste0(
             "`initial_values` must be a list.\n",
             "  `parameters` must be a list.\n",
             "  `drivers` must be a data frame.\n",
-            "  `integrator` must be a list.\n"
+            "  `ode_solver` must be a list.\n"
         )
     )
 })
@@ -32,14 +32,14 @@ test_that("certain run_biocro inputs must not have empty elements", {
             get_growing_season_climate(weather05),
             within(sorghum_direct_modules, {bad_direct_module = character(0)}),
             within(sorghum_differential_modules, {bad_differential_module = character(0)}),
-            within(sorghum_integrator, {bad_integrator_setting = numeric(0)})
+            within(sorghum_ode_solver, {bad_ode_solver_setting = numeric(0)})
         ),
         regexp = paste0(
             "The following `initial_values` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_initial_value.\n",
             "  The following `parameters` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_parameter.\n",
             "  The following `direct_module_names` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_direct_module.\n",
             "  The following `differential_module_names` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_differential_module.\n",
-            "  The following `integrator` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_integrator_setting.\n"
+            "  The following `ode_solver` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_ode_solver_setting.\n"
         )
     )
 })
@@ -52,12 +52,12 @@ test_that("certain run_biocro inputs must not have elements with length > 1", {
             get_growing_season_climate(weather05),
             sorghum_direct_modules,
             sorghum_differential_modules,
-            within(sorghum_integrator, {bad_integrator_setting = c(1,2)})
+            within(sorghum_ode_solver, {bad_ode_solver_setting = c(1,2)})
         ),
         regexp = paste0(
             "The following `initial_values` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_initial_value.\n",
             "  The following `parameters` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_parameter.\n",
-            "  The following `integrator` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_integrator_setting.\n"
+            "  The following `ode_solver` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_ode_solver_setting.\n"
         )
     )
 })
@@ -70,12 +70,12 @@ test_that("certain run_biocro inputs must be strings", {
             get_growing_season_climate(weather05),
             append(sorghum_direct_modules, 1.23),
             append(sorghum_differential_modules, 4.56),
-            within(sorghum_integrator, {type = 7.89})
+            within(sorghum_ode_solver, {type = 7.89})
         ),
         regexp = paste0(
             "The following `direct_module_names` members are not strings, but all members must be strings: 1.23.\n",
             "  The following `differential_module_names` members are not strings, but all members must be strings: 4.56.\n",
-            "  The following `integrator_type` members are not strings, but all members must be strings: 7.89.\n"
+            "  The following `ode_solver_type` members are not strings, but all members must be strings: 7.89.\n"
         )
     )
 })
@@ -88,13 +88,13 @@ test_that("certain run_biocro inputs must be numeric", {
             within(get_growing_season_climate(weather05), {bad_driver = "offensive"}),
             sorghum_direct_modules,
             sorghum_differential_modules,
-            within(sorghum_integrator, {bad_integrator_setting = "heinous"})
+            within(sorghum_ode_solver, {bad_ode_solver_setting = "heinous"})
         ),
         regexp = paste0(
             "The following `initial_values` members are not numeric or NA, but all members must be numeric or NA: bad_initial_value.\n",
             "  The following `parameters` members are not numeric or NA, but all members must be numeric or NA: bad_parameter.\n",
             "  The following `drivers` members are not numeric or NA, but all members must be numeric or NA: bad_driver.\n",
-            "  The following `integrator_other_than_type` members are not numeric or NA, but all members must be numeric or NA: bad_integrator_setting.\n"
+            "  The following `ode_solver_other_than_type` members are not numeric or NA, but all members must be numeric or NA: bad_ode_solver_setting.\n"
         )
     )
 })

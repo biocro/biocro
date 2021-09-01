@@ -165,7 +165,7 @@ SEXP list_from_module_info(
     state_map const& module_inputs,
     state_map const& module_outputs,
     bool const& is_differential,
-    bool const& requires_euler_integrator,
+    bool const& requires_euler_ode_solver,
     std::string const& creation_error_message)
 {
     // Module inputs and outputs (these do not require an UNPROTECT here)
@@ -187,10 +187,10 @@ SEXP list_from_module_info(
     // Euler requirement
     SEXP requires_euler = PROTECT(Rf_allocVector(STRSXP, 1));
     string euler_msg;
-    if (requires_euler_integrator) {
-        euler_msg = "requires a fixed-step Euler integrator";
+    if (requires_euler_ode_solver) {
+        euler_msg = "requires a fixed-step Euler ode_solver";
     } else {
-        euler_msg = "does not require a fixed-step Euler integrator";
+        euler_msg = "does not require a fixed-step Euler ode_solver";
     }
     SET_STRING_ELT(requires_euler, 0, Rf_mkChar(euler_msg.c_str()));
 
