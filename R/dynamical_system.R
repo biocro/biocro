@@ -39,15 +39,15 @@ validate_dynamical_system_inputs <- function(
     differential_module_names <- unlist(differential_module_names)
 
     # C++ requires that all the variables have type `double`
-    initial_values = lapply(initial_values, as.numeric)
-    parameters = lapply(parameters, as.numeric)
-    drivers = lapply(drivers, as.numeric)
+    initial_values <- lapply(initial_values, as.numeric)
+    parameters <- lapply(parameters, as.numeric)
+    drivers <- lapply(drivers, as.numeric)
 
     # Make sure silent is a logical variable
-    silent = lapply(silent, as.logical)
+    silent <- lapply(silent, as.logical)
 
     # Run the C++ code
-    result = .Call(
+    result <- .Call(
         R_validate_dynamical_system_inputs,
         initial_values,
         parameters,

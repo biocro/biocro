@@ -32,10 +32,10 @@ module_info <- function(module_name, verbose = TRUE)
     }
 
     # Make sure verbose is a logical variable
-    verbose = lapply(verbose, as.logical)
+    verbose <- lapply(verbose, as.logical)
 
     # Get the info list
-    result = .Call(R_module_info, module_name, verbose)
+    result <- .Call(R_module_info, module_name, verbose)
 
     return(result)
 }
@@ -64,9 +64,9 @@ evaluate_module <- function(module_name, input_parameters)
         stop(error_message)
     }
 
-    input_parameters = lapply(input_parameters, as.numeric)
+    input_parameters <- lapply(input_parameters, as.numeric)
 
-    result = .Call(R_evaluate_module, module_name, input_parameters)
-    result = result[order(names(result))]
+    result <- .Call(R_evaluate_module, module_name, input_parameters)
+    result <- result[order(names(result))]
     return(result)
 }

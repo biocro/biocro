@@ -128,7 +128,7 @@ run_biocro <- function(
     # are compatible with adapative step size integration methods. In this case,
     # it uses the `boost_rosenbrock` integrator to run the simulation.
 
-    error_messages = check_run_biocro_inputs(
+    error_messages <- check_run_biocro_inputs(
         initial_values,
         parameters,
         drivers,
@@ -154,19 +154,19 @@ run_biocro <- function(
     integrator_adaptive_max_steps <- integrator$adaptive_max_steps
 
     # C++ requires that all the variables have type `double`
-    initial_values = lapply(initial_values, as.numeric)
-    parameters = lapply(parameters, as.numeric)
-    drivers = lapply(drivers, as.numeric)
-    integrator_output_step_size = as.numeric(integrator_output_step_size)
-    integrator_adaptive_rel_error_tol = as.numeric(integrator_adaptive_rel_error_tol)
-    integrator_adaptive_abs_error_tol = as.numeric(integrator_adaptive_abs_error_tol)
-    integrator_adaptive_max_steps = as.numeric(integrator_adaptive_max_steps)
+    initial_values <- lapply(initial_values, as.numeric)
+    parameters <- lapply(parameters, as.numeric)
+    drivers <- lapply(drivers, as.numeric)
+    integrator_output_step_size <- as.numeric(integrator_output_step_size)
+    integrator_adaptive_rel_error_tol <- as.numeric(integrator_adaptive_rel_error_tol)
+    integrator_adaptive_abs_error_tol <- as.numeric(integrator_adaptive_abs_error_tol)
+    integrator_adaptive_max_steps <- as.numeric(integrator_adaptive_max_steps)
 
     # Make sure verbose is a logical variable
-    verbose = lapply(verbose, as.logical)
+    verbose <- lapply(verbose, as.logical)
 
     # Run the C++ code
-    result = as.data.frame(.Call(
+    result <- as.data.frame(.Call(
         R_run_biocro,
         initial_values,
         parameters,
@@ -243,7 +243,7 @@ partial_run_biocro <- function(
     #
     #     result = senescence_simulation(c(2000, 2000, 2000, 2000))
 
-    error_messages = check_run_biocro_inputs(
+    error_messages <- check_run_biocro_inputs(
         initial_values,
         parameters,
         drivers,

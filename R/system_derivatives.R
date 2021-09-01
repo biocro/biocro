@@ -71,7 +71,7 @@ system_derivatives <- function(
     #
     #     library(deSolve)
     #
-    #     result = as.data.frame(lsodes(iv, times, oscillator_system_derivatives))
+    #     result <- as.data.frame(lsodes(iv, times, oscillator_system_derivatives))
     #
     #     lattice::xyplot(
     #         position + velocity ~ time,
@@ -99,7 +99,7 @@ system_derivatives <- function(
     #
     #     library(deSolve)
     #
-    #     result = as.data.frame(lsodes(iv, times, soybean_system))
+    #     result <- as.data.frame(lsodes(iv, times, soybean_system))
     #
     #     lattice::xyplot(Leaf + Stem ~ time, type='l', auto=TRUE, data=result)
     #
@@ -110,7 +110,7 @@ system_derivatives <- function(
     #     derivs <- soybean_system(0, iv, NULL)
     #     print(derivs)
 
-    error_messages = check_system_derivatives_inputs(
+    error_messages <- check_system_derivatives_inputs(
         initial_values,
         parameters,
         drivers,
@@ -128,9 +128,9 @@ system_derivatives <- function(
     differential_module_names <- unlist(differential_module_names)
 
     # C++ requires that all the variables have type `double`
-    initial_values = lapply(initial_values, as.numeric)
-    parameters = lapply(parameters, as.numeric)
-    drivers = lapply(drivers, as.numeric)
+    initial_values <- lapply(initial_values, as.numeric)
+    parameters <- lapply(parameters, as.numeric)
+    drivers <- lapply(drivers, as.numeric)
 
     # Create a function that returns a derivative
     function(t, differential_quantities, parms)
