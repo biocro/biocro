@@ -1,5 +1,4 @@
 system_derivatives <- function(
-    initial_values = list(),
     parameters = list(),
     drivers,
     direct_module_names = list(),
@@ -8,12 +7,6 @@ system_derivatives <- function(
 {
     # system_derivatives is used to create a function that can be called by a
     # differential equation solver such as LSODES.
-    #
-    # initial_values: a list of named quantities representing the initial values
-    # of quantities that follow differential evolution rules, i.e., the
-    # differential quantities. Note: the values of these quantities are not
-    # important and won't be used in this function, but their names are
-    # crucial.
     #
     # parameters: a list of named quantities that don't change with time. This
     # list should include a `timestep` element that specifies the time spacing
@@ -34,9 +27,9 @@ system_derivatives <- function(
     # each of the differential quantities. This function signature and the
     # requirements for its inputs are set by the LSODES function from the
     # deSolve library. The `t` input should be a single time value and the
-    # `differential_quantities` input should be a vector with the same names as
-    # `initial_values`, i.e., the names of the differential quantities. `parms`
-    # is required by LSODES, but we don't use it for anything.
+    # `differential_quantities` input should be a vector with the names of the
+    # differential quantities defined by the modules. `parms` is required by
+    # LSODES, but we don't use it for anything.
     #
     # --------------------------------------------------------------------------
     #
@@ -58,7 +51,6 @@ system_derivatives <- function(
     #     oscillator_differential_modules <- c("harmonic_oscillator")
     #
     #     oscillator_system_derivatives <- system_derivatives(
-    #         oscillator_initial_values,
     #         oscillator_parameters,
     #         get_growing_season_climate(weather05),
     #         oscillator_direct_modules,
@@ -82,11 +74,10 @@ system_derivatives <- function(
     #
     # --------------------------------------------------------------------------
     #
-    # Example 2: solving 100 hours of a soybean simulation. This will run very
+    # Example 2: solving 500 hours of a soybean simulation. This will run very
     # slow compared to a regular call to run_biocro.
     #
     #     soybean_system <- system_derivatives(
-    #         soybean_initial_values,
     #         soybean_parameters,
     #         soybean_weather2002,
     #         soybean_direct_modules,
@@ -95,7 +86,7 @@ system_derivatives <- function(
     #
     #     iv <- as.numeric(soybean_initial_values)
     #     names(iv) <- names(soybean_initial_values)
-    #     times = seq(from=0, to=100, by=1)
+    #     times = seq(from=0, to=500, by=1)
     #
     #     library(deSolve)
     #
@@ -111,7 +102,7 @@ system_derivatives <- function(
     #     print(derivs)
 
     error_messages <- check_system_derivatives_inputs(
-        initial_values,
+        list(),
         parameters,
         drivers,
         direct_module_names,
@@ -128,7 +119,6 @@ system_derivatives <- function(
     differential_module_names <- unlist(differential_module_names)
 
     # C++ requires that all the variables have type `double`
-    initial_values <- lapply(initial_values, as.numeric)
     parameters <- lapply(parameters, as.numeric)
     drivers <- lapply(drivers, as.numeric)
 

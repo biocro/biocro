@@ -113,7 +113,6 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     ## calculate the derivative corresponding to the initial conditions and
     ## compare against the expected values
     oscillator_system_derivative_fcn <- system_derivatives(
-        list(position=NA, velocity=NA),
         parameters,
         drivers,
         direct_modules,
