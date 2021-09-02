@@ -18,7 +18,7 @@ module_info <- function(module_name, verbose = TRUE)
     #
     # - type: the module's type (either `differential` or `direct`)
     # - euler_requirement: indicates whether the module requires a fixed-step
-    #                      Euler integrator when used in a BioCro simulation
+    #                      Euler ODE solver when used in a BioCro simulation
     #
     # - creation_error_message: describes any errors that occurred while
     #                           creating an instance of the module

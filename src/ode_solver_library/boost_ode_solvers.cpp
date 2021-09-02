@@ -1,6 +1,6 @@
-#include "boost_integrators.h"
+#include "boost_ode_solvers.h"
 
-void boost_rsnbrk_integrator::do_boost_integrate(
+void boost_rsnbrk_ode_solver::do_boost_integrate(
     dynamical_system_caller syscall,
     push_back_state_and_time<boost::numeric::ublas::vector<double>>& observer
 )
@@ -15,7 +15,7 @@ void boost_rsnbrk_integrator::do_boost_integrate(
     run_integrate_const(stepper, syscall, observer);
 }
 
-std::string boost_rsnbrk_integrator::get_boost_param_info() const
+std::string boost_rsnbrk_ode_solver::get_boost_param_info() const
 {
     return std::string("\nRelative error tolerance: ") +
         std::to_string(get_adaptive_rel_error_tol()) +

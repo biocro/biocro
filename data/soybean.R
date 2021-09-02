@@ -26,15 +26,15 @@ soybean_differential_modules <- list(
     thermal_time = "thermal_time_linear"
 )
 
-soybean_integrator <- list(
+soybean_ode_solver <- list(
     type = 'boost_rkck54',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-4,
     adaptive_abs_error_tol = 1e-4,
     adaptive_max_steps = 200
 )
-# Note: the integrator type should not be 'boost_rosenbrock' or 'auto' (which
-# defaults to 'boost_rosenbrock' when a fixed step size Euler integrator is not
+# Note: the ODE solver type should not be 'boost_rosenbrock' or 'auto' (which
+# defaults to 'boost_rosenbrock' when a fixed step size Euler ODE solver is not
 # required, as in this case) since the integration will fail unless the
 # tolerances are stringent (e.g., output_step_size = 0.01,
 # adaptive_rel_error_tol = 1e-9, adaptive_abs_error_tol = 1e-9)

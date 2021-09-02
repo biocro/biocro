@@ -23,7 +23,7 @@ SEXP list_from_module_info(
     state_map const& module_inputs,
     state_map const& module_outputs,
     bool const& is_differential,
-    bool const& requires_euler_integrator,
+    bool const& requires_euler_ode_solver,
     std::string const& creation_error_message);
 
 SEXP vector_from_map(state_map const& m);

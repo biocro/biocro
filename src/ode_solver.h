@@ -1,25 +1,25 @@
-#ifndef INTEGRATOR_H
-#define INTEGRATOR_H
+#ifndef ODE_SOLVER_H
+#define ODE_SOLVER_H
 
 #include <vector>
 #include <boost/numeric/odeint.hpp>  // For use with ODEINT
 #include "state_map.h"
 #include "dynamical_system.h"
 
-// An abstract class for a generic numerical integrator. Its `integrate()`
-// function provides a uniform interface for all derived integrators, and its
-// constructor requires inputs that are common to all integrators.
-class integrator
+// An abstract class for a generic numerical ODE solver. Its `integrate()`
+// function provides a uniform interface for all derived ODE solvers, and its
+// constructor requires inputs that are common to all ODE solvers.
+class ode_solver
 {
    public:
-    integrator(
-        std::string integrator_name,
+    ode_solver(
+        std::string ode_solver_name,
         bool should_check_euler_requirement,
         double step_size,
         double rel_error_tolerance,
         double abs_error_tolerance,
         int max_steps)
-        : integrator_name(integrator_name),
+        : ode_solver_name(ode_solver_name),
           should_check_euler_requirement(should_check_euler_requirement),
           output_step_size(step_size),
           adaptive_rel_error_tol(rel_error_tolerance),
@@ -28,19 +28,19 @@ class integrator
     {
     }
 
-    virtual ~integrator() {}
+    virtual ~ode_solver() {}
 
     state_vector_map integrate(std::shared_ptr<dynamical_system> sys);
 
     std::string generate_info_report() const
     {
-        return std::string("Name: ") + integrator_name + get_param_info();
+        return std::string("Name: ") + ode_solver_name + get_param_info();
     }
 
     std::string generate_integrate_report() const
     {
         if (!integrate_method_has_been_called) {
-            return std::string("The integrator has not been called yet");
+            return std::string("The ode_solver has not been called yet");
         } else {
             return get_solution_info();
         }
@@ -53,7 +53,7 @@ class integrator
     int get_adaptive_max_steps() const { return adaptive_max_steps; }
 
    private:
-    const std::string integrator_name;
+    const std::string ode_solver_name;
     const bool should_check_euler_requirement;
 
     double output_step_size;
@@ -69,14 +69,14 @@ class integrator
     virtual std::string get_solution_info() const = 0;
 };
 
-// Define the standard response to a requirement for an Euler integrator
+// Define the standard response to a requirement for an Euler ode_solver
 inline state_vector_map
-    integrator::handle_euler_requirement(std::shared_ptr<dynamical_system> /*sys*/)
+    ode_solver::handle_euler_requirement(std::shared_ptr<dynamical_system> /*sys*/)
 {
     throw std::logic_error(
-        std::string("integrator '") + integrator_name +
+        std::string("ode_solver '") + ode_solver_name +
         std::string("' is not compatible with the input system because one ") +
-        std::string("or more of its modules requires an Euler integrator.\n"));
+        std::string("or more of its modules requires an Euler ode_solver.\n"));
 }
 
 #endif
