@@ -79,7 +79,7 @@ check_numeric <- function(args_to_check) {
     error_message <- character()
     for (i in seq_along(args_to_check)) {
         arg <- args_to_check[[i]]
-        is_numeric <- sapply(arg, function(x) {is.numeric(x) || is.na(x)})
+        is_numeric <- sapply(arg, function(x) {is.numeric(x) || all(is.na(x))})
         if (!all(is_numeric)) {
             tmp_message <- sprintf(
                 "The following `%s` members are not numeric or NA, but all members must be numeric or NA: %s.\n",
