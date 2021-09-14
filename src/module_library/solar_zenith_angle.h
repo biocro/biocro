@@ -8,8 +8,13 @@
 /**
  * @class solar_zenith_angle
  *
- * @brief Calculates the solar zenith angle using a simple model. A major
- * shortcoming of this model is that solar noon always occurs at 12:00 PM.
+ * @brief Calculates the solar zenith angle using the `cos_zenith_angle`
+ * function, which implements a very simple model.
+ *
+ * A major shortcoming of this model is that solar noon always occurs at 12:00
+ * PM, so it may not be appropriate to use in conjunction with solar radiation
+ * data from sensors; in that case, it would be better to use the
+ * `solar_zenith_angle_michalsky` module instead.
  */
 class solar_zenith_angle : public direct_module
 {
