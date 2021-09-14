@@ -7,6 +7,7 @@ willow_direct_modules <- list(
     "leaf_water_stress_exponential",
     "parameter_calculator",
     "soil_evaporation",
+    solar_coordinates = "solar_zenith_angle",
     canopy_photosynthesis = "c3_canopy",
     partitioning_coefficients = "partitioning_coefficient_selector",
     partitioning_growth_calculator = "partitioning_growth_calculator"

@@ -8,7 +8,7 @@ soybean_direct_modules <- list(
     "soybean_development_rate_calculator",
     partitioning_coefficients = "partitioning_coefficient_logistic",
     "soil_evaporation",
-    "solar_zenith_angle",
+    solar_coordinates = "solar_zenith_angle",
     "shortwave_atmospheric_scattering",
     "incident_shortwave_from_ground_par",
     "ten_layer_canopy_properties",
