@@ -948,17 +948,17 @@ The steps are as follows.
 
 \item Declare a public constructor with signature
   \begin{C++listing}[4]
-    |\placeholder{class name}|(const state_map* input_parameters, state_map* output_parameters)
+    |\placeholder{class name}|(const state_map* input_quantities, state_map* output_quantities)
   \end{C++listing}
   The constructor needs to initialize the base class
   \code{direct_module} with the name for the module, and each parameter
   variable needs to be initialized with an initializer of the form
   \begin{C++listing}[4]
-    |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
+    |\placeholder{parameter name}|{get_input(input_quantities, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
   (for input parameters), or
   \begin{C++listing}[4]
-    |\placeholder{parameter name}|_op{get_op(output_parameters, |\stringplaceholder{parameter name}|)}
+    |\placeholder{parameter name}|_op{get_op(output_quantities, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
   (for output parameters).%
   % This footnote was a real pain to typeset:
@@ -967,19 +967,19 @@ The steps are as follows.
       the \code{get_ip} function instead of the \code{get_input}
       function:
       \placeholder{parameter name}\code{_ip}\{%
-      \lstinline!get_ip(input_parameters,%
+      \lstinline!get_ip(input_quantities,%
       !\ \stringplaceholder{parameter name})\}
   }
 
   \begin{example}[4]
     public:
        solar_zenith_angle_in_degrees(
-           const state_map* input_parameters,
-           state_map* output_parameters
+           const state_map* input_quantities,
+           state_map* output_quantities
        )
            : direct_module{"solar_zenith_angle_in_degrees"},
-           cosine_zenith_angle{get_input(input_parameters, "cosine_zenith_angle")},
-           zenith_angle_in_degrees_op{get_op(output_parameters, "zenith_angle_in_degrees")}
+           cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
+           zenith_angle_in_degrees_op{get_op(output_quantities, "zenith_angle_in_degrees")}
            {}
   \end{example}
 
@@ -1158,17 +1158,17 @@ direct module, but with some significant differences.
 
 \item Declare a public constructor with signature
   \begin{C++listing}[4]
-    |\placeholder{class name}|(const state_map* input_parameters, state_map* output_parameters)
+    |\placeholder{class name}|(const state_map* input_quantities, state_map* output_quantities)
   \end{C++listing}
   The constructor needs to initialize the base class
   \code{differential_module} with the name for the module, and each parameter
   variable needs to be initialized with an initializer of the form
   \begin{C++listing}[4]
-    |\placeholder{parameter name}|{get_input(input_parameters, |\stringplaceholder{parameter name}|)}
+    |\placeholder{parameter name}|{get_input(input_quantities, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
   (for input parameters), or
   \begin{C++listing}[4]
-    |\placeholder{parameter name}|_op{get_op(output_parameters, |\stringplaceholder{parameter name}|)}
+    |\placeholder{parameter name}|_op{get_op(output_quantities, |\stringplaceholder{parameter name}|)}
   \end{C++listing}
   (for output parameters).
 
@@ -1176,14 +1176,14 @@ direct module, but with some significant differences.
     public:
        heating_degree_days(
            const state_map*
-               input_parameters,
+               input_quantities,
            state_map*
-               output_parameters
+               output_quantities
        )
        : differential_module{"heating_degree_days"},
-         temp{get_input(input_parameters, "temp")},
-         base_temperature{get_input(input_parameters, "base_temperature")},
-         heating_degree_days_op{get_op(output_parameters, "heating_degree_days")}
+         temp{get_input(input_quantities, "temp")},
+         base_temperature{get_input(input_quantities, "base_temperature")},
+         heating_degree_days_op{get_op(output_quantities, "heating_degree_days")}
        {}
   \end{example}
 
@@ -1442,8 +1442,8 @@ module.}
 
     \begin{Rexample}[6]
       test_that("When the cosine is 1/2, the angle is 60 degrees.", {
-        input_parameters <- list(cosine_zenith_angle = 0.5)
-        result = evaluate_module("solar_zenith_angle_in_degrees", input_parameters)
+        input_quantities <- list(cosine_zenith_angle = 0.5)
+        result = evaluate_module("solar_zenith_angle_in_degrees", input_quantities)
         expect_equal(result$zenith_angle_in_degrees, 60)
       })
     \end{Rexample}
@@ -1455,8 +1455,8 @@ module.}
 
     \begin{Rexample}[6]
       angle_from_cosine <- function(cza) {
-        input_parameters <- list(cosine_zenith_angle = cza)
-        result <- evaluate_module("solar_zenith_angle_in_degrees", input_parameters)
+        input_quantities <- list(cosine_zenith_angle = cza)
+        result <- evaluate_module("solar_zenith_angle_in_degrees", input_quantities)
         result$zenith_angle_in_degrees
       }
     \end{Rexample}
