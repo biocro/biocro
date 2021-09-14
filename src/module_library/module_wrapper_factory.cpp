@@ -106,6 +106,7 @@
 #include "total_biomass.h"
 #include "grimm_soybean_flowering.h"
 #include "grimm_soybean_flowering_calculator.h"
+#include "solar_zenith_angle_michalsky.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -243,7 +244,8 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>},
      {"total_biomass",                                         &create_wrapper<total_biomass>},
      {"grimm_soybean_flowering",                               &create_wrapper<grimm_soybean_flowering>},
-     {"grimm_soybean_flowering_calculator",                    &create_wrapper<grimm_soybean_flowering_calculator>}
+     {"grimm_soybean_flowering_calculator",                    &create_wrapper<grimm_soybean_flowering_calculator>},
+     {"solar_zenith_angle_michalsky",                          &create_wrapper<solar_zenith_angle_michalsky>}
 };
 
 string_vector module_wrapper_factory::get_modules()
