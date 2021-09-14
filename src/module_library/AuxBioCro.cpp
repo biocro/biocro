@@ -96,11 +96,9 @@ double cos_zenith_angle(const double latitude, const int day_of_year,
  *  @brief Calculates some properties of the "light macro environment," i.e.,
  *  the light just above the top of the canopy.
  *
- *  @param [in] latitude Latitude of a position on Earth (in degrees)
- *
- *  @param [in] day_of_year Local day of the year (1-366)
- *
- *  @param [in] hour_of_day Local hour of the day expressed on a 24-hour basis
+ *  @param [in] cosine_zenith_angle The cosine of the solar zenith angle; when
+ *      the Sun is directly overhead, the angle is 0 and its cosine is 1; when
+ *      the Sun is at the horizon, the angle is 90 and its cosine is 0
  *
  *  @param [in] atmospheric_pressure Local atmospheric pressure (in Pa)
  *
@@ -110,17 +108,12 @@ double cos_zenith_angle(const double latitude, const int day_of_year,
  *    is direct radiation (dimensionless)
  *  - `light_model.diffuse_irradiance_fraction`: The fraction of irradiance
  *    that is diffuse radiation (dimensionless)
- *  - `light_model.cosine_zenith_angle`: The cosine of the zenith angle of the
- *    Sun. When the Sun is directly overhead, the angle is 0 and cos(angle) is 1
- *    (dimensionless)
  *
  *  The basis for this function is given in chapter 11 of Norman and Campbell,
  *  _An Introduction to Environmental Biophysics_, 2nd edition.
  */
-Light_model lightME(const double latitude, const int day_of_year,
-                    const double hour_of_day, const double atmospheric_pressure)
+Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure)
 {
-    const double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);  // dimensionless.
     double direct_irradiance_transmittance;
     double diffuse_irradiance_transmittance;
 
@@ -139,7 +132,6 @@ Light_model lightME(const double latitude, const int day_of_year,
     Light_model light_model;
     light_model.direct_irradiance_fraction = direct_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
     light_model.diffuse_irradiance_fraction = diffuse_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
-    light_model.cosine_zenith_angle = cosine_zenith_angle; // dimensionless.
 
     return light_model;
 }
