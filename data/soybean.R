@@ -8,7 +8,7 @@ soybean_direct_modules <- list(
     "soybean_development_rate_calculator",
     partitioning_coefficients = "partitioning_coefficient_logistic",
     "soil_evaporation",
-    solar_coordinates = "solar_zenith_angle",
+    solar_coordinates = "solar_zenith_angle_michalsky",
     "shortwave_atmospheric_scattering",
     "incident_shortwave_from_ground_par",
     "ten_layer_canopy_properties",
@@ -125,8 +125,10 @@ soybean_parameters = with(list(), {
     soil_transmission                       0.01
     specific_heat_of_air                    1010
 
-    # solar_zenith_angle module
+    # solar_zenith_angle_michalsky module
     lat                                     40
+    longitude                               -88
+    time_zone_offset                        -6
 
     # shortwave_atmospheric_scattering module
     atmospheric_pressure                    101325
