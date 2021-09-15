@@ -52,7 +52,7 @@ system_derivatives <- function(
     #
     #     oscillator_system_derivatives <- system_derivatives(
     #         oscillator_parameters,
-    #         get_growing_season_climate(weather05),
+    #         get_growing_season_climate(weather2005),
     #         oscillator_direct_modules,
     #         oscillator_differential_modules
     #     )

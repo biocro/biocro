@@ -15,7 +15,7 @@ NUMBER_OF_PERMUTATIONS <- 4
 ## Run the simulation:
 baseline_result  <- run_biocro(sorghum_initial_values,
                                sorghum_parameters,
-                               get_growing_season_climate(weather05),
+                               get_growing_season_climate(weather2005),
                                sorghum_direct_modules,
                                sorghum_differential_modules)
 
@@ -47,7 +47,7 @@ for (count in 1:NUMBER_OF_PERMUTATIONS) {
 
     result <- run_biocro(sorghum_initial_values,
                          sorghum_parameters,
-                         get_growing_season_climate(weather05),
+                         get_growing_season_climate(weather2005),
                          permuted_direct_module_list,
                          sorghum_differential_modules)
 

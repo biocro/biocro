@@ -585,8 +585,8 @@ provided as one means of subsetting climate data.\footnote{The
   (temperature) component.}  Here is a display of weather data for
 2005 showing the first few rows of the growing season:
 
-<<weather05>>=
-head(get_growing_season_climate(weather05))
+<<weather2005>>=
+head(get_growing_season_climate(weather2005))
 @
 
 \subsubsection{Function output}
@@ -624,7 +624,7 @@ library(BioCro)
 library(lattice)  # This is a package that creates figures.
 
 result = run_biocro(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather05),
+             get_growing_season_climate(weather2005),
              sorghum_direct_modules, sorghum_differential_modules,
              sorghum_ode_solver)
 xyplot(Stem + Leaf + Root ~ TTc, data=result)  # The output is not shown here.

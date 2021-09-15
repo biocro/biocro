@@ -7,7 +7,7 @@ sorghum_direct_modules <- list(
     "leaf_water_stress_exponential",
     "parameter_calculator",
     "soil_evaporation",
-    solar_coordinates = "solar_zenith_angle",
+    solar_coordinates = "solar_zenith_angle_michalsky",
     canopy_photosynthesis = "c4_canopy",
     partitioning_coefficients = "partitioning_coefficient_selector",
     partitioning_growth_calculator = "partitioning_growth_calculator"
@@ -115,6 +115,7 @@ sorghum_parameters = with(list(), {
     leaf_reflectance            0.2
     leaf_transmittance          0.2
     lnfun                       0
+    longitude                   -88
     lowerT                      3
     mrc1                        0.02
     mrc2                        0.03
@@ -158,6 +159,7 @@ sorghum_parameters = with(list(), {
     tbase                       0
     theta                       0.83
     timestep                    1
+    time_zone_offset            -5
     tp1                         562
     tp2                         1312
     tp3                         2063

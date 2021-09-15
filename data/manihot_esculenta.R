@@ -7,7 +7,7 @@ manihot_esculenta_direct_modules <- list(
     "leaf_water_stress_exponential",
     "parameter_calculator",
     "soil_evaporation",
-    solar_coordinates = "solar_zenith_angle",
+    solar_coordinates = "solar_zenith_angle_michalsky",
     canopy_photosynthesis = "c3_canopy",
     "utilization_growth_calculator",
     "utilization_senescence_calculator"
@@ -94,6 +94,7 @@ manihot_esculenta_parameters = with(list(), {
     lnb0                                   -5
     lnb1                                   18
     lnfun                                  0
+    longitude                              -88
     nlayers                                10
     O2                                     210
     par_energy_content                     0.235
@@ -131,6 +132,7 @@ manihot_esculenta_parameters = with(list(), {
     tbase                                  0
     theta                                  0.7
     timestep                               1
+    time_zone_offset                       -5
     tpu_rate_max                           23
     vmax1                                  133
     vmax_n_intercept                       0
