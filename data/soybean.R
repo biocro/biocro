@@ -213,6 +213,43 @@ soybean_parameters = with(list(), {
     values
 })
 
+# Also include separate initial values, parameters, and modules for the soybean
+# circadian clock. (We can use the same ODE solver as the main soybean model.)
+soybean_clock_direct_modules <- c(
+    "light_from_solar",
+    "oscillator_clock_calculator"
+)
+
+soybean_clock_differential_modules <- c(
+    "night_and_day_trackers",
+    "poincare_clock"
+)
+
+soybean_clock_parameters <- list(
+    clock_gamma = 0.1,
+    clock_period = 24.0,
+    clock_r0 = 1.5,
+    kick_strength = 0.8,
+    light_exp_at_zero = 10,
+    light_threshold = 60,
+    timestep = 1.0,
+    tracker_rate = 4.6
+)
+
+# Here we use initial phases for the dawn and dusk oscillators of 200.0 and 80.0
+# radians, respectively. These values are optimized for simulations beginning at
+# midnight on January 1.
+soybean_clock_initial_values <- list(
+    dawn_a = soybean_clock_parameters[['clock_r0']] * cos(200 * pi / 180),
+    dawn_b = soybean_clock_parameters[['clock_r0']] * sin(200 * pi / 180),
+    day_tracker = 0.0,
+    dusk_a = soybean_clock_parameters[['clock_r0']] * cos(80 * pi / 180),
+    dusk_b = soybean_clock_parameters[['clock_r0']] * sin(80 * pi / 180),
+    night_tracker = 1.0,
+    ref_a = 1.0,
+    ref_b = 0.0
+)
+
 # Note 1: Soybean-BioCro refers to the simulation scenarios defined by the the soybean
 #         data files (soybean_initial_values, soybean_parameters, soybean_modules). See
 #         Matthews et al. (doi: TBA) for more on the current version of Soybean-BioCro.
