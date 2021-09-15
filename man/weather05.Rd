@@ -1,6 +1,6 @@
 \docType{data}
-\name{weather2005}
-\alias{weather2005}
+\name{weather05}
+\alias{weather05}
 \alias{weather04}
 \title{Weather data}
 \format{Data frame of dimensions 8760 by 7.}
