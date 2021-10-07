@@ -16,6 +16,11 @@
  *
  *  As the paper's title indicates, this method is only recommended for years
  *  between 1950 - 2050.
+ *
+ *  In this module, we neglect the refraction correction from the Michalsky
+ *  paper. The correction is small and was not found to have a significant
+ *  effect on the output of a BioCro simulation; furthermore, it is
+ *  discontinuous, which can cause problems for differential equation solvers.
  */
 class solar_zenith_angle_michalsky : public direct_module
 {
@@ -45,7 +50,6 @@ class solar_zenith_angle_michalsky : public direct_module
           gmst_op(get_op(output_quantities, "gmst")),
           lmst_op(get_op(output_quantities, "lmst")),
           lha_op(get_op(output_quantities, "lha")),
-          solar_refraction_correction_op(get_op(output_quantities, "solar_refraction_correction")),
           solar_zenith_angle_op(get_op(output_quantities, "solar_zenith_angle")),
           solar_elevation_angle_op(get_op(output_quantities, "solar_elevation_angle"))
     {
@@ -73,7 +77,6 @@ class solar_zenith_angle_michalsky : public direct_module
     double* gmst_op;
     double* lmst_op;
     double* lha_op;
-    double* solar_refraction_correction_op;
     double* solar_zenith_angle_op;
     double* solar_elevation_angle_op;
 
@@ -106,7 +109,6 @@ string_vector solar_zenith_angle_michalsky::get_outputs()
         "gmst",                         // hours
         "lmst",                         // hours
         "lha",                          // degrees
-        "solar_refraction_correction",  // degrees
         "solar_zenith_angle",           // degrees
         "solar_elevation_angle"         // degrees
     };
@@ -182,26 +184,8 @@ void solar_zenith_angle_michalsky::do_operation() const
         RTD;                      // degrees
     double const ea = 90.0 - za;  // degrees
 
-    // Determine an additional correction to the sun's apparent angular position
-    // due to atmospheric refraction
-    double refraction_correction = 0.0;  // degrees
-    if (ea >= 15) {
-        // Use the simple formula for large elevation
-        refraction_correction = 0.00452 * 3.51561 / tan(ea * DTR);
-    } else if (ea <= -3) {
-        // No need to apply a refraction correction when the sun is far below
-        // the horizon; leave it as zero.
-    } else {
-        // Use the complicated formula
-        refraction_correction =
-            3.51561 *
-            (0.1594 + 0.0196 * ea + 0.0002 * pow(ea, 2)) /
-            (1 + 0.505 * ea + 0.0845 * pow(ea, 2));
-    }
-
-    // Apply the correction to the zenith angle and determine its cosine
-    double const cosine_zenith_angle =
-        cos((za - refraction_correction) * DTR);  // dimensionless
+    // Determine the cosine of the zenith angle
+    double const cosine_zenith_angle = cos(za * DTR);  // dimensionless
 
     // Update the output pointers
     update(cosine_zenith_angle_op, cosine_zenith_angle);
@@ -215,9 +199,8 @@ void solar_zenith_angle_michalsky::do_operation() const
     update(gmst_op, gmst);
     update(lmst_op, lmst);
     update(lha_op, lha);
-    update(solar_refraction_correction_op, refraction_correction);
-    update(solar_zenith_angle_op, za - refraction_correction);     // include the correction
-    update(solar_elevation_angle_op, ea + refraction_correction);  // include the correction
+    update(solar_zenith_angle_op, za);
+    update(solar_elevation_angle_op, ea);
 }
 
 #endif
