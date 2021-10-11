@@ -154,7 +154,7 @@ void solar_zenith_angle_michalsky::do_operation() const
     double const ep = 23.439 - 0.0000004 * n;                                               // degrees
 
     // Calculate the equatorial celestial coordinates of the sun (in degrees):
-    // - ra (right ascension; analgous to longitude)
+    // - ra (right ascension; analogous to longitude)
     // - dec (declination; analogous to latitude)
     // See https://en.wikipedia.org/wiki/Astronomical_coordinate_systems#Equatorial_system
     // for more information about this coordinate system.
