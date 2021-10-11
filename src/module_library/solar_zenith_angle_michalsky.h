@@ -1,8 +1,8 @@
 #ifndef SOLAR_ZENITH_ANGLE_MICHALSKY_H
 #define SOLAR_ZENITH_ANGLE_MICHALSKY_H
 
-#include <cmath>           // for floor, atan2, cos, sin, acos, fmod
-#include "../constants.h"  // for pi
+#include <cmath>                     // for floor, fmod
+#include "../degree_trigonometry.h"  // for atan2_deg, cos_deg, sin_deg, acos_deg
 #include "../modules.h"
 #include "../state_map.h"
 
@@ -98,44 +98,42 @@ string_vector solar_zenith_angle_michalsky::get_inputs()
 string_vector solar_zenith_angle_michalsky::get_outputs()
 {
     return {
-        "cosine_zenith_angle",          // dimensionless
-        "julian_date",                  // days
-        "solar_L",                      // degrees
-        "solar_g",                      // degrees
-        "solar_ell",                    // degrees
-        "solar_ep",                     // degrees
-        "solar_ra",                     // degrees
-        "solar_dec",                    // degrees
-        "gmst",                         // hours
-        "lmst",                         // hours
-        "lha",                          // degrees
-        "solar_zenith_angle",           // degrees
-        "solar_elevation_angle"         // degrees
+        "cosine_zenith_angle",   // dimensionless
+        "julian_date",           // days
+        "solar_L",               // degrees
+        "solar_g",               // degrees
+        "solar_ell",             // degrees
+        "solar_ep",              // degrees
+        "solar_ra",              // degrees
+        "solar_dec",             // degrees
+        "gmst",                  // hours
+        "lmst",                  // hours
+        "lha",                   // degrees
+        "solar_zenith_angle",    // degrees
+        "solar_elevation_angle"  // degrees
     };
 }
 
 void solar_zenith_angle_michalsky::do_operation() const
 {
     // Define some constants
-    double constexpr DTR = math_constants::pi / 180.0;  // degrees to radians
-    double constexpr RTD = 180.0 / math_constants::pi;  // radians to degrees
-    double constexpr DTH = 1.0 / 15.0;                  // degrees to hours
-    double constexpr HTD = 15.0;                        // hours to degrees
-    double constexpr HPD = 24.0;                        // hours per day
-    double constexpr DPC = 360.0;                       // degrees per circle
+    double constexpr deg_to_hr = 1.0 / 15.0;
+    double constexpr hr_to_deg = 15.0;
+    double constexpr hr_per_day = 24.0;
+    double constexpr deg_per_rev = 360.0;
 
     double constexpr jd_ref_1948 = 2432916.5;  // Julian date at midnight on 31 December 1948 (UTC)
     double constexpr jd_ref_2000 = 2451545.0;  // Julian date at noon on 1 January 2000 (UTC)
 
     // Unpack the doy and hour in UTC
-    double time_utc = time - time_zone_offset / HPD;     // days
-    double const doy_utc = floor(time_utc);              // days
-    double const hour_utc = HPD * (time_utc - doy_utc);  // hours
+    double time_utc = time - time_zone_offset / hr_per_day;     // days
+    double const doy_utc = floor(time_utc);                     // days
+    double const hour_utc = hr_per_day * (time_utc - doy_utc);  // hours
 
     // Calculate the Julian date
     double const delta = year - 1949.0;
     double const leap = floor(0.25 * delta);
-    double const jd = jd_ref_1948 + delta * 365.0 + leap + doy_utc + hour_utc / HPD;  // days
+    double const jd = jd_ref_1948 + delta * 365.0 + leap + doy_utc + hour_utc / hr_per_day;  // days
 
     // Calculate the n, which represents the difference in Julian date between
     // the current time and 1 January 2000 (UTC). This is the basis for
@@ -150,18 +148,18 @@ void solar_zenith_angle_michalsky::do_operation() const
     // Here we assume that the ecliptic latitude (beta) is zero. See
     // https://en.wikipedia.org/wiki/Ecliptic_coordinate_system#Spherical_coordinates
     // for more information about this coordinate system.
-    double const L = fmod(280.460 + 0.9856474 * n, DPC);                                // degrees
-    double const g = fmod(357.528 + 0.9856003 * n, DPC);                                // degrees
-    double const ell = fmod(L + 1.915 * sin(g * DTR) + 0.020 * sin(2 * g * DTR), DPC);  // degrees
-    double const ep = 23.439 - 0.0000004 * n;                                           // degrees
+    double const L = fmod(280.460 + 0.9856474 * n, deg_per_rev);                            // degrees
+    double const g = fmod(357.528 + 0.9856003 * n, deg_per_rev);                            // degrees
+    double const ell = fmod(L + 1.915 * sin_deg(g) + 0.020 * sin_deg(2 * g), deg_per_rev);  // degrees
+    double const ep = 23.439 - 0.0000004 * n;                                               // degrees
 
     // Calculate the equatorial celestial coordinates of the sun (in degrees):
     // - ra (right ascension; analgous to longitude)
     // - dec (declination; analogous to latitude)
     // See https://en.wikipedia.org/wiki/Astronomical_coordinate_systems#Equatorial_system
     // for more information about this coordinate system.
-    double const ra = atan2(cos(ep * DTR) * sin(ell * DTR), cos(ell * DTR)) * RTD;  // degrees
-    double const dec = asin(sin(ep * DTR) * sin(ell * DTR)) * RTD;                  // degrees
+    double const ra = atan2_deg(cos_deg(ep) * sin_deg(ell), cos_deg(ell));  // degrees
+    double const dec = asin_deg(sin_deg(ep) * sin_deg(ell));                // degrees
 
     // Convert to local coordinates (in degrees):
     // - za (zenith angle)
@@ -175,17 +173,15 @@ void solar_zenith_angle_michalsky::do_operation() const
     // determining the sun's angular position in the local sky. These times are
     // expressed in units of hours. See https://en.wikipedia.org/wiki/Sidereal_time
     // for more information about sidereal time.
-    double const gmst = fmod(6.697375 + 0.0657098242 * n + hour_utc, HPD);  // hours
-    double const lmst = fmod(gmst + longitude * DTH, HPD);                  // hours
-    double const lha = fmod(lmst * HTD - ra, DPC);                          // degrees
-    double const za =
-        acos(sin(dec * DTR) * sin(lat * DTR) +
-             cos(dec * DTR) * cos(lat * DTR) * cos(lha * DTR)) *
-        RTD;                      // degrees
-    double const ea = 90.0 - za;  // degrees
+    double const gmst = fmod(6.697375 + 0.0657098242 * n + hour_utc, hr_per_day);  // hours
+    double const lmst = fmod(gmst + longitude * deg_to_hr, hr_per_day);            // hours
+    double const lha = fmod(lmst * hr_to_deg - ra, deg_per_rev);                   // degrees
+    double const za = acos_deg(sin_deg(dec) * sin_deg(lat) +
+                               cos_deg(dec) * cos_deg(lat) * cos_deg(lha));  // degrees
+    double const ea = 90.0 - za;                                             // degrees
 
     // Determine the cosine of the zenith angle
-    double const cosine_zenith_angle = cos(za * DTR);  // dimensionless
+    double const cosine_zenith_angle = cos_deg(za);  // dimensionless
 
     // Update the output pointers
     update(cosine_zenith_angle_op, cosine_zenith_angle);
