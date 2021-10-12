@@ -22,6 +22,10 @@
 \alias{sorghum_initial_values}
 \alias{sorghum_ode_solver}
 \alias{sorghum_parameters}
+\alias{soybean_clock_differential_modules}
+\alias{soybean_clock_direct_modules}
+\alias{soybean_clock_initial_values}
+\alias{soybean_clock_parameters}
 \alias{soybean_differential_modules}
 \alias{soybean_direct_modules}
 \alias{soybean_initial_values}
@@ -87,6 +91,10 @@
           of solver to use for crop \code{CROP}, as well as any additional
           parameters that determine its behavior
   }
+
+  The soybean model has additional lists of initial values, parameters, direct
+  modules, and differential modules that can be used for its circadian clock
+  component. These lists are prefixed by \code{soybean_clock}.
 }
 
 \source{

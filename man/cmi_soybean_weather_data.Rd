@@ -87,8 +87,9 @@
   To create this data frame, hourly values for all columns except
   \code{day_length} are extracted from the WARM and SURFRAD data. Then, BioCro
   is used to run the circadian clock model that determines photoperiod length.
-  The result from this calculation is then appended to the weather data frame as
-  a new column.
+  (See this page for additional information about the clock model:
+  \code{\link{crop_specifications}}.) The result from this calculation is then
+  appended to the weather data frame as a new column.
 }
 
 \keyword{weather}
