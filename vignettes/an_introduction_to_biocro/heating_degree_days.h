@@ -9,15 +9,15 @@ class heating_degree_days : public differential_module {
 
    public:
     heating_degree_days(
-        const state_map*
-            input_parameters,
+        const state_map&
+            input_quantities,
         state_map*
-            output_parameters
+            output_quantities
     )
     : differential_module{"heating_degree_days"},
-      temp{get_input(input_parameters, "temp")},
-      base_temperature{get_input(input_parameters, "base_temperature")},
-      heating_degree_days_op{get_op(output_parameters, "heating_degree_days")}
+      temp{get_input(input_quantities, "temp")},
+      base_temperature{get_input(input_quantities, "base_temperature")},
+      heating_degree_days_op{get_op(output_quantities, "heating_degree_days")}
     {}
 
     static string_vector get_inputs();

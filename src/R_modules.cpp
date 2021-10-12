@@ -65,7 +65,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
             Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
 
             // Module inputs
-            Rprintf("Module input parameters:");
+            Rprintf("Module input quantities:");
             if (inputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
@@ -76,7 +76,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
             }
 
             // Module outputs
-            Rprintf("Module output parameters:");
+            Rprintf("Module output quantities:");
             if (outputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
@@ -126,27 +126,27 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
     }
 }
 
-SEXP R_evaluate_module(SEXP module_name_input, SEXP input_parameters)
+SEXP R_evaluate_module(SEXP module_name_input, SEXP input_quantities)
 {
     try {
         // module_name_input should be a string vector with one element
         std::vector<std::string> module_name_vector = make_vector(module_name_input);
         std::string module_name = module_name_vector[0];
 
-        // input_parameters should be a state map
-        // use it to initialize the parameter list
-        state_map parameters = map_from_list(input_parameters);
+        // input_quantities should be a state map
+        // use it to initialize the quantity list
+        state_map quantities = map_from_list(input_quantities);
         state_map module_output_map;
 
         // Get the module's outputs and add them to the output list with default
         //  values of 0.0
         // Note: since differential modules add their output to the module_output_map,
-        //  the result only makes sense if each parameter is initialized to 0
+        //  the result only makes sense if each quantity is initialized to 0
         auto w = module_wrapper_factory::create(module_name);
         std::vector<std::string> module_outputs = w->get_outputs();
         for (std::string param : module_outputs) module_output_map[param] = 0.0;
 
-        std::unique_ptr<module_base> module_ptr = w->createModule(parameters, &module_output_map);
+        std::unique_ptr<module_base> module_ptr = w->createModule(quantities, &module_output_map);
 
         module_ptr->run();
 
