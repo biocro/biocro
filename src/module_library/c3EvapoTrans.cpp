@@ -31,6 +31,10 @@ struct ET_Str c3EvapoTrans(
     double stomatal_conductance           // mmol / m^2 / s
 )
 {
+    if (CanopyHeight < 0.1) {
+        CanopyHeight = 0.1;
+    }
+
     constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
     constexpr double WindSpeedHeight = 5;           // meters
     constexpr double dCoef = 0.77;                  // dimensionless, Thornley and Johnson 1990, Eq. 14.9o. In the original text this value is reported as 0.64. In the 2000 reprinting of this text, the authors state that this value should be 0.77 (see Errata to the 2000 printing on the page after the preface of the 2000 Reprinting of the 1990 text).
@@ -39,10 +43,6 @@ struct ET_Str c3EvapoTrans(
     const double Zeta = ZetaCoef * CanopyHeight;    // meters
     const double Zetam = ZetaMCoef * CanopyHeight;  // meters
     const double d = dCoef * CanopyHeight;          // meters
-
-    if (CanopyHeight < 0.1) {
-        CanopyHeight = 0.1;
-    }
 
     const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
     const double LHV = TempToLHV(air_temperature);                   // J / kg
