@@ -1,46 +1,62 @@
-## Compiling the bookdown book
+## Compiling and viewing the _bookdown_ book
 
-To generate the *bookdown* developer manual, do as follows:
+---
 
-1. Install Pandoc, if it is not already on your system.  See
-https://pandoc.org/installing.html for instructions.  (Note to RStudio
-users: As mentioned in the _R Markdown Cookbook_
+_Note_: A copy of the _bookdown_ BioCro development manual is
+automatically generated on BioCro's GitHub documentation site at
+https://ebimodeling.github.io/biocro-documentation/bookdown_book/index.html.
+So what follows is likely primarily of interest to developers wishing
+to revise this book who want to be able to easily view the result of
+their revisions before committing them.
+
+---
+
+**To generate the *bookdown* BioCro development manual**, do as
+  follows:
+
+1. Install _Pandoc_, if it is not already on your system.  See
+https://pandoc.org/installing.html for instructions.  (Note to
+_RStudio_ users: As mentioned in the _R Markdown Cookbook_
 (https://bookdown.org/yihui/rmarkdown-cookbook/install-pandoc.html),
-RStudio comes with its own copy of Pandoc, so you may be able to get
-by without installing it separately.)
+_RStudio_ comes with its own copy of _Pandoc_, so you may be able to
+get by without installing it separately.)
 
-2. Start an R session.
-
-3. Install the R "bookdown" package, if it hasn't been installed
+1. Install the R _bookdown_ package, if it hasn't been installed
 already.  These instructions are written for bookdown version 0.22 or
 greater but may work for other versions.
 
-4. Call either `bookdown::render_book(<path>)` or
-`rmarkdown::render_site(<path>)`, where `<path>` denotes the path from
-the current directory to the _bookdown_ directory (i.e., *this*
-directory).  If either command is run *from* this directory
-(_bookdown_), the path argument may be omitted.
+1. In the _bookdown_ directory of your BioCro source tree, run
+   ```sh
+   Rscript -e "bookdown::render_book()"
+   ```
 
-Note: The `bookdown::render_book()` function does not accept a
-`<path>` argument in versions of bookdown below version 0.22.  To
-compile the book with `render_book` in those versions, either run
-`bookdown::render_book()` from the _bookdown_ directory or take
-advantage of the "xfun::in_dir" function and call
-`xfun::in_dir('<path>', bookdown::render_book())`, where `<path>`
-denotes the path from the current directory to the bookdown directory
-(*this* directory).
+   Note: If you wish to run `render_book` from other than the
+_bookdown_ directory, you may pass a _path_ argument:
 
-Alternatively, if you are using a Linux or macOS machine, you can take
-advantage of the `run_bookdown.sh` script in the
-_documentation/script_ directory: Simply go to that directory in a
-terminal program and type `./run_bookdown.sh`.
+   ```
+   Rscript -e "bookdown::render_book(<path>)
+   ```
 
-Note: Because some sections of the book are contained in their own
+   Here, `<path>` denotes the path from the current directory to the
+_bookdown_ directory.
+
+   _This only works in bookdown versions 0.22 and later!_ With earlier
+versions, you can make use of the `xfun::in_dir` function:
+
+   ```
+   xfun::in_dir('<path>', bookdown::render_book())
+   ```
+
+   Again, `<path>` here denotes the path from the current directory to
+the _bookdown_ directory.
+
+   Note: Because some sections of the book are contained in their own
 files rather than being in a larger file comprising a complete
-chapter, you will get a warning such as the following, which may be
-safely ignored:
+chapter, `render_book` will issue a warning such as the
+following, which may be safely ignored:
 
-"In split_chapters(output, gitbook_page, number_sections, split_by,  :
-  You have 11 Rmd input file(s) but only 7 first-level heading(s). Did you forget first-level headings in certain Rmd files?"
+   > "In split_chapters(output, gitbook_page, number_sections, split_by,  :
+   >
+   >   You have 13 Rmd input file(s) but only 7 first-level heading(s). Did you forget first-level headings in certain Rmd files?"
 
-4. In a Web browser, open _bookdown/_book/index.html_.
+4. In a Web browser, open `bookdown/_book/index.html`.
