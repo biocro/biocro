@@ -7,6 +7,7 @@ rmd_files: [
     "book_source/generating_documentation.md",
         "../doxygen/generating_the_c++_documentation.md",
         "../vignettes/building_the_vignettes.md",
+        "README.md",
     "../tests/README.md",
     "../developer_documentation/adding_the_boost_libraries.md",
     "../.github/workflows/README.md",
