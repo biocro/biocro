@@ -27,6 +27,7 @@
     \item \code{year}: the year
     \item \code{doy}: the day of year
     \item \code{hour}: the hour
+    \item \code{time_zone_offset}: the time zone offset relative to UTC (hr)
     \item \code{precip}: preciptation rate (mm / hr)
     \item \code{rh}: the ambient relative humidity (dimensionless)
     \item \code{dw_solar}: downwelling global solar radiation (J / m^2 / s)
@@ -90,6 +91,12 @@
   (See this page for additional information about the clock model:
   \code{\link{crop_specifications}}.) The result from this calculation is then
   appended to the weather data frame as a new column.
+
+  The \code{time_zone_offset} is set to a constant value of -6 since this data
+  is specified in the CST time zone (i.e., UTC-6). Since the value of this
+  quantity does not change, it could in principle be considered a parameter
+  rather than a driver; however, it is included with the weather data for
+  convenience.
 }
 
 \keyword{weather}

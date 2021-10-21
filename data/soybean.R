@@ -128,7 +128,6 @@ soybean_parameters = with(list(), {
     # solar_position_michalsky module
     lat                                     40
     longitude                               -88
-    time_zone_offset                        -6
 
     # shortwave_atmospheric_scattering module
     atmospheric_pressure                    101325
