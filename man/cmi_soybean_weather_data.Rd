@@ -20,6 +20,11 @@
   simulation, it is included in this weather data to speed up the simulations.
   The time range is restricted to the SoyFACE growing season that was used for
   each year.
+
+  This weather data is included in the BioCro package so users can reproduce
+  calculations in the Soybean-BioCro paper (citation forthcoming) and for
+  exploratory purposes; it is likely that most BioCro studies will require
+  different data sets, and no attempt is made here to be exhaustive.
 }
 
 \usage{

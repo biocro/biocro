@@ -9,6 +9,11 @@
 \description{
   Multiple years of globally averaged annual mean atmospheric CO2 levels and
   their uncertainties.
+
+  This data is included in the BioCro package so users can reproduce
+  calculations in the BioCro II paper (citation forthcoming) and for
+  exploratory purposes; it is likely that most BioCro studies will require
+  different data sets, and no attempt is made here to be exhaustive.
 }
 
 \usage{catm_data}
