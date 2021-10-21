@@ -7,18 +7,39 @@
 \title{Global annual mean atmopspheric CO2 levels}
 
 \description{
-  Multiple years of global annual mean atmospheric CO2 levels and their
-  uncertainties.
+  Multiple years of globally averaged annual mean atmospheric CO2 levels and
+  their uncertainties.
 }
 
+\usage{catm_data}
+
 \format{
-  Data frame with 3 columns and 41 rows.
+  Data frame with 3 columns and 41 rows:
+  \itemize{
+    \item \code{year}: the year
+    \item \code{Catm}: CO2 concentration (micromol / mol)
+    \item \code{unc}: the uncertainty associated with the CO2 concentration
+          (micromol / mol)
+  }
 }
 
 \source{
   Data were obtained from the National Oceanic and Atmospheric Administration's
   Global Monitoring Laboratory (https://gml.noaa.gov/ccgg/trends/data.html) on
   04-13-2021.
+
+  The exact link used was
+  https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_annmean_gl.txt.
+
+  Alternatively, the data can be accessed from
+  https://gml.noaa.gov/ccgg/trends/gl_data.html by clicking the link to
+  \code{Globally averaged marine surface annual mean data (CSV)}.
+
+  These data are provided here as a convenience to BioCro users; please visit
+  the NOAA GML webpage for guidelines regarding the use of this data if you are
+  intending to include it in a publication.
 }
 
-\keyword{weather}
+\keyword{datasets}
+
+\concept{weather}

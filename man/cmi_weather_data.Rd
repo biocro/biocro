@@ -2,6 +2,8 @@
 
 \docType{data}
 
+\alias{weatherYYYY}
+\alias{cmi_weather_data}
 \alias{weather1995}
 \alias{weather1996}
 \alias{weather1997}
@@ -38,9 +40,16 @@
   the data is not available from SURFRAD.
 }
 
+\usage{
+## YYYY should be replaced with a 4-digit year from the available set of years,
+## e.g. 2002
+weatherYYYY
+}
+
 \format{
   26 data frames corresponding to 26 years of weather data (1995 - 2020), where
-  each data frame has 8760 rows (representing hourly time points) and 8 columns:
+  each data frame has 8760 or 8784 rows (representing hourly time points) and 9
+  columns:
   \itemize{
     \item \code{year}: the year
     \item \code{doy}: the day of year
@@ -93,4 +102,6 @@
   convenience.
 }
 
-\keyword{weather}
+\keyword{datasets}
+
+\concept{weather}

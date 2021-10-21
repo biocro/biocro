@@ -2,6 +2,8 @@
 
 \docType{data}
 
+\alias{soybean_weatherYYYY}
+\alias{cmi_soybean_weather_data}
 \alias{soybean_weather2002}
 \alias{soybean_weather2004}
 \alias{soybean_weather2005}
@@ -20,9 +22,15 @@
   each year.
 }
 
+\usage{
+## YYYY should be replaced with a 4-digit year from the available set of years,
+## e.g. 2002
+soybean_weatherYYYY
+}
+
 \format{
   4 data frames corresponding to 4 years of weather data, where each data
-  frame has between 2952 - 3384 rows and 13 columns:
+  frame has 2952 - 3384 rows and 14 columns:
   \itemize{
     \item \code{year}: the year
     \item \code{doy}: the day of year
@@ -99,4 +107,6 @@
   convenience.
 }
 
-\keyword{weather}
+\keyword{datasets}
+
+\concept{weather}

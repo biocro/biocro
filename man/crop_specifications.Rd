@@ -2,6 +2,8 @@
 
 \docType{data}
 
+\alias{CROP_SPECIFICATION}
+\alias{crop_specifications}
 \alias{glycine_max_differential_modules}
 \alias{glycine_max_direct_modules}
 \alias{glycine_max_initial_values}
@@ -47,7 +49,9 @@
 \description{
   Sets of initial values, parameters, direct modules, differential modules, and
   differential equation solvers that can be used (along with the included
-  weather data) to run growth simulations for several crops in Champaign, IL:
+  weather data) to run growth simulations for several crops in Champaign, IL.
+  For some of these crops, the parameter and module specifications are
+  associated with published papers:
   \itemize{
     \item \code{glycine_max} (unpublished)
     \item \code{manihot_esculenta} (unpublished)
@@ -63,11 +67,17 @@
   other crops should be used with the other weather data
   (\code{\link{cmi_weather_data}}).
 
-  \strong{Important note}: some specifications, such as the values of
+  \strong{Important note}: Some specifications, such as the values of
   photosynthetic parameters, would remain the same in any location; others, such
   as the latitude or longitude, would need to change when simulating crop growth
   in different locations. Care must be taken to understand each input quantity
   before attempting to run simulations in other places.
+}
+
+\usage{
+## CROP should be replaced by the name of a valid crop, e.g. `soybean`.
+## SPECIFICATION should be replaced by a specification type, e.g. `parameters`.
+CROP_SPECIFICATION
 }
 
 \format{
@@ -118,4 +128,6 @@
   }
 }
 
-\keyword{specifications}
+\keyword{datasets}
+
+\concept{specifications}
