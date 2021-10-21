@@ -96,9 +96,10 @@ weatherYYYY
 
   The SURFRAD data set includes values at 1 or 3 minute intervals. Hourly values
   are determined by averaging over hourly intervals, where the value at hour
-  \code{h} is the average over the preceeding hour. Some values are missing; any
-  missing entries are filled via an interpolation procedure based on the
-  assumption that values at the same hour of sequential days should be similar.
+  \code{h} is the average over the hour-long interval centered at \code{h}. Some
+  values are missing; any missing entries are filled via an interpolation
+  procedure based on the assumption that values at the same hour of sequential
+  days should be similar.
 
   The \code{time_zone_offset} is set to a constant value of -6 since this data
   is specified in the CST time zone (i.e., UTC-6). Since the value of this
