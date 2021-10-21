@@ -152,7 +152,6 @@ willow_parameters = with(list(), {
     Tfrostlow                      0
     theta                          0.7
     timestep                       1
-    time_zone_offset               -5
     tp1                            250
     tp2                            350
     tp3                            900

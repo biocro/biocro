@@ -159,7 +159,6 @@ zea_mays_parameters = with(list(), {
     tbase                       0
     theta                       0.83
     timestep                    1
-    time_zone_offset            -5
     tp1                         562
     tp2                         1312
     tp3                         2063

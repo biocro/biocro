@@ -132,7 +132,6 @@ manihot_esculenta_parameters = with(list(), {
     tbase                                  0
     theta                                  0.7
     timestep                               1
-    time_zone_offset                       -5
     tpu_rate_max                           23
     vmax1                                  133
     vmax_n_intercept                       0

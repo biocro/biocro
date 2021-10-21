@@ -33,7 +33,7 @@
 
 \description{
   Multiple years of Champaign, IL weather data specified at hourly intervals in
-  the CDT time zone. The columns correspond to typical inputs required for
+  the CST time zone. The columns correspond to typical inputs required for
   BioCro simulations. Note: some values are missing near the start of 1995 since
   the data is not available from SURFRAD.
 }
@@ -45,6 +45,7 @@
     \item \code{year}: the year
     \item \code{doy}: the day of year
     \item \code{hour}: the hour
+    \item \code{time_zone_offset}: the time zone offset relative to UTC (hr)
     \item \code{precip}: preciptation rate (mm / hr)
     \item \code{rh}: the ambient relative humidity (dimensionless)
     \item \code{solar}: the incoming photosynthetically active photon flux
@@ -84,6 +85,12 @@
   \code{h} is the average over the preceeding hour. Some values are missing; any
   missing entries are filled via an interpolation procedure based on the
   assumption that values at the same hour of sequential days should be similar.
+
+  The \code{time_zone_offset} is set to a constant value of -6 since this data
+  is specified in the CST time zone (i.e., UTC-6). Since the value of this
+  quantity does not change, it could in principle be considered a parameter
+  rather than a driver; however, it is included with the weather data for
+  convenience.
 }
 
 \keyword{weather}

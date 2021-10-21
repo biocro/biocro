@@ -133,7 +133,6 @@ glycine_max_parameters = with(list(), {
     tbase                                  10
     theta                                  0.7
     timestep                               1
-    time_zone_offset                       -5
     tpu_rate_max                           23
     vmax1                                  111.2
     vmax_n_intercept                       0
