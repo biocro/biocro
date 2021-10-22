@@ -81,7 +81,7 @@
 \examples{
 ## Simulate sorghum growth
 result = run_biocro(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather05), sorghum_direct_modules,
+             get_growing_season_climate(weather2005), sorghum_direct_modules,
              sorghum_differential_modules, sorghum_ode_solver)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
                 auto=list(points=FALSE, lines=TRUE),
@@ -89,12 +89,12 @@ lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
                 xlab=expression('Thermal time'~(degree*C~day)))
 
 ### The results can be combined with the data that were used to drive the model.
-result = cbind(result, get_growing_season_climate(weather05))
+result = cbind(result, get_growing_season_climate(weather2005))
 
 ## Change a subset of the parameters.
 canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
 architechture_result = run_biocro(sorghum_initial_values, canopy_architecture,
-                           get_growing_season_climate(weather05),
+                           get_growing_season_climate(weather2005),
                            sorghum_direct_modules, sorghum_differential_modules,
                            sorghum_ode_solver)
 lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l',
