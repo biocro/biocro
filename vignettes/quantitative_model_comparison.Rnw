@@ -132,22 +132,23 @@ this part of the code will be of more general use. For other analyses, the
 required weather data will likely be different, and each user may have their
 own preferences regarding plotting that differ from the strategies used here.
 
-This code uses two helping functions for retrieving processed weather data:
+This code creates two named lists to help with retrieving processed weather
+data:
 \begin{itemize}
 
-\item \texttt{get\_catm}: A function for retrieving the atmospheric [\cotwo]
-level for one particular year. Essentially, this function returns globally
-averaged annual atmospheric [\cotwo] levels from \texttt{catm\_data}, a dataset
-obtained from NOAA and included as part of the BioCro package.
+\item \texttt{catm}: A list of the atmospheric [\cotwo] levels for 1980 - 2020.
+Essentially, this list contains globally averaged annual atmospheric [\cotwo]
+levels from \texttt{catm\_data}, a dataset obtained from NOAA and included as
+part of the BioCro package.
 
-\item \texttt{get\_weather}: A function for retrieving weather data
-corresponding to the growing season of one particular year. Essentially, this
-function returns one growing season of weather data from Champaign, IL. Full
-years of weather data are included in the BioCro package as the
-\texttt{weatherYYYY} datasets, where \texttt{YYYY} is a four-digit year between
-1995 and 2020. For this analysis, photoperiod length as determined from the
-soybean circadian clock model is added to the original weather data, and then
-the full yearly set is truncated to days 152 - 288.
+\item \texttt{weather}: A list of weather data where each named element
+corresponds to the growing season of one particular year. Essentially, this
+list contains growing seasons of weather data from Champaign, IL. Full years of
+weather data are included in the BioCro package as the \texttt{weatherYYYY}
+datasets, where \texttt{YYYY} is a four-digit year between 1995 and 2020. For
+this analysis, photoperiod length as determined from the soybean circadian clock
+model is added to the original weather data, and then the full yearly set is
+truncated to days 152 - 288.
 
 \end{itemize}
 
@@ -167,10 +168,9 @@ panels, format text, and perform other superficial operations designed to
 improve readability.
 
 <<helping_functions,echo=FALSE>>=
-# Define a function to help retrieve atmospheric CO2 values for each year
-get_catm <- function(year) {
-    catm_data[which(catm_data[['year']] == year),'Catm']
-}
+# Define a list of atmospheric CO2 values for each year
+catm <- catm_data$Catm
+names(catm) <- catm_data$year
 
 # Define a function that runs the clock modules to determine the photoperiod
 # length during a year's worth of weather data, adding it to the data so it can
@@ -197,67 +197,35 @@ process_weather <- function(weather_data) {
             weather_data[['doy']] <= 288),]
 }
 
-# Process all the weather data required for this analysis
-processed_weather1995 <- process_weather(weather1995)
-processed_weather1996 <- process_weather(weather1996)
-processed_weather1997 <- process_weather(weather1997)
-processed_weather1998 <- process_weather(weather1998)
-processed_weather1999 <- process_weather(weather1999)
-processed_weather2000 <- process_weather(weather2000)
-processed_weather2001 <- process_weather(weather2001)
-processed_weather2002 <- process_weather(weather2002)
-processed_weather2003 <- process_weather(weather2003)
-processed_weather2004 <- process_weather(weather2004)
-processed_weather2005 <- process_weather(weather2005)
-processed_weather2006 <- process_weather(weather2006)
-processed_weather2007 <- process_weather(weather2007)
-processed_weather2008 <- process_weather(weather2008)
-processed_weather2009 <- process_weather(weather2009)
-processed_weather2010 <- process_weather(weather2010)
-processed_weather2011 <- process_weather(weather2011)
-processed_weather2012 <- process_weather(weather2012)
-processed_weather2013 <- process_weather(weather2013)
-processed_weather2014 <- process_weather(weather2014)
-processed_weather2015 <- process_weather(weather2015)
-processed_weather2016 <- process_weather(weather2016)
-processed_weather2017 <- process_weather(weather2017)
-processed_weather2018 <- process_weather(weather2018)
-processed_weather2019 <- process_weather(weather2019)
-processed_weather2020 <- process_weather(weather2020)
-
-# Define a function to help get weather data
-get_weather <- function(year) {
-    year  <- as.character(year)
-    switch(
-        year,
-        "1995" = processed_weather1995,
-        "1996" = processed_weather1996,
-        "1997" = processed_weather1997,
-        "1998" = processed_weather1998,
-        "1999" = processed_weather1999,
-        "2000" = processed_weather2000,
-        "2001" = processed_weather2001,
-        "2002" = processed_weather2002,
-        "2003" = processed_weather2003,
-        "2004" = processed_weather2004,
-        "2005" = processed_weather2005,
-        "2006" = processed_weather2006,
-        "2007" = processed_weather2007,
-        "2008" = processed_weather2008,
-        "2009" = processed_weather2009,
-        "2010" = processed_weather2010,
-        "2011" = processed_weather2011,
-        "2012" = processed_weather2012,
-        "2013" = processed_weather2013,
-        "2014" = processed_weather2014,
-        "2015" = processed_weather2015,
-        "2016" = processed_weather2016,
-        "2017" = processed_weather2017,
-        "2018" = processed_weather2018,
-        "2019" = processed_weather2019,
-        "2020" = processed_weather2020
-    )
-}
+# Define a list of processed weather data
+weather <- list(
+    "1995" = process_weather(weather1995),
+    "1996" = process_weather(weather1996),
+    "1997" = process_weather(weather1997),
+    "1998" = process_weather(weather1998),
+    "1999" = process_weather(weather1999),
+    "2000" = process_weather(weather2000),
+    "2001" = process_weather(weather2001),
+    "2002" = process_weather(weather2002),
+    "2003" = process_weather(weather2003),
+    "2004" = process_weather(weather2004),
+    "2005" = process_weather(weather2005),
+    "2006" = process_weather(weather2006),
+    "2007" = process_weather(weather2007),
+    "2008" = process_weather(weather2008),
+    "2009" = process_weather(weather2009),
+    "2010" = process_weather(weather2010),
+    "2011" = process_weather(weather2011),
+    "2012" = process_weather(weather2012),
+    "2013" = process_weather(weather2013),
+    "2014" = process_weather(weather2014),
+    "2015" = process_weather(weather2015),
+    "2016" = process_weather(weather2016),
+    "2017" = process_weather(weather2017),
+    "2018" = process_weather(weather2018),
+    "2019" = process_weather(weather2019),
+    "2020" = process_weather(weather2020)
+)
 
 # Define a function to help save PDFs of the figures. Here the important part
 # is setting `useDingbats` to FALSE, since dingbats causes problems when opening
@@ -296,8 +264,8 @@ according to the FvCB model.
 <<fvcb_result_2002>>=
 fvcb_result_2002 <- run_biocro(
     soybean_initial_values,
-    within(soybean_parameters, {Catm = get_catm(2002)}),
-    get_weather(2002),
+    within(soybean_parameters, {Catm = catm[['2002']]}),
+    weather[['2002']],
     append(soybean_direct_modules, "total_biomass"),
     soybean_differential_modules,
     soybean_ode_solver
@@ -321,8 +289,8 @@ rue_fvcb_square_difference = function(alpha_rue) {
     rue_result <- run_biocro(
         soybean_initial_values,
         within(soybean_parameters,
-            {alpha_rue = alpha_rue; Catm = get_catm(2002)}),
-        get_weather(2002),
+            {alpha_rue = alpha_rue; Catm = catm[['2002']]}),
+        weather[['2002']],
         append(within(soybean_direct_modules,
             {canopy_photosynthesis = "ten_layer_rue_canopy"}), "total_biomass"),
         soybean_differential_modules,
@@ -408,8 +376,8 @@ paper).
 optimal_rue_result_2002 <- run_biocro(
     soybean_initial_values,
     within(soybean_parameters,
-        {alpha_rue = best_alpha_rue; Catm = get_catm(2002)}),
-    get_weather(2002),
+        {alpha_rue = best_alpha_rue; Catm = catm[['2002']]}),
+    weather[['2002']],
     append(within(soybean_direct_modules,
         {canopy_photosynthesis = "ten_layer_rue_canopy"}), "total_biomass"),
     soybean_differential_modules,
@@ -588,7 +556,7 @@ light_curve_inputs <- data.frame(
     rh = 0.75,
     temp = 25,
     windspeed = 3.28,
-    Catm = get_catm(2002),
+    Catm = catm[['2002']],
     StomataWS = 0.99,
     height = 0.75
 )
@@ -720,7 +688,7 @@ biomass_driver_sensitivity <- function(
 
     c_to_k <- 273.15
 
-    default_drivers <- within(get_weather(2002), {temp = temp + c_to_k})
+    default_drivers <- within(weather[['2002']], {temp = temp + c_to_k})
 
     default_result <- run_biocro(
         soybean_initial_values,
@@ -777,13 +745,13 @@ paper).
 <<biomass_temp_sensitivity>>=
 biomass_temp_sensitivity_fvcb <- biomass_driver_sensitivity(
     "temp",
-    within(soybean_parameters, {Catm = get_catm(2002)}),
+    within(soybean_parameters, {Catm = catm[['2002']]}),
     "ten_layer_c3_canopy"
 )
 
 biomass_temp_sensitivity_rue <- biomass_driver_sensitivity(
     "temp",
-    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = get_catm(2002)}),
+    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2002']]}),
     "ten_layer_rue_canopy"
 )
 @
@@ -848,7 +816,7 @@ biomass_parameter_sensitivity <- function(
     default_result <- run_biocro(
         soybean_initial_values,
         parameters,
-        get_weather(2002),
+        weather[['2002']],
         steady_state_modules,
         soybean_differential_modules,
         soybean_ode_solver
@@ -859,7 +827,7 @@ biomass_parameter_sensitivity <- function(
     neg_result <- run_biocro(
         soybean_initial_values,
         neg_parameters,
-        get_weather(2002),
+        weather[['2002']],
         steady_state_modules,
         soybean_differential_modules,
         soybean_ode_solver
@@ -870,7 +838,7 @@ biomass_parameter_sensitivity <- function(
     pos_result <- run_biocro(
         soybean_initial_values,
         pos_parameters,
-        get_weather(2002),
+        weather[['2002']],
         steady_state_modules,
         soybean_differential_modules,
         soybean_ode_solver
@@ -900,13 +868,13 @@ paper).
 <<biomass_catm_sensitivity>>=
 biomass_catm_sensitivity_fvcb <- biomass_parameter_sensitivity(
     "Catm",
-    within(soybean_parameters, {Catm = get_catm(2002)}),
+    within(soybean_parameters, {Catm = catm[['2002']]}),
     "ten_layer_c3_canopy"
 )
 
 biomass_catm_sensitivity_rue <- biomass_parameter_sensitivity(
     "Catm",
-    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = get_catm(2002)}),
+    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2002']]}),
     "ten_layer_rue_canopy"
 )
 @
@@ -961,8 +929,8 @@ predicted mass values (Figure \ref{fig_biomass_comparison_2006}; this is Figure
 <<biomass_comparison_2006>>=
 fvcb_result_2006 <- run_biocro(
     soybean_initial_values,
-    within(soybean_parameters, {Catm = get_catm(2006)}),
-    get_weather(2006),
+    within(soybean_parameters, {Catm = catm[['2006']]}),
+    weather[['2006']],
     soybean_direct_modules,
     soybean_differential_modules,
     soybean_ode_solver
@@ -971,8 +939,8 @@ fvcb_result_2006 <- run_biocro(
 # Run the RUE model with the optimal value for alpha_rue determined for 2002
 rue_result_2006 <- run_biocro(
     soybean_initial_values,
-    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = get_catm(2006)}),
-    get_weather(2006),
+    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2006']]}),
+    weather[['2006']],
     within(soybean_direct_modules,
         {canopy_photosynthesis = "ten_layer_rue_canopy"}),
     soybean_differential_modules,
@@ -1045,8 +1013,8 @@ for (i in seq_along(years)) {
     rue_result <- run_biocro(
         soybean_initial_values,
         within(soybean_parameters,
-            {alpha_rue = best_alpha_rue; Catm = get_catm(years[i])}),
-        get_weather(years[i]),
+            {alpha_rue = best_alpha_rue; Catm = catm[[years[i]]]}),
+        weather[[years[i]]],
         append(within(soybean_direct_modules,
             {canopy_photosynthesis = "ten_layer_rue_canopy"}), "total_biomass"),
         soybean_differential_modules,
@@ -1058,8 +1026,8 @@ for (i in seq_along(years)) {
     # correct value for the atmospheric CO2 concentration
     fvcb_result <- run_biocro(
         soybean_initial_values,
-        within(soybean_parameters, {Catm = get_catm(years[i])}),
-        get_weather(years[i]),
+        within(soybean_parameters, {Catm = catm[[years[i]]]}),
+        weather[[years[i]]],
         append(soybean_direct_modules, "total_biomass"),
         soybean_differential_modules,
         soybean_ode_solver
@@ -1068,7 +1036,7 @@ for (i in seq_along(years)) {
     # Store the final biomass and atmospheric CO2 values
     final_biomass_seq_rue[i] <- rue_result[nrow(rue_result), "total_biomass"]
     final_biomass_seq_fvcb[i] <- fvcb_result[nrow(fvcb_result), "total_biomass"]
-    catm_seq[i] <- get_catm(years[i])
+    catm_seq[i] <- catm[[years[i]]]
 }
 @
 
