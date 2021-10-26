@@ -132,6 +132,10 @@ this part of the code will be of more general use. For other analyses, the
 required weather data will likely be different, and each user may have their
 own preferences regarding plotting that differ from the strategies used here.
 
+In this section, we provide a short overview of the hidden code that is required
+to complete the analysis and produce the figures, but isn't explicitly included
+in this vignette.
+
 This code creates two named lists to help with retrieving processed weather
 data:
 \begin{itemize}
@@ -153,19 +157,11 @@ truncated to days 152 - 288.
 \end{itemize}
 
 Most plots in this vignette are created using the \texttt{xyplot} function from
-the \texttt{lattice} package, which is particularly powerful for splitting data
-into separate traces or panels using the same axes. It is often necessary to
-prepare a suitable data frame for plotting by subsetting and/or combining other
-data frames; these operations are also excluded from the vignette.
-
-Finally, PDF versions of plots are saved using another helping function:
-\texttt{pdf\_print}. This is essentially a wrapper for R's \texttt{pdf} function
-with \texttt{useDingbats} set to \texttt{FALSE}, since using the dingbats font
-for symbols can cause problems when opening PDFs in graphics editors such as
-Adobe Illustrator or Inkscape. To produce the figures used in the paper, these
-raw figures were finalized using Adobe Illustrator to modify colors, combine
-panels, format text, and perform other superficial operations designed to
-improve readability.
+the \texttt{lattice} package, and PDF versions of the plots are saved using
+another helping function: \texttt{pdf\_print}. To produce the figures used in
+the paper, these raw figures were finalized using Adobe Illustrator to modify
+colors, combine panels, format text, and perform other superficial operations
+designed to improve readability.
 
 <<helping_functions,echo=FALSE>>=
 # Define a list of atmospheric CO2 values for each year
@@ -325,6 +321,13 @@ best_alpha_rue = opt_par$par
 The optimal \ar\ value can be compared to the square difference curve to ensure
 that a minimum was truly obtained (Figure \ref{fig_alpha_optim}; this is Figure
 S1 in the BioCro II paper).
+
+Here the \texttt{optim} function is used, but this design allows any optimizer
+available in R to be used. For example, one could easily adapt this to search
+for parameters using simulated annealing or evolutionary algorithms. This is in
+contrast to some dynamical system software programs, in particular GUI-driven
+programs, which offer a limited and nonextendable number of choices for these
+algorithms.
 
 <<figure_s1,echo=FALSE,results=FALSE>>=
 alpha_rue_sequence = seq(0.03, 0.04, length=31)
@@ -616,6 +619,8 @@ fvcb_sensitivity_light_curve_result <- data.frame(
     incident_ppfd = light_curve_inputs[['incident_ppfd']]
 )
 
+# For each variable of interest, calculate sensitivity at each of the light
+# intensities in `light_curve_inputs`
 for (varname in fvcb_light_curve_sensitivity_variables) {
     fvcb_sensitivity_light_curve_result[[varname]] <-
         apply(light_curve_inputs, 1,
@@ -658,6 +663,13 @@ compare the sensitivies of the total biomass to various inputs. The approach is
 slightly different depending on whether the input is a driver or a parameter.
 
 \subsection{Sensitivity to a driver: air temperature}
+
+Several different routes are possible when analyzing the sensitivity of a
+model's output to a driver. Here we choose to instantaneous biomass as the
+dependent variable, and we perturb the driver at all time points. I.e., in the
+case of air temperature, we perturb the air temperature at every time point,
+run the simulation, and calculate the resulting change in biomass at every time
+point.
 
 First we will define a function that calculates biomass sensitivity coefficients
 for one independent driver value using weather data from 2002. Here the
