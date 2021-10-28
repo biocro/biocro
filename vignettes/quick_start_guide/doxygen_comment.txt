@@ -1,0 +1,20 @@
+/**
+ * This module implements the most basic model, which is discussed in many places,
+ * e.g. section 2.7 of Campbell & Norman (1998). In this model, `DR` is determined
+ * from the air temperature `T` according to:
+ *
+ * | DR           | T range       |
+ * | :----------: | :-----------: |
+ * | `0`          | `T <= T_base` |
+ * | `T - T_base` | `T_base < T`  |
+ *
+ * Thermal time has units of `degrees C * day` and the development rate, as written
+ * here, has units of `degrees C * day / day = degrees C`. This is a common formulation,
+ * reflecting the fact that average daily temperatures are often used to calculate the
+ * increase in thermal time during an entire day.
+ *
+ * This model is based on the observation that once the air temperature exceeds a
+ * threshold, development begins to proceed linearly. However, it is known that this
+ * trend cannot continue indefinitely and this model tends to overestimate development
+ * at high temperatures.
+ */
