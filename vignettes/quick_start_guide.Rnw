@@ -191,8 +191,8 @@ soybean_initial_values$DVI
 Although these two commands produce the same output, there are a few important
 differences between the \texttt{[[} and \texttt{\$} operators: the \texttt{\$}
 operator uses ``partial matching,'' which can be convenient at times. On the
-other hand, if the name of an element is stored as a variable, it cannot be
-used.
+other hand, if the name of an element is stored as a variable, the \texttt{\$}
+operator cannot be used to access its value but the \texttt{[[} operator can.
 
 \subsection{Calling \texttt{run\_biocro} \label{sec:run_simulation}}
 
@@ -563,18 +563,15 @@ outputs <- evaluate_module(
     Tleaf = 27    # degrees C
     rh = 0.7      # dimensionless
     StomataWS = 1 # dimensionless; 1 indicates no water stress
-    vmax = vmax1  # we need to rename this parameter
-    bb0 = b0      # we need to rename this parameter
-    bb1 = b1      # we need to rename this parameter
   })
 )
 @
 
 Choosing reasonable input parameters is sometimes a difficult process, but
 insight can often be gained by examining weather data, crop parameter lists, the
-outputs of a BioCro simulation, published literature, colleagues, etc.
-Critica information about particular quantities, such as their meaning and
-units, can be obtained using the strategy in Section \ref{sec:quantities}.
+outputs of a BioCro simulation, published literature, etc. Critical information
+about particular quantities, such as their meaning and units, can be obtained
+using the strategy in Section \ref{sec:quantities}.
 
 The \texttt{evaluate\_module} function returns a list of named elements; we will
 be interested in the \texttt{Assim} element:
@@ -596,9 +593,6 @@ light_response <- function(Q) {
       Tleaf = 27
       rh = 0.7
       StomataWS = 1
-      vmax = vmax1
-      bb0 = b0
-      bb1 = b1
     })
   )$Assim
 }
