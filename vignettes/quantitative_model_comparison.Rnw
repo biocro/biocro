@@ -1089,8 +1089,8 @@ for (i in seq_along(years)) {
     )
 
     # Store the final biomass and atmospheric CO2 values
-    final_biomass_seq_rue[i] <- rue_result[nrow(rue_result), 'total_biomass']
-    final_biomass_seq_fvcb[i] <- fvcb_result[nrow(fvcb_result), 'total_biomass']
+    final_biomass_seq_rue[i] <- final_biomass(rue_result)
+    final_biomass_seq_fvcb[i] <- final_biomass(fvcb_result)
     catm_seq[i] <- catm[[years[i]]]
 }
 @
