@@ -78,7 +78,7 @@ library(lattice, quietly=TRUE)
 time_range <- c(142, 298)
 ppfd_range <- c(-100, 1100)
 assim_range <- c(-2, 40)
-biomass_columns <- c("time", "Grain", "Leaf", "Root", "Stem")
+biomass_columns <- c('time', 'Grain', 'Leaf', 'Root', 'Stem')
 @
 
 \tableofcontents
@@ -195,32 +195,32 @@ process_weather <- function(weather_data) {
 
 # Define a list of processed weather data
 weather <- list(
-    "1995" = process_weather(weather1995),
-    "1996" = process_weather(weather1996),
-    "1997" = process_weather(weather1997),
-    "1998" = process_weather(weather1998),
-    "1999" = process_weather(weather1999),
-    "2000" = process_weather(weather2000),
-    "2001" = process_weather(weather2001),
-    "2002" = process_weather(weather2002),
-    "2003" = process_weather(weather2003),
-    "2004" = process_weather(weather2004),
-    "2005" = process_weather(weather2005),
-    "2006" = process_weather(weather2006),
-    "2007" = process_weather(weather2007),
-    "2008" = process_weather(weather2008),
-    "2009" = process_weather(weather2009),
-    "2010" = process_weather(weather2010),
-    "2011" = process_weather(weather2011),
-    "2012" = process_weather(weather2012),
-    "2013" = process_weather(weather2013),
-    "2014" = process_weather(weather2014),
-    "2015" = process_weather(weather2015),
-    "2016" = process_weather(weather2016),
-    "2017" = process_weather(weather2017),
-    "2018" = process_weather(weather2018),
-    "2019" = process_weather(weather2019),
-    "2020" = process_weather(weather2020)
+    '1995' = process_weather(weather1995),
+    '1996' = process_weather(weather1996),
+    '1997' = process_weather(weather1997),
+    '1998' = process_weather(weather1998),
+    '1999' = process_weather(weather1999),
+    '2000' = process_weather(weather2000),
+    '2001' = process_weather(weather2001),
+    '2002' = process_weather(weather2002),
+    '2003' = process_weather(weather2003),
+    '2004' = process_weather(weather2004),
+    '2005' = process_weather(weather2005),
+    '2006' = process_weather(weather2006),
+    '2007' = process_weather(weather2007),
+    '2008' = process_weather(weather2008),
+    '2009' = process_weather(weather2009),
+    '2010' = process_weather(weather2010),
+    '2011' = process_weather(weather2011),
+    '2012' = process_weather(weather2012),
+    '2013' = process_weather(weather2013),
+    '2014' = process_weather(weather2014),
+    '2015' = process_weather(weather2015),
+    '2016' = process_weather(weather2016),
+    '2017' = process_weather(weather2017),
+    '2018' = process_weather(weather2018),
+    '2019' = process_weather(weather2019),
+    '2020' = process_weather(weather2020)
 )
 
 # Define a function to help save PDFs of the figures. Here the important part
@@ -261,13 +261,13 @@ fvcb_result_2002 <- run_biocro(
     soybean_initial_values,
     soybean_parameters,
     weather[['2002']],
-    append(soybean_direct_modules, "total_biomass"),
+    append(soybean_direct_modules, 'total_biomass'),
     soybean_differential_modules,
     soybean_ode_solver
 )
 
 fvcb_final_biomass_2002 <-
-    fvcb_result_2002[nrow(fvcb_result_2002), "total_biomass"]
+    fvcb_result_2002[nrow(fvcb_result_2002), 'total_biomass']
 @
 
 The optimizer requires a function that accepts one argument (the value of the
@@ -285,13 +285,13 @@ rue_fvcb_square_difference = function(alpha_rue) {
         within(soybean_parameters, {alpha_rue = alpha_rue}),
         weather[['2002']],
         append(within(soybean_direct_modules,
-            {canopy_photosynthesis = "ten_layer_rue_canopy"}), "total_biomass"),
+            {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
         soybean_differential_modules,
         soybean_ode_solver
     )
 
     rue_final_biomass_2002 <-
-        rue_result[nrow(rue_result), "total_biomass"]
+        rue_result[nrow(rue_result), 'total_biomass']
 
     return((rue_final_biomass_2002 - fvcb_final_biomass_2002)^2)
 }
@@ -335,9 +335,9 @@ alpha_rue_optimization_plot <- xyplot(
     type = 'l',
     grid = TRUE,
     auto = TRUE,
-    xlab = "alpha_rue (C per photon)",
-    ylab = "(RUE biomass - FvCB biomass)^2 at end of season",
-    main = paste0( "Year 2002: best_alpha_rue = ", best_alpha_rue),
+    xlab = 'alpha_rue (C per photon)',
+    ylab = '(RUE biomass - FvCB biomass)^2 at end of season',
+    main = paste0('Year 2002: best_alpha_rue = ', best_alpha_rue),
     panel = function(...) {
         panel.xyplot(...)
         panel.points(
@@ -349,7 +349,7 @@ alpha_rue_optimization_plot <- xyplot(
     }
 )
 
-pdf_print(alpha_rue_optimization_plot, "alpha_rue_optimization_plot.pdf")
+pdf_print(alpha_rue_optimization_plot, 'alpha_rue_optimization_plot.pdf')
 @
 
 \begin{figure}[htbp]
@@ -378,7 +378,7 @@ optimal_rue_result_2002 <- run_biocro(
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
     weather[['2002']],
     append(within(soybean_direct_modules,
-        {canopy_photosynthesis = "ten_layer_rue_canopy"}), "total_biomass"),
+        {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
     soybean_differential_modules,
     soybean_ode_solver
 )
@@ -386,8 +386,8 @@ optimal_rue_result_2002 <- run_biocro(
 
 <<figure_4a,echo=FALSE,results=FALSE>>=
 biomass_comparison_2002 <- rbind(
-    within(fvcb_result_2002[biomass_columns], {model = "FvCB"}),
-    within(optimal_rue_result_2002[biomass_columns], {model = "RUE"})
+    within(fvcb_result_2002[biomass_columns], {model = 'FvCB'}),
+    within(optimal_rue_result_2002[biomass_columns], {model = 'RUE'})
 )
 
 biomass_comparison_2002_plot <- xyplot(
@@ -399,11 +399,11 @@ biomass_comparison_2002_plot <- xyplot(
     grid = TRUE,
     xlim = time_range,
     ylim = c(-0.7, 8.7),
-    xlab = "Day of year (2002)",
-    ylab = "Biomass (Mg / ha)",
+    xlab = 'Day of year (2002)',
+    ylab = 'Biomass (Mg / ha)',
 )
 
-pdf_print(biomass_comparison_2002_plot, "biomass_comparison_2002_plot.pdf")
+pdf_print(biomass_comparison_2002_plot, 'biomass_comparison_2002_plot.pdf')
 @
 
 \begin{figure}[htbp]
@@ -475,13 +475,13 @@ fvcb_aq_scatter_plot <- xyplot(
     pch = 16,
     xlim = ppfd_range,
     ylim = assim_range,
-    xlab = "Incident PPFD (micromol / m^2 / s)",
-    ylab = "Gross CO2 assimilation rate (micromol / m^2 / s)",
+    xlab = 'Incident PPFD (micromol / m^2 / s)',
+    ylab = 'Gross CO2 assimilation rate (micromol / m^2 / s)',
     grid = TRUE,
-    main = "(Ag, Q) scatter plot from the FvCB model in 2002"
+    main = '(Ag, Q) scatter plot from the FvCB model in 2002'
 )
 
-pdf_print(fvcb_aq_scatter_plot, "fvcb_aq_scatter_plot.pdf")
+pdf_print(fvcb_aq_scatter_plot, 'fvcb_aq_scatter_plot.pdf')
 
 rue_aq_scatter_plot <- xyplot(
     gross_assimilation ~ incident_ppfd,
@@ -490,13 +490,13 @@ rue_aq_scatter_plot <- xyplot(
     pch = 16,
     xlim = ppfd_range,
     ylim = assim_range,
-    xlab = "Incident PPFD (micromol / m^2 / s)",
-    ylab = "Gross CO2 assimilation rate (micromol / m^2 / s)",
+    xlab = 'Incident PPFD (micromol / m^2 / s)',
+    ylab = 'Gross CO2 assimilation rate (micromol / m^2 / s)',
     grid = TRUE,
-    main = "(Ag, Q) scatter plot from the RUE model in 2002"
+    main = '(Ag, Q) scatter plot from the RUE model in 2002'
 )
 
-pdf_print(rue_aq_scatter_plot, "rue_aq_scatter_plot.pdf")
+pdf_print(rue_aq_scatter_plot, 'rue_aq_scatter_plot.pdf')
 @
 
 \begin{figure}[htbp]
@@ -592,19 +592,19 @@ assim_sensitivity <- function(
 {
     var_center <- base_module_inputs[[varname]]
     gross_assim_center <-
-        evaluate_module("c3_leaf_photosynthesis", base_module_inputs)[['GrossAssim']]
+        evaluate_module('c3_leaf_photosynthesis', base_module_inputs)[['GrossAssim']]
 
     neg_module_inputs <- base_module_inputs
     neg_var <- base_module_inputs[[varname]] * (1 - relative_perturbation_size)
     neg_module_inputs[[varname]] <- neg_var
     gross_assim_neg <-
-        evaluate_module("c3_leaf_photosynthesis", neg_module_inputs)[['GrossAssim']]
+        evaluate_module('c3_leaf_photosynthesis', neg_module_inputs)[['GrossAssim']]
 
     pos_module_inputs <- base_module_inputs
     pos_var <- base_module_inputs[[varname]] * (1 + relative_perturbation_size)
     pos_module_inputs[[varname]] <- pos_var
     gross_assim_pos <-
-        evaluate_module("c3_leaf_photosynthesis", pos_module_inputs)[['GrossAssim']]
+        evaluate_module('c3_leaf_photosynthesis', pos_module_inputs)[['GrossAssim']]
 
     dadx = (gross_assim_pos - gross_assim_neg) / (pos_var - neg_var)
     return(dadx / (gross_assim_center / var_center))
@@ -618,7 +618,7 @@ the BioCro II paper).
 
 <<fvcb_assim_sensitivity>>=
 fvcb_light_curve_sensitivity_variables <-
-    c("Catm", "rh", "temp", "StomataWS", "windspeed")
+    c('Catm', 'rh', 'temp', 'StomataWS', 'windspeed')
 
 fvcb_sensitivity_light_curve_result <- data.frame(
     incident_ppfd = light_curve_inputs[['incident_ppfd']]
@@ -641,13 +641,13 @@ fvcb_light_curve_sensitivity_plot <- xyplot(
     type = 'l',
     auto = TRUE,
     grid = TRUE,
-    xlab = "Incident PPFD (micromol / m^2 / s)",
-    ylab = "Normalized sensitivity coefficient",
+    xlab = 'Incident PPFD (micromol / m^2 / s)',
+    ylab = 'Normalized sensitivity coefficient',
     xlim = c(-100, 1100),
     ylim = c(-1, 1)
 )
 
-pdf_print(fvcb_light_curve_sensitivity_plot, "fvcb_light_curve_sensitivity_plot.pdf")
+pdf_print(fvcb_light_curve_sensitivity_plot, 'fvcb_light_curve_sensitivity_plot.pdf')
 @
 
 \begin{figure}[htbp]
@@ -700,7 +700,7 @@ biomass_driver_sensitivity <- function(
         within(soybean_direct_modules, {
             canopy_photosynthesis = canopy_photosynthesis_module
         }),
-        "total_biomass"
+        'total_biomass'
     )
 
     c_to_k <- 273.15
@@ -739,16 +739,16 @@ biomass_driver_sensitivity <- function(
     )
 
     dMdx <-
-        (pos_result[["total_biomass"]] - neg_result[["total_biomass"]]) /
+        (pos_result[['total_biomass']] - neg_result[['total_biomass']]) /
         (pos_drivers[[varname]] - neg_drivers[[varname]])
 
     normalized_sensitivity <-
-        dMdx / (default_result[["total_biomass"]] / default_drivers[[varname]])
+        dMdx / (default_result[['total_biomass']] / default_drivers[[varname]])
 
     return(
         data.frame(
             normalized_sensitivity = normalized_sensitivity,
-            time = default_result[["time"]]
+            time = default_result[['time']]
         )
     )
 }
@@ -761,23 +761,23 @@ paper).
 
 <<biomass_temp_sensitivity>>=
 biomass_temp_sensitivity_fvcb <- biomass_driver_sensitivity(
-    "temp",
+    'temp',
     soybean_parameters,
-    "ten_layer_c3_canopy"
+    'ten_layer_c3_canopy'
 )
 
 biomass_temp_sensitivity_rue <- biomass_driver_sensitivity(
-    "temp",
+    'temp',
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
-    "ten_layer_rue_canopy"
+    'ten_layer_rue_canopy'
 )
 @
 
 <<figure_5b,echo=FALSE,results=FALSE>>=
 # Combine the data frames
 biomass_temp_sensitivity <- rbind(
-    within(biomass_temp_sensitivity_fvcb, {model = "FvCB"}),
-    within(biomass_temp_sensitivity_rue, {model = "RUE"})
+    within(biomass_temp_sensitivity_fvcb, {model = 'FvCB'}),
+    within(biomass_temp_sensitivity_rue, {model = 'RUE'})
 )
 
 # Create Figure 5b
@@ -790,11 +790,11 @@ biomass_temp_sensitivity_plot <- xyplot(
     grid = TRUE,
     xlim = time_range,
     ylim = c(-20, 35),
-    xlab = "Day of year (2002)",
-    ylab = "dM / dT / (M / T)"
+    xlab = 'Day of year (2002)',
+    ylab = 'dM / dT / (M / T)'
 )
 
-pdf_print(biomass_temp_sensitivity_plot, "biomass_temp_sensitivity_plot.pdf")
+pdf_print(biomass_temp_sensitivity_plot, 'biomass_temp_sensitivity_plot.pdf')
 @
 
 \begin{figure}[htbp]
@@ -828,7 +828,7 @@ biomass_parameter_sensitivity <- function(
         within(soybean_direct_modules, {
             canopy_photosynthesis = canopy_photosynthesis_module
         }),
-        "total_biomass"
+        'total_biomass'
     )
 
     default_result <- run_biocro(
@@ -863,16 +863,16 @@ biomass_parameter_sensitivity <- function(
     )
 
     dMdx <-
-        (pos_result[["total_biomass"]] - neg_result[["total_biomass"]]) /
+        (pos_result[['total_biomass']] - neg_result[['total_biomass']]) /
         (pos_parameters[[varname]] - neg_parameters[[varname]])
 
     normalized_sensitivity <-
-        dMdx / (default_result[["total_biomass"]] / parameters[[varname]])
+        dMdx / (default_result[['total_biomass']] / parameters[[varname]])
 
     return(
         data.frame(
             normalized_sensitivity = normalized_sensitivity,
-            time = default_result[["time"]]
+            time = default_result[['time']]
         )
     )
 }
@@ -885,23 +885,23 @@ paper).
 
 <<biomass_catm_sensitivity>>=
 biomass_catm_sensitivity_fvcb <- biomass_parameter_sensitivity(
-    "Catm",
+    'Catm',
     soybean_parameters,
-    "ten_layer_c3_canopy"
+    'ten_layer_c3_canopy'
 )
 
 biomass_catm_sensitivity_rue <- biomass_parameter_sensitivity(
-    "Catm",
+    'Catm',
     within(soybean_parameters, {alpha_rue = best_alpha_rue}),
-    "ten_layer_rue_canopy"
+    'ten_layer_rue_canopy'
 )
 @
 
 <<figure_5c,echo=FALSE,results=FALSE>>=
 # Combine the data frames
 biomass_catm_sensitivity <- rbind(
-    within(biomass_catm_sensitivity_fvcb, {model = "FvCB"}),
-    within(biomass_catm_sensitivity_rue, {model = "RUE"})
+    within(biomass_catm_sensitivity_fvcb, {model = 'FvCB'}),
+    within(biomass_catm_sensitivity_rue, {model = 'RUE'})
 )
 
 # Create Figure 5c
@@ -914,11 +914,11 @@ biomass_catm_sensitivity_plot <- xyplot(
     grid = TRUE,
     xlim = time_range,
     ylim = c(-0.1, 0.9),
-    xlab = "Day of year (2002)",
-    ylab = "dM / dCa / (M / Ca)"
+    xlab = 'Day of year (2002)',
+    ylab = 'dM / dCa / (M / Ca)'
 )
 
-pdf_print(biomass_catm_sensitivity_plot, "biomass_catm_sensitivity_plot.pdf")
+pdf_print(biomass_catm_sensitivity_plot, 'biomass_catm_sensitivity_plot.pdf')
 @
 
 \begin{figure}[htbp]
@@ -960,7 +960,7 @@ rue_result_2006 <- run_biocro(
     within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2006']]}),
     weather[['2006']],
     within(soybean_direct_modules,
-        {canopy_photosynthesis = "ten_layer_rue_canopy"}),
+        {canopy_photosynthesis = 'ten_layer_rue_canopy'}),
     soybean_differential_modules,
     soybean_ode_solver
 )
@@ -968,10 +968,10 @@ rue_result_2006 <- run_biocro(
 
 <<figure_6a,echo=FALSE,results=FALSE>>=
 # Combine the RUE and FvCB results into one data frame for plotting
-biomass_columns <- c("time", "Leaf", "Stem", "Root", "Grain")
+biomass_columns <- c('time', 'Leaf', 'Stem', 'Root', 'Grain')
 biomass_comparison_2006 <- rbind(
-    within(fvcb_result_2006[biomass_columns], {model = "FvCB"}),
-    within(rue_result_2006[biomass_columns], {model = "RUE"})
+    within(fvcb_result_2006[biomass_columns], {model = 'FvCB'}),
+    within(rue_result_2006[biomass_columns], {model = 'RUE'})
 )
 
 # Make Figure 6a
@@ -984,11 +984,11 @@ biomass_comparison_2006_plot <- xyplot(
     grid = TRUE,
     xlim = time_range,
     ylim = c(-0.7, 8.7),
-    xlab = "Day of year (2006)",
-    ylab = "Biomass (Mg / ha)",
+    xlab = 'Day of year (2006)',
+    ylab = 'Biomass (Mg / ha)',
 )
 
-pdf_print(biomass_comparison_2006_plot, "biomass_comparison_2006_plot.pdf")
+pdf_print(biomass_comparison_2006_plot, 'biomass_comparison_2006_plot.pdf')
 @
 
 \begin{figure}[htbp]
@@ -1025,7 +1025,7 @@ catm_seq <- numeric(length(years))
 
 # Get final biomass values for each year in each model
 for (i in seq_along(years)) {
-    # Run the RUE soybean model for this year, adding the "total_biomass" module
+    # Run the RUE soybean model for this year, adding the 'total_biomass' module
     # to the set of default modules and ensuring that we're using the correct
     # value for the atmospheric CO2 concentration
     rue_result <- run_biocro(
@@ -1034,26 +1034,26 @@ for (i in seq_along(years)) {
             {alpha_rue = best_alpha_rue; Catm = catm[[years[i]]]}),
         weather[[years[i]]],
         append(within(soybean_direct_modules,
-            {canopy_photosynthesis = "ten_layer_rue_canopy"}), "total_biomass"),
+            {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
         soybean_differential_modules,
         soybean_ode_solver
     )
 
-    # Run the FvCB soybean model for this year, adding the "total_biomass"
+    # Run the FvCB soybean model for this year, adding the 'total_biomass'
     # module to the set of default modules and ensuring that we're using the
     # correct value for the atmospheric CO2 concentration
     fvcb_result <- run_biocro(
         soybean_initial_values,
         within(soybean_parameters, {Catm = catm[[years[i]]]}),
         weather[[years[i]]],
-        append(soybean_direct_modules, "total_biomass"),
+        append(soybean_direct_modules, 'total_biomass'),
         soybean_differential_modules,
         soybean_ode_solver
     )
 
     # Store the final biomass and atmospheric CO2 values
-    final_biomass_seq_rue[i] <- rue_result[nrow(rue_result), "total_biomass"]
-    final_biomass_seq_fvcb[i] <- fvcb_result[nrow(fvcb_result), "total_biomass"]
+    final_biomass_seq_rue[i] <- rue_result[nrow(rue_result), 'total_biomass']
+    final_biomass_seq_fvcb[i] <- fvcb_result[nrow(fvcb_result), 'total_biomass']
     catm_seq[i] <- catm[[years[i]]]
 }
 @
@@ -1080,11 +1080,11 @@ multiyear_biomass_plot <- xyplot(
     auto = TRUE,
     grid = TRUE,
     ylim = c(8, 13),
-    xlab = "Year",
-    ylab = "Final biomass (Mg / ha)"
+    xlab = 'Year',
+    ylab = 'Final biomass (Mg / ha)'
 )
 
-pdf_print(multiyear_biomass_plot, "multiyear_biomass_plot.pdf")
+pdf_print(multiyear_biomass_plot, 'multiyear_biomass_plot.pdf')
 
 # Make Figure 6c
 multiyear_biomass_difference_plot <- xyplot(
@@ -1094,11 +1094,11 @@ multiyear_biomass_difference_plot <- xyplot(
     auto = TRUE,
     grid = TRUE,
     ylim = c(-10, 10),
-    xlab = "Atmospheric CO2 concentration (ppm)",
-    ylab = "(M_RUE - M_FvCB) / M_FvCB (%)"
+    xlab = 'Atmospheric CO2 concentration (ppm)',
+    ylab = '(M_RUE - M_FvCB) / M_FvCB (%)'
 )
 
-pdf_print(multiyear_biomass_difference_plot, "multiyear_biomass_difference_plot.pdf")
+pdf_print(multiyear_biomass_difference_plot, 'multiyear_biomass_difference_plot.pdf')
 @
 
 \begin{figure}[htbp]
