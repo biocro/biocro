@@ -254,7 +254,9 @@ models for one year.
 The first step is to run the FvCB soybean model for the year 2002, adding the
 \texttt{total\_biomass} module to the set of default soybean modules.
 Afterwards, we can extract the final biomass for 2002 as predicted by the FvCB
-model.
+model. Since we will be extracting the final biomass from the results of
+multiple simulations during this analysis, we will create a reusable function
+for doing this.
 
 <<fvcb_result_2002>>=
 fvcb_result_2002 <- run_biocro(
@@ -266,34 +268,51 @@ fvcb_result_2002 <- run_biocro(
     soybean_ode_solver
 )
 
-fvcb_final_biomass_2002 <-
-    fvcb_result_2002[nrow(fvcb_result_2002), 'total_biomass']
+final_biomass <- function(df) {
+    df[nrow(df), 'total_biomass']
+}
+
+final_biomass_fvcb_2002 <- final_biomass(fvcb_result_2002)
+@
+
+During the optimization, we will need to run the RUE soybean model many times
+with different values of \ar, keeping the values of all other parameters and
+drivers constant. In this situation, the technique of
+\emph{partial application} can be very useful; partial application refers to a
+process where some arguments to a function are fixed, creating a function with
+fewer arguments. In BioCro, a convenience function for using partial application
+with \texttt{run\_biocro} is provided: the \texttt{partial\_run\_biocro}
+function. Here we use it to fix all inputs to \texttt{run\_biocro} except \ar.
+Note that we also replace the default canopy photosynthesis module in addition
+to adding the \texttt{total\_biomass} module (as before). The return value from
+\texttt{partial\_run\_biocro} is a function that we have called
+\texttt{rue\_2002}; this function takes a value of \ar\ as an input, runs a
+simulation using that value and the other arguments specified in the original
+call to \texttt{partial\_run\_biocro}, and returns the resulting data frame.
+
+<<rue_2002>>=
+rue_2002 <- partial_run_biocro(
+    soybean_initial_values,
+    within(soybean_parameters, {alpha_rue = NA}),
+    weather[['2002']],
+    append(within(soybean_direct_modules,
+        {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
+    soybean_differential_modules,
+    soybean_ode_solver,
+    'alpha_rue'  # here we specify the names of any quantities whose values
+)                # should not be fixed
 @
 
 The optimizer requires a function that accepts one argument (the value of the
-parameter being optimized) and returns one value (the value to minimize). Here
-we create a function that accepts \ar, uses it to run the RUE model, and
-then calculates the squared difference between end-of-season masses of the
-two models. In this function we need to replace the default soybean canopy
-photosynthesis module, add the total biomass module (as before), and add a value
-for the \ar\ parameter.
+parameter being optimized) and returns one value (the value to minimize). Here,
+we create a function that accepts the results of a BioCro simulation, extracts
+the end-of-season biomass, and calculates the squared difference between
+that result and the FvCB result. This will provide a means for associating an
+error metric with each value of \ar.
 
-<<rue_fvcb_square_difference>>=
-rue_fvcb_square_difference = function(alpha_rue) {
-    rue_result <- run_biocro(
-        soybean_initial_values,
-        within(soybean_parameters, {alpha_rue = alpha_rue}),
-        weather[['2002']],
-        append(within(soybean_direct_modules,
-            {canopy_photosynthesis = 'ten_layer_rue_canopy'}), 'total_biomass'),
-        soybean_differential_modules,
-        soybean_ode_solver
-    )
-
-    rue_final_biomass_2002 <-
-        rue_result[nrow(rue_result), 'total_biomass']
-
-    return((rue_final_biomass_2002 - fvcb_final_biomass_2002)^2)
+<<fvcb_square_difference>>=
+fvcb_square_difference = function(biocro_result) {
+    (final_biomass(biocro_result) - final_biomass_fvcb_2002)^2
 }
 @
 
@@ -302,8 +321,14 @@ The \texttt{optim} function accepts \texttt{f(x)} and finds the value of
 \texttt{x}, and for the \texttt{Brent} method, upper and lower bounds of
 \texttt{x}. It returns a list with information about the optimization (including
 the parameters it found, which are included in the \texttt{par} list element).
+Here we define \texttt{f(x)} by applying \texttt{fvcb\_square\_difference} to
+the output of \texttt{rue\_2002}.
 
 <<alpha_rue_optimization>>=
+rue_fvcb_square_difference <- function(x) {
+  fvcb_square_difference(rue_2002(x))
+}
+
 opt_par = optim(
     0.035,
     rue_fvcb_square_difference,
@@ -319,12 +344,24 @@ The optimal \ar\ value can be compared to the square difference curve to ensure
 that a minimum was truly obtained (Figure \ref{fig_alpha_optim}; this is Figure
 S1 in the BioCro II paper).
 
-Here the \texttt{optim} function is used, but this design allows any optimizer
-available in R to be used. For example, one could easily adapt this to search
-for parameters using simulated annealing or evolutionary algorithms. This is in
-contrast to some dynamical system software programs, in particular GUI-driven
-programs, which offer a limited and nonextendable number of choices for these
-algorithms.
+Here we used \texttt{partial\_run\_biocro} to specify one parameter for
+optimization (\ar), defined a second function that determines a measure of error
+from the result of one simulation (\texttt{fvcb\_square\_difference}), combined
+these two functions into one that relates a value of \ar\ to a value of the
+error (\texttt{fvcb\_square\_difference}), and passed that function to an
+optimizer (\texttt{optim}).
+
+This is a general strategy for parameter optimization in BioCro, allowing the
+user to choose which parameters should be optimized, define an error metric, and
+choose an optimization algorithm. In this example the error function is simply
+based on end-of-season biomass, but more detailed error metrics that compare the
+simulation output to experimentally measured data can easily be created. For the
+optimization, we use the \texttt{optim} function, but this design allows any
+optimizer available in R to be used. For example, one could easily adapt this to
+search for parameters using simulated annealing or evolutionary algorithms. This
+is in contrast to some dynamical system software programs, in particular
+GUI-driven programs, which offer a limited and nonextendable number of choices
+for these algorithms.
 
 <<figure_s1,echo=FALSE,results=FALSE>>=
 alpha_rue_sequence = seq(0.03, 0.04, length=31)
