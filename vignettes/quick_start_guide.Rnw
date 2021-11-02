@@ -106,7 +106,7 @@ directly calculate instantaneous values for their output quantities.
 
 Module lists can be created using the R command \texttt{list}. To specify a
 module in BioCro, we just need to supply its name, so we will be creating a list
-of strings. For example, we could write:
+of strings. For example, we could write the following:
 
 <<example_module_list>>=
 direct_modules <- list(
@@ -122,8 +122,8 @@ direct_modules <- list(
 @
 
 Note that in R, when assigning a value to a variable, there are two options: an
-equals sign (\texttt{=}) or an arrow (\texttt{<-}). The assignment operator
-(arrow) is used much more often, so we will use it here as well.
+equals sign (\texttt{=}) or an arrow (\texttt{<-}). The arrow assignment operator
+ is used much more often, so we will use it here as well.
 
 The BioCro package contains pre-defined module sets that can be used to run
 simulations for several different crops. In particular, sets of modules are
@@ -145,7 +145,7 @@ by typing one of the following commands:
 
 \subsection{Choosing parameters, initial values, drivers, and solvers}
 
-Besides the modules, the user must also provide:
+Besides the modules, the user must also provide the following:
 \begin{itemize}
 
 \item The values of \emph{parameters}, which are quantities whose values do not
@@ -190,7 +190,7 @@ soybean_initial_values$DVI
 
 Although these two commands produce the same output, there are a few important
 differences between the \texttt{[[} and \texttt{\$} operators: the \texttt{\$}
-operator uses ``partial matching,'' which can be convenient at times. On the
+operator uses ``partial matching'', which can be convenient at times. On the
 other hand, if the name of an element is stored as a variable, the \texttt{\$}
 operator cannot be used to access its value but the \texttt{[[} operator can.
 
@@ -300,8 +300,8 @@ times. For example, we could view just the first time point, or all times
 between the 10th and 20th points:
 
 <<print_subset_narrow>>=
-print(soybean_result[1,c('doy', 'hour', 'Leaf')])
-print(soybean_result[10:20,c('doy', 'hour', 'Leaf')])
+print(soybean_result[1, c('doy', 'hour', 'Leaf')])
+print(soybean_result[10:20, c('doy', 'hour', 'Leaf')])
 @
 
 In the previous three commands, we have used a colon to specify a range of
@@ -370,7 +370,7 @@ soybean_plot_v3 = xyplot(
   grid = TRUE,                                 # Add horizontal and vertical lines
   main = 'Soybean biomass calculated in 2005', # Add a main title
   xlim = c(204, 206),                          # Specify the X axis limits
-  ylim = c(0,3)                                # Specify the Y axis limits
+  ylim = c(0, 3)                                # Specify the Y axis limits
 )
 print(soybean_plot_v3)
 @
@@ -437,7 +437,7 @@ will give us some possible modules to choose from.
 all_quantities <- get_all_quantities()
 
 leaf_quantity_subset <-
-    all_quantities[which(all_quantities$quantity_name == 'Leaf'),]
+    all_quantities[which(all_quantities$quantity_name == 'Leaf'), ]
 
 leaf_modules <- unique(leaf_quantity_subset$module_name)
 
