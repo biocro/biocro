@@ -252,17 +252,14 @@ minimizes the squared difference in end-of-season total mass between the two
 models for one year.
 
 The first step is to run the FvCB soybean model for the year 2002, adding the
-\texttt{total\_biomass} module to the set of default soybean modules and
-ensuring that we're using the desired value for the atmospheric [\cotwo]
-concentration for 2002 by replacing the value contained in the
-\texttt{soybean\_parameters} list with value obtained from the NOAA data.
+\texttt{total\_biomass} module to the set of default soybean modules.
 Afterwards, we can extract the final biomass for 2002 as predicted by the FvCB
 model.
 
 <<fvcb_result_2002>>=
 fvcb_result_2002 <- run_biocro(
     soybean_initial_values,
-    within(soybean_parameters, {Catm = catm[['2002']]}),
+    soybean_parameters,
     weather[['2002']],
     append(soybean_direct_modules, "total_biomass"),
     soybean_differential_modules,
@@ -278,16 +275,14 @@ parameter being optimized) and returns one value (the value to minimize). Here
 we create a function that accepts \ar, uses it to run the RUE model, and
 then calculates the squared difference between end-of-season masses of the
 two models. In this function we need to replace the default soybean canopy
-photosynthesis module, add the total biomass module (as before), add a value for
-the \ar\ parameter, and again, make sure we're using the correct value for the
-atmospheric [\cotwo].
+photosynthesis module, add the total biomass module (as before), and add a value
+for the \ar\ parameter.
 
 <<rue_fvcb_square_difference>>=
 rue_fvcb_square_difference = function(alpha_rue) {
     rue_result <- run_biocro(
         soybean_initial_values,
-        within(soybean_parameters,
-            {alpha_rue = alpha_rue; Catm = catm[['2002']]}),
+        within(soybean_parameters, {alpha_rue = alpha_rue}),
         weather[['2002']],
         append(within(soybean_direct_modules,
             {canopy_photosynthesis = "ten_layer_rue_canopy"}), "total_biomass"),
@@ -380,8 +375,7 @@ paper).
 <<optimal_rue_result_2002>>=
 optimal_rue_result_2002 <- run_biocro(
     soybean_initial_values,
-    within(soybean_parameters,
-        {alpha_rue = best_alpha_rue; Catm = catm[['2002']]}),
+    within(soybean_parameters, {alpha_rue = best_alpha_rue}),
     weather[['2002']],
     append(within(soybean_direct_modules,
         {canopy_photosynthesis = "ten_layer_rue_canopy"}), "total_biomass"),
@@ -768,13 +762,13 @@ paper).
 <<biomass_temp_sensitivity>>=
 biomass_temp_sensitivity_fvcb <- biomass_driver_sensitivity(
     "temp",
-    within(soybean_parameters, {Catm = catm[['2002']]}),
+    soybean_parameters,
     "ten_layer_c3_canopy"
 )
 
 biomass_temp_sensitivity_rue <- biomass_driver_sensitivity(
     "temp",
-    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2002']]}),
+    within(soybean_parameters, {alpha_rue = best_alpha_rue}),
     "ten_layer_rue_canopy"
 )
 @
@@ -892,13 +886,13 @@ paper).
 <<biomass_catm_sensitivity>>=
 biomass_catm_sensitivity_fvcb <- biomass_parameter_sensitivity(
     "Catm",
-    within(soybean_parameters, {Catm = catm[['2002']]}),
+    soybean_parameters,
     "ten_layer_c3_canopy"
 )
 
 biomass_catm_sensitivity_rue <- biomass_parameter_sensitivity(
     "Catm",
-    within(soybean_parameters, {alpha_rue = best_alpha_rue; Catm = catm[['2002']]}),
+    within(soybean_parameters, {alpha_rue = best_alpha_rue}),
     "ten_layer_rue_canopy"
 )
 @
