@@ -91,11 +91,11 @@ of the paper compares two different models for \cthree\ photosynthesis: the
 mechanistic Farquhar-von-Cammerer-Berry (FvCB) model and an empirical radiation
 use efficiency (RUE) model. Each of these models is available as a BioCro module
 and can be used as a component in a larger crop model. The FvCB version in
-particular plays a key role in BioCro's validated soybean model, so it can be
+particular plays a key role in BioCro's validated soybean model, and it can be
 considered as the more accurate model for \cthree\ photosynthesis. On the other
 hand, the RUE model has several known shortcomings, such as being insensitive to
 atmospheric [\cotwo] levels. The main idea of Section 3 is to compare the
-behavior of these two models on their own as well as in the context of a larger
+behavior of these two models, both on their own and in the context of a larger
 soybean growth simulation. The analysis proceeds in the following steps:
 \begin{enumerate}
 
@@ -113,24 +113,24 @@ soybean growth in other years.
 For more information about this analysis, including the motivation for each step
 and a discussion of the results, please see the BioCro II paper. Also note that
 as time progresses and the BioCro models are improved, the figures produced in
-this vignette may slightly diverge from the published versions.
+this vignette may slightly diverge from those of the BioCro II paper.
 
 The general strategies employed here can be applied to other modules in order to
-quantitatively compare the behavior of any alternate versions of one model
-component, or even just to illustrate the behavior of a model. This type of
-analysis is indispensible for understanding and explaining the properties of
-models, and it is hoped that this vignette can serve as a template for other
-analyses in the future.
+quantitatively compare the behavior of alternate versions of a model component,
+or even just to illustrate the behavior of a model. This type of analysis is
+indispensible for understanding and explaining the properties of models, and it
+is hoped that this vignette can serve as a template for other analyses in the
+future.
 
 \section{Retrieving weather data and creating figures}
 
-For brevity, this R vignette does not explicitly include the code used for
-processing weather data, retrieving weather data, or creating figures, although
-this code is available in the R script associated with this vignette. This is to
-place emphasis on the BioCro functionality related to analyzing modules, since
-this part of the code will be of more general use. For other analyses, the
-required weather data will likely be different, and each user may have their
-own preferences regarding plotting that differ from the strategies used here.
+For brevity, this R vignette does not display the code used for processing
+weather data, retrieving weather data, or creating figures, although this code
+is contained in the Sweave file used to create it. This is to place emphasis on
+the BioCro functionality related to analyzing modules, since this part of the
+code will be of more general use. For other analyses, the required weather data
+will likely be different, and each user may have their own preferences regarding
+plotting that differ from the strategies used here.
 
 In this section, we provide a short overview of the hidden code that is required
 to complete the analysis and produce the figures, but isn't explicitly included
@@ -147,12 +147,12 @@ part of the BioCro package.
 
 \item \texttt{weather}: A list of weather data where each named element
 corresponds to the growing season of one particular year. Essentially, this
-list contains growing seasons of weather data from Champaign, IL. Full years of
-weather data are included in the BioCro package as the \texttt{weatherYYYY}
-datasets, where \texttt{YYYY} is a four-digit year between 1995 and 2020. For
-this analysis, photoperiod length as determined from the soybean circadian clock
-model is added to the original weather data, and then the full yearly set is
-truncated to days 152 - 288.
+list contains growing seasons of weather data from Champaign, Illinois. Full
+years of weather data are included in the BioCro package as the
+\texttt{weatherYYYY} datasets, where \texttt{YYYY} is a four-digit year between
+1995 and 2020. For this analysis, photoperiod length as determined from the
+soybean circadian clock model is added to the original weather data, and then
+the full yearly set is truncated to days 152 - 288.
 
 \end{itemize}
 
@@ -189,8 +189,8 @@ add_photoperiod_length <- function(weather_data) {
 process_weather <- function(weather_data) {
     weather_data <- add_photoperiod_length(weather_data)
     weather_data <-
-        weather_data[which(weather_data[['doy']] >= 152 &
-            weather_data[['doy']] <= 288),]
+        weather_data[weather_data[['doy']] >= 152 &
+          weather_data[['doy']] <= 288,]
 }
 
 # Define a list of processed weather data
@@ -253,9 +253,11 @@ models for one year.
 
 The first step is to run the FvCB soybean model for the year 2002, adding the
 \texttt{total\_biomass} module to the set of default soybean modules and
-ensuring that we're using the correct value for the atmospheric [\cotwo]
-concentration for 2002. Afterwards, we can extract the final biomass in 2002
-according to the FvCB model.
+ensuring that we're using the desired value for the atmospheric [\cotwo]
+concentration for 2002 by replacing the value contained in the
+\texttt{soybean\_parameters} list with value obtained from the NOAA data.
+Afterwards, we can extract the final biomass for 2002 as predicted by the FvCB
+model.
 
 <<fvcb_result_2002>>=
 fvcb_result_2002 <- run_biocro(
@@ -276,9 +278,9 @@ parameter being optimized) and returns one value (the value to minimize). Here
 we create a function that accepts \ar, uses it to run the RUE model, and
 then calculates the squared difference between end-of-season masses of the
 two models. In this function we need to replace the default soybean canopy
-photosynthesis module, add the total biomass module, add a value for the \ar\
-parameter, and make sure we're using the correct value for the atmospheric
-[\cotwo].
+photosynthesis module, add the total biomass module (as before), add a value for
+the \ar\ parameter, and again, make sure we're using the correct value for the
+atmospheric [\cotwo].
 
 <<rue_fvcb_square_difference>>=
 rue_fvcb_square_difference = function(alpha_rue) {
@@ -468,6 +470,10 @@ in the BioCro II paper).
 fvcb_aq_scatter_2002 <- extract_aq_scatter(fvcb_result_2002)
 rue_aq_scatter_2002 <- extract_aq_scatter(optimal_rue_result_2002)
 
+# Remove some weird row names that appear while creating data frames
+rownames(fvcb_aq_scatter_2002) <- NULL
+rownames(rue_aq_scatter_2002) <- NULL
+
 fvcb_aq_scatter_plot <- xyplot(
     gross_assimilation ~ incident_ppfd,
     data = fvcb_aq_scatter_2002,
@@ -535,8 +541,8 @@ series of each.
 # Choose a set of incident PPFD values to use (micromol / m^2 / s)
 incident_ppfd <- seq(0, 1000, length.out = 501)
 
-# Determine corresponding incident PAR values using the average energy per
-# micromole of photosynthetically active photons in sunlight (J / m^2 / s)
+# Determine corresponding incident PAR values (J / m^2 / s) using the average
+# energy per micromole of photosynthetically active photons in sunlight
 incident_par <- incident_ppfd * soybean_parameters[['par_energy_content']]
 
 # Determine the corresponding incident shorwave values using the fraction of
@@ -580,23 +586,28 @@ c = \frac{df / dx}{f(x_0) / x_0}
 
 In this function, the \texttt{evaluate\_module} BioCro function is used to
 calculate the gross assimilation rate for different values of the independent
-variable specified by \texttt{varname}, i.e. \texttt{varname} is $x$ and the
-\texttt{c3\_leaf\_photosynthesis} module defines $f(x)$.
+variable specified by \texttt{varname}; in other words, \texttt{varname} is $x$
+and the \texttt{c3\_leaf\_photosynthesis} module defines $f(x)$.
 
 <<assim_sensitivity>>=
-assim_sensitivity <- function(varname, base_module_inputs, relative_step_size = 1e-6) {
+assim_sensitivity <- function(
+    varname,
+    base_module_inputs,
+    relative_perturbation_size = 1e-6
+)
+{
     var_center <- base_module_inputs[[varname]]
     gross_assim_center <-
         evaluate_module("c3_leaf_photosynthesis", base_module_inputs)[['GrossAssim']]
 
     neg_module_inputs <- base_module_inputs
-    neg_var <- base_module_inputs[[varname]] * (1 - relative_step_size)
+    neg_var <- base_module_inputs[[varname]] * (1 - relative_perturbation_size)
     neg_module_inputs[[varname]] <- neg_var
     gross_assim_neg <-
         evaluate_module("c3_leaf_photosynthesis", neg_module_inputs)[['GrossAssim']]
 
     pos_module_inputs <- base_module_inputs
-    pos_var <- base_module_inputs[[varname]] * (1 + relative_step_size)
+    pos_var <- base_module_inputs[[varname]] * (1 + relative_perturbation_size)
     pos_module_inputs[[varname]] <- pos_var
     gross_assim_pos <-
         evaluate_module("c3_leaf_photosynthesis", pos_module_inputs)[['GrossAssim']]
@@ -659,17 +670,17 @@ pdf_print(fvcb_light_curve_sensitivity_plot, "fvcb_light_curve_sensitivity_plot.
 \section{Biomass sensitivity analysis}
 
 Here we wish to use the two photosynthesis models in a full crop model and
-compare the sensitivies of the total biomass to various inputs. The approach is
-slightly different depending on whether the input is a driver or a parameter.
+compare the sensitivities of the total biomass to various inputs. The approach
+is slightly different depending on whether the input is a driver or a parameter.
 
 \subsection{Sensitivity to a driver: air temperature}
 
 Several different routes are possible when analyzing the sensitivity of a
-model's output to a driver. Here we choose to instantaneous biomass as the
-dependent variable, and we perturb the driver at all time points. I.e., in the
-case of air temperature, we perturb the air temperature at every time point,
-run the simulation, and calculate the resulting change in biomass at every time
-point.
+model's output to a driver. Here we choose the instantaneous biomass as the
+dependent variable, and we perturb the driver at all time points. For example,
+in the case of air temperature, we perturb the air temperature at every time
+point, run the simulation, and calculate the resulting change in biomass at
+every time point.
 
 First we will define a function that calculates biomass sensitivity coefficients
 for one independent driver value using weather data from 2002. Here the
@@ -688,7 +699,7 @@ biomass_driver_sensitivity <- function(
     varname,
     parameters,
     canopy_photosynthesis_module,
-    relative_step_size = 1e-6
+    relative_perturbation_size = 1e-5
 )
 {
     steady_state_modules <- append(
@@ -712,7 +723,7 @@ biomass_driver_sensitivity <- function(
     )
 
     neg_drivers <- default_drivers
-    neg_drivers[[varname]] <- default_drivers[[varname]] * (1 - relative_step_size)
+    neg_drivers[[varname]] <- default_drivers[[varname]] * (1 - relative_perturbation_size)
     neg_result <- run_biocro(
         soybean_initial_values,
         parameters,
@@ -723,7 +734,7 @@ biomass_driver_sensitivity <- function(
     )
 
     pos_drivers <- default_drivers
-    pos_drivers[[varname]] <- default_drivers[[varname]] * (1 + relative_step_size)
+    pos_drivers[[varname]] <- default_drivers[[varname]] * (1 + relative_perturbation_size)
     pos_result <- run_biocro(
         soybean_initial_values,
         parameters,
@@ -735,10 +746,10 @@ biomass_driver_sensitivity <- function(
 
     dMdx <-
         (pos_result[["total_biomass"]] - neg_result[["total_biomass"]]) /
-        (pos_result[[varname]] - neg_result[[varname]])
+        (pos_drivers[[varname]] - neg_drivers[[varname]])
 
     normalized_sensitivity <-
-        dMdx / (default_result[["total_biomass"]] / default_result[[varname]])
+        dMdx / (default_result[["total_biomass"]] / default_drivers[[varname]])
 
     return(
         data.frame(
@@ -784,7 +795,7 @@ biomass_temp_sensitivity_plot <- xyplot(
     auto = TRUE,
     grid = TRUE,
     xlim = time_range,
-    ylim = c(-3, 9),
+    ylim = c(-20, 35),
     xlab = "Day of year (2002)",
     ylab = "dM / dT / (M / T)"
 )
@@ -808,14 +819,15 @@ pdf_print(biomass_temp_sensitivity_plot, "biomass_temp_sensitivity_plot.pdf")
 
 Here we will define a function that calculates biomass sensitivity coefficients
 for one independent parameter value using weather data from 2002. Here the
-independent variable is specified by the \texttt{varname} input.
+independent variable is specified by the \texttt{varname} input. Note: This
+function will produce errors for any \texttt{varname} whose base value is zero.
 
 <<biomass_parameter_sensitivity>>=
 biomass_parameter_sensitivity <- function(
     varname,
     parameters,
     canopy_photosynthesis_module,
-    relative_step_size = 1e-6
+    relative_perturbation_size = 1e-6
 )
 {
     steady_state_modules <- append(
@@ -835,7 +847,7 @@ biomass_parameter_sensitivity <- function(
     )
 
     neg_parameters <- parameters
-    neg_parameters[[varname]] <- parameters[[varname]] * (1 - relative_step_size)
+    neg_parameters[[varname]] <- parameters[[varname]] * (1 - relative_perturbation_size)
     neg_result <- run_biocro(
         soybean_initial_values,
         neg_parameters,
@@ -846,7 +858,7 @@ biomass_parameter_sensitivity <- function(
     )
 
     pos_parameters <- parameters
-    pos_parameters[[varname]] <- parameters[[varname]] * (1 + relative_step_size)
+    pos_parameters[[varname]] <- parameters[[varname]] * (1 + relative_perturbation_size)
     pos_result <- run_biocro(
         soybean_initial_values,
         pos_parameters,
@@ -931,7 +943,7 @@ pdf_print(biomass_catm_sensitivity_plot, "biomass_catm_sensitivity_plot.pdf")
 
 A simple way to demonstrate that the two photosynthesis models have different
 responses to changes in environmental variables is to plot biomass values in a
-different year such as 2006. To do this, we will first run the FvCB soybean
+different year, such as 2006. To do this, we will first run the FvCB soybean
 model for the year 2006, ensuring that we're using the correct value for the
 atmospheric [\cotwo]. Then we will run the RUE model for 2006, using the value
 of \ar\ that was optimized for 2002. A comparison shows a divergence in the
@@ -1010,7 +1022,7 @@ can be observed (Figure \ref{fig_multiyear_biomass_difference}; this is Figure
 
 <<multiyear_comparison>>=
 # Decide which years to use
-years <- seq(1995, 2020)
+years <- as.character(seq(1995, 2020))
 
 # Initialize vectors to store final biomass and atmospheric CO2 values
 final_biomass_seq_rue <- numeric(length(years))
@@ -1056,7 +1068,7 @@ for (i in seq_along(years)) {
 # Form a data frame for plotting and calculate a few new columns
 multiyear_comparison <- data.frame(
     catm = catm_seq,
-    year = years,
+    year = as.numeric(years),
     final_biomass_rue = final_biomass_seq_rue,
     final_biomass_fvcb = final_biomass_seq_fvcb
 )
