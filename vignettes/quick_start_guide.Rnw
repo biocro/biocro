@@ -128,7 +128,8 @@ equals sign (\texttt{=}) or an arrow (\texttt{<-}). The arrow assignment operato
 The BioCro package contains pre-defined module sets that can be used to run
 simulations for several different crops. In particular, sets of modules are
 available for soybean, which can be printed to the R console using either the
-\texttt{print} or \texttt{str} commands. We often prefer to use \texttt{str}:
+\texttt{print} or \texttt{str} commands. We often prefer to use \texttt{str}
+because it better shows the \emph{str}ucture of the object being printed:
 
 <<viewing_soybean_modules>>=
 str(soybean_differential_modules)
@@ -152,7 +153,7 @@ Besides the modules, the user must also provide the following:
 change during a simulation.
 
 \item The values of \emph{drivers}, which are quantities whose values are known
-beforehand at a set of equally-spaced time points; In BioCro, the drivers are
+beforehand at a set of equally-spaced time points; in BioCro, the drivers are
 typically weather data.
 
 \item The \emph{initial values} of any quantities that are governed by
@@ -165,9 +166,9 @@ the \texttt{get\_all\_ode\_solvers} function.
 
 \end{itemize}
 
-For this example, we will use weather data from Champaign, IL during 2002 along
-with the default soybean parameters, initial values, and ODE solver; all of
-these are also provided as lists that are part of the BioCro package.
+For this example, we will use weather data from Champaign, Illinois during 2002
+along with the default soybean parameters, initial values, and ODE solver; all
+of these are also provided as lists that are part of the BioCro package.
 
 The \texttt{soybean\_initial\_values} and \texttt{soybean\_parameters} lists are
 a little different than the soybean module lists because all of their elements
@@ -215,8 +216,8 @@ simulation including a mechanistic model for C$_3$ photosynthesis coupled to
 equations for leaf energy balance and stomatal opening, photothermal soybean
 development, soil water dynamics, and many other important processes. All of
 this was accomplished using the standard BioCro module library, and we didn't
-need to define a single equation. To learn more about the \texttt{run\_biocro}
-function, see the file \texttt{run\_biocro.R} in the BioCro repository, which
+need to write a single equation. To learn more about the \texttt{run\_biocro}
+function, see the file \texttt{R/run\_biocro.R} in the BioCro repository, which
 can be viewed locally or through the GitHub website. (Documentation for this
 function is not yet available from within R via the \texttt{?} function.)
 
@@ -248,9 +249,9 @@ soybean_result = run_biocro(
 There is also a related function (\texttt{validate\_dynamical\_system\_inputs})
 which takes the same input arguments as \texttt{run\_biocro} (except
 \texttt{ode\_solver}) and checks them for validity without attempting to run the
-simulation. It also provides additional information such as a list of parameters
-that are not used by any modules, since such parameters could in principle be
-removed without affecting the simulation.
+simulation. It also provides additional information, such as a list of
+parameters that are not used by any modules, since such parameters could in
+principle be removed without affecting the simulation.
 
 \section{Viewing and saving the results of a BioCro simulation}
 
@@ -311,8 +312,8 @@ to a list but doesn't usually have named elements. Instead, its elements are
 typically accessed by an index. For example, we could write
 
 <<vector_access>>=
-name_vector <- c('doy', 'hour', 'Leaf')
-name_vector[1]
+column_name_vector <- c('doy', 'hour', 'Leaf')
+column_name_vector[1]
 @
 
 Now we have introduced the most important R data types for BioCro analysis:
@@ -409,7 +410,7 @@ plotting.
 
 In the final plot in Section \ref{sec:plotting}, we specified that the units of
 the \texttt{Stem}, \texttt{Leaf}, and \texttt{Root} quantities are each Mg / ha
-(mega grams per hectare). You may be wondering: where did this information come
+(megagrams per hectare). You may be wondering: where did this information come
 from?
 
 The BioCro development team is currently working on an automatically-generated
@@ -437,7 +438,7 @@ will give us some possible modules to choose from.
 all_quantities <- get_all_quantities()
 
 leaf_quantity_subset <-
-    all_quantities[which(all_quantities$quantity_name == 'Leaf'), ]
+    all_quantities[all_quantities$quantity_name == 'Leaf', ]
 
 leaf_modules <- unique(leaf_quantity_subset$module_name)
 
@@ -446,8 +447,8 @@ print(leaf_modules)
 
 Now we can see there are 11 modules that have \texttt{Leaf} as an input or
 output. Let's choose one of them: the \texttt{total\_biomass} module. We can
-find its source code in \texttt{src\/module\_library\/total\_biomass.h}. (The
-source code for all modules is stored in the \texttt{src\/module\_library}
+find its source code in \texttt{src/module\_library/total\_biomass.h}. (The
+source code for all modules is stored in the \texttt{src/module\_library}
 directory.) This is a C++ header file that defines the module. Looking through
 the code, we can find the units for \texttt{Leaf} (Mg / ha) specified in a
 comment (Listing \ref{lst:units}).
@@ -569,7 +570,7 @@ outputs <- evaluate_module(
 
 Choosing reasonable input parameters is sometimes a difficult process, but
 insight can often be gained by examining weather data, crop parameter lists, the
-outputs of a BioCro simulation, published literature, etc. Critical information
+outputs of a BioCro simulation, or published literature. Critical information
 about particular quantities, such as their meaning and units, can be obtained
 using the strategy in Section \ref{sec:quantities}.
 
