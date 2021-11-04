@@ -1,16 +1,3 @@
-# `validate_system_inputs` checks a set of parameters, drivers, modules, and
-# initial values to see if they can properly define a dynamical system and can
-# therefore be used as inputs to `run_biocro`.
-#
-# The return value from this function is a boolean indicating whether the inputs
-# can form a valid system.
-#
-# The `run_biocro` function performs all the same checks. However,
-# `validate_system_inputs` returns additional information, such as a list of all
-# quantities that are defined in the parameters, initial values, and drivers
-# that are not used as inputs to any modules.
-#
-# When silent is TRUE, no information will be printed to the R console.
 validate_dynamical_system_inputs <- function(
     initial_values = list(),
     parameters = list(),
