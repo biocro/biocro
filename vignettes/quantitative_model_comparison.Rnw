@@ -305,14 +305,16 @@ rue_2002 <- partial_run_biocro(
 
 The optimizer requires a function that accepts one argument (the value of the
 parameter being optimized) and returns one value (the value to minimize). Here,
-we create a function that accepts the results of a BioCro simulation, extracts
-the end-of-season biomass, and calculates the squared difference between
-that result and the FvCB result. This will provide a means for associating an
-error metric with each value of \ar.
+we create a function that accepts a value of \ar, passes it to
+\texttt{rue\_2002} to run a soybean simulation, extracts the end-of-season
+biomass, and calculates the squared difference between that result and the FvCB
+result. This function provides a means for associating an error metric with each
+value of \ar. Since we are using the squared value of a residual as an error
+metric, we are performing a simple version of nonlinear least-squares fitting.
 
-<<fvcb_square_difference>>=
-fvcb_square_difference = function(biocro_result) {
-    (final_biomass(biocro_result) - final_biomass_fvcb_2002)^2
+<<rue_fvcb_square_difference>>=
+rue_fvcb_square_difference = function(alpha_rue) {
+    (final_biomass(rue_2002(alpha_rue)) - final_biomass_fvcb_2002)^2
 }
 @
 
@@ -321,14 +323,10 @@ The \texttt{optim} function accepts \texttt{f(x)} and finds the value of
 \texttt{x}, and for the \texttt{Brent} method, upper and lower bounds of
 \texttt{x}. It returns a list with information about the optimization (including
 the parameters it found, which are included in the \texttt{par} list element).
-Here we define \texttt{f(x)} by applying \texttt{fvcb\_square\_difference} to
-the output of \texttt{rue\_2002}.
+Here we pass the \texttt{rue\_fvcb\_square\_difference} function to
+\texttt{optim} in order to find the best value for \ar.
 
 <<alpha_rue_optimization>>=
-rue_fvcb_square_difference <- function(x) {
-  fvcb_square_difference(rue_2002(x))
-}
-
 opt_par = optim(
     0.035,
     rue_fvcb_square_difference,
@@ -345,10 +343,9 @@ that a minimum was truly obtained (Figure \ref{fig_alpha_optim}; this is Figure
 S1 in the BioCro II paper).
 
 Here we used \texttt{partial\_run\_biocro} to specify one parameter for
-optimization (\ar), defined a second function that determines a measure of error
-from the result of one simulation (\texttt{fvcb\_square\_difference}), combined
-these two functions into one that relates a value of \ar\ to a value of the
-error (\texttt{fvcb\_square\_difference}), and passed that function to an
+optimization (\ar), used the output from \texttt{partial\_run\_biocro} to define
+a function that associates a measure of error with a value of \ar\
+(\texttt{rue\_fvcb\_square\_difference}), and passed that function to an
 optimizer (\texttt{optim}).
 
 This is a general strategy for parameter optimization in BioCro, allowing the
