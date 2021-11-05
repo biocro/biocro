@@ -462,10 +462,21 @@ string_vector find_unused_input_parameters(
 
     string_set all_module_inputs = find_unique_module_inputs(module_name_vectors);
 
+    // For now, there are a few names we should ignore since they may be
+    // required for other reasons even if they are not used as module inputs
+    string_vector ignored_names {
+        "timestep",
+        "time",
+        "doy",
+        "hour"
+    };
+
     for (state_map const& m : state_maps) {
         string_vector parameters = keys(m);
         for (std::string const& name : parameters) {
-            insert_quantity_if_undefined(name, all_module_inputs, unused_params);
+            if (std::find(ignored_names.begin(), ignored_names.end(), name) == ignored_names.end()) {
+                insert_quantity_if_undefined(name, all_module_inputs, unused_params);
+            }
         }
     }
 
