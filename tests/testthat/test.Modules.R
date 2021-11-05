@@ -26,3 +26,16 @@ lapply(
     get_all_modules(),
     run_test
 )
+
+# Make sure the `evaluate_module` function is properly reporting missing inputs
+test_that("all module inputs must be defined when calling `evaluate_module`", {
+    expect_error(
+        evaluate_module('thermal_time_linear', list()),
+        regexp = paste0(
+            "The `thermal_time_linear` module requires `tbase` as an input quantity\n",
+            "  The `thermal_time_linear` module requires `time` as an input quantity\n",
+            "  The `thermal_time_linear` module requires `temp` as an input quantity\n",
+            "  The `thermal_time_linear` module requires `sowing_time` as an input quantity\n"
+        )
+    )
+})

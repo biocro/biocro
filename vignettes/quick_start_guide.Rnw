@@ -826,25 +826,16 @@ that we need to define.
 outputs <- evaluate_module('c3_assimilation', soybean_parameters)
 @
 
-Here, as expected, an error occurs because \texttt{Qp} is not defined. We can
-choose a value (for instance, 1800 $\mu$mol / m$^2$ / s) and add it to the
-parameter list:
+Here, as expected, an error occurs because several input quantities are not
+defined. We can choose a values for these and add them to the parameter list:
 
 <<c3_assimilation_v2>>=
-outputs <- evaluate_module('c3_assimilation', within(soybean_parameters, {Qp = 1800}))
-@
-
-Again, we get an error: this time we learn that the leaf temperature
-\texttt{Tleaf} is not defined. Repeating this process, we can eventually
-specify a full set of inputs:
-
-<<c3_assimilation_v3>>=
 outputs <- evaluate_module(
   'c3_assimilation',
   within(soybean_parameters, {
+    rh = 0.7      # dimensionless
     Qp = 1800     # micromol / m^2 / s
     Tleaf = 27    # degrees C
-    rh = 0.7      # dimensionless
     StomataWS = 1 # dimensionless; 1 indicates no water stress
   })
 )
@@ -872,9 +863,9 @@ light_response <- function(Q) {
   evaluate_module(
     'c3_assimilation',
     within(soybean_parameters, {
+      rh = 0.7
       Qp = Q
       Tleaf = 27
-      rh = 0.7
       StomataWS = 1
     })
   )$Assim

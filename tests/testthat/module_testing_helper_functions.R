@@ -82,46 +82,6 @@ test_module <- function(
     case_list
 )
 {
-    # If this module has 1 or more input quantities, we should make sure it
-    # produces the correct error message when in its inputs are not defined.
-    info <- module_info(module_name, FALSE)
-    if (length(info[['inputs']]) > 0) {
-        # Write a description for the quantity access error test
-        quantity_access_error_description <- paste(
-            module_name,
-            "produces a 'quantity_access_error' when its inputs are missing"
-        )
-
-        # Try to run the module without specifying any input quantities, storing
-        # any error messages that occur
-        error_msg <- ""
-        tryCatch(
-            {
-                # Code to be executed initially
-                outputs <- evaluate_module(module_name, list())
-            },
-            error=function(cond) {
-                # Code for handling errors
-                error_msg <<- cond
-            },
-            warning=function(cond) {
-                # Code for handling warnings
-                error_msg <<- cond
-            },
-            finally={
-                # Code to be executed after the initial code and handling
-            }
-        )
-
-        # An error message containing "Caught quantity access error" should be
-        # produced by the above call to 'evaluate_module'
-        test_that(quantity_access_error_description, {
-            expect_true(
-                grepl("Caught quantity access error", error_msg, fixed=TRUE)
-            )
-        })
-    }
-
     # Define a helping function that tests one case
     test_one_case <- function(one_case) {
         # Write descriptions for the two types of tests

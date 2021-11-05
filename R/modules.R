@@ -48,6 +48,21 @@ evaluate_module <- function(module_name, input_quantities)
         error_messages <- append(error_messages, "`module_name` must have length 1")
     }
 
+    missing_input_quantities <- setdiff(
+        names(module_info(module_name, verbose = FALSE)[['inputs']]),
+        names(input_quantities)
+    )
+
+    if (length(missing_input_quantities) > 0) {
+        error_messages <- append(
+            error_messages,
+            paste0(
+                "The `", module_name, "` module requires `",
+                missing_input_quantities, "` as an input quantity\n"
+            )
+        )
+    }
+
     send_error_messages(error_messages)
 
     # C++ requires that all the variables have type `double`
