@@ -249,7 +249,9 @@ pdf_print <- function(
 We want to find the value of \ar\ that creates output most similar to the FvCB
 model.  To do this, we will use an optimizer to find the value of \ar\ that
 minimizes the squared difference in end-of-season total mass between the two
-models for one year.
+models for one year. Our example problem can be considered a trivial case of
+least-squares fitting, where the number of model parameters being considered is
+one.
 
 The first step is to run the FvCB soybean model for the year 2002, adding the
 \texttt{total\_biomass} module to the set of default soybean modules.
@@ -309,8 +311,7 @@ we create a function that accepts a value of \ar, passes it to
 \texttt{rue\_2002} to run a soybean simulation, extracts the end-of-season
 biomass, and calculates the squared difference between that result and the FvCB
 result. This function provides a means for associating an error metric with each
-value of \ar. Since we are using the squared value of a residual as an error
-metric, we are performing a simple version of nonlinear least-squares fitting.
+value of \ar.
 
 <<rue_fvcb_square_difference>>=
 rue_fvcb_square_difference = function(alpha_rue) {
