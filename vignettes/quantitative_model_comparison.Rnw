@@ -485,7 +485,8 @@ extract_aq_scatter <- function(biocro_output) {
 
     aq_scatter <- data.frame(
         incident_ppfd = unlist(biocro_output[light_column_names]),
-        gross_assimilation = unlist(biocro_output[assim_column_names])
+        gross_assimilation = unlist(biocro_output[assim_column_names]),
+        row.names = NULL
     )
 
     return(aq_scatter)
@@ -500,10 +501,6 @@ in the BioCro II paper).
 <<figure_4b,echo=FALSE,results=FALSE>>=
 fvcb_aq_scatter_2002 <- extract_aq_scatter(fvcb_result_2002)
 rue_aq_scatter_2002 <- extract_aq_scatter(optimal_rue_result_2002)
-
-# Remove some weird row names that appear while creating data frames
-rownames(fvcb_aq_scatter_2002) <- NULL
-rownames(rue_aq_scatter_2002) <- NULL
 
 fvcb_aq_scatter_plot <- xyplot(
     gross_assimilation ~ incident_ppfd,
