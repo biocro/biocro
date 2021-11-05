@@ -24,7 +24,7 @@
   View(get_all_ode_solvers())
 }
 
-\arguments(None)
+\arguments{None}
 
 \details{
   These "get_all" functions return the modules, quantities, and ODE solvers

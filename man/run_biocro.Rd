@@ -91,10 +91,12 @@ run_biocro(
 }
 
 \seealso{
-  \item \code{\link{get_all_modules}}
-  \item \code{\link{get_all_ode_solvers}}
-  \item \code{\link{validate_dynamical_system_inputs}}
-  \item \code{\link{partial_run_biocro}}
+  \itemize{
+    \item \code{\link{get_all_modules}}
+    \item \code{\link{get_all_ode_solvers}}
+    \item \code{\link{validate_dynamical_system_inputs}}
+    \item \code{\link{partial_run_biocro}}
+  }
 }
 
 \examples{

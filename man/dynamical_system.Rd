@@ -54,16 +54,7 @@ validate_dynamical_system_inputs(
   soybean_differential_modules
 )
 
-# Example 2: supplying the name of a nonexistent module
-validate_dynamical_system_inputs(
-  soybean_initial_values,
-  soybean_parameters,
-  soybean_weather2002,
-  append(soybean_direct_modules, 'nonexistent_module_name'), # add a nonexistent module
-  soybean_differential_modules
-)
-
-# Example 3: a valid set of input arguments
+# Example 2: a valid set of input arguments
 validate_dynamical_system_inputs(
   soybean_initial_values,
   soybean_parameters,
