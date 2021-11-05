@@ -48,7 +48,7 @@ class biocro_simulation
         std::string report;
         report += "\nSystem startup information:\n" +
                       sys->generate_startup_report() +
-                  "\node_ODE solver description:\n" +
+                  "\nODE solver description:\n" +
                       system_solver->generate_info_report() +
                   "\n\nThe ODE solver reports the following:\n" +
                       system_solver->generate_integrate_report() +
