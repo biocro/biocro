@@ -456,16 +456,16 @@ pdf_print(biomass_comparison_2002_plot, 'biomass_comparison_2002_plot.pdf')
 
 Additional insight into the agreement between the models can be gained by
 examining the relationship between gross \cotwo\ assimilation rates ($A_g$) and
-incident light ($Q$) at the leaf level throughout the entire growing season. The
-BioCro multilayer canopy photosynthesis modules store these values for each
-layer (0-9) and leaf class (sunlit and shaded) in quantities with names that
-specify layer number as a suffix and class as a prefix added to the base names
-of \texttt{incident\_ppfd} ($Q$) and \texttt{GrossAssim} ($A_g$), for example
-\texttt{sunlit\_incident\_ppfd\_layer\_0} and
+incident light intensity ($Q$) at the leaf level throughout the entire growing
+season. The BioCro multilayer canopy photosynthesis modules store these values
+for each layer (0-9) and leaf class (sunlit and shaded) in quantities with
+names that specify layer number as a suffix and class as a prefix added to the
+base names of \texttt{incident\_ppfd} ($Q$) and \texttt{GrossAssim} ($A_g$),
+for example \texttt{sunlit\_incident\_ppfd\_layer\_0} and
 \texttt{shaded\_GrossAssim\_layer\_9}. To help with plotting, it is beneficial
 to first extract all the ($Q$, $A_g$) pairs from each layer and leaf class in
-the output of a BioCro simulation; here we make a helping function to accomplish
-this.
+the output of a BioCro simulation; here we make a helping function to
+accomplish this.
 
 <<extract_aq_scatter>>=
 extract_aq_scatter <- function(biocro_output) {
@@ -701,12 +701,12 @@ is slightly different depending on whether the input is a driver or a parameter.
 
 \subsection{Sensitivity to a driver: air temperature}
 
-Several different routes are possible when analyzing the sensitivity of a
-model's output to a driver. Here we choose the instantaneous biomass as the
-dependent variable, and we perturb the driver at all time points. For example,
-in the case of air temperature, we perturb the air temperature at every time
-point, run the simulation, and calculate the resulting change in biomass at
-every time point.
+Several routes are possible when analyzing the sensitivity of a model's output
+to a driver. Here we choose the instantaneous biomass as the dependent
+variable, and we perturb the driver at all time points. For example, in the
+case of air temperature, we perturb the air temperature at every time point,
+run the simulation, and calculate the resulting change in biomass at every time
+point.
 
 First we will define a function that calculates biomass sensitivity coefficients
 for one independent driver value using weather data from 2002. Here the
