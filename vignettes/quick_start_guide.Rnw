@@ -136,7 +136,7 @@ BioCro module library, and we didn't need to write a single equation.
 The following subsections discuss the input arguments to \texttt{run\_biocro},
 explaining how they work together to define and solve a model, and how they
 relate to the central element of BioCro philosophy: that \emph{models are sets
-of equations}. Information about \texttt{rn\_biocro} can also be obtained from
+of equations}. Information about \texttt{run\_biocro} can also be obtained from
 R's built-in help system using the following command:
 
 <<run_biocro_help,eval=FALSE>>=
@@ -500,7 +500,7 @@ print(colnames(soybean_result)[1:10])
 The individual columns can be accessed the same way as the named list elements
 discussed in Section \ref{sec:choose_modules}. For example, if we want to see
 the \texttt{doy} column, which represents the day of the year (DOY), we could
-type:
+type the following:
 
 <<print_one_column>>=
 str(soybean_result$doy)
@@ -609,13 +609,13 @@ that you can repeat or modify a previous analysis.
 
 \item Any R objects can be saved as R data files using the \texttt{save}
 function; for example, the \texttt{soybean\_result} data frame calculated in
-Section \ref{sec:run_simulation} can be saved to file with the following
+Section \ref{sec:run_simulation} can be saved to a file with the following
 command: \texttt{save(soybean\_result, file=file.choose())}. Here the filename
 is chosen interactively using the \texttt{file.choose} function, and it should
 have a \texttt{.rda}, \texttt{.RData}, or \texttt{.rdata} extension.
 
 \item R data frames can also be saved in plain-text format as comma-separated
-value (CSV) files using R's \texttt{write.csv} function. For example:
+value (CSV) files using R's \texttt{write.csv} function: for example,
 \texttt{write.csv(soybean\_result, file=file.choose(), row.names=FALSE)}. Here
 the filename should have a \texttt{.csv} extension. Now the data can be opened
 with many other pieces of software for analysis or plotting.
@@ -734,7 +734,7 @@ be viewed at the BioCro documentation website
 
 \end{itemize}
 
-Most users will only be interested in the source code for the modules, which is
+Many users will only be interested in the source code for the modules, which is
 located in the \texttt{src/module\_library} directory. Most of the time, the
 source code for a module called \texttt{module\_name} will be contained in a
 file called \texttt{src/module\_library/module\_name.h} or
@@ -790,16 +790,16 @@ file \texttt{multilayer\_rue\_canopy.h} where it is defined.
 
 \section{Visualizing module behavior by calculating a response curve}
 
-To understand how a module works, it can be helpful to supplement its written
-description with a visualization of how one of its output quantities depends on
-one of its input quantities across a reasonable range; we refer to such a plot
-as a \emph{response curve}. As an example, here we will calculate the response
-of the soybean net CO$_2$ assimilation rate ($A_n$) to the incident
-photosynthetically active photon flux density (PPFD; $Q$) according to the
-Farquhar-von-Caemmerer-Berry model for C$_3$ photosynthesis, which is available
-in BioCro as the \texttt{c3\_assimilation} module. (This module also uses the
-Ball-Berry model for stomatal conductance, iteratively solving for consistent
-solutions to the photosynthesis and conductance equations.)
+To understand how a module works, it can be helpful to visualize of how one of
+its output quantities depends on one of its input quantities across a
+reasonable range; a plot typically called a \emph{response curve}. As an
+example, here we will calculate the response of the soybean net CO$_2$
+assimilation rate ($A_n$) to the incident photosynthetically active photon flux
+density (PPFD; $Q$) according to the Farquhar-von-Caemmerer-Berry model for
+C$_3$ photosynthesis, which is available in BioCro as the
+\texttt{c3\_assimilation} module. (This module also uses the Ball-Berry model
+for stomatal conductance, iteratively solving for consistent solutions to the
+photosynthesis and conductance equations.)
 
 The first step towards calculating a response curve is to check the module's
 inputs and outputs, which can be done using the \texttt{module\_info} function,
@@ -815,7 +815,7 @@ varying \texttt{Qp} while keeping the other input quantities fixed. The values
 of several other input quantities are specified in \texttt{soybean\_parameters}.
 For others, we will need to make a choice based on reasonable field conditions.
 
-To actually run the module, we will need the \texttt{evaluate\_module function},
+To run the module, we will need the \texttt{evaluate\_module function},
 which requires a module name and a named list of input quantities. If any of the
 module's inputs are not provided, a helpful error message will be returned. So
 we can try passing the \texttt{soybean\_parameters} list as an input to the
@@ -893,27 +893,29 @@ the carbon assimilation rate to the amount of incoming light. First, when the
 light is low, the carbon consumed by respiratory processes exceeds the carbon
 gained through photosynthetic assimilation, leading to a negative value of the
 net assimilation rate. An important consequence of this is that although plants
-take in CO$_2$ during the day, they exhale CO$_2$ at night. As light increases,
-the initial response is linear, although it begins to plateau at higher light
-intensities; in other words, the additional light energy does not cause a large
-increase in assimilation when the light intensity is already high.
+take in CO$_2$ during the day, they exhale CO$_2$ at night. As light intensity
+increases, the initial response is linear, although it begins to plateau at
+higher light intensities; in other words, the additional light energy does not
+cause a large increase in assimilation when the light intensity is already
+high.
 
 Although this information is encoded in the equations used to calculate the net
 assimilation rate, these insights are difficult to obtain by merely viewing the
 equations, and only become apparent when calculating a response curve using
 realistic values for environmental conditions and photosynthetic parameters.
-Thus, the ability to quickly and easily calculate response curves from
-individual model components is another key ability of BioCro, which complements
-the benefits of modularity that were discussed previously in Sections
-\ref{sec:run_simulation} and \ref{sec:choose_modules}.
-
 This example illustrates a very basic response curve calculation; a more
 advanced analysis could include multiple curves calculated for different values
-of air temperature or relative humidity. A response curve can also be the first
-step towards a full sensitivity analysis, where numerical derivatives of an
-output quantity with respect to an input quantity can be calculated. See the
-\emph{Quantitative Comparison Between Two Photosynthesis Models} vignette for a
-more detailed analysis including some of these ideas.
+of air temperature or relative humidity. Thus, the ability to quickly and
+easily calculate response curves from individual model components is another
+key ability of BioCro, which complements the benefits of modularity that were
+discussed previously in Sections \ref{sec:run_simulation} and
+\ref{sec:choose_modules}.
+
+A response curve can also be the first step towards a full sensitivity
+analysis, where numerical derivatives of an output quantity with respect to an
+input quantity can be calculated. See the \emph{Quantitative Comparison Between
+Two Photosynthesis Models} vignette for a more detailed analysis including some
+of these ideas.
 
 More information about the commands used in this section can be obtained as
 follows:
