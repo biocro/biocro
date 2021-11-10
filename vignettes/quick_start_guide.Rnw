@@ -555,7 +555,7 @@ with many other pieces of software for analysis or plotting.
 
 \end{itemize}
 
-\section{Visualizing module behavior by calculating a response curve}
+\section{Visualizing module behavior by calculating a response curve \label{sec:response}}
 
 To understand how a module works, it can be helpful to visualize how one of its
 output quantities depends on one of its input quantities across a reasonable
@@ -914,13 +914,31 @@ To test your understanding, you could try to complete the following tasks:
 key parameter (such as \texttt{vmax1}, which represents the maximum rate of
 carboxylation $v_{\rm{c,max}}$) and compare plots of the time evolution of the
 \texttt{Grain} quantity (representing the pod mass per unit area) in each of the
-scenarios.
+scenarios. (See Figure \ref{fig:soybean_vcmax} for a possible solution.)
 
 \item Calculate a temperature response curve for soybean assimilation, in
-analogy to the light reponse curve we calculated in the example.
+analogy to the light reponse curve we calculated in Section \ref{sec:response}.
+(See Figure \ref{fig:soybean_temperature_response} for a possible solution.)
 
 \end{itemize}
 
-Good luck, and have fun exploring plant growth models using BioCro!
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{quick_start_guide/soybean_vcmax_exercise.pdf}
+    \caption{Soybean pod biomass throughout 2002 simulated with different values
+    of $v_{\rm{c,max}}$.}
+    \label{fig:soybean_vcmax}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{quick_start_guide/temperature_response_curve.pdf}
+    \caption{Temperature response of soybean net assimilation.}
+    \label{fig:soybean_temperature_response}
+  \end{center}
+\end{figure}
+
+\LARGE{Good luck, and have fun exploring plant growth models using BioCro!}
 
 \end{document}
