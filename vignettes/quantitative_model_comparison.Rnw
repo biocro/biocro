@@ -293,6 +293,7 @@ simulation using that value and the other arguments specified in the original
 call to \texttt{partial\_run\_biocro}, and returns the resulting data frame.
 
 <<rue_2002>>=
+# The first six arguments are the same as for `run_biocro`
 rue_2002 <- partial_run_biocro(
     soybean_initial_values,
     within(soybean_parameters, {alpha_rue = NA}),
