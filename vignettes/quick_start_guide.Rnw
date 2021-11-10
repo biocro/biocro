@@ -632,6 +632,143 @@ as follows:
 ?file.choose
 @
 
+\section{Visualizing module behavior by calculating a response curve}
+
+To understand how a module works, it can be helpful to visualize how one of its
+output quantities depends on one of its input quantities across a reasonable
+range; a plot typically called a \emph{response curve}. As an example, here we
+will calculate the response of the soybean net CO$_2$ assimilation rate ($A_n$)
+to the incident photosynthetically active photon flux density (PPFD; $Q$)
+according to the Farquhar-von-Caemmerer-Berry model for C$_3$ photosynthesis,
+which is available in BioCro as the \texttt{c3\_assimilation} module. (This
+module also uses the Ball-Berry model for stomatal conductance, iteratively
+solving for consistent solutions to the photosynthesis and conductance
+equations.)
+
+The first step towards calculating a response curve is to check the module's
+inputs and outputs, which can be done using the \texttt{module\_info} function,
+as discussed in Section \ref{sec:module_info}:
+
+<<c3_module_info>>=
+info <- module_info('c3_assimilation')
+@
+
+Here, the \texttt{Qp} input represents the incident PPFD $Q$, while the
+\texttt{Assim} output represents the net assimilation rate $A_n$. So we will be
+varying \texttt{Qp} while keeping the other input quantities fixed. The values
+of several other input quantities are specified in \texttt{soybean\_parameters}.
+For others, we will need to make a choice based on reasonable field conditions.
+
+To run the module, we will need the \texttt{evaluate\_module function},
+which requires a module name and a named list of input quantities. If any of the
+module's inputs are not provided, a helpful error message will be returned. So
+we can try passing the \texttt{soybean\_parameters} list as an input to the
+\texttt{c3\_assimilation} module; this will help idenfity the remaining inputs
+that we need to define.
+
+<<c3_assimilation_v1>>=
+outputs <- evaluate_module('c3_assimilation', soybean_parameters)
+@
+
+Here, as expected, an error occurs because several input quantities are not
+defined. We can choose a values for these and add them to the parameter list:
+
+<<c3_assimilation_v2>>=
+outputs <- evaluate_module(
+  'c3_assimilation',
+  within(soybean_parameters, {
+    rh = 0.7      # dimensionless
+    Qp = 1800     # micromol / m^2 / s
+    Tleaf = 27    # degrees C
+    StomataWS = 1 # dimensionless; 1 indicates no water stress
+  })
+)
+@
+
+Choosing reasonable input parameters is sometimes a difficult process, but
+insight can often be gained by examining weather data, crop parameter lists, the
+outputs of a BioCro simulation, or published literature. Critical information
+about particular quantities, such as their meaning and units, can be obtained
+using the strategy in Section \ref{sec:quantity_info}.
+
+The \texttt{evaluate\_module} function returns a list of named elements; we will
+be interested in the \texttt{Assim} element:
+
+<<c3_assimilation_outputs>>=
+str(outputs)
+@
+
+Since we now have a complete set of inputs, we can define a function that uses a
+value of $Q$ to evaluate the photosynthesis equations with fixed values of the
+other inputs and returns a value for $A_n$:
+
+<<c3_assimilation_function>>=
+light_response <- function(Q) {
+  evaluate_module(
+    'c3_assimilation',
+    within(soybean_parameters, {
+      rh = 0.7
+      Qp = Q
+      Tleaf = 27
+      StomataWS = 1
+    })
+  )$Assim
+}
+@
+
+Finally, we can define a vector of $Q$ values and plot the corresponding $A_n$
+values:
+
+<<c3_light_response_curve>>=
+Q <- seq(from = 0, to = 2000, length.out = 501)
+An <- sapply(Q, light_response)
+xyplot(
+  An ~ Q,
+  type = 'l',
+  xlab = 'Incident PPFD (micromol / m^2 / s)',
+  ylab = 'Net CO2 assimilation rate\n(micromol / m^2 / s)',
+  main = 'Soybean light response curve\ncalculated at 27 degrees C and 70% relative humidity',
+  grid = TRUE
+)
+@
+
+From this figure, we can learn a few interesting things about the response of
+the carbon assimilation rate to the amount of incoming light. First, when the
+light is low, the carbon consumed by respiratory processes exceeds the carbon
+gained through photosynthetic assimilation, leading to a negative value of the
+net assimilation rate. An important consequence of this is that although plants
+take in CO$_2$ during the day, they exhale CO$_2$ at night. As light intensity
+increases, the initial response is linear, although it begins to plateau at
+higher light intensities; in other words, the additional light energy does not
+cause a large increase in assimilation when the light intensity is already
+high.
+
+Although this information is encoded in the equations used to calculate the net
+assimilation rate, these insights are difficult to obtain by merely viewing the
+equations, and only become apparent when calculating a response curve using
+realistic values for environmental conditions and photosynthetic parameters.
+This example illustrates a very basic response curve calculation; a more
+advanced analysis could include multiple curves calculated for different values
+of air temperature or relative humidity. Thus, the ability to quickly and
+easily calculate response curves from individual model components is another
+key ability of BioCro, which complements the benefits of modularity that were
+discussed previously in Sections \ref{sec:run_simulation} and
+\ref{sec:choose_modules}.
+
+A response curve can also be the first step towards a full sensitivity
+analysis, where numerical derivatives of an output quantity with respect to an
+input quantity can be calculated. See the \emph{Quantitative Comparison Between
+Two Photosynthesis Models} vignette for a more detailed analysis including some
+of these ideas.
+
+More information about the commands used in this section can be obtained as
+follows:
+
+<<response_curve_help,eval=FALSE>>=
+?evaluate_module
+?sapply
+@
+
 \section{Getting basic information about quantities and modules}
 
 \subsection{Quantities \label{sec:quantity_info}}
@@ -787,143 +924,6 @@ source code from the module class description page even when the file name
 doesn't match the module class name. For example, the
 \texttt{ten\_layer\_rue\_canopy} class page includes a link to the source code
 file \texttt{multilayer\_rue\_canopy.h} where it is defined.
-
-\section{Visualizing module behavior by calculating a response curve}
-
-To understand how a module works, it can be helpful to visualize of how one of
-its output quantities depends on one of its input quantities across a
-reasonable range; a plot typically called a \emph{response curve}. As an
-example, here we will calculate the response of the soybean net CO$_2$
-assimilation rate ($A_n$) to the incident photosynthetically active photon flux
-density (PPFD; $Q$) according to the Farquhar-von-Caemmerer-Berry model for
-C$_3$ photosynthesis, which is available in BioCro as the
-\texttt{c3\_assimilation} module. (This module also uses the Ball-Berry model
-for stomatal conductance, iteratively solving for consistent solutions to the
-photosynthesis and conductance equations.)
-
-The first step towards calculating a response curve is to check the module's
-inputs and outputs, which can be done using the \texttt{module\_info} function,
-as discussed in Section \ref{sec:module_info}:
-
-<<c3_module_info>>=
-info <- module_info('c3_assimilation')
-@
-
-Here, the \texttt{Qp} input represents the incident PPFD $Q$, while the
-\texttt{Assim} output represents the net assimilation rate $A_n$. So we will be
-varying \texttt{Qp} while keeping the other input quantities fixed. The values
-of several other input quantities are specified in \texttt{soybean\_parameters}.
-For others, we will need to make a choice based on reasonable field conditions.
-
-To run the module, we will need the \texttt{evaluate\_module function},
-which requires a module name and a named list of input quantities. If any of the
-module's inputs are not provided, a helpful error message will be returned. So
-we can try passing the \texttt{soybean\_parameters} list as an input to the
-\texttt{c3\_assimilation} module; this will help idenfity the remaining inputs
-that we need to define.
-
-<<c3_assimilation_v1>>=
-outputs <- evaluate_module('c3_assimilation', soybean_parameters)
-@
-
-Here, as expected, an error occurs because several input quantities are not
-defined. We can choose a values for these and add them to the parameter list:
-
-<<c3_assimilation_v2>>=
-outputs <- evaluate_module(
-  'c3_assimilation',
-  within(soybean_parameters, {
-    rh = 0.7      # dimensionless
-    Qp = 1800     # micromol / m^2 / s
-    Tleaf = 27    # degrees C
-    StomataWS = 1 # dimensionless; 1 indicates no water stress
-  })
-)
-@
-
-Choosing reasonable input parameters is sometimes a difficult process, but
-insight can often be gained by examining weather data, crop parameter lists, the
-outputs of a BioCro simulation, or published literature. Critical information
-about particular quantities, such as their meaning and units, can be obtained
-using the strategy in Section \ref{sec:quantity_info}.
-
-The \texttt{evaluate\_module} function returns a list of named elements; we will
-be interested in the \texttt{Assim} element:
-
-<<c3_assimilation_outputs>>=
-str(outputs)
-@
-
-Since we now have a complete set of inputs, we can define a function that uses a
-value of $Q$ to evaluate the photosynthesis equations with fixed values of the
-other inputs and returns a value for $A_n$:
-
-<<c3_assimilation_function>>=
-light_response <- function(Q) {
-  evaluate_module(
-    'c3_assimilation',
-    within(soybean_parameters, {
-      rh = 0.7
-      Qp = Q
-      Tleaf = 27
-      StomataWS = 1
-    })
-  )$Assim
-}
-@
-
-Finally, we can define a vector of $Q$ values and plot the corresponding $A_n$
-values:
-
-<<c3_light_response_curve>>=
-Q <- seq(from = 0, to = 2000, length.out = 501)
-An <- sapply(Q, light_response)
-xyplot(
-  An ~ Q,
-  type = 'l',
-  xlab = 'Incident PPFD (micromol / m^2 / s)',
-  ylab = 'Net CO2 assimilation rate\n(micromol / m^2 / s)',
-  main = 'Soybean light response curve\ncalculated at 27 degrees C and 70% relative humidity',
-  grid = TRUE
-)
-@
-
-From this figure, we can learn a few interesting things about the response of
-the carbon assimilation rate to the amount of incoming light. First, when the
-light is low, the carbon consumed by respiratory processes exceeds the carbon
-gained through photosynthetic assimilation, leading to a negative value of the
-net assimilation rate. An important consequence of this is that although plants
-take in CO$_2$ during the day, they exhale CO$_2$ at night. As light intensity
-increases, the initial response is linear, although it begins to plateau at
-higher light intensities; in other words, the additional light energy does not
-cause a large increase in assimilation when the light intensity is already
-high.
-
-Although this information is encoded in the equations used to calculate the net
-assimilation rate, these insights are difficult to obtain by merely viewing the
-equations, and only become apparent when calculating a response curve using
-realistic values for environmental conditions and photosynthetic parameters.
-This example illustrates a very basic response curve calculation; a more
-advanced analysis could include multiple curves calculated for different values
-of air temperature or relative humidity. Thus, the ability to quickly and
-easily calculate response curves from individual model components is another
-key ability of BioCro, which complements the benefits of modularity that were
-discussed previously in Sections \ref{sec:run_simulation} and
-\ref{sec:choose_modules}.
-
-A response curve can also be the first step towards a full sensitivity
-analysis, where numerical derivatives of an output quantity with respect to an
-input quantity can be calculated. See the \emph{Quantitative Comparison Between
-Two Photosynthesis Models} vignette for a more detailed analysis including some
-of these ideas.
-
-More information about the commands used in this section can be obtained as
-follows:
-
-<<response_curve_help,eval=FALSE>>=
-?evaluate_module
-?sapply
-@
 
 \section{A few other useful R commands}
 
