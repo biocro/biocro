@@ -16,6 +16,8 @@
 
 \usepackage{amsfonts}
 
+\usepackage{bm}
+
 \usepackage{listings}
 
 \usepackage[dvipsnames,table]{xcolor}
@@ -76,7 +78,7 @@ cat(
 
 \tableofcontents
 
-\section{Getting Started}
+\section{Getting Started \label{sec:getting_started}}
 
 This vignette provides a demonstration of a few important BioCro functions and
 some R basics. We will be using functions from the \texttt{BioCro} and
@@ -99,20 +101,20 @@ install.packages('lattice')
 
 BioCro's main purpose is to allow a user to easily simulate the growth of a crop
 throughout a growing season. To demonstrate this ability, we will run BioCro's
-validated soybean growth model using weather data corresponding to the 2002
-growing season in Champaign, Illinois. In this section, we discuss the R
-functions and input arguments required to accomplish this goal. Along the way,
-we will introduce the most important R data types for BioCro analysis:
-lists, data frames, and vectors. The discussion of these objects presented in
-this vignette is intentionally basic and rudimentary; many guides are available
-online that discuss them in more detail.
+soybean growth model using weather data corresponding to the 2002 growing season
+in Champaign, Illinois. In this section, we discuss the R functions and input
+arguments required to accomplish this goal. Along the way, we will introduce the
+most important R data types for BioCro analysis: lists, data frames, and
+vectors. The discussion of these objects presented in this vignette is
+intentionally basic and rudimentary; many guides are available online that
+discuss them in more detail.
 
 \subsection{Calling \texttt{run\_biocro} \label{sec:run_simulation}}
 
 To run a BioCro simulation, we use the \texttt{run\_biocro} function, which
 builds a set of model equations from its input arguments and solves the model
-during the specified time period. The BioCro package includes pre-set
-collections of input arguments that can be passed to \texttt{run\_biocro} when
+over the specified time period. The BioCro package includes pre-set collections
+of values that can be passed as input arguments to \texttt{run\_biocro} when
 simulating soybean growth:
 
 <<run_biocro>>=
@@ -135,9 +137,12 @@ BioCro module library, and we didn't need to write a single equation.
 
 The following subsections discuss the input arguments to \texttt{run\_biocro},
 explaining how they work together to define and solve a model, and how they
-relate to the central element of BioCro philosophy: that \emph{models are sets
-of equations}. Information about \texttt{run\_biocro} can also be obtained from
-R's built-in help system using the following command:
+relate to an important element of the BioCro philosophy: that \emph{models are
+sets of equations}. Specifically, we will emphasize that each input argument to
+\texttt{run\_biocro} specifies an equation for one or more elements $x_i$ of the
+model's state $\boldsymbol{X}$, which is taken to comprise all variables
+involved in the model. Information about \texttt{run\_biocro} can also be
+obtained from R's built-in help system using the following command:
 
 <<run_biocro_help,eval=FALSE>>=
 ?run_biocro
@@ -152,7 +157,13 @@ of plant biology. Each module has a set of \emph{input quantities} and a set of
 the values of its inputs according to its equations. Modules come in two types:
 \emph{differential modules} calculate the rates of change for their output
 quantities, while \emph{direct modules} directly calculate instantaneous values
-for their output quantities.
+for their output quantities. In other words, direct modules define equations of
+the form $x_i(t) = f_i \left( \boldsymbol{X}^i, t \right)$, where $x_i$ is a
+member of the state $\boldsymbol{X}$, $x_i(t)$ is its time dependence, and $f_i$
+is a function of the other state quantities (symbolized by $\boldsymbol{X}^i$)
+and the time. On the other hand, differential modules define equations of the
+form $dx_{i,j} / dt = g_{i,j} \left( \boldsymbol{X}, t \right)$, where $dx_{i,j}
+/ dt$ is one term of the total derivative of $x_i$ as calculated by module $j$.
 
 Modules are identified by their names, and a collection of modules can be
 specified in R using the \texttt{c} command, which creates an R vector from its
@@ -178,10 +189,8 @@ print(direct_modules)
 @
 
 Sometimes it may be convenient to specify a module's role within the collection.
-In this case, it is helpful to define a collection of modules in R using a
-\emph{list} rather than a \emph{vector}. With a list, it is possible to add a
-name for some or all of the list elements. For example, we could write the
-following:
+In this case, it is helpful to provide names for one or more of the modules in a
+collection. Here we demonstrate how to accomplish this with an R \emph{list}:
 
 <<example_module_list>>=
 differential_modules <- list(
@@ -222,7 +231,8 @@ the R console using the \texttt{str} command, which nicely shows the
 str(soybean_differential_modules)
 @
 
-More information about these module sets can be viewed through R's help system
+To learn about specific modules, see Section \ref{sec:module_info}. More
+information about the soybean module sets can be viewed through R's help system
 by typing one of the following commands:
 
 <<crop_specification_help,eval=FALSE>>=
@@ -231,18 +241,17 @@ by typing one of the following commands:
 ?crop_specifications
 @
 
-To learn about specific modules, see Section \ref{sec:module_info}.
-
 More information about the R commands used in this section is available from
 many online resources or through R's built-in help system, which can be accessed
 as follows:
 
 <<vector_list_help_commands,eval=FALSE>>=
+# Operators must be quoted with `, ', or " when using ?
 ?c
 ?list
-?`$`    # we have to wrap this operator in backticks when using ?
-?`<-`   # we have to wrap this operator in backticks when using ?
-?`=`    # we have to wrap this operator in backticks when using ?
+?`$`
+?`<-`
+?`=`
 ?print
 ?str
 @
@@ -250,20 +259,20 @@ as follows:
 \subsection{Choosing the parameters and initial values \label{sec:choose_param}}
 
 To run a BioCro simulation, a user must supply the values of \emph{parameters}
--- that is, quantities whose values are taken to be constant during the course
-of a simulation -- as well as the \emph{initial values} of any quantities
-whose evolution with time is determined by differential equations. In general,
-the sets of required parameters and initial values will be determined by the
-modules and drivers (see Section \ref{sec:choose_drivers}) that a user has
-chosen to use.
+(quantities whose values are taken to be constant during the course of a
+simulation) and the \emph{initial values} of  the \emph{differential
+quantities} (quantities whose evolution with time is determined by differential
+equations). In general, the sets of required parameters and initial values will
+be determined by the modules and drivers that a user has chosen to use (Sections
+(\ref{sec:choose_modules} and \ref{sec:choose_drivers}, respectively).
 
-Both the parameters and initial values must be specified in R using lists of
-named elements. When specifying collections of modules (Section
+Both the parameters and initial values must be specified using lists of named
+elements. When specifying collections of modules (Section
 \ref{sec:choose_modules}), names are optional; for parameters and initial
-values, names are required since they are used to uniquely ideniify each
-quantity. For example, if we have two parameters \texttt{parameter\_1} and
-\texttt{parameter\_2} whose values are 2.3 and 8.9, respectively, we can specify
-them using a list as follows:
+values, names are required since they are used to uniquely identify each
+quantity. For example, if we have two parameters called \texttt{parameter\_1}
+and \texttt{parameter\_2} whose values are 2.3 and 8.9, respectively, we can
+specify them using a list as follows:
 
 <<example_parameter_list>>=
 parameters <- list(
@@ -272,10 +281,11 @@ parameters <- list(
 )
 @
 
-Here the syntax of defining a list -- where a value is assined to a name using
-an equals sign -- is a reminder that parameter specifications can be thought of
-as individual equations of the form $x_i(t) = p_i$, where $x_i$ is a variable,
-$x_i(t)$ is its time dependence, and $p_i$ is a constant value.
+Here the syntax of defining a list---where a value is assined to a name using an
+equals sign---is a reminder that parameter specifications can be thought of as
+representing individual equations of the form $x_i(t) = p_i$, where $x_i$ is a
+member of the state $\boldsymbol{X}$, $x_i(t)$ is its time dependence, and $p_i$
+is a constant value.
 
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of parameters
 and initial values when calling the \texttt{run\_biocro} function:
@@ -308,31 +318,33 @@ The drivers must be specified as a \emph{data frame}, an R data structure that
 conceptually resembles a table. In the case of the drivers, each column in the
 data frame represents one quantity, and each row represents one time point.
 For example, we could define a simple set of drivers that specifies the air
-temperature (\texttt{temp}) throughout one day at 3-hour time steps as follows:
+temperature (\texttt{temp}) throughout one day at 3-hour intervals as follows:
 
 <<example_drivers>>=
 hour <- seq(0, 23, 3)
-temp <- 20 + 8 * sin((hour / 24) * pi) # we use "vector arithmetic" to form `temp`
+temp <- 20 + 8 * sin((hour / 24) * pi)^2 # we use "vector arithmetic" to form `temp`
 drivers <- data.frame(
     hour = hour,
     temp = temp
 )
 @
 
-The contents of a data frame can be viewed in several ways; here we print to the
-R terminal using the \texttt{print} command:
+(Typically, BioCro drivers would not be determined from an analytical equation;
+here we do this for convenience when providing an example of constructing a
+simple data frame.) The contents of a data frame can be viewed in several ways;
+here we print to the R terminal using the \texttt{print} command:
 
 <<example_view_drivers>>=
 print(drivers)
 @
 
 As mentioned previously, each column in the \texttt{drivers} data frame
-represents a time series of quantity values. Within the BioCro framework, linear
+represents a time series of quantity values. Within the BioCro framework,
 interpolation is used to create a continuous function of time for each quantity
 defined in the drivers. In this sense, each driver can be viewed as following an
-equation of the form $x_i(t) = d(t)$, where $x_i$ is a variable, $x_i(t)$ is its
-time dependence, and $d(t)$ is a continuous function determined from the
-discrete values of the driver defined in the data frame.
+equation of the form $x_i(t) = d_i(t)$, where where $x_i$ is a member of the
+state $\boldsymbol{X}$, $x_i(t)$ is its time dependence, and $d_i(t)$ is a
+function determined by interpolation from the driver's values.
 
 In Section \ref{sec:run_simulation}, we supplied a pre-defined data frame of
 drivers when calling the \texttt{run\_biocro} function:
@@ -368,13 +380,13 @@ the following named elements:
 \begin{itemize}
 
 \item \texttt{type}: This is the name of the algorithm; a list of available
-options can be obtained using the \texttt{get\_all\_ode\_solvers()} function.
+types can be obtained using the \texttt{get\_all\_ode\_solvers()} function.
 
-\item \texttt{output\_step\_size}: The time step to be used in the output of
+\item \texttt{output\_step\_size}: The time interval to be used in the output of
 \texttt{run\_biocro}, specified as a multiplicative factor relative to the
 time step used in the drivers; for example, if the drivers have an hourly time
 step and the \texttt{output\_step\_size} is 0.5, the simulation result will have
-a half-hourly time step.
+a half-hourly interval.
 
 \item \texttt{adaptive\_rel\_error\_tol}: A relative error tolerance to be used
 with adaptive step-size ODE solvers.
@@ -395,12 +407,12 @@ contents can be viewed as with any other list:
 str(soybean_ode_solver)
 @
 
-Here the \texttt{boost\_rkck54} ODE solver is used. This is the \texttt{boost}
+Here the \texttt{boost\_rkck54} ODE solver is used. This is the \texttt{Boost}
 library's implementation of an adaptive step-size 5$^{\rm{th}}$ order
 Runge-Kutta solver with 4$^{\rm{th}}$ order Cash-Karp error estimation. This is
 an excellent solver for any situation where an Euler solver is not required and
 when the system of equations is not stiff. For stiff systems, the
-\texttt{boost\_rosenbrock} solver, which is the  \texttt{boost} library's
+\texttt{boost\_rosenbrock} solver, which is the  \texttt{Boost} library's
 implementation of an adaptive step-size 4$^{\rm{th}}$ order Rosenbrock solver,
 may be more appropriate.
 
@@ -464,11 +476,11 @@ follows:
 
 The output from the call to \texttt{run\_biocro} in Section
 \ref{sec:run_simulation} is returned as a data frame, an R data structure that
-was introduced in Section \ref{sec:choose_drivers}, which discusses drivers. In
-this case, each column represents one of the quantities whose value is
-determined during the simulation, and each row represents a time point. By
-default, all quantities except the parameters are included in the output of
-\texttt{run\_biocro}, so this data frame also includes the drivers.
+was introduced in Section \ref{sec:choose_drivers}. In this case, each column
+represents one of the quantities whose value is determined during the
+simulation, and each row represents a time point. By default, all quantities
+except the parameters are included in the output of \texttt{run\_biocro}, so
+this data frame also includes the drivers.
 
 Since the \texttt{run\_biocro} function returns its result in a commonly used R
 structure (a data frame), there are many options available for interacting with
@@ -513,23 +525,21 @@ columns:
 str(soybean_result[c('doy', 'hour', 'Leaf')])
 @
 
-This method can also be used to view just a single time point or a range of
-times. For example, we could view just the first time point, all times between
-the 10th and 20th points, or all hours of day 250:
+A similar technique can be used to limit which rows are displayed:
 
 <<print_subset_narrow>>=
-print(soybean_result[1, c('doy', 'hour', 'Leaf')])
-print(soybean_result[10:20, c('doy', 'hour', 'Leaf')])
-print(soybean_result[soybean_result$doy == 250, c('doy', 'hour', 'Leaf')])
+print(soybean_result[round(soybean_result$doy) == 250, c('doy', 'hour', 'Leaf')])
 @
 
 More information about the R commands used in this section can be obtained as
 follows:
 
 <<printing_help,eval=FALSE>>=
+# Operators must be quoted with `, ', or " when using ?
 ?View
 ?colnames
-?`:`  # we have to wrap this operator in backticks when using ?
+?`:`
+?`[`
 @
 
 It may also be helpful to consult online guides about subsetting in R.
@@ -539,7 +549,8 @@ It may also be helpful to consult online guides about subsetting in R.
 Viewing the numeric results directly from a data frame can be useful at times,
 but it's often more useful to plot one or more columns from the result against
 an independent variable such as time. We can do this with the \texttt{xyplot}
-function from the \texttt{lattice} library. This function produces an R
+function from the \texttt{lattice} library, which must loaded into the R
+workspace (Section \ref{sec:getting_started}). This function produces an R
 \emph{trellis} object which can be viewed with the \texttt{print} function.
 
 <<soybean_plot_1>>=
@@ -549,14 +560,9 @@ soybean_plot_v1 <- xyplot(
 print(soybean_plot_v1)
 @
 
-In that example, we specified the \texttt{y} values by extracting the
-\texttt{Leaf} column from the \texttt{soybean\_result} data frame. Similarly, we
-specified the \texttt{x} values by extracting the \texttt{time} column. This
-notation can get really tedious, especially when plotting multiple things on the
-\texttt{y}-axis. As an alternative, we can tell \texttt{xyplot} that we want to
-plot columns from \texttt{soybean\_result} and then just specify the column
-names. This is done by specifying the optional \texttt{data} argument when
-calling \texttt{xyplot}:
+We can avoid repeating the data frame name each time we specify a column by
+using \texttt{xyplot}'s data argument. Notice the effect this has on the axis
+labels:
 
 <<soybean_plot_v2>>=
 soybean_plot_v2 <- xyplot(
@@ -568,14 +574,14 @@ print(soybean_plot_v2)
 
 Here is a more advanced example where we plot multiple organ masses on the
 \texttt{y} axis, provide axis labels, specify axis ranges, add a legend, etc.
-Here you can notice that we use the \texttt{c} command to create vectors when
-specifying the axis limits.
+Notice that we use two-element vectors to specify the axis limits and a list to
+specify the legend properties.
 
 <<soybean_plot_v3>>=
 soybean_plot_v3 = xyplot(
   Stem + Leaf + Root ~ time,                   # Specify multiple data series using `+`
   data = soybean_result,                       # Plot data from `soybean_result`
-  type = 'b',                                  # Plot using points and a line (set to
+  type = 'b',                                  # Plot using both points and a line (use
                                                # 'l' for just a line or 'p' for points)
   pch = 20,                                    # Use a small solid circle for the points
   ylab = 'Biomass (Mg / ha)',                  # Y label
@@ -593,8 +599,9 @@ See Section \ref{sec:quantity_info} for a discussion about the units used in
 this figure.
 
 Additional information about the R commands used in this section can be obtained
-by typing \texttt{?xyplot} or by consulting one of the many guides available
-online that discuss creating plots in R with the \texttt{lattice} package.
+by typing \texttt{?lattice::xyplot} (or just \texttt{?xyplot} when the package
+is loaded) or by consulting one of the many guides available online that discuss
+creating plots in R with the \texttt{lattice} package.
 
 \subsection{Exporting or saving the results of a simulation \label{sec:export}}
 
@@ -603,8 +610,8 @@ or the code that produced them. R offers clear routes for both options:
 \begin{itemize}
 
 \item R code can be saved to a file with a \texttt{.R} extension; this forms a
-\emph{script} that can be run later using R's \texttt{source} command. Writing
-code as a script, rather than entering it directly into the R terminal, ensures
+\emph{script} that can be run later using R's \texttt{source} command. Saving
+code that you've been entering directly into the R terminal as a script ensures
 that you can repeat or modify a previous analysis.
 
 \item Any R objects can be saved as R data files using the \texttt{save}
@@ -671,7 +678,7 @@ outputs <- evaluate_module('c3_assimilation', soybean_parameters)
 @
 
 Here, as expected, an error occurs because several input quantities are not
-defined. We can choose a values for these and add them to the parameter list:
+defined. We can choose values for these and add them to the parameter list:
 
 <<c3_assimilation_v2>>=
 outputs <- evaluate_module(
@@ -689,7 +696,7 @@ Choosing reasonable input parameters is sometimes a difficult process, but
 insight can often be gained by examining weather data, crop parameter lists, the
 outputs of a BioCro simulation, or published literature. Critical information
 about particular quantities, such as their meaning and units, can be obtained
-using the strategy in Section \ref{sec:quantity_info}.
+using the strategies in Section \ref{sec:basic_info}.
 
 The \texttt{evaluate\_module} function returns a list of named elements; we will
 be interested in the \texttt{Assim} element:
@@ -752,14 +759,13 @@ advanced analysis could include multiple curves calculated for different values
 of air temperature or relative humidity. Thus, the ability to quickly and
 easily calculate response curves from individual model components is another
 key ability of BioCro, which complements the benefits of modularity that were
-discussed previously in Sections \ref{sec:run_simulation} and
-\ref{sec:choose_modules}.
+discussed in Sections \ref{sec:run_simulation} and \ref{sec:choose_modules}.
 
-A response curve can also be the first step towards a full sensitivity
-analysis, where numerical derivatives of an output quantity with respect to an
-input quantity can be calculated. See the \emph{Quantitative Comparison Between
-Two Photosynthesis Models} vignette for a more detailed analysis including some
-of these ideas.
+A response curve can also be the first step towards a full sensitivity analysis,
+where numerical derivatives of an output quantity with respect to an input
+quantity can be calculated. See the \emph{Quantitative Comparison Between Two
+Photosynthesis Models} vignette for a more detailed analysis including some of
+these ideas.
 
 More information about the commands used in this section can be obtained as
 follows:
@@ -769,7 +775,7 @@ follows:
 ?sapply
 @
 
-\section{Getting basic information about quantities and modules}
+\section{Getting basic information about quantities and modules \label{sec:basic_info}}
 
 \subsection{Quantities \label{sec:quantity_info}}
 
@@ -811,8 +817,8 @@ output. Let's choose one of them: the \texttt{total\_biomass} module. We can
 find its source code in \texttt{src/module\_library/total\_biomass.h}. (See
 Section \ref{sec:source_code} for more information about how to access the
 source code.) This is a C++ header file that defines the module. Looking through
-the code, we can find the units for \texttt{Leaf} (Mg / ha) specified in a
-comment (Listing \ref{lst:units}).
+the code, we can find the units for \texttt{Leaf} specified in a comment
+(Listing \ref{lst:units}).
 
 \lstinputlisting[
   caption=Section of code from \texttt{src\/module\_library\/total\_biomass.h}.,
@@ -832,8 +838,8 @@ follows:
 
 \subsection{Modules \label{sec:module_info}}
 
-Basic module information -- its input quantities, output quantities, and type
--- can be obtained from within R using the \texttt{module\_info} function,
+Basic information about a module---its input quantities, output quantities, and
+type---can be obtained from within R using the \texttt{module\_info} function,
 which prints module info to the R terminal and also returns it as a list. For
 example:
 
@@ -908,15 +914,15 @@ the nicely-formatted version, this is rendered as shown in Figure
 
 \begin{figure}[htbp]
   \begin{center}
-    \includegraphics[width=0.5\textwidth]{quick_start_guide/doxygen_screenshot.png}
+    \includegraphics[width=0.7\textwidth]{quick_start_guide/doxygen_screenshot.png}
     \caption{Nicely-formatted version of the comment in Listing
     \ref{lst:comment}, as rendered by Doxygen.}
     \label{fig:doxygen}
   \end{center}
 \end{figure}
 
-It should be mentioned that the Doxygen documentation also includes the code
-itself in addition to the nicely-formatted comments.
+The Doxygen documentation also includes the code itself in addition to the
+nicely-formatted comments.
 
 Besides the nice formatting, there is another advantage to viewing the
 Doxygen documentation: linking between files and classes. There are links to the
