@@ -139,7 +139,7 @@ The following subsections discuss the input arguments to \texttt{run\_biocro},
 explaining how they work together to define and solve a model, and how they
 relate to an important element of the BioCro philosophy: that \emph{models are
 sets of equations}. Specifically, we will emphasize that each input argument to
-\texttt{run\_biocro} specifies an equation for one or more elements $x_i$ of the
+\texttt{run\_biocro} specifies equations for one or more members $x_i$ of the
 model's state $\boldsymbol{X}$, which is taken to comprise all variables
 involved in the model. Information about \texttt{run\_biocro} can also be
 obtained from R's built-in help system using the following command:
@@ -264,7 +264,7 @@ simulation) and the \emph{initial values} of  the \emph{differential
 quantities} (quantities whose evolution with time is determined by differential
 equations). In general, the sets of required parameters and initial values will
 be determined by the modules and drivers that a user has chosen to use (Sections
-(\ref{sec:choose_modules} and \ref{sec:choose_drivers}, respectively).
+\ref{sec:choose_modules} and \ref{sec:choose_drivers}, respectively).
 
 Both the parameters and initial values must be specified using lists of named
 elements. When specifying collections of modules (Section
@@ -348,21 +348,15 @@ function determined by interpolation from the driver's values.
 
 In Section \ref{sec:run_simulation}, we supplied a pre-defined data frame of
 drivers when calling the \texttt{run\_biocro} function:
-\texttt{soybean\_weather2002}. This is a large data frame with many rows, so it
-is easier to view it using the \texttt{str} command:
-
-<<view_soybean_weather2002>>=
-str(soybean_weather2002)
-@
-
-Assembling drivers that represent weather data in a particular location can be a
-complicated process because different weather data sets or weather sensors
-produce different outputs and use different formats, precluding a general
-approach to obtaining and processing weather data. The BioCro package includes
-some pre-processed weather data from Champaign, Illinois which can be used to
-replicate the analysis of a few published papers and serve illustrative
-purposes. Information about this weather data, as well as the new R commands
-used in this section, can be obtained with the following commands:
+\texttt{soybean\_weather2002}. Assembling drivers that represent weather data in
+a particular location can be a complicated process because different weather
+data sets or weather sensors produce different outputs and use different
+formats, precluding a general approach to obtaining and processing weather data.
+The BioCro package includes some pre-processed weather data from Champaign,
+Illinois which can be used to replicate the analysis of a few published papers
+and serve illustrative purposes. Information about this weather data, as well as
+the new R commands used in this section, can be obtained with the following
+commands:
 
 <<driver_help,eval=FALSE>>=
 ?soybean_weather2002
@@ -458,9 +452,9 @@ soybean_result = run_biocro(
 There is also a related function (\texttt{validate\_dynamical\_system\_inputs})
 which takes the same input arguments as \texttt{run\_biocro} (except
 \texttt{ode\_solver}) and checks them for validity without attempting to run the
-simulation. It also provides additional information, such as a list of
-parameters that are not used by any modules, since such parameters could in
-principle be removed without affecting the simulation.
+simulation. It provides additional information, such as a list of parameters
+that are not used by any modules, since such parameters could in principle be
+removed without affecting the simulation.
 
 More information about the R commands used in this section can be obtained as
 follows:
@@ -528,7 +522,7 @@ str(soybean_result[c('doy', 'hour', 'Leaf')])
 A similar technique can be used to limit which rows are displayed:
 
 <<print_subset_narrow>>=
-print(soybean_result[round(soybean_result$doy) == 250, c('doy', 'hour', 'Leaf')])
+str(soybean_result[round(soybean_result$doy) == 250, c('doy', 'hour', 'Leaf')])
 @
 
 More information about the R commands used in this section can be obtained as
