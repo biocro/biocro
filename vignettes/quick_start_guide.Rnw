@@ -670,7 +670,7 @@ To run the module, we will need the \texttt{evaluate\_module function},
 which requires a module name and a named list of input quantities. If any of the
 module's inputs are not provided, a helpful error message will be returned. So
 we can try passing the \texttt{soybean\_parameters} list as an input to the
-\texttt{c3\_assimilation} module; this will help idenfity the remaining inputs
+\texttt{c3\_assimilation} module; this will help identify the remaining inputs
 that we need to define.
 
 <<c3_assimilation_v1>>=
@@ -846,6 +846,13 @@ example:
 <<total_biomass_info>>=
 info <- module_info('total_biomass')
 @
+
+Notice that BioCro modules can be designated as requiring a fixed-step Euler
+solver; this is to accommodate discrete dynamical systems, which can be
+represented in BioCro provided that the ODE solver only takes steps of a
+specified size. An error will occur if \texttt{run\_biocro} is called with a
+non-Euler ODE solver when one or more of its modules requires an ODE Euler
+solver.
 
 Additionally, a list of all available modules can be obtained with the
 \texttt{get\_all\_modules} function; more information about this function can be
