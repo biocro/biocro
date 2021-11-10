@@ -97,6 +97,28 @@ for BioCro are available at its GitHub repository web page, while the
 install.packages('lattice')
 @
 
+While reading this guide, please keep in mind that R has a built-in help system
+that can provide documentation for any command, including those in the BioCro
+library. This help system can be accessed using the \texttt{?} command. For
+example:
+
+<<help_example,eval=FALSE>>=
+# Access documentation for a BioCro function when the package is loaded
+?run_biocro
+
+# Access documentation for a BioCro data set, even if the package is not loaded
+?BioCro::soybean_parameters
+
+# Access documentation for a base R function
+?list
+
+# Access documentation for an R operator, which must be quoted using ', `, or "
+?`<-`
+@
+
+New R users may also find it useful to consult the resources available in
+Section \ref{sec:extra_help}.
+
 \section{Running a BioCro Simulation \label{sec:simulation}}
 
 BioCro's main purpose is to allow a user to easily simulate the growth of a crop
@@ -107,7 +129,7 @@ arguments required to accomplish this goal. Along the way, we will introduce the
 most important R data types for BioCro analysis: lists, data frames, and
 vectors. The discussion of these objects presented in this vignette is
 intentionally basic and rudimentary; many guides are available online that
-discuss them in more detail.
+discuss them in more detail (Section \ref{sec:extra_help}).
 
 \subsection{Calling \texttt{run\_biocro} \label{sec:run_simulation}}
 
@@ -141,12 +163,7 @@ relate to an important element of the BioCro philosophy: that \emph{models are
 sets of equations}. Specifically, we will emphasize that each input argument to
 \texttt{run\_biocro} specifies equations for one or more members $x_i$ of the
 model's state $\boldsymbol{X}$, which is taken to comprise all variables
-involved in the model. Information about \texttt{run\_biocro} can also be
-obtained from R's built-in help system using the following command:
-
-<<run_biocro_help,eval=FALSE>>=
-?run_biocro
-@
+involved in the model.
 
 \subsection{Choosing the modules \label{sec:choose_modules}}
 
@@ -206,11 +223,6 @@ easily switch it via a command like:
 differential_modules$thermal_time_module <- 'thermal_time_trilinear'
 @
 
-Here we use the \texttt{\$} operator to access the element of the
-\texttt{differential\_modules} list whose name is
-\texttt{thermal\_time\_module}, and then we use the \texttt{<-} operator to
-assign a new value to that element.
-
 Swapping one module for an alternate version can be very powerful when
 evaluating the differences between multiple modeling strategies, and
 accomplishing this ``plug-and-play modularity'' with ease is one of BioCro's
@@ -231,30 +243,7 @@ the R console using the \texttt{str} command, which nicely shows the
 str(soybean_differential_modules)
 @
 
-To learn about specific modules, see Section \ref{sec:module_info}. More
-information about the soybean module sets can be viewed through R's help system
-by typing one of the following commands:
-
-<<crop_specification_help,eval=FALSE>>=
-?soybean_direct_modules
-?soybean_differential_modules
-?crop_specifications
-@
-
-More information about the R commands used in this section is available from
-many online resources or through R's built-in help system, which can be accessed
-as follows:
-
-<<vector_list_help_commands,eval=FALSE>>=
-# Operators must be quoted with `, ', or " when using ?
-?c
-?list
-?`$`
-?`<-`
-?`=`
-?print
-?str
-@
+To learn about specific modules, see Section \ref{sec:module_info}.
 
 \subsection{Choosing the parameters and initial values \label{sec:choose_param}}
 
@@ -293,18 +282,6 @@ and initial values when calling the \texttt{run\_biocro} function:
 include quantities that characterize soybean physiological processes (such as
 $v_{\rm{c,max}}$), specifics related to field conditions (such as the initial
 seed mass per unit ground area), and other important categories of quantities.
-
-As in Section \ref{sec:choose_modules}, the contents of these lists can be
-viewed using the \texttt{str} command and more information can be obtained using
-the \texttt{?} command as follows:
-
-<<parameter_help,eval=FALSE>>=
-str(soybean_parameters)
-str(soybean_initial_values)
-?soybean_parameters
-?soybean_initial_values
-@
-
 To learn about specific quantities, see Section \ref{sec:quantity_info}.
 
 \subsection{Choosing the drivers \label{sec:choose_drivers}}
@@ -331,8 +308,9 @@ drivers <- data.frame(
 
 (Typically, BioCro drivers would not be determined from an analytical equation;
 here we do this for convenience when providing an example of constructing a
-simple data frame.) The contents of a data frame can be viewed in several ways;
-here we print to the R terminal using the \texttt{print} command:
+simple data frame.) The contents of a data frame can be viewed in several ways
+(Section \ref{sec:view_simulation}); here we simply print to the R terminal
+using the \texttt{print} command:
 
 <<example_view_drivers>>=
 print(drivers)
@@ -352,17 +330,9 @@ drivers when calling the \texttt{run\_biocro} function:
 a particular location can be a complicated process because different weather
 data sets or weather sensors produce different outputs and use different
 formats, precluding a general approach to obtaining and processing weather data.
-The BioCro package includes some pre-processed weather data from Champaign,
-Illinois which can be used to replicate the analysis of a few published papers
-and serve illustrative purposes. Information about this weather data, as well as
-the new R commands used in this section, can be obtained with the following
-commands:
-
-<<driver_help,eval=FALSE>>=
-?soybean_weather2002
-?seq
-?data.frame
-@
+For convenience, the BioCro package includes some pre-processed weather data
+from Champaign, Illinois which can be used to replicate the analysis of a few
+published papers and serve illustrative purposes.
 
 \subsection{Choosing the differential equation solver \label{sec:choose_solver}}
 
@@ -410,12 +380,6 @@ when the system of equations is not stiff. For stiff systems, the
 implementation of an adaptive step-size 4$^{\rm{th}}$ order Rosenbrock solver,
 may be more appropriate.
 
-To learn more about the commands used in this section, use the following:
-
-<<ode_solver_help,eval=FALSE>>=
-?get_all_ode_solvers
-@
-
 \subsection{Validating \texttt{run\_biocro} input arguments \label{sec:validate}}
 
 The \texttt{run\_biocro} function performs several checks to ensure that the
@@ -456,16 +420,6 @@ simulation. It provides additional information, such as a list of parameters
 that are not used by any modules, since such parameters could in principle be
 removed without affecting the simulation.
 
-More information about the R commands used in this section can be obtained as
-follows:
-
-<<validate_help,eval=FALSE>>=
-?within
-?append
-?rm
-?validate_dynamical_system_inputs
-@
-
 \section{Viewing and saving the results of a BioCro simulation \label{sec:view_simulation}}
 
 The output from the call to \texttt{run\_biocro} in Section
@@ -477,10 +431,10 @@ except the parameters are included in the output of \texttt{run\_biocro}, so
 this data frame also includes the drivers.
 
 Since the \texttt{run\_biocro} function returns its result in a commonly used R
-structure (a data frame), there are many options available for interacting with
-the data. In the following sections, we demonstrate how to access numerical
-values from the data frame, how to create plots from its columns, and how to
-save or export the data frame for future analysis.
+structure, there are many options available for interacting with the data. In
+the following sections, we demonstrate how to access numerical values from the
+data frame, how to create plots from its columns, and how to save or export the
+data frame for future analysis.
 
 \subsection{Accessing numerical values}
 
@@ -495,12 +449,10 @@ environment:
 View(soybean_result)
 @
 
-We can print the column names to the R console (here we only print the first ten
-column names for brevity):
+We can store the column names in a vector for later use or viewing:
 
 <<print_column_names>>=
-# Just print the first ten column names for brevity
-print(colnames(soybean_result)[1:10])
+soybean_model_outputs <- colnames(soybean_result)
 @
 
 The individual columns can be accessed the same way as the named list elements
@@ -524,19 +476,6 @@ A similar technique can be used to limit which rows are displayed:
 <<print_subset_narrow>>=
 str(soybean_result[round(soybean_result$doy) == 250, c('doy', 'hour', 'Leaf')])
 @
-
-More information about the R commands used in this section can be obtained as
-follows:
-
-<<printing_help,eval=FALSE>>=
-# Operators must be quoted with `, ', or " when using ?
-?View
-?colnames
-?`:`
-?`[`
-@
-
-It may also be helpful to consult online guides about subsetting in R.
 
 \subsection{Plotting the results of a simulation \label{sec:plotting}}
 
@@ -569,7 +508,8 @@ print(soybean_plot_v2)
 Here is a more advanced example where we plot multiple organ masses on the
 \texttt{y} axis, provide axis labels, specify axis ranges, add a legend, etc.
 Notice that we use two-element vectors to specify the axis limits and a list to
-specify the legend properties.
+specify the legend properties. See Section \ref{sec:quantity_info} for a
+discussion about the units used in this figure.
 
 <<soybean_plot_v3>>=
 soybean_plot_v3 = xyplot(
@@ -588,14 +528,6 @@ soybean_plot_v3 = xyplot(
 )
 print(soybean_plot_v3)
 @
-
-See Section \ref{sec:quantity_info} for a discussion about the units used in
-this figure.
-
-Additional information about the R commands used in this section can be obtained
-by typing \texttt{?lattice::xyplot} (or just \texttt{?xyplot} when the package
-is loaded) or by consulting one of the many guides available online that discuss
-creating plots in R with the \texttt{lattice} package.
 
 \subsection{Exporting or saving the results of a simulation \label{sec:export}}
 
@@ -622,16 +554,6 @@ the filename should have a \texttt{.csv} extension. Now the data can be opened
 with many other pieces of software for analysis or plotting.
 
 \end{itemize}
-
-Additional information about the commands used in this section can be obtained
-as follows:
-
-<<export_help,eval=FALSE>>=
-?source
-?save
-?write.csv
-?file.choose
-@
 
 \section{Visualizing module behavior by calculating a response curve}
 
@@ -660,10 +582,11 @@ varying \texttt{Qp} while keeping the other input quantities fixed. The values
 of several other input quantities are specified in \texttt{soybean\_parameters}.
 For others, we will need to make a choice based on reasonable field conditions.
 
-To run the module, we will need the \texttt{evaluate\_module function},
-which requires a module name and a named list of input quantities. If any of the
-module's inputs are not provided, a helpful error message will be returned. So
-we can try passing the \texttt{soybean\_parameters} list as an input to the
+To run the module, we will need the \texttt{evaluate\_module function}, which
+requires a module name and a named list of input quantities. It attempts to run
+the module, returning its outputs as a named list. If any of the module's inputs
+are not provided, a helpful error message will be returned. So we can try
+passing the \texttt{soybean\_parameters} list as an input to the
 \texttt{c3\_assimilation} module; this will help identify the remaining inputs
 that we need to define.
 
@@ -692,16 +615,11 @@ outputs of a BioCro simulation, or published literature. Critical information
 about particular quantities, such as their meaning and units, can be obtained
 using the strategies in Section \ref{sec:basic_info}.
 
-The \texttt{evaluate\_module} function returns a list of named elements; we will
-be interested in the \texttt{Assim} element:
-
-<<c3_assimilation_outputs>>=
-str(outputs)
-@
-
 Since we now have a complete set of inputs, we can define a function that uses a
 value of $Q$ to evaluate the photosynthesis equations with fixed values of the
-other inputs and returns a value for $A_n$:
+other inputs and returns a value for $A_n$. In this function, we pass the value
+of $Q$ to the module via its \texttt{Qp} input, and then extract the module's
+\texttt{Assim} output from the list returned by \texttt{evaluate\_module}:
 
 <<c3_assimilation_function>>=
 light_response <- function(Q) {
@@ -761,14 +679,6 @@ quantity can be calculated. See the \emph{Quantitative Comparison Between Two
 Photosynthesis Models} vignette for a more detailed analysis including some of
 these ideas.
 
-More information about the commands used in this section can be obtained as
-follows:
-
-<<response_curve_help,eval=FALSE>>=
-?evaluate_module
-?sapply
-@
-
 \section{Getting basic information about quantities and modules \label{sec:basic_info}}
 
 \subsection{Quantities \label{sec:quantity_info}}
@@ -822,43 +732,40 @@ the code, we can find the units for \texttt{Leaf} specified in a comment
   language=C++]
 {quick_start_guide/leaf_units.txt}
 
-More information about the R commands used in this section are available as
-follows:
-
-<<quantity_help,eval=FALSE>>=
-?get_all_quantities
-?unique
-@
-
 \subsection{Modules \label{sec:module_info}}
 
 Basic information about a module---its input quantities, output quantities, and
 type---can be obtained from within R using the \texttt{module\_info} function,
-which prints module info to the R terminal and also returns it as a list. For
-example:
+which prints module info to the R terminal and also returns it as a list.
+Printing to the terminal can be disabled by setting the \texttt{verbose}
+argument to \texttt{FALSE}. For example:
 
 <<total_biomass_info>>=
-info <- module_info('total_biomass')
+info <- module_info('total_biomass', verbose = FALSE)
+str(info)
 @
 
-Notice that BioCro modules can be designated as requiring a fixed-step Euler
-solver; this is to accommodate discrete dynamical systems, which can be
+Notice that \texttt{info\$inputs} and \texttt{info\$outputs} are lists of named
+numeric elements where each element has been initialized to 1; the input list
+can be particularly useful since it is already in the correct format to pass to
+the module via \texttt{evaluate\_module}, typically following a modification of
+one or more of its values:
+
+<<module_evaluation>>=
+str(evaluate_module('total_biomass', within(info$inputs, {Leaf = 2})))
+@
+
+Also notice that BioCro modules can be designated as requiring a fixed-step
+Euler solver; this is to accommodate discrete dynamical systems, which can be
 represented in BioCro provided that the ODE solver only takes steps of a
 specified size. An error will occur if \texttt{run\_biocro} is called with a
 non-Euler ODE solver when one or more of its modules requires an ODE Euler
 solver.
 
-Additionally, a list of all available modules can be obtained with the
-\texttt{get\_all\_modules} function; more information about this function can be
-obtained via:
-
-<<get_all_modules_help,eval=FALSE>>=
-?get_all_modules
-@
-
-More detailed information about an individual module can be obtained by viewing
-its source code or the associated Doxygen documentation; see Section
-\ref{sec:source_code}.
+A list of all available modules can be obtained with the
+\texttt{get\_all\_modules} function, and  detailed information about an
+individual module can be obtained by viewing its source code or the associated
+Doxygen documentation; see Section \ref{sec:source_code}.
 
 \subsection{Accessing the source code \label{sec:source_code}}
 
@@ -932,10 +839,10 @@ doesn't match the module class name. For example, the
 \texttt{ten\_layer\_rue\_canopy} class page includes a link to the source code
 file \texttt{multilayer\_rue\_canopy.h} where it is defined.
 
-\section{A few other useful R commands}
+\section{Additional R commands and resources \label{sec:extra_help}}
 
-There are also a few other R commands that may be useful but didn't seem to
-fit anywhere else, so I'll put them here.
+There are a few R commands that may be useful but weren't specifically mentioned
+elsewhere in this guide:
 \begin{itemize}
 
 \item At any time, it's possible to see all the objects that have been created
@@ -952,12 +859,42 @@ return \texttt{list}.
 
 \end{itemize}
 
-As usual, more information about these commands can be obtained via:
+New users might find it useful to consult online guides to R, rather than
+relying R's help system. The following topics would be particularly helpful to
+anyone using BioCro to run simulations or investigate module behavior:
 
-<<extra_help,eval=FALSE>>=
-?ls
-?class
-@
+\begin{itemize}
+
+\item \textbf{Data structures}: This topic refers to basic object types like
+lists, vectors, and data frames. We recommend
+\url{http://adv-r.had.co.nz/Data-structures.html}.
+
+\item \textbf{Subsetting}: This topic refers to selecting subsets of R data
+frames and matrices. We recommend
+\url{https://www.statmethods.net/management/subset.html}.
+
+\item \textbf{Vector arithmetic}: This topic refers to performing arithmetic
+operations on each member of one vector, forming a new vector. We recommend
+\url{http://www.r-tutor.com/r-introduction/vector/vector-arithmetics}.
+
+\item \textbf{Apply-type functions}: This topic refers to several options
+for applying a function to each member of a vector or list. We recommend
+\url{https://www.guru99.com/r-apply-sapply-tapply.html}.
+
+\item \textbf{Lattice graphics}: This topic refers to generating plots using the
+\texttt{lattice} package, which includes many other plotting tools besides
+\texttt{xyplot}. We recommend
+\url{https://www.statmethods.net/advgraphs/trellis.html} for an overview and
+\url{https://homerhanumat.github.io/tigerstats/xyplot.html} for \texttt{xyplot}.
+
+\item \textbf{Scripts}: The R help file for the \texttt{source} command
+(available by typing \texttt{?source}) has a great explanation for how the
+command works and how it differs from entering code directly into the console.
+Online guides are available with advice about best practices for writing R
+scripts, such as this one:
+\url{https://swcarpentry.github.io/r-novice-inflammation/06-best-practices-R/}.
+
+\end{itemize}
 
 \section{Final remarks}
 
