@@ -158,29 +158,121 @@ many other important processes. All of this was accomplished using the standard
 BioCro module library, and we didn't need to write a single equation.
 
 The following subsections discuss the input arguments to \texttt{run\_biocro},
-explaining how they work together to define and solve a model, and how they
-relate to an important element of the BioCro philosophy: that \emph{models are
-sets of equations}. Specifically, we will emphasize that each input argument to
-\texttt{run\_biocro} specifies equations for one or more members $x_i$ of the
-model's state $\boldsymbol{X}$, which is taken to comprise all variables
-involved in the model.
+explaining how they work together to define and run a simulation, how to
+specify them in R, and how to use pre-set options available in the BioCro
+package. In each case, we will also show how they relate to an important element
+of the BioCro philosophy: that \emph{models are sets of equations}.
+Specifically, we will emphasize that each input argument to \texttt{run\_biocro}
+specifies equations that help to determine the time evolution (or lack thereof)
+for one or more members $x_i$ of the model's state $\boldsymbol{X}$, which is
+taken to comprise all quantities involved in the model (Equations
+\ref{eq:direct}, \ref{eq:differential}, \ref{eq:param}, \ref{eq:initial_value},
+and \ref{eq:driver}).
+
+Although this might seem like a merely philosophical point, it has considerable
+practical implications regarding the design and use of the BioCro framework. In
+particular, it enables full modularity---which can be viewed as simply swapping
+one equation for another---allowing for great flexibility in model design and
+analysis.
 
 \subsection{Choosing the modules \label{sec:choose_modules}}
 
+\subsubsection*{Background}
+
 To run a BioCro simulation, the user must specify collections of \emph{modules}
 to use. A module represents one or more related equations that model some aspect
-of plant biology. Each module has a set of \emph{input quantities} and a set of
-\emph{output quantities}; when a module is run, its outputs are determined from
-the values of its inputs according to its equations. Modules come in two types:
-\emph{differential modules} calculate the rates of change for their output
-quantities, while \emph{direct modules} directly calculate instantaneous values
-for their output quantities. In other words, direct modules define equations of
-the form $x_i(t) = f_i \left( \boldsymbol{X}^i, t \right)$, where $x_i$ is a
-member of the state $\boldsymbol{X}$, $x_i(t)$ is its time dependence, and $f_i$
-is a function of the other state quantities (symbolized by $\boldsymbol{X}^i$)
-and the time. On the other hand, differential modules define equations of the
-form $dx_{i,j} / dt = g_{i,j} \left( \boldsymbol{X}, t \right)$, where $dx_{i,j}
-/ dt$ is one term of the total derivative of $x_i$ as calculated by module $j$.
+of plant biology. Each module $M$ has a set of \emph{input quantities}
+$\boldsymbol{X}_M^i$ and a set of \emph{output quantities} $\boldsymbol{X}_M^o$;
+when a module is run, its outputs are determined from the values of its inputs
+according to its equations. Modules come in two types:
+\emph{differential modules} calculate terms of the time derivatives of their
+output quantities, while \emph{direct modules} directly calculate the
+instantaneous values of their output quantities. In other words, a direct module
+defines an equation of the form
+\begin{equation}
+\boldsymbol{X}_M^o = f_M \left( \boldsymbol{X}_M^i , t \right)
+\end{equation}
+and a differential module defines an equation of the form
+\begin{equation}
+\frac{d \boldsymbol{X}_M^o}{dt} = g_M \left( \boldsymbol{X}_M^i , t \right).
+\end{equation}
+
+Within the context of a simulation, certain rules apply to the inputs and
+outputs of modules to ensure that the system is valid (in other words, that it
+is well-defined and can in principle be solved). The rules are as follows:
+\begin{enumerate}
+
+\item Since direct modules calculate instantaneous values of quantities, at most
+one direct module can have a particular quantity $x$ as an output. For example,
+multiple direct modules available in the library calculate the canopy
+assimilation rate, but only one such module can be used in a single simulation.
+
+\item Since differential modules calculate terms of a derivative, multiple
+differential modules can have a particular quantity $x$ as an output; in this
+case, the module outputs will be added together to determine the overall
+derivative. For example, one differential module may calculate a rate of leaf
+carbon gain (due to assimilation) while another calculates a negative rate of
+leaf carbon loss (due to senescence); both may be used in a single simulation.
+
+\item Since the output quantities from differential modules (the
+\emph{differential quantities}) evolve according to differential equations, they
+also require initial values. One initial value is required for each differential
+quantity (Section \ref{sec:choose_param}).
+
+\item Within a simulation, the direct modules are run in a specified order,
+allowing the formation of chains where the output of one direct module is used
+as the input to another direct module. Thus, a requirement on the system as a
+whole is that the inputs for each direct module must be \emph{defined} before it
+runs; here, an input quantity is said to be defined if its value is known at the
+start of the simulation---in other words, if it is a parameter
+(Section \ref{sec:choose_param}), an initial value
+(Section \ref{sec:choose_param}), or a driver
+(Section \ref{sec:choose_drivers})---or if it is the output of a direct module
+that was previously run.
+
+\item Cyclical dependencies among the direct modules are not permitted; for
+example, if module $A$ takes quantity $b$ as an input and produces quantity $a$
+as an output ($b \rightarrow A \rightarrow a$) while module $B$ takes quantity
+$a$ as an input and produces quantity $b$ as an output ($a \rightarrow B
+\rightarrow b$), this would be a cyclical dependency.
+
+\item Within a simulation, the differential modules are run after the direct
+modules, allowing the formation of chains where the output of a direct module is
+used as the input to a differential module. For example, one direct module may
+calculate partitioning coefficients based on a plant's physiological age, and a
+differential module can subseqently use those parititioning coefficients to
+distribute assimilated carbon to different organs. Thus, a requirement on the
+system as a whole is that the inputs for each differential module must be
+defined before it runs.
+
+\item There must be a possible ordering for the modules that ensures that each
+module input is defined before it runs.
+
+\end{enumerate}
+
+If all these conditions are satisfied (Section \ref{sec:validate}), then the
+elements of the state $\boldsymbol{X}$ can be defined as the combination of the
+parameters, drivers, differential quantities, and \emph{direct quantities} (the
+quantities produced as outputs of direct modules). So, within the context of a
+valid simulation, all module inputs ($\boldsymbol{X}_M^i$) and outputs
+($\boldsymbol{X}_M^o$) of each module $M$ are subsets of the state
+$\boldsymbol{X}$. Additionally, a direct module cannot have any overlap between
+its inputs and outputs. With this in mind, we sometimes gloss over the detailed
+requirements for the module inputs and outputs and say that collection of direct
+modules defines a set equations of the form
+\begin{equation}
+x_i = \boldsymbol{f}_i \left( \boldsymbol{X}^i, t \right),
+\label{eq:direct}
+\end{equation}
+where $x_i$ is an element of the state $\boldsymbol{X}$ and $\boldsymbol{X}^i$
+represents the other state quantities besides $x_i$; likewise, we say that the
+collection of differential modules defines a set of equations of the form
+\begin{equation}
+\frac{dx_i}{dt} = \boldsymbol{g}_i \left( \boldsymbol{X}, t \right).
+\label{eq:differential}
+\end{equation}
+
+\subsubsection*{R implemetation}
 
 Modules are identified by their names, and a collection of modules can be
 specified in R using the \texttt{c} command, which creates an R vector from its
@@ -230,6 +322,8 @@ most important abilities. For an example of how the performance of two modules
 can be compared in the context of a soybean simulation, see the
 \emph{Quantitative Comparison Between Two Photosynthesis Models} vignette.
 
+\subsubsection*{Pre-set options available in the BioCro package}
+
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of modules
 when calling the \texttt{run\_biocro} function:
 \texttt{soybean\_direct\_modules} and \texttt{soybean\_differential\_modules}.
@@ -247,6 +341,8 @@ To learn about specific modules, see Section \ref{sec:module_info}.
 
 \subsection{Choosing the parameters and initial values \label{sec:choose_param}}
 
+\subsubsection*{Background}
+
 To run a BioCro simulation, a user must supply the values of \emph{parameters}
 (quantities whose values are taken to be constant during the course of a
 simulation) and the \emph{initial values} of  the \emph{differential
@@ -254,6 +350,23 @@ quantities} (quantities whose evolution with time is determined by differential
 equations). In general, the sets of required parameters and initial values will
 be determined by the modules and drivers that a user has chosen to use (Sections
 \ref{sec:choose_modules} and \ref{sec:choose_drivers}, respectively).
+
+Specifying the parameters and initial values can be thought of as defining
+simple equations of the form
+\begin{equation}
+x_i = p_i
+\label{eq:param}
+\end{equation}
+and
+\begin{equation}
+x_i = x_i(t_0),
+\label{eq:initial_value}
+\end{equation}
+where $x_i$ is an element of the state $\boldsymbol{x}$, $p_i$ is a constant
+parameter value and $x_i(t_0)$ is the value of a differential quantity at the
+start of the simulation (were $t = t_0$).
+
+\subsubsection*{R implementation}
 
 Both the parameters and initial values must be specified using lists of named
 elements. When specifying collections of modules (Section
@@ -272,9 +385,10 @@ parameters <- list(
 
 Here the syntax of defining a list---where a value is assined to a name using an
 equals sign---is a reminder that parameter specifications can be thought of as
-representing individual equations of the form $x_i(t) = p_i$, where $x_i$ is a
-member of the state $\boldsymbol{X}$, $x_i(t)$ is its time dependence, and $p_i$
-is a constant value.
+representing simple individual equations like Equations \ref{eq:param} and
+\ref{eq:initial_value}.
+
+\subsubsection*{Pre-set options available in the BioCro package}
 
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of parameters
 and initial values when calling the \texttt{run\_biocro} function:
@@ -286,10 +400,23 @@ To learn about specific quantities, see Section \ref{sec:quantity_info}.
 
 \subsection{Choosing the drivers \label{sec:choose_drivers}}
 
+\subsubsection*{Background}
+
 To run a BioCro simulation, a user must supply the \emph{drivers}, which are
 quantities whose values are taken to be known beforehand at a set of discrete
 time points. In most BioCro simulations, the drivers represent weather data
-obtained from sensors at a particular location.
+obtained from sensors at a particular location. Within the BioCro framework,
+interpolation is used to create a continuous function of time for each quantity
+defined in the drivers. In this sense, each driver can be viewed as following an
+equation of the form
+\begin{equation}
+x_i = d_i(t),
+\label{eq:driver}
+\end{equation}
+where where $x_i$ is a member of the state $\boldsymbol{X}$ and $d_i(t)$ is a
+function determined by interpolation from the driver's discrete values.
+
+\subsubsection*{R implementation}
 
 The drivers must be specified as a \emph{data frame}, an R data structure that
 conceptually resembles a table. In the case of the drivers, each column in the
@@ -316,13 +443,7 @@ using the \texttt{print} command:
 print(drivers)
 @
 
-As mentioned previously, each column in the \texttt{drivers} data frame
-represents a time series of quantity values. Within the BioCro framework,
-interpolation is used to create a continuous function of time for each quantity
-defined in the drivers. In this sense, each driver can be viewed as following an
-equation of the form $x_i(t) = d_i(t)$, where where $x_i$ is a member of the
-state $\boldsymbol{X}$, $x_i(t)$ is its time dependence, and $d_i(t)$ is a
-function determined by interpolation from the driver's values.
+\subsubsection*{Pre-set options available in the BioCro package}
 
 In Section \ref{sec:run_simulation}, we supplied a pre-defined data frame of
 drivers when calling the \texttt{run\_biocro} function:
@@ -336,15 +457,20 @@ published papers and serve illustrative purposes.
 
 \subsection{Choosing the differential equation solver \label{sec:choose_solver}}
 
+\subsubsection*{Background}
+
 To run a BioCro simulation, a user must specify an algorithm to use for solving
 the set of coupled ordinary differential equations (ODEs) defined by the
-modules; in BioCro, we refer to such an algorithm as an \emph{ode\_solver} and
-we specify it using a list with a particular format, where the list must contain
-the following named elements:
+other input arguments to \texttt{run\_biocro}; in BioCro, we refer to such an
+algorithm as an \emph{ode\_solver}.
+
+\subsubsection*{R implementation}
+
+An ODE solver is specified using a list with a particular format, where the list
+must contain the following named elements:
 \begin{itemize}
 
-\item \texttt{type}: This is the name of the algorithm; a list of available
-types can be obtained using the \texttt{get\_all\_ode\_solvers()} function.
+\item \texttt{type}: The name of the algorithm.
 
 \item \texttt{output\_step\_size}: The time interval to be used in the output of
 \texttt{run\_biocro}, specified as a multiplicative factor relative to the
@@ -363,6 +489,8 @@ an adaptive step-size ODE solver tries to find a new step size.
 
 \end{itemize}
 
+\subsubsection*{Pre-set options available in the BioCro package}
+
 In Section \ref{sec:run_simulation}, we supplied a pre-defined ODE solver when
 calling the \texttt{run\_biocro} function: \texttt{soybean\_ode\_solver}. Its
 contents can be viewed as with any other list:
@@ -378,15 +506,16 @@ an excellent solver for any situation where an Euler solver is not required and
 when the system of equations is not stiff. For stiff systems, the
 \texttt{boost\_rosenbrock} solver, which is the  \texttt{Boost} library's
 implementation of an adaptive step-size 4$^{\rm{th}}$ order Rosenbrock solver,
-may be more appropriate.
+may be more appropriate. A full list of the available types can be obtained
+using the \texttt{get\_all\_ode\_solvers()} function.
 
 \subsection{Validating \texttt{run\_biocro} input arguments \label{sec:validate}}
 
 The \texttt{run\_biocro} function performs several checks to ensure that the
-supplied arguments are able to form a valid dynamical system and provides
-helpful feedback to the user if a problem is detected. For example, if one or
-more of the differential quantities is missing an initial value, or if a
-parameter is missing, an error will occur:
+supplied arguments are able to form a valid dynamical system (Section
+\ref{sec:choose_modules}) and provides helpful feedback to the user if a problem
+is detected. For example, if one or more of the differential quantities is
+missing an initial value, or if a parameter is missing, an error will occur:
 
 <<run_biocro_error_quantity>>=
 soybean_result = run_biocro(
