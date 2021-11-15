@@ -72,3 +72,12 @@ evaluate_module <- function(module_name, input_quantities)
     result <- result[order(names(result))]
     return(result)
 }
+
+quantity_list_from_names <- function(quantity_names)
+{
+    error_messages <- check_strings(list(quantity_names = quantity_names))
+
+    send_error_messages(error_messages)
+
+    setNames(as.list(rep_len(1, length(quantity_names))), quantity_names)
+}

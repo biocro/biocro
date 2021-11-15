@@ -2,6 +2,7 @@
 
 \alias{module_info}
 \alias{evaluate_module}
+\alias{quantity_list_from_names}
 
 \title{BioCro Module Functions}
 
@@ -10,14 +11,17 @@
 
   \code{evaluate_module} runs a BioCro module using a list of input quantity
   values.
+
+  \code{quantity_list_from_names} initializes a list of named numeric elements
+  from a set of names
 }
 
 \usage{
-  module_info(module_name)
-
-  info <- module_info(module_name, verbose = FALSE)
+  info <- module_info(module_name, verbose = TRUE)
 
   outputs <- evaluate_module(module_name, input_quantities)
+
+  quantities <- quantity_list_from_names(quantity_names)
 }
 
 \arguments{
@@ -32,14 +36,20 @@
 
   \item{input_quantities}{
     A list of named numeric elements representing the input quantities required
-    by the module; any extraneous quantities will be ignored by the module.
+    by the module; any extraneous quantities will be ignored by the module
+  }
+
+  \item{quantity_names}{
+    A vector or list of strings
   }
 }
 
 \details{
   By providing avenues for retrieving information about a module and evaluating
-  a module's equations, these two functions form the main interface to
-  individual BioCro modules from within R.
+  a module's equations, the \code{module_info} and \code{evaluate_module}
+  functions form the main interface to individual BioCro modules from within R.
+  The \code{quantity_list_from_names} function is a convenience function for
+  preparing suitable quantity lists to pass to \code{evaluate_module}.
 }
 
 \value{
@@ -64,6 +74,11 @@
     outputs as calculated from the \code{input_quantities} according to the
     module's equations
   }
+
+  \item{quantity_list_from_names} {
+    A list of named numeric elements, where the names are set by
+    \code{quantity_names} and each value is initialized to 1.
+  }
 }
 
 \seealso{
@@ -71,9 +86,9 @@
 }
 
 \examples{
-# Example: getting the inputs to the 'thermal_time_linear' module, setting each
-# input to 1, and using them to run the module
+# Example: getting the inputs to the 'thermal_time_linear' module, generating a
+# default input list, and using it to run the module
 info <- module_info('thermal_time_linear', verbose = FALSE)
-inputs <- setNames(as.list(rep_len(1, length(info$inputs))), info$inputs)
+inputs <- quantity_list_from_names(info$inputs) # All inputs will be set to 1
 outputs <- evaluate_module('thermal_time_linear', inputs)
 }
