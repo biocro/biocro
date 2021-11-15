@@ -19,7 +19,7 @@ module_info <- function(module_name, verbose = TRUE)
     # Get the info list
     result <- .Call(R_module_info, module_name, verbose)
 
-    return(result)
+    return(invisible(result))
 }
 
 evaluate_module <- function(module_name, input_quantities)
@@ -49,7 +49,7 @@ evaluate_module <- function(module_name, input_quantities)
     }
 
     missing_input_quantities <- setdiff(
-        names(module_info(module_name, verbose = FALSE)[['inputs']]),
+        module_info(module_name, verbose = FALSE)[['inputs']],
         names(input_quantities)
     )
 

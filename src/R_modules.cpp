@@ -111,8 +111,8 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
         // Return a list containing information about the module
         return list_from_module_info(
             module_name,
-            module_inputs,
-            module_outputs,
+            keys(module_inputs),
+            keys(module_outputs),
             is_differential,
             requires_euler_ode_solver,
             creation_error_message);

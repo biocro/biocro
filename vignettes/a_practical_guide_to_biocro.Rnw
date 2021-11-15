@@ -702,7 +702,7 @@ inputs and outputs, which can be done using the \texttt{module\_info} function,
 as discussed in Section \ref{sec:module_info}:
 
 <<c3_module_info>>=
-info <- module_info('c3_assimilation')
+module_info('c3_assimilation')
 @
 
 Here, the \texttt{Qp} input represents the incident PPFD $Q$, while the
@@ -865,27 +865,19 @@ the code, we can find the units for \texttt{Leaf} specified in a comment
 
 Basic information about a module---its input quantities, output quantities, and
 type---can be obtained from within R using the \texttt{module\_info} function,
-which prints module info to the R terminal and also returns it as a list.
-Printing to the terminal can be disabled by setting the \texttt{verbose}
-argument to \texttt{FALSE}. For example:
+which prints module info to the R terminal and also (optionally) returns it as a
+list. Printing to the terminal can be disabled by setting the \texttt{verbose}
+argument to \texttt{FALSE}. For an example of printing module info to the
+terminal, see Section \ref{sec:response}; here we demonstrate how to silently
+store the module info in a list:
 
 <<total_biomass_info>>=
 info <- module_info('total_biomass', verbose = FALSE)
 str(info)
 @
 
-Notice that \texttt{info\$inputs} and \texttt{info\$outputs} are lists of named
-numeric elements where each element has been initialized to 1; the input list
-can be particularly useful since it is already in the correct format to pass to
-the module via \texttt{evaluate\_module}, typically following a modification of
-one or more of its values:
-
-<<module_evaluation>>=
-str(evaluate_module('total_biomass', within(info$inputs, {Leaf = 2})))
-@
-
-Also notice that BioCro modules can be designated as requiring a fixed-step
-Euler solver; this is to accommodate discrete dynamical systems, which can be
+Notice that BioCro modules can be designated as requiring a fixed-step Euler
+solver; this is to accommodate discrete dynamical systems, which can be
 represented in BioCro provided that the ODE solver only takes steps of a
 specified size. An error will occur if \texttt{run\_biocro} is called with a
 non-Euler ODE solver when one or more of its modules requires an ODE Euler

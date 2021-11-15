@@ -4,7 +4,7 @@
 #include <Rinternals.h>
 #include <vector>
 #include <string>
-#include "state_map.h"
+#include "state_map.h"  // for state_map, string_vector
 
 state_map map_from_list(SEXP const& list);
 
@@ -20,8 +20,8 @@ SEXP list_from_map(std::unordered_map<std::string, string_vector> const& m);
 
 SEXP list_from_module_info(
     std::string const& module_name,
-    state_map const& module_inputs,
-    state_map const& module_outputs,
+    string_vector const& module_inputs,
+    string_vector const& module_outputs,
     bool const& is_differential,
     bool const& requires_euler_ode_solver,
     std::string const& creation_error_message);

@@ -13,13 +13,18 @@
 }
 
 \usage{
-  info <- module_info(module_name, verbose = TRUE)
+  module_info(module_name)
+
+  info <- module_info(module_name, verbose = FALSE)
 
   outputs <- evaluate_module(module_name, input_quantities)
 }
 
 \arguments{
-  \item{module_name}{A string representing the name of a BioCro module}
+  \item{module_name}{
+    A string representing the name of a BioCro module; only one name is allowed
+    at the moment, but multiple modules will be supported in the future
+  }
 
   \item{verbose}{
     A boolean indicating whether or not to print information to the R console
@@ -39,15 +44,12 @@
 
 \value{
   \item{module_info}{
-    A list of several named elements containing essential information about the
-    module:
+    An \code{\link{invisible}} list of several named elements containing
+    essential information about the module:
     \itemize{
-      \item \code{module_name}: The module's name; only one name is allowed at
-            the moment, but multiple modules will be supported in the future
-      \item \code{inputs}: A list of named numeric elements representing the
-            module's inputs, set to default values of 1
-      \item \code{outputs}: A list of named numeric elements representing the
-            module's outputs, set to default values of 1
+      \item \code{module_name}: The module's name
+      \item \code{inputs}: A character vector of the module's inputs
+      \item \code{outputs}: A character vector of the module's outputs
       \item \code{type}: The module's type represented as a string (either
             'differential' or 'direct')
       \item \code{euler_requirement}: Indicates whether the module requires a
@@ -69,8 +71,9 @@
 }
 
 \examples{
-# Example: getting the inputs to the 'thermal_time_linear' module and using them
-# to run the module
-info <- module_info('thermal_time_linear')
-outputs <- evaluate_module('thermal_time_linear', info$inputs)
+# Example: getting the inputs to the 'thermal_time_linear' module, setting each
+# input to 1, and using them to run the module
+info <- module_info('thermal_time_linear', verbose = FALSE)
+inputs <- setNames(as.list(rep_len(1, length(info$inputs))), info$inputs)
+outputs <- evaluate_module('thermal_time_linear', inputs)
 }
