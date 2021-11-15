@@ -53,12 +53,11 @@ struct ET_Str c3EvapoTrans(
     // model state. (1 * R * temperature) / pressure
     constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
 
-    double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
-
-    /* Prevent errors due to extremely low Layer conductance. */
-    if (conductance_in_m_per_s <= 0) {
-        conductance_in_m_per_s = 0.01;
+    if (stomatal_conductance <= 0) {
+        throw std::range_error("Thrown in c3EvapoTrans: stomatal conductance is not positive.");
     }
+
+    double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (RH > 1) {
         throw std::range_error("Thrown in c3EvapoTrans: RH (relative humidity) is greater than 1.");
