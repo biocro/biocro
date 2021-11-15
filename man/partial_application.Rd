@@ -46,8 +46,12 @@ partial_run_biocro(
 
 \examples{
 # Example: varying the thermal time values at which senescence starts for a
-# sorghum simulation; here we set them all to 2000 degrees C * day instead of
-# the default sorghum values.
+# different organs in a simulation; here we set them to the following values
+# instead of the defaults:
+#  - seneLeaf: 2000 degrees C * day
+#  - seneStem: 2100 degrees C * day
+#  - seneRoot: 2200 degrees C * day
+#  - seneRhizome: 2300 degrees C * day
 senescence_simulation <- partial_run_biocro(
     sorghum_initial_values,
     sorghum_parameters,
@@ -57,5 +61,5 @@ senescence_simulation <- partial_run_biocro(
     sorghum_ode_solver,
     c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
 )
-result = senescence_simulation(c(2000, 2000, 2000, 2000))
+result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 }

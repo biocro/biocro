@@ -13,7 +13,7 @@ run_biocro(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    ode_solver = default_ode_solver,
+    ode_solver = BioCro:::default_ode_solver,
     verbose = FALSE
 )
 }
@@ -46,7 +46,7 @@ run_biocro(
   \item{differential_module_names}{
     A character vector or list specifying the names of differential modules to
     use in the system; a list of available modules can be obtained via the
-    \code{\link{get_all_modules}} function)
+    \code{\link{get_all_modules}} function
   }
 
   \item{ode_solver}{
@@ -72,7 +72,7 @@ run_biocro(
   \item{verbose}{
     A logical variable indicating whether or not to print dynamical system
     validation information. (More detailed startup information can be obtained
-    with the \code{\link{validate_dynamical_system_inputs}} function.
+    with the \code{\link{validate_dynamical_system_inputs}} function.)
   }
 
 }

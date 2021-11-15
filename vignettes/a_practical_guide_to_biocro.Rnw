@@ -364,7 +364,7 @@ x_i = x_i(t_0),
 \end{equation}
 where $x_i$ is an element of the state $\boldsymbol{x}$, $p_i$ is a constant
 parameter value and $x_i(t_0)$ is the value of a differential quantity at the
-start of the simulation (were $t = t_0$).
+start of the simulation (where $t = t_0$).
 
 \subsubsection*{R implementation}
 

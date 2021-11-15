@@ -35,9 +35,9 @@
   \item{get_all_modules}{A character vector of module names}
 
   \item{get_all_quantities}{A data frame with three columns:
-    \code{quantity_type}, \code{quantity_name}, and \code{module_name}, where
-    each row represents one instance of a quantity associated with a module as
-    either an input or an output}
+    \code{quantity_type} (input or output), \code{quantity_name}, and
+    \code{module_name}. A quantity will appear multiple times if it is used as
+    both an input and an output, or if it is used by multiple modules.}
 
   \item{get_all_ode_solvers}{A character vector of ODE solver names}
 }
@@ -50,8 +50,8 @@ all_quantity_names <- all_quantities$quantity_name
 all_unique_quantities <- unique(all_quantity_names)
 all_unique_quantities <- sort(all_unique_quantities)
 
-# Example 2: getting a list of all modules that have "ci" or "Ci" as an input or
-# output
+# Example 2: getting a list of all modules that have "ci" as an input or output,
+# using `tolower()` to account for any possible variations in capitalization
 all_quantities <- get_all_quantities()
-ci_modules <- subset(all_quantities, quantity_name=="ci" | quantity_name=="Ci")
+ci_modules <- subset(all_quantities, tolower(quantity_name) == "ci")
 }
