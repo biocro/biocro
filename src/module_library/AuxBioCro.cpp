@@ -709,7 +709,7 @@ struct ET_Str EvapoTrans2(
         double ChangeInLeafTemp = 10.0;  // degrees C
         double Counter = 0;
         do {
-            ga = leaf_boundary_layer_conductance(
+            ga = leaf_boundary_layer_conductance_nikolov(
                 WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s,
                 ActualVaporPressure);  // m / s
 
@@ -786,48 +786,136 @@ struct ET_Str EvapoTrans2(
     return et_results;
 }
 
-
-double leaf_boundary_layer_conductance(
-        double windspeed,  // m / s
-        double leafwidth,  // m
-        double air_temperature,  // degrees C
-        double delta_t,  // degrees C
-        double stomcond,  // m / s
-        double water_vapor_pressure)  // Pa
+/**
+ *  @brief Caluclates the conductance for water vapor flow between the leaf
+ *  surface and the atmosphere (AKA, the boundary layer conductance) using a
+ *  model described in Nikolov, Massman, and Schoettle (1995).
+ *
+ *  In this model, two types of gas flow are considered: "forced" flow driven
+ *  by wind-created eddy currents and "free" flow driven by temperature-related
+ *  buoyancy effects. The overall conductance is determined to be the larger of
+ *  the free and forced conductances.
+ *
+ *  In this function, we use equations 29, 33, 34, and 35 to calculate boundary
+ *  layer conductance. This is the same approach taken in the `MLcan` model of
+ *  Drewry et al. (2010).
+ *
+ *  References:
+ *
+ *  - [Nikolov, N. T., Massman, W. J. & Schoettle, A. W. "Coupling biochemical and biophysical processes at the
+ *    leaf level: an equilibrium photosynthesis model for leaves of C3 plants" Ecological Modelling 80, 205–235 (1995)]
+ *    (https://doi.org/10.1016/0304-3800(94)00072-P)
+ *
+ *  - [Drewry, D. T. et al. "Ecohydrological responses of dense canopies to environmental variability: 1. Interplay between
+ *    vertical structure and photosynthetic pathway" Journal of Geophysical Research: Biogeosciences 115, (2010)]
+ *    (https://doi.org/10.1029/2010JG001340)
+ *
+ *  @param [in] windspeed The wind speed in m / s
+ *
+ *  @param [in] leafwidth The characteristic leaf dimension in m
+ *
+ *  @param [in] air_temperature The air temperature in degrees C
+ *
+ *  @param [in] delta_t The temperature difference between the leaf and air in
+ *              degrees C
+ *
+ *  @param [in] stomcond The stomatal conductance in m / s
+ *
+ *  @param [in] water_vapor_pressure The partial pressure of water vapor in the
+ *              atmosphere in Pa
+ *
+ *  @return The boundary layer conductance in m / s
+ */
+double leaf_boundary_layer_conductance_nikolov(
+    double windspeed,            // m / s
+    double leafwidth,            // m
+    double air_temperature,      // degrees C
+    double delta_t,              // degrees C
+    double stomcond,             // m / s
+    double water_vapor_pressure  // Pa
+)
 {
-    /* This is the leaf boundary layer computed using the approach in MLcan
-       which is based on (Nikolov, Massman, Schoettle),         %
-       Ecological Modelling, 80 (1995), 205-235 */
     constexpr double p = physical_constants::atmospheric_pressure_at_sea_level;  // Pa
 
-    double leaftemp = air_temperature + delta_t;  // degrees C
-    double gsv = stomcond;  // m / s
+    double leaftemp = air_temperature + delta_t;                             // degrees C
+    double gsv = stomcond;                                                   // m / s
     double Tak = air_temperature + conversion_constants::celsius_to_kelvin;  // K
-    double Tlk = leaftemp + conversion_constants::celsius_to_kelvin;  // K
-    double ea = water_vapor_pressure;  // Pa
-    double lw = leafwidth;  // m
+    double Tlk = leaftemp + conversion_constants::celsius_to_kelvin;         // K
+    double ea = water_vapor_pressure;                                        // Pa
+    double lw = leafwidth;                                                   // m
 
     double esTl = saturation_vapor_pressure(leaftemp);  // Pa.
 
-    /* Forced convection */
+    // Forced convection
     constexpr double cf = 1.6361e-3;  // TODO: Nikolov et. al equation 29 use cf = 4.322e-3, not cf = 1.6e-3 as is used here.
-    double gbv_forced = cf *  pow(Tak, 0.56) * pow((Tak + 120) * ((windspeed / lw) / p), 0.5);  // m / s.
-    double gbv_free = gbv_forced;
-    double eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free); // Pa. Eq 35
 
-    double Tvdiff = (Tlk / (1 - 0.378 * eb / p)) - (Tak / (1 - 0.378 * ea / p)); // kelvin. It is also degrees C since it is a temperature difference. Eq. 34
+    double gbv_forced = cf * pow(Tak, 0.56) * pow((Tak + 120) * ((windspeed / lw) / p), 0.5);  // m / s.
+
+    // Free convection
+    double gbv_free = gbv_forced;
+    double eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free);  // Pa. Eq 35
+
+    double Tvdiff = (Tlk / (1 - 0.378 * eb / p)) - (Tak / (1 - 0.378 * ea / p));  // kelvin. It is also degrees C since it is a temperature difference. Eq. 34
 
     if (Tvdiff < 0) Tvdiff = -Tvdiff;
 
     gbv_free = cf * pow(Tlk, 0.56) * pow((Tlk + 120) / p, 0.5) * pow(Tvdiff / lw, 0.25);  // m / s. Eq. 33
 
+    // Overall conductance
     double gbv = std::max(gbv_forced, gbv_free);
 
     return gbv;  // m / s
 }
 
+/**
+ *  @brief Caluclates the conductance for water vapor flow between the leaf
+ *  surface and the atmosphere (AKA, the boundary layer conductance) using a
+ *  model described in Thornley and Johnson (1990).
+ *
+ *  This model considers gas flow due to wind-driven eddy currents. Here, the
+ *  conductance is calculated using Equation 14.9 from pages 414 - 416 of the
+ *  Thornley textbook. Unfortunately, an electronic version of this reference is
+ *  not available.
+ *
+ *  References:
+ *
+ *  - Thornley, J. H. M. & Johnson, I. R. "Plant and Crop Modelling: A
+ *    Mathematical Approach to Plant and Crop Physiology" (1990)
+ *
+ *  @param [in] CanopyHeight The height of the canopy above the ground in m
+ *
+ *  @param [in] WindSpeed The wind speed in m / s as measured above the canopy
+ *              at a reference height of five meters
+ *
+ *  @return The boundary layer conductance in m / s
+ */
+double leaf_boundary_layer_conductance_thornley(
+    double CanopyHeight,  // m
+    double WindSpeed      // m / s
+)
+{
+    // Define constants used in the model
+    constexpr double kappa = 0.41;         // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
+    constexpr double WindSpeedHeight = 5;  // meters
+    constexpr double ZetaCoef = 0.026;     // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
+    constexpr double ZetaMCoef = 0.13;     // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
+    constexpr double dCoef = 0.77;         // dimensionless, Thornley and Johnson 1990, Eq. 14.9o.
+                                           // In the original text this value is reported as 0.64.
+                                           // In the 2000 reprinting of this text, the authors state that this value should be 0.77.
+                                           // See "Errata to the 2000 printing" on the page after the preface of the 2000 reprinting of the 1990 text.
 
+    // Calculate terms that depend on the canopy height
+    const double Zeta = ZetaCoef * CanopyHeight;    // meters
+    const double Zetam = ZetaMCoef * CanopyHeight;  // meters
+    const double d = dCoef * CanopyHeight;          // meters
 
+    // Calculate the boundary layer conductance `ga` according to Thornley and
+    // Johnson Eq. 14.9n, pg. 416
+    const double ga0 = pow(kappa, 2) * WindSpeed;                   // m / s
+    const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);    // dimensionless
+    const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);  // dimensionless
+    return ga0 / (ga1 * ga2);                                       // m / s
+}
 
 /* Soil Evaporation Function */
 /* Variables I need */

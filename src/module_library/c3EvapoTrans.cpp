@@ -31,19 +31,6 @@ struct ET_Str c3EvapoTrans(
     double stomatal_conductance           // mmol / m^2 / s
 )
 {
-    if (CanopyHeight < 0.1) {
-        CanopyHeight = 0.1;
-    }
-
-    constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
-    constexpr double WindSpeedHeight = 5;           // meters
-    constexpr double dCoef = 0.77;                  // dimensionless, Thornley and Johnson 1990, Eq. 14.9o. In the original text this value is reported as 0.64. In the 2000 reprinting of this text, the authors state that this value should be 0.77 (see Errata to the 2000 printing on the page after the preface of the 2000 Reprinting of the 1990 text).
-    constexpr double ZetaCoef = 0.026;              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
-    constexpr double ZetaMCoef = 0.13;              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
-    const double Zeta = ZetaCoef * CanopyHeight;    // meters
-    const double Zetam = ZetaMCoef * CanopyHeight;  // meters
-    const double d = dCoef * CanopyHeight;          // meters
-
     const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
     const double LHV = TempToLHV(air_temperature);                   // J / kg
     const double SlopeFS = TempToSFS(air_temperature);               // kg / m^3 / K
@@ -82,17 +69,19 @@ struct ET_Str c3EvapoTrans(
     // Eq. 14.4d from Thornley and Johnson (1990).
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 
-    /* AERODYNAMIC COMPONENT */
+    // Make adjustments to canopy height and wind speed before determining
+    // boundary layer conductance
+    if (CanopyHeight < 0.1) {
+        CanopyHeight = 0.1;
+    }
+
     if (WindSpeed < 0.5) {
         WindSpeed = 0.5;
     }
 
     /* Calculation of ga */
-    /* According to thornley and Johnson Eq. 14.9n, pg. 416 */
-    const double ga0 = pow(kappa, 2) * WindSpeed;                   // m / s
-    const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);    // dimensionless
-    const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);  // dimensionless
-    const double ga = ga0 / (ga1 * ga2);                            // m / s
+    const double ga =
+        leaf_boundary_layer_conductance_thornley(CanopyHeight, WindSpeed);  // m / s
 
     if (ga < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero.");

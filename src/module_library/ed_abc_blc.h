@@ -3,12 +3,12 @@
 
 #include "../modules.h"
 #include "../state_map.h"
-#include "AuxBioCro.h"  // for leaf_boundary_layer_conductance
+#include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_nikolov
 
 /**
  * @class ed_abc_blc
  *
- * @brief This module is a wrapper for the `leaf_boundary_layer_conductance` (BLC)
+ * @brief This module is a wrapper for the `leaf_boundary_layer_conductance_nikolov` (BLC)
  * function in `AuxBioCro` (ABC). Currently only intended for use by Ed.
  */
 class ed_abc_blc : public direct_module
@@ -80,7 +80,7 @@ void ed_abc_blc::do_operation() const
     double const stomcond = conductance_stomatal_h2o * volume_of_one_mole_of_air;             // m / s
     double const water_vapor_pressure = mole_fraction_h2o_atmosphere * atmospheric_pressure;  // Pa
 
-    double const blc = leaf_boundary_layer_conductance(
+    double const blc = leaf_boundary_layer_conductance_nikolov(
         windspeed,
         leafwidth,
         temperature_air,

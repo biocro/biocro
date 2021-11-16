@@ -175,8 +175,19 @@ struct crop_phenology {
       }leaf,stem,root,rhiz;
 };
 
-double leaf_boundary_layer_conductance(double windspeed, double leafwidth, double AirTemp,
-                         double deltat, double stomcond, double vappress);
+double leaf_boundary_layer_conductance_nikolov(
+    double windspeed,
+    double leafwidth,
+    double air_temperature,
+    double delta_t,
+    double stomcond,
+    double water_vapor_pressure
+);
+
+double leaf_boundary_layer_conductance_thornley(
+    double CanopyHeight,
+    double WindSpeed
+);
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla);
 
