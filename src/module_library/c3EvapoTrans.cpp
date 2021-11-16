@@ -162,10 +162,11 @@ struct ET_Str c3EvapoTrans(
     double cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * cf;     // mmol / m^2 / s
-    et_results.EPenman = EPen * cf;      // mmol / m^2 / s
-    et_results.EPriestly = EPries * cf;  // mmol / m^2 / s
-    et_results.Deltat = Deltat;          // degrees C
+    et_results.TransR = TransR * cf;                                         // mmol / m^2 / s
+    et_results.EPenman = EPen * cf;                                          // mmol / m^2 / s
+    et_results.EPriestly = EPries * cf;                                      // mmol / m^2 / s
+    et_results.Deltat = Deltat;                                              // degrees C
+    et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air;  // mol / m^2 / s
 
     return et_results;
 }

@@ -36,14 +36,15 @@ string_vector c4_leaf_photosynthesis::get_inputs()
 string_vector c4_leaf_photosynthesis::get_outputs()
 {
     return {
-        "Assim",            // micromole / m^2 /s
-        "GrossAssim",       // micromole / m^2 /s
-        "Ci",               // micromole / mol
-        "Gs",               // mmol / m^2 / s
-        "TransR",           // mmol / m^2 / s
-        "EPenman",          // mmol / m^2 / s
-        "EPriestly",        // mmol / m^2 / s
-        "leaf_temperature"  // deg. C
+        "Assim",             // micromole / m^2 /s
+        "GrossAssim",        // micromole / m^2 /s
+        "Ci",                // micromole / mol
+        "Gs",                // mmol / m^2 / s
+        "TransR",            // mmol / m^2 / s
+        "EPenman",           // mmol / m^2 / s
+        "EPriestly",         // mmol / m^2 / s
+        "leaf_temperature",  // deg. C
+        "gbw"                // mol / m^2 / s
     };
 }
 
@@ -82,4 +83,5 @@ void c4_leaf_photosynthesis::do_operation() const
     update(EPenman_op, et.EPenman);
     update(EPriestly_op, et.EPriestly);
     update(leaf_temperature_op, leaf_temperature);
+    update(gbw_op, et.boundary_layer_conductance);
 }
