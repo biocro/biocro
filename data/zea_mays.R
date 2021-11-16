@@ -7,6 +7,7 @@ zea_mays_direct_modules <- list(
     "leaf_water_stress_exponential",
     "parameter_calculator",
     "soil_evaporation",
+    solar_coordinates = "solar_position_michalsky",
     canopy_photosynthesis = "c4_canopy",
     partitioning_coefficients = "partitioning_coefficient_selector",
     partitioning_growth_calculator = "partitioning_growth_calculator"
@@ -114,6 +115,7 @@ zea_mays_parameters = with(list(), {
     leaf_reflectance            0.2
     leaf_transmittance          0.2
     lnfun                       0
+    longitude                   -88
     lowerT                      3
     mrc1                        0.02
     mrc2                        0.03

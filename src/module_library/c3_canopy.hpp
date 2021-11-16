@@ -15,12 +15,11 @@ class c3_canopy : public direct_module
 
           // Get references to input quantities
           lai{get_input(input_quantities, "lai")},
-          time{get_input(input_quantities, "time")},
+          cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
           solar{get_input(input_quantities, "solar")},
           temp{get_input(input_quantities, "temp")},
           rh{get_input(input_quantities, "rh")},
           windspeed{get_input(input_quantities, "windspeed")},
-          lat{get_input(input_quantities, "lat")},
           nlayers{get_input(input_quantities, "nlayers")},
           vmax{get_input(input_quantities, "vmax")},
           jmax{get_input(input_quantities, "jmax")},
@@ -65,12 +64,11 @@ class c3_canopy : public direct_module
    private:
     // References to input quantities
     double const& lai;
-    double const& time;
+    double const& cosine_zenith_angle;
     double const& solar;
     double const& temp;
     double const& rh;
     double const& windspeed;
-    double const& lat;
     double const& nlayers;
     double const& vmax;
     double const& jmax;

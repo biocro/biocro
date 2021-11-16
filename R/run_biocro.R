@@ -85,7 +85,7 @@ run_biocro <- function(
     #     result <- run_biocro(
     #         sorghum_initial_values,
     #         sorghum_parameters,
-    #         get_growing_season_climate(weather05),
+    #         get_growing_season_climate(weather2005),
     #         sorghum_direct_modules,
     #         sorghum_differential_modules,
     #         sorghum_ode_solver,
@@ -114,7 +114,7 @@ run_biocro <- function(
     #     result <- run_biocro(
     #         glycine_max_initial_values,
     #         glycine_max_parameters,
-    #         get_growing_season_climate(weather05),
+    #         get_growing_season_climate(weather2005),
     #         glycine_max_direct_modules,
     #         glycine_max_differential_modules,
     #         glycine_max_ode_solver,
@@ -233,7 +233,7 @@ partial_run_biocro <- function(
     #     senescence_simulation <- partial_run_biocro(
     #         sorghum_initial_values,
     #         sorghum_parameters,
-    #         get_growing_season_climate(weather05),
+    #         get_growing_season_climate(weather2005),
     #         sorghum_direct_modules,
     #         sorghum_differential_modules,
     #         sorghum_ode_solver,

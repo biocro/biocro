@@ -6,13 +6,13 @@ It uses models of key physiological and biophysical processes underlying plant g
 BioCro has also been integrated into a suite of tools that link the model directly to crop trait and yield data ([LeBauer et al., 2014]). The Predictive Ecosystem Analyzer ([PEcAn](https://github.com/PecanProject/pecan)) couples BioCro to the [Biofuel Ecophysiological Traits and Yields database](https://www.betydb.org).
 
 ### An example
-The Gro() function accepts initial values, parameters, climate variables, and a set of modules to run. It returns the results in a data frame.
+The `run_biocro()` function accepts initial values, parameters, climate variables, and sets of modules to run. It returns the results in a data frame.
 
 ```r
 library(BioCro)
 library(lattice)
 
-result = run_biocro(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_direct_modules, sorghum_differential_modules, sorghum_ode_solver)
+result = run_biocro(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather2005), sorghum_direct_modules, sorghum_differential_modules, sorghum_ode_solver)
 xyplot(Stem + Leaf ~ TTc, result, type='l')
 ```
 

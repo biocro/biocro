@@ -3,17 +3,13 @@
 
 #include "AuxBioCro.h"
 
-double cos_zenith_angle(const double latitude, const int day_of_year,
-                        const double hour_of_day);
-
 struct Light_model {
 	double direct_irradiance_fraction;
 	double diffuse_irradiance_fraction;
-	double cosine_zenith_angle;
 };
 
-struct Can_Str CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
-		     double RH, double WindSpeed, double lat, int nlayers, double Vmax, double Alpha,
+struct Can_Str CanAC(double LAI, double cosine_zenith_angle, double solarR, double Temp,
+		     double RH, double WindSpeed, int nlayers, double Vmax, double Alpha,
 		     double Kparm, double beta, double Rd, double Catm, double b0,
 		     double b1, double Gs_min, double theta, double kd, double chil, double heightf,
 		     double leafN, double kpLN, int lnfun, double upperT,
@@ -22,8 +18,8 @@ struct Can_Str CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
              int water_stress_approach, double absorptivity_par, double par_energy_content,
              double par_energy_fraction, double leaf_transmittance, double leaf_reflectance);
 
-struct Can_Str c3CanAC(double LAI, int DOY, double hr, double solarR, double Temp,
-                       double RH, double WindSpeed, double lat, int nlayers, double Vmax,
+struct Can_Str c3CanAC(double LAI, double cosine_zenith_angle, double solarR, double Temp,
+                       double RH, double WindSpeed, int nlayers, double Vmax,
                        double Jmax, double tpu_rate_max, double Rd, double Catm, double o2, double b0,
                        double b1, double Gs_min, double theta, double kd, double heightf, double leafN,
                        double kpLN, double lnb0, double lnb1, int lnfun, double chil,
@@ -81,7 +77,7 @@ struct Light_profile sunML(
     double leaf_reflectance       // dimensionless
 );
 
-struct Light_model lightME(double lat, int DOY, double td, double atmospheric_pressure);
+struct Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure);
 
 struct FL_str FmLcFun(double Lig, double Nit);
 

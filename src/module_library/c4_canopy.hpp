@@ -28,12 +28,11 @@ class c4_canopy : public direct_module
           nlnb0(get_input(input_quantities, "nlnb0")),
           nlnb1(get_input(input_quantities, "nlnb1")),
           lai(get_input(input_quantities, "lai")),
-          time(get_input(input_quantities, "time")),
+          cosine_zenith_angle(get_input(input_quantities, "cosine_zenith_angle")),
           solar(get_input(input_quantities, "solar")),
           temp(get_input(input_quantities, "temp")),
           rh(get_input(input_quantities, "rh")),
           windspeed(get_input(input_quantities, "windspeed")),
-          lat(get_input(input_quantities, "lat")),
           nlayers(get_input(input_quantities, "nlayers")),
           vmax1(get_input(input_quantities, "vmax1")),
           alpha1(get_input(input_quantities, "alpha1")),
@@ -89,12 +88,11 @@ class c4_canopy : public direct_module
     double const& nlnb0;
     double const& nlnb1;
     double const& lai;
-    double const& time;
+    double const& cosine_zenith_angle;
     double const& solar;
     double const& temp;
     double const& rh;
     double const& windspeed;
-    double const& lat;
     double const& nlayers;
     double const& vmax1;
     double const& alpha1;
@@ -151,12 +149,11 @@ string_vector c4_canopy::get_inputs()
         "nlnb0",
         "nlnb1",
         "lai",
-        "time",
+        "cosine_zenith_angle",
         "solar",
         "temp",
         "rh",
         "windspeed",
-        "lat",
         "nlayers",
         "vmax1",
         "alpha1",
@@ -203,9 +200,6 @@ string_vector c4_canopy::get_outputs()
 void c4_canopy::do_operation() const
 {
     // Collect inputs and make calculations
-    int doy = floor(time);              // Round time down to get the day of year
-    double hour = 24.0 * (time - doy);  // Get the fractional part as the hour
-
     struct nitroParms nitroP;
     nitroP.ileafN = nileafn;
     nitroP.kln = nkln;
@@ -221,7 +215,7 @@ void c4_canopy::do_operation() const
 
     // CanAC is located in CanAC.cpp
     struct Can_Str can_result = CanAC(
-        lai, doy, hour, solar, temp, rh, windspeed, lat, nlayers, vmax1, alpha1,
+        lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1, alpha1,
         kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, heightf,
         LeafN, kpLN, lnfun, upperT, lowerT, nitroP, leafwidth,
         et_equation, StomataWS, specific_heat_of_air, atmospheric_pressure,

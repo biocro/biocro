@@ -10,7 +10,7 @@ test_that("certain run_biocro inputs must have the correct type", {
         run_biocro(
             unlist(sorghum_initial_values),
             unlist(sorghum_parameters),
-            unlist(get_growing_season_climate(weather05)),
+            unlist(get_growing_season_climate(weather2005)),
             sorghum_direct_modules,
             sorghum_differential_modules,
             unlist(sorghum_ode_solver['type'])
@@ -29,7 +29,7 @@ test_that("certain run_biocro inputs must not have empty elements", {
         run_biocro(
             within(sorghum_initial_values, {bad_initial_value = numeric(0)}),
             within(sorghum_parameters, {bad_parameter = numeric(0)}),
-            get_growing_season_climate(weather05),
+            get_growing_season_climate(weather2005),
             within(sorghum_direct_modules, {bad_direct_module = character(0)}),
             within(sorghum_differential_modules, {bad_differential_module = character(0)}),
             within(sorghum_ode_solver, {bad_ode_solver_setting = numeric(0)})
@@ -49,7 +49,7 @@ test_that("certain run_biocro inputs must not have elements with length > 1", {
         run_biocro(
             within(sorghum_initial_values, {bad_initial_value = c(1,2)}),
             within(sorghum_parameters, {bad_parameter = c(1,2)}),
-            get_growing_season_climate(weather05),
+            get_growing_season_climate(weather2005),
             sorghum_direct_modules,
             sorghum_differential_modules,
             within(sorghum_ode_solver, {bad_ode_solver_setting = c(1,2)})
@@ -67,7 +67,7 @@ test_that("certain run_biocro inputs must be strings", {
         run_biocro(
             sorghum_initial_values,
             sorghum_parameters,
-            get_growing_season_climate(weather05),
+            get_growing_season_climate(weather2005),
             append(sorghum_direct_modules, 1.23),
             append(sorghum_differential_modules, 4.56),
             within(sorghum_ode_solver, {type = 7.89})
@@ -85,7 +85,7 @@ test_that("certain run_biocro inputs must be numeric", {
         run_biocro(
             within(sorghum_initial_values, {bad_initial_value = "terrible"}),
             within(sorghum_parameters, {bad_parameter = "awful"}),
-            within(get_growing_season_climate(weather05), {bad_driver = "offensive"}),
+            within(get_growing_season_climate(weather2005), {bad_driver = "offensive"}),
             sorghum_direct_modules,
             sorghum_differential_modules,
             within(sorghum_ode_solver, {bad_ode_solver_setting = "heinous"})

@@ -1,5 +1,4 @@
 context("Basic tests of biocro simulations")
-data(weather05, package = "BioCro")
 
 name_parameters = function(
     initial_values,
@@ -21,16 +20,16 @@ name_parameters = function(
 }
 
 parameter_lists = list(
-    willow     = name_parameters(willow_initial_values,                 willow_parameters,                 weather05, willow_direct_modules,                 willow_differential_modules,                 willow_ode_solver),
-    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, weather05, miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_ode_solver),
-    sorghum    = name_parameters(sorghum_initial_values,                sorghum_parameters,                weather05, sorghum_direct_modules,                sorghum_differential_modules,                sorghum_ode_solver)
+    willow     = name_parameters(willow_initial_values,                 willow_parameters,                 get_growing_season_climate(weather2005), willow_direct_modules,                 willow_differential_modules,                 willow_ode_solver),
+    miscanthus = name_parameters(miscanthus_x_giganteus_initial_values, miscanthus_x_giganteus_parameters, get_growing_season_climate(weather2005), miscanthus_x_giganteus_direct_modules, miscanthus_x_giganteus_differential_modules, miscanthus_x_giganteus_ode_solver),
+    sorghum    = name_parameters(sorghum_initial_values,                sorghum_parameters,                get_growing_season_climate(weather2005), sorghum_direct_modules,                sorghum_differential_modules,                sorghum_ode_solver)
 )
 
 test_that("Willow simulation produces reasonable results", {
     results <- run_biocro(
         willow_initial_values,
         willow_parameters,
-        weather05,
+        get_growing_season_climate(weather2005),
         willow_direct_modules,
         willow_differential_modules,
         willow_ode_solver

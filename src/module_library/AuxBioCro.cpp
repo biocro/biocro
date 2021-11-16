@@ -40,67 +40,12 @@ double poisson_density(int x, double lambda)
 }
 
 /**
- * @brief
- * Computation of the cosine of the zenith angle from the latitute,
- * day of the year, and the time of day.
- *
- * For the values of angles in radians, we'll use the common practice of
- * denoting the latitude by `phi` (\f$\phi\f$), the declination by `delta`
- * (\f$\delta\f$), and the hour angle by `tau` (\f$\tau\f$).  `NDS` denotes the
- * number of days after December solstice and `omega` (\f$\omega\f$) denotes the
- * angle (in radians) of the orbital position of the earth around the sun
- * relative to its position at the December solstice.
- *
- * Denoting the axial tilt of the earth by \f$\varepsilon\f$, the equation used
- * for declination (`delta`) is
- * \f[
- *     \delta = -\varepsilon \cos(\omega)
- * \f]
- * which is an approximation (always accurate to within 0.26 degrees) of the
- * more accurate formula
- * \f[
- *     \sin(\delta) = -\sin(\varepsilon) \cos(\omega)
- * \f]
- *
- * The cosine of the solar zenith angle \f$\theta_s\f$ may be calculated from
- * the declination \f$\delta\f$, the latitude \f$\phi\f$, and the hour angle
- * \f$\tau\f$ by the formula
- * \f[
- *     \cos(\theta_s) = \sin(\delta) \sin(\phi) + \cos(\delta) \cos(\phi) \cos(\tau)
- * \f]
- * which is a straight-forward application of the law of cosines for spherical
- * triangles, substituting cofunctions of coangles in the case of latitude and
- * declination.
- */
-double cos_zenith_angle(const double latitude, const int day_of_year,
-                        const double hour_of_day)
-{
-    constexpr double radians_per_degree = math_constants::pi/180;
-    constexpr int solar_noon = 12;
-    constexpr double radians_rotation_per_hour = 15 * radians_per_degree;
-    constexpr double axial_tilt = 23.5 * radians_per_degree;
-
-    const double phi = latitude * radians_per_degree;
-    const int NDS = day_of_year + 10;
-
-    const double omega = 360.0 * (NDS / 365.0) * radians_per_degree;
-
-    const double delta = -axial_tilt * cos(omega);
-
-    const double tau = (hour_of_day - solar_noon) * radians_rotation_per_hour;
-
-    return sin(delta) * sin(phi) + cos(delta) * cos(phi) * cos(tau);
-}
-
-/**
  *  @brief Calculates some properties of the "light macro environment," i.e.,
  *  the light just above the top of the canopy.
  *
- *  @param [in] latitude Latitude of a position on Earth (in degrees)
- *
- *  @param [in] day_of_year Local day of the year (1-366)
- *
- *  @param [in] hour_of_day Local hour of the day expressed on a 24-hour basis
+ *  @param [in] cosine_zenith_angle The cosine of the solar zenith angle; when
+ *      the Sun is directly overhead, the angle is 0 and its cosine is 1; when
+ *      the Sun is at the horizon, the angle is 90 and its cosine is 0
  *
  *  @param [in] atmospheric_pressure Local atmospheric pressure (in Pa)
  *
@@ -110,17 +55,12 @@ double cos_zenith_angle(const double latitude, const int day_of_year,
  *    is direct radiation (dimensionless)
  *  - `light_model.diffuse_irradiance_fraction`: The fraction of irradiance
  *    that is diffuse radiation (dimensionless)
- *  - `light_model.cosine_zenith_angle`: The cosine of the zenith angle of the
- *    Sun. When the Sun is directly overhead, the angle is 0 and cos(angle) is 1
- *    (dimensionless)
  *
  *  The basis for this function is given in chapter 11 of Norman and Campbell,
  *  _An Introduction to Environmental Biophysics_, 2nd edition.
  */
-Light_model lightME(const double latitude, const int day_of_year,
-                    const double hour_of_day, const double atmospheric_pressure)
+Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure)
 {
-    const double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);  // dimensionless.
     double direct_irradiance_transmittance;
     double diffuse_irradiance_transmittance;
 
@@ -139,7 +79,6 @@ Light_model lightME(const double latitude, const int day_of_year,
     Light_model light_model;
     light_model.direct_irradiance_fraction = direct_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
     light_model.diffuse_irradiance_fraction = diffuse_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
-    light_model.cosine_zenith_angle = cosine_zenith_angle; // dimensionless.
 
     return light_model;
 }
