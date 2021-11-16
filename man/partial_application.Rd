@@ -45,7 +45,7 @@ partial_run_biocro(
 \seealso{\code{\link{run_biocro}}}
 
 \examples{
-# Example: varying the thermal time values at which senescence starts for a
+# Example: varying the thermal time values at which senescence starts for
 # different organs in a simulation; here we set them to the following values
 # instead of the defaults:
 #  - seneLeaf: 2000 degrees C * day

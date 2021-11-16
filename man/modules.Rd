@@ -86,8 +86,12 @@
 }
 
 \examples{
-# Example: getting the inputs to the 'thermal_time_linear' module, generating a
-# default input list, and using it to run the module
+# Example 1: printing information about the 'c3_assimilation' module to the R
+# console
+module_info('c3_assimilation')
+
+# Example 2: getting the inputs to the 'thermal_time_linear' module, generating
+# a default input list, and using it to run the module
 info <- module_info('thermal_time_linear', verbose = FALSE)
 inputs <- quantity_list_from_names(info$inputs) # All inputs will be set to 1
 outputs <- evaluate_module('thermal_time_linear', inputs)
