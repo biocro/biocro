@@ -42,6 +42,7 @@ class leaf_gbw_nikolov : public direct_module
           leaf_temperature{get_input(input_quantities, "leaf_temperature")},
           Gs{get_input(input_quantities, "Gs")},
           rh{get_input(input_quantities, "rh")},
+          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
 
           // Get pointers to output quantities
           gbw_op{get_op(output_quantities, "gbw")}
@@ -58,6 +59,7 @@ class leaf_gbw_nikolov : public direct_module
     double const& leaf_temperature;
     double const& Gs;
     double const& rh;
+    double const& minimum_gbw;
 
     // Pointers to output quantities
     double* gbw_op;
@@ -74,7 +76,8 @@ string_vector leaf_gbw_nikolov::get_inputs()
         "temp",              // degrees C
         "leaf_temperature",  // degrees C
         "Gs",                // mol / m^2 / s
-        "rh"                 // dimensionless
+        "rh",                // dimensionless
+        "minimum_gbw"        // mol / m^2 / s
     };
 }
 
@@ -106,7 +109,8 @@ void leaf_gbw_nikolov::do_operation() const
         air_temperature,
         delta_t,
         Gs * volume_of_one_mole_of_air,
-        water_vapor_pressure);  // m / s
+        water_vapor_pressure,
+        minimum_gbw * volume_of_one_mole_of_air);  // m / s
 
     // Update the output quantity list
     update(gbw_op, gbw / volume_of_one_mole_of_air);  // mol / m^2 / s

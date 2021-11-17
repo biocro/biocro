@@ -181,12 +181,14 @@ double leaf_boundary_layer_conductance_nikolov(
     double air_temperature,
     double delta_t,
     double stomcond,
-    double water_vapor_pressure
+    double water_vapor_pressure,
+    double minimum_gbw
 );
 
 double leaf_boundary_layer_conductance_thornley(
     double CanopyHeight,
-    double WindSpeed
+    double WindSpeed,
+    double minimum_gbw
 );
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla);

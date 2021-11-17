@@ -95,6 +95,7 @@ glycine_max_parameters = with(list(), {
     lnb1                                   18
     lnfun                                  0
     longitude                              -88
+    minimum_gbw                            0.08
     nlayers                                10
     O2                                     210
     par_energy_content                     0.235

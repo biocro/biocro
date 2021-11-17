@@ -117,6 +117,7 @@ miscanthus_x_giganteus_parameters = with(list(), {
     lnfun                       0
     longitude                   -88
     lowerT                      3
+    minimum_gbw                 0.34
     mrc1                        0.02
     mrc2                        0.03
     nalphab0                    0.02367

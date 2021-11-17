@@ -42,6 +42,7 @@ class c3_leaf_photosynthesis : public direct_module
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
 
           // Get pointers to output quantities
           Assim_op(get_op(output_quantities, "Assim")),
@@ -82,6 +83,7 @@ class c3_leaf_photosynthesis : public direct_module
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;
+    double const& minimum_gbw;
 
     // Pointers to output quantities
     double* Assim_op;

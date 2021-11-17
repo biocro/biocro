@@ -42,7 +42,8 @@ string_vector c3_canopy::get_inputs()
         "par_energy_content",   // J / micromol
         "par_energy_fraction",  // dimensionless
         "leaf_transmittance",   // dimensionless
-        "leaf_reflectance"      // dimensionless
+        "leaf_reflectance",     // dimensionless
+        "minimum_gbw"           // mol / m^2 / s
     };
 }
 
@@ -65,7 +66,7 @@ void c3_canopy::do_operation() const
         atmospheric_pressure, growth_respiration_fraction,
         water_stress_approach, electrons_per_carboxylation,
         electrons_per_oxygenation, absorptivity_par, par_energy_content,
-        par_energy_fraction, leaf_transmittance, leaf_reflectance);
+        par_energy_fraction, leaf_transmittance, leaf_reflectance, minimum_gbw);
 
     // Update the output quantity list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.

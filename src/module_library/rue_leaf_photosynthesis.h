@@ -144,6 +144,7 @@ class rue_leaf_photosynthesis : public direct_module
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
 
           // Get pointers to output parameters
           Assim_op(get_op(output_quantities, "Assim")),
@@ -153,7 +154,8 @@ class rue_leaf_photosynthesis : public direct_module
           TransR_op(get_op(output_quantities, "TransR")),
           EPenman_op(get_op(output_quantities, "EPenman")),
           EPriestly_op(get_op(output_quantities, "EPriestly")),
-          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature")),
+          gbw_op(get_op(output_quantities, "gbw"))
     {
     }
     static string_vector get_inputs();
@@ -173,6 +175,7 @@ class rue_leaf_photosynthesis : public direct_module
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;
+    double const& minimum_gbw;
 
     // Pointers to output parameters
     double* Assim_op;
@@ -183,6 +186,7 @@ class rue_leaf_photosynthesis : public direct_module
     double* EPenman_op;
     double* EPriestly_op;
     double* leaf_temperature_op;
+    double* gbw_op;
 
     // Main operation
     void do_operation() const;

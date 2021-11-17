@@ -118,6 +118,7 @@ willow_parameters = with(list(), {
     lnb1                           18
     lnfun                          0
     longitude                      -88
+    minimum_gbw                    0.08
     mrc1                           0.02
     mrc2                           0.03
     nlayers                        10

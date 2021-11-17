@@ -8,26 +8,30 @@ struct Light_model {
 	double diffuse_irradiance_fraction;
 };
 
-struct Can_Str CanAC(double LAI, double cosine_zenith_angle, double solarR, double Temp,
-		     double RH, double WindSpeed, int nlayers, double Vmax, double Alpha,
-		     double Kparm, double beta, double Rd, double Catm, double b0,
-		     double b1, double Gs_min, double theta, double kd, double chil, double heightf,
-		     double leafN, double kpLN, int lnfun, double upperT,
-		     double lowerT, const struct nitroParms &nitroP, double leafwidth, int eteq,
-             double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
-             int water_stress_approach, double absorptivity_par, double par_energy_content,
-             double par_energy_fraction, double leaf_transmittance, double leaf_reflectance);
+struct Can_Str CanAC(
+    double LAI, double cosine_zenith_angle, double solarR, double Temp,
+    double RH, double WindSpeed, int nlayers, double Vmax, double Alpha,
+    double Kparm, double beta, double Rd, double Catm, double b0, double b1,
+    double Gs_min, double theta, double kd, double chil, double heightf,
+    double leafN, double kpLN, int lnfun, double upperT, double lowerT,
+    const struct nitroParms &nitroP, double leafwidth, int eteq,
+    double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
+    int water_stress_approach, double absorptivity_par,
+    double par_energy_content, double par_energy_fraction,
+    double leaf_transmittance, double leaf_reflectance, double minimum_gbw);
 
-struct Can_Str c3CanAC(double LAI, double cosine_zenith_angle, double solarR, double Temp,
-                       double RH, double WindSpeed, int nlayers, double Vmax,
-                       double Jmax, double tpu_rate_max, double Rd, double Catm, double o2, double b0,
-                       double b1, double Gs_min, double theta, double kd, double heightf, double leafN,
-                       double kpLN, double lnb0, double lnb1, int lnfun, double chil,
-                       double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
-                       double growth_respiration_fraction, int water_stress_approach,
-                       double electrons_per_carboxylation, double electrons_per_oxygenation,
-                       double absorptivity_par, double par_energy_content,
-                       double par_energy_fraction, double leaf_transmittance, double leaf_reflectance);
+struct Can_Str c3CanAC(
+    double LAI, double cosine_zenith_angle, double solarR, double Temp,
+    double RH, double WindSpeed, int nlayers, double Vmax, double Jmax,
+    double tpu_rate_max, double Rd, double Catm, double o2, double b0,
+    double b1, double Gs_min, double theta, double kd, double heightf,
+    double leafN, double kpLN, double lnb0, double lnb1, int lnfun, double chil,
+    double StomataWS, double specific_heat_of_air, double atmospheric_pressure,
+    double growth_respiration_fraction, int water_stress_approach,
+    double electrons_per_carboxylation, double electrons_per_oxygenation,
+    double absorptivity_par, double par_energy_content,
+    double par_energy_fraction, double leaf_transmittance,
+    double leaf_reflectance, double minimum_gbw);
 
 double resp(double comp, double mrc, double temp);
 
@@ -84,11 +88,30 @@ struct FL_str FmLcFun(double Lig, double Nit);
 struct flow_str flow(double *SC, double CNratio, double A, double Lc, double Tm, double resp, int kno, double Ks[8]);
 double AbiotEff(double smoist, double stemp);
 
-struct ET_Str EvapoTrans2(double Rad, double Iave, double Airtemperature, double RH, double WindSpeed,
-        double CanopyHeight, double stomatacond, double leafw, double specific_heat_of_air, int eteq);
+struct ET_Str EvapoTrans2(
+    double absorbed_shortwave_radiation_et,
+    double absorbed_shortwave_radiation_lt,
+    double airTemp,
+    double RH,
+    double WindSpeed,
+    double CanopyHeight,
+    double stomatal_conductance,
+    double leaf_width,
+    double specific_heat_of_air,
+    double minimum_gbw,
+    int eteq
+);
 
-struct ET_Str c3EvapoTrans(double Itot, double Airtemperature, double RH, double WindSpeed, double CanopyHeight,
-        double specific_heat_of_air, double stomtal_conductance);
+struct ET_Str c3EvapoTrans(
+    double absorbed_shortwave_radiation,
+    double air_temperature,
+    double RH,
+    double WindSpeed,
+    double CanopyHeight,
+    double specific_heat_of_air,
+    double stomatal_conductance,
+    double minimum_gbw
+);
 
 #endif
 

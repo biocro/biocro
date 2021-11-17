@@ -28,7 +28,8 @@ struct ET_Str c3EvapoTrans(
     double WindSpeed,                     // m / s
     double CanopyHeight,                  // meters
     double specific_heat_of_air,          // J / kg / K
-    double stomatal_conductance           // mmol / m^2 / s
+    double stomatal_conductance,          // mmol / m^2 / s
+    double minimum_gbw                    // mol / m^2 / s
 )
 {
     const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
@@ -39,6 +40,8 @@ struct ET_Str c3EvapoTrans(
     // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
     // model state. (1 * R * temperature) / pressure
     constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
+
+    double const minimum_gbw_in_m_per_s = minimum_gbw * volume_of_one_mole_of_air;  // m / s
 
     if (stomatal_conductance <= 0) {
         throw std::range_error("Thrown in c3EvapoTrans: stomatal conductance is not positive.");
@@ -69,19 +72,11 @@ struct ET_Str c3EvapoTrans(
     // Eq. 14.4d from Thornley and Johnson (1990).
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 
-    // Make adjustments to canopy height and wind speed before determining
-    // boundary layer conductance
-    if (CanopyHeight < 0.1) {
-        CanopyHeight = 0.1;
-    }
-
-    if (WindSpeed < 0.5) {
-        WindSpeed = 0.5;
-    }
-
     /* Calculation of ga */
-    const double ga =
-        leaf_boundary_layer_conductance_thornley(CanopyHeight, WindSpeed);  // m / s
+    const double ga = leaf_boundary_layer_conductance_thornley(
+        CanopyHeight,
+        WindSpeed,
+        minimum_gbw_in_m_per_s);  // m / s
 
     if (ga < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero.");

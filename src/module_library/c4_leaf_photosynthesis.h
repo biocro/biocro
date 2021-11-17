@@ -44,6 +44,7 @@ class c4_leaf_photosynthesis : public direct_module
           height(get_input(input_quantities, "height")),
           leafwidth(get_input(input_quantities, "leafwidth")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
           et_equation(get_input(input_quantities, "et_equation")),
 
           // Get pointers to output quantities
@@ -87,6 +88,7 @@ class c4_leaf_photosynthesis : public direct_module
     double const& height;
     double const& leafwidth;
     double const& specific_heat_of_air;
+    double const& minimum_gbw;
     double const& et_equation;
 
     // Pointers to output quantities

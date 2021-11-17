@@ -51,6 +51,7 @@ class c3_canopy : public direct_module
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
           leaf_transmittance{get_input(input_quantities, "leaf_transmittance")},
           leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
+          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
@@ -100,6 +101,7 @@ class c3_canopy : public direct_module
     double const& par_energy_fraction;
     double const& leaf_transmittance;
     double const& leaf_reflectance;
+    double const& minimum_gbw;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;

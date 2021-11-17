@@ -638,16 +638,18 @@ double saturation_vapor_pressure(
 }
 
 struct ET_Str EvapoTrans2(
-    const double absorbed_shortwave_radiation_et,  // J / m^2 / s (used to calculate evapotranspiration rate)
-    const double absorbed_shortwave_radiation_lt,  // J / m^2 / s (used to calculate leaf temperature)
-    const double airTemp,                          // degrees C
-    const double RH,                               // dimensionless from Pa / Pa
-    double WindSpeed,                              // m / s
-    double CanopyHeight,                           // meters
-    const double stomatal_conductance,             // mmol / m^2 / s
-    const double leaf_width,                       // meter
-    const double specific_heat_of_air,             // J / kg / K
-    const int eteq)                                // unitless parameter
+    double absorbed_shortwave_radiation_et,  // J / m^2 / s (used to calculate evapotranspiration rate)
+    double absorbed_shortwave_radiation_lt,  // J / m^2 / s (used to calculate leaf temperature)
+    double airTemp,                          // degrees C
+    double RH,                               // dimensionless from Pa / Pa
+    double WindSpeed,                        // m / s
+    double CanopyHeight,                     // meters
+    double stomatal_conductance,             // mmol / m^2 / s
+    double leaf_width,                       // meter
+    double specific_heat_of_air,             // J / kg / K
+    double minimum_gbw,                      // mol / m^2 / s
+    int eteq                                 // unitless parameter
+)
 {
     CanopyHeight = fmax(0.1, CanopyHeight);  // ensure CanopyHeight >= 0.1
 
@@ -669,6 +671,8 @@ struct ET_Str EvapoTrans2(
     // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
     // model state. (1 * R * temperature) / pressure
     double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
+
+    double minimum_gbw_in_m_per_s = minimum_gbw * volume_of_one_mole_of_air;  // m / s
 
     if (stomatal_conductance <= 0) {
         throw std::range_error("Thrown in EvapoTrans2: stomatal conductance is not positive.");
@@ -696,11 +700,6 @@ struct ET_Str EvapoTrans2(
 
     const double ActualVaporPressure = RH * SWVP;  // Pa
 
-    /* AERODYNAMIC COMPONENT */
-    if (WindSpeed < 0.5) {
-        WindSpeed = 0.5;
-    }
-
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;  // degrees C
     double ga;
@@ -711,7 +710,7 @@ struct ET_Str EvapoTrans2(
         do {
             ga = leaf_boundary_layer_conductance_nikolov(
                 WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s,
-                ActualVaporPressure);  // m / s
+                ActualVaporPressure, minimum_gbw_in_m_per_s);  // m / s
 
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */
@@ -800,6 +799,12 @@ struct ET_Str EvapoTrans2(
  *  layer conductance. This is the same approach taken in the `MLcan` model of
  *  Drewry et al. (2010).
  *
+ *  In this model, the minimum possible boundary layer conductance that could
+ *  occur is zero. This would happen if wind speed is zero and the air and leaf
+ *  temperatures are the same. In realistic field conditions, boundary layer
+ *  conductance can never truly be zero. To accomodate this, an option is
+ *  provided for setting a minimum value for the boundary layer counductance.
+ *
  *  References:
  *
  *  - [Nikolov, N. T., Massman, W. J. & Schoettle, A. W. "Coupling biochemical and biophysical processes at the
@@ -824,15 +829,19 @@ struct ET_Str EvapoTrans2(
  *  @param [in] water_vapor_pressure The partial pressure of water vapor in the
  *              atmosphere in Pa
  *
+ *  @param [in] minimum_gbw The lowest possible value for boundary layer
+ *              conductance in m / s that should be returned
+ *
  *  @return The boundary layer conductance in m / s
  */
 double leaf_boundary_layer_conductance_nikolov(
-    double windspeed,            // m / s
-    double leafwidth,            // m
-    double air_temperature,      // degrees C
-    double delta_t,              // degrees C
-    double stomcond,             // m / s
-    double water_vapor_pressure  // Pa
+    double windspeed,             // m / s
+    double leafwidth,             // m
+    double air_temperature,       // degrees C
+    double delta_t,               // degrees C
+    double stomcond,              // m / s
+    double water_vapor_pressure,  // Pa
+    double minimum_gbw            // m / s
 )
 {
     constexpr double p = physical_constants::atmospheric_pressure_at_sea_level;  // Pa
@@ -862,9 +871,10 @@ double leaf_boundary_layer_conductance_nikolov(
     gbv_free = cf * pow(Tlk, 0.56) * pow((Tlk + 120) / p, 0.5) * pow(Tvdiff / lw, 0.25);  // m / s. Eq. 33
 
     // Overall conductance
-    double gbv = std::max(gbv_forced, gbv_free);
+    double gbv = std::max(gbv_forced, gbv_free);  // m / s
 
-    return gbv;  // m / s
+    // Apply the minimum
+    return std::max(gbv, minimum_gbw);  // m / s
 }
 
 /**
@@ -877,6 +887,12 @@ double leaf_boundary_layer_conductance_nikolov(
  *  Thornley textbook. Unfortunately, an electronic version of this reference is
  *  not available.
  *
+ *  In this model, the minimum possible boundary layer conductance that could
+ *  occur is zero, which would correspond to zero wind speed or canopy height.
+ *  In realistic field conditions, boundary layer conductance can never truly be
+ *  zero. To accomodate this, an option is provided for setting a minimum value
+ *  for the boundary layer counductance.
+ *
  *  References:
  *
  *  - Thornley, J. H. M. & Johnson, I. R. "Plant and Crop Modelling: A
@@ -887,11 +903,15 @@ double leaf_boundary_layer_conductance_nikolov(
  *  @param [in] WindSpeed The wind speed in m / s as measured above the canopy
  *              at a reference height of five meters
  *
+ *  @param [in] minimum_gbw The lowest possible value for boundary layer
+ *              conductance in m / s that should be returned
+ *
  *  @return The boundary layer conductance in m / s
  */
 double leaf_boundary_layer_conductance_thornley(
     double CanopyHeight,  // m
-    double WindSpeed      // m / s
+    double WindSpeed,     // m / s
+    double minimum_gbw    // m / s
 )
 {
     // Define constants used in the model
@@ -914,7 +934,10 @@ double leaf_boundary_layer_conductance_thornley(
     const double ga0 = pow(kappa, 2) * WindSpeed;                   // m / s
     const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);    // dimensionless
     const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);  // dimensionless
-    return ga0 / (ga1 * ga2);                                       // m / s
+    const double gbv = ga0 / (ga1 * ga2);                           // m / s
+
+    // Apply the minimum
+    return std::max(gbv, minimum_gbw);  // m / s
 }
 
 /* Soil Evaporation Function */
