@@ -176,6 +176,11 @@ check_system_derivatives_inputs <- function(
         check_data_frame(list(drivers=drivers))
     )
 
+    # The drivers should not be empty
+    if (length(drivers) == 0) {
+        error_message <- append(error_message, "The drivers cannot be empty")
+    }
+
     # The elements of initial_values, parameters, direct_module_names, and
     # differential_module_names should all have length 1
     error_message <- append(
