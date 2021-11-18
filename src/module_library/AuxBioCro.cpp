@@ -893,6 +893,22 @@ double leaf_boundary_layer_conductance_nikolov(
  *  zero. To accomodate this, an option is provided for setting a minimum value
  *  for the boundary layer counductance.
  *
+ *  This model contains two singularities, which occur when either of the
+ *  following conditions are met:
+ *
+ *  - `WindSpeedHeight + Zeta - d = 0`, which is equivalent to `CanopyHeight =
+ *     WindSpeedHeight / (dCoef - ZetaCoef) = WindSpeedHeight * 1.34`
+ *
+ *  - `WindSpeedHeight + ZetaM - d = 0`, which is equivalent to `CanopyHeight =
+ *     WindSpeedHeight / (dCoef - ZetaMCoef) = WindSpeedHeight * 1.56`
+ *
+ *  So, as the canopy height approaches or exceeds the height at which wind
+ *  speed was measured, the calculated boundary layer conductance becomes
+ *  unbounded. For even larger canopy heights, the conductance eventually begins
+ *  to decrease. For tall crops, this is a severe limitation to this model. Here
+ *  we address this issue by limiting the canopy height to
+ *  `0.98 * WindSpeedHeight`.
+ *
  *  References:
  *
  *  - Thornley, J. H. M. & Johnson, I. R. "Plant and Crop Modelling: A
@@ -926,6 +942,9 @@ double leaf_boundary_layer_conductance_thornley(
                                            // In the original text this value is reported as 0.64.
                                            // In the 2000 reprinting of this text, the authors state that this value should be 0.77.
                                            // See "Errata to the 2000 printing" on the page after the preface of the 2000 reprinting of the 1990 text.
+
+    // Apply the height limit
+    CanopyHeight = std::min(CanopyHeight, 0.98 * WindSpeedHeight);  // meters
 
     // Calculate terms that depend on the canopy height
     const double Zeta = ZetaCoef * CanopyHeight;    // meters
