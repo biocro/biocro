@@ -160,8 +160,8 @@ Most plots in this vignette are created using the \texttt{xyplot} function from
 the \texttt{lattice} package, and PDF versions of the plots are saved using
 another helping function: \texttt{pdf\_print}. To produce the figures used in
 the paper, these raw figures were finalized using Adobe Illustrator to modify
-colors, combine panels, format text, and perform other superficial operations
-designed to improve readability.
+colors, combine panels, format text, and perform other operations designed to
+improve readability.
 
 <<helping_functions,echo=FALSE>>=
 # Define a list of atmospheric CO2 values for each year
