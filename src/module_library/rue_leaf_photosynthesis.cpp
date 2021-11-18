@@ -80,7 +80,8 @@ string_vector rue_leaf_photosynthesis::get_inputs()
         "windspeed",                   // m / s
         "height",                      // m
         "specific_heat_of_air",        // J / kg / K
-        "minimum_gbw"                  // mol / m^2 / s
+        "minimum_gbw",                 // mol / m^2 / s
+        "windspeed_height"             // m
     };
 }
 
@@ -125,7 +126,8 @@ void rue_leaf_photosynthesis::do_operation() const
         height,
         specific_heat_of_air,
         initial_stomatal_conductance,
-        minimum_gbw);
+        minimum_gbw,
+        windspeed_height);
 
     const double leaf_temperature = temp + et.Deltat;  // deg. C
 

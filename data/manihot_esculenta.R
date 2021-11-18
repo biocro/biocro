@@ -137,6 +137,7 @@ manihot_esculenta_parameters = with(list(), {
     vmax1                                  133
     vmax_n_intercept                       0
     water_stress_approach                  1
+    windspeed_height                       5
     wsFun                                  2"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)

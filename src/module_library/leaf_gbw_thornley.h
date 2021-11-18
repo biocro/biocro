@@ -39,6 +39,7 @@ class leaf_gbw_thornley : public direct_module
           height{get_input(input_quantities, "height")},
           windspeed{get_input(input_quantities, "windspeed")},
           minimum_gbw{get_input(input_quantities, "minimum_gbw")},
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output quantities
           gbw_op{get_op(output_quantities, "gbw")}
@@ -52,6 +53,7 @@ class leaf_gbw_thornley : public direct_module
     double const& height;
     double const& windspeed;
     double const& minimum_gbw;
+    double const& windspeed_height;
 
     // Pointers to output quantities
     double* gbw_op;
@@ -63,9 +65,10 @@ class leaf_gbw_thornley : public direct_module
 string_vector leaf_gbw_thornley::get_inputs()
 {
     return {
-        "height",      // m
-        "windspeed",   // m / s
-        "minimum_gbw"  // mol / m^2 / s
+        "height",           // m
+        "windspeed",        // m / s
+        "minimum_gbw",      // mol / m^2 / s
+        "windspeed_height"  // m
     };
 }
 
@@ -85,7 +88,8 @@ void leaf_gbw_thornley::do_operation() const
     const double gbw = leaf_boundary_layer_conductance_thornley(
         height,
         windspeed,
-        minimum_gbw * volume_of_one_mole_of_air);  // m / s
+        minimum_gbw * volume_of_one_mole_of_air,
+        windspeed_height);  // m / s
 
     // Update the output quantity list
     update(gbw_op, gbw / volume_of_one_mole_of_air);  // mol / m^2 / s

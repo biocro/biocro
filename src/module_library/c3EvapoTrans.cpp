@@ -29,7 +29,8 @@ struct ET_Str c3EvapoTrans(
     double CanopyHeight,                  // meters
     double specific_heat_of_air,          // J / kg / K
     double stomatal_conductance,          // mmol / m^2 / s
-    double minimum_gbw                    // mol / m^2 / s
+    double minimum_gbw,                   // mol / m^2 / s
+    double WindSpeedHeight                // m
 )
 {
     const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
@@ -76,7 +77,8 @@ struct ET_Str c3EvapoTrans(
     const double ga = leaf_boundary_layer_conductance_thornley(
         CanopyHeight,
         WindSpeed,
-        minimum_gbw_in_m_per_s);  // m / s
+        minimum_gbw_in_m_per_s,
+        WindSpeedHeight);  // m / s
 
     if (ga < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero.");

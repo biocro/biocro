@@ -27,7 +27,8 @@ string_vector c3_leaf_photosynthesis::get_inputs()
         "windspeed",                    // m / s
         "height",                       // m
         "specific_heat_of_air",         // J / kg / K
-        "minimum_gbw"                   // mol / m^2 / s
+        "minimum_gbw",                  // mol / m^2 / s
+        "windspeed_height"              // m
     };
 }
 
@@ -63,7 +64,8 @@ void c3_leaf_photosynthesis::do_operation() const
     const struct ET_Str et =
         c3EvapoTrans(
             average_absorbed_shortwave, temp, rh, windspeed, height,
-            specific_heat_of_air, initial_stomatal_conductance, minimum_gbw);
+            specific_heat_of_air, initial_stomatal_conductance, minimum_gbw,
+            windspeed_height);
 
     double const leaf_temperature = temp + et.Deltat;  // deg. C
 

@@ -40,7 +40,8 @@ struct Can_Str c3CanAC(
     double par_energy_fraction,          // dimensionless
     double leaf_transmittance,           // dimensionless
     double leaf_reflectance,             // dimensionless
-    double minimum_gbw                   // mol / m^2 / s
+    double minimum_gbw,                  // mol / m^2 / s
+    double WindSpeedHeight               // m
 )
 {
     struct Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
@@ -111,7 +112,7 @@ struct Can_Str c3CanAC(
             c3EvapoTrans(
                 j_avg, air_temperature, relative_humidity, layer_wind_speed,
                 CanHeight, specific_heat_of_air, direct_stomatal_conductance,
-                minimum_gbw);
+                minimum_gbw, WindSpeedHeight);
 
         double leaf_temperature_dir = air_temperature + et_direct.Deltat;  // degrees C
 
@@ -143,7 +144,7 @@ struct Can_Str c3CanAC(
             c3EvapoTrans(
                 j_avg, air_temperature, relative_humidity, layer_wind_speed,
                 CanHeight, specific_heat_of_air, diffuse_stomatal_conductance,
-                minimum_gbw);
+                minimum_gbw, WindSpeedHeight);
 
         double leaf_temperature_Idiffuse = air_temperature + et_diffuse.Deltat;  // degrees C
 

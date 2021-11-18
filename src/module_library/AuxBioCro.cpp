@@ -906,17 +906,20 @@ double leaf_boundary_layer_conductance_nikolov(
  *  @param [in] minimum_gbw The lowest possible value for boundary layer
  *              conductance in m / s that should be returned
  *
+ *  @param [in] WindSpeedHeight The height in m at which the wind speed was
+ *              measured
+ *
  *  @return The boundary layer conductance in m / s
  */
 double leaf_boundary_layer_conductance_thornley(
-    double CanopyHeight,  // m
-    double WindSpeed,     // m / s
-    double minimum_gbw    // m / s
+    double CanopyHeight,    // m
+    double WindSpeed,       // m / s
+    double minimum_gbw,     // m / s
+    double WindSpeedHeight  // m
 )
 {
     // Define constants used in the model
     constexpr double kappa = 0.41;         // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
-    constexpr double WindSpeedHeight = 5;  // meters
     constexpr double ZetaCoef = 0.026;     // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
     constexpr double ZetaMCoef = 0.13;     // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
     constexpr double dCoef = 0.77;         // dimensionless, Thornley and Johnson 1990, Eq. 14.9o.
