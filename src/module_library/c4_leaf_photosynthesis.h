@@ -41,7 +41,6 @@ class c4_leaf_photosynthesis : public direct_module
           average_absorbed_shortwave(get_input(input_quantities, "average_absorbed_shortwave")),
           absorbed_shortwave(get_input(input_quantities, "absorbed_shortwave")),
           windspeed(get_input(input_quantities, "windspeed")),
-          height(get_input(input_quantities, "height")),
           leafwidth(get_input(input_quantities, "leafwidth")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
           minimum_gbw(get_input(input_quantities, "minimum_gbw")),
@@ -85,7 +84,6 @@ class c4_leaf_photosynthesis : public direct_module
     double const& average_absorbed_shortwave;
     double const& absorbed_shortwave;
     double const& windspeed;
-    double const& height;
     double const& leafwidth;
     double const& specific_heat_of_air;
     double const& minimum_gbw;

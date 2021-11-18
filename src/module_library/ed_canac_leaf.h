@@ -164,7 +164,6 @@ void ed_canac_leaf::do_operation() const
     const double lowerT = *collatz_rubisco_temperature_lower_ip;                    // deg. C
     const int water_stress_approach = 1;                                            // Apply water stress via stomatal conductance
     const double WindSpeed = *windspeed_ip;                                         // m / s
-    const double CanopyHeight = 0.0;                                                // meters (not actually used by EvapoTrans2)
     const double leaf_width = *leafwidth_ip;                                        // meter
     const double specific_heat_of_air = *specific_heat_of_air_ip;                   // J / kg / K
     const int eteq = 0;                                                             // Report Penman-Monteith transpiration
@@ -184,9 +183,8 @@ void ed_canac_leaf::do_operation() const
     const struct ET_Str evapotrans_output =
         EvapoTrans2(
             absorbed_shortwave_radiation_lt, absorbed_shortwave_radiation_lt,
-            temperature_air, RH, WindSpeed, CanopyHeight,
-            stomatal_conductance, leaf_width, specific_heat_of_air, minimum_gbw,
-            eteq);
+            temperature_air, RH, WindSpeed, stomatal_conductance, leaf_width,
+            specific_heat_of_air, minimum_gbw, eteq);
 
     const double leaf_temperature = temperature_air + evapotrans_output.Deltat;
 

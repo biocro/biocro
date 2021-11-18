@@ -26,7 +26,6 @@ string_vector c4_leaf_photosynthesis::get_inputs()
         "average_absorbed_shortwave",  // J / (m^2 leaf) / s
         "absorbed_shortwave",          // J / (m^2 leaf) / s
         "windspeed",                   // m / s
-        "height",                      // m
         "leafwidth",                   // m
         "specific_heat_of_air",        // J / kg / K
         "minimum_gbw",                 // mol / m^2 / s
@@ -63,8 +62,8 @@ void c4_leaf_photosynthesis::do_operation() const
     const struct ET_Str et =
         EvapoTrans2(
             absorbed_shortwave, average_absorbed_shortwave, temp, rh, windspeed,
-            height, initial_stomatal_conductance, leafwidth,
-            specific_heat_of_air, minimum_gbw, et_equation);
+            initial_stomatal_conductance, leafwidth, specific_heat_of_air,
+            minimum_gbw, et_equation);
 
     const double leaf_temperature = temp + et.Deltat;  // deg. C
 

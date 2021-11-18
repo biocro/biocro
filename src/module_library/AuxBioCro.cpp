@@ -643,7 +643,6 @@ struct ET_Str EvapoTrans2(
     double airTemp,                          // degrees C
     double RH,                               // dimensionless from Pa / Pa
     double WindSpeed,                        // m / s
-    double CanopyHeight,                     // meters
     double stomatal_conductance,             // mmol / m^2 / s
     double leaf_width,                       // meter
     double specific_heat_of_air,             // J / kg / K
@@ -651,18 +650,6 @@ struct ET_Str EvapoTrans2(
     int eteq                                 // unitless parameter
 )
 {
-    CanopyHeight = fmax(0.1, CanopyHeight);  // ensure CanopyHeight >= 0.1
-
-    // Define the height at which the wind speed was measured
-    double WindSpeedHeight = 2;
-
-    // When the height at which wind was measured is lower than the canopy
-    // height, there can be problems with the calculations. This is a very crude
-    // way of solving this problem.
-    if (WindSpeedHeight < CanopyHeight + 1) {
-        WindSpeedHeight = CanopyHeight + WindSpeedHeight;
-    }
-
     const double DdryA = TempToDdryA(airTemp);               // kg / m^3. Density of dry air.,
     const double LHV = TempToLHV(airTemp);                   // J / kg
     const double SlopeFS = TempToSFS(airTemp);               // kg / m^3 / K

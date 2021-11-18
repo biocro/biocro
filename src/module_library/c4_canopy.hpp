@@ -46,7 +46,6 @@ class c4_canopy : public direct_module
           theta(get_input(input_quantities, "theta")),
           kd(get_input(input_quantities, "kd")),
           chil(get_input(input_quantities, "chil")),
-          heightf(get_input(input_quantities, "heightf")),
           LeafN(get_input(input_quantities, "LeafN")),
           kpLN(get_input(input_quantities, "kpLN")),
           lnfun(get_input(input_quantities, "lnfun")),
@@ -107,7 +106,6 @@ class c4_canopy : public direct_module
     double const& theta;
     double const& kd;
     double const& chil;
-    double const& heightf;
     double const& LeafN;
     double const& kpLN;
     double const& lnfun;
@@ -169,7 +167,6 @@ string_vector c4_canopy::get_inputs()
         "theta",
         "kd",
         "chil",
-        "heightf",
         "LeafN",
         "kpLN",
         "lnfun",
@@ -219,11 +216,11 @@ void c4_canopy::do_operation() const
     // CanAC is located in CanAC.cpp
     struct Can_Str can_result = CanAC(
         lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1, alpha1,
-        kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, heightf,
-        LeafN, kpLN, lnfun, upperT, lowerT, nitroP, leafwidth,
-        et_equation, StomataWS, specific_heat_of_air, atmospheric_pressure,
-        water_stress_approach, absorptivity_par, par_energy_content,
-        par_energy_fraction, leaf_transmittance, leaf_reflectance, minimum_gbw);
+        kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, LeafN,
+        kpLN, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation, StomataWS,
+        specific_heat_of_air, atmospheric_pressure, water_stress_approach,
+        absorptivity_par, par_energy_content, par_energy_fraction,
+        leaf_transmittance, leaf_reflectance, minimum_gbw);
 
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.
