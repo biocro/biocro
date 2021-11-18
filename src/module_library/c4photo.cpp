@@ -101,8 +101,6 @@ struct c4_str c4photoC(double Qp,  // micromole / m^2 / s
 
     double Ci = InterCellularCO2 / atmospheric_pressure * 1e6;  // micromole / mol
 
-    if (Gs > 600) Gs = 600;
-
     struct c4_str result {
             .Assim = Assim,           // micromole / m^2 /s
             .Gs = Gs,                 // mmol / m^2 / s
