@@ -81,7 +81,7 @@ string_vector ed_evapotrans2::get_outputs()
         "evapotranspiration_penman_monteith",  // mol / m^2 / s
         "evapotranspiration_penman",           // mol / m^2 / s
         "evapotranspiration_priestly",         // mol / m^2 / s
-        "temperature_leaf"                     // degrees C
+        "temperature_leaf",                    // degrees C
         "gbw"                                  // mol / m^2 / s
     };
 }
