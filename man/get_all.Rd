@@ -17,11 +17,11 @@
 }
 
 \usage{
-  View(get_all_modules())
+  get_all_modules()
 
-  View(get_all_quantities())
+  get_all_quantities()
 
-  View(get_all_ode_solvers())
+  get_all_ode_solvers()
 }
 
 \arguments{None}

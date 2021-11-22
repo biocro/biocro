@@ -62,4 +62,17 @@ senescence_simulation <- partial_run_biocro(
     c('seneLeaf', 'seneStem', 'seneRoot', 'seneRhizome')
 )
 result <- senescence_simulation(c(2000, 2100, 2200, 2300))
+
+# Example: adjusting water availability by supplying a constant value for
+# precipitation; here we simulate drought by eliminating all rainfall
+precip_simulation <- partial_run_biocro(
+  soybean_initial_values,
+  soybean_parameters,
+  soybean_weather2002,
+  soybean_direct_modules,
+  soybean_differential_modules,
+  soybean_ode_solver,
+  "precip"
+)
+drought_result <- precip_simulation(0)
 }
