@@ -252,8 +252,6 @@ partial_run_biocro <- function(
         ode_solver
     )
 
-    send_error_messages(error_messages)
-
     arg_list = list(
         initial_values=initial_values,
         parameters=parameters,
@@ -267,42 +265,53 @@ partial_run_biocro <- function(
     df = data.frame(
         control=character(),
         arg_name=character(),
+        index=numeric(),
         stringsAsFactors=FALSE
     )
 
-    for (i in seq_along(arg_list)) {
+    for (i in seq_len(3)) {
         if (length(names(arg_list[[i]])) > 0) {
-            df = rbind(
-                df,
-                data.frame(
-                    control = names(arg_list)[i],
-                    arg_name=names(arg_list[[i]]),
-                    stringsAsFactors=FALSE
+            for (j in seq_along(arg_list[[i]])) {
+                df = rbind(
+                    df,
+                    data.frame(
+                        control = names(arg_list)[i],
+                        arg_name = names(arg_list[[i]])[j],
+                        index = seq_along(arg_list[[i]][[j]]),
+                        stringsAsFactors=FALSE
+                    )
                 )
-            )
+            }
         }
     }
 
     # Find the locations of the parameters specified in arg_names and check for
     # errors
-    controls = df[match(arg_names, df$arg_name), ]
-    if (any(is.na(controls))) {
-        missing = arg_names[which(is.na(controls$control))]
-        stop(paste('The following arguments in "arg_names" are not in any of the paramter lists:', paste(missing, collapse=', ')))
+    controls = df[df$arg_name %in% arg_names, ]
+    missing_arg = arg_names[which(!arg_names %in% df$arg_name)]
+    if (length(missing_arg) > 0) {
+        error_messages <- append(
+            error_messages, sprintf(
+                '`%s` from `arg_names` is not in the `initial_values`, `parameters`, or `drivers`',
+                missing_arg
+            )
+        )
     }
+
+    send_error_messages(error_messages)
 
     # Make a function that calls run_biocro with new values for the
     # parameters specified in arg_names
     function(x)
     {
-        if (length(x) != length(arg_names)) {
-            stop("The length of x does not match the length of arguments when this function was defined.")
-        }
         x = unlist(x)
+        if (length(x) != nrow(controls)) {
+            stop("The `x` argument does not have the correct number of elements")
+        }
         temp_arg_list = arg_list
-        for (i in seq_along(arg_names)) {
+        for (i in seq_along(x)) {
             c_row = controls[i, ]
-            temp_arg_list[[c_row$control]][[c_row$arg_name]] = x[i]
+            temp_arg_list[[c_row$control]][[c_row$arg_name]][c_row$index] = x[i]
         }
         do.call(run_biocro, temp_arg_list)
     }

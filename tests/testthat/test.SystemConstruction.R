@@ -5,6 +5,21 @@ context("Test error conditions during system validation and construction")
 MAX_INDEX <- 100
 SILENT <- TRUE
 
+test_that("drivers must not be empty", {
+    expect_error(
+        run_biocro(drivers = data.frame()),
+        regexp = "The drivers cannot be empty"
+    )
+
+    expect_error(
+        validate_dynamical_system_inputs(
+            drivers = data.frame(),
+            silent = SILENT
+        ),
+        regexp = "The drivers cannot be empty"
+    )
+})
+
 test_that("certain run_biocro inputs must have the correct type", {
     expect_error(
         run_biocro(
