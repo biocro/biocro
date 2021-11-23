@@ -1,4 +1,4 @@
-%\VignetteIndexEntry{A Practical Introduction to BioCro}
+%\VignetteIndexEntry{A Practical Guide to BioCro}
 %\VignettePackage{BioCro}
 %\VignetteEngine{knitr::knitr}
 
@@ -24,7 +24,7 @@
 
 \usepackage[colorlinks=true]{hyperref}
 \hypersetup{
-	pdftitle={A Practical Introduction to BioCro},
+	pdftitle={A Practical Guide to BioCro},
 	pdfauthor={BioCro Development Team},
 	colorlinks=true,
 	linkcolor=Blue,
@@ -37,7 +37,7 @@
 \newcommand{\cotwo}{CO$_2$}
 \newcommand{\cthree}{C$_3$}
 
-\title{A Practical Introduction to BioCro}
+\title{A Practical Guide to BioCro}
 
 \author{BioCro Development Team}
 
@@ -1055,7 +1055,7 @@ analogy to the light reponse curve we calculated in Section \ref{sec:response}.
 \begin{figure}[htbp]
   \begin{center}
     \includegraphics[width=0.7\textwidth]{a_practical_guide_to_biocro/temperature_response_curve.pdf}
-    \caption{Temperature response of soybean net assimilation.}
+    \caption{Response of soybean net assimilation to air temperature.}
     \label{fig:soybean_temperature_response}
   \end{center}
 \end{figure}
