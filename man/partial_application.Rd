@@ -39,7 +39,9 @@ partial_run_biocro(
   A function that calls \code{\link{run_biocro}} with all of the inputs (except
   those specified in 'arg_names') set as their default values. The only
   input argument of the new function is a numerical vector specifying the values
-  of the quantities in 'arg_names'.
+  of the quantities in 'arg_names'. In this vector, the values must be supplied
+  in the same order as in 'arg_names', and drivers require one value for each
+  time point.
 }
 
 \seealso{\code{\link{run_biocro}}}
@@ -63,16 +65,17 @@ senescence_simulation <- partial_run_biocro(
 )
 result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
-# Example: adjusting water availability by supplying a constant value for
-# precipitation; here we simulate drought by eliminating all rainfall
-precip_simulation <- partial_run_biocro(
+# Example: a crude method for simulating the effects of climate change; here we
+# increase the atmospheric CO2 concentration to 500 ppm and the temperature by
+# 2 degrees C relative to 2002 temperatures.
+temperature_simulation <- partial_run_biocro(
   soybean_initial_values,
   soybean_parameters,
   soybean_weather2002,
   soybean_direct_modules,
   soybean_differential_modules,
   soybean_ode_solver,
-  "precip"
+  c("Catm", "temp")
 )
-drought_result <- precip_simulation(0)
+hot_result <- temperature_simulation(c(500, soybean_weather2002$temp + 2.0))
 }
