@@ -67,7 +67,8 @@ result <- senescence_simulation(c(2000, 2100, 2200, 2300))
 
 # Example: a crude method for simulating the effects of climate change; here we
 # increase the atmospheric CO2 concentration to 500 ppm and the temperature by
-# 2 degrees C relative to 2002 temperatures.
+# 2 degrees C relative to 2002 temperatures. The two commands below are
+# equivalent, so `hot_result_1` is identical to `hot_result_2`.
 temperature_simulation <- partial_run_biocro(
   soybean_initial_values,
   soybean_parameters,
@@ -77,5 +78,6 @@ temperature_simulation <- partial_run_biocro(
   soybean_ode_solver,
   c("Catm", "temp")
 )
-hot_result <- temperature_simulation(c(500, soybean_weather2002$temp + 2.0))
+hot_result_1 <- temperature_simulation(c(500, soybean_weather2002$temp + 2.0))
+hot_result_2 <- temperature_simulation(list(Catm = 500, temp = soybean_weather2002$temp + 2.0))
 }
