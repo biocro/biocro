@@ -40,8 +40,8 @@ partial_run_biocro(
   those specified in 'arg_names') set as their default values. The only
   input argument of the new function is a numerical vector specifying the values
   of the quantities in 'arg_names'. In this vector, the values must be supplied
-  in the same order as in 'arg_names', and drivers require one value for each
-  time point.
+  in the same order as in 'arg_names', and arguments corresponding to drivers
+  must be vectors having the same length as the other drivers.
 }
 
 \seealso{\code{\link{run_biocro}}}

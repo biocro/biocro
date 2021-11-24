@@ -996,6 +996,7 @@ frames and matrices. We recommend
 
 \item \textbf{Vector arithmetic}: This topic refers to performing arithmetic
 operations on each member of one vector, forming a new vector. We recommend
+\url{https://pubs.wsb.wisc.edu/academics/analytics-using-r/vector-math.html} and
 \url{http://www.r-tutor.com/r-introduction/vector/vector-arithmetics}.
 
 \item \textbf{Apply-type functions}: This topic refers to several options
