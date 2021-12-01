@@ -1,8 +1,8 @@
 # Checks whether `args_to_check` has names. The other checking functions require
 # names to give useful error messages.
-check_names <- function(args_to_check) {
+check_names <- function(args_to_check, arg_name = "args_to_check") {
     if(is.null(names(args_to_check))) {
-        stop("`args_to_check` must have names")
+        stop(paste0("`", arg_name, "` must have names"))
     }
 }
 
@@ -60,11 +60,28 @@ check_element_length <- function(args_to_check) {
         item_lengths <- sapply(arg, length)
         if (any(item_lengths != 1)) {
             tmp_message <- sprintf(
-                "The following `%s` members have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n",
+                "The following `%s` members have lengths other than 1, but all members must have a length of exactly 1: %s.\n",
                 names(args_to_check)[i],
                 paste(names(item_lengths)[which(item_lengths != 1)], collapse=', ')
             )
             error_message <- append(error_message, tmp_message)
+        }
+    }
+    return(error_message)
+}
+
+# Checks whether the elements of the `args_to_check` list each have length 1. If
+# all elements meet this criterion, this function returns an empty string.
+# Otherwise, it returns an informative error message.
+check_length <- function(args_to_check) {
+    check_names(args_to_check)
+    error_message <- character()
+    for (i in seq_along(args_to_check)) {
+        if (length(args_to_check[[i]]) != 1) {
+            error_message <- append(
+                error_message,
+                sprintf('`%s` must have length 1.\n', names(args_to_check)[i])
+            )
         }
     }
     return(error_message)

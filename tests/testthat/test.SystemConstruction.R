@@ -50,11 +50,11 @@ test_that("certain run_biocro inputs must not have empty elements", {
             within(sorghum_ode_solver, {bad_ode_solver_setting = numeric(0)})
         ),
         regexp = paste0(
-            "The following `initial_values` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_initial_value.\n",
-            "  The following `parameters` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_parameter.\n",
-            "  The following `direct_module_names` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_direct_module.\n",
-            "  The following `differential_module_names` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_differential_module.\n",
-            "  The following `ode_solver` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_ode_solver_setting.\n"
+            "The following `initial_values` members have lengths other than 1, but all members must have a length of exactly 1: bad_initial_value.\n",
+            "  The following `parameters` members have lengths other than 1, but all members must have a length of exactly 1: bad_parameter.\n",
+            "  The following `direct_module_names` members have lengths other than 1, but all members must have a length of exactly 1: bad_direct_module.\n",
+            "  The following `differential_module_names` members have lengths other than 1, but all members must have a length of exactly 1: bad_differential_module.\n",
+            "  The following `ode_solver` members have lengths other than 1, but all members must have a length of exactly 1: bad_ode_solver_setting.\n"
         )
     )
 })
@@ -70,9 +70,9 @@ test_that("certain run_biocro inputs must not have elements with length > 1", {
             within(sorghum_ode_solver, {bad_ode_solver_setting = c(1,2)})
         ),
         regexp = paste0(
-            "The following `initial_values` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_initial_value.\n",
-            "  The following `parameters` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_parameter.\n",
-            "  The following `ode_solver` members have lengths other than 1, but all parameters must have a length of exactly 1: bad_ode_solver_setting.\n"
+            "The following `initial_values` members have lengths other than 1, but all members must have a length of exactly 1: bad_initial_value.\n",
+            "  The following `parameters` members have lengths other than 1, but all members must have a length of exactly 1: bad_parameter.\n",
+            "  The following `ode_solver` members have lengths other than 1, but all members must have a length of exactly 1: bad_ode_solver_setting.\n"
         )
     )
 })
