@@ -76,9 +76,9 @@ state_vector_map map_vector_from_list(SEXP const& list)
     return m;
 }
 
-vector<string> make_vector(SEXP const& r_string_vector)
+string_vector make_vector(SEXP const& r_string_vector)
 {
-    vector<string> v;
+    string_vector v;
     size_t n = Rf_length(r_string_vector);
     v.reserve(n);
     for (size_t i = 0; i < n; ++i) {
@@ -87,7 +87,7 @@ vector<string> make_vector(SEXP const& r_string_vector)
     return v;
 }
 
-SEXP r_string_vector_from_vector(vector<string> const& v)
+SEXP r_string_vector_from_vector(string_vector const& v)
 {
     auto n = v.size();
     SEXP r_string_vector = PROTECT(Rf_allocVector(STRSXP, n));
@@ -137,7 +137,7 @@ SEXP list_from_map(state_vector_map const& m)
     return list;
 }
 
-SEXP list_from_map(std::unordered_map<string, vector<string>> const& m)
+SEXP list_from_map(std::unordered_map<string, string_vector> const& m)
 {
     auto n = m.size();
     SEXP list = PROTECT(Rf_allocVector(VECSXP, n));
@@ -162,15 +162,15 @@ SEXP list_from_map(std::unordered_map<string, vector<string>> const& m)
 
 SEXP list_from_module_info(
     std::string const& module_name,
-    state_map const& module_inputs,
-    state_map const& module_outputs,
+    string_vector const& module_inputs,
+    string_vector const& module_outputs,
     bool const& is_differential,
     bool const& requires_euler_ode_solver,
     std::string const& creation_error_message)
 {
     // Module inputs and outputs (these do not require an UNPROTECT here)
-    SEXP input_list = PROTECT(list_from_map(module_inputs));
-    SEXP output_list = PROTECT(list_from_map(module_outputs));
+    SEXP input_vec = PROTECT(r_string_vector_from_vector(module_inputs));
+    SEXP output_vec = PROTECT(r_string_vector_from_vector(module_outputs));
 
     // Module name
     SEXP name = PROTECT(Rf_allocVector(STRSXP, 1));
@@ -209,8 +209,8 @@ SEXP list_from_module_info(
 
     SEXP info_list = PROTECT(Rf_allocVector(VECSXP, 6));
     SET_VECTOR_ELT(info_list, 0, name);
-    SET_VECTOR_ELT(info_list, 1, input_list);
-    SET_VECTOR_ELT(info_list, 2, output_list);
+    SET_VECTOR_ELT(info_list, 1, input_vec);
+    SET_VECTOR_ELT(info_list, 2, output_vec);
     SET_VECTOR_ELT(info_list, 3, type);
     SET_VECTOR_ELT(info_list, 4, requires_euler);
     SET_VECTOR_ELT(info_list, 5, error_message);

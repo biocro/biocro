@@ -1,31 +1,5 @@
 module_info <- function(module_name, verbose = TRUE)
 {
-    # Example: getting information about the thermal_time_linear module
-    #
-    #  info <- module_info("thermal_time_linear")
-    #  inputs <- info[['inputs']]
-    #
-    # The function returns a list of several named elements containing info
-    # about the module:
-    #
-    # - module_name: the module's name
-    #
-    # - inputs: a list of named numeric elements representing the module's
-    #           inputs
-    #
-    # - outputs: a list of named numeric elements representing the module's
-    #            outputs
-    #
-    # - type: the module's type (either `differential` or `direct`)
-    # - euler_requirement: indicates whether the module requires a fixed-step
-    #                      Euler ODE solver when used in a BioCro simulation
-    #
-    # - creation_error_message: describes any errors that occurred while
-    #                           creating an instance of the module
-    #
-    # If the `verbose` input argument is TRUE, this information will also be
-    # printed to the R console
-
     error_messages <- check_element_length(list(module_name = module_name))
 
     error_messages <- append(
@@ -45,19 +19,11 @@ module_info <- function(module_name, verbose = TRUE)
     # Get the info list
     result <- .Call(R_module_info, module_name, verbose)
 
-    return(result)
+    return(invisible(result))
 }
 
 evaluate_module <- function(module_name, input_quantities)
 {
-    # Example: testing the output of the thermal_time_linear module
-    #
-    #  info <- module_info("thermal_time_linear")
-    #  inputs <- info[['inputs']]
-    #  <<modify individual input parameters to desired values>>
-    #  outputs <- evaluate_module("big_leaf_multilayer_canopy", inputs, TRUE)
-    #  <<check the values of the output parameters to confirm they are correct>>
-
     error_messages <- check_list(list(input_quantities = input_quantities))
 
     error_messages <- append(
@@ -82,6 +48,21 @@ evaluate_module <- function(module_name, input_quantities)
         error_messages <- append(error_messages, "`module_name` must have length 1")
     }
 
+    missing_input_quantities <- setdiff(
+        module_info(module_name, verbose = FALSE)[['inputs']],
+        names(input_quantities)
+    )
+
+    if (length(missing_input_quantities) > 0) {
+        error_messages <- append(
+            error_messages,
+            paste0(
+                "The `", module_name, "` module requires `",
+                missing_input_quantities, "` as an input quantity\n"
+            )
+        )
+    }
+
     send_error_messages(error_messages)
 
     # C++ requires that all the variables have type `double`
@@ -90,4 +71,13 @@ evaluate_module <- function(module_name, input_quantities)
     result <- .Call(R_evaluate_module, module_name, input_quantities)
     result <- result[order(names(result))]
     return(result)
+}
+
+quantity_list_from_names <- function(quantity_names)
+{
+    error_messages <- check_strings(list(quantity_names = quantity_names))
+
+    send_error_messages(error_messages)
+
+    setNames(as.list(rep_len(1, length(quantity_names))), quantity_names)
 }

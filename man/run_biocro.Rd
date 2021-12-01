@@ -1,104 +1,120 @@
 \name{run_biocro}
+
 \alias{run_biocro}
-\title{Model crop growth.}
+
+\title{Simulate Crop Growth with BioCro}
+
+\description{Runs a full crop growth simulation using the BioCro framework}
+
 \usage{
-    run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, ode_solver, verbose = FALSE)
+run_biocro(
+    initial_values = list(),
+    parameters = list(),
+    drivers,
+    direct_module_names = list(),
+    differential_module_names = list(),
+    ode_solver = BioCro:::default_ode_solver,
+    verbose = FALSE
+)
 }
+
 \arguments{
-    \item{initial_values}{Parameter values that are known only at the start of the simulation period. These are recorded in the result. (a list of named numeric values)}
+  \item{initial_values}{
+    A list of named quantities representing the initial values of the
+    differential quantities, i.e., the quantities whose derivatives are
+    calculated by differential modules
+  }
 
-    \item{parameters}{Parameter values that are constant for the entire simulation period. These are not recorded in the result. (a list of named numeric values)}
+  \item{parameters}{
+    A list of named quantities that don't change with time; must include a
+    'timestep' parameter (see `drivers` for more info)
+  }
 
-    \item{drivers}{Times at which a solution is desired and parameter values that are known \emph{a priori} for the entire simulation period. These are not recorded in the result. (a data frame with at least the columns \code{year}, \code{doy}, and \code{hour} and optionally columns for parameters that are known \emph{a priori}.)}
+  \item{drivers}{
+    A data frame of quantities defined at equally spaced time intervals. The
+    time interval should be specified in the `parameters` as a quantity called
+    'timestep' having units of hours. The drivers must include columns for
+    either (1) 'time' (in units of days) or (2) 'doy' and 'hour'.
+  }
 
-    \item{direct_modules}{The direct modules that should be run. (a list of character values)}
+  \item{direct_module_names}{
+    A character vector or list specifying the names of direct modules to use in
+    the system; a list of available modules can be obtained via the
+    \code{\link{get_all_modules}} function
+  }
 
-    \item{differential_modules}{The differential modules that should be run. (a list of character values)}
+  \item{differential_module_names}{
+    A character vector or list specifying the names of differential modules to
+    use in the system; a list of available modules can be obtained via the
+    \code{\link{get_all_modules}} function
+  }
 
-    \item{ode_solver}{Information specifying the numerical integration algorithm to use}
+  \item{ode_solver}{
+    A list specifying details about the numerical ODE solver. The required
+    elements are:
+    \itemize{
+      \item \code{type}: A string specifying the name of the algorithm to use;
+            a list of available options can be obtained using the
+            \code{\link{get_all_ode_solvers}} function.
+      \item \code{output_step_size}: The output step size. If smaller than 1, it
+            should equal 1.0 / N for some integer N. If larger than 1, it should
+            be an integer.
+      \item \code{adaptive_rel_error_tol}: used to set the relative error
+            tolerance for adaptive step size methods
+      \item \code{adaptive_abs_error_tol}: used to set the absolute error
+            tolerance for adaptive step size methods
+      \item \code{adaptive_max_steps}: determines how many times an adaptive
+            step size method will attempt to find a new step size before
+            indicating failure
+    }
+  }
 
-    \item{verbose}{A logical variable indicating whether or not to print system startup information}
+  \item{verbose}{
+    A logical variable indicating whether or not to print dynamical system
+    validation information. (More detailed startup information can be obtained
+    with the \code{\link{validate_dynamical_system_inputs}} function.)
+  }
+
 }
-\value{
-    A data frame with the columns \code{year}, \code{doy}, and \code{hour}; and a column for each parameter in \code{initial_values}; and a row for each row in \code{drivers}:
-}
-\description{
-    \code{run_biocro()} models crop growth over time given species-specific parameters and climate data. It can be used to predict yield, determine regions that are suitable for growing a crop, and identify traits that have the most influence on yield.
-}
+
 \details{
-    \subsection{An overview of model definitions}{
-        A model can be fully defined using two types of arguments: (1) the set of equations and (2) the parameters required by those equations. The set of all parameters in the model is commonly called the state.
-
-        State values can be known, \emph{a priori}, for the entire simulation (\emph{a priori} state), or known only at the start of the simulation period (calculated state).
-    }
-
-    \subsection{Model implementation using run_biocro()}{
-        In run_biocro(), the sets of equations are passed via the modules argument, and the state is passed via the \code{initial_values}, \code{parameters}, and \code{drivers} arguments.
-
-        The set of modules determines the parameters that must be defined in the state arguments. Each module has parameters it requires, which must be defined in exactly one of the state arguments
-
-        The state argument in which a parameter is defined determines whether a parameter is considered calculated state or \emph{a priori} state. Parameters defined in \code{initial_values} are considered calculated state, whereas parameters defined in either \code{parameters} or \code{drivers} are considered \emph{a priori} state. The difference between \code{parameters} and \code{drivers} is that values in \code{parameters} are considered constant for the simulation period, whereas values in \code{drivers} may be different for each time point. Only calculated state variables are recorded in the output. A priori state variable values will overwrite any calculations of those values performed internally by the model.
-    }
-
-
-    \subsection{State argument details}{
-        \code{initial_values}: Parameter values that are known only at the start of the simulation period. Parameter values are recorded in the output. If the model calculates the parameter value, it will change with time. If the model does not calculate the value, it will be constant with time, but it will still be recorded.
-
-        \code{parameters}: Parameter values that are known and constant for the entire simulation period. Values are not recorded in the output. If the model calculates the parameter value, the calculated value will be overwritten by the value in \code{parameters}.
-
-        \code{drivers}: Parameter values that are known \emph{a priori} at every time step in the entire simulation period. Values are not recorded in the output. If the model calculates the parameter value, the calculated value will be overwritten by the value in \code{drivers}.
-
-        The data frame \code{drivers} must contain at least the columns \code{year}, \code{doy}, and \code{hour}, specifying the times at which a solution is required. Times must be evenly spaced, and the difference in times must be given in the \code{timestep} parameter (units are hours).
-    }
-
-    \subsection{Required module names and available modules}{
-        \itemize{
-            \item \code{canopy_module_name}
-            \itemize{
-                \item c3canopy, c4canopy
-            }
-            \item \code{soil_module_name}
-            \itemize{
-                \item one_layer_soil_profile, two_layer_soil_profile
-            }
-            \item \code{growth_module_name}
-            \itemize{
-                \item partitioning_growth
-            }
-            \item \code{senescence_module_name}
-            \itemize{
-                \item thermal_time_senescence, thermal_time_and_frost_senescence
-            }
-        }
-    }
-
-    \subsection{Precompiled module and parameter sets}{
-        Sets of parameters and modules are provided for sorghum, miscanthus, and willow, and are named [crop]_initial_values, [crop]_parameters, and [crop]_modules, e.g., sorghum_initial_values.
-
-        Weather data are provided. These are typically for one year (January 1 to December 31) and should be subsetted to include only the period of growth. The function \code{get_growing_season_climate()} is provided as one means of subsetting climate data.
-    }
+  \code{run_biocro} is the most important function in the BioCro package. The
+  input arguments to this function are used to define a dynamical system and
+  solve for its time evolution during a desired time period. For more details
+  about how this function operates, see the BioCro II paper.
 }
+
+\value{
+  A data frame where each column represents one of the quantities included in
+  the simulation (with the exception of the parameters, since their values are
+  guaranteed to not change with time) and each row represents a time point
+}
+
+\seealso{
+  \itemize{
+    \item \code{\link{get_all_modules}}
+    \item \code{\link{get_all_ode_solvers}}
+    \item \code{\link{validate_dynamical_system_inputs}}
+    \item \code{\link{partial_run_biocro}}
+  }
+}
+
 \examples{
-## Simulate sorghum growth
-result = run_biocro(sorghum_initial_values, sorghum_parameters,
-             get_growing_season_climate(weather2005), sorghum_direct_modules,
-             sorghum_differential_modules, sorghum_ode_solver)
-lattice::xyplot(Stem + Leaf + Root ~ TTc, data=result, type='l',
-                auto=list(points=FALSE, lines=TRUE),
-                ylab=expression('Biomass'~(Mg/ha)),
-                xlab=expression('Thermal time'~(degree*C~day)))
+# Example: running a sorghum simulation using weather data from 2005
+result <- run_biocro(
+    sorghum_initial_values,
+    sorghum_parameters,
+    get_growing_season_climate(weather2005),
+    sorghum_direct_modules,
+    sorghum_differential_modules,
+    sorghum_ode_solver,
+    TRUE
+)
 
-### The results can be combined with the data that were used to drive the model.
-result = cbind(result, get_growing_season_climate(weather2005))
-
-## Change a subset of the parameters.
-canopy_architecture = within(sorghum_parameters, {chil = 1.2; leafwidth = 0.05})
-architechture_result = run_biocro(sorghum_initial_values, canopy_architecture,
-                           get_growing_season_climate(weather2005),
-                           sorghum_direct_modules, sorghum_differential_modules,
-                           sorghum_ode_solver)
-lattice::xyplot(Stem + Leaf + Root ~ TTc, data=architechture_result, type='l',
-                auto=list(points=FALSE, lines=TRUE), ylab=expression('Biomass'~(Mg/ha)),
-                xlab=expression('Thermal time'~(degree*C~day)))
-
+lattice::xyplot(
+  Leaf + Stem + Root + Grain ~ TTc,
+  data=result,
+  type='l',
+  auto=TRUE
+)
 }
