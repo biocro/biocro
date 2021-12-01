@@ -16,8 +16,6 @@
 
 \usepackage{amsfonts}
 
-\usepackage{bm}
-
 \usepackage{listings}
 
 \usepackage[dvipsnames,table]{xcolor}
@@ -33,9 +31,15 @@
 	urlcolor=Maroon
 }
 
-\newcommand{\ar}{\texttt{alpha\_rue}}
-\newcommand{\cotwo}{CO$_2$}
-\newcommand{\cthree}{C$_3$}
+\newcommand{\differentialmemberfunction}{\ensuremath{\mathbf{g}_i}}
+\newcommand{\differentialmodulefunction}{\ensuremath{\mathbf{g}_M}}
+\newcommand{\directmemberfunction}{\ensuremath{\mathbf{f}_i}}
+\newcommand{\directmodulefunction}{\ensuremath{\mathbf{f}_M}}
+\newcommand{\moduleinputs}{\ensuremath{\mathbf{x}_{M_\text{in}}}}
+\newcommand{\moduleoutputs}{\ensuremath{\mathbf{x}_{M_\text{out}}}}
+\newcommand{\statemember}{\ensuremath{x_i}}
+\newcommand{\statevectorexclusion}{\ensuremath{\mathbf{x}^i}}
+\newcommand{\statevector}{\ensuremath{\mathbf{x}}}
 
 \title{A Practical Guide to BioCro}
 
@@ -82,16 +86,16 @@ cat(
 
 This vignette provides a demonstration of a few important BioCro functions and
 some R basics. We will be using functions from the \texttt{BioCro} and
-\texttt{lattice} libraries, so we must make sure they are both loaded:
+\texttt{lattice} packages, so we must make sure they are both loaded:
 
 <<loading_libraries>>=
 library(BioCro)
 library(lattice)
 @
 
-If these libraries are not installed on your machine, installation instructions
+If these packages are not installed on your machine, installation instructions
 for BioCro are available at its GitHub repository web page, while the
-\texttt{lattice} library can be installed by typing the following in R:
+\texttt{lattice} package can be installed by typing the following in R:
 
 <<installing_lattice,eval=FALSE>>=
 install.packages('lattice')
@@ -164,8 +168,8 @@ package. In each case, we will also show how they relate to an important element
 of the BioCro philosophy: that \emph{models are sets of equations}.
 Specifically, we will emphasize that each input argument to \texttt{run\_biocro}
 specifies equations that help to determine the time evolution (or lack thereof)
-for one or more members $x_i$ of the model's state $\boldsymbol{X}$, which is
-taken to comprise all quantities involved in the model (Equations
+for one or more members \statemember\ of the model's state \statevector, which
+is taken to comprise all quantities involved in the model (Equations
 \ref{eq:direct}, \ref{eq:differential}, \ref{eq:param}, \ref{eq:initial_value},
 and \ref{eq:driver}).
 
@@ -181,34 +185,39 @@ analysis.
 
 To run a BioCro simulation, the user must specify collections of \emph{modules}
 to use. A module represents one or more related equations that model some aspect
-of plant biology. Each module $M$ has a set of \emph{input quantities}
-$\boldsymbol{X}_M^i$ and a set of \emph{output quantities} $\boldsymbol{X}_M^o$;
-when a module is run, its outputs are determined from the values of its inputs
-according to its equations. Modules come in two types:
-\emph{differential modules} calculate terms of the time derivatives of their
-output quantities, while \emph{direct modules} directly calculate the
-instantaneous values of their output quantities. In other words, a direct module
-defines an equation of the form
+of plant biology. Each module $M$ has \emph{input quantities} \moduleinputs\ and
+\emph{output quantities} \moduleoutputs; when a module is run, its outputs are
+determined from its inputs according to its equations. Modules come in two
+types: \emph{differential modules} calculate terms of the time derivatives of
+their output quantities, while \emph{direct modules} directly calculate the
+values of their output quantities. In other words, a direct module defines a
+function \directmodulefunction\ that maps its inputs to its outputs according to
+the following equation:
+
 \begin{equation}
-\boldsymbol{X}_M^o = f_M \left( \boldsymbol{X}_M^i , t \right)
-\end{equation}
-and a differential module defines an equation of the form
-\begin{equation}
-\frac{d \boldsymbol{X}_M^o}{dt} = g_M \left( \boldsymbol{X}_M^i , t \right).
+\moduleoutputs = \directmodulefunction \left( \moduleinputs, t \right).
 \end{equation}
 
-Within the context of a simulation, certain rules apply to the inputs and
-outputs of modules to ensure that the system is valid (in other words, that it
-is well-defined and can in principle be solved). The rules are as follows:
+\noindent Likewise, a differential module defines a function
+\differentialmodulefunction\ that maps its inputs to derivatives of its outputs
+according to the following equation:
+
+\begin{equation}
+\frac{d \moduleoutputs}{dt} = \differentialmodulefunction \left( \moduleinputs, t \right).
+\end{equation}
+
+Within the context of a simulation, certain considerations apply to the inputs
+and outputs of modules to ensure that the system is well-defined and can in
+principle be solved:
 \begin{enumerate}
 
 \item Since direct modules calculate instantaneous values of quantities, at most
-one direct module can have a particular quantity $x$ as an output. For example,
+one direct module can have a particular quantity as an output. For example,
 multiple direct modules available in the library calculate the canopy
 assimilation rate, but only one such module can be used in a single simulation.
 
 \item Since differential modules calculate terms of a derivative, multiple
-differential modules can have a particular quantity $x$ as an output; in this
+differential modules can have a particular quantity as an output; in this
 case, the module outputs will be added together to determine the overall
 derivative. For example, one differential module may calculate a rate of leaf
 carbon gain (due to assimilation) while another calculates a negative rate of
@@ -250,25 +259,27 @@ module input is defined before it runs.
 
 \end{enumerate}
 
-If all these conditions are satisfied (Section \ref{sec:validate}), then the
-state $\boldsymbol{X}$ can be defined as the combination of the parameters,
-drivers, differential quantities, and \emph{direct quantities} (the quantities
-produced as outputs of direct modules). So, within the context of a valid
-simulation, all the inputs ($\boldsymbol{X}_M^i$) and outputs
-($\boldsymbol{X}_M^o$) of each module $M$ are subsets of the state
-$\boldsymbol{X}$. Additionally, a direct module cannot have any overlap between
-its inputs and outputs. With this in mind, we sometimes gloss over the detailed
-requirements for the module inputs and outputs and say that collection of direct
-modules defines a set equations of the form
+When these rules are satisfied, it is safe to assume that the inputs and outputs
+of all modules are part of the state \statevector\ and that no direct modules
+have any overlap between their inputs and outputs (since this would form a
+cyclical dependency). Under these circumstances, we can say that the collection
+of direct modules defines a collection of functions where each function
+\directmemberfunction\ maps a subset of the state onto an individual state
+element \statemember\ according to
+
 \begin{equation}
-x_i = \boldsymbol{f}_i \left( \boldsymbol{X}^i, t \right),
+\statemember = \directmemberfunction \left( \statevectorexclusion, t \right),
 \label{eq:direct}
 \end{equation}
-where $x_i$ is an element of the state $\boldsymbol{X}$ and $\boldsymbol{X}^i$
-represents the other state quantities besides $x_i$; likewise, we say that the
-collection of differential modules defines a set of equations of the form
+
+\noindent where \statevectorexclusion\ represents the other state quantities
+besides \statemember. Likewise, we can also say that the collection of
+differential modules defines a collection of functions where each function
+\differentialmemberfunction\ maps the state onto the derivative of an
+individual state element \statemember\ according to
+
 \begin{equation}
-\frac{dx_i}{dt} = \boldsymbol{g}_i \left( \boldsymbol{X}, t \right).
+\frac{d \statemember}{dt} = \differentialmemberfunction \left( \statevector, t \right).
 \label{eq:differential}
 \end{equation}
 
@@ -345,26 +356,30 @@ To learn about specific modules, see Section \ref{sec:module_info}.
 
 To run a BioCro simulation, a user must supply the values of \emph{parameters}
 (quantities whose values are taken to be constant during the course of a
-simulation) and the \emph{initial values} of  the \emph{differential
-quantities} (quantities whose evolution with time is determined by differential
-equations). In general, the sets of required parameters and initial values will
-be determined by the modules and drivers that a user has chosen to use (Sections
-\ref{sec:choose_modules} and \ref{sec:choose_drivers}, respectively).
+simulation) and the \emph{initial values} of the differential quantities
+(Section \ref{sec:choose_modules}). In general, the sets of required parameters
+and initial values will be determined by the modules and drivers that a user has
+chosen to use (Sections \ref{sec:choose_modules} and \ref{sec:choose_drivers},
+respectively).
 
 Specifying the parameters and initial values can be thought of as defining
 simple equations of the form
+
 \begin{equation}
-x_i = p_i
+\statemember = p_i
 \label{eq:param}
 \end{equation}
-and
+
+\noindent and
+
 \begin{equation}
-x_i = x_i(t_0),
+\statemember(t_0) = {\statemember}_0,
 \label{eq:initial_value}
 \end{equation}
-where $x_i$ is an element of the state $\boldsymbol{x}$, $p_i$ is a constant
-parameter value and $x_i(t_0)$ is the value of a differential quantity at the
-start of the simulation (where $t = t_0$).
+
+\noindent where \statemember\ is an individual state element, $p_i$ is a
+constant parameter value and ${\statemember}_0$ is the value of a differential
+quantity at the start of the simulation (where $t = t_0$).
 
 \subsubsection*{R implementation}
 
@@ -383,9 +398,9 @@ parameters <- list(
 )
 @
 
-Here the syntax of defining a list---where a value is assined to a name using an
-equals sign---is a reminder that parameter specifications can be thought of as
-representing simple individual equations like Equations \ref{eq:param} and
+Here the syntax of defining a list---where a value is assigned to a name using
+an equals sign---is a reminder that parameter specifications can be thought of
+as representing simple individual equations like Equations \ref{eq:param} and
 \ref{eq:initial_value}.
 
 \subsubsection*{Pre-set options available in the BioCro package}
@@ -409,12 +424,14 @@ obtained from sensors at a particular location. Within the BioCro framework,
 interpolation is used to create a continuous function of time for each quantity
 defined in the drivers. In this sense, each driver can be viewed as following an
 equation of the form
+
 \begin{equation}
-x_i = d_i(t),
+\statemember = d_i(t),
 \label{eq:driver}
 \end{equation}
-where where $x_i$ is a member of the state $\boldsymbol{X}$ and $d_i(t)$ is a
-function determined by interpolation from the driver's discrete values.
+
+\noindent where where \statemember\ is an individual state element and $d_i(t)$
+is a function determined by interpolation from the driver's discrete values.
 
 \subsubsection*{R implementation}
 
@@ -433,9 +450,11 @@ drivers <- data.frame(
 )
 @
 
-(Typically, BioCro drivers would not be determined from an analytical equation;
-here we do this for convenience when providing an example of constructing a
-simple data frame.) The contents of a data frame can be viewed in several ways
+\noindent (Typically, BioCro drivers would not be determined from an analytic
+equation; here we do this for convenience when providing an example of
+constructing a simple data frame.)
+
+The contents of a data frame can be viewed in several ways
 (Section \ref{sec:view_simulation}); here we simply print to the R terminal
 using the \texttt{print} command:
 
@@ -611,7 +630,7 @@ str(soybean_result[round(soybean_result$doy) == 250, c('doy', 'hour', 'Leaf')])
 Viewing the numeric results directly from a data frame can be useful at times,
 but it's often more useful to plot one or more columns from the result against
 an independent variable such as time. We can do this with the \texttt{xyplot}
-function from the \texttt{lattice} library, which must loaded into the R
+function from the \texttt{lattice} package, which must be loaded into the R
 workspace (Section \ref{sec:getting_started}). This function produces an R
 \emph{trellis} object which can be viewed with the \texttt{print} function.
 
@@ -651,7 +670,7 @@ soybean_plot_v3 = xyplot(
   xlab = 'Day of year',                        # X label
   auto.key = list(space = 'right'),            # Add a legend on the right side
   grid = TRUE,                                 # Add horizontal and vertical lines
-  main = 'Soybean biomass calculated in 2005', # Add a main title
+  main = 'Soybean biomass calculated in 2002', # Add a main title
   xlim = c(204, 206),                          # Specify the X axis limits
   ylim = c(0, 3)                               # Specify the Y axis limits
 )
@@ -688,7 +707,7 @@ with many other pieces of software for analysis or plotting.
 
 To understand how a module works, it can be helpful to visualize how one of its
 output quantities depends on one of its input quantities across a reasonable
-range; a plot typically called a \emph{response curve}. As an example, here we
+range---a plot typically called a \emph{response curve}. As an example, here we
 will calculate the response of the soybean net CO$_2$ assimilation rate ($A_n$)
 to the incident photosynthetically active photon flux density (PPFD; $Q$)
 according to the Farquhar-von-Caemmerer-Berry model for C$_3$ photosynthesis,
@@ -817,6 +836,8 @@ the \texttt{Stem}, \texttt{Leaf}, and \texttt{Root} quantities are each Mg / ha
 (megagrams per hectare). You may be wondering: where did this information come
 from?
 
+% TO-DO: update this discussion once the HTML quantity page is running
+
 The BioCro development team is currently working on an automatically-generated
 HTML document that describes the essential properties of each quantity: its
 units, modules that use it as an input, and modules that calculate it as an
@@ -880,7 +901,7 @@ Notice that BioCro modules can be designated as requiring a fixed-step Euler
 solver; this is to accommodate discrete dynamical systems, which can be
 represented in BioCro provided that the ODE solver only takes steps of a
 specified size. An error will occur if \texttt{run\_biocro} is called with a
-non-Euler ODE solver when one or more of its modules requires an ODE Euler
+non-Euler ODE solver when one or more of its modules requires an Euler ODE
 solver.
 
 A list of all available modules can be obtained with the
@@ -950,8 +971,8 @@ the nicely-formatted version, this is rendered as shown in Figure
   \end{center}
 \end{figure}
 
-The Doxygen documentation also includes the code itself in addition to the
-nicely-formatted comments.
+\noindent The Doxygen documentation also includes the code itself in addition to
+the nicely-formatted comments.
 
 Besides the nice formatting, there is another advantage to viewing the
 Doxygen documentation: linking between files and classes. There are links to the
@@ -992,7 +1013,8 @@ lists, vectors, and data frames. We recommend
 
 \item \textbf{Subsetting}: This topic refers to selecting subsets of R data
 frames and matrices. We recommend
-\url{https://www.statmethods.net/management/subset.html}.
+\url{https://www.statmethods.net/management/subset.html} and
+\url{http://adv-r.had.co.nz/Subsetting.html}.
 
 \item \textbf{Vector arithmetic}: This topic refers to performing arithmetic
 operations on each member of one vector, forming a new vector. We recommend
