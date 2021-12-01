@@ -17,11 +17,11 @@
 }
 
 \usage{
-  info <- module_info(module_name, verbose = TRUE)
+  module_info(module_name, verbose = TRUE)
 
-  outputs <- evaluate_module(module_name, input_quantities)
+  evaluate_module(module_name, input_quantities)
 
-  quantities <- quantity_list_from_names(quantity_names)
+  quantity_list_from_names(quantity_names)
 }
 
 \arguments{
