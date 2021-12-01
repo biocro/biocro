@@ -854,7 +854,7 @@ The steps are as follows.
   \end{example}
 
 \item Begin a declaration of a class for the module, deriving it from
-  direct_module.  The identifier used for the class name should match
+  \code{direct\_module}.  The identifier used for the class name should match
   the module name you decided upon in step 1.\footnote{Here again,
   matching the class name to the module name is a convention.  It
   won't break anything if you don't except perhaps the expectations of
@@ -1129,8 +1129,8 @@ direct module, but with some significant differences.
   \end{example}
 
 \item Begin a declaration of a class for the module, deriving it from
-  differential_module.  The identifier used for the class name should match
-  the module name you decided upon in step 1.
+  \code{differential\_module}.  The identifier used for the class name should
+  match the module name you decided upon in step 1.
   \begin{example}[4]
     class heating_degree_days : public differential_module {
       ...

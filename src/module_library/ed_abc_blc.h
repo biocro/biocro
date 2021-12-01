@@ -3,13 +3,14 @@
 
 #include "../modules.h"
 #include "../state_map.h"
-#include "AuxBioCro.h"  // for leaf_boundary_layer_conductance
+#include "AuxBioCro.h"  // for leaf_boundary_layer_conductance_nikolov
 
 /**
  * @class ed_abc_blc
  *
- * @brief This module is a wrapper for the `leaf_boundary_layer_conductance` (BLC)
- * function in `AuxBioCro` (ABC). Currently only intended for use by Ed.
+ * @brief This module is a wrapper for the
+ * `leaf_boundary_layer_conductance_nikolov()` (BLC) function in `AuxBioCro`
+ * (ABC). Currently only intended for use by Ed.
  */
 class ed_abc_blc : public direct_module
 {
@@ -28,6 +29,7 @@ class ed_abc_blc : public direct_module
           conductance_stomatal_h2o(get_input(input_quantities, "conductance_stomatal_h2o")),
           mole_fraction_h2o_atmosphere(get_input(input_quantities, "mole_fraction_h2o_atmosphere")),
           atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
 
           // Get pointers to output quantities
           conductance_boundary_h2o_op(get_op(output_quantities, "conductance_boundary_h2o"))
@@ -45,6 +47,7 @@ class ed_abc_blc : public direct_module
     double const& conductance_stomatal_h2o;
     double const& mole_fraction_h2o_atmosphere;
     double const& atmospheric_pressure;
+    double const& minimum_gbw;
 
     // Pointers to output quantities
     double* conductance_boundary_h2o_op;
@@ -62,7 +65,8 @@ string_vector ed_abc_blc::get_inputs()
         "temperature_leaf",              // degrees C
         "conductance_stomatal_h2o",      //  mol / m^2 / s
         "mole_fraction_h2o_atmosphere",  // dimensionless from mol / mol
-        "atmospheric_pressure"           // Pa
+        "atmospheric_pressure",          // Pa
+        "minimum_gbw"                    // mol / m^2 / s
     };
 }
 
@@ -80,13 +84,14 @@ void ed_abc_blc::do_operation() const
     double const stomcond = conductance_stomatal_h2o * volume_of_one_mole_of_air;             // m / s
     double const water_vapor_pressure = mole_fraction_h2o_atmosphere * atmospheric_pressure;  // Pa
 
-    double const blc = leaf_boundary_layer_conductance(
+    double const blc = leaf_boundary_layer_conductance_nikolov(
         windspeed,
         leafwidth,
         temperature_air,
         delta_t,
         stomcond,
-        water_vapor_pressure);  // m / s
+        water_vapor_pressure,
+        minimum_gbw);  // m / s
 
     double const blc_mol = blc / volume_of_one_mole_of_air;  // mol / m^2 / s
 
