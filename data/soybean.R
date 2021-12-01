@@ -154,13 +154,15 @@ soybean_parameters = with(list(), {
     electrons_per_oxygenation               5.25        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
     tpu_rate_max                            13          # Fitted value based on the A-Ci data measured at UIUC in 2019-08 by Delgrado (unpublished data)
     Rd                                      1.28        # Davey et al. 2004 (https://doi.org/10.1104/pp.103.030569), Table 3, cv Pana, co2 368 ppm
-    Catm                                    372         # micromol / mol, CO2 level in 2002
+    Catm                                    372.59      # micromol / mol, CO2 level in 2002
     O2                                      210         # millimol / mol
     b0                                      0.008       # Leakey et al. 2006 (https://10.1111/j.1365-3040.2006.01556.x)
     b1                                      10.6        # Leakey et al. 2006 (https://10.1111/j.1365-3040.2006.01556.x)
     Gs_min                                  1e-3
     theta                                   0.76        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
     water_stress_approach                   1
+    minimum_gbw                             0.08
+    windspeed_height                        5
 
     # ten_layer_canopy_integrator module
     growth_respiration_fraction             0

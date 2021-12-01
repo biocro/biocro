@@ -41,9 +41,9 @@ class c4_leaf_photosynthesis : public direct_module
           average_absorbed_shortwave(get_input(input_quantities, "average_absorbed_shortwave")),
           absorbed_shortwave(get_input(input_quantities, "absorbed_shortwave")),
           windspeed(get_input(input_quantities, "windspeed")),
-          height(get_input(input_quantities, "height")),
           leafwidth(get_input(input_quantities, "leafwidth")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
           et_equation(get_input(input_quantities, "et_equation")),
 
           // Get pointers to output quantities
@@ -54,7 +54,8 @@ class c4_leaf_photosynthesis : public direct_module
           TransR_op(get_op(output_quantities, "TransR")),
           EPenman_op(get_op(output_quantities, "EPenman")),
           EPriestly_op(get_op(output_quantities, "EPriestly")),
-          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature")),
+          gbw_op(get_op(output_quantities, "gbw"))
     {
     }
     static string_vector get_inputs();
@@ -83,9 +84,9 @@ class c4_leaf_photosynthesis : public direct_module
     double const& average_absorbed_shortwave;
     double const& absorbed_shortwave;
     double const& windspeed;
-    double const& height;
     double const& leafwidth;
     double const& specific_heat_of_air;
+    double const& minimum_gbw;
     double const& et_equation;
 
     // Pointers to output quantities
@@ -97,6 +98,7 @@ class c4_leaf_photosynthesis : public direct_module
     double* EPenman_op;
     double* EPriestly_op;
     double* leaf_temperature_op;
+    double* gbw_op;
 
     // Main operation
     void do_operation() const;

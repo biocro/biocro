@@ -41,6 +41,7 @@ class ed_canac_leaf : public direct_module
           leafwidth_ip(get_ip(input_quantities, "leafwidth")),
           specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
           solar_energy_absorbed_leaf_ip(get_ip(input_quantities, "solar_energy_absorbed_leaf")),
+          minimum_gbw_ip(get_ip(input_quantities, "minimum_gbw")),
 
           // Get pointers to output quantities
           mole_fraction_co2_intercellular_op(get_op(output_quantities, "mole_fraction_co2_intercellular")),
@@ -81,6 +82,7 @@ class ed_canac_leaf : public direct_module
     const double* leafwidth_ip;
     const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
+    const double* minimum_gbw_ip;
 
     // Pointers to output quantities
     double* mole_fraction_co2_intercellular_op;
@@ -120,7 +122,8 @@ string_vector ed_canac_leaf::get_inputs()
         "windspeed",                          // m / s
         "leafwidth",                          // m
         "specific_heat_of_air",               // J / kg / K
-        "solar_energy_absorbed_leaf"          // J / m^2 / s
+        "solar_energy_absorbed_leaf",          // J / m^2 / s
+        "minimum_gbw" // mol / m^2 / s
     };
 }
 
@@ -161,11 +164,11 @@ void ed_canac_leaf::do_operation() const
     const double lowerT = *collatz_rubisco_temperature_lower_ip;                    // deg. C
     const int water_stress_approach = 1;                                            // Apply water stress via stomatal conductance
     const double WindSpeed = *windspeed_ip;                                         // m / s
-    const double CanopyHeight = 0.0;                                                // meters (not actually used by EvapoTrans2)
     const double leaf_width = *leafwidth_ip;                                        // meter
     const double specific_heat_of_air = *specific_heat_of_air_ip;                   // J / kg / K
     const int eteq = 0;                                                             // Report Penman-Monteith transpiration
     const double absorbed_shortwave_radiation_lt = *solar_energy_absorbed_leaf_ip;  // J / m^2 / s
+    const double minimum_gbw = *minimum_gbw_ip; // mol / m^2 / s
 
     // Run c4photoC once assuming the leaf is at air temperature to get an initial guess for gs
     const struct c4_str first_c4photoC_output =
@@ -180,8 +183,8 @@ void ed_canac_leaf::do_operation() const
     const struct ET_Str evapotrans_output =
         EvapoTrans2(
             absorbed_shortwave_radiation_lt, absorbed_shortwave_radiation_lt,
-            temperature_air, RH, WindSpeed, CanopyHeight,
-            stomatal_conductance, leaf_width, specific_heat_of_air, eteq);
+            temperature_air, RH, WindSpeed, stomatal_conductance, leaf_width,
+            specific_heat_of_air, minimum_gbw, eteq);
 
     const double leaf_temperature = temperature_air + evapotrans_output.Deltat;
 
