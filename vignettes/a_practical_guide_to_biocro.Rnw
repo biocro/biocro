@@ -31,14 +31,16 @@
 	urlcolor=Maroon
 }
 
-\newcommand{\differentialmemberfunction}{\ensuremath{\mathbf{g}_i}}
+\newcommand{\differentialmemberfunction}{\ensuremath{g_i}}
 \newcommand{\differentialmodulefunction}{\ensuremath{\mathbf{g}_M}}
-\newcommand{\directmemberfunction}{\ensuremath{\mathbf{f}_i}}
+\newcommand{\differentialq}{\ensuremath{\mathbf{x}_{\text{differential}}}}
+\newcommand{\directmemberfunction}{\ensuremath{f_i}}
 \newcommand{\directmodulefunction}{\ensuremath{\mathbf{f}_M}}
 \newcommand{\moduleinputs}{\ensuremath{\mathbf{x}_{M_\text{in}}}}
 \newcommand{\moduleoutputs}{\ensuremath{\mathbf{x}_{M_\text{out}}}}
+\newcommand{\overallderiv}{\ensuremath{\mathbf{G}}}
+\newcommand{\statemembersubset}{\ensuremath{\mathbf{x}^i}}
 \newcommand{\statemember}{\ensuremath{x_i}}
-\newcommand{\statevectorexclusion}{\ensuremath{\mathbf{x}^i}}
 \newcommand{\statevector}{\ensuremath{\mathbf{x}}}
 
 \title{A Practical Guide to BioCro}
@@ -191,97 +193,73 @@ determined from its inputs according to its equations. Modules come in two
 types: \emph{differential modules} calculate terms of the time derivatives of
 their output quantities, while \emph{direct modules} directly calculate the
 values of their output quantities. In other words, a direct module defines a
-function \directmodulefunction\ that maps its inputs to its outputs according to
-the following equation:
+function \directmodulefunction\ that calculates its outputs from its inputs
+according to the following equation:
 
 \begin{equation}
 \moduleoutputs = \directmodulefunction \left( \moduleinputs, t \right).
 \end{equation}
 
 \noindent Likewise, a differential module defines a function
-\differentialmodulefunction\ that maps its inputs to derivatives of its outputs
-according to the following equation:
+\differentialmodulefunction\ that calculates derivatives of its outputs from its
+inputs according to the following equation:
 
 \begin{equation}
 \frac{d \moduleoutputs}{dt} = \differentialmodulefunction \left( \moduleinputs, t \right).
 \end{equation}
 
-Within the context of a simulation, certain considerations apply to the inputs
-and outputs of modules to ensure that the system is well-defined and can in
-principle be solved:
-\begin{enumerate}
+During a simulation, modules are able to form chains where the output of one
+module is used as the input to another. For example, a direct module could
+calculate partitioning coefficients based on a plant's physiological age and a
+differential module could subseqently use those parititioning coefficients to
+distribute assimilated carbon to different organs. In order for these module
+chains to behave as expected, the collection of modules must be run in a
+particular order to ensure that the values of each module's inputs are known
+before it attempts to calculate its outputs. When a simulation is run, BioCro
+automatically determines a suitable ordering for the modules (Section
+\ref{sec:validate}). Any module inputs that are not calculated by other modules
+must be provided as parameters (Section \ref{sec:choose_param}) or drivers
+(Section \ref{sec:choose_drivers}).
 
-\item Since direct modules calculate instantaneous values of quantities, at most
-one direct module can have a particular quantity as an output. For example,
-multiple direct modules available in the library calculate the canopy
-assimilation rate, but only one such module can be used in a single simulation.
+Since direct modules calculate instantaneous values of quantities, at most one
+direct module can have a particular quantity as an output. For example, multiple
+direct modules available in the library can calculate the canopy assimilation
+rate, but only one such module can be used in a given simulation. Before
+running a simulation, BioCro checks for any overlap between the outputs of the
+direct modules (Section \ref{sec:validate}). On the other hand, since
+differential modules calculate terms of a derivative, multiple differential
+modules can have a particular quantity as an output; in this case, the module
+outputs will be added together to determine the overall derivative. For example,
+one differential module may calculate a positive rate of leaf carbon gain due to
+assimilation while another calculates a negative rate of leaf carbon loss due to
+senescence; both may be used in a given simulation.
 
-\item Since differential modules calculate terms of a derivative, multiple
-differential modules can have a particular quantity as an output; in this
-case, the module outputs will be added together to determine the overall
-derivative. For example, one differential module may calculate a rate of leaf
-carbon gain (due to assimilation) while another calculates a negative rate of
-leaf carbon loss (due to senescence); both may be used in a single simulation.
-
-\item Since the output quantities from differential modules (the
-\emph{differential quantities}) evolve according to differential equations, they
-also require initial values. One initial value is required for each differential
-quantity (Section \ref{sec:choose_param}).
-
-\item Within a simulation, the direct modules are run in a specified order,
-allowing the formation of chains where the output of one direct module is used
-as the input to another direct module. Thus, a requirement on the system as a
-whole is that the inputs for each direct module must be \emph{defined} before it
-runs; here, an input quantity is said to be defined if its value is known at the
-start of the simulation---in other words, if it is a parameter
-(Section \ref{sec:choose_param}), an initial value
-(Section \ref{sec:choose_param}), or a driver
-(Section \ref{sec:choose_drivers})---or if it is the output of a direct module
-that was previously run.
-
-\item Cyclical dependencies among the direct modules are not permitted; for
-example, if module $A$ takes quantity $b$ as an input and produces quantity $a$
-as an output ($b \rightarrow A \rightarrow a$) while module $B$ takes quantity
-$a$ as an input and produces quantity $b$ as an output ($a \rightarrow B
-\rightarrow b$), this would be a cyclical dependency.
-
-\item Within a simulation, the differential modules are run after the direct
-modules, allowing the formation of chains where the output of a direct module is
-used as the input to a differential module. For example, one direct module may
-calculate partitioning coefficients based on a plant's physiological age, and a
-differential module can subseqently use those parititioning coefficients to
-distribute assimilated carbon to different organs. Thus, a requirement on the
-system as a whole is that the inputs for each differential module must be
-defined before it runs.
-
-\item There must be a possible ordering for the modules that ensures that each
-module input is defined before it runs.
-
-\end{enumerate}
-
-When these rules are satisfied, it is safe to assume that the inputs and outputs
-of all modules are part of the state \statevector\ and that no direct modules
-have any overlap between their inputs and outputs (since this would form a
-cyclical dependency). Under these circumstances, we can say that the collection
-of direct modules defines a collection of functions where each function
-\directmemberfunction\ maps a subset of the state onto an individual state
-element \statemember\ according to
+Within the context of a simulation, the inputs and outputs of all modules are
+part of the state \statevector. In this situation, we can say that the
+collection of direct modules defines a collection of functions where each
+function \directmemberfunction\ calculates the value of an individual state
+element \statemember\ from a subset of the state \statemembersubset\ according
+to the following equation:
 
 \begin{equation}
-\statemember = \directmemberfunction \left( \statevectorexclusion, t \right),
+\statemember = \directmemberfunction \left( \statemembersubset, t \right).
 \label{eq:direct}
 \end{equation}
 
-\noindent where \statevectorexclusion\ represents the other state quantities
-besides \statemember. Likewise, we can also say that the collection of
-differential modules defines a collection of functions where each function
-\differentialmemberfunction\ maps the state onto the derivative of an
-individual state element \statemember\ according to
+\noindent Each \directmemberfunction\ is defined by one module, and one module
+may define multiple \directmemberfunction. Likewise, we can also say that the
+collection of differential modules defines a collection of functions where each
+function \differentialmemberfunction\ calculates the derivative of an individual
+state element \statemember\ from a subset of the state \statemembersubset\
+according to the following equation:
 
 \begin{equation}
-\frac{d \statemember}{dt} = \differentialmemberfunction \left( \statevector, t \right).
+\frac{d \statemember}{dt} = \differentialmemberfunction \left( \statemembersubset, t \right).
 \label{eq:differential}
 \end{equation}
+
+\noindent Each \differentialmemberfunction\ can be defined by more than one
+module, and one module may define terms of multiple \differentialmemberfunction.
 
 \subsubsection*{R implemetation}
 
@@ -337,12 +315,12 @@ can be compared in the context of a soybean simulation, see the
 
 In Section \ref{sec:run_simulation}, we supplied pre-defined lists of modules
 when calling the \texttt{run\_biocro} function:
-\texttt{soybean\_direct\_modules} and \texttt{soybean\_differential\_modules}.
-As discussed in that section, these modules define a large set of equations that
-represent many important processes involved in the growth of a crop and its
-interactions with its environment. The contents of these lists can be printed to
-the R console using the \texttt{str} command, which nicely shows the
-\emph{str}ucture of the object being printed:
+\newline \texttt{soybean\_direct\_modules} and
+\texttt{soybean\_differential\_modules}. As discussed in that section, these
+modules define a large set of equations that represent many important processes
+involved in the growth of a crop and its interactions with its environment. The
+contents of these lists can be printed to the R console using the \texttt{str}
+command, which nicely shows the \emph{str}ucture of the object being printed:
 
 <<viewing_soybean_modules>>=
 str(soybean_differential_modules)
@@ -356,11 +334,11 @@ To learn about specific modules, see Section \ref{sec:module_info}.
 
 To run a BioCro simulation, a user must supply the values of \emph{parameters}
 (quantities whose values are taken to be constant during the course of a
-simulation) and the \emph{initial values} of the differential quantities
-(Section \ref{sec:choose_modules}). In general, the sets of required parameters
-and initial values will be determined by the modules and drivers that a user has
-chosen to use (Sections \ref{sec:choose_modules} and \ref{sec:choose_drivers},
-respectively).
+simulation) and the \emph{initial values} of the \emph{differential quantities}
+(quantities whose evolution with time is determined by differential
+equations). In general, the sets of required parameters and initial values will
+be determined by the modules and drivers that a user has chosen to use (Sections
+\ref{sec:choose_modules} and \ref{sec:choose_drivers}, respectively).
 
 Specifying the parameters and initial values can be thought of as defining
 simple equations of the form
@@ -481,12 +459,38 @@ published papers and serve illustrative purposes.
 To run a BioCro simulation, a user must specify an algorithm to use for solving
 the set of coupled ordinary differential equations (ODEs) defined by the
 other input arguments to \texttt{run\_biocro}; in BioCro, we refer to such an
-algorithm as an \emph{ode\_solver}.
+algorithm as an \emph{ode\_solver}. In general, numerical ODE integration
+methods require a function $\overallderiv(\differentialq,t)$ that calculates
+derivatives $d \differentialq / dt$ from values of the time and a set of
+quantities \differentialq. Along with a set of initial values and a time domain,
+the algorithm determines the time evolution of \differentialq. In BioCro, such a
+function \overallderiv\ can be defined by taking the following steps:
+
+\begin{enumerate}
+
+\item Determine the values of the parameters using Equation \ref{eq:param}.
+
+\item Determine the values of the drivers using Equation \ref{eq:driver}.
+
+\item Determine the values of the direct module outputs using Equation
+\ref{eq:direct}.
+
+\item Determine the derivatives of the differential quantities using Equation
+\ref{eq:differential}.
+
+\end{enumerate}
+
+\noindent Once the time evolution of the differential quantities has been
+determined by the ODE solver, the time evolution of the state as a whole can be
+determined using steps 1-3 above. This process of defining \overallderiv,
+passing it to a solver, and then determining the entire state's time evolution
+is automatically handled by the BioCro framework.
 
 \subsubsection*{R implementation}
 
 An ODE solver is specified using a list with a particular format, where the list
 must contain the following named elements:
+
 \begin{itemize}
 
 \item \texttt{type}: The name of the algorithm.
@@ -511,8 +515,9 @@ an adaptive step-size ODE solver tries to find a new step size.
 \subsubsection*{Pre-set options available in the BioCro package}
 
 In Section \ref{sec:run_simulation}, we supplied a pre-defined ODE solver when
-calling the \texttt{run\_biocro} function: \texttt{soybean\_ode\_solver}. Its
-contents can be viewed as with any other list:
+calling the \texttt{run\_biocro} function: \newline
+\texttt{soybean\_ode\_solver}. Its contents can be viewed as with any other
+list:
 
 <<view_ode_solver>>=
 str(soybean_ode_solver)
@@ -530,11 +535,41 @@ using the \texttt{get\_all\_ode\_solvers()} function.
 
 \subsection{Validating \texttt{run\_biocro} input arguments \label{sec:validate}}
 
-The \texttt{run\_biocro} function performs several checks to ensure that the
-supplied arguments are able to form a valid dynamical system (Section
-\ref{sec:choose_modules}) and provides helpful feedback to the user if a problem
-is detected. For example, if one or more of the differential quantities is
-missing an initial value, or if a parameter is missing, an error will occur:
+\subsubsection*{Background}
+
+Before running a simulation, it is essential to check whether the supplied
+modules, parameters, initial values, and drivers are able to specify a
+well-defined system that can in principle be solved. Four conditions are
+sufficient to ensure the validity of a model in this sense:
+
+\begin{enumerate}
+
+\item The input quantities of each module must be \emph{defined}; here, a
+quantity is said to be defined if it is a parameter (Section
+\ref{sec:choose_param}), a driver (Section \ref{sec:choose_drivers}), or if it
+is the output of a module (Section \ref{sec:choose_modules}).
+
+\item No quantity can be defined more than once. For example, a quantity cannot
+be defined as a parameter and as the output of a direct module; similarly, a
+quantity cannot be defined by multiple direct modules.
+
+\item Each differential module output must have a corresponding initial value
+(Section \ref{sec:choose_param}).
+
+\item There must exist an ordering of the modules such that a module requiring a
+particular direct module output occurs later than the module providing that
+output; in other words, there must be no circular dependencies among the direct
+modules.
+
+\end{enumerate}
+
+\subsubsection*{R implementation}
+
+The \texttt{run\_biocro} function checks the supplied arguments to ensure that
+these four conditions are satisfied and provides helpful feedback to the user if
+a problem is detected. For example, if one or more of the differential
+quantities is missing an initial value, or if a parameter is missing, an error
+will occur:
 
 <<run_biocro_error_quantity>>=
 soybean_result = run_biocro(
@@ -547,8 +582,9 @@ soybean_result = run_biocro(
 )
 @
 
-An error message will also be generated if a module name cannot be found in the
-library:
+\noindent Additionally, error messages will be generated if the name of a module
+or the type of the \texttt{ode\_solver} cannot be found in the corresponding
+libraries:
 
 <<run_biocro_error_module>>=
 soybean_result = run_biocro(
@@ -561,12 +597,28 @@ soybean_result = run_biocro(
 )
 @
 
+\noindent If the modules are not provided in a suitable order for evaluation,
+they will be automatically reordered.
+
 There is also a related function (\texttt{validate\_dynamical\_system\_inputs})
 which takes the same input arguments as \texttt{run\_biocro} (except
 \texttt{ode\_solver}) and checks them for validity without attempting to run the
-simulation. It provides additional information, such as a list of parameters
-that are not used by any modules, since such parameters could in principle be
-removed without affecting the simulation.
+simulation. It returns a boolean indicating validity and prints additional
+information to the R terminal, such as a list of parameters that are not used by
+any modules (since such parameters could in principle be removed without
+affecting the simulation) and a suitable ordering for the direct modules (if
+reordering is required).
+
+<<validate_inputs,eval=FALSE>>=
+# This code is not evaluated here since it produces a large amount of text
+valid <- validate_dynamical_system_inputs(
+  soybean_initial_values,
+  soybean_parameters,
+  soybean_weather2002,
+  rev(soybean_direct_modules), # Reverse the order of the direct modules
+  soybean_differential_modules
+)
+@
 
 \section{Viewing and saving the results of a BioCro simulation \label{sec:view_simulation}}
 
@@ -681,6 +733,7 @@ print(soybean_plot_v3)
 
 For any serious analysis, it is critical to store either the results themselves
 or the code that produced them. R offers clear routes for both options:
+
 \begin{itemize}
 
 \item R code can be saved to a file with a \texttt{.R} extension; this forms a
@@ -912,6 +965,7 @@ Doxygen documentation; see Section \ref{sec:source_code}.
 \subsection{Accessing the source code \label{sec:source_code}}
 
 There are several options for viewing BioCro's source code:
+
 \begin{itemize}
 
 \item BioCro is available as a public GitHub repository, so all of its source
@@ -985,6 +1039,7 @@ file \texttt{multilayer\_rue\_canopy.h} where it is defined.
 
 There are a few R commands that may be useful but weren't specifically mentioned
 elsewhere in this guide:
+
 \begin{itemize}
 
 \item At any time, it's possible to see all the objects that have been created
@@ -1052,6 +1107,7 @@ crops and modules. For an in-depth example, see the \emph{Quantitative
 Comparison Between Two Photosynthesis Models} vignette.
 
 To test your understanding, you could try to complete the following tasks:
+
 \begin{itemize}
 
 \item Run the soybean simulation a few times with several different values of a
