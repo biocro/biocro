@@ -75,7 +75,7 @@
     module's equations
   }
 
-  \item{quantity_list_from_names} {
+  \item{quantity_list_from_names}{
     A list of named numeric elements, where the names are set by
     \code{quantity_names} and each value is initialized to 1.
   }
