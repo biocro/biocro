@@ -101,7 +101,9 @@ system_derivatives <- function(
     #     derivs <- soybean_system(0, iv, NULL)
     #     print(derivs)
 
-    error_messages <- check_system_derivatives_inputs(
+    # The inputs to this function have the same requirements as the `run_biocro`
+    # inputs with the same names
+    error_messages <- check_run_biocro_inputs(
         list(),
         parameters,
         drivers,

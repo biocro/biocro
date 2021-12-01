@@ -33,8 +33,8 @@ test_that("certain run_biocro inputs must have the correct type", {
         regexp = paste0(
             "`initial_values` must be a list.\n",
             "  `parameters` must be a list.\n",
-            "  `drivers` must be a data frame.\n",
-            "  `ode_solver` must be a list.\n"
+            "  `ode_solver` must be a list.\n",
+            "  `drivers` must be a data frame.\n"
         )
     )
 })

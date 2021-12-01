@@ -7,13 +7,16 @@ validate_dynamical_system_inputs <- function(
     silent = FALSE
 )
 {
-    # The inputs have the same requirements as `system_derivatives`
-    error_messages <- check_system_derivatives_inputs(
+    # The inputs to this function have the same requirements as the `run_biocro`
+    # inputs with the same names (and `silent` and `verbose` have the same
+    # requirements)
+    error_messages <- check_run_biocro_inputs(
         initial_values,
         parameters,
         drivers,
         direct_module_names,
-        differential_module_names
+        differential_module_names,
+        verbose = silent
     )
 
     send_error_messages(error_messages)

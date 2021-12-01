@@ -6,6 +6,102 @@ default_ode_solver <- list(
     adaptive_max_steps = NA
 )
 
+# Checks whether a set of inputs to the `run_biocro` function are properly
+# defined. If the inputs are properly defined, this function returns an empty
+# string. Otherwise, it returns an informative error message.
+check_run_biocro_inputs <- function(
+    initial_values = list(),
+    parameters = list(),
+    drivers,
+    direct_module_names = list(),
+    differential_module_names = list(),
+    ode_solver = default_ode_solver,
+    verbose = FALSE
+)
+{
+    error_message <- character()
+
+    # The initial_values, parameters, and ode_solver should be lists
+    error_message <- append(
+        error_message,
+        check_list(
+            list(
+                initial_values=initial_values,
+                parameters=parameters,
+                ode_solver=ode_solver
+            )
+        )
+    )
+
+    # The drivers should be a data frame
+    error_message <- append(
+        error_message,
+        check_data_frame(list(drivers=drivers))
+    )
+
+    # The drivers should not be empty
+    if (length(drivers) == 0) {
+        error_message <- append(error_message, "The drivers cannot be empty")
+    }
+
+    # The elements of initial_values, parameters, direct_module_names,
+    # differential_module_names, and ode_solver should all have length 1
+    error_message <- append(
+        error_message,
+        check_element_length(
+            list(
+                initial_values=initial_values,
+                parameters=parameters,
+                direct_module_names=direct_module_names,
+                differential_module_names=differential_module_names,
+                ode_solver=ode_solver
+            )
+        )
+    )
+
+    # The initial_values, parameters, drivers, and all elements of ode_solver
+    # except `type` should have numeric values
+    error_message <- append(
+        error_message,
+        check_numeric(
+            list(
+                initial_values=initial_values,
+                parameters=parameters,
+                drivers=drivers,
+                ode_solver_other_than_type=ode_solver[!(names(ode_solver) == 'type')]
+            )
+        )
+    )
+
+    # The direct_module_names, differential_module_names, and the ode_solver's
+    # `type` element should all be vectors or lists of strings
+    error_message <- append(
+        error_message,
+        check_strings(
+            list(
+                direct_module_names=direct_module_names,
+                differential_module_names=differential_module_names,
+                ode_solver_type=ode_solver['type']
+            )
+        )
+    )
+
+    # Verbose should be a boolean with one element
+    error_message <- append(
+        error_message,
+        check_boolean(list(verbose=verbose))
+    )
+
+    error_message <- append(
+        error_message,
+        check_length(list(verbose=verbose))
+    )
+
+
+    return(error_message)
+}
+
+
 run_biocro <- function(
     initial_values = list(),
     parameters = list(),
@@ -23,7 +119,8 @@ run_biocro <- function(
         drivers,
         direct_module_names,
         differential_module_names,
-        ode_solver
+        ode_solver,
+        verbose
     )
 
     send_error_messages(error_messages)

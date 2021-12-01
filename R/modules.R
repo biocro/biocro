@@ -7,9 +7,18 @@ module_info <- function(module_name, verbose = TRUE)
         check_strings(list(module_name = module_name))
     )
 
-    if (length(module_name) != 1) {
-        error_messages <- append(error_messages, "`module_name` must have length 1")
-    }
+    error_messages <- append(
+        error_messages,
+        check_boolean(list(verbose=verbose))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_length(list(
+            verbose=verbose,
+            module_name=module_name
+        ))
+    )
 
     send_error_messages(error_messages)
 
@@ -51,7 +60,6 @@ evaluate_module <- function(module_name, input_quantities)
     error_messages <- append(
         error_messages,
         check_element_length(list(
-            module_name = module_name,
             input_quantities = input_quantities
         ))
     )
@@ -64,6 +72,11 @@ evaluate_module <- function(module_name, input_quantities)
     error_messages <- append(
         error_messages,
         check_numeric(list(input_quantities = input_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_length(list(module_name=module_name))
     )
 
     # Check to make sure the required input quantities were supplied
@@ -89,7 +102,6 @@ partial_evaluate_module <- function(module_name, input_quantities, arg_names) {
     error_messages <- append(
         error_messages,
         check_element_length(list(
-            module_name = module_name,
             input_quantities = input_quantities,
             arg_names = arg_names
         ))
@@ -106,6 +118,11 @@ partial_evaluate_module <- function(module_name, input_quantities, arg_names) {
     error_messages <- append(
         error_messages,
         check_numeric(list(input_quantities = input_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_length(list(module_name=module_name))
     )
 
     # Check to make sure the quantities specified in `arg_names` are actually
