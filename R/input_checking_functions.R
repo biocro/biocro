@@ -130,6 +130,27 @@ check_strings <- function(args_to_check) {
     return(error_message)
 }
 
+# Checks whether the elements of the `args_to_check` list are vectors or lists
+# of strings. If all elements meet this criterion, this function returns an
+# empty string. Otherwise, it returns an informative error message.
+check_boolean <- function(args_to_check) {
+    check_names(args_to_check)
+    error_message <- character()
+    for (i in seq_along(args_to_check)) {
+        arg <- args_to_check[[i]]
+        is_boolean <- sapply(arg, is.logical)
+        if (!all(is_boolean)) {
+            tmp_message <- sprintf(
+                "The following `%s` members are not booleans, but all members must be booleans: %s.\n",
+                names(args_to_check)[i],
+                paste(arg[which(!is_boolean)], collapse=', ')
+            )
+            error_message <- append(error_message, tmp_message)
+        }
+    }
+    return(error_message)
+}
+
 # Checks whether an `ode_solver` list is properly defined. If it is, this
 # function returns an empty string. Otherwise, it returns an informative error
 # message.
