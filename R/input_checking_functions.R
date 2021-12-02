@@ -13,6 +13,24 @@ send_error_messages <- function(error_messages) {
     }
 }
 
+# Checks whether the non-empty elements of the `args_to_check` list have names.
+# If all elements meet this criterion, this function returns an empty string.
+# Otherwise, it returns an informative error message.
+check_element_names <- function(args_to_check) {
+    check_names(args_to_check)
+    error_message <- character()
+    for (i in seq_along(args_to_check)) {
+        arg <- args_to_check[[i]]
+        if (length(arg) > 1 && is.null(names(arg))) {
+            error_message <- append(
+                error_message,
+                sprintf('`%s` must have names.\n', names(args_to_check)[i])
+            )
+        }
+    }
+    return(error_message)
+}
+
 # Checks whether the elements of the `args_to_check` list are lists. If all
 # elements meet this criterion, this functions returns an empty string.
 # Otherwise, it returns an informative error message.
