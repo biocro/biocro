@@ -18,6 +18,10 @@ system2('R', args = c('CMD', 'Sweave', '--pdf', 'a_practical_guide_to_biocro.Rnw
                                                # environment
        )
 
+system2('R', args = c('CMD', 'Sweave', '--pdf', 'quantitative_model_comparison.R'),
+             env = c(paste0('R_LIBS=', rpath))
+       )
+
 system2('R', args = c('CMD', 'Sweave', '--pdf', 'an_introduction_to_biocro.Rnw'),
              env = c(paste0('R_LIBS=', rpath))
        )
@@ -27,11 +31,14 @@ system('R CMD Sweave --pdf biocro-manual-knitr.Rnw') # this vignette doesn't nee
 
 <!--
 <iframe src="a_practical_guide_to_biocro.pdf"/>
+<iframe src="quantitative_model_comparison.pdf"/>
 <iframe src="an_introduction_to_biocro.pdf"/>
 <iframe src="biocro-manual-knitr.pdf"/>
 -->
 
 [A Practical Guide to BioCro](a_practical_guide_to_biocro.pdf)
+
+[Quantitative Comparison Between Two Photosynthesis Models](quantitative_model_comparison.pdf)
 
 [An Introduction to BioCro for Those Who Want to Add Models](an_introduction_to_biocro.pdf)
 
