@@ -32,14 +32,20 @@ system('R CMD Sweave --pdf biocro-manual-knitr.Rnw') # this vignette doesn't nee
 <!--
 <iframe src="a_practical_guide_to_biocro.pdf"/>
 <iframe src="quantitative_model_comparison.pdf"/>
+<iframe src="a_practical_guide_to_biocro.R"/>
+<iframe src="quantitative_model_comparison.R"/>
 <iframe src="an_introduction_to_biocro.pdf"/>
 <iframe src="biocro-manual-knitr.pdf"/>
 -->
 
-[A Practical Guide to BioCro](a_practical_guide_to_biocro.pdf)
+## [_A Practical Guide to BioCro_](a_practical_guide_to_biocro.pdf)
 
-[Quantitative Comparison Between Two Photosynthesis Models](quantitative_model_comparison.pdf)
+[R code for _A Practical Guide to BioCro_](a_practical_guide_to_biocro.R)
 
-[An Introduction to BioCro for Those Who Want to Add Models](an_introduction_to_biocro.pdf)
+## [_Quantitative Comparison Between Two Photosynthesis Models_](quantitative_model_comparison.pdf)
 
-[Simulation and Parameter Estimation for Biomass Crops](biocro-manual-knitr.pdf)
+[R code for _Quantitative Comparison Between Two Photosynthesis Models_](quantitative_model_comparison.R)
+
+## [_An Introduction to BioCro for Those Who Want to Add Models_](an_introduction_to_biocro.pdf)
+
+## [_Simulation and Parameter Estimation for Biomass Crops_](biocro-manual-knitr.pdf)
