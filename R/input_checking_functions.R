@@ -1,8 +1,8 @@
 # Checks whether `args_to_check` has names. The other checking functions require
 # names to give useful error messages.
-check_names <- function(args_to_check, arg_name = "args_to_check") {
+check_names <- function(args_to_check) {
     if(is.null(names(args_to_check))) {
-        stop(paste0("`", arg_name, "` must have names"))
+        stop(paste0("`", substitute(args_to_check), "` must have names"))
     }
 }
 

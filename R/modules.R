@@ -204,7 +204,7 @@ module_response_curve <- function(
     # Check that the variables are lists of one named numeric element (but
     # discrete variable can be empty). Other error checks will be performed by
     # `partial_evaluate_module`.
-    check_names(continuous_variable, "continuous_variable")
+    check_names(continuous_variable)
 
     error_messages <- append(
         error_messages,
@@ -228,7 +228,7 @@ module_response_curve <- function(
     )
 
     if (discrete_supplied) {
-        check_names(discrete_variable, "discrete_variable")
+        check_names(discrete_variable)
         error_messages <- append(
             error_messages,
             check_length(list(discrete_variable = discrete_variable))
