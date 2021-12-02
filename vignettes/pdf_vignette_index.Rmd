@@ -18,7 +18,7 @@ system2('R', args = c('CMD', 'Sweave', '--pdf', 'a_practical_guide_to_biocro.Rnw
                                                # environment
        )
 
-system2('R', args = c('CMD', 'Sweave', '--pdf', 'quantitative_model_comparison.R'),
+system2('R', args = c('CMD', 'Sweave', '--pdf', 'quantitative_model_comparison.Rnw'),
              env = c(paste0('R_LIBS=', rpath))
        )
 
