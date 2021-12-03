@@ -49,6 +49,24 @@ check_list <- function(args_to_check) {
     return(error_message)
 }
 
+# Checks whether the elements of the `args_to_check` are vectors. If all
+# elements meet this criterion, this function returns an empty string.
+# Otherwise, it returns an informative error message.
+check_vector <- function(args_to_check) {
+    check_names(args_to_check)
+    error_message <- character()
+    for (i in seq_along(args_to_check)) {
+        arg <- args_to_check[[i]]
+        if (!is.vector(arg) || 'list' %in% class(arg)) {
+            error_message <- append(
+                error_message,
+                sprintf('`%s` must be a vector.\n', names(args_to_check)[i])
+            )
+        }
+    }
+    return(error_message)
+}
+
 # Checks whether the elements of the `args_to_check` list are data frames. If
 # all elements meet this criterion, this functions returns an empty string.
 # Otherwise, it returns an informative error message.
