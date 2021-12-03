@@ -3,7 +3,7 @@
 \alias{dynamical_system}
 \alias{validate_dynamical_system_inputs}
 
-\title{Validating Dynamical System Inputs}
+\title{Validating dynamical system inputs}
 
 \description{
   Utility function for checking inputs to \code{run_biocro} without running it
@@ -16,16 +16,14 @@ validate_dynamical_system_inputs(
     drivers,
     direct_module_names = list(),
     differential_module_names = list(),
-    silent = FALSE
+    verbose = TRUE
 )
 }
 
 \arguments{
   \code{validate_dynamical_system_inputs} accepts the same input arguments as
   \code{\link{run_biocro}} with the exceptions of \code{ode_solver} (which is
-  not required to check the validity of a dynamical system) and \code{verbose}
-  (which is replaced here by \code{silent}). When silent is \code{TRUE}, no
-  information will be printed to the R console.
+  not required to check the validity of a dynamical system).
 }
 
 \details{

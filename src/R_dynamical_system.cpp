@@ -14,7 +14,7 @@ SEXP R_validate_dynamical_system_inputs(
     SEXP drivers,
     SEXP direct_module_names,
     SEXP differential_module_names,
-    SEXP silent)
+    SEXP verbose)
 {
     try {
         // Convert inputs from R formats
@@ -23,14 +23,14 @@ SEXP R_validate_dynamical_system_inputs(
         state_vector_map vp = map_vector_from_list(drivers);
         std::vector<std::string> direct_names = make_vector(direct_module_names);
         std::vector<std::string> differential_names = make_vector(differential_module_names);
-        bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
+        bool be_loud = LOGICAL(VECTOR_ELT(verbose, 0))[0];
 
         // Check the validity
         std::string msg;
         bool valid = validate_dynamical_system_inputs(msg, s, ip, vp, direct_names, differential_names);
 
         // Print feedback and additional information if required
-        if (!be_quiet) {
+        if (be_loud) {
             Rprintf("\nChecking the validity of the system inputs:\n");
 
             Rprintf(msg.c_str());
