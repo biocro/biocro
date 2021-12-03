@@ -39,25 +39,10 @@ module_info <- function(module_name, verbose = TRUE)
 
 check_module_input_quantities <- function(module_name, input_quantities) {
     # Check that the following type conditions are met:
-    # - `module_name` should be a character vector of length 1
     # - `input_quantities` should be a list of named numeric elements, each of
     #    which has length 1
-    error_messages <- check_vector(list(module_name = module_name))
-
-    error_messages <- append(
-        error_messages,
-        check_strings(list(module_name = module_name))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_length(list(module_name = module_name))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_list(list(input_quantities = input_quantities))
-    )
+    # Type checks for `module_name` will be made by the `module_info` function
+    error_messages <- check_list(list(input_quantities = input_quantities))
 
     error_messages <- append(
         error_messages,
@@ -95,47 +80,12 @@ check_module_input_quantities <- function(module_name, input_quantities) {
 
 evaluate_module <- function(module_name, input_quantities)
 {
-    # Check that the following type conditions are met:
-    # - `module_name` should be a character vector of length 1
-    # - `input_quantities` should be a list of named numeric elements, each of
-    #    which has length 1
-    error_messages <- check_vector(list(module_name = module_name))
-
-    error_messages <- append(
-        error_messages,
-        check_strings(list(module_name = module_name))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_length(list(module_name = module_name))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_list(list(input_quantities = input_quantities))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_names(list(input_quantities = input_quantities))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_numeric(list(input_quantities = input_quantities))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_element_length(list(input_quantities = input_quantities))
-    )
+    # Type checks for `module_name` and `input_quantities` will be performed by
+    # the `check_module_input_quantities` function
 
     # Check to make sure the required input quantities were supplied
-    error_messages <- append(
-        error_messages,
+    error_messages <-
         check_module_input_quantities(module_name, input_quantities)
-    )
 
     send_error_messages(error_messages)
 
@@ -149,46 +99,14 @@ evaluate_module <- function(module_name, input_quantities)
 
 partial_evaluate_module <- function(module_name, input_quantities, arg_names) {
     # Check that the following type conditions are met:
-    # - `module_name` should be a character vector of length 1
-    # - `input_quantities` should be a list of named numeric elements, each of
-    #    which has length 1
     # - `arg_names` should be a character vector
-    error_messages <- check_vector(list(
-        module_name = module_name,
-        arg_names = arg_names
-    ))
+    # Type checks for `module_name` and `input_quantities` will be performed by
+    # the `module_info` and `check_module_input_quantities` functions
+    error_messages <- check_vector(list(arg_names = arg_names))
 
     error_messages <- append(
         error_messages,
-        check_strings(list(
-            module_name = module_name,
-            arg_names = arg_names
-        ))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_length(list(module_name = module_name))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_list(list(input_quantities = input_quantities))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_names(list(input_quantities = input_quantities))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_numeric(list(input_quantities = input_quantities))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_element_length(list(input_quantities = input_quantities))
+        check_strings(list(arg_names = arg_names))
     )
 
     # Check to make sure the quantities specified in `arg_names` are actually
@@ -248,54 +166,21 @@ module_response_curve <- function(
 )
 {
     # Check that the following type conditions are met:
-    # - `module_name` should be a character vector of length 1
-    # - `fixed_quantities` should be a list of named numeric elements, each of
-    #    which has length 1
     # - `varying_quantities` should be a data frame of numeric elements with
     #    named columns
-    error_messages <- check_vector(list(
-        module_name = module_name
-    ))
-
-    error_messages <- append(
-        error_messages,
-        check_strings(list(module_name = module_name))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_length(list(module_name = module_name))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_list(list(fixed_quantities = fixed_quantities))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_names(list(
-            fixed_quantities = fixed_quantities,
-            varying_quantities = varying_quantities
-        ))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_numeric(list(
-            fixed_quantities = fixed_quantities,
-            varying_quantities = varying_quantities
-        ))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_element_length(list(fixed_quantities = fixed_quantities))
-    )
-
-    error_messages <- append(
-        error_messages,
+    # Type checks for `module_name` and `fixed_quantities` will be performed by
+    # the `module_info` and `partial_evaluate_module` functions
+    error_messages <-
         check_data_frame(list(varying_quantities = varying_quantities))
+
+    error_messages <- append(
+        error_messages,
+        check_numeric(list(varying_quantities = varying_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_names(list(varying_quantities = varying_quantities))
     )
 
     # Make sure the module is suitable for `module_response_curve`, which can
