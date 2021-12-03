@@ -5,7 +5,7 @@
 \alias{module_response_curve}
 \alias{quantity_list_from_names}
 
-\title{BioCro Module Functions}
+\title{BioCro module functions}
 
 \description{
   \code{module_info} returns essential information about a BioCro module.
@@ -25,7 +25,7 @@
 
   evaluate_module(module_name, input_quantities)
 
-  module_response_curve(module_name, input_quantities, continuous_variable, discrete_variable = list())
+  module_response_curve(module_name, fixed_quantities, varying_quantities)
 
   quantity_list_from_names(quantity_names)
 }
@@ -45,18 +45,19 @@
     by the module; any extraneous quantities will be ignored by the module
   }
 
-  \item{continuous_variable}{
-    A list with one named numeric vector argument representing values of a
-    continuous independent variable to be passed to a module
+  \item{fixed_quantities}{
+    A list of named numeric elements representing input quantities required
+    by the module whose values should be considered to be constant; any
+    extraneous quantities will be ignored by the module
   }
 
-  \item{discrete_variable}{
-    An optional list with one named numeric vector argument representing values
-    of a discrete independent variable to be passed to a module
+  \item{varying_quantities}{
+    A data frame where each column represents an input quantity required by the
+    module whose value varies across the response curve
   }
 
   \item{quantity_names}{
-    A vector or list of strings
+    A vector of strings
   }
 }
 
@@ -68,19 +69,12 @@
   preparing suitable quantity lists to pass to \code{evaluate_module}.
 
   The \code{module_response_curve} function provides a convenient way to
-  calculate a module response curve. At minimum, the user must specify a module
-  to use, the values of any fixed input quantities (\code{input_quantities}),
-  and a sequence of values for one independent input quantities
-  (\code{continuous_variable}). Typically the sequence would be dense,
-  representing a continuous variable. Optionally, the user may also provide a
-  sequence of values for another independent variable
-  (\code{discrete_variable}). Typically this sequence would be sparse,
-  representing a discrete variable. If values for the discrete variable are
-  provided, the resulting response curve will include all possible pairs of the
-  continuous and discrete variable values. Since each module input and output
-  is included as a column in the resulting data frame, this function can only be
-  applied to modules without any overlap between inputs and outputs.
-
+  calculate a module response curve. To do this, a user must specify a module to
+  use, the values of any fixed input quantities (\code{input_quantities}), and
+  a sequence of values for other quantities that vary across the response curve
+  (\code{varying_quantities}). Since each module input and output is included as
+  a column in the resulting data frame, this function can only be applied to
+  modules without any overlap between inputs and outputs.
 }
 
 \value{
@@ -109,9 +103,8 @@
   \item{module_response_curve}{
     A data frame where the first column is the name of the module that produced
     the response curve and the remaining columns are the module's input and
-    output quantities. Each row represents a particular value of the continuous
-    independent variable (or a pair of values of the continuous and discrete
-    independent variables).
+    output quantities. Each row corresponds to a row in the
+    \code{varying_quantities}.
   }
 
   \item{quantity_list_from_names}{
@@ -140,12 +133,17 @@ outputs <- evaluate_module('thermal_time_linear', inputs)
 
 # Example 3: calculating the temperature response of light saturated net
 # assimilation at several values of relative humidity in the absence of water
-# stress using the 'c3_assimilation' module and soybean parameters
+# stress using the 'c3_assimilation' module and soybean parameters. Here, the
+# leaf temperature and humidity values are independent of each other, so we use
+# the `expand.grid` function to form a data frame of all possible combinations
+# of their values.
 rc <- module_response_curve(
   'c3_assimilation',
   within(soybean_parameters, {Qp = 2000; StomataWS = 1}),
-  list(Tleaf = seq(from = 0, to = 40, length.out = 501)),
-  list(rh = c(0.2, 0.5, 0.8))
+  expand.grid(
+    Tleaf = seq(from = 0, to = 40, length.out = 201),
+    rh = c(0.2, 0.5, 0.8)
+  )
 )
 lattice::xyplot(Assim ~ Tleaf, group = rh, data = rc, auto = TRUE, type = 'l')
 }

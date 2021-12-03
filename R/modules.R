@@ -243,14 +243,63 @@ partial_evaluate_module <- function(module_name, input_quantities, arg_names) {
 
 module_response_curve <- function(
     module_name,
-    input_quantities,
-    continuous_variable,
-    discrete_variable = list()
+    fixed_quantities,
+    varying_quantities
 )
 {
+    # Check that the following type conditions are met:
+    # - `module_name` should be a character vector of length 1
+    # - `fixed_quantities` should be a list of named numeric elements, each of
+    #    which has length 1
+    # - `varying_quantities` should be a data frame of numeric elements with
+    #    named columns
+    error_messages <- check_vector(list(
+        module_name = module_name
+    ))
+
+    error_messages <- append(
+        error_messages,
+        check_strings(list(module_name = module_name))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_length(list(module_name = module_name))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_list(list(fixed_quantities = fixed_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_names(list(
+            fixed_quantities = fixed_quantities,
+            varying_quantities = varying_quantities
+        ))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_numeric(list(
+            fixed_quantities = fixed_quantities,
+            varying_quantities = varying_quantities
+        ))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_element_length(list(fixed_quantities = fixed_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_data_frame(list(varying_quantities = varying_quantities))
+    )
+
     # Make sure the module is suitable for `module_response_curve`, which can
     # only be used when the module's inputs and outputs are distinct
-    error_messages <- character()
     info <- module_info(module_name, verbose = FALSE)
     overlapping_io <- intersect(info$inputs, info$outputs)
     if (length(overlapping_io) > 0) {
@@ -264,76 +313,20 @@ module_response_curve <- function(
         )
     }
 
-    # Check to see if a discrete variable was supplied
-    discrete_supplied <- !identical(discrete_variable, list())
-
-    # Check that the variables are lists of one named numeric element (but
-    # discrete variable can be empty). Other error checks will be performed by
-    # `partial_evaluate_module`.
-    check_names(continuous_variable)
-
-    error_messages <- append(
-        error_messages,
-            check_list(list(
-            continuous_variable = continuous_variable,
-            discrete_variable = discrete_variable
-        ))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_numeric(list(
-            continuous_variable = continuous_variable,
-            discrete_variable = discrete_variable
-        ))
-    )
-
-    error_messages <- append(
-        error_messages,
-        check_length(list(continuous_variable = continuous_variable))
-    )
-
-    if (discrete_supplied) {
-        check_names(discrete_variable)
-        error_messages <- append(
-            error_messages,
-            check_length(list(discrete_variable = discrete_variable))
-        )
-    }
-
     send_error_messages(error_messages)
-
-    # Create a vector of `arg_names` and a corresponding data frame of values
-    arg_names <- character(0)
-    arg_values <- data.frame()
-
-    if (discrete_supplied) {
-        arg_names <- c(names(continuous_variable), names(discrete_variable))
-        arg_values <- setNames(
-            data.frame(
-                rep.int(unlist(continuous_variable), length(discrete_variable[[1]])),
-                rep(unlist(discrete_variable), each = length(continuous_variable[[1]])),
-                row.names = NULL
-            ),
-            NULL
-        )
-    } else {
-        arg_names <- names(continuous_variable)
-        arg_values <- setNames(
-            data.frame(unlist(continuous_variable), row.names = NULL),
-            NULL
-        )
-    }
 
     # Use `partial_evaluate_module` to create a function that calls the module
     # with the appropriate inputs
-    evaluation_function <-
-        partial_evaluate_module(module_name, input_quantities, arg_names)
+    evaluation_function <- partial_evaluate_module(
+        module_name,
+        fixed_quantities,
+        names(varying_quantities)
+    )
 
     # Apply the function to each row in the data frame of inputs, producing a
     # list of data frames that each have 1 row and whose columns represent the
     # module's input and output quantities
-    df_list <- apply(arg_values, 1, function(x) {
+    df_list <- apply(varying_quantities, 1, function(x) {
         result <- evaluation_function(x)
         as.data.frame(c(result$inputs, result$outputs))
     })
@@ -345,7 +338,14 @@ module_response_curve <- function(
 
 quantity_list_from_names <- function(quantity_names)
 {
-    error_messages <- check_strings(list(quantity_names = quantity_names))
+    # Check that the following type conditions are met:
+    # - `quantity_names` should be a character vector
+    error_messages <- check_vector(list(quantity_names = quantity_names))
+
+    error_messages <- append(
+        error_messages,
+        check_strings(list(quantity_names = quantity_names))
+    )
 
     send_error_messages(error_messages)
 
