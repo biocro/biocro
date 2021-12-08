@@ -46,7 +46,7 @@ check_module_input_quantities <- function(module_name, input_quantities) {
 
     error_messages <- append(
         error_messages,
-        check_names(list(input_quantities = input_quantities))
+        check_element_names(list(input_quantities = input_quantities))
     )
 
     error_messages <- append(
@@ -180,23 +180,8 @@ module_response_curve <- function(
 
     error_messages <- append(
         error_messages,
-        check_names(list(varying_quantities = varying_quantities))
+        check_element_names(list(varying_quantities = varying_quantities))
     )
-
-    # Make sure the module is suitable for `module_response_curve`, which can
-    # only be used when the module's inputs and outputs are distinct
-    info <- module_info(module_name, verbose = FALSE)
-    overlapping_io <- intersect(info$inputs, info$outputs)
-    if (length(overlapping_io) > 0) {
-        error_messages <- append(
-            error_messages,
-            paste0(
-                "The `", module_name, "` module has at least one quantity ",
-                "that is both an input and an output, so ",
-                "`module_response_curve` cannot be used"
-            )
-        )
-    }
 
     send_error_messages(error_messages)
 

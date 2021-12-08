@@ -3,7 +3,7 @@
 context("Test error conditions during system validation and construction")
 
 MAX_INDEX <- 100
-VERBOSE <- TRUE
+VERBOSE <- FALSE
 
 test_that("drivers must not be empty", {
     expect_error(

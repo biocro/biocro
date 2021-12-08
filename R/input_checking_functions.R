@@ -167,7 +167,7 @@ check_strings <- function(args_to_check) {
 }
 
 # Checks whether the elements of the `args_to_check` list are vectors or lists
-# of strings. If all elements meet this criterion, this function returns an
+# of booleans. If all elements meet this criterion, this function returns an
 # empty string. Otherwise, it returns an informative error message.
 check_boolean <- function(args_to_check) {
     check_names(args_to_check)

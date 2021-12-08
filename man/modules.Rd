@@ -13,11 +13,11 @@
   \code{evaluate_module} runs a BioCro module using a list of input quantity
   values.
 
+  \code{quantity_list_from_names} initializes a list of named numeric elements
+  from a set of names.
+
   \code{module_response_curve} runs a BioCro module repeatedly with different
   input quantity values to produce a response curve.
-
-  \code{quantity_list_from_names} initializes a list of named numeric elements
-  from a set of names
 }
 
 \usage{
@@ -25,15 +25,15 @@
 
   evaluate_module(module_name, input_quantities)
 
-  module_response_curve(module_name, fixed_quantities, varying_quantities)
-
   quantity_list_from_names(quantity_names)
+
+  module_response_curve(module_name, fixed_quantities, varying_quantities)
 }
 
 \arguments{
   \item{module_name}{
-    A string representing the name of a BioCro module; only one name is allowed
-    at the moment, but multiple modules will be supported in the future
+    A string representing the name of one BioCro module
+    % TO DO: update this once passing multiple modules is implemented
   }
 
   \item{verbose}{
@@ -45,6 +45,10 @@
     by the module; any extraneous quantities will be ignored by the module
   }
 
+  \item{quantity_names}{
+    A vector of strings
+  }
+
   \item{fixed_quantities}{
     A list of named numeric elements representing input quantities required
     by the module whose values should be considered to be constant; any
@@ -54,10 +58,6 @@
   \item{varying_quantities}{
     A data frame where each column represents an input quantity required by the
     module whose value varies across the response curve
-  }
-
-  \item{quantity_names}{
-    A vector of strings
   }
 }
 
@@ -72,9 +72,13 @@
   calculate a module response curve. To do this, a user must specify a module to
   use, the values of any fixed input quantities (\code{input_quantities}), and
   a sequence of values for other quantities that vary across the response curve
-  (\code{varying_quantities}). Since each module input and output is included as
-  a column in the resulting data frame, this function can only be applied to
-  modules without any overlap between inputs and outputs.
+  (\code{varying_quantities}). The returned data frame includes all the
+  information that would be required to reproduce the curve: the module name,
+  all inputs (including ones with constant values), and the outputs. Note: if
+  one quantity \code{q} is both an input and output of the module, its input
+  value will be stored in the \code{q} column of the returned data frame and its
+  output value will be stored in the \code{q.1} column; this renaming is
+  performed automatically by the \code{\link{make.unique}} function.
 }
 
 \value{
@@ -97,7 +101,12 @@
   \item{evaluate_module}{
     A list of named numeric elements representing the values of the module's
     outputs as calculated from the \code{input_quantities} according to the
-    module's equations
+    module's equations.
+  }
+
+  \item{quantity_list_from_names}{
+    A list of named numeric elements, where the names are set by
+    \code{quantity_names} and each value is initialized to 1.
   }
 
   \item{module_response_curve}{
@@ -105,11 +114,6 @@
     the response curve and the remaining columns are the module's input and
     output quantities. Each row corresponds to a row in the
     \code{varying_quantities}.
-  }
-
-  \item{quantity_list_from_names}{
-    A list of named numeric elements, where the names are set by
-    \code{quantity_names} and each value is initialized to 1.
   }
 }
 
@@ -145,5 +149,19 @@ rc <- module_response_curve(
     rh = c(0.2, 0.5, 0.8)
   )
 )
-lattice::xyplot(Assim ~ Tleaf, group = rh, data = rc, auto = TRUE, type = 'l')
+caption <- paste(
+  "Response curves calculated with several RH\nvalues and Q =",
+  unique(rc$Qp),
+  "micromol / m^2 / s\nusing the",
+  unique(rc$module_name),
+  "module"
+)
+lattice::xyplot(
+  Assim ~ Tleaf,
+  group = rh,
+  data = rc,
+  auto = TRUE,
+  type = 'l',
+  main = caption
+)
 }
