@@ -198,7 +198,7 @@ module_response_curve <- function(
     # module's input and output quantities
     df_list <- apply(varying_quantities, 1, function(x) {
         result <- evaluation_function(x)
-        as.data.frame(c(result$inputs, result$outputs))
+        as.data.frame(c(result$inputs, result$outputs), row.names = NULL)
     })
 
     # Combine the data frames into one data frame, add the module name as the
