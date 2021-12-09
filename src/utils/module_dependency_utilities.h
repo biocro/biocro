@@ -3,7 +3,7 @@
 
 #include <boost/graph/topological_sort.hpp> // for not_a_dag
 
-#include "../validate_system.h" // for string_vector
+#include "../validate_dynamical_system.h" // for string_vector
 
 // Throws not_a_dag:
 string_vector get_evaluation_order(string_vector module_names);

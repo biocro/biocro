@@ -10,14 +10,14 @@
  * @brief Sets the water stress adjustment factors to apply the stomatal water
  * stress only to the stomatal conductance. Currently only intended for use by Ed.
  */
-class ed_apply_stomatal_water_stress_via_conductance : public SteadyModule
+class ed_apply_stomatal_water_stress_via_conductance : public direct_module
 {
    public:
     ed_apply_stomatal_water_stress_via_conductance(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_apply_stomatal_water_stress_via_conductance"),
+          direct_module("ed_apply_stomatal_water_stress_via_conductance"),
           // Get pointers to input quantities
           StomataWS_ip(get_ip(input_quantities, "StomataWS")),
           // Get pointers to output quantities
@@ -67,14 +67,14 @@ void ed_apply_stomatal_water_stress_via_conductance::do_operation() const
  * @brief Sets the water stress adjustment factors to apply the stomatal water
  * stress only to the stomatal conductance.
  */
-class ed_apply_stomatal_water_stress_via_assimilation : public SteadyModule
+class ed_apply_stomatal_water_stress_via_assimilation : public direct_module
 {
    public:
     ed_apply_stomatal_water_stress_via_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_apply_stomatal_water_stress_via_assimilation"),
+          direct_module("ed_apply_stomatal_water_stress_via_assimilation"),
           // Get pointers to input quantities
           StomataWS_ip(get_ip(input_quantities, "StomataWS")),
           // Get pointers to output quantities

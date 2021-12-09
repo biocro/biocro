@@ -10,18 +10,17 @@
  * @brief Uses the method from `c3CanAC()` to calculate leaf photosynthesis
  * parameters for C3 plants
  */
-class c3_leaf_photosynthesis : public SteadyModule
+class c3_leaf_photosynthesis : public direct_module
 {
    public:
     c3_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c3_leaf_photosynthesis"),
+          direct_module("c3_leaf_photosynthesis"),
 
           // Get references to input quantities
-          par_energy_content(get_input(input_quantities, "par_energy_content")),
-          incident_par(get_input(input_quantities, "incident_par")),
+          incident_ppfd(get_input(input_quantities, "incident_ppfd")),
           temp(get_input(input_quantities, "temp")),
           rh(get_input(input_quantities, "rh")),
           vmax1(get_input(input_quantities, "vmax1")),
@@ -39,10 +38,12 @@ class c3_leaf_photosynthesis : public SteadyModule
           water_stress_approach(get_input(input_quantities, "water_stress_approach")),
           electrons_per_carboxylation(get_input(input_quantities, "electrons_per_carboxylation")),
           electrons_per_oxygenation(get_input(input_quantities, "electrons_per_oxygenation")),
-          incident_average_par(get_input(input_quantities, "incident_average_par")),
+          average_absorbed_shortwave(get_input(input_quantities, "average_absorbed_shortwave")),
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output quantities
           Assim_op(get_op(output_quantities, "Assim")),
@@ -52,7 +53,8 @@ class c3_leaf_photosynthesis : public SteadyModule
           TransR_op(get_op(output_quantities, "TransR")),
           EPenman_op(get_op(output_quantities, "EPenman")),
           EPriestly_op(get_op(output_quantities, "EPriestly")),
-          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature")),
+          gbw_op(get_op(output_quantities, "gbw"))
     {
     }
     static string_vector get_inputs();
@@ -60,8 +62,7 @@ class c3_leaf_photosynthesis : public SteadyModule
 
    private:
     // References to input quantities
-    double const& par_energy_content;
-    double const& incident_par;
+    double const& incident_ppfd;
     double const& temp;
     double const& rh;
     double const& vmax1;
@@ -79,10 +80,12 @@ class c3_leaf_photosynthesis : public SteadyModule
     double const& water_stress_approach;
     double const& electrons_per_carboxylation;
     double const& electrons_per_oxygenation;
-    double const& incident_average_par;
+    double const& average_absorbed_shortwave;
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;
+    double const& minimum_gbw;
+    double const& windspeed_height;
 
     // Pointers to output quantities
     double* Assim_op;
@@ -93,6 +96,7 @@ class c3_leaf_photosynthesis : public SteadyModule
     double* EPenman_op;
     double* EPriestly_op;
     double* leaf_temperature_op;
+    double* gbw_op;
 
     // Main operation
     void do_operation() const;

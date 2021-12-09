@@ -111,8 +111,8 @@ output_directory = $(complete_docs_directory)
 
 #### Fixed variables used in computing target-specific variables:
 
-framework_source =  ../src ../src/se_solver_library ../src/system_solver_library ../src/utils
-module_source = ../src/module_library
+framework_source =  ../src ../src/se_solver_library ../src/ode_solver_library ../src/utils markdown
+module_source = ../src/module_library markdown
 all_source = $(framework_source) $(module_source)
 source_file_extensions = h hpp cpp md markdown dox
 complete_docs_directory = doxygen_docs_complete
@@ -142,6 +142,11 @@ target_subdirectories = $(strip $(if $(findstring YES,$(1)),html) $(if $(findstr
 # arg 2 should be a list of subdirectories (html, latex, or both)
 target_directories = $(addprefix $(1)/,$(2))
 
+#### Variables set from system calls:
+git_hash = $(shell git show -s --format=%h)
+git_date = $(shell git show -s --format=%ad)
+git_status = $(shell git status | sed 's|^|<br>|' | sed 's|"|\&quot;|g')
+
 # Canned recipe for build:
 
 define build-recipe
@@ -150,6 +155,9 @@ define build-recipe
   echo "GENERATE_TREEVIEW = $(generate_treeview)"; \
   echo "GENERATE_LATEX = $(generate_latex)"; \
   echo "INPUT = $(source)"; \
+  echo "ALIASES += git_hash=$(git_hash)"; \
+  echo "ALIASES += git_date=\"$(git_date)\""; \
+  echo "ALIASES += git_status=\"$(git_status)\""; \
   echo "OUTPUT_DIRECTORY = $(output_directory)"; \
   echo "EXTRACT_PRIVATE = $(extract_private)"; \
   echo "HTML_COLORSTYLE_HUE = $(color)" ) | doxygen -

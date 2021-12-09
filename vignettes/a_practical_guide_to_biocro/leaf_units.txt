@@ -1,0 +1,10 @@
+string_vector total_biomass::get_inputs()
+{
+    return {
+        "Leaf",     // Mg / ha
+        "Stem",     // Mg / ha
+        "Root",     // Mg / ha
+        "Rhizome",  // Mg / ha
+        "Grain"     // Mg / ha
+    };
+}

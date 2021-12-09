@@ -12,14 +12,14 @@
  * @brief Determines water vapor properties from the air temperature
  * and atmospheric H2O mole fraction. Currently only intended for use by Ed.
  */
-class ed_water_vapor_properties : public SteadyModule
+class ed_water_vapor_properties : public direct_module
 {
    public:
     ed_water_vapor_properties(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_water_vapor_properties"),
+          direct_module("ed_water_vapor_properties"),
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           atmospheric_pressure_ip(get_ip(input_quantities, "atmospheric_pressure")),
@@ -68,7 +68,7 @@ string_vector ed_water_vapor_properties::get_outputs()
 {
     return {
         "latent_heat_vaporization_of_water",  // J / kg
-        "slope_water_vapor",                  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+        "slope_water_vapor",                  // kg / m^3 / K
         "saturation_water_vapor_pressure",    // Pa
         "water_vapor_pressure",               // Pa
         "vapor_density_deficit",              // kg / m^3

@@ -5,32 +5,39 @@
 
 #include <cmath>
 #include "eC4photo.h"
+#include "../constants.h"  // for celsius_to_kelvin, ideal_gas_constant
 
-double eC4photoC(double QP, double TEMP, double RH, double CA,
-		double OA, double VCMAX, double VPMAX, double VPR,
-		double JMAX)
+double eC4photoC(
+    double QP,
+    double TEMP,
+    double CA,
+    double OA,
+    double VCMAX,
+    double VPMAX,
+    double VPR,
+    double JMAX)
 {
-    const double  gs = 3 * 1e-3 ;
+    const double gs = 3 * 1e-3;
     /* mol m-2 s-1 physical conductance to CO2 leakage*/
     /* const double gammaStar = 0.000193  */
-    const double gammaStar =  0.0002239473      ;
+    const double gammaStar = 0.0002239473;
     /* half the reciprocal of Rubisco specificity */
     /*    const double go = 0.047 * gs     at 25 C */
-    const double alpha = 0.01 ; /* alpha in the notes*/
-    const double Kp = 80 ; /*  mu bar */
+    const double alpha = 0.01; /* alpha in the notes*/
+    const double Kp = 80;      /*  mu bar */
     const double theta = 0.7;
-    const double R = 0.008314472; // kJ K^-1 mol^-1
+    const double R = physical_constants::ideal_gas_constant * 1e-3;  // kJ K^-1 mol^-1
 
     /* ADDING THE TEMPERATURE RESPONSE FUNCTION */
-    const double Ep  = 47.1 ; /* Activation energy of PEPc kj/mol */
-    const double Erb = 72 ; /* Activation energy of Rubisco kj/mol */
+    const double Ep = 47.1; /* Activation energy of PEPc kj/mol */
+    const double Erb = 72;  /* Activation energy of Rubisco kj/mol */
     /*    const double Q10bf = 1.7 */
     const double EKc = 79.43;
     const double EKo = 36.38;
     const double Q10cb = 1.7;
 
-    const double Ko2 = 532.9 ; /* mbar at 25 C */
-    const double Kc2 = 1020 ; /*  mu bar at 25 C */
+    const double Ko2 = 532.9; /* mbar at 25 C */
+    const double Kc2 = 1020;  /*  mu bar at 25 C */
 
     double Vcmax, Vpmax;
     double Kc, Ko;
@@ -46,30 +53,30 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
     double Idir = QP;
     double AirTemp = TEMP;
 
-    double Q10p = exp(Ep *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
-    double Q10rb = exp(Erb *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
-    double Q10Kc = exp(EKc *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
-    double Q10Ko = exp(EKo *(1/(R*298.15)-1/(R*(AirTemp+273.15))));
+    double Q10p = exp(Ep * (1 / (R * 298.15) - 1 / (R * (AirTemp + conversion_constants::celsius_to_kelvin))));
+    double Q10rb = exp(Erb * (1 / (R * 298.15) - 1 / (R * (AirTemp + conversion_constants::celsius_to_kelvin))));
+    double Q10Kc = exp(EKc * (1 / (R * 298.15) - 1 / (R * (AirTemp + conversion_constants::celsius_to_kelvin))));
+    double Q10Ko = exp(EKo * (1 / (R * 298.15) - 1 / (R * (AirTemp + conversion_constants::celsius_to_kelvin))));
 
     Vcmax = Vcmax1 * Q10rb;
     Kc = Kc2 * Q10Kc;
     Ko = Ko2 * Q10Ko;
-    Vpmax = Vpmax1 * Q10p;        
-    double Jmax = Jmax1 * pow(Q10cb,(AirTemp-25)/10);
+    Vpmax = Vpmax1 * Q10p;
+    double Jmax = Jmax1 * pow(Q10cb, (AirTemp - 25) / 10);
 
-    double Cm = 0.4 * Ca ; 
-    double Om = Oa ;
+    double Cm = 0.4 * Ca;
+    double Om = Oa;
 
     double Rd = 0.08;
-    double Rm = 0.5 * Rd ;
+    double Rm = 0.5 * Rd;
 
     /* Light limited */
-    double I2 = (Idir * 0.85)/2;
-    double J = (Jmax + I2  - sqrt(pow(Jmax+I2,2) - 4 * theta * I2 * Jmax ))/2*theta;        
-    double Aj0 = 0.4 * J - Rm + gs * Cm;        
-    double Aj1 = (1-0.4)*J/3-Rd;
+    double I2 = (Idir * 0.85) / 2;
+    double J = (Jmax + I2 - sqrt(pow(Jmax + I2, 2) - 4 * theta * I2 * Jmax)) / 2 * theta;
+    double Aj0 = 0.4 * J - Rm + gs * Cm;
+    double Aj1 = (1 - 0.4) * J / 3 - Rd;
 
-    if (Aj0 < Aj1){
+    if (Aj0 < Aj1) {
         Aj = Aj0;
     } else {
         Aj = Aj1;
@@ -87,10 +94,10 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
 
     double a1 = 1 - alpha / 0.047 * Kc / Ko1;
     double b1 = -((Vp - Rm + gs * Cm) + (Vcmax - Rd) +
-            gs * (Kc * (1 + Om1 / Ko1)) + ((alpha / 0.047) * (gammaStar * Vcmax + Rd * Kc / Ko1)));
+                  gs * (Kc * (1 + Om1 / Ko1)) + ((alpha / 0.047) * (gammaStar * Vcmax + Rd * Kc / Ko1)));
     double c1 = (Vcmax - Rd) * (Vp - Rm + gs * Cm) - (Vcmax * gs * gammaStar * Om1 + Rd * gs * Kc * (1 + Om1 / Ko1));
 
-    double c3 = pow(b1,2) - 4 * a1 * c1;
+    double c3 = pow(b1, 2) - 4 * a1 * c1;
     if (c3 < 0) {
         c3 = 0;
     }
@@ -110,6 +117,5 @@ double eC4photoC(double QP, double TEMP, double RH, double CA,
         A = Ac;
     }
 
-    return(A);
+    return A;
 }
-

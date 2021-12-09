@@ -6,13 +6,13 @@ It uses models of key physiological and biophysical processes underlying plant g
 BioCro has also been integrated into a suite of tools that link the model directly to crop trait and yield data ([LeBauer et al., 2014]). The Predictive Ecosystem Analyzer ([PEcAn](https://github.com/PecanProject/pecan)) couples BioCro to the [Biofuel Ecophysiological Traits and Yields database](https://www.betydb.org).
 
 ### An example
-The Gro() function accepts initial values, parameters, climate variables, and a set of modules to run. It returns the results in a data frame.
+The `run_biocro()` function accepts initial values, parameters, climate variables, and sets of modules to run. It returns the results in a data frame.
 
 ```r
 library(BioCro)
 library(lattice)
 
-result = Gro(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather05), sorghum_modules)
+result = run_biocro(sorghum_initial_values, sorghum_parameters, get_growing_season_climate(weather2005), sorghum_direct_modules, sorghum_differential_modules, sorghum_ode_solver)
 xyplot(Stem + Leaf ~ TTc, result, type='l')
 ```
 
@@ -47,8 +47,14 @@ install.packages('biocro', repos=NULL, type='SOURCE')
 Please see the [contribution guidelines](documentation/contribution_guidelines.md) before submitting changes.
 
 ### Software Documentation
-- [C++ library](https://ebimodeling.github.io/biocro-documentation/)
-- R package (coming soon!)
+
+See the [BioCro Documentation Web
+Site](https://ebimodeling.github.io/biocro-documentation/).  There
+will be found not only the standard package documentation, but also
+documentation of the C++ code, including notes on the biological
+models used in BioCro and their implementation.  Also included is
+documentation for BioCro package developers and maintainers.
+
 
 ## References
 - [Humphries S and Long SP][Humphries and Long, 1995] (1995) WIMOVAC - a software package for modeling the dynamics of the plant leaf and canopy photosynthesis. Computer Applications in the Bioscience 11(4):361-371.

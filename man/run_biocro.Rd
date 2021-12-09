@@ -1,0 +1,120 @@
+\name{run_biocro}
+
+\alias{run_biocro}
+
+\title{Simulate Crop Growth with BioCro}
+
+\description{Runs a full crop growth simulation using the BioCro framework}
+
+\usage{
+run_biocro(
+    initial_values = list(),
+    parameters = list(),
+    drivers,
+    direct_module_names = list(),
+    differential_module_names = list(),
+    ode_solver = BioCro:::default_ode_solver,
+    verbose = FALSE
+)
+}
+
+\arguments{
+  \item{initial_values}{
+    A list of named quantities representing the initial values of the
+    differential quantities, i.e., the quantities whose derivatives are
+    calculated by differential modules
+  }
+
+  \item{parameters}{
+    A list of named quantities that don't change with time; must include a
+    'timestep' parameter (see `drivers` for more info)
+  }
+
+  \item{drivers}{
+    A data frame of quantities defined at equally spaced time intervals. The
+    time interval should be specified in the `parameters` as a quantity called
+    'timestep' having units of hours. The drivers must include columns for
+    either (1) 'time' (in units of days) or (2) 'doy' and 'hour'.
+  }
+
+  \item{direct_module_names}{
+    A character vector or list specifying the names of direct modules to use in
+    the system; a list of available modules can be obtained via the
+    \code{\link{get_all_modules}} function
+  }
+
+  \item{differential_module_names}{
+    A character vector or list specifying the names of differential modules to
+    use in the system; a list of available modules can be obtained via the
+    \code{\link{get_all_modules}} function
+  }
+
+  \item{ode_solver}{
+    A list specifying details about the numerical ODE solver. The required
+    elements are:
+    \itemize{
+      \item \code{type}: A string specifying the name of the algorithm to use;
+            a list of available options can be obtained using the
+            \code{\link{get_all_ode_solvers}} function.
+      \item \code{output_step_size}: The output step size. If smaller than 1, it
+            should equal 1.0 / N for some integer N. If larger than 1, it should
+            be an integer.
+      \item \code{adaptive_rel_error_tol}: used to set the relative error
+            tolerance for adaptive step size methods
+      \item \code{adaptive_abs_error_tol}: used to set the absolute error
+            tolerance for adaptive step size methods
+      \item \code{adaptive_max_steps}: determines how many times an adaptive
+            step size method will attempt to find a new step size before
+            indicating failure
+    }
+  }
+
+  \item{verbose}{
+    A logical variable indicating whether or not to print dynamical system
+    validation information. (More detailed startup information can be obtained
+    with the \code{\link{validate_dynamical_system_inputs}} function.)
+  }
+
+}
+
+\details{
+  \code{run_biocro} is the most important function in the BioCro package. The
+  input arguments to this function are used to define a dynamical system and
+  solve for its time evolution during a desired time period. For more details
+  about how this function operates, see the BioCro II paper.
+}
+
+\value{
+  A data frame where each column represents one of the quantities included in
+  the simulation (with the exception of the parameters, since their values are
+  guaranteed to not change with time) and each row represents a time point
+}
+
+\seealso{
+  \itemize{
+    \item \code{\link{get_all_modules}}
+    \item \code{\link{get_all_ode_solvers}}
+    \item \code{\link{validate_dynamical_system_inputs}}
+    \item \code{\link{partial_run_biocro}}
+  }
+}
+
+\examples{
+# Example: running a sorghum simulation using weather data from 2005
+result <- run_biocro(
+    sorghum_initial_values,
+    sorghum_parameters,
+    get_growing_season_climate(weather2005),
+    sorghum_direct_modules,
+    sorghum_differential_modules,
+    sorghum_ode_solver,
+    TRUE
+)
+
+lattice::xyplot(
+  Leaf + Stem + Root + Grain ~ TTc,
+  data=result,
+  type='l',
+  auto=TRUE
+)
+}

@@ -17,7 +17,7 @@ get_errors = function(expr) {
 
 wrong_modules = within(sorghum_modules, canopy_module_name<-'NONEXISTANTMODULE')
 result = get_errors({Gro(sorghum_initial_values, sorghum_parameters, weather05, wrong_modules)})
-if (conditionMessage(result) != "Caught exception in R_Gro_solver: 'NONEXISTANTMODULE' was given as a module name, but ModuleFactory::get_inputs could not find a module with that name.\n") {
+if (conditionMessage(result) != "Caught exception in R_run_biocro: 'NONEXISTANTMODULE' was given as a module name, but ModuleFactory::get_inputs could not find a module with that name.\n") {
     warning('Nonexistant module names should produce an error.')
 }
 

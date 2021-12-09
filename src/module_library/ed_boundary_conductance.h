@@ -20,14 +20,14 @@
  * overall conductance determined this way will be approximately equal to the
  * larger conductance as in Nikolov.
  */
-class ed_boundary_conductance_quadrature : public SteadyModule
+class ed_boundary_conductance_quadrature : public direct_module
 {
    public:
     ed_boundary_conductance_quadrature(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_boundary_conductance_quadrature"),
+          direct_module("ed_boundary_conductance_quadrature"),
           // Get pointers to input quantities
           conductance_boundary_h2o_forced_ip(get_ip(input_quantities, "conductance_boundary_h2o_forced")),
           conductance_boundary_h2o_free_ip(get_ip(input_quantities, "conductance_boundary_h2o_free")),
@@ -82,14 +82,14 @@ void ed_boundary_conductance_quadrature::do_operation() const
  * Here we follow Nikolov et al. who suggest using the larger of the forced
  * and free conductances.
  */
-class ed_boundary_conductance_max : public SteadyModule
+class ed_boundary_conductance_max : public direct_module
 {
    public:
     ed_boundary_conductance_max(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_boundary_conductance_max"),
+          direct_module("ed_boundary_conductance_max"),
           // Get pointers to input quantities
           conductance_boundary_h2o_forced_ip(get_ip(input_quantities, "conductance_boundary_h2o_forced")),
           conductance_boundary_h2o_free_ip(get_ip(input_quantities, "conductance_boundary_h2o_free")),

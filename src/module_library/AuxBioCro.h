@@ -17,23 +17,17 @@
 
 #define MAXLAY    200 /* Maximum number of layers */
 
-#ifndef M_PI
-#define M_PI           3.14159265358979323846
-#endif
-
-#ifndef M_E
-# define M_E            2.7182818284590452354
-#endif
-
-
 struct Light_profile {
-	double direct_irradiance[MAXLAY];
-    double scattered_irradiance[MAXLAY];
-	double diffuse_irradiance[MAXLAY];
-	double total_irradiance[MAXLAY];
-	double sunlit_fraction[MAXLAY];
-	double shaded_fraction[MAXLAY];
-	double height[MAXLAY];
+    double sunlit_incident_ppfd[MAXLAY];        // micromol / (m^2 leaf) / s
+    double incident_ppfd_scattered[MAXLAY];     // micromol / m^2 / s
+    double shaded_incident_ppfd[MAXLAY];        // micromol / (m^2 leaf) / s
+    double average_incident_ppfd[MAXLAY];       // micromol / (m^2 leaf) / s
+    double sunlit_absorbed_shortwave[MAXLAY];   // J / (m^2 leaf) / s
+    double shaded_absorbed_shortwave[MAXLAY];   // J / (m^2 leaf) / s
+    double average_absorbed_shortwave[MAXLAY];  // J / (m^2 leaf) / s
+    double sunlit_fraction[MAXLAY];             // dimensionless
+    double shaded_fraction[MAXLAY];             // dimensionless
+    double height[MAXLAY];                      // m
 };
 
 struct ET_Str {
@@ -181,8 +175,22 @@ struct crop_phenology {
       }leaf,stem,root,rhiz;
 };
 
-double leaf_boundary_layer_conductance(double windspeed, double leafwidth, double AirTemp,
-                         double deltat, double stomcond, double vappress);
+double leaf_boundary_layer_conductance_nikolov(
+    double windspeed,
+    double leafwidth,
+    double air_temperature,
+    double delta_t,
+    double stomcond,
+    double water_vapor_pressure,
+    double minimum_gbw
+);
+
+double leaf_boundary_layer_conductance_thornley(
+    double CanopyHeight,
+    double WindSpeed,
+    double minimum_gbw,
+    double WindSpeedHeight
+);
 
 void LNprof(double LeafN, double LAI, int nlayers, double kpLN, double* leafNla);
 

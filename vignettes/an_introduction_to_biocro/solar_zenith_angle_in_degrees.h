@@ -30,25 +30,25 @@
  *  function is used and undefined values are represented by NaN.
  *
  */
-class solar_zenith_angle_in_degrees : public SteadyModule {
+class solar_zenith_angle_in_degrees : public direct_module {
 
  public:
-    solar_zenith_angle_in_degrees(const state_map* input_parameters, state_map* output_parameters)
-        : SteadyModule{"solar_zenith_angle_in_degrees"},
-          cosine_zenith_angle{get_input(input_parameters, "cosine_zenith_angle")},
-          zenith_angle_in_degrees_op{get_op(output_parameters, "zenith_angle_in_degrees")}
+    solar_zenith_angle_in_degrees(const state_map& input_quantities, state_map* output_quantities)
+        : direct_module{"solar_zenith_angle_in_degrees"},
+          cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
+          zenith_angle_in_degrees_op{get_op(output_quantities, "zenith_angle_in_degrees")}
         {}
-        
+
     static string_vector get_inputs();
     static string_vector get_outputs();
-   
+
  private:
     // References to input parameters:
     const double& cosine_zenith_angle;
 
     // Pointers to output parameters:
     double* zenith_angle_in_degrees_op;
-    
+
     // Implement the pure virtual function do_operation():
     void do_operation() const override final;
 };

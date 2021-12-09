@@ -12,13 +12,13 @@
  * @brief Represents a simple hyperbola defined by f(x) = 1 + 1 / x. Intended to be used as a simple test case
  * for simultaneous eqation solvers. The solution to f(x) = x is x = (1 + sqrt(5))/2, the "golden ratio."
  */
-class golden_ratio_hyperbola : public SteadyModule
+class golden_ratio_hyperbola : public direct_module
 {
    public:
     golden_ratio_hyperbola(
         state_map const& input_quantities,
         state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("golden_ratio_hyperbola"),
+                                                                      direct_module("golden_ratio_hyperbola"),
                                                                       // Get pointers to input quantities
                                                                       x_ip(get_ip(input_quantities, "x")),
                                                                       // Get pointers to output quantities
@@ -64,13 +64,13 @@ void golden_ratio_hyperbola::do_operation() const
  * Intended to be used as a simple test case for simultaneous equation solvers. One solution to f(x,y) = x,
  * g(x,y) = y exists at x = -1.126529, y = 0.656279 (determined numerically).
  */
-class hyperbola_2d : public SteadyModule
+class hyperbola_2d : public direct_module
 {
    public:
     hyperbola_2d(
         state_map const& input_quantities,
         state_map* output_quantities) :  // Define basic module properties by passing its name to its parent class
-                                                                      SteadyModule("hyperbola_2d"),
+                                                                      direct_module("hyperbola_2d"),
                                                                       // Get pointers to input quantities
                                                                       x_ip(get_ip(input_quantities, "x")),
                                                                       y_ip(get_ip(input_quantities, "y")),

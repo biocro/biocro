@@ -1,0 +1,5 @@
+navbar:
+  components:
+    about:
+      text: About
+      href: about_pkgdown_documentation.html

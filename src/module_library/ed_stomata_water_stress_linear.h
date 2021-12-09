@@ -15,14 +15,14 @@
  * point and the field capacity, the stress factor is
  * determined by a straight line.
  */
-class ed_stomata_water_stress_linear : public SteadyModule
+class ed_stomata_water_stress_linear : public direct_module
 {
    public:
     ed_stomata_water_stress_linear(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_stomata_water_stress_linear"),
+          direct_module("ed_stomata_water_stress_linear"),
           // Get pointers to input quantities
           soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
           soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),

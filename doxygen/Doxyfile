@@ -11,7 +11,6 @@ PROJECT_NAME           = "The BioCro C++ Library"
 PROJECT_NUMBER         = # This could be set automatically to the version
                          # tag.
 OUTPUT_DIRECTORY       = doxygen_docs_complete
-JAVADOC_AUTOBRIEF      = YES
 TAB_SIZE               = 8 # Consider changing this to 4.  Or just get rid
                            # of all tabs.
 #---------------------------------------------------------------------------
@@ -28,8 +27,9 @@ HIDE_SCOPE_NAMES       = YES # not sure what difference this makes
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = ../src ../src/se_solver_library \
-                         ../src/system_solver_library ../src/utils \
-                         ../src/module_library
+                         ../src/ode_solver_library ../src/utils \
+                         ../src/module_library \
+                         markdown
 FILE_PATTERNS          = *.cpp \
                          *.h \
                          *.hpp \

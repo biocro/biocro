@@ -14,6 +14,7 @@ on:
     - 'src/**.dox'
     - 'src/**.md'
     - 'src/**.markdown'
+    - 'doxygen/markdown/*.md'
     # ... plus files administering the workflow ...
     - '.github/**'
     - 'doxygen/Makefile'
@@ -27,11 +28,11 @@ env:
   # The version directory names are hard-coded into the Make file and
   # are determined by the Make target.  An exception to this is
   # "doxygen_docs_modules_public_members_only", which is explicitly
-  # set as the output directory in step 3c below, overriding the
+  # set as the output directory in step 2c below, overriding the
   # default output directory for the Make file target
   # "module-docs-html".  (The default output directory was already
   # used as the output directory for the documentation version created
-  # in step 3b, and we don't want to overwrite it.)
+  # in step 2b, and we don't want to overwrite it.)
 
   version_directories: "doxygen_docs_complete doxygen_docs_modules doxygen_docs_modules_public_members_only doxygen_docs_framework"
   
@@ -50,24 +51,11 @@ jobs:
         path: source
 
 
-    # The "publish-to" repository is where the documentation will be
-    # copied to and then checked in (to the default branch).
-    # Providing ssh-key to this checkout action gives us permission to
-    # check in our changes later, in the Push step:
-
-    - name: 2. Check out master of the "publish-to" repository
-      uses: actions/checkout@v2
-      with:
-        repository: ${{ env.publish-to }}
-        path: target
-        ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
-
-
     # The following four steps use the doxygen action defined in the
     # actions directory to build four different versions of the
     # Doxygen documentation:
 
-    - name: 3a. Doxygen Action for default
+    - name: 2a. Doxygen Action for default
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
@@ -77,7 +65,7 @@ jobs:
         # Makefile target
         makefile-target: "all-html"
 
-    - name: 3b. Doxygen Action for modules only
+    - name: 2b. Doxygen Action for modules only
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
@@ -87,7 +75,7 @@ jobs:
         # Makefile target
         makefile-target: "module-docs-html"
 
-    - name: 3c. Doxygen Action for public members of modules only
+    - name: 2c. Doxygen Action for public members of modules only
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
@@ -101,7 +89,7 @@ jobs:
         # Makefile target
         makefile-target: "module-docs-html"
 
-    - name: 3d. Doxygen Action for framework
+    - name: 2d. Doxygen Action for framework
       uses: ./source/.github/actions/doxygen-action
       with:
         # Working directory
@@ -112,6 +100,19 @@ jobs:
         generate-treeview: NO
         # Makefile target
         makefile-target: "framework-docs-html"
+
+
+    # The "publish-to" repository is where the documentation will be
+    # copied to and then checked in (to the default branch).
+    # Providing ssh-key to this checkout action gives us permission to
+    # check in our changes later, in the Push step:
+
+    - name: 3. Check out master of the "publish-to" repository
+      uses: actions/checkout@v2
+      with:
+        repository: ${{ env.publish-to }}
+        path: target
+        ssh-key:  ${{ secrets.PRIVATE_SSH_KEY }}
 
 
     - name: 4. Copy files into working copy of the target repository

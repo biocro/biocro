@@ -10,14 +10,14 @@
  *  @brief Calculates the total biomass by adding together the masses of the
  *  `Leaf`, `Stem`, `Root`, `Rhizome`, and `Grain` tissues.
  */
-class total_biomass : public SteadyModule
+class total_biomass : public direct_module
 {
    public:
     total_biomass(
         const state_map& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("total_biomass"),
+          direct_module("total_biomass"),
 
           // Get pointers to input parameters
           Leaf{get_input(input_quantities, "Leaf")},

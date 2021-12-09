@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class night_and_day_trackers : public DerivModule {
+class night_and_day_trackers : public differential_module {
     public:
         night_and_day_trackers(state_map const& input_quantities, state_map* output_quantities) :
             // Define basic module properties by passing its name to its parent class
-            DerivModule("night_and_day_trackers"),
+            differential_module("night_and_day_trackers"),
             // Get pointers to input quantities
             tracker_rate_ip(get_ip(input_quantities, "tracker_rate")),
             light_ip(get_ip(input_quantities, "light")),

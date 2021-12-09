@@ -54,20 +54,19 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
 
         // Try to create an instance of the module
         bool create_success = true;
-        bool is_deriv = false;
-        bool is_adaptive_compatible = false;
+        bool is_differential = false;
+        bool requires_euler_ode_solver = false;
         std::string creation_error_message = "none";
         try {
-            std::unique_ptr<Module> module_ptr = w->createModule(
+            std::unique_ptr<module_base> module_ptr = w->createModule(
                 module_inputs,
                 &module_outputs);
 
-            // Check to see if the module is a derivative module
-            is_deriv = module_ptr->is_deriv();
+            // Check to see if the module is a differential module
+            is_differential = module_ptr->is_differential();
 
-            // Check to see if the module is compatible with adaptive step size
-            // solvers
-            is_adaptive_compatible = module_ptr->is_adaptive_compatible();
+            // Check to see if the module requires an Euler ode_solver
+            requires_euler_ode_solver = module_ptr->requires_euler_ode_solver();
         } catch (std::exception const& e) {
             create_success = false;
             creation_error_message = e.what();
@@ -79,7 +78,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
             Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
 
             // Module inputs
-            Rprintf("Module input parameters:");
+            Rprintf("Module input quantities:");
             if (inputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
@@ -90,7 +89,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
             }
 
             // Module outputs
-            Rprintf("Module output parameters:");
+            Rprintf("Module output quantities:");
             if (outputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
@@ -102,15 +101,15 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
 
             if (create_success) {
                 // Module type
-                Rprintf("Module type (derivative or steady state):\n  ");
-                if (is_deriv)
-                    Rprintf("derivative\n\n");
+                Rprintf("Module type (differential or direct):\n  ");
+                if (is_differential)
+                    Rprintf("differential\n\n");
                 else
-                    Rprintf("steady state\n\n");
+                    Rprintf("direct\n\n");
 
-                // Adaptive compatibility
-                Rprintf("Compatible with adaptive step size solvers:\n  ");
-                if (is_adaptive_compatible)
+                // Euler requirement
+                Rprintf("Requires a fixed step size Euler ode_solver:\n  ");
+                if (requires_euler_ode_solver)
                     Rprintf("yes\n\n");
                 else
                     Rprintf("no\n\n");
@@ -125,10 +124,10 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
         // Return a list containing information about the module
         return list_from_module_info(
             module_name,
-            module_inputs,
-            module_outputs,
-            is_deriv,
-            is_adaptive_compatible,
+            keys(module_inputs),
+            keys(module_outputs),
+            is_differential,
+            requires_euler_ode_solver,
             creation_error_message);
 
     } catch (quantity_access_error const& qae) {
@@ -151,7 +150,7 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
  *                         has more than one element, only the first will be
  *                         used.
  *
- *  @param [in] input_parameters A list of named numeric elements where the name
+ *  @param [in] input_quantities A list of named numeric elements where the name
  *                               of each element corresponds to one of the
  *                               module's input quantities. Any element whose
  *                               name does not correspond to one of the module's
@@ -160,29 +159,28 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
  *  @return A list of named numeric elements where the name of each element
  *          corresponds to the one of the module's output quantities
  */
-SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_parameters)
+SEXP R_evaluate_module(SEXP mw_ptr_vec, SEXP input_quantities)
 {
     try {
         // Get the module_wrapper_base pointer
         module_wrapper_base* w = mw_vector_from_list(mw_ptr_vec)[0];
 
-        // input_parameters should be a state map
-        // use it to initialize the parameter list
-        state_map parameters = map_from_list(input_parameters);
+        // input_quantities should be a state map
+        // use it to initialize the quantity list
+        state_map quantities = map_from_list(input_quantities);
         state_map module_output_map;
 
         // Get the module's outputs and add them to the output list with default
         // values of 0.0. Since derivative modules add their output values to
         // the values in module_output_map, the result only makes sense if each
         // parameter is initialized to 0.
-        double const default_value = 0.0;
         string_vector module_outputs = w->get_outputs();
         for (std::string param : module_outputs) {
-            module_output_map[param] = default_value;
+            module_output_map[param] = 0.0;
         }
 
-        std::unique_ptr<Module> module_ptr =
-            w->createModule(parameters, &module_output_map);
+        std::unique_ptr<module_base> module_ptr =
+            w->createModule(quantities, &module_output_map);
 
         module_ptr->run();
 

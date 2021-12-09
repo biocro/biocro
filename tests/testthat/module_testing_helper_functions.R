@@ -215,7 +215,7 @@ csv_from_cases <- function(module_name, case_list)
     )
 
     for (i in seq_along(inputs)) {
-        input_name <- names(inputs)[i]
+        input_name <- inputs[i]
 
         csv_case[1,i] <- input_name
         csv_case[2,i] <- "input"
@@ -228,7 +228,7 @@ csv_from_cases <- function(module_name, case_list)
     }
 
     for (i in seq_along(outputs)) {
-        output_name <- names(outputs)[i]
+        output_name <- outputs[i]
         k <- i + n_inputs
 
         csv_case[1,k] <- output_name
@@ -373,8 +373,7 @@ cases_from_csv <- function(module_name)
 # the results as a csv file that specifies a test case and can be read using the
 # `cases_from_csv` function.
 #
-# If the user doesn't supply input values, defaults will be determined using the
-# `module_info` function.
+# If the user doesn't supply input values, all values will be set to 1.
 #
 # If the user doesn't supply a case description, a default description will be
 # used instead.
@@ -396,7 +395,7 @@ initialize_csv <- function(
     info <- module_info(module_name, FALSE)
 
     # Decide what to use as the input quantities
-    inputs <- info[['inputs']]
+    inputs <- quantity_list_from_names(info[['inputs']])
     if (length(nonstandard_inputs) > 0) {
         inputs <- nonstandard_inputs
     }
@@ -484,13 +483,13 @@ add_csv_row <- function(module_name, inputs, case_description)
 # Example showing how `update_csv_cases` can be used to initialize a testing
 # file for the `thermal_time_linear` module: to begin, we need to know which
 # input quantities are required for this module. This information can be
-# determined by calling `info <- module_info("thermal_time_linear")`. In this
-# case, there are two inputs: `temp` (representing the air temperature) and
-# `tbase` (the base temperature for phenological development). As test cases,
-# we would like to check the output for three situations where the air
-# temperature is below, equal to, or above the base temperature. We can specify
-# these cases by creating a `tests/testthat/thermal_time_linear.csv` file with
-# the following contents:
+# determined by calling `module_info("thermal_time_linear")`. In this case,
+# there are two inputs: `temp` (representing the air temperature) and `tbase`
+# (the base temperature for phenological development). As test cases, we would
+# like to check the output for three situations where the air temperature is
+# below, equal to, or above the base temperature. We can specify these cases by
+# creating a `tests/testthat/thermal_time_linear.csv` file with the following
+# contents:
 #
 # tbase,temp,description
 # input,input,NA

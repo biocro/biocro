@@ -1,3 +1,15 @@
+# tl;dr
+## Requirements
+- The testthat package. From the R command line, run `install.packages('testthat')`.
+
+## Running tests
+Move to the "tests" directories within the BioCro source code directory, and run the following code:
+
+```r
+library(BioCro)
+library(testthat)
+test_dir('testthat')
+```
 # Running the _testthat_ Tests
 
 BioCro's _testthat_ test suite is automatically run on GitHub as part
@@ -18,26 +30,6 @@ expected.
 
 ---
 
-## tl;dr
-
-To run all tests in a copy of the package source against the R and C++
-code in that source, install _devtools_, open an R session in any
-directory in the source tree, load _devtools_ with
-`library(devtools)`, and call `test()`.
-
-To run all tests from the source against an _installed_ version of the
-BioCro package, install _testthat_ (or _devtools_), start an R session
-in the`tests` directory of the source tree, and call
-`source('testthat.R')`.
-
-Read on for further information about various topics, including
-
-* running the tests on source code without installing _devtools_
-* better test reporting options
-* running individual test files
-
----
-
 ## Required R Packages
 - `testthat` (To install, run `install.packages('testthat')` in R.)
 - (optional) `devtools` (`install.packages('devtools')`)
@@ -47,6 +39,7 @@ Read on for further information about various topics, including
 ## Running the Tests
 
 There are two main ways to run the `testthat` tests:
+
 - Run tests in the `tests/testthat` directory of a source tree against an installed version of BioCro
 - Run tests in the `tests/testthat` directory of a source tree against the package code in that source tree
 
@@ -58,10 +51,13 @@ any of its tests.)
 
 The simplest way to do this is as follows:
 
-1. Start an R session in the `tests` directory of a BioCro source tree
-(or start R anywhere and use `setwd()` to move to that directory).
+1. Start an R session.
 
-1. Run `source('testthat.R')`.
+1. Run `xfun::in_dir('<path to tests directory>',
+source('testthat.R'))`, where `<path to tests directory>` is the path
+to the `tests` directory of a BioCro source tree.  (Alternatively, use
+`setwd()` to move to the `tests` directory (if you aren't there
+already) and just run `source('testthat.R')`.)
 
 This will run the _testthat_ tests in the same way that `R CMD check` would run them.
 
@@ -76,10 +72,15 @@ reporter.  To use it, replace step 2 above with
 ```r
 library(BioCro)
 library(testthat)
-test_check('BioCro', reporter = 'Summary')
+xfun::in_dir('<path to tests directory>', test_check('BioCro', reporter = 'Summary'))
 ```
 
-(Note: If you have already sourced `testthat.R` at least once, there
+(Note: If you are _in_ the `tests` directory, the third line can be
+simply
+```r
+test_check('BioCro', reporter = 'Summary')
+```
+And if you have already sourced `testthat.R` at least once, there
 is no need to reload the _BioCro_ and _testthat_ packages!)
 
 
@@ -94,15 +95,9 @@ Setting reporter to 'Progress' yields slightly less verbose output.
 Crucially and inconveniently, it doesn't print the names of the test
 files being run.  On the other hand, it gives a better numerical
 summary of the test results—how many tests passed, failed, or were
-skipped.
+skipped.[^comment]
 
-[Comment: The names "Progress" and "Summary" almost seem to me as if
-they have been reversed!  After all, it is the _Summary_ reporter
-which most clearly indicates how the testing is progressing and the
-_Progress_ reporter that gives the best numerical summary of how many
-tests failed.]
-
-### Running the test suite against the BioCro source code
+### Running the test suite against the BioCro source code {#sec:testing-local}
 
 If you are making changes to the R code or to the C++ code (or even to
 the package data) and you want to test your changes to the source code
@@ -123,12 +118,13 @@ started R there or because you moved there with `setwd()`), you
 needn't even supply the `path` argument; you can just run
 `test_local()` because the path defaults to `'.'`.
 
-Note that this function expects to find an up-to-date copy of
-`BioCro.so` in the `src` directory.  If it doesn't find it (or if it
-is out of date with respect to the C++ source files), it will try to
-re-create it.  This will happen even if none of the tests use any of
-the package code. (_So be patient if the function seems to hang for
-several minutes while it does this!_)
+Note that this function expects to find an up-to-date copy of the
+BioCro C++ library file (`BioCro.so`, or `BioCro.dll` on Windows) in
+the `src` directory.  If it doesn't find it (or if it is out of date
+with respect to the C++ source files), it will try to re-create it.
+This will happen even if none of the tests use any of the package
+code. (_So be patient if the function seems to hang for several
+minutes while it does this!_)
 
 The default reporter for `test_local` is the _Progress_ reporter, but
 if you prefer the _Summary_ reporter, which gives better progress
@@ -148,67 +144,84 @@ source code.
 
 ### Running an individual test file on the installed package
 
-Method 1
+**Method 1**
 
 1. Start an R session.
 1. Load the _BioCro_ and _testthat_ packages:
-```r
-library(BioCro)
-library(testthat)
-```
-1. Call the `test_file` function on the path to a test file:
-```r
-test_file('<path to test file to run>')
-```
 
-Note the path can be either a relative or an absolute path.  It
-doesn't matter what directory the R session was started in or what the
-current R directory is as long as the path is correct.  (Making the
-`testthat` directory the current directory, however, will make for
-shorter path names.)
+    ```r
+    library(BioCro)
+    library(testthat)
+    ```
+
+1. Call the `test_file` function on the path to a test file:
+
+    ```r
+    test_file('<path to test file to run>')
+    ```
+
+Note the path passed to `test_file` can be either a relative or an
+absolute path.  It doesn't matter what directory the R session was
+started in or what the current R directory is as long as the path is
+correct.  (Making the `testthat` directory the current directory,
+however, will make for shorter path names.)
 
 Once again, the default reporter ("CompactProgress", in this case) may
 be overridden:
 
-```r
-test_file('<path to test file to run>', reporter = 'Summary')
-```
+ ```r
+ test_file('<path to test file to run>', reporter = 'Summary')
+ ```
 
 See the documentation for `testthat::Reporter` for a list of
 reporters.
 
-Method 2
+**Method 2**
 
 This uses the `test_check` function we used earlier, but with a
 "filter" option.
 
-1. Start an R session in the `tests` directory of a BioCro source tree
-(or start R anywhere and use `setwd()` to move to that directory).
+1. Start an R session.
+
 1. Load the _BioCro_ and _testthat_ packages:
-```r
-library(BioCro)
-library(testthat)
-```
+
+    ```r
+    library(BioCro)
+    library(testthat)
+    ```
 
 1. Call the `test_check` function with a filter option to select the
 desired test file.  The filter pattern should be a regular expression
 matching the main part of the test file.  For example, to run the
 tests in `test.HarmonicOscillationModeling.R`, we could call
 `test_check` as follows:
+
+    ```r
+    test_check('BioCro', filter = 'Harm')
+    ```
+
+The filter matching is performed on file names after they are stripped
+of "`test-`" and "`.R`".
+
+Again, a _reporter_ option may be specified.  For example,
+
 ```r
-test_check('BioCro', filter = 'Harm')
+test_check('BioCro', filter = 'Harm', reporter = 'Summary')
 ```
 
- The filter matching is performed on file names after they are
-stripped of "`test-`" and "`.R`".
+Note that step 3 assumes you are in the BioCro `tests` directory when
+`test_check` is called.  If you aren't, either use`setwd()` get there
+first, or use the `xfun::in_dir` wrapper:
 
- Again, a _reporter_ option may be specified.
+```r
+xfun::in_dir('<path to tests directory>', test_check('BioCro', filter = 'Harm'))
+```
 
 ### Running an individual test file against the package source code
 
 Again, the `test_local` function is used.  The method is exactly the
-same as specified above except that a _filter_ option is used to limit
-testing to matching file(s).
+same as specified above in section \@ref(sec:testing-local) except
+that a _filter_ option is used to limit testing to matching file(s).
 
 ## Using devtools
 
@@ -217,7 +230,7 @@ provides a particularly easy way to run tests against the package
 source code:
 
 1. Start an R session inside any directory in package source tree of
-the source code you are testing (or `setwd()` to such a directory).
+the source code you are testing (or `setwd()` to such a directory).[^in_dir-note]
 
 1. Load the _devtools_ package: `library(devtools)`
 
@@ -228,5 +241,14 @@ tests run, and the default reporter may be overridden with the
 _reporter_ option.
 
 
+[^comment]: The names "Progress" and "Summary" almost seem to me as if
+they have been reversed!  After all, it is the _Summary_ reporter
+which most clearly indicates how the testing is progressing and the
+_Progress_ reporter that gives the best numerical summary of how many
+tests failed.
 
+[^in_dir-note]: Again, if the working directory is _not_ inside the
+package source tree, you could use `xfun::in_dir` instead of `setwd`
+to make things work:
 
+    `xfun::in_dir('<path to some directory in the package source tree>', test())`

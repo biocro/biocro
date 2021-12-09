@@ -7,7 +7,8 @@
 #include "state_map.h"  // for state_map and string_vector
 
 /**
- * Custom error class to indicate problems when accessing a quantity
+ * @brief Custom error class to indicate problems when accessing a
+ * quantity
  */
 class quantity_access_error : virtual public std::runtime_error
 {

@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class stomata_water_stress_linear : public SteadyModule {
+class stomata_water_stress_linear : public direct_module {
 	public:
 		stomata_water_stress_linear(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("stomata_water_stress_linear"),
+			direct_module("stomata_water_stress_linear"),
 			// Get pointers to input quantities
 			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
 			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),

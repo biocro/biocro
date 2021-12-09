@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class parameter_calculator : public SteadyModule {
+class parameter_calculator : public direct_module {
 	public:
 		parameter_calculator(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("parameter_calculator"),
+			direct_module("parameter_calculator"),
 			// Get pointers to input quantities
 			iSp_ip(get_ip(input_quantities, "iSp")),
 			TTc_ip(get_ip(input_quantities, "TTc")),

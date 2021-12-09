@@ -10,7 +10,7 @@
 
 PKG_CPPFLAGS+=-I../boost_1_71_0 -DR_NO_REMAP
 
-SOURCES = $(wildcard *.cpp module_library/*.cpp system_solver_library/*.cpp se_solver_library/*.cpp utils/*.cpp)
+SOURCES = $(wildcard *.cpp module_library/*.cpp ode_solver_library/*.cpp se_solver_library/*.cpp utils/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 
@@ -43,7 +43,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 all:
 
 DEPDIR := .deps
-DEPSUBDIRS = $(DEPDIR)/module_library $(DEPDIR)/system_solver_library $(DEPDIR)/se_solver_library $(DEPDIR)/utils
+DEPSUBDIRS = $(DEPDIR)/module_library $(DEPDIR)/ode_solver_library $(DEPDIR)/se_solver_library $(DEPDIR)/utils
 
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.d
 

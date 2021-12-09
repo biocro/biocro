@@ -16,11 +16,11 @@
 //  "Structured data 1" in the supplement to Locke (2005) as viewed with an online SBML viewer (http://sv.insysbio.com/online/)
 //
 
-class song_flowering : public DerivModule {
+class song_flowering : public differential_module {
 	public:
 		song_flowering(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			DerivModule("song_flowering"),
+			differential_module("song_flowering"),
 			// Get pointers to input quantities
 			solar_ip(get_ip(input_quantities, "solar")),
 			cLm_ip(get_ip(input_quantities, "cLm")),

@@ -36,14 +36,14 @@
  *   vapor pressure in the local atmosphere `SWVP`
  *
  */
-class rh_to_mole_fraction : public SteadyModule
+class rh_to_mole_fraction : public direct_module
 {
    public:
     rh_to_mole_fraction(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("rh_to_mole_fraction"),
+          direct_module("rh_to_mole_fraction"),
 
           // Get references to input quantities
           rh{get_input(input_quantities, "rh")},

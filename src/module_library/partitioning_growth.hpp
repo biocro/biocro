@@ -57,13 +57,13 @@
  *  [Penning de Vries, F. W. T. & Laar, H. H. van. "Simulation of plant growth
  *  and crop production" (Pudoc, 1982)](http://edepot.wur.nl/167315)
  */
-class partitioning_growth : public DerivModule
+class partitioning_growth : public differential_module
 {
    public:
     partitioning_growth(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : DerivModule{"partitioning_growth"},
+        : differential_module{"partitioning_growth"},
 
           // Get references to input quantities
           retrans{get_input(input_quantities, "retrans")},

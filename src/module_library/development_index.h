@@ -51,13 +51,13 @@
  *
  */
 
-class development_index : public DerivModule
+class development_index : public differential_module
 {
    public:
     development_index(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : DerivModule{"development_index"},
+        : differential_module{"development_index"},
 
           // Get references to input quantities
           development_rate_per_hour{get_input(input_quantities, "development_rate_per_hour")},

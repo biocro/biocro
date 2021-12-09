@@ -1,12 +1,10 @@
 # Synopsis
 
 # This workflow, which runs "R CMD check" to make sure the BioCro R
-# package is valid, can be triggered in one of three ways:
-# automatically after any push to any branch ("push" in the YAML
-# file), automatically after any pull request to the "master" branch
-# ("{ pull_request: { branches: [ master ] } }" in the YAML file), or
-# manually on any branch at any time ("workflow_dispatch" in the YAML
-# file).
+# package is valid, can be triggered in one of two ways: automatically
+# after any push to the "master" branch (which will usually be the
+# result of merging a pull request), or manually on any branch at any
+# time ("workflow_dispatch" in the YAML file).
 
 # The workflow can be run manually from
 # https://github.com/ebimodeling/biocro-dev/actions?query=workflow%3AR-CMD-check.
@@ -80,7 +78,6 @@ name: R-CMD-check
 
 on:
   push:
-  pull_request:
     branches:
       - master
   workflow_dispatch:

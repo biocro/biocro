@@ -76,23 +76,23 @@ debug_view <- function(ob) {
 
 
 
-derivative_modules <- c("harmonic_oscillator")
-steady_state_modules <- c("harmonic_energy")
-drivers <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
-default_solver <- list(type='Gro', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
+differential_modules <- c("harmonic_oscillator")
+direct_modules <- c("harmonic_energy")
+drivers <- data.frame(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
+default_ode_solver <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
 ## from harmonic motion equations.
-run_trial <- function(initial_position, initial_velocity, mass, spring_constant, solver, trial_description) {
+run_trial <- function(initial_position, initial_velocity, mass, spring_constant, ode_solver, trial_description) {
     initial_values <- list(position=initial_position, velocity=initial_velocity)
     parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
 
-    
+
     debug_print(initial_values)
     debug_print(parameters)
 
-    
+
     ## compute equation of motion parameters:
     amplitude <- sqrt(initial_position^2 + initial_velocity^2 * mass / spring_constant)
     angular_frequency <- sqrt(spring_constant / mass)
@@ -107,14 +107,28 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
     ## compute the total energy, which doesn't depend on time:
     total_energy <- 0.5 * spring_constant * amplitude^2
 
-    
+
     debug_print(list(amplitude = amplitude, phase = phase, angular_frequency = angular_frequency))
 
-    
-    ## try out the solver
-    result <- Gro_solver(initial_values, parameters, drivers, steady_state_modules, derivative_modules, solver)
+    ## calculate the derivative corresponding to the initial conditions and
+    ## compare against the expected values
+    oscillator_system_derivative_fcn <- system_derivatives(
+        parameters,
+        drivers,
+        direct_modules,
+        differential_modules
+    )
+    iv <- unlist(initial_values)
+    initial_derivative <- oscillator_system_derivative_fcn(0, iv, NULL)
+    expected_position_deriv <- initial_velocity
+    expected_velocity_deriv <- -spring_constant * initial_position / mass
+    expect_equal(initial_derivative[[1]][['position']], expected_position_deriv, tolerance = expected_position_deriv * TOLERANCE_FACTOR)
+    expect_equal(initial_derivative[[1]][['velocity']], expected_velocity_deriv, tolerance = expected_velocity_deriv * TOLERANCE_FACTOR)
 
-    ## add useful columns to the resulting data frame:    
+    ## try out the ode_solver
+    result <- run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, ode_solver)
+
+    ## add useful columns to the resulting data frame:
     result$time <- result$time * 24 # time is in hours
     result$expected_position <- position(result$time, amplitude, angular_frequency, phase)
     result$expected_velocity <- velocity(result$time, amplitude, angular_frequency, phase)
@@ -130,9 +144,9 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
         if (abs(result$velocity[1] - result$expected_velocity[1]) > .01) break
     }
 
-    
+
 	overall_description <- paste("Harmonic oscillator position and velocity values match the expected values (", trial_description, ")", sep="")
-	
+
     test_that(overall_description, {
         expect_true(class(result) == "data.frame") # sanity check
 
@@ -151,13 +165,13 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
 ## some special cases
 
-run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_solver, "initial position 0, amplitude 100, and period 24")
+run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_ode_solver, "initial position 0, amplitude 100, and period 24")
 
-run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass at rest")
+run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_ode_solver, "a mass at rest")
 
-run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass with no initial velocity with initial positive displacement")
+run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_ode_solver, "a mass with no initial velocity with initial positive displacement")
 
-run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_solver, "a mass with no initial velocity and with initial negative displacement")
+run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_ode_solver, "a mass with no initial velocity and with initial negative displacement")
 
 
 ## run a number of randomly-chosen cases
@@ -169,14 +183,14 @@ for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
     mass <- runif(1, 0, 100)[1]
     spring_constant <- runif(1, 0, 100)[1]
 
-    run_trial(initial_position, initial_velocity, mass, spring_constant, default_solver, "random parameters and initial values")
+    run_trial(initial_position, initial_velocity, mass, spring_constant, default_ode_solver, "random parameters and initial values")
 }
 
-## test each solver method using a really weak spring (so the Euler methods still work)
-all_solver_types <- get_all_system_solvers()
-for (solver_type in all_solver_types) {
-	solver <- default_solver
-	solver$type <- solver_type
-	description <- paste("using the ", solver_type, " method", sep="")
-	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, solver, description)
+## test each ode_solver method using a really weak spring (so the Euler methods still work)
+all_ode_solver_types <- get_all_ode_solvers()
+for (ode_solver_type in all_ode_solver_types) {
+	ode_solver <- default_ode_solver
+	ode_solver$type <- ode_solver_type
+	description <- paste("using the ", ode_solver_type, " method", sep="")
+	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, ode_solver, description)
 }

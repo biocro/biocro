@@ -4,6 +4,7 @@
 #include "../state_map.h"
 #include "../modules.h"
 #include "../state_map.h"
+#include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 /**
  * @class multilayer_canopy_integrator
@@ -17,7 +18,7 @@
  * documentation for the `multilayer_canopy_properties` and
  * `multilayer_canopy_photosynthesis` modules.
  */
-class multilayer_canopy_integrator : public SteadyModule
+class multilayer_canopy_integrator : public direct_module
 {
    public:
     multilayer_canopy_integrator(
@@ -26,32 +27,32 @@ class multilayer_canopy_integrator : public SteadyModule
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule(module_name),
+          direct_module(module_name),
 
           // Store the number of layers
           nlayers(nlayers),
 
           // Get pointers to input quantities
-          sunlit_fraction_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_fraction")),
-          sunlit_Assim_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_Assim")),
-          sunlit_GrossAssim_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_GrossAssim")),
-          sunlit_Gs_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_Gs")),
-          sunlit_TransR_ips(get_multilayer_ip(input_quantities, nlayers, "sunlit_TransR")),
-          shaded_fraction_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_fraction")),
-          shaded_Assim_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_Assim")),
-          shaded_GrossAssim_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_GrossAssim")),
-          shaded_Gs_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_Gs")),
-          shaded_TransR_ips(get_multilayer_ip(input_quantities, nlayers, "shaded_TransR")),
+          sunlit_fraction_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_fraction")},
+          sunlit_Assim_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_Assim")},
+          sunlit_GrossAssim_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_GrossAssim")},
+          sunlit_Gs_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_Gs")},
+          sunlit_TransR_ips{get_multilayer_ip(input_quantities, nlayers, "sunlit_TransR")},
+          shaded_fraction_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_fraction")},
+          shaded_Assim_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_Assim")},
+          shaded_GrossAssim_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_GrossAssim")},
+          shaded_Gs_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_Gs")},
+          shaded_TransR_ips{get_multilayer_ip(input_quantities, nlayers, "shaded_TransR")},
 
           // Get references to input quantities
-          lai(get_input(input_quantities, "lai")),
-          growth_respiration_fraction(get_input(input_quantities, "growth_respiration_fraction")),
+          lai{get_input(input_quantities, "lai")},
+          growth_respiration_fraction{get_input(input_quantities, "growth_respiration_fraction")},
 
           // Get pointers to output quantities
-          canopy_assimilation_rate_op(get_op(output_quantities, "canopy_assimilation_rate")),
-          canopy_transpiration_rate_op(get_op(output_quantities, "canopy_transpiration_rate")),
-          canopy_conductance_op(get_op(output_quantities, "canopy_conductance")),
-          GrossAssim_op(get_op(output_quantities, "GrossAssim"))
+          canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
+          canopy_transpiration_rate_op{get_op(output_quantities, "canopy_transpiration_rate")},
+          canopy_conductance_op{get_op(output_quantities, "canopy_conductance")},
+          GrossAssim_op{get_op(output_quantities, "GrossAssim")}
     {
     }
 
@@ -104,12 +105,12 @@ string_vector multilayer_canopy_integrator::get_inputs(int nlayers)
         "sunlit_Assim",       // micromole / m^2 /s
         "sunlit_GrossAssim",  // micromole / m^2 /s
         "sunlit_Gs",          // mmol / m^2 / s
-        "sunlit_TransR",      // mol / m^2 / s
+        "sunlit_TransR",      // mmol / m^2 / s
         "shaded_fraction",    // dimensionless
         "shaded_Assim",       // micromole / m^2 /s
         "shaded_GrossAssim",  // micromole / m^2 /s
         "shaded_Gs",          // mmol / m^2 / s
-        "shaded_TransR",      // mol / m^2 / s
+        "shaded_TransR",      // mmol / m^2 / s
     };
 
     // Get the full list by appending layer numbers
@@ -173,30 +174,28 @@ void multilayer_canopy_integrator::run() const
     //   model includes respiration
     canopy_assimilation_rate *= (1.0 - growth_respiration_fraction);
 
-    // Convert assimilation values from micromol / m^2 / s to Mg / ha / hr using
-    // the following conversion factors:
-    // 3600 - seconds per hour
-    // 1e-6 - moles per micromole
-    // 30 - grams of glucose incorporated into dry biomass per mole of CO2
-    // 1e-6 - megagrams per gram
-    // 10000 - meters squared per hectare
+    // For assimilation, we need to convert micromol / m^2 / s into
+    // Mg / ha / hr, assuming that all carbon is converted into biomass in the
+    // form of glucose (C6H12O6), i.e., six assimilated CO2 molecules contribute
+    // one glucose molecule. Using the molar mass of glucose in kg / mol, the
+    // conversion can be accomplished with the following factor:
+    // (1 glucose / 6 CO2) * (3600 s / hr) * (1e-6 mol / micromol) *
+    //     (1e-3 Mg / kg) * (1e4 m^2 / ha)
+    // = 6e-3 s * mol * Mg * m^2 / (hr * micromol * kg * ha)
+    const double cf = physical_constants::molar_mass_of_glucose * 6e-3;  // (Mg / ha / hr) / (micromol / m^2 / s)
 
-    // Convert transpiration values from mol / m^2 / s to Mg / ha / hr using the
-    // following conversion factors:
-    // 3600 - seconds per hour
-    // 1e-3 - millimoles per mole
-    // 18 - grams per mole for H2O
-    // 1e-6 - megagrams per  gram
-    // 10000 - meters squared per hectare
+    // For transpiration, we need to convert mmol / m^2 / s into Mg / ha / hr
+    // using the molar mass of water in kg / mol, which can be accomplished by
+    // the following conversion factor:
+    // (3600 s / hr) * (1e-3 mol / mmol) * (1e-3 Mg / kg) * (1e4 m^2 / ha)
+    // = 36 s * mol * Mg * m^2 / (hr * mmol * kg * ha)
+    const double cf2 = physical_constants::molar_mass_of_water * 36;  // (Mg / ha / hr) / (mmol / m^2 / s)
 
-    update(canopy_assimilation_rate_op, canopy_assimilation_rate *
-                                            3600 * 1e-6 * 30 * 1e-6 * 10000);
+    update(canopy_assimilation_rate_op, canopy_assimilation_rate * cf);
 
-    update(GrossAssim_op, GrossAssim *
-                              3600 * 1e-6 * 30 * 1e-6 * 10000);
+    update(GrossAssim_op, GrossAssim * cf);
 
-    update(canopy_transpiration_rate_op, canopy_transpiration_rate *
-                                             3600 * 1e-3 * 18 * 1e-6 * 10000);
+    update(canopy_transpiration_rate_op, canopy_transpiration_rate * cf2);
 
     update(canopy_conductance_op, canopy_conductance);
 }

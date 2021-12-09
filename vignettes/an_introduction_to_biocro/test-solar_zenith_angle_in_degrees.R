@@ -1,12 +1,12 @@
-context('Test basic functioning of the steady-state module "solar_zenith_angle_in_degrees".')
+context('Test basic functioning of the direct module "solar_zenith_angle_in_degrees".')
 
 # Run the module using a cza as the the value of the cosine of the
 # zenith angle and return the value of zenith_angle_in_degrees from
 # the result.
 angle_from_cosine <- function(cza) {
-    input_parameters <- list(cosine_zenith_angle = cza)
+    input_quantities <- list(cosine_zenith_angle = cza)
 
-    result <- evaluate_module("solar_zenith_angle_in_degrees", input_parameters)
+    result <- evaluate_module("solar_zenith_angle_in_degrees", input_quantities)
 
     result$zenith_angle_in_degrees
 }

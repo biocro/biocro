@@ -23,14 +23,14 @@ const bool collatz_print = false;  // for debugging
  * Finally, an overall gross assimilation rate is calculated based on these three limits, and net assimilation
  * is found by subtracting leaf respiration.
  */
-class ed_collatz_c4_assimilation : public SteadyModule
+class ed_collatz_c4_assimilation : public direct_module
 {
    public:
     ed_collatz_c4_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_collatz_c4_assimilation"),
+          direct_module("ed_collatz_c4_assimilation"),
           // Get pointers to input quantities
           collatz_q10_ip(get_ip(input_quantities, "collatz_q10")),
           temperature_leaf_ip(get_ip(input_quantities, "temperature_leaf")),

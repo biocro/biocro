@@ -1,4 +1,4 @@
-/*
+/**
  *  /src/c3EvapoTrans.c by Fernando Ezequiel Miguez  Copyright (C) 2010
  *
  *  Part of the code here (sunML, EvapoTrans, SoilEvapo, TempTo and
@@ -7,6 +7,10 @@
  *  Documentation for WIMOVAC can be found at
  *  http://www.life.illinois.edu/plantbio/wimovac/ (checked 02-13-2010)
  *
+ * Many of these functions come from Chapter 14 of Thornley and Johnson (1990).
+ *
+ * Thornley, J.H.M. and Johnson, I.R. (1990) Plant and Crop Modelling. A
+ * Mathematical Approach to Plant and Crop Physiology.
  */
 
 #include <cmath>
@@ -14,113 +18,122 @@
 #include "c3photo.hpp"
 #include "AuxBioCro.h"
 #include "BioCro.h"
+#include "../constants.h"  // for ideal_gas_constant, molar_mass_of_water,
+                           // stefan_boltzmann, celsius_to_kelvin
 
 struct ET_Str c3EvapoTrans(
-        double Itot,                                     // micromole / m^2 / s
-        double air_temperature,                          // degrees C
-        double RH,                                       // Pa / Pa
-        double WindSpeed,                                // m / s
-        double CanopyHeight,                             // meters
-        double specific_heat_of_air,                     // J / kg / K
-        double stomatal_conductance)                     // mmol / m^2 / s
+    double absorbed_shortwave_radiation,  // J / m^2 / s
+    double air_temperature,               // degrees C
+    double RH,                            // Pa / Pa
+    double WindSpeed,                     // m / s
+    double CanopyHeight,                  // meters
+    double specific_heat_of_air,          // J / kg / K
+    double stomatal_conductance,          // mmol / m^2 / s
+    double minimum_gbw,                   // mol / m^2 / s
+    double WindSpeedHeight                // m
+)
 {
-    constexpr double StefanBoltzmann = 5.67037e-8;       // J / m^2 / s^1 / K^4
-    constexpr double tau = 0.2;                          // dimensionless. Leaf transmission coefficient.
-    constexpr double LeafReflectance = 0.2;              // dimensionless
-    constexpr double kappa = 0.41;                       // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
-    constexpr double WindSpeedHeight = 5;                // meters
-    constexpr double dCoef = 0.77;                       // dimensionless
-    constexpr double ZetaCoef = 0.026;                   // dimensionless
-    constexpr double ZetaMCoef = 0.13;                   // dimensionless
-    const double Zeta = ZetaCoef * CanopyHeight;         // meters
-    const double Zetam = ZetaMCoef * CanopyHeight;       // meters
-    const double d = dCoef * CanopyHeight;               // meters
-    constexpr double molar_mass_of_water = 18.01528e-3;  // kg / mol
-    constexpr double R = 8.314472;                       // joule / kelvin / mole.
-    constexpr double joules_per_micromole_PAR = 0.235;   // J / micromole. For the wavelengths that make up PAR in sunlight, one mole of photons has, on average, approximately 2.35 x 10^5 joules:
-
-    if (CanopyHeight < 0.1)
-        CanopyHeight = 0.1;
-
-    const double DdryA = TempToDdryA(air_temperature);  // kg / m^3
-    const double LHV = TempToLHV(air_temperature);  // J / kg
-    const double SlopeFS = TempToSFS(air_temperature);  // kg / m^3 / K. It is also kg / m^3 / degrees C since it's a change in temperature.
+    const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
+    const double LHV = TempToLHV(air_temperature);                   // J / kg
+    const double SlopeFS = TempToSFS(air_temperature);               // kg / m^3 / K
     const double SWVP = saturation_vapor_pressure(air_temperature);  // Pa
 
-    constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol. TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the model state. (1 * R * temperature) / pressure
+    // TODO: This is for about 20 degrees C at 100000 Pa. Change it to use the
+    // model state. (1 * R * temperature) / pressure
+    constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
+
+    double const minimum_gbw_in_m_per_s = minimum_gbw * volume_of_one_mole_of_air;  // m / s
+
+    if (stomatal_conductance <= 0) {
+        throw std::range_error("Thrown in c3EvapoTrans: stomatal conductance is not positive.");
+    }
+
     double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
-    if (conductance_in_m_per_s <= 0) /* Prevent errors due to extremely low Layer conductance. */
-        conductance_in_m_per_s = 0.01;
-
-    if (RH > 1)
+    if (RH > 1) {
         throw std::range_error("Thrown in c3EvapoTrans: RH (relative humidity) is greater than 1.");
+    }
 
     /* SOLAR RADIATION COMPONENT*/
 
-    const double totalradiation = Itot * joules_per_micromole_PAR;  // W / m^2.
+    // Convert from vapor pressure to vapor density using the ideal gas law.
+    // This is approximately right for temperatures what won't kill plants.
+    const double SWVC =
+        SWVP / physical_constants::ideal_gas_constant /
+        (air_temperature + conversion_constants::celsius_to_kelvin) *
+        physical_constants::molar_mass_of_water;  // kg / m^3
 
-    const double SWVC = SWVP / R / (air_temperature + 273.15) * molar_mass_of_water;  // kg / m^3. Convert from vapor pressure to vapor density using the ideal gas law. This is approximately right for temperatures what won't kill plants.
-
-    if (SWVC < 0)
+    if (SWVC < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: SWVC is less than 0.");
+    }
 
+    // Eq. 14.4g from Thornley and Johnson (1990).
     const double PsycParam = DdryA * specific_heat_of_air / LHV;  // kg / m^3 / K
 
+    // Eq. 14.4d from Thornley and Johnson (1990).
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 
-    const double Ja = 2 * totalradiation * (1 - LeafReflectance - tau) / (1 - tau);  // W / m^2
-
-    /* AERODYNAMIC COMPONENT */
-    if (WindSpeed < 0.5) WindSpeed = 0.5;
-
     /* Calculation of ga */
-    /* According to thornley and Johnson pg. 416 */
-    const double ga0 = pow(kappa, 2) * WindSpeed;                     // m / s
-    const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);      // dimensionless
-    const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);    // dimensionless
-    const double ga = ga0 / (ga1 * ga2);                              // m / s
+    const double ga = leaf_boundary_layer_conductance_thornley(
+        CanopyHeight,
+        WindSpeed,
+        minimum_gbw_in_m_per_s,
+        WindSpeedHeight);  // m / s
 
-    if (ga < 0)
+    if (ga < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero.");
+    }
 
-    /* Temperature of the leaf according to Campbell and Norman (1998) Chp 4.*/
+    /* Temperature of the leaf according to Campbell and Norman (1998) Chp 14.*/
     /* This version is non-iterative and an approximation*/
-    /* Stefan-Boltzmann law: B = sigma * T^4. where sigma is the Boltzmann constant: 5.67 * 1e-8 W m^-2 K^-4. */
+    /* Stefan-Boltzmann law: B = sigma * T^4. where sigma is the Boltzmann constant. */
     /* From Table A.3 in Campbell and Norman.*/
 
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;  // degrees C
-    //std::cout << "Evapotrans inputs: " << Itot << ", " << air_temperature << ", " << RH << ", " << WindSpeed << ", " << CanopyHeight << ", " << stomatal_conductance << "\n";
-    //std::cout << "Delta t in c3EvapoTrans, initial: " << Deltat << "\n";
     double PhiN;
     {
         double ChangeInLeafTemp = 10;  // degrees C
         for (int Counter = 0; (ChangeInLeafTemp > 0.5) && (Counter <= 10); ++Counter) {
             double OldDeltaT = Deltat;
 
-            double rlc = 4.0 * StefanBoltzmann * pow(273.0 + air_temperature, 3.0) * Deltat;  // W / m^2
+            double rlc = 4.0 * physical_constants::stefan_boltzmann *
+                         pow(conversion_constants::celsius_to_kelvin + air_temperature, 3.0) *
+                         Deltat;  // W / m^2
 
-            PhiN = Ja - rlc;  // W / m^2
+            PhiN = absorbed_shortwave_radiation - rlc;  // W / m^2
 
-            double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;  // J / m^3
+            // DeltaT equation from Thornley and Johnson 1990, Eq. 14.11e
+            double TopValue = PhiN * (1 / ga + 1 / conductance_in_m_per_s) - LHV * DeltaPVa;       // J / m^3
             double BottomValue = LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s));  // J / m^2 / K
-            Deltat = TopValue / BottomValue;  // kelvin. It is also degrees C, because it is a temperature difference.
+
+            Deltat = TopValue / BottomValue;  // Kelvin. It is also degrees C, because it is a temperature difference.
             Deltat = std::min(std::max(Deltat, -5.0), 5.0);
 
-            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // kelvin. It is also degrees C, because it is a temperature difference.
+            ChangeInLeafTemp = fabs(OldDeltaT - Deltat);  // Kelvin. It is also degrees C, because it is a temperature difference.
         }
     }
-    //std::cout << "Delta t in c3EvapoTrans, final: " << Deltat << "\n";
 
-    if (PhiN < 0)
+    if (PhiN < 0) {
         PhiN = 0;
+    }
 
-    const double TransR = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
-        / (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s
+    /* TransR is the Penman-Monteith equation that describe transpiration rate
+    * as a function of the energy `PhiN` available for evaporation, the vapour
+    * density deficit `DeltaPVa`, the canopy and boundary layer conductances, gc
+    * and ga respectively, and the physical parameters `SlopeFS`, `PsycParam`,
+    * and `LHV`.
+    *
+    * Thornley, J.H.M. and Johnson, I.R. (1990) Plant and Crop Modelling. A
+    * Mathematical Approach to Plant and Crop Physiology
+    */
+    const double TransR =
+        (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) /
+        (LHV * (SlopeFS + PsycParam * (1 + ga / conductance_in_m_per_s)));  // kg / m^2 / s
 
-    const double EPen = (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa)
-        / (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
+    const double EPen =
+        (SlopeFS * PhiN + LHV * PsycParam * ga * DeltaPVa) /
+        (LHV * (SlopeFS + PsycParam));  // kg / m^2 / s
 
     const double EPries = 1.26 * (SlopeFS * PhiN / (LHV * (SlopeFS + PsycParam)));  // kg / m^2 / s
 
@@ -130,12 +143,16 @@ struct ET_Str c3EvapoTrans(
     /* 18 - g / mol for water */
     /* 1e3 - mmol / mol */
 
+    // TransR has units of kg / m^2 / s. Convert to mmol / m^2 / s using the
+    // molar mass of water (in kg / mol) and noting that 1e3 mmol = 1 mol
+    double cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
+
     struct ET_Str et_results;
-    et_results.TransR = TransR * 1e3 * 1e3 / 18;
-    et_results.EPenman = EPen * 1e3 * 1e3 / 18;
-    et_results.EPriestly = EPries * 1e3 * 1e3 / 18;
-    et_results.Deltat = Deltat;
+    et_results.TransR = TransR * cf;                                         // mmol / m^2 / s
+    et_results.EPenman = EPen * cf;                                          // mmol / m^2 / s
+    et_results.EPriestly = EPries * cf;                                      // mmol / m^2 / s
+    et_results.Deltat = Deltat;                                              // degrees C
+    et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air;  // mol / m^2 / s
 
     return et_results;
 }
-

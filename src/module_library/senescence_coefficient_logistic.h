@@ -46,13 +46,13 @@ double ksene(double rate, double alpha, double beta, double DVI);
  * model of soybean growth"
  *
  */
-class senescence_coefficient_logistic : public SteadyModule
+class senescence_coefficient_logistic : public direct_module
 {
    public:
     senescence_coefficient_logistic(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : SteadyModule{"senescence_coefficient_logistic"},
+        : direct_module{"senescence_coefficient_logistic"},
 
           // Get references to input quantities
           DVI{get_input(input_quantities, "DVI")},

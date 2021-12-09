@@ -14,14 +14,14 @@
  * solar constant) or as a fraction (which would be appropriate for calculating the intensity of
  * direct and diffuse light given an experimental measurement of light intensity at the surface).
  */
-class shortwave_atmospheric_scattering : public SteadyModule
+class shortwave_atmospheric_scattering : public direct_module
 {
    public:
     shortwave_atmospheric_scattering(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("shortwave_atmospheric_scattering"),
+          direct_module("shortwave_atmospheric_scattering"),
           // Get references to input quantities
           cosine_zenith_angle(get_input(input_quantities, "cosine_zenith_angle")),
           atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),

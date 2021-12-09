@@ -1,84 +1,223 @@
 module_info <- function(module_name, verbose = TRUE)
 {
-    # Example: getting information about the thermal_time_linear module
-    #
-    #  info <- module_info("thermal_time_linear")
-    #  inputs <- info[['inputs']]
-    #
-    # The function returns a list of several named elements containing info
-    # about the module:
-    #
-    # - module_name: the module's name
-    #
-    # - inputs: a list of named numeric elements representing the module's
-    #           inputs
-    #
-    # - outputs: a list of named numeric elements representing the module's
-    #            outputs
-    #
-    # - type: the module's type (either `derivative` or `steady state`)
-    # - euler_requirement: indicates whether the module requires a fixed-step
-    #                      Euler integrator when used in a BioCro simulation
-    #
-    # - creation_error_message: describes any errors that occurred while
-    #                           creating an instance of the module
-    #
-    # If the `verbose` input argument is TRUE, this information will also be
-    # printed to the R console
+    # Check that the following type conditions are met:
+    # - `module_name` should be a character vector of length 1
+    # - `verbose` should be a boolean vector of length 1
+    error_messages <- check_vector(list(
+        module_name = module_name,
+        verbose = verbose
+    ))
 
-    # Make sure the module name is a string
-    if (!is.character(module_name) & length(module_name) != 1) {
-        stop('"module_name" must be a string')
-    }
+    error_messages <- append(
+        error_messages,
+        check_strings(list(module_name = module_name))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_boolean(list(verbose = verbose))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_length(list(
+            module_name = module_name,
+            verbose = verbose
+        ))
+    )
+
+    send_error_messages(error_messages)
 
     # Make sure verbose is a logical variable
-    verbose = lapply(verbose, as.logical)
+    verbose <- lapply(verbose, as.logical)
 
     # Get the info list
     result = .Call(R_module_info, module_wrapper_pointer(module_name), verbose)
 
+    return(invisible(result))
+}
+
+check_module_input_quantities <- function(module_name, input_quantities) {
+    # Check that the following type conditions are met:
+    # - `input_quantities` should be a list of named numeric elements, each of
+    #    which has length 1
+    # Type checks for `module_name` will be made by the `module_info` function
+    error_messages <- check_list(list(input_quantities = input_quantities))
+
+    error_messages <- append(
+        error_messages,
+        check_element_names(list(input_quantities = input_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_numeric(list(input_quantities = input_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_element_length(list(input_quantities = input_quantities))
+    )
+
+    # Check for any missing module input quantities
+    missing_input_quantities <- setdiff(
+        module_info(module_name, verbose = FALSE)[['inputs']],
+        names(input_quantities)
+    )
+
+    if (length(missing_input_quantities) > 0) {
+        error_messages <- append(
+            error_messages,
+            paste0(
+                "The `", module_name, "` module requires `",
+                missing_input_quantities, "` as an input quantity\n"
+            )
+        )
+    }
+
+    return(error_messages)
+}
+
+evaluate_module <- function(module_name, input_quantities)
+{
+    # Type checks for `module_name` and `input_quantities` will be performed by
+    # the `check_module_input_quantities` function
+
+    # Check to make sure the required input quantities were supplied
+    error_messages <-
+        check_module_input_quantities(module_name, input_quantities)
+
+    send_error_messages(error_messages)
+
+    # C++ requires that all the variables have type `double`
+    input_quantities <- lapply(input_quantities, as.numeric)
+
+    result <- .Call(R_evaluate_module, module_wrapper_pointer(module_name), input_quantities)
+    result <- result[order(names(result))]
     return(result)
 }
 
-evaluate_module <- function(module_name, input_parameters)
-{
-    # Example: testing the output of the thermal_time_linear module
-    #
-    #  info <- module_info("thermal_time_linear")
-    #  inputs <- info[['inputs']]
-    #  <<modify individual input parameters to desired values>>
-    #  outputs <- evaluate_module("thermal_time_linear", inputs)
-    #  <<check the values of the output parameters to confirm they are correct>>
+partial_evaluate_module <- function(module_name, input_quantities, arg_names) {
+    # Check that the following type conditions are met:
+    # - `arg_names` should be a character vector
+    # Type checks for `module_name` and `input_quantities` will be performed by
+    # the `module_info` and `check_module_input_quantities` functions
+    error_messages <- check_vector(list(arg_names = arg_names))
 
-    # Make sure the module name is a string
-    if (!is.character(module_name) & length(module_name) != 1) {
-        stop('"module_name" must be a string')
-    }
-
-    # Make sure the input parameters are passed as a list
-    if(!is.list(input_parameters)) {
-        stop('"input_parameters" must be a list')
-    }
-
-    # Make sure the entries in the input parameters each have one element
-    if(length(input_parameters) != length(unlist(input_parameters))) {
-        item_lengths = unlist(lapply(input_parameters, length))
-        error_message = sprintf("The following parameters have lengths other than 1, but all parameters must have a length of exactly 1: %s.\n", paste(names(item_lengths)[which(item_lengths > 1)], collapse=', '))
-        stop(error_message)
-    }
-
-    # Make sure the input parameters are treated as numeric variables
-    input_parameters = lapply(input_parameters, as.numeric)
-
-    # Run the module
-    result = .Call(
-        R_evaluate_module,
-        module_wrapper_pointer(module_name),
-        input_parameters
+    error_messages <- append(
+        error_messages,
+        check_strings(list(arg_names = arg_names))
     )
 
-    # Make sure the output quantities are reproducibly ordered
-    result = result[order(names(result))]
+    # Check to make sure the quantities specified in `arg_names` are actually
+    # required by the module
+    info <- module_info(module_name, verbose = FALSE)
+    extraneous_args <- arg_names[!arg_names %in% info$inputs]
 
-    return(result)
+    if (length(extraneous_args) > 0) {
+        error_messages <- append(
+            error_messages,
+            paste0(
+                "`", extraneous_args, "` was provided in `arg_names`, but ",
+                "the `", module_name, "` module does not require this ",
+                "quantity\n"
+            )
+        )
+    }
+
+    # Check to make sure the required input quantities were supplied (or will
+    # be supplied later, in the case of quantities from `arg_names`)
+    for (name in arg_names) {
+        input_quantities[[name]] <- NA
+    }
+
+    error_messages <- append(
+        error_messages,
+        check_module_input_quantities(module_name, input_quantities)
+    )
+
+    send_error_messages(error_messages)
+
+    # Truncate the `input_quantities` list to only include quantities that are
+    # actually required by the module
+    input_quantities <- input_quantities[info$inputs]
+
+    # Make a function that calls `evaluate_module` with new values for the
+    # quantities specified in `arg_names`, returning the inputs and outputs as
+    # named elements of a list
+    function(x) {
+        x = unlist(x)
+        if (length(x) != length(arg_names)) {
+            stop("The `x` argument does not have the correct number of elements")
+        }
+        temp_input_quantities = input_quantities
+        for (i in seq_along(x)) {
+            temp_input_quantities[[arg_names[i]]] <- x[i]
+        }
+        output_quantities <- evaluate_module(module_name, temp_input_quantities)
+        list(inputs = temp_input_quantities, outputs = output_quantities)
+    }
+}
+
+module_response_curve <- function(
+    module_name,
+    fixed_quantities,
+    varying_quantities
+)
+{
+    # Check that the following type conditions are met:
+    # - `varying_quantities` should be a data frame of numeric elements with
+    #    named columns
+    # Type checks for `module_name` and `fixed_quantities` will be performed by
+    # the `module_info` and `partial_evaluate_module` functions
+    error_messages <-
+        check_data_frame(list(varying_quantities = varying_quantities))
+
+    error_messages <- append(
+        error_messages,
+        check_numeric(list(varying_quantities = varying_quantities))
+    )
+
+    error_messages <- append(
+        error_messages,
+        check_element_names(list(varying_quantities = varying_quantities))
+    )
+
+    send_error_messages(error_messages)
+
+    # Use `partial_evaluate_module` to create a function that calls the module
+    # with the appropriate inputs
+    evaluation_function <- partial_evaluate_module(
+        module_name,
+        fixed_quantities,
+        names(varying_quantities)
+    )
+
+    # Apply the function to each row in the data frame of inputs, producing a
+    # list of data frames that each have 1 row and whose columns represent the
+    # module's input and output quantities
+    df_list <- apply(varying_quantities, 1, function(x) {
+        result <- evaluation_function(x)
+        as.data.frame(c(result$inputs, result$outputs), row.names = NULL)
+    })
+
+    # Combine the data frames into one data frame, add the module name as the
+    # first column, and return it
+    cbind(module_name, do.call(rbind, df_list))
+}
+
+quantity_list_from_names <- function(quantity_names)
+{
+    # Check that the following type conditions are met:
+    # - `quantity_names` should be a character vector
+    error_messages <- check_vector(list(quantity_names = quantity_names))
+
+    error_messages <- append(
+        error_messages,
+        check_strings(list(quantity_names = quantity_names))
+    )
+
+    send_error_messages(error_messages)
+
+    setNames(as.list(rep_len(1, length(quantity_names))), quantity_names)
 }

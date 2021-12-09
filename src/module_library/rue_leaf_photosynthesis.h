@@ -122,18 +122,17 @@
  *    the dynamics of plant leaf and canopy photosynthesis" [Bioinformatics 11,
  *    361–371 (1995)](https://doi.org/10.1093/bioinformatics/11.4.361)
  */
-class rue_leaf_photosynthesis : public SteadyModule
+class rue_leaf_photosynthesis : public direct_module
 {
    public:
     rue_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("rue_leaf_photosynthesis"),
+          direct_module("rue_leaf_photosynthesis"),
 
           // Get references to input parameters
-          par_energy_content(get_input(input_quantities, "par_energy_content")),
-          incident_par(get_input(input_quantities, "incident_par")),
+          incident_ppfd(get_input(input_quantities, "incident_ppfd")),
           alpha_rue(get_input(input_quantities, "alpha_rue")),
           temp(get_input(input_quantities, "temp")),
           rh(get_input(input_quantities, "rh")),
@@ -141,10 +140,12 @@ class rue_leaf_photosynthesis : public SteadyModule
           b0(get_input(input_quantities, "b0")),
           b1(get_input(input_quantities, "b1")),
           Catm(get_input(input_quantities, "Catm")),
-          incident_average_par(get_input(input_quantities, "incident_average_par")),
+          average_absorbed_shortwave(get_input(input_quantities, "average_absorbed_shortwave")),
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output parameters
           Assim_op(get_op(output_quantities, "Assim")),
@@ -154,7 +155,8 @@ class rue_leaf_photosynthesis : public SteadyModule
           TransR_op(get_op(output_quantities, "TransR")),
           EPenman_op(get_op(output_quantities, "EPenman")),
           EPriestly_op(get_op(output_quantities, "EPriestly")),
-          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature")),
+          gbw_op(get_op(output_quantities, "gbw"))
     {
     }
     static string_vector get_inputs();
@@ -162,8 +164,7 @@ class rue_leaf_photosynthesis : public SteadyModule
 
    private:
     // References to input parameters
-    double const& par_energy_content;
-    double const& incident_par;
+    double const& incident_ppfd;
     double const& alpha_rue;
     double const& temp;
     double const& rh;
@@ -171,10 +172,12 @@ class rue_leaf_photosynthesis : public SteadyModule
     double const& b0;
     double const& b1;
     double const& Catm;
-    double const& incident_average_par;
+    double const& average_absorbed_shortwave;
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;
+    double const& minimum_gbw;
+    double const& windspeed_height;
 
     // Pointers to output parameters
     double* Assim_op;
@@ -185,6 +188,7 @@ class rue_leaf_photosynthesis : public SteadyModule
     double* EPenman_op;
     double* EPriestly_op;
     double* leaf_temperature_op;
+    double* gbw_op;
 
     // Main operation
     void do_operation() const;

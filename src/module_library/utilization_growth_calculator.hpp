@@ -14,11 +14,11 @@
  *  It is intended to be run along with the utilization_growth module. See
  *  utilization_growth.hpp for more information.
  */
-class utilization_growth_calculator : public SteadyModule {
+class utilization_growth_calculator : public direct_module {
 	public:
 		utilization_growth_calculator(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("utilization_growth_calculator"),
+			direct_module("utilization_growth_calculator"),
 			// Get pointers to input quantities
 			//dawn_phase_ip(get_ip(input_quantities, "dawn_phase")),
 			grain_TTc_ip(get_ip(input_quantities, "grain_TTc")),
