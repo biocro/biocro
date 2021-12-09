@@ -13,7 +13,7 @@
  *  See http://www.hep.by/gnu/r-patched/r-exts/R-exts_122.html for more details.
  *
  *  @param [in] m_ptr an "R external pointer" object that points to a
- *                    module_wrapper_base object
+ *              module_wrapper_base object
  */
 void finalize_module_wrapper_pointer(SEXP mw_ptr)
 {
@@ -56,7 +56,7 @@ extern "C" {
  *  `mw_vector_from_list()` function.
  *
  *  @param [in] module_names The names of the modules for which
- *                           module_wrapper_base objects should be created
+ *              module_wrapper_base objects should be created
  *
  *  @return A vector of "R external pointer" objects
  */

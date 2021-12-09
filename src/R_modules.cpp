@@ -144,17 +144,14 @@ SEXP R_module_info(SEXP mw_ptr_vec, SEXP verbose)
  *         supplied values of its input quantities
  *
  *  @param [in] mw_ptr_vec A single-element vector containing one R external
- *                         pointer pointing to a module_wrapper_base object,
- *                         typically produced by the
- *                         `R_module_wrapper_pointer()` function. If the vector
- *                         has more than one element, only the first will be
- *                         used.
+ *              pointer pointing to a module_wrapper_base object, typically
+ *              produced by the `R_module_wrapper_pointer()` function. If the
+ *              vector has more than one element, only the first will be used.
  *
  *  @param [in] input_quantities A list of named numeric elements where the name
- *                               of each element corresponds to one of the
- *                               module's input quantities. Any element whose
- *                               name does not correspond to one of the module's
- *                               input quantities will be ignored by the module.
+ *              of each element corresponds to one of the module's input
+ *              quantities. Any element whose name does not correspond to one of
+ *              the module's input quantities will be ignored by the module.
  *
  *  @return A list of named numeric elements where the name of each element
  *          corresponds to the one of the module's output quantities

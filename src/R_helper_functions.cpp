@@ -89,7 +89,7 @@ string_vector make_vector(SEXP const& r_string_vector)
  *  an R vector of R external pointer objects
  *
  *  @param [in] list An R vector of R external pointer objects, typically
- *                   created by a call to `R_module_wrapper_pointer()`
+ *              created by a call to `R_module_wrapper_pointer()`
  *
  *  @return A std::vector of pointers to module_wrapper_base objects
  */

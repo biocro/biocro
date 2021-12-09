@@ -32,7 +32,7 @@ module_info <- function(module_name, verbose = TRUE)
     verbose <- lapply(verbose, as.logical)
 
     # Get the info list
-    result = .Call(R_module_info, module_wrapper_pointer(module_name), verbose)
+    result <- .Call(R_module_info, module_wrapper_pointer(module_name), verbose)
 
     return(invisible(result))
 }
