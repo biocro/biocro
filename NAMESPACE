@@ -1,17 +1,17 @@
 useDynLib(BioCro,
-		  R_run_biocro,
-		  R_system_derivatives,
+          R_run_biocro,
+          R_system_derivatives,
           R_module_info,
-		  R_evaluate_module,
+          R_evaluate_module,
           R_module_wrapper_pointer,
-		  R_validate_dynamical_system_inputs,
-		  R_validate_simultaneous_equations,
-		  R_solve_simultaneous_equations,
-		  R_test_simultaneous_equations,
-		  R_get_all_modules,
-		  R_get_all_quantities,
-		  R_get_all_ode_solvers,
-		  R_get_all_se_solvers)
+          R_validate_dynamical_system_inputs,
+          R_validate_simultaneous_equations,
+          R_solve_simultaneous_equations,
+          R_test_simultaneous_equations,
+          R_get_all_modules,
+          R_get_all_quantities,
+          R_get_all_ode_solvers,
+          R_get_all_se_solvers)
 
 import(stats, lattice)
 
