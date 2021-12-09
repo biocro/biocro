@@ -122,14 +122,14 @@
  *    the dynamics of plant leaf and canopy photosynthesis" [Bioinformatics 11,
  *    361–371 (1995)](https://doi.org/10.1093/bioinformatics/11.4.361)
  */
-class rue_leaf_photosynthesis : public SteadyModule
+class rue_leaf_photosynthesis : public direct_module
 {
    public:
     rue_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("rue_leaf_photosynthesis"),
+          direct_module("rue_leaf_photosynthesis"),
 
           // Get references to input parameters
           incident_ppfd(get_input(input_quantities, "incident_ppfd")),
@@ -144,6 +144,8 @@ class rue_leaf_photosynthesis : public SteadyModule
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output parameters
           Assim_op(get_op(output_quantities, "Assim")),
@@ -153,7 +155,8 @@ class rue_leaf_photosynthesis : public SteadyModule
           TransR_op(get_op(output_quantities, "TransR")),
           EPenman_op(get_op(output_quantities, "EPenman")),
           EPriestly_op(get_op(output_quantities, "EPriestly")),
-          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature")),
+          gbw_op(get_op(output_quantities, "gbw"))
     {
     }
     static string_vector get_inputs();
@@ -173,6 +176,8 @@ class rue_leaf_photosynthesis : public SteadyModule
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;
+    double const& minimum_gbw;
+    double const& windspeed_height;
 
     // Pointers to output parameters
     double* Assim_op;
@@ -183,6 +188,7 @@ class rue_leaf_photosynthesis : public SteadyModule
     double* EPenman_op;
     double* EPriestly_op;
     double* leaf_temperature_op;
+    double* gbw_op;
 
     // Main operation
     void do_operation() const;

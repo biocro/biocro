@@ -6,11 +6,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class phase_clock : public DerivModule {
+class phase_clock : public differential_module {
     public:
         phase_clock(state_map const& input_quantities, state_map* output_quantities) :
             // Define basic module properties by passing its name to its parent class
-            DerivModule("phase_clock"),
+            differential_module("phase_clock"),
             // Get pointers to input quantities
             phi_ip(get_ip(input_quantities, "phi")),
             light_ip(get_ip(input_quantities, "light")),

@@ -3,7 +3,7 @@
 #include <string>
 #include "R_helper_functions.h"
 #include "module_library/module_wrapper_factory.h"
-#include "integrator_library/integrator_factory.h"
+#include "ode_solver_library/ode_solver_factory.h"
 #include "se_solver_library/se_solver_factory.h"
 
 extern "C" {
@@ -32,15 +32,15 @@ SEXP R_get_all_quantities()
     }
 }
 
-SEXP R_get_all_integrators()
+SEXP R_get_all_ode_solvers()
 {
     try {
-        std::vector<std::string> result = integrator_factory::get_integrators();
+        std::vector<std::string> result = ode_solver_factory::get_ode_solvers();
         return r_string_vector_from_vector(result);
     } catch (std::exception const& e) {
-        Rf_error((std::string("Caught exception in R_get_all_integrators: ") + e.what()).c_str());
+        Rf_error((std::string("Caught exception in R_get_all_ode_solvers: ") + e.what()).c_str());
     } catch (...) {
-        Rf_error("Caught unhandled exception in R_get_all_integrators.");
+        Rf_error("Caught unhandled exception in R_get_all_ode_solvers.");
     }
 }
 

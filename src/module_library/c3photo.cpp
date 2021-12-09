@@ -174,10 +174,6 @@ struct c3_str c3photoC(
             Gs = 1e-5 * 1e-3 * mole / square_meter / second;
         }
 
-        if (Gs > 800 * 1e-3 * mole / square_meter / second) {
-            Gs = 800 * 1e-3 * mole / square_meter / second;
-        }
-
         Ci_pa = Ca_pa - co2_assimilation_rate * 1.6 * atmospheric_pressure / Gs;
 
         if (Ci_pa < 0 * pascal) {

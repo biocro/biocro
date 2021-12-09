@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class aba_decay : public DerivModule {
+class aba_decay : public differential_module {
 	public:
 		aba_decay(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			DerivModule("aba_decay"),
+			differential_module("aba_decay"),
 			// Get pointers to input quantities
 			soil_aba_concentration_ip(get_ip(input_quantities, "soil_aba_concentration")),
 			aba_decay_constant_ip(get_ip(input_quantities, "aba_decay_constant")),

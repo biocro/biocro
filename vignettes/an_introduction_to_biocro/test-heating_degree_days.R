@@ -1,11 +1,11 @@
-context('Test basic functioning of the derivative module "heating_degree_days".')
+context('Test basic functioning of the differential module "heating_degree_days".')
 
 ## Given the (average) ambient temperature over an hour-long interval
 ## and given a threshold temperature, return the number of heating
 ## degree days that accumulate over the interval.
 calculate_heating_degree_days <- function(ambient_temperature, threshold_temperature) {
-    input_parameters <- list(temp = ambient_temperature, base_temperature = threshold_temperature)
-    result <- evaluate_module("heating_degree_days", input_parameters)
+    input_quantities <- list(temp = ambient_temperature, base_temperature = threshold_temperature)
+    result <- evaluate_module("heating_degree_days", input_quantities)
     result$heating_degree_days
 }
 

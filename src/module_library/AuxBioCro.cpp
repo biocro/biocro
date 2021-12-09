@@ -40,67 +40,12 @@ double poisson_density(int x, double lambda)
 }
 
 /**
- * @brief
- * Computation of the cosine of the zenith angle from the latitute,
- * day of the year, and the time of day.
- *
- * For the values of angles in radians, we'll use the common practice of
- * denoting the latitude by `phi` (\f$\phi\f$), the declination by `delta`
- * (\f$\delta\f$), and the hour angle by `tau` (\f$\tau\f$).  `NDS` denotes the
- * number of days after December solstice and `omega` (\f$\omega\f$) denotes the
- * angle (in radians) of the orbital position of the earth around the sun
- * relative to its position at the December solstice.
- *
- * Denoting the axial tilt of the earth by \f$\varepsilon\f$, the equation used
- * for declination (`delta`) is
- * \f[
- *     \delta = -\varepsilon \cos(\omega)
- * \f]
- * which is an approximation (always accurate to within 0.26 degrees) of the
- * more accurate formula
- * \f[
- *     \sin(\delta) = -\sin(\varepsilon) \cos(\omega)
- * \f]
- *
- * The cosine of the solar zenith angle \f$\theta_s\f$ may be calculated from
- * the declination \f$\delta\f$, the latitude \f$\phi\f$, and the hour angle
- * \f$\tau\f$ by the formula
- * \f[
- *     \cos(\theta_s) = \sin(\delta) \sin(\phi) + \cos(\delta) \cos(\phi) \cos(\tau)
- * \f]
- * which is a straight-forward application of the law of cosines for spherical
- * triangles, substituting cofunctions of coangles in the case of latitude and
- * declination.
- */
-double cos_zenith_angle(const double latitude, const int day_of_year,
-                        const double hour_of_day)
-{
-    constexpr double radians_per_degree = math_constants::pi/180;
-    constexpr int solar_noon = 12;
-    constexpr double radians_rotation_per_hour = 15 * radians_per_degree;
-    constexpr double axial_tilt = 23.5 * radians_per_degree;
-
-    const double phi = latitude * radians_per_degree;
-    const int NDS = day_of_year + 10;
-
-    const double omega = 360.0 * (NDS / 365.0) * radians_per_degree;
-
-    const double delta = -axial_tilt * cos(omega);
-
-    const double tau = (hour_of_day - solar_noon) * radians_rotation_per_hour;
-
-    return sin(delta) * sin(phi) + cos(delta) * cos(phi) * cos(tau);
-}
-
-/**
  *  @brief Calculates some properties of the "light macro environment," i.e.,
  *  the light just above the top of the canopy.
  *
- *  @param [in] latitude Latitude of a position on Earth (in degrees)
- *
- *  @param [in] day_of_year Local day of the year (1-366)
- *
- *  @param [in] hour_of_day Local hour of the day expressed on a 24-hour basis
+ *  @param [in] cosine_zenith_angle The cosine of the solar zenith angle; when
+ *      the Sun is directly overhead, the angle is 0 and its cosine is 1; when
+ *      the Sun is at the horizon, the angle is 90 and its cosine is 0
  *
  *  @param [in] atmospheric_pressure Local atmospheric pressure (in Pa)
  *
@@ -110,17 +55,12 @@ double cos_zenith_angle(const double latitude, const int day_of_year,
  *    is direct radiation (dimensionless)
  *  - `light_model.diffuse_irradiance_fraction`: The fraction of irradiance
  *    that is diffuse radiation (dimensionless)
- *  - `light_model.cosine_zenith_angle`: The cosine of the zenith angle of the
- *    Sun. When the Sun is directly overhead, the angle is 0 and cos(angle) is 1
- *    (dimensionless)
  *
  *  The basis for this function is given in chapter 11 of Norman and Campbell,
  *  _An Introduction to Environmental Biophysics_, 2nd edition.
  */
-Light_model lightME(const double latitude, const int day_of_year,
-                    const double hour_of_day, const double atmospheric_pressure)
+Light_model lightME(double cosine_zenith_angle, double atmospheric_pressure)
 {
-    const double cosine_zenith_angle = cos_zenith_angle(latitude, day_of_year, hour_of_day);  // dimensionless.
     double direct_irradiance_transmittance;
     double diffuse_irradiance_transmittance;
 
@@ -139,7 +79,6 @@ Light_model lightME(const double latitude, const int day_of_year,
     Light_model light_model;
     light_model.direct_irradiance_fraction = direct_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
     light_model.diffuse_irradiance_fraction = diffuse_irradiance_transmittance / (direct_irradiance_transmittance + diffuse_irradiance_transmittance); // dimensionless.
-    light_model.cosine_zenith_angle = cosine_zenith_angle; // dimensionless.
 
     return light_model;
 }
@@ -699,29 +638,18 @@ double saturation_vapor_pressure(
 }
 
 struct ET_Str EvapoTrans2(
-    const double absorbed_shortwave_radiation_et,  // J / m^2 / s (used to calculate evapotranspiration rate)
-    const double absorbed_shortwave_radiation_lt,  // J / m^2 / s (used to calculate leaf temperature)
-    const double airTemp,                          // degrees C
-    const double RH,                               // dimensionless from Pa / Pa
-    double WindSpeed,                              // m / s
-    double CanopyHeight,                           // meters
-    const double stomatal_conductance,             // mmol / m^2 / s
-    const double leaf_width,                       // meter
-    const double specific_heat_of_air,             // J / kg / K
-    const int eteq)                                // unitless parameter
+    double absorbed_shortwave_radiation_et,  // J / m^2 / s (used to calculate evapotranspiration rate)
+    double absorbed_shortwave_radiation_lt,  // J / m^2 / s (used to calculate leaf temperature)
+    double airTemp,                          // degrees C
+    double RH,                               // dimensionless from Pa / Pa
+    double WindSpeed,                        // m / s
+    double stomatal_conductance,             // mmol / m^2 / s
+    double leaf_width,                       // meter
+    double specific_heat_of_air,             // J / kg / K
+    double minimum_gbw,                      // mol / m^2 / s
+    int eteq                                 // unitless parameter
+)
 {
-    CanopyHeight = fmax(0.1, CanopyHeight);  // ensure CanopyHeight >= 0.1
-
-    // Define the height at which the wind speed was measured
-    double WindSpeedHeight = 2;
-
-    // When the height at which wind was measured is lower than the canopy
-    // height, there can be problems with the calculations. This is a very crude
-    // way of solving this problem.
-    if (WindSpeedHeight < CanopyHeight + 1) {
-        WindSpeedHeight = CanopyHeight + WindSpeedHeight;
-    }
-
     const double DdryA = TempToDdryA(airTemp);               // kg / m^3. Density of dry air.,
     const double LHV = TempToLHV(airTemp);                   // J / kg
     const double SlopeFS = TempToSFS(airTemp);               // kg / m^3 / K
@@ -731,11 +659,13 @@ struct ET_Str EvapoTrans2(
     // model state. (1 * R * temperature) / pressure
     double constexpr volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
 
-    double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
+    double minimum_gbw_in_m_per_s = minimum_gbw * volume_of_one_mole_of_air;  // m / s
 
-    if (conductance_in_m_per_s <= 0.001) {
-        conductance_in_m_per_s = 0.001;
+    if (stomatal_conductance <= 0) {
+        throw std::range_error("Thrown in EvapoTrans2: stomatal conductance is not positive.");
     }
+
+    double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (RH > 1) {
         throw std::range_error("Thrown in EvapoTrans2: RH (relative humidity) is greater than 1.");
@@ -757,11 +687,6 @@ struct ET_Str EvapoTrans2(
 
     const double ActualVaporPressure = RH * SWVP;  // Pa
 
-    /* AERODYNAMIC COMPONENT */
-    if (WindSpeed < 0.5) {
-        WindSpeed = 0.5;
-    }
-
     /* This is the original from WIMOVAC*/
     double Deltat = 0.01;  // degrees C
     double ga;
@@ -770,9 +695,9 @@ struct ET_Str EvapoTrans2(
         double ChangeInLeafTemp = 10.0;  // degrees C
         double Counter = 0;
         do {
-            ga = leaf_boundary_layer_conductance(
+            ga = leaf_boundary_layer_conductance_nikolov(
                 WindSpeed, leaf_width, airTemp, Deltat, conductance_in_m_per_s,
-                ActualVaporPressure);  // m / s
+                ActualVaporPressure, minimum_gbw_in_m_per_s);  // m / s
 
             /* In WIMOVAC, ga was added to the canopy conductance */
             /* ga = (ga * gbcW)/(ga + gbcW); */
@@ -847,48 +772,182 @@ struct ET_Str EvapoTrans2(
     return et_results;
 }
 
-
-double leaf_boundary_layer_conductance(
-        double windspeed,  // m / s
-        double leafwidth,  // m
-        double air_temperature,  // degrees C
-        double delta_t,  // degrees C
-        double stomcond,  // m / s
-        double water_vapor_pressure)  // Pa
+/**
+ *  @brief Caluclates the conductance for water vapor flow between the leaf
+ *  surface and the atmosphere (AKA, the boundary layer conductance) using a
+ *  model described in Nikolov, Massman, and Schoettle (1995).
+ *
+ *  In this model, two types of gas flow are considered: "forced" flow driven
+ *  by wind-created eddy currents and "free" flow driven by temperature-related
+ *  buoyancy effects. The overall conductance is determined to be the larger of
+ *  the free and forced conductances.
+ *
+ *  In this function, we use equations 29, 33, 34, and 35 to calculate boundary
+ *  layer conductance. This is the same approach taken in the `MLcan` model of
+ *  Drewry et al. (2010).
+ *
+ *  In this model, the minimum possible boundary layer conductance that could
+ *  occur is zero. This would happen if wind speed is zero and the air and leaf
+ *  temperatures are the same. In realistic field conditions, boundary layer
+ *  conductance can never truly be zero. To accomodate this, an option is
+ *  provided for setting a minimum value for the boundary layer counductance.
+ *
+ *  References:
+ *
+ *  - [Nikolov, N. T., Massman, W. J. & Schoettle, A. W. "Coupling biochemical and biophysical processes at the
+ *    leaf level: an equilibrium photosynthesis model for leaves of C3 plants" Ecological Modelling 80, 205–235 (1995)]
+ *    (https://doi.org/10.1016/0304-3800(94)00072-P)
+ *
+ *  - [Drewry, D. T. et al. "Ecohydrological responses of dense canopies to environmental variability: 1. Interplay between
+ *    vertical structure and photosynthetic pathway" Journal of Geophysical Research: Biogeosciences 115, (2010)]
+ *    (https://doi.org/10.1029/2010JG001340)
+ *
+ *  @param [in] windspeed The wind speed in m / s
+ *
+ *  @param [in] leafwidth The characteristic leaf dimension in m
+ *
+ *  @param [in] air_temperature The air temperature in degrees C
+ *
+ *  @param [in] delta_t The temperature difference between the leaf and air in
+ *              degrees C
+ *
+ *  @param [in] stomcond The stomatal conductance in m / s
+ *
+ *  @param [in] water_vapor_pressure The partial pressure of water vapor in the
+ *              atmosphere in Pa
+ *
+ *  @param [in] minimum_gbw The lowest possible value for boundary layer
+ *              conductance in m / s that should be returned
+ *
+ *  @return The boundary layer conductance in m / s
+ */
+double leaf_boundary_layer_conductance_nikolov(
+    double windspeed,             // m / s
+    double leafwidth,             // m
+    double air_temperature,       // degrees C
+    double delta_t,               // degrees C
+    double stomcond,              // m / s
+    double water_vapor_pressure,  // Pa
+    double minimum_gbw            // m / s
+)
 {
-    /* This is the leaf boundary layer computed using the approach in MLcan
-       which is based on (Nikolov, Massman, Schoettle),         %
-       Ecological Modelling, 80 (1995), 205-235 */
     constexpr double p = physical_constants::atmospheric_pressure_at_sea_level;  // Pa
 
-    double leaftemp = air_temperature + delta_t;  // degrees C
-    double gsv = stomcond;  // m / s
+    double leaftemp = air_temperature + delta_t;                             // degrees C
+    double gsv = stomcond;                                                   // m / s
     double Tak = air_temperature + conversion_constants::celsius_to_kelvin;  // K
-    double Tlk = leaftemp + conversion_constants::celsius_to_kelvin;  // K
-    double ea = water_vapor_pressure;  // Pa
-    double lw = leafwidth;  // m
+    double Tlk = leaftemp + conversion_constants::celsius_to_kelvin;         // K
+    double ea = water_vapor_pressure;                                        // Pa
+    double lw = leafwidth;                                                   // m
 
     double esTl = saturation_vapor_pressure(leaftemp);  // Pa.
 
-    /* Forced convection */
+    // Forced convection
     constexpr double cf = 1.6361e-3;  // TODO: Nikolov et. al equation 29 use cf = 4.322e-3, not cf = 1.6e-3 as is used here.
-    double gbv_forced = cf *  pow(Tak, 0.56) * pow((Tak + 120) * ((windspeed / lw) / p), 0.5);  // m / s.
-    double gbv_free = gbv_forced;
-    double eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free); // Pa. Eq 35
 
-    double Tvdiff = (Tlk / (1 - 0.378 * eb / p)) - (Tak / (1 - 0.378 * ea / p)); // kelvin. It is also degrees C since it is a temperature difference. Eq. 34
+    double gbv_forced = cf * pow(Tak, 0.56) * pow((Tak + 120) * ((windspeed / lw) / p), 0.5);  // m / s.
+
+    // Free convection
+    double gbv_free = gbv_forced;
+    double eb = (gsv * esTl + gbv_free * ea) / (gsv + gbv_free);  // Pa. Eq 35
+
+    double Tvdiff = (Tlk / (1 - 0.378 * eb / p)) - (Tak / (1 - 0.378 * ea / p));  // kelvin. It is also degrees C since it is a temperature difference. Eq. 34
 
     if (Tvdiff < 0) Tvdiff = -Tvdiff;
 
     gbv_free = cf * pow(Tlk, 0.56) * pow((Tlk + 120) / p, 0.5) * pow(Tvdiff / lw, 0.25);  // m / s. Eq. 33
 
-    double gbv = std::max(gbv_forced, gbv_free);
+    // Overall conductance
+    double gbv = std::max(gbv_forced, gbv_free);  // m / s
 
-    return gbv;  // m / s
+    // Apply the minimum
+    return std::max(gbv, minimum_gbw);  // m / s
 }
 
+/**
+ *  @brief Caluclates the conductance for water vapor flow between the leaf
+ *  surface and the atmosphere (AKA, the boundary layer conductance) using a
+ *  model described in Thornley and Johnson (1990).
+ *
+ *  This model considers gas flow due to wind-driven eddy currents. Here, the
+ *  conductance is calculated using Equation 14.9 from pages 414 - 416 of the
+ *  Thornley textbook. Unfortunately, an electronic version of this reference is
+ *  not available.
+ *
+ *  In this model, the minimum possible boundary layer conductance that could
+ *  occur is zero, which would correspond to zero wind speed or canopy height.
+ *  In realistic field conditions, boundary layer conductance can never truly be
+ *  zero. To accomodate this, an option is provided for setting a minimum value
+ *  for the boundary layer counductance.
+ *
+ *  This model contains two singularities, which occur when either of the
+ *  following conditions are met:
+ *
+ *  - `WindSpeedHeight + Zeta - d = 0`, which is equivalent to `CanopyHeight =
+ *     WindSpeedHeight / (dCoef - ZetaCoef) = WindSpeedHeight * 1.34`
+ *
+ *  - `WindSpeedHeight + ZetaM - d = 0`, which is equivalent to `CanopyHeight =
+ *     WindSpeedHeight / (dCoef - ZetaMCoef) = WindSpeedHeight * 1.56`
+ *
+ *  So, as the canopy height approaches or exceeds the height at which wind
+ *  speed was measured, the calculated boundary layer conductance becomes
+ *  unbounded. For even larger canopy heights, the conductance eventually begins
+ *  to decrease. For tall crops, this is a severe limitation to this model. Here
+ *  we address this issue by limiting the canopy height to
+ *  `0.98 * WindSpeedHeight`.
+ *
+ *  References:
+ *
+ *  - Thornley, J. H. M. & Johnson, I. R. "Plant and Crop Modelling: A
+ *    Mathematical Approach to Plant and Crop Physiology" (1990)
+ *
+ *  @param [in] CanopyHeight The height of the canopy above the ground in m
+ *
+ *  @param [in] WindSpeed The wind speed in m / s as measured above the canopy
+ *              at a reference height of five meters
+ *
+ *  @param [in] minimum_gbw The lowest possible value for boundary layer
+ *              conductance in m / s that should be returned
+ *
+ *  @param [in] WindSpeedHeight The height in m at which the wind speed was
+ *              measured
+ *
+ *  @return The boundary layer conductance in m / s
+ */
+double leaf_boundary_layer_conductance_thornley(
+    double CanopyHeight,    // m
+    double WindSpeed,       // m / s
+    double minimum_gbw,     // m / s
+    double WindSpeedHeight  // m
+)
+{
+    // Define constants used in the model
+    constexpr double kappa = 0.41;         // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
+    constexpr double ZetaCoef = 0.026;     // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
+    constexpr double ZetaMCoef = 0.13;     // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
+    constexpr double dCoef = 0.77;         // dimensionless, Thornley and Johnson 1990, Eq. 14.9o.
+                                           // In the original text this value is reported as 0.64.
+                                           // In the 2000 reprinting of this text, the authors state that this value should be 0.77.
+                                           // See "Errata to the 2000 printing" on the page after the preface of the 2000 reprinting of the 1990 text.
 
+    // Apply the height limit
+    CanopyHeight = std::min(CanopyHeight, 0.98 * WindSpeedHeight);  // meters
 
+    // Calculate terms that depend on the canopy height
+    const double Zeta = ZetaCoef * CanopyHeight;    // meters
+    const double Zetam = ZetaMCoef * CanopyHeight;  // meters
+    const double d = dCoef * CanopyHeight;          // meters
+
+    // Calculate the boundary layer conductance `ga` according to Thornley and
+    // Johnson Eq. 14.9n, pg. 416
+    const double ga0 = pow(kappa, 2) * WindSpeed;                   // m / s
+    const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);    // dimensionless
+    const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);  // dimensionless
+    const double gbv = ga0 / (ga1 * ga2);                           // m / s
+
+    // Apply the minimum
+    return std::max(gbv, minimum_gbw);  // m / s
+}
 
 /* Soil Evaporation Function */
 /* Variables I need */
@@ -941,7 +1000,7 @@ double SoilEvapo(
     double vapor_density_deficit = SWVC * (1 - RelH / 100);
 
     double BoundaryLayerThickness = 4e-3 * sqrt(soil_clod_size / winds);
-    double DiffCoef = 2.126e-5 * 1.48e-7 * SoilTemp;
+    double DiffCoef = 2.126e-5 + 1.48e-7 * SoilTemp;
     double SoilBoundaryLayer = DiffCoef / BoundaryLayerThickness;
 
     double Ja = 2 * TotalRadiation * ((1 - soil_reflectance - soil_transmission) / (1 - soil_transmission));

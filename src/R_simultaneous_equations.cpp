@@ -18,7 +18,7 @@ SEXP R_solve_simultaneous_equations(
     SEXP upper_bounds,
     SEXP abs_error_tols,
     SEXP rel_error_tols,
-    SEXP steady_state_module_names,
+    SEXP direct_module_names,
     SEXP solver_type,
     SEXP max_it,
     SEXP silent)
@@ -31,7 +31,7 @@ SEXP R_solve_simultaneous_equations(
         const state_map ub = map_from_list(upper_bounds);
         const state_map abs_t = map_from_list(abs_error_tols);
         const state_map rel_t = map_from_list(rel_error_tols);
-        const std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        const std::vector<std::string> direct_names = make_vector(direct_module_names);
         const std::string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
         const int max_iterations = REAL(max_it)[0];
         const bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
@@ -63,7 +63,7 @@ SEXP R_solve_simultaneous_equations(
         // Solve
         std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq,
                                                                               uq_names,
-                                                                              ss_names));
+                                                                              direct_names));
                                                                               
         auto solver = se_solver_factory::create(solver_type_string, max_iterations);
         
@@ -109,18 +109,18 @@ SEXP R_solve_simultaneous_equations(
 SEXP R_validate_simultaneous_equations(
     SEXP known_quantities,
     SEXP unknown_quantities,
-    SEXP steady_state_module_names,
+    SEXP direct_module_names,
     SEXP silent)
 {
     try {
         // Convert format
         state_map kq = map_from_list(known_quantities);
         std::vector<std::string> uq = make_vector(unknown_quantities);
-        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        std::vector<std::string> direct_names = make_vector(direct_module_names);
         bool be_quiet = LOGICAL(VECTOR_ELT(silent, 0))[0];
 
         std::string msg;
-        bool valid = validate_simultaneous_equations_inputs(msg, kq, uq, ss_names);
+        bool valid = validate_simultaneous_equations_inputs(msg, kq, uq, direct_names);
 
         if (!be_quiet) {
             Rprintf("\nChecking the validity of the simultaneous_equations inputs:\n");
@@ -135,7 +135,7 @@ SEXP R_validate_simultaneous_equations(
 
             Rprintf("\nPrinting additional information about the simultaneous_equations inputs:\n");
 
-            msg = analyze_simultaneous_equations_inputs(ss_names);
+            msg = analyze_simultaneous_equations_inputs(direct_names);
             Rprintf(msg.c_str());
 
             // Print a space to improve readability
@@ -154,13 +154,13 @@ SEXP R_validate_simultaneous_equations(
 SEXP R_test_simultaneous_equations(
     SEXP known_quantities,
     SEXP unknown_quantities,
-    SEXP steady_state_module_names)
+    SEXP direct_module_names)
 {
     try {
         // Convert format
         state_map kq = map_from_list(known_quantities);
         state_map uq = map_from_list(unknown_quantities);
-        std::vector<std::string> ss_names = make_vector(steady_state_module_names);
+        std::vector<std::string> direct_names = make_vector(direct_module_names);
 
         // Split uq into two vectors
         std::vector<std::string> uq_names = keys(uq);
@@ -169,7 +169,7 @@ SEXP R_test_simultaneous_equations(
             uq_values[i] = uq[uq_names[i]];
         }
 
-        std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, ss_names));
+        std::unique_ptr<simultaneous_equations> se(new simultaneous_equations(kq, uq_names, direct_names));
 
         // Calculate a difference vector
         std::vector<double> output_vector(uq.size());

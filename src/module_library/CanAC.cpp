@@ -3,15 +3,13 @@
 #include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 struct Can_Str CanAC(
-    double LAI,          // dimensionless from m^2 / m^2
-    int DOY,             // day
-    double hr,           // hr
-    double solarR,       // micromol / m^2 / s
-    double temperature,  // degrees C
-    double RH,           // dimensionless from Pa / Pa
-    double WindSpeed,    // m / s
-    double lat,          // degrees
-    int nlayers,         // dimensionless
+    double LAI,                  // dimensionless from m^2 / m^2
+    double cosine_zenith_angle,  // dimensionless
+    double solarR,               // micromol / m^2 / s
+    double temperature,          // degrees C
+    double RH,                   // dimensionless from Pa / Pa
+    double WindSpeed,            // m / s
+    int nlayers,                 // dimensionless
     double Vmax,
     double Alpha,
     double Kparm,
@@ -24,7 +22,6 @@ struct Can_Str CanAC(
     double theta,   // dimensionless
     double kd,
     double chil,
-    double heightf,
     double leafN,
     double kpLN,
     int lnfun,      // dimensionless switch
@@ -41,20 +38,22 @@ struct Can_Str CanAC(
     double par_energy_content,    // J / micromol
     double par_energy_fraction,   // dimensionless
     double leaf_transmittance,    // dimensionless
-    double leaf_reflectance       // dimensionless
+    double leaf_reflectance,      // dimensionless
+    double minimum_gbw            // mol / m^2 / s
 )
 {
-    struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
+    struct Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
 
     // q_dir: flux through a plane perpendicular to the rays of the sun
     // q_diff: flux through any surface
     double q_dir = light_model.direct_irradiance_fraction * solarR;    // micromole / m^2 / s
     double q_diff = light_model.diffuse_irradiance_fraction * solarR;  // micromole / m^2 / s
-    double cosTh = light_model.cosine_zenith_angle;                    // dimensionless
 
+    // Here we set `heightf = 1`. The value used for `heightf` does not matter,
+    // since the canopy height is not used anywhere in this function.
     struct Light_profile light_profile =
-        sunML(q_dir, q_diff, LAI, nlayers, cosTh, kd, chil, absorptivity_par,
-              heightf, par_energy_content, par_energy_fraction,
+        sunML(q_dir, q_diff, LAI, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par,
+              1, par_energy_content, par_energy_fraction,
               leaf_transmittance, leaf_reflectance);
 
     double LAIc = LAI / nlayers;  // dimensionless
@@ -97,7 +96,6 @@ struct Can_Str CanAC(
 
         double relative_humidity = relative_humidity_profile[current_layer];     // dimensionless
         double layer_wind_speed = wind_speed_profile[current_layer];             // m / s
-        double CanHeight = light_profile.height[current_layer];                  // m
         double j_avg = light_profile.average_absorbed_shortwave[current_layer];  // J / m^2 / s
 
         // Calculations for sunlit leaves. First, estimate stomatal conductance
@@ -120,8 +118,8 @@ struct Can_Str CanAC(
         struct ET_Str et_direct =
             EvapoTrans2(
                 j_dir, j_avg, temperature, relative_humidity, layer_wind_speed,
-                CanHeight, direct_stomatal_conductance, leafwidth,
-                specific_heat_of_air, eteq);
+                direct_stomatal_conductance, leafwidth, specific_heat_of_air,
+                minimum_gbw, eteq);
 
         double leaf_temperature_dir = temperature + et_direct.Deltat;  // degrees C
 
@@ -151,8 +149,8 @@ struct Can_Str CanAC(
         struct ET_Str et_diffuse =
             EvapoTrans2(
                 j_diff, j_avg, temperature, relative_humidity, layer_wind_speed,
-                CanHeight, diffuse_stomatal_conductance, leafwidth,
-                specific_heat_of_air, eteq);
+                diffuse_stomatal_conductance, leafwidth, specific_heat_of_air,
+                minimum_gbw, eteq);
 
         double leaf_temperature_diff = temperature + et_diffuse.Deltat;  // degrees C
 

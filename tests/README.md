@@ -1,3 +1,15 @@
+# tl;dr
+## Requirements
+- The testthat package. From the R command line, run `install.packages('testthat')`.
+
+## Running tests
+Move to the "tests" directories within the BioCro source code directory, and run the following code:
+
+```r
+library(BioCro)
+library(testthat)
+test_dir('testthat')
+```
 # Running the _testthat_ Tests
 
 BioCro's _testthat_ test suite is automatically run on GitHub as part
@@ -15,26 +27,6 @@ before pushing that code to GitHub.
 
 1. You are writing new tests, and you want to ensure that they work as
 expected.
-
----
-
-## tl;dr
-
-To run all tests in a copy of the package source against the R and C++
-code in that source, install _devtools_, open an R session in any
-directory in the source tree, load _devtools_ with
-`library(devtools)`, and call `test()`.
-
-To run all tests from the source against an _installed_ version of the
-BioCro package, install _testthat_ (or _devtools_), start an R session
-in the`tests` directory of the source tree, and call
-`source('testthat.R')`.
-
-Read on for further information about various topics, including
-
-* running the tests on source code without installing _devtools_
-* better test reporting options
-* running individual test files
 
 ---
 

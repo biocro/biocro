@@ -1,14 +1,14 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-soybean_steady_state_modules <- list(
+# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+soybean_direct_modules <- list(
     "soil_type_selector",
     stomata_water_stress = "stomata_water_stress_linear",
     "parameter_calculator",
     "soybean_development_rate_calculator",
     partitioning_coefficients = "partitioning_coefficient_logistic",
     "soil_evaporation",
-    "solar_zenith_angle",
+    solar_coordinates = "solar_position_michalsky",
     "shortwave_atmospheric_scattering",
     "incident_shortwave_from_ground_par",
     "ten_layer_canopy_properties",
@@ -18,7 +18,7 @@ soybean_steady_state_modules <- list(
     "senescence_coefficient_logistic"
 )
 
-soybean_derivative_modules <- list(
+soybean_differential_modules <- list(
     senescence = "senescence_logistic",
     "partitioning_growth",
     soil_profile = "two_layer_soil_profile",
@@ -26,18 +26,18 @@ soybean_derivative_modules <- list(
     thermal_time = "thermal_time_linear"
 )
 
-soybean_integrator <- list(
+soybean_ode_solver <- list(
     type = 'boost_rkck54',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-4,
     adaptive_abs_error_tol = 1e-4,
     adaptive_max_steps = 200
 )
-# Note: the integrator type should not be 'boost_rosenbrock' or 'auto' (which
-# defaults to 'boost_rosenbrock' when an adaptive integrator can be used, as in this
-# case) since the integration will fail unless the tolerances are stringent
-# (e.g., output_step_size = 0.01, adaptive_rel_error_tol = 1e-9,
-# adaptive_abs_error_tol = 1e-9)
+# Note: the ODE solver type should not be 'boost_rosenbrock' or 'auto' (which
+# defaults to 'boost_rosenbrock' when a fixed step size Euler ODE solver is not
+# required, as in this case) since the integration will fail unless the
+# tolerances are stringent (e.g., output_step_size = 0.01,
+# adaptive_rel_error_tol = 1e-9, adaptive_abs_error_tol = 1e-9)
 
 # Do the calculations inside an empty list so that temporary variables are not created in .Global.
 soybean_initial_values = with(list(), {
@@ -126,8 +126,9 @@ soybean_parameters = with(list(), {
     soil_transmission                       0.01
     specific_heat_of_air                    1010
 
-    # solar_zenith_angle module
+    # solar_position_michalsky module
     lat                                     40
+    longitude                               -88
 
     # shortwave_atmospheric_scattering module
     atmospheric_pressure                    101325
@@ -154,13 +155,15 @@ soybean_parameters = with(list(), {
     electrons_per_oxygenation               5.25        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
     tpu_rate_max                            13          # Fitted value based on the A-Ci data measured at UIUC in 2019-08 by Delgrado (unpublished data)
     Rd                                      1.28        # Davey et al. 2004 (https://doi.org/10.1104/pp.103.030569), Table 3, cv Pana, co2 368 ppm
-    Catm                                    372         # micromol / mol, CO2 level in 2002
+    Catm                                    372.59      # micromol / mol, CO2 level in 2002
     O2                                      210         # millimol / mol
     b0                                      0.008       # Leakey et al. 2006 (https://10.1111/j.1365-3040.2006.01556.x)
     b1                                      10.6        # Leakey et al. 2006 (https://10.1111/j.1365-3040.2006.01556.x)
     Gs_min                                  1e-3
     theta                                   0.76        # Bernacchi et al. 2003 (https://doi.org/10.1046/j.0016-8025.2003.01050.x)
     water_stress_approach                   1
+    minimum_gbw                             0.08
+    windspeed_height                        5
 
     # ten_layer_canopy_integrator module
     growth_respiration_fraction             0
@@ -213,6 +216,43 @@ soybean_parameters = with(list(), {
     names(values) = data_frame$symbol
     values
 })
+
+# Also include separate initial values, parameters, and modules for the soybean
+# circadian clock. (We can use the same ODE solver as the main soybean model.)
+soybean_clock_direct_modules <- c(
+    "light_from_solar",
+    "oscillator_clock_calculator"
+)
+
+soybean_clock_differential_modules <- c(
+    "night_and_day_trackers",
+    "poincare_clock"
+)
+
+soybean_clock_parameters <- list(
+    clock_gamma = 0.1,
+    clock_period = 24.0,
+    clock_r0 = 1.5,
+    kick_strength = 0.8,
+    light_exp_at_zero = 10,
+    light_threshold = 60,
+    timestep = 1.0,
+    tracker_rate = 4.6
+)
+
+# Here we use initial phases for the dawn and dusk oscillators of 200.0 and 80.0
+# radians, respectively. These values are optimized for simulations beginning at
+# midnight on January 1.
+soybean_clock_initial_values <- list(
+    dawn_a = soybean_clock_parameters[['clock_r0']] * cos(200 * pi / 180),
+    dawn_b = soybean_clock_parameters[['clock_r0']] * sin(200 * pi / 180),
+    day_tracker = 0.0,
+    dusk_a = soybean_clock_parameters[['clock_r0']] * cos(80 * pi / 180),
+    dusk_b = soybean_clock_parameters[['clock_r0']] * sin(80 * pi / 180),
+    night_tracker = 1.0,
+    ref_a = 1.0,
+    ref_b = 0.0
+)
 
 # Note 1: Soybean-BioCro refers to the simulation scenarios defined by the the soybean
 #         data files (soybean_initial_values, soybean_parameters, soybean_modules). See

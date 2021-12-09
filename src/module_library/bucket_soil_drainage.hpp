@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class bucket_soil_drainage : public DerivModule {
+class bucket_soil_drainage : public differential_module {
 	public:
 		bucket_soil_drainage(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			DerivModule("bucket_soil_drainage"),
+			differential_module("bucket_soil_drainage"),
 			// Get pointers to input quantities
 			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
 			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),

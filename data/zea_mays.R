@@ -1,30 +1,30 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-zea_mays_steady_state_modules <- list(
+# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+zea_mays_direct_modules <- list(
     "soil_type_selector",
     stomata_water_stress = "stomata_water_stress_linear",
     "leaf_water_stress_exponential",
     "parameter_calculator",
     "thermal_time_development_rate_calculator",
     "soil_evaporation",
-    "solar_zenith_angle",
+    solar_coordinates = "solar_position_michalsky",
     canopy_photosynthesis = "c4_canopy",
     partitioning_coefficients = "partitioning_coefficient_logistic",
     partitioning_growth_calculator = "partitioning_growth_calculator", 
     "senescence_coefficient_logistic"
 )
 
-zea_mays_derivative_modules <- list(
+zea_mays_differential_modules <- list(
     senescence = "senescence_logistic",
     "partitioning_growth",
     "development_index",
     thermal_time = "thermal_time_bilinear",
-    soil_profile = "one_layer_soil_profile"
+    soil_profile = "two_layer_soil_profile"
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
-zea_mays_integrator <- list(
+zea_mays_ode_solver <- list(
     type = 'auto',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-5,
@@ -36,6 +36,8 @@ zea_mays_integrator <- list(
 zea_mays_initial_values = with(list(), {
     datalines =
     "symbol                  value
+    cws1                     0.32
+    cws2                     0.32
     Grain                    0
     Leaf                     0.00001
     LeafLitter               0
@@ -81,7 +83,9 @@ zea_mays_parameters = with(list(), {
     kparm                       0.56    # Leakey et al. (https://doi.org/10.1104/pp.105.073957)
     kpLN                        0.2
     lnfun                       0
+    longitude                   -88
     lowerT                      3
+    minimum_gbw                 0.34
     mrc1                        0.02
     mrc2                        0.03
     nalphab0                    0.02367
@@ -149,7 +153,9 @@ zea_mays_parameters = with(list(), {
     # soil_evaporation module
     rsec                        0.2
     soil_clod_size              0.04
-    soil_depth                  1
+    soil_depth1                 0.0
+    soil_depth2                 2.5
+    soil_depth3                 10.0
     soil_reflectance            0.2
     soil_transmission           0.01
     soil_type_indicator         6

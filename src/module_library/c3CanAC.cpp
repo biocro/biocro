@@ -3,15 +3,13 @@
 #include "../constants.h"  // for molar_mass_of_water, molar_mass_of_glucose
 
 struct Can_Str c3CanAC(
-    double LAI,              // dimensionless
-    int DOY,                 // day
-    double hr,               // hr
-    double solarR,           // micromol / m^2 / s
-    double air_temperature,  // degrees C
-    double RH,               // Pa / Pa
-    double WindSpeed,        // m / s
-    double lat,              // degrees
-    int nlayers,             // dimensionless
+    double LAI,                  // dimensionless
+    double cosine_zenith_angle,  // hr
+    double solarR,               // micromol / m^2 / s
+    double air_temperature,      // degrees C
+    double RH,                   // Pa / Pa
+    double WindSpeed,            // m / s
+    int nlayers,                 // dimensionless
     double Vmax,
     double Jmax,
     double tpu_rate_max,
@@ -41,19 +39,20 @@ struct Can_Str c3CanAC(
     double par_energy_content,           // J / micromol
     double par_energy_fraction,          // dimensionless
     double leaf_transmittance,           // dimensionless
-    double leaf_reflectance              // dimensionless
+    double leaf_reflectance,             // dimensionless
+    double minimum_gbw,                  // mol / m^2 / s
+    double WindSpeedHeight               // m
 )
 {
-    struct Light_model light_model = lightME(lat, DOY, hr, atmospheric_pressure);
+    struct Light_model light_model = lightME(cosine_zenith_angle, atmospheric_pressure);
 
     // q_dir: flux through a plane perpendicular to the rays of the sun
     // q_diff: flux through any surface
     double q_dir = light_model.direct_irradiance_fraction * solarR;    // micromol / m^2 / s
     double q_diff = light_model.diffuse_irradiance_fraction * solarR;  // micromol / m^2 / s
-    double cosTh = light_model.cosine_zenith_angle;                    // dimensionless
 
     struct Light_profile light_profile =
-        sunML(q_dir, q_diff, LAI, nlayers, cosTh, kd, chil, absorptivity_par,
+        sunML(q_dir, q_diff, LAI, nlayers, cosine_zenith_angle, kd, chil, absorptivity_par,
               heightf, par_energy_content, par_energy_fraction,
               leaf_transmittance, leaf_reflectance);
 
@@ -112,7 +111,8 @@ struct Can_Str c3CanAC(
         struct ET_Str et_direct =
             c3EvapoTrans(
                 j_avg, air_temperature, relative_humidity, layer_wind_speed,
-                CanHeight, specific_heat_of_air, direct_stomatal_conductance);
+                CanHeight, specific_heat_of_air, direct_stomatal_conductance,
+                minimum_gbw, WindSpeedHeight);
 
         double leaf_temperature_dir = air_temperature + et_direct.Deltat;  // degrees C
 
@@ -143,7 +143,8 @@ struct Can_Str c3CanAC(
         struct ET_Str et_diffuse =
             c3EvapoTrans(
                 j_avg, air_temperature, relative_humidity, layer_wind_speed,
-                CanHeight, specific_heat_of_air, diffuse_stomatal_conductance);
+                CanHeight, specific_heat_of_air, diffuse_stomatal_conductance,
+                minimum_gbw, WindSpeedHeight);
 
         double leaf_temperature_Idiffuse = air_temperature + et_diffuse.Deltat;  // degrees C
 

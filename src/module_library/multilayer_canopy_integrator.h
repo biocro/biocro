@@ -18,7 +18,7 @@
  * documentation for the `multilayer_canopy_properties` and
  * `multilayer_canopy_photosynthesis` modules.
  */
-class multilayer_canopy_integrator : public SteadyModule
+class multilayer_canopy_integrator : public direct_module
 {
    public:
     multilayer_canopy_integrator(
@@ -27,7 +27,7 @@ class multilayer_canopy_integrator : public SteadyModule
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule(module_name),
+          direct_module(module_name),
 
           // Store the number of layers
           nlayers(nlayers),

@@ -1,10 +1,10 @@
 #ifndef SE_MODULE_H
 #define SE_MODULE_H
 
-#include "../modules.h"                              // for SteadyModule, update
-#include "../validate_system.h"                      // for string_vector, find_strictly_required_inputs, all_are_in_list
+#include "../modules.h"                              // for direct_module, update
+#include "../validate_dynamical_system.h"            // for find_strictly_required_inputs, all_are_in_list
 #include "../simultaneous_equations.h"               // for get_unknown_quantities
-#include "../state_map.h"                            // for state_map
+#include "../state_map.h"                            // for state_map, string_vector
 #include "../se_solver_helper_functions.h"           // for f_scalar_from_f_vec
 #include "../se_solver_library/se_solver_factory.h"  // for se_solver_factory::create
 #include <map>                                       // for map
@@ -138,7 +138,7 @@ std::vector<std::vector<double>> reorder_initial_guesses(
  * Instead, it must have concrete derived classes. This class has been
  * made abstract to indicate this.
  */
-class base : public SteadyModule
+class base : public direct_module
 {
    public:
     base(std::string module_name,
@@ -153,7 +153,7 @@ class base : public SteadyModule
          bool return_default_on_failure,
          state_map const& input_quantities,
          state_map* output_quantities)
-        : SteadyModule(module_name),
+        : direct_module(module_name),
           se(make_se(sub_module_names)),
           solver(se_solver_factory::create(solver_name, max_iterations)),
           lower_bounds(lower_bounds),

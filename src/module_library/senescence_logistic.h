@@ -17,13 +17,13 @@
  * partitioning growth parameters.
  *
  */
-class senescence_logistic : public DerivModule
+class senescence_logistic : public differential_module
 {
    public:
     senescence_logistic(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : DerivModule{"senescence_logistic"},
+        : differential_module{"senescence_logistic"},
 
           // Get references to input quantities
           Leaf{get_input(input_quantities, "Leaf")},

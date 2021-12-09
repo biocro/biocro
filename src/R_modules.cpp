@@ -41,20 +41,19 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
 
         // Try to create an instance of the module
         bool create_success = true;
-        bool is_deriv = false;
-        bool is_adaptive_compatible = false;
+        bool is_differential = false;
+        bool requires_euler_ode_solver = false;
         std::string creation_error_message = "none";
         try {
-            std::unique_ptr<Module> module_ptr = w->createModule(
+            std::unique_ptr<module_base> module_ptr = w->createModule(
                 module_inputs,
                 &module_outputs);
 
-            // Check to see if the module is a derivative module
-            is_deriv = module_ptr->is_deriv();
+            // Check to see if the module is a differential module
+            is_differential = module_ptr->is_differential();
 
-            // Check to see if the module is compatible with adaptive step size
-            // solvers
-            is_adaptive_compatible = module_ptr->is_adaptive_compatible();
+            // Check to see if the module requires an Euler ode_solver
+            requires_euler_ode_solver = module_ptr->requires_euler_ode_solver();
         } catch (std::exception const& e) {
             create_success = false;
             creation_error_message = e.what();
@@ -66,7 +65,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
             Rprintf("\n\nModule name:\n  %s\n\n", module_name.c_str());
 
             // Module inputs
-            Rprintf("Module input parameters:");
+            Rprintf("Module input quantities:");
             if (inputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
@@ -77,7 +76,7 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
             }
 
             // Module outputs
-            Rprintf("Module output parameters:");
+            Rprintf("Module output quantities:");
             if (outputs.size() == 0)
                 Rprintf(" none\n\n");
             else {
@@ -89,15 +88,15 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
 
             if (create_success) {
                 // Module type
-                Rprintf("Module type (derivative or steady state):\n  ");
-                if (is_deriv)
-                    Rprintf("derivative\n\n");
+                Rprintf("Module type (differential or direct):\n  ");
+                if (is_differential)
+                    Rprintf("differential\n\n");
                 else
-                    Rprintf("steady state\n\n");
+                    Rprintf("direct\n\n");
 
-                // Adaptive compatibility
-                Rprintf("Compatible with adaptive step size solvers:\n  ");
-                if (is_adaptive_compatible)
+                // Euler requirement
+                Rprintf("Requires a fixed step size Euler ode_solver:\n  ");
+                if (requires_euler_ode_solver)
                     Rprintf("yes\n\n");
                 else
                     Rprintf("no\n\n");
@@ -112,10 +111,10 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
         // Return a list containing information about the module
         return list_from_module_info(
             module_name,
-            module_inputs,
-            module_outputs,
-            is_deriv,
-            is_adaptive_compatible,
+            keys(module_inputs),
+            keys(module_outputs),
+            is_differential,
+            requires_euler_ode_solver,
             creation_error_message);
 
     } catch (quantity_access_error const& qae) {
@@ -127,27 +126,27 @@ SEXP R_module_info(SEXP module_name_input, SEXP verbose)
     }
 }
 
-SEXP R_evaluate_module(SEXP module_name_input, SEXP input_parameters)
+SEXP R_evaluate_module(SEXP module_name_input, SEXP input_quantities)
 {
     try {
         // module_name_input should be a string vector with one element
         std::vector<std::string> module_name_vector = make_vector(module_name_input);
         std::string module_name = module_name_vector[0];
 
-        // input_parameters should be a state map
-        // use it to initialize the parameter list
-        state_map parameters = map_from_list(input_parameters);
+        // input_quantities should be a state map
+        // use it to initialize the quantity list
+        state_map quantities = map_from_list(input_quantities);
         state_map module_output_map;
 
         // Get the module's outputs and add them to the output list with default
         //  values of 0.0
-        // Note: since derivative modules add their output to the module_output_map,
-        //  the result only makes sense if each parameter is initialized to 0
+        // Note: since differential modules add their output to the module_output_map,
+        //  the result only makes sense if each quantity is initialized to 0
         auto w = module_wrapper_factory::create(module_name);
         std::vector<std::string> module_outputs = w->get_outputs();
         for (std::string param : module_outputs) module_output_map[param] = 0.0;
 
-        std::unique_ptr<Module> module_ptr = w->createModule(parameters, &module_output_map);
+        std::unique_ptr<module_base> module_ptr = w->createModule(quantities, &module_output_map);
 
         module_ptr->run();
 

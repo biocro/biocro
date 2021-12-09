@@ -1,26 +1,27 @@
 # Some modules are included as named list elements so they can be easily changed
 # on-the-fly to a different value, e.g.,
-# CROP_steady_state_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
-manihot_esculenta_steady_state_modules <- list(
+# CROP_direct_modules[['canopy_photosynthesis']] <- 'ten_layer_rue_canopy'
+manihot_esculenta_direct_modules <- list(
     "soil_type_selector",
     stomata_water_stress = "stomata_water_stress_linear",
     "leaf_water_stress_exponential",
     "parameter_calculator",
     "soil_evaporation",
+    solar_coordinates = "solar_position_michalsky",
     canopy_photosynthesis = "c3_canopy",
     "utilization_growth_calculator",
     "utilization_senescence_calculator"
 )
 
-manihot_esculenta_derivative_modules <- list(
+manihot_esculenta_differential_modules <- list(
     "utilization_senescence",
     "utilization_growth",
     thermal_time = "thermal_time_linear",
-    soil_profile = "one_layer_soil_profile"
+    soil_profile = "two_layer_soil_profile"
 )
 
 # Error tolerances greater than 1e-5 may cause problems with the regression test
-manihot_esculenta_integrator <- list(
+manihot_esculenta_ode_solver <- list(
     type = 'auto',
     output_step_size = 1.0,
     adaptive_rel_error_tol = 1e-5,
@@ -32,6 +33,8 @@ manihot_esculenta_integrator <- list(
 manihot_esculenta_initial_values = with(list(), {
     datalines =
     "symbol                  value
+    cws1                     0.32
+    cws2                     0.32
     Grain                    0.0001
     Leaf                     0.02
     LeafLitter               0
@@ -73,6 +76,7 @@ manihot_esculenta_parameters = with(list(), {
     growth_respiration_fraction            0
     Gs_min                                 1e-3
     heightf                                3
+    hydrDist                               0
     iSp                                    2.27
     jmax                                   226
     kd                                     0.37
@@ -90,11 +94,14 @@ manihot_esculenta_parameters = with(list(), {
     lnb0                                   -5
     lnb1                                   18
     lnfun                                  0
+    longitude                              -88
+    minimum_gbw                            0.08
     nlayers                                10
     O2                                     210
     par_energy_content                     0.235
     par_energy_fraction                    0.5
-    phi2                                   10
+    phi1                                   0.01
+    phi2                                   2
     rate_constant_grain                    3
     rate_constant_leaf                     0.5
     rate_constant_leaf_senescence          0.0025
@@ -110,9 +117,13 @@ manihot_esculenta_parameters = with(list(), {
     resistance_stem_to_grain               8
     resistance_stem_to_rhizome             1
     resistance_stem_to_root                0.16
+    rfl                                    0.2
+    rsdf                                   0.44
     rsec                                   0.2
     soil_clod_size                         0.04
-    soil_depth                             1
+    soil_depth1                            0.0
+    soil_depth2                            2.5
+    soil_depth3                            10.0
     soil_reflectance                       0.2
     soil_transmission                      0.01
     soil_type_indicator                    6
@@ -125,7 +136,9 @@ manihot_esculenta_parameters = with(list(), {
     tpu_rate_max                           23
     vmax1                                  133
     vmax_n_intercept                       0
-    water_stress_approach                  1"
+    water_stress_approach                  1
+    windspeed_height                       5
+    wsFun                                  2"
 
     data_frame = utils::read.table(textConnection(datalines), header=TRUE)
     values = as.list(data_frame$value)

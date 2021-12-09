@@ -10,14 +10,14 @@
  * @brief Uses the method from `c3CanAC()` to calculate leaf photosynthesis
  * parameters for C3 plants
  */
-class c3_leaf_photosynthesis : public SteadyModule
+class c3_leaf_photosynthesis : public direct_module
 {
    public:
     c3_leaf_photosynthesis(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c3_leaf_photosynthesis"),
+          direct_module("c3_leaf_photosynthesis"),
 
           // Get references to input quantities
           incident_ppfd(get_input(input_quantities, "incident_ppfd")),
@@ -42,6 +42,8 @@ class c3_leaf_photosynthesis : public SteadyModule
           windspeed(get_input(input_quantities, "windspeed")),
           height(get_input(input_quantities, "height")),
           specific_heat_of_air(get_input(input_quantities, "specific_heat_of_air")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output quantities
           Assim_op(get_op(output_quantities, "Assim")),
@@ -51,7 +53,8 @@ class c3_leaf_photosynthesis : public SteadyModule
           TransR_op(get_op(output_quantities, "TransR")),
           EPenman_op(get_op(output_quantities, "EPenman")),
           EPriestly_op(get_op(output_quantities, "EPriestly")),
-          leaf_temperature_op(get_op(output_quantities, "leaf_temperature"))
+          leaf_temperature_op(get_op(output_quantities, "leaf_temperature")),
+          gbw_op(get_op(output_quantities, "gbw"))
     {
     }
     static string_vector get_inputs();
@@ -81,6 +84,8 @@ class c3_leaf_photosynthesis : public SteadyModule
     double const& windspeed;
     double const& height;
     double const& specific_heat_of_air;
+    double const& minimum_gbw;
+    double const& windspeed_height;
 
     // Pointers to output quantities
     double* Assim_op;
@@ -91,6 +96,7 @@ class c3_leaf_photosynthesis : public SteadyModule
     double* EPenman_op;
     double* EPriestly_op;
     double* leaf_temperature_op;
+    double* gbw_op;
 
     // Main operation
     void do_operation() const;

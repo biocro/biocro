@@ -49,14 +49,14 @@ double tempFunc(double T, double Tmin, double Topt, double Tmax);
  *  UK Land Environment Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
-class soybean_development_rate_calculator : public SteadyModule
+class soybean_development_rate_calculator : public direct_module
 {
    public:
     soybean_development_rate_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
         // Define basic module properties by passing its name to its parent class
-        : SteadyModule{"soybean_development_rate_calculator"},
+        : direct_module{"soybean_development_rate_calculator"},
 
           // Get references to input quantities
           time{get_input(input_quantities, "time")},

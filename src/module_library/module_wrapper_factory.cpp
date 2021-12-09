@@ -48,7 +48,6 @@
 #include "bucket_soil_drainage.hpp"
 #include "linear_vmax_from_leaf_n.hpp"
 #include "module_graph_test.hpp"  // Includes Module_1, Module_2, and Module_3
-#include "solar_zenith_angle.h"
 #include "shortwave_atmospheric_scattering.h"
 #include "incident_shortwave_from_ground_par.h"
 #include "leaf_shape_factor.h"
@@ -106,6 +105,9 @@
 #include "total_biomass.h"
 #include "grimm_soybean_flowering.h"
 #include "grimm_soybean_flowering_calculator.h"
+#include "solar_position_michalsky.h"
+#include "leaf_gbw_thornley.h"
+#include "leaf_gbw_nikolov.h"
 
 /**
  * @brief A function that returns a unique_ptr to a module_wrapper_base object.
@@ -180,7 +182,6 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"Module_1",                                              &create_wrapper<Module_1>},
      {"Module_2",                                              &create_wrapper<Module_2>},
      {"Module_3",                                              &create_wrapper<Module_3>},
-     {"solar_zenith_angle",                                    &create_wrapper<solar_zenith_angle>},
      {"shortwave_atmospheric_scattering",                      &create_wrapper<shortwave_atmospheric_scattering>},
      {"incident_shortwave_from_ground_par",                    &create_wrapper<incident_shortwave_from_ground_par>},
      {"leaf_shape_factor",                                     &create_wrapper<leaf_shape_factor>},
@@ -243,7 +244,10 @@ module_wrapper_factory::module_wrapper_creator_map module_wrapper_factory::modul
      {"rh_to_mole_fraction",                                   &create_wrapper<rh_to_mole_fraction>},
      {"total_biomass",                                         &create_wrapper<total_biomass>},
      {"grimm_soybean_flowering",                               &create_wrapper<grimm_soybean_flowering>},
-     {"grimm_soybean_flowering_calculator",                    &create_wrapper<grimm_soybean_flowering_calculator>}
+     {"grimm_soybean_flowering_calculator",                    &create_wrapper<grimm_soybean_flowering_calculator>},
+     {"solar_position_michalsky",                              &create_wrapper<solar_position_michalsky>},
+     {"leaf_gbw_thornley",                                     &create_wrapper<leaf_gbw_thornley>},
+     {"leaf_gbw_nikolov",                                      &create_wrapper<leaf_gbw_nikolov>}
 };
 
 string_vector module_wrapper_factory::get_modules()

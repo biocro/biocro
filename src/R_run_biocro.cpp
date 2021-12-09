@@ -13,8 +13,8 @@ SEXP R_run_biocro(
     SEXP initial_values,
     SEXP parameters,
     SEXP drivers,
-    SEXP steady_state_module_names,
-    SEXP derivative_module_names,
+    SEXP direct_module_names,
+    SEXP differential_module_names,
     SEXP solver_type,
     SEXP solver_output_step_size,
     SEXP solver_adaptive_rel_error_tol,
@@ -31,8 +31,8 @@ SEXP R_run_biocro(
             return R_NilValue;
         }
 
-        string_vector ss_names = make_vector(steady_state_module_names);
-        string_vector deriv_names = make_vector(derivative_module_names);
+        string_vector direct_names = make_vector(direct_module_names);
+        string_vector differential_names = make_vector(differential_module_names);
 
         bool loquacious = LOGICAL(VECTOR_ELT(verbose, 0))[0];
         string solver_type_string = CHAR(STRING_ELT(solver_type, 0));
@@ -41,7 +41,7 @@ SEXP R_run_biocro(
         double adaptive_abs_error_tol = REAL(solver_adaptive_abs_error_tol)[0];
         int adaptive_max_steps = (int)REAL(solver_adaptive_max_steps)[0];
 
-        biocro_simulation gro(iv, p, d, ss_names, deriv_names,
+        biocro_simulation gro(iv, p, d, direct_names, differential_names,
                               solver_type_string, output_step_size,
                               adaptive_rel_error_tol, adaptive_abs_error_tol,
                               adaptive_max_steps);

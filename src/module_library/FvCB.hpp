@@ -4,11 +4,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class FvCB : public SteadyModule {
+class FvCB : public direct_module {
 	public:
 		FvCB(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("FvCB"),
+			direct_module("FvCB"),
 			// Get pointers to input quantities
 			Ci_ip(get_ip(input_quantities, "Ci")),
 			Gstar_ip(get_ip(input_quantities, "Gstar")),

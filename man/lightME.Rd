@@ -1,9 +1,13 @@
 \name{lightME}
+
 \alias{lightME}
+
 \title{Simulates the light macro environment}
+
 \usage{
     lightME(lat = 40, DOY = 190, t.d = 12, t.sn = 12, atm.P = 1e+05, alpha = 0.85)
 }
+
 \arguments{
     \item{lat}{the latitude, default is 40 (Urbana, IL, U.S.).}
 
@@ -17,6 +21,7 @@
 
     \item{alpha}{atmospheric transmittance, default 0.85.}
 }
+
 \value{
     a \code{\link{list}} structure with components:
     \itemize{
@@ -27,28 +32,43 @@
         \item{"propIdiff"}{proportion of indirect (diffuse) radiation.}
     }
 }
+
 \description{
     Simulates light macro environment based on latitude, day of the year.
-    Other coefficients can be adjusted.
+    Other coefficients can be adjusted. Note: this type of special-purpose
+    function is now deprecated, and \code{lightME} is not included in the BioCro
+    namespace. For this reason, it must be accessed via \code{BioCro:::lightME}.
 }
+
 \details{
     The equations used here can be found in
     http://www.life.illinois.edu/plantbio/wimovac/newpage9.htm
     The original source is Monteith, 1991.
 }
+
 \examples{
 
-\dontrun{
 ## Direct and diffuse radiation for DOY 190 and hours 0 to 23
 
-res <- lightME(t.d=0:23)
+res <- BioCro:::lightME(t.d=0:23)
 
-lattice::xyplot(I.dir + I.diff ~ 0:23 , data = res, type='o',xlab='hour',ylab='Irradiance')
+lattice::xyplot(
+  I.dir + I.diff ~ 0:23,
+  data = res,
+  type = 'o',
+  xlab = 'hour',
+  ylab = 'Irradiance'
+)
 
-lattice::xyplot(propIdir + propIdiff ~ 0:23, data = res, type='o',
-                xlab='hour', ylab='Irradiance proportion')
+lattice::xyplot(
+  propIdir + propIdiff ~ 0:23,
+  data = res,
+  type='o',
+  xlab='hour',
+  ylab='Irradiance proportion'
+)
 
-plot(acos(lightME(lat = 42, t.d = 0:23)$cos.th) * (1/dtr))
+plot(acos(BioCro:::lightME(lat = 42, t.d = 0:23)$cos.th) * 180 / pi)
 }
-}
+
 \keyword{models}

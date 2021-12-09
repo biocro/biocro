@@ -4,23 +4,22 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class c3_canopy : public SteadyModule
+class c3_canopy : public direct_module
 {
    public:
     c3_canopy(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c3_canopy"),
+          direct_module("c3_canopy"),
 
           // Get references to input quantities
           lai{get_input(input_quantities, "lai")},
-          time{get_input(input_quantities, "time")},
+          cosine_zenith_angle{get_input(input_quantities, "cosine_zenith_angle")},
           solar{get_input(input_quantities, "solar")},
           temp{get_input(input_quantities, "temp")},
           rh{get_input(input_quantities, "rh")},
           windspeed{get_input(input_quantities, "windspeed")},
-          lat{get_input(input_quantities, "lat")},
           nlayers{get_input(input_quantities, "nlayers")},
           vmax{get_input(input_quantities, "vmax")},
           jmax{get_input(input_quantities, "jmax")},
@@ -52,6 +51,8 @@ class c3_canopy : public SteadyModule
           par_energy_fraction{get_input(input_quantities, "par_energy_fraction")},
           leaf_transmittance{get_input(input_quantities, "leaf_transmittance")},
           leaf_reflectance{get_input(input_quantities, "leaf_reflectance")},
+          minimum_gbw{get_input(input_quantities, "minimum_gbw")},
+          windspeed_height{get_input(input_quantities, "windspeed_height")},
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op{get_op(output_quantities, "canopy_assimilation_rate")},
@@ -65,12 +66,11 @@ class c3_canopy : public SteadyModule
    private:
     // References to input quantities
     double const& lai;
-    double const& time;
+    double const& cosine_zenith_angle;
     double const& solar;
     double const& temp;
     double const& rh;
     double const& windspeed;
-    double const& lat;
     double const& nlayers;
     double const& vmax;
     double const& jmax;
@@ -102,6 +102,8 @@ class c3_canopy : public SteadyModule
     double const& par_energy_fraction;
     double const& leaf_transmittance;
     double const& leaf_reflectance;
+    double const& minimum_gbw;
+    double const& windspeed_height;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;

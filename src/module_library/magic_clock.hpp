@@ -6,11 +6,11 @@
 #include "../modules.h"
 #include "../state_map.h"
 
-class magic_clock : public DerivModule {
+class magic_clock : public differential_module {
     public:
         magic_clock(state_map const& input_quantities, state_map* output_quantities) :
             // Define basic module properties by passing its name to its parent class
-            DerivModule("magic_clock"),
+            differential_module("magic_clock"),
             // Get pointers to input quantities
             dawn_kick_ip(get_ip(input_quantities, "dawn_kick")),
             dusk_kick_ip(get_ip(input_quantities, "dusk_kick")),

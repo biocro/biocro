@@ -12,14 +12,14 @@
  * @brief Just a module wrapper for the EvapoTrans2 function.
  * Currently only intended for use by Ed.
  */
-class ed_evapotrans2 : public SteadyModule
+class ed_evapotrans2 : public direct_module
 {
    public:
     ed_evapotrans2(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("ed_evapotrans2"),
+          direct_module("ed_evapotrans2"),
           // Get pointers to input quantities
           temperature_air_ip(get_ip(input_quantities, "temp")),
           rh_ip(get_ip(input_quantities, "rh")),
@@ -28,11 +28,13 @@ class ed_evapotrans2 : public SteadyModule
           leafwidth_ip(get_ip(input_quantities, "leafwidth")),
           specific_heat_of_air_ip(get_ip(input_quantities, "specific_heat_of_air")),
           solar_energy_absorbed_leaf_ip(get_ip(input_quantities, "solar_energy_absorbed_leaf")),
+          minimum_gbw_ip(get_ip(input_quantities, "minimum_gbw")),
           // Get pointers to output quantities
           evapotranspiration_penman_monteith_op(get_op(output_quantities, "evapotranspiration_penman_monteith")),
           evapotranspiration_penman_op(get_op(output_quantities, "evapotranspiration_penman")),
           evapotranspiration_priestly_op(get_op(output_quantities, "evapotranspiration_priestly")),
-          temperature_leaf_op(get_op(output_quantities, "temperature_leaf"))
+          temperature_leaf_op(get_op(output_quantities, "temperature_leaf")),
+          gbw_op(get_op(output_quantities, "gbw"))
 
     {
     }
@@ -48,11 +50,13 @@ class ed_evapotrans2 : public SteadyModule
     const double* leafwidth_ip;
     const double* specific_heat_of_air_ip;
     const double* solar_energy_absorbed_leaf_ip;
+    const double* minimum_gbw_ip;
     // Pointers to output quantities
     double* evapotranspiration_penman_monteith_op;
     double* evapotranspiration_penman_op;
     double* evapotranspiration_priestly_op;
     double* temperature_leaf_op;
+    double* gbw_op;
     // Main operation
     void do_operation() const override;
 };
@@ -60,13 +64,14 @@ class ed_evapotrans2 : public SteadyModule
 string_vector ed_evapotrans2::get_inputs()
 {
     return {
-        "temp",                       // deg. C
-        "rh",                         // unitless from Pa / Pa
-        "windspeed",                  // m / s
-        "conductance_stomatal_h2o",   // mol / m^2 / s
-        "leafwidth",                  // m
-        "specific_heat_of_air",       // J / kg / K
-        "solar_energy_absorbed_leaf"  // J / m^2 / s
+        "temp",                        // deg. C
+        "rh",                          // unitless from Pa / Pa
+        "windspeed",                   // m / s
+        "conductance_stomatal_h2o",    // mol / m^2 / s
+        "leafwidth",                   // m
+        "specific_heat_of_air",        // J / kg / K
+        "solar_energy_absorbed_leaf",  // J / m^2 / s
+        "minimum_gbw"                  // mol / m^2 / s
     };
 }
 
@@ -76,7 +81,8 @@ string_vector ed_evapotrans2::get_outputs()
         "evapotranspiration_penman_monteith",  // mol / m^2 / s
         "evapotranspiration_penman",           // mol / m^2 / s
         "evapotranspiration_priestly",         // mol / m^2 / s
-        "temperature_leaf"                     // mol / m^2 / s
+        "temperature_leaf",                    // degrees C
+        "gbw"                                  // mol / m^2 / s
     };
 }
 
@@ -87,12 +93,12 @@ void ed_evapotrans2::do_operation() const
     const double airTemp = *temperature_air_ip;                                     // degrees C
     const double RH = *rh_ip;                                                       // dimensionless from Pa / Pa
     const double WindSpeed = *windspeed_ip;                                         // m / s
-    const double CanopyHeight = 0.0;                                                // meters (not actually used by EvapoTrans2)
     const double stomatal_conductance = *conductance_stomatal_h2o_ip * 1e3;         // mmol / m^2 / s
     const double leaf_width = *leafwidth_ip;                                        // meter
     const double specific_heat_of_air = *specific_heat_of_air_ip;                   // J / kg / K
     const int eteq = 0;                                                             // Report Penman-Monteith transpiration
     const double absorbed_shortwave_radiation_lt = *solar_energy_absorbed_leaf_ip;  // J / m^2 / s
+    const double minimum_gbw = *minimum_gbw_ip;                                     // mol / m^2 / s
 
     // Call EvapoTrans2
     struct ET_Str et_results = EvapoTrans2(
@@ -101,10 +107,10 @@ void ed_evapotrans2::do_operation() const
         airTemp,
         RH,
         WindSpeed,
-        CanopyHeight,
         stomatal_conductance,
         leaf_width,
         specific_heat_of_air,
+        minimum_gbw,
         eteq);
 
     // Convert and return the results
@@ -112,6 +118,7 @@ void ed_evapotrans2::do_operation() const
     update(evapotranspiration_penman_op, et_results.EPenman * 1e-3);          // mol / m^2 / s
     update(evapotranspiration_priestly_op, et_results.EPriestly * 1e-3);      // mol / m^2 / s
     update(temperature_leaf_op, airTemp + et_results.Deltat);                 // deg. C
+    update(gbw_op, et_results.boundary_layer_conductance);                    // mol / m^2 / s
 }
 
 #endif

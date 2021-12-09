@@ -5,11 +5,11 @@
 #include "../state_map.h"
 #include "AuxBioCro.h"  // For soilText_str and get_soil_properties
 
-class soil_type_selector : public SteadyModule {
+class soil_type_selector : public direct_module {
 	public:
 		soil_type_selector(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("soil_type_selector"),
+			direct_module("soil_type_selector"),
 			// Get pointers to input quantities
 			soil_type_indicator_ip(get_ip(input_quantities, "soil_type_indicator")),
 			// Get pointers to output quantities

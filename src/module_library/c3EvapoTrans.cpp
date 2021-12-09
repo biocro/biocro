@@ -28,22 +28,11 @@ struct ET_Str c3EvapoTrans(
     double WindSpeed,                     // m / s
     double CanopyHeight,                  // meters
     double specific_heat_of_air,          // J / kg / K
-    double stomatal_conductance           // mmol / m^2 / s
+    double stomatal_conductance,          // mmol / m^2 / s
+    double minimum_gbw,                   // mol / m^2 / s
+    double WindSpeedHeight                // m
 )
 {
-    constexpr double kappa = 0.41;                  // dimensionless. von Karmon's constant. Thornley and Johnson pgs 414 and 416.
-    constexpr double WindSpeedHeight = 5;           // meters
-    constexpr double dCoef = 0.77;                  // dimensionless, Thornley and Johnson 1990, Eq. 14.9o. In the original text this value is reported as 0.64. In the 2000 reprinting of this text, the authors state that this value should be 0.77 (see Errata to the 2000 printing on the page after the preface of the 2000 Reprinting of the 1990 text).
-    constexpr double ZetaCoef = 0.026;              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
-    constexpr double ZetaMCoef = 0.13;              // dimensionless, Thornley and Johnson 1990, Eq. 14.9o
-    const double Zeta = ZetaCoef * CanopyHeight;    // meters
-    const double Zetam = ZetaMCoef * CanopyHeight;  // meters
-    const double d = dCoef * CanopyHeight;          // meters
-
-    if (CanopyHeight < 0.1) {
-        CanopyHeight = 0.1;
-    }
-
     const double DdryA = TempToDdryA(air_temperature);               // kg / m^3
     const double LHV = TempToLHV(air_temperature);                   // J / kg
     const double SlopeFS = TempToSFS(air_temperature);               // kg / m^3 / K
@@ -53,12 +42,13 @@ struct ET_Str c3EvapoTrans(
     // model state. (1 * R * temperature) / pressure
     constexpr double volume_of_one_mole_of_air = 24.39e-3;  // m^3 / mol
 
-    double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
+    double const minimum_gbw_in_m_per_s = minimum_gbw * volume_of_one_mole_of_air;  // m / s
 
-    /* Prevent errors due to extremely low Layer conductance. */
-    if (conductance_in_m_per_s <= 0) {
-        conductance_in_m_per_s = 0.01;
+    if (stomatal_conductance <= 0) {
+        throw std::range_error("Thrown in c3EvapoTrans: stomatal conductance is not positive.");
     }
+
+    double conductance_in_m_per_s = stomatal_conductance * 1e-3 * volume_of_one_mole_of_air;  // m / s
 
     if (RH > 1) {
         throw std::range_error("Thrown in c3EvapoTrans: RH (relative humidity) is greater than 1.");
@@ -83,17 +73,12 @@ struct ET_Str c3EvapoTrans(
     // Eq. 14.4d from Thornley and Johnson (1990).
     const double DeltaPVa = SWVC * (1 - RH);  // kg / m^3
 
-    /* AERODYNAMIC COMPONENT */
-    if (WindSpeed < 0.5) {
-        WindSpeed = 0.5;
-    }
-
     /* Calculation of ga */
-    /* According to thornley and Johnson Eq. 14.9n, pg. 416 */
-    const double ga0 = pow(kappa, 2) * WindSpeed;                   // m / s
-    const double ga1 = log((WindSpeedHeight + Zeta - d) / Zeta);    // dimensionless
-    const double ga2 = log((WindSpeedHeight + Zetam - d) / Zetam);  // dimensionless
-    const double ga = ga0 / (ga1 * ga2);                            // m / s
+    const double ga = leaf_boundary_layer_conductance_thornley(
+        CanopyHeight,
+        WindSpeed,
+        minimum_gbw_in_m_per_s,
+        WindSpeedHeight);  // m / s
 
     if (ga < 0) {
         throw std::range_error("Thrown in c3EvapoTrans: ga is less than zero.");
@@ -163,10 +148,11 @@ struct ET_Str c3EvapoTrans(
     double cf = 1e3 / physical_constants::molar_mass_of_water;  // mmol / kg for water
 
     struct ET_Str et_results;
-    et_results.TransR = TransR * cf;     // mmol / m^2 / s
-    et_results.EPenman = EPen * cf;      // mmol / m^2 / s
-    et_results.EPriestly = EPries * cf;  // mmol / m^2 / s
-    et_results.Deltat = Deltat;          // degrees C
+    et_results.TransR = TransR * cf;                                         // mmol / m^2 / s
+    et_results.EPenman = EPen * cf;                                          // mmol / m^2 / s
+    et_results.EPriestly = EPries * cf;                                      // mmol / m^2 / s
+    et_results.Deltat = Deltat;                                              // degrees C
+    et_results.boundary_layer_conductance = ga / volume_of_one_mole_of_air;  // mol / m^2 / s
 
     return et_results;
 }

@@ -12,8 +12,8 @@ test_that("c3photo is sensitive to changes in vcmax", {
         jmax = 180,
         tpu_rate_max = 23,
         Rd = 1.1,
-        bb0 = 0.08,
-        bb1 = 5,
+        b0 = 0.08,
+        b1 = 5,
         Gs_min = 1e-3,
         Catm = 380,
         atmospheric_pressure = 101325,
@@ -26,11 +26,11 @@ test_that("c3photo is sensitive to changes in vcmax", {
     )
 
     # Get net assimilation for vmax = 100 micromol / m^2 / s
-    inputs$vmax = 100
+    inputs$vmax1 = 100
     a_100 <- evaluate_module("c3_assimilation", inputs)$Assim
 
     # Get net assimilation for vmax = 10 micromol / m^2 / s
-    inputs$vmax = 10
+    inputs$vmax1 = 10
     a_10 <- evaluate_module("c3_assimilation", inputs)$Assim
 
     # The two values should be different

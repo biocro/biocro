@@ -31,12 +31,12 @@
  * - ``'Qp'`` for the incident quantum flux density of photosynthetically active radiation
  * - ``'Tleaf'`` for the leaf temperature
  * - ``'rh'`` for the atmospheric relative humidity
- * - ``'vmax'`` for the rubisco carboxylation rate at 25 degrees C
+ * - ``'vmax1'`` for the rubisco carboxylation rate at 25 degrees C
  * - ``'jmax'`` for the electron transport rate
  * - ``'tpu_rate_max'`` for the maximum triphosphate utilization rate
  * - ``'Rd'`` for the respiration rate at 25 degrees C
- * - ``'bb0'`` for the Ball-Berry intercept
- * - ``'bb1'`` for the Ball-Berry slope
+ * - ``'b0'`` for the Ball-Berry intercept
+ * - ``'b1'`` for the Ball-Berry slope
  * - ``'Gs_min'`` for the minimum stomatal conductance (only used when applying water stress via stomatal conductance)
  * - ``'Catm'`` for the atmospheric CO2 concentration
  * - ``'atmospheric_pressure'`` for the local atmospheric_pressure
@@ -53,25 +53,25 @@
  * - ``'Ci'`` for the intercellular CO2 concentration
  * - ``'GrossAssim'`` for the gross CO2 assimilation rate
  */
-class c3_assimilation : public SteadyModule
+class c3_assimilation : public direct_module
 {
    public:
     c3_assimilation(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c3_assimilation"),
+          direct_module("c3_assimilation"),
 
           // Get pointers to input quantities
           Qp(get_input(input_quantities, "Qp")),
           Tleaf(get_input(input_quantities, "Tleaf")),
           rh(get_input(input_quantities, "rh")),
-          vmax(get_input(input_quantities, "vmax")),
+          vmax1(get_input(input_quantities, "vmax1")),
           jmax(get_input(input_quantities, "jmax")),
           tpu_rate_max(get_input(input_quantities, "tpu_rate_max")),
           Rd(get_input(input_quantities, "Rd")),
-          bb0(get_input(input_quantities, "bb0")),
-          bb1(get_input(input_quantities, "bb1")),
+          b0(get_input(input_quantities, "b0")),
+          b1(get_input(input_quantities, "b1")),
           Gs_min(get_input(input_quantities, "Gs_min")),
           Catm(get_input(input_quantities, "Catm")),
           atmospheric_pressure(get_input(input_quantities, "atmospheric_pressure")),
@@ -97,12 +97,12 @@ class c3_assimilation : public SteadyModule
     double const& Qp;
     double const& Tleaf;
     double const& rh;
-    double const& vmax;
+    double const& vmax1;
     double const& jmax;
     double const& tpu_rate_max;
     double const& Rd;
-    double const& bb0;
-    double const& bb1;
+    double const& b0;
+    double const& b1;
     double const& Gs_min;
     double const& Catm;
     double const& atmospheric_pressure;
@@ -129,12 +129,12 @@ string_vector c3_assimilation::get_inputs()
         "Qp",                           // micromol / m^2 / s
         "Tleaf",                        // degrees C
         "rh",                           // dimensionless
-        "vmax",                         // micromol / m^2 / s
+        "vmax1",                        // micromol / m^2 / s
         "jmax",                         // micromol / m^2 / s
         "tpu_rate_max",                 // micromol / m^2 / s
         "Rd",                           // micromol / m^2 / s
-        "bb0",                          // mol / m^2 / s
-        "bb1",                          // dimensionless
+        "b0",                           // mol / m^2 / s
+        "b1",                           // dimensionless
         "Gs_min",                       // mol / m^2 / s
         "Catm",                         // micromol / mol
         "atmospheric_pressure",         // Pa
@@ -163,12 +163,12 @@ void c3_assimilation::do_operation() const
         Qp,
         Tleaf,
         rh,
-        vmax,
+        vmax1,
         jmax,
         tpu_rate_max,
         Rd,
-        bb0,
-        bb1,
+        b0,
+        b1,
         Gs_min,
         Catm,
         atmospheric_pressure,

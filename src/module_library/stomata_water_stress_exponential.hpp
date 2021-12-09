@@ -5,11 +5,11 @@
 #include "../state_map.h"
 #include <cmath>  // for exp
 
-class stomata_water_stress_exponential : public SteadyModule {
+class stomata_water_stress_exponential : public direct_module {
 	public:
 		stomata_water_stress_exponential(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			SteadyModule("stomata_water_stress_exponential"),
+			direct_module("stomata_water_stress_exponential"),
 			// Get pointers to input quantities
 			soil_field_capacity_ip(get_ip(input_quantities, "soil_field_capacity")),
 			soil_wilting_point_ip(get_ip(input_quantities, "soil_wilting_point")),

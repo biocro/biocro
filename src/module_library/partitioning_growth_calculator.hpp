@@ -60,14 +60,14 @@
  *  Sunflower at Various Leaf Water Potentials" Plant Physiology 46, 233–235 (1970)]
  *  (https://doi.org/10.1104/pp.46.2.233).
  */
-class partitioning_growth_calculator : public SteadyModule
+class partitioning_growth_calculator : public direct_module
 {
    public:
     partitioning_growth_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("partitioning_growth_calculator"),
+          direct_module("partitioning_growth_calculator"),
 
           // Get pointers to input quantities
           kLeaf{get_input(input_quantities, "kLeaf")},

@@ -11,11 +11,11 @@
 //  and available online from https://github.com/danielseaton/frameworkmodel
 // Values for parameters were taken from the SBML model available in the supplemental information of the 2012 paper
 
-class pokhilko_circadian_clock : public DerivModule {
+class pokhilko_circadian_clock : public differential_module {
 	public:
 		pokhilko_circadian_clock(state_map const& input_quantities, state_map* output_quantities) :
 			// Define basic module properties by passing its name to its parent class
-			DerivModule("pokhilko_circadian_clock"),
+			differential_module("pokhilko_circadian_clock"),
 			// Get pointers to input quantities
 			solar_ip(get_ip(input_quantities, "solar")),
 			LHY_mRNA_ip(get_ip(input_quantities, "LHY_mRNA")),

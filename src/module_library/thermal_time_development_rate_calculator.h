@@ -38,13 +38,13 @@
  *  Simulator.” Geoscientific Model Development 8(4): 1139–55.]
  *  (https://doi.org/10.5194/gmd-8-1139-2015)
  */
-class thermal_time_development_rate_calculator : public SteadyModule
+class thermal_time_development_rate_calculator : public direct_module
 {
    public:
     thermal_time_development_rate_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
-        : SteadyModule{"thermal_time_development_rate_calculator"},
+        : direct_module{"thermal_time_development_rate_calculator"},
 
           // Get pointers to input quantities
           time{get_input(input_quantities, "time")},

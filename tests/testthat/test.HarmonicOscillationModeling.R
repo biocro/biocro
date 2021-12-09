@@ -76,15 +76,15 @@ debug_view <- function(ob) {
 
 
 
-derivative_modules <- c("harmonic_oscillator")
-steady_state_modules <- c("harmonic_energy")
-drivers <- list(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
-default_integrator <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
+differential_modules <- c("harmonic_oscillator")
+direct_modules <- c("harmonic_energy")
+drivers <- data.frame(doy=rep(0, MAX_INDEX), hour=seq(from=0, by=1, length=MAX_INDEX))
+default_ode_solver <- list(type='auto', output_step_size=1, adaptive_rel_error_tol=1e-4, adaptive_abs_error_tol=1e-4, adaptive_max_steps=200)
 
 ## Given system parameters and initial conditions, run a simulation of harmonic
 ## motion and test that the values from the simulation match those predicted
 ## from harmonic motion equations.
-run_trial <- function(initial_position, initial_velocity, mass, spring_constant, integrator, trial_description) {
+run_trial <- function(initial_position, initial_velocity, mass, spring_constant, ode_solver, trial_description) {
     initial_values <- list(position=initial_position, velocity=initial_velocity)
     parameters <- list(mass=mass, spring_constant=spring_constant, timestep=1)
 
@@ -110,9 +110,23 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
     debug_print(list(amplitude = amplitude, phase = phase, angular_frequency = angular_frequency))
 
+    ## calculate the derivative corresponding to the initial conditions and
+    ## compare against the expected values
+    oscillator_system_derivative_fcn <- system_derivatives(
+        parameters,
+        drivers,
+        direct_modules,
+        differential_modules
+    )
+    iv <- unlist(initial_values)
+    initial_derivative <- oscillator_system_derivative_fcn(0, iv, NULL)
+    expected_position_deriv <- initial_velocity
+    expected_velocity_deriv <- -spring_constant * initial_position / mass
+    expect_equal(initial_derivative[[1]][['position']], expected_position_deriv, tolerance = expected_position_deriv * TOLERANCE_FACTOR)
+    expect_equal(initial_derivative[[1]][['velocity']], expected_velocity_deriv, tolerance = expected_velocity_deriv * TOLERANCE_FACTOR)
 
-    ## try out the integrator
-    result <- run_biocro(initial_values, parameters, drivers, steady_state_modules, derivative_modules, integrator)
+    ## try out the ode_solver
+    result <- run_biocro(initial_values, parameters, drivers, direct_modules, differential_modules, ode_solver)
 
     ## add useful columns to the resulting data frame:
     result$time <- result$time * 24 # time is in hours
@@ -151,13 +165,13 @@ run_trial <- function(initial_position, initial_velocity, mass, spring_constant,
 
 ## some special cases
 
-run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_integrator, "initial position 0, amplitude 100, and period 24")
+run_trial(initial_position = 0, initial_velocity = 26.18, mass = 14.59, spring_constant = 1, default_ode_solver, "initial position 0, amplitude 100, and period 24")
 
-run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass at rest")
+run_trial(initial_position = 0, initial_velocity = 0, mass = 100, spring_constant = 100, default_ode_solver, "a mass at rest")
 
-run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass with no initial velocity with initial positive displacement")
+run_trial(initial_position = 10, initial_velocity = 0, mass = 100, spring_constant = 100, default_ode_solver, "a mass with no initial velocity with initial positive displacement")
 
-run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_integrator, "a mass with no initial velocity and with initial negative displacement")
+run_trial(initial_position = -10, initial_velocity = 0, mass = 100, spring_constant = 100, default_ode_solver, "a mass with no initial velocity and with initial negative displacement")
 
 
 ## run a number of randomly-chosen cases
@@ -169,14 +183,14 @@ for (trial_number in seq(length=NUMBER_OF_TRIALS)) {
     mass <- runif(1, 0, 100)[1]
     spring_constant <- runif(1, 0, 100)[1]
 
-    run_trial(initial_position, initial_velocity, mass, spring_constant, default_integrator, "random parameters and initial values")
+    run_trial(initial_position, initial_velocity, mass, spring_constant, default_ode_solver, "random parameters and initial values")
 }
 
-## test each integrator method using a really weak spring (so the Euler methods still work)
-all_integrator_types <- get_all_integrators()
-for (integrator_type in all_integrator_types) {
-	integrator <- default_integrator
-	integrator$type <- integrator_type
-	description <- paste("using the ", integrator_type, " method", sep="")
-	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, integrator, description)
+## test each ode_solver method using a really weak spring (so the Euler methods still work)
+all_ode_solver_types <- get_all_ode_solvers()
+for (ode_solver_type in all_ode_solver_types) {
+	ode_solver <- default_ode_solver
+	ode_solver$type <- ode_solver_type
+	description <- paste("using the ", ode_solver_type, " method", sep="")
+	run_trial(initial_position = 1, initial_velocity = 0, mass = 1, spring_constant = 0.0001, ode_solver, description)
 }

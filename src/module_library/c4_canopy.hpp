@@ -6,14 +6,14 @@
 #include "AuxBioCro.h"  // For nitroParms and Can_Str
 #include "BioCro.h"     // For CanAC
 
-class c4_canopy : public SteadyModule
+class c4_canopy : public direct_module
 {
    public:
     c4_canopy(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("c4_canopy"),
+          direct_module("c4_canopy"),
 
           // Get pointers to input quantities
           nileafn(get_input(input_quantities, "nileafn")),
@@ -28,12 +28,11 @@ class c4_canopy : public SteadyModule
           nlnb0(get_input(input_quantities, "nlnb0")),
           nlnb1(get_input(input_quantities, "nlnb1")),
           lai(get_input(input_quantities, "lai")),
-          time(get_input(input_quantities, "time")),
+          cosine_zenith_angle(get_input(input_quantities, "cosine_zenith_angle")),
           solar(get_input(input_quantities, "solar")),
           temp(get_input(input_quantities, "temp")),
           rh(get_input(input_quantities, "rh")),
           windspeed(get_input(input_quantities, "windspeed")),
-          lat(get_input(input_quantities, "lat")),
           nlayers(get_input(input_quantities, "nlayers")),
           vmax1(get_input(input_quantities, "vmax1")),
           alpha1(get_input(input_quantities, "alpha1")),
@@ -47,7 +46,6 @@ class c4_canopy : public SteadyModule
           theta(get_input(input_quantities, "theta")),
           kd(get_input(input_quantities, "kd")),
           chil(get_input(input_quantities, "chil")),
-          heightf(get_input(input_quantities, "heightf")),
           LeafN(get_input(input_quantities, "LeafN")),
           kpLN(get_input(input_quantities, "kpLN")),
           lnfun(get_input(input_quantities, "lnfun")),
@@ -64,6 +62,7 @@ class c4_canopy : public SteadyModule
           par_energy_fraction(get_input(input_quantities, "par_energy_fraction")),
           leaf_transmittance(get_input(input_quantities, "leaf_transmittance")),
           leaf_reflectance(get_input(input_quantities, "leaf_reflectance")),
+          minimum_gbw(get_input(input_quantities, "minimum_gbw")),
 
           // Get pointers to output quantities
           canopy_assimilation_rate_op(get_op(output_quantities, "canopy_assimilation_rate")),
@@ -89,12 +88,11 @@ class c4_canopy : public SteadyModule
     double const& nlnb0;
     double const& nlnb1;
     double const& lai;
-    double const& time;
+    double const& cosine_zenith_angle;
     double const& solar;
     double const& temp;
     double const& rh;
     double const& windspeed;
-    double const& lat;
     double const& nlayers;
     double const& vmax1;
     double const& alpha1;
@@ -108,7 +106,6 @@ class c4_canopy : public SteadyModule
     double const& theta;
     double const& kd;
     double const& chil;
-    double const& heightf;
     double const& LeafN;
     double const& kpLN;
     double const& lnfun;
@@ -125,6 +122,7 @@ class c4_canopy : public SteadyModule
     double const& par_energy_fraction;
     double const& leaf_transmittance;
     double const& leaf_reflectance;
+    double const& minimum_gbw;
 
     // Pointers to output quantities
     double* canopy_assimilation_rate_op;
@@ -151,12 +149,11 @@ string_vector c4_canopy::get_inputs()
         "nlnb0",
         "nlnb1",
         "lai",
-        "time",
+        "cosine_zenith_angle",
         "solar",
         "temp",
         "rh",
         "windspeed",
-        "lat",
         "nlayers",
         "vmax1",
         "alpha1",
@@ -170,7 +167,6 @@ string_vector c4_canopy::get_inputs()
         "theta",
         "kd",
         "chil",
-        "heightf",
         "LeafN",
         "kpLN",
         "lnfun",
@@ -186,7 +182,8 @@ string_vector c4_canopy::get_inputs()
         "par_energy_content",     // J / micromol
         "par_energy_fraction",    // dimensionless
         "leaf_transmittance",     // dimensionless
-        "leaf_reflectance"        // dimensionless
+        "leaf_reflectance",       // dimensionless
+        "minimum_gbw"             // mol / m^2 / s
     };
 }
 
@@ -203,9 +200,6 @@ string_vector c4_canopy::get_outputs()
 void c4_canopy::do_operation() const
 {
     // Collect inputs and make calculations
-    int doy = floor(time);              // Round time down to get the day of year
-    double hour = 24.0 * (time - doy);  // Get the fractional part as the hour
-
     struct nitroParms nitroP;
     nitroP.ileafN = nileafn;
     nitroP.kln = nkln;
@@ -221,12 +215,12 @@ void c4_canopy::do_operation() const
 
     // CanAC is located in CanAC.cpp
     struct Can_Str can_result = CanAC(
-        lai, doy, hour, solar, temp, rh, windspeed, lat, nlayers, vmax1, alpha1,
-        kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, heightf,
-        LeafN, kpLN, lnfun, upperT, lowerT, nitroP, leafwidth,
-        et_equation, StomataWS, specific_heat_of_air, atmospheric_pressure,
-        water_stress_approach, absorptivity_par, par_energy_content,
-        par_energy_fraction, leaf_transmittance, leaf_reflectance);
+        lai, cosine_zenith_angle, solar, temp, rh, windspeed, nlayers, vmax1, alpha1,
+        kparm, beta, Rd, Catm, b0, b1, Gs_min * 1e3, theta, kd, chil, LeafN,
+        kpLN, lnfun, upperT, lowerT, nitroP, leafwidth, et_equation, StomataWS,
+        specific_heat_of_air, atmospheric_pressure, water_stress_approach,
+        absorptivity_par, par_energy_content, par_energy_fraction,
+        leaf_transmittance, leaf_reflectance, minimum_gbw);
 
     // Update the parameter list
     update(canopy_assimilation_rate_op, can_result.Assim);   // Mg / ha / hr.

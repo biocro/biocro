@@ -53,14 +53,14 @@
  *   assimilation of leaf canopies. Netherlands Journal of Agricultural Science
  *   26, 373–382 (1978)
  */
-class grimm_soybean_flowering_calculator : public SteadyModule
+class grimm_soybean_flowering_calculator : public direct_module
 {
    public:
     grimm_soybean_flowering_calculator(
         state_map const& input_quantities,
         state_map* output_quantities)
         :  // Define basic module properties by passing its name to its parent class
-          SteadyModule("grimm_soybean_flowering_calculator"),
+          direct_module("grimm_soybean_flowering_calculator"),
 
           // Get references to input quantities
           sowing_time{get_input(input_quantities, "sowing_time")},
