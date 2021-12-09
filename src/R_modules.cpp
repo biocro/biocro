@@ -12,11 +12,9 @@ extern "C" {
  *  @brief Determines vital information about a single module
  *
  *  @param [in] mw_ptr_vec A single-element vector containing one R external
- *                         pointer pointing to a module_wrapper_base object,
- *                         typically produced by the
- *                         `R_module_wrapper_pointer()` function. If the vector
- *                         has more than one element, only the first will be
- *                         used.
+ *              pointer pointing to a module_wrapper_base object, typically
+ *              produced by the `R_module_wrapper_pointer()` function. If the
+ *              vector has more than one element, only the first will be used.
  *
  *  @param [in] verbose When verbose is TRUE, print information to the R console
  *
