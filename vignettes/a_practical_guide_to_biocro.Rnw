@@ -816,41 +816,56 @@ outputs of a BioCro simulation, or published literature. Critical information
 about particular quantities, such as their meaning and units, can be obtained
 using the strategies in Section \ref{sec:basic_info}.
 
-Since we now have a complete set of inputs, we can define a function that uses a
-value of $Q$ to evaluate the photosynthesis equations with fixed values of the
-other inputs and returns a value for $A_n$. In this function, we pass the value
-of $Q$ to the module via its \texttt{Qp} input, and then extract the module's
-\texttt{Assim} output from the list returned by \texttt{evaluate\_module}:
+Since we now have a complete set of inputs, we are ready to calculate a response
+curve by varying $Q$ and recording corresponding values of $A_n$. One way to
+accomplish this goal would be to repeatedly call \texttt{evaluate\_module}
+within a \texttt{for} loop or using a function like \texttt{sapply}. However,
+since calculating a response curve is a common operation, the BioCro package
+includes a convenience function for doing so: \texttt{module\_response\_curve}.
+This function requires a module name, a list of fixed input quantities, and a
+data frame specifying the values of any input quantities that should vary. It
+returns a data frame with each of the module's inputs and outputs as columns,
+where each row represents a different set of inputs. This is a convenient format
+for plotting or saving the results, as discussed in Section
+\ref{sec:view_simulation}.
 
-<<c3_assimilation_function>>=
-light_response <- function(Q) {
-  evaluate_module(
-    'c3_assimilation',
-    within(soybean_parameters, {
-      rh = 0.7
-      Qp = Q
-      Tleaf = 27
-      StomataWS = 1
-    })
-  )$Assim
-}
-@
-
-Finally, we can define a vector of $Q$ values and plot the corresponding $A_n$
-values:
+For this example, a response curve can be calculated and viewed as follows,
+where we generate a plot caption from the information stored in the response
+curve data frame:
 
 <<c3_light_response_curve>>=
-Q <- seq(from = 0, to = 2000, length.out = 501)
-An <- sapply(Q, light_response)
+rc <- module_response_curve(
+  'c3_assimilation',
+  within(soybean_parameters, {
+    rh = 0.7
+    Tleaf = 27
+    StomataWS = 1
+  }),
+  data.frame(Qp = seq(from = 0, to = 2000, length.out = 501))
+)
+
+caption <- paste0(
+  'Soybean response curve calculated with\nTleaf = ', unique(rc$Tleaf),
+  ' degrees C and RH = ', unique(rc$rh), '\nusing the `',
+  unique(rc$module_name), '` module'
+)
+
 xyplot(
-  An ~ Q,
+  Assim ~ Qp,
+  data = rc,
   type = 'l',
   xlab = 'Incident PPFD (micromol / m^2 / s)',
   ylab = 'Net CO2 assimilation rate\n(micromol / m^2 / s)',
-  main = 'Soybean light response curve\ncalculated at 27 degrees C and 70% relative humidity',
+  main = caption,
   grid = TRUE
 )
 @
+
+\noindent (Note that since the data frame returned by
+\texttt{module\_response\_curve} includes \emph{all} of the module's outputs, we
+could also use \texttt{rc} to create plots showing how the stomatal conductance
+for water (\texttt{Gs}) or the intercellular CO$_2$ concentration (\texttt{Ci})
+respond to the incident PPFD.)
 
 From this figure, we can learn a few interesting things about the response of
 the carbon assimilation rate to the amount of incoming light. First, when the

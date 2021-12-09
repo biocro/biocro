@@ -557,6 +557,8 @@ pdf_print(rue_aq_scatter_plot, 'rue_aq_scatter_plot.pdf')
 \end{figure}
 
 \section{FvCB light curve sensitivity analysis}
+% TO DO: try using `module_response_curve` or `partial_evaluate_module` here
+% TO DO: can we reduce duplicated code for numerically calculating derivatives?
 
 Here we calculate the sensitivity of the FvCB model to various inputs known to
 influence the photosynthetic rate. To do this, we will use the
@@ -695,6 +697,8 @@ pdf_print(fvcb_light_curve_sensitivity_plot, 'fvcb_light_curve_sensitivity_plot.
 \end{figure}
 
 \section{Biomass sensitivity analysis}
+% TO DO: try using `partial_run_biocro` here
+% TO DO: can we reduce duplicated code for numerically calculating derivatives?
 
 Here we wish to use the two photosynthesis models in a full crop model and
 compare the sensitivities of the total biomass to various inputs. The approach

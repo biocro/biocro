@@ -182,7 +182,7 @@ test_plant_model <- function(test_info) {
                 test_info[['drivers']],
                 test_info[['direct_modules']],
                 test_info[['differential_modules']],
-                silent = TRUE
+                verbose = FALSE
             )
         )
     })
